@@ -2344,20 +2344,24 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     [pool_address, {"encoding": "jsonParsed"}]
                 )
                 if not data or "result" not in data or not data["result"]:
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=getAccountInfo_no_result", flush=True)
                     return None
 
                 result_data = data["result"]
                 if not isinstance(result_data, dict):
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=getAccountInfo_bad_result_type", flush=True)
                     return None
 
                 account_value = result_data.get("value", {})
                 if not account_value or not isinstance(account_value, dict):
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=getAccountInfo_no_value", flush=True)
                     return None
 
                 lamports = account_value.get("lamports", 0)
                 sol_balance = lamports / 1e9
 
             if sol_balance == 0:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=sol_balance_zero", flush=True)
                 return None
 
             # Query token accounts owned by this pool (use background RPC tier)
@@ -2366,15 +2370,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
             )
             if not data2 or "result" not in data2:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=token_accounts_no_result sol={sol_balance:.4f}", flush=True)
                 return None
 
             result_data2 = data2["result"]
             if not isinstance(result_data2, dict) or "value" not in result_data2:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=token_accounts_bad_result sol={sol_balance:.4f}", flush=True)
                 return None
 
             accounts = result_data2["value"]
             if not accounts or not isinstance(accounts, list):
                 # No token accounts for this mint in this pool - wrong pool address
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=no_token_accounts sol={sol_balance:.4f}", flush=True)
                 return None
 
             try:
@@ -2412,6 +2419,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         max_balance_account = token_account
 
                 if not max_balance_account:
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=no_parseable_token_account n_accounts={len(accounts)} sol={sol_balance:.4f}", flush=True)
                     return None
 
                 account_data = max_balance_account.get("account", {})
@@ -2431,12 +2439,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     return None
                 token_balance = float(token_amount_info.get("uiAmount", 0))
 
-            except (KeyError, ValueError, TypeError):
+            except (KeyError, ValueError, TypeError) as e:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=parse_exception err={e}", flush=True)
                 return None
 
             # HYDRATION GUARD: Require both base AND quote to be ready
             # Zero balances indicate pool data not yet synced from chain
             if token_balance <= 0 or sol_balance <= 0:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=zero_balances sol={sol_balance:.4f} token={token_balance:.0f}", flush=True)
                 return None
 
             # Calculate price
@@ -2446,6 +2456,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
             market_cap_usd = price_usd * total_supply
 
+            log_print(f"[ONCHAIN_OK] mint={token_mint[:16]} pool={pool_address[:16]} sol={sol_balance:.4f} token={token_balance:.0f} mc=${market_cap_usd:,.0f}", flush=True)
             return (price_usd, market_cap_usd)
 
         except Exception as e:
@@ -2857,86 +2868,69 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
                 cursor = conn.cursor()
-                
-                # Get previous values and creation time
+
+                # Read only what this component owns: price_highest, rug_indicator, created_at
+                # Peak MC is owned by price_service.py via token_market_cap_peaks
                 cursor.execute(
-                    "SELECT price_current, price_highest, market_cap_current, market_cap_highest, market_cap_highest_at, price_source, created_at, rug_indicator FROM token_analysis WHERE mint = ?",
+                    "SELECT price_highest, rug_indicator, created_at FROM token_analysis WHERE mint = ?",
                     (token_mint,)
                 )
                 row = cursor.fetchone()
+                price_highest = row[0] if row and row[0] else current_price
+                current_rug_indicator = row[1] if row else None
+                created_at_raw = row[2] if row else None
 
-                price_highest = row[1] if row and row[1] else current_price
-                market_cap_highest = row[3] if row and row[3] else current_market_cap
-                market_cap_highest_at = row[4] if row else None
-                created_at = row[6] if row else None
-                current_rug_indicator = row[7] if row else None
-
-                # Track if this is a new peak
-                is_new_peak = False
-                
-                # Update highest if this is higher
                 if current_price > price_highest:
                     price_highest = current_price
-                if current_market_cap > market_cap_highest:
-                    market_cap_highest = current_market_cap
-                    market_cap_highest_at = datetime.now().isoformat(sep=' ')  # Store timestamp when peak is reached
-                    is_new_peak = True
+
+                # Read authoritative peak from token_market_cap_peaks for rug detection
+                cursor.execute(
+                    "SELECT peak_market_cap, peak_market_cap_at FROM token_market_cap_peaks WHERE mint = ?",
+                    (token_mint,)
+                )
+                peak_row = cursor.fetchone()
+                prev_peak_mc = peak_row[0] if peak_row and peak_row[0] else 0
+                is_new_peak = current_market_cap > prev_peak_mc
 
                 # Auto-detect rug pulls based on timing
                 rug_indicator = current_rug_indicator
-                if is_new_peak and created_at and market_cap_highest is not None:
+                if is_new_peak and created_at_raw is not None:
                     try:
-                        # Parse created_at timestamp
-                        if isinstance(created_at, str):
-                            created_dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-                        elif isinstance(created_at, (int, float)):
-                            created_dt = datetime.utcfromtimestamp(created_at)
+                        now_ts = int(datetime.now().timestamp())
+                        # Parse created_at to unix
+                        if isinstance(created_at_raw, (int, float)):
+                            created_ts = int(created_at_raw)
                         else:
-                            created_dt = created_at
+                            created_ts = int(datetime.fromisoformat(
+                                str(created_at_raw).replace('Z', '+00:00')
+                            ).timestamp())
 
-                        # Parse peak timestamp
-                        if isinstance(market_cap_highest_at, str):
-                            peak_dt = datetime.fromisoformat(market_cap_highest_at.replace('Z', '+00:00'))
-                        elif isinstance(market_cap_highest_at, (int, float)):
-                            peak_dt = datetime.utcfromtimestamp(market_cap_highest_at)
-                        else:
-                            peak_dt = market_cap_highest_at
-                        
-                        # Calculate time to peak in minutes
-                        time_to_peak_minutes = (peak_dt - created_dt).total_seconds() / 60
-                        
-                        # RUG DETECTION LOGIC:
-                        # Peak in < 30 minutes AND peak market cap < $100k = classic rug pattern
-                        if time_to_peak_minutes < 30 and market_cap_highest < 100000:
+                        time_to_peak_minutes = (now_ts - created_ts) / 60
+
+                        if time_to_peak_minutes < 30 and current_market_cap < 100000:
                             rug_indicator = 'quick_peak_low_mc'
-                            log_print(f"[RUG] 🚨 DETECTED: {token_mint} | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${market_cap_highest:,.0f}", flush=True)
-
-                            # Get creator and add to block list
+                            log_print(f"[RUG] 🚨 DETECTED: {token_mint} | Time to peak: {time_to_peak_minutes:.1f} min | Peak MC: ${current_market_cap:,.0f}", flush=True)
                             cursor.execute("SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (token_mint,))
                             creator_row = cursor.fetchone()
                             if creator_row and creator_row[0]:
-                                # Call async method to add to blocklist (fire and forget)
                                 asyncio.create_task(self._add_rug_creator_to_blocklist(token_mint, creator_row[0]))
                         elif time_to_peak_minutes < 30:
-                            # Peaked fast but market cap was substantial - not a rug, just volatile
                             rug_indicator = None
-                            log_print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint} | Time: {time_to_peak_minutes:.1f} min | MC: ${market_cap_highest:,.0f}", flush=True)
+                            log_print(f"[PEAK] ⚡ Fast peak but legit size: {token_mint} | Time: {time_to_peak_minutes:.1f} min | MC: ${current_market_cap:,.0f}", flush=True)
                         else:
-                            # Normal progression
                             rug_indicator = None
-                            
                     except Exception as e:
                         log_print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {token_mint}: {e}", flush=True)
 
+                # Only write what this component owns — peaks are written by price_service.py
                 cursor.execute("""
                     UPDATE token_analysis
                     SET price_current = ?, price_highest = ?,
-                        market_cap_current = ?, market_cap_highest = ?,
-                        market_cap_highest_at = ?,
+                        market_cap_current = ?,
                         rug_indicator = ?,
                         price_source = ?, price_updated_at = datetime('now')
                     WHERE mint = ?
-                """, (current_price, price_highest, current_market_cap, market_cap_highest, market_cap_highest_at, rug_indicator, source, token_mint))
+                """, (current_price, price_highest, current_market_cap, rug_indicator, source, token_mint))
                 
                 conn.commit()
                 conn.close()

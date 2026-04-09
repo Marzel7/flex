@@ -35,6 +35,32 @@ except ImportError as e:
 # Database
 DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
+# Schema migration — runs at import time regardless of how the app is started
+def _ensure_schema():
+    _migrations = [
+        "ALTER TABLE token_analysis ADD COLUMN market_cap_highest_at_ts INTEGER",
+        "ALTER TABLE token_market_cap_peaks ADD COLUMN raw_peak_mc_at INTEGER",
+        """UPDATE token_analysis
+           SET market_cap_highest_at_ts = CAST(strftime('%s', market_cap_highest_at) AS INTEGER)
+           WHERE market_cap_highest_at IS NOT NULL
+             AND market_cap_highest_at_ts IS NULL
+             AND CAST(strftime('%s', market_cap_highest_at) AS INTEGER) > 1577836800""",
+        """UPDATE token_market_cap_peaks
+           SET raw_peak_mc_at = peak_market_cap_at
+           WHERE raw_peak_mc_at IS NULL AND peak_market_cap_at IS NOT NULL""",
+    ]
+    for sql in _migrations:
+        try:
+            _conn = sqlite3.connect(DB_PATH, timeout=5)
+            _conn.execute(sql)
+            _conn.commit()
+            _conn.close()
+        except Exception as _e:
+            if 'duplicate column' not in str(_e).lower():
+                print(f"[SCHEMA] note: {_e}")
+
+_ensure_schema()
+
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'), static_folder=os.path.join(PROJECT_ROOT, 'static'))
@@ -697,6 +723,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.market_cap_current,
                 ta.market_cap_highest,
                 ta.market_cap_highest_at,
+                ta.market_cap_highest_at_ts,
                 ta.rug_indicator,
                 ta.earliest_tx_creator,
                 ta.creator_is_blocked,
@@ -713,7 +740,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 tps.price_usd as snap_price_usd,
                 tps.market_cap as snap_market_cap,
                 tmp.peak_market_cap as peaks_market_cap,
-                tmp.peak_market_cap_at as peaks_market_cap_at
+                tmp.peak_market_cap_at as peaks_market_cap_at,
+                tpa.quote_liquidity as pool_quote_liquidity,
+                mc.symbol as token_symbol
             FROM token_analysis ta
             LEFT JOIN creator_networks cn
                 ON ta.earliest_tx_creator = cn.creator_address
@@ -721,6 +750,10 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ON tsc.mint = ta.mint
             LEFT JOIN token_market_cap_peaks tmp
                 ON tmp.mint = ta.mint
+            LEFT JOIN token_pool_accounts tpa
+                ON tpa.mint = ta.mint AND tpa.is_active = 1
+            LEFT JOIN metadata_cache mc
+                ON mc.mint = ta.mint
             LEFT JOIN token_price_snapshots tps
                 ON tps.snapshot_id = (
                     SELECT snapshot_id FROM token_price_snapshots
@@ -766,8 +799,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'price_current': row['snap_price_usd'] or None,
                     'price_highest': row['price_highest'] if row['price_highest'] else None,
                     'market_cap_current': row['snap_market_cap'] or None,
-                    'market_cap_highest': row['peaks_market_cap'] or row['market_cap_highest'] or None,
-                    'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
+                    'market_cap_highest': row['peaks_market_cap'] or None,
+                    'market_cap_highest_at': row['peaks_market_cap_at'] or None,
                     'rug_indicator': row['rug_indicator'],
                     'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                     'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
@@ -792,6 +825,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
                     'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
                     'snap_age': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else 99999,
+                    'pool_quote_liquidity': row['pool_quote_liquidity'] if row['pool_quote_liquidity'] is not None else None,
+                    'symbol': row['token_symbol'] or None,
                 })
             conn.close()
             return tokens
@@ -902,8 +937,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'price_current': row['snap_price_usd'] or None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
                 'market_cap_current': row['snap_market_cap'] or None,
-                'market_cap_highest': row['peaks_market_cap'] or row['market_cap_highest'] or None,
-                'market_cap_highest_at': row['market_cap_highest_at'] if row['market_cap_highest_at'] else None,
+                'market_cap_highest': row['peaks_market_cap'] or None,
+                'market_cap_highest_at': row['peaks_market_cap_at'] or None,
                 'rug_indicator': row['rug_indicator'],
                 'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
@@ -1099,6 +1134,7 @@ def get_cex_infra_label(address: str) -> Optional[str]:
         return None
     except Exception:
         return None
+
 
 
 def format_cross_references_display(cross_refs_data: Dict) -> str:
@@ -4349,11 +4385,20 @@ HTML_TEMPLATE = """
             return value.toFixed(0);
         }
 
+        function parseTs(v) {
+            if (!v) return null;
+            const n = parseFloat(v);
+            if (!isNaN(n) && (typeof v === 'number' || /^[\d.]+$/.test(String(v)))) {
+                return new Date(n * 1000); // unix seconds
+            }
+            return new Date(String(v).replace(' ', 'T').replace(/\.\d+(?=Z|$)/, '') + (String(v).endsWith('Z') ? '' : 'Z'));
+        }
+
         function getTimeToPeak(migrationTime, peakTime) {
             if (!migrationTime || !peakTime) return '';
             try {
-                const migration = new Date(migrationTime);
-                const peak = new Date(peakTime);
+                const migration = parseTs(migrationTime);
+                const peak = parseTs(peakTime);
                 const diffSeconds = (peak - migration) / 1000;
 
                 if (diffSeconds < 0) return '';
@@ -7530,6 +7575,26 @@ def api_migrated_tokens():
     return response
 
 
+@app.route('/api/price/symbol/<mint>')
+def api_price_symbol(mint: str):
+    """Return symbol/name for a mint, checking cache then triggering a background fetch."""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=3)
+        row = conn.execute(
+            "SELECT symbol, name FROM metadata_cache WHERE mint = ? AND symbol IS NOT NULL AND symbol != '' AND symbol != 'UNKNOWN'",
+            (mint,)
+        ).fetchone()
+        conn.close()
+        if row:
+            return jsonify({'symbol': row[0], 'name': row[1] or row[0]})
+        # Not cached — trigger background fetch and return empty for now
+        from src.core.pumpfun_curve_listener import _spawn_symbol_fetch
+        _spawn_symbol_fetch(mint, DB_PATH)
+        return jsonify({'symbol': None, 'name': None})
+    except Exception as e:
+        return jsonify({'symbol': None, 'name': None})
+
+
 @app.route('/api/token-metrics/<token_mint>')
 def api_token_metrics(token_mint: str):
     """Get detailed risk metrics for a specific token"""
@@ -7557,7 +7622,8 @@ def api_token_metrics(token_mint: str):
                 price_current,
                 price_highest,
                 market_cap_current,
-                market_cap_highest
+                market_cap_highest,
+                created_at
             FROM token_analysis
             WHERE mint = ?
         """, (token_mint,))
@@ -7567,6 +7633,36 @@ def api_token_metrics(token_mint: str):
         if not row:
             conn.close()
             return jsonify({'error': 'Token not found'}), 404
+
+        # Get pool liquidity
+        cursor.execute("""
+            SELECT quote_liquidity FROM token_pool_accounts
+            WHERE mint = ? AND is_active = 1
+            ORDER BY quote_liquidity DESC LIMIT 1
+        """, (token_mint,))
+        pool_liq_row = cursor.fetchone()
+        pool_quote_liquidity = pool_liq_row['quote_liquidity'] if pool_liq_row else None
+
+        # Get authoritative peak from token_market_cap_peaks
+        cursor.execute("""
+            SELECT peak_market_cap, peak_market_cap_at
+            FROM token_market_cap_peaks
+            WHERE mint = ?
+        """, (token_mint,))
+        peak_row = cursor.fetchone()
+        peak_market_cap = peak_row['peak_market_cap'] if peak_row and peak_row['peak_market_cap'] else (row['market_cap_highest'] or 0)
+        peak_market_cap_at = peak_row['peak_market_cap_at'] if peak_row and peak_row['peak_market_cap_at'] else None
+
+        # If peak is still 0 (bad write during drainer downtime), fall back to MAX from snapshots
+        if not peak_market_cap:
+            cursor.execute("""
+                SELECT MAX(market_cap) as snap_peak, created_at
+                FROM token_price_snapshots
+                WHERE mint = ? AND market_cap > 0
+            """, (token_mint,))
+            snap_row = cursor.fetchone()
+            if snap_row and snap_row['snap_peak']:
+                peak_market_cap = snap_row['snap_peak']
 
         # Get most recent price source from token_price_snapshots
         cursor.execute("""
@@ -7628,11 +7724,14 @@ def api_token_metrics(token_mint: str):
             },
             'market_cap': {
                 'current': row['market_cap_current'] if row['market_cap_current'] else 0,
-                'highest': row['market_cap_highest'] if row['market_cap_highest'] else 0
+                'highest': peak_market_cap
             },
+            'peak_at': peak_market_cap_at,
+            'created_at': row['created_at'],
             'coverage': row['coverage'] if row['coverage'] else 0,
             'first_price_latency': first_price_latency,
-            'first_price_source': first_price_source
+            'first_price_source': first_price_source,
+            'pool_quote_liquidity': pool_quote_liquidity
         })
         return response
     except Exception as e:
@@ -18258,9 +18357,35 @@ def _sync_validated_tokens_to_tracker():
         conn.close()
         if not mints:
             return
+        # Find which mints already have a symbol cached
+        conn2 = _sq.connect(DB_PATH)
+        cached_symbols = {r[0] for r in conn2.execute(
+            "SELECT mint FROM metadata_cache WHERE symbol IS NOT NULL AND symbol != '' AND symbol != 'UNKNOWN'"
+        ).fetchall()}
+        tracked_symbols = {r[0] for r in conn2.execute(
+            "SELECT mint FROM tracked_tokens WHERE symbol IS NOT NULL AND symbol != ''"
+        ).fetchall()}
+        conn2.close()
+        has_symbol = cached_symbols | tracked_symbols
+
         registry = PriceWorkerRegistry(DB_PATH)
+        from src.core.pumpfun_curve_listener import _spawn_symbol_fetch
+        needs_symbol = []
         for mint in mints:
             registry.register_token(mint, priority_level='MEDIUM')
+            if mint not in has_symbol:
+                needs_symbol.append(mint)
+
+        # Fetch symbols for tokens that don't have one yet (staggered to avoid burst)
+        import threading as _threading, time as _time
+        def _staggered_symbol_fetch(mints_list):
+            for i, m in enumerate(mints_list):
+                _time.sleep(i * 0.5)  # 500ms apart
+                _spawn_symbol_fetch(m, DB_PATH)
+        if needs_symbol:
+            _threading.Thread(target=_staggered_symbol_fetch, args=(needs_symbol,), daemon=True).start()
+            print(f"[PRICE_WORKER] Queued symbol fetch for {len(needs_symbol)} tokens without symbols")
+
         print(f"[PRICE_WORKER] Synced {len(mints)} validated tokens into tracked_tokens")
     except Exception as e:
         print(f"[WARNING] Token sync failed: {e}")

@@ -924,17 +924,17 @@ class PoolWebSocketClient:
                 except asyncio.QueueEmpty:
                     break
             try:
-                raw = await asyncio.wait_for(ws.recv(), timeout=60)
+                raw = await asyncio.wait_for(ws.recv(), timeout=1)
                 no_message_timeout = 0  # Reset on any message
                 message_count += 1
                 if message_count % 100 == 1 or message_count <= 3:  # Log first few and every 100th
                     print(f"[POOL_WS] 📨 Received message #{message_count}: {raw[:100] if len(raw) > 100 else raw}...", flush=True)
             except asyncio.TimeoutError:
-                # No message in 60s — normal if accounts aren't changing
-                # Helius accountSubscribe only sends notifications when accounts change
+                # No message in 1s — check pending subscribe queue on next iteration
                 no_message_timeout += 1
-                if no_message_timeout == 1:
+                if no_message_timeout == 60:
                     print(f"[POOL_WS] ℹ️  No account changes in 60s (normal if pools are idle)", flush=True)
+                    no_message_timeout = 0
                 continue
             self._handle_message(raw)
 

@@ -663,6 +663,7 @@ class BackgroundPriceWorker:
                 continue
             except Exception as e:
                 logger.error(f"[SNAPSHOT_DRAINER] unexpected error: {e}")
+                continue
 
     def _on_ws_reserve_update(self, mint: str, base_account: str, reserves: tuple) -> None:
         """Called by PoolWebSocketClient on every dual-reserve update.
@@ -705,6 +706,17 @@ class BackgroundPriceWorker:
             if not token_price:
                 from src.core.ws_price_tracer import trace as _wst
                 _wst('WS_PRICE_COMPUTE_FAIL', mint, f"base={base_raw} quote={quote_raw} sol={sol_price_usd}")
+                # Write live quote reserve back to pool table so UI can show "No liquidity"
+                try:
+                    _conn = sqlite3.connect(self.db_path, timeout=3)
+                    _conn.execute(
+                        "UPDATE token_pool_accounts SET quote_liquidity = ? WHERE mint = ? AND is_active = 1",
+                        (quote_raw / (10 ** pool.get("quote_decimals", 9)), mint)
+                    )
+                    _conn.commit()
+                    _conn.close()
+                except Exception:
+                    pass
                 return
 
             from src.core.ws_price_tracer import trace as _wst
@@ -1585,11 +1597,12 @@ class BackgroundPriceWorker:
                      raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(mint) DO UPDATE SET
-                    peak_market_cap      = excluded.effective_peak_mc,
-                    peak_market_cap_at   = CASE WHEN excluded.effective_peak_mc > effective_peak_mc
-                                               THEN ? ELSE peak_market_cap_at END,
-                    raw_peak_mc          = excluded.raw_peak_mc,
                     effective_peak_mc    = excluded.effective_peak_mc,
+                    peak_market_cap      = MAX(peak_market_cap, excluded.effective_peak_mc),
+                    peak_market_cap_at   = CASE WHEN excluded.effective_peak_mc > peak_market_cap
+                                                 AND (raw_peak_mc_at IS NULL OR excluded.effective_peak_mc > raw_peak_mc)
+                                               THEN ? ELSE peak_market_cap_at END,
+                    raw_peak_mc          = MAX(raw_peak_mc, excluded.raw_peak_mc),
                     candidate_peak_mc    = excluded.candidate_peak_mc,
                     candidate_peak_count = excluded.candidate_peak_count
             """, (mint, s['effective'], timestamp,
@@ -1880,53 +1893,13 @@ class BackgroundPriceWorker:
                         # Use market cap from price service (already calculated by Dexscreener/Jupiter)
                         market_cap = price.market_cap if price.market_cap else 0
 
-                        # Get current peak and creation time
+                        # Update current price only — peaks owned by price_service.py
                         cursor.execute(
-                            "SELECT market_cap_highest, market_cap_highest_at, created_at FROM token_analysis WHERE mint = ?",
-                            (mint,)
+                            """UPDATE token_analysis
+                               SET price_current = ?, market_cap_current = ?
+                               WHERE mint = ?""",
+                            (price.price_usd, market_cap, mint)
                         )
-                        row = cursor.fetchone()
-                        peak_mc = row[0] if row and row[0] else None
-                        peak_mc_at = row[1] if row and row[1] else None
-                        created_at = row[2] if row and row[2] else None
-
-                        now = datetime.now().isoformat(sep=' ')
-
-                        if market_cap > 0:
-                            # If this is first price fetch (no peak set yet), set it now
-                            if peak_mc is None and peak_mc_at is None:
-                                cursor.execute(
-                                    """UPDATE token_analysis
-                                       SET price_current = ?, market_cap_current = ?,
-                                           market_cap_highest = ?, market_cap_highest_at = ?
-                                       WHERE mint = ?""",
-                                    (price.price_usd, market_cap, market_cap, now, mint)
-                                )
-                            # Update if this is a higher market cap than previous peak
-                            elif market_cap > peak_mc:
-                                cursor.execute(
-                                    """UPDATE token_analysis
-                                       SET price_current = ?, market_cap_current = ?,
-                                           market_cap_highest = ?, market_cap_highest_at = ?
-                                       WHERE mint = ?""",
-                                    (price.price_usd, market_cap, market_cap, now, mint)
-                                )
-                            else:
-                                # Just update current price, keep existing peak
-                                cursor.execute(
-                                    """UPDATE token_analysis
-                                       SET price_current = ?, market_cap_current = ?
-                                       WHERE mint = ?""",
-                                    (price.price_usd, market_cap, mint)
-                                )
-                        else:
-                            # No price, but still update current market cap if we have it
-                            cursor.execute(
-                                """UPDATE token_analysis
-                                   SET price_current = ?, market_cap_current = ?
-                                   WHERE mint = ?""",
-                                (price.price_usd, market_cap, mint)
-                            )
 
                     conn.commit()
                     conn.close()
@@ -1987,44 +1960,14 @@ class BackgroundPriceWorker:
                 conn = sqlite3.connect(self.db_path, timeout=5)
                 cursor = conn.cursor()
 
-                # Get current peak
-                cursor.execute(
-                    "SELECT market_cap_highest, market_cap_highest_at FROM token_analysis WHERE mint = ?",
-                    (mint,)
-                )
-                row = cursor.fetchone()
-                peak_mc = row[0] if row and row[0] else None
-                peak_mc_at = row[1] if row and row[1] else None
-
-                now = datetime.now().isoformat(sep=' ')
-
+                # Update current price only — peaks owned by price_service.py
                 if market_cap > 0:
-                    if peak_mc is None:
-                        # First fetch: set peak
-                        cursor.execute(
-                            """UPDATE token_analysis
-                               SET price_current = ?, market_cap_current = ?,
-                                   market_cap_highest = ?, market_cap_highest_at = ?
-                               WHERE mint = ?""",
-                            (price.price_usd, market_cap, market_cap, now, mint)
-                        )
-                    elif market_cap > peak_mc:
-                        # New peak
-                        cursor.execute(
-                            """UPDATE token_analysis
-                               SET price_current = ?, market_cap_current = ?,
-                                   market_cap_highest = ?, market_cap_highest_at = ?
-                               WHERE mint = ?""",
-                            (price.price_usd, market_cap, market_cap, now, mint)
-                        )
-                    else:
-                        # Just update current
-                        cursor.execute(
-                            """UPDATE token_analysis
-                               SET price_current = ?, market_cap_current = ?
-                               WHERE mint = ?""",
-                            (price.price_usd, market_cap, mint)
-                        )
+                    cursor.execute(
+                        """UPDATE token_analysis
+                           SET price_current = ?, market_cap_current = ?
+                           WHERE mint = ?""",
+                        (price.price_usd, market_cap, mint)
+                    )
                 else:
                     # No valid market cap, just update price
                     cursor.execute(
@@ -2039,6 +1982,14 @@ class BackgroundPriceWorker:
 
                 # Update timestamp
                 self.registry.update_price_timestamp(mint)
+
+                # Store snapshot so peak tracking works for queue-fetched tokens
+                # Guard: skip onchain prices with no liquidity (bad pool-reserve ratio)
+                if market_cap > 1.0 and not (price.source == 'onchain' and (price.liquidity_usd or 0) < 10):
+                    try:
+                        self.price_service._store_snapshot(price)
+                    except Exception as snap_err:
+                        logger.debug(f"[ON_PRICE_FETCHED] snapshot store failed for {mint[:16]}: {snap_err}")
 
                 # Record activity for inactivity tracking (reset inactivity timer)
                 self._inactivity_manager.record_activity(mint)

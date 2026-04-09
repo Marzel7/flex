@@ -524,6 +524,32 @@ class TokenPriceService:
                     last_updated = excluded.last_updated
             """, (price.mint, int(time.time())))
 
+            # Peak write — price_service writes raw_peak_mc on every tick (immediate, unfiltered)
+            # price_worker writes effective_peak_mc (filtered/confirmed) separately
+            # peak_market_cap = MAX(raw, effective) — monotonically increasing, never decreases
+            if price.market_cap and price.market_cap > 0:
+                now_ts = int(price.timestamp) if price.timestamp else int(time.time())
+                cursor.execute("""
+                    INSERT INTO token_market_cap_peaks (mint, peak_market_cap, peak_market_cap_at, raw_peak_mc, raw_peak_mc_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        raw_peak_mc        = MAX(raw_peak_mc, excluded.raw_peak_mc),
+                        raw_peak_mc_at     = CASE WHEN excluded.raw_peak_mc > raw_peak_mc
+                                                  THEN excluded.raw_peak_mc_at
+                                                  ELSE raw_peak_mc_at END,
+                        peak_market_cap    = MAX(peak_market_cap, excluded.raw_peak_mc),
+                        peak_market_cap_at = CASE WHEN excluded.raw_peak_mc > peak_market_cap
+                                                  THEN excluded.raw_peak_mc_at
+                                                  ELSE peak_market_cap_at END
+                """, (price.mint, price.market_cap, now_ts, price.market_cap, now_ts))
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET market_cap_highest    = ?,
+                        market_cap_highest_at_ts = ?
+                    WHERE mint = ?
+                      AND (market_cap_highest IS NULL OR market_cap_highest < ?)
+                """, (price.market_cap, now_ts, price.mint, price.market_cap))
+
             conn.commit()
 
             # Periodic WAL checkpoint to prevent WAL from growing unbounded

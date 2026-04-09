@@ -2222,6 +2222,7 @@
 
                 if (tokensChanged) {
                     console.log(`[TABLE] full_rebuild reason=mint_set_changed`);
+                    window._lastTokenList = displayTokens;
                     buildTable(displayTokens);
                 } else {
                     console.log(`[TABLE] patch_only reason=same_mint_set`);
@@ -2331,6 +2332,12 @@
             );
             if (!found) {
                 console.debug(`[POLL] mint not in table: ${token.mint.substring(0,16)}...`);
+            }
+            // Sync dataset so 5s interval can update Age and Peak Timing without a rebuild
+            const row = document.querySelector(`tr[data-mint="${token.mint}"]`);
+            if (row) {
+                if (token.created_at) row.dataset.createdAt = token.created_at;
+                if (token.market_cap_highest_at) row.dataset.peakAt = token.market_cap_highest_at;
             }
         }
 
@@ -2538,10 +2545,11 @@
             const hiddenCount = columnTags.length - visibleTags.length;
             const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
             const isPin = _newPinStore.isNew(token.mint);
-            // Placeholder symbol — will be kept if already set, or fetched after render
-            const symPlaceholder = token.symbol || token.mint.slice(0, 8).toUpperCase();
+            // Placeholder symbol — use resolved cache first, then server value, then mint prefix
+            window._resolvedSymbols = window._resolvedSymbols || {};
+            const symPlaceholder = window._resolvedSymbols[token.mint] || token.symbol || token.mint.slice(0, 8).toUpperCase();
             const lastUpdated = token.snap_age != null ? Date.now() - token.snap_age * 1000 : '';
-            return `<tr class="${rowSnapClass}" data-mint="${token.mint}"${lastUpdated ? ` data-last-updated="${lastUpdated}"` : ''}>
+            return `<tr class="${rowSnapClass}" data-mint="${token.mint}"${lastUpdated ? ` data-last-updated="${lastUpdated}"` : ''} data-created-at="${token.created_at || ''}" data-peak-at="${token.market_cap_highest_at || ''}">
                 <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                     <div class="token-primary">
                         ${snapDotHtml(snapAge)}
@@ -2565,15 +2573,15 @@
                     ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                 </td>
                 <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:120px;min-width:120px;white-space:nowrap">
-                    ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
+                    ${(token.pool_quote_liquidity != null && token.pool_quote_liquidity < 12) ? `<span style="opacity:0.5;font-size:10px;color:#f59e0b" title="Pool liquidity ~${token.pool_quote_liquidity < 0.1 ? 'none' : (token.pool_quote_liquidity.toFixed(1) + ' SOL')} — below $1k">${token.pool_quote_liquidity < 0.1 ? 'No liquidity' : 'Low liquidity'}</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
                 <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; width:120px;min-width:120px;white-space:nowrap">
-                    ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity: 0.5;">...</span>'}
+                    ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : '$' + formatMarketCap(token.market_cap_highest)}
                 </td>
-                <td>
-                    ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
+                <td class="peak-timing-cell">
+                    ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '<span style="opacity:0.35;">—</span>')}
                 </td>
-                <td title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
+                <td class="age-cell" title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
                     ${timeSinceLaunch(token.created_at)}
                 </td>
             </tr>`;
@@ -2591,18 +2599,51 @@
             window._pinnedTokenCache = [..._cachedByMint.values()];
 
             const pinnedExtra = [];
+            const staleRefreshMints = [];
             Object.entries(_newPinStore.all()).forEach(([mint, pin]) => {
                 if (!tokenMints.has(mint)) {
                     const cached = _cachedByMint.get(mint);
                     if (cached) {
-                        console.log(`[NEW_TOKEN] preserved_full_row mint=${mint.slice(0,16)}… reason=missing_from_api_but_still_new`);
                         pinnedExtra.push({ ...cached, _pinned: true, _newUntil: pin.newUntil });
+                        // Refresh if either peak field is missing
+                        if (!cached.market_cap_highest || !cached.market_cap_highest_at) {
+                            staleRefreshMints.push(mint);
+                        }
                     } else {
-                        console.log(`[NEW_TOKEN] skipped_prune mint=${mint.slice(0,16)}… reason=missing_from_api_but_still_new`);
                         pinnedExtra.push({ mint, _pinned: true, _newUntil: pin.newUntil });
+                        staleRefreshMints.push(mint);
                     }
                 }
             });
+
+            // Refresh stale pinned tokens in background — update cache and re-render if peak data arrives
+            if (staleRefreshMints.length > 0) {
+                staleRefreshMints.forEach(mint => {
+                    fetch(`/api/token-metrics/${mint}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.error) return;
+                            const cached = _cachedByMint.get(mint) || { mint };
+                            window._liquidityFetched = window._liquidityFetched || new Set();
+                            window._liquidityFetched.add(mint);
+                            const resolvedPeak = data.market_cap?.highest || cached.market_cap_highest;
+                            const updated = {
+                                ...cached,
+                                market_cap_highest: resolvedPeak,
+                                market_cap_highest_at: data.peak_at || cached.market_cap_highest_at,
+                                market_cap_current: data.market_cap?.current || cached.market_cap_current,
+                                pool_quote_liquidity: data.pool_quote_liquidity ?? cached.pool_quote_liquidity,
+                                created_at: data.created_at || cached.created_at,
+                                _pinned: true,
+                            };
+                            _cachedByMint.set(mint, updated);
+                            window._pinnedTokenCache = [..._cachedByMint.values()];
+                            // Re-render so the updated peak shows immediately
+                            if (window._lastTokenList) buildTable(window._lastTokenList);
+                        })
+                        .catch(() => {});
+                });
+            }
 
             const allTokens = [...tokens, ...pinnedExtra];
 
@@ -2630,7 +2671,6 @@
             pinned.sort((a, b) => _newPinStore.pinRank(a.mint) - _newPinStore.pinRank(b.mint));
             rest.sort(normalSort);
             const sortedTokens = [...pinned, ...rest];
-            console.log(`[NEW_TOKEN] sorted pinned_count=${pinned.length} total=${sortedTokens.length}`);
             const firstRestIdx = pinned.length; // index where live tokens begin
 
             // ── Ensure table shell exists ─────────────────────────────────────
@@ -2664,7 +2704,6 @@
                 if (row) {
                     // Row exists — preserve it, log if it was a NEW-pinned survivor
                     if (_newPinStore.isNew(mint)) {
-                        console.log(`[NEW_TOKEN] preserved mint=${mint.slice(0,16)}… reason=pinned_row_survived_refresh`);
                         // Ensure badge is present
                         if (!document.getElementById(`badge-new-${mint}`)) {
                             const sym = row.querySelector('.token-symbol');
@@ -2677,6 +2716,26 @@
                         if (mcEl && token.market_cap_current) mcEl.textContent = '$' + formatMarketCap(token.market_cap_current);
                         const pkEl = document.getElementById(`peak-mc-${mint}`);
                         if (pkEl && token.market_cap_highest) pkEl.textContent = '$' + formatMarketCap(token.market_cap_highest);
+                    }
+                    // Always sync dataset attributes so the 5s interval can update Age and Peak Timing
+                    if (token.created_at) row.dataset.createdAt = token.created_at;
+                    if (token.market_cap_highest_at) row.dataset.peakAt = token.market_cap_highest_at;
+                    // Patch peak MC and timing cells on pinned rows when data is available
+                    if (token._pinned && token.market_cap_highest) {
+                        const pkEl = document.getElementById(`peak-mc-${mint}`);
+                        if (pkEl) {
+                            const cur = pkEl.textContent.trim();
+                            if (!cur || cur === '—') pkEl.innerHTML = '$' + formatMarketCap(token.market_cap_highest);
+                            if (token.market_cap_highest_at) {
+                                const timingTd = pkEl.nextElementSibling;
+                                if (timingTd) {
+                                    const cur2 = timingTd.textContent.trim();
+                                    if (!cur2 || cur2 === '—') timingTd.textContent = getTimeToPeak(token.created_at, token.market_cap_highest_at);
+                                }
+                            }
+                        }
+                    }
+                    if (!token._pinned) {
                         // Patch symbol only if server has a better value than current placeholder
                         const symEl = document.getElementById(`symbol-${mint}`);
                         if (symEl && token.symbol) {
@@ -2738,9 +2797,7 @@
 
             // Remove rows no longer in sortedTokens (and not NEW-pinned)
             existingRows.forEach((row, mint) => {
-                if (_newPinStore.isNew(mint)) {
-                    console.log(`[NEW_TOKEN] preserved mint=${mint.slice(0,16)}… reason=pinned_row_survived_refresh`);
-                } else {
+                if (!_newPinStore.isNew(mint)) {
                     row.remove();
                 }
             });
@@ -2760,18 +2817,16 @@
                 const msLeft = until - nowMs;
                 if (msLeft <= 0) {
                     _newPinStore.expire(token.mint);
-                    console.log(`[NEW_TOKEN] pruned mint=${token.mint.slice(0,16)}… reason=timeout_expired`);
                     return;
                 }
                 setTimeout(() => {
                     _newPinStore.expire(token.mint);
-                    console.log(`[NEW_TOKEN] pruned mint=${token.mint.slice(0,16)}… reason=timeout_expired`);
                     document.getElementById(`badge-new-${token.mint}`)?.remove();
                 }, msLeft);
             });
 
             // ── Symbol hydration — only for rows without a real symbol yet ────
-            sortedTokens.filter(t => !t._pinned).forEach((token, index) => {
+            sortedTokens.forEach((token, index) => {
                 const symEl = document.getElementById(`symbol-${token.mint}`);
                 // Skip if already has a real symbol (not just mint prefix)
                 const currentSym = symEl?.textContent || '';
@@ -2902,8 +2957,14 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    symbolElement.textContent = data.symbol || mint.substring(0, 8).toUpperCase();
+                    const resolved = data.symbol || mint.substring(0, 8).toUpperCase();
+                    symbolElement.textContent = resolved;
                     symbolElement.title = data.name || 'Token';
+                    // Persist into resolved cache — survives all buildTable re-renders
+                    if (data.symbol) {
+                        window._resolvedSymbols = window._resolvedSymbols || {};
+                        window._resolvedSymbols[mint] = data.symbol;
+                    }
                 } else {
                     // Fallback: show first 8 chars
                     const fallbackSymbol = mint.substring(0, 8).toUpperCase();
@@ -2985,11 +3046,8 @@
                     const pinRank = ++_rankCounter;
                     store[mint] = { newUntil, detectedAt: detectedAtMs, pinRank };
                     _save();
-                    console.log(`[NEW_TOKEN] inserted mint=${mint.slice(0,16)}… pinRank=${pinRank} newUntil=${new Date(newUntil).toISOString()}`);
                 },
-                patch(mint, source) {
-                    if (store[mint]) console.log(`[NEW_TOKEN] patched mint=${mint.slice(0,16)}… source=${source}`);
-                },
+                patch(mint, source) {},
                 isNew(mint) {
                     const e = store[mint];
                     return e && Date.now() < e.newUntil;
@@ -2998,11 +3056,7 @@
                 pinRank(mint)  { return store[mint]?.pinRank  ?? Infinity; },
                 detectedAt(mint) { return store[mint]?.detectedAt ?? 0; },
                 expire(mint) {
-                    if (store[mint]) {
-                        console.log(`[NEW_TOKEN] expired mint=${mint.slice(0,16)}…`);
-                        delete store[mint];
-                        _save();
-                    }
+                    if (store[mint]) { delete store[mint]; _save(); }
                 },
                 // Remove pins that have already expired
                 prune() {
@@ -3432,6 +3486,8 @@ function switchToTokensTab() {
 
             const tr = document.createElement('tr');
             tr.dataset.mint = mint;
+            tr.dataset.createdAt = update.created_at || '';
+            tr.dataset.peakAt = '';
             tr.classList.add('row-active-snap');
             tr.innerHTML = `
                 <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
@@ -3450,31 +3506,26 @@ function switchToTokensTab() {
                 <td></td>
                 <td id="mc-${mint}" data-price-state="waiting">—</td>
                 <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
-                <td></td>
-                <td style="font-size:11px">just now</td>
+                <td class="peak-timing-cell"></td>
+                <td class="age-cell" style="font-size:11px">just now</td>
             `;
             tbody.prepend(tr);
             _startNewAgeTicker(mint);
 
             // — Symbol hydration —
             if (!update.symbol) {
-                console.log(`[NEW_TOKEN] symbol_fetch_start mint=${mint.slice(0,16)}…`);
                 fetch(`/api/price/symbol/${mint}`)
                     .then(r => r.ok ? r.json() : null)
                     .then(data => {
                         const symEl = document.getElementById(`symbol-${mint}`);
                         if (!symEl) return;
                         const real = data?.symbol;
-                        const isMintPrefix = symEl.textContent === mint.slice(0,8).toUpperCase();
                         if (real && real !== 'UNKNOWN' && !real.startsWith(mint.slice(0,4))) {
                             symEl.textContent = real;
                             symEl.title = data.name || real;
-                            console.log(`[NEW_TOKEN] symbol_patched mint=${mint.slice(0,16)}… symbol=${real}`);
-                        } else {
-                            console.log(`[NEW_TOKEN] symbol_still_placeholder mint=${mint.slice(0,16)}…`);
                         }
                     })
-                    .catch(() => console.log(`[NEW_TOKEN] symbol_still_placeholder mint=${mint.slice(0,16)}…`));
+                    .catch(() => {});
             }
 
             // Register immediately for price tracking so worker prioritises this mint
@@ -3489,35 +3540,78 @@ function switchToTokensTab() {
                 body: JSON.stringify({mints: [mint], ttl: 60})
             }).catch(() => {});
 
+            // — Immediate token-metrics fetch: populate peak MC, creator, liquidity independently —
+            fetch(`/api/token-metrics/${mint}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (!data || data.error) return;
+                    // Update cache so next buildTable has full data
+                    window._resolvedSymbols = window._resolvedSymbols || {};
+                    window._liquidityFetched = window._liquidityFetched || new Set();
+                    window._liquidityFetched.add(mint);
+                    const existing = (window._pinnedTokenCache || []).find(t => t.mint === mint) || { mint };
+                    const updated = {
+                        ...existing,
+                        market_cap_highest: data.market_cap?.highest || existing.market_cap_highest,
+                        market_cap_highest_at: data.peak_at || existing.market_cap_highest_at,
+                        market_cap_current: data.market_cap?.current || existing.market_cap_current,
+                        pool_quote_liquidity: data.pool_quote_liquidity ?? existing.pool_quote_liquidity,
+                        created_at: data.created_at || existing.created_at,
+                        _pinned: true,
+                    };
+                    window._pinnedTokenCache = (window._pinnedTokenCache || []).map(t => t.mint === mint ? updated : t);
+                    if (!window._pinnedTokenCache.find(t => t.mint === mint)) {
+                        window._pinnedTokenCache = [...(window._pinnedTokenCache || []), updated];
+                    }
+                    // Re-render so the updated data shows immediately
+                    if (window._lastTokenList) buildTable(window._lastTokenList);
+                    // Patch MC, peak MC, timing cells directly without waiting for buildTable
+                    const mcEl = document.getElementById(`mc-${mint}`);
+                    if (mcEl) {
+                        const liq = data.pool_quote_liquidity;
+                        if (liq != null && liq < 12) {
+                            const label = liq < 0.1 ? 'No liquidity' : 'Low liquidity';
+                            const detail = liq < 0.1 ? 'none' : liq.toFixed(1) + ' SOL';
+                            mcEl.innerHTML = `<span style="opacity:0.5;font-size:10px;color:#f59e0b" title="Pool liquidity ~${detail} — below $1k">${label}</span>`;
+                        } else if (data.market_cap?.current) {
+                            mcEl.textContent = '$' + formatMarketCap(data.market_cap.current);
+                        }
+                    }
+                    const pkEl = document.getElementById(`peak-mc-${mint}`);
+                    if (pkEl && data.market_cap?.highest) {
+                        pkEl.textContent = '$' + formatMarketCap(data.market_cap.highest);
+                        pkEl.style.opacity = '';
+                    }
+                    const rowEl = pkEl?.closest('tr');
+                    if (rowEl && data.created_at) rowEl.dataset.createdAt = data.created_at;
+                    if (rowEl && data.peak_at) rowEl.dataset.peakAt = data.peak_at;
+                    const timingEl = rowEl?.querySelector('.peak-timing-cell');
+                    if (timingEl && data.peak_at && data.created_at) {
+                        const t = getTimeToPeak(data.created_at, data.peak_at);
+                        if (t) timingEl.textContent = t;
+                    }
+                })
+                .catch(() => {});
+
             // — Fallback price hydration: /full → fetch-now escalation if SSE hasn't patched —
             setTimeout(() => {
                 const mcEl = document.getElementById(`mc-${mint}`);
                 const mcText = mcEl ? mcEl.textContent.trim() : '';
                 const hasMc = mcText && mcText !== '—' && mcText !== '...' && !mcText.includes('opacity');
                 if (hasMc) return; // SSE already patched it
-                console.log(`[NEW_TOKEN] live_price_fallback_fetch mint=${mint.slice(0,16)}…`);
                 // Step 1: try cached /full
                 fetch(`/api/price/${mint}/full`)
                     .then(r => r.ok ? r.json() : null)
                     .then(data => {
                         if (data && data.price_usd && data.market_cap) {
                             patchRowByMint(mint, data.price_usd, data.market_cap, 0);
-                            console.log(`[NEW_TOKEN] fetch_now_success mint=${mint.slice(0,16)}… price=${data.price_usd} mc=${data.market_cap}`);
                             return;
                         }
                         // Step 2: cache miss — force-fetch via fetch-now
-                        console.log(`[NEW_TOKEN] fetch_now_trigger mint=${mint.slice(0,16)}…`);
                         fetch(`/api/price/${mint}/fetch-now`, { method: 'POST' })
                             .then(r => r.ok ? r.json() : null)
-                            .then(d => {
-                                if (d && d.price_usd) {
-                                    patchRowByMint(mint, d.price_usd, d.market_cap, 0);
-                                    console.log(`[NEW_TOKEN] fetch_now_success mint=${mint.slice(0,16)}… price=${d.price_usd} mc=${d.market_cap}`);
-                                } else {
-                                    console.log(`[NEW_TOKEN] fetch_now_empty mint=${mint.slice(0,16)}…`);
-                                }
-                            })
-                            .catch(() => console.log(`[NEW_TOKEN] fetch_now_empty mint=${mint.slice(0,16)}…`));
+                            .then(d => { if (d && d.price_usd) patchRowByMint(mint, d.price_usd, d.market_cap, 0); })
+                            .catch(() => {});
                     })
                     .catch(() => {});
             }, 1000);
@@ -3529,10 +3623,7 @@ function switchToTokensTab() {
             const es = new EventSource('/api/price-stream');
             let eventCount = 0;
 
-            es.onopen = () => console.log('[SSE_PRICE] open');
-
             es.onmessage = (e) => {
-                console.log('[SSE_PRICE] message', e.data?.slice?.(0, 200) || e.data);
                 const update = JSON.parse(e.data);
                 if (update.type === 'token_detected') {
                     insertDetectedTokenRow(update);
@@ -3540,7 +3631,6 @@ function switchToTokensTab() {
                     patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
                 } else if (update.type === 'pool_registered') {
                     const m = update.mint;
-                    console.log(`[SSE] Pool registered for ${m?.substring(0, 16)}... (${update.elapsed_secs}s)`);
                     if (m) {
                         _newPinStore.patch(m, 'pool_registered');
                         fetch('/api/price/batch/register', {
@@ -3556,6 +3646,8 @@ function switchToTokensTab() {
                     const m = update.mint;
                     const sym = update.symbol;
                     if (m && sym && sym !== 'UNKNOWN') {
+                        window._resolvedSymbols = window._resolvedSymbols || {};
+                        window._resolvedSymbols[m] = sym;
                         const symEl = document.getElementById(`symbol-${m}`);
                         if (symEl) {
                             symEl.textContent = sym;
@@ -3577,6 +3669,21 @@ function switchToTokensTab() {
             await loadTokens();            // await so data-mint rows exist before SSE starts
             initDashboardPriceStream();    // Start SSE price stream
             setInterval(loadTokens, 10000);
+
+            // Refresh Age and Peak Timing text without requiring a full table rebuild
+            setInterval(() => {
+                document.querySelectorAll('tr[data-mint]').forEach(row => {
+                    const createdAt = row.dataset.createdAt;
+                    const peakAt = row.dataset.peakAt;
+                    const ageEl = row.querySelector('.age-cell');
+                    if (ageEl && createdAt) ageEl.textContent = timeSinceLaunch(createdAt);
+                    const timingEl = row.querySelector('.peak-timing-cell');
+                    if (timingEl && createdAt && peakAt) {
+                        const t = getTimeToPeak(createdAt, peakAt);
+                        if (t) timingEl.textContent = t;
+                    }
+                });
+            }, 5000);
 
             // Decay price state as data ages
             setInterval(() => {

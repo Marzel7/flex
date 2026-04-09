@@ -454,6 +454,7 @@
     </style>
 
     {% block head_extra %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-theme.css') }}">
 </head>
 <body>
     {% include "partials/sidebar.html" %}

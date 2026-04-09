@@ -159,7 +159,8 @@ class SnapshotRetentionManager:
 
                 rating, rating_reason = _compute_rating(peak_mc, drawdown, recovery, category)
 
-                # Preserve peak MC before snapshots are deleted
+                # Safety net: preserve peak in token_market_cap_peaks before snapshots are deleted.
+                # token_analysis peaks are owned by price_service.py — do not write here.
                 if peak_mc and peak_mc > 0:
                     conn.execute("""
                         INSERT INTO token_market_cap_peaks (mint, peak_market_cap, peak_market_cap_at)

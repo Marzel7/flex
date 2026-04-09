@@ -37,7 +37,7 @@ DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'))
+app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'), static_folder=os.path.join(PROJECT_ROOT, 'static'))
 Compress(app)  # gzip all text/html and application/json responses automatically
 
 from flask_sock import Sock as _Sock
@@ -2853,6 +2853,11 @@ HTML_TEMPLATE = """
             </div>
 
             <h3>Pools & Vaults</h3>
+            <div id="firstPriceLatencyRow" style="margin-bottom: 12px; display: none;">
+                <span style="color: var(--text-secondary); font-size: 12px;">1st Price Latency:</span>
+                <span id="firstPriceLatencyValue" style="font-weight: bold; margin-left: 8px; font-family: monospace;"></span>
+                <span id="firstPriceSourceBadge" style="margin-left: 8px; padding: 2px 6px; border-radius: 4px; font-size: 11px;"></span>
+            </div>
             <div id="poolsSection" style="margin-bottom: 20px;">
                 <table class="cex-funders-table">
                     <thead>
@@ -4787,6 +4792,28 @@ function switchToTokensTab() {
                 }
 
                 metricsGrid.innerHTML = metricsHTML;
+
+                // Populate first-price latency
+                const latencyRow = document.getElementById('firstPriceLatencyRow');
+                const latencyVal = document.getElementById('firstPriceLatencyValue');
+                const latencyBadge = document.getElementById('firstPriceSourceBadge');
+                if (data.first_price_latency && data.first_price_latency !== 'unknown') {
+                    latencyVal.textContent = data.first_price_latency;
+                    const src = data.first_price_source || '';
+                    if (src === 'pool') {
+                        latencyBadge.textContent = 'pool';
+                        latencyBadge.style.cssText = 'margin-left:8px; padding:2px 6px; border-radius:4px; font-size:11px; background:rgba(74,222,128,0.2); color:#4ade80;';
+                    } else if (src === 'cached') {
+                        latencyBadge.textContent = 'cached';
+                        latencyBadge.style.cssText = 'margin-left:8px; padding:2px 6px; border-radius:4px; font-size:11px; background:rgba(251,146,60,0.2); color:#fda34b;';
+                    } else {
+                        latencyBadge.textContent = src;
+                        latencyBadge.style.cssText = 'margin-left:8px; padding:2px 6px; border-radius:4px; font-size:11px; background:rgba(148,163,184,0.2); color:#94a3b8;';
+                    }
+                    latencyRow.style.display = 'block';
+                } else {
+                    latencyRow.style.display = 'none';
+                }
 
                 // Populate risk section
                 const riskSection = document.getElementById('riskSection');
@@ -7561,6 +7588,21 @@ def api_token_metrics(token_mint: str):
             price_source = 'none'
         conn.close()
 
+        # Read first-price latency from launch_price.log
+        import src.core.launch_price_logger as _lpl
+        first_price_latency = None
+        first_price_source = None
+        try:
+            with open(_lpl._LOG_PATH, 'r', encoding='utf-8') as _f:
+                for _line in _f:
+                    _parts = _line.strip().split('\t')
+                    if len(_parts) >= 9 and _parts[0] == 'FIRST_PRICE' and _parts[8] == token_mint:
+                        first_price_latency = _parts[4]   # e.g. "1.9s" or "unknown"
+                        first_price_source = _parts[7]    # e.g. "pool" or "cached"
+                        break
+        except Exception:
+            pass
+
         # Format response for post-migration analysis only
         response = jsonify({
             'mint': row['mint'],
@@ -7588,7 +7630,9 @@ def api_token_metrics(token_mint: str):
                 'current': row['market_cap_current'] if row['market_cap_current'] else 0,
                 'highest': row['market_cap_highest'] if row['market_cap_highest'] else 0
             },
-            'coverage': row['coverage'] if row['coverage'] else 0
+            'coverage': row['coverage'] if row['coverage'] else 0,
+            'first_price_latency': first_price_latency,
+            'first_price_source': first_price_source
         })
         return response
     except Exception as e:

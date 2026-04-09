@@ -60,6 +60,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
+            table-layout: fixed;
         }
 
         .tokens-table thead th {
@@ -113,7 +114,7 @@
 
         /* Freshness dot */
         .snap-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; flex-shrink:0; }
-        .snap-dot-fresh  { background:#4ade80; box-shadow:0 0 5px #4ade80; }
+        .snap-dot-fresh  { background:#4ade80; }
         .snap-dot-recent { background:#fbbf24; }
         .snap-dot-grey   { background:#6b7280; opacity:0.5; }
 
@@ -122,6 +123,21 @@
 
         /* Stale row de-emphasis */
         tr.row-stale-snap td { opacity: 0.55; }
+
+        /* Pinned-NEW section separator */
+        tbody tr.row-pinned-first td { border-top: 1px solid rgba(74,222,128,0.25); }
+
+        /* Price state colours — defined in dashboard-theme.css */
+
+        /* Cell update — barely-perceptible brightness dip, fades back in 400ms */
+        .cell-updated {
+            transition: color 0.4s ease;
+            color: rgba(255,255,255,0.85) !important;
+        }
+
+        /* NEW age ticker inside badge */
+        .badge-new-age { font-weight: 400; opacity: 0.75; margin-left: 2px; }
+
 
         /* Compact first column */
         .token-primary { display: flex; align-items: center; gap: 5px; }
@@ -132,7 +148,7 @@
         .token-links a:hover { color: var(--accent-cyan); }
 
         /* Single-line tags */
-        .tags-cell     { max-width: 160px; overflow: hidden; white-space: nowrap; padding-left: 4px; }
+        .tags-cell     { max-width: 50px; overflow: hidden; white-space: nowrap; padding: 7px 4px 7px 0; }
         .tags-inner    { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; overflow: hidden; }
         .tag-overflow  { font-size: 10px; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
 
@@ -1293,6 +1309,11 @@
             </div>
 
             <h3>Pools & Vaults</h3>
+            <div id="firstPriceLatencyRow" style="margin-bottom: 12px; display: none;">
+                <span style="color: var(--text-secondary); font-size: 12px;">1st Price Latency:</span>
+                <span id="firstPriceLatencyValue" style="font-weight: bold; margin-left: 8px; font-family: monospace;"></span>
+                <span id="firstPriceSourceBadge" style="margin-left: 8px; padding: 2px 6px; border-radius: 4px; font-size: 11px;"></span>
+            </div>
             <div id="poolsSection" style="margin-bottom: 20px;">
                 <table class="cex-funders-table">
                     <thead>
@@ -2261,14 +2282,23 @@
 
             // Market cap (table has no price column — MC is the live value)
             const mcElem = document.getElementById(`mc-${mint}`);
+            const age = ageSeconds ?? 99999;
             if (mcElem && marketCap !== undefined && marketCap !== null && marketCap > 0) {
                 mcElem.textContent = '$' + formatMarketCap(marketCap);
                 mcElem.style.opacity = '';
+                // Price state
+                const state = age < 30 ? 'live' : age < 120 ? 'fallback' : 'stale';
+                mcElem.dataset.priceState = state;
+                // Momentarily shift text to normal colour, then let CSS transition it back
+                mcElem.classList.add('cell-updated');
+                setTimeout(() => mcElem.classList.remove('cell-updated'), 400);
+                row.dataset.lastUpdated = Date.now();
+            } else if (mcElem && mcElem.dataset.priceState !== 'live') {
+                mcElem.dataset.priceState = 'waiting';
             }
 
             // Freshness dot + row class
             const dot = row.querySelector('.snap-dot');
-            const age = ageSeconds ?? 99999;
             if (dot) {
                 dot.className = age < 15 ? 'snap-dot snap-dot-fresh'
                               : age < 60  ? 'snap-dot snap-dot-recent'
@@ -2283,24 +2313,9 @@
                 console.log(`${pfx} live_update mint=${mint.slice(0,16)}… mc=${marketCap != null ? '$'+formatMarketCap(marketCap) : '—'}`);
             }
 
-            // Only NEW-pinned rows may force themselves to top — non-NEW rows must not reorder
-            const tbody = row.parentElement;
+            // NEVER reorder rows on price update — position is fixed by buildTable sort
             if (_newPinStore.isNew(mint)) {
                 _newPinStore.patch(mint, 'price_update');
-                if (tbody && tbody.firstElementChild !== row) {
-                    // Only prepend if there are no NEW rows already at the very top
-                    const firstNew = tbody.querySelector('tr[data-mint]') &&
-                        _newPinStore.isNew(tbody.querySelector('tr[data-mint]').dataset.mint);
-                    if (!firstNew || _newPinStore.isNew(mint)) {
-                        tbody.prepend(row);
-                        console.log(`[NEW_TOKEN] pinned_stays_top mint=${mint.slice(0,16)}…`);
-                    }
-                }
-            } else if (age < 15) {
-                // Highlight only — no reorder
-                row.style.transition = 'background 0.3s';
-                row.style.background = 'rgba(74,222,128,0.10)';
-                setTimeout(() => { row.style.background = ''; }, 700);
             }
 
             return true;
@@ -2525,8 +2540,9 @@
             const isPin = _newPinStore.isNew(token.mint);
             // Placeholder symbol — will be kept if already set, or fetched after render
             const symPlaceholder = token.symbol || token.mint.slice(0, 8).toUpperCase();
-            return `<tr class="${rowSnapClass}" data-mint="${token.mint}">
-                <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+            const lastUpdated = token.snap_age != null ? Date.now() - token.snap_age * 1000 : '';
+            return `<tr class="${rowSnapClass}" data-mint="${token.mint}"${lastUpdated ? ` data-last-updated="${lastUpdated}"` : ''}>
+                <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                     <div class="token-primary">
                         ${snapDotHtml(snapAge)}
                         <span id="symbol-${token.mint}" class="token-symbol" title="${token.mint}">${symPlaceholder}</span>${isPin ? `<span class="badge-new" id="badge-new-${token.mint}">NEW</span>` : ''}
@@ -2548,10 +2564,10 @@
                 <td class="cluster-name">
                     ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                 </td>
-                <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
-                    ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
+                <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:120px;min-width:120px;white-space:nowrap">
+                    ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
-                <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; width:120px;min-width:120px;white-space:nowrap">
                     ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity: 0.5;">...</span>'}
                 </td>
                 <td>
@@ -2610,24 +2626,26 @@
 
             const pinned = allTokens.filter(t => _newPinStore.isNew(t.mint));
             const rest   = allTokens.filter(t => !_newPinStore.isNew(t.mint));
-            pinned.sort((a, b) => _newPinStore.newUntil(b.mint) - _newPinStore.newUntil(a.mint));
+            // Sort pinned by arrival order (pinRank, ascending) — NEVER changes after first pin
+            pinned.sort((a, b) => _newPinStore.pinRank(a.mint) - _newPinStore.pinRank(b.mint));
             rest.sort(normalSort);
             const sortedTokens = [...pinned, ...rest];
             console.log(`[NEW_TOKEN] sorted pinned_count=${pinned.length} total=${sortedTokens.length}`);
+            const firstRestIdx = pinned.length; // index where live tokens begin
 
             // ── Ensure table shell exists ─────────────────────────────────────
             let container = document.getElementById('tokens-container');
             if (!container.querySelector('table.tokens-table')) {
                 container.innerHTML = `<div class="tokens-table-wrap"><table class="tokens-table">
                     <thead><tr>
-                        <th onclick="sortBy('mint')" class="sortable"></th>
-                        <th style="max-width:160px;padding-left:4px"></th>
-                        <th onclick="sortBy('network_name')" class="sortable">Network</th>
-                        <th onclick="sortBy('cluster_name')" class="sortable">Cluster</th>
-                        <th onclick="sortBy('market_cap_current')" class="sortable">Market Cap</th>
-                        <th onclick="sortBy('market_cap_highest')" class="sortable">Peak MC</th>
-                        <th onclick="sortBy('market_cap_highest_at')" class="sortable">Peak Timing</th>
-                        <th>Age</th>
+                        <th onclick="sortBy('mint')" class="sortable" style="width:120px"></th>
+                        <th style="width:50px;padding:0"></th>
+                        <th onclick="sortBy('network_name')" class="sortable" style="width:80px">Network</th>
+                        <th onclick="sortBy('cluster_name')" class="sortable" style="width:80px">Cluster</th>
+                        <th onclick="sortBy('market_cap_current')" class="sortable" style="width:120px;min-width:120px">Market Cap</th>
+                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:120px;min-width:120px">Peak MC</th>
+                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:120px;min-width:120px">Peak Timing</th>
+                        <th style="width:70px">Age</th>
                     </tr></thead>
                     <tbody></tbody>
                 </table></div>`;
@@ -2689,7 +2707,7 @@
                         row.dataset.mint = mint;
                         row.classList.add('row-active-snap');
                         row.innerHTML = `
-                            <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+                            <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                                 <div class="token-primary">
                                     <span class="snap-dot snap-dot-grey"></span>
                                     <span id="symbol-${mint}" class="token-symbol" title="${mint}">${mint.slice(0,8).toUpperCase()}</span>
@@ -2700,7 +2718,7 @@
                                 </div>
                             </td>
                             <td></td><td></td><td></td>
-                            <td id="mc-${mint}" style="opacity:0.4">—</td>
+                            <td id="mc-${mint}" data-price-state="waiting">—</td>
                             <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
                             <td></td><td style="font-size:11px">just now</td>`;
                     } else {
@@ -2726,6 +2744,14 @@
                     row.remove();
                 }
             });
+
+            // Add separator class to first live (non-pinned) row
+            tbody.querySelectorAll('tr[data-mint]').forEach((r, i) => {
+                r.classList.toggle('row-pinned-first', i === firstRestIdx && firstRestIdx > 0);
+            });
+
+            // ── Start age tickers for pinned tokens ───────────────────────────
+            pinned.forEach(token => _startNewAgeTicker(token.mint));
 
             // ── Schedule expiry timers ────────────────────────────────────────
             sortedTokens.forEach(token => {
@@ -2944,14 +2970,22 @@
         const _newPinStore = (() => {
             const KEY = 'flex_new_pins';
             let store = {};
-            try { store = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch (_) {}
+            let _rankCounter = 0;
+            try {
+                const raw = JSON.parse(sessionStorage.getItem(KEY) || '{}');
+                store = raw;
+                // Restore counter from highest saved rank
+                _rankCounter = Math.max(0, ...Object.values(store).map(e => e.pinRank ?? 0));
+            } catch (_) {}
             function _save() { try { sessionStorage.setItem(KEY, JSON.stringify(store)); } catch (_) {} }
             return {
                 pin(mint, detectedAtMs) {
+                    if (store[mint]) return; // already pinned — never re-assign rank
                     const newUntil = detectedAtMs + NEW_TOKEN_TIMEOUT_MS;
-                    store[mint] = { newUntil, detectedAt: detectedAtMs };
+                    const pinRank = ++_rankCounter;
+                    store[mint] = { newUntil, detectedAt: detectedAtMs, pinRank };
                     _save();
-                    console.log(`[NEW_TOKEN] inserted mint=${mint.slice(0,16)}… newUntil=${new Date(newUntil).toISOString()}`);
+                    console.log(`[NEW_TOKEN] inserted mint=${mint.slice(0,16)}… pinRank=${pinRank} newUntil=${new Date(newUntil).toISOString()}`);
                 },
                 patch(mint, source) {
                     if (store[mint]) console.log(`[NEW_TOKEN] patched mint=${mint.slice(0,16)}… source=${source}`);
@@ -2961,6 +2995,8 @@
                     return e && Date.now() < e.newUntil;
                 },
                 newUntil(mint) { return store[mint]?.newUntil ?? 0; },
+                pinRank(mint)  { return store[mint]?.pinRank  ?? Infinity; },
+                detectedAt(mint) { return store[mint]?.detectedAt ?? 0; },
                 expire(mint) {
                     if (store[mint]) {
                         console.log(`[NEW_TOKEN] expired mint=${mint.slice(0,16)}…`);
@@ -3029,9 +3065,9 @@
         function formatMarketCap(value) {
             if (!value) return '-';
             if (value >= 1000000) {
-                return (value / 1000000).toFixed(2) + 'M';
+                return (value / 1000000).toFixed(1) + 'M';
             } else if (value >= 1000) {
-                return (value / 1000).toFixed(2) + 'K';
+                return (value / 1000).toFixed(1) + 'K';
             }
             return value.toFixed(0);
         }
@@ -3326,6 +3362,25 @@ function switchToTokensTab() {
             }
         }
 
+        // Age ticker — updates "NEW · {N}s" inside badge every second until pin expires
+        const _ageTimers = {};
+        function _startNewAgeTicker(mint) {
+            if (_ageTimers[mint]) return; // already running
+            const detectedAt = _newPinStore.detectedAt(mint) || Date.now();
+            function tick() {
+                const badge = document.getElementById(`badge-new-${mint}`);
+                if (!badge || !_newPinStore.isNew(mint)) {
+                    clearInterval(_ageTimers[mint]);
+                    delete _ageTimers[mint];
+                    return;
+                }
+                const secs = Math.floor((Date.now() - detectedAt) / 1000);
+                badge.innerHTML = `NEW<span class="badge-new-age">·${secs}s</span>`;
+            }
+            tick();
+            _ageTimers[mint] = setInterval(tick, 1000);
+        }
+
         // Insert a placeholder row immediately on token_detected SSE event.
         // Subsequent price_update / pool_registered events patch the same row via patchRowByMint.
         function insertDetectedTokenRow(update) {
@@ -3353,7 +3408,7 @@ function switchToTokensTab() {
             // If row already exists (token was loaded by poll before SSE arrived), just patch badge
             if (document.querySelector(`tr[data-mint="${mint}"]`)) {
                 _newPinStore.patch(mint, 'token_detected');
-                // Ensure badge is present and row is at top
+                // Ensure badge is present — do NOT move the row (buildTable owns position)
                 const existingRow = document.querySelector(`tr[data-mint="${mint}"]`);
                 if (existingRow && !document.getElementById(`badge-new-${mint}`)) {
                     const sym = existingRow.querySelector('.token-symbol');
@@ -3365,10 +3420,7 @@ function switchToTokensTab() {
                         sym.after(badge);
                     }
                 }
-                if (existingRow) {
-                    const tbody = existingRow.parentElement;
-                    if (tbody && tbody.firstElementChild !== existingRow) tbody.prepend(existingRow);
-                }
+                _startNewAgeTicker(mint);
                 return;
             }
 
@@ -3381,9 +3433,8 @@ function switchToTokensTab() {
             const tr = document.createElement('tr');
             tr.dataset.mint = mint;
             tr.classList.add('row-active-snap');
-            tr.style.background = 'rgba(74,222,128,0.10)';
             tr.innerHTML = `
-                <td class="mint-with-creator" style="min-width:130px;max-width:200px">
+                <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                     <div class="token-primary">
                         <span class="snap-dot snap-dot-fresh"></span>
                         <span id="symbol-${mint}" class="token-symbol" title="${mint}">${symbol}</span>
@@ -3397,13 +3448,13 @@ function switchToTokensTab() {
                 <td></td>
                 <td></td>
                 <td></td>
-                <td id="mc-${mint}" style="opacity:0.4">—</td>
+                <td id="mc-${mint}" data-price-state="waiting">—</td>
                 <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
                 <td></td>
                 <td style="font-size:11px">just now</td>
             `;
             tbody.prepend(tr);
-            setTimeout(() => { tr.style.background = ''; }, 1500);
+            _startNewAgeTicker(mint);
 
             // — Symbol hydration —
             if (!update.symbol) {
@@ -3526,6 +3577,21 @@ function switchToTokensTab() {
             await loadTokens();            // await so data-mint rows exist before SSE starts
             initDashboardPriceStream();    // Start SSE price stream
             setInterval(loadTokens, 10000);
+
+            // Decay price state as data ages
+            setInterval(() => {
+                document.querySelectorAll('tr[data-last-updated]').forEach(row => {
+                    const ts = parseInt(row.dataset.lastUpdated, 10);
+                    if (!ts) return;
+                    const diff = (Date.now() - ts) / 1000;
+                    const mint = row.dataset.mint;
+                    const mcEl = document.getElementById(`mc-${mint}`);
+                    if (!mcEl) return;
+                    const state = diff < 30 ? 'live' : diff < 120 ? 'fallback' : 'stale';
+                    mcEl.dataset.priceState = state;
+                });
+            }, 5000);
+
         })();
 
         // Metrics Modal Functions
@@ -3636,6 +3702,28 @@ function switchToTokensTab() {
                 }
 
                 metricsGrid.innerHTML = metricsHTML;
+
+                // Populate first-price latency
+                const latencyRow = document.getElementById('firstPriceLatencyRow');
+                const latencyVal = document.getElementById('firstPriceLatencyValue');
+                const latencyBadge = document.getElementById('firstPriceSourceBadge');
+                if (data.first_price_latency && data.first_price_latency !== 'unknown') {
+                    latencyVal.textContent = data.first_price_latency;
+                    const src = data.first_price_source || '';
+                    if (src === 'pool') {
+                        latencyBadge.textContent = 'pool';
+                        latencyBadge.style.cssText = 'margin-left:8px; padding:2px 6px; border-radius:4px; font-size:11px; background:rgba(74,222,128,0.2); color:#4ade80;';
+                    } else if (src === 'cached') {
+                        latencyBadge.textContent = 'cached';
+                        latencyBadge.style.cssText = 'margin-left:8px; padding:2px 6px; border-radius:4px; font-size:11px; background:rgba(251,146,60,0.2); color:#fda34b;';
+                    } else {
+                        latencyBadge.textContent = src;
+                        latencyBadge.style.cssText = 'margin-left:8px; padding:2px 6px; border-radius:4px; font-size:11px; background:rgba(148,163,184,0.2); color:#94a3b8;';
+                    }
+                    latencyRow.style.display = 'block';
+                } else {
+                    latencyRow.style.display = 'none';
+                }
 
                 // Populate risk section
                 const riskSection = document.getElementById('riskSection');

@@ -106,8 +106,8 @@
         .tokens-table td.peak-timing-cell,
         .tokens-table td.age-cell,
         .tokens-table th:nth-child(n+5) {
-            padding-left: 6px;
-            padding-right: 6px;
+            padding-left: 4px;
+            padding-right: 4px;
         }
         .tokens-table td[id^="mc-"],
         .tokens-table td[id^="peak-mc-"],
@@ -143,7 +143,7 @@
         /* Cell update — subtle professional pulse, not a flash */
         .cell-updated {
             transition: color 0.45s ease, background-color 0.45s ease;
-            background-color: rgba(148, 163, 184, 0.08);
+            background-color: rgba(148, 163, 184, 0.03);
         }
 
         /* NEW age ticker inside badge */
@@ -384,11 +384,11 @@
             border: 1px solid rgba(255,255,255,0.1);
             background: rgba(255,255,255,0.05);
             color: var(--text-secondary);
-            opacity: 0.8;
+            opacity: 1;
         }
-        .tag-network  { color: var(--text-secondary); border-color: rgba(6,182,212,0.2); }
-        .tag-funding  { color: var(--text-secondary); border-color: rgba(6,182,212,0.2); }
-        .tag-repeat   { color: var(--text-secondary); border-color: rgba(255,255,255,0.1); }
+        .tag-network  { color: #06b6d4; border-color: rgba(6,182,212,0.35); background: rgba(6,182,212,0.08); }
+        .tag-funding  { color: #06b6d4; border-color: rgba(6,182,212,0.35); background: rgba(6,182,212,0.08); }
+        .tag-repeat   { color: #06b6d4; border-color: rgba(6,182,212,0.35); background: rgba(6,182,212,0.08); }
         .tag-blocked  { color: rgba(239,68,68,0.8); border-color: rgba(239,68,68,0.3); font-weight: 700; opacity: 1; }
 
         /* Creator infrastructure tags container */
@@ -1229,8 +1229,19 @@
             </div>
         </div>
 
-        <div id="tokens-container">
-            <div class="loading">Loading...</div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+            <!-- Main token list -->
+            <div id="tokens-container" style="flex:1;min-width:0">
+                <div class="loading">Loading...</div>
+            </div>
+
+            <!-- Right panel -->
+            <div id="right-panel" style="width:250px;flex-shrink:0;align-self:stretch">
+                <div class="tokens-table-wrap" style="height:100%;box-sizing:border-box;display:flex;flex-direction:column">
+                    <div style="background:rgba(0,0,0,0.3);border-bottom:1px solid var(--border-color);padding:8px 10px;flex-shrink:0;font-size:11px;line-height:1.2;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#8b949e;white-space:nowrap;text-align:center">Future Bound</div>
+                    <div style="flex:1"></div>
+                </div>
+            </div>
         </div>
 
         <!-- CEX Funders View -->
@@ -2268,6 +2279,10 @@
                 console.debug(`[PATCH] row not found for mint ${mint.substring(0,16)}...`);
                 return false;
             }
+            const known = _getBestKnownToken(mint);
+            if (known.is_new) {
+                return true;
+            }
 
             // Market cap (table has no price column — MC is the live value)
             const mcElem = document.getElementById(`mc-${mint}`);
@@ -2538,7 +2553,7 @@
             const hiddenCount = columnTags.length - visibleTags.length;
             const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
             const isPin = _newPinStore.isNew(token.mint);
-            const peakTimingDisplay = formatPeakTimeSeconds(token.peak_time_seconds) || (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '');
+            const peakTimingDisplay = token.is_new ? '' : (formatPeakTimeSeconds(token.peak_time_seconds) || (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''));
             // Placeholder symbol — prefer resolved symbol, then server symbol, then token name, then mint prefix
             window._resolvedSymbols = window._resolvedSymbols || {};
             const symPlaceholder = _getDisplayLabel(token.mint, token);
@@ -2565,14 +2580,14 @@
                 <td class="cluster-name">
                     ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                 </td>
-                <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:90px;min-width:90px;white-space:nowrap">
+                <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:68px;min-width:68px;white-space:nowrap">
                     ${token.liquidity_removed ? `<span class="rug-badge" title="Liquidity removed${token.liquidity_removed_at ? ' · ' + timeSinceLaunch(token.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
-                <td id="peak-mc-${token.mint}" title="Recorded peak market cap. May exclude brief unconfirmed spikes." style="transition: color 0.2s ease; width:80px;min-width:80px;white-space:nowrap">
-                    ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : '$' + formatMarketCap(token.market_cap_highest)}
-                </td>
-                <td style="width:44px;min-width:44px;white-space:nowrap">
+                <td style="width:28px;min-width:28px;padding-left:2px;padding-right:2px;white-space:nowrap">
                     ${token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>'}
+                </td>
+                <td id="peak-mc-${token.mint}" title="Recorded peak market cap. May exclude brief unconfirmed spikes." style="transition: color 0.2s ease; width:66px;min-width:66px;white-space:nowrap">
+                    ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : '$' + formatMarketCap(token.market_cap_highest)}
                 </td>
                 <td class="peak-timing-cell" title="Time from launch to the same recorded peak shown in the Peak MC column.">
                     ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : (peakTimingDisplay || '<span style="opacity:0.35;">—</span>')}
@@ -2663,11 +2678,11 @@
                         <th style="width:50px;padding:0"></th>
                         <th onclick="sortBy('network_name')" class="sortable" style="width:80px">Network</th>
                         <th onclick="sortBy('cluster_name')" class="sortable" style="width:80px">Cluster</th>
-                        <th onclick="sortBy('market_cap_current')" class="sortable" style="width:90px;min-width:90px">Market Cap</th>
-                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:80px;min-width:80px" title="Recorded peak market cap. Brief unconfirmed spikes may be excluded.">Peak MC*</th>
-                        <th style="width:44px;min-width:44px" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)">G</th>
-                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:90px;min-width:90px" title="Time from launch to the recorded peak shown in Peak MC*.">Peak Timing*</th>
-                        <th style="width:60px">Age</th>
+                        <th onclick="sortBy('market_cap_current')" class="sortable" style="width:68px;min-width:68px">Market Cap</th>
+                        <th style="width:28px;min-width:28px;padding-left:2px;padding-right:2px" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)"></th>
+                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:66px;min-width:66px" title="Recorded peak market cap. Brief unconfirmed spikes may be excluded.">Peak MC*</th>
+                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:76px;min-width:76px" title="Time from launch to the recorded peak shown in Peak MC*.">Peak Timing*</th>
+                        <th style="width:48px">Age</th>
                     </tr></thead>
                     <tbody></tbody>
                 </table></div>`;
@@ -2695,9 +2710,13 @@
                     // Patch MC/peak from server data if available (don't overwrite live SSE patches or RUG badge)
                     if (!token._pinned) {
                         const mcEl = document.getElementById(`mc-${mint}`);
-                        if (mcEl && token.market_cap_current && !mcEl.querySelector('.rug-badge')) mcEl.textContent = '$' + formatMarketCap(token.market_cap_current);
+                        if (mcEl && !mcEl.querySelector('.rug-badge')) mcEl.innerHTML = token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>';
                         const pkEl = document.getElementById(`peak-mc-${mint}`);
-                        if (pkEl && token.market_cap_highest) pkEl.textContent = '$' + formatMarketCap(token.market_cap_highest);
+                        if (pkEl) pkEl.innerHTML = token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity:0.35;">—</span>';
+                        const gEl = pkEl ? pkEl.nextElementSibling : null;
+                        if (gEl) gEl.innerHTML = token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>';
+                        const timingTd = gEl ? gEl.nextElementSibling : null;
+                        if (timingTd) timingTd.textContent = token.is_new ? '—' : (formatPeakTimeSeconds(token.peak_time_seconds) || (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '') || '—');
                     }
                     // Always sync dataset attributes so the 5s interval can update Age and Peak Timing
                     if (token.created_at) row.dataset.createdAt = token.created_at;
@@ -2740,6 +2759,9 @@
                             symEl.textContent = String(token.name);
                             symEl.title = token.name;
                         }
+                    } else if (symEl && token.is_new && _isFallbackDisplayText(mint, symEl.textContent)) {
+                        symEl.textContent = 'Loading...';
+                        symEl.title = token.name || token.symbol || mint;
                     }
                     // Patch Creator link if missing and creator is now known
                     if (token.creator) {
@@ -2773,6 +2795,7 @@
                             </td>
                             <td></td><td></td><td></td>
                             <td id="mc-${mint}" data-price-state="waiting">—</td>
+                            <td></td>
                             <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
                             <td></td><td style="font-size:11px">just now</td>`;
                     } else {
@@ -3423,15 +3446,25 @@ function switchToTokensTab() {
             if (_hasRealSymbol(mint, token.symbol)) return token.symbol;
             const name = String(token.name || '').trim();
             if (name) return name;
+            if (token.is_new) return 'Loading...';
             return mint;
         }
 
         function _normalizeMarketCaps(existing = {}, incoming = {}) {
+            const isNew = incoming.is_new ?? existing.is_new ?? false;
             const pickCurrent = incoming.market_cap_current ?? existing.market_cap_current ?? null;
             const pickPeak = Math.max(
                 Number(existing.market_cap_highest || 0),
                 Number(incoming.market_cap_highest || 0),
             ) || null;
+            if (isNew) {
+                return {
+                    market_cap_current: null,
+                    market_cap_highest: null,
+                    market_cap_highest_at: null,
+                    peak_time_seconds: null,
+                };
+            }
             return {
                 market_cap_current: pickCurrent,
                 market_cap_highest: pickPeak,
@@ -3557,6 +3590,7 @@ function switchToTokensTab() {
 
         function _mergeHydratedData(mint, existing = {}, incoming = {}) {
             const merged = { ...existing, ...incoming };
+            merged.is_new = incoming.is_new ?? existing.is_new ?? false;
             const nextSymbol = incoming.symbol;
             if (_hasRealSymbol(mint, nextSymbol)) {
                 merged.symbol = nextSymbol;
@@ -3621,7 +3655,7 @@ function switchToTokensTab() {
             const createdAt = patch.created_at || row.dataset.createdAt;
             const peakAt = patch.peak_at || patch.market_cap_highest_at || row.dataset.peakAt;
             if (timingEl) {
-                const timing = formatPeakTimeSeconds(patch.peak_time_seconds) || (createdAt && peakAt ? getTimeToPeak(createdAt, peakAt) : '');
+                const timing = patch.is_new ? '' : (formatPeakTimeSeconds(patch.peak_time_seconds) || (createdAt && peakAt ? getTimeToPeak(createdAt, peakAt) : ''));
                 timingEl.textContent = timing || '—';
             }
         }
@@ -3704,6 +3738,7 @@ function switchToTokensTab() {
                     const existing = _getBestKnownToken(mint, token);
                     const merged = _mergeHydratedData(mint, existing, {
                         ...data,
+                        is_new: data.is_new ?? existing.is_new,
                         creator: data.creator || existing.creator,
                         symbol: _hasRealSymbol(mint, data.symbol) ? data.symbol : existing.symbol,
                         name: data.name || existing.name,
@@ -3826,8 +3861,8 @@ function switchToTokensTab() {
                     symEl.title = data.name;
                 }
             } else if (symEl && _isFallbackDisplayText(mint, symEl.textContent)) {
-                symEl.textContent = mint;
-                symEl.title = mint;
+                symEl.textContent = data.is_new ? 'Loading...' : mint;
+                symEl.title = data.name || data.symbol || mint;
             }
 
             // Creator button
@@ -3849,13 +3884,17 @@ function switchToTokensTab() {
             if (mcEl) {
                 if (data.liquidity_removed && !mcEl.querySelector('.rug-badge')) {
                     mcEl.innerHTML = `<span class="rug-badge" title="Liquidity removed${data.liquidity_removed_at ? ' · ' + timeSinceLaunch(data.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>`;
-                } else if ((data.market_cap?.current || data.market_cap_current) && !mcEl.querySelector('.rug-badge')) {
+                } else if (!data.is_new && (data.market_cap?.current || data.market_cap_current) && !mcEl.querySelector('.rug-badge')) {
                     mcEl.textContent = '$' + formatMarketCap(data.market_cap?.current ?? data.market_cap_current);
+                } else if (!mcEl.querySelector('.rug-badge')) {
+                    mcEl.innerHTML = '<span style="opacity: 0.5;">—</span>';
                 }
             }
             const pkEl = document.getElementById(`peak-mc-${mint}`);
-            if (pkEl && (data.market_cap?.highest || data.market_cap_highest)) {
+            if (pkEl && !data.is_new && (data.market_cap?.highest || data.market_cap_highest)) {
                 pkEl.textContent = '$' + formatMarketCap(data.market_cap?.highest ?? data.market_cap_highest);
+            } else if (pkEl) {
+                pkEl.innerHTML = '<span style="opacity:0.35;">—</span>';
             }
         }
 
@@ -3905,7 +3944,7 @@ function switchToTokensTab() {
             const tbody = document.querySelector('#tokens-container tbody');
             if (!tbody) return;
 
-            const symbol = _getDisplayLabel(mint, update);
+            const symbol = _getDisplayLabel(mint, { ...update, is_new: true });
             const creator = update.creator || '';
 
             const tr = document.createElement('tr');
@@ -3928,6 +3967,7 @@ function switchToTokensTab() {
                 <td></td>
                 <td></td>
                 <td id="mc-${mint}" data-price-state="waiting">—</td>
+                <td style="width:28px;min-width:28px;padding-left:2px;padding-right:2px;white-space:nowrap"><span style="opacity:0.25;font-size:11px">—</span></td>
                 <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
                 <td class="peak-timing-cell"></td>
                 <td class="age-cell" style="font-size:11px">just now</td>
@@ -4076,6 +4116,7 @@ function switchToTokensTab() {
                         <div style="font-size:18px;font-weight:700;color:var(--accent-cyan);${style}">${val}</div>
                         <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px">${label}</div>
                     </div>`).join('');
+
 
             } catch (e) {
                 document.getElementById('ti-summary-stats').innerHTML =

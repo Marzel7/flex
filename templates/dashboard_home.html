@@ -122,34 +122,28 @@
         .tokens-table tbody tr {
             border-bottom: 1px solid rgba(255,255,255,0.03);
             cursor: default;
-            transition: background 0.1s;
+            transition: background 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
         }
 
         .tokens-table tbody tr:hover {
-            background: rgba(255,255,255,0.04);
+            background: rgba(255,255,255,0.025);
         }
 
-        /* Freshness dot */
-        .snap-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; flex-shrink:0; }
-        .snap-dot-fresh  { background:#4ade80; }
-        .snap-dot-recent { background:#fbbf24; }
-        .snap-dot-grey   { background:#6b7280; opacity:0.5; }
-
         /* Active row subtle highlight */
-        tr.row-active-snap { background: rgba(74, 222, 128, 0.04); }
+        tr.row-active-snap { background: rgba(148, 163, 184, 0.04); }
 
         /* Stale row de-emphasis */
-        tr.row-stale-snap td { opacity: 0.55; }
+        tr.row-stale-snap td { opacity: 0.82; }
 
         /* Pinned-NEW section separator */
-        tbody tr.row-pinned-first td { border-top: 1px solid rgba(74,222,128,0.25); }
+        tbody tr.row-pinned-first td { border-top: 1px solid rgba(148,163,184,0.18); }
 
         /* Price state colours — defined in dashboard-theme.css */
 
-        /* Cell update — barely-perceptible brightness dip, fades back in 400ms */
+        /* Cell update — subtle professional pulse, not a flash */
         .cell-updated {
-            transition: color 0.4s ease;
-            color: rgba(255,255,255,0.85) !important;
+            transition: color 0.45s ease, background-color 0.45s ease;
+            background-color: rgba(148, 163, 184, 0.08);
         }
 
         /* NEW age ticker inside badge */
@@ -157,9 +151,9 @@
 
 
         /* Compact first column */
-        .token-primary { display: flex; align-items: center; gap: 5px; }
+        .token-primary { display: flex; align-items: center; gap: 4px; }
         .token-symbol  { color: var(--accent-purple); font-weight: bold; font-size: 13px; white-space: nowrap; }
-        .badge-new { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; padding: 1px 4px; border-radius: 3px; background: rgba(74, 222, 128, 0.18); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35); vertical-align: middle; margin-left: 4px; line-height: 1.4; }
+        .badge-new { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; padding: 1px 4px; border-radius: 3px; background: rgba(6, 182, 212, 0.18); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.35); vertical-align: middle; margin-left: 4px; line-height: 1.4; }
         .token-links   { display: flex; gap: 8px; margin-top: 3px; }
         .token-links a { font-size: 10px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px dotted var(--text-secondary); white-space: nowrap; }
         .token-links a:hover { color: var(--accent-cyan); }
@@ -208,13 +202,16 @@
 
         .rug-badge {
             display: inline-block;
-            background: rgba(239, 68, 68, 0.25);
-            color: var(--color-critical);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid rgba(239, 68, 68, 0.5);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: rgba(168, 85, 247, 0.18);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            vertical-align: middle;
+            line-height: 1.4;
         }
 
         .safe-badge {
@@ -1195,32 +1192,18 @@
 {% endblock %}
 
 {% block content %}
-        <div class="stats" id="stats">
-            <div class="stat-card">
-                <div class="stat-label">Total Migrations</div>
-                <div class="stat-value" id="total-migrations">0</div>
+        <!-- Token Intelligence Summary -->
+        <div id="ti-summary-block" style="margin-bottom:20px">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
+                <span style="font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em">Token Intelligence</span>
+                <span style="font-size:11px;color:var(--text-secondary)">Lifecycle outcomes — rugs, runners, peak market cap, timing</span>
+                <a href="/token-intelligence" style="font-size:11px;color:var(--accent-cyan);margin-left:auto;text-decoration:none">View full →</a>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">With Pre-Analysis</div>
-                <div class="stat-value" id="with-analysis">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">High Risk</div>
-                <div class="stat-value" id="high-risk">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Low Risk</div>
-                <div class="stat-value" id="low-risk">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Unique Creators</div>
-                <div class="stat-value" id="unique-creators">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Repeat Launchers</div>
-                <div class="stat-value" id="repeat-launchers">0</div>
+            <div id="ti-summary-stats" style="display:flex;gap:8px;flex-wrap:wrap">
+                <div style="color:var(--text-secondary);font-size:12px;padding:8px 0">Loading…</div>
             </div>
         </div>
+
 
         <div class="controls-panel">
             <div class="control-group">
@@ -2173,6 +2156,7 @@
                             body: JSON.stringify({"creators": creators})
                         });
                         creatorData = await creatorResp.json();
+                        window._creatorDataCache = { ...(window._creatorDataCache || {}), ...creatorData };
                     } catch (e) {
                         console.error('Error loading creator data:', e);
                     }
@@ -2211,13 +2195,28 @@
                 const pinnedInList = filteredTokens.filter(t => _newPinStore.isNew(t.mint));
                 const nonPinned = filteredTokens.filter(t => !_newPinStore.isNew(t.mint));
                 const displayTokens = [...pinnedInList, ...nonPinned].slice(0, 25 + pinnedInList.length);
+                const creatorDataSignature = JSON.stringify(
+                    displayTokens.map(t => [
+                        t.mint,
+                        t.creator || '',
+                        t.creatorData?.token_count || 0,
+                        t.creatorData?.network_size || 0,
+                        t.creatorData?.inbound_sources || 0,
+                        t.creatorData?.inbound_sol || 0,
+                        t.creatorData?.is_blocked ? 1 : 0,
+                        t.creatorData?.tags?.length || 0,
+                        t.creatorData?.funders?.length || 0
+                    ])
+                );
 
                 // Rebuild only when the mint SET changes — price/MC churn is handled by SSE patches
                 const currentMints = (window.currentTokens || []).map(t => t.mint).join('|');
                 const newMints = displayTokens.map(t => t.mint).join('|');
                 const tokensChanged = currentMints !== newMints;
+                const creatorDataChanged = window._lastCreatorDataSignature !== creatorDataSignature;
 
                 window.currentTokens = displayTokens;
+                window._lastCreatorDataSignature = creatorDataSignature;
 
                 // Register all displayed tokens for price tracking
                 const mints = displayTokens.map(t => t.mint).filter(m => m);
@@ -2234,11 +2233,9 @@
                     });
                 }
 
-                // Update stats
-                updateStats({tokens: displayTokens});
 
-                if (tokensChanged) {
-                    console.log(`[TABLE] full_rebuild reason=mint_set_changed`);
+                if (tokensChanged || creatorDataChanged) {
+                    console.log(`[TABLE] full_rebuild reason=${tokensChanged ? 'mint_set_changed' : 'creator_data_changed'}`);
                     window._lastTokenList = displayTokens;
                     buildTable(displayTokens);
                 } else {
@@ -2262,32 +2259,6 @@
             }
         }
 
-        function updateStats(data) {
-            const tokens = data.tokens;
-            const highRisk = tokens.filter(t => t.risk_level?.includes('HIGH')).length;
-            const mediumRisk = tokens.filter(t => t.risk_level?.includes('MEDIUM')).length;
-            const lowRisk = tokens.filter(t => t.risk_level?.includes('LOW')).length;
-
-            // Calculate unique creators
-            const uniqueCreators = new Set(tokens.map(t => t.creator).filter(c => c)).size;
-
-            // Calculate repeat launchers
-            const creatorTokenCounts = {};
-            tokens.forEach(token => {
-                if (token.creator) {
-                    creatorTokenCounts[token.creator] = (creatorTokenCounts[token.creator] || 0) + 1;
-                }
-            });
-            const repeatLaunchers = Object.values(creatorTokenCounts).filter(count => count > 1).length;
-
-            document.getElementById('total-migrations').textContent = tokens.length;
-            document.getElementById('with-analysis').textContent = tokens.length;
-            document.getElementById('high-risk').textContent = highRisk;
-            document.getElementById('low-risk').textContent = lowRisk;
-            document.getElementById('unique-creators').textContent = uniqueCreators;
-            document.getElementById('repeat-launchers').textContent = repeatLaunchers;
-        }
-
         // ---------------------------------------------------------------------------
         // Live row patch — update price/mc/dot without rebuilding the table
         // ---------------------------------------------------------------------------
@@ -2302,7 +2273,7 @@
             const mcElem = document.getElementById(`mc-${mint}`);
             const age = ageSeconds ?? 99999;
             if (mcElem && marketCap !== undefined && marketCap !== null && marketCap > 0
-                    && !mcElem.querySelector('span[title*="below $1k"]')) {
+                    && !mcElem.querySelector('.rug-badge')) {
                 mcElem.textContent = '$' + formatMarketCap(marketCap);
                 mcElem.style.opacity = '';
                 // Price state
@@ -2312,17 +2283,16 @@
                 mcElem.classList.add('cell-updated');
                 setTimeout(() => mcElem.classList.remove('cell-updated'), 400);
                 row.dataset.lastUpdated = Date.now();
+
+                _writeTokenToCaches(mint, {
+                    market_cap_current: marketCap,
+                    snap_age: ageSeconds ?? 99999,
+                });
             } else if (mcElem && mcElem.dataset.priceState !== 'live') {
                 mcElem.dataset.priceState = 'waiting';
             }
 
-            // Freshness dot + row class
-            const dot = row.querySelector('.snap-dot');
-            if (dot) {
-                dot.className = age < 15 ? 'snap-dot snap-dot-fresh'
-                              : age < 60  ? 'snap-dot snap-dot-recent'
-                              :             'snap-dot snap-dot-grey';
-            }
+            // Freshness row state
             row.classList.toggle('row-active-snap', age < 60);
             row.classList.toggle('row-stale-snap',  age > 120);
 
@@ -2342,21 +2312,26 @@
 
         // Update live price fields on an existing row; skip if row absent (no insert on poll)
         function updateOrInsertRow(token) {
+            const normalized = _mergeHydratedData(token.mint, _getBestKnownToken(token.mint), token);
             const found = patchRowByMint(
-                token.mint,
-                token.price_current,
-                token.market_cap_current,
-                token.snap_age ?? 99999
+                normalized.mint,
+                normalized.price_current,
+                normalized.market_cap_current,
+                normalized.snap_age ?? 99999
             );
             if (!found) {
-                console.debug(`[POLL] mint not in table: ${token.mint.substring(0,16)}...`);
+                console.debug(`[POLL] mint not in table: ${normalized.mint.substring(0,16)}...`);
             }
             // Sync dataset so 5s interval can update Age and Peak Timing without a rebuild
-            const row = document.querySelector(`tr[data-mint="${token.mint}"]`);
+            const row = document.querySelector(`tr[data-mint="${normalized.mint}"]`);
             if (row) {
-                if (token.created_at) row.dataset.createdAt = token.created_at;
-                if (token.market_cap_highest_at) row.dataset.peakAt = token.market_cap_highest_at;
+                if (normalized.created_at) row.dataset.createdAt = normalized.created_at;
+                if (normalized.market_cap_highest_at) row.dataset.peakAt = normalized.market_cap_highest_at;
             }
+            if (normalized.creator || normalized.symbol || normalized.market_cap_current || normalized.market_cap_highest) {
+                _patchHydratedRow(normalized.mint, normalized);
+            }
+            ensureMintHydration(normalized.mint, normalized);
         }
 
         let sortConfig = {
@@ -2367,7 +2342,7 @@
 
         // Build HTML for a single token row (used by reconcileTable)
         function buildTokenRow(token) {
-            const creatorData = token.creatorData || {};
+            const creatorData = token.creatorData || window._creatorDataCache?.[token.creator] || {};
             const columnTags = [];
             const TAG_SHORT = {
                 'axiom': 'Ax', 'uses_axiom': 'Ax',
@@ -2563,15 +2538,15 @@
             const hiddenCount = columnTags.length - visibleTags.length;
             const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
             const isPin = _newPinStore.isNew(token.mint);
-            // Placeholder symbol — use resolved cache first, then server value, then mint prefix
+            const peakTimingDisplay = formatPeakTimeSeconds(token.peak_time_seconds) || (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '');
+            // Placeholder symbol — prefer resolved symbol, then server symbol, then token name, then mint prefix
             window._resolvedSymbols = window._resolvedSymbols || {};
-            const symPlaceholder = window._resolvedSymbols[token.mint] || token.symbol || token.mint.slice(0, 8).toUpperCase();
+            const symPlaceholder = _getDisplayLabel(token.mint, token);
             const lastUpdated = token.snap_age != null ? Date.now() - token.snap_age * 1000 : '';
             return `<tr class="${rowSnapClass}" data-mint="${token.mint}"${lastUpdated ? ` data-last-updated="${lastUpdated}"` : ''} data-created-at="${token.created_at || ''}" data-peak-at="${token.market_cap_highest_at || ''}">
                 <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                     <div class="token-primary">
-                        ${snapDotHtml(snapAge)}
-                        <span id="symbol-${token.mint}" class="token-symbol" title="${token.mint}">${symPlaceholder}</span>${isPin ? `<span class="badge-new" id="badge-new-${token.mint}">NEW</span>` : ''}
+                        <span id="symbol-${token.mint}" class="token-symbol" title="${token.name || token.symbol || token.mint}">${symPlaceholder}</span>${isPin ? `<span class="badge-new" id="badge-new-${token.mint}">NEW</span>` : ''}
                     </div>
                     <div class="token-links">
                         <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" title="${token.mint}">Token ↗</a>
@@ -2591,13 +2566,16 @@
                     ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                 </td>
                 <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:90px;min-width:90px;white-space:nowrap">
-                    ${(token.pool_quote_liquidity != null && token.pool_quote_liquidity < 12) ? `<span style="opacity:0.5;font-size:10px;color:#f59e0b" title="Pool liquidity ~${token.pool_quote_liquidity < 0.1 ? 'none' : (token.pool_quote_liquidity.toFixed(1) + ' SOL')} — below $1k">${token.pool_quote_liquidity < 0.1 ? 'No liquidity' : 'Low liquidity'}</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
+                    ${token.liquidity_removed ? `<span class="rug-badge" title="Liquidity removed${token.liquidity_removed_at ? ' · ' + timeSinceLaunch(token.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
-                <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; width:80px;min-width:80px;white-space:nowrap">
+                <td id="peak-mc-${token.mint}" title="Recorded peak market cap. May exclude brief unconfirmed spikes." style="transition: color 0.2s ease; width:80px;min-width:80px;white-space:nowrap">
                     ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : '$' + formatMarketCap(token.market_cap_highest)}
                 </td>
-                <td class="peak-timing-cell">
-                    ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '<span style="opacity:0.35;">—</span>')}
+                <td style="width:44px;min-width:44px;white-space:nowrap">
+                    ${token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>'}
+                </td>
+                <td class="peak-timing-cell" title="Time from launch to the same recorded peak shown in the Peak MC column.">
+                    ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : (peakTimingDisplay || '<span style="opacity:0.35;">—</span>')}
                 </td>
                 <td class="age-cell" title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
                     ${timeSinceLaunch(token.created_at)}
@@ -2612,56 +2590,41 @@
             // Use last-known full token data from currentTokens cache to avoid thin placeholders
             const tokenMints = new Set(tokens.map(t => t.mint));
             const _cachedByMint = new Map((window._pinnedTokenCache || []).map(t => [t.mint, t]));
-            // Update cache with fresh server data
-            tokens.forEach(t => _cachedByMint.set(t.mint, t));
+            // Update cache with fresh server data — preserve resolved symbol/creator already in cache
+            tokens.forEach(t => {
+                const prev = _cachedByMint.get(t.mint);
+                const merged = { ...t };
+                if (prev) {
+                    // Never overwrite a resolved symbol with null or a mint-prefix fallback from server
+                    const prevSym = prev.symbol || (window._resolvedSymbols && window._resolvedSymbols[t.mint]);
+                    if (prevSym) {
+                        const serverIsMintPrefix = !t.symbol || (t.symbol.length <= 8 && t.mint.toUpperCase().startsWith(t.symbol.toUpperCase()));
+                        if (serverIsMintPrefix) merged.symbol = prevSym;
+                    }
+                    if (!t.name && prev.name) merged.name = prev.name;
+                    // Never overwrite a known creator with null
+                    if (!t.creator && prev.creator) merged.creator = prev.creator;
+                    // Preserve prior creator enrichment if this refresh came back thin
+                    const incomingCreatorData = t.creatorData || {};
+                    const incomingHasCreatorData = Object.keys(incomingCreatorData).length > 0;
+                    if (!incomingHasCreatorData && prev.creatorData) merged.creatorData = prev.creatorData;
+                }
+                Object.assign(merged, _normalizeMarketCaps(prev || {}, merged));
+                _cachedByMint.set(t.mint, merged);
+            });
             window._pinnedTokenCache = [..._cachedByMint.values()];
 
             const pinnedExtra = [];
-            const staleRefreshMints = [];
             Object.entries(_newPinStore.all()).forEach(([mint, pin]) => {
                 if (!tokenMints.has(mint)) {
                     const cached = _cachedByMint.get(mint);
                     if (cached) {
                         pinnedExtra.push({ ...cached, _pinned: true, _newUntil: pin.newUntil });
-                        // Refresh if either peak field is missing
-                        if (!cached.market_cap_highest || !cached.market_cap_highest_at) {
-                            staleRefreshMints.push(mint);
-                        }
                     } else {
                         pinnedExtra.push({ mint, _pinned: true, _newUntil: pin.newUntil });
-                        staleRefreshMints.push(mint);
                     }
                 }
             });
-
-            // Refresh stale pinned tokens in background — update cache and re-render if peak data arrives
-            if (staleRefreshMints.length > 0) {
-                staleRefreshMints.forEach(mint => {
-                    fetch(`/api/token-metrics/${mint}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.error) return;
-                            const cached = _cachedByMint.get(mint) || { mint };
-                            window._liquidityFetched = window._liquidityFetched || new Set();
-                            window._liquidityFetched.add(mint);
-                            const resolvedPeak = data.market_cap?.highest || cached.market_cap_highest;
-                            const updated = {
-                                ...cached,
-                                market_cap_highest: resolvedPeak,
-                                market_cap_highest_at: data.peak_at || cached.market_cap_highest_at,
-                                market_cap_current: data.market_cap?.current || cached.market_cap_current,
-                                pool_quote_liquidity: data.pool_quote_liquidity ?? cached.pool_quote_liquidity,
-                                created_at: data.created_at || cached.created_at,
-                                _pinned: true,
-                            };
-                            _cachedByMint.set(mint, updated);
-                            window._pinnedTokenCache = [..._cachedByMint.values()];
-                            // Re-render so the updated peak shows immediately
-                            if (window._lastTokenList) buildTable(window._lastTokenList);
-                        })
-                        .catch(() => {});
-                });
-            }
 
             const allTokens = [...tokens, ...pinnedExtra];
 
@@ -2701,8 +2664,9 @@
                         <th onclick="sortBy('network_name')" class="sortable" style="width:80px">Network</th>
                         <th onclick="sortBy('cluster_name')" class="sortable" style="width:80px">Cluster</th>
                         <th onclick="sortBy('market_cap_current')" class="sortable" style="width:90px;min-width:90px">Market Cap</th>
-                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:80px;min-width:80px">Peak MC</th>
-                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:90px;min-width:90px">Peak Timing</th>
+                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:80px;min-width:80px" title="Recorded peak market cap. Brief unconfirmed spikes may be excluded.">Peak MC*</th>
+                        <th style="width:44px;min-width:44px" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)">G</th>
+                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:90px;min-width:90px" title="Time from launch to the recorded peak shown in Peak MC*.">Peak Timing*</th>
                         <th style="width:60px">Age</th>
                     </tr></thead>
                     <tbody></tbody>
@@ -2728,10 +2692,10 @@
                             if (sym) { const b = document.createElement('span'); b.className='badge-new'; b.id=`badge-new-${mint}`; b.textContent='NEW'; sym.after(b); }
                         }
                     }
-                    // Patch MC/peak from server data if available (don't overwrite live SSE patches)
+                    // Patch MC/peak from server data if available (don't overwrite live SSE patches or RUG badge)
                     if (!token._pinned) {
                         const mcEl = document.getElementById(`mc-${mint}`);
-                        if (mcEl && token.market_cap_current) mcEl.textContent = '$' + formatMarketCap(token.market_cap_current);
+                        if (mcEl && token.market_cap_current && !mcEl.querySelector('.rug-badge')) mcEl.textContent = '$' + formatMarketCap(token.market_cap_current);
                         const pkEl = document.getElementById(`peak-mc-${mint}`);
                         if (pkEl && token.market_cap_highest) pkEl.textContent = '$' + formatMarketCap(token.market_cap_highest);
                     }
@@ -2748,32 +2712,46 @@
                                 const timingTd = pkEl.nextElementSibling;
                                 if (timingTd) {
                                     const cur2 = timingTd.textContent.trim();
-                                    if (!cur2 || cur2 === '—') timingTd.textContent = getTimeToPeak(token.created_at, token.market_cap_highest_at);
+                                    if (!cur2 || cur2 === '—') timingTd.textContent = formatPeakTimeSeconds(token.peak_time_seconds) || getTimeToPeak(token.created_at, token.market_cap_highest_at) || '—';
                                 }
                             }
                         }
                     }
-                    if (!token._pinned) {
-                        // Patch symbol only if server has a better value than current placeholder
-                        const symEl = document.getElementById(`symbol-${mint}`);
-                        if (symEl && token.symbol) {
-                            const cur = symEl.textContent.trim();
-                            const isMintPrefix = cur.length <= 8 && mint.toUpperCase().startsWith(cur);
-                            const isPlaceholder = isMintPrefix || cur === '…' || cur === '';
-                            if (isPlaceholder) symEl.textContent = token.symbol;
+                    // Patch symbol only if server has a better value than current placeholder
+                    const symEl = document.getElementById(`symbol-${mint}`);
+                    if (symEl && token.symbol) {
+                        const cur = symEl.textContent.trim();
+                        const isPlaceholder = _isFallbackDisplayText(mint, cur);
+                        // Don't overwrite a resolved symbol with a mint-prefix fallback from server
+                        const serverSymIsMintPrefix = token.symbol.length <= 8 && mint.toUpperCase().startsWith(token.symbol.toUpperCase());
+                        const resolvedSym = window._resolvedSymbols?.[mint];
+                        // Use resolved cache as the winner; fall back to server symbol if it's not a mint prefix
+                        if (resolvedSym) {
+                            symEl.textContent = resolvedSym;
+                            symEl.title = token.name || resolvedSym;
+                        } else if (isPlaceholder && !serverSymIsMintPrefix) {
+                            symEl.textContent = token.symbol;
+                            symEl.title = token.name || token.symbol;
                         }
-                        // Patch Creator link if missing and creator is now known
-                        if (token.creator) {
-                            const linksDiv = row.querySelector('.token-links');
-                            if (linksDiv && !linksDiv.querySelector('.creator-link-btn')) {
-                                const a = document.createElement('a');
-                                a.href = '#';
-                                a.className = 'creator-link-btn';
-                                a.title = token.creator;
-                                a.textContent = 'Creator ↗';
-                                a.onclick = (e) => { e.preventDefault(); showCreatorDetails(token.creator); };
-                                linksDiv.appendChild(a);
-                            }
+                    } else if (symEl && token.name) {
+                        const cur = symEl.textContent.trim();
+                        const isPlaceholder = _isFallbackDisplayText(mint, cur);
+                        if (isPlaceholder) {
+                            symEl.textContent = String(token.name);
+                            symEl.title = token.name;
+                        }
+                    }
+                    // Patch Creator link if missing and creator is now known
+                    if (token.creator) {
+                        const linksDiv = row.querySelector('.token-links');
+                        if (linksDiv && !linksDiv.querySelector('.creator-link-btn')) {
+                            const a = document.createElement('a');
+                            a.href = '#';
+                            a.className = 'creator-link-btn';
+                            a.title = token.creator;
+                            a.textContent = 'Creator ↗';
+                            a.onclick = (e) => { e.preventDefault(); showCreatorDetails(token.creator); };
+                            linksDiv.appendChild(a);
                         }
                     }
                 } else {
@@ -2786,8 +2764,7 @@
                         row.innerHTML = `
                             <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                                 <div class="token-primary">
-                                    <span class="snap-dot snap-dot-grey"></span>
-                                    <span id="symbol-${mint}" class="token-symbol" title="${mint}">${mint.slice(0,8).toUpperCase()}</span>
+                                    <span id="symbol-${mint}" class="token-symbol" title="${token.name || token.symbol || mint}">${_getDisplayLabel(mint, token)}</span>
                                     <span class="badge-new" id="badge-new-${mint}">NEW</span>
                                 </div>
                                 <div class="token-links">
@@ -2843,15 +2820,8 @@
                 }, msLeft);
             });
 
-            // ── Symbol hydration — only for rows without a real symbol yet ────
-            sortedTokens.forEach((token, index) => {
-                const symEl = document.getElementById(`symbol-${token.mint}`);
-                // Skip if already has a real symbol (not just mint prefix)
-                const currentSym = symEl?.textContent || '';
-                const isMintPrefix = currentSym === token.mint.slice(0,8).toUpperCase() || currentSym === '…';
-                if (!symEl || (!isMintPrefix && currentSym.length > 0)) return;
-                setTimeout(() => loadSymbol(token.mint), index * 20);
-            });
+            // ── Progressive per-mint hydration — deduped and bounded ─────────
+            sortedTokens.forEach(token => ensureMintHydration(token.mint, token));
 
             // DISABLED: Price polling endpoints no longer available
             // The wallet page uses SSE for real-time prices instead
@@ -2937,26 +2907,6 @@
                         }
                     }
 
-                    // Update peak market cap if it's a new high
-                    const peakMcElement = document.getElementById(`peak-mc-${mint}`);
-                    if (peakMcElement && marketCap) {
-                        const currentText = peakMcElement.textContent;
-                        // Extract current peak value for comparison (remove $ and formatting)
-                        const currentPeak = parseFloat(currentText.replace(/[^0-9.]/g, ''));
-                        if (!currentPeak || marketCap > currentPeak) {
-                            const formattedPeakMC = '$' + formatMarketCap(marketCap);
-
-                            // Only update if value actually changed
-                            if (currentText !== formattedPeakMC) {
-                                peakMcElement.style.opacity = '0.5';
-                                peakMcElement.textContent = formattedPeakMC;
-                                // Fade to full opacity
-                                setTimeout(() => {
-                                    peakMcElement.style.opacity = '1';
-                                }, 10);
-                            }
-                        }
-                    }
                 }
             } catch (error) {
                 if (error.name !== 'AbortError') {
@@ -2966,38 +2916,7 @@
         }
 
         async function loadSymbol(mint) {
-            try {
-                const symbolElement = document.getElementById(`symbol-${mint}`);
-                if (!symbolElement) return;
-
-                // Fetch from backend proxy (avoids CORS and rate limiting)
-                const response = await fetch(`/api/price/symbol/${mint}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const resolved = data.symbol || mint.substring(0, 8).toUpperCase();
-                    symbolElement.textContent = resolved;
-                    symbolElement.title = data.name || 'Token';
-                    // Persist into resolved cache — survives all buildTable re-renders
-                    if (data.symbol) {
-                        window._resolvedSymbols = window._resolvedSymbols || {};
-                        window._resolvedSymbols[mint] = data.symbol;
-                    }
-                } else {
-                    // Fallback: show first 8 chars
-                    const fallbackSymbol = mint.substring(0, 8).toUpperCase();
-                    symbolElement.textContent = fallbackSymbol;
-                    symbolElement.title = 'Token';
-                }
-            } catch (error) {
-                // Silently ignore errors - use fallback
-                const fallbackSymbol = mint.substring(0, 8).toUpperCase();
-                const symbolElement = document.getElementById(`symbol-${mint}`);
-                if (symbolElement) {
-                    symbolElement.textContent = fallbackSymbol;
-                    symbolElement.title = 'Token';
-                }
-            }
+            return _fetchSymbol(mint, _getBestKnownToken(mint));
         }
 
         function sortBy(column) {
@@ -3121,18 +3040,22 @@
             }
         }
 
-        function snapDotHtml(age) {
-            if (age < 15)  return '<span class="snap-dot snap-dot-fresh"></span>';
-            if (age < 60)  return '<span class="snap-dot snap-dot-recent"></span>';
-            return '<span class="snap-dot snap-dot-grey"></span>';
-        }
-
         function formatPrice(p) {
             if (!p || p <= 0) return null;
             if (p < 1e-8) return p.toExponential(3);
             if (p < 1e-4) return p.toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
             return p.toFixed(8);
         }
+
+        // ── G-class badge (mirrors token_intelligence.html exactly) ──────────
+        const G_COLOR = {'G1':'#f59e0b','G2':'#a78bfa','G3':'#60a5fa','G4':'#34d399','G5':'#86efac','G6':'#6b7280','G7':'#374151','G?':'#1f2937'};
+        const G_BG    = {'G1':'rgba(245,158,11,0.12)','G2':'rgba(167,139,250,0.12)','G3':'rgba(96,165,250,0.12)','G4':'rgba(52,211,153,0.12)','G5':'rgba(134,239,172,0.08)','G6':'rgba(107,114,128,0.10)','G7':'rgba(55,65,81,0.10)','G?':'rgba(31,41,55,0.10)'};
+        const G_TOOLTIP = {'G1':'Elite (5M+)','G2':'Strong (2–5M)','G3':'High Opportunity (500K–2M)','G4':'Pre-Runner (300–500K)','G5':'Mid Tier (150–300K)','G6':'Weak (75–150K)','G7':'Low / Noise (<75K)','G?':'Unknown'};
+        const gBadgeHome = g => {
+            const gc = G_COLOR[g] || G_COLOR['G?'];
+            const gb = G_BG[g]    || G_BG['G?'];
+            return `<span style="font-weight:700;font-size:11px;color:${gc};background:${gb};padding:1px 5px;border-radius:3px;white-space:nowrap" title="${G_TOOLTIP[g]||''}">${g||'G?'}</span>`;
+        };
 
         function formatMarketCap(value) {
             if (!value) return '-';
@@ -3172,6 +3095,16 @@
             } catch (e) {
                 return '';
             }
+        }
+
+        function formatPeakTimeSeconds(seconds) {
+            const diffSeconds = Number(seconds);
+            if (!Number.isFinite(diffSeconds) || diffSeconds < 0) return '';
+            if (diffSeconds < 60) return `${Math.floor(diffSeconds)}s`;
+            if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m${String(Math.floor(diffSeconds % 60)).padStart(2,'0')}s`;
+            const hours = diffSeconds / 3600;
+            if (hours < 24) return `${hours.toFixed(1)}h`;
+            return `${(hours / 24).toFixed(1)}d`;
         }
 
         // Abort controller for price loading - allows canceling requests when modal opens
@@ -3453,6 +3386,479 @@ function switchToTokensTab() {
             _ageTimers[mint] = setInterval(tick, 1000);
         }
 
+        const HYDRATE_RETRY_DELAYS_MS = [1500, 3000, 6000];
+        const metricsInFlight = new Map();
+        const symbolInFlight = new Map();
+        const creatorBatchInFlight = new Map();
+        const hydrateRetryTimers = new Map();
+        const hydrationState = new Map();
+        let creatorEnrichmentRebuildScheduled = false;
+
+        function _isMintPrefixSymbol(mint, symbol) {
+            if (!mint || !symbol) return true;
+            const normalized = String(symbol).trim();
+            if (!normalized) return true;
+            return normalized.length <= 8 && mint.toUpperCase().startsWith(normalized.toUpperCase());
+        }
+
+        function _hasRealSymbol(mint, symbol) {
+            return !!symbol && !_isMintPrefixSymbol(mint, symbol);
+        }
+
+        function _hasDisplayLabel(mint, token = {}) {
+            if (_hasRealSymbol(mint, token.symbol || window._resolvedSymbols?.[mint])) return true;
+            return !!String(token.name || '').trim();
+        }
+
+        function _isFallbackDisplayText(mint, text) {
+            const current = String(text || '').trim();
+            if (!current || current === '…') return true;
+            if (current === mint) return true;
+            return _isMintPrefixSymbol(mint, current);
+        }
+
+        function _getDisplayLabel(mint, token = {}) {
+            const resolved = window._resolvedSymbols?.[mint];
+            if (_hasRealSymbol(mint, resolved)) return resolved;
+            if (_hasRealSymbol(mint, token.symbol)) return token.symbol;
+            const name = String(token.name || '').trim();
+            if (name) return name;
+            return mint;
+        }
+
+        function _normalizeMarketCaps(existing = {}, incoming = {}) {
+            const pickCurrent = incoming.market_cap_current ?? existing.market_cap_current ?? null;
+            const pickPeak = Math.max(
+                Number(existing.market_cap_highest || 0),
+                Number(incoming.market_cap_highest || 0),
+            ) || null;
+            return {
+                market_cap_current: pickCurrent,
+                market_cap_highest: pickPeak,
+                market_cap_highest_at: incoming.market_cap_highest_at ?? existing.market_cap_highest_at ?? incoming.peak_at ?? existing.peak_at ?? null,
+                peak_time_seconds: incoming.peak_time_seconds ?? existing.peak_time_seconds ?? null,
+            };
+        }
+
+        function _getHydrationState(mint) {
+            if (!hydrationState.has(mint)) {
+                hydrationState.set(mint, {
+                    metricsAttempts: 0,
+                    symbolAttempts: 0,
+                    metricsNextAt: 0,
+                    symbolNextAt: 0,
+                    done: false
+                });
+            }
+            return hydrationState.get(mint);
+        }
+
+        function _getBestKnownToken(mint, fallback = {}) {
+            const fromCurrent = (window.currentTokens || []).find(t => t.mint === mint);
+            const fromLast = (window._lastTokenList || []).find(t => t.mint === mint);
+            const fromPinned = (window._pinnedTokenCache || []).find(t => t.mint === mint);
+            return { ...(fromPinned || {}), ...(fromLast || {}), ...(fromCurrent || {}), ...(fallback || {}), mint };
+        }
+
+        function _rebuildVisibleTable() {
+            if (!window._lastTokenList) return;
+            const nextTokens = window.currentTokens || window._lastTokenList;
+            window._lastTokenList = nextTokens;
+            buildTable(nextTokens);
+        }
+
+        function _scheduleCreatorEnrichmentRebuild() {
+            if (creatorEnrichmentRebuildScheduled) return;
+            creatorEnrichmentRebuildScheduled = true;
+            setTimeout(() => {
+                creatorEnrichmentRebuildScheduled = false;
+                _rebuildVisibleTable();
+            }, 0);
+        }
+
+        function _applyCreatorDataToCaches(creator, creatorData) {
+            if (!creator || !creatorData) return false;
+            let touched = false;
+            const mergeCreator = (token) => {
+                if (!token || token.creator !== creator) return token;
+                touched = true;
+                return { ...token, creatorData };
+            };
+
+            if (window.currentTokens) {
+                window.currentTokens = window.currentTokens.map(mergeCreator);
+            }
+            if (window._lastTokenList) {
+                window._lastTokenList = window._lastTokenList.map(mergeCreator);
+            }
+            if (window._pinnedTokenCache) {
+                window._pinnedTokenCache = window._pinnedTokenCache.map(mergeCreator);
+            }
+            return touched;
+        }
+
+        function ensureCreatorEnrichment(creator) {
+            if (!creator) return Promise.resolve(null);
+            window._creatorDataCache = window._creatorDataCache || {};
+            const cached = window._creatorDataCache[creator];
+            if (cached && (cached.token_count > 0 || cached.network_size > 0 || cached.inbound_sources > 0 || cached.inbound_sol > 0 || cached.is_blocked || (cached.tags && cached.tags.length > 0) || (cached.funders && cached.funders.length > 0))) {
+                _applyCreatorDataToCaches(creator, cached);
+                return Promise.resolve(cached);
+            }
+            if (creatorBatchInFlight.has(creator)) return creatorBatchInFlight.get(creator);
+
+            const promise = fetch('/api/creators-batch', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ creators: [creator] })
+            })
+                .then(r => r.ok ? r.json() : {})
+                .then(data => {
+                    const creatorData = data?.[creator];
+                    if (!creatorData) return null;
+                    window._creatorDataCache[creator] = creatorData;
+                    if (_applyCreatorDataToCaches(creator, creatorData)) {
+                        _scheduleCreatorEnrichmentRebuild();
+                    }
+                    return creatorData;
+                })
+                .catch(() => null)
+                .finally(() => {
+                    creatorBatchInFlight.delete(creator);
+                });
+
+            creatorBatchInFlight.set(creator, promise);
+            return promise;
+        }
+
+        function _writeTokenToCaches(mint, patch) {
+            const mergeToken = (token) => {
+                if (!token || token.mint !== mint) return token;
+                return _mergeHydratedData(mint, token, patch);
+            };
+
+            if (window.currentTokens) {
+                window.currentTokens = window.currentTokens.map(mergeToken);
+            }
+            if (window._lastTokenList) {
+                window._lastTokenList = window._lastTokenList.map(mergeToken);
+            }
+            window._pinnedTokenCache = window._pinnedTokenCache || [];
+            let found = false;
+            window._pinnedTokenCache = window._pinnedTokenCache.map(token => {
+                if (token.mint !== mint) return token;
+                found = true;
+                return _mergeHydratedData(mint, token, patch);
+            });
+            if (!found) {
+                window._pinnedTokenCache.push(_mergeHydratedData(mint, { mint }, patch));
+            }
+        }
+
+        function _mergeHydratedData(mint, existing = {}, incoming = {}) {
+            const merged = { ...existing, ...incoming };
+            const nextSymbol = incoming.symbol;
+            if (_hasRealSymbol(mint, nextSymbol)) {
+                merged.symbol = nextSymbol;
+                window._resolvedSymbols = window._resolvedSymbols || {};
+                window._resolvedSymbols[mint] = nextSymbol;
+            } else if (_hasRealSymbol(mint, existing.symbol)) {
+                merged.symbol = existing.symbol;
+            } else if (window._resolvedSymbols?.[mint]) {
+                merged.symbol = window._resolvedSymbols[mint];
+            } else {
+                merged.symbol = existing.symbol || nextSymbol || '';
+            }
+
+            merged.name = incoming.name || existing.name || '';
+            merged.creator = incoming.creator || existing.creator || '';
+
+            if (incoming.market_cap?.current == null && existing.market_cap?.current != null) {
+                merged.market_cap = merged.market_cap || {};
+                merged.market_cap.current = existing.market_cap.current;
+            }
+            if (incoming.market_cap?.highest == null && existing.market_cap?.highest != null) {
+                merged.market_cap = merged.market_cap || {};
+                merged.market_cap.highest = existing.market_cap.highest;
+            }
+            if (incoming.market_cap_current == null && existing.market_cap_current != null) {
+                merged.market_cap_current = existing.market_cap_current;
+            }
+            if (incoming.market_cap_highest == null && existing.market_cap_highest != null) {
+                merged.market_cap_highest = existing.market_cap_highest;
+            }
+            if (incoming.market_cap_highest_at == null && existing.market_cap_highest_at != null) {
+                merged.market_cap_highest_at = existing.market_cap_highest_at;
+            }
+            if (incoming.peak_at == null && existing.peak_at != null) {
+                merged.peak_at = existing.peak_at;
+            }
+            if (incoming.created_at == null && existing.created_at != null) {
+                merged.created_at = existing.created_at;
+            }
+            if (incoming.pool_quote_liquidity == null && existing.pool_quote_liquidity != null) {
+                merged.pool_quote_liquidity = existing.pool_quote_liquidity;
+            }
+            if (incoming.liquidity_removed == null && existing.liquidity_removed != null) {
+                merged.liquidity_removed = existing.liquidity_removed;
+            }
+            if (incoming.liquidity_removed_at == null && existing.liquidity_removed_at != null) {
+                merged.liquidity_removed_at = existing.liquidity_removed_at;
+            }
+            Object.assign(merged, _normalizeMarketCaps(existing, merged));
+
+            return merged;
+        }
+
+        function _patchHydratedRow(mint, patch) {
+            _patchMintRow(mint, patch);
+            const row = document.querySelector(`tr[data-mint="${mint}"]`);
+            if (!row) return;
+            if (patch.creator) ensureCreatorEnrichment(patch.creator);
+            if (patch.created_at) row.dataset.createdAt = patch.created_at;
+            if (patch.peak_at || patch.market_cap_highest_at) row.dataset.peakAt = patch.peak_at || patch.market_cap_highest_at;
+            const timingEl = row.querySelector('.peak-timing-cell');
+            const createdAt = patch.created_at || row.dataset.createdAt;
+            const peakAt = patch.peak_at || patch.market_cap_highest_at || row.dataset.peakAt;
+            if (timingEl) {
+                const timing = formatPeakTimeSeconds(patch.peak_time_seconds) || (createdAt && peakAt ? getTimeToPeak(createdAt, peakAt) : '');
+                timingEl.textContent = timing || '—';
+            }
+        }
+
+        function _isMintHydrated(mint, token) {
+            return !!token?.creator && _hasDisplayLabel(mint, token || {});
+        }
+
+        function _markHydrationDone(mint, token) {
+            const state = _getHydrationState(mint);
+            state.done = _isMintHydrated(mint, token);
+            if (state.done) {
+                state.metricsNextAt = 0;
+                state.symbolNextAt = 0;
+                const timer = hydrateRetryTimers.get(mint);
+                if (timer) clearTimeout(timer);
+                hydrateRetryTimers.delete(mint);
+            }
+            return state.done;
+        }
+
+        function _noteHydrationFailure(mint, type) {
+            const state = _getHydrationState(mint);
+            const attemptKey = type === 'metrics' ? 'metricsAttempts' : 'symbolAttempts';
+            const nextAtKey = type === 'metrics' ? 'metricsNextAt' : 'symbolNextAt';
+
+            state[attemptKey] += 1;
+            if (state[attemptKey] <= HYDRATE_RETRY_DELAYS_MS.length) {
+                state[nextAtKey] = Date.now() + HYDRATE_RETRY_DELAYS_MS[state[attemptKey] - 1];
+            }
+        }
+
+        function _scheduleHydrationRetry(mint) {
+            const token = _getBestKnownToken(mint);
+            if (_isMintHydrated(mint, token) || hydrateRetryTimers.has(mint)) return;
+
+            const state = _getHydrationState(mint);
+            const now = Date.now();
+            const retryAt = [];
+            const needsMetrics = !token.creator || token.pool_quote_liquidity == null;
+            const needsSymbol = !_hasDisplayLabel(mint, token || {});
+
+            if (needsMetrics && state.metricsNextAt > now) retryAt.push(state.metricsNextAt);
+            if (needsSymbol && state.symbolNextAt > now) retryAt.push(state.symbolNextAt);
+            if (retryAt.length === 0) return;
+
+            const nextRunAt = Math.min(...retryAt);
+            const delayMs = Math.max(0, nextRunAt - now);
+
+            const timerId = setTimeout(() => {
+                hydrateRetryTimers.delete(mint);
+                ensureMintHydration(mint, _getBestKnownToken(mint));
+            }, delayMs);
+
+            hydrateRetryTimers.set(mint, timerId);
+        }
+
+        function _fetchTokenMetrics(mint, token = {}) {
+            const current = _getBestKnownToken(mint, token);
+            if (current.creator && current.pool_quote_liquidity != null) {
+                _markHydrationDone(mint, current);
+                return Promise.resolve(current);
+            }
+            const state = _getHydrationState(mint);
+            if (state.metricsAttempts > HYDRATE_RETRY_DELAYS_MS.length || Date.now() < state.metricsNextAt) {
+                _scheduleHydrationRetry(mint);
+                return Promise.resolve(current);
+            }
+            if (metricsInFlight.has(mint)) return metricsInFlight.get(mint);
+
+            const promise = fetch(`/api/token-metrics/${mint}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (!data || data.error) {
+                        _noteHydrationFailure(mint, 'metrics');
+                        _scheduleHydrationRetry(mint);
+                        return _getBestKnownToken(mint, token);
+                    }
+
+                    const existing = _getBestKnownToken(mint, token);
+                    const merged = _mergeHydratedData(mint, existing, {
+                        ...data,
+                        creator: data.creator || existing.creator,
+                        symbol: _hasRealSymbol(mint, data.symbol) ? data.symbol : existing.symbol,
+                        name: data.name || existing.name,
+                        market_cap_current: data.market_cap?.current ?? existing.market_cap_current,
+                        market_cap_highest: data.market_cap?.highest ?? existing.market_cap_highest,
+                        market_cap_highest_at: data.peak_at || existing.market_cap_highest_at,
+                        peak_time_seconds: data.peak_time_seconds ?? existing.peak_time_seconds,
+                    });
+
+                    _writeTokenToCaches(mint, merged);
+                    _patchHydratedRow(mint, merged);
+
+                    const state = _getHydrationState(mint);
+                    if (!merged.creator || merged.pool_quote_liquidity == null) {
+                        _noteHydrationFailure(mint, 'metrics');
+                        _scheduleHydrationRetry(mint);
+                    } else {
+                        state.metricsAttempts = HYDRATE_RETRY_DELAYS_MS.length;
+                        state.metricsNextAt = 0;
+                    }
+
+                    _markHydrationDone(mint, merged);
+                    return merged;
+                })
+                .catch(() => {
+                    _noteHydrationFailure(mint, 'metrics');
+                    _scheduleHydrationRetry(mint);
+                    return _getBestKnownToken(mint, token);
+                })
+                .finally(() => {
+                    metricsInFlight.delete(mint);
+                });
+
+            metricsInFlight.set(mint, promise);
+            return promise;
+        }
+
+        function _fetchSymbol(mint, token = {}) {
+            const current = _getBestKnownToken(mint, token);
+            if (_hasDisplayLabel(mint, current)) {
+                _markHydrationDone(mint, current);
+                return Promise.resolve(current);
+            }
+            const state = _getHydrationState(mint);
+            if (state.symbolAttempts > HYDRATE_RETRY_DELAYS_MS.length || Date.now() < state.symbolNextAt) {
+                _scheduleHydrationRetry(mint);
+                return Promise.resolve(current);
+            }
+            if (symbolInFlight.has(mint)) return symbolInFlight.get(mint);
+
+            const promise = fetch(`/api/price/symbol/${mint}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    const realSymbol = data?.symbol;
+                    const displayName = String(data?.name || '').trim();
+                    if (!_hasRealSymbol(mint, realSymbol) && !displayName) {
+                        _noteHydrationFailure(mint, 'symbol');
+                        _scheduleHydrationRetry(mint);
+                        return _getBestKnownToken(mint, token);
+                    }
+
+                    const merged = _mergeHydratedData(mint, _getBestKnownToken(mint, token), {
+                        symbol: realSymbol,
+                        name: displayName
+                    });
+                    _writeTokenToCaches(mint, merged);
+                    _patchHydratedRow(mint, merged);
+
+                    const state = _getHydrationState(mint);
+                    state.symbolAttempts = HYDRATE_RETRY_DELAYS_MS.length;
+                    state.symbolNextAt = 0;
+                    _markHydrationDone(mint, merged);
+                    return merged;
+                })
+                .catch(() => {
+                    _noteHydrationFailure(mint, 'symbol');
+                    _scheduleHydrationRetry(mint);
+                    return _getBestKnownToken(mint, token);
+                })
+                .finally(() => {
+                    symbolInFlight.delete(mint);
+                });
+
+            symbolInFlight.set(mint, promise);
+            return promise;
+        }
+
+        function ensureMintHydration(mint, token = {}) {
+            if (!mint) return;
+            const current = _getBestKnownToken(mint, token);
+            _patchHydratedRow(mint, current);
+            if (current.creator) ensureCreatorEnrichment(current.creator);
+            if (_markHydrationDone(mint, current)) return;
+
+            const needsMetrics = !current.creator || current.pool_quote_liquidity == null;
+            const needsSymbol = !_hasDisplayLabel(mint, current);
+
+            if (needsMetrics) _fetchTokenMetrics(mint, current);
+            if (needsSymbol) _fetchSymbol(mint, current);
+        }
+
+        // Directly patch symbol, creator, and MC for a single mint row — no full rebuild needed.
+        function _patchMintRow(mint, data) {
+            const row = document.querySelector(`tr[data-mint="${mint}"]`);
+
+            // Symbol
+            const symEl = document.getElementById(`symbol-${mint}`);
+            if (symEl && data.symbol) {
+                const isMintPrefix = data.symbol.length <= 8 && mint.toUpperCase().startsWith(data.symbol.toUpperCase());
+                if (!isMintPrefix) {
+                    window._resolvedSymbols = window._resolvedSymbols || {};
+                    window._resolvedSymbols[mint] = data.symbol;
+                    symEl.textContent = data.symbol;
+                    symEl.title = data.name || data.symbol;
+                }
+            } else if (symEl && data.name) {
+                const current = symEl.textContent.trim();
+                if (_isFallbackDisplayText(mint, current)) {
+                    symEl.textContent = String(data.name);
+                    symEl.title = data.name;
+                }
+            } else if (symEl && _isFallbackDisplayText(mint, symEl.textContent)) {
+                symEl.textContent = mint;
+                symEl.title = mint;
+            }
+
+            // Creator button
+            if (row && data.creator) {
+                const linksDiv = row.querySelector('.token-links');
+                if (linksDiv && !linksDiv.querySelector('.creator-link-btn')) {
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.className = 'creator-link-btn';
+                    a.title = data.creator;
+                    a.textContent = 'Creator ↗';
+                    a.onclick = (e) => { e.preventDefault(); showCreatorDetails(data.creator); };
+                    linksDiv.appendChild(a);
+                }
+            }
+
+            // Market cap / liquidity
+            const mcEl = document.getElementById(`mc-${mint}`);
+            if (mcEl) {
+                if (data.liquidity_removed && !mcEl.querySelector('.rug-badge')) {
+                    mcEl.innerHTML = `<span class="rug-badge" title="Liquidity removed${data.liquidity_removed_at ? ' · ' + timeSinceLaunch(data.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>`;
+                } else if ((data.market_cap?.current || data.market_cap_current) && !mcEl.querySelector('.rug-badge')) {
+                    mcEl.textContent = '$' + formatMarketCap(data.market_cap?.current ?? data.market_cap_current);
+                }
+            }
+            const pkEl = document.getElementById(`peak-mc-${mint}`);
+            if (pkEl && (data.market_cap?.highest || data.market_cap_highest)) {
+                pkEl.textContent = '$' + formatMarketCap(data.market_cap?.highest ?? data.market_cap_highest);
+            }
+        }
+
         // Insert a placeholder row immediately on token_detected SSE event.
         // Subsequent price_update / pool_registered events patch the same row via patchRowByMint.
         function insertDetectedTokenRow(update) {
@@ -3499,7 +3905,7 @@ function switchToTokensTab() {
             const tbody = document.querySelector('#tokens-container tbody');
             if (!tbody) return;
 
-            const symbol = update.symbol || mint.slice(0, 8).toUpperCase();
+            const symbol = _getDisplayLabel(mint, update);
             const creator = update.creator || '';
 
             const tr = document.createElement('tr');
@@ -3510,8 +3916,7 @@ function switchToTokensTab() {
             tr.innerHTML = `
                 <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                     <div class="token-primary">
-                        <span class="snap-dot snap-dot-fresh"></span>
-                        <span id="symbol-${mint}" class="token-symbol" title="${mint}">${symbol}</span>
+                        <span id="symbol-${mint}" class="token-symbol" title="${update.name || update.symbol || mint}">${symbol}</span>
                         <span class="badge-new" id="badge-new-${mint}">NEW</span>
                     </div>
                     <div class="token-links">
@@ -3530,21 +3935,8 @@ function switchToTokensTab() {
             tbody.prepend(tr);
             _startNewAgeTicker(mint);
 
-            // — Symbol hydration —
-            if (!update.symbol) {
-                fetch(`/api/price/symbol/${mint}`)
-                    .then(r => r.ok ? r.json() : null)
-                    .then(data => {
-                        const symEl = document.getElementById(`symbol-${mint}`);
-                        if (!symEl) return;
-                        const real = data?.symbol;
-                        if (real && real !== 'UNKNOWN' && !real.startsWith(mint.slice(0,4))) {
-                            symEl.textContent = real;
-                            symEl.title = data.name || real;
-                        }
-                    })
-                    .catch(() => {});
-            }
+            // — Symbol + creator hydration via progressive retry —
+            ensureMintHydration(mint, update);
 
             // Register immediately for price tracking so worker prioritises this mint
             fetch('/api/price/batch/register', {
@@ -3557,59 +3949,6 @@ function switchToTokensTab() {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({mints: [mint], ttl: 60})
             }).catch(() => {});
-
-            // — Immediate token-metrics fetch: populate peak MC, creator, liquidity independently —
-            fetch(`/api/token-metrics/${mint}`)
-                .then(r => r.ok ? r.json() : null)
-                .then(data => {
-                    if (!data || data.error) return;
-                    // Update cache so next buildTable has full data
-                    window._resolvedSymbols = window._resolvedSymbols || {};
-                    window._liquidityFetched = window._liquidityFetched || new Set();
-                    window._liquidityFetched.add(mint);
-                    const existing = (window._pinnedTokenCache || []).find(t => t.mint === mint) || { mint };
-                    const updated = {
-                        ...existing,
-                        market_cap_highest: data.market_cap?.highest || existing.market_cap_highest,
-                        market_cap_highest_at: data.peak_at || existing.market_cap_highest_at,
-                        market_cap_current: data.market_cap?.current || existing.market_cap_current,
-                        pool_quote_liquidity: data.pool_quote_liquidity ?? existing.pool_quote_liquidity,
-                        created_at: data.created_at || existing.created_at,
-                        _pinned: true,
-                    };
-                    window._pinnedTokenCache = (window._pinnedTokenCache || []).map(t => t.mint === mint ? updated : t);
-                    if (!window._pinnedTokenCache.find(t => t.mint === mint)) {
-                        window._pinnedTokenCache = [...(window._pinnedTokenCache || []), updated];
-                    }
-                    // Re-render so the updated data shows immediately
-                    if (window._lastTokenList) buildTable(window._lastTokenList);
-                    // Patch MC, peak MC, timing cells directly without waiting for buildTable
-                    const mcEl = document.getElementById(`mc-${mint}`);
-                    if (mcEl) {
-                        const liq = data.pool_quote_liquidity;
-                        if (liq != null && liq < 12) {
-                            const label = liq < 0.1 ? 'No liquidity' : 'Low liquidity';
-                            const detail = liq < 0.1 ? 'none' : liq.toFixed(1) + ' SOL';
-                            mcEl.innerHTML = `<span style="opacity:0.5;font-size:10px;color:#f59e0b" title="Pool liquidity ~${detail} — below $1k">${label}</span>`;
-                        } else if (data.market_cap?.current) {
-                            mcEl.textContent = '$' + formatMarketCap(data.market_cap.current);
-                        }
-                    }
-                    const pkEl = document.getElementById(`peak-mc-${mint}`);
-                    if (pkEl && data.market_cap?.highest) {
-                        pkEl.textContent = '$' + formatMarketCap(data.market_cap.highest);
-                        pkEl.style.opacity = '';
-                    }
-                    const rowEl = pkEl?.closest('tr');
-                    if (rowEl && data.created_at) rowEl.dataset.createdAt = data.created_at;
-                    if (rowEl && data.peak_at) rowEl.dataset.peakAt = data.peak_at;
-                    const timingEl = rowEl?.querySelector('.peak-timing-cell');
-                    if (timingEl && data.peak_at && data.created_at) {
-                        const t = getTimeToPeak(data.created_at, data.peak_at);
-                        if (t) timingEl.textContent = t;
-                    }
-                })
-                .catch(() => {});
 
             // — Fallback price hydration: /full → fetch-now escalation if SSE hasn't patched —
             setTimeout(() => {
@@ -3652,6 +3991,19 @@ function switchToTokensTab() {
                         window._lastPricePatch[update.mint] = _now;
                         patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
                     }
+                } else if (update.type === 'liquidity_removed') {
+                    const rugMint = update.mint;
+                    const rugMcEl = document.getElementById(`mc-${rugMint}`);
+                    if (rugMcEl && !rugMcEl.querySelector('.rug-badge')) {
+                        rugMcEl.innerHTML = `<span class="rug-badge" title="Liquidity removed">LIQ</span>`;
+                    }
+                    // Patch cached objects so re-renders preserve the badge
+                    if (window._lastTokenList) {
+                        const t = window._lastTokenList.find(t => t.mint === rugMint);
+                        if (t) { t.liquidity_removed = true; t.liquidity_removed_at = update.timestamp; }
+                    }
+                    const rugPinned = (window._pinnedTokenCache || []).find(t => t.mint === rugMint);
+                    if (rugPinned) { rugPinned.liquidity_removed = true; rugPinned.liquidity_removed_at = update.timestamp; }
                 } else if (update.type === 'pool_registered') {
                     const m = update.mint;
                     if (m) {
@@ -3663,12 +4015,13 @@ function switchToTokensTab() {
                         }).catch(() => {});
                         const r = document.querySelector(`tr[data-mint="${m}"]`);
                         if (r) r.dataset.poolAddress = update.pool_address || '';
+                        // Progressive hydration with retries — fills symbol + creator as DB catches up
+                        ensureMintHydration(m, _getBestKnownToken(m));
                     }
-                    loadTokens();
                 } else if (update.type === 'symbol_resolved') {
                     const m = update.mint;
                     const sym = update.symbol;
-                    if (m && sym && sym !== 'UNKNOWN') {
+                    if (m && sym && sym !== 'UNKNOWN' && window._resolvedSymbols?.[m] !== sym) {
                         window._resolvedSymbols = window._resolvedSymbols || {};
                         window._resolvedSymbols[m] = sym;
                         const symEl = document.getElementById(`symbol-${m}`);
@@ -3677,6 +4030,9 @@ function switchToTokensTab() {
                             symEl.title = update.name || sym;
                             console.log(`[SSE] symbol_resolved mint=${m.slice(0,16)}… symbol=${sym}`);
                         }
+                        const merged = _mergeHydratedData(m, _getBestKnownToken(m), { symbol: sym, name: update.name });
+                        _writeTokenToCaches(m, merged);
+                        _markHydrationDone(m, merged);
                     }
                 }
             };
@@ -3686,9 +4042,51 @@ function switchToTokensTab() {
             };
         }
 
+        // ── Token Intelligence summary strip ──────────────────────────────
+        const _fmtMcTi = v => {
+            if (v == null) return '—';
+            if (v >= 1e6) return `$${(v/1e6).toFixed(2)}M`;
+            if (v >= 1e3) return `$${(v/1e3).toFixed(0)}K`;
+            return `$${v.toFixed(0)}`;
+        };
+        const _fmtSecsTi = s => {
+            if (s == null) return '—';
+            if (s < 60) return `${s}s`;
+            if (s < 3600) return `${Math.floor(s/60)}m${String(s%60).padStart(2,'0')}s`;
+            return `${Math.floor(s/3600)}h${Math.floor((s%3600)/60)}m`;
+        };
+
+        async function loadIntelligenceSummary() {
+            try {
+                const d = await fetch('/api/token-intelligence/summary').then(r => r.json());
+                const total = (d.active_count || 0) + (d.finalized_count || 0);
+                const metrics = [
+                    [String(total),                                        'Total Tokens',  ''],
+                    [String(d.active_count   ?? 0),                        'Active',         ''],
+                    [String(d.finalized_count ?? 0),                       'Finalized',      ''],
+                    [`${d.pct_rugs   ?? 0}%`,                              '% Rugs',         d.pct_rugs   > 50 ? 'color:#ef4444' : ''],
+                    [`${d.pct_liq    ?? 0}%`,                              '% Liq',          'color:#f97316'],
+                    [`${d.pct_runners ?? 0}%`,                             '% Runners',      d.pct_runners > 20 ? 'color:#22c55e' : ''],
+                    [`${d.pct_5m_plus ?? 0}%`,                             '5M+ Tokens',     'color:#a78bfa'],
+                    [_fmtMcTi(d.avg_peak_market_cap),                      'Avg Peak MC',    ''],
+                    [_fmtSecsTi(d.avg_time_to_peak_secs),                  'Avg →Peak',      ''],
+                ];
+                document.getElementById('ti-summary-stats').innerHTML = metrics.map(([val, label, style]) => `
+                    <div style="background:var(--bg-secondary);border:1px solid rgba(6,182,212,0.15);border-radius:6px;padding:10px 16px;min-width:90px;flex:1">
+                        <div style="font-size:18px;font-weight:700;color:var(--accent-cyan);${style}">${val}</div>
+                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px">${label}</div>
+                    </div>`).join('');
+
+            } catch (e) {
+                document.getElementById('ti-summary-stats').innerHTML =
+                    `<div style="color:#ef4444;font-size:12px">Failed to load intelligence summary</div>`;
+            }
+        }
+
         // Load tokens immediately and then every 10 seconds
         (async () => {
             await initializeSettings();
+            loadIntelligenceSummary();     // fire-and-forget, no need to block token load
             await loadTokens();            // await so data-mint rows exist before SSE starts
             initDashboardPriceStream();    // Start SSE price stream
             setInterval(loadTokens, 10000);
@@ -3726,13 +4124,13 @@ function switchToTokensTab() {
 
         // Metrics Modal Functions
         async function showTokenMetrics(mint) {
-            // Cancel ongoing price fetches to free up bandwidth for modal
-            priceLoadController.abort();
-            priceLoadController = new AbortController();
             const modal = document.getElementById('metricsModal');
             document.getElementById('modalMint').textContent = mint;
+            document.getElementById('metricsGrid').innerHTML = '<div class="metric" style="grid-column:1/-1;opacity:0.5">Loading…</div>';
+            document.getElementById('poolsBody').innerHTML = '<tr><td colspan="4" style="text-align:center;opacity:0.5">Loading…</td></tr>';
+            modal.style.display = 'block';
 
-            // Load pools for this token
+            // Load pools independently (separate fetch, not tied to price abort controller)
             loadTokenPools(mint);
 
             try {
@@ -3740,13 +4138,13 @@ function switchToTokensTab() {
                 const data = await response.json();
 
                 if (data.error) {
-                    alert('Token metrics not found');
+                    document.getElementById('metricsGrid').innerHTML = `<div class="metric" style="grid-column:1/-1;opacity:0.5">No analysis data yet — token may still be indexing.</div>`;
                     return;
                 }
 
                 // Populate metrics grid
                 const metricsGrid = document.getElementById('metricsGrid');
-                const metrics = data.metrics;
+                const metrics = data.metrics || {};
                 const metricLabels = {
                     'mint_concentration': 'Mint Concentration',
                     'unique_minters_ratio': 'Unique Minters',
@@ -3857,13 +4255,14 @@ function switchToTokensTab() {
 
                 // Populate risk section
                 const riskSection = document.getElementById('riskSection');
-                const risk = data.risk;
-                const rugProbability = (risk.rug_probability * 100).toFixed(1);
+                const risk = data.risk || {};
+                const rugProb = risk.rug_probability != null ? risk.rug_probability : null;
+                const rugProbability = rugProb != null ? (rugProb * 100).toFixed(1) : '—';
 
                 riskSection.innerHTML = `
                     <p>
                         <label>Rug Probability:</label>
-                        <span class="risk-value">${rugProbability}%</span>
+                        <span class="risk-value">${rugProbability}${rugProb != null ? '%' : ''}</span>
                         <span style="color: var(--text-secondary); margin-left: 10px;">${risk.risk_level || ''}</span>
                     </p>
                 `;
@@ -3871,11 +4270,9 @@ function switchToTokensTab() {
                 // Set DexTools link
                 document.getElementById('dextoolsLink').href = `https://www.dextools.io/app/solana/token/${mint}`;
 
-                // Show modal
-                modal.style.display = 'block';
             } catch (error) {
-                console.error('Error loading metrics:', error);
-                alert('Failed to load token metrics');
+                console.error('Error loading metrics:', error, error?.stack);
+                document.getElementById('metricsGrid').innerHTML = `<div class="metric" style="grid-column:1/-1;opacity:0.5">Failed to load metrics: ${error?.message || error}</div>`;
             }
         }
 

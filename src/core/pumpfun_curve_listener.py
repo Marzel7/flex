@@ -176,11 +176,23 @@ def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
         })
     except Exception as _e:
         log_print(f"[SYMBOL_FETCH] ⚠️  {mint[:16]}...: {_e}", flush=True)
+    finally:
+        # Dedupe should only cover the active fetch.
+        # If a lookup fails or returns no symbol, allow future retries.
+        with _symbol_fetch_seen_lock:
+            _symbol_fetch_seen.discard(mint)
 
+
+_symbol_fetch_seen: set = set()
+_symbol_fetch_seen_lock = __import__('threading').Lock()
 
 def _spawn_symbol_fetch(mint: str, db_path: str) -> None:
-    """Fire-and-forget thread to fetch + store token symbol."""
+    """Fire-and-forget thread to fetch + store token symbol. Deduplicates per mint."""
     import threading as _t
+    with _symbol_fetch_seen_lock:
+        if mint in _symbol_fetch_seen:
+            return
+        _symbol_fetch_seen.add(mint)
     _t.Thread(target=_fetch_and_store_symbol, args=(mint, db_path), daemon=True).start()
 
 
@@ -3199,11 +3211,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Price tracking registration failed: {_e}", flush=True)
 
             # Broadcast pool_registered event so the UI refreshes immediately
+            _reg_creator = None
+            try:
+                _rc = sqlite3.connect(DB_PATH, timeout=3)
+                _rr = _rc.execute(
+                    "SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (mint,)
+                ).fetchone()
+                _rc.close()
+                if _rr and _rr[0]:
+                    _reg_creator = _rr[0]
+            except Exception:
+                pass
             _broadcast_to_flask({
                 "type": "pool_registered",
                 "mint": mint,
                 "pool_address": pool_address,
                 "elapsed_secs": round(elapsed, 3),
+                **({"creator": _reg_creator} if _reg_creator else {}),
             })
 
             return RegisterResult.SUCCESS

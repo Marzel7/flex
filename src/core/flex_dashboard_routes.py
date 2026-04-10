@@ -819,28 +819,31 @@ def api_token_intelligence_summary():
         """).fetchall()
         rating_dist = {str(r['r']): r['n'] for r in rating_rows}
 
+        # G-aligned MC buckets: thresholds match token_behavior.py G1–G7 constants
         mc_rows = conn.execute("""
             SELECT
-                SUM(CASE WHEN peak_market_cap_usd < 25000 THEN 1 ELSE 0 END) AS u25k,
-                SUM(CASE WHEN peak_market_cap_usd >= 25000 AND peak_market_cap_usd < 100000 THEN 1 ELSE 0 END) AS u100k,
-                SUM(CASE WHEN peak_market_cap_usd >= 100000 AND peak_market_cap_usd < 500000 THEN 1 ELSE 0 END) AS u500k,
-                SUM(CASE WHEN peak_market_cap_usd >= 500000 AND peak_market_cap_usd < 1000000 THEN 1 ELSE 0 END) AS u1m,
-                SUM(CASE WHEN peak_market_cap_usd >= 1000000 AND peak_market_cap_usd < 5000000 THEN 1 ELSE 0 END) AS u5m,
-                SUM(CASE WHEN peak_market_cap_usd >= 5000000 THEN 1 ELSE 0 END) AS over5m,
+                SUM(CASE WHEN peak_market_cap_usd >= 5000000 THEN 1 ELSE 0 END) AS g1,
+                SUM(CASE WHEN peak_market_cap_usd >= 2000000 AND peak_market_cap_usd < 5000000 THEN 1 ELSE 0 END) AS g2,
+                SUM(CASE WHEN peak_market_cap_usd >= 500000  AND peak_market_cap_usd < 2000000 THEN 1 ELSE 0 END) AS g3,
+                SUM(CASE WHEN peak_market_cap_usd >= 300000  AND peak_market_cap_usd < 500000  THEN 1 ELSE 0 END) AS g4,
+                SUM(CASE WHEN peak_market_cap_usd >= 150000  AND peak_market_cap_usd < 300000  THEN 1 ELSE 0 END) AS g5,
+                SUM(CASE WHEN peak_market_cap_usd >= 75000   AND peak_market_cap_usd < 150000  THEN 1 ELSE 0 END) AS g6,
+                SUM(CASE WHEN peak_market_cap_usd > 0        AND peak_market_cap_usd < 75000   THEN 1 ELSE 0 END) AS g7,
                 AVG(peak_market_cap_usd) AS avg_peak_mc,
                 COUNT(*) AS n_mc
             FROM token_outcomes WHERE peak_market_cap_usd IS NOT NULL
         """).fetchone()
 
-        # Active token stats (join peaks, exclude G?)
+        # Active token stats (join peaks, exclude bad supply data)
         act_mc_rows = conn.execute("""
             SELECT
-                SUM(CASE WHEN tmp.peak_market_cap < 25000 THEN 1 ELSE 0 END) AS u25k,
-                SUM(CASE WHEN tmp.peak_market_cap >= 25000  AND tmp.peak_market_cap < 100000 THEN 1 ELSE 0 END) AS u100k,
-                SUM(CASE WHEN tmp.peak_market_cap >= 100000 AND tmp.peak_market_cap < 500000 THEN 1 ELSE 0 END) AS u500k,
-                SUM(CASE WHEN tmp.peak_market_cap >= 500000 AND tmp.peak_market_cap < 1000000 THEN 1 ELSE 0 END) AS u1m,
-                SUM(CASE WHEN tmp.peak_market_cap >= 1000000 AND tmp.peak_market_cap < 5000000 THEN 1 ELSE 0 END) AS u5m,
-                SUM(CASE WHEN tmp.peak_market_cap >= 5000000 THEN 1 ELSE 0 END) AS over5m,
+                SUM(CASE WHEN tmp.peak_market_cap >= 5000000 THEN 1 ELSE 0 END) AS g1,
+                SUM(CASE WHEN tmp.peak_market_cap >= 2000000 AND tmp.peak_market_cap < 5000000 THEN 1 ELSE 0 END) AS g2,
+                SUM(CASE WHEN tmp.peak_market_cap >= 500000  AND tmp.peak_market_cap < 2000000 THEN 1 ELSE 0 END) AS g3,
+                SUM(CASE WHEN tmp.peak_market_cap >= 300000  AND tmp.peak_market_cap < 500000  THEN 1 ELSE 0 END) AS g4,
+                SUM(CASE WHEN tmp.peak_market_cap >= 150000  AND tmp.peak_market_cap < 300000  THEN 1 ELSE 0 END) AS g5,
+                SUM(CASE WHEN tmp.peak_market_cap >= 75000   AND tmp.peak_market_cap < 150000  THEN 1 ELSE 0 END) AS g6,
+                SUM(CASE WHEN tmp.peak_market_cap > 0        AND tmp.peak_market_cap < 75000   THEN 1 ELSE 0 END) AS g7,
                 AVG(tmp.peak_market_cap) AS avg_peak_mc,
                 COUNT(*) AS n_mc
             FROM token_behavior tb
@@ -884,6 +887,18 @@ def api_token_intelligence_summary():
         """).fetchall()
         quality_dist = {r['q']: r['n'] for r in quality_rows}
 
+        # LIQ rugs: active tokens with liquidity removed
+        liq_row = conn.execute("""
+            SELECT COUNT(*) AS n
+            FROM token_behavior tb
+            JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
+            JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint
+                AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
+            JOIN token_pool_accounts tpa ON tpa.mint = tb.mint AND tpa.is_active = 1
+            WHERE tpa.liquidity_removed = 1
+        """).fetchone()
+        liq_count = liq_row['n'] if liq_row else 0
+
         conn.close()
 
         def median(vals):
@@ -900,7 +915,7 @@ def api_token_intelligence_summary():
         rugs = sum(combined_by_cat.get(c, 0) for c in ('immediate_rug', 'rug', 'slow_rug'))
         runners = sum(combined_by_cat.get(c, 0) for c in ('runner', 'choppy_runner', 'faded_runner', 'small_runner'))
 
-        combined_over5m = (mc_rows['over5m'] or 0) + (act_mc_rows['over5m'] or 0)
+        combined_over5m = (mc_rows['g1'] or 0) + (act_mc_rows['g1'] or 0)
         combined_n = (mc_rows['n_mc'] or 0) + (act_mc_rows['n_mc'] or 0)
 
         # Weighted avg peak MC
@@ -910,10 +925,13 @@ def api_token_intelligence_summary():
         act_n = act_mc_rows['n_mc'] or 0
         combined_avg_mc = ((fin_avg * fin_n) + (act_avg * act_n)) / (fin_n + act_n) if (fin_n + act_n) else None
 
+        def _gb(key): return (mc_rows[key] or 0) + (act_mc_rows[key] or 0)
+
         return no_cache_json({
             'active_count': active_row['n'] if active_row else 0,
             'finalized_count': total_fin,
             'pct_rugs': round(100.0 * rugs / total_classified, 1) if total_classified else 0,
+            'pct_liq': round(100.0 * liq_count / total_classified, 1) if total_classified else 0,
             'pct_runners': round(100.0 * runners / total_classified, 1) if total_classified else 0,
             'pct_5m_plus': round(100.0 * combined_over5m / combined_n, 1) if combined_n else 0,
             'avg_peak_market_cap': round(combined_avg_mc) if combined_avg_mc else None,
@@ -922,12 +940,13 @@ def api_token_intelligence_summary():
             'by_category': combined_by_cat,
             'rating_distribution': rating_dist,
             'mc_buckets': {
-                '<25K':    (mc_rows['u25k']  or 0) + (act_mc_rows['u25k']  or 0),
-                '25K-100K':(mc_rows['u100k'] or 0) + (act_mc_rows['u100k'] or 0),
-                '100K-500K':(mc_rows['u500k'] or 0) + (act_mc_rows['u500k'] or 0),
-                '500K-1M': (mc_rows['u1m']   or 0) + (act_mc_rows['u1m']   or 0),
-                '1M-5M':   (mc_rows['u5m']   or 0) + (act_mc_rows['u5m']   or 0),
-                '5M+':     (mc_rows['over5m'] or 0) + (act_mc_rows['over5m'] or 0),
+                'G1': _gb('g1'),
+                'G2': _gb('g2'),
+                'G3': _gb('g3'),
+                'G4': _gb('g4'),
+                'G5': _gb('g5'),
+                'G6': _gb('g6'),
+                'G7': _gb('g7'),
             },
             'quality_distribution': quality_dist,
             'last_updated': int(time.time()),
@@ -1010,11 +1029,11 @@ def api_token_intelligence():
             if hide_late:
                 where.append("tracking_quality = 'good'")
             if search:
-                where.append('mint LIKE ?'); params.append(f'%{search}%')
+                where.append('to2.mint LIKE ?'); params.append(f'%{search}%')
 
             where_clause = ('WHERE ' + ' AND '.join(where)) if where else ''
             fin_rows = conn.execute(f"""
-                SELECT mint,
+                SELECT to2.mint,
                        COALESCE(behaviour_category, 'unclassified') AS category,
                        rating_1_to_10 AS rating, rating_reason,
                        peak_market_cap_usd, peak_market_cap_at,
@@ -1022,10 +1041,13 @@ def api_token_intelligence():
                        snapshot_count_final AS snapshot_count,
                        tracking_quality,
                        drop_reason, confidence, max_return_multiple, drawdown_from_peak,
-                       finalized_at, NULL AS detected_at, 'finalized' AS status
-                FROM token_outcomes
+                       finalized_at, first_seen_at AS detected_at, 'finalized' AS status,
+                       COALESCE(tt.symbol, mc.symbol) AS symbol
+                FROM token_outcomes to2
+                LEFT JOIN tracked_tokens tt ON tt.mint = to2.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = to2.mint
                 {where_clause}
-                ORDER BY finalized_at DESC
+                ORDER BY first_seen_at DESC
                 LIMIT ?
             """, params + [limit]).fetchall()
             from src.core.token_behavior import compute_token_class, compute_outcome
@@ -1079,11 +1101,14 @@ def api_token_intelligence():
                        tb.max_return_multiple, tb.drawdown_from_peak,
                        tb.classified_at AS finalized_at,
                        ta.created_at AS detected_at,
-                       'active' AS status
+                       'active' AS status,
+                       COALESCE(tt.symbol, mc.symbol) AS symbol
                 FROM token_behavior tb
                 LEFT JOIN token_snapshot_counts tsc ON tsc.mint = tb.mint
                 JOIN token_market_cap_peaks tmp ON tmp.mint = tb.mint AND tmp.peak_market_cap > 0 AND tmp.peak_market_cap <= 100000000
                 LEFT JOIN token_analysis ta ON ta.mint = tb.mint
+                LEFT JOIN tracked_tokens tt ON tt.mint = tb.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = tb.mint
                 {where_clause}
                 ORDER BY ta.created_at DESC
                 LIMIT ?

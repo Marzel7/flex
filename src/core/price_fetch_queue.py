@@ -9,17 +9,22 @@ Architecture:
 3. Rate limiter delays between requests (default 200ms)
 4. Fetch workers pull from queue synchronously
 5. Results stored in cache and DB
+
+Priority ordering: HIGH=0, MEDIUM=1, LOW=2 (lower number = higher priority).
+Deduplication: mints already pending in the queue are not re-enqueued unless the
+new task is a higher-priority promotion for the same mint.
 """
 
-import sqlite3
 import logging
 import time
 import threading
 from typing import List, Dict, Optional, Callable
 from dataclasses import dataclass, field
-from queue import Queue, Empty
+from queue import PriorityQueue, Empty
 
 logger = logging.getLogger(__name__)
+
+_PRIORITY_MAP = {'HIGH': 0, 'MEDIUM': 1, 'LOW': 2}
 
 
 @dataclass
@@ -30,6 +35,28 @@ class FetchTask:
     enqueued_at: float
     callback: Optional[Callable] = None  # Called with (mint, price) after fetch
 
+    # Support ordering in PriorityQueue (compare by priority rank then enqueued_at)
+    def __lt__(self, other: 'FetchTask') -> bool:
+        my_rank = _PRIORITY_MAP.get(self.priority, 2)
+        other_rank = _PRIORITY_MAP.get(other.priority, 2)
+        if my_rank != other_rank:
+            return my_rank < other_rank
+        return self.enqueued_at < other.enqueued_at
+
+    def __le__(self, other: 'FetchTask') -> bool:
+        return self == other or self < other
+
+    def __gt__(self, other: 'FetchTask') -> bool:
+        return not self <= other
+
+    def __ge__(self, other: 'FetchTask') -> bool:
+        return not self < other
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FetchTask):
+            return False
+        return self.mint == other.mint and self.priority == other.priority
+
 
 class PriceFetchQueue:
     """
@@ -38,20 +65,19 @@ class PriceFetchQueue:
     Smooths API traffic: instead of fetching 20 tokens simultaneously (burst),
     fetches 3 at a time with 200ms delays between requests.
 
-    Thread-safe implementation using standard Queue.
+    Deduplicates: a mint already pending in the queue will not be re-enqueued
+    until it has been processed, unless a higher-priority task promotes it.
+    This prevents unbounded queue growth when prefetch cycles run faster than
+    the worker can drain while still allowing urgent work to jump the line.
+
+    Priority-ordered: HIGH tasks preempt MEDIUM/LOW regardless of enqueue order.
     """
 
     def __init__(self, max_concurrent: int = 3, request_delay_ms: int = 200):
-        """
-        Initialize queue.
-
-        Args:
-            max_concurrent: Max simultaneous fetches (default 3)
-            request_delay_ms: Delay between requests in milliseconds (default 200ms)
-        """
         self.max_concurrent = max_concurrent
         self.request_delay_ms = request_delay_ms / 1000.0  # Convert to seconds
-        self.queue = Queue()
+        self.queue: PriorityQueue = PriorityQueue()
+        self._pending: Dict[str, FetchTask] = {}  # latest queued task per mint
         self.active_requests = 0
         self.lock = threading.Lock()
 
@@ -61,6 +87,8 @@ class PriceFetchQueue:
 
         self.stats = {
             'enqueued': 0,
+            'deduped': 0,
+            'promoted': 0,
             'processed': 0,
             'failed': 0,
             'queue_depth': 0,
@@ -71,18 +99,34 @@ class PriceFetchQueue:
         self.running = False
         self.worker_thread = None
 
-    def enqueue(self, task: FetchTask) -> None:
-        """Add task to queue."""
+    def enqueue(self, task: FetchTask) -> bool:
+        """Add task to queue. Returns False if mint was already pending with same/higher priority."""
+        with self.lock:
+            existing = self._pending.get(task.mint)
+            if existing is not None:
+                existing_rank = _PRIORITY_MAP.get(existing.priority, 2)
+                new_rank = _PRIORITY_MAP.get(task.priority, 2)
+                if new_rank >= existing_rank:
+                    self.stats['deduped'] += 1
+                    return False
+                self.stats['promoted'] += 1
+            else:
+                self.stats['enqueued'] += 1
+            self._pending[task.mint] = task
+
         self.queue.put(task)
         with self.lock:
-            self.stats['enqueued'] += 1
             self.stats['queue_depth'] = self.queue.qsize()
         logger.debug(f"Enqueued {task.mint} (priority {task.priority}, queue depth {self.queue.qsize()})")
+        return True
 
-    def enqueue_batch(self, tasks: List[FetchTask]) -> None:
-        """Add multiple tasks to queue."""
+    def enqueue_batch(self, tasks: List[FetchTask]) -> int:
+        """Add multiple tasks to queue. Returns count actually enqueued (after dedup)."""
+        count = 0
         for task in tasks:
-            self.enqueue(task)
+            if self.enqueue(task):
+                count += 1
+        return count
 
     def start(self, fetch_fn: Callable) -> None:
         """Start the queue worker thread."""
@@ -107,12 +151,17 @@ class PriceFetchQueue:
         """Main worker loop that processes queue."""
         while self.running:
             try:
-                # Try to get a task with timeout
                 try:
                     task = self.queue.get(timeout=1.0)
                 except Empty:
-                    # No task available; keep waiting
                     continue
+
+                # Skip superseded tasks after an in-queue priority promotion.
+                with self.lock:
+                    if self._pending.get(task.mint) is not task:
+                        self.stats['queue_depth'] = self.queue.qsize()
+                        self.queue.task_done()
+                        continue
 
                 # Wait for a slot to become available (concurrency limit)
                 while self.active_requests >= self.max_concurrent:
@@ -129,7 +178,6 @@ class PriceFetchQueue:
                     if sleep_time > 0:
                         time.sleep(sleep_time)
 
-                # Fetch price
                 with self.lock:
                     self.active_requests += 1
 
@@ -139,7 +187,6 @@ class PriceFetchQueue:
                     latency_ms = (time.time() - start_time) * 1000
 
                     with self.lock:
-                        # Update EWMA latency (smoother than arithmetic mean)
                         if self.latency_ewma == 0.0:
                             self.latency_ewma = latency_ms
                         else:
@@ -153,7 +200,6 @@ class PriceFetchQueue:
                                 self.stats['total_latency_ms'] / self.stats['processed']
                             )
 
-                    # Call callback if provided
                     if task.callback:
                         task.callback(task.mint, price)
 
@@ -172,6 +218,9 @@ class PriceFetchQueue:
                         self.active_requests -= 1
                         self.stats['last_request_at'] = time.time()
                         self.stats['queue_depth'] = self.queue.qsize()
+                        # Remove from pending so it can be re-enqueued next cycle.
+                        if self._pending.get(task.mint) is task:
+                            self._pending.pop(task.mint, None)
 
                 self.queue.task_done()
 
@@ -186,12 +235,13 @@ class PriceFetchQueue:
             depth = self.stats['queue_depth']
             request_delay = int(self.request_delay_ms * 1000)
 
-            # Use EWMA latency for wait estimate (smoother, more responsive to spikes)
             latency_for_estimate = self.latency_ewma if self.latency_ewma > 0 else avg_latency
             queue_wait_estimate_ms = depth * (latency_for_estimate + self.request_delay_ms * 1000)
 
             return {
                 'enqueued': self.stats['enqueued'],
+                'deduped': self.stats['deduped'],
+                'promoted': self.stats['promoted'],
                 'processed': self.stats['processed'],
                 'failed': self.stats['failed'],
                 'queue_depth': depth,
@@ -204,15 +254,7 @@ class PriceFetchQueue:
             }
 
     def wait_until_empty(self, timeout_seconds: int = 30) -> bool:
-        """
-        Wait until queue is empty (all tasks processed).
-
-        Args:
-            timeout_seconds: Max time to wait
-
-        Returns:
-            True if queue became empty, False if timeout
-        """
+        """Wait until queue is empty (all tasks processed)."""
         start = time.time()
         while time.time() - start < timeout_seconds:
             if self.queue.empty() and self.active_requests == 0:

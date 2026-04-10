@@ -653,6 +653,7 @@ class PoolWebSocketClient:
     """
 
     WS_STALE_THRESHOLD = 120  # 2 minutes without events triggers fallback poll
+    WS_MAX_SUBSCRIPTIONS = 500  # Cap at top-500 by peak market cap to stay well under Helius 1000 limit
 
     def __init__(self, state_store: PoolStateStore, db_path: str, on_dual_update=None):
         self._store = state_store
@@ -756,6 +757,23 @@ class PoolWebSocketClient:
 
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""
+        if len(pools) > self.WS_MAX_SUBSCRIPTIONS // 2:
+            # Each pool contributes 2 accounts (base + quote); cap the pool list so total
+            # accounts stay within WS_MAX_SUBSCRIPTIONS. Rank by peak MC, fall back to 0.
+            import sqlite3 as _sq3
+            try:
+                with _sq3.connect(self._db_path) as _c:
+                    _c.row_factory = _sq3.Row
+                    _rows = _c.execute(
+                        "SELECT mint, peak_market_cap FROM token_market_cap_peaks WHERE peak_market_cap > 0"
+                    ).fetchall()
+                _peak = {r['mint']: r['peak_market_cap'] for r in _rows}
+            except Exception:
+                _peak = {}
+            pools = sorted(pools, key=lambda p: _peak.get(p['mint'], 0), reverse=True)
+            pools = pools[:self.WS_MAX_SUBSCRIPTIONS // 2]
+            ws_log.info(f"[WS_BUILD] capped to top-{len(pools)} pools by peak MC ({len(pools)*2} accounts ≤ {self.WS_MAX_SUBSCRIPTIONS} limit)")
+
         self._account_to_pools = {}
         new_pool_count = 0
         for pool in pools:

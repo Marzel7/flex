@@ -370,6 +370,11 @@ class TokenPriceService:
             ON token_price_snapshots(captured_at)
         """)
 
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tps_mint_mc
+            ON token_price_snapshots(mint, market_cap) WHERE market_cap > 0
+        """)
+
         # NEW: Circuit breaker persistence table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS circuit_breaker_state (
@@ -435,6 +440,25 @@ class TokenPriceService:
         except Exception as e:
             logger.debug(f"Migration check for discovery_method: {e}")
 
+        # Migration: Add liquidity_removed columns if missing
+        try:
+            cursor.execute("PRAGMA table_info(token_pool_accounts)")
+            columns = {row[1] for row in cursor.fetchall()}
+            if 'liquidity_removed' not in columns:
+                cursor.execute("""
+                    ALTER TABLE token_pool_accounts
+                    ADD COLUMN liquidity_removed BOOLEAN DEFAULT 0
+                """)
+                logger.info("Migrated: Added liquidity_removed to token_pool_accounts")
+            if 'liquidity_removed_at' not in columns:
+                cursor.execute("""
+                    ALTER TABLE token_pool_accounts
+                    ADD COLUMN liquidity_removed_at INTEGER
+                """)
+                logger.info("Migrated: Added liquidity_removed_at to token_pool_accounts")
+        except Exception as e:
+            logger.debug(f"Migration check for liquidity_removed: {e}")
+
         conn.commit()
         conn.close()
         logger.info("Database tables ensured (price snapshots + circuit breaker + pool accounts with vault tracking)")
@@ -474,7 +498,10 @@ class TokenPriceService:
                 market_cap=row['market_cap'],
                 source='cached',
                 pair_address=row['pair_address'],
-                timestamp=row['captured_at'],
+                # Treat this as a fresh local observation of cached data so downstream
+                # snapshot freshness reflects when we reused it, not when the source
+                # row was originally recorded.
+                timestamp=int(time.time()),
                 is_stale=is_stale
             )
         except Exception as e:
@@ -496,6 +523,12 @@ class TokenPriceService:
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
+            observed_at = int(time.time())
+            captured_at = int(price.timestamp) if price.timestamp else observed_at
+            # If a stale/cached path hands us an old source timestamp, preserve freshness
+            # of the local snapshot stream by recording when we observed it now.
+            if price.is_stale or price.source == 'cached':
+                captured_at = observed_at
 
             cursor.execute("""
                 INSERT INTO token_price_snapshots
@@ -511,8 +544,8 @@ class TokenPriceService:
                 price.market_cap,
                 price.source,
                 price.pair_address,
-                price.timestamp,
-                int(time.time())
+                captured_at,
+                observed_at
             ))
 
             # Keep summary table in sync so /api/token-behaviour never scans 2.9M rows
@@ -524,31 +557,50 @@ class TokenPriceService:
                     last_updated = excluded.last_updated
             """, (price.mint, int(time.time())))
 
-            # Peak write — price_service writes raw_peak_mc on every tick (immediate, unfiltered)
-            # price_worker writes effective_peak_mc (filtered/confirmed) separately
-            # peak_market_cap = MAX(raw, effective) — monotonically increasing, never decreases
+            # Peak write — backend owns peak monotonicity. Every higher current MC advances peak.
             if price.market_cap and price.market_cap > 0:
-                now_ts = int(price.timestamp) if price.timestamp else int(time.time())
+                now_ts = captured_at
                 cursor.execute("""
-                    INSERT INTO token_market_cap_peaks (mint, peak_market_cap, peak_market_cap_at, raw_peak_mc, raw_peak_mc_at)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO token_market_cap_peaks (
+                        mint, peak_market_cap, peak_market_cap_at,
+                        raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count, raw_peak_mc_at
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(mint) DO UPDATE SET
-                        raw_peak_mc        = MAX(raw_peak_mc, excluded.raw_peak_mc),
-                        raw_peak_mc_at     = CASE WHEN excluded.raw_peak_mc > raw_peak_mc
-                                                  THEN excluded.raw_peak_mc_at
-                                                  ELSE raw_peak_mc_at END,
-                        peak_market_cap    = MAX(peak_market_cap, excluded.raw_peak_mc),
-                        peak_market_cap_at = CASE WHEN excluded.raw_peak_mc > peak_market_cap
-                                                  THEN excluded.raw_peak_mc_at
-                                                  ELSE peak_market_cap_at END
-                """, (price.mint, price.market_cap, now_ts, price.market_cap, now_ts))
+                        peak_market_cap    = MAX(COALESCE(peak_market_cap, 0), excluded.peak_market_cap),
+                        peak_market_cap_at = CASE
+                            WHEN excluded.peak_market_cap > COALESCE(peak_market_cap, 0) THEN excluded.peak_market_cap_at
+                            WHEN peak_market_cap_at IS NULL OR peak_market_cap_at = 0 THEN excluded.peak_market_cap_at
+                            ELSE peak_market_cap_at
+                        END,
+                        raw_peak_mc        = MAX(COALESCE(raw_peak_mc, 0), excluded.raw_peak_mc),
+                        raw_peak_mc_at     = CASE
+                            WHEN excluded.raw_peak_mc > COALESCE(raw_peak_mc, 0) THEN excluded.raw_peak_mc_at
+                            WHEN raw_peak_mc_at IS NULL OR raw_peak_mc_at = 0 THEN excluded.raw_peak_mc_at
+                            ELSE raw_peak_mc_at
+                        END,
+                        effective_peak_mc    = MAX(COALESCE(effective_peak_mc, 0), excluded.effective_peak_mc),
+                        candidate_peak_mc    = MAX(COALESCE(candidate_peak_mc, 0), excluded.candidate_peak_mc),
+                        candidate_peak_count = MAX(COALESCE(candidate_peak_count, 0), excluded.candidate_peak_count)
+                """, (price.mint, price.market_cap, now_ts,
+                      price.market_cap, price.market_cap, price.market_cap, 1, now_ts))
+                peak_iso = datetime.utcfromtimestamp(now_ts).isoformat() + "Z"
                 cursor.execute("""
                     UPDATE token_analysis
-                    SET market_cap_highest    = ?,
-                        market_cap_highest_at_ts = ?
+                    SET market_cap_highest = MAX(COALESCE(market_cap_highest, 0), ?),
+                        market_cap_highest_at_ts = CASE
+                            WHEN ? > COALESCE(market_cap_highest, 0) THEN ?
+                            WHEN market_cap_highest_at_ts IS NULL OR market_cap_highest_at_ts = 0 THEN ?
+                            ELSE market_cap_highest_at_ts
+                        END,
+                        market_cap_highest_at = CASE
+                            WHEN ? > COALESCE(market_cap_highest, 0) THEN ?
+                            WHEN market_cap_highest_at IS NULL OR market_cap_highest_at = '' THEN ?
+                            ELSE market_cap_highest_at
+                        END
                     WHERE mint = ?
-                      AND (market_cap_highest IS NULL OR market_cap_highest < ?)
-                """, (price.market_cap, now_ts, price.mint, price.market_cap))
+                """, (price.market_cap, price.market_cap, now_ts, now_ts,
+                      price.market_cap, peak_iso, peak_iso, price.mint))
 
             conn.commit()
 

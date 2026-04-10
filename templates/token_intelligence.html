@@ -429,7 +429,7 @@
         <table class="ti-table">
             <thead>
                 <tr>
-                    <th data-col="newest" class="sort-desc">Mint</th>
+                    <th data-col="newest" class="sort-desc">Token</th>
                     <th data-col="token_class">Class</th>
                     <th data-col="outcome">Outcome</th>
                     <th data-col="rating">Rating</th>
@@ -437,8 +437,8 @@
                     <th data-col="time_to_peak">→Peak</th>
                     <th data-col="lifetime">Lifetime</th>
                     <th data-col="snapshots">Snaps</th>
-                    <th data-col="quality">Quality</th>
-                    <th data-col="drop_reason">Drop</th>
+                    <th data-col="quality" title="Token quality score based on tracking coverage. 'good' = tracked from migration; 'possibly_late' / 'likely_late' = joined late, peak MC may be understated.">Quality ⓘ</th>
+                    <th data-col="drop_reason" title="% drop from peak / liquidity drop indicator — reason the token's price fell from its peak (e.g. liquidity removed, sell-off, rug).">Drop ⓘ</th>
                 </tr>
             </thead>
             <tbody id="tiTableBody">
@@ -646,15 +646,17 @@ function renderDists(d) {
 
     const buckets = d.mc_buckets || {};
     const maxMc = Math.max(...Object.values(buckets).map(Number), 1);
+    const G_MC_LABEL = {'G1':'G1  ≥$5M','G2':'G2  ≥$2M','G3':'G3  ≥$500K','G4':'G4  ≥$300K','G5':'G5  ≥$150K','G6':'G6  ≥$75K','G7':'G7  <$75K'};
     const mcPanel = `
-        <div class="ti-dist-title">Peak MC Buckets</div>
-        ${Object.entries(buckets).map(([label, n]) => `
-            <div class="ti-bar-row">
-                <div class="ti-bar-label">${label}</div>
-                <div class="ti-bar-track"><div class="ti-bar-fill" style="width:${n?Math.max(Math.round(100*n/maxMc),2):0}%;background:#8b5cf6"></div></div>
+        <div class="ti-dist-title">Peak MC — G Class</div>
+        ${['G1','G2','G3','G4','G5','G6','G7'].map(g => {
+            const n = buckets[g] || 0;
+            return `<div class="ti-bar-row">
+                <div class="ti-bar-label" style="color:${G_COLOR[g]}">${G_MC_LABEL[g]}</div>
+                <div class="ti-bar-track"><div class="ti-bar-fill" style="width:${n?Math.max(Math.round(100*n/maxMc),2):0}%;background:${G_COLOR[g]}"></div></div>
                 <div class="ti-bar-count">${n}</div>
-            </div>
-        `).join('')}
+            </div>`;
+        }).join('')}
     `;
 
     document.getElementById('tiDists').innerHTML = [catPanel, ratingPanel, mcPanel]
@@ -952,8 +954,12 @@ function renderTable(tokens) {
         }
 
         const newBadge = isPin ? `<span class="badge-new" style="margin-left:5px">NEW</span>` : '';
+        const mintFull = t.mint || '—';
+        const tokenLabel = t.symbol
+            ? `<span style="font-weight:600;color:var(--text-primary)">${t.symbol}</span><br><span style="font-size:10px;color:var(--text-secondary);user-select:all">${mintFull}</span>`
+            : `<span style="user-select:all">${mintFull}</span>`;
         return `<tr class="${rowClass}" data-mint="${t.mint}" onclick="openDetail('${t.mint}')">
-            <td class="td-mono" style="${isWeak&&!isPin?'opacity:0.55':''}">${t.mint ? t.mint.slice(0,14)+'…' : '—'}${newBadge}</td>
+            <td class="td-mono" style="${isWeak&&!isPin?'opacity:0.55':''}">${tokenLabel}${newBadge}</td>
             <td>${gBadge(tc)}</td>
             <td>${outcomeBadge(outcome)}</td>
             <td>${ratingCell}</td>

@@ -13,6 +13,7 @@ import sqlite3
 import json
 import requests
 import threading
+import asyncio
 from datetime import datetime
 from flask import Flask, jsonify, render_template, render_template_string, request, Response, abort
 from flask_compress import Compress
@@ -35,6 +36,10 @@ except ImportError as e:
 # Database
 DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
+# A token younger than this has not had enough time to develop a meaningful peak MC,
+# so G-class is withheld rather than shown as G? or computed from early noise.
+NEW_TOKEN_WINDOW_SECS = 15 * 60  # 15 minutes
+
 # Schema migration — runs at import time regardless of how the app is started
 def _ensure_schema():
     _migrations = [
@@ -48,6 +53,51 @@ def _ensure_schema():
         """UPDATE token_market_cap_peaks
            SET raw_peak_mc_at = peak_market_cap_at
            WHERE raw_peak_mc_at IS NULL AND peak_market_cap_at IS NOT NULL""",
+        """UPDATE token_market_cap_peaks
+           SET peak_market_cap_at = COALESCE(
+               peak_market_cap_at,
+               (
+                   SELECT MIN(tps.captured_at)
+                   FROM token_price_snapshots tps
+                   WHERE tps.mint = token_market_cap_peaks.mint
+                     AND tps.market_cap >= token_market_cap_peaks.peak_market_cap
+                     AND tps.market_cap > 0
+               ),
+               (
+                   SELECT CASE
+                       WHEN CAST(ta.created_at AS REAL) > 1000000000 THEN CAST(ta.created_at AS INTEGER)
+                       ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
+                   END
+                   FROM token_analysis ta
+                   WHERE ta.mint = token_market_cap_peaks.mint
+               ),
+               raw_peak_mc_at
+           )
+           WHERE peak_market_cap > 0
+             AND (peak_market_cap_at IS NULL OR peak_market_cap_at = 0)""",
+        """UPDATE token_analysis
+           SET market_cap_highest_at_ts = COALESCE(
+               market_cap_highest_at_ts,
+               (
+                   SELECT tmp.peak_market_cap_at
+                   FROM token_market_cap_peaks tmp
+                   WHERE tmp.mint = token_analysis.mint
+               ),
+               CASE
+                   WHEN CAST(created_at AS REAL) > 1000000000 THEN CAST(created_at AS INTEGER)
+                   ELSE CAST(strftime('%s', created_at) AS INTEGER)
+               END
+           )
+           WHERE market_cap_highest IS NOT NULL
+             AND market_cap_highest > 0
+             AND (market_cap_highest_at_ts IS NULL OR market_cap_highest_at_ts = 0)""",
+        """UPDATE token_analysis
+           SET market_cap_highest_at = datetime(market_cap_highest_at_ts, 'unixepoch') || 'Z'
+           WHERE market_cap_highest IS NOT NULL
+             AND market_cap_highest > 0
+             AND market_cap_highest_at_ts IS NOT NULL
+             AND market_cap_highest_at_ts > 0
+             AND (market_cap_highest_at IS NULL OR market_cap_highest_at = '')""",
     ]
     for sql in _migrations:
         try:
@@ -64,6 +114,8 @@ _ensure_schema()
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'), static_folder=os.path.join(PROJECT_ROOT, 'static'))
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.jinja_env.auto_reload = True
 Compress(app)  # gzip all text/html and application/json responses automatically
 
 from flask_sock import Sock as _Sock
@@ -74,6 +126,57 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # Analysis result cache for background operations
 app.funder_analysis_cache = {}
+_creator_backfill_lock = threading.Lock()
+_creator_backfill_inflight = set()
+
+
+def _backfill_missing_creator(mint: str) -> None:
+    """Best-effort background repair for tokens missing earliest_tx_creator."""
+    try:
+        from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+
+        analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL'))
+        provenance = asyncio.run(analyzer.get_creator_from_earliest_tx())
+        creator = provenance.get('creator') if provenance else None
+        if not creator:
+            return
+
+        created_at = None
+        if provenance and provenance.get('blockTime'):
+            created_at = datetime.utcfromtimestamp(provenance['blockTime']).isoformat() + "Z"
+
+        bonding_curve_pda = provenance.get('bonding_curve_pda') if provenance else None
+        is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
+        create_tx_signature = analyzer._create_tx_signature if (hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
+
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn.execute("""
+            UPDATE token_analysis
+            SET earliest_tx_creator = COALESCE(earliest_tx_creator, ?),
+                created_at = COALESCE(created_at, ?),
+                bonding_curve_pda = COALESCE(bonding_curve_pda, ?),
+                create_tx_signature = COALESCE(create_tx_signature, ?)
+            WHERE mint = ?
+              AND (earliest_tx_creator IS NULL OR earliest_tx_creator = '')
+        """, (creator, created_at, bonding_curve_pda, create_tx_signature, mint))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+    finally:
+        with _creator_backfill_lock:
+            _creator_backfill_inflight.discard(mint)
+
+
+def _schedule_missing_creator_backfill(mint: Optional[str]) -> None:
+    """Fire-and-forget creator repair for tokens that slipped through without creator metadata."""
+    if not mint:
+        return
+    with _creator_backfill_lock:
+        if mint in _creator_backfill_inflight:
+            return
+        _creator_backfill_inflight.add(mint)
+    threading.Thread(target=_backfill_missing_creator, args=(mint,), daemon=True).start()
 
 # Database capability flags (checked on app startup)
 app.has_networks_release = None  # Set to True/False on first request
@@ -708,6 +811,37 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
+        def _parse_unix_ts(value):
+            if value is None or value == '':
+                return None
+            try:
+                if isinstance(value, (int, float)):
+                    ts = int(float(value))
+                    return ts if ts > 0 else None
+                text = str(value).strip()
+                if not text:
+                    return None
+                if text.replace('.', '', 1).isdigit():
+                    ts = int(float(text))
+                    return ts if ts > 0 else None
+                return int(datetime.fromisoformat(text.rstrip('Z')).timestamp())
+            except Exception:
+                return None
+
+        def _normalized_peak(current_mc, peak_mc, peak_at, latest_snapshot_at):
+            current_val = float(current_mc or 0)
+            peak_val = float(peak_mc or 0)
+            if current_val > peak_val:
+                return current_val, latest_snapshot_at or peak_at
+            return (peak_val or None), peak_at
+
+        def _peak_time_seconds(created_at, peak_at):
+            created_ts = _parse_unix_ts(created_at)
+            peak_ts = _parse_unix_ts(peak_at)
+            if not created_ts or not peak_ts or peak_ts < created_ts:
+                return None
+            return peak_ts - created_ts
+
         now_ts = int(time.time())
         cursor.execute("""
             SELECT
@@ -739,11 +873,15 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 COALESCE(tsc.last_updated, 0) as snap_last_updated,
                 tps.price_usd as snap_price_usd,
                 tps.market_cap as snap_market_cap,
-                tmp.peak_market_cap as peaks_market_cap,
-                tmp.peak_market_cap_at as peaks_market_cap_at,
-                tpa.quote_liquidity as pool_quote_liquidity,
-                tpa.updated_at as pool_updated_at,
-                mc.symbol as token_symbol
+                tps.captured_at as snap_captured_at,
+                COALESCE(NULLIF(tmp.peak_market_cap, 0), NULLIF(ta.market_cap_highest, 0), NULLIF(tps.market_cap, 0)) as peaks_market_cap,
+                COALESCE(tmp.peak_market_cap_at, ta.market_cap_highest_at_ts, ta.market_cap_highest_at) as peaks_market_cap_at,
+                tpa.quote_liquidity      as pool_quote_liquidity,
+                tpa.updated_at           as pool_updated_at,
+                tpa.liquidity_removed    as liquidity_removed,
+                tpa.liquidity_removed_at as liquidity_removed_at,
+                mc.symbol as token_symbol,
+                mc.name as token_name
             FROM token_analysis ta
             LEFT JOIN creator_networks cn
                 ON ta.earliest_tx_creator = cn.creator_address
@@ -785,13 +923,41 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
 
         rows = cursor.fetchall()
 
-        _LOW_LIQ_TTL = 60
-
         if light:
+            from src.core.token_behavior import compute_token_class
+            import datetime as _dt
             tokens = []
             for row in rows:
+                # Resolve created_at to a unix timestamp for age check
+                _cat = row['created_at']
+                try:
+                    if _cat and isinstance(_cat, str):
+                        _created_ts = int(_dt.datetime.fromisoformat(_cat.rstrip('Z')).replace(
+                            tzinfo=_dt.timezone.utc).timestamp())
+                    elif _cat:
+                        _created_ts = int(float(_cat))
+                    else:
+                        _created_ts = 0
+                except Exception:
+                    _created_ts = 0
+
+                _peak_mc = row['peaks_market_cap'] or 0
+                _is_new  = _created_ts > 0 and (now_ts - _created_ts) < NEW_TOKEN_WINDOW_SECS
+                if _is_new or _peak_mc <= 0:
+                    _token_class = None
+                else:
+                    _token_class = compute_token_class(_peak_mc)
+
+                normalized_peak_mc, normalized_peak_at = _normalized_peak(
+                    row['snap_market_cap'],
+                    row['peaks_market_cap'],
+                    row['peaks_market_cap_at'],
+                    row['snap_captured_at'],
+                )
+
                 tokens.append({
                     'mint': row['mint'],
+                    'token_class': _token_class,
                     'analyzed_at': row['analyzed_at'],
                     'created_at': row['created_at'],
                     'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
@@ -802,8 +968,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'price_current': row['snap_price_usd'] or None,
                     'price_highest': row['price_highest'] if row['price_highest'] else None,
                     'market_cap_current': row['snap_market_cap'] or None,
-                    'market_cap_highest': row['peaks_market_cap'] or None,
-                    'market_cap_highest_at': row['peaks_market_cap_at'] or None,
+                    'market_cap_highest': normalized_peak_mc,
+                    'market_cap_highest_at': normalized_peak_at,
+                    'peak_time_seconds': _peak_time_seconds(row['created_at'], normalized_peak_at),
                     'rug_indicator': row['rug_indicator'],
                     'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                     'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
@@ -828,15 +995,16 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
                     'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
                     'snap_age': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else 99999,
-                    'pool_quote_liquidity': (
-                        row['pool_quote_liquidity']
-                        if row['pool_quote_liquidity'] is not None
-                           and row['pool_updated_at'] is not None
-                           and int(row['pool_updated_at']) >= now_ts - _LOW_LIQ_TTL
-                        else None
-                    ),
+                    'data_freshness_seconds': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else None,
+                    'pool_quote_liquidity': row['pool_quote_liquidity'],
+                    'liquidity_removed':    bool(row['liquidity_removed']),
+                    'liquidity_removed_at': row['liquidity_removed_at'],
+                    'is_low_liquidity':     bool(row['liquidity_removed']),  # backwards-compat alias
                     'symbol': row['token_symbol'] or None,
+                    'name': row['token_name'] or None,
                 })
+                if not row['earliest_tx_creator']:
+                    _schedule_missing_creator_backfill(row['mint'])
             conn.close()
             return tokens
 
@@ -934,6 +1102,13 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 }
             )
 
+            normalized_peak_mc, normalized_peak_at = _normalized_peak(
+                row['snap_market_cap'],
+                row['peaks_market_cap'],
+                row['peaks_market_cap_at'],
+                row['snap_captured_at'],
+            )
+
             tokens.append({
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
@@ -946,8 +1121,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'price_current': row['snap_price_usd'] or None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
                 'market_cap_current': row['snap_market_cap'] or None,
-                'market_cap_highest': row['peaks_market_cap'] or None,
-                'market_cap_highest_at': row['peaks_market_cap_at'] or None,
+                'market_cap_highest': normalized_peak_mc,
+                'market_cap_highest_at': normalized_peak_at,
+                'peak_time_seconds': _peak_time_seconds(row['created_at'], normalized_peak_at),
                 'rug_indicator': row['rug_indicator'],
                 'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
@@ -7589,10 +7765,15 @@ def api_price_symbol(mint: str):
     """Return symbol/name for a mint, checking cache then triggering a background fetch."""
     try:
         conn = sqlite3.connect(DB_PATH, timeout=3)
-        row = conn.execute(
-            "SELECT symbol, name FROM metadata_cache WHERE mint = ? AND symbol IS NOT NULL AND symbol != '' AND symbol != 'UNKNOWN'",
-            (mint,)
-        ).fetchone()
+        row = conn.execute("""
+            SELECT symbol, name
+            FROM metadata_cache
+            WHERE mint = ?
+              AND (
+                  (symbol IS NOT NULL AND symbol != '' AND symbol != 'UNKNOWN')
+                  OR (name IS NOT NULL AND name != '')
+              )
+        """, (mint,)).fetchone()
         conn.close()
         if row:
             return jsonify({'symbol': row[0], 'name': row[1] or row[0]})
@@ -7608,6 +7789,30 @@ def api_price_symbol(mint: str):
 def api_token_metrics(token_mint: str):
     """Get detailed risk metrics for a specific token"""
     try:
+        def _parse_unix_ts(value):
+            if value is None or value == '':
+                return None
+            try:
+                if isinstance(value, (int, float)):
+                    ts = int(float(value))
+                    return ts if ts > 0 else None
+                text = str(value).strip()
+                if not text:
+                    return None
+                if text.replace('.', '', 1).isdigit():
+                    ts = int(float(text))
+                    return ts if ts > 0 else None
+                return int(datetime.fromisoformat(text.rstrip('Z')).timestamp())
+            except Exception:
+                return None
+
+        def _peak_time_seconds(created_at, peak_at):
+            created_ts = _parse_unix_ts(created_at)
+            peak_ts = _parse_unix_ts(peak_at)
+            if not created_ts or not peak_ts or peak_ts < created_ts:
+                return None
+            return peak_ts - created_ts
+
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -7632,7 +7837,9 @@ def api_token_metrics(token_mint: str):
                 price_highest,
                 market_cap_current,
                 market_cap_highest,
-                created_at
+                market_cap_highest_at_ts,
+                created_at,
+                earliest_tx_creator
             FROM token_analysis
             WHERE mint = ?
         """, (token_mint,))
@@ -7642,71 +7849,87 @@ def api_token_metrics(token_mint: str):
         if not row:
             conn.close()
             return jsonify({'error': 'Token not found'}), 404
+        if not row['earliest_tx_creator']:
+            _schedule_missing_creator_backfill(token_mint)
 
-        # Get pool liquidity — only surface when recently updated by WS compute-fail (cross-process signal via DB)
+        meta_row = cursor.execute("""
+            SELECT symbol, name
+            FROM metadata_cache
+            WHERE mint = ?
+        """, (token_mint,)).fetchone()
+
+        # Pool liquidity + rug state
         cursor.execute("""
-            SELECT quote_liquidity, updated_at FROM token_pool_accounts
+            SELECT quote_liquidity, liquidity_removed, liquidity_removed_at
+            FROM token_pool_accounts
             WHERE mint = ? AND is_active = 1
-            ORDER BY updated_at DESC, quote_liquidity DESC LIMIT 1
+            ORDER BY updated_at DESC LIMIT 1
         """, (token_mint,))
         pool_liq_row = cursor.fetchone()
-        pool_quote_liquidity = None
-        if pool_liq_row and pool_liq_row['quote_liquidity'] is not None:
-            if pool_liq_row['updated_at'] and int(pool_liq_row['updated_at']) >= int(time.time()) - 60:
-                pool_quote_liquidity = pool_liq_row['quote_liquidity']
+        pool_quote_liquidity = pool_liq_row['quote_liquidity']       if pool_liq_row else None
+        liquidity_removed    = bool(pool_liq_row['liquidity_removed']) if pool_liq_row else False
+        liquidity_removed_at = pool_liq_row['liquidity_removed_at']  if pool_liq_row else None
 
-        # Get authoritative peak from token_market_cap_peaks
+        # Peak MC
         cursor.execute("""
-            SELECT peak_market_cap, peak_market_cap_at
-            FROM token_market_cap_peaks
-            WHERE mint = ?
+            SELECT peak_market_cap, peak_market_cap_at, raw_peak_mc, raw_peak_mc_at
+            FROM token_market_cap_peaks WHERE mint = ?
         """, (token_mint,))
         peak_row = cursor.fetchone()
-        peak_market_cap = peak_row['peak_market_cap'] if peak_row and peak_row['peak_market_cap'] else (row['market_cap_highest'] or 0)
-        peak_market_cap_at = peak_row['peak_market_cap_at'] if peak_row and peak_row['peak_market_cap_at'] else None
+        peak_market_cap    = (peak_row['peak_market_cap'] or 0) if peak_row else 0
+        peak_market_cap_at = peak_row['peak_market_cap_at']     if peak_row else None
+        raw_peak_market_cap = (peak_row['raw_peak_mc'] or 0) if peak_row else 0
+        raw_peak_market_cap_at = peak_row['raw_peak_mc_at'] if peak_row else None
 
-        # If peak is still 0 (bad write during drainer downtime), fall back to MAX from snapshots
+        if not peak_market_cap_at:
+            peak_market_cap_at = row['market_cap_highest_at_ts'] if row['market_cap_highest_at_ts'] else None
         if not peak_market_cap:
-            cursor.execute("""
-                SELECT MAX(market_cap) as snap_peak, created_at
-                FROM token_price_snapshots
-                WHERE mint = ? AND market_cap > 0
-            """, (token_mint,))
-            snap_row = cursor.fetchone()
-            if snap_row and snap_row['snap_peak']:
-                peak_market_cap = snap_row['snap_peak']
+            peak_market_cap = row['market_cap_highest'] or 0
 
-        # Get most recent price source from token_price_snapshots
-        cursor.execute("""
-            SELECT source
-            FROM token_price_snapshots
-            WHERE mint = ?
-            ORDER BY created_at DESC
-            LIMIT 1
-        """, (token_mint,))
-
-        price_source_row = cursor.fetchone()
-        if price_source_row:
-            price_source = price_source_row['source']
-        elif row['price_current'] and row['price_current'] > 0:
-            # Token has a price but no snapshot history — it's cached/historical
-            price_source = 'cached'
-        else:
-            # Token has no price
-            price_source = 'none'
+        # Price source (uses idx_tps_mint_time on captured_at)
+        src_row = cursor.execute(
+            "SELECT source, captured_at FROM token_price_snapshots WHERE mint = ? ORDER BY captured_at DESC LIMIT 1",
+            (token_mint,)
+        ).fetchone()
         conn.close()
 
-        # Read first-price latency from launch_price.log
+        current_market_cap = row['market_cap_current'] if row['market_cap_current'] else 0
+        if current_market_cap and current_market_cap > peak_market_cap:
+            peak_market_cap = current_market_cap
+            peak_market_cap_at = src_row['captured_at'] if src_row and src_row['captured_at'] else peak_market_cap_at
+
+        if src_row:
+            price_source = src_row['source']
+        elif row['price_current'] and row['price_current'] > 0:
+            price_source = 'cached'
+        else:
+            price_source = 'none'
+
+
+        # Read first-price latency from launch_price.log (reverse scan — newest first, stops on first match)
         import src.core.launch_price_logger as _lpl
         first_price_latency = None
         first_price_source = None
         try:
-            with open(_lpl._LOG_PATH, 'r', encoding='utf-8') as _f:
-                for _line in _f:
-                    _parts = _line.strip().split('\t')
-                    if len(_parts) >= 9 and _parts[0] == 'FIRST_PRICE' and _parts[8] == token_mint:
-                        first_price_latency = _parts[4]   # e.g. "1.9s" or "unknown"
-                        first_price_source = _parts[7]    # e.g. "pool" or "cached"
+            with open(_lpl._LOG_PATH, 'rb') as _f:
+                _f.seek(0, 2)
+                _pos = _f.tell()
+                _buf = b''
+                while _pos > 0:
+                    _chunk = min(4096, _pos)
+                    _pos -= _chunk
+                    _f.seek(_pos)
+                    _buf = _f.read(_chunk) + _buf
+                    _lines = _buf.split(b'\n')
+                    # Keep incomplete first chunk for next iteration
+                    _buf = _lines[0]
+                    for _line in reversed(_lines[1:]):
+                        _parts = _line.decode('utf-8', errors='ignore').strip().split('\t')
+                        if len(_parts) >= 9 and _parts[0] == 'FIRST_PRICE' and _parts[8] == token_mint:
+                            first_price_latency = _parts[4]
+                            first_price_source = _parts[7]
+                            break
+                    if first_price_latency:
                         break
         except Exception:
             pass
@@ -7735,15 +7958,22 @@ def api_token_metrics(token_mint: str):
                 'source': price_source
             },
             'market_cap': {
-                'current': row['market_cap_current'] if row['market_cap_current'] else 0,
+                'current': current_market_cap,
                 'highest': peak_market_cap
             },
             'peak_at': peak_market_cap_at,
+            'peak_time_seconds': _peak_time_seconds(row['created_at'], peak_market_cap_at),
             'created_at': row['created_at'],
             'coverage': row['coverage'] if row['coverage'] else 0,
             'first_price_latency': first_price_latency,
             'first_price_source': first_price_source,
-            'pool_quote_liquidity': pool_quote_liquidity
+            'pool_quote_liquidity':  pool_quote_liquidity,
+            'liquidity_removed':     liquidity_removed,
+            'liquidity_removed_at':  liquidity_removed_at,
+            'is_low_liquidity':      liquidity_removed,  # backwards-compat alias
+            'creator':               row['earliest_tx_creator'] or None,
+            'symbol':                meta_row['symbol'] if meta_row and meta_row['symbol'] else None,
+            'name':                  meta_row['name'] if meta_row and meta_row['name'] else None,
         })
         return response
     except Exception as e:
@@ -7849,32 +8079,39 @@ def api_creator_details(creator_address: str):
         # Add infrastructure highlighting to funders
         all_funders = highlight_infra_in_funding(all_funders)
 
-        # Add security tags (circular funding, network membership, etc.)
-        for funder in all_funders:
-            # Check for DIRECT circular funding: funder received from creator AND sent back to creator
-            cursor.execute("""
-                SELECT COUNT(*) as direct_circular FROM (
-                    SELECT recipient_address FROM creator_outgoing_transfers
-                    WHERE creator_address = ? AND recipient_address = ?
-                    INTERSECT
-                    SELECT funder_address FROM creator_funders
-                    WHERE creator_address = ? AND funder_address = ?
-                )
-            """, (creator_address, funder['funder_address'], creator_address, funder['funder_address']))
-            direct_circ = cursor.fetchone()
-            if direct_circ and direct_circ['direct_circular'] > 0:
-                if 'labels' not in funder:
-                    funder['labels'] = []
-                funder['labels'].append('⚠️ CIRCULAR_FUNDING(direct)')
+        # Add security tags (circular funding, network membership) — batched to avoid N+1
+        if all_funders:
+            funder_addrs = [f['funder_address'] for f in all_funders]
+            placeholders = ','.join('?' * len(funder_addrs))
 
-            # Check if funder is in a network
-            cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (funder['funder_address'],))
-            net = cursor.fetchone()
-            if net:
-                funder['network'] = net['network_name']
-                if 'labels' not in funder:
-                    funder['labels'] = []
-                funder['labels'].append(f'NETWORK_MEMBER')
+            # Batch circular funding: recipients that are also funders of this creator
+            cursor.execute(f"""
+                SELECT DISTINCT cot.recipient_address
+                FROM creator_outgoing_transfers cot
+                WHERE cot.creator_address = ?
+                  AND cot.recipient_address IN (
+                      SELECT funder_address FROM creator_funders WHERE creator_address = ?
+                  )
+                  AND cot.recipient_address IN ({placeholders})
+            """, [creator_address, creator_address] + funder_addrs)
+            circular_set = {row[0] for row in cursor.fetchall()}
+
+            # Batch network membership
+            cursor.execute(f"""
+                SELECT creator_address, network_name
+                FROM creator_networks
+                WHERE creator_address IN ({placeholders})
+            """, funder_addrs)
+            funder_network_map = {row[0]: row[1] for row in cursor.fetchall()}
+
+            for funder in all_funders:
+                addr = funder['funder_address']
+                if addr in circular_set:
+                    funder['labels'].append('⚠️ CIRCULAR_FUNDING(direct)')
+                net_name = funder_network_map.get(addr)
+                if net_name:
+                    funder['network'] = net_name
+                    funder['labels'].append('NETWORK_MEMBER')
 
         # Sort by relevance: funders with tags first, then by amount
         def relevance_score(funder):
@@ -7985,28 +8222,26 @@ def api_creator_details(creator_address: str):
         except Exception as e:
             outbound_cross_refs = []
 
-        # 10. Get INBOUND cross-creator references (funders that also fund other creators)
+        # 10. Get INBOUND cross-creator references (funders that also fund other creators) — single query
         inbound_cross_refs = []
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT DISTINCT cf.funder_address, COUNT(DISTINCT cf2.creator_address) as other_creator_count
+                SELECT cf.funder_address,
+                       COUNT(DISTINCT cf2.creator_address) as other_creator_count,
+                       GROUP_CONCAT(DISTINCT cf2.creator_address) as other_creators_csv
                 FROM creator_funders cf
                 JOIN creator_funders cf2 ON cf.funder_address = cf2.funder_address
                 WHERE cf.creator_address = ?
-                AND cf2.creator_address != ?
+                  AND cf2.creator_address != ?
                 GROUP BY cf.funder_address
                 ORDER BY other_creator_count DESC
             """, (creator_address, creator_address))
 
             for row in cursor.fetchall():
-                funder_addr, other_count = row
-                cursor.execute("""
-                    SELECT DISTINCT creator_address FROM creator_funders
-                    WHERE funder_address = ? AND creator_address != ?
-                """, (funder_addr, creator_address))
-                other_creators = [r[0] for r in cursor.fetchall()]
-
+                funder_addr = row[0]
+                other_count = row[1]
+                other_creators = row[2].split(',') if row[2] else []
                 if other_creators:
                     inbound_cross_refs.append({
                         'address': funder_addr,
@@ -8016,8 +8251,6 @@ def api_creator_details(creator_address: str):
                         'type': 'shared_funder',
                         'description': f'This funder ({funder_addr[:8]}...) funds this creator AND {len(other_creators)} other creator(s)'
                     })
-
-            inbound_cross_refs.sort(key=lambda x: x['creator_count'], reverse=True)
         except Exception as e:
             inbound_cross_refs = []
 

@@ -18,6 +18,7 @@ import logging
 import time
 import threading
 import asyncio
+from datetime import datetime
 from typing import List, Dict, Optional
 from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_fetch_queue import get_price_queue, FetchTask, start_price_queue_worker
@@ -51,19 +52,33 @@ _low_liquidity_lock = _threading.Lock()
 _LOW_LIQUIDITY_TTL = 300
 
 def record_low_liquidity(mint: str, quote_sol: float, db_path: str = 'database/flex_complete_database.db') -> None:
+    """Sticky rug signal. Sets liquidity_removed=1 permanently, then broadcasts SSE after commit."""
     now = int(time.time())
     with _low_liquidity_lock:
         _low_liquidity_mints[mint] = (quote_sol, now)
-    # Persist to DB so Flask process can read it cross-process
     try:
         import sqlite3 as _sq
         conn = _sq.connect(db_path, timeout=2)
-        conn.execute(
-            "UPDATE token_pool_accounts SET quote_liquidity = ?, updated_at = ? WHERE mint = ? AND is_active = 1",
-            (quote_sol, now, mint)
-        )
+        conn.execute("""
+            UPDATE token_pool_accounts
+            SET quote_liquidity      = ?,
+                updated_at           = ?,
+                liquidity_removed    = 1,
+                liquidity_removed_at = COALESCE(liquidity_removed_at, ?)
+            WHERE mint = ? AND is_active = 1
+        """, (quote_sol, now, now, mint))
         conn.commit()
         conn.close()
+    except Exception:
+        pass
+    # Broadcast after DB commit — Flask reads consistent state
+    try:
+        import requests as _requests
+        _requests.post(
+            "http://127.0.0.1:5002/api/internal/broadcast",
+            json={"type": "liquidity_removed", "mint": mint, "quote_sol": quote_sol, "timestamp": now},
+            timeout=0.5,
+        )
     except Exception:
         pass
 
@@ -732,17 +747,22 @@ class BackgroundPriceWorker:
                 base_account=base_account,
                 total_supply=pool.get("token_supply", 0),
             )
+            quote_sol = quote_raw / (10 ** pool.get("quote_decimals", 9))
+            quote_usd = quote_sol * sol_price_usd if sol_price_usd else 0
+
             if not token_price:
                 from src.core.ws_price_tracer import trace as _wst
                 _wst('WS_PRICE_COMPUTE_FAIL', mint, f"base={base_raw} quote={quote_raw} sol={sol_price_usd}")
-                quote_sol = quote_raw / (10 ** pool.get("quote_decimals", 9))
                 record_low_liquidity(mint, quote_sol, db_path=self.db_path)
                 return
 
+            # Liquidity below $750 USD threshold → flag as removed even if price computed
+            _MIN_LIQUIDITY_USD = 750
+            if quote_usd < _MIN_LIQUIDITY_USD:
+                record_low_liquidity(mint, quote_sol, db_path=self.db_path)
+
             from src.core.ws_price_tracer import trace as _wst
             _wst('WS_PRICE_COMPUTED', mint, f"price=${token_price.price_usd:.8f} source={token_price.source}")
-            with _low_liquidity_lock:
-                _low_liquidity_mints.pop(mint, None)
             # Update in-memory cache (no lock needed — dict assignment is atomic in CPython)
             self.price_service.pool_price_cache[mint] = token_price
 
@@ -1563,14 +1583,9 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")
     
-    # ── Filtered peak MC constants ────────────────────────────────────────────
-    _PEAK_MIN_LIQ     = 5_000   # ignore snapshots with liquidity below this
-    _PEAK_CONFIRM     = 3       # snapshots required to promote candidate
-    _PEAK_TOLERANCE   = 0.95    # candidate stays valid if MC >= candidate * this
-
     def _update_peak_market_cap(self, mint: str, market_cap: float, timestamp: int,
                                 liquidity_usd: float = 0.0) -> None:
-        """Filtered peak MC update. raw_peak = absolute max; effective_peak = confirmed peak."""
+        """Monotonic peak MC update. Peak only advances on a new high, never regresses."""
         if market_cap <= 0:
             return
         try:
@@ -1579,57 +1594,82 @@ class BackgroundPriceWorker:
                 import sqlite3 as _sq
                 conn = _sq.connect(self.db_path, timeout=5)
                 row = conn.execute(
-                    "SELECT raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count "
+                    "SELECT raw_peak_mc, peak_market_cap, peak_market_cap_at "
                     "FROM token_market_cap_peaks WHERE mint = ?", (mint,)
                 ).fetchone()
                 conn.close()
                 if row:
                     self._peak_state[mint] = {
-                        'raw': row[0] or 0.0, 'effective': row[1] or 0.0,
-                        'candidate': row[2], 'count': row[3] or 0,
+                        'raw': row[0] or 0.0,
+                        'peak': row[1] or 0.0,
+                        'peak_at': row[2],
                     }
                 else:
-                    self._peak_state[mint] = {'raw': 0.0, 'effective': 0.0, 'candidate': None, 'count': 0}
+                    self._peak_state[mint] = {
+                        'raw': 0.0,
+                        'peak': 0.0,
+                        'peak_at': None,
+                    }
 
             s = self._peak_state[mint]
 
             # Always update raw peak
             s['raw'] = max(s['raw'], market_cap)
+            if market_cap > s['peak']:
+                s['peak'] = market_cap
+                s['peak_at'] = timestamp
 
-            # Filtered peak: skip low-liquidity snapshots
-            if liquidity_usd >= self._PEAK_MIN_LIQ:
-                if s['candidate'] is None or market_cap > s['candidate']:
-                    s['candidate'] = market_cap
-                    s['count'] = 1
-                elif market_cap >= s['candidate'] * self._PEAK_TOLERANCE:
-                    s['count'] += 1
-                    if s['count'] >= self._PEAK_CONFIRM:
-                        if s['candidate'] > s['effective']:
-                            s['effective'] = s['candidate']
-                else:
-                    s['candidate'] = None
-                    s['count'] = 0
+            peak_iso = datetime.utcfromtimestamp(s['peak_at']).isoformat() + "Z" if s.get('peak_at') else None
 
-            # Persist — effective_peak_mc is also written to legacy peak_market_cap for compat
             import sqlite3 as _sq
             conn = _sq.connect(self.db_path, timeout=5)
             conn.execute("""
                 INSERT INTO token_market_cap_peaks
                     (mint, peak_market_cap, peak_market_cap_at,
-                     raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                     raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count, raw_peak_mc_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(mint) DO UPDATE SET
-                    effective_peak_mc    = excluded.effective_peak_mc,
-                    peak_market_cap      = MAX(peak_market_cap, excluded.effective_peak_mc),
-                    peak_market_cap_at   = CASE WHEN excluded.effective_peak_mc > peak_market_cap
-                                                 AND (raw_peak_mc_at IS NULL OR excluded.effective_peak_mc > raw_peak_mc)
-                                               THEN ? ELSE peak_market_cap_at END,
-                    raw_peak_mc          = MAX(raw_peak_mc, excluded.raw_peak_mc),
-                    candidate_peak_mc    = excluded.candidate_peak_mc,
-                    candidate_peak_count = excluded.candidate_peak_count
-            """, (mint, s['effective'], timestamp,
-                  s['raw'], s['effective'], s['candidate'], s['count'],
-                  timestamp))
+                    peak_market_cap      = MAX(COALESCE(peak_market_cap, 0), excluded.peak_market_cap),
+                    peak_market_cap_at   = CASE
+                                               WHEN excluded.peak_market_cap > COALESCE(peak_market_cap, 0) THEN excluded.peak_market_cap_at
+                                               WHEN peak_market_cap_at IS NULL OR peak_market_cap_at = 0 THEN excluded.peak_market_cap_at
+                                               ELSE peak_market_cap_at
+                                           END,
+                    raw_peak_mc          = MAX(COALESCE(raw_peak_mc, 0), excluded.raw_peak_mc),
+                    raw_peak_mc_at       = CASE
+                                               WHEN excluded.raw_peak_mc > COALESCE(raw_peak_mc, 0) THEN excluded.raw_peak_mc_at
+                                               WHEN raw_peak_mc_at IS NULL OR raw_peak_mc_at = 0 THEN excluded.raw_peak_mc_at
+                                               ELSE raw_peak_mc_at
+                                           END,
+                    effective_peak_mc    = MAX(COALESCE(effective_peak_mc, 0), excluded.effective_peak_mc),
+                    candidate_peak_mc    = MAX(COALESCE(candidate_peak_mc, 0), excluded.candidate_peak_mc),
+                    candidate_peak_count = MAX(COALESCE(candidate_peak_count, 0), excluded.candidate_peak_count)
+            """, (mint, s['peak'], s.get('peak_at'),
+                  s['raw'], s['peak'], s['peak'], 1, timestamp))
+            conn.execute("""
+                UPDATE token_analysis
+                SET market_cap_highest = MAX(COALESCE(market_cap_highest, 0), ?),
+                    market_cap_highest_at_ts = CASE
+                        WHEN ? > COALESCE(market_cap_highest, 0) THEN ?
+                        WHEN market_cap_highest_at_ts IS NULL OR market_cap_highest_at_ts = 0 THEN ?
+                        ELSE market_cap_highest_at_ts
+                    END,
+                    market_cap_highest_at = CASE
+                        WHEN ? > COALESCE(market_cap_highest, 0) THEN ?
+                        WHEN market_cap_highest_at IS NULL OR market_cap_highest_at = '' THEN ?
+                        ELSE market_cap_highest_at
+                    END
+                WHERE mint = ?
+            """, (
+                s['peak'],
+                market_cap,
+                s.get('peak_at'),
+                s.get('peak_at'),
+                market_cap,
+                peak_iso,
+                peak_iso,
+                mint,
+            ))
             conn.commit()
             conn.close()
         except Exception as e:

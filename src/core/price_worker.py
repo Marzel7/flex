@@ -44,6 +44,35 @@ logger.setLevel(logging.WARNING)  # Suppress DEBUG and INFO logs
 # Debug flag - set to False to disable verbose debug logging
 DEBUG_LOGGING = False
 
+# Mints with recent WS compute-fail (low liquidity). TTL = 5 min.
+import threading as _threading
+_low_liquidity_mints: dict = {}
+_low_liquidity_lock = _threading.Lock()
+_LOW_LIQUIDITY_TTL = 300
+
+def record_low_liquidity(mint: str, quote_sol: float, db_path: str = 'database/flex_complete_database.db') -> None:
+    now = int(time.time())
+    with _low_liquidity_lock:
+        _low_liquidity_mints[mint] = (quote_sol, now)
+    # Persist to DB so Flask process can read it cross-process
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(db_path, timeout=2)
+        conn.execute(
+            "UPDATE token_pool_accounts SET quote_liquidity = ?, updated_at = ? WHERE mint = ? AND is_active = 1",
+            (quote_sol, now, mint)
+        )
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+def get_low_liquidity_mints() -> dict:
+    """Return {mint: quote_sol} for mints with a recent WS compute-fail signal."""
+    now = time.time()
+    with _low_liquidity_lock:
+        return {m: v[0] for m, v in _low_liquidity_mints.items() if now - v[1] < _LOW_LIQUIDITY_TTL}
+
 
 class PriceWorkerRegistry:
     """Manages the tracked tokens registry."""
@@ -706,21 +735,14 @@ class BackgroundPriceWorker:
             if not token_price:
                 from src.core.ws_price_tracer import trace as _wst
                 _wst('WS_PRICE_COMPUTE_FAIL', mint, f"base={base_raw} quote={quote_raw} sol={sol_price_usd}")
-                # Write live quote reserve back to pool table so UI can show "No liquidity"
-                try:
-                    _conn = sqlite3.connect(self.db_path, timeout=3)
-                    _conn.execute(
-                        "UPDATE token_pool_accounts SET quote_liquidity = ? WHERE mint = ? AND is_active = 1",
-                        (quote_raw / (10 ** pool.get("quote_decimals", 9)), mint)
-                    )
-                    _conn.commit()
-                    _conn.close()
-                except Exception:
-                    pass
+                quote_sol = quote_raw / (10 ** pool.get("quote_decimals", 9))
+                record_low_liquidity(mint, quote_sol, db_path=self.db_path)
                 return
 
             from src.core.ws_price_tracer import trace as _wst
             _wst('WS_PRICE_COMPUTED', mint, f"price=${token_price.price_usd:.8f} source={token_price.source}")
+            with _low_liquidity_lock:
+                _low_liquidity_mints.pop(mint, None)
             # Update in-memory cache (no lock needed — dict assignment is atomic in CPython)
             self.price_service.pool_price_cache[mint] = token_price
 

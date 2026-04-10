@@ -2894,7 +2894,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 # Auto-detect rug pulls based on timing
                 rug_indicator = current_rug_indicator
-                if is_new_peak and created_at_raw is not None:
+                if is_new_peak and created_at_raw is not None and current_market_cap > 0:
                     try:
                         now_ts = int(datetime.now().timestamp())
                         # Parse created_at to unix

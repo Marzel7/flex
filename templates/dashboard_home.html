@@ -101,6 +101,23 @@
             text-align: left;
             white-space: nowrap;
         }
+        .tokens-table td[id^="mc-"],
+        .tokens-table td[id^="peak-mc-"],
+        .tokens-table td.peak-timing-cell,
+        .tokens-table td.age-cell,
+        .tokens-table th:nth-child(n+5) {
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+        .tokens-table td[id^="mc-"],
+        .tokens-table td[id^="peak-mc-"],
+        .tokens-table td.peak-timing-cell,
+        .tokens-table td.age-cell {
+            font-weight: 500;
+        }
+        .tokens-table td[id^="mc-"] {
+            color: #78909c;
+        }
 
         .tokens-table tbody tr {
             border-bottom: 1px solid rgba(255,255,255,0.03);
@@ -2284,7 +2301,8 @@
             // Market cap (table has no price column — MC is the live value)
             const mcElem = document.getElementById(`mc-${mint}`);
             const age = ageSeconds ?? 99999;
-            if (mcElem && marketCap !== undefined && marketCap !== null && marketCap > 0) {
+            if (mcElem && marketCap !== undefined && marketCap !== null && marketCap > 0
+                    && !mcElem.querySelector('span[title*="below $1k"]')) {
                 mcElem.textContent = '$' + formatMarketCap(marketCap);
                 mcElem.style.opacity = '';
                 // Price state
@@ -2572,10 +2590,10 @@
                 <td class="cluster-name">
                     ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                 </td>
-                <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:120px;min-width:120px;white-space:nowrap">
+                <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:90px;min-width:90px;white-space:nowrap">
                     ${(token.pool_quote_liquidity != null && token.pool_quote_liquidity < 12) ? `<span style="opacity:0.5;font-size:10px;color:#f59e0b" title="Pool liquidity ~${token.pool_quote_liquidity < 0.1 ? 'none' : (token.pool_quote_liquidity.toFixed(1) + ' SOL')} — below $1k">${token.pool_quote_liquidity < 0.1 ? 'No liquidity' : 'Low liquidity'}</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
-                <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; width:120px;min-width:120px;white-space:nowrap">
+                <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; width:80px;min-width:80px;white-space:nowrap">
                     ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : '$' + formatMarketCap(token.market_cap_highest)}
                 </td>
                 <td class="peak-timing-cell">
@@ -2682,10 +2700,10 @@
                         <th style="width:50px;padding:0"></th>
                         <th onclick="sortBy('network_name')" class="sortable" style="width:80px">Network</th>
                         <th onclick="sortBy('cluster_name')" class="sortable" style="width:80px">Cluster</th>
-                        <th onclick="sortBy('market_cap_current')" class="sortable" style="width:120px;min-width:120px">Market Cap</th>
-                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:120px;min-width:120px">Peak MC</th>
-                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:120px;min-width:120px">Peak Timing</th>
-                        <th style="width:70px">Age</th>
+                        <th onclick="sortBy('market_cap_current')" class="sortable" style="width:90px;min-width:90px">Market Cap</th>
+                        <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:80px;min-width:80px">Peak MC</th>
+                        <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:90px;min-width:90px">Peak Timing</th>
+                        <th style="width:60px">Age</th>
                     </tr></thead>
                     <tbody></tbody>
                 </table></div>`;
@@ -3628,7 +3646,12 @@ function switchToTokensTab() {
                 if (update.type === 'token_detected') {
                     insertDetectedTokenRow(update);
                 } else if (update.type === 'price_update') {
-                    patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
+                    const _now = Date.now();
+                    window._lastPricePatch = window._lastPricePatch || {};
+                    if (_now - (window._lastPricePatch[update.mint] || 0) >= 1000) {
+                        window._lastPricePatch[update.mint] = _now;
+                        patchRowByMint(update.mint, update.price_usd, update.market_cap, update.age_seconds ?? 0);
+                    }
                 } else if (update.type === 'pool_registered') {
                     const m = update.mint;
                     if (m) {

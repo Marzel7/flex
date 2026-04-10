@@ -742,6 +742,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 tmp.peak_market_cap as peaks_market_cap,
                 tmp.peak_market_cap_at as peaks_market_cap_at,
                 tpa.quote_liquidity as pool_quote_liquidity,
+                tpa.updated_at as pool_updated_at,
                 mc.symbol as token_symbol
             FROM token_analysis ta
             LEFT JOIN creator_networks cn
@@ -784,6 +785,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
 
         rows = cursor.fetchall()
 
+        _LOW_LIQ_TTL = 60
+
         if light:
             tokens = []
             for row in rows:
@@ -825,7 +828,13 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
                     'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
                     'snap_age': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else 99999,
-                    'pool_quote_liquidity': row['pool_quote_liquidity'] if row['pool_quote_liquidity'] is not None else None,
+                    'pool_quote_liquidity': (
+                        row['pool_quote_liquidity']
+                        if row['pool_quote_liquidity'] is not None
+                           and row['pool_updated_at'] is not None
+                           and int(row['pool_updated_at']) >= now_ts - _LOW_LIQ_TTL
+                        else None
+                    ),
                     'symbol': row['token_symbol'] or None,
                 })
             conn.close()
@@ -7634,14 +7643,17 @@ def api_token_metrics(token_mint: str):
             conn.close()
             return jsonify({'error': 'Token not found'}), 404
 
-        # Get pool liquidity
+        # Get pool liquidity — only surface when recently updated by WS compute-fail (cross-process signal via DB)
         cursor.execute("""
-            SELECT quote_liquidity FROM token_pool_accounts
+            SELECT quote_liquidity, updated_at FROM token_pool_accounts
             WHERE mint = ? AND is_active = 1
-            ORDER BY quote_liquidity DESC LIMIT 1
+            ORDER BY updated_at DESC, quote_liquidity DESC LIMIT 1
         """, (token_mint,))
         pool_liq_row = cursor.fetchone()
-        pool_quote_liquidity = pool_liq_row['quote_liquidity'] if pool_liq_row else None
+        pool_quote_liquidity = None
+        if pool_liq_row and pool_liq_row['quote_liquidity'] is not None:
+            if pool_liq_row['updated_at'] and int(pool_liq_row['updated_at']) >= int(time.time()) - 60:
+                pool_quote_liquidity = pool_liq_row['quote_liquidity']
 
         # Get authoritative peak from token_market_cap_peaks
         cursor.execute("""

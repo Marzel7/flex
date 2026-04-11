@@ -2253,7 +2253,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         2. Retry on-chain price extraction with small delays (hydration guard)
         3. Fall back to DexScreener only after retries exhausted
 
-        Returns: (price_usd, market_cap_usd, source) or None
+        Returns: (price_usd, market_cap_usd, source, liquidity_usd) or None
         """
         try:
             # Get or extract pool address
@@ -2265,9 +2265,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 for attempt in range(3):
                     result = await self._get_price_from_pool_account(pool_address, token_mint)
                     if result is not None:
-                        price, market_cap = result
+                        price, market_cap, liquidity_usd = result
                         self.price_stats['onchain_success'] += 1
-                        return (price, market_cap, "onchain")
+                        return (price, market_cap, "onchain", liquidity_usd)
 
                     # Retry delay: 200ms initially, then 300ms, then 400ms
                     if attempt < 2:
@@ -2281,8 +2281,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _wstrace('ONCHAIN_FAILED', token_mint, f"fallback_rate={fallback_rate:.2%}")
             result = await self._fetch_dexscreener_price(token_mint)
             if result is not None:
-                price, market_cap = result
-                return (price, market_cap, "dexscreener")
+                price, market_cap, liquidity_usd = result
+                return (price, market_cap, "dexscreener", liquidity_usd)
 
             return None
 
@@ -2314,7 +2314,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         PumpSwap pools store liquidity in WSOL (wrapped SOL) token accounts, not native lamports.
         We query for both WSOL and the token mint, then calculate price from the balance ratio.
 
-        Returns: (price_usd, market_cap_usd) or None
+        Returns: (price_usd, market_cap_usd, liquidity_usd) or None
         """
         try:
             # Query WSOL (wrapped SOL) token accounts owned by this pool
@@ -2467,9 +2467,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
             price_usd = price_sol * sol_usd
             total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
             market_cap_usd = price_usd * total_supply
+            quote_liquidity_usd = sol_balance * sol_usd if sol_usd else 0
+
+            if quote_liquidity_usd < 750:
+                try:
+                    from src.core.price_worker import record_low_liquidity
+                    record_low_liquidity(
+                        token_mint,
+                        sol_balance,
+                        db_path=DB_PATH,
+                        quote_usd=quote_liquidity_usd,
+                        source="listener_onchain_threshold",
+                    )
+                except Exception as liq_err:
+                    log_print(f"[LIQUIDITY_FLAG_FAIL] mint={token_mint[:16]} err={liq_err}", flush=True)
 
             log_print(f"[ONCHAIN_OK] mint={token_mint[:16]} pool={pool_address[:16]} sol={sol_balance:.4f} token={token_balance:.0f} mc=${market_cap_usd:,.0f}", flush=True)
-            return (price_usd, market_cap_usd)
+            return (price_usd, market_cap_usd, quote_liquidity_usd)
 
         except Exception as e:
             log_print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
@@ -2525,30 +2539,25 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return None
 
     async def _get_sol_price_usd(self) -> float:
-        """Get current SOL price in USD"""
+        """Get current SOL price in USD using the shared worker-grade cache/fetcher."""
         try:
-            SOL_MINT = "So11111111111111111111111111111111111111112"
-            url = f"https://api.dexscreener.com/latest/dex/tokens/{SOL_MINT}"
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        pairs = data.get("pairs", [])
-                        if pairs and "priceUsd" in pairs[0]:
-                            try:
-                                return float(pairs[0]["priceUsd"])
-                            except (ValueError, TypeError):
-                                pass
-            return 200.0  # Fallback
-        except:
-            return 200.0
+            from src.core.sol_price_cache import get_sol_price_cache
+            from src.core.pool_price_engine import PoolPriceCalculator
+
+            cache = get_sol_price_cache()
+            price = await cache.get_price(PoolPriceCalculator.fetch_sol_price_usd)
+            # Sanity guard: if some upstream source returns nonsense, keep on-chain MC usable.
+            if price and 20.0 <= float(price) <= 1000.0:
+                return float(price)
+        except Exception:
+            pass
+        return 94.0
 
     async def _fetch_dexscreener_price(self, token_mint: str) -> Optional[tuple]:
         """
         Fetch price and market cap from DexScreener API.
         
-        Returns: (price_usd, market_cap_usd) or None
+        Returns: (price_usd, market_cap_usd, liquidity_usd) or None
         All values are in USD for consistency with database storage.
         """
         try:
@@ -2579,7 +2588,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     except (ValueError, TypeError):
                         return None
                     
-                    return (price_usd, market_cap_usd)
+                    liquidity_usd = float(pair.get("liquidity", {}).get("usd", 0) or 0)
+                    return (price_usd, market_cap_usd, liquidity_usd)
                     
         except Exception as e:
             log_print(f"[PRICE_ERROR] DexScreener fetch failed {token_mint}: {e}", flush=True)
@@ -2735,8 +2745,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         result = await self._extract_price_from_transaction(tx_signature, token_mint)
 
                         if result is not None:
-                            price, market_cap, source = result  # Unpack the source
-                            await self._update_price_in_db(token_mint, price, market_cap, source)  # Pass source
+                            price, market_cap, source, liquidity_usd = result
+                            await self._update_price_in_db(
+                                token_mint, price, market_cap, source, liquidity_usd
+                            )
                             updated_count += 1
                         else:
                             failed_count += 1
@@ -2867,9 +2879,41 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[BLOCKLIST_ERROR] Failed to update rug creator block list: {e}", flush=True)
 
-    async def _update_price_in_db(self, token_mint: str, current_price: float, current_market_cap: float, source: str = "onchain"):
+    async def _persist_price_update(self, token_mint: str, current_price: float, current_market_cap: float,
+                                    source: str = "onchain", liquidity_usd: float = 0.0) -> None:
         """
-        Update live price, market cap, and price source in database.
+        Route listener prices through the canonical worker persistence sink so
+        current MC, snapshots, peaks, and SSE stay in one pipeline.
+        """
+        try:
+            from src.core.price_service import TokenPrice
+            from src.core.price_worker import get_price_worker
+
+            sol_usd = await self._get_sol_price_usd()
+            price_sol = (current_price / sol_usd) if sol_usd and current_price > 0 else 0.0
+            token_price = TokenPrice(
+                mint=token_mint,
+                price_usd=current_price or 0.0,
+                price_sol=price_sol or 0.0,
+                liquidity_usd=liquidity_usd or 0.0,
+                volume_24h=0.0,
+                market_cap=current_market_cap or 0.0,
+                source=source or "onchain",
+                timestamp=int(time.time()),
+                is_stale=False,
+            )
+
+            worker = self.price_worker or get_price_worker()
+            worker._on_price_fetched(token_mint, token_price)
+        except Exception as e:
+            log_print(f"[PRICE_CANONICAL] ⚠ Failed to persist {token_mint[:16]}... via worker sink: {e}", flush=True)
+            raise
+
+    async def _update_price_in_db(self, token_mint: str, current_price: float, current_market_cap: float,
+                                  source: str = "onchain", liquidity_usd: float = 0.0):
+        """
+        Persist live price via the canonical worker sink, then update listener-owned
+        metadata such as rug detection and price_highest.
         
         Also automatically detects and flags rug pulls:
         - If time to peak < 30 minutes AND peak market cap < $100k → flag as 'quick_peak_low_mc'
@@ -2934,15 +2978,31 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     except Exception as e:
                         log_print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {token_mint}: {e}", flush=True)
 
-                # Only write what this component owns — peaks are written by price_service.py
+                try:
+                    await self._persist_price_update(
+                        token_mint,
+                        current_price,
+                        current_market_cap,
+                        source=source,
+                        liquidity_usd=liquidity_usd,
+                    )
+                except Exception:
+                    # Fallback: keep current price visible even if the canonical sink is unavailable.
+                    cursor.execute("""
+                        UPDATE token_analysis
+                        SET price_current = ?,
+                            market_cap_current = ?,
+                            price_source = ?, price_updated_at = datetime('now')
+                        WHERE mint = ?
+                    """, (current_price, current_market_cap, source, token_mint))
+
+                # Only write what this component owns — peaks/snapshots are written by price_service.py
                 cursor.execute("""
                     UPDATE token_analysis
-                    SET price_current = ?, price_highest = ?,
-                        market_cap_current = ?,
-                        rug_indicator = ?,
-                        price_source = ?, price_updated_at = datetime('now')
+                    SET price_highest = ?,
+                        rug_indicator = ?
                     WHERE mint = ?
-                """, (current_price, price_highest, current_market_cap, rug_indicator, source, token_mint))
+                """, (price_highest, rug_indicator, token_mint))
                 
                 conn.commit()
                 conn.close()
@@ -3817,8 +3877,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 result = await self._extract_price_from_transaction(signature, mint)
                 if result is not None:
-                    price, market_cap, source = result
-                    await self._update_price_in_db(mint, price, market_cap, source)
+                    price, market_cap, source, liquidity_usd = result
+                    await self._update_price_in_db(mint, price, market_cap, source, liquidity_usd)
                     log_print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
             except Exception as price_err:
                 log_print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)

@@ -279,6 +279,18 @@ def _on_warmup_complete(mint: str, price, task_type: str) -> None:
         _warmup_stats[f'{key}_failed'] = _warmup_stats.get(f'{key}_failed', 0) + 1
 
 
+def _persist_warmup_price(mint: str, price) -> None:
+    """Persist successful warm-up fetches so first-price warm-ups are real, not just metrics."""
+    try:
+        if not price or getattr(price, 'source', None) == 'unavailable':
+            return
+        worker = get_price_worker()
+        if worker:
+            worker._on_price_fetched(mint, price)
+    except Exception as e:
+        logger.debug(f"Warm-up price persist skipped for {mint}: {e}")
+
+
 def _register_pool_accounts(pool_accounts: list) -> int:
     """Upsert pool account registrations into token_pool_accounts. Returns count inserted."""
     now = int(time.time())
@@ -1288,7 +1300,7 @@ def register_tokens_batch():
                     mint=mint,
                     priority='HIGH',
                     enqueued_at=time.time(),
-                    callback=lambda m, p, t='price': _on_warmup_complete(m, p, t)
+                    callback=lambda m, p, t='price': (_persist_warmup_price(m, p), _on_warmup_complete(m, p, t))
                 )
                 queue.enqueue(task)
                 _warmup_stats['price_queued'] += 1

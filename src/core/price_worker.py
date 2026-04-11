@@ -51,11 +51,34 @@ _low_liquidity_mints: dict = {}
 _low_liquidity_lock = _threading.Lock()
 _LOW_LIQUIDITY_TTL = 300
 
-def record_low_liquidity(mint: str, quote_sol: float, db_path: str = 'database/flex_complete_database.db') -> None:
-    """Sticky rug signal. Sets liquidity_removed=1 permanently, then broadcasts SSE after commit."""
+def record_low_liquidity(
+    mint: str,
+    quote_sol: float,
+    db_path: str = 'database/flex_complete_database.db',
+    *,
+    quote_usd: float | None = None,
+    source: str = "unknown",
+) -> None:
+    """Sticky rug signal. Sets liquidity_removed=1 permanently, then broadcasts SSE after commit.
+
+    Guard against false positives: if quote SOL is clearly healthy, do not mark LIQ-removed
+    even if an upstream USD conversion was wrong.
+    """
     now = int(time.time())
+    # At normal SOL prices, anything above ~5 SOL is well beyond the low-liquidity threshold.
+    # This protects against transient bad USD conversions falsely stickying LIQ.
+    if quote_sol and quote_sol >= 5.0:
+        logger.warning(
+            f"[LOW_LIQUIDITY_SKIP] mint={mint[:16]} quote_sol={quote_sol:.4f} "
+            f"quote_usd={quote_usd if quote_usd is not None else 'n/a'} source={source}"
+        )
+        return
     with _low_liquidity_lock:
         _low_liquidity_mints[mint] = (quote_sol, now)
+    logger.warning(
+        f"[LOW_LIQUIDITY_FLAG] mint={mint[:16]} quote_sol={quote_sol:.4f} "
+        f"quote_usd={quote_usd if quote_usd is not None else 'n/a'} source={source}"
+    )
     try:
         import sqlite3 as _sq
         conn = _sq.connect(db_path, timeout=2)
@@ -76,7 +99,7 @@ def record_low_liquidity(mint: str, quote_sol: float, db_path: str = 'database/f
         import requests as _requests
         _requests.post(
             "http://127.0.0.1:5002/api/internal/broadcast",
-            json={"type": "liquidity_removed", "mint": mint, "quote_sol": quote_sol, "timestamp": now},
+            json={"type": "liquidity_removed", "mint": mint, "quote_sol": quote_sol, "quote_usd": quote_usd, "timestamp": now},
             timeout=0.5,
         )
     except Exception:
@@ -143,9 +166,19 @@ class PriceWorkerRegistry:
             now = int(time.time())
 
             cursor.execute("""
-                INSERT OR REPLACE INTO tracked_tokens
-                (mint, symbol, pair_address, priority_level, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO tracked_tokens
+                (mint, symbol, pair_address, priority_level, last_price_update, is_active, created_at, updated_at)
+                VALUES (?, ?, ?, ?, 0, 1, ?, ?)
+                ON CONFLICT(mint) DO UPDATE SET
+                    symbol = COALESCE(excluded.symbol, tracked_tokens.symbol),
+                    pair_address = COALESCE(excluded.pair_address, tracked_tokens.pair_address),
+                    priority_level = CASE
+                        WHEN tracked_tokens.priority_level = 'HIGH' AND excluded.priority_level != 'HIGH'
+                            THEN tracked_tokens.priority_level
+                        ELSE excluded.priority_level
+                    END,
+                    is_active = 1,
+                    updated_at = excluded.updated_at
             """, (mint, symbol, pair_address, priority_level, now, now))
 
             conn.commit()
@@ -753,13 +786,13 @@ class BackgroundPriceWorker:
             if not token_price:
                 from src.core.ws_price_tracer import trace as _wst
                 _wst('WS_PRICE_COMPUTE_FAIL', mint, f"base={base_raw} quote={quote_raw} sol={sol_price_usd}")
-                record_low_liquidity(mint, quote_sol, db_path=self.db_path)
+                record_low_liquidity(mint, quote_sol, db_path=self.db_path, quote_usd=quote_usd, source="ws_compute_fail")
                 return
 
             # Liquidity below $750 USD threshold → flag as removed even if price computed
             _MIN_LIQUIDITY_USD = 750
             if quote_usd < _MIN_LIQUIDITY_USD:
-                record_low_liquidity(mint, quote_sol, db_path=self.db_path)
+                record_low_liquidity(mint, quote_sol, db_path=self.db_path, quote_usd=quote_usd, source="ws_threshold")
 
             from src.core.ws_price_tracer import trace as _wst
             _wst('WS_PRICE_COMPUTED', mint, f"price=${token_price.price_usd:.8f} source={token_price.source}")
@@ -1694,17 +1727,37 @@ class BackgroundPriceWorker:
 
     def _sync_new_tokens(self) -> None:
         """
-        Disabled: No longer auto-sync all tokens.
+        Lightweight auto-sync for recently active validated pools.
 
-        Only tokens explicitly registered via /api/price/batch/register
-        will be tracked. This prevents wasteful fetching of 2000+ tokens
-        when we only display 25.
-
-        Previously this method would sync all tokens from token_analysis,
-        causing the system to fetch prices for every token in the database.
-        Now only the 25 visible tokens are registered by the dashboard.
+        This keeps future tokens entering the worker pipeline even if the dashboard
+        has not explicitly re-registered them yet, without re-adding the old
+        "track the entire database" behavior.
         """
-        pass  # No-op: relying on explicit registration only
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            cursor = conn.cursor()
+            now = int(time.time())
+            cursor.execute("""
+                SELECT DISTINCT tpa.mint
+                FROM token_pool_accounts tpa
+                LEFT JOIN tracked_tokens tt ON tt.mint = tpa.mint
+                WHERE tpa.is_active = 1
+                  AND tpa.vault_validation_status IN ('validated', 'pending')
+                  AND COALESCE(tpa.updated_at, tpa.created_at, 0) >= ?
+                  AND (
+                      tt.mint IS NULL
+                      OR tt.is_active = 0
+                  )
+                ORDER BY COALESCE(tpa.updated_at, tpa.created_at, 0) DESC
+                LIMIT 100
+            """, (now - 7200,))
+            missing_mints = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+            for mint in missing_mints:
+                self.registry.register_token(mint, priority_level='MEDIUM')
+        except Exception as e:
+            logger.debug(f"Error syncing recent validated pools to tracker: {e}")
 
     # Tier intervals (seconds between refreshes)
     _TIER0_INTERVAL = 3    # new tokens (<120s) — fast lane supplement
@@ -2021,22 +2074,28 @@ class BackgroundPriceWorker:
             if market_cap > 0 or price.price_usd > 0:
                 conn = sqlite3.connect(self.db_path, timeout=5)
                 cursor = conn.cursor()
+                now = int(time.time())
 
                 # Update current price only — peaks owned by price_service.py
                 if market_cap > 0:
                     cursor.execute(
                         """UPDATE token_analysis
-                           SET price_current = ?, market_cap_current = ?
+                           SET price_current = ?,
+                               market_cap_current = ?,
+                               price_source = ?,
+                               price_updated_at = ?
                            WHERE mint = ?""",
-                        (price.price_usd, market_cap, mint)
+                        (price.price_usd, market_cap, price.source, now, mint)
                     )
                 else:
                     # No valid market cap, just update price
                     cursor.execute(
                         """UPDATE token_analysis
-                           SET price_current = ?
+                           SET price_current = ?,
+                               price_source = ?,
+                               price_updated_at = ?
                            WHERE mint = ?""",
-                        (price.price_usd, mint)
+                        (price.price_usd, price.source, now, mint)
                     )
 
                 conn.commit()

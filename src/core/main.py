@@ -842,6 +842,23 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 return None
             return peak_ts - created_ts
 
+        def _shape_home_token(row, payload, normalized_peak_mc, normalized_peak_at, token_class=None):
+            created_ts = _parse_unix_ts(row['created_at'])
+            is_new = created_ts is not None and (now_ts - created_ts) < NEW_TOKEN_WINDOW_SECS
+            payload['is_new'] = is_new
+            payload['token_class'] = None if is_new else token_class
+            if is_new:
+                payload['market_cap_current'] = None
+                payload['market_cap_highest'] = None
+                payload['market_cap_highest_at'] = None
+                payload['peak_time_seconds'] = None
+            else:
+                payload['market_cap_current'] = row['snap_market_cap'] or None
+                payload['market_cap_highest'] = normalized_peak_mc
+                payload['market_cap_highest_at'] = normalized_peak_at
+                payload['peak_time_seconds'] = _peak_time_seconds(row['created_at'], normalized_peak_at)
+            return payload
+
         now_ts = int(time.time())
         cursor.execute("""
             SELECT
@@ -955,9 +972,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     row['snap_captured_at'],
                 )
 
-                tokens.append({
+                tokens.append(_shape_home_token(row, {
                     'mint': row['mint'],
-                    'token_class': _token_class,
                     'analyzed_at': row['analyzed_at'],
                     'created_at': row['created_at'],
                     'rug_probability': row['rug_probability'] if row['rug_probability'] else 0,
@@ -967,10 +983,6 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
                     'price_current': row['snap_price_usd'] or None,
                     'price_highest': row['price_highest'] if row['price_highest'] else None,
-                    'market_cap_current': row['snap_market_cap'] or None,
-                    'market_cap_highest': normalized_peak_mc,
-                    'market_cap_highest_at': normalized_peak_at,
-                    'peak_time_seconds': _peak_time_seconds(row['created_at'], normalized_peak_at),
                     'rug_indicator': row['rug_indicator'],
                     'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                     'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
@@ -1002,7 +1014,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'is_low_liquidity':     bool(row['liquidity_removed']),  # backwards-compat alias
                     'symbol': row['token_symbol'] or None,
                     'name': row['token_name'] or None,
-                })
+                }, normalized_peak_mc, normalized_peak_at, _token_class))
                 if not row['earliest_tx_creator']:
                     _schedule_missing_creator_backfill(row['mint'])
             conn.close()
@@ -1109,7 +1121,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 row['snap_captured_at'],
             )
 
-            tokens.append({
+            tokens.append(_shape_home_token(row, {
                 'mint': row['mint'],
                 'analyzed_at': row['analyzed_at'],
                 'created_at': row['created_at'],
@@ -1120,10 +1132,6 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'coverage': row['post_migration_coverage'] if row['post_migration_coverage'] else 0,
                 'price_current': row['snap_price_usd'] or None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
-                'market_cap_current': row['snap_market_cap'] or None,
-                'market_cap_highest': normalized_peak_mc,
-                'market_cap_highest_at': normalized_peak_at,
-                'peak_time_seconds': _peak_time_seconds(row['created_at'], normalized_peak_at),
                 'rug_indicator': row['rug_indicator'],
                 'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
@@ -1141,7 +1149,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'atomic_network_name': row['network_name'] if row['network_name'] else None,
                 'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
                 'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False
-            })
+            }, normalized_peak_mc, normalized_peak_at))
 
         conn.close()
         return tokens
@@ -7897,6 +7905,12 @@ def api_token_metrics(token_mint: str):
         if current_market_cap and current_market_cap > peak_market_cap:
             peak_market_cap = current_market_cap
             peak_market_cap_at = src_row['captured_at'] if src_row and src_row['captured_at'] else peak_market_cap_at
+        created_ts = _parse_unix_ts(row['created_at'])
+        is_new = created_ts is not None and (int(time.time()) - created_ts) < NEW_TOKEN_WINDOW_SECS
+        if is_new:
+            current_market_cap = 0
+            peak_market_cap = 0
+            peak_market_cap_at = None
 
         if src_row:
             price_source = src_row['source']
@@ -7962,7 +7976,8 @@ def api_token_metrics(token_mint: str):
                 'highest': peak_market_cap
             },
             'peak_at': peak_market_cap_at,
-            'peak_time_seconds': _peak_time_seconds(row['created_at'], peak_market_cap_at),
+            'peak_time_seconds': None if is_new else _peak_time_seconds(row['created_at'], peak_market_cap_at),
+            'is_new': is_new,
             'created_at': row['created_at'],
             'coverage': row['coverage'] if row['coverage'] else 0,
             'first_price_latency': first_price_latency,

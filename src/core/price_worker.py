@@ -45,6 +45,36 @@ logger.setLevel(logging.WARNING)  # Suppress DEBUG and INFO logs
 # Debug flag - set to False to disable verbose debug logging
 DEBUG_LOGGING = False
 
+_MIGRATION_SIGNAL_COLUMNS = {
+    "is_about_to_migrate": "BOOLEAN DEFAULT 0",
+    "migration_progress_pct": "REAL",
+    "migration_band": "TEXT",
+    "migration_signal_updated_at": "INTEGER",
+    "lifecycle_stage": "TEXT DEFAULT 'migration_pending'",
+    "migrated_at": "INTEGER",
+    "dex": "TEXT",
+    "pumpswap_pool_address": "TEXT",
+    "source_platform": "TEXT",
+    "is_new": "INTEGER DEFAULT 0",
+}
+
+
+def _ensure_token_analysis_migration_columns(db_path: str) -> set[str]:
+    """Ensure the precomputed migration signal columns exist on token_analysis."""
+    conn = sqlite3.connect(db_path, timeout=5)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(token_analysis)")
+        columns = {row[1] for row in cursor.fetchall()}
+        for column_name, column_def in _MIGRATION_SIGNAL_COLUMNS.items():
+            if column_name not in columns:
+                cursor.execute(f"ALTER TABLE token_analysis ADD COLUMN {column_name} {column_def}")
+                columns.add(column_name)
+        conn.commit()
+        return columns
+    finally:
+        conn.close()
+
 # Mints with recent WS compute-fail (low liquidity). TTL = 5 min.
 import threading as _threading
 _low_liquidity_mints: dict = {}
@@ -323,6 +353,8 @@ class BackgroundPriceWorker:
             batch_size: Legacy parameter (no longer used; queue handles batching)
         """
         self.db_path = db_path
+        self._token_analysis_columns = _ensure_token_analysis_migration_columns(db_path)
+        self._has_curve_progress = 'curve_progress' in self._token_analysis_columns
         self.interval = interval
         self.batch_size = batch_size  # No longer used; for backwards compatibility
         self.price_service = get_price_service(db_path)
@@ -397,6 +429,64 @@ class BackgroundPriceWorker:
                 'dormant': 0
             }
         }
+
+    def _build_migration_signal_sql(self, market_cap: float, now: int) -> tuple[str, list]:
+        """Build a token_analysis SET fragment that keeps migration signals precomputed."""
+        if self._has_curve_progress:
+            about_expr = "CASE WHEN lifecycle_stage = 'migrated' THEN 0 WHEN curve_progress >= 85 THEN 1 WHEN curve_progress IS NULL AND ? >= 58000 THEN 1 ELSE 0 END"
+            progress_expr = "CASE WHEN lifecycle_stage = 'migrated' THEN COALESCE(migration_progress_pct, 100) ELSE curve_progress END"
+            band_expr = "CASE WHEN lifecycle_stage = 'migrated' THEN NULL WHEN curve_progress >= 90 OR ? >= 62000 THEN 'hot' WHEN curve_progress >= 75 OR ? >= 52000 THEN 'warm' ELSE NULL END"
+            change_expr = (
+                f"COALESCE(is_about_to_migrate, -1) IS NOT ({about_expr}) "
+                f"OR migration_progress_pct IS NOT ({progress_expr}) "
+                f"OR COALESCE(migration_band, '') IS NOT COALESCE(({band_expr}), '')"
+            )
+            return (
+                f"""
+                    is_about_to_migrate = {about_expr},
+                    migration_progress_pct = {progress_expr},
+                    migration_band = {band_expr},
+                    migration_signal_updated_at = CASE
+                        WHEN {change_expr} THEN ?
+                        ELSE migration_signal_updated_at
+                    END
+                """,
+                [
+                    market_cap,
+                    market_cap, market_cap,
+                    market_cap,
+                    market_cap, market_cap,
+                    now,
+                ],
+            )
+
+        about_expr = "CASE WHEN ? >= 58000 THEN 1 ELSE 0 END"
+        about_expr = f"CASE WHEN lifecycle_stage = 'migrated' THEN 0 ELSE ({about_expr}) END"
+        progress_expr = "CASE WHEN lifecycle_stage = 'migrated' THEN COALESCE(migration_progress_pct, 100) ELSE NULL END"
+        band_expr = "CASE WHEN lifecycle_stage = 'migrated' THEN NULL WHEN ? >= 62000 THEN 'hot' WHEN ? >= 52000 THEN 'warm' ELSE NULL END"
+        change_expr = (
+            f"COALESCE(is_about_to_migrate, -1) IS NOT ({about_expr}) "
+            f"OR migration_progress_pct IS NOT ({progress_expr}) "
+            f"OR COALESCE(migration_band, '') IS NOT COALESCE(({band_expr}), '')"
+        )
+        return (
+            f"""
+                is_about_to_migrate = {about_expr},
+                migration_progress_pct = {progress_expr},
+                migration_band = {band_expr},
+                migration_signal_updated_at = CASE
+                    WHEN {change_expr} THEN ?
+                    ELSE migration_signal_updated_at
+                END
+            """,
+            [
+                market_cap,
+                market_cap, market_cap,
+                market_cap,
+                market_cap, market_cap,
+                now,
+            ],
+        )
 
     def start(self) -> None:
         """Start the background worker."""
@@ -1365,14 +1455,16 @@ class BackgroundPriceWorker:
                 conn = sqlite3.connect(self.db_path, timeout=5)
                 cursor = conn.cursor()
                 for mint, token_price in new_cache.items():
-                    cursor.execute("""
+                    migration_sql, migration_params = self._build_migration_signal_sql(token_price.market_cap or 0, now)
+                    cursor.execute(f"""
                         UPDATE token_analysis
                         SET price_current = ?,
                             market_cap_current = ?,
                             price_source = ?,
-                            price_updated_at = ?
+                            price_updated_at = ?,
+                            {migration_sql}
                         WHERE mint = ?
-                    """, (token_price.price_usd, token_price.market_cap, token_price.source, now, mint))
+                    """, (token_price.price_usd, token_price.market_cap, token_price.source, now, *migration_params, mint))
                 conn.commit()
                 conn.close()
             except Exception as e:
@@ -1551,14 +1643,16 @@ class BackgroundPriceWorker:
                     conn = sqlite3.connect(self.db_path, timeout=5)
                     cursor = conn.cursor()
                     for mint, token_price in new_cache.items():
-                        cursor.execute("""
+                        migration_sql, migration_params = self._build_migration_signal_sql(token_price.market_cap or 0, now)
+                        cursor.execute(f"""
                             UPDATE token_analysis
                             SET price_current = ?,
                                 market_cap_current = ?,
                                 price_source = ?,
-                                price_updated_at = ?
+                                price_updated_at = ?,
+                                {migration_sql}
                             WHERE mint = ?
-                        """, (token_price.price_usd, token_price.market_cap, token_price.source, now, mint))
+                        """, (token_price.price_usd, token_price.market_cap, token_price.source, now, *migration_params, mint))
                     conn.commit()
                     conn.close()
                     if DEBUG_LOGGING: print(f"[PRICE_CYCLE] DB updated, about to broadcast {len(new_cache)} prices", flush=True)
@@ -2007,13 +2101,16 @@ class BackgroundPriceWorker:
 
                         # Use market cap from price service (already calculated by Dexscreener/Jupiter)
                         market_cap = price.market_cap if price.market_cap else 0
+                        migration_sql, migration_params = self._build_migration_signal_sql(market_cap, int(time.time()))
 
                         # Update current price only — peaks owned by price_service.py
                         cursor.execute(
-                            """UPDATE token_analysis
-                               SET price_current = ?, market_cap_current = ?
+                            f"""UPDATE token_analysis
+                               SET price_current = ?,
+                                   market_cap_current = ?,
+                                   {migration_sql}
                                WHERE mint = ?""",
-                            (price.price_usd, market_cap, mint)
+                            (price.price_usd, market_cap, *migration_params, mint)
                         )
 
                     conn.commit()
@@ -2075,27 +2172,30 @@ class BackgroundPriceWorker:
                 conn = sqlite3.connect(self.db_path, timeout=5)
                 cursor = conn.cursor()
                 now = int(time.time())
+                migration_sql, migration_params = self._build_migration_signal_sql(market_cap, now)
 
                 # Update current price only — peaks owned by price_service.py
                 if market_cap > 0:
                     cursor.execute(
-                        """UPDATE token_analysis
+                        f"""UPDATE token_analysis
                            SET price_current = ?,
                                market_cap_current = ?,
                                price_source = ?,
-                               price_updated_at = ?
+                               price_updated_at = ?,
+                               {migration_sql}
                            WHERE mint = ?""",
-                        (price.price_usd, market_cap, price.source, now, mint)
+                        (price.price_usd, market_cap, price.source, now, *migration_params, mint)
                     )
                 else:
                     # No valid market cap, just update price
                     cursor.execute(
-                        """UPDATE token_analysis
+                        f"""UPDATE token_analysis
                            SET price_current = ?,
                                price_source = ?,
-                               price_updated_at = ?
+                               price_updated_at = ?,
+                               {migration_sql}
                            WHERE mint = ?""",
-                        (price.price_usd, price.source, now, mint)
+                        (price.price_usd, price.source, now, *migration_params, mint)
                     )
 
                 conn.commit()

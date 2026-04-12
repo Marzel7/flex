@@ -16,6 +16,7 @@ Routes:
 import logging
 import sqlite3
 import time
+import os
 from typing import Any, Dict, List
 from flask import Blueprint, render_template, jsonify, request, make_response
 
@@ -25,7 +26,9 @@ from src.core.shared_vault_classifier import get_classifier
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = 'database/flex_complete_database.db'
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
+_DEFAULT_DB_PATH = os.path.join(_REPO_ROOT, "database", "flex_complete_database.db")
+DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH))
 VALID_BEHAVIOUR_CATEGORIES = {
     'immediate_rug', 'rug', 'slow_rug', 'runner', 'choppy_runner', 'faded_runner',
     'unknown', 'collecting', 'late_start', 'low_peak', 'unclassified',
@@ -926,6 +929,8 @@ def api_token_intelligence_summary():
         combined_avg_mc = ((fin_avg * fin_n) + (act_avg * act_n)) / (fin_n + act_n) if (fin_n + act_n) else None
 
         def _gb(key): return (mc_rows[key] or 0) + (act_mc_rows[key] or 0)
+
+        conn.close()
 
         return no_cache_json({
             'active_count': active_row['n'] if active_row else 0,

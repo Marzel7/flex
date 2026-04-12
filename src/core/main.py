@@ -17,10 +17,11 @@ import asyncio
 from datetime import datetime
 from flask import Flask, jsonify, render_template, render_template_string, request, Response, abort
 from flask_compress import Compress
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import os
 import time
 import logging
+import re
 from src.utils.infra_mapping import highlight_infra_in_funding
 from src.core.flex_dashboard_routes import MIN_LIVE_MARKET_CAP
 
@@ -33,8 +34,18 @@ except ImportError as e:
     WEBHOOK_ENABLED = False
     print(f"[WARNING] Webhook system not available: {e}")
 
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
+_DEFAULT_DB_PATH = os.path.join(_REPO_ROOT, "database", "flex_complete_database.db")
+
 # Database
-DB_PATH = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
+DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH))
+PUMPFUN_PREMIGRATION_LOG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../logs/premigration.log"))
+PUMPFUN_LISTENER_LOG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../listener.log"))
+
+_pumpfun_runtime_state_cache: Dict[str, Any] = {
+    'key': None,
+    'runtime_state': {},
+}
 
 # A token younger than this has not had enough time to develop a meaningful peak MC,
 # so G-class is withheld rather than shown as G? or computed from early noise.
@@ -44,6 +55,17 @@ NEW_TOKEN_WINDOW_SECS = 15 * 60  # 15 minutes
 def _ensure_schema():
     _migrations = [
         "ALTER TABLE token_analysis ADD COLUMN market_cap_highest_at_ts INTEGER",
+        "ALTER TABLE token_analysis ADD COLUMN is_about_to_migrate BOOLEAN DEFAULT 0",
+        "ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL",
+        "ALTER TABLE token_analysis ADD COLUMN migration_band TEXT",
+        "ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER",
+        "ALTER TABLE token_analysis ADD COLUMN migration_signal_source TEXT",
+        "ALTER TABLE token_analysis ADD COLUMN lifecycle_stage TEXT DEFAULT 'migration_pending'",
+        "ALTER TABLE token_analysis ADD COLUMN migrated_at INTEGER",
+        "ALTER TABLE token_analysis ADD COLUMN dex TEXT",
+        "ALTER TABLE token_analysis ADD COLUMN pumpswap_pool_address TEXT",
+        "ALTER TABLE token_analysis ADD COLUMN source_platform TEXT",
+        "ALTER TABLE token_analysis ADD COLUMN is_new INTEGER DEFAULT 0",
         "ALTER TABLE token_market_cap_peaks ADD COLUMN raw_peak_mc_at INTEGER",
         """UPDATE token_analysis
            SET market_cap_highest_at_ts = CAST(strftime('%s', market_cap_highest_at) AS INTEGER)
@@ -98,6 +120,34 @@ def _ensure_schema():
              AND market_cap_highest_at_ts IS NOT NULL
              AND market_cap_highest_at_ts > 0
              AND (market_cap_highest_at IS NULL OR market_cap_highest_at = '')""",
+        """CREATE TABLE IF NOT EXISTS pumpfun_migration_verification (
+               mint TEXT PRIMARY KEY,
+               migrated_at INTEGER,
+               migration_tx TEXT,
+               dex TEXT,
+               pumpswap_pool_address TEXT,
+               pre_is_about_to_migrate INTEGER DEFAULT 0,
+               pre_migration_band TEXT,
+               pre_migration_progress_pct REAL,
+               pre_migration_signal_updated_at INTEGER,
+               pre_market_cap_current REAL,
+               pre_market_cap_updated_at INTEGER,
+               pre_buys_10s INTEGER DEFAULT 0,
+               pre_unique_30s INTEGER DEFAULT 0,
+               pre_sol_15s REAL DEFAULT 0,
+               pre_inflow_accel REAL DEFAULT 0,
+               pre_signal_score INTEGER DEFAULT 0,
+               pre_migration_signal_source TEXT,
+               predicted_by_flow INTEGER DEFAULT 0,
+               predicted_by_market_cap INTEGER DEFAULT 0,
+               predicted_by_explicit_signal INTEGER DEFAULT 0,
+               was_about_to_migrate_at_migration INTEGER DEFAULT 0,
+               was_hot_or_warm_before_migration INTEGER DEFAULT 0,
+               signal_age_seconds INTEGER,
+               signal_was_fresh INTEGER DEFAULT 0,
+               final_verdict TEXT,
+               created_at INTEGER
+           )""",
     ]
     for sql in _migrations:
         try:
@@ -847,16 +897,10 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
             is_new = created_ts is not None and (now_ts - created_ts) < NEW_TOKEN_WINDOW_SECS
             payload['is_new'] = is_new
             payload['token_class'] = None if is_new else token_class
-            if is_new:
-                payload['market_cap_current'] = None
-                payload['market_cap_highest'] = None
-                payload['market_cap_highest_at'] = None
-                payload['peak_time_seconds'] = None
-            else:
-                payload['market_cap_current'] = row['snap_market_cap'] or None
-                payload['market_cap_highest'] = normalized_peak_mc
-                payload['market_cap_highest_at'] = normalized_peak_at
-                payload['peak_time_seconds'] = _peak_time_seconds(row['created_at'], normalized_peak_at)
+            payload['market_cap_current'] = row['snap_market_cap'] or None
+            payload['market_cap_highest'] = normalized_peak_mc
+            payload['market_cap_highest_at'] = normalized_peak_at
+            payload['peak_time_seconds'] = _peak_time_seconds(row['created_at'], normalized_peak_at)
             return payload
 
         now_ts = int(time.time())
@@ -887,12 +931,20 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 COALESCE(cn.network_name, ta.network_name) as network_name,
                 ta.network_tier,
                 ta.network_is_cex,
+                ta.lifecycle_stage,
+                ta.migrated_at,
+                ta.dex,
+                ta.pumpswap_pool_address,
+                ta.pool_address,
+                ta.source_platform,
+                ta.is_new,
                 COALESCE(tsc.last_updated, 0) as snap_last_updated,
                 tps.price_usd as snap_price_usd,
                 tps.market_cap as snap_market_cap,
                 tps.captured_at as snap_captured_at,
                 COALESCE(NULLIF(tmp.peak_market_cap, 0), NULLIF(ta.market_cap_highest, 0), NULLIF(tps.market_cap, 0)) as peaks_market_cap,
                 COALESCE(tmp.peak_market_cap_at, ta.market_cap_highest_at_ts, ta.market_cap_highest_at) as peaks_market_cap_at,
+                tpa.pool_address         as active_pool_address,
                 tpa.quote_liquidity      as pool_quote_liquidity,
                 tpa.updated_at           as pool_updated_at,
                 tpa.liquidity_removed    as liquidity_removed,
@@ -917,6 +969,13 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     ORDER BY captured_at DESC LIMIT 1
                 )
             WHERE ta.mint IS NOT NULL
+              AND COALESCE(ta.is_about_to_migrate, 0) = 0
+              AND COALESCE(ta.lifecycle_stage, '') != 'bonding_curve'
+              AND NULLIF(TRIM(COALESCE(tpa.pool_address, ta.pumpswap_pool_address, '')), '') IS NOT NULL
+              AND (
+                  ta.lifecycle_stage = 'migrated'
+                  OR NULLIF(TRIM(COALESCE(ta.dex, ta.pumpswap_pool_address, tpa.pool_address, '')), '') IS NOT NULL
+              )
               AND (
                   COALESCE(tps.market_cap, 0) >= ?
                   OR CAST(COALESCE(
@@ -1006,6 +1065,13 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'atomic_network_name': row['network_name'] if row['network_name'] else None,
                     'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
                     'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
+                    'lifecycle_stage': row['lifecycle_stage'] or 'migration_pending',
+                    'migrated_at': row['migrated_at'],
+                    'dex': row['dex'] or None,
+                    'source_platform': row['source_platform'] or None,
+                    'db_is_new': bool(row['is_new']) if row['is_new'] is not None else False,
+                    'pool_address': row['active_pool_address'] or row['pumpswap_pool_address'] or row['pool_address'] or None,
+                    'pumpswap_pool_address': row['active_pool_address'] or row['pumpswap_pool_address'] or row['pool_address'] or None,
                     'snap_age': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else 99999,
                     'data_freshness_seconds': (now_ts - row['snap_last_updated']) if row['snap_last_updated'] else None,
                     'pool_quote_liquidity': row['pool_quote_liquidity'],
@@ -1148,7 +1214,14 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'cluster_risk_multiplier': row['cluster_risk_multiplier'] if row['cluster_risk_multiplier'] else 1.0,
                 'atomic_network_name': row['network_name'] if row['network_name'] else None,
                 'atomic_network_tier': row['network_tier'] if row['network_tier'] else None,
-                'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False
+                'atomic_network_is_cex': bool(row['network_is_cex']) if row['network_is_cex'] else False,
+                'lifecycle_stage': row['lifecycle_stage'] or 'migration_pending',
+                'migrated_at': row['migrated_at'],
+                'dex': row['dex'] or None,
+                'source_platform': row['source_platform'] or None,
+                'db_is_new': bool(row['is_new']) if row['is_new'] is not None else False,
+                'pool_address': row['active_pool_address'] or row['pumpswap_pool_address'] or row['pool_address'] or None,
+                'pumpswap_pool_address': row['active_pool_address'] or row['pumpswap_pool_address'] or row['pool_address'] or None,
             }, normalized_peak_mc, normalized_peak_at))
 
         conn.close()
@@ -1158,6 +1231,794 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         print(f"[DB] Error fetching analyzed tokens: {e}")
         traceback.print_exc()
         return []
+
+
+def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
+    """Get pre-migration Pump.fun tokens that appear close to migrating."""
+    try:
+        heuristic_market_cap_floor = 50000
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                ta.mint,
+                ta.created_at,
+                ta.source_platform,
+                ta.lifecycle_stage,
+                ta.is_about_to_migrate,
+                ta.migration_progress_pct,
+                ta.migration_band,
+                ta.migration_signal_updated_at,
+                ta.dex,
+                ta.pumpswap_pool_address,
+                ta.pool_address,
+                ta.bonding_curve_pda,
+                COALESCE(tps.market_cap, ta.market_cap_current, 0) as resolved_market_cap,
+                mc.symbol as token_symbol,
+                mc.name as token_name
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc
+                ON mc.mint = ta.mint
+            LEFT JOIN token_pool_accounts tpa
+                ON tpa.mint = ta.mint AND tpa.is_active = 1
+            LEFT JOIN token_price_snapshots tps
+                ON tps.snapshot_id = (
+                    SELECT snapshot_id FROM token_price_snapshots
+                    WHERE mint = ta.mint
+                    ORDER BY captured_at DESC LIMIT 1
+                )
+            WHERE ta.mint IS NOT NULL
+              AND (
+                  ta.source_platform = 'pumpfun'
+                  OR (ta.source_platform IS NULL AND NULLIF(TRIM(COALESCE(ta.bonding_curve_pda, '')), '') IS NOT NULL)
+              )
+              AND (
+                  ta.lifecycle_stage = 'bonding_curve'
+                  OR (
+                      COALESCE(ta.lifecycle_stage, 'migration_pending') = 'migration_pending'
+                      AND NULLIF(TRIM(COALESCE(ta.bonding_curve_pda, '')), '') IS NOT NULL
+                  )
+              )
+              AND NULLIF(TRIM(COALESCE(ta.dex, '')), '') IS NULL
+              AND NULLIF(TRIM(COALESCE(ta.pumpswap_pool_address, ta.pool_address, tpa.pool_address, '')), '') IS NULL
+              AND (
+                  COALESCE(ta.is_about_to_migrate, 0) = 1
+                  OR COALESCE(ta.migration_band, '') IN ('likely_close', 'warm', 'hot')
+                  OR COALESCE(tps.market_cap, ta.market_cap_current, 0) >= ?
+              )
+            ORDER BY
+                COALESCE(ta.is_about_to_migrate, 0) DESC,
+                COALESCE(ta.migration_progress_pct, 0) DESC,
+                COALESCE(tps.market_cap, ta.market_cap_current, 0) DESC,
+                COALESCE(ta.migration_signal_updated_at, 0) DESC,
+                ta.created_at DESC
+            LIMIT ?
+        """, (heuristic_market_cap_floor, limit,))
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        def _readiness_label(row: sqlite3.Row) -> str:
+            if row['is_about_to_migrate']:
+                return 'About to migrate'
+            band = (row['migration_band'] or '').strip().lower()
+            if band == 'hot':
+                return 'Hot'
+            if band == 'warm':
+                return 'Warm'
+            if float(row['resolved_market_cap'] or 0) >= heuristic_market_cap_floor:
+                return 'Warm'
+            return 'Watching'
+
+        return [{
+            'mint': row['mint'],
+            'created_at': row['created_at'],
+            'source_platform': row['source_platform'],
+            'lifecycle_stage': row['lifecycle_stage'],
+            'market_cap_current': row['resolved_market_cap'] or None,
+            'symbol': row['token_symbol'] or None,
+            'name': row['token_name'] or None,
+            'is_about_to_migrate': bool(row['is_about_to_migrate']) if row['is_about_to_migrate'] is not None else False,
+            'migration_progress_pct': row['migration_progress_pct'],
+            'migration_band': row['migration_band'] or None,
+            'migration_signal_updated_at': row['migration_signal_updated_at'],
+            'readiness_label': _readiness_label(row),
+        } for row in rows]
+    except Exception as e:
+        import traceback
+        print(f"[DB] Error fetching future-bound tokens: {e}")
+        traceback.print_exc()
+        return []
+
+
+def _safe_tail_text(path: str, max_bytes: int = 1_500_000) -> str:
+    try:
+        if not os.path.exists(path):
+            return ""
+        with open(path, 'rb') as handle:
+            handle.seek(0, os.SEEK_END)
+            size = handle.tell()
+            handle.seek(max(0, size - max_bytes), os.SEEK_SET)
+            raw = handle.read()
+        return raw.decode('utf-8', errors='ignore')
+    except Exception:
+        return ""
+
+
+def _parse_log_timestamp_to_unix(line: str) -> Optional[int]:
+    if not isinstance(line, str):
+        return None
+    match = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)Z", line)
+    if not match:
+        return None
+    try:
+        return int(datetime.fromisoformat(match.group(1)).timestamp())
+    except Exception:
+        return None
+
+
+def _band_sort_rank(band: Optional[str], is_about_to_migrate: bool = False) -> int:
+    if is_about_to_migrate:
+        return 5
+    clean = (band or '').strip().lower()
+    if clean == 'hot':
+        return 4
+    if clean == 'warm':
+        return 3
+    if clean == 'likely_close':
+        return 2
+    if clean == 'early':
+        return 1
+    return 0
+
+
+def _pumpfun_migration_priority(token: Dict[str, Any]) -> tuple:
+    progress = _safe_float(token.get('migration_progress_pct'), default=0.0)
+    market_cap = _safe_float(token.get('market_cap_current'), default=0.0)
+    buys = _safe_int(token.get('buys_10s'), default=0)
+    unique = _safe_int(token.get('unique_30s'), default=0)
+    sol_15s = _safe_float(token.get('sol_15s'), default=0.0)
+    accel = _safe_float(token.get('accel'), default=0.0)
+    updated_at = _safe_int(
+        token.get('last_meaningful_live_update_at') or token.get('migration_signal_updated_at'),
+        default=0,
+    )
+    created_at = _safe_int(token.get('created_at'), default=0)
+    band_rank = _band_sort_rank(token.get('migration_band'), bool(token.get('is_about_to_migrate')))
+    live_rank = 1 if token.get('signal_mode') == 'live' else 0
+
+    return (
+        band_rank,
+        progress,
+        market_cap,
+        live_rank,
+        buys,
+        unique,
+        sol_15s,
+        accel,
+        updated_at,
+        created_at,
+    )
+
+
+def _classify_pumpfun_live_state(token: Dict[str, Any], now: int) -> Dict[str, Any]:
+    buys = _safe_int(token.get('buys_10s'), default=0)
+    unique = _safe_int(token.get('unique_30s'), default=0)
+    sol_15s = _safe_float(token.get('sol_15s'), default=0.0)
+    live_updated_at = _safe_int(token.get('last_meaningful_live_update_at') or token.get('migration_signal_updated_at'), default=0)
+    signal_updated_at = _safe_int(token.get('migration_signal_updated_at'), default=0)
+    live_age_seconds = max(0, now - live_updated_at) if live_updated_at > 0 else None
+    signal_age_seconds = max(0, now - signal_updated_at) if signal_updated_at > 0 else None
+    has_live_momentum = buys > 0 or unique > 0 or sol_15s > 0.0
+    live_fresh = live_age_seconds is not None and live_age_seconds <= 120
+    signal_fresh = signal_age_seconds is not None and signal_age_seconds <= 180
+    is_live = token.get('signal_mode') == 'live'
+    band_rank = _band_sort_rank(token.get('migration_band'), bool(token.get('is_about_to_migrate')))
+
+    if is_live and has_live_momentum and live_fresh:
+        status_key = 'active_live'
+        status_label = 'Active live momentum'
+        status_rank = 3
+    elif is_live and signal_fresh:
+        status_key = 'fresh_but_idle'
+        status_label = 'Fresh flow, low momentum'
+        status_rank = 2
+    elif is_live:
+        status_key = 'stale_live'
+        status_label = 'Flow-backed, but stale'
+        status_rank = 1
+    else:
+        status_key = 'fallback'
+        status_label = 'Fallback/inferred only'
+        status_rank = 0
+
+    if band_rank >= 3 and not has_live_momentum:
+        readiness_context = 'Stored readiness, low live momentum'
+    elif band_rank >= 3 and has_live_momentum:
+        readiness_context = 'Stored readiness supported by live momentum'
+    elif band_rank == 2 and has_live_momentum:
+        readiness_context = 'Likely close with active live flow'
+    elif band_rank == 1 and has_live_momentum:
+        readiness_context = 'Early readiness with active live flow'
+    elif has_live_momentum:
+        readiness_context = 'Live flow seen, readiness still forming'
+    else:
+        readiness_context = 'Limited current live evidence'
+
+    return {
+        'live_status_key': status_key,
+        'live_status_label': status_label,
+        'live_status_rank': status_rank,
+        'live_age_seconds': live_age_seconds,
+        'signal_age_seconds': signal_age_seconds,
+        'live_fresh': live_fresh,
+        'signal_fresh': signal_fresh,
+        'has_live_momentum': has_live_momentum,
+        'readiness_context': readiness_context,
+    }
+
+
+def _is_close_to_pumpfun_migration(token: Dict[str, Any], market_cap_floor: float = 50000.0) -> bool:
+    if token.get('is_about_to_migrate'):
+        return True
+
+    band = (token.get('migration_band') or '').strip().lower()
+    if band in {'hot', 'warm', 'likely_close'}:
+        return True
+
+    progress = _safe_float(token.get('migration_progress_pct'), default=0.0)
+    if progress >= 50.0:
+        return True
+
+    market_cap = _safe_float(token.get('market_cap_current'), default=0.0)
+    if market_cap >= market_cap_floor:
+        return True
+
+    score = _safe_int(token.get('signal_score'), default=0)
+    buys = _safe_int(token.get('buys_10s'), default=0)
+    unique = _safe_int(token.get('unique_30s'), default=0)
+    sol_15s = _safe_float(token.get('sol_15s'), default=0.0)
+    if token.get('signal_mode') == 'live' and (score >= 3 or buys >= 3 or unique >= 5 or sol_15s >= 1.0):
+        return True
+
+    return False
+
+
+def _build_signal_reason(token: Dict[str, Any]) -> str:
+    parts: List[str] = []
+    if token.get('signal_mode') == 'live':
+        parts.append('Live Pump.fun flow')
+    else:
+        parts.append('Fallback/inferred')
+    if token.get('migration_band'):
+        parts.append(f"band={token['migration_band']}")
+    if token.get('signal_score') is not None:
+        parts.append(f"score={token['signal_score']}")
+    if token.get('buys_10s') is not None:
+        parts.append(f"buys_10s={token['buys_10s']}")
+    if token.get('unique_30s') is not None:
+        parts.append(f"unique_30s={token['unique_30s']}")
+    if token.get('sol_15s') is not None:
+        parts.append(f"sol_15s={float(token['sol_15s'] or 0.0):.2f}")
+    return " | ".join(parts)
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        if value is None or value == "":
+            return default
+        if isinstance(value, str):
+            cleaned = value.strip()
+            if not cleaned:
+                return default
+            iso_candidate = cleaned[:-1] if cleaned.endswith("Z") else cleaned
+            try:
+                return int(datetime.fromisoformat(iso_candidate).timestamp())
+            except Exception:
+                pass
+        return int(float(value))
+    except Exception:
+        return default
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        if value is None or value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def _get_pumpfun_runtime_state() -> Dict[str, Dict[str, Any]]:
+    try:
+        premig_mtime = os.path.getmtime(PUMPFUN_PREMIGRATION_LOG_PATH) if os.path.exists(PUMPFUN_PREMIGRATION_LOG_PATH) else 0
+        listener_mtime = os.path.getmtime(PUMPFUN_LISTENER_LOG_PATH) if os.path.exists(PUMPFUN_LISTENER_LOG_PATH) else 0
+        cache_key = (premig_mtime, listener_mtime)
+        if _pumpfun_runtime_state_cache.get('key') == cache_key:
+            return dict(_pumpfun_runtime_state_cache.get('runtime_state') or {})
+
+        runtime_state: Dict[str, Dict[str, Any]] = {}
+
+        def _state_for(mint: str) -> Dict[str, Any]:
+            return runtime_state.setdefault(mint, {})
+
+        for line in _safe_tail_text(PUMPFUN_PREMIGRATION_LOG_PATH).splitlines():
+            if "[FLOW_METRICS]" in line:
+                match = re.search(
+                    r"\[FLOW_METRICS\] mint=([1-9A-HJ-NP-Za-km-z]{32,44}) buys_10s=([0-9]+) unique_30s=([0-9]+) sol_15s=([0-9.]+) sol_prev_15s=([0-9.]+)",
+                    line,
+                )
+                if match:
+                    mint = match.group(1)
+                    state = _state_for(mint)
+                    state['buys_10s'] = int(match.group(2))
+                    state['unique_30s'] = int(match.group(3))
+                    state['sol_15s'] = float(match.group(4))
+                    state['sol_prev_15s'] = float(match.group(5))
+                    state['last_live_update_at'] = _parse_log_timestamp_to_unix(line)
+                    continue
+            if "[SCORE]" in line:
+                match = re.search(
+                    r"\[SCORE\] mint=([1-9A-HJ-NP-Za-km-z]{32,44}) score=([0-9]+) band=([A-Za-z]+|None)",
+                    line,
+                )
+                if match:
+                    mint = match.group(1)
+                    state = _state_for(mint)
+                    state['signal_score'] = int(match.group(2))
+                    state['runtime_band'] = None if match.group(3) == 'None' else match.group(3).lower()
+                    continue
+            if "[BUY_DETECTED]" in line:
+                match = re.search(
+                    r"\[BUY_DETECTED\] mint=([1-9A-HJ-NP-Za-km-z]{32,44}) sol=([0-9.]+) buyer=([1-9A-HJ-NP-Za-km-z]{32,44})",
+                    line,
+                )
+                if match:
+                    mint = match.group(1)
+                    state = _state_for(mint)
+                    state['event_flow_mode'] = 'full'
+                    state['buyer_enriched'] = True
+                    state['sol_enriched'] = True
+                    state['last_meaningful_live_update_at'] = _parse_log_timestamp_to_unix(line)
+                    continue
+            if "[BUY_PARTIAL]" in line:
+                match = re.search(
+                    r"\[BUY_PARTIAL\] mint=([1-9A-HJ-NP-Za-km-z]{32,44}) buyer=(yes|no) sol=(yes|no)",
+                    line,
+                )
+                if match:
+                    mint = match.group(1)
+                    state = _state_for(mint)
+                    state['buyer_enriched'] = match.group(2) == 'yes'
+                    state['sol_enriched'] = match.group(3) == 'yes'
+                    state.setdefault('event_flow_mode', 'partial')
+                    state['last_meaningful_live_update_at'] = _parse_log_timestamp_to_unix(line)
+
+        for line in _safe_tail_text(PUMPFUN_LISTENER_LOG_PATH).splitlines():
+            if "[BUY_PARTIAL]" in line:
+                match = re.search(
+                    r"\[BUY_PARTIAL\] sig=[^ ]+ mint=([1-9A-HJ-NP-Za-km-z]{32,44}) buyer=(yes|no) sol=(yes|no) mode=([a-z_]+)",
+                    line,
+                )
+                if match:
+                    mint = match.group(1)
+                    state = _state_for(mint)
+                    state['event_flow_mode'] = match.group(4)
+                    state['buyer_enriched'] = match.group(2) == 'yes'
+                    state['sol_enriched'] = match.group(3) == 'yes'
+                    state['last_meaningful_live_update_at'] = _parse_log_timestamp_to_unix(line)
+                    continue
+            if "[BUY_ENRICHED]" in line:
+                match = re.search(
+                    r"\[BUY_ENRICHED\] sig=[^ ]+ mint=([1-9A-HJ-NP-Za-km-z]{32,44}) buyer=(yes|no) sol=(yes|no) mode=([a-z_]+)",
+                    line,
+                )
+                if match:
+                    mint = match.group(1)
+                    state = _state_for(mint)
+                    state['event_flow_mode'] = match.group(4)
+                    state['buyer_enriched'] = match.group(2) == 'yes'
+                    state['sol_enriched'] = match.group(3) == 'yes'
+                    state['last_meaningful_live_update_at'] = _parse_log_timestamp_to_unix(line)
+                    continue
+            if "[PREMIG_SIGNAL]" in line:
+                match = re.search(
+                    r"\[PREMIG_SIGNAL\] mint=([1-9A-HJ-NP-Za-km-z]{6}) score=([0-9]+) band=([A-Za-z]+|None) buys_10s=([0-9]+) unique_30s=([0-9]+) sol_15s=([0-9.]+) accel=([0-9.]+)",
+                    line,
+                )
+                if match:
+                    prefix = match.group(1)
+                    for mint, state in runtime_state.items():
+                        if mint.startswith(prefix):
+                            state['signal_score'] = int(match.group(2))
+                            state['runtime_band'] = None if match.group(3) == 'None' else match.group(3).lower()
+                            state['buys_10s'] = int(match.group(4))
+                            state['unique_30s'] = int(match.group(5))
+                            state['sol_15s'] = float(match.group(6))
+                            state['accel'] = float(match.group(7))
+                            state['last_live_update_at'] = _parse_log_timestamp_to_unix(line)
+
+        for state in runtime_state.values():
+            sol_prev = float(state.get('sol_prev_15s') or 0.0)
+            if state.get('accel') is None and sol_prev > 0:
+                state['accel'] = float(state.get('sol_15s') or 0.0) / sol_prev
+            state.setdefault('event_flow_mode', 'fallback')
+            state.setdefault('buyer_enriched', False)
+            state.setdefault('sol_enriched', False)
+
+        _pumpfun_runtime_state_cache['key'] = cache_key
+        _pumpfun_runtime_state_cache['runtime_state'] = runtime_state
+        return dict(runtime_state)
+    except Exception:
+        return {}
+
+
+def _build_pumpfun_summary(tokens: List[Dict[str, Any]], total_available: Optional[int] = None) -> Dict[str, Any]:
+    now = int(time.time())
+    summary = {
+        'total_rows': len(tokens),
+        'total_available': total_available if total_available is not None else len(tokens),
+        'live_flow_rows': sum(1 for token in tokens if token.get('signal_mode') == 'live'),
+        'fallback_rows': sum(1 for token in tokens if token.get('signal_mode') != 'live'),
+        'hot_rows': sum(1 for token in tokens if (token.get('migration_band') or '').lower() == 'hot'),
+        'warm_rows': sum(1 for token in tokens if (token.get('migration_band') or '').lower() == 'warm'),
+        'likely_close_rows': sum(1 for token in tokens if (token.get('migration_band') or '').lower() == 'likely_close'),
+        'early_rows': sum(1 for token in tokens if (token.get('migration_band') or '').lower() == 'early'),
+        'about_to_migrate_rows': sum(1 for token in tokens if token.get('is_about_to_migrate')),
+        'active_flow_mints': sum(
+            1 for token in tokens
+            if token.get('signal_mode') == 'live'
+            and (
+                int(token.get('buys_10s') or 0) > 0
+                or int(token.get('unique_30s') or 0) > 0
+                or float(token.get('sol_15s') or 0.0) > 0.0
+            )
+        ),
+        'recently_updated_rows': sum(
+            1 for token in tokens
+            if token.get('last_meaningful_live_update_at') and (now - _safe_int(token['last_meaningful_live_update_at'])) <= 120
+        ),
+    }
+    return summary
+
+
+def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any]:
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT
+                pmv.mint,
+                pmv.migrated_at,
+                pmv.migration_tx,
+                pmv.dex,
+                pmv.pumpswap_pool_address,
+                pmv.pre_is_about_to_migrate,
+                pmv.pre_migration_band,
+                pmv.pre_migration_progress_pct,
+                pmv.pre_migration_signal_updated_at,
+                pmv.pre_market_cap_current,
+                pmv.pre_buys_10s,
+                pmv.pre_unique_30s,
+                pmv.pre_sol_15s,
+                pmv.pre_inflow_accel,
+                pmv.pre_signal_score,
+                pmv.pre_migration_signal_source,
+                pmv.predicted_by_flow,
+                pmv.predicted_by_market_cap,
+                pmv.predicted_by_explicit_signal,
+                pmv.was_about_to_migrate_at_migration,
+                pmv.was_hot_or_warm_before_migration,
+                pmv.signal_age_seconds,
+                pmv.signal_was_fresh,
+                pmv.final_verdict,
+                COALESCE(mc.symbol, tt.symbol) AS token_symbol,
+                mc.name AS token_name
+            FROM pumpfun_migration_verification pmv
+            LEFT JOIN metadata_cache mc
+                ON mc.mint = pmv.mint
+            LEFT JOIN tracked_tokens tt
+                ON tt.mint = pmv.mint
+            ORDER BY COALESCE(pmv.migrated_at, 0) DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+
+        records: List[Dict[str, Any]] = []
+        for row in rows:
+            verdict = (row["final_verdict"] or "unknown").strip()
+            records.append({
+                "mint": row["mint"],
+                "symbol": row["token_symbol"] or None,
+                "name": row["token_name"] or None,
+                "migrated_at": row["migrated_at"],
+                "migration_tx": row["migration_tx"] or None,
+                "dex": row["dex"] or None,
+                "pumpswap_pool_address": row["pumpswap_pool_address"] or None,
+                "pre_is_about_to_migrate": bool(row["pre_is_about_to_migrate"]),
+                "pre_migration_band": row["pre_migration_band"] or None,
+                "pre_migration_progress_pct": row["pre_migration_progress_pct"],
+                "pre_migration_signal_updated_at": row["pre_migration_signal_updated_at"],
+                "pre_market_cap_current": float(row["pre_market_cap_current"] or 0.0),
+                "pre_buys_10s": int(row["pre_buys_10s"] or 0),
+                "pre_unique_30s": int(row["pre_unique_30s"] or 0),
+                "pre_sol_15s": float(row["pre_sol_15s"] or 0.0),
+                "pre_inflow_accel": float(row["pre_inflow_accel"] or 0.0),
+                "pre_signal_score": int(row["pre_signal_score"] or 0),
+                "pre_migration_signal_source": row["pre_migration_signal_source"] or None,
+                "predicted_by_flow": bool(row["predicted_by_flow"]),
+                "predicted_by_market_cap": bool(row["predicted_by_market_cap"]),
+                "predicted_by_explicit_signal": bool(row["predicted_by_explicit_signal"]),
+                "was_about_to_migrate_at_migration": bool(row["was_about_to_migrate_at_migration"]),
+                "was_hot_or_warm_before_migration": bool(row["was_hot_or_warm_before_migration"]),
+                "signal_age_seconds": row["signal_age_seconds"],
+                "signal_was_fresh": bool(row["signal_was_fresh"]),
+                "final_verdict": verdict,
+            })
+
+        predicted = sum(1 for record in records if record["final_verdict"] == "predicted")
+        flow_predicted = sum(1 for record in records if record["predicted_by_flow"])
+        market_cap_only = sum(1 for record in records if record["final_verdict"] == "market_cap_only")
+        market_cap_predicted = sum(1 for record in records if record["predicted_by_market_cap"])
+        stale_signal = sum(1 for record in records if record["final_verdict"] == "stale_signal")
+        missed = sum(1 for record in records if record["final_verdict"] == "missed")
+        no_signal = sum(1 for record in records if record["final_verdict"] == "no_signal")
+        total = len(records)
+
+        def _pct(value: int) -> Optional[float]:
+            if total <= 0:
+                return None
+            return round(100.0 * value / total, 1)
+
+        summary = {
+            "recent_migrations": total,
+            "total_verified": total,
+            "predicted": predicted,
+            "flow_predicted": flow_predicted,
+            "market_cap_only": market_cap_only,
+            "market_cap_predicted": market_cap_predicted,
+            "stale_signal": stale_signal,
+            "missed": missed,
+            "no_signal": no_signal,
+            "predicted_pct": _pct(predicted),
+            "flow_predicted_pct": _pct(flow_predicted),
+            "market_cap_only_pct": _pct(market_cap_only),
+            "market_cap_predicted_pct": _pct(market_cap_predicted),
+            "stale_signal_pct": _pct(stale_signal),
+            "missed_pct": _pct(missed + no_signal),
+        }
+        return {"records": records, "summary": summary}
+    except Exception as e:
+        print(f"[DB] Error fetching Pump.fun migration verification: {e}")
+        return {"records": [], "summary": {}}
+
+
+def get_pumpfun_pre_migration_tokens(
+    limit: Optional[int] = 100,
+    *,
+    signal_type: str = 'all',
+    band: str = 'all',
+    min_market_cap: float = 0.0,
+    min_buys_10s: int = 0,
+    min_unique_30s: int = 0,
+    min_sol_15s: float = 0.0,
+    updated_within_seconds: int = 0,
+    close_only: bool = True,
+) -> Dict[str, Any]:
+    """Get Pump.fun pre-migration tokens enriched with live-flow context for the dedicated page."""
+    try:
+        heuristic_market_cap_floor = 50000
+        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        query = """
+            SELECT
+                ta.mint,
+                ta.created_at,
+                ta.source_platform,
+                ta.lifecycle_stage,
+                ta.is_about_to_migrate,
+                ta.migration_progress_pct,
+                ta.migration_band,
+                ta.migration_signal_updated_at,
+                ta.migration_signal_source,
+                ta.market_cap_current,
+                ta.price_updated_at,
+                ta.price_source,
+                ta.bonding_curve_pda,
+                ta.dex,
+                ta.pumpswap_pool_address,
+                ta.pool_address,
+                COALESCE(tps.market_cap, ta.market_cap_current, 0) as resolved_market_cap,
+                COALESCE(tps.captured_at, ta.price_updated_at, 0) as market_cap_updated_at,
+                COALESCE(mc.symbol, tt.symbol) as token_symbol,
+                mc.name as token_name
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc
+                ON mc.mint = ta.mint
+            LEFT JOIN tracked_tokens tt
+                ON tt.mint = ta.mint
+            LEFT JOIN token_pool_accounts tpa
+                ON tpa.mint = ta.mint AND tpa.is_active = 1
+            LEFT JOIN token_price_snapshots tps
+                ON tps.snapshot_id = (
+                    SELECT snapshot_id FROM token_price_snapshots
+                    WHERE mint = ta.mint
+                    ORDER BY captured_at DESC LIMIT 1
+                )
+            WHERE ta.mint IS NOT NULL
+              AND (
+                  ta.source_platform = 'pumpfun'
+                  OR (ta.source_platform IS NULL AND NULLIF(TRIM(COALESCE(ta.bonding_curve_pda, '')), '') IS NOT NULL)
+              )
+              AND (
+                  ta.lifecycle_stage = 'bonding_curve'
+                  OR (
+                      COALESCE(ta.lifecycle_stage, 'migration_pending') = 'migration_pending'
+                      AND NULLIF(TRIM(COALESCE(ta.bonding_curve_pda, '')), '') IS NOT NULL
+                  )
+              )
+              AND NULLIF(TRIM(COALESCE(ta.dex, '')), '') IS NULL
+              AND NULLIF(TRIM(COALESCE(ta.pumpswap_pool_address, ta.pool_address, tpa.pool_address, '')), '') IS NULL
+            ORDER BY
+                COALESCE(ta.is_about_to_migrate, 0) DESC,
+                COALESCE(ta.migration_progress_pct, 0) DESC,
+                COALESCE(tps.market_cap, ta.market_cap_current, 0) DESC,
+                COALESCE(ta.migration_signal_updated_at, 0) DESC,
+                ta.created_at DESC
+        """
+        params: List[Any] = []
+
+        cursor.execute(query, tuple(params))
+        rows = cursor.fetchall()
+        conn.close()
+        total_available = len(rows)
+        runtime_state = _get_pumpfun_runtime_state()
+
+        def _readiness_label(row: sqlite3.Row) -> str:
+            if row['is_about_to_migrate']:
+                return 'About to migrate'
+            band = (row['migration_band'] or '').strip().lower()
+            if band == 'hot':
+                return 'Hot'
+            if band == 'warm':
+                return 'Warm'
+            if band == 'early':
+                return 'Early'
+            if _safe_float(row['resolved_market_cap']) >= heuristic_market_cap_floor:
+                return 'Warm'
+            return 'Watching'
+
+        def _signal_provenance(row: sqlite3.Row) -> Dict[str, Any]:
+            source = (row['migration_signal_source'] or '').strip().lower()
+            if source == 'flow':
+                return {
+                    'signal_mode': 'live',
+                    'signal_label': 'Live signal',
+                    'signal_reason': 'Driven by live Pump.fun flow captured by the listener.',
+                }
+            if source == 'fallback' or _safe_float(row['resolved_market_cap']) >= heuristic_market_cap_floor:
+                return {
+                    'signal_mode': 'fallback',
+                    'signal_label': 'Fallback/inferred',
+                    'signal_reason': 'Shown via heuristic fallback because explicit migration signals are missing.',
+                }
+            return {
+                'signal_mode': 'fallback',
+                'signal_label': 'Fallback/inferred',
+                'signal_reason': 'Tracking row exists, but readiness is inferred from incomplete pre-migration data.',
+            }
+
+        now = int(time.time())
+        tokens = []
+        for row in rows:
+            try:
+                resolved_market_cap = _safe_float(row['resolved_market_cap'], default=0.0)
+                signal_meta = _signal_provenance(row)
+                runtime = runtime_state.get(row['mint'], {})
+                migration_band = row['migration_band'] or runtime.get('runtime_band') or None
+                signal_updated_at = row['migration_signal_updated_at'] or runtime.get('last_live_update_at')
+                market_cap_updated_at = row['market_cap_updated_at'] or row['price_updated_at'] or None
+                market_cap_source = row['price_source'] or ('snapshot' if market_cap_updated_at else 'unknown')
+                token = {
+                    'mint': row['mint'],
+                    'created_at': row['created_at'],
+                    'source_platform': row['source_platform'] or 'pumpfun',
+                    'lifecycle_stage': row['lifecycle_stage'] or 'migration_pending',
+                    'market_cap_current': resolved_market_cap or None,
+                    'market_cap_updated_at': market_cap_updated_at,
+                    'market_cap_source': market_cap_source,
+                    'symbol': row['token_symbol'] or None,
+                    'name': row['token_name'] or None,
+                    'is_about_to_migrate': bool(row['is_about_to_migrate']) if row['is_about_to_migrate'] is not None else False,
+                    'migration_progress_pct': _safe_float(row['migration_progress_pct'], default=0.0),
+                    'migration_band': migration_band,
+                    'migration_signal_updated_at': signal_updated_at,
+                    'migration_signal_source': row['migration_signal_source'] or None,
+                    'bonding_curve_pda': row['bonding_curve_pda'] or None,
+                    'readiness_label': _readiness_label(row),
+                    'signal_mode': signal_meta['signal_mode'],
+                    'signal_label': signal_meta['signal_label'],
+                    'signal_reason': signal_meta['signal_reason'],
+                    'buys_10s': _safe_int(runtime.get('buys_10s'), default=0),
+                    'unique_30s': _safe_int(runtime.get('unique_30s'), default=0),
+                    'sol_15s': _safe_float(runtime.get('sol_15s'), default=0.0),
+                    'sol_prev_15s': _safe_float(runtime.get('sol_prev_15s'), default=0.0),
+                    'accel': _safe_float(runtime.get('accel'), default=0.0),
+                    'signal_score': _safe_int(runtime.get('signal_score'), default=0) if runtime.get('signal_score') is not None else None,
+                    'event_flow_mode': runtime.get('event_flow_mode') or ('fallback' if signal_meta['signal_mode'] != 'live' else 'count_only'),
+                    'buyer_enriched': bool(runtime.get('buyer_enriched')),
+                    'sol_enriched': bool(runtime.get('sol_enriched')),
+                    'last_meaningful_live_update_at': runtime.get('last_meaningful_live_update_at') or runtime.get('last_live_update_at') or signal_updated_at,
+                }
+                token.update(_classify_pumpfun_live_state(token, now))
+                token['signal_reason'] = _build_signal_reason(token)
+                tokens.append(token)
+            except Exception as row_error:
+                print(f"[PUMPFUN_API_ROW_SKIP] mint={row['mint']} error={row_error}")
+                continue
+
+        def _passes_filters(token: Dict[str, Any]) -> bool:
+            if signal_type == 'live' and token.get('signal_mode') != 'live':
+                return False
+            if signal_type == 'fallback' and token.get('signal_mode') == 'live':
+                return False
+            if band != 'all' and (token.get('migration_band') or '').lower() != band:
+                return False
+            if _safe_float(token.get('market_cap_current'), default=0.0) < float(min_market_cap or 0.0):
+                return False
+            if _safe_int(token.get('buys_10s'), default=0) < int(min_buys_10s or 0):
+                return False
+            if _safe_int(token.get('unique_30s'), default=0) < int(min_unique_30s or 0):
+                return False
+            if _safe_float(token.get('sol_15s'), default=0.0) < float(min_sol_15s or 0.0):
+                return False
+            if int(updated_within_seconds or 0) > 0:
+                updated_at = token.get('last_meaningful_live_update_at') or token.get('migration_signal_updated_at')
+                if not updated_at or (now - _safe_int(updated_at, default=0)) > int(updated_within_seconds):
+                    return False
+            return True
+
+        filtered_tokens = [token for token in tokens if _passes_filters(token)]
+        if close_only:
+            filtered_tokens = [
+                token for token in filtered_tokens
+                if _is_close_to_pumpfun_migration(token, market_cap_floor=float(heuristic_market_cap_floor))
+            ]
+        filtered_tokens.sort(
+            key=lambda token: (
+                _safe_int(token.get('live_status_rank'), default=0),
+                *_pumpfun_migration_priority(token),
+            ),
+            reverse=True,
+        )
+
+        if limit is not None and limit > 0:
+            filtered_tokens = filtered_tokens[:limit]
+
+        return {
+            'tokens': filtered_tokens,
+            'summary': _build_pumpfun_summary(filtered_tokens, total_available=total_available),
+            'total_available': total_available,
+            'recent_migrations': get_recent_pumpfun_migration_verifications(limit=20),
+        }
+    except Exception as e:
+        import traceback
+        print(f"[DB] Error fetching Pump.fun pre-migration tokens: {e}")
+        traceback.print_exc()
+        return {'tokens': [], 'summary': _build_pumpfun_summary([]), 'total_available': 0, 'recent_migrations': {'records': [], 'summary': {}}}
 
 
 def calculate_funding_progress(creator_address: str) -> Dict:
@@ -7507,6 +8368,12 @@ def index():
     return render_template('dashboard_home.html', active_page='tokens')
 
 
+@app.route('/pumpfun')
+def pumpfun_watchlist():
+    """Serve the Pump.fun pre-migration watchlist page."""
+    return render_template('pumpfun_tokens.html', active_page='pumpfun')
+
+
 @app.route('/coordinated-funder-analysis/<creator_address>')
 def coordinated_funder_analysis_view(creator_address: str):
     """Serve a full webview for coordinated funder analysis results"""
@@ -7768,6 +8635,66 @@ def api_migrated_tokens():
     return response
 
 
+@app.route('/api/future-bound-tokens')
+def api_future_bound_tokens():
+    """Get Pump.fun bonding-curve tokens that appear close to migration."""
+    tokens = get_future_bound_tokens(limit=20)
+    response = jsonify({'tokens': tokens})
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
+
+@app.route('/api/pumpfun/pre-migration')
+def api_pumpfun_pre_migration_tokens():
+    """Return all tracked Pump.fun pre-migration tokens for the dedicated watchlist page."""
+    try:
+        limit = request.args.get('limit', default=100, type=int)
+        if limit is not None and limit <= 0:
+            limit = 100
+    except Exception:
+        limit = 100
+
+    signal_type = (request.args.get('signal_type', default='all', type=str) or 'all').strip().lower()
+    if signal_type not in {'all', 'live', 'fallback'}:
+        signal_type = 'all'
+
+    band = (request.args.get('band', default='all', type=str) or 'all').strip().lower()
+    if band not in {'all', 'hot', 'warm', 'likely_close', 'early'}:
+        band = 'all'
+
+    close_only = (request.args.get('close_only', default='1', type=str) or '1').strip().lower() not in {'0', 'false', 'no'}
+
+    payload = get_pumpfun_pre_migration_tokens(
+        limit=limit,
+        signal_type=signal_type,
+        band=band,
+        min_market_cap=max(0.0, float(request.args.get('min_market_cap', default=0.0, type=float) or 0.0)),
+        min_buys_10s=max(0, int(request.args.get('min_buys_10s', default=0, type=int) or 0)),
+        min_unique_30s=max(0, int(request.args.get('min_unique_30s', default=0, type=int) or 0)),
+        min_sol_15s=max(0.0, float(request.args.get('min_sol_15s', default=0.0, type=float) or 0.0)),
+        updated_within_seconds=max(0, int(request.args.get('updated_within_seconds', default=0, type=int) or 0)),
+        close_only=close_only,
+    )
+    response = jsonify({
+        'tokens': payload.get('tokens', []),
+        'count': len(payload.get('tokens', [])),
+        'summary': payload.get('summary', {}),
+        'total_available': payload.get('total_available', 0),
+        'recent_migrations': payload.get('recent_migrations', {'records': [], 'summary': {}}),
+        'filters': {
+            'signal_type': signal_type,
+            'band': band,
+            'close_only': close_only,
+        },
+    })
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
+
 @app.route('/api/price/symbol/<mint>')
 def api_price_symbol(mint: str):
     """Return symbol/name for a mint, checking cache then triggering a background fetch."""
@@ -7847,7 +8774,18 @@ def api_token_metrics(token_mint: str):
                 market_cap_highest,
                 market_cap_highest_at_ts,
                 created_at,
-                earliest_tx_creator
+                earliest_tx_creator,
+                lifecycle_stage,
+                migrated_at,
+                dex,
+                pool_address,
+                pumpswap_pool_address,
+                source_platform,
+                is_new,
+                is_about_to_migrate,
+                migration_progress_pct,
+                migration_band,
+                migration_signal_updated_at
             FROM token_analysis
             WHERE mint = ?
         """, (token_mint,))
@@ -7907,11 +8845,6 @@ def api_token_metrics(token_mint: str):
             peak_market_cap_at = src_row['captured_at'] if src_row and src_row['captured_at'] else peak_market_cap_at
         created_ts = _parse_unix_ts(row['created_at'])
         is_new = created_ts is not None and (int(time.time()) - created_ts) < NEW_TOKEN_WINDOW_SECS
-        if is_new:
-            current_market_cap = 0
-            peak_market_cap = 0
-            peak_market_cap_at = None
-
         if src_row:
             price_source = src_row['source']
         elif row['price_current'] and row['price_current'] > 0:
@@ -7976,7 +8909,7 @@ def api_token_metrics(token_mint: str):
                 'highest': peak_market_cap
             },
             'peak_at': peak_market_cap_at,
-            'peak_time_seconds': None if is_new else _peak_time_seconds(row['created_at'], peak_market_cap_at),
+            'peak_time_seconds': _peak_time_seconds(row['created_at'], peak_market_cap_at),
             'is_new': is_new,
             'created_at': row['created_at'],
             'coverage': row['coverage'] if row['coverage'] else 0,
@@ -7989,6 +8922,17 @@ def api_token_metrics(token_mint: str):
             'creator':               row['earliest_tx_creator'] or None,
             'symbol':                meta_row['symbol'] if meta_row and meta_row['symbol'] else None,
             'name':                  meta_row['name'] if meta_row and meta_row['name'] else None,
+            'lifecycle_stage':       row['lifecycle_stage'] or 'migration_pending',
+            'migrated_at':           row['migrated_at'],
+            'dex':                   row['dex'] or None,
+            'source_platform':       row['source_platform'] or None,
+            'db_is_new':             bool(row['is_new']) if row['is_new'] is not None else False,
+            'pool_address':          row['pumpswap_pool_address'] or row['pool_address'],
+            'pumpswap_pool_address': row['pumpswap_pool_address'] or None,
+            'is_about_to_migrate':   bool(row['is_about_to_migrate']) if row['is_about_to_migrate'] is not None else False,
+            'migration_progress_pct': row['migration_progress_pct'],
+            'migration_band':         row['migration_band'] or None,
+            'migration_signal_updated_at': row['migration_signal_updated_at'],
         })
         return response
     except Exception as e:

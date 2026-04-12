@@ -1,0 +1,10 @@
+ALTER TABLE token_analysis ADD COLUMN is_about_to_migrate BOOLEAN DEFAULT 0;
+ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL;
+ALTER TABLE token_analysis ADD COLUMN migration_band TEXT;
+ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER;
+ALTER TABLE token_analysis ADD COLUMN lifecycle_stage TEXT DEFAULT 'migration_pending';
+ALTER TABLE token_analysis ADD COLUMN migrated_at INTEGER;
+ALTER TABLE token_analysis ADD COLUMN dex TEXT;
+ALTER TABLE token_analysis ADD COLUMN pumpswap_pool_address TEXT;
+ALTER TABLE token_analysis ADD COLUMN source_platform TEXT;
+ALTER TABLE token_analysis ADD COLUMN is_new INTEGER DEFAULT 0;

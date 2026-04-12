@@ -40,12 +40,67 @@ SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
 SOL_MINT = "So11111111111111111111111111111111111111112"
 
 
+def _dex_name_from_pool_program(pool_program: str) -> str:
+    if pool_program == PUMPSWAP_PROGRAM:
+        return "pumpswap"
+    if pool_program == PUMPFUN_V1_PROGRAM:
+        return "pumpfun_v1"
+    if pool_program == RAYDIUM_CPMM_PROGRAM:
+        return "raydium_cpmm"
+    if pool_program == RAYDIUM_AMM_PROGRAM:
+        return "raydium_amm"
+    if pool_program == ORCA_WHIRLPOOL_PROGRAM:
+        return "orca_whirlpool"
+    return "unknown"
+
+
 class PoolDiscovery:
     """Extract pool reserve accounts from on-chain pool data."""
 
     def __init__(self, db_path: str, rpc_url: str):
         self.db_path = db_path
         self.rpc_url = rpc_url
+
+    def _mark_token_migrated(self, token_mint: str, pool_address: str, pool_program: str, validated: bool) -> None:
+        """
+        Confirm migration once a real post-curve pool is active and validated.
+
+        Confirmation rule:
+        - token_pool_accounts registration succeeded
+        - vault_validation_status is 'validated'
+        - pool address and known AMM program are present
+        """
+        if not validated or not pool_address or not pool_program:
+            return
+
+        now = int(__import__("time").time())
+        dex_name = _dex_name_from_pool_program(pool_program)
+        pumpswap_pool = pool_address if pool_program == PUMPSWAP_PROGRAM else None
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO token_analysis (
+                mint, pool_address, pumpswap_pool_address, lifecycle_stage,
+                migrated_at, dex, is_about_to_migrate, migration_progress_pct,
+                migration_band, migration_signal_updated_at, created_at, analyzed_at
+            ) VALUES (?, ?, ?, 'migrated', ?, ?, 0, 100, NULL, ?, ?, ?)
+            ON CONFLICT(mint) DO UPDATE SET
+                pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
+                pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, token_analysis.pumpswap_pool_address),
+                lifecycle_stage = 'migrated',
+                migrated_at = COALESCE(token_analysis.migrated_at, excluded.migrated_at),
+                dex = excluded.dex,
+                is_about_to_migrate = 0,
+                migration_progress_pct = 100,
+                migration_band = NULL,
+                migration_signal_updated_at = excluded.migration_signal_updated_at
+            """,
+            (token_mint, pool_address, pumpswap_pool, now, dex_name, now, now, now),
+        )
+        conn.commit()
+        conn.close()
 
     async def extract_pool_reserves(
         self, pool_address: str, token_mint: str
@@ -962,6 +1017,12 @@ class PoolDiscovery:
 
             conn.commit()
             conn.close()
+            self._mark_token_migrated(
+                token_mint,
+                reserves.get("pool_address"),
+                reserves["pool_program"],
+                vault_status == "validated",
+            )
 
             status_str = "✅" if vault_status == "validated" else "⏳"
             logger.info(
@@ -1060,6 +1121,12 @@ class PoolDiscovery:
                 )
                 conn.commit()
                 conn.close()
+                self._mark_token_migrated(
+                    token_mint,
+                    pool_account,
+                    pool_program,
+                    True,
+                )
                 return True
             else:
                 # Vaults exist but are wrong type

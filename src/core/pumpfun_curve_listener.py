@@ -7,6 +7,7 @@ When a migration is detected, runs post-migration analyzer to assess risk.
 """
 
 import asyncio
+from collections import deque
 import json
 import os
 import re
@@ -19,7 +20,7 @@ import aiohttp
 import requests
 from datetime import datetime
 from enum import Enum
-from typing import Set, Optional, List, Dict, Tuple
+from typing import Any, Set, Optional, List, Dict, Tuple
 from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 from src.extractors.realtime_creator_funding_extractor import extract_funding_for_new_token
 from src.extractors.funder_incoming_extractor import extract_for_creator as extract_funder_transfers
@@ -47,6 +48,29 @@ class Colors:
 _MIGRATION_LOG_PATH = os.path.join(
     os.path.dirname(__file__), "../../migration.log"
 )
+
+# Pre-migration signal debug log: ALL PF signal inputs, parsing, and outputs
+PREMIG_LOG_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/premigration.log"
+)
+
+
+def premig_log(message: str) -> None:
+    """Append a line to premigration.log (fire-and-forget, never raises)."""
+    try:
+        ts = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+        with open(PREMIG_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(f"{ts}Z  {message}\n")
+    except Exception:
+        pass
+
+
+# Truncate premigration.log on every startup so each run starts fresh
+try:
+    with open(PREMIG_LOG_PATH, "w", encoding="utf-8") as _pf:
+        _pf.write(f"{datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]}Z  [STARTUP] premigration.log initialised\n")
+except Exception:
+    pass
 _MIGRATION_LOG_PREFIXES = (
     "[EVENT]",
     "[MIGRATION]",
@@ -491,6 +515,39 @@ RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
 
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+SOL_MINT = "So11111111111111111111111111111111111111112"
+KNOWN_NON_MINT_ADDRESSES = {
+    PUMPFUN_PROGRAM,
+    PUMPSWAP_PROGRAM,
+    SOL_MINT,
+    "11111111111111111111111111111111",
+    "ComputeBudget111111111111111111111111111111",
+    "BPFLoader1111111111111111111111111111111111",
+    "BPFLoader2111111111111111111111111111111111",
+    "BPFLoaderUpgradeab1e11111111111111111111111",
+    "SysvarRent111111111111111111111111111111111",
+    "SysvarC1ock11111111111111111111111111111111",
+    "SysvarRecentB1ockHashes11111111111111111111",
+    "Sysvar1nstructions1111111111111111111111111",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    "AddressLookupTab1e1111111111111111111111111",
+    "Stake11111111111111111111111111111111111111",
+    "Vote111111111111111111111111111111111111111",
+    "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+    "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+    "Gz9VPiSLQYbvKyb3jZPjNfyA6n4T4qVFUuAukgL964nL",
+    "MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e",
+    "term9YPb9mzAsABaqN71A4xdbxHmpBNZavpBiQKZzN3",
+    "GMgnVFR8Jb39LoXsEVzb3DvBy3ywCmdmJquHUy1Lrkqb",
+    "FAdo9NCw1ssek6Z6yeWzWjhLVsr8uiCwcWNUnKgzTnHe",
+    "troyXT7Ty3s2rjJe4bqWaroUrS4Fjd8rbHHNHxcACF4",
+    "b1oomGGqPKGD6errbyfbVMBuzSC8WtAAYo8MwNafWW1",
+    "proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u",
+    "haqqqMGN35ehCftXca3KWxJFXTBcWTWeNHNtUHLGQdh",
+}
+SOLANA_PUBKEY_RE = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
 
 # Use DB_PATH from environment or construct it relative to project root
 DB_PATH = os.getenv("DB_PATH")
@@ -507,6 +564,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.seen_mints: Set[str] = set()
         self.processing_migrations: Set[str] = set()
         self.completed_migrations: Set[str] = set()
+        self.processing_launches: Set[str] = set()
+        self.completed_launches: Set[str] = set()
         self.analyzed_tokens = {}
         self.db_lock = asyncio.Lock()
         self.websocket_connected = False
@@ -539,8 +598,28 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # === NEW: Token state tracking (pending → resolved) ===
         self.token_states = {}  # {mint: "pending" | "resolving" | "resolved"}
         self.token_discovery_times = {}  # {mint: {"detected": time, "resolved": time}}
+        self._flow_windows_by_mint: Dict[str, deque] = {}
+        self._last_market_cap_by_mint: Dict[str, float] = {}
+        self._bonding_curve_to_mint: Dict[str, str] = {}
+        self._known_bonding_curve_mints: Set[str] = set()
+        self._recent_birth_mints: Dict[str, float] = {}
+        self._recent_birth_cache_ttl_seconds = 20 * 60
+        self._bonding_curve_index_last_rowid = 0
+        self._bonding_curve_refresh_interval_seconds = 15
+        self._last_bonding_curve_refresh_monotonic = 0.0
+        self._last_bonding_curve_refresh_failure_monotonic = 0.0
+        self._bonding_curve_refresh_failure_cooldown_seconds = 2.0
+        self._bonding_curve_refresh_retry_attempts = 3
+        self._bonding_curve_refresh_retry_backoff_seconds = 0.15
+        self._premigration_signal_floor_warm = 50000.0
+        self._premigration_signal_floor_hot = 58000.0
+        self._pumpfun_trade_debug_budget = 25
+        self._resolver_resolved_count = 0
+        self._resolver_unresolved_count = 0
 
         self._ensure_db()
+        self._normalize_existing_pumpfun_rows()
+        self._hydrate_bonding_curve_index()
         log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
         log_print(f"[INIT] 🔄 Pool detection retries enabled (max {self.pool_detection_max_retries} retries, {self.pool_detection_retry_delay}s delay)", flush=True)
@@ -565,6 +644,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
         asyncio.create_task(self._cleanup_tx_cache_periodic())
+        asyncio.create_task(self._refresh_pre_migration_signals_periodic())
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -604,6 +684,1823 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._failed_registration: dict = {}            # {mint: set(addr)}
         # Account info fetched during batch validation — reused in registration to skip re-fetch
         self._validated_account_cache: dict = {}        # {addr: account_info}
+
+    def _hydrate_bonding_curve_index(self) -> None:
+        """Warm a mint/bonding-curve lookup table from the local DB without RPC."""
+        try:
+            rows = self._refresh_bonding_curve_index(force=True, full=True)
+            log_print(f"[INIT] ✅ Bonding-curve index hydrated ({rows} rows)", flush=True)
+            log_print(f"[PREMIG_INIT] indexed_mints={len(self._known_bonding_curve_mints)}", flush=True)
+        except Exception as e:
+            log_print(f"[INIT] ⚠ Could not hydrate bonding-curve index: {e}", flush=True)
+
+    def _refresh_bonding_curve_index(self, *, force: bool = False, full: bool = False) -> int:
+        """Incrementally hydrate Pump.fun rows into the in-memory resolver index."""
+        now_mono = time.monotonic()
+        if not force and not full:
+            elapsed = now_mono - float(self._last_bonding_curve_refresh_monotonic or 0.0)
+            if elapsed < self._bonding_curve_refresh_interval_seconds:
+                return 0
+        recent_failure_elapsed = now_mono - float(self._last_bonding_curve_refresh_failure_monotonic or 0.0)
+        if force and not full and recent_failure_elapsed < float(self._bonding_curve_refresh_failure_cooldown_seconds or 0.0):
+            return 0
+
+        query = """
+            SELECT rowid, mint, bonding_curve_pda
+            FROM token_analysis
+            WHERE mint IS NOT NULL
+              AND (
+                    NULLIF(TRIM(COALESCE(bonding_curve_pda, '')), '') IS NOT NULL
+                    OR COALESCE(source_platform, '') = 'pumpfun'
+                    OR COALESCE(lifecycle_stage, '') = 'bonding_curve'
+                  )
+        """
+        params: List[Any] = []
+        if not full and self._bonding_curve_index_last_rowid:
+            query += " AND rowid > ?"
+            params.append(int(self._bonding_curve_index_last_rowid))
+        query += " ORDER BY rowid ASC"
+        log_print(
+            f"[INDEX_REFRESH_START] force={'yes' if force else 'no'} full={'yes' if full else 'no'} "
+            f"last_rowid={int(self._bonding_curve_index_last_rowid or 0)} cached_index={len(self._bonding_curve_to_mint)}",
+            flush=True,
+        )
+
+        rows: List[Tuple[Any, Any, Any]] = []
+        refresh_error: Optional[Exception] = None
+        max_attempts = max(1, int(self._bonding_curve_refresh_retry_attempts or 1))
+        for attempt in range(1, max_attempts + 1):
+            conn = None
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn.execute("PRAGMA query_only = ON")
+                conn.execute("PRAGMA busy_timeout = 5000")
+                cursor = conn.cursor()
+                cursor.execute(query, tuple(params))
+                rows = cursor.fetchall()
+                refresh_error = None
+                break
+            except sqlite3.OperationalError as e:
+                refresh_error = e
+                if attempt < max_attempts:
+                    log_print(
+                        f"[INDEX_REFRESH_RETRY] attempt={attempt} error={str(e)[:160]}",
+                        flush=True,
+                    )
+                    time.sleep(float(self._bonding_curve_refresh_retry_backoff_seconds or 0.15) * attempt)
+            except Exception as e:
+                refresh_error = e
+                break
+            finally:
+                try:
+                    if conn is not None:
+                        conn.close()
+                except Exception:
+                    pass
+
+        if refresh_error is not None:
+            self._last_bonding_curve_refresh_failure_monotonic = now_mono
+            log_print(
+                f"[INDEX_REFRESH_FAIL] preserved_cached_index=yes error={str(refresh_error)[:160]} "
+                f"cached_index={len(self._bonding_curve_to_mint)}",
+                flush=True,
+            )
+            return 0
+
+        max_rowid = int(self._bonding_curve_index_last_rowid or 0)
+        for rowid, mint, bonding_curve in rows:
+            if rowid:
+                max_rowid = max(max_rowid, int(rowid))
+            self._remember_bonding_curve_token(
+                str(mint) if mint else "",
+                str(bonding_curve) if bonding_curve else None,
+            )
+
+        self._bonding_curve_index_last_rowid = max_rowid
+        self._last_bonding_curve_refresh_monotonic = now_mono
+        self._last_bonding_curve_refresh_failure_monotonic = 0.0
+        log_print(
+            f"[INDEX_REFRESH_OK] rows={len(rows)} last_rowid={self._bonding_curve_index_last_rowid} "
+            f"cached_index={len(self._bonding_curve_to_mint)} known_mints={len(self._known_bonding_curve_mints)}",
+            flush=True,
+        )
+        return len(rows)
+
+    def _prune_recent_birth_cache(self, *, now_ts: Optional[float] = None) -> None:
+        """Drop stale birth cache entries so the resolver stays lightweight."""
+        now = float(now_ts or time.time())
+        cutoff = now - float(self._recent_birth_cache_ttl_seconds)
+        stale_mints = [mint for mint, ts in self._recent_birth_mints.items() if float(ts) < cutoff]
+        for mint in stale_mints:
+            self._recent_birth_mints.pop(mint, None)
+
+    def _remember_recent_birth_token(self, mint: str, bonding_curve_pda: Optional[str] = None) -> None:
+        """Track newly created Pump.fun tokens immediately for live buy resolution."""
+        if not mint:
+            return
+        self._prune_recent_birth_cache()
+        self._recent_birth_mints[str(mint)] = time.time()
+        self._remember_bonding_curve_token(mint, bonding_curve_pda)
+
+    def _normalize_existing_pumpfun_rows(self) -> None:
+        """Promote legacy bonding-curve rows into the Pump.fun tracking namespace."""
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                UPDATE token_analysis
+                SET
+                    source_platform = COALESCE(source_platform, 'pumpfun'),
+                    lifecycle_stage = CASE
+                        WHEN COALESCE(lifecycle_stage, 'migration_pending') = 'migrated' THEN lifecycle_stage
+                        WHEN NULLIF(TRIM(COALESCE(pool_address, pumpswap_pool_address, dex, '')), '') IS NOT NULL THEN lifecycle_stage
+                        ELSE 'bonding_curve'
+                    END
+                WHERE mint IS NOT NULL
+                  AND NULLIF(TRIM(COALESCE(bonding_curve_pda, '')), '') IS NOT NULL
+                  AND NULLIF(TRIM(COALESCE(pool_address, pumpswap_pool_address, dex, '')), '') IS NULL
+                  AND (source_platform IS NULL OR source_platform = '' OR lifecycle_stage IS NULL OR lifecycle_stage = 'migration_pending')
+                """
+            )
+            normalized = cursor.rowcount or 0
+            conn.commit()
+            conn.close()
+            log_print(f"[PREMIG_NORMALIZE] rows={normalized}", flush=True)
+        except Exception as e:
+            log_print(f"[PREMIG_NORMALIZE] ⚠ Failed to normalize Pump.fun rows: {e}", flush=True)
+
+    def _remember_bonding_curve_token(self, mint: str, bonding_curve_pda: Optional[str] = None) -> None:
+        """Keep an in-memory lookup from bonding curve and mint to the tracked token."""
+        if mint:
+            self._known_bonding_curve_mints.add(str(mint))
+        if mint and bonding_curve_pda:
+            self._bonding_curve_to_mint[str(bonding_curve_pda)] = str(mint)
+
+    def _is_definitely_not_mint_candidate(self, value: str) -> bool:
+        """Reject obvious non-mint account keys before treating them as mint candidates."""
+        if not isinstance(value, str):
+            return True
+        candidate = value.strip()
+        if not candidate:
+            return True
+        if candidate in KNOWN_NON_MINT_ADDRESSES:
+            return True
+        if candidate in self._bonding_curve_to_mint:
+            return True
+        if len(candidate) < 32 or len(candidate) > 44:
+            return True
+        if not SOLANA_PUBKEY_RE.fullmatch(candidate):
+            return True
+        if any(ch in candidate for ch in ("0", "O", "I", "l", "+", "/", "=")):
+            return True
+        if candidate.startswith("AAAAAAAA") or candidate.endswith("AAAAAAAA"):
+            return True
+        lowered = candidate.lower()
+        if lowered.startswith("computebudget") or lowered.startswith("bpfloader"):
+            return True
+        if len(set(candidate)) <= 3:
+            return True
+        return False
+
+    def _looks_like_pumpfun_mint(self, value: str) -> bool:
+        """Strict filter for Pump.fun mint-like log candidates."""
+        if self._is_definitely_not_mint_candidate(value):
+            return False
+        candidate = value.strip()
+        if not candidate.lower().endswith("pump"):
+            return False
+        return True
+
+    def _is_pumpfun_buy_candidate(self, logs: List[str]) -> bool:
+        """Identify Pump.fun buy traffic from websocket logs without RPC."""
+        lowered = " ".join(logs or []).lower()
+        if "instruction: create" in lowered or "instruction: migrate" in lowered:
+            return False
+        if "instruction: sell" in lowered:
+            return False
+        if "instruction: buy" in lowered:
+            return True
+        if re.search(r"\bbuy\b", lowered):
+            return True
+        if "program data:" in lowered:
+            candidates = self._extract_base58_candidates(logs)
+            if any(candidate in self._bonding_curve_to_mint or candidate in self._known_bonding_curve_mints for candidate in candidates):
+                return True
+        return False
+
+    def _is_pumpfun_sell_candidate(self, logs: List[str]) -> bool:
+        lowered = " ".join(logs or []).lower()
+        if "instruction: create" in lowered or "instruction: migrate" in lowered:
+            return False
+        return "instruction: sell" in lowered or bool(re.search(r"\bsell\b", lowered))
+
+    def _extract_base58_candidates(self, logs: List[str]) -> List[str]:
+        text = " ".join(logs or [])
+        return re.findall(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b", text)
+
+    def _extract_instruction_names_from_logs(self, logs: List[str]) -> List[str]:
+        instruction_names: List[str] = []
+        seen: Set[str] = set()
+        for line in logs or []:
+            for match in re.finditer(r"Instruction:\s*([A-Za-z0-9_]+)", str(line), flags=re.IGNORECASE):
+                name = str(match.group(1) or "").strip()
+                if not name or name in seen:
+                    continue
+                seen.add(name)
+                instruction_names.append(name)
+        return instruction_names
+
+    def _extract_candidate_tokens_from_text(self, value: Any) -> List[str]:
+        if not isinstance(value, str):
+            return []
+        text = value.strip()
+        if not text:
+            return []
+        tokens: List[str] = []
+        raw_tokens = re.findall(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b", text)
+        for match in re.finditer(
+            r"(?:mint|token[_\s-]?mint|base[_\s-]?mint|bonding[_\s-]?curve|account|accounts?)[:=\s\[]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+            text,
+            flags=re.IGNORECASE,
+        ):
+            raw_tokens.append(match.group(1))
+        for token in raw_tokens:
+            if token.startswith("AAAAAAAA") or token.endswith("AAAAAAAA"):
+                continue
+            tokens.append(token)
+        return tokens
+
+    def _extract_raw_mint_resolution_candidates(
+        self,
+        logs: List[str],
+        explicit_mint: Optional[str] = None,
+    ) -> List[str]:
+        raw_candidates: List[str] = []
+        if explicit_mint:
+            raw_candidates.append(explicit_mint)
+        for line in logs or []:
+            raw_candidates.extend(self._extract_candidate_tokens_from_text(line))
+        return raw_candidates
+
+    def _normalize_mint_resolution_candidates(self, raw_candidates: List[str]) -> List[str]:
+        normalized: List[str] = []
+        seen: Set[str] = set()
+        for value in raw_candidates:
+            if not isinstance(value, str):
+                continue
+            candidate = value.strip().strip("[]{}(),;\"'")
+            if not candidate or candidate in seen:
+                continue
+            seen.add(candidate)
+            normalized.append(candidate)
+        return normalized
+
+    def _extract_account_keys_from_tx(self, tx_data: Optional[Dict]) -> List[str]:
+        if not isinstance(tx_data, dict):
+            return []
+        keys: List[str] = []
+        seen: Set[str] = set()
+        message = (tx_data.get("transaction") or {}).get("message") or {}
+        raw_keys = message.get("accountKeys") or []
+        for entry in raw_keys:
+            value = None
+            if isinstance(entry, str):
+                value = entry
+            elif isinstance(entry, dict):
+                value = entry.get("pubkey") or entry.get("address")
+            if not isinstance(value, str):
+                continue
+            candidate = value.strip()
+            if not candidate or candidate in seen:
+                continue
+            seen.add(candidate)
+            keys.append(candidate)
+
+        loaded_addresses = (tx_data.get("meta") or {}).get("loadedAddresses") or {}
+        for section in ("writable", "readonly"):
+            for entry in loaded_addresses.get(section, []) or []:
+                if not isinstance(entry, str):
+                    continue
+                candidate = entry.strip()
+                if not candidate or candidate in seen:
+                    continue
+                seen.add(candidate)
+                keys.append(candidate)
+        return keys
+
+    def _extract_instruction_contexts_from_tx(self, tx_data: Optional[Dict]) -> List[Dict[str, Any]]:
+        if not isinstance(tx_data, dict):
+            return []
+        contexts: List[Dict[str, Any]] = []
+        message = (tx_data.get("transaction") or {}).get("message") or {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+
+        def _normalise_account_ref(value: Any) -> Optional[str]:
+            if isinstance(value, str):
+                return value.strip() or None
+            if isinstance(value, int) and 0 <= value < len(account_keys):
+                resolved = account_keys[value].strip()
+                return resolved or None
+            if isinstance(value, dict):
+                pubkey = value.get("pubkey") or value.get("address")
+                if isinstance(pubkey, str):
+                    pubkey = pubkey.strip()
+                    return pubkey or None
+            return None
+
+        def _append_instruction(ix: Any) -> None:
+            if not isinstance(ix, dict):
+                return
+            parsed = ix.get("parsed") if isinstance(ix.get("parsed"), dict) else {}
+            info = parsed.get("info") if isinstance(parsed.get("info"), dict) else {}
+            program_id = ix.get("programId")
+            if not isinstance(program_id, str):
+                program_id = ix.get("program")
+            program_id = str(program_id or "").strip() or None
+            instruction_name = str(parsed.get("type") or ix.get("program") or ix.get("name") or "").strip() or None
+            accounts: List[str] = []
+            for account_ref in ix.get("accounts", []) or []:
+                resolved = _normalise_account_ref(account_ref)
+                if resolved:
+                    accounts.append(resolved)
+            for value in info.values():
+                if isinstance(value, list):
+                    for child in value:
+                        resolved = _normalise_account_ref(child)
+                        if resolved:
+                            accounts.append(resolved)
+            contexts.append(
+                {
+                    "instruction": instruction_name,
+                    "program_id": program_id,
+                    "info": info,
+                    "accounts": list(dict.fromkeys(accounts)),
+                }
+            )
+
+        for instruction in message.get("instructions", []) or []:
+            _append_instruction(instruction)
+        for inner_group in (tx_data.get("meta") or {}).get("innerInstructions", []) or []:
+            for instruction in inner_group.get("instructions", []) or []:
+                _append_instruction(instruction)
+        return contexts
+
+    def _extract_token_account_mint_map(self, tx_data: Optional[Dict]) -> Dict[str, str]:
+        token_account_to_mint: Dict[str, str] = {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        meta = (tx_data or {}).get("meta") or {}
+        for balance in (meta.get("preTokenBalances") or []) + (meta.get("postTokenBalances") or []):
+            if not isinstance(balance, dict):
+                continue
+            mint = str(balance.get("mint") or "").strip()
+            if not mint:
+                continue
+            account_index = balance.get("accountIndex")
+            if isinstance(account_index, int) and 0 <= account_index < len(account_keys):
+                token_account = account_keys[account_index]
+                if token_account:
+                    token_account_to_mint[token_account] = mint
+        return token_account_to_mint
+
+    def _extract_token_account_owner_map(self, tx_data: Optional[Dict]) -> Dict[str, str]:
+        token_account_to_owner: Dict[str, str] = {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        meta = (tx_data or {}).get("meta") or {}
+        for balance in (meta.get("preTokenBalances") or []) + (meta.get("postTokenBalances") or []):
+            if not isinstance(balance, dict):
+                continue
+            owner = str(balance.get("owner") or "").strip()
+            if not owner:
+                continue
+            account_index = balance.get("accountIndex")
+            if isinstance(account_index, int) and 0 <= account_index < len(account_keys):
+                token_account = account_keys[account_index]
+                if token_account:
+                    token_account_to_owner[token_account] = owner
+        return token_account_to_owner
+
+    def _extract_signer_keys_from_tx(self, tx_data: Optional[Dict]) -> List[str]:
+        if not isinstance(tx_data, dict):
+            return []
+        signers: List[str] = []
+        seen: Set[str] = set()
+        message = (tx_data.get("transaction") or {}).get("message") or {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        raw_keys = message.get("accountKeys") or []
+
+        for idx, entry in enumerate(raw_keys):
+            pubkey = None
+            signer = None
+            if isinstance(entry, str):
+                pubkey = entry
+            elif isinstance(entry, dict):
+                pubkey = entry.get("pubkey") or entry.get("address")
+                signer = entry.get("signer")
+            if not isinstance(pubkey, str):
+                continue
+            candidate = pubkey.strip()
+            if not candidate or candidate in seen:
+                continue
+            if signer is True:
+                seen.add(candidate)
+                signers.append(candidate)
+                continue
+            if signer is False:
+                continue
+            header = message.get("header") if isinstance(message.get("header"), dict) else {}
+            required = header.get("numRequiredSignatures")
+            if isinstance(required, int) and idx < required:
+                seen.add(candidate)
+                signers.append(candidate)
+
+        if signers:
+            return signers
+
+        header = message.get("header") if isinstance(message.get("header"), dict) else {}
+        required = header.get("numRequiredSignatures")
+        if isinstance(required, int) and required > 0:
+            for candidate in account_keys[:required]:
+                clean = str(candidate or "").strip()
+                if clean and clean not in seen:
+                    seen.add(clean)
+                    signers.append(clean)
+        return signers
+
+    def _is_viable_buyer_candidate(
+        self,
+        value: Any,
+        *,
+        mint: Optional[str] = None,
+        token_account_to_mint: Optional[Dict[str, str]] = None,
+    ) -> bool:
+        if not isinstance(value, str):
+            return False
+        candidate = value.strip()
+        if not candidate or candidate == mint:
+            return False
+        if candidate in KNOWN_NON_MINT_ADDRESSES:
+            return False
+        if candidate in self._bonding_curve_to_mint:
+            return False
+        if candidate in (token_account_to_mint or {}):
+            return False
+        if self._looks_like_pumpfun_mint(candidate):
+            return False
+        if not SOLANA_PUBKEY_RE.fullmatch(candidate):
+            return False
+        return True
+
+    def _coerce_sol_amount_candidate(self, value: Any, *, key: str = "") -> Optional[float]:
+        numeric_value: Optional[float] = None
+        if isinstance(value, (int, float)):
+            numeric_value = float(value)
+        elif isinstance(value, str):
+            stripped = value.strip()
+            if not stripped:
+                return None
+            try:
+                numeric_value = float(stripped)
+            except Exception:
+                return None
+        if numeric_value is None or numeric_value <= 0:
+            return None
+
+        lowered_key = str(key or "").lower()
+        if "lamport" in lowered_key or lowered_key in {"maxsolcost", "solcost"}:
+            return numeric_value / 1e9
+        if "sol" in lowered_key:
+            if numeric_value > 1_000_000:
+                return numeric_value / 1e9
+            return numeric_value
+        return None
+
+    def _recover_partial_trade_details_from_tx(
+        self,
+        tx_data: Optional[Dict],
+        *,
+        mint: str,
+        buyer: Optional[str] = None,
+        sol_amount: Optional[float] = None,
+    ) -> Tuple[Optional[str], Optional[float], str, Optional[str]]:
+        if not isinstance(tx_data, dict):
+            return buyer, sol_amount, "count_only", "no_tx_context"
+
+        token_account_to_mint = self._extract_token_account_mint_map(tx_data)
+        token_account_to_owner = self._extract_token_account_owner_map(tx_data)
+        instruction_contexts = self._extract_instruction_contexts_from_tx(tx_data)
+        signer_keys = self._extract_signer_keys_from_tx(tx_data)
+
+        mint_contexts: List[Dict[str, Any]] = []
+        for context in instruction_contexts:
+            info = context.get("info") if isinstance(context.get("info"), dict) else {}
+            related_accounts = list(context.get("accounts") or [])
+            for key in ("account", "source", "destination", "wallet", "owner", "sourceAccount", "destinationAccount"):
+                value = info.get(key)
+                if isinstance(value, str):
+                    related_accounts.append(value)
+            info_mentions_mint = any(
+                str(info.get(key) or "").strip() == mint
+                for key in ("mint", "tokenMint", "baseMint", "quoteMint")
+            )
+            account_mentions_mint = mint in related_accounts or any(
+                token_account_to_mint.get(account) == mint for account in related_accounts
+            )
+            if info_mentions_mint or account_mentions_mint:
+                mint_contexts.append(context)
+
+        buyer_candidates: List[str] = []
+        for context in mint_contexts:
+            info = context.get("info") if isinstance(context.get("info"), dict) else {}
+            for key in ("buyer", "user", "owner", "authority", "wallet", "payer", "signer", "sourceOwner", "destinationOwner"):
+                value = info.get(key)
+                if self._is_viable_buyer_candidate(value, mint=mint, token_account_to_mint=token_account_to_mint):
+                    buyer_candidates.append(str(value).strip())
+
+            for account in context.get("accounts") or []:
+                owner = token_account_to_owner.get(account)
+                if self._is_viable_buyer_candidate(owner, mint=mint, token_account_to_mint=token_account_to_mint):
+                    buyer_candidates.append(str(owner).strip())
+                if account in signer_keys and self._is_viable_buyer_candidate(account, mint=mint, token_account_to_mint=token_account_to_mint):
+                    buyer_candidates.append(account)
+
+        if buyer is None and buyer_candidates:
+            ranked_candidates = sorted(
+                set(buyer_candidates),
+                key=lambda candidate: (
+                    -buyer_candidates.count(candidate),
+                    0 if candidate in signer_keys else 1,
+                    candidate,
+                ),
+            )
+            top_candidate = ranked_candidates[0]
+            top_count = buyer_candidates.count(top_candidate)
+            second_count = buyer_candidates.count(ranked_candidates[1]) if len(ranked_candidates) > 1 else 0
+            if len(ranked_candidates) == 1 or top_count > second_count:
+                buyer = top_candidate
+
+        if buyer is None:
+            viable_signers = [
+                candidate
+                for candidate in signer_keys
+                if self._is_viable_buyer_candidate(candidate, mint=mint, token_account_to_mint=token_account_to_mint)
+            ]
+            if len(viable_signers) == 1:
+                buyer = viable_signers[0]
+
+        if sol_amount is None:
+            for context in mint_contexts:
+                info = context.get("info") if isinstance(context.get("info"), dict) else {}
+                for key, value in info.items():
+                    recovered_sol = self._coerce_sol_amount_candidate(value, key=key)
+                    if recovered_sol is not None:
+                        sol_amount = recovered_sol
+                        break
+                if sol_amount is not None:
+                    break
+
+        if sol_amount is None:
+            account_keys = self._extract_account_keys_from_tx(tx_data)
+            meta = (tx_data.get("meta") or {})
+            pre_balances = meta.get("preBalances") or []
+            post_balances = meta.get("postBalances") or []
+            fee_lamports = float(meta.get("fee") or 0.0)
+            target_wallet = buyer
+            if target_wallet is None and len(signer_keys) == 1:
+                target_wallet = signer_keys[0]
+            if target_wallet and target_wallet in account_keys:
+                account_index = account_keys.index(target_wallet)
+                if account_index < len(pre_balances) and account_index < len(post_balances):
+                    try:
+                        lamport_delta = float(pre_balances[account_index] or 0.0) - float(post_balances[account_index] or 0.0)
+                    except Exception:
+                        lamport_delta = 0.0
+                    attributable_delta = max(lamport_delta - fee_lamports, 0.0)
+                    if attributable_delta > 0:
+                        sol_amount = attributable_delta / 1e9
+
+        if buyer is not None and sol_amount is not None:
+            return buyer, sol_amount, "full", None
+        if buyer is not None:
+            return buyer, sol_amount, "buyer_only", None
+        if sol_amount is not None:
+            return buyer, sol_amount, "sol_only", None
+        return buyer, sol_amount, "count_only", "no_confident_buyer_or_sol"
+
+    def _pick_confident_pumpfun_mint(self, candidates: List[str]) -> Optional[str]:
+        for candidate in candidates:
+            if candidate in self._recent_birth_mints:
+                return candidate
+        for candidate in candidates:
+            if candidate in self._known_bonding_curve_mints:
+                return candidate
+        for candidate in candidates:
+            if self._looks_like_pumpfun_mint(candidate):
+                return candidate
+        return None
+
+    def _build_unresolved_shape_summary(
+        self,
+        logs: List[str],
+        *,
+        tx_data: Optional[Dict] = None,
+        normalized_candidates: Optional[List[str]] = None,
+        birth_neighbor_candidates: Optional[List[str]] = None,
+    ) -> str:
+        instruction_names = self._extract_instruction_names_from_logs(logs)
+        tx_instruction_names = []
+        if tx_data:
+            tx_instruction_names = [
+                str(ctx.get("instruction") or "").strip()
+                for ctx in self._extract_instruction_contexts_from_tx(tx_data)
+                if str(ctx.get("instruction") or "").strip()
+            ]
+        names: List[str] = []
+        seen: Set[str] = set()
+        for name in instruction_names + tx_instruction_names:
+            clean = str(name or "").strip()
+            if not clean or clean in seen:
+                continue
+            seen.add(clean)
+            names.append(clean)
+        ata_present = any(
+            "createidempotent" in name.lower() or "create" == name.lower()
+            for name in names
+        ) or any("ATokenGP" in str(line) for line in (logs or []))
+        token_program_present = any(
+            token in " ".join(logs or [])
+            for token in ("Tokenkeg", "TokenzQd", "ATokenGP")
+        )
+        mint_like_present = any(self._looks_like_pumpfun_mint(candidate) for candidate in (normalized_candidates or []))
+        birth_neighbors = len(birth_neighbor_candidates or [])
+        instr_preview = ",".join(names[:4]) if names else "none"
+        return (
+            f"[UNRESOLVED_SHAPE] sig=? instrs={instr_preview} "
+            f"ata={'yes' if ata_present else 'no'} "
+            f"token_prog={'yes' if token_program_present else 'no'} "
+            f"mint_like={'yes' if mint_like_present else 'no'} "
+            f"birth_neighbors={birth_neighbors}"
+        )
+
+    def _extract_buyer_from_logs(self, logs: List[str]) -> Optional[str]:
+        text = " ".join(logs or [])
+        patterns = [
+            r"(?:buyer|user|owner|trader)[:=\s]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+            r"([1-9A-HJ-NP-Za-km-z]{32,44})\s+(?:bought|buying)",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text, flags=re.IGNORECASE)
+            if match:
+                return match.group(1)
+        return None
+
+    def _extract_sol_amount_from_logs(self, logs: List[str]) -> Optional[float]:
+        text = " ".join(logs or [])
+        sol_match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*SOL\b", text, flags=re.IGNORECASE)
+        if sol_match:
+            try:
+                return float(sol_match.group(1))
+            except Exception:
+                return None
+
+        lamports_match = re.search(r"([0-9]{5,})\s*lamports\b", text, flags=re.IGNORECASE)
+        if lamports_match:
+            try:
+                return float(lamports_match.group(1)) / 1e9
+            except Exception:
+                return None
+        return None
+
+    def _extract_explicit_mint_from_logs(self, logs: List[str]) -> Optional[str]:
+        """Best-effort extraction for logs that explicitly label the mint."""
+        patterns = [
+            r"(?:^|[\s,;])mint[:=\s]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+            r"(?:token[_\s-]?mint|base[_\s-]?mint)[:=\s]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+        ]
+        for line in logs or []:
+            for pattern in patterns:
+                match = re.search(pattern, line, flags=re.IGNORECASE)
+                if not match:
+                    continue
+                candidate = match.group(1)
+                if candidate in self._known_bonding_curve_mints or self._looks_like_pumpfun_mint(candidate):
+                    return candidate
+        return None
+
+    def _classify_mint_resolution_candidate(
+        self,
+        candidate: str,
+        *,
+        explicit_mint: Optional[str] = None,
+    ) -> Tuple[str, Optional[str]]:
+        if not isinstance(candidate, str):
+            return "unknown", "non_string"
+        value = candidate.strip()
+        if not value:
+            return "unknown", "empty"
+        if value == explicit_mint:
+            return "explicit_mint", None
+        if value in self._bonding_curve_to_mint:
+            return "known_bonding_curve_pda", None
+        if value in KNOWN_NON_MINT_ADDRESSES:
+            if value in {PUMPFUN_PROGRAM, PUMPSWAP_PROGRAM} or value.startswith("ComputeBudget") or value.startswith("BPFLoader"):
+                return "known_program_id", "program_id"
+            return "known_non_mint_account", "known_non_mint"
+        if len(value) < 32 or len(value) > 44:
+            return "unknown", "malformed_length"
+        if not SOLANA_PUBKEY_RE.fullmatch(value):
+            return "unknown", "not_base58_like"
+        if value.startswith("AAAAAAAA") or value.endswith("AAAAAAAA"):
+            return "unknown", "junk_pattern"
+        if value in self._recent_birth_mints or value in self._known_bonding_curve_mints:
+            return "mint_like", None
+        if self._looks_like_pumpfun_mint(value):
+            return "mint_like", None
+        return "unknown", "not_pump_suffix"
+
+    def _log_resolver_summary(self) -> None:
+        resolved = int(self._resolver_resolved_count or 0)
+        unresolved = int(self._resolver_unresolved_count or 0)
+        total = resolved + unresolved
+        resolved_pct = (resolved / total * 100.0) if total > 0 else 0.0
+        premig_log(
+            f"[RESOLVER_SUMMARY] index_rows={len(self._bonding_curve_to_mint)} "
+            f"birth_cache={len(self._recent_birth_mints)} "
+            f"resolved={resolved} unresolved={unresolved} resolved_pct={resolved_pct:.1f}"
+        )
+
+    def _evaluate_migration_prediction_snapshot(
+        self,
+        snapshot: Dict[str, Any],
+        *,
+        migrated_at: int,
+    ) -> Dict[str, Any]:
+        signal_updated_at = snapshot.get("migration_signal_updated_at")
+        signal_age_seconds: Optional[int] = None
+        if signal_updated_at is not None:
+            try:
+                signal_age_seconds = max(0, int(migrated_at) - int(signal_updated_at))
+            except Exception:
+                signal_age_seconds = None
+
+        signal_was_fresh = signal_age_seconds is not None and signal_age_seconds <= 15 * 60
+        market_cap_current = float(snapshot.get("market_cap_current") or 0.0)
+        signal_source = str(snapshot.get("migration_signal_source") or "").strip().lower()
+        migration_band = str(snapshot.get("migration_band") or "").strip().lower()
+        signal_score = int(snapshot.get("signal_score") or 0)
+        buys_10s = int(snapshot.get("buys_10s") or 0)
+        unique_30s = int(snapshot.get("unique_30s") or 0)
+        sol_15s = float(snapshot.get("sol_15s") or 0.0)
+        explicit_signal = bool(snapshot.get("is_about_to_migrate")) or migration_band in {"hot", "warm"}
+
+        predicted_by_flow = bool(
+            signal_was_fresh
+            and (
+                signal_source == "flow"
+                or explicit_signal
+                or signal_score >= 3
+                or buys_10s >= 6
+                or unique_30s >= 4
+                or sol_15s >= 2.0
+            )
+        )
+        predicted_by_market_cap = bool(
+            signal_was_fresh and market_cap_current >= float(self._premigration_signal_floor_warm or 0.0)
+        )
+        predicted_by_explicit_signal = bool(signal_was_fresh and explicit_signal)
+        was_about_to_migrate_at_migration = bool(signal_was_fresh and snapshot.get("is_about_to_migrate"))
+        was_hot_or_warm_before_migration = bool(signal_was_fresh and migration_band in {"hot", "warm"})
+
+        if predicted_by_flow or predicted_by_explicit_signal:
+            final_verdict = "predicted"
+        elif predicted_by_market_cap:
+            final_verdict = "market_cap_only"
+        elif signal_updated_at is None:
+            final_verdict = "no_signal"
+        elif not signal_was_fresh:
+            final_verdict = "stale_signal"
+        else:
+            final_verdict = "missed"
+
+        return {
+            "predicted_by_flow": int(predicted_by_flow),
+            "predicted_by_market_cap": int(predicted_by_market_cap),
+            "predicted_by_explicit_signal": int(predicted_by_explicit_signal),
+            "was_about_to_migrate_at_migration": int(was_about_to_migrate_at_migration),
+            "was_hot_or_warm_before_migration": int(was_hot_or_warm_before_migration),
+            "signal_age_seconds": signal_age_seconds,
+            "signal_was_fresh": int(signal_was_fresh),
+            "final_verdict": final_verdict,
+        }
+
+    async def _mark_token_migrated_in_db(
+        self,
+        mint: str,
+        *,
+        migrated_at: Optional[int] = None,
+        migration_tx: Optional[str] = None,
+        pool_address: Optional[str] = None,
+        dex: Optional[str] = None,
+    ) -> None:
+        migrated_ts = int(migrated_at or time.time())
+        async with self.db_lock:
+            try:
+                with DB_WRITE_LOCK:
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        """
+                        INSERT INTO token_analysis (
+                            mint, analyzed_at, created_at, source_platform,
+                            lifecycle_stage, migrated_at, migration_tx,
+                            dex, pumpswap_pool_address, pool_address
+                        ) VALUES (?, ?, ?, 'pumpfun', 'migrated', ?, ?, ?, ?, ?)
+                        ON CONFLICT(mint) DO UPDATE SET
+                            analyzed_at = excluded.analyzed_at,
+                            source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
+                            lifecycle_stage = 'migrated',
+                            migrated_at = COALESCE(token_analysis.migrated_at, excluded.migrated_at),
+                            migration_tx = COALESCE(excluded.migration_tx, token_analysis.migration_tx),
+                            dex = COALESCE(excluded.dex, token_analysis.dex),
+                            pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, token_analysis.pumpswap_pool_address),
+                            pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address)
+                        """,
+                        (
+                            mint,
+                            float(time.time()),
+                            migrated_ts,
+                            migrated_ts,
+                            migration_tx,
+                            dex,
+                            pool_address,
+                            pool_address,
+                        ),
+                    )
+                    conn.commit()
+                    conn.close()
+            except Exception as exc:
+                log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc}", flush=True)
+
+    async def _record_migration_verification_snapshot(
+        self,
+        mint: str,
+        *,
+        migrated_at: Optional[int] = None,
+        migration_tx: Optional[str] = None,
+        dex: Optional[str] = None,
+        pumpswap_pool_address: Optional[str] = None,
+    ) -> None:
+        migrated_ts = int(migrated_at or time.time())
+        try:
+            async with self.db_lock:
+                with DB_WRITE_LOCK:
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    row = cursor.execute(
+                        """
+                        SELECT mint, source_platform, lifecycle_stage, migration_tx, dex, pumpswap_pool_address,
+                               is_about_to_migrate, migration_band, migration_progress_pct,
+                               migration_signal_updated_at, migration_signal_source,
+                               market_cap_current, price_updated_at, bonding_curve_pda
+                        FROM token_analysis
+                        WHERE mint = ?
+                        """,
+                        (mint,),
+                    ).fetchone()
+                    row_dict = dict(row) if row else {}
+                    market_cap_current = float((row_dict or {}).get("market_cap_current") or self._last_market_cap_by_mint.get(mint, 0.0) or 0.0)
+                    signal_snapshot = self._compute_pre_migration_signal(mint, market_cap_current, migrated_ts)
+                    snapshot = {
+                        "mint": mint,
+                        "migration_signal_source": (row_dict or {}).get("migration_signal_source") or signal_snapshot.get("signal_source"),
+                        "is_about_to_migrate": int((row_dict or {}).get("is_about_to_migrate") or signal_snapshot.get("is_about_to_migrate") or 0),
+                        "migration_band": (row_dict or {}).get("migration_band") or signal_snapshot.get("band"),
+                        "migration_progress_pct": (row_dict or {}).get("migration_progress_pct")
+                        if (row_dict or {}).get("migration_progress_pct") is not None
+                        else signal_snapshot.get("migration_progress_pct"),
+                        "migration_signal_updated_at": (row_dict or {}).get("migration_signal_updated_at") or migrated_ts,
+                        "market_cap_current": market_cap_current,
+                        "market_cap_updated_at": (row_dict or {}).get("price_updated_at"),
+                        "buys_10s": int(signal_snapshot.get("buys_10s") or 0),
+                        "unique_30s": int(signal_snapshot.get("unique_buyers_30s") or 0),
+                        "sol_15s": float(signal_snapshot.get("sol_15s") or 0.0),
+                        "inflow_accel": float(signal_snapshot.get("inflow_accel") or 0.0),
+                        "signal_score": int(signal_snapshot.get("score") or 0),
+                    }
+                    evaluation = self._evaluate_migration_prediction_snapshot(snapshot, migrated_at=migrated_ts)
+                    cursor.execute(
+                        """
+                        INSERT INTO pumpfun_migration_verification (
+                            mint, migrated_at, migration_tx, dex, pumpswap_pool_address,
+                            pre_is_about_to_migrate, pre_migration_band, pre_migration_progress_pct,
+                            pre_migration_signal_updated_at, pre_market_cap_current, pre_market_cap_updated_at,
+                            pre_buys_10s, pre_unique_30s, pre_sol_15s, pre_inflow_accel, pre_signal_score,
+                            pre_migration_signal_source, predicted_by_flow, predicted_by_market_cap,
+                            predicted_by_explicit_signal, was_about_to_migrate_at_migration,
+                            was_hot_or_warm_before_migration, signal_age_seconds, signal_was_fresh,
+                            final_verdict, created_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(mint) DO UPDATE SET
+                            migrated_at = excluded.migrated_at,
+                            migration_tx = COALESCE(excluded.migration_tx, pumpfun_migration_verification.migration_tx),
+                            dex = COALESCE(excluded.dex, pumpfun_migration_verification.dex),
+                            pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, pumpfun_migration_verification.pumpswap_pool_address),
+                            pre_is_about_to_migrate = excluded.pre_is_about_to_migrate,
+                            pre_migration_band = excluded.pre_migration_band,
+                            pre_migration_progress_pct = excluded.pre_migration_progress_pct,
+                            pre_migration_signal_updated_at = excluded.pre_migration_signal_updated_at,
+                            pre_market_cap_current = excluded.pre_market_cap_current,
+                            pre_market_cap_updated_at = excluded.pre_market_cap_updated_at,
+                            pre_buys_10s = excluded.pre_buys_10s,
+                            pre_unique_30s = excluded.pre_unique_30s,
+                            pre_sol_15s = excluded.pre_sol_15s,
+                            pre_inflow_accel = excluded.pre_inflow_accel,
+                            pre_signal_score = excluded.pre_signal_score,
+                            pre_migration_signal_source = excluded.pre_migration_signal_source,
+                            predicted_by_flow = excluded.predicted_by_flow,
+                            predicted_by_market_cap = excluded.predicted_by_market_cap,
+                            predicted_by_explicit_signal = excluded.predicted_by_explicit_signal,
+                            was_about_to_migrate_at_migration = excluded.was_about_to_migrate_at_migration,
+                            was_hot_or_warm_before_migration = excluded.was_hot_or_warm_before_migration,
+                            signal_age_seconds = excluded.signal_age_seconds,
+                            signal_was_fresh = excluded.signal_was_fresh,
+                            final_verdict = excluded.final_verdict,
+                            created_at = excluded.created_at
+                        """,
+                        (
+                            mint,
+                            migrated_ts,
+                            migration_tx or (row_dict or {}).get("migration_tx"),
+                            dex or (row_dict or {}).get("dex"),
+                            pumpswap_pool_address or (row_dict or {}).get("pumpswap_pool_address"),
+                            snapshot["is_about_to_migrate"],
+                            snapshot["migration_band"],
+                            snapshot["migration_progress_pct"],
+                            snapshot["migration_signal_updated_at"],
+                            snapshot["market_cap_current"],
+                            snapshot["market_cap_updated_at"],
+                            snapshot["buys_10s"],
+                            snapshot["unique_30s"],
+                            snapshot["sol_15s"],
+                            snapshot["inflow_accel"],
+                            snapshot["signal_score"],
+                            snapshot["migration_signal_source"],
+                            evaluation["predicted_by_flow"],
+                            evaluation["predicted_by_market_cap"],
+                            evaluation["predicted_by_explicit_signal"],
+                            evaluation["was_about_to_migrate_at_migration"],
+                            evaluation["was_hot_or_warm_before_migration"],
+                            evaluation["signal_age_seconds"],
+                            evaluation["signal_was_fresh"],
+                            evaluation["final_verdict"],
+                            migrated_ts,
+                        ),
+                    )
+                    conn.commit()
+                    conn.close()
+                    log_print(
+                        f"[MIGRATION_VERIFY] mint={mint[:16]} verdict={evaluation['final_verdict']} "
+                        f"flow={evaluation['predicted_by_flow']} market_cap={evaluation['predicted_by_market_cap']} "
+                        f"explicit={evaluation['predicted_by_explicit_signal']} age={evaluation['signal_age_seconds']}",
+                        flush=True,
+                    )
+        except Exception as exc:
+            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to store verification snapshot for {mint[:16]}...: {exc}", flush=True)
+
+    def _lookup_recent_unresolved_mint_in_db(self, candidates: List[str]) -> Tuple[Optional[str], Optional[str]]:
+        """Optional DB fallback for very recent unresolved Pump.fun candidates."""
+        if not candidates:
+            return None, None
+        try:
+            unique_candidates = list(dict.fromkeys(candidates[:8]))
+            placeholders = ",".join("?" for _ in unique_candidates)
+            recent_cutoff = time.time() - (2 * 60 * 60)
+            query = f"""
+                SELECT mint, bonding_curve_pda
+                FROM token_analysis
+                WHERE (
+                        mint IN ({placeholders})
+                        OR bonding_curve_pda IN ({placeholders})
+                      )
+                  AND (
+                        COALESCE(source_platform, '') = 'pumpfun'
+                        OR COALESCE(lifecycle_stage, '') = 'bonding_curve'
+                        OR NULLIF(TRIM(COALESCE(bonding_curve_pda, '')), '') IS NOT NULL
+                      )
+                  AND COALESCE(analyzed_at, 0) >= ?
+                ORDER BY COALESCE(analyzed_at, 0) DESC
+                LIMIT 1
+            """
+            conn = sqlite3.connect(DB_PATH, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute(query, tuple(unique_candidates + unique_candidates + [recent_cutoff]))
+            row = cursor.fetchone()
+            conn.close()
+            if not row:
+                return None, None
+            mint = str(row[0]) if row[0] else None
+            bonding_curve = str(row[1]) if row[1] else None
+            if mint:
+                self._remember_bonding_curve_token(mint, bonding_curve)
+            return mint, bonding_curve
+        except Exception:
+            return None, None
+
+    async def _get_trade_transaction_context(self, signature: Optional[str]) -> Optional[Dict]:
+        if not signature:
+            return None
+        try:
+            cached = (self.tx_cache or {}).get(signature)
+            if cached:
+                cached_data, cached_time = cached
+                if (time.time() - float(cached_time or 0.0)) < float(self.tx_cache_ttl_seconds or 0):
+                    return cached_data
+        except Exception:
+            pass
+
+        try:
+            result = await self.call_background_rpc(
+                "getTransaction",
+                [
+                    signature,
+                    {
+                        "encoding": "jsonParsed",
+                        "commitment": "confirmed",
+                        "maxSupportedTransactionVersion": 0,
+                    },
+                ],
+                timeout=4.0,
+            )
+            tx_data = result.get("result") if isinstance(result, dict) else None
+            if tx_data:
+                self.tx_cache[signature] = (tx_data, time.time())
+            return tx_data
+        except Exception:
+            return None
+
+    async def _infer_indirect_pumpfun_mint(
+        self,
+        signature: Optional[str],
+        logs: List[str],
+        *,
+        normalized_candidates: Optional[List[str]] = None,
+    ) -> Tuple[Optional[str], Optional[str], List[str], Optional[str], Optional[Dict], List[str]]:
+        sig_label = (signature or "")[:16]
+        log_print(f"[INDIRECT_INFER_ATTEMPT] sig={sig_label}", flush=True)
+        tx_data = await self._get_trade_transaction_context(signature)
+        if not tx_data:
+            log_print(f"[INDIRECT_INFER_FAIL] sig={sig_label} reason=no_tx_context", flush=True)
+            return None, None, [], "no_tx_context", None, []
+
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        instruction_contexts = self._extract_instruction_contexts_from_tx(tx_data)
+        token_account_to_mint = self._extract_token_account_mint_map(tx_data)
+
+        direct_info_mints: List[str] = []
+        ata_context_mints: List[str] = []
+        token_account_context_mints: List[str] = []
+        birth_neighbor_mints: List[str] = []
+        tx_candidates: List[str] = []
+
+        for key in account_keys:
+            if key in self._bonding_curve_to_mint:
+                mapped_mint = self._bonding_curve_to_mint.get(key)
+                if mapped_mint:
+                    tx_candidates.append(mapped_mint)
+                    birth_neighbor_mints.append(mapped_mint)
+            if key in self._recent_birth_mints:
+                birth_neighbor_mints.append(key)
+                tx_candidates.append(key)
+
+        for mint in token_account_to_mint.values():
+            tx_candidates.append(mint)
+
+        for context in instruction_contexts:
+            info = context.get("info") if isinstance(context.get("info"), dict) else {}
+            program_id = str(context.get("program_id") or "")
+            instruction_name = str(context.get("instruction") or "")
+            is_ata_context = (
+                program_id == "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+                or instruction_name.lower() in {"createidempotent", "create"}
+            )
+            for mint_key in ("mint", "tokenMint", "baseMint", "quoteMint"):
+                mint_value = info.get(mint_key)
+                if isinstance(mint_value, str):
+                    tx_candidates.append(mint_value)
+                    if is_ata_context:
+                        ata_context_mints.append(mint_value)
+                    else:
+                        direct_info_mints.append(mint_value)
+
+            related_accounts = list(context.get("accounts") or [])
+            for related_key in ("account", "source", "destination", "wallet", "owner", "sourceAccount", "destinationAccount"):
+                related_value = info.get(related_key)
+                if isinstance(related_value, str):
+                    related_accounts.append(related_value)
+            for account in related_accounts:
+                mint_value = token_account_to_mint.get(account)
+                if not mint_value:
+                    continue
+                tx_candidates.append(mint_value)
+                if is_ata_context:
+                    ata_context_mints.append(mint_value)
+                else:
+                    token_account_context_mints.append(mint_value)
+
+        birth_neighbor_mints = list(dict.fromkeys(birth_neighbor_mints))
+        direct_info_mints = list(dict.fromkeys(direct_info_mints))
+        ata_context_mints = list(dict.fromkeys(ata_context_mints))
+        token_account_context_mints = list(dict.fromkeys(token_account_context_mints))
+        tx_candidates = self._normalize_mint_resolution_candidates(tx_candidates)
+
+        for candidates, source in (
+            (direct_info_mints, "token_account_context"),
+            (birth_neighbor_mints, "birth_neighbor"),
+            (ata_context_mints, "ata_context"),
+            (token_account_context_mints, "token_account_context"),
+        ):
+            resolved = self._pick_confident_pumpfun_mint(candidates)
+            if resolved:
+                shortlist = self._normalize_mint_resolution_candidates((normalized_candidates or []) + [resolved])[:5]
+                log_print(
+                    f"[INDIRECT_INFER_SUCCESS] sig={sig_label} mint={resolved} source={source}",
+                    flush=True,
+                )
+                return resolved, source, shortlist, f"indirect_{source}={resolved}", tx_data, birth_neighbor_mints
+
+        mint, bonding_curve = self._lookup_recent_unresolved_mint_in_db(tx_candidates)
+        if mint:
+            shortlist = self._normalize_mint_resolution_candidates((normalized_candidates or []) + tx_candidates + [mint])[:5]
+            reason = f"indirect_db_lookup_mint={mint}"
+            if bonding_curve:
+                reason += f" bonding_curve={bonding_curve}"
+            log_print(
+                f"[INDIRECT_INFER_SUCCESS] sig={sig_label} mint={mint} source=token_account_context",
+                flush=True,
+            )
+            return mint, "token_account_context", shortlist, reason, tx_data, birth_neighbor_mints
+
+        log_print(f"[INDIRECT_INFER_FAIL] sig={sig_label} reason=no_strong_link", flush=True)
+        return None, None, tx_candidates[:5], "no_strong_link", tx_data, birth_neighbor_mints
+
+    async def _resolve_bonding_curve_mint_for_trade(
+        self,
+        signature: str,
+        logs: List[str],
+    ) -> Tuple[Optional[str], Optional[str], List[str], Optional[str], Optional[Dict]]:
+        mint, source, candidates, reason = self._resolve_bonding_curve_mint_from_logs_detailed(logs, signature=signature)
+        if mint:
+            return mint, source, candidates, reason, None
+
+        normalized_candidates = self._normalize_mint_resolution_candidates(self._extract_raw_mint_resolution_candidates(logs))
+        inferred_mint, inferred_source, inferred_candidates, inferred_reason, tx_data, birth_neighbors = await self._infer_indirect_pumpfun_mint(
+            signature,
+            logs,
+            normalized_candidates=normalized_candidates,
+        )
+        if inferred_mint:
+            merged_candidates = self._normalize_mint_resolution_candidates((candidates or []) + (inferred_candidates or []))[:5]
+            return inferred_mint, inferred_source, merged_candidates, inferred_reason, tx_data
+
+        shape_line = self._build_unresolved_shape_summary(
+            logs,
+            tx_data=tx_data,
+            normalized_candidates=normalized_candidates,
+            birth_neighbor_candidates=birth_neighbors,
+        ).replace("sig=?", f"sig={(signature or '')[:16]}")
+        premig_log(shape_line)
+        return None, source, candidates, reason or inferred_reason, tx_data
+
+    def _resolve_bonding_curve_mint_from_logs_detailed(
+        self,
+        logs: List[str],
+        *,
+        signature: Optional[str] = None,
+    ) -> Tuple[Optional[str], Optional[str], List[str], Optional[str]]:
+        """Resolve buy mints with source attribution while preserving the legacy return path."""
+        self._prune_recent_birth_cache()
+        explicit_mint = self._extract_explicit_mint_from_logs(logs)
+
+        raw_candidates = self._extract_raw_mint_resolution_candidates(logs, explicit_mint)
+        normalized_candidates = self._normalize_mint_resolution_candidates(raw_candidates)
+        viable_candidates: List[str] = []
+        rejected_candidates: List[Tuple[str, str]] = []
+        explicit_candidates: List[str] = []
+        birth_cache_candidates: List[str] = []
+        mint_like_candidates: List[str] = []
+        pda_candidates: List[str] = []
+
+        for candidate in normalized_candidates:
+            classification, rejection_reason = self._classify_mint_resolution_candidate(
+                candidate,
+                explicit_mint=explicit_mint,
+            )
+            if classification == "explicit_mint":
+                viable_candidates.append(candidate)
+                explicit_candidates.append(candidate)
+                log_print(f"[MINT_CANDIDATE_ACCEPT] sig={(signature or '')[:16]} value={candidate} class=explicit_mint", flush=True)
+                continue
+            if classification == "known_bonding_curve_pda":
+                viable_candidates.append(candidate)
+                pda_candidates.append(candidate)
+                continue
+            if classification == "mint_like":
+                viable_candidates.append(candidate)
+                if candidate in self._recent_birth_mints:
+                    birth_cache_candidates.append(candidate)
+                    log_print(f"[MINT_CANDIDATE_ACCEPT] sig={(signature or '')[:16]} value={candidate} class=birth_cache", flush=True)
+                else:
+                    mint_like_candidates.append(candidate)
+                    log_print(f"[MINT_CANDIDATE_ACCEPT] sig={(signature or '')[:16]} value={candidate} class=mint_like", flush=True)
+                continue
+            rejected_candidates.append((candidate, rejection_reason or classification))
+            log_print(
+                f"[MINT_CANDIDATE_REJECT] sig={(signature or '')[:16]} value={candidate} reason={rejection_reason or classification}",
+                flush=True,
+            )
+
+        top_candidates = (explicit_candidates + birth_cache_candidates + mint_like_candidates + pda_candidates)[:5]
+        log_print(
+            f"[CANDIDATE_SUMMARY] sig={(signature or '')[:16]} raw={len(raw_candidates)} "
+            f"normalized={len(normalized_candidates)} rejected={len(rejected_candidates)} viable={len(viable_candidates)}",
+            flush=True,
+        )
+        for rejected_value, rejected_reason in rejected_candidates[:3]:
+            log_print(
+                f"[CANDIDATE_REJECTION] sig={(signature or '')[:16]} value={rejected_value} reason={rejected_reason}",
+                flush=True,
+            )
+
+        if explicit_candidates:
+            mint = explicit_candidates[0]
+            return mint, "explicit_mint", top_candidates, f"explicit_mint={mint}"
+
+        if birth_cache_candidates:
+            mint = birth_cache_candidates[0]
+            return mint, "birth_cache", top_candidates, f"recent_birth={mint}"
+
+        if mint_like_candidates:
+            mint = mint_like_candidates[0]
+            return mint, "mint_candidate", top_candidates, f"mint_like={mint}"
+
+        mint, bonding_curve = self._lookup_recent_unresolved_mint_in_db(viable_candidates or normalized_candidates)
+        if mint:
+            reason = f"db_lookup_mint={mint}"
+            if bonding_curve:
+                reason += f" bonding_curve={bonding_curve}"
+            shortlist = top_candidates or [mint]
+            return mint, "db_refresh", shortlist[:5], reason
+
+        for candidate in pda_candidates:
+            mint = self._bonding_curve_to_mint.get(candidate)
+            if mint:
+                return mint, "pda_map", top_candidates[:5], f"bonding_curve={candidate}"
+
+        refreshed = self._refresh_bonding_curve_index(force=True)
+        if refreshed:
+            mint, bonding_curve = self._lookup_recent_unresolved_mint_in_db(viable_candidates or normalized_candidates)
+            if mint:
+                reason = f"db_lookup_mint={mint}"
+                if bonding_curve:
+                    reason += f" bonding_curve={bonding_curve}"
+                shortlist = top_candidates or [mint]
+                return mint, "db_refresh", shortlist[:5], reason
+            for candidate in pda_candidates:
+                mint = self._bonding_curve_to_mint.get(candidate)
+                if mint:
+                    return mint, "pda_map", top_candidates[:5], f"bonding_curve={candidate}"
+
+        return None, None, top_candidates[:5], "no_viable_candidate"
+
+    def _resolve_bonding_curve_mint_from_logs(self, logs: List[str]) -> Optional[str]:
+        mint, _, _, _ = self._resolve_bonding_curve_mint_from_logs_detailed(logs)
+        return mint
+
+    def _debug_pumpfun_trade_skip(self, reason: str, logs: List[str]) -> None:
+        if self._pumpfun_trade_debug_budget <= 0:
+            return
+        self._pumpfun_trade_debug_budget -= 1
+        joined = " | ".join((logs or [])[:6])
+        log_print(f"[PREMIG_DEBUG] reason={reason} logs={joined[:400]}", flush=True)
+
+    def _record_flow_event(
+        self,
+        mint: str,
+        *,
+        observed_at: Optional[float] = None,
+        buyer: Optional[str] = None,
+        sol_amount: Optional[float] = None,
+        kind: str = "buy",
+    ) -> None:
+        if not mint:
+            return
+        now = float(observed_at or time.time())
+        flow = self._flow_windows_by_mint.setdefault(mint, deque())
+        flow.append({
+            "ts": now,
+            "buyer": buyer,
+            "sol_amount": float(sol_amount) if sol_amount is not None else None,
+            "kind": kind,
+        })
+        cutoff = now - 45
+        while flow and float(flow[0]["ts"]) < cutoff:
+            flow.popleft()
+
+    # Maximum plausible market cap for a Pump.fun bonding-curve token at migration.
+    # Pump.fun migration occurs at ~$69k SOL raised → MC ceiling ≈ $150k.
+    # Anything beyond $5M is almost certainly a corrupted value (wrong pair, unit bug, etc.)
+    # and must not be used for fallback classification.
+    _PREMIG_MC_SANITY_CAP = 5_000_000  # $5M USD
+
+    def _compute_pre_migration_signal(
+        self,
+        mint: str,
+        current_market_cap: float,
+        now_ts: int,
+    ) -> Dict[str, Optional[float]]:
+        # Clamp corrupted/stale MC values before any scoring or fallback logic.
+        # DexScreener sometimes returns migrated-pair data for bonding-curve rows,
+        # producing trillion-scale values that cause every token to be classified hot.
+        sanitised_mc = current_market_cap
+        if current_market_cap and current_market_cap > self._PREMIG_MC_SANITY_CAP:
+            premig_log(f"[MC_CLAMPED] mint={mint} raw_mc={current_market_cap} clamped_to=0")
+            sanitised_mc = 0.0
+        current_market_cap = sanitised_mc
+
+        events = self._flow_windows_by_mint.get(mint, deque())
+        buys_10s = 0
+        buyers_30s = set()
+        sol_15s = 0.0
+        sol_15s_prev = 0.0
+        have_trade_details = False
+
+        for event in events:
+            age = now_ts - float(event["ts"])
+            if event.get("kind") != "buy":
+                continue
+            if age <= 10:
+                buys_10s += 1
+            if age <= 30 and event.get("buyer"):
+                buyers_30s.add(str(event["buyer"]))
+            if event.get("sol_amount") is not None:
+                have_trade_details = True
+                if age <= 15:
+                    sol_15s += float(event["sol_amount"] or 0.0)
+                elif 15 < age <= 30:
+                    sol_15s_prev += float(event["sol_amount"] or 0.0)
+
+        score = 0
+        fallback_used = False
+        if buys_10s >= 10:
+            score += 1
+        if buys_10s >= 20:
+            score += 1
+
+        unique_buyers_30s = len(buyers_30s)
+        if unique_buyers_30s >= 6:
+            score += 1
+        if unique_buyers_30s >= 12:
+            score += 1
+
+        if sol_15s >= 20:
+            score += 1
+        if sol_15s >= 40:
+            score += 1
+
+        if sol_15s_prev > 0 and (sol_15s / sol_15s_prev) >= 1.5:
+            score += 1
+        if sol_15s_prev > 0 and (sol_15s / sol_15s_prev) >= 2.0:
+            score += 1
+
+        inflow_accel = (sol_15s / sol_15s_prev) if sol_15s_prev > 0 else 0.0
+
+        flow_min_buys = buys_10s >= 6
+        flow_min_unique = unique_buyers_30s >= 4
+        flow_min_sol = sol_15s >= 2.0
+        flow_min_hits = int(flow_min_buys) + int(flow_min_unique) + int(flow_min_sol)
+        flow_candidate = score >= 3 or flow_min_hits >= 1
+        strong_flow = score >= 5 or flow_min_hits >= 2
+        very_strong_flow = score >= 7 or flow_min_hits >= 3 or (score >= 5 and inflow_accel >= 1.5)
+
+        band = None
+        is_about_to_migrate = 0
+        if very_strong_flow:
+            band = "hot"
+            is_about_to_migrate = 1
+        elif strong_flow:
+            band = "warm"
+        elif flow_candidate:
+            band = "likely_close"
+        elif score >= 1:
+            band = "early"
+
+        if not band:
+            if current_market_cap >= self._premigration_signal_floor_hot:
+                band = "hot"
+                is_about_to_migrate = 1
+                fallback_used = True
+            elif current_market_cap >= self._premigration_signal_floor_warm:
+                band = "warm"
+                fallback_used = True
+
+        if band == "hot":
+            progress = max(min(score * 12.5, 100.0), 87.5)
+        elif band == "warm":
+            progress = max(min(score * 12.5, 87.5), 67.5)
+        elif band == "likely_close":
+            progress = max(min(score * 12.5, 72.5), 50.0)
+        elif band == "early":
+            progress = max(min(score * 12.5, 45.0), 25.0)
+        else:
+            progress = 0.0
+        if progress <= 0 and current_market_cap >= self._premigration_signal_floor_hot:
+            progress = 87.5
+            fallback_used = True
+        elif progress <= 0 and current_market_cap >= self._premigration_signal_floor_warm:
+            progress = 62.5
+            fallback_used = True
+
+        premig_log(
+            f"[FLOW_METRICS] mint={mint} "
+            f"buys_10s={buys_10s} "
+            f"unique_30s={unique_buyers_30s} "
+            f"sol_15s={sol_15s:.4f} "
+            f"sol_prev_15s={sol_15s_prev:.4f}"
+        )
+        premig_log(
+            f"[SCORE] mint={mint} score={score} band={band} "
+            f"flow_min_hits={flow_min_hits} flow_candidate={int(flow_candidate)} "
+            f"strong_flow={int(strong_flow)}"
+        )
+
+        if buys_10s == 0 and sol_15s == 0:
+            premig_log(f"[ZERO_FLOW] mint={mint} no activity detected")
+
+        if current_market_cap and current_market_cap > 100_000_000:
+            premig_log(f"[MC_ANOMALY] mint={mint} mc={current_market_cap}")
+
+        log_print(
+            f"[PREMIG_SIGNAL] mint={mint[:6]} "
+            f"score={score} band={band} "
+            f"buys_10s={buys_10s} "
+            f"unique_30s={unique_buyers_30s} "
+            f"sol_15s={sol_15s:.2f} "
+            f"accel={inflow_accel:.2f}",
+            flush=True,
+        )
+        if fallback_used:
+            premig_log(f"[FALLBACK_USED] mint={mint} mc={current_market_cap} band={band}")
+            log_print(
+                f"[PREMIG_FALLBACK] mint={mint[:6]} "
+                f"mc={current_market_cap:.2f} -> band={band}",
+                flush=True,
+            )
+
+        return {
+            "score": score,
+            "buys_10s": buys_10s,
+            "unique_buyers_30s": unique_buyers_30s,
+            "sol_15s": sol_15s,
+            "sol_15s_prev": sol_15s_prev,
+            "inflow_accel": inflow_accel,
+            "band": band,
+            "is_about_to_migrate": is_about_to_migrate,
+            "migration_progress_pct": progress if band else None,
+            "has_trade_details": have_trade_details,
+            "fallback_used": fallback_used,
+            "signal_source": "flow" if flow_candidate else ("fallback" if band else None),
+        }
+
+    async def _persist_pre_migration_signal(
+        self,
+        mint: str,
+        current_market_cap: float,
+        now_ts: Optional[int] = None,
+        *,
+        source_hint: Optional[str] = None,
+    ) -> None:
+        now = int(now_ts or time.time())
+        signal = self._compute_pre_migration_signal(mint, current_market_cap or 0.0, now)
+
+        async with self.db_lock:
+            try:
+                with DB_WRITE_LOCK:
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        """
+                        SELECT
+                            mint,
+                            source_platform,
+                            lifecycle_stage,
+                            dex,
+                            pool_address,
+                            pumpswap_pool_address,
+                            create_tx_signature,
+                            bonding_curve_pda,
+                            is_about_to_migrate,
+                            migration_band,
+                            migration_progress_pct,
+                            migration_signal_source
+                        FROM token_analysis
+                        WHERE mint = ?
+                        LIMIT 1
+                        """,
+                        (mint,),
+                    )
+                    row = cursor.fetchone()
+                    row_exists = row is not None
+                    source_platform = str(row[1]) if row and row[1] is not None else None
+                    lifecycle_stage = str(row[2]) if row and row[2] is not None else None
+                    dex_value = str(row[3]) if row and row[3] is not None else None
+                    pool_address = str(row[4]) if row and row[4] is not None else None
+                    pumpswap_pool_address = str(row[5]) if row and row[5] is not None else None
+                    create_tx_signature = str(row[6]) if row and row[6] is not None else None
+                    bonding_curve_pda = str(row[7]) if row and row[7] is not None else None
+                    before_row = row[8:12] if row else None
+                    premig_log(
+                        f"[DB_MATCH_CHECK] mint={mint} "
+                        f"row_exists={'yes' if row_exists else 'no'} "
+                        f"source_platform={source_platform or ''} "
+                        f"lifecycle_stage={lifecycle_stage or ''} "
+                        f"dex={dex_value or ''} "
+                        f"pool_address={pool_address or ''} "
+                        f"pumpswap_pool_address={pumpswap_pool_address or ''} "
+                        f"create_tx_signature={create_tx_signature or ''} "
+                        f"bonding_curve_pda={bonding_curve_pda or ''}"
+                    )
+
+                    row_materialized = False
+                    if not row_exists and source_hint == "flow":
+                        cursor.execute(
+                            """
+                            INSERT INTO token_analysis (
+                                mint,
+                                analyzed_at,
+                                created_at,
+                                source_platform,
+                                lifecycle_stage,
+                                migration_signal_updated_at
+                            ) VALUES (?, ?, ?, 'pumpfun', 'bonding_curve', ?)
+                            ON CONFLICT(mint) DO UPDATE SET
+                                analyzed_at = COALESCE(token_analysis.analyzed_at, excluded.analyzed_at),
+                                created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                                source_platform = COALESCE(NULLIF(TRIM(token_analysis.source_platform), ''), excluded.source_platform),
+                                lifecycle_stage = CASE
+                                    WHEN COALESCE(token_analysis.lifecycle_stage, 'migration_pending') = 'migrated' THEN token_analysis.lifecycle_stage
+                                    ELSE 'bonding_curve'
+                                END,
+                                migration_signal_updated_at = COALESCE(token_analysis.migration_signal_updated_at, excluded.migration_signal_updated_at)
+                            """,
+                            (mint, float(now), now, now),
+                        )
+                        row_materialized = True
+                        premig_log(f"[DB_CREATE] mint={mint} source=flow")
+                        cursor.execute(
+                            """
+                            SELECT
+                                is_about_to_migrate,
+                                migration_band,
+                                migration_progress_pct,
+                                migration_signal_source
+                            FROM token_analysis
+                            WHERE mint = ?
+                            LIMIT 1
+                            """,
+                            (mint,),
+                        )
+                        before_row = cursor.fetchone()
+                        source_platform = "pumpfun"
+                        lifecycle_stage = "bonding_curve"
+
+                    signal_source = signal["signal_source"]
+                    if source_hint == "flow":
+                        signal_source = "flow"
+                    if before_row and (before_row[3] or None) == "flow" and signal_source != "flow":
+                        signal["is_about_to_migrate"] = int(before_row[0] or 0)
+                        signal["band"] = before_row[1] or None
+                        signal["migration_progress_pct"] = before_row[2]
+                        signal_source = "flow"
+
+                    cursor.execute(
+                        """
+                        UPDATE token_analysis
+                        SET
+                            source_platform = CASE
+                                WHEN COALESCE(source_platform, '') = '' THEN 'pumpfun'
+                                ELSE source_platform
+                            END,
+                            lifecycle_stage = CASE
+                                WHEN COALESCE(lifecycle_stage, 'migration_pending') = 'migrated' THEN lifecycle_stage
+                                ELSE 'bonding_curve'
+                            END,
+                            is_about_to_migrate = ?,
+                            migration_band = ?,
+                            migration_progress_pct = ?,
+                            migration_signal_source = CASE
+                                WHEN ? = 'flow' THEN 'flow'
+                                WHEN COALESCE(migration_signal_source, '') = 'flow' THEN migration_signal_source
+                                ELSE ?
+                            END,
+                            migration_signal_updated_at = ?
+                        WHERE mint = ?
+                          AND COALESCE(lifecycle_stage, 'migration_pending') != 'migrated'
+                        """,
+                        (
+                            signal["is_about_to_migrate"],
+                            signal["band"],
+                            signal["migration_progress_pct"],
+                            signal_source,
+                            signal_source,
+                            now,
+                            mint,
+                        ),
+                    )
+                    changed = cursor.rowcount
+                    conn.commit()
+                    conn.close()
+
+                if not changed:
+                    premig_log(
+                        f"[DB_MATCH_CHECK] mint={mint} row_exists={'yes' if row_exists else 'no'} "
+                        f"source_platform={source_platform or ''} lifecycle_stage={lifecycle_stage or ''}"
+                    )
+                    premig_log(f"[DB_SKIP] mint={mint} reason=no_matching_row")
+                if changed:
+                    changed_values = (
+                        before_row is None
+                        or int(before_row[0] or 0) != int(signal["is_about_to_migrate"] or 0)
+                        or (before_row[1] or None) != (signal["band"] or None)
+                        or before_row[2] != signal["migration_progress_pct"]
+                        or (before_row[3] or None) != (signal_source or None)
+                    )
+                    if not changed_values:
+                        premig_log(f"[DB_SKIP] mint={mint} reason=no_value_change band={signal['band']} source={signal_source}")
+                    if changed_values:
+                        write_label = "DB_CREATE" if row_materialized else "DB_UPDATE"
+                        premig_log(
+                            f"[{write_label}] mint={mint} "
+                            f"source={signal_source} "
+                            f"band={signal['band']} "
+                            f"progress={float(signal['migration_progress_pct'] or 0.0):.1f}"
+                        )
+                        premig_log(
+                            f"[DB_WRITE] mint={mint} "
+                            f"source={signal_source} "
+                            f"band={signal['band']} "
+                            f"progress={float(signal['migration_progress_pct'] or 0.0):.1f}"
+                        )
+                        log_print(
+                            f"[PREMIG_DB_WRITE] mint={mint[:6]} "
+                            f"band={signal['band']} "
+                            f"about_to_migrate={signal['is_about_to_migrate']} "
+                            f"progress={float(signal['migration_progress_pct'] or 0.0):.1f} "
+                            f"source={signal_source}",
+                            flush=True,
+                        )
+                    log_print(f"[PREMIG_REFRESH] mint={mint[:6]} ts_updated", flush=True)
+            except Exception as e:
+                log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
+
+    async def handle_pumpfun_trade(self, signature: str, logs: List[str]) -> None:
+        """Best-effort no-RPC tracking of Pump.fun buy momentum from websocket logs."""
+        mint, source, candidates, reason, tx_data = await self._resolve_bonding_curve_mint_for_trade(signature, logs)
+        premig_log(f"[PARSE_ATTEMPT] sig={signature[:16]} mint={mint} logs={json.dumps(logs)[:400]}")
+        if not mint:
+            self._resolver_unresolved_count += 1
+            log_print(
+                f"[BUY_UNRESOLVED] sig={signature[:16]} reason={reason or 'no_viable_candidate'} top_candidates={candidates}",
+                flush=True,
+            )
+            premig_log(f"[NO_BUY_MATCH] sig={signature[:16]} reason=mint_unresolved")
+            self._debug_pumpfun_trade_skip("mint_unresolved", logs)
+            return
+        self._resolver_resolved_count += 1
+        log_print(
+            f"[BUY_RESOLVED] sig={signature[:16]} mint={mint} source={source or 'unknown'} candidates={candidates}",
+            flush=True,
+        )
+        buyer = self._extract_buyer_from_logs(logs)
+        sol_amount = self._extract_sol_amount_from_logs(logs)
+        if buyer is None or sol_amount is None:
+            log_print(f"[PARTIAL_ENRICH_ATTEMPT] sig={signature[:16]} mint={mint}", flush=True)
+            if tx_data is None:
+                tx_data = await self._get_trade_transaction_context(signature)
+            buyer, sol_amount, partial_mode, enrich_reason = self._recover_partial_trade_details_from_tx(
+                tx_data,
+                mint=mint,
+                buyer=buyer,
+                sol_amount=sol_amount,
+            )
+            if partial_mode != "count_only":
+                log_print(
+                    f"[PARTIAL_ENRICH_SUCCESS] sig={signature[:16]} mint={mint} mode={partial_mode}",
+                    flush=True,
+                )
+                log_print(
+                    f"[BUY_ENRICHED] sig={signature[:16]} mint={mint} "
+                    f"buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'} mode={partial_mode}",
+                    flush=True,
+                )
+            else:
+                log_print(
+                    f"[PARTIAL_ENRICH_FAIL] sig={signature[:16]} mint={mint} reason={enrich_reason or 'no_confident_buyer_or_sol'}",
+                    flush=True,
+                )
+            log_print(
+                f"[BUY_PARTIAL] sig={signature[:16]} mint={mint} "
+                f"buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'} mode={partial_mode}",
+                flush=True,
+            )
+            self._debug_pumpfun_trade_skip(
+                f"partial_trade_details buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'} mode={partial_mode}",
+                logs,
+            )
+        if buyer is not None and sol_amount is not None:
+            premig_log(f"[BUY_DETECTED] mint={mint} sol={sol_amount} buyer={buyer}")
+        elif buyer is not None or sol_amount is not None:
+            premig_log(
+                f"[BUY_PARTIAL] mint={mint} buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'}"
+            )
+        else:
+            premig_log(f"[BUY_PARTIAL] mint={mint} buyer=no sol=no")
+        now = time.time()
+        self._record_flow_event(mint, observed_at=now, buyer=buyer, sol_amount=sol_amount, kind="buy")
+        market_cap_hint = self._last_market_cap_by_mint.get(mint, 0.0)
+        await self._persist_pre_migration_signal(mint, market_cap_hint, int(now), source_hint="flow")
+
+    async def _refresh_pre_migration_signals_periodic(self) -> None:
+        """Keep Pump.fun watchlist rows fresh from DB activity without adding RPC calls."""
+        await asyncio.sleep(5)
+        while True:
+            try:
+                candidates: List[Tuple[str, float]] = []
+                async with self.db_lock:
+                    conn = sqlite3.connect(DB_PATH, timeout=15)
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        """
+                        SELECT mint,
+                               -- Clamp corrupted MC values before using for fallback scoring.
+                               -- Values above $5M are almost certainly stale/wrong-pair data.
+                               CASE
+                                 WHEN COALESCE(market_cap_current, 0) > 5000000 THEN 0
+                                 ELSE COALESCE(market_cap_current, 0)
+                               END AS market_cap_current
+                        FROM token_analysis
+                        WHERE mint IS NOT NULL
+                          AND source_platform = 'pumpfun'
+                          AND COALESCE(lifecycle_stage, 'bonding_curve') = 'bonding_curve'
+                          AND COALESCE(lifecycle_stage, '') != 'migrated'
+                          AND NULLIF(TRIM(COALESCE(pool_address, pumpswap_pool_address, dex, '')), '') IS NULL
+                        ORDER BY
+                          COALESCE(is_about_to_migrate, 0) DESC,
+                          COALESCE(migration_progress_pct, 0) DESC,
+                          COALESCE(market_cap_current, 0) DESC,
+                          mint ASC
+                        LIMIT 75
+                        """
+                    )
+                    rows = cursor.fetchall()
+                    conn.close()
+                    candidates = [(str(row["mint"]), float(row["market_cap_current"] or 0.0)) for row in rows]
+
+                if candidates:
+                    index_rows = self._refresh_bonding_curve_index()
+                    refreshed = 0
+                    now_ts = int(time.time())
+                    flow_count = 0
+                    fallback_count = 0
+                    for mint, current_market_cap in candidates:
+                        await self._persist_pre_migration_signal(mint, current_market_cap, now_ts)
+                        refreshed += 1
+                        # Count flow vs fallback based on cached flow windows
+                        if self._flow_windows_by_mint.get(mint):
+                            flow_count += 1
+                        else:
+                            fallback_count += 1
+                    premig_log(
+                        f"[SUMMARY] active_mints={len(self._flow_windows_by_mint)} "
+                        f"index_rows={index_rows} "
+                        f"sweep_candidates={refreshed} "
+                        f"flow_active={flow_count} fallback_active={fallback_count}"
+                    )
+                    self._log_resolver_summary()
+                    log_print(f"[PREMIG_SWEEP] refreshed={refreshed} index_rows={index_rows}", flush=True)
+            except Exception as e:
+                log_print(f"[PREMIG_SWEEP] ⚠ refresh failed: {e}", flush=True)
+            await asyncio.sleep(15)
 
     def _log_fl(self, msg: str):
         """Override fast-lane logging to use log_print for consistent output."""
@@ -1179,6 +3076,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 creator_is_blocked INTEGER DEFAULT 0,
                 network_risk INTEGER DEFAULT 0,
                 connected_malicious_count INTEGER,
+                is_about_to_migrate BOOLEAN DEFAULT 0,
+                migration_progress_pct REAL,
+                migration_band TEXT,
+                migration_signal_updated_at INTEGER,
+                lifecycle_stage TEXT DEFAULT 'migration_pending',
+                migrated_at INTEGER,
+                dex TEXT,
+                pumpswap_pool_address TEXT,
+                source_platform TEXT,
+                is_new INTEGER DEFAULT 0,
                 rug_indicator TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -1248,6 +3155,37 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pumpfun_migration_verification (
+                mint TEXT PRIMARY KEY,
+                migrated_at INTEGER,
+                migration_tx TEXT,
+                dex TEXT,
+                pumpswap_pool_address TEXT,
+                pre_is_about_to_migrate INTEGER DEFAULT 0,
+                pre_migration_band TEXT,
+                pre_migration_progress_pct REAL,
+                pre_migration_signal_updated_at INTEGER,
+                pre_market_cap_current REAL,
+                pre_market_cap_updated_at INTEGER,
+                pre_buys_10s INTEGER DEFAULT 0,
+                pre_unique_30s INTEGER DEFAULT 0,
+                pre_sol_15s REAL DEFAULT 0,
+                pre_inflow_accel REAL DEFAULT 0,
+                pre_signal_score INTEGER DEFAULT 0,
+                pre_migration_signal_source TEXT,
+                predicted_by_flow INTEGER DEFAULT 0,
+                predicted_by_market_cap INTEGER DEFAULT 0,
+                predicted_by_explicit_signal INTEGER DEFAULT 0,
+                was_about_to_migrate_at_migration INTEGER DEFAULT 0,
+                was_hot_or_warm_before_migration INTEGER DEFAULT 0,
+                signal_age_seconds INTEGER,
+                signal_was_fresh INTEGER DEFAULT 0,
+                final_verdict TEXT,
+                created_at INTEGER
+            )
+        """)
+
         # Add columns if they don't exist (for backward compatibility)
         try:
             cursor.execute("PRAGMA table_info(token_analysis)")
@@ -1264,6 +3202,50 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if "connected_malicious_count" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN connected_malicious_count INTEGER")
                 log_print("[DB] ✅ Added connected_malicious_count column to token_analysis", flush=True)
+
+            if "is_about_to_migrate" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN is_about_to_migrate BOOLEAN DEFAULT 0")
+                log_print("[DB] ✅ Added is_about_to_migrate column to token_analysis", flush=True)
+
+            if "migration_progress_pct" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL")
+                log_print("[DB] ✅ Added migration_progress_pct column to token_analysis", flush=True)
+
+            if "migration_band" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_band TEXT")
+                log_print("[DB] ✅ Added migration_band column to token_analysis", flush=True)
+
+            if "migration_signal_updated_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER")
+                log_print("[DB] ✅ Added migration_signal_updated_at column to token_analysis", flush=True)
+
+            if "migration_signal_source" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_signal_source TEXT")
+                log_print("[DB] ✅ Added migration_signal_source column to token_analysis", flush=True)
+
+            if "lifecycle_stage" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN lifecycle_stage TEXT DEFAULT 'migration_pending'")
+                log_print("[DB] ✅ Added lifecycle_stage column to token_analysis", flush=True)
+
+            if "migrated_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migrated_at INTEGER")
+                log_print("[DB] ✅ Added migrated_at column to token_analysis", flush=True)
+
+            if "dex" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN dex TEXT")
+                log_print("[DB] ✅ Added dex column to token_analysis", flush=True)
+
+            if "pumpswap_pool_address" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN pumpswap_pool_address TEXT")
+                log_print("[DB] ✅ Added pumpswap_pool_address column to token_analysis", flush=True)
+
+            if "source_platform" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN source_platform TEXT")
+                log_print("[DB] ✅ Added source_platform column to token_analysis", flush=True)
+
+            if "is_new" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN is_new INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added is_new column to token_analysis", flush=True)
         except Exception as e:
             pass  # Columns likely already exist
 
@@ -1392,7 +3374,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 # Store post-migration analysis with live price tracking
                 cursor.execute("""
-                    INSERT OR REPLACE INTO token_analysis (
+                    INSERT INTO token_analysis (
                         mint, created_at, analyzed_at, events_parsed,
                         post_migration_mint_concentration, post_migration_unique_minters_ratio,
                         post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
@@ -1400,8 +3382,35 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         post_migration_creator_activity_ratio,
                         rug_probability, risk_level, post_migration_coverage,
                         migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count,
+                        lifecycle_stage,
                         cluster_id, cluster_name, cluster_risk_multiplier, network_funder_address, network_name
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                        analyzed_at = excluded.analyzed_at,
+                        events_parsed = excluded.events_parsed,
+                        post_migration_mint_concentration = excluded.post_migration_mint_concentration,
+                        post_migration_unique_minters_ratio = excluded.post_migration_unique_minters_ratio,
+                        post_migration_sell_suppression_ratio = excluded.post_migration_sell_suppression_ratio,
+                        post_migration_mint_velocity_sec = excluded.post_migration_mint_velocity_sec,
+                        post_migration_buy_size_variance = excluded.post_migration_buy_size_variance,
+                        post_migration_sell_volume_concentration = excluded.post_migration_sell_volume_concentration,
+                        post_migration_creator_activity_ratio = excluded.post_migration_creator_activity_ratio,
+                        rug_probability = excluded.rug_probability,
+                        risk_level = excluded.risk_level,
+                        post_migration_coverage = excluded.post_migration_coverage,
+                        migration_tx = COALESCE(excluded.migration_tx, token_analysis.migration_tx),
+                        pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
+                        earliest_tx_creator = COALESCE(excluded.earliest_tx_creator, token_analysis.earliest_tx_creator),
+                        creator_is_blocked = COALESCE(excluded.creator_is_blocked, token_analysis.creator_is_blocked),
+                        network_risk = COALESCE(excluded.network_risk, token_analysis.network_risk),
+                        connected_malicious_count = COALESCE(excluded.connected_malicious_count, token_analysis.connected_malicious_count),
+                        lifecycle_stage = COALESCE(token_analysis.lifecycle_stage, excluded.lifecycle_stage),
+                        cluster_id = COALESCE(excluded.cluster_id, token_analysis.cluster_id),
+                        cluster_name = COALESCE(excluded.cluster_name, token_analysis.cluster_name),
+                        cluster_risk_multiplier = COALESCE(excluded.cluster_risk_multiplier, token_analysis.cluster_risk_multiplier),
+                        network_funder_address = COALESCE(excluded.network_funder_address, token_analysis.network_funder_address),
+                        network_name = COALESCE(excluded.network_name, token_analysis.network_name)
                 """, (
                     mint,
                     time.time(),  # created_at
@@ -1425,6 +3434,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     analysis.get("creator_is_blocked", 0),  # Is creator in blocklist?
                     analysis.get("network_risk", 0),  # Is creator connected to malicious creators?
                     analysis.get("connected_malicious_count"),  # Count of connected malicious creators
+                    'migration_pending',
                     cluster_id,  # Cluster ID if creator is in a cluster
                     cluster_name,  # Cluster name (NexusCerberus, etc.)
                     cluster_risk_multiplier,  # Risk multiplier for cluster
@@ -1440,14 +3450,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
 
     def _token_exists_in_db(self, mint: str) -> bool:
-        """Check if token exists in analysis table (previously analyzed)"""
+        """
+        Check whether a token is already in a post-birth lifecycle stage.
+
+        Pre-migration launch rows are inserted early with `lifecycle_stage='bonding_curve'`.
+        Those rows must still be allowed to flow through the later migration pipeline.
+        """
         try:
             conn = sqlite3.connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
-            cursor.execute("SELECT 1 FROM token_analysis WHERE mint = ?", (mint,))
+            cursor.execute("SELECT lifecycle_stage FROM token_analysis WHERE mint = ?", (mint,))
             result = cursor.fetchone()
             conn.close()
-            return bool(result)
+            if not result:
+                return False
+            lifecycle_stage = result[0]
+            return lifecycle_stage != 'bonding_curve'
         except Exception as e:
             log_print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
             return False
@@ -1482,6 +3500,246 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return False
 
         return True
+
+    def _is_pumpfun_create_candidate(self, logs: list) -> bool:
+        """
+        Cheap pre-filter for Pump.fun birth events.
+
+        We only fetch the transaction when logs look like a CREATE and clearly are
+        not buy/sell/migrate noise.
+        """
+        logs_text = " ".join(logs or [])
+        lowered = logs_text.lower()
+
+        if "instruction: migrate" in lowered or "migratebondingcurvecreator" in lowered:
+            return False
+        if "instruction: buy" in lowered or "instruction: sell" in lowered:
+            return False
+        if "instruction: create" in lowered:
+            return True
+        if "initializemint" in lowered or "initializemint2" in lowered:
+            return True
+        return False
+
+    def _extract_birth_timestamp(self, tx_data: Optional[Dict]) -> str:
+        """Return ISO timestamp for token birth using tx blockTime when available."""
+        try:
+            block_time = (tx_data or {}).get("blockTime")
+            if block_time:
+                return datetime.utcfromtimestamp(int(block_time)).isoformat() + "Z"
+        except Exception:
+            pass
+        return datetime.utcnow().isoformat() + "Z"
+
+    def _extract_birth_metadata(self, tx_data: Optional[Dict]) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Best-effort extraction of token symbol/name from the CREATE transaction.
+
+        Pump.fun CREATE transactions sometimes surface UTF-8 metadata strings directly in
+        parsed instruction payloads or nested dict values. Keep this deliberately cheap and
+        defensive: if we cannot extract clean values, downstream symbol fetch will backfill.
+        """
+        if not tx_data:
+            return None, None
+
+        def _clean_text(value: str, *, upper: bool = False) -> Optional[str]:
+            if not isinstance(value, str):
+                return None
+            text = value.strip().replace("\x00", "")
+            if not text or len(text) > 64:
+                return None
+            if not re.fullmatch(r"[A-Za-z0-9 _.\-/$]{1,64}", text):
+                return None
+            if upper and not re.fullmatch(r"[A-Z0-9._\-/$]{1,16}", text):
+                return None
+            return text
+
+        symbol = None
+        name = None
+
+        def _walk(value):
+            nonlocal symbol, name
+            if symbol and name:
+                return
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    lowered = str(key).lower()
+                    if symbol is None and lowered == "symbol":
+                        symbol = _clean_text(child, upper=True)
+                    elif name is None and lowered == "name":
+                        name = _clean_text(child)
+                    else:
+                        _walk(child)
+            elif isinstance(value, list):
+                for item in value:
+                    _walk(item)
+
+        try:
+            _walk(tx_data)
+        except Exception:
+            return None, None
+
+        return symbol, name
+
+    async def _upsert_birth_metadata_cache(
+        self,
+        mint: str,
+        symbol: Optional[str],
+        name: Optional[str],
+    ) -> None:
+        """Persist launch metadata for immediate dashboard use when it is available."""
+        if not symbol and not name:
+            return
+
+        async with self.db_lock:
+            try:
+                with DB_WRITE_LOCK:
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    cursor = conn.cursor()
+                    now = int(time.time())
+                    cursor.execute(
+                        """
+                        INSERT INTO metadata_cache (mint, symbol, name, cached_at, cached_source)
+                        VALUES (?, ?, ?, ?, 'pumpfun_birth')
+                        ON CONFLICT(mint) DO UPDATE SET
+                            symbol = COALESCE(metadata_cache.symbol, excluded.symbol),
+                            name = COALESCE(metadata_cache.name, excluded.name),
+                            cached_at = excluded.cached_at,
+                            cached_source = CASE
+                                WHEN COALESCE(metadata_cache.symbol, metadata_cache.name) IS NULL
+                                    THEN excluded.cached_source
+                                ELSE metadata_cache.cached_source
+                            END
+                        """,
+                        (mint, symbol, name, now),
+                    )
+                    conn.commit()
+                    conn.close()
+            except Exception as e:
+                log_print(f"[BIRTH] ⚠ Failed to persist metadata for {mint[:16]}...: {e}", flush=True)
+
+    async def _insert_bonding_curve_token(
+        self,
+        mint: str,
+        creator: Optional[str],
+        created_at: str,
+        *,
+        bonding_curve_pda: Optional[str] = None,
+        create_tx_signature: Optional[str] = None,
+        symbol: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        """Insert a token at birth into token_analysis without creating duplicates."""
+        async with self.db_lock:
+            try:
+                with DB_WRITE_LOCK:
+                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    cursor = conn.cursor()
+
+                    analyzed_at = time.time()
+                    cursor.execute(
+                        """
+                        INSERT INTO token_analysis (
+                            mint, created_at, analyzed_at, earliest_tx_creator,
+                            bonding_curve_pda, create_tx_signature, source_platform,
+                            lifecycle_stage, is_new
+                        ) VALUES (?, ?, ?, ?, ?, ?, 'pumpfun', 'bonding_curve', 1)
+                        ON CONFLICT(mint) DO UPDATE SET
+                            created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                            analyzed_at = excluded.analyzed_at,
+                            earliest_tx_creator = COALESCE(token_analysis.earliest_tx_creator, excluded.earliest_tx_creator),
+                            bonding_curve_pda = COALESCE(token_analysis.bonding_curve_pda, excluded.bonding_curve_pda),
+                            create_tx_signature = COALESCE(token_analysis.create_tx_signature, excluded.create_tx_signature),
+                            source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
+                            lifecycle_stage = CASE
+                                WHEN token_analysis.lifecycle_stage = 'migrated' THEN token_analysis.lifecycle_stage
+                                ELSE 'bonding_curve'
+                            END,
+                            is_new = 1
+                        """,
+                        (mint, created_at, analyzed_at, creator, bonding_curve_pda, create_tx_signature),
+                    )
+                    conn.commit()
+                    conn.close()
+                    self._remember_recent_birth_token(mint, bonding_curve_pda)
+            except Exception as e:
+                log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e}", flush=True)
+                return
+
+        await self._upsert_birth_metadata_cache(mint, symbol, name)
+
+        try:
+            from src.core.price_worker import PriceWorkerRegistry
+            PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
+        except Exception as e:
+            log_print(f"[BIRTH] ⚠ Price tracking registration failed for {mint[:16]}...: {e}", flush=True)
+
+        _spawn_symbol_fetch(mint, DB_PATH)
+
+        event = {
+            "type": "token_detected",
+            "mint": mint,
+            "creator": creator,
+            "created_at": created_at,
+            "detected_at": int(time.time()),
+            "status": "bonding_curve",
+            "source": "pumpfun_create",
+            "lifecycle_stage": "bonding_curve",
+        }
+        if symbol:
+            event["symbol"] = symbol
+        if name:
+            event["name"] = name
+        _broadcast_to_flask(event)
+
+    async def handle_birth(self, signature: str, logs: list):
+        """Process a Pump.fun token birth event."""
+        if signature in self.processing_launches or signature in self.completed_launches:
+            return
+
+        self.processing_launches.add(signature)
+        try:
+            tx_data = await self._get_transaction_cached(signature)
+            if not tx_data:
+                return
+
+            mint = await self._extract_mint_from_tx(tx_data)
+            if not mint:
+                return
+
+            analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+            validation = analyzer._validate_pumpfun_create_tx(tx_data)
+            if not validation.get("is_pumpfun_create"):
+                return
+
+            creator = analyzer._infer_creator_from_tx(tx_data)
+            created_at = self._extract_birth_timestamp(tx_data)
+            bonding_curve_pda = validation.get("bonding_curve")
+            symbol, name = self._extract_birth_metadata(tx_data)
+
+            await self._insert_bonding_curve_token(
+                mint,
+                creator,
+                created_at,
+                bonding_curve_pda=bonding_curve_pda,
+                create_tx_signature=signature,
+                symbol=symbol,
+                name=name,
+            )
+            self.completed_launches.add(signature)
+            self.seen_mints.add(mint)
+            meta_suffix = f" symbol={symbol}" if symbol else ""
+            log_print(f"[BIRTH] ✅ Pump.fun launch detected: {mint} creator={creator[:8] + '...' if creator else 'unknown'}{meta_suffix}", flush=True)
+        except Exception as e:
+            log_print(f"[BIRTH] ⚠ Error handling launch {signature[:16]}...: {e}", flush=True)
+        finally:
+            self.processing_launches.discard(signature)
 
     async def _fetch_mint_from_transaction(self, signature: str) -> Optional[str]:
         """
@@ -2920,6 +5178,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         
         Note: Prices and market caps are stored in USD for consistency with DexScreener.
         """
+        should_refresh_signal = False
+        signal_now = int(time.time())
         async with self.db_lock:
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=60)
@@ -2928,13 +5188,28 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # Read only what this component owns: price_highest, rug_indicator, created_at
                 # Peak MC is owned by price_service.py via token_market_cap_peaks
                 cursor.execute(
-                    "SELECT price_highest, rug_indicator, created_at FROM token_analysis WHERE mint = ?",
+                    """
+                    SELECT price_highest, rug_indicator, created_at, lifecycle_stage,
+                           pool_address, pumpswap_pool_address, dex, source_platform, bonding_curve_pda
+                    FROM token_analysis WHERE mint = ?
+                    """,
                     (token_mint,)
                 )
                 row = cursor.fetchone()
                 price_highest = row[0] if row and row[0] else current_price
                 current_rug_indicator = row[1] if row else None
                 created_at_raw = row[2] if row else None
+                lifecycle_stage = row[3] if row else None
+                pool_address = row[4] if row else None
+                pumpswap_pool_address = row[5] if row else None
+                dex_name = row[6] if row else None
+                source_platform = row[7] if row else None
+                bonding_curve_pda = row[8] if row else None
+
+                if bonding_curve_pda:
+                    self._remember_bonding_curve_token(token_mint, bonding_curve_pda)
+                if source_platform == 'pumpfun' or bonding_curve_pda:
+                    self._known_bonding_curve_mints.add(token_mint)
 
                 if current_price > price_highest:
                     price_highest = current_price
@@ -3006,9 +5281,27 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 
                 conn.commit()
                 conn.close()
+
+                self._last_market_cap_by_mint[token_mint] = float(current_market_cap or 0.0)
+                has_pool = any(value and str(value).strip() for value in (pool_address, pumpswap_pool_address, dex_name))
+                if not has_pool and (source_platform == 'pumpfun' or bonding_curve_pda or lifecycle_stage in ('bonding_curve', 'migration_pending')):
+                    self._record_flow_event(
+                        token_mint,
+                        observed_at=signal_now,
+                        kind="buy" if float(current_market_cap or 0.0) > 0 else "observation",
+                    )
+                    should_refresh_signal = True
                 
             except Exception as e:
                 log_print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
+                return
+
+        if should_refresh_signal:
+            await self._persist_pre_migration_signal(
+                token_mint,
+                float(current_market_cap or 0.0),
+                signal_now,
+            )
 
     async def _create_minimal_token_entry(self, mint: str):
         """Create a minimal token entry in database immediately when migration is detected"""
@@ -3028,12 +5321,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                         now = time.time()
                         cursor.execute("""
-                            INSERT OR REPLACE INTO token_analysis (
+                            INSERT INTO token_analysis (
                                 mint, created_at, analyzed_at,
+                                lifecycle_stage,
                                 rug_probability, risk_level, post_migration_coverage,
                                 rug_indicator, events_parsed
-                            ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL)
-                        """, (mint, now, now))
+                            ) VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+                            ON CONFLICT(mint) DO UPDATE SET
+                                created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                                analyzed_at = excluded.analyzed_at,
+                                lifecycle_stage = COALESCE(token_analysis.lifecycle_stage, excluded.lifecycle_stage)
+                        """, (mint, now, now, 'migration_pending'))
 
                         conn.commit()
                         conn.close()
@@ -3100,6 +5398,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         conn.close()
 
                     cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
+                    self._remember_bonding_curve_token(mint, bonding_curve_pda)
                     log_print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
                     return
 
@@ -3237,13 +5536,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 with DB_WRITE_LOCK:
                     _conn = sqlite3.connect(DB_PATH, timeout=10)
                     _conn.execute(
-                        "UPDATE token_analysis SET pool_address = ? WHERE mint = ?",
-                        (pool_address, mint),
+                        "UPDATE token_analysis SET pool_address = ?, pumpswap_pool_address = COALESCE(pumpswap_pool_address, ?), dex = COALESCE(dex, 'pumpswap'), lifecycle_stage = 'migrated' WHERE mint = ?",
+                        (pool_address, pool_address, mint),
                     )
                     _conn.commit()
                     _conn.close()
             except Exception as _e:
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
+
+            await self._record_migration_verification_snapshot(
+                mint,
+                migrated_at=int(time.time()),
+                dex="pumpswap",
+                pumpswap_pool_address=pool_address,
+            )
 
             # Persist telemetry (retry_count=0 for primary fast-lane path)
             await self._write_resolution_telemetry(mint, discovery_source, pool_address, 0)
@@ -3334,6 +5640,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
             log_print(f"[EVENT] Migration signature: {signature}", flush=True)
             _wstrace('MIGRATION_DETECTED', mint, f"sig={signature[:20]}")
+            migrated_at_ts = int(time.time())
 
             # === PHASE 2: Start critical window for RPC isolation ===
             # Discovery RPC calls use 8 concurrent slots, background jobs use only 2
@@ -3341,6 +5648,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # Create minimal token entry immediately (so token appears in UI right away)
             await self._create_minimal_token_entry(mint)
+            await self._mark_token_migrated_in_db(
+                mint,
+                migrated_at=migrated_at_ts,
+                migration_tx=signature,
+                dex="pumpswap",
+            )
+            await self._record_migration_verification_snapshot(
+                mint,
+                migrated_at=migrated_at_ts,
+                migration_tx=signature,
+                dex="pumpswap",
+            )
 
             # Register for price tracking immediately — HIGH priority, fail-safe
             try:
@@ -3406,8 +5725,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn = sqlite3.connect(DB_PATH, timeout=10)
                 cursor = conn.cursor()
                 cursor.execute(
-                    "UPDATE token_analysis SET migration_tx = ? WHERE mint = ?",
-                    (signature, mint)
+                    "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), source_platform = COALESCE(source_platform, 'pumpfun') WHERE mint = ?",
+                    (signature, migrated_at_ts, mint)
                 )
                 conn.commit()
                 conn.close()
@@ -4908,7 +7227,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         }
 
     async def listen_websocket(self):
-        """Listen to PumpSwap program via WebSocket for live migration events"""
+        """Listen to PumpSwap and Pump.fun programs via WebSocket for live events."""
         # Check if token launch listening is enabled - keep checking periodically so toggle works at runtime
         while not get_migration_setting('listen_to_launches', True):
             log_print(f"[WEBSOCKET] ⏸ Token Launch listening is DISABLED - websocket idle (checking every 30s)", flush=True)
@@ -4952,7 +7271,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     )
 
                     # Subscribe to PumpSwap program logs
-                    subscribe_msg = {
+                    swap_subscribe_msg = {
                         "jsonrpc": "2.0",
                         "id": 1,
                         "method": "logsSubscribe",
@@ -4961,24 +7280,49 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             {"commitment": "confirmed"}
                         ]
                     }
-                    await ws.send(json.dumps(subscribe_msg))
-                    log_print(f"[WEBSOCKET] Subscribed to PumpSwap migrations", flush=True)
+                    await ws.send(json.dumps(swap_subscribe_msg))
 
-                    # Wait for subscription confirmation before processing events
-                    subscription_id = None
-                    while subscription_id is None:
+                    birth_subscribe_msg = {
+                        "jsonrpc": "2.0",
+                        "id": 2,
+                        "method": "logsSubscribe",
+                        "params": [
+                            {"mentions": [PUMPFUN_PROGRAM]},
+                            {"commitment": "confirmed"}
+                        ]
+                    }
+                    await ws.send(json.dumps(birth_subscribe_msg))
+                    log_print(f"[WEBSOCKET] Subscribed to PumpSwap migrations + Pump.fun births", flush=True)
+                    premig_log("[WS_SUBSCRIBED] program=pumpfun+pumpswap waiting for confirmation")
+
+                    # Wait for both subscription confirmations independently.
+                    # A single TimeoutError must NOT abort the loop — the second confirmation
+                    # may arrive on the next recv().  We keep waiting until both are confirmed
+                    # or we exhaust a total budget of 30 attempts (~30 s at 1 s each).
+                    subscription_map = {}
+                    _sub_attempts = 0
+                    while len(subscription_map) < 2 and _sub_attempts < 30:
+                        _sub_attempts += 1
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=10)
                             data = json.loads(msg)
-                            
-                            # Check for subscription response
-                            if "result" in data:
-                                subscription_id = data.get("result")
-                                log_print(f"[WEBSOCKET] ✓ Subscription confirmed (ID: {subscription_id})\n", flush=True)
-                                break
+
+                            if "result" in data and data.get("id") in (1, 2):
+                                sub_id = data.get("result")
+                                subscription_map[sub_id] = "pumpswap" if data.get("id") == 1 else "pumpfun"
+                                log_print(f"[WEBSOCKET] ✓ Subscription confirmed ({subscription_map[sub_id]} id={sub_id})", flush=True)
+                                premig_log(f"[WS_SUBSCRIBED] program={subscription_map[sub_id]} subscription_id={sub_id}")
                         except asyncio.TimeoutError:
-                            log_print(f"[WEBSOCKET] ⚠ No subscription confirmation after 10s", flush=True)
-                            break
+                            log_print(f"[WEBSOCKET] ⚠ No subscription confirmation yet (attempt {_sub_attempts}/30, confirmed={len(subscription_map)}/2)", flush=True)
+                            # Do NOT break — keep waiting for the second confirmation
+
+                    if len(subscription_map) < 2:
+                        missing_ids = {1, 2} - {k for k, v in [(data.get("id"), None)] if False}
+                        log_print(f"[WEBSOCKET] ⚠ Only {len(subscription_map)}/2 subscriptions confirmed after 30s — proceeding anyway", flush=True)
+                        premig_log(f"[WS_SUBSCRIBED] WARNING only {len(subscription_map)}/2 confirmed: map={subscription_map}")
+                    else:
+                        log_print(f"[WEBSOCKET] ✓ Both subscriptions confirmed: {subscription_map}", flush=True)
+                        premig_log(f"[WS_CONNECTED] both subscriptions active map={subscription_map}")
                     
                     # Now listen for actual migration events
                     while True:
@@ -4994,13 +7338,43 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 logs = value.get('logs', [])
                                 signature = value.get('signature', '')
                                 err = value.get('err')
+                                subscription_kind = subscription_map.get(data['params'].get('subscription'))
 
                                 # Skip failed transactions
                                 if err or not signature:
+                                    premig_log(f"[WS_MESSAGE_DROPPED] reason={'err' if err else 'no_sig'} kind={subscription_kind}")
+                                    continue
+
+                                if subscription_kind is None:
+                                    # Message arrived for an unregistered subscription ID —
+                                    # this is the symptom of the partial-registration bug.
+                                    raw_sub_id = data['params'].get('subscription')
+                                    premig_log(f"[WS_MESSAGE_DROPPED] reason=unknown_subscription sub_id={raw_sub_id} map={subscription_map}")
+                                    continue
+
+                                if subscription_kind == "pumpfun":
+                                    premig_log(f"[RAW_EVENT] sig={signature[:16]} {json.dumps(logs)[:500]}")
+
+                                if subscription_kind == "pumpfun" and self._is_pumpfun_create_candidate(logs):
+                                    premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_birth")
+                                    asyncio.create_task(self.handle_birth(signature, logs))
+                                    continue
+
+                                if subscription_kind == "pumpfun" and self._is_pumpfun_buy_candidate(logs):
+                                    premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_pumpfun_trade")
+                                    asyncio.create_task(self.handle_pumpfun_trade(signature, logs))
+                                    continue
+
+                                if subscription_kind == "pumpfun" and self._is_pumpfun_sell_candidate(logs):
+                                    premig_log(f"[WS_MESSAGE_DROPPED] reason=sell sig={signature[:16]}")
+                                    continue
+
+                                if subscription_kind == "pumpfun":
+                                    self._debug_pumpfun_trade_skip("unclassified_pumpfun_event", logs)
                                     continue
 
                                 # Check if this is a migration
-                                if self._is_migration_transaction(logs):
+                                if subscription_kind == "pumpswap" and self._is_migration_transaction(logs):
                                     # Check if listening to launches is enabled
                                     listen_enabled = get_migration_setting('listen_to_launches', True)
                                     log_print(f"[WEBSOCKET] 🔍 Migration found. listen_to_launches={listen_enabled}", flush=True)

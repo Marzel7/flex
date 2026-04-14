@@ -796,10 +796,11 @@ class BackgroundPriceWorker:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Get top 25 most recent tokens
+            # Get top 25 most recently arrived tokens — use migrated_at for migrations
+            # so fresh migrations rank above old bonding-curve creation times
             cursor.execute("""
                 SELECT mint FROM token_analysis
-                ORDER BY created_at DESC
+                ORDER BY COALESCE(migrated_at, created_at) DESC
                 LIMIT 25
             """)
             rows = cursor.fetchall()
@@ -1896,6 +1897,7 @@ class BackgroundPriceWorker:
 
                 is_new    = token_age < 120 and mint in self._top_mints
                 is_top    = mint in self._top_mints
+                never_fetched = last_update == 0
 
                 priority = token.get('priority_level', 'LOW').lower()
                 self.stats['activity_distribution'][priority] = \
@@ -1903,9 +1905,9 @@ class BackgroundPriceWorker:
 
                 if is_new and age >= self._TIER0_INTERVAL:
                     tier0.append(token)
-                elif is_top and age >= self._TIER1_INTERVAL:
+                elif (is_top or never_fetched) and age >= self._TIER1_INTERVAL:
                     tier1.append(token)
-                elif not is_top and age >= self._TIER2_INTERVAL:
+                elif not is_top and not never_fetched and age >= self._TIER2_INTERVAL:
                     tier2.append(token)
 
             # Tier 2: skip entirely if queue is backed up, cap otherwise

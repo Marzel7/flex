@@ -368,8 +368,11 @@
             const ws = data?.pool_stats?.ws || {};
             const wsStatus = ws.status || (ws.connected ? 'CONNECTED' : 'DISCONNECTED');
             const color = statusColor(wsStatus);
-            const secs = data?.db_signals?.seconds_since_last_update;
-            const lag = secs != null ? ` (${Math.round(secs)}s lag)` : '';
+            const listenerSecs = ws.listener_log_age_secs;
+            const dbSecs = data?.db_signals?.seconds_since_last_update;
+            const lagSource = listenerSecs != null ? 'listener logs' : 'db';
+            const lagValue = listenerSecs != null ? listenerSecs : dbSecs;
+            const lag = lagValue != null ? ` (${Math.round(lagValue)}s lag via ${lagSource})` : '';
             const html = `
                 <div class="status-indicator status-${color}">
                     <span class="status-dot ${color}"></span>
@@ -442,6 +445,12 @@
                 <div class="metric">
                     <div class="metric-label">Last Event</div>
                     <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${formatTime(ws.last_event_at)}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Listener Logs</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        ${ws.listener_log_age_secs != null ? `${Math.round(ws.listener_log_age_secs)}s ago` : 'No recent signal'}
+                    </div>
                 </div>
             `;
             document.getElementById('wsPoolStats').innerHTML = html;

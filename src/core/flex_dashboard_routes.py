@@ -1258,6 +1258,7 @@ def api_snapshots():
         rows = conn.execute("""
             SELECT * FROM (
                 SELECT tsc.mint, tsc.snap_count, tsc.last_updated,
+                       tps.captured_at AS last_snapshot,
                        tps.price_usd, tps.market_cap, tps.source,
                        COALESCE(tt.symbol, mc.symbol) AS symbol,
                        mc.name,
@@ -1276,6 +1277,7 @@ def api_snapshots():
                 UNION
 
                 SELECT tt2.mint, 0 AS snap_count, NULL AS last_updated,
+                       NULL AS last_snapshot,
                        NULL AS price_usd, NULL AS market_cap, NULL AS source,
                        COALESCE(tt2.symbol, mc2.symbol) AS symbol,
                        mc2.name,
@@ -1287,12 +1289,14 @@ def api_snapshots():
                   AND tt2.created_at >= ?
                   AND tt2.mint NOT IN (SELECT mint FROM token_snapshot_counts)
             )
-            ORDER BY (last_updated > ?) DESC, last_updated DESC
+            ORDER BY (COALESCE(last_snapshot, last_updated, 0) > ?) DESC,
+                     COALESCE(last_snapshot, last_updated, 0) DESC,
+                     last_updated DESC
         """, (fresh_cutoff, now - 60,)).fetchall()
         data = []
         backfill = []  # (mint, symbol) pairs to write into tracked_tokens
         for r in rows:
-            last_ts = r['last_updated'] or 0
+            last_ts = r['last_snapshot'] or r['last_updated'] or 0
             price = r['price_usd']
             mc = r['market_cap']
             # Reject clearly bad values before sending to UI

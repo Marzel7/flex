@@ -37,7 +37,7 @@ pkill -9 -f "pumpfun_curve_listener" 2>/dev/null || true
 sleep 1
 echo "✓ Listener killed"
 
-pkill -f "src.monitoring.helius_cli_monitor\|helius_cli_monitor.py" 2>/dev/null || true
+pkill -9 -f "helius_cli_monitor" 2>/dev/null || true
 sleep 1
 echo "✓ Helius CLI monitor killed"
 
@@ -45,7 +45,7 @@ echo ""
 echo "⏳ Verifying cleanup..."
 sleep 1
 
-# Verify all listener instances are killed
+# Verify all instances are killed
 remaining=$(pgrep -f "pumpfun_curve_listener" | wc -l)
 if [ "$remaining" -gt 0 ]; then
     echo "⚠️  Still found $remaining listener instances, forcing hard kill..."
@@ -53,29 +53,40 @@ if [ "$remaining" -gt 0 ]; then
     sleep 1
 fi
 
+remaining=$(pgrep -f "helius_cli_monitor" | wc -l)
+if [ "$remaining" -gt 0 ]; then
+    echo "⚠️  Still found $remaining helius monitor instances, forcing hard kill..."
+    pkill -9 -f "helius_cli_monitor" 2>/dev/null || true
+    sleep 1
+fi
+
 echo "✓ Cleanup verified"
 echo ""
 cd "$PROJECT_ROOT"
 
-# Clear migration log on each restart so it only contains the current session
+# Clear logs on each restart so they only contain the current session
 > "$PROJECT_ROOT/migration.log"
 echo "✓ migration.log cleared"
-
-# Rotate ws_snapshot.log so it only contains the current session
+> "$PROJECT_ROOT/listener.log"
+echo "✓ listener.log cleared"
+> "$PROJECT_ROOT/logs/premigration.log"
+echo "✓ logs/premigration.log cleared"
 > "$PROJECT_ROOT/logs/ws_snapshot.log"
 echo "✓ logs/ws_snapshot.log cleared"
 echo ""
 
 echo "🚀 Starting Helius CLI monitor..."
-python -m src.monitoring.helius_cli_monitor &
+nohup python -m src.monitoring.helius_cli_monitor >> helius.log 2>&1 &
 HELIUS_PID=$!
+disown $HELIUS_PID
 sleep 2
 echo "✓ Helius CLI monitor started (PID: $HELIUS_PID)"
 
 echo ""
 echo "🚀 Starting listener..."
-python -u -m src.core.pumpfun_curve_listener | tee listener.log &
+nohup python -u -m src.core.pumpfun_curve_listener >> listener.log 2>&1 &
 LISTENER_PID=$!
+disown $LISTENER_PID
 sleep 4
 echo "✓ Listener started (PID: $LISTENER_PID)"
 
@@ -85,8 +96,9 @@ PYTHONPATH="$PROJECT_ROOT" \
 HELIUS_RPC_URL="$HELIUS_RPC_URL" \
 HELIUS_WS_URL="$HELIUS_WS_URL" \
 FLEX_WS_DISABLED=1 \
-python src/core/main.py &
+nohup python src/core/main.py >> flask.log 2>&1 &
 FLASK_PID=$!
+disown $FLASK_PID
 sleep 3
 echo "✓ Flask started with Price System (PID: $FLASK_PID)"
 echo "  ℹ️  WebSocket pool subscriptions will auto-connect for registered pools"
@@ -117,5 +129,7 @@ echo "║  - logs/ws_snapshot.log (WS subscriptions + snapshot lifecycle)       
 echo "║                                                                            ║"
 echo "╚════════════════════════════════════════════════════════════════════════════╝"
 echo ""
-echo "📊 Monitoring logs (Ctrl+C to stop)..."
-wait
+echo "📊 All output written to log files. To monitor:"
+echo "   tail -f listener.log"
+echo "   tail -f flask.log"
+echo ""

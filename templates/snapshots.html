@@ -180,7 +180,7 @@ tr.row-stale td { opacity: 0.45; }
 
     async function load() {
         try {
-            const res = await fetch('/api/snapshots');
+            const res = await fetch('/api/snapshots', { cache: 'no-store' });
             const json = await res.json();
             allRows = json.data || [];
             document.getElementById('count-label').textContent = `${allRows.length} tokens`;
@@ -194,7 +194,7 @@ tr.row-stale td { opacity: 0.45; }
 
     load();
     // Polling fallback — keeps working if WS unavailable
-    const pollInterval = setInterval(load, 15000);
+    const pollInterval = setInterval(load, 5000);
 
     // -----------------------------------------------------------------------
     // WebSocket: mint-filtered live updates

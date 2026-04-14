@@ -66,6 +66,8 @@ def _ensure_schema():
         "ALTER TABLE token_analysis ADD COLUMN pumpswap_pool_address TEXT",
         "ALTER TABLE token_analysis ADD COLUMN source_platform TEXT",
         "ALTER TABLE token_analysis ADD COLUMN is_new INTEGER DEFAULT 0",
+        "ALTER TABLE token_analysis ADD COLUMN pf_ws_creator TEXT",
+        "ALTER TABLE token_analysis ADD COLUMN creator_mismatch INTEGER DEFAULT 0",
         "ALTER TABLE token_market_cap_peaks ADD COLUMN raw_peak_mc_at INTEGER",
         """UPDATE token_analysis
            SET market_cap_highest_at_ts = CAST(strftime('%s', market_cap_highest_at) AS INTEGER)
@@ -178,6 +180,27 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 app.funder_analysis_cache = {}
 _creator_backfill_lock = threading.Lock()
 _creator_backfill_inflight = set()
+_creator_backfill_last_requested = {}
+_pf_ws_creator_backfill_lock = threading.Lock()
+_pf_ws_creator_backfill_inflight = set()
+_pf_ws_creator_backfill_last_requested = {}
+_pf_ws_creator_migrated_sweep_lock = threading.Lock()
+_pf_ws_creator_migrated_sweep_last_requested = 0
+_migration_gap_audit_lock = threading.Lock()
+_migration_gap_audit_inflight = False
+_migration_gap_audit_state: Dict[str, Any] = {
+    'status': 'idle',
+    'last_started_at': None,
+    'last_completed_at': None,
+    'lookback_hours': 4,
+    'capture_rate': None,
+    'helius_detected': None,
+    'db_detected': None,
+    'missing_in_db': None,
+    'missing_records': [],
+    'error': None,
+}
+_MIGRATION_AUDIT_STALE_RUNNING_SECONDS = 5 * 60
 
 
 def _backfill_missing_creator(mint: str) -> None:
@@ -227,6 +250,291 @@ def _schedule_missing_creator_backfill(mint: Optional[str]) -> None:
             return
         _creator_backfill_inflight.add(mint)
     threading.Thread(target=_backfill_missing_creator, args=(mint,), daemon=True).start()
+
+
+def _schedule_missing_creator_backfill_throttled(mint: Optional[str], *, cooldown_seconds: int = 15 * 60) -> bool:
+    """Best-effort creator repair with cooldown so page polling does not spam RPC."""
+    if not mint:
+        return False
+    now = int(time.time())
+    with _creator_backfill_lock:
+        last_requested = int(_creator_backfill_last_requested.get(mint) or 0)
+        if mint in _creator_backfill_inflight:
+            return False
+        if last_requested > 0 and (now - last_requested) < max(60, int(cooldown_seconds or 0)):
+            return False
+        _creator_backfill_last_requested[mint] = now
+    _schedule_missing_creator_backfill(mint)
+    return True
+
+
+def _backfill_missing_pf_ws_creator(mint: str) -> None:
+    """Best-effort background repair for tokens missing pf_ws_creator."""
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        row = conn.execute(
+            """
+            SELECT create_tx_signature, earliest_tx_creator
+            FROM token_analysis
+            WHERE mint = ?
+            LIMIT 1
+            """,
+            (mint,),
+        ).fetchone()
+        conn.close()
+        if not row or not row[0]:
+            return
+
+        create_tx_signature = str(row[0])
+        earliest_tx_creator = str(row[1]) if row[1] else None
+
+        from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+
+        analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL'))
+        payload = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "getTransaction",
+            "params": [create_tx_signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+        }
+
+        tx = None
+        rpc_urls = []
+        rpc_http = os.environ.get('RPC_HTTP')
+        rpc_url = os.environ.get('RPC_URL')
+        if rpc_http:
+            rpc_urls.append(rpc_http)
+        if rpc_url and rpc_url not in rpc_urls:
+            rpc_urls.append(rpc_url)
+        if "https://api.mainnet-beta.solana.com" not in rpc_urls:
+            rpc_urls.append("https://api.mainnet-beta.solana.com")
+
+        for url in rpc_urls:
+            try:
+                resp = requests.post(url, json=payload, timeout=15)
+                if resp.ok:
+                    data = resp.json()
+                    tx = (data or {}).get("result")
+                    if tx:
+                        break
+            except Exception:
+                continue
+
+        if not tx:
+            return
+
+        validation = analyzer._validate_pumpfun_create_tx(tx)
+        if not validation.get("is_pumpfun_create"):
+            return
+
+        pf_ws_creator = analyzer._infer_creator_from_tx(tx)
+        if not pf_ws_creator:
+            return
+
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn.execute(
+            """
+            UPDATE token_analysis
+            SET pf_ws_creator = ?,
+                creator_mismatch = CASE
+                    WHEN earliest_tx_creator IS NOT NULL
+                     AND earliest_tx_creator != ''
+                     AND earliest_tx_creator != ?
+                    THEN 1 ELSE 0
+                END
+            WHERE mint = ?
+              AND (pf_ws_creator IS NULL OR pf_ws_creator = '')
+            """,
+            (pf_ws_creator, pf_ws_creator, mint),
+        )
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+    finally:
+        with _pf_ws_creator_backfill_lock:
+            _pf_ws_creator_backfill_inflight.discard(mint)
+
+
+def _schedule_missing_pf_ws_creator_backfill_throttled(mint: Optional[str], *, cooldown_seconds: int = 15 * 60) -> bool:
+    """Best-effort pf_ws_creator repair with cooldown so polling does not spam RPC."""
+    if not mint:
+        return False
+    now = int(time.time())
+    with _pf_ws_creator_backfill_lock:
+        last_requested = int(_pf_ws_creator_backfill_last_requested.get(mint) or 0)
+        if mint in _pf_ws_creator_backfill_inflight:
+            return False
+        if last_requested > 0 and (now - last_requested) < max(60, int(cooldown_seconds or 0)):
+            return False
+        _pf_ws_creator_backfill_last_requested[mint] = now
+        _pf_ws_creator_backfill_inflight.add(mint)
+    threading.Thread(target=_backfill_missing_pf_ws_creator, args=(mint,), daemon=True).start()
+    return True
+
+
+def _run_migration_gap_audit(
+    *,
+    lookback_hours: int = 4,
+    max_pages: int = 10,
+    page_limit: int = 200,
+    show_missing: int = 5,
+) -> None:
+    started_at = int(time.time())
+    with _migration_gap_audit_lock:
+        _migration_gap_audit_state.update({
+            'status': 'running',
+            'last_started_at': started_at,
+            'lookback_hours': int(max(1, lookback_hours)),
+            'error': None,
+        })
+    print(
+        f"[MIGRATION_AUDIT] start lookback_hours={max(1, int(lookback_hours))} "
+        f"max_pages={max(1, int(max_pages))} page_limit={max(1, int(page_limit))}",
+        flush=True,
+    )
+
+    try:
+        from scripts.reconcile_migrations_with_helius import run_reconciliation
+
+        result = run_reconciliation(
+            db_path=DB_PATH,
+            hours=max(1, int(lookback_hours)),
+            max_pages=max(1, int(max_pages)),
+            page_limit=max(1, int(page_limit)),
+            show_missing=max(1, int(show_missing)),
+            verbose=False,
+        )
+        completed_at = int(time.time())
+        with _migration_gap_audit_lock:
+            _migration_gap_audit_state.update({
+                'status': 'alert' if int(result.get('missing_in_db') or 0) > 0 else 'ok',
+                'last_completed_at': completed_at,
+                'lookback_hours': int(result.get('hours') or lookback_hours),
+                'capture_rate': result.get('capture_rate'),
+                'helius_detected': int(result.get('helius_detected') or 0),
+                'db_detected': int(result.get('db_detected') or 0),
+                'captured_by_db': int(result.get('captured_by_db') or 0),
+                'missing_in_db': int(result.get('missing_in_db') or 0),
+                'missing_records': list(result.get('missing_records') or []),
+                'error': None,
+            })
+        print(
+            f"[MIGRATION_AUDIT] done status={_migration_gap_audit_state.get('status')} "
+            f"helius_detected={int(result.get('helius_detected') or 0)} "
+            f"db_detected={int(result.get('db_detected') or 0)} "
+            f"missing_in_db={int(result.get('missing_in_db') or 0)}",
+            flush=True,
+        )
+    except Exception as exc:
+        with _migration_gap_audit_lock:
+            _migration_gap_audit_state.update({
+                'status': 'error',
+                'last_completed_at': int(time.time()),
+                'error': str(exc),
+            })
+        print(f"[MIGRATION_AUDIT] error error={exc}", flush=True)
+    finally:
+        with _migration_gap_audit_lock:
+            global _migration_gap_audit_inflight
+            _migration_gap_audit_inflight = False
+
+
+def _schedule_migration_gap_audit_throttled(
+    *,
+    lookback_hours: int = 4,
+    max_pages: int = 10,
+    page_limit: int = 200,
+    show_missing: int = 5,
+    cooldown_seconds: int = 10 * 60,
+) -> bool:
+    now = int(time.time())
+    with _migration_gap_audit_lock:
+        global _migration_gap_audit_inflight
+        if _migration_gap_audit_inflight:
+            return False
+        last_completed = int(_migration_gap_audit_state.get('last_completed_at') or 0)
+        last_started = int(_migration_gap_audit_state.get('last_started_at') or 0)
+        freshest = max(last_completed, last_started)
+        if freshest > 0 and (now - freshest) < max(60, int(cooldown_seconds or 0)):
+            return False
+        _migration_gap_audit_inflight = True
+    threading.Thread(
+        target=_run_migration_gap_audit,
+        kwargs={
+            'lookback_hours': lookback_hours,
+            'max_pages': max_pages,
+            'page_limit': page_limit,
+            'show_missing': show_missing,
+        },
+        daemon=True,
+    ).start()
+    return True
+
+
+def _get_migration_gap_audit_snapshot() -> Dict[str, Any]:
+    with _migration_gap_audit_lock:
+        snapshot = dict(_migration_gap_audit_state)
+        if snapshot.get('status') == 'running':
+            started_at = int(snapshot.get('last_started_at') or 0)
+            now = int(time.time())
+            if started_at > 0 and (now - started_at) > _MIGRATION_AUDIT_STALE_RUNNING_SECONDS:
+                snapshot.update({
+                    'status': 'error',
+                    'last_completed_at': now,
+                    'error': f'audit exceeded {_MIGRATION_AUDIT_STALE_RUNNING_SECONDS}s without completing',
+                })
+                _migration_gap_audit_state.update(snapshot)
+                global _migration_gap_audit_inflight
+                _migration_gap_audit_inflight = False
+        return snapshot
+
+
+def _schedule_migrated_pf_ws_creator_backfill_batch(*, batch_size: int = 50, cooldown_seconds: int = 120) -> int:
+    """
+    Gradually backfill pf_ws_creator across the full migrated-token backlog.
+
+    This is intentionally throttled so a frequently-polled UI can chip away at the
+    backlog without hammering RPC.
+    """
+    now = int(time.time())
+    with _pf_ws_creator_migrated_sweep_lock:
+        global _pf_ws_creator_migrated_sweep_last_requested
+        if _pf_ws_creator_migrated_sweep_last_requested > 0 and (now - _pf_ws_creator_migrated_sweep_last_requested) < max(30, int(cooldown_seconds or 0)):
+            return 0
+        _pf_ws_creator_migrated_sweep_last_requested = now
+
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT mint
+            FROM token_analysis
+            WHERE COALESCE(lifecycle_stage, '') = 'migrated'
+              AND earliest_tx_creator IS NOT NULL
+              AND earliest_tx_creator != ''
+              AND create_tx_signature IS NOT NULL
+              AND create_tx_signature != ''
+              AND (pf_ws_creator IS NULL OR pf_ws_creator = '')
+            ORDER BY COALESCE(migrated_at, 0) DESC, analyzed_at DESC
+            LIMIT ?
+            """,
+            (max(1, int(batch_size or 0)),),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+    except Exception:
+        return 0
+
+    scheduled = 0
+    for row in rows:
+        mint = row["mint"]
+        if _schedule_missing_pf_ws_creator_backfill_throttled(mint, cooldown_seconds=15 * 60):
+            scheduled += 1
+    return scheduled
 
 # Database capability flags (checked on app startup)
 app.has_networks_release = None  # Set to True/False on first request
@@ -894,7 +1202,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
 
         def _shape_home_token(row, payload, normalized_peak_mc, normalized_peak_at, token_class=None):
             created_ts = _parse_unix_ts(row['created_at'])
-            is_new = created_ts is not None and (now_ts - created_ts) < NEW_TOKEN_WINDOW_SECS
+            migrated_ts = _parse_unix_ts(row['migrated_at'])
+            arrival_ts = migrated_ts if migrated_ts and migrated_ts > (created_ts or 0) else created_ts
+            is_new = arrival_ts is not None and (now_ts - arrival_ts) < NEW_TOKEN_WINDOW_SECS
             payload['is_new'] = is_new
             payload['token_class'] = None if is_new else token_class
             payload['market_cap_current'] = row['snap_market_cap'] or None
@@ -921,6 +1231,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.market_cap_highest_at_ts,
                 ta.rug_indicator,
                 ta.earliest_tx_creator,
+                ta.pf_ws_creator,
                 ta.creator_is_blocked,
                 ta.network_risk,
                 ta.connected_malicious_count,
@@ -1018,7 +1329,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     _created_ts = 0
 
                 _peak_mc = row['peaks_market_cap'] or 0
-                _is_new  = _created_ts > 0 and (now_ts - _created_ts) < NEW_TOKEN_WINDOW_SECS
+                _migrated_ts = _parse_unix_ts(row['migrated_at'])
+                _arrival_ts = _migrated_ts if _migrated_ts and _migrated_ts > _created_ts else _created_ts
+                _is_new  = _arrival_ts > 0 and (now_ts - _arrival_ts) < NEW_TOKEN_WINDOW_SECS
                 if _is_new or _peak_mc <= 0:
                     _token_class = None
                 else:
@@ -1043,7 +1356,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'price_current': row['snap_price_usd'] or None,
                     'price_highest': row['price_highest'] if row['price_highest'] else None,
                     'rug_indicator': row['rug_indicator'],
-                    'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
+                    'creator': row['earliest_tx_creator'] or row['pf_ws_creator'] or None,
                     'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
                     'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
                     'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
@@ -1199,7 +1512,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'price_current': row['snap_price_usd'] or None,
                 'price_highest': row['price_highest'] if row['price_highest'] else None,
                 'rug_indicator': row['rug_indicator'],
-                'creator': row['earliest_tx_creator'] if row['earliest_tx_creator'] else None,
+                'creator': row['earliest_tx_creator'] or row['pf_ws_creator'] or None,
                 'creator_is_blocked': bool(row['creator_is_blocked']) if row['creator_is_blocked'] else False,
                 'network_risk': bool(row['network_risk']) if row['network_risk'] else False,
                 'connected_malicious_count': row['connected_malicious_count'] if row['connected_malicious_count'] else 0,
@@ -1334,7 +1647,7 @@ def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
         return []
 
 
-def _safe_tail_text(path: str, max_bytes: int = 1_500_000) -> str:
+def _safe_tail_text(path: str, max_bytes: int = 8_000_000) -> str:
     try:
         if not os.path.exists(path):
             return ""
@@ -1355,7 +1668,8 @@ def _parse_log_timestamp_to_unix(line: str) -> Optional[int]:
     if not match:
         return None
     try:
-        return int(datetime.fromisoformat(match.group(1)).timestamp())
+        from datetime import timezone
+        return int(datetime.fromisoformat(match.group(1)).replace(tzinfo=timezone.utc).timestamp())
     except Exception:
         return None
 
@@ -1461,6 +1775,36 @@ def _classify_pumpfun_live_state(token: Dict[str, Any], now: int) -> Dict[str, A
     }
 
 
+def _apply_pumpfun_stale_readiness_adjustment(token: Dict[str, Any]) -> Dict[str, Any]:
+    adjusted = dict(token)
+    is_live = adjusted.get('signal_mode') == 'live'
+    has_live_momentum = bool(adjusted.get('has_live_momentum'))
+    live_fresh = bool(adjusted.get('live_fresh'))
+    signal_age_seconds = _safe_int(adjusted.get('signal_age_seconds'), default=0)
+    stale_live_about = (
+        is_live
+        and not has_live_momentum
+        and not live_fresh
+        and signal_age_seconds > 180
+        and bool(adjusted.get('is_about_to_migrate'))
+    )
+
+    if not stale_live_about:
+        return adjusted
+
+    adjusted['stored_is_about_to_migrate'] = bool(token.get('is_about_to_migrate'))
+    adjusted['stored_migration_band'] = token.get('migration_band')
+    adjusted['is_about_to_migrate'] = False
+
+    current_band = (adjusted.get('migration_band') or '').strip().lower()
+    if current_band == 'hot':
+        adjusted['migration_band'] = 'likely_close'
+
+    adjusted['readiness_label'] = 'Likely close'
+    adjusted['readiness_context'] = 'Previously hot, but live momentum has gone stale'
+    return adjusted
+
+
 def _is_close_to_pumpfun_migration(token: Dict[str, Any], market_cap_floor: float = 50000.0) -> bool:
     if token.get('is_about_to_migrate'):
         return True
@@ -1559,7 +1903,11 @@ def _get_pumpfun_runtime_state() -> Dict[str, Dict[str, Any]]:
                     state['unique_30s'] = int(match.group(3))
                     state['sol_15s'] = float(match.group(4))
                     state['sol_prev_15s'] = float(match.group(5))
-                    state['last_live_update_at'] = _parse_log_timestamp_to_unix(line)
+                    ts = _parse_log_timestamp_to_unix(line)
+                    state['last_live_update_at'] = ts
+                    # Treat any active flow tick as a meaningful update
+                    if int(match.group(2)) > 0 or float(match.group(4)) > 0:
+                        state['last_meaningful_live_update_at'] = ts
                     continue
             if "[SCORE]" in line:
                 match = re.search(
@@ -1688,6 +2036,15 @@ def _build_pumpfun_summary(tokens: List[Dict[str, Any]], total_available: Option
 
 def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any]:
     try:
+        _schedule_migrated_pf_ws_creator_backfill_batch(batch_size=50, cooldown_seconds=120)
+        _schedule_migration_gap_audit_throttled(
+            lookback_hours=4,
+            max_pages=10,
+            page_limit=200,
+            show_missing=5,
+            cooldown_seconds=10 * 60,
+        )
+
         conn = sqlite3.connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
@@ -1720,18 +2077,53 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 pmv.signal_was_fresh,
                 pmv.final_verdict,
                 COALESCE(mc.symbol, tt.symbol) AS token_symbol,
-                mc.name AS token_name
+                mc.name AS token_name,
+                ta.create_tx_signature,
+                ta.pf_ws_creator,
+                ta.earliest_tx_creator AS rpc_creator,
+                ta.creator_mismatch
             FROM pumpfun_migration_verification pmv
             LEFT JOIN metadata_cache mc
                 ON mc.mint = pmv.mint
             LEFT JOIN tracked_tokens tt
                 ON tt.mint = pmv.mint
+            LEFT JOIN token_analysis ta
+                ON ta.mint = pmv.mint
             ORDER BY COALESCE(pmv.migrated_at, 0) DESC
             LIMIT ?
             """,
             (limit,),
         )
         rows = cursor.fetchall()
+
+        cursor.execute(
+            """
+            SELECT
+                COUNT(*) AS eligible_total,
+                SUM(CASE WHEN pf_ws_creator IS NOT NULL AND pf_ws_creator != '' THEN 1 ELSE 0 END) AS pf_ws_populated,
+                SUM(CASE
+                    WHEN pf_ws_creator IS NOT NULL AND pf_ws_creator != ''
+                     AND earliest_tx_creator IS NOT NULL AND earliest_tx_creator != ''
+                    THEN 1 ELSE 0 END) AS compared_total,
+                SUM(CASE
+                    WHEN pf_ws_creator IS NOT NULL AND pf_ws_creator != ''
+                     AND earliest_tx_creator IS NOT NULL AND earliest_tx_creator != ''
+                     AND creator_mismatch = 0
+                    THEN 1 ELSE 0 END) AS compared_matches,
+                SUM(CASE
+                    WHEN pf_ws_creator IS NOT NULL AND pf_ws_creator != ''
+                     AND earliest_tx_creator IS NOT NULL AND earliest_tx_creator != ''
+                     AND creator_mismatch = 1
+                    THEN 1 ELSE 0 END) AS compared_mismatches
+            FROM token_analysis
+            WHERE COALESCE(lifecycle_stage, '') = 'migrated'
+              AND create_tx_signature IS NOT NULL
+              AND create_tx_signature != ''
+              AND earliest_tx_creator IS NOT NULL
+              AND earliest_tx_creator != ''
+            """
+        )
+        creator_metrics_row = cursor.fetchone()
         conn.close()
 
         records: List[Dict[str, Any]] = []
@@ -1743,6 +2135,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 "name": row["token_name"] or None,
                 "migrated_at": row["migrated_at"],
                 "migration_tx": row["migration_tx"] or None,
+                "create_tx_signature": row["create_tx_signature"] or None,
                 "dex": row["dex"] or None,
                 "pumpswap_pool_address": row["pumpswap_pool_address"] or None,
                 "pre_is_about_to_migrate": bool(row["pre_is_about_to_migrate"]),
@@ -1764,7 +2157,23 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 "signal_age_seconds": row["signal_age_seconds"],
                 "signal_was_fresh": bool(row["signal_was_fresh"]),
                 "final_verdict": verdict,
+                "pf_ws_creator": row["pf_ws_creator"] or None,
+                "rpc_creator": row["rpc_creator"] or None,
+                "creator_mismatch": bool(row["creator_mismatch"]) if row["creator_mismatch"] is not None else None,
             })
+
+        pf_ws_backfills_started = 0
+        for record in records:
+            if pf_ws_backfills_started >= 8:
+                break
+            if record.get("pf_ws_creator"):
+                continue
+            if not record.get("rpc_creator"):
+                continue
+            if not record.get("create_tx_signature"):
+                continue
+            if _schedule_missing_pf_ws_creator_backfill_throttled(record.get("mint"), cooldown_seconds=15 * 60):
+                pf_ws_backfills_started += 1
 
         predicted = sum(1 for record in records if record["final_verdict"] == "predicted")
         flow_predicted = sum(1 for record in records if record["predicted_by_flow"])
@@ -1773,12 +2182,39 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
         stale_signal = sum(1 for record in records if record["final_verdict"] == "stale_signal")
         missed = sum(1 for record in records if record["final_verdict"] == "missed")
         no_signal = sum(1 for record in records if record["final_verdict"] == "no_signal")
+        creator_compared = sum(1 for record in records if record["pf_ws_creator"] and record["rpc_creator"])
+        creator_matches = sum(
+            1 for record in records
+            if record["pf_ws_creator"] and record["rpc_creator"] and not record["creator_mismatch"]
+        )
+        creator_mismatches = sum(
+            1 for record in records
+            if record["pf_ws_creator"] and record["rpc_creator"] and record["creator_mismatch"]
+        )
+        creator_pending = sum(1 for record in records if not record["pf_ws_creator"])
         total = len(records)
 
         def _pct(value: int) -> Optional[float]:
             if total <= 0:
                 return None
             return round(100.0 * value / total, 1)
+
+        creator_eligible_total = int((creator_metrics_row["eligible_total"] if creator_metrics_row else 0) or 0)
+        creator_pf_ws_populated = int((creator_metrics_row["pf_ws_populated"] if creator_metrics_row else 0) or 0)
+        creator_compared_total = int((creator_metrics_row["compared_total"] if creator_metrics_row else 0) or 0)
+        creator_compared_matches = int((creator_metrics_row["compared_matches"] if creator_metrics_row else 0) or 0)
+        creator_compared_mismatches = int((creator_metrics_row["compared_mismatches"] if creator_metrics_row else 0) or 0)
+
+        creator_match_rate = (
+            round(100.0 * creator_compared_matches / creator_compared_total, 1)
+            if creator_compared_total > 0 else None
+        )
+        pf_ws_coverage = (
+            round(100.0 * creator_pf_ws_populated / creator_eligible_total, 1)
+            if creator_eligible_total > 0 else None
+        )
+
+        audit_snapshot = _get_migration_gap_audit_snapshot()
 
         summary = {
             "recent_migrations": total,
@@ -1790,17 +2226,44 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
             "stale_signal": stale_signal,
             "missed": missed,
             "no_signal": no_signal,
+            "creator_compared": creator_compared,
+            "creator_matches": creator_matches,
+            "creator_mismatches": creator_mismatches,
+            "creator_pending": creator_pending,
             "predicted_pct": _pct(predicted),
             "flow_predicted_pct": _pct(flow_predicted),
             "market_cap_only_pct": _pct(market_cap_only),
             "market_cap_predicted_pct": _pct(market_cap_predicted),
             "stale_signal_pct": _pct(stale_signal),
             "missed_pct": _pct(missed + no_signal),
+            "creator_compared_pct": _pct(creator_compared),
+            "creator_matches_pct": _pct(creator_matches),
+            "creator_mismatches_pct": _pct(creator_mismatches),
+            "creator_pending_pct": _pct(creator_pending),
+            "creator_match_rate": creator_match_rate,
+            "creator_mismatch_count": creator_compared_mismatches,
+            "pf_ws_coverage": pf_ws_coverage,
+            "creator_metrics_total": creator_eligible_total,
+            "creator_metrics_compared": creator_compared_total,
+            "creator_metrics_matches": creator_compared_matches,
+            "creator_metrics_pf_ws_populated": creator_pf_ws_populated,
+            "migration_audit_status": audit_snapshot.get("status"),
+            "migration_audit_missing_count": audit_snapshot.get("missing_in_db"),
+            "migration_audit_capture_rate": audit_snapshot.get("capture_rate"),
+            "migration_audit_last_completed_at": audit_snapshot.get("last_completed_at"),
+            "migration_audit_lookback_hours": audit_snapshot.get("lookback_hours"),
+            "migration_audit_helius_detected": audit_snapshot.get("helius_detected"),
+            "migration_audit_db_detected": audit_snapshot.get("db_detected"),
+            "migration_audit_error": audit_snapshot.get("error"),
         }
-        return {"records": records, "summary": summary}
+        return {
+            "records": records,
+            "summary": summary,
+            "audit": audit_snapshot,
+        }
     except Exception as e:
         print(f"[DB] Error fetching Pump.fun migration verification: {e}")
-        return {"records": [], "summary": {}}
+        return {"records": [], "summary": {}, "audit": {}}
 
 
 def get_pumpfun_pre_migration_tokens(
@@ -1834,6 +2297,8 @@ def get_pumpfun_pre_migration_tokens(
                 ta.migration_band,
                 ta.migration_signal_updated_at,
                 ta.migration_signal_source,
+                ta.earliest_tx_creator,
+                ta.pf_ws_creator,
                 ta.market_cap_current,
                 ta.price_updated_at,
                 ta.price_source,
@@ -1947,6 +2412,7 @@ def get_pumpfun_pre_migration_tokens(
                     'migration_band': migration_band,
                     'migration_signal_updated_at': signal_updated_at,
                     'migration_signal_source': row['migration_signal_source'] or None,
+                    'creator': row['earliest_tx_creator'] or row['pf_ws_creator'] or None,
                     'bonding_curve_pda': row['bonding_curve_pda'] or None,
                     'readiness_label': _readiness_label(row),
                     'signal_mode': signal_meta['signal_mode'],
@@ -1961,9 +2427,10 @@ def get_pumpfun_pre_migration_tokens(
                     'event_flow_mode': runtime.get('event_flow_mode') or ('fallback' if signal_meta['signal_mode'] != 'live' else 'count_only'),
                     'buyer_enriched': bool(runtime.get('buyer_enriched')),
                     'sol_enriched': bool(runtime.get('sol_enriched')),
-                    'last_meaningful_live_update_at': runtime.get('last_meaningful_live_update_at') or runtime.get('last_live_update_at') or signal_updated_at,
+                    'last_meaningful_live_update_at': signal_updated_at or runtime.get('last_meaningful_live_update_at') or runtime.get('last_live_update_at'),
                 }
                 token.update(_classify_pumpfun_live_state(token, now))
+                token = _apply_pumpfun_stale_readiness_adjustment(token)
                 token['signal_reason'] = _build_signal_reason(token)
                 tokens.append(token)
             except Exception as row_error:
@@ -2007,6 +2474,30 @@ def get_pumpfun_pre_migration_tokens(
 
         if limit is not None and limit > 0:
             filtered_tokens = filtered_tokens[:limit]
+
+        creator_backfills_started = 0
+        for token in filtered_tokens:
+            if creator_backfills_started >= 12:
+                break
+            if token.get('creator'):
+                continue
+            band_name = (token.get('migration_band') or '').strip().lower()
+            is_priority = bool(
+                token.get('is_about_to_migrate')
+                or band_name in {'hot', 'warm', 'likely_close'}
+                or (
+                    token.get('signal_mode') == 'live'
+                    and (
+                        _safe_int(token.get('buys_10s'), default=0) >= 3
+                        or _safe_int(token.get('unique_30s'), default=0) >= 4
+                        or _safe_float(token.get('sol_15s'), default=0.0) >= 1.0
+                    )
+                )
+            )
+            if not is_priority:
+                continue
+            if _schedule_missing_creator_backfill_throttled(token.get('mint'), cooldown_seconds=15 * 60):
+                creator_backfills_started += 1
 
         return {
             'tokens': filtered_tokens,

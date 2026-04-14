@@ -297,6 +297,9 @@
 .pf-chip.market_cap_only { background: rgba(59, 130, 246, 0.16); color: #93c5fd; }
 .pf-chip.stale_signal { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
 .pf-chip.missed, .pf-chip.no_signal { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
+.pf-chip.creator-match { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
+.pf-chip.creator-mismatch { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+.pf-chip.creator-unknown { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
 
 @media (max-width: 980px) {
     .pf-panel-header {
@@ -369,6 +372,10 @@
             <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMarketCapOnly">—</div><div class="pf-stat-label">MC Only</div></div>
             <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMissed">—</div><div class="pf-stat-label">Missed</div></div>
             <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyStale">—</div><div class="pf-stat-label">Stale Signal</div></div>
+            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyCreatorMatchRate">—</div><div class="pf-stat-label">Creator Match Rate</div></div>
+            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyCreatorMismatchCount">—</div><div class="pf-stat-label">Creator Mismatch Count</div></div>
+            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMigrationAudit">—</div><div class="pf-stat-label">Migration Audit</div></div>
+            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMissingMigrations">—</div><div class="pf-stat-label">Missed Migrations</div></div>
             <div class="pf-stat"><div class="pf-stat-value" id="pfVerifySample">0</div><div class="pf-stat-label">Sample</div></div>
         </div>
         <div class="pf-verify-list" id="pfVerificationList">
@@ -397,6 +404,12 @@ function pfFormatAge(value) {
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function pfFormatTime(value) {
+    const parsed = pfParseTime(value);
+    if (!Number.isFinite(parsed)) return '—';
+    return new Date(parsed).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function pfFormatNumber(value, digits = 0) {
@@ -532,27 +545,127 @@ function renderSummary(summary = {}) {
 
 function renderVerificationTrail(section = {}) {
     const summary = section.summary || {};
+    const audit = section.audit || {};
     const total = Number(summary.total_verified || summary.recent_migrations || 0);
     const pctWithCount = (pct, count) => {
         if (total <= 0 || pct == null) return '—';
         return `${pct}% (${count}/${total})`;
     };
+    const creatorMetric = (value, numerator, denominator, suffix = '%') => {
+        if (value == null) return '—';
+        if (numerator == null || denominator == null || !Number.isFinite(Number(denominator)) || Number(denominator) <= 0) {
+            return suffix ? `${value}${suffix}` : String(value);
+        }
+        return suffix
+            ? `${value}${suffix} (${numerator}/${denominator})`
+            : `${value} (${numerator}/${denominator})`;
+    };
+    const auditStatus = String(audit.status || summary.migration_audit_status || 'idle').toLowerCase();
+    const auditMissingCount = Number(
+        audit.missing_in_db ?? summary.migration_audit_missing_count ?? NaN
+    );
+    const auditHeliusDetected = Number(
+        audit.helius_detected ?? summary.migration_audit_helius_detected ?? NaN
+    );
+    const auditCaptureRate = audit.capture_rate ?? summary.migration_audit_capture_rate ?? null;
+    const auditLookbackHours = audit.lookback_hours ?? summary.migration_audit_lookback_hours ?? null;
+    const auditCompletedAt = audit.last_completed_at ?? summary.migration_audit_last_completed_at ?? null;
+    const auditError = audit.error ?? summary.migration_audit_error ?? null;
+    let auditLabel = 'idle';
+    if (auditStatus === 'ok') {
+        auditLabel = (
+            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
+        )
+            ? `${auditCaptureRate == null ? 'healthy' : `${auditCaptureRate}% capture`} (${auditMissingCount}/${auditHeliusDetected} missed)`
+            : (auditCaptureRate == null ? 'healthy' : `${auditCaptureRate}% capture`);
+    } else if (auditStatus === 'alert') {
+        auditLabel = (
+            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
+        )
+            ? `${auditMissingCount}/${auditHeliusDetected} missed`
+            : `${Number.isFinite(auditMissingCount) ? auditMissingCount : '?'} missing`;
+    } else if (auditStatus === 'running') {
+        auditLabel = (
+            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
+        )
+            ? `running | last ${auditMissingCount}/${auditHeliusDetected} missed`
+            : 'running';
+    } else if (auditStatus === 'idle') {
+        auditLabel = 'queued';
+    } else if (auditStatus === 'error') {
+        auditLabel = (
+            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
+        )
+            ? `error | last ${auditMissingCount}/${auditHeliusDetected} missed`
+            : 'error';
+    }
     document.getElementById('pfVerifyPredicted').textContent = pctWithCount(summary.predicted_pct, summary.predicted || 0);
     document.getElementById('pfVerifyFlow').textContent = pctWithCount(summary.flow_predicted_pct, summary.flow_predicted || 0);
     document.getElementById('pfVerifyMarketCapOnly').textContent = pctWithCount(summary.market_cap_only_pct, summary.market_cap_only || 0);
     document.getElementById('pfVerifyStale').textContent = pctWithCount(summary.stale_signal_pct, summary.stale_signal || 0);
     document.getElementById('pfVerifyMissed').textContent = pctWithCount(summary.missed_pct, (summary.missed || 0) + (summary.no_signal || 0));
+    document.getElementById('pfVerifyCreatorMatchRate').textContent = creatorMetric(
+        summary.creator_match_rate,
+        summary.creator_metrics_matches,
+        summary.creator_metrics_compared
+    );
+    document.getElementById('pfVerifyCreatorMismatchCount').textContent = creatorMetric(
+        summary.creator_mismatch_count,
+        summary.creator_mismatch_count,
+        null,
+        ''
+    );
+    document.getElementById('pfVerifyMigrationAudit').textContent = auditLabel;
+    document.getElementById('pfVerifyMissingMigrations').textContent = (
+        Number.isFinite(auditMissingCount)
+        && Number.isFinite(auditHeliusDetected)
+        && auditHeliusDetected > 0
+    )
+        ? `${((auditMissingCount / auditHeliusDetected) * 100).toFixed(1)}% (${auditMissingCount}/${auditHeliusDetected})`
+        : (Number.isFinite(auditMissingCount) ? String(auditMissingCount) : 'waiting');
     document.getElementById('pfVerifySample').textContent = String(total);
 
     const container = document.getElementById('pfVerificationList');
     if (!container) return;
     const records = Array.isArray(section.records) ? section.records : [];
+    const auditMissingRecords = Array.isArray(audit.missing_records) ? audit.missing_records : [];
+    const auditIntro = (() => {
+        if (auditStatus === 'running') {
+            return '<div class="pf-empty">Migration audit is running against recent Helius history...</div>';
+        }
+        if (auditStatus === 'idle') {
+            return '<div class="pf-empty">Migration audit is queued and will populate after the first background check completes.</div>';
+        }
+        if (auditStatus === 'error') {
+            return `<div class="pf-empty" style="color:#fca5a5">Migration audit failed${auditError ? `: ${pfEsc(auditError)}` : ''}</div>`;
+        }
+        if (auditStatus === 'alert') {
+            const windowLabel = auditLookbackHours ? `${auditLookbackHours}h` : 'recent window';
+            const checkedLabel = auditCompletedAt ? pfFormatAge(auditCompletedAt) : 'recently';
+            const missingPreview = auditMissingRecords.slice(0, 3).map((record) =>
+                `${pfEsc(record.detected_at || 'unknown')} | ${pfEsc(pfShortMint(record.signature || ''))}`
+            ).join('<br>');
+            return `
+                <div class="pf-empty" style="color:#fca5a5">
+                    External migration audit found ${Number.isFinite(auditMissingCount) ? auditMissingCount : '?'} missing DB migrations in the last ${pfEsc(windowLabel)}.
+                    Checked ${pfEsc(checkedLabel)}.
+                    ${missingPreview ? `<div style="margin-top:6px">${missingPreview}</div>` : ''}
+                </div>
+            `;
+        }
+        if (auditStatus === 'ok' && auditCompletedAt) {
+            const windowLabel = auditLookbackHours ? `${auditLookbackHours}h` : 'recent window';
+            const captureLabel = auditCaptureRate == null ? 'healthy' : `${auditCaptureRate}% capture`;
+            return `<div class="pf-empty">External migration audit ${captureLabel} over the last ${pfEsc(windowLabel)}. Checked ${pfEsc(pfFormatAge(auditCompletedAt))}.</div>`;
+        }
+        return '';
+    })();
     if (records.length === 0) {
-        container.innerHTML = '<div class="pf-empty">No recent migrated Pump.fun verification records yet.</div>';
+        container.innerHTML = `${auditIntro}<div class="pf-empty">No recent migrated Pump.fun verification records yet.</div>`;
         return;
     }
 
-    container.innerHTML = records.map((record) => {
+    container.innerHTML = `${auditIntro}${records.map((record) => {
         const displayName = record.symbol || record.name || pfShortMint(record.mint);
         const flags = [
             record.predicted_by_flow ? 'flow' : null,
@@ -560,6 +673,35 @@ function renderVerificationTrail(section = {}) {
             record.predicted_by_explicit_signal ? 'explicit' : null,
             record.signal_was_fresh ? 'fresh' : 'stale',
         ].filter(Boolean);
+
+        let creatorTag = '';
+        const hasWs = !!record.pf_ws_creator;
+        const hasRpc = !!record.rpc_creator;
+        if (hasWs && hasRpc) {
+            if (record.creator_mismatch) {
+                creatorTag = `<span class="pf-chip creator-mismatch" title="WS: ${pfEsc(record.pf_ws_creator)} | RPC: ${pfEsc(record.rpc_creator)}">creator ⚠ mismatch</span>`;
+            } else {
+                creatorTag = `<span class="pf-chip creator-match" title="${pfEsc(record.rpc_creator)}">creator ✓ match</span>`;
+            }
+        } else if (hasWs && !hasRpc) {
+            creatorTag = `<span class="pf-chip creator-unknown" title="WS: ${pfEsc(record.pf_ws_creator)}">creator ws-only</span>`;
+        } else if (!hasWs && hasRpc) {
+            creatorTag = `<span class="pf-chip creator-unknown" title="${pfEsc(record.rpc_creator)}">creator rpc-only</span>`;
+        } else {
+            creatorTag = `<span class="pf-chip creator-unknown">creator unknown</span>`;
+        }
+
+        let creatorLine = 'creator check pending';
+        if (hasWs && hasRpc) {
+            creatorLine = record.creator_mismatch
+                ? `creator check: mismatch | ws=${pfEsc(pfShortMint(record.pf_ws_creator))} | rpc=${pfEsc(pfShortMint(record.rpc_creator))}`
+                : `creator check: match | creator=${pfEsc(pfShortMint(record.rpc_creator))}`;
+        } else if (hasWs && !hasRpc) {
+            creatorLine = `creator check: ws only | ws=${pfEsc(pfShortMint(record.pf_ws_creator))}`;
+        } else if (!hasWs && hasRpc) {
+            creatorLine = `creator check: pending ws lookup | rpc=${pfEsc(pfShortMint(record.rpc_creator))}`;
+        }
+
         return `
             <div class="pf-verify-item">
                 <div class="pf-verify-head">
@@ -574,13 +716,15 @@ function renderVerificationTrail(section = {}) {
                     <div class="pf-meta-line">pre-signal=${pfEsc(record.pre_migration_signal_source || 'none')} | band=${pfEsc(record.pre_migration_band || 'none')} | progress=${pfEsc(pfFormatNumber(record.pre_migration_progress_pct, 1))}%</div>
                     <div class="pf-meta-line">buys_10s=${pfEsc(pfFormatNumber(record.pre_buys_10s))} | unique_30s=${pfEsc(pfFormatNumber(record.pre_unique_30s))} | sol_15s=${pfEsc(pfFormatNumber(record.pre_sol_15s, 2))} | score=${pfEsc(pfFormatNumber(record.pre_signal_score))}</div>
                     <div class="pf-meta-line">flow=${record.predicted_by_flow ? 'yes' : 'no'} | market_cap=${record.predicted_by_market_cap ? 'yes' : 'no'} | explicit=${record.predicted_by_explicit_signal ? 'yes' : 'no'}</div>
+                    <div class="pf-meta-line">${creatorLine}</div>
                 </div>
                 <div class="pf-verify-flags">
                     ${flags.map((flag) => `<span class="pf-chip ${record.final_verdict || 'fallback'}">${pfEsc(flag)}</span>`).join('')}
+                    ${creatorTag}
                 </div>
             </div>
         `;
-    }).join('');
+    }).join('')}`;
 }
 
 function renderHint(data = {}) {
@@ -704,21 +848,25 @@ async function loadPumpfunConsole() {
     const lastUpdatedEl = document.getElementById('pfLastUpdated');
     try {
         const params = new URLSearchParams(currentFilters());
-        const res = await fetch(`/api/pumpfun/pre-migration?${params.toString()}`, { cache: 'no-store' });
-        const data = await res.json();
-        const normalized = (
-            data &&
-            !Array.isArray(data.tokens) &&
-            data.tokens &&
-            typeof data.tokens === 'object' &&
-            Array.isArray(data.tokens.tokens)
-        ) ? {
-            tokens: data.tokens.tokens,
-            count: data.tokens.count ?? data.count ?? data.tokens.tokens.length,
-            summary: data.tokens.summary ?? data.summary ?? {},
-            total_available: data.tokens.total_available ?? data.total_available ?? data.tokens.tokens.length,
-            recent_migrations: data.tokens.recent_migrations ?? data.recent_migrations ?? { records: [], summary: {} },
-        } : data;
+        async function fetchPayload(searchParams) {
+            const res = await fetch(`/api/pumpfun/pre-migration?${searchParams.toString()}`, { cache: 'no-store' });
+            const data = await res.json();
+            return (
+                data &&
+                !Array.isArray(data.tokens) &&
+                data.tokens &&
+                typeof data.tokens === 'object' &&
+                Array.isArray(data.tokens.tokens)
+            ) ? {
+                tokens: data.tokens.tokens,
+                count: data.tokens.count ?? data.count ?? data.tokens.tokens.length,
+                summary: data.tokens.summary ?? data.summary ?? {},
+                total_available: data.tokens.total_available ?? data.total_available ?? data.tokens.tokens.length,
+                recent_migrations: data.tokens.recent_migrations ?? data.recent_migrations ?? { records: [], summary: {} },
+            } : data;
+        }
+
+        const normalized = await fetchPayload(params);
 
         renderSummary(normalized.summary || {});
         renderHint(normalized);

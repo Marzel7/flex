@@ -33,6 +33,12 @@ import os as _os
 _WS_STATS_PATH = _os.path.normpath(
     _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'ws_stats.json')
 )
+_PUMPFUN_PREMIG_LOG_PATH = _os.path.normpath(
+    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'premigration.log')
+)
+_PUMPFUN_LISTENER_LOG_PATH = _os.path.normpath(
+    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'listener.log')
+)
 
 def _read_ws_stats() -> dict:
     """Read real WS counters written by the listener process. Returns empty dict on any error."""
@@ -42,6 +48,35 @@ def _read_ws_stats() -> dict:
             return _json.load(_f)
     except Exception:
         return {}
+
+
+def _listener_log_activity(now: int) -> dict:
+    """Best-effort listener liveness from log mtimes."""
+    freshest = 0
+    premig_mtime = 0
+    listener_mtime = 0
+    try:
+        if _os.path.exists(_PUMPFUN_PREMIG_LOG_PATH):
+            premig_mtime = int(_os.path.getmtime(_PUMPFUN_PREMIG_LOG_PATH))
+            freshest = max(freshest, premig_mtime)
+    except Exception:
+        premig_mtime = 0
+    try:
+        if _os.path.exists(_PUMPFUN_LISTENER_LOG_PATH):
+            listener_mtime = int(_os.path.getmtime(_PUMPFUN_LISTENER_LOG_PATH))
+            freshest = max(freshest, listener_mtime)
+    except Exception:
+        listener_mtime = 0
+
+    age = (now - freshest) if freshest else None
+    return {
+        'premig_log_mtime': premig_mtime or None,
+        'listener_log_mtime': listener_mtime or None,
+        'last_activity_at': freshest or None,
+        'age_secs': age,
+        'active': age is not None and age <= 30,
+        'recent': age is not None and age <= 120,
+    }
 
 
 def _configure_sqlite_wal(db_path: str) -> None:
@@ -618,6 +653,7 @@ def health():
         now = int(time.time())
         sig = _db_health_signals(_db_path, window_secs=60)
         snapshot_cleanup = _db_snapshot_cleanup(_db_path)
+        listener_activity = _listener_log_activity(now)
 
         last_snapshot_at = sig['last_snapshot_at']
         last_count_update_at = sig['last_snapshot_count_update_at']
@@ -633,6 +669,7 @@ def health():
             secs_since_activity <= 60
             or sig['snapshots_in_window'] > 0
             or sig['tokens_priced_in_window'] > 0
+            or listener_activity['active']
         )
 
         # WS liveness: prefer activity-count signal over stale timestamp
@@ -640,12 +677,13 @@ def health():
             sig['snapshots_in_window'] > 0
             or sig['unique_mints_60s'] > 0
             or secs_since_activity <= 60
+            or listener_activity['active']
         )
 
         if ws_alive and worker_alive:
             ws_status = 'CONNECTED'
             service_status = 'healthy'
-        elif ws_alive or worker_alive:
+        elif ws_alive or worker_alive or listener_activity['recent']:
             ws_status = 'DEGRADED'
             service_status = 'degraded'
         else:
@@ -655,6 +693,16 @@ def health():
         # Real WS counters from listener process (written to disk each worker cycle)
         ws_file = _read_ws_stats()
         ws_file_age = (now - ws_file['written_at']) if ws_file.get('written_at') else None
+        effective_last_event_at = max(
+            int(ws_file.get('last_event_at') or 0),
+            int(freshest_db_activity or 0),
+            int(listener_activity.get('last_activity_at') or 0),
+        ) or None
+        effective_connected = bool(
+            ws_file.get('connected')
+            or ws_alive
+            or listener_activity['active']
+        )
 
         pool_stats = {
             'pools_registered': sig['active_pools'],
@@ -664,16 +712,18 @@ def health():
             'pool_success': sig['unique_mints_60s'],
             'pool_fail': 0,
             'ws': {
-                'connected': ws_file.get('connected', ws_alive),
+                'connected': effective_connected,
                 'status': ws_status,
                 'subscriptions': ws_file.get('subscriptions', sig['active_pools'] * 2),
                 'events_received': ws_file.get('events_received', 0),
                 'events_decoded': ws_file.get('events_decoded', 0),
                 'events_deduplicated': ws_file.get('events_deduplicated', 0),
                 'reconnects': ws_file.get('reconnects', 0),
-                'last_event_at': ws_file.get('last_event_at') or freshest_db_activity or None,
+                'last_event_at': effective_last_event_at,
                 'stats_age_secs': ws_file_age,
                 'multi_pool_enabled': True,
+                'listener_log_age_secs': listener_activity.get('age_secs'),
+                'listener_log_last_activity_at': listener_activity.get('last_activity_at'),
             },
             'detection': {
                 'primary_success': sig['unique_mints_60s'],
@@ -726,6 +776,8 @@ def health():
                 'unique_mints_60s': sig['unique_mints_60s'],
                 'last_analysis_at': sig['last_analysis_at'],
                 'inferred_active_writer': sig['active_writer'],
+                'listener_log_last_activity_at': listener_activity.get('last_activity_at'),
+                'listener_log_age_secs': listener_activity.get('age_secs'),
             },
             'local_process_diagnostics': local_diag,
             'timestamp': now,

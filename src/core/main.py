@@ -208,7 +208,7 @@ def _backfill_missing_creator(mint: str) -> None:
     try:
         from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 
-        analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL'))
+        analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL') or os.environ.get('HELIUS_RPC_URL'))
         provenance = asyncio.run(analyzer.get_creator_from_earliest_tx())
         creator = provenance.get('creator') if provenance else None
         if not creator:
@@ -290,7 +290,7 @@ def _backfill_missing_pf_ws_creator(mint: str) -> None:
 
         from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 
-        analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL'))
+        analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL') or os.environ.get('HELIUS_RPC_URL'))
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -302,10 +302,13 @@ def _backfill_missing_pf_ws_creator(mint: str) -> None:
         rpc_urls = []
         rpc_http = os.environ.get('RPC_HTTP')
         rpc_url = os.environ.get('RPC_URL')
+        helius_rpc = os.environ.get('HELIUS_RPC_URL')
         if rpc_http:
             rpc_urls.append(rpc_http)
         if rpc_url and rpc_url not in rpc_urls:
             rpc_urls.append(rpc_url)
+        if helius_rpc and helius_rpc not in rpc_urls:
+            rpc_urls.append(helius_rpc)
         if "https://api.mainnet-beta.solana.com" not in rpc_urls:
             rpc_urls.append("https://api.mainnet-beta.solana.com")
 

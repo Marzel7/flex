@@ -3821,37 +3821,48 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if existing_pf_ws_creator:
             return existing_pf_ws_creator
 
+        rpc_url = RPC_HTTP or os.environ.get('HELIUS_RPC_URL')
+        analyzer = PostMigrationAnalyzer(mint, rpc_url=rpc_url)
+
         if not create_tx_signature:
+            # Fallback: find creator via getSignaturesForAddress on the mint
             log_print(
-                f"[PF_WS_CREATOR] ℹ Skip {mint[:8]}... reason=no_create_tx_signature trigger={reason}",
+                f"[PF_WS_CREATOR] ℹ No create_tx_signature for {mint[:8]}..., trying RPC fallback trigger={reason}",
                 flush=True,
             )
-            return None
+            try:
+                provenance = await analyzer.get_creator_from_earliest_tx()
+                pf_ws_creator = provenance.get('creator') if provenance else None
+                if not pf_ws_creator:
+                    log_print(f"[PF_WS_CREATOR] ⚠ RPC fallback found no creator for {mint[:8]}...", flush=True)
+                    return None
+            except Exception as e:
+                log_print(f"[PF_WS_CREATOR] ⚠ RPC fallback failed for {mint[:8]}...: {e}", flush=True)
+                return None
+        else:
+            tx_data = await self._get_transaction_cached(create_tx_signature)
+            if not tx_data:
+                log_print(
+                    f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=create_tx_unavailable trigger={reason}",
+                    flush=True,
+                )
+                return None
 
-        tx_data = await self._get_transaction_cached(create_tx_signature)
-        if not tx_data:
-            log_print(
-                f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=create_tx_unavailable trigger={reason}",
-                flush=True,
-            )
-            return None
+            validation = analyzer._validate_pumpfun_create_tx(tx_data)
+            if not validation.get("is_pumpfun_create"):
+                log_print(
+                    f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=create_tx_not_strict trigger={reason}",
+                    flush=True,
+                )
+                return None
 
-        analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-        validation = analyzer._validate_pumpfun_create_tx(tx_data)
-        if not validation.get("is_pumpfun_create"):
-            log_print(
-                f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=create_tx_not_strict trigger={reason}",
-                flush=True,
-            )
-            return None
-
-        pf_ws_creator = analyzer._infer_creator_from_tx(tx_data)
-        if not pf_ws_creator:
-            log_print(
-                f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=infer_failed trigger={reason}",
-                flush=True,
-            )
-            return None
+            pf_ws_creator = analyzer._infer_creator_from_tx(tx_data)
+            if not pf_ws_creator:
+                log_print(
+                    f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=infer_failed trigger={reason}",
+                    flush=True,
+                )
+                return None
 
         mismatch = bool(earliest_tx_creator and earliest_tx_creator != pf_ws_creator)
 
@@ -3866,6 +3877,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     """
                     UPDATE token_analysis
                     SET pf_ws_creator = ?,
+                        earliest_tx_creator = COALESCE(NULLIF(TRIM(earliest_tx_creator), ''), ?),
                         creator_mismatch = CASE
                             WHEN earliest_tx_creator IS NOT NULL
                              AND earliest_tx_creator != ''
@@ -3874,7 +3886,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         END
                     WHERE mint = ?
                     """,
-                    (pf_ws_creator, pf_ws_creator, mint),
+                    (pf_ws_creator, pf_ws_creator, pf_ws_creator, mint),
                 )
                 conn.commit()
                 conn.close()
@@ -5805,6 +5817,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Continue migration pipeline once mint is known."""
         if self._token_exists_in_db(mint):
             log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
+            # Still ensure creator is established for pre-tracked tokens
+            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
             return
 
         # === GUARD 1: Prevent duplicate primary discovery by mint ===
@@ -5865,6 +5879,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 dex="pumpswap",
             )
             log_print(f"[MIGRATION_TRACE] step=record_verification:done mint={mint[:16]}...", flush=True)
+
+            # Establish creator immediately at migration time (fire-and-forget)
+            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration"))
 
             # Register for price tracking immediately — HIGH priority, fail-safe
             try:

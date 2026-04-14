@@ -18,6 +18,7 @@ import sqlite3
 import time
 import os
 from typing import Any, Dict, List
+from src.utils.db_locking import db_connect
 from flask import Blueprint, render_template, jsonify, request, make_response
 
 # Shared threshold: tokens below this market cap are excluded from homepage and live systems.
@@ -223,7 +224,7 @@ def api_token_behaviour_outcomes():
         limit = min(int(request.args.get('limit', 200)), 1000)
         offset = int(request.args.get('offset', 0))
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         where = ['rating_1_to_10 >= ?']
@@ -284,7 +285,7 @@ def api_token_outcomes_summary():
     Returns category counts/pct, rating distribution, % 5M+, avg/median time-to-peak and lifetime.
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         total_row = conn.execute("SELECT COUNT(*) AS n FROM token_outcomes").fetchone()
@@ -393,7 +394,7 @@ def api_token_behaviour():
         min_snapshots = int(request.args.get('min_snapshots', 8))
         limit = min(int(request.args.get('limit', 100)), 500)
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         # Join the pre-computed summary table — O(1) per row, never scans token_price_snapshots.
@@ -474,7 +475,7 @@ def api_token_behaviour_detail(mint):
     }
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         
         # Get current classification
@@ -607,7 +608,7 @@ def api_token_behaviour_stats():
     }
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
 
         # Get summary by category
         rows = conn.execute("""
@@ -662,7 +663,7 @@ def api_token_behaviour_all():
         min_confidence = float(request.args.get('min_confidence', 0.1))
         min_snapshots = int(request.args.get('min_snapshots', 8))
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         CATEGORIES = ['immediate_rug', 'runner', 'faded_runner', 'choppy_runner', 'rug', 'slow_rug',
@@ -794,7 +795,7 @@ def api_token_behaviour_all():
 def api_token_intelligence_summary():
     """Unified summary for the Token Intelligence dashboard."""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         active_row = conn.execute(
@@ -1009,7 +1010,7 @@ def api_token_intelligence():
             else:
                 category_list = [c.strip() for c in category_raw.split(',') if c.strip()]
 
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=10)
         conn.row_factory = sqlite3.Row
 
         tokens = []
@@ -1174,7 +1175,7 @@ def api_token_intelligence():
 def api_token_intelligence_detail(mint):
     """Fetch full detail for a single token (finalized preferred, else active)."""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         out_row = conn.execute("SELECT * FROM token_outcomes WHERE mint = ?", (mint,)).fetchone()
@@ -1240,7 +1241,7 @@ def snapshots_page():
 
 def _get_snapshots_conn():
     """Open a fresh connection per request — correlated subquery needs up-to-date WAL view."""
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = db_connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -1367,7 +1368,7 @@ def api_boost_tokens():
         import src.core.price_worker as _pw
         worker = _pw._price_worker
         if worker is None:
-            return jsonify({'error': 'price worker not running'}), 503
+            return jsonify({'boosted': 0, 'ttl': ttl, 'note': 'worker not ready'}), 200
 
         boosted = worker.registry.boost_tokens(mints, ttl)
         return jsonify({'boosted': boosted, 'ttl': ttl})
@@ -1732,7 +1733,7 @@ def api_vaults():
         sort_by = request.args.get('sort_by', 'created_at')
         sort_dir = request.args.get('sort_dir', 'desc').lower()
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         base_sql = _build_vaults_select(conn)
@@ -1831,7 +1832,7 @@ def api_vaults_stats_summary():
     Summary stats for Vaults page cards.
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         base_sql = _build_vaults_select(conn)
@@ -1897,7 +1898,7 @@ def api_vaults_stats_summary():
 def api_vaults_stats_discovery_health():
     """Aggregated discovery health stats overall and by strategy."""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         tpa_cols = _table_columns(conn, 'token_pool_accounts')
 
@@ -2068,7 +2069,7 @@ def api_vault_detail(mint):
     Detail endpoint for a single token/vault merged view.
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
 
         base_sql = _build_vaults_select(conn)

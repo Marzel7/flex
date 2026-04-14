@@ -12,6 +12,7 @@ Displays tokens that have migrated from Pump.Fun to PumpSwap with:
 import sqlite3
 import json
 import requests
+from src.utils.db_locking import db_connect
 import threading
 import asyncio
 from datetime import datetime
@@ -153,7 +154,7 @@ def _ensure_schema():
     ]
     for sql in _migrations:
         try:
-            _conn = sqlite3.connect(DB_PATH, timeout=5)
+            _conn = db_connect(DB_PATH, timeout=5)
             _conn.execute(sql)
             _conn.commit()
             _conn.close()
@@ -222,7 +223,7 @@ def _backfill_missing_creator(mint: str) -> None:
         is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
         create_tx_signature = analyzer._create_tx_signature if (hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
 
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=10)
         conn.execute("""
             UPDATE token_analysis
             SET earliest_tx_creator = COALESCE(earliest_tx_creator, ?),
@@ -271,7 +272,7 @@ def _schedule_missing_creator_backfill_throttled(mint: Optional[str], *, cooldow
 def _backfill_missing_pf_ws_creator(mint: str) -> None:
     """Best-effort background repair for tokens missing pf_ws_creator."""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=10)
         row = conn.execute(
             """
             SELECT create_tx_signature, earliest_tx_creator
@@ -334,7 +335,7 @@ def _backfill_missing_pf_ws_creator(mint: str) -> None:
         if not pf_ws_creator:
             return
 
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=10)
         conn.execute(
             """
             UPDATE token_analysis
@@ -508,7 +509,7 @@ def _schedule_migrated_pf_ws_creator_backfill_batch(*, batch_size: int = 50, coo
         _pf_ws_creator_migrated_sweep_last_requested = now
 
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=10)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -707,7 +708,7 @@ def check_networks_release_capability() -> bool:
         bool: True if networks_release table exists, False otherwise
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=10)
         cursor = conn.cursor()
         cursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='networks_release'"
@@ -743,7 +744,7 @@ def get_db_conn():
     Returns:
         tuple: (conn, cursor) - configured connection and cursor
     """
-    conn = sqlite3.connect(DB_PATH, timeout=5)
+    conn = db_connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     return conn, cursor
@@ -1168,7 +1169,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
     try:
         from src.utils.infra_mapping import CEX_ACCOUNTS
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -1553,7 +1554,7 @@ def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
     """Get pre-migration Pump.fun tokens that appear close to migrating."""
     try:
         heuristic_market_cap_floor = 50000
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -2048,7 +2049,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
             cooldown_seconds=10 * 60,
         )
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -2284,7 +2285,7 @@ def get_pumpfun_pre_migration_tokens(
     """Get Pump.fun pre-migration tokens enriched with live-flow context for the dedicated page."""
     try:
         heuristic_market_cap_floor = 50000
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -2533,7 +2534,7 @@ def calculate_funding_progress(creator_address: str) -> Dict:
     - 100%: All funders' sources have been extracted
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn = db_connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -2657,7 +2658,7 @@ def calculate_funding_progress(creator_address: str) -> Dict:
 def get_cex_infra_label(address: str) -> Optional[str]:
     """Get CEX/INFRA label for an address from cex_wallets table"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -2761,7 +2762,7 @@ def build_network_key(funder_address: str, is_cex: bool, upstream_sender: Option
 def get_network_key_for_funder(funder_address: str) -> tuple:
     """Get the network key for a funder by analyzing its incoming transfers and creation time"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -8872,7 +8873,7 @@ def pumpfun_watchlist():
 def coordinated_funder_analysis_view(creator_address: str):
     """Serve a full webview for coordinated funder analysis results"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -9193,7 +9194,7 @@ def api_pumpfun_pre_migration_tokens():
 def api_price_symbol(mint: str):
     """Return symbol/name for a mint, checking cache then triggering a background fetch."""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=3)
+        conn = db_connect(DB_PATH, timeout=3)
         row = conn.execute("""
             SELECT symbol, name
             FROM metadata_cache
@@ -9242,7 +9243,7 @@ def api_token_metrics(token_mint: str):
                 return None
             return peak_ts - created_ts
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -9443,7 +9444,7 @@ def api_creator_details(creator_address: str):
 
         from src.utils.address_tags import get_address_tags
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -9804,7 +9805,7 @@ def api_creator_details(creator_address: str):
 def api_funder_tokens(funder_address: str):
     """Get tokens that a funder (account) has supported"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -9852,7 +9853,7 @@ def api_funder_tokens(funder_address: str):
 def api_cex_funders():
     """Get all CEX funders and their activity"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -9921,7 +9922,7 @@ def api_cex_funders():
 def api_funding_network():
     """Get suspicious funding coordination networks"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10050,7 +10051,7 @@ def api_infrastructure_mapping():
 def api_network_coordinators():
     """Get all identified cross-funder coordinators"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10111,7 +10112,7 @@ def api_network_coordinators():
 def api_funding_network_3tier(creator_address: str):
     """Get 3-tier funding network (Sender → Funder → Creator) for a specific creator"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10283,7 +10284,7 @@ def api_funding_network_3tier(creator_address: str):
 def api_creator_funder_extraction_status(creator_address: str):
     """Check if funder extraction is complete for a creator"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10329,7 +10330,7 @@ def api_creator_funder_extraction_status(creator_address: str):
 def api_coordinated_funder_analysis(creator_address: str):
     """Get coordinated funder analysis results for a creator"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10481,7 +10482,7 @@ def api_transaction(signature: str):
 def api_creator_cluster(creator_address: str):
     """Get wallet cluster data for a creator"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10533,7 +10534,7 @@ def api_creators_batch():
     try:
         from src.utils.infra_mapping import CEX_ACCOUNTS, INFRASTRUCTURE_ACCOUNTS
         
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn = db_connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -10855,7 +10856,7 @@ def api_cex_wallets():
     """
     try:
         if request.method == 'GET':
-            conn = sqlite3.connect(DB_PATH, timeout=30)
+            conn = db_connect(DB_PATH, timeout=30)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             
@@ -10890,7 +10891,7 @@ def api_cex_wallets():
             if not all(data.get(field) for field in required):
                 return jsonify({'error': f'Missing required fields: {required}'}), 400
             
-            conn = sqlite3.connect(DB_PATH, timeout=30)
+            conn = db_connect(DB_PATH, timeout=30)
             cursor = conn.cursor()
             
             try:
@@ -10919,7 +10920,7 @@ def api_cex_wallets():
             if not address:
                 return jsonify({'error': 'Missing address parameter'}), 400
             
-            conn = sqlite3.connect(DB_PATH, timeout=30)
+            conn = db_connect(DB_PATH, timeout=30)
             cursor = conn.cursor()
             
             try:
@@ -10943,7 +10944,7 @@ def api_cex_wallets():
 def api_listener_settings():
     """Get or update listener settings (token launch listening, auto funder extraction)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn = db_connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -11129,7 +11130,7 @@ def api_creator_cross_references(creator_address: str):
 def api_creator_cross_references_directional(creator_address: str):
     """Get cross-creator references with direction labels (INBOUND/OUTBOUND)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -11208,7 +11209,7 @@ def api_creator_cross_references_directional(creator_address: str):
 def api_creator_funding_history(creator_address: str):
     """Get unified funding history for a creator (both incoming and outgoing transfers)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -11308,7 +11309,7 @@ def api_multi_creator_funders():
     try:
         from src.utils.infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -11540,7 +11541,7 @@ coordinated_funders_html = '''
 def coordinated_funders_view():
     """Serve a full webview for coordinated funders analysis"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -11593,7 +11594,7 @@ def coordinated_funders_view():
 def clusters_dashboard():
     """Serve a full webview for cross-funding clusters"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -11702,7 +11703,7 @@ def coordinated_funders_view_old():
     try:
         from src.utils.infra_mapping import get_account_info, get_cex_info, get_pumpfun_creator_info, get_suspicious_wallet_info
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -12821,7 +12822,7 @@ def funder_details_view(funder_address: str):
         from src.utils.infra_mapping import get_account_info, get_cex_info
         import requests
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -13191,7 +13192,7 @@ def funder_details_view(funder_address: str):
 def api_duplicate_senders():
     """Get senders that send to multiple funders (duplicate senders analysis)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -13252,7 +13253,7 @@ def api_duplicate_senders():
 def api_sender_tokens(sender_address: str):
     """Get all tokens funded by accounts that received from this sender"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -13322,7 +13323,7 @@ def api_sender_tokens(sender_address: str):
 def api_duplicate_tokens():
     """Get tokens funded by multiple senders (coordinated funding)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -13366,7 +13367,7 @@ def api_duplicate_tokens():
 def api_funder_networks():
     """Get all funders with their network info (tokens, creators, senders)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -13410,7 +13411,7 @@ def api_funder_networks():
 def api_funding_networks():
     """Get funding network clusters (groups of funders that fund overlapping tokens)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -13482,7 +13483,7 @@ def api_funding_networks():
 def api_funding_networks_list():
     """Get simplified list of all funding networks with their names and stats"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -13589,7 +13590,7 @@ def api_funding_network_details(network_id):
 
     def legacy_path():
         """OLD PATH: Use legacy funding_networks table"""
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -13763,7 +13764,7 @@ def api_funding_network_details(network_id):
 def api_build_funding_networks():
     """Build/rebuild funding network clusters from scratch"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn = db_connect(DB_PATH, timeout=30)
         cursor = conn.cursor()
 
         # Clear existing networks
@@ -14017,7 +14018,7 @@ def update_networks_for_new_token(mint: str, creator: str):
     affected_networks = []
 
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn = db_connect(DB_PATH, timeout=30)
         cursor = conn.cursor()
 
         # Get all funders of this creator
@@ -14110,7 +14111,7 @@ def update_networks_for_new_token(mint: str, creator: str):
 def api_tokens_by_funder(funder_address: str):
     """Get all tokens funded by a specific funder address"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -14186,7 +14187,7 @@ def api_analyze_all_coordinated_funders():
     """
     try:
         # Check if auto extraction is enabled
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
         cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
         row = cursor.fetchone()
@@ -14222,7 +14223,7 @@ def api_analyze_all_coordinated_funders():
         for funder_address in funder_addresses:
             try:
                 # Check if already analyzed
-                conn = sqlite3.connect(DB_PATH, timeout=5)
+                conn = db_connect(DB_PATH, timeout=5)
                 cursor = conn.cursor()
                 cursor.execute("SELECT COUNT(*) FROM funder_incoming_transfers WHERE funder_address = ? LIMIT 1", (funder_address,))
                 if cursor.fetchone()[0] > 0:
@@ -14269,7 +14270,7 @@ def api_analyze_funder_transfers():
             return jsonify({'error': 'No funder address provided'}), 400
 
         # Check if auto extraction is enabled
-        conn_check = sqlite3.connect(DB_PATH, timeout=5)
+        conn_check = db_connect(DB_PATH, timeout=5)
         cursor_check = conn_check.cursor()
         cursor_check.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('auto_extract_funders',))
         row = cursor_check.fetchone()
@@ -14286,7 +14287,7 @@ def api_analyze_funder_transfers():
         # Check if we already have data for this funder in the database
         print(f"[ANALYZE] Checking database for {funder_address[:16]}...", flush=True)
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn = db_connect(DB_PATH, timeout=5)
             conn.row_factory = sqlite3.Row
             conn.execute("PRAGMA query_only = ON")
             cursor = conn.cursor()
@@ -14354,7 +14355,7 @@ def api_analyze_funder_transfers():
                 # NOTE: Only mark fully_analyzed=1 if we found sources (inflows > 0)
                 # If zero inflows found, only set last_analyzed to allow re-extraction later
                 try:
-                    conn = sqlite3.connect(DB_PATH, timeout=5)
+                    conn = db_connect(DB_PATH, timeout=5)
                     cursor = conn.cursor()
 
                     # Get all creators with this funder
@@ -14431,7 +14432,7 @@ def api_funder_senders(funder_address: str):
     try:
         from src.utils.infra_mapping import get_account_info, get_cex_info
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -14494,7 +14495,7 @@ def api_funder_senders(funder_address: str):
             # Check in address_tags for any other known classification
             if not classification['is_known']:
                 try:
-                    conn2 = sqlite3.connect(DB_PATH, timeout=5)
+                    conn2 = db_connect(DB_PATH, timeout=5)
                     cursor2 = conn2.cursor()
                     cursor2.execute("SELECT tag_type FROM address_tags WHERE address = ? LIMIT 1", (sender_addr,))
                     tag_result = cursor2.fetchone()
@@ -14531,7 +14532,7 @@ def api_funder_transfer_details(funder_address: str):
     try:
         from src.utils.infra_mapping import get_account_info, get_cex_info
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -14665,7 +14666,7 @@ def api_funder_transfer_details(funder_address: str):
 def api_creator_service_history(creator_address: str):
     """Get full history of service usage (jitotip, meteora, debridge, axiom) for a creator"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -14730,7 +14731,7 @@ def api_unified_merge_status():
     try:
         from unified_recipient_tracker import UnifiedRecipientTracker
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
 
         # Check if unified table has data
@@ -14776,7 +14777,7 @@ def api_unified_merge_status():
 def api_empty_database():
     """Empty all tokens, clustering, and creator tracking data"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
 
         # Get counts before deletion
@@ -14848,7 +14849,7 @@ def api_empty_database():
 def api_funder_extraction_control():
     """Get or set funder transfer extraction status"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
 
         # Ensure settings table exists
@@ -15050,7 +15051,7 @@ def api_validate_transaction():
 def api_funder_clusters():
     """Get all funder clusters from analyzer with cluster_id (FUNDERS_1, FUNDERS_9, etc.)"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -15140,7 +15141,7 @@ def api_funder_clusters():
 def api_funder_cluster_details(cluster_id):
     """Get detailed info for a specific funder cluster"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -15256,7 +15257,7 @@ def api_creator_cluster_risk(creator_address):
 def api_network_tokens(network_name):
     """Get all tokens funded by a specific network"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -15507,7 +15508,7 @@ def networks_dashboard():
     def legacy_path():
 
         """OLD PATH: Use legacy atomic_network_names"""
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -15652,7 +15653,7 @@ def networks_dashboard():
 def top_funding_hubs():
     """Display dashboard of all top funding hubs (duplicate senders)"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         c = conn.cursor()
 
         # Get top 20 senders by number of funders they send to
@@ -15742,7 +15743,7 @@ def top_funding_hubs():
 def funding_hub(hub_address):
     """Display funding hub network: sender -> funders -> creators -> tokens, OR funder -> creators -> tokens"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         c = conn.cursor()
 
         # Determine if this address is a sender or a funder
@@ -16144,7 +16145,7 @@ def funding_hub(hub_address):
 def api_creator_analysis_queue_status():
     """Get status of creator analysis queue"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -16221,7 +16222,7 @@ def creator_analysis_page():
 def api_creator_outgoing_analysis(creator_address: str):
     """Get comprehensive creator outgoing transfer analysis from webhook data"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -16724,7 +16725,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             if network_name:
                 affected_networks.add(network_name)
 
-            conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn = db_connect(DB_PATH, timeout=5)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             for chain in funding_chains:
@@ -16818,7 +16819,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             })
 
         # Check if this address received SOL
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(DISTINCT source) as count FROM sol_transfers WHERE destination = ?", (creator_address,))
@@ -16834,7 +16835,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             })
 
         # Enrich findings with network type information
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         for finding in findings:
@@ -16950,7 +16951,7 @@ def api_scan_creator(creator_address: str):
             detect_and_update_networks_from_outgoing, calculate_and_store_self_funding
         )
 
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -17095,7 +17096,7 @@ def log_creator_to_creator_transfers(source_creator: str, conn):
 def detect_network_cex_infra_connections():
     """Detect and flag networks that have CEX or INFRA funders"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -17204,7 +17205,7 @@ def detect_network_cex_infra_connections():
 def api_creator_recent_checks():
     """Get the most recently active creators from webhook data with their findings"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -17349,7 +17350,7 @@ def api_creator_recent_checks():
 def api_creator_scan_stats():
     """Get scanning statistics by tier"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -17456,7 +17457,7 @@ def creator_network_page(network_name: str):
     def legacy_path():
         """OLD PATH: Use creator_networks and creator_to_creator_networks"""
         network_name_decoded = unquote(network_name)
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
@@ -18223,7 +18224,7 @@ def api_rpc_savings_reset():
     Clears cache_action and credits_saved columns for all records.
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         # Reset cache_action and credits_saved columns
@@ -18379,7 +18380,7 @@ def metrics_rpc_reset_comparison_proxy():
 def api_rpc_metrics_reset():
     """Reset RPC metrics: clear database and reset Helius baseline"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=60)
+        conn = db_connect(DB_PATH, timeout=60)
         cursor = conn.cursor()
 
         # Get current Helius usage to set as new baseline
@@ -18526,7 +18527,7 @@ def api_creator_queue_status():
     - top_creators: Top 10 highest priority creators
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cur = conn.cursor()
 
         # Get queue overview stats
@@ -18679,7 +18680,7 @@ def api_webhook_status():
     Returns metrics about webhooks received, transfers processed, etc.
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -18800,7 +18801,7 @@ def webhook_funder_event():
         counterparty = None
         amount_sol = 0
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         # Check if source is a watched funder (transfer OUT)
@@ -18861,7 +18862,7 @@ def webhook_funder_event():
 def funder_watchlist_summary():
     """Get summary of funder watchlist by risk tier."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         summary = {}
@@ -18888,7 +18889,7 @@ def funder_watchlist_summary():
 def funder_watchlist_top_risky():
     """Get top 20 most risky funders."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -18924,7 +18925,7 @@ def funder_webhook_events():
         limit = request.args.get('limit', 50, type=int)
         offset = request.args.get('offset', 0, type=int)
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -18990,7 +18991,7 @@ def api_storage_metrics():
 def api_storage_cleanup_history():
     """Get recent cleanup operations."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -19036,7 +19037,7 @@ def api_storage_alerts():
         query_latencies = latency_monitor.measure_key_queries()
 
         # Get last cleanup result
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -19078,7 +19079,7 @@ def api_storage_alerts():
 def api_clusters_farms():
     """List dev farm wallets sorted by confidence score."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -19134,7 +19135,7 @@ def api_clusters_farms():
 def api_clusters_reputation(wallet):
     """Get developer reputation for a specific wallet."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -19178,7 +19179,7 @@ def api_clusters_reputation(wallet):
 def api_clusters_high_risk():
     """Get all creators in high-confidence dev farms with reputation warnings."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
 
         # High-confidence farms (>75)
@@ -19316,7 +19317,7 @@ except Exception as e:
 def get_token_pools(mint):
     """Get all pools and vault addresses for a token"""
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
@@ -19513,7 +19514,7 @@ def api_early_signals():
         unknown_signals = engine.get_early_signals_by_label(EarlyLabel.UNKNOWN, limit=100)
 
         # Fetch additional data for display (age, scores)
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -19567,7 +19568,7 @@ def api_early_signal_detail(mint):
         engine = EarlySignalEngine(db_path)
 
         # Get from database
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 

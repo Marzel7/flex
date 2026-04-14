@@ -14,6 +14,7 @@ Architecture:
 """
 
 import sqlite3
+from src.utils.db_locking import db_connect
 import logging
 import time
 import threading
@@ -61,7 +62,7 @@ _MIGRATION_SIGNAL_COLUMNS = {
 
 def _ensure_token_analysis_migration_columns(db_path: str) -> set[str]:
     """Ensure the precomputed migration signal columns exist on token_analysis."""
-    conn = sqlite3.connect(db_path, timeout=5)
+    conn = db_connect(db_path, timeout=15)
     try:
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(token_analysis)")
@@ -151,8 +152,9 @@ class PriceWorkerRegistry:
 
     def _get_conn(self) -> sqlite3.Connection:
         """Get database connection."""
-        conn = sqlite3.connect(self.db_path)
+        conn = db_connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA busy_timeout=15000")
         return conn
 
     def _ensure_tables(self) -> None:
@@ -406,6 +408,9 @@ class BackgroundPriceWorker:
         self._pool_map_cache: dict = {}  # (mint, base_account) -> pool dict
         self._pool_map_updated: float = 0
 
+        # Snapshot retention cleanup — runs every hour
+        self._last_cleanup_run: float = 0
+
         # Single-writer snapshot queue — WS fast path enqueues, one thread drains
         import queue as _queue
         self._snapshot_queue: _queue.Queue = _queue.Queue(maxsize=2000)
@@ -576,15 +581,15 @@ class BackgroundPriceWorker:
         bootstrap_thread = threading.Thread(target=bootstrap_task, daemon=True, name="PriceWorkerBootstrap")
         bootstrap_thread.start()
 
-        # ✅ CRITICAL: Wait for bootstrap to complete before starting worker loop
-        # This prevents race condition where worker tries to price with empty PoolStateStore
-        # Timeout: 2.0s (covers RPC fetch of 50-100 pools)
+        # Wait for bootstrap to complete before starting worker loop.
+        # 696 pools = 14 RPC batches × ~0.5s each = ~7s typical.
+        # Allow up to 30s before giving up and letting the fallback poll fill gaps.
         logger.info("[PRICE_WORKER] Waiting for bootstrap to complete...")
         print("[PRICE_WORKER] Waiting for bootstrap to complete...", flush=True)
-        bootstrap_thread.join(timeout=2.0)
+        bootstrap_thread.join(timeout=30.0)
         if bootstrap_thread.is_alive():
-            logger.warning("[PRICE_WORKER] ⚠️  Bootstrap still running after 2.0s (continuing anyway)")
-            print("[PRICE_WORKER] ⚠️  Bootstrap still running after 2.0s (continuing anyway)", flush=True)
+            logger.warning("[PRICE_WORKER] ⚠️  Bootstrap still running after 30s (continuing anyway)")
+            print("[PRICE_WORKER] ⚠️  Bootstrap still running after 30s (continuing anyway)", flush=True)
         else:
             logger.info("[PRICE_WORKER] ✅ Bootstrap complete, starting worker loop")
             print("[PRICE_WORKER] ✅ Bootstrap complete, starting worker loop", flush=True)
@@ -622,6 +627,9 @@ class BackgroundPriceWorker:
         # Start single-writer snapshot drainer thread
         snapshot_drainer = threading.Thread(target=self._drain_snapshot_queue, daemon=True, name="SnapshotDrainer")
         snapshot_drainer.start()
+
+        # Run retention cleanup once on startup (clears accumulated stale registry entries)
+        threading.Thread(target=self._run_retention_cleanup, daemon=True, name="SnapshotRetentionStartup").start()
 
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
@@ -792,16 +800,16 @@ class BackgroundPriceWorker:
             return  # Update at most every 30 seconds
 
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
+            conn = db_connect(self.db_path, timeout=15)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Get top 25 most recently arrived tokens — use migrated_at for migrations
+            # Get top 100 most recently arrived tokens — use migrated_at for migrations
             # so fresh migrations rank above old bonding-curve creation times
             cursor.execute("""
                 SELECT mint FROM token_analysis
                 ORDER BY COALESCE(migrated_at, created_at) DESC
-                LIMIT 25
+                LIMIT 100
             """)
             rows = cursor.fetchall()
             self._top_mints = {row['mint'] for row in rows}
@@ -1098,6 +1106,15 @@ class BackgroundPriceWorker:
         if self.stats['cycles'] % 3 == 0:  # Every ~30 seconds
             self.log_system_health_metrics()
 
+        # 🧹 Run snapshot retention cleanup every hour
+        if time.time() - self._last_cleanup_run >= 3600:
+            self._last_cleanup_run = time.time()
+            threading.Thread(
+                target=self._run_retention_cleanup,
+                daemon=True,
+                name="SnapshotRetentionCleanup",
+            ).start()
+
         logger.debug(
             f"Prefetch cycle {self.stats['cycles']}: "
             f"enqueued {len(tasks)} tokens (activity-based), "
@@ -1128,7 +1145,8 @@ class BackgroundPriceWorker:
                 logger.warning("[VAULT_RETRY] No RPC URL configured, skipping vault retry validation")
                 return
 
-            conn = sqlite3.connect(self.db_path)
+            conn = db_connect(self.db_path, timeout=15)
+            conn.execute("PRAGMA busy_timeout=15000")
             cursor = conn.cursor()
 
             # Find all pending pools, prioritize those with broken quotes (MINT as account)
@@ -1218,7 +1236,7 @@ class BackgroundPriceWorker:
             import sqlite3
             
             # Query last 100 price updates to calculate ratio
-            conn = sqlite3.connect(self.db_path, timeout=5)
+            conn = db_connect(self.db_path, timeout=15)
             cursor = conn.cursor()
             
             cursor.execute("""
@@ -1300,6 +1318,20 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.error(f"Error warming snapshot cache: {e}")
 
+    def _run_retention_cleanup(self) -> None:
+        """Run snapshot retention cleanup in a background thread once per hour."""
+        try:
+            from src.core.snapshot_retention_manager import SnapshotRetentionManager
+            mgr = SnapshotRetentionManager(self.db_path)
+            stats = mgr.run_cleanup()
+            logger.info(
+                f"[RETENTION] cleanup done — tokens_deactivated={stats.get('tokens_deleted', 0)} "
+                f"snaps_deleted={stats.get('snapshots_deleted', 0)} "
+                f"downsampled={stats.get('snapshots_downsampled', 0)}"
+            )
+        except Exception as e:
+            logger.error(f"[RETENTION] cleanup error: {e}", exc_info=True)
+
     def _fetch_pool_prices(self) -> None:
         """
         Primary: compute prices from PoolStateStore (updated in real-time by WebSocket).
@@ -1320,26 +1352,11 @@ class BackgroundPriceWorker:
         except Exception:
             pass
 
-        # Check for stale WS (no events >2 minutes) — force more frequent fallback poll
-        ws_is_stale = False
-        if self._ws_client and not in_critical_window:
+        # Track WS staleness for health reporting only.
+        if self._ws_client:
             time_since_last_event = now - self._ws_client._last_event_received
             if time_since_last_event > self._ws_client.WS_STALE_THRESHOLD:
-                ws_is_stale = True
                 self._ws_client.stats["is_stale"] = True
-                if now - self._last_fallback_poll >= 30:
-                    logger.warning(f"WS stale for {time_since_last_event:.0f}s — triggering fallback poll")
-        elif in_critical_window:
-            logger.debug(f"Suppressing stale WS fallback poll during critical discovery window")
-
-        # Fallback poll: every 60s normally, every 30s if WS is stale
-        poll_interval = 30 if ws_is_stale else 60
-        if now - self._last_fallback_poll >= poll_interval:
-            try:
-                asyncio.run(self._fetch_pool_prices_async())
-            except Exception as e:
-                logger.error(f"Pool fallback poll error: {e}")
-            self._last_fallback_poll = now
 
         # Check for pools marked as stale by PoolStateStore (no updates >5 min)
         stale_mints = self._pool_state.mark_stale_pools(now)
@@ -1390,10 +1407,17 @@ class BackgroundPriceWorker:
 
         # Batch-fetch all reserves: now keyed by (mint, base_account)
         reserves = await fetcher.fetch_reserves(pools)
-        
+
+        # Seed PoolStateStore with fresh RPC reserves — un-stales pools that had no WS events
+        # and keeps bootstrapped data current for quiet pools.
+        for (mint, base_account), (base_raw, quote_raw) in reserves.items():
+            if base_raw and quote_raw and base_raw > 0 and quote_raw > 0:
+                self._pool_state.update_reserve(mint, base_account, "base", base_raw)
+                self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
+
         # Key pool metadata by (mint, base_account)
         pool_map = {(p["mint"], p["base_account"]): p for p in pools}
-        
+
         # Group reserves by mint for aggregation
         pools_by_mint = defaultdict(list)
         for (mint, base_account), (base_raw, quote_raw) in reserves.items():
@@ -1453,7 +1477,7 @@ class BackgroundPriceWorker:
         # Update token_analysis table with fresh pool prices for tokens that exist there
         if new_cache:
             try:
-                conn = sqlite3.connect(self.db_path, timeout=5)
+                conn = db_connect(self.db_path, timeout=15)
                 cursor = conn.cursor()
                 for mint, token_price in new_cache.items():
                     migration_sql, migration_params = self._build_migration_signal_sql(token_price.market_cap or 0, now)
@@ -1641,7 +1665,7 @@ class BackgroundPriceWorker:
             if DEBUG_LOGGING: print(f"[PRICE_CYCLE] new_cache has {len(new_cache)} prices, about to update DB", flush=True)
             if new_cache:
                 try:
-                    conn = sqlite3.connect(self.db_path, timeout=5)
+                    conn = db_connect(self.db_path, timeout=15)
                     cursor = conn.cursor()
                     for mint, token_price in new_cache.items():
                         migration_sql, migration_params = self._build_migration_signal_sql(token_price.market_cap or 0, now)
@@ -1807,7 +1831,7 @@ class BackgroundPriceWorker:
         """Get peak market cap and timestamp for a token."""
         try:
             import sqlite3
-            conn = sqlite3.connect(self.db_path, timeout=10)
+            conn = db_connect(self.db_path, timeout=15)
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT peak_market_cap, peak_market_cap_at FROM token_market_cap_peaks WHERE mint = ?",
@@ -1829,7 +1853,7 @@ class BackgroundPriceWorker:
         "track the entire database" behavior.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
+            conn = db_connect(self.db_path, timeout=15)
             cursor = conn.cursor()
             now = int(time.time())
             cursor.execute("""
@@ -1857,9 +1881,9 @@ class BackgroundPriceWorker:
     # Tier intervals (seconds between refreshes)
     _TIER0_INTERVAL = 3    # new tokens (<120s) — fast lane supplement
     _TIER1_INTERVAL = 5    # homepage tokens
-    _TIER2_INTERVAL = 20   # everything else
-    _TIER2_CAP = 5         # max Tier-2 tasks enqueued per cycle
-    _TIER2_QUEUE_THRESHOLD = 15  # skip Tier-2 entirely if queue is this deep
+    _TIER2_INTERVAL = 10   # everything else
+    _TIER2_CAP = 20        # max Tier-2 tasks enqueued per cycle
+    _TIER2_QUEUE_THRESHOLD = 50  # skip Tier-2 entirely if queue is this deep
 
     def _get_tokens_for_refresh(self) -> List[Dict]:
         """
@@ -1903,11 +1927,15 @@ class BackgroundPriceWorker:
                 self.stats['activity_distribution'][priority] = \
                     self.stats['activity_distribution'].get(priority, 0) + 1
 
+                # Skip Tier 2 for tokens with no update in 6h — they're dead/old
+                last_update = token.get('last_price_update', 0)
+                recently_active = last_update > 0 and (now - last_update) < 21600
+
                 if is_new and age >= self._TIER0_INTERVAL:
                     tier0.append(token)
                 elif (is_top or never_fetched) and age >= self._TIER1_INTERVAL:
                     tier1.append(token)
-                elif not is_top and not never_fetched and age >= self._TIER2_INTERVAL:
+                elif not is_top and not never_fetched and recently_active and age >= self._TIER2_INTERVAL:
                     tier2.append(token)
 
             # Tier 2: skip entirely if queue is backed up, cap otherwise
@@ -2025,7 +2053,7 @@ class BackgroundPriceWorker:
             import sqlite3
             from datetime import datetime, timedelta
 
-            conn = sqlite3.connect(self.db_path, timeout=5)
+            conn = db_connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             # Get prices from last 1 hour
@@ -2094,7 +2122,7 @@ class BackgroundPriceWorker:
 
                 # Update peak market cap for each token
                 try:
-                    conn = sqlite3.connect(self.db_path, timeout=5)
+                    conn = db_connect(self.db_path, timeout=15)
                     cursor = conn.cursor()
 
                     for mint, price in prices.items():
@@ -2171,7 +2199,7 @@ class BackgroundPriceWorker:
             market_cap = price.market_cap if price.market_cap else 0
 
             if market_cap > 0 or price.price_usd > 0:
-                conn = sqlite3.connect(self.db_path, timeout=5)
+                conn = db_connect(self.db_path, timeout=15)
                 cursor = conn.cursor()
                 now = int(time.time())
                 migration_sql, migration_params = self._build_migration_signal_sql(market_cap, now)
@@ -2340,6 +2368,54 @@ class BackgroundPriceWorker:
                     for base_account, base_raw, quote_raw in reserves:
                         if base_raw and quote_raw and base_raw > 0 and quote_raw > 0:
                             return True
+            return False
+
+    def bootstrap_single_pool(self, mint: str, pool_meta: Dict) -> bool:
+        """Fetch reserves for a single newly registered pool and seed PoolStateStore.
+
+        Called immediately after a new migration pool is registered so that
+        _recompute_prices_from_ws_state() can price it before the next WS event
+        arrives (which may take 30-60s if the pool is quiet).
+
+        Returns True if reserves were successfully seeded.
+        """
+        try:
+            import asyncio as _aio
+            from src.core.pool_price_engine import get_pool_fetcher
+
+            fetcher = get_pool_fetcher(self.db_path)
+            loop = _aio.new_event_loop()
+            try:
+                reserves_dict = loop.run_until_complete(fetcher.fetch_reserves([pool_meta]))
+            finally:
+                loop.close()
+
+            if not reserves_dict:
+                logger.info(f"[BOOTSTRAP_POOL] No reserves returned for {mint[:16]}...")
+                return False
+
+            seeded = 0
+            for (r_mint, base_account), (base_raw, quote_raw) in reserves_dict.items():
+                if r_mint != mint:
+                    continue
+                if base_raw and quote_raw and base_raw > 0 and quote_raw > 0:
+                    self._pool_state.update_reserve(mint, base_account, "base", base_raw)
+                    self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
+                    seeded += 1
+                    logger.info(
+                        f"[BOOTSTRAP_POOL] ✅ {mint[:16]}... reserves seeded "
+                        f"base={base_raw} quote={quote_raw}"
+                    )
+                    print(
+                        f"[BOOTSTRAP_POOL] ✅ {mint[:16]}... reserves seeded "
+                        f"base={base_raw} quote={quote_raw}",
+                        flush=True
+                    )
+
+            return seeded > 0
+
+        except Exception as e:
+            logger.warning(f"[BOOTSTRAP_POOL] Failed for {mint[:16]}...: {e}")
             return False
 
     def get_stats(self) -> Dict:

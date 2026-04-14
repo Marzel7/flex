@@ -79,8 +79,9 @@ class LiquidityIntelligence:
 
     def _get_conn(self) -> sqlite3.Connection:
         """Get database connection."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA busy_timeout=15000")
         return conn
 
     def _ensure_tables(self) -> None:

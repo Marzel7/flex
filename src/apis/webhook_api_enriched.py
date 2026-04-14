@@ -10,6 +10,7 @@ Date: 2026-03-03
 
 from flask import jsonify
 import sqlite3
+from src.utils.db_locking import db_connect
 import os
 from datetime import datetime
 from src.core.webhook_creator_ranker import (
@@ -39,7 +40,7 @@ def get_creator_recent_checks_enriched(limit: int = 15):
     Sorted by: risk_score DESC (highest risk first)
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 

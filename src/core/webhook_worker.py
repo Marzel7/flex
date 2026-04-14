@@ -7,6 +7,7 @@ Date: 2026-03-03
 """
 
 import sqlite3
+from src.utils.db_locking import db_connect
 import os
 import time
 from typing import Optional, Dict, Tuple
@@ -38,7 +39,7 @@ WORKER_SLEEP = 1  # seconds between batches
 
 def get_worker_db():
     """Create optimized database connection for worker."""
-    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn = db_connect(DB_PATH, timeout=30)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA busy_timeout=30000")

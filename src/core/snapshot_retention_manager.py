@@ -44,7 +44,7 @@ class SnapshotRetentionManager:
 
     def run_cleanup(self, below_mc_since: dict = None, last_meaningful_change: dict = None) -> dict:
         ws_log.info(f"[SNAPSHOT_CLEANUP] START db={self.db_path}")
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
 
         now = int(time.time())
@@ -92,20 +92,6 @@ class SnapshotRetentionManager:
         def _finalize_outcome(conn, mint, drop_reason):
             """Aggregate snapshot data into token_outcomes before deleting snapshots."""
             try:
-                row = conn.execute("""
-                    SELECT
-                        MIN(captured_at) AS first_seen_at,
-                        MAX(captured_at) AS last_seen_at,
-                        COUNT(*) AS snap_count,
-                        MAX(market_cap) AS peak_mc,
-                        MIN(CASE WHEN market_cap = MAX(market_cap) OVER() THEN captured_at END) AS peak_mc_at,
-                        price_usd AS latest_price,
-                        market_cap AS latest_mc
-                    FROM token_price_snapshots
-                    WHERE mint = ?
-                    ORDER BY captured_at DESC LIMIT 1
-                """, (mint,)).fetchone()
-                # Simpler reliable version:
                 agg = conn.execute("""
                     SELECT MIN(captured_at) AS first_seen_at,
                            MAX(captured_at) AS last_seen_at,
@@ -208,7 +194,7 @@ class SnapshotRetentionManager:
                     category, confidence, tracking_quality,
                     rating, rating_reason, now
                 ))
-                ws_log.info(f"[OUTCOME] finalized mint={mint[:16]} category={category} rating={rating} peak_mc={peak_mc:.0f if peak_mc else 'None'} reason={drop_reason}")
+                ws_log.info(f"[OUTCOME] finalized mint={mint[:16]} category={category} rating={rating} peak_mc={f'{peak_mc:.0f}' if peak_mc else 'None'} reason={drop_reason}")
             except Exception as e:
                 ws_log.warning(f"[OUTCOME] finalize failed for {mint[:16]}: {e}")
 
@@ -232,6 +218,43 @@ class SnapshotRetentionManager:
             return deleted
 
         try:
+            # --- PRE-PASS: deactivate stale tracked_tokens in small batches ---
+            # Batching avoids holding the write lock for thousands of rows at once,
+            # which was causing "database is locked" in the listener/price_worker.
+            def _deactivate_batch(where_clause, params, reason, batch_size=100):
+                total = 0
+                while True:
+                    mints = [r[0] for r in conn.execute(
+                        f"SELECT mint FROM tracked_tokens WHERE is_active=1 AND {where_clause} LIMIT {batch_size}",
+                        params
+                    ).fetchall()]
+                    if not mints:
+                        break
+                    placeholders = ",".join("?" * len(mints))
+                    conn.execute(
+                        f"UPDATE tracked_tokens SET is_active=0, stop_reason=?, inactive_since=? WHERE mint IN ({placeholders})",
+                        [reason, now] + mints
+                    )
+                    conn.commit()
+                    total += len(mints)
+                    if len(mints) < batch_size:
+                        break
+                return total
+
+            stale_never_fetched = _deactivate_batch(
+                "last_price_update=0 AND created_at < ?", (now - 86400,), "never_fetched_24h"
+            )
+            if stale_never_fetched:
+                ws_log.info(f"[SNAP_CLEANUP] deactivated {stale_never_fetched} never-fetched tokens older than 24h")
+                stats["tokens_deleted"] += stale_never_fetched
+
+            stale_tracked = _deactivate_batch(
+                "last_price_update > 0 AND last_price_update < ?", (now - 172800,), "no_update_48h"
+            )
+            if stale_tracked:
+                ws_log.info(f"[SNAP_CLEANUP] deactivated {stale_tracked} tracked tokens with no update in 48h")
+                stats["tokens_deleted"] += stale_tracked
+
             tokens = conn.execute("""
                 SELECT mint, snap_count, last_updated
                 FROM token_snapshot_counts

@@ -2431,6 +2431,16 @@
             if (normalized.creator || normalized.symbol || normalized.market_cap_current || normalized.market_cap_highest) {
                 _patchHydratedRow(normalized.mint, normalized);
             }
+            // If token still has no symbol after hydration gave up, reset symbol state so
+            // the next loadTokens poll (10s) triggers a fresh Dexscreener attempt.
+            if (!_hasDisplayLabel(normalized.mint, normalized)) {
+                const st = _getHydrationState(normalized.mint);
+                if (st.symbolAttempts > HYDRATE_RETRY_DELAYS_MS.length) {
+                    st.symbolAttempts = 0;
+                    st.symbolNextAt = 0;
+                    st.done = false;
+                }
+            }
             ensureMintHydration(normalized.mint, normalized);
         }
 
@@ -2442,7 +2452,11 @@
 
         // Build HTML for a single token row (used by reconcileTable)
         function buildTokenRow(token) {
-            const creatorData = token.creatorData || window._creatorDataCache?.[token.creator] || {};
+            // Always prefer _creatorDataCache (kept fresh by ensureCreatorEnrichment) over
+            // token.creatorData which may be stale from the previous poll batch.
+            const _cachedCreator = window._creatorDataCache?.[token.creator];
+            const _hasCached = _cachedCreator && (_cachedCreator.token_count > 0 || _cachedCreator.network_size > 0 || _cachedCreator.inbound_sources > 0 || (_cachedCreator.tags && _cachedCreator.tags.length > 0));
+            const creatorData = _hasCached ? _cachedCreator : (token.creatorData || {});
             const columnTags = [];
             const TAG_SHORT = {
                 'axiom': 'Ax', 'uses_axiom': 'Ax',
@@ -2798,9 +2812,9 @@
                         if (mcEl && !mcEl.querySelector('.rug-badge')) mcEl.innerHTML = token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>';
                         const pkEl = document.getElementById(`peak-mc-${mint}`);
                         if (pkEl) pkEl.innerHTML = token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity:0.35;">—</span>';
-                        const gEl = pkEl ? pkEl.nextElementSibling : null;
-                        if (gEl) gEl.innerHTML = token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>';
-                        const timingTd = gEl ? gEl.nextElementSibling : null;
+                        const gBadgeTd = pkEl ? pkEl.previousElementSibling : null;
+                        if (gBadgeTd) gBadgeTd.innerHTML = token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>';
+                        const timingTd = row.querySelector('.peak-timing-cell');
                         if (timingTd) timingTd.textContent = formatPeakTimeSeconds(token.peak_time_seconds) || (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '') || '—';
                     }
                     // Always sync dataset attributes so the 5s interval can update Age and Peak Timing
@@ -2859,6 +2873,34 @@
                             a.textContent = 'Creator ↗';
                             a.onclick = (e) => { e.preventDefault(); showCreatorDetails(token.creator); };
                             linksDiv.appendChild(a);
+                        }
+                    }
+                    // Patch tags cell — SSE-born rows start with empty <td>, fill once creator data is available
+                    if (token.creator) {
+                        const tagsCell = row.querySelector('.tags-cell');
+                        if (tagsCell) {
+                            const _cc = window._creatorDataCache?.[token.creator];
+                            const _hc = _cc && (_cc.token_count > 0 || _cc.network_size > 0 || _cc.inbound_sources > 0 || (_cc.tags && _cc.tags.length > 0));
+                            if (_hc) {
+                                const tmp = document.createElement('tbody');
+                                tmp.innerHTML = buildTokenRow(token);
+                                const freshTagsCell = tmp.firstElementChild?.querySelector('.tags-cell');
+                                if (freshTagsCell) tagsCell.innerHTML = freshTagsCell.innerHTML;
+                            }
+                        } else {
+                            // Row was created by SSE insertDetectedTokenRow — no tags-cell class, add class to 2nd td
+                            const tds = row.querySelectorAll('td');
+                            if (tds[1] && !tds[1].classList.contains('tags-cell')) {
+                                tds[1].classList.add('tags-cell');
+                                const _cc = window._creatorDataCache?.[token.creator];
+                                const _hc = _cc && (_cc.token_count > 0 || _cc.network_size > 0 || _cc.inbound_sources > 0 || (_cc.tags && _cc.tags.length > 0));
+                                if (_hc) {
+                                    const tmp = document.createElement('tbody');
+                                    tmp.innerHTML = buildTokenRow(token);
+                                    const freshTagsCell = tmp.firstElementChild?.querySelector('.tags-cell');
+                                    if (freshTagsCell) tds[1].innerHTML = freshTagsCell.innerHTML;
+                                }
+                            }
                         }
                     }
                 } else {
@@ -3494,7 +3536,7 @@ function switchToTokensTab() {
             _ageTimers[mint] = setInterval(tick, 1000);
         }
 
-        const HYDRATE_RETRY_DELAYS_MS = [1500, 3000, 6000];
+        const HYDRATE_RETRY_DELAYS_MS = [1500, 3000, 6000, 15000, 30000, 60000];
         const metricsInFlight = new Map();
         const symbolInFlight = new Map();
         const creatorBatchInFlight = new Map();

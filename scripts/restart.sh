@@ -72,7 +72,13 @@ echo "✓ listener.log cleared"
 > "$PROJECT_ROOT/logs/premigration.log"
 echo "✓ logs/premigration.log cleared"
 > "$PROJECT_ROOT/logs/ws_snapshot.log"
-echo "✓ logs/ws_snapshot.log cleared"
+echo "✓ ws_snapshot.log cleared"
+> "$PROJECT_ROOT/logs/ws_price_trace.log"
+echo "✓ ws_price_trace.log cleared"
+> "$PROJECT_ROOT/flask.log"
+echo "✓ flask.log cleared"
+> "$PROJECT_ROOT/logs/monitor.log"
+echo "✓ monitor.log cleared"
 echo ""
 
 echo "🚀 Starting Helius CLI monitor..."
@@ -132,4 +138,21 @@ echo ""
 echo "📊 All output written to log files. To monitor:"
 echo "   tail -f listener.log"
 echo "   tail -f flask.log"
+echo ""
+
+# Kill any existing monitor instance
+pkill -f "scripts/monitor.py" 2>/dev/null || true
+
+# Launch monitor in a new Terminal window
+echo "🔍 Starting monitor..."
+osascript -e "tell application \"Terminal\"
+    activate
+    do script \"cd '$PROJECT_ROOT' && python scripts/monitor.py --interval 15\"
+end tell" 2>/dev/null && echo "✓ Monitor running in new Terminal window" || {
+    # Fallback: run in background and write to monitor.log
+    nohup python "$PROJECT_ROOT/scripts/monitor.py" --interval 15 >> "$PROJECT_ROOT/logs/monitor.log" 2>&1 &
+    MONITOR_PID=$!
+    disown $MONITOR_PID
+    echo "✓ Monitor started in background (PID: $MONITOR_PID) → logs/monitor.log"
+}
 echo ""

@@ -12,6 +12,7 @@ import json
 import os
 import re
 import sqlite3
+from src.utils.db_locking import db_connect
 import sys
 import time
 import threading
@@ -120,14 +121,16 @@ def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
         import sqlite3 as _sqlite3, requests as _requests, time as _time
         # Check metadata_cache first
         try:
-            _c = _sqlite3.connect(db_path, timeout=3)
+            _c = _sqlite3.connect(db_path, timeout=15)
+            _c.execute("PRAGMA busy_timeout=15000")
             _row = _c.execute(
                 "SELECT symbol FROM metadata_cache WHERE mint = ?", (mint,)
             ).fetchone()
             _c.close()
             if _row and _row[0] and _row[0] not in ('UNKNOWN', ''):
                 # Already cached — just backfill tracked_tokens if needed
-                _c2 = _sqlite3.connect(db_path, timeout=3)
+                _c2 = _sqlite3.connect(db_path, timeout=15)
+                _c2.execute("PRAGMA busy_timeout=15000")
                 _c2.execute(
                     "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
                     (_row[0], mint)
@@ -178,7 +181,8 @@ def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
             return
 
         now = int(_time.time())
-        _c3 = _sqlite3.connect(db_path, timeout=3)
+        _c3 = _sqlite3.connect(db_path, timeout=15)
+        _c3.execute("PRAGMA busy_timeout=15000")
         _c3.execute(
             "INSERT OR REPLACE INTO metadata_cache (mint, symbol, name, cached_at, cached_source) VALUES (?, ?, ?, ?, ?)",
             (mint, symbol, name, now, "dexscreener_listener")
@@ -269,7 +273,7 @@ def get_migration_setting(key: str, default=True) -> bool:
         if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding', 'auto_extract_funders']:
             # Use DB_PATH if available, otherwise fall back to default location
             db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
-            conn = sqlite3.connect(db_path, timeout=5)
+            conn = db_connect(db_path, timeout=15)
             cursor = conn.cursor()
             try:
                 cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
@@ -326,7 +330,7 @@ def rebuild_super_clusters_from_funding():
     try:
         # Serialize writes: prevent other threads from interfering with clustering writes
         with DB_WRITE_LOCK:
-            conn = sqlite3.connect('flex_complete_database.db', timeout=60)
+            conn = db_connect('flex_complete_database.db', timeout=60)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA busy_timeout=60000")
@@ -452,7 +456,7 @@ def check_if_cex_funding(cex_address: str) -> dict:
     """
     try:
         import sqlite3
-        conn = sqlite3.connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
@@ -733,7 +737,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         for attempt in range(1, max_attempts + 1):
             conn = None
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn = db_connect(DB_PATH, timeout=15)
                 conn.execute("PRAGMA query_only = ON")
                 conn.execute("PRAGMA busy_timeout = 5000")
                 cursor = conn.cursor()
@@ -806,7 +810,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
     def _normalize_existing_pumpfun_rows(self) -> None:
         """Promote legacy bonding-curve rows into the Pump.fun tracking namespace."""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=15)
+            conn = db_connect(DB_PATH, timeout=15)
             cursor = conn.cursor()
             cursor.execute(
                 """
@@ -1505,7 +1509,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
     ) -> None:
         migrated_ts = int(migrated_at or time.time())
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=30)
+            conn = db_connect(DB_PATH, timeout=30)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -1555,7 +1559,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
     ) -> None:
         migrated_ts = int(migrated_at or time.time())
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=30)
+            conn = db_connect(DB_PATH, timeout=30)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -1696,7 +1700,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 ORDER BY COALESCE(analyzed_at, 0) DESC
                 LIMIT 1
             """
-            conn = sqlite3.connect(DB_PATH, timeout=10)
+            conn = db_connect(DB_PATH, timeout=15)
             cursor = conn.cursor()
             cursor.execute(query, tuple(unique_candidates + unique_candidates + [recent_cutoff]))
             row = cursor.fetchone()
@@ -2192,7 +2196,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = db_connect(DB_PATH, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
@@ -2462,7 +2466,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 candidates: List[Tuple[str, float]] = []
                 async with self.db_lock:
-                    conn = sqlite3.connect(DB_PATH, timeout=15)
+                    conn = db_connect(DB_PATH, timeout=15)
                     conn.row_factory = sqlite3.Row
                     cursor = conn.cursor()
                     cursor.execute(
@@ -2686,7 +2690,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             import time
             from src.core.vault_discovery_persistence import record_vault_discovery_result
 
-            conn = sqlite3.connect(DB_PATH, timeout=10)
+            conn = db_connect(DB_PATH, timeout=15)
             cursor = conn.cursor()
             now = int(time.time())
             times = self.token_discovery_times.get(mint, {})
@@ -3047,7 +3051,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     # --- Database ---
     def _ensure_db(self):
-        conn = sqlite3.connect(DB_PATH)
+        conn = db_connect(DB_PATH, timeout=15)
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
@@ -3339,7 +3343,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Store post-migration analysis results"""
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn = db_connect(DB_PATH, timeout=15)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA busy_timeout=60000")
                 cursor = conn.cursor()
@@ -3468,7 +3472,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # Check and log creator mismatch
                 rpc_creator = analysis.get("earliest_tx_creator")
                 if rpc_creator:
-                    conn2 = sqlite3.connect(DB_PATH, timeout=5)
+                    conn2 = db_connect(DB_PATH, timeout=15)
                     row = conn2.execute(
                         "SELECT pf_ws_creator, creator_mismatch FROM token_analysis WHERE mint = ?", (mint,)
                     ).fetchone()
@@ -3499,7 +3503,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         Those rows must still be allowed to flow through the later migration pipeline.
         """
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
             cursor.execute("SELECT lifecycle_stage FROM token_analysis WHERE mint = ?", (mint,))
             result = cursor.fetchone()
@@ -3674,10 +3678,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Persist launch metadata for immediate dashboard use when it is available."""
         if not symbol and not name:
             return
+        # metadata_cache.symbol is NOT NULL — use name as fallback, skip if both absent
+        if not symbol:
+            symbol = name
 
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = db_connect(DB_PATH, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
@@ -3718,7 +3725,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Insert a token at birth into token_analysis without creating duplicates."""
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = db_connect(DB_PATH, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
@@ -3791,7 +3798,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """
         try:
             async with self.db_lock:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = db_connect(DB_PATH, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
@@ -3868,7 +3875,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         try:
             async with self.db_lock:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = db_connect(DB_PATH, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
@@ -4691,7 +4698,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         This method only reads from DB - does not attempt discovery.
         """
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
             cursor.execute("SELECT pool_address FROM token_analysis WHERE mint = ?", (token_mint,))
             row = cursor.fetchone()
@@ -5114,7 +5121,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 # Check if creator is in blocklist
                 try:
-                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    conn = db_connect(DB_PATH, timeout=60)
                     cursor = conn.cursor()
                     try:
                         cursor.execute("SELECT rug_count, reputation, connected_to_malicious, network_members FROM creator_blocklist WHERE creator_address = ?", (earliest_creator,))
@@ -5244,7 +5251,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
     def _get_tokens_needing_price_update(self) -> List[str]:
         """Get tokens that need live price updates (prioritize newer)"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             
@@ -5265,7 +5272,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
     async def _get_migration_tx_for_token(self, token_mint: str) -> Optional[str]:
         """Get the migration transaction signature for a token"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             
@@ -5291,7 +5298,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn = db_connect(DB_PATH, timeout=15)
                 cursor = conn.cursor()
 
                 # Check if creator already in blocklist
@@ -5387,7 +5394,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         signal_now = int(time.time())
         async with self.db_lock:
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn = db_connect(DB_PATH, timeout=15)
                 cursor = conn.cursor()
 
                 # Read only what this component owns: price_highest, rug_indicator, created_at
@@ -5518,7 +5525,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 # Hot-path migration persistence should not queue behind listener-local
                 # async DB work; the global write lock + SQLite busy_timeout is enough here.
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                conn = db_connect(DB_PATH, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
@@ -5594,7 +5601,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         for attempt in range(max_retries):
             try:
                 async with self.db_lock:
-                    conn = sqlite3.connect(DB_PATH, timeout=30)
+                    conn = db_connect(DB_PATH, timeout=30)
                     conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
                     conn.execute("PRAGMA busy_timeout=30000")
@@ -5745,7 +5752,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # Write pool_address to token_analysis so _get_pool_address can find it for price extraction
             try:
-                _conn = sqlite3.connect(DB_PATH, timeout=10)
+                _conn = db_connect(DB_PATH, timeout=15)
                 _conn.execute(
                     "UPDATE token_analysis SET pool_address = ?, pumpswap_pool_address = COALESCE(pumpswap_pool_address, ?), dex = COALESCE(dex, 'pumpswap'), lifecycle_stage = 'migrated' WHERE mint = ?",
                     (pool_address, pool_address, mint),
@@ -5778,6 +5785,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 except Exception as e:
                     log_print(f"[FAST_PATH_REGISTER] ⚠️  WebSocket refresh failed: {e}", flush=True)
 
+                # Bootstrap reserves for this pool immediately so _recompute_prices_from_ws_state()
+                # can price it right away — without this, the new mint is invisible to the WS
+                # price cycle until the first on-chain vault event arrives (potentially 30-60s gap).
+                try:
+                    _conn2 = db_connect(DB_PATH, timeout=15)
+                    _conn2.row_factory = sqlite3.Row
+                    _pool_row = _conn2.execute(
+                        "SELECT * FROM token_pool_accounts WHERE mint = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1",
+                        (mint,)
+                    ).fetchone()
+                    _conn2.close()
+                    if _pool_row:
+                        import threading as _thr
+                        _pool_meta = dict(_pool_row)
+                        _thr.Thread(
+                            target=self.price_worker.bootstrap_single_pool,
+                            args=(mint, _pool_meta),
+                            daemon=True,
+                            name=f"BootstrapPool-{mint[:8]}",
+                        ).start()
+                        log_print(f"[FAST_PATH_REGISTER] 🔄 Bootstrapping reserves for {mint[:16]}...", flush=True)
+                except Exception as _be:
+                    log_print(f"[FAST_PATH_REGISTER] ⚠️  Reserve bootstrap failed: {_be}", flush=True)
+
             # Register mint for price tracking immediately (don't wait for dashboard load)
             try:
                 from src.core.price_worker import PriceWorkerRegistry
@@ -5790,7 +5821,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Broadcast pool_registered event so the UI refreshes immediately
             _reg_creator = None
             try:
-                _rc = sqlite3.connect(DB_PATH, timeout=3)
+                _rc = db_connect(DB_PATH, timeout=15)
                 _rr = _rc.execute(
                     "SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (mint,)
                 ).fetchone()
@@ -5928,7 +5959,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             }
             # Enrich with any data already in DB from minimal entry
             try:
-                _conn = sqlite3.connect(DB_PATH, timeout=3)
+                _conn = db_connect(DB_PATH, timeout=15)
                 _row = _conn.execute(
                     "SELECT symbol, earliest_tx_creator, pool_address FROM token_analysis WHERE mint = ?",
                     (mint,)
@@ -5944,7 +5975,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # Store migration TX signature (needed for retry discovery and analytics)
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn = db_connect(DB_PATH, timeout=15)
                 cursor = conn.cursor()
                 cursor.execute(
                     "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), source_platform = COALESCE(source_platform, 'pumpfun') WHERE mint = ?",
@@ -5979,7 +6010,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # === Write initial telemetry entry ===
             try:
                 now = int(time.time())
-                conn = sqlite3.connect(DB_PATH, timeout=10)
+                conn = db_connect(DB_PATH, timeout=15)
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR IGNORE INTO token_resolution_telemetry
@@ -7591,11 +7622,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             continue
                         except json.JSONDecodeError:
                             continue
+                        except websockets.exceptions.ConnectionClosed as e:
+                            log_print(f"[WEBSOCKET][PUMPSWAP] 🔌 Connection closed ({e.code if hasattr(e, 'code') else e}), reconnecting...", flush=True)
+                            break
                         except Exception as e:
                             error_msg = str(e).lower()
                             if "keepalive" not in error_msg and "close frame" not in error_msg:
                                 log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Error processing message: {e}", flush=True)
-                            if "close frame" in error_msg or "connection closed" in error_msg:
+                            if "close frame" in error_msg or "connection closed" in error_msg or "going away" in error_msg:
                                 break
                             continue
 
@@ -7737,11 +7771,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             continue
                         except json.JSONDecodeError:
                             continue
+                        except websockets.exceptions.ConnectionClosed as e:
+                            log_print(f"[WEBSOCKET][PUMPFUN] 🔌 Connection closed ({e.code if hasattr(e, 'code') else e}), reconnecting...", flush=True)
+                            break
                         except Exception as e:
                             error_msg = str(e).lower()
                             if "keepalive" not in error_msg and "close frame" not in error_msg:
                                 log_print(f"[WEBSOCKET][PUMPFUN] ⚠ Error processing message: {e}", flush=True)
-                            if "close frame" in error_msg or "connection closed" in error_msg:
+                            if "close frame" in error_msg or "connection closed" in error_msg or "going away" in error_msg:
                                 break
                             continue
 

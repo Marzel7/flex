@@ -46,7 +46,7 @@ def classify_recent_tokens(
     """
     from token_behavior import classify_mint
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -134,7 +134,7 @@ def get_behaviour_summary(db_path: str) -> dict:
         "last_update": timestamp
     }
     """
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     try:
         rows = conn.execute("""
             SELECT
@@ -188,7 +188,7 @@ def get_category_tokens(
     Returns:
         List of token dicts with classification details
     """
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     conn.row_factory = sqlite3.Row
     try:
         rows = conn.execute("""

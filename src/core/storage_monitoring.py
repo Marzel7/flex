@@ -236,7 +236,7 @@ class QueryLatencyMonitor:
 
     def measure_key_queries(self) -> Dict[str, float]:
         """Measure latency of critical queries."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         latencies = {}
 
         # Query 1: Get funders for destination (90-day window)

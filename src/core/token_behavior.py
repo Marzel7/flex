@@ -356,7 +356,7 @@ def create_schema(db_path: str) -> None:
     Create token_behavior and token_behavior_history tables + indexes.
     Idempotent — uses IF NOT EXISTS throughout.
     """
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     try:
         cursor = conn.cursor()
         cursor.executescript("""
@@ -465,7 +465,7 @@ def load_snapshots(mint: str, db_path: str) -> List:
     Filters out zero/null prices. Returns ordered ASC by captured_at.
     Returns empty list if mint not found or has no valid snapshots.
     """
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     conn.row_factory = sqlite3.Row
     try:
         cursor = conn.cursor()
@@ -818,7 +818,7 @@ def upsert_behavior(
         True on success, False on error (logged).
     """
     now = int(time.time())
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=15)
     try:
         cursor = conn.cursor()
         f = features

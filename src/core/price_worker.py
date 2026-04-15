@@ -111,8 +111,7 @@ def record_low_liquidity(
         f"quote_usd={quote_usd if quote_usd is not None else 'n/a'} source={source}"
     )
     try:
-        import sqlite3 as _sq
-        conn = _sq.connect(db_path, timeout=2)
+        conn = db_connect(db_path, timeout=10)
         conn.execute("""
             UPDATE token_pool_accounts
             SET quote_liquidity      = ?,
@@ -123,8 +122,8 @@ def record_low_liquidity(
         """, (quote_sol, now, now, mint))
         conn.commit()
         conn.close()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"[LOW_LIQUIDITY_FLAG] DB write failed for {mint[:16]}: {e}")
     # Broadcast after DB commit — Flask reads consistent state
     try:
         import requests as _requests
@@ -733,9 +732,14 @@ class BackgroundPriceWorker:
         """
         from src.core.pool_price_engine import get_pool_fetcher
 
+        first_run = True
         while self.running:
             try:
-                await asyncio.sleep(180)  # 3 minutes
+                if first_run:
+                    await asyncio.sleep(10)  # Short delay on startup to let registration settle
+                    first_run = False
+                else:
+                    await asyncio.sleep(180)  # 3 minutes between subsequent resyncs
 
                 fetcher = get_pool_fetcher(self.db_path)
                 pools = fetcher.get_active_pools()
@@ -1613,7 +1617,7 @@ class BackgroundPriceWorker:
                             pool["quote_token"] == PoolReserveFetcher.SOL_MINT
                         ),
                         sol_price_usd=sol_price_usd,
-                        last_cached_price=last_price_usd,
+                        last_cached_price=None,  # No deviation gate on periodic recompute — reserve data is authoritative
                         base_account=base_account,
                         total_supply=total_supply,
                     )
@@ -2402,15 +2406,35 @@ class BackgroundPriceWorker:
                     self._pool_state.update_reserve(mint, base_account, "base", base_raw)
                     self._pool_state.update_reserve(mint, base_account, "quote", quote_raw)
                     seeded += 1
-                    logger.info(
-                        f"[BOOTSTRAP_POOL] ✅ {mint[:16]}... reserves seeded "
-                        f"base={base_raw} quote={quote_raw}"
-                    )
-                    print(
-                        f"[BOOTSTRAP_POOL] ✅ {mint[:16]}... reserves seeded "
-                        f"base={base_raw} quote={quote_raw}",
-                        flush=True
-                    )
+
+                    # Check liquidity immediately at bootstrap — don't wait for first WS event.
+                    # Pools that launch with very low liquidity should be flagged as LIQ right away.
+                    quote_decimals = pool_meta.get("quote_decimals", 9)
+                    quote_sol = quote_raw / (10 ** quote_decimals)
+                    sol_price = self._sol_price_cache.price or 130.0
+                    quote_usd = quote_sol * sol_price
+                    _LIQ_THRESHOLD_USD = 750
+                    if quote_usd < _LIQ_THRESHOLD_USD:
+                        logger.warning(
+                            f"[BOOTSTRAP_POOL] ⚠️  {mint[:16]}... low liquidity at launch: "
+                            f"quote_sol={quote_sol:.3f} quote_usd={quote_usd:.0f} — flagging LIQ"
+                        )
+                        print(
+                            f"[BOOTSTRAP_POOL] ⚠️  {mint[:16]}... low liquidity at launch: "
+                            f"quote_sol={quote_sol:.3f} quote_usd={quote_usd:.0f} — flagging LIQ",
+                            flush=True
+                        )
+                        record_low_liquidity(mint, quote_sol, db_path=self.db_path, quote_usd=quote_usd, source="bootstrap_low_liq")
+                    else:
+                        logger.info(
+                            f"[BOOTSTRAP_POOL] ✅ {mint[:16]}... reserves seeded "
+                            f"base={base_raw} quote={quote_raw} quote_usd={quote_usd:.0f}"
+                        )
+                        print(
+                            f"[BOOTSTRAP_POOL] ✅ {mint[:16]}... reserves seeded "
+                            f"base={base_raw} quote={quote_raw}",
+                            flush=True
+                        )
 
             return seeded > 0
 

@@ -294,7 +294,7 @@ def validate_pool_with_worker_state(
 
     # Check 4: Vaults subscribed (need to fetch from DB)
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         cursor = conn.cursor()
         cursor.execute(
             """
@@ -326,7 +326,7 @@ def validate_pool_with_worker_state(
 
     # Check 5: Snapshot exists
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         cursor = conn.cursor()
         cursor.execute(
             "SELECT 1 FROM token_price_snapshots WHERE mint = ? LIMIT 1",

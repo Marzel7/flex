@@ -145,7 +145,7 @@ class TokenLifecycleManager:
 
     def _init_schema(self):
         """Create tables if they don't exist"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         cursor = conn.cursor()
 
         # token_monitoring_state
@@ -268,7 +268,7 @@ class TokenLifecycleManager:
     def start_monitoring(self, mint: str, cluster_id: str = None, creator: str = None) -> bool:
         """Begin monitoring a new token"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             now = int(datetime.now().timestamp())
@@ -290,7 +290,7 @@ class TokenLifecycleManager:
     def record_snapshot(self, snapshot: TokenSnapshot) -> bool:
         """Record a price/market cap snapshot"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             now = int(datetime.now().timestamp())
@@ -354,7 +354,7 @@ class TokenLifecycleManager:
         Returns (should_stop, reason) or (False, None)
         """
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             # Get current state
@@ -415,7 +415,7 @@ class TokenLifecycleManager:
     def classify_outcome(self, mint: str) -> Optional[TokenOutcomeRecord]:
         """Classify a token's outcome based on its lifecycle"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             # Get monitoring state
@@ -557,7 +557,7 @@ class TokenLifecycleManager:
     def stop_monitoring(self, mint: str, outcome: TokenOutcomeRecord) -> bool:
         """Stop monitoring and record outcome"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             now = int(datetime.now().timestamp())
@@ -618,7 +618,7 @@ class TokenLifecycleManager:
     def compute_cluster_stats(self, cluster_id: str = None) -> bool:
         """Compute aggregate cluster statistics"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             now = int(datetime.now().timestamp())
@@ -717,7 +717,7 @@ class TokenLifecycleManager:
     def get_active_tokens(self) -> List[str]:
         """Get list of tokens currently being monitored"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             cursor.execute("""
@@ -736,7 +736,7 @@ class TokenLifecycleManager:
     def get_outcome_summary(self, limit: int = 100) -> List[Dict]:
         """Get recently completed tokens with outcomes"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             cursor.execute("""
@@ -774,7 +774,7 @@ class TokenLifecycleManager:
     def get_token_age_minutes(self, mint: str) -> int:
         """Get token age in minutes"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             cursor.execute(
@@ -872,7 +872,7 @@ class LifecycleMonitoringWorker:
     def backfill_monitoring_state(self) -> Dict:
         """Initialize monitoring_state for all existing tracked tokens"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             # Get all tracked tokens not yet in monitoring

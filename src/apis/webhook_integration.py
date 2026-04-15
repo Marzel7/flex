@@ -40,7 +40,7 @@ def setup_webhook_routes(app):
         from datetime import datetime
 
         db_path = os.getenv("DB_PATH", "database/flex_complete_database.db")
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
 
         cur = conn.cursor()
@@ -172,7 +172,7 @@ def setup_webhook_routes(app):
         from datetime import datetime
 
         db_path = os.getenv("DB_PATH", "database/flex_complete_database.db")
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
 
         cur = conn.cursor()

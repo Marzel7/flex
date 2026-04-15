@@ -8,7 +8,7 @@ Usage:
     from src.utils.db_global_lock import db_write_lock_global
     
     with db_write_lock_global():
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=15)
         # ... write operations ...
         conn.commit()
 """

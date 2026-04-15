@@ -2556,19 +2556,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 for mint in expired_mints:
                     del self.critical_window_tasks[mint]
 
-                # If any critical windows are still active, skip processing
-                # This ensures absolute deferral - no background work during critical window
-                if self.critical_window_tasks:
-                    # Windows still active - don't process jobs yet
-                    await asyncio.sleep(0.5)
-                    continue
-
-                # All critical windows expired - process all queued jobs
+                # Process jobs whose own mint's critical window has expired.
+                # A job is eligible if its mint has no active window, or it has no mint.
                 jobs_processed = 0
+                requeue = []
                 try:
                     while not self.background_job_queue.empty():
                         job_item = self.background_job_queue.get_nowait()
                         mint = job_item.get('mint', '?')
+                        mint_still_active = (
+                            mint and mint != '?'
+                            and mint in self.critical_window_tasks
+                            and time.time() < self.critical_window_tasks[mint]
+                        )
+                        if mint_still_active:
+                            requeue.append(job_item)
+                            self.background_job_queue.task_done()
+                            continue
                         try:
                             log_print(f"[BACKGROUND] 🚀 Executing queued job (mint={mint[:8]}...)", flush=True)
                             await job_item['coro']
@@ -2578,6 +2582,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         self.background_job_queue.task_done()
                 except asyncio.QueueEmpty:
                     pass
+                # Re-enqueue jobs that were still in their critical window
+                for job_item in requeue:
+                    await self.background_job_queue.put(job_item)
 
                 if jobs_processed > 0:
                     log_print(f"[BACKGROUND] ✅ Processed {jobs_processed} background jobs after critical windows expired", flush=True)
@@ -5799,13 +5806,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     if _pool_row:
                         import threading as _thr
                         _pool_meta = dict(_pool_row)
+                        def _bootstrap_with_retry(mint=mint, pool_meta=_pool_meta):
+                            import time as _time
+                            for _attempt, _delay in enumerate([0, 3, 8, 20], 1):
+                                if _delay:
+                                    _time.sleep(_delay)
+                                ok = self.price_worker.bootstrap_single_pool(mint, pool_meta)
+                                if ok:
+                                    log_print(f"[FAST_PATH_REGISTER] ✅ Bootstrap succeeded on attempt {_attempt} for {mint[:16]}...", flush=True)
+                                    return
+                                log_print(f"[FAST_PATH_REGISTER] ⏳ Bootstrap attempt {_attempt} returned no reserves for {mint[:16]}... (retrying)", flush=True)
+                            log_print(f"[FAST_PATH_REGISTER] ⚠️  Bootstrap gave up after 4 attempts for {mint[:16]}...", flush=True)
                         _thr.Thread(
-                            target=self.price_worker.bootstrap_single_pool,
-                            args=(mint, _pool_meta),
+                            target=_bootstrap_with_retry,
                             daemon=True,
                             name=f"BootstrapPool-{mint[:8]}",
                         ).start()
-                        log_print(f"[FAST_PATH_REGISTER] 🔄 Bootstrapping reserves for {mint[:16]}...", flush=True)
+                        log_print(f"[FAST_PATH_REGISTER] 🔄 Bootstrapping reserves for {mint[:16]}... (with retry)", flush=True)
                 except Exception as _be:
                     log_print(f"[FAST_PATH_REGISTER] ⚠️  Reserve bootstrap failed: {_be}", flush=True)
 

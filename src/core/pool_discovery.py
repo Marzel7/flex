@@ -77,7 +77,7 @@ class PoolDiscovery:
         dex_name = _dex_name_from_pool_program(pool_program)
         pumpswap_pool = pool_address if pool_program == PUMPSWAP_PROGRAM else None
 
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         cursor = conn.cursor()
         cursor.execute(
             """
@@ -963,7 +963,7 @@ class PoolDiscovery:
                 return False
             # ===== END NEW VALIDATION =====
 
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             # Vault addresses were already fetched and verified by extract_pool_reserves
@@ -1050,7 +1050,7 @@ class PoolDiscovery:
         """
         try:
             import sqlite3
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
             
             # Get the pool registration
@@ -1083,7 +1083,7 @@ class PoolDiscovery:
                     f"[VAULT_RETRY] Vaults still not created for {token_mint[:16]}..."
                 )
                 # Update attempt count
-                conn = sqlite3.connect(self.db_path)
+                conn = sqlite3.connect(self.db_path, timeout=15)
                 cursor = conn.cursor()
                 cursor.execute(
                     """UPDATE token_pool_accounts 
@@ -1107,7 +1107,7 @@ class PoolDiscovery:
                     f"[VAULT_RETRY] ✅ Vaults validated for {token_mint[:16]}... after {attempts + 1} attempts"
                 )
                 
-                conn = sqlite3.connect(self.db_path)
+                conn = sqlite3.connect(self.db_path, timeout=15)
                 cursor = conn.cursor()
                 cursor.execute(
                     """UPDATE token_pool_accounts 
@@ -1134,7 +1134,7 @@ class PoolDiscovery:
                     f"[VAULT_RETRY] ❌ Vaults exist but are not SPL token accounts for {token_mint[:16]}..."
                 )
                 
-                conn = sqlite3.connect(self.db_path)
+                conn = sqlite3.connect(self.db_path, timeout=15)
                 cursor = conn.cursor()
                 cursor.execute(
                     """UPDATE token_pool_accounts 

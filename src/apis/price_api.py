@@ -1478,10 +1478,56 @@ def fetch_price_now(mint: str):
         return jsonify({'error': str(e)}), 500
 
 
+@price_api.route('/pool/force-resync', methods=['POST'])
+def force_pool_resync():
+    """
+    Immediately fetch all pool reserves from RPC and seed _pool_state.
+    Use after restart when pools are registered but have no in-memory reserves.
+    """
+    try:
+        import asyncio
+        from src.core.pool_price_engine import get_pool_fetcher
+        from src.core.price_worker import get_price_worker
+
+        worker = get_price_worker()
+        fetcher = get_pool_fetcher(worker.db_path)
+        pools = fetcher.get_active_pools()
+
+        if not pools:
+            return jsonify({'status': 'no_pools', 'pools': 0})
+
+        loop = asyncio.new_event_loop()
+        try:
+            reserves_dict = loop.run_until_complete(fetcher.fetch_reserves(pools))
+        finally:
+            loop.close()
+
+        seeded = 0
+        zero = 0
+        for pool in pools:
+            mint = pool.get('mint')
+            base_account = pool.get('base_account')
+            if not (mint and base_account):
+                continue
+            base_raw, quote_raw = reserves_dict.get((mint, base_account), (0, 0))
+            worker._pool_state.update_reserve(mint, base_account, 'base', base_raw)
+            worker._pool_state.update_reserve(mint, base_account, 'quote', quote_raw)
+            if base_raw > 0 and quote_raw > 0:
+                seeded += 1
+            else:
+                zero += 1
+
+        logger.info(f"[FORCE_RESYNC] Seeded {seeded} pools ({zero} zero-liquidity)")
+        return jsonify({'status': 'ok', 'pools_total': len(pools), 'seeded': seeded, 'zero_liquidity': zero})
+    except Exception as e:
+        logger.error(f"Error in force-resync: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 def register_price_api(app):
     """Register price API with Flask app."""
     global _db_path
-    
+
     # Initialize database from app config if available
     if hasattr(app, 'config') and 'DATABASE' in app.config:
         _db_path = app.config['DATABASE']

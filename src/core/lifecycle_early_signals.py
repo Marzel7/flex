@@ -272,7 +272,7 @@ class EarlySignalEngine:
     def _get_current_metrics(self, mint: str) -> Optional[Dict]:
         """Get current token metrics from monitoring_state and latest snapshot"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -364,7 +364,7 @@ class EarlySignalEngine:
     def _get_snapshots(self, mint: str, limit: int = 20) -> Optional[List[Dict]]:
         """Get recent snapshots for token"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -393,7 +393,7 @@ class EarlySignalEngine:
     def record_early_signal(self, signal: EarlySignal) -> bool:
         """Store early prediction in token_monitoring_state"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             cursor = conn.cursor()
 
             cursor.execute("""
@@ -428,7 +428,7 @@ class EarlySignalEngine:
     def get_early_signals_by_label(self, label: EarlyLabel, limit: int = 100) -> List[Dict]:
         """Query tokens with specific early label"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 

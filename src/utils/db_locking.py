@@ -6,25 +6,47 @@ All SQLite writes must use this lock to prevent "database is locked" errors
 in concurrent scenarios (token launches, clustering, extractors, etc.)
 """
 
+import inspect
+import logging
 import sqlite3
 import threading
+import time
 
 # Single lock instance used by all modules
 DB_WRITE_LOCK = threading.RLock()
 
+_db_logger = logging.getLogger("db_locking")
 
-def db_connect(path: str, timeout: int = 15, row_factory=None) -> sqlite3.Connection:
+
+def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connection:
     """
     Open a SQLite connection with safe defaults for concurrent access.
 
-    - timeout=15: waits up to 15s for a write lock instead of failing immediately
-    - busy_timeout=15000: mirrors timeout at the SQLite C level (handles WAL checkpoints)
-    - WAL + NORMAL sync: already set at DB level; re-asserting here is a no-op but safe
+    - timeout=30: waits up to 30s for a write lock (Python-level)
+    - busy_timeout=30000: mirrors at the SQLite C level (handles WAL checkpoints)
+    - WAL journal mode for concurrent readers
 
     Use this instead of sqlite3.connect() everywhere to avoid "database is locked".
+    Logs caller location and elapsed time when acquisition is slow (>1s).
     """
-    conn = sqlite3.connect(path, timeout=timeout)
+    # Identify caller for lock contention diagnostics
+    frame = inspect.stack()[1]
+    caller = f"{frame.filename.split('/')[-1]}:{frame.lineno} in {frame.function}"
+
+    t0 = time.monotonic()
+    try:
+        conn = sqlite3.connect(path, timeout=timeout)
+    except Exception as e:
+        elapsed = time.monotonic() - t0
+        _db_logger.error(f"[DB_CONNECT_FAIL] caller={caller} elapsed={elapsed:.2f}s error={e}")
+        raise
+
+    elapsed = time.monotonic() - t0
+    if elapsed > 1.0:
+        _db_logger.warning(f"[DB_CONNECT_SLOW] caller={caller} elapsed={elapsed:.2f}s path={path}")
+
     if row_factory is not None:
         conn.row_factory = row_factory
-    conn.execute("PRAGMA busy_timeout=15000")
+    conn.execute("PRAGMA busy_timeout=30000")
+    conn.execute("PRAGMA journal_mode=WAL")
     return conn

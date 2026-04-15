@@ -26,7 +26,7 @@ import time
 @contextmanager
 def db_transaction(db_path):
     """Context manager for safe database transactions."""
-    db = sqlite3.connect(db_path)
+    db = sqlite3.connect(db_path, timeout=15)
     db.row_factory = sqlite3.Row
     try:
         yield db

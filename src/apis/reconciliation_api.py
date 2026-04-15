@@ -100,7 +100,7 @@ async def get_daily_reconciliation(date: Optional[str] = Query(None)):
     try:
         import os
         db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -160,7 +160,7 @@ async def get_health_check():
     try:
         import os
         db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 

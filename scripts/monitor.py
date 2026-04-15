@@ -42,6 +42,8 @@ LOG_FILES = {
 ERROR_PATTERNS = [
     # (regex, severity, root_cause_label)
     (r"database is locked",              "WARN",  "DB_LOCK: sqlite contention — write timeout too short or excessive concurrency"),
+    (r"DB_CONNECT_SLOW.*caller=",        "WARN",  "DB_SLOW: slow lock acquisition — caller logged above shows contention source"),
+    (r"DB_CONNECT_FAIL.*caller=",        "CRIT",  "DB_FAIL: connection failed — caller logged above"),
     (r"THREAD CRASHED",                  "CRIT",  "THREAD_CRASH: price_worker thread died — check main.log for traceback"),
     (r"Address already in use",          "CRIT",  "PORT_CONFLICT: port 5002 already bound — stale process from prior run"),
     (r"1001 going away",                 "WARN",  "WS_GOING_AWAY: Helius WS closed with 1001 — should reconnect automatically"),

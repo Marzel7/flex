@@ -18,7 +18,7 @@ def migrate_to_schema_v2(db_path: str) -> bool:
     """
 
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, timeout=15)
         cursor = conn.cursor()
 
         logger.info("[SCHEMA_V2] Starting migration to schema V2...")

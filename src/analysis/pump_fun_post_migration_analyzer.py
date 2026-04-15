@@ -1357,16 +1357,6 @@ class PostMigrationAnalyzer:
 
                     validation = self._validate_pumpfun_create_tx(tx)
 
-                    # extra debug when bonding_curve=no
-                    if not validation.get("bonding_curve"):
-                        ctx_bt = tx_bt if isinstance(tx_bt, int) else sig_item.get("blockTime")
-                        print(
-                            f"[CREATOR][DEBUG] bonding_curve=no context: slot={tx.get('slot')} blockTime={ctx_bt} err={sig_item.get('err')}",
-                            flush=True,
-                        )
-                        notes = validation.get("validation_notes") or []
-                        if notes:
-                            print(f"[CREATOR][DEBUG] validation_notes={notes}", flush=True)
 
                     if oldest_logged < 5:
                         oldest_logged += 1

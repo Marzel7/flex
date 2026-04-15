@@ -35,8 +35,11 @@ _tracer.setLevel(logging.DEBUG)
 _tracer.propagate = False
 
 if not _tracer.handlers:
+    import logging.handlers as _lh
     os.makedirs(os.path.dirname(_LOG_PATH), exist_ok=True)
-    _fh = logging.FileHandler(_LOG_PATH, encoding='utf-8')
+    _fh = _lh.RotatingFileHandler(
+        _LOG_PATH, maxBytes=50 * 1024 * 1024, backupCount=2, encoding='utf-8'
+    )
     _fh.setLevel(logging.DEBUG)
     _fh.setFormatter(logging.Formatter(
         '%(asctime)s  %(message)s',

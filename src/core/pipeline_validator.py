@@ -48,7 +48,7 @@ class Database:
 
     def query_one(self, sql: str, params: tuple = ()):
         """Query single row."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(sql, params)
@@ -58,7 +58,7 @@ class Database:
 
     def query(self, sql: str, params: tuple = ()):
         """Query multiple rows."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(sql, params)

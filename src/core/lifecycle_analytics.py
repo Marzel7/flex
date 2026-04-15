@@ -48,7 +48,7 @@ class LifecycleAnalytics:
     def _query(self, sql: str, params: tuple = ()) -> List[tuple]:
         """Execute read-only query"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=15)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute(sql, params)

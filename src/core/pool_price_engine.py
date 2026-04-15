@@ -61,9 +61,11 @@ class PoolReserveFetcher:
         ❌ Excludes only 'rejected' pools (vaults proven invalid).
         """
         import sqlite3
+        from src.utils.db_locking import db_connect as _db_connect
 
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
+        conn = _db_connect(self.db_path, timeout=15)
+        conn.row_factory = sqlite3.Row
+        with conn:
             rows = conn.execute(
                 """SELECT tpa.*
                    FROM token_pool_accounts tpa
@@ -446,7 +448,7 @@ class PoolStateStore:
             return True
 
     def get_reserves(self, mint: str, base_account: str) -> Optional[Tuple[int, int]]:
-        """Return (base_raw, quote_raw) for a specific pool, or None if not both known/not stale."""
+        """Return (base_raw, quote_raw) for a specific pool, or None if not both known."""
         pool_id = (mint, base_account)
         with self._lock:
             s = self._state.get(pool_id)
@@ -454,7 +456,6 @@ class PoolStateStore:
                 s
                 and s["base_reserve"] is not None
                 and s["quote_reserve"] is not None
-                and not s["is_stale"]
             ):
                 return (s["base_reserve"], s["quote_reserve"])
         return None
@@ -463,12 +464,13 @@ class PoolStateStore:
         """
         Return [(base_account, base_raw, quote_raw), ...] for all valid pools of a mint.
         ✅ Only includes pools with BOTH reserves > 0 (has actual liquidity).
-        Filters out: stale pools, missing reserves, zero-liquidity pools.
+        Stale flag is intentionally NOT filtered here — stale means "no recent WS event"
+        not "bad data". Bootstrapped/RPC-refreshed reserves remain usable for pricing.
         """
         results = []
         with self._lock:
             for (m, base_account), s in self._state.items():
-                if m == mint and not s["is_stale"]:
+                if m == mint:
                     # ✅ CRITICAL: Only return pools with REAL liquidity (> 0)
                     if (
                         s["base_reserve"] is not None
@@ -761,12 +763,14 @@ class PoolWebSocketClient:
             # Each pool contributes 2 accounts (base + quote); cap the pool list so total
             # accounts stay within WS_MAX_SUBSCRIPTIONS. Rank by peak MC, fall back to 0.
             import sqlite3 as _sq3
+            from src.utils.db_locking import db_connect as _db_connect
             try:
-                with _sq3.connect(self._db_path) as _c:
-                    _c.row_factory = _sq3.Row
-                    _rows = _c.execute(
-                        "SELECT mint, peak_market_cap FROM token_market_cap_peaks WHERE peak_market_cap > 0"
-                    ).fetchall()
+                _c = _db_connect(self._db_path, timeout=10)
+                _c.row_factory = _sq3.Row
+                _rows = _c.execute(
+                    "SELECT mint, peak_market_cap FROM token_market_cap_peaks WHERE peak_market_cap > 0"
+                ).fetchall()
+                _c.close()
                 _peak = {r['mint']: r['peak_market_cap'] for r in _rows}
             except Exception:
                 _peak = {}

@@ -2105,10 +2105,10 @@ class BackgroundPriceWorker:
         Returns: seconds between refreshes
         """
         intervals = {
-            'high': 10,      # 10s for very active tokens
-            'medium': 30,    # 30s for moderately active
-            'low': 90,       # 90s for less active
-            'dormant': 180   # 3 min for dormant (conservative)
+            'high': 3,       # On-screen / boosted tokens should feel live
+            'medium': 12,    # Keep active-but-not-focused tokens reasonably fresh
+            'low': 45,       # Background coverage without overloading the worker
+            'dormant': 120   # 2 min for dormant tokens
         }
         return intervals.get(activity, 30)
 

@@ -47,6 +47,14 @@ tr.row-stale td { opacity: 0.45; }
     color: var(--text-secondary);
     margin-left: auto;
 }
+.live-status {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.live-status strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
 {% endblock %}
 
 {% block content %}
@@ -57,6 +65,7 @@ tr.row-stale td { opacity: 0.45; }
 
 <div class="filter-bar">
     <input id="search" type="text" placeholder="Filter by mint…" oninput="filterTable()">
+    <span class="live-status" id="snap-live-status">Live refresh: <strong>waiting</strong></span>
     <span class="count-label" id="count-label"></span>
 </div>
 
@@ -84,6 +93,18 @@ tr.row-stale td { opacity: 0.45; }
 <script>
     let allRows = [];
 
+    function setLiveStatus(message, state = 'neutral') {
+        const el = document.getElementById('snap-live-status');
+        if (!el) return;
+        const colors = {
+            neutral: 'var(--text-secondary)',
+            ok: 'var(--color-green)',
+            warn: 'var(--color-yellow)',
+            error: 'var(--color-red)',
+        };
+        el.innerHTML = `Live refresh: <strong style="color:${colors[state] || colors.neutral}">${message}</strong>`;
+    }
+
     function formatPrice(p) {
         if (!p || p <= 0) return '—';
         if (p < 1e-8) return '$' + p.toExponential(3);
@@ -94,8 +115,8 @@ tr.row-stale td { opacity: 0.45; }
     function formatMC(v) {
         if (!v || v <= 0) return '—';
         if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
-        if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
-        return '$' + v.toFixed(0);
+        if (v >= 1e3) return '$' + (v / 1e3).toFixed(2) + 'K';
+        return '$' + v.toFixed(2);
     }
 
     function ageClass(sec) {
@@ -180,21 +201,23 @@ tr.row-stale td { opacity: 0.45; }
 
     async function load() {
         try {
-            const res = await fetch('/api/snapshots', { cache: 'no-store' });
+            const res = await fetch(`/api/snapshots?_=${Date.now()}`, { cache: 'no-store' });
             const json = await res.json();
             allRows = json.data || [];
             document.getElementById('count-label').textContent = `${allRows.length} tokens`;
             renderRows(allRows);
             syncWsSubscriptions();
+            setLiveStatus(`${new Date().toLocaleTimeString()} · ${allRows.length} rows`, 'ok');
         } catch (e) {
             document.getElementById('snap-body').innerHTML =
                 '<tr><td colspan="7" style="text-align:center;color:var(--color-red);padding:30px">Failed to load snapshots</td></tr>';
+            setLiveStatus('poll failed', 'error');
         }
     }
 
     load();
     // Polling fallback — keeps working if WS unavailable
-    const pollInterval = setInterval(load, 5000);
+    const pollInterval = setInterval(load, 3000);
 
     // -----------------------------------------------------------------------
     // WebSocket: mint-filtered live updates
@@ -210,6 +233,7 @@ tr.row-stale td { opacity: 0.45; }
             // Subscribe to whatever is currently visible
             const visible = getVisibleMints();
             if (visible.length) wsSend('subscribe', visible);
+            setLiveStatus(`ws connected · ${new Date().toLocaleTimeString()}`, 'ok');
         };
 
         ws.onmessage = (evt) => {
@@ -217,6 +241,7 @@ tr.row-stale td { opacity: 0.45; }
             try { msg = JSON.parse(evt.data); } catch { return; }
             if (msg.type !== 'price_update') return;
             patchRow(msg);
+            setLiveStatus(`ws update · ${new Date().toLocaleTimeString()}`, 'ok');
             // Mirror into allRows cache so polling re-render stays consistent
             const entry = allRows.find(r => r.mint === msg.mint);
             if (entry) {
@@ -230,6 +255,7 @@ tr.row-stale td { opacity: 0.45; }
 
         ws.onclose = () => {
             subscribedMints.clear();
+            setLiveStatus('ws reconnecting…', 'warn');
             // Reconnect after 5s; polling fallback covers the gap
             setTimeout(wsConnect, 5000);
         };

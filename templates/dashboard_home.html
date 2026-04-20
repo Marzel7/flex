@@ -1204,7 +1204,6 @@
             </div>
         </div>
 
-
         <div class="controls-panel">
             <div class="control-group">
                 <span class="control-label">Token History Check</span>
@@ -2143,7 +2142,7 @@
     <script>
         async function loadTokens() {
             try {
-                const response = await fetch('/api/migrated-tokens');
+                const response = await fetch(`/api/migrated-tokens?_=${Date.now()}`, { cache: 'no-store' });
                 const data = await response.json();
                 console.log('Loaded tokens:', data.tokens?.length || 0, 'tokens');
                 console.log('Token data keys:', Object.keys(data));
@@ -2349,7 +2348,7 @@
             const host = document.getElementById('future-bound-list');
             if (!host) return;
             try {
-                const response = await fetch('/api/future-bound-tokens');
+                const response = await fetch(`/api/future-bound-tokens?_=${Date.now()}`, { cache: 'no-store' });
                 const data = await response.json();
                 renderFutureBound(data.tokens || []);
             } catch (error) {
@@ -3210,11 +3209,11 @@
         function formatMarketCap(value) {
             if (!value) return '-';
             if (value >= 1000000) {
-                return (value / 1000000).toFixed(1) + 'M';
+                return (value / 1000000).toFixed(2) + 'M';
             } else if (value >= 1000) {
-                return (value / 1000).toFixed(1) + 'K';
+                return (value / 1000).toFixed(2) + 'K';
             }
-            return value.toFixed(0);
+            return value.toFixed(2);
         }
 
         // Parse any timestamp format to a Date object
@@ -4264,8 +4263,8 @@ function switchToTokensTab() {
             await loadTokens();            // await so data-mint rows exist before SSE starts
             await loadFutureBound();
             initDashboardPriceStream();    // Start SSE price stream
-            setInterval(loadTokens, 10000);
-            setInterval(loadFutureBound, 10000);
+            setInterval(loadTokens, 5000);
+            setInterval(loadFutureBound, 5000);
 
             // Refresh Age and Peak Timing text without requiring a full table rebuild
             setInterval(() => {

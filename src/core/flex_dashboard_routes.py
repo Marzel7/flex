@@ -1346,7 +1346,11 @@ def api_snapshots():
             except Exception:
                 pass  # Non-critical; best-effort only
 
-        return jsonify({'data': data, 'total': len(data)})
+        response = jsonify({'data': data, 'total': len(data)})
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
     except Exception as e:
         logger.error(f"Error fetching snapshots: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500

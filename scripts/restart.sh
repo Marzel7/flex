@@ -147,7 +147,7 @@ pkill -f "scripts/monitor.py" 2>/dev/null || true
 echo "🔍 Starting monitor..."
 osascript -e "tell application \"Terminal\"
     activate
-    do script \"cd '$PROJECT_ROOT' && python scripts/monitor.py --interval 15\"
+    do script \"/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python '$PROJECT_ROOT/scripts/monitor.py' --interval 15\"
 end tell" 2>/dev/null && echo "✓ Monitor running in new Terminal window" || {
     # Fallback: run in background and write to monitor.log
     nohup python "$PROJECT_ROOT/scripts/monitor.py" --interval 15 >> "$PROJECT_ROOT/logs/monitor.log" 2>&1 &

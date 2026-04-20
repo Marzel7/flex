@@ -1368,6 +1368,29 @@ class BackgroundPriceWorker:
         # Primary: compute prices from WebSocket-maintained reserve state
         self._recompute_prices_from_ws_state()
 
+        # Fallback poll: refresh reserves from RPC when WS state is stale or absent.
+        # This is essential in the Flask/UI process, where pricing may run without
+        # owning the live reserve WebSocket client.
+        should_run_fallback_poll = False
+        fallback_interval = 60.0
+        if self._ws_client and self._ws_client.stats.get("is_stale"):
+            fallback_interval = 30.0
+        if stale_mints:
+            fallback_interval = min(fallback_interval, 30.0)
+        if (not self._ws_client) or self._ws_client.stats.get("is_stale") or stale_mints:
+            should_run_fallback_poll = True
+
+        if should_run_fallback_poll and (now - self._last_fallback_poll) >= fallback_interval:
+            try:
+                logger.info(
+                    f"[PRICE_WORKER] Running fallback pool poll "
+                    f"(interval={fallback_interval:.0f}s stale_mints={len(stale_mints)})"
+                )
+                asyncio.run(self._fetch_pool_prices_async())
+                self._last_fallback_poll = time.time()
+            except Exception as e:
+                logger.error(f"[PRICE_WORKER] Fallback pool poll failed: {e}", exc_info=True)
+
         # Sync WS stats to worker stats and persist to disk for Flask to read
         if self._ws_client:
             self.stats['ws_stats'] = dict(self._ws_client.stats)
@@ -1531,15 +1554,12 @@ class BackgroundPriceWorker:
             mints = self._pool_state.get_all_mints()
             if DEBUG_LOGGING: print(f"[PRICE_DEBUG] Mints in PoolStateStore: {len(mints)}", flush=True)
 
-            # Get SOL price from cache (20s TTL, reduces API calls by ~95%)
+            # Get SOL price — refresh every 30s so WS fast path never reads a stale value
             # NOTE: Don't use asyncio.run() here — we're in a thread, not async context
-            # Instead, directly get from cache without async
             try:
-                # Try to get cached SOL price or fetch synchronously
                 sol_price_usd = self._sol_price_cache.get_price_sync()
                 if not sol_price_usd:
-                    if DEBUG_LOGGING: print("[PRICE_DEBUG] SOL price cache empty, attempting async fetch", flush=True)
-                    # Fallback: create a new event loop for this thread
+                    if DEBUG_LOGGING: print("[PRICE_DEBUG] SOL price cache stale/empty, fetching fresh", flush=True)
                     import asyncio
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
@@ -1547,6 +1567,10 @@ class BackgroundPriceWorker:
                         sol_price_usd = loop.run_until_complete(
                             PoolPriceCalculator.fetch_sol_price_usd()
                         )
+                        if sol_price_usd:
+                            self._sol_price_cache.price = sol_price_usd
+                            self._sol_price_cache.last_update = time.time()
+                            logger.info(f"[PRICE_WORKER] SOL price refreshed: ${sol_price_usd:.2f}")
                     finally:
                         loop.close()
             except Exception as e:

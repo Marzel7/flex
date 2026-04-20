@@ -1440,6 +1440,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         *,
         migrated_at: int,
     ) -> Dict[str, Any]:
+        pre_migration_cutoff_seconds = 3
+        pre_migration_cutoff = max(0, int(migrated_at) - pre_migration_cutoff_seconds)
         signal_updated_at = snapshot.get("migration_signal_updated_at")
         signal_age_seconds: Optional[int] = None
         if signal_updated_at is not None:
@@ -1448,7 +1450,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception:
                 signal_age_seconds = None
 
-        signal_was_fresh = signal_age_seconds is not None and signal_age_seconds <= 15 * 60
+        signal_observed_before_cutoff = (
+            signal_updated_at is not None and int(signal_updated_at) <= pre_migration_cutoff
+        )
+        signal_observed_after_cutoff = (
+            signal_updated_at is not None and int(signal_updated_at) > pre_migration_cutoff
+        )
+        signal_was_fresh = bool(
+            signal_observed_before_cutoff
+            and signal_age_seconds is not None
+            and signal_age_seconds <= 15 * 60
+        )
         market_cap_current = float(snapshot.get("market_cap_current") or 0.0)
         signal_source = str(snapshot.get("migration_signal_source") or "").strip().lower()
         migration_band = str(snapshot.get("migration_band") or "").strip().lower()
@@ -1457,6 +1469,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         unique_30s = int(snapshot.get("unique_30s") or 0)
         sol_15s = float(snapshot.get("sol_15s") or 0.0)
         explicit_signal = bool(snapshot.get("is_about_to_migrate")) or migration_band in {"hot", "warm"}
+        has_observed_signal = bool(
+            signal_updated_at is not None
+            or signal_source
+            or explicit_signal
+            or migration_band
+            or market_cap_current > 0
+        )
 
         predicted_by_flow = bool(
             signal_was_fresh
@@ -1482,6 +1501,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
             final_verdict = "market_cap_only"
         elif signal_updated_at is None:
             final_verdict = "no_signal"
+        elif not has_observed_signal:
+            final_verdict = "no_signal"
+        elif signal_observed_after_cutoff:
+            final_verdict = "late_capture"
         elif not signal_was_fresh:
             final_verdict = "stale_signal"
         else:
@@ -1495,6 +1518,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
             "was_hot_or_warm_before_migration": int(was_hot_or_warm_before_migration),
             "signal_age_seconds": signal_age_seconds,
             "signal_was_fresh": int(signal_was_fresh),
+            "signal_before_cutoff": int(signal_observed_before_cutoff),
+            "signal_after_cutoff": int(signal_observed_after_cutoff),
             "final_verdict": final_verdict,
         }
 
@@ -1581,13 +1606,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
             signal_snapshot = self._compute_pre_migration_signal(mint, market_cap_current, migrated_ts)
             snapshot = {
                 "mint": mint,
-                "migration_signal_source": (row_dict or {}).get("migration_signal_source") or signal_snapshot.get("signal_source"),
-                "is_about_to_migrate": int((row_dict or {}).get("is_about_to_migrate") or signal_snapshot.get("is_about_to_migrate") or 0),
-                "migration_band": (row_dict or {}).get("migration_band") or signal_snapshot.get("band"),
-                "migration_progress_pct": (row_dict or {}).get("migration_progress_pct")
-                if (row_dict or {}).get("migration_progress_pct") is not None
-                else signal_snapshot.get("migration_progress_pct"),
-                "migration_signal_updated_at": (row_dict or {}).get("migration_signal_updated_at") or migrated_ts,
+                "migration_signal_source": (row_dict or {}).get("migration_signal_source"),
+                "is_about_to_migrate": int((row_dict or {}).get("is_about_to_migrate") or 0),
+                "migration_band": (row_dict or {}).get("migration_band"),
+                "migration_progress_pct": (row_dict or {}).get("migration_progress_pct"),
+                "migration_signal_updated_at": (row_dict or {}).get("migration_signal_updated_at"),
                 "market_cap_current": market_cap_current,
                 "market_cap_updated_at": (row_dict or {}).get("price_updated_at"),
                 "buys_10s": int(signal_snapshot.get("buys_10s") or 0),
@@ -2215,7 +2238,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         is_about_to_migrate,
                         migration_band,
                         migration_progress_pct,
-                        migration_signal_source
+                        migration_signal_source,
+                        migration_signal_updated_at
                     FROM token_analysis
                     WHERE mint = ?
                     LIMIT 1
@@ -2231,7 +2255,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 pumpswap_pool_address = str(row[5]) if row and row[5] is not None else None
                 create_tx_signature = str(row[6]) if row and row[6] is not None else None
                 bonding_curve_pda = str(row[7]) if row and row[7] is not None else None
-                before_row = row[8:12] if row else None
+                before_row = row[8:13] if row else None
                 premig_log(
                     f"[DB_MATCH_CHECK] mint={mint} "
                     f"row_exists={'yes' if row_exists else 'no'} "
@@ -2276,7 +2300,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             is_about_to_migrate,
                             migration_band,
                             migration_progress_pct,
-                            migration_signal_source
+                            migration_signal_source,
+                            migration_signal_updated_at
                         FROM token_analysis
                         WHERE mint = ?
                         LIMIT 1
@@ -2295,6 +2320,37 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     signal["band"] = before_row[1] or None
                     signal["migration_progress_pct"] = before_row[2]
                     signal_source = "flow"
+
+                signal_has_presence = bool(
+                    signal_source
+                    or signal.get("band")
+                    or signal.get("is_about_to_migrate")
+                    or int(signal.get("score") or 0) > 0
+                    or float(current_market_cap or 0.0) >= float(self._premigration_signal_floor_warm or 0.0)
+                )
+                existing_signal_updated_at = before_row[4] if before_row else None
+                changed_values = (
+                    before_row is None
+                    or int(before_row[0] or 0) != int(signal["is_about_to_migrate"] or 0)
+                    or (before_row[1] or None) != (signal["band"] or None)
+                    or before_row[2] != signal["migration_progress_pct"]
+                    or (before_row[3] or None) != (signal_source or None)
+                )
+                should_advance_signal_timestamp = bool(
+                    signal_has_presence and (
+                        source_hint == "flow"
+                        or existing_signal_updated_at is None
+                        or changed_values
+                    )
+                )
+                signal_updated_at_to_write = now if should_advance_signal_timestamp else existing_signal_updated_at
+
+                # Avoid churn from periodic "empty" refreshes that do not carry any
+                # observed pre-migration signal and do not change stored state.
+                if source_hint != "flow" and (not signal_has_presence) and (not changed_values):
+                    conn.close()
+                    premig_log(f"[DB_SKIP] mint={mint} reason=empty_periodic_refresh")
+                    return
 
                 cursor.execute(
                     """
@@ -2326,7 +2382,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         signal["migration_progress_pct"],
                         signal_source,
                         signal_source,
-                        now,
+                        signal_updated_at_to_write,
                         mint,
                     ),
                 )
@@ -2341,13 +2397,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     )
                     premig_log(f"[DB_SKIP] mint={mint} reason=no_matching_row")
                 if changed:
-                    changed_values = (
-                        before_row is None
-                        or int(before_row[0] or 0) != int(signal["is_about_to_migrate"] or 0)
-                        or (before_row[1] or None) != (signal["band"] or None)
-                        or before_row[2] != signal["migration_progress_pct"]
-                        or (before_row[3] or None) != (signal_source or None)
-                    )
                     if not changed_values:
                         premig_log(f"[DB_SKIP] mint={mint} reason=no_value_change band={signal['band']} source={signal_source}")
                     if changed_values:

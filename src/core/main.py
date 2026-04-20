@@ -2184,6 +2184,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
         market_cap_only = sum(1 for record in records if record["final_verdict"] == "market_cap_only")
         market_cap_predicted = sum(1 for record in records if record["predicted_by_market_cap"])
         stale_signal = sum(1 for record in records if record["final_verdict"] == "stale_signal")
+        late_capture = sum(1 for record in records if record["final_verdict"] == "late_capture")
         missed = sum(1 for record in records if record["final_verdict"] == "missed")
         no_signal = sum(1 for record in records if record["final_verdict"] == "no_signal")
         creator_compared = sum(1 for record in records if record["pf_ws_creator"] and record["rpc_creator"])
@@ -2228,6 +2229,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
             "market_cap_only": market_cap_only,
             "market_cap_predicted": market_cap_predicted,
             "stale_signal": stale_signal,
+            "late_capture": late_capture,
             "missed": missed,
             "no_signal": no_signal,
             "creator_compared": creator_compared,
@@ -2239,7 +2241,8 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
             "market_cap_only_pct": _pct(market_cap_only),
             "market_cap_predicted_pct": _pct(market_cap_predicted),
             "stale_signal_pct": _pct(stale_signal),
-            "missed_pct": _pct(missed + no_signal),
+            "late_capture_pct": _pct(late_capture),
+            "missed_pct": _pct(missed + no_signal + late_capture),
             "creator_compared_pct": _pct(creator_compared),
             "creator_matches_pct": _pct(creator_matches),
             "creator_mismatches_pct": _pct(creator_mismatches),

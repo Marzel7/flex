@@ -742,20 +742,18 @@ class PoolWebSocketClient:
 
         if to_remove:
             ws_log.info(f"[WS_RECONNECT] triggering reconnect to remove {len(to_remove)} accounts")
+            self._running = False
             if self._loop and self._loop.is_running():
                 self._loop.call_soon_threadsafe(self._loop.stop)
                 ws_log.debug("[WS_RECONNECT] applied via async loop stop")
-            else:
-                ws_log.info("[WS_RECONNECT] loop not running — restarting thread to apply diff")
-                self._running = False
-                if self._thread and self._thread.is_alive():
-                    self._thread.join(timeout=3)
-                self._running = True
-                self._thread = threading.Thread(
-                    target=self._run_thread, daemon=True, name="pool-ws"
-                )
-                self._thread.start()
-                ws_log.info("[WS_RECONNECT] thread restarted with updated account map")
+            if self._thread and self._thread.is_alive():
+                self._thread.join(timeout=5)
+            self._running = True
+            self._thread = threading.Thread(
+                target=self._run_thread, daemon=True, name="pool-ws"
+            )
+            self._thread.start()
+            ws_log.info("[WS_RECONNECT] thread restarted with updated account map")
 
     def _build_account_map(self, pools: List[Dict]) -> None:
         """Build pubkey->pools mapping from pool list. Handles multiple pools per account (shared WSOL, etc)."""

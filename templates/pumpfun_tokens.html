@@ -296,7 +296,7 @@
 .pf-chip.predicted { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
 .pf-chip.market_cap_only { background: rgba(59, 130, 246, 0.16); color: #93c5fd; }
 .pf-chip.stale_signal { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-.pf-chip.missed, .pf-chip.no_signal { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
+.pf-chip.missed, .pf-chip.no_signal, .pf-chip.late_capture { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
 .pf-chip.creator-match { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
 .pf-chip.creator-mismatch { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
 .pf-chip.creator-unknown { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
@@ -603,7 +603,10 @@ function renderVerificationTrail(section = {}) {
     document.getElementById('pfVerifyFlow').textContent = pctWithCount(summary.flow_predicted_pct, summary.flow_predicted || 0);
     document.getElementById('pfVerifyMarketCapOnly').textContent = pctWithCount(summary.market_cap_only_pct, summary.market_cap_only || 0);
     document.getElementById('pfVerifyStale').textContent = pctWithCount(summary.stale_signal_pct, summary.stale_signal || 0);
-    document.getElementById('pfVerifyMissed').textContent = pctWithCount(summary.missed_pct, (summary.missed || 0) + (summary.no_signal || 0));
+    document.getElementById('pfVerifyMissed').textContent = pctWithCount(
+        summary.missed_pct,
+        (summary.missed || 0) + (summary.no_signal || 0) + (summary.late_capture || 0)
+    );
     document.getElementById('pfVerifyCreatorMatchRate').textContent = creatorMetric(
         summary.creator_match_rate,
         summary.creator_metrics_matches,

@@ -19306,10 +19306,28 @@ def webhook_pumpfun_birth():
                 )
             """)
 
-        inserted = 0
+        inserted = skipped = 0
         for tx in payload:
-            sig = tx.get("signature") if isinstance(tx, dict) else None
+            if not isinstance(tx, dict):
+                continue
+            sig = tx.get("signature")
             if not sig:
+                continue
+            # Pre-filter: only queue if logs look like a CREATE, not a buy/sell/migrate.
+            # Saves an RPC getTransaction call for every non-birth pump.fun tx.
+            logs_text = " ".join(tx.get("logs") or []).lower()
+            is_create = (
+                "instruction: create" in logs_text
+                or "initializemint" in logs_text
+            )
+            is_noise = (
+                "instruction: buy" in logs_text
+                or "instruction: sell" in logs_text
+                or "instruction: migrate" in logs_text
+                or "migratebondingcurvecreator" in logs_text
+            )
+            if not is_create or is_noise:
+                skipped += 1
                 continue
             try:
                 with conn:
@@ -19320,7 +19338,7 @@ def webhook_pumpfun_birth():
             except Exception:
                 pass
         conn.close()
-        print(f"[BIRTH_WEBHOOK] Queued {inserted} birth signatures", flush=True)
+        print(f"[BIRTH_WEBHOOK] Queued {inserted} birth signatures (skipped {skipped} non-create)", flush=True)
     except Exception as e:
         print(f"[BIRTH_WEBHOOK] Handler error: {e}", flush=True)
     return "ok", 200

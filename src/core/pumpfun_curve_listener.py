@@ -2441,10 +2441,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                     should_check_pf_ws_creator = bool(
                         changed_values
-                        and (
-                            signal.get("is_about_to_migrate")
-                            or (signal.get("band") in {"likely_close", "warm", "hot"})
-                        )
+                        and signal.get("is_about_to_migrate")
                     )
                     pf_ws_creator_band = signal.get("band") or "unknown"
             except Exception as e:
@@ -3465,22 +3462,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
                 cursor = conn.cursor()
-                migration_verified = cursor.execute(
-                    """
-                    SELECT 1
-                    FROM pumpfun_migration_verification
-                    WHERE mint = ?
-                    LIMIT 1
-                    """,
-                    (mint,),
-                ).fetchone()
-                if not migration_verified:
-                    conn.close()
-                    log_print(
-                        f"[FUNDING_QUEUE] ⏭️ Skip enqueue for mint={mint[:8]}... reason=not_migration_verified",
-                        flush=True,
-                    )
-                    return False
                 existing = cursor.execute(
                     """
                     SELECT creator_address, status
@@ -4167,16 +4148,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         await self._upsert_birth_metadata_cache(mint, symbol, name)
 
-        if creator:
-            await self._enqueue_creator_funding_job(
-                creator,
-                mint=mint,
-                migration_timestamp=created_at,
-                create_tx_signature=create_tx_signature,
-                delay_seconds=0,
-                source="birth",
-            )
-
         try:
             from src.core.price_worker import PriceWorkerRegistry
             PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
@@ -4320,14 +4291,27 @@ class PumpFunCurveListener(FastLaneDiscovery):
             f"pf_ws={pf_ws_creator[:8]}... rpc={rpc_display}",
             flush=True,
         )
-        await self._enqueue_creator_funding_job(
-            pf_ws_creator,
-            mint=mint,
-            migration_timestamp=datetime.utcnow().isoformat() + "Z",
-            create_tx_signature=create_tx_signature,
-            delay_seconds=0,
-            source="pf_ws_creator",
-        )
+        try:
+            _atm_row = db_connect(DB_PATH, timeout=5).execute(
+                "SELECT is_about_to_migrate FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
+            ).fetchone()
+            _about_to_migrate = bool(_atm_row[0]) if _atm_row else False
+        except Exception:
+            _about_to_migrate = False
+        if _about_to_migrate:
+            await self._enqueue_creator_funding_job(
+                pf_ws_creator,
+                mint=mint,
+                migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                create_tx_signature=create_tx_signature,
+                delay_seconds=0,
+                source="pf_ws_creator",
+            )
+        else:
+            log_print(
+                f"[PF_WS_CREATOR] ⏭️ Skip funding enqueue mint={mint[:8]}... reason=not_about_to_migrate",
+                flush=True,
+            )
         return pf_ws_creator
 
     def _token_needs_creator_backfill(self, mint: str) -> bool:

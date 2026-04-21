@@ -317,6 +317,11 @@
     color: #6ee7b7;
 }
 
+.pf-chip.creator-funded-post {
+    background: rgba(99, 102, 241, 0.16);
+    color: #a5b4fc;
+}
+
 .pf-chip.creator-funding-pending {
     background: rgba(245, 158, 11, 0.16);
     color: #fcd34d;
@@ -753,9 +758,14 @@ function renderVerificationTrail(section = {}) {
         ].filter(Boolean);
 
         let creatorTag = '';
-        const creatorFundingTag = record.creator_funding_completed
-            ? `<span class="pf-chip creator-funded" title="Creator funding has been extracted and stored">funding done</span>`
-            : `<span class="pf-chip creator-funding-pending" title="Creator funding has not been persisted yet">funding pending</span>`;
+        let creatorFundingTag;
+        if (!record.creator_funding_completed) {
+            creatorFundingTag = `<span class="pf-chip creator-funding-pending" title="Creator funding has not been extracted yet">funding pending</span>`;
+        } else if (record.creator_funding_source === 'pf_ws_creator') {
+            creatorFundingTag = `<span class="pf-chip creator-funded" title="Funding extracted pre-migration via WS creator signal">funding pre</span>`;
+        } else {
+            creatorFundingTag = `<span class="pf-chip creator-funded-post" title="Funding extracted post-migration (fallback: ${pfEsc(record.creator_funding_source || 'unknown')})">funding post</span>`;
+        }
         const hasWs = !!record.pf_ws_creator;
         const hasRpc = !!record.rpc_creator;
         if (hasWs && hasRpc) {
@@ -801,7 +811,7 @@ function renderVerificationTrail(section = {}) {
                     <div class="pf-meta-line">flow=${record.predicted_by_flow ? 'yes' : 'no'} | market_cap=${record.predicted_by_market_cap ? 'yes' : 'no'} | explicit=${record.predicted_by_explicit_signal ? 'yes' : 'no'}</div>
                     <div class="pf-meta-line">reason=${pfEsc(record.verdict_reason || 'No verdict reason available.')}</div>
                     <div class="pf-meta-line">${creatorLine}</div>
-                    <div class="pf-meta-line">creator funding=${record.creator_funding_completed ? 'done' : 'pending'}</div>
+                    <div class="pf-meta-line">creator funding=${record.creator_funding_completed ? (record.creator_funding_source === 'pf_ws_creator' ? 'pre-migration' : `post-migration (${pfEsc(record.creator_funding_source || 'unknown')})`) : 'pending'}</div>
                 </div>
                 <div class="pf-verify-flags">
                     <span class="pf-chip ${pfEsc(record.signal_timing || 'creator-unknown')}">${pfEsc((record.signal_timing || 'unknown').replaceAll('_', ' '))}</span>

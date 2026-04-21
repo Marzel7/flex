@@ -1,0 +1,488 @@
+{% extends "base_shell.html" %}
+{% block title %}Creator Funding Queue{% endblock %}
+
+{% block extra_styles %}
+
+.cfq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.cfq-header h1 {
+    font-size: 26px;
+    color: #60a5fa;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.cfq-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.cfq-btn {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    text-decoration: none;
+}
+.cfq-btn:hover { background: rgba(59, 130, 246, 0.28); border-color: rgba(59,130,246,0.7); }
+
+.cfq-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.cfq-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+
+.cfq-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.cfq-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.cfq-stat-value.green  { color: #4ade80; }
+.cfq-stat-value.yellow { color: #fbbf24; }
+.cfq-stat-value.blue   { color: #60a5fa; }
+.cfq-stat-value.purple { color: #a78bfa; }
+.cfq-stat-value.red    { color: #f87171; }
+
+.cfq-section {
+    margin-bottom: 28px;
+}
+
+.cfq-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.cfq-source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.cfq-source-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    padding: 12px 14px;
+    display: grid;
+    gap: 4px;
+}
+
+.cfq-source-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #93c5fd;
+    font-family: monospace;
+}
+
+.cfq-source-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.cfq-filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.cfq-filter-bar select,
+.cfq-filter-bar input {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+}
+.cfq-filter-bar select:focus,
+.cfq-filter-bar input:focus {
+    border-color: rgba(59,130,246,0.5);
+}
+
+.cfq-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+table.cfq-table {
+    width: 100%;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+}
+
+table.cfq-table td,
+table.cfq-table th {
+    text-align: left !important;
+}
+
+table.cfq-table thead th {
+    background: rgba(255,255,255,0.03);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+table.cfq-table thead th:hover { color: var(--text-primary); }
+table.cfq-table thead th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+table.cfq-table thead th.sorted .sort-arrow { opacity: 1; color: #60a5fa; }
+
+table.cfq-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.1s;
+}
+table.cfq-table tbody tr:last-child { border-bottom: none; }
+table.cfq-table tbody tr:hover { background: var(--bg-hover); }
+
+table.cfq-table td {
+    padding: 9px 12px;
+    vertical-align: middle;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table.cfq-table td:last-child {
+    white-space: normal;
+    overflow: visible;
+}
+
+.cfq-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+.cfq-chip.pending   { background: rgba(59,130,246,0.15); color: #93c5fd; }
+.cfq-chip.running   { background: rgba(234,179,8,0.15);  color: #fde047; }
+.cfq-chip.retry     { background: rgba(249,115,22,0.15); color: #fb923c; }
+.cfq-chip.complete  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+
+.cfq-source-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: monospace;
+    background: rgba(139,92,246,0.15);
+    color: #c4b5fd;
+    white-space: nowrap;
+}
+
+.cfq-mono {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.cfq-error {
+    font-size: 11px;
+    color: #f87171;
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cfq-age {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.cfq-empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.cfq-last-updated {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+{% endblock %}
+
+{% block content %}
+<div class="cfq-header">
+    <h1>Creator Funding Queue</h1>
+    <div class="cfq-controls">
+        <span class="cfq-last-updated" id="cfq-last-updated">—</span>
+        <button class="cfq-btn" onclick="cfqLoad()">Refresh</button>
+        <a class="cfq-btn" href="/">← Home</a>
+    </div>
+</div>
+
+<div class="cfq-stats" id="cfq-stats">
+    <div class="cfq-stat"><div class="cfq-stat-label">Total</div><div class="cfq-stat-value blue" id="s-total">—</div></div>
+    <div class="cfq-stat"><div class="cfq-stat-label">Ready</div><div class="cfq-stat-value yellow" id="s-ready">—</div></div>
+    <div class="cfq-stat"><div class="cfq-stat-label">Running</div><div class="cfq-stat-value purple" id="s-running">—</div></div>
+    <div class="cfq-stat"><div class="cfq-stat-label">Pending</div><div class="cfq-stat-value blue" id="s-pending">—</div></div>
+    <div class="cfq-stat"><div class="cfq-stat-label">Retry</div><div class="cfq-stat-value red" id="s-retry">—</div></div>
+    <div class="cfq-stat"><div class="cfq-stat-label">Complete</div><div class="cfq-stat-value green" id="s-complete">—</div></div>
+</div>
+
+<div class="cfq-section">
+    <div class="cfq-section-title">By Source</div>
+    <div class="cfq-source-grid" id="cfq-source-grid">
+        <div class="cfq-empty">Loading…</div>
+    </div>
+</div>
+
+<div class="cfq-section">
+    <div class="cfq-section-title">Queue Entries</div>
+    <div class="cfq-filter-bar">
+        <select id="f-status" onchange="cfqRender()">
+            <option value="">All statuses</option>
+            <option value="pending">pending</option>
+            <option value="running">running</option>
+            <option value="retry">retry</option>
+            <option value="complete">complete</option>
+        </select>
+        <select id="f-source" onchange="cfqRender()">
+            <option value="">All sources</option>
+        </select>
+        <input id="f-search" type="text" placeholder="Filter by mint or creator…" oninput="cfqRender()" style="min-width:220px;">
+    </div>
+    <div class="cfq-table-wrap">
+        <table class="cfq-table">
+            <thead>
+                <colgroup>
+                    <col style="width:13%">
+                    <col style="width:13%">
+                    <col style="width:14%">
+                    <col style="width:8%">
+                    <col style="width:14%">
+                    <col style="width:8%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                </colgroup>
+                <tr>
+                    <th onclick="cfqSort('creator_address')">Creator <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('mint')">Mint <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('symbol')">Token <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('status')">Status <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('source')">Source <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('attempts')">Attempts <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('next_attempt_at')">Next Attempt <span class="sort-arrow">↕</span></th>
+                    <th onclick="cfqSort('created_at')">Enqueued <span class="sort-arrow">↕</span></th>
+                    <th>Last Error</th>
+                </tr>
+            </thead>
+            <tbody id="cfq-tbody">
+                <tr><td colspan="9" class="cfq-empty">Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-top:8px; font-size:12px; color:var(--text-secondary);" id="cfq-row-count"></div>
+</div>
+
+<script>
+let _cfqData = [];
+let _cfqNow = 0;
+let _cfqSortKey = 'created_at';
+let _cfqSortDir = -1;
+
+function cfqFmtAge(ts) {
+    if (!ts) return '—';
+    const diff = _cfqNow - ts;
+    if (diff < 0) return 'in ' + cfqFmtDur(-diff);
+    return cfqFmtDur(diff) + ' ago';
+}
+
+function cfqFmtDur(secs) {
+    if (secs < 60) return secs + 's';
+    if (secs < 3600) return Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    return h + 'h ' + m + 'm';
+}
+
+function cfqShort(addr) {
+    if (!addr) return '—';
+    return addr.slice(0, 8) + '…' + addr.slice(-4);
+}
+
+function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function cfqSort(key) {
+    if (_cfqSortKey === key) { _cfqSortDir *= -1; }
+    else { _cfqSortKey = key; _cfqSortDir = key === 'created_at' ? -1 : 1; }
+    cfqRender();
+}
+
+function cfqRender() {
+    const fStatus = document.getElementById('f-status').value;
+    const fSource = document.getElementById('f-source').value;
+    const fSearch = document.getElementById('f-search').value.trim().toLowerCase();
+
+    let rows = _cfqData.filter(r => {
+        if (fStatus && r.status !== fStatus) return false;
+        if (fSource && r.source !== fSource) return false;
+        if (fSearch) {
+            const hay = (r.creator_address + r.mint).toLowerCase();
+            if (!hay.includes(fSearch)) return false;
+        }
+        return true;
+    });
+
+    rows.sort((a, b) => {
+        const av = a[_cfqSortKey] ?? '';
+        const bv = b[_cfqSortKey] ?? '';
+        if (av < bv) return -_cfqSortDir;
+        if (av > bv) return _cfqSortDir;
+        return 0;
+    });
+
+    document.querySelectorAll('table.cfq-table thead th').forEach(th => th.classList.remove('sorted'));
+    const ths = document.querySelectorAll('table.cfq-table thead th');
+    const keys = ['creator_address','mint','symbol','status','source','attempts','next_attempt_at','created_at','last_error'];
+    keys.forEach((k, i) => {
+        if (k === _cfqSortKey && ths[i]) {
+            ths[i].classList.add('sorted');
+            ths[i].querySelector('.sort-arrow').textContent = _cfqSortDir > 0 ? '↑' : '↓';
+        } else if (ths[i] && ths[i].querySelector('.sort-arrow')) {
+            ths[i].querySelector('.sort-arrow').textContent = '↕';
+        }
+    });
+
+    const tbody = document.getElementById('cfq-tbody');
+    if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="cfq-empty">No entries match the current filters.</td></tr>';
+        document.getElementById('cfq-row-count').textContent = '';
+        return;
+    }
+
+    tbody.innerHTML = rows.map(r => {
+        const nextIn = r.status === 'complete' ? '—' : (r.next_attempt_at ? cfqFmtAge(r.next_attempt_at) : '—');
+        const enqueued = r.status === 'complete' ? '—' : (r.created_at ? cfqFmtAge(r.created_at) : '—');
+        const errHtml = r.last_error
+            ? `<span class="cfq-error" title="${esc(r.last_error)}">${esc(r.last_error)}</span>`
+            : '<span style="color:var(--text-secondary)">—</span>';
+        let tokenCell = '<span style="color:var(--text-secondary)">—</span>';
+        if (r.symbol) {
+            tokenCell = '<span style="font-weight:600;color:#e2e8f0">' + esc(r.symbol) + '</span>';
+            if (r.token_name) tokenCell += ' <span style="color:var(--text-secondary);font-size:11px">' + esc(r.token_name) + '</span>';
+        }
+        return '<tr>'
+            + '<td><span class="cfq-mono" title="' + esc(r.creator_address) + '">' + cfqShort(r.creator_address) + '</span></td>'
+            + '<td><span class="cfq-mono" title="' + esc(r.mint) + '">' + cfqShort(r.mint) + '</span></td>'
+            + '<td>' + tokenCell + '</td>'
+            + '<td><span class="cfq-chip ' + esc(r.status) + '">' + esc(r.status) + '</span></td>'
+            + '<td><span class="cfq-source-chip">' + esc(r.source || 'unknown') + '</span></td>'
+            + '<td>' + r.attempts + '</td>'
+            + '<td class="cfq-age">' + nextIn + '</td>'
+            + '<td class="cfq-age">' + enqueued + '</td>'
+            + '<td>' + errHtml + '</td>'
+            + '</tr>';
+    }).join('');
+
+    document.getElementById('cfq-row-count').textContent = `Showing ${rows.length} of ${_cfqData.length} entries`;
+}
+
+async function cfqLoad() {
+    try {
+        const resp = await fetch('/api/funding-queue');
+        const data = await resp.json();
+        if (!data.ok) { console.error('API error', data.error); return; }
+
+        _cfqNow = data.now;
+        _cfqData = data.rows || [];
+
+        const s = data.stats || {};
+        document.getElementById('s-total').textContent   = s.total   ?? 0;
+        document.getElementById('s-ready').textContent   = s.ready   ?? 0;
+        document.getElementById('s-running').textContent = s.running ?? 0;
+        document.getElementById('s-pending').textContent = s.pending ?? 0;
+        document.getElementById('s-retry').textContent   = s.retry   ?? 0;
+        document.getElementById('s-complete').textContent= s.complete ?? 0;
+
+        const sourceGrid = document.getElementById('cfq-source-grid');
+        const bySource = data.by_source || [];
+        if (bySource.length) {
+            sourceGrid.innerHTML = bySource.map(src => `
+                <div class="cfq-source-card">
+                    <div class="cfq-source-name">${esc(src.source)}</div>
+                    <div class="cfq-source-meta">total ${src.total} &bull; active ${src.active} &bull; done ${src.complete}</div>
+                </div>
+            `).join('');
+        } else {
+            sourceGrid.innerHTML = '<div class="cfq-empty">No entries yet.</div>';
+        }
+
+        // Populate source filter
+        const fSource = document.getElementById('f-source');
+        const currentSrc = fSource.value;
+        fSource.innerHTML = '<option value="">All sources</option>' +
+            bySource.map(s => `<option value="${esc(s.source)}">${esc(s.source)} (${s.total})</option>`).join('');
+        if (currentSrc) fSource.value = currentSrc;
+
+        document.getElementById('cfq-last-updated').textContent =
+            'Updated ' + new Date().toLocaleTimeString();
+
+        cfqRender();
+    } catch (e) {
+        console.error('cfqLoad failed', e);
+    }
+}
+
+cfqLoad();
+setInterval(cfqLoad, 10000);
+</script>
+{% endblock %}

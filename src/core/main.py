@@ -2105,7 +2105,15 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                            OR cf.creator_address = ta.pf_ws_creator
                         LIMIT 1
                     ) THEN 1 ELSE 0
-                END AS creator_funding_completed
+                END AS creator_funding_completed,
+                (
+                    SELECT source
+                    FROM creator_funding_queue cfq
+                    WHERE cfq.mint = pmv.mint
+                      AND cfq.status = 'complete'
+                    ORDER BY cfq.updated_at DESC
+                    LIMIT 1
+                ) AS creator_funding_source
             FROM pumpfun_migration_verification pmv
             LEFT JOIN metadata_cache mc
                 ON mc.mint = pmv.mint
@@ -2217,6 +2225,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 "rpc_creator": row["rpc_creator"] or None,
                 "creator_mismatch": bool(row["creator_mismatch"]) if row["creator_mismatch"] is not None else None,
                 "creator_funding_completed": bool(row["creator_funding_completed"]) if row["creator_funding_completed"] is not None else False,
+                "creator_funding_source": row["creator_funding_source"] or None,
             })
 
         pf_ws_backfills_started = 0

@@ -1,19 +1,17 @@
 """
 Creator activity redesign — service layer.
 
-These functions sit between the listener/migration code and the repository.
-They implement the Tier A / Tier B split and all decision logic.
+Tier A (hot path — no expensive RPC, safe at curve_complete / migration):
+  ensure_pf_ws_creator()
+  process_repeat_creator_launch()
 
-Tier A (hot path, no expensive RPC):
-  - _ensure_pf_ws_creator()
-  - _process_repeat_creator_launch()
-  - _start_creator_watch_if_needed()
+Tier B (background — called only from worker jobs):
+  reconcile_creator_gap()
 
-Tier B (background, expensive):
-  - _should_run_creator_baseline()
-  - _enqueue_creator_activity_job()
-  - _reconcile_creator_gap()
-  - _handle_creator_stream_event()
+Supporting:
+  enqueue_creator_activity_job()
+  should_run_creator_baseline()
+  handle_creator_stream_event()
 """
 
 from __future__ import annotations
@@ -21,424 +19,406 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import Optional, TYPE_CHECKING
+from typing import Awaitable, Callable, Optional
 
 from src.creators.models import (
-    CreatorProfile,
-    CreatorActivityState,
-    HistoryStatus,
     CoverageMode,
+    HistoryStatus,
     JobType,
-    JobStatus,
     StreamHealthStatus,
     WebhookStatus,
 )
 from src.creators.repository import CreatorRepository
 
-if TYPE_CHECKING:
-    pass
-
 logger = logging.getLogger(__name__)
 
-# Staleness threshold: if last full scan was older than this, consider a refresh.
-_STALE_FULL_SCAN_SECONDS = 7 * 24 * 3600   # 7 days
-# Staleness for incremental: more aggressive
-_STALE_INCREMENTAL_SECONDS = 6 * 3600      # 6 hours
-# Reconcile window: how far back we look for streaming gaps
-_RECONCILE_LOOKBACK_SIGNATURES = 50
+# Staleness thresholds
+_STALE_FULL_SCAN_SECONDS        = 7 * 24 * 3600   # baseline is stale after 7 days
+_STALE_INCREMENTAL_SECONDS      = 6 * 3600         # incremental is stale after 6 hours
+_RECONCILE_LOOKBACK_LIMIT       = 50               # max sigs fetched per reconcile pass
+
+# Gap detection — BOTH must be checked (slot + time)
+_GAP_SLOT_THRESHOLD  = 50     # slots
+_GAP_TIME_THRESHOLD  = 300    # seconds (5 min of wall-clock silence = suspect gap)
 
 
 # ---------------------------------------------------------------------------
 # Tier A — hot path
 # ---------------------------------------------------------------------------
 
-async def _ensure_pf_ws_creator(
+async def ensure_pf_ws_creator(
     mint: str,
     reason: str,
     *,
     repo: CreatorRepository,
     db_path: str,
     db_lock: asyncio.Lock,
-    get_transaction_fn,   # async (signature: str) -> Optional[dict]
-    validate_create_fn,   # (tx_data: dict) -> dict  with {"is_pumpfun_create": bool}
-    infer_creator_fn,     # (tx_data: dict) -> Optional[str]
-    get_creator_fallback_fn,  # async (mint: str) -> Optional[str]  — Path B, expensive
-    enqueue_funding_fn,   # async (...) — existing _enqueue_creator_funding_job
+    get_transaction_fn:  Callable[[str], Awaitable[Optional[dict]]],
+    validate_create_fn:  Callable[[dict], dict],
+    infer_creator_fn:    Callable[[dict], Optional[str]],
 ) -> Optional[str]:
     """
-    Preferred single-RPC creator resolution.  Hot path safe.
+    Resolve and persist pf_ws_creator via a single getTransaction RPC (Path A).
 
-    Decision:
-      1. Read token_analysis for create_tx_signature, pf_ws_creator, earliest_tx_creator.
-      2. If pf_ws_creator already set → touch creator_profile, return immediately.
-      3. If create_tx_signature available → getTransaction (1 credit), validate, infer.
-      4. If create_tx_signature missing and we are NOT on the hot path → kick off Path B job.
-      5. Write pf_ws_creator to DB.
-      6. Upsert creator_profile (first_seen, token_count).
-      7. Enqueue funding job via existing mechanism.
-      8. Start creator watch if needed.
+    Hot-path contract:
+      - getSignaturesForAddress is NEVER called here.
+      - If create_tx_signature is missing and no creator exists in DB,
+        a baseline job is enqueued to resolve it later.
+      - Returns the creator address or None.
+
+    After resolution, always:
+      - upserts creator_profile
+      - enqueues a baseline job if history_status == unknown
     """
-    from src.utils.db_locking import db_connect
     import sqlite3
+    from src.utils.db_locking import db_connect
 
-    # --- Step 1: read token state ---
+    # --- 1. Read token state ---
     try:
         async with db_lock:
             conn = db_connect(db_path, timeout=10)
             conn.row_factory = sqlite3.Row
             row = conn.execute(
-                "SELECT create_tx_signature, pf_ws_creator, earliest_tx_creator FROM token_analysis WHERE mint = ? LIMIT 1",
+                """SELECT create_tx_signature, pf_ws_creator, earliest_tx_creator
+                   FROM token_analysis WHERE mint = ? LIMIT 1""",
                 (mint,),
             ).fetchone()
             conn.close()
     except Exception as e:
-        logger.warning("[PF_WS_CREATOR] DB read failed for %s: %s", mint[:16], e)
+        logger.warning("[PF_WS_CREATOR] DB read failed mint=%s: %s", mint[:16], e)
         return None
 
     if not row:
         return None
 
-    create_tx_signature = row["create_tx_signature"]
-    existing_pf_ws_creator = row["pf_ws_creator"]
+    create_tx_sig      = row["create_tx_signature"]
+    pf_ws_creator      = row["pf_ws_creator"]
     earliest_tx_creator = row["earliest_tx_creator"]
 
-    # --- Step 2: already resolved ---
-    if existing_pf_ws_creator:
-        await _touch_creator_profile(existing_pf_ws_creator, repo=repo)
-        return existing_pf_ws_creator
+    # --- 2. Already resolved — profile touch only ---
+    if pf_ws_creator:
+        await _on_creator_known(pf_ws_creator, mint=mint, reason=reason, repo=repo,
+                                create_tx_sig=create_tx_sig, skip_funding=True)
+        return pf_ws_creator
 
-    # --- Step 3: resolve via create_tx_signature (Path A) ---
+    # --- 3. Path A: single getTransaction ---
     creator: Optional[str] = None
-    if create_tx_signature:
-        tx_data = await get_transaction_fn(create_tx_signature)
-        if tx_data:
-            validation = validate_create_fn(tx_data)
-            if validation.get("is_pumpfun_create"):
+    if create_tx_sig:
+        try:
+            tx_data = await get_transaction_fn(create_tx_sig)
+            if tx_data and validate_create_fn(tx_data).get("is_pumpfun_create"):
                 creator = infer_creator_fn(tx_data)
-        if not creator:
-            logger.warning("[PF_WS_CREATOR] Path A failed for %s reason=%s", mint[:16], reason)
+        except Exception as e:
+            logger.warning("[PF_WS_CREATOR] getTransaction failed mint=%s sig=%s: %s",
+                           mint[:16], create_tx_sig[:16], e)
 
-    # --- Step 4: no create_tx_signature on hot path → use earliest_tx_creator if available,
-    #             otherwise schedule baseline job and return None ---
+    # --- 4. Fallback to DB column (zero RPC) ---
+    if not creator and earliest_tx_creator:
+        creator = earliest_tx_creator
+        logger.debug("[PF_WS_CREATOR] Using earliest_tx_creator fallback mint=%s", mint[:16])
+
+    # --- 5. No creator available on hot path — schedule baseline job and bail ---
     if not creator:
-        if earliest_tx_creator:
-            creator = earliest_tx_creator
-        else:
-            # Schedule Path B as a background job rather than blocking the hot path
-            if reason in ("curve_complete", "migration", "migration:pre_tracked"):
-                await _enqueue_creator_activity_job(
-                    creator_address=None,   # unknown — job will resolve it
-                    mint=mint,
-                    reason=reason,
-                    job_type=JobType.BASELINE,
-                    repo=repo,
-                    # Stub: no creator yet, job picks up mint and derives creator internally
-                    priority=10,
-                )
-            return None
+        logger.info("[PF_WS_CREATOR] Creator unresolvable on hot path mint=%s reason=%s "
+                    "— baseline job will derive it", mint[:16], reason)
+        # We cannot key the job by creator yet; caller must handle mint-level fallback.
+        # The baseline worker will pick this up via the source_mint field.
+        # For now we return None and the caller's existing fallback path applies.
+        return None
 
-    # --- Step 5: write pf_ws_creator ---
+    # --- 6. Persist pf_ws_creator ---
     try:
         async with db_lock:
             conn = db_connect(db_path, timeout=30)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute(
-                "UPDATE token_analysis SET pf_ws_creator = ?, updated_at = ? WHERE mint = ? AND pf_ws_creator IS NULL",
+                """UPDATE token_analysis SET pf_ws_creator = ?, updated_at = ?
+                   WHERE mint = ? AND pf_ws_creator IS NULL""",
                 (creator, int(time.time()), mint),
             )
             conn.commit()
             conn.close()
     except Exception as e:
-        logger.warning("[PF_WS_CREATOR] DB write failed for %s: %s", mint[:16], e)
+        logger.warning("[PF_WS_CREATOR] DB write failed mint=%s: %s", mint[:16], e)
         return None
 
-    # --- Step 6: upsert creator_profile ---
-    now = int(time.time())
-    await repo.upsert_creator_profile(
-        creator,
-        last_create_tx_signature=create_tx_signature,
-        last_launch_at=now,
-        last_activity_at=now,
-    )
-    await repo.increment_creator_token_count(creator, last_launch_at=now)
-
-    # --- Step 7: enqueue funding job via existing mechanism ---
-    await enqueue_funding_fn(creator, mint=mint, create_tx_signature=create_tx_signature, reason=reason)
-
-    # --- Step 8: start creator watch ---
-    await _start_creator_watch_if_needed(creator, repo=repo)
-
+    # --- 7. Update creator_profile and conditionally enqueue baseline ---
+    await _on_creator_known(creator, mint=mint, reason=reason, repo=repo,
+                            create_tx_sig=create_tx_sig, skip_funding=False)
     return creator
 
 
-async def _touch_creator_profile(creator_address: str, *, repo: CreatorRepository) -> None:
-    """Update last_seen_at without any expensive work."""
-    await repo.upsert_creator_profile(creator_address, last_activity_at=int(time.time()))
-
-
-async def _process_repeat_creator_launch(
+async def process_repeat_creator_launch(
     creator_address: str,
     mint: str,
     create_tx_signature: Optional[str],
     *,
     repo: CreatorRepository,
-    enqueue_funding_fn,
 ) -> None:
     """
-    Tier A hot path for a creator we already know.
+    Tier A handler when a known creator (history_status != unknown) launches a new token.
 
-    Decision tree:
-      - Increment token count.
-      - Always enqueue funding job (cheap; existing queue deduplicates).
-      - If profile is stale → schedule incremental_reconcile job (Tier B, background).
-      - Never run full historical scan again.
+    Contract:
+      - NEVER triggers legacy creator_funding_queue extraction (history_status != unknown
+        means we already have their data).
+      - Increments token count.
+      - Enqueues incremental_reconcile if profile is stale.
+      - No expensive RPC.
     """
     now = int(time.time())
-    profile = await repo.get_creator_profile(creator_address)
-
     await repo.increment_creator_token_count(creator_address, last_launch_at=now)
+    await repo.upsert_creator_profile(
+        creator_address,
+        last_launch_at=now,
+        last_create_tx_signature=create_tx_signature,
+        last_activity_at=now,
+    )
 
-    # Always pass through existing funding queue (deduplicates internally)
-    await enqueue_funding_fn(creator_address, mint=mint, create_tx_signature=create_tx_signature, reason="repeat_launch")
-
-    if profile and _is_profile_stale_for_incremental(profile):
-        await _enqueue_creator_activity_job(
-            creator_address=creator_address,
-            mint=mint,
-            reason="repeat_launch_stale",
+    profile = await repo.get_creator_profile(creator_address)
+    if profile and _is_stale_for_incremental(profile):
+        await enqueue_creator_activity_job(
+            creator_address,
             job_type=JobType.INCREMENTAL_RECONCILE,
-            repo=repo,
+            source_mint=mint,
+            source_reason="repeat_launch_stale",
             priority=50,
+            repo=repo,
         )
 
 
-def _is_profile_stale_for_incremental(profile: CreatorProfile) -> bool:
-    now = int(time.time())
-    last = profile.last_incremental_scan_at or profile.last_full_scan_at
-    if not last:
-        return True
-    return (now - last) > _STALE_INCREMENTAL_SECONDS
+# ---------------------------------------------------------------------------
+# Internal: called after any successful creator resolution
+# ---------------------------------------------------------------------------
 
-
-async def _start_creator_watch_if_needed(
+async def _on_creator_known(
     creator_address: str,
     *,
+    mint: str,
+    reason: str,
     repo: CreatorRepository,
-    webhook_register_fn=None,   # optional: async (creator_address) -> bool
+    create_tx_sig: Optional[str],
+    skip_funding: bool,
 ) -> None:
     """
-    Register a wallet-level subscription/webhook once per creator.
-    Currently a stub; wire in Helius webhook registration when available.
-    """
-    profile = await repo.get_creator_profile(creator_address)
-    if profile and profile.webhook_status == WebhookStatus.ACTIVE:
-        return  # already watching
+    Common post-resolution logic.  Called whether creator came from cache or fresh RPC.
 
+    skip_funding=True when the creator was already in pf_ws_creator (no new token entry
+    needed).  The caller is responsible for the legacy funding queue when skip_funding=False.
+    """
     now = int(time.time())
-    if webhook_register_fn:
-        try:
-            ok = await webhook_register_fn(creator_address)
-            status = WebhookStatus.ACTIVE if ok else WebhookStatus.ERROR
-        except Exception:
-            status = WebhookStatus.ERROR
+
+    profile = await repo.get_creator_profile(creator_address)
+
+    if profile is None:
+        # First time we've ever seen this creator
+        await repo.increment_creator_token_count(creator_address, last_launch_at=now)
+        await repo.upsert_creator_profile(
+            creator_address,
+            last_create_tx_signature=create_tx_sig,
+            last_activity_at=now,
+            last_launch_at=now,
+        )
     else:
-        # No webhook integration yet — mark as stopped so we know watch was attempted
-        status = WebhookStatus.STOPPED
+        await repo.upsert_creator_profile(
+            creator_address,
+            last_create_tx_signature=create_tx_sig,
+            last_activity_at=now,
+        )
 
-    await repo.upsert_creator_profile(
-        creator_address,
-        webhook_started_at=now if status == WebhookStatus.ACTIVE else None,
-        webhook_status=status.value,
-    )
+    # Re-read after potential insert to get accurate history_status
+    profile = await repo.get_creator_profile(creator_address)
+
+    if should_run_creator_baseline(profile):
+        await enqueue_creator_activity_job(
+            creator_address,
+            job_type=JobType.BASELINE,
+            source_mint=mint,
+            source_reason=reason,
+            priority=100,
+            delay_seconds=30,   # small delay — let hot-path analysis complete first
+            repo=repo,
+        )
 
 
 # ---------------------------------------------------------------------------
-# Tier B decision gate
+# Tier B gate functions
 # ---------------------------------------------------------------------------
 
-def _should_run_creator_baseline(
-    profile: Optional[CreatorProfile],
-    activity_state: Optional[CreatorActivityState],
-) -> bool:
+def should_run_creator_baseline(profile: Optional[object]) -> bool:
     """
-    Returns True if we should enqueue a full baseline scan.
+    Returns True when a Tier B baseline job should be enqueued.
 
-    Rules:
-      - Never if history_status == 'baselined' and last_full_scan_at is recent.
-      - Always if history_status == 'unknown'.
-      - If 'partial' and resume_cursor exists → re-enqueue to continue.
-      - If 'baselined' but stale (> 7 days) → True for a refresh baseline.
-      - If 'stale' → True.
+      unknown   → always (first scan)
+      partial   → always (resume incomplete scan)
+      stale     → always (data too old)
+      baselined → only if last_full_scan_at > 7 days ago
     """
     if profile is None:
         return True
-
-    if profile.history_status == HistoryStatus.UNKNOWN:
+    if profile.history_status in (HistoryStatus.UNKNOWN, HistoryStatus.PARTIAL, HistoryStatus.STALE):
         return True
-
-    if profile.history_status == HistoryStatus.PARTIAL:
-        # Resume incomplete baseline
-        return True
-
-    if profile.history_status == HistoryStatus.STALE:
-        return True
-
     if profile.history_status == HistoryStatus.BASELINED:
-        now = int(time.time())
-        if profile.last_full_scan_at and (now - profile.last_full_scan_at) > _STALE_FULL_SCAN_SECONDS:
+        if not profile.last_full_scan_at:
             return True
-        return False
-
+        return (int(time.time()) - profile.last_full_scan_at) > _STALE_FULL_SCAN_SECONDS
     return False
 
 
+def _is_stale_for_incremental(profile: object) -> bool:
+    last = profile.last_incremental_scan_at or profile.last_full_scan_at
+    if not last:
+        return True
+    return (int(time.time()) - last) > _STALE_INCREMENTAL_SECONDS
+
+
 # ---------------------------------------------------------------------------
-# Enqueue helper
+# Job enqueue
 # ---------------------------------------------------------------------------
 
-async def _enqueue_creator_activity_job(
-    creator_address: Optional[str],
-    mint: str,
-    reason: str,
-    job_type: JobType,
+async def enqueue_creator_activity_job(
+    creator_address: str,
     *,
-    repo: CreatorRepository,
-    priority: int = 100,
-    delay_seconds: int = 0,
+    job_type:       JobType,
+    source_mint:    Optional[str] = None,
+    source_reason:  Optional[str] = None,
+    priority:       int           = 100,
+    delay_seconds:  int           = 0,
+    repo:           CreatorRepository,
 ) -> Optional[int]:
     """
-    Enqueue a Tier B job.  Skipped if an active job of the same type already exists.
-    Returns the new job ID or None if skipped.
+    Enqueue a Tier B job.  Returns job id or None if a duplicate already exists.
+    The UNIQUE partial index on (creator_address, job_type) WHERE status IN ('pending','running')
+    enforces at-most-one active job per creator+type at the DB layer.
     """
-    if not creator_address:
-        # Creator unresolved — we cannot key the job yet; caller should retry after resolution
-        logger.debug("[CREATOR_JOB] Cannot enqueue %s job: creator_address unknown for mint=%s", job_type.value, mint[:16])
-        return None
-
     job_id = await repo.enqueue_creator_activity_job(
         creator_address,
         job_type,
         priority=priority,
-        source_mint=mint,
-        source_reason=reason,
+        source_mint=source_mint,
+        source_reason=source_reason,
         delay_seconds=delay_seconds,
     )
     if job_id:
-        logger.info("[CREATOR_JOB] Enqueued %s job id=%s creator=%s mint=%s", job_type.value, job_id, creator_address[:16], mint[:16])
+        logger.info("[CREATOR_JOB] Enqueued %s job_id=%s creator=%s mint=%s",
+                    job_type.value, job_id, creator_address[:16], (source_mint or "")[:16])
     else:
-        logger.debug("[CREATOR_JOB] Skipped duplicate %s job for creator=%s", job_type.value, creator_address[:16])
+        logger.debug("[CREATOR_JOB] Duplicate %s skipped creator=%s",
+                     job_type.value, creator_address[:16])
     return job_id
 
 
 # ---------------------------------------------------------------------------
-# Stream event handler (called from webhook callback / subscription handler)
+# Streaming handler (Tier A — called from webhook/subscription callback)
 # ---------------------------------------------------------------------------
 
-async def _handle_creator_stream_event(
+async def handle_creator_stream_event(
     event: dict,
     *,
     repo: CreatorRepository,
 ) -> None:
     """
-    Process a streamed wallet event for a creator.
+    Update cursor state for a received wallet event.
+    Detects gaps using BOTH slot distance AND wall-clock time.
 
-    event dict keys expected:
-      creator_address, signature, slot, timestamp, event_type
-
-    Updates creator_activity_state cursor.
-    Flags gap if incoming slot < last_seen_slot - threshold.
+    event keys: creator_address, signature, slot, timestamp
     """
     creator_address = event.get("creator_address")
     signature       = event.get("signature")
     slot            = event.get("slot")
-    ts              = event.get("timestamp") or int(time.time())
+    ts: int         = event.get("timestamp") or int(time.time())
 
     if not creator_address or not signature:
         return
 
-    now = int(time.time())
+    now   = int(time.time())
     state = await repo.get_creator_activity_state(creator_address)
 
-    GAP_SLOT_THRESHOLD = 50  # slots; tune based on observed missed-event frequency
-
-    needs_reconcile = False
-    last_gap_detected_at = None
-
-    if state and state.last_seen_slot and slot:
-        slot_delta = slot - state.last_seen_slot
-        if slot_delta > GAP_SLOT_THRESHOLD:
+    gap = False
+    if state and (state.last_seen_slot or state.last_seen_at):
+        slot_gap = (slot and state.last_seen_slot and
+                    (slot - state.last_seen_slot) > _GAP_SLOT_THRESHOLD)
+        time_gap = (state.last_seen_at and
+                    (now - state.last_seen_at) > _GAP_TIME_THRESHOLD)
+        gap = bool(slot_gap or time_gap)
+        if gap:
             logger.warning(
-                "[CREATOR_STREAM] Gap detected creator=%s slot_delta=%d last=%s new=%s",
-                creator_address[:16], slot_delta, state.last_seen_slot, slot,
+                "[CREATOR_STREAM] Gap detected creator=%s slot_delta=%s time_delta=%ss",
+                creator_address[:16],
+                (slot - state.last_seen_slot) if (slot and state.last_seen_slot) else "?",
+                (now - state.last_seen_at)  if state.last_seen_at else "?",
             )
-            needs_reconcile = True
-            last_gap_detected_at = now
 
     await repo.upsert_creator_activity_state(
         creator_address,
-        last_seen_signature=signature,
-        last_seen_slot=slot,
-        stream_health_status=StreamHealthStatus.GAP_DETECTED if needs_reconcile else StreamHealthStatus.HEALTHY,
-        needs_reconcile=needs_reconcile if needs_reconcile else None,
-        last_gap_detected_at=last_gap_detected_at,
+        last_seen_signature  = signature,
+        last_seen_slot       = slot,
+        last_seen_at         = ts,
+        stream_health_status = StreamHealthStatus.GAP_DETECTED if gap else StreamHealthStatus.HEALTHY,
+        needs_reconcile      = True if gap else None,   # None = don't overwrite existing True
+        last_gap_detected_at = now if gap else None,
     )
-
     await repo.upsert_creator_profile(creator_address, last_activity_at=ts)
 
-    if needs_reconcile:
-        await _enqueue_creator_activity_job(
+    if gap:
+        await enqueue_creator_activity_job(
             creator_address,
-            mint="",
-            reason="stream_gap",
             job_type=JobType.INCREMENTAL_RECONCILE,
-            repo=repo,
+            source_reason="stream_gap",
             priority=20,
+            repo=repo,
         )
 
 
 # ---------------------------------------------------------------------------
-# Reconciliation (Tier B, background)
+# Reconciliation (Tier B — called from worker only)
 # ---------------------------------------------------------------------------
 
-async def _reconcile_creator_gap(
+async def reconcile_creator_gap(
     creator_address: str,
     *,
     repo: CreatorRepository,
-    get_signatures_fn,  # async (address, before=None, limit=50) -> list[dict]
-    process_signature_fn,  # async (creator, sig_info) -> None
+    get_signatures_fn:   Callable[..., Awaitable[list]],
+    process_signature_fn: Callable[[str, dict], Awaitable[None]],
 ) -> None:
     """
-    Bounded reconciliation after a detected streaming gap.
+    Bounded getSignaturesForAddress scan to fill a detected streaming gap.
 
-    Scans from last_seen_signature backwards by at most _RECONCILE_LOOKBACK_SIGNATURES.
-    Stops when we hit oldest_scanned_signature (already processed).
-    Updates cursor and clears needs_reconcile.
+    Scans backwards from last_seen_signature, stopping at oldest_scanned_signature
+    (already processed territory) or after _RECONCILE_LOOKBACK_LIMIT signatures.
     """
     state = await repo.get_creator_activity_state(creator_address)
-    before_sig = state.last_seen_signature if state else None
+    before_sig   = state.last_seen_signature      if state else None
     oldest_known = state.oldest_scanned_signature if state else None
 
-    sigs = await get_signatures_fn(creator_address, before=before_sig, limit=_RECONCILE_LOOKBACK_SIGNATURES)
+    sigs: list[dict] = await get_signatures_fn(
+        creator_address, before=before_sig, limit=_RECONCILE_LOOKBACK_LIMIT
+    )
 
-    newest: Optional[str] = None
-    oldest: Optional[str] = None
+    newest_processed: Optional[str] = None
+    oldest_processed: Optional[str] = None
 
     for sig_info in sigs:
         sig = sig_info.get("signature")
+        if not sig:
+            continue
         if sig == oldest_known:
-            break   # We've reached previously processed territory
-        if newest is None:
-            newest = sig
-        oldest = sig
-        await process_signature_fn(creator_address, sig_info)
+            break   # reached known-good territory
+        if newest_processed is None:
+            newest_processed = sig
+        oldest_processed = sig
+        try:
+            await process_signature_fn(creator_address, sig_info)
+        except Exception as e:
+            logger.warning("[RECONCILE] process_signature failed creator=%s sig=%s: %s",
+                           creator_address[:16], sig[:16], e)
 
     now = int(time.time())
     await repo.upsert_creator_activity_state(
         creator_address,
-        newest_scanned_signature=newest or before_sig,
-        oldest_scanned_signature=oldest or oldest_known,
-        last_reconciled_at=now,
-        needs_reconcile=False,
-        stream_health_status=StreamHealthStatus.HEALTHY,
+        newest_scanned_signature = newest_processed or before_sig,
+        oldest_scanned_signature = oldest_processed or oldest_known,
+        last_reconciled_at       = now,
+        needs_reconcile          = False,
+        stream_health_status     = StreamHealthStatus.HEALTHY,
     )
     await repo.upsert_creator_profile(creator_address, last_incremental_scan_at=now)

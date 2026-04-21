@@ -3734,7 +3734,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         try:
                             from src.creators.migration_bridge import dual_write_creator_resolved
                             from src.creators.repository import CreatorRepository
-                            _repo = CreatorRepository(DB_PATH, self.db_lock)
+                            _repo = CreatorRepository(CREATOR_DB_PATH, self.db_lock)
                             await dual_write_creator_resolved(
                                 creator, mint,
                                 create_tx_signature=create_tx_signature,
@@ -4413,7 +4413,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             from src.creators.migration_bridge import dual_write_creator_resolved
             from src.creators.repository import CreatorRepository
-            _repo = CreatorRepository(DB_PATH, self.db_lock)
+            _repo = CreatorRepository(CREATOR_DB_PATH, self.db_lock)
             asyncio.create_task(dual_write_creator_resolved(
                 pf_ws_creator, mint,
                 create_tx_signature=create_tx_signature,

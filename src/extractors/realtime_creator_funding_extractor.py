@@ -2326,29 +2326,32 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     """
     print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
     extractor = await get_extractor()
+
+    # Main funding scan — must complete first (populates creator_funders)
     result = await extractor.process_new_token(creator, migration_timestamp_str)
 
-    # Check CREATE tx for Jitotip usage (if signature provided)
-    if create_tx_signature:
-        await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
+    # All remaining checks are independent — run concurrently
+    async def _jitotip():
+        if create_tx_signature:
+            await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
-    # Check inbound/outbound transfers for infrastructure usage
-    # await extractor.check_transfers_for_meteora(creator)  # DISABLED: costs 100 credits (batch endpoint)
-    await extractor.check_transfers_for_debridge(creator)
-    await extractor.check_transfers_for_axiom(creator)
+    async def _outgoing():
+        try:
+            from datetime import datetime
+            migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
+            migration_timestamp = int(migration_dt.timestamp())
+            await extractor.extract_outgoing_transfers(creator, migration_timestamp)
+            print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
 
-    # Check for program-level calls to Meteora DLMM
-    # await extractor.check_transactions_for_meteora_programs(creator)  # DISABLED: costs 100 credits (batch endpoint)
-
-    # Extract post-migration outgoing transfers (token sales to recipients/exchanges)
-    try:
-        from datetime import datetime
-        migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
-        migration_timestamp = int(migration_dt.timestamp())
-        await extractor.extract_outgoing_transfers(creator, migration_timestamp)
-        print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
-    except Exception as e:
-        print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
+    await asyncio.gather(
+        _jitotip(),
+        extractor.check_transfers_for_debridge(creator),
+        extractor.check_transfers_for_axiom(creator),
+        _outgoing(),
+        return_exceptions=True,
+    )
 
     return result
 

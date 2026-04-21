@@ -2324,31 +2324,65 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
 
     RPC metrics are automatically recorded for all RPC calls in this flow.
     """
+    # Skip full extraction if we already have analyzed funding data for this creator
+    try:
+        import sqlite3 as _sqlite3
+        import os as _os
+        _db_path = _os.getenv("DB_PATH") or _os.path.join(_os.path.dirname(__file__), "../../database/flex_complete_database.db")
+        _conn = _sqlite3.connect(_db_path, timeout=5)
+        _row = _conn.execute(
+            "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
+            (creator,)
+        ).fetchone()
+        _conn.close()
+        if _row and _row[0] > 0:
+            _cached = _row[0]
+            print(f"[REALTIME_FUNDING] ⚡ Skip extraction for known creator {creator[:16]}... ({_cached} funders cached)", flush=True)
+            try:
+                from src.metrics.rpc_metrics_recorder import record_cache_event
+                record_cache_event(
+                    section="creator_funding",
+                    provider="helius_rpc",
+                    method="getSignaturesForAddress+getTransaction",
+                    source_file="realtime_creator_funding_extractor.py",
+                    cache_action="skip",
+                    credits_saved=100,
+                    optimization_layer="creator_funders_cache",
+                )
+            except Exception:
+                pass
+            return {"skipped": True, "reason": "creator_already_analyzed", "cached_funders": _cached}
+    except Exception as _e:
+        print(f"[REALTIME_FUNDING] ⚠ Cache check failed: {_e}", flush=True)
+
     print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
     extractor = await get_extractor()
+
+    # Main funding scan — must complete first (populates creator_funders)
     result = await extractor.process_new_token(creator, migration_timestamp_str)
 
-    # Check CREATE tx for Jitotip usage (if signature provided)
-    if create_tx_signature:
-        await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
+    # All remaining checks are independent — run concurrently
+    async def _jitotip():
+        if create_tx_signature:
+            await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
-    # Check inbound/outbound transfers for infrastructure usage
-    # await extractor.check_transfers_for_meteora(creator)  # DISABLED: costs 100 credits (batch endpoint)
-    await extractor.check_transfers_for_debridge(creator)
-    await extractor.check_transfers_for_axiom(creator)
+    async def _outgoing():
+        try:
+            from datetime import datetime
+            migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
+            migration_timestamp = int(migration_dt.timestamp())
+            await extractor.extract_outgoing_transfers(creator, migration_timestamp)
+            print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
+        except Exception as e:
+            print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
 
-    # Check for program-level calls to Meteora DLMM
-    # await extractor.check_transactions_for_meteora_programs(creator)  # DISABLED: costs 100 credits (batch endpoint)
-
-    # Extract post-migration outgoing transfers (token sales to recipients/exchanges)
-    try:
-        from datetime import datetime
-        migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
-        migration_timestamp = int(migration_dt.timestamp())
-        await extractor.extract_outgoing_transfers(creator, migration_timestamp)
-        print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
-    except Exception as e:
-        print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
+    await asyncio.gather(
+        _jitotip(),
+        extractor.check_transfers_for_debridge(creator),
+        extractor.check_transfers_for_axiom(creator),
+        _outgoing(),
+        return_exceptions=True,
+    )
 
     return result
 

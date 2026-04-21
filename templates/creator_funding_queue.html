@@ -37,6 +37,9 @@
     text-decoration: none;
 }
 .cfq-btn:hover { background: rgba(59, 130, 246, 0.28); border-color: rgba(59,130,246,0.7); }
+.cfq-btn-danger { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239,68,68,0.35); }
+.cfq-btn-danger:hover { background: rgba(239, 68, 68, 0.25); border-color: rgba(239,68,68,0.7); }
+.cfq-btn-danger:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .cfq-stats {
     display: grid;
@@ -254,6 +257,35 @@ table.cfq-table td:last-child {
     color: var(--text-secondary);
 }
 
+.cfq-cw-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cfq-cw-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(139,92,246,0.1);
+    border: 1px solid rgba(139,92,246,0.25);
+    border-radius: 5px;
+    padding: 4px 10px;
+    cursor: default;
+}
+
+.cfq-cw-pda {
+    font-family: monospace;
+    font-size: 12px;
+    color: #c4b5fd;
+}
+
+.cfq-cw-mint {
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
 {% endblock %}
 
 {% block content %}
@@ -262,6 +294,7 @@ table.cfq-table td:last-child {
     <div class="cfq-controls">
         <span class="cfq-last-updated" id="cfq-last-updated">—</span>
         <button class="cfq-btn" onclick="cfqLoad()">Refresh</button>
+        <button class="cfq-btn cfq-btn-danger" id="cfq-clear-btn" onclick="cfqClear()">Empty Queue</button>
         <a class="cfq-btn" href="/">← Home</a>
     </div>
 </div>
@@ -329,6 +362,14 @@ table.cfq-table td:last-child {
         </table>
     </div>
     <div style="margin-top:8px; font-size:12px; color:var(--text-secondary);" id="cfq-row-count"></div>
+</div>
+
+<div class="cfq-section" id="cfq-curve-watch-section">
+    <div class="cfq-section-title">Curve Watcher Subscriptions <span id="cfq-cw-count" style="font-weight:400; color:var(--text-secondary); font-size:13px;"></span></div>
+    <div id="cfq-cw-updated" style="font-size:11px; color:var(--text-secondary); margin-bottom:10px;"></div>
+    <div id="cfq-cw-body">
+        <div class="cfq-empty">Loading…</div>
+    </div>
 </div>
 
 <script>
@@ -482,7 +523,75 @@ async function cfqLoad() {
     }
 }
 
+async function cfqClear() {
+    if (!confirm('Empty the entire funding queue?')) return;
+    const btn = document.getElementById('cfq-clear-btn');
+    btn.disabled = true;
+    btn.textContent = 'Clearing…';
+    try {
+        const res = await fetch('/api/funding-queue/clear', { method: 'POST' });
+        const data = await res.json();
+        if (data.ok) {
+            btn.textContent = `Cleared (${data.deleted})`;
+            await cfqLoad();
+        } else {
+            btn.textContent = 'Error';
+            console.error(data.error);
+        }
+    } catch (e) {
+        btn.textContent = 'Error';
+        console.error(e);
+    } finally {
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Empty Queue'; }, 2000);
+    }
+}
+
+async function cfqLoadCurveWatch() {
+    try {
+        const resp = await fetch('/api/funding-queue/curve-watch');
+        const data = await resp.json();
+        const countEl = document.getElementById('cfq-cw-count');
+        const updatedEl = document.getElementById('cfq-cw-updated');
+        const bodyEl = document.getElementById('cfq-cw-body');
+
+        if (data.error) {
+            bodyEl.innerHTML = '<div class="cfq-empty">Unavailable (listener not running?)</div>';
+            return;
+        }
+
+        const subs = data.subscriptions || [];
+        countEl.textContent = '(' + subs.length + ')';
+
+        if (data.updated_at) {
+            const age = Math.round(_cfqNow - data.updated_at);
+            updatedEl.textContent = 'State written ' + (age < 5 ? 'just now' : age + 's ago');
+        } else {
+            updatedEl.textContent = '';
+        }
+
+        if (!subs.length) {
+            bodyEl.innerHTML = '<div class="cfq-empty">No active subscriptions.</div>';
+            return;
+        }
+
+        bodyEl.innerHTML = '<div class="cfq-cw-grid">' +
+            subs.map(s => {
+                const pda = s.pda || '';
+                const mint = s.mint || '';
+                return '<div class="cfq-cw-pill" title="PDA: ' + esc(pda) + (mint ? '\nMint: ' + esc(mint) : '') + '">'
+                    + '<span class="cfq-cw-pda">' + esc(pda.slice(0, 8) + '…' + pda.slice(-4)) + '</span>'
+                    + (mint ? '<span class="cfq-cw-mint">' + esc(mint.slice(0, 6) + '…' + mint.slice(-4)) + '</span>' : '')
+                    + '</div>';
+            }).join('')
+            + '</div>';
+    } catch (e) {
+        document.getElementById('cfq-cw-body').innerHTML = '<div class="cfq-empty">Failed to load.</div>';
+    }
+}
+
 cfqLoad();
+cfqLoadCurveWatch();
 setInterval(cfqLoad, 10000);
+setInterval(cfqLoadCurveWatch, 10000);
 </script>
 {% endblock %}

@@ -770,7 +770,7 @@ function renderVerificationTrail(section = {}) {
         } else if (record.creator_funding_source === 'pre') {
             creatorFundingTag = `<span class="pf-chip creator-funded" title="Funding extracted pre-migration (enqueued before migration slot)">funding pre</span>`;
         } else if (record.creator_funding_source === 'post') {
-            creatorFundingTag = `<span class="pf-chip creator-funded-post" title="Funding extracted post-migration (fallback)">funding post</span>`;
+            creatorFundingTag = `<span class="pf-chip creator-funded-post" title="Funding extracted post-migration via ${pfEsc(record.creator_funding_raw_source || 'unknown')}">funding post</span>`;
         } else {
             creatorFundingTag = `<span class="pf-chip creator-funding-pending" title="Funding complete but timing unclassified">funding ?</span>`;
         }
@@ -819,7 +819,7 @@ function renderVerificationTrail(section = {}) {
                     <div class="pf-meta-line">flow=${record.predicted_by_flow ? 'yes' : 'no'} | market_cap=${record.predicted_by_market_cap ? 'yes' : 'no'} | explicit=${record.predicted_by_explicit_signal ? 'yes' : 'no'}</div>
                     <div class="pf-meta-line">reason=${pfEsc(record.verdict_reason || 'No verdict reason available.')}</div>
                     <div class="pf-meta-line">${creatorLine}</div>
-                    <div class="pf-meta-line">creator funding=${record.creator_funding_completed ? (record.creator_funding_source === 'pre' ? 'pre-migration' : record.creator_funding_source === 'post' ? 'post-migration' : 'complete (timing unknown)') : 'pending'}</div>
+                    <div class="pf-meta-line">creator funding=${record.creator_funding_completed ? (record.creator_funding_source === 'pre' ? 'pre-migration' : record.creator_funding_source === 'post' ? `post-migration (${pfEsc(record.creator_funding_raw_source || 'unknown')})` : 'complete (timing unknown)') : 'pending'}</div>
                 </div>
                 <div class="pf-verify-flags">
                     <span class="pf-chip ${pfEsc(record.signal_timing || 'creator-unknown')}">${pfEsc((record.signal_timing || 'unknown').replaceAll('_', ' '))}</span>

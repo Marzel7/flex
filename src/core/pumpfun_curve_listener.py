@@ -3734,12 +3734,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         try:
                             from src.creators.migration_bridge import dual_write_creator_resolved
                             from src.creators.repository import CreatorRepository
+                            from src.creators.helius_watch import register_creator_address
                             _repo = CreatorRepository(CREATOR_DB_PATH, self.db_lock)
                             await dual_write_creator_resolved(
                                 creator, mint,
                                 create_tx_signature=create_tx_signature,
                                 reason="extraction_complete",
                                 repo=_repo,
+                                register_webhook_fn=register_creator_address,
                             )
                         except Exception as _dw_e:
                             log_print(f"[FUNDING_QUEUE] ⚠ dual_write failed creator={creator[:8]}: {_dw_e}", flush=True)
@@ -4413,12 +4415,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             from src.creators.migration_bridge import dual_write_creator_resolved
             from src.creators.repository import CreatorRepository
+            from src.creators.helius_watch import register_creator_address
             _repo = CreatorRepository(CREATOR_DB_PATH, self.db_lock)
             asyncio.create_task(dual_write_creator_resolved(
                 pf_ws_creator, mint,
                 create_tx_signature=create_tx_signature,
                 reason=reason,
                 repo=_repo,
+                register_webhook_fn=register_creator_address,
             ))
         except Exception as _dw_e:
             log_print(f"[PF_WS_CREATOR] ⚠ dual_write enqueue failed: {_dw_e}", flush=True)
@@ -8699,6 +8703,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
             from src.creators.repository import CreatorRepository
             from src.creators.worker import CreatorActivityWorker
             from src.creators.baseline import CreatorBaselineScanner
+            from src.creators.helius_watch import register_creator_address
+            from src.creators.service import restore_creator_watches, enqueue_stale_creator_reconciles
 
             _creator_lock = asyncio.Lock()
             _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
@@ -8716,6 +8722,25 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
             asyncio.create_task(_creator_worker.run())
             log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
+
+            # Re-register all creator watches after restart (marks stale, then re-registers).
+            asyncio.create_task(
+                restore_creator_watches(repo=_creator_repo, register_webhook_fn=register_creator_address)
+            )
+
+            # Periodic stale-reconcile scheduler: every 10 minutes.
+            async def _stale_reconcile_loop():
+                while True:
+                    await asyncio.sleep(600)
+                    try:
+                        n = await enqueue_stale_creator_reconciles(repo=_creator_repo)
+                        if n:
+                            log_print(f"[LISTENER] Enqueued {n} stale creator reconciles", flush=True)
+                    except Exception as exc:
+                        log_print(f"[LISTENER] ⚠ stale reconcile loop error: {exc}", flush=True)
+
+            asyncio.create_task(_stale_reconcile_loop())
+
         except Exception as e:
             log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 

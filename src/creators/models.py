@@ -130,6 +130,11 @@ class CreatorActivityState:
     last_gap_detected_at:     Optional[int]               = None
     resume_cursor:            Optional[dict]              = None
     stream_health_status:     Optional[StreamHealthStatus]= None
+    watch_status:             Optional[WatchStatus]       = None
+    watch_registered_at:      Optional[int]               = None
+    watch_webhook_id:         Optional[str]               = None
+    watch_last_checked_at:    Optional[int]               = None
+    watch_last_error:         Optional[str]               = None
     created_at:               Optional[int]               = None
     updated_at:               Optional[int]               = None
 
@@ -148,6 +153,11 @@ class CreatorActivityState:
             last_gap_detected_at     = row.get("last_gap_detected_at"),
             resume_cursor            = json.loads(cursor_raw) if cursor_raw else None,
             stream_health_status     = StreamHealthStatus(row["stream_health_status"]) if row.get("stream_health_status") else None,
+            watch_status             = WatchStatus(row["watch_status"]) if row.get("watch_status") else None,
+            watch_registered_at      = row.get("watch_registered_at"),
+            watch_webhook_id         = row.get("watch_webhook_id"),
+            watch_last_checked_at    = row.get("watch_last_checked_at"),
+            watch_last_error         = row.get("watch_last_error"),
             created_at               = row.get("created_at"),
             updated_at               = row.get("updated_at"),
         )

@@ -664,6 +664,193 @@ h1 { color: var(--accent-cyan); font-size: 28px; }
 .queue-item-risk.LOW {
     background: rgba(34, 197, 94, 0.15);
     color: #22c55e;
+}
+
+/* ── Pipeline status panel ───────────────────────────────────────────── */
+.pipeline-panel {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 20px;
+}
+.pipeline-panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pipeline-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.pipeline-meta-item {
+    background: rgba(6, 182, 212, 0.06);
+    border: 1px solid rgba(6, 182, 212, 0.15);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+.pipeline-meta-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+.pipeline-meta-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-top: 5px;
+    font-weight: 600;
+    word-break: break-all;
+}
+.watch-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.watch-badge.active   { background: rgba(34,197,94,0.15);  color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.watch-badge.pending  { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+.watch-badge.stale    { background: rgba(234,179,8,0.15);  color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+.watch-badge.error    { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.watch-badge.none     { background: rgba(100,116,139,0.15);color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
+.history-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.history-badge.baselined  { background: rgba(34,197,94,0.15);  color: #22c55e; }
+.history-badge.partial    { background: rgba(234,179,8,0.15);  color: #eab308; }
+.history-badge.stale      { background: rgba(239,68,68,0.15);  color: #ef4444; }
+.history-badge.unknown    { background: rgba(100,116,139,0.15);color: #94a3b8; }
+
+/* ── Movement ledger ────────────────────────────────────────────────── */
+.movement-ledger-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.flow-summary {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.flow-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.flow-pill.in  { border-color: rgba(34,197,94,0.3);  color: #22c55e; }
+.flow-pill.out { border-color: rgba(239,68,68,0.3);  color: #ef4444; }
+.flow-pill.neutral { color: var(--text-secondary); }
+.movement-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.movement-table th {
+    text-align: left;
+    padding: 7px 10px;
+    color: var(--text-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.movement-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+}
+.movement-table tr:last-child td { border-bottom: none; }
+.movement-table tr:hover td { background: rgba(255,255,255,0.02); }
+.dir-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.dir-badge.in  { background: rgba(34,197,94,0.15);  color: #22c55e; }
+.dir-badge.out { background: rgba(239,68,68,0.15);  color: #ef4444; }
+.source-chip {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(124,58,237,0.12);
+    color: var(--accent-purple);
+    border: 1px solid rgba(124,58,237,0.2);
+}
+.source-chip.reconcile {
+    background: rgba(234,179,8,0.1);
+    color: #eab308;
+    border-color: rgba(234,179,8,0.25);
+}
+.cp-addr {
+    font-family: 'Courier New', monospace;
+    color: var(--accent-cyan);
+    font-size: 11px;
+    text-decoration: none;
+}
+.cp-addr:hover { text-decoration: underline; }
+
+/* ── Pipeline fleet stats (coverage bar) ───────────────────────────── */
+.pipeline-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    padding: 16px 18px;
+    background: rgba(6,182,212,0.04);
+    border: 1px solid rgba(6,182,212,0.15);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.ps-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.ps-value { font-size: 18px; font-weight: 700; color: var(--accent-cyan); }
+.ps-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+/* ── Recent-checks row: watch + flow badges ─────────────────────────── */
+.recent-check-row {
+    grid-template-columns: 1fr 1fr 80px 100px 130px;
+}
 {% endblock %}
 
 {% block content %}
@@ -687,618 +874,595 @@ h1 { color: var(--accent-cyan); font-size: 28px; }
 
 {% block scripts %}
 <script>
-// Load recent checks on page load
-document.addEventListener('DOMContentLoaded', loadRecentChecks);
+const LAMPORTS = 1_000_000_000;
+
+// ── Utilities ────────────────────────────────────────────────────────────────
+
+function formatTime(ts) {
+    if (!ts) return '—';
+    // Accept Unix timestamp (number) or ISO/datetime string
+    const epoch = typeof ts === 'number' ? ts : Math.floor(new Date(ts.replace(' ', 'T') + 'Z').getTime() / 1000);
+    if (isNaN(epoch)) return '—';
+    const diff = Date.now() / 1000 - epoch;
+    if (diff < 60)     return 'just now';
+    if (diff < 3600)   return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400)  return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+}
+
+function fmtSol(lamports) {
+    if (!lamports) return '0';
+    const sol = Math.abs(lamports) / LAMPORTS;
+    return sol >= 1 ? sol.toFixed(2) : sol.toFixed(4);
+}
+
+function truncAddr(addr, n = 8) {
+    if (!addr) return '—';
+    return addr.length > n * 2 + 3 ? addr.slice(0, n) + '…' + addr.slice(-n) : addr;
+}
+
+function watchBadge(status) {
+    const s = (status || 'none').toLowerCase();
+    return `<span class="watch-badge ${s}">${s}</span>`;
+}
+
+function historyBadge(status) {
+    const s = (status || 'unknown').toLowerCase();
+    const icons = { baselined: '✓', partial: '~', stale: '!', unknown: '?' };
+    return `<span class="history-badge ${s}">${icons[s] || ''} ${s}</span>`;
+}
+
+// ── Page init ────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadRecentChecks();
+    // handle ?creator= deep-link
+    const params = new URLSearchParams(location.search);
+    if (params.get('creator')) {
+        document.getElementById('creatorInput').value = params.get('creator');
+        loadCreatorAnalysis(params.get('creator'));
+    }
+});
+
+// Enter key in search box
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('creatorInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') searchCreator();
+    });
+});
+
+// ── Landing view ─────────────────────────────────────────────────────────────
 
 async function loadRecentChecks() {
     const content = document.getElementById('content');
     try {
-        const response = await fetch('/api/creator-recent-checks');
-        const data = await response.json();
+        const [checksRes, statsRes, queueRes, pipelineRes] = await Promise.all([
+            fetch('/api/creator-recent-checks'),
+            fetch('/api/creator-scan-stats'),
+            fetch('/api/creator-analysis-queue-status'),
+            fetch('/api/creator-pipeline-stats'),
+        ]);
+        const [checksData, statsData, queueData, pipelineData] = await Promise.all([
+            checksRes.json(), statsRes.json(), queueRes.json(), pipelineRes.json(),
+        ]);
 
-        if (data.error || !data.recent_checks || data.recent_checks.length === 0) {
+        if (checksData.error || !checksData.recent_checks?.length) {
             content.innerHTML = '<div class="loading">No recent checks yet. Search for a creator to begin.</div>';
             return;
         }
 
-        // Load scan statistics
-        const statsResponse = await fetch('/api/creator-scan-stats');
-        const statsData = await statsResponse.json();
-
-        // Load queue status
-        const queueResponse = await fetch('/api/creator-analysis-queue-status');
-        const queueData = await queueResponse.json();
-
+        // ── Pipeline fleet health bar ────────────────────────────────────
+        const f24 = pipelineData.flow_24h || {};
+        const inSol  = fmtSol(f24.in_lamports);
+        const outSol = fmtSol(f24.out_lamports);
         let html = `
-            ${queueData.total_queued > 0 ? `
+        <div class="pipeline-stats-bar">
+            <div class="ps-item">
+                <div class="ps-value">${pipelineData.total_profiled || 0}</div>
+                <div class="ps-label">Profiled creators</div>
+            </div>
+            <div class="ps-item">
+                <div class="ps-value">${pipelineData.baselined_pct ?? 0}%</div>
+                <div class="ps-label">Baselined</div>
+            </div>
+            <div class="ps-item">
+                <div class="ps-value">${pipelineData.active_watches || 0}</div>
+                <div class="ps-label">Active watches (${pipelineData.watch_pct ?? 0}%)</div>
+            </div>
+            <div class="ps-item">
+                <div class="ps-value" style="color:#22c55e">↓ ${inSol} SOL</div>
+                <div class="ps-label">24h inflow</div>
+            </div>
+            <div class="ps-item">
+                <div class="ps-value" style="color:#ef4444">↑ ${outSol} SOL</div>
+                <div class="ps-label">24h outflow</div>
+            </div>
+            <div class="ps-item">
+                <div class="ps-value">${f24.events || 0}</div>
+                <div class="ps-label">24h movements (${f24.active_creators || 0} creators)</div>
+            </div>
+        </div>`;
+
+        // ── Queue status (only when non-empty) ───────────────────────────
+        if (queueData.total_queued > 0) {
+            html += `
             <div class="queue-status-section">
-                <div class="queue-status-title">⚙️ Analysis Queue Status</div>
+                <div class="queue-status-title">⚙️ Analysis Queue</div>
                 <div class="queue-stats-grid">
                     <div class="queue-stat-box">
-                        <div class="queue-stat-value">${queueData.total_queued || 0}</div>
+                        <div class="queue-stat-value">${queueData.total_queued}</div>
                         <div class="queue-stat-label">Active Items</div>
                     </div>
-                    ${Object.entries(queueData.status_breakdown || {}).map(([status, info]) => `
+                    ${Object.entries(queueData.status_breakdown || {}).map(([s, info]) => `
                         <div class="queue-stat-box">
                             <div class="queue-stat-value">${info.count}</div>
-                            <div class="queue-stat-label">${status}</div>
-                        </div>
-                    `).join('')}
+                            <div class="queue-stat-label">${s}</div>
+                        </div>`).join('')}
                 </div>
-                ${queueData.top_priority && queueData.top_priority.length > 0 ? `
-                    <div class="queue-top-items">
-                        <div class="queue-top-title">🔝 Top Priority</div>
-                        ${queueData.top_priority.map(item => `
-                            <div class="queue-item">
-                                <div class="queue-item-address">${item.creator_address}</div>
-                                <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
-                                ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-            </div>
-            ` : ''}
+                ${queueData.top_priority?.length ? `
+                <div class="queue-top-items">
+                    <div class="queue-top-title">Top Priority</div>
+                    ${queueData.top_priority.map(item => `
+                        <div class="queue-item">
+                            <div class="queue-item-address">${item.creator_address}</div>
+                            <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
+                            ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
+                        </div>`).join('')}
+                </div>` : ''}
+            </div>`;
+        }
 
-            <div class="scan-stats-section" style="background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 20px; margin-bottom: 20px;">
-                <div style="color: var(--accent-purple); font-size: 16px; font-weight: 700; margin-bottom: 15px;">📊 Coverage</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div style="padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.3);">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Scan Coverage</div>
-                        <div style="font-size: 18px; font-weight: 700; color: #3b82f6;">${statsData.scanned_percentage.toFixed(1)}%</div>
-                        <div style="font-size: 11px; color: var(--text-secondary);">${statsData.scanned_creators} of ${statsData.total_creators}</div>
-                    </div>
-                    <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Total Creators</div>
-                        <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${statsData.total_creators || 0}</div>
-                    </div>
-                    ${Object.entries(statsData.tier_stats || {}).map(([tier, stats]) => `
-                        <div style="padding: 10px; background: rgba(124, 58, 237, 0.1); border-radius: 6px;">
-                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">${statsData.tier_labels[tier]}</div>
-                            <div style="font-size: 18px; font-weight: 700; color: var(--accent-cyan);">${stats.percentage.toFixed(1)}%</div>
-                            <div style="font-size: 11px; color: var(--text-secondary);">${stats.count} creators</div>
-                        </div>
-                    `).join('')}
+        // ── Existing scan coverage ───────────────────────────────────────
+        html += `
+        <div class="scan-stats-section" style="background:var(--bg-secondary);border-radius:8px;border:1px solid rgba(124,58,237,0.2);padding:20px;margin-bottom:20px;">
+            <div style="color:var(--accent-purple);font-size:16px;font-weight:700;margin-bottom:15px;">📊 Outgoing Transfer Coverage</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
+                <div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:6px;border:1px solid rgba(59,130,246,0.3);">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:5px;">Scan Coverage</div>
+                    <div style="font-size:18px;font-weight:700;color:#3b82f6;">${(statsData.scanned_percentage||0).toFixed(1)}%</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">${statsData.scanned_creators} of ${statsData.total_creators}</div>
+                </div>
+                <div style="padding:10px;background:rgba(124,58,237,0.1);border-radius:6px;">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:5px;">Total Creators</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--accent-cyan);">${statsData.total_creators||0}</div>
                 </div>
             </div>
+        </div>`;
 
-            <div class="recent-checks-section">
-                <div class="recent-checks-title">📋 Most Recent Checks</div>
-                <div class="recent-checks-list">
-        `;
+        // ── Recent checks list ───────────────────────────────────────────
+        html += `
+        <div class="recent-checks-section">
+            <div class="recent-checks-title">📋 Most Recent Checks</div>
+            <div class="recent-checks-list">`;
 
-        data.recent_checks.forEach(check => {
+        for (const check of checksData.recent_checks) {
             const findings = check.findings || [];
-            let findingsBadges = findings.map(f => {
-                const isClean = f.includes('CLEAN');
-                const classes = isClean ? 'check-finding-badge clean' : 'check-finding-badge';
-                return `<span class="${classes}">${f}</span>`;
+            let badges = findings.map(f => {
+                const clean = f.includes('CLEAN');
+                return `<span class="check-finding-badge ${clean ? 'clean' : ''}">${f}</span>`;
             }).join('');
-            if (!findingsBadges) findingsBadges = '<span class="check-finding-badge clean">✅ CLEAN</span>';
+            if (!badges) badges = '<span class="check-finding-badge clean">✅ CLEAN</span>';
 
+            // Fetch pipeline watch status for each recent creator (fire-and-forget enrichment)
             html += `
-                <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')">
+                <div class="recent-check-row" onclick="loadCreatorAnalysisFrom('${check.creator_address}')"
+                     data-creator="${check.creator_address}" id="rcr-${check.creator_address.slice(0,8)}">
                     <div class="check-address">${check.creator_address}</div>
-                    <div class="check-findings">${findingsBadges}</div>
+                    <div class="check-findings">${badges}</div>
                     <div class="check-chains">${check.chain_count} chains</div>
+                    <div id="wbadge-${check.creator_address.slice(0,8)}" style="font-size:11px;color:var(--text-secondary);">
+                        …
+                    </div>
                     <div class="check-time">${formatTime(check.last_scanned)}</div>
-                </div>
-            `;
+                </div>`;
+        }
+
+        html += `</div></div>`;
+        content.innerHTML = html;
+
+        // Asynchronously fill watch badges for each row
+        checksData.recent_checks.forEach(check => {
+            fetch(`/api/creator-pipeline-status/${check.creator_address}`)
+                .then(r => r.json())
+                .then(d => {
+                    const el = document.getElementById('wbadge-' + check.creator_address.slice(0, 8));
+                    if (!el) return;
+                    const ws = d.watch?.status || 'none';
+                    const f  = d.flow_24h || {};
+                    let inner = watchBadge(ws);
+                    if (f.events > 0) {
+                        inner += ` <span style="font-size:10px;color:#22c55e">↓${fmtSol(f.in_lamports)}</span>`;
+                        inner += ` <span style="font-size:10px;color:#ef4444">↑${fmtSol(f.out_lamports)}</span>`;
+                    }
+                    el.innerHTML = inner;
+                })
+                .catch(() => {});
         });
 
-        html += `
-                </div>
-            </div>
-        `;
-
-        content.innerHTML = html;
-    } catch (error) {
+    } catch (err) {
         content.innerHTML = '<div class="loading">Unable to load recent checks</div>';
     }
 }
 
-function formatTime(timestamp) {
-    if (!timestamp) return 'Never';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-
-    if (diff < 60000) return 'Just now';
-    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-    return Math.floor(diff / 86400000) + 'd ago';
-}
+// ── Search ───────────────────────────────────────────────────────────────────
 
 function loadCreatorAnalysisFrom(creator) {
     document.getElementById('creatorInput').value = creator;
     loadCreatorAnalysis(creator);
 }
 
-function closeAnalysis() {
-    loadRecentChecks();
-}
+function closeAnalysis() { loadRecentChecks(); }
 
 async function searchCreator() {
     const creator = document.getElementById('creatorInput').value.trim();
-    if (!creator) {
-        alert('Please enter a creator address');
-        return;
-    }
+    if (!creator) { alert('Please enter a creator address'); return; }
     loadCreatorAnalysis(creator);
 }
 
 async function loadCreatorAnalysis(creator) {
     const content = document.getElementById('content');
-    content.innerHTML = '<div class="loading">Loading analysis...</div>';
-
+    content.innerHTML = '<div class="loading">Loading analysis…</div>';
     try {
-        const response = await fetch(`/api/creator-outgoing-analysis/${creator}`);
-        const data = await response.json();
+        const [outRes, pipeRes] = await Promise.all([
+            fetch(`/api/creator-outgoing-analysis/${creator}`),
+            fetch(`/api/creator-pipeline-status/${creator}`),
+        ]);
+        const [data, pipe] = await Promise.all([outRes.json(), pipeRes.json()]);
 
         if (data.error) {
             content.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
             return;
         }
-
-        renderAnalysis(data);
-    } catch (error) {
-        content.innerHTML = `<div class="error">❌ Error loading analysis: ${error.message}</div>`;
+        renderAnalysis(data, pipe);
+    } catch (err) {
+        content.innerHTML = `<div class="error">❌ ${err.message}</div>`;
     }
 }
 
-function renderAnalysis(data) {
+// ── Detail view ──────────────────────────────────────────────────────────────
+
+function renderAnalysis(data, pipe) {
+    const prof  = pipe?.profile  || {};
+    const watch = pipe?.watch    || {};
+    const flow  = pipe?.flow_24h || {};
+    const moves = pipe?.movements || [];
+
+    // ── Meta row (existing) ──────────────────────────────────────────────
     let html = `
-        <div class="creator-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <button class="back-btn" onclick="closeAnalysis()" style="background: rgba(124, 58, 237, 0.2); color: var(--accent-cyan); border: 1px solid rgba(124, 58, 237, 0.5); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">← Back to List</button>
+    <div class="creator-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <button class="back-btn" onclick="closeAnalysis()">← Back to List</button>
+        </div>
+        <div class="scan-meta">
+            <div class="meta-item">
+                <div class="meta-label">Creator Address</div>
+                <div class="meta-value" style="font-family:'Courier New',monospace;font-size:11px;">${data.creator_address}</div>
             </div>
-            <div class="scan-meta">
-                <div class="meta-item">
-                    <div class="meta-label">Creator Address</div>
-                    <div class="meta-value">${data.creator_address}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Last Scanned</div>
-                    <div class="meta-value">${data.last_scanned || 'Never'}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Scan Status</div>
-                    <div class="meta-value">${data.scan_status}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Network Membership</div>
-                    <div class="meta-value">
-                        ${data.networks && data.networks.length > 0 ?
-                            `<div style="display: flex; flex-direction: column; gap: 8px;">
-                                ${data.networks.map(net => {
-                                    let badgeColor = '#808080';
-                                    let badgeEmoji = '';
-                                    let badgeText = '';
-                                    if (net.type === 'cex_connected') {
-                                        badgeColor = '#ef4444';
-                                        badgeEmoji = '🏦';
-                                        badgeText = 'CEX';
-                                    } else if (net.type === 'infra_connected') {
-                                        badgeColor = '#f97316';
-                                        badgeEmoji = '🔧';
-                                        badgeText = 'INFRA';
-                                    } else if (net.type === 'mixed') {
-                                        badgeColor = '#d97706';
-                                        badgeEmoji = '⚠️';
-                                        badgeText = 'MIXED';
-                                    } else if (net.type === 'organic') {
-                                        badgeColor = '#22c55e';
-                                        badgeEmoji = '✓';
-                                        badgeText = 'ORGANIC';
-                                    }
-                                    return `
-                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                        <span class="network-link" onclick="window.location='/creator-network/${encodeURIComponent(net.name)}';" style="cursor: pointer; background: ${badgeColor}; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block;">${net.name} ${badgeEmoji} ${badgeText}</span>
-                                    </div>
-                                    `;
-                                }).join('')}
-                            </div>`
-                            : 'None'
-                        }
-                    </div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Last Activity</div>
-                    <div class="meta-value">${
-                        data.outgoing_transfer_count > 0 && data.last_transaction_time
-                            ? (() => {
-                                const now = Math.floor(Date.now() / 1000);
-                                const secondsAgo = now - data.last_transaction_time;
-
-                                if (secondsAgo < 60) {
-                                    return Math.max(1, Math.floor(secondsAgo)) + ' min';
-                                } else if (secondsAgo < 3600) {
-                                    return Math.floor(secondsAgo / 60) + ' hour' + (Math.floor(secondsAgo / 60) !== 1 ? 's' : '');
-                                } else if (secondsAgo < 86400) {
-                                    return Math.floor(secondsAgo / 3600) + ' hour' + (Math.floor(secondsAgo / 3600) !== 1 ? 's' : '');
-                                } else {
-                                    return Math.floor(secondsAgo / 86400) + ' day' + (Math.floor(secondsAgo / 86400) !== 1 ? 's' : '');
-                                }
-                            })()
-                            : 'No outgoing transfers'
-                    }</div>
+            <div class="meta-item">
+                <div class="meta-label">Last Outgoing Scan</div>
+                <div class="meta-value">${data.last_scanned || '—'}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Scan Status</div>
+                <div class="meta-value">${data.scan_status}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Network Membership</div>
+                <div class="meta-value">
+                ${data.networks?.length ? data.networks.map(net => {
+                    const colors = { cex_connected:'#ef4444', infra_connected:'#f97316', mixed:'#d97706', organic:'#22c55e' };
+                    const labels = { cex_connected:'🏦 CEX', infra_connected:'🔧 INFRA', mixed:'⚠️ MIXED', organic:'✓ ORGANIC' };
+                    const c = colors[net.type] || '#808080';
+                    return `<span style="cursor:pointer;background:${c};color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;display:inline-block;margin:2px;"
+                                   onclick="window.location='/creator-network/${encodeURIComponent(net.name)}'">${net.name} ${labels[net.type]||''}</span>`;
+                }).join('') : 'None'}
                 </div>
             </div>
-    `;
+            <div class="meta-item">
+                <div class="meta-label">Last Activity</div>
+                <div class="meta-value">${
+                    data.outgoing_transfer_count > 0 && data.last_transaction_time
+                        ? formatTime(data.last_transaction_time)
+                        : 'No outgoing transfers'
+                }</div>
+            </div>
+        </div>
 
-    // Findings section
-    if (data.findings && data.findings.length > 0) {
-        html += `
-            <div class="findings-section">
-                <div class="findings-title">🚨 Findings</div>
-        `;
+        <!-- ── Pipeline status panel ── -->
+        <div class="pipeline-panel">
+            <div class="pipeline-panel-title">📡 Pipeline Status</div>
+            <div class="pipeline-meta-grid">
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">History</div>
+                    <div class="pipeline-meta-value">${historyBadge(prof.history_status)}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Watch</div>
+                    <div class="pipeline-meta-value">${watchBadge(watch.status)}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Coverage Mode</div>
+                    <div class="pipeline-meta-value" style="font-size:11px;">${prof.coverage_mode || '—'}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Tokens Seen</div>
+                    <div class="pipeline-meta-value">${prof.token_count_seen ?? '—'}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Webhook ID</div>
+                    <div class="pipeline-meta-value" style="font-family:'Courier New',monospace;font-size:10px;">${watch.webhook_id ? truncAddr(watch.webhook_id, 6) : '—'}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Watch Registered</div>
+                    <div class="pipeline-meta-value">${formatTime(watch.registered_at)}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Stream Health</div>
+                    <div class="pipeline-meta-value" style="font-size:11px;">${watch.stream_health || '—'}</div>
+                </div>
+                <div class="pipeline-meta-item">
+                    <div class="pipeline-meta-label">Last Seen</div>
+                    <div class="pipeline-meta-value">${formatTime(watch.last_seen_at)}</div>
+                </div>
+                ${watch.last_error ? `
+                <div class="pipeline-meta-item" style="border-color:rgba(239,68,68,0.3);grid-column:1/-1;">
+                    <div class="pipeline-meta-label" style="color:#ef4444;">Watch Error</div>
+                    <div class="pipeline-meta-value" style="color:#ef4444;font-size:11px;">${watch.last_error}</div>
+                </div>` : ''}
+                ${watch.needs_reconcile ? `
+                <div class="pipeline-meta-item" style="border-color:rgba(234,179,8,0.3);">
+                    <div class="pipeline-meta-label" style="color:#eab308;">Reconcile</div>
+                    <div class="pipeline-meta-value" style="color:#eab308;">⚠ Pending</div>
+                </div>` : ''}
+            </div>
 
-        data.findings.forEach(finding => {
-            const isClean = finding.type === 'CLEAN';
-            const isCritical = finding.type.includes('SUSPICIOUS_CROSS_FUNDING');
+            <!-- ── SOL Movement Ledger ── -->
+            <div class="movement-ledger-title">💸 SOL Movement Ledger (last 30)</div>
+            <div class="flow-summary">
+                <div class="flow-pill in">↓ ${fmtSol(flow.in_lamports)} SOL in (24h)</div>
+                <div class="flow-pill out">↑ ${fmtSol(flow.out_lamports)} SOL out (24h)</div>
+                <div class="flow-pill neutral">${flow.events || 0} events</div>
+            </div>
+            ${moves.length ? `
+            <table class="movement-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Dir</th>
+                        <th style="text-align:right">SOL</th>
+                        <th>Counterparty</th>
+                        <th>Source</th>
+                        <th>Sig</th>
+                    </tr>
+                </thead>
+                <tbody>
+                ${moves.map(m => `
+                    <tr>
+                        <td style="color:var(--text-secondary);white-space:nowrap">${formatTime(m.block_time)}</td>
+                        <td><span class="dir-badge ${m.direction}">${m.direction === 'in' ? '↓ IN' : '↑ OUT'}</span></td>
+                        <td style="text-align:right;font-weight:600;color:${m.direction==='in'?'#22c55e':'#ef4444'}">${fmtSol(m.abs_lamports)}</td>
+                        <td>${m.counterparty
+                            ? `<a class="cp-addr" href="https://solscan.io/account/${m.counterparty}" target="_blank" rel="noopener">${truncAddr(m.counterparty)}</a>`
+                            : '<span style="color:var(--text-secondary)">—</span>'}</td>
+                        <td><span class="source-chip ${m.source === 'reconcile' ? 'reconcile' : ''}">${m.source || 'webhook'}</span></td>
+                        <td><a class="cp-addr" href="https://solscan.io/tx/${m.signature}" target="_blank" rel="noopener">${truncAddr(m.signature, 5)}</a></td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>` : `<div style="color:var(--text-secondary);font-size:12px;padding:10px 0;">No movement events recorded yet.</div>`}
+        </div>`;
+
+    // ── Findings (existing) ──────────────────────────────────────────────
+    if (data.findings?.length) {
+        html += `<div class="findings-section"><div class="findings-title">🚨 Findings</div>`;
+        data.findings.forEach(f => {
+            const clean    = f.type === 'CLEAN';
+            const critical = f.type.includes('SUSPICIOUS_CROSS_FUNDING');
             html += `
-                <div class="finding-card ${isClean ? 'clean' : ''} ${isCritical ? 'critical' : ''}">
-                    <span class="finding-type ${isClean ? 'clean' : ''}">${finding.type}</span>
-                    <div class="finding-details">${finding.description}</div>
-`;
-            if (finding.networks_enriched && finding.networks_enriched.length > 0) {
-                html += `
-                    <div class="network-list">
-                        ${finding.networks_enriched.map(n => {
-                            let badge = `<div class="network-badge">${n.name}`;
-                            if (n.type === 'cex_connected') {
-                                badge += ' 🏦 CEX';
-                            } else if (n.type === 'infra_connected') {
-                                badge += ' 🔧 INFRA';
-                            } else if (n.type === 'mixed') {
-                                badge += ' ⚠️ MIXED';
-                            } else if (n.type === 'organic') {
-                                badge += ' ✓ ORGANIC';
-                            }
-                            badge += '</div>';
-                            return badge;
-                        }).join('')}
-                    </div>
-                `;
-            } else if (finding.networks && finding.networks.length > 0) {
-                html += `
-                    <div class="network-list">
-                        ${finding.networks.map(n => `<div class="network-badge">${n}</div>`).join('')}
-                    </div>
-                `;
+            <div class="finding-card ${clean?'clean':''} ${critical?'critical':''}">
+                <span class="finding-type ${clean?'clean':''}">${f.type}</span>
+                <div class="finding-details">${f.description}</div>`;
+            const nets = f.networks_enriched || (f.networks?.map(n => ({name:n})) || []);
+            if (nets.length) {
+                html += `<div class="network-list">${nets.map(n => {
+                    const labels = {cex_connected:'🏦 CEX',infra_connected:'🔧 INFRA',mixed:'⚠️ MIXED',organic:'✓ ORGANIC'};
+                    return `<div class="network-badge">${n.name}${labels[n.type]?' '+labels[n.type]:''}</div>`;
+                }).join('')}</div>`;
             }
             html += `</div>`;
         });
-
         html += `</div>`;
     }
 
-    // Incoming funders section
-    if (data.incoming_funders && data.incoming_funders.length > 0) {
+    // ── Incoming funders (existing) ──────────────────────────────────────
+    if (data.incoming_funders?.length) {
         html += `
-            <div class="funders-section" style="margin-top: 25px;">
-                <div class="findings-title">📥 Incoming Funders (Who Funded This Creator)</div>
-                <table class="recipients-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40%;">Funder Address</th>
-                            <th style="width: 40%;">Details</th>
-                            <th style="width: 20%; text-align: right;">Amount SOL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-
-        data.incoming_funders.forEach((funder, idx) => {
-            let funderInfo = `<div class="recipient-info">`;
-
-            // Display name (CEX/INFRA) if available, otherwise address
-            if (funder.display_name) {
-                funderInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${funder.display_name}</div>`;
-                funderInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${funder.address}</div>`;
-            } else {
-                funderInfo += `<div class="recipient-address">${funder.address}</div>`;
-            }
-
-            if (funder.network) {
-                let networkBadge = '';
-                if (funder.network_type === 'cex_connected') {
-                    networkBadge = ' <span style="color: #ef4444; font-weight: 600;">🏦 CEX</span>';
-                } else if (funder.network_type === 'infra_connected') {
-                    networkBadge = ' <span style="color: #f97316; font-weight: 600;">🔧 INFRA</span>';
-                } else if (funder.network_type === 'mixed') {
-                    networkBadge = ' <span style="color: #eab308; font-weight: 600;">⚠️ MIXED</span>';
-                } else if (funder.network_type === 'organic') {
-                    networkBadge = ' <span style="color: #22c55e; font-weight: 600;">✓ ORGANIC</span>';
-                }
-                funderInfo += `<div class="recipient-network">[${funder.network}]${networkBadge}</div>`;
-            }
-
-            if (funder.labels && funder.labels.length > 0) {
-                funderInfo += `<div class="recipient-labels">${funder.labels.join(' • ')}</div>`;
-            }
-
-            funderInfo += `</div>`;
-
-            let detailsColumn = `<div style="font-size: 12px; color: var(--text-secondary);">${funder.transfer_count} transfer(s)</div>`;
-
-            html += `
-                <tr>
-                    <td>${funderInfo}</td>
-                    <td>${detailsColumn}</td>
-                    <td class="recipient-amount">${(funder.amount_sol || 0).toFixed(4)} SOL</td>
-                </tr>
-            `;
-        });
-
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
+        <div class="funders-section" style="margin-top:25px;">
+            <div class="findings-title">📥 Incoming Funders</div>
+            <table class="recipients-table">
+                <thead><tr>
+                    <th style="width:40%">Funder Address</th>
+                    <th style="width:40%">Details</th>
+                    <th style="width:20%;text-align:right">Amount SOL</th>
+                </tr></thead>
+                <tbody>
+                ${data.incoming_funders.map(funder => {
+                    const netLabels = {cex_connected:'🏦 CEX',infra_connected:'🔧 INFRA',mixed:'⚠️ MIXED',organic:'✓ ORGANIC'};
+                    const netColors = {cex_connected:'#ef4444',infra_connected:'#f97316',mixed:'#eab308',organic:'#22c55e'};
+                    return `<tr>
+                        <td><div class="recipient-info">
+                            ${funder.display_name
+                                ? `<div class="recipient-address" style="color:var(--accent-cyan);font-weight:600">${funder.display_name}</div>
+                                   <div class="recipient-address" style="font-size:10px;color:var(--text-secondary)">${funder.address}</div>`
+                                : `<div class="recipient-address">${funder.address}</div>`}
+                            ${funder.network ? `<div class="recipient-network">[${funder.network}]${funder.network_type ? ` <span style="color:${netColors[funder.network_type]};font-weight:600">${netLabels[funder.network_type]||''}</span>` : ''}</div>` : ''}
+                            ${funder.labels?.length ? `<div class="recipient-labels">${funder.labels.join(' • ')}</div>` : ''}
+                        </div></td>
+                        <td><div style="font-size:12px;color:var(--text-secondary)">${funder.transfer_count} transfer(s)</div></td>
+                        <td class="recipient-amount">${(funder.amount_sol||0).toFixed(4)}</td>
+                    </tr>`;
+                }).join('')}
+                </tbody>
+            </table>
+        </div>`;
     }
 
-    // Tokens created by this creator
-    if (data.tokens && data.tokens.length > 0) {
+    // ── Tokens (existing) ────────────────────────────────────────────────
+    if (data.tokens?.length) {
         html += `
-            <div class="tokens-section" style="margin-top: 25px;">
-                <div class="findings-title">🪙 Tokens Created</div>
-                <table class="recipients-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 50%;">Mint Address</th>
-                            <th style="width: 30%;">Created</th>
-                            <th style="width: 20%; text-align: right;">Risk Level</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
+        <div class="tokens-section" style="margin-top:25px;">
+            <div class="findings-title">🪙 Tokens Created</div>
+            <table class="recipients-table">
+                <thead><tr>
+                    <th style="width:50%">Mint Address</th>
+                    <th style="width:30%">Created</th>
+                    <th style="width:20%;text-align:right">Risk Level</th>
+                </tr></thead>
+                <tbody>
+                ${data.tokens.map(t => {
+                    const rc = t.risk_level==='HIGH'?'var(--color-critical)':t.risk_level==='MEDIUM'?'var(--color-medium)':'var(--color-low)';
+                    return `<tr>
+                        <td style="font-family:'Courier New',monospace;font-size:12px;color:var(--accent-cyan);word-break:break-all">${t.mint}</td>
+                        <td style="color:var(--text-secondary)">${t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A'}</td>
+                        <td style="text-align:right;color:${rc};font-weight:600">${t.risk_level||'N/A'}</td>
+                    </tr>`;
+                }).join('')}
+                </tbody>
+            </table>
+        </div>`;
 
-        data.tokens.forEach(token => {
-            const riskColor = token.risk_level === 'HIGH' ? 'var(--color-critical)' :
-                            token.risk_level === 'MEDIUM' ? 'var(--color-medium)' :
-                            'var(--color-low)';
-            const createdDate = token.created_at ? new Date(token.created_at).toLocaleDateString() : 'N/A';
-
-            html += `
-                <tr>
-                    <td style="font-family: 'Courier New', monospace; font-size: 12px; color: var(--accent-cyan); word-break: break-all;">${token.mint}</td>
-                    <td style="color: var(--text-secondary);">${createdDate}</td>
-                    <td style="text-align: right; color: ${riskColor}; font-weight: 600;">${token.risk_level || 'N/A'}</td>
-                </tr>
-            `;
-        });
-
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-
-    // Recipients section
-    if (data.tokens && data.tokens.length > 0) {
-        html += `
-            <div class="tokens-section">
-                <div class="findings-title">📤 Recipient Addresses & Funding Details</div>
-        `;
-
-        data.tokens.forEach(token => {
-            if (!token.recipients || token.recipients.length === 0) return;
-
-            html += `
-                <table class="recipients-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40%;">Recipient Address</th>
-                            <th style="width: 50%;">Funded Creators</th>
-                            <th style="width: 10%; text-align: right;">Amount SOL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            token.recipients.forEach((recipient, idx) => {
-                // Build recipient info with labels and network
-                let recipientInfo = `<div class="recipient-info">`;
-
-                // Display name (CEX/INFRA) if available, otherwise address
-                if (recipient.display_name) {
-                    recipientInfo += `<div class="recipient-address" style="color: var(--accent-cyan); font-weight: 600;">${recipient.display_name}</div>`;
-                    recipientInfo += `<div class="recipient-address" style="font-size: 10px; color: var(--text-secondary);">${recipient.address}</div>`;
-                } else {
-                    recipientInfo += `<div class="recipient-address">${recipient.address}</div>`;
-                }
-
-                if (recipient.network) {
-                    recipientInfo += `<div class="recipient-network">[${recipient.network}]</div>`;
-                }
-
-                if (recipient.labels && recipient.labels.length > 0) {
-                    recipientInfo += `<div class="recipient-labels">${recipient.labels.join(' • ')}</div>`;
-                }
-
-                recipientInfo += `</div>`;
-
-                // Build funded creators column
-                let creatorsColumn = '-';
-                if (recipient.funded_creators && recipient.funded_creators.length > 0) {
-                    creatorsColumn = recipient.funded_creators.map(c => {
-                        let creatorHtml = `<div class="funded-creator-row">`;
-
-                        // Display name (CEX/INFRA) if available, otherwise address
-                        if (c.display_name) {
-                            creatorHtml += `<div class="funded-creator-address" style="color: var(--accent-cyan); font-weight: 600;">${c.display_name}</div>`;
-                            creatorHtml += `<div class="funded-creator-address" style="font-size: 9px; color: var(--text-secondary);">${c.address}</div>`;
-                        } else {
-                            creatorHtml += `<div class="funded-creator-address">${c.address}</div>`;
-                        }
-
-                        if (c.network) {
-                            creatorHtml += `<div class="creator-network">[${c.network}]</div>`;
-                        }
-
-                        if (c.labels && c.labels.length > 0) {
-                            creatorHtml += `<div class="funded-creator-labels" style="font-size: 9px; color: var(--text-secondary);">${c.labels.join(' • ')}</div>`;
-                        }
-
-                        creatorHtml += `</div>`;
-                        return creatorHtml;
-                    }).join('');
-                }
-
+        // Recipients sub-table
+        const tokensWithRecipients = data.tokens.filter(t => t.recipients?.length);
+        if (tokensWithRecipients.length) {
+            html += `<div class="tokens-section"><div class="findings-title">📤 Recipient Addresses & Funding Details</div>`;
+            tokensWithRecipients.forEach(token => {
                 html += `
-                    <tr>
-                        <td>${recipientInfo}</td>
-                        <td>${creatorsColumn}</td>
-                        <td class="recipient-amount">${recipient.amount_sol.toFixed(4)} SOL</td>
-                    </tr>
-                `;
-            });
-
-            html += `
+                <table class="recipients-table">
+                    <thead><tr>
+                        <th style="width:40%">Recipient</th>
+                        <th style="width:50%">Funded Creators</th>
+                        <th style="width:10%;text-align:right">SOL</th>
+                    </tr></thead>
+                    <tbody>
+                    ${token.recipients.map(r => {
+                        let creatorsCol = '-';
+                        if (r.funded_creators?.length) {
+                            creatorsCol = r.funded_creators.map(c => `
+                                <div class="funded-creator-row">
+                                    ${c.display_name
+                                        ? `<div class="funded-creator-address" style="font-weight:600;color:var(--accent-cyan)">${c.display_name}</div>
+                                           <div class="funded-creator-address" style="font-size:9px;color:var(--text-secondary)">${c.address}</div>`
+                                        : `<div class="funded-creator-address">${c.address}</div>`}
+                                    ${c.network ? `<div class="creator-network">[${c.network}]</div>` : ''}
+                                    ${c.labels?.length ? `<div style="font-size:9px;color:var(--text-secondary)">${c.labels.join(' • ')}</div>` : ''}
+                                </div>`).join('');
+                        }
+                        return `<tr>
+                            <td><div class="recipient-info">
+                                ${r.display_name
+                                    ? `<div class="recipient-address" style="color:var(--accent-cyan);font-weight:600">${r.display_name}</div>
+                                       <div class="recipient-address" style="font-size:10px;color:var(--text-secondary)">${r.address}</div>`
+                                    : `<div class="recipient-address">${r.address}</div>`}
+                                ${r.network ? `<div class="recipient-network">[${r.network}]</div>` : ''}
+                                ${r.labels?.length ? `<div class="recipient-labels">${r.labels.join(' • ')}</div>` : ''}
+                            </div></td>
+                            <td>${creatorsCol}</td>
+                            <td class="recipient-amount">${r.amount_sol.toFixed(4)}</td>
+                        </tr>`;
+                    }).join('')}
                     </tbody>
-                </table>
-            `;
-        });
-
-        html += `
-            </div>
-        `;
+                </table>`;
+            });
+            html += `</div>`;
+        }
     }
 
-    // Funding chains section
-    if (data.funding_chains && data.funding_chains.length > 0) {
-        html += `
-            <div class="chains-section">
-                <div class="findings-title">⛓️ Funding Chains Detected</div>
-        `;
-
+    // ── Funding chains (existing) ────────────────────────────────────────
+    if (data.funding_chains?.length) {
+        html += `<div class="chains-section"><div class="findings-title">⛓️ Funding Chains Detected</div>`;
         data.funding_chains.forEach(chain => {
-            // Get display names or use addresses
-            const sourceDisplay = chain.source_creator_display || chain.source_creator;
-            const bridgeDisplay = chain.bridge_funder_display || chain.bridge_funder;
-            const targetDisplay = chain.target_creator_display || chain.target_creator;
-
-            let chainFlowHtml = `<div class="chain-flow">`;
-            chainFlowHtml += `<div class="chain-address">${sourceDisplay}</div>`;
-            if (chain.source_creator_display) {
-                chainFlowHtml += `<div class="chain-address-hint">${chain.source_creator}</div>`;
-            }
-            chainFlowHtml += `<div class="chain-arrow">→</div>`;
-            chainFlowHtml += `<div class="chain-address">${bridgeDisplay}</div>`;
-            if (chain.bridge_funder_display) {
-                chainFlowHtml += `<div class="chain-address-hint">${chain.bridge_funder}</div>`;
-            }
-            chainFlowHtml += `<div class="chain-arrow">→</div>`;
-            chainFlowHtml += `<div class="chain-address">${targetDisplay}</div>`;
-            if (chain.target_creator_display) {
-                chainFlowHtml += `<div class="chain-address-hint">${chain.target_creator}</div>`;
-            }
-            chainFlowHtml += `</div>`;
-
+            const sd = chain.source_creator_display || chain.source_creator;
+            const bd = chain.bridge_funder_display  || chain.bridge_funder;
+            const td = chain.target_creator_display || chain.target_creator;
             html += `
-                <div class="chain-item">
-                    ${chainFlowHtml}
-                    <div class="chain-details">
-                        <div class="chain-detail">
-                            <strong>Amount:</strong> ${chain.amount_sol.toFixed(2)} SOL
-                        </div>
-                        <div class="chain-detail">
-                            <strong>Confidence:</strong> ${chain.confidence}%
-                        </div>
-                        <div class="chain-detail">
-                            <strong>Time:</strong> ${new Date(chain.timestamp * 1000).toLocaleString()}
-                        </div>
-                    </div>
+            <div class="chain-item">
+                <div class="chain-flow">
+                    <div class="chain-address">${sd}</div>
+                    ${chain.source_creator_display ? `<div class="chain-address-hint">${chain.source_creator}</div>` : ''}
+                    <div class="chain-arrow">→</div>
+                    <div class="chain-address">${bd}</div>
+                    ${chain.bridge_funder_display ? `<div class="chain-address-hint">${chain.bridge_funder}</div>` : ''}
+                    <div class="chain-arrow">→</div>
+                    <div class="chain-address">${td}</div>
+                    ${chain.target_creator_display ? `<div class="chain-address-hint">${chain.target_creator}</div>` : ''}
                 </div>
-            `;
+                <div class="chain-details">
+                    <div class="chain-detail"><strong>Amount:</strong> ${chain.amount_sol.toFixed(2)} SOL</div>
+                    <div class="chain-detail"><strong>Confidence:</strong> ${chain.confidence}%</div>
+                    <div class="chain-detail"><strong>Time:</strong> ${new Date(chain.timestamp * 1000).toLocaleString()}</div>
+                </div>
+            </div>`;
         });
-
         html += `</div>`;
     }
 
-    // Statistics
+    // ── Stats footer (existing) ──────────────────────────────────────────
     html += `
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-num">${data.outgoing_transfer_count}</div>
-                <div class="stat-label">Outgoing Transfers</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-num">${data.funding_chain_count}</div>
-                <div class="stat-label">Detected Chains</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-num">${data.coordinated_edge_count}</div>
-                <div class="stat-label">Coordinated Edges</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-num">${(data.total_sol_sent || 0).toFixed(1)}</div>
-                <div class="stat-label">SOL Sent</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-num">${data.unique_recipients}</div>
-                <div class="stat-label">Unique Recipients</div>
-            </div>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-num">${data.outgoing_transfer_count}</div>
+            <div class="stat-label">Outgoing Transfers</div>
         </div>
-    `;
-
-    html += `</div>`;
+        <div class="stat-box">
+            <div class="stat-num">${data.funding_chain_count}</div>
+            <div class="stat-label">Detected Chains</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">${data.coordinated_edge_count}</div>
+            <div class="stat-label">Coordinated Edges</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">${(data.total_sol_sent||0).toFixed(1)}</div>
+            <div class="stat-label">SOL Sent</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">${data.unique_recipients}</div>
+            <div class="stat-label">Unique Recipients</div>
+        </div>
+    </div>
+    </div>`;
 
     document.getElementById('content').innerHTML = html;
 }
 
-// Auto-refresh queue status every 5 seconds
+// ── Queue auto-refresh (landing view only) ───────────────────────────────────
 let autoRefreshInterval = setInterval(() => {
     fetch('/api/creator-analysis-queue-status')
         .then(r => r.json())
         .then(queueData => {
-            // Update only the queue section if it exists
             const queueSection = document.querySelector('.queue-status-section');
-            if (!queueSection) return; // Skip if not on main view
+            if (!queueSection) return;
+            if (queueData.total_queued === 0) { loadRecentChecks(); return; }
 
-            // If queue became empty, reload the whole page
-            if (queueData.total_queued === 0 && queueSection) {
-                loadRecentChecks();
-                return;
-            }
-
-            // Update stats grid
-            const statsBoxes = queueSection.querySelectorAll('.queue-stat-box');
-            let boxIndex = 0;
-
-            // Update "Active Items" count
-            if (statsBoxes[boxIndex]) {
-                statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = queueData.total_queued;
-                boxIndex++;
-            }
-
-            // Update status counts
-            Object.entries(queueData.status_breakdown || {}).forEach(([status, info]) => {
-                if (statsBoxes[boxIndex]) {
-                    statsBoxes[boxIndex].querySelector('.queue-stat-value').textContent = info.count;
-                    boxIndex++;
-                }
+            const boxes = queueSection.querySelectorAll('.queue-stat-box');
+            let i = 0;
+            if (boxes[i]) { boxes[i].querySelector('.queue-stat-value').textContent = queueData.total_queued; i++; }
+            Object.values(queueData.status_breakdown || {}).forEach(info => {
+                if (boxes[i]) { boxes[i].querySelector('.queue-stat-value').textContent = info.count; i++; }
             });
-
-            // Update top priority items
-            const topPriorityDiv = queueSection.querySelector('.queue-top-items');
-            if (topPriorityDiv && queueData.top_priority) {
-                const itemsHtml = queueData.top_priority.map(item => `
-                    <div class="queue-item">
-                        <div class="queue-item-address">${item.creator_address}</div>
-                        <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
-                        ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
-                    </div>
-                `).join('');
-                topPriorityDiv.innerHTML = '<div class="queue-top-title">🔝 Top Priority</div>' + itemsHtml;
+            const topDiv = queueSection.querySelector('.queue-top-items');
+            if (topDiv && queueData.top_priority) {
+                topDiv.innerHTML = '<div class="queue-top-title">Top Priority</div>' +
+                    queueData.top_priority.map(item => `
+                        <div class="queue-item">
+                            <div class="queue-item-address">${item.creator_address}</div>
+                            <span class="queue-item-status ${item.status.toLowerCase()}">${item.status}</span>
+                            ${item.risk_level ? `<span class="queue-item-risk ${item.risk_level}">${item.risk_level}</span>` : ''}
+                        </div>`).join('');
             }
         })
-        .catch(err => console.log('Queue refresh failed:', err));
-}, 5000); // Refresh every 5 seconds
+        .catch(() => {});
+}, 5000);
 
-// Clean up interval when user leaves page
 window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
 </script>
 {% endblock %}

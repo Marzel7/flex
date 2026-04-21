@@ -56,6 +56,7 @@ async def ensure_pf_ws_creator(
     get_transaction_fn:  Callable[[str], Awaitable[Optional[dict]]],
     validate_create_fn:  Callable[[dict], dict],
     infer_creator_fn:    Callable[[dict], Optional[str]],
+    register_webhook_fn: Optional[Callable[[str], Awaitable[Optional[str]]]] = None,
 ) -> Optional[str]:
     """
     Resolve and persist pf_ws_creator via a single getTransaction RPC (Path A).
@@ -98,7 +99,8 @@ async def ensure_pf_ws_creator(
     # --- 2. Already resolved — profile touch only ---
     if pf_ws_creator:
         await _on_creator_known(pf_ws_creator, mint=mint, reason=reason, repo=repo,
-                                create_tx_sig=create_tx_sig, skip_funding=True)
+                                create_tx_sig=create_tx_sig, skip_funding=True,
+                                register_webhook_fn=register_webhook_fn)
         return pf_ws_creator
 
     # --- 3. Path A: single getTransaction ---
@@ -144,7 +146,8 @@ async def ensure_pf_ws_creator(
 
     # --- 7. Update creator_profile and conditionally enqueue baseline ---
     await _on_creator_known(creator, mint=mint, reason=reason, repo=repo,
-                            create_tx_sig=create_tx_sig, skip_funding=False)
+                            create_tx_sig=create_tx_sig, skip_funding=False,
+                            register_webhook_fn=register_webhook_fn)
     return creator
 
 
@@ -198,6 +201,7 @@ async def _on_creator_known(
     repo: CreatorRepository,
     create_tx_sig: Optional[str],
     skip_funding: bool,
+    register_webhook_fn: Optional[Callable[[str], Awaitable[Optional[str]]]] = None,
 ) -> None:
     """
     Common post-resolution logic.  Called whether creator came from cache or fresh RPC.
@@ -229,6 +233,13 @@ async def _on_creator_known(
             priority=100,
             delay_seconds=30,   # let hot-path analysis complete first
             repo=repo,
+        )
+
+    if register_webhook_fn is not None:
+        await start_creator_watch_if_needed(
+            creator_address,
+            repo=repo,
+            register_webhook_fn=register_webhook_fn,
         )
 
 

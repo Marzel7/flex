@@ -159,14 +159,18 @@ async def dual_write_creator_resolved(
     create_tx_signature: Optional[str],
     reason: str,
     repo: CreatorRepository,
+    register_webhook_fn=None,
 ) -> None:
     """
     Additive dual-write.  Does NOT replace any existing call in Phase 1.
 
     - Upserts creator_profile (first_seen, token_count, last_launch).
     - Enqueues a baseline job if history_status == unknown.
+    - Fires watch registration if register_webhook_fn provided.
     - No-ops completely if profile already exists and is not unknown.
     """
+    from src.creators.service import start_creator_watch_if_needed
+
     now = int(time.time())
 
     await repo.increment_creator_token_count(creator_address, last_launch_at=now)
@@ -187,6 +191,13 @@ async def dual_write_creator_resolved(
             priority=100,
             delay_seconds=30,
             repo=repo,
+        )
+
+    if register_webhook_fn is not None:
+        await start_creator_watch_if_needed(
+            creator_address,
+            repo=repo,
+            register_webhook_fn=register_webhook_fn,
         )
 
 

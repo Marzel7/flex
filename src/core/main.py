@@ -19274,6 +19274,190 @@ def webhook_creator_movement():
         return "ok", 200
 
 
+# ---------------------------------------------------------------------------
+# Creator pipeline status — profile + watch state + SOL movement ledger
+# ---------------------------------------------------------------------------
+
+def _creator_db_path():
+    return os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "pumpswap_tokens.db",
+    )
+
+
+@app.route('/api/creator-pipeline-status/<creator_address>')
+def api_creator_pipeline_status(creator_address: str):
+    """
+    Returns creator_profile + creator_activity_state + last 30 SOL movements
+    from the creator pipeline DB (pumpswap_tokens.db).
+    """
+    try:
+        import sqlite3 as _sq
+        cdb = _creator_db_path()
+        conn = _sq.connect(cdb, timeout=10)
+        conn.row_factory = _sq.Row
+
+        profile = conn.execute(
+            "SELECT * FROM creator_profile WHERE creator_address = ?",
+            (creator_address,)
+        ).fetchone()
+
+        state = conn.execute(
+            "SELECT * FROM creator_activity_state WHERE creator_address = ?",
+            (creator_address,)
+        ).fetchone()
+
+        movements = conn.execute(
+            """
+            SELECT slot, block_time, net_lamports, abs_lamports,
+                   direction, counterparty, source, signature
+            FROM creator_sol_movements
+            WHERE creator_address = ?
+            ORDER BY slot DESC
+            LIMIT 30
+            """,
+            (creator_address,)
+        ).fetchall()
+
+        # 24h flow totals
+        cutoff = int(__import__('time').time()) - 86400
+        flow = conn.execute(
+            """
+            SELECT
+                SUM(CASE WHEN direction='in'  THEN abs_lamports ELSE 0 END) as total_in,
+                SUM(CASE WHEN direction='out' THEN abs_lamports ELSE 0 END) as total_out,
+                COUNT(*) as total_events
+            FROM creator_sol_movements
+            WHERE creator_address = ? AND block_time >= ?
+            """,
+            (creator_address, cutoff)
+        ).fetchone()
+
+        conn.close()
+
+        def _row(r):
+            return dict(r) if r else {}
+
+        p = _row(profile)
+        s = _row(state)
+        f = _row(flow)
+
+        return jsonify({
+            "creator_address": creator_address,
+            "profile": {
+                "history_status":        p.get("history_status", "unknown"),
+                "coverage_mode":         p.get("coverage_mode", "forward_only"),
+                "token_count_seen":      p.get("token_count_seen", 0),
+                "last_launch_at":        p.get("last_launch_at"),
+                "last_activity_at":      p.get("last_activity_at"),
+                "baselined_at":          p.get("baselined_at"),
+                "first_seen_at":         p.get("first_seen_at"),
+            } if p else None,
+            "watch": {
+                "status":           s.get("watch_status"),
+                "webhook_id":       s.get("watch_webhook_id"),
+                "registered_at":    s.get("watch_registered_at"),
+                "last_checked_at":  s.get("watch_last_checked_at"),
+                "last_error":       s.get("watch_last_error"),
+                "stream_health":    s.get("stream_health_status"),
+                "needs_reconcile":  bool(s.get("needs_reconcile", 0)),
+                "last_seen_slot":   s.get("last_seen_slot"),
+                "last_seen_at":     s.get("last_seen_at"),
+            } if s else None,
+            "flow_24h": {
+                "in_lamports":  f.get("total_in") or 0,
+                "out_lamports": f.get("total_out") or 0,
+                "events":       f.get("total_events") or 0,
+            },
+            "movements": [
+                {
+                    "slot":         m["slot"],
+                    "block_time":   m["block_time"],
+                    "net_lamports": m["net_lamports"],
+                    "abs_lamports": m["abs_lamports"],
+                    "direction":    m["direction"],
+                    "counterparty": m["counterparty"],
+                    "source":       m["source"],
+                    "signature":    m["signature"],
+                }
+                for m in movements
+            ],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/creator-pipeline-stats')
+def api_creator_pipeline_stats():
+    """
+    Fleet-level pipeline health: history_status breakdown, watch coverage,
+    24h movement volume.
+    """
+    try:
+        import sqlite3 as _sq
+        cdb = _creator_db_path()
+        conn = _sq.connect(cdb, timeout=10)
+        conn.row_factory = _sq.Row
+
+        # history_status breakdown
+        status_rows = conn.execute(
+            """
+            SELECT history_status, COUNT(*) as cnt
+            FROM creator_profile
+            GROUP BY history_status
+            """
+        ).fetchall()
+        history_counts = {r["history_status"]: r["cnt"] for r in status_rows}
+        total_profiled = sum(history_counts.values())
+
+        # watch_status breakdown
+        watch_rows = conn.execute(
+            """
+            SELECT COALESCE(watch_status, 'none') as ws, COUNT(*) as cnt
+            FROM creator_activity_state
+            GROUP BY ws
+            """
+        ).fetchall()
+        watch_counts = {r["ws"]: r["cnt"] for r in watch_rows}
+
+        # 24h movement totals
+        cutoff = int(__import__('time').time()) - 86400
+        flow = conn.execute(
+            """
+            SELECT
+                COUNT(DISTINCT creator_address) as active_creators,
+                SUM(CASE WHEN direction='in'  THEN abs_lamports ELSE 0 END) as total_in,
+                SUM(CASE WHEN direction='out' THEN abs_lamports ELSE 0 END) as total_out,
+                COUNT(*) as total_events
+            FROM creator_sol_movements
+            WHERE block_time >= ?
+            """,
+            (cutoff,)
+        ).fetchone()
+
+        conn.close()
+
+        f = dict(flow) if flow else {}
+        active_watches = watch_counts.get("active", 0)
+
+        return jsonify({
+            "total_profiled":    total_profiled,
+            "history_breakdown": history_counts,
+            "watch_breakdown":   watch_counts,
+            "active_watches":    active_watches,
+            "watch_pct":         round(active_watches / total_profiled * 100, 1) if total_profiled else 0,
+            "baselined_pct":     round((history_counts.get("baselined", 0) / total_profiled * 100), 1) if total_profiled else 0,
+            "flow_24h": {
+                "active_creators": f.get("active_creators") or 0,
+                "in_lamports":     f.get("total_in") or 0,
+                "out_lamports":    f.get("total_out") or 0,
+                "events":          f.get("total_events") or 0,
+            },
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/api/funder-webhook-events')
 def funder_webhook_events():
     """Get recent funder webhook events (paginated)."""

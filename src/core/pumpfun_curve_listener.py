@@ -8271,6 +8271,118 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 1.5, 30)
 
+    async def listen_pumpportal_websocket(self):
+        """
+        Single PumpPortal WSS connection replacing all Helius pump.fun subscriptions:
+          - subscribeNewToken  → handle_birth (no RPC getTransaction needed)
+          - subscribeMigration → handle_migration
+          - subscribeTokenTrade on near-complete tokens → handle_migration when vSol >= threshold
+
+        Zero Helius WSS credits consumed for pump.fun events.
+        """
+        PUMPPORTAL_WS = "wss://pumpportal.fun/api/data"
+        # pump.fun bonding curve fills at ~85 SOL virtual reserves
+        MIGRATION_SOL_THRESHOLD = 80.0
+        # Mints we are tracking trades for (near migration)
+        tracked_trade_mints: set = set()
+        reconnect_delay = 5
+
+        while True:
+            try:
+                async with websockets.connect(
+                    PUMPPORTAL_WS,
+                    ping_interval=20,
+                    ping_timeout=30,
+                    close_timeout=10,
+                    max_size=10 * 1024 * 1024,
+                ) as ws:
+                    reconnect_delay = 5
+                    log_print("[PUMPPORTAL] ✓ Connected", flush=True)
+
+                    await ws.send(json.dumps({"method": "subscribeNewToken"}))
+                    await ws.send(json.dumps({"method": "subscribeMigration"}))
+                    log_print("[PUMPPORTAL] Subscribed to newToken + migration", flush=True)
+
+                    while True:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                        except asyncio.TimeoutError:
+                            log_print("[PUMPPORTAL] ⚠ No message in 60s — reconnecting", flush=True)
+                            break
+
+                        try:
+                            data = json.loads(msg)
+                        except Exception:
+                            continue
+
+                        # Ignore subscription confirmation messages
+                        if "message" in data and "txType" not in data:
+                            continue
+
+                        tx_type = data.get("txType")
+                        sig = data.get("signature", "")
+                        mint = data.get("mint", "")
+
+                        if tx_type == "create":
+                            creator = data.get("traderPublicKey")
+                            bonding_curve_pda = data.get("bondingCurveKey")
+                            symbol = data.get("symbol")
+                            name = data.get("name")
+                            v_sol = float(data.get("vSolInBondingCurve") or 0)
+
+                            if mint and sig and mint not in self.completed_launches:
+                                self.completed_launches.add(sig)
+                                self.seen_mints.add(mint)
+                                if bonding_curve_pda:
+                                    self._remember_bonding_curve_token(mint, bonding_curve_pda)
+                                try:
+                                    await self._insert_bonding_curve_token(
+                                        mint, creator, str(int(time.time())),
+                                        bonding_curve_pda=bonding_curve_pda,
+                                        create_tx_signature=sig,
+                                        symbol=symbol,
+                                        name=name,
+                                    )
+                                    log_print(
+                                        f"[PUMPPORTAL] 🟢 Birth: {mint[:16]}... symbol={symbol} creator={creator[:8] if creator else '?'}",
+                                        flush=True,
+                                    )
+                                    # Trigger creator pipeline
+                                    if creator:
+                                        asyncio.create_task(
+                                            self._ensure_pf_ws_creator(creator, mint, sig)
+                                        )
+                                except Exception as e:
+                                    log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e}", flush=True)
+
+                                # Subscribe to trades if already near migration threshold
+                                if v_sol >= MIGRATION_SOL_THRESHOLD and mint not in tracked_trade_mints:
+                                    tracked_trade_mints.add(mint)
+                                    await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
+
+                        elif tx_type in ("buy", "sell") and mint:
+                            v_sol = float(data.get("vSolInBondingCurve") or 0)
+                            # If not yet tracking this token but it's near migration, subscribe
+                            if v_sol >= MIGRATION_SOL_THRESHOLD and mint not in tracked_trade_mints:
+                                tracked_trade_mints.add(mint)
+                                await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
+
+                        elif tx_type == "migration" and sig:
+                            if sig not in self.completed_migrations:
+                                log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
+                                asyncio.create_task(self.handle_migration(sig, []))
+                                # Unsubscribe from trade tracking for this mint
+                                if mint in tracked_trade_mints:
+                                    tracked_trade_mints.discard(mint)
+                                    await ws.send(json.dumps({"method": "unsubscribeTokenTrade", "keys": [mint]}))
+
+            except Exception as e:
+                error_str = str(e).lower()
+                if "close frame" not in error_str:
+                    log_print(f"[PUMPPORTAL] ⚠ Connection error: {e} — retrying in {reconnect_delay}s", flush=True)
+            await asyncio.sleep(reconnect_delay)
+            reconnect_delay = min(reconnect_delay * 1.5, 60)
+
     async def drain_webhook_birth_queue(self):
         """
         Drains the webhook_birth_queue table (written by the Flask process when Helius
@@ -8795,12 +8907,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as e:
             log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 
-        # Run PumpSwap migration intake, bonding curve watcher, and Helius webhook birth queue drainer.
-        # listen_pumpfun_websocket (logsSubscribe) removed — births arrive via Helius webhook,
-        # bonding curves are watched immediately on birth, complete=true fires migration.
+        # PumpPortal WSS handles births, migrations, and near-complete curve tracking.
+        # listen_pumpswap_websocket and listen_bonding_curve_accounts are replaced.
+        # drain_webhook_birth_queue kept as fallback for Helius birth webhook delivery.
         await asyncio.gather(
-            self.listen_pumpswap_websocket(),
-            self.listen_bonding_curve_accounts(),
+            self.listen_pumpportal_websocket(),
             self.drain_webhook_birth_queue(),
         )
 

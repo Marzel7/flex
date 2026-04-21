@@ -6,10 +6,15 @@ path to the new creator-centric pipeline.
 
 PHASE FLAGS
 -----------
-PHASE_2_ACTIVE  (module-level bool, flip manually)
-    False → Phase 1: dual-write only.  Old creator_funding_queue runs unchanged.
-    True  → Phase 2: cache check uses creator_profile; legacy extraction skipped for
+phase_2_active  (DB-backed, no restart required)
+    false → Phase 1: dual-write only.  Old creator_funding_queue runs unchanged.
+    true  → Phase 2: cache check uses creator_profile; legacy extraction skipped for
             known creators.  Worker must be running before flipping this.
+
+Activate:
+    UPDATE system_config SET value='true',  updated_at=strftime('%s','now') WHERE key='phase_2_active';
+Rollback:
+    UPDATE system_config SET value='false', updated_at=strftime('%s','now') WHERE key='phase_2_active';
 
 USAGE
 -----
@@ -18,7 +23,7 @@ From _ensure_pf_ws_creator() (after pf_ws_creator is written):
 
 From extract_funding_for_new_token() (replaces COUNT(*) check):
     profile = await repo.get_creator_profile(creator)
-    if should_skip_legacy_extraction(profile):
+    if await should_skip_legacy_extraction(profile, repo):
         return {"skipped": True, "reason": "creator_profile_cache"}
 """
 
@@ -44,16 +49,27 @@ logger = logging.getLogger(__name__)
 # Rollback:
 #   UPDATE system_config SET value='false', updated_at=strftime('%s','now') WHERE key='phase_2_active';
 #
-# The flag is read fresh on every call — no caching, instant effect.
+# Cached for 1 second in-process to avoid a DB hit on every token.
+# Rollback takes effect within 1 second of the SQL UPDATE.
 # ---------------------------------------------------------------------------
+
+_phase2_cache: tuple[bool, float] = (False, 0.0)   # (value, expiry)
+_PHASE2_TTL = 1.0  # seconds
+
 
 async def is_phase_2_active(repo: CreatorRepository) -> bool:
     """Return True when the phase_2_active config flag is 'true' in system_config."""
+    global _phase2_cache
+    value, expiry = _phase2_cache
+    if time.monotonic() < expiry:
+        return value
     try:
-        return await repo.get_config_bool("phase_2_active", default=False)
+        value = await repo.get_config_bool("phase_2_active", default=False)
     except Exception as e:
         logger.warning("[MIGRATION_BRIDGE] Failed to read phase_2_active flag: %s — defaulting False", e)
-        return False
+        value = False
+    _phase2_cache = (value, time.monotonic() + _PHASE2_TTL)
+    return value
 
 
 # ---------------------------------------------------------------------------
@@ -250,3 +266,70 @@ async def bootstrap_creator_profiles(
 
     logger.info("[MIGRATION_BRIDGE] Bootstrap complete: %d profiles upserted", count)
     return count
+
+
+# ---------------------------------------------------------------------------
+# creator_tokens backfill — run once before Phase 2 to make token_count_seen
+# consistent with COUNT(*) from creator_tokens for historical creators.
+#
+# Source: token_analysis.pf_ws_creator (most authoritative creator→mint mapping).
+# Safe to re-run — INSERT OR IGNORE + UPDATE only increases counts.
+#
+# After running, verify with:
+#   SELECT p.creator_address, p.token_count_seen, COUNT(t.mint) AS actual
+#   FROM creator_profile p
+#   LEFT JOIN creator_tokens t USING (creator_address)
+#   GROUP BY p.creator_address
+#   HAVING p.token_count_seen != actual;
+# ---------------------------------------------------------------------------
+
+async def backfill_creator_tokens(
+    *,
+    db_path: str,
+    db_lock: asyncio.Lock,
+) -> dict:
+    """
+    Populate creator_tokens from token_analysis.pf_ws_creator and reconcile
+    token_count_seen in creator_profile to match.
+
+    Returns {"links_inserted": int, "profiles_updated": int}.
+    """
+    logger.info("[MIGRATION_BRIDGE] creator_tokens backfill: reading token_analysis...")
+
+    async with db_lock:
+        conn = sqlite3.connect(db_path, timeout=60)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.row_factory = sqlite3.Row
+
+        # Step 1: insert all known (creator, mint) pairs
+        conn.execute("""
+            INSERT OR IGNORE INTO creator_tokens (creator_address, mint, created_at)
+            SELECT pf_ws_creator, mint, COALESCE(created_at, strftime('%s','now'))
+            FROM token_analysis
+            WHERE pf_ws_creator IS NOT NULL
+        """)
+        links_inserted = conn.execute("SELECT changes()").fetchone()[0]
+
+        # Step 2: reconcile token_count_seen to match creator_tokens count
+        conn.execute("""
+            UPDATE creator_profile
+            SET token_count_seen = (
+                SELECT COUNT(*) FROM creator_tokens t
+                WHERE t.creator_address = creator_profile.creator_address
+            ),
+            updated_at = strftime('%s','now')
+            WHERE creator_address IN (
+                SELECT DISTINCT creator_address FROM creator_tokens
+            )
+        """)
+        profiles_updated = conn.execute("SELECT changes()").fetchone()[0]
+
+        conn.commit()
+        conn.close()
+
+    logger.info(
+        "[MIGRATION_BRIDGE] creator_tokens backfill complete: "
+        "%d links inserted, %d profiles reconciled",
+        links_inserted, profiles_updated,
+    )
+    return {"links_inserted": links_inserted, "profiles_updated": profiles_updated}

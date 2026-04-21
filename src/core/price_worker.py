@@ -727,8 +727,8 @@ class BackgroundPriceWorker:
 
     async def _periodic_pool_resync(self) -> None:
         """
-        Periodically re-fetch reserves from RPC to repair any stale state.
-        Runs every 3 minutes. Guarantees pools stay fresh even if WebSocket is idle.
+        Primary price update loop — polls all pool reserves via getMultipleAccounts every 10s.
+        ~26k Helius credits/day (3 batched RPC calls × 6/min × 1440 min).
         """
         from src.core.pool_price_engine import get_pool_fetcher
 
@@ -739,7 +739,7 @@ class BackgroundPriceWorker:
                     await asyncio.sleep(10)  # Short delay on startup to let registration settle
                     first_run = False
                 else:
-                    await asyncio.sleep(180)  # 3 minutes between subsequent resyncs
+                    await asyncio.sleep(10)  # 10s between polls
 
                 fetcher = get_pool_fetcher(self.db_path)
                 pools = fetcher.get_active_pools()
@@ -787,8 +787,6 @@ class BackgroundPriceWorker:
 
     def stop(self) -> None:
         """Stop the background worker."""
-        if self._ws_client:
-            self._ws_client.stop()
         self.running = False
         if self.thread:
             self.thread.join(timeout=5)
@@ -1014,38 +1012,9 @@ class BackgroundPriceWorker:
         cycle_start = time.time()
         self.stats['cycles'] += 1
 
-        # Start WebSocket if not running but pools exist (handles post-startup pool registration)
-        if not self._ws_started:
-            from src.core.pool_price_engine import get_pool_fetcher
-            fetcher = get_pool_fetcher(self.db_path)
-            ws_pools = fetcher.get_ws_pools()
-            if ws_pools:
-                self._start_ws_client()
-
-        # Frequently reload pool subscriptions from database (every cycle = ~10s)
-        # This ensures new tokens discovered by the listener get subscribed quickly
-        try:
-            fetcher = get_pool_fetcher(self.db_path)
-            # ws_pools: age-gated to 48h — controls accountSubscribe subscriptions
-            # all_pools: all active pools — used for pool_map_cache to handle any incoming WS event
-            ws_pools = fetcher.get_ws_pools()
-            all_pools = fetcher.get_active_pools()
-
-            if not self._ws_client and ws_pools:
-                # WebSocket not started but pools exist — start it now
-                logger.info(f"[PRICE_WORKER] 🚀 New pools detected, starting WebSocket")
-                self._start_ws_client()
-            elif self._ws_client and ws_pools:
-                # WebSocket running — refresh subscriptions with latest pools
-                # This picks up newly discovered pools within ~10 seconds
-                self._ws_client.refresh_pools(ws_pools)
-
-            # Refresh pool map cache used by WS fast path (avoids per-event DB query)
-            # Use all_pools so we can handle WS events from any active pool
-            if all_pools:
-                self._pool_map_cache = {(p["mint"], p["base_account"]): p for p in all_pools}
-        except Exception as e:
-            logger.debug(f"Error refreshing WebSocket pools: {e}")
+        # Pool prices are maintained by _periodic_pool_resync (10s RPC poll).
+        # No WebSocket client for pool vaults — poll is sufficient for UI display
+        # and costs ~26k Helius credits/day vs unbounded WSS event credits.
 
         # Reset activity distribution for this cycle
         self.stats['activity_distribution'] = {
@@ -1369,31 +1338,9 @@ class BackgroundPriceWorker:
         # Check for pools marked as stale by PoolStateStore (no updates >5 min)
         stale_mints = self._pool_state.mark_stale_pools(now)
 
-        # Primary: compute prices from WebSocket-maintained reserve state
+        # Prices are updated by _periodic_pool_resync running on a 10s cycle.
+        # Recompute from whatever reserve state it last wrote.
         self._recompute_prices_from_ws_state()
-
-        # Fallback poll: refresh reserves from RPC when WS state is stale or absent.
-        # This is essential in the Flask/UI process, where pricing may run without
-        # owning the live reserve WebSocket client.
-        should_run_fallback_poll = False
-        fallback_interval = 60.0
-        if self._ws_client and self._ws_client.stats.get("is_stale"):
-            fallback_interval = 30.0
-        if stale_mints:
-            fallback_interval = min(fallback_interval, 30.0)
-        if (not self._ws_client) or self._ws_client.stats.get("is_stale") or stale_mints:
-            should_run_fallback_poll = True
-
-        if should_run_fallback_poll and (now - self._last_fallback_poll) >= fallback_interval:
-            try:
-                logger.info(
-                    f"[PRICE_WORKER] Running fallback pool poll "
-                    f"(interval={fallback_interval:.0f}s stale_mints={len(stale_mints)})"
-                )
-                asyncio.run(self._fetch_pool_prices_async())
-                self._last_fallback_poll = time.time()
-            except Exception as e:
-                logger.error(f"[PRICE_WORKER] Fallback pool poll failed: {e}", exc_info=True)
 
         # Sync WS stats to worker stats and persist to disk for Flask to read
         if self._ws_client:

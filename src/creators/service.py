@@ -160,12 +160,12 @@ async def process_repeat_creator_launch(
     Contract:
       - NEVER triggers legacy creator_funding_queue extraction (history_status != unknown
         means we already have their data).
-      - Increments token count.
+      - Increments token count exactly once per (creator, mint).
       - Enqueues incremental_reconcile if profile is stale.
       - No expensive RPC.
     """
     now = int(time.time())
-    await repo.increment_creator_token_count(creator_address, last_launch_at=now)
+    await repo.increment_token_count_if_new(creator_address, mint, last_launch_at=now)
     await repo.upsert_creator_profile(
         creator_address,
         last_launch_at=now,
@@ -206,9 +206,9 @@ async def _on_creator_known(
     """
     now = int(time.time())
 
-    # increment_creator_token_count does an INSERT ON CONFLICT UPDATE, so it is safe
-    # to call unconditionally — it creates the profile row if missing.
-    await repo.increment_creator_token_count(creator_address, last_launch_at=now)
+    # increment_token_count_if_new creates the profile row if missing and
+    # increments exactly once per (creator, mint) — race-safe.
+    await repo.increment_token_count_if_new(creator_address, mint, last_launch_at=now)
     await repo.upsert_creator_profile(
         creator_address,
         last_create_tx_signature=create_tx_sig,

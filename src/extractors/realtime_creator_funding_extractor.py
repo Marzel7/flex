@@ -2336,7 +2336,7 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         from src.utils.db_locking import DB_WRITE_LOCK
         _repo = CreatorRepository(DB_PATH, DB_WRITE_LOCK)
         _profile = await _repo.get_creator_profile(creator)
-        if should_skip_legacy_extraction(_profile):
+        if await should_skip_legacy_extraction(_profile, _repo):
             _skip = True
             _skip_reason = "creator_profile_cache"
     except Exception as _e:

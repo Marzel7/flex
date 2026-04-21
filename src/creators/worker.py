@@ -127,18 +127,20 @@ class CreatorActivityWorker:
             coverage_mode=CoverageMode.FORWARD_ONLY,
         )
 
+        _BASELINE_MAX_ATTEMPTS = 20
+
         try:
             result: dict = await asyncio.wait_for(
                 self._run_baseline(creator, resume_cursor),
                 timeout=_BASELINE_TIMEOUT,
             )
         except asyncio.TimeoutError:
-            # run_baseline_scan_fn is responsible for flushing its cursor to
-            # creator_activity_state before the timeout propagates.
-            logger.warning("[CREATOR_WORKER] Baseline timeout creator=%s — will retry", creator[:16])
+            logger.warning("[CREATOR_WORKER] Baseline timeout creator=%s attempt=%d/%d",
+                           creator[:16], job.attempt_count + 1, _BASELINE_MAX_ATTEMPTS)
             await self._repo.mark_creator_activity_job_failed(
-                job_id, "timeout", retry_delay=30, max_attempts=20
+                job_id, "timeout", retry_delay=30, max_attempts=_BASELINE_MAX_ATTEMPTS
             )
+            await self._maybe_mark_stale(creator, job.attempt_count + 1, _BASELINE_MAX_ATTEMPTS)
             return
 
         now = int(time.time())
@@ -165,5 +167,29 @@ class CreatorActivityWorker:
             if cursor:
                 await self._repo.upsert_creator_activity_state(creator, resume_cursor=cursor)
             await self._repo.mark_creator_activity_job_failed(
-                job_id, "partial_completion", retry_delay=10, max_attempts=20
+                job_id, "partial_completion", retry_delay=10, max_attempts=_BASELINE_MAX_ATTEMPTS
             )
+            await self._maybe_mark_stale(creator, job.attempt_count + 1, _BASELINE_MAX_ATTEMPTS)
+
+    async def _maybe_mark_stale(self, creator: str, attempts: int, max_attempts: int) -> None:
+        """
+        When a baseline job exhausts all retries, flip history_status to 'stale'.
+        This prevents the creator from being permanently stuck in 'partial' while
+        still allowing a future retry (should_run_creator_baseline treats stale as retriable).
+        """
+        if attempts < max_attempts:
+            return
+        logger.warning(
+            "[CREATOR_WORKER] Baseline exhausted max_attempts=%d creator=%s — marking stale",
+            max_attempts, creator[:16],
+        )
+        try:
+            profile = await self._repo.get_creator_profile(creator)
+            # Only downgrade if still partial — don't touch baselined profiles.
+            if profile and profile.history_status == HistoryStatus.PARTIAL:
+                await self._repo.upsert_creator_profile(
+                    creator,
+                    history_status=HistoryStatus.STALE,
+                )
+        except Exception as e:
+            logger.warning("[CREATOR_WORKER] Failed to mark stale creator=%s: %s", creator[:16], e)

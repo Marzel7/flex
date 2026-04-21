@@ -37,27 +37,43 @@ from src.creators.service import enqueue_creator_activity_job, should_run_creato
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Phase flag — flip to True when Phase 2 worker is live and profiles populated
+# Phase 2 toggle — DB-backed, no restart required.
+#
+# Activate:
+#   UPDATE system_config SET value='true',  updated_at=strftime('%s','now') WHERE key='phase_2_active';
+# Rollback:
+#   UPDATE system_config SET value='false', updated_at=strftime('%s','now') WHERE key='phase_2_active';
+#
+# The flag is read fresh on every call — no caching, instant effect.
 # ---------------------------------------------------------------------------
-PHASE_2_ACTIVE: bool = False
+
+async def is_phase_2_active(repo: CreatorRepository) -> bool:
+    """Return True when the phase_2_active config flag is 'true' in system_config."""
+    try:
+        return await repo.get_config_bool("phase_2_active", default=False)
+    except Exception as e:
+        logger.warning("[MIGRATION_BRIDGE] Failed to read phase_2_active flag: %s — defaulting False", e)
+        return False
 
 
 # ---------------------------------------------------------------------------
 # Cache gate — replaces SELECT COUNT(*) FROM creator_funders
 # ---------------------------------------------------------------------------
 
-def should_skip_legacy_extraction(profile: Optional[object]) -> bool:
+async def should_skip_legacy_extraction(
+    profile: Optional[object],
+    repo: CreatorRepository,
+) -> bool:
     """
     Returns True when creator_profile tells us we already have this creator's data
     and can skip the full legacy extraction path.
 
-    Phase 1: always False (preserves existing behaviour).
+    Phase 1 (phase_2_active=false): always False — preserves existing behaviour.
     Phase 2+: True when history_status is 'partial', 'baselined', or 'stale'.
               'unknown' always falls through to legacy extraction.
-              'stale' skips because the baseline worker will refresh asynchronously —
-              there is no value in running a blocking legacy scan while that is pending.
+              'stale' skips because the baseline worker refreshes asynchronously.
     """
-    if not PHASE_2_ACTIVE:
+    if not await is_phase_2_active(repo):
         return False
     if profile is None:
         return False

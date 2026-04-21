@@ -118,6 +118,25 @@ class CreatorRepository:
                 CREATE INDEX IF NOT EXISTS idx_creator_activity_jobs_worker
                     ON creator_activity_jobs(status, priority, next_attempt_at)
                     WHERE status = 'pending';
+
+                CREATE TABLE IF NOT EXISTS creator_tokens (
+                    creator_address TEXT NOT NULL,
+                    mint            TEXT NOT NULL,
+                    created_at      INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+                    PRIMARY KEY (creator_address, mint)
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_creator_tokens_creator
+                    ON creator_tokens(creator_address);
+
+                CREATE TABLE IF NOT EXISTS system_config (
+                    key        TEXT PRIMARY KEY,
+                    value      TEXT NOT NULL,
+                    updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+                );
+
+                INSERT OR IGNORE INTO system_config (key, value, updated_at)
+                VALUES ('phase_2_active', 'false', strftime('%s','now'));
             """)
             conn.commit()
             conn.close()
@@ -212,6 +231,71 @@ class CreatorRepository:
             conn.commit()
             conn.close()
 
+    async def link_creator_to_mint(self, creator_address: str, mint: str) -> bool:
+        """
+        Insert (creator, mint) into creator_tokens.
+        Returns True if a new row was inserted, False if already existed.
+        Idempotent — safe to call concurrently; ON CONFLICT DO NOTHING is atomic in SQLite WAL.
+        """
+        now = int(time.time())
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            cur = conn.execute(
+                """INSERT INTO creator_tokens (creator_address, mint, created_at)
+                   VALUES (?, ?, ?)
+                   ON CONFLICT DO NOTHING""",
+                (creator_address, mint, now),
+            )
+            conn.commit()
+            inserted = cur.rowcount == 1
+            conn.close()
+        return inserted
+
+    async def increment_token_count_if_new(
+        self,
+        creator_address: str,
+        mint: str,
+        *,
+        last_launch_at: Optional[int] = None,
+    ) -> bool:
+        """
+        Increment token_count_seen exactly once per (creator, mint).
+        Returns True if the count was incremented, False if this pair was already seen.
+        Also ensures the creator_profile row exists.
+        """
+        is_new = await self.link_creator_to_mint(creator_address, mint)
+        now    = int(time.time())
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            if is_new:
+                # Upsert profile row and increment count atomically.
+                conn.execute("""
+                    INSERT INTO creator_profile
+                        (creator_address, token_count_seen, last_launch_at,
+                         first_seen_at, created_at, updated_at)
+                    VALUES (?, 1, ?, ?, ?, ?)
+                    ON CONFLICT(creator_address) DO UPDATE SET
+                        token_count_seen = token_count_seen + 1,
+                        last_launch_at   = COALESCE(?, creator_profile.last_launch_at),
+                        updated_at       = ?
+                """, (creator_address, last_launch_at or now, now, now, now,
+                      last_launch_at or now, now))
+            else:
+                # Still ensure the profile row exists in case this is a bootstrap edge-case.
+                conn.execute("""
+                    INSERT INTO creator_profile (creator_address, first_seen_at, created_at, updated_at)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(creator_address) DO NOTHING
+                """, (creator_address, now, now, now))
+            conn.commit()
+            conn.close()
+        return is_new
+
+    # Keep old name as a thin wrapper so existing callers outside the new pipeline
+    # continue to compile.  They do not have a mint, so they get the old racy behaviour —
+    # acceptable because they should be migrated to increment_token_count_if_new.
     async def increment_creator_token_count(
         self,
         creator_address: str,
@@ -448,5 +532,36 @@ class CreatorRepository:
                     WHERE id = ?
                 """, (error[:500], attempts, backoff, now, job_id))
 
+            conn.commit()
+            conn.close()
+
+    # -----------------------------------------------------------------------
+    # system_config
+    # -----------------------------------------------------------------------
+
+    async def get_config_bool(self, key: str, *, default: bool = False) -> bool:
+        """Read a boolean flag from system_config.  Safe if the row is missing."""
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=10)
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT value FROM system_config WHERE key = ? LIMIT 1", (key,)
+            ).fetchone()
+            conn.close()
+        if row is None:
+            return default
+        return row["value"].strip().lower() == "true"
+
+    async def set_config(self, key: str, value: str) -> None:
+        """Upsert a key in system_config."""
+        now = int(time.time())
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("""
+                INSERT INTO system_config (key, value, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+            """, (key, value, now))
             conn.commit()
             conn.close()

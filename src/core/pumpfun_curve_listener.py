@@ -8513,9 +8513,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             try:
                                 import base64
                                 raw_bytes = base64.b64decode(account_data[0])
-                                if len(raw_bytes) < 185:
+                                if len(raw_bytes) < 49:
                                     continue
-                                complete = bool(raw_bytes[184])
+                                complete = bool(raw_bytes[48])
                             except Exception:
                                 continue
 

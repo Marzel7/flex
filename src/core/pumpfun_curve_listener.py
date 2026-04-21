@@ -1544,8 +1544,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 INSERT INTO token_analysis (
                     mint, analyzed_at, created_at, source_platform,
                     lifecycle_stage, migrated_at, migration_tx,
-                    dex, pumpswap_pool_address, pool_address, migration_slot
-                ) VALUES (?, ?, ?, 'pumpfun', 'migrated', ?, ?, ?, ?, ?, ?)
+                    dex, pumpswap_pool_address, pool_address, migration_slot, is_new
+                ) VALUES (?, ?, ?, 'pumpfun', 'migrated', ?, ?, ?, ?, ?, ?, 1)
                 ON CONFLICT(mint) DO UPDATE SET
                     analyzed_at = excluded.analyzed_at,
                     source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
@@ -1555,7 +1555,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     dex = COALESCE(excluded.dex, token_analysis.dex),
                     pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, token_analysis.pumpswap_pool_address),
                     pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
-                    migration_slot = COALESCE(excluded.migration_slot, token_analysis.migration_slot)
+                    migration_slot = COALESCE(excluded.migration_slot, token_analysis.migration_slot),
+                    is_new = 1
                 """,
                 (
                     mint,

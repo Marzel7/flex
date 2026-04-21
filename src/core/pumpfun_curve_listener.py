@@ -3641,6 +3641,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     creator = str(row["creator_address"])
                     mint = str(row["mint"])
                     migration_timestamp = row["migration_timestamp"]
+                    if not migration_timestamp:
+                        # Fall back to migrated_at from token_analysis, then now
+                        try:
+                            _mt_row = db_connect(DB_PATH, timeout=5).execute(
+                                "SELECT migrated_at FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
+                            ).fetchone()
+                            if _mt_row and _mt_row[0]:
+                                from datetime import timezone
+                                migration_timestamp = datetime.utcfromtimestamp(int(_mt_row[0])).replace(tzinfo=timezone.utc).isoformat()
+                            else:
+                                migration_timestamp = datetime.utcnow().isoformat() + "Z"
+                        except Exception:
+                            migration_timestamp = datetime.utcnow().isoformat() + "Z"
                     create_tx_signature = row["create_tx_signature"]
                     attempts = int(row["attempts"] or 0)
                     try:

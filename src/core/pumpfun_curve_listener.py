@@ -607,6 +607,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._last_market_cap_by_mint: Dict[str, float] = {}
         self._bonding_curve_to_mint: Dict[str, str] = {}
         self._known_bonding_curve_mints: Set[str] = set()
+        self._curve_watch_queue: asyncio.Queue = asyncio.Queue()
+        self._curve_watch_subscribed: set = set()
         self._recent_birth_mints: Dict[str, float] = {}
         self._recent_birth_cache_ttl_seconds = 20 * 60
         self._bonding_curve_index_last_rowid = 0
@@ -2451,7 +2453,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
 
-        # Creator resolution is now deferred until curve_complete — no RPC here
+        # Add to curve watcher when token crosses the hot threshold
+        if bonding_curve_pda and signal.get("is_about_to_migrate"):
+            await self.watch_bonding_curve(bonding_curve_pda)
 
     async def handle_pumpfun_trade(self, signature: str, logs: List[str]) -> None:
         """Best-effort no-RPC tracking of Pump.fun buy momentum from websocket logs."""
@@ -8406,10 +8410,33 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[CURVE_COMPLETE] ⚠ Fallback enqueue failed for {mint[:16]}...: {e}", flush=True)
 
+    def _get_hot_bonding_curves(self) -> List[str]:
+        """Return bonding curve PDAs for tokens that are close to migrating."""
+        try:
+            rows = db_connect(DB_PATH, timeout=5).execute(
+                """
+                SELECT bonding_curve_pda FROM token_analysis
+                WHERE bonding_curve_pda IS NOT NULL
+                  AND lifecycle_stage = 'bonding_curve'
+                  AND curve_complete = 0
+                  AND (is_about_to_migrate = 1 OR migration_progress_pct >= 50)
+                """,
+            ).fetchall()
+            return [r[0] for r in rows if r[0]]
+        except Exception:
+            return []
+
+    async def watch_bonding_curve(self, pda: str) -> None:
+        """Dynamically add a bonding curve PDA to the active watcher. Thread-safe."""
+        if pda and pda not in self._curve_watch_subscribed:
+            self._curve_watch_queue.put_nowait(pda)
+
     async def listen_bonding_curve_accounts(self):
         """
-        accountSubscribe loop: watches known bonding curve PDAs for complete=false→true.
-        Subscribes in batches and resubscribes as new mints arrive.
+        accountSubscribe loop: watches hot bonding curve PDAs for complete=false→true.
+        Only subscribes to tokens near migration (progress >= 50% or is_about_to_migrate).
+        Unsubscribes immediately after complete fires to keep subscription count low.
+        New curves are added dynamically via watch_bonding_curve().
         """
         await self._wait_for_launch_toggle("PUMPFUN")
         log_print("[CURVE_WATCH] Starting bonding curve account watcher...", flush=True)
@@ -8418,10 +8445,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         current_endpoint_idx = 0
         reconnect_delay = 5
 
-        # Track which bonding curves we have active subscriptions for
-        subscribed_curves: Dict[str, int] = {}  # bonding_curve_pda -> subscription_id
-        sub_id_to_curve: Dict[int, str] = {}     # subscription_id -> bonding_curve_pda
-        curve_complete_state: Dict[str, bool] = {}  # bonding_curve_pda -> last known complete
+        subscribed_curves: Dict[str, int] = {}   # pda -> subscription_id
+        sub_id_to_curve: Dict[int, str] = {}      # subscription_id -> pda
+        curve_complete_state: Dict[str, bool] = {}
+        pending_confirmations: Dict[int, str] = {}
+        pending_unsubs: Dict[int, int] = {}        # req_id -> sub_id being unsubscribed
+        next_req_id = 100
 
         while True:
             try:
@@ -8437,46 +8466,61 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     reconnect_delay = 5
                     subscribed_curves.clear()
                     sub_id_to_curve.clear()
-                    next_req_id = 100  # start above 1 to avoid collision
+                    pending_confirmations.clear()
+                    pending_unsubs.clear()
+                    self._curve_watch_subscribed.clear()
+                    next_req_id = 100
 
-                    async def subscribe_curve(pda: str) -> int:
+                    async def _subscribe(pda: str) -> None:
                         nonlocal next_req_id
+                        if pda in subscribed_curves or pda in {v for v in pending_confirmations.values()}:
+                            return
                         req_id = next_req_id
                         next_req_id += 1
-                        msg = {
-                            "jsonrpc": "2.0",
-                            "id": req_id,
+                        await ws.send(json.dumps({
+                            "jsonrpc": "2.0", "id": req_id,
                             "method": "accountSubscribe",
-                            "params": [
-                                pda,
-                                {"encoding": "base64", "commitment": "confirmed"}
-                            ]
-                        }
-                        await ws.send(json.dumps(msg))
-                        return req_id
-
-                    # Subscribe to all currently known bonding curves
-                    pending_confirmations: Dict[int, str] = {}  # req_id -> pda
-                    for pda in list(self._bonding_curve_to_mint.keys()):
-                        req_id = await subscribe_curve(pda)
+                            "params": [pda, {"encoding": "base64", "commitment": "confirmed"}]
+                        }))
                         pending_confirmations[req_id] = pda
+                        self._curve_watch_subscribed.add(pda)
 
-                    log_print(f"[CURVE_WATCH] Subscribed to {len(pending_confirmations)} bonding curves", flush=True)
+                    async def _unsubscribe(pda: str) -> None:
+                        nonlocal next_req_id
+                        sub_id = subscribed_curves.pop(pda, None)
+                        if sub_id is None:
+                            return
+                        sub_id_to_curve.pop(sub_id, None)
+                        self._curve_watch_subscribed.discard(pda)
+                        req_id = next_req_id
+                        next_req_id += 1
+                        await ws.send(json.dumps({
+                            "jsonrpc": "2.0", "id": req_id,
+                            "method": "accountUnsubscribe",
+                            "params": [sub_id]
+                        }))
+                        pending_unsubs[req_id] = sub_id
+                        log_print(f"[CURVE_WATCH] 🔕 Unsubscribed pda={pda[:8]}... sub_id={sub_id}", flush=True)
 
-                    last_refresh_check = time.monotonic()
+                    # Subscribe to hot curves on startup
+                    hot = self._get_hot_bonding_curves()
+                    for pda in hot:
+                        await _subscribe(pda)
+                    log_print(f"[CURVE_WATCH] Subscribed to {len(hot)} hot bonding curves", flush=True)
 
                     while True:
+                        # Drain any dynamically queued PDAs first
+                        while not self._curve_watch_queue.empty():
+                            try:
+                                pda = self._curve_watch_queue.get_nowait()
+                                await _subscribe(pda)
+                                log_print(f"[CURVE_WATCH] ➕ Added pda={pda[:8]}...", flush=True)
+                            except asyncio.QueueEmpty:
+                                break
+
                         try:
-                            raw = await asyncio.wait_for(ws.recv(), timeout=30)
+                            raw = await asyncio.wait_for(ws.recv(), timeout=15)
                         except asyncio.TimeoutError:
-                            # Periodically subscribe to newly added curves
-                            now_mono = time.monotonic()
-                            if now_mono - last_refresh_check >= 15:
-                                last_refresh_check = now_mono
-                                for pda in list(self._bonding_curve_to_mint.keys()):
-                                    if pda not in subscribed_curves and pda not in {v for v in pending_confirmations.values()}:
-                                        req_id = await subscribe_curve(pda)
-                                        pending_confirmations[req_id] = pda
                             continue
 
                         try:
@@ -8492,6 +8536,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 pda = pending_confirmations.pop(req_id)
                                 subscribed_curves[pda] = sub_id
                                 sub_id_to_curve[sub_id] = pda
+                            elif req_id in pending_unsubs:
+                                pending_unsubs.pop(req_id, None)
 
                         # Account notification
                         elif data.get("method") == "accountNotification":
@@ -8507,9 +8553,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             if not account_data or not isinstance(account_data, list):
                                 continue
 
-                            # Decode base64 account data and check the `complete` field
-                            # Pump.fun bonding curve layout: 8 byte discriminator, then fields
-                            # complete is a bool at offset 184 (0xB8) per pump.fun IDL
                             try:
                                 import base64
                                 raw_bytes = base64.b64decode(account_data[0])
@@ -8522,26 +8565,29 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             prev = curve_complete_state.get(pda)
                             curve_complete_state[pda] = complete
 
-                            if prev is False and complete:
-                                # false→true transition detected
-                                asyncio.create_task(
-                                    self._handle_curve_complete_transition(pda, slot)
-                                )
-                            elif prev is None and complete:
-                                # First observation already complete — still trigger
+                            if complete and not prev:
+                                # false→true (or first-seen-complete) transition
                                 mint = self._bonding_curve_to_mint.get(pda)
-                                if mint:
+                                should_fire = False
+                                if prev is False:
+                                    should_fire = True
+                                elif prev is None and mint:
                                     try:
                                         existing = db_connect(DB_PATH, timeout=5).execute(
                                             "SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1",
                                             (mint,),
                                         ).fetchone()
-                                        if existing and not existing[0]:
-                                            asyncio.create_task(
-                                                self._handle_curve_complete_transition(pda, slot)
-                                            )
+                                        should_fire = bool(existing and not existing[0])
                                     except Exception:
                                         pass
+
+                                if should_fire:
+                                    asyncio.create_task(
+                                        self._handle_curve_complete_transition(pda, slot)
+                                    )
+                                # Unsubscribe — we're done watching this curve
+                                await _unsubscribe(pda)
+                                curve_complete_state.pop(pda, None)
 
             except Exception as e:
                 error_str = str(e).lower()

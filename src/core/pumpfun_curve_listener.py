@@ -4539,6 +4539,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
             self.seen_mints.add(mint)
             meta_suffix = f" symbol={symbol}" if symbol else ""
             log_print(f"[BIRTH] ✅ Pump.fun launch detected: {mint} creator={creator[:8] + '...' if creator else 'unknown'}{meta_suffix}", flush=True)
+
+            # Immediately watch the bonding curve — no need to wait for momentum threshold
+            if bonding_curve_pda:
+                await self.watch_bonding_curve(bonding_curve_pda)
         except Exception as e:
             log_print(f"[BIRTH] ⚠ Error handling launch {signature[:16]}...: {e}", flush=True)
         finally:
@@ -8791,11 +8795,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as e:
             log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 
-        # Run PumpSwap migration intake, Pump.fun pre-migration intake, bonding curve watcher,
-        # and Helius webhook birth queue drainer.
+        # Run PumpSwap migration intake, bonding curve watcher, and Helius webhook birth queue drainer.
+        # listen_pumpfun_websocket (logsSubscribe) removed — births arrive via Helius webhook,
+        # bonding curves are watched immediately on birth, complete=true fires migration.
         await asyncio.gather(
             self.listen_pumpswap_websocket(),
-            self.listen_pumpfun_websocket(),
             self.listen_bonding_curve_accounts(),
             self.drain_webhook_birth_queue(),
         )

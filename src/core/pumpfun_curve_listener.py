@@ -54,6 +54,9 @@ _MIGRATION_LOG_PATH = os.path.join(
 PREMIG_LOG_PATH = os.path.join(
     os.path.dirname(__file__), "../../logs/premigration.log"
 )
+CURVE_WATCH_STATE_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/curve_watch_state.json"
+)
 
 
 def premig_log(message: str) -> None:
@@ -3547,6 +3550,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at}",
                     flush=True,
                 )
+                premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
                 self._creator_funding_queue_wakeup.set()
                 return True
             except Exception as e:
@@ -6157,7 +6161,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     mint=mint,
                     migration_timestamp=created_at,
                     create_tx_signature=create_tx_signature,
-                    delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
+                    delay_seconds=0,
                     source="creator_discovery",
                 )
                 return
@@ -6396,6 +6400,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None):
         """Continue migration pipeline once mint is known."""
+        _mig_t = int(time.time())
+        try:
+            _cc_row = db_connect(DB_PATH, timeout=5).execute(
+                "SELECT curve_complete, curve_completed_at FROM token_analysis WHERE mint=? LIMIT 1", (mint,)
+            ).fetchone()
+            if _cc_row and _cc_row[1]:
+                _delta = _mig_t - int(_cc_row[1])
+                premig_log(f"[TIMING] mint={mint} migration_arrived t={_mig_t} curve_complete_was={'yes' if _cc_row[0] else 'no'} delta_since_complete={_delta}s")
+            else:
+                premig_log(f"[TIMING] mint={mint} migration_arrived t={_mig_t} curve_complete_was=no")
+        except Exception:
+            pass
         if self._token_exists_in_db(mint):
             log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
             resolved_creator, create_tx_sig = self._get_resolved_creator_for_mint(mint)
@@ -6406,12 +6422,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     mint=mint,
                     migration_timestamp=migration_time_str,
                     create_tx_signature=create_tx_sig,
-                    delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
+                    delay_seconds=0,
                     source="migration_already_known",
                 )
-            # Only backfill creator on migration when both creator fields are still missing.
-            if self._token_needs_creator_backfill(mint):
-                asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
+            # Always ensure pf_ws_creator is set — returns early if already resolved.
+            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
             return
 
         # === GUARD 1: Prevent duplicate primary discovery by mint ===
@@ -6475,9 +6490,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
             log_print(f"[MIGRATION_TRACE] step=record_verification:done mint={mint[:16]}...", flush=True)
 
-            # Establish creator at migration time only if pre-migration logic did not already do it.
-            if self._token_needs_creator_backfill(mint):
-                asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration"))
+            # Always resolve creator at migration — one getTransaction RPC, enqueues funding job.
+            # _ensure_pf_ws_creator returns early if pf_ws_creator already set.
+            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration"))
 
             # Register for price tracking immediately — HIGH priority, fail-safe
             try:
@@ -7168,7 +7183,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     mint=mint,
                     migration_timestamp=created_at,
                     create_tx_signature=create_tx_sig,
-                    delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
+                    delay_seconds=0,
                     source=enqueue_source,
                 )
             else:
@@ -8355,11 +8370,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if not mint:
             return
 
-        now = int(time.time())
+        t0 = time.time()
+        now = int(t0)
         log_print(
             f"[CURVE_COMPLETE] ✅ mint={mint[:8]}... bonding_curve={bonding_curve_pda[:8]}... slot={slot}",
             flush=True,
         )
+        premig_log(f"[TIMING] mint={mint} curve_complete_event t=+0.000s slot={slot}")
 
         # Persist curve_complete state
         try:
@@ -8386,7 +8403,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return
 
         # Resolve creator and enqueue funding job
+        premig_log(f"[TIMING] mint={mint} creator_resolve_start t=+{time.time()-t0:.3f}s")
         creator = await self._ensure_pf_ws_creator(mint, reason="curve_complete")
+        premig_log(f"[TIMING] mint={mint} creator_resolve_done t=+{time.time()-t0:.3f}s creator={'yes' if creator else 'no'}")
         if not creator:
             # Creator resolution failed — still enqueue if we have a creator already
             try:
@@ -8407,8 +8426,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             source="curve_complete_fallback",
                             curve_completed_slot=slot,
                         )
+                        premig_log(f"[TIMING] mint={mint} enqueued_fallback t=+{time.time()-t0:.3f}s")
             except Exception as e:
                 log_print(f"[CURVE_COMPLETE] ⚠ Fallback enqueue failed for {mint[:16]}...: {e}", flush=True)
+        else:
+            premig_log(f"[TIMING] mint={mint} enqueue_start t=+{time.time()-t0:.3f}s")
 
     def _get_hot_bonding_curves(self) -> List[str]:
         """Return bonding curve PDAs for tokens that are close to migrating."""
@@ -8419,7 +8441,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 WHERE bonding_curve_pda IS NOT NULL
                   AND lifecycle_stage = 'bonding_curve'
                   AND curve_complete = 0
-                  AND (is_about_to_migrate = 1 OR migration_progress_pct >= 50)
+                  AND is_about_to_migrate = 1
                 """,
             ).fetchall()
             return [r[0] for r in rows if r[0]]
@@ -8440,6 +8462,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """
         await self._wait_for_launch_toggle("PUMPFUN")
         log_print("[CURVE_WATCH] Starting bonding curve account watcher...", flush=True)
+        premig_log("[CURVE_WATCH] Starting bonding curve account watcher...")
 
         endpoints = self._websocket_endpoints()
         current_endpoint_idx = 0
@@ -8463,6 +8486,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     max_size=10 * 1024 * 1024,
                 ) as ws:
                     log_print(f"[CURVE_WATCH] ✓ Connected via {name}", flush=True)
+                    premig_log(f"[CURVE_WATCH] Connected via {name}")
                     reconnect_delay = 5
                     subscribed_curves.clear()
                     sub_id_to_curve.clear()
@@ -8470,6 +8494,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     pending_unsubs.clear()
                     self._curve_watch_subscribed.clear()
                     next_req_id = 100
+
+                    def _write_state() -> None:
+                        try:
+                            mints = []
+                            for pda in list(subscribed_curves.keys()) + list(pending_confirmations.values()):
+                                mint = self._bonding_curve_to_mint.get(pda)
+                                mints.append({"pda": pda, "mint": mint or ""})
+                            with open(CURVE_WATCH_STATE_PATH, "w") as _f:
+                                json.dump({"subscriptions": mints, "updated_at": int(time.time())}, _f)
+                        except Exception:
+                            pass
 
                     async def _subscribe(pda: str) -> None:
                         nonlocal next_req_id
@@ -8484,6 +8519,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         }))
                         pending_confirmations[req_id] = pda
                         self._curve_watch_subscribed.add(pda)
+                        _write_state()
 
                     async def _unsubscribe(pda: str) -> None:
                         nonlocal next_req_id
@@ -8501,12 +8537,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         }))
                         pending_unsubs[req_id] = sub_id
                         log_print(f"[CURVE_WATCH] 🔕 Unsubscribed pda={pda[:8]}... sub_id={sub_id}", flush=True)
+                        _write_state()
 
                     # Subscribe to hot curves on startup
                     hot = self._get_hot_bonding_curves()
                     for pda in hot:
                         await _subscribe(pda)
                     log_print(f"[CURVE_WATCH] Subscribed to {len(hot)} hot bonding curves", flush=True)
+                    premig_log(f"[CURVE_WATCH] Subscribed to {len(hot)} hot bonding curves on startup")
 
                     while True:
                         # Drain any dynamically queued PDAs first
@@ -8515,6 +8553,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 pda = self._curve_watch_queue.get_nowait()
                                 await _subscribe(pda)
                                 log_print(f"[CURVE_WATCH] ➕ Added pda={pda[:8]}...", flush=True)
+                                premig_log(f"[CURVE_WATCH] Dynamic subscribe pda={pda[:8]}... total={len(subscribed_curves)+len(pending_confirmations)}")
                             except asyncio.QueueEmpty:
                                 break
 
@@ -8536,6 +8575,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 pda = pending_confirmations.pop(req_id)
                                 subscribed_curves[pda] = sub_id
                                 sub_id_to_curve[sub_id] = pda
+                                _write_state()
                             elif req_id in pending_unsubs:
                                 pending_unsubs.pop(req_id, None)
 
@@ -8582,9 +8622,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         pass
 
                                 if should_fire:
+                                    premig_log(f"[CURVE_COMPLETE] pda={pda[:8]}... mint={mint or '?'} slot={slot} firing transition")
                                     asyncio.create_task(
                                         self._handle_curve_complete_transition(pda, slot)
                                     )
+                                else:
+                                    premig_log(f"[CURVE_COMPLETE] pda={pda[:8]}... mint={mint or '?'} slot={slot} skipped (already complete in DB or no mint)")
                                 # Unsubscribe — we're done watching this curve
                                 await _unsubscribe(pda)
                                 curve_complete_state.pop(pda, None)
@@ -8593,6 +8636,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 error_str = str(e).lower()
                 if "close frame" not in error_str and "connection closed" not in error_str:
                     log_print(f"[CURVE_WATCH] ⚠ Connection error: {e}, retrying in {reconnect_delay}s", flush=True)
+                    premig_log(f"[CURVE_WATCH] Connection error: {e}, retrying in {reconnect_delay}s")
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 1.5, 30)
 

@@ -2324,6 +2324,37 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
 
     RPC metrics are automatically recorded for all RPC calls in this flow.
     """
+    # Skip full extraction if we already have analyzed funding data for this creator
+    try:
+        import sqlite3 as _sqlite3
+        import os as _os
+        _db_path = _os.getenv("DB_PATH") or _os.path.join(_os.path.dirname(__file__), "../../database/flex_complete_database.db")
+        _conn = _sqlite3.connect(_db_path, timeout=5)
+        _row = _conn.execute(
+            "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
+            (creator,)
+        ).fetchone()
+        _conn.close()
+        if _row and _row[0] > 0:
+            _cached = _row[0]
+            print(f"[REALTIME_FUNDING] ⚡ Skip extraction for known creator {creator[:16]}... ({_cached} funders cached)", flush=True)
+            try:
+                from src.metrics.rpc_metrics_recorder import record_cache_event
+                record_cache_event(
+                    section="creator_funding",
+                    provider="helius_rpc",
+                    method="getSignaturesForAddress+getTransaction",
+                    source_file="realtime_creator_funding_extractor.py",
+                    cache_action="skip",
+                    credits_saved=100,
+                    optimization_layer="creator_funders_cache",
+                )
+            except Exception:
+                pass
+            return {"skipped": True, "reason": "creator_already_analyzed", "cached_funders": _cached}
+    except Exception as _e:
+        print(f"[REALTIME_FUNDING] ⚠ Cache check failed: {_e}", flush=True)
+
     print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
     extractor = await get_extractor()
 

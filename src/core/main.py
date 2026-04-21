@@ -2140,7 +2140,24 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                       AND cfq.status = 'complete'
                     ORDER BY cfq.updated_at DESC
                     LIMIT 1
-                ) AS creator_funding_raw_source
+                ) AS creator_funding_raw_source,
+                (
+                    SELECT cfq.funding_extracted_at
+                    FROM creator_funding_queue cfq
+                    WHERE cfq.mint = pmv.mint
+                      AND cfq.status = 'complete'
+                    ORDER BY cfq.updated_at DESC
+                    LIMIT 1
+                ) AS creator_funding_extracted_at,
+                (
+                    SELECT cfq.created_at
+                    FROM creator_funding_queue cfq
+                    WHERE cfq.mint = pmv.mint
+                      AND cfq.status = 'complete'
+                    ORDER BY cfq.updated_at DESC
+                    LIMIT 1
+                ) AS creator_funding_enqueued_at,
+                ta.curve_completed_at AS curve_completed_at
             FROM pumpfun_migration_verification pmv
             LEFT JOIN metadata_cache mc
                 ON mc.mint = pmv.mint
@@ -2254,6 +2271,9 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 "creator_funding_completed": bool(row["creator_funding_completed"]) if row["creator_funding_completed"] is not None else False,
                 "creator_funding_source": row["creator_funding_source"] or None,
                 "creator_funding_raw_source": row["creator_funding_raw_source"] or None,
+                "creator_funding_extracted_at": row["creator_funding_extracted_at"] or None,
+                "creator_funding_enqueued_at": row["creator_funding_enqueued_at"] or None,
+                "curve_completed_at": row["curve_completed_at"] or None,
             })
 
         pf_ws_backfills_started = 0
@@ -3160,7 +3180,8 @@ HTML_TEMPLATE = """
         }
 
         .tokens-table {
-            width: 100%;
+            width: max-content;
+            min-width: 100%;
             border-collapse: collapse;
             background: var(--bg-secondary);
             border-radius: 8px;
@@ -3173,7 +3194,7 @@ HTML_TEMPLATE = """
         }
 
         .tokens-table th {
-            padding: 15px;
+            padding: 12px 10px;
             text-align: left;
             font-size: 13px;
             color: #a78bfa;
@@ -3204,7 +3225,7 @@ HTML_TEMPLATE = """
         }
 
         .tokens-table td {
-            padding: 15px;
+            padding: 12px 10px;
             border-bottom: 1px solid rgba(6, 182, 212, 0.1);
             font-size: 12px;
         }
@@ -3382,6 +3403,15 @@ HTML_TEMPLATE = """
             flex-direction: column;
             gap: 4px;
             align-items: flex-start;
+            max-width: 180px;
+        }
+
+        .mint-with-creator .mint-link {
+            display: inline-block;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         /* Creator address embedded under mint */
@@ -3390,7 +3420,7 @@ HTML_TEMPLATE = """
             font-size: 10px;
             color: var(--text-secondary);
             word-break: break-all;
-            max-width: 250px;
+            max-width: 180px;
             line-height: 1.4;
             display: flex;
             flex-direction: column;
@@ -3419,7 +3449,29 @@ HTML_TEMPLATE = """
 
         /* Creator tags container - styles handled by inline styles on wrapper div */
         .creator-tags {
-            /* Table cell - flex styles applied via wrapper div */
+            min-width: 560px;
+        }
+
+        .tokens-table th.creator-tags-header {
+            padding-left: 4px;
+        }
+
+        .tokens-table td.creator-tags {
+            padding-left: 4px;
+            padding-right: 8px;
+        }
+
+        .creator-tags-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            transform: translateX(-50px);
+        }
+
+        #tokens-container {
+            width: 100%;
+            overflow-x: auto;
         }
 
         /* Base creator tag styling */
@@ -3429,10 +3481,23 @@ HTML_TEMPLATE = """
             border-radius: 3px;
             font-size: 10px;
             font-weight: 600;
-            white-space: nowrap;
+            white-space: normal;
+            overflow-wrap: anywhere;
             border: 1px solid rgba(6, 182, 212, 0.3);
             background: rgba(6, 182, 212, 0.15);
             color: var(--accent-cyan);
+        }
+
+        .compact-col {
+            white-space: nowrap;
+            width: 1%;
+        }
+
+        .text-col {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Network size tag (cyan) */
@@ -5518,16 +5583,17 @@ HTML_TEMPLATE = """
                     <thead>
                         <tr>
                             <th onclick="sortBy('mint')" class="sortable ${sortConfig.column === 'mint' ? 'sorted-' + sortConfig.direction : ''}">Token Mint</th>
-                            <th style="min-width: 80px;">Symbol</th>
-                            <th></th>
-                            <th onclick="sortBy('network_name')" class="sortable ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
-                            <th onclick="sortBy('cluster_name')" class="sortable ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
-                            <th>Live Price</th>
-                            <th onclick="sortBy('market_cap_current')" class="sortable ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">Market Cap</th>
-                            <th onclick="sortBy('market_cap_highest')" class="sortable ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak MC</th>
-                            <th onclick="sortBy('market_cap_highest_at')" class="sortable ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Timing</th>
-                            <th onclick="sortBy('total_events')" class="sortable ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Events</th>
-                            <th onclick="sortBy('coverage')" class="sortable ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Coverage</th>
+                            <th class="creator-tags-header" style="min-width: 560px;">TAGS</th>
+                            <th class="compact-col" style="min-width: 56px;">Sym</th>
+                            <th onclick="sortBy('network_name')" class="sortable text-col ${sortConfig.column === 'network_name' ? 'sorted-' + sortConfig.direction : ''}">Network</th>
+                            <th onclick="sortBy('cluster_name')" class="sortable text-col ${sortConfig.column === 'cluster_name' ? 'sorted-' + sortConfig.direction : ''}">Cluster</th>
+                            <th class="compact-col">Price</th>
+                            <th onclick="sortBy('market_cap_current')" class="sortable compact-col ${sortConfig.column === 'market_cap_current' ? 'sorted-' + sortConfig.direction : ''}">MC</th>
+                            <th onclick="sortBy('market_cap_highest')" class="sortable compact-col ${sortConfig.column === 'market_cap_highest' ? 'sorted-' + sortConfig.direction : ''}">Peak</th>
+                            <th onclick="sortBy('market_cap_highest_at')" class="sortable compact-col ${sortConfig.column === 'market_cap_highest_at' ? 'sorted-' + sortConfig.direction : ''}">Peak Time</th>
+                            <th onclick="sortBy('total_events')" class="sortable compact-col ${sortConfig.column === 'total_events' ? 'sorted-' + sortConfig.direction : ''}">Evts</th>
+                            <th onclick="sortBy('coverage')" class="sortable compact-col ${sortConfig.column === 'coverage' ? 'sorted-' + sortConfig.direction : ''}">Cov</th>
+                            <th class="compact-col">Age</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -5617,6 +5683,7 @@ HTML_TEMPLATE = """
 
                             const creatorShort = token.creator ? token.creator.substring(0, 8) + '...' : 'N/A';
                             const creatorTitle = token.creator || 'Unknown';
+                            const mintDisplay = token.mint ? token.mint.substring(0, 16) + '...' : 'N/A';
 
                             // Get infrastructure tags for creator or funders
                             let infraTags = '';
@@ -5733,45 +5800,45 @@ HTML_TEMPLATE = """
                             return `
                                 <tr>
                                     <td class="mint-with-creator">
-                                        <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="Click for metrics">${token.mint}</a>
+                                        <a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${mintDisplay}</a>
                                         <div class="creator-address-embedded">
                                             ${creatorElement}
                                             ${infraTags}
                                         </div>
                                     </td>
-                                    <td id="symbol-${token.mint}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px;">
+                                    <td class="creator-tags"><div class="creator-tags-content">${columnTags.join('')}</div></td>
+                                    <td id="symbol-${token.mint}" class="compact-col" style="color: var(--accent-purple); font-weight: bold; font-size: 12px;">
                                         <span style="opacity: 0.5;">...</span>
                                     </td>
-                                    <td class="creator-tags"><div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">${columnTags.join('')}</div></td>
-                                    <td class="network-name">
+                                    <td class="network-name text-col">
                                         ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
                                     </td>
-                                    <td class="cluster-name">
+                                    <td class="cluster-name text-col">
                                         ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
                                     </td>
-                                    <td id="price-${token.mint}" style="color: var(--accent-cyan); font-size: 12px; transition: color 0.2s ease; min-width: 120px;">
+                                    <td id="price-${token.mint}" class="compact-col" style="color: var(--accent-cyan); font-size: 12px; transition: color 0.2s ease; min-width: 96px;">
                                         <div>
                                             ${token.price_current && token.price_current > 0 ? `$${token.price_current.toFixed(8)}` : '<span style="opacity: 0.5;">...</span>'}
                                         </div>
                                         <div id="source-${token.mint}" style="font-size: 14px; margin-top: 2px; min-height: 14px;">
                                         </div>
                                     </td>
-                                    <td id="mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                                    <td id="mc-${token.mint}" class="compact-col" style="transition: color 0.2s ease; min-width: 56px;">
                                         ${token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">...</span>'}
                                     </td>
-                                    <td id="peak-mc-${token.mint}" style="transition: color 0.2s ease; min-width: 60px;">
+                                    <td id="peak-mc-${token.mint}" class="compact-col" style="transition: color 0.2s ease; min-width: 56px;">
                                         ${token.market_cap_highest ? '$' + formatMarketCap(token.market_cap_highest) : '<span style="opacity: 0.5;">...</span>'}
                                     </td>
-                                    <td>
+                                    <td class="compact-col">
                                         ${token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : ''}
                                     </td>
-                                    <td>
+                                    <td class="compact-col">
                                         ${token.total_events > 0 ? token.total_events : ''}
                                     </td>
-                                    <td>
+                                    <td class="compact-col">
                                         ${token.coverage ? token.coverage.toFixed(1) + '%' : ''}
                                     </td>
-                                    <td title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
+                                    <td class="compact-col" title="Launched: ${formatDate(token.created_at)}" style="font-size: 11px;">
                                         ${timeSinceLaunch(token.created_at)}
                                     </td>
                                 </tr>
@@ -18804,6 +18871,20 @@ def api_funding_queue():
         }
     except Exception as e:
         return {"ok": False, "error": str(e)}, 500
+
+
+@app.route('/api/funding-queue/curve-watch')
+def api_curve_watch_state():
+    """Return current bonding curve watcher subscriptions from sidecar file."""
+    import os as _os
+    state_path = _os.path.join(_os.path.dirname(__file__), '../../logs/curve_watch_state.json')
+    try:
+        with open(state_path) as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({"subscriptions": [], "updated_at": None})
+    except Exception as e:
+        return jsonify({"error": str(e), "subscriptions": []}), 500
 
 
 @app.route('/api/funding-queue/clear', methods=['POST'])

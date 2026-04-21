@@ -333,6 +333,12 @@
     font-weight: 600;
 }
 
+.pf-chip.new-token {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    font-weight: 700;
+}
+
 .pf-verify-head {
     display: flex;
     justify-content: space-between;
@@ -772,7 +778,7 @@ function renderVerificationTrail(section = {}) {
         } else if (record.creator_funding_source === 'post') {
             creatorFundingTag = `<span class="pf-chip creator-funded-post" title="Funding extracted post-migration via ${pfEsc(record.creator_funding_raw_source || 'unknown')}">funding post</span>`;
         } else {
-            creatorFundingTag = `<span class="pf-chip creator-funding-pending" title="Funding complete but timing unclassified">funding ?</span>`;
+            creatorFundingTag = `<span class="pf-chip creator-funded" title="Funding complete — known repeat creator, cached data used">funding ✓</span>`;
         }
         const hasWs = !!record.pf_ws_creator;
         const hasRpc = !!record.rpc_creator;
@@ -801,11 +807,12 @@ function renderVerificationTrail(section = {}) {
             creatorLine = `creator source: fallback | creator=${pfEsc(pfShortMint(record.rpc_creator))}`;
         }
 
+        const isNewMigration = record.migrated_at && (Date.now() / 1000 - record.migrated_at) < 900;
         return `
             <div class="pf-verify-item">
                 <div class="pf-verify-head">
                     <div>
-                        <div class="pf-symbol">${pfEsc(displayName)}</div>
+                        <div class="pf-symbol">${pfEsc(displayName)}${isNewMigration ? ' <span class="pf-chip new-token" title="Migrated within the last 15 minutes">NEW</span>' : ''}</div>
                         <div class="pf-mint">${pfEsc(pfShortMint(record.mint))}</div>
                     </div>
                     <span class="pf-chip ${pfEsc(record.final_verdict || 'missed')}">${pfEsc(record.final_verdict || 'unknown')}</span>
@@ -819,7 +826,24 @@ function renderVerificationTrail(section = {}) {
                     <div class="pf-meta-line">flow=${record.predicted_by_flow ? 'yes' : 'no'} | market_cap=${record.predicted_by_market_cap ? 'yes' : 'no'} | explicit=${record.predicted_by_explicit_signal ? 'yes' : 'no'}</div>
                     <div class="pf-meta-line">reason=${pfEsc(record.verdict_reason || 'No verdict reason available.')}</div>
                     <div class="pf-meta-line">${creatorLine}</div>
-                    <div class="pf-meta-line">creator funding=${record.creator_funding_completed ? (record.creator_funding_source === 'pre' ? 'pre-migration' : record.creator_funding_source === 'post' ? `post-migration (${pfEsc(record.creator_funding_raw_source || 'unknown')})` : 'complete (timing unknown)') : 'pending'}</div>
+                    <div class="pf-meta-line">${(() => {
+                        if (!record.creator_funding_completed) return 'creator funding=pending';
+                        const label = record.creator_funding_source === 'pre' ? 'pre-migration'
+                            : record.creator_funding_source === 'post' ? `post-migration (${pfEsc(record.creator_funding_raw_source || 'unknown')})`
+                            : 'cached (known creator)';
+                        return `creator funding=${label}`;
+                    })()}</div>
+                    <div class="pf-meta-line">${(() => {
+                        const mig = record.migrated_at;
+                        if (!mig) return 'timing=no migration ts';
+                        const fmt = (ts, label) => {
+                            if (!ts) return `${label}=?`;
+                            const d = Math.round(ts - mig);
+                            const sign = d <= 0 ? `${Math.abs(d)}s before` : `${d}s after`;
+                            return `${label}=${sign}`;
+                        };
+                        return `timing | ${fmt(record.curve_completed_at, 'curve')} | ${fmt(record.creator_funding_enqueued_at, 'enqueue')} | ${fmt(record.creator_funding_extracted_at, 'extract')}`;
+                    })()}</div>
                 </div>
                 <div class="pf-verify-flags">
                     <span class="pf-chip ${pfEsc(record.signal_timing || 'creator-unknown')}">${pfEsc((record.signal_timing || 'unknown').replaceAll('_', ' '))}</span>

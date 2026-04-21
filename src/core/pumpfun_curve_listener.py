@@ -7121,15 +7121,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             log_print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
 
-            if earliest_creator:
+            enqueue_creator = earliest_creator
+            enqueue_source = "migration"
+            if not enqueue_creator:
+                # Pool discovery found no creator — check if DB already has one from another path
+                try:
+                    _db_row = db_connect(DB_PATH, timeout=5).execute(
+                        "SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature FROM token_analysis WHERE mint = ? LIMIT 1",
+                        (mint,),
+                    ).fetchone()
+                    if _db_row:
+                        enqueue_creator = (str(_db_row[0]).strip() if _db_row[0] else "") or (str(_db_row[1]).strip() if _db_row[1] else "") or None
+                        if enqueue_creator:
+                            enqueue_source = "migration_db_fallback"
+                except Exception:
+                    pass
+            if enqueue_creator:
                 create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
                 await self._enqueue_creator_funding_job(
-                    earliest_creator,
+                    enqueue_creator,
                     mint=mint,
                     migration_timestamp=created_at,
                     create_tx_signature=create_tx_sig,
                     delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
-                    source="migration",
+                    source=enqueue_source,
                 )
             else:
                 log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)

@@ -327,6 +327,12 @@
     color: #fcd34d;
 }
 
+.pf-chip.curve-complete {
+    background: rgba(139, 92, 246, 0.18);
+    color: #c4b5fd;
+    font-weight: 600;
+}
+
 .pf-verify-head {
     display: flex;
     justify-content: space-between;
@@ -877,6 +883,7 @@ function renderRows(tokens) {
                         <div class="pf-token-title">
                             <span class="pf-symbol" id="pf-symbol-${pfEsc(token.mint)}">${pfEsc(displayName)}</span>
                             <span class="pf-badge ${pfBadgeClass(token)}">${pfEsc(token.readiness_label || 'Watching')}</span>
+                            ${token.curve_complete ? `<span class="pf-chip curve-complete" title="Bonding curve closed at slot ${token.curve_completed_slot || '?'} (${pfFormatAge(token.curve_completed_at)})">curve ✓</span>` : ''}
                         </div>
                         <div class="pf-subtext" id="pf-subtext-${pfEsc(token.mint)}">${pfEsc(subName)}</div>
                         <div class="pf-mint" title="${pfEsc(token.mint)}">${pfEsc(pfShortMint(token.mint))}</div>
@@ -933,6 +940,7 @@ function renderRows(tokens) {
                                 <div class="pf-meta-line">event_flow_mode=${pfEsc(flowModeLabel)}</div>
                                 <div class="pf-meta-line">buyer_enriched=${token.buyer_enriched ? 'yes' : 'no'} | sol_enriched=${token.sol_enriched ? 'yes' : 'no'}</div>
                                 <div class="pf-meta-line">bonding_curve=${pfEsc(pfShortMint(token.bonding_curve_pda || ''))}</div>
+                                <div class="pf-meta-line">curve_complete=${token.curve_complete ? `yes | slot=${token.curve_completed_slot || '?'} | ${pfFormatAge(token.curve_completed_at)}` : 'no'}</div>
                                 <div class="pf-meta-line">updated_at=${pfEsc(String(token.migration_signal_updated_at || ''))}</div>
                             </div>
                         </details>

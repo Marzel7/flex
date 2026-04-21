@@ -1256,6 +1256,7 @@ def api_snapshots():
         # Avoids stale/corrupt values in token_analysis written by listener paths.
         now = int(_time.time())
         fresh_cutoff = now - 900
+        inactive_cutoff = now - 7200  # show inactive tokens deactivated within last 2h
         rows = conn.execute("""
             SELECT * FROM (
                 SELECT tsc.mint, tsc.snap_count, tsc.last_updated,
@@ -1263,7 +1264,12 @@ def api_snapshots():
                        tps.price_usd, tps.market_cap, tps.source,
                        COALESCE(tt.symbol, mc.symbol) AS symbol,
                        mc.name,
-                       ta.created_at
+                       ta.created_at,
+                       COALESCE(tt.is_active, 0) AS is_active,
+                       tt.pair_address,
+                       tt.inactive_since,
+                       tt.stop_reason,
+                       tt.priority_level
                 FROM token_snapshot_counts tsc
                 LEFT JOIN token_price_snapshots tps ON tps.snapshot_id = (
                     SELECT snapshot_id FROM token_price_snapshots
@@ -1274,6 +1280,10 @@ def api_snapshots():
                 LEFT JOIN tracked_tokens tt ON tt.mint = tsc.mint
                 LEFT JOIN metadata_cache mc ON mc.mint = tsc.mint
                 LEFT JOIN token_analysis ta ON ta.mint = tsc.mint
+                WHERE (
+                    tt.is_active = 1
+                    OR (tt.is_active = 0 AND COALESCE(tt.inactive_since, 0) >= ?)
+                )
 
                 UNION
 
@@ -1282,7 +1292,12 @@ def api_snapshots():
                        NULL AS price_usd, NULL AS market_cap, NULL AS source,
                        COALESCE(tt2.symbol, mc2.symbol) AS symbol,
                        mc2.name,
-                       ta2.created_at
+                       ta2.created_at,
+                       1 AS is_active,
+                       tt2.pair_address,
+                       NULL AS inactive_since,
+                       NULL AS stop_reason,
+                       tt2.priority_level
                 FROM tracked_tokens tt2
                 LEFT JOIN metadata_cache mc2 ON mc2.mint = tt2.mint
                 LEFT JOIN token_analysis ta2 ON ta2.mint = tt2.mint
@@ -1290,37 +1305,38 @@ def api_snapshots():
                   AND tt2.created_at >= ?
                   AND tt2.mint NOT IN (SELECT mint FROM token_snapshot_counts)
             )
-            ORDER BY (COALESCE(last_snapshot, last_updated, 0) > ?) DESC,
+            ORDER BY is_active DESC,
+                     (COALESCE(last_snapshot, last_updated, 0) > ?) DESC,
                      COALESCE(last_snapshot, last_updated, 0) DESC,
                      last_updated DESC
-        """, (fresh_cutoff, now - 60,)).fetchall()
+        """, (inactive_cutoff, fresh_cutoff, now - 60,)).fetchall()
         data = []
-        backfill = []  # (mint, symbol) pairs to write into tracked_tokens
+        backfill = []
         for r in rows:
             last_ts = r['last_snapshot'] or r['last_updated'] or 0
             price = r['price_usd']
             mc = r['market_cap']
-            # Reject clearly bad values before sending to UI
             if price is not None and price <= 0:
                 price = None
             if mc is not None and mc <= 0:
                 mc = None
-            # Allow fresh tokens (created within 2 min) even with no/low MC
             created_at_raw = r['created_at']
-            is_fresh = False
+            is_fresh_token = False
             if created_at_raw:
                 try:
                     import datetime as _dt
                     ca = float(created_at_raw) if str(created_at_raw).replace('.','').isdigit() \
                         else _dt.datetime.fromisoformat(str(created_at_raw).rstrip('Z')).replace(
                             tzinfo=_dt.timezone.utc).timestamp()
-                    is_fresh = (now - ca) < 900
+                    is_fresh_token = (now - ca) < 900
                 except Exception:
                     pass
-            if not is_fresh and (mc is None or mc < MIN_LIVE_MARKET_CAP):
+            is_active = bool(r['is_active'])
+            if not is_active and not is_fresh_token and (mc is None or mc < MIN_LIVE_MARKET_CAP):
+                continue
+            if is_active and not is_fresh_token and (mc is None or mc < MIN_LIVE_MARKET_CAP):
                 continue
             symbol = r['symbol'] or None
-            # Backfill tracked_tokens.symbol if it came from metadata_cache (was NULL in tracked_tokens)
             if symbol and not r['symbol']:
                 backfill.append((symbol, r['mint']))
             data.append({
@@ -1334,6 +1350,10 @@ def api_snapshots():
                 'snap_count': r['snap_count'],
                 'age_seconds': now - last_ts if last_ts else 99999,
                 'created_at': r['created_at'] or None,
+                'is_active': is_active,
+                'inactive_since': r['inactive_since'] or None,
+                'stop_reason': r['stop_reason'] or None,
+                'priority_level': r['priority_level'] or 'medium',
             })
 
         if backfill:
@@ -1344,9 +1364,11 @@ def api_snapshots():
                 )
                 conn.commit()
             except Exception:
-                pass  # Non-critical; best-effort only
+                pass
 
-        response = jsonify({'data': data, 'total': len(data)})
+        live = [d for d in data if d['is_active']]
+        inactive = [d for d in data if not d['is_active']]
+        response = jsonify({'data': data, 'live': live, 'inactive': inactive, 'total': len(data)})
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'

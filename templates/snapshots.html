@@ -3,325 +3,567 @@
 {% block title %}Snapshots — FLEX{% endblock %}
 
 {% block extra_styles %}
-.age-fresh  { color: var(--color-green); }
-.age-recent { color: var(--color-yellow); }
-.age-stale  { color: var(--color-orange); }
-.age-dead   { color: var(--color-red); }
 
-/* Freshness dot */
-.dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; flex-shrink:0; }
-.dot-fresh  { background:var(--color-green);  box-shadow:0 0 5px var(--color-green); }
-.dot-recent { background:var(--color-yellow); }
-.dot-grey   { background:var(--text-secondary); opacity:0.5; }
+.snap-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
 
-/* Top-strip active row */
-tr.row-active { background: rgba(0,255,136,0.04); }
+.snap-page-header h1 { font-size: 22px; font-weight: 700; }
 
-/* Stale row de-emphasis */
-tr.row-stale td { opacity: 0.45; }
+.snap-live-status {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.snap-live-status strong { color: var(--text-primary); }
 
-.badge-new { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.05em; padding:1px 4px; border-radius:3px; background:rgba(74,222,128,0.18); color:#4ade80; border:1px solid rgba(74,222,128,0.35); vertical-align:middle; margin-left:4px; line-height:1.4; }
-
-.filter-bar {
+.snap-filter-bar {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
-.filter-bar input {
-    background: rgba(0,0,0,0.25);
+
+.snap-filter-bar input {
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: 6px;
     padding: 7px 12px;
     font-size: 13px;
-    width: 260px;
-}
-.filter-bar input:focus {
+    width: 240px;
     outline: none;
-    border-color: var(--accent-purple);
 }
-.count-label {
-    font-size: 12px;
+.snap-filter-bar input:focus { border-color: rgba(99,102,241,0.5); }
+
+.snap-count { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+
+/* ── Section headers ────────────────────────────── */
+.snap-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+}
+
+.snap-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--text-secondary);
+}
+
+.snap-section-count {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 1px 8px;
+}
+
+.snap-section-toggle {
     margin-left: auto;
-}
-.live-status {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
 }
-.live-status strong {
-    color: var(--text-primary);
-    font-weight: 600;
+.snap-section-toggle:hover { color: var(--text-primary); }
+
+/* ── Table ──────────────────────────────────────── */
+.snap-table-wrap {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 28px;
 }
+
+table.snap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+}
+
+table.snap-table td,
+table.snap-table th {
+    text-align: left !important;
+}
+
+table.snap-table thead th {
+    background: rgba(255,255,255,0.03);
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+table.snap-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.1s;
+}
+table.snap-table tbody tr:last-child { border-bottom: none; }
+table.snap-table tbody tr:hover { background: var(--bg-hover); }
+
+table.snap-table td {
+    padding: 9px 12px;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Recency tiers ──────────────────────────────── */
+tr.tier-0 { background: rgba(34,197,94,0.04); }
+tr.tier-1 { }
+tr.tier-2 { }
+tr.tier-stalled td { opacity: 0.55; }
+tr.row-inactive td { opacity: 0.4; }
+
+/* ── Freshness dot ──────────────────────────────── */
+.dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+.dot-t0     { background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+.dot-t1     { background: #facc15; }
+.dot-t2     { background: #f97316; }
+.dot-stall  { background: #ef4444; }
+.dot-grey   { background: var(--text-secondary); opacity: 0.4; }
+
+/* ── Cadence bar ────────────────────────────────── */
+.cadence-bar {
+    display: inline-flex;
+    gap: 2px;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+.cadence-pip {
+    width: 4px; height: 12px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.12);
+}
+.cadence-pip.lit-t0 { background: #22c55e; }
+.cadence-pip.lit-t1 { background: #facc15; }
+.cadence-pip.lit-t2 { background: #f97316; }
+
+/* ── Badges ─────────────────────────────────────── */
+.badge-new {
+    display: inline-block;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(74,222,128,0.18);
+    color: #4ade80;
+    border: 1px solid rgba(74,222,128,0.35);
+    vertical-align: middle;
+    margin-left: 4px;
+}
+.badge-source {
+    font-size: 10px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+
+.age-t0   { color: #4ade80; }
+.age-t1   { color: #facc15; }
+.age-t2   { color: #fb923c; }
+.age-dead { color: #f87171; }
+
+/* ── Legend ─────────────────────────────────────── */
+.snap-legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    align-items: center;
+}
+.snap-legend-item { display: flex; align-items: center; gap: 5px; }
+
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
+
+<div class="snap-page-header">
     <h1>Price Snapshots</h1>
-    <p class="subtitle">Latest recorded snapshot per token — most recent first</p>
+    <span class="snap-live-status" id="snap-live-status">Live refresh: <strong>waiting</strong></span>
 </div>
 
-<div class="filter-bar">
-    <input id="search" type="text" placeholder="Filter by mint…" oninput="filterTable()">
-    <span class="live-status" id="snap-live-status">Live refresh: <strong>waiting</strong></span>
-    <span class="count-label" id="count-label"></span>
+<div class="snap-filter-bar">
+    <input id="search" type="text" placeholder="Filter by symbol or mint…" oninput="filterAndRender()">
+    <span class="snap-count" id="snap-count"></span>
 </div>
 
-<div class="card" style="overflow: hidden;">
-    <table id="snap-table">
-        <thead>
-            <tr>
-                <th>Mint</th>
-                <th>Price USD</th>
-                <th>Market Cap</th>
-                <th>Snapshots</th>
-                <th>Source</th>
-                <th>Last Snapshot</th>
-                <th>Age</th>
-            </tr>
-        </thead>
-        <tbody id="snap-body">
-            <tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--text-secondary);">Loading…</td></tr>
-        </tbody>
-    </table>
+<div class="snap-legend">
+    <span class="snap-legend-item"><span class="dot dot-t0"></span> &lt;15s</span>
+    <span class="snap-legend-item"><span class="dot dot-t1"></span> 15–60s</span>
+    <span class="snap-legend-item"><span class="dot dot-t2"></span> 60–300s</span>
+    <span class="snap-legend-item"><span class="dot dot-stall"></span> &gt;300s (active but stalled)</span>
+    <span class="snap-legend-item"><span class="dot dot-grey"></span> inactive</span>
 </div>
+
+<!-- Live section -->
+<div class="snap-section-header">
+    <span class="snap-section-title">Live</span>
+    <span class="snap-section-count" id="live-count">—</span>
+    <span class="snap-section-toggle" onclick="toggleSection('live')">hide ▲</span>
+</div>
+<div id="live-section">
+    <div class="snap-table-wrap">
+        <table class="snap-table" id="live-table">
+            <colgroup>
+                <col style="width:18%">
+                <col style="width:16%">
+                <col style="width:14%">
+                <col style="width:8%">
+                <col style="width:9%">
+                <col style="width:13%">
+                <col style="width:11%">
+                <col style="width:11%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Price USD</th>
+                    <th>Market Cap</th>
+                    <th>Snapshots</th>
+                    <th>Source</th>
+                    <th>Last Snapshot</th>
+                    <th>Age</th>
+                    <th>Cadence</th>
+                </tr>
+            </thead>
+            <tbody id="live-body">
+                <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-secondary)">Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Inactive section -->
+<div class="snap-section-header">
+    <span class="snap-section-title">Recently Inactive</span>
+    <span class="snap-section-count" id="inactive-count">—</span>
+    <span class="snap-section-toggle" onclick="toggleSection('inactive')">show ▼</span>
+</div>
+<div id="inactive-section" style="display:none">
+    <div class="snap-table-wrap">
+        <table class="snap-table" id="inactive-table">
+            <colgroup>
+                <col style="width:18%">
+                <col style="width:16%">
+                <col style="width:14%">
+                <col style="width:8%">
+                <col style="width:9%">
+                <col style="width:13%">
+                <col style="width:11%">
+                <col style="width:11%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Price USD</th>
+                    <th>Market Cap</th>
+                    <th>Snapshots</th>
+                    <th>Source</th>
+                    <th>Last Snapshot</th>
+                    <th>Age</th>
+                    <th>Stop Reason</th>
+                </tr>
+            </thead>
+            <tbody id="inactive-body">
+                <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-secondary)">Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-    let allRows = [];
+let liveRows    = [];
+let inactiveRows = [];
+let allRows     = [];
 
-    function setLiveStatus(message, state = 'neutral') {
-        const el = document.getElementById('snap-live-status');
-        if (!el) return;
-        const colors = {
-            neutral: 'var(--text-secondary)',
-            ok: 'var(--color-green)',
-            warn: 'var(--color-yellow)',
-            error: 'var(--color-red)',
-        };
-        el.innerHTML = `Live refresh: <strong style="color:${colors[state] || colors.neutral}">${message}</strong>`;
+// ── Helpers ────────────────────────────────────────────────────────────
+function setLiveStatus(msg, state) {
+    const el = document.getElementById('snap-live-status');
+    const c = {ok:'var(--color-green)', warn:'var(--color-yellow)', error:'var(--color-red)'}[state] || 'var(--text-secondary)';
+    el.innerHTML = `Live refresh: <strong style="color:${c}">${msg}</strong>`;
+}
+
+function shortMint(m) {
+    return !m || m.length < 12 ? m : m.slice(0,4) + '…' + m.slice(-4);
+}
+
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtPrice(p) {
+    if (!p || p <= 0) return '—';
+    if (p < 1e-8) return '$' + p.toExponential(3);
+    if (p < 1e-4) return '$' + p.toFixed(10).replace(/0+$/,'').replace(/\.$/,'');
+    return '$' + p.toFixed(8);
+}
+
+function fmtMC(v) {
+    if (!v || v <= 0) return '—';
+    if (v >= 1e7) return '$' + (v/1e6).toFixed(2) + 'M';
+    if (v >= 1e6) return '$' + (v/1e6).toFixed(3) + 'M';
+    if (v >= 1e3) return '$' + Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    return '$' + v.toFixed(2);
+}
+
+function fmtTs(ts) {
+    if (!ts) return '—';
+    return new Date(ts * 1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function fmtAge(sec) {
+    if (sec < 60)    return sec + 's ago';
+    if (sec < 3600)  return Math.floor(sec/60) + 'm ago';
+    if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+    return Math.floor(sec/86400) + 'd ago';
+}
+
+function isNew(createdAt) {
+    if (!createdAt) return false;
+    const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime()/1000;
+    return (Math.floor(Date.now()/1000) - ts) < 1800;
+}
+
+// ── Recency tier (age in seconds) ─────────────────────────────────────
+// t0 = <15s, t1 = 15-60s, t2 = 60-300s, stall = >300s active, dead = inactive
+function tier(age, isActive) {
+    if (!isActive)  return 'dead';
+    if (age < 15)   return 't0';
+    if (age < 60)   return 't1';
+    if (age < 300)  return 't2';
+    return 'stall';
+}
+
+function dotHtml(t) {
+    const cls = {t0:'dot-t0', t1:'dot-t1', t2:'dot-t2', stall:'dot-stall', dead:'dot-grey'}[t] || 'dot-grey';
+    return `<span class="dot ${cls}"></span>`;
+}
+
+function ageClass(t) {
+    return {t0:'age-t0', t1:'age-t1', t2:'age-t2', stall:'age-dead', dead:'age-dead'}[t] || '';
+}
+
+function rowClass(t) {
+    return {t0:'tier-0', t1:'tier-1', t2:'tier-2', stall:'tier-stalled', dead:'row-inactive'}[t] || '';
+}
+
+// Cadence bar: 5 pips, lit proportionally to how fast updates come
+function cadenceHtml(age, isActive) {
+    if (!isActive) return '—';
+    // Compute lit pips: 5=<3s, 4=<10s, 3=<30s, 2=<60s, 1=<300s, 0=stalled
+    let lit = 0;
+    if (age < 3)   lit = 5;
+    else if (age < 10)  lit = 4;
+    else if (age < 30)  lit = 3;
+    else if (age < 60)  lit = 2;
+    else if (age < 300) lit = 1;
+
+    const t = tier(age, isActive);
+    const pipCls = {t0:'lit-t0', t1:'lit-t1', t2:'lit-t2', stall:''}[t] || '';
+    const pips = Array.from({length:5}, (_,i) =>
+        `<span class="cadence-pip ${i < lit ? pipCls : ''}"></span>`
+    ).join('');
+    return `<span class="cadence-bar">${pips}</span>`;
+}
+
+// ── Row builders ───────────────────────────────────────────────────────
+function buildLiveRow(r) {
+    const t = tier(r.age_seconds, true);
+    const label = r.symbol || shortMint(r.mint);
+    const newBadge = isNew(r.created_at) ? '<span class="badge-new">NEW</span>' : '';
+    return `<tr class="${rowClass(t)}" data-mint="${esc(r.mint)}">
+        <td class="mint" style="display:flex;align-items:center;gap:4px">
+            ${dotHtml(t)}
+            <span>
+                <span style="font-weight:600;color:var(--text-primary)">${esc(label)}</span>${newBadge}
+                <span style="display:block;font-size:10px;color:var(--text-secondary)" title="${esc(r.mint)}">${shortMint(r.mint)}</span>
+            </span>
+        </td>
+        <td class="price live-price">${fmtPrice(r.price_usd)}</td>
+        <td class="market-cap">${fmtMC(r.market_cap)}</td>
+        <td style="color:var(--text-secondary)">${(r.snap_count||0).toLocaleString()}</td>
+        <td><span class="badge-source">${esc(r.source||'—')}</span></td>
+        <td style="font-size:11px;color:var(--text-secondary)">${fmtTs(r.last_snapshot)}</td>
+        <td class="${ageClass(t)}">${fmtAge(r.age_seconds)}</td>
+        <td>${cadenceHtml(r.age_seconds, true)}</td>
+    </tr>`;
+}
+
+function buildInactiveRow(r) {
+    const label = r.symbol || shortMint(r.mint);
+    return `<tr class="row-inactive" data-mint="${esc(r.mint)}">
+        <td style="display:flex;align-items:center;gap:4px">
+            <span class="dot dot-grey"></span>
+            <span>
+                <span style="font-weight:600">${esc(label)}</span>
+                <span style="display:block;font-size:10px;color:var(--text-secondary)" title="${esc(r.mint)}">${shortMint(r.mint)}</span>
+            </span>
+        </td>
+        <td>${fmtPrice(r.price_usd)}</td>
+        <td>${fmtMC(r.market_cap)}</td>
+        <td style="color:var(--text-secondary)">${(r.snap_count||0).toLocaleString()}</td>
+        <td><span class="badge-source">${esc(r.source||'—')}</span></td>
+        <td style="font-size:11px;color:var(--text-secondary)">${fmtTs(r.last_snapshot)}</td>
+        <td class="age-dead">${fmtAge(r.age_seconds)}</td>
+        <td style="font-size:11px;color:var(--text-secondary)">${esc(r.stop_reason||'—')}</td>
+    </tr>`;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────
+function filterAndRender() {
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    const filteredLive = q
+        ? liveRows.filter(r => r.mint.toLowerCase().includes(q) || (r.symbol||'').toLowerCase().includes(q))
+        : liveRows;
+    const filteredInactive = q
+        ? inactiveRows.filter(r => r.mint.toLowerCase().includes(q) || (r.symbol||'').toLowerCase().includes(q))
+        : inactiveRows;
+
+    document.getElementById('live-count').textContent = filteredLive.length;
+    document.getElementById('inactive-count').textContent = filteredInactive.length;
+    document.getElementById('snap-count').textContent =
+        `${filteredLive.length} live · ${filteredInactive.length} recently inactive`;
+
+    const liveBody = document.getElementById('live-body');
+    liveBody.innerHTML = filteredLive.length
+        ? filteredLive.map(buildLiveRow).join('')
+        : '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-secondary)">No live tokens</td></tr>';
+
+    const inactiveBody = document.getElementById('inactive-body');
+    inactiveBody.innerHTML = filteredInactive.length
+        ? filteredInactive.map(buildInactiveRow).join('')
+        : '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-secondary)">No recently inactive tokens</td></tr>';
+
+    syncWsSubscriptions();
+}
+
+// ── Toggle section ─────────────────────────────────────────────────────
+function toggleSection(name) {
+    const el = document.getElementById(name + '-section');
+    const btn = el.previousElementSibling.querySelector('.snap-section-toggle');
+    if (el.style.display === 'none') {
+        el.style.display = '';
+        btn.textContent = 'hide ▲';
+    } else {
+        el.style.display = 'none';
+        btn.textContent = 'show ▼';
     }
+}
 
-    function formatPrice(p) {
-        if (!p || p <= 0) return '—';
-        if (p < 1e-8) return '$' + p.toExponential(3);
-        if (p < 1e-4) return '$' + p.toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
-        return '$' + p.toFixed(8);
+// ── Fetch ──────────────────────────────────────────────────────────────
+async function load() {
+    try {
+        const res = await fetch(`/api/snapshots?_=${Date.now()}`, { cache: 'no-store' });
+        const json = await res.json();
+        liveRows     = json.live     || [];
+        inactiveRows = json.inactive || [];
+        allRows      = json.data     || [];
+        filterAndRender();
+        setLiveStatus(`${new Date().toLocaleTimeString()} · ${liveRows.length} live`, 'ok');
+    } catch(e) {
+        setLiveStatus('poll failed', 'error');
     }
+}
 
-    function formatMC(v) {
-        if (!v || v <= 0) return '—';
-        if (v >= 1e7) return '$' + (v / 1e6).toFixed(2) + 'M';
-        if (v >= 1e6) return '$' + (v / 1e6).toFixed(3) + 'M';
-        if (v >= 1e3) {
-            return '$' + Number(v).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+load();
+const pollInterval = setInterval(load, 3000);
+
+// ── WebSocket live patches ─────────────────────────────────────────────
+let ws = null;
+let subscribedMints = new Set();
+
+function wsConnect() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${proto}://${location.host}/ws/tokens`);
+    ws.onopen = () => {
+        const visible = getVisibleMints();
+        if (visible.length) wsSend('subscribe', visible);
+        setLiveStatus(`ws connected · ${new Date().toLocaleTimeString()}`, 'ok');
+    };
+    ws.onmessage = (evt) => {
+        let msg;
+        try { msg = JSON.parse(evt.data); } catch { return; }
+        if (msg.type !== 'price_update') return;
+        patchRow(msg);
+        setLiveStatus(`ws · ${new Date().toLocaleTimeString()}`, 'ok');
+        const entry = liveRows.find(r => r.mint === msg.mint);
+        if (entry) {
+            entry.price_usd    = msg.price_usd;
+            entry.market_cap   = msg.market_cap;
+            entry.source       = msg.source;
+            entry.last_snapshot = msg.last_snapshot;
+            entry.age_seconds  = 0;
         }
-        return '$' + v.toFixed(2);
+    };
+    ws.onclose = () => {
+        subscribedMints.clear();
+        setLiveStatus('ws reconnecting…', 'warn');
+        setTimeout(wsConnect, 5000);
+    };
+    ws.onerror = () => ws.close();
+}
+
+function wsSend(type, mints) {
+    if (ws && ws.readyState === WebSocket.OPEN)
+        ws.send(JSON.stringify({type, mints}));
+}
+
+function getVisibleMints() {
+    return Array.from(document.querySelectorAll('#live-body tr[data-mint]'))
+        .map(tr => tr.dataset.mint).filter(Boolean);
+}
+
+function syncWsSubscriptions() {
+    const visible = new Set(getVisibleMints());
+    const toSub   = [...visible].filter(m => !subscribedMints.has(m));
+    const toUnsub = [...subscribedMints].filter(m => !visible.has(m));
+    if (toSub.length)   wsSend('subscribe',   toSub);
+    if (toUnsub.length) wsSend('unsubscribe', toUnsub);
+    subscribedMints = visible;
+}
+
+function patchRow(msg) {
+    for (const tr of document.querySelectorAll('#live-body tr[data-mint]')) {
+        if (tr.dataset.mint !== msg.mint) continue;
+        const t = tier(0, true);
+        tr.querySelector('.price').textContent     = fmtPrice(msg.price_usd);
+        tr.querySelector('.market-cap').textContent = fmtMC(msg.market_cap);
+        tr.className = rowClass(t);
+        const dot = tr.querySelector('.dot');
+        if (dot) dot.className = `dot dot-t0`;
+        break;
     }
+}
 
-    function ageClass(sec) {
-        if (sec < 30)   return 'age-fresh';
-        if (sec < 120)  return 'age-recent';
-        if (sec < 600)  return 'age-stale';
-        return 'age-dead';
-    }
-
-    function formatAge(sec) {
-        if (sec < 60)   return sec + 's ago';
-        if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
-        if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
-        return Math.floor(sec / 86400) + 'd ago';
-    }
-
-    function formatTs(ts) {
-        if (!ts) return '—';
-        return new Date(ts * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
-    }
-
-    function dotHtml(age) {
-        if (age < 15)  return '<span class="dot dot-fresh"></span>';
-        if (age < 60)  return '<span class="dot dot-recent"></span>';
-        return '<span class="dot dot-grey"></span>';
-    }
-
-    function isNew(createdAt) {
-        if (!createdAt) return false;
-        const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime() / 1000;
-        return (Math.floor(Date.now() / 1000) - ts) < 1800;
-    }
-
-    function renderRows(rows) {
-        const tbody = document.getElementById('snap-body');
-        if (!rows.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px">No snapshots found</td></tr>';
-            return;
-        }
-        // Top strip: rows updated in last 60s (backend already sorts these first)
-        const activeSet = new Set(rows.filter(r => r.age_seconds < 60).map(r => r.mint));
-        tbody.innerHTML = rows.map(r => {
-            const rowClass = r.age_seconds > 120 ? 'row-stale' : (activeSet.has(r.mint) ? 'row-active' : '');
-            const label = r.symbol || shortMint(r.mint);
-            const secondaryLine = r.symbol
-                ? `<span style="display:block;font-size:10px;color:var(--text-secondary);margin-top:1px" title="${r.mint}">${shortMint(r.mint)}</span>`
-                : '';
-            return `
-            <tr class="${rowClass}" data-mint="${r.mint}">
-                <td class="mint" data-mint="${r.mint}" style="display:flex;align-items:center;gap:6px">
-                    ${dotHtml(r.age_seconds)}
-                    <span>
-                        <span style="font-weight:600;color:var(--text-primary)">${label}</span>${isNew(r.created_at) ? '<span class="badge-new">NEW</span>' : ''}
-                        ${secondaryLine}
-                    </span>
-                </td>
-                <td class="price live-price">${formatPrice(r.price_usd)}</td>
-                <td class="market-cap">${formatMC(r.market_cap)}</td>
-                <td class="number" style="color:var(--text-secondary)">${r.snap_count.toLocaleString()}</td>
-                <td><span class="badge" style="font-size:10px">${r.source || '—'}</span></td>
-                <td style="font-size:11px;color:var(--text-secondary)">${formatTs(r.last_snapshot)}</td>
-                <td class="number ${ageClass(r.age_seconds)}">${formatAge(r.age_seconds)}</td>
-            </tr>`;
-        }).join('');
-    }
-
-    function shortMint(mint) {
-        if (!mint || mint.length < 12) return mint;
-        return mint.slice(0, 4) + '…' + mint.slice(-4);
-    }
-
-    function filterTable() {
-        const q = document.getElementById('search').value.trim().toLowerCase();
-        const filtered = q ? allRows.filter(r =>
-            r.mint.toLowerCase().includes(q) ||
-            (r.symbol && r.symbol.toLowerCase().includes(q))
-        ) : allRows;
-        document.getElementById('count-label').textContent = `${filtered.length} of ${allRows.length} tokens`;
-        renderRows(filtered);
-        syncWsSubscriptions();
-    }
-
-    async function load() {
-        try {
-            const res = await fetch(`/api/snapshots?_=${Date.now()}`, { cache: 'no-store' });
-            const json = await res.json();
-            allRows = json.data || [];
-            document.getElementById('count-label').textContent = `${allRows.length} tokens`;
-            renderRows(allRows);
-            syncWsSubscriptions();
-            setLiveStatus(`${new Date().toLocaleTimeString()} · ${allRows.length} rows`, 'ok');
-        } catch (e) {
-            document.getElementById('snap-body').innerHTML =
-                '<tr><td colspan="7" style="text-align:center;color:var(--color-red);padding:30px">Failed to load snapshots</td></tr>';
-            setLiveStatus('poll failed', 'error');
-        }
-    }
-
-    load();
-    // Polling fallback — keeps working if WS unavailable
-    const pollInterval = setInterval(load, 3000);
-
-    // -----------------------------------------------------------------------
-    // WebSocket: mint-filtered live updates
-    // -----------------------------------------------------------------------
-    let ws = null;
-    let subscribedMints = new Set();
-
-    function wsConnect() {
-        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-        ws = new WebSocket(`${proto}://${location.host}/ws/tokens`);
-
-        ws.onopen = () => {
-            // Subscribe to whatever is currently visible
-            const visible = getVisibleMints();
-            if (visible.length) wsSend('subscribe', visible);
-            setLiveStatus(`ws connected · ${new Date().toLocaleTimeString()}`, 'ok');
-        };
-
-        ws.onmessage = (evt) => {
-            let msg;
-            try { msg = JSON.parse(evt.data); } catch { return; }
-            if (msg.type !== 'price_update') return;
-            patchRow(msg);
-            setLiveStatus(`ws update · ${new Date().toLocaleTimeString()}`, 'ok');
-            // Mirror into allRows cache so polling re-render stays consistent
-            const entry = allRows.find(r => r.mint === msg.mint);
-            if (entry) {
-                entry.price_usd    = msg.price_usd;
-                entry.market_cap   = msg.market_cap;
-                entry.source       = msg.source;
-                entry.last_snapshot = msg.last_snapshot;
-                entry.age_seconds  = 0;
-            }
-        };
-
-        ws.onclose = () => {
-            subscribedMints.clear();
-            setLiveStatus('ws reconnecting…', 'warn');
-            // Reconnect after 5s; polling fallback covers the gap
-            setTimeout(wsConnect, 5000);
-        };
-
-        ws.onerror = () => ws.close();
-    }
-
-    function wsSend(type, mints) {
-        if (ws && ws.readyState === WebSocket.OPEN)
-            ws.send(JSON.stringify({ type, mints }));
-    }
-
-    function getVisibleMints() {
-        return Array.from(document.querySelectorAll('#snap-body tr[data-mint]'))
-                    .map(tr => tr.dataset.mint)
-                    .filter(Boolean);
-    }
-
-    function patchRow(msg) {
-        for (const tr of document.querySelectorAll('#snap-body tr[data-mint]')) {
-            if (tr.dataset.mint !== msg.mint) continue;
-            const td = tr.querySelector('td.mint');
-            const row = tr;
-            const tbody = tr.parentElement;
-
-            // Update values
-            row.querySelector('.price').textContent = formatPrice(msg.price_usd);
-            row.querySelector('.market-cap').textContent = formatMC(msg.market_cap);
-            const ageTd = row.querySelector('.number:last-child');
-            if (ageTd) { ageTd.textContent = '0s ago'; ageTd.className = `number ${ageClass(0)}`; }
-
-            // Update dot + classes
-            const dot = td.querySelector('.dot');
-            if (dot) { dot.className = 'dot dot-fresh'; }
-            row.classList.remove('row-stale');
-            row.classList.add('row-active');
-
-            // Move to top if fresh and not already first
-            const age = msg.age_seconds ?? 0;
-            if (age < 15 && tbody.firstElementChild !== row) {
-                tbody.prepend(row);
-            }
-
-            // Brief flash
-            row.style.transition = 'background 0.3s';
-            row.style.background = 'rgba(0,255,136,0.12)';
-            setTimeout(() => { row.style.background = ''; }, 600);
-            break;
-        }
-    }
-
-    // Re-subscribe when filter changes (visible mints change)
-    function syncWsSubscriptions() {
-        const visible = new Set(getVisibleMints());
-        const toSub   = [...visible].filter(m => !subscribedMints.has(m));
-        const toUnsub = [...subscribedMints].filter(m => !visible.has(m));
-        if (toSub.length)   { wsSend('subscribe',   toSub);   toSub.forEach(m => subscribedMints.add(m)); }
-        if (toUnsub.length) { wsSend('unsubscribe', toUnsub); toUnsub.forEach(m => subscribedMints.delete(m)); }
-    }
-
-    wsConnect();
+wsConnect();
 </script>
 {% endblock %}

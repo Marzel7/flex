@@ -41,7 +41,17 @@ except ImportError:
     def record_request(*args, **kwargs):
         pass  # No-op if metrics recorder not available
 
-DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
+_DEFAULT_DB_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "..",
+    "database",
+    "flex_complete_database.db",
+)
+DB_PATH = os.environ.get(
+    "DB_PATH",
+    os.getenv("RPC_METRICS_DB", os.path.abspath(_DEFAULT_DB_PATH)),
+)
 # Initialize creator funding cache for Layer 6 optimization
 try:
     from src.utils.creator_funding_graph_cache import CreatorFundingGraphCache
@@ -73,6 +83,7 @@ MAX_CONCURRENT_RPC = 8  # FIX #8: Bound RPC concurrency (was unused BATCH_SIZE =
 MAX_PAGES = 8
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
+FAST_FIRST_TX_PAGE_CAP = 3
 
 # Pump.Fun program ID - used to filter out Pump.Fun token operations
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
@@ -577,6 +588,43 @@ class RealTimeCreatorFundingExtractor:
                     cache_key = self.rpc_cache.make_key_get_transaction(signature)
                     self.rpc_cache.set(cache_key, tx, "getTransaction")
                 return tx
+        return None
+
+    async def get_oldest_enhanced_transaction(self, address: str) -> Optional[Dict]:
+        """Fetch the oldest known enhanced transaction for an address with a single cheap request."""
+        if not USE_HELIUS or not self.session:
+            return None
+
+        query_url = (
+            f"https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions"
+            f"?api-key={_RPC_KEY}&limit=1&sort-order=asc&commitment=finalized"
+        )
+        try:
+            start_time = time.time()
+            async with self.session.get(
+                query_url,
+                timeout=aiohttp.ClientTimeout(total=15),
+            ) as resp:
+                latency_ms = (time.time() - start_time) * 1000
+                record_request(
+                    section="creator_funding",
+                    provider="helius_rpc",
+                    method="helius_enhanced_oldest_transaction",
+                    status_code=resp.status,
+                    latency_ms=latency_ms,
+                    mode="realtime",
+                    source_file="realtime_creator_funding_extractor",
+                    cache_action="miss",
+                    credits_saved=0,
+                )
+                if resp.status != 200:
+                    print(f"[REALTIME_FUNDING]    ⚠ Oldest-tx probe HTTP {resp.status}", flush=True)
+                    return None
+                page = await resp.json()
+                if isinstance(page, list) and page:
+                    return page[0]
+        except Exception as e:
+            print(f"[REALTIME_FUNDING]    ⚠ Oldest-tx probe failed: {e}", flush=True)
         return None
 
     def extract_sol_transfers(self, tx: Dict, creator: str) -> List[Dict]:
@@ -1183,6 +1231,8 @@ class RealTimeCreatorFundingExtractor:
                 total_fetched = 0
                 found_pre_migration = False
                 empty_inbound_pages = 0
+                oldest_tx_seeded_funders = 0
+                page_limit_for_scan = MAX_PAGES
 
                 # Phase 1: Load cursor if available (enables incremental extraction)
                 cursor_for_creator = None
@@ -1196,6 +1246,63 @@ class RealTimeCreatorFundingExtractor:
                             print(f"[REALTIME_FUNDING]    ℹ No cursor found for {creator[:16]}... (first-time scan)", flush=True)
                     except Exception as e:
                         print(f"[REALTIME_FUNDING]    ⚠ Error loading cursor: {e} (falling back to full scan)", flush=True)
+
+                # Cheap bootstrap: inspect the oldest known tx for first-time creators.
+                # The first-ever tx often contains the creator's initial funding source.
+                if before_signature is None:
+                    oldest_tx = await self.get_oldest_enhanced_transaction(creator)
+                    if oldest_tx:
+                        oldest_sig = oldest_tx.get("signature", "")
+                        oldest_ts = oldest_tx.get("timestamp", 0)
+                        native = oldest_tx.get("nativeTransfers") or []
+                        oldest_funders_delta: Dict[str, dict] = {}
+                        oldest_recipients_delta: Dict[str, float] = {}
+                        oldest_domain_addrs: Set[str] = {creator}
+                        seeded_recipients = 0
+                        for nt in native:
+                            frm = nt.get("fromUserAccount")
+                            to = nt.get("toUserAccount")
+                            amt = nt.get("amount", 0)
+                            if not isinstance(frm, str) or not isinstance(to, str):
+                                continue
+                            amount_sol = amt / 1_000_000_000
+                            if amount_sol < MIN_SOL:
+                                continue
+                            if to == creator and frm not in exclude_set and frm not in DUST_ADDRESSES:
+                                if frm not in funders:
+                                    oldest_tx_seeded_funders += 1
+                                    funders[frm] = 0
+                                funders[frm] += amount_sol
+                                self._save_funder(creator, frm, amount_sol, oldest_funders_delta)
+                                oldest_domain_addrs.add(frm)
+                            elif frm == creator and to not in exclude_set:
+                                if to not in recipients:
+                                    seeded_recipients += 1
+                                    recipients[to] = 0
+                                recipients[to] += amount_sol
+                                self._save_recipient(creator, to, amount_sol, oldest_recipients_delta)
+
+                        if oldest_funders_delta or oldest_recipients_delta:
+                            await self._flush_page_batch(
+                                extraction_conn,
+                                creator,
+                                oldest_funders_delta,
+                                oldest_recipients_delta,
+                                oldest_domain_addrs,
+                                [],
+                            )
+
+                        if oldest_sig:
+                            print(
+                                f"[REALTIME_FUNDING]    [FIRST_TX] sig={oldest_sig[:20]} ts={oldest_ts} seeded_funders={oldest_tx_seeded_funders}",
+                                flush=True,
+                            )
+                        if oldest_tx_seeded_funders > 0:
+                            page_limit_for_scan = min(page_limit_for_scan, FAST_FIRST_TX_PAGE_CAP)
+                            print(
+                                f"[REALTIME_FUNDING]    [FIRST_TX] Initial funding found in oldest tx; limiting first-pass scan to {page_limit_for_scan} page(s)",
+                                flush=True,
+                            )
 
                 while True:
                     page_num += 1
@@ -1490,8 +1597,8 @@ class RealTimeCreatorFundingExtractor:
                                         break
 
                                     # FIX #2: Check if we've reached MAX_PAGES limit
-                                    if page_num >= MAX_PAGES:
-                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached {MAX_PAGES} page limit", flush=True)
+                                    if page_num >= page_limit_for_scan:
+                                        print(f"[REALTIME_FUNDING]    [PAGE {page_num}] Reached {page_limit_for_scan} page limit", flush=True)
                                         break
 
                                     # Continue if we found pre-migration txs

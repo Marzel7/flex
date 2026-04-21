@@ -60,6 +60,7 @@ def _ensure_schema():
         "ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL",
         "ALTER TABLE token_analysis ADD COLUMN migration_band TEXT",
         "ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER",
+        "ALTER TABLE token_analysis ADD COLUMN first_pre_migration_signal_at INTEGER",
         "ALTER TABLE token_analysis ADD COLUMN migration_signal_source TEXT",
         "ALTER TABLE token_analysis ADD COLUMN lifecycle_stage TEXT DEFAULT 'migration_pending'",
         "ALTER TABLE token_analysis ADD COLUMN migrated_at INTEGER",
@@ -1293,11 +1294,18 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
               )
               AND (
                   COALESCE(tps.market_cap, 0) >= ?
-                  OR CAST(COALESCE(
-                      CASE WHEN CAST(ta.created_at AS REAL) > 1000000000
-                           THEN CAST(ta.created_at AS INTEGER)
-                           ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
-                      END, 0) AS INTEGER) >= ?
+                  OR MAX(
+                      CAST(COALESCE(
+                          CASE WHEN CAST(ta.created_at AS REAL) > 1000000000
+                               THEN CAST(ta.created_at AS INTEGER)
+                               ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
+                          END, 0) AS INTEGER),
+                      CAST(COALESCE(
+                          CASE WHEN CAST(ta.migrated_at AS REAL) > 1000000000
+                               THEN CAST(ta.migrated_at AS INTEGER)
+                               ELSE CAST(strftime('%s', ta.migrated_at) AS INTEGER)
+                          END, 0) AS INTEGER)
+                  ) >= ?
               )
             ORDER BY
                 CAST(COALESCE(
@@ -2040,6 +2048,8 @@ def _build_pumpfun_summary(tokens: List[Dict[str, Any]], total_available: Option
 
 def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any]:
     try:
+        pre_migration_cutoff_seconds = 3
+
         _schedule_migrated_pf_ws_creator_backfill_batch(batch_size=50, cooldown_seconds=120)
         _schedule_migration_gap_audit_throttled(
             lookback_hours=4,
@@ -2065,6 +2075,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 pmv.pre_migration_band,
                 pmv.pre_migration_progress_pct,
                 pmv.pre_migration_signal_updated_at,
+                ta.first_pre_migration_signal_at,
                 pmv.pre_market_cap_current,
                 pmv.pre_buys_10s,
                 pmv.pre_unique_30s,
@@ -2085,7 +2096,16 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 ta.create_tx_signature,
                 ta.pf_ws_creator,
                 ta.earliest_tx_creator AS rpc_creator,
-                ta.creator_mismatch
+                ta.creator_mismatch,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM creator_funders cf
+                        WHERE cf.creator_address = ta.earliest_tx_creator
+                           OR cf.creator_address = ta.pf_ws_creator
+                        LIMIT 1
+                    ) THEN 1 ELSE 0
+                END AS creator_funding_completed
             FROM pumpfun_migration_verification pmv
             LEFT JOIN metadata_cache mc
                 ON mc.mint = pmv.mint
@@ -2133,11 +2153,38 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
         records: List[Dict[str, Any]] = []
         for row in rows:
             verdict = (row["final_verdict"] or "unknown").strip()
+            migrated_at = row["migrated_at"]
+            signal_updated_at = row["pre_migration_signal_updated_at"]
+            cutoff_at = (
+                max(0, int(migrated_at) - pre_migration_cutoff_seconds)
+                if migrated_at is not None else None
+            )
+            signal_timing = "no_signal"
+            if signal_updated_at is not None and cutoff_at is not None:
+                signal_timing = "before_cutoff" if int(signal_updated_at) <= int(cutoff_at) else "after_cutoff"
+
+            verdict_reason = "No recorded pre-migration signal existed before migration."
+            if verdict == "predicted":
+                if bool(row["predicted_by_flow"]):
+                    verdict_reason = "Fresh stored pre-migration flow signal existed before cutoff."
+                elif bool(row["predicted_by_explicit_signal"]):
+                    verdict_reason = "Fresh stored hot/warm migration state existed before cutoff."
+                else:
+                    verdict_reason = "Fresh pre-migration signal qualified before cutoff."
+            elif verdict == "market_cap_only":
+                verdict_reason = "Fresh pre-migration market cap cleared the weak-signal floor before cutoff."
+            elif verdict == "late_capture":
+                verdict_reason = "First stored signal landed after the pre-migration cutoff."
+            elif verdict == "stale_signal":
+                verdict_reason = "A pre-migration signal existed before cutoff, but it was too old at migration."
+            elif verdict == "missed":
+                verdict_reason = "A real pre-migration signal existed before cutoff, but it failed prediction thresholds."
+
             records.append({
                 "mint": row["mint"],
                 "symbol": row["token_symbol"] or None,
                 "name": row["token_name"] or None,
-                "migrated_at": row["migrated_at"],
+                "migrated_at": migrated_at,
                 "migration_tx": row["migration_tx"] or None,
                 "create_tx_signature": row["create_tx_signature"] or None,
                 "dex": row["dex"] or None,
@@ -2146,6 +2193,7 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 "pre_migration_band": row["pre_migration_band"] or None,
                 "pre_migration_progress_pct": row["pre_migration_progress_pct"],
                 "pre_migration_signal_updated_at": row["pre_migration_signal_updated_at"],
+                "first_pre_migration_signal_at": row["first_pre_migration_signal_at"],
                 "pre_market_cap_current": float(row["pre_market_cap_current"] or 0.0),
                 "pre_buys_10s": int(row["pre_buys_10s"] or 0),
                 "pre_unique_30s": int(row["pre_unique_30s"] or 0),
@@ -2161,9 +2209,14 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                 "signal_age_seconds": row["signal_age_seconds"],
                 "signal_was_fresh": bool(row["signal_was_fresh"]),
                 "final_verdict": verdict,
+                "pre_migration_cutoff_at": cutoff_at,
+                "pre_migration_cutoff_seconds": pre_migration_cutoff_seconds,
+                "signal_timing": signal_timing,
+                "verdict_reason": verdict_reason,
                 "pf_ws_creator": row["pf_ws_creator"] or None,
                 "rpc_creator": row["rpc_creator"] or None,
                 "creator_mismatch": bool(row["creator_mismatch"]) if row["creator_mismatch"] is not None else None,
+                "creator_funding_completed": bool(row["creator_funding_completed"]) if row["creator_funding_completed"] is not None else False,
             })
 
         pf_ws_backfills_started = 0
@@ -9342,7 +9395,9 @@ def api_token_metrics(token_mint: str):
             peak_market_cap = current_market_cap
             peak_market_cap_at = src_row['captured_at'] if src_row and src_row['captured_at'] else peak_market_cap_at
         created_ts = _parse_unix_ts(row['created_at'])
-        is_new = created_ts is not None and (int(time.time()) - created_ts) < NEW_TOKEN_WINDOW_SECS
+        migrated_ts = _parse_unix_ts(row['migrated_at'])
+        arrival_ts = migrated_ts if migrated_ts and migrated_ts > (created_ts or 0) else created_ts
+        is_new = arrival_ts is not None and (int(time.time()) - arrival_ts) < NEW_TOKEN_WINDOW_SECS
         if src_row:
             price_source = src_row['source']
         elif row['price_current'] and row['price_current'] > 0:
@@ -18642,6 +18697,76 @@ def api_creator_queue_status():
             pass
         print(f"[QUEUE_STATUS] Error: {e}", flush=True)
         return {"ok": False, "error": str(e)}, 500
+
+@app.route('/api/funding-queue')
+def api_funding_queue():
+    """List entries in the creator_funding_queue with stats and recent rows."""
+    import time as _time
+    try:
+        conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        now = int(_time.time())
+
+        stats = cur.execute("""
+            SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN status = 'pending'  THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN status = 'running'  THEN 1 ELSE 0 END) AS running,
+                SUM(CASE WHEN status = 'retry'    THEN 1 ELSE 0 END) AS retry,
+                SUM(CASE WHEN status = 'complete' THEN 1 ELSE 0 END) AS complete,
+                SUM(CASE WHEN status IN ('pending','retry') AND next_attempt_at <= ? THEN 1 ELSE 0 END) AS ready,
+                COUNT(DISTINCT source) AS source_count
+            FROM creator_funding_queue
+        """, (now,)).fetchone()
+
+        by_source = cur.execute("""
+            SELECT
+                COALESCE(source, 'unknown') AS source,
+                COUNT(*) AS total,
+                SUM(CASE WHEN status = 'complete' THEN 1 ELSE 0 END) AS complete,
+                SUM(CASE WHEN status IN ('pending','retry','running') THEN 1 ELSE 0 END) AS active
+            FROM creator_funding_queue
+            GROUP BY source
+            ORDER BY total DESC
+        """).fetchall()
+
+        rows = cur.execute("""
+            SELECT
+                cfq.creator_address,
+                cfq.mint,
+                cfq.status,
+                COALESCE(cfq.source, 'unknown') AS source,
+                cfq.attempts,
+                cfq.last_error,
+                cfq.next_attempt_at,
+                cfq.created_at,
+                cfq.updated_at,
+                mc.symbol,
+                mc.name AS token_name
+            FROM creator_funding_queue cfq
+            LEFT JOIN metadata_cache mc ON mc.mint = cfq.mint
+            ORDER BY cfq.created_at DESC
+            LIMIT 200
+        """).fetchall()
+
+        conn.close()
+
+        return {
+            "ok": True,
+            "now": now,
+            "stats": dict(stats) if stats else {},
+            "by_source": [dict(r) for r in by_source],
+            "rows": [dict(r) for r in rows],
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e)}, 500
+
+
+@app.route('/funding-queue')
+def funding_queue_page():
+    return render_template("creator_funding_queue.html", active_page="funding_queue")
+
 
 @app.route('/webhook-monitor')
 def webhook_monitor():

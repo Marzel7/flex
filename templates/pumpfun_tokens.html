@@ -258,6 +258,40 @@
     font-size: 13px;
 }
 
+.pf-legend {
+    display: grid;
+    gap: 10px;
+    padding: 14px 18px 18px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+}
+
+.pf-legend-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.pf-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px 14px;
+}
+
+.pf-legend-item {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+}
+
+.pf-legend-copy {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+}
+
 .pf-verify-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -276,6 +310,16 @@
     border-radius: 12px;
     padding: 12px 14px;
     background: rgba(255,255,255,0.02);
+}
+
+.pf-chip.creator-funded {
+    background: rgba(16, 185, 129, 0.16);
+    color: #6ee7b7;
+}
+
+.pf-chip.creator-funding-pending {
+    background: rgba(245, 158, 11, 0.16);
+    color: #fcd34d;
 }
 
 .pf-verify-head {
@@ -297,6 +341,8 @@
 .pf-chip.market_cap_only { background: rgba(59, 130, 246, 0.16); color: #93c5fd; }
 .pf-chip.stale_signal { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
 .pf-chip.missed, .pf-chip.no_signal, .pf-chip.late_capture { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
+.pf-chip.before_cutoff { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
+.pf-chip.after_cutoff { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
 .pf-chip.creator-match { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
 .pf-chip.creator-mismatch { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
 .pf-chip.creator-unknown { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
@@ -356,6 +402,35 @@
                     <tr><td colspan="6" class="pf-empty">Loading Pump.fun live console...</td></tr>
                 </tbody>
             </table>
+        </div>
+        <div class="pf-legend">
+            <div class="pf-legend-title">Tag Legend</div>
+            <div class="pf-legend-grid">
+                <div class="pf-legend-item">
+                    <span class="pf-chip predicted">predicted</span>
+                    <div class="pf-legend-copy">A real pre-migration signal was recorded before the cutoff, usually from flow or a strong explicit readiness signal.</div>
+                </div>
+                <div class="pf-legend-item">
+                    <span class="pf-chip market_cap_only">market_cap_only</span>
+                    <div class="pf-legend-copy">The token looked close enough by market cap before migration, but did not have the stronger flow-backed signal needed for a full predicted call.</div>
+                </div>
+                <div class="pf-legend-item">
+                    <span class="pf-chip late_capture">late_capture</span>
+                    <div class="pf-legend-copy">The first usable signal was only recorded at migration time or too close to it, so it cannot count as a true pre-migration prediction.</div>
+                </div>
+                <div class="pf-legend-item">
+                    <span class="pf-chip stale_signal">stale_signal</span>
+                    <div class="pf-legend-copy">A signal existed before migration, but it was too old to trust by the time the token actually migrated.</div>
+                </div>
+                <div class="pf-legend-item">
+                    <span class="pf-chip no_signal">no_signal</span>
+                    <div class="pf-legend-copy">The system knew about the token, but never captured a meaningful pre-migration signal before it moved.</div>
+                </div>
+                <div class="pf-legend-item">
+                    <span class="pf-chip missed">missed</span>
+                    <div class="pf-legend-copy">A real pre-migration signal existed in time, but it still failed the thresholds needed to classify the token as predicted.</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -678,18 +753,21 @@ function renderVerificationTrail(section = {}) {
         ].filter(Boolean);
 
         let creatorTag = '';
+        const creatorFundingTag = record.creator_funding_completed
+            ? `<span class="pf-chip creator-funded" title="Creator funding has been extracted and stored">funding done</span>`
+            : `<span class="pf-chip creator-funding-pending" title="Creator funding has not been persisted yet">funding pending</span>`;
         const hasWs = !!record.pf_ws_creator;
         const hasRpc = !!record.rpc_creator;
         if (hasWs && hasRpc) {
             if (record.creator_mismatch) {
                 creatorTag = `<span class="pf-chip creator-mismatch" title="WS: ${pfEsc(record.pf_ws_creator)} | RPC: ${pfEsc(record.rpc_creator)}">creator ⚠ mismatch</span>`;
             } else {
-                creatorTag = `<span class="pf-chip creator-match" title="${pfEsc(record.rpc_creator)}">creator ✓ match</span>`;
+                creatorTag = `<span class="pf-chip creator-match" title="WS: ${pfEsc(record.pf_ws_creator)} | RPC: ${pfEsc(record.rpc_creator)}">creator ws</span>`;
             }
         } else if (hasWs && !hasRpc) {
-            creatorTag = `<span class="pf-chip creator-unknown" title="WS: ${pfEsc(record.pf_ws_creator)}">creator ws-only</span>`;
+            creatorTag = `<span class="pf-chip creator-unknown" title="WS: ${pfEsc(record.pf_ws_creator)}">creator ws</span>`;
         } else if (!hasWs && hasRpc) {
-            creatorTag = `<span class="pf-chip creator-unknown" title="${pfEsc(record.rpc_creator)}">creator rpc-only</span>`;
+            creatorTag = `<span class="pf-chip creator-unknown" title="${pfEsc(record.rpc_creator)}">creator fallback</span>`;
         } else {
             creatorTag = `<span class="pf-chip creator-unknown">creator unknown</span>`;
         }
@@ -698,11 +776,11 @@ function renderVerificationTrail(section = {}) {
         if (hasWs && hasRpc) {
             creatorLine = record.creator_mismatch
                 ? `creator check: mismatch | ws=${pfEsc(pfShortMint(record.pf_ws_creator))} | rpc=${pfEsc(pfShortMint(record.rpc_creator))}`
-                : `creator check: match | creator=${pfEsc(pfShortMint(record.rpc_creator))}`;
+                : `creator source: ws | creator=${pfEsc(pfShortMint(record.pf_ws_creator))}`;
         } else if (hasWs && !hasRpc) {
-            creatorLine = `creator check: ws only | ws=${pfEsc(pfShortMint(record.pf_ws_creator))}`;
+            creatorLine = `creator source: ws | creator=${pfEsc(pfShortMint(record.pf_ws_creator))}`;
         } else if (!hasWs && hasRpc) {
-            creatorLine = `creator check: pending ws lookup | rpc=${pfEsc(pfShortMint(record.rpc_creator))}`;
+            creatorLine = `creator source: fallback | creator=${pfEsc(pfShortMint(record.rpc_creator))}`;
         }
 
         return `
@@ -716,14 +794,20 @@ function renderVerificationTrail(section = {}) {
                 </div>
                 <div class="pf-debug-list">
                     <div class="pf-meta-line">migrated ${pfEsc(pfFormatAge(record.migrated_at))} | signal age=${record.signal_age_seconds ?? '—'}s</div>
+                    <div class="pf-meta-line">cutoff=${pfEsc(pfFormatAge(record.pre_migration_cutoff_at))} | signal_ts=${pfEsc(pfFormatAge(record.pre_migration_signal_updated_at))} | first_seen=${pfEsc(pfFormatAge(record.first_pre_migration_signal_at))}</div>
+                    <div class="pf-meta-line">timing=${pfEsc(record.signal_timing || 'unknown')} | fresh=${record.signal_was_fresh ? 'yes' : 'no'} | cutoff_window=${pfEsc(String(record.pre_migration_cutoff_seconds || 0))}s</div>
                     <div class="pf-meta-line">pre-signal=${pfEsc(record.pre_migration_signal_source || 'none')} | band=${pfEsc(record.pre_migration_band || 'none')} | progress=${pfEsc(pfFormatNumber(record.pre_migration_progress_pct, 1))}%</div>
                     <div class="pf-meta-line">buys_10s=${pfEsc(pfFormatNumber(record.pre_buys_10s))} | unique_30s=${pfEsc(pfFormatNumber(record.pre_unique_30s))} | sol_15s=${pfEsc(pfFormatNumber(record.pre_sol_15s, 2))} | score=${pfEsc(pfFormatNumber(record.pre_signal_score))}</div>
                     <div class="pf-meta-line">flow=${record.predicted_by_flow ? 'yes' : 'no'} | market_cap=${record.predicted_by_market_cap ? 'yes' : 'no'} | explicit=${record.predicted_by_explicit_signal ? 'yes' : 'no'}</div>
+                    <div class="pf-meta-line">reason=${pfEsc(record.verdict_reason || 'No verdict reason available.')}</div>
                     <div class="pf-meta-line">${creatorLine}</div>
+                    <div class="pf-meta-line">creator funding=${record.creator_funding_completed ? 'done' : 'pending'}</div>
                 </div>
                 <div class="pf-verify-flags">
+                    <span class="pf-chip ${pfEsc(record.signal_timing || 'creator-unknown')}">${pfEsc((record.signal_timing || 'unknown').replaceAll('_', ' '))}</span>
                     ${flags.map((flag) => `<span class="pf-chip ${record.final_verdict || 'fallback'}">${pfEsc(flag)}</span>`).join('')}
                     ${creatorTag}
+                    ${creatorFundingTag}
                 </div>
             </div>
         `;

@@ -636,6 +636,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # Protect pool discovery from background RPC contention
         self.DISCOVERY_CRITICAL_WINDOW_SECONDS = 45
         self.DISCOVERY_HARD_TIMEOUT_SECONDS = 60
+        self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS = 90
         self.critical_window_tasks = {}  # {mint: critical_window_expiry_time}
 
         # RPC isolation: separate quotas for discovery vs background
@@ -645,11 +646,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # Background job queue (deferred execution during critical window)
         self.background_job_queue = asyncio.Queue()
         self.background_jobs_processing = False
+        self._creator_funding_queue_wakeup = asyncio.Event()
         asyncio.create_task(self._process_background_queue())
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
         asyncio.create_task(self._cleanup_tx_cache_periodic())
         asyncio.create_task(self._refresh_pre_migration_signals_periodic())
+        asyncio.create_task(self._process_creator_funding_queue_periodic())
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -1464,32 +1467,26 @@ class PumpFunCurveListener(FastLaneDiscovery):
         market_cap_current = float(snapshot.get("market_cap_current") or 0.0)
         signal_source = str(snapshot.get("migration_signal_source") or "").strip().lower()
         migration_band = str(snapshot.get("migration_band") or "").strip().lower()
-        signal_score = int(snapshot.get("signal_score") or 0)
-        buys_10s = int(snapshot.get("buys_10s") or 0)
-        unique_30s = int(snapshot.get("unique_30s") or 0)
-        sol_15s = float(snapshot.get("sol_15s") or 0.0)
         explicit_signal = bool(snapshot.get("is_about_to_migrate")) or migration_band in {"hot", "warm"}
+        weak_market_cap_signal = market_cap_current >= float(self._premigration_signal_floor_warm or 0.0)
+        birth_only_signal = bool(
+            signal_source == "birth"
+            and not explicit_signal
+            and not weak_market_cap_signal
+        )
         has_observed_signal = bool(
-            signal_updated_at is not None
-            or signal_source
+            (signal_updated_at is not None and not birth_only_signal)
+            or (signal_source and signal_source != "birth")
             or explicit_signal
-            or migration_band
-            or market_cap_current > 0
+            or weak_market_cap_signal
         )
 
         predicted_by_flow = bool(
             signal_was_fresh
-            and (
-                signal_source == "flow"
-                or explicit_signal
-                or signal_score >= 3
-                or buys_10s >= 6
-                or unique_30s >= 4
-                or sol_15s >= 2.0
-            )
+            and signal_source == "flow"
         )
         predicted_by_market_cap = bool(
-            signal_was_fresh and market_cap_current >= float(self._premigration_signal_floor_warm or 0.0)
+            signal_was_fresh and weak_market_cap_signal
         )
         predicted_by_explicit_signal = bool(signal_was_fresh and explicit_signal)
         was_about_to_migrate_at_migration = bool(signal_was_fresh and snapshot.get("is_about_to_migrate"))
@@ -1499,6 +1496,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
             final_verdict = "predicted"
         elif predicted_by_market_cap:
             final_verdict = "market_cap_only"
+        elif birth_only_signal:
+            final_verdict = "no_signal"
         elif signal_updated_at is None:
             final_verdict = "no_signal"
         elif not has_observed_signal:
@@ -1594,7 +1593,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 """
                 SELECT mint, source_platform, lifecycle_stage, migration_tx, dex, pumpswap_pool_address,
                        is_about_to_migrate, migration_band, migration_progress_pct,
-                       migration_signal_updated_at, migration_signal_source,
+                       migration_signal_updated_at, first_pre_migration_signal_at, migration_signal_source,
                        market_cap_current, price_updated_at, bonding_curve_pda
                 FROM token_analysis
                 WHERE mint = ?
@@ -1610,7 +1609,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 "is_about_to_migrate": int((row_dict or {}).get("is_about_to_migrate") or 0),
                 "migration_band": (row_dict or {}).get("migration_band"),
                 "migration_progress_pct": (row_dict or {}).get("migration_progress_pct"),
-                "migration_signal_updated_at": (row_dict or {}).get("migration_signal_updated_at"),
+                "migration_signal_updated_at": (
+                    (row_dict or {}).get("first_pre_migration_signal_at")
+                    or (row_dict or {}).get("migration_signal_updated_at")
+                ),
                 "market_cap_current": market_cap_current,
                 "market_cap_updated_at": (row_dict or {}).get("price_updated_at"),
                 "buys_10s": int(signal_snapshot.get("buys_10s") or 0),
@@ -2061,6 +2063,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         events = self._flow_windows_by_mint.get(mint, deque())
         buys_10s = 0
+        buy_events_45s = 0
         buyers_30s = set()
         sol_15s = 0.0
         sol_15s_prev = 0.0
@@ -2070,6 +2073,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             age = now_ts - float(event["ts"])
             if event.get("kind") != "buy":
                 continue
+            buy_events_45s += 1
             if age <= 10:
                 buys_10s += 1
             if age <= 30 and event.get("buyer"):
@@ -2199,6 +2203,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             "is_about_to_migrate": is_about_to_migrate,
             "migration_progress_pct": progress if band else None,
             "has_trade_details": have_trade_details,
+            "observed_flow_event": buy_events_45s > 0,
             "fallback_used": fallback_used,
             "signal_source": "flow" if flow_candidate else ("fallback" if band else None),
         }
@@ -2239,7 +2244,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         migration_band,
                         migration_progress_pct,
                         migration_signal_source,
-                        migration_signal_updated_at
+                        migration_signal_updated_at,
+                        first_pre_migration_signal_at
                     FROM token_analysis
                     WHERE mint = ?
                     LIMIT 1
@@ -2255,7 +2261,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 pumpswap_pool_address = str(row[5]) if row and row[5] is not None else None
                 create_tx_signature = str(row[6]) if row and row[6] is not None else None
                 bonding_curve_pda = str(row[7]) if row and row[7] is not None else None
-                before_row = row[8:13] if row else None
+                before_row = row[8:14] if row else None
                 premig_log(
                     f"[DB_MATCH_CHECK] mint={mint} "
                     f"row_exists={'yes' if row_exists else 'no'} "
@@ -2278,8 +2284,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             created_at,
                             source_platform,
                             lifecycle_stage,
-                            migration_signal_updated_at
-                        ) VALUES (?, ?, ?, 'pumpfun', 'bonding_curve', ?)
+                            migration_signal_updated_at,
+                            first_pre_migration_signal_at
+                        ) VALUES (?, ?, ?, 'pumpfun', 'bonding_curve', ?, ?)
                         ON CONFLICT(mint) DO UPDATE SET
                             analyzed_at = COALESCE(token_analysis.analyzed_at, excluded.analyzed_at),
                             created_at = COALESCE(token_analysis.created_at, excluded.created_at),
@@ -2288,9 +2295,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 WHEN COALESCE(token_analysis.lifecycle_stage, 'migration_pending') = 'migrated' THEN token_analysis.lifecycle_stage
                                 ELSE 'bonding_curve'
                             END,
-                            migration_signal_updated_at = COALESCE(token_analysis.migration_signal_updated_at, excluded.migration_signal_updated_at)
+                            migration_signal_updated_at = COALESCE(token_analysis.migration_signal_updated_at, excluded.migration_signal_updated_at),
+                            first_pre_migration_signal_at = COALESCE(token_analysis.first_pre_migration_signal_at, excluded.first_pre_migration_signal_at)
                         """,
-                        (mint, float(now), now, now),
+                        (mint, float(now), now, now, now),
                     )
                     row_materialized = True
                     premig_log(f"[DB_CREATE] mint={mint} source=flow")
@@ -2301,7 +2309,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             migration_band,
                             migration_progress_pct,
                             migration_signal_source,
-                            migration_signal_updated_at
+                            migration_signal_updated_at,
+                            first_pre_migration_signal_at
                         FROM token_analysis
                         WHERE mint = ?
                         LIMIT 1
@@ -2313,8 +2322,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     lifecycle_stage = "bonding_curve"
 
                 signal_source = signal["signal_source"]
-                if source_hint == "flow":
-                    signal_source = "flow"
                 if before_row and (before_row[3] or None) == "flow" and signal_source != "flow":
                     signal["is_about_to_migrate"] = int(before_row[0] or 0)
                     signal["band"] = before_row[1] or None
@@ -2322,13 +2329,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     signal_source = "flow"
 
                 signal_has_presence = bool(
-                    signal_source
+                    signal.get("observed_flow_event")
+                    or signal_source
                     or signal.get("band")
                     or signal.get("is_about_to_migrate")
                     or int(signal.get("score") or 0) > 0
                     or float(current_market_cap or 0.0) >= float(self._premigration_signal_floor_warm or 0.0)
                 )
                 existing_signal_updated_at = before_row[4] if before_row else None
+                existing_first_pre_signal_at = before_row[5] if before_row else None
                 changed_values = (
                     before_row is None
                     or int(before_row[0] or 0) != int(signal["is_about_to_migrate"] or 0)
@@ -2336,14 +2345,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     or before_row[2] != signal["migration_progress_pct"]
                     or (before_row[3] or None) != (signal_source or None)
                 )
-                should_advance_signal_timestamp = bool(
-                    signal_has_presence and (
-                        source_hint == "flow"
-                        or existing_signal_updated_at is None
-                        or changed_values
-                    )
-                )
-                signal_updated_at_to_write = now if should_advance_signal_timestamp else existing_signal_updated_at
+                # Preserve the first observed pre-migration signal boundary. Later
+                # upgrades from none -> likely_close -> warm -> hot should not erase
+                # when we first saw real pre-migration activity.
+                should_seed_signal_timestamp = bool(signal_has_presence and existing_signal_updated_at is None)
+                signal_updated_at_to_write = now if should_seed_signal_timestamp else existing_signal_updated_at
+                should_seed_first_pre_signal_at = bool(signal_has_presence and existing_first_pre_signal_at is None)
+                first_pre_signal_at_to_write = now if should_seed_first_pre_signal_at else existing_first_pre_signal_at
 
                 # Avoid churn from periodic "empty" refreshes that do not carry any
                 # observed pre-migration signal and do not change stored state.
@@ -2372,7 +2380,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             WHEN COALESCE(migration_signal_source, '') = 'flow' THEN migration_signal_source
                             ELSE ?
                         END,
-                        migration_signal_updated_at = ?
+                        migration_signal_updated_at = ?,
+                        first_pre_migration_signal_at = COALESCE(first_pre_migration_signal_at, ?)
                     WHERE mint = ?
                       AND COALESCE(lifecycle_stage, 'migration_pending') != 'migrated'
                     """,
@@ -2383,6 +2392,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         signal_source,
                         signal_source,
                         signal_updated_at_to_write,
+                        first_pre_signal_at_to_write,
                         mint,
                     ),
                 )
@@ -2419,6 +2429,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             f"about_to_migrate={signal['is_about_to_migrate']} "
                             f"progress={float(signal['migration_progress_pct'] or 0.0):.1f} "
                             f"source={signal_source}",
+                            flush=True,
+                        )
+                    if should_seed_first_pre_signal_at:
+                        log_print(
+                            f"[PREMIG_FIRST_SEEN] mint={mint[:6]} ts={first_pre_signal_at_to_write} "
+                            f"band={signal['band']} source={signal_source or 'none'}",
                             flush=True,
                         )
                     log_print(f"[PREMIG_REFRESH] mint={mint[:6]} ts_updated", flush=True)
@@ -3155,6 +3171,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 migration_progress_pct REAL,
                 migration_band TEXT,
                 migration_signal_updated_at INTEGER,
+                first_pre_migration_signal_at INTEGER,
                 lifecycle_stage TEXT DEFAULT 'migration_pending',
                 migrated_at INTEGER,
                 dex TEXT,
@@ -3261,6 +3278,33 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_funding_queue (
+                creator_address TEXT NOT NULL,
+                mint TEXT NOT NULL,
+                migration_timestamp TEXT,
+                create_tx_signature TEXT,
+                status TEXT DEFAULT 'pending',
+                source TEXT,
+                next_attempt_at INTEGER DEFAULT 0,
+                locked_until INTEGER DEFAULT 0,
+                attempts INTEGER DEFAULT 0,
+                last_error TEXT,
+                created_at INTEGER DEFAULT (strftime('%s','now')),
+                updated_at INTEGER DEFAULT (strftime('%s','now')),
+                PRIMARY KEY (creator_address, mint)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_queue_status ON creator_funding_queue(status, next_attempt_at)")
+        try:
+            cursor.execute("PRAGMA table_info(creator_funding_queue)")
+            cfq_cols = [col[1] for col in cursor.fetchall()]
+            if "source" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN source TEXT")
+                log_print("[DB] ✅ Added source column to creator_funding_queue", flush=True)
+        except Exception:
+            pass
+
         # Add columns if they don't exist (for backward compatibility)
         try:
             cursor.execute("PRAGMA table_info(token_analysis)")
@@ -3293,6 +3337,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if "migration_signal_updated_at" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER")
                 log_print("[DB] ✅ Added migration_signal_updated_at column to token_analysis", flush=True)
+
+            if "first_pre_migration_signal_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN first_pre_migration_signal_at INTEGER")
+                log_print("[DB] ✅ Added first_pre_migration_signal_at column to token_analysis", flush=True)
 
             if "migration_signal_source" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_signal_source TEXT")
@@ -3394,6 +3442,271 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         conn.commit()
         conn.close()
+
+    async def _enqueue_creator_funding_job(
+        self,
+        creator: Optional[str],
+        *,
+        mint: Optional[str],
+        migration_timestamp: Optional[str],
+        create_tx_signature: Optional[str] = None,
+        delay_seconds: Optional[int] = None,
+        source: Optional[str] = None,
+    ) -> bool:
+        """Persist creator funding extraction so it survives restarts."""
+        if not creator or not mint:
+            return False
+        now = int(time.time())
+        next_attempt_at = now + int(delay_seconds if delay_seconds is not None else self.DISCOVERY_CRITICAL_WINDOW_SECONDS)
+        async with self.db_lock:
+            try:
+                conn = db_connect(DB_PATH, timeout=30)
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA busy_timeout=30000")
+                cursor = conn.cursor()
+                migration_verified = cursor.execute(
+                    """
+                    SELECT 1
+                    FROM pumpfun_migration_verification
+                    WHERE mint = ?
+                    LIMIT 1
+                    """,
+                    (mint,),
+                ).fetchone()
+                if not migration_verified:
+                    conn.close()
+                    log_print(
+                        f"[FUNDING_QUEUE] ⏭️ Skip enqueue for mint={mint[:8]}... reason=not_migration_verified",
+                        flush=True,
+                    )
+                    return False
+                existing = cursor.execute(
+                    """
+                    SELECT creator_address, status
+                    FROM creator_funding_queue
+                    WHERE mint = ?
+                    LIMIT 1
+                    """,
+                    (mint,),
+                ).fetchone()
+                if existing:
+                    existing_creator = str(existing[0]) if existing[0] else "unknown"
+                    existing_status = str(existing[1]) if existing[1] else "unknown"
+                    conn.close()
+                    log_print(
+                        f"[FUNDING_QUEUE] ⏭️ Skip duplicate enqueue for mint={mint[:8]}... existing_creator={existing_creator[:8]}... status={existing_status}",
+                        flush=True,
+                    )
+                    return False
+                cursor.execute(
+                    """
+                    INSERT INTO creator_funding_queue (
+                        creator_address, mint, migration_timestamp, create_tx_signature,
+                        status, source, next_attempt_at, locked_until, attempts, last_error, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, 'pending', ?, ?, 0, 0, NULL, ?, ?)
+                    ON CONFLICT(creator_address, mint) DO NOTHING
+                    """,
+                    (creator, mint, migration_timestamp, create_tx_signature, source, next_attempt_at, now, now),
+                )
+                conn.commit()
+                conn.close()
+                log_print(
+                    f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at}",
+                    flush=True,
+                )
+                self._creator_funding_queue_wakeup.set()
+                return True
+            except Exception as e:
+                log_print(f"[FUNDING_QUEUE] ⚠ Failed to enqueue funding for {creator[:16]}...: {e}", flush=True)
+                return False
+
+    async def _process_creator_funding_queue_periodic(self) -> None:
+        """Process durable creator funding work after the critical window."""
+        await asyncio.sleep(2)
+        last_idle_log_at = 0
+        while True:
+            try:
+                now = int(time.time())
+                stale_running_recovered = 0
+                overdue_ready_count = 0
+                oldest_overdue_seconds = 0
+                async with self.db_lock:
+                    conn = db_connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("PRAGMA busy_timeout=30000")
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        """
+                        UPDATE creator_funding_queue
+                        SET status = 'retry',
+                            locked_until = 0,
+                            last_error = COALESCE(last_error, 'stale running job recovered'),
+                            updated_at = ?
+                        WHERE status = 'running'
+                          AND locked_until > 0
+                          AND locked_until < ?
+                        """,
+                        (now, now),
+                    )
+                    stale_running_recovered = int(cursor.rowcount or 0)
+                    if stale_running_recovered:
+                        log_print(
+                            f"[FUNDING_QUEUE] ♻ Recovered {stale_running_recovered} stale running job(s)",
+                            flush=True,
+                        )
+                    queue_stats = cursor.execute(
+                        """
+                        SELECT
+                            SUM(CASE WHEN status = 'running' THEN 1 ELSE 0 END) AS running_count,
+                            SUM(CASE WHEN status IN ('pending', 'retry') AND locked_until < ? AND next_attempt_at <= ? THEN 1 ELSE 0 END) AS ready_count,
+                            MIN(CASE WHEN status IN ('pending', 'retry') AND locked_until < ? AND next_attempt_at <= ? THEN next_attempt_at END) AS oldest_ready_at
+                        FROM creator_funding_queue
+                        """,
+                        (now, now, now, now),
+                    ).fetchone()
+                    running_count = int((queue_stats["running_count"] or 0) if queue_stats else 0)
+                    overdue_ready_count = int((queue_stats["ready_count"] or 0) if queue_stats else 0)
+                    oldest_ready_at = int(queue_stats["oldest_ready_at"] or 0) if queue_stats and queue_stats["oldest_ready_at"] else 0
+                    oldest_overdue_seconds = max(0, now - oldest_ready_at) if oldest_ready_at else 0
+                    rows = cursor.execute(
+                        """
+                        SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts
+                        FROM creator_funding_queue
+                        WHERE status IN ('pending', 'retry')
+                          AND locked_until < ?
+                          AND next_attempt_at <= ?
+                        ORDER BY next_attempt_at ASC, created_at ASC
+                        LIMIT 2
+                        """,
+                        (now, now),
+                    ).fetchall()
+                    if rows:
+                        lock_until = now + 180
+                        cursor.executemany(
+                            """
+                            UPDATE creator_funding_queue
+                            SET status = 'running',
+                                locked_until = ?,
+                                updated_at = ?
+                            WHERE creator_address = ?
+                              AND mint = ?
+                            """,
+                            [(lock_until, now, str(row["creator_address"]), str(row["mint"])) for row in rows],
+                        )
+                        conn.commit()
+                        log_print(
+                            f"[FUNDING_QUEUE] 📦 Claimed {len(rows)} job(s) ready={overdue_ready_count} running={running_count} oldest_overdue={oldest_overdue_seconds}s",
+                            flush=True,
+                        )
+                    conn.close()
+
+                if not rows and overdue_ready_count > 0 and now - last_idle_log_at >= 30:
+                    log_print(
+                        f"[FUNDING_QUEUE] ⏳ Ready work waiting ready={overdue_ready_count} running={running_count} oldest_overdue={oldest_overdue_seconds}s",
+                        flush=True,
+                    )
+                    last_idle_log_at = now
+
+                for row in rows:
+                    creator = str(row["creator_address"])
+                    mint = str(row["mint"])
+                    migration_timestamp = row["migration_timestamp"]
+                    create_tx_signature = row["create_tx_signature"]
+                    attempts = int(row["attempts"] or 0)
+                    try:
+                        job_started_at = time.time()
+                        log_print(
+                            f"[FUNDING_QUEUE] 🚀 Processing creator funding for {creator[:8]}... mint={mint[:8]}...",
+                            flush=True,
+                        )
+                        try:
+                            await asyncio.wait_for(
+                                extract_funding_for_new_token(
+                                    creator,
+                                    migration_timestamp,
+                                    create_tx_signature,
+                                    mint,
+                                ),
+                                timeout=self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS,
+                            )
+                        except asyncio.TimeoutError as timeout_exc:
+                            raise TimeoutError(
+                                f"creator funding timed out after {self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS}s"
+                            ) from timeout_exc
+                        if get_migration_setting('auto_extract_funders', False):
+                            try:
+                                log_print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {creator[:8]}...", flush=True)
+                                await extract_funder_transfers_async(creator)
+                                log_print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
+                            except Exception as funder_exc:
+                                log_print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {funder_exc}", flush=True)
+                        else:
+                            log_print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
+
+                        try:
+                            await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
+                            log_print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
+                        except Exception as cluster_exc:
+                            log_print(f"[CLUSTERING] ⚠️ Error queueing clustering: {cluster_exc}", flush=True)
+
+                        async with self.db_lock:
+                            conn = db_connect(DB_PATH, timeout=30)
+                            conn.execute("PRAGMA busy_timeout=30000")
+                            cursor = conn.cursor()
+                            cursor.execute(
+                                """
+                                UPDATE creator_funding_queue
+                                SET status = 'complete',
+                                    locked_until = 0,
+                                    attempts = ?,
+                                    last_error = NULL,
+                                    updated_at = ?
+                                WHERE creator_address = ?
+                                  AND mint = ?
+                                """,
+                                (attempts + 1, int(time.time()), creator, mint),
+                            )
+                            conn.commit()
+                            conn.close()
+                        elapsed = time.time() - job_started_at
+                        log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... elapsed={elapsed:.1f}s", flush=True)
+                    except Exception as e:
+                        retry_at = int(time.time()) + min(900, 120 * (attempts + 1))
+                        async with self.db_lock:
+                            conn = db_connect(DB_PATH, timeout=30)
+                            conn.execute("PRAGMA busy_timeout=30000")
+                            cursor = conn.cursor()
+                            cursor.execute(
+                                """
+                                UPDATE creator_funding_queue
+                                SET status = 'retry',
+                                    locked_until = 0,
+                                    attempts = ?,
+                                    next_attempt_at = ?,
+                                    last_error = ?,
+                                    updated_at = ?
+                                WHERE creator_address = ?
+                                  AND mint = ?
+                                """,
+                                (attempts + 1, retry_at, str(e), int(time.time()), creator, mint),
+                            )
+                            conn.commit()
+                            conn.close()
+                        elapsed = time.time() - job_started_at
+                        log_print(
+                            f"[FUNDING_QUEUE] ⚠ Funding extraction failed for {creator[:8]}... mint={mint[:8]} elapsed={elapsed:.1f}s retry_at={retry_at}: {e}",
+                            flush=True,
+                        )
+            except Exception as e:
+                log_print(f"[FUNDING_QUEUE] ⚠ Queue processor error: {e}", flush=True)
+            try:
+                await asyncio.wait_for(self._creator_funding_queue_wakeup.wait(), timeout=2.0)
+                self._creator_funding_queue_wakeup.clear()
+            except asyncio.TimeoutError:
+                pass
 
     async def _store_analysis(self, mint: str, analysis: dict, signature: str = None, pool_address: str = None):
         """Store post-migration analysis results"""
@@ -3546,6 +3859,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             )
 
                 conn.close()
+                if rpc_creator:
+                    create_tx_sig = getattr(analyzer, "_create_tx_signature", None) if analyzer else None
+                    await self._enqueue_creator_funding_job(
+                        rpc_creator,
+                        mint=mint,
+                        migration_timestamp=created_at,
+                        create_tx_signature=create_tx_sig,
+                        delay_seconds=0,
+                        source="store_analysis",
+                    )
                 pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: will discover at price-time"
                 log_print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
             except Exception as e:
@@ -3788,14 +4111,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 cursor = conn.cursor()
 
                 analyzed_at = time.time()
+                birth_seen_at = int(analyzed_at)
                 cursor.execute(
                     """
                     INSERT INTO token_analysis (
                         mint, created_at, analyzed_at, earliest_tx_creator,
                         pf_ws_creator,
                         bonding_curve_pda, create_tx_signature, source_platform,
-                        lifecycle_stage, is_new
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pumpfun', 'bonding_curve', 1)
+                        lifecycle_stage, is_new, migration_signal_source,
+                        migration_signal_updated_at, first_pre_migration_signal_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pumpfun', 'bonding_curve', 1, 'birth', ?, ?)
                     ON CONFLICT(mint) DO UPDATE SET
                         created_at = COALESCE(token_analysis.created_at, excluded.created_at),
                         analyzed_at = excluded.analyzed_at,
@@ -3808,18 +4133,49 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             WHEN token_analysis.lifecycle_stage = 'migrated' THEN token_analysis.lifecycle_stage
                             ELSE 'bonding_curve'
                         END,
+                        migration_signal_source = CASE
+                            WHEN COALESCE(token_analysis.migration_signal_source, '') = '' THEN excluded.migration_signal_source
+                            WHEN token_analysis.migration_signal_source = 'flow' THEN token_analysis.migration_signal_source
+                            ELSE token_analysis.migration_signal_source
+                        END,
+                        migration_signal_updated_at = COALESCE(token_analysis.migration_signal_updated_at, excluded.migration_signal_updated_at),
+                        first_pre_migration_signal_at = COALESCE(token_analysis.first_pre_migration_signal_at, excluded.first_pre_migration_signal_at),
                         is_new = 1
                     """,
-                    (mint, created_at, analyzed_at, creator, creator, bonding_curve_pda, create_tx_signature),
+                    (
+                        mint,
+                        created_at,
+                        analyzed_at,
+                        creator,
+                        creator,
+                        bonding_curve_pda,
+                        create_tx_signature,
+                        birth_seen_at,
+                        birth_seen_at,
+                    ),
                 )
                 conn.commit()
                 conn.close()
                 self._remember_recent_birth_token(mint, bonding_curve_pda)
+                log_print(
+                    f"[PREMIG_BIRTH_SEED] mint={mint[:6]} ts={birth_seen_at} source=birth",
+                    flush=True,
+                )
             except Exception as e:
                 log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e}", flush=True)
                 return
 
         await self._upsert_birth_metadata_cache(mint, symbol, name)
+
+        if creator:
+            await self._enqueue_creator_funding_job(
+                creator,
+                mint=mint,
+                migration_timestamp=created_at,
+                create_tx_signature=create_tx_signature,
+                delay_seconds=0,
+                source="birth",
+            )
 
         try:
             from src.core.price_worker import PriceWorkerRegistry
@@ -3964,7 +4320,72 @@ class PumpFunCurveListener(FastLaneDiscovery):
             f"pf_ws={pf_ws_creator[:8]}... rpc={rpc_display}",
             flush=True,
         )
+        await self._enqueue_creator_funding_job(
+            pf_ws_creator,
+            mint=mint,
+            migration_timestamp=datetime.utcnow().isoformat() + "Z",
+            create_tx_signature=create_tx_signature,
+            delay_seconds=0,
+            source="pf_ws_creator",
+        )
         return pf_ws_creator
+
+    def _token_needs_creator_backfill(self, mint: str) -> bool:
+        """Return True only when both creator fields are still missing."""
+        if not mint:
+            return False
+        try:
+            conn = db_connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            row = cursor.execute(
+                """
+                SELECT pf_ws_creator, earliest_tx_creator
+                FROM token_analysis
+                WHERE mint = ?
+                LIMIT 1
+                """,
+                (mint,),
+            ).fetchone()
+            conn.close()
+        except Exception as e:
+            log_print(f"[PF_WS_CREATOR] ⚠ Creator backfill check failed for {mint[:16]}...: {e}", flush=True)
+            return True
+
+        if not row:
+            return True
+
+        pf_ws_creator = str(row[0]).strip() if row[0] else ""
+        earliest_tx_creator = str(row[1]).strip() if row[1] else ""
+        return not (pf_ws_creator or earliest_tx_creator)
+
+    def _get_resolved_creator_for_mint(self, mint: str) -> Tuple[Optional[str], Optional[str]]:
+        """Return the best resolved creator plus create-tx signature for a mint."""
+        if not mint:
+            return None, None
+        try:
+            conn = db_connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            row = cursor.execute(
+                """
+                SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature
+                FROM token_analysis
+                WHERE mint = ?
+                LIMIT 1
+                """,
+                (mint,),
+            ).fetchone()
+            conn.close()
+        except Exception as e:
+            log_print(f"[FUNDING_QUEUE] ⚠ Creator lookup failed for {mint[:16]}...: {e}", flush=True)
+            return None, None
+
+        if not row:
+            return None, None
+
+        pf_ws_creator = str(row[0]).strip() if row[0] else ""
+        earliest_tx_creator = str(row[1]).strip() if row[1] else ""
+        create_tx_signature = str(row[2]).strip() if row[2] else None
+        return (pf_ws_creator or earliest_tx_creator or None), create_tx_signature
 
     async def handle_birth(self, signature: str, logs: list):
         """Process a Pump.fun token birth event."""
@@ -5676,6 +6097,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
                 self._remember_bonding_curve_token(mint, bonding_curve_pda)
                 log_print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
+                await self._enqueue_creator_funding_job(
+                    creator,
+                    mint=mint,
+                    migration_timestamp=created_at,
+                    create_tx_signature=create_tx_signature,
+                    delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
+                    source="creator_discovery",
+                )
                 return
 
             except sqlite3.OperationalError as e:
@@ -5914,8 +6343,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Continue migration pipeline once mint is known."""
         if self._token_exists_in_db(mint):
             log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
-            # Still ensure creator is established for pre-tracked tokens
-            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
+            resolved_creator, create_tx_sig = self._get_resolved_creator_for_mint(mint)
+            if resolved_creator:
+                migration_time_str = datetime.utcfromtimestamp(int(time.time())).isoformat() + "Z"
+                await self._enqueue_creator_funding_job(
+                    resolved_creator,
+                    mint=mint,
+                    migration_timestamp=migration_time_str,
+                    create_tx_signature=create_tx_sig,
+                    delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
+                    source="migration_already_known",
+                )
+            # Only backfill creator on migration when both creator fields are still missing.
+            if self._token_needs_creator_backfill(mint):
+                asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
             return
 
         # === GUARD 1: Prevent duplicate primary discovery by mint ===
@@ -5977,8 +6418,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
             log_print(f"[MIGRATION_TRACE] step=record_verification:done mint={mint[:16]}...", flush=True)
 
-            # Establish creator immediately at migration time (fire-and-forget)
-            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration"))
+            # Establish creator at migration time only if pre-migration logic did not already do it.
+            if self._token_needs_creator_backfill(mint):
+                asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration"))
 
             # Register for price tracking immediately — HIGH priority, fail-safe
             try:
@@ -6646,49 +7088,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             log_print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
 
-            # === PHASE 2: Queue background tasks for deferred execution ===
-            # These jobs wait until critical window expires before running
-            # This protects pool discovery RPC quota during the critical 45-second window
             if earliest_creator:
                 create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
-
-                async def background_funding_and_clustering():
-                    """Background: funding extraction, funder extraction, and clustering (deferred)"""
-                    log_print(f"[BACKGROUND] 🚀 Starting background funding and clustering tasks...", flush=True)
-
-                    # Extract creator funding
-                    try:
-                        log_print(f"[FUNDING] ⏳ Starting creator funding extraction for {earliest_creator[:8]}...", flush=True)
-                        await extract_funding_for_new_token(earliest_creator, created_at, create_tx_sig, mint)
-                        log_print(f"[FUNDING] ✅ Creator funding extraction complete", flush=True)
-                    except Exception as e:
-                        log_print(f"[FUNDING] ⚠️ Error in creator funding extraction: {e}", flush=True)
-
-                    # Extract funder transfers (respects auto_extract_funders toggle)
-                    try:
-                        if get_migration_setting('auto_extract_funders', False):
-                            log_print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {earliest_creator[:8]}...", flush=True)
-                            await extract_funder_transfers_async(earliest_creator)
-                            log_print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
-                        else:
-                            log_print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
-                    except Exception as e:
-                        log_print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {e}", flush=True)
-
-                    # Queue clustering (now that funding is extracted)
-                    try:
-                        log_print(f"[CLUSTERING] ⏳ Queueing network clustering task...", flush=True)
-                        await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
-                        log_print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
-                    except Exception as e:
-                        log_print(f"[CLUSTERING] ⚠️ Error queueing clustering: {e}", flush=True)
-
-                # Queue background tasks for deferred execution (after critical window)
-                # This allows pool discovery to complete before background RPC work starts
-                critical_expiry = time.time() + self.DISCOVERY_CRITICAL_WINDOW_SECONDS
-                log_print(f"[BACKGROUND] 📤 Queueing: funding + funder_extraction + clustering (will execute at T+45s, not before)", flush=True)
-                log_print(f"[BACKGROUND] 🔒 DEFERRAL ABSOLUTE: no RPC work until critical_window expires at +{self.DISCOVERY_CRITICAL_WINDOW_SECONDS}s", flush=True)
-                await self.queue_background_job(background_funding_and_clustering(), mint=mint, priority=10)
+                await self._enqueue_creator_funding_job(
+                    earliest_creator,
+                    mint=mint,
+                    migration_timestamp=created_at,
+                    create_tx_signature=create_tx_sig,
+                    delay_seconds=self.DISCOVERY_CRITICAL_WINDOW_SECONDS,
+                    source="migration",
+                )
             else:
                 log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
 

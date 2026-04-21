@@ -18806,6 +18806,22 @@ def api_funding_queue():
         return {"ok": False, "error": str(e)}, 500
 
 
+@app.route('/api/funding-queue/clear', methods=['POST'])
+def api_funding_queue_clear():
+    """Delete all rows from creator_funding_queue."""
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.execute("PRAGMA journal_mode=WAL")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM creator_funding_queue")
+        deleted = cursor.rowcount
+        conn.commit()
+        conn.close()
+        return jsonify({"ok": True, "deleted": deleted})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route('/funding-queue')
 def funding_queue_page():
     return render_template("creator_funding_queue.html", active_page="funding_queue")

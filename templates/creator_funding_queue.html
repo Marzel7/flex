@@ -37,6 +37,9 @@
     text-decoration: none;
 }
 .cfq-btn:hover { background: rgba(59, 130, 246, 0.28); border-color: rgba(59,130,246,0.7); }
+.cfq-btn-danger { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239,68,68,0.35); }
+.cfq-btn-danger:hover { background: rgba(239, 68, 68, 0.25); border-color: rgba(239,68,68,0.7); }
+.cfq-btn-danger:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .cfq-stats {
     display: grid;
@@ -262,6 +265,7 @@ table.cfq-table td:last-child {
     <div class="cfq-controls">
         <span class="cfq-last-updated" id="cfq-last-updated">—</span>
         <button class="cfq-btn" onclick="cfqLoad()">Refresh</button>
+        <button class="cfq-btn cfq-btn-danger" id="cfq-clear-btn" onclick="cfqClear()">Empty Queue</button>
         <a class="cfq-btn" href="/">← Home</a>
     </div>
 </div>
@@ -479,6 +483,29 @@ async function cfqLoad() {
         cfqRender();
     } catch (e) {
         console.error('cfqLoad failed', e);
+    }
+}
+
+async function cfqClear() {
+    if (!confirm('Empty the entire funding queue?')) return;
+    const btn = document.getElementById('cfq-clear-btn');
+    btn.disabled = true;
+    btn.textContent = 'Clearing…';
+    try {
+        const res = await fetch('/api/funding-queue/clear', { method: 'POST' });
+        const data = await res.json();
+        if (data.ok) {
+            btn.textContent = `Cleared (${data.deleted})`;
+            await cfqLoad();
+        } else {
+            btn.textContent = 'Error';
+            console.error(data.error);
+        }
+    } catch (e) {
+        btn.textContent = 'Error';
+        console.error(e);
+    } finally {
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Empty Queue'; }, 2000);
     }
 }
 

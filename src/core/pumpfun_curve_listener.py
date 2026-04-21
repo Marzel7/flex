@@ -2450,12 +2450,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
 
-        # Call _ensure_pf_ws_creator OUTSIDE db_lock — it acquires db_lock itself
-        if should_check_pf_ws_creator:
-            await self._ensure_pf_ws_creator(
-                mint,
-                reason=f"premig:{pf_ws_creator_band}",
-            )
+        # Creator resolution is now deferred until curve_complete — no RPC here
 
     async def handle_pumpfun_trade(self, signature: str, logs: List[str]) -> None:
         """Best-effort no-RPC tracking of Pump.fun buy momentum from websocket logs."""
@@ -4345,26 +4340,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
         )
         try:
             _gate_row = db_connect(DB_PATH, timeout=5).execute(
-                "SELECT is_about_to_migrate, curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
+                "SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
             ).fetchone()
-            _about_to_migrate = bool(_gate_row[0]) if _gate_row else False
-            _curve_complete = bool(_gate_row[1]) if _gate_row else False
+            _curve_complete = bool(_gate_row[0]) if _gate_row else False
         except Exception:
-            _about_to_migrate = False
             _curve_complete = False
-        if _curve_complete or _about_to_migrate:
-            enqueue_source = "pf_ws_creator_curve_complete" if _curve_complete else "pf_ws_creator"
+        if _curve_complete:
             await self._enqueue_creator_funding_job(
                 pf_ws_creator,
                 mint=mint,
                 migration_timestamp=datetime.utcnow().isoformat() + "Z",
                 create_tx_signature=create_tx_signature,
                 delay_seconds=0,
-                source=enqueue_source,
+                source="pf_ws_creator_curve_complete",
             )
         else:
             log_print(
-                f"[PF_WS_CREATOR] ⏭️ Skip funding enqueue mint={mint[:8]}... reason=not_about_to_migrate_nor_curve_complete",
+                f"[PF_WS_CREATOR] ⏭️ Skip funding enqueue mint={mint[:8]}... reason=curve_not_complete",
                 flush=True,
             )
         return pf_ws_creator

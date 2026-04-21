@@ -26,6 +26,7 @@ from src.creators.models import (
     HistoryStatus,
     JobType,
     StreamHealthStatus,
+    WatchStatus,
 )
 from src.creators.repository import CreatorRepository
 
@@ -308,47 +309,78 @@ async def handle_creator_stream_event(
     repo: CreatorRepository,
 ) -> None:
     """
-    Update cursor state for a received wallet event.
-    Detects gaps using BOTH slot distance AND wall-clock time.
+    Ingest one parsed creator SOL movement event (webhook or reconcile).
 
-    event keys: creator_address, signature, slot, timestamp
+    event keys:
+        creator_address, signature, slot, block_time,
+        net_lamports (signed int), abs_lamports, direction ('in'|'out'),
+        counterparty (optional), source ('webhook'|'reconcile')
+
+    Persists the movement row, updates cursor state, detects gaps.
     """
+    from src.creators.movement import MovementEvent
+
     creator_address = event.get("creator_address")
     signature       = event.get("signature")
     slot            = event.get("slot")
-    ts: int         = event.get("timestamp") or int(time.time())
+    block_time: int = event.get("block_time") or int(time.time())
+    net_lamports    = event.get("net_lamports", 0)
+    abs_lamports    = event.get("abs_lamports", abs(net_lamports))
+    direction       = event.get("direction")
+    counterparty    = event.get("counterparty")
+    source          = event.get("source", "webhook")
 
     if not creator_address or not signature:
         return
+    if not direction or direction not in ("in", "out"):
+        return
 
+    # Persist movement — INSERT OR IGNORE makes re-delivery a no-op
+    await repo.insert_creator_sol_movement(
+        creator_address = creator_address,
+        signature       = signature,
+        slot            = slot,
+        block_time      = block_time,
+        net_lamports    = net_lamports,
+        abs_lamports    = abs_lamports,
+        direction       = direction,
+        counterparty    = counterparty,
+        source          = source,
+    )
+
+    # Gap detection — slot delta AND time delta
     now   = int(time.time())
     state = await repo.get_creator_activity_state(creator_address)
 
     gap = False
     if state and (state.last_seen_slot or state.last_seen_at):
-        slot_gap = (slot and state.last_seen_slot and
-                    (slot - state.last_seen_slot) > _GAP_SLOT_THRESHOLD)
-        time_gap = (state.last_seen_at and
-                    (now - state.last_seen_at) > _GAP_TIME_THRESHOLD)
-        gap = bool(slot_gap or time_gap)
+        slot_gap = bool(
+            slot and state.last_seen_slot and
+            (slot - state.last_seen_slot) > _GAP_SLOT_THRESHOLD
+        )
+        time_gap = bool(
+            state.last_seen_at and
+            (now - state.last_seen_at) > _GAP_TIME_THRESHOLD
+        )
+        gap = slot_gap or time_gap
         if gap:
             logger.warning(
                 "[CREATOR_STREAM] Gap detected creator=%s slot_delta=%s time_delta=%ss",
                 creator_address[:16],
                 (slot - state.last_seen_slot) if (slot and state.last_seen_slot) else "?",
-                (now - state.last_seen_at)  if state.last_seen_at else "?",
+                (now - state.last_seen_at)    if state.last_seen_at else "?",
             )
 
     await repo.upsert_creator_activity_state(
         creator_address,
         last_seen_signature  = signature,
         last_seen_slot       = slot,
-        last_seen_at         = ts,
+        last_seen_at         = block_time,
         stream_health_status = StreamHealthStatus.GAP_DETECTED if gap else StreamHealthStatus.HEALTHY,
-        needs_reconcile      = True if gap else None,   # None = don't overwrite existing True
+        needs_reconcile      = True if gap else None,
         last_gap_detected_at = now if gap else None,
     )
-    await repo.upsert_creator_profile(creator_address, last_activity_at=ts)
+    await repo.upsert_creator_profile(creator_address, last_activity_at=block_time)
 
     if gap:
         await enqueue_creator_activity_job(
@@ -358,6 +390,140 @@ async def handle_creator_stream_event(
             priority=20,
             repo=repo,
         )
+
+
+# ---------------------------------------------------------------------------
+# Watch registration — fire-and-forget, never blocks hot path
+# ---------------------------------------------------------------------------
+
+async def start_creator_watch_if_needed(
+    creator_address: str,
+    *,
+    repo: CreatorRepository,
+    register_webhook_fn: Callable[[str], Awaitable[Optional[str]]],
+) -> None:
+    """
+    Fire-and-forget watch registration. Returns immediately, never raises.
+    Safe to call from hot paths.
+    """
+    asyncio.create_task(
+        _register_creator_watch(
+            creator_address,
+            repo=repo,
+            register_webhook_fn=register_webhook_fn,
+        )
+    )
+
+
+async def _register_creator_watch(
+    creator_address: str,
+    *,
+    repo: CreatorRepository,
+    register_webhook_fn: Callable[[str], Awaitable[Optional[str]]],
+) -> None:
+    """
+    Actual registration. Idempotent — skips if already active.
+    Transitions: pending → active (success) | pending → error (failure).
+    """
+    state = await repo.get_creator_activity_state(creator_address)
+    if state and state.watch_status == WatchStatus.ACTIVE:
+        return
+
+    await repo.upsert_creator_activity_state(
+        creator_address, watch_status=WatchStatus.PENDING.value,
+    )
+
+    try:
+        webhook_id = await register_webhook_fn(creator_address)
+    except Exception as e:
+        logger.warning("[WATCH] Registration failed creator=%s: %s", creator_address[:16], e)
+        await repo.upsert_creator_activity_state(
+            creator_address,
+            watch_status=WatchStatus.ERROR.value,
+            watch_last_error=str(e),
+        )
+        return
+
+    if not webhook_id:
+        await repo.upsert_creator_activity_state(
+            creator_address,
+            watch_status=WatchStatus.ERROR.value,
+            watch_last_error="register_webhook_fn returned None",
+        )
+        return
+
+    now = int(time.time())
+    await repo.upsert_creator_activity_state(
+        creator_address,
+        watch_status=WatchStatus.ACTIVE.value,
+        watch_webhook_id=webhook_id,
+        watch_registered_at=now,
+        watch_last_checked_at=now,
+        clear_watch_last_error=True,
+    )
+    logger.info("[WATCH] Registered creator=%s webhook_id=%s", creator_address[:16], webhook_id)
+
+
+# ---------------------------------------------------------------------------
+# Startup watch restoration
+# ---------------------------------------------------------------------------
+
+async def restore_creator_watches(
+    *,
+    repo: CreatorRepository,
+    register_webhook_fn: Callable[[str], Awaitable[Optional[str]]],
+    batch_size: int = 500,
+) -> int:
+    """
+    On startup: mark all previously-active watches as stale (we can't know
+    if Helius still has them), then re-register everything that isn't active.
+    Returns count of registration tasks spawned.
+    """
+    await repo.mark_all_active_watches_stale()
+    creators = await repo.get_creators_needing_watch(batch_size=batch_size)
+    for creator_address in creators:
+        asyncio.create_task(
+            _register_creator_watch(
+                creator_address,
+                repo=repo,
+                register_webhook_fn=register_webhook_fn,
+            )
+        )
+    logger.info("[WATCH] Startup restore: spawned %d registration tasks", len(creators))
+    return len(creators)
+
+
+# ---------------------------------------------------------------------------
+# Periodic safety reconcile — call from worker poll loop every ~10 min
+# ---------------------------------------------------------------------------
+
+_STALE_CREATOR_SECONDS = 20 * 60   # 20 min quiet → proactive reconcile
+
+async def enqueue_stale_creator_reconciles(
+    *,
+    repo: CreatorRepository,
+    stale_threshold_seconds: int = _STALE_CREATOR_SECONDS,
+) -> int:
+    """
+    Enqueue incremental_reconcile for creators with active watches that have
+    gone quiet. Catches gaps that never triggered on-event gap detection.
+    Returns count enqueued.
+    """
+    stale = await repo.get_stale_creators(stale_threshold_seconds=stale_threshold_seconds)
+    count = 0
+    for creator_address in stale:
+        job_id = await enqueue_creator_activity_job(
+            creator_address,
+            job_type=JobType.INCREMENTAL_RECONCILE,
+            source_reason="periodic_stale_check",
+            priority=10,
+            repo=repo,
+        )
+        if job_id:
+            count += 1
+    if count:
+        logger.info("[WATCH] Periodic stale check enqueued %d reconcile jobs", count)
+    return count
 
 
 # ---------------------------------------------------------------------------

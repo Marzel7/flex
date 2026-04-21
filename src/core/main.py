@@ -19186,6 +19186,94 @@ def funder_watchlist_top_risky():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/webhook/creator-movement', methods=['POST'])
+def webhook_creator_movement():
+    """
+    POST /api/webhook/creator-movement
+    Receives Helius enhanced_transactions webhook for creator wallet SOL movements.
+    Payload: list of enhanced transaction objects.
+    Returns 200 immediately; processing is fire-and-forget via asyncio.
+    """
+    import asyncio as _asyncio
+    try:
+        payload = request.get_json(silent=True)
+        if not payload:
+            return "ok", 200
+        if isinstance(payload, dict):
+            payload = [payload]
+        if not isinstance(payload, list):
+            return "ok", 200
+
+        from src.creators.movement import parse_creator_sol_movement
+        from src.creators.service import handle_creator_stream_event
+        from src.creators.repository import CreatorRepository
+
+        creator_db_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "pumpswap_tokens.db",
+        )
+
+        async def _process():
+            import asyncio
+            lock = asyncio.Lock()
+            repo = CreatorRepository(db_path=creator_db_path, db_lock=lock)
+            await repo.ensure_schema()
+            # First collect all known creator addresses to avoid per-tx DB reads
+            known: set[str] = set()
+            async with lock:
+                import sqlite3 as _sq
+                conn = _sq.connect(creator_db_path, timeout=10)
+                conn.row_factory = _sq.Row
+                rows = conn.execute(
+                    "SELECT creator_address FROM creator_profile WHERE history_status != 'unknown'"
+                ).fetchall()
+                conn.close()
+            known = {r["creator_address"] for r in rows}
+
+            for tx in payload:
+                if not isinstance(tx, dict):
+                    continue
+                sig = tx.get("signature")
+                if not sig:
+                    continue
+                # Only process if one of the accounts is a known creator
+                from src.creators.movement import _account_keys
+                accounts = set(_account_keys(tx))
+                relevant = accounts & known
+                for creator in relevant:
+                    event = parse_creator_sol_movement(tx, creator, source="webhook")
+                    if event is None:
+                        continue
+                    await handle_creator_stream_event(
+                        {
+                            "creator_address": event.creator_address,
+                            "signature":       event.signature,
+                            "slot":            event.slot,
+                            "block_time":      event.block_time,
+                            "net_lamports":    event.net_lamports,
+                            "abs_lamports":    event.abs_lamports,
+                            "direction":       event.direction,
+                            "counterparty":    event.counterparty,
+                            "source":          event.source,
+                        },
+                        repo=repo,
+                    )
+
+        try:
+            loop = _asyncio.get_event_loop()
+            if loop.is_running():
+                _asyncio.ensure_future(_process())
+            else:
+                loop.run_until_complete(_process())
+        except Exception as e:
+            print(f"[CREATOR_WEBHOOK] Processing error: {e}", flush=True)
+
+        return "ok", 200
+    except Exception as e:
+        print(f"[CREATOR_WEBHOOK] Handler error: {e}", flush=True)
+        return "ok", 200
+
+
 @app.route('/api/funder-webhook-events')
 def funder_webhook_events():
     """Get recent funder webhook events (paginated)."""

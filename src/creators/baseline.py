@@ -259,3 +259,73 @@ def _extract_pumpfun_create_mint(tx: dict) -> Optional[str]:
                 return mint
 
     return None
+
+
+# ---------------------------------------------------------------------------
+# MovementScanner — used by incremental_reconcile jobs
+# ---------------------------------------------------------------------------
+
+class MovementScanner:
+    """
+    Provides process_signature for the reconcile worker path.
+    Fetches the full transaction, parses SOL movement via the same
+    parse_creator_sol_movement function used by the webhook path,
+    and calls handle_creator_stream_event with source='reconcile'.
+
+    This ensures webhook and reconcile produce identical rows.
+    """
+
+    def __init__(
+        self,
+        *,
+        background_rpc_fn: Callable[[str, list], Awaitable[Optional[dict]]],
+        repo,
+    ) -> None:
+        self._rpc  = background_rpc_fn
+        self._repo = repo
+
+    async def process_signature(
+        self,
+        creator_address: str,
+        sig_info: dict,
+    ) -> None:
+        from src.creators.movement import parse_creator_sol_movement
+        from src.creators.service import handle_creator_stream_event
+
+        sig = sig_info.get("signature")
+        if not sig:
+            return
+
+        try:
+            result = await self._rpc(
+                "getTransaction",
+                [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+            )
+        except Exception as e:
+            logger.debug("[RECONCILE] getTransaction failed sig=%s: %s", sig[:16], e)
+            return
+
+        if not result:
+            return
+        tx = result.get("result")
+        if not tx:
+            return
+
+        event = parse_creator_sol_movement(tx, creator_address, source="reconcile")
+        if event is None:
+            return
+
+        await handle_creator_stream_event(
+            {
+                "creator_address": event.creator_address,
+                "signature":       event.signature,
+                "slot":            event.slot,
+                "block_time":      event.block_time,
+                "net_lamports":    event.net_lamports,
+                "abs_lamports":    event.abs_lamports,
+                "direction":       event.direction,
+                "counterparty":    event.counterparty,
+                "source":          event.source,
+            },
+            repo=self._repo,
+        )

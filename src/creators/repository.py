@@ -137,8 +137,46 @@ class CreatorRepository:
 
                 INSERT OR IGNORE INTO system_config (key, value, updated_at)
                 VALUES ('phase_2_active', 'false', strftime('%s','now'));
+
+                CREATE TABLE IF NOT EXISTS creator_sol_movements (
+                    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                    creator_address  TEXT    NOT NULL,
+                    signature        TEXT    NOT NULL,
+                    slot             INTEGER,
+                    block_time       INTEGER,
+                    net_lamports     INTEGER NOT NULL,
+                    abs_lamports     INTEGER NOT NULL,
+                    direction        TEXT    NOT NULL CHECK (direction IN ('in','out')),
+                    counterparty     TEXT,
+                    source           TEXT    NOT NULL CHECK (source IN ('webhook','reconcile')),
+                    created_at       INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+                    UNIQUE (creator_address, signature)
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_csm_creator_slot
+                    ON creator_sol_movements(creator_address, slot DESC);
+
+                CREATE INDEX IF NOT EXISTS idx_csm_block_time
+                    ON creator_sol_movements(block_time DESC);
             """)
             conn.commit()
+
+            # Additive columns on creator_activity_state — safe to re-run
+            for col, defn in [
+                ("watch_status",          "TEXT    DEFAULT 'pending'"),
+                ("watch_registered_at",   "INTEGER"),
+                ("watch_webhook_id",      "TEXT"),
+                ("watch_last_checked_at", "INTEGER"),
+                ("watch_last_error",      "TEXT"),
+            ]:
+                try:
+                    conn.execute(
+                        f"ALTER TABLE creator_activity_state ADD COLUMN {col} {defn}"
+                    )
+                    conn.commit()
+                except Exception:
+                    pass  # column already exists
+
             conn.close()
 
     # -----------------------------------------------------------------------
@@ -349,6 +387,12 @@ class CreatorRepository:
         resume_cursor:            Optional[dict]               = None,
         clear_resume_cursor:      bool                         = False,
         stream_health_status:     Optional[StreamHealthStatus] = None,
+        watch_status:             Optional[str]                = None,
+        watch_registered_at:      Optional[int]                = None,
+        watch_webhook_id:         Optional[str]                = None,
+        watch_last_checked_at:    Optional[int]                = None,
+        watch_last_error:         Optional[str]                = None,
+        clear_watch_last_error:   bool                         = False,
     ) -> None:
         now = int(time.time())
 
@@ -387,6 +431,23 @@ class CreatorRepository:
         if stream_health_status is not None:
             set_parts.append("stream_health_status = ?")
             params.append(stream_health_status.value)
+        if watch_status is not None:
+            set_parts.append("watch_status = ?")
+            params.append(watch_status)
+        if watch_registered_at is not None:
+            set_parts.append("watch_registered_at = ?")
+            params.append(watch_registered_at)
+        if watch_webhook_id is not None:
+            set_parts.append("watch_webhook_id = ?")
+            params.append(watch_webhook_id)
+        if watch_last_checked_at is not None:
+            set_parts.append("watch_last_checked_at = ?")
+            params.append(watch_last_checked_at)
+        if clear_watch_last_error:
+            set_parts.append("watch_last_error = NULL")
+        elif watch_last_error is not None:
+            set_parts.append("watch_last_error = ?")
+            params.append(watch_last_error[:500])
 
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
@@ -565,3 +626,109 @@ class CreatorRepository:
             """, (key, value, now))
             conn.commit()
             conn.close()
+
+    # -----------------------------------------------------------------------
+    # creator_sol_movements
+    # -----------------------------------------------------------------------
+
+    async def insert_creator_sol_movement(
+        self,
+        *,
+        creator_address: str,
+        signature:       str,
+        slot:            Optional[int],
+        block_time:      Optional[int],
+        net_lamports:    int,
+        abs_lamports:    int,
+        direction:       str,
+        counterparty:    Optional[str],
+        source:          str,
+    ) -> bool:
+        """INSERT OR IGNORE. Returns True if new row, False if duplicate."""
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("""
+                INSERT OR IGNORE INTO creator_sol_movements
+                    (creator_address, signature, slot, block_time,
+                     net_lamports, abs_lamports, direction, counterparty, source)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (creator_address, signature, slot, block_time,
+                  net_lamports, abs_lamports, direction, counterparty, source))
+            is_new = conn.execute("SELECT changes()").fetchone()[0] == 1
+            conn.commit()
+            conn.close()
+        return is_new
+
+    async def creator_sol_movement_exists(
+        self, creator_address: str, signature: str
+    ) -> bool:
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=10)
+            row = conn.execute("""
+                SELECT 1 FROM creator_sol_movements
+                WHERE creator_address = ? AND signature = ? LIMIT 1
+            """, (creator_address, signature)).fetchone()
+            conn.close()
+        return row is not None
+
+    # -----------------------------------------------------------------------
+    # Watch state
+    # -----------------------------------------------------------------------
+
+    async def get_creators_needing_watch(self, *, batch_size: int = 500) -> list[str]:
+        """
+        Creators that are known (history_status != unknown) but don't have
+        watch_status = 'active'. Catches pending / error / stale / missing.
+        """
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=10)
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("""
+                SELECT p.creator_address
+                FROM creator_profile p
+                LEFT JOIN creator_activity_state s
+                       ON s.creator_address = p.creator_address
+                WHERE p.history_status != 'unknown'
+                  AND (
+                      s.creator_address IS NULL
+                      OR s.watch_status IS NULL
+                      OR s.watch_status != 'active'
+                  )
+                LIMIT ?
+            """, (batch_size,)).fetchall()
+            conn.close()
+        return [r["creator_address"] for r in rows]
+
+    async def mark_all_active_watches_stale(self) -> None:
+        """Conservative startup reset — re-verify all watches on restart."""
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("""
+                UPDATE creator_activity_state
+                SET watch_status = 'stale',
+                    updated_at   = strftime('%s','now')
+                WHERE watch_status = 'active'
+            """)
+            conn.commit()
+            conn.close()
+
+    async def get_stale_creators(
+        self, *, stale_threshold_seconds: int
+    ) -> list[str]:
+        """Active-watch creators whose last_seen_at is older than threshold."""
+        cutoff = int(time.time()) - stale_threshold_seconds
+        async with self._lock:
+            conn = db_connect(self._db_path, timeout=10)
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("""
+                SELECT creator_address
+                FROM creator_activity_state
+                WHERE watch_status = 'active'
+                  AND (last_seen_at IS NULL OR last_seen_at < ?)
+                  AND needs_reconcile = 0
+                LIMIT 200
+            """, (cutoff,)).fetchall()
+            conn.close()
+        return [r["creator_address"] for r in rows]

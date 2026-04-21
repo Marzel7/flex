@@ -35,6 +35,13 @@ class WebhookStatus(str, Enum):
     ERROR   = "error"
 
 
+class WatchStatus(str, Enum):
+    PENDING = "pending"
+    ACTIVE  = "active"
+    ERROR   = "error"
+    STALE   = "stale"
+
+
 class StreamHealthStatus(str, Enum):
     HEALTHY      = "healthy"
     LAGGING      = "lagging"

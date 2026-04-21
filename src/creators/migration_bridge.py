@@ -100,10 +100,14 @@ async def validate_bootstrap_coverage(
     *,
     db_path: str,
     db_lock: asyncio.Lock,
+    creator_db_path: Optional[str] = None,
 ) -> dict:
     """
     Check what fraction of creators in creator_funders have a non-unknown profile row.
-    Run this before flipping PHASE_2_ACTIVE to confirm bootstrap is complete.
+    Run this before flipping phase_2_active to confirm bootstrap is complete.
+
+    db_path         — main app DB (has creator_funders)
+    creator_db_path — creator pipeline DB (has creator_profile); defaults to db_path
 
     Returns:
         {
@@ -113,17 +117,23 @@ async def validate_bootstrap_coverage(
             "safe_to_activate": bool,   # True when coverage >= 95%
         }
     """
+    creator_db = creator_db_path or db_path
     async with db_lock:
         conn = sqlite3.connect(db_path, timeout=30)
         conn.row_factory = sqlite3.Row
-        row = conn.execute("""
+        if creator_db != db_path:
+            conn.execute(f"ATTACH DATABASE '{creator_db}' AS cdb")
+            profile_table = "cdb.creator_profile"
+        else:
+            profile_table = "creator_profile"
+        row = conn.execute(f"""
             SELECT
                 COUNT(DISTINCT cf.creator_address)                           AS total,
                 COUNT(DISTINCT CASE
                     WHEN cp.history_status != 'unknown' AND cp.history_status IS NOT NULL
                     THEN cf.creator_address END)                              AS profiled
             FROM creator_funders cf
-            LEFT JOIN creator_profile cp ON cp.creator_address = cf.creator_address
+            LEFT JOIN {profile_table} cp ON cp.creator_address = cf.creator_address
         """).fetchone()
         conn.close()
 
@@ -190,18 +200,22 @@ async def bootstrap_creator_profiles(
     db_path: str,
     db_lock: asyncio.Lock,
     batch_size: int = 2000,
+    creator_db_path: Optional[str] = None,
 ) -> int:
     """
     Populate creator_profile from existing creator_funders rows.
+
+    db_path         — source DB containing creator_funders (main app DB)
+    creator_db_path — destination DB containing creator_profile; defaults to db_path
 
     Sets history_status = 'baselined' and coverage_mode = 'full' for every creator
     that already has funder records, so the Phase 2 cache check fires immediately
     for all historical creators without needing a fresh baseline scan.
 
     Returns the number of creator_profile rows upserted.
-
     Safe to re-run — uses INSERT OR IGNORE / upsert logic.
     """
+    dest_db = creator_db_path or db_path
     logger.info("[MIGRATION_BRIDGE] Bootstrap: reading creator_funders...")
     async with db_lock:
         conn = sqlite3.connect(db_path, timeout=30)
@@ -210,8 +224,8 @@ async def bootstrap_creator_profiles(
         rows = conn.execute("""
             SELECT
                 creator_address,
-                COUNT(*)          AS funder_count,
-                MIN(detected_at)  AS first_seen_raw
+                COUNT(*)               AS funder_count,
+                MIN(first_detected_at) AS first_seen_raw
             FROM creator_funders
             GROUP BY creator_address
             LIMIT ?
@@ -239,7 +253,7 @@ async def bootstrap_creator_profiles(
 
         try:
             async with db_lock:
-                conn = sqlite3.connect(db_path, timeout=30)
+                conn = sqlite3.connect(dest_db, timeout=30)
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("""
                     INSERT INTO creator_profile
@@ -287,25 +301,36 @@ async def backfill_creator_tokens(
     *,
     db_path: str,
     db_lock: asyncio.Lock,
+    source_db_path: Optional[str] = None,
 ) -> dict:
     """
     Populate creator_tokens from token_analysis.pf_ws_creator and reconcile
     token_count_seen in creator_profile to match.
 
+    db_path        — creator pipeline DB (has creator_tokens, creator_profile)
+    source_db_path — main app DB (has token_analysis); defaults to db_path if omitted
+
     Returns {"links_inserted": int, "profiles_updated": int}.
     """
-    logger.info("[MIGRATION_BRIDGE] creator_tokens backfill: reading token_analysis...")
+    source = source_db_path or db_path
+    logger.info("[MIGRATION_BRIDGE] creator_tokens backfill: reading token_analysis from %s", source)
 
     async with db_lock:
         conn = sqlite3.connect(db_path, timeout=60)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
 
+        if source != db_path:
+            conn.execute(f"ATTACH DATABASE '{source}' AS src")
+            src_table = "src.token_analysis"
+        else:
+            src_table = "token_analysis"
+
         # Step 1: insert all known (creator, mint) pairs
-        conn.execute("""
+        conn.execute(f"""
             INSERT OR IGNORE INTO creator_tokens (creator_address, mint, created_at)
             SELECT pf_ws_creator, mint, COALESCE(created_at, strftime('%s','now'))
-            FROM token_analysis
+            FROM {src_table}
             WHERE pf_ws_creator IS NOT NULL
         """)
         links_inserted = conn.execute("SELECT changes()").fetchone()[0]

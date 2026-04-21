@@ -563,6 +563,12 @@ if not DB_PATH:
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     DB_PATH = os.path.join(PROJECT_ROOT, 'database', 'flex_complete_database.db')
 
+# Creator pipeline DB (separate from main app DB)
+CREATOR_DB_PATH = os.getenv("CREATOR_DB_PATH") or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "pumpswap_tokens.db",
+)
+
 
 class PumpFunCurveListener(FastLaneDiscovery):
     """Detects Pump.Fun → PumpSwap migrations via WebSocket and analyzes them"""
@@ -8687,6 +8693,31 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
         log_print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
+
+        # Start creator activity worker
+        try:
+            from src.creators.repository import CreatorRepository
+            from src.creators.worker import CreatorActivityWorker
+            from src.creators.baseline import CreatorBaselineScanner
+
+            _creator_lock = asyncio.Lock()
+            _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
+            await _creator_repo.ensure_schema()
+
+            _scanner = CreatorBaselineScanner(
+                background_rpc_fn=self.call_background_rpc,
+                repo=_creator_repo,
+            )
+            _creator_worker = CreatorActivityWorker(
+                _creator_repo,
+                run_baseline_scan_fn=_scanner.run_baseline_scan,
+                get_signatures_fn=_scanner.get_signatures,
+                process_signature_fn=_scanner.process_signature,
+            )
+            asyncio.create_task(_creator_worker.run())
+            log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
+        except Exception as e:
+            log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 
         # Run PumpSwap migration intake, Pump.fun pre-migration intake, and bonding curve watcher.
         await asyncio.gather(

@@ -1189,8 +1189,6 @@ class BackgroundPriceWorker:
                     validated = await discovery.retry_vault_validation(mint, pool_account)
                     if validated:
                         logger.info(f"[VAULT_RETRY] ✅ Pool {mint[:16]}... vaults now validated")
-                        self._ws_started = False
-
                 await asyncio.sleep(0.1)
 
             await rpc_client.close()
@@ -1310,53 +1308,10 @@ class BackgroundPriceWorker:
             logger.error(f"[RETENTION] cleanup error: {e}", exc_info=True)
 
     def _fetch_pool_prices(self) -> None:
-        """
-        Primary: compute prices from PoolStateStore (updated in real-time by WebSocket).
-        Fallback: run full getMultipleAccounts batch poll every 60s, or every 30s if WS is stale.
-        """
-        # Ensure WS client is started if pools were registered after startup
-        if not self._ws_started:
-            self._start_ws_client()
-
+        """Recompute prices from PoolStateStore (populated by 10s RPC poll)."""
         now = time.time()
-
-        # Check if any tokens are in critical discovery window
-        # If so, suppress stale fallback polls to avoid RPC contention during critical path
-        in_critical_window = False
-        try:
-            if hasattr(self, 'listener') and self.listener:
-                in_critical_window = self.listener.any_token_in_critical_window()
-        except Exception:
-            pass
-
-        # Track WS staleness for health reporting only.
-        if self._ws_client:
-            time_since_last_event = now - self._ws_client._last_event_received
-            if time_since_last_event > self._ws_client.WS_STALE_THRESHOLD:
-                self._ws_client.stats["is_stale"] = True
-
-        # Check for pools marked as stale by PoolStateStore (no updates >5 min)
-        stale_mints = self._pool_state.mark_stale_pools(now)
-
-        # Prices are updated by _periodic_pool_resync running on a 10s cycle.
-        # Recompute from whatever reserve state it last wrote.
+        self._pool_state.mark_stale_pools(now)
         self._recompute_prices_from_ws_state()
-
-        # Sync WS stats to worker stats and persist to disk for Flask to read
-        if self._ws_client:
-            self.stats['ws_stats'] = dict(self._ws_client.stats)
-            try:
-                import json as _json, os as _os
-                _ws_stats_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'ws_stats.json')
-                _ws_stats_path = _os.path.normpath(_ws_stats_path)
-                _payload = dict(self._ws_client.stats)
-                _payload['written_at'] = int(time.time())
-                _tmp = _ws_stats_path + '.tmp'
-                with open(_tmp, 'w') as _f:
-                    _json.dump(_payload, _f)
-                _os.replace(_tmp, _ws_stats_path)
-            except Exception:
-                pass
 
     async def _fetch_pool_prices_async(self) -> None:
         """Async implementation of pool price fetching with multi-pool aggregation and peak tracking."""
@@ -2298,24 +2253,8 @@ class BackgroundPriceWorker:
                 logger.warning("[PRICE_WORKER] No active pools found")
                 return
 
-            # If WebSocket already running, refresh incrementally (faster)
-            if self._ws_client and self._ws_started:
-                print(f"[PRICE_WORKER] 🔄 Refreshing WebSocket with {len(pools)} pools (incremental)", flush=True)
-                logger.info(f"[PRICE_WORKER] 🔄 Refreshing WebSocket with {len(pools)} pools (incremental)")
-                self._ws_client.refresh_pools(pools)
-                # Sync pool map cache so WS fast-path doesn't miss new tokens
-                self._pool_map_cache = {(p["mint"], p["base_account"]): p for p in pools}
-            else:
-                # Full rebuild: stop old, start new
-                if self._ws_client:
-                    print(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild", flush=True)
-                    logger.info(f"[PRICE_WORKER] 🛑 Stopping old WebSocket client for full rebuild")
-                    self._ws_client.stop()
-                    self._ws_started = False
-
-                print(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools", flush=True)
-                logger.info(f"[PRICE_WORKER] 🚀 Starting fresh WebSocket with {len(pools)} pools")
-                self._start_ws_client()
+            # Pool prices are maintained by _periodic_pool_resync (10s RPC poll) — no WS client.
+            logger.debug(f"[PRICE_WORKER] trigger_pool_refresh: {len(pools)} pools (RPC poll will pick up)")
 
         except Exception as e:
             logger.error(f"[PRICE_WORKER] ❌ Error refreshing: {e}", exc_info=True)

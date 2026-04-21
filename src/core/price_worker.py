@@ -405,6 +405,7 @@ class BackgroundPriceWorker:
 
         # Cached pool map for WS fast path — refreshed each worker cycle, not per-event
         self._pool_map_cache: dict = {}  # (mint, base_account) -> pool dict
+        self._last_snapshot_price: dict = {}  # mint -> last price_usd written to snapshot
         self._pool_map_updated: float = 0
 
         # Snapshot retention cleanup — runs every hour
@@ -1586,12 +1587,23 @@ class BackgroundPriceWorker:
             self.price_service.pool_price_cache = new_cache
             self.stats["pool_prices_fetched"] = len(new_cache)
 
-            # Store pool prices to database snapshots (for UI and historical tracking)
+            # Store pool prices to database snapshots only when price has meaningfully changed.
+            # Gate: >0.1% move OR no snapshot written in last 60s for this mint.
             for mint, token_price in new_cache.items():
                 try:
-                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ calling _store_snapshot()")
-                    self.price_service._store_snapshot(token_price)
-                    logger.info(f"[PRICE_DEBUG] {mint[:16]}... ✓ snapshot stored")
+                    last = self._last_snapshot_price.get(mint)
+                    new_price = token_price.price_usd or 0.0
+                    last_price = last[0] if last else None
+                    last_ts = last[1] if last else 0
+                    price_changed = (
+                        last_price is None
+                        or last_price == 0
+                        or abs(new_price - last_price) / last_price > 0.001
+                    )
+                    overdue = (now - last_ts) >= 60
+                    if price_changed or overdue:
+                        self.price_service._store_snapshot(token_price)
+                        self._last_snapshot_price[mint] = (new_price, now)
                 except Exception as e:
                     logger.error(f"[PRICE_DEBUG] {mint[:16]}... ✗ snapshot store failed: {e}")
             

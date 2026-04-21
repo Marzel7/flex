@@ -2107,7 +2107,26 @@ def get_recent_pumpfun_migration_verifications(limit: int = 25) -> Dict[str, Any
                     ) THEN 1 ELSE 0
                 END AS creator_funding_completed,
                 (
-                    SELECT source
+                    SELECT
+                        CASE
+                            WHEN cfq.funding_extracted_at IS NOT NULL
+                             AND ta.migration_slot IS NOT NULL
+                             AND cfq.enqueued_slot IS NOT NULL
+                             AND cfq.enqueued_slot < ta.migration_slot
+                            THEN 'pre'
+                            WHEN cfq.funding_extracted_at IS NOT NULL
+                             AND ta.migration_slot IS NOT NULL
+                             AND cfq.enqueued_slot IS NOT NULL
+                             AND cfq.enqueued_slot >= ta.migration_slot
+                            THEN 'post'
+                            WHEN cfq.funding_extracted_at IS NOT NULL
+                            THEN CASE
+                                WHEN cfq.source IN ('pf_ws_creator', 'pf_ws_creator_curve_complete', 'curve_complete_fallback')
+                                THEN 'pre'
+                                ELSE 'post'
+                            END
+                            ELSE NULL
+                        END
                     FROM creator_funding_queue cfq
                     WHERE cfq.mint = pmv.mint
                       AND cfq.status = 'complete'

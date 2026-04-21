@@ -7143,19 +7143,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             enqueue_creator = earliest_creator
             enqueue_source = "migration"
-            if not enqueue_creator:
-                # Pool discovery found no creator — check if DB already has one from another path
-                try:
-                    _db_row = db_connect(DB_PATH, timeout=5).execute(
-                        "SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature FROM token_analysis WHERE mint = ? LIMIT 1",
-                        (mint,),
-                    ).fetchone()
-                    if _db_row:
-                        enqueue_creator = (str(_db_row[0]).strip() if _db_row[0] else "") or (str(_db_row[1]).strip() if _db_row[1] else "") or None
-                        if enqueue_creator:
-                            enqueue_source = "migration_db_fallback"
-                except Exception:
-                    pass
+            # Always check DB — earliest_tx_creator may have been set via a path
+            # that bypasses pool discovery (e.g. pre-migration RPC fallback)
+            try:
+                _db_row = db_connect(DB_PATH, timeout=5).execute(
+                    "SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature FROM token_analysis WHERE mint = ? LIMIT 1",
+                    (mint,),
+                ).fetchone()
+                if _db_row:
+                    db_creator = (str(_db_row[0]).strip() if _db_row[0] else "") or (str(_db_row[1]).strip() if _db_row[1] else "") or None
+                    if not enqueue_creator and db_creator:
+                        enqueue_creator = db_creator
+                        enqueue_source = "migration_db_fallback"
+            except Exception:
+                pass
             if enqueue_creator:
                 create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
                 await self._enqueue_creator_funding_job(

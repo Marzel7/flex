@@ -4338,21 +4338,27 @@ class PumpFunCurveListener(FastLaneDiscovery):
             f"pf_ws={pf_ws_creator[:8]}... rpc={rpc_display}",
             flush=True,
         )
-        try:
-            _gate_row = db_connect(DB_PATH, timeout=5).execute(
-                "SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
-            ).fetchone()
-            _curve_complete = bool(_gate_row[0]) if _gate_row else False
-        except Exception:
-            _curve_complete = False
+        _at_migration = reason.startswith("migration")
+        if not _at_migration:
+            try:
+                _gate_row = db_connect(DB_PATH, timeout=5).execute(
+                    "SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
+                ).fetchone()
+                _curve_complete = bool(_gate_row[0]) if _gate_row else False
+            except Exception:
+                _curve_complete = False
+        else:
+            _curve_complete = True  # at migration, curve is complete by definition
+
         if _curve_complete:
+            enqueue_source = "pf_ws_creator_migration" if _at_migration else "pf_ws_creator_curve_complete"
             await self._enqueue_creator_funding_job(
                 pf_ws_creator,
                 mint=mint,
                 migration_timestamp=datetime.utcnow().isoformat() + "Z",
                 create_tx_signature=create_tx_signature,
                 delay_seconds=0,
-                source="pf_ws_creator_curve_complete",
+                source=enqueue_source,
             )
         else:
             log_print(

@@ -19274,6 +19274,58 @@ def webhook_creator_movement():
         return "ok", 200
 
 
+@app.route('/api/webhook/pumpfun-birth', methods=['POST'])
+def webhook_pumpfun_birth():
+    """
+    POST /api/webhook/pumpfun-birth
+    Receives Helius enhanced_transactions webhook for pump.fun CREATE events.
+    Writes each signature to webhook_birth_queue; the listener process drains it
+    on a 5-second poll and calls handle_birth() for each new entry.
+    Returns 200 immediately.
+    """
+    import sqlite3 as _sq
+    try:
+        payload = request.get_json(silent=True)
+        if not payload:
+            return "ok", 200
+        if isinstance(payload, dict):
+            payload = [payload]
+        if not isinstance(payload, list):
+            return "ok", 200
+
+        db_path = _DEFAULT_DB_PATH
+        # Ensure table exists (idempotent)
+        conn = _sq.connect(db_path, timeout=10)
+        with conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS webhook_birth_queue (
+                    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                    signature TEXT    NOT NULL UNIQUE,
+                    consumed  INTEGER NOT NULL DEFAULT 0,
+                    created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+                )
+            """)
+
+        inserted = 0
+        for tx in payload:
+            sig = tx.get("signature") if isinstance(tx, dict) else None
+            if not sig:
+                continue
+            try:
+                with conn:
+                    conn.execute(
+                        "INSERT OR IGNORE INTO webhook_birth_queue (signature) VALUES (?)", (sig,)
+                    )
+                    inserted += 1
+            except Exception:
+                pass
+        conn.close()
+        print(f"[BIRTH_WEBHOOK] Queued {inserted} birth signatures", flush=True)
+    except Exception as e:
+        print(f"[BIRTH_WEBHOOK] Handler error: {e}", flush=True)
+    return "ok", 200
+
+
 # ---------------------------------------------------------------------------
 # Creator pipeline status — profile + watch state + SOL movement ledger
 # ---------------------------------------------------------------------------

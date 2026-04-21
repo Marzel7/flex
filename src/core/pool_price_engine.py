@@ -49,6 +49,10 @@ class PoolReserveFetcher:
     def __init__(self, db_path: str):
         self.db_path = db_path
 
+    # Pools younger than this threshold get accountSubscribe (real-time).
+    # Older pools are covered by the 60s getMultipleAccounts fallback poll.
+    WS_SUBSCRIBE_MAX_AGE_SECONDS = int(os.getenv("POOL_WS_MAX_AGE_SECONDS", 48 * 3600))
+
     def get_active_pools(self) -> List[Dict]:
         """
         Load all active pool registrations from token_pool_accounts.
@@ -74,6 +78,35 @@ class PoolReserveFetcher:
                      AND tpa.vault_validation_status IN ('validated', 'pending')
                      AND (tt.mint IS NULL OR tt.is_active = 1)
                    ORDER BY tpa.created_at DESC"""
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_ws_pools(self) -> List[Dict]:
+        """
+        Pools that should be watched via accountSubscribe — only those created
+        within WS_SUBSCRIBE_MAX_AGE_SECONDS (default 48h).
+
+        Older pools are covered by the 60s getMultipleAccounts fallback poll,
+        which is fast enough for tokens that are no longer actively trading.
+        This keeps the WSS subscription count bounded as pool history grows.
+        """
+        import sqlite3
+        from src.utils.db_locking import db_connect as _db_connect
+
+        cutoff = int(time.time()) - self.WS_SUBSCRIBE_MAX_AGE_SECONDS
+        conn = _db_connect(self.db_path, timeout=15)
+        conn.row_factory = sqlite3.Row
+        with conn:
+            rows = conn.execute(
+                """SELECT tpa.*
+                   FROM token_pool_accounts tpa
+                   LEFT JOIN tracked_tokens tt ON tt.mint = tpa.mint
+                   WHERE tpa.is_active = 1
+                     AND tpa.vault_validation_status IN ('validated', 'pending')
+                     AND (tt.mint IS NULL OR tt.is_active = 1)
+                     AND tpa.created_at >= ?
+                   ORDER BY tpa.created_at DESC""",
+                (cutoff,)
             ).fetchall()
         return [dict(r) for r in rows]
 

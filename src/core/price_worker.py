@@ -941,7 +941,7 @@ class BackgroundPriceWorker:
             from src.core.pool_price_engine import get_pool_fetcher
 
             fetcher = get_pool_fetcher(self.db_path)
-            pools = fetcher.get_active_pools()
+            pools = fetcher.get_ws_pools()
 
             if not pools:
                 logger.info("[PRICE_WORKER] No pools to subscribe to")
@@ -1018,28 +1018,32 @@ class BackgroundPriceWorker:
         if not self._ws_started:
             from src.core.pool_price_engine import get_pool_fetcher
             fetcher = get_pool_fetcher(self.db_path)
-            pools = fetcher.get_active_pools()
-            if pools:
+            ws_pools = fetcher.get_ws_pools()
+            if ws_pools:
                 self._start_ws_client()
 
         # Frequently reload pool subscriptions from database (every cycle = ~10s)
         # This ensures new tokens discovered by the listener get subscribed quickly
         try:
             fetcher = get_pool_fetcher(self.db_path)
-            pools = fetcher.get_active_pools()
+            # ws_pools: age-gated to 48h — controls accountSubscribe subscriptions
+            # all_pools: all active pools — used for pool_map_cache to handle any incoming WS event
+            ws_pools = fetcher.get_ws_pools()
+            all_pools = fetcher.get_active_pools()
 
-            if not self._ws_client and pools:
+            if not self._ws_client and ws_pools:
                 # WebSocket not started but pools exist — start it now
                 logger.info(f"[PRICE_WORKER] 🚀 New pools detected, starting WebSocket")
                 self._start_ws_client()
-            elif self._ws_client and pools:
+            elif self._ws_client and ws_pools:
                 # WebSocket running — refresh subscriptions with latest pools
                 # This picks up newly discovered pools within ~10 seconds
-                self._ws_client.refresh_pools(pools)
+                self._ws_client.refresh_pools(ws_pools)
 
             # Refresh pool map cache used by WS fast path (avoids per-event DB query)
-            if pools:
-                self._pool_map_cache = {(p["mint"], p["base_account"]): p for p in pools}
+            # Use all_pools so we can handle WS events from any active pool
+            if all_pools:
+                self._pool_map_cache = {(p["mint"], p["base_account"]): p for p in all_pools}
         except Exception as e:
             logger.debug(f"Error refreshing WebSocket pools: {e}")
 

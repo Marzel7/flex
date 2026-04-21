@@ -570,6 +570,21 @@ CREATOR_DB_PATH = os.getenv("CREATOR_DB_PATH") or os.path.join(
 )
 
 
+def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
+    import sqlite3 as _sq
+    conn = _sq.connect(db_path, timeout=10)
+    with conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS webhook_birth_queue (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                signature TEXT    NOT NULL UNIQUE,
+                consumed  INTEGER NOT NULL DEFAULT 0,
+                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            )
+        """)
+    conn.close()
+
+
 class PumpFunCurveListener(FastLaneDiscovery):
     """Detects Pump.Fun → PumpSwap migrations via WebSocket and analyzes them"""
 
@@ -8252,6 +8267,38 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 1.5, 30)
 
+    async def drain_webhook_birth_queue(self):
+        """
+        Drains the webhook_birth_queue table (written by the Flask process when Helius
+        POSTs a pumpfun-birth event).  Runs forever on a 5-second poll cadence.
+        """
+        import sqlite3 as _sq
+        _ensure_webhook_birth_queue_schema(DB_PATH)
+        log_print("[LISTENER] ✅ Webhook birth queue drainer started", flush=True)
+        while True:
+            try:
+                conn = _sq.connect(DB_PATH, timeout=10)
+                conn.row_factory = _sq.Row
+                with conn:
+                    rows = conn.execute(
+                        "SELECT id, signature FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                    ).fetchall()
+                    if rows:
+                        ids = [r["id"] for r in rows]
+                        conn.execute(
+                            f"UPDATE webhook_birth_queue SET consumed = 1 WHERE id IN ({','.join('?' * len(ids))})",
+                            ids,
+                        )
+                conn.close()
+                for row in rows:
+                    sig = row["signature"]
+                    if sig not in self.processing_launches and sig not in self.completed_launches:
+                        premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source=helius_webhook")
+                        asyncio.create_task(self.handle_birth(sig, []))
+            except Exception as exc:
+                log_print(f"[LISTENER] ⚠ webhook birth drain error: {exc}", flush=True)
+            await asyncio.sleep(5)
+
     async def listen_pumpfun_websocket(self):
         """Dedicated Pump.fun websocket for births and pre-migration trade flow."""
         await self._wait_for_launch_toggle("PUMPFUN")
@@ -8744,11 +8791,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as e:
             log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 
-        # Run PumpSwap migration intake, Pump.fun pre-migration intake, and bonding curve watcher.
+        # Run PumpSwap migration intake, Pump.fun pre-migration intake, bonding curve watcher,
+        # and Helius webhook birth queue drainer.
         await asyncio.gather(
             self.listen_pumpswap_websocket(),
             self.listen_pumpfun_websocket(),
             self.listen_bonding_curve_accounts(),
+            self.drain_webhook_birth_queue(),
         )
 
 

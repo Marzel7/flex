@@ -52,16 +52,58 @@ def should_skip_legacy_extraction(profile: Optional[object]) -> bool:
     and can skip the full legacy extraction path.
 
     Phase 1: always False (preserves existing behaviour).
-    Phase 2+: True when history_status is NOT unknown.
-              This covers partial, baselined, and stale — all mean we have
-              some data, even if incomplete.  The baseline worker fills gaps
-              asynchronously.
+    Phase 2+: True when history_status is 'partial', 'baselined', or 'stale'.
+              'unknown' always falls through to legacy extraction.
+              'stale' skips because the baseline worker will refresh asynchronously —
+              there is no value in running a blocking legacy scan while that is pending.
     """
     if not PHASE_2_ACTIVE:
         return False
     if profile is None:
         return False
     return profile.history_status != HistoryStatus.UNKNOWN
+
+
+async def validate_bootstrap_coverage(
+    *,
+    db_path: str,
+    db_lock: asyncio.Lock,
+) -> dict:
+    """
+    Check what fraction of creators in creator_funders have a non-unknown profile row.
+    Run this before flipping PHASE_2_ACTIVE to confirm bootstrap is complete.
+
+    Returns:
+        {
+            "total_creators_in_funders": int,
+            "profiles_non_unknown": int,
+            "coverage_pct": float,
+            "safe_to_activate": bool,   # True when coverage >= 95%
+        }
+    """
+    async with db_lock:
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+        row = conn.execute("""
+            SELECT
+                COUNT(DISTINCT cf.creator_address)                           AS total,
+                COUNT(DISTINCT CASE
+                    WHEN cp.history_status != 'unknown' AND cp.history_status IS NOT NULL
+                    THEN cf.creator_address END)                              AS profiled
+            FROM creator_funders cf
+            LEFT JOIN creator_profile cp ON cp.creator_address = cf.creator_address
+        """).fetchone()
+        conn.close()
+
+    total    = row["total"]    if row else 0
+    profiled = row["profiled"] if row else 0
+    pct      = round((profiled / total * 100), 1) if total else 0.0
+    return {
+        "total_creators_in_funders": total,
+        "profiles_non_unknown":      profiled,
+        "coverage_pct":              pct,
+        "safe_to_activate":          pct >= 95.0,
+    }
 
 
 # ---------------------------------------------------------------------------

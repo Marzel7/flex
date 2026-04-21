@@ -3723,6 +3723,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             conn.close()
                         elapsed = time.time() - job_started_at
                         log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... elapsed={elapsed:.1f}s", flush=True)
+                        # Phase 1 dual-write: mark creator as baselined in creator_profile
+                        # so Phase 2 cache check fires immediately for this creator on next token.
+                        try:
+                            from src.creators.migration_bridge import dual_write_creator_resolved
+                            from src.creators.repository import CreatorRepository
+                            _repo = CreatorRepository(DB_PATH, self.db_lock)
+                            await dual_write_creator_resolved(
+                                creator, mint,
+                                create_tx_signature=create_tx_signature,
+                                reason="extraction_complete",
+                                repo=_repo,
+                            )
+                        except Exception as _dw_e:
+                            log_print(f"[FUNDING_QUEUE] ⚠ dual_write failed creator={creator[:8]}: {_dw_e}", flush=True)
                     except Exception as e:
                         retry_at = int(time.time()) + min(900, 120 * (attempts + 1))
                         async with self.db_lock:
@@ -4387,6 +4401,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 f"[PF_WS_CREATOR] ⏭️ Skip funding enqueue mint={mint[:8]}... reason=curve_not_complete",
                 flush=True,
             )
+
+        # Phase 1 dual-write: upsert creator_profile and conditionally enqueue baseline job.
+        # Fire-and-forget — never raises, never blocks the hot path.
+        try:
+            from src.creators.migration_bridge import dual_write_creator_resolved
+            from src.creators.repository import CreatorRepository
+            _repo = CreatorRepository(DB_PATH, self.db_lock)
+            asyncio.create_task(dual_write_creator_resolved(
+                pf_ws_creator, mint,
+                create_tx_signature=create_tx_signature,
+                reason=reason,
+                repo=_repo,
+            ))
+        except Exception as _dw_e:
+            log_print(f"[PF_WS_CREATOR] ⚠ dual_write enqueue failed: {_dw_e}", flush=True)
+
         return pf_ws_creator
 
     def _token_needs_creator_backfill(self, mint: str) -> bool:

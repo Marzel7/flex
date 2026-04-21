@@ -26,7 +26,6 @@ from src.creators.models import (
     HistoryStatus,
     JobType,
     StreamHealthStatus,
-    WebhookStatus,
 )
 from src.creators.repository import CreatorRepository
 
@@ -202,30 +201,22 @@ async def _on_creator_known(
     """
     Common post-resolution logic.  Called whether creator came from cache or fresh RPC.
 
-    skip_funding=True when the creator was already in pf_ws_creator (no new token entry
-    needed).  The caller is responsible for the legacy funding queue when skip_funding=False.
+    skip_funding=True when the creator was already in pf_ws_creator.
+    The caller is responsible for the legacy funding queue when skip_funding=False.
     """
     now = int(time.time())
 
-    profile = await repo.get_creator_profile(creator_address)
+    # increment_creator_token_count does an INSERT ON CONFLICT UPDATE, so it is safe
+    # to call unconditionally — it creates the profile row if missing.
+    await repo.increment_creator_token_count(creator_address, last_launch_at=now)
+    await repo.upsert_creator_profile(
+        creator_address,
+        last_create_tx_signature=create_tx_sig,
+        last_activity_at=now,
+        last_launch_at=now,
+    )
 
-    if profile is None:
-        # First time we've ever seen this creator
-        await repo.increment_creator_token_count(creator_address, last_launch_at=now)
-        await repo.upsert_creator_profile(
-            creator_address,
-            last_create_tx_signature=create_tx_sig,
-            last_activity_at=now,
-            last_launch_at=now,
-        )
-    else:
-        await repo.upsert_creator_profile(
-            creator_address,
-            last_create_tx_signature=create_tx_sig,
-            last_activity_at=now,
-        )
-
-    # Re-read after potential insert to get accurate history_status
+    # Single read after the upsert to get authoritative history_status.
     profile = await repo.get_creator_profile(creator_address)
 
     if should_run_creator_baseline(profile):
@@ -235,7 +226,7 @@ async def _on_creator_known(
             source_mint=mint,
             source_reason=reason,
             priority=100,
-            delay_seconds=30,   # small delay — let hot-path analysis complete first
+            delay_seconds=30,   # let hot-path analysis complete first
             repo=repo,
         )
 

@@ -25,6 +25,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
 
+from src.utils.infra_mapping import build_excluded_set
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,9 +48,10 @@ class FunderCreatorExtractor:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def extract_funder_creator_pairs(self, cursor: sqlite3.Cursor) -> Dict[str, set]:
+    def extract_funder_creator_pairs(self, cursor: sqlite3.Cursor,
+                                        excluded: frozenset = frozenset()) -> Dict[str, set]:
         """
-        Extract funder → creator relationships.
+        Extract funder → creator relationships, excluding CEX/infra wallets.
 
         Returns: {funder_wallet: {creator_wallet1, creator_wallet2, ...}}
         """
@@ -65,7 +68,7 @@ class FunderCreatorExtractor:
         for row in cursor.fetchall():
             funder = row['funder_wallet']
             creator = row['creator_wallet']
-            if funder and creator:
+            if funder and creator and funder not in excluded:
                 funder_creators[funder].add(creator)
 
         return dict(funder_creators)
@@ -157,8 +160,11 @@ class FunderOverlapAnalyzer:
         conn = self._get_conn()
         cursor = conn.cursor()
 
-        # Extract funder → creator relationships
-        funder_creators = self.extractor.extract_funder_creator_pairs(cursor)
+        # Build unified CEX/infra exclusion set (static registry + live cex_wallets table)
+        excluded = build_excluded_set(conn)
+
+        # Extract funder → creator relationships, excluding CEX/infra wallets
+        funder_creators = self.extractor.extract_funder_creator_pairs(cursor, excluded)
         conn.close()
 
         if not funder_creators:

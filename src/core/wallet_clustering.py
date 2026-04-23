@@ -20,6 +20,8 @@ import statistics
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 
+from src.utils.infra_mapping import build_excluded_set
+
 logger = logging.getLogger(__name__)
 
 
@@ -218,39 +220,11 @@ class WalletClusteringEngine:
         conn = self._get_conn()
         cursor = conn.cursor()
 
-        # Check if cex_wallets table exists
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='cex_wallets'"
-        )
-        cex_table_exists = cursor.fetchone() is not None
-
-        # Build exclusion clause for CEX addresses
-        cex_exclusion = ""
-        if cex_table_exists:
-            cex_exclusion = """
-                AND source NOT IN (
-                    SELECT cex_address FROM cex_wallets
-                    WHERE is_active = 1
-                )
-            """
-
-        # Also exclude atomic_funder_networks CEX flagged wallets
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='atomic_funder_networks'"
-        )
-        afn_table_exists = cursor.fetchone() is not None
-
-        afn_exclusion = ""
-        if afn_table_exists:
-            afn_exclusion = """
-                AND source NOT IN (
-                    SELECT funder_address FROM atomic_funder_networks
-                    WHERE is_cex = 1
-                )
-            """
+        # Build unified exclusion set: static registry (CEX + infra) + live cex_wallets table
+        excluded = build_excluded_set(conn)
 
         # Main detection query (note: no STDDEV function in SQLite, compute in Python)
-        query = f"""
+        query = """
             SELECT
                 source AS funder,
                 COUNT(DISTINCT destination) AS creators,
@@ -265,8 +239,6 @@ class WalletClusteringEngine:
             FROM transfer_index
             WHERE amount_sol BETWEEN ? AND ?
               AND is_valid = 1
-              {cex_exclusion}
-              {afn_exclusion}
             GROUP BY source
             HAVING creators >= ?
               AND days_active >= ?
@@ -282,8 +254,14 @@ class WalletClusteringEngine:
         conn.close()
 
         farms = []
+        skipped_excluded = 0
         for row in rows:
             funder, creators, transfers, avg_amt, days_active, span_days, first_ts, last_ts, creator_list, amounts_str = row
+
+            # Skip CEX / infra wallets using unified exclusion set
+            if funder in excluded:
+                skipped_excluded += 1
+                continue
 
             # Compute stddev in Python
             stddev_amt = 0.0
@@ -313,7 +291,7 @@ class WalletClusteringEngine:
                 'wallet_age_days': wallet_age
             })
 
-        logger.info(f"[CLUSTERING_DETECT] Found {len(farms)} farms")
+        logger.info(f"[CLUSTERING_DETECT] Found {len(farms)} farms (excluded {skipped_excluded} CEX/infra wallets)")
         return farms
 
     def _detect_bursts(self, funder_wallet: str) -> bool:

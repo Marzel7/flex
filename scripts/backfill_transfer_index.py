@@ -34,29 +34,41 @@ import os
 import sys
 
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'flex_complete_database.db')
-BATCH_SIZE_DEFAULT = 2000
+BATCH_SIZE_DEFAULT = 500
 LAMPORTS_PER_SOL = 1_000_000_000
+INTER_BATCH_SLEEP = 0.05   # 50ms pause between batches — yields write lock to the app
 
 
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 
-def connect(db_path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(os.path.abspath(db_path), timeout=60)
+def open_readonly(db_path: str) -> sqlite3.Connection:
+    """Open for reads only — never blocks writers."""
+    conn = sqlite3.connect(f"file:{os.path.abspath(db_path)}?mode=ro", uri=True, timeout=30)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA busy_timeout=30000")  # 30s retry on lock
     return conn
 
 
-def insert_batch(conn: sqlite3.Connection, rows: list[tuple], dry_run: bool) -> int:
+def open_readwrite(db_path: str) -> sqlite3.Connection:
+    """Open for writes with WAL and a generous busy timeout."""
+    conn = sqlite3.connect(os.path.abspath(db_path), timeout=60)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=20000")
+    return conn
+
+
+def insert_batch(db_path: str, rows: list[tuple], dry_run: bool) -> int:
+    """Open a fresh connection per batch — avoids stale lock state."""
     if not rows:
         return 0
     if dry_run:
-        return len(rows)   # count what would be attempted (dupes still ignored at runtime)
-    for attempt in range(12):
+        return len(rows)
+    for attempt in range(10):
+        conn = None
         try:
+            conn = open_readwrite(db_path)
             conn.executemany("""
                 INSERT OR IGNORE INTO transfer_index
                     (signature, source, destination, amount_lamports,
@@ -66,16 +78,30 @@ def insert_batch(conn: sqlite3.Connection, rows: list[tuple], dry_run: bool) -> 
             conn.commit()
             return len(rows)
         except sqlite3.OperationalError as e:
-            if 'locked' in str(e) and attempt < 11:
-                wait = min(2 ** attempt * 0.3, 15)   # caps at 15s
+            if 'locked' in str(e) and attempt < 9:
+                if conn:
+                    try: conn.close()
+                    except: pass
+                wait = min(1.0 * (attempt + 1), 8.0)
                 time.sleep(wait)
                 continue
             raise
+        finally:
+            if conn:
+                try: conn.close()
+                except: pass
     return 0
 
 
-def count_table(conn: sqlite3.Connection, table: str) -> int:
-    return conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+import datetime as _dt
+
+
+def count_table(db_path: str, table: str) -> int:
+    conn = open_readonly(db_path)
+    try:
+        return conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+    finally:
+        conn.close()
 
 
 def lamports(amount_sol: float) -> int | None:
@@ -85,225 +111,89 @@ def lamports(amount_sol: float) -> int | None:
     return v if v > 0 else None
 
 
-# ---------------------------------------------------------------------------
-# source 1: creator_funders  (no signatures — placeholder '')
-# ---------------------------------------------------------------------------
+def parse_ts(val) -> int:
+    if val is None:
+        return 0
+    if isinstance(val, (int, float)):
+        return int(val)
+    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S'):
+        try:
+            return int(_dt.datetime.strptime(val, fmt).timestamp())
+        except (ValueError, TypeError):
+            continue
+    return 0
 
-def backfill_creator_funders(conn: sqlite3.Connection, batch_size: int, dry_run: bool, now: float) -> int:
-    print("\n[1/4] creator_funders  (placeholder signature='')")
-    total_src = conn.execute(
-        "SELECT COUNT(*) FROM creator_funders WHERE amount_sol > 0"
-    ).fetchone()[0]
-    print(f"      source rows: {total_src:,}")
 
-    cursor = conn.execute("""
-        SELECT funder_address, creator_address, amount_sol, first_detected_at
-        FROM creator_funders
-        WHERE amount_sol > 0
-    """)
+def run_source(label: str, db_path: str, query: str, row_mapper, batch_size: int, dry_run: bool, now: float) -> int:
+    """
+    Fetch all rows via read-only connection, then write in batches using
+    fresh rw connections.  Reads never block; writes yield between batches.
+    """
+    print(f"\n{label}")
+
+    rconn = open_readonly(db_path)
+    try:
+        rows_raw = rconn.execute(query).fetchall()
+    finally:
+        rconn.close()
+
+    print(f"      source rows: {len(rows_raw):,}")
 
     inserted = skipped = 0
     batch = []
-    for row in cursor:
-        lamps = lamports(row['amount_sol'])
-        if lamps is None:
+
+    for row in rows_raw:
+        mapped = row_mapper(row, now)
+        if mapped is None:
             skipped += 1
             continue
-
-        bt = 0
-        if row['first_detected_at']:
-            try:
-                import datetime
-                dt = row['first_detected_at']
-                if isinstance(dt, str):
-                    # handles '2025-01-01 12:00:00' or ISO format
-                    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S'):
-                        try:
-                            bt = int(datetime.datetime.strptime(dt, fmt).timestamp())
-                            break
-                        except ValueError:
-                            continue
-                elif isinstance(dt, (int, float)):
-                    bt = int(dt)
-            except Exception:
-                bt = 0
-
-        if bt <= 0:
-            skipped += 1
-            continue
-
-        batch.append((
-            '',                             # signature placeholder
-            row['funder_address'],          # source
-            row['creator_address'],         # destination
-            lamps,                          # amount_lamports
-            0,                             # slot
-            bt,                            # block_time
-            now,                           # indexed_at
-            'backfill_creator_funder',     # transfer_type
-        ))
-
+        batch.append(mapped)
         if len(batch) >= batch_size:
-            inserted += insert_batch(conn, batch, dry_run)
+            inserted += insert_batch(db_path, batch, dry_run)
             batch = []
             print(f"      … {inserted:,} inserted", end='\r')
+            if not dry_run:
+                time.sleep(INTER_BATCH_SLEEP)
 
-    inserted += insert_batch(conn, batch, dry_run)
+    inserted += insert_batch(db_path, batch, dry_run)
     print(f"      inserted: {inserted:,}  skipped: {skipped:,}  (dry_run={dry_run})")
     return inserted
 
 
 # ---------------------------------------------------------------------------
-# source 2: creator_outgoing_transfers  (real signatures, 100% coverage)
+# row mappers
 # ---------------------------------------------------------------------------
 
-def backfill_creator_outgoing(conn: sqlite3.Connection, batch_size: int, dry_run: bool, now: float) -> int:
-    print("\n[2/4] creator_outgoing_transfers  (real signatures)")
-    total_src = conn.execute(
-        "SELECT COUNT(*) FROM creator_outgoing_transfers WHERE amount_sol > 0 AND transaction_signature IS NOT NULL AND transaction_signature != ''"
-    ).fetchone()[0]
-    print(f"      source rows: {total_src:,}")
-
-    cursor = conn.execute("""
-        SELECT creator_address, recipient_address, amount_sol,
-               transaction_signature, block_time
-        FROM creator_outgoing_transfers
-        WHERE amount_sol > 0
-          AND transaction_signature IS NOT NULL
-          AND transaction_signature != ''
-          AND block_time IS NOT NULL
-          AND block_time > 0
-    """)
-
-    inserted = skipped = 0
-    batch = []
-    for row in cursor:
-        lamps = lamports(row['amount_sol'])
-        if lamps is None:
-            skipped += 1
-            continue
-
-        batch.append((
-            row['transaction_signature'],
-            row['creator_address'],         # source  (creator is the sender here)
-            row['recipient_address'],       # destination
-            lamps,
-            0,                             # slot not stored in this table
-            int(row['block_time']),
-            now,
-            'backfill_creator_outgoing',
-        ))
-
-        if len(batch) >= batch_size:
-            inserted += insert_batch(conn, batch, dry_run)
-            batch = []
-            print(f"      … {inserted:,} inserted", end='\r')
-
-    inserted += insert_batch(conn, batch, dry_run)
-    print(f"      inserted: {inserted:,}  skipped: {skipped:,}  (dry_run={dry_run})")
-    return inserted
+def map_creator_funder(row, now: float):
+    lamps = lamports(row['amount_sol'])
+    bt = parse_ts(row['first_detected_at'])
+    if lamps is None or bt <= 0:
+        return None
+    return ('', row['funder_address'], row['creator_address'], lamps, 0, bt, now, 'backfill_creator_funder')
 
 
-# ---------------------------------------------------------------------------
-# source 3: funder_incoming_transfers  (2-hop, real signatures)
-# ---------------------------------------------------------------------------
-
-def backfill_funder_incoming(conn: sqlite3.Connection, batch_size: int, dry_run: bool, now: float) -> int:
-    print("\n[3/4] funder_incoming_transfers  (2-hop, real signatures)")
-    total_src = conn.execute(
-        "SELECT COUNT(*) FROM funder_incoming_transfers WHERE amount_sol > 0 AND transaction_signature IS NOT NULL AND transaction_signature != '' AND block_time > 0"
-    ).fetchone()[0]
-    print(f"      source rows: {total_src:,}")
-
-    cursor = conn.execute("""
-        SELECT sender_address, funder_address, amount_sol,
-               transaction_signature, block_time
-        FROM funder_incoming_transfers
-        WHERE amount_sol > 0
-          AND transaction_signature IS NOT NULL
-          AND transaction_signature != ''
-          AND block_time IS NOT NULL
-          AND block_time > 0
-    """)
-
-    inserted = skipped = 0
-    batch = []
-    for row in cursor:
-        lamps = lamports(row['amount_sol'])
-        if lamps is None:
-            skipped += 1
-            continue
-
-        batch.append((
-            row['transaction_signature'],
-            row['sender_address'],          # source
-            row['funder_address'],          # destination
-            lamps,
-            0,
-            int(row['block_time']),
-            now,
-            'backfill_funder_incoming',
-        ))
-
-        if len(batch) >= batch_size:
-            inserted += insert_batch(conn, batch, dry_run)
-            batch = []
-            print(f"      … {inserted:,} inserted", end='\r')
-
-    inserted += insert_batch(conn, batch, dry_run)
-    print(f"      inserted: {inserted:,}  skipped: {skipped:,}  (dry_run={dry_run})")
-    return inserted
+def map_creator_outgoing(row, now: float):
+    lamps = lamports(row['amount_sol'])
+    if lamps is None:
+        return None
+    return (row['transaction_signature'], row['creator_address'], row['recipient_address'],
+            lamps, 0, int(row['block_time']), now, 'backfill_creator_outgoing')
 
 
-# ---------------------------------------------------------------------------
-# source 4: funder_outgoing_transfers  (2-hop, real signatures)
-# ---------------------------------------------------------------------------
+def map_funder_incoming(row, now: float):
+    lamps = lamports(row['amount_sol'])
+    if lamps is None:
+        return None
+    return (row['transaction_signature'], row['sender_address'], row['funder_address'],
+            lamps, 0, int(row['block_time']), now, 'backfill_funder_incoming')
 
-def backfill_funder_outgoing(conn: sqlite3.Connection, batch_size: int, dry_run: bool, now: float) -> int:
-    print("\n[4/4] funder_outgoing_transfers  (2-hop, real signatures)")
-    total_src = conn.execute(
-        "SELECT COUNT(*) FROM funder_outgoing_transfers WHERE amount_sol > 0 AND transaction_signature IS NOT NULL AND transaction_signature != '' AND block_time > 0"
-    ).fetchone()[0]
-    print(f"      source rows: {total_src:,}")
 
-    cursor = conn.execute("""
-        SELECT funder_address, recipient_address, amount_sol,
-               transaction_signature, block_time
-        FROM funder_outgoing_transfers
-        WHERE amount_sol > 0
-          AND transaction_signature IS NOT NULL
-          AND transaction_signature != ''
-          AND block_time IS NOT NULL
-          AND block_time > 0
-    """)
-
-    inserted = skipped = 0
-    batch = []
-    for row in cursor:
-        lamps = lamports(row['amount_sol'])
-        if lamps is None:
-            skipped += 1
-            continue
-
-        batch.append((
-            row['transaction_signature'],
-            row['funder_address'],          # source
-            row['recipient_address'],       # destination
-            lamps,
-            0,
-            int(row['block_time']),
-            now,
-            'backfill_funder_outgoing',
-        ))
-
-        if len(batch) >= batch_size:
-            inserted += insert_batch(conn, batch, dry_run)
-            batch = []
-            print(f"      … {inserted:,} inserted", end='\r')
-
-    inserted += insert_batch(conn, batch, dry_run)
-    print(f"      inserted: {inserted:,}  skipped: {skipped:,}  (dry_run={dry_run})")
-    return inserted
+def map_funder_outgoing(row, now: float):
+    lamps = lamports(row['amount_sol'])
+    if lamps is None:
+        return None
+    return (row['transaction_signature'], row['funder_address'], row['recipient_address'],
+            lamps, 0, int(row['block_time']), now, 'backfill_funder_outgoing')
 
 
 # ---------------------------------------------------------------------------
@@ -328,32 +218,44 @@ def main():
     print(f"Skip 2hop: {args.skip_2hop}")
     print(f"Batch sz:  {args.batch_size:,}")
 
-    conn = connect(db_path)
-    before = count_table(conn, 'transfer_index')
+    before = count_table(db_path, 'transfer_index')
     print(f"\ntransfer_index before: {before:,}")
 
     now = time.time()
     t0 = time.time()
-
     total = 0
-    total += backfill_creator_funders(conn, args.batch_size, args.dry_run, now)
-    total += backfill_creator_outgoing(conn, args.batch_size, args.dry_run, now)
+
+    total += run_source(
+        "[1/4] creator_funders  (placeholder signature='')", db_path,
+        "SELECT funder_address, creator_address, amount_sol, first_detected_at FROM creator_funders WHERE amount_sol > 0",
+        map_creator_funder, args.batch_size, args.dry_run, now,
+    )
+
+    total += run_source(
+        "[2/4] creator_outgoing_transfers  (real signatures)", db_path,
+        "SELECT creator_address, recipient_address, amount_sol, transaction_signature, block_time FROM creator_outgoing_transfers WHERE amount_sol > 0 AND transaction_signature IS NOT NULL AND transaction_signature != '' AND block_time > 0",
+        map_creator_outgoing, args.batch_size, args.dry_run, now,
+    )
 
     if not args.skip_2hop:
-        total += backfill_funder_incoming(conn, args.batch_size, args.dry_run, now)
-        total += backfill_funder_outgoing(conn, args.batch_size, args.dry_run, now)
+        total += run_source(
+            "[3/4] funder_incoming_transfers  (2-hop)", db_path,
+            "SELECT sender_address, funder_address, amount_sol, transaction_signature, block_time FROM funder_incoming_transfers WHERE amount_sol > 0 AND transaction_signature IS NOT NULL AND transaction_signature != '' AND block_time > 0",
+            map_funder_incoming, args.batch_size, args.dry_run, now,
+        )
+        total += run_source(
+            "[4/4] funder_outgoing_transfers  (2-hop)", db_path,
+            "SELECT funder_address, recipient_address, amount_sol, transaction_signature, block_time FROM funder_outgoing_transfers WHERE amount_sol > 0 AND transaction_signature IS NOT NULL AND transaction_signature != '' AND block_time > 0",
+            map_funder_outgoing, args.batch_size, args.dry_run, now,
+        )
     else:
         print("\n[3/4] funder_incoming_transfers  — skipped (--skip-2hop)")
         print("[4/4] funder_outgoing_transfers  — skipped (--skip-2hop)")
 
-    conn.close()
-
     elapsed = time.time() - t0
 
     if not args.dry_run:
-        conn2 = connect(db_path)
-        after = count_table(conn2, 'transfer_index')
-        conn2.close()
+        after = count_table(db_path, 'transfer_index')
         net = after - before
         print(f"\n{'='*50}")
         print(f"transfer_index before : {before:,}")

@@ -1559,99 +1559,69 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
 
 
 def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
-    """Get pre-migration Pump.fun tokens that appear close to migrating."""
+    """Get near-graduation PumpFun tokens from PumpPortal real-time vSol tracking."""
+    import json as _json
     try:
-        heuristic_market_cap_floor = 50000
-        conn = db_connect(DB_PATH, timeout=5)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA query_only = ON")
-        cursor = conn.cursor()
+        portal_vsol_path = os.path.join(os.path.dirname(DB_PATH), '..', 'portal_vsol.json')
+        try:
+            with open(portal_vsol_path) as _f:
+                portal_vsol = _json.load(_f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            portal_vsol = {}
 
-        cursor.execute("""
-            SELECT
-                ta.mint,
-                ta.created_at,
-                ta.source_platform,
-                ta.lifecycle_stage,
-                ta.is_about_to_migrate,
-                ta.migration_progress_pct,
-                ta.migration_band,
-                ta.migration_signal_updated_at,
-                ta.dex,
-                ta.pumpswap_pool_address,
-                ta.pool_address,
-                ta.bonding_curve_pda,
-                COALESCE(tps.market_cap, ta.market_cap_current, 0) as resolved_market_cap,
-                mc.symbol as token_symbol,
-                mc.name as token_name
-            FROM token_analysis ta
-            LEFT JOIN metadata_cache mc
-                ON mc.mint = ta.mint
-            LEFT JOIN token_pool_accounts tpa
-                ON tpa.mint = ta.mint AND tpa.is_active = 1
-            LEFT JOIN token_price_snapshots tps
-                ON tps.snapshot_id = (
-                    SELECT snapshot_id FROM token_price_snapshots
-                    WHERE mint = ta.mint
-                    ORDER BY captured_at DESC LIMIT 1
-                )
-            WHERE ta.mint IS NOT NULL
-              AND (
-                  ta.source_platform = 'pumpfun'
-                  OR (ta.source_platform IS NULL AND NULLIF(TRIM(COALESCE(ta.bonding_curve_pda, '')), '') IS NOT NULL)
-              )
-              AND (
-                  ta.lifecycle_stage = 'bonding_curve'
-                  OR (
-                      COALESCE(ta.lifecycle_stage, 'migration_pending') = 'migration_pending'
-                      AND NULLIF(TRIM(COALESCE(ta.bonding_curve_pda, '')), '') IS NOT NULL
-                  )
-              )
-              AND NULLIF(TRIM(COALESCE(ta.dex, '')), '') IS NULL
-              AND NULLIF(TRIM(COALESCE(ta.pumpswap_pool_address, ta.pool_address, tpa.pool_address, '')), '') IS NULL
-              AND (
-                  COALESCE(ta.is_about_to_migrate, 0) = 1
-                  OR COALESCE(ta.migration_band, '') IN ('likely_close', 'warm', 'hot')
-                  OR COALESCE(tps.market_cap, ta.market_cap_current, 0) >= ?
-              )
-            ORDER BY
-                COALESCE(ta.is_about_to_migrate, 0) DESC,
-                COALESCE(ta.migration_progress_pct, 0) DESC,
-                COALESCE(tps.market_cap, ta.market_cap_current, 0) DESC,
-                COALESCE(ta.migration_signal_updated_at, 0) DESC,
-                ta.created_at DESC
-            LIMIT ?
-        """, (heuristic_market_cap_floor, limit,))
+        now = time.time()
+        GRADUATION_SOL = 85.0
+        MIN_VSOL = 30.0  # only show tokens with meaningful progress
 
-        rows = cursor.fetchall()
-        conn.close()
+        tokens = []
+        for mint, state in portal_vsol.items():
+            v_sol = float(state.get('v_sol') or 0)
+            if v_sol < MIN_VSOL:
+                continue
+            pct = min(round(v_sol / GRADUATION_SOL * 100, 1), 100)
+            if pct >= 95:
+                label = 'About to migrate'
+            elif pct >= 80:
+                label = 'Hot'
+            elif pct >= 60:
+                label = 'Warm'
+            else:
+                label = 'Watching'
+            tokens.append({
+                'mint': mint,
+                'symbol': state.get('symbol'),
+                'name': state.get('name'),
+                'v_sol': v_sol,
+                'mc_sol': state.get('mc_sol'),
+                'migration_progress_pct': pct,
+                'readiness_label': label,
+                'ts': state.get('ts'),
+                'source_platform': 'pumpfun',
+                'lifecycle_stage': 'bonding_curve',
+                'is_about_to_migrate': pct >= 95,
+            })
 
-        def _readiness_label(row: sqlite3.Row) -> str:
-            if row['is_about_to_migrate']:
-                return 'About to migrate'
-            band = (row['migration_band'] or '').strip().lower()
-            if band == 'hot':
-                return 'Hot'
-            if band == 'warm':
-                return 'Warm'
-            if float(row['resolved_market_cap'] or 0) >= heuristic_market_cap_floor:
-                return 'Warm'
-            return 'Watching'
+        tokens.sort(key=lambda t: t['v_sol'], reverse=True)
+        tokens = tokens[:limit]
 
-        return [{
-            'mint': row['mint'],
-            'created_at': row['created_at'],
-            'source_platform': row['source_platform'],
-            'lifecycle_stage': row['lifecycle_stage'],
-            'market_cap_current': row['resolved_market_cap'] or None,
-            'symbol': row['token_symbol'] or None,
-            'name': row['token_name'] or None,
-            'is_about_to_migrate': bool(row['is_about_to_migrate']) if row['is_about_to_migrate'] is not None else False,
-            'migration_progress_pct': row['migration_progress_pct'],
-            'migration_band': row['migration_band'] or None,
-            'migration_signal_updated_at': row['migration_signal_updated_at'],
-            'readiness_label': _readiness_label(row),
-        } for row in rows]
+        # Enrich missing symbol/name from metadata_cache
+        missing = [t['mint'] for t in tokens if not t.get('symbol') and not t.get('name')]
+        if missing:
+            try:
+                conn = db_connect(DB_PATH, timeout=5)
+                conn.row_factory = sqlite3.Row
+                placeholders = ','.join('?' * len(missing))
+                rows = conn.execute(f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({placeholders})", missing).fetchall()
+                conn.close()
+                meta = {r['mint']: (r['symbol'], r['name']) for r in rows}
+                for t in tokens:
+                    if t['mint'] in meta:
+                        t['symbol'] = t['symbol'] or meta[t['mint']][0]
+                        t['name'] = t['name'] or meta[t['mint']][1]
+            except Exception:
+                pass
+
+        return tokens
     except Exception as e:
         import traceback
         print(f"[DB] Error fetching future-bound tokens: {e}")
@@ -9305,6 +9275,240 @@ def api_future_bound_tokens():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
+
+
+@app.route('/usage')
+def usage_dashboard():
+    return render_template('usage_dashboard.html', active_page='usage')
+
+
+@app.route('/api/usage')
+def api_usage():
+    """Return RPC, WSS, and webhook usage for the last N hours."""
+    hours = request.args.get('hours', default=24, type=int)
+    try:
+        cutoff = time.time() - hours * 3600
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cur = conn.cursor()
+
+        # RPC: credits by method and source_file
+        cur.execute("""
+            SELECT method, source_file, COUNT(*) as calls, SUM(credits) as credits
+            FROM rpc_metrics
+            WHERE timestamp >= ?
+            GROUP BY method, source_file
+            ORDER BY credits DESC
+        """, (cutoff,))
+        rpc_by_method = [dict(r) for r in cur.fetchall()]
+
+        cur.execute("""
+            SELECT SUM(credits) as total_credits, COUNT(*) as total_calls
+            FROM rpc_metrics WHERE timestamp >= ?
+        """, (cutoff,))
+        rpc_totals = dict(cur.fetchone())
+
+        # WSS: messages and bytes by subscription
+        try:
+            cur.execute("""
+                SELECT subscription, source_file,
+                       SUM(msg_count) as messages, SUM(est_bytes) as bytes
+                FROM wss_metrics
+                WHERE ts >= ?
+                GROUP BY subscription, source_file
+                ORDER BY bytes DESC
+            """, (cutoff,))
+            wss_rows = [dict(r) for r in cur.fetchall()]
+        except Exception:
+            wss_rows = []
+
+        # Webhook: events by type
+        try:
+            cur.execute("""
+                SELECT webhook_id, event_type, SUM(count) as count
+                FROM webhook_metrics
+                WHERE ts >= ?
+                GROUP BY webhook_id, event_type
+                ORDER BY count DESC
+            """, (cutoff,))
+            webhook_rows = [dict(r) for r in cur.fetchall()]
+        except Exception:
+            webhook_rows = []
+
+        conn.close()
+
+        # Split Helius WSS (billable) from PumpPortal (free)
+        helius_rows = [r for r in wss_rows if not r["subscription"].startswith("pumpportal")]
+        portal_rows = [r for r in wss_rows if r["subscription"].startswith("pumpportal")]
+
+        helius_bytes = sum(r.get("bytes") or 0 for r in helius_rows)
+        helius_credits_est = round(helius_bytes / (1024 * 1024) * 20, 2)
+
+        # Summarise PumpPortal by event type
+        portal_summary = {}
+        for r in portal_rows:
+            key = r["subscription"].replace("pumpportal_", "") or "other"
+            portal_summary[key] = portal_summary.get(key, 0) + (r.get("messages") or 0)
+
+        return jsonify({
+            "hours": hours,
+            "rpc": {
+                "total_credits": rpc_totals.get("total_credits") or 0,
+                "total_calls": rpc_totals.get("total_calls") or 0,
+                "by_method": rpc_by_method,
+            },
+            "helius_wss": {
+                "total_messages": sum(r.get("messages") or 0 for r in helius_rows),
+                "total_bytes": helius_bytes,
+                "credits_est": helius_credits_est,
+                "by_subscription": helius_rows,
+            },
+            "pumpportal": {
+                "total_messages": sum(r.get("messages") or 0 for r in portal_rows),
+                "by_event_type": portal_summary,
+            },
+            "webhook": {
+                "total_events": sum(r.get("count") or 0 for r in webhook_rows),
+                "by_type": webhook_rows,
+            },
+            "ts": time.time(),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/pumpfun/live')
+def api_pumpfun_live():
+    """Return live PumpPortal data: recent births, near-migration tokens, recent migrations."""
+    try:
+        now = int(time.time())
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        cursor = conn.cursor()
+
+        # Recent births — tokens inserted in last 2 hours, ordered by insertion time
+        two_hours_ago = now - 7200
+        cursor.execute("""
+            SELECT ta.mint, ta.created_at, ta.earliest_tx_creator, ta.pf_ws_creator,
+                   ta.bonding_curve_pda, ta.lifecycle_stage,
+                   ta.analyzed_at,
+                   COALESCE(mc.symbol, '') as symbol,
+                   COALESCE(mc.name, '') as name
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+            WHERE ta.source_platform = 'pumpfun'
+              AND ta.lifecycle_stage = 'bonding_curve'
+              AND ta.analyzed_at >= ?
+            ORDER BY ta.analyzed_at DESC
+            LIMIT 60
+        """, (two_hours_ago,))
+        birth_rows = [dict(r) for r in cursor.fetchall()]
+
+        # Recent migrations — last 25 migrated tokens with creator funding timing
+        cursor.execute("""
+            SELECT ta.mint, ta.created_at,
+                   COALESCE(ta.migration_signal_updated_at, ta.analyzed_at) as migrated_at,
+                   ta.pumpswap_pool_address, ta.pool_address,
+                   COALESCE(mc.symbol, '') as symbol,
+                   COALESCE(mc.name, '') as name,
+                   ta.pf_ws_creator, ta.earliest_tx_creator,
+                   ta.migration_slot,
+                   cfq.funding_enqueued_at, cfq.funding_extracted_at,
+                   cfq.status as funding_status, cfq.source as funding_source
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+            LEFT JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
+            WHERE ta.source_platform = 'pumpfun'
+              AND ta.lifecycle_stage = 'migrated'
+            ORDER BY ta.analyzed_at DESC
+            LIMIT 100
+        """)
+        migration_rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        # Near-migration from PumpPortal vSol state file written by listener
+        import json as _json
+        portal_vsol_path = os.path.join(os.path.dirname(DB_PATH), '..', 'portal_vsol.json')
+        try:
+            with open(portal_vsol_path) as _f:
+                portal_vsol = _json.load(_f)
+        except Exception:
+            portal_vsol = {}
+
+        NEAR_THRESHOLD = 60.0
+        GRADUATION_SOL = 85.0
+
+        # Get already-migrated mints to exclude from near-graduation list
+        try:
+            _conn = db_connect(DB_PATH, timeout=5)
+            _migrated_mints = {r[0] for r in _conn.execute(
+                "SELECT mint FROM token_analysis WHERE lifecycle_stage='migrated'"
+            ).fetchall()}
+            _conn.close()
+        except Exception:
+            _migrated_mints = set()
+
+        near_migration = []
+        for mint, state in portal_vsol.items():
+            if mint in _migrated_mints:
+                continue
+            v_sol = float(state.get("v_sol") or 0)
+            if v_sol < NEAR_THRESHOLD or v_sol >= GRADUATION_SOL:
+                continue
+            near_migration.append({
+                "mint": mint,
+                "v_sol": v_sol,
+                "mc_sol": state.get("mc_sol", 0),
+                "symbol": state.get("symbol", ""),
+                "name": state.get("name", ""),
+                "creator": state.get("creator", ""),
+                "ts": state.get("ts", 0),
+                "pct": round(v_sol / GRADUATION_SOL * 100, 1),
+            })
+        near_migration.sort(key=lambda x: x["v_sol"], reverse=True)
+
+        # Enrich missing symbol/name from metadata_cache
+        _missing_meta = [t["mint"] for t in near_migration if not t["symbol"] and not t["name"]]
+        if _missing_meta:
+            try:
+                _mc = db_connect(DB_PATH, timeout=5)
+                _ph = ",".join("?" * len(_missing_meta))
+                _meta = {r[0]: (r[1], r[2]) for r in _mc.execute(
+                    f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({_ph})", _missing_meta
+                ).fetchall()}
+                _mc.close()
+                for t in near_migration:
+                    if t["mint"] in _meta:
+                        t["symbol"] = t["symbol"] or _meta[t["mint"]][0] or ""
+                        t["name"] = t["name"] or _meta[t["mint"]][1] or ""
+            except Exception:
+                pass
+
+        # Enrich births with portal vSol if available
+        for b in birth_rows:
+            mint = b["mint"]
+            ps = portal_vsol.get(mint, {})
+            b["v_sol"] = ps.get("v_sol")
+            b["mc_sol"] = ps.get("mc_sol")
+            b["born_at"] = b.get("analyzed_at") or b.get("created_at")
+            if not b["symbol"] and ps.get("symbol"):
+                b["symbol"] = ps["symbol"]
+            if not b["name"] and ps.get("name"):
+                b["name"] = ps["name"]
+
+        response = jsonify({
+            "births": birth_rows,
+            "near_migration": near_migration,
+            "migrations": migration_rows,
+            "portal_tracking_count": len(portal_vsol),
+            "ts": now,
+        })
+        response.headers['Cache-Control'] = 'no-store'
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/pumpfun/pre-migration')
@@ -18873,19 +19077,6 @@ def api_funding_queue():
         return {"ok": False, "error": str(e)}, 500
 
 
-@app.route('/api/funding-queue/curve-watch')
-def api_curve_watch_state():
-    """Return current bonding curve watcher subscriptions from sidecar file."""
-    import os as _os
-    state_path = _os.path.join(_os.path.dirname(__file__), '../../logs/curve_watch_state.json')
-    try:
-        with open(state_path) as f:
-            return jsonify(json.load(f))
-    except FileNotFoundError:
-        return jsonify({"subscriptions": [], "updated_at": None})
-    except Exception as e:
-        return jsonify({"error": str(e), "subscriptions": []}), 500
-
 
 @app.route('/api/funding-queue/clear', methods=['POST'])
 def api_funding_queue_clear():
@@ -19339,8 +19530,23 @@ def webhook_pumpfun_birth():
                 pass
         conn.close()
         print(f"[BIRTH_WEBHOOK] Queued {inserted} birth signatures (skipped {skipped} non-create)", flush=True)
+        try:
+            from src.metrics.usage_tracker import record_webhook
+            wh_id = os.getenv("PUMPFUN_BIRTH_WEBHOOK_ID", "pumpfun-birth")
+            if inserted:
+                record_webhook(wh_id, "main", "birth", count=inserted)
+            if skipped:
+                record_webhook(wh_id, "main", "filtered_out", count=skipped)
+        except Exception:
+            pass
     except Exception as e:
         print(f"[BIRTH_WEBHOOK] Handler error: {e}", flush=True)
+        try:
+            from src.metrics.usage_tracker import record_webhook
+            wh_id = os.getenv("PUMPFUN_BIRTH_WEBHOOK_ID", "pumpfun-birth")
+            record_webhook(wh_id, "main", "error", count=1, note=str(e))
+        except Exception:
+            pass
     return "ok", 200
 
 

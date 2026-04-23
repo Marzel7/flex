@@ -1,0 +1,371 @@
+{% extends "base_shell.html" %}
+{% block title %}Usage — FLEX{% endblock %}
+
+{% block extra_styles %}
+.u-shell { display: grid; gap: 18px; }
+
+.u-stat-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+}
+.u-stat {
+    background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.82));
+    border: 1px solid rgba(148,163,184,0.18);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+}
+.u-stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.u-stat-label { margin-top: 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); }
+.u-stat-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.u-stat.warn .u-stat-value { color: #fcd34d; }
+.u-stat.danger .u-stat-value { color: #fca5a5; }
+.u-stat.ok .u-stat-value { color: #6ee7b7; }
+
+.u-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.u-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+}
+.u-panel-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.u-panel-meta { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.u-table-wrap { overflow-x: auto; }
+.u-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.u-table .col-method  { width: 28%; }
+.u-table .col-source  { width: 28%; }
+.u-table .col-num     { width: 10%; }
+.u-table .col-volume  { width: 24%; }
+.u-table .col-sub     { width: 20%; }
+.u-table .col-src     { width: 30%; }
+.u-table .col-event   { width: 35%; }
+.u-table .col-notes   { width: 35%; }
+.u-table .col-whid    { width: 40%; }
+.u-table .col-evtype  { width: 35%; }
+.u-table th, .u-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 12px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.u-table th {
+    background: rgba(0,0,0,0.26);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 11px;
+}
+.u-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+.u-table td.num, .u-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.u-empty { padding: 20px 18px; color: var(--text-secondary); font-size: 13px; }
+
+.u-bar-cell { min-width: 120px; }
+.u-bar-track { height: 5px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; margin-top: 4px; }
+.u-bar-fill { height: 100%; border-radius: 999px; }
+.u-bar-fill.rpc { background: #3b82f6; }
+.u-bar-fill.wss { background: #f59e0b; }
+.u-bar-fill.wh  { background: #8b5cf6; }
+
+.u-chip {
+    display: inline-flex; align-items: center; padding: 2px 7px;
+    border-radius: 999px; font-size: 11px; font-weight: 600;
+}
+.u-chip.rpc { background: rgba(59,130,246,0.16); color: #93c5fd; }
+.u-chip.wss { background: rgba(245,158,11,0.16); color: #fcd34d; }
+.u-chip.wh  { background: rgba(139,92,246,0.16); color: #c4b5fd; }
+
+.u-controls {
+    display: flex; gap: 8px; align-items: center;
+}
+.u-select {
+    background: rgba(255,255,255,0.06); color: var(--text-primary);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 7px;
+    padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+.u-refresh {
+    background: rgba(16,185,129,0.14); color: #a7f3d0;
+    border: 1px solid rgba(16,185,129,0.28); border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer;
+}
+.u-refresh:hover { background: rgba(16,185,129,0.22); }
+.u-updated { font-size: 11px; color: var(--text-secondary); }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>USAGE</h1>
+    <p class="subtitle">RPC credits, WebSocket bandwidth, and webhook events — all channels in one view.</p>
+</div>
+
+<div class="u-shell">
+
+    <div class="u-stat-row" id="uStats">
+        <div class="u-stat" id="statRpcCredits">
+            <div class="u-stat-value">—</div>
+            <div class="u-stat-label">RPC Credits</div>
+            <div class="u-stat-sub">helius calls</div>
+        </div>
+        <div class="u-stat" id="statRpcCalls">
+            <div class="u-stat-value">—</div>
+            <div class="u-stat-label">RPC Calls</div>
+            <div class="u-stat-sub">total requests</div>
+        </div>
+        <div class="u-stat" id="statWssMessages">
+            <div class="u-stat-value">—</div>
+            <div class="u-stat-label">WSS Messages</div>
+            <div class="u-stat-sub" id="statWssBytes">— bytes</div>
+        </div>
+        <div class="u-stat" id="statWssCredits">
+            <div class="u-stat-value">—</div>
+            <div class="u-stat-label">WSS Credits Est.</div>
+            <div class="u-stat-sub">@ 20 credits/MB</div>
+        </div>
+        <div class="u-stat" id="statWebhookEvents">
+            <div class="u-stat-value">—</div>
+            <div class="u-stat-label">Webhook Events</div>
+            <div class="u-stat-sub">received</div>
+        </div>
+        <div class="u-stat" id="statTotalCredits">
+            <div class="u-stat-value">—</div>
+            <div class="u-stat-label">Total Credits Est.</div>
+            <div class="u-stat-sub">RPC + WSS</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="u-controls">
+            <select class="u-select" id="hoursSelect">
+                <option value="1">Last 1 hour</option>
+                <option value="6">Last 6 hours</option>
+                <option value="24" selected>Last 24 hours</option>
+                <option value="72">Last 3 days</option>
+                <option value="168">Last 7 days</option>
+            </select>
+        </div>
+        <div class="u-controls">
+            <span class="u-updated" id="uUpdated">—</span>
+            <button class="u-refresh" id="uRefresh">Refresh</button>
+        </div>
+    </div>
+
+    <!-- RPC by method -->
+    <div class="u-panel">
+        <div class="u-panel-header">
+            <div class="u-panel-title">RPC Calls <span class="u-chip rpc">Helius RPC</span></div>
+            <div class="u-panel-meta">credits consumed by method + source</div>
+        </div>
+        <div class="u-table-wrap">
+            <table class="u-table">
+                <colgroup><col class="col-method"><col class="col-source"><col class="col-num"><col class="col-num"><col class="col-volume"></colgroup>
+                <thead><tr><th>Method</th><th>Source</th><th class="num">Calls</th><th class="num">Credits</th><th>Volume</th></tr></thead>
+                <tbody id="rpcBody"><tr><td colspan="5" class="u-empty">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Helius WSS (billable) -->
+    <div class="u-panel">
+        <div class="u-panel-header">
+            <div class="u-panel-title">Helius WebSocket <span class="u-chip wss">Billable — 20 credits/MB</span></div>
+            <div class="u-panel-meta">PumpSwap logsSubscribe — all PumpSwap program transactions</div>
+        </div>
+        <div class="u-table-wrap">
+            <table class="u-table">
+                <colgroup><col class="col-sub"><col class="col-src"><col class="col-num"><col class="col-num"><col class="col-num"><col class="col-num"></colgroup>
+                <thead><tr><th>Subscription</th><th>Source</th><th class="num">Messages</th><th class="num">Est. Size</th><th class="num">Est. MB</th><th class="num">Credits Est.</th></tr></thead>
+                <tbody id="wssBody"><tr><td colspan="6" class="u-empty">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PumpPortal (free) -->
+    <div class="u-panel">
+        <div class="u-panel-header">
+            <div class="u-panel-title">PumpPortal <span class="u-chip" style="background:rgba(16,185,129,0.16);color:#6ee7b7">Free API</span></div>
+            <div class="u-panel-meta">wss://pumpportal.fun — births, trades, migrations. No Helius credits.</div>
+        </div>
+        <div class="u-table-wrap">
+            <table class="u-table">
+                <colgroup><col class="col-event"><col class="col-num"><col class="col-notes"></colgroup>
+                <thead><tr><th>Event Type</th><th class="num">Messages</th><th>Notes</th></tr></thead>
+                <tbody id="portalBody"><tr><td colspan="3" class="u-empty">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Webhook events -->
+    <div class="u-panel">
+        <div class="u-panel-header">
+            <div class="u-panel-title">Webhook Events <span class="u-chip wh">Helius Webhooks</span></div>
+            <div class="u-panel-meta">events received and filtered by type</div>
+        </div>
+        <div class="u-table-wrap">
+            <table class="u-table">
+                <colgroup><col class="col-whid"><col class="col-evtype"><col class="col-num"></colgroup>
+                <thead><tr><th>Webhook ID</th><th>Event Type</th><th class="num">Count</th></tr></thead>
+                <tbody id="webhookBody"><tr><td colspan="3" class="u-empty">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fmtNum(n) {
+    n = Number(n || 0);
+    if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+    return String(Math.round(n));
+}
+function fmtBytes(b) {
+    b = Number(b || 0);
+    if (b >= 1e9) return (b/1e9).toFixed(2) + ' GB';
+    if (b >= 1e6) return (b/1e6).toFixed(2) + ' MB';
+    if (b >= 1e3) return (b/1e3).toFixed(1) + ' KB';
+    return b + ' B';
+}
+function esc(v) {
+    return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function statClass(val, warn, danger) {
+    return val >= danger ? 'danger' : val >= warn ? 'warn' : 'ok';
+}
+
+function renderStats(d) {
+    const rpcCredits = d.rpc.total_credits || 0;
+    const wssCredits = (d.helius_wss || {}).credits_est || 0;
+    const total = rpcCredits + wssCredits;
+    const dailyLimit = 1_000_000;
+
+    const rpcEl = document.getElementById('statRpcCredits');
+    rpcEl.querySelector('.u-stat-value').textContent = fmtNum(rpcCredits);
+    rpcEl.className = 'u-stat ' + statClass(rpcCredits, 50000, 200000);
+
+    document.getElementById('statRpcCalls').querySelector('.u-stat-value').textContent = fmtNum(d.rpc.total_calls);
+
+    const wss = d.helius_wss || {};
+    document.getElementById('statWssMessages').querySelector('.u-stat-value').textContent = fmtNum(wss.total_messages);
+    document.getElementById('statWssBytes').textContent = fmtBytes(wss.total_bytes);
+
+    const wssEl = document.getElementById('statWssCredits');
+    wssEl.querySelector('.u-stat-value').textContent = fmtNum(wssCredits);
+    wssEl.className = 'u-stat ' + statClass(wssCredits, 50000, 200000);
+
+    const portal = d.pumpportal || {};
+    document.getElementById('statWebhookEvents').querySelector('.u-stat-value').textContent = fmtNum(portal.total_messages || 0);
+    document.getElementById('statWebhookEvents').querySelector('.u-stat-label').textContent = 'PumpPortal Msgs';
+    document.getElementById('statWebhookEvents').querySelector('.u-stat-sub').textContent = 'free';
+
+    const totalEl = document.getElementById('statTotalCredits');
+    totalEl.querySelector('.u-stat-value').textContent = fmtNum(total);
+    totalEl.querySelector('.u-stat-sub').textContent = `of ${fmtNum(dailyLimit)} daily limit`;
+    totalEl.className = 'u-stat ' + statClass(total, dailyLimit * 0.5, dailyLimit * 0.8);
+}
+
+function renderRpc(rows) {
+    const el = document.getElementById('rpcBody');
+    if (!rows.length) { el.innerHTML = '<tr><td colspan="5" class="u-empty">No RPC calls in this window.</td></tr>'; return; }
+    const maxCredits = Math.max(...rows.map(r => r.credits || 0), 1);
+    el.innerHTML = rows.map(r => {
+        const pct = Math.round((r.credits / maxCredits) * 100);
+        return `<tr>
+            <td>${esc(r.method)}</td>
+            <td><span style="font-family:monospace;font-size:11px;color:var(--text-secondary)">${esc(r.source_file)}</span></td>
+            <td class="num">${fmtNum(r.calls)}</td>
+            <td class="num">${fmtNum(r.credits)}</td>
+            <td class="u-bar-cell"><div class="u-bar-track"><div class="u-bar-fill rpc" style="width:${pct}%"></div></div></td>
+        </tr>`;
+    }).join('');
+}
+
+function renderWss(rows) {
+    const el = document.getElementById('wssBody');
+    if (!rows.length) {
+        el.innerHTML = '<tr><td colspan="6" class="u-empty">No Helius WSS data yet — accumulates after restart.</td></tr>';
+        return;
+    }
+    const maxBytes = Math.max(...rows.map(r => r.bytes || 0), 1);
+    el.innerHTML = rows.map(r => {
+        const mb = ((r.bytes || 0) / (1024*1024)).toFixed(3);
+        const credits = ((r.bytes || 0) / (1024*1024) * 20).toFixed(2);
+        const pct = Math.round(((r.bytes || 0) / maxBytes) * 100);
+        return `<tr>
+            <td>${esc(r.subscription)}</td>
+            <td><span style="font-family:monospace;font-size:11px;color:var(--text-secondary)">${esc(r.source_file)}</span></td>
+            <td class="num">${fmtNum(r.messages)}</td>
+            <td class="num">${fmtBytes(r.bytes)}</td>
+            <td class="num">${mb}</td>
+            <td class="num">${credits}</td>
+        </tr>`;
+    }).join('');
+}
+
+function renderPortal(byType) {
+    const el = document.getElementById('portalBody');
+    const entries = Object.entries(byType || {});
+    if (!entries.length) {
+        el.innerHTML = '<tr><td colspan="3" class="u-empty">No PumpPortal messages yet.</td></tr>';
+        return;
+    }
+    const notes = { create: 'New token births', buy: 'Trade — buy', sell: 'Trade — sell', migration: 'Curve graduation', other: 'Other / confirmations' };
+    entries.sort((a,b) => b[1] - a[1]);
+    el.innerHTML = entries.map(([type, count]) => `<tr>
+        <td>${esc(type)}</td>
+        <td class="num">${fmtNum(count)}</td>
+        <td style="color:var(--text-secondary);font-size:11px">${esc(notes[type] || '')}</td>
+    </tr>`).join('');
+}
+
+function renderWebhooks(rows) {
+    const el = document.getElementById('webhookBody');
+    if (!rows.length) { el.innerHTML = '<tr><td colspan="3" class="u-empty">No webhook events in this window.</td></tr>'; return; }
+    el.innerHTML = rows.map(r => `<tr>
+        <td><span style="font-family:monospace;font-size:11px">${esc(r.webhook_id)}</span></td>
+        <td>${esc(r.event_type)}</td>
+        <td class="num">${fmtNum(r.count)}</td>
+    </tr>`).join('');
+}
+
+async function load() {
+    const hours = document.getElementById('hoursSelect').value;
+    try {
+        const res = await fetch(`/api/usage?hours=${hours}`, { cache: 'no-store' });
+        const d = await res.json();
+        if (d.error) throw new Error(d.error);
+        renderStats(d);
+        renderRpc(d.rpc.by_method || []);
+        renderWss((d.helius_wss || {}).by_subscription || []);
+        renderPortal((d.pumpportal || {}).by_event_type || {});
+        renderWebhooks(d.webhook.by_type || []);
+        document.getElementById('uUpdated').textContent = new Date().toLocaleTimeString();
+    } catch(e) {
+        console.error(e);
+        document.getElementById('uUpdated').textContent = 'Error: ' + e.message;
+    }
+}
+
+document.getElementById('uRefresh').addEventListener('click', load);
+document.getElementById('hoursSelect').addEventListener('change', load);
+load();
+setInterval(load, 30000);
+</script>
+{% endblock %}

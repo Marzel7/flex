@@ -1,40 +1,25 @@
 {% extends "base_shell.html" %}
 
-{% block title %}PUMPFUN Live Console - FLEX{% endblock %}
+{% block title %}PUMPFUN Live — FLEX{% endblock %}
 
 {% block extra_styles %}
-.pf-shell {
-    display: grid;
-    gap: 18px;
-}
+.pf-shell { display: grid; gap: 18px; }
 
-.pf-summary {
+.pf-stat-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
-
 .pf-stat {
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.82));
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.82));
+    border: 1px solid rgba(148,163,184,0.18);
+    border-radius: 12px;
     padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
 }
-
-.pf-stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.05;
-}
-
-.pf-stat-label {
-    margin-top: 6px;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-}
+.pf-stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.pf-stat-label { margin-top: 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); }
 
 .pf-panel {
     background: var(--bg-card);
@@ -42,983 +27,311 @@
     border-radius: 14px;
     overflow: hidden;
 }
-
 .pf-panel-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 16px 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-}
-
-.pf-panel-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.pf-panel-subtitle {
-    margin-top: 4px;
-    font-size: 12px;
-    color: var(--text-secondary);
-    max-width: 760px;
-}
-
-.pf-actions {
-    display: flex;
     align-items: center;
     gap: 12px;
-}
-
-.pf-updated {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-.pf-refresh {
-    background: rgba(16, 185, 129, 0.14);
-    color: #a7f3d0;
-    border: 1px solid rgba(16, 185, 129, 0.28);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.pf-refresh:hover {
-    background: rgba(16, 185, 129, 0.22);
-}
-
-.pf-filter-hint {
     padding: 14px 18px;
-    font-size: 12px;
-    color: var(--text-secondary);
     border-bottom: 1px solid rgba(255,255,255,0.06);
-    background: rgba(255,255,255,0.02);
+    background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
 }
-
-.pf-table-wrap {
-    overflow-x: auto;
+.pf-panel-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.pf-updated { font-size: 11px; color: var(--text-secondary); }
+.pf-refresh {
+    background: rgba(16,185,129,0.14); color: #a7f3d0;
+    border: 1px solid rgba(16,185,129,0.28); border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer;
 }
+.pf-refresh:hover { background: rgba(16,185,129,0.22); }
 
-.pf-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.pf-table th,
-.pf-table td {
-    padding: 13px 14px;
+.pf-table-wrap { overflow-x: auto; }
+.pf-table { width: 100%; border-collapse: collapse; }
+.pf-table th, .pf-table td {
+    padding: 10px 12px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    vertical-align: top;
     font-size: 12px;
+    vertical-align: middle;
 }
-
 .pf-table th {
     text-align: left;
-    background: rgba(0, 0, 0, 0.26);
+    background: rgba(0,0,0,0.26);
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 11px;
 }
+.pf-table tbody tr:hover { background: rgba(255,255,255,0.025); }
 
-.pf-table tbody tr:hover {
-    background: rgba(255,255,255,0.025);
+.pf-symbol { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.pf-mint { font-family: Monaco,Menlo,monospace; font-size: 11px; color: var(--text-secondary); }
+.pf-subtext, .pf-meta { font-size: 11px; color: var(--text-secondary); }
+
+.pf-chip {
+    display: inline-flex; align-items: center; padding: 3px 7px;
+    border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap;
 }
+.pf-chip.new { background: rgba(16,185,129,0.18); color: #34d399; }
+.pf-chip.near { background: rgba(239,68,68,0.16); color: #fca5a5; }
+.pf-chip.migrated { background: rgba(99,102,241,0.16); color: #a5b4fc; }
 
-.pf-token-cell,
-.pf-flow-cell,
-.pf-market-cell,
-.pf-updated-cell,
-.pf-debug-cell {
-    display: grid;
-    gap: 4px;
-}
+.pf-bar-wrap { min-width: 120px; }
+.pf-bar-track { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+.pf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#2563eb 0%,#f59e0b 65%,#ef4444 100%); }
+.pf-bar-label { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
 
-.pf-token-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
+.pf-empty { padding: 22px 18px; color: var(--text-secondary); font-size: 13px; }
 
-.pf-symbol {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
+.pf-sol-value { font-size: 13px; font-weight: 700; color: var(--text-primary); }
 
-.pf-subtext,
-.pf-meta-line,
-.pf-mint {
-    font-size: 11px;
-    color: var(--text-secondary);
-}
-
-.pf-status-line {
-    font-size: 11px;
-    color: var(--text-secondary);
-}
-
-.pf-mint {
-    font-family: Monaco, Menlo, Consolas, monospace;
-}
-
-.pf-chip,
-.pf-badge,
-.pf-provenance {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.pf-badge.about { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
-.pf-badge.hot { background: rgba(249, 115, 22, 0.16); color: #fdba74; }
-.pf-badge.warm { background: rgba(245, 158, 11, 0.16); color: #fde68a; }
-.pf-badge.likely_close { background: rgba(14, 165, 233, 0.16); color: #7dd3fc; }
-.pf-badge.early { background: rgba(59, 130, 246, 0.16); color: #93c5fd; }
-.pf-badge.watch { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; }
-
-.pf-provenance.live { background: rgba(34, 197, 94, 0.14); color: #86efac; }
-.pf-provenance.fallback { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
-.pf-provenance.active_live { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; }
-.pf-provenance.fresh_but_idle { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-.pf-provenance.stale_live { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
-
-.pf-chip.full { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
-.pf-chip.buyer_only,
-.pf-chip.sol_only { background: rgba(59, 130, 246, 0.16); color: #93c5fd; }
-.pf-chip.count_only { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-.pf-chip.context_only { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
-.pf-chip.no_detail { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
-.pf-chip.missing_mc { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
-
-.pf-progress {
-    min-width: 150px;
-}
-
-.pf-progress-track {
-    height: 8px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: rgba(255,255,255,0.07);
-}
-
-.pf-progress-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #2563eb 0%, #f59e0b 65%, #ef4444 100%);
-}
-
-.pf-metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(70px, 1fr));
-    gap: 6px 10px;
-}
-
-.pf-metric-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary);
-}
-
-.pf-metric-value {
-    font-size: 12px;
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.pf-debug details {
-    cursor: pointer;
-}
-
-.pf-debug summary {
-    color: var(--accent-cyan);
-    font-size: 12px;
-}
-
-.pf-debug-list {
-    display: grid;
-    gap: 4px;
-    margin-top: 8px;
-}
-
-.pf-empty {
-    padding: 28px 18px;
-    color: var(--text-secondary);
-    font-size: 13px;
-}
-
-.pf-legend {
-    display: grid;
-    gap: 10px;
-    padding: 14px 18px 18px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    background: rgba(255,255,255,0.02);
-}
-
-.pf-legend-title {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-}
-
-.pf-legend-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 10px 14px;
-}
-
-.pf-legend-item {
-    display: grid;
-    gap: 6px;
-    align-content: start;
-}
-
-.pf-legend-copy {
-    font-size: 12px;
-    line-height: 1.45;
-    color: var(--text-secondary);
-}
-
-.pf-verify-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    padding: 16px 18px 0;
-}
-
-.pf-verify-list {
-    display: grid;
-    gap: 10px;
-    padding: 16px 18px 18px;
-}
-
-.pf-verify-item {
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 12px;
-    padding: 12px 14px;
-    background: rgba(255,255,255,0.02);
-}
-
-.pf-chip.creator-funded {
-    background: rgba(16, 185, 129, 0.16);
-    color: #6ee7b7;
-}
-
-.pf-chip.creator-funded-post {
-    background: rgba(99, 102, 241, 0.16);
-    color: #a5b4fc;
-}
-
-.pf-chip.creator-funding-pending {
-    background: rgba(245, 158, 11, 0.16);
-    color: #fcd34d;
-}
-
-.pf-chip.curve-complete {
-    background: rgba(139, 92, 246, 0.18);
-    color: #c4b5fd;
-    font-weight: 600;
-}
-
-.pf-chip.new-token {
-    background: rgba(16, 185, 129, 0.2);
-    color: #34d399;
-    font-weight: 700;
-}
-
-.pf-verify-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.pf-verify-flags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-}
-
-.pf-chip.predicted { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
-.pf-chip.market_cap_only { background: rgba(59, 130, 246, 0.16); color: #93c5fd; }
-.pf-chip.stale_signal { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-.pf-chip.missed, .pf-chip.no_signal, .pf-chip.late_capture { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
-.pf-chip.before_cutoff { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
-.pf-chip.after_cutoff { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-.pf-chip.creator-match { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
-.pf-chip.creator-mismatch { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
-.pf-chip.creator-unknown { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
-
-@media (max-width: 980px) {
-    .pf-panel-header {
-        flex-direction: column;
-    }
-}
+a.pf-link { color: var(--accent-cyan); text-decoration: none; }
+a.pf-link:hover { text-decoration: underline; }
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
     <h1>PUMPFUN</h1>
-    <p class="subtitle">Dedicated live extraction console for Pump.fun pre-migration tokens, with flow-backed signals separated clearly from fallback rows.</p>
+    <p class="subtitle">Live feed from PumpPortal WebSocket — births, near-graduation tokens, and recent migrations.</p>
 </div>
 
 <div class="pf-shell">
-    <div class="pf-summary" id="pfSummary">
-        <div class="pf-stat"><div class="pf-stat-value" id="pfLiveRows">0</div><div class="pf-stat-label">Live Flow Rows</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfFallbackRows">0</div><div class="pf-stat-label">Fallback Rows</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfHotRows">0</div><div class="pf-stat-label">Hot</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfWarmRows">0</div><div class="pf-stat-label">Warm</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfLikelyCloseRows">0</div><div class="pf-stat-label">Likely Close</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfEarlyRows">0</div><div class="pf-stat-label">Early</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfAboutRows">0</div><div class="pf-stat-label">About To Migrate</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfActiveFlowRows">0</div><div class="pf-stat-label">Active Flow Mints</div></div>
-        <div class="pf-stat"><div class="pf-stat-value" id="pfRecentRows">0</div><div class="pf-stat-label">Recently Updated</div></div>
+
+    <div class="pf-stat-row" id="pfStats">
+        <div class="pf-stat"><div class="pf-stat-value" id="statBirths">—</div><div class="pf-stat-label">Births tracked</div></div>
+        <div class="pf-stat"><div class="pf-stat-value" id="statNear">—</div><div class="pf-stat-label">Near graduation</div></div>
+        <div class="pf-stat"><div class="pf-stat-value" id="statMigrations">—</div><div class="pf-stat-label">Recent migrations</div></div>
+        <div class="pf-stat"><div class="pf-stat-value" id="statPortal">—</div><div class="pf-stat-label">Portal tracking</div></div>
     </div>
 
+    <!-- Near migration -->
     <div class="pf-panel">
         <div class="pf-panel-header">
-            <div>
-                <div class="pf-panel-title">Pump.fun Watchlist</div>
-            </div>
-            <div class="pf-actions">
-                <div class="pf-updated" id="pfLastUpdated">Waiting for first refresh...</div>
-                <button class="pf-refresh" id="pfRefreshBtn" type="button">Refresh</button>
+            <div class="pf-panel-title">Near Graduation <span class="pf-chip near" style="margin-left:8px">≥60 SOL</span></div>
+            <div style="display:flex;gap:10px;align-items:center">
+                <span class="pf-updated" id="pfUpdated">—</span>
+                <button class="pf-refresh" id="pfRefreshBtn">Refresh</button>
             </div>
         </div>
-
-        <div class="pf-filter-hint" id="pfFilterHint">Loading live Pump.fun extraction state...</div>
-
         <div class="pf-table-wrap">
             <table class="pf-table">
-                <thead>
-                    <tr>
-                        <th>Token</th>
-                        <th>Signal</th>
-                        <th>Flow</th>
-                        <th>Market</th>
-                        <th>Updated</th>
-                        <th>Debug</th>
-                    </tr>
-                </thead>
-                <tbody id="pfTableBody">
-                    <tr><td colspan="6" class="pf-empty">Loading Pump.fun live console...</td></tr>
-                </tbody>
+                <thead><tr><th style="width:25%">Token</th><th style="width:15%">vSOL</th><th style="width:30%">Progress</th><th style="width:15%">FDV (SOL)</th><th style="width:15%;text-align:right">Updated</th></tr></thead>
+                <tbody id="nearBody"><tr><td colspan="5" class="pf-empty">Loading...</td></tr></tbody>
             </table>
-        </div>
-        <div class="pf-legend">
-            <div class="pf-legend-title">Tag Legend</div>
-            <div class="pf-legend-grid">
-                <div class="pf-legend-item">
-                    <span class="pf-chip predicted">predicted</span>
-                    <div class="pf-legend-copy">A real pre-migration signal was recorded before the cutoff, usually from flow or a strong explicit readiness signal.</div>
-                </div>
-                <div class="pf-legend-item">
-                    <span class="pf-chip market_cap_only">market_cap_only</span>
-                    <div class="pf-legend-copy">The token looked close enough by market cap before migration, but did not have the stronger flow-backed signal needed for a full predicted call.</div>
-                </div>
-                <div class="pf-legend-item">
-                    <span class="pf-chip late_capture">late_capture</span>
-                    <div class="pf-legend-copy">The first usable signal was only recorded at migration time or too close to it, so it cannot count as a true pre-migration prediction.</div>
-                </div>
-                <div class="pf-legend-item">
-                    <span class="pf-chip stale_signal">stale_signal</span>
-                    <div class="pf-legend-copy">A signal existed before migration, but it was too old to trust by the time the token actually migrated.</div>
-                </div>
-                <div class="pf-legend-item">
-                    <span class="pf-chip no_signal">no_signal</span>
-                    <div class="pf-legend-copy">The system knew about the token, but never captured a meaningful pre-migration signal before it moved.</div>
-                </div>
-                <div class="pf-legend-item">
-                    <span class="pf-chip missed">missed</span>
-                    <div class="pf-legend-copy">A real pre-migration signal existed in time, but it still failed the thresholds needed to classify the token as predicted.</div>
-                </div>
-            </div>
         </div>
     </div>
 
+    <!-- Recent migrations -->
     <div class="pf-panel">
         <div class="pf-panel-header">
-            <div>
-                <div class="pf-panel-title">Recently Migrated Verification Trail</div>
-                <div class="pf-panel-subtitle">Shows whether recently migrated Pump.fun tokens were actually predicted in time by flow, market-cap readiness, or explicit pre-migration fields.</div>
-            </div>
+            <div class="pf-panel-title">Recent Migrations</div>
         </div>
-        <div class="pf-verify-grid">
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyPredicted">—</div><div class="pf-stat-label">Predicted</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyFlow">—</div><div class="pf-stat-label">Flow</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMarketCapOnly">—</div><div class="pf-stat-label">MC Only</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMissed">—</div><div class="pf-stat-label">Missed</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyStale">—</div><div class="pf-stat-label">Stale Signal</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyCreatorMatchRate">—</div><div class="pf-stat-label">Creator Match Rate</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyCreatorMismatchCount">—</div><div class="pf-stat-label">Creator Mismatch Count</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMigrationAudit">—</div><div class="pf-stat-label">Migration Audit</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifyMissingMigrations">—</div><div class="pf-stat-label">Missed Migrations</div></div>
-            <div class="pf-stat"><div class="pf-stat-value" id="pfVerifySample">0</div><div class="pf-stat-label">Sample</div></div>
-        </div>
-        <div class="pf-verify-list" id="pfVerificationList">
-            <div class="pf-empty">Loading migration verification trail...</div>
+        <div class="pf-table-wrap">
+            <table class="pf-table">
+                <thead><tr><th>Token</th><th>Creator</th><th>Funding</th><th>Timing</th><th>Migrated</th></tr></thead>
+                <tbody id="migrationsBody"><tr><td colspan="5" class="pf-empty">Loading...</td></tr></tbody>
+            </table>
         </div>
     </div>
+
+    <!-- Recent births -->
+    <div class="pf-panel">
+        <div class="pf-panel-header">
+            <div class="pf-panel-title">Recent Births <span class="pf-subtext" id="birthsSubtitle"></span></div>
+        </div>
+        <div class="pf-table-wrap">
+            <table class="pf-table">
+                <thead><tr><th>Token</th><th>Creator</th><th>vSOL</th><th>Born</th></tr></thead>
+                <tbody id="birthsBody"><tr><td colspan="4" class="pf-empty">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-const PF_REFRESH_MS = 10000;
+const REFRESH_MS = 8000;
 
-function pfParseTime(value) {
-    if (value === null || value === undefined || value === '') return NaN;
-    const numeric = Number(value);
-    if (Number.isFinite(numeric)) return numeric > 1000000000000 ? numeric : numeric * 1000;
-    return Date.parse(value);
+function esc(v) {
+    return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function pfFormatAge(value) {
-    const parsed = pfParseTime(value);
-    if (!Number.isFinite(parsed)) return '—';
-    const diff = Math.max(0, Math.floor((Date.now() - parsed) / 1000));
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
+function shortAddr(addr) {
+    if (!addr) return '—';
+    return addr.length > 16 ? `${addr.slice(0,8)}…${addr.slice(-6)}` : addr;
 }
 
-function pfFormatTime(value) {
-    const parsed = pfParseTime(value);
-    if (!Number.isFinite(parsed)) return '—';
-    return new Date(parsed).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+function parseTs(ts) {
+    if (!ts) return NaN;
+    const n = Number(ts);
+    if (Number.isFinite(n)) return n > 1e12 ? n / 1000 : n;
+    const d = Date.parse(ts);
+    return Number.isFinite(d) ? d / 1000 : NaN;
 }
 
-function pfFormatNumber(value, digits = 0) {
-    const num = Number(value || 0);
-    if (!Number.isFinite(num)) return '0';
-    return digits > 0 ? num.toFixed(digits) : String(Math.round(num));
+const SOURCE_LABELS = {
+    'pf_ws_creator_migration':      'WS Migration',
+    'pf_ws_creator_curve_complete': 'WS Curve Complete',
+    'migration_db_fallback':        'DB Fallback',
+    'creator_discovery':            'Discovery',
+    'migration_already_known':      'Already Known',
+};
+function fmtSource(s) { return SOURCE_LABELS[s] || s || '—'; }
+
+function fmtAge(ts) {
+    const epoch = parseTs(ts);
+    if (!Number.isFinite(epoch)) return '—';
+    const sec = Math.max(0, Math.floor(Date.now() / 1000 - epoch));
+    if (sec < 60) return `${sec}s ago`;
+    if (sec < 3600) return `${Math.floor(sec/60)}m ago`;
+    if (sec < 86400) return `${Math.floor(sec/3600)}h ago`;
+    return `${Math.floor(sec/86400)}d ago`;
 }
 
-function pfFormatMarketCap(value) {
-    const num = Number(value || 0);
-    if (!Number.isFinite(num) || num <= 0) return '—';
-    if (num >= 1000000) return `$${(num / 1000000).toFixed(2)}M`;
-    if (num >= 1000) return `$${(num / 1000).toFixed(1)}K`;
-    return `$${num.toFixed(0)}`;
+function fmtSol(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n) || n <= 0) return '—';
+    return n.toFixed(2) + ' SOL';
 }
 
-function pfShortMint(mint) {
-    if (!mint) return '—';
-    return mint.length > 16 ? `${mint.slice(0, 8)}...${mint.slice(-6)}` : mint;
+function fmtMcSol(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n) || n <= 0) return '—';
+    if (n >= 1000) return (n/1000).toFixed(1) + 'K SOL';
+    return n.toFixed(1) + ' SOL';
 }
 
-const pfSymbolCache = new Map();
-const pfSymbolInflight = new Map();
-
-function pfHasResolvedLabel(mint, token = {}) {
-    const cached = pfSymbolCache.get(mint) || {};
-    return !!(cached.symbol || cached.name || token.symbol || token.name);
+function tokenLabel(t) {
+    return esc(t.symbol || t.name || shortAddr(t.mint));
 }
 
-async function pfLoadTokenLabel(mint) {
-    if (!mint) return null;
-    if (pfSymbolCache.has(mint)) return pfSymbolCache.get(mint);
-    if (pfSymbolInflight.has(mint)) return pfSymbolInflight.get(mint);
-
-    const promise = fetch(`/api/price/symbol/${mint}`, { cache: 'no-store' })
-        .then((res) => res.ok ? res.json() : null)
-        .then((data) => {
-            const payload = {
-                symbol: (data && data.symbol) ? String(data.symbol).trim() : '',
-                name: (data && data.name) ? String(data.name).trim() : '',
-            };
-            pfSymbolCache.set(mint, payload);
-            return payload;
-        })
-        .catch(() => {
-            const payload = { symbol: '', name: '' };
-            pfSymbolCache.set(mint, payload);
-            return payload;
-        })
-        .finally(() => {
-            pfSymbolInflight.delete(mint);
-        });
-
-    pfSymbolInflight.set(mint, promise);
-    return promise;
-}
-
-function pfPatchTokenLabel(mint, label = {}) {
-    const titleEl = document.getElementById(`pf-symbol-${mint}`);
-    if (!titleEl) return;
-    const nextSymbol = String(label.symbol || '').trim();
-    const nextName = String(label.name || '').trim();
-    if (nextSymbol) {
-        titleEl.textContent = nextSymbol;
-        titleEl.title = nextName || nextSymbol;
-    } else if (nextName) {
-        titleEl.textContent = nextName;
-        titleEl.title = nextName;
-    }
-
-    const subEl = document.getElementById(`pf-subtext-${mint}`);
-    if (!subEl) return;
-    if (nextSymbol && nextName && nextName !== nextSymbol) {
-        subEl.textContent = nextName;
-    } else if (nextName && !nextSymbol) {
-        subEl.textContent = 'Pump.fun pre-migration';
-    }
-}
-
-function pfHydrateVisibleLabels(tokens) {
-    if (!Array.isArray(tokens)) return;
-    tokens.forEach((token) => {
-        const mint = token?.mint;
-        if (!mint || pfHasResolvedLabel(mint, token)) return;
-        pfLoadTokenLabel(mint).then((label) => {
-            if (label && (label.symbol || label.name)) {
-                pfPatchTokenLabel(mint, label);
-            }
-        });
-    });
-}
-
-function pfBadgeClass(token) {
-    if (token.is_about_to_migrate) return 'about';
-    const band = (token.migration_band || '').toLowerCase();
-    if (band === 'hot') return 'hot';
-    if (band === 'warm') return 'warm';
-    if (band === 'likely_close') return 'likely_close';
-    if (band === 'early') return 'early';
-    return 'watch';
-}
-
-function pfEsc(value) {
-    return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-}
-
-function currentFilters() {
-    return {
-        close_only: '1',
-        signal_type: 'all',
-        band: 'all',
-        updated_within_seconds: '0',
-        limit: '50',
-    };
-}
-
-function renderSummary(summary = {}) {
-    document.getElementById('pfLiveRows').textContent = String(summary.live_flow_rows || 0);
-    document.getElementById('pfFallbackRows').textContent = String(summary.fallback_rows || 0);
-    document.getElementById('pfHotRows').textContent = String(summary.hot_rows || 0);
-    document.getElementById('pfWarmRows').textContent = String(summary.warm_rows || 0);
-    document.getElementById('pfLikelyCloseRows').textContent = String(summary.likely_close_rows || 0);
-    document.getElementById('pfEarlyRows').textContent = String(summary.early_rows || 0);
-    document.getElementById('pfAboutRows').textContent = String(summary.about_to_migrate_rows || 0);
-    document.getElementById('pfActiveFlowRows').textContent = String(summary.active_flow_mints || 0);
-    document.getElementById('pfRecentRows').textContent = String(summary.recently_updated_rows || 0);
-}
-
-function renderVerificationTrail(section = {}) {
-    const summary = section.summary || {};
-    const audit = section.audit || {};
-    const total = Number(summary.total_verified || summary.recent_migrations || 0);
-    const pctWithCount = (pct, count) => {
-        if (total <= 0 || pct == null) return '—';
-        return `${pct}% (${count}/${total})`;
-    };
-    const creatorMetric = (value, numerator, denominator, suffix = '%') => {
-        if (value == null) return '—';
-        if (numerator == null || denominator == null || !Number.isFinite(Number(denominator)) || Number(denominator) <= 0) {
-            return suffix ? `${value}${suffix}` : String(value);
-        }
-        return suffix
-            ? `${value}${suffix} (${numerator}/${denominator})`
-            : `${value} (${numerator}/${denominator})`;
-    };
-    const auditStatus = String(audit.status || summary.migration_audit_status || 'idle').toLowerCase();
-    const auditMissingCount = Number(
-        audit.missing_in_db ?? summary.migration_audit_missing_count ?? NaN
-    );
-    const auditHeliusDetected = Number(
-        audit.helius_detected ?? summary.migration_audit_helius_detected ?? NaN
-    );
-    const auditCaptureRate = audit.capture_rate ?? summary.migration_audit_capture_rate ?? null;
-    const auditLookbackHours = audit.lookback_hours ?? summary.migration_audit_lookback_hours ?? null;
-    const auditCompletedAt = audit.last_completed_at ?? summary.migration_audit_last_completed_at ?? null;
-    const auditError = audit.error ?? summary.migration_audit_error ?? null;
-    let auditLabel = 'idle';
-    if (auditStatus === 'ok') {
-        auditLabel = (
-            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
-        )
-            ? `${auditCaptureRate == null ? 'healthy' : `${auditCaptureRate}% capture`} (${auditMissingCount}/${auditHeliusDetected} missed)`
-            : (auditCaptureRate == null ? 'healthy' : `${auditCaptureRate}% capture`);
-    } else if (auditStatus === 'alert') {
-        auditLabel = (
-            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
-        )
-            ? `${auditMissingCount}/${auditHeliusDetected} missed`
-            : `${Number.isFinite(auditMissingCount) ? auditMissingCount : '?'} missing`;
-    } else if (auditStatus === 'running') {
-        auditLabel = (
-            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
-        )
-            ? `running | last ${auditMissingCount}/${auditHeliusDetected} missed`
-            : 'running';
-    } else if (auditStatus === 'idle') {
-        auditLabel = 'queued';
-    } else if (auditStatus === 'error') {
-        auditLabel = (
-            Number.isFinite(auditHeliusDetected) && Number.isFinite(auditMissingCount)
-        )
-            ? `error | last ${auditMissingCount}/${auditHeliusDetected} missed`
-            : 'error';
-    }
-    document.getElementById('pfVerifyPredicted').textContent = pctWithCount(summary.predicted_pct, summary.predicted || 0);
-    document.getElementById('pfVerifyFlow').textContent = pctWithCount(summary.flow_predicted_pct, summary.flow_predicted || 0);
-    document.getElementById('pfVerifyMarketCapOnly').textContent = pctWithCount(summary.market_cap_only_pct, summary.market_cap_only || 0);
-    document.getElementById('pfVerifyStale').textContent = pctWithCount(summary.stale_signal_pct, summary.stale_signal || 0);
-    document.getElementById('pfVerifyMissed').textContent = pctWithCount(
-        summary.missed_pct,
-        (summary.missed || 0) + (summary.no_signal || 0) + (summary.late_capture || 0)
-    );
-    document.getElementById('pfVerifyCreatorMatchRate').textContent = creatorMetric(
-        summary.creator_match_rate,
-        summary.creator_metrics_matches,
-        summary.creator_metrics_compared
-    );
-    document.getElementById('pfVerifyCreatorMismatchCount').textContent = creatorMetric(
-        summary.creator_mismatch_count,
-        summary.creator_mismatch_count,
-        null,
-        ''
-    );
-    document.getElementById('pfVerifyMigrationAudit').textContent = auditLabel;
-    document.getElementById('pfVerifyMissingMigrations').textContent = (
-        Number.isFinite(auditMissingCount)
-        && Number.isFinite(auditHeliusDetected)
-        && auditHeliusDetected > 0
-    )
-        ? `${((auditMissingCount / auditHeliusDetected) * 100).toFixed(1)}% (${auditMissingCount}/${auditHeliusDetected})`
-        : (Number.isFinite(auditMissingCount) ? String(auditMissingCount) : 'waiting');
-    document.getElementById('pfVerifySample').textContent = String(total);
-
-    const container = document.getElementById('pfVerificationList');
-    if (!container) return;
-    const records = Array.isArray(section.records) ? section.records : [];
-    const auditMissingRecords = Array.isArray(audit.missing_records) ? audit.missing_records : [];
-    const auditIntro = (() => {
-        if (auditStatus === 'running') {
-            return '<div class="pf-empty">Migration audit is running against recent Helius history...</div>';
-        }
-        if (auditStatus === 'idle') {
-            return '<div class="pf-empty">Migration audit is queued and will populate after the first background check completes.</div>';
-        }
-        if (auditStatus === 'error') {
-            return `<div class="pf-empty" style="color:#fca5a5">Migration audit failed${auditError ? `: ${pfEsc(auditError)}` : ''}</div>`;
-        }
-        if (auditStatus === 'alert') {
-            const windowLabel = auditLookbackHours ? `${auditLookbackHours}h` : 'recent window';
-            const checkedLabel = auditCompletedAt ? pfFormatAge(auditCompletedAt) : 'recently';
-            const missingPreview = auditMissingRecords.slice(0, 3).map((record) =>
-                `${pfEsc(record.detected_at || 'unknown')} | ${pfEsc(pfShortMint(record.signature || ''))}`
-            ).join('<br>');
-            return `
-                <div class="pf-empty" style="color:#fca5a5">
-                    External migration audit found ${Number.isFinite(auditMissingCount) ? auditMissingCount : '?'} missing DB migrations in the last ${pfEsc(windowLabel)}.
-                    Checked ${pfEsc(checkedLabel)}.
-                    ${missingPreview ? `<div style="margin-top:6px">${missingPreview}</div>` : ''}
-                </div>
-            `;
-        }
-        if (auditStatus === 'ok' && auditCompletedAt) {
-            const windowLabel = auditLookbackHours ? `${auditLookbackHours}h` : 'recent window';
-            const captureLabel = auditCaptureRate == null ? 'healthy' : `${auditCaptureRate}% capture`;
-            return `<div class="pf-empty">External migration audit ${captureLabel} over the last ${pfEsc(windowLabel)}. Checked ${pfEsc(pfFormatAge(auditCompletedAt))}.</div>`;
-        }
-        return '';
-    })();
-    if (records.length === 0) {
-        container.innerHTML = `${auditIntro}<div class="pf-empty">No recent migrated Pump.fun verification records yet.</div>`;
+function renderNear(rows) {
+    const el = document.getElementById('nearBody');
+    if (!rows.length) {
+        el.innerHTML = '<tr><td colspan="5" class="pf-empty">No tokens above 60 SOL currently tracked.</td></tr>';
         return;
     }
-
-    container.innerHTML = `${auditIntro}${records.map((record) => {
-        const displayName = record.symbol || record.name || pfShortMint(record.mint);
-        const flags = [
-            record.predicted_by_flow ? 'flow' : null,
-            record.predicted_by_market_cap ? 'market cap' : null,
-            record.predicted_by_explicit_signal ? 'explicit' : null,
-            record.signal_was_fresh ? 'fresh' : 'stale',
-        ].filter(Boolean);
-
-        let creatorTag = '';
-        let creatorFundingTag;
-        if (!record.creator_funding_completed) {
-            creatorFundingTag = `<span class="pf-chip creator-funding-pending" title="Creator funding has not been extracted yet">funding pending</span>`;
-        } else if (record.creator_funding_source === 'pre') {
-            creatorFundingTag = `<span class="pf-chip creator-funded" title="Funding extracted pre-migration (enqueued before migration slot)">funding pre</span>`;
-        } else if (record.creator_funding_source === 'post') {
-            creatorFundingTag = `<span class="pf-chip creator-funded-post" title="Funding extracted post-migration via ${pfEsc(record.creator_funding_raw_source || 'unknown')}">funding post</span>`;
-        } else {
-            creatorFundingTag = `<span class="pf-chip creator-funded" title="Funding complete — known repeat creator, cached data used">funding ✓</span>`;
-        }
-        const hasWs = !!record.pf_ws_creator;
-        const hasRpc = !!record.rpc_creator;
-        if (hasWs && hasRpc) {
-            if (record.creator_mismatch) {
-                creatorTag = `<span class="pf-chip creator-mismatch" title="WS: ${pfEsc(record.pf_ws_creator)} | RPC: ${pfEsc(record.rpc_creator)}">creator ⚠ mismatch</span>`;
-            } else {
-                creatorTag = `<span class="pf-chip creator-match" title="WS: ${pfEsc(record.pf_ws_creator)} | RPC: ${pfEsc(record.rpc_creator)}">creator ws</span>`;
-            }
-        } else if (hasWs && !hasRpc) {
-            creatorTag = `<span class="pf-chip creator-unknown" title="WS: ${pfEsc(record.pf_ws_creator)}">creator ws</span>`;
-        } else if (!hasWs && hasRpc) {
-            creatorTag = `<span class="pf-chip creator-unknown" title="${pfEsc(record.rpc_creator)}">creator fallback</span>`;
-        } else {
-            creatorTag = `<span class="pf-chip creator-unknown">creator unknown</span>`;
-        }
-
-        let creatorLine = 'creator check pending';
-        if (hasWs && hasRpc) {
-            creatorLine = record.creator_mismatch
-                ? `creator check: mismatch | ws=${pfEsc(pfShortMint(record.pf_ws_creator))} | rpc=${pfEsc(pfShortMint(record.rpc_creator))}`
-                : `creator source: ws | creator=${pfEsc(pfShortMint(record.pf_ws_creator))}`;
-        } else if (hasWs && !hasRpc) {
-            creatorLine = `creator source: ws | creator=${pfEsc(pfShortMint(record.pf_ws_creator))}`;
-        } else if (!hasWs && hasRpc) {
-            creatorLine = `creator source: fallback | creator=${pfEsc(pfShortMint(record.rpc_creator))}`;
-        }
-
-        const isNewMigration = record.migrated_at && (Date.now() / 1000 - record.migrated_at) < 900;
-        return `
-            <div class="pf-verify-item">
-                <div class="pf-verify-head">
-                    <div>
-                        <div class="pf-symbol">${pfEsc(displayName)}${isNewMigration ? ' <span class="pf-chip new-token" title="Migrated within the last 15 minutes">NEW</span>' : ''}</div>
-                        <div class="pf-mint">${pfEsc(pfShortMint(record.mint))}</div>
-                    </div>
-                    <span class="pf-chip ${pfEsc(record.final_verdict || 'missed')}">${pfEsc(record.final_verdict || 'unknown')}</span>
+    el.innerHTML = rows.map(t => {
+        const pct = Math.min(100, t.pct || 0);
+        const label = t.symbol || t.name || shortAddr(t.mint);
+        return `<tr>
+            <td>
+                <div class="pf-symbol">${esc(label)}</div>
+                <div class="pf-mint" title="${esc(t.mint)}">${esc(shortAddr(t.mint))}</div>
+            </td>
+            <td><span class="pf-sol-value">${fmtSol(t.v_sol)}</span></td>
+            <td>
+                <div class="pf-bar-wrap">
+                    <div class="pf-bar-track"><div class="pf-bar-fill" style="width:${pct}%"></div></div>
+                    <div class="pf-bar-label">${pct.toFixed(1)}% of ~85 SOL</div>
                 </div>
-                <div class="pf-debug-list">
-                    <div class="pf-meta-line">migrated ${pfEsc(pfFormatAge(record.migrated_at))} | signal age=${record.signal_age_seconds ?? '—'}s</div>
-                    <div class="pf-meta-line">cutoff=${pfEsc(pfFormatAge(record.pre_migration_cutoff_at))} | signal_ts=${pfEsc(pfFormatAge(record.pre_migration_signal_updated_at))} | first_seen=${pfEsc(pfFormatAge(record.first_pre_migration_signal_at))}</div>
-                    <div class="pf-meta-line">timing=${pfEsc(record.signal_timing || 'unknown')} | fresh=${record.signal_was_fresh ? 'yes' : 'no'} | cutoff_window=${pfEsc(String(record.pre_migration_cutoff_seconds || 0))}s</div>
-                    <div class="pf-meta-line">pre-signal=${pfEsc(record.pre_migration_signal_source || 'none')} | band=${pfEsc(record.pre_migration_band || 'none')} | progress=${pfEsc(pfFormatNumber(record.pre_migration_progress_pct, 1))}%</div>
-                    <div class="pf-meta-line">buys_10s=${pfEsc(pfFormatNumber(record.pre_buys_10s))} | unique_30s=${pfEsc(pfFormatNumber(record.pre_unique_30s))} | sol_15s=${pfEsc(pfFormatNumber(record.pre_sol_15s, 2))} | score=${pfEsc(pfFormatNumber(record.pre_signal_score))}</div>
-                    <div class="pf-meta-line">flow=${record.predicted_by_flow ? 'yes' : 'no'} | market_cap=${record.predicted_by_market_cap ? 'yes' : 'no'} | explicit=${record.predicted_by_explicit_signal ? 'yes' : 'no'}</div>
-                    <div class="pf-meta-line">reason=${pfEsc(record.verdict_reason || 'No verdict reason available.')}</div>
-                    <div class="pf-meta-line">${creatorLine}</div>
-                    <div class="pf-meta-line">${(() => {
-                        if (!record.creator_funding_completed) return 'creator funding=pending';
-                        const label = record.creator_funding_source === 'pre' ? 'pre-migration'
-                            : record.creator_funding_source === 'post' ? `post-migration (${pfEsc(record.creator_funding_raw_source || 'unknown')})`
-                            : 'cached (known creator)';
-                        return `creator funding=${label}`;
-                    })()}</div>
-                    <div class="pf-meta-line">${(() => {
-                        const mig = record.migrated_at;
-                        if (!mig) return 'timing=no migration ts';
-                        const fmt = (ts, label) => {
-                            if (!ts) return `${label}=?`;
-                            const d = Math.round(ts - mig);
-                            const sign = d <= 0 ? `${Math.abs(d)}s before` : `${d}s after`;
-                            return `${label}=${sign}`;
-                        };
-                        return `timing | ${fmt(record.curve_completed_at, 'curve')} | ${fmt(record.creator_funding_enqueued_at, 'enqueue')} | ${fmt(record.creator_funding_extracted_at, 'extract')}`;
-                    })()}</div>
-                </div>
-                <div class="pf-verify-flags">
-                    <span class="pf-chip ${pfEsc(record.signal_timing || 'creator-unknown')}">${pfEsc((record.signal_timing || 'unknown').replaceAll('_', ' '))}</span>
-                    ${flags.map((flag) => `<span class="pf-chip ${record.final_verdict || 'fallback'}">${pfEsc(flag)}</span>`).join('')}
-                    ${creatorTag}
-                    ${creatorFundingTag}
-                </div>
-            </div>
-        `;
-    }).join('')}`;
-}
-
-function renderHint(data = {}) {
-    const hint = document.getElementById('pfFilterHint');
-    if (!hint) return;
-    const count = Number(data.count || 0);
-    const totalAvailable = Number(data.total_available || count);
-    hint.textContent = `Showing ${count} near-migration Pump.fun candidates from ${totalAvailable} tracked bonding-curve tokens. Rows are ordered by fresh live momentum first, then migration closeness and supporting context.`;
-}
-
-function renderRows(tokens) {
-    const tbody = document.getElementById('pfTableBody');
-    if (!tbody) return;
-    if (!Array.isArray(tokens) || tokens.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="pf-empty">No Pump.fun rows match the current extraction filters.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = tokens.map((token) => {
-        const progress = Math.max(0, Math.min(100, Number(token.migration_progress_pct || 0)));
-        const displayName = token.symbol || token.name || pfShortMint(token.mint);
-        const subName = token.symbol && token.name && token.name !== token.symbol ? token.name : 'Pump.fun pre-migration';
-        const hasMarketCap = Number.isFinite(Number(token.market_cap_current)) && Number(token.market_cap_current) > 0;
-        const marketFreshness = hasMarketCap ? pfFormatAge(token.market_cap_updated_at) : 'No MC snapshot yet';
-        const signalFreshness = pfFormatAge(token.migration_signal_updated_at);
-        const liveFreshness = pfFormatAge(token.last_meaningful_live_update_at);
-        const rawFlowMode = token.event_flow_mode || (token.signal_mode === 'live' ? 'count_only' : 'fallback');
-        const flowMode = token.signal_mode === 'live' && rawFlowMode === 'fallback' ? 'context_only' : rawFlowMode;
-        const flowModeLabel = flowMode === 'context_only'
-            ? 'live context'
-            : flowMode === 'count_only'
-                ? 'count only'
-                : flowMode === 'buyer_only'
-                    ? 'buyer only'
-                    : flowMode === 'sol_only'
-                        ? 'sol only'
-                        : flowMode === 'full'
-                            ? 'full detail'
-                            : flowMode === 'fallback'
-                                ? 'fallback'
-                                : flowMode;
-        const scoreText = token.signal_score === null || token.signal_score === undefined ? '—' : String(token.signal_score);
-        const marketSourceLabel = hasMarketCap ? (token.market_cap_source || 'snapshot') : 'no mc snapshot';
-        const liveStatusClass = token.live_status_key || (token.signal_mode === 'live' ? 'live' : 'fallback');
-        const liveStatusLabel = token.live_status_label || (token.signal_mode === 'live' ? 'Live signal' : 'Fallback/inferred');
-        const readinessContext = token.readiness_context || '';
-        return `
-            <tr>
-                <td>
-                    <div class="pf-token-cell">
-                        <div class="pf-token-title">
-                            <span class="pf-symbol" id="pf-symbol-${pfEsc(token.mint)}">${pfEsc(displayName)}</span>
-                            <span class="pf-badge ${pfBadgeClass(token)}">${pfEsc(token.readiness_label || 'Watching')}</span>
-                            ${token.curve_complete ? `<span class="pf-chip curve-complete" title="Bonding curve closed at slot ${token.curve_completed_slot || '?'} (${pfFormatAge(token.curve_completed_at)})">curve ✓</span>` : ''}
-                        </div>
-                        <div class="pf-subtext" id="pf-subtext-${pfEsc(token.mint)}">${pfEsc(subName)}</div>
-                        <div class="pf-mint" title="${pfEsc(token.mint)}">${pfEsc(pfShortMint(token.mint))}</div>
-                        <div class="pf-meta-line">platform=${pfEsc(token.source_platform || 'pumpfun')} | lifecycle=${pfEsc(token.lifecycle_stage || 'bonding_curve')}</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="pf-flow-cell">
-                        <div><span class="pf-provenance ${token.signal_mode === 'live' ? 'live' : 'fallback'}">${pfEsc(token.signal_label || 'Fallback/inferred')}</span></div>
-                        <div><span class="pf-provenance ${pfEsc(liveStatusClass)}">${pfEsc(liveStatusLabel)}</span></div>
-                        <div class="pf-progress">
-                            <div class="pf-progress-track"><div class="pf-progress-fill" style="width:${progress}%"></div></div>
-                            <div class="pf-subtext">${progress.toFixed(1)}% progress</div>
-                        </div>
-                        <div class="pf-meta-line">band=${pfEsc(token.migration_band || 'none')} | about=${token.is_about_to_migrate ? 'yes' : 'no'}</div>
-                        <div class="pf-status-line">${pfEsc(readinessContext)}</div>
-                        <div class="pf-meta-line">${pfEsc(token.signal_reason || '')}</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="pf-flow-cell">
-                        <div><span class="pf-chip ${pfEsc(flowMode)}">${pfEsc(flowModeLabel)}</span></div>
-                        <div class="pf-metrics-grid">
-                            <div><div class="pf-metric-label">Score</div><div class="pf-metric-value">${pfEsc(scoreText)}</div></div>
-                            <div><div class="pf-metric-label">Accel</div><div class="pf-metric-value">${pfEsc(pfFormatNumber(token.accel, 2))}</div></div>
-                            <div><div class="pf-metric-label">Buys 10s</div><div class="pf-metric-value">${pfEsc(pfFormatNumber(token.buys_10s))}</div></div>
-                            <div><div class="pf-metric-label">Unique 30s</div><div class="pf-metric-value">${pfEsc(pfFormatNumber(token.unique_30s))}</div></div>
-                            <div><div class="pf-metric-label">SOL 15s</div><div class="pf-metric-value">${pfEsc(pfFormatNumber(token.sol_15s, 2))}</div></div>
-                            <div><div class="pf-metric-label">Enrichment</div><div class="pf-metric-value">${token.buyer_enriched ? 'buyer' : '—'} ${token.sol_enriched ? '/ sol' : ''}</div></div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="pf-market-cell">
-                        <div class="pf-symbol">${pfEsc(pfFormatMarketCap(token.market_cap_current))}</div>
-                        <div class="pf-meta-line">source=${pfEsc(marketSourceLabel)}</div>
-                        <div class="pf-meta-line">mc freshness=${pfEsc(marketFreshness)}</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="pf-updated-cell">
-                        <div class="pf-meta-line">signal ${pfEsc(signalFreshness)}</div>
-                        <div class="pf-meta-line">live ${pfEsc(liveFreshness)}</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="pf-debug-cell pf-debug">
-                        <details>
-                            <summary>Inspect</summary>
-                            <div class="pf-debug-list">
-                                <div class="pf-meta-line">migration_signal_source=${pfEsc(token.migration_signal_source || 'none')}</div>
-                                <div class="pf-meta-line">signal_mode=${pfEsc(token.signal_mode || 'fallback')}</div>
-                                <div class="pf-meta-line">live_status=${pfEsc(liveStatusLabel)}</div>
-                                <div class="pf-meta-line">event_flow_mode=${pfEsc(flowModeLabel)}</div>
-                                <div class="pf-meta-line">buyer_enriched=${token.buyer_enriched ? 'yes' : 'no'} | sol_enriched=${token.sol_enriched ? 'yes' : 'no'}</div>
-                                <div class="pf-meta-line">bonding_curve=${pfEsc(pfShortMint(token.bonding_curve_pda || ''))}</div>
-                                <div class="pf-meta-line">curve_complete=${token.curve_complete ? `yes | slot=${token.curve_completed_slot || '?'} | ${pfFormatAge(token.curve_completed_at)}` : 'no'}</div>
-                                <div class="pf-meta-line">updated_at=${pfEsc(String(token.migration_signal_updated_at || ''))}</div>
-                            </div>
-                        </details>
-                    </div>
-                </td>
-            </tr>
-        `;
+            </td>
+            <td>${fmtMcSol(t.mc_sol)}</td>
+            <td style="text-align:right">${fmtAge(t.ts)}</td>
+        </tr>`;
     }).join('');
 }
 
-async function loadPumpfunConsole() {
-    const lastUpdatedEl = document.getElementById('pfLastUpdated');
+function renderBirths(rows) {
+    const el = document.getElementById('birthsBody');
+    const sub = document.getElementById('birthsSubtitle');
+    if (sub) sub.textContent = rows.length ? `— ${rows.length} in last 2h` : '';
+    if (!rows.length) {
+        el.innerHTML = '<tr><td colspan="4" class="pf-empty">No births in the last 2 hours.</td></tr>';
+        return;
+    }
+    const newRows = rows.filter(t => parseTs(t.born_at) && (Date.now()/1000 - parseTs(t.born_at)) < 120);
+    if (sub) sub.textContent = newRows.length ? `— ${newRows.length} new` : '— none new';
+    if (!newRows.length) {
+        el.innerHTML = '<tr><td colspan="4" class="pf-empty">No new births in the last 2 minutes.</td></tr>';
+        return;
+    }
+    el.innerHTML = newRows.map(t => {
+        const label = t.symbol || t.name || shortAddr(t.mint);
+        const creator = t.pf_ws_creator || t.earliest_tx_creator || '';
+        const isNew = true;
+        return `<tr>
+            <td>
+                <div class="pf-symbol">
+                    ${esc(label)}
+                    ${isNew ? '<span class="pf-chip new" style="margin-left:6px">NEW</span>' : ''}
+                </div>
+                <div class="pf-mint" title="${esc(t.mint)}">${esc(shortAddr(t.mint))}</div>
+            </td>
+            <td><div class="pf-mint" title="${esc(creator)}">${esc(shortAddr(creator))}</div></td>
+            <td>${t.v_sol != null ? fmtSol(t.v_sol) : '—'}</td>
+            <td>${fmtAge(t.born_at)}</td>
+        </tr>`;
+    }).join('');
+}
+
+function fmtDelay(fromTs, toTs) {
+    const a = parseTs(fromTs), b = parseTs(toTs);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return '—';
+    const diff = Math.round(b - a);
+    if (diff < 0) return `${Math.abs(diff)}s before`;
+    if (diff < 60) return `+${diff}s`;
+    return `+${Math.floor(diff/60)}m${diff%60 ? diff%60+'s' : ''}`;
+}
+
+function renderMigrations(rows) {
+    const el = document.getElementById('migrationsBody');
+    if (!rows.length) {
+        el.innerHTML = '<tr><td colspan="5" class="pf-empty">No recent migrations.</td></tr>';
+        return;
+    }
+    el.innerHTML = rows.map(t => {
+        const label = t.symbol || t.name || shortAddr(t.mint);
+        const isNew = parseTs(t.migrated_at) && (Date.now()/1000 - parseTs(t.migrated_at)) < 900;
+        const creator = t.pf_ws_creator || t.earliest_tx_creator || '';
+        const fundingDone = t.funding_status === 'complete';
+        const fundingChip = fundingDone
+            ? `<span class="pf-chip" style="background:rgba(16,185,129,0.16);color:#6ee7b7">✓ ${esc(fmtSource(t.funding_source) || 'done')}</span>`
+            : t.funding_status
+                ? `<span class="pf-chip" style="background:rgba(245,158,11,0.16);color:#fcd34d">${esc(t.funding_status)}</span>`
+                : '<span class="pf-meta">—</span>';
+        const enqueueDelay = fmtDelay(t.migrated_at, t.funding_enqueued_at);
+        const extractDelay = fmtDelay(t.migrated_at, t.funding_extracted_at);
+        const timingLine = (t.funding_enqueued_at || t.funding_extracted_at)
+            ? `<div class="pf-meta">enqueue ${enqueueDelay}</div><div class="pf-meta">extract ${extractDelay}</div>`
+            : '<span class="pf-meta">—</span>';
+        return `<tr>
+            <td>
+                <div class="pf-symbol">
+                    ${esc(label)}
+                    ${isNew ? '<span class="pf-chip migrated" style="margin-left:6px">NEW</span>' : ''}
+                </div>
+                <div class="pf-mint" title="${esc(t.mint)}">${esc(shortAddr(t.mint))}</div>
+            </td>
+            <td><div class="pf-mint" title="${esc(creator)}">${esc(shortAddr(creator))}</div></td>
+            <td>${fundingChip}</td>
+            <td>${timingLine}</td>
+            <td>${fmtAge(t.migrated_at)}</td>
+        </tr>`;
+    }).join('');
+}
+
+async function loadData() {
     try {
-        const params = new URLSearchParams(currentFilters());
-        async function fetchPayload(searchParams) {
-            const res = await fetch(`/api/pumpfun/pre-migration?${searchParams.toString()}`, { cache: 'no-store' });
-            const data = await res.json();
-            return (
-                data &&
-                !Array.isArray(data.tokens) &&
-                data.tokens &&
-                typeof data.tokens === 'object' &&
-                Array.isArray(data.tokens.tokens)
-            ) ? {
-                tokens: data.tokens.tokens,
-                count: data.tokens.count ?? data.count ?? data.tokens.tokens.length,
-                summary: data.tokens.summary ?? data.summary ?? {},
-                total_available: data.tokens.total_available ?? data.total_available ?? data.tokens.tokens.length,
-                recent_migrations: data.tokens.recent_migrations ?? data.recent_migrations ?? { records: [], summary: {} },
-            } : data;
-        }
-
-        const normalized = await fetchPayload(params);
-
-        renderSummary(normalized.summary || {});
-        renderHint(normalized);
-        const tokens = Array.isArray(normalized.tokens) ? normalized.tokens : [];
-        renderRows(tokens);
-        pfHydrateVisibleLabels(tokens);
-        renderVerificationTrail(normalized.recent_migrations || {});
-        if (lastUpdatedEl) lastUpdatedEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
-    } catch (err) {
-        console.error('Failed to load Pump.fun console', err);
-        const tbody = document.getElementById('pfTableBody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="pf-empty" style="color:#fca5a5">Failed to load Pump.fun live console.</td></tr>';
-        const verification = document.getElementById('pfVerificationList');
-        if (verification) verification.innerHTML = '<div class="pf-empty" style="color:#fca5a5">Failed to load migration verification trail.</div>';
-        if (lastUpdatedEl) lastUpdatedEl.textContent = 'Refresh failed';
+        const res = await fetch('/api/pumpfun/live', { cache: 'no-store' });
+        const d = await res.json();
+        document.getElementById('statBirths').textContent = (d.births || []).length;
+        document.getElementById('statNear').textContent = (d.near_migration || []).length;
+        document.getElementById('statMigrations').textContent = (d.migrations || []).length;
+        document.getElementById('statPortal').textContent = d.portal_tracking_count ?? '—';
+        document.getElementById('pfUpdated').textContent = new Date().toLocaleTimeString();
+        renderNear(d.near_migration || []);
+        renderBirths(d.births || []);
+        renderMigrations(d.migrations || []);
+    } catch(e) {
+        console.error(e);
+        document.getElementById('pfUpdated').textContent = 'Error';
     }
 }
 
-document.getElementById('pfRefreshBtn')?.addEventListener('click', loadPumpfunConsole);
-
-loadPumpfunConsole();
-setInterval(loadPumpfunConsole, PF_REFRESH_MS);
+document.getElementById('pfRefreshBtn').addEventListener('click', loadData);
+loadData();
+setInterval(loadData, REFRESH_MS);
 </script>
 {% endblock %}

@@ -90,6 +90,7 @@ echo "✓ Helius CLI monitor started (PID: $HELIUS_PID)"
 
 echo ""
 echo "🚀 Starting listener..."
+RPC_METRICS_DB="$PROJECT_ROOT/database/flex_complete_database.db" \
 nohup python -u -m src.core.pumpfun_curve_listener >> listener.log 2>&1 &
 LISTENER_PID=$!
 disown $LISTENER_PID
@@ -102,6 +103,7 @@ PYTHONPATH="$PROJECT_ROOT" \
 HELIUS_RPC_URL="$HELIUS_RPC_URL" \
 HELIUS_WS_URL="$HELIUS_WS_URL" \
 FLEX_WS_DISABLED=1 \
+RPC_METRICS_DB="$PROJECT_ROOT/database/flex_complete_database.db" \
 nohup python src/core/main.py >> flask.log 2>&1 &
 FLASK_PID=$!
 disown $FLASK_PID

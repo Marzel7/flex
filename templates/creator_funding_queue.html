@@ -1,5 +1,5 @@
 {% extends "base_shell.html" %}
-{% block title %}Creator Funding Queue{% endblock %}
+{% block title %}Performance{% endblock %}
 
 {% block extra_styles %}
 
@@ -109,8 +109,8 @@
     font-size: 13px;
     font-weight: 600;
     color: #93c5fd;
-    font-family: monospace;
 }
+
 
 .cfq-source-meta {
     font-size: 12px;
@@ -257,46 +257,24 @@ table.cfq-table td:last-child {
     color: var(--text-secondary);
 }
 
-.cfq-cw-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.cfq-cw-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(139,92,246,0.1);
-    border: 1px solid rgba(139,92,246,0.25);
-    border-radius: 5px;
-    padding: 4px 10px;
-    cursor: default;
-}
-
-.cfq-cw-pda {
-    font-family: monospace;
-    font-size: 12px;
-    color: #c4b5fd;
-}
-
-.cfq-cw-mint {
-    font-family: monospace;
-    font-size: 11px;
-    color: var(--text-secondary);
-}
 
 {% endblock %}
 
 {% block content %}
 <div class="cfq-header">
-    <h1>Creator Funding Queue</h1>
+    <h1>Performance</h1>
+    <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">Creator pipeline timing and funding extraction jobs</p>
     <div class="cfq-controls">
         <span class="cfq-last-updated" id="cfq-last-updated">—</span>
         <button class="cfq-btn" onclick="cfqLoad()">Refresh</button>
         <button class="cfq-btn cfq-btn-danger" id="cfq-clear-btn" onclick="cfqClear()">Empty Queue</button>
         <a class="cfq-btn" href="/">← Home</a>
     </div>
+</div>
+
+<div class="cfq-section">
+    <div class="cfq-section-title">Creator Pipeline Timing <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">avg of last 10 migrations per source</span></div>
+    <div id="cfq-timing-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px;"></div>
 </div>
 
 <div class="cfq-stats" id="cfq-stats">
@@ -364,15 +342,18 @@ table.cfq-table td:last-child {
     <div style="margin-top:8px; font-size:12px; color:var(--text-secondary);" id="cfq-row-count"></div>
 </div>
 
-<div class="cfq-section" id="cfq-curve-watch-section">
-    <div class="cfq-section-title">Curve Watcher Subscriptions <span id="cfq-cw-count" style="font-weight:400; color:var(--text-secondary); font-size:13px;"></span></div>
-    <div id="cfq-cw-updated" style="font-size:11px; color:var(--text-secondary); margin-bottom:10px;"></div>
-    <div id="cfq-cw-body">
-        <div class="cfq-empty">Loading…</div>
-    </div>
-</div>
 
 <script>
+const SOURCE_LABELS = {
+    'pf_ws_creator_migration':      ['WS Migration',      'Caught in real-time via PumpSwap logsSubscribe'],
+    'pf_ws_creator_curve_complete': ['WS Curve Complete', 'Curve completed before migration, caught via WSS'],
+    'migration_db_fallback':        ['DB Fallback',       ''],
+    'creator_discovery':            ['Discovery',         'Creator stored when birth transaction was processed'],
+    'migration_already_known':      ['Already Known',     'Migration seen but creator funding job already existed'],
+};
+function fmtSource(s) { return (SOURCE_LABELS[s] || [s])[0]; }
+function fmtSourceDesc(s) { return (SOURCE_LABELS[s] || [s, ''])[1]; }
+
 let _cfqData = [];
 let _cfqNow = 0;
 let _cfqSortKey = 'created_at';
@@ -466,7 +447,7 @@ function cfqRender() {
             + '<td><span class="cfq-mono" title="' + esc(r.mint) + '">' + cfqShort(r.mint) + '</span></td>'
             + '<td>' + tokenCell + '</td>'
             + '<td><span class="cfq-chip ' + esc(r.status) + '">' + esc(r.status) + '</span></td>'
-            + '<td><span class="cfq-source-chip">' + esc(r.source || 'unknown') + '</span></td>'
+            + '<td><span class="cfq-source-chip">' + esc(fmtSource(r.source || 'unknown')) + '</span></td>'
             + '<td>' + r.attempts + '</td>'
             + '<td class="cfq-age">' + nextIn + '</td>'
             + '<td class="cfq-age">' + enqueued + '</td>'
@@ -497,10 +478,11 @@ async function cfqLoad() {
         const sourceGrid = document.getElementById('cfq-source-grid');
         const bySource = data.by_source || [];
         if (bySource.length) {
-            sourceGrid.innerHTML = bySource.map(src => `
+            sourceGrid.innerHTML = bySource.filter(src => src.source !== 'migration_db_fallback').map(src => `
                 <div class="cfq-source-card">
-                    <div class="cfq-source-name">${esc(src.source)}</div>
+                    <div class="cfq-source-name">${esc(fmtSource(src.source))}</div>
                     <div class="cfq-source-meta">total ${src.total} &bull; active ${src.active} &bull; done ${src.complete}</div>
+                    ${fmtSourceDesc(src.source) ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.4;">${esc(fmtSourceDesc(src.source))}</div>` : ''}
                 </div>
             `).join('');
         } else {
@@ -511,7 +493,7 @@ async function cfqLoad() {
         const fSource = document.getElementById('f-source');
         const currentSrc = fSource.value;
         fSource.innerHTML = '<option value="">All sources</option>' +
-            bySource.map(s => `<option value="${esc(s.source)}">${esc(s.source)} (${s.total})</option>`).join('');
+            bySource.map(s => `<option value="${esc(s.source)}">${esc(fmtSource(s.source))} (${s.total})</option>`).join('');
         if (currentSrc) fSource.value = currentSrc;
 
         document.getElementById('cfq-last-updated').textContent =
@@ -546,52 +528,99 @@ async function cfqClear() {
     }
 }
 
-async function cfqLoadCurveWatch() {
+function parseTs(v) {
+    if (!v) return NaN;
+    const n = Number(v);
+    if (!isNaN(n)) return n > 1e10 ? n / 1000 : n;
+    const d = Date.parse(v);
+    return isNaN(d) ? NaN : d / 1000;
+}
+
+function fmtSec(s) {
+    if (s === null || s === undefined) return '—';
+    if (s < 60) return `${s.toFixed(1)}s`;
+    const m = Math.floor(s / 60);
+    const sec = (s % 60).toFixed(1);
+    return `${m}m ${sec}s`;
+}
+
+async function loadTimingCards() {
+    const cards = document.getElementById('cfq-timing-cards');
+    if (!cards) return;
     try {
-        const resp = await fetch('/api/funding-queue/curve-watch');
+        const resp = await fetch('/api/pumpfun/live');
         const data = await resp.json();
-        const countEl = document.getElementById('cfq-cw-count');
-        const updatedEl = document.getElementById('cfq-cw-updated');
-        const bodyEl = document.getElementById('cfq-cw-body');
+        const rows = data.migrations || [];
 
-        if (data.error) {
-            bodyEl.innerHTML = '<div class="cfq-empty">Unavailable (listener not running?)</div>';
+        const groups = {};
+        for (const t of rows) {
+            const src = t.funding_source || 'unknown';
+            if (src === 'unknown' || src === 'migration_db_fallback') continue;
+            if (!groups[src]) groups[src] = { enqueue: [], extract: [] };
+            const migTs = parseTs(t.migrated_at);
+            if (t.funding_enqueued_at && isFinite(migTs)) {
+                const d = parseTs(t.funding_enqueued_at) - migTs;
+                if (d >= 0 && d < 3600) groups[src].enqueue.push(d);
+            }
+            if (t.funding_extracted_at && isFinite(migTs)) {
+                const d = parseTs(t.funding_extracted_at) - migTs;
+                if (d >= 0 && d < 3600) groups[src].extract.push(d);
+            }
+        }
+
+        const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length * 10) / 10 : null;
+        const order = ['pf_ws_creator_migration','pf_ws_creator_curve_complete','creator_discovery','migration_already_known'];
+        const sorted = Object.keys(groups).sort((a,b) => {
+            const ai = order.indexOf(a), bi = order.indexOf(b);
+            return (ai===-1?99:ai) - (bi===-1?99:bi);
+        });
+
+        const legendCard = `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">Legend</div>
+            <div><span style="font-size:13px;font-weight:700;color:#e2e8f0;">Enqueue</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator identity job queued</div></div>
+            <div><span style="font-size:13px;font-weight:700;color:#6ee7b7;">Extract</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator funding source established</div></div>
+        </div>`;
+
+        if (!sorted.length) {
+            cards.innerHTML = legendCard + `<div style="color:var(--text-secondary);font-size:13px;padding:8px 0;">No timing data yet.</div>`;
             return;
         }
 
-        const subs = data.subscriptions || [];
-        countEl.textContent = '(' + subs.length + ')';
+        const totalMigrations = sorted.reduce((sum, src) => sum + Math.max(groups[src].enqueue.length, groups[src].extract.length), 0) || 1;
 
-        if (data.updated_at) {
-            const age = Math.round(_cfqNow - data.updated_at);
-            updatedEl.textContent = 'State written ' + (age < 5 ? 'just now' : age + 's ago');
-        } else {
-            updatedEl.textContent = '';
-        }
-
-        if (!subs.length) {
-            bodyEl.innerHTML = '<div class="cfq-empty">No active subscriptions.</div>';
-            return;
-        }
-
-        bodyEl.innerHTML = '<div class="cfq-cw-grid">' +
-            subs.map(s => {
-                const pda = s.pda || '';
-                const mint = s.mint || '';
-                return '<div class="cfq-cw-pill" title="PDA: ' + esc(pda) + (mint ? '\nMint: ' + esc(mint) : '') + '">'
-                    + '<span class="cfq-cw-pda">' + esc(pda.slice(0, 8) + '…' + pda.slice(-4)) + '</span>'
-                    + (mint ? '<span class="cfq-cw-mint">' + esc(mint.slice(0, 6) + '…' + mint.slice(-4)) + '</span>' : '')
-                    + '</div>';
-            }).join('')
-            + '</div>';
-    } catch (e) {
-        document.getElementById('cfq-cw-body').innerHTML = '<div class="cfq-empty">Failed to load.</div>';
+        cards.innerHTML = legendCard + sorted.filter(src => src !== 'unknown' && src !== 'migration_db_fallback').map(src => {
+            const g = groups[src];
+            const aEnq = avg(g.enqueue.slice(-10));
+            const aExt = avg(g.extract.slice(-10));
+            const count = Math.min(Math.max(g.enqueue.length, g.extract.length), 10);
+            const total = Math.max(g.enqueue.length, g.extract.length);
+            const pct = Math.round(total / totalMigrations * 100);
+            return `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">${esc(fmtSource(src))} <span style="font-weight:400;opacity:0.6;">· avg of last ${count}</span></div>
+                <div style="display:flex;gap:24px;align-items:baseline;margin-top:2px;">
+                    <div>
+                        <div style="font-size:28px;font-weight:700;color:#e2e8f0;line-height:1;">${fmtSec(aEnq)}</div>
+                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Enqueue</div>
+                    </div>
+                    <div>
+                        <div style="font-size:28px;font-weight:700;color:#6ee7b7;line-height:1;">${fmtSec(aExt)}</div>
+                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Extract</div>
+                    </div>
+                    <div style="margin-left:auto;align-self:flex-end;">
+                        <div style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1;">${pct}%</div>
+                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">of migrations</div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    } catch(e) {
+        console.error('loadTimingCards failed', e);
     }
 }
 
 cfqLoad();
-cfqLoadCurveWatch();
+loadTimingCards();
 setInterval(cfqLoad, 10000);
-setInterval(cfqLoadCurveWatch, 10000);
+setInterval(loadTimingCards, 30000);
 </script>
 {% endblock %}

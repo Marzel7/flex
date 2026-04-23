@@ -262,6 +262,12 @@ except Exception as e:
     def record_request(*args, **kwargs):
         pass  # No-op fallback
 
+try:
+    from src.metrics.usage_tracker import record_wss, record_webhook
+except Exception:
+    def record_wss(*args, **kwargs): pass
+    def record_webhook(*args, **kwargs): pass
+
 # Serializes ALL database writes across threads/processes to prevent lock contention
 # Used by asyncio tasks (wrapped with self.db_lock THEN this), executor threads, and workers
 DB_WRITE_LOCK = threading.RLock()
@@ -597,6 +603,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.completed_launches: Set[str] = set()
         self.analyzed_tokens = {}
         self.db_lock = asyncio.Lock()
+        # PumpPortal live vSol state: {mint: {"v_sol": float, "ts": int, "symbol": str, "name": str, "creator": str}}
+        self._portal_vsol: dict = {}
         self.websocket_connected = False
         self.websocket_msg_count = 0  # Track message receipt
         self.websocket_migration_count = 0  # Track migrations detected
@@ -677,8 +685,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
         asyncio.create_task(self._cleanup_tx_cache_periodic())
-        asyncio.create_task(self._refresh_pre_migration_signals_periodic())
         asyncio.create_task(self._process_creator_funding_queue_periodic())
+        asyncio.create_task(self._flush_portal_vsol_periodic())
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -3145,6 +3153,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[TX_CACHE_CLEANUP] Error during cleanup: {e}", flush=True)
 
+    async def _flush_portal_vsol_periodic(self):
+        """Write _portal_vsol to portal_vsol.json every 5s for Flask to read."""
+        import json as _json
+        out_path = os.path.join(os.path.dirname(DB_PATH), '..', 'portal_vsol.json')
+        while True:
+            try:
+                await asyncio.sleep(5)
+                # Prune entries older than 10 minutes
+                cutoff = int(time.time()) - 600
+                pruned = {m: s for m, s in self._portal_vsol.items() if s.get("ts", 0) >= cutoff}
+                self._portal_vsol = pruned
+                with open(out_path, 'w') as _f:
+                    _json.dump(pruned, _f)
+            except Exception:
+                pass
+
     # --- Database ---
     def _ensure_db(self):
         conn = db_connect(DB_PATH, timeout=15)
@@ -4316,6 +4340,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         if existing_pf_ws_creator:
             return existing_pf_ws_creator
+
+        # Fast path: PumpPortal already gave us the creator in-memory at birth — no RPC needed
+        portal_creator = (self._portal_vsol.get(mint) or {}).get('creator')
+        if portal_creator:
+            log_print(f"[PF_WS_CREATOR] ⚡ Portal fast-path: creator={portal_creator[:8]}... for {mint[:8]}... trigger={reason}", flush=True)
+            try:
+                async with self.db_lock:
+                    conn = db_connect(DB_PATH, timeout=30)
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                    conn.execute("UPDATE token_analysis SET pf_ws_creator=? WHERE mint=?", (portal_creator, mint))
+                    conn.commit()
+                    conn.close()
+            except Exception as e:
+                log_print(f"[PF_WS_CREATOR] ⚠ Portal fast-path DB write failed: {e}", flush=True)
+            await self._enqueue_creator_funding_job(
+                portal_creator,
+                mint=mint,
+                migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                create_tx_signature=create_tx_signature,
+                delay_seconds=0,
+                source="pf_ws_creator_migration",
+            )
+            return portal_creator
 
         rpc_url = RPC_HTTP or os.environ.get('HELIUS_RPC_URL')
         analyzer = PostMigrationAnalyzer(mint, rpc_url=rpc_url)
@@ -7100,15 +7148,35 @@ class PumpFunCurveListener(FastLaneDiscovery):
             bonding_curve_pda = None
             created_at = None
             analyzer = None
+
+            # Fast path: check PumpPortal in-memory state and DB before hitting RPC
+            _fast_creator = (self._portal_vsol.get(mint) or {}).get('creator') or None
+            if not _fast_creator:
+                try:
+                    _db_fast = db_connect(DB_PATH, timeout=5).execute(
+                        "SELECT pf_ws_creator, earliest_tx_creator FROM token_analysis WHERE mint=? LIMIT 1", (mint,)
+                    ).fetchone()
+                    if _db_fast:
+                        _fast_creator = (str(_db_fast[0]).strip() if _db_fast[0] else "") or (str(_db_fast[1]).strip() if _db_fast[1] else "") or None
+                except Exception:
+                    pass
+
+            if _fast_creator:
+                log_print(f"[CREATOR_EXTRACTION] ⚡ Fast-path creator={_fast_creator[:16]}... for {mint[:16]}...", flush=True)
+                earliest_creator = _fast_creator
+
             try:
                 from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
                 analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
-                provenance = await analyzer.get_creator_from_earliest_tx()
-                earliest_creator = provenance.get('creator') if provenance else None
+                if not earliest_creator:
+                    provenance = await analyzer.get_creator_from_earliest_tx()
+                    earliest_creator = provenance.get('creator') if provenance else None
+                else:
+                    provenance = None
 
                 log_print(
                     f"🔴 [CREATOR_EXTRACTION] creator={earliest_creator[:16] if earliest_creator else 'NONE'}... "
-                    f"provenance={provenance.get('status') if provenance else 'NONE'}",
+                    f"provenance={provenance.get('status') if provenance else 'fast-path'}",
                     flush=True
                 )
 
@@ -8176,6 +8244,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     while True:
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                            record_wss('pumpswap_logs', 'pumpfun_curve_listener', msg_count=1, est_bytes=len(msg))
                             data = json.loads(msg)
 
                             if 'params' not in data or 'result' not in data['params']:
@@ -8282,7 +8351,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """
         PUMPPORTAL_WS = "wss://pumpportal.fun/api/data"
         # pump.fun bonding curve fills at ~85 SOL virtual reserves
-        MIGRATION_SOL_THRESHOLD = 80.0
+        MIGRATION_SOL_THRESHOLD = 60.0
         # Mints we are tracking trades for (near migration)
         tracked_trade_mints: set = set()
         reconnect_delay = 5
@@ -8303,6 +8372,34 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     await ws.send(json.dumps({"method": "subscribeMigration"}))
                     log_print("[PUMPPORTAL] Subscribed to newToken + migration", flush=True)
 
+                    # Seed trade subscriptions for recently active bonding curve tokens
+                    # so we get vSol updates immediately without waiting for new births
+                    try:
+                        seed_conn = db_connect(DB_PATH, timeout=5)
+                        seed_cur = seed_conn.cursor()
+                        # Prioritise tokens missing creator first (most likely to need fast-path),
+                        # then recent active tokens. Limit 200 to cover post-downtime gaps.
+                        seed_cur.execute("""
+                            SELECT mint FROM token_analysis
+                            WHERE source_platform = 'pumpfun'
+                              AND lifecycle_stage = 'bonding_curve'
+                            ORDER BY
+                                CASE WHEN (pf_ws_creator IS NULL OR pf_ws_creator = '') THEN 0 ELSE 1 END ASC,
+                                analyzed_at DESC
+                            LIMIT 200
+                        """)
+                        seed_mints = [r[0] for r in seed_cur.fetchall()]
+                        seed_conn.close()
+                        if seed_mints:
+                            # PumpPortal accepts up to 100 keys per message — batch if needed
+                            for i in range(0, len(seed_mints), 100):
+                                batch = seed_mints[i:i+100]
+                                await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": batch}))
+                            tracked_trade_mints.update(seed_mints)
+                            log_print(f"[PUMPPORTAL] Seeded trade subscriptions for {len(seed_mints)} active tokens ({sum(1 for m in seed_mints if m not in tracked_trade_mints)} missing creator)", flush=True)
+                    except Exception as _e:
+                        log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed: {_e}", flush=True)
+
                     while True:
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=60)
@@ -8320,6 +8417,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             continue
 
                         tx_type = data.get("txType")
+                        record_wss(
+                            f"pumpportal_{tx_type or 'other'}",
+                            "pumpfun_curve_listener",
+                            msg_count=1,
+                            est_bytes=len(msg),
+                        )
                         sig = data.get("signature", "")
                         mint = data.get("mint", "")
 
@@ -8329,6 +8432,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             symbol = data.get("symbol")
                             name = data.get("name")
                             v_sol = float(data.get("vSolInBondingCurve") or 0)
+                            mc_sol = float(data.get("marketCapSol") or 0)
+
+                            if mint:
+                                self._portal_vsol[mint] = {
+                                    "v_sol": v_sol,
+                                    "mc_sol": mc_sol,
+                                    "symbol": symbol or "",
+                                    "name": name or "",
+                                    "creator": creator or "",
+                                    "ts": int(time.time()),
+                                }
 
                             if mint and sig and mint not in self.completed_launches:
                                 self.completed_launches.add(sig)
@@ -8348,10 +8462,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         flush=True,
                                     )
                                     # Trigger creator pipeline
-                                    if creator:
-                                        asyncio.create_task(
-                                            self._ensure_pf_ws_creator(creator, mint, sig)
-                                        )
+                                    asyncio.create_task(
+                                        self._ensure_pf_ws_creator(mint, reason="birth")
+                                    )
                                 except Exception as e:
                                     log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e}", flush=True)
 
@@ -8362,6 +8475,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                         elif tx_type in ("buy", "sell") and mint:
                             v_sol = float(data.get("vSolInBondingCurve") or 0)
+                            mc_sol = float(data.get("marketCapSol") or 0)
+                            # Update live vSol state
+                            existing = self._portal_vsol.get(mint, {})
+                            self._portal_vsol[mint] = {
+                                "v_sol": v_sol,
+                                "mc_sol": mc_sol,
+                                "symbol": existing.get("symbol", ""),
+                                "name": existing.get("name", ""),
+                                "creator": existing.get("creator", "") or data.get("traderPublicKey", ""),
+                                "ts": int(time.time()),
+                            }
                             # If not yet tracking this token but it's near migration, subscribe
                             if v_sol >= MIGRATION_SOL_THRESHOLD and mint not in tracked_trade_mints:
                                 tracked_trade_mints.add(mint)
@@ -8908,12 +9032,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 
         # PumpPortal WSS handles births, migrations, and near-complete curve tracking.
-        # listen_pumpswap_websocket and listen_bonding_curve_accounts are replaced.
-        # drain_webhook_birth_queue kept as fallback for Helius birth webhook delivery.
+        # listen_pumpswap_websocket detects PumpSwap pool creation (migrations) via Helius logsSubscribe.
+        # listen_pumpportal_websocket handles pump.fun births via PumpPortal WSS (free, no Helius cost).
+        # drain_webhook_birth_queue is a fallback for Helius birth webhook delivery.
         await asyncio.gather(
+            self.listen_pumpswap_websocket(),
             self.listen_pumpportal_websocket(),
             self.drain_webhook_birth_queue(),
         )
+
+
+_listener_singleton: Optional["PumpFunCurveListener"] = None
+
+def _get_listener_instance() -> Optional["PumpFunCurveListener"]:
+    return _listener_singleton
 
 
 async def main():
@@ -8936,7 +9068,9 @@ async def main():
         if attempt < max_retries - 1:
             time.sleep(0.5)
     
+    global _listener_singleton
     listener = PumpFunCurveListener()
+    _listener_singleton = listener
     await listener.listen()
 
 

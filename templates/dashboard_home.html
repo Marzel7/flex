@@ -1401,7 +1401,8 @@
                             <th>Token Mint</th>
                             <th>Created</th>
                             <th>Risk</th>
-                            <th>Market Cap</th>
+                            <th></th>
+                            <th>Peak MC</th>
                             <th>CREATE Tx</th>
                         </tr>
                     </thead>
@@ -2390,6 +2391,20 @@
                 console.log(`${pfx} live_update mint=${mint.slice(0,16)}… mc=${marketCap != null ? '$'+formatMarketCap(marketCap) : '—'}`);
             }
 
+            // Update peak MC and G badge if current MC exceeds recorded peak
+            if (marketCap && marketCap > 0) {
+                const pkEl = document.getElementById(`peak-mc-${mint}`);
+                if (pkEl) {
+                    const currentPeak = parseFloat(pkEl.dataset.peakMc || '0');
+                    if (marketCap > currentPeak) {
+                        pkEl.dataset.peakMc = marketCap;
+                        pkEl.innerHTML = '$' + formatMarketCap(marketCap);
+                        const gBadgeTd = pkEl.previousElementSibling;
+                        if (gBadgeTd) gBadgeTd.innerHTML = gBadgeHome(mcToGClass(marketCap));
+                    }
+                }
+            }
+
             // NEVER reorder rows on price update — position is fixed by buildTable sort
             if (_newPinStore.isNew(mint)) {
                 _newPinStore.patch(mint, 'price_update');
@@ -2673,7 +2688,7 @@
                 <td style="width:28px;min-width:28px;padding-left:2px;padding-right:2px;white-space:nowrap">
                     ${token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>'}
                 </td>
-                <td id="peak-mc-${token.mint}" title="Recorded peak market cap. May exclude brief unconfirmed spikes." style="transition: color 0.2s ease; width:66px;min-width:66px;white-space:nowrap">
+                <td id="peak-mc-${token.mint}" data-peak-mc="${token.market_cap_highest || 0}" title="Recorded peak market cap. May exclude brief unconfirmed spikes." style="transition: color 0.2s ease; width:66px;min-width:66px;white-space:nowrap">
                     ${!token.market_cap_highest ? '<span style="opacity:0.35;">—</span>' : '$' + formatMarketCap(token.market_cap_highest)}
                 </td>
                 <td class="peak-timing-cell" title="Time from launch to the same recorded peak shown in the Peak MC column.">
@@ -3189,6 +3204,16 @@
         const G_COLOR = {'G1':'#f59e0b','G2':'#a78bfa','G3':'#60a5fa','G4':'#34d399','G5':'#86efac','G6':'#6b7280','G7':'#374151','G?':'#1f2937'};
         const G_BG    = {'G1':'rgba(245,158,11,0.12)','G2':'rgba(167,139,250,0.12)','G3':'rgba(96,165,250,0.12)','G4':'rgba(52,211,153,0.12)','G5':'rgba(134,239,172,0.08)','G6':'rgba(107,114,128,0.10)','G7':'rgba(55,65,81,0.10)','G?':'rgba(31,41,55,0.10)'};
         const G_TOOLTIP = {'G1':'Elite (5M+)','G2':'Strong (2–5M)','G3':'High Opportunity (500K–2M)','G4':'Pre-Runner (300–500K)','G5':'Mid Tier (150–300K)','G6':'Weak (75–150K)','G7':'Low / Noise (<75K)','G?':'Unknown'};
+        function mcToGClass(mc) {
+            if (!mc || mc <= 0) return 'G?';
+            if (mc >= 5000000) return 'G1';
+            if (mc >= 2000000) return 'G2';
+            if (mc >= 500000)  return 'G3';
+            if (mc >= 300000)  return 'G4';
+            if (mc >= 150000)  return 'G5';
+            if (mc >= 75000)   return 'G6';
+            return 'G7';
+        }
         const gBadgeHome = g => {
             const gc = G_COLOR[g] || G_COLOR['G?'];
             const gb = G_BG[g]    || G_BG['G?'];
@@ -4619,18 +4644,23 @@ function switchToTokensTab() {
                                 </div>`
                             : 'N/A';
 
+                        const peakMc = token.liquidity_removed
+                            ? `<span class="rug-badge" title="Liquidity removed">LIQ</span>`
+                            : token.peak_market_cap ? '$' + formatMarketCap(token.peak_market_cap) : '<span style="opacity:0.35">—</span>';
+                        const gBadge = token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>';
                         return `
                             <tr>
                                 <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
                                 <td>${formatDateISO(token.created_at)}</td>
                                 <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
-                                <td>${formatMarketCap(token.market_cap_current)}</td>
+                                <td>${gBadge}</td>
+                                <td>${peakMc}</td>
                                 <td>${createTxCell}</td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    tokensBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No tokens launched yet</td></tr>';
+                    tokensBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No tokens launched yet</td></tr>';
                 }
 
                 // Separate CEX and non-CEX funders

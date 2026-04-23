@@ -5594,6 +5594,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     )
                 except Exception as liq_err:
                     log_print(f"[LIQUIDITY_FLAG_FAIL] mint={token_mint[:16]} err={liq_err}", flush=True)
+            elif sol_balance >= 5.0:
+                try:
+                    from src.core.price_worker import clear_low_liquidity
+                    clear_low_liquidity(token_mint, sol_balance, db_path=DB_PATH)
+                except Exception:
+                    pass
 
             log_print(f"[ONCHAIN_OK] mint={token_mint[:16]} pool={pool_address[:16]} sol={sol_balance:.4f} token={token_balance:.0f} mc=${market_cap_usd:,.0f}", flush=True)
             return (price_usd, market_cap_usd, quote_liquidity_usd)

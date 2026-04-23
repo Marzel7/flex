@@ -1211,7 +1211,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
             arrival_ts = migrated_ts if migrated_ts and migrated_ts > (created_ts or 0) else created_ts
             is_new = arrival_ts is not None and (now_ts - arrival_ts) < NEW_TOKEN_WINDOW_SECS
             payload['is_new'] = is_new
-            payload['token_class'] = None if is_new else token_class
+            payload['token_class'] = token_class
             payload['market_cap_current'] = row['snap_market_cap'] or None
             payload['market_cap_highest'] = normalized_peak_mc
             payload['market_cap_highest_at'] = normalized_peak_at
@@ -1274,8 +1274,13 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ON tsc.mint = ta.mint
             LEFT JOIN token_market_cap_peaks tmp
                 ON tmp.mint = ta.mint
-            LEFT JOIN token_pool_accounts tpa
-                ON tpa.mint = ta.mint AND tpa.is_active = 1
+            LEFT JOIN (
+                SELECT mint, pool_address, quote_liquidity, updated_at,
+                       MAX(liquidity_removed) as liquidity_removed,
+                       MAX(liquidity_removed_at) as liquidity_removed_at
+                FROM token_pool_accounts
+                GROUP BY mint
+            ) tpa ON tpa.mint = ta.mint
             LEFT JOIN metadata_cache mc
                 ON mc.mint = ta.mint
             LEFT JOIN token_price_snapshots tps
@@ -1344,10 +1349,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 _migrated_ts = _parse_unix_ts(row['migrated_at'])
                 _arrival_ts = _migrated_ts if _migrated_ts and _migrated_ts > _created_ts else _created_ts
                 _is_new  = _arrival_ts > 0 and (now_ts - _arrival_ts) < NEW_TOKEN_WINDOW_SECS
-                if _is_new or _peak_mc <= 0:
-                    _token_class = None
-                else:
-                    _token_class = compute_token_class(_peak_mc)
+                _effective_mc = _peak_mc if _peak_mc > 0 else (row['snap_market_cap'] or 0)
+                _token_class = compute_token_class(_effective_mc) if _effective_mc > 0 else None
 
                 normalized_peak_mc, normalized_peak_at = _normalized_peak(
                     row['snap_market_cap'],
@@ -9824,20 +9827,33 @@ def api_creator_details(creator_address: str):
         # 1. Get all tokens launched by this creator
         cursor.execute("""
             SELECT
-                mint,
-                created_at,
-                bonding_curve_pda,
-                create_tx_signature,
-                rug_probability,
-                risk_level,
-                market_cap_current,
-                market_cap_highest,
-                creator_is_blocked
-            FROM token_analysis
-            WHERE earliest_tx_creator = ?
-            ORDER BY created_at DESC
+                ta.mint,
+                ta.created_at,
+                ta.bonding_curve_pda,
+                ta.create_tx_signature,
+                ta.rug_probability,
+                ta.risk_level,
+                ta.market_cap_current,
+                ta.market_cap_highest,
+                ta.creator_is_blocked,
+                COALESCE(tmp.peak_market_cap, ta.market_cap_highest) as peak_market_cap,
+                COALESCE(tpa.liquidity_removed, 0) as liquidity_removed
+            FROM token_analysis ta
+            LEFT JOIN token_market_cap_peaks tmp ON tmp.mint = ta.mint
+            LEFT JOIN (
+                SELECT mint, MAX(liquidity_removed) as liquidity_removed
+                FROM token_pool_accounts
+                GROUP BY mint
+            ) tpa ON tpa.mint = ta.mint
+            WHERE ta.earliest_tx_creator = ?
+            ORDER BY ta.created_at DESC
         """, (creator_address,))
-        tokens = [dict(row) for row in cursor.fetchall()]
+        raw_tokens = [dict(row) for row in cursor.fetchall()]
+        from src.core.token_behavior import compute_token_class
+        for t in raw_tokens:
+            peak = t.get('peak_market_cap') or 0
+            t['token_class'] = compute_token_class(peak) if peak > 0 else None
+        tokens = raw_tokens
 
         # Add CEX/INFRA labels for tokens if creator is in CEX/INFRA
         creator_label = get_cex_infra_label(creator_address)

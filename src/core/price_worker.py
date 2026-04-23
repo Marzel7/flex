@@ -96,6 +96,12 @@ def record_low_liquidity(
     even if an upstream USD conversion was wrong.
     """
     now = int(time.time())
+    # Near-zero reads are RPC noise, not real rug signals — skip entirely.
+    if quote_sol is not None and quote_sol < 0.1:
+        logger.warning(
+            f"[LOW_LIQUIDITY_SKIP] mint={mint[:16]} quote_sol={quote_sol:.6f} too small — likely bad read, ignoring"
+        )
+        return
     # At normal SOL prices, anything above ~5 SOL is well beyond the low-liquidity threshold.
     # This protects against transient bad USD conversions falsely stickying LIQ.
     if quote_sol and quote_sol >= 5.0:
@@ -134,6 +140,30 @@ def record_low_liquidity(
         )
     except Exception:
         pass
+
+def clear_low_liquidity(
+    mint: str,
+    quote_sol: float,
+    db_path: str = 'database/flex_complete_database.db',
+) -> None:
+    """Clear a false-positive LIQ flag when a healthy on-chain read confirms real liquidity."""
+    with _low_liquidity_lock:
+        _low_liquidity_mints.pop(mint, None)
+    try:
+        conn = db_connect(db_path, timeout=10)
+        conn.execute("""
+            UPDATE token_pool_accounts
+            SET liquidity_removed    = 0,
+                liquidity_removed_at = NULL,
+                quote_liquidity      = ?,
+                updated_at           = ?
+            WHERE mint = ? AND is_active = 1 AND liquidity_removed = 1
+        """, (quote_sol, int(time.time()), mint))
+        conn.commit()
+        conn.close()
+        logger.info(f"[LOW_LIQUIDITY_CLEARED] mint={mint[:16]} quote_sol={quote_sol:.4f}")
+    except Exception as e:
+        logger.warning(f"[LOW_LIQUIDITY_CLEAR_FAIL] mint={mint[:16]}: {e}")
 
 def get_low_liquidity_mints() -> dict:
     """Return {mint: quote_sol} for mints with a recent WS compute-fail signal."""

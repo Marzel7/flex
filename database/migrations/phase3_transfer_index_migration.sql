@@ -6,19 +6,27 @@
 -- Expected savings: 90-95% reduction on getSignaturesForAddress + getTransaction calls
 --
 -- Combined with Phase 1 + Phase 2: 98%+ total RPC reduction vs baseline
+--
+-- Schema note: uniqueness is on (signature, source, destination) not signature alone.
+-- One on-chain transaction can contain multiple native SOL transfers with different
+-- counterparties; a per-signature UNIQUE constraint would silently drop all but the
+-- first transfer in such transactions.
 
 CREATE TABLE IF NOT EXISTS transfer_index (
     id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-    signature           TEXT NOT NULL UNIQUE,             -- Transaction signature (natural key)
-    source              TEXT NOT NULL,                    -- Source wallet address
-    destination         TEXT NOT NULL,                    -- Destination wallet address
-    amount_lamports      INTEGER NOT NULL,                -- Transfer amount in lamports (avoid floats)
-    amount_sol           REAL GENERATED ALWAYS AS (amount_lamports / 1e9) STORED,  -- SOL equivalent
-    slot                INTEGER NOT NULL,                 -- Slot number
-    block_time          INTEGER NOT NULL,                 -- Unix timestamp
-    indexed_at          REAL NOT NULL,                    -- When indexed (time.time())
-    is_valid            BOOLEAN NOT NULL DEFAULT 1,       -- Validation flag (for cleanup)
-    transfer_type       TEXT DEFAULT 'standard',          -- 'standard', 'spl_token', 'rent', etc.
+    signature           TEXT NOT NULL,                       -- Transaction signature
+    source              TEXT NOT NULL,                       -- Source wallet address
+    destination         TEXT NOT NULL,                       -- Destination wallet address
+    amount_lamports     INTEGER NOT NULL,                    -- Transfer amount in lamports (avoid floats)
+    amount_sol          REAL GENERATED ALWAYS AS (amount_lamports / 1e9) STORED,  -- SOL equivalent
+    slot                INTEGER NOT NULL DEFAULT 0,          -- Slot number (0 when unavailable from feed)
+    block_time          INTEGER NOT NULL,                    -- Unix timestamp
+    indexed_at          REAL NOT NULL,                       -- When indexed (time.time())
+    is_valid            BOOLEAN NOT NULL DEFAULT 1,          -- Validation flag (for cleanup)
+    transfer_type       TEXT DEFAULT 'standard',             -- 'standard', 'spl_token', 'rent', etc.
+
+    -- Composite uniqueness: one row per (tx, sender, recipient) pair
+    UNIQUE (signature, source, destination),
 
     -- Constraints
     CHECK (amount_lamports > 0),

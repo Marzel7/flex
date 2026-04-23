@@ -19115,6 +19115,98 @@ def funding_queue_page():
     return render_template("creator_funding_queue.html", active_page="funding_queue")
 
 
+@app.route('/transfer-graph')
+def transfer_graph_page():
+    return render_template("transfer_graph.html", active_page="transfer_graph")
+
+
+@app.route('/api/transfer-graph/stats')
+def api_transfer_graph_stats():
+    """Summary stats and top funders for the transfer_index page."""
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        # Overall stats
+        cur.execute("""
+            SELECT
+                COUNT(*)                              as total_rows,
+                COUNT(DISTINCT signature)             as distinct_sigs,
+                COUNT(DISTINCT source)                as distinct_sources,
+                COUNT(DISTINCT destination)           as distinct_destinations,
+                MIN(block_time)                       as earliest_bt,
+                MAX(block_time)                       as latest_bt,
+                SUM(CASE WHEN amount_sol BETWEEN 0.5 AND 10 THEN 1 ELSE 0 END) as in_cluster_range,
+                SUM(CASE WHEN amount_sol < 0.5 THEN 1 ELSE 0 END)             as below_range,
+                SUM(CASE WHEN amount_sol > 10 THEN 1 ELSE 0 END)              as above_range
+            FROM transfer_index WHERE is_valid = 1
+        """)
+        s = dict(cur.fetchone() or {})
+
+        # Recent activity windows
+        now = int(time.time())
+        for label, window in [('last_1h', 3600), ('last_24h', 86400), ('last_7d', 604800)]:
+            cur.execute("SELECT COUNT(*) FROM transfer_index WHERE indexed_at >= ? AND is_valid=1", (now - window,))
+            s[label] = (cur.fetchone() or [0])[0]
+
+        # Top funders (by distinct creators funded)
+        cur.execute("""
+            SELECT
+                source,
+                COUNT(DISTINCT destination)            as creators_funded,
+                COUNT(*)                               as transfer_count,
+                ROUND(SUM(amount_sol), 4)              as total_sol,
+                ROUND(MIN(amount_sol), 6)              as min_sol,
+                ROUND(MAX(amount_sol), 4)              as max_sol,
+                MIN(block_time)                        as first_seen,
+                MAX(block_time)                        as last_seen
+            FROM transfer_index
+            WHERE is_valid = 1
+            GROUP BY source
+            ORDER BY creators_funded DESC, total_sol DESC
+            LIMIT 50
+        """)
+        top_funders = [dict(r) for r in cur.fetchall()]
+
+        # Recent transfers feed
+        cur.execute("""
+            SELECT signature, source, destination,
+                   ROUND(amount_sol, 6) as amount_sol,
+                   block_time,
+                   datetime(block_time, 'unixepoch') as block_time_human,
+                   transfer_type
+            FROM transfer_index
+            WHERE is_valid = 1
+            ORDER BY block_time DESC, rowid DESC
+            LIMIT 100
+        """)
+        recent = [dict(r) for r in cur.fetchall()]
+
+        # Shared-funder pairs (funder → 2+ creators in 0.5-10 SOL range)
+        cur.execute("""
+            SELECT source, COUNT(DISTINCT destination) as shared_creators
+            FROM transfer_index
+            WHERE amount_sol BETWEEN 0.5 AND 10 AND is_valid = 1
+            GROUP BY source
+            HAVING shared_creators >= 2
+            ORDER BY shared_creators DESC
+            LIMIT 20
+        """)
+        overlap_candidates = [dict(r) for r in cur.fetchall()]
+
+        conn.close()
+        return jsonify({
+            'stats': s,
+            'top_funders': top_funders,
+            'recent': recent,
+            'overlap_candidates': overlap_candidates,
+            'generated_at': now,
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/webhook-monitor')
 def webhook_monitor():
     """

@@ -306,6 +306,17 @@ def build_networks_release(db_path: str) -> dict:
         profiler.mark('Phase B: Compute state')
         print("🔄 Phase B: Compute new network state...")
 
+        # Phase B.0: Prune stale networks — remove any networks_release row that has
+        # no current rows in network_membership (orphans from legacy manual seeds).
+        pruned = db.execute('''
+            DELETE FROM networks_release
+            WHERE network_name NOT IN (
+                SELECT DISTINCT network_name FROM network_membership
+            )
+        ''').rowcount
+        if pruned:
+            print(f"   Pruned {pruned} orphaned networks from networks_release")
+
         # Phase B.1: Network sizes from network_membership
         db.execute('''
             WITH network_data AS (
@@ -574,13 +585,13 @@ def build_networks_release(db_path: str) -> dict:
                   SELECT
                     nm.network_name,
                     COUNT(*) as total_edges,
-                    COUNT(DISTINCT cce.evidence_tx) as total_evidence_txs,
+                    0 as total_evidence_txs,
                     ROUND(AVG(cce.confidence), 2) as avg_confidence,
                     COUNT(CASE WHEN cce.confidence >= 75 THEN 1 END) as high_conf,
                     COUNT(CASE WHEN cce.confidence >= 50 AND cce.confidence < 75 THEN 1 END) as med_conf,
                     COUNT(CASE WHEN cce.confidence < 50 THEN 1 END) as low_conf,
-                    MIN(cce.first_seen_block_time) as earliest_time,
-                    MAX(cce.first_seen_block_time) as latest_time,
+                    NULL as earliest_time,
+                    NULL as latest_time,
                     COUNT(DISTINCT cce.bridge_funder) as unique_funders,
                     GROUP_CONCAT(DISTINCT cce.bridge_funder) as funder_list
                   FROM network_membership nm

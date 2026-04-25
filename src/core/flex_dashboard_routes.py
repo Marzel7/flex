@@ -1121,6 +1121,26 @@ def api_token_intelligence():
             """, params + [limit]).fetchall()
             tokens += [dict(r) for r in act_rows]
 
+        # ── Graph signal enrichment (batch, read-only) ───────────────────────
+        try:
+            from src.core.network_enrichment import batch_signal_for_tokens
+            mints = [t['mint'] for t in tokens if t.get('mint')]
+            if mints:
+                ph_mints = ','.join('?' * len(mints))
+                gc = db_connect(DB_PATH, timeout=5)
+                gc.row_factory = sqlite3.Row
+                creator_rows = gc.execute(
+                    f"SELECT mint, earliest_tx_creator FROM token_analysis WHERE mint IN ({ph_mints})",
+                    mints,
+                ).fetchall()
+                creator_map = {r[0]: r[1] for r in creator_rows if r[1]}
+                for t in tokens:
+                    t['creator'] = creator_map.get(t['mint'])
+                batch_signal_for_tokens(gc, tokens)
+                gc.close()
+        except Exception as _ge:
+            logger.warning(f"Graph signal enrichment skipped: {_ge}")
+
         conn.close()
 
         # ── Apply min_peak_mc filter post-join for active (NULL-safe) ────────
@@ -1208,6 +1228,19 @@ def api_token_intelligence_detail(mint):
             {'t': r['captured_at'], 'p': r['price_usd'], 'mc': r['market_cap']}
             for r in hist_rows
         ]
+
+        # ── Graph / network context ───────────────────────────────────────────
+        try:
+            from src.core.network_enrichment import graph_context_for_token
+            gc = db_connect(DB_PATH, timeout=5)
+            gc.row_factory = sqlite3.Row
+            graph_ctx = graph_context_for_token(gc, mint)
+            gc.close()
+            if graph_ctx:
+                detail['graph'] = graph_ctx
+        except Exception as _ge:
+            logger.warning(f"Graph context skipped for {mint}: {_ge}")
+
         return no_cache_json(detail)
     except Exception as e:
         logger.error(f"Error fetching token intelligence detail: {e}", exc_info=True)

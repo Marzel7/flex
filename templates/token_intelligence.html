@@ -289,6 +289,38 @@
 }
 .ti-chart-svg { width: 100%; height: 100%; }
 
+/* ── Network signal badges ── */
+.ns-high   { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px;
+             background:rgba(239,68,68,0.15);  color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+.ns-medium { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px;
+             background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
+.ns-low    { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px;
+             background:rgba(100,116,139,0.12);color:#64748b; border:1px solid rgba(100,116,139,0.2); }
+
+/* ── Graph detail panel ── */
+.graph-section { margin-top: 16px; }
+.graph-section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-secondary); margin-bottom: 8px; border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+.graph-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.graph-chip {
+    font-size: 11px; padding: 3px 8px; border-radius: 4px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+.graph-chip strong { color: var(--text-primary); }
+.graph-funder-row, .graph-peer-row {
+    font-size: 11px; padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex; align-items: center; gap: 6px; color: var(--text-secondary);
+}
+.graph-funder-row:last-child, .graph-peer-row:last-child { border-bottom: none; }
+.graph-wallet { font-family: monospace; font-size: 11px; color: var(--accent-cyan); }
+.graph-tag { font-size: 10px; padding: 1px 5px; border-radius: 3px;
+             background: rgba(139,92,246,0.12); color: #a78bfa; }
+
 /* ── Loading / empty ── */
 .ti-loading {
     padding: 40px;
@@ -439,6 +471,7 @@
                     <th data-col="snapshots">Snaps</th>
                     <th data-col="quality" title="Token quality score based on tracking coverage. 'good' = tracked from migration; 'possibly_late' / 'likely_late' = joined late, peak MC may be understated.">Quality ⓘ</th>
                     <th data-col="drop_reason" title="% drop from peak / liquidity drop indicator — reason the token's price fell from its peak (e.g. liquidity removed, sell-off, rug).">Drop ⓘ</th>
+                    <th data-col="network" title="Graph network signal: farm cluster membership, coordinator funders, funder overlap.">Network</th>
                 </tr>
             </thead>
             <tbody id="tiTableBody">
@@ -483,6 +516,14 @@ const fmtNum = n => n == null ? '—' : n.toLocaleString();
 const fmtPct = v => v == null ? '—' : `${(v*100).toFixed(1)}%`;
 const ratingColor = r => r >= 7 ? 'var(--ti-green)' : r >= 4 ? 'var(--ti-amber)' : r >= 1 ? 'var(--ti-red)' : 'var(--ti-gray)';
 const WEAK_CATS = new Set(['unknown', 'collecting', 'late_start', 'low_peak', 'unclassified']);
+
+// ── Network signal badge ──────────────────────────────────────────
+function nsBadge(level, reason) {
+    if (!level || level === 'NONE') return '<span style="color:#374151;font-size:10px">—</span>';
+    const cls = { HIGH: 'ns-high', MEDIUM: 'ns-medium', LOW: 'ns-low' }[level] || 'ns-low';
+    const tip = reason ? ` title="${reason}"` : '';
+    return `<span class="${cls}"${tip}>${level}</span>`;
+}
 
 // ── G-class system ────────────────────────────────────────────────
 const G_COLOR = {'G1':'var(--g1)','G2':'var(--g2)','G3':'var(--g3)','G4':'var(--g4)','G5':'var(--g5)','G6':'var(--g6)','G7':'var(--g7)','G?':'var(--gq)'};
@@ -690,7 +731,7 @@ function buildParams() {
 
 async function loadTable() {
     const body = document.getElementById('tiTableBody');
-    body.innerHTML = `<tr><td colspan="10" class="ti-loading">Loading…</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="ti-loading">Loading…</td></tr>`;
     try {
         const data = await fetch(`${API}?${buildParams()}`).then(r => r.json());
         _currentTokens = data.tokens || [];
@@ -796,6 +837,7 @@ async function openDetail(mint) {
             ${d.drop_reason ? `<div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Drop: <span style="color:var(--text-primary)">${d.drop_reason}</span></div>` : ''}
             <div class="ti-dist-title" style="margin-bottom:8px">Price History</div>
             <div class="ti-chart-wrap">${renderSparkline(hist)}</div>
+            ${renderGraphSection(d.graph)}
         `;
     } catch (e) {
         content.innerHTML = `<div style="color:var(--ti-red);font-size:12px">Error: ${e.message}</div>`;
@@ -834,6 +876,64 @@ function renderSparkline(hist) {
         <text x="${pad}" y="${H-2}" fill="#6b7280" font-size="9">${fmtMc(minV)}</text>
         <text x="${pad}" y="12" fill="#6b7280" font-size="9">${fmtMc(maxV)}</text>
     </svg>`;
+}
+
+function renderGraphSection(g) {
+    if (!g) return '';
+    const sig = g.signal_level || 'NONE';
+    if (sig === 'NONE' && !g.farm_cluster_id && !g.in_wallet_cluster && !(g.overlap_creators||[]).length)
+        return '';
+
+    const sigBadge = sig !== 'NONE'
+        ? `<span class="ns-${sig.toLowerCase()}" style="margin-left:6px">${sig}</span>` : '';
+    const reason = g.signal_reason ? `<span style="font-size:11px;color:var(--text-secondary);margin-left:6px">${g.signal_reason}</span>` : '';
+
+    let farmBlock = '';
+    if (g.farm_cluster_id != null) {
+        const riskColor = {CRITICAL:'#f87171',HIGH:'#f87171',MEDIUM:'#fbbf24',LOW:'#6b7280'}[g.farm_cluster_risk] || '#6b7280';
+        farmBlock = `
+        <div class="graph-row">
+            <div class="graph-chip">Farm Cluster <strong>#${g.farm_cluster_id}</strong></div>
+            <div class="graph-chip" style="color:${riskColor}"><strong>${g.farm_cluster_risk||'?'}</strong></div>
+            ${g.farm_cluster_creators != null ? `<div class="graph-chip">${g.farm_cluster_creators} creators</div>` : ''}
+            ${g.farm_cluster_funders  != null ? `<div class="graph-chip">${g.farm_cluster_funders} funders</div>` : ''}
+            ${g.farm_cluster_strength != null ? `<div class="graph-chip">strength ${g.farm_cluster_strength.toFixed(2)}</div>` : ''}
+        </div>`;
+    }
+
+    let wfBlock = '';
+    const wf = g.coordinator_funders || [];
+    if (wf.length) {
+        wfBlock = `
+        <div class="graph-section-title" style="margin-top:10px">Coordinator Funders</div>
+        ${wf.map(f => `
+            <div class="graph-funder-row">
+                <span class="graph-wallet" title="${f.wallet}">${f.wallet_short}</span>
+                <span class="graph-tag">${f.creators_funded} creators</span>
+                <span style="font-size:10px;color:#6b7280">conf ${f.confidence}</span>
+            </div>`).join('')}`;
+    }
+
+    let peerBlock = '';
+    const peers = g.overlap_creators || [];
+    if (peers.length) {
+        peerBlock = `
+        <div class="graph-section-title" style="margin-top:10px">Related Creators (shared funders)</div>
+        ${peers.map(p => `
+            <div class="graph-peer-row">
+                <span class="graph-wallet" title="${p.creator}">${p.creator_short}</span>
+                <span class="graph-tag">${p.shared_funders} shared</span>
+                <span style="font-size:10px;color:#6b7280">${p.coordination}</span>
+            </div>`).join('')}`;
+    }
+
+    return `
+    <div class="graph-section">
+        <div class="graph-section-title">Network / Cluster${sigBadge}${reason}</div>
+        ${farmBlock}${wfBlock}${peerBlock}
+        ${!farmBlock && !wfBlock && !peerBlock
+            ? '<div style="font-size:11px;color:#374151">No strong network signals</div>' : ''}
+    </div>`;
 }
 
 function closeDetail() {
@@ -918,7 +1018,7 @@ function renderTable(tokens) {
 
     if (!sorted.length) {
         document.getElementById('tiTableBody').innerHTML =
-            `<tr><td colspan="10" class="ti-loading">No tokens match filters</td></tr>`;
+            `<tr><td colspan="11" class="ti-loading">No tokens match filters</td></tr>`;
         return;
     }
 
@@ -969,6 +1069,7 @@ function renderTable(tokens) {
             <td style="${isWeak&&!isPin?'color:#374151':''}">${t.snapshot_count ?? '—'}</td>
             <td>${qualityBadge(t.tracking_quality)}</td>
             <td style="color:#4b5563;font-size:11px">${t.drop_reason||'—'}</td>
+            <td>${nsBadge(t.graph_signal, t.graph_signal_reason)}</td>
         </tr>`;
     }).join('');
     document.getElementById('tiTableBody').innerHTML = rows;
@@ -1022,7 +1123,7 @@ function patchTiMc(mint, marketCap, priceUsd) {
                         <td class="td-mono">${mint.slice(0,14)}… <span class="badge-new">NEW</span></td>
                         <td>—</td><td>—</td><td>—</td>
                         <td id="ti-mc-${mint}" style="color:#6b7280">—</td>
-                        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>`;
+                        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>`;
                     // Remove stale loading row if it's the only content
                     if (body.children.length === 1 && body.querySelector('.ti-loading')) {
                         body.innerHTML = '';

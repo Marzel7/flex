@@ -118,8 +118,24 @@
 {% endblock %}
 
 {% block content %}
-        <h1 style="color: var(--color-purple); margin-bottom: 10px;">🔗 Funding Networks</h1>
-        <p class="subtitle" style="color: var(--text-secondary); font-size: 14px; margin-bottom: 30px;">Coordinated funding groups across {{ total_networks }} networks.</p>
+        <h1 style="color: var(--color-purple); margin-bottom: 10px;">Funding Networks</h1>
+        <p class="subtitle" style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">Coordinated funding groups across {{ total_networks }} networks.</p>
+
+        {# System freshness warnings #}
+        {% if freshness %}
+        {% set nr_fresh = freshness.get('networks_release', {}) %}
+        {% set ga_fresh = freshness.get('graph_analyzers', {}) %}
+        {% if not nr_fresh.get('fresh') %}
+        <div style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#fb923c;">
+            ⚠ Network data may be stale — <code>networks_release.last_built_at</code> is NULL. These networks were built at an unknown time and may not reflect recent funding activity.
+        </div>
+        {% endif %}
+        {% if freshness.get('coordinated_creator_edges', {}).get('count', 1) == 0 %}
+        <div style="background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.3);border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:12px;color:#9ca3af;">
+            ℹ COORDINATED tags are unavailable — <code>coordinated_creator_edges</code> table is empty.
+        </div>
+        {% endif %}
+        {% endif %}
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -188,6 +204,19 @@
                     </div>
                     {% endif %}
                 </div>
+                {# Cross-system badges #}
+                {% if net.farm_cluster_ids %}
+                <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+                    {% for fc in net.farm_cluster_ids %}
+                    <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25);">Farm Cluster #{{ fc.cluster_id }} {{ fc.risk_level }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if net.coordinator_wallets %}
+                <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">
+                    Coordinator: {% for w in net.coordinator_wallets[:2] %}<span style="color:var(--accent-cyan);font-family:monospace;">{{ w.wallet_short }}</span> ({{ w.creator_count }} creators){% if not loop.last %}, {% endif %}{% endfor %}
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>

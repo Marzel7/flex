@@ -1103,17 +1103,18 @@ async function loadCreatorAnalysis(creator) {
     const content = document.getElementById('content');
     content.innerHTML = '<div class="loading">Loading analysis…</div>';
     try {
-        const [outRes, pipeRes] = await Promise.all([
+        const [outRes, pipeRes, detailRes] = await Promise.all([
             fetch(`/api/creator-outgoing-analysis/${creator}`),
             fetch(`/api/creator-pipeline-status/${creator}`),
+            fetch(`/api/creator-details/${creator}`),
         ]);
-        const [data, pipe] = await Promise.all([outRes.json(), pipeRes.json()]);
+        const [data, pipe, detail] = await Promise.all([outRes.json(), pipeRes.json(), detailRes.json()]);
 
         if (data.error) {
             content.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
             return;
         }
-        renderAnalysis(data, pipe);
+        renderAnalysis(data, pipe, detail.graph || null);
     } catch (err) {
         content.innerHTML = `<div class="error">❌ ${err.message}</div>`;
     }
@@ -1121,7 +1122,67 @@ async function loadCreatorAnalysis(creator) {
 
 // ── Detail view ──────────────────────────────────────────────────────────────
 
-function renderAnalysis(data, pipe) {
+function renderGraphBlock(g) {
+    if (!g) return '';
+    const sig = g.signal_level || 'NONE';
+    const RISK_COLOR = {CRITICAL:'#f87171',HIGH:'#fb923c',MEDIUM:'#fbbf24',LOW:'#6b7280'};
+    const SIG_COLOR  = {HIGH:'#f87171',MEDIUM:'#fbbf24',LOW:'#94a3b8',NONE:'#374151'};
+    const fmtW = a => a ? a.slice(0,8)+'…'+a.slice(-6) : '—';
+
+    let inner = '';
+
+    if (sig !== 'NONE') {
+        const sc = SIG_COLOR[sig] || '#94a3b8';
+        inner += `<div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.05);color:${sc};border:1px solid ${sc}44">${sig} SIGNAL</span>
+            <span style="font-size:12px;color:#64748b">${g.signal_reason||''}</span>
+        </div>`;
+    }
+
+    if (g.farm_cluster_id != null) {
+        const rc = RISK_COLOR[g.farm_cluster_risk] || '#6b7280';
+        inner += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <span style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.04);color:#a78bfa">Farm Cluster <strong style="color:#c4b5fd">#${g.farm_cluster_id}</strong></span>
+            <span style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.04);color:${rc}">${g.farm_cluster_risk||'?'} risk</span>
+            ${g.farm_cluster_creators!=null ? `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.04);color:#fbbf24">${g.farm_cluster_creators} creators</span>` : ''}
+            ${g.farm_cluster_funders !=null ? `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.04);color:#4ade80">${g.farm_cluster_funders} funders</span>` : ''}
+        </div>`;
+    }
+
+    const wf = g.coordinator_funders || [];
+    if (wf.length) {
+        inner += `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin:10px 0 5px">Coordinator Funders</div>`;
+        inner += wf.map(f => `
+            <div style="font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:8px;align-items:center;">
+                <a href="/wallet/${f.wallet}" style="font-family:monospace;font-size:11px;color:var(--accent-cyan)">${f.wallet_short}</a>
+                <span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(34,197,94,0.1);color:#4ade80">${f.creators_funded} creators</span>
+                <span style="font-size:10px;color:#475569">conf ${f.confidence}</span>
+            </div>`).join('');
+    }
+
+    const peers = g.overlap_creators || [];
+    if (peers.length) {
+        inner += `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin:10px 0 5px">Related Creators (shared funders)</div>`;
+        inner += peers.map(p => `
+            <div style="font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:8px;align-items:center;">
+                <a href="/creator-analysis?creator=${p.creator}" style="font-family:monospace;font-size:11px;color:var(--accent-cyan)">${p.creator_short}</a>
+                <span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(139,92,246,0.12);color:#a78bfa">${p.shared_funders} shared</span>
+                <span style="font-size:10px;color:#475569">${p.coordination}</span>
+            </div>`).join('');
+    }
+
+    if (!inner) return '';
+
+    return `
+    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-left:3px solid #a78bfa;border-radius:8px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">
+            🕸 Graph / Network Context
+        </div>
+        ${inner}
+    </div>`;
+}
+
+function renderAnalysis(data, pipe, graphCtx) {
     const prof  = pipe?.profile  || {};
     const watch = pipe?.watch    || {};
     const flow  = pipe?.flow_24h || {};
@@ -1404,6 +1465,9 @@ function renderAnalysis(data, pipe) {
         });
         html += `</div>`;
     }
+
+    // ── Graph / network context ──────────────────────────────────────────
+    html += renderGraphBlock(graphCtx);
 
     // ── Stats footer (existing) ──────────────────────────────────────────
     html += `

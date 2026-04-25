@@ -2227,7 +2227,9 @@
                         t.creatorData?.inbound_sol || 0,
                         t.creatorData?.is_blocked ? 1 : 0,
                         t.creatorData?.tags?.length || 0,
-                        t.creatorData?.funders?.length || 0
+                        t.creatorData?.funders?.length || 0,
+                        t.creatorData?.named_networks?.length || 0,
+                        t.creatorData?.farm_clusters?.length || 0
                     ])
                 );
 
@@ -2458,7 +2460,7 @@
             // Always prefer _creatorDataCache (kept fresh by ensureCreatorEnrichment) over
             // token.creatorData which may be stale from the previous poll batch.
             const _cachedCreator = window._creatorDataCache?.[token.creator];
-            const _hasCached = _cachedCreator && (_cachedCreator.token_count > 0 || _cachedCreator.network_size > 0 || _cachedCreator.inbound_sources > 0 || (_cachedCreator.tags && _cachedCreator.tags.length > 0));
+            const _hasCached = _cachedCreator && (_cachedCreator.token_count > 0 || _cachedCreator.network_size > 0 || _cachedCreator.inbound_sources > 0 || (_cachedCreator.tags && _cachedCreator.tags.length > 0) || _cachedCreator.named_networks != null || _cachedCreator.farm_clusters != null);
             const creatorData = _hasCached ? _cachedCreator : (token.creatorData || {});
             const columnTags = [];
             const TAG_SHORT = {
@@ -2677,10 +2679,30 @@
                     </div>
                 </td>
                 <td class="network-name">
-                    ${token.atomic_network_name ? `<a href="/networks?network=${encodeURIComponent(token.atomic_network_name)}" style="color: var(--accent-purple); font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);" title="${token.atomic_network_tier || ''}">${token.atomic_network_name}</a>` : ''}
+                    ${(() => {
+                        const staticNet = token.atomic_network_name;
+                        const liveNets = creatorData.named_networks || [];
+                        const allNets = staticNet
+                            ? [staticNet, ...liveNets.filter(n => n !== staticNet)]
+                            : liveNets;
+                        if (!allNets.length) return '';
+                        return allNets.slice(0, 2).map(n =>
+                            `<a href="/networks?network=${encodeURIComponent(n)}" style="display:inline-block;color:var(--accent-purple);font-weight:bold;font-size:11px;cursor:pointer;text-decoration:none;border-bottom:1px dotted var(--accent-purple);margin-right:3px" title="Named network">${n}</a>`
+                        ).join('') + (allNets.length > 2 ? `<span style="color:var(--text-secondary);font-size:10px">+${allNets.length-2}</span>` : '');
+                    })()}
                 </td>
                 <td class="cluster-name">
-                    ${token.cluster_name ? `<span style="color: var(--accent-orange); font-size: 12px;" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>` : ''}
+                    ${(() => {
+                        const staticCluster = token.cluster_name
+                            ? `<span style="color:var(--accent-orange);font-size:11px" title="${token.cluster_id ? 'Risk multiplier: ' + token.cluster_risk_multiplier + 'x' : ''}">${token.cluster_name}</span>`
+                            : '';
+                        const liveClusters = (creatorData.farm_clusters || []);
+                        const riskColor = {'HIGH':'#f87171','MEDIUM':'#fbbf24','LOW':'#4ade80'};
+                        const liveHtml = liveClusters.slice(0, 2).map(fc =>
+                            `<a href="/clusters" style="display:inline-block;font-size:11px;font-weight:700;color:${riskColor[fc.risk_level]||'#9ca3af'};text-decoration:none;margin-right:3px" title="Farm Cluster #${fc.cluster_id} — ${fc.risk_level}">FC#${fc.cluster_id}</a>`
+                        ).join('');
+                        return staticCluster + liveHtml || '';
+                    })()}
                 </td>
                 <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:68px;min-width:68px;white-space:nowrap">
                     ${token.liquidity_removed ? `<span class="rug-badge" title="Liquidity removed${token.liquidity_removed_at ? ' · ' + timeSinceLaunch(token.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
@@ -3101,7 +3123,11 @@
 
         function formatDateISO(isoString) {
             if (!isoString) return '-';
-            const date = new Date(isoString);
+            // Handle Unix timestamps (seconds) — values plausible as seconds but not ms
+            const num = Number(isoString);
+            const date = (!isNaN(num) && num > 1e9 && num < 2e10)
+                ? new Date(num * 1000)
+                : new Date(isoString);
             if (isNaN(date.getTime())) return '-';
             return date.toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
         }
@@ -4565,8 +4591,11 @@ function switchToTokensTab() {
 
                 document.getElementById('creatorNetworkSize').textContent = (data.cluster.total_wallets || 0) + ' wallets';
 
-                // Display network name if available with CEX/INFRA badges
-                if (data.network_name) {
+                // Display network memberships — prefer network_memberships[] (live), fall back to network_name
+                const allNetworks = (data.network_memberships && data.network_memberships.length)
+                    ? data.network_memberships
+                    : (data.network_name ? [data.network_name] : []);
+                if (allNetworks.length) {
                     let networkBadges = '';
                     if (data.network_type === 'cex_connected') {
                         networkBadges = '<span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px;">🏦 CEX</span>';
@@ -4577,7 +4606,10 @@ function switchToTokensTab() {
                     } else if (data.network_type === 'organic') {
                         networkBadges = '<span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; margin-left: 8px;">✓ ORGANIC</span>';
                     }
-                    document.getElementById('creatorNetworkName').innerHTML = `<a href="/creator-network/${encodeURIComponent(data.network_name)}" style="color: var(--accent-purple); text-decoration: none; cursor: pointer; border-bottom: 1px dotted var(--accent-purple);" title="View network">${data.network_name}</a>${networkBadges}`;
+                    const networkLinks = allNetworks.slice(0, 3).map(n =>
+                        `<a href="/creator-network/${encodeURIComponent(n)}" style="color: var(--accent-purple); text-decoration: none; cursor: pointer; border-bottom: 1px dotted var(--accent-purple); margin-right: 6px;" title="View network">${n}</a>`
+                    ).join('') + (allNetworks.length > 3 ? `<span style="color: var(--text-secondary); font-size: 10px;">+${allNetworks.length - 3} more</span>` : '');
+                    document.getElementById('creatorNetworkName').innerHTML = networkLinks + networkBadges;
                 } else {
                     document.getElementById('creatorNetworkName').textContent = 'Unassigned';
                 }

@@ -692,6 +692,7 @@ class GraphDevFarmDetectionEngine:
                 transfers_received INTEGER DEFAULT 0,
                 total_sent_sol REAL DEFAULT 0,
                 total_received_sol REAL DEFAULT 0,
+                token_count INTEGER DEFAULT 0,
                 role_confidence REAL DEFAULT 0,
                 pattern_regularity REAL DEFAULT 0,
                 first_activity_ts INTEGER,
@@ -733,6 +734,13 @@ class GraphDevFarmDetectionEngine:
             CREATE INDEX IF NOT EXISTS idx_farm_edges_cluster
                 ON farm_cluster_edges(cluster_id);
         """)
+
+        # Add token_count column if upgrading an existing DB
+        try:
+            cursor.execute("ALTER TABLE farm_cluster_members ADD COLUMN token_count INTEGER DEFAULT 0")
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
 
         conn.commit()
         conn.close()
@@ -792,9 +800,10 @@ class GraphDevFarmDetectionEngine:
 
             return {
                 'status': 'success',
-                'message': f'Graph detection: {len(clusters)} clusters, {len(farms)} farms',
+                'message': f'Graph detection: {len(clusters)} clusters, {len(farms)} farms stored',
                 'clusters_detected': len(clusters),
                 'farms_identified': len(farms),
+                'oversized_skipped': len(clusters) - len(farms),
                 'farm_members_stored': member_count,
                 'farm_edges_stored': edge_count,
                 'duration_ms': duration_ms,
@@ -836,29 +845,71 @@ class GraphDevFarmDetectionEngine:
         detector = ClusterDetector(graph)
         return detector.detect_by_weakly_connected_components()
 
+    # Size caps — components exceeding these are too large to be meaningful dev farms
+    MAX_FARM_TOTAL_WALLETS = 100
+    MAX_FARM_FUNDERS       = 50
+    MAX_FARM_CREATORS      = 50
+
     def _identify_farms(self, graph: nx.DiGraph, clusters: Dict[int, Set]) -> List[Dict]:
         """Identify dev farms from clusters using weighted edge metrics."""
+        # Pre-filter: drop oversized components before expensive classification
+        filtered_clusters: Dict[int, Set] = {}
+        for cid, nodes in clusters.items():
+            if len(nodes) > self.MAX_FARM_TOTAL_WALLETS:
+                logger.info(
+                    f"Skipping oversized component cluster_id={cid} "
+                    f"wallets={len(nodes)} (>{self.MAX_FARM_TOTAL_WALLETS}) — "
+                    "too large to be a coordinated dev farm"
+                )
+            else:
+                filtered_clusters[cid] = nodes
+
+        logger.info(
+            f"Size filter: {len(clusters)} components → "
+            f"{len(filtered_clusters)} candidates "
+            f"({len(clusters) - len(filtered_clusters)} oversized skipped)"
+        )
+
         # Step 1: Rank clusters by coordination strength
-        ranker = ClusterRanker(graph, clusters)
+        ranker = ClusterRanker(graph, filtered_clusters)
         ranked_clusters = ranker.rank_clusters()
-        
+
         # Convert to dict for lookup: cluster_id -> metrics
         cluster_metrics = {m['cluster_id']: m for m in ranked_clusters}
-        
+
         # Step 2: Identify farms with cluster metrics
         farm_id = FarmIdentifier(graph)
-        return farm_id.identify_farm_clusters(
-            clusters,
+        farms = farm_id.identify_farm_clusters(
+            filtered_clusters,
             cluster_metrics=cluster_metrics,
             min_funders=2,
             min_creators=3
         )
+
+        # Secondary filter: drop any farm where funder or creator count still exceeds caps
+        valid_farms = []
+        for f in farms:
+            if f['funder_count'] > self.MAX_FARM_FUNDERS or f['creator_count'] > self.MAX_FARM_CREATORS:
+                logger.info(
+                    f"Skipping farm cluster_id={f['cluster_id']} "
+                    f"funders={f['funder_count']} creators={f['creator_count']} — exceeds per-role cap"
+                )
+            else:
+                valid_farms.append(f)
+
+        return valid_farms
 
     def _store_results(self, graph: nx.DiGraph, farms: List[Dict]) -> Tuple[int, int, int]:
         """Store farms, members, and edges to database with weighted metrics."""
         conn = self._get_conn()
         cursor = conn.cursor()
         now = time.time()
+
+        # Clear previous results — fully recomputed each run
+        cursor.execute("DELETE FROM farm_cluster_edges")
+        cursor.execute("DELETE FROM farm_cluster_members")
+        cursor.execute("DELETE FROM farm_clusters")
+        conn.commit()
 
         farm_count = 0
         member_count = 0
@@ -957,6 +1008,59 @@ class GraphDevFarmDetectionEngine:
                 edge_count += 1
 
         conn.commit()
+
+        # Backfill token_count on members and promote ambiguous→creator for known launchers
+        self._backfill_token_counts(conn, cursor)
+
+        conn.commit()
         conn.close()
 
         return farm_count, member_count, edge_count
+
+    def _backfill_token_counts(self, conn, cursor) -> None:
+        """
+        After storing members, join token_analysis (both creator fields) to:
+        1. Set token_count on every farm_cluster_members row.
+        2. Promote wallet_role from 'ambiguous' to 'creator' for wallets that
+           have launched tokens — the topology heuristic can't know this.
+        """
+        all_members = cursor.execute(
+            "SELECT wallet_address FROM farm_cluster_members"
+        ).fetchall()
+        if not all_members:
+            return
+
+        addrs = [r[0] for r in all_members]
+        ph = ','.join('?' * len(addrs))
+
+        # Count tokens per wallet using BOTH creator fields
+        rows = conn.execute(f"""
+            SELECT creator, COUNT(*) AS cnt FROM (
+                SELECT earliest_tx_creator AS creator FROM token_analysis
+                WHERE earliest_tx_creator IN ({ph})
+                UNION ALL
+                SELECT pf_ws_creator AS creator FROM token_analysis
+                WHERE pf_ws_creator IN ({ph})
+                  AND (earliest_tx_creator IS NULL OR earliest_tx_creator != pf_ws_creator)
+            ) GROUP BY creator
+        """, addrs + addrs).fetchall()
+
+        token_counts = {r[0]: r[1] for r in rows}
+
+        for addr, cnt in token_counts.items():
+            cursor.execute(
+                "UPDATE farm_cluster_members SET token_count=? WHERE wallet_address=?",
+                (cnt, addr)
+            )
+            # Promote ambiguous → creator if this wallet has launched tokens
+            if cnt > 0:
+                cursor.execute("""
+                    UPDATE farm_cluster_members
+                    SET wallet_role='creator', role_confidence=0.85
+                    WHERE wallet_address=? AND wallet_role='ambiguous'
+                """, (addr,))
+
+        logger.info(
+            f"Token backfill: {len(token_counts)} wallets with tokens; "
+            f"{sum(1 for c in token_counts.values() if c > 0)} ambiguous→creator promotions possible"
+        )

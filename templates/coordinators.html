@@ -1,0 +1,166 @@
+{% extends "base_shell.html" %}
+{% block title %}Coordinator Wallets — FLEX{% endblock %}
+
+{% block extra_styles %}
+.coord-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.coord-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px 18px;
+}
+.coord-stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+.coord-stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan); }
+
+.coord-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.coord-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.coord-table thead th {
+    background: rgba(0,0,0,0.3);
+    color: var(--text-secondary); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 8px 12px; border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+.coord-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.1s;
+}
+.coord-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+.coord-table td { padding: 7px 12px; color: var(--text-secondary); }
+
+.coord-wallet { font-family: monospace; font-size: 11px; color: var(--accent-cyan); }
+.coord-copy {
+    background: none; border: none; cursor: pointer; color: var(--text-secondary);
+    font-size: 11px; padding: 1px 4px; border-radius: 3px;
+}
+.coord-copy:hover { color: var(--text-primary); }
+.coord-copy.copied { color: #4ade80; }
+
+.coord-badge {
+    font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+    text-transform: uppercase; white-space: nowrap;
+}
+.coord-badge-burst  { background: rgba(239,68,68,0.12); color: #f87171; }
+.coord-badge-farm   { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+.coord-badge-net    { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
+.coord-badge-sf     { background: rgba(249,115,22,0.12); color: #fb923c; }
+.coord-badge-sig-HIGH   { background: rgba(239,68,68,0.15);  color: #f87171; }
+.coord-badge-sig-MEDIUM { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.coord-badge-sig-LOW    { background: rgba(107,114,128,0.12);color: #9ca3af; }
+.coord-badge-sig-NONE   { background: rgba(107,114,128,0.08);color: #6b7280; }
+
+.coord-loading { padding: 32px; text-align: center; color: var(--text-secondary); font-size: 13px; }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Coordinator Wallets</h1>
+    <p class="subtitle">High-signal funder wallets detected by wallet clustering — cross-referenced with named networks and farm clusters</p>
+</div>
+
+<div class="coord-summary">
+    <div class="coord-stat"><div class="coord-stat-label">Coordinators</div><div class="coord-stat-value" id="cTotal">—</div></div>
+    <div class="coord-stat"><div class="coord-stat-label">Avg Creators Funded</div><div class="coord-stat-value" id="cAvgCreators" style="color:var(--color-yellow)">—</div></div>
+    <div class="coord-stat"><div class="coord-stat-label">In Named Network</div><div class="coord-stat-value" id="cInNetwork" style="color:#a78bfa">—</div></div>
+    <div class="coord-stat"><div class="coord-stat-label">In Farm Cluster</div><div class="coord-stat-value" id="cInFarm" style="color:#f87171">—</div></div>
+    <div class="coord-stat"><div class="coord-stat-label">With Burst Activity</div><div class="coord-stat-value" id="cBurst" style="color:#fb923c">—</div></div>
+</div>
+
+<div class="coord-table-wrap">
+    <table class="coord-table">
+        <thead>
+            <tr>
+                <th>Wallet</th>
+                <th style="text-align:right">Creators</th>
+                <th style="text-align:right">Confidence</th>
+                <th style="text-align:right">Avg SOL</th>
+                <th style="text-align:right">Days Active</th>
+                <th style="text-align:right">Tokens</th>
+                <th>Signal</th>
+                <th>Flags</th>
+                <th>Networks</th>
+            </tr>
+        </thead>
+        <tbody id="coordTableBody">
+            <tr><td colspan="9" class="coord-loading">Loading…</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fmtN = n => n == null ? '—' : Number(n).toLocaleString();
+const fmtF = (v,d=2) => v == null ? '—' : Number(v).toFixed(d);
+
+function copyW(btn, addr) {
+    navigator.clipboard.writeText(addr).then(() => {
+        btn.classList.add('copied'); btn.textContent = '✓';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '⎘'; }, 1500);
+    });
+}
+
+async function loadCoordinators() {
+    try {
+        const d = await fetch('/api/coordinator-wallets').then(r => r.json());
+        const wallets = d.wallets || [];
+
+        document.getElementById('cTotal').textContent     = fmtN(wallets.length);
+        const avgC = wallets.length ? (wallets.reduce((s,w) => s+(w.creator_count||0),0)/wallets.length).toFixed(1) : '—';
+        document.getElementById('cAvgCreators').textContent = avgC;
+        document.getElementById('cInNetwork').textContent  = fmtN(wallets.filter(w => (w.network_memberships||[]).length>0).length);
+        document.getElementById('cInFarm').textContent     = fmtN(wallets.filter(w => (w.farm_clusters||[]).length>0).length);
+        document.getElementById('cBurst').textContent      = fmtN(wallets.filter(w => w.has_burst).length);
+
+        const body = document.getElementById('coordTableBody');
+        if (!wallets.length) {
+            body.innerHTML = '<tr><td colspan="9" class="coord-loading">No coordinator wallets found.</td></tr>';
+            return;
+        }
+
+        body.innerHTML = wallets.map(w => {
+            const sigCls = `coord-badge coord-badge-sig-${w.signal||'NONE'}`;
+            const flags = [
+                w.has_burst       ? '<span class="coord-badge coord-badge-burst">Burst</span>' : '',
+                w.is_self_funding ? `<span class="coord-badge coord-badge-sf">Self-Fund ${w.self_funding_pct?.toFixed(0)}%</span>` : '',
+                (w.farm_clusters||[]).length ? `<span class="coord-badge coord-badge-farm">Farm Cluster</span>` : '',
+            ].filter(Boolean).join(' ');
+
+            const nets = (w.network_memberships||[]).slice(0,2).map(n =>
+                `<span class="coord-badge coord-badge-net">${n}</span>`
+            ).join(' ');
+
+            return `<tr>
+                <td>
+                    <span class="coord-wallet">${w.wallet}</span>
+                    <button class="coord-copy" onclick="copyW(this,'${w.wallet}')" title="Copy">⎘</button>
+                </td>
+                <td style="text-align:right;color:var(--color-yellow)">${fmtN(w.creator_count)}</td>
+                <td style="text-align:right">${fmtF(w.confidence,1)}</td>
+                <td style="text-align:right">${fmtF(w.avg_sol,3)}</td>
+                <td style="text-align:right">${fmtF(w.days_active,1)}</td>
+                <td style="text-align:right;color:var(--accent-cyan)">${w.token_count || '—'}</td>
+                <td><span class="${sigCls}">${w.signal||'NONE'}</span></td>
+                <td>${flags || '<span style="color:var(--text-secondary);font-size:10px">—</span>'}</td>
+                <td>${nets || '<span style="color:var(--text-secondary);font-size:10px">—</span>'}</td>
+            </tr>`;
+        }).join('');
+    } catch(e) {
+        document.getElementById('coordTableBody').innerHTML =
+            `<tr><td colspan="9" style="color:#ef4444;padding:20px;text-align:center">Error: ${e.message}</td></tr>`;
+    }
+}
+
+loadCoordinators();
+</script>
+{% endblock %}

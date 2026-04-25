@@ -687,6 +687,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         asyncio.create_task(self._cleanup_tx_cache_periodic())
         asyncio.create_task(self._process_creator_funding_queue_periodic())
         asyncio.create_task(self._flush_portal_vsol_periodic())
+        asyncio.create_task(self._db_maintenance_periodic())
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -3152,6 +3153,116 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             except Exception as e:
                 log_print(f"[TX_CACHE_CLEANUP] Error during cleanup: {e}", flush=True)
+
+    async def _db_maintenance_periodic(self):
+        """
+        Nightly DB maintenance: purge expired RPC cache rows, prune rpc_metrics and
+        helius_usage_snapshots, then checkpoint the WAL.  Runs at startup if >12h since
+        last run, then again every 24h.  Results are stored in db_maintenance_log so the
+        performance dashboard can surface them.
+        """
+        import time as _time
+
+        INTERVAL = 6 * 3600
+        MIN_GAP  = 4 * 3600
+
+        def _run():
+            conn = db_connect(DB_PATH, timeout=60)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=60000")
+            try:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS db_maintenance_log (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ran_at       INTEGER NOT NULL,
+                        rpc_cache_deleted   INTEGER,
+                        rpc_metrics_deleted INTEGER,
+                        helius_snapshots_deleted INTEGER,
+                        wal_checkpoint_pages INTEGER,
+                        duration_ms  INTEGER
+                    )
+                """)
+                conn.commit()
+
+                # Check last run time
+                row = conn.execute(
+                    "SELECT ran_at FROM db_maintenance_log ORDER BY ran_at DESC LIMIT 1"
+                ).fetchone()
+                if row and (_time.time() - row[0]) < MIN_GAP:
+                    return None  # Too soon
+
+                t0 = _time.time()
+
+                # 1. Purge expired RPC cache rows
+                cur = conn.execute(
+                    "DELETE FROM rpc_response_cache WHERE cached_at + ttl_seconds <= ?",
+                    (int(_time.time()),)
+                )
+                rpc_cache_deleted = cur.rowcount
+                conn.commit()
+
+                # 2. Prune rpc_metrics — keep 7 days
+                cur = conn.execute(
+                    "DELETE FROM rpc_metrics WHERE timestamp < ?",
+                    (_time.time() - 7 * 86400,)
+                )
+                rpc_metrics_deleted = cur.rowcount
+                conn.commit()
+
+                # 3. Prune helius_usage_snapshots — keep 48h
+                cur = conn.execute(
+                    "DELETE FROM helius_usage_snapshots WHERE captured_at < datetime('now', '-2 days')"
+                )
+                helius_deleted = cur.rowcount
+                conn.commit()
+
+                # 4. WAL checkpoint — RESTART resets the write position without
+                # requiring exclusive access (TRUNCATE would block on open readers)
+                ckpt = conn.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
+                wal_pages = ckpt[2] if ckpt else 0
+
+                # 5. VACUUM rpc_response_cache (reclaim freed pages)
+                conn.execute("VACUUM")
+
+                duration_ms = int((_time.time() - t0) * 1000)
+
+                conn.execute(
+                    """INSERT INTO db_maintenance_log
+                       (ran_at, rpc_cache_deleted, rpc_metrics_deleted,
+                        helius_snapshots_deleted, wal_checkpoint_pages, duration_ms)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    (int(_time.time()), rpc_cache_deleted, rpc_metrics_deleted,
+                     helius_deleted, wal_pages, duration_ms)
+                )
+                conn.commit()
+                return {
+                    'rpc_cache_deleted': rpc_cache_deleted,
+                    'rpc_metrics_deleted': rpc_metrics_deleted,
+                    'helius_snapshots_deleted': helius_deleted,
+                    'wal_pages': wal_pages,
+                    'duration_ms': duration_ms,
+                }
+            finally:
+                conn.close()
+
+        # Run at startup (respects MIN_GAP), then every 24h
+        while True:
+            try:
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(None, _run)
+                if result:
+                    log_print(
+                        f"[DB_MAINTENANCE] ✅ rpc_cache={result['rpc_cache_deleted']} deleted, "
+                        f"rpc_metrics={result['rpc_metrics_deleted']} deleted, "
+                        f"helius_snapshots={result['helius_snapshots_deleted']} deleted, "
+                        f"wal_pages={result['wal_pages']}, took {result['duration_ms']}ms",
+                        flush=True
+                    )
+                else:
+                    log_print("[DB_MAINTENANCE] Skipped — ran recently", flush=True)
+            except Exception as e:
+                log_print(f"[DB_MAINTENANCE] Error: {e}", flush=True)
+            await asyncio.sleep(INTERVAL)
 
     async def _flush_portal_vsol_periodic(self):
         """Write _portal_vsol to portal_vsol.json every 5s for Flask to read."""

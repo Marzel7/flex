@@ -10115,16 +10115,29 @@ def api_creator_details(creator_address: str):
         # 12. Get network assignment for this creator
         network_name = None
         network_type = None
+        network_memberships = []
         try:
             cursor = conn.cursor()
+            # Primary: network_membership (live, rebuilt by NetworkMembershipBuilder)
             cursor.execute("""
-                SELECT network_name FROM creator_networks
+                SELECT network_name FROM network_membership
                 WHERE creator_address = ?
+                ORDER BY network_name ASC
             """, (creator_address,))
-            network_row = cursor.fetchone()
-            if network_row:
-                network_name = network_row[0]
-                # Get network type
+            nm_rows = cursor.fetchall()
+            if nm_rows:
+                network_memberships = [r[0] for r in nm_rows]
+                network_name = network_memberships[0]
+            else:
+                # Fallback: legacy creator_networks table
+                cursor.execute("""
+                    SELECT network_name FROM creator_networks
+                    WHERE creator_address = ?
+                """, (creator_address,))
+                network_row = cursor.fetchone()
+                if network_row:
+                    network_name = network_row[0]
+            if network_name:
                 cursor.execute("""
                     SELECT network_type FROM network_cex_infra_flags
                     WHERE network_name = ?
@@ -10162,6 +10175,18 @@ def api_creator_details(creator_address: str):
                     funder['cross_ref_direction'] = 'INBOUND'
                     break
 
+        # Graph / cluster context
+        graph_context = {}
+        try:
+            from src.core.network_enrichment import enrich_creators
+            gc = db_connect(DB_PATH, timeout=5)
+            gc.row_factory = sqlite3.Row
+            ctx_map = enrich_creators(gc, [creator_address])
+            gc.close()
+            graph_context = ctx_map.get(creator_address, {})
+        except Exception as _ge:
+            print(f"[CREATOR_DETAILS] Graph enrichment skipped: {_ge}", flush=True)
+
         return jsonify({
             'creator_address': creator_address,
             'creator_address_tags': creator_address_tags,
@@ -10179,7 +10204,9 @@ def api_creator_details(creator_address: str):
             'is_blocked': is_blocked,
             'tags': tags,
             'network_name': network_name,
-            'network_type': network_type
+            'network_memberships': network_memberships,
+            'network_type': network_type,
+            'graph': graph_context,
         })
 
     except Exception as e:
@@ -11129,8 +11156,36 @@ def api_creators_batch():
                         'amount_sol': None
                     })
 
-        # Network membership is now indicated by network_name field, not a tag
-        # No need for Network-Coordinator tag since all network creators show their network name
+        # Named network membership (System 1: networks_release)
+        network_membership_data = {}
+        try:
+            cursor.execute(f"""
+                SELECT creator_address, network_name
+                FROM network_membership
+                WHERE creator_address IN ({placeholders})
+            """, creator_addresses)
+            for row in cursor.fetchall():
+                network_membership_data.setdefault(row['creator_address'], []).append(row['network_name'])
+        except Exception:
+            pass
+
+        # Farm cluster membership (System 2: graph dev farm detection)
+        farm_cluster_data = {}
+        try:
+            cursor.execute(f"""
+                SELECT fcm.wallet_address, fc.graph_cluster_id, fc.risk_level
+                FROM farm_cluster_members fcm
+                JOIN farm_clusters fc ON fcm.cluster_id = fc.cluster_id
+                WHERE fcm.wallet_address IN ({placeholders})
+                  AND fcm.wallet_role IN ('creator', 'ambiguous')
+            """, creator_addresses)
+            for row in cursor.fetchall():
+                farm_cluster_data.setdefault(row['wallet_address'], []).append({
+                    'cluster_id': row['graph_cluster_id'],
+                    'risk_level': row['risk_level']
+                })
+        except Exception:
+            pass
 
         conn.close()
 
@@ -11148,7 +11203,9 @@ def api_creators_batch():
                 },
                 'is_blocked': blocked_data.get(creator, False),
                 'funders': funders_data.get(creator, []),
-                'tags': tags_data.get(creator, [])
+                'tags': tags_data.get(creator, []),
+                'named_networks': network_membership_data.get(creator, []),
+                'farm_clusters': farm_cluster_data.get(creator, [])
             }
 
         return jsonify(result)
@@ -12072,18 +12129,11 @@ def clusters_dashboard():
             })
 
         conn.close()
-
-        return render_template(
-            'clusters.html',
-            active_page='clusters',
-            clusters=clusters,
-            total_funders=total_funders,
-            total_creators=total_creators,
-            total_volume=total_volume,
-        )
+        # Template now loads via JS from /api/graph-clusters
+        return render_template('clusters.html', active_page='clusters')
 
     except Exception as e:
-        return f"<html><body style='background: var(--bg-dark); color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
+        return render_template('clusters.html', active_page='clusters')
 
 # Original coordinated_funders_view (with syntax issues):
 def coordinated_funders_view_old():
@@ -15816,58 +15866,57 @@ def networks_dashboard():
         total_creators_funded = 0
         total_sol = 0.0
 
+        # Bulk fetch creators-per-network and token counts in 2 queries instead of 108×2
+        creators_by_network = {}  # network_name -> [creator_address]
+        token_count_by_network = {}  # network_name -> int
+        cex_label_by_network = {}  # network_name -> str|None
+        try:
+            conn, cursor = get_db_conn()
+
+            # All network memberships in one query
+            cursor.execute("SELECT network_name, creator_address FROM network_membership")
+            for row in cursor.fetchall():
+                creators_by_network.setdefault(row['network_name'], []).append(row['creator_address'])
+
+            # All creator→token counts in one query, then aggregate per network
+            all_creators = [c for lst in creators_by_network.values() for c in lst]
+            if all_creators:
+                ph = ','.join('?' * len(all_creators))
+                cursor.execute(f"""
+                    SELECT earliest_tx_creator, COUNT(DISTINCT mint) AS cnt
+                    FROM token_analysis
+                    WHERE earliest_tx_creator IN ({ph})
+                    GROUP BY earliest_tx_creator
+                """, all_creators)
+                tokens_per_creator = {row['earliest_tx_creator']: row['cnt'] for row in cursor.fetchall()}
+                for net_name, creators in creators_by_network.items():
+                    token_count_by_network[net_name] = sum(tokens_per_creator.get(c, 0) for c in creators)
+
+            # CEX labels: one query for first member of each CEX network
+            cex_networks = [n['network_name'] for n in all_networks if n.get('has_cex_funder')]
+            if cex_networks:
+                for net_name in cex_networks:
+                    first_creator = (creators_by_network.get(net_name) or [None])[0]
+                    if first_creator:
+                        cex_label_by_network[net_name] = get_cex_infra_label(first_creator)
+
+            conn.close()
+        except Exception as e:
+            print(f"[DEBUG] Error in bulk network stats fetch: {e}")
+
         for network in all_networks:
             network_name = network['network_name']
             network_size = network['network_size']
-
-            # Get token count from API (using the api_network_tokens endpoint logic)
-            token_count = 0
-            creators_funded = 0
-            try:
-                conn, cursor = get_db_conn()
-                # Get creators from network_membership
-                cursor.execute("""
-                    SELECT DISTINCT creator_address FROM network_membership
-                    WHERE network_name = ?
-                """, (network_name,))
-                creators = [row['creator_address'] for row in cursor.fetchall()]
-                creators_funded = len(creators)
-
-                # Get tokens for these creators
-                if creators:
-                    placeholders = ','.join(['?' for _ in creators])
-                    cursor.execute(f"""
-                        SELECT COUNT(DISTINCT mint) as token_count
-                        FROM token_analysis
-                        WHERE earliest_tx_creator IN ({placeholders})
-                    """, creators)
-                    result = cursor.fetchone()
-                    token_count = result['token_count'] if result else 0
-
-                conn.close()
-            except Exception as e:
-                print(f"[DEBUG] Error fetching token count for {network_name}: {e}")
-
-            sol_amount = 0.0  # Not available in networks_release
             funder_is_cex = network['has_cex_funder']
+
+            creators_funded = len(creators_by_network.get(network_name, []))
+            token_count = token_count_by_network.get(network_name, 0)
+            sol_amount = 0.0
+            cex_label = cex_label_by_network.get(network_name)
 
             total_tokens += token_count
             total_creators_funded += creators_funded
             total_sol += sol_amount
-
-            # Get CEX/INFRA label if this is a CEX funder
-            cex_label = None
-            if funder_is_cex:
-                # Try to get a representative funder from the network
-                conn, cursor = get_db_conn()
-                cursor.execute("""
-                    SELECT DISTINCT creator_address FROM network_membership
-                    WHERE network_name = ? LIMIT 1
-                """, (network_name,))
-                member_row = cursor.fetchone()
-                if member_row:
-                    cex_label = get_cex_infra_label(member_row['creator_address'])
-                conn.close()
 
             # Get score information
             score_info = scores_map.get(network_name)
@@ -16026,6 +16075,23 @@ def networks_dashboard():
     total_sol = context['total_sol']
     total_networks = context['total_networks']
 
+    # Cross-system enrichment: add farm_cluster and coordinator context per network
+    try:
+        from src.core.unified_network_intelligence import network_cross_links, system_freshness
+        _conn = db_connect(DB_PATH, timeout=10)
+        _conn.row_factory = sqlite3.Row
+        net_names = [n['name'] for n in networks]
+        cross = network_cross_links(_conn, net_names)
+        freshness = system_freshness(_conn)
+        _conn.close()
+        for n in networks:
+            xl = cross.get(n['name'], {})
+            n['farm_cluster_ids']     = xl.get('farm_cluster_ids', [])
+            n['coordinator_wallets']  = xl.get('coordinator_wallets', [])
+    except Exception as _xe:
+        logger.warning(f"Network cross-links skipped: {_xe}")
+        freshness = {}
+
     return render_template(
         "networks_dashboard.html",
         networks=networks,
@@ -16033,6 +16099,7 @@ def networks_dashboard():
         total_creators_funded=total_creators_funded,
         total_tokens=total_tokens,
         total_sol=total_sol,
+        freshness=freshness,
         active_page="networks"
     )
 
@@ -16665,76 +16732,44 @@ def api_creator_outgoing_analysis(creator_address: str):
         """, (creator_address, creator_address))
         coordinated_edges = cursor.fetchall()
 
-        # Get ALL network memberships for this creator (both primary and as connected creator)
-        all_networks = []
-
-        # 1. Direct membership (creator_address is the primary creator)
+        # ── Shared-funder networks (live: network_membership) ────────────────
         cursor.execute("""
-            SELECT network_name FROM creator_networks
-            WHERE creator_address = ?
+            SELECT nm.network_name, ncf.network_type
+            FROM network_membership nm
+            LEFT JOIN network_cex_infra_flags ncf ON nm.network_name = ncf.network_name
+            WHERE nm.creator_address = ?
+            ORDER BY nm.network_name ASC
         """, (creator_address,))
-        for row in cursor.fetchall():
-            if row['network_name']:
-                all_networks.append(row['network_name'])
+        networks_with_types = [
+            {'name': r['network_name'], 'type': r['network_type'], 'signal': 'shared_funder'}
+            for r in cursor.fetchall()
+        ]
 
-        # 2. Membership as connected creator (creator_address in connected_creators JSON)
-        cursor.execute("""
-            SELECT network_name, connected_creators FROM creator_networks
-            WHERE connected_creators LIKE ?
-        """, (f'%{creator_address}%',))
-        for row in cursor.fetchall():
-            try:
-                connected = json.loads(row['connected_creators'])
-                if creator_address in connected and row['network_name'] and row['network_name'] not in all_networks:
-                    all_networks.append(row['network_name'])
-            except:
-                pass
-
-        # 3. Membership via funders (creator's funders are primary creators in a network)
-        if not all_networks:
-            cursor.execute("""
-                SELECT DISTINCT cn.network_name
-                FROM creator_networks cn
-                WHERE cn.creator_address IN (
-                    SELECT DISTINCT funder_address FROM creator_funders
-                    WHERE creator_address = ?
-                )
-            """, (creator_address,))
-            for row in cursor.fetchall():
-                if row['network_name'] and row['network_name'] not in all_networks:
-                    all_networks.append(row['network_name'])
-
-        # 4. Membership in creator-to-creator networks (organic networks for direct transfers)
-        cursor.execute("""
-            SELECT DISTINCT network_name FROM creator_to_creator_networks
-            WHERE creator_address = ?
-        """, (creator_address,))
-        for row in cursor.fetchall():
-            if row['network_name'] and row['network_name'] not in all_networks:
-                all_networks.append(row['network_name'])
-
-        # Get CEX/INFRA types for all networks
-        networks_with_types = []
-        for net_name in all_networks:
-            cursor.execute("""
-                SELECT network_type
-                FROM network_cex_infra_flags
-                WHERE network_name = ?
-            """, (net_name,))
-            net_type_row = cursor.fetchone()
-            net_type = net_type_row['network_type'] if net_type_row else None
-            networks_with_types.append({
-                'name': net_name,
-                'type': net_type
-            })
-
-        # For backward compatibility, keep single network_name and network_type for primary network
-        # Prioritize by risk level: CEX > MIXED > INFRA > ORGANIC
         priority_order = {'cex_connected': 0, 'mixed': 1, 'infra_connected': 2, 'organic': 3}
         sorted_networks = sorted(networks_with_types, key=lambda x: priority_order.get(x['type'], 999))
-
         network_name = sorted_networks[0]['name'] if sorted_networks else None
         network_type = sorted_networks[0]['type'] if sorted_networks else None
+
+        # ── Direct C2C edges (live: creator_c2c_edges) ───────────────────────
+        cursor.execute("""
+            SELECT source_creator, dest_creator,
+                   ROUND(total_sol, 4) as total_sol, transfer_count,
+                   first_seen, last_seen,
+                   ROUND(confidence, 3) as confidence,
+                   'outgoing' as direction
+            FROM creator_c2c_edges
+            WHERE source_creator = ?
+            UNION ALL
+            SELECT source_creator, dest_creator,
+                   ROUND(total_sol, 4), transfer_count,
+                   first_seen, last_seen,
+                   ROUND(confidence, 3),
+                   'incoming'
+            FROM creator_c2c_edges
+            WHERE dest_creator = ?
+            ORDER BY confidence DESC
+        """, (creator_address, creator_address))
+        c2c_edges = [dict(r) for r in cursor.fetchall()]
 
         # Get self-funding data from stored calculations
         cursor.execute("""
@@ -17172,31 +17207,43 @@ def api_creator_outgoing_analysis(creator_address: str):
                     'networks': []
                 })
 
-        # Add network membership findings
+        # ── Direct C2C transfer findings ──────────────────────────────────────
+        if c2c_edges:
+            peers = []
+            for e in c2c_edges:
+                peer = e['dest_creator'] if e['direction'] == 'outgoing' else e['source_creator']
+                direction_label = 'sent to' if e['direction'] == 'outgoing' else 'received from'
+                peers.append(f"{peer[:8]}... ({direction_label}, {e['total_sol']} SOL, {e['transfer_count']} tx)")
+            peer_summary = '; '.join(peers[:5]) + (f' +{len(peers)-5} more' if len(peers) > 5 else '')
+            findings.append({
+                'type': '🔗 DIRECT_C2C',
+                'description': f'Creator has direct SOL transfers to/from {len(c2c_edges)} other known creator(s): {peer_summary}. This is a high-relevance coordination signal.',
+                'networks': [],
+                'c2c_edges': c2c_edges,
+            })
+
+        # ── Shared-funder network membership findings ─────────────────────────
         if networks_with_types:
             for net_info in networks_with_types:
                 net_name = net_info['name']
                 net_type = net_info['type']
 
-                network_type_desc = "coordinated funding network"
+                network_type_desc = "shared-funder coordinated network"
                 finding_type = '⚠️ NETWORK_MEMBER'
 
                 if net_type == 'cex_connected':
-                    network_type_desc = "🏦 CEX-connected coordinated network"
+                    network_type_desc = "🏦 CEX-connected shared-funder network"
                     finding_type = '🚨 NETWORK_MEMBER_CEX'
                 elif net_type == 'infra_connected':
-                    network_type_desc = "🔧 INFRA-connected coordinated network"
+                    network_type_desc = "🔧 INFRA-connected shared-funder network"
                     finding_type = '⚠️ NETWORK_MEMBER_INFRA'
                 elif net_type == 'mixed':
-                    network_type_desc = "⚠️ MIXED (CEX+INFRA) coordinated network"
+                    network_type_desc = "⚠️ MIXED (CEX+INFRA) shared-funder network"
                     finding_type = '🚨 NETWORK_MEMBER_MIXED'
-                elif net_type == 'organic':
-                    network_type_desc = "✓ ORGANIC creator-to-creator network"
-                    finding_type = 'ℹ️ NETWORK_MEMBER'
 
                 findings.append({
                     'type': finding_type,
-                    'description': f'Creator is part of the "{net_name}" {network_type_desc}. Part of larger coordinated structure.',
+                    'description': f'Creator shares a funder wallet with other creators in "{net_name}" ({network_type_desc}). Multiple creators funded by the same non-CEX wallet is a coordination signal.',
                     'networks': [net_name]
                 })
         elif not findings:
@@ -17296,6 +17343,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             'network_name': network_name,
             'network_type': network_type,
             'networks': networks_with_types,
+            'c2c_edges': c2c_edges,
             'outgoing_transfer_count': transfers['count'] if transfers else 0,
             'total_sol_sent': transfers['total_sol'] if transfers else 0,
             'unique_recipients': transfers['unique_recipients'] if transfers else 0,
@@ -18714,6 +18762,75 @@ def metrics_rpc_optimizations_proxy():
         return {'error': str(e)}, 503
 
 
+@app.route('/api/db-health')
+def api_db_health():
+    """Return live DB table sizes and last maintenance run for the performance dashboard."""
+    import time as _time
+    import sqlite3 as _sqlite3
+    try:
+        # Use a direct read-only connection — no write locking needed for COUNT queries
+        conn = _sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=5)
+        conn.row_factory = _sqlite3.Row
+
+        def count(table):
+            try:
+                return conn.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+            except Exception:
+                return None
+
+        wal_path = DB_PATH + '-wal'
+        wal_mb = round(os.path.getsize(wal_path) / 1024 / 1024, 1) if os.path.exists(wal_path) else 0
+
+        rpc_cache_rows = count('rpc_response_cache')
+        rpc_cache_expired = None
+        try:
+            rpc_cache_expired = conn.execute(
+                'SELECT COUNT(*) FROM rpc_response_cache WHERE cached_at + ttl_seconds <= ?',
+                (int(_time.time()),)
+            ).fetchone()[0]
+        except Exception:
+            pass
+
+        rpc_metrics_rows = count('rpc_metrics')
+        helius_snapshots_rows = count('helius_usage_snapshots')
+
+        last_run = None
+        try:
+            has_log = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='db_maintenance_log'"
+            ).fetchone()
+            if has_log:
+                row = conn.execute(
+                    """SELECT ran_at, rpc_cache_deleted, rpc_metrics_deleted,
+                              helius_snapshots_deleted, wal_checkpoint_pages, duration_ms
+                       FROM db_maintenance_log ORDER BY ran_at DESC LIMIT 1"""
+                ).fetchone()
+                if row:
+                    last_run = {
+                        'ran_at': row[0],
+                        'rpc_cache_deleted': row[1],
+                        'rpc_metrics_deleted': row[2],
+                        'helius_snapshots_deleted': row[3],
+                        'wal_checkpoint_pages': row[4],
+                        'duration_ms': row[5],
+                    }
+        except Exception:
+            pass
+
+        conn.close()
+
+        return {
+            'rpc_cache_rows': rpc_cache_rows,
+            'rpc_cache_expired': rpc_cache_expired,
+            'rpc_metrics_rows': rpc_metrics_rows,
+            'helius_snapshots_rows': helius_snapshots_rows,
+            'wal_mb': wal_mb,
+            'last_maintenance': last_run,
+        }
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+
 @app.route('/metrics/rpc/component-breakdown')
 def metrics_rpc_component_breakdown_proxy():
     """Proxy /metrics/rpc/component-breakdown requests to the RPC Metrics API"""
@@ -19120,15 +19237,32 @@ def transfer_graph_page():
     return render_template("transfer_graph.html", active_page="transfer_graph")
 
 
+_transfer_graph_stats_cache: dict = {}
+_TRANSFER_GRAPH_STATS_TTL = 300  # 5 minutes
+
 @app.route('/api/transfer-graph/stats')
 def api_transfer_graph_stats():
     """Summary stats and top funders for the transfer_index page."""
+    global _transfer_graph_stats_cache
     try:
         conn = db_connect(DB_PATH, timeout=10)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
 
-        # Overall stats
+        now = int(time.time())
+        cached = _transfer_graph_stats_cache
+        cache_fresh = cached.get('generated_at', 0) > now - _TRANSFER_GRAPH_STATS_TTL
+
+        if cache_fresh:
+            # Only recompute the cheap time-window counts; return the rest from cache
+            s = dict(cached.get('stats', {}))
+            for label, window in [('last_1h', 3600), ('last_24h', 86400), ('last_7d', 604800)]:
+                cur.execute("SELECT COUNT(*) FROM transfer_index WHERE indexed_at >= ? AND is_valid=1", (now - window,))
+                s[label] = (cur.fetchone() or [0])[0]
+            conn.close()
+            return jsonify({**cached, 'stats': s, 'generated_at': now, 'from_cache': True})
+
+        # Overall stats — expensive, only run when cache is stale
         cur.execute("""
             SELECT
                 COUNT(*)                              as total_rows,
@@ -19145,7 +19279,6 @@ def api_transfer_graph_stats():
         s = dict(cur.fetchone() or {})
 
         # Recent activity windows
-        now = int(time.time())
         for label, window in [('last_1h', 3600), ('last_24h', 86400), ('last_7d', 604800)]:
             cur.execute("SELECT COUNT(*) FROM transfer_index WHERE indexed_at >= ? AND is_valid=1", (now - window,))
             s[label] = (cur.fetchone() or [0])[0]
@@ -19183,7 +19316,7 @@ def api_transfer_graph_stats():
         """)
         recent = [dict(r) for r in cur.fetchall()]
 
-        # Shared-funder pairs (funder → 2+ creators in 0.5-10 SOL range)
+        # Shared-funder pairs (funder → 2+ creators in 0.5-10 SOL range) — fetch wide, split by type
         cur.execute("""
             SELECT source, COUNT(DISTINCT destination) as shared_creators
             FROM transfer_index
@@ -19191,18 +19324,61 @@ def api_transfer_graph_stats():
             GROUP BY source
             HAVING shared_creators >= 2
             ORDER BY shared_creators DESC
-            LIMIT 20
+            LIMIT 200
         """)
-        overlap_candidates = [dict(r) for r in cur.fetchall()]
+        overlap_raw = [dict(r) for r in cur.fetchall()]
+
+        # Enrich all wallet addresses with CEX/infra labels
+        from src.utils.infra_mapping import classify_wallet, build_excluded_set
+        excluded = build_excluded_set(conn)
+
+        def _enrich(addr):
+            c = classify_wallet(addr, conn)
+            return c['wallet_type'], (c['label'] if c['wallet_type'] != 'unknown' else None)
+
+        def _signal_tier(n):
+            if n >= 50: return 'HIGH'
+            if n >= 20: return 'MEDIUM'
+            return 'LOW'
+
+        overlap_signal, overlap_noise = [], []
+        for row in overlap_raw:
+            wt, lbl = _enrich(row['source'])
+            row['wallet_type'] = wt
+            row['label'] = lbl
+            row['signal_tier'] = _signal_tier(row['shared_creators'])
+            if wt in ('cex', 'infra'):
+                overlap_noise.append(row)
+            else:
+                overlap_signal.append(row)
+
+        # Keep legacy key for backwards compat, pointing at signal list
+        overlap_candidates = overlap_signal
+
+        for row in top_funders:
+            wt, lbl = _enrich(row['source'])
+            row['wallet_type'] = wt
+            row['label'] = lbl
+        for row in recent:
+            sc = classify_wallet(row['source'], conn)
+            dc = classify_wallet(row['destination'], conn)
+            row['source_label'] = sc['label'] if sc['wallet_type'] != 'unknown' else None
+            row['source_type']  = sc['wallet_type']
+            row['dest_label']   = dc['label'] if dc['wallet_type'] != 'unknown' else None
+            row['dest_type']    = dc['wallet_type']
 
         conn.close()
-        return jsonify({
+        result = {
             'stats': s,
             'top_funders': top_funders,
             'recent': recent,
-            'overlap_candidates': overlap_candidates,
+            'overlap_candidates': overlap_candidates,  # legacy — real signal only
+            'overlap_signal': overlap_signal,
+            'overlap_noise': overlap_noise,
             'generated_at': now,
-        })
+        }
+        _transfer_graph_stats_cache = result
+        return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -20152,6 +20328,224 @@ def api_clusters_high_risk():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/graph-clusters')
+def api_graph_clusters():
+    """List all graph-based farm clusters from farm_clusters table."""
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        rows = conn.execute("""
+            SELECT cluster_id, funder_count, creator_count, ambiguous_count, total_wallets,
+                   funder_list, creator_list, total_volume_sol, total_transfers,
+                   cluster_density, cluster_strength, farm_risk_score, risk_level,
+                   first_activity_ts, last_activity_ts, detected_at
+            FROM farm_clusters
+            ORDER BY farm_risk_score DESC, creator_count DESC
+        """).fetchall()
+        result = []
+        cluster_ids = [r['cluster_id'] for r in rows]
+
+        # Batch token counts per cluster from stored member token_count
+        token_totals = {}
+        creators_with_tokens = {}
+        if cluster_ids:
+            ph = ','.join('?' * len(cluster_ids))
+            tc_rows = conn.execute(f"""
+                SELECT cluster_id,
+                       SUM(token_count) AS total_tokens,
+                       SUM(CASE WHEN token_count > 0 THEN 1 ELSE 0 END) AS creators_with_tokens
+                FROM farm_cluster_members
+                WHERE cluster_id IN ({ph})
+                  AND wallet_role IN ('creator', 'ambiguous')
+                GROUP BY cluster_id
+            """, cluster_ids).fetchall()
+            for tc in tc_rows:
+                token_totals[tc[0]] = tc[1] or 0
+                creators_with_tokens[tc[0]] = tc[2] or 0
+
+        # Batch badge signals: serial launchers, self-funding, C2C per cluster
+        badge_data = {}
+        if cluster_ids:
+            # Serial launchers (token_count >= 20) per cluster
+            sr_rows = conn.execute(f"""
+                SELECT fcm.cluster_id,
+                       COUNT(*) AS serial_count,
+                       SUM(CASE WHEN csf.is_self_funding=1 THEN 1 ELSE 0 END) AS sf_count,
+                       SUM(CASE WHEN c2c.creator_address IS NOT NULL THEN 1 ELSE 0 END) AS c2c_count
+                FROM farm_cluster_members fcm
+                LEFT JOIN creator_self_funding csf ON csf.creator_address = fcm.wallet_address
+                LEFT JOIN (
+                    SELECT DISTINCT creator_address FROM creator_to_creator_networks
+                ) c2c ON c2c.creator_address = fcm.wallet_address
+                WHERE fcm.cluster_id IN ({ph}) AND fcm.token_count >= 20
+                GROUP BY fcm.cluster_id
+            """, cluster_ids).fetchall()
+            for sr in sr_rows:
+                badge_data[sr[0]] = {
+                    'has_serial':       (sr[1] or 0) > 0,
+                    'has_self_funding': (sr[2] or 0) > 0,
+                    'has_c2c':          (sr[3] or 0) > 0,
+                }
+
+        for r in rows:
+            d = dict(r)
+            d['funder_list']  = json.loads(d['funder_list']  or '[]')
+            d['creator_list'] = json.loads(d['creator_list'] or '[]')
+            d['total_tokens'] = token_totals.get(d['cluster_id'], 0)
+            d['creators_with_tokens'] = creators_with_tokens.get(d['cluster_id'], 0)
+            bd = badge_data.get(d['cluster_id'], {})
+            d['has_serial']       = bd.get('has_serial', False)
+            d['has_self_funding'] = bd.get('has_self_funding', False)
+            d['has_c2c']          = bd.get('has_c2c', False)
+            result.append(d)
+        conn.close()
+        return jsonify({'clusters': result, 'total': len(result)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/graph-cluster/<int:cluster_id>')
+def api_graph_cluster_detail(cluster_id):
+    """Full detail for a single graph farm cluster."""
+    try:
+        from src.core.network_enrichment import farm_cluster_detail
+        conn = db_connect(DB_PATH, timeout=10)
+        detail = farm_cluster_detail(conn, cluster_id)
+        if not detail:
+            conn.close()
+            return jsonify({'error': 'Cluster not found'}), 404
+
+        # Token counts: prefer stored value; fall back to live join using both creator fields
+        members = detail.get('members', [])
+        if members:
+            missing = [m for m in members if not m.get('token_count')]
+            if missing:
+                addrs = [m['wallet_address'] for m in missing]
+                ph = ','.join('?' * len(addrs))
+                rows = conn.execute(f"""
+                    SELECT creator, COUNT(*) AS cnt FROM (
+                        SELECT earliest_tx_creator AS creator FROM token_analysis
+                        WHERE earliest_tx_creator IN ({ph})
+                        UNION ALL
+                        SELECT pf_ws_creator AS creator FROM token_analysis
+                        WHERE pf_ws_creator IN ({ph})
+                          AND (earliest_tx_creator IS NULL OR earliest_tx_creator != pf_ws_creator)
+                    ) GROUP BY creator
+                """, addrs + addrs).fetchall()
+                token_counts = {r[0]: r[1] for r in rows}
+                for m in missing:
+                    m['token_count'] = token_counts.get(m['wallet_address'], 0)
+
+        # Enrich members with creator-analysis tags
+        if members:
+            from src.core.network_enrichment import batch_creator_tags
+            all_addrs = [m['wallet_address'] for m in members]
+            tag_map = batch_creator_tags(conn, all_addrs)
+            for m in members:
+                ctx = tag_map.get(m['wallet_address'], {})
+                m['tags']             = ctx.get('tags', ['CLEAN'])
+                m['is_self_funding']  = ctx.get('is_self_funding', False)
+                m['self_funding_pct'] = ctx.get('self_funding_pct', 0.0)
+                m['c2c_networks']     = ctx.get('c2c_networks', [])
+
+        # Cluster-level badge signals
+        launchers     = [m for m in members if (m.get('token_count') or 0) > 0]
+        serial        = [m for m in launchers if (m.get('token_count') or 0) >= 20]
+        self_funded   = [m for m in launchers if m.get('is_self_funding')]
+        c2c_tagged    = [m for m in launchers if m.get('c2c_networks')]
+        detail['cluster_badges'] = {
+            'total_launchers':        len(launchers),
+            'total_indexed_tokens':   sum(m.get('token_count', 0) for m in launchers),
+            'serial_launchers':       len(serial),
+            'self_funded_launchers':  len(self_funded),
+            'c2c_tagged_launchers':   len(c2c_tagged),
+            'has_serial':             len(serial) > 0,
+            'has_self_funding':       len(self_funded) > 0,
+            'has_c2c':                len(c2c_tagged) > 0,
+        }
+
+        # Cross-system: network memberships for each member
+        if members:
+            all_addrs = [m['wallet_address'] for m in members]
+            ph2 = ','.join('?' * len(all_addrs))
+            nm_rows = conn.execute(
+                f"SELECT creator_address, network_name FROM network_membership "
+                f"WHERE creator_address IN ({ph2})", all_addrs
+            ).fetchall()
+            nm_map: dict = {}
+            for r in nm_rows:
+                nm_map.setdefault(r[0], []).append(r[1])
+            for m in members:
+                m['network_memberships'] = nm_map.get(m['wallet_address'], [])
+
+            # Coordinator wallet status for each member
+            wc_rows = conn.execute(
+                f"SELECT funder_wallet, creator_count, confidence_score "
+                f"FROM wallet_clusters WHERE funder_wallet IN ({ph2})", all_addrs
+            ).fetchall()
+            wc_map = {r[0]: {'creator_count': r[1], 'confidence': round(r[2], 1)} for r in wc_rows}
+            for m in members:
+                m['wallet_cluster'] = wc_map.get(m['wallet_address'])
+
+        conn.close()
+        return jsonify(detail)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/coordinators')
+def coordinators_page():
+    """Coordinator wallets — high-signal funder wallets from wallet_clusters."""
+    return render_template('coordinators.html', active_page='coordinators')
+
+
+@app.route('/api/coordinator-wallets')
+def api_coordinator_wallets():
+    """List coordinator wallets with unified cross-system context."""
+    try:
+        from src.core.unified_network_intelligence import coordinator_wallets_list
+        limit = min(int(request.args.get('limit', 200)), 500)
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        wallets = coordinator_wallets_list(conn, limit=limit)
+        conn.close()
+        return jsonify({'wallets': wallets, 'total': len(wallets)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/wallet-intelligence/<wallet_address>')
+def api_wallet_intelligence(wallet_address):
+    """Unified intelligence for a single wallet — joins both systems."""
+    try:
+        from src.core.unified_network_intelligence import wallet_intelligence
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        result = wallet_intelligence(conn, [wallet_address])
+        conn.close()
+        ctx = result.get(wallet_address)
+        if not ctx:
+            return jsonify({'error': 'Wallet not found in any system'}), 404
+        return jsonify(ctx)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/system-freshness')
+def api_system_freshness():
+    """Pipeline freshness / health status."""
+    try:
+        from src.core.unified_network_intelligence import system_freshness
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        status = system_freshness(conn)
+        conn.close()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 def _classify_risk(reputation_score: float) -> str:
     """Classify risk level from reputation score."""
     if reputation_score < 30:
@@ -20198,6 +20592,18 @@ except ImportError as e:
     print(f"[WARNING] Dev intelligence API not available: {e}")
 except Exception as e:
     print(f"[ERROR] Failed to initialize dev intelligence API: {e}")
+
+# =========================================================================
+# GRAPH ANALYZER API (run + status endpoints for graph analyzers)
+# =========================================================================
+try:
+    from src.core.graph_analyzer_api import register_graph_analyzer_api
+    register_graph_analyzer_api(app, db_path=DB_PATH)
+    print("[GRAPH_ANALYZER] Graph analyzer API routes registered successfully")
+except ImportError as e:
+    print(f"[WARNING] Graph analyzer API not available: {e}")
+except Exception as e:
+    print(f"[ERROR] Failed to initialize graph analyzer API: {e}")
 
 # =========================================================================
 # FLEX UI API (Dashboard endpoints for intelligence signals)

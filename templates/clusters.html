@@ -1,184 +1,344 @@
 {% extends "base_shell.html" %}
-
-{% block title %}Cross-Funding Clusters{% endblock %}
+{% block title %}Graph Farm Clusters — FLEX{% endblock %}
 
 {% block extra_styles %}
-.stats-grid {
+.fc-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 32px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
 }
-
-.stat-box {
+.fc-stat {
     background: var(--bg-card);
-    padding: 18px 20px;
-    border-radius: 8px;
-    border-left: 3px solid var(--border-color);
-}
-
-.stat-box.funders  { border-left-color: rgba(22, 163, 74, 0.6); }
-.stat-box.creators { border-left-color: rgba(251, 191, 36, 0.6); }
-.stat-box.tokens   { border-left-color: rgba(167, 139, 250, 0.6); }
-.stat-box.volume   { border-left-color: rgba(22, 163, 74, 0.6); }
-
-.stat-box .stat-label { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 600; }
-.stat-box .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
-.stat-box.funders  .stat-value { color: var(--color-low); }
-.stat-box.creators .stat-value { color: var(--color-yellow); }
-.stat-box.tokens   .stat-value { color: var(--color-purple); }
-.stat-box.volume   .stat-value { color: var(--color-low); }
-
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.75);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-overlay.active { display: flex; }
-
-.modal-box {
-    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 32px;
-    max-width: 860px;
-    max-height: 80vh;
-    overflow-y: auto;
-    width: 90%;
+    border-radius: 8px;
+    padding: 14px 18px;
 }
+.fc-stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+.fc-stat-value { font-size: 1.8rem; font-weight: 700; }
+.fc-stat.s-funders  .fc-stat-value { color: var(--color-low); }
+.fc-stat.s-creators .fc-stat-value { color: var(--color-yellow); }
+.fc-stat.s-clusters .fc-stat-value { color: var(--color-purple); }
+.fc-stat.s-volume   .fc-stat-value { color: var(--color-green); }
+
+.fc-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.fc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fc-table thead th {
+    background: rgba(0,0,0,0.3);
+    color: var(--text-secondary); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 8px 12px; border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+.fc-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer; transition: background 0.1s;
+}
+.fc-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+.fc-table td { padding: 8px 12px; color: var(--text-secondary); white-space: nowrap; }
+
+.risk-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px;
+    border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.risk-CRITICAL { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.risk-HIGH     { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+.risk-MEDIUM   { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.risk-LOW      { background: rgba(107,114,128,0.10);color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
+
+/* Drawer */
+.fc-drawer {
+    position: fixed; right: 0; top: 0; bottom: 0;
+    width: 640px; background: #0d1117;
+    border-left: 1px solid var(--border-color);
+    z-index: 300; overflow-y: auto; padding: 24px 24px 40px;
+    transform: translateX(100%); transition: transform 0.2s ease;
+}
+.fc-drawer.open { transform: translateX(0); }
+.fc-drawer-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; color: var(--text-secondary);
+    font-size: 18px; cursor: pointer;
+}
+.fc-drawer-close:hover { color: var(--text-primary); }
+
+.fc-drawer h3 { font-size: 15px; color: var(--text-primary); margin-bottom: 16px; font-weight: 700; }
+.fc-drawer-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+.fc-drawer-metric {
+    background: rgba(255,255,255,0.03); border-radius: 6px; padding: 10px 12px;
+}
+.fc-drawer-metric-val { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.fc-drawer-metric-lbl { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-top: 3px; letter-spacing: 0.05em; }
+
+.fc-section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-secondary); margin: 18px 0 8px;
+    border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.fc-section-count { font-size: 10px; color: var(--text-secondary); font-weight: 400; }
+
+/* Wallet table inside drawer */
+.fc-wallet-table { width: 100%; border-collapse: collapse; }
+.fc-wallet-table tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+.fc-wallet-table tr:last-child { border-bottom: none; }
+.fc-wallet-table td { padding: 6px 4px; font-size: 12px; vertical-align: middle; }
+.fc-wallet-addr {
+    font-family: monospace; font-size: 11.5px; color: var(--accent-cyan);
+    word-break: break-all; line-height: 1.4;
+}
+.fc-copy-btn {
+    background: none; border: none; cursor: pointer; padding: 2px 5px;
+    color: var(--text-secondary); font-size: 11px; border-radius: 3px;
+    transition: background 0.1s, color 0.1s;
+}
+.fc-copy-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+.fc-copy-btn.copied { color: #4ade80; }
+.fc-sol-sent     { color: #4ade80; font-size: 11px; white-space: nowrap; text-align: right; }
+.fc-sol-recv     { color: #fb923c; font-size: 11px; white-space: nowrap; text-align: right; }
+.fc-sol-dim      { color: var(--text-secondary); font-size: 11px; white-space: nowrap; text-align: right; }
+.fc-role { font-size: 10px; padding: 1px 6px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+.fc-role-funder    { background: rgba(34,197,94,0.12); color: #4ade80; }
+.fc-role-creator   { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.fc-role-ambiguous { background: rgba(100,116,139,0.10); color: #64748b; }
+
+.fc-loading { padding: 32px; text-align: center; color: var(--text-secondary); font-size: 13px; }
+
+/* Cluster row badges */
+.fc-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.fc-badge {
+    font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.fc-badge-serial   { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+.fc-badge-sf       { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+.fc-badge-c2c      { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
+
+/* Member tag chips */
+.fc-tag { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+.fc-tag-sf   { background: rgba(249,115,22,0.12); color: #fb923c; }
+.fc-tag-c2c  { background: rgba(139,92,246,0.12); color: #a78bfa; }
+.fc-tag-clean{ background: rgba(107,114,128,0.10); color: #6b7280; }
+.fc-tag-coord{ background: rgba(239,68,68,0.12);  color: #f87171; }
+.fc-launcher { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700;
+               background: rgba(6,182,212,0.12); color: var(--accent-cyan); white-space: nowrap; }
+
+/* Cluster badges summary row in drawer */
+.fc-badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Cross-Funding Clusters</h1>
-    <p class="subtitle">Coordinated funder networks detected by the cross-funding analyzer. Shows clusters of funders that fund overlapping sets of creators with unusual density.</p>
+    <h1>Graph Farm Clusters</h1>
+    <p class="subtitle">Multi-funder dev farm networks detected by graph clustering across transfer_index</p>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-box funders">
-        <div class="stat-label">Clusters</div>
-        <div class="stat-value">{{ clusters|length }}</div>
-    </div>
-    <div class="stat-box funders">
-        <div class="stat-label">Funders</div>
-        <div class="stat-value">{{ total_funders }}</div>
-    </div>
-    <div class="stat-box creators">
-        <div class="stat-label">Creators</div>
-        <div class="stat-value">{{ total_creators }}</div>
-    </div>
-    <div class="stat-box volume">
-        <div class="stat-label">Volume (SOL)</div>
-        <div class="stat-value">{{ '%.0f'|format(total_volume) }}</div>
-    </div>
+<!-- Summary stats -->
+<div class="fc-summary" id="fcSummary">
+    <div class="fc-stat s-clusters"><div class="fc-stat-label">Clusters</div><div class="fc-stat-value" id="fcNClusters">—</div></div>
+    <div class="fc-stat s-funders"> <div class="fc-stat-label">Funders</div> <div class="fc-stat-value" id="fcNFunders">—</div></div>
+    <div class="fc-stat s-creators"><div class="fc-stat-label">Creators</div><div class="fc-stat-value" id="fcNCreators">—</div></div>
+    <div class="fc-stat s-volume">  <div class="fc-stat-label">Indexed Tokens</div><div class="fc-stat-value" id="fcNTokens">—</div></div>
+    <div class="fc-stat s-volume">  <div class="fc-stat-label">Volume (SOL)</div><div class="fc-stat-value" id="fcVolume">—</div></div>
 </div>
 
-<h2>Cluster Details</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Cluster Name</th>
-            <th>Funders</th>
-            <th>Creators</th>
-            <th>Tokens</th>
-            <th>Volume (SOL)</th>
-            <th>Avg Rug Risk</th>
-            <th>Rug Count</th>
-            <th>Multiplier</th>
-            <th>Risk Level</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for cluster in clusters %}
-        {% set color = {'CRITICAL': '#EF4444', 'HIGH': '#F97316', 'MEDIUM': '#EAB308', 'CLEAN': '#16A34A'}.get(cluster.risk_level, '#8B5CF6') %}
-        {% set rug_color = '#EF4444' if cluster.rug_probability > 0.7 else ('#F97316' if cluster.rug_probability > 0.4 else '#16A34A') %}
-        <tr style="cursor:pointer" onclick="showClusterDetails('{{ cluster.cluster_id }}')">
-            <td style="color:var(--color-purple);font-weight:600">{{ cluster.cluster_name }}</td>
-            <td style="text-align:center;color:var(--color-cyan)">{{ cluster.funder_count }}</td>
-            <td style="text-align:center;color:var(--color-yellow)">{{ cluster.creator_count }}</td>
-            <td style="text-align:center;color:var(--color-purple)">{{ cluster.token_count }}</td>
-            <td style="text-align:right;color:var(--color-green)">${{ '%.2f'|format(cluster.total_volume_sol) }}</td>
-            <td style="text-align:center;color:{{ rug_color }}">{{ '%.1f'|format(cluster.rug_probability * 100) }}%</td>
-            <td style="text-align:center;color:var(--color-critical)">{{ cluster.rug_count }}</td>
-            <td style="text-align:center">
-                <span style="background:rgba(255,0,0,0.1);color:{{ color }};padding:5px 10px;border-radius:4px;font-weight:700">
-                    {{ '%.1f'|format(cluster.risk_multiplier) }}x
-                </span>
-            </td>
-            <td style="font-size:12px">{{ cluster.risk_label }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<!-- Cluster Details Modal -->
-<div id="clusterModal" class="modal-overlay" onclick="if(event.target===this)closeClusterModal()">
-    <div class="modal-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-            <h2 id="modalTitle" style="margin:0"></h2>
-            <button onclick="closeClusterModal()" style="background:none;border:none;color:var(--accent-cyan);font-size:22px;cursor:pointer;line-height:1">&#x2715;</button>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
-            <div style="background:rgba(6,182,212,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--accent-cyan)">
-                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Funders</div>
-                <div id="modalFunders" style="color:var(--accent-cyan);font-size:20px;font-weight:700"></div>
-            </div>
-            <div style="background:rgba(251,191,36,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--color-yellow)">
-                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Creators</div>
-                <div id="modalCreators" style="color:var(--color-yellow);font-size:20px;font-weight:700"></div>
-            </div>
-            <div style="background:rgba(22,163,74,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--color-green)">
-                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Volume (SOL)</div>
-                <div id="modalVolume" style="color:var(--color-green);font-size:20px;font-weight:700"></div>
-            </div>
-            <div style="background:rgba(249,115,22,0.08);padding:14px;border-radius:8px;border-left:3px solid var(--color-high)">
-                <div style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Risk Level</div>
-                <div id="modalRiskLevel" style="color:var(--color-high);font-size:20px;font-weight:700"></div>
-            </div>
-        </div>
-        <h2 style="color:var(--color-yellow);margin-bottom:12px">Creators in this Cluster</h2>
-        <div id="creatorsList" style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;max-height:280px;overflow-y:auto">
-            <p style="color:var(--text-secondary)">Loading&hellip;</p>
-        </div>
-    </div>
+<!-- Cluster table -->
+<div class="fc-table-wrap">
+    <table class="fc-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Risk</th>
+                <th style="text-align:right">Score</th>
+                <th style="text-align:right">Funders</th>
+                <th style="text-align:right">Creators</th>
+                <th style="text-align:right">Tokens</th>
+                <th>Signals</th>
+                <th style="text-align:right">Total Wallets</th>
+                <th style="text-align:right">Volume (SOL)</th>
+                <th style="text-align:right">Transfers</th>
+                <th style="text-align:right">Strength</th>
+            </tr>
+        </thead>
+        <tbody id="fcTableBody">
+            <tr><td colspan="11" class="fc-loading">Loading…</td></tr>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<!-- Cluster detail drawer -->
+<div class="fc-drawer" id="fcDrawer">
+    <button class="fc-drawer-close" onclick="closeDrawer()">✕</button>
+    <div id="fcDrawerContent"></div>
+</div>
+
 <script>
-function showClusterDetails(clusterId) {
-    fetch('/api/funder-cluster/' + clusterId)
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById('modalTitle').textContent = data.cluster_name;
-            document.getElementById('modalFunders').textContent = data.funder_count;
-            document.getElementById('modalCreators').textContent = data.creator_count;
-            document.getElementById('modalVolume').textContent = data.total_volume_sol.toFixed(2) + ' SOL';
-            document.getElementById('modalRiskLevel').textContent = data.risk_label;
+const fmtN = n => n == null ? '—' : n.toLocaleString();
+const fmtF = (v, d=2) => v == null ? '—' : (+v).toFixed(d);
+const fmtW = a => a ? a.slice(0,8)+'…'+a.slice(-6) : '—';
+const RISK_ORDER = {CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
 
-            const list = document.getElementById('creatorsList');
-            if (data.creators && data.creators.length > 0) {
-                list.innerHTML = data.creators.map(c =>
-                    '<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);font-family:monospace;font-size:12px;color:var(--accent-cyan);word-break:break-all">' +
-                    c.substring(0, 12) + '&hellip;' + c.substring(c.length - 8) +
-                    '</div>'
-                ).join('');
-            } else {
-                list.innerHTML = '<p style="color:var(--text-secondary)">No creators found</p>';
-            }
-            document.getElementById('clusterModal').classList.add('active');
-        })
-        .catch(e => alert('Error: ' + e.message));
+const RISK_COLOR = {CRITICAL:'#f87171',HIGH:'#fb923c',MEDIUM:'#fbbf24',LOW:'#6b7280'};
+
+async function loadClusters() {
+    try {
+        const d = await fetch('/api/graph-clusters').then(r => r.json());
+        const clusters = d.clusters || [];
+
+        // Summary
+        const totalFunders  = clusters.reduce((s,c) => s + (c.funder_count||0), 0);
+        const totalCreators = clusters.reduce((s,c) => s + (c.creator_count||0), 0);
+        const totalTokens   = clusters.reduce((s,c) => s + (c.total_tokens||0), 0);
+        const totalVol      = clusters.reduce((s,c) => s + (c.total_volume_sol||0), 0);
+        document.getElementById('fcNClusters').textContent = fmtN(clusters.length);
+        document.getElementById('fcNFunders').textContent  = fmtN(totalFunders);
+        document.getElementById('fcNCreators').textContent = fmtN(totalCreators);
+        document.getElementById('fcNTokens').textContent   = fmtN(totalTokens);
+        document.getElementById('fcVolume').textContent    = fmtF(totalVol, 0);
+
+        // Table
+        const body = document.getElementById('fcTableBody');
+        if (!clusters.length) {
+            body.innerHTML = '<tr><td colspan="11" class="fc-loading">No graph clusters found — run the analyzers first.</td></tr>';
+            return;
+        }
+        body.innerHTML = clusters.map(c => {
+            const riskCls = `risk-${c.risk_level||'LOW'}`;
+            const scoreColor = RISK_COLOR[c.risk_level] || '#6b7280';
+            const tokenCell = c.total_tokens
+                ? `<span style="color:var(--accent-cyan);font-weight:600">${c.total_tokens}</span><span style="color:var(--text-secondary);font-size:10px"> (${c.creators_with_tokens||0})</span>`
+                : `<span style="color:var(--text-secondary)">—</span>`;
+            const badges = [
+                c.has_serial       ? '<span class="fc-badge fc-badge-serial">Serial</span>' : '',
+                c.has_self_funding ? '<span class="fc-badge fc-badge-sf">Self-Fund</span>'  : '',
+                c.has_c2c          ? '<span class="fc-badge fc-badge-c2c">C2C</span>'        : '',
+            ].filter(Boolean).join('');
+            return `<tr onclick="openDrawer(${c.cluster_id})">
+                <td style="color:var(--text-primary);font-weight:600">#${c.cluster_id}</td>
+                <td><span class="risk-badge ${riskCls}">${c.risk_level||'—'}</span></td>
+                <td style="text-align:right;color:${scoreColor};font-weight:700">${fmtF(c.farm_risk_score,1)}</td>
+                <td style="text-align:right;color:var(--color-low)">${fmtN(c.funder_count)}</td>
+                <td style="text-align:right;color:var(--color-yellow)">${fmtN(c.creator_count)}</td>
+                <td style="text-align:right">${tokenCell}</td>
+                <td>${badges ? `<div class="fc-badges">${badges}</div>` : ''}</td>
+                <td style="text-align:right">${fmtN(c.total_wallets)}</td>
+                <td style="text-align:right;color:var(--color-green)">${fmtF(c.total_volume_sol,1)}</td>
+                <td style="text-align:right">${fmtN(c.total_transfers)}</td>
+                <td style="text-align:right">${fmtF(c.cluster_strength,3)}</td>
+            </tr>`;
+        }).join('');
+    } catch(e) {
+        document.getElementById('fcTableBody').innerHTML =
+            `<tr><td colspan="11" style="color:#ef4444;padding:20px;text-align:center">Error: ${e.message}</td></tr>`;
+    }
 }
 
-function closeClusterModal() {
-    document.getElementById('clusterModal').classList.remove('active');
+async function openDrawer(clusterId) {
+    const drawer = document.getElementById('fcDrawer');
+    const content = document.getElementById('fcDrawerContent');
+    drawer.classList.add('open');
+    content.innerHTML = '<div class="fc-loading" style="margin-top:60px">Loading…</div>';
+
+    try {
+        const d = await fetch(`/api/graph-cluster/${clusterId}`).then(r => r.json());
+        if (d.error) { content.innerHTML = `<div style="color:#ef4444">${d.error}</div>`; return; }
+
+        const riskCls = `risk-${d.risk_level||'LOW'}`;
+        const members = d.members || [];
+        const funders  = members.filter(m => m.wallet_role === 'funder');
+        const creators = members.filter(m => m.wallet_role === 'creator');
+        const ambig    = members.filter(m => m.wallet_role === 'ambiguous');
+
+        const tagChip = tag => {
+            if (tag.startsWith('SELF-FUNDING')) return `<span class="fc-tag fc-tag-sf">${tag}</span>`;
+            if (tag === 'C2C_NETWORK')           return `<span class="fc-tag fc-tag-c2c">C2C</span>`;
+            if (tag === 'COORDINATED')           return `<span class="fc-tag fc-tag-coord">COORD</span>`;
+            if (tag === 'CLEAN')                 return `<span class="fc-tag fc-tag-clean">CLEAN</span>`;
+            return `<span class="fc-tag fc-tag-clean">${tag}</span>`;
+        };
+
+        const memberTable = (list, role) => `
+            <table class="fc-wallet-table">
+                <colgroup>
+                    <col style="width:auto">
+                    <col style="width:28px">
+                    <col style="width:70px">
+                    <col style="width:55px">
+                    <col style="width:auto">
+                    <col style="width:80px">
+                    <col style="width:80px">
+                </colgroup>
+                ${list.map(m => `<tr>
+                    <td><span class="fc-wallet-addr">${m.wallet_address}</span></td>
+                    <td><button class="fc-copy-btn" onclick="copyAddr(this,'${m.wallet_address}')" title="Copy">⎘</button></td>
+                    <td style="text-align:center"><span class="fc-role fc-role-${role}">${role}</span></td>
+                    <td style="text-align:right">${m.token_count ? `<span class="fc-launcher">${m.token_count} tkn</span>` : '<span class="fc-sol-dim">—</span>'}</td>
+                    <td style="padding-left:4px">${(m.tags||[]).map(tagChip).join(' ')}</td>
+                    <td class="fc-sol-sent">${m.total_sent_sol ? '↑ '+((+m.total_sent_sol).toFixed(2))+' SOL' : '<span class="fc-sol-dim">—</span>'}</td>
+                    <td class="fc-sol-recv">${m.total_received_sol ? '↓ '+((+m.total_received_sol).toFixed(2))+' SOL' : '<span class="fc-sol-dim">—</span>'}</td>
+                </tr>`).join('')}
+            </table>`;
+
+        const section = (list, role, label) => {
+            if (!list.length) return '';
+            const tokenSum = list.reduce((s,m) => s+(m.token_count||0), 0);
+            const extra = tokenSum > 0 ? ` · ${tokenSum} tokens` : '';
+            return `
+            <div class="fc-section-title">
+                <span>${label}</span>
+                <span class="fc-section-count">${list.length} wallets${extra}</span>
+            </div>
+            ${memberTable(list, role)}`;
+        };
+
+        const cb = d.cluster_badges || {};
+        const drawerBadges = [
+            cb.has_serial       ? `<span class="fc-badge fc-badge-serial">Serial Launchers (${cb.serial_launchers})</span>` : '',
+            cb.has_self_funding ? `<span class="fc-badge fc-badge-sf">Self-Funding (${cb.self_funded_launchers})</span>`     : '',
+            cb.has_c2c          ? `<span class="fc-badge fc-badge-c2c">C2C Network (${cb.c2c_tagged_launchers})</span>`       : '',
+        ].filter(Boolean).join('');
+
+        content.innerHTML = `
+            <h3>Cluster #${d.cluster_id} <span class="risk-badge ${riskCls}" style="margin-left:8px">${d.risk_level}</span></h3>
+            ${drawerBadges ? `<div class="fc-badge-row">${drawerBadges}</div>` : ''}
+            <div class="fc-drawer-metrics">
+                <div class="fc-drawer-metric"><div class="fc-drawer-metric-val" style="color:var(--color-low)">${fmtN(d.funder_count)}</div><div class="fc-drawer-metric-lbl">Funders</div></div>
+                <div class="fc-drawer-metric"><div class="fc-drawer-metric-val" style="color:var(--color-yellow)">${fmtN(d.creator_count)}</div><div class="fc-drawer-metric-lbl">Creators</div></div>
+                <div class="fc-drawer-metric"><div class="fc-drawer-metric-val" style="color:#f87171">${fmtF(d.farm_risk_score,1)}</div><div class="fc-drawer-metric-lbl">Risk Score</div></div>
+                <div class="fc-drawer-metric"><div class="fc-drawer-metric-val">${fmtF(d.cluster_strength,3)}</div><div class="fc-drawer-metric-lbl">Strength</div></div>
+                <div class="fc-drawer-metric"><div class="fc-drawer-metric-val" style="color:var(--color-green)">${fmtF(d.total_volume_sol,1)}</div><div class="fc-drawer-metric-lbl">SOL Volume</div></div>
+                <div class="fc-drawer-metric"><div class="fc-drawer-metric-val">${fmtN(d.total_transfers)}</div><div class="fc-drawer-metric-lbl">Transfers</div></div>
+            </div>
+            ${section(funders,  'funder',    'Funder Wallets')}
+            ${section(creators, 'creator',   'Creator Wallets')}
+            ${section(ambig,    'ambiguous', 'Ambiguous')}
+        `;
+    } catch(e) {
+        content.innerHTML = `<div style="color:#ef4444">Error: ${e.message}</div>`;
+    }
 }
+
+function copyAddr(btn, addr) {
+    navigator.clipboard.writeText(addr).then(() => {
+        btn.classList.add('copied');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '⎘'; }, 1500);
+    });
+}
+
+function closeDrawer() {
+    document.getElementById('fcDrawer').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+loadClusters();
 </script>
 {% endblock %}

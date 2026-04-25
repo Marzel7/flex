@@ -10,8 +10,10 @@ Architecture:
 - Developer reputation merging rug_count + token success metrics
 - Burst detection for synchronized funding within 1-hour windows
 - Wallet age computed from first block_time in transfer_index
+- Incremental processing via row-cursor to skip already-processed wallets
 """
 
+import os
 import sqlite3
 import time
 import logging
@@ -24,6 +26,56 @@ from src.utils.infra_mapping import build_excluded_set
 
 logger = logging.getLogger(__name__)
 
+ENGINE_NAME = "WalletClusteringEngine"
+
+
+# ---------------------------------------------------------------------------
+# Union-Find (DSU) with path compression + union by rank
+# ---------------------------------------------------------------------------
+
+class UnionFind:
+    """Disjoint Set Union with path compression and union by rank."""
+
+    def __init__(self):
+        self.parent: Dict[str, str] = {}
+        self.rank: Dict[str, int] = {}
+
+    def find(self, x: str) -> str:
+        if x not in self.parent:
+            self.parent[x] = x
+            self.rank[x] = 0
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # path compression
+        return self.parent[x]
+
+    def union(self, x: str, y: str) -> bool:
+        """Union two sets. Returns True if they were in different sets."""
+        rx, ry = self.find(x), self.find(y)
+        if rx == ry:
+            return False
+        # union by rank
+        if self.rank[rx] < self.rank[ry]:
+            rx, ry = ry, rx
+        self.parent[ry] = rx
+        if self.rank[rx] == self.rank[ry]:
+            self.rank[rx] += 1
+        return True
+
+    def same(self, x: str, y: str) -> bool:
+        return self.find(x) == self.find(y)
+
+    def roots(self) -> Dict[str, List[str]]:
+        """Return mapping root → [members]."""
+        groups: Dict[str, List[str]] = {}
+        for x in self.parent:
+            r = self.find(x)
+            groups.setdefault(r, []).append(x)
+        return groups
+
+
+# ---------------------------------------------------------------------------
+# WalletClusteringEngine
+# ---------------------------------------------------------------------------
 
 class WalletClusteringEngine:
     """
@@ -34,15 +86,10 @@ class WalletClusteringEngine:
     2. Confidence scoring based on transfer patterns
     3. Burst detection for synchronized funding
     4. Developer reputation from rug history + token success
+    5. Incremental processing via clustering_cursor table
     """
 
     def __init__(self, db_path: str):
-        """
-        Initialize clustering engine.
-
-        Args:
-            db_path: Path to flex_complete_database.db
-        """
         self.db_path = db_path
         self.min_creators = 3
         self.min_transfer_sol = 0.5
@@ -60,7 +107,7 @@ class WalletClusteringEngine:
         return conn
 
     def _ensure_tables(self) -> None:
-        """Create wallet_clusters, dev_reputation, and cluster_detection_log if missing."""
+        """Create wallet_clusters, dev_reputation, and auxiliary tables if missing."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
@@ -80,9 +127,19 @@ class WalletClusteringEngine:
                 has_burst           BOOLEAN DEFAULT 0,
                 wallet_age_days     REAL DEFAULT 0,
                 detected_at         REAL NOT NULL,
-                updated_at          REAL NOT NULL
+                updated_at          REAL NOT NULL,
+                first_seen_at       INTEGER,
+                last_updated_at     INTEGER
             )
         """)
+
+        # Add new columns to existing table if they don't exist
+        for col, col_type in [("first_seen_at", "INTEGER"), ("last_updated_at", "INTEGER")]:
+            try:
+                cursor.execute(f"ALTER TABLE wallet_clusters ADD COLUMN {col} {col_type}")
+                logger.info(f"[CLUSTERING] Added column wallet_clusters.{col}")
+            except sqlite3.OperationalError:
+                pass  # column already exists
 
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_wallet_clusters_confidence
@@ -141,18 +198,134 @@ class WalletClusteringEngine:
                 error_message       TEXT
             )
         """)
-
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_detection_log_time
             ON cluster_detection_log(detected_at DESC)
         """)
 
+        # clustering_cursor table — tracks incremental progress
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS clustering_cursor (
+                engine_name         TEXT PRIMARY KEY,
+                last_processed_rowid INTEGER NOT NULL DEFAULT 0,
+                last_run_at         TEXT,
+                wallets_processed   INTEGER DEFAULT 0,
+                clusters_created    INTEGER DEFAULT 0,
+                clusters_merged     INTEGER DEFAULT 0
+            )
+        """)
+
+        # cluster_merge_log — audit trail for DSU merges
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cluster_merge_log (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                winning_id      TEXT NOT NULL,
+                losing_id       TEXT NOT NULL,
+                trigger_wallet  TEXT NOT NULL,
+                merged_at       INTEGER NOT NULL,
+                wallets_absorbed INTEGER NOT NULL
+            )
+        """)
+
+        # clustering_lock — prevent concurrent runs
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS clustering_lock (
+                engine_name TEXT PRIMARY KEY,
+                locked_at   TEXT,
+                pid         INTEGER
+            )
+        """)
+
         conn.commit()
         conn.close()
 
-    def detect_and_store(self) -> Dict:
+    # ------------------------------------------------------------------
+    # Concurrency guard
+    # ------------------------------------------------------------------
+
+    def _acquire_lock(self, conn: sqlite3.Connection) -> bool:
+        """Try to acquire clustering lock. Returns True if acquired."""
+        try:
+            conn.execute(
+                "INSERT OR FAIL INTO clustering_lock (engine_name, locked_at, pid) VALUES (?, ?, ?)",
+                (ENGINE_NAME, datetime.utcnow().isoformat(), os.getpid())
+            )
+            conn.commit()
+            return True
+        except sqlite3.IntegrityError:
+            # Lock held — check if stale (>30 min)
+            row = conn.execute(
+                "SELECT locked_at, pid FROM clustering_lock WHERE engine_name = ?",
+                (ENGINE_NAME,)
+            ).fetchone()
+            if row:
+                try:
+                    locked_dt = datetime.fromisoformat(row[0])
+                    age_min = (datetime.utcnow() - locked_dt).total_seconds() / 60
+                    if age_min > 30:
+                        logger.warning(f"[CLUSTERING] Stale lock (age={age_min:.1f}m, pid={row[1]}), breaking it")
+                        conn.execute("DELETE FROM clustering_lock WHERE engine_name = ?", (ENGINE_NAME,))
+                        conn.execute(
+                            "INSERT INTO clustering_lock (engine_name, locked_at, pid) VALUES (?, ?, ?)",
+                            (ENGINE_NAME, datetime.utcnow().isoformat(), os.getpid())
+                        )
+                        conn.commit()
+                        return True
+                except Exception:
+                    pass
+            return False
+
+    def _release_lock(self, conn: sqlite3.Connection) -> None:
+        try:
+            conn.execute("DELETE FROM clustering_lock WHERE engine_name = ?", (ENGINE_NAME,))
+            conn.commit()
+        except Exception as e:
+            logger.error(f"[CLUSTERING] Failed to release lock: {e}")
+
+    # ------------------------------------------------------------------
+    # Cursor helpers
+    # ------------------------------------------------------------------
+
+    def _read_cursor(self, conn: sqlite3.Connection) -> int:
+        row = conn.execute(
+            "SELECT last_processed_rowid FROM clustering_cursor WHERE engine_name = ?",
+            (ENGINE_NAME,)
+        ).fetchone()
+        return row[0] if row else 0
+
+    def _advance_cursor(self, conn: sqlite3.Connection, new_rowid: int,
+                        wallets_processed: int, clusters_created: int, clusters_merged: int) -> None:
+        conn.execute("""
+            INSERT INTO clustering_cursor (engine_name, last_processed_rowid, last_run_at,
+                wallets_processed, clusters_created, clusters_merged)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(engine_name) DO UPDATE SET
+                last_processed_rowid = excluded.last_processed_rowid,
+                last_run_at          = excluded.last_run_at,
+                wallets_processed    = clustering_cursor.wallets_processed + excluded.wallets_processed,
+                clusters_created     = clustering_cursor.clusters_created  + excluded.clusters_created,
+                clusters_merged      = clustering_cursor.clusters_merged   + excluded.clusters_merged
+        """, (ENGINE_NAME, new_rowid, datetime.utcnow().isoformat(),
+              wallets_processed, clusters_created, clusters_merged))
+
+    def _touch_cursor_time(self, conn: sqlite3.Connection) -> None:
+        """Update last_run_at without changing rowid (used on no-op runs)."""
+        conn.execute("""
+            INSERT INTO clustering_cursor (engine_name, last_processed_rowid, last_run_at)
+            VALUES (?, 0, ?)
+            ON CONFLICT(engine_name) DO UPDATE SET last_run_at = excluded.last_run_at
+        """, (ENGINE_NAME, datetime.utcnow().isoformat()))
+
+    # ------------------------------------------------------------------
+    # Public entry points
+    # ------------------------------------------------------------------
+
+    def detect_and_store(self, force_full_rebuild: bool = False) -> Dict:
         """
         Main entry point: detect dev farms and update reputation scores.
+
+        Args:
+            force_full_rebuild: If True, ignore cursor and reprocess everything.
 
         Returns:
             {
@@ -160,7 +333,8 @@ class WalletClusteringEngine:
                 'reputations_updated': int,
                 'status': 'success' | 'error',
                 'duration_ms': float,
-                'message': str
+                'message': str,
+                'incremental': bool
             }
         """
         detect_start = time.time()
@@ -169,34 +343,33 @@ class WalletClusteringEngine:
             'reputations_updated': 0,
             'status': 'pending',
             'duration_ms': 0.0,
-            'message': ''
+            'message': '',
+            'incremental': not force_full_rebuild,
         }
 
+        lock_conn = None
         try:
-            # Ensure tables exist
             self._ensure_tables()
 
-            # Step 1: Detect dev farms
-            farms = self._detect_dev_farms()
-            logger.info(f"[CLUSTERING] Found {len(farms)} potential dev farms")
+            # Acquire lock
+            lock_conn = self._get_conn()
+            if not self._acquire_lock(lock_conn):
+                result['status'] = 'error'
+                result['message'] = 'Another clustering run is in progress'
+                return result
 
-            # Step 2: Score and detect bursts
-            scored_farms = []
-            for farm in farms:
-                farm['confidence_score'] = self._score_cluster(farm)
-                farm['has_burst'] = self._detect_bursts(farm['funder_wallet'])
-                scored_farms.append(farm)
+            if force_full_rebuild:
+                stored, updated = self._full_rebuild()
+            else:
+                stored, updated = self._incremental_run()
 
-            # Step 3: Store clusters
-            stored = self._store_clusters(scored_farms)
             result['clusters_found'] = stored
-
-            # Step 4: Update dev reputation
-            updated = self._update_dev_reputation()
             result['reputations_updated'] = updated
-
             result['status'] = 'success'
-            result['message'] = f"Detected {stored} clusters, updated {updated} reputations"
+            result['message'] = (
+                f"{'Incremental' if result['incremental'] else 'Full'}: "
+                f"detected {stored} clusters, updated {updated} reputations"
+            )
             logger.info(f"[CLUSTERING] {result['message']}")
 
         except Exception as e:
@@ -207,8 +380,225 @@ class WalletClusteringEngine:
         finally:
             result['duration_ms'] = (time.time() - detect_start) * 1000
             self._log_run(result)
+            if lock_conn:
+                self._release_lock(lock_conn)
+                lock_conn.close()
 
         return result
+
+    # ------------------------------------------------------------------
+    # Full rebuild (original behaviour, triggered by force_full_rebuild=True)
+    # ------------------------------------------------------------------
+
+    def _full_rebuild(self) -> Tuple[int, int]:
+        """Full scan of transfer_index — original algorithm, unmodified."""
+        farms = self._detect_dev_farms()
+        logger.info(f"[CLUSTERING] Full rebuild: found {len(farms)} potential dev farms")
+
+        scored_farms = []
+        for farm in farms:
+            farm['confidence_score'] = self._score_cluster(farm)
+            farm['has_burst'] = self._detect_bursts(farm['funder_wallet'])
+            scored_farms.append(farm)
+
+        stored = self._store_clusters(scored_farms)
+
+        # Reset cursor so incremental knows we're fresh
+        conn = self._get_conn()
+        try:
+            max_rowid = conn.execute(
+                "SELECT COALESCE(MAX(rowid), 0) FROM wallet_clusters"
+            ).fetchone()[0]
+            self._advance_cursor(conn, max_rowid, len(farms), stored, 0)
+            conn.commit()
+        finally:
+            conn.close()
+
+        return stored, 0
+
+    # ------------------------------------------------------------------
+    # Incremental run
+    # ------------------------------------------------------------------
+
+    def _incremental_run(self) -> Tuple[int, int]:
+        """
+        Process only transfer_index rows not yet clustered.
+
+        Strategy:
+        - Use clustering_cursor.last_processed_rowid as the watermark into
+          transfer_index (the append-only source of truth).
+        - Derive new funder_wallets from new rows.
+        - Skip funders that already have a wallet_clusters entry (idempotent).
+        - Score and store only genuinely new clusters.
+        - Then rebuild dev_reputation from the full wallet_clusters table
+          (fast — small table).
+        """
+        conn = self._get_conn()
+        cursor_val = self._read_cursor(conn)
+        conn.close()
+
+        logger.info(f"[CLUSTERING] Incremental run from transfer_index rowid > {cursor_val}")
+
+        # Find highest rowid in transfer_index to mark as new cursor
+        scan_conn = self._get_conn()
+        try:
+            max_rowid_row = scan_conn.execute(
+                "SELECT COALESCE(MAX(rowid), 0) FROM transfer_index"
+            ).fetchone()
+            max_rowid = max_rowid_row[0] if max_rowid_row else 0
+
+            if max_rowid <= cursor_val:
+                logger.info("[CLUSTERING] No new transfer_index rows — skipping")
+                self._touch_cursor_time(scan_conn)
+                scan_conn.commit()
+                return 0, 0
+
+            # Fetch new unique funder wallets from new rows
+            new_funders_rows = scan_conn.execute("""
+                SELECT DISTINCT source
+                FROM transfer_index
+                WHERE rowid > ?
+                  AND amount_sol BETWEEN ? AND ?
+                  AND is_valid = 1
+            """, (cursor_val, self.min_transfer_sol, self.max_transfer_sol)).fetchall()
+        finally:
+            scan_conn.close()
+
+        new_funders = {r[0] for r in new_funders_rows}
+        logger.info(f"[CLUSTERING] {len(new_funders)} distinct new funder wallets to check")
+
+        if not new_funders:
+            conn = self._get_conn()
+            self._advance_cursor(conn, max_rowid, 0, 0, 0)
+            conn.commit()
+            conn.close()
+            return 0, 0
+
+        # Filter out wallets already fully clustered (idempotency)
+        placeholders = ",".join("?" * len(new_funders))
+        check_conn = self._get_conn()
+        try:
+            existing = {r[0] for r in check_conn.execute(
+                f"SELECT funder_wallet FROM wallet_clusters WHERE funder_wallet IN ({placeholders})",
+                list(new_funders)
+            ).fetchall()}
+        finally:
+            check_conn.close()
+
+        to_process = new_funders - existing
+        logger.info(f"[CLUSTERING] {len(to_process)} wallets need fresh cluster evaluation (excluding {len(existing)} already stored)")
+
+        if not to_process:
+            conn = self._get_conn()
+            self._advance_cursor(conn, max_rowid, len(new_funders), 0, 0)
+            conn.commit()
+            conn.close()
+            return 0, 0
+
+        # Build exclusion set once
+        excl_conn = self._get_conn()
+        excluded = build_excluded_set(excl_conn)
+        excl_conn.close()
+        to_process -= excluded
+
+        # Evaluate each candidate funder against clustering criteria
+        farms = self._evaluate_funders(list(to_process))
+        logger.info(f"[CLUSTERING] {len(farms)} new farms qualify after criteria check")
+
+        stored = 0
+        if farms:
+            scored = []
+            for farm in farms:
+                farm['confidence_score'] = self._score_cluster(farm)
+                farm['has_burst'] = self._detect_bursts(farm['funder_wallet'])
+                scored.append(farm)
+            stored = self._store_clusters(scored)
+
+        # Advance cursor — only after successful storage
+        adv_conn = self._get_conn()
+        try:
+            self._advance_cursor(adv_conn, max_rowid, len(to_process), stored, 0)
+            adv_conn.commit()
+        finally:
+            adv_conn.close()
+
+        return stored, 0
+
+    def _evaluate_funders(self, funders: List[str]) -> List[Dict]:
+        """
+        Given a list of funder wallets, run the clustering criteria query
+        limited to just those wallets. Returns qualifying farm dicts.
+        """
+        if not funders:
+            return []
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        placeholders = ",".join("?" * len(funders))
+        query = f"""
+            SELECT
+                source AS funder,
+                COUNT(DISTINCT destination) AS creators,
+                COUNT(*) AS transfers,
+                ROUND(AVG(amount_sol), 3) AS avg_amount,
+                COUNT(DISTINCT DATE(datetime(block_time, 'unixepoch'))) AS days_active,
+                (MAX(block_time) - MIN(block_time)) / 86400.0 AS span_days,
+                MIN(block_time) AS first_ts,
+                MAX(block_time) AS last_ts,
+                GROUP_CONCAT(DISTINCT destination) AS creator_list,
+                GROUP_CONCAT(amount_sol) AS amounts
+            FROM transfer_index
+            WHERE source IN ({placeholders})
+              AND amount_sol BETWEEN ? AND ?
+              AND is_valid = 1
+            GROUP BY source
+            HAVING creators >= ?
+              AND days_active >= ?
+            ORDER BY creators DESC
+        """
+
+        cursor.execute(query, funders + [self.min_transfer_sol, self.max_transfer_sol,
+                                         self.min_creators, self.min_days_active])
+        rows = cursor.fetchall()
+        conn.close()
+
+        farms = []
+        for row in rows:
+            funder, creators, transfers, avg_amt, days_active, span_days, first_ts, last_ts, creator_list, amounts_str = row
+
+            stddev_amt = 0.0
+            if amounts_str:
+                try:
+                    amounts = [float(x) for x in amounts_str.split(',')]
+                    if len(amounts) > 1:
+                        mean = sum(amounts) / len(amounts)
+                        variance = sum((x - mean) ** 2 for x in amounts) / len(amounts)
+                        stddev_amt = variance ** 0.5
+                except Exception:
+                    stddev_amt = 0.0
+
+            wallet_age = self._compute_wallet_age(funder)
+
+            farms.append({
+                'funder_wallet': funder,
+                'creator_addresses': creator_list.split(',') if creator_list else [],
+                'creator_count': creators,
+                'transfers': transfers,
+                'avg_transfer_sol': avg_amt or 0.0,
+                'transfer_stddev': round(stddev_amt, 3),
+                'days_active': days_active,
+                'span_days': span_days,
+                'first_transfer_ts': int(first_ts) if first_ts else None,
+                'last_transfer_ts': int(last_ts) if last_ts else None,
+                'wallet_age_days': wallet_age,
+            })
+
+        return farms
+
+    # ------------------------------------------------------------------
+    # Original detection methods (unchanged — used by full rebuild)
+    # ------------------------------------------------------------------
 
     def _detect_dev_farms(self) -> List[Dict]:
         """
@@ -272,7 +662,7 @@ class WalletClusteringEngine:
                         mean = sum(amounts) / len(amounts)
                         variance = sum((x - mean) ** 2 for x in amounts) / len(amounts)
                         stddev_amt = variance ** 0.5
-                except:
+                except Exception:
                     stddev_amt = 0.0
 
             wallet_age = self._compute_wallet_age(funder)
@@ -420,6 +810,7 @@ class WalletClusteringEngine:
         conn = self._get_conn()
         cursor = conn.cursor()
         now = time.time()
+        now_int = int(now)
 
         inserted = 0
         for farm in farms:
@@ -438,8 +829,10 @@ class WalletClusteringEngine:
                         has_burst,
                         wallet_age_days,
                         detected_at,
-                        updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        updated_at,
+                        first_seen_at,
+                        last_updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     farm['funder_wallet'],
                     json.dumps(farm['creator_addresses']),
@@ -453,7 +846,9 @@ class WalletClusteringEngine:
                     1 if farm.get('has_burst') else 0,
                     farm['wallet_age_days'],
                     now,
-                    now
+                    now,
+                    farm.get('first_transfer_ts') or now_int,
+                    now_int,
                 ))
                 inserted += 1
             except Exception as e:
@@ -492,16 +887,19 @@ class WalletClusteringEngine:
         creators = [row[0] for row in cursor.fetchall()]
         logger.info(f"[CLUSTERING_REPUTATION] Processing {len(creators)} creators")
 
+        # Check optional tables once before the loop
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='creator_blocklist'")
+        has_blocklist = bool(cursor.fetchone())
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='token_analysis'")
+        has_token_analysis = bool(cursor.fetchone())
+
         updated = 0
 
         for creator in creators:
             try:
                 # Get rug data (if creator_blocklist exists)
                 rug_count = 0
-                cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='creator_blocklist'"
-                )
-                if cursor.fetchone():
+                if has_blocklist:
                     cursor.execute(
                         "SELECT rug_count FROM creator_blocklist WHERE wallet = ?",
                         (creator,)
@@ -515,12 +913,7 @@ class WalletClusteringEngine:
                 tokens_above_2x = 0
                 tokens_above_10x = 0
 
-                cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='token_analysis'"
-                )
-                if cursor.fetchone():
-                    # This is approximate — looks for tokens where creator is in earliest_tx_creator
-                    # In real implementation, might need creator funding detection
+                if has_token_analysis:
                     cursor.execute("""
                         SELECT COUNT(*) as launched,
                                SUM(CASE WHEN price_highest >= price_current * 2 THEN 1 ELSE 0 END) as above_2x,
@@ -545,7 +938,7 @@ class WalletClusteringEngine:
 
                 # Check if in cluster
                 cursor.execute(
-                    "SELECT cluster_id FROM wallet_clusters WHERE json_extract(creator_addresses, '$[*]') LIKE ?",
+                    "SELECT cluster_id FROM wallet_clusters WHERE creator_addresses LIKE ?",
                     (f'%{creator}%',)
                 )
                 cluster_row = cursor.fetchone()
@@ -642,3 +1035,39 @@ class WalletClusteringEngine:
             conn.close()
         except Exception as e:
             logger.error(f"[CLUSTERING_LOG] Failed to log run: {e}")
+
+
+class DevReputationUpdater:
+    """
+    Standalone updater for dev_reputation — reads creator_blocklist, token_analysis,
+    and wallet_clusters. Decoupled from WalletClusteringEngine so it always runs
+    every analyzer cycle regardless of whether new transfer_index rows arrived.
+    """
+
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+
+    def _get_conn(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def run(self) -> dict:
+        started_at = time.time()
+        try:
+            engine = WalletClusteringEngine(self.db_path)
+            updated = engine._update_dev_reputation()
+            return {
+                'status': 'success',
+                'reputations_updated': updated,
+                'duration_seconds': round(time.time() - started_at, 2),
+            }
+        except Exception as e:
+            logger.error(f"[DEV_REPUTATION] Failed: {e}", exc_info=True)
+            return {
+                'status': 'failed',
+                'reputations_updated': 0,
+                'duration_seconds': round(time.time() - started_at, 2),
+                'error': str(e),
+            }

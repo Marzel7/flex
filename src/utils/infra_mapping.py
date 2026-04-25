@@ -1411,6 +1411,56 @@ def get_accounts_by_tag(tag: str, account_type: str = "all") -> Dict[str, Dict]:
 
     return result
 
+def classify_wallet(address: str, db_conn=None) -> Dict:
+    """
+    Single authoritative wallet classification.
+
+    Priority:
+      1. Static INFRASTRUCTURE_ACCOUNTS registry  → wallet_type='infra'
+      2. Static CEX_ACCOUNTS registry             → wallet_type='cex'
+      3. cex_wallets DB table (if conn provided)  → wallet_type='cex'
+      4. Everything else                          → wallet_type='unknown'
+
+    Returns:
+      {'wallet_type': 'cex'|'infra'|'unknown', 'label': str, 'source': str}
+    """
+    if address in INFRASTRUCTURE_ACCOUNTS:
+        info = INFRASTRUCTURE_ACCOUNTS[address]
+        return {'wallet_type': 'infra', 'label': info.get('name', ''), 'source': 'static_registry'}
+    if address in CEX_ACCOUNTS:
+        info = CEX_ACCOUNTS[address]
+        return {'wallet_type': 'cex', 'label': info.get('name', ''), 'source': 'static_registry'}
+    if db_conn is not None:
+        try:
+            row = db_conn.execute(
+                "SELECT 1 FROM cex_wallets WHERE cex_address=? AND is_active=1 LIMIT 1",
+                (address,)
+            ).fetchone()
+            if row:
+                return {'wallet_type': 'cex', 'label': '', 'source': 'cex_wallets'}
+        except Exception:
+            pass
+    return {'wallet_type': 'unknown', 'label': '', 'source': 'unknown'}
+
+
+def build_excluded_set(db_conn=None) -> frozenset:
+    """
+    Build a complete set of all CEX + infra addresses for bulk exclusion.
+    Combines static registry with the live cex_wallets table.
+    Safe to call with db_conn=None (returns static-only set).
+    """
+    excluded = set(INFRASTRUCTURE_ACCOUNTS.keys()) | set(CEX_ACCOUNTS.keys())
+    if db_conn is not None:
+        try:
+            rows = db_conn.execute(
+                "SELECT cex_address FROM cex_wallets WHERE is_active=1"
+            ).fetchall()
+            excluded.update(r[0] for r in rows)
+        except Exception:
+            pass
+    return frozenset(excluded)
+
+
 def highlight_infra_in_funding(funders: List[Dict]) -> List[Dict]:
     """
     Add infrastructure highlighting to a list of funders

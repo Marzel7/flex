@@ -273,6 +273,38 @@ table.cfq-table td:last-child {
 </div>
 
 <div class="cfq-section">
+    <div class="cfq-section-title">DB Health &amp; Maintenance</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px;" id="dbh-grid">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">RPC Cache</div>
+            <div style="font-size:22px;font-weight:700;" id="dbh-rpc-cache-rows">—</div>
+            <div style="font-size:11px;margin-top:3px;" id="dbh-rpc-cache-expired" style="color:var(--text-secondary);">rows</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">RPC Metrics</div>
+            <div style="font-size:22px;font-weight:700;" id="dbh-rpc-metrics-rows">—</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;">7-day window</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Helius Snapshots</div>
+            <div style="font-size:22px;font-weight:700;" id="dbh-helius-rows">—</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;">48-hour window</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">WAL Size</div>
+            <div style="font-size:22px;font-weight:700;" id="dbh-wal-mb">—</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;">MB</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Last Maintenance</div>
+            <div style="font-size:22px;font-weight:700;" id="dbh-last-ran">—</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;" id="dbh-last-detail"></div>
+        </div>
+    </div>
+    <div id="dbh-summary" style="margin-top:10px;font-size:12px;color:var(--text-secondary);padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:6px;line-height:1.6;"></div>
+</div>
+
+<div class="cfq-section">
     <div class="cfq-section-title">Creator Pipeline Timing <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">avg of last 10 migrations per source</span></div>
     <div id="cfq-timing-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px;"></div>
 </div>
@@ -618,9 +650,59 @@ async function loadTimingCards() {
     }
 }
 
+async function loadDbHealth() {
+    try {
+        const d = await fetch('/api/db-health').then(r => r.json());
+        if (d.error) return;
+        const fmt = n => n == null ? '—' : n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+
+        const cacheEl = document.getElementById('dbh-rpc-cache-rows');
+        cacheEl.textContent = fmt(d.rpc_cache_rows);
+        cacheEl.style.color = d.rpc_cache_expired > 500 ? '#ef4444' : '#22c55e';
+        const expEl = document.getElementById('dbh-rpc-cache-expired');
+        expEl.textContent = d.rpc_cache_expired != null ? `${fmt(d.rpc_cache_expired)} expired` : 'rows';
+        expEl.style.color = d.rpc_cache_expired > 500 ? '#ef4444' : 'var(--text-secondary)';
+
+        const metricsEl = document.getElementById('dbh-rpc-metrics-rows');
+        metricsEl.textContent = fmt(d.rpc_metrics_rows);
+        metricsEl.style.color = d.rpc_metrics_rows > 500000 ? '#ef4444' : '#22c55e';
+
+        const helEl = document.getElementById('dbh-helius-rows');
+        helEl.textContent = fmt(d.helius_snapshots_rows);
+        helEl.style.color = d.helius_snapshots_rows > 10000 ? '#ef4444' : '#22c55e';
+
+        const walEl = document.getElementById('dbh-wal-mb');
+        walEl.textContent = d.wal_mb != null ? d.wal_mb.toFixed(1) : '—';
+        walEl.style.color = d.wal_mb > 50 ? '#ef4444' : '#22c55e';
+
+        const lm = d.last_maintenance;
+        const lastRanEl = document.getElementById('dbh-last-ran');
+        const lastDetailEl = document.getElementById('dbh-last-detail');
+        const summaryEl = document.getElementById('dbh-summary');
+        if (lm) {
+            const age = Math.round((Date.now() / 1000 - lm.ran_at) / 3600);
+            lastRanEl.textContent = age < 1 ? '< 1h ago' : `${age}h ago`;
+            lastRanEl.style.color = age > 7 ? '#e2e8f0' : '#22c55e';
+            lastDetailEl.textContent = `${lm.duration_ms}ms`;
+            summaryEl.innerHTML =
+                `Last run: deleted <b>${(lm.rpc_cache_deleted||0).toLocaleString()}</b> expired RPC cache rows, ` +
+                `<b>${(lm.rpc_metrics_deleted||0).toLocaleString()}</b> old metric rows, ` +
+                `<b>${(lm.helius_snapshots_deleted||0).toLocaleString()}</b> helius snapshots — ` +
+                `WAL checkpoint freed <b>${lm.wal_checkpoint_pages||0}</b> pages`;
+        } else {
+            lastRanEl.textContent = 'Never';
+            lastRanEl.style.color = '#e2e8f0';
+            lastDetailEl.textContent = '';
+            summaryEl.textContent = 'Maintenance has not run yet — will run on next listener startup, then every 6 hours.';
+        }
+    } catch(e) { console.error('loadDbHealth failed', e); }
+}
+
 cfqLoad();
 loadTimingCards();
+loadDbHealth();
 setInterval(cfqLoad, 10000);
 setInterval(loadTimingCards, 30000);
+setInterval(loadDbHealth, 60000);
 </script>
 {% endblock %}

@@ -49,4 +49,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
         conn.row_factory = row_factory
     conn.execute("PRAGMA busy_timeout=30000")
     conn.execute("PRAGMA journal_mode=WAL")
+    # Auto-checkpoint every 1000 pages (~4 MB) — prevents WAL from growing unbounded
+    # even when connections are long-lived. PASSIVE mode doesn't block writers.
+    conn.execute("PRAGMA wal_autocheckpoint=1000")
     return conn

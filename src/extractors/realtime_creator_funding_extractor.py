@@ -718,14 +718,15 @@ class RealTimeCreatorFundingExtractor:
             recipients_delta[recipient] = 0
         recipients_delta[recipient] += amount_sol
 
-    async def _flush_page_batch(self, conn, creator: str, funders_delta: Dict[str, dict], recipients_delta: Dict[str, float], domain_addrs: Set[str], jito_events: List[tuple]):
+    async def _flush_page_batch(self, conn, creator: str, funders_delta: Dict[str, dict], recipients_delta: Dict[str, float], domain_addrs: Set[str], jito_events: List[tuple], transfer_index_rows: List[tuple] = None):
         """
         Flush accumulated page data to database in batch.
         - Insert all funders with CEX/INFRA classification
-        - Insert all recipients 
+        - Insert all recipients
         - Single commit
         - Batch resolve domains
         - Insert Jito events
+        - Write transfer_index rows (zero extra RPC)
         """
         from src.utils.infra_mapping import is_infrastructure_account, is_cex_account
 
@@ -816,6 +817,18 @@ class RealTimeCreatorFundingExtractor:
                 """, jito_events)
                 conn.commit()
                 print(f"[JITO] 🪂 Batch inserted {len(jito_events)} Jito events", flush=True)
+
+            # Write transfer_index rows collected from this page (zero extra RPC)
+            if transfer_index_rows:
+                try:
+                    cursor.executemany("""
+                        INSERT OR IGNORE INTO transfer_index
+                        (signature, source, destination, amount_lamports, slot, block_time, indexed_at, is_valid, transfer_type)
+                        VALUES (?, ?, ?, ?, 0, ?, ?, 1, 'standard')
+                    """, transfer_index_rows)
+                    conn.commit()
+                except Exception as ti_err:
+                    print(f"[TRANSFER_INDEX] ⚠ Insert error: {ti_err}", flush=True)
 
         except Exception as e:
             print(f"[FLUSH] ❌ Batch flush error: {e}", flush=True)
@@ -1258,6 +1271,7 @@ class RealTimeCreatorFundingExtractor:
                         oldest_funders_delta: Dict[str, dict] = {}
                         oldest_recipients_delta: Dict[str, float] = {}
                         oldest_domain_addrs: Set[str] = {creator}
+                        oldest_transfer_index_rows: List[tuple] = []
                         seeded_recipients = 0
                         for nt in native:
                             frm = nt.get("fromUserAccount")
@@ -1266,6 +1280,9 @@ class RealTimeCreatorFundingExtractor:
                             if not isinstance(frm, str) or not isinstance(to, str):
                                 continue
                             amount_sol = amt / 1_000_000_000
+                            # Collect for transfer_index before dust filter
+                            if oldest_sig and isinstance(amt, int) and amt > 0 and oldest_ts and oldest_ts > 0:
+                                oldest_transfer_index_rows.append((oldest_sig, frm, to, amt, oldest_ts, time.time()))
                             if amount_sol < MIN_SOL:
                                 continue
                             if to == creator and frm not in exclude_set and frm not in DUST_ADDRESSES:
@@ -1282,7 +1299,7 @@ class RealTimeCreatorFundingExtractor:
                                 recipients[to] += amount_sol
                                 self._save_recipient(creator, to, amount_sol, oldest_recipients_delta)
 
-                        if oldest_funders_delta or oldest_recipients_delta:
+                        if oldest_funders_delta or oldest_recipients_delta or oldest_transfer_index_rows:
                             await self._flush_page_batch(
                                 extraction_conn,
                                 creator,
@@ -1290,6 +1307,7 @@ class RealTimeCreatorFundingExtractor:
                                 oldest_recipients_delta,
                                 oldest_domain_addrs,
                                 [],
+                                oldest_transfer_index_rows,
                             )
 
                         if oldest_sig:
@@ -1359,6 +1377,7 @@ class RealTimeCreatorFundingExtractor:
                                 page_recipients_delta: Dict[str, float] = {}
                                 page_domain_addrs: Set[str] = {creator}
                                 page_jito_events: List[tuple] = []
+                                page_transfer_index_rows: List[tuple] = []  # (sig, src, dst, lamports, block_time, indexed_at)
 
                                 # Process transactions
                                 page_has_pre_migration = False
@@ -1502,6 +1521,7 @@ class RealTimeCreatorFundingExtractor:
                                                 print(f"[REALTIME_FUNDING] ⚠ Could not tag deBridge: {tag_err}", flush=True)
 
                                     # Process nativeTransfers (already extracted by FIX #7)
+                                    tx_sig = tx.get("signature", "")
                                     for nt in native:
                                         frm = nt.get("fromUserAccount")
                                         to = nt.get("toUserAccount")
@@ -1511,6 +1531,10 @@ class RealTimeCreatorFundingExtractor:
                                             continue
 
                                         amount_sol = amt / 1_000_000_000
+
+                                        # Collect for transfer_index before dust filter (use lamport int directly)
+                                        if tx_sig and isinstance(amt, int) and amt > 0 and tx_ts and tx_ts > 0:
+                                            page_transfer_index_rows.append((tx_sig, frm, to, amt, tx_ts, time.time()))
 
                                         # Filter dust
                                         if amount_sol < MIN_SOL:
@@ -1559,7 +1583,7 @@ class RealTimeCreatorFundingExtractor:
                                             self._save_recipient(creator, to, amount_sol, page_recipients_delta)
 
                                 # FIX #1: Flush accumulated page data in batch
-                                await self._flush_page_batch(extraction_conn, creator, page_funders_delta, page_recipients_delta, page_domain_addrs, page_jito_events)
+                                await self._flush_page_batch(extraction_conn, creator, page_funders_delta, page_recipients_delta, page_domain_addrs, page_jito_events, page_transfer_index_rows)
 
                                 # Log page summary
                                 if page_funders_found > 0 or page_dust_filtered > 0 or page_excluded_filtered > 0 or page_token_transfers_filtered > 0:

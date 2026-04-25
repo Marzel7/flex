@@ -631,6 +631,39 @@
             </div>
         </div>
 
+        <!-- DB Health Panel -->
+        <div class="table-container" id="db-health-panel">
+            <div class="table-title">🗄️ DB Health &amp; Maintenance</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:20px;">
+                <div style="text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">RPC Cache Rows</div>
+                    <div style="font-size:24px;font-weight:bold;color:#fbbf24;" id="dbh-rpc-cache-rows">—</div>
+                    <div style="font-size:11px;color:var(--text-secondary);" id="dbh-rpc-cache-expired"></div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">RPC Metrics Rows</div>
+                    <div style="font-size:24px;font-weight:bold;color:#fbbf24;" id="dbh-rpc-metrics-rows">—</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">7-day window</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Helius Snapshots</div>
+                    <div style="font-size:24px;font-weight:bold;color:#fbbf24;" id="dbh-helius-rows">—</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">48-hour window</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">WAL Size</div>
+                    <div style="font-size:24px;font-weight:bold;color:var(--accent-cyan);" id="dbh-wal-mb">—</div>
+                    <div style="font-size:11px;color:var(--text-secondary);">MB</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Last Maintenance</div>
+                    <div style="font-size:18px;font-weight:bold;color:#22c55e;" id="dbh-last-ran">—</div>
+                    <div style="font-size:11px;color:var(--text-secondary);" id="dbh-last-detail"></div>
+                </div>
+            </div>
+            <div id="dbh-last-run-summary" style="font-size:12px;color:var(--text-secondary);padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:6px;line-height:1.6;"></div>
+        </div>
+
         <div class="refresh-info" id="refresh-info">
             ⚡ Auto-refreshing every 5 minutes
         </div>
@@ -995,6 +1028,62 @@
         }
     }
 
+    async function updateDbHealth() {
+        try {
+            const d = await fetchJson('/api/db-health');
+            if (d.error) return;
+
+            const fmtRows = n => n == null ? '—' : (n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n));
+
+            // RPC cache — highlight red if expired > 500
+            const cacheEl = document.getElementById('dbh-rpc-cache-rows');
+            cacheEl.textContent = fmtRows(d.rpc_cache_rows);
+            cacheEl.style.color = (d.rpc_cache_expired > 500) ? '#ef4444' : '#22c55e';
+            const expiredEl = document.getElementById('dbh-rpc-cache-expired');
+            expiredEl.textContent = d.rpc_cache_expired != null ? `${fmtRows(d.rpc_cache_expired)} expired` : '';
+            expiredEl.style.color = (d.rpc_cache_expired > 500) ? '#ef4444' : 'var(--text-secondary)';
+
+            // RPC metrics — warn if > 500K
+            const metricsEl = document.getElementById('dbh-rpc-metrics-rows');
+            metricsEl.textContent = fmtRows(d.rpc_metrics_rows);
+            metricsEl.style.color = (d.rpc_metrics_rows > 500000) ? '#ef4444' : '#22c55e';
+
+            // Helius snapshots — warn if > 10K
+            const helEl = document.getElementById('dbh-helius-rows');
+            helEl.textContent = fmtRows(d.helius_snapshots_rows);
+            helEl.style.color = (d.helius_snapshots_rows > 10000) ? '#ef4444' : '#22c55e';
+
+            // WAL — warn if > 50 MB
+            const walEl = document.getElementById('dbh-wal-mb');
+            walEl.textContent = d.wal_mb != null ? d.wal_mb.toFixed(1) : '—';
+            walEl.style.color = (d.wal_mb > 50) ? '#ef4444' : 'var(--accent-cyan)';
+
+            // Last maintenance
+            const lm = d.last_maintenance;
+            const lastRanEl = document.getElementById('dbh-last-ran');
+            const lastDetailEl = document.getElementById('dbh-last-detail');
+            const summaryEl = document.getElementById('dbh-last-run-summary');
+            if (lm) {
+                const age = Math.round((Date.now() / 1000 - lm.ran_at) / 3600);
+                lastRanEl.textContent = age < 1 ? '< 1h ago' : `${age}h ago`;
+                lastRanEl.style.color = age > 30 ? '#ef4444' : '#22c55e';
+                lastDetailEl.textContent = `${lm.duration_ms}ms`;
+                summaryEl.innerHTML =
+                    `Last run: deleted <b>${(lm.rpc_cache_deleted||0).toLocaleString()}</b> expired RPC cache rows, ` +
+                    `<b>${(lm.rpc_metrics_deleted||0).toLocaleString()}</b> old metric rows, ` +
+                    `<b>${(lm.helius_snapshots_deleted||0).toLocaleString()}</b> helius snapshots &mdash; ` +
+                    `WAL checkpoint freed <b>${lm.wal_checkpoint_pages||0}</b> pages`;
+            } else {
+                lastRanEl.textContent = 'Never';
+                lastRanEl.style.color = '#ef4444';
+                lastDetailEl.textContent = '';
+                summaryEl.textContent = 'Maintenance has not run yet — will run on next listener startup.';
+            }
+        } catch (e) {
+            console.error('updateDbHealth failed', e);
+        }
+    }
+
     async function updateDashboard() {
         await Promise.all([
             updateKPIs(),
@@ -1004,7 +1093,8 @@
             updateCachePanel(),
             updateTopMethodsTable(),
             updateTrackedVsUntracked(),
-            updateWebhookMetrics()
+            updateWebhookMetrics(),
+            updateDbHealth()
         ]);
         updateRefreshTime();
     }

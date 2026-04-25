@@ -30,6 +30,8 @@ import networkx as nx
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from src.utils.infra_mapping import build_excluded_set, classify_wallet
+
 
 # ============================================================================
 # SECTION 1: GRAPH CONSTRUCTION
@@ -56,9 +58,12 @@ class WalletGraphBuilder:
     def build_graph_from_transfers(self,
                                    min_amount: float = 0.5,
                                    max_amount: float = 10.0,
-                                   days_back: int = 90) -> nx.DiGraph:
+                                   days_back: int = 90,
+                                   excluded: frozenset = frozenset()) -> nx.DiGraph:
         """
         Build wallet graph from transfer_index with enhanced edge weighting.
+        CEX/infra wallets are excluded from graph construction so they don't
+        inflate cluster sizes or create false coordination signals.
 
         Edge Weights Include:
         - weight: transfer_count (number of transfers on this edge)
@@ -71,6 +76,7 @@ class WalletGraphBuilder:
             min_amount: Minimum transfer amount (SOL)
             max_amount: Maximum transfer amount (SOL)
             days_back: How far back to look (days)
+            excluded: frozenset of CEX/infra addresses to skip
 
         Returns:
             NetworkX directed graph with comprehensive edge attributes
@@ -91,8 +97,10 @@ class WalletGraphBuilder:
 
         # Build graph with aggregated edge weights
         for source, dest, amount, ts in cursor.fetchall():
-            # Skip self-transfers
+            # Skip self-transfers and CEX/infra wallets
             if source == dest:
+                continue
+            if source in excluded or dest in excluded:
                 continue
 
             # Add edge to graph
@@ -647,6 +655,16 @@ class GraphDevFarmDetectionEngine:
                 avg_transfers_per_edge REAL DEFAULT 0,
                 total_transfers INTEGER DEFAULT 0,
                 total_volume_sol REAL DEFAULT 0,
+                avg_edge_weight REAL DEFAULT 0,
+                max_edge_weight REAL DEFAULT 0,
+                avg_composite_weight REAL DEFAULT 0,
+                max_composite_weight REAL DEFAULT 0,
+                avg_time_concentration REAL DEFAULT 0.5,
+                cluster_strength REAL DEFAULT 0,
+                strength_score REAL DEFAULT 0,
+                cex_wallet_count INTEGER DEFAULT 0,
+                infra_wallet_count INTEGER DEFAULT 0,
+                unknown_wallet_count INTEGER DEFAULT 0,
                 classification_confidence REAL DEFAULT 0,
                 pattern_regularity REAL DEFAULT 0,
                 farm_risk_score REAL DEFAULT 0,
@@ -692,6 +710,8 @@ class GraphDevFarmDetectionEngine:
                 transfer_count INTEGER DEFAULT 0,
                 total_amount_sol REAL DEFAULT 0,
                 avg_amount_sol REAL DEFAULT 0,
+                time_concentration REAL DEFAULT 0.5,
+                composite_weight REAL DEFAULT 0,
                 first_transfer_ts INTEGER,
                 last_transfer_ts INTEGER,
                 detected_at REAL NOT NULL,
@@ -731,7 +751,13 @@ class GraphDevFarmDetectionEngine:
             # Step 1: Create tables
             self._ensure_tables()
 
-            # Step 2: Build graph
+            # Build unified CEX/infra exclusion set once for this run
+            conn = self._get_conn()
+            self._excluded = build_excluded_set(conn)
+            conn.close()
+            logger.info(f"Exclusion set: {len(self._excluded)} CEX/infra addresses")
+
+            # Step 2: Build graph (CEX/infra excluded at edge level)
             logger.info("Building wallet graph from transfer_index")
             graph = self._build_wallet_graph()
             logger.info(f"Graph built: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
@@ -747,6 +773,16 @@ class GraphDevFarmDetectionEngine:
             # Step 5: Identify farms
             farms = self._identify_farms(graph, clusters)
             logger.info(f"Dev farms identified: {len(farms)}")
+
+            # Annotate each farm with CEX/infra composition counts
+            excluded = getattr(self, '_excluded', frozenset())
+            for farm in farms:
+                all_wallets = farm.get('all_wallets', [])
+                cex_count   = sum(1 for w in all_wallets if classify_wallet(w)['wallet_type'] == 'cex')
+                infra_count = sum(1 for w in all_wallets if classify_wallet(w)['wallet_type'] == 'infra')
+                farm['cex_wallet_count']   = cex_count
+                farm['infra_wallet_count'] = infra_count
+                farm['unknown_wallet_count'] = len(all_wallets) - cex_count - infra_count
 
             # Step 6: Store results
             farm_count, member_count, edge_count = self._store_results(graph, farms)
@@ -778,12 +814,14 @@ class GraphDevFarmDetectionEngine:
             }
 
     def _build_wallet_graph(self) -> nx.DiGraph:
-        """Build graph from transfer_index."""
+        """Build graph from transfer_index, excluding CEX/infra nodes."""
         builder = WalletGraphBuilder(self.db_path)
+        excluded = getattr(self, '_excluded', frozenset())
         return builder.build_graph_from_transfers(
             min_amount=0.5,
             max_amount=10.0,
-            days_back=90
+            days_back=90,
+            excluded=excluded,
         )
 
     def _preprocess_graph(self, graph: nx.DiGraph) -> nx.DiGraph:
@@ -827,7 +865,7 @@ class GraphDevFarmDetectionEngine:
         edge_count = 0
 
         for farm in farms:
-            # Store farm cluster with NEW: weighted edge metrics
+            # Store farm cluster with weighted edge metrics + CEX/infra composition
             cursor.execute("""
                 INSERT OR REPLACE INTO farm_clusters (
                     graph_cluster_id, funder_count, creator_count, ambiguous_count,
@@ -835,9 +873,10 @@ class GraphDevFarmDetectionEngine:
                     cluster_density, total_transfers, total_volume_sol,
                     avg_edge_weight, max_edge_weight, avg_composite_weight, max_composite_weight,
                     avg_time_concentration, cluster_strength,
+                    cex_wallet_count, infra_wallet_count, unknown_wallet_count,
                     classification_confidence, farm_risk_score, risk_level, strength_score,
                     detected_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 farm['cluster_id'],
                 farm['funder_count'],
@@ -857,6 +896,9 @@ class GraphDevFarmDetectionEngine:
                 farm.get('max_composite_weight', 0),
                 farm.get('avg_time_concentration', 0.5),
                 farm.get('cluster_strength', 0),
+                farm.get('cex_wallet_count', 0),
+                farm.get('infra_wallet_count', 0),
+                farm.get('unknown_wallet_count', farm['total_wallets']),
                 farm['classification_confidence'],
                 farm['farm_risk_score'],
                 farm['risk_level'],

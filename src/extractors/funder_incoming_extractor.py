@@ -1049,6 +1049,35 @@ def extract_transfers_for_funder(
             outgoing_saved = len(outgoing_rows)
 
         conn.commit()
+
+        # Write to transfer_index from already-assembled rows — zero extra RPC
+        # incoming row: (sender, funder, amount_sol, type, sig, ts, ...)
+        # outgoing row: (funder, recipient, amount_sol, type, sig, ts, ...)
+        ti_rows = []
+        _now = time.time()
+        for r in incoming_rows:
+            sig, ts, amount_sol = r[4], r[5], r[2]
+            if sig and ts and ts > 0 and amount_sol > 0:
+                lamports = int(amount_sol * 1_000_000_000)
+                if lamports > 0:
+                    ti_rows.append((sig, r[0], r[1], lamports, int(ts), _now))
+        for r in outgoing_rows:
+            sig, ts, amount_sol = r[4], r[5], r[2]
+            if sig and ts and ts > 0 and amount_sol > 0:
+                lamports = int(amount_sol * 1_000_000_000)
+                if lamports > 0:
+                    ti_rows.append((sig, r[0], r[1], lamports, int(ts), _now))
+        if ti_rows:
+            try:
+                cur.executemany("""
+                    INSERT OR IGNORE INTO transfer_index
+                    (signature, source, destination, amount_lamports, slot, block_time, indexed_at, is_valid, transfer_type)
+                    VALUES (?, ?, ?, ?, 0, ?, ?, 1, 'standard')
+                """, ti_rows)
+                conn.commit()
+            except Exception as ti_err:
+                log_print(f"[TRANSFER_INDEX] ⚠ Insert error: {ti_err}")
+
         conn.close()
 
     total_sol = float(sum(r[2] for r in incoming_rows) + sum(r[2] for r in outgoing_rows))

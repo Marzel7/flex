@@ -66,6 +66,7 @@ update_coordination_detection.py
 .logs/
 flex_addresses_export.xlsx
 .DS_Store
+portal_vsol.json
 
 # Generated data exports (can be regenerated from database)
 *.csv

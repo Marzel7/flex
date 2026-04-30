@@ -1,0 +1,435 @@
+{% extends "base_shell.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block extra_styles %}
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+.settings-header h1 {
+    font-size: 26px;
+    color: #60a5fa;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+.settings-section {
+    background: var(--bg-card, rgba(15,23,42,0.8));
+    border: 1px solid rgba(148,163,184,0.12);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+}
+.settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary, #94a3b8);
+    margin-bottom: 16px;
+}
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(148,163,184,0.07);
+}
+.setting-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.setting-info { flex: 1; }
+.setting-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+.setting-desc {
+    font-size: 12px;
+    color: var(--text-secondary, #94a3b8);
+    margin-top: 3px;
+}
+.toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.toggle-switch {
+    width: 44px;
+    height: 24px;
+    background: rgba(148,163,184,0.2);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.toggle-switch.active { background: #06b6d4; }
+.toggle-slider {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+}
+.toggle-switch.active .toggle-slider { transform: translateX(20px); }
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(148,163,184,0.3);
+    flex-shrink: 0;
+}
+.status-dot.active { background: #22c55e; }
+.save-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #22c55e;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.save-toast.show { opacity: 1; }
+.settings-action-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid #06b6d4;
+    color: #67e8f9;
+    background: rgba(6,182,212,0.08);
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.settings-action-btn:hover:not(:disabled) { background: rgba(6,182,212,0.16); }
+.settings-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.settings-action-status {
+    font-size: 11px;
+    color: var(--text-secondary, #94a3b8);
+    min-width: 72px;
+    text-align: right;
+}
+.settings-action-status.ok { color: #22c55e; }
+.settings-action-status.err { color: #f87171; }
+{% endblock %}
+
+{% block content %}
+<div class="settings-header">
+    <h1>Settings</h1>
+</div>
+
+<div class="settings-section">
+    <div class="settings-section-title">Token Pipeline</div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Token History Check</div>
+            <div class="setting-desc">Verify token history before processing migrations</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="tokenHistoryStatus"></div>
+            <div class="toggle-switch" id="tokenHistoryToggle" onclick="toggleTokenHistory()">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Token Launch</div>
+            <div class="setting-desc">Listen for new token launches via PumpSwap WebSocket</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="listenLaunchesStatus"></div>
+            <div class="toggle-switch" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Auto Extract Funders</div>
+            <div class="setting-desc">Automatically extract funder transfer data after each migration</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="autoExtractFundersStatus"></div>
+            <div class="toggle-switch" id="autoExtractFundersToggle" onclick="toggleAutoExtractFunders()">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="settings-section">
+    <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Intelligence Auto-Approval</span>
+        <span style="font-size:11px;font-weight:400;color:var(--text-secondary);letter-spacing:0">
+            Next analyzer run: <span id="next-cron" style="color:#60a5fa;font-weight:600"></span>
+        </span>
+    </div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Auto-Approve High Priority Creators</div>
+            <div class="setting-desc">Automatically approve creators scoring ≥80 (self-funding, 500+ funders, coordinated edges) and enqueue their funders for Phase 2 scanning</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="autoApproveHighPriorityStatus"></div>
+            <div class="toggle-switch" id="autoApproveHighPriorityToggle" onclick="toggleSetting('autoApproveHighPriority', 'auto_approve_high_priority')">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Auto-Approve Network Members</div>
+            <div class="setting-desc">Automatically approve creators already assigned to a known network — they have shared funders worth scanning</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="autoApproveNetworkMemberStatus"></div>
+            <div class="toggle-switch" id="autoApproveNetworkMemberToggle" onclick="toggleSetting('autoApproveNetworkMember', 'auto_approve_network_member')">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Auto-Approve Shared Funders</div>
+            <div class="setting-desc">Automatically approve creators where ≥1 funder also funds other creators — cross-creator signal already exists</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="autoApproveSharedFundersStatus"></div>
+            <div class="toggle-switch" id="autoApproveSharedFundersToggle" onclick="toggleSetting('autoApproveSharedFunders', 'auto_approve_shared_funders')">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Refresh Local Graph</div>
+            <div class="setting-desc">Rebuild local graph tables from SQLite without Phase 2 RPC scanning</div>
+        </div>
+        <div class="toggle-wrap">
+            <span class="settings-action-status" id="localGraphStatus"></span>
+            <button class="settings-action-btn" id="localGraphRefreshBtn" onclick="refreshLocalGraph()">Refresh Local Graph</button>
+        </div>
+    </div>
+</div>
+
+<div class="save-toast" id="save-toast">Saved</div>
+
+<script>
+let tokenHistoryEnabled = false;
+let listenLaunchesEnabled = false;
+let autoExtractFundersEnabled = false;
+let autoApproveHighPriorityEnabled = false;
+let autoApproveNetworkMemberEnabled = false;
+let autoApproveSharedFundersEnabled = false;
+
+function setToggle(id, enabled) {
+    const el = document.getElementById(id + 'Toggle');
+    const dot = document.getElementById(id + 'Status');
+    if (enabled) {
+        el.classList.add('active');
+        dot.classList.add('active');
+    } else {
+        el.classList.remove('active');
+        dot.classList.remove('active');
+    }
+}
+
+function showToast() {
+    const t = document.getElementById('save-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function toggleTokenHistory() {
+    tokenHistoryEnabled = !tokenHistoryEnabled;
+    setToggle('tokenHistory', tokenHistoryEnabled);
+    fetch('/api/migration-settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ token_history_check: tokenHistoryEnabled })
+    }).then(() => showToast()).catch(e => console.error(e));
+}
+
+function toggleListenLaunches() {
+    listenLaunchesEnabled = !listenLaunchesEnabled;
+    setToggle('listenLaunches', listenLaunchesEnabled);
+    fetch('/api/listener-settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ listen_to_launches: listenLaunchesEnabled })
+    }).then(() => showToast()).catch(e => console.error(e));
+}
+
+function toggleAutoExtractFunders() {
+    autoExtractFundersEnabled = !autoExtractFundersEnabled;
+    setToggle('autoExtractFunders', autoExtractFundersEnabled);
+    fetch('/api/listener-settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ auto_extract_funders: autoExtractFundersEnabled })
+    }).then(() => showToast()).catch(e => console.error(e));
+}
+
+// Generic toggle for migration settings keys
+const _migrationSettingState = {};
+function toggleSetting(camelKey, jsonKey) {
+    _migrationSettingState[camelKey] = !_migrationSettingState[camelKey];
+    setToggle(camelKey, _migrationSettingState[camelKey]);
+    fetch('/api/migration-settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ [jsonKey]: _migrationSettingState[camelKey] })
+    }).then(() => showToast()).catch(e => console.error(e));
+}
+
+async function refreshLocalGraph() {
+    const btn = document.getElementById('localGraphRefreshBtn');
+    const status = document.getElementById('localGraphStatus');
+    if (!btn || !status) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Starting...';
+    status.className = 'settings-action-status';
+    status.textContent = '';
+
+    try {
+        const resp = await fetch('/api/run-graph-analyzers', { method: 'POST' });
+        const data = await resp.json();
+
+        if (resp.status === 409) {
+            btn.textContent = 'Running...';
+            status.className = 'settings-action-status err';
+            status.textContent = 'Busy';
+            pollLocalGraphRefresh();
+            return;
+        }
+
+        if (resp.status !== 202) {
+            throw new Error(data.error || 'Refresh failed');
+        }
+
+        btn.textContent = 'Running...';
+        pollLocalGraphRefresh();
+    } catch (e) {
+        status.className = 'settings-action-status err';
+        status.textContent = 'Failed';
+        btn.disabled = false;
+        btn.textContent = 'Refresh Local Graph';
+        console.error(e);
+    }
+}
+
+async function pollLocalGraphRefresh() {
+    const btn = document.getElementById('localGraphRefreshBtn');
+    const status = document.getElementById('localGraphStatus');
+    if (!btn || !status) return;
+
+    let stillRunning = false;
+    try {
+        const resp = await fetch('/api/graph-analyzer-status');
+        const data = await resp.json();
+
+        if (data.is_running) {
+            stillRunning = true;
+            const label = data.current_analyzer
+                ? data.current_analyzer.replace('Engine', '').replace('Analyzer', '')
+                : 'graph';
+            status.className = 'settings-action-status';
+            status.textContent = label;
+            setTimeout(pollLocalGraphRefresh, 2000);
+            return;
+        }
+
+        const latest = data.latest_overall || {};
+        if (latest.status === 'failed') {
+            status.className = 'settings-action-status err';
+            status.textContent = 'Failed';
+        } else {
+            status.className = 'settings-action-status ok';
+            status.textContent = 'Done';
+            showToast();
+        }
+    } catch (e) {
+        status.className = 'settings-action-status err';
+        status.textContent = 'Unknown';
+        console.error(e);
+    } finally {
+        if (!stillRunning) {
+            btn.disabled = false;
+            btn.textContent = 'Refresh Local Graph';
+        }
+    }
+}
+
+async function loadSettings() {
+    try {
+        const [migResp, listenerResp] = await Promise.all([
+            fetch('/api/migration-settings'),
+            fetch('/api/listener-settings')
+        ]);
+        const mig = await migResp.json();
+        const listener = await listenerResp.json();
+
+        tokenHistoryEnabled = !!mig.token_history_check;
+        listenLaunchesEnabled = !!listener.listen_to_launches;
+        autoExtractFundersEnabled = !!listener.auto_extract_funders;
+
+        setToggle('tokenHistory', tokenHistoryEnabled);
+        setToggle('listenLaunches', listenLaunchesEnabled);
+        setToggle('autoExtractFunders', autoExtractFundersEnabled);
+
+        // Auto-approval settings
+        const autoKeys = [
+            ['autoApproveHighPriority', 'auto_approve_high_priority'],
+            ['autoApproveNetworkMember', 'auto_approve_network_member'],
+            ['autoApproveSharedFunders', 'auto_approve_shared_funders'],
+        ];
+        for (const [camel, json] of autoKeys) {
+            _migrationSettingState[camel] = !!mig[json];
+            setToggle(camel, _migrationSettingState[camel]);
+        }
+    } catch(e) {
+        console.error('Failed to load settings:', e);
+    }
+}
+
+loadSettings();
+
+// Next cron countdown — graph analyzers run every 30 min at :00 and :30
+function updateNextCron() {
+    const now = new Date();
+    const mins = now.getMinutes();
+    const secs = now.getSeconds();
+    const minsUntil = mins < 30 ? (30 - mins) : (60 - mins);
+    const totalSecs = minsUntil * 60 - secs;
+    const m = Math.floor(totalSecs / 60);
+    const s = totalSecs % 60;
+    const el = document.getElementById('next-cron');
+    if (el) el.textContent = `in ${m}m ${s}s`;
+}
+updateNextCron();
+setInterval(updateNextCron, 1000);
+</script>
+{% endblock %}

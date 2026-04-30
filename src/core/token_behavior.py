@@ -236,6 +236,9 @@ class TokenBehaviorFeatures:
     slope_total: float                      # linear slope, full lifetime
     tracking_quality: str                   # "good" | "possibly_late" | "likely_late"
     peak_market_cap_usd: float = 0.0        # peak MC from market_cap column (0 if unavailable)
+    peak_grade: str = "G?"                  # G-class at peak MC
+    peak_grade_reached_at: int = 0          # unix ts when peak grade was first reached
+    peak_grade_held_secs: int = 0           # seconds token held its peak grade before dropping
 
 
 # =========================================================================
@@ -516,6 +519,31 @@ def compute_features(mint: str, snapshots: List) -> TokenBehaviorFeatures:
                    if row['market_cap'] and 0 < row['market_cap'] < 1e8]
     peak_market_cap_usd = max(market_caps) if market_caps else 0.0
 
+    # Peak grade hold duration: when did the token first reach its peak G-class,
+    # and how long did it hold that grade before dropping to a lower one?
+    peak_grade = compute_token_class(peak_market_cap_usd)
+    peak_grade_reached_at = 0
+    peak_grade_held_secs = 0
+    if peak_grade not in ("G?",) and market_caps:
+        # Walk snapshots in time order to find first moment peak grade was achieved
+        for row in snapshots:
+            mc = row['market_cap']
+            if mc and 0 < mc < 1e8 and compute_token_class(mc) == peak_grade:
+                peak_grade_reached_at = int(row['captured_at'])
+                break
+        # Walk forward from peak_grade_reached_at to find when grade first dropped
+        if peak_grade_reached_at:
+            for row in snapshots:
+                if row['captured_at'] < peak_grade_reached_at:
+                    continue
+                mc = row['market_cap']
+                if mc and 0 < mc < 1e8 and compute_token_class(mc) != peak_grade:
+                    peak_grade_held_secs = int(row['captured_at']) - peak_grade_reached_at
+                    break
+            # If grade never dropped, held from peak_grade_reached_at to last snapshot
+            if peak_grade_held_secs == 0 and peak_grade_reached_at:
+                peak_grade_held_secs = int(times[-1]) - peak_grade_reached_at
+
     # max_return_multiple: use robust initial for classification
     if robust_initial_price > 0:
         max_return_multiple = peak_price / robust_initial_price
@@ -594,6 +622,9 @@ def compute_features(mint: str, snapshots: List) -> TokenBehaviorFeatures:
         slope_total=slope_total,
         tracking_quality=tracking_quality,
         peak_market_cap_usd=peak_market_cap_usd,
+        peak_grade=peak_grade,
+        peak_grade_reached_at=peak_grade_reached_at,
+        peak_grade_held_secs=peak_grade_held_secs,
     )
 
 
@@ -843,8 +874,9 @@ def upsert_behavior(
                 volatility, slope_early, slope_total,
                 tracking_quality,
                 classified_at, created_at,
-                token_class, outcome
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                token_class, outcome,
+                peak_grade, peak_grade_reached_at, peak_grade_held_secs
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(mint) DO UPDATE SET
                 category                      = excluded.category,
                 confidence                    = excluded.confidence,
@@ -865,7 +897,10 @@ def upsert_behavior(
                 tracking_quality              = excluded.tracking_quality,
                 classified_at                 = excluded.classified_at,
                 token_class                   = excluded.token_class,
-                outcome                       = excluded.outcome
+                outcome                       = excluded.outcome,
+                peak_grade                    = excluded.peak_grade,
+                peak_grade_reached_at         = excluded.peak_grade_reached_at,
+                peak_grade_held_secs          = excluded.peak_grade_held_secs
         """, (
             f.mint, category, confidence,
             f.initial_price_observed_usd, f.initial_price_robust_usd,
@@ -877,6 +912,7 @@ def upsert_behavior(
             f.tracking_quality,
             now, now,
             token_class, outcome,
+            f.peak_grade, f.peak_grade_reached_at, f.peak_grade_held_secs,
         ))
 
         # Append history record (append-only)

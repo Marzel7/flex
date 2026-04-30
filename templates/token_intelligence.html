@@ -1086,12 +1086,16 @@ function patchTiMc(mint, marketCap, priceUsd) {
     const badgeEl = row?.querySelector('.ti-g-badge');
     const tc = badgeEl?.dataset.tc || 'G?';
     cell.innerHTML = `<span style="color:${G_COLOR[tc]||'var(--text-secondary)'};font-weight:600">${mcStr}</span>`;
-    const pfx = _tiPinStore.isNew(mint) ? '[NEW_TOKEN][TI]' : '[LIVE][TI]';
-    console.log(`${pfx} live_update mint=${mint.slice(0,16)}… price=${priceUsd ? '$'+priceUsd.toFixed(6) : '—'} mc=${mcStr}`);
 }
 
 // ── SSE connection for live token events ───────────────────────────
 (function initTiSSE() {
+    const params = new URLSearchParams(window.location.search);
+    const liveEnabled = params.get('live') === '1' || localStorage.getItem('flexLiveSse') === '1';
+    if (!liveEnabled) {
+        console.log('[SSE][TI] disabled by default; add ?live=1 or set localStorage.flexLiveSse=1 to enable');
+        return;
+    }
     const es = new EventSource('/api/price-stream');
     es.onopen = () => console.log('[SSE][TI] connected');
     es.onerror = () => console.log('[SSE][TI] error — will auto-reconnect');

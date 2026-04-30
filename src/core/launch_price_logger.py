@@ -15,6 +15,7 @@ import time
 import sqlite3
 import threading
 import logging
+import logging.handlers
 
 _LOG_PATH = os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..", "logs", "launch_price.log")
@@ -29,12 +30,17 @@ _logger = logging.getLogger("launch_price")
 _first_price_logged: set[str] = set()
 _lock = threading.Lock()
 
+# Rotating file writer — 10 MB per file, 2 backups
+os.makedirs(os.path.dirname(_LOG_PATH), exist_ok=True)
+_rotating_handler = logging.handlers.RotatingFileHandler(
+    _LOG_PATH, maxBytes=10 * 1024 * 1024, backupCount=2, encoding="utf-8"
+)
+
 
 def _write(line: str) -> None:
     try:
-        os.makedirs(os.path.dirname(_LOG_PATH), exist_ok=True)
-        with open(_LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(line + "\n")
+        record = logging.makeLogRecord({"msg": line, "levelno": logging.INFO})
+        _rotating_handler.emit(record)
     except Exception as e:
         _logger.warning(f"[LAUNCH_PRICE_LOG] write failed: {e}")
 

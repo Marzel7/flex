@@ -188,43 +188,57 @@ class PriceWorkerRegistry:
 
     def _ensure_tables(self) -> None:
         """Create tracked_tokens table if not exists."""
-        conn = self._get_conn()
-        cursor = conn.cursor()
+        conn = None
+        try:
+            conn = self._get_conn()
+            cursor = conn.cursor()
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS tracked_tokens (
-                mint                TEXT PRIMARY KEY,
-                symbol              TEXT,
-                pair_address        TEXT,
-                priority_level      TEXT DEFAULT 'MEDIUM',
-                last_price_update   INTEGER DEFAULT 0,
-                is_active           BOOLEAN DEFAULT 1,
-                created_at          INTEGER NOT NULL,
-                updated_at          INTEGER NOT NULL
-            )
-        """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tracked_tokens (
+                    mint                TEXT PRIMARY KEY,
+                    symbol              TEXT,
+                    pair_address        TEXT,
+                    priority_level      TEXT DEFAULT 'MEDIUM',
+                    last_price_update   INTEGER DEFAULT 0,
+                    is_active           BOOLEAN DEFAULT 1,
+                    created_at          INTEGER NOT NULL,
+                    updated_at          INTEGER NOT NULL
+                )
+            """)
 
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_tt_priority
-            ON tracked_tokens(priority_level, is_active)
-        """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_tt_priority
+                ON tracked_tokens(priority_level, is_active)
+            """)
 
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_tt_last_update
-            ON tracked_tokens(last_price_update ASC)
-        """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_tt_last_update
+                ON tracked_tokens(last_price_update ASC)
+            """)
 
-        conn.commit()
-        conn.close()
-        logger.info("Tracked tokens registry initialized")
+            conn.commit()
+            logger.info("Tracked tokens registry initialized")
+        finally:
+            if conn is not None:
+                conn.close()
 
     def register_token(self, mint: str, symbol: str = None,
                       pair_address: str = None, priority_level: str = 'MEDIUM') -> bool:
         """Register a token for price tracking."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
             now = int(time.time())
+
+            has_active_pool = cursor.execute("""
+                SELECT 1
+                FROM token_pool_accounts
+                WHERE mint = ? AND is_active = 1
+                LIMIT 1
+            """, (mint,)).fetchone()
+            if not has_active_pool:
+                return False
 
             cursor.execute("""
                 INSERT INTO tracked_tokens
@@ -243,14 +257,17 @@ class PriceWorkerRegistry:
             """, (mint, symbol, pair_address, priority_level, now, now))
 
             conn.commit()
-            conn.close()
             return True
         except Exception as e:
             logger.error(f"Error registering token {mint}: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
 
     def get_tracked_tokens(self, priority_level: str = None, active_only: bool = True) -> List[Dict]:
         """Get tracked tokens, optionally filtered by priority."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -269,14 +286,17 @@ class PriceWorkerRegistry:
                 """, (1 if active_only else 0,))
 
             rows = cursor.fetchall()
-            conn.close()
             return [dict(row) for row in rows]
         except Exception as e:
             logger.error(f"Error getting tracked tokens: {e}")
             return []
+        finally:
+            if conn is not None:
+                conn.close()
 
     def update_price_timestamp(self, mint: str) -> bool:
         """Update last_price_update timestamp for a token."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -288,14 +308,17 @@ class PriceWorkerRegistry:
             """, (int(time.time()), mint))
 
             conn.commit()
-            conn.close()
             return True
         except Exception as e:
             logger.error(f"Error updating price timestamp for {mint}: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
 
     def deactivate_token(self, mint: str) -> bool:
         """Mark a token as inactive."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -307,11 +330,13 @@ class PriceWorkerRegistry:
             """, (int(time.time()), mint))
 
             conn.commit()
-            conn.close()
             return True
         except Exception as e:
             logger.error(f"Error deactivating token {mint}: {e}")
             return False
+        finally:
+            if conn is not None:
+                conn.close()
 
     def boost_tokens(self, mints: list, ttl: int = 30) -> int:
         """Elevate tokens to HIGH priority. Inserts if not present. ttl accepted for API compat."""
@@ -320,10 +345,24 @@ class PriceWorkerRegistry:
         unique = list(dict.fromkeys(mints))  # deduplicate, preserve order
         now = int(time.time())
         count = 0
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
+            eligible = {
+                row[0] for row in cursor.execute(
+                    f"""
+                    SELECT DISTINCT mint
+                    FROM token_pool_accounts
+                    WHERE is_active = 1
+                      AND mint IN ({','.join('?' for _ in unique)})
+                    """,
+                    unique,
+                ).fetchall()
+            }
             for mint in unique:
+                if mint not in eligible:
+                    continue
                 cursor.execute("""
                     INSERT INTO tracked_tokens (mint, priority_level, is_active, created_at, updated_at)
                     VALUES (?, 'HIGH', 1, ?, ?)
@@ -334,13 +373,16 @@ class PriceWorkerRegistry:
                 """, (mint, now, now))
                 count += 1
             conn.commit()
-            conn.close()
         except Exception as e:
             logger.error(f"Error boosting tokens: {e}")
+        finally:
+            if conn is not None:
+                conn.close()
         return count
 
     def get_stats(self) -> Dict:
         """Get registry statistics."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -358,8 +400,6 @@ class PriceWorkerRegistry:
             """)
             by_priority = {row['priority_level']: row['count'] for row in cursor.fetchall()}
 
-            conn.close()
-
             return {
                 'total_tracked': total,
                 'active': active,
@@ -368,13 +408,16 @@ class PriceWorkerRegistry:
         except Exception as e:
             logger.error(f"Error getting registry stats: {e}")
             return {}
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 class BackgroundPriceWorker:
     """Background worker that continuously refreshes prices."""
 
     def __init__(self, db_path: str = 'database/flex_complete_database.db',
-                 interval: int = 3, batch_size: int = 20):
+                 interval: int = 10, batch_size: int = 20):
         """
         Initialize worker.
 
@@ -1021,10 +1064,8 @@ class BackgroundPriceWorker:
 
         try:
             while self.running:
-                print("[PRICE_WORKER] CYCLE LOOP ENTERED", flush=True)
                 try:
                     logger.info(f"[PRICE_WORKER] cycle at {time.time()}")
-                    print(f"[PRICE_WORKER] cycle at {time.time()}", flush=True)
                     self._refresh_cycle()
                     time.sleep(self.interval)
                 except Exception as e:
@@ -1238,6 +1279,7 @@ class BackgroundPriceWorker:
         Log system health metrics: pool vs fallback price ratio.
         Called every refresh cycle to show operator real-time system status.
         """
+        conn = None
         try:
             import sqlite3
             
@@ -1296,6 +1338,11 @@ class BackgroundPriceWorker:
                 logger.debug("[SYSTEM_HEALTH] No prices in last 5 minutes")
                 
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.debug(f"Failed to log health metrics: {e}")
 
     def _warm_snapshot_cache(self, tokens: list) -> None:
@@ -1669,8 +1716,6 @@ class BackgroundPriceWorker:
 
                         # Broadcast each price update
                         if subscriber_count > 0:
-                            import asyncio
-
                             for mint, token_price in new_cache.items():
                                 event = {
                                     "type": "price_update",
@@ -1684,20 +1729,8 @@ class BackgroundPriceWorker:
                                 }
                                 _log_first_price(mint, token_price.price_usd, token_price.market_cap or 0, token_price.source or "pool_cycle")
 
-                                # Broadcast asynchronously
-                                try:
-                                    if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] Broadcasting {mint[:16]}...", flush=True)
-                                    asyncio.create_task(price_stream.broadcast(event))
-                                except RuntimeError:
-                                    loop = asyncio.new_event_loop()
-                                    asyncio.set_event_loop(loop)
-                                    try:
-                                        loop.run_until_complete(price_stream.broadcast(event))
-                                        pending = asyncio.all_tasks(loop)
-                                        if pending:
-                                            loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-                                    finally:
-                                        loop.close()
+                                if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] Broadcasting {mint[:16]}...", flush=True)
+                                price_stream.broadcast_now(event)
                         else:
                             if DEBUG_LOGGING: print(f"[BROADCAST_DEBUG] No subscribers connected, skipping broadcast", flush=True)
 
@@ -2242,21 +2275,7 @@ class BackgroundPriceWorker:
                         }
                         _log_first_price(mint, price.price_usd, market_cap or 0, price.source or "prefetch")
 
-                        # Broadcast asynchronously (non-blocking)
-                        try:
-                            asyncio.create_task(price_stream.broadcast(event))
-                        except RuntimeError:
-                            # No event loop in current thread, create one
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                            try:
-                                loop.run_until_complete(price_stream.broadcast(event))
-                                # Drain any tasks scheduled during broadcast before closing
-                                pending = asyncio.all_tasks(loop)
-                                if pending:
-                                    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-                            finally:
-                                loop.close()
+                        price_stream.broadcast_now(event)
 
                 except Exception as e:
                     logger.debug(f"[PRICE_STREAM] Failed to broadcast price update: {e}")

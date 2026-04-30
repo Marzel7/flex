@@ -10,7 +10,8 @@ Runs:
   5. CoordinatedEdgesBuilder     → coordinated_creator_edges
   6. C2CEdgeBuilder              → creator_c2c_edges (direct creator→creator transfers only)
   7. NetworkMembershipBuilder    → network_membership, funder_network_map
-  8. NetworksReleaseBuilder      → networks_release
+  8. SecondHopExpansionBuilder   → funder_upstream_links, upstream_network_bridge, creator_second_hop
+  9. NetworksReleaseBuilder      → networks_release (includes second-hop bridge counts)
 
 Each analyzer result is logged to analyzer_runs table.
 Safe to run repeatedly. Exits nonzero if any analyzer failed.
@@ -23,6 +24,7 @@ import sys
 import os
 import time
 import logging
+import logging.handlers
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -42,7 +44,12 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
-        logging.FileHandler(_log_dir / 'graph_analyzers.log'),
+        logging.handlers.RotatingFileHandler(
+            _log_dir / 'graph_analyzers.log',
+            maxBytes=20 * 1024 * 1024,
+            backupCount=2,
+            encoding='utf-8',
+        ),
         logging.StreamHandler(sys.stdout),
     ]
 )
@@ -154,18 +161,27 @@ def run_analyzer(name: str, db_path: str) -> dict:
 
         elif name == 'CoordinatedEdgesBuilder':
             import sqlite3 as _sqlite3
-            conn = _sqlite3.connect(db_path, timeout=30)
+            # Phase 1: compute results into a temp table (read-only, no write lock held)
+            conn = _sqlite3.connect(db_path, timeout=60)
             conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("DELETE FROM coordinated_creator_edges")
-            cur = conn.execute("""
-                INSERT OR IGNORE INTO coordinated_creator_edges (creator_a, creator_b, bridge_funder, confidence)
-                SELECT cf1.creator_address, cf2.creator_address, cf1.funder_address,
-                       MIN(1.0, COUNT(*) * 0.25)
+            conn.execute("DROP TABLE IF EXISTS _coordinated_edges_tmp")
+            conn.execute("""
+                CREATE TEMP TABLE _coordinated_edges_tmp AS
+                SELECT cf1.creator_address AS creator_a,
+                       cf2.creator_address AS creator_b,
+                       cf1.funder_address  AS bridge_funder,
+                       MIN(1.0, COUNT(*) * 0.25) AS confidence
                 FROM creator_funders cf1
                 JOIN creator_funders cf2 ON cf1.funder_address = cf2.funder_address
                   AND cf1.creator_address < cf2.creator_address
                 WHERE cf1.is_cex = 0 AND cf2.is_cex = 0
                 GROUP BY cf1.creator_address, cf2.creator_address, cf1.funder_address
+            """)
+            # Phase 2: fast swap — exclusive lock held only for DELETE + INSERT from temp
+            conn.execute("DELETE FROM coordinated_creator_edges")
+            cur = conn.execute("""
+                INSERT OR IGNORE INTO coordinated_creator_edges (creator_a, creator_b, bridge_funder, confidence)
+                SELECT creator_a, creator_b, bridge_funder, confidence FROM _coordinated_edges_tmp
             """)
             rows_inserted = cur.rowcount
             conn.commit()
@@ -181,12 +197,38 @@ def run_analyzer(name: str, db_path: str) -> dict:
             result = NetworkMembershipBuilder(db_path).build()
             result.setdefault('status', 'success')
 
+        elif name == 'SecondHopLiteWorker':
+            from src.core.second_hop_lite_worker import SecondHopLiteWorker
+            result = SecondHopLiteWorker(db_path).run()
+            result.setdefault('status', 'success')
+            result['edges_written'] = result.get('links_written', 0)
+
+        elif name == 'SecondHopExpansionBuilder':
+            from src.core.second_hop_builder import SecondHopExpansionBuilder
+            result = SecondHopExpansionBuilder(db_path).build()
+            result.setdefault('status', 'success')
+            # Map output key for _rows_written_from_result
+            result['edges_written'] = result.get('bridges_written', 0)
+
+        elif name == 'UpstreamExpansionBuilder':
+            from src.core.upstream_expansion_builder import UpstreamExpansionBuilder
+            result = UpstreamExpansionBuilder(db_path).run()
+            result.setdefault('status', 'success')
+            result['edges_written'] = result.get('funders_enqueued', 0)
+
         elif name == 'NetworksReleaseBuilder':
             from src.utils.build_networks_release import build_networks_release
             result = build_networks_release(db_path)
             # Normalise key for _rows_written_from_result
             result.setdefault('status', 'success')
             result['networks_processed'] = result.get('networks_processed', 0)
+
+        elif name == 'IntelligenceRefreshCandidateBuilder':
+            from src.core.intelligence_refresh import (
+                IntelligenceRefreshCandidateBuilder, apply_migration
+            )
+            apply_migration(db_path)
+            result = IntelligenceRefreshCandidateBuilder(db_path).run()
 
         else:
             raise ValueError(f"Unknown analyzer: {name}")
@@ -235,7 +277,11 @@ ANALYZERS = [
     'CoordinatedEdgesBuilder',
     'C2CEdgeBuilder',
     'NetworkMembershipBuilder',
+    'SecondHopLiteWorker',                   # RPC backfill — no-op if disabled
+    'SecondHopExpansionBuilder',             # reads funder_upstream_links
+    'UpstreamExpansionBuilder',              # enqueues funders around significant hubs
     'NetworksReleaseBuilder',
+    'IntelligenceRefreshCandidateBuilder',   # DB-only watchlist seeding, NO RPC
 ]
 
 
@@ -275,4 +321,17 @@ def main() -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    import fcntl
+    _lock_path = _REPO_ROOT / 'logs' / 'graph_analyzers.lock'
+    _lock_fh = open(_lock_path, 'w')
+    try:
+        fcntl.flock(_lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        logger.warning("Another graph analyzer instance is already running — exiting.")
+        _lock_fh.close()
+        sys.exit(0)
+    try:
+        sys.exit(main())
+    finally:
+        fcntl.flock(_lock_fh, fcntl.LOCK_UN)
+        _lock_fh.close()

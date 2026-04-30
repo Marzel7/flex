@@ -692,6 +692,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
 
+        # Post-extraction intelligence refresh debounce
+        self._intel_refresh_last_run: float = 0.0
+        self._intel_refresh_debounce_secs: int = 180  # 3 min window
+
         # === Initialize price worker with WebSocket for pool price streaming ===
         try:
             from src.core.price_worker import get_price_worker
@@ -3473,6 +3477,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if "enqueued_slot" not in cfq_cols:
                 cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN enqueued_slot INTEGER")
                 log_print("[DB] ✅ Added enqueued_slot column to creator_funding_queue", flush=True)
+            if "job_priority" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN job_priority INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added job_priority column to creator_funding_queue", flush=True)
+            if "priority_reason" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN priority_reason TEXT")
+                log_print("[DB] ✅ Added priority_reason column to creator_funding_queue", flush=True)
         except Exception:
             pass
 
@@ -3662,6 +3672,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return False
         now = int(time.time())
         next_attempt_at = now + int(delay_seconds if delay_seconds is not None else self.DISCOVERY_CRITICAL_WINDOW_SECONDS)
+
+        # Brand-new creators (no existing funder data) get priority=1 so they jump
+        # ahead of any backlog in the queue worker. Known creators stay at priority=0.
+        try:
+            _check = db_connect(DB_PATH, timeout=3)
+            _funder_count = _check.execute(
+                "SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (creator,)
+            ).fetchone()[0]
+            _check.close()
+            job_priority = 1 if _funder_count == 0 else 0
+            priority_reason = "brand_new_creator" if job_priority else "known_creator"
+        except Exception:
+            job_priority = 0
+            priority_reason = "unknown"
         async with self.db_lock:
             try:
                 conn = db_connect(DB_PATH, timeout=30)
@@ -3693,17 +3717,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         creator_address, mint, migration_timestamp, create_tx_signature,
                         status, source, next_attempt_at, locked_until, attempts, last_error,
                         funding_enqueued_at, curve_completed_slot, enqueued_slot,
-                        created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, 'pending', ?, ?, 0, 0, NULL, ?, ?, ?, ?, ?)
+                        job_priority, priority_reason, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, 'pending', ?, ?, 0, 0, NULL, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(creator_address, mint) DO NOTHING
                     """,
                     (creator, mint, migration_timestamp, create_tx_signature, source, next_attempt_at,
-                     now, curve_completed_slot, curve_completed_slot, now, now),
+                     now, curve_completed_slot, curve_completed_slot, job_priority, priority_reason, now, now),
                 )
                 conn.commit()
                 conn.close()
                 log_print(
-                    f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at}",
+                    f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}",
                     flush=True,
                 )
                 premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
@@ -3712,6 +3736,137 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[FUNDING_QUEUE] ⚠ Failed to enqueue funding for {creator[:16]}...: {e}", flush=True)
                 return False
+
+    async def _post_extraction_intelligence_refresh(self, creator: str) -> None:
+        """
+        Targeted intelligence refresh fired after creator funding extraction completes.
+        Debounced: skipped if a refresh ran within the last debounce window.
+        Runs in a background thread so it never blocks the listener event loop.
+
+        Signals updated immediately:
+          1. IRC watchlist row for this creator
+          2. SecondHopExpansionBuilder (2H upstream if links exist)
+          3. NetworksReleaseBuilder (dashboard summary)
+          4. Relationship events diff (log new discoveries)
+
+        Signals intentionally deferred to cron:
+          - WalletClusteringEngine, FarmClusterDetection, CoordinatedEdgesBuilder
+        """
+        import time as _time
+        now = _time.time()
+
+        # Debounce: if a refresh just ran, skip — cron will catch it
+        if now - self._intel_refresh_last_run < self._intel_refresh_debounce_secs:
+            remaining = int(self._intel_refresh_debounce_secs - (now - self._intel_refresh_last_run))
+            log_print(f"[INTEL_REFRESH] Debounced for {creator[:8]}… (next in {remaining}s)", flush=True)
+            return
+
+        self._intel_refresh_last_run = now
+
+        def _run_refresh():
+            import time as _t
+            t0 = _t.time()
+            try:
+                # 1. Snapshot before (for relationship event diff)
+                from src.core.relationship_events import take_snapshot
+                before = take_snapshot(DB_PATH)
+
+                # 2. IRC — targeted upsert for this creator only (avoid full rebuild)
+                _ts = _t.time()
+                try:
+                    from src.core.intelligence_refresh import apply_migration as irc_migrate, _db as irc_db, _score_creator, _now as irc_now
+                    import json as _json
+                    irc_migrate(DB_PATH)
+                    _irc_conn = irc_db(DB_PATH)
+                    _now_ts = irc_now()
+                    _row = _irc_conn.execute("""
+                        SELECT
+                            COUNT(DISTINCT cf.funder_address) AS funder_count,
+                            COUNT(DISTINCT ta.mint)           AS token_count,
+                            SUM(CASE WHEN ta.migrated_at IS NOT NULL THEN 1 ELSE 0 END) AS migrated_count,
+                            csf.is_self_funding,
+                            (SELECT COUNT(*) FROM network_membership nm WHERE nm.creator_address = ta.earliest_tx_creator) AS network_count
+                        FROM token_analysis ta
+                        LEFT JOIN creator_funders cf ON cf.creator_address = ta.earliest_tx_creator AND cf.is_cex = 0
+                        LEFT JOIN creator_self_funding csf ON csf.creator_address = ta.earliest_tx_creator
+                        WHERE ta.earliest_tx_creator = ?
+                        GROUP BY ta.earliest_tx_creator
+                    """, (creator,)).fetchone()
+                    _non_cex_funders = (_row["funder_count"] or 0) if _row else 0
+                    _existing = _irc_conn.execute(
+                        "SELECT status FROM intelligence_refresh_candidates WHERE target_type='creator' AND target_address=?",
+                        (creator,)
+                    ).fetchone()
+                    if not _existing:
+                        if _non_cex_funders >= 1:
+                            # Baseline watchlist — every migrated creator with ≥1 non-CEX funder.
+                            # rpc_allowed=0: no RPC scan triggered. Analyzers upgrade priority later
+                            # if signals emerge (shared funders, self-funding, cluster overlap etc.)
+                            _baseline_reasons = _json.dumps(["migrated_creator", "has_non_cex_funder", "baseline_watchlist"])
+                            _irc_conn.execute("""
+                                INSERT INTO intelligence_refresh_candidates
+                                    (target_type, target_address, priority, reason_codes, status, rpc_allowed, created_at, updated_at)
+                                VALUES ('creator', ?, 15, ?, 'watchlist', 0, ?, ?)
+                            """, (creator, _baseline_reasons, _now_ts, _now_ts))
+                            _irc_conn.commit()
+                            log_print(f"[INTEL_REFRESH] Baseline watchlist added for {creator[:8]}… ({_non_cex_funders} non-CEX funders)", flush=True)
+                    elif _row and _non_cex_funders > 0:
+                        # Creator already in IRC — check if signal score warrants an upgrade
+                        _priority, _reasons = _score_creator(
+                            self_funding=bool(_row["is_self_funding"]),
+                            funder_count=_non_cex_funders,
+                            single_creator_ratio=0.0,
+                            last_scan_age_days=999,
+                            migrated_count=_row["migrated_count"] or 0,
+                            token_count=_row["token_count"] or 0,
+                            no_network=(_row["network_count"] or 0) == 0,
+                        )
+                        if _priority > 15 and _existing["status"] == "watchlist":
+                            _irc_conn.execute("""
+                                UPDATE intelligence_refresh_candidates
+                                SET priority=?, reason_codes=?, updated_at=?
+                                WHERE target_type='creator' AND target_address=? AND priority < ?
+                            """, (_priority, _json.dumps(_reasons), _now_ts, creator, _priority))
+                            _irc_conn.commit()
+                    _irc_conn.close()
+                    log_print(f"[INTEL_REFRESH] IRC upsert for {creator[:8]}… ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] IRC error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                # 3. SecondHopExpansionBuilder
+                _ts = _t.time()
+                try:
+                    from src.core.second_hop_builder import SecondHopExpansionBuilder
+                    r = SecondHopExpansionBuilder(DB_PATH).build()
+                    log_print(f"[INTEL_REFRESH] 2H expansion: {r.get('status')} rows={r.get('rows_written',0)} ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] 2H error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                # 4. NetworksReleaseBuilder
+                _ts = _t.time()
+                try:
+                    from src.utils.build_networks_release import build_networks_release
+                    build_networks_release(DB_PATH)
+                    log_print(f"[INTEL_REFRESH] NetworksRelease rebuilt ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] NetworksRelease error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                # 5. Relationship events diff
+                _ts = _t.time()
+                try:
+                    from src.core.relationship_events import rebuild_after_scan
+                    rebuild_after_scan(DB_PATH, before=before)
+                    log_print(f"[INTEL_REFRESH] Events diff done ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] Relationship events error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                log_print(f"[INTEL_REFRESH] Done in {_t.time()-t0:.1f}s", flush=True)
+
+            except Exception as e:
+                log_print(f"[INTEL_REFRESH] Unexpected error: {e}", flush=True)
+
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, _run_refresh)
 
     async def _process_creator_funding_queue_periodic(self) -> None:
         """Process durable creator funding work after the critical window."""
@@ -3765,13 +3920,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     oldest_overdue_seconds = max(0, now - oldest_ready_at) if oldest_ready_at else 0
                     rows = cursor.execute(
                         """
-                        SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts
+                        SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts,
+                               COALESCE(job_priority, 0) as job_priority,
+                               COALESCE(priority_reason, 'unknown') as priority_reason
                         FROM creator_funding_queue
                         WHERE status IN ('pending', 'retry')
                           AND locked_until < ?
                           AND next_attempt_at <= ?
-                        ORDER BY next_attempt_at ASC, created_at ASC
-                        LIMIT 2
+                        ORDER BY COALESCE(job_priority, 0) DESC, next_attempt_at ASC, created_at ASC
+                        LIMIT 3
                         """,
                         (now, now),
                     ).fetchall()
@@ -3823,8 +3980,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     attempts = int(row["attempts"] or 0)
                     try:
                         job_started_at = time.time()
+                        _pr = str(row["priority_reason"]) if row["priority_reason"] else "unknown"
+                        _jp = int(row["job_priority"]) if row["job_priority"] else 0
                         log_print(
-                            f"[FUNDING_QUEUE] 🚀 Processing creator funding for {creator[:8]}... mint={mint[:8]}...",
+                            f"[FUNDING_QUEUE] 🚀 Processing creator funding for {creator[:8]}... mint={mint[:8]} priority={'HIGH' if _jp else 'normal'} reason={_pr}",
                             flush=True,
                         )
                         try:
@@ -3879,6 +4038,21 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             conn.close()
                         elapsed = time.time() - job_started_at
                         log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... elapsed={elapsed:.1f}s", flush=True)
+                        # Immediate provisional network assignment — best-effort, non-blocking
+                        try:
+                            from src.core.network_membership_builder import assign_live_network_for_creator
+                            net_result = assign_live_network_for_creator(DB_PATH, creator)
+                            if net_result.get('assigned'):
+                                log_print(f"[LIVE_NETWORK] ✅ {creator[:8]} → {net_result['network_name']} (provisional={net_result['provisional']})", flush=True)
+                            else:
+                                log_print(f"[LIVE_NETWORK] No shared funders for {creator[:8]}", flush=True)
+                        except Exception as _lne:
+                            log_print(f"[LIVE_NETWORK] Error: {_lne}", flush=True)
+                        # Targeted intelligence refresh (debounced, background)
+                        asyncio.create_task(
+                            self._post_extraction_intelligence_refresh(creator)
+                        )
+
                         # Phase 1 dual-write: mark creator as baselined in creator_profile
                         # so Phase 2 cache check fires immediately for this creator on next token.
                         try:

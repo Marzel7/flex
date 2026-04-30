@@ -69,16 +69,18 @@ class PoolReserveFetcher:
 
         conn = _db_connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
-        with conn:
+        try:
             rows = conn.execute(
-                """SELECT tpa.*
-                   FROM token_pool_accounts tpa
-                   LEFT JOIN tracked_tokens tt ON tt.mint = tpa.mint
-                   WHERE tpa.is_active = 1
-                     AND tpa.vault_validation_status IN ('validated', 'pending')
-                     AND (tt.mint IS NULL OR tt.is_active = 1)
-                   ORDER BY tpa.created_at DESC"""
-            ).fetchall()
+                    """SELECT tpa.*
+                       FROM token_pool_accounts tpa
+                       LEFT JOIN tracked_tokens tt ON tt.mint = tpa.mint
+                       WHERE tpa.is_active = 1
+                         AND tpa.vault_validation_status IN ('validated', 'pending')
+                         AND (tt.mint IS NULL OR tt.is_active = 1)
+                       ORDER BY tpa.created_at DESC"""
+                ).fetchall()
+        finally:
+            conn.close()
         return [dict(r) for r in rows]
 
     def get_ws_pools(self) -> List[Dict]:
@@ -96,7 +98,7 @@ class PoolReserveFetcher:
         cutoff = int(time.time()) - self.WS_SUBSCRIBE_MAX_AGE_SECONDS
         conn = _db_connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
-        with conn:
+        try:
             rows = conn.execute(
                 """SELECT tpa.*
                    FROM token_pool_accounts tpa
@@ -108,6 +110,8 @@ class PoolReserveFetcher:
                    ORDER BY tpa.created_at DESC""",
                 (cutoff,)
             ).fetchall()
+        finally:
+            conn.close()
         return [dict(r) for r in rows]
 
     async def fetch_reserves(self, pools: List[Dict]) -> Dict[Tuple[str, str], Tuple[int, int]]:
@@ -795,6 +799,7 @@ class PoolWebSocketClient:
             # accounts stay within WS_MAX_SUBSCRIPTIONS. Rank by peak MC, fall back to 0.
             import sqlite3 as _sq3
             from src.utils.db_locking import db_connect as _db_connect
+            _c = None
             try:
                 _c = _db_connect(self._db_path, timeout=10)
                 _c.row_factory = _sq3.Row
@@ -804,6 +809,11 @@ class PoolWebSocketClient:
                 _c.close()
                 _peak = {r['mint']: r['peak_market_cap'] for r in _rows}
             except Exception:
+                if _c is not None:
+                    try:
+                        _c.close()
+                    except Exception:
+                        pass
                 _peak = {}
             pools = sorted(pools, key=lambda p: _peak.get(p['mint'], 0), reverse=True)
             pools = pools[:self.WS_MAX_SUBSCRIPTIONS // 2]

@@ -864,11 +864,8 @@ class WalletClusteringEngine:
         """
         Update dev_reputation table merging rug history + token success.
 
-        For each creator in wallet_clusters:
-        1. Get tokens_rugged from creator_blocklist (if exists)
-        2. Get tokens_launched, above_2x, above_10x from token_analysis
-        3. Compute rug_rate and success_rate
-        4. Calculate reputation_score with formula
+        Bulk SQL approach — computes all scores in one query, writes in batches of 500
+        so the write lock is held only briefly at a time rather than for the full duration.
 
         Returns:
             Number of reputation records updated
@@ -877,132 +874,98 @@ class WalletClusteringEngine:
         cursor = conn.cursor()
         now = time.time()
 
-        # Get all unique creators from wallet_clusters
-        cursor.execute("""
-            SELECT DISTINCT json_each.value
-            FROM wallet_clusters,
-            json_each(wallet_clusters.creator_addresses)
-        """)
-
-        creators = [row[0] for row in cursor.fetchall()]
-        logger.info(f"[CLUSTERING_REPUTATION] Processing {len(creators)} creators")
-
-        # Check optional tables once before the loop
+        # Check optional tables once
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='creator_blocklist'")
         has_blocklist = bool(cursor.fetchone())
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='token_analysis'")
-        has_token_analysis = bool(cursor.fetchone())
 
-        updated = 0
+        # Build all reputation data in a single bulk read query (no write lock needed)
+        blocklist_join = """
+            LEFT JOIN creator_blocklist bl ON bl.wallet = c.creator
+        """ if has_blocklist else ""
+        blocklist_col = "COALESCE(bl.rug_count, 0)" if has_blocklist else "0"
 
-        for creator in creators:
-            try:
-                # Get rug data (if creator_blocklist exists)
-                rug_count = 0
-                if has_blocklist:
-                    cursor.execute(
-                        "SELECT rug_count FROM creator_blocklist WHERE wallet = ?",
-                        (creator,)
-                    )
-                    rug_row = cursor.fetchone()
-                    if rug_row:
-                        rug_count = rug_row[0] or 0
-
-                # Get success data from token_analysis
-                tokens_launched = 0
-                tokens_above_2x = 0
-                tokens_above_10x = 0
-
-                if has_token_analysis:
-                    cursor.execute("""
-                        SELECT COUNT(*) as launched,
-                               SUM(CASE WHEN price_highest >= price_current * 2 THEN 1 ELSE 0 END) as above_2x,
-                               SUM(CASE WHEN market_cap_highest >= 1000000 THEN 1 ELSE 0 END) as above_10x
-                        FROM token_analysis
-                        WHERE earliest_tx_creator = ?
-                    """, (creator,))
-
-                    ta_row = cursor.fetchone()
-                    if ta_row:
-                        tokens_launched = ta_row[0] or 0
-                        tokens_above_2x = ta_row[1] or 0
-                        tokens_above_10x = ta_row[2] or 0
-
-                # Compute rates (null-safe)
-                if tokens_launched > 0:
-                    rug_rate = rug_count / tokens_launched
-                    success_rate = tokens_above_2x / tokens_launched
-                else:
-                    rug_rate = 0.0
-                    success_rate = 0.0
-
-                # Check if in cluster
-                cursor.execute(
-                    "SELECT cluster_id FROM wallet_clusters WHERE creator_addresses LIKE ?",
-                    (f'%{creator}%',)
-                )
-                cluster_row = cursor.fetchone()
-                cluster_id = cluster_row[0] if cluster_row else None
-
-                # Compute reputation score
-                reputation_score = 50.0  # baseline
-                reputation_score += (success_rate * 30.0)  # +30 max for success
-                reputation_score -= (rug_rate * 50.0)  # -50 max for rugs
-                if cluster_id:
-                    reputation_score -= 10.0  # -10 if in dev farm
-
-                # Bonus for established wallet (90+ days)
-                wallet_age = self._compute_wallet_age(creator)
-                if wallet_age > 90:
-                    reputation_score += 10.0
-
-                reputation_score = max(0.0, min(100.0, reputation_score))
-
-                # Get first_seen_ts
-                cursor.execute(
-                    "SELECT MIN(block_time) FROM transfer_index WHERE destination = ?",
-                    (creator,)
-                )
-                first_row = cursor.fetchone()
-                first_seen_ts = int(first_row[0]) if first_row and first_row[0] else None
-
-                # Insert or replace
-                cursor.execute("""
-                    INSERT OR REPLACE INTO dev_reputation (
-                        wallet,
-                        tokens_launched,
-                        tokens_rugged,
-                        tokens_above_2x,
-                        tokens_above_10x,
-                        rug_rate,
-                        success_rate,
-                        reputation_score,
-                        first_seen_ts,
-                        wallet_age_days,
-                        cluster_id,
-                        last_updated
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    creator,
-                    tokens_launched,
-                    rug_count,
-                    tokens_above_2x,
-                    tokens_above_10x,
-                    rug_rate,
-                    success_rate,
-                    reputation_score,
-                    first_seen_ts,
-                    wallet_age,
-                    cluster_id,
-                    now
-                ))
-                updated += 1
-
-            except Exception as e:
-                logger.error(f"[CLUSTERING_REPUTATION] Error for {creator}: {e}")
-
-        conn.commit()
+        cursor.execute(f"""
+            SELECT
+                c.creator,
+                COALESCE(ta.tokens_launched, 0) AS tokens_launched,
+                {blocklist_col}               AS tokens_rugged,
+                COALESCE(ta.above_2x, 0)       AS tokens_above_2x,
+                COALESCE(ta.above_10x, 0)      AS tokens_above_10x,
+                wc.cluster_id,
+                COALESCE(ti.first_seen, NULL)  AS first_seen_ts
+            FROM (
+                SELECT DISTINCT json_each.value AS creator
+                FROM wallet_clusters, json_each(wallet_clusters.creator_addresses)
+            ) c
+            LEFT JOIN (
+                SELECT earliest_tx_creator AS creator,
+                       COUNT(*) AS tokens_launched,
+                       SUM(CASE WHEN price_highest >= price_current * 2 THEN 1 ELSE 0 END) AS above_2x,
+                       SUM(CASE WHEN market_cap_highest >= 1000000 THEN 1 ELSE 0 END) AS above_10x
+                FROM token_analysis
+                GROUP BY earliest_tx_creator
+            ) ta ON ta.creator = c.creator
+            LEFT JOIN (
+                SELECT cluster_id,
+                       json_each.value AS creator
+                FROM wallet_clusters, json_each(wallet_clusters.creator_addresses)
+            ) wc ON wc.creator = c.creator
+            LEFT JOIN (
+                SELECT destination AS creator, MIN(block_time) AS first_seen
+                FROM transfer_index
+                GROUP BY destination
+            ) ti ON ti.creator = c.creator
+            {blocklist_join}
+        """)
+        rows = cursor.fetchall()
         conn.close()
+
+        logger.info(f"[CLUSTERING_REPUTATION] Processing {len(rows)} creators (bulk mode)")
+
+        # Compute scores in Python, write in batches to keep write-lock windows short
+        BATCH = 500
+        updated = 0
+        write_conn = self._get_conn()
+        write_cur = write_conn.cursor()
+
+        for i, row in enumerate(rows):
+            creator, tokens_launched, rug_count, above_2x, above_10x, cluster_id, first_seen_ts = row
+            tokens_launched = tokens_launched or 0
+            rug_count = rug_count or 0
+            above_2x = above_2x or 0
+            above_10x = above_10x or 0
+
+            rug_rate = (rug_count / tokens_launched) if tokens_launched > 0 else 0.0
+            success_rate = (above_2x / tokens_launched) if tokens_launched > 0 else 0.0
+
+            reputation_score = 50.0
+            reputation_score += success_rate * 30.0
+            reputation_score -= rug_rate * 50.0
+            if cluster_id:
+                reputation_score -= 10.0
+
+            wallet_age = self._compute_wallet_age(creator)
+            if wallet_age > 90:
+                reputation_score += 10.0
+            reputation_score = max(0.0, min(100.0, reputation_score))
+
+            write_cur.execute("""
+                INSERT OR REPLACE INTO dev_reputation (
+                    wallet, tokens_launched, tokens_rugged, tokens_above_2x, tokens_above_10x,
+                    rug_rate, success_rate, reputation_score, first_seen_ts,
+                    wallet_age_days, cluster_id, last_updated
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (creator, tokens_launched, rug_count, above_2x, above_10x,
+                  rug_rate, success_rate, reputation_score, first_seen_ts,
+                  wallet_age, cluster_id, now))
+            updated += 1
+
+            # Commit every BATCH rows to release write lock briefly
+            if updated % BATCH == 0:
+                write_conn.commit()
+
+        write_conn.commit()
+        write_conn.close()
 
         logger.info(f"[CLUSTERING_REPUTATION] Updated {updated} reputation records")
         return updated

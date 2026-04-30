@@ -1,0 +1,1427 @@
+{% extends "base_shell.html" %}
+{% block title %}Network Intelligence{% endblock %}
+
+{% block extra_styles %}
+.ni-header {
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid rgba(251,146,60,0.3);
+}
+.ni-header h1 {
+    font-size: 26px;
+    color: #fb923c;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+}
+.ni-header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* KPI cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+}
+.kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    transition: border-color 0.2s;
+}
+.kpi-card:hover { border-color: rgba(251,146,60,0.4); }
+.kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e2e8f0;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.kpi-pct {
+    font-size: 11px;
+    color: #fb923c;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+.kpi-desc {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+.kpi-card.highlight { border-color: rgba(251,146,60,0.5); background: rgba(251,146,60,0.04); }
+
+/* Section headings */
+.ni-section {
+    margin-bottom: 32px;
+}
+.ni-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ni-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+/* Funnel table */
+.funnel-table {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 520px;
+}
+.funnel-row {
+    display: grid;
+    grid-template-columns: 220px 80px 1fr;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(148,163,184,0.07);
+    font-size: 13px;
+    gap: 12px;
+}
+.funnel-row:last-child { border-bottom: none; }
+.funnel-row.header {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    background: rgba(0,0,0,0.2);
+}
+.funnel-bar-wrap {
+    height: 6px;
+    background: rgba(148,163,184,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.funnel-bar {
+    height: 100%;
+    background: #fb923c;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+.funnel-count { font-weight: 700; color: #e2e8f0; }
+.funnel-pct { font-size: 11px; color: #fb923c; font-weight: 600; }
+
+/* Data tables */
+.ni-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.ni-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.ni-table thead th {
+    background: rgba(0,0,0,0.25);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    white-space: nowrap;
+}
+.ni-table tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(148,163,184,0.06);
+    vertical-align: middle;
+}
+.ni-table tbody tr:last-child td { border-bottom: none; }
+.ni-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+/* Risk badges */
+.risk-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+}
+.risk-CRITICAL { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.risk-HIGH     { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+.risk-MODERATE { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.risk-MEDIUM   { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.risk-LOW      { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+
+.badge-2h-sm {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(251,146,60,0.15);
+    color: #fb923c;
+    border: 1px solid rgba(251,146,60,0.35);
+    margin-right: 2px;
+}
+.sig-pill {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-right: 2px;
+    border: 1px solid transparent;
+}
+.sig-net  { background: rgba(167,139,250,0.12); color: #a78bfa; border-color: rgba(167,139,250,0.3); }
+.sig-wc   { background: rgba(56,189,248,0.1);  color: #38bdf8; border-color: rgba(56,189,248,0.25); }
+.sig-farm { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+.sig-2h   { background: rgba(251,146,60,0.15); color: #fb923c; border-color: rgba(251,146,60,0.35); }
+
+.mono { font-family: monospace; font-size: 10px; color: var(--text-secondary); }
+.link-btn {
+    font-size: 10px;
+    color: var(--accent-cyan);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-cyan);
+    white-space: nowrap;
+}
+.link-btn:hover { color: #fff; }
+.empty-state {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+.refreshed {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-left: auto;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.overlap-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+.overlap-label { font-size: 11px; color: var(--text-secondary); }
+.overlap-count { font-size: 20px; font-weight: 700; color: #e2e8f0; line-height: 1; }
+.overlap-pct   { font-size: 11px; color: #fb923c; font-weight: 600; }
+.overlap-item.strong { border-color: rgba(251,146,60,0.35); background: rgba(251,146,60,0.04); }
+{% endblock %}
+
+{% block content %}
+<div class="ni-header" id="ni-header">
+    <h1 id="ni-headline">Network Intelligence</h1>
+    <p id="ni-subline">Coordination signal coverage across migrated creators — second-hop funding, network membership, cluster detection</p>
+</div>
+
+<div id="ni-loading" style="color:var(--text-secondary);padding:40px 0;text-align:center;font-size:14px;">Loading…</div>
+<div id="ni-body" style="display:none">
+
+    <!-- Signal overlap breakdown -->
+    <div class="ni-section" id="overlap-section" style="margin-bottom:24px;">
+        <div style="background:rgba(251,146,60,0.05);border:1px solid rgba(251,146,60,0.2);border-radius:8px;padding:16px 20px;">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;font-style:italic;">
+                Network detection is broad — wallet cluster, farm, and second-hop signals indicate stronger coordination.
+            </div>
+            <div id="overlap-rows" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;"></div>
+        </div>
+    </div>
+
+    <!-- 1. KPI Cards -->
+    <div class="ni-section">
+        <div class="ni-section-title">Coverage <span class="refreshed" id="ni-refreshed"></span></div>
+        <div class="kpi-grid" id="kpi-grid"></div>
+    </div>
+
+    <!-- 2. Funnel -->
+    <div class="ni-section">
+        <div class="ni-section-title">Signal Funnel</div>
+        <div class="funnel-table">
+            <div class="funnel-row header">
+                <span>Signal</span><span>Count</span><span>Coverage</span>
+            </div>
+            <div id="funnel-rows"></div>
+        </div>
+    </div>
+
+    <!-- Phase 2 Lite Tracking -->
+    <div class="ni-section" id="phase2-section">
+        <div class="ni-section-title">
+            Phase 2 Lite Tracking
+            <button id="p2-toggle-btn" onclick="togglePhase2Lite()"
+                style="margin-left:8px;padding:3px 12px;font-size:11px;font-weight:700;border-radius:4px;border:1px solid;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;">
+                …
+            </button>
+            <button id="p2-run-btn" onclick="runPhase2LiteNow()"
+                style="margin-left:6px;padding:3px 12px;font-size:11px;font-weight:700;border-radius:4px;border:1px solid rgba(56,189,248,0.35);background:rgba(56,189,248,0.1);color:#38bdf8;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;">
+                Run Now
+            </button>
+        </div>
+        <div id="phase2-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
+    <!-- Significant Upstream Hubs -->
+    <div class="ni-section" id="hub-section">
+        <div class="ni-section-title">Significant Upstream Hubs</div>
+        <div id="hub-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
+    <!-- New Relationships Discovered -->
+    <div class="ni-section" id="ire-section">
+        <div class="ni-section-title">New Relationships Discovered</div>
+
+        <!-- Summary KPIs -->
+        <div id="ire-summary" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
+
+        <!-- Filter bar -->
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--text-secondary);align-self:center">Filter:</span>
+            <script>/* filter buttons rendered by JS */</script>
+            <div id="ire-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+
+        <div id="ire-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
+    <!-- Intelligence Refresh Watchlist -->
+    <div class="ni-section" id="irc-section">
+        <div class="ni-section-title">Intelligence Refresh Watchlist</div>
+        <div id="irc-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
+    <!-- 3. Top Risk Networks -->
+    <div class="ni-section">
+        <div class="ni-section-title">Top Risk Networks</div>
+        <div class="ni-table-wrap">
+            <table class="ni-table">
+                <thead><tr>
+                    <th>Network</th>
+                    <th>Size</th>
+                    <th>Risk</th>
+                    <th>Score</th>
+                    <th>2H Bridges</th>
+                    <th>Max 2H Conf</th>
+                    <th>Creators</th>
+                    <th>Latest Token</th>
+                    <th></th>
+                </tr></thead>
+                <tbody id="networks-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. Top Wallet Clusters -->
+    <div class="ni-section">
+        <div class="ni-section-title">Top Wallet Clusters</div>
+        <div class="ni-table-wrap">
+            <table class="ni-table">
+                <thead><tr>
+                    <th>Cluster</th>
+                    <th>Funder Wallet</th>
+                    <th>Creators</th>
+                    <th>Confidence</th>
+                    <th>Burst</th>
+                    <th>Avg SOL</th>
+                    <th>Days Active</th>
+                    <th></th>
+                </tr></thead>
+                <tbody id="wc-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. Top Farm Clusters -->
+    <div class="ni-section">
+        <div class="ni-section-title">Top Farm Clusters</div>
+        <div class="ni-table-wrap" id="farm-wrap">
+            <table class="ni-table">
+                <thead><tr>
+                    <th>Cluster</th>
+                    <th>Risk</th>
+                    <th>Risk Score</th>
+                    <th>Creators</th>
+                    <th>Funders</th>
+                    <th>Density</th>
+                    <th>Strength</th>
+                    <th>Days Active</th>
+                </tr></thead>
+                <tbody id="farm-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 6. Second-Hop Findings -->
+    <div class="ni-section">
+        <div class="ni-section-title">Second-Hop Findings</div>
+        <div class="kpi-grid" id="hop-kpis" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:16px;"></div>
+        <div class="ni-table-wrap">
+            <table class="ni-table">
+                <thead><tr>
+                    <th>2H Source</th>
+                    <th>Networks Bridged</th>
+                    <th>Confidence</th>
+                    <th>Risk</th>
+                    <th>Patterns</th>
+                    <th>Span</th>
+                </tr></thead>
+                <tbody id="hop-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 7. Priority Creators -->
+    <div class="ni-section">
+        <div class="ni-section-title">Highest Priority Creators</div>
+        <div class="ni-table-wrap">
+            <table class="ni-table">
+                <thead><tr>
+                    <th>Token</th>
+                    <th>Creator</th>
+                    <th>Network</th>
+                    <th>Signals</th>
+                    <th>2H Conf</th>
+                    <th>Market Cap</th>
+                    <th>Migrated</th>
+                    <th></th>
+                </tr></thead>
+                <tbody id="priority-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const riskColor = { CRITICAL:'#ef4444', HIGH:'#f87171', MODERATE:'#fbbf24', MEDIUM:'#fbbf24', LOW:'#4ade80' };
+
+function fmtNum(n) { return n == null ? '—' : Number(n).toLocaleString(); }
+function fmtPct(n, total) { if (!total) return '—'; return ((n/total)*100).toFixed(1) + '%'; }
+function fmtMC(v) {
+    if (!v) return '—';
+    if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+    if (v >= 1e3) return '$' + (v/1e3).toFixed(1) + 'K';
+    return '$' + v.toFixed(0);
+}
+function fmtTs(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+}
+function fmtDateTime(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
+        + ' ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+function fmtSol(v) { return v == null ? '—' : Number(v).toFixed(3) + ' SOL'; }
+function riskBadge(r) {
+    if (!r) return '';
+    return `<span class="risk-badge risk-${r}">${r}</span>`;
+}
+function cexInfraBadge(label) {
+    if (!label) return '';
+    const color = label === 'CEX' ? '#f59e0b' : '#818cf8';
+    const bg    = label === 'CEX' ? '#f59e0b22' : '#6366f122';
+    return `<span style="background:${bg};color:${color};border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;margin-left:4px">${label}</span>`;
+}
+function shortAddr(a) {
+    if (!a || a.length < 12) return a || '—';
+    return a.slice(0,6) + '…' + a.slice(-4);
+}
+function networkDisplayName(n) {
+    if (!n) return '—';
+    return n.display_name || (n.network_name ? n.network_name.replace('_', '-') : '—');
+}
+function networkDisplayTitle(n) {
+    if (!n || !n.network_name) return '';
+    const reason = n.display_name_reason || n.reason;
+    return `Internal ID: ${n.network_name}${reason ? '\nReason: ' + reason : ''}`;
+}
+
+async function loadIntelligence() {
+    try {
+        const resp = await fetch('/api/network-intelligence/summary');
+        const data = await resp.json();
+
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById('ni-loading').style.display = 'none';
+        document.getElementById('ni-body').style.display = 'block';
+
+        const s = data.summary;
+        const total = s.total_migrated_creators || 1;
+
+        // ── Headline ─────────────────────────────────────────────────────────
+        const anyPct = ((s.has_any_signal / total) * 100).toFixed(1);
+        document.getElementById('ni-headline').textContent =
+            `${fmtNum(s.has_any_signal)} / ${fmtNum(total)} migrated creators show coordination signals`;
+        document.getElementById('ni-subline').innerHTML =
+            `<span style="font-size:22px;font-weight:700;color:#fb923c;">${anyPct}%</span>`;
+
+        // ── Signal overlap breakdown ─────────────────────────────────────────
+        const ov = data.signal_overlap || {};
+        const overlapItems = [
+            { label: 'Named network only',        value: ov.named_only,                 strong: false },
+            { label: 'Named + wallet cluster',    value: ov.named_and_wallet_cluster,   strong: true  },
+            { label: 'Named + farm cluster',      value: ov.named_and_farm,             strong: true  },
+            { label: 'Named + second-hop (2H)',   value: ov.named_and_2h,               strong: true  },
+        ];
+        document.getElementById('overlap-rows').innerHTML = overlapItems.map(item => `
+            <div class="overlap-item${item.strong ? ' strong' : ''}">
+                <div class="overlap-label">${item.label}</div>
+                <div class="overlap-count">${fmtNum(item.value)}</div>
+                <div class="overlap-pct">${fmtPct(item.value, total)}</div>
+            </div>`
+        ).join('');
+
+        // ── Refreshed timestamp ──────────────────────────────────────────────
+        document.getElementById('ni-refreshed').textContent = 'as of ' + new Date().toLocaleTimeString();
+
+        // ── KPI Cards ────────────────────────────────────────────────────────
+        const kpis = [
+            { label:'Migrated Creators', value: s.total_migrated_creators, pct: null, desc:'Distinct creators with a migrated token', highlight: false },
+            { label:'Funding Extracted', value: s.funding_extracted, pct: fmtPct(s.funding_extracted, total), desc:'Have ≥1 funder identified', highlight: false },
+            { label:'Named Network', value: s.in_named_network, pct: fmtPct(s.in_named_network, total), desc:'Funded by a wallet that funded 2+ creators', highlight: false },
+            { label:'Wallet Cluster', value: s.in_wallet_cluster, pct: fmtPct(s.in_wallet_cluster, total), desc:'Appear in a detected wallet cluster', highlight: false },
+            { label:'Farm Cluster', value: s.in_farm_cluster, pct: fmtPct(s.in_farm_cluster, total), desc:'Appear in a detected farm cluster', highlight: false },
+            { label:'Second-Hop Signal', value: s.has_second_hop, pct: fmtPct(s.has_second_hop, total), desc:'2H source bridges two networks', highlight: true },
+            { label:'Any Signal', value: s.has_any_signal, pct: fmtPct(s.has_any_signal, total), desc:'At least one coordination signal', highlight: true },
+        ];
+        document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
+            <div class="kpi-card${k.highlight ? ' highlight' : ''}">
+                <div class="kpi-label">${k.label}</div>
+                <div class="kpi-value">${fmtNum(k.value)}</div>
+                ${k.pct ? `<div class="kpi-pct">${k.pct} of migrated</div>` : ''}
+                <div class="kpi-desc">${k.desc}</div>
+            </div>`
+        ).join('');
+
+        // ── Funnel ───────────────────────────────────────────────────────────
+        const funnelRows = [
+            { label:'Total migrated creators', val: s.total_migrated_creators },
+            { label:'Funding extracted',        val: s.funding_extracted },
+            { label:'Named network',            val: s.in_named_network },
+            { label:'Wallet cluster',           val: s.in_wallet_cluster },
+            { label:'Farm cluster',             val: s.in_farm_cluster },
+            { label:'Second-hop signal',        val: s.has_second_hop },
+            { label:'Any coordination signal',  val: s.has_any_signal },
+        ];
+        document.getElementById('funnel-rows').innerHTML = funnelRows.map(r => {
+            const pct = ((r.val || 0) / total * 100);
+            return `<div class="funnel-row">
+                <span>${r.label}</span>
+                <span class="funnel-count">${fmtNum(r.val)}</span>
+                <span><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.min(100,pct).toFixed(1)}%"></div></div></span>
+            </div>`;
+        }).join('');
+
+        // ── Top Networks ─────────────────────────────────────────────────────
+        const nets = data.top_networks || [];
+        document.getElementById('networks-tbody').innerHTML = nets.length ? nets.map(n => `
+            <tr>
+                <td style="font-weight:600;color:var(--accent-purple)" title="${networkDisplayTitle(n)}">${networkDisplayName(n)}<div style="color:var(--text-secondary);font-size:9px;font-weight:500">${n.network_name}</div></td>
+                <td>${fmtNum(n.network_size)}</td>
+                <td>${riskBadge(n.network_risk_level)}</td>
+                <td>${n.score != null ? Number(n.score).toFixed(1) : '—'}</td>
+                <td>${n.second_hop_bridge_count || 0}</td>
+                <td>${n.max_second_hop_confidence ? `<span style="color:#fb923c;font-weight:700">${Math.round(n.max_second_hop_confidence)}</span>` : '—'}</td>
+                <td>${fmtNum(n.creator_count)}</td>
+                <td>${fmtTs(n.latest_migrated_at)}</td>
+                <td><a class="link-btn" href="/networks?network=${encodeURIComponent(n.network_name)}">View ↗</a></td>
+            </tr>`).join('') : '<tr><td colspan="9" class="empty-state">No network data</td></tr>';
+
+        // ── Wallet Clusters ──────────────────────────────────────────────────
+        const wcs = data.top_wallet_clusters || [];
+        document.getElementById('wc-tbody').innerHTML = wcs.length ? wcs.map(w => `
+            <tr>
+                <td style="color:var(--text-secondary);font-size:11px">#${w.cluster_id}</td>
+                <td class="mono" title="${w.funder_wallet}">${shortAddr(w.funder_wallet)}</td>
+                <td><span style="font-weight:700">${fmtNum(w.creator_count)}</span></td>
+                <td><span style="color:#fb923c;font-weight:700">${w.confidence_score != null ? Number(w.confidence_score).toFixed(1) : '—'}</span></td>
+                <td>${w.has_burst ? '<span style="color:#f87171;font-size:10px;font-weight:700">BURST</span>' : '<span style="color:var(--text-secondary);font-size:10px">—</span>'}</td>
+                <td>${fmtSol(w.avg_transfer_sol)}</td>
+                <td>${w.days_active != null ? w.days_active + 'd' : '—'}</td>
+                <td><a class="link-btn" href="/clusters">Clusters ↗</a></td>
+            </tr>`).join('') : '<tr><td colspan="8" class="empty-state">No wallet cluster data</td></tr>';
+
+        // ── Farm Clusters ────────────────────────────────────────────────────
+        const farms = data.top_farm_clusters || [];
+        document.getElementById('farm-tbody').innerHTML = farms.length ? farms.map(f => `
+            <tr>
+                <td style="color:var(--text-secondary);font-size:11px">#${f.cluster_id}</td>
+                <td>${riskBadge(f.risk_level)}</td>
+                <td>${f.farm_risk_score != null ? `<span style="font-weight:700">${Number(f.farm_risk_score).toFixed(2)}</span>` : '—'}</td>
+                <td>${fmtNum(f.creator_count)}</td>
+                <td>${fmtNum(f.funder_count)}</td>
+                <td>${f.cluster_density != null ? Number(f.cluster_density).toFixed(3) : '—'}</td>
+                <td>${f.cluster_strength != null ? Number(f.cluster_strength).toFixed(3) : '—'}</td>
+                <td>${f.active_days != null ? Number(f.active_days).toFixed(1) + 'd' : '—'}</td>
+            </tr>`).join('') : '<tr><td colspan="8" class="empty-state">Farm cluster data unavailable</td></tr>';
+
+        // ── Second-Hop KPIs ──────────────────────────────────────────────────
+        const sh = data.second_hop_summary || {};
+        document.getElementById('hop-kpis').innerHTML = [
+            { label:'2H Source Links', value: sh.total_upstream_links },
+            { label:'Network Bridges', value: sh.total_bridges },
+            { label:'HIGH Confidence', value: sh.high_count },
+            { label:'MEDIUM Confidence', value: sh.medium_count },
+        ].map(k => `<div class="kpi-card">
+            <div class="kpi-label">${k.label}</div>
+            <div class="kpi-value" style="font-size:22px">${fmtNum(k.value)}</div>
+        </div>`).join('');
+
+        const hops = data.second_hop_findings || [];
+        if (hops.length) {
+            // Group by upstream wallet — show each upstream once, list all network pairs
+            const grouped = new Map();
+            hops.forEach(h => {
+                if (!grouped.has(h.upstream_address)) {
+                    grouped.set(h.upstream_address, { ...h, pairs: [] });
+                }
+                grouped.get(h.upstream_address).pairs.push({
+                    a: h.network_a,
+                    b: h.network_b,
+                    aDisplay: h.network_a_display_name || (h.network_a || '').replace('_', '-'),
+                    bDisplay: h.network_b_display_name || (h.network_b || '').replace('_', '-')
+                });
+            });
+            document.getElementById('hop-tbody').innerHTML = [...grouped.values()].map(h => {
+                const rc = (h.reason_codes || []).map(c => c.replace(/_/g,' ')).join(' · ');
+                const spanDays = h.time_span_seconds ? Math.round(h.time_span_seconds / 86400) + 'd' : '—';
+                const addr = h.upstream_address;
+                const pairsHtml = h.pairs.map(p =>
+                    `<span title="Internal IDs: ${p.a} / ${p.b}" style="color:var(--accent-purple);font-size:10px;white-space:nowrap">${p.aDisplay} ↔ ${p.bDisplay}</span>`
+                ).join('<br>');
+                return `<tr>
+                    <td class="mono" style="font-size:10px;word-break:break-all;max-width:200px">${addr}</td>
+                    <td style="font-size:10px;line-height:1.6">${pairsHtml}</td>
+                    <td><span style="color:#fb923c;font-weight:700">${Math.round(h.confidence_score)}</span></td>
+                    <td>${riskBadge(h.risk_level)}</td>
+                    <td style="font-size:10px;color:var(--text-secondary);max-width:200px">${rc || '—'}</td>
+                    <td>${spanDays}</td>
+                </tr>`;
+            }).join('');
+        } else {
+            document.getElementById('hop-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">No second-hop bridges found</td></tr>';
+        }
+
+        // ── Priority Creators ────────────────────────────────────────────────
+        const pcs = data.priority_creators || [];
+        document.getElementById('priority-tbody').innerHTML = pcs.length ? pcs.map(p => {
+            const sigs = [];
+            if (p.has_2h)    sigs.push('<span class="sig-pill sig-2h">2H</span>');
+            if (p.in_network) sigs.push('<span class="sig-pill sig-net">Net</span>');
+            if (p.in_wallet_cluster) sigs.push('<span class="sig-pill sig-wc">WCluster</span>');
+            if (p.in_farm)   sigs.push('<span class="sig-pill sig-farm">Farm</span>');
+            const mintShort = p.mint ? p.mint.slice(0,8) + '…' : '—';
+            return `<tr>
+                <td>
+                    <div style="font-weight:600;color:#e2e8f0;font-size:11px">${p.symbol || p.name || mintShort}</div>
+                    <div class="mono">${mintShort}</div>
+                </td>
+                <td class="mono" title="${p.creator_address}">${shortAddr(p.creator_address)}</td>
+                <td>${p.network_name ? `<a class="link-btn" href="/networks?network=${encodeURIComponent(p.network_name)}" title="Internal ID: ${p.network_name}">${(p.display_name || p.network_name.replace('_', '-'))}</a>` : '<span style="color:var(--text-secondary)">—</span>'}</td>
+                <td>${sigs.join('')}</td>
+                <td>${p.hop_confidence != null ? `<span style="color:#fb923c;font-weight:700">${Math.round(p.hop_confidence)}</span> ${riskBadge(p.hop_risk)}` : '—'}</td>
+                <td>${fmtMC(p.market_cap_current)}</td>
+                <td>${fmtTs(p.migrated_at)}</td>
+                <td><a class="link-btn" href="#" onclick="event.preventDefault();showCreatorDetails('${p.creator_address}')">Creator ↗</a></td>
+            </tr>`;
+        }).join('') : '<tr><td colspan="8" class="empty-state">No priority signals found</td></tr>';
+
+    } catch (err) {
+        document.getElementById('ni-loading').innerHTML =
+            `<div style="color:#f87171">Failed to load: ${err.message}</div>`;
+    }
+}
+
+// showCreatorDetails is defined in the dashboard — open in new tab as fallback
+function showCreatorDetails(addr) {
+    window.open('/?creator=' + encodeURIComponent(addr), '_blank');
+}
+
+loadIntelligence();
+setInterval(loadIntelligence, 120000);
+
+// ── Phase 2 Lite ─────────────────────────────────────────────────────────────
+async function loadPhase2Lite() {
+    const container = document.getElementById('phase2-body');
+    if (!container) return;
+    try {
+        const resp = await fetch('/api/second-hop-lite/status');
+        const d = await resp.json();
+
+        if (d.error) {
+            container.innerHTML = `<div style="color:#f87171;font-size:12px">Error: ${d.error}</div>`;
+            return;
+        }
+
+        const queueTotal  = (d.queue.pending || 0) + (d.queue.done || 0) + (d.queue.failed || 0) + (d.queue.scanning || 0) + (d.queue.skipped || 0);
+        const trackedPct  = d.priority_funders ? ((d.tracked_funders / d.priority_funders) * 100).toFixed(1) : '0.0';
+        const cacheRate   = d.cache_hit_rate != null ? d.cache_hit_rate.toFixed(1) + '%' : '—';
+        // Style the toggle button
+        const btn = document.getElementById('p2-toggle-btn');
+        if (btn) {
+            if (d.enabled) {
+                btn.textContent = 'Scanning ON';
+                btn.style.background = 'rgba(34,197,94,0.15)';
+                btn.style.color = '#22c55e';
+                btn.style.borderColor = 'rgba(34,197,94,0.4)';
+            } else {
+                btn.textContent = 'Scanning OFF';
+                btn.style.background = 'rgba(148,163,184,0.1)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'rgba(148,163,184,0.25)';
+            }
+            btn.disabled = false;
+        }
+        // Reset Run Now button if server says nothing is running
+        const runBtn = document.getElementById('p2-run-btn');
+        if (runBtn && !d.run_in_progress && runBtn.textContent === 'Scanning…') {
+            runBtn.disabled = false;
+            runBtn.textContent = 'Run Now';
+            resetRunBtnStyle(runBtn);
+        }
+
+        const flagBanner  = !d.enabled
+            ? `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#fbbf24;margin-bottom:14px;">
+                   RPC scanning disabled — queue population active. Toggle ON to begin scanning priority funders.
+               </div>`
+            : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#4ade80;margin-bottom:14px;">
+                   RPC scanning active — worker will process pending funders on next run.
+               </div>`;
+
+        // KPI mini-grid
+        const kpiItems = [
+            { label: 'Priority Funders',   value: fmtNum(d.priority_funders) },
+            { label: 'Tracked',            value: fmtNum(d.tracked_funders) },
+            { label: 'Pending Queue',      value: fmtNum(d.queue.pending || 0) },
+            { label: 'Failed',             value: fmtNum(d.queue.failed || 0) },
+            { label: 'Cache Hit Rate',     value: cacheRate },
+            { label: 'RPC Today',          value: fmtNum(d.rpc_calls_today) },
+            { label: 'Upstream Hubs',      value: fmtNum(d.upstream_hubs || 0) },
+            { label: 'Hub Expansions 24h', value: fmtNum(d.hub_expansions_24h || 0) },
+        ];
+        const kpiHtml = `<div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-bottom:16px;">${
+            kpiItems.map(k => `
+                <div class="kpi-card">
+                    <div class="kpi-label">${k.label}</div>
+                    <div class="kpi-value" style="font-size:22px">${k.value}</div>
+                </div>`).join('')
+        }</div>`;
+
+        // Progress bar
+        const barPct = Math.min(100, parseFloat(trackedPct));
+        const progressHtml = `
+            <div style="margin-bottom:18px;">
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">
+                    Tracked: ${fmtNum(d.tracked_funders)} / ${fmtNum(d.priority_funders)} priority funders
+                    <span style="color:#fb923c;font-weight:700;margin-left:6px;">${trackedPct}%</span>
+                </div>
+                <div style="height:6px;background:rgba(148,163,184,0.1);border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;width:${barPct.toFixed(1)}%;background:#fb923c;border-radius:3px;transition:width 0.6s ease;"></div>
+                </div>
+            </div>`;
+
+        // Top untracked funders table
+        const untrackedRows = (d.top_untracked_funders || []);
+        const untrackedHtml = `
+            <div style="margin-bottom:20px;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:8px;">Top Untracked Funders (pending)</div>
+                <div class="ni-table-wrap">
+                    <table class="ni-table">
+                        <thead><tr>
+                            <th>Funder</th><th>Priority</th><th>Source</th><th>Reasons</th><th>Creators Funded</th>
+                        </tr></thead>
+                        <tbody>${untrackedRows.length
+                            ? untrackedRows.map(r => {
+                                const rc = r.reason_codes || [];
+                                const src = rc.includes('upstream_expansion')
+                                    ? `<span style="background:#9b59b622;color:#9b59b6;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">Upstream</span>`
+                                    : rc.includes('approved_creator')
+                                    ? `<span style="background:#22c55e22;color:#22c55e;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">Creator</span>`
+                                    : `<span style="background:#64748b22;color:#94a3b8;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">Manual</span>`;
+                                return `<tr>
+                                    <td class="mono">${shortAddr(r.funder_address)}${cexInfraBadge(r.cex_infra_label)}</td>
+                                    <td><span style="color:#fb923c;font-weight:700">${r.priority}</span></td>
+                                    <td>${src}</td>
+                                    <td style="font-size:10px;color:var(--text-secondary)">${rc.join(', ') || '—'}</td>
+                                    <td>${fmtNum(r.creator_count)}</td>
+                                </tr>`;
+                            }).join('')
+                            : '<tr><td colspan="5" class="empty-state">No pending funders</td></tr>'
+                        }</tbody>
+                    </table>
+                </div>
+            </div>`;
+
+        // Recent scans table
+        const scanRows = (d.recent_scans || []);
+        const scansHtml = `
+            <div>
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:8px;">Recent Scans</div>
+                <div class="ni-table-wrap">
+                    <table class="ni-table">
+                        <thead><tr>
+                            <th>Funder</th><th>Upstreams</th><th>2H Creators</th><th>Networks</th><th>RPC Calls</th><th>Scanned At</th><th>Status</th>
+                        </tr></thead>
+                        <tbody>${scanRows.length
+                            ? scanRows.map(r => {
+                                const nets = r.networks || [];
+                                const netBadges = nets.slice(0,3).map(n =>
+                                    `<span style="background:#27ae6022;color:#27ae60;border-radius:3px;padding:1px 5px;font-size:10px;margin-right:2px">${n}</span>`
+                                ).join('') + (nets.length > 3 ? `<span style="color:var(--text-secondary);font-size:10px">+${nets.length-3}</span>` : '');
+                                const upstreamCol = r.upstream_links > 0
+                                    ? `<span style="color:#9b59b6;font-weight:700">${r.upstream_links}</span>`
+                                    : `<span style="color:var(--text-secondary)">0</span>`;
+                                const shCol = r.second_hop_creators > 0
+                                    ? `<span style="color:#e67e22;font-weight:700">${r.second_hop_creators}</span>`
+                                    : `<span style="color:var(--text-secondary)">0</span>`;
+                                return `<tr>
+                                    <td class="mono">${shortAddr(r.funder_address)}${cexInfraBadge(r.cex_infra_label)}</td>
+                                    <td>${upstreamCol}</td>
+                                    <td>${shCol}</td>
+                                    <td>${nets.length ? netBadges : '<span style="color:var(--text-secondary)">—</span>'}</td>
+                                    <td>${fmtNum(r.rpc_calls_used)}</td>
+                                    <td>${fmtDateTime(r.scanned_at)}</td>
+                                    <td><span style="color:${r.status==='ok'?'#4ade80':'#f87171'};font-size:10px;font-weight:700;">${r.status}</span></td>
+                                </tr>`;
+                            }).join('')
+                            : '<tr><td colspan="7" class="empty-state">No scans yet</td></tr>'
+                        }</tbody>
+                    </table>
+                </div>
+            </div>`;
+
+        container.innerHTML = flagBanner + kpiHtml + progressHtml + untrackedHtml + scansHtml;
+
+    } catch (err) {
+        container.innerHTML = `<div style="color:#f87171;font-size:12px">Failed to load Phase 2 Lite: ${err.message}</div>`;
+    }
+}
+
+async function runPhase2LiteNow() {
+    const btn = document.getElementById('p2-run-btn');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+    btn.style.color = '#fbbf24';
+    btn.style.borderColor = 'rgba(251,191,36,0.35)';
+    btn.style.background = 'rgba(251,191,36,0.08)';
+
+    try {
+        const r = await fetch('/api/second-hop-lite/run-now', { method: 'POST' });
+        const d = await r.json();
+        if (d.status === 'already_running') {
+            btn.textContent = 'Already running';
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Run Now'; resetRunBtnStyle(btn); }, 3000);
+            return;
+        }
+        // Poll until run_in_progress=false or 200 ticks max (~10 min)
+        let polls = 0;
+        btn.textContent = 'Scanning…';
+        const poll = setInterval(async () => {
+            polls++;
+            try {
+                const sr = await fetch('/api/second-hop-lite/status');
+                const sd = await sr.json();
+                await loadPhase2Lite();
+                const done = !sd.run_in_progress;
+                if (done || polls >= 200) {
+                    clearInterval(poll);
+                    btn.disabled = false;
+                    btn.textContent = 'Run Now';
+                    resetRunBtnStyle(btn);
+                }
+            } catch (_) {
+                clearInterval(poll);
+                btn.disabled = false;
+                btn.textContent = 'Run Now';
+                resetRunBtnStyle(btn);
+            }
+        }, 3000);
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Run Now';
+        resetRunBtnStyle(btn);
+        alert('Failed to start worker: ' + err.message);
+    }
+}
+
+function resetRunBtnStyle(btn) {
+    btn.style.color = '#38bdf8';
+    btn.style.borderColor = 'rgba(56,189,248,0.35)';
+    btn.style.background = 'rgba(56,189,248,0.1)';
+}
+
+async function togglePhase2Lite() {
+    const btn = document.getElementById('p2-toggle-btn');
+    if (!btn) return;
+
+    // Read current state from button text
+    const currentlyOn = btn.textContent.trim() === 'Scanning ON';
+    const newEnabled = !currentlyOn;
+
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    try {
+        const r = await fetch('/api/second-hop-lite/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: newEnabled }),
+        });
+        const d = await r.json();
+        if (d.error) throw new Error(d.error);
+        // Reload the whole Phase 2 panel to reflect new state
+        await loadPhase2Lite();
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = currentlyOn ? 'Scanning ON' : 'Scanning OFF';
+        alert('Toggle failed: ' + err.message);
+    }
+}
+
+loadPhase2Lite();
+setInterval(loadPhase2Lite, 15000);
+
+// ── Intelligence Refresh Watchlist ────────────────────────────────────────────
+async function loadRefreshWatchlist() {
+    const el = document.getElementById('irc-body');
+    if (!el) return;
+    try {
+        const resp = await fetch('/api/intelligence-refresh/status');
+        const d = await resp.json();
+        if (d.error) throw new Error(d.error);
+        renderRefreshWatchlist(d);
+    } catch(err) {
+        el.innerHTML = `<div style="color:#f87171;font-size:12px">Failed: ${err.message}</div>`;
+    }
+}
+
+function renderRefreshWatchlist(d) {
+    const el = document.getElementById('irc-body');
+
+    // ── Budget bar ──
+    const pct = Math.min(100, Math.round((d.rpc_calls_today / d.rpc_daily_budget) * 100));
+    const barColor = d.budget_exhausted ? '#ef4444' : pct > 75 ? '#f97316' : '#22c55e';
+    const lastRefreshTs = d.last_local_refresh
+        ? new Date(d.last_local_refresh * 1000)
+        : null;
+    const lastRefresh = lastRefreshTs
+        ? lastRefreshTs.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
+          + ' ' + lastRefreshTs.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })
+        : 'never';
+
+    let html = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;">
+        ${kpiBox('Watchlist', d.watchlist_count, '#a78bfa')}
+        ${kpiBox('Approved', d.approved_count, '#38bdf8')}
+        ${kpiBox('Scanned Today', d.scanned_today, '#22c55e')}
+        ${kpiBox('RPC Used Today', d.rpc_calls_today + ' / ' + d.rpc_daily_budget, barColor)}
+        ${kpiBox('Budget Remaining', d.rpc_budget_remaining, barColor)}
+        <div title="Updated by the graph analyzer cron every 10 min (IntelligenceRefreshCandidateBuilder)">${kpiBox('Last Build', lastRefresh, '#9ca3af')}</div>
+    </div>
+    ${d.budget_exhausted ? `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:10px 14px;margin-bottom:16px;color:#f87171;font-size:12px;">⚠ Daily RPC budget exhausted — approved candidates will scan tomorrow</div>` : ''}
+    `;
+
+    // ── High-risk creators ──
+    html += `
+    <div style="font-size:13px;font-weight:700;color:#a78bfa;margin:0 0 8px;">High-Risk Creators</div>
+    <table class="ni-table" style="margin-bottom:24px;">
+        <thead><tr>
+            <th>Creator</th><th style="text-align:center;">Priority</th>
+            <th>Reasons</th><th style="text-align:center;">Funders</th>
+            <th style="text-align:center;">Migrated</th><th style="text-align:center;">Tokens</th>
+            <th style="text-align:center;">Status</th><th style="text-align:center;">Actions</th>
+        </tr></thead><tbody>`;
+
+    if (!d.high_risk_creators || d.high_risk_creators.length === 0) {
+        html += `<tr><td colspan="8" class="empty-state">No candidates yet — run graph analyzers to seed watchlist</td></tr>`;
+    } else {
+        for (const c of d.high_risk_creators) {
+            const reasons = safeJson(c.reason_codes).join(', ') || '—';
+            const statusBadge = ircStatusBadge(c.status);
+            const actions = c.status === 'watchlist' || c.status === 'failed'
+                ? `<button onclick="ircApprove('creator','${c.target_address}')" style="${ircBtnStyle('#22c55e')}">Approve</button>
+                   <button onclick="ircIgnore('creator','${c.target_address}')" style="${ircBtnStyle('#6b7280')}">Ignore</button>`
+                : c.status === 'approved'
+                    ? (c.pending_funders_in_queue > 0
+                        ? `<span style="color:#fb923c;font-size:10px;">Scanning (${c.pending_funders_in_queue} pending)</span>`
+                        : `<span style="color:#4ade80;font-size:10px;">Scan complete</span>`)
+                    : '';
+            html += `<tr>
+                <td><span style="font-family:monospace;font-size:11px;color:#60a5fa;">${c.target_address}</span></td>
+                <td style="text-align:center;font-weight:700;color:#fb923c;">${c.priority}</td>
+                <td style="font-size:11px;color:#9ca3af;">${reasons}</td>
+                <td style="text-align:center;">${fmtNum(c.funder_count)}</td>
+                <td style="text-align:center;">${fmtNum(c.migrated_count)}</td>
+                <td style="text-align:center;">${fmtNum(c.token_count)}</td>
+                <td style="text-align:center;">${statusBadge}</td>
+                <td style="text-align:center;white-space:nowrap;">${actions}</td>
+            </tr>`;
+        }
+    }
+    html += `</tbody></table>`;
+
+    // ── Baseline Migrated Creators ──
+    const baselineCount = (d.baseline_creators || []).length;
+    html += `
+    <details style="margin:16px 0 0;">
+      <summary style="cursor:pointer;font-size:13px;font-weight:700;color:#6b7280;user-select:none;">
+        Baseline Migrated Creators
+        <span style="margin-left:8px;background:rgba(107,114,128,0.12);color:#6b7280;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600;">${baselineCount}</span>
+        <span style="margin-left:8px;font-size:10px;font-weight:400;color:#4b5563;">low priority · no signals yet · no RPC</span>
+      </summary>
+      <table class="ni-table" style="margin-top:8px;">
+        <thead><tr>
+          <th>Creator</th><th style="text-align:center;">Funders</th>
+          <th style="text-align:center;">Migrated</th><th style="text-align:center;">Added</th>
+          <th style="text-align:center;">Actions</th>
+        </tr></thead><tbody>`;
+    if (!baselineCount) {
+        html += `<tr><td colspan="5" class="empty-state">No baseline creators yet — will populate as tokens migrate</td></tr>`;
+    } else {
+        for (const c of d.baseline_creators) {
+            const age = c.updated_at ? fmtTs(c.updated_at) : '—';
+            html += `<tr>
+                <td><span style="font-family:monospace;font-size:11px;color:#9ca3af;">${c.target_address}</span></td>
+                <td style="text-align:center;">${fmtNum(c.funder_count)}</td>
+                <td style="text-align:center;">${fmtNum(c.migrated_count)}</td>
+                <td style="text-align:center;font-size:11px;color:#6b7280;">${age}</td>
+                <td style="text-align:center;white-space:nowrap;">
+                  <button onclick="ircApprove('creator','${c.target_address}')" style="${ircBtnStyle('#22c55e')}">Approve</button>
+                  <button onclick="ircIgnore('creator','${c.target_address}')" style="${ircBtnStyle('#6b7280')}">Ignore</button>
+                </td>
+            </tr>`;
+        }
+    }
+    html += `</tbody></table></details>`;
+
+    // ── Priority funders ──
+    html += `
+    <div style="font-size:13px;font-weight:700;color:#a78bfa;margin:16px 0 8px;">Priority Funders</div>
+    <table class="ni-table">
+        <thead><tr>
+            <th>Funder</th><th style="text-align:center;">Priority</th>
+            <th>Reasons</th><th style="text-align:center;">Creators Funded</th>
+            <th style="text-align:center;">Status</th><th style="text-align:center;">Actions</th>
+        </tr></thead><tbody>`;
+
+    if (!d.priority_funders || d.priority_funders.length === 0) {
+        html += `<tr><td colspan="6" class="empty-state">No funder candidates yet</td></tr>`;
+    } else {
+        for (const f of d.priority_funders) {
+            const reasons = safeJson(f.reason_codes).join(', ') || '—';
+            const statusBadge = ircStatusBadge(f.status);
+            const actions = f.status === 'watchlist' || f.status === 'failed'
+                ? `<button onclick="ircApprove('funder','${f.target_address}')" style="${ircBtnStyle('#22c55e')}">Approve</button>
+                   <button onclick="ircIgnore('funder','${f.target_address}')" style="${ircBtnStyle('#6b7280')}">Ignore</button>`
+                : f.status === 'approved'
+                    ? f.scan_state === 'pending'
+                        ? `<span style="color:#fb923c;font-size:10px;">Scanning</span>`
+                        : f.scan_state === 'done'
+                            ? `<span style="color:#4ade80;font-size:10px;">Scan complete</span>`
+                            : `<span style="color:#38bdf8;font-size:10px;">Queued</span>`
+                    : '';
+            html += `<tr>
+                <td><span style="font-family:monospace;font-size:11px;color:#60a5fa;">${f.target_address}</span>${cexInfraBadge(f.cex_infra_label)}</td>
+                <td style="text-align:center;font-weight:700;color:#fb923c;">${f.priority}</td>
+                <td style="font-size:11px;color:#9ca3af;">${reasons}</td>
+                <td style="text-align:center;">${fmtNum(f.creators_funded)}</td>
+                <td style="text-align:center;">${statusBadge}</td>
+                <td style="text-align:center;white-space:nowrap;">${actions}</td>
+            </tr>`;
+        }
+    }
+    html += `</tbody></table>`;
+
+    el.innerHTML = html;
+}
+
+function kpiBox(label, value, color) {
+    return `<div style="background:rgba(30,30,40,0.8);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">${label}</div>
+        <div style="font-size:20px;font-weight:700;color:${color};">${value}</div>
+    </div>`;
+}
+function safeJson(v) { try { return JSON.parse(v || '[]'); } catch { return []; } }
+function ircStatusBadge(s) {
+    const map = {
+        watchlist: ['#fbbf24','rgba(251,191,36,0.12)'],
+        approved:  ['#38bdf8','rgba(56,189,248,0.12)'],
+        scanning:  ['#a78bfa','rgba(167,139,250,0.12)'],
+        complete:  ['#22c55e','rgba(34,197,94,0.12)'],
+        failed:    ['#ef4444','rgba(239,68,68,0.12)'],
+        ignored:   ['#6b7280','rgba(107,114,128,0.12)'],
+    };
+    const [c, bg] = map[s] || ['#9ca3af','rgba(156,163,175,0.1)'];
+    return `<span style="background:${bg};color:${c};padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;">${s.toUpperCase()}</span>`;
+}
+function ircBtnStyle(color) {
+    return `margin:0 2px;padding:2px 8px;font-size:10px;font-weight:600;border-radius:3px;border:1px solid ${color}40;background:${color}15;color:${color};cursor:pointer;`;
+}
+
+async function ircApprove(type, address) {
+    try {
+        const r = await fetch('/api/intelligence-refresh/approve', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ target_type: type, target_address: address, ttl_hours: 24 }),
+        });
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'failed');
+
+        let msg = 'Approved.';
+        if (type === 'creator' && d.phase2_lite_enqueue) {
+            const eq = d.phase2_lite_enqueue;
+            if (eq.funders_enqueued > 0) {
+                msg += ` Enqueued ${eq.funders_enqueued} funders for Phase 2 Lite scanning.`;
+            } else {
+                msg += ' No eligible funders found or all already tracked.';
+            }
+        }
+
+        await loadRefreshWatchlist();
+        // Brief status toast — reuse existing irc-body or just log
+        const el = document.getElementById('irc-body');
+        if (el) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;border-radius:5px;padding:8px 12px;margin-bottom:10px;font-size:13px';
+            toast.textContent = msg;
+            el.prepend(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+    } catch(err) { alert('Approve failed: ' + err.message); }
+}
+
+async function ircIgnore(type, address) {
+    try {
+        const r = await fetch('/api/intelligence-refresh/ignore', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ target_type: type, target_address: address }),
+        });
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'failed');
+        await loadRefreshWatchlist();
+    } catch(err) { alert('Ignore failed: ' + err.message); }
+}
+
+loadRefreshWatchlist();
+setInterval(loadRefreshWatchlist, 60000);
+
+// ── New Relationships Discovered ─────────────────────────────────────────────
+
+const IRE_FILTERS = [
+    { key: 'all',       label: 'All' },
+    { key: 'creator',   label: 'Creators' },
+    { key: 'funder',    label: 'Funders' },
+    { key: 'upstream',  label: 'Upstreams' },
+    { key: 'network',   label: 'Networks' },
+    { key: 'cluster',   label: 'Clusters' },
+    { key: '2h',        label: '2H' },
+    { key: 'watchlist', label: 'Watchlisted' },
+];
+let _ireFilter = 'all';
+
+function _ireKpi(label, value, color) {
+    return `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:8px 14px;min-width:110px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:${color || 'var(--text-primary)'}">${value}</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">${label}</div>
+    </div>`;
+}
+
+function _ireRiskBadge(risk) {
+    const map = { HIGH: '#e74c3c', MEDIUM: '#f39c12', LOW: '#27ae60' };
+    const col = map[risk] || 'var(--text-secondary)';
+    return risk ? `<span style="background:${col}22;color:${col};border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">${risk}</span>` : '';
+}
+
+function _ireTypeBadge(rel_type) {
+    const map = {
+        funder_upstream_found:         { label: 'Funder→Upstream', color: '#3498db' },
+        upstream_network_bridge_found: { label: 'Network Bridge',  color: '#9b59b6' },
+        creator_second_hop_found:      { label: '2H Creator',      color: '#e67e22' },
+        creator_network_found:         { label: 'Network Member',  color: '#27ae60' },
+        watchlist_added:               { label: 'Watchlisted',     color: '#e74c3c' },
+        wallet_cluster_found:          { label: 'Cluster',         color: '#f39c12' },
+        farm_cluster_found:            { label: 'Farm Cluster',    color: '#c0392b' },
+    };
+    const m = map[rel_type] || { label: rel_type, color: '#888' };
+    return `<span style="background:${m.color}22;color:${m.color};border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600">${m.label}</span>`;
+}
+
+function _ireAddr(addr, label) {
+    if (!addr) return '—';
+    const badge = label
+        ? `<span style="background:${label==='CEX'?'#f59e0b22':'#6366f122'};color:${label==='CEX'?'#f59e0b':'#818cf8'};border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;margin-left:4px">${label}</span>`
+        : '';
+    return `<span style="font-family:monospace;font-size:11px;user-select:all">${addr}</span>${badge}`;
+}
+
+function _ireTime(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
+           ' ' + d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function renderIreFilters(active) {
+    document.getElementById('ire-filters').innerHTML = IRE_FILTERS.map(f => {
+        const isActive = f.key === active;
+        return `<button onclick="ireSetFilter('${f.key}')"
+            style="padding:3px 10px;font-size:12px;border-radius:4px;border:1px solid var(--border);
+                   cursor:pointer;background:${isActive ? 'var(--accent)' : 'var(--card-bg)'};
+                   color:${isActive ? '#fff' : 'var(--text-primary)'}">${f.label}</button>`;
+    }).join('');
+}
+
+function ireSetFilter(key) {
+    _ireFilter = key;
+    loadRelationships();
+}
+
+async function loadRelationships() {
+    try {
+        // 'all' excludes watchlist_added (admin noise) — use 'watchlist' filter to see those
+        const url = `/api/intelligence-relationships/recent?limit=100&type=${_ireFilter}&since_hours=48${_ireFilter === 'all' ? '&exclude=watchlist_added' : ''}`;
+        const r = await fetch(url);
+        const d = await r.json();
+
+        // Summary KPIs
+        const s = d.summary || {};
+        document.getElementById('ire-summary').innerHTML = [
+            _ireKpi('Funder Links', s.new_funder_links_today ?? 0, '#3498db'),
+            _ireKpi('Upstream Links', s.new_upstream_links_today ?? 0, '#9b59b6'),
+            _ireKpi('2H Creators', s.new_second_hop_creators_today ?? 0, '#e67e22'),
+            _ireKpi('Net. Bridges', s.new_network_bridges_today ?? 0, '#27ae60'),
+            _ireKpi('Cluster Links', s.new_cluster_links_today ?? 0, '#e74c3c'),
+        ].join('');
+
+        renderIreFilters(_ireFilter);
+
+        const events = d.events || [];
+        if (!events.length) {
+            document.getElementById('ire-body').innerHTML =
+                '<span style="color:var(--text-secondary);font-size:13px">No new relationships in the selected window.</span>';
+            return;
+        }
+
+        function _ireNetworks(nets) {
+            if (!nets || !nets.length) return '<span style="color:var(--text-secondary)">—</span>';
+            return nets.slice(0, 3).map(n =>
+                `<span style="background:#27ae6022;color:#27ae60;border-radius:3px;padding:1px 5px;font-size:10px;margin-right:2px">${n}</span>`
+            ).join('') + (nets.length > 3 ? `<span style="color:var(--text-secondary);font-size:10px"> +${nets.length - 3}</span>` : '');
+        }
+
+        const rows = events.map(e => `
+            <tr>
+                <td>${_ireTypeBadge(e.relationship_type)}</td>
+                <td>${_ireAddr(e.source_address, e.source_label)}</td>
+                <td>${_ireAddr(e.target_address, e.target_label)}</td>
+                <td style="max-width:220px">${_ireNetworks(e.networks_affected)}</td>
+                <td>${e.confidence_score != null ? Math.round(e.confidence_score) : '—'}</td>
+                <td>${_ireRiskBadge(e.risk_level)}</td>
+                <td style="font-size:11px;color:var(--text-secondary)">${_ireTime(e.created_at)}</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('ire-body').innerHTML = `
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead>
+                    <tr style="color:var(--text-secondary);text-align:left;border-bottom:1px solid var(--border)">
+                        <th style="padding:6px 8px">Type</th>
+                        <th style="padding:6px 8px">Source</th>
+                        <th style="padding:6px 8px">Target</th>
+                        <th style="padding:6px 8px">Networks Affected</th>
+                        <th style="padding:6px 8px">Conf.</th>
+                        <th style="padding:6px 8px">Risk</th>
+                        <th style="padding:6px 8px">Discovered</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    } catch(err) {
+        document.getElementById('ire-body').innerHTML =
+            `<span style="color:#e74c3c;font-size:13px">Failed to load: ${err.message}</span>`;
+    }
+}
+
+renderIreFilters('all');
+loadRelationships();
+setInterval(loadRelationships, 60000);
+
+// ── Significant Upstream Hubs ─────────────────────────────────────────────────
+
+let _hubModal = null;
+
+function _hubRisk(risk, conf) {
+    const map = { HIGH: '#e74c3c', MEDIUM: '#f39c12', LOW: '#27ae60' };
+    const col = map[risk] || '#888';
+    return `<span style="background:${col}22;color:${col};border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600">${risk} (${Math.round(conf)})</span>`;
+}
+
+function _hubAge(ts) {
+    if (!ts) return '—';
+    const diff = Math.floor(Date.now() / 1000) - ts;
+    if (diff < 120)  return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400)return `${Math.floor(diff/3600)}h ago`;
+    return `${Math.floor(diff/86400)}d ago`;
+}
+
+async function loadUpstreamHubs() {
+    const el = document.getElementById('hub-body');
+    if (!el) return;
+    try {
+        const r = await fetch('/api/upstream-hubs');
+        const d = await r.json();
+        const hubs = d.hubs || [];
+
+        if (!hubs.length) {
+            el.innerHTML = '<span style="color:var(--text-secondary);font-size:13px">No significant upstream hubs detected yet — run graph analyzers after Phase 2 scans.</span>';
+            return;
+        }
+
+        const rows = hubs.map(h => `
+            <tr style="cursor:pointer" onclick="loadHubDetail('${h.upstream_address}')">
+                <td class="mono" style="color:#9b59b6">${shortAddr(h.upstream_address)}</td>
+                <td>${_hubRisk(h.risk_level, h.confidence_score)}</td>
+                <td style="text-align:center">${h.networks_bridged}</td>
+                <td style="text-align:center">${h.funders_bridged}</td>
+                <td style="text-align:center">${h.downstream_funders}</td>
+                <td style="text-align:center">${h.linked_creators}</td>
+                <td style="font-size:11px;color:var(--text-secondary)">${_hubAge(h.last_expanded_at)}</td>
+                <td>
+                    <span style="background:${h.status==='active'?'#22c55e22':'#64748b22'};
+                        color:${h.status==='active'?'#22c55e':'#94a3b8'};
+                        border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600">
+                        ${h.status.toUpperCase()}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+
+        el.innerHTML = `
+            <div class="ni-table-wrap">
+                <table class="ni-table">
+                    <thead><tr>
+                        <th>Upstream Wallet</th>
+                        <th>Confidence</th>
+                        <th style="text-align:center">Networks</th>
+                        <th style="text-align:center">Funders Bridged</th>
+                        <th style="text-align:center">Downstream</th>
+                        <th style="text-align:center">Creators</th>
+                        <th>Last Expanded</th>
+                        <th>Status</th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            <div id="hub-detail-panel" style="display:none;margin-top:16px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:16px"></div>
+        `;
+    } catch(err) {
+        el.innerHTML = `<span style="color:#e74c3c;font-size:13px">Failed: ${err.message}</span>`;
+    }
+}
+
+async function loadHubDetail(address) {
+    const panel = document.getElementById('hub-detail-panel');
+    if (!panel) return;
+    panel.style.display = 'block';
+    panel.innerHTML = '<span style="color:var(--text-secondary);font-size:12px">Loading…</span>';
+
+    try {
+        const r = await fetch(`/api/upstream-hubs/${address}`);
+        const d = await r.json();
+
+        const funderRows = (d.funders || []).map(f => `
+            <tr>
+                <td class="mono" style="font-size:11px;user-select:all;word-break:break-all">${f.funder_address}</td>
+                <td>${f.creators_funded}</td>
+                <td>${f.avg_transfer_sol ? f.avg_transfer_sol.toFixed(2) : '—'} SOL</td>
+                <td><span style="font-size:10px;color:${f.queue_status==='pending'?'#fb923c':f.queue_status==='done'?'#4ade80':'#94a3b8'}">${f.queue_status || '—'}</span></td>
+            </tr>
+        `).join('');
+
+        const netRows = (d.networks || []).map(n => `
+            <tr>
+                <td style="font-size:11px">${n.network_a}</td>
+                <td style="font-size:11px">${n.network_b}</td>
+                <td>${_hubRisk(n.risk_level, n.confidence_score)}</td>
+            </tr>
+        `).join('');
+
+        const creatorRows = (d.creators || []).map(c => `
+            <tr>
+                <td class="mono" style="font-size:11px">${shortAddr(c.creator_address)}</td>
+                <td>${Math.round(c.confidence_score)}</td>
+                <td><span style="font-size:10px;color:${c.risk_level==='HIGH'?'#e74c3c':c.risk_level==='MEDIUM'?'#f39c12':'#4ade80'}">${c.risk_level}</span></td>
+            </tr>
+        `).join('');
+
+        panel.innerHTML = `
+            <div style="font-size:12px;font-weight:700;color:#9b59b6;margin-bottom:12px;font-family:monospace">${address}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+                <div>
+                    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Downstream Funders</div>
+                    <table class="ni-table" style="font-size:11px">
+                        <thead><tr><th>Funder</th><th>Creators</th><th>Avg SOL</th><th>Queue</th></tr></thead>
+                        <tbody>${funderRows || '<tr><td colspan="4" class="empty-state">None</td></tr>'}</tbody>
+                    </table>
+                </div>
+                <div>
+                    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Networks Bridged</div>
+                    <table class="ni-table" style="font-size:11px">
+                        <thead><tr><th>Network A</th><th>Network B</th><th>Risk</th></tr></thead>
+                        <tbody>${netRows || '<tr><td colspan="3" class="empty-state">None</td></tr>'}</tbody>
+                    </table>
+                </div>
+                <div>
+                    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Linked Creators (2H)</div>
+                    <table class="ni-table" style="font-size:11px">
+                        <thead><tr><th>Creator</th><th>Conf.</th><th>Risk</th></tr></thead>
+                        <tbody>${creatorRows || '<tr><td colspan="3" class="empty-state">None</td></tr>'}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    } catch(err) {
+        panel.innerHTML = `<span style="color:#e74c3c;font-size:13px">Failed: ${err.message}</span>`;
+    }
+}
+
+loadUpstreamHubs();
+setInterval(loadUpstreamHubs, 120000);
+</script>
+{% endblock %}

@@ -297,3 +297,132 @@ class NetworkMembershipBuilder:
                 last_built_at = excluded.last_built_at
         """, rows)
         logger.info(f"[NetworkMembershipBuilder] Upserted {len(rows)} funder_network_map rows")
+
+
+# ---------------------------------------------------------------------------
+# Module-level helper — safe to import anywhere without instantiating the class
+# ---------------------------------------------------------------------------
+
+def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
+    """
+    Best-effort provisional network assignment immediately after funding extraction.
+
+    Returns:
+        {
+            'assigned':       bool,
+            'network_name':   str | None,
+            'funder_address': str | None,
+            'provisional':    bool,          # True when name is Provisional_XXXXXXXX
+            'creators_in_network': int,
+        }
+
+    Constraints:
+        - Uses INSERT OR IGNORE so the canonical 30-min builder always wins on conflict.
+        - Never deletes existing rows — read-only if no qualifying funder is found.
+        - Skips CEX / infra addresses via build_excluded_set().
+    """
+    null_result = {
+        "assigned": False,
+        "network_name": None,
+        "funder_address": None,
+        "provisional": False,
+        "creators_in_network": 0,
+    }
+
+    try:
+        conn = sqlite3.connect(db_path, timeout=15)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=10000")
+        conn.row_factory = sqlite3.Row
+
+        # --- 1. Load exclusion set (CEX + infra)
+        try:
+            from src.utils.infra_mapping import build_excluded_set
+            excluded = build_excluded_set(conn)
+        except Exception:
+            excluded = set()
+
+        # --- 2. Find non-CEX funders of this creator who also fund >= 1 other creator
+        #        (total distinct creators >= 2, counting the new one)
+        rows = conn.execute("""
+            SELECT cf.funder_address,
+                   COUNT(DISTINCT cf.creator_address) AS creator_count
+            FROM creator_funders cf
+            WHERE cf.funder_address IN (
+                SELECT funder_address
+                FROM creator_funders
+                WHERE creator_address = ? AND is_cex = 0
+            )
+              AND cf.is_cex = 0
+            GROUP BY cf.funder_address
+            HAVING creator_count >= 2
+            ORDER BY creator_count DESC
+        """, (creator_address,)).fetchall()
+
+        # Filter excluded addresses
+        qualifying = [r for r in rows if r["funder_address"] not in excluded]
+
+        if not qualifying:
+            conn.close()
+            return null_result
+
+        # --- 3. Pick best funder (highest creator_count)
+        best = qualifying[0]
+        funder_addr = best["funder_address"]
+        creator_count = best["creator_count"]
+
+        # --- 4. Resolve network name
+        #   Priority 1: existing funder_network_map entry
+        fnm_row = conn.execute(
+            "SELECT network_name FROM funder_network_map WHERE funder_address = ?",
+            (funder_addr,),
+        ).fetchone()
+
+        network_name = None
+        provisional = False
+
+        if fnm_row:
+            network_name = fnm_row["network_name"]
+        else:
+            # Priority 2: inherit from a creator already in network_membership
+            #   that shares this funder
+            nm_row = conn.execute("""
+                SELECT nm.network_name
+                FROM network_membership nm
+                JOIN creator_funders cf
+                  ON cf.creator_address = nm.creator_address
+                WHERE cf.funder_address = ?
+                  AND cf.is_cex = 0
+                LIMIT 1
+            """, (funder_addr,)).fetchone()
+
+            if nm_row:
+                network_name = nm_row["network_name"]
+            else:
+                # Priority 3: provisional name
+                network_name = f"Provisional_{funder_addr[:8]}"
+                provisional = True
+
+        # --- 5. Insert provisionally (INSERT OR IGNORE — canonical builder wins)
+        conn.execute(
+            "INSERT OR IGNORE INTO network_membership (network_name, creator_address) VALUES (?, ?)",
+            (network_name, creator_address),
+        )
+        conn.commit()
+        conn.close()
+
+        return {
+            "assigned": True,
+            "network_name": network_name,
+            "funder_address": funder_addr,
+            "provisional": provisional,
+            "creators_in_network": creator_count,
+        }
+
+    except Exception as exc:
+        logger.warning(f"[assign_live_network] failed for {creator_address}: {exc}")
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return null_result

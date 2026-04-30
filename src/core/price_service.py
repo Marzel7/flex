@@ -27,6 +27,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 import json
+from src.utils.db_locking import db_connect
 
 logger = logging.getLogger(__name__)
 
@@ -335,10 +336,8 @@ class TokenPriceService:
     
     def _get_conn(self) -> sqlite3.Connection:
         """Get database connection."""
-        conn = sqlite3.connect(self.db_path, timeout=15)
+        conn = db_connect(self.db_path, timeout=15)
         conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
         conn.execute("PRAGMA busy_timeout=15000")
         return conn
     
@@ -468,6 +467,7 @@ class TokenPriceService:
     
     def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:
         """Get most recent price from database cache."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -508,6 +508,11 @@ class TokenPriceService:
                 is_stale=is_stale
             )
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"Error getting cached price for {mint}: {e}")
             return None
     
@@ -622,6 +627,11 @@ class TokenPriceService:
 
             self._maybe_classify_after_snapshot(price.mint)
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"Error storing price snapshot for {price.mint}: {e}")
 
     def _maybe_classify_after_snapshot(self, mint: str) -> None:
@@ -630,8 +640,9 @@ class TokenPriceService:
             self._classified_mints = set()
         if mint in self._classified_mints:
             return
+        conn = None
         try:
-            conn = sqlite3.connect(self.db_path, timeout=3)
+            conn = db_connect(self.db_path, timeout=3)
             row = conn.execute(
                 "SELECT snap_count FROM token_snapshot_counts WHERE mint = ?",
                 (mint,)
@@ -645,6 +656,11 @@ class TokenPriceService:
             from src.core.token_behavior import classify_mint
             classify_mint(mint, self.db_path, skip_upsert=False)
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.debug(f"[CLASSIFY_AFTER_SNAP] {mint[:16]}: {e}")
 
     def _fetch_birdeye_sync(self, mint: str) -> Optional[TokenPrice]:
@@ -1118,6 +1134,7 @@ class TokenPriceService:
     
     def get_price_history(self, mint: str, hours: int = 24) -> List[Dict]:
         """Get historical price snapshots."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -1138,11 +1155,17 @@ class TokenPriceService:
             
             return [dict(row) for row in rows]
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"Error getting price history for {mint}: {e}")
             return []
     
     def clear_old_snapshots(self, days: int = 30) -> int:
         """Clear old price snapshots."""
+        conn = None
         try:
             conn = self._get_conn()
             cursor = conn.cursor()
@@ -1161,6 +1184,11 @@ class TokenPriceService:
             logger.info(f"Cleared {deleted} old price snapshots")
             return deleted
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"Error clearing old snapshots: {e}")
             return 0
 

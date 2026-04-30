@@ -41,6 +41,7 @@ import logging
 import hashlib
 from typing import Optional, Dict, List
 from datetime import datetime
+from src.utils.db_locking import db_connect
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +65,8 @@ class RPCCache:
     def _get_conn(self) -> sqlite3.Connection:
         """Get database connection with WAL mode (matches CursorManager pattern)."""
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            conn = db_connect(self.db_path, timeout=60)
             conn.execute("PRAGMA busy_timeout = 60000")
-            conn.execute("PRAGMA journal_mode = WAL")
             return conn
         except Exception as e:
             logger.error(f"[RPC_CACHE] Failed to get connection: {e}")
@@ -74,6 +74,7 @@ class RPCCache:
 
     def _ensure_table(self) -> None:
         """Idempotent table creation (matches CursorManager pattern)."""
+        conn = None
         try:
             conn = self._get_conn()
             if conn is None:
@@ -93,6 +94,11 @@ class RPCCache:
             conn.commit()
             conn.close()
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"[RPC_CACHE] Failed to ensure table: {e}")
 
     def get(self, cache_key: str) -> Optional[dict]:
@@ -149,6 +155,11 @@ class RPCCache:
                 return None
 
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"[RPC_CACHE] get() failed for {cache_key[:40]}: {e}")
             return None
 
@@ -163,6 +174,7 @@ class RPCCache:
         Uses INSERT OR REPLACE for concurrent safety under WAL.
         Never raises — logs warning on any exception.
         """
+        conn = None
         try:
             # Determine TTL: special case for first page of getSignaturesForAddress
             ttl_seconds = self.TTLS.get(method, 3600)  # Default 1h
@@ -188,10 +200,16 @@ class RPCCache:
             conn.close()
 
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.warning(f"[RPC_CACHE] set() failed for {cache_key[:40]}: {e}")
 
     def invalidate(self, cache_key: str) -> None:
         """Explicitly invalidate a cache entry."""
+        conn = None
         try:
             conn = self._get_conn()
             if conn is None:
@@ -205,6 +223,11 @@ class RPCCache:
             conn.close()
 
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.warning(f"[RPC_CACHE] invalidate() failed: {e}")
 
     def cleanup_expired(self) -> int:
@@ -213,6 +236,7 @@ class RPCCache:
         Call periodically (e.g., hourly) to reclaim space.
         Returns count of deleted rows.
         """
+        conn = None
         try:
             conn = self._get_conn()
             if conn is None:
@@ -234,6 +258,11 @@ class RPCCache:
             return deleted
 
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.warning(f"[RPC_CACHE] cleanup_expired() failed: {e}")
             return 0
 
@@ -250,6 +279,7 @@ class RPCCache:
                 'estimated_size_bytes': int
             }
         """
+        conn = None
         try:
             conn = self._get_conn()
             if conn is None:
@@ -289,6 +319,11 @@ class RPCCache:
             }
 
         except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
             logger.error(f"[RPC_CACHE] get_stats() failed: {e}")
             return {'error': str(e)}
 

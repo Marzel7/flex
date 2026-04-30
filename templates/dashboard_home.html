@@ -53,11 +53,13 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .tokens-table {
             width: 100%;
+            min-width: 820px;
             border-collapse: collapse;
             font-size: 12px;
             table-layout: fixed;
@@ -100,6 +102,8 @@
             color: var(--text-secondary);
             text-align: left;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .tokens-table td[id^="mc-"],
         .tokens-table td[id^="peak-mc-"],
@@ -114,6 +118,18 @@
         .tokens-table td.peak-timing-cell,
         .tokens-table td.age-cell {
             font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+        .tokens-table th:nth-child(6),
+        .tokens-table th:nth-child(8),
+        .tokens-table th:nth-child(9),
+        .tokens-table th:nth-child(10) {
+            text-align: right;
+        }
+        .tokens-table th:nth-child(7),
+        .tokens-table td:nth-child(7) {
+            text-align: center;
         }
         .tokens-table td[id^="mc-"] {
             color: #78909c;
@@ -158,10 +174,26 @@
         .token-links a { font-size: 10px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px dotted var(--text-secondary); white-space: nowrap; }
         .token-links a:hover { color: var(--accent-cyan); }
 
-        /* Single-line tags */
-        .tags-cell     { max-width: 50px; overflow: hidden; white-space: nowrap; padding: 7px 4px 7px 0; }
-        .tags-inner    { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; overflow: hidden; }
+        /* Compact, but never sliced, creator tags */
+        .tags-cell     { width: 96px; max-width: 96px; overflow: visible; white-space: normal; padding: 6px 6px 6px 0; }
+        .tags-inner    { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; overflow: visible; min-height: 20px; }
+        .tags-cell .creator-tag { flex: 0 0 auto; max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .tag-overflow  { font-size: 10px; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
+
+        .network-name,
+        .cluster-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .network-name a,
+        .cluster-name a,
+        .cluster-name span {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
 
         .tokens-table td {
             transition: opacity 0.2s ease;
@@ -798,6 +830,62 @@
             font-size: 12px;
         }
 
+        /* Second-hop upstream badge */
+        .badge-2h {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: rgba(251, 146, 60, 0.15);
+            color: #fb923c;
+            border: 1px solid rgba(251, 146, 60, 0.35);
+            vertical-align: middle;
+            margin-left: 3px;
+            line-height: 1.4;
+            cursor: help;
+            position: relative;
+        }
+
+        /* 2H tooltip */
+        .tooltip-2h {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            background: #1a1a2e;
+            border: 1px solid rgba(251,146,60,0.45);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: var(--text-primary);
+            min-width: 200px;
+            max-width: 280px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            pointer-events: none;
+            line-height: 1.5;
+        }
+        .tooltip-2h.visible { display: block; }
+
+        /* Strong 2H row highlight */
+        tr.row-2h-strong td:first-child {
+            border-left: 2px solid rgba(251,146,60,0.6);
+        }
+
+        /* Signal column badge */
+        .sig-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .sig-2h   { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.35); }
+        .sig-mf   { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .sig-cl   { background: rgba(167,139,250,0.12);color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+        .sig-farm { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+
         /* CEX badge */
         .cex-badge {
             display: inline-block;
@@ -1204,28 +1292,13 @@
             </div>
         </div>
 
-        <div class="controls-panel">
-            <div class="control-group">
-                <span class="control-label">Token History Check</span>
-                <div class="toggle-switch" id="tokenHistoryToggle" onclick="toggleTokenHistory()">
-                    <div class="toggle-slider"></div>
-                </div>
-                <span class="status-indicator" id="tokenHistoryStatus"></span>
-            </div>
-            <div class="control-group" style="border-left: 1px solid rgba(6, 182, 212, 0.3); margin-left: 12px; padding-left: 12px;">
-                <span class="control-label">Token Launch</span>
-                <div class="toggle-switch" id="listenLaunchesToggle" onclick="toggleListenLaunches()">
-                    <div class="toggle-slider"></div>
-                </div>
-                <span class="status-indicator" id="listenLaunchesStatus"></span>
-            </div>
-            <div class="control-group" style="border-left: 1px solid rgba(239, 68, 68, 0.3); margin-left: 12px; padding-left: 12px;">
-                <span class="control-label">Auto Extract Funders</span>
-                <div class="toggle-switch" id="autoExtractFundersToggle" onclick="toggleAutoExtractFunders()">
-                    <div class="toggle-slider"></div>
-                </div>
-                <span class="status-indicator" id="autoExtractFundersStatus"></span>
-            </div>
+
+        <!-- 2H filter toggle -->
+        <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;">
+                <input type="checkbox" id="filter2HOnly" onchange="applyFilter2H()" style="accent-color:#fb923c;width:13px;height:13px;">
+                <span>Only show 2H tokens</span>
+            </label>
         </div>
 
         <div style="display:flex;gap:12px;align-items:flex-start">
@@ -1362,8 +1435,9 @@
             <!-- Creator Stats Summary -->
             <div class="creator-stats-grid">
                 <div class="stat-box">
-                    <label>Total Tokens</label>
+                    <label>Migrated Tokens</label>
                     <span id="creatorTotalTokens">—</span>
+                    <span id="creatorNonMigrated" style="display:none;font-size:11px;color:var(--text-secondary);margin-top:3px;"></span>
                 </div>
                 <div class="stat-box">
                     <label>Funding Received</label>
@@ -1391,6 +1465,29 @@
 
             <!-- Creator Tags -->
             <div id="creatorTagsContainer"></div>
+
+            <!-- Second-Hop Funding Signals (collapsed by default) -->
+            <div id="secondHopSection" style="display:none; margin-bottom: 16px;">
+                <div id="secondHopToggle"
+                     onclick="document.getElementById('secondHopBody').style.display = document.getElementById('secondHopBody').style.display === 'none' ? 'block' : 'none';"
+                     style="cursor:pointer; display:flex; align-items:center; gap:6px; padding:8px 0; border-bottom: 1px solid rgba(251,146,60,0.25); margin-bottom:8px; user-select:none;">
+                    <span class="badge-2h" style="font-size:10px;">2H</span>
+                    <span style="font-size:12px; font-weight:600; color:#fb923c;">Second-Hop Funding Signals</span>
+                    <span style="font-size:10px; color:var(--text-secondary); margin-left:auto;">▼ show</span>
+                </div>
+                <div id="secondHopBody" style="display:none;">
+                    <div id="secondHopIntro" style="display:none; font-size:11px; padding:8px 10px; background:rgba(251,146,60,0.06); border-left:3px solid rgba(251,146,60,0.4); border-radius:3px; margin-bottom:10px; color:var(--text-secondary);">
+                        This creator shares 2H source funding with other networks.<br>Pattern suggests coordinated deployment.
+                    </div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-bottom:8px;">
+                        A 2H source funds multiple known funders across different networks. This may indicate coordination — not necessarily the same operator.
+                    </div>
+                    <div id="secondHopList"></div>
+                    <div style="text-align:right; margin-top:4px;">
+                        <a id="secondHopLowConfLink" href="#" style="font-size:10px; color:var(--text-secondary);" onclick="loadSecondHopLowConf(event)">Show lower-confidence signals</a>
+                    </div>
+                </div>
+            </div>
 
             <!-- Tokens Launched -->
             <h3>Tokens Launched</h3>
@@ -2156,41 +2253,19 @@
                     return;
                 }
 
-                // Extract unique creator addresses
+                // Extract unique creator addresses. Render immediately with cached
+                // enrichment, then hydrate creator/network metadata in the background.
                 const creators = [...new Set(data.tokens.map(t => t.creator).filter(c => c))];
-
-                // Fetch all creator data in one batch call
-                let creatorData = {};
-                if (creators.length > 0) {
-                    try {
-                        const creatorResp = await fetch('/api/creators-batch', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({"creators": creators})
-                        });
-                        creatorData = await creatorResp.json();
-                        window._creatorDataCache = { ...(window._creatorDataCache || {}), ...creatorData };
-                    } catch (e) {
-                        console.error('Error loading creator data:', e);
-                    }
-                }
-
-                // Load infrastructure mapping (separate infrastructure and CEX)
-                window.infraMapping = { infrastructure: {}, cex: {} };
-                try {
-                    const infraResp = await fetch('/api/infrastructure-mapping');
-                    if (infraResp.ok) {
-                        window.infraMapping = await infraResp.json();
-                    }
-                } catch (e) {
-                    console.log('Infrastructure mapping not available');
-                }
+                window._creatorDataCache = window._creatorDataCache || {};
+                window.infraMapping = window.infraMapping || { infrastructure: {}, cex: {} };
+                const creatorData = window._creatorDataCache;
 
                 // Enrich tokens with creator data
                 const enrichedTokens = data.tokens.map(token => ({
                     ...token,
                     creatorData: creatorData[token.creator] || {}
                 }));
+                seedNewPinsFromServer(enrichedTokens);
 
                 Object.keys(_newPinStore.all()).forEach((mint) => {
                     const liveToken = enrichedTokens.find(t => t.mint === mint);
@@ -2274,6 +2349,44 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({mints, ttl: 30})
                     }).catch(() => {});
+                }
+
+                if (creators.length > 0 && !window._creatorBatchHydrationInFlight) {
+                    window._creatorBatchHydrationInFlight = fetch('/api/creators-batch', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({"creators": creators})
+                    })
+                        .then(r => r.ok ? r.json() : {})
+                        .then(batchData => {
+                            window._creatorDataCache = { ...(window._creatorDataCache || {}), ...batchData };
+                            const refreshed = (window.currentTokens || []).map(token => ({
+                                ...token,
+                                creatorData: window._creatorDataCache[token.creator] || token.creatorData || {}
+                            }));
+                            window.currentTokens = refreshed;
+                            window._lastTokenList = refreshed;
+                            buildTable(refreshed);
+                        })
+                        .catch(e => console.error('Error loading creator data:', e))
+                        .finally(() => {
+                            window._creatorBatchHydrationInFlight = null;
+                        });
+                }
+
+                if (!window._infraMappingLoaded && !window._infraMappingInFlight) {
+                    window._infraMappingInFlight = fetch('/api/infrastructure-mapping')
+                        .then(r => r.ok ? r.json() : null)
+                        .then(mapping => {
+                            if (!mapping) return;
+                            window.infraMapping = mapping;
+                            window._infraMappingLoaded = true;
+                            _rebuildVisibleTable();
+                        })
+                        .catch(() => console.log('Infrastructure mapping not available'))
+                        .finally(() => {
+                            window._infraMappingInFlight = null;
+                        });
                 }
 
             } catch (error) {
@@ -2460,7 +2573,7 @@
             // Always prefer _creatorDataCache (kept fresh by ensureCreatorEnrichment) over
             // token.creatorData which may be stale from the previous poll batch.
             const _cachedCreator = window._creatorDataCache?.[token.creator];
-            const _hasCached = _cachedCreator && (_cachedCreator.token_count > 0 || _cachedCreator.network_size > 0 || _cachedCreator.inbound_sources > 0 || (_cachedCreator.tags && _cachedCreator.tags.length > 0) || _cachedCreator.named_networks != null || _cachedCreator.farm_clusters != null);
+            const _hasCached = _cachedCreator && (_cachedCreator.token_count > 0 || _cachedCreator.network_size > 0 || _cachedCreator.inbound_sources > 0 || (_cachedCreator.tags && _cachedCreator.tags.length > 0) || (_cachedCreator.named_networks && _cachedCreator.named_networks.length > 0) || (_cachedCreator.farm_clusters && _cachedCreator.farm_clusters.length > 0));
             const creatorData = _hasCached ? _cachedCreator : (token.creatorData || {});
             const columnTags = [];
             const TAG_SHORT = {
@@ -2484,11 +2597,25 @@
                 const sources = creatorData.inbound_sources || 0;
                 columnTags.push(`<span class="creator-tag tag-funding" title="Pre-launch funding: ${creatorData.inbound_sol.toFixed(1)} SOL from ${sources} source${sources > 1 ? 's' : ''}">${creatorData.inbound_sol.toFixed(0)}◎</span>`);
             }
-            if (creatorData.token_count > 1) {
-                columnTags.push(`<span class="creator-tag tag-repeat" title="Repeat launcher: ${creatorData.token_count} tokens">M${creatorData.token_count}</span>`);
+            {
+                const nmCount = creatorData.non_migrated_count || 0;
+                const migCount = creatorData.token_count || 0;
+                const total = migCount + nmCount;
+                if (total > 1) {
+                    const nmNote = nmCount > 0 ? ` + ${nmCount} on bonding curve` : '';
+                    columnTags.push(`<span class="creator-tag tag-repeat" title="Migrated: ${migCount}${nmNote}">M${migCount}</span>`);
+                }
             }
             if (creatorData.is_blocked || token.creator_is_blocked) {
                 columnTags.push('<span class="creator-tag tag-blocked" title="On blocklist">BLK</span>');
+            }
+            if (!creatorData.funding_checked && token.lifecycle_stage === 'migrated') {
+                const ageHours = token.created_at ? (Date.now() / 1000 - token.created_at) / 3600 : 999;
+                if (ageHours < 24) {
+                    const fundingTitle = creatorData.funding_queued ? 'Pre-launch funder extraction pending' : 'Pre-launch funder data not yet extracted';
+                    const fundingLabel = creatorData.funding_queued ? '⏳ Funders' : '? Funders';
+                    columnTags.push(`<span class="creator-tag" title="${fundingTitle}" style="color:#f97316;border-color:rgba(249,115,22,0.35);background:rgba(249,115,22,0.08);font-size:10px;">${fundingLabel}</span>`);
+                }
             }
 
             let funderLabels = [];
@@ -2650,19 +2777,62 @@
                 infraTags += `<div style="display:flex;flex-wrap:nowrap;gap:4px;margin-top:3px;overflow:hidden">${infraTagsHTML}</div>`;
             }
 
+            // Risk tags from IRC/self-funding/coordinated signals
+            if (token.is_self_funding || token.self_funding_pct >= 50)
+                columnTags.unshift(`<span class="creator-tag" style="color:#f87171;border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.08);font-size:10px;" title="Self-funding: ${token.self_funding_pct || 0}%">SELF-FUND</span>`);
+            if (token.coordinated_count > 0)
+                columnTags.unshift(`<span class="creator-tag" style="color:#fbbf24;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);font-size:10px;" title="${token.coordinated_count} coordinated creator edges">COORD</span>`);
+            if (token.in_farm_cluster > 0)
+                columnTags.unshift(`<span class="creator-tag" style="color:#a78bfa;border-color:rgba(139,92,246,0.35);background:rgba(139,92,246,0.08);font-size:10px;" title="Farm cluster member">FARM</span>`);
+
             const snapAge = token.snap_age ?? 99999;
             const rowSnapClass = snapAge > 120 ? 'row-stale-snap' : (snapAge < 60 ? 'row-active-snap' : '');
             const MAX_TAGS = 2;
             const visibleTags = columnTags.slice(0, MAX_TAGS);
             const hiddenCount = columnTags.length - visibleTags.length;
             const allTagText = columnTags.map(t => t.replace(/<[^>]+>/g, '')).join(', ');
-            const isPin = _newPinStore.isNew(token.mint);
+            const isPin = isNewToken(token.mint, token);
             const peakTimingDisplay = formatPeakTimeSeconds(token.peak_time_seconds) || (token.market_cap_highest_at ? getTimeToPeak(token.created_at, token.market_cap_highest_at) : '');
             // Placeholder symbol — prefer resolved symbol, then server symbol, then token name, then mint prefix
             window._resolvedSymbols = window._resolvedSymbols || {};
             const symPlaceholder = _getDisplayLabel(token.mint, token);
             const lastUpdated = token.snap_age != null ? Date.now() - token.snap_age * 1000 : '';
-            return `<tr class="${rowSnapClass}" data-mint="${token.mint}"${lastUpdated ? ` data-last-updated="${lastUpdated}"` : ''} data-created-at="${token.created_at || ''}" data-peak-at="${token.market_cap_highest_at || ''}">
+
+            // Compute 2H state for this token's networks
+            const _staticNet2 = token.atomic_network_name;
+            const _liveNets2 = creatorData.named_networks || [];
+            const _allNets2 = _staticNet2 ? [_staticNet2, ..._liveNets2.filter(n => n !== _staticNet2)] : _liveNets2;
+            const _2hConf = _allNets2.reduce((mx, n) => Math.max(mx, _secondHopConfMap[n] || 0), 0);
+            const _has2H = _2hConf >= 45;
+            const _strong2H = _2hConf >= 60;
+
+            // Signal column: priority-ordered top signal badge
+            const _sigBadge = (() => {
+                if (_has2H) {
+                    // pick the network with highest 2H conf to determine label variant
+                    const _topNet2H = _allNets2.find(n => (_secondHopConfMap[n] || 0) >= 45);
+                    const _topConf = _topNet2H ? (_secondHopConfMap[_topNet2H] || 0) : 0;
+                    // We need reason codes — we don't have them at row level, so infer from cached bridge data
+                    const _cached = _topNet2H ? (_bridge2HCache[_topNet2H] || null) : null;
+                    let _label = '2H';
+                    if (_cached) {
+                        const _rcs = (_cached[0] && _cached[0].reason_codes) ? _cached[0].reason_codes : [];
+                        const _hasBurst = _rcs.some(rc => rc.includes('burst'));
+                        const _isMulti = _cached.length > 1;
+                        _label = _hasBurst ? '2H Burst' : _isMulti ? '2H Multi' : '2H';
+                    }
+                    return `<span class="sig-badge sig-2h">${_label}</span>`;
+                }
+                const _tags = creatorData.tags || [];
+                const _hasMF = _tags.some(t => typeof t === 'string' ? t.includes('Multi-Funder') : (t.tag||'').includes('Multi-Funder'));
+                if (_hasMF) return `<span class="sig-badge sig-mf">MF</span>`;
+                if (creatorData.wallet_clusters && creatorData.wallet_clusters.length) return `<span class="sig-badge sig-cl">Cluster</span>`;
+                if (creatorData.farm_clusters && creatorData.farm_clusters.length) return `<span class="sig-badge sig-farm">Farm</span>`;
+                return '';
+            })();
+
+            const _rowClass = [rowSnapClass, _strong2H ? 'row-2h-strong' : ''].filter(Boolean).join(' ');
+            return `<tr class="${_rowClass}" data-mint="${token.mint}" data-has2h="${_has2H ? '1' : '0'}"${lastUpdated ? ` data-last-updated="${lastUpdated}"` : ''} data-created-at="${token.created_at || ''}" data-peak-at="${token.market_cap_highest_at || ''}">
                 <td class="mint-with-creator" style="min-width:130px;max-width:200px;padding-right:0">
                     <div class="token-primary">
                         <span id="symbol-${token.mint}" class="token-symbol" title="${token.name || token.symbol || token.mint}">${symPlaceholder}</span>${isPin ? `<span class="badge-new" id="badge-new-${token.mint}">NEW</span>` : ''}
@@ -2680,15 +2850,13 @@
                 </td>
                 <td class="network-name">
                     ${(() => {
-                        const staticNet = token.atomic_network_name;
-                        const liveNets = creatorData.named_networks || [];
-                        const allNets = staticNet
-                            ? [staticNet, ...liveNets.filter(n => n !== staticNet)]
-                            : liveNets;
-                        if (!allNets.length) return '';
-                        return allNets.slice(0, 2).map(n =>
-                            `<a href="/networks?network=${encodeURIComponent(n)}" style="display:inline-block;color:var(--accent-purple);font-weight:bold;font-size:11px;cursor:pointer;text-decoration:none;border-bottom:1px dotted var(--accent-purple);margin-right:3px" title="Named network">${n}</a>`
-                        ).join('') + (allNets.length > 2 ? `<span style="color:var(--text-secondary);font-size:10px">+${allNets.length-2}</span>` : '');
+                        if (!_allNets2.length) return '';
+                        const badge2H = _has2H
+                            ? `<span class="badge-2h" data-nets="${_allNets2.join(',')}" onmouseenter="_show2HTooltip(event,this)" onmouseleave="_hide2HTooltip()">2H</span>`
+                            : '';
+                        return _allNets2.slice(0, 2).map(n =>
+                            `<a href="/networks?network=${encodeURIComponent(n)}" style="display:inline-block;color:var(--accent-purple);font-weight:bold;font-size:11px;cursor:pointer;text-decoration:none;border-bottom:1px dotted var(--accent-purple);margin-right:3px" title="${_networkDisplayTitle(n)}">${_networkDisplayName(n)}</a>`
+                        ).join('') + (_allNets2.length > 2 ? `<span style="color:var(--text-secondary);font-size:10px">+${_allNets2.length-2}</span>` : '') + badge2H;
                     })()}
                 </td>
                 <td class="cluster-name">
@@ -2704,6 +2872,7 @@
                         return staticCluster + liveHtml || '';
                     })()}
                 </td>
+                <td style="width:58px;white-space:nowrap">${_sigBadge}</td>
                 <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:68px;min-width:68px;white-space:nowrap">
                     ${token.liquidity_removed ? `<span class="rug-badge" title="Liquidity removed${token.liquidity_removed_at ? ' · ' + timeSinceLaunch(token.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
@@ -2799,9 +2968,10 @@
                 container.innerHTML = `<div class="tokens-table-wrap"><table class="tokens-table">
                     <thead><tr>
                         <th onclick="sortBy('mint')" class="sortable" style="width:120px"></th>
-                        <th style="width:50px;padding:0"></th>
-                        <th onclick="sortBy('network_name')" class="sortable" style="width:80px">Network</th>
-                        <th onclick="sortBy('cluster_name')" class="sortable" style="width:80px">Cluster</th>
+                        <th style="width:96px;padding:0"></th>
+                        <th onclick="sortBy('network_name')" class="sortable" style="width:92px">Network</th>
+                        <th onclick="sortBy('cluster_name')" class="sortable" style="width:92px">Cluster</th>
+                        <th style="width:58px" title="Top risk signal for this token">Signal</th>
                         <th onclick="sortBy('market_cap_current')" class="sortable" style="width:68px;min-width:68px">Market Cap</th>
                         <th style="width:28px;min-width:28px;padding-left:2px;padding-right:2px" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)"></th>
                         <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:66px;min-width:66px" title="Recorded peak market cap. Brief unconfirmed spikes may be excluded.">Peak MC*</th>
@@ -2998,6 +3168,9 @@
             // ── Progressive per-mint hydration — deduped and bounded ─────────
             sortedTokens.forEach(token => ensureMintHydration(token.mint, token));
 
+            // Re-apply 2H filter if active
+            if (document.getElementById('filter2HOnly')?.checked) applyFilter2H();
+
             // DISABLED: Price polling endpoints no longer available
             // The wallet page uses SSE for real-time prices instead
             //
@@ -3183,10 +3356,33 @@
             };
         })();
 
-        function isNewToken(mint) {
+        function isNewToken(mint, token = null) {
             // mint-based check (used in table render)
             if (mint && _newPinStore.isNew(mint)) return true;
+            if (token && isServerNewToken(token)) return true;
             return false;
+        }
+
+        function isServerNewToken(token) {
+            return !!(token && (token.is_new === true || token.is_new === 1));
+        }
+
+        function _newDetectedAtMs(token) {
+            const candidates = [token?.migrated_at, token?.created_at, token?.analyzed_at];
+            for (const value of candidates) {
+                const parsed = parseTs(value);
+                if (parsed && !Number.isNaN(parsed.getTime())) return parsed.getTime();
+            }
+            return Date.now();
+        }
+
+        function seedNewPinsFromServer(tokens) {
+            (tokens || []).forEach(token => {
+                if (!token?.mint || !isServerNewToken(token)) return;
+                if (!_newPinStore.isNew(token.mint)) {
+                    _newPinStore.pin(token.mint, _newDetectedAtMs(token));
+                }
+            });
         }
 
         function timeSinceLaunch(createdAtTimestamp) {
@@ -3521,33 +3717,27 @@ function switchToTokensTab() {
                 const tokenHistoryToggle = document.getElementById('tokenHistoryToggle');
                 const tokenHistoryStatus = document.getElementById('tokenHistoryStatus');
 
-                if (!tokenHistoryEnabled) {
-                    tokenHistoryToggle.classList.remove('active');
-                    tokenHistoryStatus.classList.remove('active');
-                } else {
-                    tokenHistoryToggle.classList.add('active');
-                    tokenHistoryStatus.classList.add('active');
+                if (tokenHistoryToggle && tokenHistoryStatus) {
+                    tokenHistoryToggle.classList.toggle('active', tokenHistoryEnabled);
+                    tokenHistoryStatus.classList.toggle('active', tokenHistoryEnabled);
                 }
 
                 // Update listener toggle switch states
                 const listenLaunchesToggle = document.getElementById('listenLaunchesToggle');
                 const listenLaunchesStatus = document.getElementById('listenLaunchesStatus');
 
-                if (!listenLaunchesEnabled) {
-                    listenLaunchesToggle.classList.remove('active');
-                    listenLaunchesStatus.classList.remove('active');
-                } else {
-                    listenLaunchesToggle.classList.add('active');
-                    listenLaunchesStatus.classList.add('active');
+                if (listenLaunchesToggle && listenLaunchesStatus) {
+                    listenLaunchesToggle.classList.toggle('active', listenLaunchesEnabled);
+                    listenLaunchesStatus.classList.toggle('active', listenLaunchesEnabled);
                 }
 
                 // Update auto extract funders toggle switch states
                 const autoExtractFundersToggle = document.getElementById('autoExtractFundersToggle');
                 const autoExtractFundersStatus = document.getElementById('autoExtractFundersStatus');
 
-                if (autoExtractFundersEnabled) {
-                    autoExtractFundersToggle.classList.add('active');
-                    autoExtractFundersStatus.classList.add('active');
+                if (autoExtractFundersToggle && autoExtractFundersStatus) {
+                    autoExtractFundersToggle.classList.toggle('active', autoExtractFundersEnabled);
+                    autoExtractFundersStatus.classList.toggle('active', autoExtractFundersEnabled);
                 }
 
                 const historyState = tokenHistoryEnabled ? '✅ ON' : '❌ OFF';
@@ -4133,8 +4323,9 @@ function switchToTokensTab() {
                         ${creator ? `<a href="#" class="creator-link-btn" onclick="showCreatorDetails('${creator}'); return false;" title="${creator}">Creator ↗</a>` : ''}
                     </div>
                 </td>
-                <td></td>
-                <td></td>
+                <td class="tags-cell"></td>
+                <td class="network-name"></td>
+                <td class="cluster-name"></td>
                 <td></td>
                 <td id="mc-${mint}" data-price-state="waiting">—</td>
                 <td style="width:28px;min-width:28px;padding-left:2px;padding-right:2px;white-space:nowrap"><span style="opacity:0.25;font-size:11px">—</span></td>
@@ -4186,6 +4377,12 @@ function switchToTokensTab() {
 
         // Initialize SSE price streaming
         function initDashboardPriceStream() {
+            const params = new URLSearchParams(window.location.search);
+            const liveEnabled = params.get('live') === '1' || localStorage.getItem('flexLiveSse') === '1';
+            if (!liveEnabled) {
+                console.log('[SSE_PRICE] disabled by default; add ?live=1 or set localStorage.flexLiveSse=1 to enable');
+                return;
+            }
             console.log('[SSE_PRICE] Connecting to price stream...');
             const es = new EventSource('/api/price-stream');
             let eventCount = 0;
@@ -4301,15 +4498,15 @@ function switchToTokensTab() {
             }
         }
 
-        // Load tokens immediately and then every 10 seconds
+        // Load tokens immediately, then use a slower full refresh cadence.
         (async () => {
-            await initializeSettings();
+            initializeSettings();          // fire-and-forget; do not block first table render
             loadIntelligenceSummary();     // fire-and-forget, no need to block token load
             await loadTokens();            // await so data-mint rows exist before SSE starts
             await loadFutureBound();
             initDashboardPriceStream();    // Start SSE price stream
-            setInterval(loadTokens, 5000);
-            setInterval(loadFutureBound, 5000);
+            setInterval(loadTokens, 30000);
+            setInterval(loadFutureBound, 30000);
 
             // Refresh Age and Peak Timing text without requiring a full table rebuild
             setInterval(() => {
@@ -4577,7 +4774,15 @@ function switchToTokensTab() {
 
                 // Populate creator stats with styled badges
                 const tokenCount = data.tokens.length;
+                const nonMigrated = data.non_migrated_count || 0;
                 document.getElementById('creatorTotalTokens').innerHTML = `<span class="creator-tag tag-repeat" style="display: inline-block;">${tokenCount} token${tokenCount !== 1 ? 's' : ''}</span>`;
+                const nmEl = document.getElementById('creatorNonMigrated');
+                if (nonMigrated > 0) {
+                    nmEl.textContent = `+ ${nonMigrated} on bonding curve`;
+                    nmEl.style.display = 'block';
+                } else {
+                    nmEl.style.display = 'none';
+                }
 
                 const fundingAmount = (data.funding.total_sol !== null ? data.funding.total_sol.toFixed(2) : '0.00');
                 document.getElementById('creatorTotalFunding').innerHTML = `<span class="creator-tag tag-funding" style="display: inline-block;">${fundingAmount} SOL</span>`;
@@ -4680,12 +4885,20 @@ function switchToTokensTab() {
                             ? `<span class="rug-badge" title="Liquidity removed">LIQ</span>`
                             : token.peak_market_cap ? '$' + formatMarketCap(token.peak_market_cap) : '<span style="opacity:0.35">—</span>';
                         const gBadge = token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>';
+                        const heldSecs = token.peak_grade_held_secs;
+                        const flashDumpBadge = (
+                            heldSecs != null && heldSecs < 600 &&
+                            token.token_class && token.token_class !== 'G?' && token.token_class !== 'G7' &&
+                            token.current_grade === 'G7'
+                        )
+                            ? `<span title="Flash Dump — peaked at ${token.token_class}, held ${heldSecs}s then dumped to G7" style="color:#f97316;font-size:12px;margin-left:3px;vertical-align:middle;">⚡</span>`
+                            : '';
                         return `
                             <tr>
                                 <td><a href="#" onclick="showTokenMetrics('${token.mint}'); return false;" class="mint-link" title="${token.mint}">${token.mint.substring(0, 16)}...</a></td>
                                 <td>${formatDateISO(token.created_at)}</td>
                                 <td><span class="risk-score risk-${token.risk_level ? token.risk_level.toLowerCase() : 'medium'}">${token.risk_level || 'N/A'}</span></td>
-                                <td>${gBadge}</td>
+                                <td>${gBadge}${flashDumpBadge}</td>
                                 <td>${peakMc}</td>
                                 <td>${createTxCell}</td>
                             </tr>
@@ -4723,10 +4936,15 @@ function switchToTokensTab() {
                     cexSection.style.display = 'none';
                 }
 
+                // Fire secondary calls in parallel — none depend on each other
+                const [multiCreatorData, fundedData, historyData] = await Promise.all([
+                    fetch('/api/multi-creator-funders').then(r => r.json()).catch(() => ({})),
+                    fetch(`/api/funder-tokens/${creatorAddress}`).then(r => r.json()).catch(() => ({})),
+                    fetch(`/api/creator-service-history/${creatorAddress}`).then(r => r.json()).catch(() => ({})),
+                ]);
+
                 // Check for multi-creator funders (coordination risk)
                 try {
-                    const multiCreatorResponse = await fetch('/api/multi-creator-funders');
-                    const multiCreatorData = await multiCreatorResponse.json();
 
                     if (multiCreatorData.multi_creator_funders && multiCreatorData.multi_creator_funders.length > 0) {
                         // Check if any of this creator's funders are in the multi-creator list
@@ -4832,11 +5050,8 @@ function switchToTokensTab() {
                     allFundersBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No funders found</td></tr>';
                 }
 
-                // Load tokens funded (if this address is a funder)
+                // Load tokens funded (if this address is a funder) — already fetched in parallel above
                 try {
-                    const fundedResponse = await fetch(`/api/funder-tokens/${creatorAddress}`);
-                    const fundedData = await fundedResponse.json();
-
                     if (fundedData.tokens_funded && fundedData.tokens_funded.length > 0) {
                         document.getElementById('tokensFundedSection').style.display = 'block';
                         const fundedBody = document.getElementById('tokensFundedBody');
@@ -5016,11 +5231,8 @@ function switchToTokensTab() {
                     clusterInfo.innerHTML = '<p style="color: var(--text-secondary);">No wallet network data available</p>';
                 }
 
-                // Fetch and populate Jito tips history
+                // Fetch and populate Jito tips history — already fetched in parallel above
                 try {
-                    const historyResponse = await fetch(`/api/creator-service-history/${creatorAddress}`);
-                    const historyData = await historyResponse.json();
-
                     const jitotipsSection = document.getElementById('jitotipsSection');
                     const jitotipsBody = document.getElementById('jitotipsBody');
 
@@ -5071,6 +5283,9 @@ function switchToTokensTab() {
                 }
 
 
+                // Fetch second-hop signals for this creator (non-blocking)
+                _loadCreatorSecondHop(creatorAddress, false);
+
                 // Show modal
                 modal.style.display = 'block';
 
@@ -5078,6 +5293,63 @@ function switchToTokensTab() {
                 console.error('Error loading creator details:', error);
                 alert('Failed to load creator details');
             }
+        }
+
+        function _renderSecondHopList(hops) {
+            if (!hops.length) return '<div style="font-size:11px;color:var(--text-secondary);">No 2H source connections found at this confidence level.</div>';
+            const riskColor = { HIGH: '#f87171', CRITICAL: '#ef4444', MEDIUM: '#fbbf24', LOW: '#9ca3af' };
+            return hops.map(h => {
+                const rc = (h.reason_codes || []).map(c => c.replace(/_/g, ' ')).join(' · ');
+                const spanDays = h.time_span_seconds ? Math.round(h.time_span_seconds / 86400) : null;
+                const spanStr = spanDays !== null ? ` · ${spanDays}d span` : '';
+                const via = h.via_network ? ` via ${h.via_network}` : '';
+                return `
+                <div style="padding:8px;background:rgba(251,146,60,0.07);border-left:3px solid rgba(251,146,60,0.35);border-radius:3px;margin-bottom:6px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                        <span style="font-family:monospace;font-size:10px;color:var(--text-secondary);" title="${h.upstream_address}">${h.upstream_address.slice(0,8)}…${h.upstream_address.slice(-4)}${via}${spanStr}</span>
+                        <span style="color:${riskColor[h.risk_level]||'#9ca3af'};font-size:10px;font-weight:700;">${h.risk_level} · ${Math.round(h.confidence_score)}</span>
+                    </div>
+                    ${rc ? `<div style="font-size:10px;color:var(--text-secondary);">${rc}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        async function _loadCreatorSecondHop(creatorAddress, includeLow) {
+            const section = document.getElementById('secondHopSection');
+            const list = document.getElementById('secondHopList');
+            const lowLink = document.getElementById('secondHopLowConfLink');
+            const intro = document.getElementById('secondHopIntro');
+            if (!section || !list) return;
+
+            const url = `/api/second-hop/${encodeURIComponent(creatorAddress)}` + (includeLow ? '?include_low_confidence=true' : '');
+            try {
+                const r = await fetch(url);
+                const data = await r.json();
+                const hops = (data.second_hop || []);
+                if (!hops.length && !includeLow) {
+                    section.style.display = 'none';
+                    return;
+                }
+                section.style.display = 'block';
+                // Show explanation intro only when top hop confidence >= 45
+                if (intro) {
+                    const topConf = hops.length ? (hops[0].confidence_score || 0) : 0;
+                    intro.style.display = topConf >= 45 ? 'block' : 'none';
+                }
+                list.innerHTML = _renderSecondHopList(hops);
+                if (includeLow) {
+                    lowLink.style.display = 'none';
+                } else {
+                    lowLink.onclick = (e) => { e.preventDefault(); _loadCreatorSecondHop(creatorAddress, true); };
+                }
+            } catch (_) {
+                section.style.display = 'none';
+            }
+        }
+
+        async function loadSecondHopLowConf(e) {
+            e.preventDefault();
+            // resolved by the onclick set in _loadCreatorSecondHop
         }
 
         async function viewTransaction(signature) {
@@ -6315,6 +6587,104 @@ function switchToTokensTab() {
             document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
 
+        // Second-hop confidence map: network_name → max confidence score (>= 45)
+        // Populated once at startup, used to render 2H badges in the token table.
+        let _secondHopConfMap = {};
+        let _networkDisplayNames = {};
+        function _networkDisplayName(networkName) {
+            const meta = _networkDisplayNames[networkName] || {};
+            return meta.display_name || (networkName ? networkName.replace('_', '-') : '');
+        }
+        function _networkDisplayTitle(networkName) {
+            const meta = _networkDisplayNames[networkName] || {};
+            return `Internal ID: ${networkName}${meta.reason ? '\nReason: ' + meta.reason : ''}`;
+        }
+        async function _loadSecondHopConfMap() {
+            try {
+                const r = await fetch('/api/second-hop-network-map');
+                if (r.ok) _secondHopConfMap = await r.json();
+            } catch (_) {}
+        }
+        async function _loadNetworkDisplayNames() {
+            try {
+                const r = await fetch('/api/network-display-names');
+                if (r.ok) _networkDisplayNames = await r.json();
+            } catch (_) {}
+        }
+        _loadSecondHopConfMap();
+        _loadNetworkDisplayNames();
+
+        // Per-network bridge cache for tooltip lazy-loading: network → bridges[]
+        const _bridge2HCache = {};
+
+        // Shared tooltip element
+        const _tt2H = document.createElement('div');
+        _tt2H.className = 'tooltip-2h';
+        document.body.appendChild(_tt2H);
+
+        async function _show2HTooltip(evt, el) {
+            const nets = (el.dataset.nets || '').split(',').filter(Boolean);
+            if (!nets.length) return;
+
+            // Pick the network with highest 2H confidence
+            const topNet = nets.reduce((best, n) => (_secondHopConfMap[n] || 0) > (_secondHopConfMap[best] || 0) ? n : best, nets[0]);
+
+            // Lazy-load bridge data for this network
+            if (!_bridge2HCache[topNet]) {
+                try {
+                    const r = await fetch('/api/network-bridges/' + encodeURIComponent(topNet));
+                    const d = await r.json();
+                    _bridge2HCache[topNet] = d.bridges || [];
+                } catch (_) {
+                    _bridge2HCache[topNet] = [];
+                }
+            }
+
+            const bridges = _bridge2HCache[topNet] || [];
+            if (!bridges.length) return;
+
+            const riskColor = { HIGH: '#f87171', CRITICAL: '#ef4444', MEDIUM: '#fbbf24', LOW: '#9ca3af' };
+            const topReasons = [];
+            bridges.forEach(b => (b.reason_codes || []).forEach(rc => { if (!topReasons.includes(rc)) topReasons.push(rc); }));
+            const topReason = topReasons[0] ? topReasons[0].replace(/_/g, ' ') : null;
+
+            let html = `<div style="font-weight:700;color:#fb923c;margin-bottom:6px;">Shares 2H source funding with ${bridges.length} network${bridges.length > 1 ? 's' : ''}</div>`;
+            bridges.slice(0, 4).forEach(b => {
+                const label = b.connected_network_display_name || _networkDisplayName(b.connected_network);
+                html += `<div style="margin-bottom:3px;">• <span title="Internal ID: ${b.connected_network}" style="color:var(--accent-purple);font-weight:600;">${label}</span> <span style="color:${riskColor[b.risk_level]||'#9ca3af'};font-size:10px;">(${b.risk_level} ${Math.round(b.confidence_score)})</span></div>`;
+            });
+            if (topReason) html += `<div style="margin-top:6px;color:var(--text-secondary);font-size:10px;">Top signal: ${topReason}</div>`;
+
+            _tt2H.innerHTML = html;
+            _tt2H.classList.add('visible');
+            _positionTooltip2H(evt);
+        }
+
+        function _positionTooltip2H(evt) {
+            const margin = 12;
+            let x = evt.clientX + margin;
+            let y = evt.clientY + margin;
+            if (x + 290 > window.innerWidth) x = evt.clientX - 290 - margin;
+            if (y + 160 > window.innerHeight) y = evt.clientY - 160 - margin;
+            _tt2H.style.left = x + 'px';
+            _tt2H.style.top = y + 'px';
+        }
+
+        function _hide2HTooltip() {
+            _tt2H.classList.remove('visible');
+        }
+
+        function applyFilter2H() {
+            const on = document.getElementById('filter2HOnly').checked;
+            document.querySelectorAll('#tokens-container tbody tr[data-mint]').forEach(row => {
+                if (!on || row.dataset.has2h === '1') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         // Real-time polling for network updates
         let networkPollingInterval = null;
         let lastNetworkDataHash = null;
@@ -6461,7 +6831,7 @@ function switchToTokensTab() {
                 return `
                     <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                         <td style="padding: 10px; color: var(--text-primary);">
-                            <a href="#" onclick="showNetworkDetails(${net.network_id}); return false;"
+                            <a href="/networks?network=${encodeURIComponent(networkName)}"
                                style="color: var(--accent-cyan); text-decoration: none; cursor: pointer; font-weight: 500;">
                                 ${networkName}
                             </a>

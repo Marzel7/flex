@@ -90,7 +90,6 @@
         flex-wrap: wrap;
     }
     .analyzer-left  { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .analyzer-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
     .az-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
 
@@ -109,19 +108,6 @@
     .az-counts { display: flex; gap: 12px; flex-wrap: wrap; }
     .az-count { font-size: 11px; color: var(--text-secondary); }
     .az-count strong { color: var(--text-primary); font-variant-numeric: tabular-nums; }
-
-    .az-run-btn {
-        font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 6px;
-        border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
-        background: rgba(6,182,212,0.08); cursor: pointer; font-family: inherit;
-        transition: background 0.15s, opacity 0.15s;
-    }
-    .az-run-btn:hover:not(:disabled) { background: rgba(6,182,212,0.16); }
-    .az-run-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .az-msg { font-size: 11px; padding: 3px 10px; border-radius: 5px; display: none; }
-    .az-msg.ok  { background: rgba(34,197,94,0.1);  color: #4ade80; }
-    .az-msg.err { background: rgba(239,68,68,0.1); color: #f87171; }
 
     /* Signal tier badges */
     .sig-high   { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px; background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); }
@@ -167,10 +153,6 @@
                 <span class="az-count">farm_clusters <strong id="azCntFc">—</strong></span>
                 <span class="az-count">funder_overlap <strong id="azCntFo">—</strong></span>
             </div>
-        </div>
-        <div class="analyzer-right">
-            <span class="az-msg" id="azMsg"></span>
-            <button class="az-run-btn" id="azRunBtn" onclick="runAnalyzers()">Run analyzers now</button>
         </div>
     </div>
 
@@ -457,8 +439,6 @@
     // ── Analyzer status ──────────────────────────────────────────────────────
 
     let _azPollInterval = null;   // fast poll while running
-    let _azWasRunning = false;
-
     function fmtAge(secs) {
         if (secs == null) return '';
         if (secs < 60)   return `${secs}s ago`;
@@ -491,77 +471,13 @@
             document.getElementById('azCntFc').textContent = tc.farm_clusters   != null ? fmt(tc.farm_clusters)   : '—';
             document.getElementById('azCntFo').textContent = tc.funder_overlap  != null ? fmt(tc.funder_overlap)  : '—';
 
-            const btn = document.getElementById('azRunBtn');
-            const msg = document.getElementById('azMsg');
-
             if (d.is_running) {
-                btn.disabled = true;
-                const cur = d.current_analyzer
-                    ? d.current_analyzer.replace('Engine','').replace('Analyzer','')
-                    : '';
-                btn.textContent = cur ? `Running ${cur}…` : 'Running…';
                 _setAzPolling(true);
-                _azWasRunning = true;
             } else {
-                btn.disabled = false;
-                btn.textContent = 'Run analyzers now';
                 _setAzPolling(false);
-
-                // Just finished — show result once
-                if (_azWasRunning) {
-                    _azWasRunning = false;
-                    const lo = d.latest_overall;
-                    if (lo && lo.status === 'success') {
-                        msg.className = 'az-msg ok';
-                        msg.textContent = `Done in ${Math.round(lo.duration_seconds || 0)}s`;
-                        msg.style.display = 'inline-block';
-                    } else if (lo && lo.status === 'failed') {
-                        msg.className = 'az-msg err';
-                        msg.textContent = `Failed: ${lo.error_message || 'unknown error'}`;
-                        msg.style.display = 'inline-block';
-                    }
-                }
             }
         } catch(e) {
             console.error('Analyzer status error:', e);
-        }
-    }
-
-    async function runAnalyzers() {
-        const btn = document.getElementById('azRunBtn');
-        const msg = document.getElementById('azMsg');
-        btn.disabled = true;
-        btn.textContent = 'Starting…';
-        msg.style.display = 'none';
-        try {
-            const r = await fetch('/api/run-graph-analyzers', { method: 'POST' });
-            const d = await r.json();
-            if (r.status === 409) {
-                msg.className = 'az-msg err';
-                msg.textContent = 'Already running';
-                msg.style.display = 'inline-block';
-                btn.disabled = true;
-                btn.textContent = 'Running…';
-            } else if (r.status === 202) {
-                // background run started — enter fast-poll mode
-                _azWasRunning = true;
-                btn.textContent = 'Running…';
-                _setAzPolling(true);
-                await loadAnalyzerStatus();
-            } else {
-                msg.className = 'az-msg err';
-                msg.textContent = d.error || 'Unexpected response';
-                msg.style.display = 'inline-block';
-                btn.disabled = false;
-                btn.textContent = 'Run analyzers now';
-            }
-        } catch(e) {
-            msg.className = 'az-msg err';
-            msg.textContent = 'Request failed';
-            msg.style.display = 'inline-block';
-            btn.disabled = false;
-            btn.textContent = 'Run analyzers now';
-            console.error(e);
         }
     }
 

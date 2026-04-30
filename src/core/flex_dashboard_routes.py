@@ -1283,6 +1283,7 @@ def _get_snapshots_conn():
 def api_snapshots():
     """Return latest snapshot per token, ordered by most recently snapshotted."""
     import time as _time
+    conn = None
     try:
         conn = _get_snapshots_conn()
         # Read price/market_cap directly from token_price_snapshots (latest row per mint).
@@ -1409,6 +1410,12 @@ def api_snapshots():
     except Exception as e:
         logger.error(f"Error fetching snapshots: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 @dashboard_routes.route('/api/boost-tokens', methods=['POST'])

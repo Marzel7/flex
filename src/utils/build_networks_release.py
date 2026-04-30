@@ -22,6 +22,8 @@ from contextlib import contextmanager
 import os
 import time
 
+from src.core.network_display_names import NetworkDisplayNameBuilder
+
 
 @contextmanager
 def db_transaction(db_path):
@@ -2031,6 +2033,39 @@ def build_networks_release(db_path: str) -> dict:
         except Exception as e:
             print(f"   ⚠️  Metadata recording failed: {e}")
             stats['errors'].append(f"Metadata recording: {str(e)}")
+
+        # Stamp second-hop bridge counts onto networks_release (Phase 1 integration).
+        # upstream_network_bridge may not exist yet (pre-Phase-1 deploys) — safe to skip.
+        try:
+            db.execute("""
+                UPDATE networks_release
+                SET
+                    second_hop_bridge_count = (
+                        SELECT COUNT(*)
+                        FROM upstream_network_bridge unb
+                        WHERE unb.network_a = networks_release.network_name
+                           OR unb.network_b = networks_release.network_name
+                    ),
+                    max_second_hop_confidence = (
+                        SELECT COALESCE(MAX(unb.confidence_score), 0)
+                        FROM upstream_network_bridge unb
+                        WHERE unb.network_a = networks_release.network_name
+                           OR unb.network_b = networks_release.network_name
+                    )
+            """)
+        except Exception as _e:
+            # upstream_network_bridge not yet created — ignore
+            pass
+
+        # Phase M: Human-readable display names for UI labels.
+        # network_name remains the canonical stable ID for joins and URLs.
+        try:
+            display_names = NetworkDisplayNameBuilder().build(db)
+            stats['display_names_updated'] = len(display_names)
+            print(f"   ✅ Display names updated: {len(display_names)} networks")
+        except Exception as e:
+            print(f"   ⚠️  Display name build failed: {e}")
+            stats['errors'].append(f"Display names: {str(e)}")
 
         print("\n✅ Build complete!")
         return stats

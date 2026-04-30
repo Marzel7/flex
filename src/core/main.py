@@ -153,15 +153,29 @@ def _ensure_schema():
                created_at INTEGER
            )""",
     ]
+    # Fast check: if the last column we'd add already exists, all migrations have run — skip entirely.
+    # Use raw sqlite3.connect() with no PRAGMAs — PRAGMA table_info is a read-only operation
+    # that works even while another process holds a write lock.
+    try:
+        _check = sqlite3.connect(DB_PATH, timeout=5)
+        _cols = {row[1] for row in _check.execute("PRAGMA table_info(token_analysis)")}
+        _check.close()
+        if 'pf_ws_creator' in _cols and 'creator_mismatch' in _cols:
+            print("[SCHEMA] All migrations already applied — skipping")
+            return
+    except Exception as _e:
+        print(f"[SCHEMA] Could not check columns, will attempt migrations: {_e}")
+
+    _conn = db_connect(DB_PATH, timeout=60)
+    _conn.execute("PRAGMA journal_mode=WAL")
     for sql in _migrations:
         try:
-            _conn = db_connect(DB_PATH, timeout=5)
             _conn.execute(sql)
             _conn.commit()
-            _conn.close()
         except Exception as _e:
             if 'duplicate column' not in str(_e).lower():
                 print(f"[SCHEMA] note: {_e}")
+    _conn.close()
 
 _ensure_schema()
 
@@ -203,10 +217,12 @@ _migration_gap_audit_state: Dict[str, Any] = {
     'error': None,
 }
 _MIGRATION_AUDIT_STALE_RUNNING_SECONDS = 5 * 60
+_CREATOR_BACKFILL_ENABLED = os.environ.get("FLEX_ENABLE_CREATOR_BACKFILL", "0") == "1"
 
 
 def _backfill_missing_creator(mint: str) -> None:
     """Best-effort background repair for tokens missing earliest_tx_creator."""
+    conn = None
     try:
         from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 
@@ -237,6 +253,11 @@ def _backfill_missing_creator(mint: str) -> None:
         conn.commit()
         conn.close()
     except Exception:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
         pass
     finally:
         with _creator_backfill_lock:
@@ -245,7 +266,7 @@ def _backfill_missing_creator(mint: str) -> None:
 
 def _schedule_missing_creator_backfill(mint: Optional[str]) -> None:
     """Fire-and-forget creator repair for tokens that slipped through without creator metadata."""
-    if not mint:
+    if not mint or not _CREATOR_BACKFILL_ENABLED:
         return
     with _creator_backfill_lock:
         if mint in _creator_backfill_inflight:
@@ -256,7 +277,7 @@ def _schedule_missing_creator_backfill(mint: Optional[str]) -> None:
 
 def _schedule_missing_creator_backfill_throttled(mint: Optional[str], *, cooldown_seconds: int = 15 * 60) -> bool:
     """Best-effort creator repair with cooldown so page polling does not spam RPC."""
-    if not mint:
+    if not mint or not _CREATOR_BACKFILL_ENABLED:
         return False
     now = int(time.time())
     with _creator_backfill_lock:
@@ -549,7 +570,9 @@ app.has_networks_release = None  # Set to True/False on first request
 # =========================================================================
 if WEBHOOK_ENABLED:
     try:
+        print("[STARTUP_DIAG] init_webhook_system: begin", flush=True)
         init_webhook_system(app)
+        print("[STARTUP_DIAG] setup_enriched_routes: begin", flush=True)
         setup_enriched_routes(app)
         print("[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully")
     except Exception as e:
@@ -767,6 +790,9 @@ def get_networks_release_list(include_evidence=False):
         cursor.execute("""
             SELECT
                 nr.network_name,
+                nr.display_name,
+                nr.display_name_reason,
+                nr.display_name_source,
                 nr.network_size,
                 nr.network_risk_level,
                 nr.network_type,
@@ -812,6 +838,9 @@ def get_network_release_by_name(network_name, include_evidence=False):
         cursor.execute("""
             SELECT
                 nr.network_name,
+                nr.display_name,
+                nr.display_name_reason,
+                nr.display_name_source,
                 nr.network_size,
                 nr.network_risk_level,
                 nr.network_type,
@@ -837,6 +866,37 @@ def get_network_release_by_name(network_name, include_evidence=False):
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None
+
+
+def get_network_display_names_map(conn=None):
+    """Return network_name -> display metadata, falling back to Network-123 labels."""
+    owns_conn = conn is None
+    try:
+        if owns_conn:
+            conn = db_connect(DB_PATH, timeout=5)
+            conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT
+                network_name,
+                COALESCE(display_name, REPLACE(network_name, '_', '-')) AS display_name,
+                display_name_reason,
+                display_name_source
+            FROM networks_release
+        """).fetchall()
+        return {
+            row["network_name"]: {
+                "network_name": row["network_name"],
+                "display_name": row["display_name"],
+                "reason": row["display_name_reason"],
+                "source_address": row["display_name_source"],
+            }
+            for row in rows
+        }
+    except Exception:
+        return {}
+    finally:
+        if owns_conn and conn:
+            conn.close()
 
 def get_network_score(network_name: str) -> dict:
     """
@@ -1167,6 +1227,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
     light=False:
         Full enrichment path for detail-heavy pages.
     """
+    conn = None
     try:
         from src.utils.infra_mapping import CEX_ACCOUNTS
 
@@ -1244,7 +1305,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.cluster_name,
                 ta.cluster_risk_multiplier,
                 ta.network_funder_address,
-                COALESCE(cn.network_name, ta.network_name) as network_name,
+                COALESCE(nm.network_name, cn.network_name, ta.network_name) as network_name,
                 ta.network_tier,
                 ta.network_is_cex,
                 ta.lifecycle_stage,
@@ -1266,21 +1327,32 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 tpa.liquidity_removed    as liquidity_removed,
                 tpa.liquidity_removed_at as liquidity_removed_at,
                 mc.symbol as token_symbol,
-                mc.name as token_name
+                mc.name as token_name,
+                COALESCE(csf.is_self_funding, 0) as is_self_funding,
+                ROUND(COALESCE(csf.self_funding_percentage, 0), 1) as self_funding_pct,
+                (SELECT COUNT(*) FROM coordinated_creator_edges cce
+                 WHERE cce.creator_a = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                    OR cce.creator_b = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                ) as coordinated_count,
+                (SELECT COUNT(*) FROM farm_cluster_members fcm
+                 WHERE fcm.wallet_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                   AND fcm.wallet_role = 'creator'
+                ) as in_farm_cluster
             FROM token_analysis ta
             LEFT JOIN creator_networks cn
                 ON ta.earliest_tx_creator = cn.creator_address
+            LEFT JOIN (
+                SELECT creator_address, network_name
+                FROM network_membership
+                GROUP BY creator_address
+            ) nm ON ta.earliest_tx_creator = nm.creator_address
             LEFT JOIN token_snapshot_counts tsc
                 ON tsc.mint = ta.mint
             LEFT JOIN token_market_cap_peaks tmp
                 ON tmp.mint = ta.mint
-            LEFT JOIN (
-                SELECT mint, pool_address, quote_liquidity, updated_at,
-                       MAX(liquidity_removed) as liquidity_removed,
-                       MAX(liquidity_removed_at) as liquidity_removed_at
-                FROM token_pool_accounts
-                GROUP BY mint
-            ) tpa ON tpa.mint = ta.mint
+            LEFT JOIN token_pool_accounts tpa
+                ON tpa.mint = ta.mint
+               AND tpa.is_active = 1
             LEFT JOIN metadata_cache mc
                 ON mc.mint = ta.mint
             LEFT JOIN token_price_snapshots tps
@@ -1289,6 +1361,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     WHERE mint = ta.mint
                     ORDER BY captured_at DESC LIMIT 1
                 )
+            LEFT JOIN creator_self_funding csf
+                ON csf.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
             WHERE ta.mint IS NOT NULL
               AND COALESCE(ta.is_about_to_migrate, 0) = 0
               AND COALESCE(ta.lifecycle_stage, '') != 'bonding_curve'
@@ -1378,6 +1452,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'creator_infra_tags': [],
                     'top_funder': None,
                     'funding_checked': False,
+                    'funding_queued': False,
                     'funding_progress': {
                         'status': 'skipped',
                         'progress_percent': 0,
@@ -1408,6 +1483,10 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'is_low_liquidity':     bool(row['liquidity_removed']),  # backwards-compat alias
                     'symbol': row['token_symbol'] or None,
                     'name': row['token_name'] or None,
+                    'is_self_funding': bool(row['is_self_funding']),
+                    'self_funding_pct': row['self_funding_pct'] or 0,
+                    'coordinated_count': row['coordinated_count'] or 0,
+                    'in_farm_cluster': row['in_farm_cluster'] or 0,
                 }, normalized_peak_mc, normalized_peak_at, _token_class))
                 if not row['earliest_tx_creator']:
                     _schedule_missing_creator_backfill(row['mint'])
@@ -1496,6 +1575,15 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 funding_result = cursor.fetchone()
                 funding_checked = funding_result[0] > 0 if funding_result else False
 
+                funding_queued = False
+                if not funding_checked:
+                    qrow = cursor.execute("""
+                        SELECT 1 FROM creator_funding_queue
+                        WHERE creator_address = ? AND status IN ('pending','in_progress')
+                        LIMIT 1
+                    """, (row['earliest_tx_creator'],)).fetchone()
+                    funding_queued = bool(qrow)
+
             funding_progress = (
                 calculate_funding_progress(row['earliest_tx_creator'])
                 if row['earliest_tx_creator']
@@ -1534,6 +1622,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'creator_infra_tags': creator_infra_tags,
                 'top_funder': top_funder,
                 'funding_checked': funding_checked,
+                'funding_queued': funding_queued,
                 'funding_progress': funding_progress,
                 'network_name': row['cluster_name'],
                 'network_id': row['cluster_id'],
@@ -1555,6 +1644,11 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         conn.close()
         return tokens
     except Exception as e:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
         import traceback
         print(f"[DB] Error fetching analyzed tokens: {e}")
         traceback.print_exc()
@@ -1610,6 +1704,7 @@ def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
         # Enrich missing symbol/name from metadata_cache
         missing = [t['mint'] for t in tokens if not t.get('symbol') and not t.get('name')]
         if missing:
+            conn = None
             try:
                 conn = db_connect(DB_PATH, timeout=5)
                 conn.row_factory = sqlite3.Row
@@ -1622,6 +1717,11 @@ def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
                         t['symbol'] = t['symbol'] or meta[t['mint']][0]
                         t['name'] = t['name'] or meta[t['mint']][1]
             except Exception:
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
                 pass
 
         return tokens
@@ -8693,7 +8793,7 @@ function switchToTokensTab() {
 
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                             <div style="background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 2px solid var(--color-none); color: var(--color-none); flex: 1;">
-                                <div style="font-size: 10px; color: var(--text-secondary);">Upstream</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">2H Sources</div>
                                 <strong>${data.funder_stats.total_funders}</strong> Senders
                             </div>
                             <div style="color: var(--text-secondary); font-weight: bold;">➜</div>
@@ -9260,23 +9360,27 @@ def coordinated_funder_analysis_view(creator_address: str):
 @app.route('/api/migrated-tokens')
 def api_migrated_tokens():
     """Get all migrated tokens with analysis data"""
+    start = time.perf_counter()
     tokens = get_migrated_tokens(limit=25, light=True)
     response = jsonify({'tokens': tokens})
     # Disable caching to ensure fresh data
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
+    print(f"[TIMING] /api/migrated-tokens tokens={len(tokens)} took {time.perf_counter() - start:.3f}s", flush=True)
     return response
 
 
 @app.route('/api/future-bound-tokens')
 def api_future_bound_tokens():
     """Get Pump.fun bonding-curve tokens that appear close to migration."""
+    start = time.perf_counter()
     tokens = get_future_bound_tokens(limit=20)
     response = jsonify({'tokens': tokens})
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
+    print(f"[TIMING] /api/future-bound-tokens tokens={len(tokens)} took {time.perf_counter() - start:.3f}s", flush=True)
     return response
 
 
@@ -9289,6 +9393,7 @@ def usage_dashboard():
 def api_usage():
     """Return RPC, WSS, and webhook usage for the last N hours."""
     hours = request.args.get('hours', default=24, type=int)
+    conn = None
     try:
         cutoff = time.time() - hours * 3600
         conn = db_connect(DB_PATH, timeout=5)
@@ -9378,6 +9483,11 @@ def api_usage():
             "ts": time.time(),
         })
     except Exception as e:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
         return jsonify({"error": str(e)}), 500
 
 
@@ -9409,7 +9519,7 @@ def api_pumpfun_live():
         """, (two_hours_ago,))
         birth_rows = [dict(r) for r in cursor.fetchall()]
 
-        # Recent migrations — last 25 migrated tokens with creator funding timing
+        # Recent migrations — last 25 migrated tokens with creator funding timing + risk tags
         cursor.execute("""
             SELECT ta.mint, ta.created_at,
                    COALESCE(ta.migration_signal_updated_at, ta.analyzed_at) as migrated_at,
@@ -9419,12 +9529,31 @@ def api_pumpfun_live():
                    ta.pf_ws_creator, ta.earliest_tx_creator,
                    ta.migration_slot,
                    cfq.funding_enqueued_at, cfq.funding_extracted_at,
-                   cfq.status as funding_status, cfq.source as funding_source
+                   cfq.status as funding_status, cfq.source as funding_source,
+                   -- Risk tags
+                   COALESCE(csf.is_self_funding, 0) as is_self_funding,
+                   ROUND(COALESCE(csf.self_funding_percentage, 0), 1) as self_funding_pct,
+                   (SELECT COUNT(*) FROM coordinated_creator_edges cce
+                    WHERE cce.creator_a = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                       OR cce.creator_b = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                   ) as coordinated_count,
+                   (SELECT COUNT(*) FROM farm_cluster_members fcm
+                    WHERE fcm.wallet_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                      AND fcm.wallet_role = 'creator'
+                   ) as in_farm_cluster,
+                   nm.network_name,
+                   irc.priority as irc_priority,
+                   irc.reason_codes as irc_reasons
             FROM token_analysis ta
             LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
             LEFT JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
+            LEFT JOIN creator_self_funding csf ON csf.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+            LEFT JOIN network_membership nm ON nm.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+            LEFT JOIN intelligence_refresh_candidates irc ON irc.target_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                AND irc.target_type = 'creator'
             WHERE ta.source_platform = 'pumpfun'
               AND ta.lifecycle_stage = 'migrated'
+            GROUP BY ta.mint
             ORDER BY ta.analyzed_at DESC
             LIMIT 100
         """)
@@ -9511,6 +9640,8 @@ def api_pumpfun_live():
         response.headers['Cache-Control'] = 'no-store'
         return response
     except Exception as e:
+        if "no such table" in str(e):
+            return jsonify({"hubs": [], "total": 0})
         return jsonify({"error": str(e)}), 500
 
 
@@ -9837,7 +9968,8 @@ def api_creator_details(creator_address: str):
                 ta.market_cap_highest,
                 ta.creator_is_blocked,
                 COALESCE(tmp.peak_market_cap, ta.market_cap_highest) as peak_market_cap,
-                COALESCE(tpa.liquidity_removed, 0) as liquidity_removed
+                COALESCE(tpa.liquidity_removed, 0) as liquidity_removed,
+                tb.peak_grade_held_secs
             FROM token_analysis ta
             LEFT JOIN token_market_cap_peaks tmp ON tmp.mint = ta.mint
             LEFT JOIN (
@@ -9845,7 +9977,9 @@ def api_creator_details(creator_address: str):
                 FROM token_pool_accounts
                 GROUP BY mint
             ) tpa ON tpa.mint = ta.mint
+            LEFT JOIN token_behavior tb ON tb.mint = ta.mint
             WHERE ta.earliest_tx_creator = ?
+              AND ta.migrated_at IS NOT NULL
             ORDER BY ta.created_at DESC
         """, (creator_address,))
         raw_tokens = [dict(row) for row in cursor.fetchall()]
@@ -9853,7 +9987,16 @@ def api_creator_details(creator_address: str):
         for t in raw_tokens:
             peak = t.get('peak_market_cap') or 0
             t['token_class'] = compute_token_class(peak) if peak > 0 else None
+            current_mc = t.get('market_cap_current') or 0
+            t['current_grade'] = compute_token_class(current_mc) if current_mc > 0 else None
         tokens = raw_tokens
+
+        # Count non-migrated tokens (bonding curve only)
+        nm_row = cursor.execute("""
+            SELECT COUNT(*) as cnt FROM token_analysis
+            WHERE earliest_tx_creator = ? AND migrated_at IS NULL
+        """, (creator_address,)).fetchone()
+        non_migrated_count = nm_row['cnt'] if nm_row else 0
 
         # Add CEX/INFRA labels for tokens if creator is in CEX/INFRA
         creator_label = get_cex_infra_label(creator_address)
@@ -10116,6 +10259,7 @@ def api_creator_details(creator_address: str):
         network_name = None
         network_type = None
         network_memberships = []
+        network_provisional = False
         try:
             cursor = conn.cursor()
             # Primary: network_membership (live, rebuilt by NetworkMembershipBuilder)
@@ -10137,6 +10281,17 @@ def api_creator_details(creator_address: str):
                 network_row = cursor.fetchone()
                 if network_row:
                     network_name = network_row[0]
+            # If still no network, attempt live provisional assignment
+            if not network_name:
+                try:
+                    from src.core.network_membership_builder import assign_live_network_for_creator
+                    live_result = assign_live_network_for_creator(DB_PATH, creator_address)
+                    if live_result.get('assigned'):
+                        network_name = live_result['network_name']
+                        network_memberships = [network_name]
+                        network_provisional = live_result.get('provisional', False)
+                except Exception:
+                    pass
             if network_name:
                 cursor.execute("""
                     SELECT network_type FROM network_cex_infra_flags
@@ -10191,6 +10346,7 @@ def api_creator_details(creator_address: str):
             'creator_address': creator_address,
             'creator_address_tags': creator_address_tags,
             'tokens': tokens,
+            'non_migrated_count': non_migrated_count,
             'funding': funding,
             'top_funders': top_funders,
             'top_recipients': top_recipients,
@@ -10206,6 +10362,7 @@ def api_creator_details(creator_address: str):
             'network_name': network_name,
             'network_memberships': network_memberships,
             'network_type': network_type,
+            'network_provisional': network_provisional,
             'graph': graph_context,
         })
 
@@ -10916,9 +11073,12 @@ def api_creator_cluster(creator_address: str):
 
         cluster_row = cursor.fetchone()
 
-        # Get token count for this creator
+        # Get token count for this creator — migrated only for M badge
         cursor.execute("""
-            SELECT COUNT(*) as token_count
+            SELECT
+                COUNT(*) as total_count,
+                SUM(CASE WHEN migrated_at IS NOT NULL THEN 1 ELSE 0 END) as migrated_count,
+                SUM(CASE WHEN migrated_at IS NULL THEN 1 ELSE 0 END) as non_migrated_count
             FROM token_analysis
             WHERE earliest_tx_creator = ?
         """, (creator_address,))
@@ -10932,20 +11092,55 @@ def api_creator_cluster(creator_address: str):
             'hop0': cluster_row['hop0_count'] if cluster_row and cluster_row['hop0_count'] else 0,
             'hop1': cluster_row['hop1_count'] if cluster_row and cluster_row['hop1_count'] else 0,
             'hop2': cluster_row['hop2_count'] if cluster_row and cluster_row['hop2_count'] else 0,
-            'token_count': token_row['token_count'] if token_row else 0,
+            'token_count': token_row['migrated_count'] if token_row else 0,
+            'non_migrated_count': token_row['non_migrated_count'] if token_row else 0,
             'avg_confidence': round(cluster_row['avg_confidence'], 2) if cluster_row and cluster_row['avg_confidence'] else 0
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
+CREATOR_BATCH_CACHE_TTL_SECONDS = 300
+CREATOR_BATCH_CACHE_MAX_ENTRIES = 2000
+_creator_batch_cache = {}
+
+
 @app.route('/api/creators-batch', methods=['POST'])
 def api_creators_batch():
     """Get creator enrichment data for multiple creators in one batch call"""
-    creator_addresses = request.json.get('creators', []) if request.json else []
-    if not creator_addresses:
+    start = time.perf_counter()
+    requested_creators = request.json.get('creators', []) if request.json else []
+    requested_creators = [c for c in dict.fromkeys(requested_creators) if c]
+    if not requested_creators:
         return jsonify({})
 
+    now = time.time()
+    cached_result = {}
+    creator_addresses = []
+    if len(_creator_batch_cache) > CREATOR_BATCH_CACHE_MAX_ENTRIES:
+        expired_keys = [
+            creator for creator, cached in _creator_batch_cache.items()
+            if cached.get('expires_at', 0) <= now
+        ]
+        for creator in expired_keys:
+            _creator_batch_cache.pop(creator, None)
+        if len(_creator_batch_cache) > CREATOR_BATCH_CACHE_MAX_ENTRIES:
+            for creator in list(_creator_batch_cache.keys())[:len(_creator_batch_cache) - CREATOR_BATCH_CACHE_MAX_ENTRIES]:
+                _creator_batch_cache.pop(creator, None)
+
+    for creator in requested_creators:
+        cached = _creator_batch_cache.get(creator)
+        if cached and cached.get('expires_at', 0) > now:
+            cached_result[creator] = cached['data']
+        else:
+            creator_addresses.append(creator)
+
+    if not creator_addresses:
+        elapsed = time.perf_counter() - start
+        print(f"[TIMING] /api/creators-batch cache_hit={len(cached_result)} miss=0 took {elapsed:.3f}s", flush=True)
+        return jsonify(cached_result)
+
+    conn = None
     try:
         from src.utils.infra_mapping import CEX_ACCOUNTS, INFRASTRUCTURE_ACCOUNTS
         
@@ -10954,15 +11149,24 @@ def api_creators_batch():
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
 
-        # Token counts per creator
+        # Token counts per creator — split migrated vs bonding curve
         placeholders = ','.join('?' * len(creator_addresses))
         cursor.execute(f"""
-            SELECT earliest_tx_creator, COUNT(*) as token_count
+            SELECT earliest_tx_creator,
+                   COUNT(*) as token_count,
+                   SUM(CASE WHEN migrated_at IS NOT NULL THEN 1 ELSE 0 END) as migrated_count,
+                   SUM(CASE WHEN migrated_at IS NULL THEN 1 ELSE 0 END) as non_migrated_count
             FROM token_analysis
             WHERE earliest_tx_creator IN ({placeholders})
             GROUP BY earliest_tx_creator
         """, creator_addresses)
-        token_counts = {row['earliest_tx_creator']: row['token_count'] for row in cursor.fetchall()}
+        token_counts = {}
+        non_migrated_counts = {}
+        migrated_counts = {}
+        for row in cursor.fetchall():
+            token_counts[row['earliest_tx_creator']] = row['migrated_count']
+            migrated_counts[row['earliest_tx_creator']] = row['migrated_count']
+            non_migrated_counts[row['earliest_tx_creator']] = row['non_migrated_count']
 
         # Funding data per creator (INBOUND only)
         cursor.execute(f"""
@@ -11156,6 +11360,14 @@ def api_creators_batch():
                         'amount_sol': None
                     })
 
+        # funding_checked: has creator_funders been extracted for this creator?
+        cursor.execute(f"""
+            SELECT DISTINCT creator_address
+            FROM creator_funders
+            WHERE creator_address IN ({placeholders})
+        """, creator_addresses)
+        funding_checked_set = {row['creator_address'] for row in cursor.fetchall()}
+
         # Named network membership (System 1: networks_release)
         network_membership_data = {}
         try:
@@ -11194,6 +11406,7 @@ def api_creators_batch():
         for creator in creator_addresses:
             result[creator] = {
                 'token_count': token_counts.get(creator, 0),
+                'non_migrated_count': non_migrated_counts.get(creator, 0),
                 'inbound_sources': funding_data.get(creator, {}).get('sources', 0),
                 'inbound_sol': funding_data.get(creator, {}).get('sol', 0),
                 'network_size': cluster_data.get(creator, {}).get('size', 0),
@@ -11202,16 +11415,36 @@ def api_creators_batch():
                     'hop1': cluster_data.get(creator, {}).get('hop1', 0)
                 },
                 'is_blocked': blocked_data.get(creator, False),
+                'funding_checked': creator in funding_checked_set,
                 'funders': funders_data.get(creator, []),
                 'tags': tags_data.get(creator, []),
                 'named_networks': network_membership_data.get(creator, []),
                 'farm_clusters': farm_cluster_data.get(creator, [])
             }
 
-        return jsonify(result)
+        expires_at = time.time() + CREATOR_BATCH_CACHE_TTL_SECONDS
+        for creator, data in result.items():
+            _creator_batch_cache[creator] = {
+                'data': data,
+                'expires_at': expires_at
+            }
+
+        final_result = {**cached_result, **result}
+        elapsed = time.perf_counter() - start
+        print(
+            f"[TIMING] /api/creators-batch cache_hit={len(cached_result)} miss={len(creator_addresses)} took {elapsed:.3f}s",
+            flush=True
+        )
+        return jsonify(final_result)
     except Exception as e:
         print(f"[API] Error in creators-batch: {e}")
         return jsonify({})
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 # Migration settings (stored in file for persistence)
@@ -11268,6 +11501,18 @@ def api_migration_settings():
             migration_settings['token_history_check'] = new_val
             if old_val != new_val:
                 changes.append(f"Token History: {('✅ ON' if old_val else '❌ OFF')} → {('✅ ON' if new_val else '❌ OFF')}")
+
+        for key, label in [
+            ('auto_approve_high_priority',  'Auto-Approve High Priority (≥80)'),
+            ('auto_approve_network_member', 'Auto-Approve Network Members'),
+            ('auto_approve_shared_funders', 'Auto-Approve Shared Funders'),
+        ]:
+            if key in data:
+                old_val = old_settings.get(key, False)
+                new_val = bool(data[key])
+                migration_settings[key] = new_val
+                if old_val != new_val:
+                    changes.append(f"{label}: {('✅ ON' if old_val else '❌ OFF')} → {('✅ ON' if new_val else '❌ OFF')}")
 
         # Persist to file
         save_migration_settings(migration_settings)
@@ -11831,6 +12076,22 @@ def api_multi_creator_funders():
             """, (funder_address,))
 
             networks = [dict(row) for row in cursor.fetchall()]
+
+            # Also check funder_network_map (built by NetworkMembershipBuilder)
+            if not networks:
+                cursor.execute("""
+                    SELECT fnm.network_name, fnm.creator_count
+                    FROM funder_network_map fnm
+                    WHERE fnm.funder_address = ?
+                """, (funder_address,))
+                for row in cursor.fetchall():
+                    networks.append({
+                        'network_id': None,
+                        'network_name': row[0],
+                        'network_type': 'single_funder',
+                        'token_count': row[1],
+                    })
+
             funder_data['networks'] = networks
 
             # Add to appropriate list
@@ -11994,12 +12255,17 @@ def coordinated_funders_view():
         # Get funders funding multiple creators
         cursor.execute("""
             SELECT
-                funder_address,
-                COUNT(DISTINCT creator_address) as creator_count,
-                SUM(amount_sol) as total_sol_sent
-            FROM creator_funders
-            GROUP BY funder_address
-            HAVING COUNT(DISTINCT creator_address) > 1
+                cf.funder_address,
+                COUNT(DISTINCT cf.creator_address) as creator_count,
+                SUM(cf.amount_sol) as total_sol_sent,
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM infra_funders_observed WHERE funder_address = cf.funder_address) THEN 'INFRA'
+                    WHEN MAX(cf.is_cex) = 1 THEN 'CEX'
+                    ELSE NULL
+                END AS cex_infra_label
+            FROM creator_funders cf
+            GROUP BY cf.funder_address
+            HAVING COUNT(DISTINCT cf.creator_address) > 1
             ORDER BY creator_count DESC, total_sol_sent DESC
             LIMIT 100
         """)
@@ -12942,7 +13208,7 @@ def coordinated_funders_view_old():
                                             </div>
                                         </div>
                                         <div style="margin-bottom: 12px;">
-                                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px;">UPSTREAM SOURCES</div>
+                                            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 5px;">2H SOURCES</div>
                                             <div style="background: rgba(0, 0, 0, 0.3); border-radius: 4px; padding: 8px; max-height: 80px; overflow-y: auto;">`;
 
                                     if (flow.upstream_sources.length > 0) {{
@@ -12950,7 +13216,7 @@ def coordinated_funders_view_old():
                                             html += `<div style="font-family: monospace; font-size: 10px; color: var(--color-none); word-break: break-all; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">${{source.sender}}</div>`;
                                         }});
                                     }} else {{
-                                        html += `<div style="color: var(--text-secondary); font-size: 10px;">No upstream sources found</div>`;
+                                        html += `<div style="color: var(--text-secondary); font-size: 10px;">No 2H sources found</div>`;
                                     }}
 
                                     html += `</div></div>
@@ -15752,6 +16018,9 @@ def api_network_tokens(network_name):
 
             return jsonify({
                 'network_name': network_name,
+                'display_name': network_dict.get('display_name') or network_name.replace('_', '-'),
+                'display_name_reason': network_dict.get('display_name_reason'),
+                'display_name_source': network_dict.get('display_name_source'),
                 'network_size': network_dict.get('network_size', 0),
                 'network_type': network_dict.get('network_type', 'unknown'),
                 'tokens': tokens,
@@ -15810,6 +16079,7 @@ def api_network_tokens(network_name):
 
         return jsonify({
             'network_name': network_name,
+            'display_name': network_name.replace('_', '-'),
             'tokens': tokens,
             'creators_count': creator_count,
             'creators_with_tokens': creators_with_tokens,
@@ -15818,6 +16088,986 @@ def api_network_tokens(network_name):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/network-intelligence')
+def network_intelligence_page():
+    return render_template('network_intelligence.html', active_page='network_intelligence')
+
+
+@app.route('/api/network-intelligence/summary')
+def api_network_intelligence_summary():
+    """
+    Aggregated intelligence summary for migrated creators.
+    All counts deduplicated by creator_address.
+    Expensive joins avoided: wallet_clusters uses instr() with indexed creator lookup.
+    """
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        # ── Base CTE fragment (reused across queries) ─────────────────────────
+        MIGRATED_CTE = """
+            WITH migrated AS (
+                SELECT DISTINCT earliest_tx_creator AS creator_address
+                FROM token_analysis
+                WHERE lifecycle_stage = 'migrated'
+                  AND earliest_tx_creator IS NOT NULL
+                  AND earliest_tx_creator != ''
+            )
+        """
+
+        migrated_creators = {
+            r[0] for r in conn.execute("""
+                SELECT DISTINCT earliest_tx_creator
+                FROM token_analysis
+                WHERE lifecycle_stage='migrated'
+                  AND earliest_tx_creator IS NOT NULL
+                  AND earliest_tx_creator != ''
+            """).fetchall()
+        }
+
+        wc_creator_set = set()
+        try:
+            import json as _json_wc
+            for row in conn.execute("SELECT creator_addresses FROM wallet_clusters").fetchall():
+                try:
+                    wc_creator_set.update(_json_wc.loads(row[0] or '[]'))
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # ── 1. Summary KPIs ───────────────────────────────────────────────────
+        total = len(migrated_creators)
+
+        funding_extracted = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address)
+            FROM migrated m
+            JOIN creator_funders cf ON cf.creator_address = m.creator_address
+        """).fetchone()[0] or 0
+
+        in_named_network = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address)
+            FROM migrated m
+            JOIN network_membership nm ON nm.creator_address = m.creator_address
+        """).fetchone()[0] or 0
+
+        in_wallet_cluster = len(migrated_creators & wc_creator_set)
+
+        # farm_cluster_members may not exist
+        try:
+            in_farm_cluster = conn.execute(f"""
+                {MIGRATED_CTE}
+                SELECT COUNT(DISTINCT m.creator_address)
+                FROM migrated m
+                JOIN farm_cluster_members fcm
+                    ON fcm.wallet_address = m.creator_address
+                   AND fcm.wallet_role = 'creator'
+            """).fetchone()[0] or 0
+        except Exception:
+            in_farm_cluster = 0
+
+        has_second_hop = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address)
+            FROM migrated m
+            JOIN creator_second_hop csh ON csh.creator_address = m.creator_address
+        """).fetchone()[0] or 0
+
+        has_any_signal = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+            WHERE EXISTS (SELECT 1 FROM network_membership nm WHERE nm.creator_address = m.creator_address)
+               OR EXISTS (SELECT 1 FROM creator_second_hop csh WHERE csh.creator_address = m.creator_address)
+               OR EXISTS (SELECT 1 FROM farm_cluster_members fcm WHERE fcm.wallet_address = m.creator_address AND fcm.wallet_role='creator')
+        """).fetchone()[0] or 0
+
+        summary = {
+            'total_migrated_creators': total,
+            'funding_extracted': funding_extracted,
+            'in_named_network': in_named_network,
+            'in_wallet_cluster': in_wallet_cluster,
+            'in_farm_cluster': in_farm_cluster,
+            'has_second_hop': has_second_hop,
+            'has_any_signal': has_any_signal,
+        }
+
+        # ── 2. Top risk networks ──────────────────────────────────────────────
+        net_rows = conn.execute("""
+            SELECT nr.network_name,
+                   nr.display_name,
+                   nr.display_name_reason,
+                   nr.display_name_source,
+                   nr.network_size,
+                   nr.network_risk_level,
+                   nr.second_hop_bridge_count,
+                   nr.max_second_hop_confidence,
+                   ns.score,
+                   COUNT(DISTINCT ta.earliest_tx_creator) AS creator_count,
+                   MAX(ta.migrated_at) AS latest_migrated_at
+            FROM networks_release nr
+            LEFT JOIN network_scores ns ON ns.network_name = nr.network_name
+            LEFT JOIN network_membership nm ON nm.network_name = nr.network_name
+            LEFT JOIN token_analysis ta
+                ON ta.earliest_tx_creator = nm.creator_address
+               AND ta.lifecycle_stage = 'migrated'
+            GROUP BY nr.network_name
+            ORDER BY
+                nr.max_second_hop_confidence DESC NULLS LAST,
+                ns.score DESC NULLS LAST,
+                nr.network_size DESC
+            LIMIT 20
+        """).fetchall()
+        top_networks = [dict(r) for r in net_rows]
+
+        # ── 3. Top wallet clusters (sorted by creator_count then confidence) ──
+        wc_rows = conn.execute("""
+            SELECT cluster_id, funder_wallet, creator_count,
+                   confidence_score, has_burst, avg_transfer_sol, days_active
+            FROM wallet_clusters
+            ORDER BY creator_count DESC, confidence_score DESC
+            LIMIT 15
+        """).fetchall()
+        top_wallet_clusters = [dict(r) for r in wc_rows]
+
+        # ── 4. Top farm clusters ──────────────────────────────────────────────
+        try:
+            farm_rows = conn.execute("""
+                SELECT cluster_id, risk_level, farm_risk_score,
+                       creator_count, funder_count,
+                       cluster_density, cluster_strength, active_days
+                FROM farm_clusters
+                ORDER BY farm_risk_score DESC NULLS LAST, creator_count DESC
+                LIMIT 15
+            """).fetchall()
+            top_farm_clusters = [dict(r) for r in farm_rows]
+        except Exception:
+            top_farm_clusters = []
+
+        # ── 5. Signal overlap breakdown ───────────────────────────────────────
+        named_only = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+            JOIN network_membership nm ON nm.creator_address = m.creator_address
+            WHERE NOT EXISTS (SELECT 1 FROM creator_second_hop csh WHERE csh.creator_address = m.creator_address)
+              AND NOT EXISTS (SELECT 1 FROM farm_cluster_members fcm WHERE fcm.wallet_address = m.creator_address AND fcm.wallet_role='creator')
+        """).fetchone()[0] or 0
+
+        named_and_2h = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+            JOIN network_membership nm ON nm.creator_address = m.creator_address
+            JOIN creator_second_hop csh ON csh.creator_address = m.creator_address
+        """).fetchone()[0] or 0
+
+        named_and_farm = conn.execute(f"""
+            {MIGRATED_CTE}
+            SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+            JOIN network_membership nm ON nm.creator_address = m.creator_address
+            JOIN farm_cluster_members fcm ON fcm.wallet_address = m.creator_address AND fcm.wallet_role='creator'
+        """).fetchone()[0] or 0
+
+        named_creator_set = {
+            r[0] for r in conn.execute("""
+                SELECT DISTINCT creator_address
+                FROM network_membership
+                WHERE creator_address IS NOT NULL AND creator_address != ''
+            """).fetchall()
+        }
+        named_and_wc = len(migrated_creators & named_creator_set & wc_creator_set)
+
+        signal_overlap = {
+            'named_only': named_only,
+            'named_and_wallet_cluster': named_and_wc,
+            'named_and_farm': named_and_farm,
+            'named_and_2h': named_and_2h,
+        }
+
+        # ── 6. Second-hop summary + bridge rows ───────────────────────────────
+        total_upstream = conn.execute(
+            "SELECT COUNT(*) FROM funder_upstream_links WHERE is_excluded=0"
+        ).fetchone()[0] or 0
+
+        total_bridges = conn.execute(
+            "SELECT COUNT(*) FROM upstream_network_bridge WHERE is_excluded=0"
+        ).fetchone()[0] or 0
+
+        high_count = conn.execute(
+            "SELECT COUNT(*) FROM upstream_network_bridge WHERE risk_level='HIGH' AND is_excluded=0"
+        ).fetchone()[0] or 0
+
+        medium_count = conn.execute(
+            "SELECT COUNT(*) FROM upstream_network_bridge WHERE risk_level='MEDIUM' AND is_excluded=0"
+        ).fetchone()[0] or 0
+
+        second_hop_summary = {
+            'total_upstream_links': total_upstream,
+            'total_bridges': total_bridges,
+            'high_count': high_count,
+            'medium_count': medium_count,
+        }
+
+        hop_rows = conn.execute("""
+            SELECT upstream_address, network_a, network_b,
+                   confidence_score, risk_level, reason_codes,
+                   shared_funders,
+                   NULL AS time_span_seconds
+            FROM upstream_network_bridge
+            WHERE is_excluded = 0
+            ORDER BY confidence_score DESC
+        """).fetchall()
+
+        second_hop_findings = []
+        display_map = get_network_display_names_map(conn)
+        for r in hop_rows:
+            d = dict(r)
+            d['network_a_display_name'] = display_map.get(d.get('network_a'), {}).get('display_name')
+            d['network_b_display_name'] = display_map.get(d.get('network_b'), {}).get('display_name')
+            try:
+                import json as _json
+                d['reason_codes'] = _json.loads(d['reason_codes'] or '[]')
+            except Exception:
+                d['reason_codes'] = []
+            second_hop_findings.append(d)
+
+        # Check if time_span_seconds column exists and patch results
+        try:
+            col_names = [c[1] for c in conn.execute(
+                "PRAGMA table_info(upstream_network_bridge)"
+            ).fetchall()]
+            if 'time_span_seconds' in col_names:
+                span_rows = conn.execute("""
+                    SELECT upstream_address, network_a, network_b, time_span_seconds
+                    FROM upstream_network_bridge WHERE is_excluded=0
+                """).fetchall()
+                span_map = {(r['upstream_address'], r['network_a'], r['network_b']): r['time_span_seconds']
+                            for r in span_rows}
+                for d in second_hop_findings:
+                    key = (d['upstream_address'], d['network_a'], d['network_b'])
+                    d['time_span_seconds'] = span_map.get(key)
+        except Exception:
+            pass
+
+        # ── 6. Priority creators ──────────────────────────────────────────────
+        # Deduplicate by creator — take best token per creator (highest market cap)
+        priority_rows = conn.execute("""
+            SELECT
+                ta.mint,
+                ta.earliest_tx_creator AS creator_address,
+                COALESCE(ta.network_name, nm.network_name) AS network_name,
+                nr.display_name,
+                nr.display_name_reason,
+                ta.market_cap_current,
+                ta.migrated_at,
+                MAX(csh.confidence_score) AS hop_confidence,
+                MAX(csh.risk_level)       AS hop_risk,
+                CASE WHEN nm.creator_address IS NOT NULL THEN 1 ELSE 0 END AS in_network,
+                CASE WHEN csh.creator_address IS NOT NULL THEN 1 ELSE 0 END AS has_2h,
+                CASE WHEN fcm.wallet_address IS NOT NULL THEN 1 ELSE 0 END AS in_farm,
+                mc.symbol, mc.name
+            FROM token_analysis ta
+            LEFT JOIN network_membership nm
+                ON nm.creator_address = ta.earliest_tx_creator
+            LEFT JOIN networks_release nr
+                ON nr.network_name = COALESCE(ta.network_name, nm.network_name)
+            LEFT JOIN creator_second_hop csh
+                ON csh.creator_address = ta.earliest_tx_creator
+            LEFT JOIN farm_cluster_members fcm
+                ON fcm.wallet_address = ta.earliest_tx_creator
+               AND fcm.wallet_role = 'creator'
+            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+            WHERE ta.lifecycle_stage = 'migrated'
+              AND ta.earliest_tx_creator IS NOT NULL
+              AND ta.earliest_tx_creator != ''
+              AND (nm.creator_address IS NOT NULL
+                OR csh.creator_address IS NOT NULL
+                OR fcm.wallet_address IS NOT NULL)
+            GROUP BY ta.earliest_tx_creator
+            ORDER BY
+                has_2h DESC,
+                hop_confidence DESC NULLS LAST,
+                in_network DESC,
+                ta.market_cap_current DESC NULLS LAST
+            LIMIT 30
+        """).fetchall()
+
+        priority_creators = []
+        for r in priority_rows:
+            d = dict(r)
+            d['in_wallet_cluster'] = 1 if d['creator_address'] in wc_creator_set else 0
+            priority_creators.append(d)
+
+        return jsonify({
+            'summary': summary,
+            'signal_overlap': signal_overlap,
+            'top_networks': top_networks,
+            'top_wallet_clusters': top_wallet_clusters,
+            'top_farm_clusters': top_farm_clusters,
+            'second_hop_summary': second_hop_summary,
+            'second_hop_findings': second_hop_findings,
+            'priority_creators': priority_creators,
+        })
+
+    except Exception as e:
+        logging.getLogger(__name__).exception('[network-intelligence] summary failed')
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+# ── Intelligence Refresh watchlist API ────────────────────────────────────────
+
+@app.route('/api/intelligence-refresh/status')
+def api_intelligence_refresh_status():
+    try:
+        from src.core.intelligence_refresh import get_refresh_status
+        return jsonify(get_refresh_status(DB_PATH))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/intelligence-refresh/approve', methods=['POST'])
+def api_intelligence_refresh_approve():
+    try:
+        data = request.json or {}
+        target_type    = data.get('target_type', '')
+        target_address = data.get('target_address', '')
+        ttl_hours      = int(data.get('ttl_hours', 24))
+        if target_type not in ('creator', 'funder') or not target_address:
+            return jsonify({'error': 'invalid target_type or target_address'}), 400
+        from src.core.intelligence_refresh import approve_candidate
+        result = approve_candidate(DB_PATH, target_type, target_address, ttl_hours)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/intelligence-refresh/approve-top', methods=['POST'])
+def api_intelligence_refresh_approve_top():
+    try:
+        data         = request.json or {}
+        target_type  = data.get('target_type', 'creator')
+        limit        = min(int(data.get('limit', 5)), 10)   # hard cap 10
+        min_priority = int(data.get('min_priority', 0))
+        if target_type not in ('creator', 'funder'):
+            return jsonify({'error': 'invalid target_type'}), 400
+        from src.core.intelligence_refresh import approve_top
+        result = approve_top(DB_PATH, target_type, limit, min_priority)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/intelligence-refresh/ignore', methods=['POST'])
+def api_intelligence_refresh_ignore():
+    try:
+        data = request.json or {}
+        target_type    = data.get('target_type', '')
+        target_address = data.get('target_address', '')
+        if target_type not in ('creator', 'funder') or not target_address:
+            return jsonify({'error': 'invalid target_type or target_address'}), 400
+        from src.core.intelligence_refresh import ignore_candidate
+        return jsonify(ignore_candidate(DB_PATH, target_type, target_address))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/upstream-hubs')
+def api_upstream_hubs():
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        hubs = conn.execute("""
+            SELECT
+                muh.upstream_address,
+                muh.confidence_score,
+                muh.networks_bridged,
+                muh.funders_bridged,
+                muh.risk_level,
+                muh.reason_codes,
+                muh.status,
+                muh.discovered_at,
+                muh.last_expanded_at,
+                muh.funders_bridged AS downstream_funders,
+                COUNT(DISTINCT cf.creator_address) AS linked_creators
+            FROM monitored_upstream_hubs muh
+            LEFT JOIN funder_upstream_links ful ON ful.upstream_address = muh.upstream_address
+            LEFT JOIN creator_funders cf ON cf.funder_address = ful.funder_address AND cf.is_cex = 0
+            GROUP BY muh.upstream_address
+            ORDER BY muh.confidence_score DESC
+            LIMIT 50
+        """).fetchall()
+
+        return jsonify({
+            "hubs": [dict(h) for h in hubs],
+            "total": len(hubs),
+        })
+    except Exception as e:
+        if "no such table" in str(e):
+            return jsonify({"hubs": [], "total": 0})
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@app.route('/api/upstream-hubs/<address>')
+def api_upstream_hub_detail(address):
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        hub = conn.execute(
+            "SELECT * FROM monitored_upstream_hubs WHERE upstream_address=?", (address,)
+        ).fetchone()
+        if not hub:
+            conn.close()
+            return jsonify({"error": "not found"}), 404
+
+        # Downstream funders
+        funders = conn.execute("""
+            SELECT ful.funder_address, ful.avg_transfer_sol,
+                   COUNT(DISTINCT cf.creator_address) AS creators_funded,
+                   slq.status AS queue_status, slq.priority
+            FROM funder_upstream_links ful
+            LEFT JOIN creator_funders cf ON cf.funder_address = ful.funder_address AND cf.is_cex=0
+            LEFT JOIN second_hop_lite_queue slq ON slq.funder_address = ful.funder_address
+            WHERE ful.upstream_address = ? AND ful.is_excluded = 0
+            GROUP BY ful.funder_address
+            ORDER BY creators_funded DESC, ful.avg_transfer_sol DESC
+            LIMIT 20
+        """, (address,)).fetchall()
+
+        # Networks connected via this upstream
+        networks = conn.execute("""
+            SELECT DISTINCT network_a, network_b, confidence_score, risk_level
+            FROM upstream_network_bridge
+            WHERE upstream_address = ? AND is_excluded = 0
+            ORDER BY confidence_score DESC
+        """, (address,)).fetchall()
+
+        # Creators linked via 2H
+        creators = conn.execute("""
+            SELECT DISTINCT csh.creator_address, csh.confidence_score, csh.risk_level, csh.via_funder
+            FROM creator_second_hop csh
+            WHERE csh.upstream_address = ?
+            ORDER BY csh.confidence_score DESC
+            LIMIT 20
+        """, (address,)).fetchall()
+
+        conn.close()
+        return jsonify({
+            "upstream_address": address,
+            "hub":      dict(hub),
+            "funders":  [dict(f) for f in funders],
+            "networks": [dict(n) for n in networks],
+            "creators": [dict(c) for c in creators],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/intelligence-relationships/recent')
+def api_intelligence_relationships_recent():
+    try:
+        limit       = min(int(request.args.get('limit', 100)), 500)
+        type_filter = request.args.get('type', 'all')
+        since_hours = int(request.args.get('since_hours', 24))
+        exclude     = request.args.get('exclude', None)
+        from src.core.relationship_events import get_recent_events
+        return jsonify(get_recent_events(DB_PATH, limit=limit, type_filter=type_filter, since_hours=since_hours, exclude=exclude))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ── Phase 2 Lite: second-hop funder RPC expansion ─────────────────────────────
+
+@app.route('/api/second-hop-lite/status')
+def api_second_hop_lite_status():
+    """
+    Return Phase 2 Lite tracking status.
+    Gracefully returns empty data if tables are not yet created.
+    """
+    import datetime as _dt
+    _log = logging.getLogger(__name__)
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        def _table_exists(name: str) -> bool:
+            return conn.execute(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+                (name,)
+            ).fetchone()[0] == 1
+
+        queue_ok  = _table_exists("second_hop_lite_queue")
+        cache_ok  = _table_exists("funder_rpc_scan_cache")
+        log_ok    = _table_exists("second_hop_lite_rpc_log")
+
+        # ── Enabled flag — DB setting takes priority over env var ────────────
+        import os as _os
+        enabled = _os.getenv("SECOND_HOP_RPC_LITE_ENABLED", "false").lower() == "true"
+        try:
+            row = conn.execute(
+                "SELECT setting_value FROM listener_settings WHERE setting_key='second_hop_lite_enabled'"
+            ).fetchone()
+            if row is not None:
+                enabled = row['setting_value'] == 'true'
+        except Exception:
+            pass
+
+        # ── Priority funders (same logic as queue builder) ────────────────────
+        priority_funders = 0
+        try:
+            priority_funders = conn.execute("""
+                SELECT COUNT(DISTINCT funder_address)
+                FROM creator_funders
+                WHERE is_cex = 0
+                  AND funder_address IN (
+                      SELECT funder_address FROM creator_funders
+                      WHERE is_cex = 0
+                      GROUP BY funder_address
+                      HAVING COUNT(DISTINCT creator_address) >= 2
+                  )
+            """).fetchone()[0] or 0
+        except Exception:
+            pass
+
+        # ── Tracked funders ───────────────────────────────────────────────────
+        tracked_funders = 0
+        try:
+            cache_set = set()
+            link_set  = set()
+            if cache_ok:
+                cache_set = {
+                    r[0] for r in conn.execute(
+                        "SELECT DISTINCT funder_address FROM funder_rpc_scan_cache"
+                    ).fetchall()
+                }
+            link_set = {
+                r[0] for r in conn.execute(
+                    "SELECT DISTINCT funder_address FROM funder_upstream_links"
+                ).fetchall()
+            }
+            # Intersect with the priority set
+            priority_set_rows = conn.execute("""
+                SELECT funder_address FROM creator_funders
+                WHERE is_cex = 0
+                GROUP BY funder_address
+                HAVING COUNT(DISTINCT creator_address) >= 2
+            """).fetchall()
+            priority_set = {r[0] for r in priority_set_rows}
+            tracked_funders = len(priority_set & (cache_set | link_set))
+        except Exception:
+            pass
+
+        # ── Queue stats ───────────────────────────────────────────────────────
+        queue_stats = {"pending": 0, "done": 0, "failed": 0, "scanning": 0, "skipped": 0}
+        if queue_ok:
+            try:
+                rows = conn.execute("""
+                    SELECT status, COUNT(*) AS cnt
+                    FROM second_hop_lite_queue
+                    GROUP BY status
+                """).fetchall()
+                for r in rows:
+                    queue_stats[r["status"]] = r["cnt"]
+            except Exception:
+                pass
+
+        # ── Top untracked funders (pending in queue) ──────────────────────────
+        top_untracked = []
+        if queue_ok:
+            try:
+                rows = conn.execute("""
+                    SELECT q.funder_address, q.priority, q.reason_codes,
+                           COALESCE(fc.creator_count, 0) AS creator_count,
+                           CASE
+                               WHEN EXISTS (SELECT 1 FROM infra_funders_observed WHERE funder_address=q.funder_address) THEN 'INFRA'
+                               WHEN MAX(cf2.is_cex) = 1 THEN 'CEX'
+                               ELSE NULL
+                           END AS cex_infra_label
+                    FROM second_hop_lite_queue q
+                    LEFT JOIN (
+                        SELECT funder_address, COUNT(DISTINCT creator_address) AS creator_count
+                        FROM creator_funders WHERE is_cex=0
+                        GROUP BY funder_address
+                    ) fc ON fc.funder_address = q.funder_address
+                    LEFT JOIN creator_funders cf2 ON cf2.funder_address = q.funder_address
+                    WHERE q.status = 'pending'
+                    GROUP BY q.funder_address
+                    ORDER BY q.priority DESC
+                    LIMIT 10
+                """).fetchall()
+                import json as _json
+                for r in rows:
+                    d = dict(r)
+                    try:
+                        d["reason_codes"] = _json.loads(d["reason_codes"] or "[]")
+                    except Exception:
+                        d["reason_codes"] = []
+                    top_untracked.append(d)
+            except Exception:
+                pass
+
+        # ── Recent scans ──────────────────────────────────────────────────────
+        recent_scans = []
+        if cache_ok:
+            try:
+                rows = conn.execute("""
+                    SELECT q.funder_address,
+                           COALESCE(src.inbound_upstream_count, 0) AS inbound_upstream_count,
+                           COALESCE(src.rpc_calls_used, 0) AS rpc_calls_used,
+                           q.scanned_at,
+                           COALESCE(src.status, 'cache_hit') AS status
+                    FROM second_hop_lite_queue q
+                    LEFT JOIN funder_rpc_scan_cache src ON src.funder_address = q.funder_address
+                    WHERE q.status = 'done' AND q.scanned_at IS NOT NULL
+                    ORDER BY q.scanned_at DESC
+                    LIMIT 20
+                """).fetchall()
+                scans = [dict(r) for r in rows]
+
+                # Enrich with networks, upstream links, and 2H creator connections
+                for s in scans:
+                    addr = s["funder_address"]
+                    try:
+                        nets = conn.execute(
+                            "SELECT network_name FROM funder_network_map WHERE funder_address=?", (addr,)
+                        ).fetchall()
+                        s["networks"] = [r[0] for r in nets]
+                    except Exception:
+                        s["networks"] = []
+                    try:
+                        ul = conn.execute(
+                            "SELECT COUNT(*) FROM funder_upstream_links WHERE funder_address=?", (addr,)
+                        ).fetchone()
+                        s["upstream_links"] = ul[0] if ul else 0
+                    except Exception:
+                        s["upstream_links"] = 0
+                    try:
+                        sh = conn.execute(
+                            "SELECT COUNT(*) FROM creator_second_hop WHERE via_funder=?", (addr,)
+                        ).fetchone()
+                        s["second_hop_creators"] = sh[0] if sh else 0
+                    except Exception:
+                        s["second_hop_creators"] = 0
+                    try:
+                        is_infra = conn.execute(
+                            "SELECT 1 FROM infra_funders_observed WHERE funder_address=?", (addr,)
+                        ).fetchone()
+                        is_cex = conn.execute(
+                            "SELECT MAX(is_cex) FROM creator_funders WHERE funder_address=?", (addr,)
+                        ).fetchone()
+                        if is_infra:
+                            s["cex_infra_label"] = "INFRA"
+                        elif is_cex and is_cex[0]:
+                            s["cex_infra_label"] = "CEX"
+                        else:
+                            s["cex_infra_label"] = None
+                    except Exception:
+                        s["cex_infra_label"] = None
+
+                recent_scans = scans
+            except Exception:
+                pass
+
+        # ── RPC calls today ───────────────────────────────────────────────────
+        rpc_calls_today = 0
+        if log_ok:
+            try:
+                today_midnight = int(
+                    _dt.datetime.now(_dt.timezone.utc)
+                    .replace(hour=0, minute=0, second=0, microsecond=0)
+                    .timestamp()
+                )
+                rpc_calls_today = conn.execute("""
+                    SELECT COUNT(*) FROM second_hop_lite_rpc_log
+                    WHERE called_at >= ? AND cache_hit = 0
+                """, (today_midnight,)).fetchone()[0] or 0
+            except Exception:
+                pass
+
+        # ── Cache hit rate (last 7 days) ──────────────────────────────────────
+        cache_hit_rate = None
+        if log_ok:
+            try:
+                week_ago = int(time.time()) - 7 * 86400
+                total_calls, cache_hits = conn.execute("""
+                    SELECT COUNT(*), SUM(cache_hit)
+                    FROM second_hop_lite_rpc_log
+                    WHERE called_at >= ?
+                """, (week_ago,)).fetchone()
+                if total_calls:
+                    cache_hit_rate = round((cache_hits or 0) / total_calls * 100, 1)
+            except Exception:
+                pass
+
+        conn.close()
+
+        # True only while the background thread holds the lock (started after end)
+        run_in_progress = _shl_last_run_start > 0 and _shl_last_run_start > _shl_last_run_end
+
+        # ── Upstream hub stats ────────────────────────────────────────────────
+        upstream_hubs = 0
+        hub_expansions_24h = 0
+        try:
+            upstream_hubs = conn.execute(
+                "SELECT COUNT(*) FROM monitored_upstream_hubs WHERE status='active'"
+            ).fetchone()[0] or 0
+            today_cutoff = int(time.time()) - 86400
+            hub_expansions_24h = conn.execute(
+                "SELECT COUNT(*) FROM monitored_upstream_hubs WHERE last_expanded_at >= ?",
+                (today_cutoff,)
+            ).fetchone()[0] or 0
+        except Exception:
+            pass
+
+        return jsonify({
+            "enabled": enabled,
+            "tables_ready": queue_ok and cache_ok and log_ok,
+            "priority_funders": priority_funders,
+            "tracked_funders": tracked_funders,
+            "queue": queue_stats,
+            "rpc_calls_today": rpc_calls_today,
+            "cache_hit_rate": cache_hit_rate,
+            "top_untracked_funders": top_untracked,
+            "recent_scans": recent_scans,
+            "run_in_progress": run_in_progress,
+            "upstream_hubs": upstream_hubs,
+            "hub_expansions_24h": hub_expansions_24h,
+        })
+
+    except Exception as exc:
+        _log.exception("[second-hop-lite/status] failed")
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/second-hop-lite/enqueue/<funder_address>', methods=['POST'])
+def api_second_hop_lite_enqueue(funder_address):
+    """
+    Manually enqueue a funder address for RPC scanning.
+    Does not trigger a scan — just inserts into the queue at medium priority (50).
+    """
+    _log = logging.getLogger(__name__)
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        # Validate: funder must exist in creator_funders
+        exists = conn.execute(
+            "SELECT 1 FROM creator_funders WHERE funder_address=? AND is_cex=0 LIMIT 1",
+            (funder_address,)
+        ).fetchone()
+        if not exists:
+            conn.close()
+            return jsonify({"error": "funder not found or is CEX"}), 404
+
+        import json as _json
+        now = int(time.time())
+        conn.execute("""
+            INSERT OR IGNORE INTO second_hop_lite_queue (
+                funder_address, priority, reason_codes,
+                status, attempts, rpc_calls_used,
+                created_at, next_attempt_at
+            ) VALUES (?, 50, ?, 'pending', 0, 0, ?, ?)
+        """, (funder_address, _json.dumps(["manual_enqueue"]), now, now))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "enqueued", "funder_address": funder_address})
+
+    except Exception as exc:
+        _log.exception("[second-hop-lite/enqueue] failed")
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/second-hop-lite/rescan/<funder_address>', methods=['POST'])
+def api_second_hop_lite_rescan(funder_address):
+    """
+    Force-rescan a funder: resets its queue entry to pending and clears the
+    RPC scan cache so the worker will re-fetch from Helius.
+    """
+    _log = logging.getLogger(__name__)
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        now = int(time.time())
+
+        # Clear cache entry so the worker won't use stale data
+        try:
+            conn.execute(
+                "DELETE FROM funder_rpc_scan_cache WHERE funder_address=?",
+                (funder_address,)
+            )
+        except sqlite3.OperationalError:
+            pass
+
+        # Reset or insert queue entry
+        try:
+            updated = conn.execute("""
+                UPDATE second_hop_lite_queue
+                SET status='pending', next_attempt_at=?, last_error=NULL
+                WHERE funder_address=?
+            """, (now, funder_address)).rowcount
+            if not updated:
+                import json as _json
+                conn.execute("""
+                    INSERT OR IGNORE INTO second_hop_lite_queue (
+                        funder_address, priority, reason_codes,
+                        status, attempts, rpc_calls_used,
+                        created_at, next_attempt_at
+                    ) VALUES (?, 60, ?, 'pending', 0, 0, ?, ?)
+                """, (funder_address, _json.dumps(["manual_rescan"]), now, now))
+        except sqlite3.OperationalError as exc:
+            conn.close()
+            return jsonify({"error": f"Queue table not ready: {exc}"}), 503
+
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "reset_to_pending", "funder_address": funder_address})
+
+    except Exception as exc:
+        _log.exception("[second-hop-lite/rescan] failed")
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/second-hop-lite/toggle', methods=['POST'])
+def api_second_hop_lite_toggle():
+    """Enable or disable Phase 2 Lite RPC scanning. Persisted in listener_settings."""
+    _log = logging.getLogger(__name__)
+    try:
+        data = request.get_json(silent=True) or {}
+        new_enabled = bool(data.get('enabled', False))
+        val = 'true' if new_enabled else 'false'
+        from datetime import datetime as _datetime
+        now_str = _datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.execute("""
+            INSERT INTO listener_settings (setting_key, setting_value, description, last_updated)
+            VALUES ('second_hop_lite_enabled', ?, 'Phase 2 Lite RPC scanning on/off', ?)
+            ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value, last_updated=excluded.last_updated
+        """, (val, now_str))
+        conn.commit()
+        conn.close()
+
+        status = 'ON' if new_enabled else 'OFF'
+        _log.info(f"[second-hop-lite] RPC scanning toggled {status}")
+        return jsonify({"enabled": new_enabled, "status": status})
+
+    except Exception as exc:
+        _log.exception("[second-hop-lite/toggle] failed")
+        return jsonify({"error": str(exc)}), 500
+
+
+# Prevents concurrent Run Now executions
+import threading as _threading
+_shl_lock = _threading.Lock()
+_shl_last_run_start: float = 0.0
+_shl_last_run_end: float = 0.0
+
+@app.route('/api/second-hop-lite/run-now', methods=['POST'])
+def api_second_hop_lite_run_now():
+    """
+    Trigger a Phase 2 Lite worker run in a background thread.
+    Also runs SecondHopExpansionBuilder and NetworksReleaseBuilder afterward
+    so the bridge tables and UI update immediately.
+    Returns immediately — poll /api/second-hop-lite/status to see results.
+    """
+    global _shl_last_run_start, _shl_last_run_end
+    _log = logging.getLogger(__name__)
+    import time as _time
+
+    if not _shl_lock.acquire(blocking=False):
+        return jsonify({"status": "already_running", "message": "Worker is already running"}), 409
+
+    _shl_last_run_start = _time.time()
+
+    def _run():
+        import traceback
+        _dbg = open("/Users/kevinkeaveney/Dev/claude/flex/logs/run_now_debug.log", "a")
+        def _w(msg):
+            import time as _t
+            _dbg.write(f"{_t.strftime('%H:%M:%S')} {msg}\n")
+            _dbg.flush()
+        try:
+            import os as _os
+            _os.environ['SECOND_HOP_RPC_LITE_ENABLED'] = 'true'
+            _os.environ['SECOND_HOP_SQL_ENABLED'] = 'true'
+
+            from src.core.second_hop_lite_worker import SecondHopLiteWorker
+            from src.core.second_hop_builder import SecondHopExpansionBuilder
+            from src.utils.build_networks_release import build_networks_release
+
+            _w("Starting RPC worker")
+            try:
+                worker_result = SecondHopLiteWorker(DB_PATH).run(force=True)
+                _w(f"RPC worker done: {worker_result}")
+            except Exception as _e:
+                _w(f"RPC worker EXCEPTION: {traceback.format_exc()}")
+                raise
+
+            _w("Rebuilding bridges")
+            bridge_result = SecondHopExpansionBuilder(DB_PATH).build()
+            _w(f"Bridges done: {bridge_result}")
+
+            _w("Rebuilding networks release")
+            build_networks_release(DB_PATH)
+
+            _w("Running IntelligenceRefreshCandidateBuilder")
+            import time as _irc_time
+            _irc_t0 = _irc_time.time()
+            _irc_status = "failed"
+            try:
+                from src.core.intelligence_refresh import (
+                    IntelligenceRefreshCandidateBuilder, apply_migration as _irc_migrate
+                )
+                _irc_migrate(DB_PATH)
+                _irc_result = IntelligenceRefreshCandidateBuilder(DB_PATH).run()
+                _irc_status = _irc_result.get("status", "success")
+            except Exception as _irc_e:
+                _w(f"IRC failed: {_irc_e}")
+            finally:
+                import sqlite3 as _irc_sqlite
+                try:
+                    _ic = _irc_sqlite.connect(DB_PATH, timeout=10)
+                    _ic.execute("PRAGMA journal_mode=WAL")
+                    _ic.execute("""
+                        INSERT INTO analyzer_runs
+                            (analyzer_name, started_at, finished_at, duration_seconds, status, rows_written, created_at)
+                        VALUES ('IntelligenceRefreshCandidateBuilder',?,?,?,?,0,?)
+                    """, (_irc_t0, _irc_time.time(), round(_irc_time.time()-_irc_t0,2), _irc_status, _irc_time.time()))
+                    _ic.commit()
+                    _ic.close()
+                except Exception:
+                    pass
+            _w("Pipeline complete")
+
+        except Exception as exc:
+            _w(f"FAILED: {traceback.format_exc()}")
+        finally:
+            _shl_last_run_end = _time.time()
+            _dbg.close()
+            _shl_lock.release()
+
+    import threading
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+    return jsonify({"status": "started", "message": "Worker running in background — refresh status in a few seconds"})
 
 
 @app.route('/networks')
@@ -15923,6 +17173,9 @@ def networks_dashboard():
 
             networks.append({
                 'name': network_name,
+                'display_name': network.get('display_name') or network_name.replace('_', '-'),
+                'display_name_reason': network.get('display_name_reason'),
+                'display_name_source': network.get('display_name_source'),
                 'tier': network.get('network_type', 'N/A'),
                 'is_cex': funder_is_cex,
                 'cex_label': cex_label,
@@ -15931,7 +17184,9 @@ def networks_dashboard():
                 'creators_funded': creators_funded,
                 'sol_amount': sol_amount,
                 'score': score_info['score'] if score_info else None,
-                'score_badge': 'high' if (score_info and score_info['score'] >= 70) else ('medium' if (score_info and score_info['score'] >= 30) else 'low') if score_info else None
+                'score_badge': 'high' if (score_info and score_info['score'] >= 70) else ('medium' if (score_info and score_info['score'] >= 30) else 'low') if score_info else None,
+                'second_hop_bridge_count': network.get('second_hop_bridge_count', 0) or 0,
+                'max_second_hop_confidence': network.get('max_second_hop_confidence', 0) or 0,
             })
 
         return {
@@ -16305,6 +17560,46 @@ def funding_hub(hub_address):
                     'is_creator': True
                 })
 
+        # Fetch all tokens for funded creators
+        tokens_data = []
+        if third_party_funded_creators:
+            creator_list = list(third_party_funded_creators)
+            placeholders = ','.join('?' * len(creator_list))
+            c.execute(f"""
+                SELECT
+                    ta.mint,
+                    tt.symbol,
+                    ta.earliest_tx_creator,
+                    ta.lifecycle_stage,
+                    ta.market_cap_highest,
+                    ta.market_cap_current,
+                    ta.created_at,
+                    ta.migrated_at
+                FROM token_analysis ta
+                LEFT JOIN tracked_tokens tt ON tt.mint = ta.mint
+                WHERE ta.earliest_tx_creator IN ({placeholders})
+                ORDER BY ta.market_cap_highest DESC NULLS LAST
+            """, creator_list)
+            for row in c.fetchall():
+                tokens_data.append({
+                    'mint': row[0],
+                    'symbol': row[1] or '—',
+                    'creator': row[2],
+                    'stage': row[3] or '—',
+                    'peak_mc': row[4],
+                    'current_mc': row[5],
+                    'created_at': row[6],
+                    'migrated_at': row[7],
+                })
+            bonding_curve_count = sum(1 for t in tokens_data if t['stage'] == 'bonding_curve')
+            pending_count = sum(1 for t in tokens_data if t['stage'] == 'migration_pending')
+            bonded_only_count = bonding_curve_count
+            pending_only_count = pending_count
+            tokens_data = [t for t in tokens_data if t['stage'] == 'migrated']
+        else:
+            bonded_only_count = 0
+            pending_only_count = 0
+
         conn.close()
 
         # Sort by token count descending
@@ -16581,6 +17876,84 @@ def funding_hub(hub_address):
                                 <td><small style="color: #94a3b8;">{sample_creators if sample_creators else 'N/A'}</small></td>
                             </tr>
                     """
+
+        html += """
+                    </tbody>
+                </table>
+        """
+
+        # ── Tokens table ──────────────────────────────────────────────────────
+        extra_notes = ''
+        if bonded_only_count:
+            extra_notes += f' &nbsp;·&nbsp; <span style="color:#f97316;">{bonded_only_count} bonding curve</span>'
+        if pending_only_count:
+            extra_notes += f' &nbsp;·&nbsp; <span style="color:#fbbf24;">{pending_only_count} pending</span>'
+        html += f"""
+                <h2 style="margin: 36px 0 8px; font-size: 18px;">Graduated Tokens</h2>
+                <p style="color: #94a3b8; margin-bottom: 16px; font-size: 13px;">
+                    <span style="color: #22c55e;">{len(tokens_data)} graduated</span>{extra_notes}
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Symbol</th>
+                            <th>Mint</th>
+                            <th>Creator</th>
+                            <th style="text-align:center;" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)">G</th>
+                            <th style="text-align:right;">Peak MC</th>
+                            <th style="text-align:right;">Current MC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+
+        G_COLOR = {'G1':'#f59e0b','G2':'#a78bfa','G3':'#60a5fa','G4':'#34d399','G5':'#86efac','G6':'#6b7280','G7':'#374151'}
+        G_BG    = {'G1':'rgba(245,158,11,0.12)','G2':'rgba(167,139,250,0.12)','G3':'rgba(96,165,250,0.12)','G4':'rgba(52,211,153,0.12)','G5':'rgba(134,239,172,0.08)','G6':'rgba(107,114,128,0.10)','G7':'rgba(55,65,81,0.10)'}
+        G_TIP   = {'G1':'Elite (5M+)','G2':'Strong (2–5M)','G3':'High Opportunity (500K–2M)','G4':'Pre-Runner (300–500K)','G5':'Mid Tier (150–300K)','G6':'Weak (75–150K)','G7':'Low / Noise (<75K)'}
+
+        def _g_class(mc):
+            if mc is None: return None
+            if mc >= 5_000_000: return 'G1'
+            if mc >= 2_000_000: return 'G2'
+            if mc >= 500_000:   return 'G3'
+            if mc >= 300_000:   return 'G4'
+            if mc >= 150_000:   return 'G5'
+            if mc >= 75_000:    return 'G6'
+            return 'G7'
+
+        def _g_badge(mc):
+            g = _g_class(mc)
+            if not g: return '<span style="color:#4b5563;">—</span>'
+            return (f'<span style="background:{G_BG[g]};color:{G_COLOR[g]};padding:2px 6px;'
+                    f'border-radius:3px;font-size:11px;font-weight:700;" title="{G_TIP[g]}">{g}</span>')
+
+        def _fmt_mc(v):
+            if v is None:
+                return '<span style="color:#4b5563;">—</span>'
+            if v >= 1_000_000:
+                return f'<span style="color:#a78bfa;">${v/1_000_000:.2f}M</span>'
+            if v >= 1_000:
+                return f'<span style="color:#06b6d4;">${v/1_000:.1f}K</span>'
+            return f'<span style="color:#9ca3af;">${v:.0f}</span>'
+
+        if not tokens_data:
+            html += '<tr><td colspan="7" style="text-align:center;padding:40px;color:#64748b;">No graduated tokens found</td></tr>'
+        else:
+            for i, t in enumerate(tokens_data, 1):
+                mint_short = t['mint'] if t['mint'] else '—'
+                creator_short = t['creator'] if t['creator'] else '—'
+                html += f"""
+                        <tr>
+                            <td style="color:#6b7280;font-size:11px;">{i}</td>
+                            <td style="font-weight:600;color:#e5e7eb;">{t['symbol']}</td>
+                            <td><span class="address" title="{t['mint']}">{mint_short}</span></td>
+                            <td><span class="address" title="{t['creator']}">{creator_short}</span></td>
+                            <td style="text-align:center;">{_g_badge(t['peak_mc'])}</td>
+                            <td style="text-align:right;">{_fmt_mc(t['peak_mc'])}</td>
+                            <td style="text-align:right;">{_fmt_mc(t['current_mc'])}</td>
+                        </tr>
+                """
 
         html += """
                     </tbody>
@@ -18085,11 +19458,16 @@ def creator_network_page(network_name: str):
     
     # Build HTML response
     network_name_decoded = unquote(network_name)
+    display_name = context.get('network', {}).get('display_name') or network_name_decoded.replace('_', '-')
+    display_reason = context.get('network', {}).get('display_name_reason')
+    display_title = f"Internal ID: {network_name_decoded}"
+    if display_reason:
+        display_title += f" | Reason: {display_reason}"
     html = f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Creator Network: {network_name_decoded}</title>
+        <title>Creator Network: {display_name}</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
             :root {{
@@ -18180,7 +19558,10 @@ def creator_network_page(network_name: str):
     <body>
         <div class="container">
             <header>
-                <h1>🔗 {network_name_decoded}</h1>
+                <div>
+                    <h1 title="{display_title}">🔗 {display_name}</h1>
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-top: 4px;">{network_name_decoded}</div>
+                </div>
                 <a href="/networks" class="back-link">← Back to Networks</a>
             </header>
 
@@ -18644,6 +20025,11 @@ def unsuppress_alert(alert_id):
 
 
 
+@app.route('/settings')
+def settings_page():
+    return render_template('settings.html', active_page='settings')
+
+
 @app.route('/rpc-savings-dashboard')
 def rpc_savings_dashboard():
     """
@@ -18767,6 +20153,7 @@ def api_db_health():
     """Return live DB table sizes and last maintenance run for the performance dashboard."""
     import time as _time
     import sqlite3 as _sqlite3
+    conn = None
     try:
         # Use a direct read-only connection — no write locking needed for COUNT queries
         conn = _sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=5)
@@ -18828,7 +20215,22 @@ def api_db_health():
             'last_maintenance': last_run,
         }
     except Exception as e:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
         return {'error': str(e)}, 500
+
+
+@app.route('/api/debug/db-connections')
+def api_debug_db_connections():
+    """Return tracked open SQLite connections grouped by call site."""
+    try:
+        from src.utils.db_locking import get_open_connection_summary
+        return jsonify(get_open_connection_summary())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/metrics/rpc/component-breakdown')
@@ -19145,10 +20547,232 @@ def api_creator_queue_status():
         print(f"[QUEUE_STATUS] Error: {e}", flush=True)
         return {"ok": False, "error": str(e)}, 500
 
+
+# =============================================================================
+# SECOND-HOP NETWORK INTELLIGENCE — Phase 1 (SQL-only)
+# =============================================================================
+
+def _is_slow_2funder_bridge(row) -> bool:
+    """
+    Returns True for bridges that are weak enough to hide by default:
+    - only 2 funders bridged
+    - no burst timing detected (not in reason_codes)
+    - span > 7 days (604800 seconds)
+    These may be coincidental co-membership rather than coordination.
+    """
+    reason_codes = json.loads(row['reason_codes'] or '[]')
+    has_burst = 'same_upstream_and_burst_timing' in reason_codes
+    if has_burst:
+        return False
+    funders = row['funders_bridged_count'] if row['funders_bridged_count'] is not None else row['shared_funders']
+    if funders > 2:
+        return False
+    span = row['time_span_seconds']
+    return span is not None and span > 604800  # 7 days
+
+
+@app.route('/api/second-hop-network-map')
+def api_second_hop_network_map():
+    """
+    Return a map of network_name → max_second_hop_confidence for all networks.
+    Used by the dashboard to render the 2H badge without per-row queries.
+    Lightweight — SELECT two columns from networks_release.
+    """
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT network_name, COALESCE(max_second_hop_confidence, 0) AS max_conf
+            FROM networks_release
+            WHERE max_second_hop_confidence >= 45
+        """).fetchall()
+        conn.close()
+        result = {r['network_name']: r['max_conf'] for r in rows}
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({}), 200  # fail-open: badge just won't show
+
+
+@app.route('/api/network-display-names')
+def api_network_display_names():
+    """Return UI display labels keyed by canonical network_name."""
+    try:
+        return jsonify(get_network_display_names_map())
+    except Exception:
+        return jsonify({}), 200
+
+
+@app.route('/api/second-hop/<creator_address>')
+def api_second_hop_creator(creator_address: str):
+    """
+    Return second-hop upstream connections for a creator.
+
+    Default: confidence >= 45, slow 2-funder bridges hidden.
+    ?include_low_confidence=true: confidence >= 15, all bridges returned.
+    """
+    include_low = request.args.get('include_low_confidence', '').lower() == 'true'
+    confidence_floor = 15 if include_low else 45
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT
+                csh.upstream_address,
+                csh.via_funder,
+                csh.confidence_score,
+                csh.risk_level,
+                csh.reason_codes,
+                csh.source,
+                csh.built_at,
+                fnm.network_name AS via_network,
+                unb.time_span_seconds,
+                unb.funders_bridged_count
+            FROM creator_second_hop csh
+            LEFT JOIN funder_network_map fnm ON fnm.funder_address = csh.via_funder
+            LEFT JOIN upstream_network_bridge unb
+                ON unb.upstream_address = csh.upstream_address
+            WHERE csh.creator_address = ?
+              AND csh.confidence_score >= ?
+            GROUP BY csh.upstream_address, csh.via_funder
+            ORDER BY csh.confidence_score DESC
+        """, (creator_address, confidence_floor)).fetchall()
+        display_map = get_network_display_names_map(conn)
+        conn.close()
+
+        result = []
+        for r in rows:
+            if not include_low and _is_slow_2funder_bridge(r):
+                continue
+            result.append({
+                'upstream_address':   r['upstream_address'],
+                'via_funder':         r['via_funder'],
+                'via_network':        r['via_network'],
+                'via_network_display_name': display_map.get(r['via_network'], {}).get('display_name') if r['via_network'] else None,
+                'confidence_score':   r['confidence_score'],
+                'risk_level':         r['risk_level'],
+                'reason_codes':       json.loads(r['reason_codes'] or '[]'),
+                'source':             r['source'],
+                'built_at':           r['built_at'],
+                'time_span_seconds':  r['time_span_seconds'],
+                'suppressed':         False,
+            })
+        return jsonify({'creator_address': creator_address, 'second_hop': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/network-bridges/<network_name>')
+def api_network_bridges(network_name: str):
+    """
+    Return networks connected to this network via shared upstream funders.
+
+    Default: confidence >= 45, slow 2-funder bridges hidden.
+    ?include_low_confidence=true: confidence >= 15, all bridges returned.
+    """
+    include_low = request.args.get('include_low_confidence', '').lower() == 'true'
+    confidence_floor = 15 if include_low else 45
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT
+                unb.upstream_address,
+                CASE WHEN unb.network_a = ? THEN unb.network_b ELSE unb.network_a END AS connected_network,
+                unb.shared_funders,
+                unb.confidence_score,
+                unb.risk_level,
+                unb.reason_codes,
+                unb.built_at,
+                unb.time_span_seconds,
+                unb.funders_bridged_count
+            FROM upstream_network_bridge unb
+            WHERE (unb.network_a = ? OR unb.network_b = ?)
+              AND unb.confidence_score >= ?
+              AND unb.is_excluded = 0
+            ORDER BY unb.confidence_score DESC
+        """, (network_name, network_name, network_name, confidence_floor)).fetchall()
+        display_map = get_network_display_names_map(conn)
+        conn.close()
+
+        result = []
+        for r in rows:
+            if not include_low and _is_slow_2funder_bridge(r):
+                continue
+            result.append({
+                'upstream_address':   r['upstream_address'],
+                'connected_network':  r['connected_network'],
+                'connected_network_display_name': display_map.get(r['connected_network'], {}).get('display_name'),
+                'connected_network_display_reason': display_map.get(r['connected_network'], {}).get('reason'),
+                'shared_funders':     r['shared_funders'],
+                'confidence_score':   r['confidence_score'],
+                'risk_level':         r['risk_level'],
+                'reason_codes':       json.loads(r['reason_codes'] or '[]'),
+                'built_at':           r['built_at'],
+                'time_span_seconds':  r['time_span_seconds'],
+                'source':             'transfer_index',
+            })
+        current_display = display_map.get(network_name, {})
+        return jsonify({
+            'network_name': network_name,
+            'display_name': current_display.get('display_name') or network_name.replace('_', '-'),
+            'display_name_reason': current_display.get('reason'),
+            'bridges': result
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/upstream-funder/<upstream_address>')
+def api_upstream_funder(upstream_address: str):
+    """
+    Show all networks reachable from an upstream wallet and the funders it connects.
+    """
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        # Networks this upstream bridges
+        bridges = conn.execute("""
+            SELECT network_a, network_b, shared_funders, confidence_score,
+                   risk_level, reason_codes
+            FROM upstream_network_bridge
+            WHERE upstream_address = ?
+              AND is_excluded = 0
+            ORDER BY confidence_score DESC
+        """, (upstream_address,)).fetchall()
+
+        # Downstream funders
+        funders = conn.execute("""
+            SELECT funder_address, transfer_count, total_sol, avg_transfer_sol,
+                   first_transfer_ts, last_transfer_ts, source, funders_touched,
+                   last_seen_network_count
+            FROM funder_upstream_links
+            WHERE upstream_address = ?
+              AND is_excluded = 0
+        """, (upstream_address,)).fetchall()
+
+        conn.close()
+
+        return jsonify({
+            'upstream_address': upstream_address,
+            'bridges': [dict(r) for r in bridges],
+            'downstream_funders': [{
+                **dict(r),
+                'reason_codes': None,  # not on funder link rows
+            } for r in funders],
+            'networks_bridged': len(set(
+                n for r in bridges for n in (r['network_a'], r['network_b'])
+            )),
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/funding-queue')
 def api_funding_queue():
     """List entries in the creator_funding_queue with stats and recent rows."""
     import time as _time
+    conn = None
     try:
         conn = db_connect(DB_PATH, timeout=15)
         conn.row_factory = sqlite3.Row
@@ -19207,8 +20831,68 @@ def api_funding_queue():
             "rows": [dict(r) for r in rows],
         }
     except Exception as e:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
         return {"ok": False, "error": str(e)}, 500
 
+
+
+@app.route('/api/funding-queue/coverage')
+def api_funding_queue_coverage():
+    """Creator funding coverage stats — % of migrated creators with funding data."""
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.execute("PRAGMA query_only = ON")
+        row = conn.execute("""
+            SELECT
+                COUNT(DISTINCT ta.earliest_tx_creator) AS total,
+                COUNT(DISTINCT CASE WHEN EXISTS (
+                    SELECT 1 FROM creator_funders cf WHERE cf.creator_address = ta.earliest_tx_creator
+                ) THEN ta.earliest_tx_creator END) AS has_funding,
+                COUNT(DISTINCT CASE WHEN NOT EXISTS (
+                    SELECT 1 FROM creator_funders cf WHERE cf.creator_address = ta.earliest_tx_creator
+                ) AND NOT EXISTS (
+                    SELECT 1 FROM creator_funding_queue cfq WHERE cfq.creator_address = ta.earliest_tx_creator
+                ) THEN ta.earliest_tx_creator END) AS missing_no_queue,
+                COUNT(DISTINCT CASE WHEN NOT EXISTS (
+                    SELECT 1 FROM creator_funders cf WHERE cf.creator_address = ta.earliest_tx_creator
+                ) AND EXISTS (
+                    SELECT 1 FROM creator_funding_queue cfq WHERE cfq.creator_address = ta.earliest_tx_creator
+                ) THEN ta.earliest_tx_creator END) AS missing_queued,
+                COUNT(DISTINCT CASE WHEN ta.created_at >= strftime('%s','now') - 86400
+                    AND NOT EXISTS (
+                        SELECT 1 FROM creator_funders cf WHERE cf.creator_address = ta.earliest_tx_creator
+                    ) THEN ta.earliest_tx_creator END) AS missing_24h
+            FROM token_analysis ta
+            WHERE ta.earliest_tx_creator IS NOT NULL AND ta.migrated_at IS NOT NULL
+        """).fetchone()
+        conn.close()
+        total = row[0] or 1
+        has_funding = row[1] or 0
+        missing_no_queue = row[2] or 0
+        missing_queued = row[3] or 0
+        missing_24h = row[4] or 0
+        return {
+            "ok": True,
+            "total_creators": total,
+            "has_funding": has_funding,
+            "missing_no_queue": missing_no_queue,
+            "missing_queued": missing_queued,
+            "missing_24h": missing_24h,
+            "coverage_pct": round(has_funding / total * 100, 1),
+            "missing_pct": round((missing_no_queue + missing_queued) / total * 100, 1),
+        }
+    except Exception as e:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return {"ok": False, "error": str(e)}, 500
 
 
 @app.route('/api/funding-queue/clear', methods=['POST'])
@@ -20720,7 +22404,6 @@ def price_stream():
                         # Get next event from queue with timeout (non-blocking with timeout)
                         try:
                             event = queue.get(timeout=30)  # 30 second timeout to detect dead connections
-                            print(f"[SSE_SEND] Sending event for {event.get('mint', '?')[:16]}...", flush=True)
                             yield f"data: {json.dumps(event)}\n\n"
                         except:
                             # Queue timeout - send a comment to keep connection alive
@@ -20766,7 +22449,6 @@ def internal_broadcast():
     to all connected SSE subscribers in this Flask process.
     Only accepts connections from localhost.
     """
-    import asyncio as _asyncio
     remote = request.remote_addr
     if remote not in ('127.0.0.1', '::1', 'localhost'):
         return jsonify({'error': 'forbidden'}), 403
@@ -20776,10 +22458,7 @@ def internal_broadcast():
             return jsonify({'error': 'invalid event'}), 400
         from src.core.price_stream import get_price_stream
         ps = get_price_stream()
-        # broadcast is async; run synchronously in a new event loop
-        loop = _asyncio.new_event_loop()
-        loop.run_until_complete(ps.broadcast(event))
-        loop.close()
+        ps.broadcast_now(event)
         return jsonify({'ok': True, 'subscribers': ps.get_subscriber_count()})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -21398,7 +23077,6 @@ def _sync_validated_tokens_to_tracker():
         has_symbol = cached_symbols | tracked_symbols
 
         registry = PriceWorkerRegistry(DB_PATH)
-        from src.core.pumpfun_curve_listener import _spawn_symbol_fetch
         needs_symbol = []
         for mint in mints:
             registry.register_token(mint, priority_level='MEDIUM')
@@ -21406,8 +23084,11 @@ def _sync_validated_tokens_to_tracker():
                 needs_symbol.append(mint)
 
         # Fetch symbols for tokens that don't have one yet (staggered to avoid burst)
+        # Import is deferred into the thread to avoid importing pumpfun_curve_listener
+        # at Flask startup — that module pulls in asyncio/aiohttp and can deadlock.
         import threading as _threading, time as _time
         def _staggered_symbol_fetch(mints_list):
+            from src.core.pumpfun_curve_listener import _spawn_symbol_fetch
             for i, m in enumerate(mints_list):
                 _time.sleep(i * 0.5)  # 500ms apart
                 _spawn_symbol_fetch(m, DB_PATH)
@@ -21422,23 +23103,33 @@ def _sync_validated_tokens_to_tracker():
 
 def start_background_workers():
     """Start price and liquidity workers in background threads"""
-    _sync_validated_tokens_to_tracker()
-
+    print("[STARTUP_DIAG] start_background_workers: begin", flush=True)
     import os
-    if os.environ.get('FLEX_WS_DISABLED', '0') == '1':
-        print("[PRICE_WORKER] Skipping worker start — listener process owns pricing (FLEX_WS_DISABLED=1)")
+    if os.environ.get('FLEX_ENABLE_FLASK_BACKGROUND_WORKERS', '0') != '1':
+        print("[STARTUP_DIAG] optional Flask background workers skipped (set FLEX_ENABLE_FLASK_BACKGROUND_WORKERS=1 to enable)")
+        return
+
+    _sync_validated_tokens_to_tracker()
+    print("[STARTUP_DIAG] _sync_validated_tokens_to_tracker: done", flush=True)
+
+    if os.environ.get('FLEX_ENABLE_FLASK_PRICE_WORKER', '0') != '1':
+        print("[PRICE_WORKER] Skipping worker start — listener process owns pricing (set FLEX_ENABLE_FLASK_PRICE_WORKER=1 to run it in Flask)")
     else:
         try:
+            print("[STARTUP_DIAG] importing price_worker...", flush=True)
             from src.core.price_worker import start_price_worker
+            print("[STARTUP_DIAG] starting price_worker...", flush=True)
             price_worker = start_price_worker(db_path=DB_PATH)
-            print(f"[PRICE_WORKER] Background price worker started pid={os.getpid()}")
+            print(f"[PRICE_WORKER] Background price worker started pid={os.getpid()}", flush=True)
         except Exception as e:
             print(f"[WARNING] Price worker failed to start: {e}")
 
+    print("[STARTUP_DIAG] importing liquidity_worker...", flush=True)
     try:
         from src.core.liquidity_worker import start_liquidity_worker
+        print("[STARTUP_DIAG] starting liquidity_worker...", flush=True)
         liquidity_worker = start_liquidity_worker(db_path=DB_PATH)
-        print("[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s")
+        print("[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s", flush=True)
     except Exception as e:
         print(f"[WARNING] Liquidity worker failed to start: {e}")
 
@@ -21488,7 +23179,14 @@ if __name__ == '__main__':
     print("[FLASK] Dashboard available at http://localhost:5002")
     print(f"[FLASK] Database: {_os.path.abspath(DB_PATH)}")
 
-    # Start background workers before Flask
-    start_background_workers()
+    # Start background workers in a thread so app.run() binds immediately
+    def _deferred_workers():
+        import time as _t
+        _t.sleep(0.5)  # let Werkzeug finish binding
+        start_background_workers()
+        print("[STARTUP_DIAG] start_background_workers: complete", flush=True)
+
+    threading.Thread(target=_deferred_workers, daemon=True).start()
+    print("[STARTUP_DIAG] calling app.run() — workers starting in background", flush=True)
 
     app.run(host='0.0.0.0', port=5002, debug=False, threaded=True)

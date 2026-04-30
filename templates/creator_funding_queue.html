@@ -309,6 +309,19 @@ table.cfq-table td:last-child {
     <div id="cfq-timing-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px;"></div>
 </div>
 
+<!-- Funding Coverage Panel -->
+<div class="cfq-section" id="coverage-section">
+    <div class="cfq-section-title">Creator Funding Coverage</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:12px;" id="coverage-grid">
+        <div class="cfq-stat"><div class="cfq-stat-label">Total Creators</div><div class="cfq-stat-value blue" id="cov-total">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Have Funding</div><div class="cfq-stat-value green" id="cov-has"></div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Coverage</div><div class="cfq-stat-value green" id="cov-pct">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Missing</div><div class="cfq-stat-value red" id="cov-missing">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Queued</div><div class="cfq-stat-value yellow" id="cov-queued">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Missing 24h</div><div class="cfq-stat-value red" id="cov-24h">—</div></div>
+    </div>
+</div>
+
 <div class="cfq-stats" id="cfq-stats">
     <div class="cfq-stat"><div class="cfq-stat-label">Total</div><div class="cfq-stat-value blue" id="s-total">—</div></div>
     <div class="cfq-stat"><div class="cfq-stat-label">Ready</div><div class="cfq-stat-value yellow" id="s-ready">—</div></div>
@@ -415,6 +428,17 @@ function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+async function fetchJsonWithTimeout(url, options = {}, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const resp = await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
+        return await resp.json();
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 function cfqSort(key) {
     if (_cfqSortKey === key) { _cfqSortDir *= -1; }
     else { _cfqSortKey = key; _cfqSortDir = key === 'created_at' ? -1 : 1; }
@@ -492,8 +516,7 @@ function cfqRender() {
 
 async function cfqLoad() {
     try {
-        const resp = await fetch('/api/funding-queue');
-        const data = await resp.json();
+        const data = await fetchJsonWithTimeout('/api/funding-queue');
         if (!data.ok) { console.error('API error', data.error); return; }
 
         _cfqNow = data.now;
@@ -534,6 +557,10 @@ async function cfqLoad() {
         cfqRender();
     } catch (e) {
         console.error('cfqLoad failed', e);
+        document.getElementById('cfq-tbody').innerHTML =
+            '<tr><td colspan="9" class="cfq-empty">Queue data did not load. Try Refresh.</td></tr>';
+        document.getElementById('cfq-source-grid').innerHTML =
+            '<div class="cfq-empty">Source data unavailable.</div>';
     }
 }
 
@@ -580,8 +607,7 @@ async function loadTimingCards() {
     const cards = document.getElementById('cfq-timing-cards');
     if (!cards) return;
     try {
-        const resp = await fetch('/api/pumpfun/live');
-        const data = await resp.json();
+        const data = await fetchJsonWithTimeout('/api/pumpfun/live');
         const rows = data.migrations || [];
 
         const groups = {};
@@ -647,12 +673,13 @@ async function loadTimingCards() {
         }).join('');
     } catch(e) {
         console.error('loadTimingCards failed', e);
+        cards.innerHTML = '<div class="cfq-empty">Timing data unavailable.</div>';
     }
 }
 
 async function loadDbHealth() {
     try {
-        const d = await fetch('/api/db-health').then(r => r.json());
+        const d = await fetchJsonWithTimeout('/api/db-health');
         if (d.error) return;
         const fmt = n => n == null ? '—' : n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
 
@@ -695,14 +722,41 @@ async function loadDbHealth() {
             lastDetailEl.textContent = '';
             summaryEl.textContent = 'Maintenance has not run yet — will run on next listener startup, then every 6 hours.';
         }
-    } catch(e) { console.error('loadDbHealth failed', e); }
+    } catch(e) {
+        console.error('loadDbHealth failed', e);
+        document.getElementById('dbh-summary').textContent = 'DB health data unavailable.';
+    }
 }
 
-cfqLoad();
-loadTimingCards();
-loadDbHealth();
-setInterval(cfqLoad, 10000);
-setInterval(loadTimingCards, 30000);
-setInterval(loadDbHealth, 60000);
+async function loadCoverage() {
+    try {
+        const d = await fetchJsonWithTimeout('/api/funding-queue/coverage');
+        if (!d.ok) return;
+        document.getElementById('cov-total').textContent = d.total_creators.toLocaleString();
+        document.getElementById('cov-has').textContent = d.has_funding.toLocaleString();
+        const pctEl = document.getElementById('cov-pct');
+        pctEl.textContent = d.coverage_pct + '%';
+        pctEl.style.color = d.coverage_pct >= 90 ? '#4ade80' : d.coverage_pct >= 75 ? '#fde047' : '#f87171';
+        const missingEl = document.getElementById('cov-missing');
+        missingEl.textContent = d.missing_no_queue.toLocaleString() + ' (' + d.missing_pct + '%)';
+        missingEl.style.color = d.missing_pct > 10 ? '#f87171' : '#fde047';
+        document.getElementById('cov-queued').textContent = d.missing_queued.toLocaleString();
+        document.getElementById('cov-24h').textContent = d.missing_24h.toLocaleString();
+    } catch(e) {
+        console.error('loadCoverage failed', e);
+        document.getElementById('cov-total').textContent = '—';
+        document.getElementById('cov-pct').textContent = 'Unavailable';
+    }
+}
+
+cfqLoad().finally(() => {
+    setTimeout(loadTimingCards, 100);
+    setTimeout(loadDbHealth, 200);
+    setTimeout(loadCoverage, 300);
+});
+setInterval(cfqLoad, 30000);
+setInterval(loadTimingCards, 120000);
+setInterval(loadDbHealth, 120000);
+setInterval(loadCoverage, 120000);
 </script>
 {% endblock %}

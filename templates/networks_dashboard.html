@@ -175,8 +175,9 @@
                  data-creators-funded="{{ net.creators_funded }}"
                  data-sol-amount="{{ net.sol_amount|int }}"
                  onclick="showNetworkDetails('{{ net.name | replace("'", "\\'") }}')">
-                <h3>
-                    {{ net.name }}
+                <h3 title="Internal ID: {{ net.name }}{% if net.display_name_reason %}&#10;Reason: {{ net.display_name_reason }}{% endif %}">
+                    {{ net.display_name or net.name }}
+                    <span style="display:block;color:var(--text-secondary);font-size:10px;font-weight:500;margin-top:2px;">{{ net.name }}</span>
                     {% if net.score is not none %}
                     <span style="display: inline-block; background-color: {{ badge_color }}; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px;">{{ net.score }}</span>
                     {% endif %}
@@ -260,7 +261,7 @@
             const title = document.getElementById('networkModalTitle');
             const content = document.getElementById('networkModalContent');
 
-            title.textContent = networkName;
+            title.textContent = networkName.replace('_', '-');
             content.innerHTML = '<div style="color: var(--text-secondary);">Loading...</div>';
             modal.classList.add('show');
 
@@ -273,6 +274,9 @@
                     }
 
                     let html = '<div style="padding: 20px;">';
+                    if (data.display_name) {
+                        title.innerHTML = `${data.display_name}<div style="color:var(--text-secondary);font-size:12px;font-weight:400;margin-top:4px;" title="${data.display_name_reason || ''}">${data.network_name}</div>`;
+                    }
 
                     html += '<div style="background: var(--bg-card); padding: 15px; border-radius: 6px; margin-bottom: 20px;">';
                     html += '<div style="color: var(--color-purple); font-size: 11px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Network Composition</div>';
@@ -302,6 +306,64 @@
                     }
 
                     content.innerHTML = html + '</div>';
+
+                    // Fetch and append the shared upstream funding panel
+                    fetch('/api/network-bridges/' + encodeURIComponent(networkName))
+                        .then(r => r.json())
+                        .then(bridgeData => {
+                            const bridges = bridgeData.bridges || [];
+                            if (!bridges.length) return;
+
+                            const riskColor = { HIGH: '#f87171', CRITICAL: '#ef4444', MEDIUM: '#fbbf24', LOW: '#9ca3af' };
+
+                            // ── Summary block ────────────────────────────────────────
+                            const riskCounts = {};
+                            let maxConf = 0, maxConfBridge = null;
+                            const allReasons = [];
+                            bridges.forEach(b => {
+                                riskCounts[b.risk_level] = (riskCounts[b.risk_level] || 0) + 1;
+                                if (b.confidence_score > maxConf) { maxConf = b.confidence_score; maxConfBridge = b; }
+                                (b.reason_codes || []).forEach(rc => { if (!allReasons.includes(rc)) allReasons.push(rc); });
+                            });
+                            const riskSummary = Object.entries(riskCounts)
+                                .sort((a, b) => ['CRITICAL','HIGH','MEDIUM','LOW'].indexOf(a[0]) - ['CRITICAL','HIGH','MEDIUM','LOW'].indexOf(b[0]))
+                                .map(([lvl, cnt]) => `<span style="color:${riskColor[lvl]||'#9ca3af'};font-weight:700;">${cnt} ${lvl}</span>`)
+                                .join(', ');
+                            const topPattern = allReasons[0] ? allReasons[0].replace(/_/g, ' ') : null;
+
+                            let bHtml = '<div style="background: var(--bg-card); padding: 15px; border-radius: 6px; margin: 0 20px 20px;">';
+                            bHtml += '<div style="color: #fb923c; font-size: 11px; text-transform: uppercase; margin-bottom: 12px; font-weight: 600; letter-spacing: 0.05em;">Shared Upstream Funding</div>';
+
+                            // Summary block
+                            bHtml += '<div style="padding: 10px 12px; background: rgba(251,146,60,0.07); border-radius: 4px; margin-bottom: 14px; font-size: 12px; line-height: 1.7;">';
+                            bHtml += `<div>This network shares upstream funding with <strong>${bridges.length} network${bridges.length > 1 ? 's' : ''}</strong> (${riskSummary})</div>`;
+                            if (maxConfBridge) bHtml += `<div>Strongest link: <span title="Internal ID: ${maxConfBridge.connected_network}" style="color:var(--accent-purple);font-weight:600;">${maxConfBridge.connected_network_display_name || maxConfBridge.connected_network.replace('_', '-')}</span> <span style="color:${riskColor[maxConfBridge.risk_level]||'#9ca3af'};font-size:11px;">(${Math.round(maxConf)})</span></div>`;
+                            if (topPattern) bHtml += `<div style="color:var(--text-secondary);">Pattern: ${topPattern}</div>`;
+                            bHtml += '</div>';
+
+                            bHtml += '<div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">Upstream wallets that funded creators across multiple networks. May indicate coordination — not necessarily the same operator.</div>';
+
+                            for (const b of bridges) {
+                                const rc = (b.reason_codes || []).map(c => c.replace(/_/g, ' ')).join(' · ');
+                                const spanDays = b.time_span_seconds ? Math.round(b.time_span_seconds / 86400) : null;
+                                const spanStr = spanDays !== null ? ` · ${spanDays}d span` : '';
+                                bHtml += `
+                                <div style="padding: 10px; background: rgba(251,146,60,0.07); border-left: 3px solid rgba(251,146,60,0.4); border-radius: 3px; margin-bottom: 8px; font-size: 12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <a href="/networks?network=${encodeURIComponent(b.connected_network)}" title="Internal ID: ${b.connected_network}${b.connected_network_display_reason ? '\nReason: ' + b.connected_network_display_reason : ''}" style="color: var(--accent-purple); font-weight: 700; text-decoration: none; border-bottom: 1px dotted var(--accent-purple);">${b.connected_network_display_name || b.connected_network.replace('_', '-')}</a>
+                                        <span style="color: ${riskColor[b.risk_level] || '#9ca3af'}; font-size: 10px; font-weight: 700;">${b.risk_level} · ${Math.round(b.confidence_score)}</span>
+                                    </div>
+                                    <div style="font-family: monospace; font-size: 10px; color: var(--text-secondary); margin-bottom: 3px;" title="${b.upstream_address}">via ${b.upstream_address.slice(0,8)}…${b.upstream_address.slice(-4)}${spanStr}</div>
+                                    ${rc ? `<div style="font-size: 10px; color: var(--text-secondary);">${rc}</div>` : ''}
+                                </div>`;
+                            }
+                            bHtml += '</div>';
+
+                            // Insert before the closing wrapper div
+                            const wrapper = content.querySelector('div');
+                            if (wrapper) wrapper.insertAdjacentHTML('beforeend', bHtml);
+                        })
+                        .catch(() => {});  // fail silently — panel is additive
                 })
                 .catch(e => {
                     content.innerHTML = `<div style="padding: 20px;"><p>Network: <strong>${networkName}</strong></p><p style="color: var(--text-secondary); font-size: 14px;">Click on a network to see more details.</p></div>`;

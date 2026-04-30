@@ -16,7 +16,7 @@ import json
 import logging
 import threading
 from collections import defaultdict
-from queue import Queue  # Use thread-safe Queue instead of asyncio.Queue
+from queue import Full, Queue  # Use thread-safe Queue instead of asyncio.Queue
 from typing import Any, Dict, Optional, Set
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,6 @@ class PriceStream:
             self.subscribers.add(queue)
             count = len(self.subscribers)
             logger.info(f"[PRICE_STREAM] New subscriber. Total: {count}")
-            print(f"[PRICE_STREAM_SUBSCRIBE] New subscriber connected. Total: {count}", flush=True)
         return queue
 
     def unsubscribe(self, queue: Queue) -> None:
@@ -51,9 +50,9 @@ class PriceStream:
             self.subscribers.discard(queue)
             logger.debug(f"[PRICE_STREAM] Subscriber removed. Total: {len(self.subscribers)}")
 
-    async def broadcast(self, event: Dict[str, Any]) -> None:
+    def broadcast_now(self, event: Dict[str, Any]) -> None:
         """
-        Broadcast a price update event to all subscribers.
+        Broadcast a price update event to all subscribers synchronously.
 
         Args:
             event: Dictionary with keys:
@@ -79,13 +78,20 @@ class PriceStream:
         event["broadcast_id"] = self._event_count
         self._event_count += 1
 
-        # Send to all subscribers
+        # Send to all subscribers. If a browser tab falls behind, drop its
+        # oldest queued event and keep only fresh data instead of disconnecting
+        # immediately or accumulating stale work.
         for queue in subscribers:
             try:
-                # Non-blocking put
                 queue.put_nowait(event)
+            except Full:
+                try:
+                    queue.get_nowait()
+                    queue.put_nowait(event)
+                except Exception as e:
+                    logger.warning(f"[PRICE_STREAM] Stale subscriber queue, removing: {e}")
+                    dead_queues.append(queue)
             except Exception as e:
-                # Queue full or other error - subscriber not reading fast enough
                 logger.warning(f"[PRICE_STREAM] Error sending to subscriber: {e}, removing")
                 dead_queues.append(queue)
 
@@ -99,6 +105,10 @@ class PriceStream:
                 f"[PRICE_STREAM] Broadcast #{self._event_count}: {event.get('mint', '?')[:8]}... "
                 f"price=${event.get('price_usd', '?')} to {subscriber_count} subscribers"
             )
+
+    async def broadcast(self, event: Dict[str, Any]) -> None:
+        """Async-compatible wrapper for legacy call sites."""
+        self.broadcast_now(event)
 
     def get_subscriber_count(self) -> int:
         """Get current number of connected subscribers"""

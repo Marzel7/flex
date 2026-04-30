@@ -285,6 +285,11 @@ function renderMigrations(rows) {
         const label = t.symbol || t.name || shortAddr(t.mint);
         const isNew = parseTs(t.migrated_at) && (Date.now()/1000 - parseTs(t.migrated_at)) < 900;
         const creator = t.pf_ws_creator || t.earliest_tx_creator || '';
+        const riskTags = [];
+        if (t.is_self_funding || t.self_funding_pct >= 50) riskTags.push(`<span class="pf-chip" style="background:rgba(239,68,68,0.16);color:#f87171;font-size:10px;font-weight:700">SELF-FUND${t.self_funding_pct ? ' '+t.self_funding_pct+'%' : ''}</span>`);
+        if (t.coordinated_count > 0) riskTags.push(`<span class="pf-chip" style="background:rgba(245,158,11,0.16);color:#fbbf24;font-size:10px;font-weight:700">COORD ${t.coordinated_count}</span>`);
+        if (t.in_farm_cluster > 0) riskTags.push(`<span class="pf-chip" style="background:rgba(139,92,246,0.16);color:#a78bfa;font-size:10px;font-weight:700">FARM</span>`);
+        const riskLine = riskTags.length ? `<div style="margin-top:3px">${riskTags.join(' ')}</div>` : '';
         const fundingDone = t.funding_status === 'complete';
         const fundingChip = fundingDone
             ? `<span class="pf-chip" style="background:rgba(16,185,129,0.16);color:#6ee7b7">✓ ${esc(fmtSource(t.funding_source) || 'done')}</span>`
@@ -303,6 +308,7 @@ function renderMigrations(rows) {
                     ${isNew ? '<span class="pf-chip migrated" style="margin-left:6px">NEW</span>' : ''}
                 </div>
                 <div class="pf-mint" title="${esc(t.mint)}">${esc(shortAddr(t.mint))}</div>
+                ${riskLine}
             </td>
             <td><div class="pf-mint" title="${esc(creator)}">${esc(shortAddr(creator))}</div></td>
             <td>${fundingChip}</td>

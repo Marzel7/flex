@@ -29,7 +29,8 @@ echo "✓ WebSocket pool subscription ready"
 echo ""
 
 # Kill existing processes
-lsof -i :5002 | tail -1 | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+lsof -i :5002 | awk 'NR>1 {print $2}' | sort -u | xargs kill -9 2>/dev/null || true
+pkill -9 -f "src/core/main.py" 2>/dev/null || true
 sleep 1
 echo "✓ Port 5002 killed"
 

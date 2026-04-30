@@ -12,6 +12,7 @@ Exit codes:
 
 import sys
 import logging
+import logging.handlers
 import os
 from pathlib import Path
 
@@ -28,7 +29,12 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_dir / 'clustering.log'),
+        logging.handlers.RotatingFileHandler(
+            log_dir / 'clustering.log',
+            maxBytes=20 * 1024 * 1024,
+            backupCount=2,
+            encoding='utf-8',
+        ),
         logging.StreamHandler()
     ]
 )

@@ -222,6 +222,7 @@ Important limits:
 - It is a bounded recent-history scan.
 - It does not scan all lifetime activity.
 - It is focused on practical upstream discovery.
+- Default cron-sized batch limits are intentionally small: 25 funders, 750 RPC calls, and 35 transactions per funder. Override with `SHL_MAX_FUNDER_SCANS`, `SHL_MAX_RPC_CALLS`, or `SHL_MAX_TX_PER_FUNDER` only for explicit backfills.
 
 ## Second-Hop SQL Expansion
 

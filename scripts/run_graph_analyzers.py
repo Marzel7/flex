@@ -230,6 +230,17 @@ def run_analyzer(name: str, db_path: str) -> dict:
             apply_migration(db_path)
             result = IntelligenceRefreshCandidateBuilder(db_path).run()
 
+        elif name == 'CreatorOutboundBuilder':
+            from src.core.creator_outbound_builder import CreatorOutboundBuilder
+            result = CreatorOutboundBuilder(db_path).run()
+            result['edges_written'] = result.get('classifications_written', 0)
+
+        elif name == 'CreatorOutboundWorker':
+            from src.core.creator_outbound_worker import CreatorOutboundWorker
+            result = CreatorOutboundWorker(db_path).run()
+            result.setdefault('status', 'success')
+            result['edges_written'] = result.get('transfers_written', 0)
+
         else:
             raise ValueError(f"Unknown analyzer: {name}")
 
@@ -277,12 +288,25 @@ ANALYZERS = [
     'CoordinatedEdgesBuilder',
     'C2CEdgeBuilder',
     'NetworkMembershipBuilder',
-    'SecondHopLiteWorker',                   # RPC backfill — no-op if disabled
+    'CreatorOutboundBuilder',                # DB-only: classify creator_outgoing_transfers
+    'IntelligenceRefreshCandidateBuilder',   # scores include outbound signals; auto-approves
+    'CreatorOutboundWorker',                 # RPC: backfill outbound transfers for new creators
+    'SecondHopLiteWorker',                   # RPC: scan approved funders
     'SecondHopExpansionBuilder',             # reads funder_upstream_links
     'UpstreamExpansionBuilder',              # enqueues funders around significant hubs
     'NetworksReleaseBuilder',
-    'IntelligenceRefreshCandidateBuilder',   # DB-only watchlist seeding, NO RPC
 ]
+
+
+def _pending_queue_count(db_path: str) -> int:
+    import sqlite3
+    try:
+        conn = sqlite3.connect(db_path, timeout=10)
+        n = conn.execute("SELECT COUNT(*) FROM second_hop_lite_queue WHERE status='pending'").fetchone()[0]
+        conn.close()
+        return n
+    except Exception:
+        return -1
 
 
 def main() -> int:
@@ -304,6 +328,19 @@ def main() -> int:
     for name in ANALYZERS:
         r = run_analyzer(name, db_path)
         results.append(r)
+
+        # Pipeline boundary logging: IRC → Phase 2
+        if name == 'IntelligenceRefreshCandidateBuilder':
+            irc_result = r.get('result', {})
+            enqueued = irc_result.get('auto_approved', 0)
+            pending = _pending_queue_count(db_path)
+            logger.info(f"[PIPELINE] IRC completed: {enqueued} auto-approved  |  {pending} pending in Phase 2 queue")
+
+        elif name == 'SecondHopLiteWorker':
+            shl_result = r.get('result', {})
+            scanned = shl_result.get('funders_scanned', shl_result.get('funders', 0))
+            remaining = _pending_queue_count(db_path)
+            logger.info(f"[PIPELINE] Phase2 worker completed: {scanned} scanned  |  {remaining} still pending")
 
     suite_duration = time.time() - suite_start
     failed = [r for r in results if r['status'] != 'success']

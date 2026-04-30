@@ -23,6 +23,7 @@ import os
 import time
 import logging
 import re
+import hashlib
 from src.utils.infra_mapping import highlight_infra_in_funding
 from src.core.flex_dashboard_routes import MIN_LIVE_MARKET_CAP
 
@@ -4913,6 +4914,14 @@ HTML_TEMPLATE = """
                 <!-- Populated by JavaScript -->
             </div>
 
+            <!-- Outbound Intelligence -->
+            <div id="outboundSignalsSection" style="display:none;margin-top:20px">
+                <h3 style="margin-bottom:8px">Outbound Signals</h3>
+                <div class="outbound-body" style="background:rgba(0,0,0,0.3);border:1px solid rgba(251,146,60,0.25);border-radius:6px;padding:14px 16px">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
             <!-- Wallet Cluster -->
             <h3 style="margin-top: 20px;">Wallet Network</h3>
             <div class="cluster-info" id="clusterInfo" style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 6px; padding: 15px;">
@@ -7179,6 +7188,45 @@ function switchToTokensTab() {
                     `;
                 } else {
                     clusterInfo.innerHTML = '<p style="color: var(--text-secondary);">No wallet network data available</p>';
+                }
+
+                // Outbound Intelligence signals
+                const outboundSig = data.outbound_signals || {};
+                const outboundSection = document.getElementById('outboundSignalsSection');
+                if (outboundSection) {
+                    const parts = [];
+                    if (outboundSig.return_to_funder) {
+                        const cnt = outboundSig.return_to_funder.recipients || 0;
+                        const sol = (outboundSig.return_to_funder.total_sol || 0).toFixed(2);
+                        parts.push(`<div style="padding:6px 0;border-bottom:1px solid rgba(148,163,184,0.07)">
+                            <span style="color:#f87171;font-weight:700">↩ Self-funding loop</span>
+                            <span style="color:#94a3b8;font-size:12px;margin-left:8px">Returned SOL to ${cnt} funder${cnt!==1?'s':''} · ${sol} SOL total</span>
+                        </div>`);
+                    }
+                    if (outboundSig.shared_payout_wallet) {
+                        const cnt = outboundSig.shared_payout_wallet.recipients || 0;
+                        const wallets = (outboundSig.shared_payout_wallet.top_wallets || [])
+                            .map(w => `<span style="font-family:monospace;font-size:10px;color:#60a5fa">${w.address.slice(0,8)}… (${w.shared_with_creators} creators)</span>`)
+                            .join(', ');
+                        parts.push(`<div style="padding:6px 0;border-bottom:1px solid rgba(148,163,184,0.07)">
+                            <span style="color:#fbbf24;font-weight:700">⚡ Shared payout wallet${cnt!==1?'s':''}</span>
+                            <span style="color:#94a3b8;font-size:12px;margin-left:8px">${cnt} shared recipient${cnt!==1?'s':''}</span>
+                            ${wallets ? `<div style="margin-top:4px">${wallets}</div>` : ''}
+                        </div>`);
+                    }
+                    if (outboundSig.creator_to_upstream_hub) {
+                        const hubs = (outboundSig.creator_to_upstream_hub.hubs || [])
+                            .map(h => `<span style="font-family:monospace;font-size:10px;color:#a78bfa">${h.address.slice(0,8)}… (${h.networks_bridged} networks, ${(h.amount_sol||0).toFixed(2)} SOL)</span>`)
+                            .join(', ');
+                        parts.push(`<div style="padding:6px 0">
+                            <span style="color:#a78bfa;font-weight:700">🔗 Upstream hub link</span>
+                            ${hubs ? `<div style="margin-top:4px">${hubs}</div>` : ''}
+                        </div>`);
+                    }
+                    if (parts.length > 0) {
+                        outboundSection.style.display = 'block';
+                        outboundSection.querySelector('.outbound-body').innerHTML = parts.join('');
+                    }
                 }
 
                 // Fetch and populate Jito tips history
@@ -10255,7 +10303,48 @@ def api_creator_details(creator_address: str):
         except Exception as e:
             coordinator_flags = {}
 
-        # 12. Get network assignment for this creator
+        # 12. Get outbound intelligence signals
+        outbound_signals = {}
+        try:
+            from src.core.creator_outbound_builder import get_creator_outbound_summary
+            outbound_signals = get_creator_outbound_summary(DB_PATH, creator_address)
+            # Enrich shared_payout: count distinct creators sharing each payout wallet
+            if 'shared_payout_wallet' in outbound_signals:
+                shared_wallets = cursor.execute("""
+                    SELECT coc.recipient_address,
+                           COUNT(DISTINCT coc2.creator_address) AS other_creator_count
+                    FROM creator_outbound_classifications coc
+                    JOIN creator_outbound_classifications coc2
+                        ON coc2.recipient_address = coc.recipient_address
+                       AND coc2.creator_address != coc.creator_address
+                       AND coc2.relationship_type = 'shared_payout_wallet'
+                    WHERE coc.creator_address = ?
+                      AND coc.relationship_type = 'shared_payout_wallet'
+                    GROUP BY coc.recipient_address
+                    ORDER BY other_creator_count DESC
+                    LIMIT 5
+                """, (creator_address,)).fetchall()
+                outbound_signals['shared_payout_wallet']['top_wallets'] = [
+                    {'address': r[0], 'shared_with_creators': r[1]} for r in shared_wallets
+                ]
+            # Enrich hub links
+            if 'creator_to_upstream_hub' in outbound_signals:
+                hub_rows = cursor.execute("""
+                    SELECT coc.recipient_address, coc.amount_sol,
+                           muh.networks_bridged, muh.confidence_score
+                    FROM creator_outbound_classifications coc
+                    JOIN monitored_upstream_hubs muh ON muh.upstream_address = coc.recipient_address
+                    WHERE coc.creator_address = ? AND coc.relationship_type = 'creator_to_upstream_hub'
+                    ORDER BY coc.amount_sol DESC
+                """, (creator_address,)).fetchall()
+                outbound_signals['creator_to_upstream_hub']['hubs'] = [
+                    {'address': r[0], 'amount_sol': r[1],
+                     'networks_bridged': r[2], 'confidence': r[3]} for r in hub_rows
+                ]
+        except Exception as _oe:
+            logger.debug(f"[CREATOR_DETAILS] outbound signals skipped: {_oe}")
+
+        # 13. Get network assignment for this creator
         network_name = None
         network_type = None
         network_memberships = []
@@ -10364,6 +10453,7 @@ def api_creator_details(creator_address: str):
             'network_type': network_type,
             'network_provisional': network_provisional,
             'graph': graph_context,
+            'outbound_signals': outbound_signals,
         })
 
     except Exception as e:
@@ -12247,10 +12337,126 @@ coordinated_funders_html = '''
 def coordinated_funders_view():
     """Serve a full webview for coordinated funders analysis"""
     try:
+        from src.core.token_behavior import compute_token_class
+        from src.utils.infra_mapping import get_account_info, get_cex_info
+
         conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
         cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        table_names = {row["name"] for row in cursor.fetchall()}
+
+        def _short_addr(address):
+            if not address:
+                return "unknown"
+            return f"{address[:8]}...{address[-4:]}" if len(address) > 14 else address
+
+        def _parse_ts(value):
+            if value in (None, ""):
+                return None
+            try:
+                if isinstance(value, (int, float)):
+                    ts = int(value)
+                    return ts if ts > 0 else None
+                raw = str(value).strip()
+                if raw.isdigit():
+                    ts = int(raw)
+                    return ts if ts > 0 else None
+                raw = raw.replace("Z", "+00:00")
+                return int(datetime.fromisoformat(raw).timestamp())
+            except Exception:
+                return None
+
+        def _format_date(value):
+            ts = _parse_ts(value)
+            if not ts:
+                return "—"
+            return datetime.fromtimestamp(ts).strftime("%d %b")
+
+        def _format_money(value):
+            value = float(value or 0)
+            if value <= 0:
+                return "—"
+            if value >= 1_000_000:
+                return f"${value / 1_000_000:.2f}M"
+            if value >= 1_000:
+                return f"${value / 1_000:.1f}K"
+            return f"${value:.0f}"
+
+        def _format_sol(value):
+            value = float(value or 0)
+            if value >= 10:
+                return f"{value:.2f} SOL"
+            return f"{value:.4f}".rstrip("0").rstrip(".") + " SOL"
+
+        def _median(values):
+            values = sorted(float(v or 0) for v in values)
+            if not values:
+                return 0
+            mid = len(values) // 2
+            if len(values) % 2:
+                return values[mid]
+            return (values[mid - 1] + values[mid]) / 2
+
+        def _classify_account(address):
+            infra_info = get_account_info(address)
+            if infra_info:
+                return {
+                    "type": "INFRA",
+                    "name": infra_info.get("name") or "Infrastructure",
+                    "category": infra_info.get("category") or "infra",
+                    "description": infra_info.get("description"),
+                }
+            cex_info = get_cex_info(address)
+            if cex_info:
+                return {
+                    "type": "CEX",
+                    "name": cex_info.get("name") or cex_info.get("exchange") or "CEX",
+                    "category": cex_info.get("category") or "cex",
+                    "description": cex_info.get("description"),
+                }
+
+            cursor.execute("""
+                SELECT exchange_name, wallet_type
+                FROM cex_wallets
+                WHERE cex_address = ? AND is_active = 1
+                LIMIT 1
+            """, (address,))
+            row = cursor.fetchone()
+            if row:
+                wallet_type = row["wallet_type"] or "wallet"
+                exchange_name = row["exchange_name"] or "CEX"
+                name = exchange_name if wallet_type in ("Hot Wallet", "Exchange Wallet") else f"{exchange_name} {wallet_type}"
+                return {
+                    "type": "CEX",
+                    "name": name,
+                    "category": wallet_type,
+                    "description": None,
+                }
+
+            if "infra_funders_observed" in table_names:
+                cursor.execute("""
+                    SELECT note
+                    FROM infra_funders_observed
+                    WHERE funder_address = ?
+                    LIMIT 1
+                """, (address,))
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        "type": "INFRA",
+                        "name": row["note"] or "Observed Infrastructure",
+                        "category": "infra",
+                        "description": row["note"],
+                    }
+
+            return {
+                "type": "Unknown",
+                "name": "Unlabeled",
+                "category": "unknown",
+                "description": None,
+            }
 
         # Get funders funding multiple creators
         cursor.execute("""
@@ -12258,6 +12464,9 @@ def coordinated_funders_view():
                 cf.funder_address,
                 COUNT(DISTINCT cf.creator_address) as creator_count,
                 SUM(cf.amount_sol) as total_sol_sent,
+                MIN(cf.amount_sol) as min_sol_sent,
+                MAX(cf.amount_sol) as max_sol_sent,
+                MAX(CAST(strftime('%s', cf.first_detected_at) AS INTEGER)) as latest_funding_at,
                 CASE
                     WHEN EXISTS (SELECT 1 FROM infra_funders_observed WHERE funder_address = cf.funder_address) THEN 'INFRA'
                     WHEN MAX(cf.is_cex) = 1 THEN 'CEX'
@@ -12266,30 +12475,127 @@ def coordinated_funders_view():
             FROM creator_funders cf
             GROUP BY cf.funder_address
             HAVING COUNT(DISTINCT cf.creator_address) > 1
-            ORDER BY creator_count DESC, total_sol_sent DESC
-            LIMIT 100
+            ORDER BY latest_funding_at DESC, creator_count DESC, total_sol_sent DESC
+            LIMIT 150
         """)
 
         multi_funders = [dict(row) for row in cursor.fetchall()]
-        conn.close()
-
-        # Build HTML response
-        html_rows = ""
         for funder in multi_funders:
-            html_rows += f"""
-            <tr>
-                <td style="padding: 12px; text-align: center;">
-                    <input type="checkbox" class="funder-checkbox" value="{funder['funder_address']}" style="width: 18px; height: 18px; cursor: pointer;">
-                </td>
-                <td style="padding: 12px; font-family: monospace; font-size: 11px; word-break: break-all;">
-                    <a href="/funding-hub/{funder['funder_address']}" style="color: var(--color-cyan); text-decoration: none;">
-                        {funder['funder_address']}
-                    </a>
-                </td>
-                <td style="padding: 12px; text-align: right; color: var(--color-yellow); font-weight: 600;">{funder['creator_count']}</td>
-                <td style="padding: 12px; text-align: right; color: var(--color-green); font-weight: 600;">{funder['total_sol_sent']:.2f} SOL</td>
-            </tr>
-            """
+            funder_address = funder["funder_address"]
+            funder["short_address"] = _short_addr(funder_address)
+            funder["account_label"] = _classify_account(funder_address)
+
+            cursor.execute("""
+                SELECT amount_sol
+                FROM creator_funders
+                WHERE funder_address = ?
+            """, (funder_address,))
+            amounts = [row["amount_sol"] for row in cursor.fetchall()]
+            funder["total_sol_display"] = _format_sol(funder["total_sol_sent"])
+            funder["median_sol_display"] = _format_sol(_median(amounts))
+            funder["min_sol_display"] = _format_sol(funder["min_sol_sent"])
+            funder["max_sol_display"] = _format_sol(funder["max_sol_sent"])
+
+            cursor.execute("""
+                SELECT
+                    COUNT(DISTINCT fnm.network_name) AS network_count,
+                    GROUP_CONCAT(DISTINCT fnm.network_name) AS networks
+                FROM funder_network_map fnm
+                WHERE fnm.funder_address = ?
+            """, (funder_address,))
+            network_row = cursor.fetchone()
+            networks = sorted((network_row["networks"] or "").split(",")) if network_row and network_row["networks"] else []
+            funder["network_count"] = network_row["network_count"] if network_row else 0
+            funder["sample_networks"] = networks[:4]
+
+            approval_counts = {"approved": 0, "pending": 0, "rejected": 0, "needs_evidence": 0}
+            if networks and "network_review_status" in table_names:
+                placeholders = ",".join("?" * len(networks))
+                cursor.execute(f"""
+                    SELECT COALESCE(nrs.status, 'pending') AS status, COUNT(*) AS count
+                    FROM (
+                        SELECT network_name
+                        FROM networks_release
+                        WHERE network_name IN ({placeholders})
+                    ) nr
+                    LEFT JOIN network_review_status nrs ON nrs.network_name = nr.network_name
+                    GROUP BY COALESCE(nrs.status, 'pending')
+                """, networks)
+                for status_row in cursor.fetchall():
+                    approval_counts[status_row["status"]] = status_row["count"]
+            funder["approval_counts"] = approval_counts
+
+            cursor.execute("""
+                SELECT
+                    COUNT(*) AS tracked_count,
+                    SUM(CASE WHEN COALESCE(ta.lifecycle_stage, '') = 'migrated' AND ta.migrated_at IS NOT NULL THEN 1 ELSE 0 END) AS migrated_count,
+                    SUM(CASE WHEN NOT (COALESCE(ta.lifecycle_stage, '') = 'migrated' AND ta.migrated_at IS NOT NULL) THEN 1 ELSE 0 END) AS bonding_count,
+                    MAX(COALESCE(ta.market_cap_highest, ta.market_cap_current, 0)) AS best_peak_mc,
+                    MAX(COALESCE(
+                        NULLIF(ta.migrated_at, 0),
+                        NULLIF(ta.market_cap_highest_at_ts, 0),
+                        CASE
+                            WHEN CAST(ta.created_at AS REAL) > 1000000000 THEN CAST(ta.created_at AS INTEGER)
+                            ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
+                        END
+                    )) AS latest_token_at
+                FROM token_analysis ta
+                WHERE ta.earliest_tx_creator IN (
+                    SELECT DISTINCT creator_address
+                    FROM creator_funders
+                    WHERE funder_address = ?
+                )
+            """, (funder_address,))
+            token_stats = cursor.fetchone()
+            best_peak_mc = token_stats["best_peak_mc"] or 0
+            latest_activity_at = max(
+                _parse_ts(funder["latest_funding_at"]) or 0,
+                _parse_ts(token_stats["latest_token_at"] if token_stats else None) or 0,
+            )
+            funder["tracked_count"] = token_stats["tracked_count"] or 0
+            funder["migrated_count"] = token_stats["migrated_count"] or 0
+            funder["bonding_count"] = token_stats["bonding_count"] or 0
+            funder["best_peak_mc"] = best_peak_mc
+            funder["best_peak_display"] = _format_money(best_peak_mc)
+            funder["best_g"] = compute_token_class(best_peak_mc) if best_peak_mc else "—"
+            funder["latest_seen_at"] = latest_activity_at
+            funder["latest_seen_display"] = _format_date(latest_activity_at)
+
+            jito_row = None
+            if "creator_service_history" in table_names:
+                cursor.execute("""
+                    SELECT
+                        ROUND(csh.amount_sol, 9) AS amount_sol,
+                        CASE
+                            WHEN csh.tag = 'uses_jitotip' THEN 'Create'
+                            ELSE COALESCE(csh.tx_type, 'Other')
+                        END AS tx_type,
+                        COUNT(*) AS event_count,
+                        COUNT(DISTINCT csh.creator_address) AS creator_count
+                    FROM creator_service_history csh
+                    WHERE csh.tag IN ('uses_jitotip', 'uses_jitotip_other')
+                      AND COALESCE(csh.amount_sol, 0) > 0
+                      AND csh.creator_address IN (
+                          SELECT DISTINCT creator_address
+                          FROM creator_funders
+                          WHERE funder_address = ?
+                      )
+                    GROUP BY ROUND(csh.amount_sol, 9), tx_type
+                    HAVING creator_count >= 2
+                    ORDER BY creator_count DESC, event_count DESC
+                    LIMIT 1
+                """, (funder_address,))
+                jito_row = cursor.fetchone()
+            funder["jito_pattern"] = {
+                "amount_sol": _format_sol(jito_row["amount_sol"]),
+                "tx_type": jito_row["tx_type"],
+                "creator_count": jito_row["creator_count"],
+                "event_count": jito_row["event_count"],
+            } if jito_row else None
+
+        multi_funders.sort(key=lambda item: item.get("latest_seen_at") or 0, reverse=True)
+        multi_funders = multi_funders[:100]
+        conn.close()
 
         return render_template(
             'coordinated_funders.html',
@@ -15977,6 +16283,113 @@ def api_network_tokens(network_name):
         if network_data:
             # Network found in networks_release
             network_dict = dict(network_data)
+            source_funder = network_dict.get('display_name_source')
+
+            def classify_cex_infra_account(address):
+                if not address:
+                    return None
+                try:
+                    from src.utils.infra_mapping import get_account_info, get_cex_info
+                except Exception:
+                    get_account_info = None
+                    get_cex_info = None
+
+                if get_account_info:
+                    infra_info = get_account_info(address)
+                    if infra_info:
+                        return {
+                            'address': address,
+                            'type': 'INFRA',
+                            'label': infra_info.get('name') or 'Infrastructure',
+                            'category': infra_info.get('category') or 'Infrastructure',
+                            'description': infra_info.get('description'),
+                            'risk_level': infra_info.get('risk_level'),
+                        }
+
+                if get_cex_info:
+                    cex_info = get_cex_info(address)
+                    if cex_info:
+                        return {
+                            'address': address,
+                            'type': 'CEX',
+                            'label': cex_info.get('name') or cex_info.get('exchange') or 'CEX',
+                            'category': cex_info.get('category') or 'Exchange',
+                            'description': cex_info.get('description'),
+                            'risk_level': cex_info.get('risk_level'),
+                        }
+
+                cex_row = cursor.execute("""
+                    SELECT exchange_name, wallet_type FROM cex_wallets
+                    WHERE cex_address = ?
+                    LIMIT 1
+                """, (address,)).fetchone()
+                if cex_row:
+                    wallet_type = cex_row['wallet_type']
+                    exchange_name = cex_row['exchange_name']
+                    label = exchange_name if wallet_type in ('Hot Wallet', 'Exchange Wallet') else f"{exchange_name} ({wallet_type})"
+                    return {
+                        'address': address,
+                        'type': 'CEX',
+                        'label': label,
+                        'category': wallet_type,
+                        'description': None,
+                        'risk_level': None,
+                    }
+
+                label_row = cursor.execute("""
+                    SELECT label_name, category, description, risk_level FROM address_labels
+                    WHERE address = ?
+                      AND category IN ('INFRASTRUCTURE', 'SERVICE', 'BRIDGE')
+                    LIMIT 1
+                """, (address,)).fetchone()
+                if label_row:
+                    return {
+                        'address': address,
+                        'type': 'INFRA',
+                        'label': label_row['label_name'] or label_row['category'],
+                        'category': label_row['category'],
+                        'description': label_row['description'],
+                        'risk_level': label_row['risk_level'],
+                    }
+
+                return None
+
+            cex_infra_accounts = []
+            seen_cex_infra = set()
+
+            def add_cex_infra_accounts_from_json(raw_addresses):
+                try:
+                    addresses = json.loads(raw_addresses or '[]')
+                except Exception:
+                    addresses = []
+                for address in addresses:
+                    if not address or address in seen_cex_infra:
+                        continue
+                    account = classify_cex_infra_account(address)
+                    if account:
+                        cex_infra_accounts.append(account)
+                        seen_cex_infra.add(address)
+
+            flag_columns = {
+                row['name']
+                for row in cursor.execute("PRAGMA table_info(network_cex_infra_flags)").fetchall()
+            }
+            if {'cex_funder_addresses', 'infra_funder_addresses'}.issubset(flag_columns):
+                flags_row = cursor.execute("""
+                    SELECT cex_funder_addresses, infra_funder_addresses
+                    FROM network_cex_infra_flags
+                    WHERE network_name = ?
+                    LIMIT 1
+                """, (network_name,)).fetchone()
+                if flags_row:
+                    for raw_addresses in (flags_row['cex_funder_addresses'], flags_row['infra_funder_addresses']):
+                        add_cex_infra_accounts_from_json(raw_addresses)
+
+            for raw_addresses in (
+                network_dict.get('cex_funder_addresses'),
+                network_dict.get('infra_funder_addresses'),
+            ):
+                add_cex_infra_accounts_from_json(raw_addresses)
             
             # Try to get creator memberships (may be empty for test networks)
             cursor.execute("""
@@ -15987,30 +16400,393 @@ def api_network_tokens(network_name):
             creators = [row['creator_address'] for row in cursor.fetchall()]
             tokens = []
             creators_with_tokens = 0
+            funder_edges = []
+            other_direct_funders = []
+            operator_signatures = []
+            creator_summaries = []
+            bonding_curve_count = 0
+            tracked_token_count = 0
+            g_distribution = {
+                'known': {},
+                'unknown': 0,
+                'total': 0,
+                'best_peak_mc': 0,
+                'best_token_class': None,
+            }
             
             if creators:
                 # Get tokens for these creators
                 placeholders = ','.join(['?' for _ in creators])
+                migrated_only_filter = "COALESCE(lifecycle_stage, '') = 'migrated' AND migrated_at IS NOT NULL"
+                non_migrated_filter = "NOT (COALESCE(lifecycle_stage, '') = 'migrated' AND migrated_at IS NOT NULL)"
+                cursor.execute(f"""
+                    SELECT
+                        COUNT(*) AS tracked_token_count,
+                        SUM(CASE WHEN {non_migrated_filter} THEN 1 ELSE 0 END) AS bonding_curve_count
+                    FROM token_analysis
+                    WHERE earliest_tx_creator IN ({placeholders})
+                """, creators)
+                lifecycle_counts = cursor.fetchone()
+                tracked_token_count = lifecycle_counts['tracked_token_count'] or 0
+                bonding_curve_count = lifecycle_counts['bonding_curve_count'] or 0
+
                 cursor.execute(f"""
                     SELECT
                         ta.mint,
                         ta.earliest_tx_creator as creator,
                         ta.risk_level,
                         ta.market_cap_current as market_cap,
-                        ta.rug_probability
+                        ta.market_cap_highest,
+                        ta.market_cap_highest_at_ts,
+                        ta.market_cap_highest_at,
+                        ta.created_at,
+                        ta.migrated_at,
+                        ta.rug_probability,
+                        COALESCE(liq.liquidity_removed, 0) AS liquidity_removed,
+                        liq.liquidity_removed_at,
+                        mc.symbol,
+                        mc.name
                     FROM token_analysis ta
+                    LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                    LEFT JOIN (
+                        SELECT
+                            mint,
+                            MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed,
+                            MAX(liquidity_removed_at) AS liquidity_removed_at
+                        FROM token_pool_accounts
+                        GROUP BY mint
+                    ) liq ON liq.mint = ta.mint
                     WHERE ta.earliest_tx_creator IN ({placeholders})
-                    ORDER BY ta.market_cap_current DESC
+                      AND {migrated_only_filter}
+                    ORDER BY ta.migrated_at DESC
                     LIMIT 100
                 """, creators)
                 
                 tokens = [dict(row) for row in cursor.fetchall()]
+                try:
+                    from src.core.token_behavior import compute_token_class
+                except Exception:
+                    compute_token_class = None
+
+                cursor.execute(f"""
+                    SELECT COALESCE(market_cap_highest, market_cap_current, 0) AS peak_mc
+                    FROM token_analysis
+                    WHERE earliest_tx_creator IN ({placeholders})
+                      AND {migrated_only_filter}
+                """, creators)
+                all_peak_rows = cursor.fetchall()
+                g_distribution['total'] = len(all_peak_rows)
+                for peak_row in all_peak_rows:
+                    peak_mc = peak_row['peak_mc'] or 0
+                    if peak_mc > g_distribution['best_peak_mc']:
+                        g_distribution['best_peak_mc'] = peak_mc
+                    token_class = compute_token_class(peak_mc) if compute_token_class else ('G?' if peak_mc <= 0 else None)
+                    if not token_class or token_class == 'G?':
+                        g_distribution['unknown'] += 1
+                    else:
+                        g_distribution['known'][token_class] = g_distribution['known'].get(token_class, 0) + 1
+                if compute_token_class and g_distribution['best_peak_mc']:
+                    g_distribution['best_token_class'] = compute_token_class(g_distribution['best_peak_mc'])
                 
                 # Add CEX/INFRA labels for each token's creator
                 for token in tokens:
                     token['creator_label'] = get_cex_infra_label(token['creator'])
+                    token['creator_classification'] = classify_cex_infra_account(token['creator'])
+                    peak_mc = token.get('market_cap_highest') or token.get('market_cap') or 0
+                    token['token_class'] = compute_token_class(peak_mc) if compute_token_class and peak_mc else None
                 
                 creators_with_tokens = len(set(token['creator'] for token in tokens))
+
+                cursor.execute(f"""
+                    SELECT
+                        ta.earliest_tx_creator AS creator_address,
+                        COUNT(*) AS token_count,
+                        MAX(COALESCE(ta.market_cap_highest, ta.market_cap_current, 0)) AS best_peak_mc,
+                        SUM(CASE WHEN COALESCE(ta.market_cap_highest, ta.market_cap_current, 0) >= 75000 THEN 1 ELSE 0 END) AS successful_tokens,
+                        SUM(CASE WHEN COALESCE(liq.liquidity_removed, 0) = 1 THEN 1 ELSE 0 END) AS liquidity_removed_count,
+                        MAX(liq.liquidity_removed_at) AS liquidity_removed_at,
+                        MAX(ta.migrated_at) AS latest_seen_at
+                    FROM token_analysis ta
+                    LEFT JOIN (
+                        SELECT
+                            mint,
+                            MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed,
+                            MAX(liquidity_removed_at) AS liquidity_removed_at
+                        FROM token_pool_accounts
+                        GROUP BY mint
+                    ) liq ON liq.mint = ta.mint
+                    WHERE ta.earliest_tx_creator IN ({placeholders})
+                    GROUP BY ta.earliest_tx_creator
+                """, creators)
+                creator_token_stats = {row['creator_address']: dict(row) for row in cursor.fetchall()}
+                creators_with_tokens = len(creator_token_stats)
+
+                source_filter = ""
+                if source_funder:
+                    source_filter = " OR cf.funder_address = ?"
+                cursor.execute(f"""
+                    SELECT
+                        cf.creator_address,
+                        cf.funder_address,
+                        cf.amount_sol,
+                        cf.source_type,
+                        cf.fully_analyzed,
+                        cf.first_detected_at,
+                        cf.is_cex,
+                        cf.cex_exchange
+                    FROM creator_funders cf
+                    WHERE cf.creator_address IN ({placeholders})
+                      AND (
+                        cf.funder_address IN (
+                            SELECT funder_address FROM funder_network_map
+                            WHERE network_name = ?
+                        )
+                        {source_filter}
+                      )
+                    ORDER BY
+                        CASE WHEN cf.funder_address = ? THEN 0 ELSE 1 END,
+                        cf.amount_sol DESC
+                    LIMIT 40
+                """, list(creators) + [network_name] + ([source_funder] if source_funder else []) + [source_funder or ''])
+                funder_edges = [dict(row) for row in cursor.fetchall()]
+                for edge in funder_edges:
+                    edge['funder_label'] = get_cex_infra_label(edge['funder_address'])
+                    edge['funder_classification'] = classify_cex_infra_account(edge['funder_address'])
+                    edge['creator_classification'] = classify_cex_infra_account(edge['creator_address'])
+                    if edge['funder_classification'] and edge['funder_address'] not in seen_cex_infra:
+                        cex_infra_accounts.append(edge['funder_classification'])
+                        seen_cex_infra.add(edge['funder_address'])
+
+                cursor.execute(f"""
+                    SELECT
+                        cf.funder_address,
+                        COUNT(DISTINCT cf.creator_address) AS creator_count,
+                        SUM(cf.amount_sol) AS total_sol,
+                        MAX(cf.first_detected_at) AS latest_seen_at
+                    FROM creator_funders cf
+                    WHERE cf.creator_address IN ({placeholders})
+                      AND cf.funder_address NOT IN (
+                          SELECT funder_address FROM funder_network_map
+                          WHERE network_name = ?
+                      )
+                      AND cf.funder_address != ?
+                    GROUP BY cf.funder_address
+                    HAVING creator_count >= 2
+                    ORDER BY creator_count DESC, total_sol DESC
+                    LIMIT 24
+                """, list(creators) + [network_name, source_funder or ''])
+                for row in cursor.fetchall():
+                    funder = dict(row)
+                    if classify_cex_infra_account(funder['funder_address']):
+                        continue
+                    other_direct_funders.append(funder)
+                    if len(other_direct_funders) >= 12:
+                        break
+
+                cursor.execute(f"""
+                    SELECT
+                        cf.creator_address,
+                        cf.funder_address,
+                        cf.amount_sol,
+                        cf.source_type,
+                        cf.first_detected_at
+                    FROM creator_funders cf
+                    WHERE cf.creator_address IN ({placeholders})
+                      AND cf.funder_address IS NOT NULL
+                      AND cf.funder_address != ''
+                    ORDER BY cf.first_detected_at DESC
+                """, creators)
+                all_creator_funder_rows = [dict(row) for row in cursor.fetchall()]
+
+                network_funders = {
+                    row['funder_address']
+                    for row in cursor.execute(
+                        "SELECT funder_address FROM funder_network_map WHERE network_name = ?",
+                        (network_name,)
+                    ).fetchall()
+                }
+                if source_funder:
+                    network_funders.add(source_funder)
+
+                def amount_band(amount):
+                    amount = float(amount or 0)
+                    if amount <= 0:
+                        return '0 SOL'
+                    if amount < 0.001:
+                        return '<0.001 SOL'
+                    if amount < 0.01:
+                        return '0.001-0.01 SOL'
+                    if amount < 0.1:
+                        return '0.01-0.1 SOL'
+                    if amount < 1:
+                        return '0.1-1 SOL'
+                    if amount < 10:
+                        return '1-10 SOL'
+                    return '10+ SOL'
+
+                secondary_by_funder = {}
+                for row in all_creator_funder_rows:
+                    funder_address = row.get('funder_address')
+                    if not funder_address or funder_address in network_funders:
+                        continue
+                    bucket = secondary_by_funder.setdefault(funder_address, {
+                        'funder_address': funder_address,
+                        'creators': set(),
+                        'amounts': [],
+                        'latest_seen_at': None,
+                    })
+                    bucket['creators'].add(row.get('creator_address'))
+                    bucket['amounts'].append(float(row.get('amount_sol') or 0))
+                    ts = row.get('first_detected_at')
+                    if ts and (not bucket['latest_seen_at'] or str(ts) > str(bucket['latest_seen_at'])):
+                        bucket['latest_seen_at'] = ts
+
+                for bucket in secondary_by_funder.values():
+                    creator_count_for_side = len(bucket['creators'])
+                    if creator_count_for_side < 2:
+                        continue
+                    amounts = bucket['amounts'] or [0]
+                    classification = classify_cex_infra_account(bucket['funder_address'])
+                    bands = {}
+                    for amount in amounts:
+                        band = amount_band(amount)
+                        bands[band] = bands.get(band, 0) + 1
+                    dominant_band = sorted(bands.items(), key=lambda item: item[1], reverse=True)[0][0]
+                    is_dust = max(amounts) < 0.01
+                    if classification and is_dust:
+                        label = f"Shared {classification['label']} dust touchpoint"
+                        confidence = 'medium'
+                    elif classification:
+                        label = f"Shared {classification['label']} touchpoint"
+                        confidence = 'low'
+                    else:
+                        label = 'Shared secondary direct funder'
+                        confidence = 'high' if creator_count_for_side >= 3 else 'medium'
+
+                    operator_signatures.append({
+                        'type': 'shared_secondary_touchpoint',
+                        'label': label,
+                        'confidence': confidence,
+                        'creator_count': creator_count_for_side,
+                        'primary_funder': source_funder,
+                        'secondary_address': bucket['funder_address'],
+                        'secondary_classification': classification,
+                        'amount_band': dominant_band,
+                        'min_amount_sol': min(amounts),
+                        'max_amount_sol': max(amounts),
+                        'total_amount_sol': sum(amounts),
+                        'latest_seen_at': bucket['latest_seen_at'],
+                        'creators': sorted(bucket['creators'])[:12],
+                        'reason': 'Creators share the network main funder and this repeated secondary funding touchpoint.',
+                    })
+
+                service_history_columns = {
+                    row['name']
+                    for row in cursor.execute("PRAGMA table_info(creator_service_history)").fetchall()
+                }
+                if {'creator_address', 'tag', 'amount_sol'}.issubset(service_history_columns):
+                    tx_type_select = "COALESCE(tx_type, '') AS tx_type" if 'tx_type' in service_history_columns else "'' AS tx_type"
+                    created_at_select = "MAX(created_at) AS latest_seen_at" if 'created_at' in service_history_columns else "NULL AS latest_seen_at"
+                    cursor.execute(f"""
+                        SELECT
+                            creator_address,
+                            tag,
+                            amount_sol,
+                            {tx_type_select},
+                            tx_signature,
+                            mint
+                        FROM creator_service_history
+                        WHERE creator_address IN ({placeholders})
+                          AND tag IN ('uses_jitotip', 'uses_jitotip_other')
+                          AND COALESCE(amount_sol, 0) > 0
+                    """, creators)
+                    jito_rows = [dict(row) for row in cursor.fetchall()]
+
+                    jito_by_exact = {}
+                    for row in jito_rows:
+                        amount = float(row.get('amount_sol') or 0)
+                        rounded_amount = round(amount, 9)
+                        raw_tx_type = str(row.get('tx_type') or '')
+                        tx_type = 'Create' if row.get('tag') == 'uses_jitotip' or raw_tx_type.lower() == 'create' else 'Other'
+                        key = (row.get('tag'), tx_type, rounded_amount)
+                        bucket = jito_by_exact.setdefault(key, {
+                            'tag': row.get('tag'),
+                            'tx_type': tx_type,
+                            'amount_sol': rounded_amount,
+                            'amount_band': amount_band(amount),
+                            'creators': set(),
+                            'event_count': 0,
+                            'mints': set(),
+                        })
+                        bucket['creators'].add(row.get('creator_address'))
+                        bucket['event_count'] += 1
+                        if row.get('mint'):
+                            bucket['mints'].add(row.get('mint'))
+
+                    for bucket in jito_by_exact.values():
+                        creator_count_for_tip = len(bucket['creators'])
+                        if creator_count_for_tip < 2:
+                            continue
+                        is_create_tip = bucket['tag'] == 'uses_jitotip' or str(bucket['tx_type']).lower() == 'create'
+                        operator_signatures.append({
+                            'type': 'shared_jito_tip_pattern',
+                            'label': f"Shared Jito tip amount {bucket['amount_sol']:.9f} SOL".rstrip('0').rstrip('.'),
+                            'confidence': 'high' if is_create_tip else 'medium',
+                            'creator_count': creator_count_for_tip,
+                            'primary_funder': source_funder,
+                            'secondary_address': None,
+                            'secondary_classification': {
+                                'type': 'INFRA',
+                                'label': 'Jito Tip',
+                                'category': 'mev',
+                                'description': 'Repeated Jito tip amount seen across creators in this network',
+                            },
+                            'amount_band': bucket['amount_band'],
+                            'tip_amount_sol': bucket['amount_sol'],
+                            'jito_tag': bucket['tag'],
+                            'tx_type': bucket['tx_type'] or 'Other',
+                            'event_count': bucket['event_count'],
+                            'mint_count': len(bucket['mints']),
+                            'creators': sorted(bucket['creators'])[:12],
+                            'reason': 'Creators share the network main funder and the same Jito tip amount pattern.',
+                        })
+
+                operator_signatures.sort(
+                    key=lambda s: (
+                        {'high': 3, 'medium': 2, 'low': 1}.get(s.get('confidence'), 0),
+                        s.get('creator_count') or 0,
+                        s.get('total_amount_sol') or 0,
+                    ),
+                    reverse=True
+                )
+                operator_signatures = operator_signatures[:12]
+
+                funding_by_creator = {}
+                for edge in funder_edges:
+                    funding_by_creator.setdefault(edge['creator_address'], 0)
+                    funding_by_creator[edge['creator_address']] += edge.get('amount_sol') or 0
+
+                for creator in creators:
+                    stats = creator_token_stats.get(creator, {})
+                    best_peak = stats.get('best_peak_mc') or 0
+                    creator_summaries.append({
+                        'creator': creator,
+                        'token_count': stats.get('token_count') or 0,
+                        'successful_tokens': stats.get('successful_tokens') or 0,
+                        'best_peak_mc': best_peak,
+                        'best_token_class': compute_token_class(best_peak) if compute_token_class and best_peak else None,
+                        'liquidity_removed_count': stats.get('liquidity_removed_count') or 0,
+                        'liquidity_removed_at': stats.get('liquidity_removed_at'),
+                        'total_funded_sol': funding_by_creator.get(creator, 0),
+                        'latest_seen_at': stats.get('latest_seen_at'),
+                        'creator_label': get_cex_infra_label(creator),
+                        'creator_classification': classify_cex_infra_account(creator)
+                    })
+
+                creator_summaries.sort(
+                    key=lambda c: (c.get('token_count') or 0, c.get('best_peak_mc') or 0),
+                    reverse=True
+                )
             
             creator_count = len(creators)
             
@@ -16024,9 +16800,17 @@ def api_network_tokens(network_name):
                 'network_size': network_dict.get('network_size', 0),
                 'network_type': network_dict.get('network_type', 'unknown'),
                 'tokens': tokens,
+                'funder_edges': funder_edges,
+                'other_direct_funders': other_direct_funders,
+                'operator_signatures': operator_signatures,
+                'creator_summaries': creator_summaries,
+                'cex_infra_accounts': cex_infra_accounts,
+                'g_distribution': g_distribution,
+                'bonding_curve_count': bonding_curve_count,
+                'tracked_token_count': tracked_token_count,
                 'creators_count': creator_count,
                 'creators_with_tokens': creators_with_tokens,
-                'token_count': len(tokens)
+                'token_count': g_distribution['total']
             })
         
         # Fall back to atomic_network_names (old format)
@@ -16093,6 +16877,420 @@ def api_network_tokens(network_name):
 @app.route('/network-intelligence')
 def network_intelligence_page():
     return render_template('network_intelligence.html', active_page='network_intelligence')
+
+
+@app.route('/approval-queue')
+def approval_queue_page():
+    return render_template('approval_queue.html', active_page='approval_queue')
+
+
+@app.route('/network-approval')
+def network_approval_page():
+    return render_template('network_approval.html', active_page='network_approval')
+
+
+def _ensure_network_review_status(conn):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS network_review_status (
+            network_name TEXT PRIMARY KEY,
+            status TEXT NOT NULL DEFAULT 'pending',
+            reviewer TEXT,
+            reviewed_at INTEGER,
+            notes TEXT,
+            decision_reason TEXT,
+            last_evidence_hash TEXT,
+            created_at INTEGER DEFAULT (strftime('%s','now')),
+            updated_at INTEGER DEFAULT (strftime('%s','now'))
+        )
+    """)
+    existing_columns = {
+        row['name'] for row in conn.execute("PRAGMA table_info(network_review_status)").fetchall()
+    }
+    for column_sql in (
+        "ALTER TABLE network_review_status ADD COLUMN first_seen_at INTEGER",
+        "ALTER TABLE network_review_status ADD COLUMN last_seen_at INTEGER",
+        "ALTER TABLE network_review_status ADD COLUMN last_evidence_summary TEXT",
+    ):
+        column_name = column_sql.split(" ADD COLUMN ", 1)[1].split()[0]
+        if column_name not in existing_columns:
+            conn.execute(column_sql)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_network_review_status_status
+        ON network_review_status(status)
+    """)
+    conn.execute("""
+        UPDATE network_review_status
+        SET first_seen_at = COALESCE(first_seen_at, created_at),
+            last_seen_at = COALESCE(last_seen_at, updated_at)
+    """)
+    conn.commit()
+
+
+def _classify_known_account(conn, address):
+    if not address:
+        return None
+
+    try:
+        from src.utils.infra_mapping import get_account_info, get_cex_info
+    except Exception:
+        get_account_info = None
+        get_cex_info = None
+
+    if get_account_info:
+        infra_info = get_account_info(address)
+        if infra_info:
+            return {
+                'address': address,
+                'type': 'INFRA',
+                'label': infra_info.get('name') or 'Infrastructure',
+                'category': infra_info.get('category') or 'infrastructure',
+                'description': infra_info.get('description'),
+            }
+
+    if get_cex_info:
+        cex_info = get_cex_info(address)
+        if cex_info:
+            return {
+                'address': address,
+                'type': 'CEX',
+                'label': cex_info.get('name') or cex_info.get('exchange') or 'CEX',
+                'category': cex_info.get('category') or 'cex',
+                'description': cex_info.get('description'),
+            }
+
+    row = conn.execute("""
+        SELECT exchange_name, wallet_type
+        FROM cex_wallets
+        WHERE cex_address = ?
+          AND COALESCE(is_active, 1) = 1
+        LIMIT 1
+    """, (address,)).fetchone()
+    if row:
+        wallet_type = row['wallet_type'] or 'cex'
+        exchange_name = row['exchange_name'] or 'CEX'
+        return {
+            'address': address,
+            'type': 'CEX',
+            'label': exchange_name if wallet_type in ('Hot Wallet', 'Exchange Wallet') else f"{exchange_name} ({wallet_type})",
+            'category': wallet_type,
+            'description': None,
+        }
+
+    row = conn.execute("""
+        SELECT label_name, category, description
+        FROM address_labels
+        WHERE address = ?
+          AND category IN ('INFRASTRUCTURE', 'SERVICE', 'BRIDGE')
+        LIMIT 1
+    """, (address,)).fetchone()
+    if row:
+        return {
+            'address': address,
+            'type': 'INFRA',
+            'label': row['label_name'] or row['category'] or 'Infrastructure',
+            'category': row['category'] or 'infrastructure',
+            'description': row['description'],
+        }
+
+    return None
+
+
+def _network_review_suggestion(network, dominant_source_info, migrated_count, creators_count):
+    if dominant_source_info:
+        return {
+            'status': 'cex_infra_noise',
+            'label': f"{dominant_source_info['type']} touchpoint",
+            'reason': f"Dominant source is labelled {dominant_source_info['label']}",
+        }
+    if creators_count < 2 or migrated_count == 0:
+        return {
+            'status': 'needs_evidence',
+            'label': 'Needs evidence',
+            'reason': 'Not enough migrated creator evidence yet',
+        }
+    return {
+        'status': 'pending',
+        'label': 'Review signal',
+        'reason': network.get('display_name_reason') or 'Network has creator/funder evidence',
+    }
+
+
+def _network_evidence_summary(network, creators, migrated_count, bonding_curve_count, latest_used_at, best_peak_mc):
+    creators_sorted = sorted([c for c in creators if c])
+    summary = {
+        'network_name': network.get('network_name'),
+        'display_name': network.get('display_name'),
+        'display_name_reason': network.get('display_name_reason'),
+        'display_name_source': network.get('display_name_source'),
+        'network_type': network.get('network_type'),
+        'network_size': network.get('network_size') or 0,
+        'has_cex_funder': int(network.get('has_cex_funder') or 0),
+        'has_infra_funder': int(network.get('has_infra_funder') or 0),
+        'second_hop_bridge_count': network.get('second_hop_bridge_count') or 0,
+        'max_second_hop_confidence': network.get('max_second_hop_confidence') or 0,
+        'creator_count': len(creators_sorted),
+        'creator_sample': creators_sorted[:24],
+        'creator_fingerprint': hashlib.sha1('|'.join(creators_sorted).encode('utf-8')).hexdigest() if creators_sorted else '',
+        'migrated_count': migrated_count,
+        'bonding_curve_count': bonding_curve_count,
+        'latest_used_at': latest_used_at or 0,
+        'best_peak_mc_bucket': int((best_peak_mc or 0) // 1000),
+    }
+    raw = json.dumps(summary, sort_keys=True, separators=(',', ':'))
+    return summary, hashlib.sha256(raw.encode('utf-8')).hexdigest()
+
+
+def _network_review_state(review, evidence_hash):
+    if not review:
+        return 'new'
+    status = review.get('status') or 'pending'
+    reviewed_at = review.get('reviewed_at')
+    previous_hash = review.get('last_evidence_hash')
+    if status == 'pending' and not reviewed_at:
+        return 'new'
+    if reviewed_at and previous_hash and previous_hash != evidence_hash:
+        return 'changed'
+    return status
+
+
+@app.route('/api/network-approval/list')
+def api_network_approval_list():
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        _ensure_network_review_status(conn)
+
+        try:
+            from src.core.token_behavior import compute_token_class
+        except Exception:
+            compute_token_class = None
+
+        networks = [dict(row) for row in conn.execute("""
+            SELECT *
+            FROM networks_release
+            ORDER BY network_size DESC, network_name ASC
+        """).fetchall()]
+
+        review_map = {
+            row['network_name']: dict(row)
+            for row in conn.execute("SELECT * FROM network_review_status").fetchall()
+        }
+
+        creators_by_network = {}
+        all_creators_seen = set()
+        for row in conn.execute("""
+            SELECT network_name, creator_address
+            FROM network_membership
+        """).fetchall():
+            creator = row['creator_address']
+            creators_by_network.setdefault(row['network_name'], []).append(creator)
+            all_creators_seen.add(creator)
+
+        stats_by_creator = {}
+        all_creators = list(all_creators_seen)
+        if all_creators:
+            placeholders = ','.join('?' for _ in all_creators)
+            for row in conn.execute(f"""
+                SELECT
+                    earliest_tx_creator AS creator_address,
+                    COUNT(CASE WHEN COALESCE(lifecycle_stage, '') = 'migrated'
+                                AND migrated_at IS NOT NULL THEN 1 END) AS migrated_count,
+                    COUNT(CASE WHEN NOT (COALESCE(lifecycle_stage, '') = 'migrated'
+                                          AND migrated_at IS NOT NULL) THEN 1 END) AS bonding_curve_count,
+                    MAX(CASE WHEN COALESCE(lifecycle_stage, '') = 'migrated'
+                              AND migrated_at IS NOT NULL THEN migrated_at ELSE 0 END) AS latest_used_at,
+                    MAX(CASE WHEN COALESCE(lifecycle_stage, '') = 'migrated'
+                              AND migrated_at IS NOT NULL
+                             THEN COALESCE(market_cap_highest, market_cap_current, 0)
+                             ELSE 0 END) AS best_peak_mc
+                FROM token_analysis
+                WHERE earliest_tx_creator IN ({placeholders})
+                GROUP BY earliest_tx_creator
+            """, all_creators).fetchall():
+                stats_by_creator[row['creator_address']] = dict(row)
+
+        rows = []
+        counts = {
+            'new': 0,
+            'changed': 0,
+            'pending': 0,
+            'approved': 0,
+            'cex_infra_noise': 0,
+            'needs_evidence': 0,
+            'rejected': 0,
+        }
+        now = int(time.time())
+
+        for network in networks:
+            network_name = network['network_name']
+            creators = creators_by_network.get(network_name, [])
+            migrated_count = sum((stats_by_creator.get(c, {}).get('migrated_count') or 0) for c in creators)
+            bonding_curve_count = sum((stats_by_creator.get(c, {}).get('bonding_curve_count') or 0) for c in creators)
+            latest_used_at = max((stats_by_creator.get(c, {}).get('latest_used_at') or 0) for c in creators) if creators else 0
+            best_peak_mc = max((stats_by_creator.get(c, {}).get('best_peak_mc') or 0) for c in creators) if creators else 0
+            best_token_class = compute_token_class(best_peak_mc) if compute_token_class and best_peak_mc else None
+
+            dominant_source = network.get('display_name_source')
+            dominant_source_info = _classify_known_account(conn, dominant_source)
+            suggestion = _network_review_suggestion(network, dominant_source_info, migrated_count, len(creators))
+            review = review_map.get(network_name, {})
+            status = review.get('status') or 'pending'
+            evidence_summary, evidence_hash = _network_evidence_summary(
+                network, creators, migrated_count, bonding_curve_count, latest_used_at, best_peak_mc
+            )
+            review_state = _network_review_state(review, evidence_hash)
+            counts[review_state] = counts.get(review_state, 0) + 1
+
+            if not review:
+                conn.execute("""
+                    INSERT INTO network_review_status
+                        (network_name, status, first_seen_at, last_seen_at, last_evidence_hash, last_evidence_summary, updated_at)
+                    VALUES (?, 'pending', ?, ?, ?, ?, ?)
+                    ON CONFLICT(network_name) DO NOTHING
+                """, (network_name, now, now, evidence_hash, json.dumps(evidence_summary, sort_keys=True), now))
+            else:
+                conn.execute("""
+                    UPDATE network_review_status
+                    SET last_seen_at = ?, updated_at = ?
+                    WHERE network_name = ?
+                """, (now, now, network_name))
+
+            rows.append({
+                'network_name': network_name,
+                'display_name': network.get('display_name') or network_name.replace('_', '-'),
+                'network_type': network.get('network_type') or 'unknown',
+                'network_size': network.get('network_size') or 0,
+                'creators_count': len(creators),
+                'migrated_count': migrated_count,
+                'bonding_curve_count': bonding_curve_count,
+                'latest_used_at': latest_used_at,
+                'best_peak_mc': best_peak_mc,
+                'best_token_class': best_token_class,
+                'display_name_reason': network.get('display_name_reason'),
+                'display_name_source': dominant_source,
+                'dominant_source': dominant_source_info,
+                'has_cex_funder': bool(network.get('has_cex_funder')),
+                'has_infra_funder': bool(network.get('has_infra_funder')),
+                'second_hop_bridge_count': network.get('second_hop_bridge_count') or 0,
+                'max_second_hop_confidence': network.get('max_second_hop_confidence') or 0,
+                'suggested_status': suggestion['status'],
+                'suggested_label': suggestion['label'],
+                'suggested_reason': suggestion['reason'],
+                'status': status,
+                'review_state': review_state,
+                'evidence_changed': review_state == 'changed',
+                'evidence_hash': evidence_hash,
+                'last_evidence_hash': review.get('last_evidence_hash'),
+                'first_seen_at': review.get('first_seen_at') or now,
+                'last_seen_at': review.get('last_seen_at') or now,
+                'reviewer': review.get('reviewer'),
+                'reviewed_at': review.get('reviewed_at'),
+                'notes': review.get('notes'),
+                'decision_reason': review.get('decision_reason'),
+            })
+
+        conn.commit()
+        rows.sort(key=lambda row: (row.get('latest_used_at') or 0, row.get('migrated_count') or 0), reverse=True)
+        return jsonify({'networks': rows, 'counts': counts, 'total': len(rows)})
+
+    except Exception as e:
+        logging.getLogger(__name__).exception('[network-approval] list failed')
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+@app.route('/api/network-approval/decision', methods=['POST'])
+def api_network_approval_decision():
+    conn = None
+    try:
+        data = request.json or {}
+        network_name = (data.get('network_name') or '').strip()
+        status = (data.get('status') or '').strip()
+        notes = (data.get('notes') or '').strip()
+        reason = (data.get('decision_reason') or '').strip()
+        reviewer = (data.get('reviewer') or 'local').strip()[:80]
+
+        allowed = {'pending', 'approved', 'cex_infra_noise', 'needs_evidence', 'rejected'}
+        if not network_name or status not in allowed:
+            return jsonify({'error': 'invalid network_name or status'}), 400
+
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        _ensure_network_review_status(conn)
+
+        exists = conn.execute("""
+            SELECT * FROM networks_release WHERE network_name = ? LIMIT 1
+        """, (network_name,)).fetchone()
+        if not exists:
+            return jsonify({'error': 'network not found'}), 404
+
+        creators = [
+            row['creator_address']
+            for row in conn.execute("""
+                SELECT creator_address FROM network_membership WHERE network_name = ?
+            """, (network_name,)).fetchall()
+        ]
+        migrated_count = bonding_curve_count = latest_used_at = best_peak_mc = 0
+        if creators:
+            placeholders = ','.join('?' for _ in creators)
+            stats = conn.execute(f"""
+                SELECT
+                    COUNT(CASE WHEN COALESCE(lifecycle_stage, '') = 'migrated'
+                                AND migrated_at IS NOT NULL THEN 1 END) AS migrated_count,
+                    COUNT(CASE WHEN NOT (COALESCE(lifecycle_stage, '') = 'migrated'
+                                          AND migrated_at IS NOT NULL) THEN 1 END) AS bonding_curve_count,
+                    MAX(CASE WHEN COALESCE(lifecycle_stage, '') = 'migrated'
+                              AND migrated_at IS NOT NULL THEN migrated_at ELSE 0 END) AS latest_used_at,
+                    MAX(CASE WHEN COALESCE(lifecycle_stage, '') = 'migrated'
+                              AND migrated_at IS NOT NULL
+                             THEN COALESCE(market_cap_highest, market_cap_current, 0)
+                             ELSE 0 END) AS best_peak_mc
+                FROM token_analysis
+                WHERE earliest_tx_creator IN ({placeholders})
+            """, creators).fetchone()
+            if stats:
+                migrated_count = stats['migrated_count'] or 0
+                bonding_curve_count = stats['bonding_curve_count'] or 0
+                latest_used_at = stats['latest_used_at'] or 0
+                best_peak_mc = stats['best_peak_mc'] or 0
+
+        evidence_summary, evidence_hash = _network_evidence_summary(
+            dict(exists), creators, migrated_count, bonding_curve_count, latest_used_at, best_peak_mc
+        )
+
+        now = int(time.time())
+        conn.execute("""
+            INSERT INTO network_review_status
+                (network_name, status, reviewer, reviewed_at, notes, decision_reason,
+                 last_evidence_hash, last_evidence_summary, first_seen_at, last_seen_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(network_name) DO UPDATE SET
+                status = excluded.status,
+                reviewer = excluded.reviewer,
+                reviewed_at = excluded.reviewed_at,
+                notes = excluded.notes,
+                decision_reason = excluded.decision_reason,
+                last_evidence_hash = excluded.last_evidence_hash,
+                last_evidence_summary = excluded.last_evidence_summary,
+                last_seen_at = excluded.last_seen_at,
+                updated_at = excluded.updated_at
+        """, (
+            network_name, status, reviewer, now, notes, reason,
+            evidence_hash, json.dumps(evidence_summary, sort_keys=True), now, now, now
+        ))
+        conn.commit()
+        return jsonify({'ok': True, 'network_name': network_name, 'status': status})
+
+    except Exception as e:
+        if conn is not None:
+            conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 @app.route('/api/network-intelligence/summary')
@@ -16186,6 +17384,46 @@ def api_network_intelligence_summary():
                OR EXISTS (SELECT 1 FROM farm_cluster_members fcm WHERE fcm.wallet_address = m.creator_address AND fcm.wallet_role='creator')
         """).fetchone()[0] or 0
 
+        # Outbound signal KPIs (from creator_outbound_classifications)
+        try:
+            outbound_self_funding_loop = conn.execute(f"""
+                {MIGRATED_CTE}
+                SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+                JOIN creator_outbound_classifications coc
+                    ON coc.creator_address = m.creator_address
+                   AND coc.relationship_type = 'return_to_funder'
+            """).fetchone()[0] or 0
+
+            outbound_shared_payout = conn.execute(f"""
+                {MIGRATED_CTE}
+                SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+                WHERE (
+                    SELECT COUNT(DISTINCT coc.recipient_address)
+                    FROM creator_outbound_classifications coc
+                    WHERE coc.creator_address = m.creator_address
+                      AND coc.relationship_type = 'shared_payout_wallet'
+                ) >= 2
+            """).fetchone()[0] or 0
+
+            outbound_hub_linked = conn.execute(f"""
+                {MIGRATED_CTE}
+                SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+                JOIN creator_outbound_classifications coc
+                    ON coc.creator_address = m.creator_address
+                   AND coc.relationship_type = 'creator_to_upstream_hub'
+            """).fetchone()[0] or 0
+
+            outbound_any = conn.execute(f"""
+                {MIGRATED_CTE}
+                SELECT COUNT(DISTINCT m.creator_address) FROM migrated m
+                WHERE EXISTS (
+                    SELECT 1 FROM creator_outbound_classifications coc
+                    WHERE coc.creator_address = m.creator_address
+                )
+            """).fetchone()[0] or 0
+        except Exception:
+            outbound_self_funding_loop = outbound_shared_payout = outbound_hub_linked = outbound_any = 0
+
         summary = {
             'total_migrated_creators': total,
             'funding_extracted': funding_extracted,
@@ -16194,6 +17432,10 @@ def api_network_intelligence_summary():
             'in_farm_cluster': in_farm_cluster,
             'has_second_hop': has_second_hop,
             'has_any_signal': has_any_signal,
+            'outbound_any': outbound_any,
+            'outbound_self_funding_loop': outbound_self_funding_loop,
+            'outbound_shared_payout': outbound_shared_payout,
+            'outbound_hub_linked': outbound_hub_linked,
         }
 
         # ── 2. Top risk networks ──────────────────────────────────────────────
@@ -17119,6 +18361,7 @@ def networks_dashboard():
         # Bulk fetch creators-per-network and token counts in 2 queries instead of 108×2
         creators_by_network = {}  # network_name -> [creator_address]
         token_count_by_network = {}  # network_name -> int
+        latest_used_by_network = {}  # network_name -> migrated_at epoch
         cex_label_by_network = {}  # network_name -> str|None
         try:
             conn, cursor = get_db_conn()
@@ -17133,14 +18376,20 @@ def networks_dashboard():
             if all_creators:
                 ph = ','.join('?' * len(all_creators))
                 cursor.execute(f"""
-                    SELECT earliest_tx_creator, COUNT(DISTINCT mint) AS cnt
+                    SELECT
+                        earliest_tx_creator,
+                        COUNT(DISTINCT mint) AS cnt,
+                        MAX(CASE WHEN migrated_at IS NOT NULL THEN migrated_at ELSE 0 END) AS latest_used_at
                     FROM token_analysis
                     WHERE earliest_tx_creator IN ({ph})
                     GROUP BY earliest_tx_creator
                 """, all_creators)
-                tokens_per_creator = {row['earliest_tx_creator']: row['cnt'] for row in cursor.fetchall()}
+                token_rows = cursor.fetchall()
+                tokens_per_creator = {row['earliest_tx_creator']: row['cnt'] for row in token_rows}
+                latest_per_creator = {row['earliest_tx_creator']: row['latest_used_at'] or 0 for row in token_rows}
                 for net_name, creators in creators_by_network.items():
                     token_count_by_network[net_name] = sum(tokens_per_creator.get(c, 0) for c in creators)
+                    latest_used_by_network[net_name] = max((latest_per_creator.get(c, 0) for c in creators), default=0)
 
             # CEX labels: one query for first member of each CEX network
             cex_networks = [n['network_name'] for n in all_networks if n.get('has_cex_funder')]
@@ -17161,6 +18410,7 @@ def networks_dashboard():
 
             creators_funded = len(creators_by_network.get(network_name, []))
             token_count = token_count_by_network.get(network_name, 0)
+            latest_used_at = latest_used_by_network.get(network_name, 0)
             sol_amount = 0.0
             cex_label = cex_label_by_network.get(network_name)
 
@@ -17181,6 +18431,8 @@ def networks_dashboard():
                 'cex_label': cex_label,
                 'network_size': network_size,
                 'token_count': token_count,
+                'latest_used_at': latest_used_at,
+                'latest_used_label': datetime.fromtimestamp(latest_used_at).strftime('%d %b') if latest_used_at else '—',
                 'creators_funded': creators_funded,
                 'sol_amount': sol_amount,
                 'score': score_info['score'] if score_info else None,
@@ -17188,6 +18440,8 @@ def networks_dashboard():
                 'second_hop_bridge_count': network.get('second_hop_bridge_count', 0) or 0,
                 'max_second_hop_confidence': network.get('max_second_hop_confidence', 0) or 0,
             })
+
+        networks.sort(key=lambda n: n.get('latest_used_at') or 0, reverse=True)
 
         return {
             'networks': networks,
@@ -17295,6 +18549,8 @@ def networks_dashboard():
                 'is_cex': funder_is_cex,
                 'cex_label': cex_label,
                 'token_count': token_count,
+                'latest_used_at': 0,
+                'latest_used_label': '—',
                 'creators_funded': creators_funded,
                 'sol_amount': sol_amount,
                 'score': score_info['score'] if score_info else None,
@@ -17363,23 +18619,166 @@ def networks_dashboard():
 def top_funding_hubs():
     """Display dashboard of all top funding hubs (duplicate senders)"""
     try:
+        from src.core.token_behavior import compute_token_class
+        from src.utils.infra_mapping import get_account_info, get_cex_info
+
         conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
         c = conn.cursor()
+        c.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        table_names = {table_row["name"] for table_row in c.fetchall()}
+
+        def _short_addr(address):
+            if not address:
+                return "unknown"
+            return f"{address[:8]}...{address[-4:]}" if len(address) > 14 else address
+
+        def _format_money(value):
+            value = float(value or 0)
+            if value <= 0:
+                return "—"
+            if value >= 1_000_000:
+                return f"${value / 1_000_000:.2f}M"
+            if value >= 1_000:
+                return f"${value / 1_000:.1f}K"
+            return f"${value:.0f}"
+
+        def _format_sol(value):
+            value = float(value or 0)
+            if value >= 10:
+                return f"{value:.2f} SOL"
+            return f"{value:.4f}".rstrip("0").rstrip(".") + " SOL"
+
+        def _parse_ts(value):
+            if value in (None, ""):
+                return None
+            try:
+                if isinstance(value, (int, float)):
+                    ts = int(value)
+                    return ts if ts > 0 else None
+                raw = str(value).strip()
+                if raw.isdigit():
+                    ts = int(raw)
+                    return ts if ts > 0 else None
+                raw = raw.replace("Z", "+00:00")
+                return int(datetime.fromisoformat(raw).timestamp())
+            except Exception:
+                return None
+
+        def _format_date(value):
+            ts = _parse_ts(value)
+            if not ts:
+                return "—"
+            return datetime.fromtimestamp(ts).strftime("%d %b")
+
+        def _get_hub_label(address):
+            if not address:
+                return {
+                    "name": "Unknown",
+                    "type": "Unknown",
+                    "category": "unknown",
+                    "description": None,
+                }
+
+            infra_info = get_account_info(address)
+            if infra_info:
+                return {
+                    "name": infra_info.get("name") or "Infrastructure",
+                    "type": "INFRA",
+                    "category": infra_info.get("category") or "infra",
+                    "description": infra_info.get("description"),
+                }
+
+            cex_info = get_cex_info(address)
+            if cex_info:
+                return {
+                    "name": cex_info.get("name") or cex_info.get("exchange") or "CEX",
+                    "type": "CEX",
+                    "category": cex_info.get("category") or "cex",
+                    "description": cex_info.get("description"),
+                }
+
+            c.execute("""
+                SELECT exchange_name, wallet_type
+                FROM cex_wallets
+                WHERE cex_address = ? AND is_active = 1
+                LIMIT 1
+            """, (address,))
+            row = c.fetchone()
+            if row:
+                wallet_type = row["wallet_type"] or "wallet"
+                exchange_name = row["exchange_name"] or "CEX"
+                name = exchange_name if wallet_type in ("Hot Wallet", "Exchange Wallet") else f"{exchange_name} {wallet_type}"
+                return {
+                    "name": name,
+                    "type": "CEX",
+                    "category": wallet_type,
+                    "description": None,
+                }
+
+            c.execute("""
+                SELECT sender_type, cex_exchange, cex_type
+                FROM funder_incoming_transfers
+                WHERE sender_address = ?
+                  AND (sender_type IS NOT NULL OR cex_exchange IS NOT NULL OR cex_type IS NOT NULL)
+                LIMIT 1
+            """, (address,))
+            row = c.fetchone()
+            if row:
+                sender_type = (row["sender_type"] or "").lower()
+                if row["cex_exchange"] or sender_type == "cex":
+                    return {
+                        "name": row["cex_exchange"] or "Detected CEX",
+                        "type": "CEX",
+                        "category": row["cex_type"] or "cex",
+                        "description": None,
+                    }
+                if sender_type == "infra":
+                    return {
+                        "name": "Detected Infrastructure",
+                        "type": "INFRA",
+                        "category": "infra",
+                        "description": None,
+                    }
+
+            return {
+                "name": "Unlabeled",
+                "type": "Unknown",
+                "category": "unknown",
+                "description": None,
+            }
+
+        def _median(values):
+            values = sorted(float(v or 0) for v in values)
+            if not values:
+                return 0
+            mid = len(values) // 2
+            if len(values) % 2:
+                return values[mid]
+            return (values[mid - 1] + values[mid]) / 2
 
         # Get top 20 senders by number of funders they send to
         c.execute("""
             SELECT
                 sender_address,
                 COUNT(DISTINCT funder_address) as funder_count,
-                SUM(amount_sol) as total_sol_sent
+                SUM(amount_sol) as total_sol_sent,
+                MIN(amount_sol) as min_sol_sent,
+                MAX(amount_sol) as max_sol_sent,
+                MAX(COALESCE(
+                    NULLIF(block_time, 0),
+                    CAST(strftime('%s', first_detected_at) AS INTEGER)
+                )) as latest_transfer_at
             FROM funder_incoming_transfers
             GROUP BY sender_address
             ORDER BY funder_count DESC
-            LIMIT 20
+            LIMIT 50
         """)
         hubs = []
         for row in c.fetchall():
-            sender_addr, funder_count, total_sol = row
+            sender_addr = row["sender_address"]
+            funder_count = row["funder_count"]
+            total_sol = row["total_sol_sent"] or 0
 
             # Count creators funded by those funders
             c.execute("""
@@ -17426,18 +18825,159 @@ def top_funding_hubs():
             # If all creators are the sender itself, mark as self-funding
             is_likely_self_funded = creator_count == 1 and created_tokens > 0
 
+            c.execute("""
+                SELECT COUNT(DISTINCT creator_address)
+                FROM creator_funders
+                WHERE funder_address = ?
+            """, (sender_addr,))
+            direct_creator_count = c.fetchone()[0] or 0
+
+            c.execute("""
+                SELECT
+                    COUNT(DISTINCT fnm.network_name) AS network_count,
+                    GROUP_CONCAT(DISTINCT fnm.network_name) AS networks
+                FROM funder_incoming_transfers fit
+                JOIN funder_network_map fnm ON fnm.funder_address = fit.funder_address
+                WHERE fit.sender_address = ?
+            """, (sender_addr,))
+            network_row = c.fetchone()
+            networks = sorted((network_row["networks"] or "").split(",")) if network_row and network_row["networks"] else []
+
+            approval_counts = {"approved": 0, "pending": 0, "rejected": 0, "needs_evidence": 0}
+            if networks and "network_review_status" in table_names:
+                placeholders = ",".join("?" * len(networks))
+                c.execute(f"""
+                    SELECT COALESCE(nrs.status, 'pending') AS status, COUNT(*) AS count
+                    FROM (
+                        SELECT network_name
+                        FROM networks_release
+                        WHERE network_name IN ({placeholders})
+                    ) nr
+                    LEFT JOIN network_review_status nrs ON nrs.network_name = nr.network_name
+                    GROUP BY COALESCE(nrs.status, 'pending')
+                """, networks)
+                for status_row in c.fetchall():
+                    approval_counts[status_row["status"]] = status_row["count"]
+
+            c.execute("""
+                SELECT amount_sol
+                FROM funder_incoming_transfers
+                WHERE sender_address = ?
+            """, (sender_addr,))
+            sent_amounts = [amount_row["amount_sol"] for amount_row in c.fetchall()]
+
+            c.execute("""
+                SELECT
+                    COUNT(*) AS tracked_count,
+                    SUM(CASE WHEN COALESCE(ta.lifecycle_stage, '') = 'migrated' AND ta.migrated_at IS NOT NULL THEN 1 ELSE 0 END) AS migrated_count,
+                    SUM(CASE WHEN NOT (COALESCE(ta.lifecycle_stage, '') = 'migrated' AND ta.migrated_at IS NOT NULL) THEN 1 ELSE 0 END) AS bonding_count,
+                    MAX(COALESCE(ta.market_cap_highest, ta.market_cap_current, 0)) AS best_peak_mc,
+                    MAX(COALESCE(
+                        NULLIF(ta.migrated_at, 0),
+                        NULLIF(ta.market_cap_highest_at_ts, 0),
+                        CASE
+                            WHEN CAST(ta.created_at AS REAL) > 1000000000 THEN CAST(ta.created_at AS INTEGER)
+                            ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
+                        END
+                    )) AS latest_token_at
+                FROM token_analysis ta
+                WHERE ta.earliest_tx_creator IN (
+                    SELECT DISTINCT cf.creator_address
+                    FROM creator_funders cf
+                    WHERE cf.funder_address IN (
+                        SELECT DISTINCT fit.funder_address
+                        FROM funder_incoming_transfers fit
+                        WHERE fit.sender_address = ?
+                    )
+                )
+            """, (sender_addr,))
+            token_stats = c.fetchone()
+            tracked_count = token_stats["tracked_count"] or 0
+            migrated_count = token_stats["migrated_count"] or 0
+            bonding_count = token_stats["bonding_count"] or 0
+            best_peak_mc = token_stats["best_peak_mc"] or 0
+            best_g = compute_token_class(best_peak_mc) if best_peak_mc else "—"
+            latest_activity_at = max(
+                _parse_ts(row["latest_transfer_at"]) or 0,
+                _parse_ts(token_stats["latest_token_at"] if token_stats else None) or 0,
+            )
+
+            jito_row = None
+            if "creator_service_history" in table_names:
+                c.execute("""
+                    SELECT
+                        ROUND(csh.amount_sol, 9) AS amount_sol,
+                        CASE
+                            WHEN csh.tag = 'uses_jitotip' THEN 'Create'
+                            ELSE COALESCE(csh.tx_type, 'Other')
+                        END AS tx_type,
+                        COUNT(*) AS event_count,
+                        COUNT(DISTINCT csh.creator_address) AS creator_count
+                    FROM creator_service_history csh
+                    WHERE csh.tag IN ('uses_jitotip', 'uses_jitotip_other')
+                      AND COALESCE(csh.amount_sol, 0) > 0
+                      AND csh.creator_address IN (
+                          SELECT DISTINCT cf.creator_address
+                          FROM creator_funders cf
+                          WHERE cf.funder_address IN (
+                              SELECT DISTINCT fit.funder_address
+                              FROM funder_incoming_transfers fit
+                              WHERE fit.sender_address = ?
+                          )
+                      )
+                    GROUP BY ROUND(csh.amount_sol, 9), tx_type
+                    HAVING creator_count >= 2
+                    ORDER BY creator_count DESC, event_count DESC
+                    LIMIT 1
+                """, (sender_addr,))
+                jito_row = c.fetchone()
+
+            label = _get_hub_label(sender_addr)
+            role = "Upstream"
+            if direct_creator_count and funder_count:
+                role = "Direct + Upstream"
+            elif direct_creator_count:
+                role = "Direct"
+
             hubs.append({
                 'address': sender_addr,
+                'short_address': _short_addr(sender_addr),
+                'label': label,
+                'role': role,
                 'funder_count': funder_count,
                 'creator_count': creator_count,
+                'direct_creator_count': direct_creator_count,
                 'total_sol_sent': total_sol or 0,
+                'total_sol_display': _format_sol(total_sol),
+                'min_sol_display': _format_sol(row["min_sol_sent"]),
+                'max_sol_display': _format_sol(row["max_sol_sent"]),
+                'median_sol_display': _format_sol(_median(sent_amounts)),
                 'token_count': token_count,
+                'tracked_count': tracked_count,
+                'migrated_count': migrated_count,
+                'bonding_count': bonding_count,
+                'network_count': network_row["network_count"] if network_row else 0,
+                'sample_networks': networks[:4],
+                'approval_counts': approval_counts,
+                'best_peak_mc': best_peak_mc,
+                'best_peak_display': _format_money(best_peak_mc),
+                'best_g': best_g,
+                'latest_seen_at': latest_activity_at,
+                'latest_seen_display': _format_date(latest_activity_at),
+                'jito_pattern': {
+                    'amount_sol': _format_sol(jito_row["amount_sol"]),
+                    'tx_type': jito_row["tx_type"],
+                    'creator_count': jito_row["creator_count"],
+                    'event_count': jito_row["event_count"],
+                } if jito_row else None,
                 'created_tokens': created_tokens,
                 'self_funding_count': self_funding_count,
                 'is_likely_self_funded': is_likely_self_funded
             })
 
         conn.close()
+        hubs.sort(key=lambda hub: hub.get('latest_seen_at') or 0, reverse=True)
+        hubs = hubs[:20]
 
         return render_template(
             'top_funding_hubs.html',
@@ -20659,6 +22199,106 @@ def api_second_hop_creator(creator_address: str):
         return jsonify({'creator_address': creator_address, 'second_hop': result})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/network-coord/<network_name>')
+def api_network_coord(network_name: str):
+    """
+    Return coordinated creator edges for all members of a network.
+    Surfaces bridge funders, outside creator connections, and intra-network edges.
+    """
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        # Resolve display_name → network_name if needed
+        resolved = conn.execute(
+            "SELECT network_name FROM networks_release WHERE network_name = ? OR display_name = ? LIMIT 1",
+            (network_name, network_name)
+        ).fetchone()
+        internal_name = resolved[0] if resolved else network_name
+
+        members = [r[0] for r in conn.execute(
+            "SELECT creator_address FROM network_membership WHERE network_name = ?",
+            (internal_name,)
+        ).fetchall()]
+
+        if not members:
+            conn.close()
+            return jsonify({'edges': [], 'bridge_funders': [], 'outside_creators': [], 'intra_count': 0})
+
+        member_set = set(members)
+        placeholders = ','.join('?' * len(members))
+
+        rows = conn.execute(f"""
+            SELECT creator_a, creator_b, bridge_funder, confidence
+            FROM coordinated_creator_edges
+            WHERE creator_a IN ({placeholders}) OR creator_b IN ({placeholders})
+            ORDER BY confidence DESC, bridge_funder
+        """, members + members).fetchall()
+
+        # Aggregate by bridge funder
+        from collections import defaultdict
+        import json as _json
+
+        funder_data = defaultdict(lambda: {'edges': 0, 'intra': 0, 'outside': set(), 'members': set()})
+        intra_count = 0
+        outside_creators = {}
+
+        for row in rows:
+            a, b, funder, conf = row['creator_a'], row['creator_b'], row['bridge_funder'], row['confidence']
+            a_in = a in member_set
+            b_in = b in member_set
+            fd = funder_data[funder]
+            fd['edges'] += 1
+            if a_in:
+                fd['members'].add(a)
+            if b_in:
+                fd['members'].add(b)
+            if a_in and b_in:
+                fd['intra'] += 1
+                intra_count += 1
+            else:
+                outside = b if a_in else a
+                fd['outside'].add(outside)
+                if outside not in outside_creators:
+                    outside_creators[outside] = {'funders': [], 'count': 0}
+                outside_creators[outside]['count'] += 1
+                if funder not in outside_creators[outside]['funders']:
+                    outside_creators[outside]['funders'].append(funder)
+
+        # Build bridge_funders list sorted by total edges
+        bridge_funders = []
+        for funder, fd in sorted(funder_data.items(), key=lambda x: -x[1]['edges']):
+            bridge_funders.append({
+                'funder': funder,
+                'total_edges': fd['edges'],
+                'intra_edges': fd['intra'],
+                'outside_edges': fd['edges'] - fd['intra'],
+                'outside_creators': len(fd['outside']),
+                'member_count': len(fd['members']),
+            })
+
+        # Top outside creators
+        top_outside = sorted(outside_creators.items(), key=lambda x: -x[1]['count'])[:20]
+
+        conn.close()
+        return jsonify({
+            'network_name': network_name,
+            'member_count': len(members),
+            'total_edges': len(rows),
+            'intra_count': intra_count,
+            'outside_creator_count': len(outside_creators),
+            'bridge_funders': bridge_funders,
+            'top_outside_creators': [
+                {'creator': c, 'edge_count': d['count'], 'via_funders': d['funders'][:3]}
+                for c, d in top_outside
+            ],
+        })
+    except Exception as exc:
+        logger.exception('[api_network_coord] failed')
+        return jsonify({'error': str(exc)}), 500
 
 
 @app.route('/api/network-bridges/<network_name>')

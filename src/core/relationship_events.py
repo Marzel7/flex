@@ -367,6 +367,7 @@ _TYPE_FILTERS = {
     "cluster":   "('wallet_cluster_found','farm_cluster_found')",
     "2h":        "('creator_second_hop_found','upstream_network_bridge_found')",
     "watchlist": "('watchlist_added')",
+    "outbound":  "('creator_returned_funds','shared_payout_wallet_detected','creator_linked_to_upstream_hub')",
     "all":       None,
 }
 

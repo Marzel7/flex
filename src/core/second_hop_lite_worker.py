@@ -9,9 +9,9 @@ existing SecondHopExpansionBuilder to incorporate them on its next run.
 Feature flag: SECOND_HOP_RPC_LITE_ENABLED=false  (default off)
 
 Config (env overridable):
-    MAX_FUNDER_SCANS_PER_RUN  = 10
-    MAX_RPC_CALLS_PER_RUN     = 300
-    MAX_TX_PER_FUNDER         = 50
+    MAX_FUNDER_SCANS_PER_RUN  = 25
+    MAX_RPC_CALLS_PER_RUN     = 750
+    MAX_TX_PER_FUNDER         = 35
     LOOKBACK_DAYS             = 30
     CACHE_TTL_HOURS           = 168   (7 days)
 """
@@ -35,9 +35,9 @@ SECOND_HOP_RPC_LITE_ENABLED = (
 )
 
 # ── Config ────────────────────────────────────────────────────────────────────
-MAX_FUNDER_SCANS_PER_RUN = int(os.getenv("SHL_MAX_FUNDER_SCANS", "2000"))
-MAX_RPC_CALLS_PER_RUN    = int(os.getenv("SHL_MAX_RPC_CALLS", "20000"))
-MAX_TX_PER_FUNDER        = int(os.getenv("SHL_MAX_TX_PER_FUNDER", "50"))
+MAX_FUNDER_SCANS_PER_RUN = int(os.getenv("SHL_MAX_FUNDER_SCANS", "25"))
+MAX_RPC_CALLS_PER_RUN    = int(os.getenv("SHL_MAX_RPC_CALLS", "750"))
+MAX_TX_PER_FUNDER        = int(os.getenv("SHL_MAX_TX_PER_FUNDER", "35"))
 LOOKBACK_DAYS            = int(os.getenv("SHL_LOOKBACK_DAYS", "30"))
 CACHE_TTL_HOURS          = int(os.getenv("SHL_CACHE_TTL_HOURS", "168"))
 

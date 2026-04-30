@@ -252,6 +252,16 @@ class IntelligenceRefreshCandidateBuilder:
                 FROM creator_funders
                 WHERE is_cex = 0
                 GROUP BY funder_address
+            ),
+            outbound_signals AS (
+                SELECT creator_address,
+                    MAX(CASE WHEN relationship_type='return_to_funder'        THEN 1 ELSE 0 END) AS has_return_to_funder,
+                    MAX(CASE WHEN relationship_type='shared_payout_wallet'    THEN 1 ELSE 0 END) AS has_shared_payout,
+                    COUNT(DISTINCT CASE WHEN relationship_type='shared_payout_wallet' THEN recipient_address END) AS shared_wallet_count,
+                    MAX(CASE WHEN relationship_type='creator_to_upstream_hub' THEN 1 ELSE 0 END) AS has_hub_link,
+                    MAX(CASE WHEN relationship_type='large_outbound'          THEN 1 ELSE 0 END) AS has_large_outbound
+                FROM creator_outbound_classifications
+                GROUP BY creator_address
             )
             SELECT
                 ta.earliest_tx_creator                          AS creator,
@@ -267,7 +277,12 @@ class IntelligenceRefreshCandidateBuilder:
                 CAST(
                     SUM(CASE WHEN fcc.num_creators = 1 THEN 1 ELSE 0 END)
                     AS REAL
-                ) / MAX(COUNT(DISTINCT cf.funder_address), 1)   AS single_creator_ratio
+                ) / MAX(COUNT(DISTINCT cf.funder_address), 1)   AS single_creator_ratio,
+                COALESCE(obs.has_return_to_funder, 0)           AS has_return_to_funder,
+                COALESCE(obs.has_shared_payout, 0)              AS has_shared_payout,
+                COALESCE(obs.shared_wallet_count, 0)            AS shared_wallet_count,
+                COALESCE(obs.has_hub_link, 0)                   AS has_hub_link,
+                COALESCE(obs.has_large_outbound, 0)             AS has_large_outbound
             FROM token_analysis ta
             LEFT JOIN creator_funders cf
                 ON cf.creator_address = ta.earliest_tx_creator
@@ -275,9 +290,11 @@ class IntelligenceRefreshCandidateBuilder:
                 AND cf.funder_address NOT IN (SELECT funder_address FROM infra_funders_observed)
             LEFT JOIN funder_creator_counts fcc ON fcc.funder_address = cf.funder_address
             LEFT JOIN creator_self_funding csf ON csf.creator_address = ta.earliest_tx_creator
+            LEFT JOIN outbound_signals obs ON obs.creator_address = ta.earliest_tx_creator
             WHERE ta.earliest_tx_creator IS NOT NULL
             GROUP BY ta.earliest_tx_creator
             HAVING funder_count >= 50 OR token_count >= 100 OR csf.is_self_funding = 1
+               OR obs.has_return_to_funder = 1 OR obs.has_shared_payout = 1 OR obs.has_hub_link = 1
         """).fetchall()
 
         added = 0
@@ -309,6 +326,11 @@ class IntelligenceRefreshCandidateBuilder:
                 migrated_count=mc,
                 token_count=tc,
                 no_network=no_network,
+                return_to_funder=bool(row["has_return_to_funder"]),
+                shared_payout=bool(row["has_shared_payout"]),
+                shared_wallet_count=int(row["shared_wallet_count"] or 0),
+                hub_link=bool(row["has_hub_link"]),
+                large_outbound=bool(row["has_large_outbound"]),
             )
 
             if priority > 0 and self._upsert_candidate(conn, "creator", creator, priority, reasons):
@@ -420,6 +442,14 @@ class IntelligenceRefreshCandidateBuilder:
         """, (now, json.dumps(current_reasons), creator))
 
         enqueue_result = enqueue_creator_funders_for_phase2_lite(conn, creator, force=False)
+
+        # Also enqueue creator for outbound scan if not already done/pending
+        try:
+            from src.core.creator_outbound_worker import enqueue_creator_for_outbound_scan
+            enqueue_creator_for_outbound_scan(conn, creator, priority=priority)
+        except Exception:
+            pass
+
         print(f"[AUTO_APPROVE] {creator[:8]}… reason={approval_reason} priority={priority} "
               f"funders_enqueued={enqueue_result.get('funders_enqueued', 0)}", flush=True)
 
@@ -491,6 +521,11 @@ def _score_creator(
     migrated_count: int,
     token_count: int,
     no_network: bool,
+    return_to_funder: bool = False,
+    shared_payout: bool = False,
+    shared_wallet_count: int = 0,
+    hub_link: bool = False,
+    large_outbound: bool = False,
 ) -> tuple[int, list[str]]:
     priority = 0
     reasons: list[str] = []
@@ -531,6 +566,23 @@ def _score_creator(
     if no_network:
         priority += 10
         reasons.append("no_network_membership")
+
+    # Outbound signals (from CreatorOutboundBuilder)
+    if hub_link:
+        priority += 50
+        reasons.append("connected_to_upstream_hub")
+
+    if return_to_funder:
+        priority += 40
+        reasons.append("self_funding_loop")
+
+    if shared_payout and shared_wallet_count >= 2:
+        priority += 30
+        reasons.append("shared_operator_wallet")
+
+    if large_outbound:
+        priority += 10
+        reasons.append("large_outbound")
 
     return priority, reasons
 
@@ -925,7 +977,12 @@ def get_refresh_status(db_path: str, limit: int = 50) -> dict:
                  JOIN creator_funders cf ON cf.funder_address = slq.funder_address
                  WHERE cf.creator_address = irc.target_address
                    AND slq.status IN ('pending','running')
-                   AND slq.reason_codes LIKE '%approved_creator%') AS pending_funders_in_queue
+                   AND slq.reason_codes LIKE '%approved_creator%') AS pending_funders_in_queue,
+                (SELECT GROUP_CONCAT(DISTINCT relationship_type)
+                 FROM creator_outbound_classifications
+                 WHERE creator_address = irc.target_address) AS outbound_types,
+                (SELECT status FROM creator_outbound_queue
+                 WHERE creator_address = irc.target_address) AS outbound_queue_status
             FROM intelligence_refresh_candidates irc
             WHERE irc.target_type='creator' AND irc.status NOT IN ('ignored','scanned')
         """

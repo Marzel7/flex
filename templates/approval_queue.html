@@ -1,0 +1,670 @@
+{% extends "base_shell.html" %}
+{% block title %}Approval Queue{% endblock %}
+
+{% block extra_styles %}
+.ni-header {
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid rgba(251,146,60,0.3);
+}
+.ni-header h1 {
+    font-size: 26px;
+    color: #fb923c;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+}
+.ni-header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+}
+.kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    transition: border-color 0.2s;
+}
+.kpi-card:hover { border-color: rgba(251,146,60,0.4); }
+.kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e2e8f0;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.ni-section {
+    margin-bottom: 32px;
+}
+.ni-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ni-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.ni-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.ni-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.ni-table thead th {
+    background: rgba(0,0,0,0.25);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    white-space: nowrap;
+}
+.ni-table tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(148,163,184,0.06);
+    vertical-align: middle;
+}
+.ni-table tbody tr:last-child td { border-bottom: none; }
+.ni-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+.mono { font-family: monospace; font-size: 10px; color: var(--text-secondary); }
+.link-btn {
+    font-size: 10px;
+    color: var(--accent-cyan);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-cyan);
+    white-space: nowrap;
+}
+.link-btn:hover { color: #fff; }
+.empty-state {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="ni-header">
+    <h1>Approval Queue</h1>
+    <p>Operational triage — Phase 2 funder scanning and intelligence refresh watchlist</p>
+</div>
+
+<div id="aq-loading" style="color:var(--text-secondary);padding:40px 0;text-align:center;font-size:14px;">Loading…</div>
+<div id="aq-body" style="display:none">
+
+    <!-- Phase 2 Lite Tracking -->
+    <div class="ni-section" id="phase2-section">
+        <div class="ni-section-title">
+            Phase 2 Lite Tracking
+            <button id="p2-toggle-btn" onclick="togglePhase2Lite()"
+                style="margin-left:8px;padding:3px 12px;font-size:11px;font-weight:700;border-radius:4px;border:1px solid;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;">
+                …
+            </button>
+            <button id="p2-run-btn" onclick="runPhase2LiteNow()"
+                style="margin-left:6px;padding:3px 12px;font-size:11px;font-weight:700;border-radius:4px;border:1px solid rgba(56,189,248,0.35);background:rgba(56,189,248,0.1);color:#38bdf8;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;">
+                Run Now
+            </button>
+        </div>
+        <div id="phase2-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
+    <!-- Intelligence Refresh Watchlist -->
+    <div class="ni-section" id="irc-section">
+        <div class="ni-section-title">Intelligence Refresh Watchlist</div>
+        <div id="irc-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
+</div>
+
+<script>
+function fmtNum(n) { return n == null ? '—' : Number(n).toLocaleString(); }
+function fmtTs(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+}
+function fmtDateTime(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
+        + ' ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+function fmtSol(v) { return v == null ? '—' : Number(v).toFixed(3) + ' SOL'; }
+function shortAddr(a) {
+    if (!a || a.length < 12) return a || '—';
+    return a.slice(0,6) + '…' + a.slice(-4);
+}
+function addrHtml(a, opts) {
+    if (!a) return '—';
+    const display = (opts && opts.full) ? a : shortAddr(a);
+    return `<span
+        title="Click to copy: ${a}"
+        style="cursor:pointer;font-family:monospace"
+        onclick="navigator.clipboard.writeText('${a}').then(()=>{
+            const el=this;const was=el.style.color;el.style.color='#4ade80';
+            setTimeout(()=>el.style.color=was,800);
+        })"
+    >${display}</span>`;
+}
+function cexInfraBadge(label) {
+    if (!label) return '';
+    const color = label === 'CEX' ? '#f59e0b' : '#818cf8';
+    const bg    = label === 'CEX' ? '#f59e0b22' : '#6366f122';
+    return `<span style="background:${bg};color:${color};border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;margin-left:4px">${label}</span>`;
+}
+function safeJson(v) { try { return JSON.parse(v || '[]'); } catch { return []; } }
+function kpiBox(label, value, color) {
+    return `<div style="background:rgba(30,30,40,0.8);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">${label}</div>
+        <div style="font-size:20px;font-weight:700;color:${color};">${value}</div>
+    </div>`;
+}
+function ircStatusBadge(s) {
+    const map = {
+        watchlist: ['#fbbf24','rgba(251,191,36,0.12)'],
+        approved:  ['#38bdf8','rgba(56,189,248,0.12)'],
+        scanning:  ['#a78bfa','rgba(167,139,250,0.12)'],
+        complete:  ['#22c55e','rgba(34,197,94,0.12)'],
+        failed:    ['#ef4444','rgba(239,68,68,0.12)'],
+        ignored:   ['#6b7280','rgba(107,114,128,0.12)'],
+    };
+    const [c, bg] = map[s] || ['#9ca3af','rgba(156,163,175,0.1)'];
+    return `<span style="background:${bg};color:${c};padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;">${s.toUpperCase()}</span>`;
+}
+function ircBtnStyle(color) {
+    return `margin:0 2px;padding:2px 8px;font-size:10px;font-weight:600;border-radius:3px;border:1px solid ${color}40;background:${color}15;color:${color};cursor:pointer;`;
+}
+
+// Show body once both sections start loading
+document.getElementById('aq-loading').style.display = 'none';
+document.getElementById('aq-body').style.display = 'block';
+
+// ── Phase 2 Lite ──────────────────────────────────────────────────────────────
+async function loadPhase2Lite() {
+    const container = document.getElementById('phase2-body');
+    if (!container) return;
+    try {
+        const resp = await fetch('/api/second-hop-lite/status');
+        const d = await resp.json();
+
+        if (d.error) {
+            container.innerHTML = `<div style="color:#f87171;font-size:12px">Error: ${d.error}</div>`;
+            return;
+        }
+
+        const trackedPct  = d.priority_funders ? ((d.tracked_funders / d.priority_funders) * 100).toFixed(1) : '0.0';
+        const cacheRate   = d.cache_hit_rate != null ? d.cache_hit_rate.toFixed(1) + '%' : '—';
+
+        const btn = document.getElementById('p2-toggle-btn');
+        if (btn) {
+            if (d.enabled) {
+                btn.textContent = 'Scanning ON';
+                btn.style.background = 'rgba(34,197,94,0.15)';
+                btn.style.color = '#22c55e';
+                btn.style.borderColor = 'rgba(34,197,94,0.4)';
+            } else {
+                btn.textContent = 'Scanning OFF';
+                btn.style.background = 'rgba(148,163,184,0.1)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'rgba(148,163,184,0.25)';
+            }
+            btn.disabled = false;
+        }
+        const runBtn = document.getElementById('p2-run-btn');
+        if (runBtn && !d.run_in_progress && runBtn.textContent === 'Scanning…') {
+            runBtn.disabled = false;
+            runBtn.textContent = 'Run Now';
+            resetRunBtnStyle(runBtn);
+        }
+
+        const flagBanner = !d.enabled
+            ? `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#fbbf24;margin-bottom:14px;">
+                   RPC scanning disabled — queue population active. Toggle ON to begin scanning priority funders.
+               </div>`
+            : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#4ade80;margin-bottom:14px;">
+                   RPC scanning active — worker will process pending funders on next run.
+               </div>`;
+
+        const kpiItems = [
+            { label: 'Priority Funders',   value: fmtNum(d.priority_funders) },
+            { label: 'Tracked',            value: fmtNum(d.tracked_funders) },
+            { label: 'Pending Queue',      value: fmtNum(d.queue.pending || 0) },
+            { label: 'Failed',             value: fmtNum(d.queue.failed || 0) },
+            { label: 'Cache Hit Rate',     value: cacheRate },
+            { label: 'RPC Today',          value: fmtNum(d.rpc_calls_today) },
+            { label: 'Upstream Hubs',      value: fmtNum(d.upstream_hubs || 0) },
+            { label: 'Hub Expansions 24h', value: fmtNum(d.hub_expansions_24h || 0) },
+        ];
+        const kpiHtml = `<div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-bottom:16px;">${
+            kpiItems.map(k => `
+                <div class="kpi-card">
+                    <div class="kpi-label">${k.label}</div>
+                    <div class="kpi-value" style="font-size:22px">${k.value}</div>
+                </div>`).join('')
+        }</div>`;
+
+        const barPct = Math.min(100, parseFloat(trackedPct));
+        const progressHtml = `
+            <div style="margin-bottom:18px;">
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">
+                    Tracked: ${fmtNum(d.tracked_funders)} / ${fmtNum(d.priority_funders)} priority funders
+                    <span style="color:#fb923c;font-weight:700;margin-left:6px;">${trackedPct}%</span>
+                </div>
+                <div style="height:6px;background:rgba(148,163,184,0.1);border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;width:${barPct.toFixed(1)}%;background:#fb923c;border-radius:3px;transition:width 0.6s ease;"></div>
+                </div>
+            </div>`;
+
+        const untrackedRows = (d.top_untracked_funders || []);
+        const untrackedHtml = `
+            <div style="margin-bottom:20px;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:8px;">Top Untracked Funders (pending)</div>
+                <div class="ni-table-wrap">
+                    <table class="ni-table">
+                        <thead><tr>
+                            <th>Funder</th><th>Priority</th><th>Source</th><th>Reasons</th><th>Creators Funded</th>
+                        </tr></thead>
+                        <tbody>${untrackedRows.length
+                            ? untrackedRows.map(r => {
+                                const rc = r.reason_codes || [];
+                                const src = rc.includes('upstream_expansion')
+                                    ? `<span style="background:#9b59b622;color:#9b59b6;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">Upstream</span>`
+                                    : rc.includes('approved_creator')
+                                    ? `<span style="background:#22c55e22;color:#22c55e;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">Creator</span>`
+                                    : `<span style="background:#64748b22;color:#94a3b8;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:600">Manual</span>`;
+                                return `<tr>
+                                    <td class="mono">${addrHtml(r.funder_address)}${cexInfraBadge(r.cex_infra_label)}</td>
+                                    <td><span style="color:#fb923c;font-weight:700">${r.priority}</span></td>
+                                    <td>${src}</td>
+                                    <td style="font-size:10px;color:var(--text-secondary)">${rc.join(', ') || '—'}</td>
+                                    <td>${fmtNum(r.creator_count)}</td>
+                                </tr>`;
+                            }).join('')
+                            : '<tr><td colspan="5" class="empty-state">No pending funders</td></tr>'
+                        }</tbody>
+                    </table>
+                </div>
+            </div>`;
+
+        const scanRows = (d.recent_scans || []);
+        const scansHtml = `
+            <div>
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:8px;">Recent Scans</div>
+                <div class="ni-table-wrap">
+                    <table class="ni-table">
+                        <thead><tr>
+                            <th>Funder</th><th>Upstreams</th><th>2H Creators</th><th>Networks</th><th>RPC Calls</th><th>Scanned At</th><th>Status</th>
+                        </tr></thead>
+                        <tbody>${scanRows.length
+                            ? scanRows.map(r => {
+                                const nets = r.networks || [];
+                                const netBadges = nets.slice(0,3).map(n =>
+                                    `<span style="background:#27ae6022;color:#27ae60;border-radius:3px;padding:1px 5px;font-size:10px;margin-right:2px">${n}</span>`
+                                ).join('') + (nets.length > 3 ? `<span style="color:var(--text-secondary);font-size:10px">+${nets.length-3}</span>` : '');
+                                const upstreamCol = r.upstream_links > 0
+                                    ? `<span style="color:#9b59b6;font-weight:700">${r.upstream_links}</span>`
+                                    : `<span style="color:var(--text-secondary)">0</span>`;
+                                const shCol = r.second_hop_creators > 0
+                                    ? `<span style="color:#e67e22;font-weight:700">${r.second_hop_creators}</span>`
+                                    : `<span style="color:var(--text-secondary)">0</span>`;
+                                return `<tr>
+                                    <td class="mono">${addrHtml(r.funder_address)}${cexInfraBadge(r.cex_infra_label)}</td>
+                                    <td>${upstreamCol}</td>
+                                    <td>${shCol}</td>
+                                    <td>${nets.length ? netBadges : '<span style="color:var(--text-secondary)">—</span>'}</td>
+                                    <td>${fmtNum(r.rpc_calls_used)}</td>
+                                    <td>${fmtDateTime(r.scanned_at)}</td>
+                                    <td><span style="color:${r.status==='ok'?'#4ade80':'#f87171'};font-size:10px;font-weight:700;">${r.status}</span></td>
+                                </tr>`;
+                            }).join('')
+                            : '<tr><td colspan="7" class="empty-state">No scans yet</td></tr>'
+                        }</tbody>
+                    </table>
+                </div>
+            </div>`;
+
+        container.innerHTML = flagBanner + kpiHtml + progressHtml + untrackedHtml + scansHtml;
+
+    } catch (err) {
+        container.innerHTML = `<div style="color:#f87171;font-size:12px">Failed to load Phase 2 Lite: ${err.message}</div>`;
+    }
+}
+
+async function runPhase2LiteNow() {
+    const btn = document.getElementById('p2-run-btn');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+    btn.style.color = '#fbbf24';
+    btn.style.borderColor = 'rgba(251,191,36,0.35)';
+    btn.style.background = 'rgba(251,191,36,0.08)';
+
+    try {
+        const r = await fetch('/api/second-hop-lite/run-now', { method: 'POST' });
+        const d = await r.json();
+        if (d.status === 'already_running') {
+            btn.textContent = 'Already running';
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Run Now'; resetRunBtnStyle(btn); }, 3000);
+            return;
+        }
+        let polls = 0;
+        btn.textContent = 'Scanning…';
+        const poll = setInterval(async () => {
+            polls++;
+            try {
+                const sr = await fetch('/api/second-hop-lite/status');
+                const sd = await sr.json();
+                await loadPhase2Lite();
+                const done = !sd.run_in_progress;
+                if (done || polls >= 200) {
+                    clearInterval(poll);
+                    btn.disabled = false;
+                    btn.textContent = 'Run Now';
+                    resetRunBtnStyle(btn);
+                }
+            } catch (_) {
+                clearInterval(poll);
+                btn.disabled = false;
+                btn.textContent = 'Run Now';
+                resetRunBtnStyle(btn);
+            }
+        }, 3000);
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Run Now';
+        resetRunBtnStyle(btn);
+        alert('Failed to start worker: ' + err.message);
+    }
+}
+
+function resetRunBtnStyle(btn) {
+    btn.style.color = '#38bdf8';
+    btn.style.borderColor = 'rgba(56,189,248,0.35)';
+    btn.style.background = 'rgba(56,189,248,0.1)';
+}
+
+async function togglePhase2Lite() {
+    const btn = document.getElementById('p2-toggle-btn');
+    if (!btn) return;
+    const currentlyOn = btn.textContent.trim() === 'Scanning ON';
+    const newEnabled = !currentlyOn;
+    btn.disabled = true;
+    btn.textContent = '…';
+    try {
+        const r = await fetch('/api/second-hop-lite/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: newEnabled }),
+        });
+        const d = await r.json();
+        if (d.error) throw new Error(d.error);
+        await loadPhase2Lite();
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = currentlyOn ? 'Scanning ON' : 'Scanning OFF';
+        alert('Toggle failed: ' + err.message);
+    }
+}
+
+loadPhase2Lite();
+setInterval(loadPhase2Lite, 15000);
+
+// ── Intelligence Refresh Watchlist ────────────────────────────────────────────
+async function loadRefreshWatchlist() {
+    const el = document.getElementById('irc-body');
+    if (!el) return;
+    try {
+        const resp = await fetch('/api/intelligence-refresh/status');
+        const d = await resp.json();
+        if (d.error) throw new Error(d.error);
+        renderRefreshWatchlist(d);
+    } catch(err) {
+        el.innerHTML = `<div style="color:#f87171;font-size:12px">Failed: ${err.message}</div>`;
+    }
+}
+
+function renderRefreshWatchlist(d) {
+    const el = document.getElementById('irc-body');
+
+    const pct = Math.min(100, Math.round((d.rpc_calls_today / d.rpc_daily_budget) * 100));
+    const barColor = d.budget_exhausted ? '#ef4444' : pct > 75 ? '#f97316' : '#22c55e';
+    const lastRefreshTs = d.last_local_refresh ? new Date(d.last_local_refresh * 1000) : null;
+    const lastRefresh = lastRefreshTs
+        ? lastRefreshTs.toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
+          + ' ' + lastRefreshTs.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })
+        : 'never';
+
+    let html = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;">
+        ${kpiBox('Watchlist', d.watchlist_count, '#a78bfa')}
+        ${kpiBox('Approved', d.approved_count, '#38bdf8')}
+        ${kpiBox('Scanned Today', d.scanned_today, '#22c55e')}
+        ${kpiBox('RPC Used Today', d.rpc_calls_today + ' / ' + d.rpc_daily_budget, barColor)}
+        ${kpiBox('Budget Remaining', d.rpc_budget_remaining, barColor)}
+        <div title="Updated by the graph analyzer cron every 10 min (IntelligenceRefreshCandidateBuilder)">${kpiBox('Last Build', lastRefresh, '#9ca3af')}</div>
+    </div>
+    ${d.budget_exhausted ? `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:10px 14px;margin-bottom:16px;color:#f87171;font-size:12px;">⚠ Daily RPC budget exhausted — approved candidates will scan tomorrow</div>` : ''}
+    `;
+
+    // ── High-risk creators ──
+    html += `
+    <div style="font-size:13px;font-weight:700;color:#a78bfa;margin:0 0 8px;">High-Risk Creators</div>
+    <table class="ni-table" style="margin-bottom:24px;">
+        <thead><tr>
+            <th>Creator</th><th style="text-align:center;">Priority</th>
+            <th>Reasons</th><th style="text-align:center;">Funders</th>
+            <th style="text-align:center;">Migrated</th><th style="text-align:center;">Tokens</th>
+            <th style="text-align:center;">Outbound</th>
+            <th style="text-align:center;">Status</th><th style="text-align:center;">Actions</th>
+        </tr></thead><tbody>`;
+
+    if (!d.high_risk_creators || d.high_risk_creators.length === 0) {
+        html += `<tr><td colspan="9" class="empty-state">No candidates yet — run graph analyzers to seed watchlist</td></tr>`;
+    } else {
+        const TYPE_ICONS = {
+            return_to_funder:        { icon: '↩', color: '#f87171', title: 'Returns SOL to funders' },
+            shared_payout_wallet:    { icon: '⚡', color: '#fbbf24', title: 'Shares payout wallets' },
+            creator_to_upstream_hub: { icon: '🔗', color: '#a78bfa', title: 'Sends to upstream hub' },
+            large_outbound:          { icon: '💸', color: '#94a3b8', title: 'Large outbound transfer' },
+        };
+        for (const c of d.high_risk_creators) {
+            const reasons = safeJson(c.reason_codes).join(', ') || '—';
+            const statusBadge = ircStatusBadge(c.status);
+            const actions = c.status === 'watchlist' || c.status === 'failed'
+                ? `<button onclick="ircApprove('creator','${c.target_address}')" style="${ircBtnStyle('#22c55e')}">Approve</button>
+                   <button onclick="ircIgnore('creator','${c.target_address}')" style="${ircBtnStyle('#6b7280')}">Ignore</button>`
+                : c.status === 'approved'
+                    ? (c.pending_funders_in_queue > 0
+                        ? `<span style="color:#fb923c;font-size:10px;">Scanning (${c.pending_funders_in_queue} pending)</span>`
+                        : `<span style="color:#4ade80;font-size:10px;">Scan complete</span>`)
+                    : '';
+
+            let outboundCell = '—';
+            if (c.outbound_types) {
+                const badges = c.outbound_types.split(',').map(t => {
+                    const m = TYPE_ICONS[t.trim()];
+                    return m ? `<span title="${m.title}" style="color:${m.color};font-size:13px;cursor:default">${m.icon}</span>` : '';
+                }).filter(Boolean).join(' ');
+                const qStatus = c.outbound_queue_status;
+                const qBadge = qStatus === 'pending'  ? `<span style="color:#fb923c;font-size:9px;margin-left:3px">RPC⏳</span>`
+                             : qStatus === 'scanning' ? `<span style="color:#38bdf8;font-size:9px;margin-left:3px">RPC🔄</span>`
+                             : qStatus === 'done'     ? `<span style="color:#4ade80;font-size:9px;margin-left:3px">✓</span>`
+                             : '';
+                outboundCell = badges + qBadge;
+            }
+
+            html += `<tr>
+                <td>${addrHtml(c.target_address)}</td>
+                <td style="text-align:center;font-weight:700;color:#fb923c;">${c.priority}</td>
+                <td style="font-size:11px;color:#9ca3af;">${reasons}</td>
+                <td style="text-align:center;">${fmtNum(c.funder_count)}</td>
+                <td style="text-align:center;">${fmtNum(c.migrated_count)}</td>
+                <td style="text-align:center;">${fmtNum(c.token_count)}</td>
+                <td style="text-align:center;white-space:nowrap;">${outboundCell}</td>
+                <td style="text-align:center;">${statusBadge}</td>
+                <td style="text-align:center;white-space:nowrap;">${actions}</td>
+            </tr>`;
+        }
+    }
+    html += `</tbody></table>`;
+
+    // ── Baseline Migrated Creators ──
+    const baselineCount = (d.baseline_creators || []).length;
+    html += `
+    <details style="margin:16px 0 0;">
+      <summary style="cursor:pointer;font-size:13px;font-weight:700;color:#6b7280;user-select:none;">
+        Baseline Migrated Creators
+        <span style="margin-left:8px;background:rgba(107,114,128,0.12);color:#6b7280;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:600;">${baselineCount}</span>
+        <span style="margin-left:8px;font-size:10px;font-weight:400;color:#4b5563;">low priority · no signals yet · no RPC</span>
+      </summary>
+      <table class="ni-table" style="margin-top:8px;">
+        <thead><tr>
+          <th>Creator</th><th style="text-align:center;">Funders</th>
+          <th style="text-align:center;">Migrated</th><th style="text-align:center;">Added</th>
+          <th style="text-align:center;">Actions</th>
+        </tr></thead><tbody>`;
+    if (!baselineCount) {
+        html += `<tr><td colspan="5" class="empty-state">No baseline creators yet — will populate as tokens migrate</td></tr>`;
+    } else {
+        for (const c of d.baseline_creators) {
+            const age = c.updated_at ? fmtTs(c.updated_at) : '—';
+            html += `<tr>
+                <td>${addrHtml(c.target_address)}</td>
+                <td style="text-align:center;">${fmtNum(c.funder_count)}</td>
+                <td style="text-align:center;">${fmtNum(c.migrated_count)}</td>
+                <td style="text-align:center;font-size:11px;color:#6b7280;">${age}</td>
+                <td style="text-align:center;white-space:nowrap;">
+                  <button onclick="ircApprove('creator','${c.target_address}')" style="${ircBtnStyle('#22c55e')}">Approve</button>
+                  <button onclick="ircIgnore('creator','${c.target_address}')" style="${ircBtnStyle('#6b7280')}">Ignore</button>
+                </td>
+            </tr>`;
+        }
+    }
+    html += `</tbody></table></details>`;
+
+    // ── Priority funders ──
+    html += `
+    <div style="font-size:13px;font-weight:700;color:#a78bfa;margin:16px 0 8px;">Priority Funders</div>
+    <table class="ni-table">
+        <thead><tr>
+            <th>Funder</th><th style="text-align:center;">Priority</th>
+            <th>Reasons</th><th style="text-align:center;">Creators Funded</th>
+            <th style="text-align:center;">Status</th><th style="text-align:center;">Actions</th>
+        </tr></thead><tbody>`;
+
+    if (!d.priority_funders || d.priority_funders.length === 0) {
+        html += `<tr><td colspan="6" class="empty-state">No funder candidates yet</td></tr>`;
+    } else {
+        for (const f of d.priority_funders) {
+            const reasons = safeJson(f.reason_codes).join(', ') || '—';
+            const statusBadge = ircStatusBadge(f.status);
+            const actions = f.status === 'watchlist' || f.status === 'failed'
+                ? `<button onclick="ircApprove('funder','${f.target_address}')" style="${ircBtnStyle('#22c55e')}">Approve</button>
+                   <button onclick="ircIgnore('funder','${f.target_address}')" style="${ircBtnStyle('#6b7280')}">Ignore</button>`
+                : f.status === 'approved'
+                    ? f.scan_state === 'pending'
+                        ? `<span style="color:#fb923c;font-size:10px;">Scanning</span>`
+                        : f.scan_state === 'done'
+                            ? `<span style="color:#4ade80;font-size:10px;">Scan complete</span>`
+                            : `<span style="color:#38bdf8;font-size:10px;">Queued</span>`
+                    : '';
+            html += `<tr>
+                <td>${addrHtml(f.target_address)}${cexInfraBadge(f.cex_infra_label)}</td>
+                <td style="text-align:center;font-weight:700;color:#fb923c;">${f.priority}</td>
+                <td style="font-size:11px;color:#9ca3af;">${reasons}</td>
+                <td style="text-align:center;">${fmtNum(f.creators_funded)}</td>
+                <td style="text-align:center;">${statusBadge}</td>
+                <td style="text-align:center;white-space:nowrap;">${actions}</td>
+            </tr>`;
+        }
+    }
+    html += `</tbody></table>`;
+
+    el.innerHTML = html;
+}
+
+async function ircApprove(type, address) {
+    try {
+        const r = await fetch('/api/intelligence-refresh/approve', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ target_type: type, target_address: address, ttl_hours: 24 }),
+        });
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'failed');
+
+        let msg = 'Approved.';
+        if (type === 'creator' && d.phase2_lite_enqueue) {
+            const eq = d.phase2_lite_enqueue;
+            if (eq.funders_enqueued > 0) {
+                msg += ` Enqueued ${eq.funders_enqueued} funders for Phase 2 Lite scanning.`;
+            } else {
+                msg += ' No eligible funders found or all already tracked.';
+            }
+        }
+
+        await loadRefreshWatchlist();
+        const el = document.getElementById('irc-body');
+        if (el) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;border-radius:5px;padding:8px 12px;margin-bottom:10px;font-size:13px';
+            toast.textContent = msg;
+            el.prepend(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+    } catch(err) { alert('Approve failed: ' + err.message); }
+}
+
+async function ircIgnore(type, address) {
+    try {
+        const r = await fetch('/api/intelligence-refresh/ignore', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ target_type: type, target_address: address }),
+        });
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'failed');
+        await loadRefreshWatchlist();
+    } catch(err) { alert('Ignore failed: ' + err.message); }
+}
+
+loadRefreshWatchlist();
+setInterval(loadRefreshWatchlist, 60000);
+</script>
+{% endblock %}

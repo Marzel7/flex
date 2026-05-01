@@ -12,6 +12,7 @@ Runs:
   7. NetworkMembershipBuilder    → network_membership, funder_network_map
   8. SecondHopExpansionBuilder   → funder_upstream_links, upstream_network_bridge, creator_second_hop
   9. NetworksReleaseBuilder      → networks_release (includes second-hop bridge counts)
+ 10. RiskScoringBuilder          → creator_risk_scores, network_risk_scores, risk_score_history
 
 Each analyzer result is logged to analyzer_runs table.
 Safe to run repeatedly. Exits nonzero if any analyzer failed.
@@ -161,9 +162,11 @@ def run_analyzer(name: str, db_path: str) -> dict:
 
         elif name == 'CoordinatedEdgesBuilder':
             import sqlite3 as _sqlite3
+            from src.utils.infra_mapping import sync_infra_wallets
             # Phase 1: compute results into a temp table (read-only, no write lock held)
             conn = _sqlite3.connect(db_path, timeout=60)
             conn.execute("PRAGMA journal_mode=WAL")
+            sync_infra_wallets(conn)
             conn.execute("DROP TABLE IF EXISTS _coordinated_edges_tmp")
             conn.execute("""
                 CREATE TEMP TABLE _coordinated_edges_tmp AS
@@ -175,6 +178,7 @@ def run_analyzer(name: str, db_path: str) -> dict:
                 JOIN creator_funders cf2 ON cf1.funder_address = cf2.funder_address
                   AND cf1.creator_address < cf2.creator_address
                 WHERE cf1.is_cex = 0 AND cf2.is_cex = 0
+                  AND cf1.funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY cf1.creator_address, cf2.creator_address, cf1.funder_address
             """)
             # Phase 2: fast swap — exclusive lock held only for DELETE + INSERT from temp
@@ -222,6 +226,18 @@ def run_analyzer(name: str, db_path: str) -> dict:
             # Normalise key for _rows_written_from_result
             result.setdefault('status', 'success')
             result['networks_processed'] = result.get('networks_processed', 0)
+
+        elif name == 'RiskScoringBuilder':
+            from src.core.risk_scoring_builder import RiskScoringBuilder
+            result = RiskScoringBuilder(db_path).run()
+            result.setdefault('status', 'success')
+            result['networks_processed'] = result.get('networks_scored', 0)
+
+        elif name == 'TokenPredictionBuilder':
+            from src.core.token_prediction_builder import TokenPredictionBuilder
+            result = TokenPredictionBuilder(db_path).run()
+            result.setdefault('status', 'success')
+            result['edges_written'] = result.get('tokens_scored', 0)
 
         elif name == 'IntelligenceRefreshCandidateBuilder':
             from src.core.intelligence_refresh import (
@@ -295,6 +311,8 @@ ANALYZERS = [
     'SecondHopExpansionBuilder',             # reads funder_upstream_links
     'UpstreamExpansionBuilder',              # enqueues funders around significant hubs
     'NetworksReleaseBuilder',
+    'RiskScoringBuilder',
+    'TokenPredictionBuilder',
 ]
 
 

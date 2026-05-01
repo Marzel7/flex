@@ -1614,6 +1614,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[DB] ✅ Marked token migrated: {mint[:16]}... dex={dex} tx={migration_tx[:20] if migration_tx else 'N/A'}...", flush=True)
         except Exception as exc:
             log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc}", flush=True)
+            return
+
+        import threading as _threading
+        def _score():
+            try:
+                import sqlite3 as _sq
+                from src.core.token_prediction_builder import TokenPredictionBuilder
+                conn2 = _sq.connect(DB_PATH, timeout=30)
+                conn2.execute("PRAGMA journal_mode=WAL")
+                TokenPredictionBuilder(DB_PATH).score_single(conn2, mint, 'MIGRATED')
+                conn2.close()
+            except Exception as _e:
+                log_print(f"[PREDICTION] ⚠ score_single MIGRATED {mint[:16]}: {_e}", flush=True)
+        _threading.Thread(target=_score, daemon=True).start()
 
     async def _record_migration_verification_snapshot(
         self,
@@ -4563,6 +4577,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         await self._upsert_birth_metadata_cache(mint, symbol, name)
 
+        import threading as _threading
+        def _score_birth():
+            try:
+                import sqlite3 as _sq
+                from src.core.token_prediction_builder import TokenPredictionBuilder
+                conn2 = _sq.connect(DB_PATH, timeout=30)
+                conn2.execute("PRAGMA journal_mode=WAL")
+                TokenPredictionBuilder(DB_PATH).score_single(conn2, mint, 'BIRTH')
+                conn2.close()
+            except Exception as _e:
+                log_print(f"[PREDICTION] ⚠ score_single BIRTH {mint[:16]}: {_e}", flush=True)
+        _threading.Thread(target=_score_birth, daemon=True).start()
+
         try:
             from src.core.price_worker import PriceWorkerRegistry
             PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
@@ -6704,6 +6731,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as _e:
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
 
+            import threading as _threading
+            def _score_migrated_fast(m=mint):
+                try:
+                    import sqlite3 as _sq
+                    from src.core.token_prediction_builder import TokenPredictionBuilder
+                    c = _sq.connect(DB_PATH, timeout=30)
+                    c.execute("PRAGMA journal_mode=WAL")
+                    TokenPredictionBuilder(DB_PATH).score_single(c, m, 'MIGRATED')
+                    c.close()
+                except Exception as _e:
+                    log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
+            _threading.Thread(target=_score_migrated_fast, daemon=True).start()
+
             await self._record_migration_verification_snapshot(
                 mint,
                 migrated_at=int(time.time()),
@@ -6825,6 +6865,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
             # Always ensure pf_ws_creator is set — returns early if already resolved.
             asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
+            import threading as _threading
+            def _score_already_known(m=mint):
+                try:
+                    import sqlite3 as _sq
+                    from src.core.token_prediction_builder import TokenPredictionBuilder
+                    c = _sq.connect(DB_PATH, timeout=30)
+                    c.execute("PRAGMA journal_mode=WAL")
+                    TokenPredictionBuilder(DB_PATH).score_single(c, m, 'MIGRATED')
+                    c.commit()
+                    c.close()
+                except Exception as _e:
+                    log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
+            _threading.Thread(target=_score_already_known, daemon=True).start()
             return
 
         # === GUARD 1: Prevent duplicate primary discovery by mint ===
@@ -6962,6 +7015,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn.commit()
                 conn.close()
                 log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
+                import threading as _threading
+                def _score_migrated_tx(m=mint):
+                    try:
+                        import sqlite3 as _sq
+                        from src.core.token_prediction_builder import TokenPredictionBuilder
+                        c = _sq.connect(DB_PATH, timeout=30)
+                        c.execute("PRAGMA journal_mode=WAL")
+                        TokenPredictionBuilder(DB_PATH).score_single(c, m, 'MIGRATED')
+                        c.close()
+                    except Exception as _e:
+                        log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
+                _threading.Thread(target=_score_migrated_tx, daemon=True).start()
             except Exception as e:
                 log_print(f"[DB] ⚠️  Failed to store migration TX: {e}", flush=True)
 

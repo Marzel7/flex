@@ -10732,6 +10732,7 @@ def api_network_coordinators():
                 detection_timestamp,
                 last_updated
             FROM network_coordinators
+            WHERE coordinator_address NOT IN (SELECT address FROM infra_wallets)
             ORDER BY
                 CASE WHEN network_confidence = 'high' THEN 1
                      WHEN network_confidence = 'medium' THEN 2
@@ -16404,6 +16405,12 @@ def api_network_tokens(network_name):
             other_direct_funders = []
             operator_signatures = []
             creator_summaries = []
+            infra_wallet_set = {
+                row['address']
+                for row in cursor.execute("SELECT address FROM infra_wallets").fetchall()
+            } if cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='infra_wallets'"
+            ).fetchone() else set()
             bonding_curve_count = 0
             tracked_token_count = 0
             g_distribution = {
@@ -16627,7 +16634,11 @@ def api_network_tokens(network_name):
                 secondary_by_funder = {}
                 for row in all_creator_funder_rows:
                     funder_address = row.get('funder_address')
-                    if not funder_address or funder_address in network_funders:
+                    if (
+                        not funder_address
+                        or funder_address in network_funders
+                        or funder_address in infra_wallet_set
+                    ):
                         continue
                     bucket = secondary_by_funder.setdefault(funder_address, {
                         'funder_address': funder_address,
@@ -16787,8 +16798,51 @@ def api_network_tokens(network_name):
                     key=lambda c: (c.get('token_count') or 0, c.get('best_peak_mc') or 0),
                     reverse=True
                 )
+
+                try:
+                    cursor.execute(f"""
+                        SELECT creator_address, final_score, category, risk_level,
+                               operator_score, outcome_score, g_score, liquidation_score,
+                               top_reasons
+                        FROM creator_risk_scores
+                        WHERE creator_address IN ({placeholders})
+                    """, creators)
+                    risk_by_creator = {
+                        row['creator_address']: dict(row)
+                        for row in cursor.fetchall()
+                    }
+                    for creator_summary in creator_summaries:
+                        risk_row = risk_by_creator.get(creator_summary.get('creator'))
+                        if risk_row:
+                            if risk_row.get('top_reasons'):
+                                try:
+                                    risk_row['top_reasons'] = json.loads(risk_row['top_reasons'])
+                                except Exception:
+                                    pass
+                            creator_summary['risk_score'] = risk_row
+                except Exception:
+                    pass
             
             creator_count = len(creators)
+            network_risk_score = None
+            try:
+                cursor.execute("""
+                    SELECT final_score, category, risk_level,
+                           operator_score, outcome_score, g_score, liquidation_score,
+                           top_reasons
+                    FROM network_risk_scores
+                    WHERE network_name = ?
+                """, (network_name,))
+                risk_row = cursor.fetchone()
+                if risk_row:
+                    network_risk_score = dict(risk_row)
+                    if network_risk_score.get('top_reasons'):
+                        try:
+                            network_risk_score['top_reasons'] = json.loads(network_risk_score['top_reasons'])
+                        except Exception:
+                            pass
+            except Exception:
+                network_risk_score = None
             
             conn.close()
 
@@ -16805,6 +16859,7 @@ def api_network_tokens(network_name):
                 'operator_signatures': operator_signatures,
                 'creator_summaries': creator_summaries,
                 'cex_infra_accounts': cex_infra_accounts,
+                'risk_score': network_risk_score,
                 'g_distribution': g_distribution,
                 'bonding_curve_count': bonding_curve_count,
                 'tracked_token_count': tracked_token_count,
@@ -16877,6 +16932,415 @@ def api_network_tokens(network_name):
 @app.route('/network-intelligence')
 def network_intelligence_page():
     return render_template('network_intelligence.html', active_page='network_intelligence')
+
+
+@app.route('/risk-scoring')
+def risk_scoring_page():
+    return render_template('risk_scoring.html', active_page='risk_scoring')
+
+
+def _risk_row_to_dict(row):
+    item = dict(row)
+    for field in ("top_reasons", "reason_codes", "explanation_json"):
+        raw = item.get(field)
+        if raw:
+            try:
+                item[field] = json.loads(raw)
+            except Exception:
+                item[field] = raw
+        else:
+            item[field] = [] if field != "explanation_json" else {}
+    return item
+
+
+@app.route('/api/risk-scoring/summary')
+def api_risk_scoring_summary():
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        c = conn.cursor()
+
+        def scalar(sql, params=()):
+            row = c.execute(sql, params).fetchone()
+            return row[0] if row else 0
+
+        payload = {
+            "total_creators_scored": scalar("SELECT COUNT(*) FROM creator_risk_scores"),
+            "critical_creators": scalar("SELECT COUNT(*) FROM creator_risk_scores WHERE risk_level='CRITICAL'"),
+            "high_risk_networks": scalar("SELECT COUNT(*) FROM network_risk_scores WHERE risk_level IN ('HIGH','CRITICAL')"),
+            "self_funding_farms": scalar("SELECT COUNT(*) FROM creator_risk_scores WHERE category='SELF_FUNDING_FARM'"),
+            "serial_dumpers": scalar("SELECT COUNT(*) FROM creator_risk_scores WHERE category='SERIAL_DUMPER'"),
+            "liquidity_extractors": scalar("SELECT COUNT(*) FROM creator_risk_scores WHERE category='LIQUIDITY_EXTRACTOR'"),
+            "latest_scored_at": scalar("""
+                SELECT MAX(scored_at) FROM (
+                    SELECT MAX(scored_at) AS scored_at FROM creator_risk_scores
+                    UNION ALL
+                    SELECT MAX(scored_at) AS scored_at FROM network_risk_scores
+                )
+            """),
+            "risk_levels": {
+                row["risk_level"]: row["n"]
+                for row in c.execute("""
+                    SELECT risk_level, COUNT(*) AS n
+                    FROM creator_risk_scores
+                    GROUP BY risk_level
+                """).fetchall()
+            },
+        }
+        conn.close()
+        return jsonify(payload)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/risk-scoring/creators')
+def api_risk_scoring_creators():
+    try:
+        limit = min(int(request.args.get("limit", 250)), 1000)
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        rows = conn.execute("""
+            SELECT
+                creator_address, final_score, category, risk_level,
+                operator_score, outcome_score, g_score, liquidation_score,
+                migrated_tokens, total_tokens, g7_percentage, liquidation_count,
+                last_migrated_at, top_reasons, scored_at
+            FROM creator_risk_scores
+            ORDER BY final_score DESC, migrated_tokens DESC, creator_address
+            LIMIT ?
+        """, (limit,)).fetchall()
+        conn.close()
+        return jsonify({"creators": [_risk_row_to_dict(row) for row in rows]})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/risk-scoring/networks')
+def api_risk_scoring_networks():
+    try:
+        limit = min(int(request.args.get("limit", 250)), 1000)
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        rows = conn.execute("""
+            SELECT
+                nrs.network_name,
+                COALESCE(nr.display_name, nrs.network_name) AS display_name,
+                nrs.final_score, nrs.category, nrs.risk_level,
+                nrs.operator_score, nrs.outcome_score, nrs.g_score, nrs.liquidation_score,
+                nrs.creator_count, nrs.migrated_tokens, nrs.total_tokens,
+                nrs.g7_percentage, nrs.liquidation_count, nrs.last_migrated_at,
+                nrs.top_reasons, nrs.scored_at
+            FROM network_risk_scores nrs
+            LEFT JOIN networks_release nr ON nr.network_name = nrs.network_name
+            ORDER BY nrs.final_score DESC, nrs.migrated_tokens DESC, nrs.network_name
+            LIMIT ?
+        """, (limit,)).fetchall()
+        conn.close()
+        return jsonify({"networks": [_risk_row_to_dict(row) for row in rows]})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/risk-scoring/creator/<creator_address>')
+def api_risk_scoring_creator_detail(creator_address):
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        row = conn.execute(
+            "SELECT * FROM creator_risk_scores WHERE creator_address=?",
+            (creator_address,),
+        ).fetchone()
+        if not row:
+            conn.close()
+            return jsonify({"error": "creator risk score not found"}), 404
+        history = conn.execute("""
+            SELECT final_score, category, risk_level, scored_at
+            FROM risk_score_history
+            WHERE entity_type='creator' AND entity_id=?
+            ORDER BY scored_at DESC
+            LIMIT 30
+        """, (creator_address,)).fetchall()
+        payload = _risk_row_to_dict(row)
+        payload["history"] = [dict(h) for h in history]
+        conn.close()
+        return jsonify(payload)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/risk-scoring/network/<network_name>')
+def api_risk_scoring_network_detail(network_name):
+    try:
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        row = conn.execute("""
+            SELECT
+                nrs.*,
+                COALESCE(nr.display_name, nrs.network_name) AS display_name
+            FROM network_risk_scores nrs
+            LEFT JOIN networks_release nr ON nr.network_name = nrs.network_name
+            WHERE nrs.network_name=?
+        """, (network_name,)).fetchone()
+        if not row:
+            conn.close()
+            return jsonify({"error": "network risk score not found"}), 404
+        history = conn.execute("""
+            SELECT final_score, category, risk_level, scored_at
+            FROM risk_score_history
+            WHERE entity_type='network' AND entity_id=?
+            ORDER BY scored_at DESC
+            LIMIT 30
+        """, (network_name,)).fetchall()
+        payload = _risk_row_to_dict(row)
+        payload["history"] = [dict(h) for h in history]
+        conn.close()
+        return jsonify(payload)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/risk-scoring/run', methods=['POST'])
+def api_risk_scoring_run():
+    try:
+        from src.core.risk_scoring_builder import RiskScoringBuilder
+        result = RiskScoringBuilder(DB_PATH).run()
+        return jsonify(result)
+    except Exception as exc:
+        return jsonify({"status": "failed", "error": str(exc)}), 500
+
+
+@app.route('/predictions')
+def predictions_page():
+    return render_template('predictions.html', active_page='predictions')
+
+
+@app.route('/api/predictions/summary')
+def api_predictions_summary():
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute("""
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN tps.risk_level='CRITICAL' THEN 1 ELSE 0 END) as critical,
+                    SUM(CASE WHEN tps.risk_level='HIGH' THEN 1 ELSE 0 END) as high,
+                    SUM(CASE WHEN tps.risk_level='MEDIUM' THEN 1 ELSE 0 END) as medium,
+                    SUM(CASE WHEN tps.risk_level='WATCH' THEN 1 ELSE 0 END) as watch,
+                    SUM(CASE WHEN tps.risk_level='LOW' THEN 1 ELSE 0 END) as low,
+                    SUM(CASE WHEN tps.prediction_status!='COMPLETE' THEN 1 ELSE 0 END) as pending_tokens,
+                    SUM(CASE WHEN tps.prediction_confidence='LOW' THEN 1 ELSE 0 END) as low_confidence_tokens,
+                    SUM(CASE WHEN tps.prediction_confidence='HIGH' AND tps.prediction_status='COMPLETE' THEN 1 ELSE 0 END) as high_confidence_predictions,
+                    AVG(CASE WHEN tps.prediction_status='COMPLETE' THEN tps.prediction_score END) as avg_score,
+                    SUM(CASE WHEN tps.prediction_label='LIKELY_DUMP' THEN 1 ELSE 0 END) as likely_dump,
+                    SUM(CASE WHEN tps.prediction_label='LIKELY_MIGRATOR' THEN 1 ELSE 0 END) as likely_migrator,
+                    SUM(CASE WHEN tps.prediction_label='WATCH' THEN 1 ELSE 0 END) as watch_label
+                FROM token_prediction_scores tps
+                JOIN token_analysis ta ON ta.mint = tps.mint
+                WHERE ta.lifecycle_stage = 'migrated'
+                  AND tps.mint IN (SELECT DISTINCT mint FROM token_prediction_events WHERE event_type IN ('BIRTH','MIGRATED'))
+            """).fetchone()
+            outcomes = conn.execute("""
+                SELECT
+                    COUNT(*) as resolved,
+                    SUM(prediction_correct) as correct,
+                    SUM(CASE WHEN actual_outcome='FAST_DUMP' THEN 1 ELSE 0 END) as fast_dump,
+                    SUM(CASE WHEN actual_outcome='SLOW_DUMP' THEN 1 ELSE 0 END) as slow_dump,
+                    SUM(CASE WHEN actual_outcome='SURVIVED' THEN 1 ELSE 0 END) as survived,
+                    SUM(CASE WHEN actual_outcome='STRONG_PERFORMER' THEN 1 ELSE 0 END) as strong_performer,
+                    SUM(CASE WHEN actual_outcome='LIQUIDATED' THEN 1 ELSE 0 END) as liquidated
+                FROM token_prediction_outcomes
+                WHERE prediction_correct IS NOT NULL
+            """).fetchone()
+            return jsonify({
+                "predictions": dict(row) if row else {},
+                "outcomes": dict(outcomes) if outcomes else {}
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/live')
+def api_predictions_live():
+    try:
+        risk_level = request.args.get('risk_level')
+        label = request.args.get('label')
+        status = request.args.get('status')
+        confidence = request.args.get('confidence')
+        limit = min(int(request.args.get('limit', 200)), 1000)
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            where = []
+            params = []
+            if risk_level:
+                where.append("tps.risk_level = ?")
+                params.append(risk_level)
+            if label:
+                where.append("tps.prediction_label = ?")
+                params.append(label)
+            if status:
+                if status == 'PENDING':
+                    where.append("tps.prediction_status != 'COMPLETE'")
+                else:
+                    where.append("tps.prediction_status = ?")
+                    params.append(status)
+            if confidence:
+                where.append("tps.prediction_confidence = ?")
+                params.append(confidence)
+            # Only show live-scored migrated tokens
+            where.append("ta.lifecycle_stage = 'migrated'")
+            where.append("tps.mint IN (SELECT DISTINCT mint FROM token_prediction_events WHERE event_type IN ('BIRTH','MIGRATED'))")
+            where_sql = "WHERE " + " AND ".join(where)
+            rows = conn.execute(f"""
+                SELECT
+                    tps.mint, tps.network_name,
+                    tps.prediction_score, tps.risk_level, tps.prediction_label,
+                    tps.prediction_status, tps.prediction_confidence, tps.data_completeness,
+                    tps.creator_score, tps.network_score, tps.funding_score,
+                    tps.outcome_history_score, tps.liquidation_score,
+                    tps.reason_codes, tps.predicted_at, tps.last_updated_at,
+                    mc.name as token_name, ta.market_cap_highest,
+                    ta.lifecycle_stage, ta.migrated_at,
+                    COALESCE(tps.creator_address, ta.earliest_tx_creator) as creator_address,
+                    CASE
+                        WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
+                        WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
+                        WHEN ta.market_cap_highest >= 500000  THEN 'G3'
+                        WHEN ta.market_cap_highest >= 300000  THEN 'G4'
+                        WHEN ta.market_cap_highest >= 150000  THEN 'G5'
+                        WHEN ta.market_cap_highest >= 75000   THEN 'G6'
+                        WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
+                        ELSE NULL
+                    END as g_level,
+                    COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = tps.mint), 0) as liquidity_removed
+                FROM token_prediction_scores tps
+                LEFT JOIN token_analysis ta ON ta.mint = tps.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
+                {where_sql}
+                ORDER BY tps.predicted_at DESC
+                LIMIT ?
+            """, params + [limit]).fetchall()
+            return jsonify([dict(r) for r in rows])
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/token/<mint>')
+def api_predictions_token(mint):
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA query_only = ON")
+            score = conn.execute(
+                "SELECT * FROM token_prediction_scores WHERE mint = ?", (mint,)
+            ).fetchone()
+            events = conn.execute(
+                "SELECT * FROM token_prediction_events WHERE mint = ? ORDER BY event_at DESC LIMIT 20",
+                (mint,)
+            ).fetchall()
+            outcome = conn.execute(
+                "SELECT * FROM token_prediction_outcomes WHERE mint = ?", (mint,)
+            ).fetchone()
+            token = conn.execute(
+                """SELECT mc.name, ta.earliest_tx_creator as creator,
+                          ta.market_cap_highest, ta.lifecycle_stage, ta.migrated_at
+                   FROM token_analysis ta
+                   LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                   WHERE ta.mint = ?""",
+                (mint,)
+            ).fetchone()
+            return jsonify({
+                "score": dict(score) if score else None,
+                "events": [dict(e) for e in events],
+                "outcome": dict(outcome) if outcome else None,
+                "token": dict(token) if token else None
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/outcomes')
+def api_predictions_outcomes():
+    try:
+        status = request.args.get('status', 'resolved')
+        limit = min(int(request.args.get('limit', 200)), 1000)
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            if status == 'unresolved':
+                rows = conn.execute("""
+                    SELECT tps.*, ta.name as token_name
+                    FROM token_prediction_scores tps
+                    LEFT JOIN token_analysis ta ON ta.mint = tps.mint
+                    WHERE tps.mint NOT IN (SELECT mint FROM token_prediction_outcomes WHERE prediction_correct IS NOT NULL)
+                    ORDER BY tps.prediction_score DESC
+                    LIMIT ?
+                """, (limit,)).fetchall()
+            else:
+                rows = conn.execute("""
+                    SELECT tpo.*, tps.prediction_score, tps.risk_level, tps.prediction_label,
+                           tps.prediction_status, tps.prediction_confidence,
+                           ta.name as token_name
+                    FROM token_prediction_outcomes tpo
+                    LEFT JOIN token_prediction_scores tps ON tps.mint = tpo.mint
+                    LEFT JOIN token_analysis ta ON ta.mint = tpo.mint
+                    WHERE tpo.prediction_correct IS NOT NULL
+                    ORDER BY tpo.resolved_at DESC
+                    LIMIT ?
+                """, (limit,)).fetchall()
+            return jsonify([dict(r) for r in rows])
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/accuracy')
+def api_predictions_accuracy():
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            by_label = conn.execute("""
+                SELECT
+                    tpo.prediction_label,
+                    COUNT(*) as total,
+                    SUM(tpo.prediction_correct) as correct,
+                    ROUND(100.0 * SUM(tpo.prediction_correct) / COUNT(*), 1) as accuracy_pct
+                FROM token_prediction_outcomes tpo
+                WHERE tpo.prediction_correct IS NOT NULL
+                GROUP BY tpo.prediction_label
+                ORDER BY accuracy_pct DESC
+            """).fetchall()
+            by_risk = conn.execute("""
+                SELECT
+                    tps.risk_level,
+                    COUNT(*) as total,
+                    SUM(tpo.prediction_correct) as correct,
+                    ROUND(100.0 * SUM(tpo.prediction_correct) / COUNT(*), 1) as accuracy_pct
+                FROM token_prediction_outcomes tpo
+                JOIN token_prediction_scores tps ON tps.mint = tpo.mint
+                WHERE tpo.prediction_correct IS NOT NULL
+                  AND tps.prediction_status = 'COMPLETE'
+                GROUP BY tps.risk_level
+                ORDER BY accuracy_pct DESC
+            """).fetchall()
+            return jsonify({
+                "by_label": [dict(r) for r in by_label],
+                "by_risk": [dict(r) for r in by_risk]
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/run', methods=['POST'])
+def api_predictions_run():
+    try:
+        from src.core.token_prediction_builder import TokenPredictionBuilder
+        result = TokenPredictionBuilder(DB_PATH).run()
+        return jsonify(result)
+    except Exception as exc:
+        return jsonify({"status": "failed", "error": str(exc)}), 500
 
 
 @app.route('/approval-queue')
@@ -18269,6 +18733,14 @@ def api_second_hop_lite_run_now():
 
             _w("Rebuilding networks release")
             build_networks_release(DB_PATH)
+
+            _w("Running RiskScoringBuilder")
+            try:
+                from src.core.risk_scoring_builder import RiskScoringBuilder
+                _risk_result = RiskScoringBuilder(DB_PATH).run()
+                _w(f"Risk scoring done: {_risk_result}")
+            except Exception as _risk_e:
+                _w(f"Risk scoring failed: {_risk_e}")
 
             _w("Running IntelligenceRefreshCandidateBuilder")
             import time as _irc_time
@@ -22230,6 +22702,74 @@ def api_network_coord(network_name: str):
 
         member_set = set(members)
         placeholders = ','.join('?' * len(members))
+        infra_wallet_rows = conn.execute(
+            "SELECT address FROM infra_wallets"
+        ).fetchall() if conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='infra_wallets'"
+        ).fetchone() else []
+        infra_wallet_set = {row[0] for row in infra_wallet_rows}
+
+        def classify_bridge_account(address: str) -> dict | None:
+            if not address:
+                return None
+            try:
+                from src.utils.infra_mapping import get_account_info, get_cex_info
+            except Exception:
+                get_account_info = None
+                get_cex_info = None
+
+            if get_account_info:
+                infra_info = get_account_info(address)
+                if infra_info:
+                    return {
+                        'type': 'INFRA',
+                        'label': infra_info.get('name') or 'Infrastructure',
+                        'category': infra_info.get('category') or 'infra',
+                        'description': infra_info.get('description'),
+                    }
+
+            if get_cex_info:
+                cex_info = get_cex_info(address)
+                if cex_info:
+                    return {
+                        'type': 'CEX',
+                        'label': cex_info.get('name') or cex_info.get('exchange') or 'CEX',
+                        'category': cex_info.get('category') or 'cex',
+                        'description': cex_info.get('description'),
+                    }
+
+            cex_row = conn.execute("""
+                SELECT exchange_name, wallet_type
+                FROM cex_wallets
+                WHERE cex_address = ? AND is_active = 1
+                LIMIT 1
+            """, (address,)).fetchone()
+            if cex_row:
+                wallet_type = cex_row['wallet_type'] or 'wallet'
+                exchange_name = cex_row['exchange_name'] or 'CEX'
+                label = exchange_name if wallet_type in ('Hot Wallet', 'Exchange Wallet') else f"{exchange_name} {wallet_type}"
+                return {
+                    'type': 'CEX',
+                    'label': label,
+                    'category': wallet_type,
+                    'description': None,
+                }
+
+            infra_row = conn.execute("""
+                SELECT note
+                FROM infra_funders_observed
+                WHERE funder_address = ?
+                LIMIT 1
+            """, (address,)).fetchone()
+            if infra_row:
+                return {
+                    'type': 'INFRA',
+                    'label': infra_row['note'] or 'Observed Infrastructure',
+                    'category': 'observed',
+                    'description': infra_row['note'],
+                }
+
+            return None
 
         rows = conn.execute(f"""
             SELECT creator_a, creator_b, bridge_funder, confidence
@@ -22243,6 +22783,7 @@ def api_network_coord(network_name: str):
         import json as _json
 
         funder_data = defaultdict(lambda: {'edges': 0, 'intra': 0, 'outside': set(), 'members': set()})
+        ignored_funder_data = defaultdict(lambda: {'edges': 0, 'intra': 0, 'outside': set(), 'members': set()})
         intra_count = 0
         outside_creators = {}
 
@@ -22250,7 +22791,8 @@ def api_network_coord(network_name: str):
             a, b, funder, conf = row['creator_a'], row['creator_b'], row['bridge_funder'], row['confidence']
             a_in = a in member_set
             b_in = b in member_set
-            fd = funder_data[funder]
+            is_ignored_funder = funder in infra_wallet_set
+            fd = ignored_funder_data[funder] if is_ignored_funder else funder_data[funder]
             fd['edges'] += 1
             if a_in:
                 fd['members'].add(a)
@@ -22258,26 +22800,51 @@ def api_network_coord(network_name: str):
                 fd['members'].add(b)
             if a_in and b_in:
                 fd['intra'] += 1
-                intra_count += 1
+                if not is_ignored_funder:
+                    intra_count += 1
             else:
                 outside = b if a_in else a
                 fd['outside'].add(outside)
-                if outside not in outside_creators:
-                    outside_creators[outside] = {'funders': [], 'count': 0}
-                outside_creators[outside]['count'] += 1
-                if funder not in outside_creators[outside]['funders']:
-                    outside_creators[outside]['funders'].append(funder)
+                if not is_ignored_funder:
+                    if outside not in outside_creators:
+                        outside_creators[outside] = {'funders': [], 'count': 0}
+                    outside_creators[outside]['count'] += 1
+                    if funder not in outside_creators[outside]['funders']:
+                        outside_creators[outside]['funders'].append(funder)
 
         # Build bridge_funders list sorted by total edges
         bridge_funders = []
         for funder, fd in sorted(funder_data.items(), key=lambda x: -x[1]['edges']):
+            classification = classify_bridge_account(funder)
             bridge_funders.append({
                 'funder': funder,
+                'funder_label': classification['label'] if classification else None,
+                'funder_type': classification['type'] if classification else None,
+                'funder_category': classification['category'] if classification else None,
+                'funder_description': classification['description'] if classification else None,
                 'total_edges': fd['edges'],
                 'intra_edges': fd['intra'],
                 'outside_edges': fd['edges'] - fd['intra'],
                 'outside_creators': len(fd['outside']),
                 'member_count': len(fd['members']),
+            })
+
+        ignored_bridge_funders = []
+        for funder, fd in sorted(ignored_funder_data.items(), key=lambda x: -x[1]['edges']):
+            classification = classify_bridge_account(funder)
+            ignored_bridge_funders.append({
+                'funder': funder,
+                'funder_label': classification['label'] if classification else None,
+                'funder_type': classification['type'] if classification else 'INFRA',
+                'funder_category': classification['category'] if classification else None,
+                'funder_description': classification['description'] if classification else None,
+                'total_edges': fd['edges'],
+                'intra_edges': fd['intra'],
+                'outside_edges': fd['edges'] - fd['intra'],
+                'outside_creators': len(fd['outside']),
+                'member_count': len(fd['members']),
+                'ignored_for_coordination': True,
+                'ignore_reason': 'Infrastructure/system-driven wallet; ignored for coordination analysis',
             })
 
         # Top outside creators
@@ -22287,10 +22854,12 @@ def api_network_coord(network_name: str):
         return jsonify({
             'network_name': network_name,
             'member_count': len(members),
-            'total_edges': len(rows),
+            'total_edges': sum(f['total_edges'] for f in bridge_funders),
+            'ignored_edge_count': sum(f['total_edges'] for f in ignored_bridge_funders),
             'intra_count': intra_count,
             'outside_creator_count': len(outside_creators),
             'bridge_funders': bridge_funders,
+            'ignored_bridge_funders': ignored_bridge_funders,
             'top_outside_creators': [
                 {'creator': c, 'edge_count': d['count'], 'via_funders': d['funders'][:3]}
                 for c, d in top_outside

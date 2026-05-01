@@ -17,6 +17,7 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Optional
+from src.utils.infra_mapping import sync_infra_wallets
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,11 @@ class CreatorOutboundBuilder:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
         try:
+            sync_infra_wallets(conn)
+            conn.execute("""
+                DELETE FROM creator_outbound_classifications
+                WHERE recipient_address IN (SELECT address FROM infra_wallets)
+            """)
             before = self._snapshot_classifications(conn)
             rows_written = self._classify_all(conn)
             conn.commit()
@@ -148,6 +154,8 @@ class CreatorOutboundBuilder:
                AND cf.funder_address  = cot.recipient_address
             WHERE cot.is_cex = 0
               AND cot.amount_sol >= ?
+              AND cot.recipient_address NOT IN (SELECT address FROM infra_wallets)
+              AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY cot.creator_address, cot.recipient_address
         """, (MIN_CLASSIFY_SOL,)).fetchall()
 
@@ -169,6 +177,7 @@ class CreatorOutboundBuilder:
                 SELECT recipient_address
                 FROM creator_outgoing_transfers
                 WHERE is_cex = 0 AND amount_sol >= ?
+                  AND recipient_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY recipient_address
                 HAVING COUNT(DISTINCT creator_address) >= ?
             """, (MIN_CLASSIFY_SOL, SHARED_PAYOUT_MIN_CREATORS)).fetchall()
@@ -190,6 +199,7 @@ class CreatorOutboundBuilder:
             WHERE cot.is_cex = 0
               AND cot.amount_sol >= ?
               AND cot.recipient_address IN ({placeholders})
+              AND cot.recipient_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY cot.creator_address, cot.recipient_address
         """, (MIN_CLASSIFY_SOL, *shared_recipients)).fetchall()
 
@@ -219,6 +229,7 @@ class CreatorOutboundBuilder:
             WHERE cot.is_cex = 0
               AND cot.amount_sol >= ?
               AND muh.status = 'active'
+              AND cot.recipient_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY cot.creator_address, cot.recipient_address
         """, (MIN_CLASSIFY_SOL,)).fetchall()
 
@@ -245,6 +256,7 @@ class CreatorOutboundBuilder:
             FROM creator_outgoing_transfers
             WHERE is_cex = 0
               AND amount_sol >= ?
+              AND recipient_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY creator_address, recipient_address
         """, (LARGE_OUTBOUND_SOL_THRESHOLD,)).fetchall()
 

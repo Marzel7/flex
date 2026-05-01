@@ -1,0 +1,534 @@
+{% extends "base_shell.html" %}
+{% block title %}Token Predictions{% endblock %}
+
+{% block extra_styles %}
+.pd-topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:24px; padding-bottom:18px; border-bottom:2px solid rgba(56,189,248,0.3); }
+.pd-topbar h1 { margin:0; font-size:26px; font-weight:700; color:#38bdf8; letter-spacing:-0.01em; }
+.pd-sub { margin-top:4px; color:var(--text-secondary); font-size:13px; }
+.pd-btn {
+  border:1px solid var(--border-color);
+  background:var(--bg-card);
+  color:var(--text-primary);
+  border-radius:6px;
+  padding:7px 12px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:12px;
+  font-family:inherit;
+  transition:border-color 0.2s;
+}
+.pd-btn:hover { border-color:rgba(56,189,248,0.4); color:#38bdf8; }
+
+.pd-kpis { display:grid; grid-template-columns:repeat(6, minmax(120px, 1fr)); gap:12px; margin-bottom:28px; }
+.pd-kpi {
+  background:var(--bg-card);
+  border:1px solid var(--border-color);
+  border-radius:8px;
+  padding:16px;
+  transition:border-color 0.2s;
+}
+.pd-kpi:hover { border-color:rgba(56,189,248,0.3); }
+.pd-kpi .value { font-size:28px; font-weight:700; line-height:1; color:#e2e8f0; margin-bottom:4px; }
+.pd-kpi .label { color:var(--text-secondary); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; }
+
+.pd-section {
+  background:var(--bg-card);
+  border:1px solid var(--border-color);
+  border-radius:8px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+.pd-section-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border-color);
+  background:rgba(0,0,0,0.2);
+}
+.pd-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-secondary); }
+.pd-hint { color:var(--text-secondary); font-size:10px; margin-top:2px; }
+.pd-filters { display:flex; gap:8px; align-items:center; }
+.pd-select {
+  background:var(--bg-secondary);
+  border:1px solid var(--border-color);
+  color:var(--text-primary);
+  border-radius:4px;
+  padding:4px 8px;
+  font-size:11px;
+  font-family:inherit;
+  cursor:pointer;
+}
+
+table { width:100%; border-collapse:collapse; table-layout:fixed; }
+th, td {
+  padding:9px 12px;
+  border-bottom:1px solid rgba(148,163,184,0.06);
+  text-align:left;
+  vertical-align:middle;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+th { color:var(--text-secondary); font-size:10px; text-transform:uppercase; letter-spacing:.05em; background:rgba(0,0,0,0.25); font-weight:700; border-bottom:1px solid var(--border-color); }
+tr:hover td { background:rgba(255,255,255,0.02); cursor:pointer; }
+tbody tr:last-child td { border-bottom:none; }
+
+.pd-score { font-weight:700; font-size:15px; color:#e2e8f0; }
+.badge {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:52px;
+  padding:2px 5px;
+  border-radius:3px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+.LOW      { color:#4ade80; border:1px solid rgba(74,222,128,0.25);  background:rgba(74,222,128,0.10); }
+.WATCH    { color:#fbbf24; border:1px solid rgba(251,191,36,0.3);   background:rgba(251,191,36,0.12); }
+.MEDIUM   { color:#fbbf24; border:1px solid rgba(251,191,36,0.3);   background:rgba(251,191,36,0.12); }
+.HIGH     { color:#f87171; border:1px solid rgba(248,113,113,0.3);  background:rgba(248,113,113,0.12); }
+.CRITICAL { color:#ef4444; border:1px solid rgba(239,68,68,0.3);    background:rgba(239,68,68,0.15); }
+
+.label-pill {
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:3px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.04em;
+  white-space:nowrap;
+}
+.LIKELY_DUMP      { color:#f87171; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.12); }
+.LIKELY_MIGRATOR  { color:#4ade80; border:1px solid rgba(74,222,128,0.25); background:rgba(74,222,128,0.10); }
+.FARM_PATTERN     { color:#ef4444; border:1px solid rgba(239,68,68,0.3);   background:rgba(239,68,68,0.15); }
+.NETWORK_RISK     { color:#fbbf24; border:1px solid rgba(251,191,36,0.3);  background:rgba(251,191,36,0.12); }
+.SELF_FUNDED_RISK { color:#fb923c; border:1px solid rgba(251,146,60,0.35); background:rgba(251,146,60,0.10); }
+.PENDING_CREATOR, .PENDING_FUNDING, .PENDING_RISK_SCORE, .INSUFFICIENT_HISTORY {
+  color:#94a3b8;
+  border:1px solid rgba(148,163,184,0.24);
+  background:rgba(148,163,184,0.08);
+}
+.UNKNOWN          { color:#94a3b8; border:1px solid rgba(148,163,184,0.2); background:rgba(148,163,184,0.08); }
+
+/* Drawer */
+.pd-drawer {
+  position:fixed;
+  top:0; right:0;
+  width:min(680px, 92vw);
+  height:100vh;
+  background:var(--bg-secondary);
+  border-left:1px solid var(--border-color);
+  box-shadow:-16px 0 40px rgba(0,0,0,.4);
+  transform:translateX(100%);
+  transition:transform .18s ease;
+  z-index:10000;
+  overflow:auto;
+}
+.pd-drawer.open { transform:translateX(0); }
+.pd-drawer-head {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:18px;
+  border-bottom:1px solid var(--border-color);
+  position:sticky;
+  top:0;
+  background:var(--bg-secondary);
+  z-index:1;
+}
+.pd-drawer-head h2 { margin:0; font-size:17px; font-weight:800; color:var(--text-primary); }
+#drawerSub { color:var(--text-secondary); font-size:12px; margin-top:3px; }
+.pd-drawer-body { padding:18px; }
+
+.pd-card { background:var(--bg-card); padding:14px 16px; border-radius:6px; margin-bottom:12px; }
+.pd-card-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; color:var(--text-secondary); }
+.pd-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; }
+.pd-stat-box { border:1px solid rgba(148,163,184,0.10); border-radius:4px; padding:8px; }
+.pd-stat-box .pd-stat-label { font-size:10px; color:var(--text-secondary); margin-bottom:3px; }
+.pd-stat-box .pd-stat-val { font-size:16px; font-weight:900; color:var(--text-primary); }
+
+.pd-reasons-list { margin:8px 0 0; padding:0; list-style:none; display:grid; gap:6px; }
+.pd-reasons-list li { color:var(--text-primary); background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.10); border-radius:4px; padding:7px 10px; font-size:12px; line-height:1.5; }
+
+.pd-events-list { margin:8px 0 0; padding:0; list-style:none; display:grid; gap:4px; }
+.pd-events-list li { color:var(--text-secondary); font-size:11px; padding:5px 0; border-bottom:1px solid rgba(148,163,184,0.07); display:flex; justify-content:space-between; gap:8px; }
+
+@media (max-width:1100px) { .pd-kpis { grid-template-columns:repeat(3,1fr); } }
+{% endblock %}
+
+{% block content %}
+<div class="pd-topbar">
+  <div>
+    <h1>Token Predictions</h1>
+    <div class="pd-sub">Per-token dump/survive prediction using creator reputation, network membership, funding source, and outcome history.</div>
+  </div>
+</div>
+
+<div id="kpis" class="pd-kpis"></div>
+
+<div class="pd-section">
+  <div class="pd-section-head">
+    <div>
+      <div class="pd-section-title">Live Predictions</div>
+      <div class="pd-hint">Click a row for dimension breakdown and event history.</div>
+    </div>
+    <div class="pd-filters">
+      <select class="pd-select" id="filterRisk" onchange="applyFilters()">
+        <option value="">All Risk Levels</option>
+        <option value="CRITICAL">Critical</option>
+        <option value="HIGH">High</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="WATCH">Watch</option>
+        <option value="LOW">Low</option>
+      </select>
+      <select class="pd-select" id="filterStatus" onchange="applyFilters()">
+        <option value="">All Statuses</option>
+        <option value="COMPLETE">Complete</option>
+        <option value="PENDING">Any Pending</option>
+        <option value="PENDING_CREATOR">Pending Creator</option>
+        <option value="PENDING_FUNDING">Pending Funding</option>
+        <option value="PENDING_RISK_SCORE">Pending Risk</option>
+        <option value="INSUFFICIENT_HISTORY">Insufficient History</option>
+      </select>
+      <select class="pd-select" id="filterConfidence" onchange="applyFilters()">
+        <option value="">All Confidence</option>
+        <option value="HIGH">High</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="LOW">Low</option>
+      </select>
+      <select class="pd-select" id="filterLabel" onchange="applyFilters()">
+        <option value="">All Labels</option>
+        <option value="LIKELY_DUMP">Likely Dump</option>
+        <option value="LIKELY_MIGRATOR">Likely Migrator</option>
+        <option value="FARM_PATTERN">Farm Pattern</option>
+        <option value="NETWORK_RISK">Network Risk</option>
+        <option value="SELF_FUNDED_RISK">Self Funded Risk</option>
+        <option value="UNKNOWN">Unknown</option>
+        <option value="PENDING_CREATOR">Pending Creator</option>
+        <option value="PENDING_FUNDING">Pending Funding</option>
+        <option value="PENDING_RISK_SCORE">Pending Risk</option>
+        <option value="INSUFFICIENT_HISTORY">Insufficient History</option>
+      </select>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:140px">Token</th>
+        <th style="width:65px">Score</th>
+        <th style="width:80px">Risk</th>
+        <th style="width:170px">Label</th>
+        <th style="width:80px">Conf</th>
+        <th style="width:120px">Creator</th>
+        <th style="width:120px">Network</th>
+        <th style="width:65px;text-align:right">G</th>
+        <th style="width:90px">Peak MC</th>
+        <th style="width:90px">Migrated</th>
+        <th>Signals</th>
+      </tr>
+    </thead>
+    <tbody id="predictionRows"></tbody>
+  </table>
+</div>
+
+<div id="accuracySection" class="pd-section" style="display:none">
+  <div class="pd-section-head">
+    <div>
+      <div class="pd-section-title">Accuracy</div>
+      <div class="pd-hint">Resolved outcomes — prediction vs reality.</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+    <div>
+      <table>
+        <thead><tr><th>By Label</th><th style="width:70px">Total</th><th style="width:70px">Correct</th><th style="width:70px">Accuracy</th></tr></thead>
+        <tbody id="accuracyLabelRows"></tbody>
+      </table>
+    </div>
+    <div style="border-left:1px solid var(--border-color)">
+      <table>
+        <thead><tr><th>By Risk Level</th><th style="width:70px">Total</th><th style="width:70px">Correct</th><th style="width:70px">Accuracy</th></tr></thead>
+        <tbody id="accuracyRiskRows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="pdDrawer" class="pd-drawer">
+  <div class="pd-drawer-head">
+    <div>
+      <h2 id="drawerTitle">Prediction Detail</h2>
+      <div id="drawerSub"></div>
+    </div>
+    <button class="pd-btn" onclick="closeDrawer()">Close</button>
+  </div>
+  <div id="drawerBody" class="pd-drawer-body"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const shortAddr = v => !v ? '—' : `${v.slice(0,8)}…${v.slice(-4)}`;
+const shortMint  = v => !v ? '—' : `${v.slice(0,6)}…${v.slice(-4)}`;
+const relDate = ts => {
+  if (!ts) return '<span style="color:var(--text-secondary)">—</span>';
+  const d = new Date(ts * 1000), now = Date.now(), diff = now - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+};
+const fmtMC = v => {
+  if (!v) return '—';
+  if (v >= 1e6) return `$${(v/1e6).toFixed(2)}M`;
+  if (v >= 1e3) return `$${(v/1e3).toFixed(1)}K`;
+  return `$${v.toFixed(0)}`;
+};
+const badge = l => `<span class="badge ${l||'LOW'}">${l||'LOW'}</span>`;
+const LABEL_DISPLAY = {
+  LIKELY_DUMP: 'LIKELY DUMP',
+  LIKELY_MIGRATOR: 'LIKELY MIGRATOR',
+  FARM_PATTERN: 'FARM PATTERN',
+  NETWORK_RISK: 'NETWORK RISK',
+  NETWORK_RISK_TOKEN: 'NETWORK RISK',
+  SELF_FUNDED_TOKEN: 'SELF FUNDED',
+  SELF_FUNDED_RISK: 'SELF FUNDED',
+  CRITICAL_RISK: 'CRITICAL RISK',
+  SERIAL_OPERATOR_TOKEN: 'SERIAL OPERATOR',
+  LIQUIDATION_RISK: 'LIQUIDATION RISK',
+  LOW_RISK: 'LOW RISK',
+  WATCH: 'WATCH',
+  PENDING_CREATOR: 'PENDING CREATOR',
+  PENDING_FUNDING: 'PENDING FUNDING',
+  PENDING_RISK_SCORE: 'PENDING RISK',
+  INSUFFICIENT_HISTORY: 'INSUFFICIENT HISTORY',
+  UNKNOWN: 'UNKNOWN',
+};
+const labelPill = l => `<span class="label-pill ${l||'UNKNOWN'}">${LABEL_DISPLAY[l] || (l||'UNKNOWN').replace(/_/g,' ')}</span>`;
+
+const RISK_ORDER = ['CRITICAL','HIGH','MEDIUM','WATCH','LOW','PENDING'];
+const RISK_COLOR = { CRITICAL:'#ef4444', HIGH:'#f87171', MEDIUM:'#fbbf24', WATCH:'#fbbf24', LOW:'#4ade80', PENDING:'#94a3b8' };
+
+let _allRows = [];
+let _drawerOpen = false;
+
+function groupHeader(level, colspan) {
+  const color = RISK_COLOR[level] || '#8b949e';
+  return `<tr><td colspan="${colspan}" style="padding:6px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${color};background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(148,163,184,0.08);">${level}</td></tr>`;
+}
+
+function renderKPIs(data) {
+  const p = data.predictions || {}, o = data.outcomes || {};
+  const accuracy = o.resolved > 0 ? Math.round(100 * o.correct / o.resolved) : null;
+  const kpis = [
+    { value: p.total || 0, label: 'Total Tokens' },
+    { value: p.critical || 0, label: 'Critical', color: '#ef4444' },
+    { value: p.high || 0, label: 'High Risk', color: '#f87171' },
+    { value: p.pending_tokens || 0, label: 'Pending', color: '#94a3b8' },
+    { value: p.low_confidence_tokens || 0, label: 'Low Confidence', color: '#fbbf24' },
+    { value: p.high_confidence_predictions || 0, label: 'High Confidence', color: '#4ade80' },
+    { value: p.likely_dump || 0, label: 'Likely Dump', color: '#f87171' },
+    { value: accuracy !== null ? `${accuracy}%` : '—', label: 'Accuracy' },
+  ];
+  document.getElementById('kpis').innerHTML = kpis.map(k =>
+    `<div class="pd-kpi">
+      <div class="value" style="${k.color ? `color:${k.color}` : ''}">${k.value}</div>
+      <div class="label">${k.label}</div>
+    </div>`
+  ).join('');
+}
+
+function applyFilters() {
+  const risk = document.getElementById('filterRisk').value;
+  const label = document.getElementById('filterLabel').value;
+  const status = document.getElementById('filterStatus').value;
+  const confidence = document.getElementById('filterConfidence').value;
+  let rows = _allRows;
+  if (risk) rows = rows.filter(r => r.risk_level === risk);
+  if (label) rows = rows.filter(r => r.prediction_label === label);
+  if (status === 'PENDING') rows = rows.filter(r => r.prediction_status !== 'COMPLETE');
+  else if (status) rows = rows.filter(r => r.prediction_status === status);
+  if (confidence) rows = rows.filter(r => r.prediction_confidence === confidence);
+  renderPredictionRows(rows);
+}
+
+function renderPredictionRows(rows) {
+  const tbody = document.getElementById('predictionRows');
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:var(--text-secondary);padding:24px">No predictions yet — waiting for migrated tokens.</td></tr>`; return; }
+  const G_COLORS = { G1:'#34d399', G2:'#4ade80', G3:'#a3e635', G4:'#fbbf24', G5:'#fb923c', G6:'#94a3b8', G7:'#64748b' };
+  const grouped = {};
+  for (const r of rows) {
+    const rl = r.prediction_status !== 'COMPLETE' ? 'PENDING' : (r.risk_level || 'LOW');
+    if (!grouped[rl]) grouped[rl] = [];
+    grouped[rl].push(r);
+  }
+  let html = '';
+  for (const level of RISK_ORDER) {
+    if (!grouped[level]?.length) continue;
+    html += groupHeader(level, 11);
+    for (const r of grouped[level]) {
+      const signals = r.reason_codes ? JSON.parse(r.reason_codes || '[]').slice(0,3).join(' · ') : '—';
+      const gColor = G_COLORS[r.g_level] || '#94a3b8';
+      const gCell = r.liquidity_removed
+        ? `<span style="color:#a78bfa;font-weight:700;font-size:11px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);padding:1px 4px;border-radius:3px;display:block;text-align:right">LIQ</span>`
+        : r.g_level ? `<span style="color:${gColor};font-weight:700;font-size:12px;display:block;text-align:right">${r.g_level}</span>` : '<span style="color:var(--text-secondary);display:block;text-align:right">—</span>';
+      const peakMC = fmtMC(r.market_cap_highest);
+      const isPending = r.prediction_status !== 'COMPLETE';
+      const scoreCell = isPending ? '<span style="color:var(--text-secondary);font-size:11px;font-weight:700">pending</span>' : `<span class="pd-score">${r.prediction_score}</span>`;
+      const confidence = r.prediction_confidence || (isPending ? 'LOW' : 'HIGH');
+      html += `<tr onclick="openDrawer('${r.mint}')">
+        <td title="${r.mint}">${r.token_name ? r.token_name.slice(0,14) : shortMint(r.mint)}</td>
+        <td>${scoreCell}</td>
+        <td>${isPending ? '<span class="badge UNKNOWN">—</span>' : badge(r.risk_level)}</td>
+        <td style="overflow:visible">${labelPill(r.prediction_label)}</td>
+        <td><span class="badge ${confidence}">${confidence}</span></td>
+        <td><span style="user-select:all;cursor:text" title="${r.creator_address||''}">${r.creator_address ? r.creator_address.slice(0,8) : '—'}</span></td>
+        <td title="${r.network_name||''}">${r.network_name ? r.network_name.slice(0,16) : '<span style="color:var(--text-secondary)">—</span>'}</td>
+        <td>${gCell}</td>
+        <td style="color:var(--text-secondary);font-size:11px">${peakMC}</td>
+        <td style="color:var(--text-secondary);font-size:11px">${relDate(r.migrated_at)}</td>
+        <td style="color:var(--text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis">${signals}</td>
+      </tr>`;
+    }
+  }
+  tbody.innerHTML = html;
+}
+
+function renderAccuracy(data) {
+  const hasData = (data.by_label || []).length > 0;
+  document.getElementById('accuracySection').style.display = hasData ? '' : 'none';
+  if (!hasData) return;
+  document.getElementById('accuracyLabelRows').innerHTML = data.by_label.map(r =>
+    `<tr><td style="font-size:11px">${labelPill(r.prediction_label)}</td><td>${r.total}</td><td>${r.correct||0}</td><td style="color:${(r.accuracy_pct||0)>=60?'#4ade80':'#f87171'};font-weight:700">${r.accuracy_pct||0}%</td></tr>`
+  ).join('');
+  document.getElementById('accuracyRiskRows').innerHTML = (data.by_risk || []).map(r =>
+    `<tr><td>${badge(r.risk_level)}</td><td>${r.total}</td><td>${r.correct||0}</td><td style="color:${(r.accuracy_pct||0)>=60?'#4ade80':'#f87171'};font-weight:700">${r.accuracy_pct||0}%</td></tr>`
+  ).join('');
+}
+
+async function openDrawer(mint) {
+  document.getElementById('drawerTitle').textContent = shortMint(mint);
+  document.getElementById('drawerSub').textContent = mint;
+  document.getElementById('drawerBody').innerHTML = '<div style="color:var(--text-secondary);padding:24px;text-align:center">Loading…</div>';
+  document.getElementById('pdDrawer').classList.add('open');
+  _drawerOpen = true;
+
+  const data = await fetch(`/api/predictions/token/${mint}`).then(r => r.json());
+  const s = data.score, tok = data.token, out = data.outcome;
+  if (!s) { document.getElementById('drawerBody').innerHTML = '<div style="color:var(--text-secondary);padding:24px">No prediction data found.</div>'; return; }
+
+  const statBox = (label, val, accentColor, bg) =>
+    `<div class="pd-stat-box" style="border-left:3px solid ${accentColor};background:${bg||'rgba(15,23,42,0.55)'}">
+      <div class="pd-stat-label">${label}</div>
+      <div class="pd-stat-val">${val}</div>
+    </div>`;
+
+  const reasonCodes = (() => { try { return JSON.parse(s.reason_codes||'[]'); } catch { return []; } })();
+
+  let html = `
+    <div class="pd-card">
+      <div class="pd-card-title" style="color:#38bdf8">Prediction Score</div>
+      <div class="pd-stat-grid">
+        ${statBox('Final Score', s.prediction_status === 'COMPLETE' ? s.prediction_score : 'pending', '#38bdf8', 'rgba(56,189,248,0.08)')}
+        ${statBox('Status', s.prediction_status||'COMPLETE', s.prediction_status === 'COMPLETE' ? '#4ade80' : '#94a3b8', 'rgba(148,163,184,0.08)')}
+        ${statBox('Confidence', s.prediction_confidence||'—', s.prediction_confidence === 'HIGH' ? '#4ade80' : '#fbbf24', 'rgba(251,191,36,0.08)')}
+        ${statBox('Risk Level', s.risk_level||'—', '#38bdf8', 'rgba(56,189,248,0.08)')}
+        ${statBox('Label', (s.prediction_label||'—').replace(/_/g,' '), '#38bdf8', 'rgba(56,189,248,0.08)')}
+      </div>
+    </div>
+    <div class="pd-card">
+      <div class="pd-card-title">Score Dimensions</div>
+      <div class="pd-stat-grid">
+        ${statBox('Creator (40%)', s.creator_score||0, '#3b82f6', 'rgba(59,130,246,0.08)')}
+        ${statBox('Network (30%)', s.network_score||0, '#fbbf24', 'rgba(251,191,36,0.08)')}
+        ${statBox('Funding (15%)', s.funding_score||0, '#34d399', 'rgba(52,211,153,0.08)')}
+        ${statBox('History (10%)', s.outcome_history_score||0, '#a78bfa', 'rgba(167,139,250,0.08)')}
+        ${statBox('Liquidation (5%)', s.liquidation_score||0, '#f87171', 'rgba(248,113,113,0.08)')}
+      </div>
+    </div>`;
+
+  if (tok) {
+    const creatorAddr = tok.creator || s.creator_address || '';
+    html += `<div class="pd-card">
+      <div class="pd-card-title">Token Info</div>
+      <div class="pd-stat-grid">
+        ${statBox('Peak Market Cap', fmtMC(tok.market_cap_highest), '#94a3b8', 'rgba(148,163,184,0.06)')}
+        ${statBox('Migrated', relDate(tok.migrated_at), '#94a3b8', 'rgba(148,163,184,0.06)')}
+      </div>
+      ${creatorAddr ? `<div style="margin-top:8px;padding:6px 8px;background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.10);border-radius:4px;font-size:11px;color:var(--text-secondary)">Creator <span style="color:var(--text-primary);user-select:all;cursor:text;font-family:monospace">${creatorAddr}</span></div>` : ''}
+    </div>`;
+  }
+
+  if (reasonCodes.length) {
+    html += `<div class="pd-card">
+      <div class="pd-card-title">Signals</div>
+      <ul class="pd-reasons-list">
+        ${reasonCodes.map(r => `<li>${r.replace(/_/g,' ')}</li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if (out && out.prediction_correct !== null && out.prediction_correct !== undefined) {
+    const correct = out.prediction_correct === 1;
+    html += `<div class="pd-card">
+      <div class="pd-card-title">Resolved Outcome</div>
+      <div class="pd-stat-grid">
+        ${statBox('Actual', (out.actual_outcome||'—').replace(/_/g,' '), correct?'#4ade80':'#f87171', correct?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)')}
+        ${statBox('Correct?', correct?'Yes':'No', correct?'#4ade80':'#f87171', correct?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)')}
+        ${statBox('Peak MC', fmtMC(out.peak_market_cap), '#94a3b8', 'rgba(148,163,184,0.06)')}
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        ${out.dumped_within_60s ? `<span class="badge HIGH">Dump &lt;60s</span>` : ''}
+        ${out.dumped_within_5m  ? `<span class="badge MEDIUM">Dump &lt;5m</span>` : ''}
+        ${out.liquidity_removed ? `<span class="badge CRITICAL">Liq Removed</span>` : ''}
+        ${out.survived_30m      ? `<span class="badge LOW">Survived 30m</span>` : ''}
+        ${out.survived_2h       ? `<span class="badge LOW">Survived 2h</span>` : ''}
+      </div>
+    </div>`;
+  }
+
+  if (data.events?.length) {
+    const latest = data.events.slice(0, 10);
+    html += `<div class="pd-card">
+      <div class="pd-card-title">Event History</div>
+      <ul class="pd-events-list">
+        ${latest.map(e => `<li><span>${e.event_type}</span><span>${relDate(e.event_at)}</span></li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  document.getElementById('drawerBody').innerHTML = html;
+}
+
+function closeDrawer() {
+  document.getElementById('pdDrawer').classList.remove('open');
+  _drawerOpen = false;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && _drawerOpen) closeDrawer(); });
+
+async function loadAll() {
+  const [summaryRes, liveRes, accuracyRes] = await Promise.all([
+    fetch('/api/predictions/summary').then(r => r.json()),
+    fetch('/api/predictions/live').then(r => r.json()),
+    fetch('/api/predictions/accuracy').then(r => r.json()),
+  ]);
+  renderKPIs(summaryRes);
+  _allRows = Array.isArray(liveRes) ? liveRes : [];
+  applyFilters();
+  renderAccuracy(accuracyRes);
+}
+
+loadAll();
+setInterval(() => { if (!_drawerOpen) loadAll(); }, 30000);
+</script>
+{% endblock %}

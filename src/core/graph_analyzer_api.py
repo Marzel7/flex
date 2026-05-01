@@ -126,8 +126,10 @@ def _run_single(name: str, db_path: str) -> dict:
             from src.core.graph_dev_farm_detection import GraphDevFarmDetectionEngine
             result = GraphDevFarmDetectionEngine(db_path).detect_and_store()
         elif name == 'CoordinatedEdgesBuilder':
+            from src.utils.infra_mapping import sync_infra_wallets
             conn = sqlite3.connect(db_path, timeout=30)
             conn.execute("PRAGMA journal_mode=WAL")
+            sync_infra_wallets(conn)
             conn.execute("DELETE FROM coordinated_creator_edges")
             cur = conn.execute("""
                 INSERT OR IGNORE INTO coordinated_creator_edges (creator_a, creator_b, bridge_funder, confidence)
@@ -137,6 +139,7 @@ def _run_single(name: str, db_path: str) -> dict:
                 JOIN creator_funders cf2 ON cf1.funder_address = cf2.funder_address
                   AND cf1.creator_address < cf2.creator_address
                 WHERE cf1.is_cex = 0 AND cf2.is_cex = 0
+                  AND cf1.funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY cf1.creator_address, cf2.creator_address, cf1.funder_address
             """)
             rows_inserted = cur.rowcount

@@ -23,6 +23,7 @@ import os
 import time
 
 from src.core.network_display_names import NetworkDisplayNameBuilder
+from src.utils.infra_mapping import sync_infra_wallets
 
 
 @contextmanager
@@ -275,6 +276,7 @@ def build_networks_release(db_path: str) -> dict:
     }
 
     with db_transaction(db_path) as db:
+        sync_infra_wallets(db)
         profiler.mark('Phase A: Snapshot')
         print("🔄 Phase A: Snapshot previous state...")
 
@@ -599,6 +601,7 @@ def build_networks_release(db_path: str) -> dict:
                   FROM network_membership nm
                   LEFT JOIN coordinated_creator_edges cce
                     ON (nm.creator_address = cce.creator_a OR nm.creator_address = cce.creator_b)
+                   AND cce.bridge_funder NOT IN (SELECT address FROM infra_wallets)
                   GROUP BY nm.network_name
                 ),
                 evidence_with_risk AS (
@@ -2043,14 +2046,16 @@ def build_networks_release(db_path: str) -> dict:
                     second_hop_bridge_count = (
                         SELECT COUNT(*)
                         FROM upstream_network_bridge unb
-                        WHERE unb.network_a = networks_release.network_name
-                           OR unb.network_b = networks_release.network_name
+                        WHERE (unb.network_a = networks_release.network_name
+                           OR unb.network_b = networks_release.network_name)
+                          AND unb.upstream_address NOT IN (SELECT address FROM infra_wallets)
                     ),
                     max_second_hop_confidence = (
                         SELECT COALESCE(MAX(unb.confidence_score), 0)
                         FROM upstream_network_bridge unb
-                        WHERE unb.network_a = networks_release.network_name
-                           OR unb.network_b = networks_release.network_name
+                        WHERE (unb.network_a = networks_release.network_name
+                           OR unb.network_b = networks_release.network_name)
+                          AND unb.upstream_address NOT IN (SELECT address FROM infra_wallets)
                     )
             """)
         except Exception as _e:

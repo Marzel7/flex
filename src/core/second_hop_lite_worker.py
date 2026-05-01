@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import requests
+from src.utils.infra_mapping import sync_infra_wallets
 
 logger = logging.getLogger(__name__)
 
@@ -154,6 +155,7 @@ class SecondHopLiteWorker:
         conn = sqlite3.connect(self.db_path, timeout=60)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
+        sync_infra_wallets(conn)
 
         # Load all known program/pool addresses to exclude as upstream
         self._bonding_curve_pdas: set = {
@@ -165,6 +167,8 @@ class SecondHopLiteWorker:
                 SELECT pumpswap_pool_address FROM token_analysis WHERE pumpswap_pool_address IS NOT NULL
                 UNION
                 SELECT address FROM shl_excluded_upstreams
+                UNION
+                SELECT address FROM infra_wallets
             """).fetchall()
         }
 
@@ -320,6 +324,11 @@ class SecondHopLiteWorker:
         """
         Scan one funder.  Returns number of funder_upstream_links rows written.
         """
+        if self._is_infra_wallet(conn, funder_address):
+            logger.info(f"[SHL-Worker] Skipping infra funder {funder_address[:12]}…")
+            self._mark_done(conn, funder_address, 0)
+            return 0
+
         # ── 1. Check cache ────────────────────────────────────────────────────
         now = int(time.time())
         cached = self._check_cache(conn, funder_address, now)
@@ -421,6 +430,7 @@ class SecondHopLiteWorker:
             if MIN_UPSTREAM_SOL <= data["total_sol"] <= MAX_UPSTREAM_SOL
             and sender != funder_address
             and sender not in bonding_curves
+            and funder_address not in bonding_curves
         }
 
         now_ts = int(time.time())
@@ -451,6 +461,8 @@ class SecondHopLiteWorker:
             except sqlite3.OperationalError as exc:
                 logger.warning(f"[SHL-Worker] Link insert failed for {sender}: {exc}")
 
+        self._exclude_infra_links(conn)
+
         # ── 5. Update cache ───────────────────────────────────────────────────
         self._write_cache(
             conn, funder_address,
@@ -466,6 +478,27 @@ class SecondHopLiteWorker:
             f"upstreams={len(filtered_agg)} links={links_written} rpc={rpc_calls_this_funder}"
         )
         return links_written
+
+    def _is_infra_wallet(self, conn: sqlite3.Connection, address: str) -> bool:
+        try:
+            row = conn.execute(
+                "SELECT 1 FROM infra_wallets WHERE address=? LIMIT 1",
+                (address,),
+            ).fetchone()
+            return row is not None
+        except sqlite3.OperationalError:
+            return False
+
+    def _exclude_infra_links(self, conn: sqlite3.Connection) -> None:
+        try:
+            conn.execute("""
+                UPDATE funder_upstream_links
+                SET is_excluded = 1
+                WHERE funder_address IN (SELECT address FROM infra_wallets)
+                   OR upstream_address IN (SELECT address FROM infra_wallets)
+            """)
+        except sqlite3.OperationalError:
+            pass
 
     # ── TX parsing ────────────────────────────────────────────────────────────
 

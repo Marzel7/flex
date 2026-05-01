@@ -22,7 +22,7 @@ import time
 from collections import defaultdict
 from typing import Dict, List, Set
 
-from src.utils.infra_mapping import build_excluded_set
+from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
 from src.core.second_hop_scorer import score_upstream_bridge
 
 logger = logging.getLogger(__name__)
@@ -95,8 +95,10 @@ class SecondHopExpansionBuilder:
 
             self._apply_span_migration(conn)
             self._apply_hub_migration(conn)
+            sync_infra_wallets(conn)
             excluded = build_excluded_set(conn)
             logger.info(f"[SecondHop] Exclusion set: {len(excluded)} addresses")
+            self._exclude_infra_links(conn)
 
             links   = self._build_upstream_links(conn, excluded)
             bridges = self._build_network_bridges(conn, excluded)
@@ -128,6 +130,28 @@ class SecondHopExpansionBuilder:
                 "creator_second_hops": 0,
                 "duration_seconds": round(time.time() - t0, 2),
             }
+
+    def _exclude_infra_links(self, conn) -> None:
+        """
+        Keep historical 2H/audit rows, but prevent infra wallets from acting as
+        upstream evidence in scoring, bridges, hubs, or creator second-hop data.
+        """
+        conn.execute("""
+            UPDATE funder_upstream_links
+            SET is_excluded = 1
+            WHERE funder_address IN (SELECT address FROM infra_wallets)
+               OR upstream_address IN (SELECT address FROM infra_wallets)
+        """)
+        conn.execute("""
+            UPDATE upstream_network_bridge
+            SET is_excluded = 1
+            WHERE upstream_address IN (SELECT address FROM infra_wallets)
+        """)
+        conn.execute("""
+            UPDATE monitored_upstream_hubs
+            SET status = 'ignored'
+            WHERE upstream_address IN (SELECT address FROM infra_wallets)
+        """)
 
     # ── Step 1: build funder_upstream_links ───────────────────────────────────
 
@@ -184,6 +208,7 @@ class SecondHopExpansionBuilder:
                 SELECT DISTINCT funder_address
                 FROM creator_funders
                 WHERE is_cex = 0
+                  AND funder_address NOT IN (SELECT address FROM infra_wallets)
             ) cf ON cf.funder_address = ti.destination
             -- Volume gate: join pre-computed per-upstream qualifying funder counts
             JOIN (
@@ -192,11 +217,15 @@ class SecondHopExpansionBuilder:
                 FROM transfer_index ti2
                 JOIN (
                     SELECT DISTINCT funder_address
-                    FROM creator_funders WHERE is_cex = 0
+                    FROM creator_funders
+                    WHERE is_cex = 0
+                      AND funder_address NOT IN (SELECT address FROM infra_wallets)
                 ) cf2 ON cf2.funder_address = ti2.destination
                 WHERE ti2.block_time > {cutoff}
                   AND ti2.amount_sol BETWEEN {MIN_UPSTREAM_SOL} AND {MAX_UPSTREAM_SOL}
                   AND ti2.is_valid = 1
+                  AND ti2.source NOT IN (SELECT address FROM infra_wallets)
+                  AND ti2.destination NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY ti2.source
                 HAVING COUNT(DISTINCT ti2.destination)
                        BETWEEN {MIN_UPSTREAM_FUNDERS} AND {MAX_UPSTREAM_FUNDERS}
@@ -204,10 +233,13 @@ class SecondHopExpansionBuilder:
             WHERE ti.block_time > {cutoff}
               AND ti.amount_sol BETWEEN {MIN_UPSTREAM_SOL} AND {MAX_UPSTREAM_SOL}
               AND ti.is_valid = 1
+              AND ti.source NOT IN (SELECT address FROM infra_wallets)
+              AND ti.destination NOT IN (SELECT address FROM infra_wallets)
             GROUP BY ti.source, ti.destination
         """
         params = excluded_list if excluded_list else []
         conn.execute(sql, params)
+        self._exclude_infra_links(conn)
 
         # Update last_seen_network_count for non-excluded upstreams
         conn.execute("""
@@ -257,7 +289,10 @@ class SecondHopExpansionBuilder:
                   SELECT pumpswap_pool_address FROM token_analysis WHERE pumpswap_pool_address IS NOT NULL
                   UNION
                   SELECT address FROM shl_excluded_upstreams
+                  UNION
+                  SELECT address FROM infra_wallets
               )
+              AND ful.funder_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY ful.upstream_address, fnm.network_name
         """).fetchall()
 
@@ -275,7 +310,10 @@ class SecondHopExpansionBuilder:
                   SELECT pumpswap_pool_address FROM token_analysis WHERE pumpswap_pool_address IS NOT NULL
                   UNION
                   SELECT address FROM shl_excluded_upstreams
+                  UNION
+                  SELECT address FROM infra_wallets
               )
+              AND ful.funder_address NOT IN (SELECT address FROM infra_wallets)
         """).fetchall():
             funder_amounts[r["upstream_address"]].append(r["avg_transfer_sol"])
 
@@ -365,6 +403,7 @@ class SecondHopExpansionBuilder:
                     written += 1
 
         logger.info(f"[SecondHop] Network bridges written: {written}")
+        self._exclude_infra_links(conn)
         self._upsert_significant_hubs(conn)
         return written
 
@@ -408,6 +447,7 @@ class SecondHopExpansionBuilder:
                 GROUP_CONCAT(DISTINCT reason_codes) AS reason_blob
             FROM upstream_network_bridge
             WHERE is_excluded = 0
+              AND upstream_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY upstream_address
             HAVING max_confidence >= 55
                 OR networks_bridged >= 3
@@ -478,6 +518,8 @@ class SecondHopExpansionBuilder:
             JOIN funder_upstream_links ful
                 ON ful.funder_address = cf.funder_address
                AND ful.is_excluded = 0
+               AND ful.upstream_address NOT IN (SELECT address FROM infra_wallets)
+               AND ful.funder_address NOT IN (SELECT address FROM infra_wallets)
             JOIN funder_network_map fnm
                 ON fnm.funder_address = cf.funder_address
             JOIN upstream_network_bridge unb

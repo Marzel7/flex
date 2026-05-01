@@ -46,9 +46,11 @@ class NetworkMembershipBuilder:
             conn.row_factory = sqlite3.Row
 
             self._ensure_funder_network_map(conn)
+            self._ensure_network_membership_schema(conn)
 
             # --- 1. Build excluded set (CEX + infra static registries + cex_wallets table)
-            from src.utils.infra_mapping import build_excluded_set
+            from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
+            sync_infra_wallets(conn)
             excluded = build_excluded_set(conn)
             logger.info(f"[NetworkMembershipBuilder] Excluded set size: {len(excluded)}")
 
@@ -128,6 +130,19 @@ class NetworkMembershipBuilder:
             )
         """)
 
+    def _ensure_network_membership_schema(self, conn: sqlite3.Connection) -> None:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS network_membership (
+                network_name TEXT,
+                creator_address TEXT,
+                funder_address TEXT,
+                PRIMARY KEY (network_name, creator_address)
+            )
+        """)
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(network_membership)").fetchall()}
+        if "funder_address" not in cols:
+            conn.execute("ALTER TABLE network_membership ADD COLUMN funder_address TEXT")
+
     def _assign_network_names(
         self, conn: sqlite3.Connection, qualifying: list[dict]
     ) -> dict[str, str]:
@@ -195,6 +210,7 @@ class NetworkMembershipBuilder:
                 JOIN creator_funders cf
                   ON cf.creator_address = nm.creator_address
                 WHERE cf.is_cex = 0
+                  AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY nm.network_name, cf.funder_address
                 ORDER BY nm.network_name, cnt DESC
             """).fetchall()
@@ -254,7 +270,7 @@ class NetworkMembershipBuilder:
         Returns list of (network_name, creator_address) tuples inserted.
         """
         # Collect all (network_name, creator_address) pairs
-        pairs: list[tuple[str, str]] = []
+        pairs: list[tuple[str, str, str]] = []
         for r in qualifying:
             fa = r["funder_address"]
             network_name = funder_to_name.get(fa)
@@ -264,13 +280,18 @@ class NetworkMembershipBuilder:
                 SELECT DISTINCT creator_address
                 FROM creator_funders
                 WHERE funder_address = ? AND is_cex = 0
+                  AND funder_address NOT IN (SELECT address FROM infra_wallets)
             """, (fa,)).fetchall()
             for c in creators:
-                pairs.append((network_name, c[0]))
+                pairs.append((network_name, c[0], fa))
 
         conn.execute("DELETE FROM network_membership")
         conn.executemany(
-            "INSERT OR IGNORE INTO network_membership (network_name, creator_address) VALUES (?, ?)",
+            """
+            INSERT OR IGNORE INTO network_membership
+                (network_name, creator_address, funder_address)
+            VALUES (?, ?, ?)
+            """,
             pairs,
         )
         logger.info(f"[NetworkMembershipBuilder] Inserted {len(pairs)} membership rows")
@@ -288,6 +309,10 @@ class NetworkMembershipBuilder:
             (fa, name, count_by_funder.get(fa, 0), now)
             for fa, name in funder_to_name.items()
         ]
+        conn.execute("""
+            DELETE FROM funder_network_map
+            WHERE funder_address IN (SELECT address FROM infra_wallets)
+        """)
         conn.executemany("""
             INSERT INTO funder_network_map (funder_address, network_name, creator_count, last_built_at)
             VALUES (?, ?, ?, ?)
@@ -337,7 +362,8 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
 
         # --- 1. Load exclusion set (CEX + infra)
         try:
-            from src.utils.infra_mapping import build_excluded_set
+            from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
+            sync_infra_wallets(conn)
             excluded = build_excluded_set(conn)
         except Exception:
             excluded = set()
@@ -354,6 +380,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
                 WHERE creator_address = ? AND is_cex = 0
             )
               AND cf.is_cex = 0
+              AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
             GROUP BY cf.funder_address
             HAVING creator_count >= 2
             ORDER BY creator_count DESC
@@ -393,6 +420,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
                   ON cf.creator_address = nm.creator_address
                 WHERE cf.funder_address = ?
                   AND cf.is_cex = 0
+                  AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
                 LIMIT 1
             """, (funder_addr,)).fetchone()
 
@@ -405,8 +433,12 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
 
         # --- 5. Insert provisionally (INSERT OR IGNORE — canonical builder wins)
         conn.execute(
-            "INSERT OR IGNORE INTO network_membership (network_name, creator_address) VALUES (?, ?)",
-            (network_name, creator_address),
+            """
+            INSERT OR IGNORE INTO network_membership
+                (network_name, creator_address, funder_address)
+            VALUES (?, ?, ?)
+            """,
+            (network_name, creator_address, funder_addr),
         )
         conn.commit()
         conn.close()

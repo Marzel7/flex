@@ -244,6 +244,12 @@ class IntelligenceRefreshCandidateBuilder:
         stale_cutoff_7d  = now - (7  * 86400)
         stale_cutoff_30d = now - (30 * 86400)
 
+        try:
+            from src.utils.infra_mapping import sync_infra_wallets
+            sync_infra_wallets(conn)
+        except Exception:
+            pass
+
         # Pull creator stats in one pass
         # single_creator_ratio pre-computed via CTE to avoid O(n²) correlated subquery
         rows = conn.execute("""
@@ -251,6 +257,7 @@ class IntelligenceRefreshCandidateBuilder:
                 SELECT funder_address, COUNT(DISTINCT creator_address) AS num_creators
                 FROM creator_funders
                 WHERE is_cex = 0
+                  AND funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY funder_address
             ),
             outbound_signals AS (
@@ -261,6 +268,7 @@ class IntelligenceRefreshCandidateBuilder:
                     MAX(CASE WHEN relationship_type='creator_to_upstream_hub' THEN 1 ELSE 0 END) AS has_hub_link,
                     MAX(CASE WHEN relationship_type='large_outbound'          THEN 1 ELSE 0 END) AS has_large_outbound
                 FROM creator_outbound_classifications
+                WHERE recipient_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY creator_address
             )
             SELECT
@@ -287,7 +295,7 @@ class IntelligenceRefreshCandidateBuilder:
             LEFT JOIN creator_funders cf
                 ON cf.creator_address = ta.earliest_tx_creator
                 AND cf.is_cex = 0
-                AND cf.funder_address NOT IN (SELECT funder_address FROM infra_funders_observed)
+                AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
             LEFT JOIN funder_creator_counts fcc ON fcc.funder_address = cf.funder_address
             LEFT JOIN creator_self_funding csf ON csf.creator_address = ta.earliest_tx_creator
             LEFT JOIN outbound_signals obs ON obs.creator_address = ta.earliest_tx_creator

@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
 
-from src.utils.infra_mapping import build_excluded_set
+from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +161,7 @@ class FunderOverlapAnalyzer:
         cursor = conn.cursor()
 
         # Build unified CEX/infra exclusion set (static registry + live cex_wallets table)
+        sync_infra_wallets(conn)
         excluded = build_excluded_set(conn)
 
         # Extract funder → creator relationships, excluding CEX/infra wallets

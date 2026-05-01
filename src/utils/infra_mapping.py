@@ -1644,6 +1644,99 @@ def classify_wallet(address: str, db_conn=None) -> Dict:
     return {'wallet_type': 'unknown', 'label': '', 'source': 'unknown'}
 
 
+def ensure_infra_wallets_table(db_conn) -> None:
+    """Create the reusable infra wallet exclusion table."""
+    db_conn.execute("""
+        CREATE TABLE IF NOT EXISTS infra_wallets (
+            address TEXT PRIMARY KEY,
+            type TEXT,
+            label TEXT,
+            updated_at INTEGER DEFAULT (strftime('%s','now'))
+        )
+    """)
+    db_conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_infra_wallets_type
+        ON infra_wallets(type)
+    """)
+
+
+def sync_infra_wallets(db_conn, include_cex: bool = True) -> int:
+    """
+    Seed/update infra_wallets from static registries and observed DB tables.
+
+    Raw transfer tables remain untouched. This table is the interpretation-layer
+    exclusion list used by network, coordination, 2H, and fingerprint builders.
+    """
+    ensure_infra_wallets_table(db_conn)
+    rows = []
+
+    for address, info in INFRASTRUCTURE_ACCOUNTS.items():
+        rows.append((
+            address,
+            info.get("category") or "infra",
+            info.get("name") or "Infrastructure",
+        ))
+
+    if include_cex:
+        for address, info in CEX_ACCOUNTS.items():
+            rows.append((
+                address,
+                "cex",
+                info.get("name") or info.get("exchange") or "CEX",
+            ))
+
+    try:
+        for row in db_conn.execute("SELECT funder_address, note FROM infra_funders_observed").fetchall():
+            rows.append((row[0], "observed_infra", row[1] or "Observed Infrastructure"))
+    except Exception:
+        pass
+
+    if include_cex:
+        try:
+            for row in db_conn.execute("""
+                SELECT cex_address, exchange_name, wallet_type
+                FROM cex_wallets
+                WHERE is_active = 1
+            """).fetchall():
+                label = row[1] if row[2] in ("Hot Wallet", "Exchange Wallet") else f"{row[1]} {row[2]}"
+                rows.append((row[0], "cex", label))
+        except Exception:
+            pass
+
+    # Dynamic protocol accounts discovered from token records. These are
+    # protocol mechanics, never coordination evidence.
+    dynamic_sources = [
+        ("bonding_curve_pda", "bonding_curve", "Pump.fun Bonding Curve"),
+        ("pool_address", "pool", "Token Pool"),
+        ("pumpswap_pool_address", "pumpswap_pool", "PumpSwap Pool"),
+    ]
+    for column, wallet_type, label in dynamic_sources:
+        try:
+            for row in db_conn.execute(f"""
+                SELECT DISTINCT {column}
+                FROM token_analysis
+                WHERE {column} IS NOT NULL AND {column} != ''
+            """).fetchall():
+                rows.append((row[0], wallet_type, label))
+        except Exception:
+            pass
+
+    written = 0
+    for address, wallet_type, label in rows:
+        if not address:
+            continue
+        db_conn.execute("""
+            INSERT INTO infra_wallets (address, type, label, updated_at)
+            VALUES (?, ?, ?, strftime('%s','now'))
+            ON CONFLICT(address) DO UPDATE SET
+                type = excluded.type,
+                label = excluded.label,
+                updated_at = excluded.updated_at
+        """, (address, wallet_type, label))
+        written += 1
+    return written
+
+
 def build_excluded_set(db_conn=None) -> frozenset:
     """
     Build a complete set of all CEX + infra addresses for bulk exclusion.
@@ -1653,12 +1746,32 @@ def build_excluded_set(db_conn=None) -> frozenset:
     excluded = set(INFRASTRUCTURE_ACCOUNTS.keys()) | set(CEX_ACCOUNTS.keys())
     if db_conn is not None:
         try:
+            rows = db_conn.execute("SELECT address FROM infra_wallets").fetchall()
+            excluded.update(r[0] for r in rows)
+        except Exception:
+            pass
+        try:
             rows = db_conn.execute(
                 "SELECT cex_address FROM cex_wallets WHERE is_active=1"
             ).fetchall()
             excluded.update(r[0] for r in rows)
         except Exception:
             pass
+        try:
+            rows = db_conn.execute("SELECT funder_address FROM infra_funders_observed").fetchall()
+            excluded.update(r[0] for r in rows)
+        except Exception:
+            pass
+        for column in ("bonding_curve_pda", "pool_address", "pumpswap_pool_address"):
+            try:
+                rows = db_conn.execute(f"""
+                    SELECT DISTINCT {column}
+                    FROM token_analysis
+                    WHERE {column} IS NOT NULL AND {column} != ''
+                """).fetchall()
+                excluded.update(r[0] for r in rows)
+            except Exception:
+                pass
     return frozenset(excluded)
 
 

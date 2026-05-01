@@ -15,6 +15,7 @@ import logging
 import sqlite3
 import time
 from pathlib import Path
+from src.utils.infra_mapping import sync_infra_wallets
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class UpstreamExpansionBuilder:
         conn = sqlite3.connect(self.db_path, timeout=60)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
+        sync_infra_wallets(conn)
 
         try:
             result = self._run(conn)
@@ -61,6 +63,7 @@ class UpstreamExpansionBuilder:
                    funders_bridged, risk_level, reason_codes, last_expanded_at
             FROM monitored_upstream_hubs
             WHERE status = 'active'
+              AND upstream_address NOT IN (SELECT address FROM infra_wallets)
               AND (last_expanded_at IS NULL OR last_expanded_at < ?)
             ORDER BY confidence_score DESC
             LIMIT ?
@@ -90,7 +93,8 @@ class UpstreamExpansionBuilder:
                         AND cache.status = 'ok'
                     )                                            AS cache_fresh,
                     (inf.funder_address IS NOT NULL
-                     OR cf_cex.is_cex = 1)                      AS is_excluded
+                     OR cf_cex.is_cex = 1
+                     OR iw.address IS NOT NULL)                 AS is_excluded
                 FROM funder_upstream_links ful
                 LEFT JOIN creator_funders cf
                     ON cf.funder_address = ful.funder_address AND cf.is_cex = 0
@@ -106,8 +110,11 @@ class UpstreamExpansionBuilder:
                     ON cache.funder_address = ful.funder_address
                 LEFT JOIN infra_funders_observed inf
                     ON inf.funder_address = ful.funder_address
+                LEFT JOIN infra_wallets iw
+                    ON iw.address = ful.funder_address
                 WHERE ful.upstream_address = ?
                   AND COALESCE(ful.is_excluded, 0) = 0
+                  AND ful.funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY ful.funder_address
             """, (cache_cutoff, upstream)).fetchall()
 

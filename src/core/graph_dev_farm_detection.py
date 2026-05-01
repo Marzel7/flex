@@ -30,7 +30,7 @@ import networkx as nx
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from src.utils.infra_mapping import build_excluded_set, classify_wallet
+from src.utils.infra_mapping import build_excluded_set, classify_wallet, sync_infra_wallets
 
 
 # ============================================================================
@@ -761,6 +761,7 @@ class GraphDevFarmDetectionEngine:
 
             # Build unified CEX/infra exclusion set once for this run
             conn = self._get_conn()
+            sync_infra_wallets(conn)
             self._excluded = build_excluded_set(conn)
             conn.close()
             logger.info(f"Exclusion set: {len(self._excluded)} CEX/infra addresses")

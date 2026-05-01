@@ -350,6 +350,26 @@
             return `<span title="Liquidity removed${detail}" style="display:inline-flex;align-items:center;justify-content:center;height:18px;border-radius:3px;border:1px solid rgba(168,85,247,0.35);background:rgba(168,85,247,0.18);color:#c084fc;font-size:10px;font-weight:900;letter-spacing:0.05em;padding:0 6px;">LIQ</span>`;
         }
 
+        function riskColor(level) {
+            return {
+                LOW: '#34d399',
+                WATCH: '#fbbf24',
+                MEDIUM: '#fb923c',
+                HIGH: '#f87171',
+                CRITICAL: '#ef4444'
+            }[level || ''] || 'var(--text-secondary)';
+        }
+
+        function riskBadge(risk, compact=false) {
+            if (!risk) return '<span style="color:var(--text-secondary);font-size:10px;">—</span>';
+            const level = risk.risk_level || 'LOW';
+            const color = riskColor(level);
+            const score = Math.round(Number(risk.final_score || 0));
+            const label = compact ? `${score}` : `${score} ${level}`;
+            const title = `${risk.category || level} · Operator ${Math.round(Number(risk.operator_score || 0))} · Outcome ${Math.round(Number(risk.outcome_score || 0))} · G ${Math.round(Number(risk.g_score || 0))} · LIQ ${Math.round(Number(risk.liquidation_score || 0))}`;
+            return `<span title="${escHtml(title)}" style="display:inline-flex;align-items:center;justify-content:center;min-width:${compact ? '28px' : '78px'};height:20px;border-radius:4px;border:1px solid ${color};background:rgba(15,23,42,0.72);color:${color};font-size:10px;font-weight:900;">${escHtml(label)}</span>`;
+        }
+
         function accountBadge(account) {
             if (!account) return '';
             const isCex = account.type === 'CEX';
@@ -448,6 +468,7 @@
                 ? `<span style="font-size:10px;font-weight:800;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.24);border-radius:4px;padding:2px 6px;">+${cexInfraAccounts.length - 4} more</span>`
                 : '';
             const cexInfraTypeNeedsLabel = ['cex_connected', 'infra_connected', 'mixed', 'cex_and_infra_connected'].includes(data.network_type);
+            const networkRisk = data.risk_score || null;
 
             let html = '<div style="padding: 20px;">';
 
@@ -459,6 +480,7 @@
                         <span style="font-size:10px;font-weight:800;color:#34d399;border:1px solid rgba(52,211,153,0.30);background:rgba(52,211,153,0.08);border-radius:4px;padding:3px 7px;">${migratedTokenCount} MIGRATED TOKENS</span>
                         ${bondingCurveCount ? `<span style="font-size:10px;font-weight:800;color:#fbbf24;border:1px solid rgba(251,191,36,0.30);background:rgba(251,191,36,0.08);border-radius:4px;padding:3px 7px;">${bondingCurveCount} BONDING CURVE</span>` : ''}
                         ${bestClass ? gBadge(bestClass) : ''}
+                        ${networkRisk ? riskBadge(networkRisk) : ''}
                     </div>
                     <div style="font-size:14px;line-height:1.6;color:var(--text-primary);">
                         A ${escHtml(networkTypeLabel(data.network_type))} funding cluster where <strong>${sourceLabel}</strong>
@@ -474,6 +496,17 @@
                     ` : ''}
                     ${(gHistory || unknownGNote) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;"><span style="color:var(--text-secondary);font-size:10px;text-transform:uppercase;font-weight:800;">G History</span>${gHistory || '<span style="color:var(--text-secondary);font-size:10px;">No known outcomes</span>'}${unknownGNote}</div>` : ''}
                     <div style="margin-top:8px;color:var(--text-secondary);font-size:11px;">Grouped by: ${escHtml(reason)}</div>
+                    ${networkRisk ? `
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-top:12px;">
+                            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.12);border-left:3px solid ${riskColor(networkRisk.risk_level)};border-radius:4px;padding:8px;"><div style="font-size:10px;color:var(--text-secondary);">Final Risk</div><div style="font-weight:900;color:${riskColor(networkRisk.risk_level)};">${Math.round(Number(networkRisk.final_score || 0))} ${escHtml(networkRisk.risk_level || '')}</div></div>
+                            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.12);border-radius:4px;padding:8px;"><div style="font-size:10px;color:var(--text-secondary);">Category</div><div style="font-weight:800;font-size:11px;">${escHtml(networkRisk.category || '—')}</div></div>
+                            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.12);border-radius:4px;padding:8px;"><div style="font-size:10px;color:var(--text-secondary);">Operator</div><div style="font-weight:800;">${Math.round(Number(networkRisk.operator_score || 0))}</div></div>
+                            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.12);border-radius:4px;padding:8px;"><div style="font-size:10px;color:var(--text-secondary);">Outcome</div><div style="font-weight:800;">${Math.round(Number(networkRisk.outcome_score || 0))}</div></div>
+                            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.12);border-radius:4px;padding:8px;"><div style="font-size:10px;color:var(--text-secondary);">G Score</div><div style="font-weight:800;">${Math.round(Number(networkRisk.g_score || 0))}</div></div>
+                            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.12);border-radius:4px;padding:8px;"><div style="font-size:10px;color:var(--text-secondary);">Liquidation</div><div style="font-weight:800;">${Math.round(Number(networkRisk.liquidation_score || 0))}</div></div>
+                        </div>
+                        ${(networkRisk.top_reasons || []).length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;">${networkRisk.top_reasons.slice(0, 4).map(reason => `<span style="font-size:10px;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.18);border-radius:4px;padding:3px 6px;">${escHtml(reason)}</span>`).join('')}</div>` : ''}
+                    ` : ''}
                 </div>`;
 
             html += `
@@ -598,10 +631,10 @@
             if (creators.length) {
                 html += '<div style="background:var(--bg-card);padding:14px 16px;border-radius:6px;margin-bottom:14px;">';
                 html += '<div style="color:#fbbf24;font-size:11px;text-transform:uppercase;margin-bottom:10px;font-weight:700;">Creator Outcomes</div>';
-                html += '<div style="display:grid;grid-template-columns:minmax(230px,1fr) 104px 132px 104px;gap:10px;align-items:center;color:var(--text-secondary);font-size:10px;text-transform:uppercase;margin-bottom:6px;"><div style="display:grid;grid-template-columns:128px 64px;gap:10px;"><div>Creator</div><div style="text-align:right;">Tokens</div></div><div style="text-align:right;">Funded</div><div style="text-align:right;">Best</div><div style="text-align:right;">Latest</div></div>';
+                html += '<div style="display:grid;grid-template-columns:minmax(230px,1fr) 104px 104px 132px 104px;gap:10px;align-items:center;color:var(--text-secondary);font-size:10px;text-transform:uppercase;margin-bottom:6px;"><div style="display:grid;grid-template-columns:128px 64px;gap:10px;"><div>Creator</div><div style="text-align:right;">Tokens</div></div><div style="text-align:right;">Risk</div><div style="text-align:right;">Funded</div><div style="text-align:right;">Best</div><div style="text-align:right;">Latest</div></div>';
                 for (const c of creators.slice(0, 16)) {
                     html += `
-                        <div style="display:grid;grid-template-columns:minmax(230px,1fr) 104px 132px 104px;gap:10px;align-items:center;border-top:1px solid rgba(148,163,184,0.08);padding:7px 0;font-size:12px;">
+                        <div style="display:grid;grid-template-columns:minmax(230px,1fr) 104px 104px 132px 104px;gap:10px;align-items:center;border-top:1px solid rgba(148,163,184,0.08);padding:7px 0;font-size:12px;">
                             <div style="display:grid;grid-template-columns:128px 64px;gap:10px;align-items:center;min-width:0;">
                                 <div style="min-width:0;">
                                     <div style="display:flex;align-items:center;gap:6px;min-width:0;">
@@ -612,6 +645,7 @@
                                 </div>
                                 <div style="text-align:right;font-weight:700;">${c.token_count || 0}</div>
                             </div>
+                            <div style="display:flex;justify-content:flex-end;">${riskBadge(c.risk_score, true)}</div>
                             <div style="color:#fbbf24;text-align:right;white-space:nowrap;">${formatSol(c.total_funded_sol)}</div>
                             <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;white-space:nowrap;" title="Best token peak for this creator: ${formatCompactMoney(c.best_peak_mc)}"><span style="color:var(--text-secondary);font-size:10px;">Best</span>${gBadge(c.best_token_class)}</div>
                             <div style="color:var(--text-secondary);font-size:11px;text-align:right;white-space:nowrap;">${fmtDateOnly(c.latest_seen_at)}</div>
@@ -742,9 +776,24 @@
                     fetch('/api/network-coord/' + encodeURIComponent(networkName))
                         .then(r => r.json())
                         .then(cd => {
-                            if (!cd.bridge_funders || !cd.bridge_funders.length) return;
+                            if (
+                                (!cd.bridge_funders || !cd.bridge_funders.length) &&
+                                (!cd.ignored_bridge_funders || !cd.ignored_bridge_funders.length)
+                            ) return;
 
                             function shortA(a) { return a ? a.slice(0,6) + '…' + a.slice(-4) : '—'; }
+                            function bridgeName(f) {
+                                if (!f) return '—';
+                                if (!f.funder_label) return copyA(f.funder);
+                                const chipColor = f.funder_type === 'CEX' ? '#f59e0b' : '#818cf8';
+                                const chipBg = f.funder_type === 'CEX' ? 'rgba(245,158,11,0.12)' : 'rgba(129,140,248,0.12)';
+                                const title = `Click to copy: ${f.funder}${f.funder_description ? '\n' + f.funder_description : ''}`;
+                                return `<span title="${escHtml(title)}" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;" onclick="navigator.clipboard.writeText('${f.funder}').then(()=>{const el=this;const was=el.style.color;el.style.color='#4ade80';setTimeout(()=>el.style.color=was,800)})">
+                                    <span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;background:${chipBg};color:${chipColor};border:1px solid ${chipColor}33;">${escHtml(f.funder_type || 'TAG')}</span>
+                                    <span style="font-size:11px;font-weight:700;color:${chipColor};">${escHtml(f.funder_label)}</span>
+                                    <span style="font-family:monospace;font-size:10px;color:var(--text-secondary);">${shortA(f.funder)}</span>
+                                </span>`;
+                            }
                             function copyA(a) {
                                 return `<span title="Click to copy: ${a}" style="cursor:pointer;font-family:monospace;font-size:10px;color:var(--text-secondary)" onclick="navigator.clipboard.writeText('${a}').then(()=>{const el=this;const was=el.style.color;el.style.color='#4ade80';setTimeout(()=>el.style.color=was,800)})">${shortA(a)}</span>`;
                             }
@@ -756,23 +805,38 @@
                             cHtml += `<div style="padding:10px 12px;background:rgba(56,189,248,0.06);border-radius:4px;margin-bottom:14px;font-size:12px;line-height:1.7;">
                                 <div><strong>${cd.total_edges}</strong> coord edges across <strong>${cd.member_count}</strong> members — <strong>${cd.intra_count}</strong> intra-network, <strong>${cd.total_edges - cd.intra_count}</strong> cross-network</div>
                                 <div style="color:var(--text-secondary)"><strong>${cd.outside_creator_count}</strong> outside creators reachable via shared funders</div>
+                                ${cd.ignored_edge_count ? `<div style="color:#818cf8"><strong>${cd.ignored_edge_count}</strong> infra/system edges ignored for coordination</div>` : ''}
                             </div>`;
 
-                            // Bridge funders table
-                            cHtml += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0.05em;">Bridge Funders</div>';
-                            cHtml += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px;">';
-                            cHtml += '<thead><tr style="color:var(--text-secondary);font-size:10px;border-bottom:1px solid var(--border-color)">';
-                            cHtml += '<th style="padding:4px 8px;text-align:left">Funder</th><th style="padding:4px 8px;text-align:right">Total</th><th style="padding:4px 8px;text-align:right">Intra</th><th style="padding:4px 8px;text-align:right">Cross</th><th style="padding:4px 8px;text-align:right">Outside Creators</th></tr></thead><tbody>';
-                            for (const f of cd.bridge_funders) {
-                                cHtml += `<tr style="border-bottom:1px solid rgba(148,163,184,0.06)">
-                                    <td style="padding:5px 8px">${copyA(f.funder)}</td>
-                                    <td style="padding:5px 8px;text-align:right;font-weight:700;color:#e2e8f0">${f.total_edges}</td>
-                                    <td style="padding:5px 8px;text-align:right;color:#38bdf8">${f.intra_edges}</td>
-                                    <td style="padding:5px 8px;text-align:right;color:#fb923c">${f.outside_edges}</td>
-                                    <td style="padding:5px 8px;text-align:right;color:#a78bfa">${f.outside_creators}</td>
-                                </tr>`;
+                            if (cd.ignored_bridge_funders && cd.ignored_bridge_funders.length) {
+                                cHtml += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#818cf8;margin-bottom:6px;letter-spacing:0.05em;">Ignored Infrastructure</div>';
+                                cHtml += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">';
+                                for (const f of cd.ignored_bridge_funders) {
+                                    cHtml += `<div style="padding:8px 10px;background:rgba(129,140,248,0.08);border:1px solid rgba(129,140,248,0.20);border-radius:4px;font-size:11px;line-height:1.6;">
+                                        <div>${bridgeName(f)}</div>
+                                        <div style="color:var(--text-secondary)">Ignored for coordination analysis · ${f.total_edges} historical edge${f.total_edges>1?'s':''}</div>
+                                    </div>`;
+                                }
+                                cHtml += '</div>';
                             }
-                            cHtml += '</tbody></table>';
+
+                            // Bridge funders table
+                            if (cd.bridge_funders.length) {
+                                cHtml += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0.05em;">Bridge Funders</div>';
+                                cHtml += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px;">';
+                                cHtml += '<thead><tr style="color:var(--text-secondary);font-size:10px;border-bottom:1px solid var(--border-color)">';
+                                cHtml += '<th style="padding:4px 8px;text-align:left">Funder</th><th style="padding:4px 8px;text-align:right">Total</th><th style="padding:4px 8px;text-align:right">Intra</th><th style="padding:4px 8px;text-align:right">Cross</th><th style="padding:4px 8px;text-align:right">Outside Creators</th></tr></thead><tbody>';
+                                for (const f of cd.bridge_funders) {
+                                    cHtml += `<tr style="border-bottom:1px solid rgba(148,163,184,0.06)">
+                                        <td style="padding:5px 8px">${bridgeName(f)}</td>
+                                        <td style="padding:5px 8px;text-align:right;font-weight:700;color:#e2e8f0">${f.total_edges}</td>
+                                        <td style="padding:5px 8px;text-align:right;color:#38bdf8">${f.intra_edges}</td>
+                                        <td style="padding:5px 8px;text-align:right;color:#fb923c">${f.outside_edges}</td>
+                                        <td style="padding:5px 8px;text-align:right;color:#a78bfa">${f.outside_creators}</td>
+                                    </tr>`;
+                                }
+                                cHtml += '</tbody></table>';
+                            }
 
                             // Top outside creators
                             if (cd.top_outside_creators && cd.top_outside_creators.length) {
@@ -794,7 +858,7 @@
                             // Dominant funder (most intra edges)
                             const dominant = cd.bridge_funders.find(f => f.intra_edges > 0);
                             if (dominant) {
-                                cHtml += `<li>All <strong>${cd.member_count}</strong> creators in this network are funded by ${copyA(dominant.funder)} — generating <strong>${dominant.intra_edges}</strong> intra-network pair${dominant.intra_edges>1?'s':''} (C(${cd.member_count},2))</li>`;
+                                cHtml += `<li>All <strong>${cd.member_count}</strong> creators in this network are funded by ${bridgeName(dominant)} — generating <strong>${dominant.intra_edges}</strong> intra-network pair${dominant.intra_edges>1?'s':''} (C(${cd.member_count},2))</li>`;
                             }
 
                             // Cross-network funders
@@ -805,7 +869,7 @@
                                     const outsideList = outsideCreators.length
                                         ? outsideCreators.map(oc => copyA(oc.creator)).join(', ')
                                         : `${f.outside_creators} outside creator${f.outside_creators>1?'s':''}`;
-                                    cHtml += `<li>${copyA(f.funder)} also funds <strong>${f.outside_edges}</strong> creator${f.outside_edges>1?'s':''} outside this network → ${outsideList}</li>`;
+                                    cHtml += `<li>${bridgeName(f)} also funds <strong>${f.outside_edges}</strong> creator${f.outside_edges>1?'s':''} outside this network → ${outsideList}</li>`;
                                 }
                             }
 

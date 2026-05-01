@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import sys
 import time
 import urllib.error
@@ -46,6 +47,14 @@ def fmt_sol(value: Any) -> str:
     if abs(amount) < 1:
         return f"{amount:.4f} SOL"
     return f"{amount:.2f} SOL"
+
+
+def fmt_pct(value: Any) -> str:
+    try:
+        amount = float(value or 0)
+    except Exception:
+        return "-"
+    return f"{amount:.0f}%"
 
 
 def fmt_money(value: Any) -> str:
@@ -99,7 +108,80 @@ def account_label(account: dict[str, Any] | None) -> str:
     return f"{prefix} {label}"
 
 
-def render_network(row: dict[str, Any], detail: dict[str, Any]) -> str:
+def get_tagged_creators(conn: sqlite3.Connection | None, network_name: str) -> list[dict[str, Any]]:
+    if conn is None:
+        return []
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute("""
+            WITH members AS (
+                SELECT DISTINCT creator_address
+                FROM network_membership
+                WHERE network_name = ?
+            ),
+            coord AS (
+                SELECT creator_address,
+                       COUNT(*) AS coord_edges,
+                       COUNT(DISTINCT bridge_funder) AS coord_funders
+                FROM (
+                    SELECT creator_a AS creator_address, bridge_funder
+                    FROM coordinated_creator_edges
+                    WHERE creator_a IN (SELECT creator_address FROM members)
+                      AND bridge_funder NOT IN (SELECT address FROM infra_wallets)
+                    UNION ALL
+                    SELECT creator_b AS creator_address, bridge_funder
+                    FROM coordinated_creator_edges
+                    WHERE creator_b IN (SELECT creator_address FROM members)
+                      AND bridge_funder NOT IN (SELECT address FROM infra_wallets)
+                )
+                GROUP BY creator_address
+            ),
+            explicit_tags AS (
+                SELECT creator_address,
+                       GROUP_CONCAT(tag, ', ') AS tags
+                FROM creator_tags
+                WHERE creator_address IN (SELECT creator_address FROM members)
+                  AND (
+                    lower(tag) LIKE '%self%'
+                    OR lower(tag) LIKE '%coord%'
+                  )
+                GROUP BY creator_address
+            )
+            SELECT
+                m.creator_address,
+                COALESCE(csf.is_self_funding, 0) AS is_self_funding,
+                COALESCE(csf.self_funding_percentage, 0) AS self_funding_percentage,
+                COALESCE(csf.self_funding_intermediates, 0) AS self_funding_intermediates,
+                COALESCE(csf.total_funders, 0) AS total_funders,
+                COALESCE(coord.coord_edges, 0) AS coord_edges,
+                COALESCE(coord.coord_funders, 0) AS coord_funders,
+                explicit_tags.tags
+            FROM members m
+            LEFT JOIN creator_self_funding csf
+                ON csf.creator_address = m.creator_address
+            LEFT JOIN coord
+                ON coord.creator_address = m.creator_address
+            LEFT JOIN explicit_tags
+                ON explicit_tags.creator_address = m.creator_address
+            WHERE COALESCE(csf.is_self_funding, 0) = 1
+               OR COALESCE(coord.coord_edges, 0) > 0
+               OR explicit_tags.tags IS NOT NULL
+            ORDER BY
+                COALESCE(csf.is_self_funding, 0) DESC,
+                COALESCE(coord.coord_edges, 0) DESC,
+                m.creator_address
+        """, (network_name,)).fetchall()
+        return [dict(row) for row in rows]
+    except sqlite3.Error:
+        return []
+
+
+def render_network(
+    row: dict[str, Any],
+    detail: dict[str, Any],
+    coord: dict[str, Any] | None = None,
+    tagged_creators: list[dict[str, Any]] | None = None,
+) -> str:
     name = detail.get("network_name") or row.get("network_name")
     display = detail.get("display_name") or row.get("display_name") or name
     g = detail.get("g_distribution") or {}
@@ -126,7 +208,61 @@ def render_network(row: dict[str, Any], detail: dict[str, Any]) -> str:
     lines.append(f"- Bonding curve / non-migrated: {fmt_num(bonding)}")
     lines.append(f"- Best observed peak: {fmt_money(g.get('best_peak_mc'))} {g.get('best_token_class') or ''}".strip())
     lines.append(f"- G history: {g_history}" + (f" ({unknown} unknown excluded)" if unknown else ""))
+    if coord:
+        lines.append(
+            f"- Coordination edges: {fmt_num(coord.get('total_edges'))} "
+            f"({fmt_num(coord.get('intra_count'))} intra-network, "
+            f"{fmt_num(coord.get('outside_creator_count'))} outside creators, "
+            f"{fmt_num(coord.get('ignored_edge_count'))} infra ignored)"
+        )
     lines.append("")
+
+    if coord:
+        lines.append("### Coordination / Connection Breakdown")
+        lines.append(table(
+            ["Funder", "Label", "Members", "Intra Edges", "Outside Creators", "Total Edges"],
+            [
+                [
+                    item.get("funder", "-"),
+                    item.get("funder_label") or item.get("funder_type") or "-",
+                    item.get("member_count", 0),
+                    item.get("intra_edges", 0),
+                    item.get("outside_creators", 0),
+                    item.get("total_edges", 0),
+                ]
+                for item in coord.get("bridge_funders", [])
+            ],
+        ))
+
+        ignored = coord.get("ignored_bridge_funders", [])
+        if ignored:
+            lines.append("### Ignored Infrastructure Edges")
+            lines.append(table(
+                ["Account", "Label", "Type", "Historical Edges", "Reason"],
+                [
+                    [
+                        item.get("funder", "-"),
+                        item.get("funder_label") or "-",
+                        item.get("funder_type") or "INFRA",
+                        item.get("total_edges", 0),
+                        "Ignored for coordination analysis",
+                    ]
+                    for item in ignored
+                ],
+            ))
+
+        lines.append("### Outside Creator Reach")
+        lines.append(table(
+            ["Outside Creator", "Edges", "Via Funders"],
+            [
+                [
+                    item.get("creator", "-"),
+                    item.get("edge_count", 0),
+                    ", ".join(item.get("via_funders") or []),
+                ]
+                for item in coord.get("top_outside_creators", [])
+            ],
+        ))
 
     lines.append("### CEX / INFRA Funding Touchpoints")
     lines.append(table(
@@ -176,7 +312,7 @@ def render_network(row: dict[str, Any], detail: dict[str, Any]) -> str:
         ],
     ))
 
-    lines.append("### Operator Fingerprints")
+    lines.append("### Secondary Accounts / Operator Fingerprints")
     lines.append(table(
         ["Type", "Label", "Confidence", "Creators", "Main Funder", "Pattern", "Amount"],
         [
@@ -190,6 +326,30 @@ def render_network(row: dict[str, Any], detail: dict[str, Any]) -> str:
                 fmt_sol(sig.get("tip_amount_sol")) if sig.get("tip_amount_sol") is not None else sig.get("amount_band", "-"),
             ]
             for sig in detail.get("operator_signatures", [])
+        ],
+    ))
+
+    tagged_creators = tagged_creators or []
+    lines.append("### Tagged Creators")
+    lines.append(table(
+        ["Creator", "Tags", "Self Funding", "Self Path", "Coord Edges", "Coord Funders"],
+        [
+            [
+                item.get("creator_address", "-"),
+                ", ".join(
+                    tag for tag in [
+                        "SELF-FUND" if item.get("is_self_funding") else "",
+                        "COORD" if item.get("coord_edges") else "",
+                        item.get("tags") or "",
+                    ]
+                    if tag
+                ) or "-",
+                fmt_pct(item.get("self_funding_percentage")),
+                f"{item.get('self_funding_intermediates', 0)}/{item.get('total_funders', 0)}",
+                item.get("coord_edges", 0),
+                item.get("coord_funders", 0),
+            ]
+            for item in tagged_creators
         ],
     ))
 
@@ -234,11 +394,13 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://127.0.0.1:5002")
     parser.add_argument("--output", default="docs/NETWORK_APPROVAL_DOCUMENT.md")
+    parser.add_argument("--db", default="database/flex_complete_database.db")
     args = parser.parse_args()
 
     approval = fetch_json(args.base_url, "/api/network-approval/list")
     networks = approval.get("networks") or []
     output = Path(args.output)
+    db_conn = sqlite3.connect(args.db) if args.db else None
 
     sections = [
         "# Network Approval Document",
@@ -262,13 +424,20 @@ def main() -> int:
             detail = fetch_json(args.base_url, f"/api/network-tokens/{encoded}")
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             detail = {"network_name": name, "display_name": row.get("display_name"), "error": str(exc)}
+        try:
+            coord = fetch_json(args.base_url, f"/api/network-coord/{encoded}")
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+            coord = {}
+        tagged_creators = get_tagged_creators(db_conn, str(name))
         sections.append(f"\n<!-- network {index}/{len(networks)} -->")
         if detail.get("error"):
             sections.append(f"## {row.get('display_name') or name}\n\nError: {detail['error']}\n")
         else:
-            sections.append(render_network(row, detail))
+            sections.append(render_network(row, detail, coord, tagged_creators))
 
     output.write_text("\n".join(sections).rstrip() + "\n", encoding="utf-8")
+    if db_conn is not None:
+        db_conn.close()
     print(f"Wrote {output} ({len(networks)} networks)")
     return 0
 

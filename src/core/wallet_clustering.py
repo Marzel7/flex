@@ -22,7 +22,7 @@ import statistics
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 
-from src.utils.infra_mapping import build_excluded_set
+from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +235,14 @@ class WalletClusteringEngine:
                 pid         INTEGER
             )
         """)
+
+        sync_infra_wallets(conn)
+        removed = cursor.execute("""
+            DELETE FROM wallet_clusters
+            WHERE funder_wallet IN (SELECT address FROM infra_wallets)
+        """).rowcount
+        if removed:
+            logger.info(f"[CLUSTERING] Removed {removed} infra/CEX wallet_clusters")
 
         conn.commit()
         conn.close()

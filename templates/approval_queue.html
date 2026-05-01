@@ -128,6 +128,18 @@
 <div id="aq-loading" style="color:var(--text-secondary);padding:40px 0;text-align:center;font-size:14px;">Loading…</div>
 <div id="aq-body" style="display:none">
 
+    <!-- P0 Creator Resolution -->
+    <div class="ni-section" id="creator-resolution-section">
+        <div class="ni-section-title">
+            P0 Creator Resolution
+            <button id="p0-run-btn" onclick="runCreatorResolutionNow()"
+                style="margin-left:6px;padding:3px 12px;font-size:11px;font-weight:700;border-radius:4px;border:1px solid rgba(251,146,60,0.35);background:rgba(251,146,60,0.1);color:#fb923c;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;">
+                Resolve Now
+            </button>
+        </div>
+        <div id="creator-resolution-body"><span style="color:var(--text-secondary);font-size:13px">Loading…</span></div>
+    </div>
+
     <!-- Phase 2 Lite Tracking -->
     <div class="ni-section" id="phase2-section">
         <div class="ni-section-title">
@@ -210,10 +222,115 @@ function ircStatusBadge(s) {
 function ircBtnStyle(color) {
     return `margin:0 2px;padding:2px 8px;font-size:10px;font-weight:600;border-radius:3px;border:1px solid ${color}40;background:${color}15;color:${color};cursor:pointer;`;
 }
+function queueStatusBadge(s) {
+    const map = {
+        pending: ['#fb923c','rgba(251,146,60,0.12)'],
+        retry: ['#fbbf24','rgba(251,191,36,0.12)'],
+        running: ['#38bdf8','rgba(56,189,248,0.12)'],
+        failed: ['#ef4444','rgba(239,68,68,0.12)'],
+        complete: ['#22c55e','rgba(34,197,94,0.12)'],
+    };
+    const [c, bg] = map[s] || ['#9ca3af','rgba(156,163,175,0.1)'];
+    return `<span style="background:${bg};color:${c};padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;">${String(s || 'unknown').toUpperCase()}</span>`;
+}
 
 // Show body once both sections start loading
 document.getElementById('aq-loading').style.display = 'none';
 document.getElementById('aq-body').style.display = 'block';
+
+// ── P0 Creator Resolution ────────────────────────────────────────────────────
+async function loadCreatorResolutionQueue() {
+    const container = document.getElementById('creator-resolution-body');
+    if (!container) return;
+    try {
+        const resp = await fetch('/api/creator-resolution-queue/status');
+        const d = await resp.json();
+        if (d.error) throw new Error(d.error);
+
+        const counts = d.counts || {};
+        const p0Active = (counts.pending || 0) + (counts.retry || 0) + (counts.running || 0);
+        const banner = p0Active > 0 || d.missing_recent_1h > 0
+            ? `<div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#fb923c;margin-bottom:14px;">
+                   P0 lane active — migrated tokens missing creators are queued here before funder extraction.
+               </div>`
+            : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#4ade80;margin-bottom:14px;">
+                   P0 lane clear — recent migrated tokens have creator data or no unresolved queue work.
+               </div>`;
+
+        const kpiHtml = `<div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(145px,1fr));margin-bottom:16px;">
+            ${[
+                ['Ready', fmtNum(d.ready || 0), '#fb923c'],
+                ['Pending', fmtNum(counts.pending || 0), '#fb923c'],
+                ['Retry', fmtNum(counts.retry || 0), '#fbbf24'],
+                ['Running', fmtNum(counts.running || 0), '#38bdf8'],
+                ['Failed', fmtNum(counts.failed || 0), '#ef4444'],
+                ['Recent Missing', fmtNum(d.missing_recent_1h || 0), '#a78bfa'],
+                ['Auto Enqueued', fmtNum(d.auto_enqueued || 0), '#22c55e'],
+            ].map(([label, value, color]) => `
+                <div class="kpi-card">
+                    <div class="kpi-label">${label}</div>
+                    <div class="kpi-value" style="font-size:22px;color:${color};">${value}</div>
+                </div>`).join('')}
+        </div>`;
+
+        const rows = d.rows || [];
+        const table = `<div class="ni-table-wrap">
+            <table class="ni-table">
+                <thead><tr>
+                    <th>Token</th><th>Mint</th><th>Status</th><th>Attempts</th>
+                    <th>Reason</th><th>Next Attempt</th><th>Last Error</th>
+                </tr></thead>
+                <tbody>${rows.length ? rows.map(r => `
+                    <tr>
+                        <td style="font-weight:700;color:#e2e8f0">${r.symbol || '—'}</td>
+                        <td class="mono">${addrHtml(r.mint)}</td>
+                        <td>${queueStatusBadge(r.status)}</td>
+                        <td>${fmtNum(r.attempts || 0)}</td>
+                        <td style="font-size:11px;color:var(--text-secondary)">${r.reason || '—'}</td>
+                        <td>${fmtDateTime(r.next_attempt_at)}</td>
+                        <td style="font-size:10px;color:${r.status === 'failed' ? '#f87171' : 'var(--text-secondary)'};max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${r.last_error || ''}">${r.last_error || '—'}</td>
+                    </tr>`).join('') : '<tr><td colspan="7" class="empty-state">No unresolved creator rows</td></tr>'}
+                </tbody>
+            </table>
+        </div>`;
+
+        container.innerHTML = banner + kpiHtml + table;
+    } catch (err) {
+        container.innerHTML = `<div style="color:#f87171;font-size:12px">Failed to load P0 creator queue: ${err.message}</div>`;
+    }
+}
+
+async function runCreatorResolutionNow() {
+    const btn = document.getElementById('p0-run-btn');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Resolving…';
+    try {
+        const r = await fetch('/api/creator-resolution-queue/run-now', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ limit: 5 }),
+        });
+        const d = await r.json();
+        if (d.status === 'failed' || d.error) throw new Error(d.error || 'failed');
+        await loadCreatorResolutionQueue();
+        await loadRefreshWatchlist();
+        const el = document.getElementById('creator-resolution-body');
+        const toast = document.createElement('div');
+        toast.style.cssText = 'background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;border-radius:5px;padding:8px 12px;margin-bottom:10px;font-size:13px';
+        toast.textContent = `Resolved ${d.resolved || 0}; funding jobs enqueued ${d.funding_enqueued || 0}.`;
+        el.prepend(toast);
+        setTimeout(() => toast.remove(), 5000);
+    } catch (err) {
+        alert('Creator resolution failed: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Resolve Now';
+    }
+}
+
+loadCreatorResolutionQueue();
+setInterval(loadCreatorResolutionQueue, 15000);
 
 // ── Phase 2 Lite ──────────────────────────────────────────────────────────────
 async function loadPhase2Lite() {

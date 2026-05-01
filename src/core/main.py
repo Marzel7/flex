@@ -226,6 +226,7 @@ def _backfill_missing_creator(mint: str) -> None:
     conn = None
     try:
         from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+        from src.core.creator_resolution_queue import _enqueue_funding_handoff, _iso_from_epoch, ensure_schema
 
         analyzer = PostMigrationAnalyzer(mint, rpc_url=os.environ.get('RPC_HTTP') or os.environ.get('RPC_URL') or os.environ.get('HELIUS_RPC_URL'))
         provenance = asyncio.run(analyzer.get_creator_from_earliest_tx())
@@ -242,15 +243,40 @@ def _backfill_missing_creator(mint: str) -> None:
         create_tx_signature = analyzer._create_tx_signature if (hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
 
         conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+        ensure_schema(conn)
         conn.execute("""
             UPDATE token_analysis
             SET earliest_tx_creator = COALESCE(earliest_tx_creator, ?),
+                pf_ws_creator = COALESCE(pf_ws_creator, ?),
                 created_at = COALESCE(created_at, ?),
                 bonding_curve_pda = COALESCE(bonding_curve_pda, ?),
-                create_tx_signature = COALESCE(create_tx_signature, ?)
+                create_tx_signature = COALESCE(create_tx_signature, ?),
+                creator_resolved_slot = COALESCE(creator_resolved_slot, migration_slot, curve_completed_slot)
             WHERE mint = ?
               AND (earliest_tx_creator IS NULL OR earliest_tx_creator = '')
-        """, (creator, created_at, bonding_curve_pda, create_tx_signature, mint))
+        """, (creator, creator, created_at, bonding_curve_pda, create_tx_signature, mint))
+        token_row = conn.execute(
+            "SELECT migrated_at, create_tx_signature FROM token_analysis WHERE mint=?",
+            (mint,),
+        ).fetchone()
+        _enqueue_funding_handoff(
+            conn,
+            creator=creator,
+            mint=mint,
+            migration_timestamp=_iso_from_epoch(token_row['migrated_at'] if token_row else None),
+            create_tx_signature=create_tx_signature or (token_row['create_tx_signature'] if token_row else None),
+        )
+        conn.execute("""
+            UPDATE creator_resolution_queue
+            SET status='complete',
+                locked_until=0,
+                last_error=NULL,
+                resolved_creator=?,
+                resolved_at=strftime('%s','now'),
+                updated_at=strftime('%s','now')
+            WHERE mint=?
+        """, (creator, mint))
         conn.commit()
         conn.close()
     except Exception:
@@ -267,7 +293,16 @@ def _backfill_missing_creator(mint: str) -> None:
 
 def _schedule_missing_creator_backfill(mint: Optional[str]) -> None:
     """Fire-and-forget creator repair for tokens that slipped through without creator metadata."""
-    if not mint or not _CREATOR_BACKFILL_ENABLED:
+    if not mint:
+        return
+    try:
+        from src.core.creator_resolution_queue import enqueue_missing_creator, connect
+        with connect(DB_PATH, timeout=10) as conn:
+            enqueue_missing_creator(conn, mint, reason="missing_creator_p0", source="dashboard_missing_creator")
+            conn.commit()
+    except Exception as exc:
+        print(f"[CREATOR_RESOLUTION_QUEUE] enqueue failed mint={mint[:8]}: {exc}", flush=True)
+    if not _CREATOR_BACKFILL_ENABLED:
         return
     with _creator_backfill_lock:
         if mint in _creator_backfill_inflight:
@@ -17346,6 +17381,30 @@ def api_predictions_run():
 @app.route('/approval-queue')
 def approval_queue_page():
     return render_template('approval_queue.html', active_page='approval_queue')
+
+
+@app.route('/api/creator-resolution-queue/status')
+def api_creator_resolution_queue_status():
+    try:
+        from src.core.creator_resolution_queue import get_status
+        return jsonify(get_status(DB_PATH, auto_enqueue_limit=50))
+    except Exception as exc:
+        logging.getLogger(__name__).exception('[creator-resolution-queue] status failed')
+        return jsonify({'error': str(exc)}), 500
+
+
+@app.route('/api/creator-resolution-queue/run-now', methods=['POST'])
+def api_creator_resolution_queue_run_now():
+    try:
+        from src.core.creator_resolution_queue import enqueue_missing_migrated_tokens, process_queue
+        enqueued = enqueue_missing_migrated_tokens(DB_PATH, limit=100, source='manual_p0_run')
+        limit = min(max(int((request.json or {}).get('limit', 5)), 1), 25)
+        result = process_queue(DB_PATH, limit=limit)
+        result['auto_enqueued'] = enqueued
+        return jsonify(result)
+    except Exception as exc:
+        logging.getLogger(__name__).exception('[creator-resolution-queue] run failed')
+        return jsonify({'status': 'failed', 'error': str(exc)}), 500
 
 
 @app.route('/network-approval')

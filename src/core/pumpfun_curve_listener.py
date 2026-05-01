@@ -685,6 +685,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
         asyncio.create_task(self._cleanup_tx_cache_periodic())
+        asyncio.create_task(self._process_creator_resolution_queue_periodic())
         asyncio.create_task(self._process_creator_funding_queue_periodic())
         asyncio.create_task(self._flush_portal_vsol_periodic())
         asyncio.create_task(self._db_maintenance_periodic())
@@ -3882,6 +3883,44 @@ class PumpFunCurveListener(FastLaneDiscovery):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, _run_refresh)
 
+    async def _process_creator_resolution_queue_periodic(self) -> None:
+        """Drain P0 missing-creator jobs before creator funding extraction."""
+        await asyncio.sleep(2)
+        while True:
+            sleep_seconds = 15
+            try:
+                from src.core.creator_resolution_queue import (
+                    enqueue_missing_migrated_tokens,
+                    process_queue as process_creator_resolution_queue,
+                )
+
+                enqueued = await asyncio.to_thread(
+                    enqueue_missing_migrated_tokens,
+                    DB_PATH,
+                    limit=25,
+                    source="listener_p0_sweep",
+                )
+                result = await asyncio.to_thread(
+                    process_creator_resolution_queue,
+                    DB_PATH,
+                    limit=2,
+                )
+                processed = int(result.get("processed") or 0)
+                if enqueued or processed:
+                    sleep_seconds = 3
+                    log_print(
+                        "[CREATOR_RESOLUTION_QUEUE] "
+                        f"P0 enqueued={enqueued} processed={processed} "
+                        f"resolved={result.get('resolved', 0)} "
+                        f"funding={result.get('funding_enqueued', 0)} "
+                        f"failed={result.get('failed', 0)}",
+                        flush=True,
+                    )
+            except Exception as e:
+                log_print(f"[CREATOR_RESOLUTION_QUEUE] ⚠ P0 worker error: {e}", flush=True)
+                sleep_seconds = 20
+            await asyncio.sleep(sleep_seconds)
+
     async def _process_creator_funding_queue_periodic(self) -> None:
         """Process durable creator funding work after the critical window."""
         await asyncio.sleep(2)
@@ -4279,6 +4318,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         delay_seconds=0,
                         source="store_analysis",
                     )
+                else:
+                    try:
+                        from src.core.creator_resolution_queue import connect as _crq_connect, enqueue_missing_creator
+                        with _crq_connect(DB_PATH, timeout=10) as _crq_conn:
+                            enqueue_missing_creator(
+                                _crq_conn,
+                                mint,
+                                reason="store_analysis_missing_creator",
+                                source="store_analysis",
+                            )
+                            _crq_conn.commit()
+                    except Exception as _crq_e:
+                        log_print(
+                            f"[CREATOR_RESOLUTION_QUEUE] ⚠ enqueue failed mint={mint[:8]}...: {_crq_e}",
+                            flush=True,
+                        )
                 pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: will discover at price-time"
                 log_print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
             except Exception as e:

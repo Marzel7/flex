@@ -255,6 +255,62 @@ def _enqueue_funding_handoff(
     return cur.rowcount > 0
 
 
+def enqueue_missing_funding_jobs(
+    db_path: str,
+    *,
+    limit: int = 50,
+    source: str = "funding_coverage_sweep",
+) -> int:
+    """Backfill migrated tokens that already have a creator but no funding job."""
+    now = int(time.time())
+    enqueued = 0
+    with connect(db_path) as conn:
+        ensure_schema(conn)
+        rows = conn.execute(
+            """
+            SELECT
+                ta.mint,
+                COALESCE(NULLIF(TRIM(ta.pf_ws_creator), ''), NULLIF(TRIM(ta.earliest_tx_creator), '')) AS creator,
+                ta.create_tx_signature,
+                ta.migrated_at
+            FROM token_analysis ta
+            WHERE ta.lifecycle_stage='migrated'
+              AND COALESCE(NULLIF(TRIM(ta.pf_ws_creator), ''), NULLIF(TRIM(ta.earliest_tx_creator), '')) IS NOT NULL
+              AND NOT EXISTS (
+                  SELECT 1 FROM creator_funding_queue cfq WHERE cfq.mint = ta.mint
+              )
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM creator_funders cf
+                  WHERE cf.creator_address = COALESCE(NULLIF(TRIM(ta.pf_ws_creator), ''), NULLIF(TRIM(ta.earliest_tx_creator), ''))
+              )
+            ORDER BY COALESCE(ta.migrated_at, ta.created_at, ta.analyzed_at, 0) DESC
+            LIMIT ?
+            """,
+            (max(1, int(limit)),),
+        ).fetchall()
+        for row in rows:
+            if _enqueue_funding_handoff(
+                conn,
+                creator=row["creator"],
+                mint=row["mint"],
+                migration_timestamp=_iso_from_epoch(row["migrated_at"]),
+                create_tx_signature=row["create_tx_signature"],
+            ):
+                conn.execute(
+                    """
+                    UPDATE creator_funding_queue
+                    SET source=?, updated_at=?
+                    WHERE mint=?
+                      AND source='creator_resolution_queue'
+                    """,
+                    (source, now, row["mint"]),
+                )
+                enqueued += 1
+        conn.commit()
+    return enqueued
+
+
 def _resolve_creator_rpc(mint: str) -> Dict[str, Any]:
     from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 
@@ -421,6 +477,11 @@ def get_status(db_path: str, *, auto_enqueue_limit: int = 25) -> Dict[str, Any]:
         limit=auto_enqueue_limit,
         source="approval_queue_status",
     )
+    funding_auto_enqueued = enqueue_missing_funding_jobs(
+        db_path,
+        limit=auto_enqueue_limit,
+        source="approval_queue_funding_coverage",
+    )
     now = int(time.time())
     with connect(db_path) as conn:
         ensure_schema(conn)
@@ -437,6 +498,22 @@ def get_status(db_path: str, *, auto_enqueue_limit: int = 25) -> Dict[str, Any]:
             WHERE lifecycle_stage='migrated'
               AND COALESCE(NULLIF(TRIM(earliest_tx_creator), ''), NULLIF(TRIM(pf_ws_creator), '')) IS NULL
               AND COALESCE(migrated_at, created_at, analyzed_at, 0) >= ?
+            """,
+            (now - 3600,),
+        ).fetchone()["cnt"]
+        funding_pending = conn.execute(
+            """
+            SELECT COUNT(*) AS cnt
+            FROM creator_funding_queue
+            WHERE status IN ('pending','retry','running','in_progress')
+            """
+        ).fetchone()["cnt"]
+        funding_complete_1h = conn.execute(
+            """
+            SELECT COUNT(*) AS cnt
+            FROM creator_funding_queue
+            WHERE status='complete'
+              AND COALESCE(funding_extracted_at, updated_at, created_at, 0) >= ?
             """,
             (now - 3600,),
         ).fetchone()["cnt"]
@@ -459,7 +536,10 @@ def get_status(db_path: str, *, auto_enqueue_limit: int = 25) -> Dict[str, Any]:
     return {
         "counts": counts,
         "auto_enqueued": auto_enqueued,
+        "funding_auto_enqueued": funding_auto_enqueued,
         "missing_recent_1h": missing_recent,
+        "funding_pending": funding_pending,
+        "funding_complete_1h": funding_complete_1h,
         "ready": sum(1 for row in rows if row["status"] in ("pending", "retry") and int(row["next_attempt_at"] or 0) <= now),
         "rows": rows,
     }

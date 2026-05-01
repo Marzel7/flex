@@ -131,7 +131,7 @@
     <!-- P0 Creator Resolution -->
     <div class="ni-section" id="creator-resolution-section">
         <div class="ni-section-title">
-            P0 Creator Resolution
+            P0 Creator → Funding Pipeline
             <button id="p0-run-btn" onclick="runCreatorResolutionNow()"
                 style="margin-left:6px;padding:3px 12px;font-size:11px;font-weight:700;border-radius:4px;border:1px solid rgba(251,146,60,0.35);background:rgba(251,146,60,0.1);color:#fb923c;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;">
                 Resolve Now
@@ -233,6 +233,13 @@ function queueStatusBadge(s) {
     const [c, bg] = map[s] || ['#9ca3af','rgba(156,163,175,0.1)'];
     return `<span style="background:${bg};color:${c};padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;">${String(s || 'unknown').toUpperCase()}</span>`;
 }
+function pipelineStep(label, value, color, subtext) {
+    return `<div style="background:rgba(15,23,42,0.65);border:1px solid ${color}44;border-radius:8px;padding:11px 12px;min-height:68px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:${color};font-weight:800;margin-bottom:5px;">${label}</div>
+        <div style="font-size:22px;line-height:1;font-weight:800;color:#e2e8f0;margin-bottom:5px;">${value}</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.25;">${subtext}</div>
+    </div>`;
+}
 
 // Show body once both sections start loading
 document.getElementById('aq-loading').style.display = 'none';
@@ -251,11 +258,18 @@ async function loadCreatorResolutionQueue() {
         const p0Active = (counts.pending || 0) + (counts.retry || 0) + (counts.running || 0);
         const banner = p0Active > 0 || d.missing_recent_1h > 0
             ? `<div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#fb923c;margin-bottom:14px;">
-                   P0 lane active — migrated tokens missing creators are queued here before funder extraction.
+                   P0 lane active — this resolves missing creators first, then immediately hands them to high-priority creator funding extraction.
                </div>`
             : `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:6px;padding:10px 14px;font-size:12px;color:#4ade80;margin-bottom:14px;">
-                   P0 lane clear — recent migrated tokens have creator data or no unresolved queue work.
+                   P0 lane clear — recent migrated tokens have creator data, so creator funding can run directly.
                </div>`;
+
+        const pipelineHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;">
+            ${pipelineStep('1 · Missing Creator', fmtNum(d.missing_recent_1h || 0), '#fb923c', 'Migrated tokens that cannot be funded yet')}
+            ${pipelineStep('2 · P0 Resolve Ready', fmtNum(d.ready || 0), '#fbbf24', 'RPC creator recovery jobs ready to run')}
+            ${pipelineStep('3 · Funding Handoff', fmtNum(d.funding_pending || 0), '#38bdf8', 'Creator funding jobs pending/running after creator is known')}
+            ${pipelineStep('4 · Funders Found', fmtNum(d.funding_complete_1h || 0), '#22c55e', 'Recent completed funding extractions')}
+        </div>`;
 
         const kpiHtml = `<div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(145px,1fr));margin-bottom:16px;">
             ${[
@@ -265,7 +279,8 @@ async function loadCreatorResolutionQueue() {
                 ['Running', fmtNum(counts.running || 0), '#38bdf8'],
                 ['Failed', fmtNum(counts.failed || 0), '#ef4444'],
                 ['Recent Missing', fmtNum(d.missing_recent_1h || 0), '#a78bfa'],
-                ['Auto Enqueued', fmtNum(d.auto_enqueued || 0), '#22c55e'],
+                ['P0 Auto Enqueued', fmtNum(d.auto_enqueued || 0), '#22c55e'],
+                ['Funding Auto Queued', fmtNum(d.funding_auto_enqueued || 0), '#38bdf8'],
             ].map(([label, value, color]) => `
                 <div class="kpi-card">
                     <div class="kpi-label">${label}</div>
@@ -294,7 +309,7 @@ async function loadCreatorResolutionQueue() {
             </table>
         </div>`;
 
-        container.innerHTML = banner + kpiHtml + table;
+        container.innerHTML = banner + pipelineHtml + kpiHtml + table;
     } catch (err) {
         container.innerHTML = `<div style="color:#f87171;font-size:12px">Failed to load P0 creator queue: ${err.message}</div>`;
     }

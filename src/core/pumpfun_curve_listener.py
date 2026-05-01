@@ -4706,6 +4706,26 @@ class PumpFunCurveListener(FastLaneDiscovery):
         earliest_tx_creator = str(row[2]) if row[2] else None
 
         if existing_pf_ws_creator:
+            _at_migration = reason.startswith("migration")
+            _should_enqueue = _at_migration
+            if not _should_enqueue:
+                try:
+                    _gate_row = db_connect(DB_PATH, timeout=5).execute(
+                        "SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
+                    ).fetchone()
+                    _should_enqueue = bool(_gate_row[0]) if _gate_row else False
+                except Exception:
+                    _should_enqueue = False
+            if _should_enqueue:
+                enqueue_source = "pf_ws_creator_existing_migration" if _at_migration else "pf_ws_creator_existing_curve_complete"
+                await self._enqueue_creator_funding_job(
+                    existing_pf_ws_creator,
+                    mint=mint,
+                    migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                    create_tx_signature=create_tx_signature,
+                    delay_seconds=0,
+                    source=enqueue_source,
+                )
             return existing_pf_ws_creator
 
         # Fast path: PumpPortal already gave us the creator in-memory at birth — no RPC needed

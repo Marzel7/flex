@@ -2531,6 +2531,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 source="early_hot_band",
                             )
                         )
+                        # Score creator immediately after enqueue — DB-only, no RPC, ~2-5s
+                        # so risk score is ready before/at migration time
+                        def _early_score(_creator=pf_ws_creator_from_row):
+                            try:
+                                from src.core.risk_scoring_builder import RiskScoringBuilder as _RSB
+                                _RSB(DB_PATH).score_creator_now(_creator)
+                                log_print(f"[EARLY_SCORE] ✅ Pre-migration risk score written for {_creator[:8]}", flush=True)
+                            except Exception as _e:
+                                log_print(f"[EARLY_SCORE] ⚠ Pre-migration score failed: {_e}", flush=True)
+                        import threading as _t
+                        _t.Thread(target=_early_score, daemon=True, name="early-score").start()
             except Exception as e:
                 log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
 

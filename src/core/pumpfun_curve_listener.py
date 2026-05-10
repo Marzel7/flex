@@ -3786,6 +3786,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     flush=True,
                 )
                 premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
+                try:
+                    conn2 = db_connect(DB_PATH, timeout=10)
+                    conn2.execute(
+                        "UPDATE token_analysis SET funding_job_enqueued_slot = ? WHERE mint = ?",
+                        (now, mint),
+                    )
+                    conn2.commit()
+                    conn2.close()
+                except Exception:
+                    pass
                 self._creator_funding_queue_wakeup.set()
                 return True
             except Exception as e:
@@ -4264,6 +4274,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     )
                                     """,
                                     (mint, int(time.time()), mint),
+                                )
+                                cursor.execute(
+                                    "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
+                                    (int(time.time()), mint),
                                 )
                                 conn.commit()
                                 conn.close()

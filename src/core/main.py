@@ -17199,10 +17199,7 @@ def api_predictions_buy_sim():
             rows = conn.execute("""
                 SELECT tps.mint, tps.risk_level,
                        tb.peak_grade,
-                       tmp.peak_market_cap,
-                       (SELECT market_cap FROM token_price_snapshots tps2
-                        WHERE tps2.mint = tps.mint
-                        ORDER BY tps2.captured_at ASC LIMIT 1) as buy_mc
+                       tmp.peak_market_cap
                 FROM token_prediction_scores tps
                 JOIN token_analysis ta ON ta.mint = tps.mint
                 LEFT JOIN token_behavior tb ON tb.mint = tps.mint
@@ -17212,6 +17209,7 @@ def api_predictions_buy_sim():
                   AND ta.lifecycle_stage = 'migrated'
             """).fetchall()
 
+        BUY_MC = 60_000.0  # fixed buy price — migration at $60K
         no_data = 0
         buckets = {'lt1_5x': 0, 'x1_5_2': 0, 'x2_5': 0, 'x5_10': 0, 'x10_50': 0, 'x50plus': 0}
 
@@ -17226,12 +17224,11 @@ def api_predictions_buy_sim():
 
         for row in rows:
             peak = row['peak_market_cap']
-            buy = row['buy_mc']
             risk = row['risk_level']
-            if not peak or not buy:
+            if not peak:
                 no_data += 1
                 continue
-            peak_mult = peak / buy
+            peak_mult = peak / BUY_MC
 
             # bucket by peak mult
             if peak_mult < 1.5:   buckets['lt1_5x'] += 1

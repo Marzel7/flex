@@ -315,7 +315,7 @@ function renderSim(data) {
   const roiColor = v => v >= 100 ? '#4ade80' : v >= 0 ? '#fbbf24' : '#f87171';
 
   document.getElementById('simSubtitle').textContent =
-    `${data.bought} tokens bought at migration MC · ${data.no_data} missing data · hypothetical $100/token`;
+    data.bought + ' tokens · buy @$60K MC · ' + (data.no_data || 0) + ' missing peak data · $100/token hypothetical';
 
   const n = (v, d=2) => (v ?? 0).toFixed(d);
   const roi = data.roi ?? data.roi_overall ?? 0;
@@ -389,7 +389,7 @@ function renderSim(data) {
       '</tr>';
     });
     html += '</tbody></table>';
-    html += '<div class="pd-strat-note">Fixed exits: sell when token hits target mult. If it never reaches target, exit at actual peak. $100/token hypothetical.</div>';
+    html += '<div class="pd-strat-note">Buy fixed at $60K MC. Fixed exits: sell when token hits target mult. If never reached, exit at actual peak. $100/token hypothetical.</div>';
     document.getElementById('simStrat').innerHTML = html;
   }
 }

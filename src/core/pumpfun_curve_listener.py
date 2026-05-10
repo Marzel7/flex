@@ -2515,22 +2515,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         changed_values
                         and signal.get("band") == "hot"
                         and (before_row is None or (before_row[1] or "") != "hot")
-                        and pf_ws_creator_from_row
                     ):
-                        log_print(
-                            f"[EARLY_FUNDING] 🔥 mint={mint[:8]} band=hot → enqueuing early extraction for creator={pf_ws_creator_from_row[:8]}",
-                            flush=True,
-                        )
-                        asyncio.create_task(
-                            self._enqueue_creator_funding_job(
-                                pf_ws_creator_from_row,
-                                mint=mint,
+                        _hot_creator = pf_ws_creator_from_row
+                        _hot_sig = str(row[6]) if row and row[6] else None
+
+                        async def _enqueue_with_creator_resolve(_mint=mint, _creator=_hot_creator, _sig=_hot_sig):
+                            if not _creator:
+                                _creator = await self._ensure_pf_ws_creator(_mint, reason="hot_band_early")
+                            if not _creator:
+                                log_print(f"[EARLY_FUNDING] ⚠ mint={_mint[:8]} band=hot — creator unresolved, skipping", flush=True)
+                                return
+                            log_print(
+                                f"[EARLY_FUNDING] 🔥 mint={_mint[:8]} band=hot → enqueuing early extraction for creator={_creator[:8]}",
+                                flush=True,
+                            )
+                            await self._enqueue_creator_funding_job(
+                                _creator,
+                                mint=_mint,
                                 migration_timestamp=None,
-                                create_tx_signature=str(row[6]) if row and row[6] else None,
+                                create_tx_signature=_sig,
                                 delay_seconds=0,
                                 source="early_hot_band",
                             )
-                        )
+
+                        asyncio.create_task(_enqueue_with_creator_resolve())
                         # Risk scoring runs after extraction completes in the queue processor
                         # (see score_creator_now call in _process_funding_queue) — not here,
                         # since funders aren't written yet at HOT band detection time.

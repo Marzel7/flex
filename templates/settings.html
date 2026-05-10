@@ -447,17 +447,25 @@ async function loadSettings() {
 
 loadSettings();
 
-// Next cron countdown — graph analyzers run every 30 min at :00 and :30
+// Next cron countdown — graph analyzers run every 4 hours
 function updateNextCron() {
     const now = new Date();
-    const mins = now.getMinutes();
-    const secs = now.getSeconds();
-    const minsUntil = mins < 30 ? (30 - mins) : (60 - mins);
-    const totalSecs = minsUntil * 60 - secs;
+    const next = new Date(now);
+    next.setMinutes(0, 0, 0);
+    const nextHour = Math.ceil((now.getHours() + (now.getMinutes() || now.getSeconds() || now.getMilliseconds() ? 1 : 0)) / 4) * 4;
+    if (nextHour >= 24) {
+        next.setDate(next.getDate() + 1);
+        next.setHours(0);
+    } else {
+        next.setHours(nextHour);
+    }
+    const totalSecs = Math.max(0, Math.floor((next - now) / 1000));
     const m = Math.floor(totalSecs / 60);
     const s = totalSecs % 60;
+    const h = Math.floor(m / 60);
+    const remM = m % 60;
     const el = document.getElementById('next-cron');
-    if (el) el.textContent = `in ${m}m ${s}s`;
+    if (el) el.textContent = `in ${h}h ${remM}m ${s}s`;
 }
 updateNextCron();
 setInterval(updateNextCron, 1000);

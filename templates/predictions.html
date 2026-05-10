@@ -46,6 +46,14 @@
 .pd-sim-bar-track { flex:1; height:6px; background:rgba(148,163,184,0.12); border-radius:3px; overflow:hidden; }
 .pd-sim-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
 .pd-sim-bar-val { width:36px; text-align:right; color:var(--text-primary); font-size:10px; font-weight:700; }
+.pd-sim-strat { grid-column:1/-1; margin-top:4px; }
+.pd-strat-table { width:100%; border-collapse:collapse; font-size:11px; }
+.pd-strat-table th { color:var(--text-secondary); text-transform:uppercase; letter-spacing:.05em; font-weight:600; font-size:10px; padding:4px 10px; text-align:right; border-bottom:1px solid rgba(148,163,184,0.1); }
+.pd-strat-table th:first-child { text-align:left; }
+.pd-strat-table td { padding:5px 10px; text-align:right; border-bottom:1px solid rgba(148,163,184,0.06); }
+.pd-strat-table td:first-child { text-align:left; color:#e2e8f0; font-weight:600; }
+.pd-strat-table tr.best-row td { background:rgba(74,222,128,0.06); }
+.pd-strat-note { font-size:10px; color:var(--text-secondary); margin-top:6px; }
 .pd-kpi {
   background:var(--bg-card);
   border:1px solid var(--border-color);
@@ -190,6 +198,7 @@ tbody tr:last-child td { border-bottom:none; }
   </div>
   <div class="pd-sim-metrics" id="simMetrics"></div>
   <div class="pd-sim-bars" id="simBars"></div>
+  <div class="pd-sim-strat" id="simStrat"></div>
 </div>
 
 <div class="pd-section">
@@ -338,12 +347,50 @@ function renderSim(data) {
   document.getElementById('simBars').innerHTML = barDefs.map(b => {
     const cnt = buckets[b.key] || 0;
     const w = Math.round(cnt / total * 100);
-    return `<div class="pd-sim-bar-row">
-      <div class="pd-sim-bar-label">${b.label}</div>
-      <div class="pd-sim-bar-track"><div class="pd-sim-bar-fill" style="width:${w}%;background:${b.color}"></div></div>
-      <div class="pd-sim-bar-val" style="color:${b.color}">${cnt}</div>
-    </div>`;
+    return '<div class="pd-sim-bar-row">' +
+      '<div class="pd-sim-bar-label">' + b.label + '</div>' +
+      '<div class="pd-sim-bar-track"><div class="pd-sim-bar-fill" style="width:' + w + '%;background:' + b.color + '"></div></div>' +
+      '<div class="pd-sim-bar-val" style="color:' + b.color + '">' + cnt + '</div>' +
+    '</div>';
   }).join('');
+
+  // Strategy comparison table
+  const strats = data.strategies;
+  if (strats) {
+    const roiC = v => v >= 100 ? '#4ade80' : v >= 0 ? '#fbbf24' : '#f87171';
+    const stratDefs = [
+      { key: '1.5x', label: 'Sell at 1.5x', note: 'exit if reaches 1.5x, else sell at peak' },
+      { key: '2.0x', label: 'Sell at 2x',   note: 'exit if reaches 2x, else sell at peak' },
+      { key: '3.0x', label: 'Sell at 3x',   note: 'exit if reaches 3x, else sell at peak' },
+      { key: 'peak', label: 'Hold to Peak', note: 'hypothetical perfect exit' },
+    ];
+    // find best ROI strategy
+    let bestKey = 'peak', bestRoi = -Infinity;
+    stratDefs.forEach(sd => {
+      const s = strats[sd.key];
+      if (s && s.roi > bestRoi) { bestRoi = s.roi; bestKey = sd.key; }
+    });
+    let html = '<table class="pd-strat-table"><thead><tr>' +
+      '<th>Strategy</th><th>ROI</th><th>Avg Mult</th><th>WATCH ROI</th><th>LOW ROI</th><th>WATCH Med</th><th>LOW Med</th>' +
+      '</tr></thead><tbody>';
+    stratDefs.forEach(sd => {
+      const s = strats[sd.key];
+      if (!s) return;
+      const isBest = sd.key === bestKey;
+      html += '<tr' + (isBest ? ' class="best-row"' : '') + '>' +
+        '<td>' + sd.label + (isBest ? ' ★' : '') + '</td>' +
+        '<td style="color:' + roiC(s.roi) + ';font-weight:700">' + (s.roi >= 0 ? '+' : '') + s.roi.toFixed(1) + '%</td>' +
+        '<td style="color:#e2e8f0">' + s.avg_mult.toFixed(2) + 'x</td>' +
+        '<td style="color:' + roiC(s.watch_roi) + '">' + (s.watch_roi >= 0 ? '+' : '') + s.watch_roi.toFixed(1) + '%</td>' +
+        '<td style="color:' + roiC(s.low_roi) + '">' + (s.low_roi >= 0 ? '+' : '') + s.low_roi.toFixed(1) + '%</td>' +
+        '<td style="color:#a78bfa">' + s.watch_median_mult.toFixed(2) + 'x</td>' +
+        '<td style="color:#4ade80">' + s.low_median_mult.toFixed(2) + 'x</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div class="pd-strat-note">Fixed exits: sell when token hits target mult. If it never reaches target, exit at actual peak. $100/token hypothetical.</div>';
+    document.getElementById('simStrat').innerHTML = html;
+  }
 }
 
 function applyFilters() {

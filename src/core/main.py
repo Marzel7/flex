@@ -17212,14 +17212,17 @@ def api_predictions_buy_sim():
                   AND ta.lifecycle_stage = 'migrated'
             """).fetchall()
 
-        total_invested = 0.0
-        total_returned = 0.0
         no_data = 0
         buckets = {'lt1_5x': 0, 'x1_5_2': 0, 'x2_5': 0, 'x5_10': 0, 'x10_50': 0, 'x50plus': 0}
-        watch_invested = low_invested = 0.0
-        watch_returned = low_returned = 0.0
-        watch_mults = []
-        low_mults = []
+
+        EXIT_TARGETS = [1.5, 2.0, 3.0]  # fixed multiplier exits
+        # strategy_data[label] = {invested, returned, watch_r, low_r, watch_mults, low_mults}
+        def _blank():
+            return {'invested': 0.0, 'returned': 0.0,
+                    'watch_r': 0.0, 'low_r': 0.0,
+                    'watch_mults': [], 'low_mults': []}
+        strategies = {f'{x}x': _blank() for x in EXIT_TARGETS}
+        strategies['peak'] = _blank()
 
         for row in rows:
             peak = row['peak_market_cap']
@@ -17228,40 +17231,71 @@ def api_predictions_buy_sim():
             if not peak or not buy:
                 no_data += 1
                 continue
-            mult = peak / buy
-            total_invested += 100
-            total_returned += 100 * mult
+            peak_mult = peak / buy
+
+            # bucket by peak mult
+            if peak_mult < 1.5:   buckets['lt1_5x'] += 1
+            elif peak_mult < 2:   buckets['x1_5_2'] += 1
+            elif peak_mult < 5:   buckets['x2_5'] += 1
+            elif peak_mult < 10:  buckets['x5_10'] += 1
+            elif peak_mult < 50:  buckets['x10_50'] += 1
+            else:                 buckets['x50plus'] += 1
+
+            for target in EXIT_TARGETS:
+                key = f'{target}x'
+                # exit at target if peak reached it, else exit at peak (stop loss = peak)
+                exit_mult = target if peak_mult >= target else peak_mult
+                strategies[key]['invested'] += 100
+                strategies[key]['returned'] += 100 * exit_mult
+                if risk == 'WATCH':
+                    strategies[key]['watch_r'] += 100 * exit_mult
+                    strategies[key]['watch_mults'].append(exit_mult)
+                else:
+                    strategies[key]['low_r'] += 100 * exit_mult
+                    strategies[key]['low_mults'].append(exit_mult)
+
+            # peak (hold to peak)
+            strategies['peak']['invested'] += 100
+            strategies['peak']['returned'] += 100 * peak_mult
             if risk == 'WATCH':
-                watch_invested += 100; watch_returned += 100 * mult; watch_mults.append(mult)
+                strategies['peak']['watch_r'] += 100 * peak_mult
+                strategies['peak']['watch_mults'].append(peak_mult)
             else:
-                low_invested += 100; low_returned += 100 * mult; low_mults.append(mult)
-            if mult < 1.5:   buckets['lt1_5x'] += 1
-            elif mult < 2:   buckets['x1_5_2'] += 1
-            elif mult < 5:   buckets['x2_5'] += 1
-            elif mult < 10:  buckets['x5_10'] += 1
-            elif mult < 50:  buckets['x10_50'] += 1
-            else:            buckets['x50plus'] += 1
+                strategies['peak']['low_r'] += 100 * peak_mult
+                strategies['peak']['low_mults'].append(peak_mult)
 
-        bought = len(watch_mults) + len(low_mults)
-        watch_median = sorted(watch_mults)[len(watch_mults)//2] if watch_mults else 0
-        low_median = sorted(low_mults)[len(low_mults)//2] if low_mults else 0
+        def _summarise(s):
+            inv = s['invested']
+            ret = s['returned']
+            wm = sorted(s['watch_mults'])
+            lm = sorted(s['low_mults'])
+            bought = len(wm) + len(lm)
+            watch_inv = len(wm) * 100
+            low_inv = len(lm) * 100
+            return {
+                'bought': bought,
+                'invested': inv,
+                'returned': ret,
+                'roi': (ret / inv - 1) * 100 if inv else 0,
+                'avg_mult': ret / inv if inv else 0,
+                'watch_roi': (s['watch_r'] / watch_inv - 1) * 100 if watch_inv else 0,
+                'low_roi': (s['low_r'] / low_inv - 1) * 100 if low_inv else 0,
+                'watch_avg_mult': sum(wm) / len(wm) if wm else 0,
+                'low_avg_mult': sum(lm) / len(lm) if lm else 0,
+                'watch_median_mult': wm[len(wm)//2] if wm else 0,
+                'low_median_mult': lm[len(lm)//2] if lm else 0,
+                'watch_count': len(wm),
+                'low_count': len(lm),
+            }
 
+        result = {s: _summarise(strategies[s]) for s in strategies}
+        # top-level keys from peak strategy for backwards compat
+        peak = result['peak']
         return jsonify({
-            'bought': bought,
+            **{k: peak[k] for k in peak},
             'no_data': no_data,
-            'invested': total_invested,
-            'returned': total_returned,
-            'roi_overall': (total_returned / total_invested - 1) * 100 if total_invested else 0,
-            'avg_mult': total_returned / total_invested if total_invested else 0,
-            'watch_roi': (watch_returned / watch_invested - 1) * 100 if watch_invested else 0,
-            'low_roi': (low_returned / low_invested - 1) * 100 if low_invested else 0,
-            'watch_avg_mult': sum(watch_mults) / len(watch_mults) if watch_mults else 0,
-            'low_avg_mult': sum(low_mults) / len(low_mults) if low_mults else 0,
-            'watch_median_mult': watch_median,
-            'low_median_mult': low_median,
-            'watch_count': len(watch_mults),
-            'low_count': len(low_mults),
             'buckets': buckets,
+            'strategies': result,
         })
     except Exception as exc:
         return jsonify({'error': str(exc)}), 500

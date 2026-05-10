@@ -318,12 +318,13 @@ function renderSim(data) {
     `${data.bought} tokens bought at migration MC · ${data.no_data} missing data · hypothetical $100/token`;
 
   const n = (v, d=2) => (v ?? 0).toFixed(d);
+  const roi = data.roi ?? data.roi_overall ?? 0;
   const metrics = [
-    { val: pct(data.roi_overall), lbl: 'Overall ROI', color: roiColor(data.roi_overall) },
-    { val: fmt(data.returned - data.invested), lbl: 'Net Profit', color: roiColor(data.roi_overall) },
+    { val: pct(roi), lbl: 'Overall ROI (peak)', color: roiColor(roi) },
+    { val: fmt((data.returned || 0) - (data.invested || 0)), lbl: 'Net Profit (peak)', color: roiColor(roi) },
     { val: n(data.avg_mult) + 'x', lbl: 'Avg Multiple', color: '#e2e8f0' },
-    { val: n(data.watch_roi, 0) + '%', lbl: 'WATCH ROI' + (data.watch_count != null ? ' (' + data.watch_count + ')' : ''), color: roiColor(data.watch_roi) },
-    { val: n(data.low_roi, 0) + '%', lbl: 'LOW ROI' + (data.low_count != null ? ' (' + data.low_count + ')' : ''), color: roiColor(data.low_roi) },
+    { val: n(data.watch_roi, 0) + '%', lbl: 'WATCH ROI' + (data.watch_count != null ? ' (' + data.watch_count + ')' : ''), color: roiColor(data.watch_roi ?? 0) },
+    { val: n(data.low_roi, 0) + '%', lbl: 'LOW ROI' + (data.low_count != null ? ' (' + data.low_count + ')' : ''), color: roiColor(data.low_roi ?? 0) },
     { val: n(data.watch_avg_mult) + 'x' + (data.watch_median_mult != null ? ' / ' + n(data.watch_median_mult) + 'x' : ''), lbl: 'WATCH avg / median', color: '#a78bfa' },
     { val: n(data.low_avg_mult) + 'x' + (data.low_median_mult != null ? ' / ' + n(data.low_median_mult) + 'x' : ''), lbl: 'LOW avg / median', color: '#4ade80' },
   ];

@@ -17191,6 +17191,197 @@ def predictions_page():
     return render_template('predictions.html', active_page='predictions')
 
 
+@app.route('/trading-sim')
+def trading_sim_page():
+    return render_template('trading_sim.html', active_page='trading_sim')
+
+
+def _trading_sim_service():
+    from src.trading.simulation import TradingSimulationService
+
+    return TradingSimulationService()
+
+
+def _trading_sim_conn(timeout: int = 15):
+    conn = db_connect(DB_PATH, timeout=timeout)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@app.route('/api/trading-sim/simulations')
+def api_trading_simulations():
+    try:
+        status = request.args.get('status')
+        limit = int(request.args.get('limit', 100))
+        service = _trading_sim_service()
+        with _trading_sim_conn() as conn:
+            rows = service.list_simulations(conn, limit=limit, status=status)
+        return jsonify({"ok": True, "simulations": rows})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/simulations/<int:simulation_id>')
+def api_trading_simulation_detail(simulation_id: int):
+    try:
+        service = _trading_sim_service()
+        with _trading_sim_conn() as conn:
+            simulation = service.get_simulation(conn, simulation_id)
+        if not simulation:
+            return jsonify({"ok": False, "error": "simulation not found"}), 404
+        return jsonify({"ok": True, "simulation": simulation})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/quote', methods=['POST'])
+def api_trading_sim_quote():
+    try:
+        payload = request.get_json(silent=True) or {}
+        mint = (payload.get('mint') or '').strip()
+        side = (payload.get('side') or 'BUY').upper()
+        slippage_bps = int(payload.get('slippage_bps') or 500)
+        service = _trading_sim_service()
+        if side == 'BUY':
+            quote = service.quote_buy(mint, float(payload.get('sol_amount') or 0), slippage_bps)
+        elif side == 'SELL':
+            quote = service.quote_sell(mint, int(payload.get('token_amount_raw') or 0), slippage_bps)
+        else:
+            return jsonify({"ok": False, "error": "side must be BUY or SELL"}), 400
+        return jsonify({"ok": True, "quote": quote})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+
+@app.route('/api/trading-sim/buy', methods=['POST'])
+def api_trading_sim_buy():
+    try:
+        payload = request.get_json(silent=True) or {}
+        mint = (payload.get('mint') or '').strip()
+        sol_amount = float(payload.get('sol_amount') or 0)
+        slippage_bps = int(payload.get('slippage_bps') or 500)
+        token_symbol = (payload.get('token_symbol') or '').strip() or None
+        notes = (payload.get('notes') or '').strip() or None
+        service = _trading_sim_service()
+        with _trading_sim_conn(timeout=30) as conn:
+            simulation = service.simulate_buy(
+                conn,
+                mint=mint,
+                sol_amount=sol_amount,
+                slippage_bps=slippage_bps,
+                token_symbol=token_symbol,
+                notes=notes,
+            )
+        return jsonify({"ok": True, "simulation": simulation})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+
+@app.route('/api/trading-sim/auto-buy-predictions', methods=['POST'])
+def api_trading_sim_auto_buy_predictions():
+    try:
+        payload = request.get_json(silent=True) or {}
+        sol_amount = float(payload.get('sol_amount') or 0)
+        slippage_bps = int(payload.get('slippage_bps') or 500)
+        limit = max(1, min(int(payload.get('limit') or 5), 25))
+        requested_levels = payload.get('risk_levels') or ['LOW', 'WATCH']
+        if isinstance(requested_levels, str):
+            requested_levels = [requested_levels]
+        risk_levels = [str(level).upper() for level in requested_levels if str(level).upper() in {'LOW', 'WATCH'}]
+        if not risk_levels:
+            return jsonify({"ok": False, "error": "risk_levels must include LOW or WATCH"}), 400
+        if sol_amount <= 0:
+            return jsonify({"ok": False, "error": "SOL amount must be greater than zero"}), 400
+
+        service = _trading_sim_service()
+        with _trading_sim_conn(timeout=30) as conn:
+            service.ensure_schema(conn)
+            reset_row = conn.execute(
+                "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+            ).fetchone()
+            reset_at = int(reset_row['value']) if reset_row and reset_row['value'] else 0
+            placeholders = ",".join("?" for _ in risk_levels)
+            candidates = conn.execute(f"""
+                SELECT
+                    tps.mint,
+                    tps.risk_level,
+                    tps.prediction_score,
+                    tps.prediction_label,
+                    tps.prediction_confidence,
+                    tps.predicted_at,
+                    COALESCE(mc.symbol, mc.name) AS token_symbol
+                FROM token_prediction_scores tps
+                JOIN token_analysis ta ON ta.mint = tps.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
+                LEFT JOIN trade_simulations ts ON ts.mint = tps.mint
+                WHERE tps.prediction_status = 'COMPLETE'
+                  AND tps.risk_level IN ({placeholders})
+                  AND ta.lifecycle_stage = 'migrated'
+                  AND CAST(COALESCE(ta.migrated_at, 0) AS INTEGER) >= ?
+                  AND ts.id IS NULL
+                ORDER BY
+                  CASE tps.risk_level WHEN 'LOW' THEN 0 WHEN 'WATCH' THEN 1 ELSE 2 END,
+                  tps.predicted_at DESC
+                LIMIT ?
+            """, (*risk_levels, reset_at, limit)).fetchall()
+
+            created = []
+            errors = []
+            for candidate in candidates:
+                notes = (
+                    f"auto_paper_buy risk={candidate['risk_level']} "
+                    f"score={candidate['prediction_score']} "
+                    f"label={candidate['prediction_label']} "
+                    f"confidence={candidate['prediction_confidence']}"
+                )
+                try:
+                    simulation = service.simulate_buy(
+                        conn,
+                        mint=candidate['mint'],
+                        sol_amount=sol_amount,
+                        slippage_bps=slippage_bps,
+                        token_symbol=candidate['token_symbol'],
+                        notes=notes,
+                    )
+                    created.append({
+                        "mint": candidate['mint'],
+                        "risk_level": candidate['risk_level'],
+                        "prediction_score": candidate['prediction_score'],
+                        "simulation": simulation,
+                    })
+                except Exception as exc:
+                    errors.append({
+                        "mint": candidate['mint'],
+                        "risk_level": candidate['risk_level'],
+                        "error": str(exc),
+                    })
+
+        return jsonify({
+            "ok": True,
+            "created_count": len(created),
+            "candidate_count": len(candidates),
+            "error_count": len(errors),
+            "created": created,
+            "errors": errors,
+            "mode": "paper",
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/sell/<int:simulation_id>', methods=['POST'])
+def api_trading_sim_sell(simulation_id: int):
+    try:
+        payload = request.get_json(silent=True) or {}
+        slippage_bps = int(payload.get('slippage_bps') or 500)
+        service = _trading_sim_service()
+        with _trading_sim_conn(timeout=30) as conn:
+            simulation = service.simulate_sell(conn, simulation_id, slippage_bps)
+        return jsonify({"ok": True, "simulation": simulation})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+
 @app.route('/api/predictions/buy-sim')
 def api_predictions_buy_sim():
     try:
@@ -17420,7 +17611,13 @@ def api_predictions_live():
                         ELSE NULL
                     END as g_level,
                     COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = tps.mint), 0) as liquidity_removed,
-                    tps.creator_was_fresh as creator_is_fresh
+                    tps.creator_was_fresh as creator_is_fresh,
+                    CASE
+                        WHEN ta.first_pre_migration_signal_at IS NOT NULL
+                             AND ta.migrated_at > ta.first_pre_migration_signal_at
+                        THEN CAST(ta.migrated_at AS INTEGER) - CAST(ta.first_pre_migration_signal_at AS INTEGER)
+                        ELSE NULL
+                    END as migration_speed_secs
                 FROM token_prediction_scores tps
                 LEFT JOIN token_analysis ta ON ta.mint = tps.mint
                 LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
@@ -17478,9 +17675,10 @@ def api_predictions_outcomes():
             conn.row_factory = sqlite3.Row
             if status == 'unresolved':
                 rows = conn.execute("""
-                    SELECT tps.*, ta.name as token_name
+                    SELECT tps.*, COALESCE(mc.name, mc.symbol) as token_name
                     FROM token_prediction_scores tps
                     LEFT JOIN token_analysis ta ON ta.mint = tps.mint
+                    LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
                     WHERE tps.mint NOT IN (SELECT mint FROM token_prediction_outcomes WHERE prediction_correct IS NOT NULL)
                     ORDER BY tps.prediction_score DESC
                     LIMIT ?
@@ -17489,10 +17687,11 @@ def api_predictions_outcomes():
                 rows = conn.execute("""
                     SELECT tpo.*, tps.prediction_score, tps.risk_level, tps.prediction_label,
                            tps.prediction_status, tps.prediction_confidence,
-                           ta.name as token_name
+                           COALESCE(mc.name, mc.symbol) as token_name
                     FROM token_prediction_outcomes tpo
                     LEFT JOIN token_prediction_scores tps ON tps.mint = tpo.mint
                     LEFT JOIN token_analysis ta ON ta.mint = tpo.mint
+                    LEFT JOIN metadata_cache mc ON mc.mint = tpo.mint
                     WHERE tpo.prediction_correct IS NOT NULL
                     ORDER BY tpo.resolved_at DESC
                     LIMIT ?

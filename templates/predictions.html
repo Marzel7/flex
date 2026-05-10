@@ -237,6 +237,7 @@ tbody tr:last-child td { border-bottom:none; }
         <th style="width:65px;text-align:right">G</th>
         <th style="width:100px">Peak MC</th>
         <th style="width:100px">Migrated</th>
+        <th style="width:70px">Speed</th>
         <th>Signals</th>
       </tr>
     </thead>
@@ -441,6 +442,9 @@ function renderPredictionRows(rows) {
         <td>${gCell}</td>
         <td style="color:var(--text-secondary);font-size:11px">${fmtMC(r.market_cap_highest)}</td>
         <td style="color:var(--text-secondary);font-size:11px">${relDate(r.migrated_at)}</td>
+        <td style="font-size:11px;color:${r.migration_speed_secs != null && r.migration_speed_secs < 60 ? '#a78bfa' : 'var(--text-secondary)'}">
+          ${r.migration_speed_secs != null ? (r.migration_speed_secs < 60 ? r.migration_speed_secs + 's' : Math.round(r.migration_speed_secs/60) + 'm') : '—'}
+        </td>
         <td style="color:var(--text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis">${signals}</td>
       </tr>`;
     }

@@ -747,7 +747,8 @@ class TokenPredictionBuilder:
                 ta.market_cap_current,
                 ta.migrated_at,
                 ta.lifecycle_stage,
-                COALESCE(liq.liquidity_removed, 0) AS liquidity_removed
+                COALESCE(liq.liquidity_removed, 0) AS liquidity_removed,
+                ta.first_pre_migration_signal_at
             FROM token_analysis ta
             LEFT JOIN (
                 SELECT mint, MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed
@@ -771,7 +772,8 @@ class TokenPredictionBuilder:
                 ta.market_cap_current,
                 ta.migrated_at,
                 ta.lifecycle_stage,
-                COALESCE(liq.liquidity_removed, 0) AS liquidity_removed
+                COALESCE(liq.liquidity_removed, 0) AS liquidity_removed,
+                ta.first_pre_migration_signal_at
             FROM token_analysis ta
             LEFT JOIN (
                 SELECT mint, MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed
@@ -1065,6 +1067,13 @@ class TokenPredictionBuilder:
             "creator_migrated_tokens": migrated,
             "self_funding": bool(sf.get("is_self_funding")),
             "second_hop": ctx["second_hop"].get(creator, 0) if creator else 0,
+            "migration_speed_secs": (
+                int(token["migrated_at"]) - int(token["first_pre_migration_signal_at"])
+                if token.get("migrated_at") and token.get("first_pre_migration_signal_at")
+                and int(token.get("first_pre_migration_signal_at") or 0) > 0
+                and int(token["migrated_at"]) > int(token["first_pre_migration_signal_at"])
+                else None
+            ),
             "reasons": ts.reasons,
             "reason_codes": ts.reason_codes,
         }

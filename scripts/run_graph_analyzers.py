@@ -25,6 +25,7 @@ import sys
 import os
 import time
 import fcntl
+import signal
 import logging
 import logging.handlers
 from pathlib import Path
@@ -228,6 +229,8 @@ def run_analyzer(name: str, db_path: str) -> dict:
             conn.execute("PRAGMA journal_mode=WAL")
             sync_infra_wallets(conn)
             conn.execute("DROP TABLE IF EXISTS _coordinated_edges_tmp")
+            # Pre-filter to only funders shared by 2+ creators before the self-join.
+            # This reduces the join from 60K×60K to ~389 shared funders × their creators.
             conn.execute("""
                 CREATE TEMP TABLE _coordinated_edges_tmp AS
                 SELECT cf1.creator_address AS creator_a,
@@ -238,6 +241,12 @@ def run_analyzer(name: str, db_path: str) -> dict:
                 JOIN creator_funders cf2 ON cf1.funder_address = cf2.funder_address
                   AND cf1.creator_address < cf2.creator_address
                 WHERE cf1.is_cex = 0 AND cf2.is_cex = 0
+                  AND cf1.funder_address IN (
+                      SELECT funder_address FROM creator_funders
+                      WHERE is_cex = 0
+                      GROUP BY funder_address
+                      HAVING COUNT(DISTINCT creator_address) >= 2
+                  )
                   AND cf1.funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY cf1.creator_address, cf2.creator_address, cf1.funder_address
             """)
@@ -355,6 +364,8 @@ def run_analyzer(name: str, db_path: str) -> dict:
             'result': {},
         }
 
+
+ANALYZER_TIMEOUT_SECS = 300  # kill any single analyzer that runs longer than 5 minutes
 
 ANALYZERS = [
     'WalletClusteringEngine',
@@ -506,7 +517,20 @@ def _main_unlocked() -> int:
                 )
                 break
 
-        r = run_analyzer(name, db_path)
+        def _timeout_handler(signum, frame):
+            raise TimeoutError(f"Analyzer {name} exceeded {ANALYZER_TIMEOUT_SECS}s timeout")
+
+        signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(ANALYZER_TIMEOUT_SECS)
+        try:
+            r = run_analyzer(name, db_path)
+        except TimeoutError as _te:
+            logger.error(f"[{name}] TIMEOUT after {ANALYZER_TIMEOUT_SECS}s — skipping")
+            r = {'analyzer': name, 'status': 'timeout', 'error': str(_te),
+                 'started_at': time.time(), 'finished_at': time.time(),
+                 'duration_seconds': ANALYZER_TIMEOUT_SECS, 'rows_written': 0, 'result': {}}
+        finally:
+            signal.alarm(0)
         results.append(r)
 
         # Passive checkpoint after each analyzer so WAL doesn't balloon

@@ -155,10 +155,10 @@ def _ensure_schema():
            )""",
     ]
     # Fast check: if the last column we'd add already exists, all migrations have run — skip entirely.
-    # Use raw sqlite3.connect() with no PRAGMAs — PRAGMA table_info is a read-only operation
+    # Use raw db_connect() with no PRAGMAs — PRAGMA table_info is a read-only operation
     # that works even while another process holds a write lock.
     try:
-        _check = sqlite3.connect(DB_PATH, timeout=5)
+        _check = db_connect(DB_PATH, timeout=5)
         _cols = {row[1] for row in _check.execute("PRAGMA table_info(token_analysis)")}
         _check.close()
         if 'pf_ws_creator' in _cols and 'creator_mismatch' in _cols:
@@ -203,6 +203,15 @@ _pf_ws_creator_backfill_inflight = set()
 _pf_ws_creator_backfill_last_requested = {}
 _pf_ws_creator_migrated_sweep_lock = threading.Lock()
 _pf_ws_creator_migrated_sweep_last_requested = 0
+_prediction_reset_lock = threading.Lock()
+_prediction_reset_state = {
+    "status": "idle",
+    "requested_at": None,
+    "started_at": None,
+    "finished_at": None,
+    "deleted": {},
+    "error": None,
+}
 _migration_gap_audit_lock = threading.Lock()
 _migration_gap_audit_inflight = False
 _migration_gap_audit_state: Dict[str, Any] = {
@@ -1541,8 +1550,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
 
                 cursor.execute("""
                     SELECT tag, description, amount_sol FROM creator_tags
-                    WHERE creator_address = ? AND tag IN (?, ?, ?, ?)
-                """, (row['earliest_tx_creator'], 'uses_jitotip', 'uses_axiom', 'uses_debridge', 'uses_meteora'))
+                    WHERE creator_address = ? AND tag IN (?, ?, ?, ?, ?)
+                """, (row['earliest_tx_creator'], 'uses_jitotip', 'uses_axiom', 'uses_debridge', 'uses_meteora', 'OKX_SYNDICATE'))
                 for tag_row in cursor.fetchall():
                     tag_name = tag_row[0]
                     if tag_name not in seen_tags:
@@ -5884,12 +5893,16 @@ HTML_TEMPLATE = """
                                     // SKIP service tags (uses_axiom, uses_jitotip, uses_meteora, uses_debridge)
                                     // and coordination tags (Multi-Funder)
                                     // They are displayed in the "Creator Tags" column to avoid duplication
-                                    if (infraTag.tag.match(/^uses_/) || infraTag.tag === 'Multi-Funder') {
+                                    // OKX_SYNDICATE is always shown inline
+                                    if (infraTag.tag !== 'OKX_SYNDICATE' && (infraTag.tag.match(/^uses_/) || infraTag.tag === 'Multi-Funder')) {
                                         continue;
                                     }
 
                                     let tagColor, bgColor;
-                                    if (infraTag.tag.includes('debridge')) {
+                                    if (infraTag.tag === 'OKX_SYNDICATE') {
+                                        tagColor = '#f85149';
+                                        bgColor = 'rgba(248, 81, 73, 0.15)';
+                                    } else if (infraTag.tag.includes('debridge')) {
                                         tagColor = '#ff9500';
                                         bgColor = 'rgba(255, 149, 0, 0.15)';
                                     } else if (infraTag.tag.includes('meteora')) {
@@ -11798,6 +11811,20 @@ def api_listener_settings():
                     status = '✅ ON' if data['listen_to_launches'] else '❌ OFF'
                     print(f"[LISTENER] TOGGLED - Token Launch: {status}", flush=True)
 
+            # Update pump_bot_enabled setting
+            if 'pump_bot_enabled' in data:
+                new_val = 'true' if data['pump_bot_enabled'] else 'false'
+                try:
+                    cursor.execute("""
+                        INSERT INTO listener_settings (setting_key, setting_value, last_updated)
+                        VALUES (?, ?, ?)
+                        ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value, last_updated=excluded.last_updated
+                    """, ('pump_bot_enabled', new_val, now))
+                    status = '✅ ON' if data['pump_bot_enabled'] else '❌ OFF'
+                    print(f"[LISTENER] TOGGLED - Pump Bot Poller: {status}", flush=True)
+                except Exception as e:
+                    print(f"[LISTENER] Error updating pump_bot_enabled: {e}", flush=True)
+
             # Update auto_extract_funders setting
             if 'auto_extract_funders' in data:
                 old_val = None
@@ -11845,11 +11872,16 @@ def api_listener_settings():
             row = cursor.fetchone()
             auto_extract_funders = row['setting_value'] == 'true' if row else False
 
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('pump_bot_enabled',))
+            row = cursor.fetchone()
+            pump_bot_enabled = row['setting_value'] != 'false' if row else True
+
             conn.close()
             return jsonify({
                 'status': 'updated',
                 'listen_to_launches': listen_launches,
-                'auto_extract_funders': auto_extract_funders
+                'auto_extract_funders': auto_extract_funders,
+                'pump_bot_enabled': pump_bot_enabled,
             })
 
         else:  # GET
@@ -11861,10 +11893,15 @@ def api_listener_settings():
             row = cursor.fetchone()
             auto_extract_funders = row['setting_value'] == 'true' if row else False
 
+            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('pump_bot_enabled',))
+            row = cursor.fetchone()
+            pump_bot_enabled = row['setting_value'] != 'false' if row else True
+
             conn.close()
             return jsonify({
                 'listen_to_launches': listen_launches,
-                'auto_extract_funders': auto_extract_funders
+                'auto_extract_funders': auto_extract_funders,
+                'pump_bot_enabled': pump_bot_enabled,
             })
 
     except Exception as e:
@@ -17154,6 +17191,82 @@ def predictions_page():
     return render_template('predictions.html', active_page='predictions')
 
 
+@app.route('/api/predictions/buy-sim')
+def api_predictions_buy_sim():
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("""
+                SELECT tps.mint, tps.risk_level,
+                       tb.peak_grade,
+                       tmp.peak_market_cap,
+                       (SELECT market_cap FROM token_price_snapshots tps2
+                        WHERE tps2.mint = tps.mint
+                        ORDER BY tps2.captured_at ASC LIMIT 1) as buy_mc
+                FROM token_prediction_scores tps
+                JOIN token_analysis ta ON ta.mint = tps.mint
+                LEFT JOIN token_behavior tb ON tb.mint = tps.mint
+                LEFT JOIN token_market_cap_peaks tmp ON tmp.mint = tps.mint
+                WHERE tps.risk_level IN ('LOW','WATCH')
+                  AND tps.prediction_status = 'COMPLETE'
+                  AND ta.lifecycle_stage = 'migrated'
+            """).fetchall()
+
+        total_invested = 0.0
+        total_returned = 0.0
+        no_data = 0
+        buckets = {'lt1_5x': 0, 'x1_5_2': 0, 'x2_5': 0, 'x5_10': 0, 'x10_50': 0, 'x50plus': 0}
+        watch_invested = low_invested = 0.0
+        watch_returned = low_returned = 0.0
+        watch_mults = []
+        low_mults = []
+
+        for row in rows:
+            peak = row['peak_market_cap']
+            buy = row['buy_mc']
+            risk = row['risk_level']
+            if not peak or not buy:
+                no_data += 1
+                continue
+            mult = peak / buy
+            total_invested += 100
+            total_returned += 100 * mult
+            if risk == 'WATCH':
+                watch_invested += 100; watch_returned += 100 * mult; watch_mults.append(mult)
+            else:
+                low_invested += 100; low_returned += 100 * mult; low_mults.append(mult)
+            if mult < 1.5:   buckets['lt1_5x'] += 1
+            elif mult < 2:   buckets['x1_5_2'] += 1
+            elif mult < 5:   buckets['x2_5'] += 1
+            elif mult < 10:  buckets['x5_10'] += 1
+            elif mult < 50:  buckets['x10_50'] += 1
+            else:            buckets['x50plus'] += 1
+
+        bought = len(watch_mults) + len(low_mults)
+        watch_median = sorted(watch_mults)[len(watch_mults)//2] if watch_mults else 0
+        low_median = sorted(low_mults)[len(low_mults)//2] if low_mults else 0
+
+        return jsonify({
+            'bought': bought,
+            'no_data': no_data,
+            'invested': total_invested,
+            'returned': total_returned,
+            'roi_overall': (total_returned / total_invested - 1) * 100 if total_invested else 0,
+            'avg_mult': total_returned / total_invested if total_invested else 0,
+            'watch_roi': (watch_returned / watch_invested - 1) * 100 if watch_invested else 0,
+            'low_roi': (low_returned / low_invested - 1) * 100 if low_invested else 0,
+            'watch_avg_mult': sum(watch_mults) / len(watch_mults) if watch_mults else 0,
+            'low_avg_mult': sum(low_mults) / len(low_mults) if low_mults else 0,
+            'watch_median_mult': watch_median,
+            'low_median_mult': low_median,
+            'watch_count': len(watch_mults),
+            'low_count': len(low_mults),
+            'buckets': buckets,
+        })
+    except Exception as exc:
+        return jsonify({'error': str(exc)}), 500
+
+
 @app.route('/api/predictions/summary')
 def api_predictions_summary():
     try:
@@ -17226,13 +17339,31 @@ def api_predictions_live():
             if confidence:
                 where.append("tps.prediction_confidence = ?")
                 params.append(confidence)
-            # Only show live-scored migrated tokens
+            # Only show live-scored migrated tokens post-reset
             where.append("ta.lifecycle_stage = 'migrated'")
-            where.append("tps.mint IN (SELECT DISTINCT mint FROM token_prediction_events WHERE event_type IN ('BIRTH','MIGRATED'))")
+            reset_row = conn.execute(
+                "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+            ).fetchone()
+            if reset_row and reset_row[0]:
+                where.append("CAST(ta.migrated_at AS INTEGER) >= ?")
+                params.append(int(reset_row[0]))
             where_sql = "WHERE " + " AND ".join(where)
             rows = conn.execute(f"""
                 SELECT
-                    tps.mint, tps.network_name,
+                    tps.mint,
+                    COALESCE(
+                        NULLIF(tps.network_name, ''),
+                        NULLIF(ta.network_name, ''),
+                        (
+                            SELECT fnm.network_name
+                            FROM creator_funders cf
+                            JOIN funder_network_map fnm
+                              ON fnm.funder_address = cf.funder_address
+                            WHERE cf.creator_address = COALESCE(tps.creator_address, ta.earliest_tx_creator, ta.pf_ws_creator)
+                            ORDER BY fnm.creator_count DESC, fnm.network_name ASC
+                            LIMIT 1
+                        )
+                    ) AS network_name,
                     tps.prediction_score, tps.risk_level, tps.prediction_label,
                     tps.prediction_status, tps.prediction_confidence, tps.data_completeness,
                     tps.creator_score, tps.network_score, tps.funding_score,
@@ -17251,7 +17382,8 @@ def api_predictions_live():
                         WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
                         ELSE NULL
                     END as g_level,
-                    COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = tps.mint), 0) as liquidity_removed
+                    COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = tps.mint), 0) as liquidity_removed,
+                    tps.creator_was_fresh as creator_is_fresh
                 FROM token_prediction_scores tps
                 LEFT JOIN token_analysis ta ON ta.mint = tps.mint
                 LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
@@ -17282,9 +17414,11 @@ def api_predictions_token(mint):
             ).fetchone()
             token = conn.execute(
                 """SELECT mc.name, ta.earliest_tx_creator as creator,
-                          ta.market_cap_highest, ta.lifecycle_stage, ta.migrated_at
+                          ta.market_cap_highest, ta.lifecycle_stage, ta.migrated_at,
+                          tps.creator_was_fresh as creator_is_fresh
                    FROM token_analysis ta
                    LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                   LEFT JOIN token_prediction_scores tps ON tps.mint = ta.mint
                    WHERE ta.mint = ?""",
                 (mint,)
             ).fetchone()
@@ -17336,32 +17470,50 @@ def api_predictions_accuracy():
     try:
         with db_connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
-            by_label = conn.execute("""
-                SELECT
-                    tpo.prediction_label,
-                    COUNT(*) as total,
-                    SUM(tpo.prediction_correct) as correct,
-                    ROUND(100.0 * SUM(tpo.prediction_correct) / COUNT(*), 1) as accuracy_pct
-                FROM token_prediction_outcomes tpo
-                WHERE tpo.prediction_correct IS NOT NULL
-                GROUP BY tpo.prediction_label
-                ORDER BY accuracy_pct DESC
-            """).fetchall()
+            # Accuracy based on peak MC outcome vs risk level at migration time
+            # HIGH/CRITICAL correct = peak MC < $75K or liquidity removed
+            # LOW correct = peak MC >= $75K
+            # MEDIUM = ambiguous, excluded from accuracy
             by_risk = conn.execute("""
                 SELECT
                     tps.risk_level,
                     COUNT(*) as total,
-                    SUM(tpo.prediction_correct) as correct,
-                    ROUND(100.0 * SUM(tpo.prediction_correct) / COUNT(*), 1) as accuracy_pct
-                FROM token_prediction_outcomes tpo
-                JOIN token_prediction_scores tps ON tps.mint = tpo.mint
-                WHERE tpo.prediction_correct IS NOT NULL
-                  AND tps.prediction_status = 'COMPLETE'
+                    SUM(CASE
+                        WHEN tps.risk_level IN ('HIGH','CRITICAL') AND (
+                            COALESCE(ta.market_cap_highest, 0) < 75000
+                            OR COALESCE(liq.liquidity_removed, 0) > 0
+                        ) THEN 1
+                        WHEN tps.risk_level = 'LOW' AND COALESCE(ta.market_cap_highest, 0) >= 75000 THEN 1
+                        ELSE 0
+                    END) as correct,
+                    ROUND(100.0 * SUM(CASE
+                        WHEN tps.risk_level IN ('HIGH','CRITICAL') AND (
+                            COALESCE(ta.market_cap_highest, 0) < 75000
+                            OR COALESCE(liq.liquidity_removed, 0) > 0
+                        ) THEN 1
+                        WHEN tps.risk_level = 'LOW' AND COALESCE(ta.market_cap_highest, 0) >= 75000 THEN 1
+                        ELSE 0
+                    END) / COUNT(*), 1) as accuracy_pct,
+                    CASE tps.risk_level
+                        WHEN 'HIGH' THEN 'Correct if peak MC < $75K or LIQ'
+                        WHEN 'CRITICAL' THEN 'Correct if peak MC < $75K or LIQ'
+                        WHEN 'LOW' THEN 'Correct if peak MC ≥ $75K'
+                        ELSE 'Not evaluated'
+                    END as notes
+                FROM token_prediction_scores tps
+                JOIN token_analysis ta ON ta.mint = tps.mint
+                LEFT JOIN (
+                    SELECT mint, MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed
+                    FROM token_pool_accounts GROUP BY mint
+                ) liq ON liq.mint = tps.mint
+                WHERE tps.prediction_status = 'COMPLETE'
+                  AND tps.risk_level IN ('HIGH','CRITICAL','LOW')
+                  AND ta.market_cap_highest IS NOT NULL
                 GROUP BY tps.risk_level
-                ORDER BY accuracy_pct DESC
+                ORDER BY CASE tps.risk_level WHEN 'CRITICAL' THEN 0 WHEN 'HIGH' THEN 1 WHEN 'LOW' THEN 2 END
             """).fetchall()
             return jsonify({
-                "by_label": [dict(r) for r in by_label],
+                "by_label": [],
                 "by_risk": [dict(r) for r in by_risk]
             })
     except Exception as exc:
@@ -17378,6 +17530,110 @@ def api_predictions_run():
         return jsonify({"status": "failed", "error": str(exc)}), 500
 
 
+@app.route('/api/predictions/reset', methods=['POST'])
+def api_predictions_reset():
+    """Queue generated prediction-data reset without touching token stats/history."""
+    with _prediction_reset_lock:
+        if _prediction_reset_state.get("status") in {"queued", "running"}:
+            return jsonify({"ok": True, "queued": True, "status": dict(_prediction_reset_state)})
+        now = int(time.time())
+        _prediction_reset_state.update({
+            "status": "queued",
+            "requested_at": now,
+            "started_at": None,
+            "finished_at": None,
+            "deleted": {},
+            "error": None,
+        })
+
+    thread = threading.Thread(target=_run_prediction_reset_job, daemon=True)
+    thread.start()
+    return jsonify({"ok": True, "queued": True, "status": dict(_prediction_reset_state)})
+
+
+@app.route('/api/predictions/reset/status')
+def api_predictions_reset_status():
+    with _prediction_reset_lock:
+        return jsonify({"ok": True, "status": dict(_prediction_reset_state)})
+
+
+def _run_prediction_reset_job() -> None:
+    prediction_tables = [
+        'token_prediction_events',
+        'token_prediction_outcomes',
+        'token_prediction_scores',
+        'token_rescore_queue',
+    ]
+    chunk_size = 5000
+    deleted = {table: 0 for table in prediction_tables}
+    with _prediction_reset_lock:
+        _prediction_reset_state.update({
+            "status": "running",
+            "started_at": int(time.time()),
+            "deleted": dict(deleted),
+            "error": None,
+        })
+
+    try:
+        for table in prediction_tables:
+            while True:
+                try:
+                    with db_connect(DB_PATH, timeout=30) as conn:
+                        conn.row_factory = sqlite3.Row
+                        conn.execute("PRAGMA busy_timeout=30000")
+                        exists = conn.execute(
+                            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                            (table,),
+                        ).fetchone()
+                        if not exists:
+                            break
+                        cursor = conn.execute(f"""
+                            DELETE FROM {table}
+                            WHERE rowid IN (
+                                SELECT rowid FROM {table} LIMIT ?
+                            )
+                        """, (chunk_size,))
+                        count = int(cursor.rowcount or 0)
+                        conn.commit()
+                    if count <= 0:
+                        break
+                    deleted[table] += count
+                    with _prediction_reset_lock:
+                        _prediction_reset_state["deleted"] = dict(deleted)
+                    # Yield between chunks so listener writes can interleave.
+                    time.sleep(0.05)
+                except sqlite3.OperationalError as exc:
+                    if "locked" not in str(exc).lower() and "busy" not in str(exc).lower():
+                        raise
+                    time.sleep(2)
+        reset_ts = int(time.time())
+        try:
+            with db_connect(DB_PATH, timeout=10) as _rc:
+                _rc.execute("""
+                    INSERT INTO system_metadata (key, value, updated_at)
+                    VALUES ('prediction_reset_at', ?, ?)
+                    ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at
+                """, (str(reset_ts), reset_ts))
+                _rc.commit()
+        except Exception:
+            pass
+        with _prediction_reset_lock:
+            _prediction_reset_state.update({
+                "status": "complete",
+                "finished_at": reset_ts,
+                "deleted": dict(deleted),
+                "error": None,
+            })
+    except Exception as exc:
+        with _prediction_reset_lock:
+            _prediction_reset_state.update({
+                "status": "failed",
+                "finished_at": int(time.time()),
+                "deleted": dict(deleted),
+                "error": str(exc),
+            })
+
+
 @app.route('/approval-queue')
 def approval_queue_page():
     return render_template('approval_queue.html', active_page='approval_queue')
@@ -17387,7 +17643,22 @@ def approval_queue_page():
 def api_creator_resolution_queue_status():
     try:
         from src.core.creator_resolution_queue import get_status
-        return jsonify(get_status(DB_PATH, auto_enqueue_limit=50))
+        return jsonify(get_status(DB_PATH, auto_enqueue_limit=0))
+    except sqlite3.OperationalError as exc:
+        if 'locked' in str(exc).lower():
+            return jsonify({
+                'ok': False,
+                'locked': True,
+                'error': 'database is busy; retrying shortly',
+                'counts': {},
+                'rows': [],
+                'missing_recent_1h': 0,
+                'funding_pending': 0,
+                'funding_complete_1h': 0,
+                'ready': 0,
+            }), 200
+        logging.getLogger(__name__).exception('[creator-resolution-queue] status failed')
+        return jsonify({'error': str(exc)}), 500
     except Exception as exc:
         logging.getLogger(__name__).exception('[creator-resolution-queue] status failed')
         return jsonify({'error': str(exc)}), 500
@@ -17397,7 +17668,12 @@ def api_creator_resolution_queue_status():
 def api_creator_resolution_queue_run_now():
     try:
         from src.core.creator_resolution_queue import enqueue_missing_migrated_tokens, process_queue
-        enqueued = enqueue_missing_migrated_tokens(DB_PATH, limit=100, source='manual_p0_run')
+        enqueued = enqueue_missing_migrated_tokens(
+            DB_PATH,
+            limit=100,
+            source='manual_p0_run',
+            max_age_seconds=3600,
+        )
         limit = min(max(int((request.json or {}).get('limit', 5)), 1), 25)
         result = process_queue(DB_PATH, limit=limit)
         result['auto_enqueued'] = enqueued
@@ -18779,6 +19055,8 @@ def api_second_hop_lite_run_now():
             from src.utils.build_networks_release import build_networks_release
 
             _w("Starting RPC worker")
+            import time as _wt
+            _worker_started_at = int(_wt.time())
             try:
                 worker_result = SecondHopLiteWorker(DB_PATH).run(force=True)
                 _w(f"RPC worker done: {worker_result}")
@@ -18793,11 +19071,32 @@ def api_second_hop_lite_run_now():
             _w("Rebuilding networks release")
             build_networks_release(DB_PATH)
 
-            _w("Running RiskScoringBuilder")
+            _w("Running RiskScoringBuilder (incremental)")
             try:
                 from src.core.risk_scoring_builder import RiskScoringBuilder
-                _risk_result = RiskScoringBuilder(DB_PATH).run()
-                _w(f"Risk scoring done: {_risk_result}")
+                import sqlite3 as _rs_sqlite
+                # Find creators affected by the funders just scanned in this batch
+                _rs_conn = _rs_sqlite.connect(DB_PATH, timeout=10)
+                _rs_conn.execute("PRAGMA journal_mode=WAL")
+                _scanned_funders = [
+                    r[0] for r in _rs_conn.execute(
+                        "SELECT funder_address FROM second_hop_lite_queue WHERE status='done' AND scanned_at >= ?",
+                        (_worker_started_at,)
+                    ).fetchall()
+                ]
+                _affected_creators = [
+                    r[0] for r in _rs_conn.execute(
+                        f"SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address IN ({','.join('?'*len(_scanned_funders))})",
+                        _scanned_funders
+                    ).fetchall()
+                ] if _scanned_funders else []
+                _rs_conn.close()
+                _w(f"Incremental rescore: {len(_scanned_funders)} funders → {len(_affected_creators)} creators")
+                if _affected_creators:
+                    _risk_result = RiskScoringBuilder(DB_PATH).run_incremental(_affected_creators)
+                    _w(f"Risk scoring done: {_risk_result}")
+                else:
+                    _w("No affected creators — skipping risk rescore")
             except Exception as _risk_e:
                 _w(f"Risk scoring failed: {_risk_e}")
 
@@ -20125,29 +20424,49 @@ def api_creator_outgoing_analysis(creator_address: str):
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        # Get last webhook timestamp for this creator (most recent activity)
-        cursor.execute("""
-            SELECT MAX(block_time) as last_activity
-            FROM sol_transfers
-            WHERE source = ?
-        """, (creator_address,))
-        last_activity_row = cursor.fetchone()
+        from datetime import datetime as _dt
+
+        # Last funder scan — most recent funder RPC scan for any funder of this creator
+        last_scanned_row = cursor.execute("""
+            SELECT MAX(src.scanned_at) as last_scan
+            FROM creator_funders cf
+            JOIN funder_rpc_scan_cache src ON src.funder_address = cf.funder_address
+            WHERE cf.creator_address = ?
+        """, (creator_address,)).fetchone()
         last_scanned = None
-        if last_activity_row and last_activity_row['last_activity']:
-            from datetime import datetime
-            last_scanned = datetime.utcfromtimestamp(last_activity_row['last_activity']).isoformat()
+        if last_scanned_row and last_scanned_row['last_scan']:
+            last_scanned = _dt.utcfromtimestamp(last_scanned_row['last_scan']).strftime('%Y-%m-%d %H:%M') + ' UTC'
+
+        # Fall back to funding queue completion time if no funders were found
+        _cfq_row = cursor.execute("""
+            SELECT updated_at, attempts, status FROM creator_funding_queue
+            WHERE creator_address = ? AND status = 'complete'
+            ORDER BY updated_at DESC LIMIT 1
+        """, (creator_address,)).fetchone()
+        _cfq_no_funders = _cfq_row and not last_scanned
+
+        # Last activity from creator_state
+        profile_row = None
+        try:
+            profile_row = cursor.execute("""
+                SELECT last_processed_at as last_activity_at FROM creator_state WHERE creator_pubkey = ?
+            """, (creator_address,)).fetchone()
+        except Exception:
+            pass
 
         # Get creator outgoing transfers from WEBHOOK DATA (sol_transfers)
         cursor.execute("""
-            SELECT 
-                COUNT(*) as count, 
-                SUM(amount_sol) as total_sol, 
-                COUNT(DISTINCT destination) as unique_recipients, 
+            SELECT
+                COUNT(*) as count,
+                SUM(amount_sol) as total_sol,
+                COUNT(DISTINCT destination) as unique_recipients,
                 MAX(block_time) as last_transaction_time
             FROM sol_transfers
             WHERE source = ?
         """, (creator_address,))
         row = cursor.fetchone()
+        last_tx_time = (row['last_transaction_time'] if row and row['last_transaction_time']
+                        else (profile_row['last_activity_at'] if profile_row and profile_row['last_activity_at'] else None))
         transfers = {
             'count': row['count'] if row else 0,
             'total_sol': row['total_sol'] if row else 0,
@@ -20354,15 +20673,23 @@ def api_creator_outgoing_analysis(creator_address: str):
 
             funders_with_info.append(funder_info)
 
-        # Get tokens created by this creator
+        # Get tokens created by this creator, enriched with prediction scores
         cursor.execute("""
             SELECT
                 ta.mint,
                 ta.created_at,
                 ta.price_current,
                 ta.market_cap_current,
-                ta.risk_level
+                ta.market_cap_highest,
+                ta.lifecycle_stage,
+                COALESCE(ta.risk_level, tps.risk_level) as risk_level,
+                tps.prediction_score,
+                tps.prediction_label,
+                tps.prediction_status,
+                tps.risk_level as prediction_risk_level,
+                datetime(ta.migrated_at, 'unixepoch') as migrated_at
             FROM token_analysis ta
+            LEFT JOIN token_prediction_scores tps ON tps.mint = ta.mint
             WHERE ta.earliest_tx_creator = ?
             ORDER BY ta.created_at DESC
             LIMIT 50
@@ -20783,7 +21110,15 @@ def api_creator_outgoing_analysis(creator_address: str):
         return jsonify({
             'creator_address': creator_address,
             'last_scanned': last_scanned,
-            'scan_status': 'Real-time webhook data' if transfers['count'] > 0 else 'No webhook activity',
+            'scan_status': 'Real-time webhook data' if transfers['count'] > 0 else (
+                'Funder scan complete' if last_scanned else (
+                    f'Scanned {_cfq_row["attempts"]}x — no funders found' if _cfq_no_funders else 'No scan data'
+                )
+            ),
+            'last_scanned': last_scanned or (
+                _dt.utcfromtimestamp(_cfq_row['updated_at']).strftime('%Y-%m-%d %H:%M') + ' UTC'
+                if _cfq_no_funders and _cfq_row['updated_at'] else last_scanned
+            ),
             'network_name': network_name,
             'network_type': network_type,
             'networks': networks_with_types,
@@ -20791,7 +21126,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             'outgoing_transfer_count': transfers['count'] if transfers else 0,
             'total_sol_sent': transfers['total_sol'] if transfers else 0,
             'unique_recipients': transfers['unique_recipients'] if transfers else 0,
-            'last_transaction_time': transfers['last_transaction_time'] if transfers else None,
+            'last_transaction_time': last_tx_time,
             'incoming_funders': funders_with_info,
             'funding_chain_count': len(funding_chains),
             'coordinated_edge_count': len(coordinated_edges),
@@ -20802,7 +21137,13 @@ def api_creator_outgoing_analysis(creator_address: str):
                     'created_at': t['token']['created_at'],
                     'price_current': t['token']['price_current'],
                     'market_cap_current': t['token']['market_cap_current'],
+                    'market_cap_highest': t['token']['market_cap_highest'],
+                    'lifecycle_stage': t['token']['lifecycle_stage'],
+                    'migrated_at': t['token']['migrated_at'],
                     'risk_level': t['token']['risk_level'],
+                    'prediction_score': t['token']['prediction_score'],
+                    'prediction_label': t['token']['prediction_label'],
+                    'prediction_status': t['token']['prediction_status'],
                     'recipients': t['recipients']
                 }
                 for t in tokens_with_transfers
@@ -22101,6 +22442,109 @@ def settings_page():
     return render_template('settings.html', active_page='settings')
 
 
+# ── Pump Bot Monitor ────────────────────────────────────────────────────────
+
+@app.route('/pump-bots')
+def pump_bots_page():
+    return render_template('pump_bots.html', active_page='pump_bots')
+
+
+@app.route('/api/pump-bots/wallets')
+def api_pump_bot_wallets():
+    try:
+        with db_connect(DB_PATH, timeout=10) as conn:
+            rows = conn.execute("""
+                SELECT address, label, source, added_at, last_polled_at,
+                       last_seen_signature, total_tokens_touched, is_active
+                FROM pump_bot_wallets
+                ORDER BY total_tokens_touched DESC
+            """).fetchall()
+        return jsonify([{
+            "address": r[0], "label": r[1], "source": r[2],
+            "added_at": r[3], "last_polled_at": r[4],
+            "last_seen_signature": r[5], "total_tokens_touched": r[6],
+            "is_active": bool(r[7]),
+        } for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/pump-bots/signals')
+def api_pump_bot_signals():
+    limit = min(int(request.args.get('limit', 100)), 500)
+    bot = request.args.get('bot')
+    try:
+        with db_connect(DB_PATH, timeout=10) as conn:
+            if bot:
+                rows = conn.execute("""
+                    SELECT s.id, s.mint, s.bonding_curve, s.bot_address, s.bot_label,
+                           s.detected_at, s.lifecycle_stage, s.bot_buy_count, s.bot_sol_spent,
+                           s.bot_pct_supply, s.total_buyers, s.is_top_holder, s.signal_strength,
+                           s.created_at,
+                           ta.lifecycle_stage AS ta_lifecycle, ta.migration_band,
+                           ta.market_cap_highest, ta.is_about_to_migrate
+                    FROM pump_bot_signals s
+                    LEFT JOIN token_analysis ta ON ta.mint = s.mint
+                    WHERE s.bot_address = ?
+                    ORDER BY s.detected_at DESC
+                    LIMIT ?
+                """, (bot, limit)).fetchall()
+            else:
+                rows = conn.execute("""
+                    SELECT s.id, s.mint, s.bonding_curve, s.bot_address, s.bot_label,
+                           s.detected_at, s.lifecycle_stage, s.bot_buy_count, s.bot_sol_spent,
+                           s.bot_pct_supply, s.total_buyers, s.is_top_holder, s.signal_strength,
+                           s.created_at,
+                           ta.lifecycle_stage AS ta_lifecycle, ta.migration_band,
+                           ta.market_cap_highest, ta.is_about_to_migrate
+                    FROM pump_bot_signals s
+                    LEFT JOIN token_analysis ta ON ta.mint = s.mint
+                    ORDER BY s.detected_at DESC
+                    LIMIT ?
+                """, (limit,)).fetchall()
+        cols = ["id", "mint", "bonding_curve", "bot_address", "bot_label",
+                "detected_at", "lifecycle_stage", "bot_buy_count", "bot_sol_spent",
+                "bot_pct_supply", "total_buyers", "is_top_holder", "signal_strength",
+                "created_at", "ta_lifecycle", "migration_band", "market_cap_highest",
+                "is_about_to_migrate"]
+        return jsonify([dict(zip(cols, r)) for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/pump-bots/add', methods=['POST'])
+def api_pump_bot_add():
+    data = request.get_json(force=True) or {}
+    address = (data.get('address') or '').strip()
+    label = (data.get('label') or '').strip()
+    source = (data.get('source') or 'manual').strip()
+    if not address or not label:
+        return jsonify({"error": "address and label required"}), 400
+    try:
+        now = int(time.time())
+        with db_connect(DB_PATH, timeout=10) as conn:
+            conn.execute("""
+                INSERT OR IGNORE INTO pump_bot_wallets
+                    (address, label, source, added_at, is_active)
+                VALUES (?, ?, ?, ?, 1)
+            """, (address, label, source, now))
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/pump-bots/poll-now', methods=['POST'])
+def api_pump_bot_poll_now():
+    """Trigger an immediate poll cycle in a background thread."""
+    def _run():
+        import asyncio as _aio
+        from src.core.pump_bot_poller import _poll_all_wallets, configure
+        configure(DB_PATH, os.environ.get("HELIUS_API_KEY"))
+        _aio.run(_poll_all_wallets())
+    threading.Thread(target=_run, daemon=True, name="pump-bot-manual-poll").start()
+    return jsonify({"ok": True, "message": "Poll triggered"})
+
+
 @app.route('/rpc-savings-dashboard')
 def rpc_savings_dashboard():
     """
@@ -23184,9 +23628,76 @@ def funding_queue_page():
     return render_template("creator_funding_queue.html", active_page="funding_queue")
 
 
+@app.route('/api/funding-queue/early-extractions')
+def api_early_extractions():
+    """Early (pre-migration) funding extractions triggered at hot band."""
+    try:
+        with db_connect(DB_PATH, timeout=10) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("""
+                SELECT
+                    cfq.creator_address, cfq.mint, cfq.status, cfq.attempts,
+                    cfq.created_at, cfq.updated_at, cfq.last_error,
+                    ta.migration_band, ta.lifecycle_stage, ta.is_about_to_migrate,
+                    mc.symbol, mc.name AS token_name
+                FROM creator_funding_queue cfq
+                LEFT JOIN token_analysis ta ON ta.mint = cfq.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = cfq.mint
+                WHERE cfq.source = 'early_hot_band'
+                ORDER BY cfq.created_at DESC
+                LIMIT 200
+            """).fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/transfer-graph')
 def transfer_graph_page():
     return render_template("transfer_graph.html", active_page="transfer_graph")
+
+
+@app.route('/network-diagram')
+def network_diagram_index():
+    investigations = [
+        {
+            'slug': 'htx',
+            'title': 'HTX Syndicate',
+            'subtitle': 'HTX Hot Wallet → burner wallets → coordinated creator farm',
+            'stats': '67 creators · ~1,200 tokens · 730 SOL deployed · Network_53 CRITICAL',
+            'date': '2026-05-05',
+            'tags': ['CEX-funded', 'SELF_FUNDING_FARM', 'Network_53', 'whamNNP9'],
+        },
+        {
+            'slug': 'okx',
+            'title': 'OKX Syndicate',
+            'subtitle': 'OKX Hot Wallet → strict 40/70 SOL daily rotation → repeating-token rug factory · profits recycled back to OKX via relay chain',
+            'stats': '42 creators · 715 SOL deployed · CEX-masked coordination · 405 SOL profit extracted',
+            'date': '2026-05-05',
+            'tags': ['CEX-funded', 'CEX-masked', 'daily-rotation', 'OKX', 'ENicYBBN-bridge'],
+        },
+        {
+            'slug': 'coinbase-cluster',
+            'title': 'Coinbase Multi-Account Cluster',
+            'subtitle': 'Hub wallet 2AQdpHJ2 + 6 Coinbase hot wallets → 262 creators sharing identical CEX wallet fingerprints across Coinbase, OKR, Axiom',
+            'stats': '262 creators · 8,017 tokens · 301 migrated · 21 shared wallets',
+            'date': '2026-05-09',
+            'tags': ['CEX-fingerprint', 'multi-account', 'Coinbase', 'Axiom', 'OKR'],
+        },
+    ]
+    return render_template("network_diagram_index.html", investigations=investigations)
+
+@app.route('/network-diagram/htx')
+def network_diagram_htx():
+    return render_template("network_diagram_htx.html")
+
+@app.route('/network-diagram/okx')
+def network_diagram_okx():
+    return render_template("network_diagram_okx.html")
+
+@app.route('/network-diagram/coinbase-cluster')
+def network_diagram_coinbase_cluster():
+    return render_template("network_diagram_coinbase_cluster.html")
 
 
 _transfer_graph_stats_cache: dict = {}
@@ -24791,7 +25302,7 @@ def api_early_signals():
         unknown_signals = engine.get_early_signals_by_label(EarlyLabel.UNKNOWN, limit=100)
 
         # Fetch additional data for display (age, scores)
-        conn = sqlite3.connect(db_path, timeout=15)
+        conn = db_connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -24845,7 +25356,7 @@ def api_early_signal_detail(mint):
         engine = EarlySignalEngine(db_path)
 
         # Get from database
-        conn = sqlite3.connect(db_path, timeout=15)
+        conn = db_connect(db_path, timeout=15)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -25318,6 +25829,287 @@ def test_prices():
     """)
 
 # =========================================================================
+# FUNDER INTELLIGENCE PAGE
+# =========================================================================
+
+@app.route('/funder-intelligence')
+def funder_intelligence_page():
+    return render_template('funder_intelligence.html', active_page='funder_intelligence')
+
+
+@app.route('/api/funder-intelligence/summary')
+def api_funder_intelligence_summary():
+    """Summary stats for funder ancestry propagation and network risk findings."""
+    try:
+        conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
+
+        HIGH_RISK_CATS = ('HIGH_RISK_OPERATOR', 'LIQUIDITY_EXTRACTOR', 'SELF_FUNDING_FARM')
+        placeholders = ','.join('?' * len(HIGH_RISK_CATS))
+
+        # Bridge funder stats
+        bridge_stats = conn.execute(f"""
+            SELECT
+                COUNT(DISTINCT cce.bridge_funder) AS bridge_funders,
+                COUNT(DISTINCT cce.creator_a)     AS connected_a,
+                COUNT(DISTINCT cce.creator_b)     AS connected_b,
+                COUNT(*)                           AS total_edges
+            FROM coordinated_creator_edges cce
+            JOIN creator_risk_scores crs
+              ON crs.creator_address IN (cce.creator_a, cce.creator_b)
+            WHERE crs.category IN ({placeholders})
+              AND cce.bridge_funder IS NOT NULL
+        """, HIGH_RISK_CATS).fetchone()
+
+        # Total distinct bridge funders for HIGH_RISK networks (all categories)
+        all_bridge = conn.execute("""
+            SELECT COUNT(DISTINCT bridge_funder) AS n
+            FROM coordinated_creator_edges
+            WHERE bridge_funder IS NOT NULL
+        """).fetchone()
+
+        # Network risk token counts
+        net_risk_count = conn.execute("""
+            SELECT COUNT(*) AS n
+            FROM token_prediction_scores
+            WHERE prediction_status = 'NETWORK_RISK_TOKEN'
+        """).fetchone()
+
+        # Overall prediction breakdown
+        pred_breakdown = conn.execute("""
+            SELECT risk_level, COUNT(*) AS n
+            FROM token_prediction_scores
+            WHERE prediction_status = 'COMPLETE'
+            GROUP BY risk_level
+            ORDER BY CASE risk_level
+                WHEN 'CRITICAL' THEN 1 WHEN 'HIGH' THEN 2 WHEN 'MEDIUM' THEN 3
+                WHEN 'WATCH' THEN 4 ELSE 5 END
+        """).fetchall()
+
+        # High-risk creator categories
+        creator_cats = conn.execute(f"""
+            SELECT category, risk_level, COUNT(*) AS n
+            FROM creator_risk_scores
+            WHERE category IN ({placeholders})
+            GROUP BY category, risk_level
+            ORDER BY n DESC
+        """, HIGH_RISK_CATS).fetchall()
+
+        # Top high-risk networks
+        top_networks = conn.execute("""
+            SELECT network_name, category, risk_level, creator_count,
+                   migrated_tokens, final_score
+            FROM network_risk_scores
+            WHERE risk_level IN ('HIGH', 'CRITICAL')
+            ORDER BY final_score DESC, migrated_tokens DESC
+            LIMIT 20
+        """).fetchall()
+
+        # Top NETWORK_RISK_TOKEN tokens (post-propagation)
+        net_risk_tokens = conn.execute("""
+            SELECT tps.mint, tps.creator_address, tps.prediction_confidence,
+                   tps.explanation_json, ta.market_cap_highest, ta.migrated_at
+            FROM token_prediction_scores tps
+            LEFT JOIN token_analysis ta ON ta.mint = tps.mint
+            WHERE tps.prediction_status = 'NETWORK_RISK_TOKEN'
+            ORDER BY ta.migrated_at DESC
+            LIMIT 50
+        """).fetchall()
+
+        # Top high-risk creators with flagged token counts
+        top_creators = conn.execute(f"""
+            SELECT crs.creator_address, crs.category, crs.risk_level,
+                   crs.final_score, crs.migrated_tokens, crs.g7_percentage,
+                   crs.liquidation_count,
+                   COUNT(tps.mint) AS flagged_tokens
+            FROM creator_risk_scores crs
+            JOIN token_prediction_scores tps
+              ON tps.creator_address = crs.creator_address
+             AND tps.prediction_status = 'COMPLETE'
+            WHERE crs.category IN ({placeholders})
+            GROUP BY crs.creator_address
+            ORDER BY crs.final_score DESC, flagged_tokens DESC
+            LIMIT 25
+        """, HIGH_RISK_CATS).fetchall()
+
+        # Bridge funders linking to high-risk creators (top by creator count)
+        top_bridge_funders = conn.execute(f"""
+            SELECT cce.bridge_funder,
+                   COUNT(DISTINCT cce.creator_a) + COUNT(DISTINCT cce.creator_b) AS linked_creators,
+                   COUNT(*) AS edge_count,
+                   GROUP_CONCAT(DISTINCT crs.category) AS categories
+            FROM coordinated_creator_edges cce
+            JOIN creator_risk_scores crs
+              ON crs.creator_address IN (cce.creator_a, cce.creator_b)
+            WHERE crs.category IN ({placeholders})
+              AND cce.bridge_funder IS NOT NULL
+            GROUP BY cce.bridge_funder
+            ORDER BY linked_creators DESC, edge_count DESC
+            LIMIT 25
+        """, HIGH_RISK_CATS).fetchall()
+
+        import json as _json
+        return jsonify({
+            'bridge_funders_linking_high_risk': int(bridge_stats['bridge_funders'] or 0),
+            'all_bridge_funders': int(all_bridge['n'] or 0),
+            'high_risk_connected_creators': int((bridge_stats['connected_a'] or 0) + (bridge_stats['connected_b'] or 0)),
+            'total_edges': int(bridge_stats['total_edges'] or 0),
+            'network_risk_tokens_flagged': int(net_risk_count['n'] or 0),
+            'pred_breakdown': [dict(r) for r in pred_breakdown],
+            'creator_categories': [dict(r) for r in creator_cats],
+            'top_networks': [dict(r) for r in top_networks],
+            'top_creators': [dict(r) for r in top_creators],
+            'top_bridge_funders': [
+                {**dict(r), 'categories': (r['categories'] or '').split(',')}
+                for r in top_bridge_funders
+            ],
+            'network_risk_tokens': [
+                {**dict(r), 'explanation': _json.loads(r['explanation_json'] or '{}')}
+                for r in net_risk_tokens
+            ],
+        })
+    except Exception as e:
+        logger.exception("funder_intelligence_summary error")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
+
+
+@app.route('/api/funder-intelligence/network/<network_name>')
+def api_funder_intelligence_network(network_name):
+    """Per-network funder ancestry data: bridge funders linking to HIGH_RISK creators, NETWORK_RISK_TOKEN count."""
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
+
+        HIGH_RISK_CATS = ('HIGH_RISK_OPERATOR', 'LIQUIDITY_EXTRACTOR', 'SELF_FUNDING_FARM')
+        placeholders = ','.join('?' * len(HIGH_RISK_CATS))
+
+        # Creators in this network
+        members = [r[0] for r in conn.execute(
+            "SELECT creator_address FROM network_membership WHERE network_name = ?", (network_name,)
+        ).fetchall()]
+
+        if not members:
+            return jsonify({'bridge_funders': [], 'network_risk_token_count': 0, 'member_count': 0})
+
+        member_placeholders = ','.join('?' * len(members))
+
+        # Bridge funders for this network's creators that link to HIGH_RISK creators
+        bridge_rows = conn.execute(f"""
+            SELECT
+                cce.bridge_funder,
+                COUNT(DISTINCT CASE WHEN cce.creator_a IN ({member_placeholders}) THEN cce.creator_a
+                                    WHEN cce.creator_b IN ({member_placeholders}) THEN cce.creator_b END) AS network_creators,
+                COUNT(DISTINCT CASE WHEN cce.creator_a NOT IN ({member_placeholders}) THEN cce.creator_a
+                                    WHEN cce.creator_b NOT IN ({member_placeholders}) THEN cce.creator_b END) AS outside_creators,
+                COUNT(*) AS total_edges,
+                GROUP_CONCAT(DISTINCT crs.category) AS high_risk_categories,
+                MAX(crs.final_score) AS max_risk_score,
+                MAX(crs.risk_level) AS max_risk_level
+            FROM coordinated_creator_edges cce
+            JOIN creator_risk_scores crs
+              ON crs.creator_address IN (cce.creator_a, cce.creator_b)
+            WHERE crs.category IN ({placeholders})
+              AND cce.bridge_funder IS NOT NULL
+              AND cce.bridge_funder NOT IN (SELECT address FROM infra_wallets)
+              AND (cce.creator_a IN ({member_placeholders}) OR cce.creator_b IN ({member_placeholders}))
+            GROUP BY cce.bridge_funder
+            ORDER BY network_creators DESC, total_edges DESC
+            LIMIT 20
+        """, members * 4 + list(HIGH_RISK_CATS) + members * 2).fetchall()
+
+        # NETWORK_RISK_TOKEN count for this network's tokens
+        nrt_count = conn.execute(f"""
+            SELECT COUNT(*) AS n
+            FROM token_prediction_scores tps
+            WHERE tps.prediction_status = 'NETWORK_RISK_TOKEN'
+              AND tps.creator_address IN ({member_placeholders})
+        """, members).fetchone()
+
+        # Any high-risk creator_risk_scores for members
+        member_risks = conn.execute(f"""
+            SELECT creator_address, category, risk_level, final_score
+            FROM creator_risk_scores
+            WHERE creator_address IN ({member_placeholders})
+              AND category IN ({placeholders})
+            ORDER BY final_score DESC
+        """, members + list(HIGH_RISK_CATS)).fetchall()
+
+        # CEX/INFRA accounts that funded this network's creators — from networks_release
+        cex_infra_accounts = []
+        seen_cex = set()
+        try:
+            flag_row = conn.execute("""
+                SELECT cex_funder_addresses, infra_funder_addresses
+                FROM networks_release
+                WHERE network_name = ?
+                LIMIT 1
+            """, (network_name,)).fetchone()
+            if flag_row:
+                for raw in (flag_row['cex_funder_addresses'], flag_row['infra_funder_addresses']):
+                    try:
+                        addresses = json.loads(raw or '[]')
+                    except Exception:
+                        addresses = []
+                    for addr in addresses:
+                        if not addr or addr in seen_cex:
+                            continue
+                        cex_row = conn.execute(
+                            "SELECT exchange_name, wallet_type FROM cex_wallets WHERE cex_address = ? LIMIT 1",
+                            (addr,)
+                        ).fetchone()
+                        if cex_row:
+                            wt = cex_row['wallet_type']
+                            ex = cex_row['exchange_name']
+                            label = ex if wt in ('Hot Wallet', 'Exchange Wallet') else f"{ex} ({wt})"
+                            cex_infra_accounts.append({
+                                'address': addr,
+                                'type': 'CEX',
+                                'label': label,
+                                'category': wt,
+                                'description': None,
+                            })
+                            seen_cex.add(addr)
+                            continue
+                        infra_row = conn.execute(
+                            "SELECT label_name, category, description FROM address_labels WHERE address = ? AND category IN ('INFRASTRUCTURE','SERVICE','BRIDGE') LIMIT 1",
+                            (addr,)
+                        ).fetchone()
+                        if infra_row:
+                            cex_infra_accounts.append({
+                                'address': addr,
+                                'type': 'INFRA',
+                                'label': infra_row['label_name'] or infra_row['category'],
+                                'category': infra_row['category'],
+                                'description': infra_row['description'],
+                            })
+                            seen_cex.add(addr)
+        except Exception:
+            pass
+
+        return jsonify({
+            'network_name': network_name,
+            'member_count': len(members),
+            'bridge_funders': [
+                {**dict(r), 'high_risk_categories': (r['high_risk_categories'] or '').split(',')}
+                for r in bridge_rows
+            ],
+            'network_risk_token_count': int(nrt_count['n'] or 0),
+            'high_risk_members': [dict(r) for r in member_risks],
+            'cex_infra_accounts': cex_infra_accounts,
+        })
+    except Exception as e:
+        logger.exception("funder_intelligence_network error")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
+
+
+# =========================================================================
 # START BACKGROUND WORKERS
 # =========================================================================
 
@@ -25421,6 +26213,59 @@ def start_background_workers():
     except Exception as e:
         print(f"[WARNING] Token behaviour monitor failed to start: {e}")
 
+    # RPC workers — run as daemons so they don't block the graph analyzer suite
+    try:
+        from src.core.second_hop_lite_worker import SecondHopLiteWorker as _SHL
+        import time as _time
+        def _shl_daemon():
+            while True:
+                try:
+                    import time as _shl_t
+                    _shl_started = int(_shl_t.time())
+                    _SHL(DB_PATH).run()
+                    # Incremental rescore — only creators touched by this batch
+                    try:
+                        import sqlite3 as _shl_sq
+                        from src.core.risk_scoring_builder import RiskScoringBuilder as _RSB
+                        _sc = _shl_sq.connect(DB_PATH, timeout=10)
+                        _sc.execute("PRAGMA journal_mode=WAL")
+                        _sf = [r[0] for r in _sc.execute(
+                            "SELECT funder_address FROM second_hop_lite_queue WHERE status='done' AND scanned_at >= ?",
+                            (_shl_started,)
+                        ).fetchall()]
+                        _ac = [r[0] for r in _sc.execute(
+                            f"SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address IN ({','.join('?'*len(_sf))})",
+                            _sf
+                        ).fetchall()] if _sf else []
+                        _sc.close()
+                        if _ac:
+                            _RSB(DB_PATH).run_incremental(_ac)
+                            print(f"[SHL_DAEMON] incremental rescore: {len(_sf)} funders → {len(_ac)} creators", flush=True)
+                    except Exception as _re:
+                        print(f"[SHL_DAEMON] incremental rescore error: {_re}", flush=True)
+                except Exception as _e:
+                    print(f"[SHL_DAEMON] error: {_e}")
+                _time.sleep(300)  # 5 min between runs
+        threading.Thread(target=_shl_daemon, daemon=True, name="shl-daemon").start()
+        print("[SHL_DAEMON] SecondHopLiteWorker daemon started (5 min loop)")
+    except Exception as e:
+        print(f"[WARNING] SecondHopLiteWorker daemon failed to start: {e}")
+
+    try:
+        from src.core.creator_outbound_worker import CreatorOutboundWorker as _COW
+        import time as _time
+        def _cow_daemon():
+            while True:
+                try:
+                    _COW(DB_PATH).run()
+                except Exception as _e:
+                    print(f"[COW_DAEMON] error: {_e}")
+                _time.sleep(300)  # 5 min between runs
+        threading.Thread(target=_cow_daemon, daemon=True, name="cow-daemon").start()
+        print("[COW_DAEMON] CreatorOutboundWorker daemon started (5 min loop)")
+    except Exception as e:
+        print(f"[WARNING] CreatorOutboundWorker daemon failed to start: {e}")
+
 # =========================================================================
 # MAIN
 # =========================================================================
@@ -25446,6 +26291,55 @@ if __name__ == '__main__':
     print("[FLASK] Starting Migration Tracker UI...")
     print("[FLASK] Dashboard available at http://localhost:5002")
     print(f"[FLASK] Database: {_os.path.abspath(DB_PATH)}")
+
+    # Prediction builder daemon — score new migrations and drain rescore queue
+    def _prediction_daemon():
+        import time as _t
+        _t.sleep(2)  # let DB settle after startup
+        while True:
+            try:
+                from src.core.token_prediction_builder import TokenPredictionBuilder
+                TokenPredictionBuilder(DB_PATH).run()
+            except Exception as _e:
+                if "database is locked" in str(_e):
+                    print(f"[PREDICTION_DAEMON] DB locked, retrying in 15s", flush=True)
+                    _t.sleep(15)
+                    continue
+                print(f"[PREDICTION_DAEMON] error: {_e}", flush=True)
+            _t.sleep(120)  # run every 2 minutes
+
+    threading.Thread(target=_prediction_daemon, daemon=True, name="prediction-daemon").start()
+    print("[PREDICTION_DAEMON] Token prediction daemon started (2 min loop)", flush=True)
+
+    # Pump bot poller daemon — poll known bot wallets every 5 minutes
+    def _pump_bot_daemon():
+        import time as _t
+        _t.sleep(5)  # let DB settle
+        try:
+            from src.core.pump_bot_poller import run_poller_loop
+            run_poller_loop(DB_PATH, os.environ.get("HELIUS_API_KEY"))
+        except Exception as _e:
+            print(f"[PUMP_BOT_POLLER] Daemon startup error: {_e}", flush=True)
+
+    threading.Thread(target=_pump_bot_daemon, daemon=True, name="pump-bot-poller").start()
+    print("[PUMP_BOT_POLLER] Pump bot poller daemon started (5 min loop)", flush=True)
+
+    # Creator resolution queue daemon — process pending resolution jobs every 30s
+    def _creator_resolution_daemon():
+        import time as _t
+        _t.sleep(3)
+        while True:
+            try:
+                from src.core.creator_resolution_queue import process_queue
+                result = process_queue(DB_PATH, limit=10)
+                if result.get("processed", 0) > 0:
+                    print(f"[CREATOR_RES] processed={result['processed']} resolved={result.get('resolved',0)} funding_enqueued={result.get('funding_enqueued',0)}", flush=True)
+            except Exception as _e:
+                print(f"[CREATOR_RES] error: {_e}", flush=True)
+            _t.sleep(30)
+
+    threading.Thread(target=_creator_resolution_daemon, daemon=True, name="creator-resolution-daemon").start()
+    print("[CREATOR_RES] Creator resolution daemon started (30s loop)", flush=True)
 
     # Start background workers in a thread so app.run() binds immediately
     def _deferred_workers():

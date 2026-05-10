@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+from src.utils.db_locking import db_connect
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -21,12 +22,22 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+import threading as _threading
+# In-process dedup for one-time events (MIGRATED, BIRTH) and rate-limited events
+# (FUNDING_COMPLETE). The DB-level check races when multiple listener threads
+# call score_single concurrently — they all read before any commit lands.
+_one_time_event_lock = _threading.Lock()
+_one_time_events_written: set[tuple[str, str]] = set()   # (mint, event_type) — permanent
+_rate_limited_events: dict[tuple[str, str], float] = {}  # (mint, event_type) -> last_written_ts
+_FUNDING_COMPLETE_COOLDOWN = 300  # 5 minutes between FUNDING_COMPLETE events per mint
+
 PREDICTION_LABELS = [
     "CRITICAL_RISK",
     "SELF_FUNDED_TOKEN",
     "SERIAL_OPERATOR_TOKEN",
     "LIQUIDATION_RISK",
     "NETWORK_RISK_TOKEN",
+    "FRESH_UNLINKED_EVENT",
     "LIKELY_DUMP",
     "WATCH",
     "LOW_RISK",
@@ -37,17 +48,35 @@ PREDICTION_LABELS = [
 ]
 
 OUTCOME_LABELS = ["FAST_DUMP", "SLOW_DUMP", "LIQUIDATED", "SURVIVED", "STRONG_PERFORMER", "UNKNOWN"]
-PENDING_STATUSES = {"PENDING_CREATOR", "PENDING_FUNDING", "PENDING_RISK_SCORE", "INSUFFICIENT_HISTORY"}
+PENDING_STATUSES = {"PENDING_CREATOR", "PENDING_FUNDING", "NO_FUNDING_FOUND", "PENDING_RISK_SCORE", "INSUFFICIENT_HISTORY"}
 
 
-def _risk_level(score: int, label: str | None = None) -> str:
+def _risk_level(score: int, label: str | None = None, creator_has_liq: bool = False, network_has_liq: bool = False) -> str:
+    # Creator LIQ history → minimum HIGH regardless of score
+    if creator_has_liq:
+        if score >= 80:
+            return "CRITICAL"
+        return "HIGH"
+    # Network LIQ history (creator clean) → minimum MEDIUM
+    if network_has_liq:
+        if score >= 80:
+            return "CRITICAL"
+        if score >= 60:
+            return "HIGH"
+        return "MEDIUM"
     # Label overrides when it implies higher risk than score alone
     if label in ("LIKELY_DUMP", "SELF_FUNDED_TOKEN", "LIQUIDATION_RISK", "NETWORK_RISK_TOKEN"):
         if score >= 80:
             return "CRITICAL"
         if score >= 60:
             return "HIGH"
-        return "MEDIUM"  # minimum MEDIUM for these labels
+        return "MEDIUM"
+    if label == "FRESH_UNLINKED_EVENT":
+        if score >= 60:
+            return "HIGH"
+        if score >= 40:
+            return "MEDIUM"
+        return "WATCH"
     if label in ("CRITICAL_RISK", "SERIAL_OPERATOR_TOKEN"):
         return "CRITICAL"
     if score >= 80:
@@ -103,6 +132,9 @@ class TokenScore:
     funding_score: int = 0
     outcome_history_score: int = 0
     liquidation_score: int = 0
+    creator_has_liq: bool = False
+    network_has_liq: bool = False
+    creator_was_fresh: bool = False
     reason_codes: list[str] = field(default_factory=list)
     reasons: list[str] = field(default_factory=list)
     explanation: dict[str, Any] = field(default_factory=dict)
@@ -116,6 +148,8 @@ class TokenScore:
     @property
     def prediction_score(self) -> int | None:
         if self.prediction_status != "COMPLETE":
+            return None
+        if self.creator_was_fresh and not self.network_name:
             return None
         # If no network membership, redistribute network weight to creator
         creator_w = 0.55 if self.network_score == 0 else 0.40
@@ -151,32 +185,55 @@ class TokenPredictionBuilder:
 
     def run(self) -> dict[str, Any]:
         started = time.time()
-        conn = sqlite3.connect(self.db_path, timeout=60)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
+
+        # ── READ PHASE — no write lock held ──────────────────────────────────
+        rconn = db_connect(self.db_path, timeout=60)
+        rconn.row_factory = sqlite3.Row
+        rconn.execute("PRAGMA journal_mode=WAL")
+        rconn.execute("PRAGMA query_only=ON")
         try:
-            self._apply_migration(conn)
-            # Tokens already scored live (BIRTH/MIGRATED event) keep their prediction frozen.
-            # Batch only scores tokens that have never been live-scored, and resolves outcomes.
-            live_scored = {
-                r[0] for r in conn.execute(
-                    "SELECT DISTINCT mint FROM token_prediction_events WHERE event_type IN ('BIRTH','MIGRATED')"
+            already_scored = {
+                r[0] for r in rconn.execute(
+                    "SELECT mint FROM token_prediction_scores"
                 ).fetchall()
             }
-            context = self._build_context(conn)
-            tokens = [t for t in self._load_tokens(conn) if t["mint"] not in live_scored]
-            scores = [self._score_token(t, context) for t in tokens]
+            context = self._build_context(rconn)
+            tokens = [t for t in self._load_tokens(rconn) if t["mint"] not in already_scored]
+            rescore_mints = self._load_rescore_queue(rconn)
+            rescore_tokens = self._load_tokens_by_mint(rconn, rescore_mints)
+            incomplete_mints = self._load_incomplete_mints(rconn)
+            incomplete_tokens = self._load_tokens_by_mint(rconn, incomplete_mints)
+        finally:
+            rconn.close()
+
+        scores = [self._score_token(t, context) for t in tokens]
+        rescore_scores = [self._score_token(t, context) for t in rescore_tokens]
+        backfill_scores = [self._score_token(t, context) for t in incomplete_tokens]
+
+        # ── WRITE PHASE — lock held only for bulk inserts ─────────────────────
+        conn = db_connect(self.db_path, timeout=60)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.execute("PRAGMA busy_timeout=60000")
+        try:
+            self._apply_migration(conn)
             if scores:
                 self._write_scores(conn, scores)
-            rescored = self._process_rescore_queue(conn, context)
-            backfilled = self._rescore_incomplete_candidates(conn, context)
+            if rescore_scores:
+                self._write_scores(conn, rescore_scores)
+                self._write_events(conn, rescore_scores, "RESCORE")
+                self._clear_rescore_queue(conn, rescore_mints)
+            if backfill_scores:
+                self._write_scores(conn, backfill_scores)
+                self._write_events(conn, backfill_scores, "RESCORE")
             self._resolve_outcomes(conn)
             conn.commit()
             return {
                 "status": "success",
                 "tokens_scored": len(scores),
-                "queued_rescored": rescored,
-                "pending_backfilled": backfilled,
+                "queued_rescored": len(rescore_scores),
+                "pending_backfilled": len(backfill_scores),
                 "duration_seconds": round(time.time() - started, 2),
             }
         except Exception:
@@ -201,7 +258,13 @@ class TokenPredictionBuilder:
         """, (mint,)).fetchone()
         if not row:
             return None
-        context = self._get_cached_context(conn)
+        # Bypass cache for FUNDING_COMPLETE — funder rows just landed, cache is stale
+        if event_type == 'FUNDING_COMPLETE':
+            context = self._build_context(conn)
+            _context_cache_by_db[self.db_path] = context
+            _context_cache_ts_by_db[self.db_path] = time.time()
+        else:
+            context = self._get_cached_context(conn)
         score = self._score_token(dict(row), context)
         self._write_scores(conn, [score])
         self._write_events(conn, [score], event_type)
@@ -223,7 +286,7 @@ class TokenPredictionBuilder:
         for delay in (300, 1800, 7200):  # 5m, 30m, 2h
             def _check(m=mint):
                 try:
-                    c = sqlite3.connect(self.db_path, timeout=30)
+                    c = db_connect(self.db_path, timeout=30)
                     c.row_factory = sqlite3.Row
                     c.execute("PRAGMA journal_mode=WAL")
                     self._resolve_outcomes(c)
@@ -271,6 +334,7 @@ class TokenPredictionBuilder:
             "prediction_status": "ALTER TABLE token_prediction_scores ADD COLUMN prediction_status TEXT NOT NULL DEFAULT 'COMPLETE'",
             "prediction_confidence": "ALTER TABLE token_prediction_scores ADD COLUMN prediction_confidence TEXT NOT NULL DEFAULT 'HIGH'",
             "data_completeness": "ALTER TABLE token_prediction_scores ADD COLUMN data_completeness REAL NOT NULL DEFAULT 1.0",
+            "creator_was_fresh": "ALTER TABLE token_prediction_scores ADD COLUMN creator_was_fresh INTEGER NOT NULL DEFAULT 0",
         }.items():
             if name not in cols:
                 conn.execute(ddl)
@@ -281,6 +345,7 @@ class TokenPredictionBuilder:
             "prediction_status": "ALTER TABLE token_prediction_scores ADD COLUMN prediction_status TEXT NOT NULL DEFAULT 'COMPLETE'",
             "prediction_confidence": "ALTER TABLE token_prediction_scores ADD COLUMN prediction_confidence TEXT NOT NULL DEFAULT 'HIGH'",
             "data_completeness": "ALTER TABLE token_prediction_scores ADD COLUMN data_completeness REAL NOT NULL DEFAULT 1.0",
+            "creator_was_fresh": "ALTER TABLE token_prediction_scores ADD COLUMN creator_was_fresh INTEGER NOT NULL DEFAULT 0",
         }.items():
             if name not in cols:
                 conn.execute(ddl)
@@ -311,6 +376,7 @@ class TokenPredictionBuilder:
                 funding_score INTEGER NOT NULL DEFAULT 0,
                 outcome_history_score INTEGER NOT NULL DEFAULT 0,
                 liquidation_score INTEGER NOT NULL DEFAULT 0,
+                creator_was_fresh INTEGER NOT NULL DEFAULT 0,
                 predicted_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
                 last_updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
             )
@@ -349,7 +415,7 @@ class TokenPredictionBuilder:
             for r in conn.execute("""
                 SELECT creator_address, final_score, category, risk_level,
                        operator_score, outcome_score, g_score, liquidation_score,
-                       g7_percentage, migrated_tokens, liquidation_count
+                       g7_percentage, migrated_tokens, liquidation_count, total_tokens
                 FROM creator_risk_scores
             """).fetchall()
         }
@@ -369,6 +435,17 @@ class TokenPredictionBuilder:
         for r in conn.execute("SELECT creator_address, network_name FROM network_membership").fetchall():
             creator_network[r["creator_address"]] = r["network_name"]
 
+        # Funder → network map lets brand-new creators show the relevant network
+        # immediately when their direct funder is already known, before the next
+        # graph refresh formally adds the creator to network_membership.
+        funder_network: dict[str, str] = {}
+        for r in conn.execute("""
+            SELECT funder_address, network_name
+            FROM funder_network_map
+            ORDER BY creator_count DESC, network_name ASC
+        """).fetchall():
+            funder_network.setdefault(r["funder_address"], r["network_name"])
+
         # Self-funding
         self_funding = {
             r["creator_address"]: dict(r)
@@ -384,6 +461,14 @@ class TokenPredictionBuilder:
                 WHERE is_cex = 0
                   AND funder_address NOT IN (SELECT address FROM infra_wallets)
                 GROUP BY funder_address
+            """).fetchall()
+        }
+
+        # Creators whose funding extraction completed (status='complete')
+        funding_completed: set[str] = {
+            r[0] for r in conn.execute("""
+                SELECT DISTINCT creator_address FROM creator_funding_queue
+                WHERE status = 'complete'
             """).fetchall()
         }
 
@@ -424,19 +509,96 @@ class TokenPredictionBuilder:
         """).fetchall():
             outbound[r["creator_address"]].add(r["relationship_type"])
 
+        # Funder risk adjacency — maps funder_address → worst risk category of any
+        # HIGH_RISK creator it is a bridge_funder for in coordinated_creator_edges.
+        # Used at score time to propagate network risk to new tokens before nightly batch.
+        HIGH_RISK_CATEGORIES = (
+            "HIGH_RISK_OPERATOR",
+            "LIQUIDITY_EXTRACTOR",
+            "SELF_FUNDING_FARM",
+        )
+        placeholders = ",".join("?" * len(HIGH_RISK_CATEGORIES))
+        funder_risk_adjacency: dict[str, str] = {}
+        for r in conn.execute(f"""
+            SELECT cce.bridge_funder, crs.category
+            FROM coordinated_creator_edges cce
+            JOIN creator_risk_scores crs
+              ON crs.creator_address IN (cce.creator_a, cce.creator_b)
+            WHERE crs.category IN ({placeholders})
+              AND cce.bridge_funder IS NOT NULL
+              AND cce.bridge_funder NOT IN (SELECT address FROM infra_wallets)
+        """, HIGH_RISK_CATEGORIES).fetchall():
+            funder = r["bridge_funder"]
+            # Keep the highest-severity category seen for this funder
+            if funder not in funder_risk_adjacency:
+                funder_risk_adjacency[funder] = r["category"]
+
+        # Also include funders that appear in funder_overlap with HIGH coordination
+        # linking them to the same high-risk creator set.
+        try:
+            for r in conn.execute(f"""
+                SELECT DISTINCT fo.funder_address, crs.category
+                FROM funder_overlap fo
+                JOIN creator_risk_scores crs
+                  ON crs.creator_address IN (fo.creator_a, fo.creator_b)
+                WHERE fo.coordination_level = 'HIGH'
+                  AND crs.category IN ({placeholders})
+                  AND fo.funder_address NOT IN (SELECT address FROM infra_wallets)
+            """, HIGH_RISK_CATEGORIES).fetchall():
+                funder = r["funder_address"]
+                if funder not in funder_risk_adjacency:
+                    funder_risk_adjacency[funder] = r["category"]
+        except Exception:
+            pass  # funder_overlap may not exist in all environments
+
+        # Syndicate tags — creators with known CEX syndicate membership
+        syndicate_tags: dict[str, list[str]] = defaultdict(list)
+        for r in conn.execute("""
+            SELECT creator_address, tag FROM creator_tags
+            WHERE tag IN ('OKX_SYNDICATE')
+        """).fetchall():
+            syndicate_tags[r["creator_address"]].append(r["tag"])
+
+        # Live migrated token count per creator — used instead of creator_risk_scores.migrated_tokens
+        # because that table is only updated nightly and will be stale for brand-new migrations.
+        live_migrated_count: dict[str, int] = {}
+        for r in conn.execute("""
+            SELECT COALESCE(earliest_tx_creator, pf_ws_creator) AS creator,
+                   COUNT(*) AS n
+            FROM token_analysis
+            WHERE lifecycle_stage = 'migrated'
+              AND COALESCE(earliest_tx_creator, pf_ws_creator) IS NOT NULL
+            GROUP BY creator
+        """).fetchall():
+            live_migrated_count[r["creator"]] = int(r["n"] or 0)
+
         return {
             "creator_scores": creator_scores,
             "network_scores": network_scores,
             "creator_network": creator_network,
+            "funder_network": funder_network,
             "self_funding": self_funding,
             "fanout": fanout,
             "funders_by_creator": funders_by_creator,
             "funding_rows_by_creator": funding_rows_by_creator,
             "second_hop": second_hop,
             "outbound": outbound,
+            "funder_risk_adjacency": funder_risk_adjacency,
+            "syndicate_tags": syndicate_tags,
+            "live_migrated_count": live_migrated_count,
+            "funding_completed": funding_completed,
         }
 
     def _load_tokens(self, conn: sqlite3.Connection) -> list[dict[str, Any]]:
+        # Use prediction reset timestamp as cutoff if set, otherwise last 48h
+        # This ensures a Clear Prediction Data wipe only scores tokens migrated after the reset
+        reset_row = conn.execute(
+            "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+        ).fetchone()
+        if reset_row and reset_row[0]:
+            cutoff = int(reset_row[0])
+        else:
+            cutoff = int(time.time()) - 48 * 3600
         rows = conn.execute("""
             SELECT
                 ta.mint,
@@ -451,7 +613,10 @@ class TokenPredictionBuilder:
                 SELECT mint, MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed
                 FROM token_pool_accounts GROUP BY mint
             ) liq ON liq.mint = ta.mint
-        """).fetchall()
+            WHERE ta.lifecycle_stage = 'migrated'
+              AND ta.migrated_at IS NOT NULL
+              AND CAST(ta.migrated_at AS INTEGER) >= ?
+        """, (cutoff,)).fetchall()
         return [dict(r) for r in rows]
 
     def _load_tokens_by_mint(self, conn: sqlite3.Connection, mints: list[str]) -> list[dict[str, Any]]:
@@ -478,34 +643,48 @@ class TokenPredictionBuilder:
 
     def _process_rescore_queue(self, conn: sqlite3.Connection, context: dict[str, Any], limit: int = 500) -> int:
         rows = conn.execute("""
-            SELECT mint
-            FROM token_rescore_queue
-            ORDER BY created_at ASC
+            SELECT q.mint
+            FROM token_rescore_queue q
+            JOIN token_analysis ta ON ta.mint = q.mint
+            WHERE COALESCE(ta.lifecycle_stage, '') = 'migrated'
+              AND ta.migrated_at IS NOT NULL
+            ORDER BY q.created_at ASC
             LIMIT ?
         """, (limit,)).fetchall()
         mints = [row["mint"] for row in rows]
         if not mints:
+            self._prune_non_migrated_rescore_queue(conn)
             return 0
         scores = [self._score_token(token, context) for token in self._load_tokens_by_mint(conn, mints)]
         if scores:
             self._write_scores(conn, scores)
             self._write_events(conn, scores, "RESCORE")
         conn.executemany("DELETE FROM token_rescore_queue WHERE mint = ?", [(mint,) for mint in mints])
+        self._prune_non_migrated_rescore_queue(conn)
         return len(scores)
 
     def _rescore_incomplete_candidates(self, conn: sqlite3.Connection, context: dict[str, Any], limit: int = 1000) -> int:
+        reset_row = conn.execute(
+            "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+        ).fetchone()
+        cutoff = int(reset_row[0]) if reset_row and reset_row[0] else int(time.time()) - 48 * 3600
         rows = conn.execute("""
-            SELECT mint
-            FROM token_prediction_scores
-            WHERE prediction_status != 'COMPLETE'
-               OR (
-                    COALESCE(prediction_score, 0) = 0
-                AND COALESCE(risk_level, 'LOW') = 'LOW'
-                AND COALESCE(prediction_label, 'LOW_RISK') = 'LOW_RISK'
-               )
-            ORDER BY last_updated_at ASC
+            SELECT tps.mint
+            FROM token_prediction_scores tps
+            JOIN token_analysis ta ON ta.mint = tps.mint
+            WHERE ta.migrated_at IS NOT NULL
+              AND CAST(ta.migrated_at AS INTEGER) >= ?
+              AND (
+                    tps.prediction_status != 'COMPLETE'
+                 OR (
+                      COALESCE(tps.prediction_score, 0) = 0
+                  AND COALESCE(tps.risk_level, 'LOW') = 'LOW'
+                  AND COALESCE(tps.prediction_label, 'LOW_RISK') = 'LOW_RISK'
+                    )
+              )
+            ORDER BY tps.last_updated_at ASC
             LIMIT ?
-        """, (limit,)).fetchall()
+        """, (cutoff, limit)).fetchall()
         mints = [row["mint"] for row in rows]
         if not mints:
             return 0
@@ -515,16 +694,62 @@ class TokenPredictionBuilder:
             self._write_events(conn, scores, "RESCORE")
         return len(scores)
 
+    def _load_rescore_queue(self, conn: sqlite3.Connection, limit: int = 500) -> list[str]:
+        rows = conn.execute("""
+            SELECT q.mint
+            FROM token_rescore_queue q
+            JOIN token_analysis ta ON ta.mint = q.mint
+            WHERE COALESCE(ta.lifecycle_stage, '') = 'migrated'
+              AND ta.migrated_at IS NOT NULL
+            ORDER BY q.created_at ASC
+            LIMIT ?
+        """, (limit,)).fetchall()
+        return [row["mint"] for row in rows]
+
+    def _load_incomplete_mints(self, conn: sqlite3.Connection, limit: int = 1000) -> list[str]:
+        rows = conn.execute("""
+            SELECT mint FROM token_prediction_scores
+            WHERE prediction_status != 'COMPLETE'
+               OR (COALESCE(prediction_score, 0) = 0
+                AND COALESCE(risk_level, 'LOW') = 'LOW'
+                AND COALESCE(prediction_label, 'LOW_RISK') = 'LOW_RISK')
+            ORDER BY last_updated_at ASC LIMIT ?
+        """, (limit,)).fetchall()
+        return [row["mint"] for row in rows]
+
+    def _clear_rescore_queue(self, conn: sqlite3.Connection, mints: list[str]) -> None:
+        if mints:
+            conn.executemany("DELETE FROM token_rescore_queue WHERE mint = ?", [(m,) for m in mints])
+
+    def _prune_non_migrated_rescore_queue(self, conn: sqlite3.Connection) -> None:
+        conn.execute("""
+            DELETE FROM token_rescore_queue
+            WHERE mint NOT IN (
+                SELECT mint
+                FROM token_analysis
+                WHERE COALESCE(lifecycle_stage, '') = 'migrated'
+                  AND migrated_at IS NOT NULL
+            )
+        """)
+
     def _score_token(self, token: dict[str, Any], ctx: dict[str, Any]) -> TokenScore:
         mint = token["mint"]
         creator = token.get("creator_address") or token.get("earliest_tx_creator")
         network = ctx["creator_network"].get(creator) if creator else None
+        funders = ctx["funders_by_creator"].get(creator, []) if creator else []
+        if not network:
+            for funder in funders:
+                network = ctx.get("funder_network", {}).get(funder)
+                if network:
+                    break
 
         ts = TokenScore(mint=mint, creator_address=creator, network_name=network)
+        creator_ctx = ctx["creator_scores"].get(creator) if creator else None
 
         pending = self._pending_state(creator, ctx)
         if pending:
             status, completeness, reason = pending
+            ts.creator_was_fresh = False
             ts.prediction_status = status
             ts.prediction_confidence = "LOW"
             ts.data_completeness = completeness
@@ -542,11 +767,61 @@ class TokenPredictionBuilder:
             }
             return ts
 
+        ts.creator_was_fresh = (creator_ctx is None) or (creator_ctx.get("total_tokens") or 0) <= 1
+        if ts.creator_was_fresh and not network:
+            ts.reason_codes.append("fresh_unlinked_creator")
+            ts.reasons.append("Fresh creator with no known network membership yet")
+
+        # ── Funder ancestry propagation ────────────────────────
+        # If any of this creator's funders are bridge_funders for a known HIGH_RISK
+        # creator network, flag immediately — even before nightly batch scoring.
+        funder_risk_adjacency = ctx.get("funder_risk_adjacency", {})
+        if funder_risk_adjacency and creator:
+            for funder in funders:
+                adjacent_category = funder_risk_adjacency.get(funder)
+                if adjacent_category:
+                    if not ts.network_name:
+                        ts.network_name = ctx.get("funder_network", {}).get(funder)
+                    network = ts.network_name
+                    ts.prediction_status = "NETWORK_RISK_TOKEN"
+                    ts.prediction_confidence = "HIGH"
+                    ts.data_completeness = 0.9
+                    # Drive the component scores so _score_row produces HIGH / HIGH_RISK
+                    ts.creator_score = 85
+                    ts.funding_score = 85
+                    ts.reason_codes.append("network_risk_token")
+                    ts.reason_codes.append("funder_ancestry_propagation")
+                    reason_msg = (
+                        f"Funder {funder[:8]}… is a bridge_funder in a known "
+                        f"{adjacent_category} network"
+                    )
+                    ts.reasons.append(reason_msg)
+                    ts.explanation = {
+                        "prediction_status": "NETWORK_RISK_TOKEN",
+                        "prediction_confidence": "HIGH",
+                        "data_completeness": 0.9,
+                        "creator_address": creator,
+                        "network_name": network,
+                        "triggering_funder": funder,
+                        "adjacent_category": adjacent_category,
+                        "creator_category": None,
+                        "network_category": None,
+                        "creator_g7_pct": 0,
+                        "self_funding": False,
+                        "second_hop": 0,
+                        "reasons": ts.reasons,
+                        "reason_codes": ts.reason_codes,
+                    }
+                    return ts
+
         # ── Creator score ──────────────────────────────────────
         cs = ctx["creator_scores"].get(creator, {}) if creator else {}
         ts.creator_score = int(cs.get("final_score") or 0)
         creator_category = cs.get("category")
-        if creator_category:
+        # Use live count from token_analysis — creator_risk_scores.migrated_tokens
+        # is only updated nightly and will be stale immediately after a new migration.
+        creator_prior_tokens = ctx.get("live_migrated_count", {}).get(creator, 0)
+        if creator_category and creator_prior_tokens > 1:
             ts.add("creator_score", 0, "creator_scored", f"Creator category: {creator_category}")
 
         # ── Network score ──────────────────────────────────────
@@ -559,7 +834,6 @@ class TokenPredictionBuilder:
         if sf.get("is_self_funding"):
             ts.add("funding_score", 40, "self_funding_loop", "Creator has self-funding loop")
 
-        funders = ctx["funders_by_creator"].get(creator, []) if creator else []
         for funder in funders:
             fanout = ctx["fanout"].get(funder, 0)
             if fanout >= 6:
@@ -585,6 +859,16 @@ class TokenPredictionBuilder:
         elif network_category in ("HIGH_RISK_OPERATOR_GROUP",):
             ts.add("funding_score", 10, "high_risk_operator_group", "Creator in high-risk operator group")
 
+        # ── Syndicate tag score ────────────────────────────────
+        # Creators tagged OKX_SYNDICATE received coordinated CEX funding.
+        # The CEX flag hides them from network_membership, so we apply the
+        # penalty directly here to compensate.
+        creator_syndicate_tags = ctx.get("syndicate_tags", {}).get(creator, []) if creator else []
+        if "OKX_SYNDICATE" in creator_syndicate_tags:
+            ts.add("funding_score", 30, "okx_syndicate", "Creator funded by OKX syndicate wallet (coordinated CEX funding)")
+            ts.reason_codes.append("okx_syndicate")
+            ts.reasons.append("OKX syndicate creator — strict rotation funding pattern, 91% rug rate")
+
         # ── Outcome history score ──────────────────────────────
         g7_pct = float(cs.get("g7_percentage") or 0)
         migrated = int(cs.get("migrated_tokens") or 0)
@@ -608,8 +892,21 @@ class TokenPredictionBuilder:
         liq_score_raw = int(cs.get("liquidation_score") or 0)
         ts.liquidation_score = liq_score_raw
 
+        creator_has_liq = liq_count > 0 or liq_score_raw >= 25
+        ts.creator_has_liq = creator_has_liq
         if liq_count >= 5:
             ts.add("liquidation_score", 20, "repeated_liquidation", f"Creator has {liq_count} liquidation events")
+
+        # Network liquidation — only applies when creator is clean
+        network_liq_count = int(ns.get("liquidation_count") or 0)
+        network_liq_score = float(ns.get("liquidation_score") or 0)
+        network_has_liq = network_liq_count > 0 or network_liq_score >= 25
+        ts.network_has_liq = not creator_has_liq and network_has_liq
+        if not creator_has_liq and network_has_liq:
+            if network_liq_count >= 10 or network_liq_score >= 60:
+                ts.add("liquidation_score", 30, "network_liq_high", f"Network has {network_liq_count} liquidation events")
+            elif network_liq_count >= 3 or network_liq_score >= 30:
+                ts.add("liquidation_score", 15, "network_liq_moderate", f"Network has {network_liq_count} liquidation events")
 
         # ── Build explanation ──────────────────────────────────
         ts.explanation = {
@@ -640,15 +937,20 @@ class TokenPredictionBuilder:
         if not creator:
             return ("PENDING_CREATOR", 0.2, "Creator address has not been resolved yet")
         if ctx["funding_rows_by_creator"].get(creator, 0) == 0:
-            return ("PENDING_FUNDING", 0.45, "Creator exists, but funding extraction has not produced funder rows yet")
+            if creator in ctx.get("funding_completed", set()):
+                return ("NO_FUNDING_FOUND", 0.45, "Funding extraction completed but no funder transactions were found")
+            return ("PENDING_FUNDING", 0.45, "Creator exists, but funding extraction has not run yet")
         creator_score = ctx["creator_scores"].get(creator)
         if not creator_score:
             return ("PENDING_RISK_SCORE", 0.65, "Creator funding exists, but creator risk score has not been built yet")
-        if int(creator_score.get("migrated_tokens") or 0) < 2:
-            return ("INSUFFICIENT_HISTORY", 0.8, "Creator has fewer than 2 migrated tokens in history")
+        live_migrated = ctx.get("live_migrated_count", {}).get(creator, 0)
+        if live_migrated < 1:
+            return ("INSUFFICIENT_HISTORY", 0.8, "Creator has fewer than 1 migrated token in history")
         return None
 
     def _complete_confidence(self, score: TokenScore, migrated: int) -> str:
+        if score.creator_was_fresh and not score.network_name:
+            return "LOW"
         if migrated >= 5 and (
             score.creator_score >= 60
             or score.network_score >= 60
@@ -668,8 +970,9 @@ class TokenPredictionBuilder:
                 reason_codes, explanation_json,
                 creator_score, network_score, funding_score,
                 outcome_history_score, liquidation_score,
+                creator_was_fresh,
                 predicted_at, last_updated_at
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(mint) DO UPDATE SET
                 creator_address=excluded.creator_address,
                 network_name=excluded.network_name,
@@ -702,12 +1005,17 @@ class TokenPredictionBuilder:
             json.dumps(s.explanation),
             s.creator_score, s.network_score, s.funding_score,
             s.outcome_history_score, s.liquidation_score,
+            1 if s.creator_was_fresh else 0,
             now, now,
         )
 
     def _label_for_score(self, s: TokenScore) -> str:
+        if s.prediction_status == "NETWORK_RISK_TOKEN":
+            return "HIGH_RISK"
         if s.prediction_status != "COMPLETE":
             return s.prediction_status
+        if s.creator_was_fresh and not s.network_name:
+            return "FRESH_UNLINKED_EVENT"
         score = s.prediction_score or 0
         creator_cat = s.explanation.get("creator_category")
         network_cat = s.explanation.get("network_category")
@@ -715,13 +1023,62 @@ class TokenPredictionBuilder:
         return _prediction_label(score, creator_cat, network_cat, s.funding_score, s.liquidation_score, g7_pct)
 
     def _risk_level_for_score(self, s: TokenScore, label: str | None = None) -> str | None:
+        if s.prediction_status == "NETWORK_RISK_TOKEN":
+            return "HIGH"
         if s.prediction_status != "COMPLETE":
             return None
         label = label or self._label_for_score(s)
-        return _risk_level(s.prediction_score or 0, label)
+        if label == "FRESH_UNLINKED_EVENT" or (s.creator_was_fresh and not s.network_name):
+            return "WATCH"
+        return _risk_level(s.prediction_score or 0, label, creator_has_liq=s.creator_has_liq, network_has_liq=s.network_has_liq)
 
     def _write_events(self, conn: sqlite3.Connection, scores: list[TokenScore], event_type: str) -> None:
         now = int(time.time())
+
+        # One-time events: MIGRATED and BIRTH should only ever appear once per mint.
+        one_time_events = {"MIGRATED", "BIRTH"}
+        if event_type in one_time_events:
+            # In-process gate first — prevents races between concurrent listener threads
+            # that all fire before any commit is visible to other connections.
+            with _one_time_event_lock:
+                in_flight = {mint for (mint, et) in _one_time_events_written if et == event_type}
+                new_mints = {s.mint for s in scores} - in_flight
+                for mint in new_mints:
+                    _one_time_events_written.add((mint, event_type))
+            # DB gate for safety on restart (events written in a previous process run)
+            db_written = {
+                r[0] for r in conn.execute(
+                    "SELECT mint FROM token_prediction_events WHERE event_type = ?",
+                    (event_type,)
+                ).fetchall()
+            }
+            already_written = in_flight | db_written
+        elif event_type == "FUNDING_COMPLETE":
+            # Rate-limit: one FUNDING_COMPLETE per mint per cooldown window.
+            # Two listener paths fire near-simultaneously — only the first gets through.
+            with _one_time_event_lock:
+                already_written = set()
+                for s in scores:
+                    key = (s.mint, event_type)
+                    last = _rate_limited_events.get(key, 0)
+                    if now - last < _FUNDING_COMPLETE_COOLDOWN:
+                        already_written.add(s.mint)
+                    else:
+                        _rate_limited_events[key] = now
+        else:
+            already_written = set()
+
+        # For RESCORE: only write if prediction_score or prediction_label changed.
+        if event_type == "RESCORE":
+            prev_scores = {
+                r[0]: (r[1], r[2]) for r in conn.execute("""
+                    SELECT mint, prediction_score, prediction_label
+                    FROM token_prediction_scores
+                """).fetchall()
+            }
+        else:
+            prev_scores = {}
+
         rows = conn.execute("""
             SELECT ta.mint,
                    COALESCE(ta.market_cap_highest, ta.market_cap_current, 0) AS peak_mc,
@@ -734,6 +1091,22 @@ class TokenPredictionBuilder:
             ) liq ON liq.mint = ta.mint
         """).fetchall()
         token_data = {r["mint"]: dict(r) for r in rows}
+
+        def _should_write(s: TokenScore) -> bool:
+            if s.mint in already_written:
+                return False
+            if s.prediction_status == "INSUFFICIENT_HISTORY":
+                return False
+            if event_type == "RESCORE":
+                prev = prev_scores.get(s.mint)
+                if prev and prev[0] == s.prediction_score and prev[1] == self._label_for_score(s):
+                    return False
+            return True
+
+        to_insert = [s for s in scores if _should_write(s)]
+
+        if not to_insert:
+            return
 
         conn.executemany("""
             INSERT INTO token_prediction_events (
@@ -752,7 +1125,7 @@ class TokenPredictionBuilder:
                 1 if token_data.get(s.mint, {}).get("liquidity_removed") else 0,
                 now,
             )
-            for s in scores
+            for s in to_insert
         ])
 
     def _resolve_outcomes(self, conn: sqlite3.Connection) -> None:
@@ -885,7 +1258,7 @@ class TokenPredictionRescoreWorker:
     def run(self) -> dict[str, Any]:
         started = time.time()
         builder = TokenPredictionBuilder(self.db_path)
-        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn = db_connect(self.db_path, timeout=60)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL")
         try:
@@ -907,7 +1280,7 @@ class TokenPredictionRescoreWorker:
 
 
 def apply_migration(db_path: str) -> None:
-    conn = sqlite3.connect(db_path, timeout=30)
+    conn = db_connect(db_path, timeout=30)
     try:
         builder = TokenPredictionBuilder(db_path)
         builder._apply_migration(conn)

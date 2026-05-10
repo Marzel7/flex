@@ -10,6 +10,7 @@ Also maintains funder_network_map for name stability across rebuilds.
 """
 
 import sqlite3
+from src.utils.db_locking import db_connect
 import logging
 import time
 import re
@@ -31,6 +32,10 @@ class NetworkMembershipBuilder:
         """
         Rebuild network_membership from creator_funders.
 
+        Read phase uses a read-only connection so the listener can write concurrently.
+        Write phase opens a separate connection and holds the lock only for the
+        fast DELETE + INSERT swap — typically < 1 second.
+
         Returns:
             {
                 'status': 'success'|'failed',
@@ -41,21 +46,18 @@ class NetworkMembershipBuilder:
         """
         t0 = time.time()
         try:
-            conn = sqlite3.connect(self.db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.row_factory = sqlite3.Row
-
-            self._ensure_funder_network_map(conn)
-            self._ensure_network_membership_schema(conn)
-
-            # --- 1. Build excluded set (CEX + infra static registries + cex_wallets table)
             from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
-            sync_infra_wallets(conn)
-            excluded = build_excluded_set(conn)
+
+            # ── READ PHASE (no write lock held) ──────────────────────────────
+            rconn = db_connect(self.db_path, timeout=60)
+            rconn.execute("PRAGMA journal_mode=WAL")
+            rconn.execute("PRAGMA query_only=ON")
+            rconn.row_factory = sqlite3.Row
+
+            excluded = build_excluded_set(rconn)
             logger.info(f"[NetworkMembershipBuilder] Excluded set size: {len(excluded)}")
 
-            # --- 2. Query qualifying funders from creator_funders
-            rows = conn.execute("""
+            rows = rconn.execute("""
                 SELECT funder_address,
                        COUNT(DISTINCT creator_address) AS creator_count,
                        SUM(amount_sol)                 AS total_sol
@@ -66,7 +68,6 @@ class NetworkMembershipBuilder:
                 ORDER BY creator_count DESC, total_sol DESC
             """, (self.min_creators,)).fetchall()
 
-            # Filter out infra / CEX addresses not already caught by is_cex flag
             qualifying = [
                 dict(r) for r in rows
                 if r["funder_address"] not in excluded
@@ -75,30 +76,50 @@ class NetworkMembershipBuilder:
                 f"[NetworkMembershipBuilder] Qualifying funders (after exclusion): {len(qualifying)}"
             )
 
-            # --- 3. Assign stable network names
-            funder_to_name = self._assign_network_names(conn, qualifying)
+            funder_to_name = self._assign_network_names(rconn, qualifying)
+            pairs = self._collect_memberships(rconn, qualifying, funder_to_name)
+            funder_map_rows = self._collect_funder_map(qualifying, funder_to_name)
+            rconn.close()
 
-            # --- 4. Rebuild network_membership in a single transaction
-            memberships = self._build_memberships(conn, qualifying, funder_to_name)
+            # ── WRITE PHASE (write lock held only for fast swap) ─────────────
+            wconn = db_connect(self.db_path, timeout=60)
+            wconn.execute("PRAGMA journal_mode=WAL")
+            wconn.execute("PRAGMA synchronous=NORMAL")
+            wconn.execute("PRAGMA busy_timeout=30000")
+            wconn.row_factory = sqlite3.Row
 
-            # --- 5. Persist funder_network_map
-            self._persist_funder_map(conn, qualifying, funder_to_name)
+            self._ensure_funder_network_map(wconn)
+            self._ensure_network_membership_schema(wconn)
+            sync_infra_wallets(wconn)
 
-            conn.commit()
-            conn.close()
+            wconn.execute("DELETE FROM network_membership")
+            wconn.executemany(
+                "INSERT OR IGNORE INTO network_membership (network_name, creator_address, funder_address) VALUES (?, ?, ?)",
+                pairs,
+            )
+            wconn.execute(
+                "DELETE FROM funder_network_map WHERE funder_address IN (SELECT address FROM infra_wallets)"
+            )
+            wconn.executemany("""
+                INSERT INTO funder_network_map (funder_address, network_name, creator_count, last_built_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(funder_address) DO UPDATE SET
+                    network_name  = excluded.network_name,
+                    creator_count = excluded.creator_count,
+                    last_built_at = excluded.last_built_at
+            """, funder_map_rows)
+            wconn.commit()
+            wconn.close()
 
             duration = time.time() - t0
-            networks_built = len(funder_to_name)
-            memberships_written = len(memberships)
-
             logger.info(
-                f"[NetworkMembershipBuilder] Done — networks={networks_built} "
-                f"memberships={memberships_written} duration={duration:.1f}s"
+                f"[NetworkMembershipBuilder] Done — networks={len(funder_to_name)} "
+                f"memberships={len(pairs)} duration={duration:.1f}s"
             )
             return {
                 "status": "success",
-                "networks_built": networks_built,
-                "memberships_written": memberships_written,
+                "networks_built": len(funder_to_name),
+                "memberships_written": len(pairs),
                 "duration_seconds": round(duration, 2),
             }
 
@@ -259,69 +280,46 @@ class NetworkMembershipBuilder:
             n += 1
         return n
 
-    def _build_memberships(
+    def _collect_memberships(
         self,
         conn: sqlite3.Connection,
         qualifying: list[dict],
         funder_to_name: dict[str, str],
-    ) -> list[tuple[str, str]]:
-        """
-        Delete and rebuild network_membership rows.
-        Returns list of (network_name, creator_address) tuples inserted.
-        """
-        # Collect all (network_name, creator_address) pairs
-        pairs: list[tuple[str, str, str]] = []
-        for r in qualifying:
-            fa = r["funder_address"]
-            network_name = funder_to_name.get(fa)
-            if not network_name:
-                continue
-            creators = conn.execute("""
-                SELECT DISTINCT creator_address
-                FROM creator_funders
-                WHERE funder_address = ? AND is_cex = 0
-                  AND funder_address NOT IN (SELECT address FROM infra_wallets)
-            """, (fa,)).fetchall()
-            for c in creators:
-                pairs.append((network_name, c[0], fa))
+    ) -> list[tuple[str, str, str]]:
+        """Return (network_name, creator_address, funder_address) tuples — read only."""
+        # Fetch all creator_funders rows for qualifying funders in one query
+        if not qualifying:
+            return []
+        placeholders = ",".join("?" * len(qualifying))
+        funder_addrs = [r["funder_address"] for r in qualifying]
+        rows = conn.execute(f"""
+            SELECT DISTINCT funder_address, creator_address
+            FROM creator_funders
+            WHERE funder_address IN ({placeholders}) AND is_cex = 0
+        """, funder_addrs).fetchall()
 
-        conn.execute("DELETE FROM network_membership")
-        conn.executemany(
-            """
-            INSERT OR IGNORE INTO network_membership
-                (network_name, creator_address, funder_address)
-            VALUES (?, ?, ?)
-            """,
-            pairs,
-        )
-        logger.info(f"[NetworkMembershipBuilder] Inserted {len(pairs)} membership rows")
+        pairs: list[tuple[str, str, str]] = []
+        for row in rows:
+            fa, creator = row[0], row[1]
+            network_name = funder_to_name.get(fa)
+            if network_name:
+                pairs.append((network_name, creator, fa))
+
+        logger.info(f"[NetworkMembershipBuilder] Collected {len(pairs)} membership rows")
         return pairs
 
-    def _persist_funder_map(
+    def _collect_funder_map(
         self,
-        conn: sqlite3.Connection,
         qualifying: list[dict],
         funder_to_name: dict[str, str],
-    ) -> None:
+    ) -> list[tuple]:
+        """Return rows for funder_network_map upsert — pure Python, no DB."""
         now = datetime.now(timezone.utc).isoformat()
         count_by_funder = {r["funder_address"]: r["creator_count"] for r in qualifying}
-        rows = [
+        return [
             (fa, name, count_by_funder.get(fa, 0), now)
             for fa, name in funder_to_name.items()
         ]
-        conn.execute("""
-            DELETE FROM funder_network_map
-            WHERE funder_address IN (SELECT address FROM infra_wallets)
-        """)
-        conn.executemany("""
-            INSERT INTO funder_network_map (funder_address, network_name, creator_count, last_built_at)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(funder_address) DO UPDATE SET
-                network_name  = excluded.network_name,
-                creator_count = excluded.creator_count,
-                last_built_at = excluded.last_built_at
-        """, rows)
-        logger.info(f"[NetworkMembershipBuilder] Upserted {len(rows)} funder_network_map rows")
 
 
 # ---------------------------------------------------------------------------
@@ -355,7 +353,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
     }
 
     try:
-        conn = sqlite3.connect(db_path, timeout=15)
+        conn = db_connect(db_path, timeout=15)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA busy_timeout=10000")
         conn.row_factory = sqlite3.Row

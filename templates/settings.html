@@ -234,6 +234,23 @@
     </div>
 </div>
 
+<div class="settings-section">
+    <div class="settings-section-title">Monitoring</div>
+
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">Pump Bot Poller</div>
+            <div class="setting-desc">Poll known pump bot wallets every 5 minutes for new signals</div>
+        </div>
+        <div class="toggle-wrap">
+            <div class="status-dot" id="pumpBotEnabledStatus"></div>
+            <div class="toggle-switch" id="pumpBotEnabledToggle" onclick="togglePumpBot()">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="save-toast" id="save-toast">Saved</div>
 
 <script>
@@ -243,6 +260,7 @@ let autoExtractFundersEnabled = false;
 let autoApproveHighPriorityEnabled = false;
 let autoApproveNetworkMemberEnabled = false;
 let autoApproveSharedFundersEnabled = false;
+let pumpBotEnabledEnabled = true;
 
 function setToggle(id, enabled) {
     const el = document.getElementById(id + 'Toggle');
@@ -289,6 +307,16 @@ function toggleAutoExtractFunders() {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ auto_extract_funders: autoExtractFundersEnabled })
+    }).then(() => showToast()).catch(e => console.error(e));
+}
+
+function togglePumpBot() {
+    pumpBotEnabledEnabled = !pumpBotEnabledEnabled;
+    setToggle('pumpBotEnabled', pumpBotEnabledEnabled);
+    fetch('/api/listener-settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ pump_bot_enabled: pumpBotEnabledEnabled })
     }).then(() => showToast()).catch(e => console.error(e));
 }
 
@@ -395,10 +423,12 @@ async function loadSettings() {
         tokenHistoryEnabled = !!mig.token_history_check;
         listenLaunchesEnabled = !!listener.listen_to_launches;
         autoExtractFundersEnabled = !!listener.auto_extract_funders;
+        pumpBotEnabledEnabled = listener.pump_bot_enabled !== false;
 
         setToggle('tokenHistory', tokenHistoryEnabled);
         setToggle('listenLaunches', listenLaunchesEnabled);
         setToggle('autoExtractFunders', autoExtractFundersEnabled);
+        setToggle('pumpBotEnabled', pumpBotEnabledEnabled);
 
         // Auto-approval settings
         const autoKeys = [

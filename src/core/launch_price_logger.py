@@ -13,6 +13,7 @@ Columns (TSV):
 import os
 import time
 import sqlite3
+from src.utils.db_locking import db_connect
 import threading
 import logging
 import logging.handlers
@@ -48,7 +49,7 @@ def _write(line: str) -> None:
 def _get_detected_at(mint: str) -> float | None:
     """Read token detection time from DB (written by listener process)."""
     try:
-        conn = sqlite3.connect(_DB_PATH, timeout=2)
+        conn = db_connect(_DB_PATH, timeout=2)
         row = conn.execute(
             "SELECT created_at FROM token_analysis WHERE mint = ?", (mint,)
         ).fetchone()

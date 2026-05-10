@@ -8,6 +8,7 @@ When a migration is detected, runs post-migration analyzer to assess risk.
 
 import asyncio
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import re
@@ -218,13 +219,12 @@ _symbol_fetch_seen: set = set()
 _symbol_fetch_seen_lock = __import__('threading').Lock()
 
 def _spawn_symbol_fetch(mint: str, db_path: str) -> None:
-    """Fire-and-forget thread to fetch + store token symbol. Deduplicates per mint."""
-    import threading as _t
+    """Fire-and-forget symbol fetch submitted to the shared pool. Deduplicates per mint."""
     with _symbol_fetch_seen_lock:
         if mint in _symbol_fetch_seen:
             return
         _symbol_fetch_seen.add(mint)
-    _t.Thread(target=_fetch_and_store_symbol, args=(mint, db_path), daemon=True).start()
+    _TOKEN_WORK_POOL.submit(_fetch_and_store_symbol, mint, db_path)
 
 
 def _write_migration_log(line: str) -> None:
@@ -271,6 +271,10 @@ except Exception:
 # Serializes ALL database writes across threads/processes to prevent lock contention
 # Used by asyncio tasks (wrapped with self.db_lock THEN this), executor threads, and workers
 DB_WRITE_LOCK = threading.RLock()
+
+# Bounded thread pool for per-token background work (symbol fetch, scoring, price fast-lane).
+# Caps OS thread count; tasks queue internally if all workers are busy.
+_TOKEN_WORK_POOL = ThreadPoolExecutor(max_workers=40, thread_name_prefix="tok_work")
 
 # Import settings checker (will be imported dynamically when needed)
 def get_migration_setting(key: str, default=True) -> bool:
@@ -687,6 +691,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         asyncio.create_task(self._cleanup_tx_cache_periodic())
         asyncio.create_task(self._process_creator_resolution_queue_periodic())
         asyncio.create_task(self._process_creator_funding_queue_periodic())
+        asyncio.create_task(self._periodic_cluster_rebuild())
         asyncio.create_task(self._flush_portal_vsol_periodic())
         asyncio.create_task(self._db_maintenance_periodic())
 
@@ -1617,7 +1622,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc}", flush=True)
             return
 
-        import threading as _threading
         def _score():
             try:
                 import sqlite3 as _sq
@@ -1628,7 +1632,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn2.close()
             except Exception as _e:
                 log_print(f"[PREDICTION] ⚠ score_single MIGRATED {mint[:16]}: {_e}", flush=True)
-        _threading.Thread(target=_score, daemon=True).start()
+        _TOKEN_WORK_POOL.submit(_score)
 
     async def _record_migration_verification_snapshot(
         self,
@@ -2303,7 +2307,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         migration_progress_pct,
                         migration_signal_source,
                         migration_signal_updated_at,
-                        first_pre_migration_signal_at
+                        first_pre_migration_signal_at,
+                        pf_ws_creator
                     FROM token_analysis
                     WHERE mint = ?
                     LIMIT 1
@@ -2316,6 +2321,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 lifecycle_stage = str(row[2]) if row and row[2] is not None else None
                 dex_value = str(row[3]) if row and row[3] is not None else None
                 pool_address = str(row[4]) if row and row[4] is not None else None
+                pf_ws_creator_from_row = str(row[15]) if row and row[15] is not None else None
                 pumpswap_pool_address = str(row[5]) if row and row[5] is not None else None
                 create_tx_signature = str(row[6]) if row and row[6] is not None else None
                 bonding_curve_pda = str(row[7]) if row and row[7] is not None else None
@@ -2502,6 +2508,29 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         and signal.get("is_about_to_migrate")
                     )
                     pf_ws_creator_band = signal.get("band") or "unknown"
+
+                    # Early funding extraction — trigger when token first hits HOT
+                    # so creator profile is ready before/at migration time
+                    if (
+                        changed_values
+                        and signal.get("band") == "hot"
+                        and (before_row is None or (before_row[1] or "") != "hot")
+                        and pf_ws_creator_from_row
+                    ):
+                        log_print(
+                            f"[EARLY_FUNDING] 🔥 mint={mint[:8]} band=hot → enqueuing early extraction for creator={pf_ws_creator_from_row[:8]}",
+                            flush=True,
+                        )
+                        asyncio.create_task(
+                            self._enqueue_creator_funding_job(
+                                pf_ws_creator_from_row,
+                                mint=mint,
+                                migration_timestamp=None,
+                                create_tx_signature=str(row[6]) if row and row[6] else None,
+                                delay_seconds=0,
+                                source="early_hot_band",
+                            )
+                        )
             except Exception as e:
                 log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
 
@@ -3760,12 +3789,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         Signals updated immediately:
           1. IRC watchlist row for this creator
-          2. SecondHopExpansionBuilder (2H upstream if links exist)
-          3. NetworksReleaseBuilder (dashboard summary)
-          4. Relationship events diff (log new discoveries)
+          2. NetworksReleaseBuilder (dashboard summary)
+          3. Relationship events diff (log new discoveries)
 
         Signals intentionally deferred to cron:
           - WalletClusteringEngine, FarmClusterDetection, CoordinatedEdgesBuilder
+          - SecondHopExpansionBuilder / UpstreamExpansionBuilder
         """
         import time as _time
         now = _time.time()
@@ -3848,16 +3877,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 except Exception as e:
                     log_print(f"[INTEL_REFRESH] IRC error ({_t.time()-_ts:.1f}s): {e}", flush=True)
 
-                # 3. SecondHopExpansionBuilder
-                _ts = _t.time()
-                try:
-                    from src.core.second_hop_builder import SecondHopExpansionBuilder
-                    r = SecondHopExpansionBuilder(DB_PATH).build()
-                    log_print(f"[INTEL_REFRESH] 2H expansion: {r.get('status')} rows={r.get('rows_written',0)} ({_t.time()-_ts:.1f}s)", flush=True)
-                except Exception as e:
-                    log_print(f"[INTEL_REFRESH] 2H error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+                # Full 2H expansion is intentionally kept out of the listener
+                # hot path. It can scan a large static exclusion set and hold
+                # SQLite write locks long enough to block migration ingestion.
+                # The local graph refresh/analyzer cycle rebuilds 2H instead.
+                log_print("[INTEL_REFRESH] 2H expansion deferred to local graph refresh", flush=True)
 
-                # 4. NetworksReleaseBuilder
+                # 3. NetworksReleaseBuilder
                 _ts = _t.time()
                 try:
                     from src.utils.build_networks_release import build_networks_release
@@ -3899,6 +3925,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     DB_PATH,
                     limit=25,
                     source="listener_p0_sweep",
+                    max_age_seconds=3600,
                 )
                 result = await asyncio.to_thread(
                     process_creator_resolution_queue,
@@ -3921,6 +3948,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 sleep_seconds = 20
             await asyncio.sleep(sleep_seconds)
 
+    async def _periodic_cluster_rebuild(self) -> None:
+        """Rebuild super_clusters every 10 minutes — decoupled from per-extraction triggers."""
+        await asyncio.sleep(60)  # initial delay to let startup settle
+        while True:
+            try:
+                loop = asyncio.get_event_loop()
+                await loop.run_in_executor(None, rebuild_super_clusters_from_funding)
+                log_print("[CLUSTERING] ✅ Periodic cluster rebuild complete", flush=True)
+            except Exception as e:
+                log_print(f"[CLUSTERING] ⚠ Periodic rebuild error: {e}", flush=True)
+            await asyncio.sleep(600)  # 10 minutes
+
     async def _process_creator_funding_queue_periodic(self) -> None:
         """Process durable creator funding work after the critical window."""
         await asyncio.sleep(2)
@@ -3938,6 +3977,47 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     conn.execute("PRAGMA busy_timeout=30000")
                     conn.row_factory = sqlite3.Row
                     cursor = conn.cursor()
+                    cursor.execute(
+                        """
+                        UPDATE creator_funding_queue
+                        SET status = 'complete',
+                            locked_until = 0,
+                            attempts = attempts + 1,
+                            last_error = NULL,
+                            funding_extracted_at = COALESCE(funding_extracted_at, ?),
+                            updated_at = ?
+                        WHERE (
+                              (status = 'running' AND locked_until > 0 AND locked_until < ?)
+                           OR status = 'retry'
+                          )
+                          AND EXISTS (
+                              SELECT 1
+                              FROM creator_funders cf
+                              WHERE cf.creator_address = creator_funding_queue.creator_address
+                              LIMIT 1
+                          )
+                        """,
+                        (now, now, now),
+                    )
+                    recovered_completed = int(cursor.rowcount or 0)
+                    if recovered_completed:
+                        cursor.execute(
+                            """
+                            INSERT OR IGNORE INTO token_rescore_queue (mint, reason, created_at)
+                            SELECT mint, 'funding_extracted_recovered', ?
+                            FROM creator_funding_queue
+                            JOIN token_analysis USING (mint)
+                            WHERE status = 'complete'
+                              AND creator_funding_queue.updated_at = ?
+                              AND COALESCE(token_analysis.lifecycle_stage, '') = 'migrated'
+                              AND token_analysis.migrated_at IS NOT NULL
+                            """,
+                            (now, now),
+                        )
+                        log_print(
+                            f"[FUNDING_QUEUE] ✅ Recovered {recovered_completed} stale running job(s) with extracted funders",
+                            flush=True,
+                        )
                     cursor.execute(
                         """
                         UPDATE creator_funding_queue
@@ -4040,7 +4120,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             flush=True,
                         )
                         try:
-                            await asyncio.wait_for(
+                            _extraction_result = await asyncio.wait_for(
                                 extract_funding_for_new_token(
                                     creator,
                                     migration_timestamp,
@@ -4053,6 +4133,36 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             raise TimeoutError(
                                 f"creator funding timed out after {self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS}s"
                             ) from timeout_exc
+                        _extraction_errored = bool(
+                            isinstance(_extraction_result, dict) and _extraction_result.get("error")
+                        )
+                        # If creator_funders is still empty, scan immediately in background thread
+                        # so prediction can move from PENDING_FUNDING to a real score
+                        try:
+                            with db_connect(DB_PATH, timeout=10) as _cf_conn:
+                                _cf_count = _cf_conn.execute(
+                                    "SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (creator,)
+                                ).fetchone()[0]
+                            if _cf_count == 0:
+                                log_print(f"[FRESH_CREATOR] ⏳ No funders found — scanning immediately: {creator[:8]}", flush=True)
+                                import threading as _threading
+                                def _scan_and_rescore(_creator, _mint):
+                                    try:
+                                        # Use extract_funder_transfers (sync) which already knows DB_PATH
+                                        from src.extractors.funder_incoming_extractor import extract_for_creator as _extract
+                                        import os as _os
+                                        _os.environ.setdefault('DB_PATH', DB_PATH)
+                                        _extract(_creator)
+                                        log_print(f"[FRESH_CREATOR] ✅ Funder extraction complete: {_creator[:8]}", flush=True)
+                                        with db_connect(DB_PATH, timeout=30) as _pc:
+                                            from src.core.token_prediction_builder import TokenPredictionBuilder as _TPB
+                                            _TPB(DB_PATH).score_single(_pc, _mint, 'FUNDING_COMPLETE')
+                                        log_print(f"[FRESH_CREATOR] ✅ Rescored after scan: {_mint[:16]}", flush=True)
+                                    except Exception as _e:
+                                        log_print(f"[FRESH_CREATOR] ⚠ Scan/rescore failed: {_e}", flush=True)
+                                _threading.Thread(target=_scan_and_rescore, args=(creator, mint), daemon=True).start()
+                        except Exception as _fc_e:
+                            log_print(f"[FRESH_CREATOR] ⚠ Failed to start scan thread: {_fc_e}", flush=True)
                         if get_migration_setting('auto_extract_funders', False):
                             try:
                                 log_print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {creator[:8]}...", flush=True)
@@ -4062,35 +4172,117 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 log_print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {funder_exc}", flush=True)
                         else:
                             log_print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
-
                         try:
-                            await enqueue_clustering(rebuild_super_clusters_from_funding, "super_clusters_rebuild")
-                            log_print(f"[CLUSTERING] ✅ Clustering task enqueued for processing", flush=True)
-                        except Exception as cluster_exc:
-                            log_print(f"[CLUSTERING] ⚠️ Error queueing clustering: {cluster_exc}", flush=True)
+                            from src.core.risk_scoring_builder import RiskScoringBuilder as _RSB
+                            _RSB(DB_PATH).score_creator_now(creator)
+                            log_print(f"[RISK_SCORE] ✅ Creator scored mint={mint[:16]} creator={creator[:8]}", flush=True)
+                        except Exception as _rs_e:
+                            log_print(f"[RISK_SCORE] ⚠ Creator score failed: {_rs_e}", flush=True)
+                        try:
+                            from src.core.token_prediction_builder import TokenPredictionBuilder as _TPB
+                            with db_connect(DB_PATH, timeout=60) as _pred_conn:
+                                _TPB(DB_PATH).score_single(_pred_conn, mint, 'FUNDING_COMPLETE')
+                            log_print(f"[PREDICTION] ✅ Re-scored after funding complete mint={mint[:16]}", flush=True)
+                        except Exception as _pred_e:
+                            log_print(f"[PREDICTION] ⚠ Re-score after funding failed mint={mint[:16]}: {_pred_e}", flush=True)
 
-                        async with self.db_lock:
-                            conn = db_connect(DB_PATH, timeout=30)
-                            conn.execute("PRAGMA busy_timeout=30000")
-                            cursor = conn.cursor()
-                            cursor.execute(
-                                """
-                                UPDATE creator_funding_queue
-                                SET status = 'complete',
-                                    locked_until = 0,
-                                    attempts = ?,
-                                    last_error = NULL,
-                                    funding_extracted_at = ?,
-                                    updated_at = ?
-                                WHERE creator_address = ?
-                                  AND mint = ?
-                                """,
-                                (attempts + 1, int(time.time()), int(time.time()), creator, mint),
-                            )
-                            conn.commit()
-                            conn.close()
+                        # Cluster rebuild is now scheduled periodically — skip per-extraction
+                        # trigger to avoid long write locks on every funding completion.
+
+                        # Verify funders were actually written before marking complete.
+                        # A DB lock during _flush_page_batch could silently lose rows.
+                        _funder_count = 0
+                        try:
+                            with db_connect(DB_PATH, timeout=10) as _vconn:
+                                _funder_count = _vconn.execute(
+                                    "SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (creator,)
+                                ).fetchone()[0]
+                        except Exception as _ve:
+                            log_print(f"[FUNDING_QUEUE] ⚠ Funder count check failed: {_ve}", flush=True)
+
+                        if _extraction_errored and _funder_count == 0 and attempts < 3:
+                            # Extraction ran but wrote nothing — retry in 60s
+                            async with self.db_lock:
+                                conn = db_connect(DB_PATH, timeout=30)
+                                cursor = conn.cursor()
+                                cursor.execute(
+                                    """
+                                    UPDATE creator_funding_queue
+                                    SET status = 'retry',
+                                        locked_until = 0,
+                                        attempts = ?,
+                                        next_attempt_at = ?,
+                                        last_error = 'no_funders_written',
+                                        updated_at = ?
+                                    WHERE creator_address = ? AND mint = ?
+                                    """,
+                                    (attempts + 1, int(time.time()) + 60, int(time.time()), creator, mint),
+                                )
+                                conn.commit()
+                                conn.close()
+                            log_print(f"[FUNDING_QUEUE] ⚠ No funders written — queued for retry (attempt {attempts+1}): {creator[:8]}", flush=True)
+                        else:
+                            async with self.db_lock:
+                                conn = db_connect(DB_PATH, timeout=30)
+                                conn.execute("PRAGMA busy_timeout=30000")
+                                cursor = conn.cursor()
+                                cursor.execute(
+                                    """
+                                    UPDATE creator_funding_queue
+                                    SET status = 'complete',
+                                        locked_until = 0,
+                                        attempts = ?,
+                                        last_error = NULL,
+                                        funding_extracted_at = ?,
+                                        updated_at = ?
+                                    WHERE creator_address = ?
+                                      AND mint = ?
+                                    """,
+                                    (attempts + 1, int(time.time()), int(time.time()), creator, mint),
+                                )
+                                cursor.execute(
+                                    """
+                                    INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
+                                    SELECT ?, 'funding_complete', ?
+                                    WHERE EXISTS (
+                                        SELECT 1
+                                        FROM token_analysis
+                                        WHERE mint = ?
+                                          AND COALESCE(lifecycle_stage, '') = 'migrated'
+                                          AND migrated_at IS NOT NULL
+                                    )
+                                    """,
+                                    (mint, int(time.time()), mint),
+                                )
+                                conn.commit()
+                                conn.close()
                         elapsed = time.time() - job_started_at
-                        log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... elapsed={elapsed:.1f}s", flush=True)
+                        log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... funders={_funder_count} elapsed={elapsed:.1f}s", flush=True)
+                        # Auto-enqueue unclassified funders for second-hop lite scan
+                        # so fresh creators don't stay with unknown fund source
+                        try:
+                            with db_connect(DB_PATH, timeout=10) as _shl_conn:
+                                _shl_rows = _shl_conn.execute("""
+                                    SELECT funder_address FROM creator_funders
+                                    WHERE creator_address = ?
+                                      AND is_cex = 0
+                                      AND is_classified = 0
+                                      AND funder_address NOT IN (
+                                          SELECT funder_address FROM second_hop_lite_queue
+                                      )
+                                """, (creator,)).fetchall()
+                                if _shl_rows:
+                                    _shl_conn.executemany("""
+                                        INSERT OR IGNORE INTO second_hop_lite_queue (
+                                            funder_address, priority, reason_codes,
+                                            status, attempts, last_error, rpc_calls_used,
+                                            created_at, scanned_at, next_attempt_at
+                                        ) VALUES (?, 170, '["fresh_creator_auto"]',
+                                            'pending', 0, NULL, 0, ?, NULL, ?)
+                                    """, [(r[0], int(time.time()), int(time.time())) for r in _shl_rows])
+                                    log_print(f"[SHL_AUTO] ✅ Enqueued {len(_shl_rows)} unclassified funder(s) for second-hop scan: {creator[:8]}", flush=True)
+                        except Exception as _shl_e:
+                            log_print(f"[SHL_AUTO] ⚠ Failed to enqueue SHL: {_shl_e}", flush=True)
                         # Immediate provisional network assignment — best-effort, non-blocking
                         try:
                             from src.core.network_membership_builder import assign_live_network_for_creator
@@ -4643,7 +4835,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn2.close()
             except Exception as _e:
                 log_print(f"[PREDICTION] ⚠ score_single BIRTH {mint[:16]}: {_e}", flush=True)
-        _threading.Thread(target=_score_birth, daemon=True).start()
+        _TOKEN_WORK_POOL.submit(_score_birth)
 
         try:
             from src.core.price_worker import PriceWorkerRegistry
@@ -6817,7 +7009,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     c.close()
                 except Exception as _e:
                     log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
-            _threading.Thread(target=_score_migrated_fast, daemon=True).start()
+            _TOKEN_WORK_POOL.submit(_score_migrated_fast)
 
             await self._record_migration_verification_snapshot(
                 mint,
@@ -6867,11 +7059,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     return
                                 log_print(f"[FAST_PATH_REGISTER] ⏳ Bootstrap attempt {_attempt} returned no reserves for {mint[:16]}... (retrying)", flush=True)
                             log_print(f"[FAST_PATH_REGISTER] ⚠️  Bootstrap gave up after 4 attempts for {mint[:16]}...", flush=True)
-                        _thr.Thread(
-                            target=_bootstrap_with_retry,
-                            daemon=True,
-                            name=f"BootstrapPool-{mint[:8]}",
-                        ).start()
+                        _TOKEN_WORK_POOL.submit(_bootstrap_with_retry)
                         log_print(f"[FAST_PATH_REGISTER] 🔄 Bootstrapping reserves for {mint[:16]}... (with retry)", flush=True)
                 except Exception as _be:
                     log_print(f"[FAST_PATH_REGISTER] ⚠️  Reserve bootstrap failed: {_be}", flush=True)
@@ -6952,7 +7140,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     c.close()
                 except Exception as _e:
                     log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
-            _threading.Thread(target=_score_already_known, daemon=True).start()
+            _TOKEN_WORK_POOL.submit(_score_already_known)
             return
 
         # === GUARD 1: Prevent duplicate primary discovery by mint ===
@@ -7052,8 +7240,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 except Exception as _e:
                     log_print(f"[FAST_PRICE] ⚠️  fast-lane failed: {_e}", flush=True)
 
-            import threading as _threading
-            _threading.Thread(target=_first_price_fast_lane, args=(mint,), daemon=True).start()
+            _TOKEN_WORK_POOL.submit(_first_price_fast_lane, mint)
 
             # === INSTANT UI: broadcast token_detected before any discovery ===
             _det_event = {
@@ -7090,7 +7277,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn.commit()
                 conn.close()
                 log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
-                import threading as _threading
                 def _score_migrated_tx(m=mint):
                     try:
                         import sqlite3 as _sq
@@ -7101,7 +7287,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         c.close()
                     except Exception as _e:
                         log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
-                _threading.Thread(target=_score_migrated_tx, daemon=True).start()
+                _TOKEN_WORK_POOL.submit(_score_migrated_tx)
             except Exception as e:
                 log_print(f"[DB] ⚠️  Failed to store migration TX: {e}", flush=True)
 
@@ -9481,28 +9667,34 @@ def _get_listener_instance() -> Optional["PumpFunCurveListener"]:
 
 async def main():
     # Ensure only one instance runs at a time
+    import fcntl
     import os
-    import time
     from pathlib import Path
     
     lock_file = Path("/tmp/pumpfun_curve_listener.lock")
-    
-    # Kill any existing listener instances that might be hanging
-    max_retries = 3
-    for attempt in range(max_retries):
-        result = os.system("pkill -9 -f 'python.*-m src.core.pumpfun_curve_listener' 2>/dev/null || true")
-        time.sleep(0.5)
-        # Check if there are still instances running
-        check = os.popen("pgrep -f 'python.*-m src.core.pumpfun_curve_listener' | wc -l").read().strip()
-        if check == "1":  # Only this instance
-            break
-        if attempt < max_retries - 1:
-            time.sleep(0.5)
+    lock_file.parent.mkdir(parents=True, exist_ok=True)
+    lock_handle = open(lock_file, "w")
+    try:
+        fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        lock_handle.seek(0)
+        lock_handle.truncate()
+        lock_handle.write(str(os.getpid()))
+        lock_handle.flush()
+    except BlockingIOError:
+        log_print("[STARTUP] Another pumpfun_curve_listener instance is already running; exiting", flush=True)
+        return
     
     global _listener_singleton
     listener = PumpFunCurveListener()
     _listener_singleton = listener
-    await listener.listen()
+    try:
+        await listener.listen()
+    finally:
+        try:
+            fcntl.flock(lock_handle, fcntl.LOCK_UN)
+            lock_handle.close()
+        except Exception:
+            pass
 
 
 def cleanup_and_restart():

@@ -24,6 +24,7 @@ Cron example (every 10 minutes):
 import sys
 import os
 import time
+import fcntl
 import logging
 import logging.handlers
 from pathlib import Path
@@ -57,15 +58,58 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _lock_path() -> Path:
+    raw = os.environ.get('FLEX_GRAPH_ANALYZER_LOCK')
+    if raw:
+        return Path(raw)
+    return _REPO_ROOT / 'logs' / 'graph_analyzers.lock'
+
+
+def _acquire_runner_lock():
+    path = _lock_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fh = path.open('a+', encoding='utf-8')
+    try:
+        fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        fh.seek(0)
+        holder = fh.read().strip()
+        detail = f" ({holder})" if holder else ""
+        logger.warning(f"Graph Analyzer Runner already active{detail}; skipping this run.")
+        fh.close()
+        return None
+
+    fh.seek(0)
+    fh.truncate()
+    fh.write(f"pid={os.getpid()} started_at={datetime.now(timezone.utc).isoformat()}\n")
+    fh.flush()
+    os.fsync(fh.fileno())
+    return fh
+
+
+def _release_runner_lock(fh) -> None:
+    try:
+        fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+    finally:
+        fh.close()
+
+
 def _resolve_db_path() -> str:
-    for candidate in [
-        _REPO_ROOT / 'database' / 'flex_complete_database.db',
-        _REPO_ROOT / 'flex_complete_database.db',
-    ]:
-        if candidate.exists():
-            return str(candidate)
+    env_path = os.environ.get('DB_PATH')
+    candidate = Path(env_path).expanduser() if env_path else _REPO_ROOT / 'database' / 'flex_complete_database.db'
+    if not candidate.is_absolute():
+        candidate = (_REPO_ROOT / candidate).resolve()
+    if candidate.exists():
+        canonical = (_REPO_ROOT / 'database' / 'flex_complete_database.db').resolve()
+        resolved = candidate.resolve()
+        if resolved != canonical:
+            raise RuntimeError(
+                f"Refusing to run graph analyzers against non-canonical DB: {resolved}. "
+                f"Expected: {canonical}"
+            )
+        return str(resolved)
     raise FileNotFoundError(
-        f"Database not found. Tried: database/flex_complete_database.db and flex_complete_database.db"
+        f"Database not found. Expected: {_REPO_ROOT / 'database' / 'flex_complete_database.db'}"
     )
 
 
@@ -94,32 +138,48 @@ def _ensure_analyzer_runs_table(db_path: str) -> None:
 
 def _log_run_start(db_path: str, analyzer_name: str) -> int:
     import sqlite3
-    conn = sqlite3.connect(db_path, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO analyzer_runs (analyzer_name, started_at, status, created_at) VALUES (?, ?, 'running', ?)",
-        (analyzer_name, time.time(), time.time())
-    )
-    run_id = cur.lastrowid
-    conn.commit()
-    conn.close()
-    return run_id
+    for attempt in range(6):
+        try:
+            conn = sqlite3.connect(db_path, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+            cur = conn.cursor()
+            cur.execute(
+                "INSERT INTO analyzer_runs (analyzer_name, started_at, status, created_at) VALUES (?, ?, 'running', ?)",
+                (analyzer_name, time.time(), time.time())
+            )
+            run_id = cur.lastrowid
+            conn.commit()
+            conn.close()
+            return run_id
+        except sqlite3.OperationalError as e:
+            if attempt < 5:
+                logger.warning(f"[_log_run_start] DB locked, retrying in 10s ({attempt+1}/6): {e}")
+                time.sleep(10)
+            else:
+                logger.error(f"[_log_run_start] DB still locked after 6 attempts, skipping run log: {e}")
+                return -1
 
 
 def _log_run_finish(db_path: str, run_id: int, started_at: float, status: str,
                     error_message: str | None, rows_written: int) -> None:
+    if run_id < 0:
+        return  # logging was skipped due to DB lock at start
     import sqlite3
     finished_at = time.time()
-    conn = sqlite3.connect(db_path, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("""
-        UPDATE analyzer_runs
-        SET finished_at=?, duration_seconds=?, status=?, error_message=?, rows_written=?
-        WHERE id=?
-    """, (finished_at, finished_at - started_at, status, error_message, rows_written, run_id))
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+        conn.execute("""
+            UPDATE analyzer_runs
+            SET finished_at=?, duration_seconds=?, status=?, error_message=?, rows_written=?
+            WHERE id=?
+        """, (finished_at, finished_at - started_at, status, error_message, rows_written, run_id))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.warning(f"[_log_run_finish] Could not write run finish: {e}")
 
 
 def _rows_written_from_result(result: dict) -> int:
@@ -306,10 +366,11 @@ ANALYZERS = [
     'NetworkMembershipBuilder',
     'CreatorOutboundBuilder',                # DB-only: classify creator_outgoing_transfers
     'IntelligenceRefreshCandidateBuilder',   # scores include outbound signals; auto-approves
-    'CreatorOutboundWorker',                 # RPC: backfill outbound transfers for new creators
-    'SecondHopLiteWorker',                   # RPC: scan approved funders
-    'SecondHopExpansionBuilder',             # reads funder_upstream_links
-    'UpstreamExpansionBuilder',              # enqueues funders around significant hubs
+    # RPC workers removed — run as daemons in main.py start_background_workers()
+    # 'CreatorOutboundWorker'  — daemon: loops every 5 min
+    # 'SecondHopLiteWorker'    — daemon: loops every 5 min
+    'SecondHopExpansionBuilder',             # DB-only: builds 2H bridges from existing upstream links
+    'UpstreamExpansionBuilder',              # DB-only: enqueues funders around significant hubs
     'NetworksReleaseBuilder',
     'RiskScoringBuilder',
     'TokenPredictionBuilder',
@@ -327,7 +388,83 @@ def _pending_queue_count(db_path: str) -> int:
         return -1
 
 
-def main() -> int:
+def _critical_queue_status(db_path: str) -> dict:
+    """Return hot-path work that must outrank graph analyzers."""
+    import sqlite3
+    status = {
+        'creator_resolution_ready': 0,
+        'creator_funding_ready': 0,
+        'creator_funding_running': 0,
+        'oldest_ready_age_seconds': 0,
+    }
+    now = int(time.time())
+    try:
+        conn = sqlite3.connect(f'file:{db_path}?mode=ro', uri=True, timeout=3)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        conn.execute("PRAGMA busy_timeout=3000")
+
+        try:
+            row = conn.execute("""
+                SELECT
+                    COUNT(*) AS ready,
+                    MIN(next_attempt_at) AS oldest_ready_at
+                FROM creator_resolution_queue
+                WHERE status IN ('pending', 'retry')
+                  AND COALESCE(locked_until, 0) < ?
+                  AND COALESCE(next_attempt_at, 0) <= ?
+            """, (now, now)).fetchone()
+            if row:
+                status['creator_resolution_ready'] = int(row['ready'] or 0)
+                oldest = int(row['oldest_ready_at'] or 0)
+                if oldest:
+                    status['oldest_ready_age_seconds'] = max(status['oldest_ready_age_seconds'], now - oldest)
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            row = conn.execute("""
+                SELECT
+                    SUM(CASE WHEN status IN ('pending', 'retry')
+                              AND COALESCE(locked_until, 0) < ?
+                              AND COALESCE(next_attempt_at, 0) <= ?
+                             THEN 1 ELSE 0 END) AS ready,
+                    SUM(CASE WHEN status = 'running' THEN 1 ELSE 0 END) AS running,
+                    MIN(CASE WHEN status IN ('pending', 'retry')
+                              AND COALESCE(locked_until, 0) < ?
+                              AND COALESCE(next_attempt_at, 0) <= ?
+                             THEN next_attempt_at END) AS oldest_ready_at
+                FROM creator_funding_queue
+            """, (now, now, now, now)).fetchone()
+            if row:
+                status['creator_funding_ready'] = int(row['ready'] or 0)
+                status['creator_funding_running'] = int(row['running'] or 0)
+                oldest = int(row['oldest_ready_at'] or 0)
+                if oldest:
+                    status['oldest_ready_age_seconds'] = max(status['oldest_ready_age_seconds'], now - oldest)
+        except sqlite3.OperationalError:
+            pass
+
+        conn.close()
+    except Exception as exc:
+        status['error'] = str(exc)
+    return status
+
+
+def _has_critical_queue_work(db_path: str) -> tuple[bool, dict]:
+    status = _critical_queue_status(db_path)
+    ready = (
+        int(status.get('creator_resolution_ready') or 0)
+        + int(status.get('creator_funding_ready') or 0)
+    )
+    return ready > 0, status
+
+
+def _critical_queue_guard_enabled() -> bool:
+    return os.environ.get('FLEX_ANALYZER_IGNORE_CRITICAL_QUEUES', '').strip().lower() not in {'1', 'true', 'yes'}
+
+
+def _main_unlocked() -> int:
     logger.info("=" * 60)
     logger.info("Graph Analyzer Runner — START")
     logger.info(f"Time: {datetime.now(timezone.utc).isoformat()}")
@@ -339,13 +476,52 @@ def main() -> int:
         logger.error(str(e))
         return 1
 
+    if _critical_queue_guard_enabled():
+        has_work, queue_status = _has_critical_queue_work(db_path)
+        if has_work:
+            logger.warning(
+                "[QUEUE_GUARD] Skipping graph analyzers: hot-path work is ready "
+                f"(creator_resolution_ready={queue_status.get('creator_resolution_ready', 0)} "
+                f"creator_funding_ready={queue_status.get('creator_funding_ready', 0)} "
+                f"creator_funding_running={queue_status.get('creator_funding_running', 0)} "
+                f"oldest_ready_age={queue_status.get('oldest_ready_age_seconds', 0)}s)"
+            )
+            return 0
+
     _ensure_analyzer_runs_table(db_path)
 
     suite_start = time.time()
     results = []
     for name in ANALYZERS:
+        if _critical_queue_guard_enabled():
+            has_work, queue_status = _has_critical_queue_work(db_path)
+            if has_work:
+                logger.warning(
+                    "[QUEUE_GUARD] Stopping graph analyzer before "
+                    f"{name}: hot-path work appeared "
+                    f"(creator_resolution_ready={queue_status.get('creator_resolution_ready', 0)} "
+                    f"creator_funding_ready={queue_status.get('creator_funding_ready', 0)} "
+                    f"creator_funding_running={queue_status.get('creator_funding_running', 0)} "
+                    f"oldest_ready_age={queue_status.get('oldest_ready_age_seconds', 0)}s)"
+                )
+                break
+
         r = run_analyzer(name, db_path)
         results.append(r)
+
+        # Passive checkpoint after each analyzer so WAL doesn't balloon
+        try:
+            import sqlite3 as _sq
+            _ck = _sq.connect(db_path, timeout=5)
+            _ck.execute("PRAGMA wal_checkpoint(PASSIVE)")
+            _ck.close()
+        except Exception:
+            pass
+
+        # Yield to the listener between analyzers — gives it write windows
+        # so price updates, migrations, and funding jobs aren't blocked for the
+        # entire suite duration.
+        time.sleep(10)
 
         # Pipeline boundary logging: IRC → Phase 2
         if name == 'IntelligenceRefreshCandidateBuilder':
@@ -375,18 +551,15 @@ def main() -> int:
     return 1 if failed else 0
 
 
-if __name__ == '__main__':
-    import fcntl
-    _lock_path = _REPO_ROOT / 'logs' / 'graph_analyzers.lock'
-    _lock_fh = open(_lock_path, 'w')
+def main() -> int:
+    lock_fh = _acquire_runner_lock()
+    if lock_fh is None:
+        return 0
     try:
-        fcntl.flock(_lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError:
-        logger.warning("Another graph analyzer instance is already running — exiting.")
-        _lock_fh.close()
-        sys.exit(0)
-    try:
-        sys.exit(main())
+        return _main_unlocked()
     finally:
-        fcntl.flock(_lock_fh, fcntl.LOCK_UN)
-        _lock_fh.close()
+        _release_runner_lock(lock_fh)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

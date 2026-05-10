@@ -18,8 +18,34 @@
   transition:border-color 0.2s;
 }
 .pd-btn:hover { border-color:rgba(56,189,248,0.4); color:#38bdf8; }
+.pd-btn.danger { border-color:rgba(248,113,113,0.28); color:#fca5a5; }
+.pd-btn.danger:hover { border-color:rgba(248,113,113,0.55); color:#fecaca; }
+.pd-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
 
-.pd-kpis { display:grid; grid-template-columns:repeat(6, minmax(120px, 1fr)); gap:12px; margin-bottom:28px; }
+.pd-sim {
+  background:var(--bg-card);
+  border:1px solid var(--border-color);
+  border-radius:8px;
+  padding:16px 20px;
+  margin-bottom:20px;
+  display:grid;
+  grid-template-columns: auto 1fr;
+  gap:16px 32px;
+  align-items:start;
+}
+.pd-sim-header { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.pd-sim-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-secondary); }
+.pd-sim-sub { font-size:11px; color:var(--text-secondary); }
+.pd-sim-metrics { display:flex; gap:24px; flex-wrap:wrap; }
+.pd-sim-metric { display:flex; flex-direction:column; gap:2px; }
+.pd-sim-metric .val { font-size:22px; font-weight:800; line-height:1; }
+.pd-sim-metric .lbl { font-size:10px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.06em; }
+.pd-sim-bars { display:flex; flex-direction:column; gap:6px; min-width:280px; }
+.pd-sim-bar-row { display:flex; align-items:center; gap:8px; font-size:11px; }
+.pd-sim-bar-label { width:52px; color:var(--text-secondary); font-size:10px; }
+.pd-sim-bar-track { flex:1; height:6px; background:rgba(148,163,184,0.12); border-radius:3px; overflow:hidden; }
+.pd-sim-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
+.pd-sim-bar-val { width:36px; text-align:right; color:var(--text-primary); font-size:10px; font-weight:700; }
 .pd-kpi {
   background:var(--bg-card);
   border:1px solid var(--border-color);
@@ -75,7 +101,6 @@ th { color:var(--text-secondary); font-size:10px; text-transform:uppercase; lett
 tr:hover td { background:rgba(255,255,255,0.02); cursor:pointer; }
 tbody tr:last-child td { border-bottom:none; }
 
-.pd-score { font-weight:700; font-size:15px; color:#e2e8f0; }
 .badge {
   display:inline-flex;
   align-items:center;
@@ -88,31 +113,13 @@ tbody tr:last-child td { border-bottom:none; }
   letter-spacing:.04em;
 }
 .LOW      { color:#4ade80; border:1px solid rgba(74,222,128,0.25);  background:rgba(74,222,128,0.10); }
-.WATCH    { color:#fbbf24; border:1px solid rgba(251,191,36,0.3);   background:rgba(251,191,36,0.12); }
+.FRESH    { color:#fb923c; border:1px solid rgba(251,146,60,0.35);  background:rgba(251,146,60,0.12); }
 .MEDIUM   { color:#fbbf24; border:1px solid rgba(251,191,36,0.3);   background:rgba(251,191,36,0.12); }
 .HIGH     { color:#f87171; border:1px solid rgba(248,113,113,0.3);  background:rgba(248,113,113,0.12); }
 .CRITICAL { color:#ef4444; border:1px solid rgba(239,68,68,0.3);    background:rgba(239,68,68,0.15); }
-
-.label-pill {
-  display:inline-block;
-  padding:2px 6px;
-  border-radius:3px;
-  font-size:9px;
-  font-weight:700;
-  letter-spacing:.04em;
-  white-space:nowrap;
-}
-.LIKELY_DUMP      { color:#f87171; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.12); }
-.LIKELY_MIGRATOR  { color:#4ade80; border:1px solid rgba(74,222,128,0.25); background:rgba(74,222,128,0.10); }
-.FARM_PATTERN     { color:#ef4444; border:1px solid rgba(239,68,68,0.3);   background:rgba(239,68,68,0.15); }
-.NETWORK_RISK     { color:#fbbf24; border:1px solid rgba(251,191,36,0.3);  background:rgba(251,191,36,0.12); }
-.SELF_FUNDED_RISK { color:#fb923c; border:1px solid rgba(251,146,60,0.35); background:rgba(251,146,60,0.10); }
-.PENDING_CREATOR, .PENDING_FUNDING, .PENDING_RISK_SCORE, .INSUFFICIENT_HISTORY {
-  color:#94a3b8;
-  border:1px solid rgba(148,163,184,0.24);
-  background:rgba(148,163,184,0.08);
-}
-.UNKNOWN          { color:#94a3b8; border:1px solid rgba(148,163,184,0.2); background:rgba(148,163,184,0.08); }
+.WATCH    { color:#a78bfa; border:1px solid rgba(167,139,250,0.3);  background:rgba(167,139,250,0.10); }
+.UNKNOWN  { color:#94a3b8; border:1px solid rgba(148,163,184,0.2);  background:rgba(148,163,184,0.08); }
+.PENDING  { color:#94a3b8; border:1px solid rgba(148,163,184,0.2);  background:rgba(148,163,184,0.08); }
 
 /* Drawer */
 .pd-drawer {
@@ -149,7 +156,11 @@ tbody tr:last-child td { border-bottom:none; }
 .pd-stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; }
 .pd-stat-box { border:1px solid rgba(148,163,184,0.10); border-radius:4px; padding:8px; }
 .pd-stat-box .pd-stat-label { font-size:10px; color:var(--text-secondary); margin-bottom:3px; }
-.pd-stat-box .pd-stat-val { font-size:16px; font-weight:900; color:var(--text-primary); }
+.pd-stat-box .pd-stat-val { font-size:14px; font-weight:900; color:var(--text-primary); word-break:break-word; line-height:1.2; }
+.pd-reset-status { margin-top:6px; font-size:11px; color:var(--text-secondary); text-align:right; min-height:14px; }
+.pd-reset-status.running { color:#fbbf24; }
+.pd-reset-status.complete { color:#4ade80; }
+.pd-reset-status.failed { color:#f87171; }
 
 .pd-reasons-list { margin:8px 0 0; padding:0; list-style:none; display:grid; gap:6px; }
 .pd-reasons-list li { color:var(--text-primary); background:rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.10); border-radius:4px; padding:7px 10px; font-size:12px; line-height:1.5; }
@@ -157,26 +168,45 @@ tbody tr:last-child td { border-bottom:none; }
 .pd-events-list { margin:8px 0 0; padding:0; list-style:none; display:grid; gap:4px; }
 .pd-events-list li { color:var(--text-secondary); font-size:11px; padding:5px 0; border-bottom:1px solid rgba(148,163,184,0.07); display:flex; justify-content:space-between; gap:8px; }
 
-@media (max-width:1100px) { .pd-kpis { grid-template-columns:repeat(3,1fr); } }
+@media (max-width:900px) { .pd-sim { grid-template-columns:1fr; } }
 {% endblock %}
 
 {% block content %}
 <div class="pd-topbar">
   <div>
     <h1>Token Predictions</h1>
-    <div class="pd-sub">Per-token dump/survive prediction using creator reputation, network membership, funding source, and outcome history.</div>
+    <div class="pd-sub">Risk classification at migration — based on creator history, network membership, and funding source. Locked at migration time.</div>
+  </div>
+  <div class="pd-actions">
+    <button class="pd-btn danger" id="resetPredictionsBtn" onclick="resetPredictions()">Clear Prediction Data</button>
+    <div class="pd-reset-status" id="resetStatus"></div>
   </div>
 </div>
 
-<div id="kpis" class="pd-kpis"></div>
+<div id="simPanel" class="pd-sim" style="display:none">
+  <div class="pd-sim-header">
+    <div class="pd-sim-title">Buy Simulation — WATCH &amp; LOW at Migration MC, sell at Peak</div>
+    <div class="pd-sim-sub" id="simSubtitle"></div>
+  </div>
+  <div class="pd-sim-metrics" id="simMetrics"></div>
+  <div class="pd-sim-bars" id="simBars"></div>
+</div>
 
 <div class="pd-section">
   <div class="pd-section-head">
     <div>
       <div class="pd-section-title">Live Predictions</div>
-      <div class="pd-hint">Click a row for dimension breakdown and event history.</div>
+      <div class="pd-hint">Click a row for detail. Risk level is locked at migration time.</div>
     </div>
     <div class="pd-filters">
+      <select class="pd-select" id="filterTime" onchange="applyFilters()">
+        <option value="">All Time</option>
+        <option value="1">Last 1hr</option>
+        <option value="2">Last 2hr</option>
+        <option value="5">Last 5hr</option>
+        <option value="24">Last 24hr</option>
+        <option value="24+">24hr+</option>
+      </select>
       <select class="pd-select" id="filterRisk" onchange="applyFilters()">
         <option value="">All Risk Levels</option>
         <option value="CRITICAL">Critical</option>
@@ -184,50 +214,20 @@ tbody tr:last-child td { border-bottom:none; }
         <option value="MEDIUM">Medium</option>
         <option value="WATCH">Watch</option>
         <option value="LOW">Low</option>
-      </select>
-      <select class="pd-select" id="filterStatus" onchange="applyFilters()">
-        <option value="">All Statuses</option>
-        <option value="COMPLETE">Complete</option>
-        <option value="PENDING">Any Pending</option>
-        <option value="PENDING_CREATOR">Pending Creator</option>
-        <option value="PENDING_FUNDING">Pending Funding</option>
-        <option value="PENDING_RISK_SCORE">Pending Risk</option>
-        <option value="INSUFFICIENT_HISTORY">Insufficient History</option>
-      </select>
-      <select class="pd-select" id="filterConfidence" onchange="applyFilters()">
-        <option value="">All Confidence</option>
-        <option value="HIGH">High</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="LOW">Low</option>
-      </select>
-      <select class="pd-select" id="filterLabel" onchange="applyFilters()">
-        <option value="">All Labels</option>
-        <option value="LIKELY_DUMP">Likely Dump</option>
-        <option value="LIKELY_MIGRATOR">Likely Migrator</option>
-        <option value="FARM_PATTERN">Farm Pattern</option>
-        <option value="NETWORK_RISK">Network Risk</option>
-        <option value="SELF_FUNDED_RISK">Self Funded Risk</option>
-        <option value="UNKNOWN">Unknown</option>
-        <option value="PENDING_CREATOR">Pending Creator</option>
-        <option value="PENDING_FUNDING">Pending Funding</option>
-        <option value="PENDING_RISK_SCORE">Pending Risk</option>
-        <option value="INSUFFICIENT_HISTORY">Insufficient History</option>
+        <option value="NO_FUNDING_FOUND">No Funding Found</option>
       </select>
     </div>
   </div>
   <table>
     <thead>
       <tr>
-        <th style="width:140px">Token</th>
-        <th style="width:65px">Score</th>
-        <th style="width:80px">Risk</th>
-        <th style="width:170px">Label</th>
-        <th style="width:80px">Conf</th>
-        <th style="width:120px">Creator</th>
-        <th style="width:120px">Network</th>
+        <th style="width:160px">Token</th>
+        <th style="width:90px">Risk</th>
+        <th style="width:130px">Creator</th>
+        <th style="width:140px">Network</th>
         <th style="width:65px;text-align:right">G</th>
-        <th style="width:90px">Peak MC</th>
-        <th style="width:90px">Migrated</th>
+        <th style="width:100px">Peak MC</th>
+        <th style="width:100px">Migrated</th>
         <th>Signals</th>
       </tr>
     </thead>
@@ -238,24 +238,14 @@ tbody tr:last-child td { border-bottom:none; }
 <div id="accuracySection" class="pd-section" style="display:none">
   <div class="pd-section-head">
     <div>
-      <div class="pd-section-title">Accuracy</div>
-      <div class="pd-hint">Resolved outcomes — prediction vs reality.</div>
+      <div class="pd-section-title">Accuracy — Risk vs Peak MC</div>
+      <div class="pd-hint">HIGH/CRITICAL correct if peak MC &lt; $75K or LIQ. LOW correct if peak MC ≥ $75K.</div>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
-    <div>
-      <table>
-        <thead><tr><th>By Label</th><th style="width:70px">Total</th><th style="width:70px">Correct</th><th style="width:70px">Accuracy</th></tr></thead>
-        <tbody id="accuracyLabelRows"></tbody>
-      </table>
-    </div>
-    <div style="border-left:1px solid var(--border-color)">
-      <table>
-        <thead><tr><th>By Risk Level</th><th style="width:70px">Total</th><th style="width:70px">Correct</th><th style="width:70px">Accuracy</th></tr></thead>
-        <tbody id="accuracyRiskRows"></tbody>
-      </table>
-    </div>
-  </div>
+  <table>
+    <thead><tr><th>Risk Level</th><th style="width:80px">Total</th><th style="width:80px">Correct</th><th style="width:80px">Accuracy</th><th>Notes</th></tr></thead>
+    <tbody id="accuracyRiskRows"></tbody>
+  </table>
 </div>
 
 <div id="pdDrawer" class="pd-drawer">
@@ -289,34 +279,14 @@ const relDate = ts => {
 };
 const fmtMC = v => {
   if (!v) return '—';
-  if (v >= 1e6) return `$${(v/1e6).toFixed(2)}M`;
-  if (v >= 1e3) return `$${(v/1e3).toFixed(1)}K`;
-  return `$${v.toFixed(0)}`;
+  if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return '$' + (v/1e3).toFixed(1) + 'K';
+  return '$' + v.toFixed(0);
 };
-const badge = l => `<span class="badge ${l||'LOW'}">${l||'LOW'}</span>`;
-const LABEL_DISPLAY = {
-  LIKELY_DUMP: 'LIKELY DUMP',
-  LIKELY_MIGRATOR: 'LIKELY MIGRATOR',
-  FARM_PATTERN: 'FARM PATTERN',
-  NETWORK_RISK: 'NETWORK RISK',
-  NETWORK_RISK_TOKEN: 'NETWORK RISK',
-  SELF_FUNDED_TOKEN: 'SELF FUNDED',
-  SELF_FUNDED_RISK: 'SELF FUNDED',
-  CRITICAL_RISK: 'CRITICAL RISK',
-  SERIAL_OPERATOR_TOKEN: 'SERIAL OPERATOR',
-  LIQUIDATION_RISK: 'LIQUIDATION RISK',
-  LOW_RISK: 'LOW RISK',
-  WATCH: 'WATCH',
-  PENDING_CREATOR: 'PENDING CREATOR',
-  PENDING_FUNDING: 'PENDING FUNDING',
-  PENDING_RISK_SCORE: 'PENDING RISK',
-  INSUFFICIENT_HISTORY: 'INSUFFICIENT HISTORY',
-  UNKNOWN: 'UNKNOWN',
-};
-const labelPill = l => `<span class="label-pill ${l||'UNKNOWN'}">${LABEL_DISPLAY[l] || (l||'UNKNOWN').replace(/_/g,' ')}</span>`;
+const badge = l => `<span class="badge ${l||'UNKNOWN'}">${l||'—'}</span>`;
 
-const RISK_ORDER = ['CRITICAL','HIGH','MEDIUM','WATCH','LOW','PENDING'];
-const RISK_COLOR = { CRITICAL:'#ef4444', HIGH:'#f87171', MEDIUM:'#fbbf24', WATCH:'#fbbf24', LOW:'#4ade80', PENDING:'#94a3b8' };
+const RISK_ORDER = ['CRITICAL','HIGH','MEDIUM','WATCH','LOW'];
+const RISK_COLOR = { CRITICAL:'#ef4444', HIGH:'#f87171', MEDIUM:'#fbbf24', WATCH:'#a78bfa', LOW:'#4ade80', PENDING:'#94a3b8' };
 
 let _allRows = [];
 let _drawerOpen = false;
@@ -326,75 +296,102 @@ function groupHeader(level, colspan) {
   return `<tr><td colspan="${colspan}" style="padding:6px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${color};background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(148,163,184,0.08);">${level}</td></tr>`;
 }
 
-function renderKPIs(data) {
-  const p = data.predictions || {}, o = data.outcomes || {};
-  const accuracy = o.resolved > 0 ? Math.round(100 * o.correct / o.resolved) : null;
-  const kpis = [
-    { value: p.total || 0, label: 'Total Tokens' },
-    { value: p.critical || 0, label: 'Critical', color: '#ef4444' },
-    { value: p.high || 0, label: 'High Risk', color: '#f87171' },
-    { value: p.pending_tokens || 0, label: 'Pending', color: '#94a3b8' },
-    { value: p.low_confidence_tokens || 0, label: 'Low Confidence', color: '#fbbf24' },
-    { value: p.high_confidence_predictions || 0, label: 'High Confidence', color: '#4ade80' },
-    { value: p.likely_dump || 0, label: 'Likely Dump', color: '#f87171' },
-    { value: accuracy !== null ? `${accuracy}%` : '—', label: 'Accuracy' },
+function renderSim(data) {
+  if (!data || data.error) return;
+  const panel = document.getElementById('simPanel');
+  panel.style.display = '';
+
+  const fmt = v => v >= 1e6 ? '$' + (v/1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v/1e3).toFixed(0) + 'K' : '$' + v.toFixed(0);
+  const pct = v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  const roiColor = v => v >= 100 ? '#4ade80' : v >= 0 ? '#fbbf24' : '#f87171';
+
+  document.getElementById('simSubtitle').textContent =
+    `${data.bought} tokens bought at migration MC · ${data.no_data} missing data · hypothetical $100/token`;
+
+  const n = (v, d=2) => (v ?? 0).toFixed(d);
+  const metrics = [
+    { val: pct(data.roi_overall), lbl: 'Overall ROI', color: roiColor(data.roi_overall) },
+    { val: fmt(data.returned - data.invested), lbl: 'Net Profit', color: roiColor(data.roi_overall) },
+    { val: n(data.avg_mult) + 'x', lbl: 'Avg Multiple', color: '#e2e8f0' },
+    { val: n(data.watch_roi, 0) + '%', lbl: 'WATCH ROI' + (data.watch_count != null ? ' (' + data.watch_count + ')' : ''), color: roiColor(data.watch_roi) },
+    { val: n(data.low_roi, 0) + '%', lbl: 'LOW ROI' + (data.low_count != null ? ' (' + data.low_count + ')' : ''), color: roiColor(data.low_roi) },
+    { val: n(data.watch_avg_mult) + 'x' + (data.watch_median_mult != null ? ' / ' + n(data.watch_median_mult) + 'x' : ''), lbl: 'WATCH avg / median', color: '#a78bfa' },
+    { val: n(data.low_avg_mult) + 'x' + (data.low_median_mult != null ? ' / ' + n(data.low_median_mult) + 'x' : ''), lbl: 'LOW avg / median', color: '#4ade80' },
   ];
-  document.getElementById('kpis').innerHTML = kpis.map(k =>
-    `<div class="pd-kpi">
-      <div class="value" style="${k.color ? `color:${k.color}` : ''}">${k.value}</div>
-      <div class="label">${k.label}</div>
+  document.getElementById('simMetrics').innerHTML = metrics.map(m =>
+    `<div class="pd-sim-metric">
+      <div class="val" style="color:${m.color}">${m.val}</div>
+      <div class="lbl">${m.lbl}</div>
     </div>`
   ).join('');
+
+  const buckets = data.buckets || {};
+  const total = data.bought || 1;
+  const barDefs = [
+    { key: 'lt1_5x',  label: '<1.5x',  color: '#f87171' },
+    { key: 'x1_5_2',  label: '1.5–2x', color: '#fbbf24' },
+    { key: 'x2_5',    label: '2–5x',   color: '#60a5fa' },
+    { key: 'x5_10',   label: '5–10x',  color: '#34d399' },
+    { key: 'x10_50',  label: '10–50x', color: '#4ade80' },
+    { key: 'x50plus', label: '50x+',   color: '#a78bfa' },
+  ];
+  document.getElementById('simBars').innerHTML = barDefs.map(b => {
+    const cnt = buckets[b.key] || 0;
+    const w = Math.round(cnt / total * 100);
+    return `<div class="pd-sim-bar-row">
+      <div class="pd-sim-bar-label">${b.label}</div>
+      <div class="pd-sim-bar-track"><div class="pd-sim-bar-fill" style="width:${w}%;background:${b.color}"></div></div>
+      <div class="pd-sim-bar-val" style="color:${b.color}">${cnt}</div>
+    </div>`;
+  }).join('');
 }
 
 function applyFilters() {
   const risk = document.getElementById('filterRisk').value;
-  const label = document.getElementById('filterLabel').value;
-  const status = document.getElementById('filterStatus').value;
-  const confidence = document.getElementById('filterConfidence').value;
+  const time = document.getElementById('filterTime').value;
+  const nowSecs = Math.floor(Date.now() / 1000);
   let rows = _allRows;
-  if (risk) rows = rows.filter(r => r.risk_level === risk);
-  if (label) rows = rows.filter(r => r.prediction_label === label);
-  if (status === 'PENDING') rows = rows.filter(r => r.prediction_status !== 'COMPLETE');
-  else if (status) rows = rows.filter(r => r.prediction_status === status);
-  if (confidence) rows = rows.filter(r => r.prediction_confidence === confidence);
+  if (time === '24+') {
+    rows = rows.filter(r => r.migrated_at && (nowSecs - r.migrated_at) > 86400);
+  } else if (time) {
+    const cutoff = nowSecs - (parseFloat(time) * 3600);
+    rows = rows.filter(r => r.migrated_at && r.migrated_at >= cutoff);
+  }
+  if (risk === 'NO_FUNDING_FOUND') rows = rows.filter(r => r.prediction_status === 'NO_FUNDING_FOUND');
+  else if (risk) rows = rows.filter(r => r.risk_level === risk);
   renderPredictionRows(rows);
 }
 
 function renderPredictionRows(rows) {
   const tbody = document.getElementById('predictionRows');
-  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:var(--text-secondary);padding:24px">No predictions yet — waiting for migrated tokens.</td></tr>`; return; }
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);padding:24px">No predictions yet — waiting for migrated tokens.</td></tr>`; return; }
   const G_COLORS = { G1:'#34d399', G2:'#4ade80', G3:'#a3e635', G4:'#fbbf24', G5:'#fb923c', G6:'#94a3b8', G7:'#64748b' };
   const grouped = {};
   for (const r of rows) {
-    const rl = r.prediction_status !== 'COMPLETE' ? 'PENDING' : (r.risk_level || 'LOW');
+    const rl = r.risk_level || 'LOW';
     if (!grouped[rl]) grouped[rl] = [];
     grouped[rl].push(r);
   }
   let html = '';
   for (const level of RISK_ORDER) {
     if (!grouped[level]?.length) continue;
-    html += groupHeader(level, 11);
+    html += groupHeader(level, 8);
     for (const r of grouped[level]) {
-      const signals = r.reason_codes ? JSON.parse(r.reason_codes || '[]').slice(0,3).join(' · ') : '—';
+      const signals = r.reason_codes ? JSON.parse(r.reason_codes || '[]').slice(0,4).map(s => s.replace(/_/g,' ')).join(' · ') : '—';
       const gColor = G_COLORS[r.g_level] || '#94a3b8';
       const gCell = r.liquidity_removed
         ? `<span style="color:#a78bfa;font-weight:700;font-size:11px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);padding:1px 4px;border-radius:3px;display:block;text-align:right">LIQ</span>`
         : r.g_level ? `<span style="color:${gColor};font-weight:700;font-size:12px;display:block;text-align:right">${r.g_level}</span>` : '<span style="color:var(--text-secondary);display:block;text-align:right">—</span>';
-      const peakMC = fmtMC(r.market_cap_highest);
       const isPending = r.prediction_status !== 'COMPLETE';
-      const scoreCell = isPending ? '<span style="color:var(--text-secondary);font-size:11px;font-weight:700">pending</span>' : `<span class="pd-score">${r.prediction_score}</span>`;
-      const confidence = r.prediction_confidence || (isPending ? 'LOW' : 'HIGH');
+      const riskCell = badge(r.risk_level);
+      const isFresh = r.creator_is_fresh;
       html += `<tr onclick="openDrawer('${r.mint}')">
-        <td title="${r.mint}">${r.token_name ? r.token_name.slice(0,14) : shortMint(r.mint)}</td>
-        <td>${scoreCell}</td>
-        <td>${isPending ? '<span class="badge UNKNOWN">—</span>' : badge(r.risk_level)}</td>
-        <td style="overflow:visible">${labelPill(r.prediction_label)}</td>
-        <td><span class="badge ${confidence}">${confidence}</span></td>
-        <td><span style="user-select:all;cursor:text" title="${r.creator_address||''}">${r.creator_address ? r.creator_address.slice(0,8) : '—'}</span></td>
-        <td title="${r.network_name||''}">${r.network_name ? r.network_name.slice(0,16) : '<span style="color:var(--text-secondary)">—</span>'}</td>
+        <td title="${r.mint}">${r.token_name ? r.token_name.slice(0,18) : shortMint(r.mint)}</td>
+        <td>${riskCell}</td>
+        <td><span style="user-select:all;cursor:text;font-family:monospace;font-size:11px" title="${r.creator_address||''}">${r.creator_address ? r.creator_address.slice(0,8) : '—'}</span>${isFresh ? ' <span class="badge FRESH" title="No prior history">FRESH</span>' : ''}</td>
+        <td title="${r.network_name||''}">${r.network_name ? r.network_name.slice(0,18) : '<span style="color:var(--text-secondary)">—</span>'}</td>
         <td>${gCell}</td>
-        <td style="color:var(--text-secondary);font-size:11px">${peakMC}</td>
+        <td style="color:var(--text-secondary);font-size:11px">${fmtMC(r.market_cap_highest)}</td>
         <td style="color:var(--text-secondary);font-size:11px">${relDate(r.migrated_at)}</td>
         <td style="color:var(--text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis">${signals}</td>
       </tr>`;
@@ -404,15 +401,20 @@ function renderPredictionRows(rows) {
 }
 
 function renderAccuracy(data) {
-  const hasData = (data.by_label || []).length > 0;
+  const hasData = (data.by_risk || []).length > 0;
   document.getElementById('accuracySection').style.display = hasData ? '' : 'none';
   if (!hasData) return;
-  document.getElementById('accuracyLabelRows').innerHTML = data.by_label.map(r =>
-    `<tr><td style="font-size:11px">${labelPill(r.prediction_label)}</td><td>${r.total}</td><td>${r.correct||0}</td><td style="color:${(r.accuracy_pct||0)>=60?'#4ade80':'#f87171'};font-weight:700">${r.accuracy_pct||0}%</td></tr>`
-  ).join('');
-  document.getElementById('accuracyRiskRows').innerHTML = (data.by_risk || []).map(r =>
-    `<tr><td>${badge(r.risk_level)}</td><td>${r.total}</td><td>${r.correct||0}</td><td style="color:${(r.accuracy_pct||0)>=60?'#4ade80':'#f87171'};font-weight:700">${r.accuracy_pct||0}%</td></tr>`
-  ).join('');
+  document.getElementById('accuracyRiskRows').innerHTML = (data.by_risk || []).map(r => {
+    const acc = r.accuracy_pct || 0;
+    const color = acc >= 70 ? '#4ade80' : acc >= 50 ? '#fbbf24' : '#f87171';
+    return `<tr>
+      <td>${badge(r.risk_level)}</td>
+      <td>${r.total}</td>
+      <td>${r.correct||0}</td>
+      <td style="color:${color};font-weight:700">${acc}%</td>
+      <td style="color:var(--text-secondary);font-size:11px">${r.notes||''}</td>
+    </tr>`;
+  }).join('');
 }
 
 async function openDrawer(mint) {
@@ -426,45 +428,68 @@ async function openDrawer(mint) {
   const s = data.score, tok = data.token, out = data.outcome;
   if (!s) { document.getElementById('drawerBody').innerHTML = '<div style="color:var(--text-secondary);padding:24px">No prediction data found.</div>'; return; }
 
-  const statBox = (label, val, accentColor, bg) =>
-    `<div class="pd-stat-box" style="border-left:3px solid ${accentColor};background:${bg||'rgba(15,23,42,0.55)'}">
+  const statBox = (label, val, accentColor, bg) => {
+    const strVal = String(val ?? '—');
+    const fs = strVal.length > 10 ? '11px' : '14px';
+    return `<div class="pd-stat-box" style="border-left:3px solid ${accentColor};background:${bg||'rgba(15,23,42,0.55)'}">
       <div class="pd-stat-label">${label}</div>
-      <div class="pd-stat-val">${val}</div>
+      <div class="pd-stat-val" style="font-size:${fs}">${strVal}</div>
     </div>`;
+  };
 
   const reasonCodes = (() => { try { return JSON.parse(s.reason_codes||'[]'); } catch { return []; } })();
+  const ex = (() => { try { return JSON.parse(s.explanation_json||'{}'); } catch { return {}; } })();
+  const isFresh = s.creator_was_fresh;
+  const isPending = s.prediction_status !== 'COMPLETE';
 
-  let html = `
-    <div class="pd-card">
-      <div class="pd-card-title" style="color:#38bdf8">Prediction Score</div>
-      <div class="pd-stat-grid">
-        ${statBox('Final Score', s.prediction_status === 'COMPLETE' ? s.prediction_score : 'pending', '#38bdf8', 'rgba(56,189,248,0.08)')}
-        ${statBox('Status', s.prediction_status||'COMPLETE', s.prediction_status === 'COMPLETE' ? '#4ade80' : '#94a3b8', 'rgba(148,163,184,0.08)')}
-        ${statBox('Confidence', s.prediction_confidence||'—', s.prediction_confidence === 'HIGH' ? '#4ade80' : '#fbbf24', 'rgba(251,191,36,0.08)')}
-        ${statBox('Risk Level', s.risk_level||'—', '#38bdf8', 'rgba(56,189,248,0.08)')}
-        ${statBox('Label', (s.prediction_label||'—').replace(/_/g,' '), '#38bdf8', 'rgba(56,189,248,0.08)')}
-      </div>
-    </div>
-    <div class="pd-card">
-      <div class="pd-card-title">Score Dimensions</div>
-      <div class="pd-stat-grid">
-        ${statBox('Creator (40%)', s.creator_score||0, '#3b82f6', 'rgba(59,130,246,0.08)')}
-        ${statBox('Network (30%)', s.network_score||0, '#fbbf24', 'rgba(251,191,36,0.08)')}
-        ${statBox('Funding (15%)', s.funding_score||0, '#34d399', 'rgba(52,211,153,0.08)')}
-        ${statBox('History (10%)', s.outcome_history_score||0, '#a78bfa', 'rgba(167,139,250,0.08)')}
-        ${statBox('Liquidation (5%)', s.liquidation_score||0, '#f87171', 'rgba(248,113,113,0.08)')}
-      </div>
+  let html = '';
+
+  if (isFresh && !isPending) {
+    html += `<div class="pd-card" style="border:1px solid rgba(251,146,60,0.35);background:rgba(251,146,60,0.07)">
+      <div class="pd-card-title" style="color:#fb923c">⚠ Fresh Creator</div>
+      <div style="font-size:12px;color:#fdba74;line-height:1.6">No prior token history in our system. Treat as provisional — funding source unverified.</div>
     </div>`;
+  }
 
-  if (tok) {
-    const creatorAddr = tok.creator || s.creator_address || '';
+  // Risk classification card
+  const riskColor = { CRITICAL:'#ef4444', HIGH:'#f87171', MEDIUM:'#fbbf24', LOW:'#4ade80' }[s.risk_level] || '#94a3b8';
+  html += `<div class="pd-card" style="border-left:3px solid ${riskColor}">
+    <div class="pd-card-title">Classification at Migration</div>
+    <div class="pd-stat-grid">
+      ${statBox('Risk Level', isPending ? 'PENDING' : (s.risk_level||'—'), riskColor, `rgba(0,0,0,0.3)`)}
+      ${statBox('Status', (s.prediction_status||'COMPLETE').replace(/_/g,' '), isPending ? '#94a3b8' : '#4ade80', 'rgba(148,163,184,0.06)')}
+      ${statBox('Migrated', tok ? relDate(tok.migrated_at).replace(/<[^>]+>/g,'') : '—', '#94a3b8', 'rgba(148,163,184,0.06)')}
+      ${statBox('Peak MC', fmtMC(tok?.market_cap_highest), '#94a3b8', 'rgba(148,163,184,0.06)')}
+    </div>
+  </div>`;
+
+  // Creator & network
+  const creatorAddr = tok?.creator || s.creator_address || '';
+  const creatorScore = ex.creator_final_score;
+  const g7pct = ex.creator_g7_pct;
+  const migratedTokens = ex.creator_migrated_tokens;
+  html += `<div class="pd-card">
+    <div class="pd-card-title">Creator History</div>
+    <div class="pd-stat-grid">
+      ${creatorScore != null ? statBox('Creator Score', creatorScore, '#3b82f6', 'rgba(59,130,246,0.08)') : ''}
+      ${g7pct != null ? statBox('G7 Rate', `${Math.round(g7pct)}%`, g7pct > 80 ? '#f87171' : '#fbbf24', 'rgba(251,191,36,0.08)') : ''}
+      ${migratedTokens != null ? statBox('Prior Migrated', migratedTokens, '#94a3b8', 'rgba(148,163,184,0.06)') : ''}
+      ${ex.network_name ? statBox('Network', ex.network_name, '#fbbf24', 'rgba(251,191,36,0.08)') : ''}
+    </div>
+    ${creatorAddr ? `<div style="margin-top:8px;padding:6px 8px;background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.10);border-radius:4px;font-size:11px;color:var(--text-secondary)">Address <span style="color:var(--text-primary);user-select:all;cursor:text;font-family:monospace">${creatorAddr}</span></div>` : ''}
+  </div>`;
+
+  // G level outcome
+  if (data.token?.g_level || data.token?.liquidity_removed) {
+    const gl = data.token.g_level;
+    const liq = data.token.liquidity_removed;
+    const glColor = { G1:'#34d399', G2:'#4ade80', G3:'#a3e635', G4:'#fbbf24', G5:'#fb923c', G6:'#94a3b8', G7:'#64748b' }[gl] || '#94a3b8';
     html += `<div class="pd-card">
-      <div class="pd-card-title">Token Info</div>
+      <div class="pd-card-title">Outcome</div>
       <div class="pd-stat-grid">
-        ${statBox('Peak Market Cap', fmtMC(tok.market_cap_highest), '#94a3b8', 'rgba(148,163,184,0.06)')}
-        ${statBox('Migrated', relDate(tok.migrated_at), '#94a3b8', 'rgba(148,163,184,0.06)')}
+        ${liq ? statBox('Result', 'LIQ', '#a78bfa', 'rgba(167,139,250,0.1)') : statBox('G Level', gl||'—', glColor, 'rgba(148,163,184,0.06)')}
+        ${statBox('Peak MC', fmtMC(tok?.market_cap_highest), '#94a3b8', 'rgba(148,163,184,0.06)')}
       </div>
-      ${creatorAddr ? `<div style="margin-top:8px;padding:6px 8px;background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.10);border-radius:4px;font-size:11px;color:var(--text-secondary)">Creator <span style="color:var(--text-primary);user-select:all;cursor:text;font-family:monospace">${creatorAddr}</span></div>` : ''}
     </div>`;
   }
 
@@ -477,31 +502,11 @@ async function openDrawer(mint) {
     </div>`;
   }
 
-  if (out && out.prediction_correct !== null && out.prediction_correct !== undefined) {
-    const correct = out.prediction_correct === 1;
-    html += `<div class="pd-card">
-      <div class="pd-card-title">Resolved Outcome</div>
-      <div class="pd-stat-grid">
-        ${statBox('Actual', (out.actual_outcome||'—').replace(/_/g,' '), correct?'#4ade80':'#f87171', correct?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)')}
-        ${statBox('Correct?', correct?'Yes':'No', correct?'#4ade80':'#f87171', correct?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)')}
-        ${statBox('Peak MC', fmtMC(out.peak_market_cap), '#94a3b8', 'rgba(148,163,184,0.06)')}
-      </div>
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-        ${out.dumped_within_60s ? `<span class="badge HIGH">Dump &lt;60s</span>` : ''}
-        ${out.dumped_within_5m  ? `<span class="badge MEDIUM">Dump &lt;5m</span>` : ''}
-        ${out.liquidity_removed ? `<span class="badge CRITICAL">Liq Removed</span>` : ''}
-        ${out.survived_30m      ? `<span class="badge LOW">Survived 30m</span>` : ''}
-        ${out.survived_2h       ? `<span class="badge LOW">Survived 2h</span>` : ''}
-      </div>
-    </div>`;
-  }
-
   if (data.events?.length) {
-    const latest = data.events.slice(0, 10);
     html += `<div class="pd-card">
       <div class="pd-card-title">Event History</div>
       <ul class="pd-events-list">
-        ${latest.map(e => `<li><span>${e.event_type}</span><span>${relDate(e.event_at)}</span></li>`).join('')}
+        ${data.events.slice(0,10).map(e => `<li><span>${e.event_type}</span><span>${relDate(e.event_at)}</span></li>`).join('')}
       </ul>
     </div>`;
   }
@@ -517,18 +522,73 @@ function closeDrawer() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && _drawerOpen) closeDrawer(); });
 
 async function loadAll() {
-  const [summaryRes, liveRes, accuracyRes] = await Promise.all([
-    fetch('/api/predictions/summary').then(r => r.json()),
-    fetch('/api/predictions/live').then(r => r.json()),
-    fetch('/api/predictions/accuracy').then(r => r.json()),
+  const [simRes, liveRes, accuracyRes] = await Promise.all([
+    fetch('/api/predictions/buy-sim').then(r => r.json()).catch(() => null),
+    fetch('/api/predictions/live').then(r => r.json()).catch(() => []),
+    fetch('/api/predictions/accuracy').then(r => r.json()).catch(() => ({})),
   ]);
-  renderKPIs(summaryRes);
+  renderSim(simRes);
   _allRows = Array.isArray(liveRes) ? liveRes : [];
   applyFilters();
   renderAccuracy(accuracyRes);
 }
 
+async function resetPredictions() {
+  const btn = document.getElementById('resetPredictionsBtn');
+  const statusEl = document.getElementById('resetStatus');
+  const ok = confirm('Clear prediction scores, events, outcomes, and rescore queue?');
+  if (!ok) return;
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = 'Queued';
+  statusEl.className = 'pd-reset-status running';
+  statusEl.textContent = 'Reset queued';
+  try {
+    const res = await fetch('/api/predictions/reset', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Reset failed');
+    await pollPredictionReset(original);
+    await loadAll();
+  } catch (err) {
+    btn.textContent = 'Reset failed';
+    statusEl.className = 'pd-reset-status failed';
+    statusEl.textContent = err.message;
+    setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 2200);
+  }
+}
+
+async function pollPredictionReset(originalButtonText) {
+  const btn = document.getElementById('resetPredictionsBtn');
+  const statusEl = document.getElementById('resetStatus');
+  for (let i = 0; i < 180; i++) {
+    const res = await fetch('/api/predictions/reset/status');
+    const data = await res.json();
+    const st = data.status || {};
+    const deleted = st.deleted || {};
+    const total = Object.values(deleted).reduce((sum, n) => sum + Number(n || 0), 0);
+    if (st.status === 'queued' || st.status === 'running') {
+      btn.textContent = st.status === 'queued' ? 'Queued' : 'Clearing...';
+      statusEl.className = 'pd-reset-status running';
+      statusEl.textContent = total ? `Cleared ${total.toLocaleString()} rows...` : 'Waiting...';
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      continue;
+    }
+    if (st.status === 'complete') {
+      btn.textContent = `Cleared ${total.toLocaleString()}`;
+      statusEl.className = 'pd-reset-status complete';
+      statusEl.textContent = 'Reset complete';
+      setTimeout(() => { btn.disabled = false; btn.textContent = originalButtonText; }, 2200);
+      return;
+    }
+    if (st.status === 'failed') throw new Error(st.error || 'Reset failed');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
+  throw new Error('Reset still running');
+}
+
+document.getElementById('filterTime').value = '';
+document.getElementById('filterRisk').value = '';
 loadAll();
-setInterval(() => { if (!_drawerOpen) loadAll(); }, 30000);
+setInterval(() => { if (!_drawerOpen) loadAll(); }, 10000);
 </script>
 {% endblock %}

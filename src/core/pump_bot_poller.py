@@ -332,7 +332,7 @@ def run_poller_loop(db_path: str, helius_api_key: Optional[str] = None):
             import sqlite3 as _sqlite3
             with _sqlite3.connect(db_path, timeout=5) as _c:
                 _row = _c.execute("SELECT setting_value FROM listener_settings WHERE setting_key='pump_bot_enabled'").fetchone()
-            _enabled = _row[0] != 'false' if _row else True
+            _enabled = _row[0] != 'false' if _row else False
         except Exception:
             _enabled = True
         if _enabled:

@@ -11874,7 +11874,7 @@ def api_listener_settings():
 
             cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('pump_bot_enabled',))
             row = cursor.fetchone()
-            pump_bot_enabled = row['setting_value'] != 'false' if row else True
+            pump_bot_enabled = row['setting_value'] != 'false' if row else False
 
             conn.close()
             return jsonify({
@@ -11895,7 +11895,7 @@ def api_listener_settings():
 
             cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('pump_bot_enabled',))
             row = cursor.fetchone()
-            pump_bot_enabled = row['setting_value'] != 'false' if row else True
+            pump_bot_enabled = row['setting_value'] != 'false' if row else False
 
             conn.close()
             return jsonify({

@@ -289,7 +289,8 @@ class RiskScoringBuilder:
         """).fetchall():
             item = dict(row)
             creator = item.pop("creator")
-            item["g_class"] = _token_class_from_peak(item.get("peak_mc"))
+            peak = item.get("peak_mc")
+            item["g_class"] = _token_class_from_peak(peak) if peak and float(peak) > 0 else None
             tokens_by_creator[creator].append(item)
 
         return {
@@ -575,7 +576,9 @@ class RiskScoringBuilder:
         tokens = []
         for row in rows:
             item = dict(row)
-            item["g_class"] = _token_class_from_peak(item.get("peak_mc"))
+            peak = item.get("peak_mc")
+            # Only classify tokens with a real peak — exclude tokens still in flight (no peak yet)
+            item["g_class"] = _token_class_from_peak(peak) if peak and float(peak) > 0 else None
             tokens.append(item)
         return tokens
 

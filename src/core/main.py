@@ -17196,6 +17196,11 @@ def api_predictions_buy_sim():
     try:
         with db_connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
+            reset_row = conn.execute(
+                "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+            ).fetchone()
+            reset_at = int(reset_row['value']) if reset_row else 0
+
             rows = conn.execute("""
                 SELECT tps.mint, tps.risk_level,
                        tb.peak_grade,
@@ -17207,7 +17212,8 @@ def api_predictions_buy_sim():
                 WHERE tps.risk_level IN ('LOW','WATCH')
                   AND tps.prediction_status = 'COMPLETE'
                   AND ta.lifecycle_stage = 'migrated'
-            """).fetchall()
+                  AND CAST(ta.migrated_at AS INTEGER) >= ?
+            """, (reset_at,)).fetchall()
 
         BUY_MC = 60_000.0  # fixed buy price — migration at $60K
         no_data = 0
@@ -17501,6 +17507,11 @@ def api_predictions_accuracy():
     try:
         with db_connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
+            reset_row = conn.execute(
+                "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+            ).fetchone()
+            reset_at = int(reset_row['value']) if reset_row else 0
+
             # Accuracy based on peak MC outcome vs risk level at migration time
             # HIGH/CRITICAL correct = peak MC < $75K or liquidity removed
             # LOW correct = peak MC >= $75K
@@ -17540,9 +17551,10 @@ def api_predictions_accuracy():
                 WHERE tps.prediction_status = 'COMPLETE'
                   AND tps.risk_level IN ('HIGH','CRITICAL','LOW')
                   AND ta.market_cap_highest IS NOT NULL
+                  AND CAST(ta.migrated_at AS INTEGER) >= ?
                 GROUP BY tps.risk_level
                 ORDER BY CASE tps.risk_level WHEN 'CRITICAL' THEN 0 WHEN 'HIGH' THEN 1 WHEN 'LOW' THEN 2 END
-            """).fetchall()
+            """, (reset_at,)).fetchall()
             return jsonify({
                 "by_label": [],
                 "by_risk": [dict(r) for r in by_risk]

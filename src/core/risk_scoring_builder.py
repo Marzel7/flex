@@ -119,6 +119,26 @@ class RiskScoringBuilder:
         finally:
             conn.close()
 
+    def score_creator_now(self, creator: str) -> dict:
+        """Score a single creator immediately — used after migration/funding extraction."""
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        try:
+            self.apply_migration(conn)
+            sync_infra_wallets(conn)
+            context = self._build_context(conn, [creator])
+            score = self._score_creator_fast(creator, context)
+            self._write_creator_scores(conn, [score])
+            conn.commit()
+            return {"status": "success", "creator": creator, "risk_level": score.get("risk_level")}
+        except Exception as e:
+            conn.rollback()
+            logger.warning(f"[RiskScoringBuilder] score_creator_now failed for {creator}: {e}")
+            return {"status": "error", "error": str(e)}
+        finally:
+            conn.close()
+
     @staticmethod
     def apply_migration(conn: sqlite3.Connection) -> None:
         migration = (

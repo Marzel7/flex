@@ -748,7 +748,8 @@ class TokenPredictionBuilder:
                 ta.migrated_at,
                 ta.lifecycle_stage,
                 COALESCE(liq.liquidity_removed, 0) AS liquidity_removed,
-                ta.first_pre_migration_signal_at
+                ta.first_pre_migration_signal_at,
+                CAST(strftime('%s', ta.created_at) AS INTEGER) AS created_at
             FROM token_analysis ta
             LEFT JOIN (
                 SELECT mint, MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed
@@ -773,7 +774,8 @@ class TokenPredictionBuilder:
                 ta.migrated_at,
                 ta.lifecycle_stage,
                 COALESCE(liq.liquidity_removed, 0) AS liquidity_removed,
-                ta.first_pre_migration_signal_at
+                ta.first_pre_migration_signal_at,
+                CAST(strftime('%s', ta.created_at) AS INTEGER) AS created_at
             FROM token_analysis ta
             LEFT JOIN (
                 SELECT mint, MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed
@@ -1068,10 +1070,10 @@ class TokenPredictionBuilder:
             "self_funding": bool(sf.get("is_self_funding")),
             "second_hop": ctx["second_hop"].get(creator, 0) if creator else 0,
             "migration_speed_secs": (
-                int(token["migrated_at"]) - int(token["first_pre_migration_signal_at"])
-                if token.get("migrated_at") and token.get("first_pre_migration_signal_at")
-                and int(token.get("first_pre_migration_signal_at") or 0) > 0
-                and int(token["migrated_at"]) > int(token["first_pre_migration_signal_at"])
+                int(token["migrated_at"]) - int(token["created_at"])
+                if token.get("migrated_at") and token.get("created_at")
+                and int(token.get("created_at") or 0) > 0
+                and int(token["migrated_at"]) > int(token["created_at"])
                 else None
             ),
             "reasons": ts.reasons,
@@ -1287,7 +1289,7 @@ class TokenPredictionBuilder:
         rows = conn.execute("""
             SELECT
                 tps.mint, tps.prediction_score, tps.prediction_label, tps.risk_level,
-                ta.migrated_at, ta.created_at, ta.market_cap_current,
+                ta.migrated_at, CAST(strftime('%s', ta.created_at) AS INTEGER) as created_at, ta.market_cap_current,
                 COALESCE(ta.market_cap_highest, ta.market_cap_current, 0) AS peak_mc,
                 ta.market_cap_highest_at_ts,
                 COALESCE(liq.liquidity_removed, 0) AS liquidity_removed

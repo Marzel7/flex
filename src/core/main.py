@@ -17613,9 +17613,9 @@ def api_predictions_live():
                     COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = tps.mint), 0) as liquidity_removed,
                     tps.creator_was_fresh as creator_is_fresh,
                     CASE
-                        WHEN ta.first_pre_migration_signal_at IS NOT NULL
-                             AND ta.migrated_at > ta.first_pre_migration_signal_at
-                        THEN CAST(ta.migrated_at AS INTEGER) - CAST(ta.first_pre_migration_signal_at AS INTEGER)
+                        WHEN ta.migrated_at IS NOT NULL
+                             AND ta.created_at IS NOT NULL
+                        THEN CAST(ta.migrated_at AS INTEGER) - CAST(strftime('%s', ta.created_at) AS INTEGER)
                         ELSE NULL
                     END as migration_speed_secs
                 FROM token_prediction_scores tps

@@ -256,6 +256,14 @@
             </div>
         </div>
 
+        <!-- DB Write Reliability -->
+        <div class="grid">
+            <div class="card wide-card">
+                <div class="card-title"><i class="fas fa-shield-alt"></i> DB Write Reliability</div>
+                <div id="dbWriteReliability" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
         <!-- Source Health -->
         <div class="grid">
             <div class="card wide-card">
@@ -573,24 +581,87 @@
         }
 
         function renderQueueStats(data) {
-            // DB-backed: snapshot throughput as proxy for queue activity
             const db = data?.db_signals || {};
             const secs = db.seconds_since_last_update;
-            const html = `
+            const queues = data?.queue_depths || {};
+            const qLabels = {
+                funding_queue: 'Funding Queue',
+                creator_resolution: 'Creator Resolution',
+                prediction_rescore: 'Prediction Rescore',
+                second_hop: 'Second Hop',
+            };
+            let qHtml = '';
+            for (const [key, label] of Object.entries(qLabels)) {
+                const q = queues[key] || {};
+                const pending = (q.pending || 0) + (q.retry || 0);
+                const running = q.running || 0;
+                const color = running > 0 ? 'var(--color-watch)' : pending > 0 ? 'var(--color-low)' : 'var(--color-success)';
+                qHtml += `<div class="metric">
+                    <div class="metric-label">${label}</div>
+                    <div class="metric-value small" style="color:${color};">${pending} pending${running ? ` · ${running} running` : ''}</div>
+                </div>`;
+            }
+            const html = qHtml + `
                 <div class="metric">
-                    <div class="metric-label">Snapshots Written (60s)</div>
+                    <div class="metric-label">Snapshots (60s)</div>
                     <div class="metric-value small">${db.snapshots_in_window || 0}</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Last Snapshot</div>
                     <div class="metric-value small">${secs != null ? Math.round(secs) + 's ago' : '—'}</div>
                 </div>
-                <div class="metric">
-                    <div class="metric-label">Active Writer</div>
-                    <div class="metric-value small" style="font-size:1rem;">${db.inferred_active_writer || '—'}</div>
-                </div>
             `;
             document.getElementById('queueStats').innerHTML = html;
+        }
+
+        function renderDbWriteReliability(dbHealth) {
+            const wr = dbHealth?.write_reliability || {};
+            const lockErrors = wr.sqlite_lock_errors_1h ?? '—';
+            const failedWrites = wr.failed_writes_total ?? '—';
+            const deadLetters = wr.dead_letter_count ?? '—';
+            const avgLatency = wr.avg_write_latency_ms ?? '—';
+            const walMb = dbHealth?.wal_mb ?? '—';
+            const lockColor = lockErrors === 0 ? 'var(--color-success)' : lockErrors < 10 ? 'var(--color-watch)' : 'var(--color-critical)';
+            const failColor = failedWrites === 0 ? 'var(--color-success)' : 'var(--color-critical)';
+            const dlColor = deadLetters === 0 ? 'var(--color-success)' : 'var(--color-critical)';
+
+            let deadLetterHtml = '';
+            const recent = wr.recent_dead_letters || [];
+            if (recent.length > 0) {
+                deadLetterHtml = `<div style="margin-top:1rem;font-size:0.78rem;color:var(--color-critical);">
+                    <strong>Recent Dead Letters:</strong>
+                    ${recent.map(d => `<div style="margin-top:0.4rem;opacity:0.85;">
+                        [${new Date(d.ts * 1000).toLocaleTimeString()}] <code>${d.label}</code> — ${d.error}
+                        <div style="color:var(--text-secondary);font-size:0.72rem;">${d.sql}</div>
+                    </div>`).join('')}
+                </div>`;
+            }
+
+            document.getElementById('dbWriteReliability').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;">
+                    <div class="metric">
+                        <div class="metric-label">Lock Errors (1h)</div>
+                        <div class="metric-value small" style="color:${lockColor};">${lockErrors}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Failed Writes (total)</div>
+                        <div class="metric-value small" style="color:${failColor};">${failedWrites}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Dead Letters</div>
+                        <div class="metric-value small" style="color:${dlColor};">${deadLetters}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Avg Write Latency</div>
+                        <div class="metric-value small">${avgLatency}ms</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">WAL Size</div>
+                        <div class="metric-value small">${walMb} MB</div>
+                    </div>
+                </div>
+                ${deadLetterHtml}
+            `;
         }
 
         function renderSourceHealth(data) {
@@ -725,11 +796,17 @@
         }
 
         async function updateDashboard() {
-            const data = await fetchHealth();
+            const [data, dbHealth] = await Promise.all([
+                fetchHealth(),
+                fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
+            ]);
             if (!data) {
                 document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
                 return;
             }
+
+            // Merge queue_depths from db-health into data for renderQueueStats
+            data.queue_depths = dbHealth.queue_depths || {};
 
             renderOverallStatus(data);
             renderWorkerStatus(data);
@@ -740,6 +817,7 @@
             renderWorkerDetails(data);
             renderCacheStats(data);
             renderQueueStats(data);
+            renderDbWriteReliability(dbHealth);
             renderSourceHealth(data);
             renderCircuitBreaker(data);
             renderRollingWindow(data);

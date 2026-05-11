@@ -22962,7 +22962,31 @@ def api_db_health():
         except Exception:
             pass
 
+        # Queue depths
+        queue_depths = {}
+        for q_table, q_label in [
+            ('creator_funding_queue', 'funding_queue'),
+            ('creator_resolution_queue', 'creator_resolution'),
+            ('token_rescore_queue', 'prediction_rescore'),
+            ('second_hop_lite_queue', 'second_hop'),
+        ]:
+            try:
+                row = conn.execute(
+                    f"SELECT status, COUNT(*) FROM {q_table} GROUP BY status"
+                ).fetchall()
+                queue_depths[q_label] = {r[0]: r[1] for r in row}
+            except Exception:
+                queue_depths[q_label] = {}
+
         conn.close()
+
+        # Write reliability metrics from retry module
+        write_metrics = {}
+        try:
+            from src.utils.db_write_retry import get_health_metrics as _wm
+            write_metrics = _wm()
+        except Exception:
+            pass
 
         return {
             'rpc_cache_rows': rpc_cache_rows,
@@ -22971,6 +22995,8 @@ def api_db_health():
             'helius_snapshots_rows': helius_snapshots_rows,
             'wal_mb': wal_mb,
             'last_maintenance': last_run,
+            'queue_depths': queue_depths,
+            'write_reliability': write_metrics,
         }
     except Exception as e:
         if conn is not None:

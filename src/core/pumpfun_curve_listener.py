@@ -14,6 +14,7 @@ import os
 import re
 import sqlite3
 from src.utils.db_locking import db_connect
+from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
 import sys
 import time
 import threading
@@ -4120,9 +4121,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     if not migration_timestamp:
                         # Fall back to migrated_at from token_analysis, then now
                         try:
-                            _mt_row = db_connect(DB_PATH, timeout=5).execute(
+                            _mt_conn = db_connect(DB_PATH, timeout=5)
+                            _mt_row = _mt_conn.execute(
                                 "SELECT migrated_at FROM token_analysis WHERE mint = ? LIMIT 1", (mint,)
                             ).fetchone()
+                            _mt_conn.close()
                             if _mt_row and _mt_row[0]:
                                 from datetime import timezone
                                 migration_timestamp = datetime.utcfromtimestamp(int(_mt_row[0])).replace(tzinfo=timezone.utc).isoformat()
@@ -4243,54 +4246,48 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 conn.close()
                             log_print(f"[FUNDING_QUEUE] ⚠ No funders written — queued for retry (attempt {attempts+1}): {creator[:8]}", flush=True)
                         else:
-                            _mark_complete_ok = False
-                            for _attempt in range(5):
-                                try:
-                                    async with self.db_lock:
-                                        conn = db_connect(DB_PATH, timeout=30)
-                                        conn.execute("PRAGMA busy_timeout=30000")
-                                        cursor = conn.cursor()
-                                        cursor.execute(
-                                            """
-                                            UPDATE creator_funding_queue
-                                            SET status = 'complete',
-                                                locked_until = 0,
-                                                attempts = ?,
-                                                last_error = NULL,
-                                                funding_extracted_at = ?,
-                                                updated_at = ?
-                                            WHERE creator_address = ?
-                                              AND mint = ?
-                                            """,
-                                            (attempts + 1, int(time.time()), int(time.time()), creator, mint),
+                            _now = int(time.time())
+                            _mark_complete_ok = await async_write_batch_with_retry(
+                                DB_PATH,
+                                [
+                                    (
+                                        """
+                                        UPDATE creator_funding_queue
+                                        SET status = 'complete',
+                                            locked_until = 0,
+                                            attempts = ?,
+                                            last_error = NULL,
+                                            funding_extracted_at = ?,
+                                            updated_at = ?
+                                        WHERE creator_address = ?
+                                          AND mint = ?
+                                        """,
+                                        (attempts + 1, _now, _now, creator, mint),
+                                    ),
+                                    (
+                                        """
+                                        INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
+                                        SELECT ?, 'funding_complete', ?
+                                        WHERE EXISTS (
+                                            SELECT 1 FROM token_analysis
+                                            WHERE mint = ?
+                                              AND COALESCE(lifecycle_stage, '') = 'migrated'
+                                              AND migrated_at IS NOT NULL
                                         )
-                                        cursor.execute(
-                                            """
-                                            INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
-                                            SELECT ?, 'funding_complete', ?
-                                            WHERE EXISTS (
-                                                SELECT 1
-                                                FROM token_analysis
-                                                WHERE mint = ?
-                                                  AND COALESCE(lifecycle_stage, '') = 'migrated'
-                                                  AND migrated_at IS NOT NULL
-                                            )
-                                            """,
-                                            (mint, int(time.time()), mint),
-                                        )
-                                        cursor.execute(
-                                            "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
-                                            (int(time.time()), mint),
-                                        )
-                                        conn.commit()
-                                        conn.close()
-                                    _mark_complete_ok = True
-                                    break
-                                except Exception as _mc_e:
-                                    log_print(f"[FUNDING_QUEUE] ⚠ mark-complete attempt {_attempt+1}/5 failed: {_mc_e}", flush=True)
-                                    await asyncio.sleep(2 ** _attempt)
+                                        """,
+                                        (mint, _now, mint),
+                                    ),
+                                    (
+                                        "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
+                                        (_now, mint),
+                                    ),
+                                ],
+                                label=f"funding_queue_complete:{mint[:8]}",
+                                max_attempts=6,
+                                base_delay=0.5,
+                            )
                             if not _mark_complete_ok:
-                                log_print(f"[FUNDING_QUEUE] ⚠ Failed to mark complete after 5 attempts — stale-lock recovery will handle on next cycle: {creator[:8]} mint={mint[:8]}", flush=True)
+                                log_print(f"[FUNDING_QUEUE] ⚠ mark-complete dead-lettered — stale-lock recovery will handle: creator={creator[:8]} mint={mint[:8]}", flush=True)
                         elapsed = time.time() - job_started_at
                         log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... funders={_funder_count} elapsed={elapsed:.1f}s", flush=True)
                         # Auto-enqueue unclassified funders for second-hop lite scan

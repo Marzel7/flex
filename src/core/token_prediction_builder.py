@@ -700,16 +700,21 @@ class TokenPredictionBuilder:
 
         # Live migrated token count per creator — used instead of creator_risk_scores.migrated_tokens
         # because that table is only updated nightly and will be stale for brand-new migrations.
-        live_migrated_count: dict[str, int] = {}
+        # Counts are keyed by (creator, mint) so scoring a token excludes itself from prior count.
+        live_migrated_raw: dict[str, list[str]] = {}
         for r in conn.execute("""
             SELECT COALESCE(earliest_tx_creator, pf_ws_creator) AS creator,
-                   COUNT(*) AS n
+                   mint
             FROM token_analysis
             WHERE lifecycle_stage = 'migrated'
               AND COALESCE(earliest_tx_creator, pf_ws_creator) IS NOT NULL
-            GROUP BY creator
         """).fetchall():
-            live_migrated_count[r["creator"]] = int(r["n"] or 0)
+            live_migrated_raw.setdefault(r["creator"], []).append(r["mint"])
+        live_migrated_count: dict[str, int] = {c: len(mints) for c, mints in live_migrated_raw.items()}
+        live_migrated_count_excl: dict[str, dict[str, int]] = {
+            c: {m: len(mints) - 1 for m in mints}
+            for c, mints in live_migrated_raw.items()
+        }
 
         return {
             "creator_scores": creator_scores,
@@ -726,6 +731,7 @@ class TokenPredictionBuilder:
             "funder_risk_adjacency": funder_risk_adjacency,
             "syndicate_tags": syndicate_tags,
             "live_migrated_count": live_migrated_count,
+            "live_migrated_count_excl": live_migrated_count_excl,
             "funding_completed": funding_completed,
         }
 
@@ -971,7 +977,7 @@ class TokenPredictionBuilder:
         creator_category = cs.get("category")
         # Use live count from token_analysis — creator_risk_scores.migrated_tokens
         # is only updated nightly and will be stale immediately after a new migration.
-        creator_prior_tokens = ctx.get("live_migrated_count", {}).get(creator, 0)
+        creator_prior_tokens = ctx.get("live_migrated_count_excl", {}).get(creator, {}).get(mint, 0) if creator and mint else ctx.get("live_migrated_count", {}).get(creator, 0)
         if creator_category and creator_prior_tokens > 1:
             ts.add("creator_score", 0, "creator_scored", f"Creator category: {creator_category}")
 

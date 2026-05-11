@@ -575,13 +575,26 @@ def _main_unlocked() -> int:
     return 1 if failed else 0
 
 
+SUITE_TIMEOUT_SECS = 1800  # 30 min hard cap on the entire run
+
+
+def _suite_timeout_handler(signum, frame):
+    raise TimeoutError(f"Graph analyzer suite exceeded {SUITE_TIMEOUT_SECS}s — aborting entire run")
+
+
 def main() -> int:
     lock_fh = _acquire_runner_lock()
     if lock_fh is None:
         return 0
+    signal.signal(signal.SIGALRM, _suite_timeout_handler)
+    signal.alarm(SUITE_TIMEOUT_SECS)
     try:
         return _main_unlocked()
+    except TimeoutError as e:
+        logger.error(f"[SUITE_TIMEOUT] {e}")
+        return 1
     finally:
+        signal.alarm(0)
         _release_runner_lock(lock_fh)
 
 

@@ -32,7 +32,7 @@ _write_latencies: list[float] = []  # last 100 write latencies (ms)
 _MAX_LATENCY_SAMPLES = 100
 
 
-def _record_lock_error() -> None:
+def _record_lock_error(label: str = "") -> None:
     global _lock_error_count
     _lock_error_count += 1
     now = time.time()
@@ -41,6 +41,12 @@ def _record_lock_error() -> None:
     cutoff = now - 3600
     while _lock_error_timestamps and _lock_error_timestamps[0] < cutoff:
         _lock_error_timestamps.pop(0)
+    # also feed the global counter in db_locking
+    try:
+        from src.utils.db_locking import record_lock_error as _global_record
+        _global_record(label or None)
+    except Exception:
+        pass
 
 
 def _record_write_latency(ms: float) -> None:

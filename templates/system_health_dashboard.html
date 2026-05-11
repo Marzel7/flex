@@ -616,12 +616,14 @@
 
         function renderDbWriteReliability(dbHealth) {
             const wr = dbHealth?.write_reliability || {};
-            const lockErrors = wr.sqlite_lock_errors_1h ?? '—';
+            const lockErrors = wr.lock_errors_1h ?? wr.sqlite_lock_errors_1h ?? '—';
+            const lockErrors5m = wr.lock_errors_5m ?? '—';
             const failedWrites = wr.failed_writes_total ?? '—';
             const deadLetters = wr.dead_letter_count ?? '—';
             const avgLatency = wr.avg_write_latency_ms ?? '—';
             const walMb = dbHealth?.wal_mb ?? '—';
             const lockColor = lockErrors === 0 ? 'var(--color-success)' : lockErrors < 10 ? 'var(--color-watch)' : 'var(--color-critical)';
+            const lock5mColor = lockErrors5m === 0 ? 'var(--color-success)' : lockErrors5m < 5 ? 'var(--color-watch)' : 'var(--color-critical)';
             const failColor = failedWrites === 0 ? 'var(--color-success)' : 'var(--color-critical)';
             const dlColor = deadLetters === 0 ? 'var(--color-success)' : 'var(--color-critical)';
 
@@ -640,11 +642,15 @@
             document.getElementById('dbWriteReliability').innerHTML = `
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;">
                     <div class="metric">
+                        <div class="metric-label">Lock Errors (5m)</div>
+                        <div class="metric-value small" style="color:${lock5mColor};">${lockErrors5m}</div>
+                    </div>
+                    <div class="metric">
                         <div class="metric-label">Lock Errors (1h)</div>
                         <div class="metric-value small" style="color:${lockColor};">${lockErrors}</div>
                     </div>
                     <div class="metric">
-                        <div class="metric-label">Failed Writes (total)</div>
+                        <div class="metric-label">Failed Writes</div>
                         <div class="metric-value small" style="color:${failColor};">${failedWrites}</div>
                     </div>
                     <div class="metric">
@@ -657,7 +663,7 @@
                     </div>
                     <div class="metric">
                         <div class="metric-label">WAL Size</div>
-                        <div class="metric-value small">${walMb} MB</div>
+                        <div class="metric-value small" style="color:${parseFloat(walMb) > 100 ? 'var(--color-watch)' : 'inherit'}">${walMb} MB</div>
                     </div>
                 </div>
                 ${deadLetterHtml}

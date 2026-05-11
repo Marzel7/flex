@@ -12,9 +12,48 @@ import sqlite3
 import threading
 import time
 from collections import Counter
+from typing import Optional
 
 # Single lock instance used by all modules
 DB_WRITE_LOCK = threading.RLock()
+
+# ── Global lock error tracking (thread-safe) ─────────────────────────────────
+_global_lock_errors: list[float] = []
+_global_lock_errors_lock = threading.Lock()
+_global_failed_writes: int = 0
+
+
+def record_lock_error(caller: Optional[str] = None) -> None:
+    """Called anywhere a 'database is locked' OperationalError is caught."""
+    now = time.time()
+    with _global_lock_errors_lock:
+        _global_lock_errors.append(now)
+        # trim to last hour
+        cutoff = now - 3600
+        while _global_lock_errors and _global_lock_errors[0] < cutoff:
+            _global_lock_errors.pop(0)
+    if caller:
+        _db_logger.warning(f"[DB_LOCK_ERROR] caller={caller}")
+
+
+def record_failed_write(caller: Optional[str] = None) -> None:
+    global _global_failed_writes
+    _global_failed_writes += 1
+    if caller:
+        _db_logger.error(f"[DB_WRITE_FAILED] caller={caller}")
+
+
+def get_lock_error_metrics() -> dict:
+    """Return lock error counts for /api/db-health."""
+    now = time.time()
+    with _global_lock_errors_lock:
+        errors_1h = len(_global_lock_errors)
+        errors_5m = sum(1 for t in _global_lock_errors if t >= now - 300)
+    return {
+        "lock_errors_1h": errors_1h,
+        "lock_errors_5m": errors_5m,
+        "failed_writes_total": _global_failed_writes,
+    }
 
 _db_logger = logging.getLogger("db_locking")
 _open_connections = {}
@@ -22,7 +61,25 @@ _open_connections_lock = threading.Lock()
 
 
 class TrackedConnection(sqlite3.Connection):
-    """SQLite connection that unregisters itself when closed."""
+    """SQLite connection that unregisters itself when closed and tracks lock errors."""
+
+    def execute(self, sql, parameters=()):
+        try:
+            return super().execute(sql, parameters)
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower():
+                caller = getattr(self, "_db_caller", None)
+                record_lock_error(caller)
+            raise
+
+    def executemany(self, sql, parameters):
+        try:
+            return super().executemany(sql, parameters)
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower():
+                caller = getattr(self, "_db_caller", None)
+                record_lock_error(caller)
+            raise
 
     def close(self):
         tracking_id = getattr(self, "_db_tracking_id", None)
@@ -101,6 +158,10 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
         _db_logger.warning(f"[DB_CONNECT_SLOW] caller={caller} elapsed={elapsed:.2f}s path={path}")
 
     _register_connection(conn, path, caller)
+    try:
+        conn._db_caller = caller
+    except Exception:
+        pass
     if row_factory is not None:
         conn.row_factory = row_factory
     conn.execute("PRAGMA busy_timeout=30000")

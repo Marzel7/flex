@@ -22980,11 +22980,12 @@ def api_db_health():
 
         conn.close()
 
-        # Write reliability metrics from retry module
+        # Write reliability metrics — global counters from db_locking + retry module
         write_metrics = {}
         try:
+            from src.utils.db_locking import get_lock_error_metrics as _glm
             from src.utils.db_write_retry import get_health_metrics as _wm
-            write_metrics = _wm()
+            write_metrics = {**_wm(), **_glm()}
         except Exception:
             pass
 

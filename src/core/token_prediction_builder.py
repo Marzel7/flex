@@ -758,6 +758,13 @@ class TokenPredictionBuilder:
             WHERE ta.lifecycle_stage = 'migrated'
               AND ta.migrated_at IS NOT NULL
               AND CAST(ta.migrated_at AS INTEGER) >= ?
+              AND (
+                  NOT EXISTS (
+                      SELECT 1 FROM token_prediction_scores tps
+                      WHERE tps.mint = ta.mint
+                        AND tps.prediction_label NOT IN ('PENDING_RISK_SCORE', 'PENDING_FUNDING', 'UNSCORED')
+                  )
+              )
         """, (cutoff,)).fetchall()
         return [dict(r) for r in rows]
 

@@ -1080,7 +1080,7 @@ class TokenPredictionBuilder:
                 int(token["migrated_at"]) - int(token["created_at"])
                 if token.get("migrated_at") and token.get("created_at")
                 and int(token.get("created_at") or 0) > 0
-                and int(token["migrated_at"]) > int(token["created_at"])
+                and int(token["migrated_at"]) - int(token["created_at"]) > 5
                 else None
             ),
             "reasons": ts.reasons,

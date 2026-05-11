@@ -17615,6 +17615,7 @@ def api_predictions_live():
                     CASE
                         WHEN ta.migrated_at IS NOT NULL
                              AND ta.created_at IS NOT NULL
+                             AND CAST(ta.migrated_at AS INTEGER) - CAST(strftime('%s', ta.created_at) AS INTEGER) > 5
                         THEN CAST(ta.migrated_at AS INTEGER) - CAST(strftime('%s', ta.created_at) AS INTEGER)
                         ELSE NULL
                     END as migration_speed_secs

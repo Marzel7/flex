@@ -4243,44 +4243,54 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 conn.close()
                             log_print(f"[FUNDING_QUEUE] ⚠ No funders written — queued for retry (attempt {attempts+1}): {creator[:8]}", flush=True)
                         else:
-                            async with self.db_lock:
-                                conn = db_connect(DB_PATH, timeout=30)
-                                conn.execute("PRAGMA busy_timeout=30000")
-                                cursor = conn.cursor()
-                                cursor.execute(
-                                    """
-                                    UPDATE creator_funding_queue
-                                    SET status = 'complete',
-                                        locked_until = 0,
-                                        attempts = ?,
-                                        last_error = NULL,
-                                        funding_extracted_at = ?,
-                                        updated_at = ?
-                                    WHERE creator_address = ?
-                                      AND mint = ?
-                                    """,
-                                    (attempts + 1, int(time.time()), int(time.time()), creator, mint),
-                                )
-                                cursor.execute(
-                                    """
-                                    INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
-                                    SELECT ?, 'funding_complete', ?
-                                    WHERE EXISTS (
-                                        SELECT 1
-                                        FROM token_analysis
-                                        WHERE mint = ?
-                                          AND COALESCE(lifecycle_stage, '') = 'migrated'
-                                          AND migrated_at IS NOT NULL
-                                    )
-                                    """,
-                                    (mint, int(time.time()), mint),
-                                )
-                                cursor.execute(
-                                    "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
-                                    (int(time.time()), mint),
-                                )
-                                conn.commit()
-                                conn.close()
+                            _mark_complete_ok = False
+                            for _attempt in range(5):
+                                try:
+                                    async with self.db_lock:
+                                        conn = db_connect(DB_PATH, timeout=30)
+                                        conn.execute("PRAGMA busy_timeout=30000")
+                                        cursor = conn.cursor()
+                                        cursor.execute(
+                                            """
+                                            UPDATE creator_funding_queue
+                                            SET status = 'complete',
+                                                locked_until = 0,
+                                                attempts = ?,
+                                                last_error = NULL,
+                                                funding_extracted_at = ?,
+                                                updated_at = ?
+                                            WHERE creator_address = ?
+                                              AND mint = ?
+                                            """,
+                                            (attempts + 1, int(time.time()), int(time.time()), creator, mint),
+                                        )
+                                        cursor.execute(
+                                            """
+                                            INSERT OR REPLACE INTO token_rescore_queue (mint, reason, created_at)
+                                            SELECT ?, 'funding_complete', ?
+                                            WHERE EXISTS (
+                                                SELECT 1
+                                                FROM token_analysis
+                                                WHERE mint = ?
+                                                  AND COALESCE(lifecycle_stage, '') = 'migrated'
+                                                  AND migrated_at IS NOT NULL
+                                            )
+                                            """,
+                                            (mint, int(time.time()), mint),
+                                        )
+                                        cursor.execute(
+                                            "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
+                                            (int(time.time()), mint),
+                                        )
+                                        conn.commit()
+                                        conn.close()
+                                    _mark_complete_ok = True
+                                    break
+                                except Exception as _mc_e:
+                                    log_print(f"[FUNDING_QUEUE] ⚠ mark-complete attempt {_attempt+1}/5 failed: {_mc_e}", flush=True)
+                                    await asyncio.sleep(2 ** _attempt)
+                            if not _mark_complete_ok:
+                                log_print(f"[FUNDING_QUEUE] ⚠ Failed to mark complete after 5 attempts — stale-lock recovery will handle on next cycle: {creator[:8]} mint={mint[:8]}", flush=True)
                         elapsed = time.time() - job_started_at
                         log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... funders={_funder_count} elapsed={elapsed:.1f}s", flush=True)
                         # Auto-enqueue unclassified funders for second-hop lite scan

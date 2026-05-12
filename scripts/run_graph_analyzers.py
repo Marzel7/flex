@@ -139,11 +139,14 @@ def _ensure_analyzer_runs_table(db_path: str) -> None:
 
 def _log_run_start(db_path: str, analyzer_name: str) -> int:
     import sqlite3
-    for attempt in range(6):
+    attempts = max(1, int(os.environ.get('FLEX_ANALYZER_DB_LOG_ATTEMPTS', '2')))
+    timeout_secs = max(1, int(os.environ.get('FLEX_ANALYZER_DB_LOG_TIMEOUT_SECS', '2')))
+    retry_sleep = max(1, int(os.environ.get('FLEX_ANALYZER_DB_LOG_RETRY_SLEEP_SECS', '5')))
+    for attempt in range(attempts):
         try:
-            conn = sqlite3.connect(db_path, timeout=30)
+            conn = sqlite3.connect(db_path, timeout=timeout_secs)
             conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
+            conn.execute(f"PRAGMA busy_timeout={timeout_secs * 1000}")
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO analyzer_runs (analyzer_name, started_at, status, created_at) VALUES (?, ?, 'running', ?)",
@@ -154,11 +157,11 @@ def _log_run_start(db_path: str, analyzer_name: str) -> int:
             conn.close()
             return run_id
         except sqlite3.OperationalError as e:
-            if attempt < 5:
-                logger.warning(f"[_log_run_start] DB locked, retrying in 10s ({attempt+1}/6): {e}")
-                time.sleep(10)
+            if attempt < attempts - 1:
+                logger.warning(f"[_log_run_start] DB locked, retrying in {retry_sleep}s ({attempt+1}/{attempts}): {e}")
+                time.sleep(retry_sleep)
             else:
-                logger.error(f"[_log_run_start] DB still locked after 6 attempts, skipping run log: {e}")
+                logger.error(f"[_log_run_start] DB still locked after {attempts} attempts, skipping analyzer: {e}")
                 return -1
 
 
@@ -203,6 +206,17 @@ def run_analyzer(name: str, db_path: str) -> dict:
     logger.info(f"[{name}] Starting")
     started_at = time.time()
     run_id = _log_run_start(db_path, name)
+    if run_id < 0:
+        return {
+            'analyzer': name,
+            'status': 'skipped',
+            'started_at': started_at,
+            'finished_at': time.time(),
+            'duration_seconds': time.time() - started_at,
+            'rows_written': 0,
+            'error': 'database locked before analyzer start',
+            'result': {},
+        }
 
     try:
         if name == 'WalletClusteringEngine':
@@ -475,6 +489,86 @@ def _critical_queue_guard_enabled() -> bool:
     return os.environ.get('FLEX_ANALYZER_IGNORE_CRITICAL_QUEUES', '').strip().lower() not in {'1', 'true', 'yes'}
 
 
+def _realtime_guard_enabled() -> bool:
+    return os.environ.get('FLEX_ANALYZER_IGNORE_REALTIME_GUARD', '').strip().lower() not in {'1', 'true', 'yes'}
+
+
+def _realtime_db_status(db_path: str) -> dict:
+    """Lightweight read-side health checks for realtime writer pressure."""
+    import sqlite3
+    now = int(time.time())
+    status = {
+        'ok': False,
+        'busy': None,
+        'wal_log_frames': None,
+        'wal_checkpointed_frames': None,
+        'price_age_seconds': None,
+        'tokens_priced_60s': None,
+        'recent_migrations_2h': None,
+        'error': None,
+    }
+    try:
+        conn = sqlite3.connect(db_path, timeout=1)
+        conn.execute("PRAGMA busy_timeout=1000")
+        row = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        if row:
+            status['busy'] = int(row[0] or 0)
+            status['wal_log_frames'] = int(row[1] or 0)
+            status['wal_checkpointed_frames'] = int(row[2] or 0)
+
+        latest = conn.execute("SELECT MAX(price_updated_at) FROM token_analysis").fetchone()[0]
+        if latest:
+            status['price_age_seconds'] = max(0, now - int(latest))
+        status['tokens_priced_60s'] = int(conn.execute(
+            "SELECT COUNT(*) FROM token_analysis WHERE price_updated_at > ?",
+            (now - 60,),
+        ).fetchone()[0] or 0)
+        status['recent_migrations_2h'] = int(conn.execute(
+            "SELECT COUNT(*) FROM token_analysis WHERE lifecycle_stage='migrated' AND migrated_at > ?",
+            (now - 7200,),
+        ).fetchone()[0] or 0)
+        conn.close()
+        status['ok'] = True
+    except Exception as exc:
+        status['error'] = str(exc)
+    return status
+
+
+def _has_realtime_db_pressure(db_path: str) -> tuple[bool, dict]:
+    status = _realtime_db_status(db_path)
+    if not status.get('ok'):
+        return True, status
+
+    max_price_age = max(30, int(os.environ.get('FLEX_ANALYZER_MAX_PRICE_AGE_SECS', '180')))
+    min_recent_prices = max(0, int(os.environ.get('FLEX_ANALYZER_MIN_PRICES_60S', '1')))
+    recent_migrations = int(status.get('recent_migrations_2h') or 0)
+    price_age = status.get('price_age_seconds')
+    tokens_priced_60s = int(status.get('tokens_priced_60s') or 0)
+
+    if int(status.get('busy') or 0) != 0:
+        status['reason'] = 'wal checkpoint busy'
+        return True, status
+    if recent_migrations > 0 and price_age is not None and price_age > max_price_age:
+        status['reason'] = f'price writer stale ({price_age}s > {max_price_age}s)'
+        return True, status
+    if recent_migrations > 0 and tokens_priced_60s < min_recent_prices:
+        status['reason'] = f'no recent price writes ({tokens_priced_60s} < {min_recent_prices})'
+        return True, status
+    return False, status
+
+
+def _realtime_guard_message(prefix: str, status: dict) -> str:
+    return (
+        f"{prefix}: realtime DB guard active "
+        f"(reason={status.get('reason') or status.get('error') or 'unknown'} "
+        f"price_age={status.get('price_age_seconds')}s "
+        f"tokens_priced_60s={status.get('tokens_priced_60s')} "
+        f"recent_migrations_2h={status.get('recent_migrations_2h')} "
+        f"wal_busy={status.get('busy')} "
+        f"wal_frames={status.get('wal_log_frames')})"
+    )
+
+
 def _main_unlocked() -> int:
     logger.info("=" * 60)
     logger.info("Graph Analyzer Runner — START")
@@ -499,11 +593,23 @@ def _main_unlocked() -> int:
             )
             return 0
 
+    if _realtime_guard_enabled():
+        has_pressure, rt_status = _has_realtime_db_pressure(db_path)
+        if has_pressure:
+            logger.warning(_realtime_guard_message("[REALTIME_GUARD] Skipping graph analyzers", rt_status))
+            return 0
+
     _ensure_analyzer_runs_table(db_path)
 
     suite_start = time.time()
     results = []
     for name in ANALYZERS:
+        if _realtime_guard_enabled():
+            has_pressure, rt_status = _has_realtime_db_pressure(db_path)
+            if has_pressure:
+                logger.warning(_realtime_guard_message(f"[REALTIME_GUARD] Stopping before {name}", rt_status))
+                break
+
         if _critical_queue_guard_enabled():
             has_work, queue_status = _has_critical_queue_work(db_path)
             if has_work:

@@ -94,13 +94,23 @@ class TrackedConnection(sqlite3.Connection):
                 pass
         return super().close()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
 
 def _register_connection(conn: sqlite3.Connection, path: str, caller: str) -> None:
+    global _reaper_db_path
     tracking_id = id(conn)
     try:
         conn._db_tracking_id = tracking_id
     except Exception:
         return
+    if _reaper_db_path is None:
+        _reaper_db_path = path
     with _open_connections_lock:
         _open_connections[tracking_id] = {
             "path": path,
@@ -198,20 +208,29 @@ def managed_db_connect(path: str, timeout: int = 30, row_factory=None):
 # and cause the WAL to grow unbounded. The reaper closes any connection that has
 # been open longer than MAX_CONNECTION_AGE_SECS.
 
-_REAPER_INTERVAL_SECS = 60
-_MAX_CONNECTION_AGE_SECS = 120  # connections held longer than this are leaks
+_REAPER_INTERVAL_SECS = 30
+_MAX_CONNECTION_AGE_SECS = 60  # connections held longer than this are leaks
+_reaper_db_path: Optional[str] = None  # set from first registered connection
 
 
 def _reaper_loop() -> None:
     while True:
         time.sleep(_REAPER_INTERVAL_SECS)
         try:
-            _reap_stale_connections()
+            reaped = _reap_stale_connections()
+            if reaped and _reaper_db_path:
+                # Try to checkpoint WAL after freeing readers
+                try:
+                    conn = sqlite3.connect(_reaper_db_path, timeout=2)
+                    conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
+                    conn.close()
+                except Exception:
+                    pass
         except Exception:
             pass
 
 
-def _reap_stale_connections() -> None:
+def _reap_stale_connections() -> int:
     now = time.time()
     cutoff = now - _MAX_CONNECTION_AGE_SECS
     to_reap = []
@@ -221,6 +240,7 @@ def _reap_stale_connections() -> None:
             if record["opened_at"] < cutoff:
                 to_reap.append((tracking_id, record))
 
+    reaped = 0
     for tracking_id, record in to_reap:
         conn = record.get("conn_ref") and record["conn_ref"]()
         age = round(now - record["opened_at"])
@@ -228,6 +248,7 @@ def _reap_stale_connections() -> None:
         if conn is not None:
             try:
                 conn.close()
+                reaped += 1
                 _db_logger.warning(
                     f"[DB_REAPER] closed leaked connection age={age}s caller={caller}"
                 )
@@ -237,6 +258,7 @@ def _reap_stale_connections() -> None:
             # Already GC'd but not unregistered — clean up the tracking entry
             with _open_connections_lock:
                 _open_connections.pop(tracking_id, None)
+    return reaped
 
 
 def _start_connection_reaper() -> None:

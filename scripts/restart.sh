@@ -28,6 +28,10 @@ fi
 echo "✓ WebSocket pool subscription ready"
 echo ""
 
+export TRADING_SIM_DRY_RUN_PUBLIC_KEY="${TRADING_SIM_DRY_RUN_PUBLIC_KEY:-5ZpgwwHAxs5kuer3dwwJQxjxvWaXHaLvchZJCRqigPtJ}"
+echo "✓ Trading sim dry-run public key configured"
+echo ""
+
 # Kill existing processes
 lsof -i :5002 | awk 'NR>1 {print $2}' | sort -u | xargs kill -9 2>/dev/null || true
 pkill -9 -f "src/core/main.py" 2>/dev/null || true

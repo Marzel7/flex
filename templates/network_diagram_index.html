@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Network Investigations — Solus</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #e6edf3; font-family: 'SF Mono', monospace; min-height: 100vh; }
+
+  #header {
+    padding: 20px 32px 16px;
+    border-bottom: 1px solid #21262d;
+  }
+  #header h1 { font-size: 15px; color: #58a6ff; letter-spacing: 0.05em; font-weight: 700; }
+  #header p  { font-size: 12px; color: #8b949e; margin-top: 4px; }
+
+  #grid {
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .inv-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px 22px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .inv-card:hover { border-color: #58a6ff; background: #1c2230; }
+
+  .inv-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .inv-title { font-size: 14px; font-weight: 700; color: #f0f6fc; }
+  .inv-date  { font-size: 11px; color: #8b949e; white-space: nowrap; margin-left: 12px; }
+  .inv-subtitle { font-size: 12px; color: #8b949e; margin-bottom: 12px; line-height: 1.5; }
+  .inv-stats { font-size: 11px; color: #58a6ff; margin-bottom: 12px; }
+
+  .inv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .inv-tag {
+    font-size: 10px; padding: 2px 7px;
+    border: 1px solid rgba(88,166,255,0.25);
+    background: rgba(88,166,255,0.08);
+    color: #79c0ff;
+    border-radius: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .inv-arrow {
+    margin-top: 14px;
+    font-size: 11px;
+    color: #58a6ff;
+    letter-spacing: 0.05em;
+  }
+
+  .empty {
+    grid-column: 1/-1;
+    color: #8b949e;
+    font-size: 13px;
+    padding: 40px 0;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>Network Investigations</h1>
+  <p>Interactive graph diagrams of identified rug syndicates and CEX-funded networks</p>
+</div>
+
+<div id="grid">
+  {% for inv in investigations %}
+  <a class="inv-card" href="/network-diagram/{{ inv.slug }}">
+    <div class="inv-card-top">
+      <div class="inv-title">{{ inv.title }}</div>
+      <div class="inv-date">{{ inv.date }}</div>
+    </div>
+    <div class="inv-subtitle">{{ inv.subtitle }}</div>
+    <div class="inv-stats">{{ inv.stats }}</div>
+    <div class="inv-tags">
+      {% for tag in inv.tags %}
+      <span class="inv-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    <div class="inv-arrow">View diagram →</div>
+  </a>
+  {% else %}
+  <div class="empty">No investigations yet.</div>
+  {% endfor %}
+</div>
+
+</body>
+</html>

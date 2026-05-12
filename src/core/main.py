@@ -17208,15 +17208,72 @@ def _trading_sim_conn(timeout: int = 15):
     return conn
 
 
+def _trading_sim_filters_from_request():
+    now = int(time.time())
+    risk_level = (request.args.get('risk_level') or '').strip().upper() or None
+    if risk_level not in {None, 'CRITICAL', 'HIGH', 'MEDIUM', 'WATCH', 'LOW', 'UNKNOWN', 'LIQ'}:
+        risk_level = None
+    strategy = (request.args.get('strategy') or 'current').strip().lower()
+    if strategy not in {
+        'current', 'peak', 'cascade',
+        'target_1_5', 'target_2_5', 'target_3', 'target_3_5',
+        'target_5', 'target_7', 'target_10',
+    }:
+        strategy = 'current'
+
+    opened_since = None
+    opened_before = None
+    time_window = (request.args.get('time_window') or '').strip()
+    if time_window == '24+':
+        opened_before = now - 86400
+    elif time_window:
+        try:
+            hours = float(time_window)
+            if hours > 0:
+                opened_since = now - int(hours * 3600)
+        except ValueError:
+            pass
+    return {
+        "risk_level": risk_level,
+        "opened_since": opened_since,
+        "opened_before": opened_before,
+        "strategy": strategy,
+    }
+
+
 @app.route('/api/trading-sim/simulations')
 def api_trading_simulations():
     try:
         status = request.args.get('status')
         limit = int(request.args.get('limit', 100))
+        filters = _trading_sim_filters_from_request()
         service = _trading_sim_service()
         with _trading_sim_conn() as conn:
-            rows = service.list_simulations(conn, limit=limit, status=status)
+            rows = service.list_simulations(conn, limit=limit, status=status, **filters)
         return jsonify({"ok": True, "simulations": rows})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/summary')
+def api_trading_sim_summary():
+    try:
+        filters = _trading_sim_filters_from_request()
+        service = _trading_sim_service()
+        with _trading_sim_conn() as conn:
+            summary = service.summarize_simulations(conn, **filters)
+        return jsonify({"ok": True, "summary": summary})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/reset', methods=['POST'])
+def api_trading_sim_reset():
+    try:
+        service = _trading_sim_service()
+        with _trading_sim_conn(timeout=30) as conn:
+            result = service.reset_simulations(conn)
+        return jsonify({"ok": True, **result})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
 
@@ -17369,6 +17426,100 @@ def api_trading_sim_auto_buy_predictions():
         return jsonify({"ok": False, "error": str(exc)}), 500
 
 
+@app.route('/api/trading-sim/auto-buy-migrations', methods=['POST'])
+def api_trading_sim_auto_buy_migrations():
+    try:
+        payload = request.get_json(silent=True) or {}
+        sol_amount = float(payload.get('sol_amount') or 0)
+        slippage_bps = int(payload.get('slippage_bps') or 500)
+        limit = max(1, min(int(payload.get('limit') or 10), 100))
+        since = int(payload.get('since') or 0)
+        if sol_amount <= 0:
+            return jsonify({"ok": False, "error": "SOL amount must be greater than zero"}), 400
+
+        service = _trading_sim_service()
+        with _trading_sim_conn(timeout=30) as conn:
+            service.ensure_schema(conn)
+            if not since:
+                reset_row = conn.execute(
+                    "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
+                ).fetchone()
+                since = int(reset_row['value']) if reset_row and reset_row['value'] else 0
+
+            candidates = conn.execute(
+                """
+                SELECT
+                    ta.mint,
+                    ta.migrated_at,
+                    ta.market_cap_current,
+                    ta.market_cap_highest,
+                    ta.lifecycle_stage,
+                    COALESCE(mc.symbol, mc.name) AS token_symbol,
+                    tps.risk_level,
+                    tps.prediction_score,
+                    tps.prediction_label,
+                    tps.prediction_status,
+                    tps.prediction_confidence
+                FROM token_analysis ta
+                LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                LEFT JOIN token_prediction_scores tps ON tps.mint = ta.mint
+                LEFT JOIN trade_simulations ts ON ts.mint = ta.mint
+                WHERE ta.lifecycle_stage = 'migrated'
+                  AND ta.migrated_at IS NOT NULL
+                  AND CAST(ta.migrated_at AS INTEGER) >= ?
+                  AND ts.id IS NULL
+                ORDER BY CAST(ta.migrated_at AS INTEGER) DESC
+                LIMIT ?
+                """,
+                (since, limit),
+            ).fetchall()
+
+            created = []
+            errors = []
+            for candidate in candidates:
+                notes = (
+                    f"auto_migration_batch migrated_at={candidate['migrated_at']} "
+                    f"risk={candidate['risk_level']} score={candidate['prediction_score']} "
+                    f"label={candidate['prediction_label']} status={candidate['prediction_status']} "
+                    f"confidence={candidate['prediction_confidence']}"
+                )
+                try:
+                    simulation = service.simulate_buy(
+                        conn,
+                        mint=candidate['mint'],
+                        sol_amount=sol_amount,
+                        slippage_bps=slippage_bps,
+                        token_symbol=candidate['token_symbol'],
+                        notes=notes,
+                    )
+                    created.append({
+                        "mint": candidate['mint'],
+                        "migrated_at": candidate['migrated_at'],
+                        "risk_level": candidate['risk_level'],
+                        "prediction_score": candidate['prediction_score'],
+                        "simulation": simulation,
+                    })
+                except Exception as exc:
+                    errors.append({
+                        "mint": candidate['mint'],
+                        "migrated_at": candidate['migrated_at'],
+                        "error": str(exc),
+                    })
+
+        return jsonify({
+            "ok": True,
+            "created_count": len(created),
+            "candidate_count": len(candidates),
+            "error_count": len(errors),
+            "created": created,
+            "errors": errors,
+            "since": since,
+            "mode": "paper",
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
 @app.route('/api/trading-sim/sell/<int:simulation_id>', methods=['POST'])
 def api_trading_sim_sell(simulation_id: int):
     try:
@@ -17380,6 +17531,40 @@ def api_trading_sim_sell(simulation_id: int):
         return jsonify({"ok": True, "simulation": simulation})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
+
+
+@app.route('/api/trading-sim/liq-caught')
+def api_trading_sim_liq_caught():
+    try:
+        with _trading_sim_conn() as conn:
+            _trading_sim_service().ensure_schema(conn)
+            rows = conn.execute("""
+                SELECT
+                    lc.mint, lc.token_symbol, lc.network_name, lc.liq_rate,
+                    lc.caught_at, lc.confirmed_liq, lc.confirmed_at,
+                    lc.creator_address,
+                    ta.market_cap_highest as peak_market_cap,
+                    mc.symbol as symbol
+                FROM liq_caught lc
+                LEFT JOIN token_analysis ta ON ta.mint = lc.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = lc.mint
+                ORDER BY lc.caught_at DESC
+                LIMIT 200
+            """).fetchall()
+            # Update confirmed_liq for any that have since been liquidated
+            conn.execute("""
+                UPDATE liq_caught SET confirmed_liq = 1,
+                    confirmed_at = strftime('%s','now')
+                WHERE confirmed_liq = 0
+                  AND mint IN (
+                      SELECT DISTINCT mint FROM token_pool_accounts
+                      WHERE liquidity_removed = 1
+                  )
+            """)
+            conn.commit()
+        return jsonify([dict(r) for r in rows])
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
 
 
 @app.route('/api/predictions/buy-sim')
@@ -17613,10 +17798,14 @@ def api_predictions_live():
                     COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = tps.mint), 0) as liquidity_removed,
                     tps.creator_was_fresh as creator_is_fresh,
                     CASE
-                        WHEN ta.migrated_at IS NOT NULL
-                             AND ta.created_at IS NOT NULL
-                             AND CAST(ta.migrated_at AS INTEGER) - CAST(strftime('%s', ta.created_at) AS INTEGER) > 5
-                        THEN CAST(ta.migrated_at AS INTEGER) - CAST(strftime('%s', ta.created_at) AS INTEGER)
+                        WHEN ta.migrated_at IS NOT NULL AND ta.created_at IS NOT NULL
+                        THEN (
+                            CASE
+                                WHEN CAST(ta.created_at AS REAL) > 1000000000
+                                THEN NULLIF(CAST(ta.migrated_at AS INTEGER) - CAST(ta.created_at AS INTEGER), 0)
+                                ELSE NULLIF(CAST(ta.migrated_at AS INTEGER) - CAST(strftime('%s', ta.created_at) AS INTEGER), 0)
+                            END
+                        )
                         ELSE NULL
                     END as migration_speed_secs
                 FROM token_prediction_scores tps
@@ -26101,6 +26290,137 @@ def test_prices():
 # =========================================================================
 # FUNDER INTELLIGENCE PAGE
 # =========================================================================
+
+@app.route('/spike-analysis')
+def spike_analysis_page():
+    return render_template('spike_analysis.html', active_page='spike_analysis')
+
+
+@app.route('/api/spike-analysis')
+def api_spike_analysis():
+    from collections import defaultdict
+    conn = db_connect(DB_PATH, timeout=30)
+    try:
+        conn.row_factory = sqlite3.Row
+
+        # All migrated tokens with 400k+ peak MC within 3h
+        rows = conn.execute("""
+            SELECT
+                ta.mint,
+                COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) as creator,
+                ta.migrated_at,
+                p.peak_market_cap,
+                p.peak_market_cap_at,
+                (p.peak_market_cap_at - ta.migrated_at) as secs_to_peak,
+                crs.final_score,
+                crs.risk_level as creator_risk,
+                crs.category,
+                crs.total_tokens as creator_total_tokens,
+                crs.migrated_tokens
+            FROM token_analysis ta
+            JOIN token_market_cap_peaks p ON ta.mint = p.mint
+            LEFT JOIN creator_risk_scores crs
+                ON COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) = crs.creator_address
+            WHERE ta.lifecycle_stage = 'migrated'
+              AND ta.migrated_at IS NOT NULL
+              AND p.peak_market_cap >= 400000
+              AND p.peak_market_cap_at >= ta.migrated_at
+              AND (p.peak_market_cap_at - ta.migrated_at) < 10800
+            ORDER BY (p.peak_market_cap_at - ta.migrated_at) ASC
+        """).fetchall()
+
+        creator_list = list(set(r['creator'] for r in rows if r['creator']))
+        if not creator_list:
+            return jsonify({'tokens': [], 'shared_funders': [], 'operators': []})
+
+        ph = ','.join('?' * len(creator_list))
+        funders_raw = conn.execute(f"""
+            SELECT cf.creator_address, cf.funder_address, cf.amount_sol,
+                   ac.classification
+            FROM creator_funders cf
+            LEFT JOIN address_classification ac ON cf.funder_address = ac.address
+            WHERE cf.creator_address IN ({ph})
+            ORDER BY cf.amount_sol DESC
+        """, creator_list).fetchall()
+
+        funder_by_creator = defaultdict(list)
+        funder_creators = defaultdict(set)
+        funder_sol = defaultdict(float)
+        funder_class = {}
+        for f in funders_raw:
+            ca, fa, sol, cls = f['creator_address'], f['funder_address'], f['amount_sol'] or 0, f['classification']
+            funder_by_creator[ca].append({'address': fa, 'amount_sol': round(sol, 3), 'classification': cls or 'unknown'})
+            funder_creators[fa].add(ca)
+            funder_sol[fa] += sol
+            if cls:
+                funder_class[fa] = cls
+
+        # Build tokens list
+        tokens = []
+        for r in rows:
+            tokens.append({
+                'mint': r['mint'],
+                'creator': r['creator'],
+                'migrated_at': r['migrated_at'],
+                'peak_market_cap': round(r['peak_market_cap'], 2),
+                'peak_market_cap_at': r['peak_market_cap_at'],
+                'secs_to_peak': r['secs_to_peak'],
+                'final_score': r['final_score'],
+                'creator_risk': r['creator_risk'] or 'LOW',
+                'category': r['category'],
+                'creator_total_tokens': r['creator_total_tokens'],
+                'migrated_tokens': r['migrated_tokens'],
+                'funders': funder_by_creator.get(r['creator'], [])[:5],
+            })
+
+        # Shared funders (serve 2+ creators in this set)
+        shared_funders = []
+        for fa, creator_set in sorted(funder_creators.items(), key=lambda x: (len(x[1]), funder_sol[x[0]]), reverse=True):
+            if len(creator_set) < 2:
+                continue
+            creators_for_funder = []
+            for ca in creator_set:
+                matching = [f for f in funders_raw if f['funder_address'] == fa and f['creator_address'] == ca]
+                sol = sum(f['amount_sol'] or 0 for f in matching)
+                creators_for_funder.append({'address': ca, 'amount_sol': round(sol, 3)})
+            creators_for_funder.sort(key=lambda x: x['amount_sol'], reverse=True)
+            shared_funders.append({
+                'funder': fa,
+                'classification': funder_class.get(fa, 'unknown'),
+                'total_sol': round(funder_sol[fa], 3),
+                'creators': creators_for_funder,
+            })
+
+        # Heavy operators — creators with score > 10 or total_tokens > 50
+        seen_operators = set()
+        operators = []
+        for r in rows:
+            creator = r['creator']
+            if not creator or creator in seen_operators:
+                continue
+            score = r['final_score'] or 0
+            total_t = r['creator_total_tokens'] or 0
+            risk = r['creator_risk'] or 'LOW'
+            if score > 10 or total_t >= 50:
+                seen_operators.add(creator)
+                spike_count = sum(1 for t in tokens if t['creator'] == creator)
+                operators.append({
+                    'creator': creator,
+                    'final_score': score,
+                    'risk_level': risk,
+                    'category': r['category'],
+                    'total_tokens': total_t,
+                    'migrated_tokens': r['migrated_tokens'],
+                    'spike_count': spike_count,
+                    'funders': funder_by_creator.get(creator, [])[:5],
+                })
+
+        operators.sort(key=lambda x: (x['final_score'], x['total_tokens']), reverse=True)
+
+        return jsonify({'tokens': tokens, 'shared_funders': shared_funders, 'operators': operators})
+    finally:
+        conn.close()
+
 
 @app.route('/funder-intelligence')
 def funder_intelligence_page():

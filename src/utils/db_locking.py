@@ -6,11 +6,13 @@ All SQLite writes must use this lock to prevent "database is locked" errors
 in concurrent scenarios (token launches, clustering, extractors, etc.)
 """
 
+import contextlib
 import inspect
 import logging
 import sqlite3
 import threading
 import time
+import weakref
 from collections import Counter
 from typing import Optional
 
@@ -105,6 +107,7 @@ def _register_connection(conn: sqlite3.Connection, path: str, caller: str) -> No
             "caller": caller,
             "opened_at": time.time(),
             "thread": threading.current_thread().name,
+            "conn_ref": weakref.ref(conn),
         }
 
 
@@ -171,3 +174,74 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
     # even when connections are long-lived. PASSIVE mode doesn't block writers.
     conn.execute("PRAGMA wal_autocheckpoint=1000")
     return conn
+
+
+@contextlib.contextmanager
+def managed_db_connect(path: str, timeout: int = 30, row_factory=None):
+    """Context manager wrapper around db_connect — guarantees conn.close() on exit.
+
+    Use this in Flask routes and anywhere a connection must be closed even if an
+    exception or early return occurs:
+
+        with managed_db_connect(DB_PATH) as conn:
+            ...
+    """
+    conn = db_connect(path, timeout=timeout, row_factory=row_factory)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+# ── Connection reaper ─────────────────────────────────────────────────────────
+# Flask routes that open db_connect() without a try/finally will leak connections
+# and cause the WAL to grow unbounded. The reaper closes any connection that has
+# been open longer than MAX_CONNECTION_AGE_SECS.
+
+_REAPER_INTERVAL_SECS = 60
+_MAX_CONNECTION_AGE_SECS = 120  # connections held longer than this are leaks
+
+
+def _reaper_loop() -> None:
+    while True:
+        time.sleep(_REAPER_INTERVAL_SECS)
+        try:
+            _reap_stale_connections()
+        except Exception:
+            pass
+
+
+def _reap_stale_connections() -> None:
+    now = time.time()
+    cutoff = now - _MAX_CONNECTION_AGE_SECS
+    to_reap = []
+
+    with _open_connections_lock:
+        for tracking_id, record in list(_open_connections.items()):
+            if record["opened_at"] < cutoff:
+                to_reap.append((tracking_id, record))
+
+    for tracking_id, record in to_reap:
+        conn = record.get("conn_ref") and record["conn_ref"]()
+        age = round(now - record["opened_at"])
+        caller = record.get("caller", "unknown")
+        if conn is not None:
+            try:
+                conn.close()
+                _db_logger.warning(
+                    f"[DB_REAPER] closed leaked connection age={age}s caller={caller}"
+                )
+            except Exception:
+                pass
+        else:
+            # Already GC'd but not unregistered — clean up the tracking entry
+            with _open_connections_lock:
+                _open_connections.pop(tracking_id, None)
+
+
+def _start_connection_reaper() -> None:
+    t = threading.Thread(target=_reaper_loop, daemon=True, name="db-conn-reaper")
+    t.start()
+
+
+_start_connection_reaper()

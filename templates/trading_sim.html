@@ -1,0 +1,621 @@
+{% extends "base_shell.html" %}
+{% block title %}Trading Simulation{% endblock %}
+
+{% block extra_styles %}
+.ts-topbar { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:22px; padding-bottom:16px; border-bottom:1px solid rgba(56,189,248,0.25); }
+.ts-topbar h1 { margin:0; color:#38bdf8; font-size:26px; font-weight:800; letter-spacing:0; }
+.ts-sub { margin-top:4px; color:var(--text-secondary); font-size:12px; line-height:1.5; }
+.ts-badge { display:inline-flex; align-items:center; border:1px solid rgba(74,222,128,0.25); color:#4ade80; background:rgba(74,222,128,0.08); border-radius:4px; padding:4px 8px; font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+.ts-grid { display:grid; grid-template-columns:minmax(320px, 420px) 1fr; gap:16px; align-items:start; }
+.ts-panel { background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; overflow:hidden; }
+.ts-panel-head { padding:12px 14px; border-bottom:1px solid var(--border-color); background:rgba(0,0,0,0.2); }
+.ts-panel-head.split { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.ts-panel-title { color:var(--text-secondary); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.ts-filters { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.ts-select {
+  background:var(--bg-secondary);
+  border:1px solid var(--border-color);
+  color:var(--text-primary);
+  border-radius:4px;
+  padding:4px 8px;
+  font-size:11px;
+  font-family:inherit;
+  cursor:pointer;
+}
+.ts-panel-body { padding:14px; }
+.ts-form { display:grid; gap:12px; }
+.ts-row { display:grid; gap:5px; }
+.ts-label { color:var(--text-secondary); font-size:10px; text-transform:uppercase; letter-spacing:.06em; font-weight:800; }
+.ts-input {
+  width:100%;
+  box-sizing:border-box;
+  background:var(--bg-secondary);
+  border:1px solid var(--border-color);
+  border-radius:6px;
+  color:var(--text-primary);
+  font-family:inherit;
+  font-size:13px;
+  padding:9px 10px;
+  outline:none;
+}
+.ts-input:focus { border-color:rgba(56,189,248,0.55); }
+.ts-inline { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.ts-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; }
+.ts-btn {
+  border:1px solid var(--border-color);
+  background:var(--bg-secondary);
+  color:var(--text-primary);
+  border-radius:6px;
+  padding:8px 12px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:800;
+  font-family:inherit;
+}
+.ts-btn:hover { border-color:rgba(56,189,248,0.45); color:#38bdf8; }
+.ts-btn.primary { background:rgba(56,189,248,0.10); border-color:rgba(56,189,248,0.35); color:#67e8f9; }
+.ts-btn.sell { background:rgba(248,113,113,0.08); border-color:rgba(248,113,113,0.25); color:#fca5a5; }
+.ts-btn.danger { background:rgba(248,113,113,0.08); border-color:rgba(248,113,113,0.30); color:#fca5a5; }
+.ts-btn.danger:hover { border-color:rgba(248,113,113,0.55); color:#fecaca; }
+.ts-status { min-height:18px; color:var(--text-secondary); font-size:11px; line-height:1.5; }
+.ts-status.error { color:#f87171; }
+.ts-status.ok { color:#4ade80; }
+.liq-tag { display:inline-flex;align-items:center;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase; }
+.liq-tag.caught { color:#a78bfa;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.08); }
+.liq-tag.confirmed { color:#a78bfa;border:1px solid rgba(167,139,250,0.4);background:rgba(167,139,250,0.15); }
+.ts-quote { margin-top:12px; border-top:1px solid rgba(148,163,184,0.10); padding-top:12px; display:grid; gap:8px; }
+.ts-quote-line { display:flex; justify-content:space-between; gap:12px; font-size:12px; }
+.ts-quote-line span:first-child { color:var(--text-secondary); }
+.ts-quote-line span:last-child { color:var(--text-primary); font-weight:800; text-align:right; }
+.ts-summary { display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:8px; margin-bottom:16px; }
+.ts-stat { background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; min-width:0; }
+.ts-stat-label { color:var(--text-secondary); font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ts-stat-value { margin-top:5px; color:var(--text-primary); font-size:18px; font-weight:900; letter-spacing:0; overflow:hidden; text-overflow:ellipsis; }
+.ts-table-wrap { overflow:auto; }
+.ts-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+.ts-table th, .ts-table td { padding:10px 12px; border-bottom:1px solid rgba(148,163,184,0.07); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; }
+.ts-table th { color:var(--text-secondary); font-size:10px; text-transform:uppercase; letter-spacing:.06em; text-align:left; background:rgba(0,0,0,0.24); }
+.ts-table td { color:var(--text-primary); font-size:12px; }
+.ts-table tr:hover td { background:rgba(255,255,255,0.025); }
+.ts-muted { color:var(--text-secondary); }
+.ts-mono { font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.ts-status-pill { display:inline-flex; min-width:54px; justify-content:center; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:900; letter-spacing:.05em; }
+.ts-status-pill.OPEN { color:#4ade80; border:1px solid rgba(74,222,128,0.25); background:rgba(74,222,128,0.08); }
+.ts-status-pill.CLOSED { color:#94a3b8; border:1px solid rgba(148,163,184,0.20); background:rgba(148,163,184,0.08); }
+.ts-dry-pill { display:inline-flex; min-width:42px; justify-content:center; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:900; letter-spacing:.05em; text-transform:uppercase; }
+.ts-dry-pill.ok { color:#4ade80; border:1px solid rgba(74,222,128,0.25); background:rgba(74,222,128,0.08); }
+.ts-dry-pill.failed, .ts-dry-pill.error, .ts-dry-pill.build_failed, .ts-dry-pill.simulate_failed { color:#f87171; border:1px solid rgba(248,113,113,0.30); background:rgba(248,113,113,0.10); }
+.ts-dry-pill.disabled, .ts-dry-pill.not_configured, .ts-dry-pill.unknown { color:#94a3b8; border:1px solid rgba(148,163,184,0.20); background:rgba(148,163,184,0.08); }
+.ts-risk-pill { display:inline-flex; justify-content:center; min-width:44px; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:900; letter-spacing:.05em; }
+.ts-risk-pill.LOW { color:#4ade80; border:1px solid rgba(74,222,128,0.25); background:rgba(74,222,128,0.08); }
+.ts-risk-pill.WATCH { color:#a78bfa; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.10); }
+.ts-risk-pill.MEDIUM { color:#fbbf24; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.10); }
+.ts-risk-pill.HIGH, .ts-risk-pill.CRITICAL { color:#f87171; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.10); }
+.ts-token-main { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.ts-token-name { color:var(--text-primary); font-weight:900; overflow:hidden; text-overflow:ellipsis; }
+.ts-token-sub, .ts-cell-sub { color:var(--text-secondary); font-size:10px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; }
+.ts-g-pill { display:inline-flex; padding:2px 5px; border-radius:4px; color:#67e8f9; border:1px solid rgba(103,232,249,0.25); background:rgba(103,232,249,0.08); font-size:10px; font-weight:900; }
+.ts-pnl-pos { color:#4ade80; font-weight:900; }
+.ts-pnl-neg { color:#f87171; font-weight:900; }
+.ts-empty { padding:26px 14px; color:var(--text-secondary); text-align:center; font-size:12px; }
+@media (max-width:1100px) { .ts-grid { grid-template-columns:1fr; } }
+@media (max-width:1100px) { .ts-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+{% endblock %}
+
+{% block content %}
+<div class="ts-topbar">
+  <div>
+    <h1>Trading Simulation</h1>
+    <div class="ts-sub">Paper buy/sell using Jupiter quotes. No keypair, no signing, no submitted transactions.</div>
+  </div>
+  <div class="ts-badge">Simulation Only</div>
+</div>
+
+<div id="summaryBox" class="ts-summary">
+  <div class="ts-stat"><div class="ts-stat-label">Total Buys</div><div class="ts-stat-value">—</div></div>
+  <div class="ts-stat"><div class="ts-stat-label">Open</div><div class="ts-stat-value">—</div></div>
+  <div class="ts-stat"><div class="ts-stat-label">Closed</div><div class="ts-stat-value">—</div></div>
+  <div class="ts-stat"><div class="ts-stat-label">Migration Buys</div><div class="ts-stat-value">—</div></div>
+  <div class="ts-stat"><div class="ts-stat-label">Current PnL</div><div class="ts-stat-value">—</div></div>
+  <div class="ts-stat"><div class="ts-stat-label">Realized PnL</div><div class="ts-stat-value">—</div></div>
+</div>
+
+<div class="ts-grid">
+  <section class="ts-panel">
+    <div class="ts-panel-head split">
+      <div class="ts-panel-title">LIQ Caught</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span id="liqCaughtCount" style="font-size:11px;color:var(--text-secondary);">—</span>
+        <button class="ts-btn" onclick="loadLiqCaught()">Refresh</button>
+      </div>
+    </div>
+    <div class="ts-table-wrap">
+      <table class="ts-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th style="width:110px;">Network</th>
+            <th style="width:70px;">Liq%</th>
+            <th style="width:90px;">Peak</th>
+            <th style="width:110px;">Caught</th>
+            <th style="width:80px;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="liqCaughtRows">
+          <tr><td colspan="6" class="ts-empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ts-panel">
+    <div class="ts-panel-head split">
+      <div class="ts-panel-title">Paper Positions</div>
+      <div class="ts-filters">
+        <select class="ts-select" id="filterTime" onchange="loadSimulations()">
+          <option value="">All Time</option>
+          <option value="1">Last 1hr</option>
+          <option value="2">Last 2hr</option>
+          <option value="5">Last 5hr</option>
+          <option value="24">Last 24hr</option>
+          <option value="24+">24hr+</option>
+        </select>
+        <select class="ts-select" id="filterRisk" onchange="loadSimulations()">
+          <option value="">All Risk Levels</option>
+          <option value="CRITICAL">Critical</option>
+          <option value="HIGH">High</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="WATCH">Watch</option>
+          <option value="LOW">Low</option>
+          <option value="UNKNOWN">Unknown</option>
+          <option value="LIQ">LIQ</option>
+        </select>
+        <select class="ts-select" id="filterStrategy" onchange="loadSimulations()">
+          <option value="current">Current</option>
+          <option value="peak">Peak</option>
+          <option value="target_1_5">Sold at 1.5x</option>
+          <option value="target_2_5">Sold at 2.5x</option>
+          <option value="target_3">Sold at 3x</option>
+          <option value="target_3_5">Sold at 3.5x</option>
+          <option value="target_5">Sold at 5x</option>
+          <option value="target_7">Sold at 7x</option>
+          <option value="target_10">Sold at 10x</option>
+          <option value="cascade">Cascade</option>
+        </select>
+      </div>
+    </div>
+    <div class="ts-table-wrap">
+      <table class="ts-table">
+        <thead>
+          <tr>
+            <th style="width:64px;">ID</th>
+            <th style="width:78px;">Status</th>
+            <th>Token</th>
+            <th style="width:84px;">Risk</th>
+            <th style="width:102px;">MC</th>
+            <th style="width:102px;">Buy MC</th>
+            <th style="width:112px;">Peak</th>
+            <th style="width:112px;">Buy</th>
+            <th style="width:116px;">Tokens</th>
+            <th style="width:112px;">Dry Run</th>
+            <th style="width:104px;">Sold</th>
+            <th style="width:104px;">Exit/PnL</th>
+            <th style="width:116px;">Opened</th>
+            <th style="width:116px;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="simRows">
+          <tr><td colspan="14" class="ts-empty">Loading simulations...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fmtSol = (value) => value === null || value === undefined ? '—' : `${Number(value).toFixed(4)} SOL`;
+const fmtPct = (value) => value === null || value === undefined ? '—' : `${Number(value).toFixed(1)}%`;
+const fmtUsd = (value) => {
+  if (value === null || value === undefined || value === '') return '—';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+  const sign = n < 0 ? '-' : '';
+  const abs = Math.abs(n);
+  if (abs >= 1000) return `${sign}$${abs.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  return `${sign}$${abs.toFixed(2)}`;
+};
+const fmtMc = (value) => {
+  if (value === null || value === undefined || value === '') return '—';
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return '—';
+  if (n >= 1000000) return `$${(n / 1000000).toFixed(n >= 10000000 ? 0 : 1)}M`;
+  if (n >= 1000) return `$${(n / 1000).toFixed(n >= 100000 ? 0 : 1)}K`;
+  return `$${n.toFixed(0)}`;
+};
+const fmtAmount = (value) => {
+  if (value === null || value === undefined) return '—';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+  return n >= 1000000 ? n.toLocaleString(undefined, { maximumFractionDigits: 0 }) : n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+};
+const fmtPrice = (value) => {
+  if (value === null || value === undefined || value === '') return '—';
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return '—';
+  return `${n.toExponential(4)} SOL`;
+};
+const fmtTime = (ts) => {
+  if (!ts) return '—';
+  return new Date(ts * 1000).toLocaleString(undefined, { month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+};
+const shortMint = (mint) => mint ? `${mint.slice(0, 7)}...${mint.slice(-5)}` : '—';
+const routeText = (quote) => quote && quote.route_labels && quote.route_labels.length ? quote.route_labels.join(' -> ') : 'Jupiter';
+const dryRunLabel = (status) => {
+  if (status === 'ok') return 'OK';
+  if (status === 'not_configured') return 'Off';
+  if (status === 'disabled') return 'Off';
+  if (!status) return '—';
+  return 'Fail';
+};
+const dryRunErrorText = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (value.InstructionError && Array.isArray(value.InstructionError)) {
+    const [index, detail] = value.InstructionError;
+    if (detail && typeof detail === 'object' && detail.Custom !== undefined) {
+      return `ix ${index} custom ${detail.Custom}`;
+    }
+    return `ix ${index} ${JSON.stringify(detail)}`;
+  }
+  try {
+    return JSON.stringify(value);
+  } catch (_) {
+    return String(value);
+  }
+};
+const dryRunDetail = (dryRun) => {
+  if (!dryRun) return 'not run';
+  if (dryRun.entry_market_cap !== null && dryRun.entry_market_cap !== undefined) return fmtMc(dryRun.entry_market_cap);
+  const bits = [];
+  if (dryRun.units_consumed !== null && dryRun.units_consumed !== undefined) bits.push(`${fmtAmount(dryRun.units_consumed)} CU`);
+  if (dryRun.fee_lamports !== null && dryRun.fee_lamports !== undefined) bits.push(`${fmtAmount(dryRun.fee_lamports)} lamports`);
+  if (dryRun.status === 'ok') {
+    if (dryRun.simulated_out_diff_pct !== null && dryRun.simulated_out_diff_pct !== undefined) bits.push(`${fmtPct(dryRun.simulated_out_diff_pct)} vs quote`);
+    return bits.length ? bits.join(' · ') : 'sim passed';
+  }
+  const errorText = dryRun.error_text || dryRunErrorText(dryRun.reason || dryRun.error);
+  if (errorText) bits.unshift(errorText);
+  return bits.length ? bits.join(' · ') : (dryRun.status || 'not run');
+};
+const AUTO_REFRESH_MS = 5000;
+let autoRefreshEnabled = true;
+let autoRefreshTimer = null;
+let loadInFlight = false;
+
+function setStatus(message, mode='') {
+  const el = document.getElementById('actionStatus');
+  el.textContent = message || '';
+  el.className = `ts-status ${mode}`;
+}
+
+function formPayload() {
+  return {
+    mint: document.getElementById('mintInput').value.trim(),
+    sol_amount: Number(document.getElementById('solInput').value || 0),
+    slippage_bps: Number(document.getElementById('slippageInput').value || 500),
+    token_symbol: document.getElementById('symbolInput').value.trim()
+  };
+}
+
+function renderQuote(quote) {
+  const box = document.getElementById('quoteBox');
+  box.style.display = 'grid';
+  const route = (quote.route_labels || []).join(' -> ') || 'Jupiter route';
+  const amountLine = quote.side === 'BUY'
+    ? ['Est. Tokens', fmtAmount(quote.token_amount_ui)]
+    : ['Est. SOL Out', fmtSol(quote.exit_sol)];
+  const priceLine = quote.side === 'BUY'
+    ? ['Entry Price', quote.entry_price_sol ? `${quote.entry_price_sol.toExponential(4)} SOL` : '—']
+    : ['Exit Price', quote.exit_price_sol ? `${quote.exit_price_sol.toExponential(4)} SOL` : '—'];
+  box.innerHTML = `
+    <div class="ts-quote-line"><span>${amountLine[0]}</span><span>${amountLine[1]}</span></div>
+    <div class="ts-quote-line"><span>${priceLine[0]}</span><span>${priceLine[1]}</span></div>
+    <div class="ts-quote-line"><span>Price Impact</span><span>${quote.price_impact_pct ?? '—'}</span></div>
+    <div class="ts-quote-line"><span>Route</span><span>${route}</span></div>
+  `;
+}
+
+async function postJson(url, payload) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await readJsonResponse(res, url);
+  if (!data.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+async function readJsonResponse(res, url) {
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    const text = await res.text();
+    const title = text.match(/<title>(.*?)<\/title>/i)?.[1];
+    const detail = title || text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140);
+    throw new Error(`${url} returned HTTP ${res.status}${detail ? `: ${detail}` : ''}`);
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `${url} returned HTTP ${res.status}`);
+  return data;
+}
+
+async function quoteBuy() {
+  try {
+    setStatus('Fetching Jupiter quote...');
+    const payload = formPayload();
+    const data = await postJson('/api/trading-sim/quote', { ...payload, side: 'BUY' });
+    renderQuote(data.quote);
+    setStatus('Quote ready.', 'ok');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function simulateBuy() {
+  try {
+    setStatus('Creating paper buy...');
+    const data = await postJson('/api/trading-sim/buy', formPayload());
+    renderQuote(data.simulation.entry_quote);
+    setStatus(`Paper buy opened as #${data.simulation.id}.`, 'ok');
+    loadSimulations();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function autoBuyPredictions() {
+  try {
+    setStatus('Scanning LOW/WATCH predictions...');
+    const payload = formPayload();
+    payload.limit = Number(document.getElementById('autoLimitInput').value || 5);
+    payload.risk_levels = ['LOW', 'WATCH'];
+    const data = await postJson('/api/trading-sim/auto-buy-predictions', payload);
+    const errorText = data.error_count ? ` ${data.error_count} quote errors.` : '';
+    setStatus(`Opened ${data.created_count}/${data.candidate_count} paper buys from LOW/WATCH predictions.${errorText}`, data.error_count ? 'error' : 'ok');
+    loadSimulations();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function autoBuyMigrations() {
+  try {
+    setStatus('Scanning migrated tokens...');
+    const payload = formPayload();
+    payload.limit = Number(document.getElementById('autoLimitInput').value || 5);
+    const data = await postJson('/api/trading-sim/auto-buy-migrations', payload);
+    const errorText = data.error_count ? ` ${data.error_count} quote errors.` : '';
+    setStatus(`Opened ${data.created_count}/${data.candidate_count} paper buys from migrations.${errorText}`, data.error_count ? 'error' : 'ok');
+    loadSimulations();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function simulateSell(id) {
+  try {
+    setStatus(`Quoting paper sell for #${id}...`);
+    const slippage_bps = Number(document.getElementById('slippageInput').value || 500);
+    const data = await postJson(`/api/trading-sim/sell/${id}`, { slippage_bps });
+    renderQuote(data.simulation.exit_quote);
+    setStatus(`Paper sell closed #${id}.`, 'ok');
+    loadSimulations();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+async function resetSimulations() {
+  if (!window.confirm('Remove all paper simulations and trade events?')) return;
+  try {
+    setStatus('Resetting paper simulations...');
+    const data = await postJson('/api/trading-sim/reset', {});
+    setStatus(`Reset complete. Removed ${data.deleted_simulations || 0} simulations.`, 'ok');
+    document.getElementById('quoteBox').style.display = 'none';
+    loadSimulations();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+function renderRows(rows) {
+  const tbody = document.getElementById('simRows');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="14" class="ts-empty">No simulations yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(row => {
+    const closedPnlClass = Number(row.pnl_sol || 0) >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg';
+    const openPnlClass = Number(row.unrealized_pnl_pct || 0) >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg';
+    const strategyPnlClass = Number(row.strategy_pnl_usd || 0) >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg';
+    const tokenName = row.display_symbol || row.token_symbol || row.display_name || shortMint(row.mint);
+    const tokenFullName = row.display_name && row.display_name !== tokenName ? row.display_name : '';
+    const risk = row.risk_level || '—';
+    const score = row.prediction_score ?? '—';
+    const gLevel = row.g_level || '—';
+    const buyRoute = routeText(row.entry_quote);
+    const dryRun = row.entry_dry_run || {};
+    if (dryRun && dryRun.entry_market_cap === undefined) dryRun.entry_market_cap = row.entry_market_cap;
+    const dryStatus = dryRun.status || 'unknown';
+    const isCurrentStrategy = (row.strategy || 'current') === 'current';
+    const soldPct = row.strategy_sold_pct ?? (row.status === 'CLOSED' ? 100 : 0);
+    const soldUsd = row.strategy_sold_usd ?? (row.status === 'CLOSED' ? row.exit_usd : 0);
+    const soldTokens = row.strategy_sold_token_amount ?? (row.status === 'CLOSED' ? row.token_amount_ui : 0);
+    const pnlValue = isCurrentStrategy
+      ? (row.status === 'CLOSED' ? fmtUsd(row.exit_usd) : fmtUsd(row.unrealized_value_usd))
+      : fmtUsd(row.strategy_value_usd);
+    const pnlDetail = isCurrentStrategy
+      ? (row.status === 'CLOSED'
+          ? `${fmtUsd(row.pnl_usd)} · ${fmtPct(row.pnl_pct)}`
+          : row.unrealized_pnl_pct === null || row.unrealized_pnl_pct === undefined
+            ? 'open'
+            : `${fmtUsd(row.unrealized_pnl_usd)} · ${fmtPct(row.unrealized_pnl_pct)} current`)
+      : `${fmtUsd(row.strategy_pnl_usd)} · ${fmtPct(row.strategy_pnl_pct)} ${row.strategy_detail || ''}`;
+    const pnlClass = isCurrentStrategy
+      ? (row.status === 'CLOSED' ? closedPnlClass : (row.unrealized_pnl_pct === null || row.unrealized_pnl_pct === undefined ? 'ts-muted' : openPnlClass))
+      : strategyPnlClass;
+    const action = row.status === 'OPEN'
+      ? `<button class="ts-btn sell" onclick="simulateSell(${row.id})">Sim Sell</button>`
+      : '<span class="ts-muted">Closed</span>';
+    return `
+      <tr title="${row.mint}">
+        <td class="ts-mono">#${row.id}</td>
+        <td><span class="ts-status-pill ${row.status}">${row.status}</span></td>
+        <td>
+          <div class="ts-token-main">
+            <div class="ts-token-name">${tokenName}${row.liquidity_removed ? '&nbsp;&nbsp;<span class="liq-tag confirmed">LIQ</span>' : ''}</div>
+            ${tokenFullName ? `<div class="ts-token-sub">${tokenFullName}</div>` : ''}
+            <div class="ts-token-sub ts-mono">${shortMint(row.mint)}</div>
+          </div>
+        </td>
+        <td><span class="ts-risk-pill ${risk}">${risk}</span><div class="ts-cell-sub">score ${score}</div></td>
+        <td>${fmtMc(row.market_cap_current)}<div class="ts-cell-sub">current</div></td>
+        <td>${fmtMc(row.entry_market_cap)}<div class="ts-cell-sub">at buy</div></td>
+        <td><span class="ts-g-pill">${gLevel}</span> ${fmtMc(row.market_cap_highest)}<div class="ts-cell-sub">peak</div></td>
+        <td>${fmtSol(row.entry_sol)}<div class="ts-cell-sub">${buyRoute}</div></td>
+        <td>${fmtAmount(row.token_amount_ui)}<div class="ts-cell-sub">buy ${fmtPrice(row.entry_price_sol)}</div></td>
+        <td><span class="ts-dry-pill ${dryStatus}">${dryRunLabel(dryStatus)}</span><div class="ts-cell-sub">${dryRunDetail(dryRun)}</div></td>
+        <td>${fmtPct(soldPct)}<div class="ts-cell-sub">${fmtUsd(soldUsd)} · ${fmtAmount(soldTokens)}</div></td>
+        <td>
+          <div>${pnlValue}</div>
+          <div class="${pnlClass}">${pnlDetail}</div>
+        </td>
+        <td>${fmtTime(row.opened_at)}</td>
+        <td>${action}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderSummary(summary) {
+  const box = document.getElementById('summaryBox');
+  const migrationBuys = Number(summary.migration_buy_count || 0) + Number(summary.migration_batch_buy_count || 0);
+  const realizedPnl = Number(summary.realized_pnl_usd || 0);
+  const currentPnl = Number(summary.current_pnl_usd || 0);
+  const strategyPnl = Number(summary.strategy_pnl_usd ?? currentPnl);
+  const strategyLabel = summary.strategy_label || 'Current';
+  box.innerHTML = `
+    <div class="ts-stat"><div class="ts-stat-label">Total Buys</div><div class="ts-stat-value">${summary.total_count || 0}</div></div>
+    <div class="ts-stat"><div class="ts-stat-label">Open</div><div class="ts-stat-value">${summary.open_count || 0}</div></div>
+    <div class="ts-stat"><div class="ts-stat-label">Closed</div><div class="ts-stat-value">${summary.closed_count || 0}</div></div>
+    <div class="ts-stat"><div class="ts-stat-label">Migration Buys</div><div class="ts-stat-value">${migrationBuys}</div></div>
+    <div class="ts-stat"><div class="ts-stat-label">${strategyLabel} PnL</div><div class="ts-stat-value ${strategyPnl >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg'}">${fmtUsd(strategyPnl)}</div></div>
+    <div class="ts-stat"><div class="ts-stat-label">Realized PnL</div><div class="ts-stat-value ${realizedPnl >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg'}">${fmtUsd(realizedPnl)}</div></div>
+  `;
+}
+
+async function loadSimulations() {
+  if (loadInFlight) return;
+  loadInFlight = true;
+  const tbody = document.getElementById('simRows');
+  try {
+    const simulationsUrl = filteredUrl('/api/trading-sim/simulations');
+    const summaryUrl = filteredUrl('/api/trading-sim/summary');
+    const separator = simulationsUrl.includes('?') ? '&' : '?';
+    const [rowsRes, summaryRes] = await Promise.all([
+      fetch(`${simulationsUrl}${separator}limit=100`),
+      fetch(summaryUrl)
+    ]);
+    const data = await readJsonResponse(rowsRes, '/api/trading-sim/simulations');
+    if (!data.ok) throw new Error(data.error || 'Failed to load simulations');
+    const summaryData = await readJsonResponse(summaryRes, '/api/trading-sim/summary');
+    if (summaryData.ok) renderSummary(summaryData.summary || {});
+    renderRows(data.simulations || []);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="14" class="ts-empty">${err.message}</td></tr>`;
+  } finally {
+    loadInFlight = false;
+  }
+}
+
+function updateAutoRefreshButton() {
+  const btn = document.getElementById('autoRefreshBtn');
+  if (!btn) return;
+  btn.textContent = autoRefreshEnabled ? 'Auto Refresh On' : 'Auto Refresh Off';
+  btn.className = autoRefreshEnabled ? 'ts-btn primary' : 'ts-btn';
+}
+
+function scheduleAutoRefresh() {
+  if (autoRefreshTimer) window.clearInterval(autoRefreshTimer);
+  autoRefreshTimer = null;
+  if (!autoRefreshEnabled) return;
+  autoRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState === 'visible') loadSimulations();
+  }, AUTO_REFRESH_MS);
+}
+
+function toggleAutoRefresh() {
+  autoRefreshEnabled = !autoRefreshEnabled;
+  updateAutoRefreshButton();
+  scheduleAutoRefresh();
+  setStatus(autoRefreshEnabled ? 'Auto refresh enabled.' : 'Auto refresh paused.', autoRefreshEnabled ? 'ok' : '');
+  if (autoRefreshEnabled) loadSimulations();
+}
+
+function filteredUrl(path) {
+  const params = new URLSearchParams();
+  const timeWindow = document.getElementById('filterTime')?.value || '';
+  const riskLevel = document.getElementById('filterRisk')?.value || '';
+  const strategy = document.getElementById('filterStrategy')?.value || 'current';
+  if (timeWindow) params.set('time_window', timeWindow);
+  if (riskLevel) params.set('risk_level', riskLevel);
+  if (strategy && strategy !== 'current') params.set('strategy', strategy);
+  return params.toString() ? `${path}?${params.toString()}` : path;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (autoRefreshEnabled && document.visibilityState === 'visible') loadSimulations();
+});
+
+updateAutoRefreshButton();
+scheduleAutoRefresh();
+loadSimulations();
+loadLiqCaught();
+
+async function loadLiqCaught() {
+  const tbody = document.getElementById('liqCaughtRows');
+  try {
+    const res = await fetch('/api/trading-sim/liq-caught');
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error(data.error || 'Failed');
+    document.getElementById('liqCaughtCount').textContent = `${data.length} caught`;
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="ts-empty">No LIQ tokens caught yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(r => {
+      const tag = r.confirmed_liq
+        ? '<span class="liq-tag confirmed">LIQ</span>'
+        : '<span class="liq-tag caught">Watching</span>';
+      const symbol = r.symbol || r.token_symbol || shortMint(r.mint);
+      const network = r.network_name || '—';
+      const liqPct = r.liq_rate != null ? `${Math.round(r.liq_rate * 100)}%` : '—';
+      const peak = fmtMc(r.peak_market_cap);
+      const caught = fmtTime(r.caught_at);
+      return `<tr>
+        <td class="ts-mono" style="font-size:11px;" title="${r.mint}">${symbol}</td>
+        <td style="font-size:11px;color:var(--text-secondary);">${network}</td>
+        <td style="font-size:11px;color:#f87171;">${liqPct}</td>
+        <td style="font-size:11px;">${peak}</td>
+        <td style="font-size:11px;color:var(--text-secondary);">${caught}</td>
+        <td>${tag}</td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" class="ts-empty">${err.message}</td></tr>`;
+  }
+}
+</script>
+{% endblock %}

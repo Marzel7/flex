@@ -50,7 +50,7 @@ PREDICTION_LABELS = [
 
 OUTCOME_LABELS = ["FAST_DUMP", "SLOW_DUMP", "LIQUIDATED", "SURVIVED", "STRONG_PERFORMER", "UNKNOWN"]
 PENDING_STATUSES = {"PENDING_CREATOR", "PENDING_FUNDING", "NO_FUNDING_FOUND", "PENDING_RISK_SCORE", "INSUFFICIENT_HISTORY"}
-AUTO_SIM_BUY_EVENTS = {"MIGRATED", "FUNDING_COMPLETE", "RESCORE", "prediction_updated"}
+AUTO_SIM_BUY_EVENTS = {"FUNDING_COMPLETE", "RESCORE", "prediction_updated"}
 
 
 def _risk_level(score: int, label: str | None = None, creator_has_liq: bool = False, network_has_liq: bool = False) -> str:
@@ -297,10 +297,13 @@ class TokenPredictionBuilder:
             return
         if event_type not in AUTO_SIM_BUY_EVENTS:
             return
-        if score.prediction_status != "COMPLETE":
-            return
-        if risk_level not in {"LOW", "WATCH"}:
-            return
+
+        buy_on_migration = event_type == "MIGRATED"
+        if not buy_on_migration:
+            if score.prediction_status != "COMPLETE":
+                return
+            if risk_level not in {"LOW", "WATCH"}:
+                return
 
         try:
             sol_amount = float(os.environ.get("TRADING_SIM_AUTO_BUY_SOL", "0.1"))
@@ -335,10 +338,12 @@ class TokenPredictionBuilder:
                     (score.mint,),
                 ).fetchone()
                 token_symbol = token_row["token_symbol"] if token_row else None
+                trigger = "migration" if buy_on_migration else "prediction"
                 notes = (
-                    f"auto_paper_buy_on_prediction event={event_type} "
-                    f"risk={risk_level} score={score.prediction_score} "
-                    f"label={label} confidence={score.prediction_confidence}"
+                    f"auto_paper_buy_on_{trigger} event={event_type} "
+                    f"status={score.prediction_status} risk={risk_level} "
+                    f"score={score.prediction_score} label={label} "
+                    f"confidence={score.prediction_confidence}"
                 )
                 service.simulate_buy(
                     conn,
@@ -349,8 +354,10 @@ class TokenPredictionBuilder:
                     notes=notes,
                 )
                 logger.info(
-                    "[PREDICTION] auto paper buy opened mint=%s risk=%s score=%s",
+                    "[PREDICTION] auto paper buy opened mint=%s trigger=%s status=%s risk=%s score=%s",
                     score.mint,
+                    trigger,
+                    score.prediction_status,
                     risk_level,
                     score.prediction_score,
                 )

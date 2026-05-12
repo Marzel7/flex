@@ -40,7 +40,6 @@ class UpstreamExpansionBuilder:
 
         try:
             result = self._run(conn)
-            conn.commit()
         except Exception as exc:
             logger.error(f"[UEB] Failed: {exc}", exc_info=True)
             result = {"status": "failed", "error": str(exc),
@@ -196,6 +195,9 @@ class UpstreamExpansionBuilder:
             # Log relationship events (best-effort)
             if enqueued > 0:
                 events.append((upstream, enqueued))
+
+            # Commit per-hub so each write lock window is small under contention
+            conn.commit()
 
         # Emit relationship events
         if events:

@@ -6,6 +6,7 @@ Includes price confidence scoring and launch outcome tracking.
 """
 
 import logging
+import threading
 import time
 import sqlite3
 from flask import Blueprint, request, jsonify
@@ -25,6 +26,13 @@ price_api = Blueprint('price_api', __name__, url_prefix='/api/price')
 # Simple in-memory cache for token metadata with TTL
 _metadata_cache = {}
 _metadata_cache_time = {}
+
+# Cache for /health DB queries — refreshed in background every 10s, never blocks requests
+_health_cache: dict = {}
+_health_cache_ts: float = 0.0
+_HEALTH_CACHE_TTL = 10.0
+_health_cache_lock = threading.Lock()
+_health_refresh_running = False
 
 # Database path (will be initialized when register_price_api is called)
 _db_path = 'database/flex_complete_database.db'
@@ -646,13 +654,48 @@ def _db_health_signals(db_path: str, window_secs: int = 60) -> dict:
     return signals
 
 
+def _refresh_health_cache_bg():
+    """Run DB health queries in background and update cache without blocking requests."""
+    global _health_cache, _health_cache_ts, _health_refresh_running
+    try:
+        sig = _db_health_signals(_db_path, window_secs=60)
+        snapshot_cleanup = _db_snapshot_cleanup(_db_path)
+        with _health_cache_lock:
+            _health_cache = {'sig': sig, 'snapshot_cleanup': snapshot_cleanup}
+            _health_cache_ts = time.monotonic()
+    except Exception:
+        pass
+    finally:
+        _health_refresh_running = False
+
+
 @price_api.route('/health', methods=['GET'])
 def health():
     """Health check — prioritize real-time liveness over batched history writes."""
     try:
+        global _health_cache, _health_cache_ts, _health_refresh_running
         now = int(time.time())
-        sig = _db_health_signals(_db_path, window_secs=60)
-        snapshot_cleanup = _db_snapshot_cleanup(_db_path)
+        now_f = time.monotonic()
+
+        with _health_cache_lock:
+            cache_age = now_f - _health_cache_ts
+            cached = dict(_health_cache) if _health_cache else {}
+
+        if cache_age >= _HEALTH_CACHE_TTL and not _health_refresh_running:
+            _health_refresh_running = True
+            threading.Thread(target=_refresh_health_cache_bg, daemon=True).start()
+
+        if cached:
+            sig = cached['sig']
+            snapshot_cleanup = cached['snapshot_cleanup']
+        else:
+            # First call ever — block once to populate
+            sig = _db_health_signals(_db_path, window_secs=60)
+            snapshot_cleanup = _db_snapshot_cleanup(_db_path)
+            with _health_cache_lock:
+                _health_cache = {'sig': sig, 'snapshot_cleanup': snapshot_cleanup}
+                _health_cache_ts = time.monotonic()
+
         listener_activity = _listener_log_activity(now)
 
         last_snapshot_at = sig['last_snapshot_at']

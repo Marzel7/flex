@@ -574,6 +574,58 @@ if not DB_PATH:
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     DB_PATH = os.path.join(PROJECT_ROOT, 'database', 'flex_complete_database.db')
 
+# ── Network LIQ cache ────────────────────────────────────────────────────────
+# Loaded once at startup, refreshed every 30 min. Maps network_name -> liq_rate
+# for networks with liq_rate >= LIQ_NETWORK_THRESHOLD. Sub-ms lookup at buy time.
+LIQ_NETWORK_THRESHOLD = 0.50
+_liq_networks: dict[str, float] = {}
+_liq_networks_lock = threading.Lock()
+_liq_networks_loaded_at: float = 0.0
+_LIQ_NETWORKS_TTL = 1800.0  # 30 min
+
+
+def _load_liq_networks(db_path: str) -> dict[str, float]:
+    try:
+        conn = sqlite3.connect(db_path, timeout=5)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT tps.network_name,
+                   ROUND(1.0 * COUNT(CASE WHEN tpa.liquidity_removed = 1 THEN 1 END) / COUNT(*), 4) AS liq_rate
+            FROM token_prediction_scores tps
+            JOIN token_analysis ta ON ta.mint = tps.mint
+            LEFT JOIN token_pool_accounts tpa ON tpa.mint = tps.mint AND tpa.liquidity_removed = 1
+            WHERE tps.network_name IS NOT NULL AND ta.migrated_at IS NOT NULL
+            GROUP BY tps.network_name
+            HAVING COUNT(*) >= 2
+               AND liq_rate >= ?
+        """, (LIQ_NETWORK_THRESHOLD,)).fetchall()
+        conn.close()
+        return {r["network_name"]: r["liq_rate"] for r in rows}
+    except Exception:
+        return {}
+
+
+def _maybe_refresh_liq_networks(db_path: str) -> None:
+    global _liq_networks, _liq_networks_loaded_at
+    now = time.monotonic()
+    if now - _liq_networks_loaded_at < _LIQ_NETWORKS_TTL:
+        return
+    fresh = _load_liq_networks(db_path)
+    with _liq_networks_lock:
+        _liq_networks = fresh
+        _liq_networks_loaded_at = now
+
+
+def is_liq_network(network_name: str | None, db_path: str) -> tuple[bool, float]:
+    """Returns (is_liq, liq_rate). Safe to call from any thread."""
+    if not network_name:
+        return False, 0.0
+    _maybe_refresh_liq_networks(db_path)
+    with _liq_networks_lock:
+        rate = _liq_networks.get(network_name, 0.0)
+    return rate >= LIQ_NETWORK_THRESHOLD, rate
+
+
 # Creator pipeline DB (separate from main app DB)
 CREATOR_DB_PATH = os.getenv("CREATOR_DB_PATH") or os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -660,6 +712,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._pumpfun_trade_debug_budget = 25
         self._resolver_resolved_count = 0
         self._resolver_unresolved_count = 0
+        self._trading_sim_retry_attempts: Dict[str, int] = {}
+        self._trading_sim_retry_timers: Dict[str, Any] = {}
 
         self._ensure_db()
         self._normalize_existing_pumpfun_rows()
@@ -1623,6 +1677,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc}", flush=True)
             return
 
+        self._submit_auto_sim_buy_on_migration(
+            mint,
+            migrated_at=migrated_ts,
+            migration_tx=migration_tx,
+            source="mark_token_migrated",
+        )
+
         def _score():
             try:
                 import sqlite3 as _sq
@@ -1634,6 +1695,156 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as _e:
                 log_print(f"[PREDICTION] ⚠ score_single MIGRATED {mint[:16]}: {_e}", flush=True)
         _TOKEN_WORK_POOL.submit(_score)
+
+    def _submit_auto_sim_buy_on_migration(
+        self,
+        mint: str,
+        *,
+        migrated_at: Optional[int] = None,
+        migration_tx: Optional[str] = None,
+        source: str = "migration",
+        retry_attempt: int = 0,
+    ) -> None:
+        """Open a paper buy directly from the migration listener.
+
+        Prediction scoring also has an auto-buy hook, but live migration buys
+        should not depend on a score being produced first.
+        """
+        enabled = os.environ.get("TRADING_SIM_AUTO_BUY_ENABLED", "1").lower() not in {"0", "false", "no", "off"}
+        if not enabled:
+            return
+        if not mint:
+            return
+        retry_delays = (2, 5, 10, 20, 40)
+
+        def _schedule_retry(exc: Exception) -> None:
+            message = str(exc)
+            if "Jupiter quote failed" not in message and "Jupiter quote unavailable" not in message:
+                return
+            if retry_attempt >= len(retry_delays):
+                self._trading_sim_retry_attempts.pop(mint, None)
+                self._trading_sim_retry_timers.pop(mint, None)
+                return
+            next_attempt = retry_attempt + 1
+            current_recorded = self._trading_sim_retry_attempts.get(mint, 0)
+            if current_recorded >= next_attempt:
+                return
+            delay = retry_delays[retry_attempt]
+            self._trading_sim_retry_attempts[mint] = next_attempt
+            log_print(
+                f"[TRADING_SIM] ⏳ Scheduling migration paper-buy retry mint={mint[:16]}... "
+                f"attempt={next_attempt}/{len(retry_delays)} delay={delay}s reason={message[:140]}",
+                flush=True,
+            )
+
+            import threading as _threading
+
+            def _retry() -> None:
+                self._trading_sim_retry_timers.pop(mint, None)
+                self._submit_auto_sim_buy_on_migration(
+                    mint,
+                    migrated_at=migrated_at,
+                    migration_tx=migration_tx,
+                    source=f"{source}_retry",
+                    retry_attempt=next_attempt,
+                )
+
+            timer = _threading.Timer(delay, _retry)
+            timer.daemon = True
+            self._trading_sim_retry_timers[mint] = timer
+            timer.start()
+
+        def _run_auto_buy() -> None:
+            conn = None
+            try:
+                from src.trading.simulation import TradingSimulationService
+
+                sol_amount = float(os.environ.get("TRADING_SIM_AUTO_BUY_SOL", "0.1"))
+                slippage_bps = int(os.environ.get("TRADING_SIM_AUTO_BUY_SLIPPAGE_BPS", "500"))
+                if sol_amount <= 0:
+                    return
+
+                service = TradingSimulationService()
+                conn = db_connect(DB_PATH, timeout=30)
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA journal_mode=WAL")
+                service.ensure_schema(conn)
+                if service.has_simulation_for_mint(conn, mint):
+                    log_print(f"[TRADING_SIM] ⏭️  Auto migration buy skipped; simulation exists mint={mint[:16]}...", flush=True)
+                    return
+
+                token_row = conn.execute(
+                    """
+                    SELECT
+                        COALESCE(mc.symbol, mc.name) AS token_symbol,
+                        ta.migrated_at,
+                        ta.migration_tx,
+                        ta.market_cap_current,
+                        ta.market_cap_highest
+                    FROM token_analysis ta
+                    LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                    WHERE ta.mint = ?
+                    """,
+                    (mint,),
+                ).fetchone()
+                token_symbol = token_row["token_symbol"] if token_row else None
+                observed_migrated_at = migrated_at or (token_row["migrated_at"] if token_row else None)
+                observed_migration_tx = migration_tx or (token_row["migration_tx"] if token_row else None)
+
+                # Check if creator belongs to a LIQ network — skip buy and record catch
+                network_row = conn.execute(
+                    "SELECT network_name, creator_address FROM token_prediction_scores WHERE mint = ?",
+                    (mint,),
+                ).fetchone()
+                network_name = network_row["network_name"] if network_row else None
+                creator_address = network_row["creator_address"] if network_row else None
+                is_liq, liq_rate = is_liq_network(network_name, DB_PATH)
+                if is_liq:
+                    conn.execute(
+                        """
+                        INSERT OR IGNORE INTO liq_caught
+                            (mint, token_symbol, network_name, liq_rate, caught_at, creator_address)
+                        VALUES (?, ?, ?, ?, strftime('%s','now'), ?)
+                        """,
+                        (mint, token_symbol, network_name, liq_rate, creator_address),
+                    )
+                    conn.commit()
+                    log_print(
+                        f"[TRADING_SIM] 🚫 LIQ network block mint={mint[:16]}... "
+                        f"network={network_name} liq_rate={liq_rate:.0%}",
+                        flush=True,
+                    )
+                    return
+
+                notes = (
+                    f"auto_paper_buy_on_migration source={source} "
+                    f"migrated_at={observed_migrated_at} "
+                    f"migration_tx={observed_migration_tx} "
+                    f"mc_current={token_row['market_cap_current'] if token_row else None} "
+                    f"mc_peak={token_row['market_cap_highest'] if token_row else None}"
+                )
+                simulation = service.simulate_buy(
+                    conn,
+                    mint=mint,
+                    sol_amount=sol_amount,
+                    slippage_bps=slippage_bps,
+                    token_symbol=token_symbol,
+                    notes=notes,
+                )
+                log_print(
+                    f"[TRADING_SIM] ✅ Auto migration paper buy opened mint={mint[:16]}... sim_id={simulation.get('id')} sol={sol_amount}",
+                    flush=True,
+                )
+                self._trading_sim_retry_attempts.pop(mint, None)
+                self._trading_sim_retry_timers.pop(mint, None)
+            except Exception as exc:
+                log_print(f"[TRADING_SIM] ⚠ Auto migration paper buy failed mint={mint[:16]}...: {exc}", flush=True)
+                _schedule_retry(exc)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        _TOKEN_WORK_POOL.submit(_run_auto_buy)
 
     async def _record_migration_verification_snapshot(
         self,
@@ -7030,6 +7241,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as _e:
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
 
+            self._submit_auto_sim_buy_on_migration(
+                mint,
+                migrated_at=int(time.time()),
+                source="fast_path_register",
+            )
+
             import threading as _threading
             def _score_migrated_fast(m=mint):
                 try:
@@ -7147,6 +7364,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             pass
         if self._token_exists_in_db(mint):
             log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
+            self._submit_auto_sim_buy_on_migration(
+                mint,
+                migrated_at=int(time.time()),
+                migration_tx=signature,
+                source="already_known_migration_fast",
+            )
             resolved_creator, create_tx_sig = self._get_resolved_creator_for_mint(mint)
             if resolved_creator:
                 migration_time_str = datetime.utcfromtimestamp(int(time.time())).isoformat() + "Z"
@@ -7208,6 +7431,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[EVENT] Migration signature: {signature}", flush=True)
             _wstrace('MIGRATION_DETECTED', mint, f"sig={signature[:20]}")
             migrated_at_ts = int(time.time())
+
+            # Fastest possible paper-buy hook: once mint + migration signature are known,
+            # quote immediately. Later migration hooks are DB-claimed and skip duplicates.
+            self._submit_auto_sim_buy_on_migration(
+                mint,
+                migrated_at=migrated_at_ts,
+                migration_tx=signature,
+                source="migration_detected_fast",
+            )
 
             # === PHASE 2: Start critical window for RPC isolation ===
             # Discovery RPC calls use 8 concurrent slots, background jobs use only 2
@@ -7309,6 +7541,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn.commit()
                 conn.close()
                 log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
+                self._submit_auto_sim_buy_on_migration(
+                    mint,
+                    migrated_at=migrated_at_ts,
+                    migration_tx=signature,
+                    source="migration_tx_store",
+                )
                 def _score_migrated_tx(m=mint):
                     try:
                         import sqlite3 as _sq

@@ -1723,6 +1723,8 @@ class BackgroundPriceWorker:
                         """, (token_price.price_usd, token_price.market_cap, token_price.source, now, *migration_params, mint))
                     conn.commit()
                     conn.close()
+                    for mint in new_cache:
+                        self.registry.update_price_timestamp(mint)
                     if DEBUG_LOGGING: print(f"[PRICE_CYCLE] DB updated, about to broadcast {len(new_cache)} prices", flush=True)
 
                     # 🚀 BROADCAST TO UI VIA SSE (real-time price updates)

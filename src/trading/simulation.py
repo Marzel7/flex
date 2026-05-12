@@ -68,6 +68,20 @@ TRADING_SIM_DRY_RUN_RPC_URL = (
 )
 
 
+def _deactivate_pool_if_no_open_positions(conn, mint: str) -> None:
+    """Deactivate token_pool_accounts row when no OPEN trade remains for this mint."""
+    remaining = conn.execute(
+        "SELECT COUNT(*) FROM trade_simulations WHERE mint = ? AND status = 'OPEN'",
+        (mint,),
+    ).fetchone()[0]
+    if remaining == 0:
+        conn.execute(
+            "UPDATE token_pool_accounts SET is_active = 0, updated_at = ? WHERE mint = ?",
+            (int(time.time()), mint),
+        )
+        conn.commit()
+
+
 class TradingSimulationError(RuntimeError):
     """Raised when a simulation request cannot be completed."""
 
@@ -727,6 +741,7 @@ class TradingSimulationService:
             (int(simulation_id), row_dict["mint"], _json_dumps(quote), closed_at),
         )
         conn.commit()
+        _deactivate_pool_if_no_open_positions(conn, row_dict["mint"])
         return self.get_simulation(conn, simulation_id) or {}
 
     def has_simulation_for_mint(self, conn, mint: str) -> bool:

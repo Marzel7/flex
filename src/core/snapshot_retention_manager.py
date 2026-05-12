@@ -200,6 +200,13 @@ class SnapshotRetentionManager:
 
         def _deactivate_pools(conn, mint, reason):
             """Deactivate pool rows after snapshot history is removed. Returns count."""
+            open_trades = conn.execute(
+                "SELECT COUNT(*) FROM trade_simulations WHERE mint = ? AND status = 'OPEN'",
+                (mint,)
+            ).fetchone()[0]
+            if open_trades:
+                ws_log.debug(f"[POOL_DEACTIVATE] skipped mint={mint[:16]} reason=open_trade")
+                return 0
             n = conn.execute(
                 "UPDATE token_pool_accounts SET is_active = 0, updated_at = strftime('%s','now') "
                 "WHERE mint = ? AND is_active = 1",

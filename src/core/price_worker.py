@@ -576,6 +576,26 @@ class BackgroundPriceWorker:
         start_price_queue_worker(self._fetch_single_price)
 
         self.running = True
+
+        # Reactivate any pools that were deactivated while a trade position was open
+        try:
+            from src.utils.db_locking import db_connect as _db_connect
+            _conn = _db_connect(self.db_path, timeout=10)
+            n = _conn.execute(
+                """UPDATE token_pool_accounts SET is_active = 1, updated_at = strftime('%s','now')
+                   WHERE mint IN (
+                       SELECT tpa.mint FROM token_pool_accounts tpa
+                       JOIN trade_simulations ts ON ts.mint = tpa.mint
+                       WHERE ts.status = 'OPEN' AND tpa.is_active = 0
+                         AND tpa.base_account IS NOT NULL AND tpa.base_account != ''
+                   )"""
+            ).rowcount
+            _conn.commit()
+            _conn.close()
+            if n:
+                logger.info(f"[PRICE_WORKER] Reactivated {n} pools for open trade positions")
+        except Exception as _e:
+            logger.warning(f"[PRICE_WORKER] Pool reactivation on startup failed: {_e}")
         
         # ✅ CRITICAL FIX: Bootstrap PoolStateStore with REAL reserves from RPC
         # Since start() is called from async context (listener), we must run bootstrap

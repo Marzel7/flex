@@ -844,8 +844,11 @@ class TradingSimulationService:
         params: list[Any] = []
         clauses: list[str] = []
         if risk_level:
-            clauses.append("COALESCE(tps.risk_level, 'UNKNOWN') = ?")
-            params.append(risk_level.upper())
+            if risk_level.upper() == "LIQ":
+                clauses.append("EXISTS (SELECT 1 FROM token_pool_accounts tpa2 WHERE tpa2.mint = ts.mint AND tpa2.liquidity_removed = 1)")
+            else:
+                clauses.append("COALESCE(tps.risk_level, 'UNKNOWN') = ?")
+                params.append(risk_level.upper())
         if opened_since:
             clauses.append("ts.opened_at >= ?")
             params.append(int(opened_since))
@@ -897,7 +900,8 @@ class TradingSimulationService:
                 ta.price_current,
                 ta.market_cap_current,
                 ta.market_cap_highest,
-                ta.market_cap_highest_at_ts
+                ta.market_cap_highest_at_ts,
+                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed
             FROM trade_simulations ts
             LEFT JOIN token_analysis ta ON ta.mint = ts.mint
             LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint
@@ -988,7 +992,8 @@ class TradingSimulationService:
                     WHEN ta.market_cap_highest >= 75000   THEN 'G6'
                     WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
                     ELSE NULL
-                END AS g_level
+                END AS g_level,
+                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed
             FROM trade_simulations ts
             LEFT JOIN token_analysis ta ON ta.mint = ts.mint
             LEFT JOIN metadata_cache mc ON mc.mint = ts.mint
@@ -1055,7 +1060,7 @@ class TradingSimulationService:
                     history["target_first_hit_at"][target] = captured_at
             if not history["stop_hit"]:
                 for rule in STRATEGY_STOP_RULES:
-                    if elapsed <= int(rule["window_seconds"]) and ratio <= float(rule["ratio"]):
+                    if elapsed >= 300 and elapsed <= int(rule["window_seconds"]) and ratio <= float(rule["ratio"]):
                         history.update(
                             {
                                 "stop_hit": True,
@@ -1093,15 +1098,16 @@ class TradingSimulationService:
 
         current_market_cap = _safe_float(data.get("market_cap_current"))
         entry_sol = _safe_float(data.get("entry_sol"))
+        liquidity_removed = bool(int(_safe_int(data.get("liquidity_removed"), 0) or 0))
         if data.get("status") == "OPEN" and current_market_cap and entry_market_cap and entry_sol:
-            value_ratio = current_market_cap / entry_market_cap
+            value_ratio = 0.0 if liquidity_removed else current_market_cap / entry_market_cap
             unrealized_value_sol = entry_sol * value_ratio
             unrealized_pnl_sol = unrealized_value_sol - entry_sol
             data["unrealized_value_sol"] = unrealized_value_sol
             data["unrealized_pnl_sol"] = unrealized_pnl_sol
             data["unrealized_pnl_pct"] = (value_ratio - 1.0) * 100.0
             if entry_usd:
-                unrealized_value_usd = current_market_cap * token_amount_ui / DEFAULT_PUMPFUN_SUPPLY_UI
+                unrealized_value_usd = 0.0 if liquidity_removed else current_market_cap * token_amount_ui / DEFAULT_PUMPFUN_SUPPLY_UI
                 data["unrealized_value_usd"] = unrealized_value_usd
                 data["unrealized_pnl_usd"] = unrealized_value_usd - entry_usd
             else:
@@ -1132,6 +1138,7 @@ class TradingSimulationService:
         entry_market_cap = _safe_float(data.get("entry_market_cap"))
         current_market_cap = _safe_float(data.get("market_cap_current"))
         peak_market_cap = _safe_float(data.get("market_cap_highest"))
+        liquidity_removed = bool(int(_safe_int(data.get("liquidity_removed"), 0) or 0))
 
         data["strategy"] = strategy_key
         data["strategy_label"] = STRATEGY_NAMES.get(strategy_key, "Current")
@@ -1147,8 +1154,20 @@ class TradingSimulationService:
         data["strategy_stop_label"] = None
         data["strategy_stop_market_cap"] = None
         data["strategy_stop_at"] = None
+        data["strategy_liquidated"] = liquidity_removed
 
         if not entry_usd or not entry_market_cap:
+            return
+
+        if liquidity_removed:
+            data["strategy_value_usd"] = 0.0
+            data["strategy_pnl_usd"] = -entry_usd
+            data["strategy_pnl_pct"] = -100.0
+            data["strategy_detail"] = "liquidated"
+            data["strategy_hit"] = False
+            data["strategy_sold_pct"] = 100.0
+            data["strategy_sold_usd"] = 0.0
+            data["strategy_sold_token_amount"] = _safe_float(data.get("token_amount_ui")) or 0.0
             return
 
         current_ratio = current_market_cap / entry_market_cap if current_market_cap else None

@@ -17196,10 +17196,23 @@ def trading_sim_page():
     return render_template('trading_sim.html', active_page='trading_sim')
 
 
+_trading_sim_schema_done = False
+
 def _trading_sim_service():
     from src.trading.simulation import TradingSimulationService
-
     return TradingSimulationService()
+
+
+def _ensure_trading_sim_schema_once():
+    global _trading_sim_schema_done
+    if _trading_sim_schema_done:
+        return
+    try:
+        with _trading_sim_conn(timeout=10) as conn:
+            _ensure_trading_sim_schema_once()
+        _trading_sim_schema_done = True
+    except Exception:
+        pass
 
 
 def _trading_sim_conn(timeout: int = 15):
@@ -17352,7 +17365,7 @@ def api_trading_sim_auto_buy_predictions():
 
         service = _trading_sim_service()
         with _trading_sim_conn(timeout=30) as conn:
-            service.ensure_schema(conn)
+            _ensure_trading_sim_schema_once()
             reset_row = conn.execute(
                 "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
             ).fetchone()
@@ -17439,7 +17452,7 @@ def api_trading_sim_auto_buy_migrations():
 
         service = _trading_sim_service()
         with _trading_sim_conn(timeout=30) as conn:
-            service.ensure_schema(conn)
+            _ensure_trading_sim_schema_once()
             if not since:
                 reset_row = conn.execute(
                     "SELECT value FROM system_metadata WHERE key='prediction_reset_at'"
@@ -17536,8 +17549,7 @@ def api_trading_sim_sell(simulation_id: int):
 @app.route('/api/trading-sim/liq-caught')
 def api_trading_sim_liq_caught():
     try:
-        with _trading_sim_conn() as conn:
-            _trading_sim_service().ensure_schema(conn)
+        with _trading_sim_conn(timeout=5) as conn:
             rows = conn.execute("""
                 SELECT
                     lc.mint, lc.token_symbol, lc.network_name, lc.liq_rate,
@@ -17551,17 +17563,6 @@ def api_trading_sim_liq_caught():
                 ORDER BY lc.caught_at DESC
                 LIMIT 200
             """).fetchall()
-            # Update confirmed_liq for any that have since been liquidated
-            conn.execute("""
-                UPDATE liq_caught SET confirmed_liq = 1,
-                    confirmed_at = strftime('%s','now')
-                WHERE confirmed_liq = 0
-                  AND mint IN (
-                      SELECT DISTINCT mint FROM token_pool_accounts
-                      WHERE liquidity_removed = 1
-                  )
-            """)
-            conn.commit()
         return jsonify([dict(r) for r in rows])
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
@@ -17571,7 +17572,7 @@ def api_trading_sim_liq_caught():
 def api_trading_sim_strategy_pnl():
     try:
         with _trading_sim_conn() as conn:
-            _trading_sim_service().ensure_schema(conn)
+            _ensure_trading_sim_schema_once()
             rows = conn.execute("""
                 SELECT
                     strategy,

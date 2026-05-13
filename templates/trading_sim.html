@@ -211,6 +211,35 @@
     </div>
   </section>
 </div>
+
+<div style="margin-top:16px;">
+  <section class="ts-panel">
+    <div class="ts-panel-head split">
+      <div class="ts-panel-title">Strategy PnL (Realised)</div>
+      <button class="ts-btn" onclick="loadStrategyPnl()">Refresh</button>
+    </div>
+    <div class="ts-table-wrap">
+      <table class="ts-table" id="strategyPnlTable">
+        <thead>
+          <tr>
+            <th>Strategy</th>
+            <th>Positions</th>
+            <th>Target Hits</th>
+            <th>Stops</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Win %</th>
+            <th>Realised USD</th>
+            <th style="color:#a78bfa">PnL USD</th>
+          </tr>
+        </thead>
+        <tbody id="strategyPnlBody">
+          <tr><td colspan="9" style="text-align:center;color:var(--text-secondary)">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -583,6 +612,64 @@ updateAutoRefreshButton();
 scheduleAutoRefresh();
 loadSimulations();
 loadLiqCaught();
+loadStrategyPnl();
+
+const STRATEGY_LABELS = {
+  cascade: 'Cascade', peak: 'Peak',
+  target_1_5: '1.5x', target_2_5: '2.5x', target_3: '3x',
+  target_3_5: '3.5x', target_5: '5x', target_7: '7x', target_10: '10x',
+};
+const STRATEGY_ORDER = ['cascade','peak','target_1_5','target_2_5','target_3','target_3_5','target_5','target_7','target_10'];
+
+async function loadStrategyPnl() {
+  const tbody = document.getElementById('strategyPnlBody');
+  try {
+    const res = await fetch('/api/trading-sim/strategy-pnl');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // Group by_strategy_and_type into per-strategy
+    const byStrategy = {};
+    for (const row of data.by_strategy_and_type) {
+      if (!byStrategy[row.strategy]) byStrategy[row.strategy] = { targets: [], stops: [], wins: 0, losses: 0, realised: 0, pnl: 0, positions: 0 };
+      const s = byStrategy[row.strategy];
+      if (row.sell_type === 'target' || row.sell_type === 'peak') {
+        s.targets.push(row);
+        s.wins += row.wins;
+      } else if (row.sell_type === 'stop') {
+        s.stops.push(row);
+        s.losses += row.losses;
+      }
+      s.realised += row.realised_usd;
+      s.pnl += row.pnl_usd;
+      s.positions = Math.max(s.positions, row.positions);
+    }
+
+    const rows = STRATEGY_ORDER.filter(k => byStrategy[k]).map(k => {
+      const s = byStrategy[k];
+      const total = s.wins + s.losses;
+      const winPct = total ? Math.round(s.wins / total * 100) : 0;
+      const pnlColor = s.pnl >= 0 ? '#4ade80' : '#f87171';
+      const targetHits = s.targets.reduce((a, r) => a + r.sell_events, 0);
+      const stopHits = s.stops.reduce((a, r) => a + r.sell_events, 0);
+      return `<tr>
+        <td style="font-weight:700">${STRATEGY_LABELS[k] || k}</td>
+        <td>${s.positions}</td>
+        <td style="color:#4ade80">${targetHits}</td>
+        <td style="color:#f87171">${stopHits}</td>
+        <td>${s.wins}</td>
+        <td>${s.losses}</td>
+        <td>${winPct}%</td>
+        <td>$${s.realised.toFixed(2)}</td>
+        <td style="color:${pnlColor};font-weight:700">$${s.pnl.toFixed(2)}</td>
+      </tr>`;
+    });
+
+    tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary)">No data yet</td></tr>';
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#f87171">${err.message}</td></tr>`;
+  }
+}
 
 async function loadLiqCaught() {
   const tbody = document.getElementById('liqCaughtRows');

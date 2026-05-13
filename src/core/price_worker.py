@@ -1763,18 +1763,24 @@ class BackgroundPriceWorker:
                 except Exception as e:
                     logger.debug(f"Failed to update token_analysis with pool prices: {e}")
 
-            # Process cascade/strategy sells for all open positions
-            try:
-                from src.trading.simulation import process_cascade_sells, TradingSimulationService
-                _sell_conn = db_connect(self.db_path, timeout=10)
-                _sell_conn.row_factory = __import__('sqlite3').Row
-                TradingSimulationService().ensure_schema(_sell_conn)
-                n = process_cascade_sells(_sell_conn, new_cache)
-                _sell_conn.close()
-                if n:
-                    logger.info(f"[CASCADE_SELLS] Booked {n} new strategy sell rows")
-            except Exception as e:
-                logger.debug(f"[CASCADE_SELLS] Error: {e}")
+            # Process cascade/strategy sells in background thread — never block price cycle
+            _cache_snapshot = dict(new_cache)
+            _db_path = self.db_path
+            def _run_cascade_sells():
+                try:
+                    import sqlite3 as _sq
+                    from src.trading.simulation import process_cascade_sells, TradingSimulationService
+                    _conn = _sq.connect(_db_path, timeout=3)
+                    _conn.row_factory = _sq.Row
+                    TradingSimulationService().ensure_schema(_conn)
+                    n = process_cascade_sells(_conn, _cache_snapshot)
+                    _conn.close()
+                    if n:
+                        logger.info(f"[CASCADE_SELLS] Booked {n} new strategy sell rows")
+                except Exception as _e:
+                    logger.debug(f"[CASCADE_SELLS] Error: {_e}")
+            import threading as _threading
+            _threading.Thread(target=_run_cascade_sells, daemon=True, name="cascade-sells").start()
 
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")

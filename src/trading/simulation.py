@@ -159,7 +159,7 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                                    (simulation_id, mint, strategy, target, sell_type,
                                     fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
                                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-                                (sim_id, mint, strategy, None, "stop",
+                                (sim_id, mint, strategy, -1, "stop",
                                  remaining_fraction, current_mc, entry_mc, entry_usd, realised, pnl, now),
                             )
                             inserted += conn.execute("SELECT changes()").fetchone()[0]
@@ -167,17 +167,9 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                             pass
 
             elif strategy == "peak":
-                if peak_ratio > 0:
-                    # Stop overrides peak
-                    if elapsed >= 300 and current_ratio <= 0.5:
-                        exit_ratio = current_ratio
-                        sell_type = "stop"
-                        target = None
-                    else:
-                        exit_ratio = peak_ratio
-                        sell_type = "peak"
-                        target = peak_ratio
-                    realised = entry_usd * exit_ratio
+                if elapsed >= 300 and current_ratio <= 0.5:
+                    # Stop fired — record once with sentinel target
+                    realised = entry_usd * current_ratio
                     pnl = realised - entry_usd
                     try:
                         conn.execute(
@@ -185,8 +177,24 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                                (simulation_id, mint, strategy, target, sell_type,
                                 fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-                            (sim_id, mint, strategy, target, sell_type,
-                             1.0, entry_mc * exit_ratio, entry_mc, entry_usd, realised, pnl, now),
+                            (sim_id, mint, strategy, -1, "stop",
+                             1.0, current_mc, entry_mc, entry_usd, realised, pnl, now),
+                        )
+                        inserted += conn.execute("SELECT changes()").fetchone()[0]
+                    except Exception:
+                        pass
+                elif peak_ratio > 0:
+                    # Peak sell — target is the actual peak ratio (unique per position)
+                    realised = entry_usd * peak_ratio
+                    pnl = realised - entry_usd
+                    try:
+                        conn.execute(
+                            """INSERT OR IGNORE INTO trade_simulation_sells
+                               (simulation_id, mint, strategy, target, sell_type,
+                                fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                            (sim_id, mint, strategy, round(peak_ratio, 4), "peak",
+                             1.0, peak_mc, entry_mc, entry_usd, realised, pnl, now),
                         )
                         inserted += conn.execute("SELECT changes()").fetchone()[0]
                     except Exception:
@@ -219,7 +227,7 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                                (simulation_id, mint, strategy, target, sell_type,
                                 fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-                            (sim_id, mint, strategy, None, "stop",
+                            (sim_id, mint, strategy, -1, "stop",
                              1.0, current_mc, entry_mc, entry_usd, realised, pnl, now),
                         )
                         inserted += conn.execute("SELECT changes()").fetchone()[0]

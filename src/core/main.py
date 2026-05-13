@@ -17567,6 +17567,48 @@ def api_trading_sim_liq_caught():
         return jsonify({"error": str(exc)}), 500
 
 
+@app.route('/api/trading-sim/strategy-pnl')
+def api_trading_sim_strategy_pnl():
+    try:
+        with _trading_sim_conn() as conn:
+            _trading_sim_service().ensure_schema(conn)
+            rows = conn.execute("""
+                SELECT
+                    strategy,
+                    sell_type,
+                    COUNT(DISTINCT simulation_id) as positions,
+                    COUNT(*) as sell_events,
+                    ROUND(SUM(realised_usd), 2) as realised_usd,
+                    ROUND(SUM(pnl_usd), 2) as pnl_usd,
+                    ROUND(AVG(pnl_usd), 2) as avg_pnl_usd,
+                    SUM(CASE WHEN pnl_usd > 0 THEN 1 ELSE 0 END) as wins,
+                    SUM(CASE WHEN pnl_usd <= 0 THEN 1 ELSE 0 END) as losses
+                FROM trade_simulation_sells
+                GROUP BY strategy, sell_type
+                ORDER BY strategy, sell_type
+            """).fetchall()
+
+            # Also return per-strategy totals
+            totals = conn.execute("""
+                SELECT
+                    strategy,
+                    COUNT(DISTINCT simulation_id) as positions,
+                    ROUND(SUM(pnl_usd), 2) as total_pnl_usd,
+                    SUM(CASE WHEN pnl_usd > 0 THEN 1 ELSE 0 END) as wins,
+                    SUM(CASE WHEN pnl_usd <= 0 THEN 1 ELSE 0 END) as losses
+                FROM trade_simulation_sells
+                GROUP BY strategy
+                ORDER BY total_pnl_usd DESC
+            """).fetchall()
+
+        return jsonify({
+            "by_strategy_and_type": [dict(r) for r in rows],
+            "totals": [dict(r) for r in totals],
+        })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
 @app.route('/api/predictions/buy-sim')
 def api_predictions_buy_sim():
     try:

@@ -1763,6 +1763,19 @@ class BackgroundPriceWorker:
                 except Exception as e:
                     logger.debug(f"Failed to update token_analysis with pool prices: {e}")
 
+            # Process cascade/strategy sells for all open positions
+            try:
+                from src.trading.simulation import process_cascade_sells, TradingSimulationService
+                _sell_conn = db_connect(self.db_path, timeout=10)
+                _sell_conn.row_factory = __import__('sqlite3').Row
+                TradingSimulationService().ensure_schema(_sell_conn)
+                n = process_cascade_sells(_sell_conn, new_cache)
+                _sell_conn.close()
+                if n:
+                    logger.info(f"[CASCADE_SELLS] Booked {n} new strategy sell rows")
+            except Exception as e:
+                logger.debug(f"[CASCADE_SELLS] Error: {e}")
+
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")
     

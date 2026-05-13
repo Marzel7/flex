@@ -68,6 +68,169 @@ TRADING_SIM_DRY_RUN_RPC_URL = (
 )
 
 
+_ALL_STRATEGIES = {
+    "cascade": STRATEGY_CASCADE_TARGETS,
+    "peak": None,
+    "target_1_5": (1.5,),
+    "target_2_5": (2.5,),
+    "target_3": (3.0,),
+    "target_3_5": (3.5,),
+    "target_5": (5.0,),
+    "target_7": (7.0,),
+    "target_10": (10.0,),
+}
+
+
+def process_cascade_sells(conn, price_cache: dict) -> int:
+    """
+    Called every price cycle. For each OPEN position × each strategy, checks
+    whether targets or stops have been crossed and inserts sell rows into
+    trade_simulation_sells. Returns count of new sell rows inserted.
+    """
+    if not price_cache:
+        return 0
+
+    now = int(time.time())
+    inserted = 0
+
+    rows = conn.execute(
+        """
+        SELECT ts.id, ts.mint, ts.opened_at, ts.entry_market_cap,
+               json_extract(ts.entry_quote_json, '$.raw.swapUsdValue') as entry_usd_raw,
+               ta.market_cap_highest as peak_mc
+        FROM trade_simulations ts
+        LEFT JOIN token_analysis ta ON ta.mint = ts.mint
+        WHERE ts.status = 'OPEN' AND ts.entry_market_cap > 0
+        """
+    ).fetchall()
+
+    for row in rows:
+        sim_id = row[0]
+        mint = row[1]
+        opened_at = int(row[2] or 0)
+        entry_mc = float(row[3] or 0)
+        entry_usd = float(row[4] or 0)
+        peak_mc = float(row[5] or 0)
+
+        if not entry_usd or not entry_mc:
+            continue
+
+        current_price = price_cache.get(mint)
+        current_mc = float(current_price.market_cap or 0) if current_price else 0
+        if not current_mc and not peak_mc:
+            continue
+
+        elapsed = now - opened_at
+        peak_ratio = peak_mc / entry_mc if peak_mc else 0
+        current_ratio = current_mc / entry_mc if current_mc else 0
+
+        for strategy, targets in _ALL_STRATEGIES.items():
+            if strategy == "cascade":
+                n = len(STRATEGY_CASCADE_TARGETS)
+                fraction_each = 1.0 / n
+                for target in STRATEGY_CASCADE_TARGETS:
+                    if peak_ratio >= target:
+                        mc_at_hit = entry_mc * target
+                        realised = entry_usd * fraction_each * target
+                        pnl = realised - (entry_usd * fraction_each)
+                        try:
+                            conn.execute(
+                                """INSERT OR IGNORE INTO trade_simulation_sells
+                                   (simulation_id, mint, strategy, target, sell_type,
+                                    fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                                (sim_id, mint, strategy, target, "target",
+                                 fraction_each, mc_at_hit, entry_mc, entry_usd, realised, pnl, now),
+                            )
+                            inserted += conn.execute("SELECT changes()").fetchone()[0]
+                        except Exception:
+                            pass
+
+                # Stop: remaining unsold portion after cascade targets exceeded
+                if elapsed >= 300 and current_ratio <= 0.5:
+                    sold_targets = [t for t in STRATEGY_CASCADE_TARGETS if peak_ratio >= t]
+                    remaining_fraction = (n - len(sold_targets)) / n
+                    if remaining_fraction > 0:
+                        realised = entry_usd * remaining_fraction * current_ratio
+                        pnl = realised - (entry_usd * remaining_fraction)
+                        try:
+                            conn.execute(
+                                """INSERT OR IGNORE INTO trade_simulation_sells
+                                   (simulation_id, mint, strategy, target, sell_type,
+                                    fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                                (sim_id, mint, strategy, None, "stop",
+                                 remaining_fraction, current_mc, entry_mc, entry_usd, realised, pnl, now),
+                            )
+                            inserted += conn.execute("SELECT changes()").fetchone()[0]
+                        except Exception:
+                            pass
+
+            elif strategy == "peak":
+                if peak_ratio > 0:
+                    # Stop overrides peak
+                    if elapsed >= 300 and current_ratio <= 0.5:
+                        exit_ratio = current_ratio
+                        sell_type = "stop"
+                        target = None
+                    else:
+                        exit_ratio = peak_ratio
+                        sell_type = "peak"
+                        target = peak_ratio
+                    realised = entry_usd * exit_ratio
+                    pnl = realised - entry_usd
+                    try:
+                        conn.execute(
+                            """INSERT OR IGNORE INTO trade_simulation_sells
+                               (simulation_id, mint, strategy, target, sell_type,
+                                fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                            (sim_id, mint, strategy, target, sell_type,
+                             1.0, entry_mc * exit_ratio, entry_mc, entry_usd, realised, pnl, now),
+                        )
+                        inserted += conn.execute("SELECT changes()").fetchone()[0]
+                    except Exception:
+                        pass
+
+            else:
+                # Single target strategies
+                target = targets[0]
+                if peak_ratio >= target:
+                    realised = entry_usd * target
+                    pnl = realised - entry_usd
+                    try:
+                        conn.execute(
+                            """INSERT OR IGNORE INTO trade_simulation_sells
+                               (simulation_id, mint, strategy, target, sell_type,
+                                fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                            (sim_id, mint, strategy, target, "target",
+                             1.0, entry_mc * target, entry_mc, entry_usd, realised, pnl, now),
+                        )
+                        inserted += conn.execute("SELECT changes()").fetchone()[0]
+                    except Exception:
+                        pass
+                elif elapsed >= 300 and current_ratio <= 0.5:
+                    realised = entry_usd * current_ratio
+                    pnl = realised - entry_usd
+                    try:
+                        conn.execute(
+                            """INSERT OR IGNORE INTO trade_simulation_sells
+                               (simulation_id, mint, strategy, target, sell_type,
+                                fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                            (sim_id, mint, strategy, None, "stop",
+                             1.0, current_mc, entry_mc, entry_usd, realised, pnl, now),
+                        )
+                        inserted += conn.execute("SELECT changes()").fetchone()[0]
+                    except Exception:
+                        pass
+
+    if inserted:
+        conn.commit()
+    return inserted
+
+
 def _deactivate_pool_if_no_open_positions(conn, mint: str) -> None:
     """Deactivate token_pool_accounts row when no OPEN trade remains for this mint."""
     remaining = conn.execute(
@@ -487,6 +650,33 @@ class TradingSimulationService:
         )
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_liq_caught_caught_at ON liq_caught(caught_at DESC)"
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS trade_simulation_sells (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                simulation_id INTEGER NOT NULL,
+                mint TEXT NOT NULL,
+                strategy TEXT NOT NULL,
+                target REAL,
+                sell_type TEXT NOT NULL,
+                fraction REAL NOT NULL,
+                mc_at_hit REAL NOT NULL,
+                entry_mc REAL NOT NULL,
+                entry_usd REAL NOT NULL,
+                realised_usd REAL NOT NULL,
+                pnl_usd REAL NOT NULL,
+                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+                FOREIGN KEY(simulation_id) REFERENCES trade_simulations(id),
+                UNIQUE(simulation_id, strategy, sell_type, target)
+            )
+            """
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_sim_sells_sim_id ON trade_simulation_sells(simulation_id)"
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_sim_sells_strategy ON trade_simulation_sells(strategy, created_at DESC)"
         )
         conn.commit()
 

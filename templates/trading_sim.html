@@ -91,12 +91,17 @@
 .ts-risk-pill.WATCH { color:#a78bfa; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.10); }
 .ts-risk-pill.MEDIUM { color:#fbbf24; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.10); }
 .ts-risk-pill.HIGH, .ts-risk-pill.CRITICAL { color:#f87171; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.10); }
+.ts-risk-pill.WATCH-T { color:#f97316; border:1px solid rgba(249,115,22,0.4); background:rgba(249,115,22,0.10); }
 .ts-token-main { display:flex; flex-direction:column; gap:3px; min-width:0; }
 .ts-token-name { color:var(--text-primary); font-weight:900; overflow:hidden; text-overflow:ellipsis; }
 .ts-token-sub, .ts-cell-sub { color:var(--text-secondary); font-size:10px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; }
 .ts-g-pill { display:inline-flex; padding:2px 5px; border-radius:4px; color:#67e8f9; border:1px solid rgba(103,232,249,0.25); background:rgba(103,232,249,0.08); font-size:10px; font-weight:900; }
 .ts-pnl-pos { color:#4ade80; font-weight:900; }
 .ts-pnl-neg { color:#f87171; font-weight:900; }
+.eq-card { background:var(--bg,#0f0f1a);border:1px solid var(--border,#2a2a3e);border-radius:6px;padding:8px 10px; }
+.eq-card-label { font-size:10px;color:var(--text-secondary);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px; }
+.eq-card-pnl { font-size:14px;font-weight:900; }
+.eq-card-detail { font-size:10px;color:var(--text-secondary);margin-top:2px; }
 .ts-empty { padding:26px 14px; color:var(--text-secondary); text-align:center; font-size:12px; }
 @media (max-width:1100px) { .ts-grid { grid-template-columns:1fr; } }
 @media (max-width:1100px) { .ts-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
@@ -105,10 +110,15 @@
 {% block content %}
 <div class="ts-topbar">
   <div>
-    <h1>Trading Simulation</h1>
-    <div class="ts-sub">Paper buy/sell using Jupiter quotes. No keypair, no signing, no submitted transactions.</div>
+    <h1>Portfolio / Simulation PnL</h1>
+    <div class="ts-sub">Actual paper-traded strategy performance using portfolio equity accounting — separate from historical ecosystem outcomes.</div>
   </div>
   <div class="ts-badge">Simulation Only</div>
+</div>
+
+<div style="margin-bottom:16px;padding:14px 16px;border:1px solid rgba(34,197,94,0.22);border-radius:8px;background:rgba(34,197,94,0.06);font-size:13px;line-height:1.5;">
+  <strong style="color:#86efac;">Why should I care?</strong>
+  This is the ledger of what the trading policy actually did: realised proceeds + unrealised open value − deployed capital. It should sit beside, not blend with, historical ecosystem performance.
 </div>
 
 <div id="summaryBox" class="ts-summary">
@@ -117,7 +127,16 @@
   <div class="ts-stat"><div class="ts-stat-label">Closed</div><div class="ts-stat-value">—</div></div>
   <div class="ts-stat"><div class="ts-stat-label">Migration Buys</div><div class="ts-stat-value">—</div></div>
   <div class="ts-stat"><div class="ts-stat-label">Current PnL</div><div class="ts-stat-value">—</div></div>
-  <div class="ts-stat"><div class="ts-stat-label">Realized PnL</div><div class="ts-stat-value">—</div></div>
+</div>
+
+<div id="equityBox" style="margin-bottom:16px;background:var(--card-bg,#1a1a2e);border:1px solid var(--border,#2a2a3e);border-radius:8px;padding:12px 16px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase;">Portfolio Equity</span>
+    <span id="equityDeployed" style="font-size:12px;color:var(--text-secondary);">Deployed: —</span>
+  </div>
+  <div id="equityRows" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;">
+    <div style="color:var(--text-secondary);font-size:12px;">Loading…</div>
+  </div>
 </div>
 
 <div class="ts-grid">
@@ -169,6 +188,7 @@
           <option value="LOW">Low</option>
           <option value="UNKNOWN">Unknown</option>
           <option value="LIQ">LIQ</option>
+          <option value="WATCH-T">WATCH-T</option>
         </select>
         <select class="ts-select" id="filterStrategy" onchange="loadSimulations()">
           <option value="current">Current</option>
@@ -181,6 +201,7 @@
           <option value="target_7">Sold at 7x</option>
           <option value="target_10">Sold at 10x</option>
           <option value="cascade">Cascade</option>
+          <option value="watch_trailing">WATCH Trailing</option>
         </select>
       </div>
     </div>
@@ -195,6 +216,8 @@
             <th style="width:102px;">MC</th>
             <th style="width:102px;">Buy MC</th>
             <th style="width:112px;">Peak</th>
+            <th style="width:112px;">Liq Now</th>
+            <th style="width:112px;">Liq Entry</th>
             <th style="width:112px;">Buy</th>
             <th style="width:116px;">Tokens</th>
             <th style="width:112px;">Dry Run</th>
@@ -205,41 +228,13 @@
           </tr>
         </thead>
         <tbody id="simRows">
-          <tr><td colspan="14" class="ts-empty">Loading simulations...</td></tr>
+          <tr><td colspan="16" class="ts-empty">Loading simulations...</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 </div>
 
-<div style="margin-top:16px;">
-  <section class="ts-panel">
-    <div class="ts-panel-head split">
-      <div class="ts-panel-title">Strategy PnL (Realised)</div>
-      <button class="ts-btn" onclick="loadStrategyPnl()">Refresh</button>
-    </div>
-    <div class="ts-table-wrap">
-      <table class="ts-table" id="strategyPnlTable">
-        <thead>
-          <tr>
-            <th>Strategy</th>
-            <th>Positions</th>
-            <th>Target Hits</th>
-            <th>Stops</th>
-            <th>Wins</th>
-            <th>Losses</th>
-            <th>Win %</th>
-            <th>Realised USD</th>
-            <th style="color:#a78bfa">PnL USD</th>
-          </tr>
-        </thead>
-        <tbody id="strategyPnlBody">
-          <tr><td colspan="9" style="text-align:center;color:var(--text-secondary)">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -404,6 +399,19 @@ async function simulateBuy() {
   }
 }
 
+async function autoBuyWatchtower() {
+  try {
+    const sol = Number(document.getElementById('wtSolInput').value || 0.1);
+    setStatus('Scanning WATCHTOWER-linked tokens...');
+    const data = await postJson('/api/trading-sim/auto-buy-watchtower', { sol_amount: sol, limit: 50 });
+    const errorText = data.error_count ? ` ${data.error_count} errors.` : '';
+    setStatus(`Opened ${data.created_count}/${data.candidate_count} WATCH-T paper buys.${errorText}`, data.error_count ? 'error' : 'ok');
+    loadSimulations();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
 async function autoBuyPredictions() {
   try {
     setStatus('Scanning LOW/WATCH predictions...');
@@ -471,7 +479,7 @@ function renderRows(rows) {
     const strategyPnlClass = Number(row.strategy_pnl_usd || 0) >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg';
     const tokenName = row.display_symbol || row.token_symbol || row.display_name || shortMint(row.mint);
     const tokenFullName = row.display_name && row.display_name !== tokenName ? row.display_name : '';
-    const risk = row.risk_level || '—';
+    const risk = row.watchtower_linked ? 'WATCH-T' : (row.risk_level || '—');
     const score = row.prediction_score ?? '—';
     const gLevel = row.g_level || '—';
     const buyRoute = routeText(row.entry_quote);
@@ -480,6 +488,8 @@ function renderRows(rows) {
     const dryStatus = dryRun.status || 'unknown';
     const isCurrentStrategy = (row.strategy || 'current') === 'current';
     const soldPct = row.strategy_sold_pct ?? (row.status === 'CLOSED' ? 100 : 0);
+    const strategyClosed = !isCurrentStrategy && Number(soldPct || 0) >= 100;
+    const displayStatus = strategyClosed ? 'CLOSED' : row.status;
     const soldUsd = row.strategy_sold_usd ?? (row.status === 'CLOSED' ? row.exit_usd : 0);
     const soldTokens = row.strategy_sold_token_amount ?? (row.status === 'CLOSED' ? row.token_amount_ui : 0);
     const pnlValue = isCurrentStrategy
@@ -495,13 +505,13 @@ function renderRows(rows) {
     const pnlClass = isCurrentStrategy
       ? (row.status === 'CLOSED' ? closedPnlClass : (row.unrealized_pnl_pct === null || row.unrealized_pnl_pct === undefined ? 'ts-muted' : openPnlClass))
       : strategyPnlClass;
-    const action = row.status === 'OPEN'
+    const action = displayStatus === 'OPEN'
       ? `<button class="ts-btn sell" onclick="simulateSell(${row.id})">Sim Sell</button>`
       : '<span class="ts-muted">Closed</span>';
     return `
       <tr title="${row.mint}">
         <td class="ts-mono">#${row.id}</td>
-        <td><span class="ts-status-pill ${row.status}">${row.status}</span></td>
+        <td><span class="ts-status-pill ${displayStatus}">${displayStatus}</span></td>
         <td>
           <div class="ts-token-main">
             <div class="ts-token-name">${tokenName}${row.liquidity_removed ? '&nbsp;&nbsp;<span class="liq-tag confirmed">LIQ</span>' : ''}</div>
@@ -513,6 +523,8 @@ function renderRows(rows) {
         <td>${fmtMc(row.market_cap_current)}<div class="ts-cell-sub">current</div></td>
         <td>${fmtMc(row.entry_market_cap)}<div class="ts-cell-sub">at buy</div></td>
         <td><span class="ts-g-pill">${gLevel}</span> ${fmtMc(row.market_cap_highest)}<div class="ts-cell-sub">peak</div></td>
+        <td>${fmtUsd(row.liquidity_now_usd)}<div class="ts-cell-sub">current liq</div></td>
+        <td>${fmtUsd(row.liquidity_entry_usd)}<div class="ts-cell-sub">${row.liquidity_change_pct == null ? 'at entry' : fmtPct(row.liquidity_change_pct) + ' vs entry'}</div></td>
         <td>${fmtSol(row.entry_sol)}<div class="ts-cell-sub">${buyRoute}</div></td>
         <td>${fmtAmount(row.token_amount_ui)}<div class="ts-cell-sub">buy ${fmtPrice(row.entry_price_sol)}</div></td>
         <td><span class="ts-dry-pill ${dryStatus}">${dryRunLabel(dryStatus)}</span><div class="ts-cell-sub">${dryRunDetail(dryRun)}</div></td>
@@ -531,18 +543,36 @@ function renderRows(rows) {
 function renderSummary(summary) {
   const box = document.getElementById('summaryBox');
   const migrationBuys = Number(summary.migration_buy_count || 0) + Number(summary.migration_batch_buy_count || 0);
-  const realizedPnl = Number(summary.realized_pnl_usd || 0);
-  const currentPnl = Number(summary.current_pnl_usd || 0);
-  const strategyPnl = Number(summary.strategy_pnl_usd ?? currentPnl);
-  const strategyLabel = summary.strategy_label || 'Current';
+  const strategyPnl = Number(summary.strategy_pnl_usd || 0);
+  const strategyRealised = Number(summary.strategy_realised_usd || 0);
+  const strategyLabel = summary.strategy_label || 'Strategy';
   box.innerHTML = `
     <div class="ts-stat"><div class="ts-stat-label">Total Buys</div><div class="ts-stat-value">${summary.total_count || 0}</div></div>
     <div class="ts-stat"><div class="ts-stat-label">Open</div><div class="ts-stat-value">${summary.open_count || 0}</div></div>
     <div class="ts-stat"><div class="ts-stat-label">Closed</div><div class="ts-stat-value">${summary.closed_count || 0}</div></div>
     <div class="ts-stat"><div class="ts-stat-label">Migration Buys</div><div class="ts-stat-value">${migrationBuys}</div></div>
+    ${strategyLabel !== 'Strategy' ? `
+    <div class="ts-stat"><div class="ts-stat-label">${strategyLabel} Realised</div><div class="ts-stat-value">${fmtUsd(strategyRealised)}</div></div>
     <div class="ts-stat"><div class="ts-stat-label">${strategyLabel} PnL</div><div class="ts-stat-value ${strategyPnl >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg'}">${fmtUsd(strategyPnl)}</div></div>
-    <div class="ts-stat"><div class="ts-stat-label">Realized PnL</div><div class="ts-stat-value ${realizedPnl >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg'}">${fmtUsd(realizedPnl)}</div></div>
+    ` : ''}
   `;
+}
+
+function renderEquity(data) {
+  const deployed = Number(data.total_deployed_usd || 0);
+  document.getElementById('equityDeployed').textContent = `Deployed: ${fmtUsd(deployed)}`;
+  const strategies = data.strategies || [];
+  const container = document.getElementById('equityRows');
+  if (!strategies.length) { container.innerHTML = '<div style="color:var(--text-secondary);font-size:12px;">No data</div>'; return; }
+  container.innerHTML = strategies.map(s => {
+    const pnlClass = s.pnl_usd >= 0 ? 'ts-pnl-pos' : 'ts-pnl-neg';
+    const roiSign = s.roi_pct >= 0 ? '+' : '';
+    return `<div class="eq-card">
+      <div class="eq-card-label">${s.label}</div>
+      <div class="eq-card-pnl ${pnlClass}">${fmtUsd(s.pnl_usd)} <span style="font-size:11px;font-weight:600;">${roiSign}${s.roi_pct.toFixed(1)}%</span></div>
+      <div class="eq-card-detail">R ${fmtUsd(s.realised_usd)} · MTM ${fmtUsd(s.mtm_usd)}</div>
+    </div>`;
+  }).join('');
 }
 
 async function loadSimulations() {
@@ -552,15 +582,19 @@ async function loadSimulations() {
   try {
     const simulationsUrl = filteredUrl('/api/trading-sim/simulations');
     const summaryUrl = filteredUrl('/api/trading-sim/summary');
+    const equityUrl = filteredUrl('/api/trading-sim/portfolio-equity');
     const separator = simulationsUrl.includes('?') ? '&' : '?';
-    const [rowsRes, summaryRes] = await Promise.all([
+    const [rowsRes, summaryRes, equityRes] = await Promise.all([
       fetch(`${simulationsUrl}${separator}limit=100`),
-      fetch(summaryUrl)
+      fetch(summaryUrl),
+      fetch(equityUrl)
     ]);
     const data = await readJsonResponse(rowsRes, '/api/trading-sim/simulations');
     if (!data.ok) throw new Error(data.error || 'Failed to load simulations');
     const summaryData = await readJsonResponse(summaryRes, '/api/trading-sim/summary');
     if (summaryData.ok) renderSummary(summaryData.summary || {});
+    const equityData = await readJsonResponse(equityRes, '/api/trading-sim/portfolio-equity');
+    if (equityData.ok) renderEquity(equityData);
     renderRows(data.simulations || []);
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="14" class="ts-empty">${err.message}</td></tr>`;
@@ -581,7 +615,7 @@ function scheduleAutoRefresh() {
   autoRefreshTimer = null;
   if (!autoRefreshEnabled) return;
   autoRefreshTimer = window.setInterval(() => {
-    if (document.visibilityState === 'visible') loadSimulations();
+    if (document.visibilityState === 'visible') { loadSimulations(); }
   }, AUTO_REFRESH_MS);
 }
 
@@ -612,64 +646,15 @@ updateAutoRefreshButton();
 scheduleAutoRefresh();
 loadSimulations();
 loadLiqCaught();
-loadStrategyPnl();
 
 const STRATEGY_LABELS = {
   cascade: 'Cascade', peak: 'Peak',
   target_1_5: '1.5x', target_2_5: '2.5x', target_3: '3x',
   target_3_5: '3.5x', target_5: '5x', target_7: '7x', target_10: '10x',
+  watch_trailing: 'WATCH Trailing',
 };
-const STRATEGY_ORDER = ['cascade','peak','target_1_5','target_2_5','target_3','target_3_5','target_5','target_7','target_10'];
+const STRATEGY_ORDER = ['cascade','peak','target_1_5','target_2_5','target_3','target_3_5','target_5','target_7','target_10','watch_trailing'];
 
-async function loadStrategyPnl() {
-  const tbody = document.getElementById('strategyPnlBody');
-  try {
-    const res = await fetch('/api/trading-sim/strategy-pnl');
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-
-    // Group by_strategy_and_type into per-strategy
-    const byStrategy = {};
-    for (const row of data.by_strategy_and_type) {
-      if (!byStrategy[row.strategy]) byStrategy[row.strategy] = { targets: [], stops: [], wins: 0, losses: 0, realised: 0, pnl: 0, positions: 0 };
-      const s = byStrategy[row.strategy];
-      if (row.sell_type === 'target' || row.sell_type === 'peak') {
-        s.targets.push(row);
-        s.wins += row.wins;
-      } else if (row.sell_type === 'stop') {
-        s.stops.push(row);
-        s.losses += row.losses;
-      }
-      s.realised += row.realised_usd;
-      s.pnl += row.pnl_usd;
-      s.positions = Math.max(s.positions, row.positions);
-    }
-
-    const rows = STRATEGY_ORDER.filter(k => byStrategy[k]).map(k => {
-      const s = byStrategy[k];
-      const total = s.wins + s.losses;
-      const winPct = total ? Math.round(s.wins / total * 100) : 0;
-      const pnlColor = s.pnl >= 0 ? '#4ade80' : '#f87171';
-      const targetHits = s.targets.reduce((a, r) => a + r.sell_events, 0);
-      const stopHits = s.stops.reduce((a, r) => a + r.sell_events, 0);
-      return `<tr>
-        <td style="font-weight:700">${STRATEGY_LABELS[k] || k}</td>
-        <td>${s.positions}</td>
-        <td style="color:#4ade80">${targetHits}</td>
-        <td style="color:#f87171">${stopHits}</td>
-        <td>${s.wins}</td>
-        <td>${s.losses}</td>
-        <td>${winPct}%</td>
-        <td>$${s.realised.toFixed(2)}</td>
-        <td style="color:${pnlColor};font-weight:700">$${s.pnl.toFixed(2)}</td>
-      </tr>`;
-    });
-
-    tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary)">No data yet</td></tr>';
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#f87171">${err.message}</td></tr>`;
-  }
-}
 
 async function loadLiqCaught() {
   const tbody = document.getElementById('liqCaughtRows');

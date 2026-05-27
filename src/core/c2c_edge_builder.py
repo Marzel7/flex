@@ -136,3 +136,48 @@ class C2CEdgeBuilder:
             }
         finally:
             conn.close()
+
+    def build_for_sources(self, sources: list[str]) -> dict:
+        """Incrementally refresh direct C2C edges for a small source set."""
+        started_at = time.time()
+        sources = [s for s in dict.fromkeys(sources) if s]
+        if not sources:
+            return {'status': 'success', 'edges_written': 0, 'duration_seconds': 0.0, 'incremental': True}
+        conn = self._get_conn()
+        try:
+            conn.execute(_CREATE_TABLE)
+            conn.execute(_CREATE_IDX_SOURCE)
+            conn.execute(_CREATE_IDX_DEST)
+            known_creators = {r[0] for r in conn.execute("""
+                SELECT creator_address FROM creator_funders
+                UNION
+                SELECT earliest_tx_creator FROM token_analysis WHERE earliest_tx_creator IS NOT NULL
+            """).fetchall()}
+            try:
+                from src.utils.infra_mapping import build_excluded_set
+                excluded = build_excluded_set(conn)
+            except Exception:
+                excluded = set()
+            ph = ",".join("?" for _ in sources)
+            rows = conn.execute(f"""
+                SELECT creator_address, recipient_address, SUM(amount_sol), COUNT(*), MIN(block_time), MAX(block_time)
+                FROM creator_outgoing_transfers
+                WHERE creator_address IN ({ph}) AND is_cex=0 AND recipient_address != creator_address
+                GROUP BY creator_address, recipient_address
+            """, tuple(sources)).fetchall()
+            edges = []
+            for source, dest, total_sol, tx_count, first_seen, last_seen in rows:
+                if dest not in known_creators or source in excluded or dest in excluded:
+                    continue
+                edges.append((source, dest, round(total_sol or 0,6), tx_count, first_seen, last_seen,
+                              _confidence(tx_count, total_sol or 0)))
+            conn.execute(f"DELETE FROM creator_c2c_edges WHERE source_creator IN ({ph})", tuple(sources))
+            conn.executemany("""
+                INSERT INTO creator_c2c_edges
+                    (source_creator,dest_creator,total_sol,transfer_count,first_seen,last_seen,confidence)
+                VALUES (?,?,?,?,?,?,?)
+            """, edges)
+            conn.commit()
+            return {'status':'success','edges_written':len(edges),'duration_seconds':round(time.time()-started_at,2),'incremental':True}
+        finally:
+            conn.close()

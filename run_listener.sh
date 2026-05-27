@@ -1,4 +1,10 @@
 #!/bin/bash
-# Run listener in foreground with unbuffered output
+# Run listener with automatic restart on crash/disconnect
 cd "$(dirname "$0")"
-exec python -u -m src.core.pumpfun_curve_listener
+while true; do
+    echo "[WATCHDOG] $(date -u +%Y-%m-%dT%H:%M:%SZ) Starting listener..."
+    python -u -m src.core.pumpfun_curve_listener
+    EXIT_CODE=$?
+    echo "[WATCHDOG] $(date -u +%Y-%m-%dT%H:%M:%SZ) Listener exited with code $EXIT_CODE — restarting in 10s..."
+    sleep 10
+done

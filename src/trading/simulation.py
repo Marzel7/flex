@@ -39,6 +39,7 @@ STRATEGY_NAMES = {
     "current": "Current",
     "peak": "Peak",
     "cascade": "Cascade",
+    "watch_trailing": "Watch Trailing",
     **{key: f"{value:g}x" for key, value in STRATEGY_TARGETS.items()},
 }
 JUPITER_QUOTE_URL = os.environ.get(
@@ -93,15 +94,33 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
     now = int(time.time())
     inserted = 0
 
+    # Include OPEN positions plus recently CLOSED ones that may still be missing
+    # strategy sell records — all strategies are independent and must run to completion
+    # regardless of what other strategies have done to the position status.
     rows = conn.execute(
         """
         SELECT ts.id, ts.mint, ts.opened_at, ts.entry_market_cap,
                json_extract(ts.entry_quote_json, '$.raw.swapUsdValue') as entry_usd_raw,
-               ta.market_cap_highest as peak_mc
+               ta.market_cap_highest as peak_mc,
+               ts.entry_sol,
+               tps.risk_level,
+               ts.status,
+               ts.closed_at,
+               ts.exit_sol
         FROM trade_simulations ts
         LEFT JOIN token_analysis ta ON ta.mint = ts.mint
-        WHERE ts.status = 'OPEN' AND ts.entry_market_cap > 0
-        """
+        LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint
+        WHERE ts.entry_market_cap > 0
+          AND (
+            ts.status = 'OPEN'
+            OR (
+              ts.status = 'CLOSED'
+              AND ts.closed_at >= ?
+              AND (SELECT COUNT(DISTINCT strategy) FROM trade_simulation_sells WHERE simulation_id = ts.id) < 10
+            )
+          )
+        """,
+        (now - 7 * 86400,),
     ).fetchall()
 
     for row in rows:
@@ -111,13 +130,20 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
         entry_mc = float(row[3] or 0)
         entry_usd = float(row[4] or 0)
         peak_mc = float(row[5] or 0)
+        entry_sol = float(row[6] or 0)
+        risk_level = row[7] or ''
+        position_status = row[8] or 'OPEN'
+        closed_at = int(row[9] or 0)
+        exit_sol = float(row[10] or 0)
 
         if not entry_usd or not entry_mc:
             continue
 
         current_price = price_cache.get(mint)
         current_mc = float(current_price.market_cap or 0) if current_price else 0
-        if not current_mc and not peak_mc:
+
+        is_closed = position_status == 'CLOSED'
+        if not current_mc:
             continue
 
         elapsed = now - opened_at
@@ -146,12 +172,14 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                         except Exception:
                             pass
 
-                # Stop: remaining unsold portion after cascade targets exceeded
-                if elapsed >= 300 and current_ratio <= 0.5:
+                # For closed positions: record exit for remaining unsold tranches using actual exit price
+                if is_closed and entry_sol and exit_sol:
                     sold_targets = [t for t in STRATEGY_CASCADE_TARGETS if peak_ratio >= t]
                     remaining_fraction = (n - len(sold_targets)) / n
                     if remaining_fraction > 0:
-                        realised = entry_usd * remaining_fraction * current_ratio
+                        close_ratio = exit_sol / entry_sol
+                        exit_mc = entry_mc * close_ratio
+                        realised = entry_usd * remaining_fraction * close_ratio
                         pnl = realised - (entry_usd * remaining_fraction)
                         try:
                             conn.execute(
@@ -160,14 +188,36 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                                     fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
                                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
                                 (sim_id, mint, strategy, -1, "stop",
-                                 remaining_fraction, current_mc, entry_mc, entry_usd, realised, pnl, now),
+                                 remaining_fraction, exit_mc, entry_mc, entry_usd, realised, pnl, now),
+                            )
+                            inserted += conn.execute("SELECT changes()").fetchone()[0]
+                        except Exception:
+                            pass
+
+                # Stop: remaining unsold portion after cascade targets exceeded (live price)
+                if not is_closed and elapsed >= 300 and current_ratio <= 0.5:
+                    sold_targets = [t for t in STRATEGY_CASCADE_TARGETS if peak_ratio >= t]
+                    remaining_fraction = (n - len(sold_targets)) / n
+                    if remaining_fraction > 0:
+                        exit_ratio = current_ratio
+                        exit_mc = current_mc
+                        realised = entry_usd * remaining_fraction * exit_ratio
+                        pnl = realised - (entry_usd * remaining_fraction)
+                        try:
+                            conn.execute(
+                                """INSERT OR IGNORE INTO trade_simulation_sells
+                                   (simulation_id, mint, strategy, target, sell_type,
+                                    fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                                (sim_id, mint, strategy, -1, "stop",
+                                 remaining_fraction, exit_mc, entry_mc, entry_usd, realised, pnl, now),
                             )
                             inserted += conn.execute("SELECT changes()").fetchone()[0]
                         except Exception:
                             pass
 
             elif strategy == "peak":
-                if elapsed >= 300 and current_ratio <= 0.5:
+                if not is_closed and elapsed >= 300 and current_ratio <= 0.5:
                     # Stop fired — record once with sentinel target
                     realised = entry_usd * current_ratio
                     pnl = realised - entry_usd
@@ -218,8 +268,11 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                         inserted += conn.execute("SELECT changes()").fetchone()[0]
                     except Exception:
                         pass
-                elif elapsed >= 300 and current_ratio <= 0.5:
-                    realised = entry_usd * current_ratio
+                elif is_closed and entry_sol and exit_sol:
+                    # Closed without hitting target — record exit at actual close price
+                    close_ratio = exit_sol / entry_sol
+                    exit_mc = entry_mc * close_ratio
+                    realised = entry_usd * close_ratio
                     pnl = realised - entry_usd
                     try:
                         conn.execute(
@@ -228,15 +281,135 @@ def process_cascade_sells(conn, price_cache: dict) -> int:
                                 fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
                             (sim_id, mint, strategy, -1, "stop",
-                             1.0, current_mc, entry_mc, entry_usd, realised, pnl, now),
+                             1.0, exit_mc, entry_mc, entry_usd, realised, pnl, now),
+                        )
+                        inserted += conn.execute("SELECT changes()").fetchone()[0]
+                    except Exception:
+                        pass
+                elif not is_closed and elapsed >= 300 and current_ratio <= 0.5:
+                    exit_ratio = current_ratio
+                    exit_mc = current_mc
+                    realised = entry_usd * exit_ratio
+                    pnl = realised - entry_usd
+                    try:
+                        conn.execute(
+                            """INSERT OR IGNORE INTO trade_simulation_sells
+                               (simulation_id, mint, strategy, target, sell_type,
+                                fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                            (sim_id, mint, strategy, -1, "stop",
+                             1.0, exit_mc, entry_mc, entry_usd, realised, pnl, now),
                         )
                         inserted += conn.execute("SELECT changes()").fetchone()[0]
                     except Exception:
                         pass
 
+        # WATCH trailing stop strategy: fixed -50% stop below 3x, trailing 50% of peak above 3x
+        if not is_closed and risk_level == 'WATCH' and elapsed >= 300:
+            wt_realised = wt_pnl = None
+            if peak_ratio >= 3.0:
+                # Trailing stop: sell when current drops to 50% of peak
+                trailing_stop_ratio = peak_ratio * 0.5
+                if current_ratio <= trailing_stop_ratio:
+                    wt_realised = entry_usd * current_ratio
+                    wt_pnl = wt_realised - entry_usd
+            elif current_ratio <= 0.5:
+                # Fixed stop: -50% from entry
+                wt_realised = entry_usd * current_ratio
+                wt_pnl = wt_realised - entry_usd
+            if wt_realised is not None:
+                try:
+                    conn.execute(
+                        """INSERT OR IGNORE INTO trade_simulation_sells
+                           (simulation_id, mint, strategy, target, sell_type,
+                            fraction, mc_at_hit, entry_mc, entry_usd, realised_usd, pnl_usd, created_at)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        (sim_id, mint, 'watch_trailing', -1, 'stop',
+                         1.0, current_mc, entry_mc, entry_usd, wt_realised, wt_pnl, now),
+                    )
+                    if conn.execute("SELECT changes()").fetchone()[0]:
+                        inserted += 1
+                        if not is_closed:
+                            exit_sol = entry_sol * current_ratio
+                            pnl_sol = exit_sol - entry_sol
+                            pnl_pct = (pnl_sol / entry_sol * 100.0) if entry_sol else 0.0
+                            conn.execute(
+                                """UPDATE trade_simulations
+                                   SET status='CLOSED', closed_at=?, exit_sol=?, pnl_sol=?, pnl_pct=?,
+                                       notes = COALESCE(notes || ' ', '') || ?
+                                   WHERE id=? AND status='OPEN'""",
+                                (now, exit_sol, pnl_sol, pnl_pct,
+                                 f"watch_trailing_closed pnl_usd={wt_pnl:.2f}", sim_id),
+                            )
+                        try:
+                            from src.core.price_worker import PriceWorkerRegistry
+                            import os
+                            PriceWorkerRegistry(os.environ.get('DB_PATH', 'database/flex_complete_database.db')).register_token(mint, priority_level='MEDIUM')
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+
+        # Close position when cascade strategy is fully exited (OPEN only)
+        if not is_closed:
+            _maybe_close_position(conn, sim_id, mint, entry_sol, entry_mc, entry_usd, now)
+
     if inserted:
         conn.commit()
     return inserted
+
+
+def _maybe_close_position(conn, sim_id: int, mint: str, entry_sol: float,
+                           entry_mc: float, entry_usd: float, now: int) -> None:
+    """Close trade_simulations row when cascade has fully exited (all targets hit or stop fired)."""
+    if not entry_sol or not entry_usd:
+        return
+
+    sells = conn.execute(
+        """SELECT sell_type, target, fraction, realised_usd
+           FROM trade_simulation_sells
+           WHERE simulation_id = ? AND strategy = 'cascade'""",
+        (sim_id,),
+    ).fetchall()
+
+    if not sells:
+        return
+
+    n = len(STRATEGY_CASCADE_TARGETS)
+    target_rows = [s for s in sells if s[0] == 'target']
+    stop_row = next((s for s in sells if s[0] == 'stop'), None)
+
+    # Fully exited: stop fired, or all cascade targets hit
+    all_targets_hit = len(target_rows) == n
+    if not stop_row and not all_targets_hit:
+        return
+
+    # Compute blended exit: sum of all realised_usd across cascade sells
+    total_realised_usd = sum(float(s[3]) for s in sells)
+    pnl_usd = total_realised_usd - entry_usd
+    exit_ratio = total_realised_usd / entry_usd if entry_usd else 1.0
+    exit_sol = entry_sol * exit_ratio
+    pnl_sol = exit_sol - entry_sol
+    pnl_pct = (pnl_sol / entry_sol * 100.0) if entry_sol else 0.0
+
+    try:
+        conn.execute(
+            """UPDATE trade_simulations
+               SET status='CLOSED', closed_at=?, exit_sol=?, pnl_sol=?, pnl_pct=?,
+                   notes = COALESCE(notes || ' ', '') || ?
+               WHERE id=? AND status='OPEN'""",
+            (now, exit_sol, pnl_sol, pnl_pct,
+             f"cascade_closed pnl_usd={pnl_usd:.2f}", sim_id),
+        )
+        if conn.execute("SELECT changes()").fetchone()[0]:
+            try:
+                from src.core.price_worker import PriceWorkerRegistry
+                import os
+                PriceWorkerRegistry(os.environ.get('DB_PATH', 'database/flex_complete_database.db')).register_token(mint, priority_level='MEDIUM')
+            except Exception:
+                pass
+    except Exception:
+        pass
 
 
 def _deactivate_pool_if_no_open_positions(conn, mint: str) -> None:
@@ -294,7 +467,7 @@ def _quote_swap_usd_value(quote: Optional[Dict[str, Any]]) -> Optional[float]:
 
 def _normalize_strategy(strategy: Optional[str]) -> str:
     key = str(strategy or "current").strip().lower()
-    return key if key in {"current", "peak", "cascade", *STRATEGY_TARGETS.keys()} else "current"
+    return key if key in {"current", "peak", "cascade", "watch_trailing", *STRATEGY_TARGETS.keys()} else "current"
 
 
 def _route_labels(route_plan: Iterable[Dict[str, Any]]) -> list[str]:
@@ -980,6 +1153,20 @@ class TradingSimulationService:
         if risk_level:
             if risk_level.upper() == 'LIQ':
                 clauses.append("EXISTS (SELECT 1 FROM token_pool_accounts tpa2 WHERE tpa2.mint = ts.mint AND tpa2.liquidity_removed = 1)")
+            elif risk_level.upper() == 'WATCH-T':
+                clauses.append("""EXISTS (
+                    SELECT 1 FROM token_analysis ta2
+                    WHERE ta2.mint = ts.mint
+                      AND COALESCE(ta2.earliest_tx_creator, ta2.pf_ws_creator) IN (
+                          SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                          UNION
+                          SELECT child_address FROM watchtower_operator_graph
+                          WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                            AND relationship = 'launch_wallet'
+                      )
+                )""")
+            elif risk_level.upper() == 'WATCH':
+                clauses.append("COALESCE(tps.risk_level, 'UNKNOWN') = 'WATCH'")
             else:
                 clauses.append("COALESCE(tps.risk_level, 'UNKNOWN') = ?")
                 params.append(risk_level.upper())
@@ -1017,7 +1204,25 @@ class TradingSimulationService:
                     WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
                     ELSE NULL
                 END AS g_level,
-                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed
+                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed,
+                (SELECT tls.liquidity_usd
+                 FROM token_liquidity_snapshots tls
+                 WHERE tls.mint = ts.mint
+                 ORDER BY tls.captured_at DESC
+                 LIMIT 1) AS liquidity_now_usd,
+                (SELECT tls.liquidity_usd
+                 FROM token_liquidity_snapshots tls
+                 WHERE tls.mint = ts.mint
+                   AND tls.captured_at <= ts.opened_at
+                 ORDER BY tls.captured_at DESC
+                 LIMIT 1) AS liquidity_entry_usd
+            ,CASE WHEN COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN (
+                SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                UNION
+                SELECT child_address FROM watchtower_operator_graph
+                WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                  AND relationship = 'launch_wallet'
+            ) THEN 1 ELSE 0 END AS watchtower_linked
             FROM trade_simulations ts
             LEFT JOIN token_analysis ta ON ta.mint = ts.mint
             LEFT JOIN metadata_cache mc ON mc.mint = ts.mint
@@ -1044,6 +1249,18 @@ class TradingSimulationService:
         if risk_level:
             if risk_level.upper() == "LIQ":
                 clauses.append("EXISTS (SELECT 1 FROM token_pool_accounts tpa2 WHERE tpa2.mint = ts.mint AND tpa2.liquidity_removed = 1)")
+            elif risk_level.upper() == "WATCH-T":
+                clauses.append("""EXISTS (
+                    SELECT 1 FROM token_analysis ta2
+                    WHERE ta2.mint = ts.mint
+                      AND COALESCE(ta2.earliest_tx_creator, ta2.pf_ws_creator) IN (
+                          SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                          UNION
+                          SELECT child_address FROM watchtower_operator_graph
+                          WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                            AND relationship = 'launch_wallet'
+                      )
+                )""")
             else:
                 clauses.append("COALESCE(tps.risk_level, 'UNKNOWN') = ?")
                 params.append(risk_level.upper())
@@ -1099,7 +1316,18 @@ class TradingSimulationService:
                 ta.market_cap_current,
                 ta.market_cap_highest,
                 ta.market_cap_highest_at_ts,
-                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed
+                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed,
+                (SELECT tls.liquidity_usd
+                 FROM token_liquidity_snapshots tls
+                 WHERE tls.mint = ts.mint
+                 ORDER BY tls.captured_at DESC
+                 LIMIT 1) AS liquidity_now_usd,
+                (SELECT tls.liquidity_usd
+                 FROM token_liquidity_snapshots tls
+                 WHERE tls.mint = ts.mint
+                   AND tls.captured_at <= ts.opened_at
+                 ORDER BY tls.captured_at DESC
+                 LIMIT 1) AS liquidity_entry_usd
             FROM trade_simulations ts
             LEFT JOIN token_analysis ta ON ta.mint = ts.mint
             LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint
@@ -1150,6 +1378,145 @@ class TradingSimulationService:
                 summary[key] = 0
         return summary
 
+    def portfolio_equity(
+        self,
+        conn,
+        risk_level: Optional[str] = None,
+        opened_since: Optional[int] = None,
+        opened_before: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Per-strategy portfolio equity accounting.
+
+        For each strategy:
+          deployed      = SUM(entry_usd) across all positions in scope
+          realised      = SUM(realised_usd) from sell records
+          unsold_frac   = 1.0 - SUM(fraction sold) per position
+          mtm           = entry_usd * unsold_frac * (current_mc / entry_mc)  [open positions]
+                          0 for closed positions (all fractions already written as sells)
+          equity        = realised + mtm
+          pnl           = equity - deployed
+          roi           = pnl / deployed * 100
+        """
+        clauses: list[str] = []
+        params: list = []
+        if risk_level:
+            if risk_level.upper() == 'WATCH-T':
+                clauses.append("""EXISTS (
+                    SELECT 1 FROM token_analysis ta2
+                    WHERE ta2.mint = ts.mint
+                      AND COALESCE(ta2.earliest_tx_creator, ta2.pf_ws_creator) IN (
+                          SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                          UNION
+                          SELECT child_address FROM watchtower_operator_graph
+                          WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                            AND relationship = 'launch_wallet'
+                      )
+                )""")
+            else:
+                clauses.append("COALESCE(tps.risk_level, 'UNKNOWN') = ?")
+                params.append(risk_level.upper())
+        if opened_since:
+            clauses.append("ts.opened_at >= ?")
+            params.append(int(opened_since))
+        if opened_before:
+            clauses.append("ts.opened_at < ?")
+            params.append(int(opened_before))
+        where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+
+        # Pull all positions in scope with current MC
+        pos_rows = conn.execute(f"""
+            SELECT ts.id,
+                   ts.status,
+                   ts.entry_sol,
+                   json_extract(ts.entry_quote_json, '$.raw.swapUsdValue') AS entry_usd,
+                   ts.entry_market_cap,
+                   ta.market_cap_current
+            FROM trade_simulations ts
+            LEFT JOIN token_analysis ta ON ta.mint = ts.mint
+            LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint
+            {where}
+        """, params).fetchall()
+
+        if not pos_rows:
+            return {}
+
+        sim_ids = [r[0] for r in pos_rows]
+        pos_map = {r[0]: r for r in pos_rows}
+
+        # Total deployed (all positions, open + closed)
+        total_deployed = sum(float(r[3] or 0) for r in pos_rows)
+
+        # Pull fraction sold per (simulation_id, strategy)
+        placeholders = ",".join("?" * len(sim_ids))
+        sell_rows = conn.execute(f"""
+            SELECT simulation_id, strategy,
+                   SUM(fraction) AS total_fraction,
+                   SUM(realised_usd) AS total_realised
+            FROM trade_simulation_sells
+            WHERE simulation_id IN ({placeholders})
+            GROUP BY simulation_id, strategy
+        """, sim_ids).fetchall()
+
+        # Build: {strategy: {sim_id: {fraction, realised}}}
+        strat_sims: Dict[str, Dict[int, Dict]] = {}
+        for s in sell_rows:
+            strat = s[1]
+            strat_sims.setdefault(strat, {})[s[0]] = {
+                "fraction": float(s[2] or 0),
+                "realised": float(s[3] or 0),
+            }
+
+        all_strategies = list(STRATEGY_NAMES.keys())
+        result: Dict[str, Any] = {"total_deployed_usd": round(total_deployed, 2)}
+        strategy_rows = []
+
+        for strat in all_strategies:
+            if strat == "current":
+                continue
+            sim_data = strat_sims.get(strat, {})
+            total_realised = 0.0
+            total_mtm = 0.0
+
+            for sim_id, pos in pos_map.items():
+                entry_usd = float(pos[3] or 0)
+                entry_mc = float(pos[4] or 0)
+                current_mc = float(pos[5] or 0)
+                is_open = pos[1] == "OPEN"
+
+                if not entry_usd or not entry_mc:
+                    continue
+
+                sd = sim_data.get(sim_id, {})
+                fraction_sold = sd.get("fraction", 0.0)
+                realised = sd.get("realised", 0.0)
+                total_realised += realised
+
+                # Unsold fraction only has MTM value if position is still OPEN
+                # For CLOSED positions every fraction is already written as a sell record
+                unsold = max(0.0, 1.0 - fraction_sold)
+                if is_open and unsold > 0 and current_mc and entry_mc:
+                    current_ratio = current_mc / entry_mc
+                    total_mtm += entry_usd * unsold * current_ratio
+
+            equity = total_realised + total_mtm
+            pnl = equity - total_deployed
+            roi = (pnl / total_deployed * 100) if total_deployed else 0.0
+
+            strategy_rows.append({
+                "strategy": strat,
+                "label": STRATEGY_NAMES.get(strat, strat),
+                "deployed_usd": round(total_deployed, 2),
+                "realised_usd": round(total_realised, 2),
+                "mtm_usd": round(total_mtm, 2),
+                "equity_usd": round(equity, 2),
+                "pnl_usd": round(pnl, 2),
+                "roi_pct": round(roi, 2),
+            })
+
+        result["strategies"] = strategy_rows
+        return result
+
     def reset_simulations(self, conn) -> Dict[str, int]:
         self.ensure_schema(conn)
         event_count = conn.execute("SELECT COUNT(*) FROM trade_simulation_events").fetchone()[0]
@@ -1191,7 +1558,18 @@ class TradingSimulationService:
                     WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
                     ELSE NULL
                 END AS g_level,
-                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed
+                COALESCE((SELECT MAX(tpa.liquidity_removed) FROM token_pool_accounts tpa WHERE tpa.mint = ts.mint), 0) AS liquidity_removed,
+                (SELECT tls.liquidity_usd
+                 FROM token_liquidity_snapshots tls
+                 WHERE tls.mint = ts.mint
+                 ORDER BY tls.captured_at DESC
+                 LIMIT 1) AS liquidity_now_usd,
+                (SELECT tls.liquidity_usd
+                 FROM token_liquidity_snapshots tls
+                 WHERE tls.mint = ts.mint
+                   AND tls.captured_at <= ts.opened_at
+                 ORDER BY tls.captured_at DESC
+                 LIMIT 1) AS liquidity_entry_usd
             FROM trade_simulations ts
             LEFT JOIN token_analysis ta ON ta.mint = ts.mint
             LEFT JOIN metadata_cache mc ON mc.mint = ts.mint
@@ -1297,6 +1675,13 @@ class TradingSimulationService:
         current_market_cap = _safe_float(data.get("market_cap_current"))
         entry_sol = _safe_float(data.get("entry_sol"))
         liquidity_removed = bool(int(_safe_int(data.get("liquidity_removed"), 0) or 0))
+        liquidity_now = _safe_float(data.get("liquidity_now_usd"))
+        liquidity_entry = _safe_float(data.get("liquidity_entry_usd"))
+        data["liquidity_change_pct"] = (
+            ((liquidity_now - liquidity_entry) / liquidity_entry) * 100
+            if liquidity_now is not None and liquidity_entry not in (None, 0)
+            else None
+        )
         if data.get("status") == "OPEN" and current_market_cap and entry_market_cap and entry_sol:
             value_ratio = 0.0 if liquidity_removed else current_market_cap / entry_market_cap
             unrealized_value_sol = entry_sol * value_ratio
@@ -1321,22 +1706,27 @@ class TradingSimulationService:
             data["pnl_usd"] = exit_usd - entry_usd
         else:
             data["pnl_usd"] = None
-        strategy_history = self._strategy_history(
-            conn,
-            str(data.get("mint") or ""),
-            int(data.get("opened_at") or 0),
-            entry_market_cap,
-        ) if conn is not None else None
-        self._apply_strategy_view(data, strategy, strategy_history=strategy_history)
+        # Fetch all sell records for this position+strategy — source of truth for PnL
+        strategy_sells = []
+        if conn is not None and strategy:
+            rows = conn.execute(
+                "SELECT * FROM trade_simulation_sells WHERE simulation_id=? AND strategy=? ORDER BY created_at ASC",
+                (data.get("id"), _normalize_strategy(strategy)),
+            ).fetchall()
+            strategy_sells = [dict(r) for r in rows]
+        self._apply_strategy_view(data, strategy, strategy_sells=strategy_sells)
         return data
 
-    def _apply_strategy_view(self, data: Dict[str, Any], strategy: Optional[str], strategy_history: Optional[Dict[str, Any]] = None) -> None:
+    def _apply_strategy_view(self, data: Dict[str, Any], strategy: Optional[str], strategy_history: Optional[Dict[str, Any]] = None, strategy_sells: Optional[list] = None) -> None:
         strategy_key = _normalize_strategy(strategy)
         entry_usd = _safe_float(data.get("entry_usd"))
         entry_market_cap = _safe_float(data.get("entry_market_cap"))
         current_market_cap = _safe_float(data.get("market_cap_current"))
         peak_market_cap = _safe_float(data.get("market_cap_highest"))
         liquidity_removed = bool(int(_safe_int(data.get("liquidity_removed"), 0) or 0))
+        token_amount_ui = _safe_float(data.get("token_amount_ui")) or 0.0
+        current_ratio = current_market_cap / entry_market_cap if current_market_cap and entry_market_cap else None
+        peak_ratio = peak_market_cap / entry_market_cap if peak_market_cap and entry_market_cap else None
 
         data["strategy"] = strategy_key
         data["strategy_label"] = STRATEGY_NAMES.get(strategy_key, "Current")
@@ -1365,26 +1755,18 @@ class TradingSimulationService:
             data["strategy_hit"] = False
             data["strategy_sold_pct"] = 100.0
             data["strategy_sold_usd"] = 0.0
-            data["strategy_sold_token_amount"] = _safe_float(data.get("token_amount_ui")) or 0.0
+            data["strategy_sold_token_amount"] = token_amount_ui
             return
 
-        current_ratio = current_market_cap / entry_market_cap if current_market_cap else None
-        peak_ratio = peak_market_cap / entry_market_cap if peak_market_cap else None
-        actual_exit_usd = _safe_float(data.get("exit_usd"))
-        actual_pnl_usd = _safe_float(data.get("pnl_usd"))
-        actual_pnl_pct = _safe_float(data.get("pnl_pct"))
-        token_amount_ui = _safe_float(data.get("token_amount_ui")) or 0.0
+        sells = strategy_sells or []
+        target_sells = [s for s in sells if s.get("sell_type") == "target" or s.get("sell_type") == "peak"]
+        stop_sell = next((s for s in sells if s.get("sell_type") == "stop"), None)
 
-        value_ratio = current_ratio
-        detail = "current"
-        hit = None
-        sold_ratio = 0.0
-        sold_value_ratio = 0.0
-        stop_hit = bool(strategy_history and strategy_history.get("stop_hit"))
-        stop_ratio = _safe_float(strategy_history.get("stop_ratio")) if stop_hit else None
-        stop_at = int(strategy_history.get("stop_at") or 0) if stop_hit else None
-
+        # ── current ──────────────────────────────────────────────────────────
         if strategy_key == "current":
+            actual_exit_usd = _safe_float(data.get("exit_usd"))
+            actual_pnl_usd = _safe_float(data.get("pnl_usd"))
+            actual_pnl_pct = _safe_float(data.get("pnl_pct"))
             if data.get("status") == "CLOSED" and actual_exit_usd is not None:
                 data["strategy_value_usd"] = actual_exit_usd
                 data["strategy_pnl_usd"] = actual_pnl_usd
@@ -1395,88 +1777,176 @@ class TradingSimulationService:
                 data["strategy_sold_usd"] = actual_exit_usd
                 data["strategy_sold_token_amount"] = token_amount_ui
                 return
-        elif strategy_key == "peak":
-            if stop_hit and stop_ratio is not None:
-                value_ratio = stop_ratio
-                detail = f"stop {strategy_history.get('stop_label')}"
-                hit = False
-                sold_ratio = 1.0
-                sold_value_ratio = stop_ratio
-            else:
-                value_ratio = peak_ratio or current_ratio
-                detail = "peak"
-                hit = peak_ratio is not None
-                if peak_ratio is not None:
-                    sold_ratio = 1.0
-                    sold_value_ratio = peak_ratio
-        elif strategy_key == "cascade":
-            if current_ratio is None and peak_ratio is None:
+            if current_ratio is None:
                 return
-            fallback_ratio = current_ratio or peak_ratio or 1.0
-            target_first_hit_at = (strategy_history or {}).get("target_first_hit_at") or {}
-            sold_ratios = [
-                target
-                for target in STRATEGY_CASCADE_TARGETS
-                if (
-                    peak_ratio is not None
-                    and peak_ratio >= target
-                    and (
-                        not stop_hit
-                        or target_first_hit_at.get(target, 0)
-                        and int(target_first_hit_at[target]) <= stop_at
-                    )
-                )
-            ]
-            unsold_count = len(STRATEGY_CASCADE_TARGETS) - len(sold_ratios)
-            remaining_ratio = stop_ratio if stop_hit and stop_ratio is not None else fallback_ratio
-            value_ratio = (sum(sold_ratios) + (unsold_count * remaining_ratio)) / len(STRATEGY_CASCADE_TARGETS)
-            sold_ratio = len(sold_ratios) / len(STRATEGY_CASCADE_TARGETS)
-            if stop_hit:
-                sold_ratio = 1.0
-            sold_value_ratio = (sum(sold_ratios) + (unsold_count * remaining_ratio if stop_hit else 0.0)) / len(STRATEGY_CASCADE_TARGETS)
-            detail = (
-                f"cascade {len(sold_ratios)}/{len(STRATEGY_CASCADE_TARGETS)} hit + stop {strategy_history.get('stop_label')}"
-                if stop_hit
-                else f"cascade {len(sold_ratios)}/{len(STRATEGY_CASCADE_TARGETS)} hit"
-            )
-            hit = bool(sold_ratios)
-        else:
-            target = STRATEGY_TARGETS.get(strategy_key)
-            if target is not None:
-                target_first_hit_at = ((strategy_history or {}).get("target_first_hit_at") or {}).get(target)
-                target_hit = (
-                    peak_ratio is not None
-                    and peak_ratio >= target
-                    and (not stop_hit or (target_first_hit_at and int(target_first_hit_at) <= stop_at))
-                )
-                value_ratio = target if target_hit else (stop_ratio if stop_hit and stop_ratio is not None else current_ratio)
-                detail = (
-                    f"{target:g}x hit"
-                    if target_hit
-                    else (f"stop {strategy_history.get('stop_label')}" if stop_hit else f"{target:g}x not hit")
-                )
-                hit = target_hit
-                if target_hit:
-                    sold_ratio = 1.0
-                    sold_value_ratio = target
-                elif stop_hit and stop_ratio is not None:
-                    sold_ratio = 1.0
-                    sold_value_ratio = stop_ratio
-
-        if value_ratio is None:
+            data["strategy_value_usd"] = entry_usd * current_ratio
+            data["strategy_pnl_usd"] = entry_usd * (current_ratio - 1.0)
+            data["strategy_pnl_pct"] = (current_ratio - 1.0) * 100.0
+            data["strategy_detail"] = "current"
+            data["strategy_hit"] = None
             return
 
-        strategy_value_usd = entry_usd * value_ratio
-        data["strategy_value_usd"] = strategy_value_usd
-        data["strategy_pnl_usd"] = strategy_value_usd - entry_usd
-        data["strategy_pnl_pct"] = (value_ratio - 1.0) * 100.0
-        data["strategy_detail"] = detail
-        data["strategy_hit"] = hit
-        data["strategy_sold_pct"] = sold_ratio * 100.0
-        data["strategy_sold_usd"] = entry_usd * sold_value_ratio
-        data["strategy_sold_token_amount"] = token_amount_ui * sold_ratio
-        if stop_hit:
-            data["strategy_stop_hit"] = True
-            data["strategy_stop_label"] = strategy_history.get("stop_label")
-            data["strategy_stop_market_cap"] = strategy_history.get("stop_market_cap")
+        # ── peak ─────────────────────────────────────────────────────────────
+        elif strategy_key == "peak":
+            if stop_sell:
+                exit_ratio = _safe_float(stop_sell.get("mc_at_hit")) / entry_market_cap if stop_sell.get("mc_at_hit") else None
+                pnl_usd = _safe_float(stop_sell.get("pnl_usd")) or 0.0
+                realised_usd = _safe_float(stop_sell.get("realised_usd")) or 0.0
+                data["strategy_value_usd"] = realised_usd
+                data["strategy_pnl_usd"] = pnl_usd
+                data["strategy_pnl_pct"] = (pnl_usd / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"stop {exit_ratio:.2f}x" if exit_ratio else "stop"
+                data["strategy_hit"] = False
+                data["strategy_stop_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = realised_usd
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            # Peak strategy: use latest peak sell record (highest target = latest peak)
+            if target_sells:
+                best = max(target_sells, key=lambda s: _safe_float(s.get("target")) or 0)
+                pnl_usd = _safe_float(best.get("pnl_usd")) or 0.0
+                realised_usd = _safe_float(best.get("realised_usd")) or 0.0
+                exit_ratio = _safe_float(best.get("target")) or 0.0
+                data["strategy_value_usd"] = realised_usd
+                data["strategy_pnl_usd"] = pnl_usd
+                data["strategy_pnl_pct"] = (pnl_usd / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"peak {exit_ratio:.2f}x"
+                data["strategy_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = realised_usd
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            # No sell record yet — show current unrealised
+            if current_ratio is None:
+                return
+            data["strategy_value_usd"] = entry_usd * current_ratio
+            data["strategy_pnl_usd"] = entry_usd * (current_ratio - 1.0)
+            data["strategy_pnl_pct"] = (current_ratio - 1.0) * 100.0
+            data["strategy_detail"] = f"peak {peak_ratio:.2f}x" if peak_ratio else "current"
+            data["strategy_hit"] = None
+            return
+
+        # ── cascade ───────────────────────────────────────────────────────────
+        elif strategy_key == "cascade":
+            n = len(STRATEGY_CASCADE_TARGETS)
+            hit_targets = [s for s in sells if s.get("sell_type") == "target"]
+            total_pnl = sum(_safe_float(s.get("pnl_usd")) or 0.0 for s in hit_targets)
+            total_realised = sum(_safe_float(s.get("realised_usd")) or 0.0 for s in hit_targets)
+            hits = len(hit_targets)
+            if stop_sell:
+                total_pnl += _safe_float(stop_sell.get("pnl_usd")) or 0.0
+                total_realised += _safe_float(stop_sell.get("realised_usd")) or 0.0
+                data["strategy_value_usd"] = total_realised
+                data["strategy_pnl_usd"] = total_pnl
+                data["strategy_pnl_pct"] = (total_pnl / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"cascade {hits}/{n} hit + stop"
+                data["strategy_hit"] = bool(hits)
+                data["strategy_stop_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = total_realised
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            if hits == n:
+                # All tranches hit
+                data["strategy_value_usd"] = total_realised
+                data["strategy_pnl_usd"] = total_pnl
+                data["strategy_pnl_pct"] = (total_pnl / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"cascade {n}/{n} hit"
+                data["strategy_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = total_realised
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            # Partially hit — remaining at current price
+            if current_ratio is None:
+                return
+            remaining_fraction = (n - hits) / n
+            unrealised_pnl = entry_usd * remaining_fraction * (current_ratio - 1.0)
+            total_pnl_with_unrealised = total_pnl + unrealised_pnl
+            total_value = total_realised + (entry_usd * remaining_fraction * current_ratio)
+            data["strategy_value_usd"] = total_value
+            data["strategy_pnl_usd"] = total_pnl_with_unrealised
+            data["strategy_pnl_pct"] = (total_pnl_with_unrealised / entry_usd * 100.0) if entry_usd else None
+            data["strategy_detail"] = f"cascade {hits}/{n} hit"
+            data["strategy_hit"] = bool(hits)
+            data["strategy_sold_pct"] = (hits / n) * 100.0
+            data["strategy_sold_usd"] = total_realised
+            data["strategy_sold_token_amount"] = token_amount_ui * (hits / n)
+            return
+
+        # ── watch_trailing ────────────────────────────────────────────────────
+        elif strategy_key == "watch_trailing":
+            if stop_sell:
+                pnl_usd = _safe_float(stop_sell.get("pnl_usd")) or 0.0
+                realised_usd = _safe_float(stop_sell.get("realised_usd")) or 0.0
+                mc_at_hit = _safe_float(stop_sell.get("mc_at_hit"))
+                exit_ratio = mc_at_hit / entry_market_cap if mc_at_hit and entry_market_cap else None
+                data["strategy_value_usd"] = realised_usd
+                data["strategy_pnl_usd"] = pnl_usd
+                data["strategy_pnl_pct"] = (pnl_usd / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"trailing stop {exit_ratio:.2f}x" if exit_ratio else "trailing stop"
+                data["strategy_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = realised_usd
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            # No sell yet — show current with trailing floor
+            if current_ratio is None:
+                return
+            if peak_ratio and peak_ratio >= 3.0:
+                trailing_floor = peak_ratio * 0.5
+                detail = f"trailing floor {trailing_floor:.2f}x"
+            else:
+                detail = "watching (-50% stop)"
+            data["strategy_value_usd"] = entry_usd * current_ratio
+            data["strategy_pnl_usd"] = entry_usd * (current_ratio - 1.0)
+            data["strategy_pnl_pct"] = (current_ratio - 1.0) * 100.0
+            data["strategy_detail"] = detail
+            data["strategy_hit"] = False
+            return
+
+        # ── single target strategies (1.5x, 2.5x, 3x, 3.5x, 5x, 7x, 10x) ───
+        else:
+            target = STRATEGY_TARGETS.get(strategy_key)
+            if target is None:
+                return
+            if target_sells:
+                # Target hit — use recorded sell
+                sell = target_sells[0]
+                pnl_usd = _safe_float(sell.get("pnl_usd")) or 0.0
+                realised_usd = _safe_float(sell.get("realised_usd")) or 0.0
+                data["strategy_value_usd"] = realised_usd
+                data["strategy_pnl_usd"] = pnl_usd
+                data["strategy_pnl_pct"] = (pnl_usd / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"{target:g}x hit"
+                data["strategy_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = realised_usd
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            if stop_sell:
+                pnl_usd = _safe_float(stop_sell.get("pnl_usd")) or 0.0
+                realised_usd = _safe_float(stop_sell.get("realised_usd")) or 0.0
+                mc_at_hit = _safe_float(stop_sell.get("mc_at_hit"))
+                exit_ratio = mc_at_hit / entry_market_cap if mc_at_hit and entry_market_cap else None
+                data["strategy_value_usd"] = realised_usd
+                data["strategy_pnl_usd"] = pnl_usd
+                data["strategy_pnl_pct"] = (pnl_usd / entry_usd * 100.0) if entry_usd else None
+                data["strategy_detail"] = f"stop {exit_ratio:.2f}x" if exit_ratio else "stop"
+                data["strategy_hit"] = False
+                data["strategy_stop_hit"] = True
+                data["strategy_sold_pct"] = 100.0
+                data["strategy_sold_usd"] = realised_usd
+                data["strategy_sold_token_amount"] = token_amount_ui
+                return
+            # No sell yet — show current unrealised
+            if current_ratio is None:
+                return
+            data["strategy_value_usd"] = entry_usd * current_ratio
+            data["strategy_pnl_usd"] = entry_usd * (current_ratio - 1.0)
+            data["strategy_pnl_pct"] = (current_ratio - 1.0) * 100.0
+            data["strategy_detail"] = f"{target:g}x not yet hit"
+            data["strategy_hit"] = False
+            return
             data["strategy_stop_at"] = strategy_history.get("stop_at")

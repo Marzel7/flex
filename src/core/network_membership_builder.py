@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkMembershipBuilder:
-    def __init__(self, db_path: str, min_creators: int = 2):
+    def __init__(self, db_path: str, min_creators: int = 2, min_payout_creators: int = 3):
         self.db_path = db_path
         self.min_creators = min_creators
+        self.min_payout_creators = min_payout_creators
 
     # ------------------------------------------------------------------
     # Public API
@@ -66,7 +67,7 @@ class NetworkMembershipBuilder:
                 GROUP BY funder_address
                 HAVING creator_count >= ?
                 ORDER BY creator_count DESC, total_sol DESC
-            """, (self.min_creators,)).fetchall()
+            """, (self.min_payout_creators,)).fetchall()
 
             qualifying = [
                 dict(r) for r in rows
@@ -76,9 +77,27 @@ class NetworkMembershipBuilder:
                 f"[NetworkMembershipBuilder] Qualifying funders (after exclusion): {len(qualifying)}"
             )
 
-            funder_to_name = self._assign_network_names(rconn, qualifying)
+            payout_rows = rconn.execute("""
+                SELECT recipient_address AS funder_address,
+                       COUNT(DISTINCT creator_address) AS creator_count,
+                       SUM(amount_sol) AS total_sol
+                FROM creator_outbound_classifications
+                WHERE relationship_type='shared_payout_wallet'
+                  AND recipient_address NOT IN (SELECT address FROM infra_wallets)
+                GROUP BY recipient_address
+                HAVING creator_count >= ?
+                ORDER BY creator_count DESC, total_sol DESC
+            """, (self.min_creators,)).fetchall()
+            qualifying_payouts = [dict(r) for r in payout_rows if r["funder_address"] not in excluded]
+            logger.info(
+                f"[NetworkMembershipBuilder] Qualifying payout anchors (after exclusion): {len(qualifying_payouts)}"
+            )
+
+            anchors = qualifying + qualifying_payouts
+            funder_to_name = self._assign_network_names(rconn, anchors)
             pairs = self._collect_memberships(rconn, qualifying, funder_to_name)
-            funder_map_rows = self._collect_funder_map(qualifying, funder_to_name)
+            pairs += self._collect_payout_memberships(rconn, qualifying_payouts, funder_to_name)
+            funder_map_rows = self._collect_funder_map(anchors, funder_to_name)
             rconn.close()
 
             # ── WRITE PHASE (write lock held only for fast swap) ─────────────
@@ -320,6 +339,30 @@ class NetworkMembershipBuilder:
             (fa, name, count_by_funder.get(fa, 0), now)
             for fa, name in funder_to_name.items()
         ]
+
+    def _collect_payout_memberships(
+        self,
+        conn: sqlite3.Connection,
+        qualifying: list[dict],
+        funder_to_name: dict[str, str],
+    ) -> list[tuple[str, str, str]]:
+        if not qualifying:
+            return []
+        placeholders = ",".join("?" * len(qualifying))
+        payout_addrs = [r["funder_address"] for r in qualifying]
+        rows = conn.execute(f"""
+            SELECT DISTINCT recipient_address, creator_address
+            FROM creator_outbound_classifications
+            WHERE relationship_type='shared_payout_wallet'
+              AND recipient_address IN ({placeholders})
+        """, payout_addrs).fetchall()
+        pairs = []
+        for payout, creator in rows:
+            name = funder_to_name.get(payout)
+            if name:
+                pairs.append((name, creator, payout))
+        logger.info(f"[NetworkMembershipBuilder] Collected {len(pairs)} payout membership rows")
+        return pairs
 
 
 # ---------------------------------------------------------------------------

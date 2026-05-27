@@ -109,4 +109,27 @@ async def register_creator_address(creator_address: str) -> Optional[str]:
         wid,
         len(updated),
     )
+
+    # Persist enrollment to local DB for lifecycle tracking
+    try:
+        import sqlite3 as _sq
+        import time as _t
+        db_path = os.getenv("RPC_METRICS_DB", "database/flex_complete_database.db")
+        _conn = _sq.connect(db_path, timeout=5)
+        _conn.execute("""
+            INSERT OR IGNORE INTO wt_webhook_enrollments
+                (wallet_address, webhook_id, role, state, enrolled_at, is_active)
+            VALUES (?, ?, 'candidate', 'ENROLLED', ?, 1)
+        """, (creator_address, wid, int(_t.time())))
+        _conn.execute("""
+            UPDATE wt_webhook_enrollments
+            SET state='ENROLLED', is_active=1, confirmed_at=?
+            WHERE wallet_address=? AND webhook_id=?
+              AND state NOT IN ('ENROLLED', 'CONFIRMED')
+        """, (int(_t.time()), creator_address, wid))
+        _conn.commit()
+        _conn.close()
+    except Exception as _e:
+        logger.debug("[WATCH] DB enrollment write failed (non-fatal): %s", _e)
+
     return wid

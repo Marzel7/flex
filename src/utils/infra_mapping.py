@@ -609,6 +609,16 @@ CEX_ACCOUNTS = {
         "tags": ["cex", "binance", "exchange", "deposit"],
     },
 
+    # Binance Deposit - user-confirmed
+    "5dQL3XafngCoq5s1tDatNzjdjfXv63Si9LU6K9gjPeqV": {
+        "name": "Binance Deposit",
+        "category": "cex",
+        "exchange": "Binance",
+        "description": "Binance deposit wallet (user-confirmed)",
+        "risk_level": "neutral",
+        "tags": ["cex", "binance", "exchange", "deposit"],
+    },
+
     # Coinbase - Verified
     "5g7yNHyGLJ7fiQ9SN9mf47opDnMjc585kqXWt6d7aBWs": {
         "name": "Coinbase Hot Wallet",

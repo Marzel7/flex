@@ -1277,9 +1277,341 @@
             background-color: rgba(239, 68, 68, 0.5);
         }
 
+
+
+        /* ═══════════════════════════════════════════════════════════════
+           HOME COCKPIT — WATCHTOWER VISUAL SYSTEM
+           Reuses the tighter typography, darker surface stack, cyan command
+           accents, and compact intelligence density from /watchtower/dashboard.
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --home-bg-void: #050709;
+            --home-bg-base: #080b10;
+            --home-bg-card: #0d1117;
+            --home-bg-card-hi: #111827;
+            --home-border-faint: rgba(255,255,255,.04);
+            --home-border-dim: rgba(255,255,255,.07);
+            --home-border-mid: rgba(255,255,255,.12);
+            --home-text-primary: #d0d8e8;
+            --home-text-secondary: #7a8899;
+            --home-text-muted: #4a5568;
+            --home-text-bright: #edf2f7;
+            --home-cyan: #22d3ee;
+            --home-purple: #a78bfa;
+            --home-orange: #f97316;
+            --home-green: #22c55e;
+            --home-yellow: #d4a017;
+            --font-ui: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+        }
+
+        html, body { background: var(--home-bg-void) !important; }
+        body { color: var(--home-text-primary); font-family: var(--font-ui); }
+        .container {
+            padding: 0 0 0 180px !important;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(34,211,238,.055), transparent 32%),
+                radial-gradient(circle at 84% 10%, rgba(167,139,250,.05), transparent 28%),
+                var(--home-bg-void) !important;
+            min-height: 100vh;
+        }
+
+        .home-cockpit {
+            min-height: 100vh;
+            padding: 0;
+            color: var(--home-text-primary);
+        }
+
+        .home-command-bar {
+            height: 48px;
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid var(--home-border-dim);
+            background: rgba(5,7,9,.94);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .home-brand {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            padding: 0 20px;
+            min-width: 260px;
+            border-right: 1px solid var(--home-border-faint);
+        }
+        .home-brand-name {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--home-cyan);
+        }
+        .home-brand-sub {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--home-text-muted);
+        }
+        .home-command-metrics {
+            display: flex;
+            align-items: stretch;
+            min-width: 0;
+            flex: 1;
+        }
+        .home-command-metric {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 16px;
+            border-right: 1px solid var(--home-border-faint);
+            min-width: 118px;
+        }
+        .home-command-value {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            line-height: 1;
+            font-weight: 800;
+            color: var(--home-text-bright);
+        }
+        .home-command-label {
+            margin-top: 3px;
+            font-size: 8px;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+            color: var(--home-text-muted);
+            white-space: nowrap;
+        }
+        .home-command-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 16px;
+            border-left: 1px solid var(--home-border-faint);
+            color: var(--home-text-muted);
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+        .home-live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--home-green);
+            box-shadow: 0 0 10px rgba(34,197,94,.6);
+            animation: home-dot-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes home-dot-pulse { 0%,100%{opacity:.45} 50%{opacity:1} }
+
+        .home-body {
+            padding: 16px 18px 24px;
+        }
+
+        #ti-summary-block {
+            margin: 0 0 12px !important;
+            padding: 12px 14px;
+            background: linear-gradient(180deg, rgba(13,17,23,.94), rgba(8,11,16,.94));
+            border: 1px solid var(--home-border-dim);
+            border-radius: 8px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+        #ti-summary-block > div:first-child {
+            margin-bottom: 10px !important;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--home-border-faint);
+        }
+        #ti-summary-block span:first-child {
+            color: var(--home-text-muted) !important;
+            font-size: 9px !important;
+            font-weight: 800 !important;
+            letter-spacing: .14em !important;
+        }
+        #ti-summary-block span:nth-child(2) {
+            font-size: 10px !important;
+            color: var(--home-text-muted) !important;
+        }
+        #ti-summary-block a {
+            color: var(--home-cyan) !important;
+            font-size: 10px !important;
+            font-weight: 700;
+            letter-spacing: .04em;
+        }
+        #ti-summary-stats > div {
+            background: rgba(255,255,255,.025) !important;
+            border: 1px solid var(--home-border-faint) !important;
+            border-radius: 6px !important;
+            color: var(--home-text-secondary) !important;
+        }
+
+        .home-filter-strip {
+            margin: 0 0 10px !important;
+            padding: 8px 10px;
+            background: rgba(8,11,16,.72);
+            border: 1px solid var(--home-border-faint);
+            border-radius: 7px;
+        }
+
+        .tokens-table-wrap {
+            background: rgba(13,17,23,.88) !important;
+            border: 1px solid var(--home-border-dim) !important;
+            border-radius: 7px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+        .tokens-table {
+            font-family: var(--font-ui);
+            font-size: 11px !important;
+        }
+        .tokens-table thead th {
+            height: 32px;
+            background: rgba(255,255,255,.018) !important;
+            color: var(--home-text-muted) !important;
+            font-size: 8.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: .12em !important;
+            border-bottom: 1px solid var(--home-border-dim) !important;
+            padding: 7px 9px !important;
+        }
+        .tokens-table td {
+            color: var(--home-text-secondary) !important;
+            border-bottom: 1px solid var(--home-border-faint) !important;
+            padding: 6px 9px !important;
+            font-size: 11px !important;
+        }
+        .tokens-table tbody tr:hover {
+            background: rgba(255,255,255,.026) !important;
+        }
+
+        .tokens-table td.g-class-cell,
+        .tokens-table th.g-class-head {
+            width: 42px !important;
+            min-width: 42px !important;
+            max-width: 42px !important;
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            text-align: center !important;
+        }
+        .g-class-badge {
+            display: inline-block !important;
+            min-width: 25px;
+            text-align: center;
+            overflow: visible !important;
+            text-overflow: clip !important;
+        }
+        .token-symbol {
+            color: var(--home-purple) !important;
+            font-size: 12px !important;
+            font-weight: 800 !important;
+        }
+        .mint, .address, .creator-address-link, .creator-address-embedded,
+        .tokens-table td[id^="mc-"], .tokens-table td[id^="peak-mc-"],
+        .peak-timing-cell, .age-cell {
+            font-family: var(--font-mono) !important;
+        }
+        .mint, .creator-address-link { color: var(--home-cyan) !important; }
+        .badge-new, .sig-badge, .creator-tag, .network-badge, .shared-badge, .rug-badge {
+            border-radius: 3px !important;
+            font-size: 8.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: .06em !important;
+            text-transform: uppercase;
+        }
+        .sig-2h, .badge-2h { color: var(--home-orange) !important; }
+        .risk-score, .safe-badge, .cex-badge, .infra-tag, .tag {
+            border-radius: 3px !important;
+            font-size: 9px !important;
+            font-weight: 700 !important;
+        }
+
+        #right-panel { width: 272px !important; }
+        #right-panel .tokens-table-wrap > div:first-child {
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,.018) !important;
+            border-bottom: 1px solid var(--home-border-dim) !important;
+            color: var(--home-text-muted) !important;
+            font-size: 9px !important;
+            font-weight: 800 !important;
+            letter-spacing: .14em !important;
+        }
+        #future-bound-list {
+            background: rgba(8,11,16,.45);
+        }
+
+        .loading, .no-data, .refresh-info {
+            color: var(--home-text-muted) !important;
+            font-size: 11px !important;
+        }
+        .refresh-info {
+            margin-top: 12px !important;
+            font-family: var(--font-mono);
+        }
+
+        .modal-content {
+            background: var(--home-bg-card) !important;
+            border: 1px solid var(--home-border-mid) !important;
+            border-radius: 8px !important;
+            color: var(--home-text-primary) !important;
+        }
+        .modal-content h2, .modal-content h3 { color: var(--home-cyan) !important; }
+        .metric, .stat-box, .cluster-info, .risk-section,
+        .cex-funders-container, .multi-creator-container, .funders-container {
+            background: rgba(255,255,255,.025) !important;
+            border-color: var(--home-border-dim) !important;
+            border-radius: 7px !important;
+        }
+
+        @media (max-width: 980px) {
+            .container { padding-left: 0 !important; }
+            .home-command-bar { flex-wrap: wrap; height: auto; }
+            .home-brand { min-width: 100%; height: 48px; }
+            .home-command-right { display: none; }
+            .home-body { padding: 14px; }
+            #right-panel { display: none; }
+        }
+
+
 {% endblock %}
 
 {% block content %}
+        <div class="home-cockpit">
+            <div class="home-command-bar">
+                <div class="home-brand">
+                    <div class="home-brand-name">FLEX Market Cockpit</div>
+                    <div class="home-brand-sub">Live launches · creator graph · migration radar</div>
+                </div>
+                <div class="home-command-metrics">
+                    <div class="home-command-metric">
+                        <div class="home-command-value" id="homeCmdLive">LIVE</div>
+                        <div class="home-command-label">Token Stream</div>
+                    </div>
+                    <div class="home-command-metric">
+                        <div class="home-command-value" id="homeCmdRefresh">5s</div>
+                        <div class="home-command-label">Refresh Cadence</div>
+                    </div>
+                    <div class="home-command-metric">
+                        <div class="home-command-value" id="homeCmdLens">2H</div>
+                        <div class="home-command-label">Funding Lens</div>
+                    </div>
+                    <div class="home-command-metric">
+                        <div class="home-command-value" id="homeCmdMode">INTEL</div>
+                        <div class="home-command-label">View Mode</div>
+                    </div>
+                </div>
+                <div class="home-command-right">
+                    <span class="home-live-dot"></span>
+                    <span id="homeCommandClock">syncing</span>
+                </div>
+            </div>
+            <div class="home-body">
         <!-- Token Intelligence Summary -->
         <div id="ti-summary-block" style="margin-bottom:20px">
             <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
@@ -1294,7 +1626,7 @@
 
 
         <!-- 2H filter toggle -->
-        <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
+        <div class="home-filter-strip" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);">
             <label style="display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;">
                 <input type="checkbox" id="filter2HOnly" onchange="applyFilter2H()" style="accent-color:#fb923c;width:13px;height:13px;">
                 <span>Only show 2H tokens</span>
@@ -1375,7 +1707,8 @@
         </div>
 
         <div class="refresh-info">Auto-refreshing every 5 seconds</div>
-    </div>
+            </div>
+        </div>
 
     <!-- Metrics Modal -->
     <div id="metricsModal" class="modal">
@@ -2784,6 +3117,8 @@
                 columnTags.unshift(`<span class="creator-tag" style="color:#fbbf24;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);font-size:10px;" title="${token.coordinated_count} coordinated creator edges">COORD</span>`);
             if (token.in_farm_cluster > 0)
                 columnTags.unshift(`<span class="creator-tag" style="color:#a78bfa;border-color:rgba(139,92,246,0.35);background:rgba(139,92,246,0.08);font-size:10px;" title="Farm cluster member">FARM</span>`);
+            if (token.watchtower_related)
+                columnTags.unshift(`<span class="creator-tag" style="color:#38bdf8;border-color:rgba(56,189,248,0.35);background:rgba(56,189,248,0.08);font-size:10px;" title="${token.watchtower_label || 'Operationally related to WATCHTOWER'}">WT</span>`);
 
             const snapAge = token.snap_age ?? 99999;
             const rowSnapClass = snapAge > 120 ? 'row-stale-snap' : (snapAge < 60 ? 'row-active-snap' : '');
@@ -2876,7 +3211,7 @@
                 <td id="mc-${token.mint}" data-price-state="${token.snap_age != null && token.snap_age < 30 ? 'live' : token.snap_age < 120 ? 'fallback' : 'stale'}" style="width:68px;min-width:68px;white-space:nowrap">
                     ${token.liquidity_removed ? `<span class="rug-badge" title="Liquidity removed${token.liquidity_removed_at ? ' · ' + timeSinceLaunch(token.liquidity_removed_at * 1000) + ' ago' : ''}">LIQ</span>` : token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '<span style="opacity: 0.5;">—</span>'}
                 </td>
-                <td style="width:28px;min-width:28px;padding-left:2px;padding-right:2px;white-space:nowrap">
+                <td class="g-class-cell" style="white-space:nowrap">
                     ${token.token_class ? gBadgeHome(token.token_class) : '<span style="opacity:0.25;font-size:11px">—</span>'}
                 </td>
                 <td id="peak-mc-${token.mint}" data-peak-mc="${token.market_cap_highest || 0}" title="Recorded peak market cap. May exclude brief unconfirmed spikes." style="transition: color 0.2s ease; width:66px;min-width:66px;white-space:nowrap">
@@ -2973,7 +3308,7 @@
                         <th onclick="sortBy('cluster_name')" class="sortable" style="width:92px">Cluster</th>
                         <th style="width:58px" title="Top risk signal for this token">Signal</th>
                         <th onclick="sortBy('market_cap_current')" class="sortable" style="width:68px;min-width:68px">Market Cap</th>
-                        <th style="width:28px;min-width:28px;padding-left:2px;padding-right:2px" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)"></th>
+                        <th class="g-class-head" title="G-class: peak market cap tier. G1=Elite(5M+) G2=Strong(2–5M) G3=High Opp(500K–2M) G4=Pre-Runner(300–500K) G5=Mid(150–300K) G6=Weak(75–150K) G7=Low(<75K)"></th>
                         <th onclick="sortBy('market_cap_highest')" class="sortable" style="width:66px;min-width:66px" title="Recorded peak market cap. Brief unconfirmed spikes may be excluded.">Peak MC*</th>
                         <th onclick="sortBy('market_cap_highest_at')" class="sortable" style="width:76px;min-width:76px" title="Time from launch to the recorded peak shown in Peak MC*.">Peak Timing*</th>
                         <th style="width:48px">Age</th>
@@ -3439,7 +3774,7 @@
         const gBadgeHome = g => {
             const gc = G_COLOR[g] || G_COLOR['G?'];
             const gb = G_BG[g]    || G_BG['G?'];
-            return `<span style="font-weight:700;font-size:11px;color:${gc};background:${gb};padding:1px 5px;border-radius:3px;white-space:nowrap" title="${G_TOOLTIP[g]||''}">${g||'G?'}</span>`;
+            return `<span class="g-class-badge" style="font-weight:700;font-size:11px;color:${gc};background:${gb};padding:1px 5px;border-radius:3px;white-space:nowrap" title="${G_TOOLTIP[g]||''}">${g||'G?'}</span>`;
         };
 
         function formatMarketCap(value) {
@@ -4328,7 +4663,7 @@ function switchToTokensTab() {
                 <td class="cluster-name"></td>
                 <td></td>
                 <td id="mc-${mint}" data-price-state="waiting">—</td>
-                <td style="width:28px;min-width:28px;padding-left:2px;padding-right:2px;white-space:nowrap"><span style="opacity:0.25;font-size:11px">—</span></td>
+                <td class="g-class-cell" style="white-space:nowrap"><span style="opacity:0.25;font-size:11px">—</span></td>
                 <td id="peak-mc-${mint}" style="opacity:0.4">—</td>
                 <td class="peak-timing-cell"></td>
                 <td class="age-cell" style="font-size:11px">just now</td>
@@ -6527,7 +6862,7 @@ function switchToTokensTab() {
                                     ${coordAddress}
                                 </code>
                             </div>
-                            <button onclick="this.closest('div[style*=\\"position: fixed\\"]').remove()" style="background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.5); color: var(--primary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 18px;">×</button>
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.5); color: var(--primary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 18px;">×</button>
                         </div>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
@@ -6565,7 +6900,7 @@ function switchToTokensTab() {
                             <div style="display: grid; gap: 8px; max-height: 300px; overflow-y: auto;">
                                 ${creators.map(creator => `
                                     <div style="background: rgba(124, 58, 237, 0.05); padding: 10px; border-radius: 4px; border-left: 2px solid var(--primary); cursor: pointer; transition: all 0.2s;"
-                                         onclick="document.querySelector('input[placeholder*=\\"Search\\"]').value = '${creator}'; searchTokens();">
+                                         onclick="document.querySelector('input[placeholder*=\"Search\"]').value = '${creator}'; searchTokens();">
                                         <code style="font-size: 11px; word-break: break-all; color: var(--primary);">
                                             ${creator}
                                         </code>
@@ -6576,7 +6911,7 @@ function switchToTokensTab() {
                         </div>
 
                         <div style="text-align: right; margin-top: 20px;">
-                            <button onclick="this.closest('div[style*=\\"position: fixed\\"]').remove()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer;">
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--primary); background: rgba(124, 58, 237, 0.1); color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer;">
                                 Close
                             </button>
                         </div>
@@ -7238,4 +7573,15 @@ function switchToTokensTab() {
         }
 
     </script>
+
+<script>
+(function homeCockpitClock(){
+    const el = document.getElementById('homeCommandClock');
+    if (!el) return;
+    const tick = () => { el.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); };
+    tick();
+    setInterval(tick, 1000);
+})();
+</script>
+
 {% endblock %}

@@ -5,6 +5,12 @@
 .fi-topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:24px; padding-bottom:18px; border-bottom:2px solid rgba(251,146,60,0.35); }
 .fi-topbar h1 { margin:0; font-size:26px; font-weight:700; color:#fb923c; letter-spacing:-0.01em; }
 .fi-sub { margin-top:4px; color:var(--text-secondary); font-size:13px; }
+.fi-care {
+  margin-bottom:18px; padding:16px 18px; border-radius:10px;
+  border:1px solid rgba(251,146,60,0.25); background:rgba(251,146,60,0.06);
+}
+.fi-care .kicker { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#fb923c; margin-bottom:6px; }
+.fi-care .copy { font-size:14px; line-height:1.5; color:#e2e8f0; }
 
 .fi-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:28px; }
 .fi-kpi { background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:16px; transition:border-color .2s; }
@@ -74,10 +80,15 @@ tbody tr:hover td { background:rgba(255,255,255,0.02); }
 {% block content %}
 <div class="fi-topbar">
   <div>
-    <h1>Funder Intelligence</h1>
-    <div class="fi-sub">Funder ancestry propagation · coordinated edge analysis · real-time network risk detection.</div>
+    <h1>Funding Intelligence</h1>
+    <div class="fi-sub">Capital lineage, coordinator exposure, and operator-risk propagation.</div>
   </div>
   <div style="color:var(--text-secondary);font-size:11px;align-self:flex-end" id="lastUpdated"></div>
+</div>
+
+<div class="fi-care">
+  <div class="kicker">Why should I care?</div>
+  <div class="copy">Funding often reveals the operator before token behavior does. This lens shows whether capital comes from ordinary support, shared infrastructure, or repeat coordinators tied to poor creator outcomes.</div>
 </div>
 
 <div id="netRiskBanner" class="net-risk-banner" style="display:none">

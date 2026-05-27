@@ -38,8 +38,8 @@ SECOND_HOP_RPC_LITE_ENABLED = (
 # ── Config ────────────────────────────────────────────────────────────────────
 MAX_FUNDER_SCANS_PER_RUN = int(os.getenv("SHL_MAX_FUNDER_SCANS", "25"))
 MAX_RPC_CALLS_PER_RUN    = int(os.getenv("SHL_MAX_RPC_CALLS", "750"))
-MAX_TX_PER_FUNDER        = int(os.getenv("SHL_MAX_TX_PER_FUNDER", "35"))
-LOOKBACK_DAYS            = int(os.getenv("SHL_LOOKBACK_DAYS", "30"))
+MAX_TX_PER_FUNDER        = int(os.getenv("SHL_MAX_TX_PER_FUNDER", "1000"))
+LOOKBACK_DAYS            = int(os.getenv("SHL_LOOKBACK_DAYS", "60"))
 CACHE_TTL_HOURS          = int(os.getenv("SHL_CACHE_TTL_HOURS", "168"))
 
 # ── RPC URL resolution (same priority as main.py) ─────────────────────────────
@@ -66,7 +66,7 @@ _MIGRATION_SQL = (
     / "database" / "migrations" / "add_second_hop_lite.sql"
 )
 
-MIN_UPSTREAM_SOL = 0.01
+MIN_UPSTREAM_SOL = 0.001
 MAX_UPSTREAM_SOL = 1000.0
 TX_BATCH_SIZE    = 10      # getTransaction calls per batch
 

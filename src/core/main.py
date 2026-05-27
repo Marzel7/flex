@@ -12,11 +12,11 @@ Displays tokens that have migrated from Pump.Fun to PumpSwap with:
 import sqlite3
 import json
 import requests
-from src.utils.db_locking import db_connect
+from src.utils.db_locking import db_connect, managed_db_connect
 import threading
 import asyncio
 from datetime import datetime
-from flask import Flask, jsonify, render_template, render_template_string, request, Response, abort
+from flask import Flask, jsonify, render_template, render_template_string, request, Response, abort, redirect
 from flask_compress import Compress
 from typing import Any, Dict, List, Optional
 import os
@@ -791,6 +791,50 @@ def check_networks_release_capability() -> bool:
         return False
 
 
+_wt_startup_done = False
+_wt_startup_lock = threading.Lock()
+
+@app.before_request
+def _wt_startup_once():
+    """Ensure WT tables exist on first request — works under gunicorn and dev server.
+    Each gunicorn worker process runs this independently (no shared memory between workers).
+    The threading.Lock guards within a single worker; table CREATE IF NOT EXISTS is idempotent.
+    """
+    global _wt_startup_done
+    if _wt_startup_done:
+        return
+    with _wt_startup_lock:
+        if _wt_startup_done:
+            return
+        _wt_startup_done = True
+    def _run():
+        try:
+            _c = db_connect(DB_PATH, timeout=15)
+            _ensure_watchtower_tables(_c)
+            # Seed wt_wallet_tier from _WT_INFRA_ROLES (idempotent, INSERT OR IGNORE)
+            for _addr, _role in _WT_INFRA_ROLES.items():
+                _tier = 1 if _role in ("SIGNALLER", "SUB_PROV") else 2
+                _c.execute("""
+                    INSERT OR IGNORE INTO wt_wallet_tier
+                        (wallet_address, tier, role, auto_classified)
+                    VALUES (?, ?, ?, 1)
+                """, (_addr, _tier, _role))
+            _c.commit()
+            _c.close()
+            global _wt_tables_ready
+            _wt_tables_ready = True
+            print(f"[STARTUP] Watchtower tables verified (pid={os.getpid()})", flush=True)
+            # Start WT workers — each gunicorn worker gets its own threads
+            _start_corridor_monitor_worker(DB_PATH)
+            _start_relay_counterparty_discovery_worker(DB_PATH)
+            _start_swarm_migration_scanner(DB_PATH)
+            _start_wt_infra_processor()
+            _start_wt_candidate_processor()
+        except Exception as _e:
+            print(f"[STARTUP] WT table init error: {_e}", flush=True)
+    threading.Thread(target=_run, daemon=True, name="wt-gunicorn-startup").start()
+
+
 @app.before_request
 def initialize_capability_check():
     """
@@ -809,14 +853,29 @@ def initialize_capability_check():
 def get_db_conn():
     """
     Open database connection with row_factory configured.
+    Connection is closed at end of request via Flask teardown.
 
     Returns:
         tuple: (conn, cursor) - configured connection and cursor
     """
+    from flask import g as _g
+    if not hasattr(_g, '_db_conns'):
+        _g._db_conns = []
     conn = db_connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
+    _g._db_conns.append(conn)
     cursor = conn.cursor()
     return conn, cursor
+
+
+@app.teardown_appcontext
+def _close_get_db_conns(exc):
+    from flask import g as _g
+    for _c in getattr(_g, '_db_conns', []):
+        try:
+            _c.close()
+        except Exception:
+            pass
 
 
 def get_networks_release_list(include_evidence=False):
@@ -1276,7 +1335,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
     try:
         from src.utils.infra_mapping import CEX_ACCOUNTS
 
-        conn = db_connect(DB_PATH, timeout=5)
+        # Read-only URI connection bypasses write locks entirely in WAL mode
+        conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=3)
+        conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -1382,8 +1443,12 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 (SELECT COUNT(*) FROM farm_cluster_members fcm
                  WHERE fcm.wallet_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
                    AND fcm.wallet_role = 'creator'
-                ) as in_farm_cluster
+                ) as in_farm_cluster,
+                COALESCE(crs.watchtower_related, 0) as watchtower_related,
+                crs.watchtower_evidence_json as watchtower_evidence_json
             FROM token_analysis ta
+            LEFT JOIN creator_risk_scores crs
+                ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
             LEFT JOIN creator_networks cn
                 ON ta.earliest_tx_creator = cn.creator_address
             LEFT JOIN (
@@ -1532,6 +1597,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                     'self_funding_pct': row['self_funding_pct'] or 0,
                     'coordinated_count': row['coordinated_count'] or 0,
                     'in_farm_cluster': row['in_farm_cluster'] or 0,
+                    'watchtower_related': bool(row['watchtower_related']),
+                    'watchtower_label': _wt_label_from_evidence(row['watchtower_evidence_json']),
                 }, normalized_peak_mc, normalized_peak_at, _token_class))
                 if not row['earliest_tx_creator']:
                     _schedule_missing_creator_backfill(row['mint'])
@@ -1684,6 +1751,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 'db_is_new': bool(row['is_new']) if row['is_new'] is not None else False,
                 'pool_address': row['active_pool_address'] or row['pumpswap_pool_address'] or row['pool_address'] or None,
                 'pumpswap_pool_address': row['active_pool_address'] or row['pumpswap_pool_address'] or row['pool_address'] or None,
+                'watchtower_related': bool(row['watchtower_related']),
+                'watchtower_label': _wt_label_from_evidence(row['watchtower_evidence_json']),
             }, normalized_peak_mc, normalized_peak_at))
 
         conn.close()
@@ -9192,6 +9261,58 @@ def highlight_infra_in_funding(funders_list):
     
     return enriched_funders
 
+@app.route('/healthz')
+def healthz():
+    """Lightweight health check for supervisor / uptime monitors."""
+    import time as _t
+    now = int(_t.time())
+    db_ok = False
+    rows = {}
+    try:
+        with managed_db_connect(DB_PATH, timeout=3) as _hc:
+            _hc.execute("SELECT 1")
+            db_ok = True
+    except Exception:
+        pass
+
+    if db_ok:
+        try:
+            with managed_db_connect(DB_PATH, timeout=3) as _hc2:
+                _hc2.row_factory = sqlite3.Row
+                for r in _hc2.execute("SELECT worker_name, last_seen, status FROM wt_worker_heartbeat").fetchall():
+                    rows[r["worker_name"]] = {
+                        "last_seen": r["last_seen"],
+                        "age_s": now - r["last_seen"],
+                        "status": r["status"],
+                        "stale": (now - r["last_seen"]) > 120,
+                    }
+        except Exception:
+            pass  # table not yet created — non-fatal at startup
+
+    # WAL size check
+    wal_bytes = 0
+    try:
+        import os as _os
+        wal_path = DB_PATH + "-wal"
+        wal_bytes = _os.path.getsize(wal_path) if _os.path.exists(wal_path) else 0
+    except Exception:
+        pass
+    wal_mb = round(wal_bytes / 1024 / 1024, 1)
+    wal_warn = wal_mb > 500
+
+    stale = [w for w, v in rows.items() if v.get("stale")]
+    healthy = db_ok and not stale and not wal_warn
+    return jsonify({
+        "healthy": healthy,
+        "db": "ok" if db_ok else "error",
+        "workers": rows,
+        "stale_workers": stale,
+        "wal_mb": wal_mb,
+        "wal_warn": wal_warn,
+        "ts": now,
+    }), 200 if healthy else 503
+
+
 @app.route('/')
 def index():
     """Serve the migration tracking dashboard"""
@@ -9453,17 +9574,46 @@ def coordinated_funder_analysis_view(creator_address: str):
         return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
+_migrated_tokens_cache: dict = {"tokens": None, "at": 0.0, "refreshing": False}
+_MIGRATED_TOKENS_TTL = 30  # serve stale while refreshing in background
+
+def _refresh_migrated_tokens_cache():
+    """Refresh cache in background — never blocks HTTP requests."""
+    if _migrated_tokens_cache["refreshing"]:
+        return
+    _migrated_tokens_cache["refreshing"] = True
+    def _run():
+        try:
+            tokens = get_migrated_tokens(limit=25, light=True)
+            _migrated_tokens_cache["tokens"] = tokens
+            _migrated_tokens_cache["at"] = time.time()
+        except Exception as _e:
+            print(f"[CACHE] migrated-tokens refresh error: {_e}", flush=True)
+        finally:
+            _migrated_tokens_cache["refreshing"] = False
+    threading.Thread(target=_run, daemon=True, name="migrated-tokens-cache-refresh").start()
+
 @app.route('/api/migrated-tokens')
 def api_migrated_tokens():
     """Get all migrated tokens with analysis data"""
     start = time.perf_counter()
-    tokens = get_migrated_tokens(limit=25, light=True)
+    cached = _migrated_tokens_cache
+    stale = cached["tokens"] is None or (time.time() - cached["at"]) > _MIGRATED_TOKENS_TTL
+    if cached["tokens"] is None:
+        # No cache yet — must block once to get initial data
+        tokens = get_migrated_tokens(limit=25, light=True)
+        _migrated_tokens_cache["tokens"] = tokens
+        _migrated_tokens_cache["at"] = time.time()
+    else:
+        tokens = cached["tokens"]
+        if stale:
+            # Serve stale immediately, refresh in background
+            _refresh_migrated_tokens_cache()
     response = jsonify({'tokens': tokens})
-    # Disable caching to ensure fresh data
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
-    print(f"[TIMING] /api/migrated-tokens tokens={len(tokens)} took {time.perf_counter() - start:.3f}s", flush=True)
+    print(f"[TIMING] /api/migrated-tokens tokens={len(tokens)} stale={stale} took {time.perf_counter() - start:.3f}s", flush=True)
     return response
 
 
@@ -9587,152 +9737,175 @@ def api_usage():
         return jsonify({"error": str(e)}), 500
 
 
+_pumpfun_live_cache: dict = {"data": None, "at": 0.0, "refreshing": False}
+_PUMPFUN_LIVE_TTL = 10
+
+def _refresh_pumpfun_live_cache():
+    if _pumpfun_live_cache["refreshing"]:
+        return
+    _pumpfun_live_cache["refreshing"] = True
+    def _run():
+        try:
+            result = _fetch_pumpfun_live()
+            _pumpfun_live_cache["data"] = result
+            _pumpfun_live_cache["at"] = time.time()
+        except Exception as _e:
+            print(f"[CACHE] pumpfun/live refresh error: {_e}", flush=True)
+        finally:
+            _pumpfun_live_cache["refreshing"] = False
+    threading.Thread(target=_run, daemon=True, name="pumpfun-live-cache-refresh").start()
+
+def _fetch_pumpfun_live():
+    """Inner function: fetch pumpfun live data. Called by cache refresh thread."""
+    import json as _json
+    now = int(time.time())
+    conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=3)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Recent births — tokens inserted in last 2 hours, ordered by insertion time
+    two_hours_ago = now - 7200
+    cursor.execute("""
+        SELECT ta.mint, ta.created_at, ta.earliest_tx_creator, ta.pf_ws_creator,
+               ta.bonding_curve_pda, ta.lifecycle_stage,
+               ta.analyzed_at,
+               COALESCE(mc.symbol, '') as symbol,
+               COALESCE(mc.name, '') as name
+        FROM token_analysis ta
+        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+        WHERE ta.source_platform = 'pumpfun'
+          AND ta.lifecycle_stage = 'bonding_curve'
+          AND ta.analyzed_at >= ?
+        ORDER BY ta.analyzed_at DESC
+        LIMIT 60
+    """, (two_hours_ago,))
+    birth_rows = [dict(r) for r in cursor.fetchall()]
+
+    # Recent migrations — last 100 migrated tokens with risk tags
+    cursor.execute("""
+        SELECT ta.mint, ta.created_at,
+               COALESCE(ta.migration_signal_updated_at, ta.analyzed_at) as migrated_at,
+               ta.pumpswap_pool_address, ta.pool_address,
+               COALESCE(mc.symbol, '') as symbol,
+               COALESCE(mc.name, '') as name,
+               ta.pf_ws_creator, ta.earliest_tx_creator,
+               ta.migration_slot,
+               cfq.funding_enqueued_at, cfq.funding_extracted_at,
+               cfq.status as funding_status, cfq.source as funding_source,
+               COALESCE(csf.is_self_funding, 0) as is_self_funding,
+               ROUND(COALESCE(csf.self_funding_percentage, 0), 1) as self_funding_pct,
+               (SELECT COUNT(*) FROM coordinated_creator_edges cce
+                WHERE cce.creator_a = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                   OR cce.creator_b = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+               ) as coordinated_count,
+               (SELECT COUNT(*) FROM farm_cluster_members fcm
+                WHERE fcm.wallet_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                  AND fcm.wallet_role = 'creator'
+               ) as in_farm_cluster,
+               nm.network_name,
+               irc.priority as irc_priority,
+               irc.reason_codes as irc_reasons
+        FROM token_analysis ta
+        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+        LEFT JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
+        LEFT JOIN creator_self_funding csf ON csf.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+        LEFT JOIN network_membership nm ON nm.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+        LEFT JOIN intelligence_refresh_candidates irc ON irc.target_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+            AND irc.target_type = 'creator'
+        WHERE ta.source_platform = 'pumpfun'
+          AND ta.lifecycle_stage = 'migrated'
+        GROUP BY ta.mint
+        ORDER BY ta.analyzed_at DESC
+        LIMIT 100
+    """)
+    migration_rows = [dict(r) for r in cursor.fetchall()]
+    migrated_mints = {r["mint"] for r in migration_rows}
+    conn.close()
+
+    # Near-migration from PumpPortal vSol state file written by listener
+    portal_vsol_path = os.path.join(os.path.dirname(DB_PATH), '..', 'portal_vsol.json')
+    try:
+        with open(portal_vsol_path) as _f:
+            portal_vsol = _json.load(_f)
+    except Exception:
+        portal_vsol = {}
+
+    NEAR_THRESHOLD = 60.0
+    GRADUATION_SOL = 85.0
+
+    near_migration = []
+    for mint, state in portal_vsol.items():
+        if mint in migrated_mints:
+            continue
+        v_sol = float(state.get("v_sol") or 0)
+        if v_sol < NEAR_THRESHOLD or v_sol >= GRADUATION_SOL:
+            continue
+        near_migration.append({
+            "mint": mint,
+            "v_sol": v_sol,
+            "mc_sol": state.get("mc_sol", 0),
+            "symbol": state.get("symbol", ""),
+            "name": state.get("name", ""),
+            "creator": state.get("creator", ""),
+            "ts": state.get("ts", 0),
+            "pct": round(v_sol / GRADUATION_SOL * 100, 1),
+        })
+    near_migration.sort(key=lambda x: x["v_sol"], reverse=True)
+
+    # Enrich missing symbol/name from metadata_cache
+    _missing_meta = [t["mint"] for t in near_migration if not t["symbol"] and not t["name"]]
+    if _missing_meta:
+        try:
+            _mc = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=3)
+            _mc.execute("PRAGMA journal_mode=WAL")
+            _ph = ",".join("?" * len(_missing_meta))
+            _meta = {r[0]: (r[1], r[2]) for r in _mc.execute(
+                f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({_ph})", _missing_meta
+            ).fetchall()}
+            _mc.close()
+            for t in near_migration:
+                if t["mint"] in _meta:
+                    t["symbol"] = t["symbol"] or _meta[t["mint"]][0] or ""
+                    t["name"] = t["name"] or _meta[t["mint"]][1] or ""
+        except Exception:
+            pass
+
+    # Enrich births with portal vSol if available
+    for b in birth_rows:
+        mint = b["mint"]
+        ps = portal_vsol.get(mint, {})
+        b["v_sol"] = ps.get("v_sol")
+        b["mc_sol"] = ps.get("mc_sol")
+        b["born_at"] = b.get("analyzed_at") or b.get("created_at")
+        if not b["symbol"] and ps.get("symbol"):
+            b["symbol"] = ps["symbol"]
+        if not b["name"] and ps.get("name"):
+            b["name"] = ps["name"]
+
+    return {
+        "births": birth_rows,
+        "near_migration": near_migration,
+        "migrations": migration_rows,
+        "portal_tracking_count": len(portal_vsol),
+        "ts": now,
+    }
+
 @app.route('/api/pumpfun/live')
 def api_pumpfun_live():
     """Return live PumpPortal data: recent births, near-migration tokens, recent migrations."""
     try:
-        now = int(time.time())
-        conn = db_connect(DB_PATH, timeout=5)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA query_only = ON")
-        cursor = conn.cursor()
-
-        # Recent births — tokens inserted in last 2 hours, ordered by insertion time
-        two_hours_ago = now - 7200
-        cursor.execute("""
-            SELECT ta.mint, ta.created_at, ta.earliest_tx_creator, ta.pf_ws_creator,
-                   ta.bonding_curve_pda, ta.lifecycle_stage,
-                   ta.analyzed_at,
-                   COALESCE(mc.symbol, '') as symbol,
-                   COALESCE(mc.name, '') as name
-            FROM token_analysis ta
-            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
-            WHERE ta.source_platform = 'pumpfun'
-              AND ta.lifecycle_stage = 'bonding_curve'
-              AND ta.analyzed_at >= ?
-            ORDER BY ta.analyzed_at DESC
-            LIMIT 60
-        """, (two_hours_ago,))
-        birth_rows = [dict(r) for r in cursor.fetchall()]
-
-        # Recent migrations — last 25 migrated tokens with creator funding timing + risk tags
-        cursor.execute("""
-            SELECT ta.mint, ta.created_at,
-                   COALESCE(ta.migration_signal_updated_at, ta.analyzed_at) as migrated_at,
-                   ta.pumpswap_pool_address, ta.pool_address,
-                   COALESCE(mc.symbol, '') as symbol,
-                   COALESCE(mc.name, '') as name,
-                   ta.pf_ws_creator, ta.earliest_tx_creator,
-                   ta.migration_slot,
-                   cfq.funding_enqueued_at, cfq.funding_extracted_at,
-                   cfq.status as funding_status, cfq.source as funding_source,
-                   -- Risk tags
-                   COALESCE(csf.is_self_funding, 0) as is_self_funding,
-                   ROUND(COALESCE(csf.self_funding_percentage, 0), 1) as self_funding_pct,
-                   (SELECT COUNT(*) FROM coordinated_creator_edges cce
-                    WHERE cce.creator_a = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-                       OR cce.creator_b = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-                   ) as coordinated_count,
-                   (SELECT COUNT(*) FROM farm_cluster_members fcm
-                    WHERE fcm.wallet_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-                      AND fcm.wallet_role = 'creator'
-                   ) as in_farm_cluster,
-                   nm.network_name,
-                   irc.priority as irc_priority,
-                   irc.reason_codes as irc_reasons
-            FROM token_analysis ta
-            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
-            LEFT JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
-            LEFT JOIN creator_self_funding csf ON csf.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-            LEFT JOIN network_membership nm ON nm.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-            LEFT JOIN intelligence_refresh_candidates irc ON irc.target_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-                AND irc.target_type = 'creator'
-            WHERE ta.source_platform = 'pumpfun'
-              AND ta.lifecycle_stage = 'migrated'
-            GROUP BY ta.mint
-            ORDER BY ta.analyzed_at DESC
-            LIMIT 100
-        """)
-        migration_rows = [dict(r) for r in cursor.fetchall()]
-        conn.close()
-
-        # Near-migration from PumpPortal vSol state file written by listener
-        import json as _json
-        portal_vsol_path = os.path.join(os.path.dirname(DB_PATH), '..', 'portal_vsol.json')
-        try:
-            with open(portal_vsol_path) as _f:
-                portal_vsol = _json.load(_f)
-        except Exception:
-            portal_vsol = {}
-
-        NEAR_THRESHOLD = 60.0
-        GRADUATION_SOL = 85.0
-
-        # Get already-migrated mints to exclude from near-graduation list
-        try:
-            _conn = db_connect(DB_PATH, timeout=5)
-            _migrated_mints = {r[0] for r in _conn.execute(
-                "SELECT mint FROM token_analysis WHERE lifecycle_stage='migrated'"
-            ).fetchall()}
-            _conn.close()
-        except Exception:
-            _migrated_mints = set()
-
-        near_migration = []
-        for mint, state in portal_vsol.items():
-            if mint in _migrated_mints:
-                continue
-            v_sol = float(state.get("v_sol") or 0)
-            if v_sol < NEAR_THRESHOLD or v_sol >= GRADUATION_SOL:
-                continue
-            near_migration.append({
-                "mint": mint,
-                "v_sol": v_sol,
-                "mc_sol": state.get("mc_sol", 0),
-                "symbol": state.get("symbol", ""),
-                "name": state.get("name", ""),
-                "creator": state.get("creator", ""),
-                "ts": state.get("ts", 0),
-                "pct": round(v_sol / GRADUATION_SOL * 100, 1),
-            })
-        near_migration.sort(key=lambda x: x["v_sol"], reverse=True)
-
-        # Enrich missing symbol/name from metadata_cache
-        _missing_meta = [t["mint"] for t in near_migration if not t["symbol"] and not t["name"]]
-        if _missing_meta:
-            try:
-                _mc = db_connect(DB_PATH, timeout=5)
-                _ph = ",".join("?" * len(_missing_meta))
-                _meta = {r[0]: (r[1], r[2]) for r in _mc.execute(
-                    f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({_ph})", _missing_meta
-                ).fetchall()}
-                _mc.close()
-                for t in near_migration:
-                    if t["mint"] in _meta:
-                        t["symbol"] = t["symbol"] or _meta[t["mint"]][0] or ""
-                        t["name"] = t["name"] or _meta[t["mint"]][1] or ""
-            except Exception:
-                pass
-
-        # Enrich births with portal vSol if available
-        for b in birth_rows:
-            mint = b["mint"]
-            ps = portal_vsol.get(mint, {})
-            b["v_sol"] = ps.get("v_sol")
-            b["mc_sol"] = ps.get("mc_sol")
-            b["born_at"] = b.get("analyzed_at") or b.get("created_at")
-            if not b["symbol"] and ps.get("symbol"):
-                b["symbol"] = ps["symbol"]
-            if not b["name"] and ps.get("name"):
-                b["name"] = ps["name"]
-
-        response = jsonify({
-            "births": birth_rows,
-            "near_migration": near_migration,
-            "migrations": migration_rows,
-            "portal_tracking_count": len(portal_vsol),
-            "ts": now,
-        })
+        cached = _pumpfun_live_cache
+        stale = cached["data"] is None or (time.time() - cached["at"]) > _PUMPFUN_LIVE_TTL
+        if cached["data"] is None:
+            data = _fetch_pumpfun_live()
+            _pumpfun_live_cache["data"] = data
+            _pumpfun_live_cache["at"] = time.time()
+        else:
+            data = cached["data"]
+            if stale:
+                _refresh_pumpfun_live_cache()
+        response = jsonify(data)
         response.headers['Cache-Control'] = 'no-store'
         return response
     except Exception as e:
@@ -10280,6 +10453,33 @@ def api_creator_details(creator_address: str):
         """, (creator_address,))
         tags = [{'tag': row[0], 'description': row[1], 'amount_sol': row[2]} for row in cursor.fetchall()]
 
+        # 7b. WATCHTOWER linkage
+        wt_row = cursor.execute(
+            "SELECT watchtower_related, watchtower_evidence_json FROM creator_risk_scores "
+            "WHERE creator_address = ?",
+            (creator_address,),
+        ).fetchone()
+        watchtower_related = bool(wt_row["watchtower_related"]) if wt_row else False
+        watchtower_evidence = (
+            json.loads(wt_row["watchtower_evidence_json"])
+            if wt_row and wt_row["watchtower_evidence_json"] else []
+        )
+        watchtower_label = None
+        if watchtower_related:
+            strong = [e for e in watchtower_evidence if e.get("strength") == "strong"]
+            if strong:
+                _wt_label_map = {
+                    "direct_infrastructure_wallet":    "Linked to known WATCHTOWER infrastructure",
+                    "funded_by_infrastructure":        "WATCHTOWER-related — funded by infrastructure wallet",
+                    "watchtower_queue_tag":            "WATCHTOWER-related — operator wallet",
+                    "watchtower_fee_payment":          "WATCHTOWER-related — participated in fee sweep",
+                    "signaller_activation_sequence":   "WATCHTOWER-related — activated via SIGNALLER pattern",
+                    "signaller_dust":                  "Linked to known WATCHTOWER infrastructure",
+                    "profit_relay_routing":            "WATCHTOWER-related — profits routed through relay",
+                    "confirmed_fingerprint_batch":     "WATCHTOWER-related — April 2026 provisioning batch",
+                }
+                watchtower_label = _wt_label_map.get(strong[0]["rule"], "Operationally related to WATCHTOWER")
+
         # 8. Get creator's address tags (domains, etc. from address_tags table)
         creator_address_tags = get_address_tags(creator_address)
 
@@ -10502,6 +10702,9 @@ def api_creator_details(creator_address: str):
             'network_provisional': network_provisional,
             'graph': graph_context,
             'outbound_signals': outbound_signals,
+            'watchtower_related': watchtower_related,
+            'watchtower_label': watchtower_label,
+            'watchtower_evidence': watchtower_evidence,
         })
 
     except Exception as e:
@@ -11811,20 +12014,6 @@ def api_listener_settings():
                     status = '✅ ON' if data['listen_to_launches'] else '❌ OFF'
                     print(f"[LISTENER] TOGGLED - Token Launch: {status}", flush=True)
 
-            # Update pump_bot_enabled setting
-            if 'pump_bot_enabled' in data:
-                new_val = 'true' if data['pump_bot_enabled'] else 'false'
-                try:
-                    cursor.execute("""
-                        INSERT INTO listener_settings (setting_key, setting_value, last_updated)
-                        VALUES (?, ?, ?)
-                        ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value, last_updated=excluded.last_updated
-                    """, ('pump_bot_enabled', new_val, now))
-                    status = '✅ ON' if data['pump_bot_enabled'] else '❌ OFF'
-                    print(f"[LISTENER] TOGGLED - Pump Bot Poller: {status}", flush=True)
-                except Exception as e:
-                    print(f"[LISTENER] Error updating pump_bot_enabled: {e}", flush=True)
-
             # Update auto_extract_funders setting
             if 'auto_extract_funders' in data:
                 old_val = None
@@ -11872,16 +12061,11 @@ def api_listener_settings():
             row = cursor.fetchone()
             auto_extract_funders = row['setting_value'] == 'true' if row else False
 
-            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('pump_bot_enabled',))
-            row = cursor.fetchone()
-            pump_bot_enabled = row['setting_value'] != 'false' if row else False
-
             conn.close()
             return jsonify({
                 'status': 'updated',
                 'listen_to_launches': listen_launches,
                 'auto_extract_funders': auto_extract_funders,
-                'pump_bot_enabled': pump_bot_enabled,
             })
 
         else:  # GET
@@ -11893,15 +12077,10 @@ def api_listener_settings():
             row = cursor.fetchone()
             auto_extract_funders = row['setting_value'] == 'true' if row else False
 
-            cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", ('pump_bot_enabled',))
-            row = cursor.fetchone()
-            pump_bot_enabled = row['setting_value'] != 'false' if row else False
-
             conn.close()
             return jsonify({
                 'listen_to_launches': listen_launches,
                 'auto_extract_funders': auto_extract_funders,
-                'pump_bot_enabled': pump_bot_enabled,
             })
 
     except Exception as e:
@@ -17006,6 +17185,11 @@ def network_intelligence_page():
     return render_template('network_intelligence.html', active_page='network_intelligence')
 
 
+@app.route('/ecosystems')
+def ecosystems_alias_page():
+    return redirect('/ecosystem', code=302)
+
+
 @app.route('/risk-scoring')
 def risk_scoring_page():
     return render_template('risk_scoring.html', active_page='risk_scoring')
@@ -17196,6 +17380,11 @@ def trading_sim_page():
     return render_template('trading_sim.html', active_page='trading_sim')
 
 
+@app.route('/portfolio')
+def portfolio_alias_page():
+    return redirect('/trading-sim', code=302)
+
+
 _trading_sim_schema_done = False
 
 def _trading_sim_service():
@@ -17224,13 +17413,13 @@ def _trading_sim_conn(timeout: int = 15):
 def _trading_sim_filters_from_request():
     now = int(time.time())
     risk_level = (request.args.get('risk_level') or '').strip().upper() or None
-    if risk_level not in {None, 'CRITICAL', 'HIGH', 'MEDIUM', 'WATCH', 'LOW', 'UNKNOWN', 'LIQ'}:
+    if risk_level not in {None, 'CRITICAL', 'HIGH', 'MEDIUM', 'WATCH', 'LOW', 'UNKNOWN', 'LIQ', 'WATCH-T'}:
         risk_level = None
     strategy = (request.args.get('strategy') or 'current').strip().lower()
     if strategy not in {
         'current', 'peak', 'cascade',
         'target_1_5', 'target_2_5', 'target_3', 'target_3_5',
-        'target_5', 'target_7', 'target_10',
+        'target_5', 'target_7', 'target_10', 'watch_trailing',
     }:
         strategy = 'current'
 
@@ -17272,9 +17461,52 @@ def api_trading_simulations():
 def api_trading_sim_summary():
     try:
         filters = _trading_sim_filters_from_request()
+        risk_level = filters.get('risk_level')
+        strategy = filters.get('strategy') or 'current'
         service = _trading_sim_service()
         with _trading_sim_conn() as conn:
             summary = service.summarize_simulations(conn, **filters)
+
+            # Override strategy_pnl_usd with booked sells from trade_simulation_sells
+            opened_since = filters.get('opened_since')
+            opened_before = filters.get('opened_before')
+            risk_join = "LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint"
+            risk_where = "AND tps.risk_level = ?" if risk_level else ""
+            strat_where = "AND tss.strategy = ?" if strategy and strategy != 'current' else "AND 1=0"
+            time_where = ""
+            params = []
+            if risk_level:
+                params.append(risk_level)
+            if strategy and strategy != 'current':
+                params.append(strategy)
+            if opened_since:
+                time_where += " AND ts.opened_at >= ?"
+                params.append(opened_since)
+            if opened_before:
+                time_where += " AND ts.opened_at <= ?"
+                params.append(opened_before)
+
+            row = conn.execute(f"""
+                SELECT
+                    ROUND(SUM(tss.pnl_usd), 2) as pnl_usd,
+                    ROUND(SUM(tss.realised_usd), 2) as realised_usd,
+                    COUNT(DISTINCT tss.simulation_id) as positions
+                FROM trade_simulation_sells tss
+                JOIN trade_simulations ts ON ts.id = tss.simulation_id
+                {risk_join}
+                WHERE 1=1 {risk_where} {strat_where} {time_where}
+            """, params).fetchone()
+
+            if row:
+                summary['strategy_pnl_usd'] = row[0] or 0
+                summary['strategy_realised_usd'] = row[1] or 0
+            summary['strategy_label'] = {
+                'cascade': 'Cascade', 'peak': 'Peak',
+                'target_1_5': '1.5x', 'target_2_5': '2.5x', 'target_3': '3x',
+                'target_3_5': '3.5x', 'target_5': '5x', 'target_7': '7x', 'target_10': '10x',
+                'watch_trailing': 'WATCH Trailing',
+            }.get(strategy, 'Strategy')
+
         return jsonify({"ok": True, "summary": summary})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
@@ -17533,6 +17765,198 @@ def api_trading_sim_auto_buy_migrations():
         return jsonify({"ok": False, "error": str(exc)}), 500
 
 
+@app.route('/api/trading-sim/backfill-watchtower', methods=['POST'])
+def api_trading_sim_backfill_watchtower():
+    """
+    Backfill closed simulations for WATCHTOWER tokens using historical DB data.
+    No Jupiter calls — uses market_cap at migration as entry, token_outcomes for exit.
+    Assumes 1 SOL entry. Creates CLOSED sims so they appear in WATCH-T filter.
+    """
+    try:
+        payload = request.get_json(silent=True) or {}
+        sol_amount = float(payload.get('sol_amount') or 1.0)
+        SOL_PRICE_USD = float(payload.get('sol_price_usd') or 150.0)  # approximate
+
+        with _trading_sim_conn(timeout=30) as conn:
+            _ensure_trading_sim_schema_once()
+
+            candidates = conn.execute("""
+                SELECT
+                    ta.mint,
+                    COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator,
+                    COALESCE(mc.symbol, mc.name, substr(ta.mint,1,8)) AS token_symbol,
+                    ta.market_cap_highest,
+                    ta.migrated_at,
+                    ta.lifecycle_stage,
+                    to2.peak_market_cap_usd,
+                    to2.latest_market_cap_usd,
+                    to2.max_return_multiple,
+                    to2.behaviour_category,
+                    crs.evidence_grade
+                FROM token_analysis ta
+                JOIN creator_risk_scores crs
+                    ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                LEFT JOIN token_outcomes to2 ON to2.mint = ta.mint
+                LEFT JOIN trade_simulations ts ON ts.mint = ta.mint
+                WHERE crs.watchtower_related = 1
+                  AND ta.lifecycle_stage IN ('migrated', 'graduated')
+                  AND ta.market_cap_highest IS NOT NULL
+                  AND ta.market_cap_highest > 0
+                  AND ts.id IS NULL
+            """).fetchall()
+
+            created, skipped = 0, 0
+            for c in candidates:
+                try:
+                    # Entry: migration market cap → derive token price in SOL
+                    entry_mcap_usd = c['market_cap_highest']
+                    if not entry_mcap_usd or entry_mcap_usd <= 0:
+                        skipped += 1
+                        continue
+
+                    entry_price_sol = (entry_mcap_usd / SOL_PRICE_USD) / 1_000_000_000  # per token (1B supply)
+                    if entry_price_sol <= 0:
+                        skipped += 1
+                        continue
+
+                    token_amount_ui  = sol_amount / entry_price_sol
+                    token_amount_raw = int(token_amount_ui * 1_000_000)  # 6 decimals
+
+                    # Exit: use latest_market_cap or 0 if rugged
+                    exit_mcap_usd    = c['latest_market_cap_usd'] or 0
+                    exit_price_sol   = (exit_mcap_usd / SOL_PRICE_USD) / 1_000_000_000 if exit_mcap_usd else 0
+                    exit_sol         = token_amount_ui * exit_price_sol
+                    pnl_sol          = exit_sol - sol_amount
+                    pnl_pct          = (pnl_sol / sol_amount * 100) if sol_amount > 0 else 0
+
+                    peak_mcap        = c['peak_market_cap_usd'] or entry_mcap_usd
+                    peak_price_sol   = (peak_mcap / SOL_PRICE_USD) / 1_000_000_000
+                    peak_sol         = token_amount_ui * peak_price_sol
+
+                    opened_at = int(c['migrated_at']) if c['migrated_at'] else int(time.time())
+
+                    notes = (
+                        f"watchtower backfill evidence={c['evidence_grade']} "
+                        f"behaviour={c['behaviour_category'] or 'unknown'} "
+                        f"peak_multiple={round(c['max_return_multiple'] or 1, 2)}x"
+                    )
+
+                    conn.execute("""
+                        INSERT OR IGNORE INTO trade_simulations (
+                            mint, token_symbol, status,
+                            entry_sol, entry_lamports, token_amount_raw, token_amount_ui,
+                            entry_price_sol, entry_market_cap, entry_market_cap_source,
+                            slippage_bps, entry_quote_json,
+                            exit_sol, exit_lamports, exit_price_sol, exit_quote_json,
+                            pnl_sol, pnl_pct, opened_at, closed_at, notes
+                        ) VALUES (
+                            ?, ?, 'CLOSED',
+                            ?, ?, ?, ?,
+                            ?, ?, 'historical_mcap',
+                            0, '{"source":"backfill"}',
+                            ?, ?, ?, '{"source":"backfill"}',
+                            ?, ?, ?, ?, ?
+                        )
+                    """, (
+                        c['mint'], c['token_symbol'],
+                        sol_amount, int(sol_amount * 1e9), token_amount_raw, token_amount_ui,
+                        entry_price_sol, entry_mcap_usd,
+                        exit_sol, int(exit_sol * 1e9), exit_price_sol,
+                        pnl_sol, pnl_pct,
+                        opened_at, opened_at + 86400,
+                        notes,
+                    ))
+                    created += 1
+                except Exception as e:
+                    skipped += 1
+
+            conn.commit()
+
+        return jsonify({"ok": True, "created": created, "skipped": skipped, "total_candidates": len(candidates)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/auto-buy-watchtower', methods=['POST'])
+def api_trading_sim_auto_buy_watchtower():
+    """Simulate buys on migrated WATCHTOWER-linked tokens not yet simulated."""
+    try:
+        payload = request.get_json(silent=True) or {}
+        sol_amount = float(payload.get('sol_amount') or 0)
+        slippage_bps = int(payload.get('slippage_bps') or 500)
+        limit = max(1, min(int(payload.get('limit') or 10), 50))
+        if sol_amount <= 0:
+            return jsonify({"ok": False, "error": "SOL amount must be greater than zero"}), 400
+
+        service = _trading_sim_service()
+        with _trading_sim_conn(timeout=30) as conn:
+            _ensure_trading_sim_schema_once()
+            candidates = conn.execute("""
+                SELECT
+                    ta.mint,
+                    COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator_address,
+                    CASE WHEN COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN
+                         (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                         THEN 'confirmed' ELSE 'child' END AS creator_type,
+                    wog.operator_address AS linked_operator,
+                    tps.risk_level,
+                    tps.prediction_score,
+                    COALESCE(mc.symbol, mc.name) AS token_symbol,
+                    ta.migrated_at
+                FROM token_analysis ta
+                LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                LEFT JOIN token_prediction_scores tps ON tps.mint = ta.mint
+                LEFT JOIN watchtower_operator_graph wog
+                       ON wog.child_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                LEFT JOIN trade_simulations ts ON ts.mint = ta.mint
+                WHERE ta.lifecycle_stage = 'migrated'
+                  AND COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN (
+                      SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                      UNION
+                      SELECT child_address FROM watchtower_operator_graph
+                      WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                        AND relationship = 'launch_wallet'
+                  )
+                  AND ts.id IS NULL
+                GROUP BY ta.mint
+                ORDER BY ta.migrated_at DESC
+                LIMIT ?
+            """, (limit,)).fetchall()
+
+            created = []
+            errors = []
+            for c in candidates:
+                notes = (
+                    f"watchtower creator_type={c['creator_type']} "
+                    f"operator={c['linked_operator'] or c['creator_address']} "
+                    f"risk={c['risk_level'] or 'unscored'}"
+                )
+                try:
+                    simulation = service.simulate_buy(
+                        conn,
+                        mint=c['mint'],
+                        sol_amount=sol_amount,
+                        slippage_bps=slippage_bps,
+                        token_symbol=c['token_symbol'],
+                        notes=notes,
+                    )
+                    created.append({"mint": c['mint'], "creator_type": c['creator_type'], "simulation": simulation})
+                except Exception as exc:
+                    errors.append({"mint": c['mint'], "error": str(exc)})
+
+        return jsonify({
+            "ok": True,
+            "created_count": len(created),
+            "candidate_count": len(candidates),
+            "error_count": len(errors),
+            "created": created,
+            "errors": errors,
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
 @app.route('/api/trading-sim/sell/<int:simulation_id>', methods=['POST'])
 def api_trading_sim_sell(simulation_id: int):
     try:
@@ -17568,43 +17992,300 @@ def api_trading_sim_liq_caught():
         return jsonify({"error": str(exc)}), 500
 
 
+@app.route('/api/trading-sim/portfolio-equity')
+def api_trading_sim_portfolio_equity():
+    try:
+        filters = _trading_sim_filters_from_request()
+        service = _trading_sim_service()
+        with _trading_sim_conn() as conn:
+            result = service.portfolio_equity(
+                conn,
+                risk_level=filters.get('risk_level'),
+                opened_since=filters.get('opened_since'),
+                opened_before=filters.get('opened_before'),
+            )
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
 @app.route('/api/trading-sim/strategy-pnl')
 def api_trading_sim_strategy_pnl():
     try:
+        filters = _trading_sim_filters_from_request()
+        risk_level = filters.get('risk_level')
+        opened_since = filters.get('opened_since')
+        opened_before = filters.get('opened_before')
+
+        valid_risk = {'CRITICAL', 'HIGH', 'MEDIUM', 'WATCH', 'LOW'}
+        if risk_level and risk_level not in valid_risk:
+            risk_level = None
+
+        risk_join = "LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint"
+        clauses = []
+        params = []
+        if risk_level:
+            clauses.append("tps.risk_level = ?")
+            params.append(risk_level)
+        if opened_since:
+            clauses.append("ts.opened_at >= ?")
+            params.append(opened_since)
+        if opened_before:
+            clauses.append("ts.opened_at <= ?")
+            params.append(opened_before)
+        where = ("AND " + " AND ".join(clauses)) if clauses else ""
+
         with _trading_sim_conn() as conn:
             _ensure_trading_sim_schema_once()
-            rows = conn.execute("""
+            rows = conn.execute(f"""
                 SELECT
-                    strategy,
-                    sell_type,
-                    COUNT(DISTINCT simulation_id) as positions,
+                    tss.strategy,
+                    tss.sell_type,
+                    COUNT(DISTINCT tss.simulation_id) as positions,
                     COUNT(*) as sell_events,
-                    ROUND(SUM(realised_usd), 2) as realised_usd,
-                    ROUND(SUM(pnl_usd), 2) as pnl_usd,
-                    ROUND(AVG(pnl_usd), 2) as avg_pnl_usd,
-                    SUM(CASE WHEN pnl_usd > 0 THEN 1 ELSE 0 END) as wins,
-                    SUM(CASE WHEN pnl_usd <= 0 THEN 1 ELSE 0 END) as losses
-                FROM trade_simulation_sells
-                GROUP BY strategy, sell_type
-                ORDER BY strategy, sell_type
-            """).fetchall()
+                    ROUND(SUM(tss.realised_usd), 2) as realised_usd,
+                    ROUND(SUM(tss.pnl_usd), 2) as pnl_usd,
+                    ROUND(AVG(tss.pnl_usd), 2) as avg_pnl_usd,
+                    SUM(CASE WHEN tss.pnl_usd > 0 THEN 1 ELSE 0 END) as wins,
+                    SUM(CASE WHEN tss.pnl_usd <= 0 THEN 1 ELSE 0 END) as losses
+                FROM trade_simulation_sells tss
+                JOIN trade_simulations ts ON ts.id = tss.simulation_id
+                {risk_join}
+                WHERE 1=1 {where}
+                GROUP BY tss.strategy, tss.sell_type
+                ORDER BY tss.strategy, tss.sell_type
+            """, params).fetchall()
 
-            # Also return per-strategy totals
-            totals = conn.execute("""
+            totals = conn.execute(f"""
                 SELECT
-                    strategy,
-                    COUNT(DISTINCT simulation_id) as positions,
-                    ROUND(SUM(pnl_usd), 2) as total_pnl_usd,
-                    SUM(CASE WHEN pnl_usd > 0 THEN 1 ELSE 0 END) as wins,
-                    SUM(CASE WHEN pnl_usd <= 0 THEN 1 ELSE 0 END) as losses
-                FROM trade_simulation_sells
-                GROUP BY strategy
+                    tss.strategy,
+                    COUNT(DISTINCT tss.simulation_id) as positions,
+                    ROUND(SUM(tss.pnl_usd), 2) as total_pnl_usd,
+                    SUM(CASE WHEN tss.pnl_usd > 0 THEN 1 ELSE 0 END) as wins,
+                    SUM(CASE WHEN tss.pnl_usd <= 0 THEN 1 ELSE 0 END) as losses
+                FROM trade_simulation_sells tss
+                JOIN trade_simulations ts ON ts.id = tss.simulation_id
+                {risk_join}
+                WHERE 1=1 {where}
+                GROUP BY tss.strategy
                 ORDER BY total_pnl_usd DESC
-            """).fetchall()
+            """, params).fetchall()
 
         return jsonify({
             "by_strategy_and_type": [dict(r) for r in rows],
             "totals": [dict(r) for r in totals],
+        })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/strategy-pnl-matrix')
+def api_trading_sim_strategy_pnl_matrix():
+    """PnL for each strategy broken down by risk level."""
+    try:
+        filters = _trading_sim_filters_from_request()
+        opened_since = filters.get('opened_since')
+        opened_before = filters.get('opened_before')
+
+        clauses = []
+        params = []
+        if opened_since:
+            clauses.append("ts.opened_at >= ?")
+            params.append(opened_since)
+        if opened_before:
+            clauses.append("ts.opened_at <= ?")
+            params.append(opened_before)
+        where = ("AND " + " AND ".join(clauses)) if clauses else ""
+
+        with _trading_sim_conn() as conn:
+            _ensure_trading_sim_schema_once()
+            # Base: all positions (open + closed). For each strategy, sum pnl from sell records.
+            # Positions with no sell record for a strategy are still open in that strategy — excluded
+            # from PnL sum but counted in position total so win% is accurate.
+            rows = conn.execute(f"""
+                WITH all_strategies(strategy) AS (
+                    SELECT DISTINCT strategy FROM trade_simulation_sells
+                ),
+                all_positions AS (
+                    SELECT ts.id as simulation_id,
+                           COALESCE(tps.risk_level, 'UNKNOWN') as risk_level
+                    FROM trade_simulations ts
+                    LEFT JOIN token_prediction_scores tps ON tps.mint = ts.mint
+                    WHERE ts.entry_market_cap > 0 {where}
+                ),
+                pos_strategy AS (
+                    SELECT ap.simulation_id, ap.risk_level, s.strategy,
+                           SUM(tss.pnl_usd) as net_pnl,
+                           SUM(tss.realised_usd) as realised_usd,
+                           COUNT(tss.id) as sell_count
+                    FROM all_positions ap
+                    CROSS JOIN all_strategies s
+                    LEFT JOIN trade_simulation_sells tss
+                        ON tss.simulation_id = ap.simulation_id AND tss.strategy = s.strategy
+                    GROUP BY ap.simulation_id, ap.risk_level, s.strategy
+                )
+                SELECT
+                    strategy,
+                    risk_level,
+                    COUNT(*) as positions,
+                    ROUND(SUM(COALESCE(net_pnl, 0)), 2) as pnl_usd,
+                    COUNT(CASE WHEN net_pnl > 0 THEN 1 END) as wins,
+                    COUNT(CASE WHEN net_pnl <= 0 AND sell_count > 0 THEN 1 END) as losses
+                FROM pos_strategy
+                GROUP BY strategy, risk_level
+                ORDER BY strategy, risk_level
+            """, params).fetchall()
+
+        return jsonify([dict(r) for r in rows])
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/trading-sim/watch-analytics')
+def api_trading_sim_watch_analytics():
+    """WATCH token deep analytics: peak distribution, entry MC, time of day, funder SOL."""
+    try:
+        with _trading_sim_conn() as conn:
+            _ensure_trading_sim_schema_once()
+
+            base = """
+                FROM trade_simulations ts
+                JOIN token_prediction_scores tps ON tps.mint = ts.mint
+                LEFT JOIN token_analysis ta ON ta.mint = ts.mint
+                LEFT JOIN metadata_cache mc ON mc.mint = ts.mint
+                JOIN (
+                    SELECT simulation_id,
+                        MAX(mc_at_hit) / MIN(entry_mc) as peak_ratio,
+                        SUM(pnl_usd) as pnl_usd
+                    FROM trade_simulation_sells
+                    WHERE strategy = 'watch_trailing'
+                    GROUP BY simulation_id
+                ) peak ON peak.simulation_id = ts.id
+                WHERE tps.risk_level = 'WATCH'
+                AND ts.status = 'CLOSED'
+                AND ts.entry_market_cap > 0
+            """
+
+            # 1. Peak ratio distribution
+            peak_dist = conn.execute(f"""
+                SELECT
+                    CASE
+                        WHEN peak.peak_ratio < 1.0  THEN 'below_entry'
+                        WHEN peak.peak_ratio < 1.5  THEN '1x_1.5x'
+                        WHEN peak.peak_ratio < 2.0  THEN '1.5x_2x'
+                        WHEN peak.peak_ratio < 3.0  THEN '2x_3x'
+                        WHEN peak.peak_ratio < 5.0  THEN '3x_5x'
+                        WHEN peak.peak_ratio < 10.0 THEN '5x_10x'
+                        ELSE '10x_plus'
+                    END as bucket,
+                    COUNT(*) as tokens,
+                    ROUND(AVG(peak.peak_ratio), 2) as avg_peak,
+                    ROUND(SUM(peak.pnl_usd), 2) as total_pnl,
+                    ROUND(AVG(peak.pnl_usd), 2) as avg_pnl
+                {base}
+                GROUP BY bucket
+                ORDER BY MIN(peak.peak_ratio)
+            """).fetchall()
+
+            # 2. Entry MC bands
+            entry_mc = conn.execute(f"""
+                SELECT
+                    CASE
+                        WHEN ts.entry_market_cap < 20000  THEN 'under_20k'
+                        WHEN ts.entry_market_cap < 40000  THEN '20k_40k'
+                        WHEN ts.entry_market_cap < 60000  THEN '40k_60k'
+                        WHEN ts.entry_market_cap < 80000  THEN '60k_80k'
+                        WHEN ts.entry_market_cap < 100000 THEN '80k_100k'
+                        ELSE 'over_100k'
+                    END as band,
+                    COUNT(*) as tokens,
+                    ROUND(AVG(ts.entry_market_cap), 0) as avg_entry_mc,
+                    ROUND(AVG(peak.peak_ratio), 2) as avg_peak,
+                    SUM(CASE WHEN peak.peak_ratio >= 3 THEN 1 ELSE 0 END) as reached_3x,
+                    ROUND(SUM(peak.pnl_usd), 2) as total_pnl,
+                    ROUND(AVG(peak.pnl_usd), 2) as avg_pnl
+                {base}
+                GROUP BY band
+                ORDER BY MIN(ts.entry_market_cap)
+            """).fetchall()
+
+            # 3. Hour of day (UTC)
+            by_hour = conn.execute(f"""
+                SELECT
+                    CAST(strftime('%H', ts.opened_at, 'unixepoch') AS INTEGER) as hour_utc,
+                    COUNT(*) as tokens,
+                    ROUND(AVG(peak.peak_ratio), 2) as avg_peak,
+                    SUM(CASE WHEN peak.peak_ratio >= 3 THEN 1 ELSE 0 END) as reached_3x,
+                    ROUND(SUM(peak.pnl_usd), 2) as total_pnl,
+                    ROUND(AVG(peak.pnl_usd), 2) as avg_pnl
+                {base}
+                GROUP BY hour_utc
+                ORDER BY hour_utc
+            """).fetchall()
+
+            # 4. Primary funder SOL amount (largest funder per creator)
+            funder_sol = conn.execute("""
+                WITH top_funders AS (
+                    SELECT COALESCE(ta2.earliest_tx_creator, ta2.pf_ws_creator) as creator,
+                        MAX(cf.amount_sol) as max_sol
+                    FROM creator_funders cf
+                    JOIN token_analysis ta2 ON ta2.earliest_tx_creator = cf.creator_address
+                        OR ta2.pf_ws_creator = cf.creator_address
+                    WHERE cf.is_cex = 0
+                    GROUP BY creator
+                ),
+                peak_data AS (
+                    SELECT simulation_id,
+                        MAX(mc_at_hit) / MIN(entry_mc) as peak_ratio,
+                        SUM(pnl_usd) as pnl_usd
+                    FROM trade_simulation_sells
+                    WHERE strategy = 'watch_trailing'
+                    GROUP BY simulation_id
+                )
+                SELECT
+                    CASE
+                        WHEN top_f.max_sol < 1   THEN 'under_1_sol'
+                        WHEN top_f.max_sol < 5   THEN '1_5_sol'
+                        WHEN top_f.max_sol < 10  THEN '5_10_sol'
+                        WHEN top_f.max_sol < 20  THEN '10_20_sol'
+                        ELSE 'over_20_sol'
+                    END as band,
+                    COUNT(*) as tokens,
+                    ROUND(AVG(top_f.max_sol), 2) as avg_primary_sol,
+                    ROUND(AVG(peak.peak_ratio), 2) as avg_peak,
+                    SUM(CASE WHEN peak.peak_ratio >= 3 THEN 1 ELSE 0 END) as reached_3x,
+                    ROUND(SUM(peak.pnl_usd), 2) as total_pnl
+                FROM trade_simulations ts
+                JOIN token_prediction_scores tps ON tps.mint = ts.mint
+                LEFT JOIN token_analysis ta ON ta.mint = ts.mint
+                JOIN peak_data peak ON peak.simulation_id = ts.id
+                JOIN top_funders top_f ON top_f.creator = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                WHERE tps.risk_level = 'WATCH'
+                  AND ts.status = 'CLOSED'
+                  AND ts.entry_market_cap > 0
+                GROUP BY band
+                ORDER BY MIN(top_f.max_sol)
+            """).fetchall()
+
+            # 5. Summary stats
+            summary = conn.execute(f"""
+                SELECT
+                    COUNT(*) as total_closed,
+                    SUM(CASE WHEN peak.peak_ratio >= 3 THEN 1 ELSE 0 END) as winners_3x,
+                    ROUND(AVG(peak.peak_ratio), 2) as avg_peak,
+                    ROUND(SUM(peak.pnl_usd), 2) as total_pnl,
+                    ROUND(AVG(peak.pnl_usd), 2) as avg_pnl,
+                    ROUND(MIN(peak.peak_ratio), 2) as min_peak,
+                    ROUND(MAX(peak.peak_ratio), 2) as max_peak
+                {base}
+            """).fetchone()
+
+        return jsonify({
+            "peak_distribution": [dict(r) for r in peak_dist],
+            "entry_mc_bands": [dict(r) for r in entry_mc],
+            "by_hour": [dict(r) for r in by_hour],
+            "funder_sol_bands": [dict(r) for r in funder_sol],
+            "summary": dict(summary) if summary else {},
         })
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
@@ -17825,6 +18506,20 @@ def api_predictions_live():
                     tps.creator_score, tps.network_score, tps.funding_score,
                     tps.outcome_history_score, tps.liquidation_score,
                     tps.reason_codes, tps.predicted_at, tps.last_updated_at,
+                    pdc.suggested_action, pdc.action_reason,
+                    pdc.blocking_risk_flags_json, pdc.positive_evidence_flags_json,
+                    pdc.why_reasons_json, pdc.creator_quality_at_prediction,
+                    pdc.creator_history_count_at_prediction, pdc.ecosystem_quality_at_prediction,
+                    pdc.coordinator_exposure_at_prediction, pdc.liquidity_health_at_prediction,
+                    pdc.risk_state_at_prediction, pdc.confidence_at_prediction,
+                    pdc.snapshot_source,
+                    COALESCE((SELECT CASE WHEN MAX(CASE WHEN ts.status='OPEN' THEN 1 ELSE 0 END)=1 THEN 'OPEN' ELSE 'CLOSED' END FROM trade_simulations ts WHERE ts.mint=tps.mint), 'NOT_SIMULATED') AS post_prediction_simulation_status,
+                    COALESCE((
+                        SELECT GROUP_CONCAT(DISTINCT coc.relationship_type)
+                        FROM creator_outbound_classifications coc
+                        WHERE coc.creator_address = COALESCE(tps.creator_address, ta.earliest_tx_creator)
+                          AND COALESCE(coc.first_seen, coc.created_at) >= tps.predicted_at
+                    ), '') AS post_prediction_outbound_types,
                     mc.name as token_name, ta.market_cap_highest,
                     ta.lifecycle_stage, ta.migrated_at,
                     COALESCE(tps.creator_address, ta.earliest_tx_creator) as creator_address,
@@ -17850,15 +18545,209 @@ def api_predictions_live():
                             END
                         )
                         ELSE NULL
-                    END as migration_speed_secs
+                    END as migration_speed_secs,
+                    CASE WHEN COALESCE(tps.creator_address, ta.earliest_tx_creator, ta.pf_ws_creator) IN (
+                        SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                        UNION
+                        SELECT child_address FROM watchtower_operator_graph
+                        WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                          AND relationship = 'launch_wallet'
+                    ) THEN 1 ELSE 0 END AS watchtower_linked
                 FROM token_prediction_scores tps
                 LEFT JOIN token_analysis ta ON ta.mint = tps.mint
                 LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
+                LEFT JOIN prediction_decision_context pdc ON pdc.mint = tps.mint
                 {where_sql}
                 ORDER BY tps.predicted_at DESC
                 LIMIT ?
             """, params + [limit]).fetchall()
             return jsonify([dict(r) for r in rows])
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/watch-coordination')
+def api_predictions_watch_coordination():
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            watch_creators = {
+                r[0] for r in conn.execute("""
+                    SELECT DISTINCT tps.creator_address
+                    FROM token_prediction_scores tps
+                    JOIN token_analysis ta ON ta.mint=tps.mint
+                    WHERE tps.risk_level='WATCH'
+                      AND tps.prediction_status='COMPLETE'
+                      AND ta.lifecycle_stage='migrated'
+                      AND tps.creator_address IS NOT NULL
+                """).fetchall()
+            }
+            if not watch_creators:
+                return jsonify({"summary": {}, "coordinators": [], "creators": [], "outcome_comparison": []})
+            placeholders = ",".join("?" for _ in watch_creators)
+            flags = {creator: {"shared_payout": 0, "return_to_funder": 0, "large_outbound": 0} for creator in watch_creators}
+            for row in conn.execute(f"""
+                SELECT creator_address, relationship_type
+                FROM creator_outbound_classifications
+                WHERE creator_address IN ({placeholders})
+            """, tuple(watch_creators)).fetchall():
+                if row["relationship_type"] in flags[row["creator_address"]]:
+                    flags[row["creator_address"]][row["relationship_type"]] = 1
+            outbound_covered = {
+                r[0] for r in conn.execute(f"""
+                    SELECT DISTINCT creator_address
+                    FROM creator_outgoing_transfers
+                    WHERE creator_address IN ({placeholders})
+                """, tuple(watch_creators)).fetchall()
+            }
+            summary = {
+                "watch_creators": len(watch_creators),
+                "outbound_covered": len(outbound_covered),
+                "shared_payout_creators": sum(v["shared_payout"] for v in flags.values()),
+                "return_to_funder_creators": sum(v["return_to_funder"] for v in flags.values()),
+                "large_outbound_creators": sum(v["large_outbound"] for v in flags.values()),
+                "coordinated_creators": sum(1 for v in flags.values() if v["shared_payout"] or v["return_to_funder"]),
+            }
+            coordinators = conn.execute(f"""
+                SELECT coc.recipient_address AS payout_wallet,
+                       COUNT(DISTINCT coc.creator_address) AS watch_creators,
+                       ROUND(SUM(coc.amount_sol), 4) AS total_sol,
+                       GROUP_CONCAT(DISTINCT coc.creator_address) AS creators_csv,
+                       CASE WHEN cw.cex_address IS NOT NULL THEN 1 ELSE 0 END AS is_cex,
+                       cw.exchange_name,
+                       cw.wallet_type
+                FROM creator_outbound_classifications coc
+                LEFT JOIN cex_wallets cw ON cw.cex_address=coc.recipient_address AND cw.is_active=1
+                WHERE coc.relationship_type='shared_payout_wallet'
+                  AND coc.creator_address IN ({placeholders})
+                GROUP BY coc.recipient_address
+                ORDER BY watch_creators DESC, total_sol DESC
+                LIMIT 20
+            """, tuple(watch_creators)).fetchall()
+            peak_rows = conn.execute(f"""
+                SELECT earliest_tx_creator AS creator_address,
+                       MAX(COALESCE(market_cap_highest,0)) AS best_peak_mc
+                FROM token_analysis
+                WHERE earliest_tx_creator IN ({placeholders})
+                GROUP BY earliest_tx_creator
+            """, tuple(watch_creators)).fetchall()
+            peaks = {r["creator_address"]: float(r["best_peak_mc"] or 0) for r in peak_rows}
+            cohort_rows = {"coordinated": [], "not_coordinated": []}
+            for creator in watch_creators:
+                cohort = "coordinated" if flags[creator]["shared_payout"] or flags[creator]["return_to_funder"] else "not_coordinated"
+                cohort_rows[cohort].append(peaks.get(creator, 0.0))
+            outcome = []
+            for cohort, values in cohort_rows.items():
+                if not values:
+                    continue
+                outcome.append({
+                    "cohort": cohort,
+                    "creators": len(values),
+                    "avg_best_peak_mc": round(sum(values) / len(values), 2),
+                    "g7_rate_pct": round(sum(1 for v in values if v < 75000) / len(values) * 100, 1),
+                })
+            return jsonify({
+                "summary": summary,
+                "coordinators": [dict(r) for r in coordinators],
+                "creators": [],
+                "outcome_comparison": outcome,
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route('/api/predictions/watch-coordination/wallet/<wallet>')
+def api_predictions_watch_coordination_wallet(wallet):
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("""
+                SELECT
+                    coc.creator_address,
+                    coc.amount_sol,
+                    coc.tx_count,
+                    ta.mint,
+                    COALESCE(mc.symbol, mc.name, ta.mint) AS token_name,
+                    ta.market_cap_highest,
+                    CASE
+                        WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
+                        WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
+                        WHEN ta.market_cap_highest >= 500000 THEN 'G3'
+                        WHEN ta.market_cap_highest >= 300000 THEN 'G4'
+                        WHEN ta.market_cap_highest >= 150000 THEN 'G5'
+                        WHEN ta.market_cap_highest >= 75000 THEN 'G6'
+                        WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
+                        ELSE NULL
+                    END AS g_level,
+                    ta.migrated_at,
+                    tps.prediction_label,
+                    tps.risk_level
+                FROM creator_outbound_classifications coc
+                JOIN token_prediction_scores tps ON tps.creator_address=coc.creator_address
+                JOIN token_analysis ta ON ta.mint=tps.mint
+                LEFT JOIN metadata_cache mc ON mc.mint=ta.mint
+                WHERE coc.recipient_address=?
+                  AND coc.relationship_type='shared_payout_wallet'
+                  AND tps.risk_level='WATCH'
+                  AND tps.prediction_status='COMPLETE'
+                  AND ta.lifecycle_stage='migrated'
+                ORDER BY ta.market_cap_highest DESC, ta.migrated_at DESC
+            """, (wallet,)).fetchall()
+            creators = {}
+            for row in rows:
+                creator = row["creator_address"]
+                bucket = creators.setdefault(creator, {
+                    "creator_address": creator,
+                    "amount_sol": 0.0,
+                    "tx_count": 0,
+                    "tokens": [],
+                })
+                bucket["amount_sol"] = max(bucket["amount_sol"], float(row["amount_sol"] or 0))
+                bucket["tx_count"] = max(bucket["tx_count"], int(row["tx_count"] or 0))
+                bucket["tokens"].append({
+                    "mint": row["mint"],
+                    "token_name": row["token_name"],
+                    "market_cap_highest": row["market_cap_highest"],
+                    "g_level": row["g_level"],
+                    "migrated_at": row["migrated_at"],
+                    "prediction_label": row["prediction_label"],
+                    "risk_level": row["risk_level"],
+                })
+            exchange_exits = conn.execute("""
+                SELECT cot.creator_address,
+                       cot.recipient_address,
+                       SUM(cot.amount_sol) AS total_sol,
+                       COUNT(*) AS tx_count,
+                       COALESCE(cw.exchange_name, cot.cex_exchange, 'CEX') AS exchange_name,
+                       COALESCE(cw.wallet_type, cot.cex_type, 'exchange') AS wallet_type
+                FROM creator_outgoing_transfers cot
+                LEFT JOIN cex_wallets cw ON cw.cex_address=cot.recipient_address AND cw.is_active=1
+                WHERE cot.creator_address IN (
+                    SELECT DISTINCT coc.creator_address
+                    FROM creator_outbound_classifications coc
+                    WHERE coc.recipient_address=?
+                      AND coc.relationship_type='shared_payout_wallet'
+                )
+                  AND (cot.is_cex=1 OR cw.cex_address IS NOT NULL)
+                GROUP BY cot.creator_address, cot.recipient_address, exchange_name, wallet_type
+                ORDER BY total_sol DESC
+            """, (wallet,)).fetchall()
+            wallet_meta = conn.execute("""
+                SELECT exchange_name, wallet_type
+                FROM cex_wallets
+                WHERE cex_address=? AND is_active=1
+                LIMIT 1
+            """, (wallet,)).fetchone()
+            return jsonify({
+                "wallet": wallet,
+                "wallet_is_cex": 1 if wallet_meta else 0,
+                "wallet_exchange_name": wallet_meta["exchange_name"] if wallet_meta else None,
+                "wallet_type": wallet_meta["wallet_type"] if wallet_meta else None,
+                "creator_count": len(creators),
+                "total_sol": round(sum(c["amount_sol"] for c in creators.values()), 6),
+                "creators": list(creators.values()),
+                "exchange_exits": [dict(r) for r in exchange_exits],
+            })
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 
@@ -17872,6 +18761,9 @@ def api_predictions_token(mint):
             score = conn.execute(
                 "SELECT * FROM token_prediction_scores WHERE mint = ?", (mint,)
             ).fetchone()
+            decision = conn.execute(
+                "SELECT * FROM prediction_decision_context WHERE mint = ?", (mint,)
+            ).fetchone()
             events = conn.execute(
                 "SELECT * FROM token_prediction_events WHERE mint = ? ORDER BY event_at DESC LIMIT 20",
                 (mint,)
@@ -17879,9 +18771,51 @@ def api_predictions_token(mint):
             outcome = conn.execute(
                 "SELECT * FROM token_prediction_outcomes WHERE mint = ?", (mint,)
             ).fetchone()
+            feedback = conn.execute(
+                """SELECT cp.creator_quality_score AS creator_quality_now,
+                          chp.historical_outcome_score AS creator_historical_score_now,
+                          chp.total_tokens AS creator_historical_tokens_now,
+                          np.network_quality_score AS network_quality_now,
+                          nhp.historical_outcome_score AS network_historical_score_now,
+                          CASE WHEN ts.mint IS NULL THEN 'NOT_SIMULATED'
+                               WHEN MAX(CASE WHEN ts.status='OPEN' THEN 1 ELSE 0 END)=1 THEN 'OPEN'
+                               ELSE 'CLOSED' END AS simulation_status_now,
+                          ROUND(SUM(COALESCE(ts.pnl_sol,0)), 6) AS simulation_pnl_now,
+                          COALESCE((
+                              SELECT GROUP_CONCAT(DISTINCT coc.relationship_type)
+                              FROM creator_outbound_classifications coc
+                              WHERE coc.creator_address=tps.creator_address
+                                AND COALESCE(coc.first_seen, coc.created_at) >= tps.predicted_at
+                          ), '') AS outbound_types_after_prediction,
+                          COALESCE((
+                              SELECT COUNT(DISTINCT coc.recipient_address)
+                              FROM creator_outbound_classifications coc
+                              WHERE coc.creator_address=tps.creator_address
+                                AND COALESCE(coc.first_seen, coc.created_at) >= tps.predicted_at
+                          ), 0) AS outbound_wallets_after_prediction
+                   FROM token_prediction_scores tps
+                   LEFT JOIN creator_profitability cp ON cp.creator_address=tps.creator_address
+                   LEFT JOIN creator_historical_performance chp ON chp.creator_address=tps.creator_address
+                   LEFT JOIN network_profitability np ON np.network_name=tps.network_name
+                   LEFT JOIN network_historical_performance nhp ON nhp.network_name=tps.network_name
+                   LEFT JOIN trade_simulations ts ON ts.mint=tps.mint
+                   WHERE tps.mint=?""",
+                (mint,)
+            ).fetchone()
             token = conn.execute(
                 """SELECT mc.name, ta.earliest_tx_creator as creator,
                           ta.market_cap_highest, ta.lifecycle_stage, ta.migrated_at,
+                          CASE
+                              WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
+                              WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
+                              WHEN ta.market_cap_highest >= 500000  THEN 'G3'
+                              WHEN ta.market_cap_highest >= 300000  THEN 'G4'
+                              WHEN ta.market_cap_highest >= 150000  THEN 'G5'
+                              WHEN ta.market_cap_highest >= 75000   THEN 'G6'
+                              WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
+                              ELSE NULL
+                          END as g_level,
+                          COALESCE((SELECT MAX(liquidity_removed) FROM token_pool_accounts WHERE mint = ta.mint), 0) as liquidity_removed,
                           tps.creator_was_fresh as creator_is_fresh
                    FROM token_analysis ta
                    LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
@@ -17891,8 +18825,10 @@ def api_predictions_token(mint):
             ).fetchone()
             return jsonify({
                 "score": dict(score) if score else None,
+                "decision": dict(decision) if decision else None,
                 "events": [dict(e) for e in events],
                 "outcome": dict(outcome) if outcome else None,
+                "feedback": dict(feedback) if feedback else None,
                 "token": dict(token) if token else None
             })
     except Exception as exc:
@@ -20885,10 +21821,99 @@ def api_creator_analysis_queue_status():
         return jsonify({'error': str(e)}), 500
 
 
+
+@app.route('/profitable-creators')
+def profitable_creators_page():
+    return render_template('profitability_rankings.html', active_page='profitable-creators', entity='creators', title='Profitable Creators')
+
+@app.route('/profitable-networks')
+def profitable_networks_page():
+    return render_template('profitability_rankings.html', active_page='profitable-networks', entity='networks', title='Profitable Networks')
+
+@app.route('/profitable-funders')
+def profitable_funders_page():
+    return render_template('profitability_rankings.html', active_page='profitable-funders', entity='funders', title='Profitable Funders')
+
+@app.route('/api/profitability/<entity>')
+def api_profitability_rankings(entity: str):
+    table_map = {
+        'creators': ('creator_profitability', 'creator_quality_score DESC, roi_pct DESC'),
+        'networks': ('network_profitability', 'network_quality_score DESC, roi_pct DESC'),
+        'funders': ('funder_profitability', 'funder_quality_score DESC, aggregate_creator_roi_pct DESC'),
+        'clusters': ('cluster_profitability', 'cluster_roi_pct DESC'),
+    }
+    if entity not in table_map:
+        return jsonify({'error': 'unknown entity'}), 404
+    limit = min(max(int(request.args.get('limit', 100)), 1), 500)
+    table, order_by = table_map[entity]
+    try:
+        conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
+        rows = [dict(r) for r in conn.execute(f'SELECT * FROM {table} ORDER BY {order_by} LIMIT ?', (limit,)).fetchall()]
+        conn.close()
+        return jsonify({'ok': True, 'rows': rows})
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 500
+
+
+@app.route('/ecosystem')
+def ecosystem_home_page():
+    return render_template('ecosystem_home.html', active_page='ecosystem', title='Ecosystem')
+
+@app.route('/ecosystem-creators')
+def ecosystem_creators_page():
+    return render_template('ecosystem_rankings.html', active_page='ecosystem-creators', entity='creators', title='Ecosystem Creators')
+
+@app.route('/ecosystem-networks')
+def ecosystem_networks_page():
+    return render_template('ecosystem_rankings.html', active_page='ecosystem-networks', entity='networks', title='Ecosystem Networks')
+
+@app.route('/ecosystem-funders')
+def ecosystem_funders_page():
+    return render_template('ecosystem_rankings.html', active_page='ecosystem-funders', entity='funders', title='Ecosystem Funders')
+
+@app.route('/ecosystem-clusters')
+def ecosystem_clusters_page():
+    return render_template('ecosystem_rankings.html', active_page='ecosystem-clusters', entity='clusters', title='Ecosystem Clusters')
+
+@app.route('/api/ecosystem/<entity>')
+def api_ecosystem_rankings(entity: str):
+    table_map = {
+        'creators': ('creator_historical_performance', 'historical_outcome_score DESC, total_tokens DESC'),
+        'networks': ('network_historical_performance', 'historical_outcome_score DESC, total_tokens DESC'),
+        'funders': ('funder_historical_performance', 'historical_outcome_score DESC, total_tokens DESC'),
+        'clusters': ('cluster_historical_performance', 'historical_outcome_score DESC, total_tokens DESC'),
+    }
+    if entity not in table_map:
+        return jsonify({'error': 'unknown entity'}), 404
+    limit = min(max(int(request.args.get('limit', 100)), 1), 500)
+    table, order_by = table_map[entity]
+    try:
+        conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
+        rows = [dict(r) for r in conn.execute(f'SELECT * FROM {table} ORDER BY {order_by} LIMIT ?', (limit,)).fetchall()]
+        conn.close()
+        return jsonify({'ok': True, 'label': 'Historical Performance = observed token outcomes, not traded PnL', 'rows': rows})
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 500
+
+@app.route('/api/profitability/creator/<creator_address>')
+def api_creator_profitability(creator_address: str):
+    try:
+        conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
+        row = conn.execute('SELECT * FROM creator_profitability WHERE creator_address=?', (creator_address,)).fetchone()
+        conn.close()
+        return jsonify({'ok': True, 'row': dict(row) if row else None})
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 500
+
 @app.route('/creator-analysis')
 def creator_analysis_page():
     """Display creator scan history, findings, and network impacts"""
     return render_template("creator_analysis.html", active_page="creator-analysis")
+
+
+@app.route('/creators')
+def creators_alias_page():
+    return redirect('/creator-analysis', code=302)
 
 
 @app.route('/api/creator-outgoing-analysis/<creator_address>')
@@ -22917,108 +23942,6 @@ def settings_page():
     return render_template('settings.html', active_page='settings')
 
 
-# ── Pump Bot Monitor ────────────────────────────────────────────────────────
-
-@app.route('/pump-bots')
-def pump_bots_page():
-    return render_template('pump_bots.html', active_page='pump_bots')
-
-
-@app.route('/api/pump-bots/wallets')
-def api_pump_bot_wallets():
-    try:
-        with db_connect(DB_PATH, timeout=10) as conn:
-            rows = conn.execute("""
-                SELECT address, label, source, added_at, last_polled_at,
-                       last_seen_signature, total_tokens_touched, is_active
-                FROM pump_bot_wallets
-                ORDER BY total_tokens_touched DESC
-            """).fetchall()
-        return jsonify([{
-            "address": r[0], "label": r[1], "source": r[2],
-            "added_at": r[3], "last_polled_at": r[4],
-            "last_seen_signature": r[5], "total_tokens_touched": r[6],
-            "is_active": bool(r[7]),
-        } for r in rows])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/pump-bots/signals')
-def api_pump_bot_signals():
-    limit = min(int(request.args.get('limit', 100)), 500)
-    bot = request.args.get('bot')
-    try:
-        with db_connect(DB_PATH, timeout=10) as conn:
-            if bot:
-                rows = conn.execute("""
-                    SELECT s.id, s.mint, s.bonding_curve, s.bot_address, s.bot_label,
-                           s.detected_at, s.lifecycle_stage, s.bot_buy_count, s.bot_sol_spent,
-                           s.bot_pct_supply, s.total_buyers, s.is_top_holder, s.signal_strength,
-                           s.created_at,
-                           ta.lifecycle_stage AS ta_lifecycle, ta.migration_band,
-                           ta.market_cap_highest, ta.is_about_to_migrate
-                    FROM pump_bot_signals s
-                    LEFT JOIN token_analysis ta ON ta.mint = s.mint
-                    WHERE s.bot_address = ?
-                    ORDER BY s.detected_at DESC
-                    LIMIT ?
-                """, (bot, limit)).fetchall()
-            else:
-                rows = conn.execute("""
-                    SELECT s.id, s.mint, s.bonding_curve, s.bot_address, s.bot_label,
-                           s.detected_at, s.lifecycle_stage, s.bot_buy_count, s.bot_sol_spent,
-                           s.bot_pct_supply, s.total_buyers, s.is_top_holder, s.signal_strength,
-                           s.created_at,
-                           ta.lifecycle_stage AS ta_lifecycle, ta.migration_band,
-                           ta.market_cap_highest, ta.is_about_to_migrate
-                    FROM pump_bot_signals s
-                    LEFT JOIN token_analysis ta ON ta.mint = s.mint
-                    ORDER BY s.detected_at DESC
-                    LIMIT ?
-                """, (limit,)).fetchall()
-        cols = ["id", "mint", "bonding_curve", "bot_address", "bot_label",
-                "detected_at", "lifecycle_stage", "bot_buy_count", "bot_sol_spent",
-                "bot_pct_supply", "total_buyers", "is_top_holder", "signal_strength",
-                "created_at", "ta_lifecycle", "migration_band", "market_cap_highest",
-                "is_about_to_migrate"]
-        return jsonify([dict(zip(cols, r)) for r in rows])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/pump-bots/add', methods=['POST'])
-def api_pump_bot_add():
-    data = request.get_json(force=True) or {}
-    address = (data.get('address') or '').strip()
-    label = (data.get('label') or '').strip()
-    source = (data.get('source') or 'manual').strip()
-    if not address or not label:
-        return jsonify({"error": "address and label required"}), 400
-    try:
-        now = int(time.time())
-        with db_connect(DB_PATH, timeout=10) as conn:
-            conn.execute("""
-                INSERT OR IGNORE INTO pump_bot_wallets
-                    (address, label, source, added_at, is_active)
-                VALUES (?, ?, ?, ?, 1)
-            """, (address, label, source, now))
-        return jsonify({"ok": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/pump-bots/poll-now', methods=['POST'])
-def api_pump_bot_poll_now():
-    """Trigger an immediate poll cycle in a background thread."""
-    def _run():
-        import asyncio as _aio
-        from src.core.pump_bot_poller import _poll_all_wallets, configure
-        configure(DB_PATH, os.environ.get("HELIUS_API_KEY"))
-        _aio.run(_poll_all_wallets())
-    threading.Thread(target=_run, daemon=True, name="pump-bot-manual-poll").start()
-    return jsonify({"ok": True, "message": "Poll triggered"})
-
 
 @app.route('/rpc-savings-dashboard')
 def rpc_savings_dashboard():
@@ -23136,6 +24059,91 @@ def metrics_rpc_optimizations_proxy():
         return response.json(), response.status_code
     except Exception as e:
         return {'error': str(e)}, 503
+
+
+@app.route('/api/first-snapshot-health')
+def api_first_snapshot_health():
+    """Coverage monitor for immutable first-observed market-cap anchors."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
+        cols = {r[1] for r in conn.execute('PRAGMA table_info(token_analysis)').fetchall()}
+        has_first = 'first_observed_mc' in cols
+        now = int(time.time())
+        pool_stats = conn.execute('''
+            SELECT
+              COUNT(DISTINCT mint) AS pools_seen,
+              COUNT(DISTINCT CASE WHEN is_active=1 THEN mint END) AS active_pools,
+              COUNT(DISTINCT CASE WHEN created_at <= ? THEN mint END) AS pools_older_than_60s
+            FROM token_pool_accounts
+        ''', (now - 60,)).fetchone()
+        retention_row = conn.execute(
+            "SELECT value FROM system_metadata WHERE key='first_snapshot_retention_enabled_at'"
+        ).fetchone()
+        if retention_row and retention_row[0]:
+            retention_enabled_at = int(retention_row[0])
+        else:
+            retention_enabled_at = conn.execute("""
+                SELECT MIN(first_observed_at)
+                FROM token_analysis
+                WHERE first_observed_source LIKE 'price_snapshot:%'
+                  AND first_observed_at IS NOT NULL
+            """).fetchone()[0] or now
+            conn.execute(
+                "INSERT OR REPLACE INTO system_metadata (key, value) VALUES (?, ?)",
+                ('first_snapshot_retention_enabled_at', str(retention_enabled_at))
+            )
+            conn.commit()
+        if has_first:
+            written = conn.execute("SELECT COUNT(*) FROM token_analysis WHERE first_observed_mc IS NOT NULL").fetchone()[0]
+            bad = conn.execute("SELECT COUNT(*) FROM token_analysis WHERE first_observed_mc IS NOT NULL AND (first_observed_mc <= 0 OR first_observed_price <= 0)").fetchone()[0]
+            missing_after_60 = conn.execute('''
+                SELECT COUNT(DISTINCT tpa.mint)
+                FROM token_pool_accounts tpa
+                LEFT JOIN token_analysis ta ON ta.mint=tpa.mint
+                WHERE tpa.created_at <= ?
+                  AND ta.first_observed_mc IS NULL
+            ''', (now - 60,)).fetchone()[0]
+        else:
+            written = bad = 0
+            missing_after_60 = pool_stats['pools_older_than_60s'] or 0
+        pools_seen = pool_stats['pools_seen'] or 0
+        recent = conn.execute('''
+            SELECT
+              COUNT(DISTINCT tpa.mint) AS pools_seen,
+              COUNT(DISTINCT CASE WHEN ta.first_observed_mc IS NOT NULL THEN tpa.mint END) AS anchors_written,
+              COUNT(DISTINCT CASE WHEN tpa.created_at <= ? AND ta.first_observed_mc IS NULL THEN tpa.mint END) AS missing_after_60s
+            FROM token_pool_accounts tpa
+            LEFT JOIN token_analysis ta ON ta.mint=tpa.mint
+            WHERE tpa.created_at >= ?
+        ''', (now - 60, retention_enabled_at)).fetchone()
+        recent_seen = recent['pools_seen'] or 0
+        recent_written = recent['anchors_written'] or 0
+        conn.close()
+        return jsonify({
+            'ok': True,
+            'retention_enabled_at': retention_enabled_at,
+            'since_retention_enabled': {
+                'pools_seen': recent_seen,
+                'anchors_written': recent_written,
+                'coverage_pct': round((recent_written / recent_seen * 100), 2) if recent_seen else 0,
+                'missing_after_60s': recent['missing_after_60s'] or 0,
+            },
+            'all_time_legacy': {
+                'pools_seen': pools_seen,
+                'anchors_written': written,
+                'coverage_pct': round((written / pools_seen * 100), 2) if pools_seen else 0,
+                'missing_after_60s': missing_after_60,
+            },
+            'new_pools_seen': pools_seen,
+            'active_pools': pool_stats['active_pools'] or 0,
+            'pools_with_first_observed_mc': written,
+            'coverage_pct_of_seen_pools': round((written / pools_seen * 100), 2) if pools_seen else 0,
+            'pools_missing_valid_pricing_after_60s': missing_after_60,
+            'bad_or_null_first_mc_count': bad,
+            'label': 'First snapshot health: immutable initial-MC anchors'
+        })
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 500
 
 
 @app.route('/api/db-health')
@@ -24186,6 +25194,14 @@ def network_diagram_index():
             'date': '2026-05-09',
             'tags': ['CEX-fingerprint', 'multi-account', 'Coinbase', 'Axiom', 'OKR'],
         },
+        {
+            'slug': 'watchtower',
+            'title': 'WATCHTOWER — Large-Scale Fee Collection Operation',
+            'subtitle': '481 operator wallets sent 0.002839 SOL to 5Ww9G6 simultaneously in 4 seconds · DEPLOYER (4gE46F) initialised all 481 wallets since 2026-03-24 · dual fee streams · 0/481 in DB',
+            'stats': '481 operators · 0/481 in DB · DEPLOYER active since Mar 2026 · dual fee streams',
+            'date': '2026-05-17',
+            'tags': ['fee-collection', 'coordinated-sweep', 'graph-blind', 'WATCH', 'deployer'],
+        },
     ]
     return render_template("network_diagram_index.html", investigations=investigations)
 
@@ -24193,9 +25209,1724 @@ def network_diagram_index():
 def network_diagram_htx():
     return render_template("network_diagram_htx.html")
 
+
+@app.route('/api/network-diagram/htx/live')
+def api_network_diagram_htx_live():
+    creators = [
+        "BuhQ43qiLZ7wQr6wU4v1cu58EryiVRBg2WTN8ar7qCae",
+        "GSpeVrXuLBgkSK1g58dgi7YjWAVS3jjka6H9k7q5WY1D",
+        "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx",
+        "skiFC6YBNzoH1DUrWLpVx2y7L1mECRNSQNYrEbEBNaz",
+        "9AVeMVwzivhB4tCQ8ouMfcgFquBokRxKQQeKgTAiQLPG",
+        "4KfWZeb3Jw7wDWR7CwtDwVYB6y2uU7qPJ7W8nt1kFrUZ",
+        "4QwJ4AXMtSjnCwgM9kiDpsGtXmjEd3hAVRkDg3o3bDQs",
+        "7zjEjLRdy4Nt1L4Fj7ZQ34MAZfXEbrUYovBvckHaABCB",
+        "8KTxLV4VcVKwHNUbRYKfbMPanK1iPSJFHQnVqxYjt2eT",
+    ]
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            ph = ",".join("?" for _ in creators)
+            members = conn.execute(f"""
+                SELECT COALESCE(earliest_tx_creator,pf_ws_creator) AS creator_address,
+                       COUNT(*) AS total_tokens,
+                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-30 days') THEN 1 ELSE 0 END) AS tokens_30d,
+                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-7 days') THEN 1 ELSE 0 END) AS tokens_7d,
+                       MAX(migrated_at) AS latest_migrated_at,
+                       MAX(market_cap_highest) AS best_peak_mc
+                FROM token_analysis
+                WHERE COALESCE(earliest_tx_creator,pf_ws_creator) IN ({ph})
+                GROUP BY COALESCE(earliest_tx_creator,pf_ws_creator)
+                ORDER BY latest_migrated_at DESC
+            """, creators).fetchall()
+            latest_tokens = conn.execute(f"""
+                SELECT COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) AS creator_address,
+                       ta.mint, COALESCE(mc.symbol,mc.name,ta.mint) AS token_name,
+                       ta.migrated_at, ta.market_cap_highest,
+                       tps.risk_level,
+                       tps.prediction_label,
+                       CASE
+                         WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
+                         WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
+                         WHEN ta.market_cap_highest >= 500000 THEN 'G3'
+                         WHEN ta.market_cap_highest >= 300000 THEN 'G4'
+                         WHEN ta.market_cap_highest >= 150000 THEN 'G5'
+                         WHEN ta.market_cap_highest >= 75000 THEN 'G6'
+                         WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
+                         ELSE NULL END AS g_level
+                FROM token_analysis ta
+                LEFT JOIN metadata_cache mc ON mc.mint=ta.mint
+                LEFT JOIN token_prediction_scores tps ON tps.mint=ta.mint
+                WHERE COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) IN ({ph})
+                  AND ta.migrated_at IS NOT NULL
+                ORDER BY ta.migrated_at DESC
+                LIMIT 12
+            """, creators).fetchall()
+            active_7d = sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= int(time.time()) - 7*86400)
+            active_30d = sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= int(time.time()) - 30*86400)
+            latest = max((r["latest_migrated_at"] or 0 for r in members), default=0)
+            return jsonify({
+                "summary": {
+                    "tracked_members": len(creators),
+                    "active_7d": active_7d,
+                    "active_30d": active_30d,
+                    "latest_migrated_at": latest,
+                    "is_active": bool(active_30d),
+                },
+                "members": [dict(r) for r in members],
+                "latest_tokens": [dict(r) for r in latest_tokens],
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
 @app.route('/network-diagram/okx')
 def network_diagram_okx():
     return render_template("network_diagram_okx.html")
+
+
+@app.route('/api/network-diagram/okx/live')
+def api_network_diagram_okx_live():
+    creators = [
+        "G5jeMLqQ13LYxxdb9pEtUNoLJVsb58rBLg8jKLoTciTK",
+        "ADANnqvHGKhFB9kKCYxA2g1HDZuZA7V3U6xxvMBvScpj",
+        "8XvoRnMWHoxohNhRvHpEr2s4ccNNv7LLMiQRQ8LTTkec",
+        "2g9JLotEiAq11BEjrPryDzcgMaGm4KsqDD6WR3marHnL",
+        "8KFWdCFZDJpGwaoT2yv2BwSPuzwKfEkzhVqCZzuLgBg8",
+        "EY8W2o2LQozSF3FqU5EhYFVh1Yz4HDD6wxxRKqiTD9G",
+        "chTSSUwwY1YQA3NW9PuAnGGtmM8Lahn8mVgEyqxKSap",
+        "C8LjRyBXVi4NJPsaV2LbZB6vdBfHMehhiyGy4Cb4d4PK",
+        "71N1KjDQMAcuanUJrgmnEsuoHFQLa6pVP3v4TSoRpJYz",
+        "5R7NRXhwT6nQsdZNFbYcaG7Z4eJG4Asmtv5YbZ4D4ndG",
+        "3CUzpwiHzuoSP2WayezASAtvf5Z4AknRvVCFs6iYjJhm",
+    ]
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            ph = ",".join("?" for _ in creators)
+            members = conn.execute(f"""
+                SELECT COALESCE(earliest_tx_creator,pf_ws_creator) AS creator_address,
+                       COUNT(*) AS total_tokens,
+                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-30 days') THEN 1 ELSE 0 END) AS tokens_30d,
+                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-7 days') THEN 1 ELSE 0 END) AS tokens_7d,
+                       MAX(migrated_at) AS latest_migrated_at,
+                       MAX(market_cap_highest) AS best_peak_mc
+                FROM token_analysis
+                WHERE COALESCE(earliest_tx_creator,pf_ws_creator) IN ({ph})
+                GROUP BY COALESCE(earliest_tx_creator,pf_ws_creator)
+                ORDER BY latest_migrated_at DESC
+            """, creators).fetchall()
+            latest_tokens = conn.execute(f"""
+                SELECT COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) AS creator_address,
+                       ta.mint, COALESCE(mc.symbol,mc.name,ta.mint) AS token_name,
+                       ta.migrated_at, ta.market_cap_highest,
+                       tps.risk_level, tps.prediction_label,
+                       CASE
+                         WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
+                         WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
+                         WHEN ta.market_cap_highest >= 500000 THEN 'G3'
+                         WHEN ta.market_cap_highest >= 300000 THEN 'G4'
+                         WHEN ta.market_cap_highest >= 150000 THEN 'G5'
+                         WHEN ta.market_cap_highest >= 75000 THEN 'G6'
+                         WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
+                         ELSE NULL END AS g_level
+                FROM token_analysis ta
+                LEFT JOIN metadata_cache mc ON mc.mint=ta.mint
+                LEFT JOIN token_prediction_scores tps ON tps.mint=ta.mint
+                WHERE COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) IN ({ph})
+                  AND ta.migrated_at IS NOT NULL
+                ORDER BY ta.migrated_at DESC
+                LIMIT 12
+            """, creators).fetchall()
+            now = int(time.time())
+            return jsonify({
+                "summary": {
+                    "tracked_members": len(creators),
+                    "active_7d": sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= now - 7*86400),
+                    "active_30d": sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= now - 30*86400),
+                    "latest_migrated_at": max((r["latest_migrated_at"] or 0 for r in members), default=0),
+                },
+                "members": [dict(r) for r in members],
+                "latest_tokens": [dict(r) for r in latest_tokens],
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+@app.route('/network-diagram/watchtower')
+def network_diagram_watchtower():
+    return render_template("network_diagram_watchtower.html")
+
+
+@app.route('/watchtower')
+def watchtower_intelligence():
+    from flask import redirect
+    return redirect('/watchtower/intelligence')
+
+
+@app.route('/watchtower/operator/<address>')
+def watchtower_operator_detail(address: str):
+    return render_template("watchtower_operator_detail.html", address=address, active_page='watchtower')
+
+@app.route('/watchtower/intelligence')
+def watchtower_operational_intelligence():
+    return render_template("watchtower_operational_intelligence.html", active_page='watchtower_ops')
+
+
+@app.route('/watchtower/operators')
+def watchtower_operators():
+    return render_template("watchtower_operators.html", active_page='watchtower_operators')
+
+
+@app.route('/watchtower/dashboard')
+def watchtower_dashboard():
+    return render_template("watchtower_dashboard.html", active_page='watchtower_dashboard')
+
+
+@app.route('/api/watchtower/staged-wallets')
+def api_wt_staged_wallets():
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT wallet_address, provisioned_at, provisioner_address,
+               state, first_move_type, first_move_at, evidence_grade, evidence_basis
+        FROM wt_staged_wallets
+        ORDER BY CASE state WHEN 'ACTIVATED' THEN 0 ELSE 1 END, provisioned_at DESC
+    """).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+@app.route('/api/watchtower/predictions')
+def api_wt_predictions():
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT prediction_id, wallet_address, predicted_behaviour, predicted_timeframe,
+               confidence_grade, basis, outcome, outcome_at, was_correct, created_at
+        FROM watchtower_predictions
+        ORDER BY created_at DESC
+    """).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+@app.route('/api/watchtower/evidence-summary')
+def api_wt_evidence_summary():
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    grades = conn.execute("""
+        SELECT evidence_grade, COUNT(*) as count
+        FROM creator_risk_scores
+        WHERE watchtower_related = 1
+        GROUP BY evidence_grade
+    """).fetchall()
+    staged = conn.execute("""
+        SELECT state, COUNT(*) as count FROM wt_staged_wallets GROUP BY state
+    """).fetchall()
+    recent_activations = conn.execute("""
+        SELECT wallet_address, first_move_type, first_move_at, evidence_grade
+        FROM wt_staged_wallets
+        WHERE state = 'ACTIVATED'
+        ORDER BY first_move_at DESC LIMIT 10
+    """).fetchall()
+    conn.close()
+    return jsonify({
+        'evidence_grades': [dict(r) for r in grades],
+        'staged_states': [dict(r) for r in staged],
+        'recent_activations': [dict(r) for r in recent_activations],
+    })
+
+@app.route('/api/watchtower/operational-status')
+def api_wt_operational_status():
+    """Unified operational intelligence endpoint — powers the new dashboard."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+
+    # Staged wallet states
+    staged_states = {r['state']: r['count'] for r in conn.execute(
+        "SELECT state, COUNT(*) as count FROM wt_staged_wallets GROUP BY state"
+    ).fetchall()}
+
+    # Infra events — last 7 days, up to 200 rows
+    cutoff_7d = int(__import__('time').time()) - 604800
+    infra_events = conn.execute("""
+        SELECT infra_role, direction, counterparty, amount_sol, block_time, signature
+        FROM watchtower_infra_events
+        WHERE block_time > ?
+        ORDER BY block_time DESC LIMIT 200
+    """, (cutoff_7d,)).fetchall()
+
+    # Recent treasury outflows (sub-provisioner candidates)
+    treasury_outflows = conn.execute("""
+        SELECT counterparty, amount_sol, block_time
+        FROM watchtower_infra_events
+        WHERE infra_role = 'TREASURY' AND direction = 'out' AND amount_sol >= 1
+        ORDER BY block_time DESC LIMIT 10
+    """).fetchall()
+
+    # Recent watchtower_events (activation, launch signals)
+    recent_events = conn.execute("""
+        SELECT event_type, wallet_address, related_wallet, token_mint, payload_json, created_at
+        FROM watchtower_events
+        ORDER BY created_at DESC LIMIT 100
+    """).fetchall()
+
+    # Token launches from confirmed creators (last 30 days)
+    launch_cutoff = int(__import__('time').time()) - 2592000
+    launches = conn.execute("""
+        SELECT ta.pf_ws_creator as creator, ta.mint, mc.name,
+               ta.created_at, ta.market_cap_highest, ta.lifecycle_stage,
+               crs.evidence_grade
+        FROM token_analysis ta
+        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+        JOIN creator_risk_scores crs ON crs.creator_address = ta.pf_ws_creator
+        WHERE crs.watchtower_related = 1
+          AND ta.created_at > ?
+        ORDER BY ta.created_at DESC LIMIT 30
+    """, (launch_cutoff,)).fetchall()
+
+    # All-time token stats
+    token_stats = conn.execute("""
+        SELECT COUNT(*) as total,
+               SUM(CASE WHEN ta.lifecycle_stage IN ('migrated','graduated') THEN 1 ELSE 0 END) as migrated,
+               MAX(ta.market_cap_highest) as peak_mcap
+        FROM token_analysis ta
+        JOIN creator_risk_scores crs ON crs.creator_address = ta.pf_ws_creator
+        WHERE crs.watchtower_related = 1
+    """).fetchone()
+
+    # Predictions
+    predictions = conn.execute("""
+        SELECT prediction_id, predicted_behaviour, predicted_timeframe,
+               confidence_grade, basis, outcome, was_correct, created_at
+        FROM watchtower_predictions ORDER BY created_at DESC
+    """).fetchall()
+
+    # Coordinated activation clusters (activations within 30min windows)
+    activations = conn.execute("""
+        SELECT wallet_address, first_move_at, first_move_type
+        FROM wt_staged_wallets WHERE state = 'ACTIVATED'
+        ORDER BY first_move_at
+    """).fetchall()
+
+    conn.close()
+
+    # Derive network status
+    dormant = staged_states.get('DORMANT_FUNDED', 0)
+    activated = staged_states.get('ACTIVATED', 0)
+    launching = staged_states.get('LAUNCHING', 0)
+
+    recent_treasury = [r for r in infra_events
+                       if r['infra_role'] == 'TREASURY' and r['direction'] == 'out' and r['amount_sol'] >= 10]
+    recent_activations_count = activated
+
+    if launching > 0:
+        network_status = 'ESCALATING'
+        status_detail = f'{launching} wallets in launching state. Active token creation detected.'
+    elif activated >= 3:
+        network_status = 'ESCALATING'
+        status_detail = f'{activated} staged wallets activated. Monitoring for launch activity.'
+    elif activated > 0:
+        network_status = 'ACTIVE'
+        status_detail = f'{activated} staged wallet(s) activated. {dormant} remain dormant.'
+    elif len(recent_treasury) > 0:
+        network_status = 'ACTIVE'
+        status_detail = f'TREASURY active — {len(recent_treasury)} outflow(s) in last 48h. {dormant} wallets staged.'
+    elif dormant > 0:
+        network_status = 'DORMANT'
+        status_detail = f'{dormant} wallets provisioned May 17-18. No activation detected yet.'
+    else:
+        network_status = 'UNCERTAIN'
+        status_detail = 'Insufficient recent signal. Monitor TREASURY for new outflows.'
+
+    return jsonify({
+        'network_status': network_status,
+        'status_detail': status_detail,
+        'staged_states': staged_states,
+        'token_stats': dict(token_stats) if token_stats else {},
+        'infra_events': [dict(r) for r in infra_events],
+        'treasury_outflows': [dict(r) for r in treasury_outflows],
+        'recent_events': [dict(r) for r in recent_events],
+        'launches': [dict(r) for r in launches],
+        'predictions': [dict(r) for r in predictions],
+        'activations': [dict(r) for r in activations],
+    })
+
+@app.route('/api/watchtower/live-metrics')
+def api_wt_live_metrics():
+    """Live operational counters + recent discoveries for the top-row UI."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    now = int(__import__('time').time())
+    h24 = now - 86400
+    h1  = now - 3600
+
+    # Core counters
+    staged_total   = conn.execute("SELECT COUNT(*) FROM wt_staged_wallets").fetchone()[0]
+    staged_dormant = conn.execute("SELECT COUNT(*) FROM wt_staged_wallets WHERE state='DORMANT_FUNDED'").fetchone()[0]
+    activated_24h  = conn.execute("SELECT COUNT(*) FROM wt_staged_wallets WHERE state='ACTIVATED' AND first_move_at > ?", (h24,)).fetchone()[0]
+    new_staged_24h = conn.execute("SELECT COUNT(*) FROM wt_discovery_log WHERE discovery_type='staged_wallet' AND discovered_at > ?", (h24,)).fetchone()[0]
+    new_subprov_24h = conn.execute("SELECT COUNT(*) FROM wt_discovery_log WHERE discovery_type='sub_provisioner' AND discovered_at > ?", (h24,)).fetchone()[0]
+    launches_30d   = conn.execute("""
+        SELECT COUNT(*) FROM token_analysis ta
+        JOIN creator_risk_scores crs ON crs.creator_address = ta.pf_ws_creator
+        WHERE crs.watchtower_related=1 AND ta.created_at > datetime(?, 'unixepoch', '-30 days')
+    """, (now,)).fetchone()[0]
+
+    # Coordinated activations: 2+ staged wallets activated within 30min of each other
+    activated_wallets = conn.execute(
+        "SELECT first_move_at FROM wt_staged_wallets WHERE state='ACTIVATED' AND first_move_at IS NOT NULL ORDER BY first_move_at"
+    ).fetchall()
+    coordinated_count = 0
+    times = [r['first_move_at'] for r in activated_wallets]
+    for i in range(len(times) - 1):
+        if times[i+1] - times[i] <= 1800:
+            coordinated_count += 1
+
+    # Predictions validated
+    preds_correct = conn.execute("SELECT COUNT(*) FROM watchtower_predictions WHERE was_correct=1").fetchone()[0]
+    preds_total   = conn.execute("SELECT COUNT(*) FROM watchtower_predictions WHERE was_correct IS NOT NULL").fetchone()[0]
+
+    # Recent discoveries (last 24h) for "new since last view"
+    recent_discoveries = conn.execute("""
+        SELECT discovery_type, address, detail_json, discovered_at
+        FROM wt_discovery_log
+        WHERE discovered_at > ?
+        ORDER BY discovered_at DESC
+        LIMIT 50
+    """, (h24,)).fetchall()
+
+    # Sub-provisioners confirmed
+    subprov_confirmed = conn.execute(
+        "SELECT COUNT(*) FROM wt_sub_provisioners WHERE scan_status='confirmed'"
+    ).fetchone()[0]
+    subprov_pending = conn.execute(
+        "SELECT COUNT(*) FROM wt_sub_provisioners WHERE scan_status='pending'"
+    ).fetchone()[0]
+
+    # Treasury activity last 24h
+    treasury_out_24h = conn.execute("""
+        SELECT COUNT(*), COALESCE(SUM(amount_sol),0)
+        FROM watchtower_infra_events
+        WHERE infra_role='TREASURY' AND direction='outbound' AND block_time > ?
+    """, (h24,)).fetchone()
+
+    # Launch funnel counters (uses wt_creator_launches if it exists)
+    try:
+        wt_launches_total   = conn.execute("SELECT COUNT(*) FROM wt_creator_launches").fetchone()[0]
+        wt_migrated_total   = conn.execute("SELECT COUNT(*) FROM wt_creator_launches WHERE launch_success_state='migrated'").fetchone()[0]
+        wt_launched_only    = conn.execute("SELECT COUNT(*) FROM wt_creator_launches WHERE launch_success_state='launched_only'").fetchone()[0]
+        # staged → launched: activated wallets that have a corresponding launch record
+        staged_launched     = conn.execute("""
+            SELECT COUNT(DISTINCT ws.wallet_address) FROM wt_staged_wallets ws
+            JOIN wt_creator_launches wcl ON wcl.creator_wallet = ws.wallet_address
+        """).fetchone()[0]
+        # launched → migrated rate
+        migrated_rate = round(wt_migrated_total / wt_launches_total * 100, 1) if wt_launches_total else 0
+    except Exception:
+        wt_launches_total = wt_migrated_total = wt_launched_only = staged_launched = 0
+        migrated_rate = 0
+
+    conn.close()
+
+    return jsonify({
+        'staged_total':      staged_total,
+        'staged_dormant':    staged_dormant,
+        'activated_24h':     activated_24h,
+        'new_staged_24h':    new_staged_24h,
+        'new_subprov_24h':   new_subprov_24h,
+        'launches_30d':      launches_30d,
+        'coordinated_count': coordinated_count,
+        'subprov_confirmed': subprov_confirmed,
+        'subprov_pending':   subprov_pending,
+        'preds_correct':     preds_correct,
+        'preds_total':       preds_total,
+        'treasury_out_24h_count': treasury_out_24h[0],
+        'treasury_out_24h_sol':   round(treasury_out_24h[1], 2),
+        'wt_launches_total':  wt_launches_total,
+        'wt_migrated_total':  wt_migrated_total,
+        'wt_launched_only':   wt_launched_only,
+        'staged_launched':    staged_launched,
+        'migrated_rate_pct':  migrated_rate,
+        'recent_discoveries': [dict(r) for r in recent_discoveries],
+        'ts': now,
+    })
+
+
+@app.route('/api/watchtower/creators')
+def api_wt_creators():
+    """Creator wallets with evidence grades, token output, and outcomes."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    grade = request.args.get('grade')  # optional filter: CONFIRMED|STRONG|MODERATE|WEAK
+
+    grade_filter = "AND crs.evidence_grade = ?" if grade else ""
+    params = [grade] if grade else []
+
+    rows = conn.execute(f"""
+        SELECT crs.creator_address, crs.evidence_grade, crs.evidence_basis,
+               crs.total_tokens, crs.migrated_tokens,
+               crs.scored_at,
+               crs.watchtower_evidence_json
+        FROM creator_risk_scores crs
+        WHERE crs.watchtower_related = 1
+        {grade_filter}
+        ORDER BY
+            CASE crs.evidence_grade
+                WHEN 'CONFIRMED' THEN 1
+                WHEN 'STRONG' THEN 2
+                WHEN 'MODERATE' THEN 3
+                WHEN 'WEAK' THEN 4
+                ELSE 5
+            END,
+            crs.total_tokens DESC
+    """, params).fetchall()
+
+    # Token launches via token_analysis
+    creator_tokens = {}
+    token_rows = conn.execute("""
+        SELECT ta.pf_ws_creator as creator, ta.mint,
+               mc.name, mc.symbol,
+               ta.market_cap_highest, ta.lifecycle_stage, ta.created_at
+        FROM token_analysis ta
+        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+        WHERE ta.pf_ws_creator IN (
+            SELECT creator_address FROM creator_risk_scores WHERE watchtower_related=1
+        )
+        ORDER BY ta.created_at DESC
+    """).fetchall()
+    for t in token_rows:
+        creator_tokens.setdefault(t['creator'], []).append(dict(t))
+
+    conn.close()
+
+    creators = []
+    for r in rows:
+        d = dict(r)
+        d['tokens'] = creator_tokens.get(r['creator_address'], [])
+        creators.append(d)
+
+    return jsonify({'creators': creators, 'total': len(creators)})
+
+
+@app.route('/api/network-diagram/watchtower/signals')
+def api_network_diagram_watchtower_signals():
+    """Activity feed from watchtower_events table — persistent across restarts."""
+    try:
+        limit = min(int(request.args.get("limit", 50)), 200)
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        rows = conn.execute("""
+            SELECT event_type, wallet_address, related_wallet, token_mint,
+                   payload_json, source, created_at
+            FROM watchtower_events
+            ORDER BY created_at DESC, event_sequence DESC
+            LIMIT ?
+        """, (limit,)).fetchall()
+        conn.close()
+
+        new_creators, funding_signals, dormant_activations = [], [], []
+        launch_candidates, raydium_launches, state_changes = [], [], []
+
+        for r in rows:
+            payload = json.loads(r["payload_json"]) if r["payload_json"] else {}
+            et = r["event_type"]
+            ts = r["created_at"]
+            addr = r["wallet_address"]
+
+            if et == "watchtower_launch_detected":
+                launch_candidates.append({
+                    "address": addr,
+                    "source_operator": payload.get("source_operator"),
+                    "candidate_reason": "watchtower_launch_detected",
+                    "confidence": payload.get("confidence", "high"),
+                    "token_mint": r["token_mint"],
+                    "symbol": payload.get("symbol"),
+                    "ts": ts,
+                })
+            elif et == "raydium_launch":
+                raydium_launches.append({
+                    "creator": addr,
+                    "mint": r["token_mint"],
+                    "pool_program": payload.get("pool_program"),
+                    "initial_liquidity_sol": payload.get("initial_liquidity_sol"),
+                    "ts": ts,
+                })
+            elif et == "state_transition":
+                state_changes.append({
+                    "address": addr,
+                    "to_state": payload.get("to"),
+                    "from_state": None,
+                    "ts": ts,
+                })
+            elif et == "token_migrated":
+                new_creators.append({
+                    "creator": addr,
+                    "token_name": None,
+                    "token_mint": r["token_mint"],
+                    "lifecycle_stage": "migrated",
+                    "market_cap_highest": None,
+                    "ts": ts,
+                })
+            elif et == "graph_edge_discovered":
+                funding_signals.append({
+                    "funder": addr,
+                    "creator": r["related_wallet"],
+                    "amount_sol": None,
+                    "edges": payload.get("edges", 0),
+                    "candidates": payload.get("candidates", 0),
+                    "ts": ts,
+                })
+            elif et == "treasury_funded":
+                launch_candidates.append({
+                    "address":          addr,
+                    "candidate_reason": "treasury_funded",
+                    "confidence":       "high",
+                    "amount_sol":       payload.get("amount_sol", 0),
+                    "tx_signature":     payload.get("tx"),
+                    "ts":               ts,
+                })
+            elif et == "signaller_dust":
+                launch_candidates.append({
+                    "address":          addr,
+                    "candidate_reason": "signaller_dust",
+                    "confidence":       "medium",
+                    "amount_sol":       payload.get("amount_sol", 0),
+                    "tx_signature":     payload.get("tx"),
+                    "ts":               ts,
+                })
+
+        return jsonify({
+            "new_creators":        new_creators[:50],
+            "funding_signals":     funding_signals[:50],
+            "dormant_activations": dormant_activations[:50],
+            "launch_candidates":   launch_candidates[:50],
+            "raydium_launches":    raydium_launches[:50],
+            "state_changes":       state_changes[:50],
+            "as_of": int(time.time()),
+            "source": "watchtower_events",
+        })
+    except Exception as e:
+        logger.error(f"[WATCHTOWER_SIGNALS] {e}")
+        return jsonify({
+            "new_creators": [], "funding_signals": [], "dormant_activations": [],
+            "launch_candidates": [], "raydium_launches": [], "state_changes": [],
+            "as_of": int(time.time()), "source": "error",
+        })
+
+
+@app.route('/api/watchtower/creator/<creator_address>')
+def api_watchtower_creator(creator_address: str):
+    """Return WATCHTOWER linkage status and evidence for a creator wallet."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        row = conn.execute(
+            "SELECT watchtower_related, watchtower_evidence_json, watchtower_checked_at "
+            "FROM creator_risk_scores WHERE creator_address = ?",
+            (creator_address,),
+        ).fetchone()
+        conn.close()
+        if row is None:
+            return jsonify({"watchtower_related": False, "evidence": [], "label": None, "checked_at": None})
+        evidence = json.loads(row["watchtower_evidence_json"]) if row["watchtower_evidence_json"] else []
+        is_related = bool(row["watchtower_related"])
+        strong = [e for e in evidence if e.get("strength") == "strong"]
+        label = None
+        if is_related and strong:
+            label_map = {
+                "direct_infrastructure_wallet":    "Linked to known WATCHTOWER infrastructure",
+                "funded_by_infrastructure":        "WATCHTOWER-related — funded by infrastructure wallet",
+                "watchtower_queue_tag":            "WATCHTOWER-related — operator wallet",
+                "watchtower_fee_payment":          "WATCHTOWER-related — participated in fee sweep",
+                "signaller_activation_sequence":   "WATCHTOWER-related — activated via SIGNALLER pattern",
+                "signaller_dust":                  "Linked to known WATCHTOWER infrastructure",
+                "profit_relay_routing":            "WATCHTOWER-related — profits routed through relay",
+                "confirmed_fingerprint_batch":     "WATCHTOWER-related — April 2026 provisioning batch",
+            }
+            label = label_map.get(strong[0]["rule"], "Operationally related to WATCHTOWER")
+        return jsonify({
+            "watchtower_related": is_related,
+            "label": label,
+            "evidence": evidence,
+            "checked_at": row["watchtower_checked_at"],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/related-creators')
+def api_watchtower_related_creators():
+    """List all creators flagged as WATCHTOWER-related with their top evidence rule."""
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("per_page", 50)), 200)
+        offset = (page - 1) * per_page
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        total = conn.execute(
+            "SELECT COUNT(*) FROM creator_risk_scores WHERE watchtower_related = 1"
+        ).fetchone()[0]
+        rows = conn.execute(
+            """
+            SELECT crs.creator_address, crs.risk_level, crs.watchtower_evidence_json,
+                   crs.watchtower_checked_at, crs.total_tokens
+            FROM creator_risk_scores crs
+            WHERE crs.watchtower_related = 1
+            ORDER BY crs.watchtower_checked_at DESC
+            LIMIT ? OFFSET ?
+            """,
+            (per_page, offset),
+        ).fetchall()
+        conn.close()
+        results = []
+        for row in rows:
+            evidence = json.loads(row["watchtower_evidence_json"]) if row["watchtower_evidence_json"] else []
+            strong = [e for e in evidence if e.get("strength") == "strong"]
+            top_rule = strong[0]["rule"] if strong else None
+            results.append({
+                "creator_address": row["creator_address"],
+                "risk_level": row["risk_level"],
+                "top_rule": top_rule,
+                "evidence_count": len(evidence),
+                "checked_at": row["watchtower_checked_at"],
+                "total_tokens": row["total_tokens"],
+            })
+        return jsonify({"total": total, "page": page, "per_page": per_page, "results": results})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/related-tokens')
+def api_watchtower_related_tokens():
+    """List all tokens whose creator is a WATCHTOWER operator or a child wallet funded by one."""
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("per_page", 50)), 200)
+        offset = (page - 1) * per_page
+        stage = request.args.get("stage", "").strip()
+        creator_type = request.args.get("creator_type", "").strip()
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        # Tokens where creator is a fingerprint-confirmed creator OR a next-round child wallet
+        extra_clauses = []
+        if stage:
+            extra_clauses.append(f"AND ta.lifecycle_stage = '{stage}'")
+        if creator_type == "direct":
+            extra_clauses.append("AND COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)")
+        elif creator_type == "child":
+            extra_clauses.append("AND COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) NOT IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)")
+
+        _CREATOR_FILTER = f"""
+            COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN (
+                SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                UNION
+                SELECT child_address FROM watchtower_operator_graph
+                WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                  AND relationship = 'launch_wallet'
+            )
+            {' '.join(extra_clauses)}
+        """
+
+        total = conn.execute(
+            f"SELECT COUNT(*) FROM token_analysis ta WHERE {_CREATOR_FILTER}"
+        ).fetchone()[0]
+
+        rows = conn.execute(
+            f"""
+            SELECT ta.mint, ta.risk_level, ta.market_cap_highest, ta.lifecycle_stage,
+                   COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator_address,
+                   ta.created_at, COALESCE(mc.symbol, mc.name, ta.mint) AS token_name,
+                   ta.watchtower_evidence_json,
+                   CASE
+                     WHEN COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN
+                          (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                     THEN 'confirmed'
+                     ELSE 'child'
+                   END AS creator_type,
+                   wog.operator_address AS linked_operator
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+            LEFT JOIN watchtower_operator_graph wog
+                   ON wog.child_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+            WHERE {_CREATOR_FILTER}
+            GROUP BY ta.mint
+            ORDER BY ta.created_at DESC
+            LIMIT ? OFFSET ?
+            """,
+            (per_page, offset),
+        ).fetchall()
+        conn.close()
+
+        results = []
+        for row in rows:
+            evidence = json.loads(row["watchtower_evidence_json"]) if row["watchtower_evidence_json"] else []
+            strong = [e for e in evidence if e.get("strength") == "strong"]
+            results.append({
+                "mint": row["mint"],
+                "token_name": row["token_name"],
+                "creator_address": row["creator_address"],
+                "creator_type": row["creator_type"],
+                "linked_operator": row["linked_operator"],
+                "risk_level": row["risk_level"],
+                "market_cap_highest": row["market_cap_highest"],
+                "lifecycle_stage": row["lifecycle_stage"],
+                "created_at": row["created_at"],
+                "top_rule": strong[0]["rule"] if strong else None,
+            })
+        return jsonify({"total": total, "page": page, "per_page": per_page, "results": results})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/analyze/<creator_address>', methods=['POST'])
+def api_watchtower_analyze(creator_address: str):
+    """Trigger on-demand WATCHTOWER analysis for a creator."""
+    try:
+        from src.analysis.watchtower_detector import analyze_creator
+        result = analyze_creator(creator_address, DB_PATH)
+        return jsonify({
+            "creator_address": creator_address,
+            "watchtower_related": result["is_related"],
+            "label": result["label"],
+            "evidence": result["evidence"],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/network-diagram/watchtower/live')
+def api_network_diagram_watchtower_live():
+    try:
+        with db_connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+
+            # All 481 operator wallets queued as watchtower_fee_payer
+            operator_rows = conn.execute("""
+                SELECT funder_address FROM second_hop_lite_queue
+                WHERE reason_codes LIKE '%watchtower_fee_payer%'
+            """).fetchall()
+            operator_addrs = [r["funder_address"] for r in operator_rows]
+
+            # All confirmed network creators + operators identified by .10203928 SOL funding fingerprint
+            fingerprint_rows = conn.execute("""
+                SELECT DISTINCT creator_address, funder_address
+                FROM creator_funders
+                WHERE amount_sol LIKE '%.10203928'
+            """).fetchall()
+            all_creator_addrs = list({r["creator_address"] for r in fingerprint_rows})
+            identified_operator_addrs = list({r["funder_address"] for r in fingerprint_rows})
+
+            if not all_creator_addrs:
+                return jsonify({"summary": {"tracked_creators": 0, "total_operators": len(operator_addrs),
+                    "newly_activated": 0, "total_tokens": 0, "total_migrated": 0,
+                    "active_7d": 0, "active_30d": 0, "latest_migrated_at": 0, "best_peak_mc": 0},
+                    "newly_activated": [], "members": [], "tokens": []})
+
+            ph = ",".join("?" for _ in all_creator_addrs)
+
+            members = conn.execute(f"""
+                SELECT COALESCE(earliest_tx_creator,pf_ws_creator) AS creator_address,
+                       COUNT(*) AS total_tokens,
+                       SUM(CASE WHEN migrated_at IS NOT NULL THEN 1 ELSE 0 END) AS total_migrated,
+                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-30 days') THEN 1 ELSE 0 END) AS tokens_30d,
+                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-7 days') THEN 1 ELSE 0 END) AS tokens_7d,
+                       MAX(migrated_at) AS latest_migrated_at,
+                       MAX(market_cap_highest) AS best_peak_mc
+                FROM token_analysis
+                WHERE COALESCE(earliest_tx_creator,pf_ws_creator) IN ({ph})
+                GROUP BY COALESCE(earliest_tx_creator,pf_ws_creator)
+                ORDER BY latest_migrated_at DESC
+            """, all_creator_addrs).fetchall()
+
+            all_tokens = conn.execute(f"""
+                SELECT COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) AS creator_address,
+                       ta.mint, COALESCE(mc.symbol, mc.name, ta.mint) AS token_name,
+                       ta.migrated_at, ta.market_cap_highest, ta.market_cap_current,
+                       ta.lifecycle_stage,
+                       tps.risk_level, tps.prediction_label,
+                       CASE
+                         WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
+                         WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
+                         WHEN ta.market_cap_highest >= 500000  THEN 'G3'
+                         WHEN ta.market_cap_highest >= 300000  THEN 'G4'
+                         WHEN ta.market_cap_highest >= 150000  THEN 'G5'
+                         WHEN ta.market_cap_highest >= 75000   THEN 'G6'
+                         WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
+                         ELSE NULL END AS g_level
+                FROM token_analysis ta
+                LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                LEFT JOIN token_prediction_scores tps ON tps.mint = ta.mint
+                WHERE COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) IN ({ph})
+                ORDER BY ta.market_cap_highest DESC NULLS LAST
+            """, all_creator_addrs).fetchall()
+
+            # Newly activated: operators (481 set) now appearing as creators,
+            # not already in the fingerprint set
+            newly_activated = []
+            if operator_addrs:
+                known_set = set(all_creator_addrs)
+                new_creators = [a for a in operator_addrs if a not in known_set]
+                if new_creators:
+                    op_ph = ",".join("?" for _ in new_creators)
+                    newly_activated = conn.execute(f"""
+                        SELECT COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator_address,
+                               COUNT(*) AS total_tokens,
+                               MAX(ta.created_at) AS latest_token_at,
+                               MAX(ta.market_cap_highest) AS best_peak_mc,
+                               COALESCE(mc.symbol, mc.name) AS latest_token_name,
+                               crs.risk_level
+                        FROM token_analysis ta
+                        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                        LEFT JOIN creator_risk_scores crs
+                            ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                        WHERE COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN ({op_ph})
+                        GROUP BY COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                        ORDER BY latest_token_at DESC
+                    """, new_creators).fetchall()
+
+            now = int(time.time())
+            total_migrated = sum(r["total_migrated"] or 0 for r in members)
+            best_mc = max((r["best_peak_mc"] or 0 for r in members), default=0)
+            return jsonify({
+                "summary": {
+                    "tracked_creators": len(all_creator_addrs),
+                    "identified_operators": len(identified_operator_addrs),
+                    "total_operators": len(operator_addrs),
+                    "newly_activated": len(newly_activated),
+                    "total_tokens": sum(r["total_tokens"] or 0 for r in members),
+                    "total_migrated": total_migrated,
+                    "active_7d": sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= now - 7*86400),
+                    "active_30d": sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= now - 30*86400),
+                    "latest_migrated_at": max((r["latest_migrated_at"] or 0 for r in members), default=0),
+                    "best_peak_mc": best_mc,
+                },
+                "newly_activated": [dict(r) for r in newly_activated],
+                "members": [dict(r) for r in members],
+                "tokens": [dict(r) for r in all_tokens],
+            })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+_watchtower_activation_seen: set = set()
+_watchtower_funding_seen: set = set()
+# In-memory store for diagram to read — keyed by type
+_watchtower_signals: dict = {
+    "new_creators": [],
+    "funding_signals": [],
+    "dormant_activations": [],
+    "launch_candidates": [],
+    "raydium_launches": [],
+    "state_changes": [],
+}
+
+_WT_LABEL_MAP = {
+    "direct_infrastructure_wallet":    "Linked to known WATCHTOWER infrastructure",
+    "funded_by_infrastructure":        "WATCHTOWER-related — funded by infrastructure wallet",
+    "watchtower_queue_tag":            "WATCHTOWER-related — operator wallet",
+    "watchtower_fee_payment":          "WATCHTOWER-related — participated in fee sweep",
+    "signaller_activation_sequence":   "WATCHTOWER-related — activated via SIGNALLER pattern",
+    "signaller_dust":                  "Linked to known WATCHTOWER infrastructure",
+    "profit_relay_routing":            "WATCHTOWER-related — profits routed through relay",
+    "confirmed_fingerprint_batch":     "WATCHTOWER-related — April 2026 provisioning batch",
+}
+
+def _wt_label_from_evidence(evidence_json: str | None) -> str | None:
+    if not evidence_json:
+        return None
+    try:
+        evidence = json.loads(evidence_json)
+        strong = [e for e in evidence if e.get("strength") == "strong"]
+        if strong:
+            return _WT_LABEL_MAP.get(strong[0]["rule"], "Operationally related to WATCHTOWER")
+    except Exception:
+        pass
+    return None
+
+WATCHTOWER_WATCH_TAGS = [
+    'watchtower_fee_payer', 'watchtower_deployer', 'watchtower_profit',
+    'watchtower_treasury_upstream', 'watchtower_extraction', 'watchtower_vanity_dust',
+    'watchtower_signaller', 'watchtower_activated_operator', 'watchtower_active_launcher',
+    'watchtower_treasury_out', 'watchtower_dust_recipient',
+]
+
+_watchtower_dormant_seen: set = set()
+
+PUMP_FEE_ADDR      = 'CebN5WGQ4jvEPvsVU4EoHEpgznyZtZbHSAyteq3jSbQ'  # legacy bonding curve era
+PUMP_FEE_ADDR_V2   = 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ'   # pAMM era (current)
+PUMP_MIGRATION_ADDR= '39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg'
+PUMP_AMM_ADDR      = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'
+RAYDIUM_V4_ADDR    = '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8'
+RAYDIUM_CPMM_ADDR  = 'CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C'
+METEORA_DLMM_ADDR  = 'LBUZKhRxPF3XUpBCjp4YzTKgLe4ux2G1vMsz6JT42dm'
+_PUMP_FEE_ADDRS    = {PUMP_FEE_ADDR, PUMP_FEE_ADDR_V2}
+
+def _classify_first_move(accs: list, sol_delta: float) -> str:
+    """Classify the type of first outbound transaction from a staged wallet."""
+    if _PUMP_FEE_ADDRS.intersection(accs):
+        return 'pump_fee'
+    if PUMP_AMM_ADDR in accs:
+        return 'pAMM_trader'
+    if RAYDIUM_V4_ADDR in accs or RAYDIUM_CPMM_ADDR in accs:
+        return 'raydium_lp'
+    if METEORA_DLMM_ADDR in accs:
+        return 'meteora_lp'
+    if PUMP_MIGRATION_ADDR in accs:
+        return 'pump_migration'
+    if sol_delta < -0.5:
+        return 'large_sol_outbound'
+    if sol_delta < 0:
+        return 'small_sol_outbound'
+    return 'unknown'
+
+
+_PUMP_FUN_PROGRAM   = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P'
+_TOKEN_PROGRAM_ADDR = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+
+def _extract_mint_from_pump_tx(tx: dict, creator_wallet: str) -> str | None:
+    """
+    Extract the newly-created mint address from a pump.fun token creation transaction.
+    The mint is an account in the tx that is owned by the Token program and whose
+    pre-balance is 0 (newly created). Falls back to scanning inner instructions for
+    InitializeMint.
+    """
+    try:
+        meta = tx.get('meta') or {}
+        accs_raw = (tx.get('transaction') or {}).get('message', {}).get('accountKeys') or []
+        accs = [a.get('pubkey', '') if isinstance(a, dict) else a for a in accs_raw]
+        pre  = meta.get('preBalances') or []
+        post = meta.get('postBalances') or []
+
+        # New mint: pre-balance == 0, post-balance > 0, not the creator, not system program
+        _SKIP = {'11111111111111111111111111111111', creator_wallet,
+                 _PUMP_FUN_PROGRAM, _TOKEN_PROGRAM_ADDR} | _PUMP_FEE_ADDRS
+        for i, addr in enumerate(accs):
+            if addr in _SKIP:
+                continue
+            pb = pre[i] if i < len(pre) else 0
+            po = post[i] if i < len(post) else 0
+            if pb == 0 and po > 0 and addr.endswith('pump'):
+                return addr
+
+        # Fallback: any account ending in 'pump' in the account list
+        for addr in accs:
+            if addr.endswith('pump') and addr != creator_wallet:
+                return addr
+    except Exception:
+        pass
+    return None
+
+def _backfill_wt_creator_launches(db_path: str) -> None:
+    """
+    One-time startup backfill: for any staged wallet that already launched before
+    this code existed, seed wt_creator_launches from token_analysis.
+    Also cross-references existing migrated tokens to set launch_success_state='migrated'.
+    Runs in a background thread — safe to call on every restart (INSERT OR IGNORE).
+    """
+    def _run():
+        import time as _t
+        _t.sleep(15)  # let server fully start and tables be created
+        try:
+            conn = sqlite3.connect(db_path, timeout=30)
+            conn.execute("PRAGMA busy_timeout=20000")
+
+            # Backfill launched tokens: staged wallet creator → any token in token_analysis
+            conn.execute("""
+                INSERT OR IGNORE INTO wt_creator_launches
+                    (creator_wallet, mint_address, launched_at, launch_platform,
+                     evidence_grade, evidence_basis, launch_success_state)
+                SELECT
+                    ws.wallet_address,
+                    ta.mint,
+                    CAST(strftime('%s', ta.created_at) AS INTEGER),
+                    'pump_fun',
+                    'STRONG',
+                    'startup_backfill_from_token_analysis',
+                    CASE WHEN ta.lifecycle_stage = 'migrated' THEN 'migrated' ELSE 'launched_only' END
+                FROM wt_staged_wallets ws
+                JOIN token_analysis ta ON ta.earliest_tx_creator = ws.wallet_address
+                WHERE ta.mint IS NOT NULL
+            """)
+
+            # Also catch pf_ws_creator linkages
+            conn.execute("""
+                INSERT OR IGNORE INTO wt_creator_launches
+                    (creator_wallet, mint_address, launched_at, launch_platform,
+                     evidence_grade, evidence_basis, launch_success_state)
+                SELECT
+                    ws.wallet_address,
+                    ta.mint,
+                    CAST(strftime('%s', ta.created_at) AS INTEGER),
+                    'pump_fun',
+                    'STRONG',
+                    'startup_backfill_from_pf_ws_creator',
+                    CASE WHEN ta.lifecycle_stage = 'migrated' THEN 'migrated' ELSE 'launched_only' END
+                FROM wt_staged_wallets ws
+                JOIN token_analysis ta ON ta.pf_ws_creator = ws.wallet_address
+                WHERE ta.mint IS NOT NULL
+            """)
+
+            # Update any already-migrated tokens that weren't caught at migration time
+            conn.execute("""
+                UPDATE wt_creator_launches SET
+                    launch_success_state = 'migrated',
+                    migrated_at = CAST(ta.migrated_at AS INTEGER),
+                    migration_tx = ta.migration_tx
+                FROM token_analysis ta
+                WHERE wt_creator_launches.mint_address = ta.mint
+                  AND ta.lifecycle_stage = 'migrated'
+                  AND wt_creator_launches.launch_success_state != 'migrated'
+            """)
+
+            conn.commit()
+            n = conn.execute("SELECT COUNT(*) FROM wt_creator_launches").fetchone()[0]
+            m = conn.execute("SELECT COUNT(*) FROM wt_creator_launches WHERE launch_success_state='migrated'").fetchone()[0]
+            conn.close()
+            app.logger.info(f"[WT_BACKFILL] wt_creator_launches: {n} total, {m} migrated")
+        except Exception as e:
+            app.logger.warning(f"[WT_BACKFILL] error: {e}")
+
+    threading.Thread(target=_run, daemon=True, name="wt-launch-backfill").start()
+
+
+def _start_staged_wallet_poller(db_path: str, interval_seconds: int = 600) -> None:
+    """Poll every 10 minutes for first movement in May-batch staged wallets."""
+
+    def _resolve_rpc() -> str:
+        import os
+        return (os.environ.get('HELIUS_RPC_URL') or
+                os.environ.get('SOLANA_RPC_URL') or
+                'https://api.mainnet-beta.solana.com')
+
+    def _rpc(method, params, rpc_url):
+        import requests as _req
+        try:
+            r = _req.post(rpc_url, json={'jsonrpc':'2.0','id':1,'method':method,'params':params}, timeout=15)
+            return r.json().get('result')
+        except Exception:
+            return None
+
+    def _run():
+        import time as _t
+        import json as _json
+        _t.sleep(30)  # let app finish starting
+
+        while True:
+            try:
+                rpc_url = _resolve_rpc()
+                conn = sqlite3.connect(db_path, timeout=15)
+                conn.row_factory = sqlite3.Row
+
+                staged = conn.execute(
+                    "SELECT wallet_address, last_sig, provisioned_at FROM wt_staged_wallets WHERE state = 'DORMANT_FUNDED'"
+                ).fetchall()
+
+                for row in staged:
+                    addr = row['wallet_address']
+                    last_sig = row['last_sig']
+
+                    params = [addr, {'limit': 10}]
+                    if last_sig:
+                        params[1]['until'] = last_sig
+
+                    sigs = _rpc('getSignaturesForAddress', params, rpc_url) or []
+                    if not sigs:
+                        continue
+
+                    # New signatures exist — fetch the earliest new one (last in list)
+                    new_sig = sigs[-1]['signature']
+                    block_time = sigs[-1].get('blockTime', 0)
+
+                    tx = _rpc('getTransaction',
+                              [new_sig, {'encoding':'jsonParsed','maxSupportedTransactionVersion':0}],
+                              rpc_url)
+                    if not tx:
+                        conn.execute("UPDATE wt_staged_wallets SET last_sig=? WHERE wallet_address=?",
+                                     (sigs[0]['signature'], addr))
+                        conn.commit()
+                        continue
+
+                    meta = tx.get('meta') or {}
+                    pre  = meta.get('preBalances') or []
+                    post = meta.get('postBalances') or []
+                    accs_raw = (tx.get('transaction') or {}).get('message', {}).get('accountKeys') or []
+                    accs = [a.get('pubkey','') if isinstance(a, dict) else a for a in accs_raw]
+
+                    sol_delta = 0.0
+                    if addr in accs:
+                        idx = accs.index(addr)
+                        if idx < len(pre):
+                            sol_delta = (post[idx] - pre[idx]) / 1e9
+
+                    move_type = _classify_first_move(accs, sol_delta)
+
+                    conn.execute("""
+                        UPDATE wt_staged_wallets
+                        SET state='ACTIVATED',
+                            first_move_sig=?,
+                            first_move_type=?,
+                            first_move_at=?,
+                            last_sig=?
+                        WHERE wallet_address=?
+                    """, (new_sig, move_type, block_time, sigs[0]['signature'], addr))
+
+                    # On pump.fun launch: extract mint and record creator↔mint binding
+                    launched_mint = None
+                    if move_type == 'pump_fee':
+                        launched_mint = _extract_mint_from_pump_tx(tx, addr)
+                        if launched_mint:
+                            provisioner = conn.execute(
+                                "SELECT provisioner_address FROM wt_staged_wallets WHERE wallet_address=?", (addr,)
+                            ).fetchone()
+                            provisioner_addr = provisioner[0] if provisioner else None
+                            conn.execute("""
+                                INSERT OR IGNORE INTO wt_creator_launches
+                                    (creator_wallet, mint_address, launch_tx, launched_at,
+                                     launch_platform, evidence_grade, evidence_basis)
+                                VALUES (?, ?, ?, ?, 'pump_fun', 'STRONG', ?)
+                            """, (addr, launched_mint, new_sig, block_time,
+                                  f'staged_wallet_activated provisioner={provisioner_addr}'))
+                            conn.execute("""
+                                INSERT OR IGNORE INTO watchtower_events
+                                    (event_type, wallet_address, token_mint, payload_json, created_at)
+                                VALUES ('WATCHTOWER_CREATOR_LAUNCHED', ?, ?, ?, strftime('%s','now'))
+                            """, (addr, launched_mint, _json.dumps({
+                                'sig': new_sig,
+                                'block_time': block_time,
+                                'mint': launched_mint,
+                                'provisioner': provisioner_addr,
+                                'evidence_grade': 'STRONG'
+                            })))
+                            app.logger.info(f"[STAGED_POLLER] {addr[:20]}... LAUNCHED mint={launched_mint[:20]}...")
+
+                    # Write activation event
+                    conn.execute("""
+                        INSERT OR IGNORE INTO watchtower_events
+                            (event_type, wallet_address, token_mint, payload_json, created_at)
+                        VALUES ('staged_wallet_activated', ?, ?, ?, strftime('%s','now'))
+                    """, (addr, launched_mint, _json.dumps({
+                        'first_move_type': move_type,
+                        'sig': new_sig,
+                        'block_time': block_time,
+                        'mint': launched_mint,
+                        'evidence_grade': 'STRONG'
+                    })))
+
+                    conn.commit()
+                    app.logger.info(f"[STAGED_POLLER] {addr[:20]}... ACTIVATED — {move_type}")
+
+                # Update last_sig cursor for wallets with no new activity (keep fresh)
+                for row in staged:
+                    addr = row['wallet_address']
+                    sigs = _rpc('getSignaturesForAddress', [addr, {'limit': 1}], rpc_url) or []
+                    if sigs and not row['last_sig']:
+                        conn.execute("UPDATE wt_staged_wallets SET last_sig=? WHERE wallet_address=?",
+                                     (sigs[0]['signature'], addr))
+                conn.commit()
+                conn.close()
+
+            except Exception as _e:
+                app.logger.warning(f"[STAGED_POLLER] error: {_e}")
+
+            _t.sleep(interval_seconds)
+
+    threading.Thread(target=_run, daemon=True, name="staged-wallet-poller").start()
+    print("[STAGED_POLLER] Staged wallet poller started (10min loop, 60 wallets)", flush=True)
+
+
+def _start_subprovisioner_fanout_detector(db_path: str, interval_seconds: int = 300) -> None:
+    """
+    Every 5 minutes: scan recent large TREASURY outflows for wallets not yet known.
+    For each unknown recipient, fetch their outbound transactions and check for
+    synchronized fanout (N wallets funded at a consistent amount within 30min).
+    If fanout detected → add as sub-provisioner, add funded wallets as staged.
+    """
+
+    _WT_TREASURY = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+    _WT_KNOWN_INFRA = {
+        "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM",  # SIGNALLER
+        "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",  # TREASURY
+        "6jeT3WcaFgfKdSNWqj5RfyXSWjSJJyDZ8eBdMSADNiE",  # TREASURY-UP
+    }
+
+    def _resolve_rpc():
+        import os
+        return (os.environ.get('HELIUS_RPC_URL') or
+                os.environ.get('SOLANA_RPC_URL') or
+                'https://api.mainnet-beta.solana.com')
+
+    def _rpc(method, params, rpc_url):
+        import requests as _req
+        try:
+            r = _req.post(rpc_url, json={'jsonrpc':'2.0','id':1,'method':method,'params':params}, timeout=20)
+            return r.json().get('result')
+        except Exception:
+            return None
+
+    def _detect_fanout(address, rpc_url):
+        """
+        Check for fanout pattern using only getSignaturesForAddress (no getTransaction).
+        A burst of N sigs within a short window shortly after TREASURY funding = fanout signal.
+        If burst found, fetch ONE tx to get the transfer amount, then estimate recipients.
+        """
+        import time as _t2
+        sigs = _rpc('getSignaturesForAddress', [address, {'limit': 100}], rpc_url) or []
+        if len(sigs) < 5:
+            return None
+
+        # Look for a burst: N sigs within a 2-hour window
+        times = [(s['signature'], s.get('blockTime', 0)) for s in sigs if s.get('blockTime')]
+        if not times:
+            return None
+
+        # Slide a 2h window and find the densest burst
+        best_window = []
+        for i, (_, t0) in enumerate(times):
+            window = [(sig, t) for sig, t in times if 0 <= t0 - t <= 7200]
+            if len(window) > len(best_window):
+                best_window = window
+
+        if len(best_window) < 5:
+            return None
+
+        # Fetch ONE tx from the burst to get the amount
+        sample_sig = best_window[0][0]
+        tx = _rpc('getTransaction',
+                  [sample_sig, {'encoding':'jsonParsed','maxSupportedTransactionVersion':0}],
+                  rpc_url)
+        if not tx:
+            return None
+
+        native = (tx.get('meta') or {}).get('nativeTransfers') or []
+        amount_each = None
+        for t in native:
+            if t.get('fromUserAccount') == address:
+                amount_each = (t.get('amount') or 0) / 1e9
+                break
+
+        if not amount_each or amount_each < 0.005:
+            return None
+
+        burst_times = [t for _, t in best_window]
+        return {
+            'fanout_count': len(best_window),
+            'fingerprint': f'{amount_each:.8f}',
+            'recipients': [],  # don't fetch all — just record count and fingerprint
+            'amount_each': amount_each,
+            'window_secs': max(burst_times) - min(burst_times),
+        }
+
+    def _run():
+        import time as _t
+        import json as _json
+        _t.sleep(60)  # let app finish starting
+
+        while True:
+            try:
+                rpc_url = _resolve_rpc()
+                conn = sqlite3.connect(db_path, timeout=15)
+                conn.row_factory = sqlite3.Row
+
+                # Find TREASURY outflows in last 7 days >= 5 SOL not yet in sub_provisioners or known infra
+                cutoff = int(_t.time()) - 604800
+                candidates = conn.execute("""
+                    SELECT DISTINCT counterparty, amount_sol, block_time
+                    FROM watchtower_infra_events
+                    WHERE infra_role = 'TREASURY'
+                      AND direction = 'outbound'
+                      AND amount_sol >= 50
+                      AND block_time > ?
+                      AND counterparty NOT IN (SELECT address FROM wt_sub_provisioners)
+                      AND counterparty NOT IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related=1)
+                    ORDER BY block_time DESC
+                    LIMIT 20
+                """, (cutoff,)).fetchall()
+
+                for row in candidates:
+                    addr = row['counterparty']
+                    if addr in _WT_KNOWN_INFRA:
+                        continue
+
+                    # Record as candidate immediately (pending scan)
+                    conn.execute("""
+                        INSERT OR IGNORE INTO wt_sub_provisioners
+                            (address, funding_tx, funding_amount, funded_by, scan_status, first_seen_at)
+                        VALUES (?, NULL, ?, ?, 'scanning', strftime('%s','now'))
+                    """, (addr, row['amount_sol'], _WT_TREASURY))
+                    conn.commit()
+
+                    print(f"[SUBPROV_DETECTOR] Scanning {addr[:20]}… ({row['amount_sol']:.2f} SOL from TREASURY)", flush=True)
+
+                    fanout = _detect_fanout(addr, rpc_url)
+
+                    if fanout and fanout['fanout_count'] >= 5:
+                        # Real sub-provisioner found
+                        fingerprint = fanout['fingerprint']
+                        recipients = fanout['recipients']
+
+                        conn.execute("""
+                            UPDATE wt_sub_provisioners SET
+                                fanout_count = ?,
+                                fanout_amount = ?,
+                                fanout_fingerprint = ?,
+                                last_scanned_at = strftime('%s','now'),
+                                scan_status = 'confirmed'
+                            WHERE address = ?
+                        """, (fanout['fanout_count'], fanout['amount_each'], fingerprint, addr))
+
+                        # Log the discovery
+                        conn.execute("""
+                            INSERT INTO wt_discovery_log (discovery_type, address, detail_json)
+                            VALUES ('sub_provisioner', ?, ?)
+                        """, (addr, _json.dumps({
+                            'fanout_count': fanout['fanout_count'],
+                            'fingerprint': fingerprint,
+                            'funding_amount': row['amount_sol'],
+                        })))
+
+                        # Add each fanout recipient as a staged wallet
+                        new_staged = 0
+                        for recipient in recipients:
+                            existing = conn.execute(
+                                "SELECT 1 FROM wt_staged_wallets WHERE wallet_address=?", (recipient,)
+                            ).fetchone()
+                            if not existing:
+                                conn.execute("""
+                                    INSERT OR IGNORE INTO wt_staged_wallets
+                                        (wallet_address, provisioner_address, state, evidence_grade,
+                                         evidence_basis, provisioned_at)
+                                    VALUES (?, ?, 'DORMANT_FUNDED', 'STRONG',
+                                            json_object('method','fanout_detected','fingerprint',?,'sub_provisioner',?),
+                                            strftime('%s','now'))
+                                """, (recipient, addr, fingerprint, addr))
+                                conn.execute("""
+                                    INSERT INTO wt_discovery_log (discovery_type, address, detail_json)
+                                    VALUES ('staged_wallet', ?, ?)
+                                """, (recipient, _json.dumps({
+                                    'sub_provisioner': addr,
+                                    'fingerprint': fingerprint,
+                                    'amount_sol': fanout['amount_each'],
+                                })))
+                                new_staged += 1
+
+                        conn.execute("""
+                            INSERT OR IGNORE INTO watchtower_events
+                                (event_type, wallet_address, payload_json, source, created_at)
+                            VALUES ('sub_provisioner_detected', ?, ?, 'fanout_detector', strftime('%s','now'))
+                        """, (addr, _json.dumps({
+                            'fanout_count': fanout['fanout_count'],
+                            'fingerprint': fingerprint,
+                            'new_staged_wallets': new_staged,
+                            'funding_from_treasury': row['amount_sol'],
+                        })))
+
+                        conn.commit()
+                        print(f"[SUBPROV_DETECTOR] ✅ {addr[:20]}… → SUB-PROVISIONER: "
+                              f"{fanout['fanout_count']} wallets @ {fingerprint} SOL, {new_staged} new staged", flush=True)
+                    else:
+                        # Not a sub-provisioner
+                        conn.execute("""
+                            UPDATE wt_sub_provisioners SET
+                                scan_status = 'not_provisioner',
+                                last_scanned_at = strftime('%s','now')
+                            WHERE address = ?
+                        """, (addr,))
+                        conn.commit()
+                        print(f"[SUBPROV_DETECTOR] {addr[:20]}… — no fanout pattern", flush=True)
+
+                conn.close()
+
+            except Exception as _e:
+                print(f"[SUBPROV_DETECTOR] error: {_e}", flush=True)
+                import traceback; traceback.print_exc()
+
+            _t.sleep(interval_seconds)
+
+    threading.Thread(target=_run, daemon=True, name="subprov-fanout-detector").start()
+    print("[SUBPROV_DETECTOR] Sub-provisioner fanout detector started (5min loop)", flush=True)
+
+
+def _start_watchtower_activation_poller(db_path: str, interval_seconds: int = 60) -> None:
+    """Poll every minute for WATCHTOWER network wallets becoming creators or funders."""
+
+    def _run():
+        global _watchtower_activation_seen, _watchtower_funding_seen, _watchtower_signals, _watchtower_dormant_seen
+        import time as _t
+        _t.sleep(10)
+
+        # Restore persisted dormant seen state so restarts don't re-fire old signals
+        try:
+            _conn = sqlite3.connect(db_path, timeout=10)
+            _conn.row_factory = sqlite3.Row
+            rows = _conn.execute("SELECT creator, mint FROM watchtower_dormant_seen").fetchall()
+            _watchtower_dormant_seen.update((r['creator'], r['mint']) for r in rows)
+            _conn.close()
+        except Exception:
+            pass
+
+        while True:
+            try:
+                conn = sqlite3.connect(db_path, timeout=10)
+                conn.row_factory = sqlite3.Row
+
+                # Build watched set from WATCHTOWER-tagged queue entries
+                watched = set()
+                for tag in WATCHTOWER_WATCH_TAGS:
+                    rows = conn.execute(
+                        "SELECT funder_address FROM second_hop_lite_queue WHERE reason_codes LIKE ?",
+                        (f'%{tag}%',)
+                    ).fetchall()
+                    watched.update(r['funder_address'] for r in rows)
+
+                # Watch all fingerprint-confirmed creators and their next-round child wallets
+                try:
+                    confirmed_set = conn.execute("""
+                        SELECT creator_address AS address FROM creator_risk_scores WHERE watchtower_related = 1
+                        UNION
+                        SELECT child_address FROM watchtower_operator_graph
+                        WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                          AND relationship = 'launch_wallet'
+                    """).fetchall()
+                    fee_payer_set = {r['address'] for r in confirmed_set}
+                    watched.update(fee_payer_set)
+                except Exception:
+                    fee_payer_set = set()
+
+                # --- Check 3: dormant confirmed creator/child appeared as token creator ---
+                if fee_payer_set:
+                    ph_fp = ','.join('?' * len(fee_payer_set))
+                    dormant_activations = conn.execute(f"""
+                        SELECT COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator,
+                               ta.mint, COALESCE(mc.symbol, mc.name, ta.mint) AS token_name,
+                               ta.created_at, ta.market_cap_highest, ta.lifecycle_stage,
+                               crs.risk_level,
+                               crs.watchtower_evidence_json,
+                               NULL AS fee_payer_first_seen,
+                               0 AS tx_count, 0 AS total_sol_sent
+                        FROM token_analysis ta
+                        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                        LEFT JOIN creator_risk_scores crs
+                            ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                        WHERE COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN ({ph_fp})
+                        ORDER BY ta.created_at DESC
+                    """, list(fee_payer_set)).fetchall()
+
+                    for row in dormant_activations:
+                        key = (row['creator'], row['mint'])
+                        if key not in _watchtower_dormant_seen:
+                            _watchtower_dormant_seen.add(key)
+                            try:
+                                conn.execute(
+                                    "INSERT OR IGNORE INTO watchtower_dormant_seen (creator, mint) VALUES (?, ?)",
+                                    key
+                                )
+                                conn.commit()
+                            except Exception:
+                                pass
+                            mc = row['market_cap_highest']
+                            mc_str = f"${mc/1e6:.2f}M" if mc and mc >= 1e6 else (f"${mc/1e3:.0f}K" if mc and mc >= 1000 else f"${mc:.0f}" if mc else "—")
+                            entry = {
+                                "type": "dormant_activation",
+                                "creator": row['creator'],
+                                "mint": row['mint'],
+                                "token_name": row['token_name'],
+                                "created_at": row['created_at'],
+                                "market_cap_highest": row['market_cap_highest'],
+                                "lifecycle_stage": row['lifecycle_stage'],
+                                "risk_level": row['risk_level'],
+                                "fee_payer_first_seen": int(_t.mktime(_t.strptime(row['fee_payer_first_seen'], "%Y-%m-%d %H:%M:%S"))) if row['fee_payer_first_seen'] else None,
+                                "fee_tx_count": row['tx_count'],
+                                "total_sol_sent": row['total_sol_sent'],
+                                "detected_at": int(_t.time()),
+                            }
+                            _watchtower_signals["dormant_activations"].insert(0, entry)
+                            _watchtower_signals["dormant_activations"] = _watchtower_signals["dormant_activations"][:50]
+                            print(
+                                f"[WATCHTOWER] 🟠 DORMANT ACTIVATED: {row['creator'][:20]}… "
+                                f"token={row['token_name']} MC={mc_str} "
+                                f"fee_txs={row['tx_count']}",
+                                flush=True
+                            )
+
+                if watched:
+                    ph = ','.join('?' * len(watched))
+                    watched_list = list(watched)
+
+                    # --- Check 1: operator appeared as token creator ---
+                    new_creators = conn.execute(f"""
+                        SELECT COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator,
+                               ta.mint, COALESCE(mc.symbol, mc.name, ta.mint) AS token_name,
+                               ta.created_at, ta.market_cap_highest, ta.lifecycle_stage,
+                               crs.risk_level
+                        FROM token_analysis ta
+                        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+                        LEFT JOIN creator_risk_scores crs
+                            ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
+                        WHERE COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN ({ph})
+                        ORDER BY ta.created_at DESC
+                    """, watched_list).fetchall()
+
+                    for row in new_creators:
+                        # skip — handled as dormant_activation with richer context
+                        if row['creator'] in fee_payer_set:
+                            continue
+                        key = (row['creator'], row['mint'])
+                        if key not in _watchtower_activation_seen:
+                            _watchtower_activation_seen.add(key)
+                            mc = row['market_cap_highest']
+                            mc_str = f"${mc/1e6:.2f}M" if mc and mc >= 1e6 else (f"${mc/1e3:.0f}K" if mc and mc >= 1000 else f"${mc:.0f}" if mc else "—")
+                            entry = {
+                                "type": "new_creator",
+                                "creator": row['creator'],
+                                "mint": row['mint'],
+                                "token_name": row['token_name'],
+                                "created_at": row['created_at'],
+                                "market_cap_highest": row['market_cap_highest'],
+                                "lifecycle_stage": row['lifecycle_stage'],
+                                "risk_level": row['risk_level'],
+                                "detected_at": int(_t.time()),
+                            }
+                            _watchtower_signals["new_creators"].insert(0, entry)
+                            _watchtower_signals["new_creators"] = _watchtower_signals["new_creators"][:50]
+                            print(
+                                f"[WATCHTOWER] ⚡ NEW CREATOR: {row['creator'][:20]}… "
+                                f"token={row['token_name']} MC={mc_str} stage={row['lifecycle_stage']}",
+                                flush=True
+                            )
+
+                    # --- Check 2: operator appeared as funder for a new creator ---
+                    funding_signals = conn.execute(f"""
+                        SELECT cf.funder_address, cf.creator_address, cf.amount_sol,
+                               cf.first_detected_at,
+                               crs.risk_level,
+                               (SELECT COUNT(*) FROM token_analysis ta
+                                WHERE COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) = cf.creator_address
+                               ) AS token_count
+                        FROM creator_funders cf
+                        LEFT JOIN creator_risk_scores crs ON crs.creator_address = cf.creator_address
+                        WHERE cf.funder_address IN ({ph})
+                        ORDER BY cf.first_detected_at DESC
+                    """, watched_list).fetchall()
+
+                    for row in funding_signals:
+                        key = (row['funder_address'], row['creator_address'])
+                        if key not in _watchtower_funding_seen:
+                            _watchtower_funding_seen.add(key)
+                            entry = {
+                                "type": "funding_signal",
+                                "funder": row['funder_address'],
+                                "creator": row['creator_address'],
+                                "amount_sol": row['amount_sol'],
+                                "first_detected_at": row['first_detected_at'],
+                                "risk_level": row['risk_level'],
+                                "token_count": row['token_count'],
+                                "detected_at": int(_t.time()),
+                            }
+                            _watchtower_signals["funding_signals"].insert(0, entry)
+                            _watchtower_signals["funding_signals"] = _watchtower_signals["funding_signals"][:50]
+                            print(
+                                f"[WATCHTOWER] 🔴 FUNDING SIGNAL: {row['funder_address'][:20]}… "
+                                f"→ creator {row['creator_address'][:20]}… {row['amount_sol']:.3f} SOL "
+                                f"risk={row['risk_level']}",
+                                flush=True
+                            )
+
+                # --- Check 4: SIGNALLER dust + TREASURY funding chain ---
+                # Wallets that received both SIGNALLER dust and TREASURY funding
+                # but aren't already known fee payers — these are queued operators
+                _SIGNALLER_ADDR = "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM"
+                _TREASURY_ADDR  = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+                try:
+                    chain_candidates = conn.execute("""
+                        SELECT s.creator_address
+                        FROM creator_infra_interactions s
+                        JOIN creator_infra_interactions t
+                            ON t.creator_address = s.creator_address
+                        WHERE s.account_address = ?
+                          AND t.account_address = ?
+                          AND s.creator_address NOT IN (
+                              SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1
+                          )
+                    """, (_SIGNALLER_ADDR, _TREASURY_ADDR)).fetchall()
+
+                    for row in chain_candidates:
+                        addr = row["creator_address"]
+                        key = ("signaller_chain", addr)
+                        if key not in _watchtower_activation_seen:
+                            _watchtower_activation_seen.add(key)
+                            # Upsert into launch candidates
+                            conn.execute("""
+                                INSERT INTO watchtower_launch_candidates
+                                    (address, source_operator, candidate_reason, confidence,
+                                     first_signal_at, last_signal_at, evidence_json)
+                                VALUES (?, NULL, 'signaller_treasury_chain', 'high', ?, ?, ?)
+                                ON CONFLICT(address) DO UPDATE SET
+                                    last_signal_at = excluded.last_signal_at
+                            """, (addr, int(_t.time()), int(_t.time()),
+                                  '{"rule":"signaller_treasury_chain"}'))
+                            conn.commit()
+                            entry = {
+                                "type": "launch_candidate",
+                                "address": addr,
+                                "candidate_reason": "signaller_treasury_chain",
+                                "confidence": "high",
+                                "detected_at": int(_t.time()),
+                            }
+                            _watchtower_signals["launch_candidates"].insert(0, entry)
+                            _watchtower_signals["launch_candidates"] = _watchtower_signals["launch_candidates"][:50]
+                            print(
+                                f"[WATCHTOWER] 🔴 LAUNCH CANDIDATE: {addr[:20]}… "
+                                f"reason=signaller_treasury_chain",
+                                flush=True
+                            )
+                except Exception as _e4:
+                    pass  # table may not exist on old schema
+
+                # --- Check 5: state changes for known fee payers ---
+                try:
+                    from src.analysis.watchtower_detector import update_wallet_state as _update_wt_state
+                    if fee_payer_set:
+                        # Sample up to 10 operators per cycle to spread RPC load
+                        import random as _random
+                        sample = list(fee_payer_set)
+                        _random.shuffle(sample)
+                        for op_addr in sample[:10]:
+                            prev = conn.execute(
+                                "SELECT state FROM watchtower_wallet_state WHERE address = ?",
+                                (op_addr,)
+                            ).fetchone()
+                            prev_state = prev["state"] if prev else None
+                            new_state = _update_wt_state(op_addr, conn)
+                            if prev_state and new_state != prev_state:
+                                conn.commit()
+                                entry = {
+                                    "type": "state_change",
+                                    "address": op_addr,
+                                    "from_state": prev_state,
+                                    "to_state": new_state,
+                                    "detected_at": int(_t.time()),
+                                }
+                                _watchtower_signals["state_changes"].insert(0, entry)
+                                _watchtower_signals["state_changes"] = _watchtower_signals["state_changes"][:50]
+                                print(
+                                    f"[WATCHTOWER] 🔵 STATE CHANGE: {op_addr[:20]}… "
+                                    f"{prev_state} → {new_state}",
+                                    flush=True
+                                )
+                except Exception:
+                    pass
+
+                conn.close()
+            except Exception as exc:
+                print(f"[WATCHTOWER] ⚠ poll error: {exc}", flush=True)
+            _t.sleep(interval_seconds)
+
+    t = threading.Thread(target=_run, daemon=True, name="watchtower-activation-poller")
+    t.start()
+    print("[WATCHTOWER] Poller started — watching 496 wallets for creator/funder activation every 60s", flush=True)
+
 
 @app.route('/network-diagram/coinbase-cluster')
 def network_diagram_coinbase_cluster():
@@ -24797,6 +27528,5337 @@ def webhook_pumpfun_birth():
         except Exception:
             pass
     return "ok", 200
+
+
+# ---------------------------------------------------------------------------
+# WATCHTOWER webhook — real-time fee sweep monitoring
+# ---------------------------------------------------------------------------
+
+WATCHTOWER_ADDR = "5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H"
+
+
+def _ensure_watchtower_tables(conn: sqlite3.Connection) -> None:
+    """Create all WATCHTOWER tables and indexes using individual execute calls.
+
+    Deliberately avoids executescript() — that method issues an implicit COMMIT
+    and holds a broader write lock for the duration of the entire script, causing
+    lock contention when called on every webhook hit. Individual CREATE IF NOT EXISTS
+    statements acquire the lock briefly per statement and release it immediately.
+    """
+    stmts = [
+        """CREATE TABLE IF NOT EXISTS watchtower_fee_payers (
+            address          TEXT    NOT NULL PRIMARY KEY,
+            first_seen_at    INTEGER NOT NULL,
+            last_seen_at     INTEGER NOT NULL,
+            tx_count         INTEGER NOT NULL DEFAULT 1,
+            total_sol_sent   REAL    NOT NULL DEFAULT 0,
+            first_sig        TEXT,
+            last_sig         TEXT,
+            detection_run    INTEGER NOT NULL DEFAULT 0
+        )""",
+        """CREATE TABLE IF NOT EXISTS watchtower_sweep_events (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            signature     TEXT    NOT NULL UNIQUE,
+            block_time    INTEGER,
+            payer_count   INTEGER NOT NULL DEFAULT 0,
+            total_sol     REAL    NOT NULL DEFAULT 0,
+            raw_payload   TEXT,
+            received_at   INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_fee_payers_unseen ON watchtower_fee_payers(detection_run) WHERE detection_run = 0",
+        """CREATE TABLE IF NOT EXISTS watchtower_dormant_seen (
+            creator  TEXT NOT NULL,
+            mint     TEXT NOT NULL,
+            seen_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            PRIMARY KEY (creator, mint)
+        )""",
+        """CREATE TABLE IF NOT EXISTS watchtower_wallet_state (
+            address          TEXT    NOT NULL PRIMARY KEY,
+            state            TEXT    NOT NULL DEFAULT 'provisioned',
+            state_changed_at INTEGER,
+            provisioned_at   INTEGER,
+            activated_at     INTEGER,
+            first_fee_at     INTEGER,
+            last_fee_at      INTEGER,
+            launch_count     INTEGER NOT NULL DEFAULT 0,
+            evidence_json    TEXT,
+            updated_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        """CREATE TABLE IF NOT EXISTS watchtower_operator_graph (
+            operator_address TEXT NOT NULL,
+            child_address    TEXT NOT NULL,
+            relationship     TEXT NOT NULL,
+            amount_sol       REAL,
+            first_seen_at    INTEGER,
+            last_seen_at     INTEGER,
+            tx_signature     TEXT,
+            hop              INTEGER NOT NULL DEFAULT 1,
+            PRIMARY KEY (operator_address, child_address, relationship)
+        )""",
+        """CREATE TABLE IF NOT EXISTS watchtower_launch_candidates (
+            address          TEXT    NOT NULL PRIMARY KEY,
+            source_operator  TEXT,
+            candidate_reason TEXT,
+            confidence       TEXT    NOT NULL DEFAULT 'medium',
+            first_signal_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            last_signal_at   INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            launched_mint    TEXT,
+            evidence_json    TEXT
+        )""",
+        """CREATE TABLE IF NOT EXISTS watchtower_raydium_launches (
+            pool_address          TEXT NOT NULL PRIMARY KEY,
+            mint                  TEXT NOT NULL,
+            creator_address       TEXT,
+            pool_program          TEXT,
+            initial_liquidity_sol REAL,
+            detected_at           INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            block_time            INTEGER,
+            tx_signature          TEXT,
+            operator_link         TEXT,
+            link_type             TEXT,
+            evidence_json         TEXT
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_wallet_state ON watchtower_wallet_state(state)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_op_graph_operator ON watchtower_operator_graph(operator_address)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_op_graph_child ON watchtower_operator_graph(child_address)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_candidates_operator ON watchtower_launch_candidates(source_operator)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_raydium_mint ON watchtower_raydium_launches(mint)",
+        """CREATE TABLE IF NOT EXISTS watchtower_events (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_sequence   INTEGER NOT NULL DEFAULT 0,
+            event_type       TEXT    NOT NULL,
+            wallet_address   TEXT,
+            related_wallet   TEXT,
+            token_mint       TEXT,
+            payload_json     TEXT,
+            source           TEXT,
+            created_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_wt_events_sequence ON watchtower_events(event_sequence) WHERE event_sequence > 0",
+        "CREATE INDEX IF NOT EXISTS idx_wt_events_wallet ON watchtower_events(wallet_address, event_sequence ASC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_events_type ON watchtower_events(event_type, event_sequence ASC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_events_created ON watchtower_events(created_at DESC)",
+        """CREATE TABLE IF NOT EXISTS watchtower_infra_events (
+            signature        TEXT NOT NULL PRIMARY KEY,
+            block_time       INTEGER,
+            infra_address    TEXT NOT NULL,
+            infra_role       TEXT NOT NULL,
+            direction        TEXT NOT NULL,
+            counterparty     TEXT NOT NULL,
+            amount_sql       REAL NOT NULL DEFAULT 0,
+            raw_payload      TEXT,
+            received_at      INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_infra_events_infra ON watchtower_infra_events(infra_address, block_time DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_infra_events_counterparty ON watchtower_infra_events(counterparty)",
+        """CREATE TABLE IF NOT EXISTS wt_discovery_log (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            discovered_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            discovery_type TEXT    NOT NULL,
+            address        TEXT,
+            detail_json    TEXT
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_discovery_log_at ON wt_discovery_log(discovered_at DESC)",
+        """CREATE TABLE IF NOT EXISTS wt_sub_provisioners (
+            address        TEXT NOT NULL PRIMARY KEY,
+            first_seen_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            funding_tx     TEXT,
+            funding_amount REAL,
+            funded_by      TEXT,
+            fanout_count   INTEGER NOT NULL DEFAULT 0,
+            fanout_amount  REAL,
+            fanout_fingerprint TEXT,
+            last_scanned_at INTEGER,
+            scan_status    TEXT NOT NULL DEFAULT 'pending'
+        )""",
+        """CREATE TABLE IF NOT EXISTS wt_creator_launches (
+            creator_wallet   TEXT NOT NULL,
+            mint_address     TEXT NOT NULL,
+            launch_tx        TEXT,
+            launched_at      INTEGER,
+            launch_platform  TEXT NOT NULL DEFAULT 'pump_fun',
+            evidence_grade   TEXT NOT NULL DEFAULT 'STRONG',
+            evidence_basis   TEXT,
+            launch_success_state TEXT NOT NULL DEFAULT 'launched_only',
+            migrated_at      INTEGER,
+            migration_tx     TEXT,
+            PRIMARY KEY (creator_wallet, mint_address)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_creator_launches_mint ON wt_creator_launches(mint_address)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_creator_launches_creator ON wt_creator_launches(creator_wallet)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_creator_launches_state ON wt_creator_launches(launch_success_state)",
+        """CREATE TABLE IF NOT EXISTS wt_staged_wallets (
+            wallet_address    TEXT PRIMARY KEY,
+            provisioned_at    INTEGER,
+            provisioner_address TEXT,
+            last_sig          TEXT,
+            first_move_sig    TEXT,
+            first_move_type   TEXT,
+            first_move_at     INTEGER,
+            state             TEXT DEFAULT 'DORMANT_FUNDED',
+            evidence_grade    TEXT,
+            evidence_basis    TEXT
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_staged_state ON wt_staged_wallets(state)",
+        # ── Phase 2: topology graph, campaigns, trader tracking, scoring ──────────
+        """CREATE TABLE IF NOT EXISTS wt_graph_nodes (
+            address        TEXT NOT NULL PRIMARY KEY,
+            node_type      TEXT NOT NULL DEFAULT 'UNKNOWN',
+            campaign_id    TEXT,
+            first_seen_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            last_active_at INTEGER,
+            state          TEXT,
+            score          INTEGER,
+            evidence_json  TEXT
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_graph_nodes_type     ON wt_graph_nodes(node_type)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_graph_nodes_campaign ON wt_graph_nodes(campaign_id) WHERE campaign_id IS NOT NULL",
+        """CREATE TABLE IF NOT EXISTS wt_graph_edges (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            from_address   TEXT NOT NULL,
+            to_address     TEXT NOT NULL,
+            edge_type      TEXT NOT NULL,
+            amount_sol     REAL,
+            tx_signature   TEXT,
+            block_time     INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            campaign_id    TEXT,
+            UNIQUE(from_address, to_address, edge_type, tx_signature)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_edges_from     ON wt_graph_edges(from_address, block_time DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_edges_to       ON wt_graph_edges(to_address,   block_time DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_edges_campaign ON wt_graph_edges(campaign_id) WHERE campaign_id IS NOT NULL",
+        """CREATE TABLE IF NOT EXISTS wt_campaigns (
+            campaign_id        TEXT NOT NULL PRIMARY KEY,
+            sub_provisioner    TEXT NOT NULL,
+            started_at         INTEGER NOT NULL,
+            ended_at           INTEGER,
+            state              TEXT NOT NULL DEFAULT 'PROVISIONING',
+            creator_count      INTEGER NOT NULL DEFAULT 0,
+            trader_count       INTEGER NOT NULL DEFAULT 0,
+            token_mints_json   TEXT,
+            total_sol_deployed REAL NOT NULL DEFAULT 0,
+            total_sol_swept    REAL NOT NULL DEFAULT 0,
+            evidence_json      TEXT,
+            created_at         INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at         INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_campaigns_provisioner ON wt_campaigns(sub_provisioner)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_campaigns_state       ON wt_campaigns(state)",
+        """CREATE TABLE IF NOT EXISTS wt_trader_wallets (
+            wallet_address      TEXT NOT NULL PRIMARY KEY,
+            provisioner_address TEXT NOT NULL,
+            campaign_id         TEXT,
+            funded_at           INTEGER,
+            funded_amount_sol   REAL,
+            state               TEXT NOT NULL DEFAULT 'FUNDED',
+            state_changed_at    INTEGER,
+            total_buys          INTEGER NOT NULL DEFAULT 0,
+            total_sells         INTEGER NOT NULL DEFAULT 0,
+            total_bought_sol    REAL NOT NULL DEFAULT 0,
+            total_sold_sol      REAL NOT NULL DEFAULT 0,
+            net_pnl_sol         REAL,
+            last_pamm_at        INTEGER,
+            last_sweep_at       INTEGER,
+            sweep_destination   TEXT,
+            evidence_json       TEXT,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_traders_provisioner ON wt_trader_wallets(provisioner_address)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_traders_campaign    ON wt_trader_wallets(campaign_id) WHERE campaign_id IS NOT NULL",
+        "CREATE INDEX IF NOT EXISTS idx_wt_traders_state       ON wt_trader_wallets(state)",
+        """CREATE TABLE IF NOT EXISTS wt_pamm_interactions (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            signature      TEXT NOT NULL UNIQUE,
+            block_time     INTEGER NOT NULL,
+            wallet_address TEXT NOT NULL,
+            token_mint     TEXT NOT NULL,
+            direction      TEXT NOT NULL,
+            sol_amount     REAL NOT NULL,
+            token_amount   REAL,
+            campaign_id    TEXT,
+            created_at     INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_wallet   ON wt_pamm_interactions(wallet_address, block_time DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_mint     ON wt_pamm_interactions(token_mint, block_time DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_campaign ON wt_pamm_interactions(campaign_id, block_time DESC) WHERE campaign_id IS NOT NULL",
+        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_time     ON wt_pamm_interactions(block_time DESC)",
+        """CREATE TABLE IF NOT EXISTS wt_candidate_scores (
+            wallet_address   TEXT NOT NULL PRIMARY KEY,
+            score            INTEGER NOT NULL DEFAULT 0,
+            score_breakdown  TEXT,
+            lineage_path     TEXT,
+            reaches_treasury INTEGER NOT NULL DEFAULT 0,
+            enrolled_at      INTEGER,
+            scored_at        INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            rescored_at      INTEGER
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_scores_score ON wt_candidate_scores(score DESC)",
+        """CREATE TABLE IF NOT EXISTS wt_webhook_enrollments (
+            wallet_address TEXT NOT NULL PRIMARY KEY,
+            webhook_id     TEXT NOT NULL,
+            enrolled_at    INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            de_enrolled_at INTEGER,
+            is_active      INTEGER NOT NULL DEFAULT 1
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_enrollment_active ON wt_webhook_enrollments(is_active, webhook_id)",
+        # ── Hit telemetry: one row per transfer received from any watched address ──
+        """CREATE TABLE IF NOT EXISTS wt_webhook_hits (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            webhook_id       TEXT    NOT NULL,
+            wallet_address   TEXT    NOT NULL,
+            tx_signature     TEXT,
+            tx_type          TEXT,
+            source           TEXT,        -- 'candidate_webhook' | 'infra_webhook'
+            counterparty     TEXT,        -- destination address
+            slot             INTEGER,
+            block_time       INTEGER,
+            amount_sol       REAL,
+            is_fee_touch     INTEGER NOT NULL DEFAULT 0,
+            is_pamm_interaction INTEGER NOT NULL DEFAULT 0,
+            created_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wh_wallet_time  ON wt_webhook_hits(wallet_address, created_at DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wh_created      ON wt_webhook_hits(created_at DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wh_fee_touch    ON wt_webhook_hits(is_fee_touch) WHERE is_fee_touch=1",
+        "CREATE INDEX IF NOT EXISTS idx_wh_source       ON wt_webhook_hits(source, created_at DESC)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_wh_sig_wallet ON wt_webhook_hits(tx_signature, wallet_address)",
+        # ── Tier 2: minute-bucket aggregation for high-volume relay/infra ──────────
+        """CREATE TABLE IF NOT EXISTS wt_infra_telemetry_buckets (
+            wallet_address        TEXT    NOT NULL,
+            minute_bucket         INTEGER NOT NULL,
+            role                  TEXT    NOT NULL,
+            hit_count             INTEGER NOT NULL DEFAULT 0,
+            unique_counterparties INTEGER NOT NULL DEFAULT 0,
+            total_sol             REAL    NOT NULL DEFAULT 0,
+            max_tx_sol            REAL    NOT NULL DEFAULT 0,
+            burst_score           INTEGER NOT NULL DEFAULT 0,
+            created_at            INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            PRIMARY KEY (wallet_address, minute_bucket)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_buckets_time   ON wt_infra_telemetry_buckets(minute_bucket DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_buckets_wallet ON wt_infra_telemetry_buckets(wallet_address, minute_bucket DESC)",
+        # ── Relay counterparties: post-launch creator discovery from sweep senders ─
+        """CREATE TABLE IF NOT EXISTS wt_relay_counterparties (
+            sender_address   TEXT    NOT NULL,
+            relay_address    TEXT    NOT NULL,
+            first_sweep_at   INTEGER,
+            last_sweep_at    INTEGER,
+            sweep_count      INTEGER NOT NULL DEFAULT 1,
+            total_sol        REAL    NOT NULL DEFAULT 0,
+            discovery_state  TEXT    NOT NULL DEFAULT 'NEW',
+            linked_mint      TEXT,
+            linked_campaign  TEXT,
+            backtrace_at     INTEGER,
+            notes            TEXT,
+            PRIMARY KEY (sender_address, relay_address)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_relay_cp_state    ON wt_relay_counterparties(discovery_state, last_sweep_at DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_relay_cp_sender   ON wt_relay_counterparties(sender_address)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_relay_cp_priority ON wt_relay_counterparties(priority_score DESC)",
+        # ── Relay sweep epochs: time-bounded burst windows ────────────────────────
+        """CREATE TABLE IF NOT EXISTS wt_relay_sweep_epochs (
+            epoch_id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            relay_address     TEXT    NOT NULL,
+            collector_address TEXT,
+            sweep_count       INTEGER NOT NULL DEFAULT 0,
+            unique_senders    INTEGER NOT NULL DEFAULT 0,
+            total_sol         REAL    NOT NULL DEFAULT 0,
+            started_at        INTEGER NOT NULL,
+            ended_at          INTEGER,
+            epoch_state       TEXT    NOT NULL DEFAULT 'OPEN',
+            created_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_epochs_relay ON wt_relay_sweep_epochs(relay_address, started_at DESC)",
+        # ── Extraction clusters: operational attribution groups ───────────────────
+        """CREATE TABLE IF NOT EXISTS wt_extraction_clusters (
+            cluster_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            relay_wallet      TEXT    NOT NULL,
+            collector_wallet  TEXT,
+            token_count       INTEGER NOT NULL DEFAULT 0,
+            creator_count     INTEGER NOT NULL DEFAULT 0,
+            total_sol_swept   REAL    NOT NULL DEFAULT 0,
+            first_seen        INTEGER,
+            last_seen         INTEGER,
+            confidence_score  REAL    NOT NULL DEFAULT 0,
+            cluster_state     TEXT    NOT NULL DEFAULT 'FORMING',
+            evidence_json     TEXT,
+            created_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_clusters_relay ON wt_extraction_clusters(relay_wallet, confidence_score DESC)",
+        # ── Cluster members: token/creator → cluster assignment ──────────────────
+        """CREATE TABLE IF NOT EXISTS wt_cluster_members (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            cluster_id        INTEGER NOT NULL,
+            token_mint        TEXT,
+            creator_wallet    TEXT,
+            relay_wallet      TEXT    NOT NULL,
+            sweep_sig         TEXT,
+            confidence        REAL    NOT NULL DEFAULT 0,
+            attribution_reason TEXT,
+            assigned_at       INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            UNIQUE(cluster_id, token_mint)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_members_cluster  ON wt_cluster_members(cluster_id)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_members_mint     ON wt_cluster_members(token_mint)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_members_creator  ON wt_cluster_members(creator_wallet)",
+        # ── Wallet tier: explicit Tier 1 / Tier 2 classification ─────────────────
+        """CREATE TABLE IF NOT EXISTS wt_wallet_tier (
+            wallet_address  TEXT    PRIMARY KEY,
+            tier            INTEGER NOT NULL,
+            role            TEXT    NOT NULL,
+            classified_at   INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            auto_classified INTEGER NOT NULL DEFAULT 1,
+            notes           TEXT
+        )""",
+        # ── Launch corridor tracking: fresh capital deployment windows ────────────
+        """CREATE TABLE IF NOT EXISTS wt_launch_corridors (
+            wallet_address      TEXT    NOT NULL PRIMARY KEY,
+            treasury_sig        TEXT,
+            treasury_ts         INTEGER NOT NULL,
+            treasury_sol        REAL    NOT NULL,
+            signaller_sig       TEXT,
+            signaller_ts        INTEGER,
+            signaller_lag_s     INTEGER,
+            state               TEXT    NOT NULL DEFAULT 'AWAITING_SIGNALLER',
+            -- AWAITING_SIGNALLER | CORRIDOR_ACTIVE | LAUNCH_CONFIRMED
+            -- | SPECULATION_EXECUTOR | ARB_EXECUTOR | ABORTED | STALLED
+            first_tx_sig        TEXT,
+            first_tx_ts         INTEGER,
+            first_tx_dest       TEXT,
+            first_tx_program    TEXT,
+            corridor_resolved_at INTEGER,
+            mint_address        TEXT,
+            enrolled_at         INTEGER,
+            f5m_expires_at      INTEGER,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_corridors_state   ON wt_launch_corridors(state, treasury_ts DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_corridors_created ON wt_launch_corridors(created_at DESC)",
+        # ── Swarm corridor tracking: coordinated buyer deployment waves ───────────
+        """CREATE TABLE IF NOT EXISTS wt_swarm_corridors (
+            id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+            provisioner_wallet      TEXT    NOT NULL UNIQUE,
+            treasury_sig            TEXT,
+            treasury_ts             INTEGER NOT NULL,
+            treasury_sol            REAL    NOT NULL,
+            -- Fanout metrics
+            wallet_count            INTEGER NOT NULL DEFAULT 0,
+            median_fanout_sol       REAL,
+            min_fanout_sol          REAL,
+            max_fanout_sol          REAL,
+            fanout_duration_s       INTEGER,
+            fanout_started_at       INTEGER,
+            fanout_completed_at     INTEGER,
+            -- Target intelligence
+            target_token_count      INTEGER NOT NULL DEFAULT 0,
+            primary_token_mint      TEXT,
+            -- Lifecycle state
+            -- SWARM_DEPLOYMENT_ACTIVE | SWARM_DEPLOYMENT_ESCALATING
+            -- | SWARM_EXTRACTION_ACTIVE | SWARM_RECYCLE_COMPLETE | ABORTED
+            state                   TEXT    NOT NULL DEFAULT 'SWARM_DEPLOYMENT_ACTIVE',
+            coordinated_exit_detected INTEGER NOT NULL DEFAULT 0,
+            sweepback_detected      INTEGER NOT NULL DEFAULT 0,
+            treasury_recycle_detected INTEGER NOT NULL DEFAULT 0,
+            recycle_sig             TEXT,
+            recycle_ts              INTEGER,
+            recycle_sol             REAL,
+            created_at              INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at              INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_state     ON wt_swarm_corridors(state, treasury_ts DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provisioner ON wt_swarm_corridors(provisioner_wallet)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_token     ON wt_swarm_corridors(primary_token_mint)",
+            # ── Worker heartbeat ──────────────────────────────────────────────────
+        # ── Generic swarm operator intelligence ──────────────────────────────────
+        """CREATE TABLE IF NOT EXISTS wt_operator_clusters (
+            cluster_id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            -- FORMING | ACTIVE | DORMANT | DISSOLVED
+            state               TEXT    NOT NULL DEFAULT 'FORMING',
+            confidence          REAL    NOT NULL DEFAULT 0,
+            -- seed = manually identified, discovered = auto-detected
+            origin              TEXT    NOT NULL DEFAULT 'discovered',
+            label               TEXT,
+            treasury_wallet     TEXT,
+            token_count         INTEGER NOT NULL DEFAULT 0,
+            provisioner_count   INTEGER NOT NULL DEFAULT 0,
+            total_sol_deployed  REAL    NOT NULL DEFAULT 0,
+            total_sol_recycled  REAL    NOT NULL DEFAULT 0,
+            first_seen          INTEGER,
+            last_seen           INTEGER,
+            deployment_fingerprint_id INTEGER,
+            notes               TEXT,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_clusters_conf ON wt_operator_clusters(confidence DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_clusters_treasury ON wt_operator_clusters(treasury_wallet)",
+
+        """CREATE TABLE IF NOT EXISTS wt_operator_treasuries (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            wallet              TEXT    NOT NULL UNIQUE,
+            cluster_id          INTEGER,
+            -- CANDIDATE | CONFIRMED | REJECTED
+            state               TEXT    NOT NULL DEFAULT 'CANDIDATE',
+            confidence          REAL    NOT NULL DEFAULT 0,
+            total_deployed_sol  REAL    NOT NULL DEFAULT 0,
+            total_recycled_sol  REAL    NOT NULL DEFAULT 0,
+            deployment_count    INTEGER NOT NULL DEFAULT 0,
+            first_deployment    INTEGER,
+            last_deployment     INTEGER,
+            typical_deploy_sol  REAL,
+            deploy_cadence_h    REAL,
+            evidence_json       TEXT,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_treasuries_cluster ON wt_operator_treasuries(cluster_id)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_treasuries_state   ON wt_operator_treasuries(state, confidence DESC)",
+
+        """CREATE TABLE IF NOT EXISTS wt_swarm_provisioners (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            wallet              TEXT    NOT NULL UNIQUE,
+            cluster_id          INTEGER,
+            treasury_wallet     TEXT,
+            -- CANDIDATE | CONFIRMED | REJECTED
+            state               TEXT    NOT NULL DEFAULT 'CANDIDATE',
+            funded_at           INTEGER,
+            funding_sol         REAL,
+            wallet_count        INTEGER NOT NULL DEFAULT 0,
+            median_fanout_sol   REAL,
+            stddev_fanout_sol   REAL,
+            fanout_window_s     INTEGER,
+            primary_token_mint  TEXT,
+            swept_at            INTEGER,
+            recycled_sol        REAL,
+            evidence_json       TEXT,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provs_cluster  ON wt_swarm_provisioners(cluster_id)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provs_treasury ON wt_swarm_provisioners(treasury_wallet)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provs_token    ON wt_swarm_provisioners(primary_token_mint)",
+
+        """CREATE TABLE IF NOT EXISTS wt_operator_fingerprints (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            cluster_id          INTEGER,
+            -- SWARM | CREATOR | HYBRID
+            archetype           TEXT    NOT NULL DEFAULT 'SWARM',
+            typical_deploy_sol  REAL,
+            deploy_sol_stddev   REAL,
+            median_fanout_sol   REAL,
+            fanout_sol_stddev   REAL,
+            typical_wallet_count INTEGER,
+            fanout_window_s     INTEGER,
+            buy_window_s        INTEGER,
+            exit_window_s       INTEGER,
+            one_token_concentration REAL,
+            recycle_rate        REAL,
+            sample_count        INTEGER NOT NULL DEFAULT 0,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_fingerprints_cluster ON wt_operator_fingerprints(cluster_id)",
+
+        """CREATE TABLE IF NOT EXISTS wt_swarm_candidates (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            token_mint          TEXT    NOT NULL UNIQUE,
+            migrated_at         INTEGER,
+            scanned_at          INTEGER,
+            -- PENDING | SCANNING | POSSIBLE_SWARM | CONFIRMED_SWARM | NOT_SWARM
+            state               TEXT    NOT NULL DEFAULT 'PENDING',
+            cluster_id          INTEGER,
+            provisioner_wallet  TEXT,
+            treasury_wallet     TEXT,
+            unique_buyers       INTEGER,
+            buy_window_s        INTEGER,
+            median_funding_sol  REAL,
+            stddev_funding_sol  REAL,
+            one_token_pct       REAL,
+            confidence          REAL    NOT NULL DEFAULT 0,
+            operator_class      TEXT,
+            evidence_json       TEXT,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_cands_state   ON wt_swarm_candidates(state, migrated_at DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_cands_cluster ON wt_swarm_candidates(cluster_id)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_cands_prov    ON wt_swarm_candidates(provisioner_wallet)",
+
+        """CREATE TABLE IF NOT EXISTS wt_worker_heartbeat (
+            worker_name   TEXT    PRIMARY KEY,
+            last_seen     INTEGER NOT NULL,
+            status        TEXT    NOT NULL DEFAULT 'unknown',
+            meta_json     TEXT
+        )""",
+        """CREATE TABLE IF NOT EXISTS wt_worker_failures (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            worker_name   TEXT    NOT NULL,
+            failed_at     INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            restart_count INTEGER NOT NULL DEFAULT 0,
+            error         TEXT
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_hb_worker ON wt_worker_heartbeat(worker_name)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_failures_worker ON wt_worker_failures(worker_name, failed_at DESC)",
+]
+    for stmt in stmts:
+        try:
+            conn.execute(stmt)
+        except Exception:
+            pass  # table/index already exists with different schema — non-fatal
+
+    # ── Seed WATCH as Operator Cluster #1 (reference fingerprint) ─────────────
+    try:
+        existing = conn.execute(
+            "SELECT cluster_id FROM wt_operator_clusters WHERE label='WATCH'"
+        ).fetchone()
+        if not existing:
+            conn.execute("""
+                INSERT OR IGNORE INTO wt_operator_clusters
+                    (state, confidence, origin, label, treasury_wallet,
+                     token_count, provisioner_count, total_sol_deployed,
+                     first_seen, last_seen, notes, created_at, updated_at)
+                VALUES ('ACTIVE', 1.0, 'seed', 'WATCH',
+                        '44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM',
+                        35, 13, 2450.0,
+                        1745791200, strftime('%s','now'),
+                        'Seed cluster: known WATCH operator. 35+ SWARM ops Apr-May 2026. Fingerprint: 60-80 SOL deploy, 0.014 SOL fanout, 800-5000 wallets, 1 token.',
+                        strftime('%s','now'), strftime('%s','now'))
+            """)
+            # Seed treasury
+            conn.execute("""
+                INSERT OR IGNORE INTO wt_operator_treasuries
+                    (wallet, state, confidence, deployment_count,
+                     typical_deploy_sol, first_deployment, last_deployment, created_at, updated_at)
+                VALUES ('44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM',
+                        'CONFIRMED', 1.0, 35, 70.0,
+                        1745791200, strftime('%s','now'),
+                        strftime('%s','now'), strftime('%s','now'))
+            """)
+            cluster_id = conn.execute(
+                "SELECT cluster_id FROM wt_operator_clusters WHERE label='WATCH'"
+            ).fetchone()
+            if cluster_id:
+                cid = cluster_id[0]
+                conn.execute(
+                    "UPDATE wt_operator_treasuries SET cluster_id=? WHERE wallet=?",
+                    (cid, "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM")
+                )
+                # Seed fingerprint
+                conn.execute("""
+                    INSERT OR IGNORE INTO wt_operator_fingerprints
+                        (cluster_id, archetype, typical_deploy_sol, deploy_sol_stddev,
+                         median_fanout_sol, fanout_sol_stddev, typical_wallet_count,
+                         fanout_window_s, one_token_concentration, recycle_rate,
+                         sample_count, created_at, updated_at)
+                    VALUES (?, 'SWARM', 70.0, 5.0, 0.014, 0.001, 2000,
+                            3600, 0.98, 0.88, 35,
+                            strftime('%s','now'), strftime('%s','now'))
+                """, (cid,))
+    except Exception as _e:
+        print(f"[WT_SEED] WATCH cluster seed error: {_e}", flush=True)
+
+    conn.commit()
+
+    # ── Migrate wt_launch_corridors: add corridor_type column ─────────────────
+    _corridor_migrations = [
+        "ALTER TABLE wt_launch_corridors ADD COLUMN corridor_type TEXT DEFAULT 'CREATOR'",
+    ]
+    for _m in _corridor_migrations:
+        try:
+            conn.execute(_m)
+        except Exception:
+            pass  # column already exists
+
+    # ── Migrate wt_relay_counterparties: add extraction clustering columns ────
+    _relay_cp_migrations = [
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN downstream_collector TEXT",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN tx_sig TEXT",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN block_time INTEGER",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN inferred_mint TEXT",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN inferred_creator TEXT",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN sweep_epoch_id INTEGER",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN treasury_recycle_detected INTEGER DEFAULT 0",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN cluster_id INTEGER",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN backtrace_depth INTEGER DEFAULT 0",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN backtrace_error TEXT",
+        "ALTER TABLE wt_relay_counterparties ADD COLUMN priority_score REAL DEFAULT 0",
+    ]
+    for _m in _relay_cp_migrations:
+        try:
+            conn.execute(_m)
+        except Exception:
+            pass  # column already exists
+
+    _swarm_cand_migrations = [
+        "ALTER TABLE wt_swarm_candidates ADD COLUMN operator_class TEXT",
+    ]
+    for _m in _swarm_cand_migrations:
+        try:
+            conn.execute(_m)
+        except Exception:
+            pass
+    conn.commit()
+
+
+# ── Worker heartbeat helpers ──────────────────────────────────────────────────
+
+def _wt_heartbeat(worker_name: str, status: str = "ok", meta: dict = None) -> None:
+    """Write/update a worker heartbeat row. Fire-and-forget — never raises."""
+    import json as _json
+    _meta_json = _json.dumps(meta) if meta else None
+    for _attempt in range(3):
+        try:
+            _c = db_connect(DB_PATH, timeout=30)
+            _c.execute("PRAGMA busy_timeout=30000")
+            _c.execute(
+                """INSERT INTO wt_worker_heartbeat (worker_name, last_seen, status, meta_json)
+                   VALUES (?, strftime('%s','now'), ?, ?)
+                   ON CONFLICT(worker_name) DO UPDATE SET
+                       last_seen=excluded.last_seen,
+                       status=excluded.status,
+                       meta_json=excluded.meta_json""",
+                (worker_name, status, _meta_json),
+            )
+            _c.commit()
+            _c.close()
+            return
+        except Exception:
+            time.sleep(2)
+
+
+_WT_INFRA_ROLES = {
+    "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM": "SIGNALLER",
+    "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM": "TREASURY",
+    "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1": "TREASURY_UP",
+    "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7": "PROFIT_RELAY",
+    "C745erBxwn4sJZGDRZpi71FPV3MA3kBQUXWbeJxRsGS4": "SUB_PROV",
+    "Gs7zXNYwdd2X1PoyBbsJBCuNTz6EyTT5KSd38tLMEmif": "SUB_PROV",
+    "F17dbo3EeumSte7hEBgn6wDAv65BEN4U8eba9zXcNTg":  "PROFIT_RELAY",
+    "EYjGUZamSQ9vJBxZ4yj7pCK2XaZ99MAEQx9xRMrzyMx1": "SWEEP_COLLECTOR",
+    "96b4e8qvhjEPsXDtenEgs1VLBTkFqAcgYV8tE16Mgt7h": "SUB_PROV",
+    "kFycb9QoQaRgLy3zZpF4Zw5DM5gKoT5HkZogSerq1Hd":  "SUB_PROV",
+    "3UnqbigDhZvHpQFR29aDhKLEWSNkFcMbuNCrSDk6iikj": "PROFIT_RELAY",
+    "67UoZBTBGhFa3irg6hv5dETdwLRTx2HCTyq5H51KFMFu": "PROFIT_RELAY",
+    # Confirmed sub-provisioners: directly fund WATCH creator wallets 0.5-5 SOL
+    "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe": "SUB_PROV",   # vpZCC chain, 57 creators
+    "CfKCTNb8rekLn6BggAyBgFpfbRUidcy27aJQUjCYVnvX": "SUB_PROV",   # relay chain, 7 WATCH creators
+    "fr6yQkDmWy6R6pecbUsxXaw6EvRJznZ2HsK5frQgud8":  "SUB_PROV",   # 4 WATCH creators, 22k SOL balance
+    "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk": "SUB_PROV",   # 6 WATCH creators, 479 SOL balance
+    "AnppRemLRErjaq6cMRhDLNPssZvzQzDdWhkPFdT4Z55e": "SUB_PROV",   # upstream feeder of fr6yQkDm
+    "4a9cYDxkfsL9xDT8mhYdxC6Em1bu1gWuh7d3mFQwxUeG": "SUB_PROV",   # upstream feeder of fr6yQkDm
+    # Discovered live 2026-05-26: TREASURY sent 800+488 SOL, immediate creator fanout
+    "CcdyBAT7L2cbfBYNGAdJffUrZibCKsXEmq3q6cVxTNUV": "SUB_PROV",   # 800 SOL from TREASURY, 0.7-1.3 SOL fanout
+    "Dw7xNxxwuBnTfpwSrZMhcAQqFp4XNe9XNaVhhsvyx6Da": "SUB_PROV",   # 488 SOL from TREASURY
+    # Confirmed SWARM provisioners: 70 SOL from TREASURY → thousands of ~0.014 SOL buyer wallets
+    "5DYd3VB2WaN8gv1DsGzkNm2VkpPwUNhD74u84JVdfX4e": "SWARM_PROV",  # 2026-05-25: 70 SOL → ~4900 wallets → RICHAMERICA $500k peak
+    "4nGZq5q4ZRX951Qv25KgjfyLo1RCLkCkU4RC1YnW3CaU": "SWARM_PROV",  # 2026-05-26: 70 SOL → 802 wallets → $319k peak
+    "89KuKNoySSQA9E3qs4iFYHiAjnGs6DQMA8fPV7oaJY7y":  "SWARM_PROV",  # 2026-05-27: 70 SOL → fanout in progress
+    "411VDoJqU34PTh4H5aX1yRhPbRbkWEGZCrnKdpM8DBZT": "SWARM_PROV",  # 2026-05-24
+    "5XmRKj7qZzqCtQsiZNNSFTxDu9D7Y8W6NYTNg7YEBTWy": "SWARM_PROV",  # 2026-05-23
+    "G2BbetUgzETGhK8w43YbcwD9yx74CGg649z8nvWn6Ntd": "SWARM_PROV",  # 2026-05-20/21/22 (reused 3x)
+    "7HVrPWzfnZzpxca3QeGnzWq34NCks76nTqzKq3f3o5x5": "SWARM_PROV",  # 2026-05-18
+    "8qWLjTUjTNNriswPdCzSZjW6E1PMpvfCLyEvdJWhu3Tx": "SWARM_PROV",  # 2026-05-17
+    "BhZkmdF8WB5oZpHrLuj1BZoB9XqgSg75M11r6pMhAc25": "SWARM_PROV",  # 2026-05-16/17 (reused 2x)
+    "4JBC2wpS1XuNy9fMAHUXyGSZqsL9NkTKupCpzU1myuSi": "SWARM_PROV",  # 2026-05-16/17 (reused 2x)
+    "EHcCurttqYnGNFRQzadLFH52MqzB854SGbuanoDXod2":  "SWARM_PROV",  # 2026-04-29 – 05-15 (reused 8x)
+    "FGKv2AZYwvEkkJNgWe6BGDd4W6188YHVmjBDtfUn8pqp": "SWARM_PROV",  # 2026-04-30 – 05-14 (reused 10x)
+    "13DwkLXnE5Zu6DXh83EKmqPY9XZmgxcha1nA2Z4rh9gA": "SWARM_PROV",  # 2026-04-30, 05-12, 05-15
+    "7mWPZ9tJ7mPP2YK9PHzQXJbP65DAc97QP4RWGVwSWzUw": "SWARM_PROV",  # 2026-05-08
+}
+_WT_TREASURY_ADDR  = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+_WT_SIGNALLER_ADDR = "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM"
+# Tier 2 roles: high-volume, use minute-bucket aggregation instead of raw hit rows
+_WT_TIER2_AGG_ROLES = {"PROFIT_RELAY", "SWEEP_COLLECTOR", "TREASURY_UP"}
+_wt_tables_ready   = False  # guard so _ensure_watchtower_tables runs once in webhook
+
+# ── Known deployment sizes (SOL) that TREASURY uses for fresh corridor wallets ──
+# Creator wallets: 0.5-10 SOL (fees + initial buy). Coordinators: 15+ SOL.
+# Upper bound prevents coordinator-level transfers from entering corridor tracking.
+_WT_MIN_DEPLOYMENT_SOL = 0.5   # minimum TREASURY outbound to trigger corridor entry
+_WT_MAX_DEPLOYMENT_SOL = 12.0  # above this = coordinator/sub-prov routing, not creator
+
+# ── SWARM corridor detection thresholds ──────────────────────────────────────
+# A SWARM corridor: TREASURY → single-use provisioner → hundreds/thousands of
+# ~0.014 SOL buyer wallets → coordinated single-token buy → synchronized exit → recycle
+_WT_SWARM_TREASURY_SOL     = 70.0   # canonical TREASURY → SWARM_PROV amount (±5 SOL tolerance)
+_WT_SWARM_TREASURY_TOL     = 10.0   # tolerance band around canonical amount
+_WT_SWARM_MIN_FANOUTS      = 100    # minimum unique wallets to classify as SWARM
+_WT_SWARM_MIN_FANOUT_SOL   = 0.013  # lower bound of per-wallet funding
+_WT_SWARM_MAX_FANOUT_SOL   = 0.0155 # upper bound of per-wallet funding
+_WT_SWARM_FANOUT_WINDOW_S  = 3600   # max time for fanout phase to complete
+
+# Corridor type constants
+CORRIDOR_TYPE_CREATOR      = "CREATOR"
+CORRIDOR_TYPE_SWARM        = "SWARM"
+CORRIDOR_TYPE_COORDINATOR  = "COORDINATOR"
+
+# ── Program classification: first-TX destination → executor type ─────────────
+_WT_PROGRAM_CLASSES = {
+    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P": "LAUNCH_CONFIRMED",   # pump.fun fee account
+    "ENicYBBNZQ91toN7ggmTxnDGZW14uv9UkumN7XBGeYJ4": "SPECULATION_EXECUTOR",  # betting/yield protocol
+    "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4": "ARB_EXECUTOR",      # Jupiter aggregator v6
+    "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN": "ARB_EXECUTOR",       # Jupiter v4
+    "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8": "ARB_EXECUTOR",      # Raydium AMM
+    "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C": "ARB_EXECUTOR",      # Raydium CPMM
+}
+_WT_PUMPFUN_FEE = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+
+# ── In-memory corridor state: wallet → {treasury_ts, sol, state} ─────────────
+# Populated by infra processor on TREASURY outbound; consulted by SIGNALLER handler
+import threading as _threading
+_wt_corridors: dict = {}   # wallet_address → corridor dict
+_wt_corridors_lock = _threading.Lock()
+
+# Max SIGNALLER lag from TREASURY to still count as a corridor (not a top-up signal)
+_WT_CORRIDOR_SIGNALLER_WINDOW_S = 300   # 5 min
+# Max wallet age at funding time to be considered fresh-born
+_WT_CORRIDOR_BIRTH_WINDOW_S     = 120   # 2 min
+# How long to run F5M monitoring before marking STALLED
+_WT_CORRIDOR_F5M_TIMEOUT_S      = 600   # 10 min
+# Reject SIGNALLER batch if >5 wallets dusted within this window
+_WT_SWARM_BATCH_WINDOW_S        = 10    # seconds
+_WT_SWARM_BATCH_THRESHOLD       = 5     # wallets
+
+# Rolling window of recent SIGNALLER outbounds to detect swarm batches
+_wt_recent_signaller_ts: list = []   # list of block_time floats (trimmed)
+
+# ── Infra webhook queue: accept immediately, process in background ────────────
+import queue as _queue_mod
+_wt_infra_queue: _queue_mod.Queue = _queue_mod.Queue(maxsize=2000)
+_wt_candidate_queue: _queue_mod.Queue = _queue_mod.Queue(maxsize=2000)
+
+def _start_corridor_monitor_worker(db_path: str) -> None:
+    """
+    F5M (First-5-Minutes) backup monitor for CORRIDOR_ACTIVE wallets.
+
+    Runs every 15 seconds. For each active corridor wallet:
+      - Polls getSignaturesForAddress to find the first outbound TX
+      - Classifies destination via _WT_PROGRAM_CLASSES
+      - Resolves corridor (LAUNCH_CONFIRMED / ARB_EXECUTOR / etc.)
+      - Times out after _WT_CORRIDOR_F5M_TIMEOUT_S and marks STALLED
+
+    This is a safety net — the candidate webhook is the primary signal.
+    If the webhook fires first, _process_wt_candidate_payload will have already
+    resolved the corridor before this worker runs, and the UPDATE is a no-op.
+    """
+    import requests as _req
+
+    def _rpc_get_sigs(wallet: str, limit: int = 10) -> list:
+        rpc = os.environ.get("HELIUS_RPC_URL", "")
+        if not rpc:
+            return []
+        try:
+            r = _req.post(rpc, json={
+                "jsonrpc": "2.0", "id": 1,
+                "method": "getSignaturesForAddress",
+                "params": [wallet, {"limit": limit}]
+            }, timeout=8)
+            return r.json().get("result") or []
+        except Exception:
+            return []
+
+    def _rpc_get_tx(sig: str) -> dict:
+        rpc = os.environ.get("HELIUS_RPC_URL", "")
+        if not rpc:
+            return {}
+        try:
+            r = _req.post(rpc, json={
+                "jsonrpc": "2.0", "id": 1,
+                "method": "getTransaction",
+                "params": [sig, {"encoding": "jsonParsed",
+                                 "maxSupportedTransactionVersion": 0}]
+            }, timeout=8)
+            return r.json().get("result") or {}
+        except Exception:
+            return {}
+
+    def _worker():
+        _last_f5m_check: dict = {}  # wallet → last sig seen (to avoid re-processing)
+        _loop_count = 0
+        while True:
+            time.sleep(15)
+            _loop_count += 1
+            try:
+                conn = db_connect(db_path, timeout=30)
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA busy_timeout=30000")
+
+                now = int(time.time())
+
+                # Safety sweep: force-stall any corridor expired >120s (catches stuck rows)
+                stale = conn.execute("""
+                    SELECT wallet_address FROM wt_launch_corridors
+                    WHERE state='CORRIDOR_ACTIVE'
+                      AND f5m_expires_at IS NOT NULL
+                      AND f5m_expires_at < ? - 120
+                """, (now,)).fetchall()
+                for sr in stale:
+                    sw = sr["wallet_address"]
+                    conn.execute("""
+                        UPDATE wt_launch_corridors
+                        SET state='STALLED', corridor_resolved_at=?, updated_at=?
+                        WHERE wallet_address=? AND state='CORRIDOR_ACTIVE'
+                    """, (now, now, sw))
+                    with _wt_corridors_lock:
+                        _wt_corridors.pop(sw, None)
+                    _wt_candidate_set.discard(sw)
+                    print(f"[WT_CORRIDOR] Safety-stalled expired corridor {sw[:20]}…", flush=True)
+                if stale:
+                    conn.commit()
+
+                # Fetch active corridors
+                active = conn.execute("""
+                    SELECT wallet_address, treasury_ts, treasury_sol, f5m_expires_at
+                    FROM wt_launch_corridors
+                    WHERE state = 'CORRIDOR_ACTIVE'
+                """).fetchall()
+
+                for row in active:
+                    wallet    = row["wallet_address"]
+                    treasury_ts = row["treasury_ts"]
+                    expires   = row["f5m_expires_at"] or (treasury_ts + _WT_CORRIDOR_F5M_TIMEOUT_S)
+
+                    # Check timeout — DB update commits immediately; de-enroll is best-effort
+                    if now > expires:
+                        conn.execute("""
+                            UPDATE wt_launch_corridors
+                            SET state='STALLED', corridor_resolved_at=?, updated_at=?
+                            WHERE wallet_address=? AND state='CORRIDOR_ACTIVE'
+                        """, (now, now, wallet))
+                        conn.commit()
+                        with _wt_corridors_lock:
+                            _wt_corridors.pop(wallet, None)
+                        _wt_candidate_set.discard(wallet)
+                        # De-enroll in a separate daemon thread so it cannot block this worker
+                        def _de_enroll(w=wallet):
+                            try:
+                                import asyncio as _asyncio
+                                from src.analysis.webhook_manager import remove_candidate
+                                loop = _asyncio.new_event_loop()
+                                loop.run_until_complete(remove_candidate(w, db_path,
+                                    reason="corridor_stalled_f5m_timeout"))
+                                loop.close()
+                            except Exception:
+                                pass
+                        _threading.Thread(target=_de_enroll, daemon=True).start()
+                        print(f"[WT_CORRIDOR] STALLED {wallet[:20]}… (F5M timeout)", flush=True)
+                        _last_f5m_check.pop(wallet, None)
+                        continue
+
+                    # Poll for new txs
+                    sigs = _rpc_get_sigs(wallet, limit=5)
+                    if not sigs:
+                        continue
+
+                    # Filter to txs AFTER treasury funding
+                    new_sigs = [
+                        s for s in sigs
+                        if s.get("blockTime", 0) > treasury_ts
+                        and s.get("signature") != _last_f5m_check.get(wallet)
+                        and not (s.get("err"))
+                    ]
+                    if not new_sigs:
+                        continue
+
+                    # Process oldest new tx first
+                    for sig_info in reversed(new_sigs):
+                        tx_sig = sig_info["signature"]
+                        tx_ts  = sig_info.get("blockTime", now)
+
+                        tx = _rpc_get_tx(tx_sig)
+                        if not tx:
+                            continue
+
+                        msg = tx.get("transaction", {}).get("message", {})
+                        accs = [
+                            (a.get("pubkey", "") if isinstance(a, dict) else a)
+                            for a in msg.get("accountKeys", [])
+                        ]
+
+                        # Identify outbound destinations from this wallet
+                        destinations = []
+                        programs     = []
+                        pre  = tx.get("meta", {}).get("preBalances", [])
+                        post = tx.get("meta", {}).get("postBalances", [])
+                        for i, acc in enumerate(accs):
+                            if i < len(pre) and i < len(post):
+                                delta = post[i] - pre[i]
+                                if delta > 0 and acc != wallet:
+                                    destinations.append(acc)
+                        for ins in msg.get("instructions", []):
+                            p = ins.get("programId") or ins.get("program") or ""
+                            if p:
+                                programs.append(p)
+                        inner = tx.get("meta", {}).get("innerInstructions", [])
+                        for ig in inner:
+                            for ii in (ig.get("instructions") or []):
+                                p = ii.get("programId") or ii.get("program") or ""
+                                if p:
+                                    programs.append(p)
+
+                        primary_dest = destinations[0] if destinations else ""
+                        primary_prog = next((p for p in programs if p in _WT_PROGRAM_CLASSES), "")
+
+                        classification = _classify_first_tx_dest(primary_dest, programs)
+
+                        # Extract mint for launch
+                        mint = None
+                        if classification == "LAUNCH_CONFIRMED":
+                            for tt in (tx.get("meta", {}).get("postTokenBalances") or []):
+                                m = tt.get("mint", "")
+                                if m and m != wallet:
+                                    mint = m
+                                    break
+
+                        _resolve_corridor(conn, wallet, classification,
+                                          tx_sig, tx_ts, primary_dest,
+                                          primary_prog, mint)
+
+                        if classification == "LAUNCH_CONFIRMED" and mint:
+                            conn.execute("""
+                                INSERT OR IGNORE INTO wt_creator_launches
+                                    (creator_wallet, mint_address, launch_tx, launched_at,
+                                     launch_platform, evidence_grade, evidence_basis)
+                                VALUES (?, ?, ?, ?, 'pump_fun', 'STRONG',
+                                        'corridor_rpc_fee_account_tx')
+                            """, (wallet, mint, tx_sig, tx_ts))
+
+                        conn.commit()
+                        _last_f5m_check[wallet] = tx_sig
+                        break  # resolved — stop processing further txs for this wallet
+
+                conn.commit()
+                conn.close()
+
+                _wt_heartbeat("wt-corridor-monitor", "ok",
+                              {"loop": _loop_count, "active": len(_last_f5m_check)})
+            except Exception as _e:
+                print(f"[WT_CORRIDOR_MONITOR] error: {_e}", flush=True)
+                _wt_heartbeat("wt-corridor-monitor", "error", {"error": str(_e)[:120]})
+
+    t = threading.Thread(target=_worker, daemon=True, name="wt-corridor-monitor")
+    t.start()
+    print("[WT_CORRIDOR_MONITOR] F5M corridor monitor started (15s poll)", flush=True)
+
+
+def _assign_extraction_clusters(conn: sqlite3.Connection) -> None:
+    """
+    Group CREATOR_CONFIRMED relay counterparties by relay into extraction clusters.
+    Called after each backtrace batch. Updates wt_extraction_clusters + wt_cluster_members.
+    """
+    import json as _json
+    import time as _t
+
+    # N3TKf3 senders — coordinator relay weight
+    _N3TKF3 = "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7"
+
+    confirmed = conn.execute("""
+        SELECT sender_address, relay_address, inferred_mint, inferred_creator,
+               total_sol, sweep_count, last_sweep_at, sweep_epoch_id
+        FROM wt_relay_counterparties
+        WHERE discovery_state = 'CREATOR_CONFIRMED'
+          AND inferred_mint IS NOT NULL
+          AND cluster_id IS NULL
+    """).fetchall()
+
+    if not confirmed:
+        return
+
+    # Group by relay
+    by_relay: dict = {}
+    for row in confirmed:
+        relay = row["relay_address"]
+        by_relay.setdefault(relay, []).append(dict(row))
+
+    now = int(_t.time())
+    for relay, members in by_relay.items():
+        # Find existing open cluster for this relay, or create one
+        existing = conn.execute("""
+            SELECT cluster_id, token_count, creator_count, total_sol_swept, confidence_score
+            FROM wt_extraction_clusters
+            WHERE relay_wallet = ? AND cluster_state = 'FORMING'
+            ORDER BY created_at DESC LIMIT 1
+        """, (relay,)).fetchone()
+
+        if existing:
+            cluster_id = existing["cluster_id"]
+        else:
+            cur = conn.execute("""
+                INSERT INTO wt_extraction_clusters
+                    (relay_wallet, token_count, creator_count, total_sol_swept,
+                     first_seen, last_seen, confidence_score, cluster_state)
+                VALUES (?, 0, 0, 0, ?, ?, 0.0, 'FORMING')
+            """, (relay, now, now))
+            cluster_id = cur.lastrowid
+
+        new_mints = set()
+        new_creators = set()
+        sol_added = 0.0
+
+        for m in members:
+            mint    = m["inferred_mint"]
+            creator = m["inferred_creator"] or m["sender_address"]
+
+            # Base confidence: same relay
+            conf = 0.4
+            reason_parts = ["same_relay"]
+
+            # Epoch overlap bonus
+            if m.get("sweep_epoch_id"):
+                conf += 0.3
+                reason_parts.append("epoch_overlap")
+
+            # Treasury recycle bonus
+            if m.get("treasury_recycle_detected"):
+                conf += 0.2
+                reason_parts.append("treasury_recycle")
+
+            # N3TKf3 coordinator bonus
+            if relay == _N3TKF3:
+                conf += 0.1
+                reason_parts.append("coordinator_relay")
+
+            try:
+                conn.execute("""
+                    INSERT OR IGNORE INTO wt_cluster_members
+                        (cluster_id, token_mint, creator_wallet, relay_wallet,
+                         confidence, attribution_reason)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (cluster_id, mint, creator, relay, round(conf, 2),
+                      ",".join(reason_parts)))
+                new_mints.add(mint)
+                new_creators.add(creator)
+                sol_added += m["total_sol"]
+            except Exception:
+                pass
+
+            # Tag the counterparty row with this cluster
+            conn.execute("""
+                UPDATE wt_relay_counterparties SET cluster_id = ?
+                WHERE sender_address = ? AND relay_address = ?
+            """, (cluster_id, m["sender_address"], relay))
+
+        # Update cluster aggregate
+        if new_mints:
+            conn.execute("""
+                UPDATE wt_extraction_clusters SET
+                    token_count   = token_count + ?,
+                    creator_count = creator_count + ?,
+                    total_sol_swept = total_sol_swept + ?,
+                    last_seen = ?,
+                    confidence_score = MIN(1.0, confidence_score + 0.05)
+                WHERE cluster_id = ?
+            """, (len(new_mints), len(new_creators), sol_added, now, cluster_id))
+
+            # Promote to CONFIRMED once we have ≥3 confirmed members
+            conn.execute("""
+                UPDATE wt_extraction_clusters SET cluster_state = 'CONFIRMED'
+                WHERE cluster_id = ? AND token_count >= 3
+            """, (cluster_id,))
+
+    conn.commit()
+
+
+def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
+    """
+    Generic swarm operator detection via migration scanning.
+
+    Every interval_s seconds:
+      1. Pull recently migrated tokens not yet scanned
+      2. For each token: fetch early buyers via RPC, run swarm heuristic
+      3. If POSSIBLE_SWARM: trace buyer funders, identify provisioner
+      4. Trace provisioner upstream to find treasury candidate
+      5. Match against known operator fingerprints or create new cluster candidate
+    """
+    import math as _math
+
+    RPC_URL = (os.environ.get("HELIUS_RPC_URL") or
+               "https://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d4-b5799ae8da96")
+
+    # ── Swarm heuristic thresholds ────────────────────────────────────────────
+    _HARD_MIN_WALLETS = 25      # absolute floor — below this organic noise dominates
+    _MIN_FANOUT_SOL   = 0.005   # lower bound of per-wallet funding
+    _MAX_FANOUT_SOL   = 0.10    # upper bound
+    _MAX_STDDEV_RATIO = 0.25    # stddev / median < 25% = tight cluster
+    _MAX_BUY_WINDOW_S = 1800    # all buys within 30 min
+    _SAMPLE_BUYERS    = 60      # how many early buyers to sample per token
+    _SAMPLE_FUNDERS   = 20      # how many buyer funders to trace
+
+    # Operator tier classification by buyer count
+    def _operator_tier(n):
+        if n >= 500: return "INDUSTRIAL_SWARM"
+        if n >= 100: return "LARGE_SWARM"
+        if n >= 25:  return "SMALL_COORDINATED_SWARM"
+        return "NOISE"
+
+    def _rpc(method, params):
+        try:
+            import requests as _req
+            r = _req.post(RPC_URL,
+                json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params},
+                timeout=15)
+            return r.json().get("result")
+        except Exception:
+            return None
+
+    def _scan_token(mint: str) -> dict:
+        """
+        Staged swarm topology scan. Three gates, increasing RPC cost:
+
+        Stage 1 — Token topology (cheap: ~60 RPC calls)
+            Collect buyer count + buy window from token tx history.
+            Hard reject below 25 buyers or window > 30min.
+            Small clusters (25-49) also rejected here if window > 15min —
+            they need tight timing to justify the more expensive Stage 2.
+
+        Stage 2 — Funder sampling (medium: ~80 RPC calls)
+            Sample 20 buyer funders, measure funding uniformity.
+            Reject if median out of range or stddev too wide.
+            Small clusters exit here with partial confidence — no deep trace.
+
+        Stage 3 — Provisioner attribution (expensive: ~15 RPC calls)
+            Trace top provisioner upstream to treasury candidate.
+            Only runs for large clusters OR small clusters that scored
+            high on Stage 2 signals (stddev_ratio < 0.10 AND one_token_pct > 0.8).
+        """
+        import time as _t
+        from collections import Counter as _Counter
+
+        # ── Stage 0: DB pre-check — skip RPC entirely if WATCHTOWER already knows this token ──
+        # WATCHTOWER webhook coverage means buyer/provisioner/corridor already attributed.
+        # No value re-scanning from scratch via RPC.
+        try:
+            _conn0 = db_connect(db_path, timeout=5)
+            # Known SWARM corridor
+            _sc = _conn0.execute(
+                "SELECT state, provisioner_wallet FROM wt_swarm_corridors WHERE primary_token_mint=? LIMIT 1",
+                (mint,)
+            ).fetchone()
+            if _sc:
+                _conn0.close()
+                return {"state": "ALREADY_ATTRIBUTED", "reason": "wt_swarm_corridor",
+                        "operator_class": "INDUSTRIAL_SWARM",
+                        "provisioner": _sc[0] if _sc else None}
+
+            # Known launch corridor (creator/SWARM type)
+            _lc = _conn0.execute(
+                "SELECT corridor_type, provisioner_address FROM wt_launch_corridors WHERE token_mint=? LIMIT 1",
+                (mint,)
+            ).fetchone()
+            if _lc:
+                _conn0.close()
+                corridor_type = _lc[0] or "CREATOR"
+                op_class = "INDUSTRIAL_SWARM" if corridor_type == "SWARM" else "CREATOR_CORRIDOR"
+                return {"state": "ALREADY_ATTRIBUTED", "reason": f"wt_launch_corridor_{corridor_type}",
+                        "operator_class": op_class, "provisioner": _lc[1]}
+
+            # Staged wallets for this token (webhook picked up buyers already)
+            _sw_count = _conn0.execute(
+                "SELECT COUNT(*) FROM wt_staged_wallets WHERE token_mint=?", (mint,)
+            ).fetchone()[0]
+            if _sw_count >= 25:
+                _prov = _conn0.execute(
+                    "SELECT provisioner_address FROM wt_staged_wallets WHERE token_mint=? AND provisioner_address IS NOT NULL LIMIT 1",
+                    (mint,)
+                ).fetchone()
+                _conn0.close()
+                return {"state": "ALREADY_ATTRIBUTED", "reason": f"wt_staged_wallets_{_sw_count}",
+                        "operator_class": "INDUSTRIAL_SWARM", "unique_buyers": _sw_count,
+                        "provisioner": _prov[0] if _prov else None}
+
+            _conn0.close()
+        except Exception as _e0:
+            try: _conn0.close()
+            except Exception: pass
+            # Non-fatal — fall through to RPC scan
+
+        # ── Stage 1: Token topology (cheap) ──────────────────────────────────
+        sigs = _rpc("getSignaturesForAddress", [mint, {"limit": 200, "commitment": "confirmed"}]) or []
+        if not sigs:
+            return {"state": "NOT_SWARM", "reason": "no_sigs"}
+
+        buyer_times = {}  # wallet → earliest buy timestamp
+        for s in sigs[-_SAMPLE_BUYERS:]:
+            sig = s["signature"]
+            block_time = s.get("blockTime", 0)
+            tx = _rpc("getTransaction", [sig, {
+                "encoding": "jsonParsed",
+                "maxSupportedTransactionVersion": 0,
+                "commitment": "confirmed"
+            }])
+            if not tx or (tx.get("meta") or {}).get("err"):
+                continue
+            for bal in (tx.get("meta") or {}).get("postTokenBalances") or []:
+                if bal.get("mint") == mint:
+                    owner = bal.get("owner")
+                    ui_amt = (bal.get("uiTokenAmount") or {}).get("uiAmount") or 0
+                    if owner and ui_amt > 0:
+                        if owner not in buyer_times or block_time < buyer_times[owner]:
+                            buyer_times[owner] = block_time
+            _t.sleep(0.05)
+
+        n_buyers = len(buyer_times)
+        tier = _operator_tier(n_buyers)
+
+        # Hard floor — organic noise dominates below 25
+        if n_buyers < _HARD_MIN_WALLETS:
+            return {"state": "NOT_SWARM", "reason": f"too_few_buyers_{n_buyers}",
+                    "unique_buyers": n_buyers}
+
+        times = list(buyer_times.values())
+        buy_window_s = max(times) - min(times) if len(times) > 1 else 0
+
+        # Wide window rejection — always cheap to check
+        if buy_window_s > _MAX_BUY_WINDOW_S:
+            return {"state": "NOT_SWARM", "reason": f"buy_window_{buy_window_s}s_too_wide",
+                    "unique_buyers": n_buyers, "buy_window_s": buy_window_s}
+
+        # Small clusters (25-49): require tight window before spending Stage 2 RPC
+        # A stealth operator will have a tight window — if it's > 15min it's organic scatter
+        if n_buyers < 50 and buy_window_s > 900:
+            return {"state": "NOT_SWARM", "reason": "small_cluster_wide_window",
+                    "unique_buyers": n_buyers, "buy_window_s": buy_window_s}
+
+        # Buyer count confidence scale
+        if n_buyers < 50:   _buyer_conf_scale = 0.5
+        elif n_buyers < 100: _buyer_conf_scale = 0.8
+        else:               _buyer_conf_scale = 1.0
+
+        # ── Stage 2: Funder sampling (medium) ────────────────────────────────
+        # Capture ANY inbound SOL transfer — no hard range filter.
+        # Different operators use different funding amounts; we measure uniformity,
+        # not absolute size. The range filter only excluded valid signals.
+        funders = {}
+        funding_amounts = []
+        sample_buyers = list(buyer_times.keys())[:_SAMPLE_FUNDERS]
+        _ABS_MIN_SOL = 0.001   # below this is dust/fees, not real funding
+
+        # Known program addresses that are never provisioners
+        _INFRA_PROGRAMS = {
+            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap AMM program
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # pump.fun bonding curve program
+            "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",  # Jupiter v6
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",  # Orca Whirlpool
+            "9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP", # Raydium AMM v4
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", # Raydium AMM
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL Token program
+            "11111111111111111111111111111111",               # System program
+            "ComputeBudget111111111111111111111111111111",    # Compute budget
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bw",  # Associated token program
+        }
+
+        # Load all known pool vault addresses from DB — zero RPC cost.
+        # token_pool_accounts stores base_account + quote_account per mint.
+        _pool_addrs: set = set()
+        try:
+            _pc = db_connect(db_path, timeout=5)
+            for _row in _pc.execute("SELECT base_account, quote_account FROM token_pool_accounts").fetchall():
+                if _row[0]: _pool_addrs.add(_row[0])
+                if _row[1]: _pool_addrs.add(_row[1])
+            _pc.close()
+        except Exception:
+            pass
+
+        def _is_infra(addr: str) -> bool:
+            """Return True if addr is a pool vault, known program, or infra address."""
+            if addr in _INFRA_PROGRAMS: return True
+            if addr in _pool_addrs:     return True
+            return False
+
+        # Cache results within this scan
+        _infra_cache: dict = {}
+
+        for buyer in sample_buyers:
+            buyer_sigs = _rpc("getSignaturesForAddress",
+                              [buyer, {"limit": 20, "commitment": "confirmed"}]) or []
+            for s2 in reversed(buyer_sigs):
+                tx2 = _rpc("getTransaction", [s2["signature"], {
+                    "encoding": "jsonParsed",
+                    "maxSupportedTransactionVersion": 0,
+                    "commitment": "confirmed"
+                }])
+                if not tx2 or (tx2.get("meta") or {}).get("err"):
+                    _t.sleep(0.03)
+                    continue
+                accts = tx2["transaction"]["message"]["accountKeys"]
+                keys  = [k["pubkey"] if isinstance(k, dict) else k for k in accts]
+                pre   = dict(zip(keys, tx2["meta"]["preBalances"]))
+                post  = dict(zip(keys, tx2["meta"]["postBalances"]))
+                buyer_delta = (post.get(buyer, 0) - pre.get(buyer, 0)) / 1e9
+                if buyer_delta > _ABS_MIN_SOL:   # any meaningful inbound SOL
+                    for k in keys:
+                        if k == buyer: continue
+                        delta = (post.get(k, 0) - pre.get(k, 0)) / 1e9
+                        if delta < -_ABS_MIN_SOL:
+                            # Check if sender is a pool/infra account (cached per scan)
+                            if k not in _infra_cache:
+                                _infra_cache[k] = _is_infra(k)
+                            if _infra_cache[k]:
+                                continue
+                            funders[buyer] = (k, buyer_delta)
+                            funding_amounts.append(buyer_delta)
+                            break
+                    if buyer in funders:
+                        break
+                _t.sleep(0.03)
+            _t.sleep(0.04)
+
+        if len(funding_amounts) < 5:
+            return {"state": "NOT_SWARM", "reason": "insufficient_funder_data",
+                    "unique_buyers": n_buyers, "buy_window_s": buy_window_s}
+
+        sorted_amounts = sorted(funding_amounts)
+        median_sol   = sorted_amounts[len(sorted_amounts) // 2]
+        mean_sol     = sum(funding_amounts) / len(funding_amounts)
+        variance     = sum((x - mean_sol) ** 2 for x in funding_amounts) / len(funding_amounts)
+        stddev_sol   = _math.sqrt(variance)
+        stddev_ratio = stddev_sol / median_sol if median_sol > 0 else 999
+
+        # Filter out any infra addresses that slipped through as funders
+        funder_addresses = [v[0] for v in funders.values() if not _infra_cache.get(v[0], False)]
+        funder_counts    = _Counter(funder_addresses)
+        top_provisioner, top_count = funder_counts.most_common(1)[0] if funder_counts else (None, 0)
+        one_token_pct    = top_count / len(funder_addresses) if funder_addresses else 0
+
+        # ── Stage 2 confidence scoring ────────────────────────────────────────
+        # Funding uniformity: strongest WATCH-style signal but not universal.
+        # Variable funding still scores — just less.
+        confidence = 0.0
+        if stddev_ratio < 0.10:   confidence += 0.30   # very tight — WATCH archetype
+        elif stddev_ratio < 0.25: confidence += 0.20   # tight
+        elif stddev_ratio < 0.50: confidence += 0.10   # moderate — tiered/varied operator
+        elif stddev_ratio < 1.00: confidence += 0.05   # noisy but provisioner may still unify it
+        # else: >= 1.0 — contributes nothing; truly random funding
+
+        # Timing: coordination signal independent of funding style
+        if buy_window_s < 300:    confidence += 0.30
+        elif buy_window_s < 900:  confidence += 0.20
+
+        # Provisioner concentration: single wallet funded many buyers
+        if one_token_pct > 0.8:   confidence += 0.20
+        elif one_token_pct > 0.5: confidence += 0.10
+
+        # Provisioner reuse count
+        if top_count >= 10:       confidence += 0.10
+        elif top_count >= 5:      confidence += 0.05
+
+        # Small clusters: only go to Stage 3 if timing + provisioner signals are strong
+        # (funding uniformity alone isn't enough for the expensive attribution step)
+        _small = n_buyers < 50
+        _stage2_strong = one_token_pct > 0.8 and buy_window_s < 900
+        _do_stage3 = (not _small) or _stage2_strong
+
+        # ── Stage 3: Provisioner attribution (expensive) ─────────────────────
+        treasury_candidate = None
+        prov_funding_sol   = None
+
+        if _do_stage3 and top_provisioner:
+            prov_sigs = _rpc("getSignaturesForAddress",
+                             [top_provisioner, {"limit": 50, "commitment": "confirmed"}]) or []
+            for ps in list(reversed(prov_sigs))[:10]:
+                tx3 = _rpc("getTransaction", [ps["signature"], {
+                    "encoding": "jsonParsed",
+                    "maxSupportedTransactionVersion": 0,
+                    "commitment": "confirmed"
+                }])
+                if not tx3 or (tx3.get("meta") or {}).get("err"):
+                    continue
+                accts = tx3["transaction"]["message"]["accountKeys"]
+                keys  = [k["pubkey"] if isinstance(k, dict) else k for k in accts]
+                pre   = dict(zip(keys, tx3["meta"]["preBalances"]))
+                post  = dict(zip(keys, tx3["meta"]["postBalances"]))
+                prov_delta = (post.get(top_provisioner, 0) - pre.get(top_provisioner, 0)) / 1e9
+                if prov_delta > 5.0:
+                    for k in keys:
+                        if k == top_provisioner: continue
+                        if k not in _infra_cache:
+                            _infra_cache[k] = _is_infra(k)
+                        if _infra_cache[k]: continue
+                        d = (post.get(k, 0) - pre.get(k, 0)) / 1e9
+                        if d < -5.0:
+                            treasury_candidate = k
+                            prov_funding_sol   = prov_delta
+                            break
+                if treasury_candidate:
+                    break
+                _t.sleep(0.04)
+
+            if treasury_candidate:
+                confidence += 0.1
+
+        confidence *= _buyer_conf_scale
+
+        # Operator classification — based on scale + funding style
+        operator_class = tier
+        if tier == "SMALL_COORDINATED_SWARM" and buy_window_s < 600 and one_token_pct > 0.8:
+            # Tight timing + single provisioner on small cluster = stealth regardless of funding uniformity
+            operator_class = "POSSIBLE_STEALTH"
+        elif stddev_ratio > 0.50 and one_token_pct > 0.8 and buy_window_s < 300:
+            # Variable funding but single provisioner + very tight window = different archetype
+            operator_class = tier  # keep tier but will surface via provisioner concentration
+
+        _threshold = 0.3 if _small else 0.4
+        final_state = "POSSIBLE_SWARM" if confidence >= _threshold else "NOT_SWARM"
+        reason = None
+        if final_state == "NOT_SWARM":
+            reason = f"confidence_{confidence:.2f}_below_threshold"
+
+        return {
+            "state":              final_state,
+            "operator_class":     operator_class,
+            "confidence":         round(confidence, 3),
+            "unique_buyers":      n_buyers,
+            "buy_window_s":       buy_window_s,
+            "median_funding_sol": round(median_sol, 6),
+            "stddev_funding_sol": round(stddev_sol, 6),
+            "stddev_ratio":       round(stddev_ratio, 3),
+            "one_token_pct":      round(one_token_pct, 3),
+            "provisioner":        top_provisioner,
+            "provisioner_share":  top_count,
+            "prov_funding_sol":   prov_funding_sol,
+            "treasury_candidate": treasury_candidate,
+            "sampled_buyers":     len(buyer_times),
+            "sampled_funders":    len(funding_amounts),
+        }
+
+    def _match_cluster(conn, evidence: dict) -> int | None:
+        """
+        Try to match evidence to an existing operator cluster.
+        Returns cluster_id or None.
+        """
+        prov   = evidence.get("provisioner")
+        treas  = evidence.get("treasury_candidate")
+        median = evidence.get("median_funding_sol", 0)
+
+        # Direct provisioner match
+        if prov:
+            row = conn.execute(
+                "SELECT cluster_id FROM wt_swarm_provisioners WHERE wallet=? AND cluster_id IS NOT NULL",
+                (prov,)
+            ).fetchone()
+            if row:
+                return row[0]
+
+        # Direct treasury match
+        if treas:
+            row = conn.execute(
+                "SELECT cluster_id FROM wt_operator_clusters WHERE treasury_wallet=?", (treas,)
+            ).fetchone()
+            if row:
+                return row[0]
+
+        # Fingerprint match: cluster with similar fanout amount (within 20%)
+        if median > 0:
+            rows = conn.execute("""
+                SELECT cluster_id, median_fanout_sol FROM wt_operator_fingerprints
+                WHERE ABS(median_fanout_sol - ?) / ? < 0.2
+                ORDER BY ABS(median_fanout_sol - ?) ASC LIMIT 1
+            """, (median, median, median)).fetchone()
+            if rows:
+                return rows[0]
+
+        return None
+
+    def _worker():
+        import time as _t
+        print("[WT_SWARM_SCANNER] Migration scanner started (300s interval)", flush=True)
+        while True:
+            try:
+                conn = db_connect(db_path, timeout=15)
+                conn.row_factory = sqlite3.Row
+
+                # Pull migrated tokens not yet scanned (last 12h to avoid backlog on restart)
+                cutoff = int(_t.time()) - 43200
+                pending = conn.execute("""
+                    SELECT ta.mint, ta.migrated_at
+                    FROM token_analysis ta
+                    LEFT JOIN wt_swarm_candidates sc ON sc.token_mint = ta.mint
+                    WHERE ta.migrated_at >= ?
+                      AND ta.dex IS NOT NULL
+                      AND sc.id IS NULL
+                    ORDER BY ta.migrated_at DESC
+                    LIMIT 20
+                """, (cutoff,)).fetchall()
+
+                if pending:
+                    print(f"[WT_SWARM_SCANNER] Scanning {len(pending)} newly migrated tokens", flush=True)
+
+                for row in pending:
+                    mint       = row["mint"]
+                    mig_at     = row["migrated_at"]
+
+                    # Mark as scanning
+                    conn.execute("""
+                        INSERT OR IGNORE INTO wt_swarm_candidates
+                            (token_mint, migrated_at, scanned_at, state, created_at, updated_at)
+                        VALUES (?, ?, ?, 'SCANNING', strftime('%s','now'), strftime('%s','now'))
+                    """, (mint, mig_at, int(_t.time())))
+                    conn.commit()
+
+                    try:
+                        evidence = _scan_token(mint)
+                        state = evidence.get("state", "NOT_SWARM")
+                        confidence = evidence.get("confidence", 0.0)
+
+                        # ALREADY_ATTRIBUTED — WATCHTOWER webhook already covered this token.
+                        # Write a lightweight record and skip all clustering work.
+                        if state == "ALREADY_ATTRIBUTED":
+                            conn.execute("""
+                                UPDATE wt_swarm_candidates SET
+                                    state          = 'ALREADY_ATTRIBUTED',
+                                    operator_class = ?,
+                                    provisioner_wallet = ?,
+                                    unique_buyers  = ?,
+                                    evidence_json  = ?,
+                                    scanned_at     = strftime('%s','now'),
+                                    updated_at     = strftime('%s','now')
+                                WHERE token_mint = ?
+                            """, (evidence.get("operator_class"),
+                                  evidence.get("provisioner"),
+                                  evidence.get("unique_buyers"),
+                                  json.dumps(evidence),
+                                  mint))
+                            conn.commit()
+                            print(f"[WT_SWARM_SCANNER] ⏭  {mint[:20]}.. already attributed ({evidence.get('reason')}) — skipped RPC",
+                                  flush=True)
+                            _t.sleep(0.1)
+                            continue
+
+                        cluster_id = None
+                        if state == "POSSIBLE_SWARM":
+                            cluster_id = _match_cluster(conn, evidence)
+
+                            # Persist provisioner if new
+                            prov = evidence.get("provisioner")
+                            if prov:
+                                conn.execute("""
+                                    INSERT OR IGNORE INTO wt_swarm_provisioners
+                                        (wallet, cluster_id, treasury_wallet, state,
+                                         wallet_count, median_fanout_sol, stddev_fanout_sol,
+                                         primary_token_mint, evidence_json,
+                                         created_at, updated_at)
+                                    VALUES (?, ?, ?, 'CANDIDATE', ?, ?, ?, ?, ?,
+                                            strftime('%s','now'), strftime('%s','now'))
+                                """, (prov, cluster_id,
+                                      evidence.get("treasury_candidate"),
+                                      evidence.get("unique_buyers", 0),
+                                      evidence.get("median_funding_sol"),
+                                      evidence.get("stddev_funding_sol"),
+                                      mint,
+                                      json.dumps(evidence)))
+
+                            # Persist treasury candidate if new
+                            treas = evidence.get("treasury_candidate")
+                            if treas:
+                                conn.execute("""
+                                    INSERT OR IGNORE INTO wt_operator_treasuries
+                                        (wallet, cluster_id, state, confidence,
+                                         typical_deploy_sol, deployment_count,
+                                         evidence_json, created_at, updated_at)
+                                    VALUES (?, ?, 'CANDIDATE', ?, ?, 1, ?,
+                                            strftime('%s','now'), strftime('%s','now'))
+                                    ON CONFLICT(wallet) DO UPDATE SET
+                                        deployment_count = deployment_count + 1,
+                                        confidence       = MIN(confidence + 0.1, 1.0),
+                                        last_deployment  = strftime('%s','now'),
+                                        updated_at       = strftime('%s','now')
+                                """, (treas, cluster_id, confidence,
+                                      evidence.get("prov_funding_sol"),
+                                      json.dumps(evidence)))
+
+                            # Create new cluster if no match
+                            if not cluster_id and confidence >= 0.5:
+                                conn.execute("""
+                                    INSERT INTO wt_operator_clusters
+                                        (state, confidence, origin, treasury_wallet,
+                                         token_count, provisioner_count,
+                                         first_seen, last_seen, created_at, updated_at)
+                                    VALUES ('FORMING', ?, 'discovered', ?,
+                                            1, ?, ?, strftime('%s','now'),
+                                            strftime('%s','now'), strftime('%s','now'))
+                                """, (confidence,
+                                      evidence.get("treasury_candidate"),
+                                      1 if evidence.get("provisioner") else 0,
+                                      mig_at))
+                                cluster_id = conn.execute(
+                                    "SELECT last_insert_rowid()"
+                                ).fetchone()[0]
+                                # Update provisioner + treasury with cluster_id
+                                if evidence.get("provisioner"):
+                                    conn.execute(
+                                        "UPDATE wt_swarm_provisioners SET cluster_id=? WHERE wallet=?",
+                                        (cluster_id, evidence["provisioner"])
+                                    )
+                                if evidence.get("treasury_candidate"):
+                                    conn.execute(
+                                        "UPDATE wt_operator_treasuries SET cluster_id=? WHERE wallet=?",
+                                        (cluster_id, evidence["treasury_candidate"])
+                                    )
+                                # Seed fingerprint for new cluster
+                                conn.execute("""
+                                    INSERT INTO wt_operator_fingerprints
+                                        (cluster_id, archetype, median_fanout_sol,
+                                         fanout_sol_stddev, typical_wallet_count,
+                                         buy_window_s, one_token_concentration,
+                                         sample_count, created_at, updated_at)
+                                    VALUES (?, 'SWARM', ?, ?, ?, ?, ?, 1,
+                                            strftime('%s','now'), strftime('%s','now'))
+                                """, (cluster_id,
+                                      evidence.get("median_funding_sol"),
+                                      evidence.get("stddev_funding_sol"),
+                                      evidence.get("unique_buyers"),
+                                      evidence.get("buy_window_s"),
+                                      evidence.get("one_token_pct")))
+                                print(
+                                    f"[WT_SWARM_SCANNER] 🆕 New operator cluster #{cluster_id} "
+                                    f"detected — {mint[:20]}.. conf={confidence:.2f}",
+                                    flush=True
+                                )
+                            elif cluster_id:
+                                # Update existing cluster stats
+                                conn.execute("""
+                                    UPDATE wt_operator_clusters SET
+                                        token_count = token_count + 1,
+                                        last_seen   = strftime('%s','now'),
+                                        updated_at  = strftime('%s','now')
+                                    WHERE id = ?
+                                """, (cluster_id,))
+                                print(
+                                    f"[WT_SWARM_SCANNER] ✅ POSSIBLE_SWARM {mint[:20]}.. "
+                                    f"→ cluster #{cluster_id} conf={confidence:.2f}",
+                                    flush=True
+                                )
+
+                            # Emit watchtower event
+                            seq = conn.execute(
+                                "SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events"
+                            ).fetchone()[0]
+                            conn.execute("""
+                                INSERT OR IGNORE INTO watchtower_events
+                                    (event_sequence, event_type, wallet_address, token_mint,
+                                     payload_json, source, created_at)
+                                VALUES (?, 'POSSIBLE_SWARM', ?, ?, ?, 'swarm_scanner', ?)
+                            """, (seq,
+                                  evidence.get("provisioner") or evidence.get("treasury_candidate"),
+                                  mint,
+                                  json.dumps(evidence),
+                                  int(_t.time())))
+
+                        # Update candidate record
+                        conn.execute("""
+                            UPDATE wt_swarm_candidates SET
+                                state             = ?,
+                                cluster_id        = ?,
+                                provisioner_wallet= ?,
+                                treasury_wallet   = ?,
+                                unique_buyers     = ?,
+                                buy_window_s      = ?,
+                                median_funding_sol= ?,
+                                stddev_funding_sol= ?,
+                                one_token_pct     = ?,
+                                confidence        = ?,
+                                operator_class    = ?,
+                                evidence_json     = ?,
+                                scanned_at        = strftime('%s','now'),
+                                updated_at        = strftime('%s','now')
+                            WHERE token_mint = ?
+                        """, (state, cluster_id,
+                              evidence.get("provisioner"),
+                              evidence.get("treasury_candidate"),
+                              evidence.get("unique_buyers"),
+                              evidence.get("buy_window_s"),
+                              evidence.get("median_funding_sol"),
+                              evidence.get("stddev_funding_sol"),
+                              evidence.get("one_token_pct"),
+                              confidence,
+                              evidence.get("operator_class"),
+                              json.dumps(evidence),
+                              mint))
+                        conn.commit()
+
+                    except Exception as _scan_e:
+                        conn.execute("""
+                            UPDATE wt_swarm_candidates SET state='NOT_SWARM', updated_at=strftime('%s','now')
+                            WHERE token_mint=?
+                        """, (mint,))
+                        conn.commit()
+                        print(f"[WT_SWARM_SCANNER] scan error {mint[:20]}..: {_scan_e}", flush=True)
+
+                    _t.sleep(2.0)  # pace between tokens
+
+                conn.close()
+
+            except Exception as _e:
+                print(f"[WT_SWARM_SCANNER] worker error: {_e}", flush=True)
+
+            _t.sleep(interval_s)
+
+    t = _threading.Thread(target=_worker, daemon=True, name="swarm_migration_scanner")
+    t.start()
+
+
+def _start_relay_counterparty_discovery_worker(db_path: str, interval_s: int = 120):
+    """
+    Tiered relay backtrace worker — coordinator/creator path only.
+
+    EYjGUZam is EXCLUDED: falsified as creator path 2026-05-26 (117 traces, 0 pump.fun touches).
+    EYjGUZam = TRADER_PROFIT_RELAY / BUYER_SWARM_EXTRACTION. Rows marked NOISE_TRADER_RELAY.
+
+    Active targets:
+      N3TKf3 (T_INFRA): coordinator recycle mapping
+      Other relays if added
+
+    Tiers:
+      T1:      repeat small-SOL EYjGUZam senders (creator profit band 0.1–2 SOL, cnt≥2)  [SKIPPED NOW]
+      T2:      single small-SOL sweeps                                                     [SKIPPED NOW]
+      T_INFRA: N3TKf3 senders — coordinator layer mapping
+      ROUTING: one-off large sweeps — infrastructure routing, no RPC
+      INFRA:   known infra addresses — skip
+    """
+    _PUMPFUN_FEE   = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+    _RAYDIUM_PROGS = {"675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8",
+                      "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"}
+    _N3TKF3        = "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7"
+
+    def _rpc(method, params):
+        import requests as _req
+        rpc_url = os.getenv("HELIUS_RPC_URL", "https://api.mainnet-beta.solana.com")
+        try:
+            r = _req.post(rpc_url,
+                json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params},
+                timeout=15)
+            return r.json().get("result")
+        except Exception:
+            return None
+
+    def _get_accounts(tx) -> list:
+        try:
+            return [a.get("pubkey", "") if isinstance(a, dict) else a
+                    for a in tx["transaction"]["message"].get("accountKeys", [])]
+        except Exception:
+            return []
+
+    def _extract_mint(tx, sender: str) -> str | None:
+        for tb in (tx.get("meta") or {}).get("postTokenBalances") or []:
+            m = tb.get("mint")
+            if m and m != sender:
+                return m
+        return None
+
+    def _backtrace_t1(sender: str) -> tuple[str, str | None, str | None]:
+        """Full trace: 15 sigs, getTransaction each. Returns (state, mint, creator)."""
+        sigs = _rpc("getSignaturesForAddress", [sender, {"limit": 15}]) or []
+        for s in sigs:
+            sig = s.get("signature")
+            if not sig:
+                continue
+            tx = _rpc("getTransaction", [sig, {"encoding": "jsonParsed",
+                                               "maxSupportedTransactionVersion": 0}])
+            if not tx:
+                continue
+            accs = _get_accounts(tx)
+            if _PUMPFUN_FEE in accs:
+                mint = _extract_mint(tx, sender)
+                return "CREATOR_CONFIRMED", mint, sender
+            if any(p in accs for p in _RAYDIUM_PROGS):
+                mint = _extract_mint(tx, sender)
+                return "CREATOR_CONFIRMED", mint, sender
+        return "TRACED_NO_LAUNCH", None, None
+
+    def _backtrace_t2(sender: str) -> tuple[str, str | None, str | None]:
+        """Light trace: 10 sigs, getTransaction only on non-system transfers."""
+        sigs = _rpc("getSignaturesForAddress", [sender, {"limit": 10}]) or []
+        for s in sigs:
+            sig = s.get("signature")
+            if not sig or s.get("err"):
+                continue
+            tx = _rpc("getTransaction", [sig, {"encoding": "jsonParsed",
+                                               "maxSupportedTransactionVersion": 0}])
+            if not tx:
+                continue
+            accs = _get_accounts(tx)
+            if _PUMPFUN_FEE in accs:
+                return "CREATOR_CONFIRMED", _extract_mint(tx, sender), sender
+            if any(p in accs for p in _RAYDIUM_PROGS):
+                return "CREATOR_CONFIRMED", _extract_mint(tx, sender), sender
+        return "TRACED_NO_LAUNCH", None, None
+
+    def _backtrace_t3(sender: str) -> tuple[str, str | None, str | None]:
+        """Sig scan only — no getTransaction. Returns TRACED_NO_LAUNCH always (no confirmation possible)."""
+        _rpc("getSignaturesForAddress", [sender, {"limit": 5}])
+        return "TRACED_NO_LAUNCH", None, None
+
+    _INFRA_ADDRS = set(_WT_INFRA_ROLES.keys())  # known infra — deprioritise as creators
+
+    def _compute_priority(row: dict, now: int) -> float:
+        sol = row["total_sol"]
+        cnt = row["sweep_count"]
+        relay = row["relay_address"]
+        last  = row.get("last_sweep_at") or 0
+
+        # Base: repeat behavior is the strongest creator signal
+        score = cnt * 25.0
+
+        # Relay affinity: EYjGUZam is the creator profit surface
+        if relay != _N3TKF3:
+            score += 30.0  # EYjGUZam or other direct relay
+
+        # Epoch overlap bonus (set by infra processor)
+        if row.get("sweep_epoch_id"):
+            score += 15.0
+
+        # Recency bonus
+        if last and (now - last) < 604800:   # within 7 days
+            score += 20.0
+        elif last and (now - last) < 2592000:  # within 30 days
+            score += 10.0
+
+        # Creator profit band: 0.1–2 SOL is strongest signal
+        if 0.1 <= sol <= 2.0:
+            score += 20.0
+        elif 2.0 < sol <= 5.0:
+            score += 5.0
+
+        # Infrastructure flow penalties
+        if sol > 5.0 and cnt == 1:
+            score -= 40.0   # one-off large sweep = routing/coordinator
+        if row.get("sender_address") in _INFRA_ADDRS:
+            score -= 100.0  # known infra wallet — never a creator
+
+        # N3TKf3 senders: infrastructure mapping value, not creator value
+        if relay == _N3TKF3:
+            score -= 20.0
+
+        return max(score, 0.0)
+
+    def _tier(row: dict) -> str:
+        sol = row["total_sol"]
+        cnt = row["sweep_count"]
+        relay = row["relay_address"]
+
+        # Known infra addresses: downgrade to INFRA_FLOW, never backtrace as creator
+        if row.get("sender_address") in _INFRA_ADDRS:
+            return "INFRA"
+
+        # One-off large sweeps on EYjGUZam: routing wallets, downgrade
+        if relay != _N3TKF3 and sol > 5.0 and cnt == 1:
+            return "ROUTING"
+
+        # N3TKf3: infrastructure mapping tier — still trace but as coordinator
+        if relay == _N3TKF3:
+            return "T_INFRA"
+
+        # Creator profit band — highest priority
+        if 0.1 <= sol <= 2.0 and cnt >= 2:
+            return "T1"   # repeat small sweeps = strong creator signal
+        if 0.1 <= sol <= 5.0 and cnt >= 1:
+            return "T2"   # single small sweep — worth checking
+        if cnt >= 3:
+            return "T1"   # high repeat regardless of amount
+
+        # Tiny amounts, single sweep
+        if sol < 0.1:
+            return "SKIP"
+
+        return "T2"
+
+    def _run():
+        import time as _t
+
+        _t.sleep(45)  # let startup settle
+
+        # ── Seed priority scores on first run ─────────────────────────────────
+        try:
+            now = int(_t.time())
+            conn = db_connect(db_path, timeout=15)
+            conn.row_factory = sqlite3.Row
+            unscored = conn.execute("""
+                SELECT sender_address, relay_address, total_sol, sweep_count, last_sweep_at
+                FROM wt_relay_counterparties WHERE priority_score = 0
+            """).fetchall()
+            for row in unscored:
+                score = _compute_priority(dict(row), now)
+                if score > 0:
+                    conn.execute("UPDATE wt_relay_counterparties SET priority_score=? "
+                                 "WHERE sender_address=? AND relay_address=?",
+                                 (score, row["sender_address"], row["relay_address"]))
+            conn.commit()
+            print(f"[WT-BACKTRACE] Priority scored {len(unscored)} senders", flush=True)
+            conn.close()
+        except Exception as _se:
+            print(f"[WT-BACKTRACE] seed error: {_se}", flush=True)
+
+        # ── Main loop ─────────────────────────────────────────────────────────
+        _total_traced = 0
+        _hit_gate_checked = False
+
+        while True:
+            try:
+                now = int(_t.time())
+                conn = db_connect(db_path, timeout=30)
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA busy_timeout=25000")
+
+                # Hit-rate gate: after 50 N3TKf3 traces, evaluate coordinator mapping yield
+                if not _hit_gate_checked and _total_traced >= 50:
+                    stats = conn.execute("""
+                        SELECT discovery_state, COUNT(*) FROM wt_relay_counterparties
+                        WHERE discovery_state IN ('CREATOR_CONFIRMED', 'TRACED_NO_LAUNCH')
+                        GROUP BY discovery_state
+                    """).fetchall()
+                    counts = {r[0]: r[1] for r in stats}
+                    confirmed = counts.get("CREATOR_CONFIRMED", 0)
+                    no_launch = counts.get("TRACED_NO_LAUNCH", 0)
+                    total_done = confirmed + no_launch
+                    hit_rate = confirmed / total_done if total_done > 0 else 0
+                    print(f"[WT-BACKTRACE] Hit-rate gate: {confirmed}/{total_done} = {hit_rate:.1%}", flush=True)
+                    _hit_gate_checked = True
+                    if hit_rate < 0.05:
+                        print("[WT-BACKTRACE] Hit rate < 5% — idling. Check RPC window coverage.", flush=True)
+                        conn.close()
+                        _t.sleep(3600)
+                        continue
+
+                batch = conn.execute("""
+                    SELECT sender_address, relay_address, total_sol, sweep_count,
+                           last_sweep_at, discovery_state, sweep_epoch_id
+                    FROM wt_relay_counterparties
+                    WHERE discovery_state IN ('NEW', 'RETRY')
+                      AND relay_address != 'EYjGUZamSQ9vJBxZ4yj7pCK2XaZ99MAEQx9xRMrzyMx1'
+                      AND (backtrace_at IS NULL OR backtrace_at < ?)
+                    ORDER BY priority_score DESC
+                    LIMIT 10
+                """, (now - 300,)).fetchall()  # 5-min guard against dual-worker races; EYjGUZam excluded
+                batch = [dict(r) for r in batch]
+
+                # Mark as in-flight immediately to prevent other worker picking same rows
+                if batch:
+                    placeholders = ",".join("?" * len(batch))
+                    senders = [r["sender_address"] for r in batch]
+                    conn.execute(
+                        f"UPDATE wt_relay_counterparties SET backtrace_at=? "
+                        f"WHERE sender_address IN ({placeholders}) AND discovery_state IN ('NEW','RETRY')",
+                        [now] + senders
+                    )
+                    conn.commit()
+                conn.close()
+
+                if not batch:
+                    _t.sleep(interval_s)
+                    continue
+
+                results = []
+                for row in batch:
+                    sender = row["sender_address"]
+                    tier = _tier(row)
+                    # Non-creator tiers: tag and skip RPC
+                    if tier in ("SKIP", "INFRA", "ROUTING"):
+                        results.append((tier, None, None, row))
+                        continue
+                    try:
+                        if tier in ("T1", "T_INFRA"):
+                            state, mint, creator = _backtrace_t1(sender)
+                        else:  # T2
+                            state, mint, creator = _backtrace_t2(sender)
+                        results.append((state, mint, creator, row))
+                        _total_traced += 1
+                        if state == "CREATOR_CONFIRMED":
+                            print(f"[WT-BACKTRACE] CONFIRMED {sender[:20]}.. "
+                                  f"mint={str(mint)[:20]}.. relay={row['relay_address'][:16]}.. "
+                                  f"tier={tier}", flush=True)
+                        else:
+                            print(f"[WT-BACKTRACE] no-launch {sender[:16]}.. "
+                                  f"sol={row['total_sol']:.1f} cnt={row['sweep_count']} tier={tier}", flush=True)
+                    except Exception as _ce:
+                        results.append(("RETRY", None, None, row))
+                        print(f"[WT-BACKTRACE] classify error {sender[:16]}: {_ce}", flush=True)
+
+                # Write results
+                conn2 = db_connect(db_path, timeout=30)
+                conn2.row_factory = sqlite3.Row
+                conn2.execute("PRAGMA busy_timeout=25000")
+                try:
+                    for state, mint, creator, row in results:
+                        if state in ("SKIP", "INFRA", "ROUTING"):
+                            conn2.execute("""
+                                UPDATE wt_relay_counterparties
+                                SET discovery_state=?, backtrace_at=?
+                                WHERE sender_address=? AND relay_address=?
+                            """, (state, now, row["sender_address"], row["relay_address"]))
+                            continue
+
+                        conn2.execute("""
+                            UPDATE wt_relay_counterparties SET
+                                discovery_state=?, inferred_mint=?, inferred_creator=?,
+                                backtrace_at=?, backtrace_depth=backtrace_depth+1
+                            WHERE sender_address=? AND relay_address=?
+                        """, (state, mint, creator, now,
+                              row["sender_address"], row["relay_address"]))
+
+                        if state == "CREATOR_CONFIRMED" and mint:
+                            conn2.execute("""
+                                INSERT OR IGNORE INTO wt_creator_launches
+                                    (creator_wallet, mint_address, launched_at,
+                                     launch_platform, evidence_grade, evidence_basis)
+                                VALUES (?, ?, ?, 'pump_fun', 'MEDIUM',
+                                        'relay_backtrace')
+                            """, (creator or row["sender_address"], mint, now))
+
+                            seq = conn2.execute(
+                                "SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events"
+                            ).fetchone()[0]
+                            conn2.execute("""
+                                INSERT OR IGNORE INTO watchtower_events
+                                    (event_sequence, event_type, wallet_address, token_mint,
+                                     payload_json, source, created_at)
+                                VALUES (?, 'POST_LAUNCH_CREATOR_DISCOVERED', ?, ?, ?, 'relay_backtrace', ?)
+                            """, (seq, creator or row["sender_address"], mint,
+                                  json.dumps({"relay": row["relay_address"],
+                                              "total_sol": row["total_sol"],
+                                              "mint": mint, "tier": _tier(row)}),
+                                  now))
+
+                    conn2.commit()
+
+                    # Assign clusters for newly confirmed senders
+                    _assign_extraction_clusters(conn2)
+
+                finally:
+                    conn2.close()
+
+                _wt_heartbeat("relay-backtrace", meta={
+                    "total_traced": _total_traced,
+                    "batch_size": len(batch),
+                })
+
+            except Exception as _e:
+                print(f"[WT-BACKTRACE] worker error: {_e}", flush=True)
+
+            _t.sleep(interval_s)
+
+    threading.Thread(target=_run, daemon=True, name="relay-backtrace").start()
+    print(f"[WT-BACKTRACE] Tiered relay backtrace worker started ({interval_s}s interval)",
+          flush=True)
+
+
+def _start_wt_infra_processor():
+    """Background thread: drains _wt_infra_queue and processes payloads."""
+    import time as _t
+    def _run():
+        _processed = 0
+        _last_hb = 0
+        while True:
+            try:
+                payload = _wt_infra_queue.get(timeout=5)
+                _process_wt_infra_payload(payload)
+                _processed += 1
+            except _queue_mod.Empty:
+                pass
+            except Exception as exc:
+                print(f"[WT-INFRA-PROC] error: {exc}", flush=True)
+            # Heartbeat every 30s regardless of queue activity
+            now = _t.time()
+            if now - _last_hb >= 30:
+                _wt_heartbeat("wt-infra-processor", "ok",
+                              {"processed": _processed, "qsize": _wt_infra_queue.qsize()})
+                _last_hb = now
+    threading.Thread(target=_run, daemon=True, name="wt-infra-processor").start()
+
+def _start_wt_candidate_processor():
+    """Background thread: drains _wt_candidate_queue."""
+    import time as _t
+    def _run():
+        _processed = 0
+        _last_hb = 0
+        while True:
+            try:
+                payload = _wt_candidate_queue.get(timeout=5)
+                _process_wt_candidate_payload(payload)
+                _processed += 1
+            except _queue_mod.Empty:
+                pass
+            except Exception as exc:
+                print(f"[WT-CAND-PROC] error: {exc}", flush=True)
+            now = _t.time()
+            if now - _last_hb >= 30:
+                _wt_heartbeat("wt-candidate-processor", "ok",
+                              {"processed": _processed, "qsize": _wt_candidate_queue.qsize()})
+                _last_hb = now
+    threading.Thread(target=_run, daemon=True, name="wt-candidate-processor").start()
+
+
+@app.route('/api/webhook/watchtower', methods=['POST'])
+def webhook_watchtower():
+    """
+    POST /api/webhook/watchtower
+    Receives Helius enhanced_transactions webhook watching WATCHTOWER infrastructure:
+      - SIGNALLER (44orA1Bx): outbound dust to creator wallets = activation signal
+      - TREASURY  (44orWS68): outbound SOL to creator wallets = funding signal (new creator)
+      - TREASURY-UP (6jeT3W): inbound to TREASURY = treasury being topped up
+    For TREASURY outbound: recipient is a new/potential creator → record + run WATCHTOWER detection.
+    Returns 200 immediately; processing is async via _wt_infra_queue.
+    """
+    try:
+        payload = request.get_json(silent=True)
+        if not payload:
+            return "ok", 200
+        if isinstance(payload, dict):
+            payload = [payload]
+        if not isinstance(payload, list):
+            return "ok", 200
+        try:
+            _wt_infra_queue.put_nowait(payload)
+        except _queue_mod.Full:
+            print("[WT-INFRA] queue full — dropping payload", flush=True)
+        return "ok", 200
+    except Exception as e:
+        print(f"[WT-INFRA] enqueue error: {e}", flush=True)
+        return "ok", 200
+
+
+def _process_wt_infra_payload(payload):
+    """Process a batched infra webhook payload from the queue."""
+    try:
+        global _wt_tables_ready
+        conn = db_connect(DB_PATH, timeout=60)
+        conn.execute("PRAGMA busy_timeout=60000")
+        try:
+            if not _wt_tables_ready:
+                _ensure_watchtower_tables(conn)
+                _wt_tables_ready = True
+
+            new_treasury_recipients = []   # wallets funded by TREASURY (potential new creators)
+            new_subprov_candidates  = []   # large TREASURY outflows (≥50 SOL) to unknown wallets
+
+            for tx in payload:
+                if not isinstance(tx, dict):
+                    continue
+                sig = tx.get("signature") or ""
+                block_time = tx.get("timestamp") or tx.get("blockTime") or int(time.time())
+                native_transfers = tx.get("nativeTransfers") or []
+                raw_str = json.dumps(tx)
+                raw_payload = raw_str if len(raw_str) < 65536 else None
+
+                for t in native_transfers:
+                    amount_sol = (t.get("amount") or 0) / 1e9
+                    dest = t.get("toUserAccount") or t.get("destination") or ""
+                    src  = t.get("fromUserAccount") or t.get("source") or ""
+                    if not src or not dest:
+                        continue
+
+                    # Determine which infra address is involved and direction
+                    if src in _WT_INFRA_ROLES:
+                        role = _WT_INFRA_ROLES[src]
+                        direction = "outbound"
+                        counterparty = dest
+                    elif dest in _WT_INFRA_ROLES:
+                        role = _WT_INFRA_ROLES[dest]
+                        direction = "inbound"
+                        counterparty = src
+                    else:
+                        continue
+
+                    # Record the infra event
+                    infra_addr = src if direction == "outbound" else dest
+                    conn.execute(
+                        """INSERT OR IGNORE INTO watchtower_infra_events
+                           (signature, block_time, infra_address, infra_role, direction, counterparty, amount_sol, raw_payload)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                        (sig, block_time, infra_addr, role, direction, counterparty, amount_sol, raw_payload),
+                    )
+
+                    # Tiered telemetry: Tier 2 (PROFIT_RELAY/SWEEP_COLLECTOR/TREASURY_UP)
+                    # → minute-bucket aggregation + counterparty tracking (no raw row)
+                    # Tier 1 (TREASURY/SIGNALLER/SUB_PROV) → raw hit row (low volume)
+                    _wh_infra_id = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                    if role in _WT_TIER2_AGG_ROLES:
+                        _minute = (block_time // 60) * 60
+                        conn.execute("""
+                            INSERT INTO wt_infra_telemetry_buckets
+                                (wallet_address, minute_bucket, role, hit_count,
+                                 unique_counterparties, total_sol, max_tx_sol, burst_score)
+                            VALUES (?, ?, ?, 1, 1, ?, ?, 1)
+                            ON CONFLICT(wallet_address, minute_bucket) DO UPDATE SET
+                                hit_count   = hit_count + 1,
+                                total_sol   = total_sol + excluded.total_sol,
+                                max_tx_sol  = MAX(max_tx_sol, excluded.max_tx_sol),
+                                burst_score = hit_count + 1
+                        """, (infra_addr, _minute, role, amount_sol, amount_sol))
+                        if counterparty:
+                            conn.execute("""
+                                INSERT INTO wt_relay_counterparties
+                                    (sender_address, relay_address, first_sweep_at,
+                                     last_sweep_at, sweep_count, total_sol, block_time)
+                                VALUES (?, ?, ?, ?, 1, ?, ?)
+                                ON CONFLICT(sender_address, relay_address) DO UPDATE SET
+                                    last_sweep_at = excluded.last_sweep_at,
+                                    sweep_count   = sweep_count + 1,
+                                    total_sol     = total_sol + excluded.total_sol,
+                                    block_time    = excluded.block_time
+                            """, (counterparty, infra_addr, block_time, block_time, amount_sol, block_time))
+
+                            # ── Sweep epoch detection: group bursts within ±30min windows ──
+                            _epoch_window = 1800  # 30 minutes
+                            existing_epoch = conn.execute("""
+                                SELECT epoch_id FROM wt_relay_sweep_epochs
+                                WHERE relay_address = ?
+                                  AND epoch_state = 'OPEN'
+                                  AND ABS(? - started_at) <= ?
+                                ORDER BY ABS(? - started_at) LIMIT 1
+                            """, (infra_addr, block_time, _epoch_window, block_time)).fetchone()
+
+                            if existing_epoch:
+                                conn.execute("""
+                                    UPDATE wt_relay_sweep_epochs SET
+                                        sweep_count = sweep_count + 1,
+                                        total_sol   = total_sol + ?,
+                                        ended_at    = ?
+                                    WHERE epoch_id = ?
+                                """, (amount_sol, block_time, existing_epoch[0]))
+                                _epoch_id = existing_epoch[0]
+                            else:
+                                cur = conn.execute("""
+                                    INSERT INTO wt_relay_sweep_epochs
+                                        (relay_address, sweep_count, total_sol, started_at, ended_at)
+                                    VALUES (?, 1, ?, ?, ?)
+                                """, (infra_addr, amount_sol, block_time, block_time))
+                                _epoch_id = cur.lastrowid
+
+                            # Tag counterparty row with epoch
+                            conn.execute("""
+                                UPDATE wt_relay_counterparties SET sweep_epoch_id = ?
+                                WHERE sender_address = ? AND relay_address = ?
+                                  AND sweep_epoch_id IS NULL
+                            """, (_epoch_id, counterparty, infra_addr))
+                    else:
+                        # TREASURY, SIGNALLER, SUB_PROV: low volume, high value — raw row
+                        conn.execute("""
+                            INSERT OR IGNORE INTO wt_webhook_hits
+                                (webhook_id, wallet_address, tx_signature, tx_type, source,
+                                 counterparty, block_time, amount_sol, is_fee_touch, created_at)
+                            VALUES (?, ?, ?, ?, 'infra_webhook', ?, ?, ?, 0, ?)
+                        """, (_wh_infra_id, infra_addr, sig,
+                              tx.get("type") or "TRANSFER",
+                              counterparty, block_time, amount_sol, int(time.time())))
+
+                    # ── TREASURY inbound: late-launch detection ──────────────────────
+                    # If a STALLED corridor sends SOL back to TREASURY, it launched late
+                    # (operator held the wallet longer than F5M window before deploying)
+                    if role == "TREASURY" and direction == "inbound" and counterparty and amount_sol >= 1.0:
+                        stalled = conn.execute(
+                            """SELECT wallet_address, treasury_sol FROM wt_launch_corridors
+                               WHERE wallet_address = ? AND state = 'STALLED'""",
+                            (counterparty,)
+                        ).fetchone()
+                        if stalled:
+                            conn.execute(
+                                """UPDATE wt_launch_corridors
+                                   SET state='LATE_LAUNCH', corridor_resolved_at=?, updated_at=?
+                                   WHERE wallet_address=?""",
+                                (block_time, int(time.time()), counterparty)
+                            )
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, 'corridor_late_launch', ?, ?, 'infra_webhook', ?)""",
+                                (seq, counterparty,
+                                 json.dumps({"amount_sol": amount_sol, "sig": sig, "treasury_sol": stalled[1]}),
+                                 block_time)
+                            )
+                            print(f"[WT_CORRIDOR] 🚨 LATE LAUNCH {counterparty[:20]}… swept {amount_sol:.2f} SOL to TREASURY — was STALLED corridor", flush=True)
+
+                    # ── TREASURY inbound from SWARM_PROV: recycle detected ───────────
+                    if role == "TREASURY" and direction == "inbound" and counterparty:
+                        swarm_row = conn.execute(
+                            "SELECT id FROM wt_swarm_corridors WHERE provisioner_wallet=? AND state NOT IN ('SWARM_RECYCLE_COMPLETE','ABORTED')",
+                            (counterparty,)
+                        ).fetchone()
+                        if swarm_row:
+                            conn.execute("""
+                                UPDATE wt_swarm_corridors
+                                SET state='SWARM_RECYCLE_COMPLETE', treasury_recycle_detected=1,
+                                    recycle_sig=?, recycle_ts=?, recycle_sol=?, updated_at=?
+                                WHERE id=?
+                            """, (sig, block_time, amount_sol, int(time.time()), swarm_row[0]))
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, 'SWARM_RECYCLE_COMPLETE', ?, ?, 'infra_webhook', ?)""",
+                                (seq, counterparty,
+                                 json.dumps({"recycle_sol": amount_sol, "sig": sig}),
+                                 block_time)
+                            )
+                            print(f"[WT_SWARM] ♻️  SWARM_RECYCLE_COMPLETE {counterparty[:20]}… {amount_sol:.2f} SOL → TREASURY", flush=True)
+
+                            # Disenrol from webhook — operation complete, no more useful signal
+                            def _disenrol_swarm_prov(addr):
+                                try:
+                                    import requests as _req
+                                    _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+                                    _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                                         "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                                    r = _req.get(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        timeout=10)
+                                    wh = r.json()
+                                    current = set(wh.get("accountAddresses", []))
+                                    if addr not in current:
+                                        return
+                                    updated = list(current - {addr})
+                                    payload = {
+                                        "webhookURL":       wh["webhookURL"],
+                                        "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                                        "accountAddresses": updated,
+                                        "webhookType":      wh.get("webhookType", "enhanced"),
+                                        "txnStatus":        wh.get("txnStatus", "all"),
+                                        "encoding":         wh.get("encoding", "jsonParsed"),
+                                    }
+                                    r2 = _req.put(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        json=payload, timeout=10)
+                                    if r2.status_code == 200:
+                                        _WT_INFRA_ROLES.pop(addr, None)
+                                        print(f"[WT_SWARM] 🔕 Disenrolled {addr[:20]}… from webhook (recycle complete)", flush=True)
+                                except Exception as _e:
+                                    print(f"[WT_SWARM] disenrol error: {_e}", flush=True)
+
+                            _threading.Thread(
+                                target=_disenrol_swarm_prov,
+                                args=(counterparty,),
+                                daemon=True
+                            ).start()
+
+                    # ── TREASURY outbound: corridor entry gate ────────────────────────
+                    if role == "TREASURY" and direction == "outbound" and counterparty:
+                        # Legacy sub-provisioner tracking (high-SOL outflows to known infra)
+                        if amount_sol >= 50:
+                            already_known = conn.execute(
+                                "SELECT 1 FROM wt_sub_provisioners WHERE address=?", (counterparty,)
+                            ).fetchone()
+                            if not already_known:
+                                new_subprov_candidates.append((counterparty, amount_sol, sig, block_time))
+
+                        # SWARM CORRIDOR GATE: ~70 SOL to unknown wallet = potential swarm provisioner
+                        _is_swarm_amount = abs(amount_sol - _WT_SWARM_TREASURY_SOL) <= _WT_SWARM_TREASURY_TOL
+                        _is_known_infra = counterparty in _WT_INFRA_ROLES
+                        if _is_swarm_amount and not _is_known_infra:
+                            existing = conn.execute(
+                                "SELECT id FROM wt_swarm_corridors WHERE provisioner_wallet=?", (counterparty,)
+                            ).fetchone()
+                            if not existing:
+                                conn.execute("""
+                                    INSERT OR IGNORE INTO wt_swarm_corridors
+                                        (provisioner_wallet, treasury_sig, treasury_ts, treasury_sol,
+                                         state, created_at, updated_at)
+                                    VALUES (?, ?, ?, ?, 'SWARM_DEPLOYMENT_ACTIVE', ?, ?)
+                                """, (counterparty, sig, block_time, amount_sol,
+                                      int(time.time()), int(time.time())))
+                                seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                                conn.execute(
+                                    """INSERT OR IGNORE INTO watchtower_events
+                                       (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                       VALUES (?, 'SWARM_DEPLOYMENT_ACTIVE', ?, ?, 'infra_webhook', ?)""",
+                                    (seq, counterparty,
+                                     json.dumps({"treasury_sol": amount_sol, "sig": sig}),
+                                     block_time)
+                                )
+                                print(f"[WT_SWARM] 🐝 SWARM_DEPLOYMENT_ACTIVE {counterparty[:20]}… {amount_sol:.1f} SOL from TREASURY", flush=True)
+
+                                # Dynamically enrol provisioner in webhook + register role
+                                # so all fanout/sweepback hits are captured in real-time
+                                def _enrol_swarm_prov(addr, sol):
+                                    try:
+                                        import requests as _req
+                                        _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+                                        _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                                             "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                                        r = _req.get(
+                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                            timeout=10)
+                                        wh = r.json()
+                                        current = set(wh.get("accountAddresses", []))
+                                        if addr in current:
+                                            return
+                                        updated = list(current | {addr})
+                                        payload = {
+                                            "webhookURL":       wh["webhookURL"],
+                                            "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                                            "accountAddresses": updated,
+                                            "webhookType":      wh.get("webhookType", "enhanced"),
+                                            "txnStatus":        wh.get("txnStatus", "all"),
+                                            "encoding":         wh.get("encoding", "jsonParsed"),
+                                        }
+                                        r2 = _req.put(
+                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                            json=payload, timeout=10)
+                                        if r2.status_code == 200:
+                                            # Register in memory so hits are routed correctly
+                                            _WT_INFRA_ROLES[addr] = "SWARM_PROV"
+                                            print(f"[WT_SWARM] ✅ Enrolled {addr[:20]}… in webhook ({len(updated)} total)", flush=True)
+                                        else:
+                                            print(f"[WT_SWARM] ⚠️  Webhook enrol failed: {r2.status_code}", flush=True)
+                                    except Exception as _e:
+                                        print(f"[WT_SWARM] enrol error: {_e}", flush=True)
+
+                                _threading.Thread(
+                                    target=_enrol_swarm_prov,
+                                    args=(counterparty, amount_sol),
+                                    daemon=True
+                                ).start()
+
+                        # CORRIDOR GATE 1: check if this is a fresh-capital deployment
+                        # Skip infra addresses, coordinator-level amounts (>12 SOL), and tiny dust
+                        _is_infra = counterparty in _WT_INFRA_ROLES
+                        _is_deployment_size = _WT_MIN_DEPLOYMENT_SOL <= amount_sol <= _WT_MAX_DEPLOYMENT_SOL
+
+                        # Always record treasury_funded event (legacy compat)
+                        seq = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
+                        conn.execute(
+                            """INSERT OR IGNORE INTO watchtower_events
+                               (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                               VALUES (?, 'treasury_funded', ?, ?, 'webhook', ?)""",
+                            (seq, counterparty,
+                             json.dumps({"amount_sol": amount_sol, "tx": sig}),
+                             block_time),
+                        )
+
+                        if not _is_infra and _is_deployment_size:
+                            # Register as AWAITING_SIGNALLER in corridors table
+                            conn.execute("""
+                                INSERT INTO wt_launch_corridors
+                                    (wallet_address, treasury_sig, treasury_ts, treasury_sol,
+                                     state, created_at, updated_at)
+                                VALUES (?, ?, ?, ?, 'AWAITING_SIGNALLER', ?, ?)
+                                ON CONFLICT(wallet_address) DO UPDATE SET
+                                    treasury_sig  = excluded.treasury_sig,
+                                    treasury_ts   = excluded.treasury_ts,
+                                    treasury_sol  = excluded.treasury_sol,
+                                    state         = 'AWAITING_SIGNALLER',
+                                    updated_at    = excluded.updated_at
+                            """, (counterparty, sig, block_time, amount_sol,
+                                  int(time.time()), int(time.time())))
+
+                            with _wt_corridors_lock:
+                                _wt_corridors[counterparty] = {
+                                    "treasury_sig":  sig,
+                                    "treasury_ts":   block_time,
+                                    "treasury_sol":  amount_sol,
+                                    "state":         "AWAITING_SIGNALLER",
+                                }
+
+                            print(
+                                f"[WT_CORRIDOR] GATE1 {counterparty[:20]}… "
+                                f"{amount_sol:.1f} SOL — awaiting SIGNALLER",
+                                flush=True,
+                            )
+                        else:
+                            # Not a deployment-size outflow or goes to known infra
+                            # Still record for legacy watchtower_launch_candidates
+                            new_treasury_recipients.append((counterparty, amount_sol, sig, block_time))
+
+                    # ── SIGNALLER outbound: corridor activation gate ───────────────────
+                    elif role == "SIGNALLER" and direction == "outbound" and counterparty:
+                        # Swarm detection: >5 wallets dusted within 10s = swarm, not corridor
+                        _now = time.time()
+                        _wt_recent_signaller_ts.append(block_time)
+                        # Trim old entries
+                        _cutoff = block_time - _WT_SWARM_BATCH_WINDOW_S
+                        while _wt_recent_signaller_ts and _wt_recent_signaller_ts[0] < _cutoff:
+                            _wt_recent_signaller_ts.pop(0)
+                        _batch_size = len(_wt_recent_signaller_ts)
+                        _is_swarm = _batch_size > _WT_SWARM_BATCH_THRESHOLD
+
+                        # Always record signaller_dust event (legacy compat)
+                        seq = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
+                        conn.execute(
+                            """INSERT OR IGNORE INTO watchtower_events
+                               (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                               VALUES (?, 'signaller_dust', ?, ?, 'webhook', ?)""",
+                            (seq, counterparty,
+                             json.dumps({"amount_sol": amount_sol, "tx": sig,
+                                         "swarm": _is_swarm, "batch_size": _batch_size}),
+                             block_time),
+                        )
+
+                        if _is_swarm:
+                            # Mass dust — mark corridor as swarm if it exists
+                            with _wt_corridors_lock:
+                                c = _wt_corridors.get(counterparty)
+                                if c and c["state"] == "AWAITING_SIGNALLER":
+                                    _wt_corridors.pop(counterparty, None)
+                            conn.execute("""
+                                UPDATE wt_launch_corridors SET state='SWARM_REJECTED', updated_at=?
+                                WHERE wallet_address=? AND state='AWAITING_SIGNALLER'
+                            """, (int(time.time()), counterparty))
+                            # Don't log — swarm batches can be 70+ wallets
+                        else:
+                            # CORRIDOR GATE 2: match signaller to a pending corridor
+                            with _wt_corridors_lock:
+                                corridor = _wt_corridors.get(counterparty)
+
+                            if corridor and corridor["state"] == "AWAITING_SIGNALLER":
+                                lag_s = block_time - corridor["treasury_ts"]
+                                if lag_s <= _WT_CORRIDOR_SIGNALLER_WINDOW_S:
+                                    # CORRIDOR CONFIRMED — update state, enroll immediately
+                                    f5m_expires = int(time.time()) + _WT_CORRIDOR_F5M_TIMEOUT_S
+                                    conn.execute("""
+                                        UPDATE wt_launch_corridors SET
+                                            signaller_sig   = ?,
+                                            signaller_ts    = ?,
+                                            signaller_lag_s = ?,
+                                            state           = 'CORRIDOR_ACTIVE',
+                                            enrolled_at     = ?,
+                                            f5m_expires_at  = ?,
+                                            updated_at      = ?
+                                        WHERE wallet_address = ?
+                                    """, (sig, block_time, lag_s, int(time.time()),
+                                          f5m_expires, int(time.time()), counterparty))
+                                    with _wt_corridors_lock:
+                                        _wt_corridors[counterparty] = {
+                                            **corridor,
+                                            "signaller_sig": sig,
+                                            "signaller_ts":  block_time,
+                                            "lag_s":         lag_s,
+                                            "state":         "CORRIDOR_ACTIVE",
+                                            "f5m_expires":   f5m_expires,
+                                        }
+
+                                    seq2 = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
+                                    conn.execute("""
+                                        INSERT OR IGNORE INTO watchtower_events
+                                            (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                        VALUES (?, 'corridor_active', ?, ?, 'webhook', ?)
+                                    """, (seq2, counterparty,
+                                          json.dumps({"treasury_sol": corridor["treasury_sol"],
+                                                      "signaller_lag_s": lag_s,
+                                                      "f5m_expires_at": f5m_expires}),
+                                          block_time))
+
+                                    # Enroll in candidate webhook — retry up to 3x on DB lock.
+                                    # immediate=True bypasses debounce task queue (which silently
+                                    # drops in new_event_loop context). Spawns a background retry
+                                    # thread if all attempts fail so corridor monitor RPC backup
+                                    # can still classify the TX via getSignaturesForAddress.
+                                    def _do_enroll(wallet=counterparty, lag=lag_s,
+                                                   sol=corridor['treasury_sol']):
+                                        import asyncio as _asyncio
+                                        from src.analysis.webhook_manager import WebhookManager, CANDIDATE_ROLE
+                                        for _attempt in range(3):
+                                            try:
+                                                # Fresh manager + fresh loop per attempt — avoids
+                                                # asyncio.Lock bound-to-wrong-loop silent failure
+                                                loop = _asyncio.new_event_loop()
+                                                mgr = WebhookManager(DB_PATH)
+                                                loop.run_until_complete(
+                                                    mgr.enroll(
+                                                        wallet, CANDIDATE_ROLE,
+                                                        notes=f"corridor_active lag={lag}s sol={sol:.1f}",
+                                                        immediate=True,
+                                                    )
+                                                )
+                                                loop.close()
+                                                print(f"[WT_CORRIDOR] ✅ enrolled {wallet[:20]}… in candidate webhook (attempt {_attempt+1})", flush=True)
+                                                return
+                                            except Exception as _enr_e:
+                                                print(f"[WT_CORRIDOR] enroll error (attempt {_attempt+1}): {_enr_e}", flush=True)
+                                                time.sleep(1.5 * (_attempt + 1))
+                                        print(f"[WT_CORRIDOR] enrollment failed after 3 attempts — RPC monitor is fallback", flush=True)
+                                    _threading.Thread(target=_do_enroll, daemon=True).start()
+
+                                    # Update in-memory candidate set immediately
+                                    _wt_candidate_set.add(counterparty)
+
+                                    print(
+                                        f"[WT_CORRIDOR] ACTIVE {counterparty[:20]}… "
+                                        f"lag={lag_s}s sol={corridor['treasury_sol']:.1f} "
+                                        f"F5M expires in {_WT_CORRIDOR_F5M_TIMEOUT_S}s",
+                                        flush=True,
+                                    )
+                                else:
+                                    # Signaller arrived too late — stale signal
+                                    conn.execute("""
+                                        UPDATE wt_launch_corridors SET state='STALE_SIGNAL', updated_at=?
+                                        WHERE wallet_address=?
+                                    """, (int(time.time()), counterparty))
+                                    with _wt_corridors_lock:
+                                        _wt_corridors.pop(counterparty, None)
+
+                    # PROFIT_RELAY inbound = profits being swept into the relay (operation active)
+                    elif role == "PROFIT_RELAY" and direction == "inbound" and amount_sol > 0:
+                        seq = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
+                        conn.execute(
+                            """INSERT OR IGNORE INTO watchtower_events
+                               (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                               VALUES (?, 'profit_sweep', ?, ?, 'webhook', ?)""",
+                            (seq, counterparty,
+                             json.dumps({"from": counterparty, "amount_sol": amount_sol, "tx": sig}),
+                             block_time),
+                        )
+                        print(
+                            f"[WATCHTOWER] 💰 PROFIT_RELAY←{counterparty[:20]}… "
+                            f"{amount_sol:.4f} SOL swept sig={sig[:20]}…",
+                            flush=True,
+                        )
+
+                    # SWARM_PROV inbound = buyer wallets sweeping profits back (extraction phase)
+                    elif role == "SWARM_PROV" and direction == "inbound" and counterparty:
+                        swarm_row = conn.execute(
+                            "SELECT id, state FROM wt_swarm_corridors WHERE provisioner_wallet=?",
+                            (infra_addr,)
+                        ).fetchone()
+                        if swarm_row and swarm_row[1] in ("SWARM_DEPLOYMENT_ACTIVE", "SWARM_DEPLOYMENT_ESCALATING"):
+                            conn.execute("""
+                                UPDATE wt_swarm_corridors
+                                SET state='SWARM_EXTRACTION_ACTIVE', sweepback_detected=1, updated_at=?
+                                WHERE id=?
+                            """, (int(time.time()), swarm_row[0]))
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, 'SWARM_EXTRACTION_ACTIVE', ?, ?, 'infra_webhook', ?)""",
+                                (seq, infra_addr,
+                                 json.dumps({"sweepback_sol": amount_sol, "from": counterparty}),
+                                 block_time)
+                            )
+                            print(f"[WT_SWARM] 💰 SWARM_EXTRACTION_ACTIVE {infra_addr[:20]}… buyer wallets sweeping back", flush=True)
+
+                    # SWARM_PROV outbound = buyer wallet fanout (~0.014 SOL per wallet)
+                    elif role == "SWARM_PROV" and direction == "outbound" and counterparty and _WT_SWARM_MIN_FANOUT_SOL <= amount_sol <= _WT_SWARM_MAX_FANOUT_SOL:
+                        swarm_row = conn.execute(
+                            "SELECT id, wallet_count, fanout_started_at, state FROM wt_swarm_corridors WHERE provisioner_wallet=?",
+                            (infra_addr,)
+                        ).fetchone()
+                        if swarm_row:
+                            new_count = (swarm_row[1] or 0) + 1
+                            started_at = swarm_row[2] or block_time
+                            new_state = swarm_row[3]
+                            if new_count >= _WT_SWARM_MIN_FANOUTS and new_state == "SWARM_DEPLOYMENT_ACTIVE":
+                                new_state = "SWARM_DEPLOYMENT_ESCALATING"
+                                seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                                conn.execute(
+                                    """INSERT OR IGNORE INTO watchtower_events
+                                       (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                       VALUES (?, 'SWARM_DEPLOYMENT_ESCALATING', ?, ?, 'infra_webhook', ?)""",
+                                    (seq, infra_addr,
+                                     json.dumps({"wallet_count": new_count, "provisioner": infra_addr}),
+                                     block_time)
+                                )
+                                print(f"[WT_SWARM] 🐝⬆️  SWARM_DEPLOYMENT_ESCALATING {infra_addr[:20]}… {new_count} wallets deployed", flush=True)
+                            conn.execute("""
+                                UPDATE wt_swarm_corridors
+                                SET wallet_count=?, fanout_started_at=COALESCE(fanout_started_at,?),
+                                    fanout_completed_at=?, state=?, updated_at=?
+                                WHERE id=?
+                            """, (new_count, started_at, block_time, new_state, int(time.time()), swarm_row[0]))
+                        else:
+                            # SWARM_PROV actively fanning out but no corridor record yet — create one
+                            conn.execute("""
+                                INSERT OR IGNORE INTO wt_swarm_corridors
+                                    (provisioner_wallet, treasury_ts, treasury_sol, wallet_count,
+                                     fanout_started_at, fanout_completed_at, state, created_at, updated_at)
+                                VALUES (?, ?, 0, 1, ?, ?, 'SWARM_DEPLOYMENT_ACTIVE', ?, ?)
+                            """, (infra_addr, block_time, block_time, block_time,
+                                  int(time.time()), int(time.time())))
+
+                    # SUB_PROV outbound = direct fanout to a staged wallet
+                    elif role == "SUB_PROV" and direction == "outbound" and counterparty and _WT_MIN_DEPLOYMENT_SOL <= amount_sol <= _WT_MAX_DEPLOYMENT_SOL:
+                        sub_prov_addr = src
+                        already_staged = conn.execute(
+                            "SELECT 1 FROM wt_staged_wallets WHERE wallet_address=?", (counterparty,)
+                        ).fetchone()
+                        if not already_staged:
+                            conn.execute(
+                                """INSERT OR IGNORE INTO wt_staged_wallets
+                                   (wallet_address, provisioner_address, provisioned_at, state, evidence_basis)
+                                   VALUES (?, ?, ?, 'DORMANT_FUNDED',
+                                           'sub_prov_fanout_webhook')""",
+                                (counterparty, sub_prov_addr, block_time),
+                            )
+                            conn.execute(
+                                """INSERT OR IGNORE INTO wt_discovery_log
+                                   (discovery_type, address, detail_json, discovered_at)
+                                   VALUES ('staged_wallet', ?, json_object('sub_prov', ?, 'amount_sol', ?, 'tx', ?), ?)""",
+                                (counterparty, sub_prov_addr, amount_sol, sig, block_time),
+                            )
+                            # Graph: sub_prov → candidate
+                            try:
+                                from src.analysis.watchtower_detector import (
+                                    upsert_graph_node, upsert_graph_edge, score_and_persist
+                                )
+                                upsert_graph_node(sub_prov_addr, "SUB_PROV", conn)
+                                upsert_graph_node(counterparty, "UNKNOWN", conn)
+                                upsert_graph_edge(sub_prov_addr, counterparty, "funded_by", conn,
+                                                  amount_sol=amount_sol, tx_sig=sig, block_time=block_time)
+                                # Score candidate and emit alert if high confidence
+                                score, evidence = score_and_persist(counterparty, conn)
+                                alert_type = (
+                                    "HIGH_CONFIDENCE_CREATOR" if score >= 85 else
+                                    "CREATOR_CANDIDATE" if score >= 60 else
+                                    "staged_wallet"
+                                )
+                                node_type = "CREATOR" if score >= 60 else "UNKNOWN"
+                                upsert_graph_node(counterparty, node_type, conn, score=score)
+                            except Exception as _scoring_exc:
+                                alert_type = "staged_wallet"
+                                score = 0
+                                print(f"[WATCHTOWER] scoring error: {_scoring_exc}", flush=True)
+
+                            seq = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, ?, ?, ?, 'webhook', ?)""",
+                                (seq, alert_type, counterparty,
+                                 json.dumps({"sub_prov": sub_prov_addr, "amount_sol": amount_sol,
+                                             "tx": sig, "candidate_score": score}),
+                                 block_time),
+                            )
+                            print(
+                                f"[WATCHTOWER] 🆕 SUB_PROV→{counterparty[:20]}… "
+                                f"{amount_sol:.6f} SOL — staged (score={score})",
+                                flush=True,
+                            )
+
+            conn.commit()
+            conn.close()
+
+            # Background: run creator detection + sub-provisioner fanout scan
+            if new_treasury_recipients or new_subprov_candidates:
+                def _run_detection(recipients, subprov_candidates):
+                    import os as _os, json as _json2
+                    rpc_url = (_os.environ.get('HELIUS_RPC_URL') or
+                               _os.environ.get('SOLANA_RPC_URL') or
+                               'https://api.mainnet-beta.solana.com')
+
+                    # Creator detection for directly TREASURY-funded wallets
+                    try:
+                        from src.analysis.watchtower_detector import analyze_creator, ensure_schema as wt_schema
+                        dconn = db_connect(DB_PATH, timeout=20)
+                        dconn.row_factory = sqlite3.Row
+                        wt_schema(dconn)
+                        for (addr, amount_sol, sig, block_time) in recipients:
+                            analyze_creator(addr, DB_PATH)
+                        dconn.commit()
+                        dconn.close()
+                    except Exception as exc:
+                        print(f"[WATCHTOWER_WEBHOOK] creator detection error: {exc}", flush=True)
+
+                    # Sub-provisioner fanout scan (2 RPC calls per candidate)
+                    for (addr, amount_sol, sig, block_time) in subprov_candidates:
+                        try:
+                            import requests as _req2
+                            def _rpc2(method, params):
+                                try:
+                                    r = _req2.post(rpc_url,
+                                        json={'jsonrpc':'2.0','id':1,'method':method,'params':params},
+                                        timeout=20)
+                                    return r.json().get('result')
+                                except Exception:
+                                    return None
+
+                            dconn = db_connect(DB_PATH, timeout=20)
+                            dconn.execute("""
+                                INSERT OR IGNORE INTO wt_sub_provisioners
+                                    (address, funding_amount, funded_by, scan_status, first_seen_at)
+                                VALUES (?, ?, 'TREASURY', 'scanning', strftime('%s','now'))
+                            """, (addr, amount_sol))
+                            dconn.commit()
+
+                            # 1 RPC: get signature burst
+                            sigs = _rpc2('getSignaturesForAddress', [addr, {'limit': 100}]) or []
+                            times = [(s['signature'], s.get('blockTime', 0)) for s in sigs if s.get('blockTime')]
+
+                            best_window = []
+                            for i, (_, t0) in enumerate(times):
+                                window = [(sg, t) for sg, t in times if 0 <= t0 - t <= 7200]
+                                if len(window) > len(best_window):
+                                    best_window = window
+
+                            if len(best_window) >= 5:
+                                # 1 RPC: sample one tx for amount
+                                sample_tx = _rpc2('getTransaction',
+                                    [best_window[0][0],
+                                     {'encoding':'jsonParsed','maxSupportedTransactionVersion':0}])
+                                amount_each = None
+                                if sample_tx:
+                                    for t in (sample_tx.get('meta') or {}).get('nativeTransfers') or []:
+                                        if t.get('fromUserAccount') == addr and (t.get('amount') or 0) > 0:
+                                            amount_each = t['amount'] / 1e9
+                                            break
+
+                                if amount_each and amount_each >= 0.005:
+                                    fingerprint = f'{amount_each:.8f}'
+                                    dconn.execute("""
+                                        UPDATE wt_sub_provisioners SET
+                                            fanout_count=?, fanout_amount=?,
+                                            fanout_fingerprint=?, scan_status='confirmed',
+                                            last_scanned_at=strftime('%s','now')
+                                        WHERE address=?
+                                    """, (len(best_window), amount_each, fingerprint, addr))
+                                    dconn.execute("""
+                                        INSERT INTO wt_discovery_log (discovery_type, address, detail_json)
+                                        VALUES ('sub_provisioner', ?, ?)
+                                    """, (addr, _json2.dumps({
+                                        'fanout_count': len(best_window),
+                                        'fingerprint': fingerprint,
+                                        'funding_amount': amount_sol,
+                                    })))
+                                    dconn.execute("""
+                                        INSERT OR IGNORE INTO watchtower_events
+                                            (event_type, wallet_address, payload_json, source, created_at)
+                                        VALUES ('sub_provisioner_detected', ?, ?, 'webhook', strftime('%s','now'))
+                                    """, (addr, _json2.dumps({
+                                        'fanout_count': len(best_window),
+                                        'fingerprint': fingerprint,
+                                        'funding_from_treasury': amount_sol,
+                                    })))
+                                    dconn.commit()
+                                    print(f"[WATCHTOWER_WEBHOOK] 🚨 SUB-PROVISIONER {addr[:20]}… "
+                                          f"{len(best_window)} wallets @ {fingerprint} SOL", flush=True)
+                                else:
+                                    dconn.execute("UPDATE wt_sub_provisioners SET scan_status='not_provisioner' WHERE address=?", (addr,))
+                                    dconn.commit()
+                            else:
+                                dconn.execute("UPDATE wt_sub_provisioners SET scan_status='not_provisioner' WHERE address=?", (addr,))
+                                dconn.commit()
+                            dconn.close()
+                        except Exception as exc:
+                            print(f"[WATCHTOWER_WEBHOOK] subprov scan error {addr[:16]}: {exc}", flush=True)
+
+                import threading
+                threading.Thread(
+                    target=_run_detection,
+                    args=(new_treasury_recipients, new_subprov_candidates),
+                    daemon=True,
+                    name="wt-detection",
+                ).start()
+
+        except Exception as exc:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            print(f"[WATCHTOWER_WEBHOOK] handler error: {exc}", flush=True)
+            import traceback
+            traceback.print_exc()
+
+    except Exception as e:
+        print(f"[WATCHTOWER_WEBHOOK] outer error: {e}", flush=True)
+
+
+# ── In-memory candidate set: wallets enrolled for monitoring ─────────────────
+_wt_candidate_set: set[str] = set()
+_wt_candidate_set_refreshed_at: float = 0.0
+
+def _refresh_candidate_cache(conn: sqlite3.Connection) -> None:
+    """Rebuild in-memory candidate set from CORRIDOR_ACTIVE wallets + legacy staged wallets.
+    Also includes STALLED corridors within 24h — operators sometimes hold funded wallets
+    longer than the F5M window before launching."""
+    global _wt_candidate_set, _wt_candidate_set_refreshed_at
+    corridor_rows = conn.execute(
+        "SELECT wallet_address FROM wt_launch_corridors WHERE state='CORRIDOR_ACTIVE'"
+    ).fetchall()
+    # Keep STALLED/LATE_LAUNCH corridors in the candidate set for 24h
+    stalled_rows = conn.execute(
+        """SELECT wallet_address FROM wt_launch_corridors
+           WHERE state IN ('STALLED', 'LATE_LAUNCH')
+             AND corridor_resolved_at > strftime('%s','now') - 86400"""
+    ).fetchall()
+    staged_rows = conn.execute(
+        "SELECT wallet_address FROM wt_staged_wallets WHERE state IN ('DORMANT_FUNDED', 'ACTIVATED')"
+    ).fetchall()
+    _wt_candidate_set = {r[0] for r in corridor_rows} | {r[0] for r in stalled_rows} | {r[0] for r in staged_rows}
+    _wt_candidate_set_refreshed_at = time.time()
+
+
+def _classify_first_tx_dest(dest: str, programs: list) -> str:
+    """Classify a corridor wallet's first outbound TX destination."""
+    if dest == _WT_PUMPFUN_FEE:
+        return "LAUNCH_CONFIRMED"
+    # Check all program IDs in the tx against classification registry
+    for p in programs:
+        cls = _WT_PROGRAM_CLASSES.get(p)
+        if cls:
+            return cls
+    # Destination address itself might be a program
+    cls = _WT_PROGRAM_CLASSES.get(dest)
+    if cls:
+        return cls
+    # Treasury return = aborted deployment
+    if dest in (_WT_TREASURY_ADDR, _WT_SIGNALLER_ADDR):
+        return "ABORTED"
+    return "UNKNOWN_EXECUTOR"
+
+
+def _resolve_corridor(conn, wallet: str, classification: str,
+                      first_sig: str, first_ts: int, first_dest: str,
+                      first_program: str, mint: str = None) -> None:
+    """Persist corridor resolution and de-enroll if not a launch."""
+    now = int(time.time())
+    conn.execute("""
+        UPDATE wt_launch_corridors SET
+            state               = ?,
+            first_tx_sig        = ?,
+            first_tx_ts         = ?,
+            first_tx_dest       = ?,
+            first_tx_program    = ?,
+            mint_address        = ?,
+            corridor_resolved_at = ?,
+            updated_at          = ?
+        WHERE wallet_address = ?
+    """, (classification, first_sig, first_ts, first_dest, first_program,
+          mint, now, now, wallet))
+
+    seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+    conn.execute("""
+        INSERT OR IGNORE INTO watchtower_events
+            (event_sequence, event_type, wallet_address, token_mint, payload_json, source, created_at)
+        VALUES (?, ?, ?, ?, ?, 'candidate_webhook', ?)
+    """, (seq, f"corridor_{classification.lower()}", wallet, mint,
+          json.dumps({"classification": classification, "first_sig": first_sig,
+                      "first_dest": first_dest, "first_program": first_program,
+                      "mint": mint}),
+          first_ts))
+
+    # Remove from in-memory corridor state
+    with _wt_corridors_lock:
+        _wt_corridors.pop(wallet, None)
+
+    # De-enroll from webhook unless it's a confirmed launch (keep enrolled for mint tracking)
+    if classification != "LAUNCH_CONFIRMED":
+        _wt_candidate_set.discard(wallet)
+        import asyncio as _asyncio
+        try:
+            from src.analysis.webhook_manager import remove_candidate
+            loop = _asyncio.new_event_loop()
+            loop.run_until_complete(remove_candidate(wallet, DB_PATH,
+                reason=f"corridor_resolved:{classification}"))
+            loop.close()
+        except Exception as _rm_e:
+            print(f"[WT_CORRIDOR] remove error: {_rm_e}", flush=True)
+
+    label = "🚀 LAUNCH" if classification == "LAUNCH_CONFIRMED" else f"→ {classification}"
+    print(f"[WT_CORRIDOR] RESOLVED {wallet[:20]}… {label} dest={first_dest[:20]}…", flush=True)
+
+
+def _process_wt_candidate_payload(payload):
+    """Process candidate webhook payload: classify first TX for CORRIDOR_ACTIVE wallets."""
+    try:
+        conn = db_connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA busy_timeout=30000")
+        try:
+            # Refresh candidate cache if stale (>60s)
+            if time.time() - _wt_candidate_set_refreshed_at > 60:
+                _refresh_candidate_cache(conn)
+
+            for tx in payload:
+                if not isinstance(tx, dict):
+                    continue
+                sig        = tx.get("signature") or ""
+                block_time = tx.get("timestamp") or tx.get("blockTime") or int(time.time())
+                native_transfers = tx.get("nativeTransfers") or []
+                tx_type    = tx.get("type") or tx.get("transactionType") or "TRANSFER"
+
+                # Collect all program IDs from this tx (for classification)
+                tx_programs = []
+                for ins in (tx.get("instructions") or []):
+                    p = ins.get("programId") or ins.get("program") or ""
+                    if p:
+                        tx_programs.append(p)
+                for inner in (tx.get("innerInstructions") or []):
+                    for ii in (inner.get("instructions") or []):
+                        p = ii.get("programId") or ii.get("program") or ""
+                        if p:
+                            tx_programs.append(p)
+
+                # Identify which monitored wallet is the sender
+                for t in native_transfers:
+                    src  = t.get("fromUserAccount") or ""
+                    dest = t.get("toUserAccount") or ""
+                    amt  = (t.get("amount") or 0) / 1e9
+
+                    if src not in _wt_candidate_set or not dest:
+                        continue
+
+                    _wh_id        = os.getenv("CREATOR_MOVEMENT_WEBHOOK_ID", "")
+                    _is_fee_touch = 1 if dest == _WT_PUMPFUN_FEE else 0
+                    _PAMM_PROGRAMS = {"675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8",
+                                      "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C"}
+                    _is_pamm      = 1 if dest in _PAMM_PROGRAMS else 0
+
+                    # Record every hit
+                    conn.execute("""
+                        INSERT OR IGNORE INTO wt_webhook_hits
+                            (webhook_id, wallet_address, tx_signature, tx_type, source,
+                             counterparty, block_time, amount_sol,
+                             is_fee_touch, is_pamm_interaction, created_at)
+                        VALUES (?, ?, ?, ?, 'candidate_webhook', ?, ?, ?, ?, ?, ?)
+                    """, (_wh_id, src, sig, tx_type, dest, block_time, amt,
+                          _is_fee_touch, _is_pamm, int(time.time())))
+
+                    # ── CORRIDOR FIRST-TX CLASSIFICATION ─────────────────────────
+                    corridor_row = conn.execute(
+                        "SELECT state, treasury_ts FROM wt_launch_corridors WHERE wallet_address=?",
+                        (src,)
+                    ).fetchone()
+
+                    if corridor_row and corridor_row["state"] == "CORRIDOR_ACTIVE":
+                        # Determine which program drove this tx
+                        primary_program = (
+                            next((p for p in tx_programs if p in _WT_PROGRAM_CLASSES), None)
+                            or (tx_programs[0] if tx_programs else "")
+                        )
+                        classification = _classify_first_tx_dest(dest, tx_programs)
+
+                        # Extract mint for launch confirmation
+                        launched_mint = None
+                        if classification == "LAUNCH_CONFIRMED":
+                            for tt in (tx.get("tokenTransfers") or []):
+                                m = tt.get("mint") or tt.get("token")
+                                if m and m != src:
+                                    launched_mint = m
+                                    break
+
+                        _resolve_corridor(conn, src, classification,
+                                          sig, block_time, dest,
+                                          primary_program, launched_mint)
+
+                        if classification == "LAUNCH_CONFIRMED" and launched_mint:
+                            # Persist launch record
+                            conn.execute("""
+                                INSERT OR IGNORE INTO wt_creator_launches
+                                    (creator_wallet, mint_address, launch_tx, launched_at,
+                                     launch_platform, evidence_grade, evidence_basis)
+                                VALUES (?, ?, ?, ?, 'pump_fun', 'STRONG',
+                                        'corridor_webhook_fee_account_tx')
+                            """, (src, launched_mint, sig, block_time))
+                            # Graph edges
+                            try:
+                                from src.analysis.watchtower_detector import upsert_graph_node, upsert_graph_edge
+                                upsert_graph_node(src, "LAUNCH_EXECUTOR", conn, state="LAUNCHED")
+                                upsert_graph_edge(src, _WT_PUMPFUN_FEE, "created", conn,
+                                                  amount_sol=amt, tx_sig=sig, block_time=block_time)
+                            except Exception:
+                                pass
+                        continue  # skip legacy staged-wallet logic for corridor wallets
+
+                    # ── Legacy staged-wallet handling (pre-corridor wallets) ────────
+                    staged = conn.execute(
+                        "SELECT state FROM wt_staged_wallets WHERE wallet_address=?", (src,)
+                    ).fetchone()
+                    if staged and staged["state"] == "DORMANT_FUNDED":
+                        conn.execute("""
+                            UPDATE wt_staged_wallets SET state='ACTIVATED', first_move_at=?, first_move_sig=?
+                            WHERE wallet_address=?
+                        """, (block_time, sig, src))
+
+                    if dest == _WT_PUMPFUN_FEE and amt > 0:
+                        launched_mint = None
+                        for tt in (tx.get("tokenTransfers") or []):
+                            m = tt.get("mint") or tt.get("token")
+                            if m and m != src:
+                                launched_mint = m
+                                break
+                        conn.execute("""
+                            UPDATE wt_staged_wallets
+                            SET state='LAUNCHED', first_move_at=?, first_move_sig=?,
+                                first_move_type='pumpfun_create'
+                            WHERE wallet_address=?
+                        """, (block_time, sig, src))
+                        if launched_mint:
+                            conn.execute("""
+                                INSERT OR IGNORE INTO wt_creator_launches
+                                    (creator_wallet, mint_address, launch_tx, launched_at,
+                                     launch_platform, evidence_grade, evidence_basis)
+                                VALUES (?, ?, ?, ?, 'pump_fun', 'STRONG', 'candidate_webhook_fee_account_tx')
+                            """, (src, launched_mint, sig, block_time))
+                            try:
+                                from src.analysis.watchtower_detector import upsert_graph_node, upsert_graph_edge
+                                upsert_graph_node(src, "CREATOR", conn, state="LAUNCHED")
+                                upsert_graph_edge(src, _WT_PUMPFUN_FEE, "created", conn,
+                                                  amount_sol=amt, tx_sig=sig, block_time=block_time)
+                            except Exception:
+                                pass
+
+                        seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                        conn.execute("""
+                            INSERT OR IGNORE INTO watchtower_events
+                                (event_sequence, event_type, wallet_address, token_mint,
+                                 payload_json, source, created_at)
+                            VALUES (?, 'PUMPFUN_CREATE_CONFIRMED', ?, ?, ?, 'candidate_webhook', ?)
+                        """, (seq, src, launched_mint,
+                              json.dumps({"sig": sig, "amount_sol": amt,
+                                          "mint": launched_mint, "block_time": block_time}),
+                              block_time))
+                        print(f"[WT-CANDIDATE] 🚀 LAUNCH CONFIRMED {src[:20]}… mint={str(launched_mint)[:20]}…", flush=True)
+                        _wt_candidate_set.discard(src)
+
+            conn.commit()
+            conn.close()
+        except Exception as exc:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            print(f"[WT-CANDIDATE] handler error: {exc}", flush=True)
+    except Exception as e:
+        print(f"[WT-CANDIDATE] outer error: {e}", flush=True)
+
+
+@app.route('/api/webhook/watchtower-candidate', methods=['POST'])
+def webhook_watchtower_candidate():
+    """Enqueue candidate webhook payload and return 200 immediately."""
+    try:
+        payload = request.get_json(silent=True)
+        if not payload:
+            return "ok", 200
+        if isinstance(payload, dict):
+            payload = [payload]
+        if not isinstance(payload, list):
+            return "ok", 200
+        try:
+            _wt_candidate_queue.put_nowait(payload)
+        except _queue_mod.Full:
+            print("[WT-CANDIDATE] queue full — dropping payload", flush=True)
+    except Exception as e:
+        print(f"[WT-CANDIDATE] enqueue error: {e}", flush=True)
+    return "ok", 200
+
+
+@app.route('/api/watchtower/fee-payers')
+def api_watchtower_fee_payers():
+    """Paginated list of confirmed WATCHTOWER creators (fingerprint-confirmed) and their next-round child wallets."""
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("per_page", 100)), 500)
+        offset = (page - 1) * per_page
+        # creator_type: 'confirmed' (115 fingerprint creators) | 'child' (266 next-round wallets) | '' (all)
+        creator_type = request.args.get("creator_type", "").strip()
+        state_filter = request.args.get("state", "").strip()
+
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        # Confirmed set: 115 fingerprint creators + 266 children they funded
+        # Source of truth is creator_risk_scores.watchtower_related=1, NOT watchtower_fee_payers
+        _CONFIRMED_CREATORS = """
+            SELECT creator_address AS address, 'confirmed' AS creator_type, NULL AS parent_operator
+            FROM creator_risk_scores
+            WHERE watchtower_related = 1
+        """
+        _CHILD_WALLETS = """
+            SELECT wog.child_address AS address, 'child' AS creator_type,
+                   wog.operator_address AS parent_operator
+            FROM watchtower_operator_graph wog
+            WHERE wog.operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+              AND wog.relationship = 'launch_wallet'
+        """
+        if creator_type == "confirmed":
+            _BASE = _CONFIRMED_CREATORS
+        elif creator_type == "child":
+            _BASE = _CHILD_WALLETS
+        else:
+            _BASE = f"{_CONFIRMED_CREATORS} UNION {_CHILD_WALLETS}"
+
+        state_where = "AND wws.state = ?" if state_filter else ""
+        state_params = (state_filter,) if state_filter else ()
+
+        total = conn.execute(
+            f"SELECT COUNT(DISTINCT base.address) FROM ({_BASE}) base "
+            f"LEFT JOIN watchtower_wallet_state wws ON wws.address = base.address "
+            f"WHERE 1=1 {state_where}",
+            state_params,
+        ).fetchone()[0]
+
+        rows = conn.execute(
+            f"""
+            WITH base AS ({_BASE}),
+            confirmed AS (SELECT address FROM base),
+            token_agg AS (
+                SELECT earliest_tx_creator AS creator,
+                       COUNT(*) AS token_count,
+                       MIN(migrated_at) AS first_migrated_at,
+                       MAX(migrated_at) AS last_migrated_at
+                FROM token_analysis
+                WHERE earliest_tx_creator IN (SELECT address FROM confirmed)
+                GROUP BY earliest_tx_creator
+            ),
+            child_agg AS (
+                SELECT operator_address, COUNT(*) AS child_count
+                FROM watchtower_operator_graph
+                WHERE relationship = 'launch_wallet'
+                GROUP BY operator_address
+            )
+            SELECT base.address, base.creator_type, base.parent_operator,
+                   crs.watchtower_evidence_json,
+                   wws.state, wws.state_changed_at,
+                   wfp.first_seen_at, wfp.last_seen_at, wfp.tx_count, wfp.total_sol_sent,
+                   COALESCE(ta.token_count, 0)      AS token_count,
+                   ta.first_migrated_at,
+                   ta.last_migrated_at,
+                   COALESCE(ca.child_count, 0)      AS child_count
+            FROM base
+            LEFT JOIN creator_risk_scores crs ON crs.creator_address = base.address
+            LEFT JOIN watchtower_wallet_state wws ON wws.address = base.address
+            LEFT JOIN watchtower_fee_payers wfp ON wfp.address = base.address
+            LEFT JOIN token_agg ta ON ta.creator = base.address
+            LEFT JOIN child_agg ca ON ca.operator_address = base.address
+            WHERE 1=1 {state_where}
+            ORDER BY ta.last_migrated_at DESC NULLS LAST, ta.first_migrated_at DESC NULLS LAST
+            LIMIT ? OFFSET ?
+            """,
+            (*state_params, per_page, offset),
+        ).fetchall()
+        conn.close()
+
+        results = []
+        for row in rows:
+            evidence = json.loads(row["watchtower_evidence_json"]) if row["watchtower_evidence_json"] else []
+            results.append({
+                "address":          row["address"],
+                "creator_type":     row["creator_type"],   # 'confirmed' | 'child'
+                "parent_operator":  row["parent_operator"],
+                "state":            row["state"],
+                "state_changed_at": row["state_changed_at"],
+                "first_seen_at":    row["first_seen_at"],
+                "last_seen_at":     row["last_seen_at"],
+                "tx_count":         row["tx_count"] or 0,
+                "total_sol_sent":   row["total_sol_sent"] or 0,
+                "token_count":      row["token_count"] or 0,
+                "child_count":      row["child_count"] or 0,
+                "first_migrated_at": row["first_migrated_at"],
+                "last_migrated_at":  row["last_migrated_at"],
+                "evidence_rules":   [e["rule"] for e in evidence if e.get("strength") == "strong"],
+                "watchtower_related": row["creator_type"] == "confirmed",
+            })
+        return jsonify({"total": total, "page": page, "per_page": per_page, "results": results})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/sweep-events')
+def api_watchtower_sweep_events():
+    """Recent WATCHTOWER sweep events received via webhook."""
+    try:
+        limit = min(int(request.args.get("limit", 50)), 200)
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        rows = conn.execute(
+            "SELECT signature, block_time, payer_count, total_sol, received_at "
+            "FROM watchtower_sweep_events ORDER BY received_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        conn.close()
+        return jsonify({"results": [dict(r) for r in rows]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ---------------------------------------------------------------------------
+# WATCHTOWER operator-centric endpoints
+# ---------------------------------------------------------------------------
+
+@app.route('/api/watchtower/operator-stats')
+def api_watchtower_operator_stats():
+    """Lifecycle state breakdown for all WATCHTOWER operators."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        # Confirmed set only — 115 fingerprint creators + 266 child wallets
+        confirmed_addrs = """
+            SELECT creator_address AS address FROM creator_risk_scores WHERE watchtower_related = 1
+            UNION
+            SELECT child_address FROM watchtower_operator_graph
+            WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+              AND relationship = 'launch_wallet'
+        """
+        total_confirmed = conn.execute(f"SELECT COUNT(DISTINCT address) FROM ({confirmed_addrs})").fetchone()[0]
+        total_children = conn.execute(
+            "SELECT COUNT(DISTINCT child_address) FROM watchtower_operator_graph "
+            "WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1) "
+            "AND relationship = 'launch_wallet'"
+        ).fetchone()[0]
+
+        state_counts = {}
+        for row in conn.execute(
+            f"SELECT wws.state, COUNT(*) as cnt FROM watchtower_wallet_state wws "
+            f"WHERE wws.address IN ({confirmed_addrs}) GROUP BY wws.state"
+        ).fetchall():
+            state_counts[row["state"]] = row["cnt"]
+
+        # Confirmed with no state entry = provisioned
+        unseeded = conn.execute(
+            f"SELECT COUNT(*) FROM ({confirmed_addrs}) base "
+            f"WHERE NOT EXISTS (SELECT 1 FROM watchtower_wallet_state wws WHERE wws.address = base.address)"
+        ).fetchone()[0]
+        if unseeded:
+            state_counts["provisioned"] = state_counts.get("provisioned", 0) + unseeded
+
+        recently_changed = []
+        for row in conn.execute(
+            f"SELECT wws.address, wws.state, wws.state_changed_at "
+            f"FROM watchtower_wallet_state wws "
+            f"WHERE wws.address IN ({confirmed_addrs}) AND wws.state_changed_at IS NOT NULL "
+            f"ORDER BY wws.state_changed_at DESC LIMIT 20"
+        ).fetchall():
+            recently_changed.append(dict(row))
+
+        conn.close()
+        return jsonify({
+            "total_operators": total_confirmed,
+            "total_confirmed_creators": total_confirmed - total_children,
+            "total_next_round_wallets": total_children,
+            "by_state": state_counts,
+            "recently_changed": recently_changed,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operator/<address>')
+def api_watchtower_operator(address: str):
+    """Single operator detail: state, evidence, downstream graph, tokens launched."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        fp = conn.execute(
+            "SELECT * FROM watchtower_fee_payers WHERE address = ?", (address,)
+        ).fetchone()
+        state = conn.execute(
+            "SELECT * FROM watchtower_wallet_state WHERE address = ?", (address,)
+        ).fetchone()
+        crs = conn.execute(
+            "SELECT watchtower_related, watchtower_evidence_json FROM creator_risk_scores "
+            "WHERE creator_address = ?", (address,)
+        ).fetchone()
+        graph = conn.execute(
+            "SELECT child_address, relationship, amount_sol, first_seen_at, hop "
+            "FROM watchtower_operator_graph WHERE operator_address = ? ORDER BY first_seen_at DESC",
+            (address,)
+        ).fetchall()
+        tokens = conn.execute(
+            "SELECT ta.mint, COALESCE(mc.symbol, mc.name, ta.mint) as token_name, "
+            "ta.lifecycle_stage, ta.market_cap_highest, ta.created_at "
+            "FROM token_analysis ta "
+            "LEFT JOIN metadata_cache mc ON mc.mint = ta.mint "
+            "WHERE COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) = ? "
+            "ORDER BY ta.created_at DESC",
+            (address,)
+        ).fetchall()
+        # Also find tokens launched by child wallets funded by this operator
+        launch_wallet_tokens = conn.execute(
+            "SELECT ta.mint, COALESCE(mc.symbol, mc.name, ta.mint) as token_name, "
+            "ta.lifecycle_stage, ta.market_cap_highest, ta.created_at, wog.child_address as via_wallet "
+            "FROM watchtower_operator_graph wog "
+            "JOIN token_analysis ta ON COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) = wog.child_address "
+            "LEFT JOIN metadata_cache mc ON mc.mint = ta.mint "
+            "WHERE wog.operator_address = ? AND wog.relationship = 'launch_wallet' "
+            "ORDER BY ta.created_at DESC",
+            (address,)
+        ).fetchall()
+        # Count launch_wallet children as proxy launches when no direct token records
+        launch_wallet_children = [dict(r) for r in graph if r["relationship"] == "launch_wallet"]
+        # Upstream: who funded this operator
+        _wt_infra = (
+            "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",  # TREASURY
+            "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1",  # TREASURY-UP
+            "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM",  # SIGNALLER
+            "4LpEjcq3PwkE9Hwt1xLdYHCxyNYB13wEahUPCRkzZa9Q",  # PROFIT-RELAY-1
+            "7UyCwmSUcG7utdSPikn5caL9QwbEnAs1aDcbdWvGs37A",  # PROFIT-RELAY-2
+        )
+        funders = conn.execute(
+            "SELECT cf.funder_address, cf.amount_sol, "
+            "CASE WHEN cf.funder_address IN ({}) THEN 1 ELSE 0 END as is_infra "
+            "FROM creator_funders cf WHERE cf.creator_address = ? "
+            "ORDER BY cf.amount_sol DESC LIMIT 10".format(
+                ",".join(f"'{a}'" for a in _wt_infra)
+            ),
+            (address,)
+        ).fetchall()
+        conn.close()
+
+        return jsonify({
+            "address": address,
+            "fee_payer": dict(fp) if fp else None,
+            "state": dict(state) if state else None,
+            "watchtower_related": bool(crs and crs["watchtower_related"]),
+            "evidence": json.loads(crs["watchtower_evidence_json"]) if crs and crs["watchtower_evidence_json"] else [],
+            "downstream_graph": [dict(r) for r in graph],
+            "tokens_launched": [dict(r) for r in tokens],
+            "launch_wallet_tokens": [dict(r) for r in launch_wallet_tokens],
+            "launch_wallet_count": len(launch_wallet_children),
+            "upstream_funders": [{"address": r["funder_address"], "amount_sol": r["amount_sol"], "is_infra": bool(r["is_infra"])} for r in funders],
+            "fee_collector": None,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+_WT_INFRA_ADDRS = (
+    "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM",
+    "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",
+    "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1",
+)
+
+
+@app.route('/api/watchtower/launch-candidates')
+def api_watchtower_launch_candidates():
+    """
+    Merged next-round wallet list:
+      1. treasury_funded candidates (high confidence, TREASURY directly funded them)
+      2. signaller_dust / signaller_treasury_chain candidates
+      3. funded_child wallets from operator graph (child wallets from confirmed creators)
+    Sorted by last_signal_at DESC. Excludes infra addresses and confirmed creators.
+    """
+    try:
+        page     = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("per_page", 50)), 200)
+        offset   = (page - 1) * per_page
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        infra_placeholders = ",".join("?" * len(_WT_INFRA_ADDRS))
+
+        # Priority order: treasury_funded first, then signaller signals, then funded_child/post_fee_fanout
+        _PRIORITY = """
+            CASE candidate_reason
+                WHEN 'treasury_funded' THEN 1
+                WHEN 'signaller_treasury_chain' THEN 2
+                WHEN 'signaller_dust' THEN 3
+                WHEN 'funded_child' THEN 4
+                ELSE 5
+            END
+        """
+
+        base_where = f"""
+            address NOT IN ({infra_placeholders})
+            AND address NOT IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+        """
+
+        total = conn.execute(
+            f"SELECT COUNT(*) FROM watchtower_launch_candidates WHERE {base_where}",
+            _WT_INFRA_ADDRS,
+        ).fetchone()[0]
+
+        rows = conn.execute(
+            f"""SELECT wlc.*,
+                       COALESCE(json_extract(wlc.evidence_json,'$.amount_sol'), 0) AS amount_sol,
+                       ta_agg.token_count, ta_agg.last_migrated_at
+                FROM watchtower_launch_candidates wlc
+                LEFT JOIN (
+                    SELECT earliest_tx_creator AS creator,
+                           COUNT(*) AS token_count,
+                           MAX(migrated_at) AS last_migrated_at
+                    FROM token_analysis
+                    GROUP BY earliest_tx_creator
+                ) ta_agg ON ta_agg.creator = wlc.address
+                WHERE {base_where}
+                ORDER BY {_PRIORITY}, wlc.last_signal_at DESC
+                LIMIT ? OFFSET ?""",
+            (*_WT_INFRA_ADDRS, per_page, offset),
+        ).fetchall()
+        conn.close()
+        results = []
+        for r in rows:
+            d = dict(r)
+            d["token_count"] = d.get("token_count") or 0
+            results.append(d)
+        return jsonify({
+            "total": total, "page": page, "per_page": per_page,
+            "results": results,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/raydium-launches')
+def api_watchtower_raydium_launches():
+    """Direct Raydium pool creations linked to WATCHTOWER operators."""
+    try:
+        page     = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("per_page", 50)), 200)
+        offset   = (page - 1) * per_page
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+        total = conn.execute("SELECT COUNT(*) FROM watchtower_raydium_launches").fetchone()[0]
+        rows  = conn.execute(
+            "SELECT * FROM watchtower_raydium_launches ORDER BY detected_at DESC LIMIT ? OFFSET ?",
+            (per_page, offset)
+        ).fetchall()
+        conn.close()
+        return jsonify({
+            "total": total, "page": page, "per_page": per_page,
+            "results": [dict(r) for r in rows],
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/scan-operator/<address>', methods=['POST'])
+def api_watchtower_scan_operator(address: str):
+    """Trigger an on-demand 2-hop downstream scan for a WATCHTOWER operator."""
+    def _run():
+        try:
+            from src.analysis.watchtower_operator_scanner import scan_operator_downstream
+            result = scan_operator_downstream(address, DB_PATH)
+            print(f"[WATCHTOWER] on-demand scan {address[:20]}…: {result}", flush=True)
+        except Exception as exc:
+            print(f"[WATCHTOWER] on-demand scan error {address[:20]}…: {exc}", flush=True)
+    import threading as _thr
+    _thr.Thread(target=_run, daemon=True, name="wt-ondemand-scan").start()
+    return jsonify({"status": "queued", "address": address})
+
+
+@app.route('/api/watchtower/seed-states', methods=['POST'])
+def api_watchtower_seed_states():
+    """Seed watchtower_wallet_state for all fee payers that have no state row."""
+    try:
+        from src.core.db_write_queue import enqueue_write, WriteItem
+        accepted = enqueue_write(WriteItem(
+            domain="poller",
+            label="seed_wallet_states",
+            statements=[("""
+                INSERT OR IGNORE INTO watchtower_wallet_state (address, state, state_changed_at, updated_at)
+                SELECT creator_address, 'operational', strftime('%s','now'), strftime('%s','now')
+                FROM creator_risk_scores
+                WHERE watchtower_related = 1
+                  AND creator_address NOT IN (SELECT address FROM watchtower_wallet_state)
+                UNION ALL
+                SELECT child_address, 'provisioned', strftime('%s','now'), strftime('%s','now')
+                FROM watchtower_operator_graph
+                WHERE operator_address IN (SELECT creator_address FROM creator_risk_scores WHERE watchtower_related = 1)
+                  AND relationship = 'launch_wallet'
+                  AND child_address NOT IN (SELECT address FROM watchtower_wallet_state)
+            """, [])],
+            idempotency_key="seed_wallet_states",
+        ))
+        return jsonify({"status": "queued" if accepted else "rejected"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/reconcile', methods=['POST'])
+def api_watchtower_reconcile():
+    """Fetch recent txs to WATCHTOWER address via RPC and backfill any missed fee payments."""
+    def _run():
+        try:
+            import requests as _req
+            rpc_url = os.getenv("HELIUS_RPC_URL", "")
+            if not rpc_url:
+                print("[WATCHTOWER_RECONCILE] No RPC URL", flush=True)
+                return
+
+            # Get last known signature to use as lower bound
+            conn = db_connect(DB_PATH, timeout=10)
+            conn.row_factory = sqlite3.Row
+            last_sig = conn.execute(
+                "SELECT signature FROM watchtower_sweep_events ORDER BY block_time DESC LIMIT 1"
+            ).fetchone()
+            last_sig = last_sig["signature"] if last_sig else None
+
+            # Paginate through all signatures newer than last_sig
+            all_sigs = []
+            before = None
+            while True:
+                params = {"limit": 1000}
+                if last_sig:
+                    params["until"] = last_sig
+                if before:
+                    params["before"] = before
+                payload = {"jsonrpc":"2.0","id":1,"method":"getSignaturesForAddress",
+                           "params":[WATCHTOWER_ADDR, params]}
+                resp = _req.post(rpc_url, json=payload, timeout=30)
+                page = resp.json().get("result", [])
+                if not page:
+                    break
+                all_sigs.extend(page)
+                if len(page) < 1000:
+                    break
+                before = page[-1].get("signature")
+            sigs = all_sigs
+
+            new_count = 0
+            for s in sigs:
+                sig = s.get("signature")
+                if not sig:
+                    continue
+                # Check if already recorded
+                exists = conn.execute("SELECT 1 FROM watchtower_sweep_events WHERE signature=?", (sig,)).fetchone()
+                if exists:
+                    continue
+                # Fetch full tx
+                tx_resp = _req.post(rpc_url, json={"jsonrpc":"2.0","id":1,"method":"getTransaction",
+                    "params":[sig,{"encoding":"jsonParsed","maxSupportedTransactionVersion":0}]}, timeout=15)
+                tx = tx_resp.json().get("result")
+                if not tx:
+                    continue
+                block_time = tx.get("blockTime") or int(time.time())
+                meta = tx.get("meta", {})
+                pre  = meta.get("preBalances", [])
+                post = meta.get("postBalances", [])
+                accs = (tx.get("transaction",{}).get("message",{}).get("accountKeys") or [])
+                accs = [a.get("pubkey","") if isinstance(a,dict) else a for a in accs]
+
+                fee_transfers = []
+                for i, acc in enumerate(accs):
+                    if acc == WATCHTOWER_ADDR and i < len(pre) and i < len(post):
+                        delta = (post[i] - pre[i]) / 1e9
+                        if delta > 0:
+                            # Find sender (largest negative delta)
+                            sender = None
+                            for j, a in enumerate(accs):
+                                if a != WATCHTOWER_ADDR and j < len(pre) and j < len(post) and post[j] < pre[j]:
+                                    sender = a
+                                    break
+                            if sender:
+                                fee_transfers.append((sender, delta))
+
+                if not fee_transfers:
+                    continue
+
+                conn.execute(
+                    "INSERT OR IGNORE INTO watchtower_sweep_events (signature, block_time, payer_count, total_sol) VALUES (?,?,?,?)",
+                    (sig, block_time, len(fee_transfers), sum(a for _,a in fee_transfers))
+                )
+                for payer_addr, amount_sol in fee_transfers:
+                    conn.execute("""
+                        INSERT INTO watchtower_fee_payers
+                            (address, first_seen_at, last_seen_at, tx_count, total_sol_sent, first_sig, last_sig)
+                        VALUES (?, ?, ?, 1, ?, ?, ?)
+                        ON CONFLICT(address) DO UPDATE SET
+                            last_seen_at=excluded.last_seen_at, last_sig=excluded.last_sig,
+                            tx_count=tx_count+1, total_sol_sent=total_sol_sent+excluded.total_sol_sent
+                    """, (payer_addr, block_time, block_time, amount_sol, sig, sig))
+                conn.commit()
+                new_count += 1
+                print(f"[WATCHTOWER_RECONCILE] Backfilled missed tx {sig[:20]}… {len(fee_transfers)} payers", flush=True)
+
+            conn.close()
+            print(f"[WATCHTOWER_RECONCILE] Done — {new_count} missed txs backfilled", flush=True)
+        except Exception as exc:
+            print(f"[WATCHTOWER_RECONCILE] Error: {exc}", flush=True)
+
+    import threading as _thr
+    _thr.Thread(target=_run, daemon=True, name="wt-reconcile").start()
+    return jsonify({"status": "reconcile started"})
+
+
+@app.route('/api/watchtower/corridors')
+def api_watchtower_corridors():
+    """
+    Launch corridor state: active CORRIDOR_ACTIVE wallets + recent resolutions (last 24h).
+    Returns summary counts, active corridors with F5M countdown, and resolved breakdown.
+    """
+    try:
+        now = int(time.time())
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        # Summary counts by state
+        state_rows = conn.execute(
+            "SELECT state, COUNT(*) as cnt FROM wt_launch_corridors GROUP BY state"
+        ).fetchall()
+        state_counts = {r["state"]: r["cnt"] for r in state_rows}
+
+        # Active corridors with F5M countdown
+        active = conn.execute("""
+            SELECT wallet_address, treasury_ts, treasury_sol, signaller_ts,
+                   signaller_lag_s, f5m_expires_at, enrolled_at, state
+            FROM wt_launch_corridors
+            WHERE state = 'CORRIDOR_ACTIVE'
+            ORDER BY signaller_ts DESC
+        """).fetchall()
+
+        active_list = []
+        for r in active:
+            expires = r["f5m_expires_at"] or 0
+            active_list.append({
+                "wallet":          r["wallet_address"],
+                "treasury_ts":     r["treasury_ts"],
+                "treasury_sol":    r["treasury_sol"],
+                "signaller_lag_s": r["signaller_lag_s"],
+                "f5m_expires_at":  expires,
+                "f5m_remaining_s": max(0, expires - now),
+                "enrolled_at":     r["enrolled_at"],
+            })
+
+        # Recent resolutions — last 24h
+        since = now - 86400
+        resolved = conn.execute("""
+            SELECT wallet_address, state, treasury_sol, signaller_lag_s,
+                   first_tx_dest, first_tx_program, mint_address,
+                   corridor_resolved_at
+            FROM wt_launch_corridors
+            WHERE corridor_resolved_at >= ?
+              AND state NOT IN ('AWAITING_SIGNALLER', 'CORRIDOR_ACTIVE')
+            ORDER BY corridor_resolved_at DESC
+            LIMIT 100
+        """, (since,)).fetchall()
+
+        resolved_list = [dict(r) for r in resolved]
+
+        # Resolution breakdown counts (last 24h)
+        breakdown_rows = conn.execute("""
+            SELECT state, COUNT(*) as cnt
+            FROM wt_launch_corridors
+            WHERE corridor_resolved_at >= ?
+              AND state NOT IN ('AWAITING_SIGNALLER', 'CORRIDOR_ACTIVE')
+            GROUP BY state
+        """, (since,)).fetchall()
+        resolution_breakdown = {r["state"]: r["cnt"] for r in breakdown_rows}
+
+        conn.close()
+        return jsonify({
+            "state_counts":         state_counts,
+            "active_corridors":     active_list,
+            "resolved_24h":         resolved_list,
+            "resolution_breakdown": resolution_breakdown,
+            "generated_at":         now,
+        })
+    except Exception as e:
+        logger.exception("api_watchtower_corridors error")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/swarm-corridors')
+def api_watchtower_swarm_corridors():
+    """
+    Swarm corridor state: coordinated buyer deployment waves.
+    Returns active/recent SWARM corridors with lifecycle metrics.
+    """
+    try:
+        now = int(time.time())
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        state_rows = conn.execute(
+            "SELECT state, COUNT(*) as cnt FROM wt_swarm_corridors GROUP BY state"
+        ).fetchall()
+        state_counts = {r["state"]: r["cnt"] for r in state_rows}
+
+        active = conn.execute("""
+            SELECT provisioner_wallet, treasury_ts, treasury_sol, wallet_count,
+                   median_fanout_sol, fanout_duration_s, fanout_started_at,
+                   target_token_count, primary_token_mint, state,
+                   coordinated_exit_detected, sweepback_detected, treasury_recycle_detected,
+                   recycle_sol, recycle_ts, created_at
+            FROM wt_swarm_corridors
+            WHERE state NOT IN ('SWARM_RECYCLE_COMPLETE', 'ABORTED')
+            ORDER BY treasury_ts DESC
+            LIMIT 50
+        """).fetchall()
+
+        recent = conn.execute("""
+            SELECT provisioner_wallet, treasury_ts, treasury_sol, wallet_count,
+                   median_fanout_sol, state, primary_token_mint,
+                   recycle_sol, recycle_ts, treasury_recycle_detected
+            FROM wt_swarm_corridors
+            WHERE state IN ('SWARM_RECYCLE_COMPLETE', 'ABORTED')
+              AND created_at >= ?
+            ORDER BY treasury_ts DESC
+            LIMIT 20
+        """, (now - 86400 * 7,)).fetchall()
+
+        conn.close()
+        return jsonify({
+            "state_counts":   state_counts,
+            "active":         [dict(r) for r in active],
+            "recent_closed":  [dict(r) for r in recent],
+            "generated_at":   now,
+        })
+    except Exception as e:
+        logger.exception("api_watchtower_swarm_corridors error")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/relay-telemetry')
+def api_watchtower_relay_telemetry():
+    """
+    Tier 2 relay telemetry from wt_infra_telemetry_buckets.
+    Returns per-bucket aggregates and current epoch state per relay.
+    """
+    try:
+        window_minutes    = int(request.args.get('window_minutes', 60))
+        bucket_size_min   = int(request.args.get('bucket_size_minutes', 5))
+        wallet_filter     = request.args.get('wallet_address', '')
+        since_bucket      = ((int(time.time()) - window_minutes * 60) // 60) * 60
+
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        # Per-relay summary in window
+        where = "WHERE minute_bucket >= ?" + (" AND wallet_address=?" if wallet_filter else "")
+        args  = [since_bucket] + ([wallet_filter] if wallet_filter else [])
+
+        relays = conn.execute(f"""
+            SELECT
+                wallet_address, role,
+                SUM(hit_count)              AS total_hits,
+                SUM(unique_counterparties)  AS total_counterparties,
+                SUM(total_sol)              AS total_sol,
+                MAX(max_tx_sol)             AS max_tx_sol,
+                MAX(burst_score)            AS peak_burst,
+                MIN(minute_bucket)          AS first_bucket,
+                MAX(minute_bucket)          AS last_bucket,
+                COUNT(*)                    AS bucket_count
+            FROM wt_infra_telemetry_buckets
+            {where}
+            GROUP BY wallet_address, role
+            ORDER BY total_hits DESC
+        """, args).fetchall()
+
+        # Epoch state per relay based on last-5min hit rate
+        recent_since = ((int(time.time()) - 300) // 60) * 60
+        recent = conn.execute(f"""
+            SELECT wallet_address, SUM(hit_count) AS hits_5m, SUM(total_sol) AS sol_5m
+            FROM wt_infra_telemetry_buckets
+            WHERE minute_bucket >= ?{' AND wallet_address=?' if wallet_filter else ''}
+            GROUP BY wallet_address
+        """, [recent_since] + ([wallet_filter] if wallet_filter else [])).fetchall()
+        recent_map = {r["wallet_address"]: dict(r) for r in recent}
+
+        # Time-series buckets (grouped by bucket_size_min)
+        buckets = conn.execute(f"""
+            SELECT
+                (minute_bucket / ?) * ? AS bucket,
+                wallet_address,
+                SUM(hit_count)          AS hits,
+                SUM(total_sol)          AS sol,
+                SUM(unique_counterparties) AS counterparties
+            FROM wt_infra_telemetry_buckets
+            {where}
+            GROUP BY bucket, wallet_address
+            ORDER BY bucket DESC
+            LIMIT 500
+        """, [bucket_size_min * 60, bucket_size_min * 60] + args).fetchall()
+
+        conn.close()
+
+        def _epoch(hits_5m):
+            if hits_5m >= 100: return "EXTRACTION_WAVE"
+            if hits_5m >= 20:  return "ESCALATING"
+            if hits_5m >= 2:   return "ACTIVE"
+            return "QUIET"
+
+        result = []
+        for r in relays:
+            wa = r["wallet_address"]
+            rec = recent_map.get(wa, {})
+            hits_5m = rec.get("hits_5m", 0) or 0
+            result.append({
+                "wallet_address":      wa,
+                "role":                r["role"],
+                "total_hits":          r["total_hits"],
+                "total_counterparties":r["total_counterparties"],
+                "total_sol":           r["total_sol"],
+                "max_tx_sol":          r["max_tx_sol"],
+                "peak_burst":          r["peak_burst"],
+                "hits_5m":             hits_5m,
+                "sol_5m":              rec.get("sol_5m", 0),
+                "epoch_state":         _epoch(hits_5m),
+                "last_active_at":      r["last_bucket"],
+            })
+
+        return jsonify({
+            "ok":             True,
+            "window_minutes": window_minutes,
+            "relays":         result,
+            "buckets":        [dict(b) for b in buckets],
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/ops-overview')
+def api_watchtower_ops_overview():
+    """
+    Single endpoint returning all data for the OPS Overview page.
+    Computes operational state, staleness, campaign summaries, extraction
+    metrics, and treasury activity server-side to avoid partial-state drift.
+    """
+    try:
+        now = int(time.time())
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.row_factory = sqlite3.Row
+
+        # ── 1. EXTRACTION / RELAY TELEMETRY ───────────────────────────────
+        window_1h  = now - 3600
+        window_5m  = now - 300
+        window_24h = now - 86400
+
+        relay_rows = conn.execute("""
+            SELECT wallet_address, role,
+                   SUM(hit_count)             AS total_hits,
+                   SUM(total_sol)             AS total_sol,
+                   SUM(unique_counterparties) AS total_cps,
+                   MAX(max_tx_sol)            AS max_tx_sol,
+                   MAX(minute_bucket)         AS last_bucket_ts,
+                   SUM(CASE WHEN minute_bucket >= ? THEN hit_count ELSE 0 END) AS hits_1h,
+                   SUM(CASE WHEN minute_bucket >= ? THEN hit_count ELSE 0 END) AS hits_5m,
+                   SUM(CASE WHEN minute_bucket >= ? THEN total_sol  ELSE 0 END) AS sol_1h
+            FROM wt_infra_telemetry_buckets
+            GROUP BY wallet_address, role
+        """, (window_1h // 60 * 60, window_5m // 60 * 60, window_1h // 60 * 60)).fetchall()
+
+        relays = []
+        total_sweeps_5m = 0
+        total_sol_relays = 0.0
+        last_relay_active = 0
+        for r in relay_rows:
+            hits_5m = r['hits_5m'] or 0
+            total_sweeps_5m += hits_5m
+            total_sol_relays += r['total_sol'] or 0.0
+            last_ts = (r['last_bucket_ts'] or 0) * 60
+            if last_ts > last_relay_active:
+                last_relay_active = last_ts
+            epoch = 'QUIET'
+            if hits_5m > 100:   epoch = 'EXTRACTION_WAVE'
+            elif hits_5m > 20:  epoch = 'ESCALATING'
+            elif hits_5m > 2:   epoch = 'ACTIVE'
+            relays.append({
+                'address':     r['wallet_address'],
+                'role':        r['role'],
+                'hits_5m':     hits_5m,
+                'hits_1h':     r['hits_1h'] or 0,
+                'total_hits':  r['total_hits'] or 0,
+                'total_sol':   round(r['total_sol'] or 0, 3),
+                'sol_1h':      round(r['sol_1h'] or 0, 3),
+                'max_tx_sol':  round(r['max_tx_sol'] or 0, 3),
+                'epoch':       epoch,
+                'last_active': last_ts,
+                'last_active_age_s': now - last_ts if last_ts else None,
+            })
+        relays.sort(key=lambda x: x['hits_5m'], reverse=True)
+
+        # counterparties
+        cp_counts = conn.execute("""
+            SELECT discovery_state, COUNT(*) n, ROUND(SUM(total_sol),2) sol
+            FROM wt_relay_counterparties GROUP BY discovery_state
+        """).fetchall()
+        cp_summary = {r['discovery_state']: {'n': r['n'], 'sol': r['sol']} for r in cp_counts}
+
+        # ── 2. TREASURY / INFRA EVENTS ────────────────────────────────────
+        treasury_row = conn.execute("""
+            SELECT COUNT(*) n,
+                   MAX(block_time) last_ts,
+                   SUM(CASE WHEN block_time >= ? THEN amount_sol ELSE 0 END) sol_24h,
+                   SUM(CASE WHEN block_time >= ? THEN amount_sol ELSE 0 END) sol_1h
+            FROM watchtower_infra_events
+            WHERE infra_role='TREASURY' AND direction='outbound'
+        """, (window_24h, window_1h)).fetchone()
+        treasury_last_ts   = treasury_row['last_ts'] or 0
+        treasury_sol_24h   = round(treasury_row['sol_24h'] or 0, 3)
+        treasury_sol_1h    = round(treasury_row['sol_1h'] or 0, 3)
+        treasury_age_s     = now - treasury_last_ts if treasury_last_ts else None
+
+        signaller_row = conn.execute("""
+            SELECT COUNT(*) n, MAX(block_time) last_ts,
+                   SUM(CASE WHEN block_time >= ? THEN 1 ELSE 0 END) signals_24h
+            FROM watchtower_infra_events
+            WHERE infra_role='SIGNALLER' AND direction='outbound'
+        """, (window_24h,)).fetchone()
+
+        # provisioner activity
+        prov_rows = conn.execute("""
+            SELECT infra_address, infra_role,
+                   MAX(block_time) last_ts,
+                   COUNT(*) hits,
+                   SUM(amount_sol) sol
+            FROM watchtower_infra_events
+            WHERE infra_role IN ('SUB_PROV','TREASURY_UP')
+            GROUP BY infra_address, infra_role
+            ORDER BY MAX(block_time) DESC
+        """).fetchall()
+        provisioners = [{
+            'address':  r['infra_address'],
+            'role':     r['infra_role'],
+            'last_ts':  r['last_ts'],
+            'age_s':    now - r['last_ts'] if r['last_ts'] else None,
+            'hits':     r['hits'],
+            'sol':      round(r['sol'] or 0, 3),
+        } for r in prov_rows]
+
+        # ── 3. CANDIDATE PIPELINE ─────────────────────────────────────────
+        cand_total = conn.execute(
+            "SELECT COUNT(*) FROM wt_webhook_enrollments WHERE is_active=1"
+        ).fetchone()[0]
+
+        cand_scored = conn.execute("""
+            SELECT COUNT(*) FROM wt_webhook_enrollments we
+            JOIN creator_risk_scores crs ON crs.creator_address = we.wallet_address
+            WHERE we.is_active=1 AND crs.final_score >= 85
+        """).fetchone()[0]
+
+        cand_high_conf = conn.execute("""
+            SELECT COUNT(*) FROM wt_webhook_enrollments we
+            JOIN creator_risk_scores crs ON crs.creator_address = we.wallet_address
+            WHERE we.is_active=1 AND crs.final_score >= 95
+        """).fetchone()[0]
+
+        fee_touches_24h = conn.execute("""
+            SELECT COUNT(*) FROM wt_webhook_hits
+            WHERE source='candidate_webhook' AND is_fee_touch=1
+              AND created_at >= ?
+        """, (window_24h,)).fetchone()[0]
+
+        cand_last_hit_ts = conn.execute("""
+            SELECT MAX(created_at) FROM wt_webhook_hits WHERE source='candidate_webhook'
+        """).fetchone()[0] or 0
+
+        # ── 4. OPERATIONAL EVENTS ─────────────────────────────────────────
+        events_raw = conn.execute("""
+            SELECT event_type, wallet_address, token_mint, payload_json,
+                   source, created_at
+            FROM watchtower_events
+            ORDER BY created_at DESC LIMIT 50
+        """).fetchall()
+
+        events = []
+        for e in events_raw:
+            payload = {}
+            try:
+                payload = json.loads(e['payload_json'] or '{}')
+            except Exception:
+                pass
+            # Map internal event_type → operational semantic
+            raw_type = e['event_type'] or ''
+            sem = raw_type
+            if raw_type in ('SWARM_DEPLOYMENT_ACTIVE', 'SWARM_DEPLOYMENT_ESCALATING',
+                            'SWARM_EXTRACTION_ACTIVE', 'SWARM_RECYCLE_COMPLETE'): sem = raw_type
+            elif 'sweep' in raw_type or 'profit' in raw_type:  sem = 'SWEEP_EPOCH'
+            elif 'treasury' in raw_type:                        sem = 'TREASURY_FANOUT'
+            elif 'signal' in raw_type or 'dust' in raw_type:   sem = 'SIGNAL_DETECTED'
+            elif 'candidate' in raw_type or 'staged' in raw_type: sem = 'CANDIDATE_STAGED'
+            elif 'launch' in raw_type or 'fee' in raw_type:    sem = 'LAUNCH_DETECTED'
+            elif 'relay' in raw_type:                           sem = 'RELAY_ACTIVE'
+            elif 'swarm' in raw_type or 'trader' in raw_type:  sem = 'SWARM_ACTIVITY'
+            events.append({
+                'semantic':  sem,
+                'raw_type':  raw_type,
+                'wallet':    e['wallet_address'],
+                'mint':      e['token_mint'],
+                'payload':   payload,
+                'source':    e['source'],
+                'ts':        e['created_at'],
+                'age_s':     now - e['created_at'],
+            })
+
+        last_event_ts = events[0]['ts'] if events else 0
+        last_event_age_s = now - last_event_ts if last_event_ts else None
+
+        # ── 5. CAMPAIGN SUMMARIES ─────────────────────────────────────────
+        # Pull from wt_campaigns if populated, else infer from known provisioners
+        campaigns_db = conn.execute(
+            "SELECT * FROM wt_campaigns LIMIT 20"
+        ).fetchall() if conn.execute(
+            "SELECT COUNT(*) FROM wt_campaigns"
+        ).fetchone()[0] > 0 else []
+
+        # Infer campaigns from provisioner→treasury relationships
+        infra_campaigns = conn.execute("""
+            SELECT wlc.source_operator AS campaign_id,
+                   COUNT(DISTINCT wlc.address) creator_count,
+                   MAX(we.created_at) last_event_ts,
+                   COUNT(DISTINCT we.id) event_count
+            FROM watchtower_launch_candidates wlc
+            LEFT JOIN watchtower_events we ON we.wallet_address = wlc.address
+            WHERE wlc.source_operator IS NOT NULL
+            GROUP BY wlc.source_operator
+            ORDER BY MAX(we.created_at) DESC LIMIT 10
+        """).fetchall() if conn.execute(
+            "SELECT COUNT(*) FROM watchtower_launch_candidates"
+        ).fetchone()[0] > 0 else []
+
+        campaigns = []
+        for c in infra_campaigns:
+            last_ts = c['last_event_ts'] or 0
+            age_s   = now - last_ts if last_ts else None
+            camp_state = 'DORMANT'
+            if age_s is not None:
+                if age_s < 3600:    camp_state = 'ACTIVE'
+                elif age_s < 14400: camp_state = 'ESCALATING'
+                elif age_s < 86400: camp_state = 'FORMING'
+            campaigns.append({
+                'id':            c['campaign_id'],
+                'creator_count': c['creator_count'],
+                'last_event_ts': last_ts,
+                'age_s':         age_s,
+                'event_count':   c['event_count'],
+                'state':         camp_state,
+            })
+
+        # ── 6. INFRA WALLET SUMMARY ───────────────────────────────────────
+        staged_total = conn.execute("SELECT COUNT(*) FROM wt_staged_wallets").fetchone()[0]
+        staged_activated = conn.execute(
+            "SELECT COUNT(*) FROM wt_staged_wallets WHERE state='ACTIVATED'"
+        ).fetchone()[0]
+        staged_launched = conn.execute(
+            "SELECT COUNT(*) FROM wt_staged_wallets WHERE state='LAUNCHED'"
+        ).fetchone()[0]
+
+        # ── 7. DERIVE OPERATIONAL STATE ───────────────────────────────────
+        op_state = 'QUIET'
+        op_detail = 'No coordinated activity detected.'
+
+        if total_sweeps_5m > 100:
+            op_state  = 'EXTRACTING'
+            op_detail = f'Extraction wave active. {total_sweeps_5m} sweeps/5m across {len(relays)} relays.'
+        elif total_sweeps_5m > 10:
+            op_state  = 'EXTRACTING'
+            op_detail = f'Sweep activity elevated. {total_sweeps_5m} sweeps/5m. {round(total_sol_relays,1)} SOL tracked.'
+        elif treasury_age_s is not None and treasury_age_s < 3600:
+            op_state  = 'FORMING'
+            op_detail = f'Treasury active. {treasury_sol_1h:.1f} SOL outflow in last hour.'
+        elif last_event_age_s is not None and last_event_age_s < 1800:
+            op_state  = 'ACTIVE'
+            op_detail = f'Operational events flowing. Last signal {last_event_age_s // 60}m ago.'
+        elif last_event_age_s is not None and last_event_age_s < 14400:
+            op_state  = 'DORMANT'
+            op_detail = f'No new activity in {last_event_age_s // 3600}h {(last_event_age_s % 3600) // 60}m. Infrastructure present.'
+        else:
+            quiet_h = last_event_age_s // 3600 if last_event_age_s else 0
+            quiet_m = (last_event_age_s % 3600) // 60 if last_event_age_s else 0
+            op_detail = f'No coordinated activity for {quiet_h}h {quiet_m}m. Monitoring active.'
+
+        # ── 8. SWARM CORRIDOR SUMMARY ─────────────────────────────────────
+        swarm_state_rows = conn.execute(
+            "SELECT state, COUNT(*) cnt FROM wt_swarm_corridors GROUP BY state"
+        ).fetchall() if conn.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='wt_swarm_corridors'"
+        ).fetchone()[0] else []
+        swarm_state_counts = {r['state']: r['cnt'] for r in swarm_state_rows}
+
+        active_swarms = conn.execute("""
+            SELECT provisioner_wallet, treasury_ts, treasury_sol, wallet_count,
+                   median_fanout_sol, state, primary_token_mint,
+                   sweepback_detected, treasury_recycle_detected
+            FROM wt_swarm_corridors
+            WHERE state NOT IN ('SWARM_RECYCLE_COMPLETE', 'ABORTED')
+            ORDER BY treasury_ts DESC LIMIT 5
+        """).fetchall() if swarm_state_rows else []
+
+        swarm_active_list = []
+        for r in active_swarms:
+            swarm_active_list.append({
+                'provisioner':     r['provisioner_wallet'][:20] + '…',
+                'treasury_ts':     r['treasury_ts'],
+                'treasury_sol':    r['treasury_sol'],
+                'wallet_count':    r['wallet_count'],
+                'median_fanout':   r['median_fanout_sol'],
+                'state':           r['state'],
+                'token':           r['primary_token_mint'],
+                'sweepback':       bool(r['sweepback_detected']),
+                'recycled':        bool(r['treasury_recycle_detected']),
+                'age_s':           now - r['treasury_ts'] if r['treasury_ts'] else None,
+            })
+
+        # Elevate op_state if active swarm detected
+        if swarm_active_list:
+            escalating = [s for s in swarm_active_list if s['state'] == 'SWARM_DEPLOYMENT_ESCALATING']
+            extraction = [s for s in swarm_active_list if s['state'] == 'SWARM_EXTRACTION_ACTIVE']
+            if extraction:
+                op_state  = 'SWARM_EXTRACTING'
+                op_detail = f'SWARM extraction active. {len(extraction)} provisioner(s) receiving sweepback.'
+            elif escalating:
+                op_state  = 'SWARM_DEPLOYING'
+                op_detail = f'SWARM deployment escalating. {sum(s["wallet_count"] or 0 for s in escalating)} wallets deployed.'
+            elif op_state in ('QUIET', 'DORMANT'):
+                op_state  = 'SWARM_DEPLOYING'
+                op_detail = f'SWARM deployment active. {swarm_active_list[0]["wallet_count"] or 0} wallets deployed.'
+
+        # ── 9. TEMPO SPARKLINE (30m buckets, last 6h) ─────────────────────
+        tempo_buckets = conn.execute("""
+            SELECT (created_at / 1800) * 1800 AS bucket, COUNT(*) n
+            FROM watchtower_events
+            WHERE created_at >= ?
+            GROUP BY bucket ORDER BY bucket ASC
+        """, (now - 21600,)).fetchall()
+        tempo_max = max((r['n'] for r in tempo_buckets), default=1)
+        tempo_spark = [round(r['n'] / tempo_max * 8) for r in tempo_buckets]
+
+        conn.close()
+
+        return jsonify({
+            'ok': True,
+            'computed_at': now,
+            'op_state':    op_state,
+            'op_detail':   op_detail,
+            'extraction': {
+                'sweeps_5m':       total_sweeps_5m,
+                'sol_tracked':     round(total_sol_relays, 3),
+                'last_active_ts':  last_relay_active,
+                'last_active_age_s': now - last_relay_active if last_relay_active else None,
+                'relays':          relays,
+                'counterparties':  cp_summary,
+            },
+            'treasury': {
+                'last_ts':       treasury_last_ts,
+                'age_s':         treasury_age_s,
+                'sol_24h':       treasury_sol_24h,
+                'sol_1h':        treasury_sol_1h,
+                'signals_24h':   signaller_row['signals_24h'] or 0,
+                'provisioners':  provisioners,
+            },
+            'candidates': {
+                'enrolled':       cand_total,
+                'scored_85plus':  cand_scored,
+                'high_conf_95':   cand_high_conf,
+                'fee_touches_24h': fee_touches_24h,
+                'last_hit_ts':    cand_last_hit_ts or None,
+                'last_hit_age_s': now - cand_last_hit_ts if cand_last_hit_ts else None,
+                'note': 'Mixed creator/trader/support roles inferred. Score stratification pending.',
+            },
+            'infra_wallets': {
+                'total':     staged_total,
+                'activated': staged_activated,
+                'launched':  staged_launched,
+            },
+            'campaigns': campaigns,
+            'events': events,
+            'swarm': {
+                'state_counts': swarm_state_counts,
+                'active':       swarm_active_list,
+            },
+            'tempo': {
+                'spark':    tempo_spark,
+                'buckets':  len(tempo_spark),
+                'window_h': 6,
+            },
+        })
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@app.route('/api/watchtower/relay-counterparties')
+def api_watchtower_relay_counterparties():
+    """Post-launch creator discovery queue from relay counterparties."""
+    try:
+        state         = request.args.get('state', 'NEW')
+        relay_address = request.args.get('relay_address', '')
+        limit         = min(int(request.args.get('limit', 50)), 200)
+
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        where = "WHERE discovery_state=?"
+        args  = [state]
+        if relay_address:
+            where += " AND relay_address=?"
+            args.append(relay_address)
+
+        rows = conn.execute(f"""
+            SELECT sender_address, relay_address, first_sweep_at, last_sweep_at,
+                   sweep_count, total_sol, discovery_state, linked_mint, backtrace_at
+            FROM wt_relay_counterparties
+            {where}
+            ORDER BY total_sol DESC
+            LIMIT ?
+        """, args + [limit]).fetchall()
+
+        counts = conn.execute("""
+            SELECT discovery_state, COUNT(*) as n, SUM(total_sol) as sol
+            FROM wt_relay_counterparties GROUP BY discovery_state
+        """).fetchall()
+
+        conn.close()
+        return jsonify({
+            "ok":      True,
+            "state":   state,
+            "counts":  [dict(r) for r in counts],
+            "senders": [dict(r) for r in rows],
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/backtrace-status')
+def api_watchtower_backtrace_status():
+    """Relay backtrace hit-rate telemetry — validation gate for extraction clustering."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        state_counts = {r["discovery_state"]: r["n"] for r in conn.execute("""
+            SELECT discovery_state, COUNT(*) as n FROM wt_relay_counterparties
+            GROUP BY discovery_state
+        """).fetchall()}
+
+        tier_pending = conn.execute("""
+            SELECT
+                SUM(CASE WHEN relay_address != 'N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7'
+                          AND ((total_sol BETWEEN 0.1 AND 2.0 AND sweep_count >= 2)
+                               OR sweep_count >= 3)
+                          THEN 1 ELSE 0 END) as t1,
+                SUM(CASE WHEN relay_address != 'N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7'
+                          AND total_sol BETWEEN 0.1 AND 5.0 AND sweep_count = 1
+                          THEN 1 ELSE 0 END) as t2,
+                SUM(CASE WHEN relay_address = 'N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7'
+                          THEN 1 ELSE 0 END) as t_infra,
+                SUM(CASE WHEN total_sol > 5 AND sweep_count = 1
+                          AND relay_address != 'N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7'
+                          THEN 1 ELSE 0 END) as routing
+            FROM wt_relay_counterparties
+            WHERE discovery_state IN ('NEW', 'RETRY')
+        """).fetchone()
+
+        confirmed  = state_counts.get("CREATOR_CONFIRMED", 0)
+        no_launch  = state_counts.get("TRACED_NO_LAUNCH", 0)
+        total_done = confirmed + no_launch
+        hit_rate   = round(confirmed / total_done, 4) if total_done > 0 else None
+
+        cluster_counts = conn.execute("""
+            SELECT cluster_state, COUNT(*) as n, SUM(token_count) as tokens
+            FROM wt_extraction_clusters GROUP BY cluster_state
+        """).fetchall()
+
+        conn.close()
+        return jsonify({
+            "ok": True,
+            "state_counts":    state_counts,
+            "total":           sum(state_counts.values()),
+            "tier1_pending":   tier_pending["t1"] or 0,
+            "tier2_pending":   tier_pending["t2"] or 0,
+            "t_infra_pending": tier_pending["t_infra"] or 0,
+            "routing_pending": tier_pending["routing"] or 0,
+            "confirmed":       confirmed,
+            "traced_no_launch": no_launch,
+            "hit_rate":        hit_rate,
+            "hit_rate_pct":    f"{hit_rate*100:.1f}%" if hit_rate is not None else "n/a",
+            "gate_status":     "PASS" if (hit_rate or 0) >= 0.05 else ("PENDING" if total_done < 100 else "FAIL"),
+            "clusters":        [dict(r) for r in cluster_counts],
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/extraction-clusters')
+def api_watchtower_extraction_clusters():
+    """Extraction clusters: groups of tokens sharing relay/extraction infrastructure."""
+    try:
+        state = request.args.get('state', 'CONFIRMED')
+        limit = min(int(request.args.get('limit', 20)), 100)
+
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        clusters = conn.execute("""
+            SELECT cluster_id, relay_wallet, collector_wallet, token_count, creator_count,
+                   total_sol_swept, first_seen, last_seen, confidence_score, cluster_state
+            FROM wt_extraction_clusters
+            WHERE cluster_state = ?
+            ORDER BY confidence_score DESC, token_count DESC
+            LIMIT ?
+        """, (state, limit)).fetchall()
+
+        result = []
+        for c in clusters:
+            members = conn.execute("""
+                SELECT token_mint, creator_wallet, confidence, attribution_reason, assigned_at
+                FROM wt_cluster_members WHERE cluster_id = ?
+                ORDER BY confidence DESC LIMIT 20
+            """, (c["cluster_id"],)).fetchall()
+            row = dict(c)
+            row["members"] = [dict(m) for m in members]
+            result.append(row)
+
+        summary = conn.execute("""
+            SELECT cluster_state, COUNT(*) as n, SUM(token_count) as tokens,
+                   AVG(confidence_score) as avg_conf
+            FROM wt_extraction_clusters GROUP BY cluster_state
+        """).fetchall()
+
+        conn.close()
+        return jsonify({
+            "ok":      True,
+            "state":   state,
+            "summary": [dict(r) for r in summary],
+            "clusters": result,
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/hit-activity')
+def api_watchtower_hit_activity():
+    """
+    Webhook hit telemetry: operational tempo per watched wallet.
+    source=candidate_webhook → Tier 1, reads wt_webhook_hits (raw)
+    source=infra_webhook     → Tier 2, reads wt_infra_telemetry_buckets (aggregated)
+    """
+    try:
+        window_s = int(request.args.get('window_s', 3600))
+        limit    = min(int(request.args.get('limit', 50)), 200)
+        source   = request.args.get('source', 'candidate_webhook')
+        since    = int(time.time()) - window_s
+
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        # Tier 2 infra source: read from buckets
+        if source == 'infra_webhook':
+            since_bucket = (since // 60) * 60
+            top = conn.execute("""
+                SELECT wallet_address, role,
+                       SUM(hit_count)             AS hits,
+                       SUM(total_sol)             AS total_sol_moved,
+                       MAX(max_tx_sol)            AS max_amount_sol,
+                       MIN(minute_bucket)         AS first_hit_ts,
+                       MAX(minute_bucket)         AS last_hit_ts
+                FROM wt_infra_telemetry_buckets
+                WHERE minute_bucket >= ?
+                GROUP BY wallet_address
+                ORDER BY hits DESC LIMIT ?
+            """, (since_bucket, limit)).fetchall()
+
+            burst_since = ((int(time.time()) - 300) // 60) * 60
+            bursts = conn.execute("""
+                SELECT wallet_address, SUM(hit_count) AS hits_5m
+                FROM wt_infra_telemetry_buckets
+                WHERE minute_bucket >= ?
+                GROUP BY wallet_address HAVING hits_5m >= 3
+                ORDER BY hits_5m DESC
+            """, (burst_since,)).fetchall()
+            burst_set = {r["wallet_address"]: r["hits_5m"] for r in bursts}
+
+            stats_r = conn.execute("""
+                SELECT SUM(hit_count) AS total_hits,
+                       COUNT(DISTINCT wallet_address) AS unique_wallets,
+                       MIN(minute_bucket) AS earliest_hit,
+                       MAX(minute_bucket) AS latest_hit
+                FROM wt_infra_telemetry_buckets
+            """).fetchone()
+            conn.close()
+
+            wallets = []
+            for r in top:
+                wa = r["wallet_address"]
+                hits_5m = burst_set.get(wa, 0)
+                epoch = ("EXTRACTION_WAVE" if hits_5m >= 100 else
+                         "ESCALATING" if hits_5m >= 20 else
+                         "ACTIVE" if hits_5m >= 2 else "QUIET")
+                wallets.append({
+                    "wallet_address":  wa,
+                    "role":            r["role"],
+                    "hits":            r["hits"],
+                    "fee_touches":     0,
+                    "pamm_hits":       0,
+                    "first_hit_ts":    r["first_hit_ts"],
+                    "last_hit_ts":     r["last_hit_ts"],
+                    "max_amount_sol":  r["max_amount_sol"],
+                    "total_sol_moved": r["total_sol_moved"],
+                    "burst":           hits_5m,
+                    "signal":          epoch,
+                })
+            return jsonify({
+                "ok":      True,
+                "window_s": window_s,
+                "source":  source,
+                "stats":   dict(stats_r) if stats_r else {},
+                "bursts":  [{"wallet_address": k, "hits_5m": v} for k, v in burst_set.items()],
+                "wallets": wallets,
+            })
+
+        # Tier 1 candidate source: read from raw wt_webhook_hits (unchanged)
+        # Top active wallets in window
+        top = conn.execute("""
+            SELECT
+                wallet_address,
+                COUNT(*)                                        AS hits,
+                SUM(is_fee_touch)                               AS fee_touches,
+                SUM(is_pamm_interaction)                        AS pamm_hits,
+                MIN(block_time)                                 AS first_hit_ts,
+                MAX(block_time)                                 AS last_hit_ts,
+                MAX(amount_sol)                                 AS max_amount_sol,
+                SUM(amount_sol)                                 AS total_sol_moved
+            FROM wt_webhook_hits
+            WHERE created_at >= ? AND source = ?
+            GROUP BY wallet_address
+            ORDER BY hits DESC
+            LIMIT ?
+        """, (since, source, limit)).fetchall()
+
+        # Burst detection: wallets with ≥3 hits in last 5 minutes
+        burst_since = int(time.time()) - 300
+        bursts = conn.execute("""
+            SELECT wallet_address, COUNT(*) AS hits_5m
+            FROM wt_webhook_hits
+            WHERE created_at >= ? AND source = ?
+            GROUP BY wallet_address
+            HAVING hits_5m >= 3
+            ORDER BY hits_5m DESC
+        """, (burst_since, source)).fetchall()
+        burst_set = {r["wallet_address"]: r["hits_5m"] for r in bursts}
+
+        # Overall stats
+        stats = conn.execute("""
+            SELECT
+                COUNT(*)              AS total_hits,
+                COUNT(DISTINCT wallet_address) AS unique_wallets,
+                SUM(is_fee_touch)     AS total_fee_touches,
+                MIN(created_at)       AS earliest_hit,
+                MAX(created_at)       AS latest_hit
+            FROM wt_webhook_hits WHERE source = ?
+        """, (source,)).fetchone()
+
+        conn.close()
+
+        wallets = []
+        for r in top:
+            wa = r["wallet_address"]
+            age_h = ((int(time.time()) - (r["first_hit_ts"] or int(time.time()))) / 3600)
+            wallets.append({
+                "wallet_address":  wa,
+                "hits":            r["hits"],
+                "fee_touches":     r["fee_touches"],
+                "pamm_hits":       r["pamm_hits"],
+                "first_hit_ts":    r["first_hit_ts"],
+                "last_hit_ts":     r["last_hit_ts"],
+                "max_amount_sol":  r["max_amount_sol"],
+                "total_sol_moved": r["total_sol_moved"],
+                "burst":           burst_set.get(wa, 0),
+                "signal": (
+                    "LAUNCH_IMMINENT" if r["fee_touches"] > 0 else
+                    "BURST"           if burst_set.get(wa, 0) >= 3 else
+                    "ESCALATING"      if r["hits"] >= 5 else
+                    "ACTIVE"          if r["hits"] >= 2 else
+                    "MOVEMENT"
+                ),
+            })
+
+        return jsonify({
+            "ok":      True,
+            "window_s": window_s,
+            "source":  source,
+            "stats":   dict(stats) if stats else {},
+            "bursts":  [{"wallet_address": k, "hits_5m": v} for k, v in burst_set.items()],
+            "wallets": wallets,
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/hit-timeline/<wallet_address>')
+def api_watchtower_hit_timeline(wallet_address: str):
+    """Per-wallet hit timeline for burst and pre-launch pattern analysis."""
+    try:
+        limit  = min(int(request.args.get('limit', 100)), 500)
+        conn   = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        hits = conn.execute("""
+            SELECT tx_signature, tx_type, counterparty, block_time, amount_sol,
+                   is_fee_touch, is_pamm_interaction, created_at
+            FROM wt_webhook_hits
+            WHERE wallet_address = ?
+            ORDER BY created_at DESC
+            LIMIT ?
+        """, (wallet_address, limit)).fetchall()
+
+        # Compute inter-hit intervals for burst detection
+        times   = [r["created_at"] for r in hits]
+        gaps    = [times[i] - times[i+1] for i in range(len(times)-1)] if len(times) > 1 else []
+        min_gap = min(gaps) if gaps else None
+
+        conn.close()
+        return jsonify({
+            "ok":             True,
+            "wallet_address": wallet_address,
+            "total_hits":     len(hits),
+            "min_gap_s":      min_gap,
+            "hits":           [dict(r) for r in hits],
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/webhook-status')
+def api_watchtower_webhook_status():
+    """Return webhook manager status: enrollment counts, last reconciliation, drift."""
+    try:
+        from src.analysis.webhook_manager import WebhookManager, _webhooks
+        import asyncio as _asyncio
+
+        mgr = WebhookManager(DB_PATH)
+        whs = _webhooks()
+
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+
+        result = {}
+        for role, wh in whs.items():
+            # Local counts
+            active = conn.execute(
+                "SELECT COUNT(*) FROM wt_webhook_enrollments WHERE webhook_id=? AND is_active=1",
+                (wh.webhook_id,)
+            ).fetchone()[0]
+            pending = conn.execute(
+                "SELECT COUNT(*) FROM wt_webhook_enrollments WHERE webhook_id=? AND state='PENDING'",
+                (wh.webhook_id,)
+            ).fetchone()[0]
+            # Last reconciliation
+            rec = conn.execute(
+                """SELECT ran_at, local_count, remote_count, drift_detected, re_enrolled, error
+                   FROM wt_webhook_reconciliations WHERE webhook_id=? ORDER BY ran_at DESC LIMIT 1""",
+                (wh.webhook_id,)
+            ).fetchone()
+
+            result[role] = {
+                "webhook_id":    wh.webhook_id,
+                "description":   wh.description,
+                "local_active":  active,
+                "local_pending": pending,
+                "last_reconciliation": dict(rec) if rec else None,
+            }
+
+        conn.close()
+        return jsonify({"ok": True, "webhooks": result})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/watchtower/events-feed')
+def api_watchtower_events_feed():
+    """Unified semantic event stream for the dashboard intelligence feed."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit = int(request.args.get('limit', 50))
+    since_raw = request.args.get('since')
+    since_ts = int(float(since_raw)) if since_raw else None
+
+    events = []
+    try:
+        # --- Confirmed launches (wt_creator_launches) ---
+        q_launches = "SELECT creator_wallet, mint_address, launched_at FROM wt_creator_launches"
+        p_launches = []
+        if since_ts:
+            q_launches += " WHERE launched_at > ?"
+            p_launches.append(since_ts)
+        q_launches += " ORDER BY launched_at DESC LIMIT ?"
+        p_launches.append(limit)
+        for row in conn.execute(q_launches, p_launches).fetchall():
+            events.append({
+                "type": "PUMPFUN_CREATE_CONFIRMED",
+                "ts": row["launched_at"] or 0,
+                "address": row["creator_wallet"],
+                "mint": row["mint_address"],
+                "label": f"Launch confirmed: {(row['mint_address'] or '')[:12]}…",
+                "severity": "critical",
+            })
+
+        # --- Fee sweeps (watchtower_sweep_events) ---
+        q_sweeps = "SELECT payer_count, total_sol, block_time FROM watchtower_sweep_events"
+        p_sweeps = []
+        if since_ts:
+            q_sweeps += " WHERE block_time > ?"
+            p_sweeps.append(since_ts)
+        q_sweeps += " ORDER BY block_time DESC LIMIT ?"
+        p_sweeps.append(max(limit // 2, 20))
+        for row in conn.execute(q_sweeps, p_sweeps).fetchall():
+            events.append({
+                "type": "FEE_SWEEP",
+                "ts": row["block_time"] or 0,
+                "payer_count": row["payer_count"],
+                "total_sol": row["total_sol"],
+                "label": f"Fee sweep: {row['payer_count']} payers · {(row['total_sol'] or 0):.3f}◎",
+                "severity": "medium",
+            })
+
+        # --- New fee payers (watchtower_fee_payers) ---
+        # first_seen_at is mixed text/int — cast to int via strftime in SQL, filter in Python
+        q_payers = """
+            SELECT address, total_sol_sent,
+                   CAST(CASE
+                     WHEN typeof(first_seen_at)='integer' THEN first_seen_at
+                     WHEN first_seen_at GLOB '[0-9]*' THEN CAST(first_seen_at AS INTEGER)
+                     ELSE strftime('%s', first_seen_at)
+                   END AS INTEGER) AS ts_int
+            FROM watchtower_fee_payers
+            ORDER BY rowid DESC LIMIT ?
+        """
+        for row in conn.execute(q_payers, (max(limit // 2, 20),)).fetchall():
+            ts = row["ts_int"] or 0
+            if since_ts and ts and ts <= since_ts:
+                continue
+            events.append({
+                "type": "NEW_FEE_PAYER",
+                "ts": ts,
+                "address": row["address"],
+                "total_sol": row["total_sol_sent"],
+                "label": f"Fee payer: {(row['address'] or '')[:8]}… sent {(row['total_sol_sent'] or 0):.2f}◎",
+                "severity": "low",
+            })
+
+        # --- Staged wallets as CREATOR_CANDIDATE events ---
+        q_staged = """
+            SELECT wallet_address, provisioned_at, provisioner_address, first_move_type
+            FROM wt_staged_wallets
+            WHERE first_move_type != 'pAMM_trader'
+        """
+        p_staged = []
+        if since_ts:
+            q_staged += " AND provisioned_at > ?"
+            p_staged.append(since_ts)
+        q_staged += " ORDER BY provisioned_at DESC LIMIT ?"
+        p_staged.append(max(limit // 4, 10))
+        for row in conn.execute(q_staged, p_staged).fetchall():
+            events.append({
+                "type": "CREATOR_CANDIDATE",
+                "ts": row["provisioned_at"] or 0,
+                "address": row["wallet_address"],
+                "label": f"Creator candidate staged via {(row['provisioner_address'] or '')[:8]}…",
+                "severity": "high",
+            })
+
+        # Sort by ts descending, safe int cast
+        events.sort(key=lambda e: int(e.get('ts') or 0), reverse=True)
+        events = events[:limit]
+
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    return jsonify({"events": events, "count": len(events)})
+
+
+def _safe_json(val):
+    if not val:
+        return {}
+    try:
+        import json as _json
+        return _json.loads(val)
+    except Exception:
+        return {}
+
+
+def _table_exists_cached(name: str) -> bool:
+    try:
+        conn = db_connect(DB_PATH, timeout=3)
+        r = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)
+        ).fetchone()
+        conn.close()
+        return r is not None
+    except Exception:
+        return False
+
+
+@app.route('/api/watchtower/campaigns')
+def api_watchtower_campaigns():
+    """Campaign-centric aggregation for the dashboard campaigns panel."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit = int(request.args.get('limit', 20))
+
+    campaigns = []
+    try:
+        native_camp = conn.execute("SELECT COUNT(*) FROM wt_campaigns").fetchone()[0]
+        if native_camp > 0:
+            rows = conn.execute("""
+                SELECT campaign_id AS id, state, creator_count, trader_count,
+                       total_sol_deployed AS total_sol_provisioned,
+                       started_at AS first_seen_at, updated_at AS last_activity_at,
+                       evidence_json
+                FROM wt_campaigns
+                ORDER BY updated_at DESC
+                LIMIT ?
+            """, (limit,)).fetchall()
+            for row in rows:
+                c = dict(row)
+                c['evidence'] = _safe_json(c.pop('evidence_json', None))
+                c['mint'] = None
+                campaigns.append(c)
+        else:
+            # Synthesize from wt_staged_wallets grouped by provisioner
+            rows = conn.execute("""
+                SELECT
+                    provisioner_address AS id,
+                    COUNT(*) AS creator_count,
+                    SUM(CASE WHEN first_move_type = 'pAMM_trader' THEN 1 ELSE 0 END) AS trader_count,
+                    MIN(provisioned_at) AS first_seen_at,
+                    MAX(provisioned_at) AS last_activity_at
+                FROM wt_staged_wallets
+                GROUP BY provisioner_address
+                ORDER BY last_activity_at DESC
+                LIMIT ?
+            """, (limit,)).fetchall()
+            for row in rows:
+                c = dict(row)
+                c['state'] = 'AMM_ACTIVE'
+                c['total_sol_provisioned'] = None
+                c['mint'] = None
+                c['evidence'] = {}
+                campaigns.append(c)
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    return jsonify({"campaigns": campaigns, "count": len(campaigns)})
+
+
+@app.route('/api/watchtower/swarms')
+def api_watchtower_swarms():
+    """Trader swarm summaries for the dashboard."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit = int(request.args.get('limit', 20))
+
+    swarms = []
+    try:
+        native_traders = conn.execute("SELECT COUNT(*) FROM wt_trader_wallets").fetchone()[0]
+        if native_traders > 0:
+            rows = conn.execute("""
+                SELECT
+                    provisioner_address,
+                    COUNT(*) AS wallet_count,
+                    AVG(total_buys + total_sells) AS avg_tx,
+                    SUM(CASE WHEN total_sold_sol > total_bought_sol
+                             THEN total_sold_sol - total_bought_sol ELSE 0 END) AS total_swept,
+                    MAX(updated_at) AS last_activity_at
+                FROM wt_trader_wallets
+                GROUP BY provisioner_address
+                ORDER BY last_activity_at DESC
+                LIMIT ?
+            """, (limit,)).fetchall()
+            for row in rows:
+                s = dict(row)
+                s['sync_score'] = min(100, int((s.get('avg_tx') or 0) * 5))
+                swarms.append(s)
+        else:
+            # Synthesize from wt_staged_wallets pAMM traders
+            rows = conn.execute("""
+                SELECT
+                    provisioner_address,
+                    COUNT(*) AS wallet_count,
+                    MAX(provisioned_at) AS last_activity_at
+                FROM wt_staged_wallets
+                WHERE first_move_type = 'pAMM_trader'
+                GROUP BY provisioner_address
+                ORDER BY last_activity_at DESC
+                LIMIT ?
+            """, (limit,)).fetchall()
+            for row in rows:
+                s = dict(row)
+                s['avg_tx'] = None
+                s['total_swept'] = None
+                s['sync_score'] = None
+                swarms.append(s)
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    return jsonify({"swarms": swarms, "count": len(swarms)})
+
+
+@app.route('/api/watchtower/operator-clusters')
+def api_watchtower_operator_clusters():
+    """Generic swarm operator clusters discovered by migration scanner."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit  = int(request.args.get('limit', 50))
+    state  = request.args.get('state')
+
+    clusters = []
+    try:
+        q = "SELECT * FROM wt_operator_clusters"
+        params: list = []
+        if state:
+            q += " WHERE state = ?"
+            params.append(state)
+        q += " ORDER BY confidence DESC, last_seen DESC LIMIT ?"
+        params.append(limit)
+        for row in conn.execute(q, params).fetchall():
+            c = dict(row)
+            # attach fingerprint
+            fp = conn.execute(
+                "SELECT * FROM wt_operator_fingerprints WHERE cluster_id = ? ORDER BY updated_at DESC LIMIT 1",
+                (c['cluster_id'],)
+            ).fetchone()
+            c['fingerprint'] = dict(fp) if fp else None
+            # candidate count
+            c['candidates_evaluated'] = conn.execute(
+                "SELECT COUNT(*) FROM wt_swarm_candidates WHERE cluster_id = ?",
+                (c['cluster_id'],)
+            ).fetchone()[0]
+            clusters.append(c)
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+    # summary stats
+    total_candidates = 0
+    possible = 0
+    try:
+        total_candidates = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates").fetchone()[0]
+        possible = conn.execute(
+            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE confidence >= 0.4"
+        ).fetchone()[0]
+    except Exception:
+        pass
+
+    conn.close()
+    return jsonify({
+        "clusters":           clusters,
+        "count":              len(clusters),
+        "total_candidates":   total_candidates,
+        "possible_swarms":    possible,
+    })
+
+
+@app.route('/api/watchtower/operator-candidates')
+def api_watchtower_operator_candidates():
+    """Top swarm candidates from migration scanner, ordered by confidence."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit    = int(request.args.get('limit', 50))
+    min_conf = float(request.args.get('min_conf', 0.0))
+
+    candidates = []
+    yield_stats = {}
+    try:
+        rows = conn.execute(
+            "SELECT * FROM wt_swarm_candidates WHERE confidence >= ? "
+            "ORDER BY confidence DESC, scanned_at DESC LIMIT ?",
+            (min_conf, limit)
+        ).fetchall()
+        candidates = [dict(r) for r in rows]
+
+        # yield breakdown
+        total    = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates").fetchone()[0]
+        scanning = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates WHERE state='SCANNING'").fetchone()[0]
+        possible = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates WHERE state='POSSIBLE_SWARM'").fetchone()[0]
+        confirmed = conn.execute("SELECT COUNT(*) FROM wt_operator_clusters WHERE origin != 'seed'").fetchone()[0]
+
+        # bucket NOT_SWARM reasons from evidence_json
+        already_attr = conn.execute(
+            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE state='ALREADY_ATTRIBUTED'"
+        ).fetchone()[0]
+        low_buyers   = conn.execute(
+            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE unique_buyers IS NOT NULL AND unique_buyers < 25"
+        ).fetchone()[0]
+        wide_window  = conn.execute(
+            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE buy_window_s IS NOT NULL AND buy_window_s > 1800"
+        ).fetchone()[0]
+        no_sigs      = conn.execute(
+            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE evidence_json LIKE '%no_sigs%'"
+        ).fetchone()[0]
+        insuff       = conn.execute(
+            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE evidence_json LIKE '%insufficient_funder%'"
+        ).fetchone()[0]
+
+        yield_stats = {
+            "total":          total,
+            "scanning":       scanning,
+            "already_attr":   already_attr,
+            "low_buyers":     low_buyers,
+            "wide_window":  wide_window,
+            "no_sigs":      no_sigs,
+            "insuff_data":  insuff,
+            "possible":     possible,
+            "confirmed":    confirmed,
+        }
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+    conn.close()
+    return jsonify({"candidates": candidates, "count": len(candidates), "yield": yield_stats})
+
+
+@app.route('/api/watchtower/graph')
+def api_watchtower_graph():
+    """
+    Fast topology graph synthesized from existing tables.
+    Returns {nodes, links} in D3 format.
+    Prefers wt_graph_nodes/edges if populated; synthesizes from fee_payers +
+    staged_wallets + creator_funders otherwise.
+    """
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit_nodes = int(request.args.get('limit', 300))
+
+    nodes = []
+    links = []
+    node_ids = set()
+
+    try:
+        # ── Try native graph tables first ──────────────────────────
+        native_nodes = conn.execute(
+            "SELECT address, node_type, campaign_id, state, score FROM wt_graph_nodes LIMIT ?",
+            (limit_nodes,)
+        ).fetchall()
+
+        if native_nodes:
+            for r in native_nodes:
+                nodes.append({
+                    "id": r["address"], "node_type": r["node_type"],
+                    "campaign_id": r["campaign_id"], "state": r["state"],
+                    "score": r["score"],
+                })
+                node_ids.add(r["address"])
+            for r in conn.execute(
+                "SELECT from_address, to_address, edge_type, amount_sol, campaign_id FROM wt_graph_edges LIMIT ?",
+                (limit_nodes * 3,)
+            ).fetchall():
+                if r["from_address"] in node_ids and r["to_address"] in node_ids:
+                    links.append({
+                        "source": r["from_address"], "target": r["to_address"],
+                        "edge_type": r["edge_type"], "amount_sol": r["amount_sol"],
+                        "campaign_id": r["campaign_id"],
+                    })
+        else:
+            # ── Synthesize from existing data ───────────────────────
+            # Known infra anchors
+            TREASURY  = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+            SIGNALLER = "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM"
+
+            def add_node(nid, ntype, **kw):
+                if nid and nid not in node_ids:
+                    nodes.append({"id": nid, "node_type": ntype, **kw})
+                    node_ids.add(nid)
+
+            def add_link(src, tgt, etype, **kw):
+                if src in node_ids and tgt in node_ids:
+                    links.append({"source": src, "target": tgt, "edge_type": etype, **kw})
+
+            # Treasury + Signaller
+            add_node(TREASURY,  "TREASURY",  campaign_id=None)
+            add_node(SIGNALLER, "RELAY",     campaign_id=None)
+
+            # Sub-provisioners from staged wallets
+            prov_rows = conn.execute("""
+                SELECT provisioner_address,
+                       COUNT(*) AS wallet_count,
+                       SUM(CASE WHEN first_move_type='pAMM_trader' THEN 1 ELSE 0 END) AS trader_count,
+                       MAX(provisioned_at) AS last_at
+                FROM wt_staged_wallets
+                GROUP BY provisioner_address
+                ORDER BY last_at DESC
+                LIMIT 20
+            """).fetchall()
+
+            for r in prov_rows:
+                prov = r["provisioner_address"]
+                add_node(prov, "SUB_PROV", campaign_id=prov[:8],
+                         wallet_count=r["wallet_count"], trader_count=r["trader_count"])
+                add_link(TREASURY, prov, "treasury_to_subprov")
+
+                # Add a representative TRADER_SWARM node per provisioner
+                swarm_id = f"swarm_{prov[:8]}"
+                if r["trader_count"] and r["trader_count"] > 0:
+                    add_node(swarm_id, "TRADER_SWARM", campaign_id=prov[:8],
+                             wallet_count=r["trader_count"])
+                    add_link(prov, swarm_id, "subprov_to_wallet")
+
+            # Fee payers as additional operators (sample)
+            fee_rows = conn.execute("""
+                SELECT address, total_sol_sent, last_seen_at
+                FROM watchtower_fee_payers
+                ORDER BY last_seen_at DESC
+                LIMIT 40
+            """).fetchall()
+            for r in fee_rows:
+                add_node(r["address"], "SUB_PROV",
+                         campaign_id=None, total_sol=r["total_sol_sent"])
+                add_link(TREASURY, r["address"], "treasury_to_subprov",
+                         amount_sol=r["total_sol_sent"])
+
+            # Creator wallets from fingerprint funding
+            cr_rows = conn.execute("""
+                SELECT cf.creator_address, cf.funder_address, cf.amount_sol,
+                       cs.score
+                FROM creator_funders cf
+                LEFT JOIN wt_candidate_scores cs ON cs.wallet_address = cf.creator_address
+                WHERE cf.amount_sol LIKE '%.10203928'
+                ORDER BY cf.amount_sol DESC
+                LIMIT 80
+            """).fetchall()
+            for r in cr_rows:
+                score = r["score"] or 0
+                ntype = "CREATOR_HC" if score >= 85 else "CREATOR"
+                add_node(r["creator_address"], ntype,
+                         score=score, campaign_id=r["funder_address"][:8] if r["funder_address"] else None)
+                funder = r["funder_address"]
+                # Link from funder if known, else from treasury
+                src = funder if funder in node_ids else TREASURY
+                add_link(src, r["creator_address"], "creator_link",
+                         amount_sol=r["amount_sol"])
+
+            # Candidate scores not yet in creator_funders
+            cand_rows = conn.execute("""
+                SELECT wallet_address, score FROM wt_candidate_scores
+                WHERE score >= 60
+                ORDER BY score DESC LIMIT 30
+            """).fetchall() if _table_exists_cached('wt_candidate_scores') else []
+            for r in cand_rows:
+                ntype = "CREATOR_HC" if r["score"] >= 85 else "CREATOR"
+                add_node(r["wallet_address"], ntype, score=r["score"])
+
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e), "nodes": [], "links": []}), 500
+
+    conn.close()
+    return jsonify({"nodes": nodes, "links": links,
+                    "synthesized": len(nodes) > 0,
+                    "node_count": len(nodes), "link_count": len(links)})
+
+
+@app.route('/api/watchtower/backfill-infra', methods=['POST'])
+def api_watchtower_backfill_infra():
+    """
+    Backfill SIGNALLER + TREASURY + TREASURY-UP transactions via RPC.
+    Discovers any wallets funded by TREASURY during the gap and adds them as launch candidates.
+    """
+    def _run():
+        try:
+            import requests as _req
+            rpc_url = os.getenv("HELIUS_RPC_URL", "")
+            if not rpc_url:
+                print("[WT_BACKFILL] No RPC URL", flush=True)
+                return
+
+            bconn = db_connect(DB_PATH, timeout=30)
+            bconn.row_factory = sqlite3.Row
+
+            total_new = 0
+            for infra_addr, role in _WT_INFRA_ROLES.items():
+                print(f"[WT_BACKFILL] Scanning {role} ({infra_addr[:20]}…)", flush=True)
+
+                # Paginate signatures — go back up to 2000 txs (covers ~2 days for low-volume infra)
+                all_sigs = []
+                before = None
+                for _ in range(4):  # 4 pages × 500 = 2000 sigs max
+                    params = {"limit": 500}
+                    if before:
+                        params["before"] = before
+                    resp = _req.post(rpc_url, json={
+                        "jsonrpc": "2.0", "id": 1,
+                        "method": "getSignaturesForAddress",
+                        "params": [infra_addr, params]
+                    }, timeout=30)
+                    page = resp.json().get("result") or []
+                    if not page:
+                        break
+                    all_sigs.extend(page)
+                    if len(page) < 500:
+                        break
+                    before = page[-1].get("signature")
+
+                print(f"[WT_BACKFILL] {role}: {len(all_sigs)} signatures to process", flush=True)
+
+                for s in all_sigs:
+                    sig = s.get("signature")
+                    if not sig:
+                        continue
+                    # Skip already-recorded
+                    if bconn.execute(
+                        "SELECT 1 FROM watchtower_infra_events WHERE signature=? AND infra_address=?",
+                        (sig, infra_addr)
+                    ).fetchone():
+                        continue
+
+                    tx_resp = _req.post(rpc_url, json={
+                        "jsonrpc": "2.0", "id": 1,
+                        "method": "getTransaction",
+                        "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                    }, timeout=15)
+                    tx_data = tx_resp.json().get("result")
+                    if not tx_data:
+                        continue
+
+                    block_time = tx_data.get("blockTime") or int(time.time())
+                    meta = tx_data.get("meta") or {}
+                    pre  = meta.get("preBalances") or []
+                    post = meta.get("postBalances") or []
+                    accs_raw = (tx_data.get("transaction") or {}).get("message", {}).get("accountKeys") or []
+                    accs = [a.get("pubkey", "") if isinstance(a, dict) else a for a in accs_raw]
+
+                    if infra_addr not in accs:
+                        continue
+                    infra_idx = accs.index(infra_addr)
+
+                    for i, acc in enumerate(accs):
+                        if acc == infra_addr or not acc or i >= len(pre) or i >= len(post):
+                            continue
+                        delta_lamports = post[i] - pre[i]
+                        if delta_lamports == 0:
+                            continue
+                        amount_sol = abs(delta_lamports) / 1e9
+
+                        # Determine direction relative to infra_addr
+                        infra_delta = (post[infra_idx] - pre[infra_idx]) if infra_idx < len(pre) else 0
+                        if infra_delta < 0 and delta_lamports > 0:
+                            # infra lost SOL, this account gained = outbound from infra
+                            direction = "outbound"
+                            counterparty = acc
+                        elif infra_delta > 0 and delta_lamports < 0:
+                            # infra gained SOL, this account lost = inbound to infra
+                            direction = "inbound"
+                            counterparty = acc
+                        else:
+                            continue
+
+                        bconn.execute(
+                            """INSERT OR IGNORE INTO watchtower_infra_events
+                               (signature, block_time, infra_address, infra_role, direction, counterparty, amount_sol)
+                               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                            (sig, block_time, infra_addr, role, direction, counterparty, amount_sol),
+                        )
+
+                        # TREASURY outbound → potential new creator
+                        if role == "TREASURY" and direction == "outbound":
+                            already = bconn.execute(
+                                "SELECT 1 FROM creator_risk_scores WHERE creator_address=? AND watchtower_related=1",
+                                (counterparty,)
+                            ).fetchone()
+                            if not already:
+                                bconn.execute(
+                                    """INSERT INTO watchtower_launch_candidates
+                                       (address, source_operator, candidate_reason, confidence,
+                                        first_signal_at, last_signal_at, evidence_json)
+                                       VALUES (?, ?, 'treasury_funded', 'high', ?, ?,
+                                               json_object('treasury_tx', ?, 'amount_sol', ?, 'block_time', ?))
+                                       ON CONFLICT(address) DO UPDATE SET
+                                           last_signal_at = MAX(last_signal_at, excluded.last_signal_at),
+                                           evidence_json  = excluded.evidence_json""",
+                                    (counterparty, _WT_TREASURY_ADDR, block_time, block_time,
+                                     sig, amount_sol, block_time),
+                                )
+                                total_new += 1
+                                print(
+                                    f"[WT_BACKFILL] 🟡 New TREASURY recipient: {counterparty[:20]}… "
+                                    f"{amount_sol:.4f} SOL",
+                                    flush=True,
+                                )
+
+                bconn.commit()
+
+            bconn.close()
+            print(f"[WT_BACKFILL] Done — {total_new} new treasury recipients discovered", flush=True)
+        except Exception as exc:
+            import traceback
+            print(f"[WT_BACKFILL] Error: {exc}", flush=True)
+            traceback.print_exc()
+
+    import threading as _thr
+    _thr.Thread(target=_run, daemon=True, name="wt-infra-backfill").start()
+    return jsonify({"status": "backfill started — check server logs for progress"})
 
 
 # ---------------------------------------------------------------------------
@@ -25569,6 +33631,58 @@ except ImportError as e:
     print(f"[WARNING] Graph analyzer API not available: {e}")
 except Exception as e:
     print(f"[ERROR] Failed to initialize graph analyzer API: {e}")
+
+
+_full_rescore_running = False
+
+@app.route('/api/run-full-rescore', methods=['POST'])
+def api_run_full_rescore():
+    """Run graph suite -> RiskScoringBuilder -> TokenPredictionBuilder in sequence."""
+    global _full_rescore_running
+    if _full_rescore_running:
+        return jsonify({"ok": False, "error": "Already running"}), 409
+
+    import threading
+
+    def _run():
+        global _full_rescore_running
+        try:
+            import time as _t, requests as _req
+            port = os.environ.get('PORT', 5002)
+            base = f"http://localhost:{port}"
+
+            # Step 1: trigger graph suite
+            _req.post(f"{base}/api/run-graph-analyzers")
+
+            # Step 2: wait for graph suite to finish
+            while True:
+                _t.sleep(5)
+                try:
+                    if not _req.get(f"{base}/api/graph-analyzer-status").json().get("is_running", False):
+                        break
+                except Exception:
+                    break
+
+            # Step 3: risk scores
+            from src.core.risk_scoring_builder import RiskScoringBuilder
+            RiskScoringBuilder(DB_PATH).run()
+
+            # Step 4: token predictions
+            from src.core.token_prediction_builder import TokenPredictionBuilder
+            TokenPredictionBuilder(DB_PATH).run()
+        except Exception as exc:
+            logger.exception(f"full_rescore error: {exc}")
+        finally:
+            _full_rescore_running = False
+
+    _full_rescore_running = True
+    threading.Thread(target=_run, daemon=True).start()
+    return jsonify({"ok": True, "message": "Full rescore started"}), 202
+
+
+@app.route('/api/run-full-rescore/status')
+def api_run_full_rescore_status():
+    return jsonify({"running": _full_rescore_running})
 
 # =========================================================================
 # FLEX UI API (Dashboard endpoints for intelligence signals)
@@ -26470,6 +34584,11 @@ def funder_intelligence_page():
     return render_template('funder_intelligence.html', active_page='funder_intelligence')
 
 
+@app.route('/funding')
+def funding_alias_page():
+    return redirect('/funder-intelligence', code=302)
+
+
 @app.route('/api/funder-intelligence/summary')
 def api_funder_intelligence_summary():
     """Summary stats for funder ancestry propagation and network risk findings."""
@@ -26908,6 +35027,92 @@ if __name__ == '__main__':
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
 
+    # Kill any orphaned pumpfun_curve_listener processes that hold DB connections.
+    # These get detached via start_new_session=True in cleanup_and_restart() and
+    # survive Flask restarts, holding file descriptors that block DB writes.
+    try:
+        import subprocess as _sp
+        _result = _sp.run(['pgrep', '-f', 'pumpfun_curve_listener'], capture_output=True, text=True)
+        _orphan_pids = [int(p) for p in _result.stdout.split() if p.strip()]
+        if _orphan_pids:
+            print(f"[STARTUP] Killing {len(_orphan_pids)} orphaned curve_listener process(es): {_orphan_pids}", flush=True)
+            for _pid in _orphan_pids:
+                try:
+                    import os as _os
+                    _os.kill(_pid, 15)  # SIGTERM
+                except ProcessLookupError:
+                    pass
+            import time as _t; _t.sleep(1)  # give them a moment to exit
+    except Exception as _e:
+        print(f"[STARTUP] orphan cleanup skipped: {_e}", flush=True)
+
+    # Ensure watchtower tables in a background thread — never block app.run()
+    # The _wt_tables_ready guard in webhook_watchtower() handles first-hit init.
+    def _init_wt_tables():
+        global _wt_tables_ready
+        import time as _t
+        for attempt in range(10):
+            try:
+                _c = db_connect(DB_PATH, timeout=5)
+                _ensure_watchtower_tables(_c)
+                _c.commit()
+                _c.close()
+                _wt_tables_ready = True
+                print("[STARTUP] Watchtower tables verified", flush=True)
+                return
+            except Exception as _e:
+                print(f"[STARTUP] watchtower table init attempt {attempt+1} failed: {_e}", flush=True)
+                _t.sleep(3)
+        print("[STARTUP] WARNING: watchtower tables could not be verified after 10 attempts", flush=True)
+    threading.Thread(target=_init_wt_tables, daemon=True, name="wt-table-init").start()
+
+    # Start single DB writer thread — must be first, before any other workers
+    try:
+        from src.core.db_writer import start_db_writer
+        start_db_writer(DB_PATH)
+        print("[STARTUP] DB single-writer thread started", flush=True)
+    except Exception as _e:
+        print(f"[STARTUP] WARNING: DB writer failed to start: {_e}", flush=True)
+
+    # WAL checkpoint maintenance thread
+    def _wal_checkpoint_loop():
+        import time as _t
+        import os as _os2
+        while True:
+            _t.sleep(30)
+            try:
+                wal_path = DB_PATH + "-wal"
+                wal_mb = _os2.path.getsize(wal_path) / 1024 / 1024 if _os2.path.exists(wal_path) else 0
+                if wal_mb > 500:
+                    # Emergency — try TRUNCATE with long timeout to wait out readers
+                    mode = "TRUNCATE"
+                    timeout = 60
+                elif wal_mb > 100:
+                    mode = "RESTART"
+                    timeout = 30
+                else:
+                    mode = "PASSIVE"
+                    timeout = 15
+                _wc = db_connect(DB_PATH, timeout=timeout)
+                _wc.execute(f"PRAGMA busy_timeout={timeout * 1000}")
+                result = _wc.execute(f"PRAGMA wal_checkpoint({mode})").fetchone()
+                _wc.close()
+                # Log if checkpoint couldn't write all frames (busy readers)
+                if result and result[1] != result[2]:
+                    print(f"[WAL] {mode} partial: {result[2]}/{result[1]} frames written, WAL={wal_mb:.0f}MB", flush=True)
+                _wt_heartbeat("flask-app", "ok", {"pid": _os.getpid(), "wal_mb": round(wal_mb, 1)})
+            except Exception:
+                pass
+    threading.Thread(target=_wal_checkpoint_loop, daemon=True, name="wal-checkpoint").start()
+
+    # Register internal API blueprint
+    try:
+        from src.core.internal_api import internal_bp
+        app.register_blueprint(internal_bp)
+        print("[STARTUP] Internal API blueprint registered (/api/internal/*)", flush=True)
+    except Exception as _e:
+        print(f"[STARTUP] WARNING: Internal API blueprint failed: {_e}", flush=True)
+
     import os as _os
     try:
         from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
@@ -26944,18 +35149,6 @@ if __name__ == '__main__':
     threading.Thread(target=_prediction_daemon, daemon=True, name="prediction-daemon").start()
     print("[PREDICTION_DAEMON] Token prediction daemon started (2 min loop)", flush=True)
 
-    # Pump bot poller daemon — poll known bot wallets every 5 minutes
-    def _pump_bot_daemon():
-        import time as _t
-        _t.sleep(5)  # let DB settle
-        try:
-            from src.core.pump_bot_poller import run_poller_loop
-            run_poller_loop(DB_PATH, os.environ.get("HELIUS_API_KEY"))
-        except Exception as _e:
-            print(f"[PUMP_BOT_POLLER] Daemon startup error: {_e}", flush=True)
-
-    threading.Thread(target=_pump_bot_daemon, daemon=True, name="pump-bot-poller").start()
-    print("[PUMP_BOT_POLLER] Pump bot poller daemon started (5 min loop)", flush=True)
 
     # Creator resolution queue daemon — process pending resolution jobs every 30s
     def _creator_resolution_daemon():
@@ -26973,6 +35166,103 @@ if __name__ == '__main__':
 
     threading.Thread(target=_creator_resolution_daemon, daemon=True, name="creator-resolution-daemon").start()
     print("[CREATOR_RES] Creator resolution daemon started (30s loop)", flush=True)
+
+    # Under gunicorn, _wt_startup_once() (before_request) starts these — skip here
+    if not _wt_startup_done:
+        _start_wt_infra_processor()
+        _start_wt_candidate_processor()
+    print("[WT] Webhook queue processors started", flush=True)
+
+    # Seed wt_wallet_tier from _WT_INFRA_ROLES
+    def _seed_wallet_tiers():
+        try:
+            _tc = db_connect(DB_PATH, timeout=10)
+            for addr, role in _WT_INFRA_ROLES.items():
+                tier = 1 if role in ("SIGNALLER", "SUB_PROV") else 2
+                _tc.execute("""
+                    INSERT OR IGNORE INTO wt_wallet_tier
+                        (wallet_address, tier, role, auto_classified)
+                    VALUES (?, ?, ?, 1)
+                """, (addr, tier, role))
+            _tc.commit()
+            _tc.close()
+            print(f"[WT] wt_wallet_tier seeded ({len(_WT_INFRA_ROLES)} infra addresses)", flush=True)
+        except Exception as _e:
+            print(f"[WT] tier seed error: {_e}", flush=True)
+    _seed_wallet_tiers()
+
+    # Rebuild in-memory corridor state from DB (handles server restarts)
+    def _seed_corridors():
+        try:
+            _cc = db_connect(DB_PATH, timeout=10)
+            rows = _cc.execute("""
+                SELECT wallet_address, treasury_sig, treasury_ts, treasury_sol,
+                       signaller_sig, signaller_ts, signaller_lag_s, f5m_expires_at
+                FROM wt_launch_corridors
+                WHERE state = 'CORRIDOR_ACTIVE'
+            """).fetchall()
+            _cc.close()
+            with _wt_corridors_lock:
+                for r in rows:
+                    _wt_corridors[r[0]] = {
+                        "treasury_sig": r[1], "treasury_ts":  r[2],
+                        "treasury_sol": r[3], "signaller_sig": r[4],
+                        "signaller_ts": r[5], "lag_s":         r[6],
+                        "state":        "CORRIDOR_ACTIVE",
+                        "f5m_expires":  r[7],
+                    }
+                    _wt_candidate_set.add(r[0])
+            if rows:
+                print(f"[WT_CORRIDOR] Resumed {len(rows)} active corridor(s) from DB", flush=True)
+        except Exception as _e:
+            print(f"[WT_CORRIDOR] seed error: {_e}", flush=True)
+    _seed_corridors()
+
+    if not _wt_startup_done:
+        _start_relay_counterparty_discovery_worker(DB_PATH)
+        _start_corridor_monitor_worker(DB_PATH)
+        _start_swarm_migration_scanner(DB_PATH)
+
+    _start_watchtower_activation_poller(DB_PATH, interval_seconds=60)
+    _start_staged_wallet_poller(DB_PATH, interval_seconds=600)
+    _backfill_wt_creator_launches(DB_PATH)
+
+    # ── Webhook lifecycle manager ─────────────────────────────────────────────
+    def _start_webhook_reconciliation_worker():
+        import asyncio as _asyncio
+        from src.analysis.webhook_manager import run_reconciliation_worker, ensure_schema
+        import sqlite3 as _sq
+        try:
+            _conn = _sq.connect(DB_PATH)
+            ensure_schema(_conn)
+            _conn.close()
+        except Exception as _e:
+            print(f"[WH_MGR] schema init error: {_e}", flush=True)
+
+        loop = _asyncio.new_event_loop()
+        _asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(run_reconciliation_worker(DB_PATH, interval_s=120))
+        except Exception as _e:
+            print(f"[WH_MGR] reconciliation worker crashed: {_e}", flush=True)
+        finally:
+            loop.close()
+
+    threading.Thread(
+        target=_start_webhook_reconciliation_worker,
+        daemon=True,
+        name="wh-reconciliation-worker",
+    ).start()
+    print("[WH_MGR] Webhook reconciliation worker started (120s interval)", flush=True)
+
+    # Pre-warm homepage + pumpfun caches so first page loads are fast
+    def _prewarm_cache():
+        import time as _t
+        _t.sleep(3)  # let startup DB writes settle first
+        _refresh_migrated_tokens_cache()
+        _refresh_pumpfun_live_cache()
+        print(f"[CACHE] migrated-tokens + pumpfun/live pre-warm triggered", flush=True)
+    threading.Thread(target=_prewarm_cache, daemon=True).start()
 
     # Start background workers in a thread so app.run() binds immediately
     def _deferred_workers():

@@ -1,44 +1,173 @@
 <div class="sidebar">
-    <div class="sidebar-logo">Solus</div>
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-main">FLEX</div>
+        <div class="sidebar-logo-sub"><span class="sidebar-status-dot" id="sh-overall-dot"></span> Ecosystem OS</div>
+    </div>
 
     <nav class="sidebar-nav">
         <div class="sidebar-section">
-            <div class="sidebar-section-label">Tokens</div>
-            <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/">Live</a>
-            <a class="sidebar-item {% if active_page == 'pumpfun' %}active{% endif %}" href="/pumpfun">PumpFun</a>
-            <a class="sidebar-item {% if active_page == 'networks' %}active{% endif %}" href="/networks">Networks</a>
-            <a class="sidebar-item {% if active_page == 'network_intelligence' %}active{% endif %}" href="/network-intelligence">Net Intelligence</a>
-            <a class="sidebar-item {% if active_page == 'transfer_graph' %}active{% endif %}" href="/transfer-graph">Transfer Graph</a>
-            <a class="sidebar-item {% if active_page == 'clusters' %}active{% endif %}" href="/clusters">Clusters</a>
-            <a class="sidebar-item {% if active_page == 'coordinators' %}active{% endif %}" href="/coordinators">Coordinators</a>
-            <a class="sidebar-item {% if active_page == 'coordinated-funders' %}active{% endif %}" href="/coordinated-funders">Coordinated Funders</a>
-            <a class="sidebar-item {% if active_page == 'hubs' %}active{% endif %}" href="/top-funding-hubs">Hubs</a>
-            <a class="sidebar-item {% if active_page == 'creator-analysis' %}active{% endif %}" href="/creator-analysis">Creator Analysis</a>
-            <a class="sidebar-item {% if active_page == 'webhook' %}active{% endif %}" href="/webhook-monitor">Transfers</a>
-            <a class="sidebar-item {% if active_page == 'pump_bots' %}active{% endif %}" href="/pump-bots">Pump Bots</a>
+            <div class="sidebar-section-label">Live Market</div>
+            <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/">Live Launches</a>
+            <a class="sidebar-item {% if active_page == 'pumpfun' %}active{% endif %}" href="/pumpfun">PumpFun Feed</a>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-label">Intelligence</div>
-            <a class="sidebar-item {% if active_page == 'approval_queue' %}active{% endif %}" href="/approval-queue">Approval Queue</a>
-            <a class="sidebar-item {% if active_page == 'network_approval' %}active{% endif %}" href="/network-approval">Network Approval</a>
-            <a class="sidebar-item {% if active_page == 'token_intelligence' %}active{% endif %}" href="/token-intelligence">Token Intelligence</a>
-            <a class="sidebar-item {% if active_page == 'risk_scoring' %}active{% endif %}" href="/risk-scoring">Risk Scoring</a>
+            <a class="sidebar-item {% if active_page == 'token_intelligence' %}active{% endif %}" href="/token-intelligence">Tokens</a>
+            <a class="sidebar-item {% if active_page == 'creator-analysis' %}active{% endif %}" href="/creator-analysis">Creators</a>
+            <a class="sidebar-item {% if active_page in ['ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders'] %}active{% endif %}" href="/ecosystem">Ecosystems</a>
+            <a class="sidebar-item {% if active_page == 'funder_intelligence' or active_page == 'hubs' %}active{% endif %}" href="/funder-intelligence">Funding</a>
             <a class="sidebar-item {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">Predictions</a>
-            <a class="sidebar-item {% if active_page == 'trading_sim' %}active{% endif %}" href="/trading-sim">Trading Sim</a>
-            <a class="sidebar-item {% if active_page == 'funder_intelligence' %}active{% endif %}" href="/funder-intelligence">Funder Intel</a>
-            <a class="sidebar-item {% if active_page == 'spike_analysis' %}active{% endif %}" href="/spike-analysis">Flash Spikes</a>
-            <a class="sidebar-item {% if active_page == 'network_diagram' %}active{% endif %}" href="/network-diagram">Investigations</a>
-            <a class="sidebar-item {% if active_page == 'system_health' %}active{% endif %}" href="/system-health">System Health</a>
-            <a class="sidebar-item {% if active_page == 'vaults' %}active{% endif %}" href="/vaults">Vaults</a>
-            <a class="sidebar-item {% if active_page == 'snapshots' %}active{% endif %}" href="/snapshots">Snapshots</a>
+            <a class="sidebar-item {% if active_page == 'trading_sim' %}active{% endif %}" href="/trading-sim">Portfolio</a>
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-label">System</div>
+            <div class="sidebar-section-label">Review & Investigation</div>
+            <a class="sidebar-item {% if active_page == 'approval_queue' %}active{% endif %}" href="/approval-queue">Token Review</a>
+            <a class="sidebar-item {% if active_page == 'network_approval' %}active{% endif %}" href="/network-approval">Ecosystem Review</a>
+            <a class="sidebar-item {% if active_page == 'spike_analysis' %}active{% endif %}" href="/spike-analysis">Flash Spikes</a>
+            <a class="sidebar-item {% if active_page == 'network_diagram' %}active{% endif %}" href="/network-diagram">Investigations</a>
+            <a class="sidebar-item {% if active_page == 'watchtower' %}active{% endif %}" href="/watchtower">⬡ WATCHTOWER</a>
+            <a class="sidebar-item {% if active_page == 'watchtower_dashboard' %}active{% endif %}" href="/watchtower/dashboard" style="padding-left:20px;font-size:11px;">↳ Dashboard</a>
+            <a class="sidebar-item {% if active_page == 'watchtower_ops' %}active{% endif %}" href="/watchtower/intelligence" style="padding-left:20px;font-size:11px;">↳ Operations</a>
+            <a class="sidebar-item {% if active_page == 'watchtower_operators' %}active{% endif %}" href="/watchtower/operators" style="padding-left:20px;font-size:11px;">↳ Operators</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Diagnostics</div>
+            <a class="sidebar-item {% if active_page == 'transfer_graph' %}active{% endif %}" href="/transfer-graph">Graph Diagnostics</a>
+            <a class="sidebar-item {% if active_page == 'webhook' %}active{% endif %}" href="/webhook-monitor">Webhook Monitor</a>
+            <a class="sidebar-item {% if active_page == 'funding_queue' %}active{% endif %}" href="/funding-queue">Funding Queue</a>
+            <a class="sidebar-item {% if active_page == 'snapshots' %}active{% endif %}" href="/snapshots">Snapshots</a>
+            <a class="sidebar-item {% if active_page == 'vaults' %}active{% endif %}" href="/vaults">Vaults</a>
             <a class="sidebar-item {% if active_page == 'usage' %}active{% endif %}" href="/usage">Usage</a>
-            <a class="sidebar-item {% if active_page == 'funding_queue' %}active{% endif %}" href="/funding-queue">Performance</a>
+            <a class="sidebar-item {% if active_page == 'system_health' %}active{% endif %}" href="/system-health">System Health</a>
             <a class="sidebar-item {% if active_page == 'settings' %}active{% endif %}" href="/settings">Settings</a>
         </div>
     </nav>
+
+    <!-- System health strip — polls /healthz every 30s -->
+    <div id="sys-health-strip" style="
+        margin: 12px 8px 8px;
+        padding: 8px 10px;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 6px;
+        font-size: 10px;
+        font-family: monospace;
+        color: #888;
+    ">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <span id="sh-api"    class="sh-dot">API</span>
+            <span id="sh-infra"  class="sh-dot">INFRA</span>
+            <span id="sh-cand"   class="sh-dot">CAND</span>
+            <span id="sh-corr"   class="sh-dot">CORR</span>
+            <span id="sh-db"     class="sh-dot">DB</span>
+            <span id="sh-wal"    class="sh-dot">WAL</span>
+        </div>
+        <div id="sh-hb" style="margin-top:5px;color:#555;font-size:9px;">checking…</div>
+    </div>
 </div>
+
+<style>
+.sh-dot {
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #333;
+    color: #666;
+    font-weight: bold;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+}
+.sh-dot.ok   { background: rgba(40,160,80,0.25); color: #4caf73; border: 1px solid rgba(40,160,80,0.3); }
+.sh-dot.warn { background: rgba(200,150,0,0.25);  color: #c8960a; border: 1px solid rgba(200,150,0,0.3); }
+.sh-dot.dead { background: rgba(200,40,40,0.25);  color: #e05555; border: 1px solid rgba(200,40,40,0.3); }
+</style>
+
+<script>
+(function() {
+    function ageClass(age) {
+        if (age === null) return 'warn';
+        if (age < 60)  return 'ok';
+        if (age < 120) return 'warn';
+        return 'dead';
+    }
+    function setDot(id, cls, title) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'sh-dot ' + cls;
+        el.title = title || '';
+    }
+    function pollHealth() {
+        fetch('/healthz').then(function(r){ return r.json(); }).then(function(d) {
+            var w = d.workers || {};
+            var now = Math.floor(Date.now()/1000);
+
+            // API alive = we got a response
+            setDot('sh-api', 'ok', 'API responding');
+
+            // DB
+            setDot('sh-db', d.db === 'ok' ? 'ok' : 'dead', 'DB: ' + d.db);
+
+            // WAL size
+            var walMb = d.wal_mb !== undefined ? d.wal_mb : null;
+            var walCls = 'ok';
+            if (walMb !== null) {
+                walCls = walMb > 500 ? 'dead' : walMb > 200 ? 'warn' : 'ok';
+                setDot('sh-wal', walCls, 'WAL: ' + walMb + ' MB' + (walMb > 500 ? ' — checkpoint needed!' : ''));
+            }
+
+            // Overall dot (worst of: db, wal, workers)
+            var workerStates = Object.values(w).map(function(v){ return ageClass(v.age_s); });
+            var worstWorker = workerStates.includes('dead') ? 'dead' : workerStates.includes('warn') ? 'warn' : 'ok';
+            var overall = [d.db === 'ok' ? 'ok' : 'dead', walCls, worstWorker];
+            var overallCls = overall.includes('dead') ? 'dead' : overall.includes('warn') ? 'warn' : 'ok';
+            var dotEl = document.getElementById('sh-overall-dot');
+            if (dotEl) {
+                var clrMap = {ok: '#22c55e', warn: '#f59e0b', dead: '#ef4444'};
+                var glowMap = {ok: 'rgba(34,197,94,.55)', warn: 'rgba(245,158,11,.5)', dead: 'rgba(239,68,68,.5)'};
+                dotEl.style.background = clrMap[overallCls];
+                dotEl.style.boxShadow = '0 0 9px ' + glowMap[overallCls];
+                dotEl.title = overallCls === 'ok' ? 'All systems nominal' : overallCls === 'warn' ? 'Degraded — check health panel' : 'Critical — system error';
+            }
+
+            // Workers
+            var infra = w['wt-infra-processor'];
+            setDot('sh-infra', infra ? ageClass(infra.age_s) : 'warn',
+                   infra ? 'Infra processor ' + infra.age_s + 's ago' : 'No heartbeat yet');
+
+            var cand = w['wt-candidate-processor'];
+            setDot('sh-cand', cand ? ageClass(cand.age_s) : 'warn',
+                   cand ? 'Candidate processor ' + cand.age_s + 's ago' : 'No heartbeat yet');
+
+            var corr = w['wt-corridor-monitor'];
+            setDot('sh-corr', corr ? ageClass(corr.age_s) : 'warn',
+                   corr ? 'Corridor monitor ' + corr.age_s + 's ago' : 'No heartbeat yet');
+
+            // Last heartbeat label
+            var ages = Object.values(w).map(function(v){ return v.age_s; }).filter(function(a){ return a !== undefined; });
+            var oldest = ages.length ? Math.max.apply(null, ages) : null;
+            var hbEl = document.getElementById('sh-hb');
+            if (hbEl) {
+                hbEl.textContent = oldest !== null
+                    ? 'last hb ' + oldest + 's ago'
+                    : 'awaiting heartbeat';
+                hbEl.style.color = oldest !== null && oldest < 120 ? '#4a6' : '#c55';
+            }
+        }).catch(function() {
+            setDot('sh-api',  'dead', 'API unreachable');
+            setDot('sh-db',   'dead', '');
+            setDot('sh-infra','dead', '');
+            setDot('sh-cand', 'dead', '');
+            setDot('sh-corr', 'dead', '');
+            setDot('sh-wal',  'dead', '');
+            var dotEl2 = document.getElementById('sh-overall-dot');
+            if (dotEl2) { dotEl2.style.background = '#ef4444'; dotEl2.style.boxShadow = '0 0 9px rgba(239,68,68,.5)'; dotEl2.title = 'API unreachable'; }
+            var hbEl = document.getElementById('sh-hb');
+            if (hbEl) { hbEl.textContent = 'API unreachable'; hbEl.style.color = '#c55'; }
+        });
+    }
+    pollHealth();
+    setInterval(pollHealth, 30000);
+})();
+</script>

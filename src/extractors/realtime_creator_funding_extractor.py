@@ -23,6 +23,7 @@ import asyncio
 import aiohttp
 import os
 import time
+from src.utils.db_locking import db_connect
 from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
 from src.utils.db_locking import DB_WRITE_LOCK
@@ -100,7 +101,7 @@ class DomainResolver:
 
     def _ensure_table(self):
         """Create address_domains table if it doesn't exist"""
-        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn = db_connect(self.db_path, timeout=60)
         cur = conn.cursor()
         
         # Domains cache table (for resolution state tracking)
@@ -132,7 +133,7 @@ class DomainResolver:
 
     def _db_get(self, address: str) -> Optional[Tuple[Optional[str], int]]:
         """Get domain from database cache"""
-        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn = db_connect(self.db_path, timeout=60)
         cur = conn.cursor()
         cur.execute("SELECT primary_domain, updated_at FROM address_domains WHERE address = ? LIMIT 1", (address,))
         row = cur.fetchone()
@@ -143,7 +144,7 @@ class DomainResolver:
 
     def _db_set_many(self, rows: List[Tuple[str, Optional[str], int]]):
         """Save multiple domain lookups to database cache"""
-        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn = db_connect(self.db_path, timeout=60)
         cur = conn.cursor()
         cur.executemany("""
             INSERT OR REPLACE INTO address_domains (address, primary_domain, updated_at)
@@ -162,7 +163,7 @@ class DomainResolver:
             return
 
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            conn = db_connect(self.db_path, timeout=60)
             cur = conn.cursor()
 
             # Save domain tag (tag_type='domain', tag_value=actual domain name)
@@ -335,15 +336,12 @@ class RealTimeCreatorFundingExtractor:
     def _setup_db_optimizations(self):
         """Configure SQLite for better performance (PRAGMA settings)"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
-            conn.execute("PRAGMA journal_mode=WAL;")
-            conn.execute("PRAGMA synchronous=NORMAL;")
+            conn = db_connect(DB_PATH, timeout=60)
             conn.execute("PRAGMA temp_store=MEMORY;")
-            conn.execute("PRAGMA cache_size=-50000;")  # ~50MB cache (reduced from 200MB)
-            conn.execute("PRAGMA busy_timeout=60000;")  # 60s timeout for locked DB
+            conn.execute("PRAGMA cache_size=-50000;")  # ~50MB cache
             conn.commit()
             conn.close()
-            print("[PERF] SQLite optimizations applied (WAL mode, 50MB cache, 60s busy timeout)", flush=True)
+            print("[PERF] SQLite optimizations applied", flush=True)
         except Exception as e:
             print(f"[PERF] Warning: Could not apply SQLite optimizations: {e}", flush=True)
 
@@ -846,7 +844,7 @@ class RealTimeCreatorFundingExtractor:
         try:
             from src.utils.infra_mapping import is_cex_account, CEX_ACCOUNTS
 
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Check if recipient is a known CEX wallet
@@ -921,7 +919,7 @@ class RealTimeCreatorFundingExtractor:
     def get_creator_cex_outflows(self, creator: str) -> Dict:
         """Get all SOL transfers from creator to CEX addresses"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=5)
+            conn = db_connect(DB_PATH, timeout=15)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -1061,7 +1059,7 @@ class RealTimeCreatorFundingExtractor:
         Called after all funder/recipient data has been saved to the database.
         """
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
             
             # Update creator_state with final extraction status
@@ -1142,8 +1140,7 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING]    Will fetch up to 1 month of history", flush=True)
 
             # FIX #4: Open one shared connection for entire extraction run + ensure schema
-            extraction_conn = sqlite3.connect(DB_PATH, timeout=90)
-            extraction_conn.execute("PRAGMA busy_timeout = 90000")
+            extraction_conn = db_connect(DB_PATH, timeout=90)
             extraction_cursor = extraction_conn.cursor()
 
             # Build exclusion set: token mints + bonding curves created by this creator
@@ -1505,7 +1502,7 @@ class RealTimeCreatorFundingExtractor:
 
                                             # Mark creator for deBridge usage
                                             try:
-                                                conn = sqlite3.connect(DB_PATH, timeout=60)
+                                                conn = db_connect(DB_PATH, timeout=60)
                                                 cursor = conn.cursor()
                                                 cursor.execute("""
                                                     INSERT OR REPLACE INTO creator_tags
@@ -1822,7 +1819,7 @@ class RealTimeCreatorFundingExtractor:
             return
 
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Get list of Jitotip accounts from INFRASTRUCTURE_ACCOUNTS
@@ -1951,7 +1948,7 @@ class RealTimeCreatorFundingExtractor:
     async def check_transfers_for_meteora(self, creator: str):
         """Check if creator has inbound/outbound transfers to/from Meteora and tag if so"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Meteora Pool Authority
@@ -2061,7 +2058,7 @@ class RealTimeCreatorFundingExtractor:
     async def check_transfers_for_debridge(self, creator: str):
         """Check if creator has inbound or outbound transfers to/from deBridge and tag if so"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # deBridge vault
@@ -2126,7 +2123,7 @@ class RealTimeCreatorFundingExtractor:
     async def check_transfers_for_axiom(self, creator: str):
         """Check if creator has interactions with Axiom and tag if so"""
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Axiom automation account
@@ -2197,7 +2194,7 @@ class RealTimeCreatorFundingExtractor:
         - dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN (DLMM)
         """
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
 
             # Check if creator is already tagged with Meteora usage
@@ -2281,7 +2278,7 @@ class RealTimeCreatorFundingExtractor:
             # If Meteora DLMM usage found, tag the creator
             if found_meteora:
                 try:
-                    conn = sqlite3.connect(DB_PATH, timeout=60)
+                    conn = db_connect(DB_PATH, timeout=60)
                     cursor = conn.cursor()
                     
                     cursor.execute("""
@@ -2369,10 +2366,9 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
     if not _skip:
         # Phase 1 fallback: legacy COUNT(*) check
         try:
-            import sqlite3 as _sqlite3
             import os as _os
             _db_path = _os.getenv("DB_PATH") or _os.path.join(_os.path.dirname(__file__), "../../database/flex_complete_database.db")
-            _conn = _sqlite3.connect(_db_path, timeout=5)
+            _conn = db_connect(_db_path, timeout=15)
             _row = _conn.execute(
                 "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
                 (creator,)

@@ -11,8 +11,10 @@ echo "🔄 Restarting services..."
 echo ""
 
 # Configure WebSocket pool subscription with Helius API key
-if [ -z "$HELIUS_API_KEY" ] && [ -f "$PROJECT_ROOT/config/.env" ]; then
-    export HELIUS_API_KEY=$(grep "^HELIUS_API_KEY=" "$PROJECT_ROOT/config/.env" | cut -d'=' -f2)
+if [ -f "$PROJECT_ROOT/config/.env" ]; then
+    [ -z "$HELIUS_API_KEY" ] && export HELIUS_API_KEY=$(grep "^HELIUS_API_KEY=" "$PROJECT_ROOT/config/.env" | cut -d'=' -f2)
+    [ -z "$CREATOR_MOVEMENT_WEBHOOK_ID" ] && export CREATOR_MOVEMENT_WEBHOOK_ID=$(grep "^CREATOR_MOVEMENT_WEBHOOK_ID=" "$PROJECT_ROOT/config/.env" | cut -d'=' -f2)
+    [ -z "$CREATOR_MOVEMENT_WEBHOOK_URL" ] && export CREATOR_MOVEMENT_WEBHOOK_URL=$(grep "^CREATOR_MOVEMENT_WEBHOOK_URL=" "$PROJECT_ROOT/config/.env" | cut -d'=' -f2)
 fi
 
 if [ -n "$HELIUS_API_KEY" ]; then
@@ -39,6 +41,7 @@ sleep 1
 echo "✓ Port 5002 killed"
 
 pkill -9 -f "pumpfun_curve_listener" 2>/dev/null || true
+pkill -9 -f "run_listener.sh" 2>/dev/null || true
 sleep 1
 echo "✓ Listener killed"
 
@@ -94,13 +97,13 @@ sleep 2
 echo "✓ Helius CLI monitor started (PID: $HELIUS_PID)"
 
 echo ""
-echo "🚀 Starting listener..."
+echo "🚀 Starting listener (via watchdog)..."
 RPC_METRICS_DB="$PROJECT_ROOT/database/flex_complete_database.db" \
-nohup python -u -m src.core.pumpfun_curve_listener >> listener.log 2>&1 &
+nohup bash "$PROJECT_ROOT/run_listener.sh" >> listener.log 2>&1 &
 LISTENER_PID=$!
 disown $LISTENER_PID
 sleep 4
-echo "✓ Listener started (PID: $LISTENER_PID)"
+echo "✓ Listener watchdog started (PID: $LISTENER_PID)"
 
 echo ""
 echo "🚀 Starting Flask app with Token Price System + WebSocket Pools..."
@@ -109,6 +112,8 @@ HELIUS_RPC_URL="$HELIUS_RPC_URL" \
 HELIUS_WS_URL="$HELIUS_WS_URL" \
 FLEX_WS_DISABLED=1 \
 RPC_METRICS_DB="$PROJECT_ROOT/database/flex_complete_database.db" \
+CREATOR_MOVEMENT_WEBHOOK_ID="$CREATOR_MOVEMENT_WEBHOOK_ID" \
+CREATOR_MOVEMENT_WEBHOOK_URL="$CREATOR_MOVEMENT_WEBHOOK_URL" \
 nohup python src/core/main.py >> flask.log 2>&1 &
 FLASK_PID=$!
 disown $FLASK_PID
@@ -152,9 +157,10 @@ pkill -f "scripts/monitor.py" 2>/dev/null || true
 
 # Launch monitor in a new Terminal window
 echo "🔍 Starting monitor..."
+MONITOR_CMD="/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python ${PROJECT_ROOT}/scripts/monitor.py --interval 15"
 osascript -e "tell application \"Terminal\"
     activate
-    do script \"/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python '$PROJECT_ROOT/scripts/monitor.py' --interval 15\"
+    do script \"${MONITOR_CMD}\"
 end tell" 2>/dev/null && echo "✓ Monitor running in new Terminal window" || {
     # Fallback: run in background and write to monitor.log
     nohup python "$PROJECT_ROOT/scripts/monitor.py" --interval 15 >> "$PROJECT_ROOT/logs/monitor.log" 2>&1 &

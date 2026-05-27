@@ -16,6 +16,9 @@ import weakref
 from collections import Counter
 from typing import Optional
 
+# Capture original sqlite3.connect before any monkey-patching
+_sqlite3_connect_orig = sqlite3.connect
+
 # Single lock instance used by all modules
 DB_WRITE_LOCK = threading.RLock()
 
@@ -160,7 +163,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
 
     t0 = time.monotonic()
     try:
-        conn = sqlite3.connect(path, timeout=timeout, factory=TrackedConnection)
+        conn = _sqlite3_connect_orig(path, timeout=timeout, factory=TrackedConnection)
     except Exception as e:
         elapsed = time.monotonic() - t0
         _db_logger.error(f"[DB_CONNECT_FAIL] caller={caller} elapsed={elapsed:.2f}s error={e}")
@@ -180,9 +183,9 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
     conn.execute("PRAGMA busy_timeout=30000")
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
-    # Auto-checkpoint every 1000 pages (~4 MB) — prevents WAL from growing unbounded
-    # even when connections are long-lived. PASSIVE mode doesn't block writers.
     conn.execute("PRAGMA wal_autocheckpoint=1000")
+    # Cap WAL file size at 256 MB — SQLite truncates to this after each checkpoint
+    conn.execute("PRAGMA journal_size_limit=268435456")
     return conn
 
 
@@ -208,8 +211,8 @@ def managed_db_connect(path: str, timeout: int = 30, row_factory=None):
 # and cause the WAL to grow unbounded. The reaper closes any connection that has
 # been open longer than MAX_CONNECTION_AGE_SECS.
 
-_REAPER_INTERVAL_SECS = 30
-_MAX_CONNECTION_AGE_SECS = 60  # connections held longer than this are leaks
+_REAPER_INTERVAL_SECS = 10
+_MAX_CONNECTION_AGE_SECS = 20  # connections held longer than this are leaks
 _reaper_db_path: Optional[str] = None  # set from first registered connection
 
 
@@ -219,7 +222,6 @@ def _reaper_loop() -> None:
         try:
             reaped = _reap_stale_connections()
             if reaped and _reaper_db_path:
-                # Try to checkpoint WAL after freeing readers
                 try:
                     conn = sqlite3.connect(_reaper_db_path, timeout=2)
                     conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
@@ -230,6 +232,50 @@ def _reaper_loop() -> None:
             pass
 
 
+# ── WAL watchdog ──────────────────────────────────────────────────────────────
+# PASSIVE autocheckpoint can't truncate the WAL while any reader holds it open.
+# This watchdog runs RESTART checkpoint every 5 minutes when WAL exceeds 500 MB,
+# which resets the write position to the start of the file so it stops growing.
+# RESTART waits for all readers to finish (up to busy_timeout) then truncates.
+
+_WAL_WATCHDOG_INTERVAL = 60        # seconds between checks
+_WAL_SIZE_THRESHOLD    = 200 * 1024 * 1024  # 200 MB
+
+
+def _wal_watchdog_loop() -> None:
+    import os
+    while True:
+        time.sleep(_WAL_WATCHDOG_INTERVAL)
+        if not _reaper_db_path:
+            continue
+        try:
+            wal_path = _reaper_db_path + "-wal"
+            if not os.path.exists(wal_path):
+                continue
+            wal_size = os.path.getsize(wal_path)
+            if wal_size < _WAL_SIZE_THRESHOLD:
+                continue
+            _db_logger.info(f"[WAL_WATCHDOG] WAL is {wal_size/1e9:.2f} GB — running RESTART checkpoint")
+            conn = sqlite3.connect(_reaper_db_path, timeout=10)
+            result = conn.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
+            conn.close()
+            wal_after = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+            _db_logger.info(f"[WAL_WATCHDOG] checkpoint result={result}  WAL after={wal_after/1e9:.2f} GB")
+        except Exception as e:
+            _db_logger.warning(f"[WAL_WATCHDOG] checkpoint failed: {e}")
+
+
+# Threads that handle live data — never reap their connections mid-flight
+_REAPER_SAFE_THREADS = {
+    # wt-* webhook/websocket threads: mid-flight reads must not be interrupted
+    "wt-infra-processor",
+    "wt-candidate-processor",
+    "wt-corridor-monitor",
+    # MainThread intentionally NOT exempt — asyncio opens idle connections that
+    # must be reaped. Active transactions are protected by the in_transaction check.
+}
+
+
 def _reap_stale_connections() -> int:
     now = time.time()
     cutoff = now - _MAX_CONNECTION_AGE_SECS
@@ -237,8 +283,13 @@ def _reap_stale_connections() -> int:
 
     with _open_connections_lock:
         for tracking_id, record in list(_open_connections.items()):
-            if record["opened_at"] < cutoff:
-                to_reap.append((tracking_id, record))
+            if record["opened_at"] >= cutoff:
+                continue
+            thread_name = record.get("thread", "")
+            # Skip live-data threads — they may be mid-read on a webhook/websocket
+            if thread_name in _REAPER_SAFE_THREADS:
+                continue
+            to_reap.append((tracking_id, record))
 
     reaped = 0
     for tracking_id, record in to_reap:
@@ -247,10 +298,12 @@ def _reap_stale_connections() -> int:
         caller = record.get("caller", "unknown")
         if conn is not None:
             try:
+                if conn.in_transaction:
+                    continue  # active write — leave it alone
                 conn.close()
                 reaped += 1
                 _db_logger.warning(
-                    f"[DB_REAPER] closed leaked connection age={age}s caller={caller}"
+                    f"[DB_REAPER] closed idle connection age={age}s caller={caller}"
                 )
             except Exception:
                 pass
@@ -262,8 +315,74 @@ def _reap_stale_connections() -> int:
 
 
 def _start_connection_reaper() -> None:
-    t = threading.Thread(target=_reaper_loop, daemon=True, name="db-conn-reaper")
-    t.start()
+    threading.Thread(target=_reaper_loop, daemon=True, name="db-conn-reaper").start()
+    threading.Thread(target=_wal_watchdog_loop, daemon=True, name="db-wal-watchdog").start()
 
 
 _start_connection_reaper()
+
+
+# ── sqlite3.connect monkey-patch ─────────────────────────────────────────────
+# Redirect all bare sqlite3.connect() calls to db_connect() so every connection
+# gets busy_timeout=30000, WAL mode, and reaper tracking — without editing every
+# caller. Only patches connections to the main flex DB; other paths pass through.
+import os as _os
+
+_FLEX_DB_PATH = _os.getenv(
+    "DB_PATH",
+    _os.path.join(_os.path.dirname(__file__), "../../database/flex_complete_database.db"),
+)
+_FLEX_DB_ABS = _os.path.realpath(_FLEX_DB_PATH) if _FLEX_DB_PATH else None
+
+
+def _patched_connect(database, timeout=5, *args, **kwargs):
+    # Only intercept the main flex DB; let everything else (in-memory, other paths) through
+    try:
+        db_abs = _os.path.realpath(str(database)) if database and database != ":memory:" else None
+    except Exception:
+        db_abs = None
+
+    if db_abs and _FLEX_DB_ABS and db_abs == _FLEX_DB_ABS:
+        # Use the higher timeout if caller asked for more
+        effective_timeout = max(timeout, 30)
+        # factory kwarg would conflict — db_connect uses TrackedConnection internally
+        kwargs.pop("factory", None)
+        row_factory = kwargs.pop("row_factory", None)
+        conn = db_connect(database, timeout=effective_timeout, row_factory=row_factory)
+        return conn
+
+    return _sqlite3_connect_orig(database, timeout, *args, **kwargs)
+
+
+sqlite3.connect = _patched_connect
+
+
+@contextlib.contextmanager
+def db_retry(path: str, retries: int = 5, base_delay: float = 0.5, **kwargs):
+    """
+    db_connect with exponential-backoff retry on OperationalError (locked).
+    Use for write-heavy paths that still see lock contention despite busy_timeout.
+
+        with db_retry(DB_PATH) as conn:
+            conn.execute(...)
+            conn.commit()
+    """
+    last_exc = None
+    for attempt in range(retries):
+        conn = None
+        try:
+            conn = db_connect(path, **kwargs)
+            yield conn
+            conn.close()
+            return
+        except sqlite3.OperationalError as e:
+            last_exc = e
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+            if "locked" not in str(e).lower() or attempt == retries - 1:
+                raise
+            time.sleep(base_delay * (2 ** attempt))
+    raise last_exc

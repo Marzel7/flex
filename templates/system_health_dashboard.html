@@ -296,6 +296,14 @@
             </div>
         </div>
 
+        <!-- First Snapshot Health -->
+        <div class="grid">
+            <div class="card wide-card">
+                <div class="card-title"><i class="fas fa-anchor"></i> First Snapshot Health</div>
+                <div id="firstSnapshotHealth" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
         <!-- Local Flask Process Diagnostics (NOT global system health) -->
         <div class="grid">
             <div class="card wide-card" style="border-color: rgba(234,179,8,0.3);">
@@ -304,6 +312,28 @@
                     <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">⚠ Flask-process only — does NOT reflect listener/worker state</span>
                 </div>
                 <div id="localDiagnostics" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
+        <!-- WATCHTOWER Tier 1: Creator Prediction -->
+        <div class="grid">
+            <div class="card wide-card" style="border-color: rgba(34,211,238,0.3);">
+                <div class="card-title" style="color: #22d3ee;">
+                    <i class="fas fa-crosshairs"></i> TIER 1 — Creator Prediction
+                    <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">candidate webhook · sparse precision monitoring · raw hit logging</span>
+                </div>
+                <div id="tier1Monitor" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
+        <!-- WATCHTOWER Tier 2: Infrastructure Telemetry -->
+        <div class="grid">
+            <div class="card wide-card" style="border-color: rgba(139,92,246,0.3);">
+                <div class="card-title" style="color: #a78bfa;">
+                    <i class="fas fa-satellite-dish"></i> TIER 2 — Infrastructure Telemetry
+                    <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">relay · sweep collector · treasury · aggregated minute-buckets</span>
+                </div>
+                <div id="tier2Monitor" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
         </div>
 {% endblock %}
@@ -776,6 +806,32 @@
             document.getElementById('localDiagnostics').innerHTML = html;
         }
 
+        function renderFirstSnapshotHealth(h) {
+            if (!h || h.ok === false) return;
+            const fmt = n => (n ?? 0).toLocaleString();
+            const live = h.since_retention_enabled || {};
+            const legacy = h.all_time_legacy || {};
+            const enabled = h.retention_enabled_at ? new Date(h.retention_enabled_at * 1000).toLocaleString() : '—';
+            document.getElementById('firstSnapshotHealth').innerHTML = `
+                <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:.75rem;">Retention enabled: ${enabled}</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+                    <div class="metric">
+                        <div class="metric-label">Since Retention Enabled</div>
+                        <div class="metric-value small">${live.coverage_pct ?? 0}%</div>
+                        <div style="font-size:.8rem;color:var(--text-secondary);margin-top:.25rem;">${fmt(live.anchors_written)} / ${fmt(live.pools_seen)} anchored · ${fmt(live.missing_after_60s)} missing after 60s</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">All-Time Legacy Coverage</div>
+                        <div class="metric-value small">${legacy.coverage_pct ?? 0}%</div>
+                        <div style="font-size:.8rem;color:var(--text-secondary);margin-top:.25rem;">${fmt(legacy.anchors_written)} / ${fmt(legacy.pools_seen)} anchored · ${fmt(legacy.missing_after_60s)} missing after 60s</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Bad/Null MC</div>
+                        <div class="metric-value small">${fmt(h.bad_or_null_first_mc_count)}</div>
+                    </div>
+                </div>`;
+        }
+
         function renderSnapshotCleanup(data) {
             const sc = data?.snapshot_cleanup || {};
             const fmt = n => (n ?? 0).toLocaleString();
@@ -802,9 +858,10 @@
         }
 
         async function updateDashboard() {
-            const [data, dbHealth] = await Promise.all([
+            const [data, dbHealth, firstSnapshotHealth] = await Promise.all([
                 fetchHealth(),
                 fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
+                fetch('/api/first-snapshot-health').then(r => r.json()).catch(() => ({})),
             ]);
             if (!data) {
                 document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
@@ -828,11 +885,167 @@
             renderCircuitBreaker(data);
             renderRollingWindow(data);
             renderSnapshotCleanup(data);
+            renderFirstSnapshotHealth(firstSnapshotHealth);
             renderLocalDiagnostics(data);
             renderIngressStatus(data);
+            renderWebhookMonitor();
 
             const now = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+        }
+
+        async function renderTier1Monitor() {
+            const el = document.getElementById('tier1Monitor');
+            if (!el) return;
+            try {
+                const [statusRes, cand1h, cand24h] = await Promise.all([
+                    fetch('/api/watchtower/webhook-status').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/hit-activity?window_s=3600&limit=20&source=candidate_webhook').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/hit-activity?window_s=86400&limit=20&source=candidate_webhook').then(r => r.json()).catch(() => ({})),
+                ]);
+
+                const whs    = statusRes.webhooks || {};
+                const candWh = whs['candidate'] || {};
+                const hits1h  = cand1h.stats?.total_hits  || 0;
+                const hits24h = cand24h.stats?.total_hits || 0;
+                const bursts  = cand1h.bursts || [];
+                const feeTouches24h = (cand24h.wallets || []).reduce((s,w) => s + (w.fee_touches||0), 0);
+                const rec = candWh.last_reconciliation || {};
+                const recAge = rec.ran_at ? Math.round((Date.now()/1000 - rec.ran_at)) : null;
+                const hpm = hits1h > 0 ? (hits1h / 60).toFixed(1) : '0';
+
+                const burstHtml = bursts.length > 0
+                    ? bursts.map(b => `<span style="background:rgba(34,211,238,.1);color:#22d3ee;padding:2px 8px;border-radius:4px;font-size:0.8rem;margin-right:6px">⚡ ${b.wallet_address.slice(0,8)}… ${b.hits_5m} hits/5m</span>`).join('')
+                    : '<span style="color:var(--text-secondary);font-size:0.85rem">No bursts</span>';
+
+                const topRows = (cand24h.wallets || []).slice(0,10).map(w => {
+                    const addr = w.wallet_address;
+                    const sc = w.fee_touches > 0 ? '#f87171' : w.burst >= 3 ? '#fb923c' : '#22d3ee';
+                    const sig = w.fee_touches > 0 ? 'FEE TOUCH' : w.signal || 'ACTIVE';
+                    return `<tr>
+                        <td style="font-family:monospace;font-size:0.8rem" title="${addr}">${addr.slice(0,8)}…${addr.slice(-6)}</td>
+                        <td style="color:${sc};font-weight:600">${sig}</td>
+                        <td style="color:#fff;font-weight:700">${w.hits}</td>
+                        <td style="color:#f87171">${w.fee_touches||0}</td>
+                        <td style="color:var(--text-secondary)">${w.total_sol_moved ? (+w.total_sol_moved).toFixed(3)+'◎' : '—'}</td>
+                    </tr>`;
+                }).join('') || '<tr><td colspan="5" style="color:var(--text-secondary);padding:8px 0">No candidate activity recorded yet</td></tr>';
+
+                el.innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.2rem">
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${(candWh.local_active||0).toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">ENROLLED</div>
+                        </div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${hits1h.toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">HITS · 1H</div>
+                        </div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${hits24h.toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">HITS · 24H</div>
+                        </div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:${feeTouches24h>0?'#f87171':'#22d3ee'}">${feeTouches24h}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">FEE TOUCHES 24H</div>
+                        </div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${hpm}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">HITS / MIN</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:0.8rem">
+                        <span style="font-size:0.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em">Burst Alerts · </span>${burstHtml}
+                        ${recAge !== null ? `<span style="float:right;font-size:0.7rem;color:var(--text-secondary)">Reconciled ${recAge}s ago</span>` : ''}
+                    </div>
+                    <table style="width:100%;border-collapse:collapse;font-size:0.8rem">
+                        <thead><tr style="color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,.1)">
+                            <th style="text-align:left;padding:4px 0">Wallet</th>
+                            <th style="text-align:left;padding:4px 0">Signal</th>
+                            <th style="text-align:right;padding:4px 0">Hits</th>
+                            <th style="text-align:right;padding:4px 0">Fee</th>
+                            <th style="text-align:right;padding:4px 0">SOL</th>
+                        </tr></thead>
+                        <tbody>${topRows}</tbody>
+                    </table>`;
+            } catch(e) {
+                el.innerHTML = `<div style="color:#f87171">Tier 1 error: ${e}</div>`;
+            }
+        }
+
+        async function renderTier2Monitor() {
+            const el = document.getElementById('tier2Monitor');
+            if (!el) return;
+            try {
+                const [relayRes, cpRes, statusRes] = await Promise.all([
+                    fetch('/api/watchtower/relay-telemetry?window_minutes=60').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/relay-counterparties?state=NEW&limit=5').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/webhook-status').then(r => r.json()).catch(() => ({})),
+                ]);
+
+                const relays  = relayRes.relays  || [];
+                const counts  = cpRes.counts || [];
+                const whs     = statusRes.webhooks || {};
+                const infraWh = whs['infra'] || {};
+                const rec     = infraWh.last_reconciliation || {};
+                const recAge  = rec.ran_at ? Math.round((Date.now()/1000 - rec.ran_at)) : null;
+
+                const epochColor = e => e === 'EXTRACTION_WAVE' ? '#f87171' : e === 'ESCALATING' ? '#fb923c' : e === 'ACTIVE' ? '#fbbf24' : '#6b7280';
+
+                const cpCounts = {};
+                counts.forEach(c => { cpCounts[c.discovery_state] = { n: c.n, sol: c.sol }; });
+                const newCount  = cpCounts['NEW']?.n || 0;
+                const confCount = cpCounts['CREATOR_CONFIRMED']?.n || 0;
+
+                const relayRows = relays.map(r => {
+                    const addr = r.wallet_address;
+                    const ec = epochColor(r.epoch_state);
+                    return `<tr>
+                        <td style="font-family:monospace;font-size:0.8rem" title="${addr}">${addr.slice(0,8)}…${addr.slice(-6)}</td>
+                        <td style="color:var(--text-secondary);font-size:0.75rem">${r.role}</td>
+                        <td style="color:#fff;font-weight:700;text-align:right">${(r.total_hits||0).toLocaleString()}</td>
+                        <td style="text-align:right">${(r.hits_5m||0)}</td>
+                        <td style="text-align:right;color:var(--text-secondary)">${r.total_counterparties||0}</td>
+                        <td style="text-align:right;color:#a78bfa">${r.total_sol ? (+r.total_sol).toFixed(0)+'◎' : '—'}</td>
+                        <td style="text-align:right"><span style="background:${ec}22;color:${ec};padding:1px 6px;border-radius:3px;font-size:0.7rem;font-weight:600">${r.epoch_state}</span></td>
+                    </tr>`;
+                }).join('') || '<tr><td colspan="7" style="color:var(--text-secondary);padding:8px 0">No relay activity in last hour</td></tr>';
+
+                el.innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.2rem">
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#a78bfa">${(infraWh.local_active||0).toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">INFRA ENROLLED</div>
+                        </div>
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#a78bfa">${relays.reduce((s,r)=>s+(r.total_hits||0),0).toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">BUCKET HITS · 1H</div>
+                        </div>
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:${newCount>100?'#fb923c':'#a78bfa'}">${newCount.toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">SENDERS · PENDING</div>
+                        </div>
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
+                            <div style="font-size:1.6rem;font-weight:700;color:#22c55e">${confCount.toLocaleString()}</div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">CREATORS FOUND</div>
+                        </div>
+                    </div>
+                    ${recAge !== null ? `<div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.8rem">Infra webhook reconciled ${recAge}s ago · ${infraWh.local_active||0} addresses enrolled</div>` : ''}
+                    <table style="width:100%;border-collapse:collapse;font-size:0.8rem">
+                        <thead><tr style="color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,.1)">
+                            <th style="text-align:left;padding:4px 0">Relay</th>
+                            <th style="text-align:left;padding:4px 0">Role</th>
+                            <th style="text-align:right;padding:4px 0">Hits·1H</th>
+                            <th style="text-align:right;padding:4px 0">Hits·5m</th>
+                            <th style="text-align:right;padding:4px 0">Senders</th>
+                            <th style="text-align:right;padding:4px 0">SOL</th>
+                            <th style="text-align:right;padding:4px 0">Epoch</th>
+                        </tr></thead>
+                        <tbody>${relayRows}</tbody>
+                    </table>`;
+            } catch(e) {
+                el.innerHTML = `<div style="color:#f87171">Tier 2 error: ${e}</div>`;
+            }
         }
 
         document.getElementById('refreshBtn').addEventListener('click', async () => {

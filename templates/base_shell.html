@@ -71,75 +71,368 @@
             left: 0;
             width: 180px;
             height: 100vh;
-            background: #0a0e13;
-            border-right: 1px solid var(--border-color);
+            background:
+                linear-gradient(180deg, rgba(5,7,9,0.98), rgba(8,11,16,0.98)),
+                #050709;
+            border-right: 1px solid rgba(255,255,255,0.07);
             display: flex;
             flex-direction: column;
-            padding: 20px 0;
+            padding: 0;
             z-index: 100;
             overflow-y: auto;
+            box-shadow: inset -1px 0 0 rgba(255,255,255,0.025);
         }
 
         .sidebar-logo {
-            padding: 0 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 16px;
-            font-weight: 700;
-            color: #06b6d4;
-            letter-spacing: 1px;
+            height: 64px;
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.012);
         }
 
-        .sidebar-nav { flex: 1; }
+        .sidebar-logo-main {
+            font-size: 12px;
+            font-weight: 900;
+            color: #22d3ee;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .sidebar-logo-sub {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(122,136,153,0.72);
+            white-space: nowrap;
+        }
+
+        .sidebar-status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 9px rgba(34,197,94,.55);
+            flex: 0 0 auto;
+        }
+
+        .sidebar-nav { flex: 1; padding: 8px 0 14px; }
 
         .sidebar-section {
-            padding: 8px 0 4px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 9px 0 7px;
+            border-bottom: 1px solid rgba(255,255,255,0.045);
         }
 
         .sidebar-section-label {
-            padding: 6px 16px 2px;
-            font-size: 10px;
-            font-weight: 700;
+            padding: 7px 16px 6px;
+            font-size: 8px;
+            line-height: 1;
+            font-weight: 800;
             text-transform: uppercase;
-            color: rgba(139, 148, 158, 0.55);
-            letter-spacing: 0.08em;
+            color: rgba(122,136,153,0.56);
+            letter-spacing: 0.15em;
         }
 
         .sidebar-item {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 9px 16px;
-            color: var(--text-secondary);
+            padding: 8px 14px 8px 16px;
+            color: rgba(208,216,232,0.58);
             cursor: pointer;
-            border-radius: 6px;
-            margin: 0 8px;
-            font-size: 13px;
-            font-weight: 500;
+            border-radius: 4px;
+            margin: 1px 8px;
+            font-size: 11px;
+            line-height: 1.15;
+            font-weight: 650;
+            letter-spacing: 0.015em;
             text-decoration: none;
-            transition: background 0.15s, color 0.15s;
-            border: none;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            border: 1px solid transparent;
             background: none;
             width: calc(100% - 16px);
             text-align: left;
         }
 
         .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
+            background: rgba(255,255,255,0.028);
+            color: rgba(237,242,247,0.92);
+            border-color: rgba(255,255,255,0.04);
         }
 
         .sidebar-item.active {
-            background: rgba(6, 182, 212, 0.15);
-            color: #06b6d4;
-            border-left: 3px solid #06b6d4;
-            padding-left: 13px;
+            background: rgba(34,211,238,0.075);
+            color: #22d3ee;
+            border-color: rgba(34,211,238,0.16);
+            padding-left: 16px;
+        }
+
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 7px;
+            bottom: 7px;
+            width: 3px;
+            border-radius: 0 2px 2px 0;
+            background: #22d3ee;
+            box-shadow: 0 0 10px rgba(34,211,238,.55);
+        }
+
+        .sidebar-item[href="/watchtower"] {
+            color: #bc8cff;
+        }
+        .sidebar-item[href="/watchtower"]:hover,
+        .sidebar-item[href="/watchtower"].active {
+            background: rgba(188,140,255,0.08);
+            color: #d6bcff;
+            border-color: rgba(188,140,255,0.18);
+        }
+        .sidebar-item[href="/watchtower"].active::before {
+            background: #bc8cff;
+            box-shadow: 0 0 10px rgba(188,140,255,.55);
         }
 
         .sidebar-item.flex-link { color: #8b5cf6; }
         .sidebar-item.flex-link:hover {
             background: rgba(139, 92, 246, 0.1);
             color: #a78bfa;
+        }
+
+
+        /* ═══════════════════════════════════════════════════════════════
+           FLEX UNIFIED COCKPIT DESIGN SYSTEM
+           Global Watchtower-style visual language for every intelligence page.
+           Page templates can still add specialized layouts, but the shell now
+           owns the base color, font, density, tables, cards, controls, modals.
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-dark: #050709;
+            --bg-card: #0d1117;
+            --bg-secondary: #080b10;
+            --bg-hover: rgba(255,255,255,0.028);
+            --text-primary: #d0d8e8;
+            --text-secondary: #7a8899;
+            --text-muted: #4a5568;
+            --accent-primary: #3b82f6;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #a78bfa;
+            --border-color: rgba(255,255,255,0.07);
+            --border-strong: rgba(255,255,255,0.13);
+            --font-ui: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+        }
+
+        html, body {
+            background: #050709 !important;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            color: var(--text-primary);
+            font-size: 12px;
+            letter-spacing: 0.005em;
+        }
+
+        .container {
+            background:
+                radial-gradient(circle at 16% 0%, rgba(34,211,238,.035), transparent 30%),
+                radial-gradient(circle at 82% 6%, rgba(167,139,250,.03), transparent 26%),
+                #050709;
+            min-height: 100vh;
+        }
+
+        .page-header,
+        .header {
+            background: linear-gradient(180deg, rgba(13,17,23,.92), rgba(8,11,16,.92)) !important;
+            border: 1px solid rgba(255,255,255,0.07) !important;
+            border-left: 3px solid rgba(34,211,238,0.72) !important;
+            border-radius: 8px !important;
+            padding: 16px 18px !important;
+            margin-bottom: 16px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: #edf2f7;
+            letter-spacing: 0.01em;
+        }
+        h1 { font-size: 20px; font-weight: 800; }
+        h2 { font-size: 16px; font-weight: 800; }
+        h3 { font-size: 13px; font-weight: 800; }
+
+        .subtitle,
+        .text-muted,
+        small {
+            color: var(--text-secondary) !important;
+        }
+
+        a { color: var(--accent-cyan); }
+        a:hover { color: #67e8f9; }
+
+        code, pre,
+        .mint, .address,
+        .stat-value, .value, .number,
+        .price, .live-price,
+        td.numeric, th.numeric {
+            font-family: var(--font-mono) !important;
+        }
+
+        .card,
+        .panel,
+        .widget,
+        .metric-card,
+        .stat-card,
+        .tokens-table-wrap,
+        .table-wrap,
+        .section-card {
+            background: linear-gradient(180deg, rgba(13,17,23,.92), rgba(8,11,16,.92)) !important;
+            border: 1px solid rgba(255,255,255,0.07) !important;
+            border-radius: 8px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+
+        .card-header,
+        .panel-header,
+        .section-header,
+        .table-header {
+            background: rgba(255,255,255,0.018) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+            color: var(--text-secondary) !important;
+            font-size: 9px !important;
+            font-weight: 800 !important;
+            letter-spacing: .12em !important;
+            text-transform: uppercase !important;
+        }
+
+        table,
+        .tokens-table {
+            background: rgba(13,17,23,.88) !important;
+            border-color: rgba(255,255,255,0.07) !important;
+            color: var(--text-primary);
+        }
+
+        thead,
+        .tokens-table thead {
+            background: rgba(255,255,255,.018) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+            box-shadow: none !important;
+        }
+
+        th,
+        .tokens-table thead th {
+            color: rgba(122,136,153,.78) !important;
+            font-size: 8.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: .12em !important;
+            text-transform: uppercase !important;
+            padding: 8px 10px !important;
+            background: transparent !important;
+        }
+
+        td,
+        .tokens-table td {
+            color: var(--text-secondary) !important;
+            font-size: 11px !important;
+            border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+            padding: 7px 10px !important;
+        }
+
+        tbody tr:hover,
+        .tokens-table tbody tr:hover {
+            background: rgba(255,255,255,0.026) !important;
+        }
+
+        .badge,
+        .risk-score,
+        .creator-tag,
+        .network-badge,
+        .shared-badge,
+        .sig-badge,
+        .tag,
+        .infra-tag,
+        .cex-badge {
+            border-radius: 3px !important;
+            font-size: 9px !important;
+            font-weight: 800 !important;
+            letter-spacing: .055em !important;
+            text-transform: uppercase;
+        }
+
+        .btn,
+        button,
+        .action-button {
+            border-radius: 5px !important;
+            font-size: 11px !important;
+            font-weight: 750 !important;
+            letter-spacing: .02em;
+        }
+
+        .form-control,
+        .form-select,
+        input,
+        select,
+        textarea {
+            background: rgba(5,7,9,.72) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            color: var(--text-primary) !important;
+            border-radius: 5px !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            border-color: rgba(34,211,238,.42) !important;
+            box-shadow: 0 0 0 2px rgba(34,211,238,.08) !important;
+        }
+
+        .modal-content,
+        .drawer,
+        .side-panel {
+            background: #0d1117 !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            border-radius: 8px !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 24px 80px rgba(0,0,0,.48) !important;
+        }
+
+        .loading,
+        .no-data,
+        .empty-state {
+            color: var(--text-muted) !important;
+            font-size: 11px !important;
+        }
+
+        .stat-label,
+        .metric label {
+            color: var(--text-muted) !important;
+            font-size: 8.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: .12em !important;
+            text-transform: uppercase !important;
+        }
+
+        .stat-value,
+        .metric span {
+            color: #edf2f7 !important;
+            font-weight: 800 !important;
+        }
+
+        ::selection {
+            background: rgba(34,211,238,.18);
+            color: #edf2f7;
         }
 
         /* ── Typography ───────────────────────────────────── */

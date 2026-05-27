@@ -538,6 +538,40 @@ class TokenPriceService:
             if price.is_stale or price.source == 'cached':
                 captured_at = observed_at
 
+            # Archive the first truthful observation before retention can ever prune it.
+            # This is intentionally write-once: historical analytics must never be rebuilt
+            # from current MC or later snapshots.
+            if price.price_usd and price.market_cap and price.price_usd > 0 and 0 < price.market_cap <= 100_000_000:
+                ta_cols = {row[1] for row in cursor.execute("PRAGMA table_info(token_analysis)").fetchall()}
+                for col, typ in (
+                    ('first_observed_mc', 'REAL'),
+                    ('first_observed_price', 'REAL'),
+                    ('first_observed_at', 'INTEGER'),
+                    ('first_observed_source', 'TEXT'),
+                    ('first_observed_confidence', 'REAL'),
+                ):
+                    if col not in ta_cols:
+                        cursor.execute(f"ALTER TABLE token_analysis ADD COLUMN {col} {typ}")
+                first_source = 'pool_snapshot' if price.source == 'pool' else f"price_snapshot:{price.source}"
+                confidence = 1.0 if price.source == 'pool' else 0.8
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET first_observed_mc = ?,
+                        first_observed_price = ?,
+                        first_observed_at = ?,
+                        first_observed_source = ?,
+                        first_observed_confidence = ?
+                    WHERE mint = ?
+                      AND first_observed_mc IS NULL
+                """, (
+                    price.market_cap,
+                    price.price_usd,
+                    captured_at,
+                    first_source,
+                    confidence,
+                    price.mint,
+                ))
+
             cursor.execute("""
                 INSERT INTO token_price_snapshots
                 (mint, price_usd, price_sol, liquidity_usd, volume_24h,
@@ -555,6 +589,36 @@ class TokenPriceService:
                 captured_at,
                 observed_at
             ))
+
+            # Reuse the exact liquidity already observed for pricing; no extra RPC.
+            if price.liquidity_usd is not None and price.liquidity_usd >= 0:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS token_liquidity_snapshots (
+                        snapshot_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                        mint            TEXT NOT NULL,
+                        pair_address    TEXT,
+                        liquidity_usd   REAL NOT NULL,
+                        liquidity_sol   REAL,
+                        captured_at     INTEGER NOT NULL,
+                        created_at      INTEGER NOT NULL
+                    )
+                """)
+                cursor.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_tls_mint_time
+                    ON token_liquidity_snapshots(mint, captured_at DESC)
+                """)
+                cursor.execute("""
+                    INSERT INTO token_liquidity_snapshots
+                    (mint, pair_address, liquidity_usd, liquidity_sol, captured_at, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    price.mint,
+                    price.pair_address,
+                    price.liquidity_usd,
+                    price.liquidity_usd / price.price_usd * price.price_sol if price.price_usd and price.price_sol else 0.0,
+                    captured_at,
+                    observed_at,
+                ))
 
             # Keep summary table in sync so /api/token-behaviour never scans 2.9M rows
             cursor.execute("""

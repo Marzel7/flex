@@ -1,0 +1,525 @@
+{% extends "base_shell.html" %}
+
+{% block title %}WATCHTOWER Intelligence{% endblock %}
+
+{% block extra_styles %}
+.wt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.wt-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e6edf3;
+    letter-spacing: .04em;
+}
+.wt-subtitle {
+    font-size: 11px;
+    color: #8b949e;
+    margin-top: 2px;
+}
+.wt-diagram-link {
+    font-size: 11px;
+    color: #58a6ff;
+    text-decoration: none;
+    padding: 5px 12px;
+    border: 1px solid rgba(88,166,255,0.3);
+    border-radius: 5px;
+    background: rgba(88,166,255,0.06);
+}
+.wt-diagram-link:hover { background: rgba(88,166,255,0.12); }
+
+/* Stat cards */
+.wt-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.wt-stat {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 10px 16px;
+    flex: 1;
+    min-width: 100px;
+}
+.wt-stat-val { font-size: 22px; font-weight: 700; color: #e6edf3; line-height: 1.2; }
+.wt-stat-label { font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+/* State pills */
+.state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.state-operational  { background: rgba(63,185,80,.12);  border:1px solid rgba(63,185,80,.3);  color:#3fb950; }
+.state-launching    { background: rgba(188,99,255,.12); border:1px solid rgba(188,99,255,.3); color:#bc63ff; }
+.state-launched          { background: rgba(255,123,114,.12); border:1px solid rgba(255,123,114,.3); color:#ff7b72; }
+.state-migrated_pumpswap { background: rgba(63,185,80,.12);   border:1px solid rgba(63,185,80,.3);   color:#3fb950; }
+.state-migrated_raydium  { background: rgba(88,166,255,.12);  border:1px solid rgba(88,166,255,.3);  color:#58a6ff; }
+.state-migrated          { background: rgba(63,185,80,.12);   border:1px solid rgba(63,185,80,.3);   color:#3fb950; }
+.state-extracting   { background: rgba(240,136,62,.12); border:1px solid rgba(240,136,62,.3); color:#f0883e; }
+.state-activated    { background: rgba(88,166,255,.12); border:1px solid rgba(88,166,255,.3); color:#58a6ff; }
+.state-dormant      { background: rgba(139,148,158,.1); border:1px solid rgba(139,148,158,.2);color:#8b949e; }
+.state-provisioned  { background: rgba(72,79,88,.15);   border:1px solid rgba(72,79,88,.3);   color:#484f58; }
+
+/* Tabs */
+.wt-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #21262d;
+    padding-bottom: 0;
+}
+.wt-tab {
+    padding: 6px 14px;
+    font-size: 11px;
+    cursor: pointer;
+    color: #8b949e;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: none;
+    border-top: none; border-left: none; border-right: none;
+}
+.wt-tab:hover { color: #e6edf3; }
+.wt-tab.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+
+/* Tables */
+.wt-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.wt-table th {
+    text-align: left; padding: 6px 8px;
+    color: #8b949e; font-weight: 600;
+    border-bottom: 1px solid #21262d;
+    text-transform: uppercase; letter-spacing: .04em; font-size: 10px;
+}
+.wt-table td { padding: 6px 8px; border-bottom: 1px solid #161b22; vertical-align: middle; }
+.wt-table tr:hover td { background: rgba(255,255,255,.02); }
+.wt-addr {
+    font-family: monospace; font-size: 11px; color: #8b949e; cursor: pointer;
+}
+.wt-addr:hover { color: #58a6ff; }
+.wt-mint { font-family: monospace; font-size: 10px; color: #6e7681; }
+
+/* Signal feed */
+.wt-signal {
+    padding: 10px 12px;
+    border: 1px solid #21262d;
+    border-radius: 5px;
+    margin-bottom: 6px;
+    font-size: 11px;
+}
+.wt-signal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.badge-dormant   { color:#d29922; border:1px solid rgba(210,153,34,.3); background:rgba(210,153,34,.08); }
+.badge-raydium   { color:#bc63ff; border:1px solid rgba(188,99,255,.3); background:rgba(188,99,255,.08); }
+.badge-candidate { color:#e3b341; border:1px solid rgba(227,179,65,.3); background:rgba(227,179,65,.08); }
+.badge-funding   { color:#f85149; border:1px solid rgba(248,81,73,.3);  background:rgba(248,81,73,.08); }
+.badge-creator   { color:#58a6ff; border:1px solid rgba(88,166,255,.3); background:rgba(88,166,255,.08); }
+.badge-state     { color:#58a6ff; border:1px solid rgba(88,166,255,.25);background:rgba(88,166,255,.06); }
+
+.empty-state { color:#484f58; font-size:11px; padding:24px 0; text-align:center; }
+
+/* Confidence */
+.conf-high   { color:#3fb950; font-weight:600; }
+.conf-medium { color:#e3b341; }
+.conf-low    { color:#8b949e; }
+
+.wt-section { background:#161b22; border:1px solid #21262d; border-radius:6px; padding:14px 16px; margin-bottom:12px; }
+.wt-section-title { font-size:11px; font-weight:600; color:#8b949e; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+
+/* Pagination */
+.wt-pager { display:flex; gap:6px; align-items:center; margin-top:10px; font-size:11px; color:#8b949e; }
+.wt-pager button { padding:3px 10px; background:#161b22; border:1px solid #30363d; border-radius:4px; color:#8b949e; cursor:pointer; font-size:11px; }
+.wt-pager button:hover:not(:disabled) { border-color:#58a6ff; color:#58a6ff; }
+.wt-pager button:disabled { opacity:.4; cursor:default; }
+{% endblock %}
+
+{% block content %}
+<div class="wt-header">
+    <div>
+        <div class="wt-title">⬡ WATCHTOWER Intelligence</div>
+        <div class="wt-subtitle">Fingerprint-confirmed network · April–May 2026</div>
+    </div>
+    <a href="/network-diagram/watchtower" class="wt-diagram-link">→ Network Diagram</a>
+</div>
+
+<!-- Stat cards -->
+<div class="wt-stats" id="wt-stats">
+    <div class="wt-stat"><div class="wt-stat-val" id="stat-total">—</div><div class="wt-stat-label">Confirmed Creators</div></div>
+    <div class="wt-stat"><div class="wt-stat-val" id="stat-next-round" style="color:#e3b341">—</div><div class="wt-stat-label">Next-Round Wallets</div></div>
+    <div class="wt-stat"><div class="wt-stat-val" id="stat-operational" style="color:#3fb950">—</div><div class="wt-stat-label">Operational</div></div>
+    <div class="wt-stat"><div class="wt-stat-val" id="stat-extracting" style="color:#f0883e">—</div><div class="wt-stat-label">Extracting</div></div>
+    <div class="wt-stat"><div class="wt-stat-val" id="stat-dormant" style="color:#8b949e">—</div><div class="wt-stat-label">Dormant</div></div>
+    <div class="wt-stat"><div class="wt-stat-val" id="stat-provisioned" style="color:#58a6ff">—</div><div class="wt-stat-label">Provisioned</div></div>
+</div>
+
+<!-- Tabs -->
+<div class="wt-tabs">
+    <button class="wt-tab active" onclick="switchTab('operators')">Creators</button>
+    <button class="wt-tab" onclick="switchTab('signals')">Live Signals</button>
+    <button class="wt-tab" onclick="switchTab('candidates')">Next-Round Wallets</button>
+    <button class="wt-tab" onclick="switchTab('related')">Launched Tokens</button>
+</div>
+
+<!-- Operators tab -->
+<div id="tab-operators" class="wt-tab-content">
+    <div class="wt-section">
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+            <div class="wt-section-title" style="margin:0">Confirmed Creators</div>
+            <div style="flex:1"></div>
+            <select id="state-filter" onchange="loadOperators(1)" style="font-size:11px;background:#0d1117;border:1px solid #30363d;color:#8b949e;padding:3px 8px;border-radius:4px">
+                <option value="">All states</option>
+                <option value="operational">Operational</option>
+                <option value="launched">Launched</option>
+                <option value="migrated_pumpswap">→ PumpSwap</option>
+
+                <option value="extracting">Extracting</option>
+                <option value="activated">Activated</option>
+                <option value="dormant">Dormant</option>
+                <option value="provisioned">Provisioned</option>
+            </select>
+        </div>
+        <table class="wt-table">
+            <thead><tr>
+                <th>Address</th>
+                <th>State</th>
+                <th>Tokens</th>
+                <th>SOL paid</th>
+                <th>First seen</th>
+                <th>Last seen</th>
+                <th style="min-width:180px">Evidence</th>
+                <th style="width:90px"></th>
+            </tr></thead>
+            <tbody id="operators-body"><tr><td colspan="8" class="empty-state">Loading…</td></tr></tbody>
+        </table>
+        <div class="wt-pager">
+            <button id="op-prev" onclick="loadOperators(_opPage-1)" disabled>← Prev</button>
+            <span id="op-page-info">—</span>
+            <button id="op-next" onclick="loadOperators(_opPage+1)" disabled>Next →</button>
+        </div>
+    </div>
+</div>
+
+<!-- Signals tab -->
+<div id="tab-signals" class="wt-tab-content" style="display:none">
+    <div class="wt-section">
+        <div class="wt-section-title">Live Activity Feed</div>
+        <div id="signals-body"><div class="empty-state">Loading…</div></div>
+    </div>
+</div>
+
+<!-- Next-Round Wallets tab -->
+<div id="tab-candidates" class="wt-tab-content" style="display:none">
+    <div class="wt-section">
+        <div class="wt-section-title">Next-Round Wallets</div>
+        <div style="font-size:10px;color:#484f58;margin-bottom:10px">Wallets linked to WATCHTOWER infrastructure — treasury-funded first, then signaller-activated, then graph children</div>
+        <table class="wt-table">
+            <thead><tr>
+                <th>Address</th>
+                <th>Signal</th>
+                <th>Amount SOL</th>
+                <th>Tokens</th>
+                <th>Last Signal</th>
+            </tr></thead>
+            <tbody id="candidates-body"><tr><td colspan="5" class="empty-state">Loading…</td></tr></tbody>
+        </table>
+        <div class="wt-pager">
+            <button id="cand-prev" onclick="loadCandidates(_candPage-1)" disabled>← Prev</button>
+            <span id="cand-page-info">—</span>
+            <button id="cand-next" onclick="loadCandidates(_candPage+1)" disabled>Next →</button>
+        </div>
+    </div>
+</div>
+
+<!-- Launched tokens tab -->
+<div id="tab-related" class="wt-tab-content" style="display:none">
+    <div class="wt-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div class="wt-section-title" style="margin:0">Tokens launched by confirmed WATCHTOWER creators</div>
+            <div style="display:flex;gap:8px;">
+                <select id="rel-stage-filter" onchange="_relPage=1;loadRelated(1)" style="background:#161b22;border:1px solid rgba(148,163,184,0.2);color:#e6edf3;border-radius:4px;padding:3px 8px;font-size:11px;">
+                    <option value="">All Stages</option>
+                    <option value="migrated">Migrated</option>
+                    <option value="bonding_curve">Bonding Curve</option>
+                </select>
+                <select id="rel-type-filter" onchange="_relPage=1;loadRelated(1)" style="background:#161b22;border:1px solid rgba(148,163,184,0.2);color:#e6edf3;border-radius:4px;padding:3px 8px;font-size:11px;">
+                    <option value="">All Types</option>
+                    <option value="direct">Confirmed Creator</option>
+                    <option value="child">Next-Round Wallet</option>
+                </select>
+            </div>
+        </div>
+        <table class="wt-table">
+            <thead><tr>
+                <th>Token</th>
+                <th>Mint</th>
+                <th>Creator</th>
+                <th>Type</th>
+                <th>Parent Creator</th>
+                <th>Peak MC</th>
+                <th>Stage</th>
+                <th>Launched</th>
+            </tr></thead>
+            <tbody id="related-body"><tr><td colspan="8" class="empty-state">Loading…</td></tr></tbody>
+        </table>
+        <div class="wt-pager">
+            <button id="rel-prev" onclick="loadRelated(_relPage-1)" disabled>← Prev</button>
+            <span id="rel-page-info">—</span>
+            <button id="rel-next" onclick="loadRelated(_relPage+1)" disabled>Next →</button>
+        </div>
+    </div>
+</div>
+
+<div id="copy-toast" style="position:fixed;bottom:20px;right:20px;background:#1f6feb;color:#fff;padding:6px 14px;border-radius:5px;font-size:11px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999">Copied!</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fmtAddr  = a => a ? `${a.slice(0,8)}…${a.slice(-6)}` : '—';
+const fmtSol   = v => v != null ? `${(+v).toFixed(4)} SOL` : '—';
+const fmtMc    = v => !v ? '—' : v >= 1e6 ? `$${(v/1e6).toFixed(2)}M` : v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${(+v).toFixed(0)}`;
+const fmtTs    = ts => ts ? new Date(ts*1000).toLocaleString() : '—';
+const fmtDate  = ts => { if (!ts) return '—'; const n = +ts; const d = n > 1e9 ? new Date(n*1000) : new Date(ts); return isNaN(d) ? '—' : d.toLocaleDateString(); };
+
+let _opPage = 1, _candPage = 1, _relPage = 1;
+
+const toast = document.getElementById('copy-toast');
+let _toastTimer;
+function copyAddr(addr) {
+    if (!addr || addr === '—') return;
+    navigator.clipboard.writeText(addr).then(() => {
+        toast.textContent = `Copied ${addr.slice(0,8)}…`;
+        toast.style.opacity = 1;
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => toast.style.opacity = 0, 1800);
+    });
+}
+
+function statePill(state) {
+    const labels = {operational:'Operational',launched:'Launched',migrated_pumpswap:'→ PumpSwap',migrated_raydium:'→ Raydium',migrated:'Migrated',extracting:'Extracting',activated:'Activated',dormant:'Dormant',provisioned:'Provisioned'};
+    return `<span class="state-pill state-${state||'provisioned'}">${labels[state]||state||'—'}</span>`;
+}
+
+function switchTab(name) {
+    document.querySelectorAll('.wt-tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.wt-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById(`tab-${name}`).style.display = 'block';
+    event.target.classList.add('active');
+    if (name === 'operators')  loadOperators(1);
+    if (name === 'signals')    loadSignals();
+    if (name === 'candidates') loadCandidates(1);
+    if (name === 'related')    loadRelated(1);
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────
+function loadStats() {
+    fetch('/api/watchtower/operator-stats').then(r => r.json()).then(stats => {
+        const s = stats.by_state || {};
+        document.getElementById('stat-total').textContent       = stats.total_confirmed_creators || 0;
+        document.getElementById('stat-next-round').textContent  = stats.total_next_round_wallets || 0;
+        document.getElementById('stat-operational').textContent = s.operational  || 0;
+        document.getElementById('stat-extracting').textContent  = s.extracting   || 0;
+        document.getElementById('stat-dormant').textContent     = s.dormant      || 0;
+        document.getElementById('stat-provisioned').textContent = s.provisioned  || 0;
+    }).catch(() => {});
+}
+
+// ── Operators ─────────────────────────────────────────────────────────────
+function loadOperators(page) {
+    _opPage = page;
+    const state = document.getElementById('state-filter').value;
+    const url = `/api/watchtower/fee-payers?page=${page}&per_page=50${state ? '&state='+state : ''}`;
+    fetch(url).then(r => r.json()).then(data => {
+        const rows = data.results || [];
+        const total = data.total || 0;
+        const totalPages = Math.ceil(total / (data.per_page||50)) || 1;
+
+        document.getElementById('operators-body').innerHTML = rows.length === 0
+            ? `<tr><td colspan="8" class="empty-state">No confirmed creators found</td></tr>`
+            : rows.map(r => {
+                const topRule = r.evidence_rules && r.evidence_rules.length ? r.evidence_rules[0] : '—';
+                const scanBtn = r.scanned
+                    ? `<span style="font-size:10px;color:#3fb950;opacity:.6">✓ Scanned</span>`
+                    : `<button onclick="event.stopPropagation();triggerScan('${r.address}',this)" style="font-size:10px;padding:2px 8px;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);color:#58a6ff;border-radius:3px;cursor:pointer">Scan</button>`;
+                return `<tr onclick="window.location='/watchtower/operator/${r.address}'" style="cursor:pointer">
+                    <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="wt-addr" onclick="event.stopPropagation();copyAddr('${r.address}')" title="${r.address}" style="font-family:monospace;font-size:11px;letter-spacing:0">${r.address}</span></td>
+                    <td>${statePill(r.state)}</td>
+                    <td style="color:#e6edf3">${r.token_count||0}</td>
+                    <td style="color:#e6edf3">${fmtSol(r.total_sol_sent)}</td>
+                    <td style="color:#8b949e">${fmtDate(r.first_seen_at)}</td>
+                    <td style="color:#8b949e">${fmtDate(r.last_seen_at)}</td>
+                    <td style="color:#8b949e;font-size:10px;text-align:left">${topRule}</td>
+                    <td onclick="event.stopPropagation()">${scanBtn}</td>
+                </tr>`;
+            }).join('');
+
+        document.getElementById('op-page-info').textContent = `Page ${page} of ${totalPages} · ${total} creators`;
+        document.getElementById('op-prev').disabled = page <= 1;
+        document.getElementById('op-next').disabled = page >= totalPages;
+    }).catch(() => {
+        document.getElementById('operators-body').innerHTML = `<tr><td colspan="8" class="empty-state">Error loading creators</td></tr>`;
+    });
+}
+
+function triggerScan(addr, btn) {
+    fetch(`/api/watchtower/scan-operator/${addr}`, {method:'POST'})
+        .then(() => {
+            if (btn) { btn.replaceWith(Object.assign(document.createElement('span'), {textContent:'✓ Scanned', style:'font-size:10px;color:#3fb950;opacity:.6'})); }
+            toast.textContent = `Scan queued for ${addr.slice(0,8)}…`;
+            toast.style.opacity = 1;
+            clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => toast.style.opacity = 0, 2000);
+        });
+}
+
+// ── Signals ───────────────────────────────────────────────────────────────
+function loadSignals() {
+    fetch('/api/network-diagram/watchtower/signals').then(r => r.json()).then(data => {
+        const all = [
+            ...(data.dormant_activations||[]).map(s => ({...s, _type:'dormant'})),
+            ...(data.launch_candidates||[]).map(s   => ({...s, _type:'next_round'})),
+            ...(data.funding_signals||[]).map(s     => ({...s, _type:'funding'})),
+            ...(data.new_creators||[]).map(s        => ({...s, _type:'creator'})),
+            ...(data.state_changes||[]).map(s       => ({...s, _type:'state'})),
+        ];
+
+        if (all.length === 0) {
+            document.getElementById('signals-body').innerHTML = '<div class="empty-state">No signals yet — monitoring active</div>';
+            return;
+        }
+
+        document.getElementById('signals-body').innerHTML = all.map(s => {
+            let badge, detail;
+            if (s._type === 'dormant') {
+                badge = `<span class="wt-signal-badge badge-dormant">🟠 DORMANT ACTIVATED</span>`;
+                detail = `<span class="wt-addr" onclick="copyAddr('${s.creator}')">${fmtAddr(s.creator)}</span>
+                    → <strong>${s.token_name||'?'}</strong> · MC: ${fmtMc(s.market_cap_highest)} · ${s.lifecycle_stage||'—'}`;
+            } else if (s._type === 'next_round') {
+                const [slabel, scolor] = _SIGNAL_LABELS[s.candidate_reason] || ['🔴 NEXT-ROUND WALLET', '#f85149'];
+                badge = `<span class="wt-signal-badge badge-candidate" style="color:${scolor}">${slabel}</span>`;
+                const amt = parseFloat(s.amount_sol || 0);
+                const amtStr = amt >= 0.01 ? ` · ${amt.toFixed(2)} SOL` : '';
+                detail = `<span class="wt-addr" onclick="copyAddr('${s.address}')">${fmtAddr(s.address)}</span>${amtStr}`
+                    + (s.token_mint ? ` · launched <span class="wt-mint">${fmtAddr(s.token_mint)}</span>` : '');
+            } else if (s._type === 'funding') {
+                badge = `<span class="wt-signal-badge badge-funding">⬡ GRAPH SCAN</span>`;
+                detail = `<span class="wt-addr" onclick="copyAddr('${s.funder}')">${fmtAddr(s.funder)}</span>
+                    · ${s.edges||0} edges · ${s.candidates||0} next-round wallets`;
+            } else if (s._type === 'state') {
+                badge = `<span class="wt-signal-badge badge-state">🔵 STATE CHANGE</span>`;
+                detail = `<span class="wt-addr" onclick="copyAddr('${s.address}')">${fmtAddr(s.address)}</span>
+                    · ${s.from_state||'?'} → <strong>${s.to_state||'?'}</strong>`;
+            } else {
+                badge = `<span class="wt-signal-badge badge-creator">⚡ CREATOR</span>`;
+                detail = `<span class="wt-addr" onclick="copyAddr('${s.creator}')">${fmtAddr(s.creator)}</span>
+                    → <strong>${s.token_name||'?'}</strong> · MC: ${fmtMc(s.market_cap_highest)}`;
+            }
+            return `<div class="wt-signal">
+                ${badge}
+                <div style="margin-top:4px;color:#e6edf3">${detail}</div>
+                <div style="color:#484f58;font-size:10px;margin-top:3px">${fmtTs(s.ts || s.detected_at)}</div>
+            </div>`;
+        }).join('');
+    }).catch(() => {
+        document.getElementById('signals-body').innerHTML = '<div class="empty-state">Error loading signals</div>';
+    });
+}
+
+// ── Launch candidates ──────────────────────────────────────────────────────
+const _SIGNAL_LABELS = {
+    'treasury_funded':          ['🔴 TREASURY FUNDED', '#f85149'],
+    'signaller_treasury_chain': ['🟠 SIGNALLER+TREASURY', '#e3b341'],
+    'signaller_dust':           ['🟡 SIGNALLER DUST', '#d29922'],
+    'funded_child':             ['🔵 GRAPH CHILD', '#58a6ff'],
+    'post_fee_fanout':          ['⬡ FEE FANOUT', '#8b949e'],
+};
+
+function loadCandidates(page) {
+    _candPage = page;
+    fetch(`/api/watchtower/launch-candidates?page=${page}&per_page=50`).then(r => r.json()).then(data => {
+        const rows = data.results || [];
+        const total = data.total || 0;
+        const totalPages = Math.ceil(total / (data.per_page||50)) || 1;
+        document.getElementById('candidates-body').innerHTML = rows.length === 0
+            ? `<tr><td colspan="5" class="empty-state">No next-round wallets found</td></tr>`
+            : rows.map(r => {
+                const [label, color] = _SIGNAL_LABELS[r.candidate_reason] || ['— UNKNOWN', '#8b949e'];
+                const amtSol = parseFloat(r.amount_sol || 0);
+                const amtStr = amtSol >= 0.01 ? `${amtSol.toFixed(2)} SOL` : '—';
+                const tokens = r.token_count || 0;
+                return `<tr onclick="window.location='/watchtower/operator/${r.address}'" style="cursor:pointer">
+                    <td><span class="wt-addr" onclick="event.stopPropagation();copyAddr('${r.address}')" title="${r.address}">${fmtAddr(r.address)}</span></td>
+                    <td><span style="font-size:10px;color:${color};font-weight:600">${label}</span></td>
+                    <td style="text-align:right;color:#e6edf3;font-variant-numeric:tabular-nums">${amtStr}</td>
+                    <td style="text-align:center;color:${tokens>0?'#3fb950':'#484f58'}">${tokens > 0 ? tokens : '—'}</td>
+                    <td style="color:#8b949e">${fmtDate(r.last_signal_at)}</td>
+                </tr>`;
+            }).join('');
+        document.getElementById('cand-page-info').textContent = `Page ${page} of ${totalPages} · ${total} next-round wallets`;
+        document.getElementById('cand-prev').disabled = page <= 1;
+        document.getElementById('cand-next').disabled = page >= totalPages;
+    }).catch(() => {});
+}
+
+// ── Launched tokens ───────────────────────────────────────────────────────
+function loadRelated(page) {
+    _relPage = page;
+    const stage = document.getElementById('rel-stage-filter')?.value || '';
+    const type  = document.getElementById('rel-type-filter')?.value || '';
+    const qs = new URLSearchParams({page, per_page: 50, ...(stage && {stage}), ...(type && {creator_type: type})});
+    fetch(`/api/watchtower/related-tokens?${qs}`).then(r => r.json()).then(data => {
+        const rows = data.results || [];
+        const total = data.total || 0;
+        const totalPages = Math.ceil(total / (data.per_page||50)) || 1;
+        document.getElementById('related-body').innerHTML = rows.length === 0
+            ? `<tr><td colspan="8" class="empty-state">No related tokens found</td></tr>`
+            : rows.map(r => {
+                const typeLabel = r.creator_type === 'confirmed'
+                    ? `<span style="color:#3fb950;font-size:10px">confirmed</span>`
+                    : `<span style="color:#d29922;font-size:10px">next-round</span>`;
+                const operatorCell = r.creator_type === 'child' && r.linked_operator
+                    ? `<span class="wt-addr" onclick="copyAddr('${r.linked_operator}')" title="${r.linked_operator}">${fmtAddr(r.linked_operator)}</span>`
+                    : `<span style="color:#8b949e">—</span>`;
+                const launchedAt = r.created_at
+                    ? (() => { const d = new Date(r.created_at); return isNaN(d) ? r.created_at : d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}); })()
+                    : '—';
+                return `<tr>
+                <td style="color:#e6edf3;font-weight:600">${r.token_name||'—'}</td>
+                <td><span class="wt-mint" onclick="copyAddr('${r.mint}')" title="${r.mint}" style="cursor:pointer">${fmtAddr(r.mint)}</span></td>
+                <td><span class="wt-addr" onclick="copyAddr('${r.creator_address}')">${fmtAddr(r.creator_address)}</span></td>
+                <td>${typeLabel}</td>
+                <td>${operatorCell}</td>
+                <td style="color:#e6edf3">${fmtMc(r.market_cap_highest)}</td>
+                <td><span style="color:#8b949e">${r.lifecycle_stage||'—'}</span></td>
+                <td style="color:#8b949e;font-size:11px">${launchedAt}</td>
+            </tr>`;}).join('');
+        document.getElementById('rel-page-info').textContent = `Page ${page} of ${totalPages} · ${total} tokens`;
+        document.getElementById('rel-prev').disabled = page <= 1;
+        document.getElementById('rel-next').disabled = page >= totalPages;
+    }).catch(() => {});
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadStats();
+loadOperators(1);
+setInterval(loadStats, 60000);
+</script>
+{% endblock %}

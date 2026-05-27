@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rug Network — WATCHTOWER Investigation</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #e6edf3; font-family: 'SF Mono', monospace; overflow: hidden; }
+
+  #header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 12px 24px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  #header h1 { font-size: 14px; color: #bc8cff; letter-spacing: 0.05em; }
+  #header .stats { font-size: 11px; color: #8b949e; }
+
+  #legend {
+    position: fixed; bottom: 20px; left: 20px; z-index: 100;
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 11px; line-height: 1.8;
+  }
+  #legend h3 { font-size: 11px; color: #8b949e; margin-bottom: 8px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .leg { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  #info-panel {
+    position: fixed; top: 52px; left: 20px; z-index: 100;
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 11px; line-height: 1.7; width: 310px;
+  }
+  #info-panel h3 { font-size: 11px; color: #bc8cff; margin-bottom: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .info-row { display: flex; justify-content: space-between; margin-bottom: 4px; border-bottom: 1px solid #21262d; padding-bottom: 4px; }
+  .info-label { color: #8b949e; }
+  .info-val { color: #e6edf3; text-align: right; }
+  .info-val.warn { color: #f85149; }
+  .info-val.hi { color: #bc8cff; }
+  .info-val.ok { color: #3fb950; }
+  .info-val.unknown { color: #e3b341; }
+
+  #findings {
+    position: fixed; bottom: 20px; right: 20px; z-index: 100;
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 11px; line-height: 1.7; max-width: 330px;
+  }
+  #findings h3 { font-size: 11px; color: #8b949e; margin-bottom: 8px; letter-spacing: 0.1em; text-transform: uppercase; }
+  #findings .finding { color: #e6edf3; margin-bottom: 4px; }
+  #findings .finding span { color: #f85149; }
+  #findings .finding span.hi { color: #bc8cff; }
+  #findings .finding span.ok { color: #3fb950; }
+  #findings .finding span.warn { color: #e3b341; }
+
+  /* NEW ACTIVATION ALERT */
+  #activation-alert {
+    position: fixed; top: 52px; right: 20px; z-index: 200;
+    background: #1a0a00; border: 2px solid #f85149;
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 11px; line-height: 1.6; width: 360px;
+    max-height: 40vh; overflow-y: auto;
+    display: none;
+    box-shadow: 0 0 24px rgba(248,81,73,0.4);
+    animation: pulse-border 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%,100% { box-shadow: 0 0 16px rgba(248,81,73,0.4); }
+    50%      { box-shadow: 0 0 36px rgba(248,81,73,0.8); }
+  }
+  #activation-alert .alert-hdr {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  #activation-alert .alert-badge {
+    background: #f85149; color: #fff; font-size: 10px; font-weight: 800;
+    padding: 2px 7px; border-radius: 4px; letter-spacing: 0.08em;
+    animation: blink 1s step-end infinite;
+  }
+  .funding-badge {
+    background: #f0883e !important;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  #activation-alert h3 { font-size: 12px; color: #f85149; letter-spacing: 0.05em; text-transform: uppercase; }
+  .act-row {
+    background: #0d1117; border: 1px solid #f85149; border-radius: 6px;
+    padding: 8px 10px; margin-bottom: 6px;
+  }
+  .act-row.funding {
+    border-color: #f0883e;
+  }
+  .act-row.dormant {
+    border-color: #d29922;
+    background: #110d00;
+  }
+  .dormant-badge {
+    background: #d29922 !important;
+    animation: blink 1s step-end infinite;
+  }
+  .act-addr { color: #f85149; font-size: 10px; cursor: pointer; text-decoration: underline dotted; }
+  .act-addr:hover { color: #ff7b72; }
+  .act-addr.funding { color: #f0883e; }
+  .act-addr.funding:hover { color: #ffa657; }
+  .act-addr.dormant { color: #d29922; }
+  .act-addr.dormant:hover { color: #e3b341; }
+  .act-meta { color: #8b949e; font-size: 10px; margin-top: 2px; }
+  .act-tokens { color: #e3b341; font-size: 10px; }
+  .act-mc { color: #58a6ff; font-size: 10px; }
+  .act-sol { color: #3fb950; font-size: 10px; }
+  .act-dormant-meta { color: #d29922; font-size: 10px; margin-top: 3px; }
+
+  #token-panel {
+    position: fixed; top: 52px; right: 20px; z-index: 100;
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 11px; line-height: 1.6; width: 340px;
+    max-height: calc(100vh - 80px); overflow-y: auto;
+  }
+  #token-panel h3 { font-size: 11px; color: #58a6ff; margin-bottom: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .tp-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 12px; }
+  .tp-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px; }
+  .tp-box .v { font-size: 15px; color: #f0f6fc; font-weight: 700; }
+  .tp-box .l { color: #8b949e; font-size: 10px; }
+  .tp-hdr { display: grid; grid-template-columns: 2fr 1.2fr .8fr .6fr; gap:4px; font-size:9px; color:#484f58; padding-bottom:4px; border-bottom:1px solid #21262d; margin-bottom:4px; }
+  .tp-row { display: grid; grid-template-columns: 2fr 1.2fr .8fr .6fr; gap:4px; padding: 4px 0; border-bottom: 1px solid #21262d; font-size: 10px; }
+  .tp-name { color: #e6edf3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tp-mc { color: #58a6ff; }
+  .g1,.g2,.g3 { color: #3fb950; }
+  .g4,.g5,.g6 { color: #e3b341; }
+  .g7 { color: #f85149; }
+  .gnull { color: #484f58; }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 200;
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 11px; line-height: 1.7; max-width: 360px;
+    display: none;
+  }
+  #tooltip .addr { color: #58a6ff; font-size: 10px; word-break: break-all; cursor: pointer; text-decoration: underline dotted; }
+  #tooltip .addr:hover { color: #79c0ff; }
+  #tooltip .label { color: #f0f6fc; font-weight: bold; margin-bottom: 4px; }
+  #tooltip .meta { color: #8b949e; }
+  #copy-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: #3fb950; color: #0d1117; font-size: 11px; font-weight: 600;
+    padding: 6px 16px; border-radius: 6px; z-index: 300;
+    opacity: 0; transition: opacity 0.2s; pointer-events: none;
+  }
+
+  svg { width: 100vw; height: 100vh; }
+  .link { stroke-opacity: 0.55; fill: none; }
+  .link.fee-wt    { stroke: #bc8cff; stroke-dasharray: 4,3; }
+  .link.fee-dep   { stroke: #e3b341; stroke-dasharray: 4,3; }
+  .link.profit    { stroke: #3fb950; }
+  .link.init      { stroke: #58a6ff; }
+  .link.unknown   { stroke: #484f58; stroke-dasharray: 5,3; }
+
+  .node circle { stroke-width: 1.5; cursor: pointer; transition: opacity 0.2s; }
+  .node circle:hover { opacity: 0.8; }
+  .node text { font-size: 9px; fill: #8b949e; pointer-events: none; }
+  .node .label { font-size: 10px; fill: #e6edf3; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="/network-diagram" style="font-size:11px;color:#8b949e;text-decoration:none;letter-spacing:0.05em">← Investigations</a>
+    <h1>WATCHTOWER — Large-Scale Fee Collection Operation</h1>
+  </div>
+  <div class="stats">644+ operator wallets across 2 daily sweeps · DEPLOYER <span style="color:#f85149;font-weight:600">DORMANT since 2026-03-24</span> · Fixed fee: 0.002839 SOL → WATCHTOWER · <span id="stats-ops-count">112 identified</span> · May 17: 481 wallets · May 18: 163 new wallets · <span id="lifecycle-statsbar" style="color:#58a6ff">loading…</span></div>
+</div>
+
+<div id="info-panel">
+  <h3>Operation Summary</h3>
+  <div class="info-row"><div class="info-label">WATCHTOWER</div><div class="info-val hi">5Ww9G6…U25H</div></div>
+  <div class="info-row"><div class="info-label">Fee to WATCHTOWER</div><div class="info-val">0.002839 SOL × 481</div></div>
+  <div class="info-row"><div class="info-label">Sweep duration</div><div class="info-val ok">~4 seconds · 07:02 UTC</div></div>
+  <div class="info-row"><div class="info-label">Operators in DB</div><div class="info-val warn ops-in-db">0 / 481</div></div>
+  <div class="info-row"><div class="info-label">DEPLOYER</div><div class="info-val hi">4gE46F…Afm8</div></div>
+  <div class="info-row"><div class="info-label">DEPLOYER status</div><div class="info-val warn">DORMANT since 2026-03-24</div></div>
+  <div class="info-row"><div class="info-label">DEPLOYER role</div><div class="info-val">One-time init · Mar 2026 only</div></div>
+  <div class="info-row"><div class="info-label">PROFIT-1 extraction</div><div class="info-val">35.4 SOL → 4KrAL5Z</div></div>
+  <div class="info-row"><div class="info-label">TREASURY</div><div class="info-val hi" style="color:#f0883e">44orWS68 — active router</div></div>
+  <div class="info-row"><div class="info-label">TREASURY-UP bankroll</div><div class="info-val">1,500 SOL → TREASURY</div></div>
+  <div class="info-row"><div class="info-label">Extraction (SWEEP-1)</div><div class="info-val">863 SOL → dead end</div></div>
+  <div class="info-row"><div class="info-label">DEPLOYER upstream</div><div class="info-val unknown">⚠ Program-mediated — cold</div></div>
+  <div class="info-row"><div class="info-label">Standard detection</div><div class="info-val warn">BLIND — no shared funder</div></div>
+</div>
+
+<div id="activation-alert">
+  <div class="alert-hdr">
+    <span class="alert-badge">⚡ LIVE</span>
+    <h3>WATCHTOWER Network Activity</h3>
+  </div>
+  <div id="activation-body"></div>
+</div>
+
+<div id="token-panel">
+  <h3>Token Performance (<span id="tp-creator-count">106</span> confirmed creators)</h3>
+  <div id="tp-body">Loading…</div>
+</div>
+
+<div id="lifecycle-panel" style="
+  background:#0d1117;border:1px solid #21262d;border-radius:6px;
+  padding:12px 14px;margin-bottom:12px;font-size:11px;
+">
+  <div style="font-size:10px;color:#58a6ff;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">
+    Operator Lifecycle
+  </div>
+  <div style="color:#484f58;font-size:10px">Loading…</div>
+</div>
+
+<div id="findings">
+  <h3>Key Findings</h3>
+  <div class="finding">· <span class="hi">481 wallets</span> swept 0.002839 SOL → WATCHTOWER on May 17 (4s) · <span class="hi">163 new wallets</span> on May 18 (20s) — zero overlap</div>
+  <div class="finding">· <span class="hi">DEPLOYER (4gE46F)</span> initialised all 481 operators in Mar 2026 — <span style="color:#f85149">DORMANT since 2026-03-24</span></div>
+  <div class="finding">· <span>One-time setup fee</span>: 0.0123 SOL → DEPLOYER (March only) · <span>Ongoing fee</span>: 0.002839 SOL → WATCHTOWER</div>
+  <div class="finding">· Two separate profit extraction wallets identified</div>
+  <div class="finding">· DEPLOYER upstream is <span>program-mediated</span> — not traceable via RPC</div>
+  <div class="finding">· <span id="kf-ops-in-db" class="hi">…</span> of 481 operators identified in DB via funding fingerprint</div>
+  <div class="finding">· <span id="kf-creator-count" class="hi">…</span> confirmed creators · <span id="kf-tokens">…</span> tokens · best peak MC <span id="kf-best-mc">…</span></div>
+  <div class="finding">· <span>Standard detection blind</span> — unique relay per creator, no shared funder</div>
+</div>
+
+<div id="copy-toast">Copied!</div>
+<div id="tooltip"></div>
+
+<div id="legend">
+  <h3>Legend</h3>
+  <div class="leg"><div class="dot" style="background:#bc8cff"></div> WATCHTOWER fee (0.002839 SOL)</div>
+  <div class="leg"><div class="dot" style="background:#f0883e"></div> Treasury / routing wallet</div>
+  <div class="leg"><div class="dot" style="background:#484f58;opacity:0.5"></div> DEPLOYER — dormant (one-time init, Mar 2026)</div>
+  <div class="leg"><div class="dot" style="background:#3fb950"></div> Profit extraction</div>
+  <div class="leg"><div class="dot" style="background:#58a6ff"></div> Operator → creator funding</div>
+  <div class="leg"><div class="dot" style="background:#484f58"></div> Unknown / unresolved</div>
+</div>
+
+<svg id="graph"></svg>
+
+<script>
+const nodes = [
+  // Root unknown
+  { id: "UNKNOWN", label: "? Unknown Root\n(program-mediated)", addr: "—",
+    type: "unknown", r: 18,
+    meta: "True funding source of DEPLOYER. Transfers are program-mediated instructions not captured by getSignaturesForAddress. Trail is cold via RPC — requires manual on-chain inspection." },
+
+  // DEPLOYER
+  { id: "DEPLOYER", label: "DEPLOYER ◼ DORMANT\n4gE46F…Afm8", addr: "4gE46F7x7RtP6KQTbLxXjyDL4bWscDPNYzv5y5E4Afm8",
+    type: "deployer", r: 22,
+    meta: "DORMANT since 2026-03-24. One-time bootstrapper — initialised all 481 operator wallets in March 2026, collected a one-time 0.0123 SOL setup fee per wallet, extracted 35.4 SOL profit to PROFIT-1, then went silent. Not an ongoing fee collector." },
+
+  // PROFIT-1
+  { id: "PROFIT1", label: "PROFIT-1\n4KrAL5Z…CSd", addr: "4KrAL5ZSt4AFXB6h8cMrPbtBJTjVgRJbgY4doKUmqCSd",
+    type: "profit", r: 13,
+    meta: "Profit extraction wallet. Received 35.4 SOL from DEPLOYER. Only 1 transaction observed — likely a one-time sweep. Unknown ultimate destination." },
+
+  // 481 operator cluster (represented as one node)
+  { id: "OPERATORS", label: "481 Operator Wallets\n(0/481 in DB)", addr: "—",
+    type: "operators", r: 28,
+    meta: "481 unique wallets that simultaneously sent 0.002839 SOL to WATCHTOWER over ~4 seconds on 2026-05-17 07:02 UTC. All initialised by DEPLOYER in March 2026 (one-time 0.0123 SOL setup fee). All unknown to our DB. Currently scanning for upstream funders." },
+
+  // WATCHTOWER
+  { id: "WATCHTOWER", label: "WATCHTOWER\n5Ww9G6…U25H", addr: "5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H",
+    type: "watchtower", r: 24,
+    meta: "Fee collection wallet. Received 0.002839 SOL from 481 operator wallets simultaneously in 4 seconds (07:02:30–07:02:34 UTC). Also received 11.4 SOL from PROFIT-2 at 07:06. Likely a launchpad platform fee wallet." },
+
+  // TREASURY
+  { id: "TREASURY", label: "TREASURY\n44orWS68…JFM", addr: "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",
+    type: "treasury", r: 20,
+    meta: "Main operation treasury/router. Active today. Bidirectional with WATCHTOWER — receives fee sweep proceeds, re-feeds WATCHTOWER for operations. Received 1,500+ SOL from TREASURY-UP (6jeT3W). Swept 1,350 SOL to SWEEP-1 (kFycb9)." },
+
+  // TREASURY-UP
+  { id: "TREASURY_UP", label: "TREASURY-UP\n6jeT3W…UW1", addr: "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1",
+    type: "treasury", r: 17,
+    meta: "Primary bankroll wallet. Sent 1,500 SOL into TREASURY. Also received 200 SOL back from SWEEP-1 — circular routing. Scanning for upstream source." },
+
+  // SWEEP-1
+  { id: "SWEEP1", label: "SWEEP-1\nkFycb9…q1Hd", addr: "kFycb9QoQaRgLy3zZpF4Zw5DM5gKoT5HkZogSerq1Hd",
+    type: "profit", r: 14,
+    meta: "Extraction router. Received 1,350 SOL from TREASURY. Immediately swept 863 SOL to EXTRACTION (HY8Q4X) and 200 SOL back to TREASURY-UP (6jeT3W). Scanning." },
+
+  // EXTRACTION
+  { id: "EXTRACTION", label: "EXTRACTION\nHY8Q4X…NGd", addr: "HY8Q4XytMWBetFCT88W2yitW5UnipG8MtqS5WaRF6NGd",
+    type: "unknown", r: 12,
+    meta: "Dead-end extraction wallet. Only 1 transaction — received 863 SOL from SWEEP-1. Trail cold. Scanning." },
+
+  // VANITY DUST
+  { id: "VANITY", label: "VANITY-DUST\n5Ww9a…U25H", addr: "5Ww9aZYFFVTXTsNEBSv6FxT4vNcCExKo2Wckk68FU25H",
+    type: "unknown", r: 10,
+    meta: "Sent 0.00001 SOL dust to TREASURY at 06:07. Similar prefix to WATCHTOWER (5Ww9G6…). Possible vanity address — role unclear. Scanning." },
+
+  // 7 known creators (subset)
+  { id: "28dXSX", label: "28dXSX…UBMt\nWATCH", addr: "28dXSX5UsWrnkBeCJRHaTAb7VHNj8r3TMBgeQhxoUBMT",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay AAegRT (283.4 SOL) + 1.10203928 SOL scripted init. One of 7 known creators — likely a subset of the 481-wallet operation." },
+  { id: "toREm9", label: "toREm9…dae\nWATCH", addr: "toREm9EjYo1uYMHhHbuvtc6ziuvwk5FMmFncboTSdae",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay HfJJcF (187.1 SOL) + 1.10203928 SOL scripted init." },
+  { id: "9BRVy6", label: "9BRVy6…yQW\nWATCH", addr: "9BRVy6MdRfa75QEGXySPDezRSV5ropCUGvizLtKAUyQW",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay FWBqu6 (98.1 SOL) + 1.10203928 SOL scripted init." },
+  { id: "EJUyV8", label: "EJUyV8…XV4\nWATCH", addr: "EJUyV8pzjhLmBCku7FoLZAAjhNa8vHfu7LpBkcprdXV4",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay 9FMvYR (80.2 SOL) + 1.10203928 SOL scripted init." },
+  { id: "J7JH1j", label: "J7JH1j…ggG\nWATCH", addr: "J7JH1jMWtBRBhRnndUWAv7yR2ZGBXnnkcVfyqfKTVggG",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay 8xLym8 (45.0 SOL) + 1.10203928 SOL scripted init." },
+  { id: "dqkRa3", label: "dqkRa3…itHk\nWATCH", addr: "dqkRa3ZiNpboVeHCpVa5fbSNcXTyfhTwzDXbmjBitHk",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay 8JX3iK (30.2 SOL) + 1.10203928 SOL scripted init." },
+  { id: "2QyrLs", label: "2QyrLs…RMV\nWATCH", addr: "2QyrLscpVsSQMkWn8gNKLqQYgTfUcrH5yCKaaa46XRMV",
+    type: "watch", r: 10,
+    meta: "WATCH creator. Funded by relay CyQL6W (25.7 SOL) + 1.10203928 SOL scripted init." },
+];
+
+const links = [
+  // Unknown root → DEPLOYER
+  { source: "UNKNOWN",   target: "DEPLOYER",   type: "unknown",  label: "?" },
+
+  // DEPLOYER → operators
+  { source: "DEPLOYER",  target: "OPERATORS",  type: "init",     label: "initialised 481 wallets" },
+
+  // DEPLOYER → operators (one-time init, March 2026)
+  // fee-dep link removed — 0.0123 SOL was a one-time setup fee in March, not ongoing
+
+  // DEPLOYER → PROFIT-1
+  { source: "DEPLOYER",  target: "PROFIT1",    type: "profit",   label: "35.4 SOL [Mar 2026]" },
+
+  // Operators → WATCHTOWER fee sweep
+  { source: "OPERATORS", target: "WATCHTOWER", type: "fee-wt",   label: "0.002839 SOL × 481\n4 seconds" },
+
+  // WATCHTOWER ↔ TREASURY (bidirectional)
+  { source: "WATCHTOWER", target: "TREASURY",  type: "profit",   label: "69.3 SOL proceeds" },
+  { source: "TREASURY",   target: "WATCHTOWER",type: "init",     label: "11.4 SOL re-feed" },
+
+  // TREASURY-UP → TREASURY
+  { source: "TREASURY_UP", target: "TREASURY", type: "profit",   label: "1,500 SOL" },
+
+  // TREASURY → SWEEP-1
+  { source: "TREASURY",  target: "SWEEP1",     type: "profit",   label: "1,350 SOL" },
+
+  // SWEEP-1 → EXTRACTION + back to TREASURY-UP
+  { source: "SWEEP1",    target: "EXTRACTION", type: "profit",   label: "863 SOL" },
+  { source: "SWEEP1",    target: "TREASURY_UP",type: "profit",   label: "200 SOL" },
+
+  // VANITY dust → TREASURY
+  { source: "VANITY",    target: "TREASURY",   type: "unknown",  label: "0.00001 SOL" },
+
+  // Operators → 7 known creators (subset)
+  { source: "OPERATORS", target: "28dXSX", type: "init", label: "283 SOL" },
+  { source: "OPERATORS", target: "toREm9", type: "init", label: "187 SOL" },
+  { source: "OPERATORS", target: "9BRVy6", type: "init", label: "98 SOL" },
+  { source: "OPERATORS", target: "EJUyV8", type: "init", label: "80 SOL" },
+  { source: "OPERATORS", target: "J7JH1j", type: "init", label: "45 SOL" },
+  { source: "OPERATORS", target: "dqkRa3", type: "init", label: "30 SOL" },
+  { source: "OPERATORS", target: "2QyrLs", type: "init", label: "26 SOL" },
+];
+
+const color = {
+  unknown:   "#484f58",
+  deployer:  "#f85149",
+  profit:    "#3fb950",
+  operators: "#1f6feb",
+  watchtower:"#bc8cff",
+  watch:     "#e3b341",
+  treasury:  "#f0883e",
+};
+
+const short = v => !v || v === '—' ? '—' : `${v.slice(0,6)}…${v.slice(-4)}`;
+const fmtMc = v => !v ? '—' : v >= 1e6 ? `$${(v/1e6).toFixed(2)}M` : v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v.toFixed(0)}`;
+const fmtDate = ts => !ts ? '—' : new Date(ts*1000).toLocaleDateString();
+
+const fmtTs = ts => !ts ? '—' : new Date(ts*1000).toLocaleString();
+const _seenSignals = new Set();
+
+function renderSignals(data) {
+  const creators    = data.new_creators || [];
+  const funders     = data.funding_signals || [];
+  const dormant     = data.dormant_activations || [];
+  const candidates  = data.launch_candidates || [];
+  const raydium     = data.raydium_launches || [];
+  const stateChgs   = data.state_changes || [];
+  const alertEl     = document.getElementById('activation-alert');
+  const alertBody   = document.getElementById('activation-body');
+
+  const all = [
+    ...dormant.map(d    => ({...d, _type: 'dormant'})),
+    ...raydium.map(r    => ({...r, _type: 'raydium'})),
+    ...candidates.map(c => ({...c, _type: 'candidate'})),
+    ...funders.map(f    => ({...f, _type: 'funding'})),
+    ...creators.map(c   => ({...c, _type: 'creator'})),
+    ...stateChgs.map(s  => ({...s, _type: 'state_change'})),
+  ];
+
+  if (all.length === 0) {
+    alertEl.style.display = 'none';
+    document.getElementById('token-panel').style.display = 'block';
+    if (document.title.match(/^[🟠🔴⚡🟣🔵]/))
+      document.title = 'Rug Network — WATCHTOWER Investigation';
+    return;
+  }
+
+  const newOnes = all.filter(s => {
+    const key = s._type === 'funding'      ? `f:${s.funder}:${s.creator}`
+              : s._type === 'dormant'      ? `d:${s.creator}:${s.mint}`
+              : s._type === 'raydium'      ? `r:${s.mint}:${s.tx_signature}`
+              : s._type === 'candidate'    ? `cand:${s.address}`
+              : s._type === 'state_change' ? `sc:${s.address}:${s.to_state}`
+              : `c:${s.creator}:${s.mint}`;
+    if (_seenSignals.has(key)) return false;
+    _seenSignals.add(key);
+    return true;
+  });
+
+  document.getElementById('token-panel').style.display = 'none';
+  alertEl.style.display = 'block';
+
+  if (newOnes.length > 0) {
+    const hasDormant    = newOnes.some(s => s._type === 'dormant');
+    const hasRaydium    = newOnes.some(s => s._type === 'raydium');
+    const hasCandidate  = newOnes.some(s => s._type === 'candidate');
+    const hasFunding    = newOnes.some(s => s._type === 'funding');
+    document.title = hasDormant   ? '🟠 DORMANT ACTIVATED — WATCHTOWER'
+                   : hasRaydium   ? '🟣 RAYDIUM LAUNCH — WATCHTOWER'
+                   : hasCandidate ? '🔴 LAUNCH CANDIDATE — WATCHTOWER'
+                   : hasFunding   ? '🔴 FUNDING SIGNAL — WATCHTOWER'
+                   : '⚡ NEW ACTIVATION — WATCHTOWER';
+  }
+
+  alertBody.innerHTML = all.map(s => {
+    if (s._type === 'dormant') {
+      const mc = s.market_cap_highest;
+      const firstSeen = s.fee_payer_first_seen ? new Date(s.fee_payer_first_seen*1000).toLocaleDateString() : '—';
+      return `
+        <div class="act-row dormant">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="alert-badge dormant-badge">🟠 DORMANT ACTIVATED</span>
+            <span style="color:#8b949e;font-size:10px">fee payer launched token</span>
+          </div>
+          <div class="act-addr dormant" onclick="copyAddr('${s.creator}')" title="Click to copy">${s.creator}</div>
+          <div class="act-tokens">↳ ${s.token_name}</div>
+          <div class="act-mc">MC: ${fmtMc(mc)} · ${s.lifecycle_stage||'—'} · Risk: ${s.risk_level||'—'}</div>
+          <div class="act-dormant-meta">Fee payer since ${firstSeen} · ${s.fee_tx_count??0} sweep tx${(s.fee_tx_count??0)!==1?'s':''} · ${(s.total_sol_sent||0).toFixed(4)} SOL paid</div>
+          <div class="act-meta">Detected: ${fmtTs(s.detected_at)}</div>
+        </div>`;
+    } else if (s._type === 'raydium') {
+      return `
+        <div class="act-row" style="border-color:rgba(188,99,255,0.35);background:rgba(188,99,255,0.06);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="alert-badge" style="color:#bc63ff;border-color:rgba(188,99,255,0.4);background:rgba(188,99,255,0.12);">🟣 RAYDIUM LAUNCH</span>
+            <span style="color:#8b949e;font-size:10px">direct Raydium pool creation</span>
+          </div>
+          <div style="font-size:10px;color:#8b949e;margin-bottom:2px">Operator:</div>
+          <div class="act-addr" style="color:#bc63ff" onclick="copyAddr('${s.creator}')" title="Click to copy">${s.creator}</div>
+          <div class="act-tokens">↳ Mint: ${short(s.mint)}</div>
+          <div class="act-mc">${s.pool_program||'Raydium'} · ${s.initial_liquidity_sol?.toFixed(3)||'?'} SOL liquidity</div>
+          <div class="act-meta">Detected: ${fmtTs(s.detected_at)}</div>
+        </div>`;
+    } else if (s._type === 'candidate') {
+      return `
+        <div class="act-row" style="border-color:rgba(227,179,65,0.35);background:rgba(227,179,65,0.06);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="alert-badge" style="color:#e3b341;border-color:rgba(227,179,65,0.4);background:rgba(227,179,65,0.12);">🔴 LAUNCH CANDIDATE</span>
+            <span style="color:#8b949e;font-size:10px">${s.candidate_reason||'pre-launch signal'}</span>
+          </div>
+          <div class="act-addr" style="color:#e3b341" onclick="copyAddr('${s.address}')" title="Click to copy">${s.address}</div>
+          <div class="act-mc">Confidence: ${s.confidence||'medium'} · ${s.source_operator ? 'via '+short(s.source_operator) : 'infra chain'}</div>
+          <div class="act-meta">Detected: ${fmtTs(s.detected_at)}</div>
+        </div>`;
+    } else if (s._type === 'funding') {
+      return `
+        <div class="act-row funding">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="alert-badge funding-badge">🔴 FUNDING</span>
+            <span style="color:#8b949e;font-size:10px">operator funded a creator</span>
+          </div>
+          <div style="font-size:10px;color:#8b949e;margin-bottom:2px">Operator:</div>
+          <div class="act-addr funding" onclick="copyAddr('${s.funder}')" title="Click to copy">${s.funder}</div>
+          <div style="font-size:10px;color:#8b949e;margin:4px 0 2px">Creator:</div>
+          <div class="act-addr funding" onclick="copyAddr('${s.creator}')" title="Click to copy">${s.creator}</div>
+          <div class="act-sol">↳ ${s.amount_sol?.toFixed(3)} SOL · ${s.token_count||0} token${s.token_count!==1?'s':''} · Risk: ${s.risk_level||'—'}</div>
+          <div class="act-meta">Detected: ${fmtTs(s.detected_at)}</div>
+        </div>`;
+    } else if (s._type === 'state_change') {
+      const stateColor = {operational:'#3fb950',launching:'#bc63ff',extracting:'#f0883e',dormant:'#8b949e',activated:'#58a6ff',provisioned:'#484f58'};
+      const col = stateColor[s.to_state] || '#8b949e';
+      return `
+        <div class="act-row" style="border-color:rgba(88,166,255,0.25);background:rgba(88,166,255,0.04);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="alert-badge" style="color:#58a6ff;border-color:rgba(88,166,255,0.4);background:rgba(88,166,255,0.1);">🔵 STATE CHANGE</span>
+          </div>
+          <div class="act-addr" onclick="copyAddr('${s.address}')" title="Click to copy">${s.address}</div>
+          <div class="act-mc">${s.from_state||'?'} → <span style="color:${col};font-weight:600">${s.to_state}</span></div>
+          <div class="act-meta">Detected: ${fmtTs(s.detected_at)}</div>
+        </div>`;
+    } else {
+      const mc = s.market_cap_highest;
+      return `
+        <div class="act-row">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="alert-badge">⚡ CREATOR</span>
+            <span style="color:#8b949e;font-size:10px">operator launched token</span>
+          </div>
+          <div class="act-addr" onclick="copyAddr('${s.creator}')" title="Click to copy">${s.creator}</div>
+          <div class="act-tokens">↳ ${s.token_name}</div>
+          <div class="act-mc">MC: ${fmtMc(mc)} · ${s.lifecycle_stage||'—'} · Risk: ${s.risk_level||'—'}</div>
+          <div class="act-meta">Detected: ${fmtTs(s.detected_at)}</div>
+        </div>`;
+    }
+  }).join('');
+}
+
+function renderLifecycle(stats) {
+  const el = document.getElementById('lifecycle-panel');
+  if (!el || !stats) return;
+  const byState = stats.by_state || {};
+  const total   = stats.total_operators || 0;
+  const stateOrder = ['operational','launching','extracting','activated','dormant','provisioned'];
+  const stateLabel = {operational:'Operational',launching:'Launching',extracting:'Extracting',activated:'Activated',dormant:'Dormant',provisioned:'Provisioned'};
+  const stateColor = {operational:'#3fb950',launching:'#bc63ff',extracting:'#f0883e',activated:'#58a6ff',dormant:'#484f58',provisioned:'#8b949e'};
+
+  const pills = stateOrder.map(s => {
+    const n = byState[s] || 0;
+    if (!n) return '';
+    return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;
+      background:${stateColor[s]}18;border:1px solid ${stateColor[s]}44;font-size:10px;color:${stateColor[s]}">
+      <span style="font-weight:700">${n}</span> ${stateLabel[s]}
+    </span>`;
+  }).join('');
+
+  const recent = (stats.recently_changed || []).slice(0, 5);
+  const recentHtml = recent.map(r => {
+    const col = stateColor[r.state] || '#8b949e';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #21262d">
+      <span style="font-size:10px;color:#8b949e;font-family:monospace">${r.address.slice(0,12)}…</span>
+      <span style="font-size:10px;color:${col};font-weight:600">${r.state}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="font-size:10px;color:#8b949e;margin-bottom:6px">
+      <span style="color:#e6edf3;font-weight:600">${total}</span> operators tracked
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${pills||'<span style="color:#484f58;font-size:10px">No state data yet</span>'}</div>
+    ${recent.length ? `<div style="font-size:10px;color:#484f58;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Recent changes</div>${recentHtml}` : ''}
+  `;
+
+  // Update stats bar
+  const opCount   = byState['operational'] || 0;
+  const lchCount  = byState['launching']   || 0;
+  const dormCount = byState['dormant']     || 0;
+  const statsBar  = document.getElementById('lifecycle-statsbar');
+  if (statsBar) statsBar.textContent = `${opCount} operational · ${lchCount} launching · ${dormCount} dormant`;
+}
+
+function renderLive(data) {
+  const s = data.summary || {};
+  const tokens = data.tokens || [];
+  const gClass = g => g ? g.toLowerCase() : 'gnull';
+
+  let html = `
+    <div class="tp-stats">
+      <div class="tp-box"><div class="v">${s.total_tokens||0}</div><div class="l">total tokens</div></div>
+      <div class="tp-box"><div class="v">${s.total_migrated||0}</div><div class="l">migrated</div></div>
+      <div class="tp-box"><div class="v">${fmtMc(s.best_peak_mc)}</div><div class="l">best peak MC</div></div>
+    </div>
+    <div style="font-size:10px;color:#484f58;margin-bottom:8px">
+      Watching <span style="color:#e3b341">${s.total_operators||496}</span> wallets for activation
+    </div>
+    <div class="tp-hdr"><span>Token</span><span>Peak MC</span><span>Grade</span><span>Migrated</span></div>`;
+
+  if (tokens.length === 0) {
+    html += `<div style="color:#484f58;font-size:10px;padding:8px 0">No migrated tokens found</div>`;
+  } else {
+    tokens.forEach(t => {
+      const g = t.g_level || '—';
+      html += `<div class="tp-row">
+        <div class="tp-name" title="${t.token_name}">${t.token_name || short(t.mint)}</div>
+        <div class="tp-mc">${fmtMc(t.market_cap_highest)}</div>
+        <div class="${gClass(t.g_level)}">${g}</div>
+        <div style="color:#8b949e">${fmtDate(t.migrated_at)}</div>
+      </div>`;
+    });
+  }
+  document.getElementById('tp-body').innerHTML = html;
+
+  // Update dynamic creator/operator counts across the page
+  const inDb = s.tracked_creators || 0;
+  const identOps = s.identified_operators || 0;
+  const total = s.total_operators || 481;
+  const tpHeader = document.getElementById('tp-creator-count');
+  if (tpHeader) tpHeader.textContent = inDb;
+  // Key findings dynamic fields
+  const kfCount = document.getElementById('kf-creator-count');
+  if (kfCount) kfCount.textContent = inDb;
+  const kfOps = document.getElementById('kf-ops-in-db');
+  if (kfOps) kfOps.textContent = `${identOps}/${total}`;
+  const kfTokens = document.getElementById('kf-tokens');
+  if (kfTokens) kfTokens.textContent = s.total_tokens || 0;
+  const kfBestMc = document.getElementById('kf-best-mc');
+  if (kfBestMc) kfBestMc.textContent = fmtMc(s.best_peak_mc);
+  const countStr = `${inDb} / ${total}`;
+  document.querySelectorAll('.ops-in-db').forEach(el => el.textContent = countStr);
+  // Update stats bar
+  const statsEl = document.getElementById('stats-ops-count');
+  if (statsEl) statsEl.textContent = `${inDb} creators confirmed · ${total} operators`;
+  // Update OPERATORS node tspan in D3 if rendered
+  const tspanEl = document.getElementById('ops-db-tspan');
+  if (tspanEl) tspanEl.textContent = `(${inDb}/${total} in DB)`;
+}
+
+function poll() {
+  fetch('/api/network-diagram/watchtower/signals')
+    .then(r => r.json())
+    .then(renderSignals)
+    .catch(() => {});
+
+  fetch('/api/network-diagram/watchtower/live')
+    .then(r => r.json())
+    .then(renderLive)
+    .catch(() => {
+      document.getElementById('tp-body').innerHTML = '<div style="color:#484f58">Live data unavailable</div>';
+    });
+
+  fetch('/api/watchtower/operator-stats')
+    .then(r => r.json())
+    .then(renderLifecycle)
+    .catch(() => {});
+}
+
+poll();
+setInterval(poll, 30000);
+
+const toast = document.getElementById('copy-toast');
+let _toastTimer;
+function copyAddr(addr) {
+  if (!addr || addr === '—') return;
+  navigator.clipboard.writeText(addr).then(() => {
+    toast.textContent = `Copied ${addr.slice(0,8)}…`;
+    toast.style.opacity = 1;
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => toast.style.opacity = 0, 1800);
+  });
+}
+
+const W = window.innerWidth, H = window.innerHeight;
+const svg = d3.select("#graph").attr("viewBox", `0 0 ${W} ${H}`);
+const g = svg.append("g");
+svg.call(d3.zoom().scaleExtent([0.2, 3]).on("zoom", e => g.attr("transform", e.transform)));
+
+const defs = svg.append("defs");
+["fee-wt","fee-dep","profit","init","unknown"].forEach(t => {
+  defs.append("marker")
+    .attr("id", `arrow-${t}`)
+    .attr("viewBox","0 -5 10 10").attr("refX",10).attr("refY",0)
+    .attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto")
+    .append("path").attr("d","M0,-5L10,0L0,5")
+    .attr("fill", t==="fee-wt"?"#bc8cff":t==="fee-dep"?"#e3b341":t==="profit"?"#3fb950":t==="init"?"#58a6ff":"#484f58")
+    .attr("opacity", 0.7);
+});
+
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d=>d.id).distance(d => {
+    if (d.type === "fee-wt") return 200;
+    if (d.type === "fee-dep") return 160;
+    if (d.type === "init" && d.target && typeof d.target === "object" && d.target.type === "watch") return 120;
+    if (d.type === "unknown") return 140;
+    return 160;
+  }).strength(0.35))
+  .force("charge", d3.forceManyBody().strength(-800))
+  .force("center", d3.forceCenter(W/2, H/2))
+  .force("collision", d3.forceCollide(d => d.r + 24));
+
+const link = g.append("g").selectAll("line")
+  .data(links).join("line")
+  .attr("class", d => `link ${d.type}`)
+  .attr("stroke-width", d => d.type === "profit" ? 2 : d.type === "fee-wt" ? 1.5 : 1)
+  .attr("marker-end", d => `url(#arrow-${d.type})`);
+
+const linkLabel = g.append("g").selectAll("text")
+  .data(links).join("text")
+  .attr("font-size", 8).attr("fill", "#484f58").attr("text-anchor","middle")
+  .text(d => d.label ? d.label.split('\n')[0] : '');
+
+const node = g.append("g").selectAll("g")
+  .data(nodes).join("g")
+  .attr("class","node")
+  .call(d3.drag()
+    .on("start", (e,d) => { if(!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+    .on("drag",  (e,d) => { d.fx=e.x; d.fy=e.y; })
+    .on("end",   (e,d) => { if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; })
+  );
+
+node.append("circle")
+  .attr("r", d => d.r)
+  .attr("fill", d => (color[d.type] || "#8b949e") + "33")
+  .attr("stroke", d => color[d.type] || "#8b949e")
+  .attr("stroke-dasharray", d => d.type === "unknown" ? "4,3" : null);
+
+node.append("text")
+  .attr("class","label")
+  .attr("text-anchor","middle")
+  .attr("dy", d => d.r + 12)
+  .selectAll("tspan")
+  .data(d => d.label.split("\n"))
+  .join("tspan")
+  .attr("x", 0).attr("dy", (d,i) => i===0 ? 0 : 11)
+  .attr("id", function(d,i) {
+    const nd = d3.select(this.parentNode).datum();
+    return (nd && nd.id === 'OPERATORS' && i === 1) ? 'ops-db-tspan' : null;
+  })
+  .text(d => d);
+
+const tip = document.getElementById("tooltip");
+node.on("mousemove", (e, d) => {
+  tip.style.display = "block";
+  tip.style.left = (e.clientX + 14) + "px";
+  tip.style.top  = (e.clientY - 10) + "px";
+  tip.innerHTML = `
+    <div class="label">${d.label.replace(/\n/g," — ")}</div>
+    <div class="addr" title="Click to copy">${d.addr}</div>
+    <div class="meta">${d.meta}</div>
+    <div class="meta" style="color:${color[d.type]||'#8b949e'};margin-top:4px">${d.type.toUpperCase()} · <span style="color:#58a6ff;cursor:pointer" onclick="copyAddr('${d.addr}')">copy address</span></div>
+  `;
+  tip.querySelector('.addr').onclick = () => copyAddr(d.addr);
+}).on("mouseleave", () => tip.style.display = "none");
+
+node.on("click", (e, d) => {
+  e.stopPropagation();
+  copyAddr(d.addr);
+});
+
+simulation.on("tick", () => {
+  link
+    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+    .attr("x2", d => {
+      const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+      const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+      return d.target.x - (dx/dist) * (d.target.r + 8);
+    })
+    .attr("y2", d => {
+      const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+      const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+      return d.target.y - (dy/dist) * (d.target.r + 8);
+    });
+
+  linkLabel
+    .attr("x", d => (d.source.x + d.target.x) / 2)
+    .attr("y", d => (d.source.y + d.target.y) / 2 - 4);
+
+  node.attr("transform", d => `translate(${d.x},${d.y})`);
+});
+</script>
+</body>
+</html>

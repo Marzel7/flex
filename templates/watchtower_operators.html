@@ -1,0 +1,765 @@
+{% extends "base_shell.html" %}
+{% block title %}WATCHTOWER — Operators{% endblock %}
+
+{% block extra_styles %}
+:root {
+    --bg-deep:   #0d1117;
+    --bg-card:   #161b22;
+    --bg-card2:  #1c2128;
+    --border:    #21262d;
+    --border2:   #30363d;
+    --text-pri:  #e6edf3;
+    --text-sec:  #8b949e;
+    --text-dim:  #6e7681;
+
+    --col-swarm:   #34d399;
+    --col-amber:   #f59e0b;
+    --col-purple:  #a78bfa;
+    --col-cyan:    #22d3ee;
+    --col-red:     #f85149;
+    --col-yellow:  #eab308;
+
+    --state-active:    #3fb950;
+    --state-forming:   #d97706;
+    --state-confirmed: #22d3ee;
+    --state-candidate: #8b949e;
+}
+
+/* ── PAGE HEADER ──────────────────────────────────────────────── */
+.page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+}
+.page-title { font-size: 16px; font-weight: 700; color: var(--text-pri); }
+.page-sub   { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.refresh-btn {
+    font-size: 10px; padding: 5px 12px; border-radius: 4px;
+    background: var(--bg-card2); border: 1px solid var(--border2);
+    color: var(--text-sec); cursor: pointer;
+    transition: color .15s, border-color .15s;
+}
+.refresh-btn:hover { color: var(--text-pri); border-color: var(--col-swarm); }
+
+/* ── SUMMARY STRIP ────────────────────────────────────────────── */
+.summary-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px; margin-bottom: 16px;
+}
+@media (max-width:1200px) { .summary-strip { grid-template-columns: repeat(3,1fr); } }
+@media (max-width:700px)  { .summary-strip { grid-template-columns: repeat(2,1fr); } }
+
+.scard {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 14px;
+}
+.scard-val   { font-size: 22px; font-weight: 700; color: var(--text-pri); line-height: 1; }
+.scard-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .07em; margin-top: 4px; }
+.scard-sub   { font-size: 10px; color: var(--text-sec); margin-top: 3px; }
+.scard-val.green  { color: var(--state-active); }
+.scard-val.amber  { color: var(--col-amber); }
+.scard-val.cyan   { color: var(--col-cyan); }
+.scard-val.purple { color: var(--col-purple); }
+.scard-val.dim    { color: var(--text-dim); }
+
+/* ── LAYOUT ───────────────────────────────────────────────────── */
+.op-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 12px; align-items: start;
+}
+@media (max-width:1100px) { .op-layout { grid-template-columns: 1fr; } }
+
+/* ── PANEL ────────────────────────────────────────────────────── */
+.panel {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+}
+.panel-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--text-sec);
+}
+.panel-hdr-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 7px;
+    border-radius: 3px; background: var(--bg-card2);
+    color: var(--text-dim); border: 1px solid var(--border);
+}
+
+/* ── CLUSTER CARDS ────────────────────────────────────────────── */
+.cluster-card {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px; transition: background .15s;
+}
+.cluster-card:last-child { border-bottom: none; }
+.cluster-card:hover { background: var(--bg-card2); }
+
+.cluster-top {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+}
+.cluster-name {
+    font-size: 14px; font-weight: 700; color: var(--text-pri);
+    display: flex; align-items: center; gap: 8px;
+}
+.cluster-id-badge {
+    font-size: 9px; color: var(--text-dim); background: var(--bg-card2);
+    border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px;
+    font-family: monospace;
+}
+.state-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .07em;
+    padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+    white-space: nowrap; flex-shrink: 0;
+}
+.state-badge.ACTIVE    { background: rgba(63,185,80,.15); color: var(--state-active); }
+.state-badge.FORMING   { background: rgba(217,119,6,.15); color: var(--state-forming); }
+.state-badge.CONFIRMED { background: rgba(34,211,238,.12); color: var(--state-confirmed); }
+.state-badge.CANDIDATE { background: rgba(139,148,158,.1); color: var(--text-dim); }
+
+.confidence-bar-wrap {
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.confidence-bar {
+    width: 70px; height: 5px; border-radius: 3px;
+    background: var(--border2); overflow: hidden;
+}
+.confidence-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, #22d3ee, #3fb950);
+    transition: width .5s;
+}
+.confidence-val { font-size: 10px; color: var(--text-sec); white-space: nowrap; }
+
+.cluster-treasury {
+    font-size: 10px; color: var(--text-dim); font-family: monospace; margin-top: 4px;
+}
+.cluster-treasury span { color: var(--col-yellow); }
+
+/* cluster stats row */
+.cluster-stats {
+    display: flex; flex-wrap: wrap; gap: 18px; margin-top: 10px;
+}
+.cstat { font-size: 11px; color: var(--text-sec); }
+.cstat b { color: var(--text-pri); font-weight: 600; }
+.cstat.green b { color: var(--state-active); }
+.cstat.amber b { color: var(--col-amber); }
+.cstat.cyan  b { color: var(--col-cyan); }
+.cstat.purple b { color: var(--col-purple); }
+
+/* fingerprint section */
+.fp-section {
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.fp-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); margin-bottom: 6px; }
+.fp-grid {
+    display: flex; flex-wrap: wrap; gap: 6px 16px;
+}
+.fp-item { font-size: 10px; color: var(--text-sec); }
+.fp-item b { color: var(--text-pri); font-family: monospace; }
+
+/* notes */
+.cluster-notes {
+    margin-top: 8px; font-size: 10px; color: var(--text-dim);
+    line-height: 1.5; font-style: italic;
+}
+
+/* ── CANDIDATE TABLE ──────────────────────────────────────────── */
+.cand-table { width: 100%; border-collapse: collapse; }
+.cand-table th {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--text-dim); text-align: left;
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    background: var(--bg-card2);
+}
+.cand-table td {
+    padding: 8px 12px; font-size: 11px; color: var(--text-sec);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.cand-table tr:last-child td { border-bottom: none; }
+.cand-table tr:hover td { background: var(--bg-card2); }
+
+.mint-addr { font-family: monospace; font-size: 10px; color: var(--col-cyan); }
+.conf-pill {
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px;
+    white-space: nowrap;
+}
+.conf-pill.high   { background: rgba(63,185,80,.15); color: #3fb950; }
+.conf-pill.medium { background: rgba(217,119,6,.15); color: #d97706; }
+.conf-pill.low    { background: rgba(139,148,158,.1); color: var(--text-dim); }
+
+/* ── SCANNER STATUS ───────────────────────────────────────────── */
+.scanner-status {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 12px 14px;
+}
+.status-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+.status-label { color: var(--text-sec); }
+.status-val   { color: var(--text-pri); font-weight: 600; font-family: monospace; }
+.status-val.green  { color: var(--state-active); }
+.status-val.amber  { color: var(--col-amber); }
+.status-val.dim    { color: var(--text-dim); }
+
+/* ── FINGERPRINT DISPLAY ──────────────────────────────────────── */
+.fp-card {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+}
+.fp-card:last-child { border-bottom: none; }
+.fp-cluster-name { font-size: 12px; font-weight: 700; color: var(--text-pri); margin-bottom: 8px; }
+.fp-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 10px; }
+.fp-key { color: var(--text-dim); }
+.fp-val { color: var(--text-pri); font-family: monospace; font-weight: 600; }
+
+/* ── REFERENCE FINGERPRINT BANNER ────────────────────────────── */
+.ref-banner {
+    background: var(--bg-card); border: 1px solid rgba(234,179,8,.25);
+    border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px; align-items: start;
+}
+.ref-tag {
+    font-size: 9px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: #eab308;
+    background: rgba(234,179,8,.1); border: 1px solid rgba(234,179,8,.25);
+    border-radius: 3px; padding: 2px 7px; white-space: nowrap;
+    align-self: flex-start; margin-top: 2px;
+}
+.ref-name {
+    font-size: 14px; font-weight: 700; color: var(--text-pri);
+    display: flex; align-items: center; gap: 8px;
+}
+.ref-treasury {
+    font-size: 10px; font-family: monospace; color: var(--col-yellow);
+    margin-top: 3px;
+}
+.ref-desc {
+    font-size: 10px; color: var(--text-dim); margin-top: 5px; line-height: 1.5;
+}
+.ref-fp-grid {
+    display: flex; flex-wrap: wrap; gap: 5px 20px; margin-top: 8px;
+}
+.ref-fp-item { font-size: 10px; color: var(--text-sec); }
+.ref-fp-item b { color: var(--text-pri); font-family: monospace; }
+.ref-stats {
+    display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+    min-width: 110px;
+}
+.ref-stat { font-size: 10px; color: var(--text-sec); text-align: right; }
+.ref-stat b { color: var(--text-pri); font-weight: 600; display: block; font-size: 15px; }
+.ref-stat b.green { color: var(--state-active); }
+.ref-stat b.amber { color: var(--col-amber); }
+.ref-watchtower-link {
+    font-size: 9px; color: #58a6ff; text-decoration: none; margin-top: 6px;
+    display: inline-block;
+}
+.ref-watchtower-link:hover { text-decoration: underline; }
+
+/* ── SECTION DIVIDER ──────────────────────────────────────────── */
+.section-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-dim);
+    margin: 16px 0 8px; display: flex; align-items: center; gap: 8px;
+}
+.section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── EMPTY STATE ──────────────────────────────────────────────── */
+.empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--text-dim); font-size: 12px;
+}
+.empty-icon { font-size: 28px; margin-bottom: 8px; opacity: .4; }
+.empty-hint { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+/* ── LAST UPDATED ─────────────────────────────────────────────── */
+.last-updated {
+    font-size: 9px; color: var(--text-dim); text-align: right; margin-top: 8px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">⬡ WATCHTOWER — Swarm Operators</div>
+        <div class="page-sub">Operator cluster intelligence · migration scan + behavioral fingerprinting</div>
+    </div>
+    <button class="refresh-btn" onclick="load()">↺ Refresh</button>
+</div>
+
+<!-- Reference fingerprint banner (WATCH — known operator, monitored by WATCHTOWER) -->
+<div class="ref-banner" id="ref-banner" style="display:none">
+    <div class="ref-tag">Reference Fingerprint</div>
+    <div>
+        <div class="ref-name">
+            WATCH
+            <span style="font-size:9px;color:var(--text-dim);font-weight:400">Operator #1 · seed</span>
+        </div>
+        <div class="ref-treasury" id="ref-treasury">—</div>
+        <div class="ref-desc">
+            Known operator — actively monitored by WATCHTOWER via webhook.<br>
+            This fingerprint is the reference target the migration scanner matches against.
+        </div>
+        <div class="ref-fp-grid" id="ref-fp-grid"></div>
+        <a class="ref-watchtower-link" href="/watchtower/intelligence">↗ View live ops in WATCHTOWER</a>
+    </div>
+    <div class="ref-stats" id="ref-stats"></div>
+</div>
+
+<!-- Summary strip -->
+<div class="summary-strip">
+    <div class="scard"><div class="scard-val dim" id="s-clusters">—</div><div class="scard-label">Discovered Clusters</div><div class="scard-sub">unknown operators</div></div>
+    <div class="scard"><div class="scard-val green" id="s-active">—</div><div class="scard-label">Active</div><div class="scard-sub">confirmed active</div></div>
+    <div class="scard"><div class="scard-val amber" id="s-candidates">—</div><div class="scard-label">Candidates</div><div class="scard-sub">tokens evaluated</div></div>
+    <div class="scard"><div class="scard-val cyan" id="s-possible">—</div><div class="scard-label">Possible Swarms</div><div class="scard-sub">confidence ≥ 0.4</div></div>
+    <div class="scard"><div class="scard-val purple" id="s-hit-rate">—</div><div class="scard-label">Hit Rate</div><div class="scard-sub">possible / evaluated</div></div>
+    <div class="scard"><div class="scard-val dim" id="s-watch-ops">35</div><div class="scard-label">WATCH Ops</div><div class="scard-sub">Apr–May 2026</div></div>
+</div>
+
+<!-- Main layout -->
+<div class="op-layout">
+
+    <!-- Left: cluster list -->
+    <div>
+        <div class="section-label">Discovered Operators</div>
+        <div class="panel">
+            <div class="panel-hdr">
+                <span>Unknown Operator Clusters</span>
+                <span class="panel-hdr-badge" id="cluster-count">0</span>
+            </div>
+            <div id="cluster-list">
+                <div class="empty-state">
+                    <div class="empty-icon">◎</div>
+                    <div>No unknown operators detected yet</div>
+                    <div class="empty-hint">Migration scanner compares each token against the WATCH fingerprint</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates panel (top probable) -->
+        <div class="panel" style="margin-top:12px;">
+            <div class="panel-hdr">
+                <span>Top Swarm Candidates</span>
+                <span class="panel-hdr-badge" id="cand-count">0</span>
+            </div>
+            <div id="cand-table-wrap">
+                <div class="empty-state">
+                    <div class="empty-icon">⌛</div>
+                    <div>Scanner running… first results in ~5 min</div>
+                    <div class="empty-hint">Polls newly migrated PumpSwap tokens every 300s</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: sidebar panels -->
+    <div>
+
+        <!-- Scanner status + yield -->
+        <div class="panel" style="margin-bottom:12px;">
+            <div class="panel-hdr">
+                <span>Migration Scanner</span>
+                <span style="font-size:9px;color:var(--state-active);font-weight:700;letter-spacing:.05em">● RUNNING</span>
+            </div>
+            <div class="scanner-status">
+
+                <div class="status-row" style="padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px;">
+                    <span class="status-label" style="font-size:10px;font-weight:600;color:var(--text-sec)">Tokens scanned</span>
+                    <span class="status-val" id="sc-total" style="font-size:15px">—</span>
+                </div>
+
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:6px 0 4px;">Skipped</div>
+                <div class="status-row">
+                    <span class="status-label">↳ Already in WATCHTOWER</span>
+                    <span class="status-val dim" id="sc-already-attr">—</span>
+                </div>
+
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:6px 0 4px;">Rejections</div>
+                <div class="status-row">
+                    <span class="status-label">↳ Too few buyers (&lt;25)</span>
+                    <span class="status-val dim" id="sc-low-buyers">—</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">↳ Wide window (&gt;30min)</span>
+                    <span class="status-val dim" id="sc-wide-window">—</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">↳ No on-chain sigs</span>
+                    <span class="status-val dim" id="sc-no-sigs">—</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">↳ Insuff. funder data</span>
+                    <span class="status-val dim" id="sc-insuff">—</span>
+                </div>
+
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:8px 0 4px;">Signal</div>
+                <div class="status-row">
+                    <span class="status-label">Possible swarms</span>
+                    <span class="status-val amber" id="sc-possible">—</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Confirmed clusters</span>
+                    <span class="status-val green" id="sc-confirmed">—</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Currently scanning</span>
+                    <span class="status-val cyan" id="sc-scanning">—</span>
+                </div>
+
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:8px 0 4px;">Thresholds</div>
+                <div class="status-row">
+                    <span class="status-label">Min confidence</span>
+                    <span class="status-val">0.40</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Hard floor (buyers)</span>
+                    <span class="status-val">25</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">25–49: window ≤900s req.</span>
+                    <span class="status-val dim">conf ×0.5</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">25–49: stage 3 if tight</span>
+                    <span class="status-val dim">stddev&lt;0.10 + prov&gt;80%</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">50–100: conf ×0.8</span>
+                    <span class="status-val dim">large swarm</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Max buy window</span>
+                    <span class="status-val">1 800s</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">Poll interval</span>
+                    <span class="status-val">300s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cluster fingerprints -->
+        <div class="panel">
+            <div class="panel-hdr"><span>Cluster Fingerprints</span></div>
+            <div id="fp-list">
+                <div class="empty-state" style="padding:20px;">
+                    <div class="empty-icon">⏳</div>
+                    <div>Loading…</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="last-updated" id="last-updated"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fmtSol = v => v == null ? '—' : (+v).toFixed(1) + ' SOL';
+const fmtNum = v => v == null ? '—' : (+v).toLocaleString();
+const pct    = v => v == null ? '—' : (v*100).toFixed(0) + '%';
+const mono   = s => `<span style="font-family:monospace;font-size:10px">${s}</span>`;
+
+function truncAddr(addr, n=8) {
+    if (!addr) return '—';
+    return addr.slice(0,n)+'…'+addr.slice(-4);
+}
+
+function confPill(c) {
+    if (c == null) return '<span class="conf-pill low">?</span>';
+    const cls = c >= 0.7 ? 'high' : c >= 0.4 ? 'medium' : 'low';
+    return `<span class="conf-pill ${cls}">${(c*100).toFixed(0)}%</span>`;
+}
+
+function stateBadge(s) {
+    return `<span class="state-badge ${s}">${s}</span>`;
+}
+
+function renderRefBanner(cluster) {
+    if (!cluster) return;
+    document.getElementById('ref-banner').style.display = 'grid';
+    document.getElementById('ref-treasury').textContent =
+        'Treasury: ' + (cluster.treasury_wallet || '—');
+
+    const fp = cluster.fingerprint;
+    if (fp) {
+        document.getElementById('ref-fp-grid').innerHTML = `
+            <div class="ref-fp-item">Deploy: <b>${fmtSol(fp.typical_deploy_sol)} ±${fmtSol(fp.deploy_sol_stddev)}</b></div>
+            <div class="ref-fp-item">Fanout: <b>${fp.median_fanout_sol != null ? fp.median_fanout_sol.toFixed(4)+' SOL' : '—'}</b></div>
+            <div class="ref-fp-item">Wallets: <b>~${fmtNum(fp.typical_wallet_count)}</b></div>
+            <div class="ref-fp-item">Window: <b>${fp.fanout_window_s || '—'}s</b></div>
+            <div class="ref-fp-item">1-token: <b>${pct(fp.one_token_concentration)}</b></div>
+            <div class="ref-fp-item">Recycle: <b>${pct(fp.recycle_rate)}</b></div>
+            <div class="ref-fp-item">Samples: <b>${fmtNum(fp.sample_count)}</b></div>`;
+    }
+    document.getElementById('ref-stats').innerHTML = `
+        <div class="ref-stat"><b class="green">${fmtNum(cluster.token_count)}</b>ops confirmed</div>
+        <div class="ref-stat"><b class="amber">${fmtSol(cluster.total_sol_deployed)}</b>deployed</div>
+        <div class="ref-stat"><b>${fmtNum(cluster.provisioner_count)}</b>provisioners</div>`;
+}
+
+function renderClusters(clusters) {
+    if (!clusters || clusters.length === 0) {
+        return `<div class="empty-state">
+            <div class="empty-icon">◎</div>
+            <div>No unknown operators detected yet</div>
+            <div class="empty-hint">Migration scanner compares each token against the WATCH fingerprint</div>
+        </div>`;
+    }
+    return clusters.map(c => {
+        const fp = c.fingerprint;
+        const confPct = c.confidence != null ? (c.confidence * 100).toFixed(0) : '0';
+        const confWidth = Math.min(100, confPct);
+
+        const fpSection = fp ? `
+        <div class="fp-section">
+            <div class="fp-title">Behavioral Fingerprint</div>
+            <div class="fp-grid">
+                <div class="fp-item">Deploy: <b>${fmtSol(fp.typical_deploy_sol)}</b></div>
+                <div class="fp-item">±stddev: <b>${fmtSol(fp.deploy_sol_stddev)}</b></div>
+                <div class="fp-item">Fanout: <b>${fp.median_fanout_sol != null ? fp.median_fanout_sol.toFixed(4)+' SOL' : '—'}</b></div>
+                <div class="fp-item">Wallets: <b>${fmtNum(fp.typical_wallet_count)}</b></div>
+                <div class="fp-item">Window: <b>${fp.fanout_window_s != null ? fp.fanout_window_s+'s' : '—'}</b></div>
+                <div class="fp-item">1-token: <b>${pct(fp.one_token_concentration)}</b></div>
+                <div class="fp-item">Recycle: <b>${pct(fp.recycle_rate)}</b></div>
+                <div class="fp-item">Samples: <b>${fmtNum(fp.sample_count)}</b></div>
+            </div>
+        </div>` : '';
+
+        const treasury = c.treasury_wallet
+            ? `<div class="cluster-treasury">Treasury: <span title="${c.treasury_wallet}">${truncAddr(c.treasury_wallet, 10)}</span></div>`
+            : '';
+
+        const firstSeen = c.first_seen ? new Date(c.first_seen*1000).toLocaleDateString() : '—';
+
+        return `<div class="cluster-card">
+            <div class="cluster-top">
+                <div>
+                    <div class="cluster-name">
+                        ${c.label || 'Cluster #'+c.cluster_id}
+                        <span class="cluster-id-badge">#${c.cluster_id}</span>
+                        ${c.origin === 'seed' ? '<span style="font-size:9px;color:var(--text-dim);font-weight:400">seed</span>' : ''}
+                    </div>
+                    ${treasury}
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+                    ${stateBadge(c.state || 'UNKNOWN')}
+                    <div class="confidence-bar-wrap">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width:${confWidth}%"></div>
+                        </div>
+                        <span class="confidence-val">${confPct}% conf</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cluster-stats">
+                <div class="cstat green">Tokens: <b>${fmtNum(c.token_count)}</b></div>
+                <div class="cstat">Provisioners: <b>${fmtNum(c.provisioner_count)}</b></div>
+                <div class="cstat amber">Deployed: <b>${fmtSol(c.total_sol_deployed)}</b></div>
+                <div class="cstat cyan">Candidates: <b>${fmtNum(c.candidates_evaluated)}</b></div>
+                <div class="cstat">First seen: <b>${firstSeen}</b></div>
+            </div>
+            ${fpSection}
+            ${c.notes ? `<div class="cluster-notes">${c.notes}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function renderCandidates(candidates) {
+    if (!candidates || candidates.length === 0) {
+        return `<div class="empty-state">
+            <div class="empty-icon">⌛</div>
+            <div>No candidates evaluated yet</div>
+            <div class="empty-hint">Scanner polls migrated tokens every 5 min</div>
+        </div>`;
+    }
+    const rows = candidates.map(c => {
+        const ts      = c.scanned_at ? new Date(c.scanned_at*1000).toLocaleTimeString() : '—';
+        let ev = {};
+        try { ev = JSON.parse(c.evidence_json || '{}'); } catch(e) {}
+
+        // Fall back to evidence_json for fields not written to DB columns on NOT_SWARM
+        const buyers  = c.unique_buyers      ?? ev.unique_buyers;
+        const winS    = c.buy_window_s       ?? ev.buy_window_s;
+        const fanout  = c.median_funding_sol ?? ev.median_funding_sol;
+        const stddev  = ev.stddev_ratio;
+        const opClass = c.operator_class     ?? ev.operator_class;
+
+        const buyersD = buyers != null ? (+buyers).toLocaleString() : '—';
+        const winD    = winS   != null ? winS+'s' : '—';
+        const fanoutD = fanout != null ? (+fanout).toFixed(4) : '—';
+        const stddevD = stddev != null ? (+stddev).toFixed(2) : '—';
+        const provAddr = c.provisioner_wallet || ev.provisioner || null;
+        const prov     = provAddr ? truncAddr(provAddr) : '—';
+        const clust   = c.cluster_id ? `<span style="color:var(--col-cyan)">#${c.cluster_id}</span>` : '—';
+
+        const classColors = {
+            'INDUSTRIAL_SWARM':       ['#eab308','rgba(234,179,8,.12)'],
+            'LARGE_SWARM':            ['#34d399','rgba(52,211,153,.1)'],
+            'SMALL_COORDINATED_SWARM':['#22d3ee','rgba(34,211,238,.1)'],
+            'POSSIBLE_STEALTH':       ['#a78bfa','rgba(167,139,250,.12)'],
+        };
+
+        let outcomeCell;
+        if (c.state === 'ALREADY_ATTRIBUTED') {
+            const reason = (ev.reason || '').replace(/wt_/g,'').replace(/_/g,' ');
+            outcomeCell = `<span style="color:var(--col-yellow);font-size:9px" title="${ev.reason || ''}">⬡ ${reason}</span>`;
+        } else if (c.state === 'SCANNING') {
+            outcomeCell = `<span style="color:var(--text-dim);font-size:9px">SCANNING…</span>`;
+        } else if (c.state === 'POSSIBLE_SWARM') {
+            const cls = opClass || 'POSSIBLE_SWARM';
+            const [col, bg] = classColors[cls] || ['#3fb950','rgba(63,185,80,.12)'];
+            const label = cls.replace(/_/g,' ');
+            outcomeCell = `<span style="color:${col};background:${bg};font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px">${label}</span>`;
+        } else if (c.state === 'NOT_SWARM') {
+            const reason = (ev.reason || '').replace(/_/g,' ');
+            outcomeCell = `<span style="color:var(--text-dim);font-size:9px" title="${ev.reason || ''}">${reason || 'not swarm'}</span>`;
+        } else {
+            outcomeCell = `<span style="color:var(--text-dim);font-size:9px">${c.state || '—'}</span>`;
+        }
+
+        // Highlight interesting near-misses: buyers OK, window tight, but funding variable
+        const nearMiss = c.state === 'NOT_SWARM'
+            && buyers >= 25 && winS != null && winS < 300
+            && (ev.reason || '').includes('variable');
+
+        const rowStyle = c.state === 'POSSIBLE_SWARM'
+            ? 'background:rgba(63,185,80,.04);'
+            : nearMiss
+            ? 'background:rgba(234,179,8,.03);'
+            : c.state === 'SCANNING'
+            ? 'opacity:.7;'
+            : '';
+
+        // stddev colour — tight is interesting
+        const stddevColor = stddev == null ? 'var(--text-dim)'
+            : stddev < 0.10 ? '#3fb950'
+            : stddev < 0.25 ? '#d97706'
+            : 'var(--text-dim)';
+
+        return `<tr style="${rowStyle}">
+            <td><span class="mint-addr" title="Click to copy: ${c.token_mint}" style="cursor:pointer" onclick="copyAddr('${c.token_mint}', this)">${truncAddr(c.token_mint, 10)}</span></td>
+            <td>${outcomeCell}</td>
+            <td style="color:var(--text-sec)">${buyersD}</td>
+            <td style="color:var(--text-sec)">${winD}</td>
+            <td style="color:var(--text-sec)">${fanoutD}</td>
+            <td style="color:${stddevColor};font-family:monospace;font-size:10px">${stddevD}</td>
+            <td><span style="font-family:monospace;font-size:10px;color:var(--text-dim);${provAddr ? 'cursor:pointer' : ''}" title="${provAddr ? 'Click to copy: '+provAddr : '—'}" onclick="${provAddr ? `copyAddr('${provAddr}', this)` : ''}">${prov}</span></td>
+            <td>${clust}</td>
+            <td style="color:var(--text-dim);font-size:10px">${ts}</td>
+        </tr>`;
+    }).join('');
+
+    return `<table class="cand-table">
+        <thead><tr>
+            <th>Mint</th><th>Result</th><th>Buyers</th><th>Window</th>
+            <th>Fanout SOL</th><th title="stddev/median — lower = tighter cluster">Stddev</th>
+            <th>Provisioner</th><th>Cluster</th><th>Scanned</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function renderFingerprints(clusters) {
+    if (!clusters || clusters.length === 0) {
+        return `<div class="empty-state" style="padding:20px;"><div>No clusters</div></div>`;
+    }
+    return clusters.filter(c => c.fingerprint).map(c => {
+        const fp = c.fingerprint;
+        return `<div class="fp-card">
+            <div class="fp-cluster-name">${c.label || 'Cluster #'+c.cluster_id}
+                <span style="font-size:9px;color:var(--text-dim);margin-left:5px">${c.fingerprint.archetype || ''}</span>
+            </div>
+            <div class="fp-row"><span class="fp-key">Deploy (typical)</span><span class="fp-val">${fmtSol(fp.typical_deploy_sol)} ± ${fmtSol(fp.deploy_sol_stddev)}</span></div>
+            <div class="fp-row"><span class="fp-key">Fanout per wallet</span><span class="fp-val">${fp.median_fanout_sol != null ? fp.median_fanout_sol.toFixed(4)+' SOL' : '—'}</span></div>
+            <div class="fp-row"><span class="fp-key">Wallet count</span><span class="fp-val">~${fmtNum(fp.typical_wallet_count)}</span></div>
+            <div class="fp-row"><span class="fp-key">Fanout window</span><span class="fp-val">${fp.fanout_window_s || '—'}s</span></div>
+            <div class="fp-row"><span class="fp-key">1-token concentration</span><span class="fp-val">${pct(fp.one_token_concentration)}</span></div>
+            <div class="fp-row"><span class="fp-key">Recycle rate</span><span class="fp-val">${pct(fp.recycle_rate)}</span></div>
+            <div class="fp-row"><span class="fp-key">Sample ops</span><span class="fp-val">${fmtNum(fp.sample_count)}</span></div>
+        </div>`;
+    }).join('');
+}
+
+async function load() {
+    try {
+        const [clusterRes, candRes] = await Promise.all([
+            fetch('/api/watchtower/operator-clusters?limit=50'),
+            fetch('/api/watchtower/operator-candidates?limit=50'),
+        ]);
+        const clusterData = await clusterRes.json();
+        const candData    = candRes.ok ? await candRes.json() : { candidates: [] };
+
+        const allClusters = clusterData.clusters || [];
+        const candidates  = candData.candidates  || [];
+        const total       = clusterData.total_candidates || 0;
+        const possible    = clusterData.possible_swarms  || 0;
+        const hitRate     = total > 0 ? (possible / total) : 0;
+
+        // Split seed (WATCH reference) from discovered operators
+        const seedCluster      = allClusters.find(c => c.origin === 'seed');
+        const discoveredClusters = allClusters.filter(c => c.origin !== 'seed');
+
+        // Reference fingerprint banner
+        if (seedCluster) renderRefBanner(seedCluster);
+
+        // Summary strip — counts only discovered clusters
+        const activeCount = discoveredClusters.filter(c => c.state === 'ACTIVE').length;
+        document.getElementById('s-clusters').textContent   = discoveredClusters.length;
+        document.getElementById('s-active').textContent     = activeCount;
+        document.getElementById('s-candidates').textContent = fmtNum(total);
+        document.getElementById('s-possible').textContent   = fmtNum(possible);
+        document.getElementById('s-hit-rate').textContent   = pct(hitRate);
+        if (seedCluster) document.getElementById('s-watch-ops').textContent = fmtNum(seedCluster.token_count);
+
+        // Cluster list — discovered only
+        document.getElementById('cluster-count').textContent = discoveredClusters.length;
+        document.getElementById('cluster-list').innerHTML = renderClusters(discoveredClusters);
+
+        // Candidates
+        document.getElementById('cand-count').textContent = candidates.length;
+        document.getElementById('cand-table-wrap').innerHTML = renderCandidates(candidates);
+
+        // Scanner yield stats
+        const y = candData.yield || {};
+        document.getElementById('sc-total').textContent        = fmtNum(y.total);
+        document.getElementById('sc-already-attr').textContent = y.already_attr > 0 ? fmtNum(y.already_attr) : '—';
+        document.getElementById('sc-low-buyers').textContent   = fmtNum(y.low_buyers);
+        document.getElementById('sc-wide-window').textContent = fmtNum(y.wide_window) === '0' ? '—' : fmtNum(y.wide_window);
+        document.getElementById('sc-no-sigs').textContent     = fmtNum(y.no_sigs)     === '0' ? '—' : fmtNum(y.no_sigs);
+        document.getElementById('sc-insuff').textContent      = fmtNum(y.insuff_data)  === '0' ? '—' : fmtNum(y.insuff_data);
+        document.getElementById('sc-possible').textContent    = fmtNum(y.possible);
+        document.getElementById('sc-confirmed').textContent   = fmtNum(y.confirmed);
+        document.getElementById('sc-scanning').textContent    = y.scanning > 0 ? fmtNum(y.scanning) : '—';
+
+        // Fingerprints sidebar — discovered clusters only
+        document.getElementById('fp-list').innerHTML = renderFingerprints(discoveredClusters);
+
+        document.getElementById('last-updated').textContent =
+            'Last updated ' + new Date().toLocaleTimeString();
+
+    } catch (e) {
+        console.error('load error', e);
+    }
+}
+
+function copyAddr(addr, el) {
+    navigator.clipboard.writeText(addr).then(() => {
+        const orig = el.textContent;
+        el.textContent = 'copied';
+        el.style.color = 'var(--state-active)';
+        setTimeout(() => {
+            el.textContent = orig;
+            el.style.color = '';
+        }, 1200);
+    });
+}
+
+load();
+setInterval(load, 60000);
+</script>
+{% endblock %}

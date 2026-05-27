@@ -232,21 +232,15 @@
             <button class="settings-action-btn" id="localGraphRefreshBtn" onclick="refreshLocalGraph()">Refresh Local Graph</button>
         </div>
     </div>
-</div>
-
-<div class="settings-section">
-    <div class="settings-section-title">Monitoring</div>
 
     <div class="setting-row">
         <div class="setting-info">
-            <div class="setting-label">Pump Bot Poller</div>
-            <div class="setting-desc">Poll known pump bot wallets every 5 minutes for new signals</div>
+            <div class="setting-label">Full Rescore</div>
+            <div class="setting-desc">Graph suite → Risk scores → Token predictions. Refreshes WATCH/HIGH/MEDIUM/LOW labels. Takes ~15 min.</div>
         </div>
         <div class="toggle-wrap">
-            <div class="status-dot" id="pumpBotEnabledStatus"></div>
-            <div class="toggle-switch" id="pumpBotEnabledToggle" onclick="togglePumpBot()">
-                <div class="toggle-slider"></div>
-            </div>
+            <span class="settings-action-status" id="fullRescoreStatus"></span>
+            <button class="settings-action-btn" id="fullRescoreBtn" onclick="runFullRescore()">Run Full Rescore</button>
         </div>
     </div>
 </div>
@@ -260,7 +254,6 @@ let autoExtractFundersEnabled = false;
 let autoApproveHighPriorityEnabled = false;
 let autoApproveNetworkMemberEnabled = false;
 let autoApproveSharedFundersEnabled = false;
-let pumpBotEnabledEnabled = false;
 
 function setToggle(id, enabled) {
     const el = document.getElementById(id + 'Toggle');
@@ -307,16 +300,6 @@ function toggleAutoExtractFunders() {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ auto_extract_funders: autoExtractFundersEnabled })
-    }).then(() => showToast()).catch(e => console.error(e));
-}
-
-function togglePumpBot() {
-    pumpBotEnabledEnabled = !pumpBotEnabledEnabled;
-    setToggle('pumpBotEnabled', pumpBotEnabledEnabled);
-    fetch('/api/listener-settings', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ pump_bot_enabled: pumpBotEnabledEnabled })
     }).then(() => showToast()).catch(e => console.error(e));
 }
 
@@ -411,6 +394,78 @@ async function pollLocalGraphRefresh() {
     }
 }
 
+async function runFullRescore() {
+    const btn = document.getElementById('fullRescoreBtn');
+    const status = document.getElementById('fullRescoreStatus');
+    btn.disabled = true;
+    btn.textContent = 'Starting...';
+    status.className = 'settings-action-status';
+    status.textContent = '';
+
+    try {
+        const resp = await fetch('/api/run-full-rescore', { method: 'POST' });
+        const data = await resp.json();
+        if (resp.status === 409) {
+            status.className = 'settings-action-status err';
+            status.textContent = 'Already running';
+            btn.textContent = 'Running...';
+            pollFullRescore();
+            return;
+        }
+        if (!data.ok) throw new Error(data.error || 'Failed to start');
+        btn.textContent = 'Running...';
+        status.className = 'settings-action-status';
+        status.textContent = 'Graph suite…';
+        pollFullRescore();
+    } catch (e) {
+        status.className = 'settings-action-status err';
+        status.textContent = 'Failed';
+        btn.disabled = false;
+        btn.textContent = 'Run Full Rescore';
+    }
+}
+
+async function pollFullRescore() {
+    const btn = document.getElementById('fullRescoreBtn');
+    const status = document.getElementById('fullRescoreStatus');
+    let stillRunning = false;
+    try {
+        // Check graph suite first, then full rescore status
+        const [graphResp, rescoreResp] = await Promise.all([
+            fetch('/api/graph-analyzer-status'),
+            fetch('/api/run-full-rescore/status')
+        ]);
+        const graphData = await graphResp.json();
+        const rescoreData = await rescoreResp.json();
+
+        if (rescoreData.running) {
+            stillRunning = true;
+            if (graphData.is_running) {
+                const label = graphData.current_analyzer
+                    ? graphData.current_analyzer.replace('Engine','').replace('Analyzer','').replace('Builder','')
+                    : 'Graph';
+                status.textContent = `Graph: ${label}`;
+            } else {
+                status.textContent = 'Risk scores / Predictions…';
+            }
+            setTimeout(pollFullRescore, 4000);
+            return;
+        }
+
+        status.className = 'settings-action-status ok';
+        status.textContent = 'Done';
+        showToast();
+    } catch (e) {
+        status.className = 'settings-action-status err';
+        status.textContent = 'Unknown';
+    } finally {
+        if (!stillRunning) {
+            btn.disabled = false;
+            btn.textContent = 'Run Full Rescore';
+        }
+    }
+}
+
 async function loadSettings() {
     try {
         const [migResp, listenerResp] = await Promise.all([
@@ -423,12 +478,9 @@ async function loadSettings() {
         tokenHistoryEnabled = !!mig.token_history_check;
         listenLaunchesEnabled = !!listener.listen_to_launches;
         autoExtractFundersEnabled = !!listener.auto_extract_funders;
-        pumpBotEnabledEnabled = listener.pump_bot_enabled !== false;
-
         setToggle('tokenHistory', tokenHistoryEnabled);
         setToggle('listenLaunches', listenLaunchesEnabled);
         setToggle('autoExtractFunders', autoExtractFundersEnabled);
-        setToggle('pumpBotEnabled', pumpBotEnabledEnabled);
 
         // Auto-approval settings
         const autoKeys = [

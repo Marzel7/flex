@@ -1,0 +1,401 @@
+{% extends "base_shell.html" %}
+
+{% block title %}Operator {{ address[:12] }}… · WATCHTOWER{% endblock %}
+
+{% block extra_styles %}
+<style>
+.op-header { display:flex; align-items:center; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+.op-addr { font-size:13px; color:#58a6ff; font-family:monospace; }
+.op-back { color:#8b949e; font-size:12px; text-decoration:none; }
+.op-back:hover { color:#e6edf3; }
+.op-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.op-card { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:16px; }
+.op-card-title { font-size:11px; color:#8b949e; text-transform:uppercase; letter-spacing:.05em; margin-bottom:12px; }
+.op-stat { font-size:22px; font-weight:600; color:#e6edf3; }
+.op-stat-sub { font-size:11px; color:#8b949e; margin-top:2px; }
+.evidence-pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; margin:2px;
+    background:rgba(88,166,255,.1); border:1px solid rgba(88,166,255,.2); color:#58a6ff; }
+.evidence-pill.strong { background:rgba(63,185,80,.1); border-color:rgba(63,185,80,.2); color:#3fb950; }
+.diagram-wrap { background:#0d1117; border:1px solid #30363d; border-radius:8px; margin-bottom:24px; position:relative; }
+#wt-diagram { width:100%; height:520px; display:block; }
+.node-label { font-size:10px; fill:#c9d1d9; pointer-events:none; }
+.node-operator { fill:#bc8cff; }
+.node-launch  { fill:#ff7b72; }
+.node-funded  { fill:#58a6ff; }
+.node-token   { fill:#3fb950; }
+.node-unknown { fill:#8b949e; }
+.link-hop1 { stroke:#58a6ff; stroke-opacity:.5; }
+.link-hop2 { stroke:#8b949e; stroke-opacity:.3; stroke-dasharray:4,3; }
+.section-title { font-size:12px; color:#8b949e; text-transform:uppercase; letter-spacing:.05em; margin:20px 0 10px; }
+.wt-table { width:100%; border-collapse:collapse; font-size:12px; }
+.wt-table th { color:#8b949e; font-weight:500; padding:6px 10px; border-bottom:1px solid #21262d; text-align:left; }
+.wt-table td { padding:7px 10px; border-bottom:1px solid #161b22; color:#c9d1d9; }
+.wt-table tr:hover td { background:#161b22; }
+.wt-addr { font-family:monospace; font-size:11px; color:#58a6ff; cursor:pointer; }
+.wt-addr:hover { text-decoration:underline; }
+.state-pill { padding:2px 8px; border-radius:10px; font-size:10px; font-weight:500; }
+.state-launching  { background:rgba(255,123,114,.12); color:#ff7b72; border:1px solid rgba(255,123,114,.25); }
+.state-launched          { background:rgba(255,123,114,.12); color:#ff7b72; border:1px solid rgba(255,123,114,.25); }
+.state-migrated_pumpswap { background:rgba(63,185,80,.12);   color:#3fb950; border:1px solid rgba(63,185,80,.25); }
+.state-migrated_raydium  { background:rgba(88,166,255,.12);  color:#58a6ff; border:1px solid rgba(88,166,255,.25); }
+.state-migrated          { background:rgba(63,185,80,.12);   color:#3fb950; border:1px solid rgba(63,185,80,.25); }
+.state-extracting { background:rgba(210,153,34,.12);  color:#d29922; border:1px solid rgba(210,153,34,.25); }
+.state-operational{ background:rgba(63,185,80,.12);   color:#3fb950; border:1px solid rgba(63,185,80,.25); }
+.state-provisioned{ background:rgba(139,148,158,.12); color:#8b949e; border:1px solid rgba(139,148,158,.25); }
+.state-activated  { background:rgba(88,166,255,.12);  color:#58a6ff; border:1px solid rgba(88,166,255,.25); }
+.state-dormant    { background:rgba(139,148,158,.08); color:#6e7681; border:1px solid rgba(139,148,158,.15); }
+.legend { display:flex; gap:16px; flex-wrap:wrap; padding:10px 14px; font-size:11px; color:#8b949e; border-top:1px solid #21262d; }
+.legend-item { display:flex; align-items:center; gap:5px; }
+.legend-dot { width:10px; height:10px; border-radius:50%; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;padding:24px 20px">
+
+  <div class="op-header">
+    <a class="op-back" href="/watchtower">← WATCHTOWER Intelligence</a>
+    <span style="color:#30363d">·</span>
+    <span style="color:#bc8cff;font-size:13px">⬡ Operator</span>
+    <span class="op-addr" id="op-addr-display" onclick="copyFull()" title="Click to copy">{{ address[:16] }}…{{ address[-8:] }}</span>
+    <span id="op-state-pill"></span>
+  </div>
+
+  <div class="op-grid" id="op-stats-grid">
+    <div class="op-card"><div class="op-card-title">State</div><div class="op-stat" id="stat-state">—</div><div class="op-stat-sub" id="stat-state-sub"></div></div>
+    <div class="op-card"><div class="op-card-title">Tokens Launched</div><div class="op-stat" id="stat-tokens">—</div><div class="op-stat-sub" id="stat-tokens-sub">confirmed launches</div></div>
+    <div class="op-card"><div class="op-card-title">Downstream Wallets</div><div class="op-stat" id="stat-children">—</div><div class="op-stat-sub" id="stat-children-sub">hop-1 + hop-2 discovered</div></div>
+    <div class="op-card"><div class="op-card-title">Evidence</div><div id="stat-evidence" style="margin-top:4px"></div></div>
+  </div>
+
+  <!-- Network diagram -->
+  <div class="diagram-wrap">
+    <svg id="wt-diagram"></svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#bc8cff;border:1px solid #bc8cff"></div>WATCHTOWER</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f0883e33;border:1px solid #f0883e"></div>TREASURY</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffa65733;border:1px solid #ffa657"></div>Infra / Funder</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1f6feb33;border:1px solid #1f6feb"></div>Operator</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff7b7233;border:1px solid #ff7b72"></div>Launch wallet</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3fb95033;border:1px solid #3fb950"></div>Token</div>
+      <div class="legend-item" style="margin-left:auto;color:#8b949e;font-size:10px">Scroll to zoom · drag to pan · click node to open Solscan</div>
+    </div>
+  </div>
+
+  <!-- Downstream graph table -->
+  <div class="section-title">Downstream Wallets</div>
+  <table class="wt-table">
+    <thead><tr><th>Address</th><th>Relationship</th><th>SOL received</th><th>Hop</th><th>First seen</th></tr></thead>
+    <tbody id="graph-body"><tr><td colspan="5" style="color:#8b949e;padding:20px;text-align:center">Loading…</td></tr></tbody>
+  </table>
+
+  <!-- Tokens launched -->
+  <div class="section-title">Tokens Launched</div>
+  <table class="wt-table">
+    <thead><tr><th>Mint</th><th>Name</th><th>Lifecycle</th><th>Peak MC</th><th>Created</th></tr></thead>
+    <tbody id="tokens-body"><tr><td colspan="5" style="color:#8b949e;padding:20px;text-align:center">Loading…</td></tr></tbody>
+  </table>
+
+</div>
+<div id="op-tooltip" style="display:none;position:fixed;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:8px 12px;pointer-events:none;z-index:9999;max-width:280px"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const ADDR = "{{ address }}";
+const fmtAddr = a => a ? `${a.slice(0,8)}…${a.slice(-6)}` : '—';
+const fmtSol  = v => v != null ? `${(+v).toFixed(4)} SOL` : '—';
+const fmtDate = ts => { if (!ts) return '—'; const n = +ts; const d = n > 1e9 ? new Date(n*1000) : new Date(ts); return isNaN(d) ? '—' : d.toLocaleDateString(); };
+const fmtMc   = v => !v ? '—' : v >= 1e6 ? `$${(v/1e6).toFixed(2)}M` : v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${(+v).toFixed(0)}`;
+
+function copyFull() {
+    navigator.clipboard.writeText(ADDR).then(() => {
+        document.getElementById('op-addr-display').textContent = 'Copied!';
+        setTimeout(() => { document.getElementById('op-addr-display').textContent = `${ADDR.slice(0,16)}…${ADDR.slice(-8)}`; }, 1200);
+    });
+}
+
+function statePill(state) {
+    const labels = {operational:'Operational',launched:'Launched',migrated_pumpswap:'→ PumpSwap',migrated_raydium:'→ Raydium',migrated:'Migrated',extracting:'Extracting',activated:'Activated',dormant:'Dormant',provisioned:'Provisioned'};
+    return `<span class="state-pill state-${state||'provisioned'}">${labels[state]||state||'—'}</span>`;
+}
+
+const WT_INFRA_LABELS = {
+    '5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H': 'WATCHTOWER',
+    '44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM': 'TREASURY',
+    '44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM': 'SIGNALLER',
+    '6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1': 'TREASURY-UP',
+    '4gE46F7x7RtP6KQTbLxXjyDL4bWscDPNYzv5y5E4Afm8': 'PROFIT-RELAY',
+    '5Ww9G6XoMrGMbS2cWDHZhBrqiSpf7e7gGMpHjdpziGxd': 'WATCHTOWER',
+    'EGBQ5t686p1qr4XzTq2Yx5kZBGvYRB1onDatmaMVbhtJ': 'COLLECTOR',
+    '91sGrsJSZcQkM5JN7nWk3ZwypRU9ph6KeE3heCsfqUGz': 'WATCHTOWER-2',
+    '3yP29GdJDbMuSJELNj5aydwELWfzZYjS47Yfh7Ey4cDc': 'COLLECTOR-2',
+    'Du2YEvQEXQvVS8mLC8XVeggq8X73w2JQeW1EdytjvqBe': 'COLLECTOR-3',
+    'BFneGdwd9yBAh7Dog4nouaXDTuS9KEwMFRsFzePsXWUP': 'COLLECTOR-4',
+    '46mW9xa7Raq3AQXbs7cDqffxKwfiM9BR9sooxhHrRMEr': 'COLLECTOR-5',
+    'GRAjn9q2ug1jW9GzHFGoCSsDRffGoedr18sTuE3VAxtA': 'COLLECTOR-6',
+    'HHsPASDkzEk1p83ef6Ywxz3VNvLdrhhPCtR7ERB5seno': 'COLLECTOR-7',
+    '5q2cMrPSAY1kzmrWfgazhE8Q5RkDDgxJPmXFCfGnFHEF': 'COLLECTOR-8',
+    '8Enn7bbCTLCp749sDtrcUyWScKgmiGnEsoQb5xHnfWwK': 'COLLECTOR-9',
+    'F6nX8qvtgniy6wstEMcVJZPyduFLUYr9Mu7PzCj8RjWY': 'COLLECTOR-10',
+    '7GYMPGu3UEXRHkJa6MpiXJggGRr5o8My9VNz3wzdqggD': 'COLLECTOR-11',
+    'BcSScwFvvUCCJT3s3DjZj1FjfwKL178egkzDxGLSwLUg': 'COLLECTOR-12',
+    '4cGZYGjmbcqush2t5SWv68XeHLsMExiqRA37gvSnSKnt': 'COLLECTOR-13',
+    '4r65bgGW8bpKfffmfmFiYnfC2y6R1QDWcyFK74AfAvvm': 'COLLECTOR-14',
+    '2Bvekj5yMhwzAs4D7enGgiReu2sFLHW1CLGesM6MsZd1': 'COLLECTOR-15',
+    'GbrB9s68e149vDSaseJjYgoHkqJn5gnnW5uibySCP3eB': 'COLLECTOR-16',
+};
+const nodeLabel = (id, fallback) => WT_INFRA_LABELS[id] || fallback || fmtAddr(id);
+
+function renderDiagram(data) {
+    const graph   = data.downstream_graph  || [];
+    const tokens  = data.tokens_launched   || [];
+    const funders = data.upstream_funders  || [];
+    const address = data.address;
+
+    const color = {
+        watchtower: '#bc8cff', treasury: '#f0883e', signaller: '#58a6ff',
+        infra: '#ffa657', operator: '#1f6feb', funder: '#e3b341',
+        launch: '#ff7b72', funded: '#484f58', token: '#3fb950', unknown: '#484f58',
+    };
+    const typeColor = d => {
+        if (WT_INFRA_LABELS[d.id] === 'WATCHTOWER') return color.watchtower;
+        if (WT_INFRA_LABELS[d.id] === 'TREASURY' || WT_INFRA_LABELS[d.id] === 'TREASURY-UP') return color.treasury;
+        if (WT_INFRA_LABELS[d.id] === 'SIGNALLER') return color.signaller;
+        if (WT_INFRA_LABELS[d.id]) return color.infra;
+        return color[d.type] || color.unknown;
+    };
+
+    const nodeR = d => {
+        if (WT_INFRA_LABELS[d.id]) return 20;
+        if (d.type === 'operator') return 16;
+        if (d.type === 'token') return 12;
+        return 10;
+    };
+
+    const nodes = [{
+        id: address, type: 'operator',
+        r: 16,
+        label: `${fmtAddr(address)}`,
+    }];
+    const links = [];
+    const seen  = new Set([address]);
+
+    funders.forEach(f => {
+        if (!seen.has(f.address)) {
+            const name = WT_INFRA_LABELS[f.address];
+            nodes.push({ id: f.address, type: name ? 'infra' : 'funder', r: name ? 20 : 12,
+                label: name ? `${name}\n${fmtAddr(f.address)}` : fmtAddr(f.address) });
+            seen.add(f.address);
+        }
+        links.push({ source: f.address, target: address, sol: f.amount_sol, rel: 'funded_by',
+            stroke: WT_INFRA_LABELS[f.address] ? '#ffa657' : '#e3b341', dash: null, width: 2 });
+    });
+
+    // Fee collector — operator pays → WATCHTOWER
+    const fc = data.fee_collector;
+    if (fc && !seen.has(fc.address)) {
+        nodes.push({ id: fc.address, type: 'infra', r: 20,
+            label: `WATCHTOWER\n${fmtAddr(fc.address)}` });
+        seen.add(fc.address);
+    }
+    if (fc) links.push({ source: address, target: fc.address, sol: fc.amount_sol || 0.002839,
+        rel: 'fee', stroke: '#bc8cff', dash: null, width: 1.5 });
+
+    graph.forEach(e => {
+        if (!seen.has(e.child_address)) {
+            const name = WT_INFRA_LABELS[e.child_address];
+            const t = name ? 'infra' : e.relationship === 'launch_wallet' ? 'launch' : 'funded';
+            nodes.push({ id: e.child_address, type: t, r: name ? 20 : 10,
+                label: name ? `${name}\n${fmtAddr(e.child_address)}` : fmtAddr(e.child_address) });
+            seen.add(e.child_address);
+        }
+        links.push({ source: address, target: e.child_address, sol: e.amount_sol, rel: e.relationship,
+            stroke: e.relationship === 'launch_wallet' ? '#ff7b72' : e.hop === 1 ? '#58a6ff' : '#484f58',
+            dash: e.hop === 2 ? '4,3' : null, width: e.hop === 1 ? 1.5 : 1 });
+    });
+
+    tokens.forEach(t => {
+        if (!seen.has(t.mint)) {
+            nodes.push({ id: t.mint, type: 'token', r: 12,
+                label: `${t.token_name || fmtAddr(t.mint)}\n${fmtAddr(t.mint)}` });
+            seen.add(t.mint);
+            links.push({ source: address, target: t.mint, sol: null, rel: 'launched',
+                stroke: '#3fb950', dash: null, width: 1 });
+        }
+    });
+
+    const svg   = d3.select('#wt-diagram');
+    const width = svg.node().clientWidth || 900;
+    const height = 540;
+    svg.attr('viewBox', `0 0 ${width} ${height}`);
+
+    const defs = svg.append('defs');
+    Object.entries({ wt:'#bc8cff', orange:'#ffa657', blue:'#58a6ff', green:'#3fb950', grey:'#484f58', purple:'#bc8cff' }).forEach(([id, col]) => {
+        const m = defs.append('marker').attr('id',`arr-${id}`)
+            .attr('viewBox','0 -4 8 8').attr('refX', 8).attr('refY', 0)
+            .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient','auto');
+        m.append('path').attr('d','M0,-4L8,0L0,4').attr('fill', col).attr('opacity', .7);
+    });
+
+    const arrowId = l => {
+        if (l.rel === 'funded_by') return 'arr-orange';
+        if (l.rel === 'launched')  return 'arr-green';
+        if (l.rel === 'fee')       return 'arr-purple';
+        if (l.rel === 'launch_wallet') return 'arr-blue';
+        if (l.stroke === '#58a6ff') return 'arr-blue';
+        return 'arr-grey';
+    };
+
+    const g = svg.append('g');
+    svg.call(d3.zoom().scaleExtent([0.2, 4]).on('zoom', e => g.attr('transform', e.transform)));
+
+    const sim = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id)
+            .distance(d => d.rel === 'funded_by' ? 160 : d.rel === 'launched' ? 120 : 140)
+            .strength(0.5))
+        .force('charge', d3.forceManyBody().strength(-500))
+        .force('center', d3.forceCenter(width/2, height/2))
+        .force('collide', d3.forceCollide(d => d.r + 28));
+
+    const link = g.append('g').selectAll('line').data(links).join('line')
+        .attr('stroke', d => d.stroke)
+        .attr('stroke-opacity', 0.6)
+        .attr('stroke-width', d => d.width)
+        .attr('stroke-dasharray', d => d.dash)
+        .attr('marker-end', d => `url(#${arrowId(d)})`);
+
+    const linkLabel = g.append('g').selectAll('text').data(links.filter(l => l.sol)).join('text')
+        .attr('font-size', 9).attr('fill', '#6e7681').attr('text-anchor', 'middle')
+        .text(d => `${(+d.sol).toFixed(3)} SOL`);
+
+    const node = g.append('g').selectAll('g').data(nodes).join('g')
+        .attr('class', 'node').style('cursor', 'pointer')
+        .on('click', (e, d) => { if (d.id !== address) window.open(`https://solscan.io/account/${d.id}`, '_blank'); })
+        .call(d3.drag()
+            .on('start', (e,d) => { if (!e.active) sim.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
+            .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
+            .on('end',   (e,d) => { if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+    node.append('circle')
+        .attr('r', d => d.r)
+        .attr('fill', d => typeColor(d) + '33')
+        .attr('stroke', d => typeColor(d))
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', d => d.type === 'funded' ? '4,3' : null);
+
+    node.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', d => d.r + 13)
+        .attr('font-size', 10)
+        .selectAll('tspan')
+        .data(d => d.label.split('\n'))
+        .join('tspan')
+        .attr('x', 0).attr('dy', (d, i) => i === 0 ? 0 : 12)
+        .attr('fill', function(d, i) {
+            const nd = d3.select(this.parentNode.parentNode).datum();
+            if (i === 0 && WT_INFRA_LABELS[nd.id]) return typeColor(nd);
+            if (i === 0 && nd.type === 'token') return '#3fb950';
+            return '#8b949e';
+        })
+        .attr('font-weight', (d, i) => i === 0 ? '600' : 'normal')
+        .text(d => d);
+
+    const tip = document.getElementById('op-tooltip');
+    node.on('mousemove', (e, d) => {
+        tip.style.display = 'block';
+        tip.style.left = (e.clientX + 14) + 'px';
+        tip.style.top  = (e.clientY - 10) + 'px';
+        tip.innerHTML = `<div style="font-size:11px;color:#e6edf3;font-weight:600">${d.label.split('\n')[0]}</div>
+            <div style="font-size:10px;color:#8b949e;font-family:monospace;margin-top:2px">${d.id}</div>
+            <div style="font-size:10px;color:#58a6ff;margin-top:4px;cursor:pointer" onclick="navigator.clipboard.writeText('${d.id}')">copy address</div>`;
+    }).on('mouseleave', () => tip.style.display = 'none');
+
+    sim.on('tick', () => {
+        link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+            .attr('x2', d => {
+                const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+                const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                return d.target.x - (dx/dist) * (d.target.r + 8);
+            })
+            .attr('y2', d => {
+                const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+                const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                return d.target.y - (dy/dist) * (d.target.r + 8);
+            });
+        linkLabel
+            .attr('x', d => (d.source.x + d.target.x) / 2)
+            .attr('y', d => (d.source.y + d.target.y) / 2 - 5);
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+}
+
+fetch(`/api/watchtower/operator/${ADDR}`).then(r => r.json()).then(data => {
+    // Stats
+    const state = data.state?.state || '—';
+    document.getElementById('stat-state').innerHTML = statePill(state);
+    document.getElementById('stat-state-sub').textContent = data.state?.state_changed_at
+        ? `since ${fmtDate(data.state.state_changed_at)}` : '';
+    const directLaunches = (data.tokens_launched||[]).length;
+    const viaWalletLaunches = (data.launch_wallet_tokens||[]).length;
+    const launchWalletCount = data.launch_wallet_count || 0;
+    const totalLaunches = directLaunches + viaWalletLaunches;
+    document.getElementById('stat-tokens').textContent = totalLaunches || '—';
+    document.getElementById('stat-tokens-sub').textContent =
+        totalLaunches > 0 ? 'confirmed launches' : 'none indexed';
+    document.getElementById('stat-children').textContent = (data.downstream_graph||[]).length;
+    if (launchWalletCount > 0) {
+        document.getElementById('stat-children-sub').textContent = `incl. ${launchWalletCount} launch wallet${launchWalletCount>1?'s':''}`;
+    }
+
+    const evEl = document.getElementById('stat-evidence');
+    (data.evidence||[]).forEach(e => {
+        const span = document.createElement('span');
+        span.className = `evidence-pill${e.strength === 'strong' ? ' strong' : ''}`;
+        span.textContent = e.rule;
+        span.title = e.detail || '';
+        evEl.appendChild(span);
+    });
+
+    // Diagram
+    if ((data.downstream_graph||[]).length > 0 || (data.tokens_launched||[]).length > 0 || (data.upstream_funders||[]).length > 0) {
+        renderDiagram(data);
+    } else {
+        document.querySelector('.diagram-wrap').innerHTML = '<div style="padding:40px;text-align:center;color:#8b949e;font-size:12px">No downstream graph data — click Scan on the operators page to discover linked wallets.</div>';
+    }
+
+    // Graph table
+    const gb = document.getElementById('graph-body');
+    const graph = data.downstream_graph || [];
+    gb.innerHTML = graph.length === 0
+        ? `<tr><td colspan="5" style="color:#8b949e;padding:20px;text-align:center">No downstream wallets discovered yet</td></tr>`
+        : graph.map(e => `<tr>
+            <td><span class="wt-addr" onclick="navigator.clipboard.writeText('${e.child_address}')" title="${e.child_address}">${fmtAddr(e.child_address)}</span>
+                <a href="https://solscan.io/account/${e.child_address}" target="_blank" style="color:#8b949e;font-size:10px;margin-left:6px">↗</a></td>
+            <td><span style="font-size:10px;color:${e.relationship==='launch_wallet'?'#ff7b72':'#58a6ff'}">${e.relationship}</span></td>
+            <td style="color:#e6edf3">${fmtSol(e.amount_sol)}</td>
+            <td style="color:#8b949e">${e.hop}</td>
+            <td style="color:#8b949e">${fmtDate(e.first_seen_at)}</td>
+        </tr>`).join('');
+
+    // Tokens table — direct launches + tokens launched via child wallets
+    const tb = document.getElementById('tokens-body');
+    const allTokens = [
+        ...(data.tokens_launched || []).map(t => ({...t, via: null})),
+        ...(data.launch_wallet_tokens || []).map(t => ({...t, via: t.via_wallet}))
+    ];
+    tb.innerHTML = allTokens.length === 0
+        ? `<tr><td colspan="5" style="color:#8b949e;padding:20px;text-align:center">No tokens found in DB — tokens may have been launched via child wallets not yet indexed</td></tr>`
+        : allTokens.map(t => `<tr>
+            <td><span class="wt-addr" title="${t.mint}">${fmtAddr(t.mint)}</span>
+                <a href="https://solscan.io/token/${t.mint}" target="_blank" style="color:#8b949e;font-size:10px;margin-left:6px">↗</a>
+                ${t.via ? `<span style="font-size:9px;color:#8b949e;margin-left:4px">via ${fmtAddr(t.via)}</span>` : ''}</td>
+            <td style="color:#e6edf3">${t.token_name||'—'}</td>
+            <td style="color:#8b949e">${t.lifecycle_stage||'—'}</td>
+            <td style="color:#e6edf3">${fmtMc(t.market_cap_highest)}</td>
+            <td style="color:#8b949e">${fmtDate(t.created_at)}</td>
+        </tr>`).join('');
+});
+</script>
+{% endblock %}

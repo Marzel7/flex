@@ -120,8 +120,9 @@ class CreatorOutboundWorker:
         transfers_written = 0
         errors = 0
 
-        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn = sqlite3.connect(self.db_path, timeout=60, isolation_level=None)
         conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=60000")
         conn.row_factory = sqlite3.Row
 
         # Load bonding curve / pool addresses to exclude as recipients
@@ -163,7 +164,6 @@ class CreatorOutboundWorker:
                     logger.warning(f"[COW] {creator[:12]}… — error: {exc}", exc_info=True)
                     self._mark_failed(conn, creator, str(exc))
 
-            conn.commit()
         finally:
             conn.close()
 
@@ -179,6 +179,70 @@ class CreatorOutboundWorker:
             "rpc_calls_used": self._rpc_calls_used,
             "errors": errors,
             "duration_seconds": duration,
+        }
+
+    def run_for_creators(self, creators: list[str], force: bool = False) -> dict:
+        """
+        Bounded targeted scan for a caller-supplied creator set.
+
+        Used by the WATCH outbound pass so we do not have to drain the global
+        outbound queue before checking the creators that matter right now.
+        """
+        t0 = time.time()
+        apply_migration(self.db_path)
+
+        if not force and not CREATOR_OUTBOUND_ENABLED:
+            return {"status": "skipped", "reason": "disabled",
+                    "creators_scanned": 0, "transfers_written": 0, "rpc_calls_used": 0}
+        if not self.rpc_url:
+            return {"status": "failed", "reason": "no_rpc_url",
+                    "creators_scanned": 0, "transfers_written": 0, "rpc_calls_used": 0}
+
+        ordered = [c for c in dict.fromkeys(creators) if c][:MAX_CREATORS_PER_RUN]
+        self._rpc_calls_used = 0
+        creators_scanned = 0
+        transfers_written = 0
+        errors = 0
+
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.row_factory = sqlite3.Row
+        self._excluded_addrs = EXCLUDED_RECIPIENTS | {
+            row[0] for row in conn.execute("""
+                SELECT bonding_curve_pda FROM token_analysis WHERE bonding_curve_pda IS NOT NULL
+                UNION
+                SELECT pool_address FROM token_analysis WHERE pool_address IS NOT NULL
+                UNION
+                SELECT pumpswap_pool_address FROM token_analysis WHERE pumpswap_pool_address IS NOT NULL
+            """).fetchall()
+        }
+        self._known_creators = {
+            row[0] for row in conn.execute(
+                "SELECT DISTINCT earliest_tx_creator FROM token_analysis WHERE earliest_tx_creator IS NOT NULL"
+            ).fetchall()
+        }
+        try:
+            for creator in ordered:
+                if self._rpc_calls_used >= MAX_RPC_CALLS_PER_RUN:
+                    break
+                try:
+                    transfers_written += self._scan_creator(conn, creator)
+                    creators_scanned += 1
+                except Exception as exc:
+                    errors += 1
+                    self._mark_failed(conn, creator, str(exc))
+            conn.commit()
+        finally:
+            conn.close()
+
+        return {
+            "status": "success",
+            "creators_scanned": creators_scanned,
+            "transfers_written": transfers_written,
+            "rpc_calls_used": self._rpc_calls_used,
+            "errors": errors,
+            "duration_seconds": round(time.time() - t0, 2),
+            "targeted": True,
         }
 
     # ── Queue management ───────────────────────────────────────────────────────
@@ -380,3 +444,87 @@ def enqueue_creator_for_outbound_scan(
         return True
     except sqlite3.Error:
         return False
+
+
+def enqueue_creator_for_watch_outbound_scan(
+    conn: sqlite3.Connection,
+    creator_address: str,
+    priority: int = 35,
+) -> bool:
+    """
+    Enqueue a one-pass outbound scan for fresh WATCH creators even when they do
+    not yet have an outbound classification.
+
+    This is intentionally narrower than the generic queueing path: it exists to
+    catch downstream convergence patterns (shared payout wallets, direct C2C,
+    return-to-hub) among creators whose inbound funding looks clean.
+    """
+    if not creator_address:
+        return False
+    now = int(time.time())
+    try:
+        conn.execute("""
+            INSERT INTO creator_outbound_queue
+                (creator_address, priority, status, created_at, next_attempt_at)
+            VALUES (?, ?, 'pending', ?, 0)
+            ON CONFLICT(creator_address) DO UPDATE SET
+                priority = MAX(excluded.priority, creator_outbound_queue.priority),
+                status = CASE
+                    WHEN creator_outbound_queue.status IN ('failed') THEN 'pending'
+                    ELSE creator_outbound_queue.status
+                END,
+                next_attempt_at = CASE
+                    WHEN creator_outbound_queue.status IN ('failed') THEN 0
+                    ELSE creator_outbound_queue.next_attempt_at
+                END
+        """, (creator_address, priority, now))
+        return True
+    except sqlite3.Error:
+        return False
+
+
+def ensure_watch_outbound_schedule_schema(conn: sqlite3.Connection) -> None:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS watch_outbound_scan_schedule (
+            creator_address TEXT NOT NULL,
+            mint TEXT NOT NULL,
+            stage TEXT NOT NULL,
+            due_at INTEGER NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            created_at INTEGER NOT NULL,
+            scanned_at INTEGER,
+            last_error TEXT,
+            PRIMARY KEY (creator_address, mint, stage)
+        )
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_woss_due
+        ON watch_outbound_scan_schedule(status, due_at)
+    """)
+
+
+def schedule_watch_outbound_stages(
+    conn: sqlite3.Connection,
+    creator_address: str,
+    mint: str,
+    migrated_at: Optional[int],
+) -> int:
+    if not creator_address or not mint or not migrated_at:
+        return 0
+    ensure_watch_outbound_schedule_schema(conn)
+    now = int(time.time())
+    stages = (
+        ("15m", 15 * 60),
+        ("1h", 60 * 60),
+        ("6h", 6 * 60 * 60),
+        ("24h", 24 * 60 * 60),
+    )
+    written = 0
+    for stage, offset in stages:
+        conn.execute("""
+            INSERT OR IGNORE INTO watch_outbound_scan_schedule
+                (creator_address, mint, stage, due_at, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        """, (creator_address, mint, stage, int(migrated_at) + offset, now))
+        written += conn.execute("SELECT changes()").fetchone()[0]
+    return written

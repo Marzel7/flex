@@ -2,6 +2,7 @@ import sqlite3
 import time
 import logging
 from src.core.ws_snapshot_logger import ws_log
+from src.utils.db_locking import db_connect
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class SnapshotRetentionManager:
 
     def run_cleanup(self, below_mc_since: dict = None, last_meaningful_change: dict = None) -> dict:
         ws_log.info(f"[SNAPSHOT_CLEANUP] START db={self.db_path}")
-        conn = sqlite3.connect(self.db_path, timeout=15)
+        conn = db_connect(self.db_path, timeout=60)
         conn.row_factory = sqlite3.Row
 
         now = int(time.time())
@@ -415,7 +416,7 @@ class SnapshotRetentionManager:
     def get_24h_stats(self) -> dict:
         """Query DB for 24h cleanup totals. Survives process restarts."""
         try:
-            conn = sqlite3.connect(self.db_path, timeout=3)
+            conn = db_connect(self.db_path, timeout=10)
             conn.row_factory = sqlite3.Row
             self._ensure_log_table(conn)
             row = conn.execute("""

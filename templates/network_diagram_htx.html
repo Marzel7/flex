@@ -17,6 +17,17 @@
   }
   #header h1 { font-size: 14px; color: #58a6ff; letter-spacing: 0.05em; }
   #header .stats { font-size: 11px; color: #8b949e; }
+  #live-panel {
+    position: fixed; top: 58px; right: 20px; z-index: 100; width: 360px;
+    background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;
+    font-size:11px; line-height:1.5;
+  }
+  #live-panel h3 { font-size:11px;color:#58a6ff;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px; }
+  .live-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px; }
+  .live-box { background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:8px; }
+  .live-box .v { font-size:16px;color:#f0f6fc;font-weight:700; }
+  .live-box .l { color:#8b949e;font-size:10px; }
+  .live-row { display:grid;grid-template-columns:1.15fr .65fr .55fr .4fr .7fr;gap:8px;padding:6px 0;border-top:1px solid #21262d; }
 
   #legend {
     position: fixed; bottom: 20px; left: 20px; z-index: 100;
@@ -67,6 +78,12 @@
     <h1>HTX Syndicate — Rug Network</h1>
   </div>
   <div class="stats">~1,200 tokens &nbsp;·&nbsp; ~730 SOL deployed &nbsp;·&nbsp; 510 coordinated feeder wallets &nbsp;·&nbsp; Network_53 CRITICAL</div>
+</div>
+
+<div id="live-panel">
+  <h3>Live Syndicate Activity</h3>
+  <div id="live-summary">Loading…</div>
+  <div id="live-tokens"></div>
 </div>
 
 <div id="legend">
@@ -153,6 +170,32 @@ const links = [
   { source: "8aQGN8",    target: "4QwJ4A",    type: "fund",   label: "0.29 SOL" },
   { source: "8aQGN8",    target: "8KTxLV",    type: "fund",   label: "2.93 SOL" },
 ];
+
+const short = v => !v ? '—' : `${v.slice(0,6)}…${v.slice(-4)}`;
+const fmtMc = v => !v ? '—' : '$' + Number(v).toLocaleString(undefined,{maximumFractionDigits:0});
+const fmtDate = ts => !ts ? '—' : new Date(ts*1000).toLocaleDateString();
+fetch('/api/network-diagram/htx/live').then(r=>r.json()).then(data=>{
+  const s = data.summary || {};
+  document.getElementById('live-summary').innerHTML = `
+    <div style="margin-bottom:10px;color:${s.is_active ? '#3fb950':'#f85149'};font-weight:700">
+      ${s.is_active ? 'ACTIVE' : 'INACTIVE'} · latest migration ${fmtDate(s.latest_migrated_at)}
+    </div>
+    <div class="live-grid">
+      <div class="live-box"><div class="v">${s.active_7d||0}</div><div class="l">active 7d</div></div>
+      <div class="live-box"><div class="v">${s.active_30d||0}</div><div class="l">active 30d</div></div>
+      <div class="live-box"><div class="v">${s.tracked_members||0}</div><div class="l">tracked</div></div>
+    </div>`;
+  document.getElementById('live-tokens').innerHTML = `
+    <div style="color:#8b949e;margin-bottom:6px">Latest launches</div>
+    ${(data.latest_tokens||[]).map(t=>`
+      <div class="live-row">
+        <div>${t.token_name}<div style="color:#8b949e">${short(t.creator_address)}</div></div>
+        <div>${fmtMc(t.market_cap_highest)}</div>
+        <div style="color:${t.risk_level==='HIGH'||t.risk_level==='CRITICAL'?'#f85149':t.risk_level==='WATCH'?'#bc8cff':t.risk_level==='LOW'?'#3fb950':'#8b949e'}">${t.risk_level||'—'}</div>
+        <div>${t.g_level||'—'}</div>
+        <div>${fmtDate(t.migrated_at)}</div>
+      </div>`).join('')}`;
+}).catch(()=>{ document.getElementById('live-summary').textContent='Live data unavailable'; });
 
 const color = {
   cex:      "#8b949e",

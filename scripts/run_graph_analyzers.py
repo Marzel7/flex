@@ -13,6 +13,15 @@ Runs:
   8. SecondHopExpansionBuilder   → funder_upstream_links, upstream_network_bridge, creator_second_hop
   9. NetworksReleaseBuilder      → networks_release (includes second-hop bridge counts)
  10. RiskScoringBuilder          → creator_risk_scores, network_risk_scores, risk_score_history
+ 11. CreatorProfitabilityAnalyzer → creator_profitability
+ 12. NetworkProfitabilityAnalyzer → network_profitability
+ 13. FunderProfitabilityAnalyzer  → funder_profitability
+ 14. ClusterProfitabilityAnalyzer → cluster_profitability
+ 15. CreatorHistoricalPerformanceAnalyzer → creator_historical_performance
+ 16. NetworkHistoricalPerformanceAnalyzer → network_historical_performance
+ 17. FunderHistoricalPerformanceAnalyzer  → funder_historical_performance
+ 18. ClusterHistoricalPerformanceAnalyzer → cluster_historical_performance
+ 19. PredictionDecisionContextAnalyzer → prediction_decision_context
 
 Each analyzer result is logged to analyzer_runs table.
 Safe to run repeatedly. Exits nonzero if any analyzer failed.
@@ -190,7 +199,10 @@ def _rows_written_from_result(result: dict) -> int:
     """Extract meaningful row-count from an analyzer result dict."""
     for key in ('clusters_found', 'overlaps_stored', 'farms_identified',
                 'farm_members_stored', 'reputations_updated',
-                'edges_stored', 'edges_written', 'memberships_written', 'networks_processed'):
+                'edges_stored', 'edges_written', 'memberships_written', 'networks_processed',
+                'creators_written', 'networks_written', 'funders_written', 'clusters_written',
+                'creator_history_rows', 'network_history_rows', 'funder_history_rows', 'cluster_history_rows',
+                'decision_context_rows'):
         if key in result and isinstance(result[key], int):
             return result[key]
     return 0
@@ -279,6 +291,10 @@ def run_analyzer(name: str, db_path: str) -> dict:
             from src.core.c2c_edge_builder import C2CEdgeBuilder
             result = C2CEdgeBuilder(db_path).build()
 
+        elif name == 'OperatorEdgesBuilder':
+            from src.core.operator_edges_builder import OperatorEdgesBuilder
+            result = OperatorEdgesBuilder(db_path).build()
+
         elif name == 'NetworkMembershipBuilder':
             from src.core.network_membership_builder import NetworkMembershipBuilder
             result = NetworkMembershipBuilder(db_path).build()
@@ -315,6 +331,42 @@ def run_analyzer(name: str, db_path: str) -> dict:
             result = RiskScoringBuilder(db_path).run()
             result.setdefault('status', 'success')
             result['networks_processed'] = result.get('networks_scored', 0)
+
+        elif name == 'CreatorProfitabilityAnalyzer':
+            from src.core.profitability_intelligence import CreatorProfitabilityAnalyzer
+            result = CreatorProfitabilityAnalyzer(db_path).run()
+
+        elif name == 'NetworkProfitabilityAnalyzer':
+            from src.core.profitability_intelligence import NetworkProfitabilityAnalyzer
+            result = NetworkProfitabilityAnalyzer(db_path).run()
+
+        elif name == 'FunderProfitabilityAnalyzer':
+            from src.core.profitability_intelligence import FunderProfitabilityAnalyzer
+            result = FunderProfitabilityAnalyzer(db_path).run()
+
+        elif name == 'ClusterProfitabilityAnalyzer':
+            from src.core.profitability_intelligence import ClusterProfitabilityAnalyzer
+            result = ClusterProfitabilityAnalyzer(db_path).run()
+
+        elif name == 'CreatorHistoricalPerformanceAnalyzer':
+            from src.core.historical_performance import CreatorHistoricalPerformanceAnalyzer
+            result = CreatorHistoricalPerformanceAnalyzer(db_path).run()
+
+        elif name == 'NetworkHistoricalPerformanceAnalyzer':
+            from src.core.historical_performance import NetworkHistoricalPerformanceAnalyzer
+            result = NetworkHistoricalPerformanceAnalyzer(db_path).run()
+
+        elif name == 'FunderHistoricalPerformanceAnalyzer':
+            from src.core.historical_performance import FunderHistoricalPerformanceAnalyzer
+            result = FunderHistoricalPerformanceAnalyzer(db_path).run()
+
+        elif name == 'ClusterHistoricalPerformanceAnalyzer':
+            from src.core.historical_performance import ClusterHistoricalPerformanceAnalyzer
+            result = ClusterHistoricalPerformanceAnalyzer(db_path).run()
+
+        elif name == 'PredictionDecisionContextAnalyzer':
+            from src.core.prediction_decision_context import PredictionDecisionContextAnalyzer
+            result = PredictionDecisionContextAnalyzer(db_path).run()
 
         elif name == 'TokenPredictionBuilder':
             from src.core.token_prediction_builder import TokenPredictionBuilder
@@ -388,6 +440,7 @@ ANALYZERS = [
     'GraphDevFarmDetectionEngine',
     'CoordinatedEdgesBuilder',
     'C2CEdgeBuilder',
+    'OperatorEdgesBuilder',
     'NetworkMembershipBuilder',
     'CreatorOutboundBuilder',                # DB-only: classify creator_outgoing_transfers
     'IntelligenceRefreshCandidateBuilder',   # scores include outbound signals; auto-approves
@@ -399,6 +452,15 @@ ANALYZERS = [
     'NetworksReleaseBuilder',
     'RiskScoringBuilder',
     'TokenPredictionBuilder',
+    'CreatorProfitabilityAnalyzer',
+    'NetworkProfitabilityAnalyzer',
+    'FunderProfitabilityAnalyzer',
+    'ClusterProfitabilityAnalyzer',
+    'CreatorHistoricalPerformanceAnalyzer',
+    'NetworkHistoricalPerformanceAnalyzer',
+    'FunderHistoricalPerformanceAnalyzer',
+    'ClusterHistoricalPerformanceAnalyzer',
+    'PredictionDecisionContextAnalyzer',
 ]
 
 

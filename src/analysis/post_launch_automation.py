@@ -17,6 +17,7 @@ from typing import Dict, List, Optional
 from datetime import datetime
 import json
 from src.analysis.cross_funding_network_analyzer import CrossFundingClusterAnalyzer
+from src.analysis.watchtower_detector import analyze_creator_from_conn, ensure_schema as wt_ensure_schema
 
 DB_PATH = "flex_complete_database.db"
 
@@ -89,7 +90,10 @@ class PostLaunchAutomationCoordinator:
             await self._rebuild_clusters_for_creator(creator)
             updates["clusters"] = True
 
-            # 5. Emit UI update with what was actually changed
+            # 5. WATCHTOWER detection — runs against creator_funders which is now populated
+            await self._check_watchtower_linkage(creator, mint)
+
+            # 6. Emit UI update with what was actually changed
             await self._emit_ui_update(creator, mint, total_funders, total_sol, updates)
 
             print(f"[POST_LAUNCH] ✅ Automation complete for {creator[:16]}...", flush=True)
@@ -591,6 +595,28 @@ class PostLaunchAutomationCoordinator:
             import traceback
             traceback.print_exc()
             return False
+
+    async def _check_watchtower_linkage(self, creator: str, mint: str) -> None:
+        """Check whether this creator is operationally related to WATCHTOWER infrastructure."""
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=15)
+            conn.row_factory = sqlite3.Row
+            try:
+                wt_ensure_schema(conn)
+                result = analyze_creator_from_conn(creator, conn, mint=mint)
+                conn.commit()
+                if result["is_related"]:
+                    strong = [e for e in result["evidence"] if e["strength"] == "strong"]
+                    print(
+                        f"[WATCHTOWER] 🚨 RELATED: {creator[:20]}… "
+                        f"label='{result['label']}' "
+                        f"rules={[e['rule'] for e in strong]}",
+                        flush=True,
+                    )
+            finally:
+                conn.close()
+        except Exception as exc:
+            print(f"[WATCHTOWER] ⚠ detection error for {creator[:20]}…: {exc}", flush=True)
 
     async def _emit_ui_update(self, creator: str, mint: str, total_funders: int, total_sol: float, updates: dict = None):
         """

@@ -74,6 +74,108 @@ class CreatorOutboundBuilder:
         logger.info(f"[COB] Done — classifications={rows_written} duration={duration}s")
         return {"status": "success", "classifications_written": rows_written, "duration_seconds": duration}
 
+    def run_for_creators(self, creators: list[str]) -> dict:
+        """Incremental pass for a small creator set; avoids a full-table rebuild."""
+        t0 = time.time()
+        creators = [c for c in dict.fromkeys(creators) if c]
+        if not creators:
+            return {"status": "success", "classifications_written": 0, "duration_seconds": 0.0, "incremental": True}
+        apply_migration(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=60)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=60000")
+        conn.row_factory = sqlite3.Row
+        try:
+            sync_infra_wallets(conn)
+            before = self._snapshot_classifications(conn)
+            written = 0
+            written += self._classify_return_to_funder_for_creators(conn, creators)
+            written += self._classify_shared_payout_wallets_for_creators(conn, creators)
+            written += self._classify_creator_to_hub_for_creators(conn, creators)
+            written += self._classify_large_outbound_for_creators(conn, creators)
+            conn.commit()
+            self._emit_new_events(conn, before)
+            conn.commit()
+        finally:
+            conn.close()
+        return {
+            "status": "success",
+            "classifications_written": written,
+            "duration_seconds": round(time.time() - t0, 2),
+            "incremental": True,
+        }
+
+    def _creator_filter(self, creators: list[str]) -> tuple[str, tuple]:
+        return ",".join("?" for _ in creators), tuple(creators)
+
+    def _classify_return_to_funder_for_creators(self, conn: sqlite3.Connection, creators: list[str]) -> int:
+        ph, vals = self._creator_filter(creators)
+        rows = conn.execute(f"""
+            SELECT cot.creator_address,cot.recipient_address,SUM(cot.amount_sol) total_sol,COUNT(*) tx_count,
+                   MIN(cot.block_time) first_seen,MAX(cot.block_time) last_seen
+            FROM creator_outgoing_transfers cot
+            JOIN creator_funders cf ON cf.creator_address=cot.creator_address AND cf.funder_address=cot.recipient_address
+            WHERE cot.creator_address IN ({ph}) AND cot.is_cex=0 AND cot.amount_sol >= ?
+              AND cot.recipient_address NOT IN (SELECT address FROM infra_wallets)
+            GROUP BY cot.creator_address,cot.recipient_address
+        """, vals + (MIN_CLASSIFY_SOL,)).fetchall()
+        return sum(self._upsert(conn, r["creator_address"], r["recipient_address"], "return_to_funder",
+                                round(r["total_sol"],6), r["tx_count"], r["first_seen"], r["last_seen"]) for r in rows)
+
+    def _classify_shared_payout_wallets_for_creators(self, conn: sqlite3.Connection, creators: list[str]) -> int:
+        ph, vals = self._creator_filter(creators)
+        recipients = [r[0] for r in conn.execute(f"""
+            SELECT DISTINCT recipient_address FROM creator_outgoing_transfers
+            WHERE creator_address IN ({ph}) AND is_cex=0 AND amount_sol >= ?
+              AND recipient_address NOT IN (SELECT address FROM infra_wallets)
+        """, vals + (MIN_CLASSIFY_SOL,)).fetchall()]
+        if not recipients:
+            return 0
+        rph = ",".join("?" for _ in recipients)
+        shared = [r[0] for r in conn.execute(f"""
+            SELECT recipient_address FROM creator_outgoing_transfers
+            WHERE recipient_address IN ({rph}) AND is_cex=0 AND amount_sol >= ?
+              AND recipient_address NOT IN (SELECT address FROM infra_wallets)
+            GROUP BY recipient_address HAVING COUNT(DISTINCT creator_address) >= ?
+        """, tuple(recipients) + (MIN_CLASSIFY_SOL, SHARED_PAYOUT_MIN_CREATORS)).fetchall()]
+        if not shared:
+            return 0
+        sph = ",".join("?" for _ in shared)
+        rows = conn.execute(f"""
+            SELECT creator_address,recipient_address,SUM(amount_sol) total_sol,COUNT(*) tx_count,
+                   MIN(block_time) first_seen,MAX(block_time) last_seen
+            FROM creator_outgoing_transfers
+            WHERE recipient_address IN ({sph}) AND is_cex=0 AND amount_sol >= ?
+            GROUP BY creator_address,recipient_address
+        """, tuple(shared) + (MIN_CLASSIFY_SOL,)).fetchall()
+        return sum(self._upsert(conn, r["creator_address"], r["recipient_address"], "shared_payout_wallet",
+                                round(r["total_sol"],6), r["tx_count"], r["first_seen"], r["last_seen"]) for r in rows)
+
+    def _classify_creator_to_hub_for_creators(self, conn: sqlite3.Connection, creators: list[str]) -> int:
+        ph, vals = self._creator_filter(creators)
+        rows = conn.execute(f"""
+            SELECT cot.creator_address,cot.recipient_address,SUM(cot.amount_sol) total_sol,COUNT(*) tx_count,
+                   MIN(cot.block_time) first_seen,MAX(cot.block_time) last_seen
+            FROM creator_outgoing_transfers cot JOIN monitored_upstream_hubs muh ON muh.upstream_address=cot.recipient_address
+            WHERE cot.creator_address IN ({ph}) AND cot.is_cex=0 AND cot.amount_sol >= ? AND muh.status='active'
+            GROUP BY cot.creator_address,cot.recipient_address
+        """, vals + (MIN_CLASSIFY_SOL,)).fetchall()
+        return sum(self._upsert(conn, r["creator_address"], r["recipient_address"], "creator_to_upstream_hub",
+                                round(r["total_sol"],6), r["tx_count"], r["first_seen"], r["last_seen"]) for r in rows)
+
+    def _classify_large_outbound_for_creators(self, conn: sqlite3.Connection, creators: list[str]) -> int:
+        ph, vals = self._creator_filter(creators)
+        rows = conn.execute(f"""
+            SELECT creator_address,recipient_address,SUM(amount_sol) total_sol,COUNT(*) tx_count,
+                   MIN(block_time) first_seen,MAX(block_time) last_seen
+            FROM creator_outgoing_transfers
+            WHERE creator_address IN ({ph}) AND is_cex=0 AND amount_sol >= ?
+              AND recipient_address NOT IN (SELECT address FROM infra_wallets)
+            GROUP BY creator_address,recipient_address
+        """, vals + (LARGE_OUTBOUND_SOL_THRESHOLD,)).fetchall()
+        return sum(self._upsert(conn, r["creator_address"], r["recipient_address"], "large_outbound",
+                                round(r["total_sol"],6), r["tx_count"], r["first_seen"], r["last_seen"]) for r in rows)
+
     # ── Snapshot + event emission ─────────────────────────────────────────────
 
     _EVENT_TYPES = {

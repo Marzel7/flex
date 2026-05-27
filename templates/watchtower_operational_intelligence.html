@@ -1,0 +1,917 @@
+{% extends "base_shell.html" %}
+{% block title %}WATCHTOWER — Operations Overview{% endblock %}
+
+{% block extra_styles %}
+:root {
+    --bg-deep:   #0d1117;
+    --bg-card:   #161b22;
+    --bg-card2:  #1c2128;
+    --border:    #21262d;
+    --border2:   #30363d;
+    --text-pri:  #e6edf3;
+    --text-sec:  #8b949e;
+    --text-dim:  #6e7681;
+
+    /* operational state palette */
+    --quiet:      #4b5563;
+    --forming:    #d97706;
+    --escalating: #ea580c;
+    --active:     #16a34a;
+    --extracting: #7c3aed;
+    --recycling:  #4f46e5;
+    --dormant:    #374151;
+
+    /* entity type palette */
+    --col-creator:  #22d3ee;
+    --col-trader:   #f59e0b;
+    --col-relay:    #a78bfa;
+    --col-treasury: #eab308;
+    --col-swarm:    #34d399;
+    --col-infra:    #94a3b8;
+}
+
+/* ── BANNER ─────────────────────────────────────────────────────── */
+#ops-banner {
+    border-radius: 8px; padding: 16px 20px;
+    display: flex; align-items: flex-start; gap: 14px;
+    margin-bottom: 16px; border: 1px solid var(--border);
+    transition: background .5s, border-color .5s;
+    background: #161b22;
+}
+#ops-banner.QUIET      { background: rgba(75,85,99,.10);   border-color: rgba(75,85,99,.3);   }
+#ops-banner.FORMING    { background: rgba(217,119,6,.10);  border-color: rgba(217,119,6,.35); }
+#ops-banner.ESCALATING { background: rgba(234,88,12,.12);  border-color: rgba(234,88,12,.4);  }
+#ops-banner.ACTIVE     { background: rgba(22,163,74,.08);  border-color: rgba(22,163,74,.3);  }
+#ops-banner.EXTRACTING { background: rgba(124,58,237,.12); border-color: rgba(124,58,237,.4); }
+#ops-banner.RECYCLING  { background: rgba(79,70,229,.10);  border-color: rgba(79,70,229,.3);  }
+#ops-banner.DORMANT    { background: rgba(55,65,81,.08);   border-color: rgba(55,65,81,.25);  }
+
+.banner-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 3px;
+    background: var(--quiet);
+}
+.banner-dot.QUIET      { background: var(--quiet); }
+.banner-dot.FORMING    { background: var(--forming);    animation: pulse 2s infinite; box-shadow: 0 0 6px var(--forming); }
+.banner-dot.ESCALATING { background: var(--escalating); animation: pulse 1s infinite; box-shadow: 0 0 8px var(--escalating); }
+.banner-dot.ACTIVE     { background: var(--active);     animation: pulse 1.5s infinite; box-shadow: 0 0 7px var(--active); }
+.banner-dot.EXTRACTING { background: var(--extracting); animation: sweep-pulse 2s infinite; box-shadow: 0 0 10px var(--extracting); }
+.banner-dot.RECYCLING  { background: var(--recycling);  animation: pulse 3s infinite; }
+.banner-dot.DORMANT    { background: var(--dormant); }
+
+@keyframes pulse       { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes sweep-pulse { 0%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} 100%{opacity:1;transform:scale(1)} }
+
+.banner-state  { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.banner-state.QUIET      { color: var(--text-dim); }
+.banner-state.FORMING    { color: var(--forming);    }
+.banner-state.ESCALATING { color: var(--escalating); }
+.banner-state.ACTIVE     { color: var(--active);     }
+.banner-state.EXTRACTING { color: var(--extracting); }
+.banner-state.RECYCLING  { color: var(--recycling);  }
+.banner-state.DORMANT    { color: var(--quiet);      }
+.banner-detail  { font-size: 12px; color: var(--text-pri); margin-top: 3px; line-height: 1.5; }
+.banner-meta    { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+.banner-ts      { font-size: 10px; color: var(--text-dim); margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+
+/* ── MACRO METRICS STRIP ────────────────────────────────────────── */
+.metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px; margin-bottom: 16px;
+}
+@media (max-width: 1300px) { .metrics-strip { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 800px)  { .metrics-strip { grid-template-columns: repeat(2, 1fr); } }
+
+.mcard {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px;
+}
+.mcard-val   { font-size: 20px; font-weight: 700; color: var(--text-pri); line-height: 1.1; }
+.mcard-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .07em; margin-top: 3px; }
+.mcard-sub   { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
+.mcard-val.green  { color: #3fb950; }
+.mcard-val.amber  { color: #d97706; }
+.mcard-val.purple { color: #a78bfa; }
+.mcard-val.cyan   { color: #22d3ee; }
+.mcard-val.dim    { color: var(--text-dim); }
+
+/* ── LAYOUT ─────────────────────────────────────────────────────── */
+.ops-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 280px;
+    gap: 12px; align-items: start;
+}
+@media (max-width: 1300px) { .ops-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px)  { .ops-grid { grid-template-columns: 1fr; } }
+
+/* ── SHARED CARD ────────────────────────────────────────────────── */
+.panel {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+}
+.panel-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--text-sec);
+}
+.panel-hdr-badge {
+    font-size: 10px; font-weight: 600; padding: 1px 6px;
+    border-radius: 3px; background: var(--bg-card2);
+    color: var(--text-dim); border: 1px solid var(--border);
+}
+.panel-body { padding: 12px 14px; }
+
+/* ── CAMPAIGN CARDS ─────────────────────────────────────────────── */
+.campaign-card {
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 12px; margin-bottom: 8px;
+    transition: border-color .3s;
+}
+.campaign-card.ACTIVE     { border-color: rgba(22,163,74,.35); }
+.campaign-card.ESCALATING { border-color: rgba(234,88,12,.35); }
+.campaign-card.FORMING    { border-color: rgba(217,119,6,.3);  }
+.campaign-card.DORMANT    { border-color: var(--border); }
+
+.campaign-id    { font-size: 11px; font-weight: 700; font-family: monospace; color: var(--text-pri); }
+.campaign-state-badge {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    letter-spacing: .07em; padding: 1px 6px; border-radius: 3px;
+    text-transform: uppercase; margin-left: 6px;
+}
+.campaign-state-badge.ACTIVE     { background: rgba(22,163,74,.2);  color: #3fb950; }
+.campaign-state-badge.ESCALATING { background: rgba(234,88,12,.2);  color: #f0883e; }
+.campaign-state-badge.FORMING    { background: rgba(217,119,6,.18); color: #d97706; }
+.campaign-state-badge.DORMANT    { background: rgba(55,65,81,.2);   color: var(--text-dim); }
+
+.campaign-stats { display: flex; gap: 14px; margin-top: 6px; }
+.cstat { font-size: 10px; color: var(--text-sec); }
+.cstat span { color: var(--text-pri); font-weight: 600; }
+
+/* campaign heat pips rendered inline */
+
+/* ── SWARM PANEL ────────────────────────────────────────────────── */
+.swarm-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+    font-size: 11px;
+}
+.swarm-row:last-child { border-bottom: none; }
+.swarm-addr { font-family: monospace; color: var(--col-swarm); flex: 1; }
+.swarm-count { color: var(--text-sec); font-size: 10px; }
+.sync-bar { height: 4px; border-radius: 2px; background: var(--border); flex: 1; max-width: 60px; }
+.sync-fill { height: 100%; border-radius: 2px; background: var(--col-swarm); transition: width .3s; }
+
+/* ── CREATOR PIPELINE ───────────────────────────────────────────── */
+.pipeline-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.pipeline-row:last-child { border-bottom: none; }
+.pipeline-label { font-size: 11px; color: var(--text-sec); }
+.pipeline-val   { font-size: 12px; font-weight: 600; color: var(--text-pri); }
+.pipeline-val.cyan { color: var(--col-creator); }
+.warn-note { font-size: 10px; color: #d97706; background: rgba(217,119,6,.08); border: 1px solid rgba(217,119,6,.2); border-radius: 4px; padding: 6px 8px; margin-top: 8px; line-height: 1.5; }
+
+/* ── EVENT FEED ─────────────────────────────────────────────────── */
+.feed-filters { display: flex; gap: 4px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+.feed-filter {
+    font-size: 10px; padding: 2px 8px; border-radius: 3px;
+    background: var(--bg-card2); border: 1px solid var(--border);
+    color: var(--text-dim); cursor: pointer;
+    transition: color .15s, border-color .15s;
+}
+.feed-filter.active { color: #58a6ff; border-color: rgba(88,166,255,.4); }
+
+.event-item {
+    display: flex; gap: 10px; padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    animation: slide-in .25s ease;
+}
+.event-item:last-child { border-bottom: none; }
+@keyframes slide-in { from { opacity:0; transform: translateX(8px); } to { opacity:1; transform: none; } }
+
+.event-time { font-size: 10px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; min-width: 44px; }
+.event-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .05em;
+    padding: 2px 6px; border-radius: 3px; white-space: nowrap;
+    flex-shrink: 0; align-self: flex-start; margin-top: 1px;
+}
+.badge-SWEEP_EPOCH      { background: rgba(124,58,237,.2);  color: #a78bfa; }
+.badge-TREASURY_FANOUT  { background: rgba(234,179,8,.15);  color: #eab308; }
+.badge-SIGNAL_DETECTED  { background: rgba(59,130,246,.15); color: #60a5fa; }
+.badge-CANDIDATE_STAGED { background: rgba(34,211,238,.12); color: #22d3ee; }
+.badge-LAUNCH_DETECTED  { background: rgba(22,163,74,.15);  color: #3fb950; }
+.badge-RELAY_ACTIVE     { background: rgba(139,92,246,.2);  color: #a78bfa; }
+.badge-SWARM_ACTIVITY   { background: rgba(52,211,153,.12); color: #34d399; }
+.badge-DEFAULT          { background: rgba(139,148,158,.1); color: var(--text-sec); }
+
+.event-body { flex: 1; min-width: 0; }
+.event-wallet { font-size: 11px; font-family: monospace; color: var(--text-pri); }
+.event-detail { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
+.event-stale  { font-size: 10px; color: #dc2626; margin-left: 4px; }
+
+.feed-quiet {
+    padding: 24px 14px; text-align: center;
+    color: var(--text-dim); font-size: 11px; line-height: 1.8;
+}
+
+/* ── RELAY PANEL ────────────────────────────────────────────────── */
+.relay-row {
+    display: grid; grid-template-columns: 1fr auto auto;
+    align-items: center; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.relay-row:last-child { border-bottom: none; }
+.relay-addr { font-family: monospace; font-size: 11px; color: var(--col-relay); }
+.relay-role { font-size: 9px; color: var(--text-dim); margin-top: 1px; }
+.epoch-badge {
+    font-size: 9px; font-weight: 700; padding: 1px 5px;
+    border-radius: 3px; letter-spacing: .04em;
+}
+.epoch-QUIET          { background: rgba(55,65,81,.3);    color: var(--text-dim); }
+.epoch-ACTIVE         { background: rgba(22,163,74,.2);   color: #3fb950; }
+.epoch-ESCALATING     { background: rgba(234,88,12,.2);   color: #f0883e; }
+.epoch-EXTRACTION_WAVE{ background: rgba(124,58,237,.25); color: #a78bfa; animation: pulse 1s infinite; }
+
+.relay-sol { font-size: 11px; color: var(--text-sec); white-space: nowrap; }
+
+/* ── TREASURY PANEL ─────────────────────────────────────────────── */
+.treasury-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.treasury-row:last-child { border-bottom: none; }
+.treasury-key { font-size: 11px; color: var(--text-sec); }
+.treasury-val { font-size: 11px; font-weight: 600; color: var(--text-pri); }
+.treasury-val.amber  { color: var(--col-treasury); }
+.treasury-val.quiet  { color: var(--text-dim); }
+
+.prov-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.prov-row:last-child { border-bottom: none; }
+.prov-addr { font-family: monospace; font-size: 10px; color: var(--col-infra); flex: 1; }
+.prov-status { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.prov-status.active { background: #3fb950; box-shadow: 0 0 4px #3fb950; }
+.prov-status.quiet  { background: var(--text-dim); }
+.prov-age { font-size: 10px; color: var(--text-dim); }
+
+/* ── TEMPO SPARKLINE ────────────────────────────────────────────── */
+.spark-wrap { display: flex; align-items: flex-end; gap: 2px; height: 24px; }
+.spark-bar  { flex: 1; background: rgba(88,166,255,.25); border-radius: 1px; min-height: 2px; transition: height .4s; }
+
+/* ── STALENESS ──────────────────────────────────────────────────── */
+.age-fresh  { color: #3fb950; }
+.age-ok     { color: var(--text-sec); }
+.age-warn   { color: #d97706; }
+.age-stale  { color: #dc2626; }
+.stale-badge { display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(220,38,38,.15); color: #dc2626; border: 1px solid rgba(220,38,38,.25); margin-left: 4px; }
+
+/* ── QUIET STATE ────────────────────────────────────────────────── */
+.quiet-state {
+    text-align: center; padding: 32px 20px;
+    border: 1px dashed var(--border); border-radius: 8px;
+    color: var(--text-dim); margin: 12px 0;
+}
+.quiet-state-title { font-size: 13px; font-weight: 600; color: var(--text-sec); margin-bottom: 8px; }
+.quiet-state-body  { font-size: 11px; line-height: 1.8; }
+{% endblock %}
+
+{% block content %}
+<div style="max-width:1400px;margin:0 auto;padding:16px;">
+
+  <!-- PAGE HEADER -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);">WATCHTOWER</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text-pri);margin-top:1px;">Operations Overview</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="last-refresh" style="font-size:10px;color:var(--text-dim);">—</span>
+      <span style="font-size:10px;color:var(--text-dim);" id="poll-status">POLL OK</span>
+      <button onclick="loadOverview()" style="font-size:10px;padding:4px 10px;border-radius:4px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-sec);cursor:pointer;">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- OPERATIONAL STATE BANNER -->
+  <div id="ops-banner" class="QUIET">
+    <div class="banner-dot QUIET" id="banner-dot"></div>
+    <div style="flex:1;">
+      <div class="banner-state QUIET" id="banner-state">QUIET</div>
+      <div class="banner-detail" id="banner-detail">Loading operational state…</div>
+      <div class="banner-meta" id="banner-meta"></div>
+    </div>
+    <div class="banner-ts" id="banner-ts">—</div>
+  </div>
+
+  <!-- MACRO METRICS STRIP -->
+  <div class="metrics-strip">
+    <div class="mcard">
+      <div class="mcard-val" id="m-campaigns">—</div>
+      <div class="mcard-label">Campaigns</div>
+      <div class="mcard-sub" id="m-campaigns-sub">—</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-val" id="m-infra">—</div>
+      <div class="mcard-label">Infra Wallets</div>
+      <div class="mcard-sub" id="m-infra-sub">mixed roles inferred</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-val cyan" id="m-candidates">—</div>
+      <div class="mcard-label">Monitored Candidates</div>
+      <div class="mcard-sub" id="m-candidates-sub">—</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-val amber" id="m-treasury">—</div>
+      <div class="mcard-label">Treasury</div>
+      <div class="mcard-sub" id="m-treasury-sub">—</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-val purple" id="m-sweeps">—</div>
+      <div class="mcard-label">Sweeps / 5m</div>
+      <div class="mcard-sub" id="m-sweeps-sub">—</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-val" id="m-sol">—</div>
+      <div class="mcard-label">Relay SOL Tracked</div>
+      <div class="mcard-sub" id="m-sol-sub">—</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-val" id="m-provisioners">—</div>
+      <div class="mcard-label">Provisioners</div>
+      <div class="mcard-sub" id="m-provisioners-sub">—</div>
+    </div>
+    <div class="mcard">
+      <div class="mcard-label" style="margin-bottom:4px;">Op Tempo</div>
+      <div class="spark-wrap" id="m-tempo"></div>
+      <div class="mcard-sub" id="m-tempo-sub">6h window</div>
+    </div>
+  </div>
+
+  <!-- THREE-COLUMN GRID -->
+  <div class="ops-grid">
+
+    <!-- LEFT: Campaigns + Swarms + Creator Pipeline -->
+    <div>
+
+      <!-- CAMPAIGN MONITOR -->
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="panel-hdr">
+          Campaign Monitor
+          <span class="panel-hdr-badge" id="camp-count">—</span>
+        </div>
+        <div class="panel-body" id="camp-body">
+          <div class="quiet-state">
+            <div class="quiet-state-title">No Campaigns</div>
+            <div class="quiet-state-body">Campaign data pending.<br>Operational inference active.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRADER SWARMS -->
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="panel-hdr">
+          Trader Swarms
+          <span class="panel-hdr-badge" id="swarm-count">—</span>
+        </div>
+        <div class="panel-body" id="swarm-body">
+          <div style="font-size:11px;color:var(--text-dim);text-align:center;padding:16px 0;">
+            Swarm classification pending.<br>
+            <span style="font-size:10px;">wt_trader_wallets not yet populated.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATOR PIPELINE -->
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="panel-hdr">Creator Pipeline</div>
+        <div class="panel-body">
+          <div id="pipeline-rows"></div>
+          <div class="warn-note" id="pipeline-warn">
+            ⚠ Candidate pool contains mixed creator/trader/support roles.
+            Score stratification pending — high-confidence count may understate true creators.
+          </div>
+        </div>
+      </div>
+
+      <!-- LAUNCH CORRIDORS -->
+      <div class="panel">
+        <div class="panel-hdr">
+          Launch Corridors
+          <span class="panel-hdr-badge" id="corridor-active-count">—</span>
+        </div>
+        <div class="panel-body" id="corridor-body">
+          <div style="font-size:11px;color:var(--text-dim);text-align:center;padding:16px 0;">Loading corridors…</div>
+        </div>
+        <div style="padding:8px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="corridor-resolution-strip"></div>
+      </div>
+
+    </div>
+
+    <!-- CENTER: Operational Event Feed -->
+    <div class="panel">
+      <div class="panel-hdr">
+        Operational Events
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span id="feed-last-age" style="font-size:10px;color:var(--text-dim);">—</span>
+          <span class="panel-hdr-badge" id="feed-count">—</span>
+        </div>
+      </div>
+      <div class="feed-filters">
+        <button class="feed-filter active" data-filter="ALL" onclick="setFilter('ALL',this)">ALL</button>
+        <button class="feed-filter" data-filter="SWEEP_EPOCH" onclick="setFilter('SWEEP_EPOCH',this)">SWEEP</button>
+        <button class="feed-filter" data-filter="TREASURY_FANOUT" onclick="setFilter('TREASURY_FANOUT',this)">TREASURY</button>
+        <button class="feed-filter" data-filter="CANDIDATE_STAGED" onclick="setFilter('CANDIDATE_STAGED',this)">CANDIDATE</button>
+        <button class="feed-filter" data-filter="LAUNCH_DETECTED" onclick="setFilter('LAUNCH_DETECTED',this)">LAUNCH</button>
+        <button class="feed-filter" data-filter="RELAY_ACTIVE" onclick="setFilter('RELAY_ACTIVE',this)">RELAY</button>
+      </div>
+      <div id="event-feed" style="max-height:600px;overflow-y:auto;"></div>
+    </div>
+
+    <!-- RIGHT: Extraction + Treasury -->
+    <div>
+
+      <!-- EXTRACTION MONITOR -->
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="panel-hdr">
+          Extraction Monitor
+          <span class="panel-hdr-badge" id="extract-epoch">—</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:18px;font-weight:700;color:#a78bfa;" id="ext-sweeps">—</div>
+              <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;">sweeps/5m</div>
+            </div>
+            <div>
+              <div style="font-size:18px;font-weight:700;color:var(--col-treasury);" id="ext-sol">—</div>
+              <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;">SOL tracked</div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;" id="ext-last-active">Last active: —</div>
+
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:6px;">Active Relays</div>
+          <div id="relay-rows"></div>
+
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;color:var(--text-dim);">Counterparties pending backtrace: <span id="cp-pending" style="color:var(--text-sec);font-weight:600;">—</span></div>
+            <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Creators confirmed from relay: <span id="cp-confirmed" style="color:#3fb950;font-weight:600;">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TREASURY BOARD -->
+      <div class="panel">
+        <div class="panel-hdr">
+          Treasury
+          <span class="panel-hdr-badge" id="treasury-status-badge">—</span>
+        </div>
+        <div class="panel-body">
+          <div id="treasury-rows"></div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:6px;">Provisioners</div>
+            <div id="prov-rows"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const POLL_MS    = 15000;
+let   _data      = null;
+let   _filter    = 'ALL';
+let   _timer     = null;
+
+// Derived from outflow age — never from SOL amount alone
+function treasuryState(age_s) {
+    if (age_s == null)  return { label: 'NO DATA', cls: 'quiet' };
+    if (age_s < 1800)   return { label: 'ACTIVE',  cls: 'amber' };
+    if (age_s < 21600)  return { label: 'COOLING', cls: '' };
+    return                     { label: 'QUIET',   cls: 'quiet' };
+}
+
+// ── UTILITIES ─────────────────────────────────────────────────────
+function fmt_age(s) {
+    if (s == null) return '—';
+    if (s < 60)    return `${s}s ago`;
+    if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+    if (s < 86400) return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ago`;
+    return `${Math.floor(s/86400)}d ago`;
+}
+function age_class(s) {
+    if (s == null) return 'age-ok';
+    if (s < 300)   return 'age-fresh';
+    if (s < 1800)  return 'age-ok';
+    if (s < 7200)  return 'age-warn';
+    return 'age-stale';
+}
+function stale_badge(s) {
+    return s > 7200 ? `<span class="stale-badge">STALE</span>` : '';
+}
+function trunc(addr, n=20) {
+    if (!addr) return '—';
+    return addr.length > n ? addr.slice(0,8)+'…'+addr.slice(-4) : addr;
+}
+function fmt_sol(v) {
+    if (v == null) return '—';
+    return v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(v < 10 ? 2 : 1);
+}
+function hms(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toTimeString().slice(0,8);
+}
+
+// ── BANNER ────────────────────────────────────────────────────────
+function renderBanner(d) {
+    const state = d.op_state || 'QUIET';
+    const banner = document.getElementById('ops-banner');
+    banner.className = state;
+    document.getElementById('banner-dot').className = `banner-dot ${state}`;
+    const sl = document.getElementById('banner-state');
+    sl.className = `banner-state ${state}`;
+    sl.textContent = 'GLOBAL · ' + state;
+    document.getElementById('banner-detail').textContent = d.op_detail || '';
+
+    // Campaign state summary — explicitly separated from global state
+    const camps = d.campaigns || [];
+    const campDist = {};
+    camps.forEach(c => { campDist[c.state] = (campDist[c.state] || 0) + 1; });
+    const campSummary = Object.entries(campDist)
+        .map(([s, n]) => `${n} ${s}`)
+        .join(' · ');
+    const lastEvAge = d.events && d.events.length ? d.events[0].age_s : null;
+    const campNote  = camps.length
+        ? `Campaigns: ${campSummary}`
+        : 'No campaign data';
+
+    // stale_badge omitted — age color already signals staleness; "Monitoring active" stays uncontradicted
+    document.getElementById('banner-meta').innerHTML =
+        `<span style="color:var(--text-dim);margin-right:10px;">${campNote}</span>`
+        + (lastEvAge != null
+            ? `Last event: <span class="${age_class(lastEvAge)}">${fmt_age(lastEvAge)}</span>`
+            : 'No events recorded')
+        + ' · Monitoring active';
+    document.getElementById('banner-ts').textContent = new Date().toLocaleTimeString();
+}
+
+// ── METRICS STRIP ─────────────────────────────────────────────────
+function renderMetrics(d) {
+    const camps = d.campaigns || [];
+    document.getElementById('m-campaigns').textContent = camps.length || '—';
+    // Show distribution of campaign-local states, never conflate with global state
+    if (camps.length) {
+        const dist = {};
+        camps.forEach(c => { dist[c.state] = (dist[c.state] || 0) + 1; });
+        const order = ['ACTIVE','ESCALATING','FORMING','DORMANT'];
+        document.getElementById('m-campaigns-sub').textContent =
+            order.filter(s => dist[s]).map(s => `${dist[s]}× ${s}`).join(' · ');
+    } else {
+        document.getElementById('m-campaigns-sub').textContent = 'no campaign data';
+    }
+
+    const iw = d.infra_wallets || {};
+    document.getElementById('m-infra').textContent = (iw.total || 0).toLocaleString();
+    document.getElementById('m-infra-sub').textContent = 'mixed roles inferred';
+
+    const cand = d.candidates || {};
+    document.getElementById('m-candidates').textContent = cand.enrolled || '—';
+    const hc = cand.high_conf_95 || 0;
+    const strong = cand.scored_85plus || 0;
+    document.getElementById('m-candidates-sub').textContent =
+        `${strong} score 85+ · ${hc} high-confidence`;
+
+    const tr  = d.treasury || {};
+    const tTs = treasuryState(tr.age_s);
+    document.getElementById('m-treasury').textContent = tTs.label;
+    document.getElementById('m-treasury').className = 'mcard-val ' + (tTs.cls || 'dim');
+    document.getElementById('m-treasury-sub').textContent =
+        tr.age_s != null ? fmt_age(tr.age_s) : 'no outflow data';
+
+    const ext = d.extraction || {};
+    const sw5 = ext.sweeps_5m || 0;
+    document.getElementById('m-sweeps').textContent = sw5;
+    document.getElementById('m-sweeps').className = 'mcard-val ' + (sw5 > 20 ? 'purple' : sw5 > 2 ? '' : 'dim');
+    document.getElementById('m-sweeps-sub').textContent = sw5 > 0 ? 'ACTIVE' : 'QUIET';
+
+    document.getElementById('m-sol').textContent = fmt_sol(ext.sol_tracked || 0) + ' SOL';
+    document.getElementById('m-sol-sub').textContent = `${(ext.relays||[]).length} relays`;
+
+    const provs = (tr.provisioners || []).filter(p => p.age_s != null && p.age_s < 86400);
+    document.getElementById('m-provisioners').textContent = tr.provisioners ? tr.provisioners.length : '—';
+    document.getElementById('m-provisioners-sub').textContent =
+        provs.length ? `${provs.length} active <24h` : 'all quiet';
+
+    // sparkline
+    const spark = d.tempo && d.tempo.spark || [];
+    const sparkEl = document.getElementById('m-tempo');
+    sparkEl.innerHTML = '';
+    if (!spark.length) {
+        sparkEl.innerHTML = '<span style="font-size:10px;color:var(--text-dim);">no data</span>';
+    } else {
+        spark.forEach(v => {
+            const b = document.createElement('div');
+            b.className = 'spark-bar';
+            b.style.height = Math.max(2, v * 3) + 'px';
+            sparkEl.appendChild(b);
+        });
+    }
+    document.getElementById('m-tempo-sub').textContent = '6h window · 30m buckets';
+}
+
+// ── CAMPAIGNS ─────────────────────────────────────────────────────
+const CAMP_HEAT_COLOR = {
+    ACTIVE: '#16a34a', ESCALATING: '#ea580c', FORMING: '#d97706', DORMANT: '#374151',
+};
+function campHeatPips(creators, events, state) {
+    const score = Math.min(8, Math.round((creators * 2 + events / 10)));
+    const clr = CAMP_HEAT_COLOR[state] || '#374151';
+    return Array.from({length: 8}, (_, i) =>
+        `<div style="width:14px;height:3px;border-radius:1px;background:${i < score ? clr : 'rgba(255,255,255,.06)'}"></div>`
+    ).join('');
+}
+
+function renderCampaigns(d) {
+    const camps = d.campaigns || [];
+    document.getElementById('camp-count').textContent = camps.length || '0';
+
+    const body = document.getElementById('camp-body');
+    if (!camps.length) {
+        body.innerHTML = `<div class="quiet-state">
+            <div class="quiet-state-title">No Campaign Data</div>
+            <div class="quiet-state-body">Operational inference active.<br>wt_campaigns not yet populated.</div>
+        </div>`;
+        return;
+    }
+    body.innerHTML = camps.map(c => {
+        const age       = c.age_s != null ? fmt_age(c.age_s) : '—';
+        const creators  = c.creator_count  || 0;
+        const events    = c.event_count    || 0;
+        const sol       = c.total_sol_provisioned != null ? fmt_sol(c.total_sol_provisioned) + '◎' : null;
+        const pips      = campHeatPips(creators, events, c.state);
+        return `<div class="campaign-card ${c.state}">
+          <div style="display:flex;align-items:center;margin-bottom:6px;">
+            <span class="campaign-id">${trunc(c.id,16)}</span>
+            <span class="campaign-state-badge ${c.state}">${c.state}</span>
+            <span style="margin-left:auto;font-size:10px;color:var(--text-dim);">${age}</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:7px;">
+            <div class="cstat">Creators <span>${creators.toLocaleString()}</span></div>
+            <div class="cstat">Events <span>${events.toLocaleString()}</span></div>
+            ${sol ? `<div class="cstat" style="margin-left:auto;">SOL <span style="color:var(--col-treasury);">${sol}</span></div>` : ''}
+          </div>
+          <div style="display:flex;gap:2px;align-items:center;">${pips}</div>
+        </div>`;
+    }).join('');
+}
+
+// ── CREATOR PIPELINE ──────────────────────────────────────────────
+function renderPipeline(d) {
+    const c = d.candidates || {};
+    const lastHit = c.last_hit_age_s;
+    const rows = [
+        ['Monitored candidates', c.enrolled || '—', ''],
+        ['Score 85+ (high-confidence)', c.scored_85plus ?? '—', 'cyan'],
+        ['Score 95+ (imminent signal)', c.high_conf_95 ?? '—', 'cyan'],
+        ['Fee touches today', c.fee_touches_24h ?? '—', ''],
+        ['Last candidate hit', lastHit != null ? fmt_age(lastHit) : 'never', age_class(lastHit)],
+    ];
+    document.getElementById('pipeline-rows').innerHTML = rows.map(([label, val, cls]) =>
+        `<div class="pipeline-row">
+          <span class="pipeline-label">${label}</span>
+          <span class="pipeline-val ${cls}">${val}</span>
+        </div>`
+    ).join('');
+}
+
+// ── EVENT FEED ────────────────────────────────────────────────────
+function setFilter(f, el) {
+    _filter = f;
+    document.querySelectorAll('.feed-filter').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    if (_data) renderFeed(_data);
+}
+
+function renderFeed(d) {
+    const events = (d.events || []).filter(e =>
+        _filter === 'ALL' || e.semantic === _filter
+    );
+    document.getElementById('feed-count').textContent = events.length;
+
+    const lastAge = d.events && d.events.length ? d.events[0].age_s : null;
+    const ageLbl  = document.getElementById('feed-last-age');
+    if (lastAge != null) {
+        ageLbl.innerHTML = `<span class="${age_class(lastAge)}">${fmt_age(lastAge)}</span>`;
+    } else {
+        ageLbl.textContent = '—';
+    }
+
+    const feed = document.getElementById('event-feed');
+    if (!events.length) {
+        const quietAge = lastAge != null ? `Last event ${fmt_age(lastAge)}.` : 'No events recorded.';
+        feed.innerHTML = `<div class="feed-quiet">
+            <div style="font-size:22px;margin-bottom:8px;color:var(--text-dim);">○</div>
+            <div style="color:var(--text-sec);font-weight:600;margin-bottom:4px;">
+                ${_filter === 'ALL' ? 'QUIET' : 'No ' + _filter + ' events'}
+            </div>
+            <div>${quietAge} Monitoring active.</div>
+            <div style="margin-top:6px;font-size:10px;">Webhook endpoints live · Poll running</div>
+        </div>`;
+        return;
+    }
+
+    feed.innerHTML = events.map(e => {
+        const badgeCls = `badge-${e.semantic}` in document.styleSheets[0] ? e.semantic : 'DEFAULT';
+        const wallet   = e.wallet ? trunc(e.wallet) : '';
+        const mint     = e.mint   ? ` · ${trunc(e.mint)}` : '';
+        const sol      = e.payload && e.payload.amount_sol != null
+            ? ` · ${parseFloat(e.payload.amount_sol).toFixed(3)} SOL` : '';
+        const reason   = e.payload && e.payload.candidate_reason ? ` · ${e.payload.candidate_reason}` : '';
+        return `<div class="event-item" data-semantic="${e.semantic}">
+          <div class="event-time">${hms(e.ts)}</div>
+          <span class="event-badge badge-${e.semantic}">${e.semantic.replace('_',' ')}</span>
+          <div class="event-body">
+            <div class="event-wallet">${wallet}${mint}</div>
+            <div class="event-detail">${e.raw_type}${sol}${reason}</div>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ── EXTRACTION / RELAYS ───────────────────────────────────────────
+function renderExtraction(d) {
+    const ext = d.extraction || {};
+    const sw5 = ext.sweeps_5m || 0;
+    const relays = ext.relays || [];
+    const cp = ext.counterparties || {};
+
+    document.getElementById('extract-epoch').textContent =
+        sw5 > 100 ? 'EXTRACTION WAVE' : sw5 > 20 ? 'ESCALATING' : sw5 > 2 ? 'ACTIVE' : 'QUIET';
+    document.getElementById('ext-sweeps').textContent = sw5;
+    document.getElementById('ext-sol').textContent = fmt_sol(ext.sol_tracked || 0);
+
+    const lastAgeS = ext.last_active_age_s;
+    document.getElementById('ext-last-active').innerHTML = lastAgeS != null
+        ? `Last active: <span class="${age_class(lastAgeS)}">${fmt_age(lastAgeS)}</span>`
+        : 'Last active: —';
+
+    // relay rows — infra not in buckets yet shows from _WT_INFRA_ROLES
+    const knownInfra = [
+        {address:'EYjGUZamSQ9vJBxZ4yj7pCK2XaZ99MAEQx9xRMrzyMx1', role:'SWEEP_COLLECTOR'},
+        {address:'N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7',  role:'PROFIT_RELAY'},
+        {address:'F17dbo3EeumSte7hEBgn6wDAv65BEN4U8eba9zXcNTg',  role:'PROFIT_RELAY'},
+        {address:'67UoZBTBGhFa3irg6hv5dETdwLRTx2HCTyq5H51KFMFu', role:'PROFIT_RELAY'},
+        {address:'3UnqbigDhZvHpQFR29aDhKLEWSNkFcMbuNCrSDk6iikj', role:'PROFIT_RELAY'},
+    ];
+    const relayMap = {};
+    relays.forEach(r => relayMap[r.address] = r);
+    const displayRelays = knownInfra.map(k => relayMap[k.address] || {...k, epoch:'QUIET', hits_5m:0, total_sol:0});
+
+    document.getElementById('relay-rows').innerHTML = displayRelays.map(r =>
+        `<div class="relay-row">
+          <div>
+            <div class="relay-addr">${trunc(r.address,12)}</div>
+            <div class="relay-role">${r.role}</div>
+          </div>
+          <span class="epoch-badge epoch-${r.epoch}">${r.epoch}</span>
+          <div class="relay-sol">${fmt_sol(r.total_sol)} SOL</div>
+        </div>`
+    ).join('');
+
+    document.getElementById('cp-pending').textContent  = (cp.NEW  && cp.NEW.n)       || 0;
+    document.getElementById('cp-confirmed').textContent = (cp.CREATOR_CONFIRMED && cp.CREATOR_CONFIRMED.n) || 0;
+}
+
+// ── TREASURY ──────────────────────────────────────────────────────
+function renderTreasury(d) {
+    const tr  = d.treasury || {};
+    const age = tr.age_s;
+    const ts  = treasuryState(age);
+
+    const badge = document.getElementById('treasury-status-badge');
+    badge.textContent  = ts.label;
+    badge.style.color  = ts.cls === 'amber' ? 'var(--col-treasury)'
+                       : ts.cls === 'quiet' ? 'var(--text-dim)' : 'var(--text-sec)';
+
+    document.getElementById('treasury-rows').innerHTML = `
+        <div class="treasury-row">
+          <span class="treasury-key">Treasury state</span>
+          <span class="treasury-val ${ts.cls}">${ts.label}</span>
+        </div>
+        <div class="treasury-row">
+          <span class="treasury-key">Last outflow</span>
+          <span class="treasury-val ${ts.cls}">${age != null ? fmt_age(age) : '—'}</span>
+        </div>
+        <div class="treasury-row">
+          <span class="treasury-key">SOL out (24h)</span>
+          <span class="treasury-val ${tr.sol_24h ? 'amber' : 'quiet'}">${tr.sol_24h ? fmt_sol(tr.sol_24h)+' SOL' : '—'}</span>
+        </div>
+        <div class="treasury-row">
+          <span class="treasury-key">SOL out (1h)</span>
+          <span class="treasury-val">${tr.sol_1h ? fmt_sol(tr.sol_1h)+' SOL' : '—'}</span>
+        </div>
+        <div class="treasury-row">
+          <span class="treasury-key">Signals (24h)</span>
+          <span class="treasury-val">${tr.signals_24h ?? '—'}</span>
+        </div>`;
+
+    const provs = tr.provisioners || [];
+    document.getElementById('prov-rows').innerHTML = provs.length
+        ? provs.map(p => {
+            const active = p.age_s != null && p.age_s < 86400;
+            return `<div class="prov-row">
+              <div class="prov-status ${active?'active':'quiet'}"></div>
+              <div class="prov-addr">${trunc(p.address,14)}</div>
+              <div style="font-size:9px;color:var(--text-dim);">${p.role}</div>
+              <div class="prov-age ${age_class(p.age_s)}">${fmt_age(p.age_s)}</div>
+            </div>`;
+          }).join('')
+        : `<div style="font-size:11px;color:var(--text-dim);padding:8px 0;">No provisioner activity recorded.</div>`;
+}
+
+// ── MAIN RENDER ───────────────────────────────────────────────────
+function render(d) {
+    _data = d;
+    renderBanner(d);
+    renderMetrics(d);
+    renderCampaigns(d);
+    renderPipeline(d);
+    renderFeed(d);
+    renderExtraction(d);
+    renderTreasury(d);
+
+    document.getElementById('last-refresh').textContent =
+        'Updated ' + new Date().toLocaleTimeString();
+    document.getElementById('poll-status').textContent = 'POLL OK';
+    document.getElementById('poll-status').style.color = '#3fb950';
+}
+
+// ── FETCH ─────────────────────────────────────────────────────────
+async function loadOverview() {
+    try {
+        const r = await fetch('/api/watchtower/ops-overview');
+        if (!r.ok) throw new Error(r.status);
+        const d = await r.json();
+        if (d.ok) render(d);
+    } catch(e) {
+        document.getElementById('poll-status').textContent = 'POLL ERR';
+        document.getElementById('poll-status').style.color = '#dc2626';
+    }
+}
+
+// ── CORRIDORS ─────────────────────────────────────────────────────
+async function loadCorridors() {
+    try {
+        const r = await fetch('/api/watchtower/corridors');
+        if (!r.ok) return;
+        const d = await r.json();
+
+        const active = d.active_corridors || [];
+        document.getElementById('corridor-active-count').textContent = active.length || '0';
+
+        const body = document.getElementById('corridor-body');
+        if (!active.length) {
+            body.innerHTML = '<div style="font-size:11px;color:var(--text-dim);text-align:center;padding:16px 0;">No active corridors</div>';
+        } else {
+            const now = Math.floor(Date.now() / 1000);
+            body.innerHTML = active.map(c => {
+                const rem = Math.max(0, (c.f5m_expires_at || 0) - now);
+                const remStr = rem > 0 ? rem + 's' : 'expired';
+                const remColor = rem < 60 ? '#dc2626' : rem < 180 ? '#d97706' : '#3fb950';
+                return `<div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;">
+                    <div>
+                        <div style="font-family:monospace;color:var(--text-pri);">${c.wallet.slice(0,8)}…${c.wallet.slice(-4)}</div>
+                        <div style="font-size:10px;color:var(--text-dim);">${c.treasury_sol} SOL · lag ${c.signaller_lag_s}s</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:10px;color:${remColor};font-weight:700;">F5M ${remStr}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Resolution breakdown strip (last 24h)
+        const bd = d.resolution_breakdown || {};
+        const strip = document.getElementById('corridor-resolution-strip');
+        const cols = [
+            { key: 'LAUNCH_CONFIRMED',    label: 'Launch',     color: '#3fb950' },
+            { key: 'SPECULATION_EXECUTOR',label: 'Spec',       color: '#a78bfa' },
+            { key: 'ARB_EXECUTOR',        label: 'Arb',        color: '#22d3ee' },
+            { key: 'ABORTED',             label: 'Aborted',    color: '#6b7280' },
+        ];
+        strip.innerHTML = cols.map(c =>
+            `<div style="text-align:center;">
+                <div style="font-size:16px;font-weight:700;color:${c.color};">${bd[c.key] || 0}</div>
+                <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;">${c.label}</div>
+             </div>`
+        ).join('');
+    } catch(e) { /* non-critical */ }
+}
+
+loadOverview();
+loadCorridors();
+_timer = setInterval(loadOverview, POLL_MS);
+setInterval(loadCorridors, 15000);
+</script>
+{% endblock %}

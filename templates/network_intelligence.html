@@ -19,6 +19,26 @@
     color: var(--text-secondary);
     margin: 0;
 }
+.care-card {
+    margin-bottom: 18px;
+    padding: 16px 18px;
+    border: 1px solid rgba(251,146,60,0.25);
+    border-radius: 10px;
+    background: rgba(251,146,60,0.06);
+}
+.care-kicker {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #fb923c;
+    margin-bottom: 6px;
+}
+.care-copy {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #e2e8f0;
+}
 
 /* KPI cards */
 .kpi-grid {
@@ -237,9 +257,15 @@
 {% endblock %}
 
 {% block content %}
+{% include "partials/ecosystem_lens_nav.html" %}
 <div class="ni-header" id="ni-header">
-    <h1 id="ni-headline">Network Intelligence</h1>
-    <p id="ni-subline">Coordination signal coverage across migrated creators — second-hop funding, network membership, cluster detection</p>
+    <h1 id="ni-headline">Ecosystem Structure</h1>
+    <p id="ni-subline">How creators are connected — coordinators, shared funding, wallet clusters, farms, and second-hop operator signals.</p>
+</div>
+
+<div class="care-card">
+    <div class="care-kicker">Why should I care?</div>
+    <div class="care-copy">This page answers whether a creator set behaves like a real ecosystem or a coordinated operator machine. Use it as structure evidence beside historical performance and simulation PnL — never as a substitute for either.</div>
 </div>
 
 <div id="ni-loading" style="color:var(--text-secondary);padding:40px 0;text-align:center;font-size:14px;">Loading…</div>

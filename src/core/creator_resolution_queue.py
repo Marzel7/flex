@@ -169,6 +169,7 @@ def enqueue_missing_migrated_tokens(
     *,
     limit: int = 50,
     source: str = "approval_queue",
+    max_age_seconds: int = None,
 ) -> int:
     with connect(db_path) as conn:
         ensure_schema(conn)

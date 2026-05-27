@@ -146,6 +146,9 @@ def _run_single(name: str, db_path: str) -> dict:
             conn.commit()
             conn.close()
             result = {'status': 'success', 'edges_stored': rows_inserted}
+        elif name == 'CexCoordinationDetector':
+            from src.core.cex_coordination_detector import CexCoordinationDetector
+            result = CexCoordinationDetector(db_path).detect_and_store()
         elif name == 'C2CEdgeBuilder':
             from src.core.c2c_edge_builder import C2CEdgeBuilder
             result = C2CEdgeBuilder(db_path).build()
@@ -191,10 +194,11 @@ def _run_single(name: str, db_path: str) -> dict:
 
 ANALYZERS = [
     'WalletClusteringEngine',
-    'DevReputationUpdater',
+    # DevReputationUpdater omitted — rescores 17k creators against large WAL, takes 45+ min and blocks everything
     'FunderOverlapAnalyzer',
     'GraphDevFarmDetectionEngine',
     'CoordinatedEdgesBuilder',
+    'CexCoordinationDetector',
     'C2CEdgeBuilder',
     'NetworkMembershipBuilder',
     'NetworksReleaseBuilder',
@@ -212,6 +216,7 @@ OUTPUT_TABLES = [
     'network_membership',
     'coordinated_creator_edges',
     'creator_c2c_edges',
+    'cex_coordinated_groups',
 ]
 
 

@@ -1137,7 +1137,7 @@ class TokenPredictionBuilder:
 
     def _write_scores(self, conn: sqlite3.Connection, scores: list[TokenScore]) -> None:
         now = int(time.time())
-        conn.executemany("""
+        sql = """
             INSERT INTO token_prediction_scores (
                 mint, creator_address, network_name,
                 prediction_score, risk_level, prediction_label,
@@ -1165,9 +1165,47 @@ class TokenPredictionBuilder:
                 outcome_history_score=excluded.outcome_history_score,
                 liquidation_score=excluded.liquidation_score,
                 last_updated_at=excluded.last_updated_at
-        """, [
-            self._score_row(s, now) for s in scores
-        ])
+        """
+        rows = [self._score_row(s, now) for s in scores]
+        # Commit in 200-row chunks so the write lock is released between batches,
+        # allowing other threads (webhook processor, etc.) to interleave writes.
+        for i in range(0, len(rows), 200):
+            conn.executemany(sql, rows[i:i + 200])
+            conn.commit()
+        # Freeze immutable decision-time context immediately. Existing snapshots
+        # are never overwritten, so later rescoring cannot rewrite history.
+        from src.core.prediction_decision_context import insert_prediction_snapshots
+        mints = [s.mint for s in scores]
+        placeholders = ",".join("?" for _ in mints)
+        frozen_rows = [
+            dict(r) for r in conn.execute(f"""
+                SELECT tps.mint, prediction_score, risk_level, prediction_label, prediction_status,
+                       prediction_confidence, reason_codes, explanation_json, creator_score,
+                       network_score, funding_score, outcome_history_score, liquidation_score,
+                       predicted_at, creator_was_fresh,
+                       COALESCE((
+                           SELECT tlh.health_band
+                           FROM token_liquidity_health tlh
+                           WHERE tlh.mint=tps.mint AND tlh.assessed_at <= tps.predicted_at
+                       ), 'UNKNOWN') AS liquidity_health_at_prediction
+                FROM token_prediction_scores tps
+                WHERE tps.mint IN ({placeholders})
+            """, mints).fetchall()
+        ]
+        insert_prediction_snapshots(conn, frozen_rows)
+        self._schedule_watch_outbound_scans(conn, scores)
+
+    def _schedule_watch_outbound_scans(self, conn: sqlite3.Connection, scores: list[TokenScore]) -> None:
+        from src.core.creator_outbound_worker import schedule_watch_outbound_stages
+        for s in scores:
+            if not (
+                s.creator_address
+                and s.prediction_status == "COMPLETE"
+                and self._risk_level_for_score(s) == "WATCH"
+            ):
+                continue
+            migrated = conn.execute("SELECT migrated_at FROM token_analysis WHERE mint=?", (s.mint,)).fetchone()
+            schedule_watch_outbound_stages(conn, s.creator_address, s.mint, int(migrated[0]) if migrated and migrated[0] else None)
 
     def _score_row(self, s: TokenScore, now: int) -> tuple:
         score = s.prediction_score

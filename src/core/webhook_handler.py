@@ -490,6 +490,7 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
         Tuple of (response_text, status_code)
     """
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[WEBHOOK_HANDLER] {now} - Request received", flush=True)
 
     # Validate auth if required
     if not validate_auth_header(request_obj):
@@ -529,6 +530,7 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
 
         # Extract transfers
         transfers = extract_system_transfers(tx)
+        print(f"[WEBHOOK_TX] {now} - TX {i}: {len(transfers) if transfers else 0} transfers extracted", flush=True)
 
         if not transfers:
             skipped += 1
@@ -539,24 +541,34 @@ def handle_helius_webhook(request_obj) -> Tuple[str, int]:
         for source, dest, lamports, sig_out, slot, block_time in transfers:
             amount_sol = lamports / 1e9
 
+            # Ignition check runs before dust filter — SIGNALLER dust is 0.00001 SOL
+            try:
+                from src.core.watchtower import create_interceptor as _ci
+                if source in (_ci._TREASURY_ADDR, _ci._SIGNALLER_1, _ci._SIGNALLER_2):
+                    _ci._ign_metric("ignition_webhook_received")
+                _ci._dispatch_ignition_check(source, dest, amount_sol, float(block_time or time.time()))
+            except Exception:
+                pass
+
             # Filter out dust transfers (< 0.001 SOL)
             MIN_SOL = 0.001
             if amount_sol < MIN_SOL:
-                # print(f"[WEBHOOK_DUST] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
+                print(f"[WEBHOOK_DUST] {now} - DUST: {sig_out[:16]}... ({amount_sol:.9f} SOL < {MIN_SOL} SOL)", flush=True)
                 skipped += 1
                 continue
 
-            # Accept both inbound and outbound transfers involving creators
-            # (source = creator OR destination = creator)
+            # Accept both inbound and outbound transfers involving enrolled addresses
+            # (source = enrolled OR destination = enrolled)
             cur.execute("""
-                SELECT 1 FROM helius_webhook_assignments
-                WHERE creator_address = ? OR creator_address = ?
+                SELECT 1 FROM wt_webhook_enrollments
+                WHERE wallet_address = ? OR wallet_address = ?
                 LIMIT 1
             """, (source, dest))
 
             is_creator_involved = cur.fetchone() is not None
 
             if not is_creator_involved:
+                print(f"[WEBHOOK_SKIP] {now} - No enrolled addresses: {source[:8]}... → {dest[:8]}...", flush=True)
                 skipped += 1
                 continue
 

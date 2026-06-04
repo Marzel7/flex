@@ -212,7 +212,15 @@ def managed_db_connect(path: str, timeout: int = 30, row_factory=None):
 # been open longer than MAX_CONNECTION_AGE_SECS.
 
 _REAPER_INTERVAL_SECS = 10
-_MAX_CONNECTION_AGE_SECS = 20  # connections held longer than this are leaks
+_MAX_CONNECTION_AGE_SECS = 20  # idle connections held longer than this are leaks
+# Connections stuck in_transaction are normally left alone (active write). But a
+# connection that has been in_transaction for this long is abandoned, not active —
+# this is the failure mode behind the recurring WAL-hang: under lock contention an
+# operation raises "database is locked" mid-transaction, the conn is left
+# in_transaction, the reaper's in_transaction guard then protects it FOREVER, and
+# such connections pile up (145 observed) and starve the WAL checkpoint. We rollback
+# and close them past this threshold. A legitimate write never holds a txn this long.
+_MAX_TXN_CONNECTION_AGE_SECS = 120
 _reaper_db_path: Optional[str] = None  # set from first registered connection
 
 
@@ -299,7 +307,22 @@ def _reap_stale_connections() -> int:
         if conn is not None:
             try:
                 if conn.in_transaction:
-                    continue  # active write — leave it alone
+                    # Active write — normally leave it alone. But a transaction held
+                    # this long is abandoned (the WAL-hang failure mode), not active:
+                    # rollback to release the WAL read-lock, then close.
+                    if age < _MAX_TXN_CONNECTION_AGE_SECS:
+                        continue
+                    try:
+                        conn.rollback()
+                    except Exception:
+                        pass
+                    conn.close()
+                    reaped += 1
+                    _db_logger.warning(
+                        f"[DB_REAPER] force-closed ABANDONED in_transaction connection "
+                        f"age={age}s caller={caller} (was starving WAL checkpoint)"
+                    )
+                    continue
                 conn.close()
                 reaped += 1
                 _db_logger.warning(

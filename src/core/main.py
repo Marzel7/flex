@@ -33335,16 +33335,34 @@ def _process_wt_infra_payload(payload):
                         # TREASURY recipient (700/800 SOL + dual signaller). Promoting it
                         # to CONFIRMED here means the lineage rule can immediately attribute
                         # any creator that hub seeds — no RPC, no hardcoded addresses.
+                        newly_promoted_hubs = []
                         try:
-                            promoted = discover_provisioning_hubs(dconn, promote=True)
-                            if promoted:
-                                print(f"[WATCHTOWER] 🏭 {len(promoted)} provisioning hub(s) "
-                                      f"CONFIRMED: {[h['hub_address'][:8] for h in promoted]}",
+                            newly_promoted_hubs = discover_provisioning_hubs(dconn, promote=True)
+                            if newly_promoted_hubs:
+                                print(f"[WATCHTOWER] 🏭 {len(newly_promoted_hubs)} provisioning hub(s) "
+                                      f"CONFIRMED: {[h['hub_address'][:8] for h in newly_promoted_hubs]}",
                                       flush=True)
                         except Exception as hub_exc:
                             print(f"[WATCHTOWER] hub discovery error: {hub_exc}", flush=True)
                         for (addr, amount_sol, sig, block_time) in recipients:
                             analyze_creator(addr, DB_PATH)
+                        # Auto-bridge: if any hub was newly confirmed, register it as a
+                        # WATCHTOWER operator and (re)build launch operations so new hubs
+                        # appear on /watchtower/operators automatically. Runs after
+                        # analyze_creator so launch categories are set first. Read-side
+                        # is launch-only; extraction/collector are never bridged.
+                        if newly_promoted_hubs:
+                            try:
+                                from src.analysis.watchtower_operations_bridge import (
+                                    register_hubs_as_operators, bridge_launch_operations,
+                                )
+                                register_hubs_as_operators(dconn)
+                                br = bridge_launch_operations(dconn)
+                                print(f"[WATCHTOWER] 🧭 operations bridge: "
+                                      f"{br['operation_count']} launch op(s) updated",
+                                      flush=True)
+                            except Exception as br_exc:
+                                print(f"[WATCHTOWER] operations bridge error: {br_exc}", flush=True)
                         dconn.commit()
                         dconn.close()
                     except Exception as exc:

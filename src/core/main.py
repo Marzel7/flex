@@ -25804,6 +25804,87 @@ def api_wt_evidence_summary():
         'recent_activations': [dict(r) for r in recent_activations],
     })
 
+@app.route('/api/watchtower/tempo')
+def api_wt_tempo():
+    """
+    Honest WATCHTOWER activity breakdown — separates ATTRIBUTION (who is
+    WATCHTOWER-related) from OPERATIONAL TEMPO (what WATCHTOWER is actually doing).
+
+    The plain watchtower_related total (e.g. 284) is ~85% extraction-side and badly
+    overstates launch activity. This endpoint splits by evidence category and trends
+    the launch-side signal so a card can show "launch-side: 16, extraction-side: 243"
+    instead of an inflated single number.
+    """
+    import time as _t, json as _json
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+
+    # Category split of all watchtower_related creators (the honest composition).
+    cat_counts = {}
+    for r in conn.execute(
+        "SELECT evidence_basis FROM creator_risk_scores "
+        "WHERE watchtower_related = 1 AND evidence_basis IS NOT NULL"
+    ).fetchall():
+        try:
+            cat = _json.loads(r['evidence_basis']).get('category') or 'UNCATEGORIZED'
+        except Exception:
+            cat = 'UNCATEGORIZED'
+        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+
+    launch_cats = ('LAUNCH_PROVISIONING', 'LAUNCH_DIRECT')
+    extraction_cats = ('EXTRACTION_PROFIT_RELAY',)
+    launch_side = sum(cat_counts.get(c, 0) for c in launch_cats)
+    extraction_side = sum(cat_counts.get(c, 0) for c in extraction_cats)
+    collector_side = cat_counts.get('COLLECTOR_FLOW', 0)
+    total = sum(cat_counts.values())
+
+    # Daily launch tempo (provisioning + direct) by token migration date, last 14d.
+    daily = {}
+    for r in conn.execute(
+        "SELECT date(ta.migrated_at,'unixepoch') day, "
+        "  json_extract(crs.evidence_basis,'$.category') cat, "
+        "  COUNT(DISTINCT crs.creator_address) n "
+        "FROM creator_risk_scores crs "
+        "JOIN token_analysis ta ON COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator)=crs.creator_address "
+        "WHERE crs.watchtower_related=1 "
+        "  AND json_extract(crs.evidence_basis,'$.category') IN ('LAUNCH_PROVISIONING','LAUNCH_DIRECT') "
+        "  AND ta.migrated_at >= ? "
+        "GROUP BY day, cat ORDER BY day DESC",
+        (int(_t.time()) - 14 * 86400,),
+    ).fetchall():
+        d = daily.setdefault(r['day'], {'LAUNCH_PROVISIONING': 0, 'LAUNCH_DIRECT': 0})
+        if r['cat'] in d:
+            d[r['cat']] = r['n']
+
+    # Provisioning hubs by birth date.
+    hubs_by_day = [dict(r) for r in conn.execute(
+        "SELECT date(born_at,'unixepoch') day, COUNT(*) hubs "
+        "FROM wt_provisioning_hubs WHERE status='CONFIRMED' GROUP BY day ORDER BY day DESC"
+    ).fetchall()]
+
+    # Live operational signals.
+    armed = conn.execute("SELECT COUNT(*) FROM wt_armed_operations").fetchone()[0]
+    confirmed_hubs = conn.execute(
+        "SELECT COUNT(*) FROM wt_provisioning_hubs WHERE status='CONFIRMED'").fetchone()[0]
+    conn.close()
+
+    return jsonify({
+        'related_total': total,
+        'launch_side': launch_side,
+        'extraction_side': extraction_side,
+        'collector_side': collector_side,
+        'category_breakdown': cat_counts,
+        'daily_launch_tempo': [
+            {'day': d, **v} for d, v in sorted(daily.items(), reverse=True)
+        ],
+        'hubs_by_day': hubs_by_day,
+        'confirmed_hubs': confirmed_hubs,
+        'armed_operations': armed,
+        'note': ('launch_side = LAUNCH_PROVISIONING+LAUNCH_DIRECT (real activity); '
+                 'extraction_side = profit-relay attribution (not launches)'),
+    })
+
+
 @app.route('/api/watchtower/operational-status')
 def api_wt_operational_status():
     """Unified operational intelligence endpoint — powers the new dashboard."""

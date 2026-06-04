@@ -1413,6 +1413,7 @@ g.node.decayed circle.node-main { transition: fill-opacity .8s, opacity .8s; }
 .feed-filter-btn.on[data-type="PROFIT_SWEEP_EPOCH"]      { color: #dc3545; border-color: rgba(220,53,69,.4);  background: rgba(220,53,69,.05); }
 .feed-filter-btn.on[data-type="TRADER_SWARM_DETECTED"]   { color: #5b9bd5; border-color: rgba(91,155,213,.4); background: rgba(91,155,213,.05); }
 .feed-filter-btn.on[data-type="RELOAD_CYCLE"]            { color: #a855f7; border-color: rgba(168,85,247,.4); background: rgba(168,85,247,.05); }
+.feed-filter-btn.on[data-type="OPERATOR_WALLET_CANDIDATE"]{ color: #d4a017; border-color: rgba(212,160,23,.4);  background: rgba(212,160,23,.05); }
 
 #feed-list {
   flex: 1; overflow-y: auto;
@@ -1480,6 +1481,48 @@ g.node.decayed circle.node-main { transition: fill-opacity .8s, opacity .8s; }
   background: rgba(74,85,104,.12); color: #4a5568;
   border: 1px solid rgba(74,85,104,.2);
 }
+.badge-OPERATOR_WALLET_CANDIDATE {
+  background: rgba(212,160,23,.15); color: #d4a017;
+  border: 1px solid rgba(212,160,23,.4);
+  animation: badge-pulse 2s infinite;
+}
+.badge-LIKELY_DEPLOYER {
+  background: rgba(167,139,250,.12); color: #a78bfa;
+  border: 1px solid rgba(167,139,250,.35);
+  animation: badge-pulse 1.8s infinite;
+}
+.badge-SWARM_CONFIRMED {
+  background: rgba(91,155,213,.12); color: #5b9bd5;
+  border: 1px solid rgba(91,155,213,.3);
+}
+
+/* Operator launches panel */
+#op-launches-list { overflow-y: auto; flex: 1; }
+.op-launch-card {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-faint);
+  font-size: 9px; font-family: var(--font-mono);
+  transition: background .12s;
+}
+.op-launch-card:hover { background: var(--bg-hover); }
+.op-launch-card.conf-LAUNCH_CONFIRMED { border-left: 2px solid rgba(61,196,120,.5); padding-left: 12px; }
+.op-launch-card.conf-LIKELY_DEPLOYER  { border-left: 2px solid rgba(167,139,250,.5); padding-left: 12px; }
+.op-launch-card.conf-DEPLOYER_IDENTIFIED { border-left: 2px solid rgba(212,160,23,.4); padding-left: 12px; }
+.op-launch-card.conf-SWARM_CONFIRMED  { border-left: 2px solid rgba(91,155,213,.5); padding-left: 12px; }
+.olc-row1 { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.olc-conf-chip {
+  font-size: 7px; font-weight: 800; letter-spacing: .1em;
+  padding: 1px 5px; border-radius: 2px; text-transform: uppercase; flex-shrink: 0;
+}
+.olc-conf-LAUNCH_CONFIRMED    { background: rgba(61,196,120,.12);  color: #3dc478; }
+.olc-conf-LIKELY_DEPLOYER     { background: rgba(167,139,250,.12); color: #a78bfa; animation: badge-pulse 1.8s infinite; }
+.olc-conf-DEPLOYER_IDENTIFIED { background: rgba(212,160,23,.1);   color: #d4a017; }
+.olc-conf-SWARM_CONFIRMED     { background: rgba(91,155,213,.1);   color: #5b9bd5; }
+.olc-addr { color: #22d3ee; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.olc-sol  { color: var(--clr-treasury); flex-shrink: 0; }
+.olc-row2 { color: #3d4a5c; font-size: 8px; display: flex; gap: 8px; }
+.olc-mint { color: #3dc478; }
+.olc-ts   { margin-left: auto; }
 
 .feed-campaign-tag {
   font-size: 8px; font-family: var(--font-mono);
@@ -2148,6 +2191,37 @@ line.edge-active {
 <!-- ══ ROOT GRID ═════════════════════════════════════════════════════ -->
 <div id="wt-root">
 
+  <!-- ══ WATCHTOWER TEMPO — honest activity breakdown (launch vs attribution) ══ -->
+  <div id="wt-tempo-card" style="grid-column:1/-1;background:var(--bg-secondary,#12151c);border:1px solid rgba(56,189,248,0.25);border-radius:10px;padding:12px 16px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;font-size:12px;">
+    <div style="font-weight:600;color:#38bdf8;letter-spacing:0.5px;">WATCHTOWER TEMPO</div>
+    <div title="LAUNCH_PROVISIONING + LAUNCH_DIRECT — the real launch signal">
+      <span style="color:var(--txt-muted,#8b949e);">Launch-side</span>
+      <span id="tempo-launch" style="font-size:18px;font-weight:700;color:#22c55e;margin-left:6px;">–</span>
+    </div>
+    <div title="profit-relay attribution — NOT launches">
+      <span style="color:var(--txt-muted,#8b949e);">Extraction-side</span>
+      <span id="tempo-extract" style="font-size:18px;font-weight:700;color:#f59e0b;margin-left:6px;">–</span>
+    </div>
+    <div title="collector-linked">
+      <span style="color:var(--txt-muted,#8b949e);">Collector</span>
+      <span id="tempo-collector" style="font-size:16px;font-weight:600;color:#a78bfa;margin-left:6px;">–</span>
+    </div>
+    <div title="all watchtower_related — attribution total, NOT activity">
+      <span style="color:var(--txt-muted,#8b949e);">Related (total)</span>
+      <span id="tempo-total" style="font-size:14px;font-weight:600;color:var(--txt-muted,#8b949e);margin-left:6px;">–</span>
+    </div>
+    <div style="border-left:1px solid rgba(255,255,255,0.1);padding-left:24px;" title="confirmed provisioning hubs / live ARMED operations">
+      <span style="color:var(--txt-muted,#8b949e);">Hubs</span>
+      <span id="tempo-hubs" style="font-weight:700;color:#38bdf8;margin-left:6px;">–</span>
+      <span style="color:var(--txt-muted,#8b949e);margin-left:14px;">ARMED</span>
+      <span id="tempo-armed" style="font-weight:700;color:#38bdf8;margin-left:6px;">–</span>
+    </div>
+    <div style="flex:1;text-align:right;color:var(--txt-muted,#8b949e);">
+      <span style="margin-right:8px;">Launches (recent):</span>
+      <span id="tempo-daily" style="color:#22c55e;font-weight:600;">–</span>
+    </div>
+  </div>
+
   <!-- ══ LEFT: DEPLOYMENT OPERATORS + CORRIDOR INTEL ════════════════ -->
   <div id="col-left">
 
@@ -2196,6 +2270,27 @@ line.edge-active {
         <div class="corr-breakdown-item"><span class="corr-breakdown-val" id="cb-arb"    style="color:#38bdf8">—</span><span class="corr-breakdown-lbl">Arb</span></div>
         <div class="corr-breakdown-item"><span class="corr-breakdown-val" id="cb-abort"  style="color:#4a5568">—</span><span class="corr-breakdown-lbl">Aborted</span></div>
         <div class="corr-breakdown-item"><span class="corr-breakdown-val" id="cb-stall"  style="color:#d4a017">—</span><span class="corr-breakdown-lbl">Stalled</span></div>
+      </div>
+    </div>
+
+    <!-- Operator launches — live detection pipeline results -->
+    <div id="op-launches-intel" style="border-top:1px solid var(--border-faint);flex-shrink:0;max-height:36%;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="sec-hdr">
+        <span class="sec-hdr-title">
+          <span class="title-accent" style="background:#d4a017"></span>
+          OPERATOR LAUNCHES
+        </span>
+        <div class="sec-hdr-right">
+          <span class="sec-badge" id="op-launches-badge">0</span>
+          <button class="sec-ctrl" onclick="refreshOpLaunches()" title="Refresh">↻</button>
+        </div>
+      </div>
+      <div id="op-launches-list">
+        <div class="empty-state">
+          <div class="empty-icon">◈</div>
+          <div class="empty-msg">No operator launches detected</div>
+          <div class="empty-sub">Watching for treasury → operator → deployer chain</div>
+        </div>
       </div>
     </div>
 
@@ -2296,12 +2391,13 @@ line.edge-active {
 
     <!-- Feed type filters — corridor-era priority order -->
     <div id="feed-filter-bar">
-      <button class="feed-filter-btn on" data-type="corridor_active"        onclick="toggleFeedFilter(this)">CORRIDOR</button>
-      <button class="feed-filter-btn on" data-type="first_tx_classified"    onclick="toggleFeedFilter(this)">FIRST TX</button>
-      <button class="feed-filter-btn on" data-type="PUMPFUN_CREATE_CONFIRMED" onclick="toggleFeedFilter(this)">LAUNCH</button>
-      <button class="feed-filter-btn on" data-type="PROFIT_SWEEP_EPOCH"     onclick="toggleFeedFilter(this)">SWEEP</button>
-      <button class="feed-filter-btn on" data-type="TREASURY_FANOUT"        onclick="toggleFeedFilter(this)">TREASURY</button>
-      <button class="feed-filter-btn on" data-type="TRADER_SWARM_DETECTED"  onclick="toggleFeedFilter(this)">SWARM</button>
+      <button class="feed-filter-btn on" data-type="corridor_active"           onclick="toggleFeedFilter(this)">CORRIDOR</button>
+      <button class="feed-filter-btn on" data-type="first_tx_classified"       onclick="toggleFeedFilter(this)">FIRST TX</button>
+      <button class="feed-filter-btn on" data-type="PUMPFUN_CREATE_CONFIRMED"  onclick="toggleFeedFilter(this)">LAUNCH</button>
+      <button class="feed-filter-btn on" data-type="PROFIT_SWEEP_EPOCH"        onclick="toggleFeedFilter(this)">SWEEP</button>
+      <button class="feed-filter-btn on" data-type="TREASURY_FANOUT"           onclick="toggleFeedFilter(this)">TREASURY</button>
+      <button class="feed-filter-btn on" data-type="TRADER_SWARM_DETECTED"     onclick="toggleFeedFilter(this)">SWARM</button>
+      <button class="feed-filter-btn on" data-type="OPERATOR_WALLET_CANDIDATE" onclick="toggleFeedFilter(this)">OPERATOR</button>
     </div>
 
     <div id="feed-section">
@@ -3301,6 +3397,26 @@ function updateHeat(m) {
   }
 }
 
+/* ── WATCHTOWER tempo (honest launch-vs-attribution breakdown) ─────── */
+async function refreshTempo() {
+  try {
+    const t = await fetch('/api/watchtower/tempo').then(r=>r.ok?r.json():null);
+    if (!t) return;
+    const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    set('tempo-launch',    t.launch_side ?? 0);
+    set('tempo-extract',   t.extraction_side ?? 0);
+    set('tempo-collector', t.collector_side ?? 0);
+    set('tempo-total',     t.related_total ?? 0);
+    set('tempo-hubs',      t.confirmed_hubs ?? 0);
+    set('tempo-armed',     t.armed_operations ?? 0);
+    const days = (t.daily_launch_tempo||[]).slice(0,4).map(d=>{
+      const n=(d.LAUNCH_PROVISIONING||0)+(d.LAUNCH_DIRECT||0);
+      return `${(d.day||'').slice(5)}: ${n}`;
+    });
+    set('tempo-daily', days.length ? days.join('  ·  ') : 'none');
+  } catch(e) { /* non-fatal */ }
+}
+
 /* ── Metrics ─────────────────────────────────────────────────────── */
 async function refreshMetrics() {
   try {
@@ -4079,6 +4195,53 @@ function buildSwarmCard(s) {
   return div;
 }
 
+/* ── Operator Launches Panel ──────────────────────────────────────── */
+async function refreshOpLaunches() {
+  try {
+    const r = await fetch('/api/watchtower/operator-launches');
+    if (!r.ok) return;
+    const d = await r.json();
+    const launches = d.launches || [];
+    const list = document.getElementById('op-launches-list');
+    const badge = document.getElementById('op-launches-badge');
+    if (badge) badge.textContent = launches.length;
+    if (!list) return;
+
+    if (!launches.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><div class="empty-msg">No operator launches detected</div><div class="empty-sub">Watching for treasury → operator → deployer chain</div></div>`;
+      return;
+    }
+
+    const CONF_ORDER = { LAUNCH_CONFIRMED:0, SWARM_CONFIRMED:1, LIKELY_DEPLOYER:2, DEPLOYER_IDENTIFIED:3 };
+    launches.sort((a,b) => (CONF_ORDER[a.confidence]||9) - (CONF_ORDER[b.confidence]||9) || (b.updated_at||0) - (a.updated_at||0));
+
+    list.innerHTML = launches.map(l => {
+      const conf = l.confidence || 'DEPLOYER_IDENTIFIED';
+      const confLabel = { LAUNCH_CONFIRMED:'LAUNCHED', SWARM_CONFIRMED:'SWARM ✓', LIKELY_DEPLOYER:'DEPLOYER', DEPLOYER_IDENTIFIED:'CANDIDATE' }[conf] || conf;
+      const sol  = l.treasury_sol ? `${l.treasury_sol.toFixed(0)}◎` : '';
+      const tokenLabel = l.token_symbol ? `<span class="olc-mint" title="${l.mint||''}">${l.token_symbol}${l.token_name ? ' · '+l.token_name.slice(0,16) : ''}</span>`
+                       : l.mint        ? `<span class="olc-mint" title="${l.mint}">${l.mint.slice(0,8)}…</span>`
+                       :                 `<span style="color:#2d3748">no token yet</span>`;
+      const op   = (l.operator_wallet||'').slice(0,8)+'…';
+      const depRaw = l.deployer_wallet || '';
+      const dep  = (depRaw && depRaw !== l.operator_wallet) ? depRaw.slice(0,8)+'…' : '—';
+      const ago  = l.updated_at ? fmtTs(l.updated_at) : '';
+      return `<div class="op-launch-card conf-${conf}">
+        <div class="olc-row1">
+          <span class="olc-conf-chip olc-conf-${conf}">${confLabel}</span>
+          <span class="olc-addr" title="${l.operator_wallet}">${op}</span>
+          ${sol ? `<span class="olc-sol">${sol}</span>` : ''}
+        </div>
+        <div class="olc-row2">
+          <span>dep: ${dep}</span>
+          ${tokenLabel}
+          <span class="olc-ts">${ago}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('[WT] op-launches error', e); }
+}
+
 async function refreshSwarms() {
   try {
     const res = await fetch('/api/watchtower/swarms?limit=15');
@@ -4137,6 +4300,10 @@ const FEED_LABEL = {
   ABORTED:                  { label:'ABORTED',            sev:'low' },
   STALLED:                  { label:'STALLED',            sev:'medium' },
   SWARM_REJECTED:           { label:'SWARM REJECTED',     sev:'medium' },
+  // Operator-layer launch pipeline
+  OPERATOR_WALLET_CANDIDATE:{ label:'OPERATOR CANDIDATE', sev:'high' },
+  LIKELY_DEPLOYER:          { label:'LIKELY DEPLOYER',    sev:'high' },
+  SWARM_CONFIRMED:          { label:'SWARM CONFIRMED',    sev:'medium' },
   // Infrastructure
   EXTRACTION_WAVE:          { label:'EXTRACTION WAVE',    sev:'critical' },
   PROFIT_SWEEP_EPOCH:       { label:'PROFIT SWEEP',       sev:'high' },
@@ -4170,12 +4337,16 @@ function buildFeedItem(ev) {
   // Chip type
   const chipType = type.includes('CREATOR') ? 'creator' :
                    type.includes('SWARM')   ? 'trader'  :
+                   type.includes('OPERATOR')||type.includes('DEPLOYER') ? 'subprov' :
                    type.includes('TREASURY')||type.includes('SUBPROV') ? 'subprov' : 'default';
 
   // Label text
   let bodyText = ev.label || ev.detail || '';
   if (!bodyText) {
     if (type==='FEE_SWEEP') bodyText = `${ev.payer_count||0} payers · ${(ev.total_sol||0).toFixed(3)}◎`;
+    else if (type==='OPERATOR_WALLET_CANDIDATE') { const p=ev.payload||{}; bodyText = `${(p.treasury_sol||0).toFixed(0)}◎ outbound — operator watch started`; }
+    else if (type==='LIKELY_DEPLOYER') { const p=ev.payload||{}; bodyText = `gas ${(p.gas_sol||0).toFixed(4)}◎ · operator ${fmtAddr(p.operator||'')} · TTL 30m`; }
+    else if (type==='SWARM_CONFIRMED') { const p=ev.payload||{}; bodyText = `${p.wallet_count||0} wallets · mint ${fmtAddr(p.mint||'?')}`; }
     else if (score>0) bodyText = `Score: ${score}/100`;
     else bodyText = type.replace(/_/g,' ').toLowerCase();
   }
@@ -4265,6 +4436,9 @@ async function refreshFeed() {
       TREASURY_FANOUT:           7,
       RELAY_ACTIVE:              6,
       SWARM_SYNC:                5,
+      OPERATOR_WALLET_CANDIDATE: 7,
+      LIKELY_DEPLOYER:           7,
+      SWARM_CONFIRMED:           5,
       TRADER_SWARM_DETECTED:     5,
       SPECULATION_EXECUTOR:      5,
       ARB_EXECUTOR:              4,
@@ -5269,11 +5443,13 @@ async function boot() {
   // Initial loads
   await Promise.all([
     refreshMetrics(),
+    refreshTempo(),
     refreshCampaigns(),
     refreshCorridors(),
     refreshFeed(),
     refreshSwarms(),
     refreshSweeps(),
+    refreshOpLaunches(),
   ]);
   markPollSuccess();
 
@@ -5298,11 +5474,13 @@ async function boot() {
 
   // Poll intervals — wrapped to track health
   setInterval(()=>_poll(refreshMetrics),          WT.POLL_METRICS);
+  setInterval(()=>_poll(refreshTempo),            WT.POLL_METRICS);
   setInterval(()=>_poll(refreshCampaigns).then(()=>{ addHeartbeatBars(); applyNodeShimmer(OPS.state, OPS.extraction); }), WT.POLL_CAMPAIGNS);
   setInterval(()=>_poll(refreshCorridors),        15_000);   // same cadence as ops-overview
   setInterval(()=>_poll(refreshFeed),             WT.POLL_EVENTS);
   setInterval(async ()=>{ await wtGraph.refresh(); addTreasuryRings(); updateGraphStatus(LIVE.graphNodeCount); refreshOpsOverview(); }, WT.POLL_GRAPH);
   setInterval(()=>_poll(refreshSwarms),           WT.POLL_SWARMS);
+  setInterval(()=>_poll(refreshOpLaunches),        30_000);
   setInterval(()=>_poll(refreshSweeps),           WT.POLL_SWEEPS);
   setInterval(refreshWebhookStatus, 60_000);
   refreshWebhookStatus();

@@ -25816,45 +25816,106 @@ def api_wt_tempo():
     instead of an inflated single number.
     """
     import time as _t, json as _json
-    conn = db_connect(DB_PATH, timeout=5)
+    from src.analysis import watchtower_detector as _wt
+    # Read-only connection: this is a pure-read aggregation; mode=ro doesn't queue
+    # behind the single-writer lock (the listener is write-heavy), which otherwise
+    # made the endpoint time out under contention.
+    conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=8)
     conn.row_factory = sqlite3.Row
 
-    # Category split of all watchtower_related creators (the honest composition).
-    cat_counts = {}
-    for r in conn.execute(
-        "SELECT evidence_basis FROM creator_risk_scores "
-        "WHERE watchtower_related = 1 AND evidence_basis IS NOT NULL"
-    ).fetchall():
-        try:
-            cat = _json.loads(r['evidence_basis']).get('category') or 'UNCATEGORIZED'
-        except Exception:
-            cat = 'UNCATEGORIZED'
-        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+    # ── AUDITED categories computed at query time ─────────────────────────────
+    # The stored evidence_basis.category is unreliable (labels by wallet-type, not
+    # flow-direction/outcome — proven: 117 launched but only 19 carry LAUNCH_*;
+    # 69 "extraction" launchers were only 2/69 strong; relay→creator funding was
+    # mislabeled as extraction). We recompute honestly from the signals:
+    #   LAUNCH_CONFIRMED     migrated AND lineage reaches TREASURY/root/hub/signaller
+    #   LAUNCH_RELAY_LINKED  migrated, but ONLY relay attribution (weak)
+    #   RELAY_FUNDED_DORMANT  relay→creator funding, never launched (the reservoir)
+    #   PROFIT_EXTRACTION    creator→relay (profit out), never launched
+    #   COLLECTOR_FLOW       collector-linked, not above
+    #   OTHER_RELATED        anything else watchtower_related
+    RELAYS = ('4LpEjcq3PwkE9Hwt1xLdYHCxyNYB13wEahUPCRkzZa9Q',
+              '7UyCwmSUcG7utdSPikn5caL9QwbEnAs1aDcbdWvGs37A',
+              'N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7',
+              '5GZvPqYggF9HS59xBazaTVogMGyCmdMV3sE4oWzJv5Y7')
+    rph = ",".join("?" * len(RELAYS))
+    LAUNCH_INFRA = {a for a, l in _wt.WATCHTOWER_INFRASTRUCTURE.items()
+                    if l.startswith(('TREASURY', 'WATCHTOWER', 'DEPLOYER', 'SIGNALLER'))}
+    try:
+        HUBS = {r[0] for r in conn.execute(
+            "SELECT hub_address FROM wt_provisioning_hubs WHERE status='CONFIRMED'")}
+    except Exception:
+        HUBS = set()
+    strong_set = LAUNCH_INFRA | HUBS
 
-    launch_cats = ('LAUNCH_PROVISIONING', 'LAUNCH_DIRECT')
-    extraction_cats = ('EXTRACTION_PROFIT_RELAY',)
-    launch_side = sum(cat_counts.get(c, 0) for c in launch_cats)
-    extraction_side = sum(cat_counts.get(c, 0) for c in extraction_cats)
-    collector_side = cat_counts.get('COLLECTOR_FLOW', 0)
-    total = sum(cat_counts.values())
+    # Set-based: build per-creator boolean sets with a few aggregate queries
+    # (a per-creator Python loop times out under listener lock contention).
+    wt_creators = {r[0] for r in conn.execute(
+        "SELECT creator_address FROM creator_risk_scores WHERE watchtower_related=1").fetchall()}
 
-    # Daily launch tempo (provisioning + direct) by token migration date, last 14d.
+    def _members(sql, params=()):
+        return {r[0] for r in conn.execute(sql, params).fetchall() if r[0] in wt_creators}
+
+    sph = ",".join("?" * len(strong_set)) if strong_set else "''"
+    launched = _members(
+        "SELECT DISTINCT COALESCE(earliest_tx_creator,pf_ws_creator) FROM token_analysis "
+        "WHERE migrated_at IS NOT NULL")
+    strong = _members(
+        f"SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address IN ({sph})",
+        list(strong_set)) if strong_set else set()
+    relay_funded = _members(
+        f"SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address IN ({rph})",
+        list(RELAYS))
+    try:
+        relay_paid = _members(
+            f"SELECT DISTINCT creator_address FROM creator_outgoing_transfers "
+            f"WHERE recipient_address IN ({rph})", list(RELAYS))
+    except Exception:
+        relay_paid = set()
+    coll_addrs = [a for a, l in _wt.WATCHTOWER_INFRASTRUCTURE.items()
+                  if l.startswith(('COLLECTOR', 'AGGREGATOR'))]
+    cph = ",".join("?" * len(coll_addrs)) if coll_addrs else "''"
+    collector_funded = _members(
+        f"SELECT DISTINCT creator_address FROM creator_funders WHERE funder_address IN ({cph})",
+        coll_addrs) if coll_addrs else set()
+
+    cat_counts = {'LAUNCH_CONFIRMED': 0, 'LAUNCH_RELAY_LINKED': 0,
+                  'RELAY_FUNDED_DORMANT': 0, 'PROFIT_EXTRACTION': 0,
+                  'COLLECTOR_FLOW': 0, 'OTHER_RELATED': 0}
+    for cr in wt_creators:
+        if cr in launched and cr in strong:
+            cat_counts['LAUNCH_CONFIRMED'] += 1
+        elif cr in launched and cr in relay_funded:
+            cat_counts['LAUNCH_RELAY_LINKED'] += 1
+        elif cr in relay_funded:
+            cat_counts['RELAY_FUNDED_DORMANT'] += 1
+        elif cr in relay_paid:
+            cat_counts['PROFIT_EXTRACTION'] += 1
+        elif cr in collector_funded:
+            cat_counts['COLLECTOR_FLOW'] += 1
+        else:
+            cat_counts['OTHER_RELATED'] += 1
+
+    # Daily confirmed-launch tempo (launched ∩ strong) by migration date, 14d.
+    cutoff_14d = int(_t.time()) - 14 * 86400
     daily = {}
-    for r in conn.execute(
-        "SELECT date(ta.migrated_at,'unixepoch') day, "
-        "  json_extract(crs.evidence_basis,'$.category') cat, "
-        "  COUNT(DISTINCT crs.creator_address) n "
-        "FROM creator_risk_scores crs "
-        "JOIN token_analysis ta ON COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator)=crs.creator_address "
-        "WHERE crs.watchtower_related=1 "
-        "  AND json_extract(crs.evidence_basis,'$.category') IN ('LAUNCH_PROVISIONING','LAUNCH_DIRECT') "
-        "  AND ta.migrated_at >= ? "
-        "GROUP BY day, cat ORDER BY day DESC",
-        (int(_t.time()) - 14 * 86400,),
-    ).fetchall():
-        d = daily.setdefault(r['day'], {'LAUNCH_PROVISIONING': 0, 'LAUNCH_DIRECT': 0})
-        if r['cat'] in d:
-            d[r['cat']] = r['n']
+    confirmed = launched & strong
+    if confirmed:
+        cph2 = ",".join("?" * len(confirmed))
+        for r in conn.execute(
+            f"SELECT date(migrated_at,'unixepoch') day, "
+            f"COUNT(DISTINCT COALESCE(earliest_tx_creator,pf_ws_creator)) n "
+            f"FROM token_analysis WHERE migrated_at >= ? "
+            f"AND COALESCE(earliest_tx_creator,pf_ws_creator) IN ({cph2}) "
+            f"GROUP BY day", [cutoff_14d, *confirmed]).fetchall():
+            daily[r[0]] = r[1]
+
+    launch_side = cat_counts['LAUNCH_CONFIRMED']
+    launch_relay_linked = cat_counts['LAUNCH_RELAY_LINKED']
+    relay_dormant = cat_counts['RELAY_FUNDED_DORMANT']
+    extraction_side = cat_counts['PROFIT_EXTRACTION']
+    collector_side = cat_counts['COLLECTOR_FLOW']
+    total = len(wt_creators)
 
     # Provisioning hubs by birth date.
     hubs_by_day = [dict(r) for r in conn.execute(
@@ -25870,18 +25931,23 @@ def api_wt_tempo():
 
     return jsonify({
         'related_total': total,
-        'launch_side': launch_side,
-        'extraction_side': extraction_side,
+        'launch_confirmed': launch_side,          # migrated + strong infra/hub lineage
+        'launch_relay_linked': launch_relay_linked,  # migrated, relay-only (weak attribution)
+        'relay_funded_dormant': relay_dormant,    # the reservoir — funded, not launched
+        'profit_extraction': extraction_side,     # creator -> relay (true extraction)
         'collector_side': collector_side,
+        'other_related': cat_counts['OTHER_RELATED'],
         'category_breakdown': cat_counts,
-        'daily_launch_tempo': [
-            {'day': d, **v} for d, v in sorted(daily.items(), reverse=True)
+        'daily_confirmed_launches': [
+            {'day': d, 'n': n} for d, n in sorted(daily.items(), reverse=True)
         ],
         'hubs_by_day': hubs_by_day,
         'confirmed_hubs': confirmed_hubs,
         'armed_operations': armed,
-        'note': ('launch_side = LAUNCH_PROVISIONING+LAUNCH_DIRECT (real activity); '
-                 'extraction_side = profit-relay attribution (not launches)'),
+        'note': ('launch_confirmed = migrated + strong (TREASURY/root/hub/signaller) lineage; '
+                 'launch_relay_linked = migrated but relay-only (weak); '
+                 'relay_funded_dormant = reservoir (funded, not launched); '
+                 'profit_extraction = creator->relay only'),
     })
 
 

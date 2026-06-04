@@ -2194,17 +2194,25 @@ line.edge-active {
   <!-- ══ WATCHTOWER TEMPO — honest activity breakdown (launch vs attribution) ══ -->
   <div id="wt-tempo-card" style="grid-column:1/-1;background:var(--bg-secondary,#12151c);border:1px solid rgba(56,189,248,0.25);border-radius:10px;padding:12px 16px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;font-size:12px;">
     <div style="font-weight:600;color:#38bdf8;letter-spacing:0.5px;">WATCHTOWER TEMPO</div>
-    <div title="LAUNCH_PROVISIONING + LAUNCH_DIRECT — the real launch signal">
-      <span style="color:var(--txt-muted,#8b949e);">Launch-side</span>
+    <div title="migrated AND strong lineage (TREASURY/root/hub/signaller) — confirmed WATCHTOWER launches">
+      <span style="color:var(--txt-muted,#8b949e);">Launch confirmed</span>
       <span id="tempo-launch" style="font-size:18px;font-weight:700;color:#22c55e;margin-left:6px;">–</span>
     </div>
-    <div title="profit-relay attribution — NOT launches">
-      <span style="color:var(--txt-muted,#8b949e);">Extraction-side</span>
-      <span id="tempo-extract" style="font-size:18px;font-weight:700;color:#f59e0b;margin-left:6px;">–</span>
+    <div title="migrated but ONLY relay attribution — weak; launched, not confirmed WATCHTOWER">
+      <span style="color:var(--txt-muted,#8b949e);">Relay-linked launches</span>
+      <span id="tempo-relaylinked" style="font-size:15px;font-weight:600;color:#eab308;margin-left:6px;">–</span>
+    </div>
+    <div title="relay-funded wallets that have NOT launched — the reservoir / watchlist">
+      <span style="color:var(--txt-muted,#8b949e);">Relay-funded dormant</span>
+      <span id="tempo-dormant" style="font-size:18px;font-weight:700;color:#38bdf8;margin-left:6px;">–</span>
+    </div>
+    <div title="creator -> relay (true profit extraction)">
+      <span style="color:var(--txt-muted,#8b949e);">Extraction</span>
+      <span id="tempo-extract" style="font-size:15px;font-weight:600;color:#f59e0b;margin-left:6px;">–</span>
     </div>
     <div title="collector-linked">
       <span style="color:var(--txt-muted,#8b949e);">Collector</span>
-      <span id="tempo-collector" style="font-size:16px;font-weight:600;color:#a78bfa;margin-left:6px;">–</span>
+      <span id="tempo-collector" style="font-size:14px;font-weight:600;color:#a78bfa;margin-left:6px;">–</span>
     </div>
     <div title="all watchtower_related — attribution total, NOT activity">
       <span style="color:var(--txt-muted,#8b949e);">Related (total)</span>
@@ -3403,16 +3411,15 @@ async function refreshTempo() {
     const t = await fetch('/api/watchtower/tempo').then(r=>r.ok?r.json():null);
     if (!t) return;
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-    set('tempo-launch',    t.launch_side ?? 0);
-    set('tempo-extract',   t.extraction_side ?? 0);
-    set('tempo-collector', t.collector_side ?? 0);
-    set('tempo-total',     t.related_total ?? 0);
-    set('tempo-hubs',      t.confirmed_hubs ?? 0);
-    set('tempo-armed',     t.armed_operations ?? 0);
-    const days = (t.daily_launch_tempo||[]).slice(0,4).map(d=>{
-      const n=(d.LAUNCH_PROVISIONING||0)+(d.LAUNCH_DIRECT||0);
-      return `${(d.day||'').slice(5)}: ${n}`;
-    });
+    set('tempo-launch',      t.launch_confirmed ?? 0);
+    set('tempo-relaylinked', t.launch_relay_linked ?? 0);
+    set('tempo-dormant',     t.relay_funded_dormant ?? 0);
+    set('tempo-extract',     t.profit_extraction ?? 0);
+    set('tempo-collector',   t.collector_side ?? 0);
+    set('tempo-total',       t.related_total ?? 0);
+    set('tempo-hubs',        t.confirmed_hubs ?? 0);
+    set('tempo-armed',       t.armed_operations ?? 0);
+    const days = (t.daily_confirmed_launches||[]).slice(0,4).map(d=>`${(d.day||'').slice(5)}: ${d.n}`);
     set('tempo-daily', days.length ? days.join('  ·  ') : 'none');
   } catch(e) { /* non-fatal */ }
 }

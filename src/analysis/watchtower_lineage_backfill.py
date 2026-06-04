@@ -108,29 +108,42 @@ def compute_promotions(conn: sqlite3.Connection, creators: set[str]) -> dict:
 
 
 def _upsert_statements(apply_rows: list[dict]) -> list[tuple[str, list]]:
+    """
+    Build the persist statements as (UPDATE, then INSERT-if-missing) PAIRS.
+
+    Deliberately NOT a single `INSERT … ON CONFLICT DO UPDATE`: creator_risk_scores
+    has AFTER INSERT/UPDATE triggers that do `INSERT OR REPLACE INTO
+    token_rescore_queue`. When the firing statement carries an ON CONFLICT clause,
+    SQLite propagates that conflict policy into the trigger body, downgrading the
+    trigger's REPLACE to ABORT → "UNIQUE constraint failed: token_rescore_queue.mint"
+    whenever the rescore-queue row already exists. A plain UPDATE (no conflict
+    clause) lets the trigger's REPLACE work normally. All 94 rows pre-exist, so the
+    UPDATE is the hot path; the guarded INSERT covers the rare missing row.
+    """
     now = int(time.time())
-    sql = (
+    upd = (
+        "UPDATE creator_risk_scores SET "
+        "  watchtower_related=?, watchtower_evidence_json=?, "
+        "  watchtower_checked_at=?, evidence_grade=?, evidence_basis=? "
+        "WHERE creator_address=?"
+    )
+    ins = (
         "INSERT INTO creator_risk_scores "
         "(creator_address, watchtower_related, watchtower_evidence_json, "
         " watchtower_checked_at, evidence_grade, evidence_basis) "
-        "VALUES (?, ?, ?, ?, ?, ?) "
-        "ON CONFLICT(creator_address) DO UPDATE SET "
-        "  watchtower_related=excluded.watchtower_related, "
-        "  watchtower_evidence_json=excluded.watchtower_evidence_json, "
-        "  watchtower_checked_at=excluded.watchtower_checked_at, "
-        "  evidence_grade=excluded.evidence_grade, "
-        "  evidence_basis=excluded.evidence_basis"
+        "SELECT ?, ?, ?, ?, ?, ? "
+        "WHERE NOT EXISTS (SELECT 1 FROM creator_risk_scores WHERE creator_address=?)"
     )
-    stmts = []
+    stmts: list[tuple[str, list]] = []
     for r in apply_rows:
         category = wt._category_for(r["evidence"])
         basis_json = json.dumps(
             {"method": r["basis"], "category": category, "graded_at": str(now)}
         )
-        stmts.append((sql, [
-            r["creator"], 1, json.dumps(r["evidence"]), now,
-            r["grade"], basis_json,
-        ]))
+        ev_json = json.dumps(r["evidence"])
+        stmts.append((upd, [1, ev_json, now, r["grade"], basis_json, r["creator"]]))
+        stmts.append((ins, [r["creator"], 1, ev_json, now, r["grade"], basis_json,
+                            r["creator"]]))
     return stmts
 
 

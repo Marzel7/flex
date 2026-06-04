@@ -30264,11 +30264,23 @@ def _run_watch_pipeline(conn: sqlite3.Connection) -> dict:
     # Creator-layer WATCHTOWER refresh (scoped) — runs after operation discovery so
     # op members are available as candidates. Distinct from the operation layer.
     wt_creator_refresh = _refresh_watchtower_creators(conn)
+    # Reservoir tracking: populate new relay-funded dormant wallets + update their
+    # conversion status (DORMANT→LAUNCHED). Measures whether profit-relay funding is
+    # a pre-launch reservoir — a falsifiable hypothesis, currently 71 funded / 0
+    # launched. Non-fatal if the module/edge data isn't present.
+    reservoir_stats = None
+    try:
+        from src.analysis import watchtower_reservoir as _wtr
+        _wtr.populate(conn)
+        reservoir_stats = _wtr.refresh(conn)
+    except Exception as _re:
+        print(f"[WATCHTOWER] reservoir tracking error: {_re}", flush=True)
     queued = _enqueue_hub_backfill(conn)
     proposals = _propose_identity_changes(conn)
     return {"total": total, "classified": counts, "clusters_built": clusters,
             "operations": operations, "backfill_queued": queued,
-            "identity_proposals": proposals, "wt_creator_refresh": wt_creator_refresh}
+            "identity_proposals": proposals, "wt_creator_refresh": wt_creator_refresh,
+            "reservoir": reservoir_stats}
 
 
 # ── Worker heartbeat helpers ──────────────────────────────────────────────────

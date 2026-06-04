@@ -30120,6 +30120,37 @@ def _refresh_watchtower_creators(conn: sqlite3.Connection) -> dict:
         except Exception:
             pass
 
+    # Rule 5: LATE-RESOLVED creators — closes the creator-attribution race.
+    # A token can migrate as PENDING_CREATOR (no creator yet); by the time the
+    # creator resolves, the token's migrated_at may be >48h old, so Rule 1 never
+    # re-picks it and the WATCHTOWER check never runs. Key off resolution instead
+    # of migration age: a token whose creator IS now resolved (creator_resolved_slot
+    # NOT NULL) but whose creator has either never been WT-checked, or was checked
+    # BEFORE the creator was resolved (so the check ran without a creator and is
+    # stale). Bounded to recently-active tokens (last 14d) to avoid a full-table
+    # scan over historical NULL-creator rows. Closes both the $Champions (late infra
+    # edge) and PENDING_CREATOR (late creator address) timing holes.
+    cutoff_14d = now - 14 * 86400
+    try:
+        for r in conn.execute(
+            "SELECT DISTINCT COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) c "
+            "FROM token_analysis ta "
+            "LEFT JOIN creator_risk_scores crs "
+            "  ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) "
+            "WHERE ta.creator_resolved_slot IS NOT NULL "
+            "  AND COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IS NOT NULL "
+            "  AND (ta.first_observed_at >= ? OR ta.migrated_at >= ?) "
+            "  AND ("
+            "       crs.watchtower_checked_at IS NULL "
+            "       OR crs.watchtower_checked_at < ta.migrated_at"
+            "  )",
+            (cutoff_14d, cutoff_14d),
+        ).fetchall():
+            if r[0]:
+                candidates.add(r[0])
+    except Exception:
+        pass
+
     candidates.discard(None)
     checked = 0
     newly_flagged = 0

@@ -77,6 +77,32 @@ CONFIRMED_FINGERPRINT_BATCHES = [
     ("%.20303928", "May 2026 provisioning batch (.20303928 fingerprint)"),
 ]
 
+# ── Lineage-aware Rule 2 configuration ────────────────────────────────────────
+# Max funding-ancestry hops to walk when looking for WATCHTOWER infra upstream.
+# Capped hard: the confirmed topology is creator ← burner ← hub ← TREASURY (3 hops).
+LINEAGE_MAX_DEPTH = 3
+# Branching cap per node — follow only the largest-SOL funders to avoid fanning
+# into the whole graph (and to skip dust/noise edges).
+LINEAGE_TOP_FUNDERS = 4
+# Ignore funding edges below this (dust pings, rent) when walking ancestry.
+LINEAGE_MIN_EDGE_SOL = 0.001
+
+# Provisioning-hub birth signature (for the auto-discovery / signature rule).
+HUB_TREASURY_AMOUNTS = (700.0, 800.0)
+HUB_TREASURY_TOLERANCE = 5.0          # SOL — treasury injection band per tier
+HUB_SIGNALLER_WINDOW_S = 120          # both signaller dust pings within 120s of birth
+_SIGNALLER_2 = "44o1Hecb4QUhqcRNYJBC6XZoeHWzkWAvenR5YYHRGbFM"
+
+# Service / CEX / infra-internal addresses that must NOT be treated as lineage
+# pass-throughs (walking through them would attribute unrelated wallets). Includes
+# the System Program and well-known hot wallets; CEX rows are also filtered via the
+# creator_funders.is_cex flag at query time.
+_LINEAGE_STOP_NODES: frozenset[str] = frozenset({
+    "11111111111111111111111111111111",                # System Program
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",     # SPL Token program
+    "ComputeBudget111111111111111111111111111111",
+})
+
 
 # ── Schema bootstrap ──────────────────────────────────────────────────────────
 
@@ -127,7 +153,288 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_ta_watchtower "
         "ON token_analysis(watchtower_related) WHERE watchtower_related = 1"
     )
+
+    # Provisioning-hub layer (ephemeral, rotating, auto-discoverable). Kept OUT of
+    # the static WATCHTOWER_INFRASTRUCTURE constant on purpose — hubs rotate per
+    # launch, so they belong in a revocable table, not a hardcoded set. Only rows
+    # with status='CONFIRMED' are treated as infra ancestry by lineage Rule 2.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS wt_provisioning_hubs (
+            hub_address        TEXT PRIMARY KEY,
+            treasury_amount    REAL,
+            treasury_ts        INTEGER,
+            signaller1_ts      INTEGER,
+            signaller2_ts      INTEGER,
+            born_at            INTEGER,
+            creator_seed_count INTEGER NOT NULL DEFAULT 0,
+            create_count       INTEGER NOT NULL DEFAULT 0,
+            confidence         REAL    NOT NULL DEFAULT 0,
+            status             TEXT    NOT NULL DEFAULT 'CANDIDATE',  -- CANDIDATE | CONFIRMED | RETIRED
+            discovered_at      INTEGER,
+            last_seen_at       INTEGER,
+            evidence_json      TEXT
+        )
+        """
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_wph_status "
+        "ON wt_provisioning_hubs(status) WHERE status = 'CONFIRMED'"
+    )
     conn.commit()
+
+
+# ── Provisioning-hub layer & lineage walk ─────────────────────────────────────
+
+def discover_provisioning_hubs(
+    conn: sqlite3.Connection,
+    since_ts: Optional[int] = None,
+    promote: bool = True,
+) -> list[dict]:
+    """
+    Auto-discover provisioning hubs from ALREADY-INDEXED edges (no RPC).
+
+    A wallet is a provisioning hub if its funding signature matches:
+      • received 700 or 800 SOL (±HUB_TREASURY_TOLERANCE) from TREASURY, AND
+      • received BOTH signaller dust pings (SIGNALLER + SIGNALLER_2).
+
+    Signaller-window timing (≤HUB_SIGNALLER_WINDOW_S) is enforced only when
+    transfer_index timestamps are available; absent timestamps fall back to
+    "both signallers present" (the live worker indexes the timing). The 700/800
+    amount ALONE never qualifies — the dual-signaller pings are required, per the
+    safety rule that amount-only must not classify.
+
+    Returns the list of newly-promoted hub dicts. If promote=True, upserts each as
+    status='CONFIRMED' in wt_provisioning_hubs.
+    """
+    treasury_filter = ""
+    params: list = [_TREASURY, *HUB_TREASURY_AMOUNTS]
+    bands = " OR ".join(["ABS(amount_sol - ?) <= ?"] * len(HUB_TREASURY_AMOUNTS))
+    band_params: list = []
+    for amt in HUB_TREASURY_AMOUNTS:
+        band_params += [amt, HUB_TREASURY_TOLERANCE]
+    if since_ts is not None:
+        treasury_filter = "AND first_detected_at >= ?"
+
+    # Candidate hubs = wallets that received a 700/800 SOL injection from TREASURY.
+    sql = (
+        "SELECT DISTINCT creator_address FROM creator_funders "
+        "WHERE funder_address = ? AND (" + bands + ") " + treasury_filter
+    )
+    q_params = [_TREASURY, *band_params]
+    if since_ts is not None:
+        q_params.append(since_ts)
+    candidates = [r[0] for r in conn.execute(sql, q_params).fetchall()]
+
+    promoted: list[dict] = []
+    now = int(time.time())
+    for hub in candidates:
+        funders = {
+            r[0]: r[1]
+            for r in conn.execute(
+                "SELECT funder_address, amount_sol FROM creator_funders "
+                "WHERE creator_address = ?",
+                (hub,),
+            ).fetchall()
+        }
+        tre_amt = funders.get(_TREASURY)
+        if tre_amt is None:
+            continue
+        # Require BOTH signaller dust pings — amount alone is never sufficient.
+        if _SIGNALLER not in funders or _SIGNALLER_2 not in funders:
+            continue
+
+        # Optional timing check via transfer_index, when timestamps exist.
+        s1_ts = _edge_ts(conn, _SIGNALLER, hub)
+        s2_ts = _edge_ts(conn, _SIGNALLER_2, hub)
+        tre_ts = _edge_ts(conn, _TREASURY, hub)
+        if tre_ts and s1_ts and s2_ts:
+            if max(abs(s1_ts - tre_ts), abs(s2_ts - tre_ts)) > HUB_SIGNALLER_WINDOW_S:
+                continue  # signallers not within the birth window → not a hub
+
+        evidence = {
+            "method": "provisioning_hub_birth_signature",
+            "treasury_amount": tre_amt,
+            "dual_signaller": True,
+            "signaller_window_verified": bool(tre_ts and s1_ts and s2_ts),
+            "discovered_from": "indexed_edges",
+        }
+        if promote:
+            conn.execute(
+                """
+                INSERT INTO wt_provisioning_hubs
+                    (hub_address, treasury_amount, treasury_ts, signaller1_ts,
+                     signaller2_ts, born_at, confidence, status,
+                     discovered_at, last_seen_at, evidence_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, ?, ?)
+                ON CONFLICT(hub_address) DO UPDATE SET
+                    status        = 'CONFIRMED',
+                    treasury_amount = excluded.treasury_amount,
+                    last_seen_at  = excluded.last_seen_at,
+                    evidence_json = excluded.evidence_json
+                """,
+                (hub, tre_amt, tre_ts, s1_ts, s2_ts, tre_ts, 1.0,
+                 now, now, json.dumps(evidence)),
+            )
+        promoted.append({"hub_address": hub, **evidence})
+    if promote and promoted:
+        conn.commit()
+    return promoted
+
+
+def _edge_ts(conn: sqlite3.Connection, source: str, dest: str) -> Optional[int]:
+    """Earliest block_time of a source→dest edge in transfer_index, or None."""
+    try:
+        row = conn.execute(
+            "SELECT MIN(block_time) FROM transfer_index "
+            "WHERE source = ? AND destination = ? AND is_valid = 1",
+            (source, dest),
+        ).fetchone()
+    except sqlite3.OperationalError:
+        return None
+    return row[0] if row and row[0] else None
+
+
+def load_confirmed_hubs(conn: sqlite3.Connection) -> dict[str, dict]:
+    """
+    Return {hub_address: {metadata}} for CONFIRMED provisioning hubs.
+
+    These are treated as WATCHTOWER infra ancestry by lineage Rule 2, but are kept
+    in a table (not the static constant) because hubs are ephemeral and rotate.
+    Returns {} if the table doesn't exist yet (pre-migration).
+    """
+    try:
+        rows = conn.execute(
+            "SELECT hub_address, treasury_amount, born_at, confidence "
+            "FROM wt_provisioning_hubs WHERE status = 'CONFIRMED'"
+        ).fetchall()
+    except sqlite3.OperationalError:
+        return {}
+    return {
+        r[0]: {"treasury_amount": r[1], "born_at": r[2], "confidence": r[3]}
+        for r in rows
+    }
+
+
+def _funders_of(
+    addr: str,
+    conn: sqlite3.Connection,
+    infra: frozenset[str],
+) -> list[tuple[str, float, str]]:
+    """
+    Funding ancestors of `addr` from indexed DB tables, largest-SOL first.
+
+    Sources: creator_funders (direct, with CEX flag) ∪ transfer_index (inbound).
+    Returns [(funder_address, amount_sol, source_table)]. CEX-flagged funders and
+    known service/stop nodes are excluded UNLESS they are themselves WATCHTOWER
+    infra (we never want to skip a real infra terminal).
+    """
+    agg: dict[str, tuple[float, str]] = {}
+
+    for funder, amount, is_cex in conn.execute(
+        "SELECT funder_address, amount_sol, is_cex FROM creator_funders "
+        "WHERE creator_address = ?",
+        (addr,),
+    ).fetchall():
+        if not funder or funder == addr:
+            continue
+        if funder not in infra and (is_cex or funder in _LINEAGE_STOP_NODES):
+            continue
+        amt = amount or 0.0
+        if amt < LINEAGE_MIN_EDGE_SOL and funder not in infra:
+            continue
+        prev = agg.get(funder)
+        if prev is None or amt > prev[0]:
+            agg[funder] = (amt, "creator_funders")
+
+    try:
+        ti_rows = conn.execute(
+            "SELECT source, amount_lamports FROM transfer_index "
+            "WHERE destination = ? AND is_valid = 1",
+            (addr,),
+        ).fetchall()
+    except sqlite3.OperationalError:
+        ti_rows = []
+    for source, lamports in ti_rows:
+        if not source or source == addr:
+            continue
+        if source not in infra and source in _LINEAGE_STOP_NODES:
+            continue
+        amt = (lamports or 0) / 1e9
+        if amt < LINEAGE_MIN_EDGE_SOL and source not in infra:
+            continue
+        prev = agg.get(source)
+        if prev is None or amt > prev[0]:
+            agg[source] = (amt, "transfer_index")
+
+    return sorted(
+        ((a, v[0], v[1]) for a, v in agg.items()),
+        key=lambda t: -t[1],
+    )
+
+
+def lineage_to_infra(
+    creator_address: str,
+    conn: sqlite3.Connection,
+    infra: frozenset[str],
+    hubs: dict[str, dict],
+    max_depth: int = LINEAGE_MAX_DEPTH,
+) -> Optional[dict]:
+    """
+    Walk funding ancestry up to `max_depth` hops looking for a WATCHTOWER terminal.
+
+    A terminal is any node in `infra` (static WATCHTOWER_INFRASTRUCTURE) OR any
+    CONFIRMED provisioning hub in `hubs`. Returns the first/shortest match as:
+        {"depth": int, "terminal": addr, "terminal_kind": "infra"|"hub",
+         "terminal_label": str, "path": [creator, …, terminal]}
+    or None if no terminal within `max_depth`.
+
+    Breadth-first so the shortest lineage wins. Branching is capped to the top
+    LINEAGE_TOP_FUNDERS by SOL at each node; visited-set prevents cycles.
+    """
+    # frontier holds (node, path_so_far); start one hop out from the creator
+    visited: set[str] = {creator_address}
+    frontier: list[tuple[str, list[str]]] = [(creator_address, [creator_address])]
+
+    for depth in range(1, max_depth + 1):
+        next_frontier: list[tuple[str, list[str]]] = []
+        for node, path in frontier:
+            for funder, _amt, _src in _funders_of(node, conn, infra)[:LINEAGE_TOP_FUNDERS]:
+                new_path = path + [funder]
+                if funder in infra:
+                    return {
+                        "depth": depth,
+                        "terminal": funder,
+                        "terminal_kind": "infra",
+                        "terminal_label": WATCHTOWER_INFRASTRUCTURE[funder],
+                        "path": new_path,
+                    }
+                if funder in hubs:
+                    return {
+                        "depth": depth,
+                        "terminal": funder,
+                        "terminal_kind": "hub",
+                        "terminal_label": f"PROVISIONING-HUB ({funder[:8]}…)",
+                        "path": new_path,
+                    }
+                if funder not in visited:
+                    visited.add(funder)
+                    next_frontier.append((funder, new_path))
+        frontier = next_frontier
+        if not frontier:
+            break
+    return None
+
+
+def _format_lineage_path(path: list[str], infra: frozenset[str], hubs: dict) -> str:
+    """Human-readable 'creator ← … ← TREASURY' chain for evidence detail."""
+    def lbl(a: str) -> str:
+        if a in WATCHTOWER_INFRASTRUCTURE:
+            return WATCHTOWER_INFRASTRUCTURE[a]
+        if a in hubs:
+            return f"HUB:{a[:6]}…"
+        return f"{a[:6]}…"
+    return " ← ".join(lbl(a) for a in path)
 
 
 # ── Core detection logic ──────────────────────────────────────────────────────
@@ -185,6 +492,38 @@ def detect_watchtower_linkage(
                         "strength": "weak",
                     })
                     break
+
+    # ── Rule 2-lineage: WATCHTOWER infra (or a CONFIRMED provisioning hub) in
+    #    the creator's funding ancestry within LINEAGE_MAX_DEPTH hops. This is the
+    #    fix for the post-May provisioning-hub topology, where the direct funder is
+    #    an ephemeral hub/burner rather than a static infra wallet:
+    #        creator ← burner ← HUB ← TREASURY
+    #    Only runs if the cheap direct checks above didn't already flag it.
+    if not strong_hit:
+        _hubs = load_confirmed_hubs(conn)
+        lineage = lineage_to_infra(creator_address, conn, _INFRA_SET, _hubs)
+        if lineage is not None:
+            path_str = _format_lineage_path(lineage["path"], _INFRA_SET, _hubs)
+            if lineage["terminal_kind"] == "hub":
+                detail = (
+                    f"Funding ancestry reaches CONFIRMED WATCHTOWER provisioning hub "
+                    f"{lineage['terminal'][:12]}… at depth {lineage['depth']}: {path_str}"
+                )
+            else:
+                detail = (
+                    f"Funding ancestry reaches WATCHTOWER {lineage['terminal_label']} "
+                    f"at depth {lineage['depth']}: {path_str}"
+                )
+            evidence.append({
+                "rule": "lineage_to_infrastructure",
+                "detail": detail,
+                "strength": "strong",
+                "lineage_depth": lineage["depth"],
+                "terminal": lineage["terminal"],
+                "terminal_kind": lineage["terminal_kind"],
+                "path": lineage["path"],
+            })
+            strong_hit = True
 
     # ── Rule 2b: creator previously funded another creator that is infra ──
     # (creator appears in second_hop_lite_queue with watchtower reason codes)
@@ -279,7 +618,13 @@ def detect_watchtower_linkage(
     except sqlite3.OperationalError:
         pass  # table may not exist yet
 
-    # ── Rule 5: funded with a known WATCHTOWER provisioning fingerprint
+    # ── Rule 5: funded with a known WATCHTOWER provisioning fingerprint ────
+    # SAFETY: a fingerprint amount ALONE is no longer a strong hit. Fingerprints
+    # are decimal coincidences that can appear on unrelated funding, so on their
+    # own they belong to the soft/weak tier. A fingerprint is only promoted to
+    # STRONG when it CORROBORATES an independent infra/lineage hit (i.e. another
+    # strong rule already fired for this creator). This is the
+    #   "fingerprint amount alone ≠ WATCHTOWER" rule.
     for like_pat, batch_label in CONFIRMED_FINGERPRINT_BATCHES:
         fingerprint_funder_row = conn.execute(
             "SELECT funder_address, amount_sol FROM creator_funders "
@@ -288,19 +633,115 @@ def detect_watchtower_linkage(
         ).fetchone()
         if fingerprint_funder_row:
             funder_addr, amount_sol = fingerprint_funder_row
+            paired = strong_hit  # an infra/lineage strong rule already fired
             evidence.append({
                 "rule": "confirmed_fingerprint_batch",
-                "detail": f"Funded with {amount_sol:.8f} SOL — matches WATCHTOWER "
-                          f"{batch_label} from {funder_addr[:20]}…",
-                "strength": "strong",
+                "detail": (
+                    f"Funded with {amount_sol:.8f} SOL — matches WATCHTOWER "
+                    f"{batch_label} from {funder_addr[:20]}… "
+                    + ("(corroborates infra/lineage evidence)" if paired
+                       else "(soft evidence — no infra/lineage lineage; not sufficient alone)")
+                ),
+                "strength": "strong" if paired else "weak",
             })
-            strong_hit = True
+            # Never sets strong_hit on its own — only corroborates.
             break  # one fingerprint match is enough
 
     return strong_hit, evidence
 
 
 # ── Persistence helpers ───────────────────────────────────────────────────────
+
+# Map the strongest evidence rule → (evidence_grade, evidence_basis). Order in the
+# dict is priority order: the first matching strong rule present wins.
+_RULE_BASIS: list[tuple[str, str, str]] = [
+    ("direct_infrastructure_wallet", "CONFIRMED", "DIRECT_INFRA"),
+    ("funded_by_infrastructure",     "CONFIRMED", "DIRECT_INFRA"),
+    ("watchtower_fee_payment",       "CONFIRMED", "FEE_PAYMENT"),
+    ("profit_relay_routing",         "STRONG",    "PROFIT_RELAY"),
+    ("lineage_to_infrastructure",    "STRONG",    "LINEAGE_RULE_2"),
+    ("watchtower_queue_tag",         "STRONG",    "QUEUE_TAG"),
+    ("signaller_activation_sequence","STRONG",    "SIGNALLER_SEQUENCE"),
+    ("signaller_dust",               "STRONG",    "SIGNALLER_DUST"),
+    ("confirmed_fingerprint_batch",  "STRONG",    "FINGERPRINT_BATCH"),
+]
+
+# Operational CATEGORY of a WATCHTOWER link — distinguishes "this creator was
+# launched by WATCHTOWER" from "this creator received WATCHTOWER profit flow
+# later". Without this, watchtower_related=TRUE conflates two very different
+# signals. Categories:
+#   LAUNCH_PROVISIONING    — funded via a provisioning hub (the new topology)
+#   LAUNCH_DIRECT          — funded directly by TREASURY/root/deployer/signaller
+#   EXTRACTION_PROFIT_RELAY— routed funds to/from a profit relay (extraction side)
+#   COLLECTOR_FLOW         — linked via a fee COLLECTOR wallet
+#   INFRA_OTHER            — infra-linked but none of the above
+CAT_LAUNCH_PROVISIONING   = "LAUNCH_PROVISIONING"
+CAT_LAUNCH_DIRECT         = "LAUNCH_DIRECT"
+CAT_EXTRACTION            = "EXTRACTION_PROFIT_RELAY"
+CAT_COLLECTOR             = "COLLECTOR_FLOW"
+CAT_INFRA_OTHER           = "INFRA_OTHER"
+
+# Which infra labels mean "launch side" vs "extraction/collector side".
+_LAUNCH_INFRA_PREFIXES    = ("TREASURY", "WATCHTOWER", "DEPLOYER", "SIGNALLER")
+
+
+def _infra_category(label: str) -> str:
+    """Map a terminal infra wallet's label → operational category."""
+    if label.startswith("PROFIT-RELAY"):
+        return CAT_EXTRACTION
+    if label.startswith("COLLECTOR") or label.startswith("AGGREGATOR"):
+        return CAT_COLLECTOR
+    if label.startswith(_LAUNCH_INFRA_PREFIXES):
+        return CAT_LAUNCH_DIRECT
+    return CAT_INFRA_OTHER
+
+
+def _category_for(evidence: list[dict]) -> Optional[str]:
+    """
+    Derive the operational category from the strongest evidence.
+
+    Lineage-to-a-hub is always LAUNCH_PROVISIONING. Otherwise the category is
+    taken from the terminal infra wallet's role (profit-relay vs treasury vs
+    collector). Returns None when no strong infra/lineage evidence is present.
+    """
+    by_rule = {e["rule"]: e for e in evidence if e.get("strength") == "strong"}
+
+    if "lineage_to_infrastructure" in by_rule:
+        e = by_rule["lineage_to_infrastructure"]
+        if e.get("terminal_kind") == "hub":
+            return CAT_LAUNCH_PROVISIONING
+        # lineage that terminates at a static infra wallet → categorize by it
+        return _infra_category(WATCHTOWER_INFRASTRUCTURE.get(e.get("terminal", ""), ""))
+
+    if "profit_relay_routing" in by_rule:
+        return CAT_EXTRACTION
+
+    for rule in ("direct_infrastructure_wallet", "funded_by_infrastructure"):
+        e = by_rule.get(rule)
+        if e:
+            # detail text carries the infra label; map via the known set instead
+            for addr, lbl in WATCHTOWER_INFRASTRUCTURE.items():
+                if addr[:20] in e.get("detail", "") or lbl in e.get("detail", ""):
+                    return _infra_category(lbl)
+            return CAT_INFRA_OTHER
+
+    if {"signaller_activation_sequence", "signaller_dust"} & set(by_rule):
+        return CAT_LAUNCH_DIRECT
+    return CAT_INFRA_OTHER
+
+
+def _grade_and_basis(
+    is_related: bool, evidence: list[dict]
+) -> tuple[Optional[str], Optional[str]]:
+    """Derive (evidence_grade, evidence_basis) from the strongest evidence present."""
+    if not is_related:
+        return None, None
+    strong_rules = {e["rule"] for e in evidence if e.get("strength") == "strong"}
+    for rule, grade, basis in _RULE_BASIS:
+        if rule in strong_rules:
+            return grade, basis
+    return "WEAK", "UNSPECIFIED"
+
 
 def _write_creator_result(
     conn: sqlite3.Connection,
@@ -310,17 +751,28 @@ def _write_creator_result(
 ) -> None:
     now = int(time.time())
     evidence_json = json.dumps(evidence) if evidence else None
+    grade, basis = _grade_and_basis(is_related, evidence)
+    category = _category_for(evidence) if is_related else None
+    # evidence_basis is a JSON column elsewhere in this schema; keep that shape.
+    # `category` distinguishes launch vs extraction so the flag stays explainable.
+    basis_json = (
+        json.dumps({"method": basis, "category": category, "graded_at": str(now)})
+        if basis else None
+    )
     conn.execute(
         """
         INSERT INTO creator_risk_scores (creator_address, watchtower_related,
-            watchtower_evidence_json, watchtower_checked_at)
-        VALUES (?, ?, ?, ?)
+            watchtower_evidence_json, watchtower_checked_at,
+            evidence_grade, evidence_basis)
+        VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT(creator_address) DO UPDATE SET
             watchtower_related        = excluded.watchtower_related,
             watchtower_evidence_json  = excluded.watchtower_evidence_json,
-            watchtower_checked_at     = excluded.watchtower_checked_at
+            watchtower_checked_at     = excluded.watchtower_checked_at,
+            evidence_grade            = excluded.evidence_grade,
+            evidence_basis            = excluded.evidence_basis
         """,
-        (creator_address, int(is_related), evidence_json, now),
+        (creator_address, int(is_related), evidence_json, now, grade, basis_json),
     )
 
 
@@ -383,6 +835,7 @@ def analyze_creator(
                 "signaller_dust":                  "Linked to known WATCHTOWER infrastructure",
                 "profit_relay_routing":            "WATCHTOWER-related — profits routed through relay",
                 "confirmed_fingerprint_batch":     "WATCHTOWER-related — April 2026 provisioning batch",
+                "lineage_to_infrastructure":       "WATCHTOWER-related — funding lineage to infrastructure",
             }
             label = label_map.get(rule, "Operationally related to WATCHTOWER")
 

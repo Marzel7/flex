@@ -9,6 +9,10 @@ Displays tokens that have migrated from Pump.Fun to PumpSwap with:
 - Current live prices
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 import sqlite3
 import json
 import requests
@@ -153,6 +157,14 @@ def _ensure_schema():
                final_verdict TEXT,
                created_at INTEGER
            )""",
+        "ALTER TABLE wt_sub_provisioners ADD COLUMN token_mint TEXT",
+        "ALTER TABLE wt_sub_provisioners ADD COLUMN token_symbol TEXT",
+        "ALTER TABLE wt_sub_provisioners ADD COLUMN traded_amount REAL",
+        "ALTER TABLE wt_sub_provisioners ADD COLUMN last_trade_tx TEXT",
+        "ALTER TABLE wt_sub_provisioners ADD COLUMN last_trade_at INTEGER",
+        "ALTER TABLE watchtower_infra_events ADD COLUMN token_mint TEXT",
+        "ALTER TABLE watchtower_infra_events ADD COLUMN token_symbol TEXT",
+        "ALTER TABLE watchtower_infra_events ADD COLUMN traded_amount REAL",
     ]
     # Fast check: if the last column we'd add already exists, all migrations have run — skip entirely.
     # Use raw db_connect() with no PRAGMAs — PRAGMA table_info is a read-only operation
@@ -192,6 +204,20 @@ sock = _Sock(app)
 
 # Suppress Werkzeug request logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+# Initialize WATCHTOWER CREATE Interceptor if enabled (runs once on module import, works with Gunicorn)
+if os.environ.get("ENABLE_CREATE_INTERCEPTOR", "").lower() == "true":
+    try:
+        def _init_interceptor():
+            time.sleep(2)  # Let DB settle
+            from src.core.watchtower.create_interceptor import start as start_interceptor
+            from src.core.watchtower.passive_validator import startup as init_validator
+            start_interceptor(db_path=DB_PATH)
+            init_validator()
+            print("[STARTUP] WATCHTOWER CREATE Interceptor ENABLED (mode=%s)" % os.environ.get("INTERCEPTOR_MODE", "ARMED"), flush=True)
+        threading.Thread(target=_init_interceptor, daemon=True).start()
+    except Exception as _e:
+        print(f"[STARTUP] CREATE Interceptor startup error (will continue without it): {_e}", flush=True)
 
 # Analysis result cache for background operations
 app.funder_analysis_cache = {}
@@ -808,30 +834,37 @@ def _wt_startup_once():
             return
         _wt_startup_done = True
     def _run():
-        try:
-            _c = db_connect(DB_PATH, timeout=15)
-            _ensure_watchtower_tables(_c)
-            # Seed wt_wallet_tier from _WT_INFRA_ROLES (idempotent, INSERT OR IGNORE)
-            for _addr, _role in _WT_INFRA_ROLES.items():
-                _tier = 1 if _role in ("SIGNALLER", "SUB_PROV") else 2
-                _c.execute("""
-                    INSERT OR IGNORE INTO wt_wallet_tier
-                        (wallet_address, tier, role, auto_classified)
-                    VALUES (?, ?, ?, 1)
-                """, (_addr, _tier, _role))
-            _c.commit()
-            _c.close()
-            global _wt_tables_ready
-            _wt_tables_ready = True
-            print(f"[STARTUP] Watchtower tables verified (pid={os.getpid()})", flush=True)
-            # Start WT workers — each gunicorn worker gets its own threads
-            _start_corridor_monitor_worker(DB_PATH)
-            _start_relay_counterparty_discovery_worker(DB_PATH)
-            _start_swarm_migration_scanner(DB_PATH)
-            _start_wt_infra_processor()
-            _start_wt_candidate_processor()
-        except Exception as _e:
-            print(f"[STARTUP] WT table init error: {_e}", flush=True)
+        import time as _t
+        _t.sleep(5)  # let listener settle before competing for write lock
+        for _attempt in range(20):
+            try:
+                _c = db_connect(DB_PATH, timeout=60)
+                _c.execute("PRAGMA busy_timeout=55000")
+                _ensure_watchtower_tables(_c)
+                for _addr, _role in _WT_INFRA_ROLES.items():
+                    _tier = 1 if _role in ("SIGNALLER", "SUB_PROV") else 2
+                    _c.execute("""
+                        INSERT OR IGNORE INTO wt_wallet_tier
+                            (wallet_address, tier, role, auto_classified)
+                        VALUES (?, ?, ?, 1)
+                    """, (_addr, _tier, _role))
+                _c.commit()
+                _c.close()
+                global _wt_tables_ready
+                _wt_tables_ready = True
+                print(f"[STARTUP] Watchtower tables verified (pid={os.getpid()})", flush=True)
+                _start_corridor_monitor_worker(DB_PATH)
+                _start_relay_counterparty_discovery_worker(DB_PATH)
+                _start_swarm_migration_scanner(DB_PATH)
+                _start_wt_infra_processor()
+                _start_wt_candidate_processor()
+                _start_wt_operator_ttl_reaper()
+                _start_hub_backfill_worker()
+                return
+            except Exception as _e:
+                print(f"[STARTUP] WT table init attempt {_attempt+1} failed: {_e} — retrying in 5s", flush=True)
+                _t.sleep(5)
+        print("[STARTUP] WT table init failed after 10 attempts — workers not started", flush=True)
     threading.Thread(target=_run, daemon=True, name="wt-gunicorn-startup").start()
 
 
@@ -4654,6 +4687,7 @@ HTML_TEMPLATE = """
             <a class="sidebar-item" href="/system-health" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; font-weight: bold;">💚 System Health</a>
             <hr style="margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
             <a class="sidebar-item" href="/launch-radar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: bold;">📊 Intelligence</a>
+            <a class="sidebar-item" href="/watchtower/interceptor" style="background: rgba(188,140,255,0.15); color: #d6bcff; font-weight: bold;">🎯 Interceptor</a>
         </nav>
     </div>
 
@@ -25375,6 +25409,343 @@ def watchtower_operational_intelligence():
 def watchtower_operators():
     return render_template("watchtower_operators.html", active_page='watchtower_operators')
 
+@app.route('/watchtower/candidate/<mint>')
+def watchtower_candidate_detail(mint: str):
+    return render_template("watchtower_candidate_detail.html", mint=mint, active_page='watchtower_operators')
+
+@app.route('/api/watchtower/candidate/<mint>/chain')
+def api_watchtower_candidate_chain(mint: str):
+    """Build the hop chain for a swarm candidate for diagram rendering."""
+    import os, requests as _req
+    rpc_url = os.environ.get('HELIUS_RPC_URL', '')
+
+    def rpc(method, params):
+        try:
+            r = _req.post(rpc_url, json={'jsonrpc':'2.0','id':1,'method':method,'params':params}, timeout=15)
+            return r.json().get('result')
+        except Exception:
+            return None
+
+    # Get candidate from DB — prefer wt_swarm_candidates, fall back to watch_candidate_tokens
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    cand = conn.execute('SELECT * FROM wt_swarm_candidates WHERE token_mint=?', (mint,)).fetchone()
+
+    # Synthesise a compatible cand dict from watch_candidate_tokens if not in swarm_candidates
+    if not cand:
+        wct = conn.execute('SELECT * FROM watch_candidate_tokens WHERE mint=?', (mint,)).fetchone()
+        if wct:
+            reason = wct['classification_reason'] or ''
+            classified = wct['classified_as']
+            cand = {
+                'token_mint':         mint,
+                'provisioner_wallet': None,
+                'treasury_wallet':    None,
+                'unique_buyers':      0,
+                'buy_window_s':       0,
+                'median_funding_sol': 0.0,
+                'prov_funding_sol':   None,
+                'operator_class':     classified,
+                'operation':          'WATCHTOWER' if classified == 'WATCHTOWER' else classified,
+                'wt_link':            None,
+                'evidence_json':      None,
+                'confidence':         wct['classification_conf'],
+                'state':              classified,
+                'cluster_id':         wct['cluster_id'],
+                '_from_watch_pipeline': True,
+                '_classification_reason': reason,
+                '_creator_address':   wct['creator_address'],
+            }
+
+    # Get token info
+    ta = conn.execute(
+        'SELECT pf_ws_creator, earliest_tx_creator, market_cap_highest, migrated_at FROM token_analysis WHERE mint=?',
+        (mint,)
+    ).fetchone()
+    tt = conn.execute('SELECT symbol FROM tracked_tokens WHERE mint=?', (mint,)).fetchone()
+    conn.close()
+
+    if not cand:
+        return jsonify({'error': 'candidate not found'}), 404
+
+    import json as _json
+    from_watch_pipeline = isinstance(cand, dict) and cand.get('_from_watch_pipeline')
+    ev = {} if from_watch_pipeline else _json.loads(cand['evidence_json'] or '{}')
+
+    nodes = []
+    links = []
+    seen = set()
+
+    def add_node(nid, label, addr, ntype, r=12, meta=''):
+        if nid not in seen:
+            seen.add(nid)
+            nodes.append({'id': nid, 'label': label, 'addr': addr, 'type': ntype, 'r': r, 'meta': meta})
+
+    def add_link(src, tgt, label='', ltype='flow'):
+        links.append({'source': src, 'target': tgt, 'label': label, 'type': ltype})
+
+    # Token node
+    symbol = (tt['symbol'] if tt else None) or mint[:8]
+    creator = (ta['earliest_tx_creator'] if ta else None) or (ta['pf_ws_creator'] if ta else None)
+    mc = ta['market_cap_highest'] if ta else None
+    mc_str = f'${mc/1000:.0f}k peak' if mc else ''
+    add_node('TOKEN', f'{symbol}\n{mint[:8]}…', mint, 'watch', r=16,
+             meta=f'Token: {mint}\n{mc_str}\nBuyers: {cand["unique_buyers"]} in {cand["buy_window_s"]}s\nClass: {cand["operator_class"]}')
+
+    # Creator node
+    if creator:
+        add_node('CREATOR', f'CREATOR\n{creator[:8]}…', creator, 'deployer', r=12,
+                 meta=f'Creator: {creator}')
+        add_link('CREATOR', 'TOKEN', 'launched', 'init')
+
+    # Buyer cloud node — skip for watch-pipeline tokens (no buyer scan data)
+    if not from_watch_pipeline:
+        add_node('BUYERS', f'{cand["unique_buyers"]} Buyers\n{cand["buy_window_s"]}s window', '—', 'operators', r=20,
+                 meta=f'{cand["unique_buyers"]} coordinated buyers within {cand["buy_window_s"]}s\nMedian funding: {cand["median_funding_sol"]:.4f} SOL\nStddev ratio: {ev.get("stddev_ratio","?")}')
+        add_link('BUYERS', 'TOKEN', f'{cand["unique_buyers"]} buys', 'fee-wt')
+
+    # Provisioner node
+    prov = cand['provisioner_wallet']
+    prov_is_wt = prov and prov in _WT_INFRA_ROLES
+    if prov:
+        role = _WT_INFRA_ROLES.get(prov, 'PROVISIONER')
+        prov_type = 'treasury' if prov_is_wt else 'profit'
+        prov_size = 18 if prov_is_wt else 14
+        add_node('PROV', f'{role}\n{prov[:8]}…', prov, prov_type, r=prov_size,
+                 meta=f'Provisioner: {prov}\nFunded {ev.get("provisioner_share","?")} of sampled buyers\nRole: {role}\n{"✅ CONFIRMED WATCHTOWER INFRA" if prov_is_wt else ""}')
+        add_link('PROV', 'BUYERS', f'{ev.get("provisioner_share","?")} buyers funded', 'flow')
+
+    # Treasury candidate node
+    treas = cand['treasury_wallet']
+    treas_is_wt = treas and treas in _WT_INFRA_ROLES
+    if treas:
+        role = _WT_INFRA_ROLES.get(treas, 'TREASURY_CANDIDATE')
+        treas_type = 'treasury' if treas_is_wt else 'unknown'
+        add_node('TREASURY', f'{role}\n{treas[:8]}…', treas, treas_type, r=18,
+                 meta=f'Treasury: {treas}\nFunded provisioner with {cand["prov_funding_sol"] or "??"} SOL\nRole: {role}\n{"✅ CONFIRMED WATCHTOWER INFRA" if treas_is_wt else ""}')
+        add_link('TREASURY', 'PROV', f'{cand["prov_funding_sol"] or "??"} SOL', 'init')
+
+    # For watch_pipeline tokens: show real addresses from DB as diagram nodes
+    if from_watch_pipeline:
+        reason = cand.get('_classification_reason') or ''
+        wct_creator = cand.get('_creator_address')
+        wt_addrs = _get_wt_known_addresses()
+
+        # Ensure creator node exists
+        if wct_creator and 'CREATOR' not in seen:
+            add_node('CREATOR', f'CREATOR\n{wct_creator[:8]}…', wct_creator, 'deployer', r=12,
+                     meta=f'Creator: {wct_creator}')
+            add_link('CREATOR', 'TOKEN', 'launched', 'init')
+
+        conn2 = db_connect(DB_PATH, timeout=5)
+        conn2.row_factory = sqlite3.Row
+
+        signals = [s.strip() for s in reason.split(',') if s.strip()]
+
+        if 'funded_by_wt_infra' in signals and wct_creator:
+            # Trace the funding chain that actually REACHES WT infrastructure.
+            # A creator may have many funders (e.g. a large unrelated funder + the
+            # fingerprint-amount fanout wallets). We must follow the branch that
+            # terminates at a known WT address, NOT just the largest amount.
+            def _trace_chain(start, max_depth=4):
+                """BFS upward through creator_funders; return the path that reaches WT infra."""
+                # Each queue item: (current_addr, path_so_far)
+                # path entry: (addr, amount, wt_role, hop)
+                from collections import deque
+                queue = deque()
+                # Seed with all direct funders
+                for r in conn2.execute(
+                    "SELECT funder_address, amount_sol FROM creator_funders WHERE creator_address=? ORDER BY amount_sol DESC",
+                    (start,)
+                ).fetchall():
+                    queue.append((r['funder_address'], [(r['funder_address'], r['amount_sol'], _WT_INFRA_ROLES.get(r['funder_address']), 0)]))
+
+                best_path = None
+                visited = set()
+                while queue:
+                    addr, path = queue.popleft()
+                    hop = len(path) - 1
+                    # Reached WT infra — this is the path we want
+                    if _WT_INFRA_ROLES.get(addr):
+                        return path
+                    if hop >= max_depth - 1 or addr in visited:
+                        # keep a fallback (longest non-WT path) in case nothing reaches WT
+                        if best_path is None or len(path) > len(best_path):
+                            best_path = path
+                        continue
+                    visited.add(addr)
+                    for r in conn2.execute(
+                        "SELECT funder_address, amount_sol FROM creator_funders WHERE creator_address=? ORDER BY amount_sol DESC LIMIT 3",
+                        (addr,)
+                    ).fetchall():
+                        faddr = r['funder_address']
+                        queue.append((faddr, path + [(faddr, r['amount_sol'], _WT_INFRA_ROLES.get(faddr), hop + 1)]))
+                return best_path or []
+
+            chain = _trace_chain(wct_creator)
+            prev_nid = 'CREATOR'
+            for i, (faddr, amount, wt_role, hop) in enumerate(chain):
+                nid = f'HOP_{i}'
+                if wt_role:
+                    # Known WT infra — label with role
+                    r_size = 20 if wt_role in ('TREASURY', 'SUB_PROV') else 16
+                    add_node(nid, f'{wt_role}\n{faddr[:8]}…', faddr, 'treasury', r=r_size,
+                             meta=f'{wt_role}: {faddr}\n✅ Confirmed WATCHTOWER infrastructure\nSent {amount:.6f} SOL')
+                    add_link(nid, prev_nid, f'{amount:.4f} SOL', 'profit')
+                else:
+                    # Single-use fanout/intermediate wallet
+                    hop_label = 'FANOUT' if hop == 0 else f'HUB_{hop}'
+                    add_node(nid, f'{hop_label}\n{faddr[:8]}…', faddr, 'profit', r=12,
+                             meta=f'Single-use {hop_label} wallet\n{faddr}\nSent {amount:.6f} SOL\n(disposable — funded by WT infra)')
+                    add_link(nid, prev_nid, f'{amount:.4f} SOL', 'flow')
+                prev_nid = nid
+
+        if 'sends_to_wt_infra' in signals and wct_creator:
+            # Look up actual recipient address(es)
+            recip_rows = conn2.execute("""
+                SELECT recipient_address, SUM(amount_sol) as total FROM creator_outgoing_transfers
+                WHERE creator_address = ? AND recipient_address IN ({})
+                GROUP BY recipient_address ORDER BY total DESC LIMIT 3
+            """.format(','.join('?' * len(wt_addrs))),
+                [wct_creator] + list(wt_addrs)
+            ).fetchall()
+            for i, rr in enumerate(recip_rows):
+                raddr = rr['recipient_address']
+                role = _WT_INFRA_ROLES.get(raddr, 'WT INFRA')
+                nid = f'WT_DEST_{i}'
+                add_node(nid, f'{role}\n{raddr[:8]}…', raddr, 'treasury', r=16,
+                         meta=f'{role}: {raddr}\nReceived {rr["total"]:.4f} SOL from creator\n✅ Confirmed WATCHTOWER infrastructure')
+                add_link('CREATOR', nid, f'{rr["total"]:.6f} SOL', 'profit')
+
+        is_alpha = 'alpha_family' in signals
+
+        if is_alpha and wct_creator:
+            # Trace the Alpha-family chain upward: HUB → tier-2 → FANOUT → creator.
+            # Stops when it reaches a known Alpha hub.
+            current = wct_creator
+            prev_nid = 'CREATOR'
+            for hop in range(4):
+                row = conn2.execute(
+                    "SELECT funder_address, amount_sol FROM creator_funders WHERE creator_address=? ORDER BY amount_sol DESC LIMIT 1",
+                    (current,)
+                ).fetchone()
+                if not row:
+                    break
+                faddr = row['funder_address']
+                amount = row['amount_sol']
+                is_hub = faddr in _ALPHA_FAMILY_HUBS
+                nid = f'AHOP_{hop}'
+                if is_hub:
+                    add_node(nid, f'ALPHA HUB\n{faddr[:8]}…', faddr, 'treasury', r=20,
+                             meta=f'Operation Alpha capital hub: {faddr}\n⚠️ Fingerprint-fanout campaign\nNO WATCHTOWER treasury link\nSent {amount:.6f} SOL')
+                    add_link(nid, prev_nid, f'{amount:.4f} SOL', 'profit')
+                    prev_nid = nid
+                    break
+                else:
+                    hop_label = 'FANOUT' if hop == 0 else f'TIER-{hop+1}'
+                    add_node(nid, f'{hop_label}\n{faddr[:8]}…', faddr, 'profit', r=12,
+                             meta=f'Single-use {hop_label} wallet (Alpha family)\n{faddr}\nSent {amount:.6f} SOL\n(disposable fanout)')
+                    add_link(nid, prev_nid, f'{amount:.4f} SOL', 'flow')
+                    prev_nid = nid
+                    current = faddr
+
+        if 'wt_webhook_confirmed' in signals and not is_alpha:
+            # Show the actual funder(s) of this creator as nodes — these are the account info
+            funders = conn2.execute("""
+                SELECT cf.funder_address, cf.amount_sol,
+                       iw.type as funder_type, iw.label as funder_label
+                FROM creator_funders cf
+                LEFT JOIN infra_wallets iw ON iw.address = cf.funder_address
+                WHERE cf.creator_address = ?
+                  AND (iw.type IS NULL OR iw.type NOT IN ('bonding_curve','pumpswap_pool','pool'))
+                ORDER BY cf.amount_sol DESC
+                LIMIT 4
+            """, (wct_creator,)).fetchall()
+
+            for i, fr in enumerate(funders):
+                faddr = fr['funder_address']
+                wt_role  = _WT_INFRA_ROLES.get(faddr)
+                cex_row = conn2.execute(
+                    "SELECT exchange_name FROM cex_wallets WHERE cex_address=? LIMIT 1", (faddr,)
+                ).fetchone()
+                if wt_role:
+                    label = f'{wt_role}\n{faddr[:8]}…'
+                    ntype = 'treasury'
+                    role_str = f'Role: {wt_role} (WATCHTOWER)\n✅ Confirmed WATCHTOWER infrastructure'
+                elif fr['funder_label']:
+                    label = f'{fr["funder_label"]}\n{faddr[:8]}…'
+                    ntype = 'unknown'
+                    role_str = f'Type: {fr["funder_type"]} — {fr["funder_label"]}'
+                elif cex_row:
+                    label = f'{cex_row["exchange_name"]}\n{faddr[:8]}…'
+                    ntype = 'unknown'
+                    role_str = f'CEX: {cex_row["exchange_name"]}'
+                else:
+                    label = f'FUNDER\n{faddr[:8]}…'
+                    ntype = 'profit'
+                    role_str = 'Unknown funder'
+                nid = f'WH_FUNDER_{i}'
+                add_node(nid, label, faddr, ntype, r=14,
+                         meta=f'Funder: {faddr}\n{role_str}\nFunded {fr["amount_sol"]:.6f} SOL → creator\nDetected via: Helius webhook confirmation')
+                add_link(nid, 'CREATOR', f'{fr["amount_sol"]:.4f} SOL', 'init' if wt_role else 'flow')
+
+        if 'wt_interceptor_seen' in signals:
+            add_node('INTERCEPTOR', 'INTERCEPTOR\nSEEN', mint, 'profit', r=14,
+                     meta=f'Token observed by WATCH interceptor with attribution\nMint: {mint}')
+            add_link('INTERCEPTOR', 'TOKEN', 'intercepted', 'flow')
+
+        conn2.close()
+
+        return jsonify({
+            'mint': mint,
+            'symbol': symbol,
+            'operation': cand['operation'],
+            'wt_link': None,
+            'operator_class': cand['operator_class'],
+            'confidence': cand['confidence'],
+            'classification_reason': reason,
+            'nodes': nodes,
+            'links': links,
+        })
+
+    # Always show TREASURY (44orWS68) if confirmed WATCHTOWER operation
+    _wt_treasury = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+    operation = cand['operation'] or 'UNKNOWN'
+    wt_link = cand['wt_link']
+
+    if operation == 'WATCHTOWER':
+        add_node('WT_TREASURY', 'TREASURY\n44orWS68…', _wt_treasury, 'treasury', r=24,
+                 meta=f'WATCHTOWER TREASURY\n{_wt_treasury}\nRoot of all WATCHTOWER operations')
+        if prov_is_wt and prov != _wt_treasury:
+            add_link('WT_TREASURY', 'PROV', 'funded', 'profit')
+        elif treas_is_wt and treas != _wt_treasury:
+            add_link('WT_TREASURY', 'TREASURY', 'funded', 'profit')
+        elif not prov_is_wt and not treas_is_wt:
+            # Chain confirmed WATCHTOWER but scanner didn't trace full path
+            if wt_link and wt_link != _wt_treasury and wt_link != prov:
+                # wt_link is a distinct infra node between TREASURY and provisioner
+                wt_prov_role = _WT_INFRA_ROLES.get(wt_link, 'WT OPERATOR')
+                add_node('WT_PROV', f'{wt_prov_role}\n{wt_link[:8]}…', wt_link, 'treasury', r=16,
+                         meta=f'Confirmed WATCHTOWER infra\n{wt_link}\nRole: {wt_prov_role}')
+                add_link('WT_TREASURY', 'WT_PROV', 'funded', 'profit')
+                if prov:
+                    add_link('WT_PROV', 'PROV', 'funded', 'init')
+            else:
+                # wt_link IS the provisioner or treasury — link TREASURY directly to provisioner
+                if prov:
+                    add_link('WT_TREASURY', 'PROV', 'funded', 'profit')
+
+    return jsonify({
+        'mint': mint,
+        'symbol': symbol,
+        'operation': cand['operation'] or 'UNKNOWN',
+        'wt_link': cand['wt_link'],
+        'operator_class': cand['operator_class'],
+        'confidence': cand['confidence'],
+        'nodes': nodes,
+        'links': links,
+    })
+
 
 @app.route('/watchtower/dashboard')
 def watchtower_dashboard():
@@ -25897,6 +26268,27 @@ def api_watchtower_related_creators():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/watchtower/operator-launches')
+def api_wt_operator_launches():
+    """Recent wt_operator_launches rows for the dashboard panel."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT ol.operator_wallet, ol.deployer_wallet, ol.mint, ol.confidence,
+                   ol.treasury_sol, ol.first_seen_ts, ol.created_at, ol.updated_at,
+                   mc.symbol AS token_symbol, mc.name AS token_name
+            FROM wt_operator_launches ol
+            LEFT JOIN metadata_cache mc ON mc.mint = ol.mint
+            ORDER BY ol.updated_at DESC
+            LIMIT 40
+        """).fetchall()
+        conn.close()
+        return jsonify({"launches": [dict(r) for r in rows]})
+    except Exception as e:
+        return jsonify({"launches": [], "error": str(e)})
+
+
 @app.route('/api/watchtower/related-tokens')
 def api_watchtower_related_tokens():
     """List all tokens whose creator is a WATCHTOWER operator or a child wallet funded by one."""
@@ -26002,110 +26394,91 @@ def api_network_diagram_watchtower_live():
     try:
         with db_connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
-
-            # All 481 operator wallets queued as watchtower_fee_payer
-            operator_rows = conn.execute("""
-                SELECT funder_address FROM second_hop_lite_queue
-                WHERE reason_codes LIKE '%watchtower_fee_payer%'
-            """).fetchall()
-            operator_addrs = [r["funder_address"] for r in operator_rows]
-
-            # All confirmed network creators + operators identified by .10203928 SOL funding fingerprint
-            fingerprint_rows = conn.execute("""
-                SELECT DISTINCT creator_address, funder_address
-                FROM creator_funders
-                WHERE amount_sol LIKE '%.10203928'
-            """).fetchall()
-            all_creator_addrs = list({r["creator_address"] for r in fingerprint_rows})
-            identified_operator_addrs = list({r["funder_address"] for r in fingerprint_rows})
-
-            if not all_creator_addrs:
-                return jsonify({"summary": {"tracked_creators": 0, "total_operators": len(operator_addrs),
-                    "newly_activated": 0, "total_tokens": 0, "total_migrated": 0,
-                    "active_7d": 0, "active_30d": 0, "latest_migrated_at": 0, "best_peak_mc": 0},
-                    "newly_activated": [], "members": [], "tokens": []})
-
-            ph = ",".join("?" for _ in all_creator_addrs)
-
-            members = conn.execute(f"""
-                SELECT COALESCE(earliest_tx_creator,pf_ws_creator) AS creator_address,
-                       COUNT(*) AS total_tokens,
-                       SUM(CASE WHEN migrated_at IS NOT NULL THEN 1 ELSE 0 END) AS total_migrated,
-                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-30 days') THEN 1 ELSE 0 END) AS tokens_30d,
-                       SUM(CASE WHEN migrated_at >= strftime('%s','now','-7 days') THEN 1 ELSE 0 END) AS tokens_7d,
-                       MAX(migrated_at) AS latest_migrated_at,
-                       MAX(market_cap_highest) AS best_peak_mc
-                FROM token_analysis
-                WHERE COALESCE(earliest_tx_creator,pf_ws_creator) IN ({ph})
-                GROUP BY COALESCE(earliest_tx_creator,pf_ws_creator)
-                ORDER BY latest_migrated_at DESC
-            """, all_creator_addrs).fetchall()
-
-            all_tokens = conn.execute(f"""
-                SELECT COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) AS creator_address,
-                       ta.mint, COALESCE(mc.symbol, mc.name, ta.mint) AS token_name,
-                       ta.migrated_at, ta.market_cap_highest, ta.market_cap_current,
-                       ta.lifecycle_stage,
-                       tps.risk_level, tps.prediction_label,
-                       CASE
-                         WHEN ta.market_cap_highest >= 5000000 THEN 'G1'
-                         WHEN ta.market_cap_highest >= 2000000 THEN 'G2'
-                         WHEN ta.market_cap_highest >= 500000  THEN 'G3'
-                         WHEN ta.market_cap_highest >= 300000  THEN 'G4'
-                         WHEN ta.market_cap_highest >= 150000  THEN 'G5'
-                         WHEN ta.market_cap_highest >= 75000   THEN 'G6'
-                         WHEN ta.market_cap_highest IS NOT NULL THEN 'G7'
-                         ELSE NULL END AS g_level
-                FROM token_analysis ta
-                LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
-                LEFT JOIN token_prediction_scores tps ON tps.mint = ta.mint
-                WHERE COALESCE(ta.earliest_tx_creator,ta.pf_ws_creator) IN ({ph})
-                ORDER BY ta.market_cap_highest DESC NULLS LAST
-            """, all_creator_addrs).fetchall()
-
-            # Newly activated: operators (481 set) now appearing as creators,
-            # not already in the fingerprint set
-            newly_activated = []
-            if operator_addrs:
-                known_set = set(all_creator_addrs)
-                new_creators = [a for a in operator_addrs if a not in known_set]
-                if new_creators:
-                    op_ph = ",".join("?" for _ in new_creators)
-                    newly_activated = conn.execute(f"""
-                        SELECT COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) AS creator_address,
-                               COUNT(*) AS total_tokens,
-                               MAX(ta.created_at) AS latest_token_at,
-                               MAX(ta.market_cap_highest) AS best_peak_mc,
-                               COALESCE(mc.symbol, mc.name) AS latest_token_name,
-                               crs.risk_level
-                        FROM token_analysis ta
-                        LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
-                        LEFT JOIN creator_risk_scores crs
-                            ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-                        WHERE COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IN ({op_ph})
-                        GROUP BY COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-                        ORDER BY latest_token_at DESC
-                    """, new_creators).fetchall()
-
             now = int(time.time())
-            total_migrated = sum(r["total_migrated"] or 0 for r in members)
-            best_mc = max((r["best_peak_mc"] or 0 for r in members), default=0)
+
+            # ── Known tokens from infra events ────────────────────────────
+            infra_tokens = conn.execute("""
+                SELECT DISTINCT token_mint as mint, token_symbol as symbol,
+                       infra_address as subprov, direction,
+                       MAX(block_time) as last_seen,
+                       SUM(amount_sol) as total_sol
+                FROM watchtower_infra_events
+                WHERE token_mint IS NOT NULL AND token_symbol IS NOT NULL
+                GROUP BY token_mint
+                ORDER BY last_seen DESC
+            """).fetchall()
+
+            # ── Known tokens from wt_sub_provisioners ─────────────────────
+            prov_tokens = conn.execute("""
+                SELECT DISTINCT token_mint as mint, token_symbol as symbol,
+                       address as subprov, traded_amount,
+                       last_trade_at as last_seen
+                FROM wt_sub_provisioners
+                WHERE token_mint IS NOT NULL AND token_symbol IS NOT NULL
+                ORDER BY last_trade_at DESC
+            """).fetchall()
+
+            # Merge by mint
+            seen_mints = set()
+            tokens = []
+            for r in list(infra_tokens) + list(prov_tokens):
+                mint = r['mint']
+                if mint in seen_mints:
+                    continue
+                seen_mints.add(mint)
+
+                # Look up market cap if available
+                mc_row = conn.execute("""
+                    SELECT market_cap_highest, market_cap_current, migrated_at,
+                           COALESCE(earliest_tx_creator, pf_ws_creator) as creator
+                    FROM token_analysis WHERE mint = ? LIMIT 1
+                """, (mint,)).fetchone()
+
+                tokens.append({
+                    'mint':        mint,
+                    'symbol':      r['symbol'],
+                    'subprov':     r['subprov'],
+                    'last_seen':   r['last_seen'],
+                    'age_s':       now - (r['last_seen'] or 0),
+                    'market_cap_highest': mc_row['market_cap_highest'] if mc_row else None,
+                    'market_cap_current': mc_row['market_cap_current'] if mc_row else None,
+                    'migrated_at': mc_row['migrated_at'] if mc_row else None,
+                })
+
+            # ── Operation stats ────────────────────────────────────────────
+            total_deployed = conn.execute("""
+                SELECT COALESCE(SUM(amount_sol),0) FROM watchtower_infra_events
+                WHERE infra_role='TREASURY' AND direction='outbound' AND amount_sol >= 10
+            """).fetchone()[0]
+
+            total_returned = conn.execute("""
+                SELECT COALESCE(SUM(amount_sol),0) FROM watchtower_infra_events
+                WHERE infra_role='SUB_PROV' AND direction='inbound' AND amount_sol >= 10
+            """).fetchone()[0]
+
+            active_subprovs = conn.execute("""
+                SELECT COUNT(DISTINCT infra_address) FROM watchtower_infra_events
+                WHERE block_time >= ? AND infra_role='SUB_PROV'
+            """, (now - 86400,)).fetchone()[0]
+
+            signal_count_24h = conn.execute("""
+                SELECT COUNT(*) FROM watchtower_events
+                WHERE event_type='SIGNAL_ACTIVATION' AND created_at >= ?
+            """, (now - 86400,)).fetchone()[0]
+
             return jsonify({
                 "summary": {
-                    "tracked_creators": len(all_creator_addrs),
-                    "identified_operators": len(identified_operator_addrs),
-                    "total_operators": len(operator_addrs),
-                    "newly_activated": len(newly_activated),
-                    "total_tokens": sum(r["total_tokens"] or 0 for r in members),
-                    "total_migrated": total_migrated,
-                    "active_7d": sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= now - 7*86400),
-                    "active_30d": sum(1 for r in members if r["latest_migrated_at"] and r["latest_migrated_at"] >= now - 30*86400),
-                    "latest_migrated_at": max((r["latest_migrated_at"] or 0 for r in members), default=0),
-                    "best_peak_mc": best_mc,
+                    "total_tokens":      len(tokens),
+                    "total_deployed_sol": round(total_deployed, 2),
+                    "total_returned_sol": round(total_returned, 2),
+                    "pnl_sol":           round(total_returned - total_deployed, 2),
+                    "active_subprovs_24h": active_subprovs,
+                    "signals_24h":       signal_count_24h,
+                    "best_peak_mc":      max((t['market_cap_highest'] or 0 for t in tokens), default=0),
                 },
-                "newly_activated": [dict(r) for r in newly_activated],
-                "members": [dict(r) for r in members],
-                "tokens": [dict(r) for r in all_tokens],
+                "tokens": tokens,
+                "newly_activated": [],
+                "members": [],
             })
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
@@ -26736,7 +27109,7 @@ def _start_watchtower_activation_poller(db_path: str, interval_seconds: int = 60
                                 "market_cap_highest": row['market_cap_highest'],
                                 "lifecycle_stage": row['lifecycle_stage'],
                                 "risk_level": row['risk_level'],
-                                "fee_payer_first_seen": int(_t.mktime(_t.strptime(row['fee_payer_first_seen'], "%Y-%m-%d %H:%M:%S"))) if row['fee_payer_first_seen'] else None,
+                                "fee_payer_first_seen": (int(row['fee_payer_first_seen']) if isinstance(row['fee_payer_first_seen'], int) else int(_t.mktime(_t.strptime(row['fee_payer_first_seen'], "%Y-%m-%d %H:%M:%S")))) if row['fee_payer_first_seen'] else None,
                                 "fee_tx_count": row['tx_count'],
                                 "total_sol_sent": row['total_sol_sent'],
                                 "detected_at": int(_t.time()),
@@ -27970,6 +28343,41 @@ def _ensure_watchtower_tables(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_wt_swarm_state     ON wt_swarm_corridors(state, treasury_ts DESC)",
         "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provisioner ON wt_swarm_corridors(provisioner_wallet)",
         "CREATE INDEX IF NOT EXISTS idx_wt_swarm_token     ON wt_swarm_corridors(primary_token_mint)",
+        # Sampled fanout recipients — max _WT_SWARM_SAMPLE_SIZE rows per swarm
+        """CREATE TABLE IF NOT EXISTS wt_swarm_corridors_samples (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            swarm_id         INTEGER NOT NULL,
+            recipient_wallet TEXT    NOT NULL,
+            sample_ts        INTEGER NOT NULL,
+            fanout_sol       REAL,
+            sequence         INTEGER,
+            first_buy_mint   TEXT,
+            confirmed_at     INTEGER,
+            UNIQUE(swarm_id, recipient_wallet)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_samples_swarm ON wt_swarm_corridors_samples(swarm_id)",
+        # ── Operator-layer launch intelligence ────────────────────────────────────
+        """CREATE TABLE IF NOT EXISTS wt_operator_launches (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            operator_wallet     TEXT    NOT NULL,
+            deployer_wallet     TEXT    NOT NULL,
+            mint                TEXT,
+            create_tx           TEXT,
+            first_seen_ts       INTEGER NOT NULL,
+            -- DEPLOYER_IDENTIFIED | LAUNCH_CONFIRMED | SWARM_CONFIRMED
+            confidence          TEXT    NOT NULL DEFAULT 'DEPLOYER_IDENTIFIED',
+            swarm_provisioner   TEXT,
+            swarm_confirmed_at  INTEGER,
+            swarm_sample_json   TEXT,
+            treasury_sol        REAL,
+            treasury_sig        TEXT,
+            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            UNIQUE(deployer_wallet)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_op_launches_operator ON wt_operator_launches(operator_wallet, first_seen_ts DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_op_launches_mint     ON wt_operator_launches(mint)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_op_launches_conf     ON wt_operator_launches(confidence)",
             # ── Worker heartbeat ──────────────────────────────────────────────────
         # ── Generic swarm operator intelligence ──────────────────────────────────
         """CREATE TABLE IF NOT EXISTS wt_operator_clusters (
@@ -28101,6 +28509,100 @@ def _ensure_watchtower_tables(conn: sqlite3.Connection) -> None:
         )""",
         "CREATE INDEX IF NOT EXISTS idx_wt_hb_worker ON wt_worker_heartbeat(worker_name)",
         "CREATE INDEX IF NOT EXISTS idx_wt_failures_worker ON wt_worker_failures(worker_name, failed_at DESC)",
+
+        # ── WATCH candidate pipeline ──────────────────────────────────────────
+        """CREATE TABLE IF NOT EXISTS watch_candidate_tokens (
+            mint                  TEXT    PRIMARY KEY,
+            creator_address       TEXT    NOT NULL,
+            prediction_score      INTEGER,
+            has_sol_flows         INTEGER NOT NULL DEFAULT 0,
+            classified_as         TEXT    NOT NULL DEFAULT 'UNKNOWN',
+            classification_conf   REAL    NOT NULL DEFAULT 0.0,
+            classification_reason TEXT,
+            cluster_id            INTEGER,
+            added_at              INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at            INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wct_creator   ON watch_candidate_tokens(creator_address)",
+        "CREATE INDEX IF NOT EXISTS idx_wct_class     ON watch_candidate_tokens(classified_as, classification_conf DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_wct_cluster   ON watch_candidate_tokens(cluster_id)",
+
+        # ── Operation Discovery Engine (Phase 1) ──────────────────────────────
+        # Operations are the primary object: TOKEN → OPERATION → OPERATOR.
+        # Discovered automatically via funding-corridor + timing-window grouping.
+        """CREATE TABLE IF NOT EXISTS wt_operations (
+            operation_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            auto_name           TEXT,
+            human_name          TEXT,
+            operator_identity   TEXT    NOT NULL DEFAULT 'UNKNOWN',
+            identity_confidence TEXT    NOT NULL DEFAULT 'UNKNOWN',
+            identity_validated_at INTEGER,
+            state               TEXT    NOT NULL DEFAULT 'DISCOVERED',
+            token_count         INTEGER NOT NULL DEFAULT 0,
+            creator_count       INTEGER NOT NULL DEFAULT 0,
+            confidence          REAL    NOT NULL DEFAULT 0.0,
+            corridor_amount     TEXT,
+            window_start        INTEGER,
+            window_end          INTEGER,
+            discovery_signals   TEXT,
+            discovered_at       INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_ops_corridor ON wt_operations(corridor_amount, window_start)",
+        "CREATE INDEX IF NOT EXISTS idx_wt_ops_identity ON wt_operations(operator_identity)",
+        """CREATE TABLE IF NOT EXISTS wt_operation_members (
+            operation_id        INTEGER NOT NULL,
+            token_mint          TEXT    NOT NULL,
+            creator_wallet      TEXT,
+            funding_amount      REAL,
+            migrated_at         INTEGER,
+            join_signal         TEXT,
+            PRIMARY KEY (operation_id, token_mint)
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_opmem_mint ON wt_operation_members(token_mint)",
+
+        # ── Operation lifecycle tracking ──────────────────────────────────────
+        # Append-only log of every state change. The conversion funnel
+        # (DISCOVERED → NAMED → CONFIRMED → DORMANT / MERGED / NOISE) is the
+        # real measure of whether the discovery engine works.
+        """CREATE TABLE IF NOT EXISTS wt_operation_transitions (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            operation_id   INTEGER NOT NULL,
+            from_state     TEXT,
+            to_state       TEXT    NOT NULL,
+            actor          TEXT,                -- 'engine' | 'human' | username
+            detail         TEXT,                -- JSON: name set, merge target, reason
+            at             INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_optrans_op ON wt_operation_transitions(operation_id, at)",
+
+        # ── Phase 2: hub-backfill worker + safe-mode identity proposals ───────
+        """CREATE TABLE IF NOT EXISTS wt_hub_backfill_queue (
+            funder_address   TEXT PRIMARY KEY,
+            seed_creator     TEXT,
+            corridor_amount  TEXT,
+            status           TEXT NOT NULL DEFAULT 'pending',
+            hops_written     INTEGER DEFAULT 0,
+            reached_hub      TEXT,
+            attempts         INTEGER DEFAULT 0,
+            last_error       TEXT,
+            enqueued_at      INTEGER DEFAULT (strftime('%s','now')),
+            processed_at     INTEGER
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_hbq_status ON wt_hub_backfill_queue(status)",
+        """CREATE TABLE IF NOT EXISTS wt_identity_proposals (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            operation_id      INTEGER,
+            corridor_amount   TEXT,
+            current_identity  TEXT,
+            proposed_identity TEXT,
+            evidence_hub      TEXT,
+            evidence_role     TEXT,
+            token_count       INTEGER,
+            proposed_at       INTEGER DEFAULT (strftime('%s','now')),
+            applied           INTEGER DEFAULT 0
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_wt_idprop_op ON wt_identity_proposals(operation_id, applied)",
 ]
     for stmt in stmts:
         try:
@@ -28193,13 +28695,1351 @@ def _ensure_watchtower_tables(conn: sqlite3.Connection) -> None:
 
     _swarm_cand_migrations = [
         "ALTER TABLE wt_swarm_candidates ADD COLUMN operator_class TEXT",
+        "ALTER TABLE wt_swarm_candidates ADD COLUMN operation TEXT",
+        "ALTER TABLE wt_swarm_candidates ADD COLUMN wt_link TEXT",
     ]
     for _m in _swarm_cand_migrations:
         try:
             conn.execute(_m)
         except Exception:
             pass
+
+    _wt_cluster_migrations = [
+        "ALTER TABLE wt_operator_clusters ADD COLUMN operator_classification TEXT DEFAULT 'UNKNOWN'",
+        "ALTER TABLE wt_operator_clusters ADD COLUMN classification_confidence REAL DEFAULT 0.0",
+        "ALTER TABLE wt_operator_clusters ADD COLUMN classification_reason TEXT",
+        "ALTER TABLE wt_operator_clusters ADD COLUMN cluster_evidence_json TEXT",
+        "ALTER TABLE wt_operator_clusters ADD COLUMN watch_token_count INTEGER DEFAULT 0",
+        # Operation lifecycle + coherence columns
+        "ALTER TABLE wt_operations ADD COLUMN coherence_score REAL DEFAULT 0.0",
+        "ALTER TABLE wt_operations ADD COLUMN coherence_flag TEXT",
+        "ALTER TABLE wt_operations ADD COLUMN merged_into INTEGER",
+        "ALTER TABLE wt_operations ADD COLUMN noise_reason TEXT",
+        "ALTER TABLE wt_operations ADD COLUMN first_discovered_at INTEGER",
+        # Provenance for operator_identity: LINEAGE_CONFIRMED | BEHAVIORAL_MATCH | UNKNOWN
+        "ALTER TABLE wt_operations ADD COLUMN identity_confidence TEXT NOT NULL DEFAULT 'UNKNOWN'",
+        # First-class timestamp for identity: bumped only when operator_identity or
+        # identity_confidence CHANGES across rebuilds (NOT every engine pass like updated_at).
+        "ALTER TABLE wt_operations ADD COLUMN identity_validated_at INTEGER",
+    ]
+    for _m in _wt_cluster_migrations:
+        try:
+            conn.execute(_m)
+        except Exception:
+            pass
     conn.commit()
+
+
+# ── Funding origin helpers ───────────────────────────────────────────────────
+
+# Full WT infrastructure address set for funding origin checks
+_WT_ALL_INFRA: set = set()
+
+def _get_wt_all_infra() -> set:
+    global _WT_ALL_INFRA
+    if not _WT_ALL_INFRA:
+        _WT_ALL_INFRA = set(_WT_INFRA_ROLES.keys()) | {r.address for r in []}
+        # Also include all wt_sub_provisioners — populated lazily at runtime
+    return _WT_ALL_INFRA
+
+
+def _funding_origin_for_creator(creator: str, conn: sqlite3.Connection) -> tuple:
+    """
+    Classify funding origin for a single creator.
+    Returns (origin, reason) where origin is one of:
+      WATCH_INTERNAL | CEX_FUNDED | SERVICE_PROVIDER | MIXED | UNKNOWN
+    Uses direct funders only (1-hop) — no RPC.
+    """
+    wt_infra = _get_wt_known_addresses()
+
+    # Also include sub-provisioners
+    try:
+        sub_provs = {r[0] for r in conn.execute("SELECT address FROM wt_sub_provisioners").fetchall()}
+    except Exception:
+        sub_provs = set()
+    wt_full = wt_infra | sub_provs
+
+    funders = conn.execute("""
+        SELECT cf.funder_address,
+               iw.type  as iw_type,
+               iw.label as iw_label,
+               cex.exchange_name as cex_name
+        FROM creator_funders cf
+        LEFT JOIN infra_wallets iw  ON iw.address  = cf.funder_address
+        LEFT JOIN cex_wallets   cex ON cex.cex_address = cf.funder_address
+        WHERE cf.creator_address = ?
+    """, (creator,)).fetchall()
+
+    if not funders:
+        return ("UNKNOWN", "no_funder_data")
+
+    has_wt  = any(r[0] in wt_full for r in funders)
+    has_cex = any(r[3] is not None or r[1] == 'cex' for r in funders)
+    has_svc = any(
+        (r[0] or '').startswith('astra') or
+        r[0] == 'AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk' or
+        r[1] == 'automation'
+        for r in funders
+    )
+
+    flags = sum([has_wt, has_cex, has_svc])
+
+    if flags >= 2:
+        parts = []
+        if has_wt:  parts.append("wt_internal")
+        if has_cex: parts.append("cex")
+        if has_svc: parts.append("service")
+        return ("MIXED", "+".join(parts))
+
+    if has_wt:
+        wt_names = [_WT_INFRA_ROLES.get(r[0], 'wt_infra') for r in funders if r[0] in wt_full]
+        return ("WATCH_INTERNAL", wt_names[0] if wt_names else "wt_infra")
+
+    if has_cex:
+        cex_names = [r[3] for r in funders if r[3]]
+        # Detect retail scatter: many different exchanges → not coordinated
+        unique_cex = set(cex_names)
+        tag = "retail_scatter" if len(unique_cex) >= 3 else (cex_names[0] if cex_names else "cex")
+        return ("CEX_FUNDED", tag)
+
+    if has_svc:
+        svc_labels = [r[2] or r[0][:12] for r in funders
+                      if (r[0] or '').startswith('astra') or
+                         r[0] == 'AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk' or
+                         r[1] == 'automation']
+        return ("SERVICE_PROVIDER", svc_labels[0] if svc_labels else "service")
+
+    return ("UNKNOWN", "unclassified_funder")
+
+
+# Alpha-family fingerprint-fanout hubs (confirmed no WATCHTOWER link, x.10203928 provisioning).
+# These run the WATCHTOWER playbook with independent profit-collector hubs — NOT WATCHTOWER.
+_ALPHA_FAMILY_HUBS = {
+    "4LpEjcq3PwkE9Hwt1xLdYHCxyNYB13wEahUPCRkzZa9Q",  # Operation Alpha — 31 tokens, Apr 30
+    "BcSScwFvvUCCJT3s3DjZj1FjfwKL178egkzDxGLSwLUg",  # Apr 15 campaign
+    "6FdUQoBL3fsvquoBgqQKPuVZ844oygXEYfiTUzESrB5u",  # May 1 campaign
+}
+
+
+def _is_alpha_family_creator(creator: str, conn: sqlite3.Connection) -> bool:
+    """True if creator's 3-hop funding chain traces to a known Alpha-family hub."""
+    if not _ALPHA_FAMILY_HUBS:
+        return False
+    ph = ",".join("?" * len(_ALPHA_FAMILY_HUBS))
+    hubs = list(_ALPHA_FAMILY_HUBS)
+    row = conn.execute(f"""
+        SELECT 1 WHERE EXISTS (
+            SELECT 1 FROM creator_funders f1
+            WHERE f1.creator_address = ? AND f1.funder_address IN ({ph})
+            UNION
+            SELECT 1 FROM creator_funders f1
+            JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+            WHERE f1.creator_address = ? AND f2.funder_address IN ({ph})
+            UNION
+            SELECT 1 FROM creator_funders f1
+            JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+            JOIN creator_funders f3 ON f3.creator_address = f2.funder_address
+            WHERE f1.creator_address = ? AND f3.funder_address IN ({ph})
+        )
+    """, [creator] + hubs + [creator] + hubs + [creator] + hubs).fetchone()
+    return bool(row)
+
+
+def _cluster_alpha_family_count(cluster_id: int, conn: sqlite3.Connection) -> int:
+    """Count cluster members whose funding traces to an Alpha-family hub."""
+    members = conn.execute("""
+        SELECT DISTINCT wct.creator_address FROM wt_cluster_members wcm
+        JOIN watch_candidate_tokens wct ON wct.mint = wcm.token_mint
+        WHERE wcm.cluster_id = ?
+    """, (cluster_id,)).fetchall()
+    return sum(1 for (c,) in members if _is_alpha_family_creator(c, conn))
+
+
+def _compute_cluster_funding_origins(cluster_id: int, conn: sqlite3.Connection) -> dict:
+    """
+    Return funding origin distribution for a cluster.
+    { WATCH_INTERNAL: N, CEX_FUNDED: N, SERVICE_PROVIDER: N, MIXED: N, UNKNOWN: N, total: N }
+    """
+    members = conn.execute("""
+        SELECT wct.creator_address FROM wt_cluster_members wcm
+        JOIN watch_candidate_tokens wct ON wct.mint = wcm.token_mint
+        WHERE wcm.cluster_id = ?
+    """, (cluster_id,)).fetchall()
+
+    counts = {"WATCH_INTERNAL": 0, "CEX_FUNDED": 0, "SERVICE_PROVIDER": 0, "MIXED": 0, "UNKNOWN": 0}
+    for (creator,) in members:
+        origin, _ = _funding_origin_for_creator(creator, conn)
+        counts[origin] = counts.get(origin, 0) + 1
+
+    counts["total"] = len(members)
+    return counts
+
+
+# ── WATCH candidate pipeline ─────────────────────────────────────────────────
+
+# Known WATCHTOWER fingerprint amount suffixes — SUPPORTING SIGNALS ONLY, never standalone classification.
+# Audited 2026-06-02:
+#   %.00203928 REMOVED — matches 0.00203928 which is the standard pump.fun creation fee (33,858 rows)
+#   %.01003928 REMOVED — matches 0 rows in creator_funders, dead pattern
+# Remaining patterns are specific WATCHTOWER provisioning amounts (< 120 creators each)
+_WT_FINGERPRINT_PATTERNS = [
+    "%.10203928",   # 2.10203928, 1.10203928 — 112 creators, confirmed provisioning amounts
+    "%.0203928",    # 0.0203928, 44.0203928  — 20 creators (exclude %.00203928 via NOT LIKE guard below)
+    "%.40203928",   # 4.40203928             — 2 creators
+    "%.20203928",   # 2.20203928, 0.20203928 — 2 creators
+    "%.20303928",   # 0.20303928             — 23 creators
+]
+
+# Hard signal threshold: minimum score to be classified as WATCHTOWER
+_WT_HARD_THRESHOLD = 50
+# Score bands
+_WT_SCORE_WATCHTOWER    = 50   # requires hard signal
+_WT_SCORE_NEW_OP_LOW    = 20
+_WT_SCORE_NEW_OP_HIGH   = 49
+
+# Profit relay / infra addresses used by WATCHTOWER (subset of _WT_INFRA_ROLES)
+_WT_KNOWN_ADDRESSES: set = set()  # populated lazily from _WT_INFRA_ROLES below
+
+
+def _get_wt_known_addresses() -> set:
+    global _WT_KNOWN_ADDRESSES
+    if not _WT_KNOWN_ADDRESSES:
+        _WT_KNOWN_ADDRESSES = set(_WT_INFRA_ROLES.keys())
+    return _WT_KNOWN_ADDRESSES
+
+
+def _build_watch_candidates(conn: sqlite3.Connection) -> int:
+    """
+    Populate watch_candidate_tokens from token_prediction_scores.
+
+    WATCH eligibility (a token must satisfy ALL):
+      - risk_level = 'WATCH'
+      - creator_was_fresh = 1 (per-token freshness flag)
+      - creator is NOT a serial launcher (created exactly ONE token ever)
+      - creator not in infra_wallets / not astra*
+
+    The serial-creator exclusion is critical: WATCHTOWER (and WATCH-style ops) use
+    fresh single-use creator wallets. A wallet that has launched many tokens is a
+    serial creator bot by definition and cannot be WATCH-style, even if individual
+    early tokens were scored creator_was_fresh=1 before the wallet built history.
+
+    Returns total count in watch_candidate_tokens.
+    """
+    # First, prune any existing rows whose creator turned out to be a serial launcher
+    conn.execute("""
+        DELETE FROM watch_candidate_tokens
+        WHERE creator_address IN (
+            SELECT creator_address FROM token_prediction_scores
+            GROUP BY creator_address
+            HAVING COUNT(DISTINCT mint) > 1
+        )
+    """)
+
+    conn.execute("""
+        INSERT OR IGNORE INTO watch_candidate_tokens
+            (mint, creator_address, prediction_score, has_sol_flows, added_at, updated_at)
+        SELECT
+            tps.mint,
+            tps.creator_address,
+            tps.prediction_score,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM creator_outgoing_transfers cot
+                WHERE cot.creator_address = tps.creator_address
+                LIMIT 1
+            ) THEN 1 ELSE 0 END,
+            strftime('%s','now'),
+            strftime('%s','now')
+        FROM token_prediction_scores tps
+        WHERE tps.risk_level = 'WATCH'
+          AND tps.creator_was_fresh = 1
+          AND tps.creator_address NOT LIKE 'astra%'
+          -- Serial-creator exclusion: creator must have launched exactly ONE token
+          AND tps.creator_address NOT IN (
+              SELECT creator_address FROM token_prediction_scores
+              GROUP BY creator_address
+              HAVING COUNT(DISTINCT mint) > 1
+          )
+          AND NOT EXISTS (
+              SELECT 1 FROM infra_wallets iw
+              WHERE iw.address = tps.creator_address
+                AND iw.type NOT IN ('bonding_curve', 'pumpswap_pool', 'pool')
+          )
+    """)
+    count = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens").fetchone()[0]
+    conn.commit()
+    print(f"[WATCH_PIPELINE] Built {count} watch_candidate_tokens (serial creators excluded)", flush=True)
+    return count
+
+
+def _classify_all_watch_candidates_bulk(conn: sqlite3.Connection) -> dict:
+    """
+    Score-based bulk classifier for watch_candidate_tokens.
+
+    Scoring model:
+      creator_is_wt_infra    +100  (hard signal — immediate WATCHTOWER)
+      funded_by_wt_infra     +60   (hard signal)
+      sends_to_wt_infra      +50   (hard signal)
+      wt_interceptor_seen    +50   (hard signal — token/creator seen by WATCH interceptor)
+      wt_webhook_confirmed   +45   (hard signal — creator confirmed in WATCH webhook workflow)
+      wt_swarm_corridor      +40   (hard signal)
+      wt_webhook_enrolled    +20   (soft signal — enrolled but not yet confirmed)
+      shared_recipient       +35   (soft — WATCH_LIKE_NEW_OP signal)
+      shared_funder          +30   (soft — WATCH_LIKE_NEW_OP signal)
+      dormant_seen           +10   (soft — scanner precision not yet validated)
+      fingerprint_amount     +10   (soft — supporting only, never classifies alone)
+
+    Classification bands:
+      WATCHTOWER     : score >= 50 AND has at least one hard signal
+      WATCH_LIKE_NEW_OP : score 20-49, OR score >= 20 with no hard signal
+      UNKNOWN        : score < 20
+
+    Fingerprint amounts can NEVER be the sole reason for WATCHTOWER.
+    They add 10 pts to existing scores only.
+
+    ALPHA-FAMILY EXCLUSION: a token whose funding chain traces to a known
+    Alpha-family hub (non-WATCHTOWER fingerprint-fanout campaign) can ONLY be
+    classified WATCHTOWER if it has DIRECT WATCHTOWER funding lineage
+    (funded_by_wt_infra / sends_to_wt_infra / creator_is_wt_infra). Webhook,
+    dormant, interceptor, and corridor signals cannot override Alpha lineage —
+    those are wallet-level observations, not funding proof.
+    """
+    import json as _json
+
+    wt_addresses = _get_wt_known_addresses()
+    wt_list = list(wt_addresses)
+    wt_ph = ",".join("?" * len(wt_list))
+
+    # Pre-compute the set of mints whose funding chain reaches an Alpha-family hub
+    alpha_mints = set()
+    if _ALPHA_FAMILY_HUBS:
+        ah = list(_ALPHA_FAMILY_HUBS)
+        ah_ph = ",".join("?" * len(ah))
+        for (mint,) in conn.execute(f"""
+            SELECT wct.mint FROM watch_candidate_tokens wct
+            WHERE wct.creator_address IN (
+                SELECT f1.creator_address FROM creator_funders f1 WHERE f1.funder_address IN ({ah_ph})
+                UNION
+                SELECT f1.creator_address FROM creator_funders f1
+                JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+                WHERE f2.funder_address IN ({ah_ph})
+                UNION
+                SELECT f1.creator_address FROM creator_funders f1
+                JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+                JOIN creator_funders f3 ON f3.creator_address = f2.funder_address
+                WHERE f3.funder_address IN ({ah_ph})
+            )
+        """, ah + ah + ah).fetchall():
+            alpha_mints.add(mint)
+
+    # Pre-compute mints whose creator is DIRECTLY funded by a CEX or service provider.
+    # WATCHTOWER funds creators through its internal treasury cascade — never from a
+    # CEX withdrawal. A creator funded straight from Binance/MEXC/HTX/Axiom cannot be
+    # WATCHTOWER unless it ALSO has direct WT funding lineage (handled in band logic).
+    cex_funded_mints = set()
+    for (mint,) in conn.execute("""
+        SELECT DISTINCT wct.mint
+        FROM watch_candidate_tokens wct
+        JOIN creator_funders cf ON cf.creator_address = wct.creator_address
+        LEFT JOIN cex_wallets cex ON cex.cex_address = cf.funder_address
+        LEFT JOIN infra_wallets iw ON iw.address = cf.funder_address
+        WHERE cex.cex_address IS NOT NULL
+           OR iw.type IN ('cex', 'automation')
+           OR cf.funder_address = 'AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk'
+           OR cf.funder_address LIKE 'astra%'
+    """).fetchall():
+        cex_funded_mints.add(mint)
+
+    # ── Step 1: Score every mint into a temp dict ─────────────────────────────
+    # scores[mint] = {score, hard_signals: [], soft_signals: []}
+    scores: dict = {}
+
+    def ensure(mint: str):
+        if mint not in scores:
+            scores[mint] = {"score": 0, "hard": [], "soft": []}
+
+    # Pre-load all mints
+    for (mint,) in conn.execute("SELECT mint FROM watch_candidate_tokens").fetchall():
+        ensure(mint)
+
+    # creator_is_wt_infra (+100, hard)
+    for (mint,) in conn.execute(f"""
+        SELECT mint FROM watch_candidate_tokens
+        WHERE creator_address IN ({wt_ph})
+    """, wt_list).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 100
+        scores[mint]["hard"].append("creator_is_wt_infra")
+
+    # funded_by_wt_infra (+60, hard) — checks up to 3 hops (creator → funder → funder → wt_infra)
+    # Hop 1: direct funder is WT infra
+    # Hop 2: creator's funder was funded by WT infra (single-use fanout pattern)
+    # Hop 3: two hops of single-use wallets above the creator
+    for (mint,) in conn.execute(f"""
+        SELECT wct.mint FROM watch_candidate_tokens wct
+        WHERE wct.creator_address IN (
+            SELECT creator_address FROM creator_funders WHERE funder_address IN ({wt_ph})
+            UNION
+            SELECT cf1.creator_address FROM creator_funders cf1
+            JOIN creator_funders cf2 ON cf2.creator_address = cf1.funder_address
+            WHERE cf2.funder_address IN ({wt_ph})
+            UNION
+            SELECT cf1.creator_address FROM creator_funders cf1
+            JOIN creator_funders cf2 ON cf2.creator_address = cf1.funder_address
+            JOIN creator_funders cf3 ON cf3.creator_address = cf2.funder_address
+            WHERE cf3.funder_address IN ({wt_ph})
+        )
+    """, wt_list + wt_list + wt_list).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 60
+        if "funded_by_wt_infra" not in scores[mint]["hard"]:
+            scores[mint]["hard"].append("funded_by_wt_infra")
+
+    # sends_to_wt_infra (+50, hard)
+    for (mint,) in conn.execute(f"""
+        SELECT wct.mint FROM watch_candidate_tokens wct
+        WHERE wct.creator_address IN (
+            SELECT creator_address FROM creator_outgoing_transfers
+            WHERE recipient_address IN ({wt_ph})
+        )
+    """, wt_list).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 50
+        if "sends_to_wt_infra" not in scores[mint]["hard"]:
+            scores[mint]["hard"].append("sends_to_wt_infra")
+
+    # wt_swarm_corridor (+40, hard)
+    try:
+        for (mint,) in conn.execute("""
+            SELECT wct.mint FROM watch_candidate_tokens wct
+            WHERE wct.mint IN (SELECT primary_token_mint FROM wt_swarm_corridors)
+        """).fetchall():
+            ensure(mint)
+            scores[mint]["score"] += 40
+            if "wt_swarm_corridor" not in scores[mint]["hard"]:
+                scores[mint]["hard"].append("wt_swarm_corridor")
+    except Exception:
+        pass
+
+    # wt_interceptor_seen (+50, hard)
+    # Mint-level match only — no creator spillover.
+    # Only counts as hard signal when the interceptor row has attribution:
+    #   armed_source IS NOT NULL, OR watch_confidence > 0, OR launch_type != GENERAL_PUMPFUN.
+    # Plain GENERAL_PUMPFUN rows with watch_confidence=0 and armed_source=NULL contribute 0.
+    for (mint,) in conn.execute("""
+        SELECT wct.mint FROM watch_candidate_tokens wct
+        WHERE wct.mint IN (
+            SELECT mint FROM wt_interceptor_validation
+            WHERE armed_source IS NOT NULL
+               OR watch_confidence > 0
+               OR launch_type != 'GENERAL_PUMPFUN'
+        )
+    """).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 50
+        if "wt_interceptor_seen" not in scores[mint]["hard"]:
+            scores[mint]["hard"].append("wt_interceptor_seen")
+
+    # wt_webhook_confirmed (+45, hard)
+    # Creators promoted to CONFIRMED state in the WATCH webhook workflow.
+    for (mint,) in conn.execute("""
+        SELECT wct.mint FROM watch_candidate_tokens wct
+        WHERE wct.creator_address IN (
+            SELECT wallet_address FROM wt_webhook_enrollments
+            WHERE state = 'CONFIRMED'
+        )
+    """).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 45
+        if "wt_webhook_confirmed" not in scores[mint]["hard"]:
+            scores[mint]["hard"].append("wt_webhook_confirmed")
+
+    # wt_webhook_enrolled (+20, soft)
+    # Creators enrolled in WATCH monitoring but not yet confirmed.
+    for (mint,) in conn.execute("""
+        SELECT wct.mint FROM watch_candidate_tokens wct
+        WHERE wct.creator_address IN (
+            SELECT wallet_address FROM wt_webhook_enrollments
+            WHERE state = 'ENROLLED'
+        )
+    """).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 20
+        if "wt_webhook_enrolled" not in scores[mint]["soft"]:
+            scores[mint]["soft"].append("wt_webhook_enrolled")
+
+    # watchtower_dormant_seen (+10, soft)
+    # Scanner precision not yet validated — supporting signal only.
+    for (mint,) in conn.execute("""
+        SELECT wct.mint FROM watch_candidate_tokens wct
+        WHERE wct.mint IN (SELECT mint FROM watchtower_dormant_seen)
+           OR wct.creator_address IN (SELECT creator FROM watchtower_dormant_seen)
+    """).fetchall():
+        ensure(mint)
+        scores[mint]["score"] += 10
+        if "dormant_seen" not in scores[mint]["soft"]:
+            scores[mint]["soft"].append("dormant_seen")
+
+    # fingerprint_amount (+10 each, soft — exclude known pump.fun fee pattern)
+    for pattern in _WT_FINGERPRINT_PATTERNS:
+        # Extra guard: never match %.00203928 (pump.fun creation fee)
+        if "%.00203928" in pattern or pattern == "%.0203928":
+            # For %.0203928 exclude the pure pump.fun fee 0.00203928 by adding NOT LIKE guard
+            for (mint,) in conn.execute("""
+                SELECT wct.mint FROM watch_candidate_tokens wct
+                WHERE wct.creator_address IN (
+                    SELECT creator_address FROM creator_funders
+                    WHERE CAST(amount_sol AS TEXT) LIKE ?
+                      AND CAST(amount_sol AS TEXT) NOT LIKE '%.00203928'
+                )
+            """, (pattern,)).fetchall():
+                ensure(mint)
+                scores[mint]["score"] += 10
+                if "fingerprint_amount" not in scores[mint]["soft"]:
+                    scores[mint]["soft"].append("fingerprint_amount")
+        else:
+            for (mint,) in conn.execute("""
+                SELECT wct.mint FROM watch_candidate_tokens wct
+                WHERE wct.creator_address IN (
+                    SELECT creator_address FROM creator_funders
+                    WHERE CAST(amount_sol AS TEXT) LIKE ?
+                )
+            """, (pattern,)).fetchall():
+                ensure(mint)
+                scores[mint]["score"] += 10
+                if "fingerprint_amount" not in scores[mint]["soft"]:
+                    scores[mint]["soft"].append("fingerprint_amount")
+
+    # ── shared_recipient (+35, soft — for WATCH_LIKE_NEW_OP) ─────────────────
+    shared_recip_rows = conn.execute("""
+        SELECT cot.recipient_address
+        FROM creator_outgoing_transfers cot
+        JOIN watch_candidate_tokens wct ON wct.creator_address = cot.creator_address
+        WHERE cot.recipient_address NOT LIKE 'astra%'
+          AND cot.recipient_address NOT IN (
+              SELECT address FROM infra_wallets
+              WHERE type NOT IN ('bonding_curve','pumpswap_pool','pool')
+          )
+        GROUP BY cot.recipient_address
+        HAVING COUNT(DISTINCT cot.creator_address) >= 2
+    """).fetchall()
+    shared_recips = {r[0] for r in shared_recip_rows}
+    shared_recips -= wt_addresses  # exclude WT-known recipients
+
+    if shared_recips:
+        sr_ph = ",".join("?" * len(shared_recips))
+        for (mint,) in conn.execute(f"""
+            SELECT wct.mint FROM watch_candidate_tokens wct
+            WHERE wct.creator_address IN (
+                SELECT creator_address FROM creator_outgoing_transfers
+                WHERE recipient_address IN ({sr_ph})
+            )
+        """, list(shared_recips)).fetchall():
+            ensure(mint)
+            scores[mint]["score"] += 35
+            if "shared_recipient" not in scores[mint]["soft"]:
+                scores[mint]["soft"].append("shared_recipient")
+
+    # ── shared_funder (+30, soft — for WATCH_LIKE_NEW_OP) ────────────────────
+    shared_funder_rows = conn.execute("""
+        SELECT cf.funder_address
+        FROM creator_funders cf
+        JOIN watch_candidate_tokens wct ON wct.creator_address = cf.creator_address
+        WHERE cf.funder_address NOT LIKE 'astra%'
+          AND cf.funder_address NOT IN (
+              SELECT address FROM infra_wallets
+              WHERE type NOT IN ('bonding_curve','pumpswap_pool','pool')
+          )
+        GROUP BY cf.funder_address
+        HAVING COUNT(DISTINCT cf.creator_address) >= 2
+    """).fetchall()
+    shared_funders = {r[0] for r in shared_funder_rows} - wt_addresses
+
+    if shared_funders:
+        sf_ph = ",".join("?" * len(shared_funders))
+        for (mint,) in conn.execute(f"""
+            SELECT wct.mint FROM watch_candidate_tokens wct
+            WHERE wct.creator_address IN (
+                SELECT creator_address FROM creator_funders
+                WHERE funder_address IN ({sf_ph})
+            )
+        """, list(shared_funders)).fetchall():
+            ensure(mint)
+            scores[mint]["score"] += 30
+            if "shared_funder" not in scores[mint]["soft"]:
+                scores[mint]["soft"].append("shared_funder")
+
+    # ── Step 2: Apply bands and write results ─────────────────────────────────
+    counts = {"WATCHTOWER": 0, "WATCH_LIKE_NEW_OP": 0, "UNKNOWN": 0}
+
+    # Hard signals that prove DIRECT WATCHTOWER funding lineage (can override Alpha)
+    _WT_LINEAGE_SIGNALS = {"creator_is_wt_infra", "funded_by_wt_infra", "sends_to_wt_infra"}
+
+    for mint, data in scores.items():
+        s = data["score"]
+        hard_signals = set(data["hard"])
+        has_hard = len(hard_signals) > 0
+        all_signals = data["hard"] + data["soft"]
+        reason = ",".join(all_signals) if all_signals else None
+        conf = min(s / 100.0, 1.0)
+
+        # ALPHA-FAMILY EXCLUSION: if this token's funding traces to an Alpha hub,
+        # it can only be WATCHTOWER with DIRECT WT funding lineage. Webhook/dormant/
+        # interceptor/corridor signals are insufficient to override Alpha lineage.
+        is_alpha = mint in alpha_mints
+        is_cex_funded = mint in cex_funded_mints
+        has_wt_lineage = bool(hard_signals & _WT_LINEAGE_SIGNALS)
+
+        # CEX EXCLUSION: a creator funded directly from a CEX/service provider cannot
+        # be WATCHTOWER (WATCHTOWER funds internally via treasury cascade), unless it
+        # also has direct WT funding lineage proving an internal path exists.
+        # ALPHA EXCLUSION: same logic for Alpha-family fingerprint-fanout hubs.
+        wt_blocked = (is_alpha or is_cex_funded) and not has_wt_lineage
+
+        if s >= _WT_HARD_THRESHOLD and has_hard and not wt_blocked:
+            classified = "WATCHTOWER"
+        elif s >= _WT_SCORE_NEW_OP_LOW:
+            classified = "WATCH_LIKE_NEW_OP"
+            tags = []
+            if is_alpha:      tags.append("alpha_family")
+            if is_cex_funded: tags.append("cex_funded")
+            if tags:
+                reason = (reason + "," if reason else "") + ",".join(tags)
+        else:
+            classified = "UNKNOWN"
+            conf = 0.0
+            reason = None
+
+        counts[classified] = counts.get(classified, 0) + 1
+
+        conn.execute("""
+            UPDATE watch_candidate_tokens
+            SET classified_as=?, classification_conf=?, classification_reason=?,
+                updated_at=strftime('%s','now')
+            WHERE mint=?
+        """, (classified, round(conf, 3), reason, mint))
+
+    conn.commit()
+    print(f"[WATCH_PIPELINE] Classified (scored): {counts}", flush=True)
+    return counts
+
+
+def _classify_all_watch_candidates(conn: sqlite3.Connection) -> dict:
+    """Classify all watch_candidate_tokens. Delegates to bulk classifier."""
+    return _classify_all_watch_candidates_bulk(conn)
+
+
+def _build_watch_clusters(conn: sqlite3.Connection) -> int:
+    """
+    Group WATCH_LIKE_NEW_OP tokens into clusters via shared signal.
+    Uses direct DB queries (not reason string parsing) for reliability.
+    Populates wt_cluster_members. Returns number of clusters created/updated.
+    """
+    wt_addresses = _get_wt_known_addresses()
+
+    # ── Update seed WATCHTOWER cluster ────────────────────────────────────────
+    wt_count = conn.execute(
+        "SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='WATCHTOWER'"
+    ).fetchone()[0]
+    conn.execute("""
+        UPDATE wt_operator_clusters SET watch_token_count=?,
+            operator_classification='WATCHTOWER', classification_confidence=1.0,
+            updated_at=strftime('%s','now')
+        WHERE label='WATCH'
+    """, (wt_count,))
+
+    # ── Build signal→mints mapping from actual DB data ────────────────────────
+    # Each signal (shared recipient or shared funder) maps to the mints that share it
+
+    # Signal 1: shared recipient among WATCH_LIKE_NEW_OP tokens
+    signal_to_mints: dict = {}  # signal_key → set of mints
+
+    recip_rows = conn.execute("""
+        SELECT cot.recipient_address, wct.mint, wct.creator_address, wct.classification_conf
+        FROM creator_outgoing_transfers cot
+        JOIN watch_candidate_tokens wct ON wct.creator_address = cot.creator_address
+        WHERE wct.classified_as = 'WATCH_LIKE_NEW_OP'
+          AND cot.recipient_address NOT LIKE 'astra%'
+          AND cot.recipient_address NOT IN (SELECT address FROM infra_wallets
+                WHERE type NOT IN ('bonding_curve','pumpswap_pool','pool'))
+    """).fetchall()
+
+    mint_meta: dict = {}  # mint → (creator, conf)
+    for recip, mint, creator, conf in recip_rows:
+        key = f"recip:{recip}"
+        signal_to_mints.setdefault(key, set()).add(mint)
+        mint_meta[mint] = (creator, conf, f"shared_recipient:{recip[:16]}")
+
+    # Signal 2: shared funder among WATCH_LIKE_NEW_OP tokens
+    funder_rows = conn.execute("""
+        SELECT cf.funder_address, wct.mint, wct.creator_address, wct.classification_conf
+        FROM creator_funders cf
+        JOIN watch_candidate_tokens wct ON wct.creator_address = cf.creator_address
+        WHERE wct.classified_as = 'WATCH_LIKE_NEW_OP'
+          AND cf.funder_address NOT LIKE 'astra%'
+          AND cf.funder_address NOT IN (SELECT address FROM infra_wallets
+                WHERE type NOT IN ('bonding_curve','pumpswap_pool','pool'))
+    """).fetchall()
+
+    for funder, mint, creator, conf in funder_rows:
+        if funder in wt_addresses:
+            continue
+        key = f"funder:{funder}"
+        signal_to_mints.setdefault(key, set()).add(mint)
+        if mint not in mint_meta:
+            mint_meta[mint] = (creator, conf, f"shared_funder:{funder[:16]}")
+
+    # ── Union-find over signals ───────────────────────────────────────────────
+    parent: dict = {}
+
+    def find(x):
+        root = x
+        while parent.get(root, root) != root:
+            root = parent.get(root, root)
+        while parent.get(x, x) != root:
+            parent[x], x = root, parent.get(x, x)
+        return root
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[rb] = ra
+
+    for sig_key, mints in signal_to_mints.items():
+        if len(mints) < 2:
+            continue
+        mints_list = list(mints)
+        for i in range(1, len(mints_list)):
+            union(mints_list[0], mints_list[i])
+
+    # Group mints by root
+    groups: dict = {}
+    for mint in mint_meta:
+        root = find(mint)
+        groups.setdefault(root, []).append(mint)
+
+    clusters_created = 0
+
+    for root, group_mints in groups.items():
+        if len(group_mints) < 2:
+            continue
+
+        avg_conf = sum(mint_meta[m][1] for m in group_mints) / len(group_mints)
+
+        # Reuse existing cluster or create new one
+        existing_cid = conn.execute("""
+            SELECT cluster_id FROM watch_candidate_tokens
+            WHERE mint IN ({}) AND cluster_id IS NOT NULL
+            LIMIT 1
+        """.format(",".join("?" * len(group_mints))), group_mints).fetchone()
+
+        if existing_cid:
+            cluster_id = existing_cid[0]
+            conn.execute("""
+                UPDATE wt_operator_clusters SET
+                    token_count=?, watch_token_count=?,
+                    operator_classification='WATCH_LIKE_NEW_OP',
+                    classification_confidence=?,
+                    last_seen=strftime('%s','now'), updated_at=strftime('%s','now')
+                WHERE cluster_id=?
+            """, (len(group_mints), len(group_mints), avg_conf, cluster_id))
+        else:
+            conn.execute("""
+                INSERT INTO wt_operator_clusters
+                    (state, confidence, origin, operator_classification,
+                     classification_confidence, token_count, watch_token_count,
+                     provisioner_count, first_seen, last_seen, created_at, updated_at)
+                VALUES ('FORMING', ?, 'watch_pipeline', 'WATCH_LIKE_NEW_OP',
+                        ?, ?, ?, 0,
+                        strftime('%s','now'), strftime('%s','now'),
+                        strftime('%s','now'), strftime('%s','now'))
+            """, (avg_conf, avg_conf, len(group_mints), len(group_mints)))
+            cluster_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            clusters_created += 1
+
+        for mint in group_mints:
+            creator, conf, reason = mint_meta.get(mint, (None, 0.0, "watch_pipeline"))
+            conn.execute("""
+                INSERT OR IGNORE INTO wt_cluster_members
+                    (cluster_id, token_mint, creator_wallet, relay_wallet,
+                     confidence, attribution_reason, assigned_at)
+                VALUES (?, ?, ?, '', ?, ?, strftime('%s','now'))
+            """, (cluster_id, mint, creator, conf, reason))
+            conn.execute("""
+                UPDATE watch_candidate_tokens SET cluster_id=?, updated_at=strftime('%s','now')
+                WHERE mint=?
+            """, (cluster_id, mint))
+
+    conn.commit()
+    print(f"[WATCH_PIPELINE] Built {clusters_created} new WATCH_LIKE_NEW_OP clusters", flush=True)
+    return clusters_created
+
+
+def _get_known_operator_hubs(conn: sqlite3.Connection) -> dict:
+    """
+    Registry of confirmed operator hubs → operator_identity (OPERATOR_001, …).
+
+    Backed by wt_known_operator_hubs so newly-confirmed operators can be promoted
+    by inserting a row, with no code change. A hub lands here only after a candidate
+    clears the four-test review (hub purity / timing / corridor family / downstream
+    convergence). Returns {} if the table does not exist yet.
+    """
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS wt_known_operator_hubs (
+            hub_wallet        TEXT PRIMARY KEY,
+            operator_identity TEXT NOT NULL,
+            confidence        REAL NOT NULL DEFAULT 1.0,
+            evidence_json     TEXT,
+            created_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )
+    """)
+    return {
+        row[0]: row[1]
+        for row in conn.execute(
+            "SELECT hub_wallet, operator_identity FROM wt_known_operator_hubs"
+        ).fetchall()
+    }
+
+
+def _discover_operations(conn: sqlite3.Connection) -> dict:
+    """
+    OPERATION DISCOVERY ENGINE — Phase 1 (corridor + timing union-find).
+
+    Groups WATCH tokens into operation candidates automatically using signals
+    already present in the DB — NO RPC, NO tracing.
+
+    Discipline: an operation requires MULTIPLE co-occurring signals.
+      funding corridor (high-precision shared amount)
+      + launch-timing burst (single-linkage on a 7-day gap)
+      + fresh single-token creators (guaranteed by watch_candidate_tokens)
+    The amount alone never defines an operation — the 2.10203928 corridor is
+    shared by WATCHTOWER and Alpha; only timing + lifecycle separate them.
+
+    Result: auto-named UNKNOWN_OPERATION_NNN rows in wt_operations, with an
+    operator_identity tag (WATCHTOWER | ALPHA | UNKNOWN) applied afterward.
+    Humans only rename/validate.
+    """
+    import json as _json
+
+    WINDOW_S = 7 * 86400  # 7-day single-linkage gap
+
+    # ── Step 1: pull all (corridor, mint, creator, migrated_at) rows ──────────
+    # Corridor = high-precision (>=5 decimals) amount shared by >=3 fresh creators.
+    rows = conn.execute("""
+        SELECT CAST(cf.amount_sol AS TEXT) AS corridor,
+               wct.mint, wct.creator_address, ta.migrated_at
+        FROM watch_candidate_tokens wct
+        JOIN creator_funders cf ON cf.creator_address = wct.creator_address
+        JOIN token_analysis ta  ON ta.mint = wct.mint
+        WHERE cf.amount_sol > 0.05
+          AND ta.migrated_at IS NOT NULL
+          AND LENGTH(SUBSTR(CAST(cf.amount_sol AS TEXT),
+                            INSTR(CAST(cf.amount_sol AS TEXT),'.')+1)) >= 5
+          AND CAST(cf.amount_sol AS TEXT) IN (
+              SELECT CAST(cf2.amount_sol AS TEXT)
+              FROM creator_funders cf2
+              JOIN watch_candidate_tokens w2 ON w2.creator_address = cf2.creator_address
+              WHERE LENGTH(SUBSTR(CAST(cf2.amount_sol AS TEXT),
+                                  INSTR(CAST(cf2.amount_sol AS TEXT),'.')+1)) >= 5
+              GROUP BY CAST(cf2.amount_sol AS TEXT)
+              HAVING COUNT(DISTINCT w2.creator_address) >= 3
+          )
+    """).fetchall()
+
+    # Group rows by corridor, dedup mints (a creator may have multiple funder rows)
+    by_corridor: dict = {}
+    for corridor, mint, creator, migrated_at in rows:
+        by_corridor.setdefault(corridor, {})
+        # keep one row per mint; prefer a real migrated_at
+        if mint not in by_corridor[corridor]:
+            by_corridor[corridor][mint] = (creator, migrated_at)
+
+    # ── Step 2: timing single-linkage within each corridor ────────────────────
+    # Each operation candidate is a maximal run of tokens whose consecutive
+    # launch gaps are <= WINDOW_S.
+    # Lineage resolver: does a creator's funding chain (up to 3 hops, ALL branches)
+    # reach a KNOWN operator hub? Returns the hub address, or 'UNKNOWN_LINEAGE'.
+    # We only split operations on KNOWN hubs (WT infra + Alpha hubs) so that Alpha
+    # and WATCHTOWER separate even when they share a corridor and overlap in time.
+    # Untraced creators collapse into one 'UNKNOWN_LINEAGE' bucket — a corridor+timing
+    # burst is NOT fragmented just because each creator has a unique large funder.
+    # Known operator hubs (registry-driven, no inline hard-coding): maps a hub
+    # wallet → operator_identity (OPERATOR_001, OPERATOR_002, …). Promotions are
+    # added to wt_known_operator_hubs once a candidate clears the four-test review;
+    # no code edit needed per discovery.
+    _operator_hubs = _get_known_operator_hubs(conn)  # {hub_wallet: operator_identity}
+    _operator_identities = set(_operator_hubs.values())  # for behavioral-match fallback
+    _known_hubs = (set(_get_wt_known_addresses()) | set(_ALPHA_FAMILY_HUBS)
+                   | set(_operator_hubs.keys()))
+    _hub_ph = ",".join("?" * len(_known_hubs))
+    _root_cache: dict = {}
+    def _funding_root(creator: str) -> str:
+        if creator in _root_cache:
+            return _root_cache[creator]
+        hub = conn.execute(f"""
+            SELECT funder_address FROM (
+                SELECT f1.funder_address FROM creator_funders f1
+                WHERE f1.creator_address = ? AND f1.funder_address IN ({_hub_ph})
+                UNION
+                SELECT f2.funder_address FROM creator_funders f1
+                JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+                WHERE f1.creator_address = ? AND f2.funder_address IN ({_hub_ph})
+                UNION
+                SELECT f3.funder_address FROM creator_funders f1
+                JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+                JOIN creator_funders f3 ON f3.creator_address = f2.funder_address
+                WHERE f1.creator_address = ? AND f3.funder_address IN ({_hub_ph})
+            ) LIMIT 1
+        """, [creator] + list(_known_hubs)
+             + [creator] + list(_known_hubs)
+             + [creator] + list(_known_hubs)).fetchone()
+        _root_cache[creator] = hub[0] if hub else "UNKNOWN_LINEAGE"
+        return _root_cache[creator]
+
+    operations = []  # list of (corridor, group)
+    for corridor, mint_map in by_corridor.items():
+        items = sorted(mint_map.items(), key=lambda kv: kv[1][1] or 0)  # by migrated_at
+        if not items:
+            continue
+        # Step 2a: timing single-linkage → time-runs
+        time_runs = []
+        cur = [items[0]]
+        for prev, nxt in zip(items, items[1:]):
+            if (nxt[1][1] or 0) - (prev[1][1] or 0) <= WINDOW_S:
+                cur.append(nxt)
+            else:
+                time_runs.append(cur)
+                cur = [nxt]
+        time_runs.append(cur)
+
+        # Step 2b: within each time-run, sub-split by funding root (lineage).
+        # Tokens funded through different capital roots are different operations.
+        for run in time_runs:
+            by_root: dict = {}
+            for mint, meta in run:
+                by_root.setdefault(_funding_root(meta[0]), []).append((mint, meta))
+            for root_group in by_root.values():
+                if len(root_group) >= 3:
+                    operations.append((corridor, root_group))
+
+    # ── Preserve lifecycle state across rebuilds ──────────────────────────────
+    # Key on (corridor_amount, window_start) which is stable for a given operation.
+    # Human-terminal states (NAMED/CONFIRMED/MERGED/NOISE) and their metadata are
+    # carried forward so rebuilds never destroy human work.
+    prior = {}
+    for r in conn.execute("""
+        SELECT corridor_amount, window_start, human_name, state, operator_identity,
+               first_discovered_at, merged_into, noise_reason,
+               identity_confidence, identity_validated_at
+        FROM wt_operations
+    """).fetchall():
+        prior[(r[0], r[1])] = {
+            "human_name": r[2], "state": r[3], "identity": r[4],
+            "first_discovered_at": r[5], "merged_into": r[6], "noise_reason": r[7],
+            "identity_confidence": r[8], "identity_validated_at": r[9],
+        }
+
+    conn.execute("DELETE FROM wt_operation_members")
+    conn.execute("DELETE FROM wt_operations")
+
+    wt_addresses = _get_wt_known_addresses()
+    _now = int(__import__("time").time())
+
+    # ── Steps 3-5: score, persist, tag operator identity, log transitions ─────
+    seq = 0
+    summary = {"WATCHTOWER": 0, "ALPHA": 0, "UNKNOWN": 0}
+    for corridor, group in sorted(operations, key=lambda g: -len(g[1])):
+        seq += 1
+        mints = [m for m, _ in group]
+        creators = {meta[0] for _, meta in group}
+        times = [meta[1] for _, meta in group if meta[1]]
+        w_start, w_end = (min(times), max(times)) if times else (None, None)
+        window_days = ((w_end - w_start) / 86400.0) if (w_start and w_end) else 0
+
+        # Discovery confidence (coordination strength, NOT is-WATCHTOWER)
+        conf = 0.5
+        conf += 0.2  # all members are fresh single-token creators by construction
+        if window_days < 7:
+            conf += 0.2
+        if len(mints) >= 10:
+            conf += 0.1
+        conf = min(conf, 1.0)
+
+        # ── Coherence score (orthogonal to lifecycle) ─────────────────────────
+        # Multi-factor: would a human agree these tokens belong to ONE operator?
+        #   window tightness + corridor purity + creator/hub overlap.
+        # Window tightness (0-0.4): tighter burst = more coherent
+        if   window_days <= 3:  w_score = 0.40
+        elif window_days <= 7:  w_score = 0.30
+        elif window_days <= 12: w_score = 0.15
+        else:                   w_score = 0.05
+        # Corridor purity (0-0.2): all share the exact corridor amount by construction
+        purity = 0.20
+        # Hub overlap (0-0.3): fraction of creators resolving to the SAME funding root
+        roots = {}
+        for c in creators:
+            r = _funding_root(c)
+            roots[r] = roots.get(r, 0) + 1
+        top_root_frac = (max(roots.values()) / len(creators)) if creators else 0
+        hub_score = 0.30 * top_root_frac
+        # Size stability (0-0.1): larger groups are more robust signals
+        size_score = 0.10 if len(mints) >= 10 else (0.05 if len(mints) >= 5 else 0.0)
+        coherence = round(min(w_score + purity + hub_score + size_score, 1.0), 3)
+        if   coherence >= 0.70: coh_flag = "HIGH_COHERENCE"
+        elif coherence >= 0.45: coh_flag = "MEDIUM_COHERENCE"
+        else:                   coh_flag = "LOW_COHERENCE"
+
+        # Operator identity tag. `identity` answers "who is this operator?";
+        # `identity_confidence` answers "why do we believe that?" —
+        #   LINEAGE_CONFIRMED  the dominant funding root is a registered operator hub
+        #   BEHAVIORAL_MATCH   carried-forward human_name matches a registered operator,
+        #                      but the funding lineage is too sparse to prove the root
+        #   UNKNOWN            neither (default)
+        # The two are orthogonal so dashboards can show one operator with mixed evidence
+        # quality instead of fragmenting a known operator across UNKNOWN rows.
+        identity = "UNKNOWN"
+        identity_confidence = "UNKNOWN"
+        # WATCHTOWER if any creator has WT funding lineage (3-hop) or is WT infra
+        wt_ph = ",".join("?" * len(wt_addresses))
+        wt_hit = conn.execute(f"""
+            SELECT 1 WHERE EXISTS (
+                SELECT 1 FROM creator_funders f1
+                WHERE f1.creator_address IN ({",".join("?"*len(creators))})
+                  AND f1.funder_address IN ({wt_ph})
+                UNION
+                SELECT 1 FROM creator_funders f1
+                JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+                WHERE f1.creator_address IN ({",".join("?"*len(creators))})
+                  AND f2.funder_address IN ({wt_ph})
+                UNION
+                SELECT 1 FROM creator_funders f1
+                JOIN creator_funders f2 ON f2.creator_address = f1.funder_address
+                JOIN creator_funders f3 ON f3.creator_address = f2.funder_address
+                WHERE f1.creator_address IN ({",".join("?"*len(creators))})
+                  AND f3.funder_address IN ({wt_ph})
+            )
+        """, list(creators) + list(wt_addresses)
+             + list(creators) + list(wt_addresses)
+             + list(creators) + list(wt_addresses)).fetchone()
+        if wt_hit:
+            identity = "WATCHTOWER"
+        elif any(_is_alpha_family_creator(c, conn) for c in creators):
+            identity = "ALPHA"
+        else:
+            # Registry-driven operator identity: if this op's dominant funding root
+            # is a confirmed operator hub, tag it (OPERATOR_001, …). 'roots' was
+            # already computed above for the coherence hub-overlap score.
+            op_root = max(roots, key=roots.get) if roots else None
+            if op_root in _operator_hubs:
+                identity = _operator_hubs[op_root]
+                identity_confidence = "LINEAGE_CONFIRMED"
+
+        signals = ["funding_corridor", "timing_burst", "fresh_creators"]
+
+        # Carry forward lifecycle state from a prior run (keyed on corridor+window)
+        p = prior.get((corridor, w_start), {})
+        human_name   = p.get("human_name")
+        merged_into  = p.get("merged_into")
+        noise_reason = p.get("noise_reason")
+        first_disc   = p.get("first_discovered_at") or _now
+
+        # Behavioral-match fallback: if lineage didn't resolve an operator but a human
+        # confirmed this op as a registered operator (human_name matches a registry
+        # identity), inherit that identity at lower confidence. Same operator by
+        # corridor fingerprint / timing / convergence; funding wallets just untraced.
+        if identity == "UNKNOWN" and human_name in _operator_identities:
+            identity = human_name
+            identity_confidence = "BEHAVIORAL_MATCH"
+
+        # Identity timestamp (first-class, distinct from updated_at): bump to now ONLY when
+        # operator_identity or identity_confidence differs from the carried-forward prior.
+        # Identical re-confirmation keeps the original timestamp, so the UI can show
+        # "identity established N days ago" vs the engine-pass time in updated_at.
+        prior_identity   = p.get("identity")
+        prior_confidence = p.get("identity_confidence")
+        prior_validated  = p.get("identity_validated_at")
+        if identity != prior_identity or identity_confidence != prior_confidence or not prior_validated:
+            identity_validated_at = _now
+        else:
+            identity_validated_at = prior_validated
+
+        # State precedence: keep human-terminal states; engine only manages DISCOVERED/DORMANT
+        prior_state = p.get("state")
+        if prior_state in ("NAMED", "CONFIRMED", "MERGED", "NOISE"):
+            state = prior_state
+        else:
+            state = "DORMANT" if identity == "ALPHA" else "DISCOVERED"
+
+        conn.execute("""
+            INSERT INTO wt_operations
+                (auto_name, human_name, operator_identity, identity_confidence,
+                 identity_validated_at, state,
+                 token_count, creator_count, confidence, corridor_amount, window_start,
+                 window_end, discovery_signals, coherence_score, coherence_flag,
+                 merged_into, noise_reason, first_discovered_at, discovered_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    strftime('%s','now'), strftime('%s','now'))
+        """, (f"UNKNOWN_OPERATION_{seq:03d}", human_name, identity, identity_confidence,
+              identity_validated_at, state, len(mints), len(creators), round(conf, 3),
+              corridor, w_start, w_end, _json.dumps(signals), coherence, coh_flag,
+              merged_into, noise_reason, first_disc))
+        op_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+        # Log a DISCOVERED transition only the first time we ever see this operation
+        if not p:
+            conn.execute("""
+                INSERT INTO wt_operation_transitions
+                    (operation_id, from_state, to_state, actor, detail, at)
+                VALUES (?, NULL, 'DISCOVERED', 'engine', ?, strftime('%s','now'))
+            """, (op_id, _json.dumps({"corridor": corridor, "tokens": len(mints),
+                                      "coherence": coherence, "coherence_flag": coh_flag,
+                                      "identity": identity})))
+
+        for mint, meta in group:
+            conn.execute("""
+                INSERT OR IGNORE INTO wt_operation_members
+                    (operation_id, token_mint, creator_wallet, funding_amount,
+                     migrated_at, join_signal)
+                VALUES (?, ?, ?, ?, ?, 'corridor+timing')
+            """, (op_id, mint, meta[0], float(corridor) if corridor.replace('.','').isdigit() else None, meta[1]))
+
+        summary[identity] = summary.get(identity, 0) + 1
+
+    conn.commit()
+    print(f"[OPERATION_DISCOVERY] Discovered {seq} operations: {summary}", flush=True)
+    return {"operations": seq, "by_identity": summary}
+
+
+# ── Phase 2: Hub-Backfill Worker (safe mode) ──────────────────────────────────
+
+def _enqueue_hub_backfill(conn: sqlite3.Connection) -> int:
+    """
+    Queue fingerprint-funded creators' direct funders that have NO upstream data.
+    Pure SQL, no RPC. These are the single-use fanout wallets whose hub chain is
+    unknown — the gap that blocks operator identity. Idempotent (INSERT OR IGNORE).
+    """
+    conn.execute("""
+        INSERT OR IGNORE INTO wt_hub_backfill_queue
+            (funder_address, seed_creator, corridor_amount, status)
+        SELECT cf.funder_address, MIN(cf.creator_address), CAST(cf.amount_sol AS TEXT), 'pending'
+        FROM watch_candidate_tokens wct
+        JOIN creator_funders cf ON cf.creator_address = wct.creator_address
+        WHERE LENGTH(SUBSTR(CAST(cf.amount_sol AS TEXT),
+                            INSTR(CAST(cf.amount_sol AS TEXT),'.')+1)) >= 5
+          AND cf.funder_address NOT IN (SELECT creator_address FROM creator_funders)
+        GROUP BY cf.funder_address
+    """)
+    conn.commit()
+    n = conn.execute("SELECT COUNT(*) FROM wt_hub_backfill_queue WHERE status='pending'").fetchone()[0]
+    return n
+
+
+def _trace_funder_upstream(addr: str, max_hops: int = 3) -> tuple:
+    """
+    Walk a funder wallet upward via Helius up to max_hops or until a known hub.
+    Writes each `current ← upstream` edge to creator_funders.
+    Returns (hops_written, reached_hub_or_None). Rate-limited; RPC-accounted.
+
+    This automates the exact manual trace used in the Alpha investigation.
+    """
+    import os as _os, requests as _req, time as _t
+    api_key = _os.getenv("HELIUS_API_KEY", "").strip()
+    if not api_key:
+        return (0, None)
+
+    try:
+        from src.metrics.rpc_metrics_recorder import record_request as _rec
+    except Exception:
+        _rec = None
+
+    def _account(status_code, latency_ms):
+        # RPC accounting must NEVER break the trace — fully isolated.
+        if _rec is None:
+            return
+        try:
+            _rec(section="hub_backfill", provider="helius", method="getTransactions",
+                 status_code=status_code, latency_ms=latency_ms,
+                 source_file="main._trace_funder_upstream")
+        except Exception:
+            pass
+
+    known_hubs = set(_get_wt_known_addresses()) | set(_ALPHA_FAMILY_HUBS)
+    current = addr
+    hops_written = 0
+    reached_hub = None
+
+    for _hop in range(max_hops):
+        # NOTE: do NOT filter by type=TRANSFER — Helius buries many funding
+        # transfers inside SWAP/UNKNOWN txs; the type filter drops ~60% of inbound
+        # edges. We read nativeTransfers from ALL transaction types instead.
+        url = (f"https://api.helius.xyz/v0/addresses/{current}/transactions"
+               f"?api-key={api_key}&limit=50")
+        try:
+            _t0 = _t.time()
+            r = _req.get(url, timeout=15)
+            _account(r.status_code, (_t.time() - _t0) * 1000)
+            txs = r.json() if r.status_code == 200 else []
+        except Exception:
+            break
+
+        # Largest inbound SOL transfer = this wallet's funder
+        best_src, best_sol = None, 0.0
+        for tx in (txs or []):
+            for tr in (tx.get('nativeTransfers') or []):
+                if tr.get('toUserAccount') == current and tr.get('amount', 0) > 100000:
+                    sol = tr['amount'] / 1e9
+                    if sol > best_sol:
+                        best_sol, best_src = sol, tr.get('fromUserAccount')
+        if not best_src:
+            break
+
+        # Write edge current ← best_src (single-writer-safe path)
+        for _attempt in range(3):
+            try:
+                _wc = db_connect(DB_PATH, timeout=20)
+                _wc.execute("PRAGMA busy_timeout=20000")
+                _wc.execute("""
+                    INSERT OR REPLACE INTO creator_funders
+                        (creator_address, funder_address, amount_sol, first_detected_at)
+                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                """, (current, best_src, best_sol))
+                _wc.commit()
+                _wc.close()
+                hops_written += 1
+                break
+            except Exception:
+                _t.sleep(1)
+
+        if best_src in known_hubs:
+            reached_hub = best_src
+            break
+        current = best_src
+        _t.sleep(0.12)  # ~6-7 req/s
+
+    return (hops_written, reached_hub)
+
+
+def _propose_identity_changes(conn: sqlite3.Connection) -> int:
+    """
+    SAFE MODE: re-evaluate operation identities using the now-richer funding graph,
+    but PROPOSE rather than apply. Writes wt_identity_proposals where the traced
+    lineage implies an identity different from the current one.
+
+    A NEW_OPERATOR proposal fires when a hub funds >=3 operations' creators but is
+    in no known set — the automated Alpha-discovery moment.
+    """
+    import json as _json
+    wt_addresses = _get_wt_known_addresses()
+
+    # Clear prior unapplied proposals (rebuild each pass)
+    conn.execute("DELETE FROM wt_identity_proposals WHERE applied=0")
+
+    # Map: for each operation, resolve its creators' funding root (now deeper).
+    ops = conn.execute("""
+        SELECT operation_id, corridor_amount, operator_identity, token_count
+        FROM wt_operations WHERE state NOT IN ('MERGED','NOISE')
+    """).fetchall()
+
+    # Tally unknown hubs that fund multiple operations (NEW_OPERATOR candidates)
+    hub_op_count: dict = {}
+    op_hub: dict = {}
+
+    def _deep_root(creator: str) -> tuple:
+        """Return (hub_addr_or_None, role) by walking up to 3 hops for a known hub."""
+        cur = creator
+        for _ in range(3):
+            r = conn.execute(
+                "SELECT funder_address FROM creator_funders WHERE creator_address=? ORDER BY amount_sol DESC LIMIT 1",
+                (cur,)).fetchone()
+            if not r:
+                return (None, None)
+            f = r[0]
+            if f in _WT_INFRA_ROLES:
+                return (f, _WT_INFRA_ROLES[f])
+            if f in _ALPHA_FAMILY_HUBS:
+                return (f, "ALPHA_HUB")
+            cur = f
+        return (cur, "UNKNOWN_HUB")  # deepest reached, not a known hub
+
+    proposals = 0
+    for op_id, corridor, current_identity, token_count in ops:
+        creators = [r[0] for r in conn.execute(
+            "SELECT DISTINCT creator_wallet FROM wt_operation_members WHERE operation_id=?",
+            (op_id,)).fetchall()]
+        if not creators:
+            continue
+        # Resolve hub for each creator; take the most common
+        hubs = {}
+        roles = {}
+        for c in creators:
+            h, role = _deep_root(c)
+            if h:
+                hubs[h] = hubs.get(h, 0) + 1
+                roles[h] = role
+        if not hubs:
+            continue
+        top_hub = max(hubs, key=hubs.get)
+        top_role = roles[top_hub]
+
+        # Determine proposed identity from the resolved hub
+        if top_hub in _WT_INFRA_ROLES:
+            proposed = "WATCHTOWER"
+        elif top_hub in _ALPHA_FAMILY_HUBS:
+            proposed = "ALPHA"
+        else:
+            # Unknown hub — candidate NEW_OPERATOR; track for >=3-op rule
+            hub_op_count[top_hub] = hub_op_count.get(top_hub, 0) + 1
+            op_hub[op_id] = (top_hub, top_role, corridor, current_identity, token_count)
+            continue
+
+        if proposed != current_identity:
+            conn.execute("""
+                INSERT INTO wt_identity_proposals
+                    (operation_id, corridor_amount, current_identity, proposed_identity,
+                     evidence_hub, evidence_role, token_count)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (op_id, corridor, current_identity, proposed, top_hub, top_role, token_count))
+            proposals += 1
+
+    # NEW_OPERATOR proposals: unknown hub funding >=3 operations
+    for op_id, (hub, role, corridor, cur_id, tok) in op_hub.items():
+        if hub_op_count.get(hub, 0) >= 3 and cur_id != "NEW_OPERATOR":
+            conn.execute("""
+                INSERT INTO wt_identity_proposals
+                    (operation_id, corridor_amount, current_identity, proposed_identity,
+                     evidence_hub, evidence_role, token_count)
+                VALUES (?, ?, ?, 'NEW_OPERATOR', ?, 'NEW_HUB', ?)
+            """, (op_id, corridor, cur_id, hub, tok))
+            proposals += 1
+
+    conn.commit()
+
+    # Auto-apply only if explicitly enabled (after human validates the first report)
+    if os.getenv("WT_AUTO_APPLY_IDENTITY", "").lower() in ("1", "true", "yes"):
+        for pr in conn.execute("SELECT id, operation_id, proposed_identity FROM wt_identity_proposals WHERE applied=0").fetchall():
+            conn.execute("UPDATE wt_operations SET operator_identity=?, updated_at=strftime('%s','now') WHERE operation_id=?",
+                         (pr[2], pr[1]))
+            conn.execute("""
+                INSERT INTO wt_operation_transitions (operation_id, from_state, to_state, actor, detail, at)
+                VALUES (?, NULL, 'IDENTITY_CHANGE', 'engine', ?, strftime('%s','now'))
+            """, (pr[1], _json.dumps({"to_identity": pr[2], "auto_applied": True})))
+            conn.execute("UPDATE wt_identity_proposals SET applied=1 WHERE id=?", (pr[0],))
+        conn.commit()
+
+    print(f"[HUB_BACKFILL] Identity proposals: {proposals}", flush=True)
+    return proposals
+
+
+def _run_watch_pipeline(conn: sqlite3.Connection) -> dict:
+    """Run the full WATCH candidate pipeline: build → classify → cluster → discover → backfill-enqueue → propose."""
+    total = _build_watch_candidates(conn)
+    counts = _classify_all_watch_candidates(conn)
+    clusters = _build_watch_clusters(conn)
+    operations = _discover_operations(conn)
+    queued = _enqueue_hub_backfill(conn)
+    proposals = _propose_identity_changes(conn)
+    return {"total": total, "classified": counts, "clusters_built": clusters,
+            "operations": operations, "backfill_queued": queued,
+            "identity_proposals": proposals}
 
 
 # ── Worker heartbeat helpers ──────────────────────────────────────────────────
@@ -28230,32 +30070,42 @@ def _wt_heartbeat(worker_name: str, status: str = "ok", meta: dict = None) -> No
 
 _WT_INFRA_ROLES = {
     "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM": "SIGNALLER",
+    "44o1Hecb4QUhqcRNYJBC6XZoeHWzkWAvenR5YYHRGbFM": "SIGNALLER",  # 2026-05-29: dual-pings EUHceuJt alongside 44orA1Bx
     "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM": "TREASURY",
     "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1": "TREASURY_UP",
-    "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7": "PROFIT_RELAY",
-    "C745erBxwn4sJZGDRZpi71FPV3MA3kBQUXWbeJxRsGS4": "SUB_PROV",
-    "Gs7zXNYwdd2X1PoyBbsJBCuNTz6EyTT5KSd38tLMEmif": "SUB_PROV",
+    "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7": "SUB_PROV",  # reclassified 2026-05-29: direct TREASURY capital (490/740/890/1390 SOL), 1123 SOL balance — not a profit relay
+    "8g2qFR27iDPZimUpmaySqg8TgmNKTDAwimEdBB6w96mn": "TRADING_MGR",  # 200 SOL from TREASURY 2026-05-29: Astralane trading orchestrator, rapid pump.fun buy/sell cycles
+    "2ujRcf1fwQjW8cjUPK6krBJBMdbiMiSKvNscYjdbFW6R": "SUB_PROV",  # 800 SOL from TREASURY 2026-05-30: capital distribution hub
+    "C745erBxwn4sJZGDRZpi71FPV3MA3kBQUXWbeJxRsGS4": "SUB_PROV",  # 2 SOL from TREASURY 2026-05-17
+    "Gs7zXNYwdd2X1PoyBbsJBCuNTz6EyTT5KSd38tLMEmif": "SUB_PROV",  # 1000 SOL from TREASURY 2026-05-17
     "F17dbo3EeumSte7hEBgn6wDAv65BEN4U8eba9zXcNTg":  "PROFIT_RELAY",
     "EYjGUZamSQ9vJBxZ4yj7pCK2XaZ99MAEQx9xRMrzyMx1": "SWEEP_COLLECTOR",
     "96b4e8qvhjEPsXDtenEgs1VLBTkFqAcgYV8tE16Mgt7h": "SUB_PROV",
     "kFycb9QoQaRgLy3zZpF4Zw5DM5gKoT5HkZogSerq1Hd":  "SUB_PROV",
     "3UnqbigDhZvHpQFR29aDhKLEWSNkFcMbuNCrSDk6iikj": "PROFIT_RELAY",
     "67UoZBTBGhFa3irg6hv5dETdwLRTx2HCTyq5H51KFMFu": "PROFIT_RELAY",
-    # Confirmed sub-provisioners: directly fund WATCH creator wallets 0.5-5 SOL
-    "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe": "SUB_PROV",   # vpZCC chain, 57 creators
-    "CfKCTNb8rekLn6BggAyBgFpfbRUidcy27aJQUjCYVnvX": "SUB_PROV",   # relay chain, 7 WATCH creators
-    "fr6yQkDmWy6R6pecbUsxXaw6EvRJznZ2HsK5frQgud8":  "SUB_PROV",   # 4 WATCH creators, 22k SOL balance
-    "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk": "SUB_PROV",   # 6 WATCH creators, 479 SOL balance
-    "AnppRemLRErjaq6cMRhDLNPssZvzQzDdWhkPFdT4Z55e": "SUB_PROV",   # upstream feeder of fr6yQkDm
-    "4a9cYDxkfsL9xDT8mhYdxC6Em1bu1gWuh7d3mFQwxUeG": "SUB_PROV",   # upstream feeder of fr6yQkDm
+    # NOTE: F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe and fr6yQkDmWy6R6pecbUsxXaw6EvRJznZ2HsK5frQgud8
+    # were removed 2026-05-28 — confirmed Relay.link cross-chain bridge solver addresses, not WATCHTOWER
+    # 69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk removed 2026-05-28 — funds 4sAUSQFd (138-token
+    # persistent creator bot) via GMGN-funded actors, no verified TREASURY link
+    # AnppRemLRErjaq6cMRhDLNPssZvzQzDdWhkPFdT4Z55e and 4a9cYDxkfsL9xDT8mhYdxC6Em1bu1gWuh7d3mFQwxUeG
+    # were feeders of fr6yQkDm — removed with it as Relay.link related
     # Discovered live 2026-05-26: TREASURY sent 800+488 SOL, immediate creator fanout
     "CcdyBAT7L2cbfBYNGAdJffUrZibCKsXEmq3q6cVxTNUV": "SUB_PROV",   # 800 SOL from TREASURY, 0.7-1.3 SOL fanout
     "Dw7xNxxwuBnTfpwSrZMhcAQqFp4XNe9XNaVhhsvyx6Da": "SUB_PROV",   # 488 SOL from TREASURY
+    "7UyCwmSUcG7utdSPikn5caL9QwbEnAs1aDcbdWvGs37A": "SUB_PROV",   # confirmed 2026-06-02: TREASURY sent 90+10 SOL, SIGNALLER pings, funded 20 tier-2 fanout wallets → creators via x.10203928
+    "4r65bgGW8bpKfffmfmFiYnfC2y6R1QDWcyFK74AfAvvm": "PROFIT_RELAY",  # confirmed 2026-06-02: fingerprint-fanout hub, swept 79.3 SOL → WATCHTOWER_PRIMARY (5Ww9G6X) Apr 18
     # Confirmed SWARM provisioners: 70 SOL from TREASURY → thousands of ~0.014 SOL buyer wallets
     "5DYd3VB2WaN8gv1DsGzkNm2VkpPwUNhD74u84JVdfX4e": "SWARM_PROV",  # 2026-05-25: 70 SOL → ~4900 wallets → RICHAMERICA $500k peak
     "4nGZq5q4ZRX951Qv25KgjfyLo1RCLkCkU4RC1YnW3CaU": "SWARM_PROV",  # 2026-05-26: 70 SOL → 802 wallets → $319k peak
     "89KuKNoySSQA9E3qs4iFYHiAjnGs6DQMA8fPV7oaJY7y":  "SWARM_PROV",  # 2026-05-27: 70 SOL → fanout in progress
     "411VDoJqU34PTh4H5aX1yRhPbRbkWEGZCrnKdpM8DBZT": "SWARM_PROV",  # 2026-05-24
+    "5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H": "SUB_PROV",   # 2026-06-01: high-volume relay, no webhook — classify only
+    "2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz": "SUB_PROV",   # 2026-06-01: capital redistribution hub — TREASURY+5Ww9G6Xu+Dw7xNxxw funded, fans out to downstream SUB_PROVs, most-signalled (27x), active since 2026-05-28
+    "DzRrCaXNDG5usCo4oEtAPW8wVrEAwysVddgobrdUjXJ1": "SUB_PROV",   # 2026-06-01: TREASURY funded 800 SOL, signal-activated, fans out to 1000s of trader wallets (Gaynald campaign)
+    "5U1YLtzw2kkgsRZgnrVagbcAJSivdqzPtFjJAdPPceDW": "SUB_PROV",   # 2026-06-01: TREASURY funded 800 SOL, signal-activated, fans out to 1000s of trader wallets
+    "8U7zfBcS7UWhpHiQLvExLNd6tvtEsGFX1MP1N8QhmoPK": "SUB_PROV",   # 2026-06-01: TREASURY funded 800 SOL, signal-activated 12:28 UTC
+    "7qFnkHTjX9fhuqcKerL738ABs24HQvcdeovkWrwB7r57":  "SWARM_PROV", # 2026-06-01: TREASURY funded 70 SOL, signal-activated 12:28 UTC
     "5XmRKj7qZzqCtQsiZNNSFTxDu9D7Y8W6NYTNg7YEBTWy": "SWARM_PROV",  # 2026-05-23
     "G2BbetUgzETGhK8w43YbcwD9yx74CGg649z8nvWn6Ntd": "SWARM_PROV",  # 2026-05-20/21/22 (reused 3x)
     "7HVrPWzfnZzpxca3QeGnzWq34NCks76nTqzKq3f3o5x5": "SWARM_PROV",  # 2026-05-18
@@ -28265,29 +30115,52 @@ _WT_INFRA_ROLES = {
     "EHcCurttqYnGNFRQzadLFH52MqzB854SGbuanoDXod2":  "SWARM_PROV",  # 2026-04-29 – 05-15 (reused 8x)
     "FGKv2AZYwvEkkJNgWe6BGDd4W6188YHVmjBDtfUn8pqp": "SWARM_PROV",  # 2026-04-30 – 05-14 (reused 10x)
     "13DwkLXnE5Zu6DXh83EKmqPY9XZmgxcha1nA2Z4rh9gA": "SWARM_PROV",  # 2026-04-30, 05-12, 05-15
-    "7mWPZ9tJ7mPP2YK9PHzQXJbP65DAc97QP4RWGVwSWzUw": "SWARM_PROV",  # 2026-05-08
+    # "7mWPZ9tJ7mPP2YK9PHzQXJbP65DAc97QP4RWGVwSWzUw" — removed 2026-05-29: WhaleStreet WSOL-USDC pool, not WATCHTOWER
 }
 _WT_TREASURY_ADDR  = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
 _WT_SIGNALLER_ADDR = "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM"
 # Tier 2 roles: high-volume, use minute-bucket aggregation instead of raw hit rows
 _WT_TIER2_AGG_ROLES = {"PROFIT_RELAY", "SWEEP_COLLECTOR", "TREASURY_UP"}
+
+# Trading bots and CEX hot wallets — never treat as provisioners or candidates
+_WT_PLATFORM_WALLETS = {
+    "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk",  # Axiom trading platform
+    "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",  # Binance 2
+    "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",   # Chain-image (CEX/bridge)
+    "MaestroUL88UBnZr3wfoN7hqmNWFi3ZYCGqZoJJHE36",   # Maestro bot fee wallet
+    "MaestroAAe9ge5HTc64VnP3oGwLnKPPqkYFTkwJnxJ6",   # Maestro program
+    "astraRVUuTHjpwEVvNBeQEgwYx9w9CFyfxjYoobCZhL",   # Astralane fee wallet
+    "EBPLWSRcnPxNzfPHzK6JgVi6vD36qoA9Jew8e5NZpQpx",  # Maestro fee collector
+    "CA7v8gHfbquYXyDnDx6QxWW8hmL1H7X6Y2RYDrGLnuck",  # Maestro fee collector 2
+    "X5QPJcpph4mBAJDzc4hRziFftSbcygV59kRb2Fu6Je1",   # Maestro fee collector 3
+}
+
 _wt_tables_ready   = False  # guard so _ensure_watchtower_tables runs once in webhook
 
 # ── Known deployment sizes (SOL) that TREASURY uses for fresh corridor wallets ──
 # Creator wallets: 0.5-10 SOL (fees + initial buy). Coordinators: 15+ SOL.
 # Upper bound prevents coordinator-level transfers from entering corridor tracking.
-_WT_MIN_DEPLOYMENT_SOL = 0.5   # minimum TREASURY outbound to trigger corridor entry
-_WT_MAX_DEPLOYMENT_SOL = 12.0  # above this = coordinator/sub-prov routing, not creator
+_WT_MIN_DEPLOYMENT_SOL = 10.0  # minimum TREASURY outbound to trigger corridor entry
+_WT_MAX_DEPLOYMENT_SOL = 99999.0  # no upper limit — SUB_PROVs receive 70-1300 SOL
 
 # ── SWARM corridor detection thresholds ──────────────────────────────────────
 # A SWARM corridor: TREASURY → single-use provisioner → hundreds/thousands of
 # ~0.014 SOL buyer wallets → coordinated single-token buy → synchronized exit → recycle
 _WT_SWARM_TREASURY_SOL     = 70.0   # canonical TREASURY → SWARM_PROV amount (±5 SOL tolerance)
 _WT_SWARM_TREASURY_TOL     = 10.0   # tolerance band around canonical amount
-_WT_SWARM_MIN_FANOUTS      = 100    # minimum unique wallets to classify as SWARM
-_WT_SWARM_MIN_FANOUT_SOL   = 0.013  # lower bound of per-wallet funding
-_WT_SWARM_MAX_FANOUT_SOL   = 0.0155 # upper bound of per-wallet funding
+_WT_SWARM_MIN_FANOUT_SOL   = 0.010  # lower bound of per-wallet funding
+_WT_SWARM_MAX_FANOUT_SOL   = 0.020  # upper bound of per-wallet funding
 _WT_SWARM_FANOUT_WINDOW_S  = 3600   # max time for fanout phase to complete
+_WT_SWARM_SAMPLE_SIZE      = 3      # max recipients to sample for mint confirmation (do NOT enrol more)
+
+# ── Operator-layer detection thresholds ──────────────────────────────────────
+# Treasury outbound ≥100 SOL to unknown wallet = OPERATOR_WALLET_CANDIDATE
+_WT_OPERATOR_MIN_SOL       = 100.0  # minimum SOL to classify as operator top-up
+_WT_OPERATOR_WATCH_TTL_S   = 10800  # 3-hour active watch window after enrolment
+# Operator outbound tiny SOL to fresh wallet = LIKELY_DEPLOYER
+_WT_DEPLOYER_GAS_MIN_SOL   = 0.05   # minimum gas-seed amount
+_WT_DEPLOYER_GAS_MAX_SOL   = 0.5    # maximum gas-seed amount (above = not a deployer seed)
+_WT_DEPLOYER_WATCH_TTL_S   = 1800   # 30-minute TTL on deployer enrolment
 
 # Corridor type constants
 CORRIDOR_TYPE_CREATOR      = "CREATOR"
@@ -28312,7 +30185,7 @@ _wt_corridors: dict = {}   # wallet_address → corridor dict
 _wt_corridors_lock = _threading.Lock()
 
 # Max SIGNALLER lag from TREASURY to still count as a corridor (not a top-up signal)
-_WT_CORRIDOR_SIGNALLER_WINDOW_S = 300   # 5 min
+_WT_CORRIDOR_SIGNALLER_WINDOW_S = 14400  # 4 hours — signals can precede TREASURY by hours
 # Max wallet age at funding time to be considered fresh-born
 _WT_CORRIDOR_BIRTH_WINDOW_S     = 120   # 2 min
 # How long to run F5M monitoring before marking STALLED
@@ -28323,6 +30196,14 @@ _WT_SWARM_BATCH_THRESHOLD       = 5     # wallets
 
 # Rolling window of recent SIGNALLER outbounds to detect swarm batches
 _wt_recent_signaller_ts: list = []   # list of block_time floats (trimmed)
+
+# ── Operator-layer in-memory state ───────────────────────────────────────────
+# operator_wallet → {enrolled_at, expires_at, treasury_sol, treasury_sig}
+_wt_operator_wallets: dict = {}
+_wt_operator_wallets_lock = _threading.Lock()
+# deployer_wallet → {operator_wallet, enrolled_at, expires_at, gas_sol}
+_wt_deployer_wallets: dict = {}
+_wt_deployer_wallets_lock = _threading.Lock()
 
 # ── Infra webhook queue: accept immediately, process in background ────────────
 import queue as _queue_mod
@@ -28678,7 +30559,7 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
                "https://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d4-b5799ae8da96")
 
     # ── Swarm heuristic thresholds ────────────────────────────────────────────
-    _HARD_MIN_WALLETS = 25      # absolute floor — below this organic noise dominates
+    _HARD_MIN_WALLETS = 3       # absolute floor — catches large-wallet stealth ops
     _MIN_FANOUT_SOL   = 0.005   # lower bound of per-wallet funding
     _MAX_FANOUT_SOL   = 0.10    # upper bound
     _MAX_STDDEV_RATIO = 0.25    # stddev / median < 25% = tight cluster
@@ -28691,6 +30572,7 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
         if n >= 500: return "INDUSTRIAL_SWARM"
         if n >= 100: return "LARGE_SWARM"
         if n >= 25:  return "SMALL_COORDINATED_SWARM"
+        if n >= 3:   return "STEALTH_COORDINATED"
         return "NOISE"
 
     def _rpc(method, params):
@@ -28802,7 +30684,7 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
         n_buyers = len(buyer_times)
         tier = _operator_tier(n_buyers)
 
-        # Hard floor — organic noise dominates below 25
+        # Hard floor
         if n_buyers < _HARD_MIN_WALLETS:
             return {"state": "NOT_SWARM", "reason": f"too_few_buyers_{n_buyers}",
                     "unique_buyers": n_buyers}
@@ -28810,19 +30692,25 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
         times = list(buyer_times.values())
         buy_window_s = max(times) - min(times) if len(times) > 1 else 0
 
-        # Wide window rejection — always cheap to check
+        # Wide window rejection
         if buy_window_s > _MAX_BUY_WINDOW_S:
             return {"state": "NOT_SWARM", "reason": f"buy_window_{buy_window_s}s_too_wide",
                     "unique_buyers": n_buyers, "buy_window_s": buy_window_s}
 
+        # STEALTH_COORDINATED (3-24 buyers): require very tight window to proceed
+        # Large-wallet stealth ops buy within seconds — organic scatter won't be this tight
+        if n_buyers < 25 and buy_window_s > 120:
+            return {"state": "NOT_SWARM", "reason": "stealth_cluster_wide_window",
+                    "unique_buyers": n_buyers, "buy_window_s": buy_window_s}
+
         # Small clusters (25-49): require tight window before spending Stage 2 RPC
-        # A stealth operator will have a tight window — if it's > 15min it's organic scatter
-        if n_buyers < 50 and buy_window_s > 900:
+        if 25 <= n_buyers < 50 and buy_window_s > 900:
             return {"state": "NOT_SWARM", "reason": "small_cluster_wide_window",
                     "unique_buyers": n_buyers, "buy_window_s": buy_window_s}
 
         # Buyer count confidence scale
-        if n_buyers < 50:   _buyer_conf_scale = 0.5
+        if n_buyers < 10:   _buyer_conf_scale = 0.9 if buy_window_s < 30 else 0.7
+        elif n_buyers < 50: _buyer_conf_scale = 0.7 if buy_window_s < 60 else 0.5
         elif n_buyers < 100: _buyer_conf_scale = 0.8
         else:               _buyer_conf_scale = 1.0
 
@@ -28847,6 +30735,17 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
             "11111111111111111111111111111111",               # System program
             "ComputeBudget111111111111111111111111111111",    # Compute budget
             "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bw",  # Associated token program
+            # ── Bot/platform fee wallets — never provisioners ──────────────
+            "MaestroUL88UBnZr3wfoN7hqmNWFi3ZYCGqZoJJHE36",  # Maestro bot fee wallet
+            "MaestroAAe9ge5HTc64VnP3oGwLnKPPqkYFTkwJnxJ6",  # Maestro program
+            "astraRVUuTHjpwEVvNBeQEgwYx9w9CFyfxjYoobCZhL",  # Astralane fee wallet
+            "EBPLWSRcnPxNzfPHzK6JgVi6vD36qoA9Jew8e5NZpQpx", # Maestro fee collector
+            "CA7v8gHfbquYXyDnDx6QxWW8hmL1H7X6Y2RYDrGLnuck", # Maestro fee collector 2
+            "X5QPJcpph4mBAJDzc4hRziFftSbcygV59kRb2Fu6Je1",  # Maestro fee collector 3
+            # ── CEX hot wallets — never provisioners ───────────────────────
+            "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9", # Binance 2
+            "AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51",  # Chain-image (CEX/bridge)
+            "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk",  # Axiom trading platform
         }
 
         # Load all known pool vault addresses from DB — zero RPC cost.
@@ -28857,14 +30756,61 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
             for _row in _pc.execute("SELECT base_account, quote_account FROM token_pool_accounts").fetchall():
                 if _row[0]: _pool_addrs.add(_row[0])
                 if _row[1]: _pool_addrs.add(_row[1])
+            # Also add PumpSwap pool addresses and bonding curve PDAs
+            for _row in _pc.execute("SELECT pumpswap_pool_address, pool_address, bonding_curve_pda FROM token_analysis WHERE pumpswap_pool_address IS NOT NULL OR pool_address IS NOT NULL OR bonding_curve_pda IS NOT NULL").fetchall():
+                if _row[0]: _pool_addrs.add(_row[0])
+                if _row[1]: _pool_addrs.add(_row[1])
+                if _row[2]: _pool_addrs.add(_row[2])
+            # Load this token's pool vault accounts (WSOL quote vault etc.)
+            _ta = _pc.execute(
+                "SELECT pool_address, pumpswap_pool_address FROM token_analysis WHERE mint=?", (mint,)
+            ).fetchone()
             _pc.close()
+            if _ta:
+                for _pool_addr in [_ta[0], _ta[1]]:
+                    if not _pool_addr: continue
+                    _vaults = _rpc("getTokenAccountsByOwner", [
+                        _pool_addr,
+                        {"programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"},
+                        {"encoding": "jsonParsed"}
+                    ])
+                    if _vaults and _vaults.get("value"):
+                        for _v in _vaults["value"]:
+                            _pool_addrs.add(_v["pubkey"])
         except Exception:
             pass
 
+        _INFRA_OWNERS = {
+            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap AMM
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # pump.fun bonding curve
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", # Raydium AMM
+            "9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP", # Raydium AMM v4
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",  # Orca
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL Token (pool vaults)
+        }
+
         def _is_infra(addr: str) -> bool:
-            """Return True if addr is a pool vault, known program, or infra address."""
+            """Return True if addr is a pool vault, known program, or AMM-owned account."""
             if addr in _INFRA_PROGRAMS: return True
             if addr in _pool_addrs:     return True
+            # RPC check: is this account owned by a known AMM program?
+            try:
+                info = _rpc("getAccountInfo", [addr, {"encoding": "base64"}])
+                if info and info.get("value") and info["value"].get("owner") in _INFRA_OWNERS:
+                    _pool_addrs.add(addr)  # cache in-memory for this scan
+                    # Persist to token_pool_accounts so future scans skip RPC
+                    try:
+                        with db_connect(db_path, timeout=5) as _pc:
+                            _pc.execute(
+                                "INSERT OR IGNORE INTO token_pool_accounts (mint, base_account) VALUES (?, ?)",
+                                ('__dex_infra__', addr)
+                            )
+                            _pc.commit()
+                    except Exception:
+                        pass
+                    return True
+            except Exception:
+                pass
             return False
 
         # Cache results within this scan
@@ -28930,7 +30876,7 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
         elif stddev_ratio < 0.25: confidence += 0.20   # tight
         elif stddev_ratio < 0.50: confidence += 0.10   # moderate — tiered/varied operator
         elif stddev_ratio < 1.00: confidence += 0.05   # noisy but provisioner may still unify it
-        # else: >= 1.0 — contributes nothing; truly random funding
+        elif stddev_ratio < 5.00: confidence += 0.02   # variable but not random — large-buyer pattern
 
         # Timing: coordination signal independent of funding style
         if buy_window_s < 300:    confidence += 0.30
@@ -28948,7 +30894,8 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
         # (funding uniformity alone isn't enough for the expensive attribution step)
         _small = n_buyers < 50
         _stage2_strong = one_token_pct > 0.8 and buy_window_s < 900
-        _do_stage3 = (not _small) or _stage2_strong
+        # Stealth clusters always go to Stage 3 — few buyers means each one matters more
+        _do_stage3 = (not _small) or _stage2_strong or (tier == "STEALTH_COORDINATED")
 
         # ── Stage 3: Provisioner attribution (expensive) ─────────────────────
         treasury_candidate = None
@@ -28988,22 +30935,74 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
             if treasury_candidate:
                 confidence += 0.1
 
+        # ── Stage 2.5: Provisioner outbound sweep check ───────────────────────
+        # Check if provisioner sent profits to known WATCHTOWER SUB_PROV/infra.
+        # Catches operations where operator is funded via SUB_PROV and sweeps back.
+        # Cost: ~1 RPC call (getSignaturesForAddress on provisioner, already fetched in Stage 3)
+        wt_sweep_link = None
+        if top_provisioner and not treasury_candidate:
+            prov_out_sigs = _rpc("getSignaturesForAddress",
+                                 [top_provisioner, {"limit": 20, "commitment": "confirmed"}]) or []
+            for ps in prov_out_sigs[:10]:
+                tx_out = _rpc("getTransaction", [ps["signature"], {
+                    "encoding": "jsonParsed",
+                    "maxSupportedTransactionVersion": 0,
+                    "commitment": "confirmed"
+                }])
+                if not tx_out or (tx_out.get("meta") or {}).get("err"):
+                    continue
+                accs = tx_out["transaction"]["message"]["accountKeys"]
+                keys = [k["pubkey"] if isinstance(k, dict) else k for k in accs]
+                pre  = dict(zip(keys, tx_out["meta"]["preBalances"]))
+                post = dict(zip(keys, tx_out["meta"]["postBalances"]))
+                for k in keys:
+                    if k == top_provisioner:
+                        continue
+                    if k in _WT_INFRA_ROLES:
+                        d = (post.get(k, 0) - pre.get(k, 0)) / 1e9
+                        if d > 0.01:
+                            wt_sweep_link = k
+                            confidence += 0.15
+                            break
+                if wt_sweep_link:
+                    break
+                _t.sleep(0.02)
+
         confidence *= _buyer_conf_scale
 
         # Operator classification — based on scale + funding style
         operator_class = tier
-        if tier == "SMALL_COORDINATED_SWARM" and buy_window_s < 600 and one_token_pct > 0.8:
-            # Tight timing + single provisioner on small cluster = stealth regardless of funding uniformity
+        if tier == "STEALTH_COORDINATED":
+            # Few large wallets, very tight window — always POSSIBLE_STEALTH
+            operator_class = "POSSIBLE_STEALTH"
+        elif tier == "SMALL_COORDINATED_SWARM" and buy_window_s < 600 and one_token_pct > 0.8:
             operator_class = "POSSIBLE_STEALTH"
         elif stddev_ratio > 0.50 and one_token_pct > 0.8 and buy_window_s < 300:
-            # Variable funding but single provisioner + very tight window = different archetype
-            operator_class = tier  # keep tier but will surface via provisioner concentration
+            operator_class = tier
 
-        _threshold = 0.3 if _small else 0.4
+        _small = n_buyers < 25
+        _threshold = 0.25 if tier == "STEALTH_COORDINATED" else 0.3 if _small else 0.4
         final_state = "POSSIBLE_SWARM" if confidence >= _threshold else "NOT_SWARM"
         reason = None
         if final_state == "NOT_SWARM":
             reason = f"confidence_{confidence:.2f}_below_threshold"
+
+        # Classify operation — check if treasury/provisioner links to known WATCHTOWER infra
+        operation = "UNKNOWN"
+        wt_link = None
+        if treasury_candidate and treasury_candidate in _WT_INFRA_ROLES:
+            operation = "WATCHTOWER"
+            wt_link = treasury_candidate
+        elif top_provisioner and top_provisioner in _WT_INFRA_ROLES:
+            operation = "WATCHTOWER"
+            wt_link = top_provisioner
+        elif wt_sweep_link:
+            operation = "WATCHTOWER"
+            wt_link = wt_sweep_link
+        elif treasury_candidate:
+            operation = "OTHER_OP"
+        elif top_provisioner:
+            operation = "UNRESOLVED"
 
         return {
             "state":              final_state,
@@ -29021,6 +31020,9 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
             "treasury_candidate": treasury_candidate,
             "sampled_buyers":     len(buyer_times),
             "sampled_funders":    len(funding_amounts),
+            "operation":          operation,
+            "wt_link":            wt_link,
+            "wt_sweep_link":      wt_sweep_link,
         }
 
     def _match_cluster(conn, evidence: dict) -> int | None:
@@ -29061,78 +31063,338 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
 
         return None
 
+    def _cross_token_fingerprint_match(db_path: str) -> None:
+        """
+        Compare fingerprints across all scanned candidates.
+        Groups tokens with similar median_funding_sol + buy_window_s + one_token_pct
+        into unconfirmed clusters even if individually below POSSIBLE_SWARM threshold.
+        Only runs on tokens with a provisioner identified (has some signal).
+        """
+        try:
+            with db_connect(db_path, timeout=15) as conn:
+                conn.row_factory = sqlite3.Row
+                # Fetch all candidates with fingerprint data and a provisioner
+                rows = conn.execute("""
+                    SELECT token_mint, provisioner_wallet, treasury_wallet,
+                           median_funding_sol, buy_window_s, one_token_pct,
+                           unique_buyers, confidence, operation, cluster_id
+                    FROM wt_swarm_candidates
+                    WHERE provisioner_wallet IS NOT NULL
+                      AND median_funding_sol IS NOT NULL
+                      AND buy_window_s IS NOT NULL
+                      AND cluster_id IS NULL
+                      AND operation NOT IN ('WATCHTOWER', 'OTHER_OP')
+                    ORDER BY median_funding_sol
+                """).fetchall()
+
+                if len(rows) < 2:
+                    return
+
+                # Group by fingerprint similarity
+                # Two tokens match if median within 20%, window within 2x, same provisioner OR tight one_token_pct
+                matched = {}  # token_mint -> group_id
+                groups = []   # list of sets of token_mints
+
+                for i, a in enumerate(rows):
+                    for j, b in enumerate(rows):
+                        if j <= i: continue
+                        med_a, med_b = a['median_funding_sol'], b['median_funding_sol']
+                        win_a, win_b = a['buy_window_s'], b['buy_window_s']
+                        prov_match = (a['provisioner_wallet'] == b['provisioner_wallet'])
+                        med_match = med_b > 0 and abs(med_a - med_b) / med_b < 0.20
+                        win_match = win_b > 0 and max(win_a, win_b) / min(win_a, win_b) < 3.0
+
+                        if prov_match or (med_match and win_match):
+                            # Find or create group
+                            ga = matched.get(a['token_mint'])
+                            gb = matched.get(b['token_mint'])
+                            if ga is None and gb is None:
+                                g = {a['token_mint'], b['token_mint']}
+                                groups.append(g)
+                                matched[a['token_mint']] = len(groups) - 1
+                                matched[b['token_mint']] = len(groups) - 1
+                            elif ga is not None and gb is None:
+                                groups[ga].add(b['token_mint'])
+                                matched[b['token_mint']] = ga
+                            elif gb is not None and ga is None:
+                                groups[gb].add(a['token_mint'])
+                                matched[a['token_mint']] = gb
+                            elif ga != gb:
+                                # Merge groups
+                                groups[ga].update(groups[gb])
+                                for m in groups[gb]:
+                                    matched[m] = ga
+                                groups[gb] = set()
+
+                # Create/update clusters for groups with 2+ tokens
+                for g in groups:
+                    if len(g) < 2:
+                        continue
+                    mints = list(g)
+                    members = [r for r in rows if r['token_mint'] in g]
+                    avg_med = sum(r['median_funding_sol'] for r in members) / len(members)
+                    avg_win = sum(r['buy_window_s'] for r in members) / len(members)
+                    prov = members[0]['provisioner_wallet']
+
+                    # Check if cluster already exists for this provisioner
+                    existing = conn.execute(
+                        "SELECT cluster_id FROM wt_swarm_provisioners WHERE wallet=? AND cluster_id IS NOT NULL",
+                        (prov,)
+                    ).fetchone()
+
+                    if existing:
+                        cluster_id = existing[0]
+                    else:
+                        # Create new fingerprint cluster
+                        conn.execute("""
+                            INSERT INTO wt_operator_clusters
+                                (state, confidence, origin, token_count, provisioner_count,
+                                 first_seen, last_seen, created_at, updated_at)
+                            VALUES ('FORMING', 0.3, 'fingerprint', ?, 1,
+                                    strftime('%s','now'), strftime('%s','now'),
+                                    strftime('%s','now'), strftime('%s','now'))
+                        """, (len(mints),))
+                        cluster_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                        conn.execute("""
+                            INSERT INTO wt_operator_fingerprints
+                                (cluster_id, archetype, median_fanout_sol, buy_window_s,
+                                 sample_count, created_at, updated_at)
+                            VALUES (?, 'CROSS_TOKEN', ?, ?, ?, strftime('%s','now'), strftime('%s','now'))
+                        """, (cluster_id, avg_med, avg_win, len(mints)))
+                        print(
+                            f"[WT_SWARM_SCANNER] 🔗 Cross-token cluster #{cluster_id} "
+                            f"— {len(mints)} tokens, prov={prov[:16]}… med={avg_med:.4f} win={avg_win:.0f}s",
+                            flush=True
+                        )
+
+                    # Tag all members with cluster_id
+                    for mint in mints:
+                        conn.execute(
+                            "UPDATE wt_swarm_candidates SET cluster_id=? WHERE token_mint=?",
+                            (cluster_id, mint)
+                        )
+
+                conn.commit()
+        except Exception as e:
+            print(f"[WT_SWARM_SCANNER] cross-token match error: {e}", flush=True)
+
     def _worker():
         import time as _t
         print("[WT_SWARM_SCANNER] Migration scanner started (300s interval)", flush=True)
         while True:
             try:
-                conn = db_connect(db_path, timeout=15)
-                conn.row_factory = sqlite3.Row
-
-                # Pull migrated tokens not yet scanned (last 12h to avoid backlog on restart)
-                cutoff = int(_t.time()) - 43200
-                pending = conn.execute("""
-                    SELECT ta.mint, ta.migrated_at
-                    FROM token_analysis ta
-                    LEFT JOIN wt_swarm_candidates sc ON sc.token_mint = ta.mint
-                    WHERE ta.migrated_at >= ?
-                      AND ta.dex IS NOT NULL
-                      AND sc.id IS NULL
-                    ORDER BY ta.migrated_at DESC
-                    LIMIT 20
-                """, (cutoff,)).fetchall()
+                # Short-lived read to fetch pending tokens — close immediately
+                with db_connect(db_path, timeout=15) as _rc:
+                    _rc.row_factory = sqlite3.Row
+                    cutoff = int(_t.time()) - 604800  # 7 days
+                    pending = _rc.execute("""
+                        SELECT ta.mint, ta.migrated_at
+                        FROM token_analysis ta
+                        LEFT JOIN wt_swarm_candidates sc ON sc.token_mint = ta.mint
+                        WHERE ta.migrated_at >= ?
+                          AND ta.dex IS NOT NULL
+                          AND sc.id IS NULL
+                        ORDER BY ta.migrated_at DESC
+                        LIMIT 50
+                    """, (cutoff,)).fetchall()
+                    pending = [(r["mint"], r["migrated_at"]) for r in pending]
 
                 if pending:
                     print(f"[WT_SWARM_SCANNER] Scanning {len(pending)} newly migrated tokens", flush=True)
 
-                for row in pending:
-                    mint       = row["mint"]
-                    mig_at     = row["migrated_at"]
+                for mint, mig_at in pending:
 
-                    # Mark as scanning
-                    conn.execute("""
-                        INSERT OR IGNORE INTO wt_swarm_candidates
-                            (token_mint, migrated_at, scanned_at, state, created_at, updated_at)
-                        VALUES (?, ?, ?, 'SCANNING', strftime('%s','now'), strftime('%s','now'))
-                    """, (mint, mig_at, int(_t.time())))
-                    conn.commit()
+                    # Mark as scanning — short write, close immediately
+                    with db_connect(db_path, timeout=15) as _wc:
+                        _wc.execute("""
+                            INSERT OR IGNORE INTO wt_swarm_candidates
+                                (token_mint, migrated_at, scanned_at, state, created_at, updated_at)
+                            VALUES (?, ?, ?, 'SCANNING', strftime('%s','now'), strftime('%s','now'))
+                        """, (mint, mig_at, int(_t.time())))
+                        _wc.commit()
 
+                    # RPC scan — no DB connection held during this
                     try:
                         evidence = _scan_token(mint)
                         state = evidence.get("state", "NOT_SWARM")
                         confidence = evidence.get("confidence", 0.0)
 
-                        # ALREADY_ATTRIBUTED — WATCHTOWER webhook already covered this token.
-                        # Write a lightweight record and skip all clustering work.
-                        if state == "ALREADY_ATTRIBUTED":
+                        # Short-lived write connection for all result persistence
+                        with db_connect(db_path, timeout=30) as conn:
+                            conn.row_factory = sqlite3.Row
+                            conn.execute("PRAGMA busy_timeout=25000")
+
+                            if state == "ALREADY_ATTRIBUTED":
+                                conn.execute("""
+                                    UPDATE wt_swarm_candidates SET
+                                        state          = 'ALREADY_ATTRIBUTED',
+                                        operator_class = ?,
+                                        provisioner_wallet = ?,
+                                        unique_buyers  = ?,
+                                        evidence_json  = ?,
+                                        scanned_at     = strftime('%s','now'),
+                                        updated_at     = strftime('%s','now')
+                                    WHERE token_mint = ?
+                                """, (evidence.get("operator_class"),
+                                      evidence.get("provisioner"),
+                                      evidence.get("unique_buyers"),
+                                      json.dumps(evidence),
+                                      mint))
+                                conn.commit()
+                                print(f"[WT_SWARM_SCANNER] ⏭  {mint[:20]}.. already attributed ({evidence.get('reason')}) — skipped RPC",
+                                      flush=True)
+                                _t.sleep(0.1)
+                                continue
+
+                            cluster_id = None
+                            if state == "POSSIBLE_SWARM":
+                                cluster_id = _match_cluster(conn, evidence)
+
+                                prov = evidence.get("provisioner")
+                                if prov:
+                                    conn.execute("""
+                                        INSERT OR IGNORE INTO wt_swarm_provisioners
+                                            (wallet, cluster_id, treasury_wallet, state,
+                                             wallet_count, median_fanout_sol, stddev_fanout_sol,
+                                             primary_token_mint, evidence_json,
+                                             created_at, updated_at)
+                                        VALUES (?, ?, ?, 'CANDIDATE', ?, ?, ?, ?, ?,
+                                                strftime('%s','now'), strftime('%s','now'))
+                                    """, (prov, cluster_id,
+                                          evidence.get("treasury_candidate"),
+                                          evidence.get("unique_buyers", 0),
+                                          evidence.get("median_funding_sol"),
+                                          evidence.get("stddev_funding_sol"),
+                                          mint,
+                                          json.dumps(evidence)))
+
+                                treas = evidence.get("treasury_candidate")
+                                if treas:
+                                    conn.execute("""
+                                        INSERT OR IGNORE INTO wt_operator_treasuries
+                                            (wallet, cluster_id, state, confidence,
+                                             typical_deploy_sol, deployment_count,
+                                             evidence_json, created_at, updated_at)
+                                        VALUES (?, ?, 'CANDIDATE', ?, ?, 1, ?,
+                                                strftime('%s','now'), strftime('%s','now'))
+                                        ON CONFLICT(wallet) DO UPDATE SET
+                                            deployment_count = deployment_count + 1,
+                                            confidence       = MIN(confidence + 0.1, 1.0),
+                                            last_deployment  = strftime('%s','now'),
+                                            updated_at       = strftime('%s','now')
+                                    """, (treas, cluster_id, confidence,
+                                          evidence.get("prov_funding_sol"),
+                                          json.dumps(evidence)))
+
+                                if not cluster_id and confidence >= 0.5:
+                                    conn.execute("""
+                                        INSERT INTO wt_operator_clusters
+                                            (state, confidence, origin, treasury_wallet,
+                                             token_count, provisioner_count,
+                                             first_seen, last_seen, created_at, updated_at)
+                                        VALUES ('FORMING', ?, 'discovered', ?,
+                                                1, ?, ?, strftime('%s','now'),
+                                                strftime('%s','now'), strftime('%s','now'))
+                                    """, (confidence,
+                                          evidence.get("treasury_candidate"),
+                                          1 if evidence.get("provisioner") else 0,
+                                          mig_at))
+                                    cluster_id = conn.execute(
+                                        "SELECT last_insert_rowid()"
+                                    ).fetchone()[0]
+                                    if evidence.get("provisioner"):
+                                        conn.execute(
+                                            "UPDATE wt_swarm_provisioners SET cluster_id=? WHERE wallet=?",
+                                            (cluster_id, evidence["provisioner"])
+                                        )
+                                    if evidence.get("treasury_candidate"):
+                                        conn.execute(
+                                            "UPDATE wt_operator_treasuries SET cluster_id=? WHERE wallet=?",
+                                            (cluster_id, evidence["treasury_candidate"])
+                                        )
+                                    conn.execute("""
+                                        INSERT INTO wt_operator_fingerprints
+                                            (cluster_id, archetype, median_fanout_sol,
+                                             fanout_sol_stddev, typical_wallet_count,
+                                             buy_window_s, one_token_concentration,
+                                             sample_count, created_at, updated_at)
+                                        VALUES (?, 'SWARM', ?, ?, ?, ?, ?, 1,
+                                                strftime('%s','now'), strftime('%s','now'))
+                                    """, (cluster_id,
+                                          evidence.get("median_funding_sol"),
+                                          evidence.get("stddev_funding_sol"),
+                                          evidence.get("unique_buyers"),
+                                          evidence.get("buy_window_s"),
+                                          evidence.get("one_token_pct")))
+                                    print(
+                                        f"[WT_SWARM_SCANNER] 🆕 New operator cluster #{cluster_id} "
+                                        f"detected — {mint[:20]}.. conf={confidence:.2f}",
+                                        flush=True
+                                    )
+                                elif cluster_id:
+                                    conn.execute("""
+                                        UPDATE wt_operator_clusters SET
+                                            token_count = token_count + 1,
+                                            last_seen   = strftime('%s','now'),
+                                            updated_at  = strftime('%s','now')
+                                        WHERE cluster_id = ?
+                                    """, (cluster_id,))
+                                    print(
+                                        f"[WT_SWARM_SCANNER] ✅ POSSIBLE_SWARM {mint[:20]}.. "
+                                        f"→ cluster #{cluster_id} conf={confidence:.2f}",
+                                        flush=True
+                                    )
+
+                                seq = conn.execute(
+                                    "SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events"
+                                ).fetchone()[0]
+                                conn.execute("""
+                                    INSERT OR IGNORE INTO watchtower_events
+                                        (event_sequence, event_type, wallet_address, token_mint,
+                                         payload_json, source, created_at)
+                                    VALUES (?, 'POSSIBLE_SWARM', ?, ?, ?, 'swarm_scanner', ?)
+                                """, (seq,
+                                      evidence.get("provisioner") or evidence.get("treasury_candidate"),
+                                      mint,
+                                      json.dumps(evidence),
+                                      int(_t.time())))
+
                             conn.execute("""
                                 UPDATE wt_swarm_candidates SET
-                                    state          = 'ALREADY_ATTRIBUTED',
-                                    operator_class = ?,
-                                    provisioner_wallet = ?,
-                                    unique_buyers  = ?,
-                                    evidence_json  = ?,
-                                    scanned_at     = strftime('%s','now'),
-                                    updated_at     = strftime('%s','now')
+                                    state             = ?,
+                                    cluster_id        = ?,
+                                    provisioner_wallet= ?,
+                                    treasury_wallet   = ?,
+                                    unique_buyers     = ?,
+                                    buy_window_s      = ?,
+                                    median_funding_sol= ?,
+                                    stddev_funding_sol= ?,
+                                    one_token_pct     = ?,
+                                    confidence        = ?,
+                                    operator_class    = ?,
+                                    operation         = ?,
+                                    wt_link           = ?,
+                                    evidence_json     = ?,
+                                    scanned_at        = strftime('%s','now'),
+                                    updated_at        = strftime('%s','now')
                                 WHERE token_mint = ?
-                            """, (evidence.get("operator_class"),
+                            """, (state, cluster_id,
                                   evidence.get("provisioner"),
+                                  evidence.get("treasury_candidate"),
                                   evidence.get("unique_buyers"),
+                                  evidence.get("buy_window_s"),
+                                  evidence.get("median_funding_sol"),
+                                  evidence.get("stddev_funding_sol"),
+                                  evidence.get("one_token_pct"),
+                                  confidence,
+                                  evidence.get("operator_class"),
+                                  evidence.get("operation"),
+                                  evidence.get("wt_link"),
                                   json.dumps(evidence),
                                   mint))
-                            conn.commit()
-                            print(f"[WT_SWARM_SCANNER] ⏭  {mint[:20]}.. already attributed ({evidence.get('reason')}) — skipped RPC",
-                                  flush=True)
-                            _t.sleep(0.1)
-                            continue
-
-                        cluster_id = None
-                        if state == "POSSIBLE_SWARM":
-                            cluster_id = _match_cluster(conn, evidence)
-
-                            # Persist provisioner if new
+                            # Always register provisioner if found — regardless of state
                             prov = evidence.get("provisioner")
-                            if prov:
+                            if prov and state != "ALREADY_ATTRIBUTED":
                                 conn.execute("""
                                     INSERT OR IGNORE INTO wt_swarm_provisioners
                                         (wallet, cluster_id, treasury_wallet, state,
@@ -29149,144 +31411,22 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
                                       mint,
                                       json.dumps(evidence)))
 
-                            # Persist treasury candidate if new
-                            treas = evidence.get("treasury_candidate")
-                            if treas:
-                                conn.execute("""
-                                    INSERT OR IGNORE INTO wt_operator_treasuries
-                                        (wallet, cluster_id, state, confidence,
-                                         typical_deploy_sol, deployment_count,
-                                         evidence_json, created_at, updated_at)
-                                    VALUES (?, ?, 'CANDIDATE', ?, ?, 1, ?,
-                                            strftime('%s','now'), strftime('%s','now'))
-                                    ON CONFLICT(wallet) DO UPDATE SET
-                                        deployment_count = deployment_count + 1,
-                                        confidence       = MIN(confidence + 0.1, 1.0),
-                                        last_deployment  = strftime('%s','now'),
-                                        updated_at       = strftime('%s','now')
-                                """, (treas, cluster_id, confidence,
-                                      evidence.get("prov_funding_sol"),
-                                      json.dumps(evidence)))
-
-                            # Create new cluster if no match
-                            if not cluster_id and confidence >= 0.5:
-                                conn.execute("""
-                                    INSERT INTO wt_operator_clusters
-                                        (state, confidence, origin, treasury_wallet,
-                                         token_count, provisioner_count,
-                                         first_seen, last_seen, created_at, updated_at)
-                                    VALUES ('FORMING', ?, 'discovered', ?,
-                                            1, ?, ?, strftime('%s','now'),
-                                            strftime('%s','now'), strftime('%s','now'))
-                                """, (confidence,
-                                      evidence.get("treasury_candidate"),
-                                      1 if evidence.get("provisioner") else 0,
-                                      mig_at))
-                                cluster_id = conn.execute(
-                                    "SELECT last_insert_rowid()"
-                                ).fetchone()[0]
-                                # Update provisioner + treasury with cluster_id
-                                if evidence.get("provisioner"):
-                                    conn.execute(
-                                        "UPDATE wt_swarm_provisioners SET cluster_id=? WHERE wallet=?",
-                                        (cluster_id, evidence["provisioner"])
-                                    )
-                                if evidence.get("treasury_candidate"):
-                                    conn.execute(
-                                        "UPDATE wt_operator_treasuries SET cluster_id=? WHERE wallet=?",
-                                        (cluster_id, evidence["treasury_candidate"])
-                                    )
-                                # Seed fingerprint for new cluster
-                                conn.execute("""
-                                    INSERT INTO wt_operator_fingerprints
-                                        (cluster_id, archetype, median_fanout_sol,
-                                         fanout_sol_stddev, typical_wallet_count,
-                                         buy_window_s, one_token_concentration,
-                                         sample_count, created_at, updated_at)
-                                    VALUES (?, 'SWARM', ?, ?, ?, ?, ?, 1,
-                                            strftime('%s','now'), strftime('%s','now'))
-                                """, (cluster_id,
-                                      evidence.get("median_funding_sol"),
-                                      evidence.get("stddev_funding_sol"),
-                                      evidence.get("unique_buyers"),
-                                      evidence.get("buy_window_s"),
-                                      evidence.get("one_token_pct")))
-                                print(
-                                    f"[WT_SWARM_SCANNER] 🆕 New operator cluster #{cluster_id} "
-                                    f"detected — {mint[:20]}.. conf={confidence:.2f}",
-                                    flush=True
-                                )
-                            elif cluster_id:
-                                # Update existing cluster stats
-                                conn.execute("""
-                                    UPDATE wt_operator_clusters SET
-                                        token_count = token_count + 1,
-                                        last_seen   = strftime('%s','now'),
-                                        updated_at  = strftime('%s','now')
-                                    WHERE id = ?
-                                """, (cluster_id,))
-                                print(
-                                    f"[WT_SWARM_SCANNER] ✅ POSSIBLE_SWARM {mint[:20]}.. "
-                                    f"→ cluster #{cluster_id} conf={confidence:.2f}",
-                                    flush=True
-                                )
-
-                            # Emit watchtower event
-                            seq = conn.execute(
-                                "SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events"
-                            ).fetchone()[0]
-                            conn.execute("""
-                                INSERT OR IGNORE INTO watchtower_events
-                                    (event_sequence, event_type, wallet_address, token_mint,
-                                     payload_json, source, created_at)
-                                VALUES (?, 'POSSIBLE_SWARM', ?, ?, ?, 'swarm_scanner', ?)
-                            """, (seq,
-                                  evidence.get("provisioner") or evidence.get("treasury_candidate"),
-                                  mint,
-                                  json.dumps(evidence),
-                                  int(_t.time())))
-
-                        # Update candidate record
-                        conn.execute("""
-                            UPDATE wt_swarm_candidates SET
-                                state             = ?,
-                                cluster_id        = ?,
-                                provisioner_wallet= ?,
-                                treasury_wallet   = ?,
-                                unique_buyers     = ?,
-                                buy_window_s      = ?,
-                                median_funding_sol= ?,
-                                stddev_funding_sol= ?,
-                                one_token_pct     = ?,
-                                confidence        = ?,
-                                operator_class    = ?,
-                                evidence_json     = ?,
-                                scanned_at        = strftime('%s','now'),
-                                updated_at        = strftime('%s','now')
-                            WHERE token_mint = ?
-                        """, (state, cluster_id,
-                              evidence.get("provisioner"),
-                              evidence.get("treasury_candidate"),
-                              evidence.get("unique_buyers"),
-                              evidence.get("buy_window_s"),
-                              evidence.get("median_funding_sol"),
-                              evidence.get("stddev_funding_sol"),
-                              evidence.get("one_token_pct"),
-                              confidence,
-                              evidence.get("operator_class"),
-                              json.dumps(evidence),
-                              mint))
-                        conn.commit()
+                            conn.commit()
 
                     except Exception as _scan_e:
-                        conn.execute("""
-                            UPDATE wt_swarm_candidates SET state='NOT_SWARM', updated_at=strftime('%s','now')
-                            WHERE token_mint=?
-                        """, (mint,))
-                        conn.commit()
+                        with db_connect(db_path, timeout=15) as _ec:
+                            _ec.execute("""
+                                UPDATE wt_swarm_candidates SET state='NOT_SWARM', updated_at=strftime('%s','now')
+                                WHERE token_mint=?
+                            """, (mint,))
+                            _ec.commit()
                         print(f"[WT_SWARM_SCANNER] scan error {mint[:20]}..: {_scan_e}", flush=True)
 
                     _t.sleep(2.0)  # pace between tokens
+
+                # After each batch — run cross-token fingerprint grouping
+                if pending:
+                    _cross_token_fingerprint_match(db_path)
 
                 conn.close()
 
@@ -29650,6 +31790,7 @@ def _start_wt_infra_processor():
         _processed = 0
         _last_hb = 0
         while True:
+            payload = None
             try:
                 payload = _wt_infra_queue.get(timeout=5)
                 _process_wt_infra_payload(payload)
@@ -29657,7 +31798,15 @@ def _start_wt_infra_processor():
             except _queue_mod.Empty:
                 pass
             except Exception as exc:
-                print(f"[WT-INFRA-PROC] error: {exc}", flush=True)
+                if "locked" in str(exc).lower() and payload is not None:
+                    # Re-queue on DB lock — do not drop
+                    _t.sleep(2)
+                    try:
+                        _wt_infra_queue.put_nowait(payload)
+                    except _queue_mod.Full:
+                        print(f"[WT-INFRA-PROC] queue full on requeue — dropping: {exc}", flush=True)
+                else:
+                    print(f"[WT-INFRA-PROC] error: {exc}", flush=True)
             # Heartbeat every 30s regardless of queue activity
             now = _t.time()
             if now - _last_hb >= 30:
@@ -29666,12 +31815,76 @@ def _start_wt_infra_processor():
                 _last_hb = now
     threading.Thread(target=_run, daemon=True, name="wt-infra-processor").start()
 
+def _start_wt_operator_ttl_reaper():
+    """Background thread: expires operator and deployer wallets past their TTL."""
+    import time as _t
+
+    def _disenrol_from_webhook(addr, label):
+        try:
+            import requests as _req
+            _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+            _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                 "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+            r = _req.get(
+                f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                timeout=10)
+            wh = r.json()
+            current = set(wh.get("accountAddresses", []))
+            if addr not in current:
+                return
+            updated = list(current - {addr})
+            wh_payload = {
+                "webhookURL":       wh["webhookURL"],
+                "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                "accountAddresses": updated,
+                "webhookType":      wh.get("webhookType", "enhanced"),
+                "txnStatus":        wh.get("txnStatus", "all"),
+                "encoding":         wh.get("encoding", "jsonParsed"),
+            }
+            r2 = _req.put(
+                f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                json=wh_payload, timeout=10)
+            if r2.status_code == 200:
+                print(f"[WT_REAPER] 🔕 Expired {label} {addr[:20]}… removed from webhook", flush=True)
+        except Exception as _e:
+            print(f"[WT_REAPER] disenrol error: {_e}", flush=True)
+
+    def _run():
+        while True:
+            _t.sleep(60)
+            now = int(_t.time())
+            # Expire operator wallets
+            with _wt_operator_wallets_lock:
+                expired_ops = [addr for addr, info in _wt_operator_wallets.items()
+                               if info.get("expires_at", 0) < now]
+            for addr in expired_ops:
+                _WT_INFRA_ROLES.pop(addr, None)
+                with _wt_operator_wallets_lock:
+                    _wt_operator_wallets.pop(addr, None)
+                _threading.Thread(target=_disenrol_from_webhook,
+                                  args=(addr, "operator"), daemon=True).start()
+
+            # Expire deployer wallets
+            with _wt_deployer_wallets_lock:
+                expired_deps = [addr for addr, info in _wt_deployer_wallets.items()
+                                if info.get("expires_at", 0) < now]
+            for addr in expired_deps:
+                _WT_INFRA_ROLES.pop(addr, None)
+                with _wt_deployer_wallets_lock:
+                    _wt_deployer_wallets.pop(addr, None)
+                _threading.Thread(target=_disenrol_from_webhook,
+                                  args=(addr, "deployer"), daemon=True).start()
+
+    _threading.Thread(target=_run, daemon=True, name="wt-operator-ttl-reaper").start()
+
 def _start_wt_candidate_processor():
-    """Background thread: drains _wt_candidate_queue."""
+    """Background thread: drains _wt_candidate_queue + periodic WATCH pipeline refresh."""
     import time as _t
     def _run():
         _processed = 0
         _last_hb = 0
+        _last_watch_pipeline = 0
+        _WATCH_PIPELINE_INTERVAL = 900  # re-run every 15 minutes
         while True:
             try:
                 payload = _wt_candidate_queue.get(timeout=5)
@@ -29686,7 +31899,113 @@ def _start_wt_candidate_processor():
                 _wt_heartbeat("wt-candidate-processor", "ok",
                               {"processed": _processed, "qsize": _wt_candidate_queue.qsize()})
                 _last_hb = now
+            # Periodic WATCH pipeline: picks up newly migrated/scored tokens and
+            # re-classifies all candidates including 3-hop lineage trace
+            if now - _last_watch_pipeline >= _WATCH_PIPELINE_INTERVAL:
+                try:
+                    _pc = db_connect(DB_PATH, timeout=10)
+                    result = _run_watch_pipeline(_pc)
+                    _pc.close()
+                    print(f"[WT-CAND-PROC] WATCH pipeline refresh: {result}", flush=True)
+                    # Persist last-successful-run telemetry so the dashboard can show real
+                    # pipeline freshness (distinct from the 30s liveness heartbeat above).
+                    _ops = result.get("operations", {}) or {}
+                    _wt_heartbeat("watch-pipeline", "ok", {
+                        "operations": _ops.get("operations"),
+                        "by_identity": _ops.get("by_identity"),
+                        "clusters_built": result.get("clusters_built"),
+                        "interval_s": _WATCH_PIPELINE_INTERVAL,
+                    })
+                except Exception as _wpe:
+                    print(f"[WT-CAND-PROC] WATCH pipeline error: {_wpe}", flush=True)
+                    _wt_heartbeat("watch-pipeline", "error", {"error": str(_wpe)[:160],
+                                                              "interval_s": _WATCH_PIPELINE_INTERVAL})
+                _last_watch_pipeline = now
     threading.Thread(target=_run, daemon=True, name="wt-candidate-processor").start()
+
+
+def _start_hub_backfill_worker():
+    """
+    Background thread (Phase 2): drains wt_hub_backfill_queue, tracing each
+    fingerprint funder 2-3 hops upward via Helius and writing edges to
+    creator_funders. Rate-limited and RPC-budget-bounded. Closes the
+    operator-identity loop without manual RPC tracing.
+    """
+    import time as _t
+
+    BATCH = 20                 # funders per tick
+    DAILY_CAP = 6000           # processed-count guard (~one-time 5,156 backfill)
+    IDLE_SLEEP = 30            # seconds when queue empty
+
+    def _run():
+        processed_today = 0
+        day_anchor = int(_t.time()) // 86400
+        last_hb = 0
+        print("[HUB_BACKFILL] worker started", flush=True)
+        while True:
+            now = int(_t.time())
+            # reset daily counter
+            if now // 86400 != day_anchor:
+                day_anchor = now // 86400
+                processed_today = 0
+
+            if processed_today >= DAILY_CAP:
+                _t.sleep(IDLE_SLEEP)
+                continue
+
+            # Pull a batch of pending funders
+            try:
+                with db_connect(DB_PATH, timeout=15) as _rc:
+                    _rc.row_factory = sqlite3.Row
+                    rows = _rc.execute("""
+                        SELECT funder_address FROM wt_hub_backfill_queue
+                        WHERE status='pending' AND attempts < 3
+                        ORDER BY enqueued_at LIMIT ?
+                    """, (BATCH,)).fetchall()
+                    batch = [r["funder_address"] for r in rows]
+            except Exception as e:
+                print(f"[HUB_BACKFILL] queue read error: {e}", flush=True)
+                _t.sleep(IDLE_SLEEP)
+                continue
+
+            if not batch:
+                if now - last_hb >= 30:
+                    _wt_heartbeat("hub-backfill-worker", "idle", {"processed_today": processed_today})
+                    last_hb = now
+                _t.sleep(IDLE_SLEEP)
+                continue
+
+            for addr in batch:
+                try:
+                    hops, hub = _trace_funder_upstream(addr)
+                    status = 'done' if hops > 0 else 'empty'
+                    with db_connect(DB_PATH, timeout=20) as _wc:
+                        _wc.execute("PRAGMA busy_timeout=20000")
+                        _wc.execute("""
+                            UPDATE wt_hub_backfill_queue
+                            SET status=?, hops_written=?, reached_hub=?,
+                                attempts=attempts+1, processed_at=strftime('%s','now')
+                            WHERE funder_address=?
+                        """, (status, hops, hub, addr))
+                        _wc.commit()
+                    processed_today += 1
+                except Exception as e:
+                    try:
+                        with db_connect(DB_PATH, timeout=15) as _ec:
+                            _ec.execute("""UPDATE wt_hub_backfill_queue
+                                SET status='error', attempts=attempts+1, last_error=?,
+                                    processed_at=strftime('%s','now') WHERE funder_address=?""",
+                                (str(e)[:200], addr))
+                            _ec.commit()
+                    except Exception:
+                        pass
+
+                now = int(_t.time())
+                if now - last_hb >= 30:
+                    _wt_heartbeat("hub-backfill-worker", "ok", {"processed_today": processed_today})
+                    last_hb = now
+
+    threading.Thread(target=_run, daemon=True, name="hub-backfill-worker").start()
 
 
 @app.route('/api/webhook/watchtower', methods=['POST'])
@@ -29700,6 +32019,12 @@ def webhook_watchtower():
     For TREASURY outbound: recipient is a new/potential creator → record + run WATCHTOWER detection.
     Returns 200 immediately; processing is async via _wt_infra_queue.
     """
+    _wh_secret = os.getenv("WATCHTOWER_WEBHOOK_SECRET", "")
+    if _wh_secret:
+        auth = request.headers.get("Authorization", "")
+        if auth != _wh_secret:
+            return "unauthorized", 401
+
     try:
         payload = request.get_json(silent=True)
         if not payload:
@@ -29843,6 +32168,309 @@ def _process_wt_infra_payload(payload):
                               tx.get("type") or "TRANSFER",
                               counterparty, block_time, amount_sol, int(time.time())))
 
+                        # ── SIGNALLER outbound: detect SUB_PROV activation signal ──────
+                        if role == "SIGNALLER" and direction == "outbound" and amount_sol <= 0.001:
+                            target = counterparty
+                            target_role = _WT_INFRA_ROLES.get(target, "UNKNOWN")
+                            print(f"[SIGNAL] 🔔 {infra_addr[:20]}… → {target[:20]}… ({target_role}) sig={sig[:20]}…", flush=True)
+
+                            # Check if we've already seen a recent signal to this target (dedup within 5min)
+                            recent = conn.execute("""
+                                SELECT COUNT(*) FROM wt_webhook_hits
+                                WHERE counterparty = ? AND wallet_address IN (
+                                    '44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM',
+                                    '44o1Hecb4QUhqcRNYJBC6XZoeHWzkWAvenR5YYHRGbFM'
+                                ) AND block_time >= ? AND amount_sol <= 0.001
+                            """, (target, block_time - 300)).fetchone()[0]
+
+                            if recent == 0:
+                                # First signal to this target — store pending activation
+                                conn.execute("""
+                                    INSERT OR REPLACE INTO watchtower_events
+                                        (event_type, wallet_address, related_wallet, token_mint,
+                                         payload_json, source, created_at)
+                                    VALUES ('SIGNAL_ACTIVATION', ?, ?, NULL, ?, 'signaller_webhook', ?)
+                                """, (
+                                    target,
+                                    infra_addr,
+                                    json.dumps({
+                                        "signaller": infra_addr,
+                                        "target": target,
+                                        "target_role": target_role,
+                                        "sig": sig,
+                                        "block_time": block_time,
+                                        "note": "SUB_PROV activation signal detected"
+                                    }),
+                                    int(time.time())
+                                ))
+                                print(f"[SIGNAL] ⚡ ACTIVATION PENDING: {target_role} {target[:20]}… operation imminent", flush=True)
+
+                        # ── TREASURY outbound: enrich with token from created account ──
+                        if role == "TREASURY" and direction == "outbound":
+                            def _extract_treasury_token_background(tx_sig, subprov_wallet, block_ts):
+                                try:
+                                    import requests as _req, time as _time
+                                    WSOL = "So11111111111111111111111111111111111111112"
+                                    api_key = os.environ.get("HELIUS_API_KEY", "16f1a5fc-2592-466c-a5d4-b5799ae8da96")
+                                    rpc_url = f"https://mainnet.helius-rpc.com/?api-key={api_key}"
+                                    enhanced_url = f"https://api.helius.xyz/v0/transactions/?api-key={api_key}"
+                                    if not subprov_wallet:
+                                        return
+
+                                    # Wait for SUB_PROV to make its first outbound tx
+                                    _time.sleep(30)
+
+                                    def _find_token_in_wallet(wallet):
+                                        """Check wallet's txs for a non-WSOL token transfer."""
+                                        url = f"https://api.helius.xyz/v0/addresses/{wallet}/transactions?api-key={api_key}&limit=20"
+                                        r = _req.get(url, timeout=10)
+                                        if r.status_code != 200:
+                                            return None
+                                        for tx in (r.json() if isinstance(r.json(), list) else []):
+                                            if not isinstance(tx, dict):
+                                                continue
+                                            for tt in (tx.get("tokenTransfers") or []):
+                                                if not isinstance(tt, dict):
+                                                    continue
+                                                mint = tt.get("mint", "")
+                                                if mint and mint != WSOL:
+                                                    amount = tt.get("tokenAmount", {}).get("uiAmount", 0) if isinstance(tt.get("tokenAmount"), dict) else 0
+                                                    return mint, amount
+                                        return None
+
+                                    def _write_token(mint, amount):
+                                        conn2 = db_connect(DB_PATH, timeout=5)
+                                        row = conn2.execute(
+                                            "SELECT symbol FROM tracked_tokens WHERE mint=? LIMIT 1", (mint,)
+                                        ).fetchone()
+                                        if not row:
+                                            # Fetch symbol from Helius getAsset
+                                            try:
+                                                r = _req.post(rpc_url, json={"jsonrpc":"2.0","id":1,"method":"getAsset","params":{"id":mint}}, timeout=10)
+                                                meta = r.json().get("result", {})
+                                                symbol = meta.get("content",{}).get("metadata",{}).get("symbol") or \
+                                                         meta.get("token_info",{}).get("symbol") or "UNKNOWN"
+                                            except Exception:
+                                                symbol = "UNKNOWN"
+                                        else:
+                                            symbol = row[0]
+                                        conn2.execute("""
+                                            UPDATE watchtower_infra_events SET
+                                                token_mint = ?, token_symbol = ?, traded_amount = ?
+                                            WHERE signature = ?
+                                        """, (mint, symbol, amount, tx_sig))
+                                        conn2.commit()
+                                        conn2.close()
+                                        print(f"[TREASURY_OUT] 💱 {symbol} ({mint[:20]}…)", flush=True)
+
+                                    # Get SUB_PROV sigs after funding — 1 RPC call
+                                    p = {"jsonrpc": "2.0", "id": 1, "method": "getSignaturesForAddress",
+                                         "params": [subprov_wallet, {"limit": 50}]}
+                                    r = _req.post(rpc_url, json=p, timeout=10)
+                                    if r.status_code != 200:
+                                        return
+
+                                    sigs_after = [s for s in r.json().get("result", [])
+                                                  if s.get("err") is None and (s.get("blockTime") or 0) >= block_ts]
+                                    if not sigs_after:
+                                        return
+
+                                    # Scan txs oldest-first via pre/post balances (1 RPC call per tx)
+                                    # Stop as soon as we find a tx where subprov lost significant SOL
+                                    trader_wallet = None
+                                    for sig_obj in reversed(sigs_after):
+                                        raw_tx = _req.post(rpc_url, json={
+                                            "jsonrpc": "2.0", "id": 1, "method": "getTransaction",
+                                            "params": [sig_obj["signature"], {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                                        }, timeout=10).json().get("result")
+                                        if not raw_tx:
+                                            continue
+
+                                        accs = raw_tx.get("transaction",{}).get("message",{}).get("accountKeys",[])
+                                        pre  = raw_tx.get("meta",{}).get("preBalances",[])
+                                        post = raw_tx.get("meta",{}).get("postBalances",[])
+
+                                        # Find subprov index
+                                        sp_idx = next((i for i, a in enumerate(accs)
+                                                       if (a if isinstance(a, str) else a.get("pubkey","")) == subprov_wallet), None)
+                                        if sp_idx is None:
+                                            continue
+
+                                        sp_loss = (pre[sp_idx] if sp_idx < len(pre) else 0) - \
+                                                  (post[sp_idx] if sp_idx < len(post) else 0)
+                                        if sp_loss < 1_000_000:
+                                            continue  # subprov didn't send significant SOL
+
+                                        # Find the account that gained the most SOL
+                                        best_gain, best_addr = 0, None
+                                        for i, acc in enumerate(accs):
+                                            addr = acc if isinstance(acc, str) else acc.get("pubkey","")
+                                            if addr == subprov_wallet:
+                                                continue
+                                            gain = (post[i] if i < len(post) else 0) - \
+                                                   (pre[i] if i < len(pre) else 0)
+                                            if gain > best_gain:
+                                                best_gain, best_addr = gain, addr
+                                        if best_addr:
+                                            trader_wallet = best_addr
+                                            break
+
+                                    if not trader_wallet:
+                                        return
+
+                                    # Check trader for token activity — 1 RPC call
+                                    result = _find_token_in_wallet(trader_wallet)
+                                    if result:
+                                        _write_token(result[0], result[1])
+
+                                except Exception as _e:
+                                    pass
+
+                            # Find recipient from instructions (nativeTransfers may be empty for legacy txs)
+                            treasury_recipient = None
+                            for nt in (tx.get("nativeTransfers") or []):
+                                dst = nt.get("toUserAccount") or nt.get("destination")
+                                if dst and dst != infra_addr:
+                                    treasury_recipient = dst
+                                    break
+                            if not treasury_recipient:
+                                for instr in (tx.get("transaction", {}).get("message", {}).get("instructions") or []):
+                                    parsed = instr.get("parsed", {})
+                                    if isinstance(parsed, dict) and parsed.get("type") == "transfer":
+                                        treasury_recipient = parsed.get("info", {}).get("destination")
+                                        if treasury_recipient:
+                                            break
+
+                            if treasury_recipient and amount_sol >= 10.0:
+                                _threading.Thread(
+                                    target=_extract_treasury_token_background,
+                                    args=(sig, treasury_recipient, block_time),
+                                    daemon=True
+                                ).start()
+                            elif treasury_recipient and amount_sol < 10.0:
+                                print(f"[TREASURY_OUT] Skipping enrichment — {amount_sol:.3f} SOL below 10 SOL threshold", flush=True)
+
+                        # ── SUB_PROV inbound: auto-enrich with token data ───────────────
+                        if role == "SUB_PROV" and direction == "inbound" and amount_sol >= 10.0:
+                            print(f"[SUB_PROV_ENRICHMENT] Processing inbound for {infra_addr[:20]}... sig={sig[:20]}...", flush=True)
+                            # Background: check a recipient account's transactions for token buys
+                            def _extract_subprov_token_background(wallet, dest_wallet, tx_sig, block_ts):
+                                try:
+                                    import requests as _req
+                                    rpc_url = os.environ.get("HELIUS_RPC_URL") or "https://api.mainnet-beta.solana.com"
+
+                                    if not dest_wallet:
+                                        return
+
+                                    # Get recent transactions for the destination wallet
+                                    payload = {
+                                        "jsonrpc": "2.0",
+                                        "id": 1,
+                                        "method": "getSignaturesForAddress",
+                                        "params": [dest_wallet, {"limit": 5}]
+                                    }
+                                    resp = _req.post(rpc_url, json=payload, timeout=10)
+                                    if resp.status_code != 200:
+                                        return
+
+                                    sigs = resp.json().get("result", [])
+                                    if not sigs:
+                                        return
+
+                                    # Check dest's recent transactions for token activity
+                                    for sig_obj in sigs:
+                                        dest_tx_sig = sig_obj.get("signature")
+                                        if not dest_tx_sig or not sig_obj.get("err") is None:
+                                            continue
+
+                                        payload2 = {
+                                            "jsonrpc": "2.0",
+                                            "id": 1,
+                                            "method": "getTransaction",
+                                            "params": [dest_tx_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                                        }
+                                        resp2 = _req.post(rpc_url, json=payload2, timeout=10)
+                                        if resp2.status_code != 200:
+                                            continue
+
+                                        dest_tx = resp2.json().get("result")
+                                        if not dest_tx:
+                                            continue
+
+                                        # Look for token transfer in destination tx
+                                        token_mint = None
+                                        traded_amount = 0
+
+                                        # Check tokenTransfers
+                                        token_transfers = dest_tx.get("tokenTransfers", [])
+                                        for tt in token_transfers:
+                                            if tt.get("mint"):
+                                                token_mint = tt.get("mint")
+                                                traded_amount = tt.get("tokenAmount", {}).get("uiAmount", 0)
+                                                break
+
+                                        if token_mint:
+                                            # Look up symbol
+                                            conn2 = db_connect(DB_PATH, timeout=5)
+                                            row = conn2.execute(
+                                                "SELECT symbol FROM tracked_tokens WHERE mint=? LIMIT 1",
+                                                (token_mint,)
+                                            ).fetchone()
+                                            token_symbol = row[0] if row else "UNKNOWN"
+
+                                            # Update SUB_PROV record
+                                            conn2.execute("""
+                                                INSERT OR IGNORE INTO wt_sub_provisioners
+                                                    (address, first_seen_at, scan_status)
+                                                VALUES (?, ?, 'confirmed')
+                                            """, (wallet, block_ts))
+
+                                            conn2.execute("""
+                                                UPDATE wt_sub_provisioners SET
+                                                    token_mint = ?,
+                                                    token_symbol = ?,
+                                                    traded_amount = ?,
+                                                    last_trade_tx = ?,
+                                                    last_trade_at = ?,
+                                                    scan_status = 'confirmed'
+                                                WHERE address = ?
+                                            """, (token_mint, token_symbol, traded_amount, tx_sig, block_ts, wallet))
+
+                                            # Also update the infra_events row for this signature with token data
+                                            conn2.execute("""
+                                                UPDATE watchtower_infra_events SET
+                                                    token_mint = ?,
+                                                    token_symbol = ?,
+                                                    traded_amount = ?
+                                                WHERE signature = ?
+                                            """, (token_mint, token_symbol, traded_amount, tx_sig))
+
+                                            conn2.commit()
+                                            conn2.close()
+
+                                            if token_symbol != "UNKNOWN":
+                                                print(f"[SUB_PROV] 💱 {wallet[:20]}… inbound · {traded_amount:.3f} {token_symbol} sig={tx_sig[:20]}…", flush=True)
+                                            return
+                                except Exception as _e:
+                                    pass
+
+                            # Extract first recipient from nativeTransfers
+                            dest_account = None
+                            native_transfers = tx.get("nativeTransfers", [])
+                            for nt in native_transfers:
+                                dest = nt.get("toUserAccount") or nt.get("destination")
+                                if dest and dest != infra_addr:
+                                    dest_account = dest
+                                    break
+
+                            # Start background thread to check destination account for token buys
+                            if dest_account:
+                                _threading.Thread(
+                                    target=_extract_subprov_token_background,
+                                    args=(infra_addr, dest_account, sig, block_time),
+                                    daemon=True
+                                ).start()
+
                     # ── TREASURY inbound: late-launch detection ──────────────────────
                     # If a STALLED corridor sends SOL back to TREASURY, it launched late
                     # (operator held the wallet longer than F5M window before deploying)
@@ -29934,17 +32562,148 @@ def _process_wt_infra_payload(payload):
 
                     # ── TREASURY outbound: corridor entry gate ────────────────────────
                     if role == "TREASURY" and direction == "outbound" and counterparty:
-                        # Legacy sub-provisioner tracking (high-SOL outflows to known infra)
-                        if amount_sol >= 50:
-                            already_known = conn.execute(
-                                "SELECT 1 FROM wt_sub_provisioners WHERE address=?", (counterparty,)
-                            ).fetchone()
-                            if not already_known:
-                                new_subprov_candidates.append((counterparty, amount_sol, sig, block_time))
+                        _is_known_infra = counterparty in _WT_INFRA_ROLES
+
+                        # Always log every TREASURY outbound — regardless of recipient
+                        if amount_sol >= 0.001:
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            _dest_role = _WT_INFRA_ROLES.get(counterparty, 'UNKNOWN')
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, 'TREASURY_OUTBOUND', ?, ?, 'infra_webhook', ?)""",
+                                (seq, counterparty,
+                                 json.dumps({"amount_sol": amount_sol, "tx": sig,
+                                             "dest_role": _dest_role, "known_infra": _is_known_infra}),
+                                 block_time)
+                            )
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_infra_events
+                                   (infra_address, infra_role, direction, counterparty,
+                                    amount_sol, signature, block_time, created_at)
+                                   VALUES (?, 'TREASURY', 'outbound', ?, ?, ?, ?, ?)""",
+                                ("44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",
+                                 counterparty, amount_sol, sig, block_time, int(time.time()))
+                            )
+                            print(f"[WT_TREASURY] 💸 OUT→{counterparty[:20]}… {amount_sol:.4f} SOL ({_dest_role}) sig={sig[:20]}…", flush=True)
+
+                        # Auto-enroll recipients in webhook if >= 1 SOL (meaningful capital outflow)
+                        if amount_sol >= 1.0 and not _is_known_infra:
+                            def _auto_enroll_recipient(addr, sol):
+                                try:
+                                    import requests as _req
+                                    _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+                                    _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                                         "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                                    r = _req.get(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        timeout=10)
+                                    wh = r.json()
+                                    current = set(wh.get("accountAddresses", []))
+                                    if addr in current:
+                                        return
+                                    updated = list(current | {addr})
+                                    payload = {
+                                        "webhookURL":       wh["webhookURL"],
+                                        "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                                        "accountAddresses": updated,
+                                        "webhookType":      wh.get("webhookType", "enhanced"),
+                                        "txnStatus":        wh.get("txnStatus", "all"),
+                                        "encoding":         wh.get("encoding", "jsonParsed"),
+                                    }
+                                    r2 = _req.put(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        json=payload, timeout=10)
+                                    if r2.status_code == 200:
+                                        print(f"[WT_TREASURY] ✅ Auto-enrolled recipient {addr[:20]}… ({sol:.0f} SOL)", flush=True)
+                                    else:
+                                        print(f"[WT_TREASURY] ⚠️  Auto-enroll failed: {r2.status_code}", flush=True)
+                                except Exception as _e:
+                                    print(f"[WT_TREASURY] auto-enroll error: {_e}", flush=True)
+
+                            _threading.Thread(
+                                target=_auto_enroll_recipient,
+                                args=(counterparty, amount_sol),
+                                daemon=True
+                            ).start()
+
+                        # OPERATOR GATE: ≥100 SOL to unknown wallet = OPERATOR_WALLET_CANDIDATE
+                        # This is the earliest operational signal — fires hours before token launch
+                        if amount_sol >= _WT_OPERATOR_MIN_SOL and not _is_known_infra:
+                            with _wt_operator_wallets_lock:
+                                already_op = counterparty in _wt_operator_wallets
+                            if not already_op:
+                                _op_expires = int(time.time()) + _WT_OPERATOR_WATCH_TTL_S
+                                with _wt_operator_wallets_lock:
+                                    _wt_operator_wallets[counterparty] = {
+                                        "enrolled_at":   int(time.time()),
+                                        "expires_at":    _op_expires,
+                                        "treasury_sol":  amount_sol,
+                                        "treasury_sig":  sig,
+                                    }
+                                _WT_INFRA_ROLES[counterparty] = "OPERATOR_WALLET"
+                                seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                                # Seed a candidate row keyed by operator_wallet as deployer placeholder
+                                # so the panel shows the candidate immediately. LIKELY_DEPLOYER stage
+                                # will INSERT OR REPLACE with the real deployer_wallet.
+                                conn.execute(
+                                    """INSERT OR IGNORE INTO wt_operator_launches
+                                       (operator_wallet, deployer_wallet, first_seen_ts, confidence, treasury_sol, treasury_sig, updated_at)
+                                       VALUES (?, ?, ?, 'OPERATOR_WALLET_CANDIDATE', ?, ?, ?)""",
+                                    (counterparty, counterparty, block_time, amount_sol, sig, int(time.time()))
+                                )
+                                conn.execute(
+                                    """INSERT OR IGNORE INTO watchtower_events
+                                       (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                       VALUES (?, 'OPERATOR_WALLET_CANDIDATE', ?, ?, 'infra_webhook', ?)""",
+                                    (seq, counterparty,
+                                     json.dumps({"treasury_sol": amount_sol, "sig": sig,
+                                                 "expires_at": _op_expires}),
+                                     block_time)
+                                )
+                                print(f"[WT_OPERATOR] 🎯 OPERATOR_WALLET_CANDIDATE {counterparty[:20]}… {amount_sol:.0f} SOL — enrolling, TTL 3h", flush=True)
+
+                                # Enrol in infra webhook for real-time operator activity monitoring
+                                def _enrol_operator(addr, sol, expires):
+                                    try:
+                                        import requests as _req
+                                        _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+                                        _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                                             "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                                        r = _req.get(
+                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                            timeout=10)
+                                        wh = r.json()
+                                        current = set(wh.get("accountAddresses", []))
+                                        if addr in current:
+                                            return
+                                        updated = list(current | {addr})
+                                        wh_payload = {
+                                            "webhookURL":       wh["webhookURL"],
+                                            "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                                            "accountAddresses": updated,
+                                            "webhookType":      wh.get("webhookType", "enhanced"),
+                                            "txnStatus":        wh.get("txnStatus", "all"),
+                                            "encoding":         wh.get("encoding", "jsonParsed"),
+                                        }
+                                        r2 = _req.put(
+                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                            json=wh_payload, timeout=10)
+                                        if r2.status_code == 200:
+                                            print(f"[WT_OPERATOR] ✅ Enrolled operator {addr[:20]}… in webhook ({len(updated)} total, TTL {expires})", flush=True)
+                                        else:
+                                            print(f"[WT_OPERATOR] ⚠️  Operator enrol failed: {r2.status_code}", flush=True)
+                                    except Exception as _e:
+                                        print(f"[WT_OPERATOR] enrol error: {_e}", flush=True)
+
+                                _threading.Thread(
+                                    target=_enrol_operator,
+                                    args=(counterparty, amount_sol, _op_expires),
+                                    daemon=True
+                                ).start()
 
                         # SWARM CORRIDOR GATE: ~70 SOL to unknown wallet = potential swarm provisioner
                         _is_swarm_amount = abs(amount_sol - _WT_SWARM_TREASURY_SOL) <= _WT_SWARM_TREASURY_TOL
-                        _is_known_infra = counterparty in _WT_INFRA_ROLES
                         if _is_swarm_amount and not _is_known_infra:
                             existing = conn.execute(
                                 "SELECT id FROM wt_swarm_corridors WHERE provisioner_wallet=?", (counterparty,)
@@ -30010,10 +32769,11 @@ def _process_wt_infra_payload(payload):
                                     daemon=True
                                 ).start()
 
-                        # CORRIDOR GATE 1: check if this is a fresh-capital deployment
-                        # Skip infra addresses, coordinator-level amounts (>12 SOL), and tiny dust
-                        _is_infra = counterparty in _WT_INFRA_ROLES
-                        _is_deployment_size = _WT_MIN_DEPLOYMENT_SOL <= amount_sol <= _WT_MAX_DEPLOYMENT_SOL
+                        # CORRIDOR GATE 1: TREASURY funded a SUB_PROV or new wallet >= 10 SOL
+                        _is_deployment_size = amount_sol >= _WT_MIN_DEPLOYMENT_SOL
+                        # Include known SUB_PROVs — they ARE the deployment target now
+                        _is_sub_prov = _WT_INFRA_ROLES.get(counterparty) in ("SUB_PROV", "SWARM_PROV")
+                        _is_unknown  = counterparty not in _WT_INFRA_ROLES
 
                         # Always record treasury_funded event (legacy compat)
                         seq = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
@@ -30026,7 +32786,7 @@ def _process_wt_infra_payload(payload):
                              block_time),
                         )
 
-                        if not _is_infra and _is_deployment_size:
+                        if _is_deployment_size and (_is_sub_prov or _is_unknown):
                             # Register as AWAITING_SIGNALLER in corridors table
                             conn.execute("""
                                 INSERT INTO wt_launch_corridors
@@ -30042,13 +32802,46 @@ def _process_wt_infra_payload(payload):
                             """, (counterparty, sig, block_time, amount_sol,
                                   int(time.time()), int(time.time())))
 
+                            # Check if signal already arrived before treasury
                             with _wt_corridors_lock:
-                                _wt_corridors[counterparty] = {
-                                    "treasury_sig":  sig,
-                                    "treasury_ts":   block_time,
-                                    "treasury_sol":  amount_sol,
-                                    "state":         "AWAITING_SIGNALLER",
-                                }
+                                _pending = _wt_corridors.get(counterparty)
+
+                            if _pending and _pending.get("state") == "SIGNAL_PENDING":
+                                # Signal came first — immediately activate corridor
+                                _lag_s = abs(block_time - _pending["signaller_ts"])
+                                if _lag_s <= _WT_CORRIDOR_SIGNALLER_WINDOW_S:
+                                    _f5m = int(time.time()) + _WT_CORRIDOR_F5M_TIMEOUT_S
+                                    conn.execute("""
+                                        INSERT INTO wt_launch_corridors
+                                            (wallet_address, treasury_sig, treasury_ts, treasury_sol,
+                                             signaller_sig, signaller_ts, signaller_lag_s,
+                                             state, enrolled_at, f5m_expires_at, created_at, updated_at)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, 'CORRIDOR_ACTIVE', ?, ?, ?, ?)
+                                        ON CONFLICT(wallet_address) DO UPDATE SET
+                                            treasury_sig=excluded.treasury_sig, treasury_ts=excluded.treasury_ts,
+                                            treasury_sol=excluded.treasury_sol, state='CORRIDOR_ACTIVE',
+                                            enrolled_at=excluded.enrolled_at, f5m_expires_at=excluded.f5m_expires_at,
+                                            updated_at=excluded.updated_at
+                                    """, (counterparty, sig, block_time, amount_sol,
+                                          _pending["signaller_sig"], _pending["signaller_ts"], _lag_s,
+                                          int(time.time()), _f5m, int(time.time()), int(time.time())))
+                                    with _wt_corridors_lock:
+                                        _wt_corridors[counterparty] = {
+                                            "treasury_sig": sig, "treasury_ts": block_time,
+                                            "treasury_sol": amount_sol, "state": "CORRIDOR_ACTIVE",
+                                            "signaller_ts": _pending["signaller_ts"], "f5m_expires": _f5m,
+                                        }
+                                    print(f"[WT_CORRIDOR] ⚡ ACTIVE {counterparty[:20]}… {amount_sol:.1f} SOL (signal was {_lag_s}s before treasury)", flush=True)
+                                    conn.commit()
+                                    continue
+                            else:
+                                with _wt_corridors_lock:
+                                    _wt_corridors[counterparty] = {
+                                        "treasury_sig":  sig,
+                                        "treasury_ts":   block_time,
+                                        "treasury_sol":  amount_sol,
+                                        "state":         "AWAITING_SIGNALLER",
+                                    }
 
                             print(
                                 f"[WT_CORRIDOR] GATE1 {counterparty[:20]}… "
@@ -30097,11 +32890,21 @@ def _process_wt_infra_payload(payload):
                             # Don't log — swarm batches can be 70+ wallets
                         else:
                             # CORRIDOR GATE 2: match signaller to a pending corridor
+                            # Signal may arrive BEFORE or AFTER treasury funding
                             with _wt_corridors_lock:
                                 corridor = _wt_corridors.get(counterparty)
 
+                            if not corridor:
+                                # Signal arrived before treasury — pre-register so Gate 1 can match it
+                                with _wt_corridors_lock:
+                                    _wt_corridors[counterparty] = {
+                                        "signaller_sig": sig,
+                                        "signaller_ts":  block_time,
+                                        "state":         "SIGNAL_PENDING",
+                                    }
+
                             if corridor and corridor["state"] == "AWAITING_SIGNALLER":
-                                lag_s = block_time - corridor["treasury_ts"]
+                                lag_s = abs(block_time - corridor["treasury_ts"])
                                 if lag_s <= _WT_CORRIDOR_SIGNALLER_WINDOW_S:
                                     # CORRIDOR CONFIRMED — update state, enroll immediately
                                     f5m_expires = int(time.time()) + _WT_CORRIDOR_F5M_TIMEOUT_S
@@ -30187,6 +32990,169 @@ def _process_wt_infra_payload(payload):
                                     with _wt_corridors_lock:
                                         _wt_corridors.pop(counterparty, None)
 
+                    # ── OPERATOR_WALLET outbound: gas-seed → LIKELY_DEPLOYER detection ──
+                    elif role == "OPERATOR_WALLET" and direction == "outbound" and counterparty:
+                        _is_gas_seed = _WT_DEPLOYER_GAS_MIN_SOL <= amount_sol <= _WT_DEPLOYER_GAS_MAX_SOL
+                        _already_deployer = counterparty in _WT_INFRA_ROLES
+                        if _is_gas_seed and not _already_deployer:
+                            with _wt_operator_wallets_lock:
+                                op_info = _wt_operator_wallets.get(infra_addr, {})
+                            _dep_expires = int(time.time()) + _WT_DEPLOYER_WATCH_TTL_S
+                            with _wt_deployer_wallets_lock:
+                                _wt_deployer_wallets[counterparty] = {
+                                    "operator_wallet": infra_addr,
+                                    "enrolled_at":     int(time.time()),
+                                    "expires_at":      _dep_expires,
+                                    "gas_sol":         amount_sol,
+                                    "gas_sig":         sig,
+                                }
+                            _WT_INFRA_ROLES[counterparty] = "LIKELY_DEPLOYER"
+                            conn.execute(
+                                """INSERT OR REPLACE INTO wt_operator_launches
+                                   (operator_wallet, deployer_wallet, first_seen_ts, confidence, treasury_sol, treasury_sig, updated_at)
+                                   VALUES (?, ?, ?, 'DEPLOYER_IDENTIFIED', ?, ?, ?)""",
+                                (infra_addr, counterparty, block_time,
+                                 op_info.get("treasury_sol"), op_info.get("treasury_sig"),
+                                 int(time.time()))
+                            )
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, 'LIKELY_DEPLOYER', ?, ?, 'infra_webhook', ?)""",
+                                (seq, counterparty,
+                                 json.dumps({"operator": infra_addr, "gas_sol": amount_sol,
+                                             "sig": sig, "expires_at": _dep_expires}),
+                                 block_time)
+                            )
+                            print(f"[WT_OPERATOR] 🔬 LIKELY_DEPLOYER {counterparty[:20]}… gas={amount_sol:.4f} SOL from operator {infra_addr[:16]}… TTL 30m", flush=True)
+
+                            # Enrol deployer in webhook with short TTL — watch for pump.fun create
+                            def _enrol_deployer(dep_addr, op_addr, expires):
+                                try:
+                                    import requests as _req
+                                    _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+                                    _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                                         "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                                    r = _req.get(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        timeout=10)
+                                    wh = r.json()
+                                    current = set(wh.get("accountAddresses", []))
+                                    if dep_addr in current:
+                                        return
+                                    updated = list(current | {dep_addr})
+                                    wh_payload = {
+                                        "webhookURL":       wh["webhookURL"],
+                                        "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                                        "accountAddresses": updated,
+                                        "webhookType":      wh.get("webhookType", "enhanced"),
+                                        "txnStatus":        wh.get("txnStatus", "all"),
+                                        "encoding":         wh.get("encoding", "jsonParsed"),
+                                    }
+                                    r2 = _req.put(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        json=wh_payload, timeout=10)
+                                    if r2.status_code == 200:
+                                        print(f"[WT_OPERATOR] ✅ Enrolled deployer {dep_addr[:20]}… in webhook TTL={expires}", flush=True)
+                                    else:
+                                        print(f"[WT_OPERATOR] ⚠️  Deployer enrol failed: {r2.status_code}", flush=True)
+                                except Exception as _e:
+                                    print(f"[WT_OPERATOR] deployer enrol error: {_e}", flush=True)
+
+                            _threading.Thread(
+                                target=_enrol_deployer,
+                                args=(counterparty, infra_addr, _dep_expires),
+                                daemon=True
+                            ).start()
+
+                    # ── LIKELY_DEPLOYER: detect pump.fun create tx → extract mint ──────
+                    elif role == "LIKELY_DEPLOYER" and counterparty:
+                        # Check if this tx touches the pump.fun fee account (= token create)
+                        _all_accounts = {
+                            (t2.get("toUserAccount") or "") for t2 in native_transfers
+                        } | {(t2.get("fromUserAccount") or "") for t2 in native_transfers}
+                        # Also check accountData (balance changes) and instructions (program accounts)
+                        for _ad in (tx.get("accountData") or []):
+                            _all_accounts.add(_ad.get("account") or "")
+                        for _inst in (tx.get("instructions") or []):
+                            _all_accounts.add(_inst.get("programId") or "")
+                            for _acct in (_inst.get("accounts") or []):
+                                _all_accounts.add(_acct)
+                        _is_pumpfun_create = _WT_PUMPFUN_FEE in _all_accounts
+
+                        if _is_pumpfun_create:
+                            # Extract mint from token transfers if present
+                            _token_xfers = tx.get("tokenTransfers") or []
+                            _mint = None
+                            for _tkx in _token_xfers:
+                                _m = _tkx.get("mint") or _tkx.get("tokenMint")
+                                if _m:
+                                    _mint = _m
+                                    break
+
+                            with _wt_deployer_wallets_lock:
+                                dep_info = _wt_deployer_wallets.get(infra_addr, {})
+                            _op_wallet = dep_info.get("operator_wallet", "")
+
+                            conn.execute(
+                                """UPDATE wt_operator_launches
+                                   SET mint=?, create_tx=?, confidence='LAUNCH_CONFIRMED', updated_at=?
+                                   WHERE deployer_wallet=?""",
+                                (_mint, sig, int(time.time()), infra_addr)
+                            )
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, payload_json, source, created_at)
+                                   VALUES (?, 'LAUNCH_CONFIRMED', ?, ?, 'infra_webhook', ?)""",
+                                (seq, infra_addr,
+                                 json.dumps({"mint": _mint, "create_tx": sig,
+                                             "operator": _op_wallet, "deployer": infra_addr}),
+                                 block_time)
+                            )
+                            print(f"[WT_OPERATOR] 🚀 LAUNCH_CONFIRMED deployer={infra_addr[:20]}… mint={(_mint or 'UNKNOWN')[:20]}… operator={_op_wallet[:16]}…", flush=True)
+
+                            # Disenrol deployer immediately — job done
+                            def _disenrol_deployer(dep_addr):
+                                try:
+                                    import requests as _req
+                                    _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
+                                    _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
+                                                         "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                                    r = _req.get(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        timeout=10)
+                                    wh = r.json()
+                                    current = set(wh.get("accountAddresses", []))
+                                    if dep_addr not in current:
+                                        return
+                                    updated = list(current - {dep_addr})
+                                    wh_payload = {
+                                        "webhookURL":       wh["webhookURL"],
+                                        "transactionTypes": wh.get("transactionTypes", ["Any"]),
+                                        "accountAddresses": updated,
+                                        "webhookType":      wh.get("webhookType", "enhanced"),
+                                        "txnStatus":        wh.get("txnStatus", "all"),
+                                        "encoding":         wh.get("encoding", "jsonParsed"),
+                                    }
+                                    r2 = _req.put(
+                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
+                                        json=wh_payload, timeout=10)
+                                    if r2.status_code == 200:
+                                        _WT_INFRA_ROLES.pop(dep_addr, None)
+                                        with _wt_deployer_wallets_lock:
+                                            _wt_deployer_wallets.pop(dep_addr, None)
+                                        print(f"[WT_OPERATOR] 🔕 Disenrolled deployer {dep_addr[:20]}… (launch confirmed)", flush=True)
+                                except Exception as _e:
+                                    print(f"[WT_OPERATOR] deployer disenrol error: {_e}", flush=True)
+
+                            _threading.Thread(
+                                target=_disenrol_deployer,
+                                args=(infra_addr,),
+                                daemon=True
+                            ).start()
+
                     # PROFIT_RELAY inbound = profits being swept into the relay (operation active)
                     elif role == "PROFIT_RELAY" and direction == "inbound" and amount_sol > 0:
                         seq = (conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0])
@@ -30203,6 +33169,25 @@ def _process_wt_infra_payload(payload):
                             f"{amount_sol:.4f} SOL swept sig={sig[:20]}…",
                             flush=True,
                         )
+
+                    # SUB_PROV outbound to TREASURY = profit sweep back to root
+                    elif role == "SUB_PROV" and direction == "outbound" and amount_sol > 1.0:
+                        _treasury = "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+                        if counterparty == _treasury:
+                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            conn.execute(
+                                """INSERT OR IGNORE INTO watchtower_events
+                                   (event_sequence, event_type, wallet_address, token_mint, payload_json, source, created_at)
+                                   VALUES (?, 'SUB_PROV_SWEEP', ?, NULL, ?, 'webhook', ?)""",
+                                (seq, infra_addr,
+                                 json.dumps({"from": infra_addr, "to": _treasury, "amount_sol": amount_sol, "tx": sig}),
+                                 block_time),
+                            )
+                            print(
+                                f"[WATCHTOWER] 🔄 SUB_PROV→TREASURY {infra_addr[:20]}… "
+                                f"{amount_sol:.4f} SOL swept sig={sig[:20]}…",
+                                flush=True,
+                            )
 
                     # SWARM_PROV inbound = buyer wallets sweeping profits back (extraction phase)
                     elif role == "SWARM_PROV" and direction == "inbound" and counterparty:
@@ -30227,34 +33212,36 @@ def _process_wt_infra_payload(payload):
                             )
                             print(f"[WT_SWARM] 💰 SWARM_EXTRACTION_ACTIVE {infra_addr[:20]}… buyer wallets sweeping back", flush=True)
 
-                    # SWARM_PROV outbound = buyer wallet fanout (~0.014 SOL per wallet)
+                    # SWARM_PROV outbound = buyer wallet fanout (~0.01–0.02 SOL per wallet)
+                    # Do NOT enrol recipients. Sample up to _WT_SWARM_SAMPLE_SIZE wallets only
+                    # to confirm the target mint. Everything else is disposable noise.
                     elif role == "SWARM_PROV" and direction == "outbound" and counterparty and _WT_SWARM_MIN_FANOUT_SOL <= amount_sol <= _WT_SWARM_MAX_FANOUT_SOL:
                         swarm_row = conn.execute(
-                            "SELECT id, wallet_count, fanout_started_at, state FROM wt_swarm_corridors WHERE provisioner_wallet=?",
+                            "SELECT id, wallet_count, fanout_started_at, state, primary_token_mint FROM wt_swarm_corridors WHERE provisioner_wallet=?",
                             (infra_addr,)
                         ).fetchone()
                         if swarm_row:
                             new_count = (swarm_row[1] or 0) + 1
                             started_at = swarm_row[2] or block_time
                             new_state = swarm_row[3]
-                            if new_count >= _WT_SWARM_MIN_FANOUTS and new_state == "SWARM_DEPLOYMENT_ACTIVE":
-                                new_state = "SWARM_DEPLOYMENT_ESCALATING"
-                                seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
-                                conn.execute(
-                                    """INSERT OR IGNORE INTO watchtower_events
-                                       (event_sequence, event_type, wallet_address, payload_json, source, created_at)
-                                       VALUES (?, 'SWARM_DEPLOYMENT_ESCALATING', ?, ?, 'infra_webhook', ?)""",
-                                    (seq, infra_addr,
-                                     json.dumps({"wallet_count": new_count, "provisioner": infra_addr}),
-                                     block_time)
-                                )
-                                print(f"[WT_SWARM] 🐝⬆️  SWARM_DEPLOYMENT_ESCALATING {infra_addr[:20]}… {new_count} wallets deployed", flush=True)
+                            # Increment counter only — do NOT enrol the recipient wallet
                             conn.execute("""
                                 UPDATE wt_swarm_corridors
                                 SET wallet_count=?, fanout_started_at=COALESCE(fanout_started_at,?),
-                                    fanout_completed_at=?, state=?, updated_at=?
+                                    fanout_completed_at=?, updated_at=?
                                 WHERE id=?
-                            """, (new_count, started_at, block_time, new_state, int(time.time()), swarm_row[0]))
+                            """, (new_count, started_at, block_time, int(time.time()), swarm_row[0]))
+
+                            # Sample up to _WT_SWARM_SAMPLE_SIZE recipients for mint confirmation
+                            # Once we have enough samples or mint is already known, skip
+                            _already_confirmed = swarm_row[4] is not None  # primary_token_mint set
+                            if not _already_confirmed and new_count <= _WT_SWARM_SAMPLE_SIZE:
+                                conn.execute("""
+                                    INSERT OR IGNORE INTO wt_swarm_corridors_samples
+                                        (swarm_id, recipient_wallet, sample_ts, fanout_sol, sequence)
+                                    VALUES (?, ?, ?, ?, ?)
+                                """, (swarm_row[0], counterparty, block_time, amount_sol, new_count))
+                                print(f"[WT_SWARM] 🎯 Sample {new_count}/{_WT_SWARM_SAMPLE_SIZE}: {counterparty[:20]}… will check for mint", flush=True)
                         else:
                             # SWARM_PROV actively fanning out but no corridor record yet — create one
                             conn.execute("""
@@ -30337,10 +33324,25 @@ def _process_wt_infra_payload(payload):
 
                     # Creator detection for directly TREASURY-funded wallets
                     try:
-                        from src.analysis.watchtower_detector import analyze_creator, ensure_schema as wt_schema
+                        from src.analysis.watchtower_detector import (
+                            analyze_creator, ensure_schema as wt_schema,
+                            discover_provisioning_hubs,
+                        )
                         dconn = db_connect(DB_PATH, timeout=20)
                         dconn.row_factory = sqlite3.Row
                         wt_schema(dconn)
+                        # Auto-discover provisioning hubs FIRST: a new hub is itself a
+                        # TREASURY recipient (700/800 SOL + dual signaller). Promoting it
+                        # to CONFIRMED here means the lineage rule can immediately attribute
+                        # any creator that hub seeds — no RPC, no hardcoded addresses.
+                        try:
+                            promoted = discover_provisioning_hubs(dconn, promote=True)
+                            if promoted:
+                                print(f"[WATCHTOWER] 🏭 {len(promoted)} provisioning hub(s) "
+                                      f"CONFIRMED: {[h['hub_address'][:8] for h in promoted]}",
+                                      flush=True)
+                        except Exception as hub_exc:
+                            print(f"[WATCHTOWER] hub discovery error: {hub_exc}", flush=True)
                         for (addr, amount_sol, sig, block_time) in recipients:
                             analyze_creator(addr, DB_PATH)
                         dconn.commit()
@@ -30443,11 +33445,15 @@ def _process_wt_infra_payload(payload):
                 conn.close()
             except Exception:
                 pass
+            if "locked" in str(exc).lower():
+                raise  # let the processor re-queue
             print(f"[WATCHTOWER_WEBHOOK] handler error: {exc}", flush=True)
             import traceback
             traceback.print_exc()
 
     except Exception as e:
+        if "locked" in str(e).lower():
+            raise  # let the processor re-queue
         print(f"[WATCHTOWER_WEBHOOK] outer error: {e}", flush=True)
 
 
@@ -31335,6 +34341,133 @@ def api_watchtower_corridors():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/watchtower/interceptor/status')
+def api_interceptor_status():
+    """CREATE Interceptor status: armed operations, PASSIVE validation metrics, benchmark state."""
+    try:
+        from src.core.watchtower.create_interceptor import get_status as interceptor_status
+        from src.core.watchtower.passive_validator import generate_report
+
+        status = interceptor_status() if interceptor_status else {"armed": False, "armed_count": 0, "operations": []}
+        report = generate_report(days=7)
+
+        # p50 build time for benchmark display
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cutoff_24h = int(time.time()) - 86400
+        bm_row = conn.execute("""
+            SELECT COUNT(*) n,
+                   AVG(build_ms) avg_ms,
+                   MAX(build_ms) max_ms,
+                   SUM(CASE WHEN est_position_top5  THEN 1 ELSE 0 END) top5,
+                   SUM(CASE WHEN est_position_top10 THEN 1 ELSE 0 END) top10,
+                   SUM(CASE WHEN est_position_top25 THEN 1 ELSE 0 END) top25,
+                   SUM(CASE WHEN build_ms > 0 THEN 1 ELSE 0 END) with_build_ms
+            FROM wt_interceptor_validation
+            WHERE launch_type='GENERAL_PUMPFUN' AND create_ts >= ?
+        """, (cutoff_24h,)).fetchone()
+
+        def _pct(v, total): return round(v / total * 100, 1) if total else None
+        bm_n = bm_row['n'] or 0
+        benchmark_24h = {
+            "creates":       bm_n,
+            "avg_build_ms":  round(bm_row['avg_ms'], 2) if bm_row['avg_ms'] else None,
+            "max_build_ms":  round(bm_row['max_ms'], 2) if bm_row['max_ms'] else None,
+            "top5_rate":     _pct(bm_row['top5'] or 0, bm_n),
+            "top10_rate":    _pct(bm_row['top10'] or 0, bm_n),
+            "top25_rate":    _pct(bm_row['top25'] or 0, bm_n),
+            "with_build_ms": bm_row['with_build_ms'] or 0,
+        }
+        # Buyer position report
+        buyer_position = {}
+        try:
+            from src.core.watchtower.buyer_position_analyzer import get_position_report
+            buyer_position = get_position_report(days=7)
+        except Exception:
+            pass
+
+        # Curve impact report
+        curve_impact = {}
+        try:
+            from src.core.watchtower.curve_impact_analyzer import get_impact_report
+            curve_impact = get_impact_report(days=7)
+        except Exception:
+            pass
+
+        # Dry-run signing metrics
+        dry_run_signing = {}
+        try:
+            drs_row = conn.execute("""
+                SELECT COUNT(*) n,
+                       AVG(sign_ms) avg_sign_ms,
+                       AVG(serialize_ms) avg_serialize_ms,
+                       AVG(total_build_sign_ms) avg_total_ms
+                FROM wt_detected_creates
+                WHERE sign_ms IS NOT NULL AND created_at > ?
+            """, (cutoff_24h,)).fetchone()
+            dry_run_signing = {
+                "n": drs_row[0] or 0,
+                "avg_sign_ms": round(drs_row[1], 2) if drs_row[1] else None,
+                "avg_serialize_ms": round(drs_row[2], 2) if drs_row[2] else None,
+                "avg_total_ms": round(drs_row[3], 2) if drs_row[3] else None,
+            }
+        except Exception:
+            pass
+
+        conn.close()
+
+        return jsonify({
+            "interceptor":     status,
+            "validation_metrics": report,
+            "benchmark_24h":   benchmark_24h,
+            "buyer_position":  buyer_position,
+            "curve_impact":    curve_impact,
+            "dry_run_signing": dry_run_signing,
+            "benchmark_mode":  os.environ.get("INTERCEPTOR_CREATE_BENCHMARK", "false").lower() == "true",
+            "benchmark_ttl_h": int(os.environ.get("CREATE_BENCHMARK_TTL_HOURS", "24")),
+            "mode":            os.environ.get("INTERCEPTOR_MODE", "PASSIVE"),
+            "buy_amount_sol":  float(os.environ.get("INTERCEPTOR_BUY_SOL", "0")),
+        })
+    except Exception as _e:
+        logging.exception("api_interceptor_status error")
+        return jsonify({"error": str(_e)}), 500
+
+
+@app.route('/api/watchtower/interceptor/recent-validations')
+def api_interceptor_recent_validations():
+    """Recent passive validation records (CREATE detections with latency metrics)."""
+    try:
+        conn = db_connect(DB_PATH, timeout=5)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only = ON")
+
+        limit = request.args.get("limit", default=50, type=int)
+        rows = conn.execute("""
+            SELECT mint, creator, create_slot, build_ms, estimated_slot_delta,
+                   actual_position, est_position_top5, est_position_top10,
+                   est_position_top25, launch_type, watch_confidence, create_ts
+            FROM wt_interceptor_validation
+            ORDER BY create_ts DESC
+            LIMIT ?
+        """, (limit,)).fetchall()
+
+        conn.close()
+
+        return jsonify({
+            "count": len(rows),
+            "records": [dict(r) for r in rows],
+        })
+    except Exception as _e:
+        logging.exception("api_interceptor_recent_validations error")
+        return jsonify({"error": str(_e)}), 500
+
+
+@app.route('/watchtower/interceptor')
+def watchtower_interceptor_dashboard():
+    """Monitoring dashboard for CREATE Interceptor (PASSIVE validation)."""
+    return render_template("watchtower_interceptor_dashboard.html", active_page='watchtower_interceptor')
+
+
 @app.route('/api/watchtower/swarm-corridors')
 def api_watchtower_swarm_corridors():
     """
@@ -31519,21 +34652,26 @@ def api_watchtower_ops_overview():
         relays = []
         total_sweeps_5m = 0
         total_sol_relays = 0.0
-        last_relay_active = 0
+        last_relay_active = None
         for r in relay_rows:
+            addr = r['wallet_address']
+            # Only show addresses currently in _WT_INFRA_ROLES
+            if addr not in _WT_INFRA_ROLES:
+                continue
+            current_role = _WT_INFRA_ROLES.get(addr, r['role'])
             hits_5m = r['hits_5m'] or 0
             total_sweeps_5m += hits_5m
             total_sol_relays += r['total_sol'] or 0.0
-            last_ts = (r['last_bucket_ts'] or 0) * 60
-            if last_ts > last_relay_active:
+            last_ts = (r['last_bucket_ts'] or 0) * 60 if r['last_bucket_ts'] else None
+            if last_ts and (last_relay_active is None or last_ts > last_relay_active):
                 last_relay_active = last_ts
             epoch = 'QUIET'
             if hits_5m > 100:   epoch = 'EXTRACTION_WAVE'
             elif hits_5m > 20:  epoch = 'ESCALATING'
             elif hits_5m > 2:   epoch = 'ACTIVE'
             relays.append({
-                'address':     r['wallet_address'],
-                'role':        r['role'],
+                'address':     addr,
+                'role':        current_role,
                 'hits_5m':     hits_5m,
                 'hits_1h':     r['hits_1h'] or 0,
                 'total_hits':  r['total_hits'] or 0,
@@ -31585,14 +34723,19 @@ def api_watchtower_ops_overview():
             GROUP BY infra_address, infra_role
             ORDER BY MAX(block_time) DESC
         """).fetchall()
+        # Filter to addresses currently in _WT_INFRA_ROLES with SUB_PROV or TREASURY_UP role
         provisioners = [{
             'address':  r['infra_address'],
-            'role':     r['infra_role'],
+            'role':     _WT_INFRA_ROLES.get(r['infra_address'], r['infra_role']),
             'last_ts':  r['last_ts'],
             'age_s':    now - r['last_ts'] if r['last_ts'] else None,
             'hits':     r['hits'],
             'sol':      round(r['sol'] or 0, 3),
-        } for r in prov_rows]
+        } for r in prov_rows
+          if _WT_INFRA_ROLES.get(r['infra_address']) in ('SUB_PROV', 'SWARM_PROV', 'TREASURY_UP')]
+
+        # WATCHTOWER-ONLY: Show confirmed infrastructure only
+        # Discovered provisioners are on /watchtower/operators for investigation
 
         # ── 3. CANDIDATE PIPELINE ─────────────────────────────────────────
         cand_total = conn.execute(
@@ -31622,32 +34765,118 @@ def api_watchtower_ops_overview():
         """).fetchone()[0] or 0
 
         # ── 4. OPERATIONAL EVENTS ─────────────────────────────────────────
+        # Get WATCHTOWER infra events — latest first, no time cutoff
+        infra_events = [dict(r) for r in conn.execute("""
+            SELECT 'infra' as type, signature, block_time, infra_address, infra_role,
+                   direction, counterparty, amount_sol, token_mint, token_symbol, traded_amount
+            FROM watchtower_infra_events
+            WHERE infra_role IN ('TREASURY', 'SUB_PROV', 'SWEEP_COLLECTOR', 'PROFIT_RELAY')
+              AND amount_sol >= 0.001
+            ORDER BY block_time DESC LIMIT 100
+        """).fetchall()]
+
+        # Get watchtower_events (swarms, signals, launches)
         events_raw = conn.execute("""
             SELECT event_type, wallet_address, token_mint, payload_json,
                    source, created_at
             FROM watchtower_events
+            WHERE event_type IN ('TREASURY_OUTBOUND', 'SWARM_DEPLOYMENT_ACTIVE',
+                                 'SWARM_RECYCLE_COMPLETE', 'signaller_dust', 'POSSIBLE_SWARM',
+                                 'SIGNAL_ACTIVATION')
             ORDER BY created_at DESC LIMIT 50
         """).fetchall()
 
         events = []
+
+        # Add infra events
+        for ie in infra_events:
+            role = ie['infra_role']
+            direction = ie['direction']
+            amount = ie['amount_sol']
+            counterparty = ie['counterparty']
+
+            # Only show meaningful amounts (>= 0.001 SOL)
+            if amount < 0.001:
+                continue
+
+            # Build semantic label (just the type, amount shown separately in UI)
+            if role == 'TREASURY' and direction == 'outbound':
+                sem = 'TREASURY_OUT'
+                events.append({
+                    'semantic':  sem,
+                    'raw_type':  f'{role}_{direction}',
+                    'wallet':    counterparty,
+                    'mint':      ie.get('token_mint'),
+                    'traded_amount': ie.get('traded_amount'),
+                    'payload':   {'amount_sol': amount, 'sig': ie['signature'],
+                                  'token_symbol': ie.get('token_symbol')},
+                    'source':    'infra_webhook',
+                    'ts':        ie['block_time'],
+                    'age_s':     now - ie['block_time'],
+                })
+                continue
+            elif role == 'SUB_PROV' and direction == 'inbound':
+                sem = 'SUB_PROV_IN'
+                # Get token data directly from this infra_event row (set by background enrichment)
+                events.append({
+                    'semantic':  sem,
+                    'raw_type':  f'{role}_{direction}',
+                    'wallet':    ie['infra_address'],
+                    'mint':      ie.get('token_mint'),
+                    'traded_amount': ie.get('traded_amount'),
+                    'payload':   {'amount_sol': amount, 'sig': ie['signature'],
+                                  'token_symbol': ie.get('token_symbol')},
+                    'source':    'infra_webhook',
+                    'ts':        ie['block_time'],
+                    'age_s':     now - ie['block_time'],
+                })
+                continue
+            elif role in ('SWEEP_COLLECTOR', 'PROFIT_RELAY'):
+                sem = 'SWEEP'
+            else:
+                continue
+
+            events.append({
+                'semantic':  sem,
+                'raw_type':  f'{role}_{direction}',
+                'wallet':    counterparty if direction == 'outbound' else ie['infra_address'],
+                'mint':      None,
+                'payload':   {'amount_sol': amount, 'sig': ie['signature']},
+                'source':    'infra_webhook',
+                'ts':        ie['block_time'],
+                'age_s':     now - ie['block_time'],
+            })
+
+        # Add watchtower events (only WATCHTOWER-confirmed provisioners)
         for e in events_raw:
+            # Skip POSSIBLE_SWARM from discovered provisioners
+            if e['event_type'] == 'POSSIBLE_SWARM':
+                prov = e['wallet_address']
+                if prov not in _WT_INFRA_ROLES:
+                    continue
+
+            # Skip platform wallets
+            if e['wallet_address'] in _WT_PLATFORM_WALLETS:
+                continue
+
             payload = {}
             try:
                 payload = json.loads(e['payload_json'] or '{}')
             except Exception:
                 pass
-            # Map internal event_type → operational semantic
+
+            if payload.get('provisioner') in _WT_PLATFORM_WALLETS:
+                continue
+
+            # Map event type
             raw_type = e['event_type'] or ''
             sem = raw_type
             if raw_type in ('SWARM_DEPLOYMENT_ACTIVE', 'SWARM_DEPLOYMENT_ESCALATING',
                             'SWARM_EXTRACTION_ACTIVE', 'SWARM_RECYCLE_COMPLETE'): sem = raw_type
-            elif 'sweep' in raw_type or 'profit' in raw_type:  sem = 'SWEEP_EPOCH'
-            elif 'treasury' in raw_type:                        sem = 'TREASURY_FANOUT'
+            elif 'treasury' in raw_type.lower():                sem = 'TREASURY_EVENT'
             elif 'signal' in raw_type or 'dust' in raw_type:   sem = 'SIGNAL_DETECTED'
-            elif 'candidate' in raw_type or 'staged' in raw_type: sem = 'CANDIDATE_STAGED'
-            elif 'launch' in raw_type or 'fee' in raw_type:    sem = 'LAUNCH_DETECTED'
-            elif 'relay' in raw_type:                           sem = 'RELAY_ACTIVE'
             elif 'swarm' in raw_type or 'trader' in raw_type:  sem = 'SWARM_ACTIVITY'
+
             events.append({
                 'semantic':  sem,
                 'raw_type':  raw_type,
@@ -31659,49 +34888,140 @@ def api_watchtower_ops_overview():
                 'age_s':     now - e['created_at'],
             })
 
+        # Sort by timestamp
+        events.sort(key=lambda x: x['ts'], reverse=True)
+        events = events[:100]
+
         last_event_ts = events[0]['ts'] if events else 0
         last_event_age_s = now - last_event_ts if last_event_ts else None
 
         # ── 5. CAMPAIGN SUMMARIES ─────────────────────────────────────────
-        # Pull from wt_campaigns if populated, else infer from known provisioners
-        campaigns_db = conn.execute(
-            "SELECT * FROM wt_campaigns LIMIT 20"
-        ).fetchall() if conn.execute(
-            "SELECT COUNT(*) FROM wt_campaigns"
-        ).fetchone()[0] > 0 else []
+        # Build campaigns from infra_events: group TREASURY outbound + SUB_PROV inbound
+        # by SUB_PROV (counterparty for treasury out, infra_address for sub_prov in)
 
-        # Infer campaigns from provisioner→treasury relationships
-        infra_campaigns = conn.execute("""
-            SELECT wlc.source_operator AS campaign_id,
-                   COUNT(DISTINCT wlc.address) creator_count,
-                   MAX(we.created_at) last_event_ts,
-                   COUNT(DISTINCT we.id) event_count
-            FROM watchtower_launch_candidates wlc
-            LEFT JOIN watchtower_events we ON we.wallet_address = wlc.address
-            WHERE wlc.source_operator IS NOT NULL
-            GROUP BY wlc.source_operator
-            ORDER BY MAX(we.created_at) DESC LIMIT 10
-        """).fetchall() if conn.execute(
-            "SELECT COUNT(*) FROM watchtower_launch_candidates"
-        ).fetchone()[0] > 0 else []
+        # Get all TREASURY outbound events (deployments)
+        treasury_outs = conn.execute("""
+            SELECT counterparty as subprov, block_time, amount_sol,
+                   token_symbol, token_mint, signature
+            FROM watchtower_infra_events
+            WHERE infra_role = 'TREASURY' AND direction = 'outbound' AND amount_sol >= 10
+            ORDER BY block_time DESC
+        """).fetchall()
+
+        # Get all SUB_PROV inbound events (returns)
+        subprov_ins = conn.execute("""
+            SELECT infra_address as subprov, block_time, amount_sol,
+                   token_symbol, token_mint, signature
+            FROM watchtower_infra_events
+            WHERE infra_role = 'SUB_PROV' AND direction = 'inbound' AND amount_sol >= 10
+            ORDER BY block_time DESC
+        """).fetchall()
+
+        # Get recent SIGNAL_ACTIVATION events
+        signal_acts = conn.execute("""
+            SELECT wallet_address as subprov, created_at, payload_json
+            FROM watchtower_events
+            WHERE event_type = 'SIGNAL_ACTIVATION'
+            ORDER BY created_at DESC
+        """).fetchall()
+
+        # Group into campaigns keyed by subprov
+        camp_map = {}
+        for r in treasury_outs:
+            sp = r['subprov']
+            if sp not in camp_map:
+                camp_map[sp] = {'subprov': sp, 'deployments': [], 'returns': [], 'signals': []}
+            camp_map[sp]['deployments'].append(dict(r))
+
+        for r in subprov_ins:
+            sp = r['subprov']
+            if sp not in camp_map:
+                camp_map[sp] = {'subprov': sp, 'deployments': [], 'returns': [], 'signals': []}
+            camp_map[sp]['returns'].append(dict(r))
+
+        for r in signal_acts:
+            sp = r['subprov']
+            if sp not in camp_map:
+                camp_map[sp] = {'subprov': sp, 'deployments': [], 'returns': [], 'signals': []}
+            camp_map[sp]['signals'].append({'ts': r['created_at']})
+
+        # Also include SUB_PROVs with only signals (not yet deployed)
+        for r in signal_acts:
+            sp = r['subprov']
+            if sp not in camp_map:
+                camp_map[sp] = {'subprov': sp, 'deployments': [], 'returns': [], 'signals': []}
+                camp_map[sp]['signals'].append({'ts': r['created_at']})
 
         campaigns = []
-        for c in infra_campaigns:
-            last_ts = c['last_event_ts'] or 0
-            age_s   = now - last_ts if last_ts else None
-            camp_state = 'DORMANT'
-            if age_s is not None:
-                if age_s < 3600:    camp_state = 'ACTIVE'
-                elif age_s < 14400: camp_state = 'ESCALATING'
-                elif age_s < 86400: camp_state = 'FORMING'
+        for sp, c in camp_map.items():
+            deployments = c['deployments']
+            returns     = c['returns']
+            signals     = c['signals']
+
+            sol_deployed = sum(d['amount_sol'] for d in deployments)
+            sol_returned = sum(r['amount_sol'] for r in returns)
+            pnl          = sol_returned - sol_deployed
+
+            # Token — prefer from returns, then deployments
+            token_symbol = next((r['token_symbol'] for r in returns   if r.get('token_symbol')), None) or \
+                           next((d['token_symbol'] for d in deployments if d.get('token_symbol')), None)
+            token_mint   = next((r['token_mint']   for r in returns   if r.get('token_mint')),   None) or \
+                           next((d['token_mint']   for d in deployments if d.get('token_mint')),   None)
+
+            # Also check wt_sub_provisioners for token
+            if not token_symbol:
+                sp_row = conn.execute(
+                    "SELECT token_symbol, token_mint FROM wt_sub_provisioners WHERE address=? LIMIT 1", (sp,)
+                ).fetchone()
+                if sp_row:
+                    token_symbol = sp_row['token_symbol']
+                    token_mint   = sp_row['token_mint']
+
+            # Timestamps
+            last_signal_ts   = max((s['ts'] for s in signals),     default=0)
+            last_deploy_ts   = max((d['block_time'] for d in deployments), default=0)
+            last_return_ts   = max((r['block_time'] for r in returns),     default=0)
+            last_activity_ts = max(last_signal_ts, last_deploy_ts, last_return_ts)
+            first_deploy_ts  = min((d['block_time'] for d in deployments), default=0)
+
+            age_s = now - last_activity_ts if last_activity_ts else None
+
+            # State
+            if signals and not deployments and not returns:
+                state = 'SIGNALLED'
+            elif deployments and not returns:
+                state = 'ACTIVE' if (now - last_deploy_ts) < 14400 else 'DEPLOYED'
+            elif returns and last_return_ts > last_deploy_ts:
+                state = 'COMPLETE' if pnl >= 0 else 'RETURNED'
+            elif age_s is not None and age_s < 3600:
+                state = 'ACTIVE'
+            else:
+                state = 'DORMANT'
+
             campaigns.append({
-                'id':            c['campaign_id'],
-                'creator_count': c['creator_count'],
-                'last_event_ts': last_ts,
-                'age_s':         age_s,
-                'event_count':   c['event_count'],
-                'state':         camp_state,
+                'id':             sp,
+                'subprov':        sp,
+                'token_symbol':   token_symbol,
+                'token_mint':     token_mint,
+                'sol_deployed':   round(sol_deployed, 3),
+                'sol_returned':   round(sol_returned, 3),
+                'pnl':            round(pnl, 3),
+                'state':          state,
+                'last_signal_ts': last_signal_ts,
+                'first_deploy_ts': first_deploy_ts,
+                'last_deploy_ts': last_deploy_ts,
+                'last_return_ts': last_return_ts,
+                'last_activity_ts': last_activity_ts,
+                'age_s':          age_s,
+                'deployment_count': len(deployments),
+                'return_count':   len(returns),
+                'signal_count':   len(signals),
             })
+
+        # Sort: SIGNALLED first, then ACTIVE, then by last activity
+        state_order = {'SIGNALLED': 0, 'ACTIVE': 1, 'DEPLOYED': 2, 'COMPLETE': 3, 'RETURNED': 4, 'DORMANT': 5}
+        campaigns.sort(key=lambda x: (state_order.get(x['state'], 9), -(x['last_activity_ts'] or 0)))
+        campaigns = campaigns[:20]
 
         # ── 6. INFRA WALLET SUMMARY ───────────────────────────────────────
         staged_total = conn.execute("SELECT COUNT(*) FROM wt_staged_wallets").fetchone()[0]
@@ -31782,6 +35102,33 @@ def api_watchtower_ops_overview():
                 op_state  = 'SWARM_DEPLOYING'
                 op_detail = f'SWARM deployment active. {swarm_active_list[0]["wallet_count"] or 0} wallets deployed.'
 
+        # ── 8b. INTERCEPTOR STATE ──────────────────────────────────────
+        interceptor_status = {'state': 'PASSIVE', 'armed_count': 0, 'pending_count': 0,
+                              'pumpfun_ws_active': False, 'operations': [], 'pending_candidates': [],
+                              'websocket_cost_estimate': {}}
+        try:
+            from src.core.watchtower.create_interceptor import get_status as _ci_status
+            interceptor_status = _ci_status()
+        except Exception:
+            pass
+
+        if interceptor_status.get('armed_count', 0) > 0:
+            armed_ops = interceptor_status.get('operations', [])
+            best = max(armed_ops, key=lambda o: o.get('confidence', 0), default={})
+            conf  = best.get('confidence', 0)
+            size  = best.get('operation_size', '')
+            op_state  = 'ARMED'
+            op_detail = (
+                f"INTERCEPTOR ARMED — {interceptor_status['armed_count']} wallet(s) monitored. "
+                f"confidence={conf:.0%}  {size}  "
+                f"pump.fun CREATE WS {'active' if interceptor_status.get('pumpfun_ws_active') else 'starting'}."
+            )
+        elif interceptor_status.get('pending_count', 0) > 0 and op_state in ('QUIET', 'DORMANT'):
+            op_state  = 'FORMING'
+            op_detail = (
+                f"Ignition pending — {interceptor_status['pending_count']} candidate(s) awaiting SIGNALLER confirmation."
+            )
+
         # ── 9. TEMPO SPARKLINE (30m buckets, last 6h) ─────────────────────
         tempo_buckets = conn.execute("""
             SELECT (created_at / 1800) * 1800 AS bucket, COUNT(*) n
@@ -31791,6 +35138,32 @@ def api_watchtower_ops_overview():
         """, (now - 21600,)).fetchall()
         tempo_max = max((r['n'] for r in tempo_buckets), default=1)
         tempo_spark = [round(r['n'] / tempo_max * 8) for r in tempo_buckets]
+
+        # ── 10. SWARM ACTIVITY (recent POSSIBLE_SWARM events) ──────────────────
+        swarm_activity = conn.execute("""
+            SELECT wallet_address, token_mint, payload_json, created_at
+            FROM watchtower_events
+            WHERE event_type='POSSIBLE_SWARM'
+            ORDER BY created_at DESC LIMIT 20
+        """).fetchall()
+
+        swarm_activity_list = []
+        for sa in swarm_activity:
+            try:
+                payload = json.loads(sa['payload_json'] or '{}')
+                swarm_activity_list.append({
+                    'provisioner': sa['wallet_address'][:20] + '…',
+                    'token':       sa['token_mint'][:15] + '…' if sa['token_mint'] else None,
+                    'buyers':      payload.get('unique_buyers', 0),
+                    'window_s':    payload.get('buy_window_s', 0),
+                    'median_sol':  round(payload.get('median_funding_sol', 0), 4),
+                    'class':       payload.get('operator_class', 'UNKNOWN'),
+                    'confidence':  round(payload.get('confidence', 0), 2),
+                    'ts':          sa['created_at'],
+                    'age_s':       now - sa['created_at'],
+                })
+            except:
+                pass
 
         conn.close()
 
@@ -31803,7 +35176,7 @@ def api_watchtower_ops_overview():
                 'sweeps_5m':       total_sweeps_5m,
                 'sol_tracked':     round(total_sol_relays, 3),
                 'last_active_ts':  last_relay_active,
-                'last_active_age_s': now - last_relay_active if last_relay_active else None,
+                'last_active_age_s': now - last_relay_active if last_relay_active and last_relay_active > 0 else None,
                 'relays':          relays,
                 'counterparties':  cp_summary,
             },
@@ -31834,12 +35207,14 @@ def api_watchtower_ops_overview():
             'swarm': {
                 'state_counts': swarm_state_counts,
                 'active':       swarm_active_list,
+                'activity':     swarm_activity_list,
             },
             'tempo': {
                 'spark':    tempo_spark,
                 'buckets':  len(tempo_spark),
                 'window_h': 6,
             },
+            'interceptor': interceptor_status,
         })
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
@@ -32232,6 +35607,35 @@ def api_watchtower_webhook_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+def _extract_token_from_tx(tx_data: dict, conn: sqlite3.Connection) -> tuple[str, float, str]:
+    """Extract output token mint, amount, and symbol from a transaction. Returns (mint, amount, symbol)."""
+    mint = None
+    amount = 0
+    symbol = "UNKNOWN"
+
+    try:
+        instructions = tx_data.get("transaction", {}).get("message", {}).get("instructions", [])
+        for inst in instructions:
+            parsed = inst.get("parsed", {})
+            if parsed.get("type") == "swap":
+                info = parsed.get("info", {})
+                mint = info.get("outputMint")
+                amount = info.get("outputAmount", 0)
+                break
+
+        if mint:
+            row = conn.execute(
+                "SELECT symbol FROM tracked_tokens WHERE mint=? LIMIT 1",
+                (mint,)
+            ).fetchone()
+            if row:
+                symbol = row[0]
+    except Exception:
+        pass
+
+    return mint, amount, symbol
+
+
 @app.route('/api/watchtower/events-feed')
 def api_watchtower_events_feed():
     """Unified semantic event stream for the dashboard intelligence feed."""
@@ -32304,6 +35708,75 @@ def api_watchtower_events_feed():
                 "severity": "low",
             })
 
+        # --- SUB_PROV inbound transactions with token names (auto-enriched) ---
+        try:
+            # Get all SUB_PROV records with last_trade_tx, enrich missing tokens
+            q_subprov = """
+                SELECT address, last_trade_at, traded_amount, token_symbol, token_mint, last_trade_tx
+                FROM wt_sub_provisioners
+                WHERE last_trade_at IS NOT NULL
+            """
+            p_subprov = []
+            if since_ts:
+                q_subprov += " AND last_trade_at > ?"
+                p_subprov.append(since_ts)
+            q_subprov += " ORDER BY last_trade_at DESC LIMIT ?"
+            p_subprov.append(max(limit // 3, 15))
+
+            # Get RPC URL once
+            rpc_url = os.environ.get("HELIUS_RPC_URL") or os.environ.get("RPC_URL") or "https://api.mainnet-beta.solana.com"
+
+            for row in conn.execute(q_subprov, p_subprov).fetchall():
+                token_sym = row["token_symbol"]
+                amount = row["traded_amount"] or 0
+                tx_sig = row["last_trade_tx"]
+
+                # Auto-enrich if no token_symbol yet
+                if not token_sym and tx_sig:
+                    try:
+                        payload = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getTransaction",
+                            "params": [tx_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                        }
+                        resp = requests.post(rpc_url, json=payload, timeout=5)
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            if "result" in data and data["result"]:
+                                tx_data = data["result"]
+                                output_mint, output_amount, output_sym = _extract_token_from_tx(tx_data, conn)
+                                if output_sym and output_sym != "UNKNOWN":
+                                    token_sym = output_sym
+                                    amount = output_amount
+                                    # Update DB
+                                    conn.execute("""
+                                        UPDATE wt_sub_provisioners SET
+                                            token_mint = ?,
+                                            token_symbol = ?,
+                                            traded_amount = ?,
+                                            scan_status = 'confirmed'
+                                        WHERE address = ?
+                                    """, (output_mint, output_sym, output_amount, row["address"]))
+                                    conn.commit()
+                    except Exception as e:
+                        pass
+
+                if token_sym and token_sym != "UNKNOWN":
+                    events.append({
+                        "type": "SUB_PROV_INBOUND",
+                        "ts": row["last_trade_at"] or 0,
+                        "address": row["address"],
+                        "token_mint": row["token_mint"],
+                        "token_symbol": token_sym,
+                        "amount": amount,
+                        "tx": tx_sig,
+                        "label": f"SUB_PROV_inbound · {amount:.3f} {token_sym}",
+                        "severity": "high",
+                    })
+        except Exception as e:
+            pass
+
         # --- Staged wallets as CREATOR_CANDIDATE events ---
         q_staged = """
             SELECT wallet_address, provisioned_at, provisioner_address, first_move_type
@@ -32324,6 +35797,41 @@ def api_watchtower_events_feed():
                 "label": f"Creator candidate staged via {(row['provisioner_address'] or '')[:8]}…",
                 "severity": "high",
             })
+
+        # --- Operator-layer launch pipeline events (wt_operator_launches) ---
+        try:
+            q_ops = "SELECT operator_wallet, deployer_wallet, mint, confidence, treasury_sol, first_seen_ts, updated_at FROM wt_operator_launches"
+            p_ops = []
+            if since_ts:
+                q_ops += " WHERE updated_at > ?"
+                p_ops.append(since_ts)
+            q_ops += " ORDER BY updated_at DESC LIMIT ?"
+            p_ops.append(max(limit // 2, 20))
+            _conf_to_type = {
+                "OPERATOR_WALLET_CANDIDATE": "OPERATOR_WALLET_CANDIDATE",
+                "DEPLOYER_IDENTIFIED":       "LIKELY_DEPLOYER",
+                "LAUNCH_CONFIRMED":          "LAUNCH_CONFIRMED",
+                "SWARM_CONFIRMED":           "SWARM_CONFIRMED",
+            }
+            for row in conn.execute(q_ops, p_ops).fetchall():
+                conf = row["confidence"] or "OPERATOR_WALLET_CANDIDATE"
+                etype = _conf_to_type.get(conf, "OPERATOR_WALLET_CANDIDATE")
+                events.append({
+                    "type":    etype,
+                    "ts":      row["updated_at"] or row["first_seen_ts"] or 0,
+                    "address": row["operator_wallet"],
+                    "payload": {
+                        "operator":    row["operator_wallet"],
+                        "deployer":    row["deployer_wallet"],
+                        "mint":        row["mint"],
+                        "treasury_sol": row["treasury_sol"],
+                        "gas_sol":     row["treasury_sol"],
+                    },
+                    "label": f"{conf}: deployer {(row['deployer_wallet'] or '')[:8]}…",
+                    "severity": "high" if conf in ("LAUNCH_CONFIRMED","LIKELY_DEPLOYER") else "medium",
+                })
+        except Exception:
+            pass
 
         # Sort by ts descending, safe int cast
         events.sort(key=lambda e: int(e.get('ts') or 0), reverse=True)
@@ -32465,119 +35973,656 @@ def api_watchtower_swarms():
     return jsonify({"swarms": swarms, "count": len(swarms)})
 
 
-@app.route('/api/watchtower/operator-clusters')
-def api_watchtower_operator_clusters():
-    """Generic swarm operator clusters discovered by migration scanner."""
+@app.route('/api/watchtower/watch-candidates')
+def api_watch_candidates():
+    """
+    WATCH-style token operator discovery pipeline results.
+    Input: token_prediction_scores WHERE risk_level='WATCH' AND creator_was_fresh=1.
+    Excludes service providers (Axiom, Astra, infra_wallets).
+    """
+    conn = db_connect(DB_PATH, timeout=30)
+    conn.row_factory = sqlite3.Row
+    refresh = request.args.get('refresh') == '1'
+
+    try:
+        # Create table if startup thread hasn't run yet
+        conn.execute("""CREATE TABLE IF NOT EXISTS watch_candidate_tokens (
+            mint TEXT PRIMARY KEY, creator_address TEXT NOT NULL,
+            prediction_score INTEGER, has_sol_flows INTEGER NOT NULL DEFAULT 0,
+            classified_as TEXT NOT NULL DEFAULT 'UNKNOWN',
+            classification_conf REAL NOT NULL DEFAULT 0.0,
+            classification_reason TEXT, cluster_id INTEGER,
+            added_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )""")
+        for _m in [
+            "ALTER TABLE wt_operator_clusters ADD COLUMN operator_classification TEXT DEFAULT 'UNKNOWN'",
+            "ALTER TABLE wt_operator_clusters ADD COLUMN classification_confidence REAL DEFAULT 0.0",
+            "ALTER TABLE wt_operator_clusters ADD COLUMN classification_reason TEXT",
+            "ALTER TABLE wt_operator_clusters ADD COLUMN cluster_evidence_json TEXT",
+            "ALTER TABLE wt_operator_clusters ADD COLUMN watch_token_count INTEGER DEFAULT 0",
+        ]:
+            try: conn.execute(_m)
+            except Exception: pass
+        conn.commit()
+
+        needs_build = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens").fetchone()[0] == 0
+        if refresh or needs_build:
+            _run_watch_pipeline(conn)
+
+        total_eligible = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens").fetchone()[0]
+        has_sol_flows  = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens WHERE has_sol_flows=1").fetchone()[0]
+        service_excl   = conn.execute("""
+            SELECT COUNT(*) FROM token_prediction_scores tps
+            WHERE tps.risk_level='WATCH' AND tps.creator_was_fresh=1
+              AND EXISTS (SELECT 1 FROM infra_wallets iw
+                          WHERE iw.address=tps.creator_address
+                            AND iw.type NOT IN ('bonding_curve','pumpswap_pool','pool'))
+        """).fetchone()[0]
+
+        classified_rows = conn.execute("""
+            SELECT classified_as, COUNT(*) as cnt
+            FROM watch_candidate_tokens
+            GROUP BY classified_as
+        """).fetchall()
+        classified = {"WATCHTOWER": 0, "WATCH_LIKE_NEW_OP": 0, "UNKNOWN": 0}
+        for r in classified_rows:
+            classified[r["classified_as"]] = r["cnt"]
+
+        # Clusters with WATCH tokens (ordered by watch_token_count DESC)
+        cluster_rows = conn.execute("""
+            SELECT oc.*, wof.median_fanout_sol, wof.typical_wallet_count,
+                   wof.buy_window_s, wof.recycle_rate, wof.sample_count
+            FROM wt_operator_clusters oc
+            LEFT JOIN wt_operator_fingerprints wof ON wof.cluster_id = oc.cluster_id
+            WHERE oc.watch_token_count > 0 OR oc.origin = 'seed'
+            ORDER BY oc.watch_token_count DESC, oc.confidence DESC
+            LIMIT 50
+        """).fetchall()
+        clusters = []
+        for row in cluster_rows:
+            c = dict(row)
+            c['member_count'] = conn.execute(
+                "SELECT COUNT(*) FROM wt_cluster_members WHERE cluster_id=?",
+                (c['cluster_id'],)
+            ).fetchone()[0]
+            c['funding_origins'] = _compute_cluster_funding_origins(c['cluster_id'], conn)
+            # Alpha-family tagging
+            af = _cluster_alpha_family_count(c['cluster_id'], conn)
+            c['alpha_family_count'] = af
+            c['is_alpha_family'] = (c.get('label') == 'OPERATION_ALPHA') or (af > 0 and af >= c['member_count'] * 0.5)
+            clusters.append(c)
+
+        # Top classified candidates (not UNKNOWN)
+        top_rows = conn.execute("""
+            SELECT wct.mint AS token_mint, wct.creator_address, wct.prediction_score,
+                   wct.has_sol_flows, wct.classified_as, wct.classification_conf,
+                   wct.classification_reason, wct.cluster_id
+            FROM watch_candidate_tokens wct
+            WHERE wct.classified_as != 'UNKNOWN'
+            ORDER BY
+                CASE wct.classified_as WHEN 'WATCHTOWER' THEN 0 WHEN 'WATCH_LIKE_NEW_OP' THEN 1 ELSE 2 END,
+                wct.classification_conf DESC
+            LIMIT 200
+        """).fetchall()
+        top_candidates = []
+        for r in top_rows:
+            c = dict(r)
+            origin, reason = _funding_origin_for_creator(c['creator_address'], conn)
+            c['funding_origin'] = origin
+            c['funding_reason'] = reason
+            c['is_alpha_family'] = _is_alpha_family_creator(c['creator_address'], conn)
+            top_candidates.append(c)
+
+        conn.close()
+        return jsonify({
+            "total_eligible":    total_eligible,
+            "has_sol_flows":     has_sol_flows,
+            "service_excluded":  service_excl,
+            "classified":        classified,
+            "clusters":          clusters,
+            "top_candidates":    top_candidates,
+        })
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operations')
+def api_watchtower_operations():
+    """
+    Operation Discovery Engine output — operations are the primary object.
+    TOKEN → OPERATION → OPERATOR. Auto-discovered via corridor+timing grouping.
+    """
+    conn = db_connect(DB_PATH, timeout=10)
+    conn.row_factory = sqlite3.Row
+    refresh = request.args.get('refresh') == '1'
+    try:
+        # Defensive table creation
+        conn.execute("""CREATE TABLE IF NOT EXISTS wt_operations (
+            operation_id INTEGER PRIMARY KEY AUTOINCREMENT, auto_name TEXT, human_name TEXT,
+            operator_identity TEXT NOT NULL DEFAULT 'UNKNOWN',
+            identity_confidence TEXT NOT NULL DEFAULT 'UNKNOWN', identity_validated_at INTEGER,
+            state TEXT NOT NULL DEFAULT 'DISCOVERED',
+            token_count INTEGER NOT NULL DEFAULT 0, creator_count INTEGER NOT NULL DEFAULT 0,
+            confidence REAL NOT NULL DEFAULT 0.0, corridor_amount TEXT, window_start INTEGER,
+            window_end INTEGER, discovery_signals TEXT,
+            discovered_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')))""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS wt_operation_members (
+            operation_id INTEGER NOT NULL, token_mint TEXT NOT NULL, creator_wallet TEXT,
+            funding_amount REAL, migrated_at INTEGER, join_signal TEXT,
+            PRIMARY KEY (operation_id, token_mint))""")
+        conn.commit()
+
+        if refresh or conn.execute("SELECT COUNT(*) FROM wt_operations").fetchone()[0] == 0:
+            _discover_operations(conn)
+
+        import json as _json
+        include_dismissed = request.args.get('include_dismissed') == '1'
+        ops = []
+        for row in conn.execute("""
+            SELECT * FROM wt_operations
+            ORDER BY CASE operator_identity WHEN 'WATCHTOWER' THEN 0 WHEN 'ALPHA' THEN 1 ELSE 2 END,
+                     token_count DESC
+        """).fetchall():
+            o = dict(row)
+            # Hide MERGED/NOISE from the headline list by default
+            if not include_dismissed and o.get('state') in ('MERGED', 'NOISE'):
+                continue
+            try:
+                o['discovery_signals'] = _json.loads(o.get('discovery_signals') or '[]')
+            except Exception:
+                o['discovery_signals'] = []
+            ops.append(o)
+
+        summary = {"WATCHTOWER": 0, "ALPHA": 0, "UNKNOWN": 0}
+        by_state = {}
+        for o in ops:
+            summary[o['operator_identity']] = summary.get(o['operator_identity'], 0) + 1
+            by_state[o['state']] = by_state.get(o['state'], 0) + 1
+
+        conn.close()
+        return jsonify({"operations": ops, "count": len(ops),
+                        "summary": summary, "by_state": by_state})
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/engine-status')
+def api_watchtower_engine_status():
+    """
+    Single-call freshness/health snapshot for the Operators page status cards.
+    Answers 'am I looking at live or stale intelligence?' without logs/SQL.
+    Sources: wt_worker_heartbeat (watch-pipeline + hub-backfill-worker),
+    wt_hub_backfill_queue (progress), wt_operations (op summary).
+    """
+    import json as _json
+    conn = db_connect(DB_PATH, timeout=10)
+    conn.row_factory = sqlite3.Row
+    try:
+        now = int(conn.execute("SELECT strftime('%s','now')").fetchone()[0])
+
+        def hb(name):
+            r = conn.execute("SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name=?",
+                             (name,)).fetchone()
+            if not r:
+                return None
+            try:
+                meta = _json.loads(r["meta_json"]) if r["meta_json"] else {}
+            except Exception:
+                meta = {}
+            return {"last_seen": r["last_seen"], "age_s": now - int(r["last_seen"]),
+                    "status": r["status"], "meta": meta}
+
+        # ── Pipeline (real last-successful-run, not page load) ────────────────
+        pipe = hb("watch-pipeline")
+        interval = (pipe or {}).get("meta", {}).get("interval_s", 300)
+        pipeline = None
+        if pipe:
+            pipeline = {
+                "last_run": pipe["last_seen"], "age_s": pipe["age_s"],
+                "status": pipe["status"],
+                "next_run_s": max(0, interval - pipe["age_s"]),
+                "interval_s": interval,
+                "operations": pipe["meta"].get("operations"),
+                "by_identity": pipe["meta"].get("by_identity"),
+                "clusters_built": pipe["meta"].get("clusters_built"),
+            }
+
+        # ── Hub backfill (heartbeat + live queue progress) ───────────────────
+        bf_hb = hb("hub-backfill-worker")
+        bf_counts = {}
+        for st, n in conn.execute("SELECT status, COUNT(*) FROM wt_hub_backfill_queue GROUP BY status"):
+            bf_counts[st] = n
+        pending = bf_counts.get("pending", 0)
+        done = bf_counts.get("done", 0)
+        empty = bf_counts.get("empty", 0)
+        errors = bf_counts.get("error", 0)
+        total = sum(bf_counts.values())
+        processed = done + empty + errors
+        backfill = {
+            "status": (bf_hb or {}).get("status", "unknown"),
+            "last_trace_age_s": (bf_hb or {}).get("age_s"),
+            "queue_remaining": pending,
+            "processed": processed,
+            "errors": errors,
+            "total": total,
+            "progress_pct": round(100 * processed / total) if total else 100,
+        }
+
+        # ── Discovery summary (from wt_operations) ───────────────────────────
+        disc = {"cadence_s": interval, "auto": True}
+        rows = conn.execute("""
+            SELECT operator_identity, state FROM wt_operations
+            WHERE state NOT IN ('MERGED','NOISE')
+        """).fetchall()
+        disc["discovered"] = len(rows)
+        disc["confirmed"] = sum(1 for r in rows if r["state"] == "CONFIRMED")
+        disc["unknown"]   = sum(1 for r in rows if r["operator_identity"] == "UNKNOWN")
+        disc["last_run"]  = (pipe or {}).get("last_seen")
+
+        # ── Derived health flags ─────────────────────────────────────────────
+        # Thresholds scale with the cadence so changing the interval never makes a
+        # healthy pipeline look stale: stale = >2× interval (a run was missed),
+        # critical = >3× interval or never run.
+        pipe_age = (pipe or {}).get("age_s")
+        bf_age = (bf_hb or {}).get("age_s")
+        stale_thresh = interval * 2
+        crit_thresh = interval * 3
+        health = {
+            "pipeline_stale": bool(pipe_age is not None and pipe_age > stale_thresh),
+            "pipeline_critical": bool(pipe_age is None or pipe_age > crit_thresh),
+            "backfill_stale": bool(bf_age is not None and bf_age > stale_thresh and pending > 0),
+            "pipeline_age_min": round(pipe_age / 60) if pipe_age is not None else None,
+            "backfill_age_min": round(bf_age / 60) if bf_age is not None else None,
+        }
+
+        conn.close()
+        return jsonify({"now": now, "pipeline": pipeline, "backfill": backfill,
+                        "discovery": disc, "health": health})
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
+def _log_op_transition(conn, op_id, to_state, actor='human', detail=None):
+    """Append a lifecycle transition row. Reads current state for from_state."""
+    import json as _json
+    cur = conn.execute("SELECT state FROM wt_operations WHERE operation_id=?", (op_id,)).fetchone()
+    from_state = cur[0] if cur else None
+    conn.execute("""
+        INSERT INTO wt_operation_transitions (operation_id, from_state, to_state, actor, detail, at)
+        VALUES (?, ?, ?, ?, ?, strftime('%s','now'))
+    """, (op_id, from_state, to_state, actor, _json.dumps(detail) if detail else None))
+
+
+@app.route('/api/watchtower/operations/<int:op_id>/name', methods=['POST'])
+def api_watchtower_operation_name(op_id: int):
+    """Human-name a discovered operation. Sets human_name and state=NAMED."""
+    name = (request.get_json(silent=True) or {}).get('name', '').strip()
+    if not name:
+        return jsonify({"error": "name required"}), 400
+    conn = db_connect(DB_PATH, timeout=10)
+    try:
+        _log_op_transition(conn, op_id, 'NAMED', detail={"human_name": name})
+        conn.execute("""
+            UPDATE wt_operations SET human_name=?, state='NAMED', updated_at=strftime('%s','now')
+            WHERE operation_id=?
+        """, (name, op_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"ok": True, "operation_id": op_id, "human_name": name})
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operations/<int:op_id>/confirm', methods=['POST'])
+def api_watchtower_operation_confirm(op_id: int):
+    """Human-confirm a named operation as a real operator. Sets state=CONFIRMED."""
+    conn = db_connect(DB_PATH, timeout=10)
+    try:
+        _log_op_transition(conn, op_id, 'CONFIRMED')
+        conn.execute("UPDATE wt_operations SET state='CONFIRMED', updated_at=strftime('%s','now') WHERE operation_id=?", (op_id,))
+        conn.commit(); conn.close()
+        return jsonify({"ok": True, "operation_id": op_id, "state": "CONFIRMED"})
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operations/<int:op_id>/merge', methods=['POST'])
+def api_watchtower_operation_merge(op_id: int):
+    """Human-merge this operation into another (known) operation. Sets state=MERGED."""
+    target = (request.get_json(silent=True) or {}).get('target_operation_id')
+    if not target:
+        return jsonify({"error": "target_operation_id required"}), 400
+    conn = db_connect(DB_PATH, timeout=10)
+    try:
+        _log_op_transition(conn, op_id, 'MERGED', detail={"merged_into": target})
+        conn.execute("UPDATE wt_operations SET state='MERGED', merged_into=?, updated_at=strftime('%s','now') WHERE operation_id=?", (target, op_id))
+        conn.commit(); conn.close()
+        return jsonify({"ok": True, "operation_id": op_id, "merged_into": target})
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operations/<int:op_id>/noise', methods=['POST'])
+def api_watchtower_operation_noise(op_id: int):
+    """Human-dismiss this operation as noise (not a real operator). Sets state=NOISE."""
+    reason = (request.get_json(silent=True) or {}).get('reason', '').strip() or 'dismissed'
+    conn = db_connect(DB_PATH, timeout=10)
+    try:
+        _log_op_transition(conn, op_id, 'NOISE', detail={"reason": reason})
+        conn.execute("UPDATE wt_operations SET state='NOISE', noise_reason=?, updated_at=strftime('%s','now') WHERE operation_id=?", (reason, op_id))
+        conn.commit(); conn.close()
+        return jsonify({"ok": True, "operation_id": op_id, "noise_reason": reason})
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operations/metrics')
+def api_watchtower_operation_metrics():
+    """Lifecycle conversion funnel + coherence-vs-outcome correlation."""
     conn = db_connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
-    limit  = int(request.args.get('limit', 50))
-    state  = request.args.get('state')
+    try:
+        # State funnel
+        funnel = {r['state']: r['n'] for r in conn.execute(
+            "SELECT state, COUNT(*) n FROM wt_operations GROUP BY state").fetchall()}
+        # Coherence distribution
+        coh = {r['coherence_flag']: r['n'] for r in conn.execute(
+            "SELECT coherence_flag, COUNT(*) n FROM wt_operations GROUP BY coherence_flag").fetchall()}
+        # The key correlation: coherence flag → eventual human verdict
+        # (only meaningful once transitions accumulate; shows current snapshot)
+        corr = [dict(r) for r in conn.execute("""
+            SELECT coherence_flag,
+                   SUM(CASE WHEN state IN ('NAMED','CONFIRMED') THEN 1 ELSE 0 END) as became_real,
+                   SUM(CASE WHEN state='MERGED' THEN 1 ELSE 0 END) as merged,
+                   SUM(CASE WHEN state='NOISE' THEN 1 ELSE 0 END) as noise,
+                   SUM(CASE WHEN state IN ('DISCOVERED','DORMANT') THEN 1 ELSE 0 END) as pending,
+                   COUNT(*) as total
+            FROM wt_operations GROUP BY coherence_flag
+        """).fetchall()]
+        total = conn.execute("SELECT COUNT(*) FROM wt_operations").fetchone()[0]
+        # Conversion rate (named or confirmed out of all non-pending)
+        resolved = conn.execute("SELECT COUNT(*) FROM wt_operations WHERE state IN ('NAMED','CONFIRMED','MERGED','NOISE')").fetchone()[0]
+        became_real = conn.execute("SELECT COUNT(*) FROM wt_operations WHERE state IN ('NAMED','CONFIRMED')").fetchone()[0]
+        conn.close()
+        return jsonify({
+            "total_operations": total,
+            "funnel": funnel,
+            "coherence": coh,
+            "coherence_outcome": corr,
+            "resolved": resolved,
+            "became_real": became_real,
+            "conversion_rate": (became_real / resolved) if resolved else None,
+            "review_required": coh.get("LOW_COHERENCE", 0),
+        })
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/backfill/status')
+def api_watchtower_backfill_status():
+    """Hub-backfill queue progress."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    try:
+        status = {r['status']: r['n'] for r in conn.execute(
+            "SELECT status, COUNT(*) n FROM wt_hub_backfill_queue GROUP BY status").fetchall()}
+        hubs = conn.execute("SELECT COUNT(*) FROM wt_hub_backfill_queue WHERE reached_hub IS NOT NULL").fetchone()[0]
+        total = sum(status.values())
+        done = status.get('done', 0) + status.get('empty', 0)
+        conn.close()
+        return jsonify({
+            "queue": status, "total": total, "completed": done,
+            "pct_complete": round(100.0*done/total, 1) if total else 0,
+            "hubs_reached": hubs,
+        })
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/identity-proposals')
+def api_watchtower_identity_proposals():
+    """
+    Safe-mode report: proposed identity changes with before/after comparison.
+    This is the audit the human reviews before enabling auto-apply.
+    """
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    try:
+        # Current identity distribution (before)
+        before = {r['operator_identity']: r['n'] for r in conn.execute("""
+            SELECT operator_identity, COUNT(*) n FROM wt_operations
+            WHERE state NOT IN ('MERGED','NOISE') GROUP BY operator_identity
+        """).fetchall()}
+
+        proposals = [dict(r) for r in conn.execute("""
+            SELECT p.*, o.auto_name, o.human_name
+            FROM wt_identity_proposals p
+            LEFT JOIN wt_operations o ON o.operation_id = p.operation_id
+            WHERE p.applied = 0
+            ORDER BY p.token_count DESC
+        """).fetchall()]
+
+        # After-if-applied distribution
+        after = dict(before)
+        wt_promotions = alpha_matches = new_ops = 0
+        changed_ops = set()
+        for p in proposals:
+            cur, prop = p['current_identity'], p['proposed_identity']
+            if p['operation_id'] in changed_ops:
+                continue
+            changed_ops.add(p['operation_id'])
+            after[cur] = max(0, after.get(cur, 0) - 1)
+            after[prop] = after.get(prop, 0) + 1
+            if prop == 'WATCHTOWER': wt_promotions += 1
+            elif prop == 'ALPHA':    alpha_matches += 1
+            elif prop == 'NEW_OPERATOR': new_ops += 1
+
+        # New hubs discovered (unknown hubs funding >=3 ops)
+        new_hubs = [dict(r) for r in conn.execute("""
+            SELECT evidence_hub as hub, evidence_role as role,
+                   COUNT(DISTINCT operation_id) as operations_funded,
+                   SUM(token_count) as token_count
+            FROM wt_identity_proposals
+            WHERE proposed_identity='NEW_OPERATOR' AND applied=0
+            GROUP BY evidence_hub
+        """).fetchall()]
+
+        remaining_unknown = after.get('UNKNOWN', 0)
+        conn.close()
+        return jsonify({
+            "before": before,
+            "after_if_applied": after,
+            "new_hubs_discovered": new_hubs,
+            "watchtower_promotions": wt_promotions,
+            "alpha_matches": alpha_matches,
+            "new_operators": new_ops,
+            "remaining_unknown": remaining_unknown,
+            "proposal_count": len(proposals),
+            "proposals": proposals,
+            "auto_apply_enabled": os.getenv("WT_AUTO_APPLY_IDENTITY","").lower() in ("1","true","yes"),
+        })
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/identity-proposals/<int:prop_id>/apply', methods=['POST'])
+def api_watchtower_apply_proposal(prop_id: int):
+    """Human applies a single identity proposal (UPDATE op identity, log transition)."""
+    import json as _json
+    conn = db_connect(DB_PATH, timeout=10)
+    conn.row_factory = sqlite3.Row
+    try:
+        p = conn.execute("SELECT * FROM wt_identity_proposals WHERE id=?", (prop_id,)).fetchone()
+        if not p:
+            conn.close(); return jsonify({"error": "proposal not found"}), 404
+        conn.execute("UPDATE wt_operations SET operator_identity=?, updated_at=strftime('%s','now') WHERE operation_id=?",
+                     (p['proposed_identity'], p['operation_id']))
+        conn.execute("""
+            INSERT INTO wt_operation_transitions (operation_id, from_state, to_state, actor, detail, at)
+            VALUES (?, NULL, 'IDENTITY_CHANGE', 'human', ?, strftime('%s','now'))
+        """, (p['operation_id'], _json.dumps({"to_identity": p['proposed_identity'],
+                                              "evidence_hub": p['evidence_hub']})))
+        conn.execute("UPDATE wt_identity_proposals SET applied=1 WHERE id=?", (prop_id,))
+        conn.commit(); conn.close()
+        return jsonify({"ok": True, "operation_id": p['operation_id'],
+                        "new_identity": p['proposed_identity']})
+    except Exception as e:
+        conn.close(); return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operations/<int:op_id>/members')
+def api_watchtower_operation_members(op_id: int):
+    """Member tokens of a discovered operation."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    try:
+        members = [dict(r) for r in conn.execute("""
+            SELECT om.token_mint, om.creator_wallet, om.funding_amount, om.migrated_at,
+                   wct.classified_as, wct.classification_conf
+            FROM wt_operation_members om
+            LEFT JOIN watch_candidate_tokens wct ON wct.mint = om.token_mint
+            WHERE om.operation_id = ?
+            ORDER BY om.migrated_at
+        """, (op_id,)).fetchall()]
+        conn.close()
+        return jsonify({"members": members, "count": len(members)})
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/watchtower/operator-clusters')
+def api_watchtower_operator_clusters():
+    """WATCH-style operator clusters. Only returns clusters with WATCH token members."""
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    limit = int(request.args.get('limit', 50))
 
     clusters = []
     try:
-        q = "SELECT * FROM wt_operator_clusters"
-        params: list = []
-        if state:
-            q += " WHERE state = ?"
-            params.append(state)
-        q += " ORDER BY confidence DESC, last_seen DESC LIMIT ?"
-        params.append(limit)
-        for row in conn.execute(q, params).fetchall():
+        for row in conn.execute("""
+            SELECT * FROM wt_operator_clusters
+            WHERE watch_token_count > 0 OR origin = 'seed'
+            ORDER BY watch_token_count DESC, confidence DESC, last_seen DESC
+            LIMIT ?
+        """, (limit,)).fetchall():
             c = dict(row)
-            # attach fingerprint
             fp = conn.execute(
-                "SELECT * FROM wt_operator_fingerprints WHERE cluster_id = ? ORDER BY updated_at DESC LIMIT 1",
+                "SELECT * FROM wt_operator_fingerprints WHERE cluster_id=? ORDER BY updated_at DESC LIMIT 1",
                 (c['cluster_id'],)
             ).fetchone()
             c['fingerprint'] = dict(fp) if fp else None
-            # candidate count
-            c['candidates_evaluated'] = conn.execute(
-                "SELECT COUNT(*) FROM wt_swarm_candidates WHERE cluster_id = ?",
+            c['member_count'] = conn.execute(
+                "SELECT COUNT(*) FROM wt_cluster_members WHERE cluster_id=?",
                 (c['cluster_id'],)
             ).fetchone()[0]
+            # Funding origin distribution for this cluster
+            c['funding_origins'] = _compute_cluster_funding_origins(c['cluster_id'], conn)
             clusters.append(c)
     except Exception as e:
         conn.close()
         return jsonify({"error": str(e)}), 500
 
-    # summary stats
-    total_candidates = 0
+    total_eligible = 0
     possible = 0
     try:
-        total_candidates = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates").fetchone()[0]
+        total_eligible = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens").fetchone()[0]
         possible = conn.execute(
-            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE confidence >= 0.4"
+            "SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='WATCH_LIKE_NEW_OP'"
         ).fetchone()[0]
     except Exception:
         pass
 
     conn.close()
     return jsonify({
-        "clusters":           clusters,
-        "count":              len(clusters),
-        "total_candidates":   total_candidates,
-        "possible_swarms":    possible,
+        "clusters":        clusters,
+        "count":           len(clusters),
+        "total_eligible":  total_eligible,
+        "possible_swarms": possible,
     })
 
 
 @app.route('/api/watchtower/operator-candidates')
 def api_watchtower_operator_candidates():
-    """Top swarm candidates from migration scanner, ordered by confidence."""
+    """WATCH-style token candidates classified by the WATCH pipeline."""
     conn = db_connect(DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
-    limit    = int(request.args.get('limit', 50))
+    limit    = int(request.args.get('limit', 200))
     min_conf = float(request.args.get('min_conf', 0.0))
 
     candidates = []
     yield_stats = {}
+    watch_total = 0
     try:
-        rows = conn.execute(
-            "SELECT * FROM wt_swarm_candidates WHERE confidence >= ? "
-            "ORDER BY confidence DESC, scanned_at DESC LIMIT ?",
-            (min_conf, limit)
-        ).fetchall()
-        candidates = [dict(r) for r in rows]
+        rows = conn.execute("""
+            SELECT wct.mint as token_mint, wct.creator_address, wct.prediction_score,
+                   wct.has_sol_flows, wct.classified_as, wct.classification_conf,
+                   wct.classification_reason, wct.cluster_id, wct.added_at as scanned_at,
+                   wct.classified_as as operator_class,
+                   wct.classification_conf as confidence,
+                   wct.creator_address as provisioner_wallet
+            FROM watch_candidate_tokens wct
+            WHERE wct.classification_conf >= ?
+            ORDER BY
+                CASE wct.classified_as WHEN 'WATCHTOWER' THEN 0 WHEN 'WATCH_LIKE_NEW_OP' THEN 1 ELSE 2 END,
+                wct.classification_conf DESC
+            LIMIT ?
+        """, (min_conf, limit)).fetchall()
+        candidates = []
+        for r in rows:
+            c = dict(r)
+            origin, reason = _funding_origin_for_creator(c['creator_address'], conn)
+            c['funding_origin'] = origin
+            c['funding_reason'] = reason
+            c['is_alpha_family'] = _is_alpha_family_creator(c['creator_address'], conn)
+            candidates.append(c)
 
-        # yield breakdown
-        total    = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates").fetchone()[0]
-        scanning = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates WHERE state='SCANNING'").fetchone()[0]
-        possible = conn.execute("SELECT COUNT(*) FROM wt_swarm_candidates WHERE state='POSSIBLE_SWARM'").fetchone()[0]
-        confirmed = conn.execute("SELECT COUNT(*) FROM wt_operator_clusters WHERE origin != 'seed'").fetchone()[0]
-
-        # bucket NOT_SWARM reasons from evidence_json
-        already_attr = conn.execute(
-            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE state='ALREADY_ATTRIBUTED'"
-        ).fetchone()[0]
-        low_buyers   = conn.execute(
-            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE unique_buyers IS NOT NULL AND unique_buyers < 25"
-        ).fetchone()[0]
-        wide_window  = conn.execute(
-            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE buy_window_s IS NOT NULL AND buy_window_s > 1800"
-        ).fetchone()[0]
-        no_sigs      = conn.execute(
-            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE evidence_json LIKE '%no_sigs%'"
-        ).fetchone()[0]
-        insuff       = conn.execute(
-            "SELECT COUNT(*) FROM wt_swarm_candidates WHERE evidence_json LIKE '%insufficient_funder%'"
+        total_eligible     = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens").fetchone()[0]
+        classified_wt      = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='WATCHTOWER'").fetchone()[0]
+        classified_new_op  = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='WATCH_LIKE_NEW_OP'").fetchone()[0]
+        classified_unknown = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='UNKNOWN'").fetchone()[0]
+        with_sol_flows     = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens WHERE has_sol_flows=1").fetchone()[0]
+        confirmed          = conn.execute("SELECT COUNT(*) FROM wt_operator_clusters WHERE origin='watch_pipeline'").fetchone()[0]
+        service_excl       = conn.execute("""
+            SELECT COUNT(*) FROM token_prediction_scores tps
+            WHERE tps.risk_level='WATCH' AND tps.creator_was_fresh=1
+              AND EXISTS (SELECT 1 FROM infra_wallets iw WHERE iw.address=tps.creator_address
+                          AND iw.type NOT IN ('bonding_curve','pumpswap_pool','pool'))
+        """).fetchone()[0]
+        watch_total = conn.execute(
+            "SELECT COUNT(*) FROM token_prediction_scores WHERE risk_level='WATCH'"
         ).fetchone()[0]
 
         yield_stats = {
-            "total":          total,
-            "scanning":       scanning,
-            "already_attr":   already_attr,
-            "low_buyers":     low_buyers,
-            "wide_window":  wide_window,
-            "no_sigs":      no_sigs,
-            "insuff_data":  insuff,
-            "possible":     possible,
-            "confirmed":    confirmed,
+            "total_eligible":       total_eligible,
+            "classified_watchtower": classified_wt,
+            "classified_new_op":    classified_new_op,
+            "classified_unknown":   classified_unknown,
+            "with_sol_flows":       with_sol_flows,
+            "service_excluded":     service_excl,
+            "confirmed":            confirmed,
+            # legacy keys kept for template compatibility
+            "total":       total_eligible,
+            "scanning":    0,
+            "possible":    classified_new_op,
+            "no_sigs":     0,
+            "insuff_data": 0,
+            "low_buyers":  0,
+            "wide_window": 0,
+            "already_attr": classified_wt,
         }
     except Exception as e:
         conn.close()
         return jsonify({"error": str(e)}), 500
 
     conn.close()
-    return jsonify({"candidates": candidates, "count": len(candidates), "yield": yield_stats})
+    return jsonify({"candidates": candidates, "count": len(candidates), "yield": yield_stats, "watch_total": watch_total})
 
 
 @app.route('/api/watchtower/graph')
@@ -35019,6 +39064,252 @@ def start_background_workers():
         print(f"[WARNING] CreatorOutboundWorker daemon failed to start: {e}")
 
 # =========================================================================
+# TOKEN EXTRACTION from transactions
+# =========================================================================
+
+@app.route('/api/extract-token/<signature>')
+def api_extract_token(signature: str):
+    """Extract token mint and metadata from a transaction signature."""
+    try:
+        import aiohttp
+        import asyncio
+
+        async def fetch_tx():
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post("https://api.mainnet-beta.solana.com", json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    return await resp.json()
+
+        data = asyncio.run(fetch_tx())
+
+        if data.get("error"):
+            return jsonify({'error': f"RPC Error: {data['error'].get('message', 'Unknown')}"}), 400
+
+        tx = data.get("result")
+        if not tx:
+            return jsonify({'error': 'Transaction not found'}), 404
+
+        # Look for token transfers in instructions
+        instructions = tx.get("transaction", {}).get("message", {}).get("instructions", [])
+        tokens_found = []
+
+        for inst in instructions:
+            parsed = inst.get("parsed", {})
+
+            # Check for token transfers
+            if parsed.get("type") == "transfer" and "mint" in parsed.get("info", {}):
+                mint = parsed["info"]["mint"]
+                amount = parsed["info"].get("tokenAmount", {}).get("uiAmount", 0)
+                tokens_found.append({"mint": mint, "amount": amount})
+
+            # Check for swap/AMM interactions
+            if parsed.get("type") == "swap":
+                info = parsed.get("info", {})
+                tokens_found.append({
+                    "type": "swap",
+                    "inputMint": info.get("inputMint"),
+                    "outputMint": info.get("outputMint"),
+                    "inputAmount": info.get("inputAmount"),
+                    "outputAmount": info.get("outputAmount")
+                })
+
+        # Get token metadata from database
+        conn = db_connect(DB_PATH, timeout=5)
+        for token in tokens_found:
+            mint = token.get("mint") or token.get("outputMint")
+            if mint:
+                row = conn.execute(
+                    "SELECT symbol, name FROM tracked_tokens WHERE mint=? LIMIT 1",
+                    (mint,)
+                ).fetchone()
+                if row:
+                    token["symbol"] = row[0]
+                    token["name"] = row[1]
+        conn.close()
+
+        return jsonify({
+            'signature': signature,
+            'tokens': tokens_found,
+            'instruction_count': len(instructions)
+        })
+
+    except Exception as e:
+        print(f"[TOKEN_EXTRACT] Error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/subprov-enriched/<signature>')
+def api_subprov_enriched(signature: str):
+    """Get SUB_PROV transaction with extracted token name for display. Stores in DB."""
+    try:
+        import aiohttp
+        import asyncio
+
+        async def fetch_tx():
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTransaction",
+                "params": [signature, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post("https://api.mainnet-beta.solana.com", json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    return await resp.json()
+
+        data = asyncio.run(fetch_tx())
+
+        if data.get("error"):
+            return jsonify({'error': f"RPC Error: {data['error'].get('message', 'Unknown')}"}), 400
+
+        tx = data.get("result")
+        if not tx:
+            return jsonify({'error': 'Transaction not found'}), 404
+
+        block_time = tx.get("blockTime")
+        account_keys = tx.get("transaction", {}).get("message", {}).get("accountKeys", [])
+        instructions = tx.get("transaction", {}).get("message", {}).get("instructions", [])
+
+        # Extract SUB_PROV wallet (likely the fee payer or first signer)
+        subprov_wallet = account_keys[0] if account_keys else None
+
+        # Find output token from swap in this transaction
+        output_mint = None
+        output_amount = None
+
+        for inst in instructions:
+            parsed = inst.get("parsed", {})
+            if parsed.get("type") == "swap":
+                info = parsed.get("info", {})
+                output_mint = info.get("outputMint")
+                output_amount = info.get("outputAmount")
+                break
+
+        # If no swap found, check destination accounts for token activity
+        if not output_mint:
+            import requests as _req
+            rpc_url = os.environ.get("HELIUS_RPC_URL") or "https://api.mainnet-beta.solana.com"
+
+            # Extract destination accounts from account balance changes
+            # Parse meta.preBalances and postBalances to find accounts that received SOL
+            destinations = []
+            meta = tx.get("meta", {})
+            pre_balances = meta.get("preBalances", [])
+            post_balances = meta.get("postBalances", [])
+
+            # Find accounts where balance increased (received SOL)
+            if len(account_keys) == len(pre_balances) == len(post_balances):
+                for i, addr in enumerate(account_keys):
+                    addr_str = addr if isinstance(addr, str) else addr.get("pubkey", "")
+                    if addr_str and addr_str != subprov_wallet:
+                        balance_change = post_balances[i] - pre_balances[i]
+                        if balance_change > 0:  # Received SOL
+                            destinations.append(addr_str)
+
+            print(f"[SUB_PROV_ENRICHMENT] Found {len(destinations)} destinations: {destinations[:2]}", flush=True)
+
+            # Check each destination's recent transactions for token buys
+            print(f"[SUBPROV_ENRICHED] Found {len(destinations)} destinations, checking for token buys...", flush=True)
+            for dest_account in destinations[:3]:  # Check up to 3 destinations
+                try:
+                    payload2 = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "getSignaturesForAddress",
+                        "params": [dest_account, {"limit": 5}]
+                    }
+                    resp2 = _req.post(rpc_url, json=payload2, timeout=10)
+                    sigs = resp2.json().get("result", [])
+
+                    # Check destination's transactions for token transfers (they receive tokens)
+                    for sig_obj in sigs:
+                        dest_tx_sig = sig_obj.get("signature")
+                        if not dest_tx_sig or sig_obj.get("err") is not None:
+                            continue
+
+                        payload3 = {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "getTransaction",
+                            "params": [dest_tx_sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}]
+                        }
+                        resp3 = _req.post(rpc_url, json=payload3, timeout=10)
+                        dest_tx = resp3.json().get("result")
+                        if not dest_tx:
+                            continue
+
+                        # Look for tokenTransfers where dest_account received tokens
+                        token_transfers = dest_tx.get("tokenTransfers", [])
+                        for tt in token_transfers:
+                            recipient = tt.get("toUserAccount") or tt.get("destination")
+                            if recipient == dest_account:
+                                output_mint = tt.get("mint")
+                                output_amount = tt.get("tokenAmount", {}).get("uiAmount", 0)
+                                break
+
+                        if output_mint:
+                            break
+
+                    if output_mint:
+                        break
+                except Exception as _e:
+                    pass
+
+        # Get token name from database
+        token_symbol = "UNKNOWN"
+        if output_mint:
+            conn = db_connect(DB_PATH, timeout=5)
+            row = conn.execute(
+                "SELECT symbol FROM tracked_tokens WHERE mint=? LIMIT 1",
+                (output_mint,)
+            ).fetchone()
+            if row:
+                token_symbol = row[0]
+
+            # Store/update in wt_sub_provisioners if we have the wallet
+            if subprov_wallet:
+                conn.execute("""
+                    INSERT OR IGNORE INTO wt_sub_provisioners (address, first_seen_at, scan_status)
+                    VALUES (?, ?, 'confirmed')
+                """, (subprov_wallet, block_time))
+
+                conn.execute("""
+                    UPDATE wt_sub_provisioners SET
+                        token_mint = ?,
+                        token_symbol = ?,
+                        traded_amount = ?,
+                        last_trade_tx = ?,
+                        last_trade_at = ?,
+                        scan_status = 'confirmed'
+                    WHERE address = ?
+                """, (output_mint, token_symbol, output_amount, signature, block_time, subprov_wallet))
+                conn.commit()
+
+            conn.close()
+
+        display_text = f'SUB_PROV_inbound · {output_amount or "?"} {token_symbol}' if output_mint else 'SUB_PROV_inbound · Unknown token'
+
+        return jsonify({
+            'signature': signature,
+            'subprov_wallet': subprov_wallet,
+            'token_mint': output_mint,
+            'token_symbol': token_symbol,
+            'output_amount': output_amount,
+            'block_time': block_time,
+            'display_text': display_text,
+            'stored': True
+        })
+
+    except Exception as e:
+        print(f"[SUBPROV_ENRICHED] Error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# =========================================================================
 # MAIN
 # =========================================================================
 
@@ -35059,11 +39350,21 @@ if __name__ == '__main__':
                 _c.close()
                 _wt_tables_ready = True
                 print("[STARTUP] Watchtower tables verified", flush=True)
-                return
+                break
             except Exception as _e:
                 print(f"[STARTUP] watchtower table init attempt {attempt+1} failed: {_e}", flush=True)
                 _t.sleep(3)
-        print("[STARTUP] WARNING: watchtower tables could not be verified after 10 attempts", flush=True)
+        else:
+            print("[STARTUP] WARNING: watchtower tables could not be verified after 10 attempts", flush=True)
+            return
+        # Run WATCH pipeline after tables are ready
+        try:
+            _pc = db_connect(DB_PATH, timeout=30)
+            result = _run_watch_pipeline(_pc)
+            _pc.close()
+            print(f"[STARTUP] WATCH pipeline complete: {result}", flush=True)
+        except Exception as _pe:
+            print(f"[STARTUP] WATCH pipeline error: {_pe}", flush=True)
     threading.Thread(target=_init_wt_tables, daemon=True, name="wt-table-init").start()
 
     # Start single DB writer thread — must be first, before any other workers
@@ -35171,6 +39472,8 @@ if __name__ == '__main__':
     if not _wt_startup_done:
         _start_wt_infra_processor()
         _start_wt_candidate_processor()
+        _start_wt_operator_ttl_reaper()
+        _start_hub_backfill_worker()
     print("[WT] Webhook queue processors started", flush=True)
 
     # Seed wt_wallet_tier from _WT_INFRA_ROLES
@@ -35254,6 +39557,17 @@ if __name__ == '__main__':
         name="wh-reconciliation-worker",
     ).start()
     print("[WH_MGR] Webhook reconciliation worker started (120s interval)", flush=True)
+
+    # WATCHTOWER CREATE Interceptor — optional real-time buy execution
+    if os.environ.get("ENABLE_CREATE_INTERCEPTOR", "").lower() == "true":
+        try:
+            from src.core.watchtower.create_interceptor import start as start_interceptor
+            from src.core.watchtower.passive_validator import startup as init_validator
+            start_interceptor(db_path=DB_PATH)
+            init_validator()
+            print("[STARTUP] WATCHTOWER CREATE Interceptor ENABLED (mode=%s)" % os.environ.get("INTERCEPTOR_MODE", "ARMED"), flush=True)
+        except Exception as _e:
+            print(f"[STARTUP] CREATE Interceptor startup error (will continue without it): {_e}", flush=True)
 
     # Pre-warm homepage + pumpfun caches so first page loads are fast
     def _prewarm_cache():

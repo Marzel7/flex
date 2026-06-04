@@ -30029,17 +30029,134 @@ def _propose_identity_changes(conn: sqlite3.Connection) -> int:
     return proposals
 
 
+def _refresh_watchtower_creators(conn: sqlite3.Connection) -> dict:
+    """
+    SCOPED per-creator WATCHTOWER re-classification (creator layer, distinct from
+    the operation layer). Runs each 15-min pipeline cycle. Re-evaluates only
+    RELEVANT creators — never the whole table — so a post-launch infra seed (the
+    $Champions case: WATCHTOWER root funds a creator 3 days AFTER its launch) gets
+    picked up on the next pass and the dashboard WT tag appears.
+
+    Candidate rules (union):
+      1. token created/migrated in the last 48h
+      2. creator has a creator_funders edge added in the last 48h (new funding)
+      3. creator appears in wt_operation_members
+      4. creator funded by known WATCHTOWER infra / provisioning hub / profit relay
+    """
+    from src.analysis.watchtower_detector import (
+        detect_watchtower_linkage, _write_creator_result, ensure_schema as _wt_schema,
+        _INFRA_SET,
+    )
+    _wt_schema(conn)
+    now = int(time.time())
+    cutoff_48h = now - 48 * 3600
+
+    candidates: set[str] = set()
+
+    # Infra set (static WATCHTOWER infra ∪ CONFIRMED provisioning hubs) — used by
+    # both Rule 2 (tightened) and Rule 4.
+    infra = set(_INFRA_SET)
+    try:
+        infra |= {r[0] for r in conn.execute(
+            "SELECT hub_address FROM wt_provisioning_hubs WHERE status='CONFIRMED'"
+        ).fetchall()}
+    except Exception:
+        pass
+    ph = ",".join("?" * len(infra)) if infra else None
+
+    # Rule 1: tokens created/migrated in last 48h
+    try:
+        for r in conn.execute(
+            "SELECT DISTINCT COALESCE(earliest_tx_creator, pf_ws_creator) c "
+            "FROM token_analysis "
+            "WHERE COALESCE(earliest_tx_creator, pf_ws_creator) IS NOT NULL "
+            "AND (first_observed_at >= ? OR migrated_at >= ?)",
+            (cutoff_48h, cutoff_48h),
+        ).fetchall():
+            if r[0]:
+                candidates.add(r[0])
+    except Exception:
+        pass
+
+    # Rule 2: creators with a new creator_funders edge in last 48h FROM INFRA/HUB.
+    # Scoped to infra funders on purpose — first_detected_at reflects index time, so
+    # an unscoped 48h window pulls ~8k unrelated creators whenever a bulk indexing
+    # run stamps edges. The WATCHTOWER-relevant case (e.g. $Champions: root seeds a
+    # creator post-launch) is always an infra edge, so this keeps recall while
+    # cutting the candidate set ~14x.
+    if ph:
+        try:
+            for r in conn.execute(
+                f"SELECT DISTINCT creator_address FROM creator_funders "
+                f"WHERE first_detected_at >= datetime(?, 'unixepoch') "
+                f"AND funder_address IN ({ph})",
+                [cutoff_48h, *infra],
+            ).fetchall():
+                if r[0]:
+                    candidates.add(r[0])
+        except Exception:
+            pass
+
+    # Rule 3: operation member creators
+    try:
+        for r in conn.execute(
+            "SELECT DISTINCT creator_wallet FROM wt_operation_members "
+            "WHERE creator_wallet IS NOT NULL"
+        ).fetchall():
+            if r[0]:
+                candidates.add(r[0])
+    except Exception:
+        pass
+
+    # Rule 4: creators funded by known infra ∪ CONFIRMED provisioning hubs (any time)
+    if ph:
+        try:
+            for r in conn.execute(
+                f"SELECT DISTINCT creator_address FROM creator_funders "
+                f"WHERE funder_address IN ({ph})", list(infra)
+            ).fetchall():
+                if r[0]:
+                    candidates.add(r[0])
+        except Exception:
+            pass
+
+    candidates.discard(None)
+    checked = 0
+    newly_flagged = 0
+    for creator in candidates:
+        try:
+            prev = conn.execute(
+                "SELECT watchtower_related FROM creator_risk_scores WHERE creator_address=?",
+                (creator,)).fetchone()
+            was = prev[0] if prev else 0
+            is_related, evidence = detect_watchtower_linkage(creator, conn)
+            _write_creator_result(conn, creator, is_related, evidence)
+            checked += 1
+            if is_related and not was:
+                newly_flagged += 1
+            if checked % 300 == 0:
+                conn.commit()
+        except Exception:
+            continue
+    conn.commit()
+    return {"candidates": len(candidates), "checked": checked,
+            "newly_flagged": newly_flagged}
+
+
 def _run_watch_pipeline(conn: sqlite3.Connection) -> dict:
     """Run the full WATCH candidate pipeline: build → classify → cluster → discover → backfill-enqueue → propose."""
     total = _build_watch_candidates(conn)
     counts = _classify_all_watch_candidates(conn)
     clusters = _build_watch_clusters(conn)
     operations = _discover_operations(conn)
+    # Creator-layer WATCHTOWER refresh (scoped) — runs after operation discovery so
+    # op members are available as candidates. Distinct from the operation layer.
+    wt_creator_refresh = _refresh_watchtower_creators(conn)
     queued = _enqueue_hub_backfill(conn)
     proposals = _propose_identity_changes(conn)
     return {"total": total, "classified": counts, "clusters_built": clusters,
             "operations": operations, "backfill_queued": queued,
-            "identity_proposals": proposals}
+            "identity_proposals": proposals, "wt_creator_refresh": wt_creator_refresh}
 
 
 # ── Worker heartbeat helpers ──────────────────────────────────────────────────

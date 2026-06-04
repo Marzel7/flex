@@ -759,21 +759,38 @@ def _write_creator_result(
         json.dumps({"method": basis, "category": category, "graded_at": str(now)})
         if basis else None
     )
-    conn.execute(
+    # NOT a single INSERT…ON CONFLICT: creator_risk_scores has AFTER INSERT/UPDATE
+    # triggers that do `INSERT OR REPLACE INTO token_rescore_queue`. An outer
+    # ON CONFLICT clause propagates into the trigger, downgrading its REPLACE to
+    # ABORT → "UNIQUE constraint failed: token_rescore_queue.mint" when the queue
+    # row already exists. A plain UPDATE + guarded INSERT (no conflict clause) lets
+    # the trigger's REPLACE work. (Same fix as watchtower_lineage_backfill.)
+    cur = conn.execute(
         """
-        INSERT INTO creator_risk_scores (creator_address, watchtower_related,
-            watchtower_evidence_json, watchtower_checked_at,
-            evidence_grade, evidence_basis)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON CONFLICT(creator_address) DO UPDATE SET
-            watchtower_related        = excluded.watchtower_related,
-            watchtower_evidence_json  = excluded.watchtower_evidence_json,
-            watchtower_checked_at     = excluded.watchtower_checked_at,
-            evidence_grade            = excluded.evidence_grade,
-            evidence_basis            = excluded.evidence_basis
+        UPDATE creator_risk_scores SET
+            watchtower_related        = ?,
+            watchtower_evidence_json  = ?,
+            watchtower_checked_at     = ?,
+            evidence_grade            = ?,
+            evidence_basis            = ?
+        WHERE creator_address = ?
         """,
-        (creator_address, int(is_related), evidence_json, now, grade, basis_json),
+        (int(is_related), evidence_json, now, grade, basis_json, creator_address),
     )
+    if cur.rowcount == 0:
+        conn.execute(
+            """
+            INSERT INTO creator_risk_scores (creator_address, watchtower_related,
+                watchtower_evidence_json, watchtower_checked_at,
+                evidence_grade, evidence_basis)
+            SELECT ?, ?, ?, ?, ?, ?
+            WHERE NOT EXISTS (
+                SELECT 1 FROM creator_risk_scores WHERE creator_address = ?
+            )
+            """,
+            (creator_address, int(is_related), evidence_json, now, grade,
+             basis_json, creator_address),
+        )
 
 
 def _write_token_result(

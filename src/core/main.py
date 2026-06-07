@@ -26824,7 +26824,7 @@ def api_wt_discovery():
     if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_operator_clusters'").fetchone():
         for c in conn.execute("""
             SELECT cluster_id, confidence, token_count, provisioner_count,
-                   first_seen, state, origin, total_sol_deployed
+                   first_seen, state, origin, total_sol_deployed, notes
             FROM wt_operator_clusters WHERE origin != 'seed'
         """).fetchall():
             cid = c["cluster_id"]
@@ -26838,6 +26838,7 @@ def api_wt_discovery():
                 "tokens": c["token_count"] or 0, "members": members,
                 "provisioners": c["provisioner_count"] or 0,
                 "state": c["state"], "first_seen": c["first_seen"],
+                "sol_deployed": c["total_sol_deployed"] or 0, "notes": c["notes"],
                 "trend": g.get("trend"), "deltas": g.get("deltas_24h", {}),
                 "has_baseline": g.get("has_baseline", False),
             })
@@ -26865,6 +26866,25 @@ def api_wt_discovery():
         i_band, i_sig = _dv.cluster_integrity(conn, c["cluster_id"], mapped_set)
         c["integrity"] = i_band
         c["integrity_signals"] = i_sig
+        # INTELLIGENCE OBJECT TYPE — replaces the misleading FORMING/DORMANT lifecycle
+        # labels on cards. Object type (what kind of intelligence is this?) is a
+        # SEPARATE axis from operational state (is it running right now?).
+        #   CONFIRMED_HISTORICAL — mapped past operation (provisioning + named op), e.g. ALPHA
+        #   EXPANSION_TARGET     — large unexplored frontier (the graph-growth lead)
+        #   PARTIALLY_MAPPED     — some coverage, some frontier left
+        #   EXHAUSTED            — fully mapped, little new ground
+        cov = c.get("coverage") or 0
+        is_historical = bool((c["sol_deployed"] or 0) > 0 and c.get("notes"))
+        if is_historical:
+            c["object_type"] = "CONFIRMED_HISTORICAL"
+        elif not dv_cov.get("has_frontier") or cov >= 0.7:
+            c["object_type"] = "EXHAUSTED"
+        elif (c["potential_yield"] or 0) >= 100 and cov <= 0.3:
+            c["object_type"] = "EXPANSION_TARGET"   # large unexplored frontier
+        elif cov <= 0.3:
+            c["object_type"] = "HIGH_FRONTIER"
+        else:
+            c["object_type"] = "PARTIALLY_MAPPED"
     # Top Expansion Targets: band, then POTENTIAL YIELD (largest unexplored frontier
     # first) — what remains unexplained, not what exists.
     top_emerging = sorted(clusters, key=lambda c: (
@@ -26903,6 +26923,7 @@ def api_wt_discovery():
                      "coverage": c.get("coverage"), "potential_yield": c.get("potential_yield", 0),
                      "frontier_quality": c.get("frontier_quality"),
                      "integrity": c.get("integrity"),
+                     "object_type": c.get("object_type"),
                      "discovery_priority": c.get("discovery_priority", 0)})
 
     # 2) attributions — confirmed/probable direct-infra & provisioning hits weigh high

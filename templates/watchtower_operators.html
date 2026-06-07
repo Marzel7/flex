@@ -359,6 +359,26 @@
 .mb-q { font-size: 12px; color: var(--text-sec, var(--text-dim)); }
 .mb-q b { color: var(--text-pri); }
 
+/* Next Wave Monitor — the interception target (reservoir trip-wire) */
+.nwm { background: linear-gradient(135deg, rgba(34,211,238,.07), rgba(34,211,238,.02));
+    border: 1px solid var(--border); border-left: 4px solid var(--col-cyan);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+.nwm-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.nwm-title { font-size: 14px; font-weight: 800; color: var(--col-cyan); letter-spacing: .3px; }
+.nwm-status { font-size: 12px; font-weight: 800; }
+.nwm-status.armed { color: var(--col-green, #22c55e); }
+.nwm-status.fired { color: var(--col-red); background: rgba(239,68,68,.12); padding: 2px 8px; border-radius: 5px; }
+.nwm-tiers { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.nwm-tier { flex: 1; min-width: 110px; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; }
+.nwm-tier .tn { font-size: 20px; font-weight: 800; }
+.nwm-tier .tl { font-size: 9.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
+.nwm-t1 { border-left: 3px solid var(--col-red); } .nwm-t1 .tn { color: var(--col-red); }
+.nwm-t2 { border-left: 3px solid var(--col-amber, #f59e0b); } .nwm-t2 .tn { color: var(--col-amber, #f59e0b); }
+.nwm-t3 { border-left: 3px solid var(--text-dim); } .nwm-t3 .tn { color: var(--text-dim); }
+.nwm-meta { font-size: 11.5px; color: var(--text-sec, var(--text-dim)); }
+.nwm-meta b { color: var(--text-pri); }
+
 .emerg-head { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 10px; flex-wrap: wrap; }
 .emerg-title { font-size: 15px; font-weight: 800; color: var(--text-pri); letter-spacing: .3px; }
 .emerg-sub { font-size: 11px; color: var(--text-dim); }
@@ -375,6 +395,12 @@
 .emerg-state { font-size: 8.5px; font-weight: 700; letter-spacing: .05em; padding: 1px 6px; border-radius: 3px;
     background: rgba(245,158,11,.15); color: var(--col-amber); text-transform: uppercase; }
 .emerg-state.ACTIVE { background: rgba(63,185,80,.15); color: var(--state-active); }
+/* intelligence object type (replaces lifecycle FORMING/DORMANT on cards) */
+.obj-type { font-size: 8.5px; font-weight: 800; letter-spacing: .05em; padding: 1px 6px; border-radius: 3px; }
+.obj-expansion  { background: rgba(34,211,238,.15); color: var(--col-cyan); }
+.obj-frontier   { background: rgba(34,211,238,.10); color: var(--col-cyan); }
+.obj-historical { background: rgba(139,92,246,.15); color: var(--col-purple); }
+.obj-exhausted  { background: rgba(255,255,255,.06); color: var(--text-dim); }
 .emerg-metrics { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 9px; font-size: 11px; color: var(--text-sec); }
 .emerg-metrics b { color: var(--text-pri); }
 .emerg-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: var(--text-dim); }
@@ -571,10 +597,19 @@
 <!-- ══ MISSION B · WAVE INTERCEPTION — intelligence collection (what we may discover next) ══ -->
 <div class="mission-banner mission-b-banner">
     <span class="mb-tag">MISSION B · WAVE INTERCEPTION</span>
-    <span class="mb-q">Intelligence collection — operators forming before attribution. <b>This is the mission.</b></span>
+    <span class="mb-q">Intelligence collection — catch the next launch before it happens. <b>This is the mission.</b></span>
 </div>
 
-<!-- ══ EMERGING OPERATORS — primary mission surface ═══════════════════════════ -->
+<!-- ══ NEXT WAVE MONITOR — the actual interception target (reservoir trip-wire) ══ -->
+<div class="nwm" id="next-wave-monitor">
+    <div class="nwm-head">
+        <span class="nwm-title">🎯 NEXT WAVE MONITOR</span>
+        <span class="nwm-status" id="nwm-status">—</span>
+    </div>
+    <div class="nwm-body" id="nwm-body"><div class="cc-empty">Loading reservoir trip-wire…</div></div>
+</div>
+
+<!-- ══ EMERGING OPERATORS — secondary collection surface ══════════════════════ -->
 <div class="emerg-head">
     <span class="emerg-title">◎ EMERGING OPERATORS</span>
     <span class="emerg-sub">Unknown operators forming — sorted by confidence &amp; recent activity.</span>
@@ -1873,10 +1908,22 @@ function renderDiscovery(clusters, operations, watchData, candData, growthMap) {
     // delta chip: "+4" green / "−2" red / nothing when null or zero
     const dchip = v => (v == null || v === 0) ? '' :
         ` <span class="emerg-d ${v>0?'up':'down'}">${v>0?'+':''}${(+v).toFixed(Number.isInteger(v)?0:2)}</span>`;
+    // Intelligence object type from card signals (separate axis from operational state).
+    window.objectType = window.objectType || function(c){
+        const prov = c.provisioner_count||0, sol = c.total_sol_deployed||0;
+        const members = c.member_count||0, tokens = c.token_count||0;
+        if (prov>0 && sol>0) return {label:'CONFIRMED HISTORICAL', cls:'historical'};
+        if (members>=20 || tokens>=20) return {label:'EXPANSION TARGET', cls:'expansion'};
+        if (members>=3) return {label:'HIGH FRONTIER', cls:'frontier'};
+        return {label:'EXPANSION TARGET', cls:'expansion'};
+    };
     el.innerHTML = emerging.map(c => {
         const conf = c.confidence || 0;
         const color = conf >= 0.8 ? 'var(--col-green,#22c55e)' : conf >= 0.6 ? 'var(--col-amber,#f59e0b)' : 'var(--text-dim)';
-        const state = (c.state || 'FORMING').toUpperCase();
+        // INTELLIGENCE OBJECT TYPE — replaces the misleading FORMING/DORMANT lifecycle
+        // label. Object type = what KIND of intelligence this is (separate axis from
+        // operational state). Confirmed historical op = has provisioning + SOL deployed.
+        const ot = objectType(c);
         const ageH = c.first_seen ? Math.round((now - c.first_seen)/3600) : null;
         const g = growthMap[c.cluster_id];
         const dd = (g && g.has_baseline) ? g.deltas_24h : null;
@@ -1898,17 +1945,46 @@ function renderDiscovery(clusters, operations, watchData, candData, growthMap) {
                 ${c.total_sol_deployed ? `<span><b>${(+c.total_sol_deployed).toFixed(0)}</b> SOL${dd?dchip(dd.deployed_sol):''}</span>` : ''}
             </div>
             <div class="emerg-foot">
-                <span class="emerg-state ${state}">${state}${dd&&dd.state_changed?' ⤴':''}</span>
+                <span class="obj-type obj-${ot.cls}">${ot.label}</span>
                 <span>${ageH!=null ? (ageH<48? ageH+'h':Math.round(ageH/24)+'d')+' old' : ''} ${tag}</span>
             </div>
         </a>`;
     }).join('');
 }
 
+// NEXT WAVE MONITOR — the Mission B interception target (reservoir trip-wire).
+async function loadNextWaveMonitor() {
+    const body = document.getElementById('nwm-body'), st = document.getElementById('nwm-status');
+    if (!body) return;
+    try {
+        const r = await fetch('/api/watchtower/reservoir-tripwire');
+        if (!r.ok) return;
+        const d = await r.json();
+        const tiers = d.tier_breakdown || {}, fired = d.fired || [];
+        if (fired.length) {
+            st.className = 'nwm-status fired'; st.textContent = '🚨 FIRED';
+            body.innerHTML = `<div class="nwm-meta" style="color:var(--col-red);font-weight:700;margin-bottom:6px">`
+                + `${fired.length} reservoir wallet${fired.length>1?'s':''} moved — possible wave start</div>`
+                + fired.slice(0,6).map(f=>`<div class="nwm-meta">T${f.tier} <a href="/watchtower/operator/${f.wallet}" style="color:var(--col-cyan)">${f.wallet.slice(0,8)}…</a> · ${f.outbound_txs} outbound · ${f.amount} SOL</div>`).join('');
+        } else {
+            st.className = 'nwm-status armed'; st.textContent = '● ARMED';
+            body.innerHTML =
+                `<div class="nwm-tiers">
+                   <div class="nwm-tier nwm-t1"><div class="tn">${tiers[1]||0}</div><div class="tl">T1 · 2.10203928</div></div>
+                   <div class="nwm-tier nwm-t2"><div class="tn">${tiers[2]||0}</div><div class="tl">T2 · fingerprint</div></div>
+                   <div class="nwm-tier nwm-t3"><div class="tn">${tiers[3]||0}</div><div class="tl">T3 · round 1.1</div></div>
+                 </div>
+                 <div class="nwm-meta"><b>${d.armed}</b> wallets watched · <b>0</b> outbound · funded Jun 2–3 · `
+                 + `earliest signal = first outbound tx → auto-attributes to OPERATION_ALPHA</div>`;
+        }
+    } catch(e) { console.error('next-wave-monitor error', e); }
+}
+
 async function load() {
     try {
         loadEngineStatus();
         loadCommandCenter();
+        loadNextWaveMonitor();
         const [clusterRes, candRes, watchRes, opsRes, propRes, bfRes] = await Promise.all([
             fetch('/api/watchtower/operator-clusters?limit=50'),
             fetch('/api/watchtower/operator-candidates?limit=200'),

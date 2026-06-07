@@ -317,6 +317,44 @@
 .cc-stat-val.dim   { color: var(--text-dim); }
 .cc-stat-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
 
+/* ── ZONE 1: New & Active discoveries (Phase 2 operators redesign) ───────────── */
+.na-zone { margin: 4px 0 18px; }
+.na-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.na-title { font-size: 15px; font-weight: 800; color: var(--text-pri); letter-spacing: .3px; }
+.na-sub { font-size: 11px; color: var(--text-dim); }
+.na-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: start; }
+@media (max-width:1200px){ .na-grid{ grid-template-columns: repeat(2,1fr);} }
+@media (max-width:640px){ .na-grid{ grid-template-columns: 1fr;} }
+.na-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 9px; padding: 11px 12px; min-height: 92px; }
+.na-bh { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-sec, var(--text-dim)); margin-bottom: 8px; }
+.na-item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11.5px; }
+.na-item:last-child { border-bottom: none; }
+.na-item a { color: var(--text-pri); text-decoration: none; font-weight: 600; }
+.na-item a:hover { color: var(--col-cyan); }
+.na-item .m { color: var(--text-dim); font-size: 10.5px; margin-top: 2px; }
+.na-empty { color: var(--text-dim); font-size: 11px; padding: 8px 0; }
+.na-count { font-size: 22px; font-weight: 800; color: var(--col-cyan); }
+.na-count.green { color: var(--col-green, #22c55e); }
+.na-rollup a { color: var(--col-cyan); text-decoration: none; font-size: 11px; }
+
+/* Confidence tiers — Confirmed / Probable / Investigative (maps to attribution conf) */
+.tier { display: inline-block; font-size: 8.5px; font-weight: 800; letter-spacing: .06em;
+    padding: 1px 5px; border-radius: 3px; text-transform: uppercase; vertical-align: middle; }
+.tier-confirmed    { background: rgba(34,197,94,.18);  color: #4ade80; border: 1px solid rgba(34,197,94,.4); }
+.tier-probable     { background: rgba(245,158,11,.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,.35); }
+.tier-investigative{ background: transparent; color: var(--text-dim); border: 1px dashed rgba(255,255,255,.18); }
+
+/* Axis chips — Risk · State · Attribution (the three-axis grammar, c2f677a) */
+.chips { display: inline-flex; gap: 4px; flex-wrap: wrap; vertical-align: middle; }
+.chip { font-size: 8.5px; font-weight: 700; padding: 1px 5px; border-radius: 3px; letter-spacing: .03em; white-space: nowrap; }
+.chip-risk-LOW { background: rgba(34,197,94,.15); color:#4ade80; }
+.chip-risk-MEDIUM { background: rgba(245,158,11,.15); color:#fbbf24; }
+.chip-risk-HIGH { background: rgba(249,115,22,.18); color:#fb923c; }
+.chip-risk-CRITICAL { background: rgba(239,68,68,.2); color:#f87171; }
+.chip-risk-UNKNOWN { background: rgba(255,255,255,.06); color: var(--text-dim); }
+.chip-state { background: rgba(139,92,246,.15); color:#a78bfa; }
+.chip-attr { background: rgba(34,211,238,.13); color: var(--col-cyan); }
+
 /* command-center grid: feed | (review over reservoir) */
 .cc-grid {
     display: grid; grid-template-columns: 1fr 360px;
@@ -411,10 +449,25 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <div class="page-title">⬡ WATCHTOWER — Operations Command Center</div>
-        <div class="page-sub">Live adversary-operation monitor · hubs · reservoir · ignition · lineage attribution</div>
+        <div class="page-title">⬡ WATCHTOWER — Operators</div>
+        <div class="page-sub">Discoveries first · new operators, attributions, hubs &amp; conversions — registry below</div>
     </div>
     <button class="refresh-btn" onclick="load()">↺ Refresh</button>
+</div>
+
+<!-- ══ ZONE 1 — NEW & ACTIVE (discoveries lead; registry is demoted below) ══════ -->
+<div class="na-zone" id="na-zone">
+    <div class="na-head">
+        <span class="na-title">⚡ New &amp; Active</span>
+        <span class="na-sub">Recent discoveries &amp; live operations — last 24h. Registry below.</span>
+    </div>
+    <div class="na-grid">
+        <div class="na-block"><div class="na-bh">🆕 New Operators</div><div id="na-operators"><div class="na-empty">—</div></div></div>
+        <div class="na-block"><div class="na-bh">● New Attributions</div><div id="na-attributions"><div class="na-empty">—</div></div></div>
+        <div class="na-block"><div class="na-bh">⬡ New Hubs</div><div id="na-hubs"><div class="na-empty">—</div></div></div>
+        <div class="na-block"><div class="na-bh">♻ Reservoir Conversions</div><div id="na-conversions"><div class="na-empty">—</div></div></div>
+        <div class="na-block"><div class="na-bh">⚡ Recent Campaigns</div><div id="na-campaigns"><div class="na-empty">—</div></div></div>
+    </div>
 </div>
 
 <!-- ══ SECTION 1 — LIVE STATUS ═══════════════════════════════════════ -->
@@ -557,6 +610,12 @@
     <div class="scard"><div class="scard-val dim" id="s-watch-ops">35</div><div class="scard-label">WATCH Ops</div><div class="scard-sub">Apr–May 2026</div></div>
 </div>
 
+
+<!-- ══ ZONE 2 — REGISTRY (reference; demoted below New & Active) ════════════════ -->
+<div class="cc-section-label idle" style="margin-top:28px">
+    <span class="cc-live-dot"></span> OPERATOR REGISTRY
+</div>
+<div class="page-sub" style="margin:-4px 0 12px">Searchable reference — operations, operator clusters, candidates, identity proposals. Look here when investigating a known operator; new discoveries surface above.</div>
 
 <!-- Main layout -->
 <div class="op-layout">
@@ -1511,7 +1570,67 @@ async function loadCommandCenter() {
         ccRenderReservoir(d.reservoir || {}, d.conversions || []);
         ccRenderHubs(d.hubs || [], d.hub_counts || {});
         ccRenderPipeline(d.pipeline || {});
+        naRender(d);   // Zone 1 — New & Active discoveries (Phase 2)
     } catch (e) { console.error('command-center error', e); }
+}
+
+// ── Zone 1 — New & Active. Fed from the command-center payload (already loaded). ──
+// Each block leads with discoveries; confidence tiers separate Confirmed from
+// Probable from Investigative so a hypothesis never reads with a fact's authority.
+function naShort(a){ return a ? (a.length>16 ? a.slice(0,6)+'…'+a.slice(-4) : a) : ''; }
+function naAgo(ts){ if(!ts) return ''; const s=Math.floor(Date.now()/1000)-ts;
+    if(s<3600) return Math.floor(s/60)+'m'; if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; }
+// confidence grade -> tier badge (maps attribution CONFIRMED/STRONG/WEAK)
+function naTier(grade){
+    const g=(grade||'').toUpperCase();
+    if(g==='CONFIRMED') return '<span class="tier tier-confirmed">confirmed</span>';
+    if(g==='STRONG')    return '<span class="tier tier-probable">probable</span>';
+    if(g==='WEAK'||g==='MODERATE') return '<span class="tier tier-investigative">investigate</span>';
+    return '';
+}
+function naRender(d){
+    const now=Math.floor(Date.now()/1000), H24=86400;
+    const ev=(d.events||[]).filter(e=>(now-(e.ts||0))<=H24);
+    const evOf=t=>ev.filter(e=>e.type===t);
+
+    // New operators (from OPERATION_CREATED events — operations are operator-level groupings)
+    const ops=evOf('OPERATION_CREATED');
+    document.getElementById('na-operators').innerHTML = ops.length
+        ? ops.slice(0,4).map(e=>`<div class="na-item"><a href="/watchtower/intelligence">${e.label||'op'}</a><div class="m">${e.detail||''} · ${naAgo(e.ts)} ago</div></div>`).join('')
+        : '<div class="na-empty">None in 24h</div>';
+
+    // New attributions — count rollup from the review queue, tier-grouped by grade
+    const review=d.review||[];
+    if(review.length){
+        const byTier={CONFIRMED:0,STRONG:0,OTHER:0};
+        review.forEach(r=>{ const g=(r.grade||'').toUpperCase();
+            if(g==='CONFIRMED')byTier.CONFIRMED++; else if(g==='STRONG')byTier.STRONG++; else byTier.OTHER++; });
+        document.getElementById('na-attributions').innerHTML =
+            `<div class="na-count">${review.length}</div>`+
+            `<div class="m" style="margin:4px 0 6px">`+
+            (byTier.CONFIRMED?`<span class="tier tier-confirmed">confirmed ${byTier.CONFIRMED}</span> `:'')+
+            (byTier.STRONG?`<span class="tier tier-probable">probable ${byTier.STRONG}</span> `:'')+
+            (byTier.OTHER?`<span class="tier tier-investigative">investigate ${byTier.OTHER}</span>`:'')+
+            `</div><div class="na-rollup"><a href="#cc-review" onclick="document.getElementById('cc-review')?.scrollIntoView({behavior:'smooth'})">review queue →</a></div>`;
+    } else document.getElementById('na-attributions').innerHTML='<div class="na-empty">None pending</div>';
+
+    // New hubs (NEW_PROVISIONING_HUB events) — all CONFIRMED grade by detector definition
+    const hubs=evOf('NEW_PROVISIONING_HUB');
+    document.getElementById('na-hubs').innerHTML = hubs.length
+        ? hubs.slice(0,4).map(e=>`<div class="na-item"><a href="/watchtower/operators">${naShort(e.label)}</a> ${naTier('CONFIRMED')}<div class="m">${e.detail||''} · ${naAgo(e.ts)} ago</div></div>`).join('')
+        : '<div class="na-empty">None in 24h</div>';
+
+    // Reservoir conversions (RESERVOIR_CONVERTED) — STRONG (relay-linked) by nature
+    const conv=evOf('RESERVOIR_CONVERTED');
+    document.getElementById('na-conversions').innerHTML = conv.length
+        ? conv.slice(0,4).map(e=>`<div class="na-item"><a href="/watchtower/operators">${naShort(e.label)}</a> ${naTier('STRONG')}<div class="m">→ ${naShort(e.detail)||'launch'} · ${naAgo(e.ts)} ago</div></div>`).join('')
+        : '<div class="na-empty">None in 24h</div>';
+
+    // Recent campaigns — armed ops + new operations are the campaign-formation signal
+    const armed=evOf('HUB_ARMED'); const campaignN=ops.length+armed.length;
+    document.getElementById('na-campaigns').innerHTML = campaignN
+        ? `<div class="na-count green">${campaignN}</div><div class="m" style="margin-top:4px">${ops.length} operations · ${armed.length} armed (24h)</div><div class="na-rollup"><a href="/watchtower/intelligence">operations →</a></div>`
+        : '<div class="na-empty">None in 24h</div>';
 }
 
 async function load() {

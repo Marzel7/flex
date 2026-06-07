@@ -26486,6 +26486,141 @@ def api_wt_attribution():
     })
 
 
+@app.route('/api/watchtower/creator-state')
+def api_wt_creator_state():
+    """
+    READ-ONLY view of the proposed CREATOR-STATE axis (classification redesign,
+    Axis 2). Derives a first-class {state, known, signals} for every creator from
+    existing history (total/migrated tokens, liquidations, flag category) — writes
+    nothing, changes no classification. Lets the new ontology be validated against
+    live data before any schema migration.
+
+    Key point this validates: creator state comes from observed HISTORY, not from
+    final_score. score=0 is "unscored", not "fresh" — so a score-0 creator with many
+    tokens correctly derives as EMERGING/ESTABLISHED, not FRESH.
+    """
+    from src.analysis.creator_state_axis import derive_creator_state, state_label
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    # optional filters: state, and watchtower-only (default off — this axis is global)
+    wt_only = request.args.get('watchtower') == '1'
+    state_filter = request.args.get('state')
+    where = "WHERE watchtower_related = 1" if wt_only else ""
+    rows = conn.execute(f"""
+        SELECT creator_address, total_tokens, migrated_tokens,
+               liquidation_count, final_score, category, watchtower_related
+        FROM creator_risk_scores {where}
+    """).fetchall()
+    conn.close()
+
+    from collections import Counter
+    by_state = Counter()
+    known_count = 0
+    items = []
+    for r in rows:
+        s = derive_creator_state(r)
+        by_state[s["state"]] += 1
+        if s["known"]:
+            known_count += 1
+        if state_filter and s["state"] != state_filter:
+            continue
+        items.append({
+            "creator": r["creator_address"],
+            "state": s["state"],
+            "state_label": state_label(s["state"]),
+            "known": s["known"],
+            "token_count": s["token_count"],
+            "signals": s["signals"],
+            "watchtower_related": bool(r["watchtower_related"]),
+        })
+    # most-established first for display
+    _order = {"WATCHLIST": 0, "SERIAL": 1, "ESTABLISHED": 2, "EMERGING": 3, "FRESH": 4}
+    items.sort(key=lambda x: (_order.get(x["state"], 9), -x["token_count"]))
+    # cap the payload — this axis spans the full creator table (~55k)
+    capped = items[:2000]
+
+    return jsonify({
+        "total": len(rows),
+        "by_state": dict(by_state),
+        "known_count": known_count,
+        "returned": len(capped),
+        "creators": capped,
+    })
+
+
+@app.route('/api/watchtower/risk-axis')
+def api_wt_risk_axis():
+    """
+    READ-ONLY view of the proposed RISK (severity) axis — Axis 1 of the classification
+    redesign. Derives a pure-severity {risk, risk_score, risk_basis} per creator from
+    existing scores ONLY (no freshness/state/attribution), and cross-tabs it against the
+    already-built Creator-State (Axis 2) and Attribution (Axis 3) derivations. Writes
+    nothing, changes no classification. Validation-before-migration.
+
+    The cross-tabs answer the audit questions directly: FRESH+HIGH, FRESH+WATCHTOWER,
+    LOW+WATCHTOWER, SERIAL+WATCHTOWER, etc.
+    """
+    from src.analysis.risk_axis import derive_risk, risk_label
+    from src.analysis.creator_state_axis import derive_creator_state
+    from src.analysis.attribution_axis import derive_attribution
+
+    conn = db_connect(DB_PATH, timeout=10)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT creator_address, final_score, category, total_tokens, migrated_tokens,
+               liquidation_count, watchtower_related, watchtower_evidence_json,
+               evidence_grade, json_extract(evidence_basis,'$.method') AS method
+        FROM creator_risk_scores
+    """).fetchall()
+    conn.close()
+
+    from collections import Counter, defaultdict
+    risk_dist = Counter()
+    risk_x_state = defaultdict(Counter)        # risk -> state -> n
+    risk_x_attr = defaultdict(Counter)         # risk -> linkage -> n
+    state_x_attr = defaultdict(Counter)        # state -> linkage -> n
+    # headline answers to the audit questions
+    q = Counter()
+
+    for r in rows:
+        risk = derive_risk(r)["risk"]
+        state = derive_creator_state(r)["state"]
+        wt = bool(r["watchtower_related"])
+        attr = (derive_attribution(r["watchtower_evidence_json"], r["evidence_grade"],
+                                   r["method"])["linkage"] if wt else "NONE")
+
+        risk_dist[risk] += 1
+        risk_x_state[risk][state] += 1
+        risk_x_attr[risk][attr] += 1
+        state_x_attr[state][attr] += 1
+
+        if state == "FRESH" and risk in ("HIGH", "CRITICAL"):
+            q["FRESH+HIGH_or_CRITICAL"] += 1
+        if state == "FRESH" and wt:
+            q["FRESH+WATCHTOWER"] += 1
+        if risk == "LOW" and wt:
+            q["LOW+WATCHTOWER"] += 1
+        if state == "SERIAL" and wt:
+            q["SERIAL+WATCHTOWER"] += 1
+        if state == "WATCHLIST" and wt:
+            q["WATCHLIST+WATCHTOWER"] += 1
+
+    def _undefault(d):
+        return {k: dict(v) for k, v in d.items()}
+
+    return jsonify({
+        "total": len(rows),
+        "risk_distribution": dict(risk_dist),
+        "risk_labels": {k: risk_label(k) for k in risk_dist},
+        "cross_tabs": {
+            "risk_x_state": _undefault(risk_x_state),
+            "risk_x_attribution": _undefault(risk_x_attr),
+            "state_x_attribution": _undefault(state_x_attr),
+        },
+        "audit_questions": dict(q),
+    })
+
+
 @app.route('/api/watchtower/creators')
 def api_wt_creators():
     """Creator wallets with evidence grades, token output, and outcomes."""

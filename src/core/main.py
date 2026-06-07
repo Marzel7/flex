@@ -25405,6 +25405,14 @@ def watchtower_operational_intelligence():
     return render_template("watchtower_operational_intelligence.html", active_page='watchtower_ops')
 
 
+@app.route('/command-center')
+def command_center():
+    """FLEX v2 attention-first home (Phase 0+1). Mission Status banner + attention +
+    live ops + work queues, all before any table. Backed by the existing
+    /api/watchtower/command-center payload — see docs/FLEX_IA_REDESIGN_ATTENTION_FIRST.md."""
+    return render_template("command_center.html", active_page='command_center')
+
+
 @app.route('/watchtower/operators')
 def watchtower_operators():
     return render_template("watchtower_operators.html", active_page='watchtower_operators')

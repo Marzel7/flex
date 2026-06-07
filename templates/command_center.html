@@ -1,0 +1,422 @@
+{% extends "base_shell.html" %}
+{% block title %}FLEX — Command Center{% endblock %}
+
+{% block extra_styles %}
+/* ── Command Center (FLEX v2 operating model, Phase 0+1) ───────────────────────
+   Attention-first: Mission Status -> Attention -> Live Ops -> Work Queues -> feed.
+   See docs/FLEX_IA_REDESIGN_ATTENTION_FIRST.md. Reuses the cc-* grammar from the
+   operators page so it is visually consistent. */
+.cmd-wrap { max-width: 1280px; margin: 0 auto; padding: 4px 0 48px; }
+
+/* Layer 0 — Mission Status banner. State-coloured; tints the whole page. */
+.mission {
+    border-radius: 12px; padding: 18px 22px; margin-bottom: 18px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    display: flex; align-items: center; gap: 22px;
+    transition: background .4s ease, border-color .4s ease;
+    position: relative; overflow: hidden;
+}
+.mission::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background: var(--ms-color, var(--text-secondary));
+}
+.mission-state {
+    font-size: 30px; font-weight: 800; letter-spacing: 1.5px;
+    color: var(--ms-color, var(--text-primary)); min-width: 200px;
+    text-shadow: 0 0 24px var(--ms-glow, transparent);
+}
+.mission-sub { color: var(--text-secondary); font-size: 13.5px; line-height: 1.7; flex: 1; }
+.mission-sub b { color: var(--text-primary); font-weight: 700; }
+.mission-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--ms-color, var(--text-secondary)); display: inline-block; margin-right: 8px;
+    box-shadow: 0 0 0 0 var(--ms-color);
+}
+.mission.live .mission-dot { animation: msPulse 1.8s infinite; }
+@keyframes msPulse {
+    0%   { box-shadow: 0 0 0 0 var(--ms-glow, rgba(255,255,255,.4)); }
+    70%  { box-shadow: 0 0 0 9px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+/* state palettes */
+.ms-dormant    { --ms-color: var(--text-secondary); --ms-glow: transparent; }
+.ms-forming    { --ms-color: var(--color-yellow);  --ms-glow: rgba(245,158,11,.35); }
+.ms-active     { --ms-color: var(--color-red);     --ms-glow: rgba(239,68,68,.45); }
+.ms-extracting { --ms-color: var(--color-orange);  --ms-glow: rgba(249,115,22,.40); }
+.ms-recycling  { --ms-color: var(--accent-cyan);   --ms-glow: rgba(34,211,238,.35); }
+
+/* Pulse bar — one-line "what changed", window toggle */
+.pulse {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 9px 16px; margin-bottom: 16px; border-radius: 9px;
+    background: var(--bg-secondary); border: 1px solid var(--border-color);
+    font-size: 13px; color: var(--text-secondary);
+}
+.pulse .pchip { color: var(--text-primary); }
+.pulse .pchip b { color: var(--accent-cyan); }
+.pulse .win { margin-left: auto; display: flex; gap: 4px; }
+.pulse .win button {
+    background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);
+    border-radius: 6px; padding: 3px 10px; cursor: pointer; font-size: 12px;
+}
+.pulse .win button.on { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
+
+/* section labels */
+.cc-label {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--text-secondary); margin: 22px 0 10px; display: flex; align-items: center; gap: 8px;
+}
+.cc-label .n { color: var(--accent-cyan); }
+
+/* Attention list */
+.attn { display: flex; flex-direction: column; gap: 8px; }
+.attn-row {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-left: 3px solid var(--at-color, var(--text-secondary)); border-radius: 8px;
+}
+.attn-row .ic { font-size: 15px; color: var(--at-color); }
+.attn-row .body { flex: 1; min-width: 0; }
+.attn-row .ttl { color: var(--text-primary); font-size: 13.5px; font-weight: 600; }
+.attn-row .meta { color: var(--text-secondary); font-size: 12px; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.attn-row a.go {
+    color: var(--accent-cyan); font-size: 12px; text-decoration: none;
+    border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 10px; white-space: nowrap;
+}
+.attn-row a.go:hover { background: var(--bg-hover); }
+.at-infra { --at-color: var(--color-red); }
+.at-disc  { --at-color: var(--accent-cyan); }
+.at-res   { --at-color: var(--accent-purple); }
+.attn-ok {
+    padding: 16px; text-align: center; color: var(--color-green); font-size: 13px;
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;
+}
+
+/* Live ops tiles */
+.ops-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.tile {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 9px; padding: 14px 16px; text-align: center;
+}
+.tile .v { font-size: 26px; font-weight: 800; }
+.tile .l { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
+.v.green { color: var(--color-green); } .v.red { color: var(--color-red); }
+.v.amber { color: var(--color-yellow); } .v.cyan { color: var(--accent-cyan); }
+.ops-sub { margin-top: 10px; font-size: 12.5px; color: var(--text-secondary); }
+.ops-sub b { color: var(--text-primary); }
+
+/* Work queues strip */
+.queues { display: flex; flex-wrap: wrap; gap: 10px; }
+.q {
+    display: flex; align-items: center; gap: 9px; text-decoration: none;
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;
+    padding: 10px 15px; color: var(--text-primary); font-size: 13px;
+}
+.q:hover { background: var(--bg-hover); }
+.q .badge { background: var(--accent-primary); color: #fff; border-radius: 11px;
+    padding: 1px 9px; font-size: 12px; font-weight: 700; }
+.q.empty { opacity: .5; } .q.empty .badge { background: var(--border-strong); color: var(--text-secondary); }
+
+/* change feed */
+.feed { display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
+.fev { display: flex; gap: 12px; padding: 8px 12px; background: var(--bg-card);
+    border: 1px solid var(--border-color); border-radius: 7px; font-size: 12.5px; }
+.fev .t { color: var(--text-secondary); min-width: 52px; }
+.fev .ty { color: var(--accent-purple); min-width: 150px; font-weight: 600; }
+.fev .lb { color: var(--text-primary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fev .dt { color: var(--text-secondary); }
+
+.cc-empty { padding: 14px; text-align: center; color: var(--text-secondary); font-size: 12.5px; }
+.deep { margin-top: 26px; }
+.deep a { color: var(--accent-cyan); text-decoration: none; font-size: 13px; }
+@media (max-width: 860px) { .ops-tiles { grid-template-columns: repeat(2,1fr);} .mission { flex-direction: column; align-items: flex-start; gap: 10px; } }
+{% endblock %}
+
+{% block content %}
+<div class="cmd-wrap">
+
+  <!-- Layer 0 — Mission Status (5-state lifecycle, derived client-side) -->
+  <div class="mission ms-dormant" id="mission">
+    <div class="mission-state"><span class="mission-dot"></span><span id="ms-word">—</span></div>
+    <div class="mission-sub" id="ms-sub">Reading operation state…</div>
+  </div>
+
+  <!-- Pulse bar — what changed -->
+  <div class="pulse">
+    <span class="pchip" id="pulse-summary">—</span>
+    <span class="win">
+      <button data-win="3600" class="on">Last hour</button>
+      <button data-win="86400">Today</button>
+    </span>
+  </div>
+
+  <!-- Layer 1 — Needs Attention -->
+  <div class="cc-label">⚠ Needs Attention <span class="n" id="attn-count"></span></div>
+  <div class="attn" id="attn-list"><div class="cc-empty">Loading…</div></div>
+
+  <!-- Layer 2 — Live Operations -->
+  <div class="cc-label">◆ Live Operations</div>
+  <div class="ops-tiles">
+    <div class="tile"><div class="v green" id="t-active">—</div><div class="l">Active Hubs</div></div>
+    <div class="tile"><div class="v red"   id="t-armed">—</div><div class="l">Armed Hubs</div></div>
+    <div class="tile"><div class="v amber" id="t-pending">—</div><div class="l">Pending Creators</div></div>
+    <div class="tile"><div class="v cyan"  id="t-reservoir">—</div><div class="l">Reservoir Dormant</div></div>
+  </div>
+  <div class="ops-sub" id="ops-sub">—</div>
+
+  <!-- Layer 3 — Work Queues -->
+  <div class="cc-label">▤ Work Queues</div>
+  <div class="queues" id="queues">
+    <a class="q" href="/predictions"><span>Predictions</span><span class="badge" id="q-pred">—</span></a>
+    <a class="q" href="/approval-queue"><span>Token Review</span><span class="badge" id="q-tok">—</span></a>
+    <a class="q" href="/network-approval"><span>Ecosystem Review</span><span class="badge" id="q-eco">—</span></a>
+    <a class="q" href="/funding-queue"><span>Funding</span><span class="badge" id="q-fund">—</span></a>
+    <a class="q" href="/watchtower/operators"><span>Attribution Review</span><span class="badge" id="q-attr">—</span></a>
+  </div>
+
+  <!-- Layer 1/E — What changed (feed) -->
+  <div class="cc-label">↺ What Changed <span class="n" id="feed-win-label">(last hour)</span></div>
+  <div class="feed" id="feed"><div class="cc-empty">Loading…</div></div>
+
+  <div class="deep">
+    <a href="/watchtower/operators">Operators registry →</a> &nbsp;·&nbsp;
+    <a href="/watchtower/intelligence">Operations →</a> &nbsp;·&nbsp;
+    <a href="/watchtower/interceptor">Interceptor →</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const short = a => a ? (a.length > 16 ? a.slice(0,6)+'…'+a.slice(-4) : a) : '';
+const ago = ts => {
+    if (!ts) return '';
+    const s = Math.floor(Date.now()/1000) - ts;
+    if (s < 60) return s+'s ago';
+    if (s < 3600) return Math.floor(s/60)+'m ago';
+    if (s < 86400) return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+};
+const hhmm = ts => ts ? new Date(ts*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+
+let WINDOW = 3600;          // pulse/feed window (s)
+let LAST = null;            // last payload
+let EXTRACT = {relays: 0, sol: 0, sweeps: 0};   // extraction signals (relay + sweep telemetry)
+
+// ── Mission Status: derive the 5-state lifecycle from the live payload ──────────
+// DORMANT -> FORMING -> ACTIVE -> EXTRACTING -> RECYCLING. Report the dominant signal.
+function deriveMission(d) {
+    const st = d.status || {};
+    const res = d.reservoir || {};
+    const ev = d.events || [];
+    const now = Math.floor(Date.now()/1000);
+    const has = (type, win) => ev.some(e => e.type === type && (now - (e.ts||0)) <= win);
+
+    const armed   = st.armed_hubs || 0;
+    const active  = st.active_hubs || 0;
+    const pending = st.pending_creators || 0;
+    const seeded  = (d.pipeline || {}).seeded || 0;
+    const launched24 = has('CREATE_DETECTED', 86400);
+    const converted24 = has('RESERVOIR_CONVERTED', 86400);
+    // extraction signals: ≥1 active profit relay in the telemetry window, or a burst of
+    // recent meaningful sweeps (dust-only sweeps are noise → SWEEP_MIN_SOL floor applies).
+    const extracting = EXTRACT.relays > 0 || EXTRACT.sweeps >= SWEEP_BURST;
+
+    // ACTIVE: launches occurring / interceptor armed with seeds in flight
+    if (launched24 || (armed > 0 && seeded > 0)) {
+        return ['ACTIVE', 'ms-active', true,
+            `<b>${seeded}</b> creators seeded · launches in last 24h · interceptor engaged`];
+    }
+    // EXTRACTING: value leaving now — relays/sweeps active, but no NEW creators forming.
+    // Sits after ACTIVE: the launch wave is done, profit is being routed out.
+    if (extracting && active === 0 && armed === 0) {
+        const bits = [];
+        if (EXTRACT.relays) bits.push(`<b>${EXTRACT.relays}</b> profit relay${EXTRACT.relays>1?'s':''} active`);
+        if (EXTRACT.sol)    bits.push(`<b>${EXTRACT.sol.toFixed(1)}</b> SOL routed (1h)`);
+        if (EXTRACT.sweeps) bits.push(`<b>${EXTRACT.sweeps}</b> sweeps`);
+        bits.push('no new seeds — value leaving');
+        return ['EXTRACTING', 'ms-extracting', true, bits.join(' · ')];
+    }
+    // FORMING: hubs active/armed, creators pending, no launch yet
+    if (active > 0 || armed > 0 || pending > 0) {
+        return ['FORMING', 'ms-forming', true,
+            `Active hubs <b>${active}</b> · Armed <b>${armed}</b> · Pending creators <b>${pending}</b> · launch window forming`];
+    }
+    // RECYCLING: reservoir growing / recent conversions, no hubs forming yet
+    if (converted24 || (res.dormant || 0) > 0) {
+        return ['RECYCLING', 'ms-recycling', false,
+            `Reservoir <b>${res.dormant||0}</b> dormant · relay-funded cohort building · preparing next wave`];
+    }
+    // DORMANT: nothing running
+    return ['DORMANT', 'ms-dormant', false,
+        `No active hubs · no pending creators · reservoir conversions (24h) 0 · Watching`];
+}
+const SWEEP_BURST = 5;       // ≥5 meaningful sweeps in window → extraction burst
+const SWEEP_MIN_SOL = 0.01;  // ignore dust sweeps below this
+
+function renderMission(d) {
+    const [word, cls, live, sub] = deriveMission(d);
+    const m = document.getElementById('mission');
+    m.className = 'mission ' + cls + (live ? ' live' : '');
+    document.getElementById('ms-word').textContent = word;
+    document.getElementById('ms-sub').innerHTML = sub;
+}
+
+function renderPulse(d) {
+    const now = Math.floor(Date.now()/1000);
+    const ev = (d.events || []).filter(e => (now - (e.ts||0)) <= WINDOW);
+    const c = t => ev.filter(e => e.type === t).length;
+    const parts = [];
+    const ops = c('OPERATION_CREATED'), hubs = c('NEW_PROVISIONING_HUB');
+    const creates = c('CREATE_DETECTED'), conv = c('RESERVOIR_CONVERTED'), armed = c('HUB_ARMED');
+    if (ops)     parts.push(`<b>${ops}</b> new operations`);
+    if (hubs)    parts.push(`<b>${hubs}</b> new hubs`);
+    if (armed)   parts.push(`<b>${armed}</b> armed`);
+    if (creates) parts.push(`<b>${creates}</b> launches`);
+    if (conv)    parts.push(`<b>${conv}</b> conversions`);
+    document.getElementById('pulse-summary').innerHTML =
+        parts.length ? parts.join(' · ') : 'No changes in window';
+}
+
+// ── Needs Attention: rank infra anomalies above discoveries, newest first ──────
+function renderAttention(d) {
+    const now = Math.floor(Date.now()/1000);
+    const rows = [];
+    // discoveries from the feed (24h)
+    for (const e of (d.events || [])) {
+        if ((now - (e.ts||0)) > 86400) continue;
+        if (e.type === 'NEW_PROVISIONING_HUB')
+            rows.push({c:'at-disc', ic:'⬡', ttl:'New provisioning hub', meta:`${short(e.label)} · ${e.detail||''} · ${ago(e.ts)}`,
+                href:'/watchtower/operators', rank:2, ts:e.ts});
+        else if (e.type === 'OPERATION_CREATED')
+            rows.push({c:'at-disc', ic:'⚡', ttl:'New operation formed', meta:`${e.label} · ${e.detail||''} · ${ago(e.ts)}`,
+                href:'/watchtower/intelligence', rank:2, ts:e.ts});
+        else if (e.type === 'RESERVOIR_CONVERTED')
+            rows.push({c:'at-res', ic:'♻', ttl:'Reservoir conversion', meta:`${short(e.label)} → ${short(e.detail)||'launch'} · ${ago(e.ts)}`,
+                href:'/watchtower/operators', rank:2, ts:e.ts});
+    }
+    // newly attributed creators awaiting review (collapse into one actionable row)
+    const rv = (d.review || []).length;
+    if (rv) rows.push({c:'at-disc', ic:'●', ttl:`${rv} newly attributed creator${rv>1?'s':''}`,
+        meta:'awaiting attribution review', href:'/watchtower/operators', rank:3, ts:now});
+
+    rows.sort((a,b) => (a.rank - b.rank) || (b.ts - a.ts));
+    const top = rows.slice(0, 8);
+    const el = document.getElementById('attn-list');
+    document.getElementById('attn-count').textContent = top.length ? `(${rows.length})` : '';
+    if (!top.length) { el.innerHTML = '<div class="attn-ok">✓ Nothing needs attention — all clear</div>'; return; }
+    el.innerHTML = top.map(r => `
+        <div class="attn-row ${r.c}">
+            <span class="ic">${r.ic}</span>
+            <div class="body"><div class="ttl">${r.ttl}</div><div class="meta">${r.meta}</div></div>
+            <a class="go" href="${r.href}">investigate</a>
+        </div>`).join('');
+}
+
+function renderOps(d) {
+    const st = d.status || {}, res = d.reservoir || {}, pl = d.pipeline || {};
+    document.getElementById('t-active').textContent    = st.active_hubs ?? 0;
+    document.getElementById('t-armed').textContent     = st.armed_hubs ?? 0;
+    document.getElementById('t-pending').textContent   = st.pending_creators ?? 0;
+    document.getElementById('t-reservoir').textContent = res.dormant ?? 0;
+    document.getElementById('ops-sub').innerHTML =
+        `Hubs <b>${pl.hubs||0}</b> · seeded <b>${pl.seeded||0}</b> · launches <b>${pl.creates||0}</b> · ` +
+        `new operations (24h) <b>${st.new_operations_24h||0}</b> · reservoir converted <b>${res.converted||0}</b>`;
+}
+
+function setBadge(id, n, href) {
+    const el = document.getElementById(id); if (!el) return;
+    el.textContent = (n == null ? '—' : n);
+    const q = el.closest('.q'); if (q) q.classList.toggle('empty', !n);
+}
+function renderQueues(d) {
+    // Attribution review count comes straight from command-center; others are best-effort.
+    setBadge('q-attr', (d.review || []).length);
+}
+async function loadQueueCounts() {
+    // light, independent fetches — degrade silently if an endpoint is absent
+    try { const r = await fetch('/api/watchtower/watch-candidates'); if (r.ok) {
+        const j = await r.json(); setBadge('q-pred', (j.classified && (j.classified.WATCHTOWER || 0)) || null);
+    }} catch(e){}
+}
+
+// ── Extraction signals for the EXTRACTING mission state ─────────────────────────
+// Pulls active profit relays (relay-telemetry) + recent meaningful sweeps (sweep-events).
+// Degrades silently to zero if either endpoint is empty/absent → never forces EXTRACTING.
+async function loadExtractionSignals() {
+    const next = {relays: 0, sol: 0, sweeps: 0};
+    try {
+        const r = await fetch('/api/watchtower/relay-telemetry?window_minutes=60');
+        if (r.ok) {
+            const j = await r.json();
+            const relays = j.relays || [];
+            next.relays = relays.filter(x => (x.total_hits || 0) > 0).length;
+            next.sol = relays.reduce((s, x) => s + (x.total_sol || 0), 0);
+        }
+    } catch(e){}
+    try {
+        const r = await fetch('/api/watchtower/sweep-events');
+        if (r.ok) {
+            const j = await r.json();
+            const now = Math.floor(Date.now()/1000);
+            next.sweeps = (j.results || []).filter(s =>
+                (s.total_sol || 0) >= SWEEP_MIN_SOL &&
+                (now - (s.block_time || s.received_at || 0)) <= 3600
+            ).length;
+        }
+    } catch(e){}
+    EXTRACT = next;
+    if (LAST) renderMission(LAST);   // re-derive state with fresh signals
+}
+
+function renderFeed(d) {
+    const now = Math.floor(Date.now()/1000);
+    const ev = (d.events || []).filter(e => (now - (e.ts||0)) <= WINDOW);
+    const el = document.getElementById('feed');
+    if (!ev.length) { el.innerHTML = '<div class="cc-empty">No events in window</div>'; return; }
+    el.innerHTML = ev.map(e => `
+        <div class="fev">
+            <span class="t">${hhmm(e.ts)}</span>
+            <span class="ty">${(e.type||'').replace(/_/g,' ')}</span>
+            <span class="lb">${e.href ? `<a href="${e.href}" style="color:inherit;text-decoration:none">${short(e.label)}</a>` : short(e.label)}</span>
+            <span class="dt">${e.detail || ''}</span>
+        </div>`).join('');
+}
+
+function renderAll(d) {
+    LAST = d;
+    renderMission(d);
+    renderPulse(d);
+    renderAttention(d);
+    renderOps(d);
+    renderQueues(d);
+    renderFeed(d);
+}
+
+async function load() {
+    try {
+        const r = await fetch('/api/watchtower/command-center');
+        if (!r.ok) return;
+        renderAll(await r.json());
+    } catch (e) { console.error('command-center load failed', e); }
+}
+
+// window toggle re-renders the time-scoped sections from cached payload
+document.querySelectorAll('.pulse .win button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.pulse .win button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    WINDOW = parseInt(b.dataset.win, 10);
+    document.getElementById('feed-win-label').textContent = WINDOW === 3600 ? '(last hour)' : '(today)';
+    if (LAST) { renderPulse(LAST); renderFeed(LAST); }
+}));
+
+load();
+loadQueueCounts();
+loadExtractionSignals();
+setInterval(load, 15000);          // Mission Status is the heartbeat → 15s
+setInterval(loadQueueCounts, 60000);
+setInterval(loadExtractionSignals, 30000);   // extraction signals → 30s
+</script>
+{% endblock %}

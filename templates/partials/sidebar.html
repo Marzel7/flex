@@ -6,6 +6,10 @@
 
     <nav class="sidebar-nav">
         <div class="sidebar-section">
+            <a class="sidebar-item {% if active_page == 'command_center' %}active{% endif %}" href="/command-center" style="font-weight:600;">◆ Command Center</a>
+        </div>
+
+        <div class="sidebar-section">
             <div class="sidebar-section-label">Live Market</div>
             <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/">Live Launches</a>
             <a class="sidebar-item {% if active_page == 'pumpfun' %}active{% endif %}" href="/pumpfun">PumpFun Feed</a>

@@ -26,84 +26,90 @@ from __future__ import annotations
 import sqlite3
 from typing import Optional
 
-HIGH, MEDIUM, LOW = "HIGH", "MEDIUM", "LOW"
-_BAND = {HIGH: 3, MEDIUM: 2, LOW: 1}
+VERY_HIGH, HIGH, MEDIUM, LOW = "VERY_HIGH", "HIGH", "MEDIUM", "LOW"
+_BAND = {VERY_HIGH: 4, HIGH: 3, MEDIUM: 2, LOW: 1}
 
 
 def band_rank(band: str) -> int:
     return _BAND.get(band, 0)
 
 
-def _band_from_coverage(coverage: float, has_frontier: bool) -> str:
-    """coverage 0..1 → band. No unexplored frontier at all → LOW (confirmation)."""
-    if not has_frontier:
+def _band(coverage: float, has_frontier: bool, yield_count: int) -> str:
+    """
+    Band from BOTH coverage (how unexplored) and yield (how MANY unknown entities
+    are reachable). A low-coverage object with a large frontier is VERY_HIGH — the
+    biggest network-expansion opportunity. No frontier → LOW (confirmation only).
+    """
+    if not has_frontier or yield_count <= 0:
         return LOW
+    if coverage <= 0.30 and yield_count >= 15:
+        return VERY_HIGH        # mostly unexplored AND a large frontier
     if coverage <= 0.30:
         return HIGH
     if coverage <= 0.70:
-        return MEDIUM
-    return LOW
+        return HIGH if yield_count >= 15 else MEDIUM
+    return MEDIUM if yield_count >= 8 else LOW
 
 
-def _is_mapped_clause(conn) -> Optional[str]:
-    """SQL fragment: a counterparty address is 'mapped' if it's known infra OR already
-    a watchtower-attributed creator. Returns the WHERE-able subquery, or None if the
-    supporting tables are absent."""
-    has_infra = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='infra_wallets'").fetchone()
-    if not has_infra:
-        return None
-    return ("(SELECT address FROM infra_wallets "
-            "UNION SELECT creator_address FROM creator_risk_scores WHERE watchtower_related=1)")
-
-
-def attribution_coverage(conn: sqlite3.Connection, creator_address: str) -> dict:
+def load_mapped_set(conn: sqlite3.Connection) -> Optional[set]:
     """
-    Coverage for an attributed creator = fraction of its UPSTREAM funders that are
-    already mapped (known infra or already attributed). The frontier is the unmapped
-    upstream funders + unexplored sibling creators those funders touch.
+    Load the 'mapped infrastructure' address set ONCE per request (known infra +
+    already-attributed creators), for in-memory membership checks. infra_wallets has
+    ~560k rows, so a per-object `NOT IN (...union...)` subquery is O(seconds) each and
+    times the endpoint out — pulling the set once and checking in Python is the fix.
+    Returns None if infra_wallets is absent.
+    """
+    if not conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='infra_wallets'").fetchone():
+        return None
+    s = {r[0] for r in conn.execute("SELECT address FROM infra_wallets") if r[0]}
+    s.update(r[0] for r in conn.execute(
+        "SELECT creator_address FROM creator_risk_scores WHERE watchtower_related=1") if r[0])
+    return s
 
+
+def attribution_coverage(conn: sqlite3.Connection, creator_address: str, mapped: set) -> dict:
+    """
+    Coverage for an attributed creator = fraction of its UPSTREAM funders already mapped
+    (known infra or already attributed). `mapped` is the precomputed set (load_mapped_set).
     Returns {coverage, total_upstream, unmapped_upstream, has_frontier}.
     """
-    mapped = _is_mapped_clause(conn)
-    has_cf = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_funders'").fetchone()
-    if not has_cf or mapped is None:
+    if mapped is None or not conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_funders'").fetchone():
         return {"coverage": 0.0, "total_upstream": 0, "unmapped_upstream": 0, "has_frontier": False}
-    total = conn.execute(
-        "SELECT COUNT(DISTINCT funder_address) FROM creator_funders WHERE creator_address=?",
-        (creator_address,)).fetchone()[0]
+    funders = {r[0] for r in conn.execute(
+        "SELECT DISTINCT funder_address FROM creator_funders WHERE creator_address=?",
+        (creator_address,)) if r[0]}
+    total = len(funders)
     if total == 0:
         # zero upstream funders → clicking shows only creator→token→launch → CONFIRMATION
         return {"coverage": 1.0, "total_upstream": 0, "unmapped_upstream": 0, "has_frontier": False}
-    unmapped = conn.execute(
-        f"SELECT COUNT(DISTINCT funder_address) FROM creator_funders "
-        f"WHERE creator_address=? AND funder_address NOT IN {mapped}",
-        (creator_address,)).fetchone()[0]
+    unmapped = sum(1 for f in funders if f not in mapped)
     coverage = (total - unmapped) / total
     return {"coverage": round(coverage, 3), "total_upstream": total,
             "unmapped_upstream": unmapped, "has_frontier": unmapped > 0}
 
 
-def attribution_discovery_value(conn, creator_address, linkage) -> tuple[str, str, dict]:
-    """(band, reveal_text, coverage_info) for an attributed creator — coverage-driven."""
-    cov = attribution_coverage(conn, creator_address)
-    band = _band_from_coverage(cov["coverage"], cov["has_frontier"])
+def attribution_discovery_value(conn, creator_address, linkage, mapped) -> tuple[str, str, dict]:
+    """(band, reveal_text, info) for an attributed creator. info carries coverage AND
+    potential_yield = count of unknown upstream entities investigation could reveal."""
+    cov = attribution_coverage(conn, creator_address, mapped)
+    y = cov["unmapped_upstream"]
+    cov["potential_yield"] = y
+    band = _band(cov["coverage"], cov["has_frontier"], y)
     if not cov["has_frontier"]:
         reveal = "upstream fully mapped — confirmation only (creator → token → launch)"
     else:
-        n = cov["unmapped_upstream"]
-        reveal = f"{n} unmapped upstream funder{'s' if n != 1 else ''} — may reveal new infra + sibling creators"
+        reveal = f"{y} unmapped upstream funder{'s' if y != 1 else ''} — may reveal new infra + sibling creators"
     return band, reveal, cov
 
 
-def cluster_coverage(conn: sqlite3.Connection, cluster_id: int) -> dict:
+def cluster_coverage(conn: sqlite3.Connection, cluster_id: int, mapped: set) -> dict:
     """
     Coverage for an emerging cluster = fraction of its members' counterparties
-    (funders + recipients) that are already mapped. Unexplained shared funders /
-    payout paths / corridors are the frontier.
+    (funders + recipients) already mapped. `mapped` is the precomputed set. Unexplained
+    shared funders / payout paths are the frontier.
     """
-    mapped = _is_mapped_clause(conn)
     if mapped is None or not conn.execute(
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_cluster_members'").fetchone():
         return {"coverage": 0.0, "total_cp": 0, "unmapped_cp": 0, "has_frontier": False}
@@ -114,46 +120,40 @@ def cluster_coverage(conn: sqlite3.Connection, cluster_id: int) -> dict:
         return {"coverage": 0.0, "total_cp": 0, "unmapped_cp": 0, "has_frontier": False}
     ph = ",".join("?" * len(creators))
     cps = set()
-    unmapped = set()
     for tbl, col in (("creator_funders", "funder_address"),
                      ("creator_outgoing_transfers", "recipient_address")):
         if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (tbl,)).fetchone():
             continue
         for (addr,) in conn.execute(
             f"SELECT DISTINCT {col} FROM {tbl} WHERE creator_address IN ({ph})", creators):
-            if not addr:
-                continue
-            cps.add(addr)
-        for (addr,) in conn.execute(
-            f"SELECT DISTINCT {col} FROM {tbl} WHERE creator_address IN ({ph}) "
-            f"AND {col} NOT IN {mapped}", creators):
             if addr:
-                unmapped.add(addr)
+                cps.add(addr)
     total = len(cps)
     if total == 0:
         return {"coverage": 1.0, "total_cp": 0, "unmapped_cp": 0, "has_frontier": False}
-    coverage = (total - len(unmapped)) / total
+    unmapped = sum(1 for cp in cps if cp not in mapped)
+    coverage = (total - unmapped) / total
     return {"coverage": round(coverage, 3), "total_cp": total,
-            "unmapped_cp": len(unmapped), "has_frontier": len(unmapped) > 0}
+            "unmapped_cp": unmapped, "has_frontier": unmapped > 0}
 
 
-def cluster_discovery_value(conn, cluster_id, provisioners=0, growing=False) -> tuple[str, str, dict]:
-    """Coverage-driven, with growth/provisioning as upgrades (a growing cluster with a
-    provisioning signature is a stronger lead even at similar coverage)."""
-    cov = cluster_coverage(conn, cluster_id)
-    band = _band_from_coverage(cov["coverage"], cov["has_frontier"])
-    # upgrades: active expansion signals push a MEDIUM toward HIGH
-    if band == MEDIUM and (growing or provisioners):
-        band = HIGH
+def cluster_discovery_value(conn, cluster_id, mapped, provisioners=0, growing=False) -> tuple[str, str, dict]:
+    """Coverage + yield driven; growth/provisioning upgrade the band."""
+    cov = cluster_coverage(conn, cluster_id, mapped)
+    y = cov["unmapped_cp"]
+    cov["potential_yield"] = y
+    band = _band(cov["coverage"], cov["has_frontier"], y)
+    # active expansion signals push one band higher (capped at VERY_HIGH)
+    if (growing or provisioners) and band in (MEDIUM, HIGH):
+        band = VERY_HIGH if band == HIGH else HIGH
     if not cov["has_frontier"]:
         reveal = "counterparties fully mapped — limited new ground"
     else:
-        n = cov["unmapped_cp"]
         extra = []
         if provisioners: extra.append("provisioning signature")
         if growing: extra.append("growing")
         tail = (" · " + " · ".join(extra)) if extra else ""
-        reveal = f"{n} unexplained counterpart{'ies' if n != 1 else 'y'} — may expose unattributed infra{tail}"
+        reveal = f"{y} unexplained infrastructure node{'s' if y != 1 else ''} — may expose unattributed infra{tail}"
     return band, reveal, cov
 
 
@@ -165,15 +165,60 @@ def reservoir_discovery_value(dormant: int, converted: int) -> tuple[str, str, d
     the highest-value discovery objects in the system.
     """
     if dormant <= 0:
-        return LOW, "no dormant wallets to convert", {"coverage": 1.0, "has_frontier": False}
+        return LOW, "no dormant wallets to convert", {"coverage": 1.0, "has_frontier": False,
+                                                      "potential_yield": 0}
     total = dormant + converted
     coverage = round(converted / total, 3) if total else 0.0
+    # yield is UNKNOWN-but-large: each of the dormant wallets is a potential lineage
+    # (relay → creator → provisioning → operator). We surface the dormant count as the
+    # frontier size — its true yield is unbounded until the first conversion.
     if converted == 0:
-        return HIGH, ("first conversion may reveal relay → creator → funding lineage → "
-                      "new infrastructure"), {"coverage": 0.0, "has_frontier": True}
-    band = _band_from_coverage(coverage, True)
+        return VERY_HIGH, ("first conversion may reveal relay → creator → lineage → "
+                           "provisioning → operator — earliest known interception point"), \
+               {"coverage": 0.0, "has_frontier": True, "potential_yield": dormant, "yield_unknown": True}
+    band = _band(coverage, True, dormant)
     return band, "conversions in progress — each reveals a new launch lineage", \
-        {"coverage": coverage, "has_frontier": True}
+        {"coverage": coverage, "has_frontier": True, "potential_yield": dormant}
+
+
+def attribution_yield_summary(conn: sqlite3.Connection, creator_addresses: list[str],
+                              mapped: set) -> dict:
+    """
+    Aggregate network-expansion view across attributed creators: fully/partially/
+    unexplored + TOTAL potential yield (sum of unknown upstream entities). Makes the
+    attribution counts actionable — "143 nodes reachable" > "124 confirmed".
+
+    One pass: pull every (creator, funder) edge for attributed creators in a single
+    query, then bucket per-creator in Python against the in-memory `mapped` set. Avoids
+    both the 284-query loop AND the per-row NOT IN (560k union) — both timed out.
+    """
+    if mapped is None or not creator_addresses or not conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_funders'").fetchone():
+        return {"fully_explored": 0, "partially_explored": 0, "unexplored": 0, "potential_yield": 0}
+    addr_set = set(creator_addresses)
+    per: dict[str, list[int]] = {}   # creator → [total, unmapped]
+    for ca, fa in conn.execute(
+        "SELECT creator_address, funder_address FROM creator_funders "
+        "WHERE creator_address IN (SELECT creator_address FROM creator_risk_scores "
+        "WHERE watchtower_related=1)"):
+        if not fa:
+            continue
+        rec = per.setdefault(ca, [0, 0])
+        rec[0] += 1
+        if fa not in mapped:
+            rec[1] += 1
+    fully = partial = unexplored = total_yield = 0
+    for ca in addr_set:
+        total, unm = per.get(ca, [0, 0])
+        total_yield += unm
+        if total == 0 or unm == 0:
+            fully += 1
+        elif (total - unm) / total >= 0.5:
+            partial += 1
+        else:
+            unexplored += 1
+    return {"fully_explored": fully, "partially_explored": partial,
+            "unexplored": unexplored, "potential_yield": total_yield}
 
 
 def evidence_expansion_potential() -> dict:

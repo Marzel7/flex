@@ -26669,6 +26669,10 @@ def api_wt_discovery():
     now = int(time.time())
     h24 = now - 86400
 
+    # Load the 'mapped infrastructure' set ONCE (infra_wallets ~560k rows) for in-memory
+    # coverage checks — a per-object NOT IN (...union...) subquery timed the endpoint out.
+    mapped_set = _dv.load_mapped_set(conn)
+
     # ── Attribution intelligence (replaces the un-actionable "214 pending") ──────
     # first_attr = stamped-once discovery time. watchtower_checked_at is re-stamped
     # every engine pass, so it must NEVER be used as "latest"/"new" — doing so showed
@@ -26721,6 +26725,10 @@ def api_wt_discovery():
         # network-expansion potential per evidence type — not all attributions are
         # equally useful for DISCOVERING new infrastructure (vs confirming the known).
         "expansion_potential": _dv.evidence_expansion_potential(),
+        # explored/partial/unexplored split + TOTAL potential yield — makes the raw
+        # attribution counts actionable ("143 nodes reachable" > "124 confirmed").
+        "yield_summary": _dv.attribution_yield_summary(
+            conn, [r["creator_address"] for r in attr_rows], mapped_set),
         "latest": latest,
     }
 
@@ -26768,6 +26776,8 @@ def api_wt_discovery():
         reservoir["discovery_value"] = rdv_band
         reservoir["why_it_matters"] = rdv_reveal
         reservoir["coverage"] = rdv_cov.get("coverage")
+        reservoir["potential_yield"] = rdv_cov.get("potential_yield", 0)
+        reservoir["yield_unknown"] = rdv_cov.get("yield_unknown", False)
 
     # ── Cluster growth + discovery feed (from snapshot history) ─────────────────
     growth, feed = [], []
@@ -26804,14 +26814,17 @@ def api_wt_discovery():
     # LIKELY TO BECOME ATTRIBUTABLE = discovery value first, then growth, then confidence.
     for c in clusters:
         dv_band, dv_reveal, dv_cov = _dv.cluster_discovery_value(
-            conn, c["cluster_id"], c["provisioners"], c["trend"] == "GROWING")
+            conn, c["cluster_id"], mapped_set, c["provisioners"], c["trend"] == "GROWING")
         c["discovery_value"] = dv_band
         c["why"] = dv_reveal
         c["coverage"] = dv_cov.get("coverage")
+        c["potential_yield"] = dv_cov.get("potential_yield", 0)
+    # Top Expansion Targets: band, then POTENTIAL YIELD (largest unexplored frontier
+    # first) — what remains unexplained, not what exists.
     top_emerging = sorted(clusters, key=lambda c: (
         -_dv.band_rank(c["discovery_value"]),
+        -(c.get("potential_yield") or 0),
         0 if c["trend"] == "GROWING" else 1,
-        -(c["confidence"] or 0)
     ))[:5]
 
     # ── INVESTIGATE NEXT — MULTI-SOURCE ranker. Always returns 5 targets across all
@@ -26841,7 +26854,7 @@ def api_wt_discovery():
                      "age_s": (now - c["first_seen"]) if c["first_seen"] else None,
                      "reason": " · ".join(reasons[:3]), "score": round(score,1),
                      "discovery_value": c["discovery_value"], "reveal": c["why"],
-                     "coverage": c.get("coverage")})
+                     "coverage": c.get("coverage"), "potential_yield": c.get("potential_yield", 0)})
 
     # 2) attributions — confirmed/probable direct-infra & provisioning hits weigh high
     _link_w = {"WATCHTOWER_DIRECT": 35, "WATCHTOWER_PROVISIONING": 30,
@@ -26857,7 +26870,7 @@ def api_wt_discovery():
     attr_ranked.sort(key=lambda x: -x[0])
     for s, r, a in attr_ranked[:8]:
         dv_band, dv_reveal, dv_cov = _dv.attribution_discovery_value(
-            conn, r["creator_address"], a["linkage"])
+            conn, r["creator_address"], a["linkage"], mapped_set)
         cand.append({"kind": "attribution",
                      "target": linkage_label(a["linkage"]) + " attribution",
                      "href": f"/watchtower/operator/{r['creator_address']}",
@@ -26866,7 +26879,8 @@ def api_wt_discovery():
                      "reason": f"{a['confidence'] or '?'} · {(r['creator_address'][:6]+'…'+r['creator_address'][-4:]) if r['creator_address'] else ''}",
                      "score": round(float(s),1),
                      "discovery_value": dv_band, "reveal": dv_reveal,
-                     "coverage": dv_cov.get("coverage")})
+                     "coverage": dv_cov.get("coverage"),
+                     "potential_yield": dv_cov.get("potential_yield", 0)})
 
     # 3) reservoir cohort — one standing target (the relay-funded pool)
     if reservoir["dormant"] > 0:
@@ -26880,12 +26894,15 @@ def api_wt_discovery():
                      "score": round(score,1),
                      "discovery_value": reservoir.get("discovery_value"),
                      "reveal": reservoir.get("why_it_matters"),
-                     "coverage": reservoir.get("coverage")})
+                     "coverage": reservoir.get("coverage"),
+                     "potential_yield": reservoir.get("potential_yield", 0),
+                     "yield_unknown": reservoir.get("yield_unknown", False)})
 
-    # Rank PRIMARILY by Discovery Value (expected info gain), then by score within band.
-    # This is the refocus: a 100% known operator (LOW value) sinks below a 40% reservoir
-    # wallet (HIGH value) — we rank by what an object could REVEAL, not how sure we are.
-    cand.sort(key=lambda x: (-_dv.band_rank(x.get("discovery_value", "LOW")), -x["score"]))
+    # Rank by EXPECTED NETWORK EXPANSION: discovery-value band first, then potential
+    # yield (how MANY unknown entities this could reveal), then score. This answers
+    # "if I spend 30 min on one thing, which most expands the WATCHTOWER graph?".
+    cand.sort(key=lambda x: (-_dv.band_rank(x.get("discovery_value", "LOW")),
+                             -(x.get("potential_yield") or 0), -x["score"]))
     # Diversify: cap attribution rows so the panel mixes categories (clusters,
     # reservoir, attributions) instead of 5 near-identical attribution hits. An analyst
     # gets more value from 5 DIFFERENT angles than the 5 highest of one kind.

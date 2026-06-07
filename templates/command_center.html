@@ -102,9 +102,14 @@
 /* Discovery Value badge — the new ranking axis */
 .dv { font-size: 8.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 4px; }
 .dv-sm { margin-left: 6px; }
+.dv-very_high { background: rgba(34,197,94,.28); color: #34d399; box-shadow: 0 0 0 1px rgba(52,211,153,.4) inset; }
 .dv-high { background: rgba(34,197,94,.18); color: #4ade80; }
 .dv-medium { background: rgba(245,158,11,.15); color: #fbbf24; }
 .dv-low { background: rgba(255,255,255,.06); color: var(--text-secondary); }
+.yield { color: var(--accent-cyan); font-weight: 800; font-size: 11px; }
+.yield-big { color: var(--accent-cyan); font-weight: 800; }
+.cov-inline { margin-left: 4px; }
+.vv.yield { color: var(--accent-cyan); }
 .di-opp { display: block; padding: 8px 9px; background: var(--bg-secondary); border-radius: 7px; text-decoration: none; }
 .di-opp:hover { background: var(--bg-hover); }
 .di-opp + .di-opp { margin-top: 6px; }
@@ -244,7 +249,9 @@
           <div class="dt"><span class="dt-v prob" id="di-probable">—</span><span class="dt-l">Probable</span></div>
           <div class="dt"><span class="dt-v inv" id="di-investigate">—</span><span class="dt-l">Investigate</span></div>
         </div>
-        <div class="disc-sub">By evidence</div>
+        <div class="disc-sub">Unexplored infrastructure</div>
+        <div class="disc-evidence" id="di-yield"></div>
+        <div class="disc-sub" style="margin-top:8px">By evidence · expansion potential</div>
         <div class="disc-evidence" id="di-evidence"></div>
         <div class="disc-latest" id="di-latest"></div>
       </div>
@@ -258,6 +265,7 @@
           <div><span class="k">Conversion Rate</span><span class="vv" id="rv-rate">—</span></div>
           <div><span class="k">Median Age</span><span class="vv" id="rv-median">—</span></div>
           <div><span class="k">New Funded (7d)</span><span class="vv green" id="rv-new7">—</span></div>
+          <div><span class="k">Potential Yield</span><span class="vv yield" id="rv-yield">—</span></div>
           <div><span class="k">Age Range</span><span class="vv" id="rv-agerange">—</span></div>
         </div>
         <div class="disc-entities" id="rv-entities"></div>
@@ -283,9 +291,10 @@
         <div class="disc-invest" id="di-invest"><div class="cc-empty">—</div></div>
       </div>
 
-      <!-- Top Emerging Operators (entities, not a count) -->
+      <!-- Top Expansion Targets (largest unexplored frontier, not a count) -->
       <div class="disc-card">
-        <div class="disc-card-h">◎ Top Emerging Operators</div>
+        <div class="disc-card-h">◎ Top Expansion Targets</div>
+        <div class="disc-card-note">Largest unexplored frontier — what remains unexplained</div>
         <div class="disc-invest" id="di-emerging"><div class="cc-empty">—</div></div>
       </div>
     </div>
@@ -484,6 +493,14 @@ function renderDiscovery(d) {
              + `${ep?`<span class="dv dv-${ep.toLowerCase()} dv-sm">${ep}</span>`:''}`
              + `<span class="dots"></span><span>${v}</span></div>`;
     }).join('');
+    // Unexplored Infrastructure — what makes the attribution counts actionable
+    const ysum = a.yield_summary || {};
+    const yEl = document.getElementById('di-yield');
+    if (yEl) yEl.innerHTML =
+        `<div class="ev"><span>Potential Yield</span><span class="dots"></span><span class="yield-big">${ysum.potential_yield||0} nodes</span></div>` +
+        `<div class="ev"><span>Unexplored creators</span><span class="dots"></span><span>${ysum.unexplored||0}</span></div>` +
+        `<div class="ev zero"><span>Fully explored</span><span class="dots"></span><span>${ysum.fully_explored||0}</span></div>`;
+
     const lt = a.latest;
     // "Latest" uses first-attribution time (real discovery). When no row has been
     // first-attributed since the column was added, we honestly say so rather than
@@ -500,6 +517,7 @@ function renderDiscovery(d) {
     document.getElementById('rv-rate').textContent      = (rv.conversion_rate ?? 0) + '%';
     document.getElementById('rv-median').textContent    = rv.median_age_d != null ? rv.median_age_d + 'd' : '—';
     document.getElementById('rv-new7').textContent      = '+' + (rv.new_funded_7d ?? 0);
+    document.getElementById('rv-yield').textContent     = rv.yield_unknown ? `~${rv.potential_yield} (unbounded)` : (rv.potential_yield ?? '—');
     document.getElementById('rv-agerange').textContent  =
         (rv.youngest_d != null && rv.oldest_d != null) ? `${rv.youngest_d}–${rv.oldest_d}d` : '—';
 
@@ -514,17 +532,24 @@ function renderDiscovery(d) {
     const mode = d.ranking_mode || 'HEURISTIC';
     document.getElementById('di-mode').textContent = mode === 'REAL' ? '' : 'heuristic';
     const kindIcon = {cluster:'◎', attribution:'●', reservoir:'♻', hub:'⬡'};
-    const dvBadge = v => v ? `<span class="dv dv-${v.toLowerCase()}">${v}</span>` : '';
+    const dvBadge = v => v ? `<span class="dv dv-${v.toLowerCase()}">${v.replace('_',' ')}</span>` : '';
     const inv = d.discovery_opportunities || d.investigate_next || [];
-    const covLabel = c => (c==null) ? '' : `<span class="cov">coverage ${Math.round(c*100)}%</span>`;
+    // yield = expected network expansion (how many unknown entities this could reveal)
+    const yieldLabel = x => {
+        const y = x.potential_yield;
+        if (y == null) return '';
+        const txt = x.yield_unknown ? `~${y} (unbounded)` : `${y}`;
+        return `<span class="yield">⊕ ${txt}</span>`;
+    };
+    const covLabel = c => (c==null) ? '' : `<span class="cov">${Math.round(c*100)}% mapped</span>`;
     document.getElementById('di-invest').innerHTML = inv.length
         ? inv.map((x,i) => `<a class="di-opp" href="${x.href||'#'}">
             <div class="di-opp-top">
                 <span class="di-cid">${kindIcon[x.kind]||'·'} ${x.target}</span>
+                ${yieldLabel(x)}
                 ${dvBadge(x.discovery_value)}
-                ${covLabel(x.coverage)}
             </div>
-            <div class="di-reveal">↳ ${x.reveal || x.reason || ''}</div></a>`).join('')
+            <div class="di-reveal">↳ ${x.reveal || x.reason || ''} <span class="cov-inline">${covLabel(x.coverage)}</span></div></a>`).join('')
         : '<div class="cc-empty">No targets</div>';
 
     // Top Emerging Operators (entities)
@@ -533,8 +558,8 @@ function renderDiscovery(d) {
         ? top.map(c => `<a class="di-row" href="/watchtower/operator/${c.cluster_id}">
             <span class="di-cid">◎ #${c.cluster_id} ${dvBadge(c.discovery_value)}</span>
             <span class="di-why">${c.why||''}</span>
-            <span class="di-score">${c.coverage!=null?'cov '+Math.round(c.coverage*100)+'%':''}</span></a>`).join('')
-        : '<div class="cc-empty">No emerging operators</div>';
+            <span class="di-score yield">⊕ ${c.potential_yield!=null?c.potential_yield:'?'}</span></a>`).join('')
+        : '<div class="cc-empty">No expansion targets</div>';
 
     // Reservoir wallet entities (oldest = most conversion-due, newest = freshest staging)
     const ow = rv.oldest_wallet, nw = rv.newest_wallet;

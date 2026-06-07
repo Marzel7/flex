@@ -98,6 +98,19 @@
 .di-score { color: var(--text-secondary); font-size: 11px; }
 .rank-mode { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
     color: var(--color-yellow); background: rgba(245,158,11,.12); padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+.disc-card-note { font-size: 10px; color: var(--text-secondary); margin: -6px 0 9px; font-style: italic; }
+/* Discovery Value badge — the new ranking axis */
+.dv { font-size: 8.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 4px; }
+.dv-sm { margin-left: 6px; }
+.dv-high { background: rgba(34,197,94,.18); color: #4ade80; }
+.dv-medium { background: rgba(245,158,11,.15); color: #fbbf24; }
+.dv-low { background: rgba(255,255,255,.06); color: var(--text-secondary); }
+.di-opp { display: block; padding: 8px 9px; background: var(--bg-secondary); border-radius: 7px; text-decoration: none; }
+.di-opp:hover { background: var(--bg-hover); }
+.di-opp + .di-opp { margin-top: 6px; }
+.di-opp-top { display: flex; align-items: center; gap: 8px; }
+.di-opp-top .di-cid { flex: 1; color: var(--text-primary); font-weight: 600; font-size: 12px; }
+.di-reveal { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
 .disc-entities { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border-color); }
 .re-row { display: flex; align-items: baseline; gap: 7px; font-size: 11.5px; margin: 3px 0; }
 .re-row .re-k { color: var(--text-secondary); min-width: 88px; }
@@ -262,9 +275,10 @@
         <a class="disc-cta" href="/watchtower/operators">Open Discovery Console →</a>
       </div>
 
-      <!-- Investigate Next (ranked top targets — always 5) -->
+      <!-- Discovery Opportunities (ranked by Discovery Value = info gain, always 5) -->
       <div class="disc-card">
-        <div class="disc-card-h">⊕ Investigate Next <span class="rank-mode" id="di-mode"></span></div>
+        <div class="disc-card-h">⊕ Discovery Opportunities <span class="rank-mode" id="di-mode"></span></div>
+        <div class="disc-card-note">Ranked by what each could <b>reveal</b>, not how sure we are</div>
         <div class="disc-invest" id="di-invest"><div class="cc-empty">—</div></div>
       </div>
 
@@ -459,11 +473,15 @@ function renderDiscovery(d) {
     document.getElementById('di-confirmed').textContent   = bc.confirmed ?? 0;
     document.getElementById('di-probable').textContent    = bc.probable ?? 0;
     document.getElementById('di-investigate').textContent = bc.investigate ?? 0;
-    // evidence breakdown, strongest first, zeros greyed
+    // evidence breakdown with NETWORK EXPANSION POTENTIAL (discovery value per type)
     const order = ['direct_infrastructure','provisioning_hub','relay_funded','lineage','collector_flow','fingerprint'];
+    const exp = a.expansion_potential || {};
     document.getElementById('di-evidence').innerHTML = order.map(k => {
         const v = be[k] || 0;
-        return `<div class="ev ${v?'':'zero'}"><span>${EVIDENCE_LABELS[k]}</span><span class="dots"></span><span>${v}</span></div>`;
+        const ep = exp[k];
+        return `<div class="ev ${v?'':'zero'}"><span>${EVIDENCE_LABELS[k]}</span>`
+             + `${ep?`<span class="dv dv-${ep.toLowerCase()} dv-sm">${ep}</span>`:''}`
+             + `<span class="dots"></span><span>${v}</span></div>`;
     }).join('');
     const lt = a.latest;
     // "Latest" uses first-attribution time (real discovery). When no row has been
@@ -491,17 +509,20 @@ function renderDiscovery(d) {
     document.getElementById('ds-growing').textContent   = em.growing ?? 0;
     document.getElementById('ds-resgrowth').textContent = '+' + (rv.new_funded_7d ?? 0);
 
-    // Investigate Next — always-5 multi-source ranking; label HEURISTIC when no history
+    // Discovery Opportunities — ranked by Discovery Value (info gain), always 5.
     const mode = d.ranking_mode || 'HEURISTIC';
     document.getElementById('di-mode').textContent = mode === 'REAL' ? '' : 'heuristic';
     const kindIcon = {cluster:'◎', attribution:'●', reservoir:'♻', hub:'⬡'};
-    const inv = d.investigate_next || [];
+    const dvBadge = v => v ? `<span class="dv dv-${v.toLowerCase()}">${v}</span>` : '';
+    const inv = d.discovery_opportunities || d.investigate_next || [];
     document.getElementById('di-invest').innerHTML = inv.length
-        ? inv.map((x,i) => `<a class="di-row" href="${x.href||'#'}">
-            <span class="di-rank">${i+1}</span>
-            <span class="di-cid">${kindIcon[x.kind]||'·'} ${x.target}</span>
-            <span class="di-why">${x.reason||''}</span>
-            <span class="di-score">${x.confidence!=null?x.confidence+'%':''}</span></a>`).join('')
+        ? inv.map((x,i) => `<a class="di-opp" href="${x.href||'#'}">
+            <div class="di-opp-top">
+                <span class="di-cid">${kindIcon[x.kind]||'·'} ${x.target}</span>
+                ${dvBadge(x.discovery_value)}
+                <span class="di-score">${x.confidence!=null?x.confidence+'%':''}</span>
+            </div>
+            <div class="di-reveal">↳ ${x.reveal || x.reason || ''}</div></a>`).join('')
         : '<div class="cc-empty">No targets</div>';
 
     // Top Emerging Operators (entities)
@@ -519,6 +540,10 @@ function renderDiscovery(d) {
         ? `${ow?`<div class="re-row"><span class="re-k">Oldest dormant</span><a href="/watchtower/operator/${ow.wallet}">${short(ow.wallet)}</a> <span class="re-age">${ow.age_d}d · ${ow.relay||''}</span></div>`:''}
            ${nw?`<div class="re-row"><span class="re-k">Newest dormant</span><a href="/watchtower/operator/${nw.wallet}">${short(nw.wallet)}</a> <span class="re-age">${nw.age_d}d · ${nw.relay||''}</span></div>`:''}`
         : '';
+    // Reservoir status now leads with discovery value + WHY IT MATTERS
+    const rs = document.getElementById('rv-status');
+    rs.innerHTML = `${rv.discovery_value?`<span class="dv dv-${rv.discovery_value.toLowerCase()}">${rv.discovery_value}</span> `:''}` +
+        (rv.why_it_matters || 'Conversion Watch Active');
 
     // Discovery feed
     const feed = d.discovery_feed || [];

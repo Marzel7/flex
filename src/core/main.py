@@ -26661,6 +26661,7 @@ def api_wt_discovery():
     """
     from src.analysis.attribution_axis import derive_attribution, linkage_label
     from src.analysis import cluster_snapshots as _cs
+    from src.analysis import discovery_value as _dv
     from collections import Counter
 
     conn = db_connect(DB_PATH, timeout=5)
@@ -26717,6 +26718,9 @@ def api_wt_discovery():
             "collector_flow":        by_linkage.get("WATCHTOWER_COLLECTOR", 0),
             "fingerprint":           by_linkage.get("WATCHTOWER_FINGERPRINT", 0),
         },
+        # network-expansion potential per evidence type — not all attributions are
+        # equally useful for DISCOVERING new infrastructure (vs confirming the known).
+        "expansion_potential": _dv.evidence_expansion_potential(),
         "latest": latest,
     }
 
@@ -26759,6 +26763,9 @@ def api_wt_discovery():
                     "age_d": row["age_d"]} if row else None
         reservoir["oldest_wallet"] = _res_entity("ASC")
         reservoir["newest_wallet"] = _res_entity("DESC")
+        rdv_band, rdv_reveal = _dv.reservoir_discovery_value(reservoir["dormant"], reservoir["converted"])
+        reservoir["discovery_value"] = rdv_band
+        reservoir["why_it_matters"] = rdv_reveal
 
     # ── Cluster growth + discovery feed (from snapshot history) ─────────────────
     growth, feed = [], []
@@ -26791,19 +26798,20 @@ def api_wt_discovery():
                 "has_baseline": g.get("has_baseline", False),
             })
 
-    # Top emerging — highest confidence, then growth, then newest
+    # annotate every cluster with discovery value, then rank "Top Emerging" as MOST
+    # LIKELY TO BECOME ATTRIBUTABLE = discovery value first, then growth, then confidence.
+    for c in clusters:
+        dv_band, dv_reveal = _dv.cluster_discovery_value(
+            c["confidence"] or 0, c["members"], c["provisioners"],
+            c["trend"] == "GROWING",
+            bool(c["deltas"].get("new_funders_detected") or c["deltas"].get("new_recipients_detected")))
+        c["discovery_value"] = dv_band
+        c["why"] = dv_reveal
     top_emerging = sorted(clusters, key=lambda c: (
-        -(c["confidence"]), 0 if c["trend"] == "GROWING" else 1, -(c["first_seen"] or 0)
+        -_dv.band_rank(c["discovery_value"]),
+        0 if c["trend"] == "GROWING" else 1,
+        -(c["confidence"] or 0)
     ))[:5]
-    for c in top_emerging:
-        # a one-line "why" per emerging operator
-        bits = []
-        if c["trend"] == "GROWING": bits.append("growing")
-        if c["deltas"].get("creator_count"): bits.append(f"+{c['deltas']['creator_count']} members")
-        if c["deltas"].get("new_funders_detected"): bits.append("new funder")
-        if c["provisioners"]: bits.append(f"{c['provisioners']} provisioners")
-        if not bits: bits.append(f"{c['tokens']} launches · {c['members']} creators")
-        c["why"] = " · ".join(bits)
 
     # ── INVESTIGATE NEXT — MULTI-SOURCE ranker. Always returns 5 targets across all
     # categories. When cluster snapshot history exists it uses real growth (REAL mode);
@@ -26825,11 +26833,16 @@ def api_wt_discovery():
         # static contribution: cluster confidence (always present)
         score += (c["confidence"] or 0) * 50
         if not reasons: reasons.append(f"{int((c['confidence'] or 0)*100)}% cluster · {c['members']} creators")
+        dv_band, dv_reveal = _dv.cluster_discovery_value(
+            c["confidence"] or 0, c["members"], c["provisioners"],
+            c["trend"] == "GROWING",
+            bool(c["deltas"].get("new_funders_detected") or c["deltas"].get("new_recipients_detected")))
         cand.append({"kind": "cluster", "target": f"Cluster #{c['cluster_id']}",
                      "href": f"/watchtower/operator/{c['cluster_id']}",
                      "confidence": round((c["confidence"] or 0)*100),
                      "age_s": (now - c["first_seen"]) if c["first_seen"] else None,
-                     "reason": " · ".join(reasons[:3]), "score": round(score,1)})
+                     "reason": " · ".join(reasons[:3]), "score": round(score,1),
+                     "discovery_value": dv_band, "reveal": dv_reveal})
 
     # 2) attributions — confirmed/probable direct-infra & provisioning hits weigh high
     _link_w = {"WATCHTOWER_DIRECT": 35, "WATCHTOWER_PROVISIONING": 30,
@@ -26844,16 +26857,19 @@ def api_wt_discovery():
         attr_ranked.append((s, r, a))
     attr_ranked.sort(key=lambda x: -x[0])
     for s, r, a in attr_ranked[:5]:
+        dv_band, dv_reveal = _dv.attribution_discovery_value(a["linkage"])
         cand.append({"kind": "attribution",
                      "target": linkage_label(a["linkage"]) + " attribution",
                      "href": f"/watchtower/operator/{r['creator_address']}",
                      "confidence": {"CONFIRMED":100,"STRONG":70,"WEAK":40}.get(a["confidence"],0),
                      "age_s": (now - r["first_attr"]) if r["first_attr"] else None,
                      "reason": f"{a['confidence'] or '?'} · {(r['creator_address'][:6]+'…'+r['creator_address'][-4:]) if r['creator_address'] else ''}",
-                     "score": round(float(s),1)})
+                     "score": round(float(s),1),
+                     "discovery_value": dv_band, "reveal": dv_reveal})
 
     # 3) reservoir cohort — one standing target (the relay-funded pool)
     if reservoir["dormant"] > 0:
+        rdv_band, rdv_reveal = _dv.reservoir_discovery_value(reservoir["dormant"], reservoir["converted"])
         score = 20 + min(30, reservoir["dormant"] * 0.3) + (15 if reservoir["new_funded_7d"] else 0)
         cand.append({"kind": "reservoir", "target": "Relay-Funded Reservoir Cohort",
                      "href": "/watchtower/operators",
@@ -26861,9 +26877,13 @@ def api_wt_discovery():
                      "age_s": None,
                      "reason": f"{reservoir['dormant']} dormant · median {reservoir['median_age_d']}d" +
                                (f" · +{reservoir['new_funded_7d']} new (7d)" if reservoir["new_funded_7d"] else ""),
-                     "score": round(score,1)})
+                     "score": round(score,1),
+                     "discovery_value": rdv_band, "reveal": rdv_reveal})
 
-    cand.sort(key=lambda x: -x["score"])
+    # Rank PRIMARILY by Discovery Value (expected info gain), then by score within band.
+    # This is the refocus: a 100% known operator (LOW value) sinks below a 40% reservoir
+    # wallet (HIGH value) — we rank by what an object could REVEAL, not how sure we are.
+    cand.sort(key=lambda x: (-_dv.band_rank(x.get("discovery_value", "LOW")), -x["score"]))
     # Diversify: cap attribution rows so the panel mixes categories (clusters,
     # reservoir, attributions) instead of 5 near-identical attribution hits. An analyst
     # gets more value from 5 DIFFERENT angles than the 5 highest of one kind.
@@ -26892,7 +26912,8 @@ def api_wt_discovery():
         "emerging": {"growing": len(emerging_growing), "total": len(clusters),
                      "total_with_history": len(growth), "top": top_emerging},
         "discovery_feed": feed,
-        "investigate_next": invest,
+        "investigate_next": invest,            # kept for back-compat
+        "discovery_opportunities": invest,     # ranked by Discovery Value (info gain)
         "ranking_mode": ranking_mode,
     })
 

@@ -26778,6 +26778,17 @@ def api_wt_discovery():
         reservoir["coverage"] = rdv_cov.get("coverage")
         reservoir["potential_yield"] = rdv_cov.get("potential_yield", 0)
         reservoir["yield_unknown"] = rdv_cov.get("yield_unknown", False)
+        # FRONTIER QUALITY for the reservoir — relay concentration + funding uniformity
+        _relays = conn.execute(
+            "SELECT COUNT(DISTINCT relay_funder) FROM wt_creator_reservoir WHERE status='DORMANT'").fetchone()[0]
+        _stdev = conn.execute(
+            "SELECT MAX(funding_amount)-MIN(funding_amount) FROM wt_creator_reservoir WHERE status='DORMANT'").fetchone()[0]
+        _uniform = (_stdev is not None and _stdev < 1.0)   # tight funding spread = synchronized
+        rq_band, rq_sig = _dv.reservoir_frontier_quality(reservoir["dormant"], _relays, _uniform)
+        reservoir["frontier_quality"] = rq_band
+        reservoir["relays"] = _relays
+        reservoir["discovery_priority"] = _dv.discovery_priority(
+            reservoir["dormant"], None, rq_band)
 
     # ── Cluster growth + discovery feed (from snapshot history) ─────────────────
     growth, feed = [], []
@@ -26824,6 +26835,11 @@ def api_wt_discovery():
         c["discovery_prob"] = _p
         c["expected_yield"] = _dv.expected_yield(c["potential_yield"], _p)
         c["frontier_type"] = "CURRENT"
+        # FRONTIER QUALITY — coordination structure; collapses noise-inflated clusters
+        q_band, q_sig = _dv.cluster_frontier_quality(conn, c["cluster_id"], mapped_set, c["provisioners"])
+        c["frontier_quality"] = q_band
+        c["quality_signals"] = q_sig
+        c["discovery_priority"] = _dv.discovery_priority(c["potential_yield"], _p, q_band)
     # Top Expansion Targets: band, then POTENTIAL YIELD (largest unexplored frontier
     # first) — what remains unexplained, not what exists.
     top_emerging = sorted(clusters, key=lambda c: (
@@ -26859,7 +26875,9 @@ def api_wt_discovery():
                      "age_s": (now - c["first_seen"]) if c["first_seen"] else None,
                      "reason": " · ".join(reasons[:3]), "score": round(score,1),
                      "discovery_value": c["discovery_value"], "reveal": c["why"],
-                     "coverage": c.get("coverage"), "potential_yield": c.get("potential_yield", 0)})
+                     "coverage": c.get("coverage"), "potential_yield": c.get("potential_yield", 0),
+                     "frontier_quality": c.get("frontier_quality"),
+                     "discovery_priority": c.get("discovery_priority", 0)})
 
     # 2) attributions — confirmed/probable direct-infra & provisioning hits weigh high
     _link_w = {"WATCHTOWER_DIRECT": 35, "WATCHTOWER_PROVISIONING": 30,
@@ -26901,13 +26919,24 @@ def api_wt_discovery():
                      "reveal": reservoir.get("why_it_matters"),
                      "coverage": reservoir.get("coverage"),
                      "potential_yield": reservoir.get("potential_yield", 0),
-                     "yield_unknown": reservoir.get("yield_unknown", False)})
+                     "yield_unknown": reservoir.get("yield_unknown", False),
+                     "frontier_quality": reservoir.get("frontier_quality"),
+                     "discovery_priority": reservoir.get("discovery_priority", 0)})
 
-    # Rank by EXPECTED NETWORK EXPANSION: discovery-value band first, then potential
-    # yield (how MANY unknown entities this could reveal), then score. This answers
-    # "if I spend 30 min on one thing, which most expands the WATCHTOWER graph?".
-    cand.sort(key=lambda x: (-_dv.band_rank(x.get("discovery_value", "LOW")),
-                             -(x.get("potential_yield") or 0), -x["score"]))
+    # Attribution candidates have no cluster-structure quality — give them a priority
+    # from yield × probability (their quality is implicitly the linkage strength already
+    # baked into discovery_value). Ensures every candidate has a discovery_priority.
+    for t in cand:
+        if "discovery_priority" not in t:
+            _pp = {"HIGH":0.7,"MEDIUM":0.4,"LOW":0.15}.get(t.get("discovery_value"),0.3)
+            t["discovery_priority"] = round((t.get("potential_yield") or 0) * _pp, 1)
+
+    # Rank by DISCOVERY PRIORITY = yield × probability × frontier-quality. This is the
+    # fix: a large noise-inflated frontier (Cluster #75, VERY_LOW quality) collapses
+    # below a small coherent one (reservoir, VERY_HIGH). Reward shared structure, not
+    # raw graph size.
+    cand.sort(key=lambda x: (-(x.get("discovery_priority") or 0),
+                             -_dv.band_rank(x.get("discovery_value", "LOW"))))
     # Diversify: cap attribution rows so the panel mixes categories (clusters,
     # reservoir, attributions) instead of 5 near-identical attribution hits. An analyst
     # gets more value from 5 DIFFERENT angles than the 5 highest of one kind.

@@ -29,6 +29,20 @@ from typing import Optional
 VERY_HIGH, HIGH, MEDIUM, LOW = "VERY_HIGH", "HIGH", "MEDIUM", "LOW"
 _BAND = {VERY_HIGH: 4, HIGH: 3, MEDIUM: 2, LOW: 1}
 
+# Sentinel/placeholder "addresses" that are not real wallets — they falsely bind
+# clusters and inflate yield (Cluster #75 audit: 93/111 members were glued ONLY by
+# 'SYSTEM'). Excluded from yield, coverage, and quality everywhere.
+PLACEHOLDERS = {"SYSTEM", "UNKNOWN", "", "NONE", "null", "None"}
+
+# Frontier Quality bands — how much COORDINATION STRUCTURE the frontier contains.
+# A large pile of one-off funders is LOW; a small tightly-shared infra set is HIGH.
+VERY_LOW = "VERY_LOW"
+_QUALITY = {VERY_HIGH: 4, HIGH: 3, MEDIUM: 2, LOW: 1, VERY_LOW: 0}
+
+
+def quality_rank(q: str) -> int:
+    return _QUALITY.get(q, 0)
+
 
 def band_rank(band: str) -> int:
     return _BAND.get(band, 0)
@@ -123,11 +137,11 @@ def cluster_coverage(conn: sqlite3.Connection, cluster_id: int, mapped: set) -> 
     if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_funders'").fetchone():
         funders = {a for (a,) in conn.execute(
             f"SELECT DISTINCT funder_address FROM creator_funders WHERE creator_address IN ({ph})",
-            creators) if a}
+            creators) if a and a not in PLACEHOLDERS}
     if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_outgoing_transfers'").fetchone():
         recipients = {a for (a,) in conn.execute(
             f"SELECT DISTINCT recipient_address FROM creator_outgoing_transfers WHERE creator_address IN ({ph})",
-            creators) if a}
+            creators) if a and a not in PLACEHOLDERS}
     cps = funders | recipients
     total = len(cps)
     if total == 0:
@@ -271,6 +285,107 @@ def expected_yield(potential_yield, probability):
 def frontier_type(kind: str) -> str:
     """reservoir → FUTURE (pre-launch staging); everything else → CURRENT (active)."""
     return FUTURE if kind == "reservoir" else CURRENT
+
+
+def cluster_frontier_quality(conn, cluster_id, mapped, provisioners=0) -> tuple[str, dict]:
+    """
+    FRONTIER QUALITY = how much COORDINATION STRUCTURE the frontier contains, vs being
+    a large pile of unrelated wallets. Rewards shared structure; penalises one-off
+    counterparties, placeholder-binding, and duplicate-member inflation.
+
+    Returns (band, signals) where signals explains the score (for the audit/UI).
+    """
+    rows = conn.execute(
+        "SELECT creator_wallet FROM wt_cluster_members WHERE cluster_id=?", (cluster_id,)
+    ).fetchall()
+    stored = len(rows)
+    members = {r[0] for r in rows if r and r[0]}
+    n = len(members)
+    if n == 0:
+        return VERY_LOW, {"reason": "no members"}
+    dup_inflation = stored - n
+    creators = list(members)
+    ph = ",".join("?" * len(creators))
+
+    # shared recipients (the real clustering glue), excluding placeholders
+    shared = {}
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_outgoing_transfers'").fetchone():
+        for r, mc in conn.execute(
+            f"SELECT recipient_address, COUNT(DISTINCT creator_address) FROM creator_outgoing_transfers "
+            f"WHERE creator_address IN ({ph}) GROUP BY recipient_address", creators):
+            if r and r not in PLACEHOLDERS and r not in mapped and mc >= 2:
+                shared[r] = mc
+    # shared funders (coordination on the funding side)
+    shared_funders = 0
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_funders'").fetchone():
+        for r, mc in conn.execute(
+            f"SELECT funder_address, COUNT(DISTINCT creator_address) FROM creator_funders "
+            f"WHERE creator_address IN ({ph}) GROUP BY funder_address", creators):
+            if r and r not in PLACEHOLDERS and r not in mapped and mc >= 2:
+                shared_funders += 1
+
+    # how many members are connected by ANY real shared node (the coherent core)
+    coherent_members = 0
+    if shared:
+        sph = ",".join("?" * len(shared))
+        coherent_members = conn.execute(
+            f"SELECT COUNT(DISTINCT creator_address) FROM creator_outgoing_transfers "
+            f"WHERE creator_address IN ({ph}) AND recipient_address IN ({sph})",
+            creators + list(shared.keys())).fetchone()[0]
+    coherence = coherent_members / n if n else 0      # fraction bound by REAL structure
+
+    # placeholder binding: members glued only by SYSTEM/UNKNOWN
+    placeholder_bound = conn.execute(
+        f"SELECT COUNT(DISTINCT creator_address) FROM creator_outgoing_transfers "
+        f"WHERE creator_address IN ({ph}) AND recipient_address IN "
+        f"({','.join('?'*len(PLACEHOLDERS))})", creators + list(PLACEHOLDERS)).fetchone()[0]
+
+    # ── score ──
+    score = 0
+    score += min(40, len(shared) * 4)          # real shared recipients
+    score += min(25, shared_funders * 5)       # shared funders
+    score += min(20, (provisioners or 0) * 10) # provisioning signature
+    score += int(coherence * 30)               # fraction bound by real structure
+    # penalties
+    if coherence < 0.25: score -= 25           # most members not really connected
+    if placeholder_bound > n * 0.4: score -= 30  # majority glued by sentinels
+    if dup_inflation > n * 0.2: score -= 10    # heavy duplicate inflation
+
+    band = (VERY_HIGH if score >= 70 else HIGH if score >= 45 else
+            MEDIUM if score >= 25 else LOW if score >= 10 else VERY_LOW)
+    return band, {
+        "score": score, "members": n, "stored_rows": stored, "dup_inflation": dup_inflation,
+        "shared_recipients": len(shared), "shared_funders": shared_funders,
+        "provisioners": provisioners or 0,
+        "coherent_members": coherent_members, "coherence": round(coherence, 2),
+        "placeholder_bound": placeholder_bound,
+    }
+
+
+def reservoir_frontier_quality(dormant, relays, uniform=True) -> tuple[str, dict]:
+    """Reservoir quality = coordination of the relay-funded cohort. A synchronized,
+    uniformly-funded cohort from known relays is HIGH structure even at small size."""
+    if dormant <= 0:
+        return VERY_LOW, {"reason": "empty"}
+    score = 30                                  # relay-funded by construction
+    if relays and relays <= 3: score += 30      # few relays = concentrated, coordinated
+    if uniform: score += 25                     # uniform funding = synchronized cohort
+    if dormant >= 20: score += 15               # a real cohort, not a couple of wallets
+    band = (VERY_HIGH if score >= 70 else HIGH if score >= 45 else MEDIUM)
+    return band, {"score": score, "dormant": dormant, "relays": relays, "uniform": uniform}
+
+
+def discovery_priority(potential_yield, probability, quality_band) -> float:
+    """
+    Discovery Priority = Potential Yield × Discovery Probability × Frontier Quality.
+    Quality is the multiplier that collapses large-but-incoherent frontiers and lifts
+    small-but-structured ones. Probability None (reservoir) → treated as a mid 0.5 so
+    a high-quality unknown still ranks, but its quality carries it, not raw size.
+    """
+    py = potential_yield or 0
+    p = 0.5 if probability is None else probability
+    qmult = {VERY_HIGH: 1.0, HIGH: 0.7, MEDIUM: 0.4, LOW: 0.15, VERY_LOW: 0.03}.get(quality_band, 0.3)
+    return round(py * p * qmult, 1)
 
 
 def evidence_expansion_potential() -> dict:

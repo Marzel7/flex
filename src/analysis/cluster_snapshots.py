@@ -63,6 +63,29 @@ def _hash_set(rows) -> Optional[str]:
     return hashlib.sha1("|".join(vals).encode()).hexdigest()[:16]
 
 
+def _funder_recipient_hash(conn, creators, table, addr_col, join_col) -> Optional[str]:
+    """
+    Hash the distinct funder/recipient set reached by a cluster's member creators.
+    This is the actual topology the engine clusters on (shared funder / shared
+    recipient), so a change in the hash = a real new counterparty entered the cluster.
+    Returns None when the source table is absent or the set is empty.
+    """
+    if not creators:
+        return None
+    if not conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    ).fetchone():
+        return None
+    ph = ",".join("?" * len(creators))
+    try:
+        rows = conn.execute(
+            f"SELECT DISTINCT {addr_col} FROM {table} WHERE {join_col} IN ({ph})",
+            creators).fetchall()
+    except sqlite3.OperationalError:
+        return None
+    return _hash_set(rows)
+
+
 def take_snapshot(conn: sqlite3.Connection) -> int:
     """
     Append one snapshot per cluster for the current cycle. Idempotent: skips a cluster
@@ -95,14 +118,19 @@ def take_snapshot(conn: sqlite3.Connection) -> int:
             creator_count = 0
             funders_hash = recipients_hash = None
             if has_members:
-                creator_count = conn.execute(
-                    "SELECT COUNT(*) FROM wt_cluster_members WHERE cluster_id=?", (cid,)
-                ).fetchone()[0]
-                # membership-change fingerprints: the creator set itself is the cheapest
-                # honest "new member / new funder" signal we have per cluster.
-                funders_hash = _hash_set(conn.execute(
+                members = conn.execute(
                     "SELECT creator_wallet FROM wt_cluster_members WHERE cluster_id=?", (cid,)
-                ).fetchall())
+                ).fetchall()
+                creator_count = len(members)
+                # Topology fingerprints over the cluster's shared funders/recipients —
+                # BOTH are first-class clustering signals (the engine groups on shared
+                # recipient AND shared funder), so a change in either set is a genuine
+                # topology change worth flagging in the feed.
+                creators = [m[0] for m in members if m and m[0]]
+                funders_hash = _funder_recipient_hash(
+                    conn, creators, "creator_funders", "funder_address", "creator_address")
+                recipients_hash = _funder_recipient_hash(
+                    conn, creators, "creator_outgoing_transfers", "recipient_address", "creator_address")
             conn.execute("""
                 INSERT INTO wt_operator_cluster_snapshots
                     (cluster_id, snapshot_ts, confidence, token_count, creator_count,
@@ -176,8 +204,13 @@ def compute_deltas(conn: sqlite3.Connection, cid: int) -> dict:
     cre_d = d("creator_count")
     sol_d = d("deployed_sol")
     state_changed = bool(has_baseline and cur["cluster_state"] != base["cluster_state"])
-    new_funders = bool(has_baseline and base["top_funders_hash"] != cur["top_funders_hash"]
-                       and cur["top_funders_hash"])
+    # Require BOTH baseline and current hashes to be present before claiming a change —
+    # otherwise a NULL→populated transition (e.g. snapshots taken before recipient
+    # hashing existed) would fire a false "new counterparty" event. No synthetic events.
+    new_funders = bool(has_baseline and base["top_funders_hash"] and cur["top_funders_hash"]
+                       and base["top_funders_hash"] != cur["top_funders_hash"])
+    new_recipients = bool(has_baseline and base["top_recipients_hash"] and cur["top_recipients_hash"]
+                          and base["top_recipients_hash"] != cur["top_recipients_hash"])
 
     # trend from real change: any positive growth in confidence/launches/creators/sol
     # → GROWING; any negative → DECLINING; else STABLE. Confidence dominates.
@@ -202,6 +235,7 @@ def compute_deltas(conn: sqlite3.Connection, cid: int) -> dict:
             "confidence": conf_d, "token_count": tok_d, "creator_count": cre_d,
             "deployed_sol": sol_d, "state_changed": state_changed,
             "new_funders_detected": new_funders,
+            "new_recipients_detected": new_recipients,
         },
         "trend": trend,
         "snapshots": conn.execute(
@@ -257,6 +291,9 @@ def change_feed(conn: sqlite3.Connection) -> list[dict]:
         if d.get("new_funders_detected"):
             feed.append({"cluster_id": cid, "kind": "new_funder", "magnitude": 30,
                          "text": f"Cluster #{cid} — new shared funder observed"})
+        if d.get("new_recipients_detected"):
+            feed.append({"cluster_id": cid, "kind": "new_recipient", "magnitude": 35,
+                         "text": f"Cluster #{cid} — new shared recipient observed"})
         # trend transitions are the headline movers
         if g.get("trend") == "GROWING":
             feed.append({"cluster_id": cid, "kind": "trend_growing", "magnitude": 60,

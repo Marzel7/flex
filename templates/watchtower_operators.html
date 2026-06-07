@@ -364,7 +364,12 @@
 .emerg-metrics { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 9px; font-size: 11px; color: var(--text-sec); }
 .emerg-metrics b { color: var(--text-pri); }
 .emerg-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: var(--text-dim); }
-.emerg-growth { color: var(--col-green, #22c55e); font-weight: 600; }
+.emerg-growth { color: var(--col-green, #22c55e); font-weight: 700; }
+.emerg-decline { color: var(--col-red, #ef4444); font-weight: 700; }
+.emerg-new { color: var(--text-dim); font-style: italic; }
+.emerg-d { font-size: 10px; font-weight: 700; }
+.emerg-d.up { color: var(--col-green, #22c55e); }
+.emerg-d.down { color: var(--col-red, #ef4444); }
 .emerg-tier { font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing:.05em; }
 .tier-confirmed-x { background: rgba(34,197,94,.18); color:#4ade80; }
 .tier-probable-x  { background: rgba(245,158,11,.15); color:#fbbf24; }
@@ -1733,14 +1738,15 @@ function discTier(conf) {
     if (conf >= 0.6) return '<span class="emerg-tier tier-probable-x">probable</span>';
     return '<span class="emerg-tier tier-investigate-x">investigate</span>';
 }
-function renderDiscovery(clusters, operations, watchData, candData) {
+function renderDiscovery(clusters, operations, watchData, candData, growthMap) {
     const now = Math.floor(Date.now()/1000), DAY = 86400;
+    growthMap = growthMap || {};
     // Emerging = non-seed clusters that are forming/active (the unknown-operator population)
     const emerging = (clusters || []).filter(c =>
         c.origin !== 'seed' &&
         (c.watch_token_count > 0 || c.token_count > 0 || c.member_count > 0));
-    const recent = c => (c.last_seen && (now - c.last_seen) <= DAY);
-    const growing = emerging.filter(recent);
+    // GROWING = real snapshot trend (replaces the old last_seen recency proxy).
+    const growing = emerging.filter(c => (growthMap[c.cluster_id] || {}).trend === 'GROWING');
 
     // ── Discovery health metrics ──
     const classified = (watchData && watchData.classified) || {};
@@ -1749,10 +1755,13 @@ function renderDiscovery(clusters, operations, watchData, candData) {
         (o.state || '').toUpperCase() === 'DISCOVERED' && !o.merged_into).length;
     const newLaunches24 = (candData && candData.candidates || [])
         .filter(c => c.is_recent_live).length;
+    // New members (24h) = sum of real creator_count deltas across clusters with a baseline
+    const newMembers24 = Object.values(growthMap).reduce((s,g) =>
+        s + Math.max(0, (g.deltas_24h && g.deltas_24h.creator_count) || 0), 0);
     document.getElementById('dm-emerging').textContent     = emerging.length;
     document.getElementById('dm-launches').textContent     = newLaunches24;
     document.getElementById('dm-growing').textContent      = growing.length;
-    document.getElementById('dm-members').textContent       = growing.reduce((s,c)=>s+(c.member_count||0),0);
+    document.getElementById('dm-members').textContent       = newMembers24;
     document.getElementById('dm-unattributed').textContent = unattributed;
 
     // ── Promotion funnel: Unclustered → Cluster → Operation → Operator → Attributed ──
@@ -1785,26 +1794,36 @@ function renderDiscovery(clusters, operations, watchData, candData) {
         el.innerHTML = '<div class="cc-empty"><div class="cc-empty-icon">◎</div>No emerging operators — discovery quiet</div>';
         return;
     }
+    // delta chip: "+4" green / "−2" red / nothing when null or zero
+    const dchip = v => (v == null || v === 0) ? '' :
+        ` <span class="emerg-d ${v>0?'up':'down'}">${v>0?'+':''}${(+v).toFixed(Number.isInteger(v)?0:2)}</span>`;
     el.innerHTML = emerging.map(c => {
         const conf = c.confidence || 0;
         const color = conf >= 0.8 ? 'var(--col-green,#22c55e)' : conf >= 0.6 ? 'var(--col-amber,#f59e0b)' : 'var(--text-dim)';
         const state = (c.state || 'FORMING').toUpperCase();
         const ageH = c.first_seen ? Math.round((now - c.first_seen)/3600) : null;
-        const growingTag = recent(c) ? `<span class="emerg-growth">active &lt;24h</span>` : '';
+        const g = growthMap[c.cluster_id];
+        const dd = (g && g.has_baseline) ? g.deltas_24h : null;
+        // trend tag uses REAL snapshot trend; "new" when no 24h baseline yet
+        let tag = '';
+        if (g && g.trend === 'GROWING') tag = `<span class="emerg-growth">▲ growing</span>`;
+        else if (g && g.trend === 'DECLINING') tag = `<span class="emerg-decline">▼ declining</span>`;
+        else if (!g || !g.has_baseline) tag = `<span class="emerg-new">new — no 24h baseline</span>`;
+        const confDeltaPct = dd && dd.confidence != null ? dchip(Math.round(dd.confidence*100)) : '';
         return `<a class="emerg-card" style="--ec-color:${color}" href="/watchtower/operator/${c.treasury_wallet || c.cluster_id}">
             <div class="emerg-card-top">
                 <span class="emerg-id">Candidate #${c.cluster_id}</span>
-                <span class="emerg-conf">${(conf*100).toFixed(0)}% ${discTier(conf)}</span>
+                <span class="emerg-conf">${(conf*100).toFixed(0)}%${confDeltaPct} ${discTier(conf)}</span>
             </div>
             <div class="emerg-metrics">
-                <span><b>${c.token_count||0}</b> launches</span>
-                <span><b>${c.member_count||0}</b> creators</span>
+                <span><b>${c.token_count||0}</b> launches${dd?dchip(dd.token_count):''}</span>
+                <span><b>${c.member_count||0}</b> creators${dd?dchip(dd.creator_count):''}</span>
                 <span><b>${c.provisioner_count||0}</b> provisioners</span>
-                ${c.total_sol_deployed ? `<span><b>${(+c.total_sol_deployed).toFixed(0)}</b> SOL</span>` : ''}
+                ${c.total_sol_deployed ? `<span><b>${(+c.total_sol_deployed).toFixed(0)}</b> SOL${dd?dchip(dd.deployed_sol):''}</span>` : ''}
             </div>
             <div class="emerg-foot">
-                <span class="emerg-state ${state}">${state}</span>
-                <span>${ageH!=null ? 'first seen '+(ageH<48? ageH+'h':Math.round(ageH/24)+'d')+' ago' : ''} ${growingTag}</span>
+                <span class="emerg-state ${state}">${state}${dd&&dd.state_changed?' ⤴':''}</span>
+                <span>${ageH!=null ? (ageH<48? ageH+'h':Math.round(ageH/24)+'d')+' old' : ''} ${tag}</span>
             </div>
         </a>`;
     }).join('');
@@ -1839,8 +1858,18 @@ async function load() {
 
         const allClusters = clusterData.clusters || [];
 
+        // Real cluster deltas from snapshot history (empty until engine takes snapshots).
+        let growthMap = {};
+        try {
+            const gr = await fetch('/api/watchtower/operator-growth');
+            if (gr.ok) {
+                const gd = await gr.json();
+                (gd.clusters || []).forEach(g => { growthMap[g.cluster_id] = g; });
+            }
+        } catch (e) {}
+
         // ── DISCOVERY CONSOLE (primary surface) — emerging operators, metrics, funnel ──
-        renderDiscovery(allClusters, operations, watchData, candData);
+        renderDiscovery(allClusters, operations, watchData, candData, growthMap);
 
         // Classified candidates: prefer watch-candidates top_candidates, fall back to operator-candidates.
         const classifiedCands = (watchData.top_candidates && watchData.top_candidates.length > 0)

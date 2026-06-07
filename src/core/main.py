@@ -26647,6 +26647,44 @@ def api_wt_risk_axis():
     })
 
 
+@app.route('/api/watchtower/operator-growth')
+def api_wt_operator_growth():
+    """
+    Real cluster CHANGE from persisted snapshots (wt_operator_cluster_snapshots).
+    Per cluster: current metrics, 24h deltas, and a trend (GROWING/STABLE/DECLINING)
+    derived from actual snapshot-to-snapshot change — never from creation time or
+    current counts. Clusters younger than 24h report has_baseline=false (shown as
+    "new", not a fake delta). Empty until the engine has taken ≥1 snapshot.
+    """
+    from src.analysis import cluster_snapshots as _cs
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    try:
+        # READ-ONLY: never create the table here (that DDL belongs to the engine's
+        # single-writer pipeline). If the engine hasn't taken a snapshot yet, the
+        # table may not exist — return empty rather than locking on a CREATE.
+        exists = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' "
+            "AND name='wt_operator_cluster_snapshots'").fetchone()
+        rows = _cs.all_growth(conn) if exists else []
+    finally:
+        conn.close()
+    # strongest movers first: GROWING by confidence delta desc, then the rest
+    def _key(g):
+        d = g.get("deltas_24h", {})
+        return (0 if g.get("trend") == "GROWING" else 1 if g.get("trend") == "STABLE" else 2,
+                -((d.get("confidence") or 0)), -((d.get("token_count") or 0)))
+    rows.sort(key=_key)
+    from collections import Counter
+    trend_counts = Counter(g.get("trend") for g in rows)
+    return jsonify({
+        "clusters": rows,
+        "total": len(rows),
+        "by_trend": dict(trend_counts),
+        "has_history": len(rows) > 0,
+    })
+
+
 @app.route('/api/watchtower/creators')
 def api_wt_creators():
     """Creator wallets with evidence grades, token output, and outcomes."""
@@ -30805,6 +30843,15 @@ def _run_watch_pipeline(conn: sqlite3.Connection) -> dict:
     total = _build_watch_candidates(conn)
     counts = _classify_all_watch_candidates(conn)
     clusters = _build_watch_clusters(conn)
+    # Cluster history telemetry: append one snapshot per cluster per cycle, AFTER
+    # scoring, so Discovery Mode can show real change (deltas), not inferred growth.
+    # Append-only, idempotent, non-fatal.
+    cluster_snapshots = 0
+    try:
+        from src.analysis import cluster_snapshots as _cs
+        cluster_snapshots = _cs.take_snapshot(conn)
+    except Exception as _se:
+        print(f"[WATCHTOWER] cluster snapshot error: {_se}", flush=True)
     operations = _discover_operations(conn)
     # Creator-layer WATCHTOWER refresh (scoped) — runs after operation discovery so
     # op members are available as candidates. Distinct from the operation layer.
@@ -30823,6 +30870,7 @@ def _run_watch_pipeline(conn: sqlite3.Connection) -> dict:
     queued = _enqueue_hub_backfill(conn)
     proposals = _propose_identity_changes(conn)
     return {"total": total, "classified": counts, "clusters_built": clusters,
+            "cluster_snapshots": cluster_snapshots,
             "operations": operations, "backfill_queued": queued,
             "identity_proposals": proposals, "wt_creator_refresh": wt_creator_refresh,
             "reservoir": reservoir_stats}

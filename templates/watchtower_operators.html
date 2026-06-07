@@ -164,6 +164,7 @@
     line-height: 1.5; font-style: italic;
 }
 
+
 /* ── CANDIDATE TABLE ──────────────────────────────────────────── */
 .cand-table { width: 100%; border-collapse: collapse; }
 .cand-table th {
@@ -278,16 +279,223 @@
 .last-updated {
     font-size: 9px; color: var(--text-dim); text-align: right; margin-top: 8px;
 }
+
+/* ══ LIVE COMMAND CENTER ═══════════════════════════════════════════ */
+.cc-section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-sec); margin: 0 0 8px;
+    display: flex; align-items: center; gap: 8px;
+}
+.cc-section-label .cc-live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--state-active); box-shadow: 0 0 6px var(--state-active);
+    animation: cc-pulse 2s ease-in-out infinite;
+}
+.cc-section-label.idle .cc-live-dot { background: var(--text-dim); box-shadow: none; animation: none; }
+@keyframes cc-pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* status row — 6 big counters */
+.cc-status-row {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 8px; margin-bottom: 16px;
+}
+@media (max-width:1200px){ .cc-status-row{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:700px) { .cc-status-row{grid-template-columns:repeat(2,1fr)} }
+.cc-stat {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 14px; position: relative; overflow: hidden;
+}
+.cc-stat.hot { border-color: var(--col-red); }
+.cc-stat.hot::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--col-red);
+}
+.cc-stat-val   { font-size: 26px; font-weight: 800; color: var(--text-pri); line-height: 1; }
+.cc-stat-val.green { color: var(--state-active); }
+.cc-stat-val.amber { color: var(--col-amber); }
+.cc-stat-val.red   { color: var(--col-red); }
+.cc-stat-val.cyan  { color: var(--col-cyan); }
+.cc-stat-val.dim   { color: var(--text-dim); }
+.cc-stat-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
+
+/* command-center grid: feed | (review over reservoir) */
+.cc-grid {
+    display: grid; grid-template-columns: 1fr 360px;
+    gap: 12px; align-items: start; margin-bottom: 16px;
+}
+@media (max-width:1100px){ .cc-grid{grid-template-columns:1fr} }
+.cc-col { display: flex; flex-direction: column; gap: 12px; }
+
+/* live event feed */
+.cc-feed { max-height: 460px; overflow-y: auto; }
+.cc-feed-row {
+    display: grid; grid-template-columns: 64px 168px 1fr;
+    gap: 10px; align-items: baseline;
+    padding: 8px 14px; border-bottom: 1px solid var(--border);
+    font-size: 11px;
+}
+.cc-feed-row:last-child { border-bottom: none; }
+.cc-feed-row:hover { background: var(--bg-card2); }
+.cc-feed-time { font-family: monospace; font-size: 10px; color: var(--text-dim); }
+.cc-feed-type {
+    font-size: 9px; font-weight: 700; letter-spacing: .04em;
+    padding: 2px 6px; border-radius: 3px; white-space: nowrap; text-align: center;
+}
+.cc-evt-NEW_PROVISIONING_HUB { background: rgba(167,139,250,.15); color: var(--col-purple); }
+.cc-evt-HUB_ARMED            { background: rgba(248,81,73,.15);  color: var(--col-red); }
+.cc-evt-CREATOR_SEEDED       { background: rgba(34,211,238,.12); color: var(--col-cyan); }
+.cc-evt-CREATE_DETECTED      { background: rgba(245,158,11,.15); color: var(--col-amber); }
+.cc-evt-RESERVOIR_CONVERTED  { background: rgba(63,185,80,.15);  color: var(--state-active); }
+.cc-evt-OPERATION_CREATED    { background: rgba(34,211,238,.15); color: var(--col-cyan); }
+.cc-evt-WATCHTOWER_ATTRIBUTED{ background: rgba(139,148,158,.12);color: var(--text-sec); }
+.cc-feed-detail { color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-feed-detail .addr { font-family: monospace; color: var(--text-pri); }
+
+/* needs-review queue */
+.cc-review-row {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.cc-review-row:last-child { border-bottom: none; }
+.cc-review-row:hover { background: var(--bg-card2); }
+.cc-review-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cc-review-addr { font-family: monospace; font-size: 11px; color: var(--text-pri); }
+.cc-review-age  { font-size: 10px; color: var(--text-dim); font-family: monospace; }
+.cc-review-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.cc-review-reason { font-size: 10px; color: var(--text-sec); }
+.cc-review-conf {
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px;
+}
+.cc-review-conf.high { background: rgba(248,81,73,.15); color: var(--col-red); }
+.cc-review-conf.med  { background: rgba(245,158,11,.15); color: var(--col-amber); }
+.cc-review-conf.low  { background: rgba(139,148,158,.12); color: var(--text-dim); }
+
+/* reservoir / pipeline mini-stats */
+.cc-mini-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); }
+.cc-mini { background: var(--bg-card); padding: 10px 14px; }
+.cc-mini-val   { font-size: 18px; font-weight: 700; color: var(--text-pri); }
+.cc-mini-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .07em; margin-top: 3px; }
+
+/* hub monitor table */
+.cc-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.cc-table th {
+    text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-dim); font-weight: 600; padding: 7px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.cc-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); color: var(--text-sec); }
+.cc-table tr:last-child td { border-bottom: none; }
+.cc-table tr:hover td { background: var(--bg-card2); }
+.cc-table .addr { font-family: monospace; color: var(--text-pri); }
+.cc-hub-badge {
+    font-size: 8px; font-weight: 700; letter-spacing: .05em; padding: 1px 6px; border-radius: 3px;
+}
+.cc-hub-badge.ACTIVE    { background: rgba(63,185,80,.15);  color: var(--state-active); }
+.cc-hub-badge.ARMED     { background: rgba(248,81,73,.15);  color: var(--col-red); }
+.cc-hub-badge.EXPIRED   { background: rgba(110,118,129,.15);color: var(--text-dim); }
+.cc-hub-badge.CONFIRMED { background: rgba(34,211,238,.12); color: var(--col-cyan); }
+
+/* launch pipeline */
+.cc-pipeline { display: flex; align-items: stretch; gap: 0; padding: 14px; flex-wrap: wrap; }
+.cc-pipe-stage {
+    flex: 1; min-width: 80px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.cc-pipe-val   { font-size: 22px; font-weight: 800; color: var(--text-pri); line-height: 1; }
+.cc-pipe-val.zero { color: var(--text-dim); }
+.cc-pipe-label { font-size: 8px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); margin-top: 5px; }
+.cc-pipe-arrow { display: flex; align-items: center; color: var(--text-dim); font-size: 14px; padding: 0 2px; }
+
+.cc-empty { text-align: center; padding: 28px 16px; color: var(--text-dim); font-size: 11px; }
+.cc-empty .cc-empty-icon { font-size: 22px; opacity: .35; margin-bottom: 6px; }
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <div class="page-title">⬡ WATCHTOWER — Swarm Operators</div>
-        <div class="page-sub">Operator cluster intelligence · migration scan + behavioral fingerprinting</div>
+        <div class="page-title">⬡ WATCHTOWER — Operations Command Center</div>
+        <div class="page-sub">Live adversary-operation monitor · hubs · reservoir · ignition · lineage attribution</div>
     </div>
     <button class="refresh-btn" onclick="load()">↺ Refresh</button>
 </div>
+
+<!-- ══ SECTION 1 — LIVE STATUS ═══════════════════════════════════════ -->
+<div class="cc-section-label" id="cc-live-label"><span class="cc-live-dot"></span> WATCHTOWER LIVE STATUS</div>
+<div class="cc-status-row" id="cc-status-row">
+    <div class="cc-stat"><div class="cc-stat-val green"  id="cc-active-hubs">—</div><div class="cc-stat-label">Active Hubs</div></div>
+    <div class="cc-stat"><div class="cc-stat-val red"    id="cc-armed-hubs">—</div><div class="cc-stat-label">Armed Hubs</div></div>
+    <div class="cc-stat"><div class="cc-stat-val amber"  id="cc-pending">—</div><div class="cc-stat-label">Pending Creators</div></div>
+    <div class="cc-stat"><div class="cc-stat-val cyan"   id="cc-res-dormant">—</div><div class="cc-stat-label">Reservoir Dormant</div></div>
+    <div class="cc-stat"><div class="cc-stat-val green"  id="cc-res-converted">—</div><div class="cc-stat-label">Reservoir Converted</div></div>
+    <div class="cc-stat"><div class="cc-stat-val cyan"   id="cc-new-ops">—</div><div class="cc-stat-label">New Operations (24h)</div></div>
+</div>
+
+<div class="cc-grid">
+    <!-- SECTION 2 — Live Event Feed -->
+    <div class="cc-col">
+        <div class="panel">
+            <div class="panel-hdr">
+                <span>Live Event Feed</span>
+                <span class="panel-hdr-badge" id="cc-feed-count">0</span>
+            </div>
+            <div class="cc-feed" id="cc-feed">
+                <div class="cc-empty"><div class="cc-empty-icon">◷</div>Loading…</div>
+            </div>
+        </div>
+
+        <!-- SECTION 6 — Launch Pipeline -->
+        <div class="panel">
+            <div class="panel-hdr"><span>Launch Pipeline</span><span class="panel-hdr-badge">standing posture</span></div>
+            <div class="cc-pipeline" id="cc-pipeline">
+                <div class="cc-empty" style="width:100%"><div class="cc-empty-icon">⌗</div>Loading…</div>
+            </div>
+        </div>
+
+        <!-- SECTION 5 — Provisioning Hub Monitor -->
+        <div class="panel">
+            <div class="panel-hdr">
+                <span>Provisioning Hub Monitor</span>
+                <span class="panel-hdr-badge" id="cc-hub-summary">—</span>
+            </div>
+            <div id="cc-hub-table">
+                <div class="cc-empty"><div class="cc-empty-icon">⬡</div>Loading hubs…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: Needs Review + Reservoir -->
+    <div class="cc-col">
+        <!-- SECTION 3 — Immediate Attention Queue -->
+        <div class="panel">
+            <div class="panel-hdr">
+                <span>Needs Review</span>
+                <span class="panel-hdr-badge" id="cc-review-count">0</span>
+            </div>
+            <div id="cc-review" style="max-height:340px;overflow-y:auto">
+                <div class="cc-empty"><div class="cc-empty-icon">⚑</div>Loading…</div>
+            </div>
+        </div>
+
+        <!-- SECTION 4 — Reservoir Monitor -->
+        <div class="panel">
+            <div class="panel-hdr"><span>Reservoir Monitor</span><span class="panel-hdr-badge">relay-funded pool</span></div>
+            <div class="cc-mini-stats">
+                <div class="cc-mini"><div class="cc-mini-val cyan" id="cc-res-d2">—</div><div class="cc-mini-label">Dormant</div></div>
+                <div class="cc-mini"><div class="cc-mini-val" id="cc-res-c2">—</div><div class="cc-mini-label">Converted</div></div>
+                <div class="cc-mini"><div class="cc-mini-val" id="cc-res-rate">—</div><div class="cc-mini-label">Conversion Rate</div></div>
+                <div class="cc-mini"><div class="cc-mini-val" id="cc-res-age">—</div><div class="cc-mini-label">Median Age</div></div>
+            </div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);padding:8px 14px 0">Recent Conversions</div>
+            <div id="cc-conversions">
+                <div class="cc-empty"><div class="cc-empty-icon">○</div>No conversions yet</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ SECTION 7 — HISTORICAL CAMPAIGN ANALYSIS (secondary) ═════════ -->
+<div class="cc-section-label idle" style="margin-top:24px">
+    <span class="cc-live-dot"></span> HISTORICAL CAMPAIGN ANALYSIS
+</div>
+<div class="page-sub" style="margin:-4px 0 12px">Investigative context — discovered clusters, corridor operations, Apr–May fingerprint campaigns. Not operational priority.</div>
 
 <!-- Reference fingerprint banner (WATCH — known operator, monitored by WATCHTOWER) -->
 <div class="ref-banner" id="ref-banner" style="display:none">
@@ -308,22 +516,81 @@
     <div class="ref-stats" id="ref-stats"></div>
 </div>
 
+<!-- Health banner (populated by engine-status; hidden when healthy) -->
+<div id="health-banner" style="display:none;margin-bottom:10px"></div>
+
+<!-- Engine status cards — freshness / pipeline health -->
+<div class="summary-strip" style="margin-bottom:10px">
+    <div class="scard" style="min-width:200px">
+        <div style="display:flex;align-items:center;gap:6px">
+            <span id="eng-dot" style="font-size:12px;color:var(--text-dim)">●</span>
+            <span id="eng-state" style="font-size:13px;font-weight:700;color:var(--text-pri)">—</span>
+        </div>
+        <div class="scard-label" style="margin-top:5px">Operations Engine</div>
+        <div class="scard-sub" id="eng-lastrun">Last run: —</div>
+        <div class="scard-sub" id="eng-age">Age: —</div>
+        <div class="scard-sub" id="eng-next">Next run: —</div>
+    </div>
+    <div class="scard" style="min-width:180px">
+        <div style="font-size:13px;font-weight:700;color:var(--state-active)">AUTO · ENABLED</div>
+        <div class="scard-label" style="margin-top:5px">Auto Discovery</div>
+        <div class="scard-sub" id="disc-cadence">Every 15 min · not on page refresh</div>
+        <div class="scard-sub" id="disc-counts">— discovered</div>
+        <div class="scard-sub" id="disc-split">— confirmed · — unknown</div>
+    </div>
+    <div class="scard" style="min-width:180px">
+        <div id="bf-status" style="font-size:13px;font-weight:700;color:var(--text-dim)">—</div>
+        <div class="scard-label" style="margin-top:5px">Hub Backfill</div>
+        <div class="scard-sub" id="bf-lasttrace">Last trace: —</div>
+        <div class="scard-sub" id="bf-queue">Queue: — · Processed: —</div>
+        <div class="scard-sub" id="bf-progress">Progress: — · Errors: —</div>
+    </div>
+</div>
+
 <!-- Summary strip -->
 <div class="summary-strip">
+    <div class="scard"><div class="scard-val purple" id="s-scan-coverage">—</div><div class="scard-label">WATCH Scanned</div><div class="scard-sub">% of WATCH tokens</div></div>
     <div class="scard"><div class="scard-val dim" id="s-clusters">—</div><div class="scard-label">Discovered Clusters</div><div class="scard-sub">unknown operators</div></div>
     <div class="scard"><div class="scard-val green" id="s-active">—</div><div class="scard-label">Active</div><div class="scard-sub">confirmed active</div></div>
     <div class="scard"><div class="scard-val amber" id="s-candidates">—</div><div class="scard-label">Candidates</div><div class="scard-sub">tokens evaluated</div></div>
     <div class="scard"><div class="scard-val cyan" id="s-possible">—</div><div class="scard-label">Possible Swarms</div><div class="scard-sub">confidence ≥ 0.4</div></div>
-    <div class="scard"><div class="scard-val purple" id="s-hit-rate">—</div><div class="scard-label">Hit Rate</div><div class="scard-sub">possible / evaluated</div></div>
     <div class="scard"><div class="scard-val dim" id="s-watch-ops">35</div><div class="scard-label">WATCH Ops</div><div class="scard-sub">Apr–May 2026</div></div>
 </div>
+
 
 <!-- Main layout -->
 <div class="op-layout">
 
-    <!-- Left: cluster list -->
+    <!-- Left: operations + cluster list -->
     <div>
-        <div class="section-label">Discovered Operators</div>
+        <div class="section-label">Hub Backfill &amp; Identity Proposals (Safe Mode)</div>
+        <div class="panel" style="margin-bottom:12px;">
+            <div class="panel-hdr">
+                <span>Operator-Identity Proposals — review before apply</span>
+                <span class="panel-hdr-badge" id="prop-count">0</span>
+            </div>
+            <div id="backfill-status" style="font-size:10px;color:var(--text-dim);padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.06)"></div>
+            <div id="proposals-list">
+                <div class="empty-state" style="padding:14px"><div class="empty-hint">No proposals yet — hub backfill tracing in progress</div></div>
+            </div>
+        </div>
+
+        <div class="section-label">Discovered Operations</div>
+        <div class="panel" style="margin-bottom:12px;">
+            <div class="panel-hdr">
+                <span>Operations (TOKEN → OPERATION → OPERATOR)</span>
+                <span class="panel-hdr-badge" id="ops-count">0</span>
+            </div>
+            <div id="ops-list">
+                <div class="empty-state">
+                    <div class="empty-icon">◎</div>
+                    <div>Discovering operations…</div>
+                    <div class="empty-hint">Auto-grouped by funding corridor + timing burst + fresh creators</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-label">Operator Clusters</div>
         <div class="panel">
             <div class="panel-hdr">
                 <span>Unknown Operator Clusters</span>
@@ -341,7 +608,7 @@
         <!-- Candidates panel (top probable) -->
         <div class="panel" style="margin-top:12px;">
             <div class="panel-hdr">
-                <span>Top Swarm Candidates</span>
+                <span>Top Swarm Candidates <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0">· live launches + classified</span></span>
                 <span class="panel-hdr-badge" id="cand-count">0</span>
             </div>
             <div id="cand-table-wrap">
@@ -469,6 +736,18 @@ function truncAddr(addr, n=8) {
     return addr.slice(0,n)+'…'+addr.slice(-4);
 }
 
+function copyToClipboard(text, elem) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = elem.textContent;
+        elem.textContent = '✓ Copied';
+        elem.style.color = 'var(--state-active)';
+        setTimeout(() => {
+            elem.textContent = orig;
+            elem.style.color = '';
+        }, 2000);
+    }).catch(() => alert('Failed to copy'));
+}
+
 function confPill(c) {
     if (c == null) return '<span class="conf-pill low">?</span>';
     const cls = c >= 0.7 ? 'high' : c >= 0.4 ? 'medium' : 'low';
@@ -531,10 +810,48 @@ function renderClusters(clusters) {
         </div>` : '';
 
         const treasury = c.treasury_wallet
-            ? `<div class="cluster-treasury">Treasury: <span title="${c.treasury_wallet}">${truncAddr(c.treasury_wallet, 10)}</span></div>`
+            ? `<div class="cluster-treasury">Treasury: <span class="copyable-addr" title="Click to copy" onclick="copyToClipboard('${c.treasury_wallet}', this)" style="cursor:pointer;border-bottom:1px dashed rgba(230,237,243,.3);transition:all .15s;">${truncAddr(c.treasury_wallet, 10)}</span></div>`
             : '';
 
         const firstSeen = c.first_seen ? new Date(c.first_seen*1000).toLocaleDateString() : '—';
+
+        // Operator classification badge
+        const oc = c.operator_classification || c.state || 'UNKNOWN';
+        const ocColors = {
+            'WATCHTOWER':       '#f85149',
+            'WATCH_LIKE_NEW_OP':'#eab308',
+            'UNKNOWN':          'var(--text-dim)',
+        };
+        const ocBadge = `<span style="font-size:9px;font-weight:700;color:${ocColors[oc]||'var(--text-dim)'};letter-spacing:0.3px">${oc.replace(/_/g,' ')}</span>`;
+
+        // Alpha-family tag
+        const alphaBadge = c.is_alpha_family
+            ? `<span style="font-size:9px;font-weight:700;color:#c084fc;background:rgba(192,132,252,.15);padding:1px 6px;border-radius:3px;margin-left:6px;letter-spacing:.3px" title="Operation Alpha family — fingerprint-fanout campaign (${c.alpha_family_count||0}/${c.member_count||0} members), no WATCHTOWER treasury link">α ALPHA FAMILY</span>`
+            : '';
+
+        // Funding origin stacked bar
+        const fo = c.funding_origins || {};
+        const foTotal = fo.total || 1;
+        const foBar = foTotal > 0 ? (() => {
+            const segs = [
+                ['WATCH_INTERNAL',   '#3fb950', fo.WATCH_INTERNAL   || 0],
+                ['CEX_FUNDED',       '#d97706', fo.CEX_FUNDED       || 0],
+                ['SERVICE_PROVIDER', '#22d3ee', fo.SERVICE_PROVIDER || 0],
+                ['MIXED',            '#a78bfa', fo.MIXED            || 0],
+                ['UNKNOWN',          'rgba(100,110,120,.4)', fo.UNKNOWN || 0],
+            ].filter(s => s[2] > 0);
+            const bars = segs.map(([label, col, n]) =>
+                `<div title="${label}: ${n} (${Math.round(100*n/foTotal)}%)" style="flex:${n};background:${col};height:6px;min-width:2px"></div>`
+            ).join('');
+            const legend = segs.map(([label, col, n]) =>
+                `<span style="color:${col};font-size:9px">${label.replace('_',' ')}: ${Math.round(100*n/foTotal)}%</span>`
+            ).join(' · ');
+            return `<div style="margin-top:6px">
+                <div style="font-size:9px;color:var(--text-dim);margin-bottom:3px">Funding Origin</div>
+                <div style="display:flex;border-radius:3px;overflow:hidden;height:6px;gap:1px">${bars}</div>
+                <div style="margin-top:3px;line-height:1.6">${legend}</div>
+            </div>`;
+        })() : '';
 
         return `<div class="cluster-card">
             <div class="cluster-top">
@@ -544,6 +861,7 @@ function renderClusters(clusters) {
                         <span class="cluster-id-badge">#${c.cluster_id}</span>
                         ${c.origin === 'seed' ? '<span style="font-size:9px;color:var(--text-dim);font-weight:400">seed</span>' : ''}
                     </div>
+                    ${ocBadge}${alphaBadge}
                     ${treasury}
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
@@ -557,16 +875,49 @@ function renderClusters(clusters) {
                 </div>
             </div>
             <div class="cluster-stats">
-                <div class="cstat green">Tokens: <b>${fmtNum(c.token_count)}</b></div>
-                <div class="cstat">Provisioners: <b>${fmtNum(c.provisioner_count)}</b></div>
+                <div class="cstat green">Tokens: <b>${fmtNum(c.watch_token_count || c.token_count)}</b></div>
+                <div class="cstat">Members: <b>${fmtNum(c.member_count)}</b></div>
                 <div class="cstat amber">Deployed: <b>${fmtSol(c.total_sol_deployed)}</b></div>
-                <div class="cstat cyan">Candidates: <b>${fmtNum(c.candidates_evaluated)}</b></div>
                 <div class="cstat">First seen: <b>${firstSeen}</b></div>
             </div>
+            ${foBar}
             ${fpSection}
-            ${c.notes ? `<div class="cluster-notes">${c.notes}</div>` : ''}
+            ${c.notes ? `<div class="cluster-notes" style="margin-top:6px;font-size:10px;color:var(--text-dim)">${c.notes}</div>` : ''}
         </div>`;
     }).join('');
+}
+
+function renderWatchTokens(tokens) {
+    if (!tokens || tokens.length === 0) {
+        return `<div class="empty-state"><div>No WATCH tokens found</div></div>`;
+    }
+    const rows = tokens.map(t => {
+        const rawName = (t.token_name || t.symbol || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+        const sym    = rawName ? `<b style="color:var(--text-pri)">${rawName.slice(0,20)}</b>` : '<span style="color:var(--text-dim)">—</span>';
+        const score  = t.prediction_score != null ? t.prediction_score : '—';
+        const label  = t.prediction_label || '—';
+        const mc     = t.market_cap_usd ? '$' + fmtNum(Math.round(t.market_cap_usd)) : '—';
+        const mcPeak = t.market_cap_highest ? '$' + fmtNum(Math.round(t.market_cap_highest)) : '—';
+        const creator = t.creator_address ? `<span style="font-family:monospace;font-size:10px;color:var(--text-dim);cursor:pointer" onclick="copyAddr('${t.creator_address}',this)" title="${t.creator_address}">${t.creator_address.slice(0,10)}…</span>` : '—';
+        const mint   = `<span class="mint-addr" style="cursor:pointer;font-family:monospace;font-size:10px" onclick="copyAddr('${t.mint}',this)" title="${t.mint}">${t.mint.slice(0,10)}…</span>`;
+        const labelColor = label === 'WATCH' ? 'var(--col-purple)' : label === 'FRESH_UNLINKED_EVENT' ? '#a78bfa' : 'var(--text-dim)';
+        return `<tr>
+            <td>${sym}</td>
+            <td>${mint}</td>
+            <td style="color:var(--text-sec);font-size:10px">${score}</td>
+            <td><span style="color:${labelColor};font-size:9px;font-weight:600">${label.replace(/_/g,' ')}</span></td>
+            <td style="color:var(--text-sec);font-size:10px">${mc}</td>
+            <td style="color:var(--text-sec);font-size:10px">${mcPeak}</td>
+            <td>${creator}</td>
+        </tr>`;
+    }).join('');
+    return `<table class="cand-table">
+        <thead><tr>
+            <th>Symbol</th><th>Mint</th><th>Score</th><th>Label</th>
+            <th>MC</th><th>Peak MC</th><th>Creator</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
 }
 
 function renderCandidates(candidates) {
@@ -577,91 +928,115 @@ function renderCandidates(candidates) {
             <div class="empty-hint">Scanner polls migrated tokens every 5 min</div>
         </div>`;
     }
-    const rows = candidates.map(c => {
-        const ts      = c.scanned_at ? new Date(c.scanned_at*1000).toLocaleTimeString() : '—';
-        let ev = {};
-        try { ev = JSON.parse(c.evidence_json || '{}'); } catch(e) {}
 
-        // Fall back to evidence_json for fields not written to DB columns on NOT_SWARM
-        const buyers  = c.unique_buyers      ?? ev.unique_buyers;
-        const winS    = c.buy_window_s       ?? ev.buy_window_s;
-        const fanout  = c.median_funding_sol ?? ev.median_funding_sol;
-        const stddev  = ev.stddev_ratio;
-        const opClass = c.operator_class     ?? ev.operator_class;
+    // Sort by provisioner so same provisioners are adjacent, WATCHTOWER first
+    const opOrder = {'WATCHTOWER': 0, 'OTHER_OP': 1, 'UNRESOLVED': 2};
+    candidates = [...candidates].sort((a, b) => {
+        let aEv = {}, bEv = {};
+        try { aEv = JSON.parse(a.evidence_json || '{}'); } catch(e) {}
+        try { bEv = JSON.parse(b.evidence_json || '{}'); } catch(e) {}
+        const aOp = a.operation || aEv.operation || '';
+        const bOp = b.operation || bEv.operation || '';
+        const oDiff = (opOrder[aOp] ?? 3) - (opOrder[bOp] ?? 3);
+        if (oDiff !== 0) return oDiff;
+        const aProv = a.provisioner_wallet || aEv.provisioner || '';
+        const bProv = b.provisioner_wallet || bEv.provisioner || '';
+        return aProv.localeCompare(bProv);
+    });
 
-        const buyersD = buyers != null ? (+buyers).toLocaleString() : '—';
-        const winD    = winS   != null ? winS+'s' : '—';
-        const fanoutD = fanout != null ? (+fanout).toFixed(4) : '—';
-        const stddevD = stddev != null ? (+stddev).toFixed(2) : '—';
-        const provAddr = c.provisioner_wallet || ev.provisioner || null;
-        const prov     = provAddr ? truncAddr(provAddr) : '—';
-        const clust   = c.cluster_id ? `<span style="color:var(--col-cyan)">#${c.cluster_id}</span>` : '—';
+    let html = `<table class="cand-table">
+        <thead><tr>
+            <th>Mint</th><th>Operator</th><th>Signal</th><th>Conf</th>
+            <th>Funding Origin</th><th>SOL Flows</th>
+            <th>Score</th><th>Cluster</th>
+            <th>Creator</th><th>Added</th>
+        </tr></thead><tbody>`;
 
-        const classColors = {
-            'INDUSTRIAL_SWARM':       ['#eab308','rgba(234,179,8,.12)'],
-            'LARGE_SWARM':            ['#34d399','rgba(52,211,153,.1)'],
-            'SMALL_COORDINATED_SWARM':['#22d3ee','rgba(34,211,238,.1)'],
-            'POSSIBLE_STEALTH':       ['#a78bfa','rgba(167,139,250,.12)'],
-        };
+    for (const c of candidates) {
+        // Live launches show relative age ("12s"); classified rows show clock time.
+        const ts = c.scanned_at
+            ? (c.is_recent_live ? ccAgo(c.scanned_at) : new Date(c.scanned_at*1000).toLocaleTimeString())
+            : '—';
 
-        let outcomeCell;
-        if (c.state === 'ALREADY_ATTRIBUTED') {
-            const reason = (ev.reason || '').replace(/wt_/g,'').replace(/_/g,' ');
-            outcomeCell = `<span style="color:var(--col-yellow);font-size:9px" title="${ev.reason || ''}">⬡ ${reason}</span>`;
-        } else if (c.state === 'SCANNING') {
-            outcomeCell = `<span style="color:var(--text-dim);font-size:9px">SCANNING…</span>`;
-        } else if (c.state === 'POSSIBLE_SWARM') {
-            const cls = opClass || 'POSSIBLE_SWARM';
-            const [col, bg] = classColors[cls] || ['#3fb950','rgba(63,185,80,.12)'];
-            const label = cls.replace(/_/g,' ');
-            outcomeCell = `<span style="color:${col};background:${bg};font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px">${label}</span>`;
-        } else if (c.state === 'NOT_SWARM') {
-            const reason = (ev.reason || '').replace(/_/g,' ');
-            outcomeCell = `<span style="color:var(--text-dim);font-size:9px" title="${ev.reason || ''}">${reason || 'not swarm'}</span>`;
+        const classified = c.classified_as || c.operator_class || null;
+        const classConf  = c.classification_conf ?? c.confidence ?? null;
+        const classReason = c.classification_reason || null;
+        const confD = classConf != null ? (classConf * 100).toFixed(0) + '%' : '—';
+
+        // Single operator identity badge — Alpha takes precedence, then WATCHTOWER, then NEW OP
+        let operatorCell;
+        if (c.is_alpha_family) {
+            operatorCell = `<span style="color:#c084fc;background:rgba(192,132,252,.15);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px" title="Operation Alpha family — fingerprint-fanout campaign, no WATCHTOWER treasury link. ${classReason||''}">α ALPHA</span>`;
+        } else if (classified === 'WATCHTOWER') {
+            operatorCell = `<span style="color:#f85149;background:rgba(248,81,73,.12);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px" title="${classReason||''}">⬡ WATCHTOWER</span>`;
+        } else if (classified === 'WATCH_LIKE_NEW_OP') {
+            operatorCell = `<span style="color:#eab308;background:rgba(234,179,8,.12);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px" title="${classReason||''}">NEW OP</span>`;
+        } else if (classified === 'UNCLASSIFIED') {
+            operatorCell = `<span style="color:#22d3ee;background:rgba(34,211,238,.12);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px" title="Live WATCH launch — flagged but not yet swarm-classified. ${classReason||''}">● NEW</span>`;
         } else {
-            outcomeCell = `<span style="color:var(--text-dim);font-size:9px">${c.state || '—'}</span>`;
+            operatorCell = `<span style="color:var(--text-dim);font-size:9px" title="${classReason||''}">UNKNOWN</span>`;
         }
 
-        // Highlight interesting near-misses: buyers OK, window tight, but funding variable
-        const nearMiss = c.state === 'NOT_SWARM'
-            && buyers >= 25 && winS != null && winS < 300
-            && (ev.reason || '').includes('variable');
-
-        const rowStyle = c.state === 'POSSIBLE_SWARM'
-            ? 'background:rgba(63,185,80,.04);'
-            : nearMiss
+        const rowStyle = c.is_alpha_family
+            ? 'background:rgba(192,132,252,.05);'
+            : classified === 'WATCHTOWER'
+            ? 'background:rgba(248,81,73,.04);'
+            : classified === 'WATCH_LIKE_NEW_OP'
             ? 'background:rgba(234,179,8,.03);'
-            : c.state === 'SCANNING'
-            ? 'opacity:.7;'
+            : classified === 'UNCLASSIFIED'
+            ? 'background:rgba(34,211,238,.04);'
             : '';
 
-        // stddev colour — tight is interesting
-        const stddevColor = stddev == null ? 'var(--text-dim)'
-            : stddev < 0.10 ? '#3fb950'
-            : stddev < 0.25 ? '#d97706'
-            : 'var(--text-dim)';
+        // Operation cell shows classification reason + confidence
+        let opCell = classReason
+            ? `<span style="color:var(--text-sec);font-size:9px" title="${classReason}">${classReason.replace(/_/g,' ').slice(0,30)}</span>`
+            : '—';
 
-        return `<tr style="${rowStyle}">
-            <td><span class="mint-addr" title="Click to copy: ${c.token_mint}" style="cursor:pointer" onclick="copyAddr('${c.token_mint}', this)">${truncAddr(c.token_mint, 10)}</span></td>
-            <td>${outcomeCell}</td>
-            <td style="color:var(--text-sec)">${buyersD}</td>
-            <td style="color:var(--text-sec)">${winD}</td>
-            <td style="color:var(--text-sec)">${fanoutD}</td>
-            <td style="color:${stddevColor};font-family:monospace;font-size:10px">${stddevD}</td>
-            <td><span style="font-family:monospace;font-size:10px;color:var(--text-dim);${provAddr ? 'cursor:pointer' : ''}" title="${provAddr ? 'Click to copy: '+provAddr : '—'}" onclick="${provAddr ? `copyAddr('${provAddr}', this)` : ''}">${prov}</span></td>
-            <td>${clust}</td>
+        const solFlows = c.has_sol_flows ? `<span style="color:#3fb950;font-size:9px">✓</span>` : `<span style="color:var(--text-dim);font-size:9px">—</span>`;
+        const scoreD  = c.prediction_score != null ? c.prediction_score : '—';
+        const clustD  = c.cluster_id ? `<span style="color:var(--col-cyan)">#${c.cluster_id}</span>` : '—';
+        const creatorAddr = c.creator_address || c.provisioner_wallet || null;
+        let creatorCell = creatorAddr
+            ? `<span style="font-family:monospace;font-size:10px;color:var(--text-dim);cursor:pointer" onclick="copyAddr('${creatorAddr}',this)" title="${creatorAddr}">${creatorAddr.slice(0,10)}…</span>`
+            : '—';
+
+        // Funding origin badge
+        const fo = c.funding_origin || 'UNKNOWN';
+        const fr = c.funding_reason || '';
+        const foColors = {
+            'WATCH_INTERNAL':   ['#3fb950','rgba(63,185,80,.12)'],
+            'CEX_FUNDED':       ['#d97706','rgba(217,119,6,.12)'],
+            'SERVICE_PROVIDER': ['#22d3ee','rgba(34,211,238,.12)'],
+            'MIXED':            ['#a78bfa','rgba(167,139,250,.12)'],
+            'UNKNOWN':          ['var(--text-dim)','transparent'],
+        };
+        const [foCol, foBg] = foColors[fo] || foColors['UNKNOWN'];
+        const foShort = fo === 'WATCH_INTERNAL' ? 'WT INTERNAL'
+                      : fo === 'CEX_FUNDED'     ? (fr === 'retail_scatter' ? 'RETAIL SCATTER' : 'CEX')
+                      : fo === 'SERVICE_PROVIDER' ? 'SERVICE'
+                      : fo === 'MIXED'           ? 'MIXED'
+                      : '?';
+        const foCell = `<span style="color:${foCol};background:${foBg};font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;white-space:nowrap" title="${fo}: ${fr}">${foShort}</span>`;
+
+        const tokenName = c.token_name
+            ? `<span style="color:var(--text-pri);font-size:10px;margin-left:6px" title="${c.token_name}">${c.token_name.slice(0,16)}</span>`
+            : '';
+        html += `<tr style="${rowStyle}">
+            <td><a href="/watchtower/candidate/${c.token_mint}" style="font-family:monospace;font-size:10px;color:var(--col-cyan);text-decoration:none" title="View chain diagram">${truncAddr(c.token_mint, 10)}</a>${tokenName}</td>
+            <td>${operatorCell}</td>
+            <td>${opCell}</td>
+            <td style="color:var(--text-sec);font-family:monospace;font-size:10px">${confD}</td>
+            <td>${foCell}</td>
+            <td>${solFlows}</td>
+            <td style="color:var(--text-sec)">${scoreD}</td>
+            <td>${clustD}</td>
+            <td>${creatorCell}</td>
             <td style="color:var(--text-dim);font-size:10px">${ts}</td>
         </tr>`;
-    }).join('');
+    }
 
-    return `<table class="cand-table">
-        <thead><tr>
-            <th>Mint</th><th>Result</th><th>Buyers</th><th>Window</th>
-            <th>Fanout SOL</th><th title="stddev/median — lower = tighter cluster">Stddev</th>
-            <th>Provisioner</th><th>Cluster</th><th>Scanned</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-    </table>`;
+    html += `</tbody></table>`;
+    return html;
 }
 
 function renderFingerprints(clusters) {
@@ -685,56 +1060,542 @@ function renderFingerprints(clusters) {
     }).join('');
 }
 
+function renderOperations(ops) {
+    if (!ops || ops.length === 0) {
+        return `<div class="empty-state"><div class="empty-icon">◎</div><div>No operations discovered yet</div></div>`;
+    }
+    const idColors = {
+        'WATCHTOWER':       ['#f85149','rgba(248,81,73,.12)','⬡ WATCHTOWER'],
+        'ALPHA':            ['#c084fc','rgba(192,132,252,.15)','α ALPHA'],
+        'UNKNOWN':          ['#eab308','rgba(234,179,8,.10)','? UNKNOWN'],
+    };
+    return ops.map(o => {
+        const [col, bg, label] = idColors[o.operator_identity] || idColors['UNKNOWN'];
+        const name = o.human_name || o.auto_name;
+        const ws = o.window_start ? new Date(o.window_start*1000).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '?';
+        const we = o.window_end   ? new Date(o.window_end*1000).toLocaleDateString(undefined,{month:'short',day:'numeric'})   : '?';
+        const sigs = (o.discovery_signals||[]).map(s=>s.replace(/_/g,' ')).join(' · ');
+        const confW = Math.round((o.confidence||0)*100);
+        // Naming UI only for UNKNOWN operations without a human name
+        // Coherence badge (orthogonal to lifecycle)
+        const cohColors = {
+            'HIGH_COHERENCE':   ['#3fb950','rgba(63,185,80,.12)','HIGH'],
+            'MEDIUM_COHERENCE': ['#d97706','rgba(217,119,6,.12)','MED'],
+            'LOW_COHERENCE':    ['#f85149','rgba(248,81,73,.14)','LOW · REVIEW'],
+        };
+        const [cohC, cohBg, cohLbl] = cohColors[o.coherence_flag] || cohColors['MEDIUM_COHERENCE'];
+        const cohBadge = `<span title="coherence ${(o.coherence_score||0).toFixed(2)} — would a human agree these belong to one operator?" style="font-size:9px;font-weight:700;color:${cohC};background:${cohBg};padding:1px 6px;border-radius:3px;margin-left:6px">◈ ${cohLbl}</span>`;
+        // Identity provenance badge — why we believe operator_identity (orthogonal to the
+        // identity itself). Suppressed when identity is UNKNOWN (the identity label already
+        // shows "? UNKNOWN", so a "? UNKNOWN" provenance chip would be redundant noise).
+        const provColors = {
+            'LINEAGE_CONFIRMED': ['#3fb950','rgba(63,185,80,.12)','✓ LINEAGE','dominant 3-hop funding root is the registered operator hub'],
+            'BEHAVIORAL_MATCH':  ['#58a6ff','rgba(88,166,255,.12)','≈ BEHAVIORAL','matches a confirmed operator by fingerprint/timing; funding lineage too sparse to prove the root'],
+            'UNKNOWN':           ['#8b949e','rgba(139,148,158,.10)','? UNKNOWN','no lineage or behavioral evidence for an operator'],
+        };
+        let provBadge = '';
+        if (o.identity_confidence && o.operator_identity !== 'UNKNOWN') {
+            const [pC, pBg, pLbl, pTip] = provColors[o.identity_confidence] || provColors['UNKNOWN'];
+            provBadge = `<span title="${pTip}" style="font-size:9px;font-weight:700;color:${pC};background:${pBg};padding:1px 6px;border-radius:3px;margin-left:6px">${pLbl}</span>`;
+        }
+        // State chip
+        const stateChips = {
+            'DISCOVERED':'<span style="font-size:9px;color:var(--text-dim)">discovered</span>',
+            'NAMED':'<span style="font-size:9px;color:#3fb950">named</span>',
+            'CONFIRMED':'<span style="font-size:9px;color:#3fb950;font-weight:700">✓ confirmed</span>',
+            'DORMANT':'<span style="font-size:9px;color:var(--text-dim)">dormant</span>',
+        };
+        const stateChip = stateChips[o.state] || '';
+
+        // Human action row: name (if unnamed) / confirm (if named) / merge / noise
+        let actions = '';
+        if (!o.human_name) {
+            actions = `<input id="opname-${o.operation_id}" placeholder="name…"
+                   style="flex:1;background:var(--bg-card2);border:1px solid rgba(255,255,255,.1);color:var(--text-pri);font-size:10px;padding:3px 6px;border-radius:3px"/>
+                 <button onclick="nameOperation(${o.operation_id})"
+                   style="background:${bg};color:${col};border:none;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;cursor:pointer">name</button>`;
+        } else if (o.state === 'NAMED') {
+            actions = `<button onclick="opAction(${o.operation_id},'confirm')"
+                   style="background:rgba(63,185,80,.15);color:#3fb950;border:none;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;cursor:pointer">✓ confirm</button>`;
+        }
+        const mergeNoise = `
+            <button onclick="opMerge(${o.operation_id})" title="merge into another operation"
+              style="background:transparent;color:var(--text-dim);border:1px solid rgba(255,255,255,.1);font-size:9px;padding:3px 6px;border-radius:3px;cursor:pointer">merge</button>
+            <button onclick="opNoise(${o.operation_id})" title="dismiss as noise"
+              style="background:transparent;color:var(--text-dim);border:1px solid rgba(255,255,255,.1);font-size:9px;padding:3px 6px;border-radius:3px;cursor:pointer">noise</button>`;
+        const actionRow = `<div style="margin-top:6px;display:flex;gap:4px;align-items:center">${actions}${mergeNoise}</div>`;
+
+        // Freshness: discovered (when first seen) vs last engine pass (updated_at)
+        const discTs = o.first_discovered_at || o.discovered_at;
+        const freshRow = `<div style="margin-top:4px;font-size:9px;color:var(--text-dim);display:flex;gap:12px">
+            <span title="when this operation was first discovered">Discovered: <b style="color:var(--text-sec)">${timeAgo(discTs)}</b></span>
+            <span title="last time the discovery engine touched this row">Last engine pass: <b style="color:var(--text-sec)">${timeAgo(o.updated_at)}</b></span>
+        </div>`;
+        // Identity establishment — only when the engine genuinely changed/established identity
+        // (identity_validated_at bumps on identity/confidence change, NOT every rebuild)
+        const idEstRow = (o.operator_identity !== 'UNKNOWN' && o.identity_validated_at)
+            ? `<div style="margin-top:2px;font-size:9px;color:var(--text-dim)">Identity established: <b style="color:var(--text-sec)">${timeAgo(o.identity_validated_at)}</b></div>`
+            : '';
+
+        return `<div class="cluster-card">
+            <div class="cluster-top">
+                <div>
+                    <div class="cluster-name">${name}
+                        <span style="font-size:9px;color:var(--text-dim);font-weight:400;margin-left:4px">${o.auto_name !== name ? o.auto_name : ''}</span>
+                    </div>
+                    <span style="font-size:10px;font-weight:700;color:${col};background:${bg};padding:1px 7px;border-radius:3px">${label}</span>
+                    ${provBadge}
+                    ${cohBadge}
+                    ${stateChip}
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                    <div class="confidence-bar-wrap">
+                        <div class="confidence-bar"><div class="confidence-fill" style="width:${confW}%"></div></div>
+                        <span class="confidence-val">${confW}% coord</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cluster-stats">
+                <div class="cstat green">Tokens: <b>${fmtNum(o.token_count)}</b></div>
+                <div class="cstat">Creators: <b>${fmtNum(o.creator_count)}</b></div>
+                <div class="cstat cyan">Corridor: <b>${o.corridor_amount||'—'}</b></div>
+                <div class="cstat">Window: <b>${ws}→${we}</b></div>
+            </div>
+            <div style="margin-top:5px;font-size:9px;color:var(--text-dim)">Signals: ${sigs}</div>
+            ${freshRow}
+            ${idEstRow}
+            ${actionRow}
+        </div>`;
+    }).join('');
+}
+
+async function nameOperation(opId) {
+    const el = document.getElementById('opname-'+opId);
+    const name = (el && el.value || '').trim();
+    if (!name) return;
+    try {
+        await fetch(`/api/watchtower/operations/${opId}/name`, {
+            method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name})
+        });
+        load();
+    } catch(e) { console.error('name op error', e); }
+}
+async function opAction(opId, action) {
+    try { await fetch(`/api/watchtower/operations/${opId}/${action}`, {method:'POST'}); load(); }
+    catch(e) { console.error(action+' error', e); }
+}
+async function opMerge(opId) {
+    const target = prompt('Merge into operation_id:');
+    if (!target) return;
+    try {
+        await fetch(`/api/watchtower/operations/${opId}/merge`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({target_operation_id: parseInt(target)})
+        });
+        load();
+    } catch(e) { console.error('merge error', e); }
+}
+async function opNoise(opId) {
+    const reason = prompt('Dismiss as noise — reason:', 'not a single operator');
+    if (reason === null) return;
+    try {
+        await fetch(`/api/watchtower/operations/${opId}/noise`, {
+            method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({reason})
+        });
+        load();
+    } catch(e) { console.error('noise error', e); }
+}
+
+function renderProposals(prop, bf) {
+    // Backfill progress line
+    const q = (bf && bf.queue) || {};
+    const bfEl = document.getElementById('backfill-status');
+    if (bfEl) {
+        const pct = bf && bf.pct_complete != null ? bf.pct_complete : 0;
+        bfEl.innerHTML = `Hub backfill: <b style="color:var(--text-sec)">${fmtNum(bf.completed||0)}/${fmtNum(bf.total||0)}</b> (${pct}%) · hubs reached: <b style="color:#3fb950">${bf.hubs_reached||0}</b> · <span style="color:${prop.auto_apply_enabled?'#f85149':'#3fb950'}">${prop.auto_apply_enabled?'AUTO-APPLY ON':'SAFE MODE'}</span>`;
+    }
+    const proposals = (prop && prop.proposals) || [];
+    document.getElementById('prop-count').textContent = proposals.length;
+    const listEl = document.getElementById('proposals-list');
+    if (proposals.length === 0) {
+        listEl.innerHTML = `<div class="empty-state" style="padding:14px"><div class="empty-hint">No proposals — backfill in progress, or all operations already resolved</div></div>`;
+        return;
+    }
+    // before/after summary
+    const before = prop.before||{}, after = prop.after_if_applied||{};
+    const summary = `<div style="padding:6px 10px;font-size:10px;color:var(--text-dim);border-bottom:1px solid rgba(255,255,255,.06)">
+        WT promotions: <b style="color:#f85149">${prop.watchtower_promotions||0}</b> ·
+        Alpha matches: <b style="color:#c084fc">${prop.alpha_matches||0}</b> ·
+        New operators: <b style="color:#22d3ee">${prop.new_operators||0}</b> ·
+        Remaining unknown: <b>${prop.remaining_unknown||0}</b></div>`;
+    const rows = proposals.map(p => {
+        const idColor = {'WATCHTOWER':'#f85149','ALPHA':'#c084fc','NEW_OPERATOR':'#22d3ee'}[p.proposed_identity]||'var(--text-dim)';
+        return `<div style="padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.05);font-size:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span><b>${p.human_name||p.auto_name||('op#'+p.operation_id)}</b>
+                  <span style="color:var(--text-dim)">${p.current_identity}</span>
+                  → <span style="color:${idColor};font-weight:700">${p.proposed_identity}</span>
+                  <span style="color:var(--text-dim)">(${p.token_count} tok)</span></span>
+                <button onclick="applyProposal(${p.id})"
+                  style="background:rgba(63,185,80,.15);color:#3fb950;border:none;font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;cursor:pointer">apply</button>
+            </div>
+            <div style="color:var(--text-dim);margin-top:2px">evidence: ${p.evidence_role} ${(p.evidence_hub||'').slice(0,16)}…</div>
+        </div>`;
+    }).join('');
+    listEl.innerHTML = summary + rows;
+}
+
+async function applyProposal(propId) {
+    try { await fetch(`/api/watchtower/identity-proposals/${propId}/apply`, {method:'POST'}); load(); }
+    catch(e) { console.error('apply error', e); }
+}
+
+// ── Freshness helpers ────────────────────────────────────────────────────────
+function timeAgo(unixSec) {
+    if (!unixSec) return '—';
+    const s = Math.max(0, Math.floor(Date.now()/1000) - unixSec);
+    if (s < 60)      return s + 's ago';
+    if (s < 3600)    return Math.floor(s/60) + 'm ago';
+    if (s < 86400)   return Math.floor(s/3600) + 'h ago';
+    const d = Math.floor(s/86400);
+    if (d <= 21)     return d + (d === 1 ? ' day ago' : ' days ago');
+    return new Date(unixSec*1000).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+}
+function fmtDur(s) {
+    if (s == null) return '—';
+    s = Math.max(0, Math.floor(s));
+    const m = Math.floor(s/60), r = s%60;
+    return m > 0 ? `${m}m ${r}s` : `${r}s`;
+}
+
+let _engStatus = null;  // last engine-status payload (for the 1s countdown ticker)
+
+function renderEngineStatus(st) {
+    _engStatus = st;
+    if (!st) return;
+    const p = st.pipeline, h = st.health || {};
+
+    // Operations Engine card — color by pipeline age
+    const dot = document.getElementById('eng-dot');
+    const state = document.getElementById('eng-state');
+    if (!p) {
+        dot.style.color = '#f85149'; state.textContent = 'NO DATA'; state.style.color = '#f85149';
+        document.getElementById('eng-lastrun').textContent = 'Last run: never';
+        document.getElementById('eng-age').textContent = 'Age: —';
+        document.getElementById('eng-next').textContent = 'Next run: —';
+    } else {
+        // Thresholds scale with cadence: SLOW past 1 interval (run overdue), STALE past 2.
+        const iv = p.interval_s || 900;
+        let col = '#3fb950', lbl = 'LIVE';
+        if (p.age_s > iv * 2)     { col = '#f85149'; lbl = 'STALE'; }
+        else if (p.age_s > iv)    { col = '#d97706'; lbl = 'SLOW'; }
+        if (p.status === 'error') { col = '#f85149'; lbl = 'ERROR'; }
+        dot.style.color = col; state.textContent = lbl; state.style.color = col;
+        const t = new Date(p.last_run*1000);
+        document.getElementById('eng-lastrun').textContent =
+            'Last run: ' + t.toLocaleTimeString(undefined, {hour12:false}) + ' (' + timeAgo(p.last_run) + ')';
+        document.getElementById('eng-age').textContent = 'Age: ' + fmtDur(p.age_s);
+        document.getElementById('eng-next').textContent = 'Next run: ' + fmtDur(p.next_run_s);
+    }
+
+    // Auto Discovery card
+    const d = st.discovery || {};
+    const cadMin = Math.round((d.cadence_s || 900) / 60);
+    document.getElementById('disc-cadence').textContent = `Every ${cadMin} min · not on page refresh`;
+    document.getElementById('disc-counts').textContent = (d.discovered ?? '—') + ' discovered';
+    document.getElementById('disc-split').textContent =
+        (d.confirmed ?? '—') + ' confirmed · ' + (d.unknown ?? '—') + ' unknown';
+
+    // Hub Backfill card
+    const b = st.backfill || {};
+    const bfEl = document.getElementById('bf-status');
+    const bfActive = b.status === 'ok' || b.status === 'active';
+    bfEl.textContent = (b.status || 'unknown').toUpperCase();
+    bfEl.style.color = bfActive ? 'var(--state-active)' : (b.status === 'idle' ? 'var(--text-dim)' : '#d97706');
+    document.getElementById('bf-lasttrace').textContent =
+        'Last trace: ' + (b.last_trace_age_s != null ? fmtDur(b.last_trace_age_s) + ' ago' : '—');
+    document.getElementById('bf-queue').textContent =
+        'Queue: ' + fmtNum(b.queue_remaining) + ' · Processed: ' + fmtNum(b.processed);
+    document.getElementById('bf-progress').textContent =
+        'Progress: ' + (b.progress_pct ?? '—') + '% · Errors: ' + (b.errors ?? 0);
+
+    // Health banner
+    const banner = document.getElementById('health-banner');
+    const msgs = [];
+    if (h.pipeline_critical)
+        msgs.push(['#f85149','rgba(248,81,73,.14)','🔴 No successful operation discovery for ' + (h.pipeline_age_min ?? '?') + ' minutes']);
+    else if (h.pipeline_stale)
+        msgs.push(['#d97706','rgba(217,119,6,.14)','⚠ Discovery pipeline stale (' + (h.pipeline_age_min ?? '?') + ' minutes)']);
+    if (h.backfill_stale)
+        msgs.push(['#d97706','rgba(217,119,6,.14)','⚠ Hub backfill stalled (' + (h.backfill_age_min ?? '?') + ' minutes)']);
+    if (msgs.length) {
+        banner.style.display = 'block';
+        banner.innerHTML = msgs.map(([c,bg,t]) =>
+            `<div style="color:${c};background:${bg};border:1px solid ${c};border-radius:4px;padding:6px 10px;font-size:12px;font-weight:700;margin-bottom:4px">${t}</div>`).join('');
+    } else {
+        banner.style.display = 'none'; banner.innerHTML = '';
+    }
+}
+
+// 1s ticker: locally count down "Next run" / age between 30s fetches
+setInterval(() => {
+    if (!_engStatus || !_engStatus.pipeline) return;
+    _engStatus.pipeline.age_s += 1;
+    _engStatus.pipeline.next_run_s = Math.max(0, _engStatus.pipeline.next_run_s - 1);
+    document.getElementById('eng-age').textContent = 'Age: ' + fmtDur(_engStatus.pipeline.age_s);
+    document.getElementById('eng-next').textContent = 'Next run: ' + fmtDur(_engStatus.pipeline.next_run_s);
+}, 1000);
+
+async function loadEngineStatus() {
+    try {
+        const r = await fetch('/api/watchtower/engine-status');
+        if (r.ok) renderEngineStatus(await r.json());
+    } catch (e) { console.error('engine-status error', e); }
+}
+
+/* ══ LIVE COMMAND CENTER ═══════════════════════════════════════════ */
+function ccAgo(ts) {
+    if (!ts) return '—';
+    const s = Math.max(0, Math.floor(Date.now()/1000) - ts);
+    if (s < 60)    return s + 's';
+    if (s < 3600)  return Math.floor(s/60) + 'm';
+    if (s < 86400) return Math.floor(s/3600) + 'h';
+    return Math.floor(s/86400) + 'd';
+}
+function ccClock(ts) {
+    if (!ts) return '—';
+    return new Date(ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+const CC_EVT_LABEL = {
+    NEW_PROVISIONING_HUB: 'NEW HUB',
+    HUB_ARMED:            'ARMED',
+    CREATOR_SEEDED:       'SEEDED',
+    CREATE_DETECTED:      'CREATE',
+    RESERVOIR_CONVERTED:  'CONVERTED',
+    OPERATION_CREATED:    'OPERATION',
+    WATCHTOWER_ATTRIBUTED:'ATTRIBUTED',
+};
+
+function ccRenderStatus(s) {
+    const set = (id, v, hotIf) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = (v == null) ? '0' : fmtNum(v);
+        const card = el.closest('.cc-stat');
+        if (card) card.classList.toggle('hot', !!(hotIf && v > 0));
+    };
+    set('cc-active-hubs',    s.active_hubs);
+    set('cc-armed-hubs',     s.armed_hubs, true);
+    set('cc-pending',        s.pending_creators);
+    set('cc-res-dormant',    s.reservoir_dormant);
+    set('cc-res-converted',  s.reservoir_converted, true);
+    set('cc-new-ops',        s.new_operations_24h, true);
+}
+
+function ccRenderFeed(events) {
+    document.getElementById('cc-feed-count').textContent = events.length;
+    if (!events.length) {
+        document.getElementById('cc-feed').innerHTML =
+            '<div class="cc-empty"><div class="cc-empty-icon">◌</div>No live activity in the last 24h<div style="font-size:9px;margin-top:4px">Feed lights up on new hubs, arms, creates, conversions &amp; attributions</div></div>';
+        document.getElementById('cc-live-label').classList.add('idle');
+        return;
+    }
+    document.getElementById('cc-live-label').classList.remove('idle');
+    document.getElementById('cc-feed').innerHTML = events.map(e => {
+        const lbl = CC_EVT_LABEL[e.type] || e.type;
+        const addr = e.label ? `<span class="addr">${truncAddr(e.label, 8)}</span>` : '';
+        const detail = e.detail ? ` · ${e.detail}` : '';
+        const inner = `${addr}${detail}`;
+        const body = e.href
+            ? `<a href="${e.href}" style="color:inherit;text-decoration:none">${inner}</a>`
+            : inner;
+        return `<div class="cc-feed-row">
+            <span class="cc-feed-time">${ccClock(e.ts)}</span>
+            <span class="cc-feed-type cc-evt-${e.type}">${lbl}</span>
+            <span class="cc-feed-detail">${body}</span>
+        </div>`;
+    }).join('');
+}
+
+function ccRenderReview(review) {
+    document.getElementById('cc-review-count').textContent = review.length;
+    if (!review.length) {
+        document.getElementById('cc-review').innerHTML =
+            '<div class="cc-empty"><div class="cc-empty-icon">✓</div>Queue clear</div>';
+        return;
+    }
+    document.getElementById('cc-review').innerHTML = review.map(r => {
+        const c = r.confidence == null ? 0 : r.confidence;
+        const cls = c >= 0.8 ? 'high' : c >= 0.5 ? 'med' : 'low';
+        return `<div class="cc-review-row">
+            <div class="cc-review-top">
+                <a href="/watchtower/operator/${r.creator}" class="cc-review-addr" style="text-decoration:none">${truncAddr(r.creator, 8)}</a>
+                <span class="cc-review-age">${ccAgo(r.checked_at)}</span>
+            </div>
+            <div class="cc-review-meta">
+                <span class="cc-review-reason">${r.reason}</span>
+                <span class="cc-review-conf ${cls}">${(c*100).toFixed(0)}%</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function ccRenderReservoir(res, conversions) {
+    document.getElementById('cc-res-d2').textContent   = fmtNum(res.dormant);
+    document.getElementById('cc-res-c2').textContent   = fmtNum(res.converted);
+    document.getElementById('cc-res-rate').textContent = (res.conversion_rate != null ? res.conversion_rate : 0) + '%';
+    document.getElementById('cc-res-age').textContent  = res.median_age_d != null ? res.median_age_d + 'd' : '—';
+    const wrap = document.getElementById('cc-conversions');
+    if (!conversions || !conversions.length) {
+        wrap.innerHTML = '<div class="cc-empty"><div class="cc-empty-icon">○</div>No conversions yet</div>';
+        return;
+    }
+    wrap.innerHTML = `<table class="cc-table">
+        <thead><tr><th>Creator</th><th>Funded</th><th>Launched</th><th>Lag</th><th>Token</th></tr></thead>
+        <tbody>${conversions.map(c => `<tr>
+            <td class="addr">${truncAddr(c.wallet, 6)}</td>
+            <td>${c.funded_at ? c.funded_at.slice(5,10) : '—'}</td>
+            <td>${c.launch_detected_at ? ccClock(c.launch_detected_at) : '—'}</td>
+            <td>${c.lag_days != null ? c.lag_days.toFixed(1)+'d' : '—'}</td>
+            <td class="addr">${c.launch_token ? truncAddr(c.launch_token, 5) : '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+}
+
+function ccRenderHubs(hubs, counts) {
+    const summary = `${counts.ACTIVE||0} active · ${counts.ARMED||0} armed · ${counts.EXPIRED||0} expired · ${counts.CONFIRMED||0} confirmed`;
+    document.getElementById('cc-hub-summary').textContent = summary;
+    const wrap = document.getElementById('cc-hub-table');
+    if (!hubs || !hubs.length) {
+        wrap.innerHTML = '<div class="cc-empty"><div class="cc-empty-icon">⬡</div>No provisioning hubs detected</div>';
+        return;
+    }
+    wrap.innerHTML = `<table class="cc-table">
+        <thead><tr><th>Hub</th><th>Status</th><th>Age</th><th>Seeds</th><th>Launches</th></tr></thead>
+        <tbody>${hubs.map(h => `<tr>
+            <td><a href="/watchtower/operator/${h.hub}" class="addr" style="text-decoration:none">${truncAddr(h.hub, 7)}</a></td>
+            <td><span class="cc-hub-badge ${h.op_status}">${h.op_status}</span></td>
+            <td>${ccAgo(h.born_at)}</td>
+            <td>${h.creator_seeds}</td>
+            <td>${h.launches}</td>
+        </tr>`).join('')}</tbody></table>`;
+}
+
+function ccRenderPipeline(p) {
+    const stages = [
+        ['treasury',   'Treasury'],
+        ['signallers', 'Signallers'],
+        ['hubs',       'Prov. Hub'],
+        ['seeded',     'Seeded'],
+        ['creates',    'Create'],
+        ['migrations', 'Migration'],
+    ];
+    document.getElementById('cc-pipeline').innerHTML = stages.map(([k, lbl], i) => {
+        const v = p[k] || 0;
+        const stage = `<div class="cc-pipe-stage">
+            <div class="cc-pipe-val ${v ? '' : 'zero'}">${fmtNum(v)}</div>
+            <div class="cc-pipe-label">${lbl}</div>
+        </div>`;
+        const arrow = i < stages.length - 1 ? '<div class="cc-pipe-arrow">→</div>' : '';
+        return stage + arrow;
+    }).join('');
+}
+
+async function loadCommandCenter() {
+    try {
+        const r = await fetch('/api/watchtower/command-center');
+        if (!r.ok) return;
+        const d = await r.json();
+        ccRenderStatus(d.status || {});
+        ccRenderFeed(d.events || []);
+        ccRenderReview(d.review || []);
+        ccRenderReservoir(d.reservoir || {}, d.conversions || []);
+        ccRenderHubs(d.hubs || [], d.hub_counts || {});
+        ccRenderPipeline(d.pipeline || {});
+    } catch (e) { console.error('command-center error', e); }
+}
+
 async function load() {
     try {
-        const [clusterRes, candRes] = await Promise.all([
+        loadEngineStatus();
+        loadCommandCenter();
+        const [clusterRes, candRes, watchRes, opsRes, propRes, bfRes] = await Promise.all([
             fetch('/api/watchtower/operator-clusters?limit=50'),
-            fetch('/api/watchtower/operator-candidates?limit=50'),
+            fetch('/api/watchtower/operator-candidates?limit=200'),
+            fetch('/api/watchtower/watch-candidates'),
+            fetch('/api/watchtower/operations'),
+            fetch('/api/watchtower/identity-proposals'),
+            fetch('/api/watchtower/backfill/status'),
         ]);
         const clusterData = await clusterRes.json();
         const candData    = candRes.ok ? await candRes.json() : { candidates: [] };
+        const watchData   = watchRes.ok ? await watchRes.json() : {};
+        const opsData     = opsRes.ok ? await opsRes.json() : { operations: [] };
+        const propData    = propRes.ok ? await propRes.json() : {};
+        const bfData      = bfRes.ok ? await bfRes.json() : {};
+
+        // Discovered Operations (headline view)
+        const operations = opsData.operations || [];
+        document.getElementById('ops-count').textContent = operations.length;
+        document.getElementById('ops-list').innerHTML = renderOperations(operations);
+
+        // Identity proposals (safe-mode review)
+        renderProposals(propData, bfData);
 
         const allClusters = clusterData.clusters || [];
-        const candidates  = candData.candidates  || [];
-        const total       = clusterData.total_candidates || 0;
-        const possible    = clusterData.possible_swarms  || 0;
-        const hitRate     = total > 0 ? (possible / total) : 0;
+        // Classified candidates: prefer watch-candidates top_candidates, fall back to operator-candidates.
+        const classifiedCands = (watchData.top_candidates && watchData.top_candidates.length > 0)
+            ? watchData.top_candidates
+            : (candData.candidates || []).filter(c => !c.is_recent_live);
+        // Recent LIVE WATCH launches (from operator-candidates) always lead the table —
+        // gives visibility on fresh launches before the classifier reaches them.
+        const recentLiveCands = (candData.candidates || []).filter(c => c.is_recent_live);
+        const candidates = [...recentLiveCands, ...classifiedCands];
 
         // Split seed (WATCH reference) from discovered operators
-        const seedCluster      = allClusters.find(c => c.origin === 'seed');
+        const seedCluster        = allClusters.find(c => c.origin === 'seed');
         const discoveredClusters = allClusters.filter(c => c.origin !== 'seed');
 
         // Reference fingerprint banner
         if (seedCluster) renderRefBanner(seedCluster);
 
-        // Summary strip — counts only discovered clusters
-        const activeCount = discoveredClusters.filter(c => c.state === 'ACTIVE').length;
+        // Summary strip — use WATCH pipeline counts
+        const classified   = watchData.classified || {};
+        const totalElig    = watchData.total_eligible || 0;
+        const wtCount      = classified.WATCHTOWER || 0;
+        const newOpCount   = classified.WATCH_LIKE_NEW_OP || 0;
+        const activeCount  = discoveredClusters.filter(c => c.state === 'ACTIVE').length;
+
         document.getElementById('s-clusters').textContent   = discoveredClusters.length;
         document.getElementById('s-active').textContent     = activeCount;
-        document.getElementById('s-candidates').textContent = fmtNum(total);
-        document.getElementById('s-possible').textContent   = fmtNum(possible);
-        document.getElementById('s-hit-rate').textContent   = pct(hitRate);
-        if (seedCluster) document.getElementById('s-watch-ops').textContent = fmtNum(seedCluster.token_count);
+        document.getElementById('s-candidates').textContent = fmtNum(totalElig);
+        document.getElementById('s-possible').textContent   = fmtNum(newOpCount);
+        if (document.getElementById('s-hit-rate')) document.getElementById('s-hit-rate').textContent = totalElig > 0 ? pct((wtCount + newOpCount) / totalElig) : '—';
+        if (seedCluster) document.getElementById('s-watch-ops').textContent = fmtNum(seedCluster.watch_token_count || seedCluster.token_count);
 
-        // Cluster list — discovered only
+        // Cluster list — discovered only (already filtered to watch_token_count > 0 by API)
         document.getElementById('cluster-count').textContent = discoveredClusters.length;
         document.getElementById('cluster-list').innerHTML = renderClusters(discoveredClusters);
 
-        // Candidates
-        document.getElementById('cand-count').textContent = candidates.length;
+        // Candidates — show live-launch count in the badge when present
+        const recentLive = candData.recent_live_count || 0;
+        document.getElementById('cand-count').textContent =
+            recentLive > 0 ? `${recentLive} live · ${candidates.length}` : candidates.length;
         document.getElementById('cand-table-wrap').innerHTML = renderCandidates(candidates);
 
-        // Scanner yield stats
+        // Scanner yield stats — use WATCH pipeline buckets
         const y = candData.yield || {};
-        document.getElementById('sc-total').textContent        = fmtNum(y.total);
-        document.getElementById('sc-already-attr').textContent = y.already_attr > 0 ? fmtNum(y.already_attr) : '—';
-        document.getElementById('sc-low-buyers').textContent   = fmtNum(y.low_buyers);
-        document.getElementById('sc-wide-window').textContent = fmtNum(y.wide_window) === '0' ? '—' : fmtNum(y.wide_window);
-        document.getElementById('sc-no-sigs').textContent     = fmtNum(y.no_sigs)     === '0' ? '—' : fmtNum(y.no_sigs);
-        document.getElementById('sc-insuff').textContent      = fmtNum(y.insuff_data)  === '0' ? '—' : fmtNum(y.insuff_data);
-        document.getElementById('sc-possible').textContent    = fmtNum(y.possible);
-        document.getElementById('sc-confirmed').textContent   = fmtNum(y.confirmed);
-        document.getElementById('sc-scanning').textContent    = y.scanning > 0 ? fmtNum(y.scanning) : '—';
+        const watchTotal = candData.watch_total || totalElig || 0;
+        const scanCoverage = watchTotal > 0 ? pct((y.total_eligible || y.total || 0) / watchTotal) : '—';
+        document.getElementById('s-scan-coverage').textContent = scanCoverage;
+        document.getElementById('sc-total').textContent        = fmtNum(y.total_eligible || y.total);
+        document.getElementById('sc-already-attr').textContent = fmtNum(y.classified_watchtower || y.already_attr || 0);
+        document.getElementById('sc-low-buyers').textContent   = fmtNum(y.with_sol_flows || 0);
+        document.getElementById('sc-wide-window').textContent  = fmtNum(y.service_excluded || 0) === '0' ? '—' : fmtNum(y.service_excluded);
+        document.getElementById('sc-no-sigs').textContent      = fmtNum(y.no_sigs)     === '0' ? '—' : fmtNum(y.no_sigs);
+        document.getElementById('sc-insuff').textContent       = fmtNum(y.insuff_data)  === '0' ? '—' : fmtNum(y.insuff_data);
+        document.getElementById('sc-possible').textContent     = fmtNum(y.classified_new_op || y.possible);
+        document.getElementById('sc-confirmed').textContent    = fmtNum(y.confirmed);
+        document.getElementById('sc-scanning').textContent     = (y.classified_unknown || y.scanning || 0) > 0 ? fmtNum(y.classified_unknown || y.scanning) : '—';
 
         // Fingerprints sidebar — discovered clusters only
         document.getElementById('fp-list').innerHTML = renderFingerprints(discoveredClusters);
@@ -761,5 +1622,7 @@ function copyAddr(addr, el) {
 
 load();
 setInterval(load, 60000);
+setInterval(loadEngineStatus, 30000);   // freshness card refreshes faster than full page
+setInterval(loadCommandCenter, 30000);  // live command center is the primary watch surface
 </script>
 {% endblock %}

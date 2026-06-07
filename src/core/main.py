@@ -26168,6 +26168,324 @@ def api_wt_live_metrics():
     })
 
 
+@app.route('/api/watchtower/command-center')
+def api_wt_command_center():
+    """
+    Live operational command-center payload for /watchtower/operators.
+
+    Aggregates the *current-model* WATCHTOWER tables (provisioning hubs, reservoir,
+    armed ops, detected creates, lineage-attributed creators, auto-discovered
+    operations) into one SOC/NOC-style snapshot. Answers "what happened in the last
+    few minutes?" rather than "what clusters did we find in April?".
+
+    Designed to degrade cleanly: when the live tables are quiet (no armed ops, no
+    conversions, no recent discoveries) the counters still report standing posture
+    and the event feed / review queue return empty lists rather than erroring.
+    """
+    import time as _t
+    now = int(_t.time())
+    h24 = now - 86400
+    # Hub "armed" / "active" derivation thresholds (no live state column yet — all
+    # confirmed hubs carry status=CONFIRMED; operational status is derived from age
+    # and downstream activity).
+    ARMED_WINDOW_S  = 600     # freshly born, no create yet → still arming
+    ACTIVE_WINDOW_S = 86400   # produced a seed/create in last 24h → active
+    EXPIRED_AGE_S   = 172800  # >2d with no recent activity → expired/cold
+
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+
+    def _has_table(name):
+        return conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)
+        ).fetchone() is not None
+
+    events = []   # unified live feed (dicts: ts, type, label, detail, href)
+    review = []   # needs-review queue
+    hubs_out = []
+    hub_counts = {'ACTIVE': 0, 'ARMED': 0, 'EXPIRED': 0, 'CONFIRMED': 0}
+
+    # ── Provisioning hubs ────────────────────────────────────────────────
+    if _has_table('wt_provisioning_hubs'):
+        for h in conn.execute("""
+            SELECT hub_address, treasury_amount, born_at, creator_seed_count,
+                   create_count, confidence, status, discovered_at, last_seen_at
+            FROM wt_provisioning_hubs ORDER BY born_at DESC
+        """).fetchall():
+            born = h['born_at'] or h['discovered_at'] or 0
+            age = now - born if born else None
+            last = h['last_seen_at'] or born
+            recent_activity = (h['create_count'] or 0) > 0 or (h['creator_seed_count'] or 0) > 0
+            # Derive operational status from age + activity.
+            if age is not None and age <= ARMED_WINDOW_S and (h['create_count'] or 0) == 0:
+                op_status = 'ARMED'
+            elif last and (now - last) <= ACTIVE_WINDOW_S and recent_activity:
+                op_status = 'ACTIVE'
+            elif age is not None and age >= EXPIRED_AGE_S:
+                op_status = 'EXPIRED'
+            else:
+                op_status = 'CONFIRMED'
+            hub_counts[op_status] = hub_counts.get(op_status, 0) + 1
+            hubs_out.append({
+                'hub': h['hub_address'],
+                'op_status': op_status,
+                'base_status': h['status'],
+                'born_at': born,
+                'age_s': age,
+                'treasury_amount': h['treasury_amount'],
+                'creator_seeds': h['creator_seed_count'] or 0,
+                'launches': h['create_count'] or 0,
+                'confidence': h['confidence'],
+            })
+            # New-hub events for the live feed (born in last 24h).
+            if born and born > h24:
+                events.append({
+                    'ts': born, 'type': 'NEW_PROVISIONING_HUB',
+                    'label': h['hub_address'],
+                    'detail': f"{h['treasury_amount']:.0f} SOL treasury" if h['treasury_amount'] else '',
+                    'href': None,
+                })
+
+    # ── Armed operations (live ignition) ─────────────────────────────────
+    armed_active = 0
+    if _has_table('wt_armed_operations'):
+        for a in conn.execute("""
+            SELECT id, armed_ts, expiry_ts, state, creator_wallet, sub_prov,
+                   confidence, operation_size, disarmed_ts
+            FROM wt_armed_operations ORDER BY armed_ts DESC LIMIT 50
+        """).fetchall():
+            if (a['state'] or '').upper() == 'ARMED' and not a['disarmed_ts']:
+                armed_active += 1
+            ats = int(a['armed_ts']) if a['armed_ts'] else None
+            if ats and ats > h24:
+                events.append({
+                    'ts': ats, 'type': 'HUB_ARMED',
+                    'label': a['creator_wallet'] or a['sub_prov'] or f"op#{a['id']}",
+                    'detail': f"size {a['operation_size']}" if a['operation_size'] else '',
+                    'href': None,
+                })
+
+    # ── Detected creates (live launches) ─────────────────────────────────
+    if _has_table('wt_detected_creates'):
+        for c in conn.execute("""
+            SELECT mint, creator, detected_at, armed_op_id
+            FROM wt_detected_creates ORDER BY detected_at DESC LIMIT 50
+        """).fetchall():
+            cts = int(c['detected_at']) if c['detected_at'] else None
+            if cts and cts > h24:
+                events.append({
+                    'ts': cts, 'type': 'CREATE_DETECTED',
+                    'label': c['mint'], 'detail': c['creator'] or '',
+                    'href': f"/watchtower/candidate/{c['mint']}" if c['mint'] else None,
+                })
+
+    # ── Reservoir (relay-funded dormant wallet pool) ─────────────────────
+    res = {'dormant': 0, 'converted': 0, 'total': 0, 'conversion_rate': 0.0, 'median_age_d': None}
+    conversions = []
+    if _has_table('wt_creator_reservoir'):
+        rstats = conn.execute("""
+            SELECT COUNT(*) AS total,
+                   SUM(CASE WHEN status='DORMANT' THEN 1 ELSE 0 END) AS dormant,
+                   SUM(CASE WHEN status!='DORMANT' OR launch_token IS NOT NULL THEN 1 ELSE 0 END) AS converted
+            FROM wt_creator_reservoir
+        """).fetchone()
+        res['total'] = rstats['total'] or 0
+        res['dormant'] = rstats['dormant'] or 0
+        res['converted'] = rstats['converted'] or 0
+        if res['total']:
+            res['conversion_rate'] = round(res['converted'] / res['total'] * 100, 1)
+        ages = [r['days_since_funded'] for r in conn.execute(
+            "SELECT days_since_funded FROM wt_creator_reservoir WHERE days_since_funded IS NOT NULL"
+        ).fetchall()]
+        if ages:
+            ages.sort()
+            mid = len(ages) // 2
+            res['median_age_d'] = round(
+                ages[mid] if len(ages) % 2 else (ages[mid-1] + ages[mid]) / 2, 1)
+        for c in conn.execute("""
+            SELECT wallet_address, relay_label, funded_at, launch_detected_at,
+                   launch_token, days_since_funded
+            FROM wt_creator_reservoir
+            WHERE status!='DORMANT' OR launch_token IS NOT NULL
+            ORDER BY launch_detected_at DESC LIMIT 25
+        """).fetchall():
+            conversions.append({
+                'wallet': c['wallet_address'], 'relay_label': c['relay_label'],
+                'funded_at': c['funded_at'], 'launch_detected_at': c['launch_detected_at'],
+                'launch_token': c['launch_token'], 'lag_days': c['days_since_funded'],
+            })
+            if c['launch_detected_at'] and int(c['launch_detected_at']) > h24:
+                events.append({
+                    'ts': int(c['launch_detected_at']), 'type': 'RESERVOIR_CONVERTED',
+                    'label': c['wallet_address'], 'detail': c['launch_token'] or '',
+                    'href': None,
+                })
+
+    # ── Auto-discovered operations ───────────────────────────────────────
+    new_ops_24h = 0
+    if _has_table('wt_operations'):
+        for o in conn.execute("""
+            SELECT operation_id, COALESCE(human_name, auto_name) AS name, state,
+                   first_discovered_at, discovered_at, token_count, creator_count
+            FROM wt_operations
+            WHERE merged_into IS NULL AND COALESCE(state,'') NOT IN ('NOISE','DISMISSED')
+            ORDER BY COALESCE(first_discovered_at, discovered_at) DESC LIMIT 50
+        """).fetchall():
+            fda = o['first_discovered_at'] or o['discovered_at']
+            if fda and fda > h24:
+                new_ops_24h += 1
+                events.append({
+                    'ts': fda, 'type': 'OPERATION_CREATED',
+                    'label': o['name'] or f"op#{o['operation_id']}",
+                    'detail': f"{o['token_count'] or 0} tokens · {o['creator_count'] or 0} creators",
+                    'href': None,
+                })
+
+    # ── Lineage-attributed creators (pending review + recent attributions) ─
+    pending_creators = 0
+    if _has_table('creator_risk_scores'):
+        # Pending = WATCHTOWER-attributed creators that don't yet belong to any
+        # confirmed operation (i.e. unreviewed lineage/infra hits).
+        in_op_clause = ""
+        if _has_table('wt_operation_members'):
+            in_op_clause = (
+                " AND crs.creator_address NOT IN "
+                "(SELECT DISTINCT creator_wallet FROM wt_operation_members "
+                " WHERE creator_wallet IS NOT NULL)")
+        pending_rows = conn.execute(f"""
+            SELECT crs.creator_address, crs.evidence_grade, crs.evidence_basis,
+                   crs.watchtower_checked_at,
+                   json_extract(crs.evidence_basis, '$.method') AS method
+            FROM creator_risk_scores crs
+            WHERE crs.watchtower_related = 1{in_op_clause}
+            ORDER BY crs.watchtower_checked_at DESC LIMIT 25
+        """).fetchall()
+        pending_creators = conn.execute(f"""
+            SELECT COUNT(*) FROM creator_risk_scores crs
+            WHERE crs.watchtower_related = 1{in_op_clause}
+        """).fetchone()[0]
+
+        # Map detector basis → human reason + confidence for the review queue.
+        _reason = {
+            'DIRECT_INFRA':         ('Direct Infrastructure Edge', 1.0),
+            'LINEAGE_RULE_2':       ('Lineage Hit (≤3-hop)',       0.85),
+            'treasury_lineage_3hop':('Treasury Lineage (3-hop)',   0.80),
+            'fee_payer_observation':('Fee-Payer Observation',      0.60),
+            'fingerprint_only':     ('Fingerprint-only (soft)',    0.40),
+            'PROFIT_RELAY':         ('Profit-Relay Funding',       0.70),
+        }
+        for r in pending_rows:
+            method = r['method'] or (r['evidence_basis'] or '')
+            reason, conf = _reason.get(method, (method or 'WATCHTOWER attribution', 0.5))
+            checked = r['watchtower_checked_at']
+            review.append({
+                'creator': r['creator_address'],
+                'reason': reason,
+                'grade': r['evidence_grade'],
+                'confidence': conf,
+                'checked_at': checked,
+            })
+            # NOTE: deliberately NOT emitting WATCHTOWER_ATTRIBUTED into the live
+            # feed. watchtower_checked_at is the engine-PASS time (re-stamped every
+            # 15-min pass), not the moment of first attribution — keying the feed on
+            # it floods it with re-confirmation noise. Attributions surface in the
+            # Needs-Review queue instead, where "age" is understood as last-checked.
+
+    conn.close()
+
+    # Sort feed newest-first, cap.
+    events.sort(key=lambda e: e['ts'] or 0, reverse=True)
+    events = events[:60]
+    # Review queue: newest-first by checked_at.
+    review.sort(key=lambda r: r['checked_at'] or 0, reverse=True)
+    review = review[:25]
+
+    # Launch pipeline stage counts (current standing posture across known hubs).
+    pipeline = {
+        'treasury':   sum(1 for h in hubs_out if h['treasury_amount']),
+        'signallers': sum(1 for h in hubs_out if h['base_status'] == 'CONFIRMED'),
+        'hubs':       len(hubs_out),
+        'seeded':     sum(h['creator_seeds'] for h in hubs_out),
+        'creates':    sum(h['launches'] for h in hubs_out),
+        'migrations': 0,
+    }
+
+    return jsonify({
+        'ts': now,
+        'status': {
+            'active_hubs':         hub_counts.get('ACTIVE', 0),
+            'armed_hubs':          max(armed_active, hub_counts.get('ARMED', 0)),
+            'pending_creators':    pending_creators,
+            'reservoir_dormant':   res['dormant'],
+            'reservoir_converted': res['converted'],
+            'new_operations_24h':  new_ops_24h,
+        },
+        'hub_counts':  hub_counts,
+        'hubs':        hubs_out,
+        'reservoir':   res,
+        'conversions': conversions,
+        'pipeline':    pipeline,
+        'events':      events,
+        'review':      review,
+    })
+
+
+@app.route('/api/watchtower/attribution')
+def api_wt_attribution():
+    """
+    READ-ONLY view of the proposed ATTRIBUTION axis (classification redesign,
+    Axis 3). Derives a first-class {linkage, confidence, evidence-set} for every
+    watchtower_related creator from existing evidence — writes nothing, changes no
+    classification. Lets the new ontology be validated against live data before any
+    schema migration.
+
+    Headline `linkage` is the single strongest attribution path; `evidence` is the
+    multi-value set of all paths (this is what resolves the old single-value
+    category overload, e.g. a creator that is BOTH direct-infra-funded AND routes to
+    a profit relay).
+    """
+    from src.analysis.attribution_axis import derive_attribution, linkage_label
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT creator_address, watchtower_evidence_json, evidence_grade,
+               json_extract(evidence_basis,'$.method') AS method
+        FROM creator_risk_scores WHERE watchtower_related = 1
+    """).fetchall()
+    conn.close()
+
+    from collections import Counter
+    items = []
+    by_linkage = Counter()
+    by_confidence = Counter()
+    multi_path = 0
+    for r in rows:
+        a = derive_attribution(r["watchtower_evidence_json"], r["evidence_grade"], r["method"])
+        by_linkage[a["linkage"]] += 1
+        by_confidence[str(a["confidence"])] += 1
+        if len(a["evidence"]) > 1:
+            multi_path += 1
+        items.append({
+            "creator": r["creator_address"],
+            "linkage": a["linkage"],
+            "linkage_label": linkage_label(a["linkage"]),
+            "confidence": a["confidence"],
+            "evidence_kinds": [e["kind"] for e in a["evidence"]],
+            "multi_path": len(a["evidence"]) > 1,
+        })
+    # strongest first for display
+    _order = {"CONFIRMED": 0, "STRONG": 1, "WEAK": 2, "None": 3, None: 3}
+    items.sort(key=lambda x: (_order.get(x["confidence"], 9), x["linkage"]))
+
+    return jsonify({
+        "total_attributed": len(items),
+        "by_linkage": dict(by_linkage),
+        "by_confidence": dict(by_confidence),
+        "multi_path_count": multi_path,
+        "creators": items,
+    })
+
+
 @app.route('/api/watchtower/creators')
 def api_wt_creators():
     """Creator wallets with evidence grades, token output, and outcomes."""
@@ -36884,6 +37202,7 @@ def api_watchtower_operator_candidates():
     candidates = []
     yield_stats = {}
     watch_total = 0
+    recent_live_count = 0
     try:
         rows = conn.execute("""
             SELECT wct.mint as token_mint, wct.creator_address, wct.prediction_score,
@@ -36907,6 +37226,57 @@ def api_watchtower_operator_candidates():
             c['funding_reason'] = reason
             c['is_alpha_family'] = _is_alpha_family_creator(c['creator_address'], conn)
             candidates.append(c)
+
+        # ── Recent LIVE WATCH launches (not yet swarm-classified) ──────────
+        # watch_candidate_tokens only holds post-migration *classified* tokens and
+        # lags behind live launches. token_prediction_scores(risk_level='WATCH') is
+        # the live launch feed — surface the most recent ones here tagged
+        # UNCLASSIFIED so analysts have visibility on fresh launches before the
+        # classifier reaches them. Skip any mint already in the classified set above.
+        classified_mints = {c.get('token_mint') for c in candidates}
+        recent_limit = int(request.args.get('recent_limit', 50))
+        recent_cutoff = int(time.time()) - int(request.args.get('recent_window_s', 86400))
+        recent_rows = conn.execute("""
+            SELECT tps.mint, tps.creator_address, tps.prediction_score,
+                   tps.creator_was_fresh, tps.predicted_at, mc.name AS token_name
+            FROM token_prediction_scores tps
+            LEFT JOIN metadata_cache mc ON mc.mint = tps.mint
+            WHERE tps.risk_level = 'WATCH' AND tps.predicted_at > ?
+            ORDER BY tps.predicted_at DESC
+            LIMIT ?
+        """, (recent_cutoff, recent_limit * 2)).fetchall()
+        recent = []
+        for r in recent_rows:
+            if r['mint'] in classified_mints:
+                continue
+            cr = r['creator_address']
+            origin, reason = _funding_origin_for_creator(cr, conn) if cr else (None, None)
+            recent.append({
+                'token_mint':           r['mint'],
+                'mint':                 r['mint'],
+                'token_name':           r['token_name'],
+                'creator_address':      cr,
+                'provisioner_wallet':   cr,
+                'prediction_score':     r['prediction_score'],
+                'classified_as':        'UNCLASSIFIED',
+                'operator_class':       'UNCLASSIFIED',
+                'classification_conf':  None,
+                'confidence':           None,
+                'classification_reason':'New WATCH launch — not yet classified',
+                'cluster_id':           None,
+                'has_sol_flows':        None,
+                'scanned_at':           r['predicted_at'],
+                'creator_was_fresh':    r['creator_was_fresh'],
+                'funding_origin':       origin,
+                'funding_reason':       reason,
+                'is_alpha_family':      _is_alpha_family_creator(cr, conn) if cr else False,
+                'is_recent_live':       True,
+            })
+            if len(recent) >= recent_limit:
+                break
+        # Recent live launches lead the table (newest-first); classified below.
+        candidates = recent + candidates
+        recent_live_count = len(recent)
 
         total_eligible     = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens").fetchone()[0]
         classified_wt      = conn.execute("SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='WATCHTOWER'").fetchone()[0]
@@ -36947,7 +37317,9 @@ def api_watchtower_operator_candidates():
         return jsonify({"error": str(e)}), 500
 
     conn.close()
-    return jsonify({"candidates": candidates, "count": len(candidates), "yield": yield_stats, "watch_total": watch_total})
+    return jsonify({"candidates": candidates, "count": len(candidates),
+                    "recent_live_count": recent_live_count,
+                    "yield": yield_stats, "watch_total": watch_total})
 
 
 @app.route('/api/watchtower/graph')

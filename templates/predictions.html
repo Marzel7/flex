@@ -252,7 +252,7 @@ tbody tr:last-child td { border-bottom:none; }
       </select>
       <select class="pd-select" id="filterAction" onchange="applyFilters()">
         <option value="">All Actions</option>
-        <option value="IGNORE">Ignore</option><option value="WATCH">Watch</option><option value="AUTO_ELIGIBLE">Auto-Eligible</option><option value="SIMULATE">Simulate</option><option value="ALLOCATE">Allocate</option>
+        <option value="IGNORE">Ignore</option><option value="WATCH">Watchlist</option><option value="AUTO_ELIGIBLE">Auto-Eligible</option><option value="SIMULATE">Simulate</option><option value="ALLOCATE">Allocate</option>
       </select>
       <select class="pd-select" id="filterConfidence" onchange="applyFilters()">
         <option value="">All Confidence</option><option value="HIGH">High</option><option value="MEDIUM">Medium</option><option value="LOW">Low</option>
@@ -386,6 +386,14 @@ const RISK_COLOR = { CRITICAL:'#ef4444', HIGH:'#f87171', MEDIUM:'#fbbf24', WATCH
 let _allRows = [];
 let _drawerOpen = false;
 let _mode = 'ACTION';
+
+// Display labels for suggested_action. The raw 'WATCH' action collides visually
+// with the WATCH *risk level* in the adjacent column — they mean different things
+// (risk tier vs. recommended action). Show it as 'WATCHLIST' (matching the mode
+// tab) so the action reads as an instruction, not a risk grade. Underlying data
+// value stays 'WATCH' for filtering/API compatibility.
+const ACTION_LABEL = { WATCH: 'WATCHLIST' };
+function actionLabel(a) { return ACTION_LABEL[a] || a || 'WATCHLIST'; }
 
 function groupHeader(level, colspan) {
   const color = RISK_COLOR[level] || '#8b949e';
@@ -569,7 +577,7 @@ function renderPredictionRows(rows) {
       const isFresh = r.creator_is_fresh;
       html += `<tr onclick="openDrawer('${r.mint}')">
         <td title="${r.mint}">${r.token_name ? r.token_name.slice(0,18) : shortMint(r.mint)}</td>
-        <td><span class="action-pill ${r.suggested_action === 'WATCH' ? 'WATCH_ACTION' : (r.suggested_action||'WATCH_ACTION')}">${r.suggested_action||'WATCH'}</span></td>
+        <td><span class="action-pill ${r.suggested_action === 'WATCH' ? 'WATCH_ACTION' : (r.suggested_action||'WATCH_ACTION')}" title="Recommended action">${actionLabel(r.suggested_action)}</span></td>
         <td>${riskCell}</td>
         <td><span style="user-select:all;cursor:text;font-family:monospace;font-size:11px" title="${r.creator_address||''}">${r.creator_address ? r.creator_address.slice(0,8) : '—'}</span>${isFresh ? ' <span class="badge FRESH" title="No prior history">FRESH</span>' : ''}</td>
         <td title="${r.network_name||''}">${r.network_name ? r.network_name.slice(0,18) : '<span style="color:var(--text-secondary)">—</span>'}</td>

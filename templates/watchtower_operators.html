@@ -370,6 +370,19 @@
 .emerg-d { font-size: 10px; font-weight: 700; }
 .emerg-d.up { color: var(--col-green, #22c55e); }
 .emerg-d.down { color: var(--col-red, #ef4444); }
+
+/* What Changed? feed */
+.changed-feed { display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px; max-height: 320px; overflow-y: auto; }
+.cf-row { display: flex; align-items: center; gap: 10px; padding: 8px 13px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 3px solid var(--cf-color, var(--text-dim)); border-radius: 7px;
+    font-size: 12px; color: var(--text-pri); text-decoration: none; }
+.cf-row:hover { background: var(--bg-card2); }
+.cf-ic { font-size: 13px; color: var(--cf-color, var(--text-dim)); }
+.cf-up { --cf-color: var(--col-green, #22c55e); }
+.cf-down { --cf-color: var(--col-red, #ef4444); }
+.cf-state { --cf-color: var(--col-amber, #f59e0b); }
+.cf-info { --cf-color: var(--col-cyan, #22d3ee); }
 .emerg-tier { font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing:.05em; }
 .tier-confirmed-x { background: rgba(34,197,94,.18); color:#4ade80; }
 .tier-probable-x  { background: rgba(245,158,11,.15); color:#fbbf24; }
@@ -548,6 +561,15 @@
 </div>
 <div id="emerg-list" class="emerg-list">
     <div class="cc-empty"><div class="cc-empty-icon">◎</div>Loading emerging operators…</div>
+</div>
+
+<!-- ══ WHAT CHANGED? — real change events from snapshot deltas ═════════════════ -->
+<div class="emerg-head" style="margin-top:6px">
+    <span class="emerg-title">↺ WHAT CHANGED?</span>
+    <span class="emerg-sub">Real 24h movement from cluster snapshots — only emitted once a cluster has history.</span>
+</div>
+<div id="changed-feed" class="changed-feed">
+    <div class="cc-empty"><div class="cc-empty-icon">↺</div>Loading…</div>
 </div>
 
 <!-- ══ ZONE 1 — NEW & ACTIVE (discoveries lead; registry is demoted below) ══════ -->
@@ -1738,6 +1760,33 @@ function discTier(conf) {
     if (conf >= 0.6) return '<span class="emerg-tier tier-probable-x">probable</span>';
     return '<span class="emerg-tier tier-investigate-x">investigate</span>';
 }
+// "What Changed?" — render real change events. Empty (honest) until clusters
+// accumulate a 24h baseline; never shows synthetic events.
+function renderChangedFeed(feed) {
+    const el = document.getElementById('changed-feed');
+    if (!el) return;
+    if (!feed.length) {
+        el.innerHTML = '<div class="cc-empty"><div class="cc-empty-icon">↺</div>' +
+            'No changes yet — clusters need a 24h baseline before movement is reported</div>';
+        return;
+    }
+    const meta = {
+        launches_up:     {ic:'▲', cls:'cf-up'},
+        creators_up:     {ic:'▲', cls:'cf-up'},
+        confidence_up:   {ic:'▲', cls:'cf-up'},
+        confidence_down: {ic:'▼', cls:'cf-down'},
+        state_changed:   {ic:'⤴', cls:'cf-state'},
+        new_funder:      {ic:'◇', cls:'cf-info'},
+        trend_growing:   {ic:'▲', cls:'cf-up'},
+        trend_declining: {ic:'▼', cls:'cf-down'},
+    };
+    el.innerHTML = feed.map(e => {
+        const m = meta[e.kind] || {ic:'·', cls:'cf-info'};
+        return `<a class="cf-row ${m.cls}" href="/watchtower/operator/${e.cluster_id}">
+            <span class="cf-ic">${m.ic}</span><span>${e.text}</span></a>`;
+    }).join('');
+}
+
 function renderDiscovery(clusters, operations, watchData, candData, growthMap) {
     const now = Math.floor(Date.now()/1000), DAY = 86400;
     growthMap = growthMap || {};
@@ -1858,13 +1907,14 @@ async function load() {
 
         const allClusters = clusterData.clusters || [];
 
-        // Real cluster deltas from snapshot history (empty until engine takes snapshots).
+        // Real cluster deltas + change feed from snapshot history.
         let growthMap = {};
         try {
             const gr = await fetch('/api/watchtower/operator-growth');
             if (gr.ok) {
                 const gd = await gr.json();
                 (gd.clusters || []).forEach(g => { growthMap[g.cluster_id] = g; });
+                renderChangedFeed(gd.feed || []);
             }
         } catch (e) {}
 

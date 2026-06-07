@@ -217,3 +217,52 @@ def all_growth(conn: sqlite3.Connection) -> list[dict]:
         "SELECT DISTINCT cluster_id FROM wt_operator_cluster_snapshots").fetchall()]
     out = [compute_deltas(conn, cid) for cid in ids]
     return [o for o in out if o]
+
+
+def change_feed(conn: sqlite3.Connection) -> list[dict]:
+    """
+    Turn real 24h deltas into discrete "What Changed?" events. NARROW and honest:
+    one event per real change, emitted ONLY when has_baseline is true (a cluster
+    with no 24h baseline produces NO events — never a synthetic "new cluster" line).
+
+    Event kinds: launches_up, creators_up, confidence_up, confidence_down,
+    state_changed, new_funder, trend_growing, trend_declining.
+    Returns rows {cluster_id, kind, text, magnitude} sorted strongest-first.
+    """
+    feed = []
+    for g in all_growth(conn):
+        if not g.get("has_baseline"):
+            continue                      # honest: no baseline → no events
+        cid = g["cluster_id"]
+        d = g["deltas_24h"]
+        cur = g["current"]
+        tok, cre, conf = d.get("token_count"), d.get("creator_count"), d.get("confidence")
+        if tok and tok > 0:
+            feed.append({"cluster_id": cid, "kind": "launches_up",
+                         "magnitude": tok, "text": f"Cluster #{cid} gained +{tok} launch{'es' if tok>1 else ''}"})
+        if cre and cre > 0:
+            feed.append({"cluster_id": cid, "kind": "creators_up",
+                         "magnitude": cre, "text": f"Cluster #{cid} added {cre} creator{'s' if cre>1 else ''}"})
+        if conf:
+            pct = round(conf * 100)
+            if pct != 0:
+                base_pct = round((cur.get("confidence") or 0) * 100) - pct
+                kind = "confidence_up" if pct > 0 else "confidence_down"
+                arrow = "increased" if pct > 0 else "decreased"
+                feed.append({"cluster_id": cid, "kind": kind, "magnitude": abs(pct),
+                             "text": f"Cluster #{cid} confidence {arrow} {base_pct}% → {round((cur.get('confidence') or 0)*100)}%"})
+        if d.get("state_changed"):
+            feed.append({"cluster_id": cid, "kind": "state_changed", "magnitude": 50,
+                         "text": f"Cluster #{cid} entered {cur.get('state')}"})
+        if d.get("new_funders_detected"):
+            feed.append({"cluster_id": cid, "kind": "new_funder", "magnitude": 30,
+                         "text": f"Cluster #{cid} — new shared funder observed"})
+        # trend transitions are the headline movers
+        if g.get("trend") == "GROWING":
+            feed.append({"cluster_id": cid, "kind": "trend_growing", "magnitude": 60,
+                         "text": f"Operator candidate #{cid} is GROWING"})
+        elif g.get("trend") == "DECLINING":
+            feed.append({"cluster_id": cid, "kind": "trend_declining", "magnitude": 40,
+                         "text": f"Operator candidate #{cid} confidence DECLINING"})
+    feed.sort(key=lambda e: -e["magnitude"])
+    return feed

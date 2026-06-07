@@ -26667,6 +26667,7 @@ def api_wt_operator_growth():
             "SELECT 1 FROM sqlite_master WHERE type='table' "
             "AND name='wt_operator_cluster_snapshots'").fetchone()
         rows = _cs.all_growth(conn) if exists else []
+        feed = _cs.change_feed(conn) if exists else []
     finally:
         conn.close()
     # strongest movers first: GROWING by confidence delta desc, then the rest
@@ -26682,6 +26683,7 @@ def api_wt_operator_growth():
         "total": len(rows),
         "by_trend": dict(trend_counts),
         "has_history": len(rows) > 0,
+        "feed": feed,                 # "What Changed?" — real change events (may be empty)
     })
 
 

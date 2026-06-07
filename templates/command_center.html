@@ -46,6 +46,24 @@
 .ms-extracting { --ms-color: var(--color-orange);  --ms-glow: rgba(249,115,22,.40); }
 .ms-recycling  { --ms-color: var(--accent-cyan);   --ms-glow: rgba(34,211,238,.35); }
 
+/* "Why am I in this state?" panel — makes the state machine auditable */
+.ms-why {
+    border: 1px solid var(--border-color); border-radius: 10px;
+    background: var(--bg-secondary); padding: 12px 16px; margin-bottom: 16px;
+    font-size: 12.5px; color: var(--text-secondary);
+}
+.why-head { display: flex; justify-content: space-between; align-items: baseline;
+    font-weight: 700; color: var(--text-primary); margin-bottom: 8px; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .5px; }
+.why-conf { color: var(--accent-cyan); font-size: 13px; letter-spacing: 0; }
+.ms-why .lbl { font-weight: 600; color: var(--text-secondary); }
+.ms-why ul { margin: 4px 0 0; padding-left: 18px; }
+.ms-why li { margin: 2px 0; color: var(--text-primary); }
+.ms-why li.idle { color: var(--text-secondary); }
+.ms-why .w { color: var(--accent-cyan); font-size: 10.5px; margin-left: 4px; opacity: .7; }
+.why-ignored { margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+.why-ignored li { color: var(--text-secondary); font-size: 12px; }
+
 /* Pulse bar — one-line "what changed", window toggle */
 .pulse {
     display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -143,6 +161,9 @@
     <div class="mission-sub" id="ms-sub">Reading operation state…</div>
   </div>
 
+  <!-- "Why am I in this state?" — auditable evidence panel -->
+  <div class="ms-why" id="ms-why"></div>
+
   <!-- Pulse bar — what changed -->
   <div class="pulse">
     <span class="pchip" id="pulse-summary">—</span>
@@ -205,63 +226,114 @@ let WINDOW = 3600;          // pulse/feed window (s)
 let LAST = null;            // last payload
 let EXTRACT = {relays: 0, sol: 0, sweeps: 0};   // extraction signals (relay + sweep telemetry)
 
-// ── Mission Status: derive the 5-state lifecycle from the live payload ──────────
-// DORMANT -> FORMING -> ACTIVE -> EXTRACTING -> RECYCLING. Report the dominant signal.
-function deriveMission(d) {
-    const st = d.status || {};
-    const res = d.reservoir || {};
-    const ev = d.events || [];
-    const now = Math.floor(Date.now()/1000);
-    const has = (type, win) => ev.some(e => e.type === type && (now - (e.ts||0)) <= win);
-
-    const armed   = st.armed_hubs || 0;
-    const active  = st.active_hubs || 0;
-    const pending = st.pending_creators || 0;
-    const seeded  = (d.pipeline || {}).seeded || 0;
-    const launched24 = has('CREATE_DETECTED', 86400);
-    const converted24 = has('RESERVOIR_CONVERTED', 86400);
-    // extraction signals: ≥1 active profit relay in the telemetry window, or a burst of
-    // recent meaningful sweeps (dust-only sweeps are noise → SWEEP_MIN_SOL floor applies).
-    const extracting = EXTRACT.relays > 0 || EXTRACT.sweeps >= SWEEP_BURST;
-
-    // ACTIVE: launches occurring / interceptor armed with seeds in flight
-    if (launched24 || (armed > 0 && seeded > 0)) {
-        return ['ACTIVE', 'ms-active', true,
-            `<b>${seeded}</b> creators seeded · launches in last 24h · interceptor engaged`];
-    }
-    // EXTRACTING: value leaving now — relays/sweeps active, but no NEW creators forming.
-    // Sits after ACTIVE: the launch wave is done, profit is being routed out.
-    if (extracting && active === 0 && armed === 0) {
-        const bits = [];
-        if (EXTRACT.relays) bits.push(`<b>${EXTRACT.relays}</b> profit relay${EXTRACT.relays>1?'s':''} active`);
-        if (EXTRACT.sol)    bits.push(`<b>${EXTRACT.sol.toFixed(1)}</b> SOL routed (1h)`);
-        if (EXTRACT.sweeps) bits.push(`<b>${EXTRACT.sweeps}</b> sweeps`);
-        bits.push('no new seeds — value leaving');
-        return ['EXTRACTING', 'ms-extracting', true, bits.join(' · ')];
-    }
-    // FORMING: hubs active/armed, creators pending, no launch yet
-    if (active > 0 || armed > 0 || pending > 0) {
-        return ['FORMING', 'ms-forming', true,
-            `Active hubs <b>${active}</b> · Armed <b>${armed}</b> · Pending creators <b>${pending}</b> · launch window forming`];
-    }
-    // RECYCLING: reservoir growing / recent conversions, no hubs forming yet
-    if (converted24 || (res.dormant || 0) > 0) {
-        return ['RECYCLING', 'ms-recycling', false,
-            `Reservoir <b>${res.dormant||0}</b> dormant · relay-funded cohort building · preparing next wave`];
-    }
-    // DORMANT: nothing running
-    return ['DORMANT', 'ms-dormant', false,
-        `No active hubs · no pending creators · reservoir conversions (24h) 0 · Watching`];
-}
 const SWEEP_BURST = 5;       // ≥5 meaningful sweeps in window → extraction burst
 const SWEEP_MIN_SOL = 0.01;  // ignore dust sweeps below this
+const W30M = 1800, W24H = 86400;
+
+// Operational-evidence weights for the confidence score (see audit §4).
+// ONLY operational signals appear here — analytical backlogs (pending attributions,
+// static reservoir level) are deliberately absent and can never drive state.
+const MS_WEIGHT = {
+    launches30m: 40, active_hubs: 25, armed_hubs: 20, seeds24: 15,
+    newHubs24: 15, relaysActive: 20, sweepBurst: 15, conv24: 12,
+};
+
+// ── Mission Status: 5-state lifecycle, OPERATIONAL signals only ─────────────────
+// Default DORMANT; a higher state must be EARNED by a time-stamped operational signal.
+// Evaluation order ACTIVE → EXTRACTING → FORMING → RECYCLING → DORMANT (no masking).
+// Returns {state, cls, live, confidence, triggers:[{label,weight}], ignored:[...]}.
+function deriveMission(d) {
+    const st = d.status || {}, res = d.reservoir || {}, ev = d.events || [];
+    const now = Math.floor(Date.now()/1000);
+    const cnt = (type, win) => ev.filter(e => e.type === type && (now - (e.ts||0)) <= win).length;
+
+    // operational signals (time-bounded)
+    const active = st.active_hubs || 0, armed = st.armed_hubs || 0;
+    const launches30m = cnt('CREATE_DETECTED', W30M);
+    const launches24  = cnt('CREATE_DETECTED', W24H);
+    const armed24     = cnt('HUB_ARMED', W24H);
+    const newHubs24   = cnt('NEW_PROVISIONING_HUB', W24H);
+    const seeds24     = cnt('OPERATION_CREATED', W24H);   // a forming operation = seeding signal
+    const conv24      = cnt('RESERVOIR_CONVERTED', W24H);
+    const relaysActive = EXTRACT.relays > 0;
+    const sweepBurst   = EXTRACT.sweeps >= SWEEP_BURST;
+    // analytical (NEVER drive state — shown only in the "ignored" line)
+    const pending = st.pending_creators || 0;
+    const dormantPool = res.dormant || 0;
+
+    const sig = { launches30m, active_hubs:active, armed_hubs:armed, seeds24,
+                  newHubs24, relaysActive: relaysActive?1:0, sweepBurst: sweepBurst?1:0, conv24 };
+    const trig = keys => keys.filter(k => sig[k] > 0)
+        .map(k => ({ key:k, val:sig[k], weight: MS_WEIGHT[k] || 0 }));
+    const conf = keys => Math.min(100, trig(keys).reduce((s,t) => s + t.weight, 0));
+
+    const ignored = [];
+    if (pending > 0)     ignored.push(`${pending} pending attributions (review backlog → Attribution Review)`);
+    if (dormantPool > 0) ignored.push(`${dormantPool} dormant reservoir (static pool — not growing)`);
+
+    const mk = (state, cls, live, keys) =>
+        ({ state, cls, live, confidence: conf(keys), triggers: trig(keys), ignored });
+
+    // ACTIVE — launching now (priority 4)
+    if (launches30m > 0 || (armed > 0 && seeds24 > 0) || active > 0)
+        return mk('ACTIVE', 'ms-active', true,
+            ['launches30m','active_hubs','armed_hubs','seeds24']);
+    // EXTRACTING — monetising, nothing forming (priority 3)
+    if ((relaysActive || sweepBurst) && active === 0 && armed === 0 && launches30m === 0)
+        return mk('EXTRACTING', 'ms-extracting', true, ['relaysActive','sweepBurst']);
+    // FORMING — fresh hub/arming/seeding activity, no launch yet (priority 2).
+    // NOTE: pending_creators is NOT a trigger (that was the false-FORMING bug).
+    if (newHubs24 > 0 || armed > 0 || armed24 > 0 || seeds24 > 0)
+        return mk('FORMING', 'ms-forming', true, ['newHubs24','armed_hubs','seeds24']);
+    // RECYCLING — reservoir converting/growing, nothing forming (priority 1).
+    // Driven by conversion EVENTS, not by the static dormant count.
+    if (conv24 > 0)
+        return mk('RECYCLING', 'ms-recycling', false, ['conv24']);
+    // DORMANT — no operational signal (priority 0). Confidence = how idle we are.
+    const near = Math.max(0, ...Object.keys(MS_WEIGHT).map(k => sig[k] > 0 ? MS_WEIGHT[k] : 0));
+    return { state:'DORMANT', cls:'ms-dormant', live:false,
+             confidence: 100 - near, triggers: [], ignored };
+}
+
+const MS_TRIGGER_LABEL = {
+    launches30m: n => `${n} launch${n>1?'es':''} (last 30m)`,
+    active_hubs: n => `${n} active hub${n>1?'s':''}`,
+    armed_hubs:  n => `${n} armed hub${n>1?'s':''}`,
+    seeds24:     n => `${n} operation${n>1?'s':''} forming (24h)`,
+    newHubs24:   n => `${n} new hub${n>1?'s':''} (24h)`,
+    relaysActive:() => `profit relay active`,
+    sweepBurst:  () => `sweep burst (≥${SWEEP_BURST})`,
+    conv24:      n => `${n} reservoir conversion${n>1?'s':''} (24h)`,
+};
 
 function renderMission(d) {
-    const [word, cls, live, sub] = deriveMission(d);
-    const m = document.getElementById('mission');
-    m.className = 'mission ' + cls + (live ? ' live' : '');
-    document.getElementById('ms-word').textContent = word;
-    document.getElementById('ms-sub').innerHTML = sub;
+    const m = deriveMission(d);
+    const banner = document.getElementById('mission');
+    banner.className = 'mission ' + m.cls + (m.live ? ' live' : '');
+    document.getElementById('ms-word').textContent = m.state;
+    // banner sub-line: the triggers as a sentence, or the idle caption
+    const subBits = m.triggers.map(t => MS_TRIGGER_LABEL[t.key](t.val));
+    document.getElementById('ms-sub').innerHTML = subBits.length
+        ? subBits.map(s => `<b>${s}</b>`).join(' · ')
+        : 'No active hubs · no launches · no extraction — watching';
+    renderWhyPanel(m);
+}
+
+// "Why am I in this state?" — auditable evidence panel beneath the banner.
+function renderWhyPanel(m) {
+    const el = document.getElementById('ms-why');
+    if (!el) return;
+    const trigHtml = m.triggers.length
+        ? m.triggers.map(t => `<li>${MS_TRIGGER_LABEL[t.key](t.val)} <span class="w">+${t.weight}</span></li>`).join('')
+        : '<li class="idle">0 active hubs · 0 armed · 0 launches · 0 extraction</li>';
+    const ignoredHtml = m.ignored.length
+        ? `<div class="why-ignored"><span class="lbl">Not counted (analytical, not operational):</span><ul>${
+            m.ignored.map(i => `<li>${i}</li>`).join('')}</ul></div>` : '';
+    el.innerHTML =
+        `<div class="why-head"><span>Why am I in this state?</span>` +
+        `<span class="why-conf">confidence ${m.confidence}%</span></div>` +
+        `<div class="why-trig"><span class="lbl">Triggered by:</span><ul>${trigHtml}</ul></div>` +
+        ignoredHtml;
 }
 
 function renderPulse(d) {

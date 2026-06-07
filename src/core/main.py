@@ -26647,6 +26647,134 @@ def api_wt_risk_axis():
     })
 
 
+@app.route('/api/watchtower/discovery')
+def api_wt_discovery():
+    """
+    Aggregated DISCOVERY-MODE intelligence for the Command Center's dormant pivot.
+    When WATCHTOWER is not operating, the mission is generating intelligence, not
+    monitoring execution. This one payload answers: what new intelligence appeared,
+    what should I investigate next, which clusters are growing, is the reservoir
+    changing, are new operators emerging.
+
+    Composes existing, validated sources — attribution axis (Axis 3), reservoir
+    delta, cluster snapshot growth + change feed. No new tables.
+    """
+    from src.analysis.attribution_axis import derive_attribution, linkage_label
+    from src.analysis import cluster_snapshots as _cs
+    from collections import Counter
+
+    conn = db_connect(DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    now = int(time.time())
+    h24 = now - 86400
+
+    # ── Attribution intelligence (replaces the un-actionable "214 pending") ──────
+    attr_rows = conn.execute("""
+        SELECT creator_address, watchtower_evidence_json, evidence_grade,
+               watchtower_checked_at,
+               json_extract(evidence_basis,'$.method') AS method
+        FROM creator_risk_scores WHERE watchtower_related = 1
+    """).fetchall()
+    by_conf = Counter()
+    by_linkage = Counter()
+    latest = None
+    for r in attr_rows:
+        a = derive_attribution(r["watchtower_evidence_json"], r["evidence_grade"], r["method"])
+        by_conf[a["confidence"] or "NONE"] += 1
+        by_linkage[a["linkage"]] += 1
+        if latest is None or (r["watchtower_checked_at"] or 0) > (latest["checked_at"] or 0):
+            latest = {"creator": r["creator_address"], "linkage": a["linkage"],
+                      "linkage_label": linkage_label(a["linkage"]),
+                      "confidence": a["confidence"], "checked_at": r["watchtower_checked_at"]}
+    # active in the last 24h = re-confirmed/checked this window (honest label: ACTIVE,
+    # not "new" — watchtower_checked_at is the engine-pass stamp, re-stamped each cycle)
+    active_24h = sum(1 for r in attr_rows if (r["watchtower_checked_at"] or 0) >= h24)
+    attribution = {
+        "total": len(attr_rows),
+        "active_24h": active_24h,
+        "by_confidence": {  # Axis-3 confidence → display tiers
+            "confirmed": by_conf.get("CONFIRMED", 0),
+            "probable":  by_conf.get("STRONG", 0),
+            "investigate": by_conf.get("WEAK", 0),
+        },
+        "by_evidence": {
+            "direct_infrastructure": by_linkage.get("WATCHTOWER_DIRECT", 0),
+            "provisioning_hub":      by_linkage.get("WATCHTOWER_PROVISIONING", 0),
+            "relay_funded":          by_linkage.get("WATCHTOWER_RELAY", 0),
+            "lineage":               by_linkage.get("WATCHTOWER_LINEAGE", 0),
+            "collector_flow":        by_linkage.get("WATCHTOWER_COLLECTOR", 0),
+            "fingerprint":           by_linkage.get("WATCHTOWER_FINGERPRINT", 0),
+        },
+        "latest": latest,
+    }
+
+    # ── Reservoir intelligence (first-class object) ─────────────────────────────
+    reservoir = {"dormant": 0, "converted": 0, "total": 0, "conversion_rate": 0.0,
+                 "median_age_d": None, "new_funded_7d": 0, "oldest_d": None, "youngest_d": None}
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_creator_reservoir'").fetchone():
+        cutoff7 = conn.execute("SELECT datetime('now','-7 day')").fetchone()[0]
+        rr = conn.execute("""
+            SELECT COUNT(*) AS total,
+                   SUM(CASE WHEN status='DORMANT' THEN 1 ELSE 0 END) AS dormant,
+                   SUM(CASE WHEN status!='DORMANT' OR launch_token IS NOT NULL THEN 1 ELSE 0 END) AS converted,
+                   SUM(CASE WHEN status='DORMANT' AND funded_at >= ? THEN 1 ELSE 0 END) AS new7,
+                   ROUND((strftime('%s','now')-MIN(strftime('%s',funded_at)))/86400.0,1) AS oldest_d,
+                   ROUND((strftime('%s','now')-MAX(strftime('%s',funded_at)))/86400.0,1) AS youngest_d
+            FROM wt_creator_reservoir
+        """, (cutoff7,)).fetchone()
+        reservoir["total"] = rr["total"] or 0
+        reservoir["dormant"] = rr["dormant"] or 0
+        reservoir["converted"] = rr["converted"] or 0
+        reservoir["new_funded_7d"] = rr["new7"] or 0
+        reservoir["oldest_d"] = rr["oldest_d"]
+        reservoir["youngest_d"] = rr["youngest_d"]
+        if reservoir["total"]:
+            reservoir["conversion_rate"] = round(reservoir["converted"]/reservoir["total"]*100, 1)
+        ages = [x[0] for x in conn.execute(
+            "SELECT days_since_funded FROM wt_creator_reservoir WHERE days_since_funded IS NOT NULL").fetchall()]
+        if ages:
+            ages.sort(); m = len(ages)//2
+            reservoir["median_age_d"] = round(ages[m] if len(ages)%2 else (ages[m-1]+ages[m])/2, 1)
+
+    # ── Cluster growth + discovery feed (from snapshot history) ─────────────────
+    growth, feed = [], []
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_operator_cluster_snapshots'").fetchone():
+        growth = _cs.all_growth(conn)
+        feed = _cs.change_feed(conn)
+    emerging_growing = [g for g in growth if g.get("trend") == "GROWING"]
+
+    # ── INVESTIGATE NEXT — ranked top targets (where to spend the next 15 min) ───
+    # Score: attribution confidence + cluster growth + new-counterparty evidence.
+    invest = []
+    for g in growth:
+        d = g.get("deltas_24h", {})
+        score = 0.0
+        reasons = []
+        if g.get("trend") == "GROWING":
+            score += 40; reasons.append("growing")
+        if d.get("confidence"):
+            score += max(0, d["confidence"] * 100); reasons.append(f"conf {'+' if d['confidence']>0 else ''}{round(d['confidence']*100)}%")
+        if d.get("token_count"):  score += d["token_count"] * 5; reasons.append(f"+{d['token_count']} launches")
+        if d.get("creator_count"): score += d["creator_count"] * 5; reasons.append(f"+{d['creator_count']} creators")
+        if d.get("new_funders_detected"):    score += 15; reasons.append("new funder")
+        if d.get("new_recipients_detected"): score += 15; reasons.append("new recipient")
+        if score > 0:
+            invest.append({"cluster_id": g["cluster_id"], "score": round(score, 1),
+                           "trend": g.get("trend"), "reasons": reasons,
+                           "confidence": (g.get("current") or {}).get("confidence")})
+    invest.sort(key=lambda x: -x["score"])
+
+    conn.close()
+    return jsonify({
+        "ts": now,
+        "attribution": attribution,
+        "reservoir": reservoir,
+        "emerging": {"growing": len(emerging_growing), "total_with_history": len(growth)},
+        "discovery_feed": feed,
+        "investigate_next": invest[:5],
+    })
+
+
 @app.route('/api/watchtower/operator-growth')
 def api_wt_operator_growth():
     """

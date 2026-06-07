@@ -64,6 +64,40 @@
 .why-ignored { margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
 .why-ignored li { color: var(--text-secondary); font-size: 12px; }
 
+/* ── Discovery Mode (dormant pivot) ─────────────────────────────────────────── */
+.disc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 12px; margin-bottom: 14px; }
+.disc-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 13px 15px; }
+.disc-card-h { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-secondary); margin-bottom: 11px; }
+.disc-tiers { display: flex; gap: 14px; margin-bottom: 12px; }
+.dt { text-align: center; flex: 1; }
+.dt-v { font-size: 24px; font-weight: 800; display: block; }
+.dt-v.conf { color: #4ade80; } .dt-v.prob { color: #fbbf24; } .dt-v.inv { color: var(--text-secondary); }
+.dt-l { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); }
+.disc-sub { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin: 4px 0 6px; }
+.disc-evidence { display: flex; flex-direction: column; gap: 4px; }
+.disc-evidence .ev { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-primary); }
+.disc-evidence .ev .dots { flex: 1; border-bottom: 1px dotted var(--border-color); margin: 0 7px; transform: translateY(-3px); }
+.disc-evidence .ev.zero { color: var(--text-secondary); }
+.disc-latest { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border-color); font-size: 12px; }
+.disc-latest a { color: var(--accent-cyan); text-decoration: none; }
+.disc-kv { display: flex; flex-direction: column; gap: 6px; }
+.disc-kv > div { display: flex; justify-content: space-between; align-items: baseline; }
+.disc-kv .k { font-size: 12px; color: var(--text-secondary); }
+.disc-kv .vv { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.disc-kv .vv.cyan { color: var(--accent-cyan); } .disc-kv .vv.green { color: var(--color-green); }
+.disc-status { margin-top: 11px; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    background: rgba(34,211,238,.1); color: var(--accent-cyan); text-align: center; }
+.disc-cta { display: block; margin-top: 11px; font-size: 12px; color: var(--accent-cyan); text-decoration: none; }
+.disc-invest { display: flex; flex-direction: column; gap: 6px; }
+.di-row { display: flex; align-items: center; gap: 9px; font-size: 12px; padding: 6px 8px;
+    background: var(--bg-secondary); border-radius: 6px; text-decoration: none; }
+.di-row:hover { background: var(--bg-hover); }
+.di-rank { font-weight: 800; color: var(--accent-cyan); min-width: 16px; }
+.di-cid { color: var(--text-primary); font-weight: 600; }
+.di-why { color: var(--text-secondary); font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.di-score { color: var(--text-secondary); font-size: 11px; }
+.mission.dormant-discovery .mission-state { font-size: 26px; }
+
 /* Pulse bar — one-line "what changed", window toggle */
 .pulse {
     display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -177,12 +211,67 @@
   <div class="cc-label">⚠ Needs Attention <span class="n" id="attn-count"></span></div>
   <div class="attn" id="attn-list"><div class="cc-empty">Loading…</div></div>
 
-  <!-- Layer 2 — Live Operations -->
-  <div class="cc-label">◆ Live Operations</div>
+  <!-- ══ DISCOVERY MODE — shown when dormant; the page pivots to intelligence ════ -->
+  <div id="discovery-mode" style="display:none">
+    <div class="cc-label">🔍 Discovery Mode <span class="n">— WATCHTOWER dormant · generating intelligence</span></div>
+    <div class="disc-grid">
+      <!-- Attribution Intelligence (replaces "Pending Creators") -->
+      <div class="disc-card">
+        <div class="disc-card-h">Attribution Intelligence</div>
+        <div class="disc-tiers">
+          <div class="dt"><span class="dt-v conf" id="di-confirmed">—</span><span class="dt-l">Confirmed</span></div>
+          <div class="dt"><span class="dt-v prob" id="di-probable">—</span><span class="dt-l">Probable</span></div>
+          <div class="dt"><span class="dt-v inv" id="di-investigate">—</span><span class="dt-l">Investigate</span></div>
+        </div>
+        <div class="disc-sub">By evidence</div>
+        <div class="disc-evidence" id="di-evidence"></div>
+        <div class="disc-latest" id="di-latest"></div>
+      </div>
+
+      <!-- Relay-Funded Reservoir (first-class object) -->
+      <div class="disc-card">
+        <div class="disc-card-h">Relay-Funded Reservoir</div>
+        <div class="disc-kv">
+          <div><span class="k">Dormant</span><span class="vv cyan" id="rv-dormant">—</span></div>
+          <div><span class="k">Converted</span><span class="vv" id="rv-converted">—</span></div>
+          <div><span class="k">Conversion Rate</span><span class="vv" id="rv-rate">—</span></div>
+          <div><span class="k">Median Age</span><span class="vv" id="rv-median">—</span></div>
+          <div><span class="k">New Funded (7d)</span><span class="vv green" id="rv-new7">—</span></div>
+          <div><span class="k">Age Range</span><span class="vv" id="rv-agerange">—</span></div>
+        </div>
+        <div class="disc-status" id="rv-status">Conversion Watch Active</div>
+      </div>
+
+      <!-- Discovery Status dashboard -->
+      <div class="disc-card">
+        <div class="disc-card-h">Discovery Status</div>
+        <div class="disc-kv">
+          <div><span class="k">Attributions (active 24h)</span><span class="vv cyan" id="ds-attr">—</span></div>
+          <div><span class="k">Emerging Operators</span><span class="vv" id="ds-emerging">—</span></div>
+          <div><span class="k">Growing Clusters</span><span class="vv green" id="ds-growing">—</span></div>
+          <div><span class="k">Reservoir Growth (7d)</span><span class="vv" id="ds-resgrowth">—</span></div>
+        </div>
+        <a class="disc-cta" href="/watchtower/operators">Open Discovery Console →</a>
+      </div>
+
+      <!-- Investigate Next (ranked top targets) -->
+      <div class="disc-card">
+        <div class="disc-card-h">⊕ Investigate Next</div>
+        <div class="disc-invest" id="di-invest"><div class="cc-empty">—</div></div>
+      </div>
+    </div>
+
+    <!-- Discovery Feed -->
+    <div class="cc-label">🛰 Discovery Feed</div>
+    <div class="feed" id="disc-feed"><div class="cc-empty">Loading…</div></div>
+  </div>
+
+  <!-- Layer 2 — Live Operations (demoted/labelled secondary when dormant) -->
+  <div class="cc-label" id="ops-label">◆ Live Operations</div>
   <div class="ops-tiles">
     <div class="tile"><div class="v green" id="t-active">—</div><div class="l">Active Hubs</div></div>
     <div class="tile"><div class="v red"   id="t-armed">—</div><div class="l">Armed Hubs</div></div>
-    <div class="tile"><div class="v amber" id="t-pending">—</div><div class="l">Pending Creators</div></div>
+    <div class="tile"><div class="v amber" id="t-pending">—</div><div class="l">Attributed Creators</div></div>
     <div class="tile"><div class="v cyan"  id="t-reservoir">—</div><div class="l">Reservoir Dormant</div></div>
   </div>
   <div class="ops-sub" id="ops-sub">—</div>
@@ -320,6 +409,84 @@ function renderMission(d) {
         ? subBits.map(s => `<b>${s}</b>`).join(' · ')
         : 'No active hubs · no launches · no extraction — watching';
     renderWhyPanel(m);
+    applyMode(m);   // pivot to DISCOVERY MODE when dormant (no operational activity)
+}
+
+// Mode switch: OPERATIONS when any hub/launch active, else DISCOVERY (intelligence).
+// In DISCOVERY mode the discovery panels lead and Live Operations is labelled secondary.
+let DISCOVERY_ACTIVE = false;
+function applyMode(m) {
+    const st = (LAST && LAST.status) || {};
+    const operational = (st.active_hubs||0) > 0 || (st.armed_hubs||0) > 0 || m.state === 'ACTIVE';
+    const discovery = !operational;   // dormant/forming-without-hubs/recycling → discovery
+    DISCOVERY_ACTIVE = discovery;
+    document.getElementById('discovery-mode').style.display = discovery ? '' : 'none';
+    const opsLabel = document.getElementById('ops-label');
+    opsLabel.innerHTML = discovery
+        ? '◆ Live Operations <span class="n" style="color:var(--text-secondary)">— none active (secondary while dormant)</span>'
+        : '◆ Live Operations';
+    if (discovery && !window._discLoaded) { loadDiscovery(); window._discLoaded = true; }
+}
+
+const EVIDENCE_LABELS = {
+    direct_infrastructure: 'Direct Infrastructure', provisioning_hub: 'Provisioning Hub',
+    relay_funded: 'Relay Funded', lineage: 'Lineage (multi-hop)',
+    collector_flow: 'Collector Flow', fingerprint: 'Fingerprint (soft)',
+};
+async function loadDiscovery() {
+    try {
+        const r = await fetch('/api/watchtower/discovery');
+        if (!r.ok) return;
+        renderDiscovery(await r.json());
+    } catch (e) { console.error('discovery load failed', e); }
+}
+function renderDiscovery(d) {
+    const a = d.attribution || {}, bc = a.by_confidence || {}, be = a.by_evidence || {};
+    document.getElementById('di-confirmed').textContent   = bc.confirmed ?? 0;
+    document.getElementById('di-probable').textContent    = bc.probable ?? 0;
+    document.getElementById('di-investigate').textContent = bc.investigate ?? 0;
+    // evidence breakdown, strongest first, zeros greyed
+    const order = ['direct_infrastructure','provisioning_hub','relay_funded','lineage','collector_flow','fingerprint'];
+    document.getElementById('di-evidence').innerHTML = order.map(k => {
+        const v = be[k] || 0;
+        return `<div class="ev ${v?'':'zero'}"><span>${EVIDENCE_LABELS[k]}</span><span class="dots"></span><span>${v}</span></div>`;
+    }).join('');
+    const lt = a.latest;
+    document.getElementById('di-latest').innerHTML = lt
+        ? `Latest: <a href="/watchtower/operator/${lt.creator}">${short(lt.creator)}</a> · ${lt.linkage_label} · ${lt.confidence||''} ${lt.checked_at?'· '+ago(lt.checked_at):''}`
+        : 'No attributions yet';
+
+    // Reservoir
+    const rv = d.reservoir || {};
+    document.getElementById('rv-dormant').textContent   = rv.dormant ?? 0;
+    document.getElementById('rv-converted').textContent = rv.converted ?? 0;
+    document.getElementById('rv-rate').textContent      = (rv.conversion_rate ?? 0) + '%';
+    document.getElementById('rv-median').textContent    = rv.median_age_d != null ? rv.median_age_d + 'd' : '—';
+    document.getElementById('rv-new7').textContent      = '+' + (rv.new_funded_7d ?? 0);
+    document.getElementById('rv-agerange').textContent  =
+        (rv.youngest_d != null && rv.oldest_d != null) ? `${rv.youngest_d}–${rv.oldest_d}d` : '—';
+
+    // Discovery status
+    document.getElementById('ds-attr').textContent      = a.active_24h ?? 0;
+    document.getElementById('ds-emerging').textContent  = (d.emerging||{}).total_with_history ?? 0;
+    document.getElementById('ds-growing').textContent   = (d.emerging||{}).growing ?? 0;
+    document.getElementById('ds-resgrowth').textContent = '+' + (rv.new_funded_7d ?? 0);
+
+    // Investigate Next
+    const inv = d.investigate_next || [];
+    document.getElementById('di-invest').innerHTML = inv.length
+        ? inv.map((x,i) => `<a class="di-row" href="/watchtower/operator/${x.cluster_id}">
+            <span class="di-rank">${i+1}</span>
+            <span class="di-cid">#${x.cluster_id}</span>
+            <span class="di-why">${(x.reasons||[]).join(' · ')}</span>
+            <span class="di-score">${x.score}</span></a>`).join('')
+        : '<div class="cc-empty">No ranked targets yet — clusters need 24h history</div>';
+
+    // Discovery feed
+    const feed = d.discovery_feed || [];
+    document.getElementById('disc-feed').innerHTML = feed.length
+        ? feed.map(e => `<div class="fev"><span class="ty">${(e.kind||'').replace(/_/g,' ')}</span><span class="lb">${e.text}</span></div>`).join('')
+        : '<div class="cc-empty">No new intelligence generated in this window</div>';
 }
 
 // "Why am I in this state?" — auditable evidence panel beneath the banner.
@@ -493,5 +660,6 @@ loadExtractionSignals();
 setInterval(load, 15000);          // Mission Status is the heartbeat → 15s
 setInterval(loadQueueCounts, 60000);
 setInterval(loadExtractionSignals, 30000);   // extraction signals → 30s
+setInterval(() => { if (DISCOVERY_ACTIVE) loadDiscovery(); }, 60000);  // discovery intel → 60s while dormant
 </script>
 {% endblock %}

@@ -26299,16 +26299,21 @@ def api_wt_command_center():
            'median_age_d': None, 'new_funded_24h': 0}
     conversions = []
     if _has_table('wt_creator_reservoir'):
+        # 24h growth delta basis = funded_at (the real relay->wallet funding time),
+        # NOT first_seen. first_seen is the moment we ADDED the wallet to the table,
+        # which for the backfilled pool is one shared batch timestamp — using it would
+        # read +71 on backfill day and 0 forever after (detection time, not growth).
+        # We also restrict growth to wallets that are STILL DORMANT: "reservoir growth"
+        # means new staging, so a wallet funded-and-already-converted in the window is
+        # not growth. funded_at is 'YYYY-MM-DD HH:MM:SS' UTC, lexically comparable.
+        cutoff_24h = conn.execute("SELECT datetime('now','-1 day')").fetchone()[0]
         rstats = conn.execute("""
             SELECT COUNT(*) AS total,
                    SUM(CASE WHEN status='DORMANT' THEN 1 ELSE 0 END) AS dormant,
                    SUM(CASE WHEN status!='DORMANT' OR launch_token IS NOT NULL THEN 1 ELSE 0 END) AS converted,
-                   -- 24h growth delta: wallets newly added to the reservoir in the last
-                   -- day. This is the RATE-of-change RECYCLING needs; the static pool
-                   -- size (dormant) must never drive mission state on its own.
-                   SUM(CASE WHEN first_seen >= ? THEN 1 ELSE 0 END) AS new_funded_24h
+                   SUM(CASE WHEN status='DORMANT' AND funded_at >= ? THEN 1 ELSE 0 END) AS new_funded_24h
             FROM wt_creator_reservoir
-        """, (h24,)).fetchone()
+        """, (cutoff_24h,)).fetchone()
         res['total'] = rstats['total'] or 0
         res['dormant'] = rstats['dormant'] or 0
         res['converted'] = rstats['converted'] or 0

@@ -70,6 +70,22 @@
 .frontier-current { background: linear-gradient(135deg, rgba(34,211,238,.08), rgba(34,211,238,.02)); border-left: 4px solid var(--accent-cyan); }
 .frontier-future  { background: linear-gradient(135deg, rgba(139,92,246,.08), rgba(139,92,246,.02)); border-left: 4px solid var(--accent-purple); }
 .frontier-vs { align-self: center; font-size: 11px; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; }
+.fr-mission-q { font-size: 11px; color: var(--text-secondary); margin: 2px 0 8px; font-style: italic; }
+/* mission cards */
+.disc-card.mission-a { border-top: 2px solid var(--accent-cyan); }
+.disc-card.mission-b { border-top: 2px solid var(--accent-purple); }
+/* trip-wire (Mission B) */
+.tw-armed { font-size: 12px; font-weight: 700; color: var(--color-green); margin-bottom: 8px; }
+.tw-fired { font-size: 13px; font-weight: 800; color: var(--color-red); margin-bottom: 8px;
+    background: rgba(239,68,68,.12); padding: 6px 10px; border-radius: 6px; }
+.tw-tier { display: flex; align-items: baseline; gap: 9px; padding: 5px 8px; border-radius: 6px;
+    background: var(--bg-secondary); margin-bottom: 5px; }
+.tw-tier .tw-n { font-size: 17px; font-weight: 800; min-width: 26px; }
+.tw-tier .tw-l { font-size: 12px; color: var(--text-secondary); }
+.tw-t1 { border-left: 3px solid var(--color-red); } .tw-t1 .tw-n { color: var(--color-red); }
+.tw-t2 { border-left: 3px solid var(--color-yellow); } .tw-t2 .tw-n { color: var(--color-yellow); }
+.tw-t3 { border-left: 3px solid var(--text-secondary); } .tw-t3 .tw-n { color: var(--text-secondary); }
+.tw-hit { border-left: 3px solid var(--color-red) !important; }
 .fr-tag { font-size: 10px; font-weight: 800; letter-spacing: .8px; margin-bottom: 8px; }
 .frontier-current .fr-tag { color: var(--accent-cyan); }
 .frontier-future .fr-tag { color: var(--accent-purple); }
@@ -263,15 +279,18 @@
   <div id="discovery-mode" style="display:none">
     <div class="cc-label">🔍 Discovery Mode <span class="n">— WATCHTOWER dormant · generating intelligence</span></div>
 
-    <!-- DISCOVERY FRONTIERS — the two competing intelligence paths -->
+    <!-- TWO MISSIONS — Network Expansion (grow the graph) vs Wave Interception
+         (catch the next launch). The audits proved these optimize for different
+         targets, so they are framed as distinct missions, not a single ranking. -->
     <div class="frontiers" id="frontiers">
       <div class="frontier frontier-current" id="fr-current">
-        <div class="fr-tag">CURRENT FRONTIER</div>
+        <div class="fr-tag">MISSION A · NETWORK EXPANSION</div>
+        <div class="fr-mission-q">Largest unmapped frontier — grows the graph the most</div>
         <div class="fr-body"><div class="cc-empty">—</div></div>
       </div>
-      <div class="frontier-vs">vs</div>
       <div class="frontier frontier-future" id="fr-future">
-        <div class="fr-tag">FUTURE FRONTIER</div>
+        <div class="fr-tag">MISSION B · WAVE INTERCEPTION</div>
+        <div class="fr-mission-q">Next-wave candidate — most likely to launch next</div>
         <div class="fr-body"><div class="cc-empty">—</div></div>
       </div>
     </div>
@@ -319,18 +338,18 @@
         <a class="disc-cta" href="/watchtower/operators">Open Discovery Console →</a>
       </div>
 
-      <!-- Discovery Opportunities (ranked by Discovery Value = info gain, always 5) -->
-      <div class="disc-card">
-        <div class="disc-card-h">⊕ Discovery Opportunities <span class="rank-mode" id="di-mode"></span></div>
-        <div class="disc-card-note">Ranked by what each could <b>reveal</b>, not how sure we are</div>
+      <!-- MISSION A — Network Expansion: where to grow the graph (clusters/attributions) -->
+      <div class="disc-card mission-a">
+        <div class="disc-card-h">⊕ Mission A · Expansion Targets <span class="rank-mode" id="di-mode"></span></div>
+        <div class="disc-card-note">Grow the graph — ranked by what each could <b>reveal</b></div>
         <div class="disc-invest" id="di-invest"><div class="cc-empty">—</div></div>
       </div>
 
-      <!-- Top Expansion Targets (largest unexplored frontier, not a count) -->
-      <div class="disc-card">
-        <div class="disc-card-h">◎ Top Expansion Targets</div>
-        <div class="disc-card-note">Largest unexplored frontier — what remains unexplained</div>
-        <div class="disc-invest" id="di-emerging"><div class="cc-empty">—</div></div>
+      <!-- MISSION B — Wave Interception: the reservoir trip-wire (collection priority) -->
+      <div class="disc-card mission-b">
+        <div class="disc-card-h">🎯 Mission B · Next Wave Monitoring</div>
+        <div class="disc-card-note">Catch the next launch — watch for first outbound from the reservoir</div>
+        <div class="disc-invest" id="di-tripwire"><div class="cc-empty">—</div></div>
       </div>
     </div>
 
@@ -512,6 +531,36 @@ async function loadDiscovery() {
         if (!r.ok) return;
         renderDiscovery(await r.json());
     } catch (e) { console.error('discovery load failed', e); }
+    loadTripwire();   // Mission B
+}
+
+// MISSION B — Next Wave Monitoring: the reservoir conversion trip-wire, tiered.
+async function loadTripwire() {
+    const el = document.getElementById('di-tripwire');
+    if (!el) return;
+    try {
+        const r = await fetch('/api/watchtower/reservoir-tripwire');
+        if (!r.ok) return;
+        const d = await r.json();
+        const tiers = d.tier_breakdown || {};
+        const fired = d.fired || [];
+        const tierLabel = {1:'T1 · 2.10203928 fingerprint', 2:'T2 · fingerprint cohort', 3:'T3 · round 1.1 SOL'};
+        if (fired.length) {
+            // a wallet has MOVED — the wave may be starting. Lead with it, loudly.
+            el.innerHTML = `<div class="tw-fired">🚨 ${fired.length} wallet${fired.length>1?'s':''} MOVED — possible wave start</div>` +
+                fired.slice(0,6).map(f => `<a class="di-opp tw-hit" href="/watchtower/operator/${f.wallet}">
+                    <div class="di-opp-top"><span class="di-cid">T${f.tier} ${short(f.wallet)}</span>
+                    <span class="yield">${f.outbound_txs} outbound</span></div>
+                    <div class="di-reveal">↳ ${f.relay} · ${f.amount} SOL · funded ${f.days_since_funded}d ago</div></a>`).join('');
+        } else {
+            // armed and quiet — show the tiered watch posture
+            el.innerHTML =
+                `<div class="tw-armed">● ARMED · ${d.armed} wallets watched · 0 moved</div>` +
+                [1,2,3].map(t => tiers[t] ? `<div class="tw-tier tw-t${t}">
+                    <span class="tw-n">${tiers[t]}</span><span class="tw-l">${tierLabel[t]}</span></div>` : '').join('') +
+                `<div class="di-reveal" style="margin-top:6px">First outbound from any wallet = earliest wave signal · auto-attributes to OPERATION_ALPHA</div>`;
+        }
+    } catch (e) { console.error('tripwire load failed', e); }
 }
 function renderFrontiers(fr) {
     fr = fr || {};
@@ -600,8 +649,12 @@ function renderDiscovery(d) {
     document.getElementById('di-mode').textContent = mode === 'REAL' ? '' : 'heuristic';
     const kindIcon = {cluster:'◎', attribution:'●', reservoir:'♻', hub:'⬡'};
     const dvBadge = v => v ? `<span class="dv dv-${v.toLowerCase()}">${v.replace('_',' ')}</span>` : '';
-    const inv = d.discovery_opportunities || d.investigate_next || [];
-    // yield = expected network expansion (how many unknown entities this could reveal)
+    // MISSION A — expansion targets ONLY (graph growth): clusters + attributions.
+    // The reservoir is deliberately EXCLUDED here — it belongs to Mission B (wave
+    // interception), a different mission with a different target. This is the fix for
+    // the page conflating "biggest unexplored graph" with "most likely next launch".
+    const inv = (d.discovery_opportunities || d.investigate_next || [])
+        .filter(x => x.kind !== 'reservoir');
     const yieldLabel = x => {
         const y = x.potential_yield;
         if (y == null) return '';
@@ -617,15 +670,6 @@ function renderDiscovery(d) {
                 ${dvBadge(x.discovery_value)}
             </div>
             <div class="di-reveal">↳ ${x.reveal || x.reason || ''} <span class="cov-inline">${covLabel(x.coverage)}</span></div></a>`).join('')
-        : '<div class="cc-empty">No targets</div>';
-
-    // Top Emerging Operators (entities)
-    const top = em.top || [];
-    document.getElementById('di-emerging').innerHTML = top.length
-        ? top.map(c => `<a class="di-row" href="/watchtower/operator/${c.cluster_id}">
-            <span class="di-cid">◎ #${c.cluster_id} ${dvBadge(c.discovery_value)}</span>
-            <span class="di-why">${c.why||''}</span>
-            <span class="di-score yield">⊕ ${c.potential_yield!=null?c.potential_yield:'?'}</span></a>`).join('')
         : '<div class="cc-empty">No expansion targets</div>';
 
     // Reservoir wallet entities (oldest = most conversion-due, newest = freshest staging)

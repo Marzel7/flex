@@ -26840,6 +26840,10 @@ def api_wt_discovery():
         c["frontier_quality"] = q_band
         c["quality_signals"] = q_sig
         c["discovery_priority"] = _dv.discovery_priority(c["potential_yield"], _p, q_band)
+        # CLUSTER INTEGRITY — is this a valid cluster or a graph artifact?
+        i_band, i_sig = _dv.cluster_integrity(conn, c["cluster_id"], mapped_set)
+        c["integrity"] = i_band
+        c["integrity_signals"] = i_sig
     # Top Expansion Targets: band, then POTENTIAL YIELD (largest unexplored frontier
     # first) — what remains unexplained, not what exists.
     top_emerging = sorted(clusters, key=lambda c: (
@@ -26877,6 +26881,7 @@ def api_wt_discovery():
                      "discovery_value": c["discovery_value"], "reveal": c["why"],
                      "coverage": c.get("coverage"), "potential_yield": c.get("potential_yield", 0),
                      "frontier_quality": c.get("frontier_quality"),
+                     "integrity": c.get("integrity"),
                      "discovery_priority": c.get("discovery_priority", 0)})
 
     # 2) attributions — confirmed/probable direct-infra & provisioning hits weigh high
@@ -26998,6 +27003,12 @@ def api_wt_discovery():
         "reservoir": reservoir,
         "emerging": {"growing": len(emerging_growing), "total": len(clusters),
                      "total_with_history": len(growth), "top": top_emerging},
+        # system-wide cluster integrity rollup — how many clusters are valid vs artifacts
+        "integrity_summary": {
+            "high":   sum(1 for c in clusters if c.get("integrity") == "HIGH"),
+            "medium": sum(1 for c in clusters if c.get("integrity") == "MEDIUM"),
+            "low":    sum(1 for c in clusters if c.get("integrity") == "LOW"),
+        },
         "discovery_frontiers": {"current": current_frontier, "future": future_frontier},
         "discovery_feed": feed,
         "investigate_next": invest,            # kept for back-compat

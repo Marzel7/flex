@@ -375,6 +375,90 @@ def reservoir_frontier_quality(dormant, relays, uniform=True) -> tuple[str, dict
     return band, {"score": score, "dormant": dormant, "relays": relays, "uniform": uniform}
 
 
+def cluster_integrity(conn, cluster_id, mapped) -> tuple[str, dict]:
+    """
+    CLUSTER INTEGRITY = is this a VALID cluster, or a graph artifact? Distinct from
+    Frontier Quality (which measures discovery value). Integrity asks: do the members
+    actually belong together, free of placeholder-binding and duplicate inflation?
+
+    A cluster is coherent if its members are bound by ANY real signal:
+      - shared real recipient(s)  OR
+      - shared real funder(s)     OR
+      - shared provisioning / sweep activity (provisioner_count / total_sol_deployed)
+    The last is essential: confirmed operations like OPERATION_ALPHA (#89) cluster on a
+    provisioning fingerprint + sweep, NOT on shared recipients — flagging them as noise
+    would be wrong.
+
+    Penalised: members bound ONLY by placeholders, heavy duplicate inflation, and
+    single-member "clusters".
+    """
+    rows = conn.execute(
+        "SELECT creator_wallet FROM wt_cluster_members WHERE cluster_id=?", (cluster_id,)).fetchall()
+    stored = len(rows)
+    members = {r[0] for r in rows if r and r[0]}
+    n = len(members)
+    if n == 0:
+        return LOW, {"reason": "no members"}
+    dup_pct = round((stored - n) / stored * 100) if stored else 0
+    creators = list(members)
+    ph = ",".join("?" * len(creators))
+
+    def _shared(tbl, col):
+        return [r for r in conn.execute(
+            f"SELECT {col}, COUNT(DISTINCT creator_address) m FROM {tbl} "
+            f"WHERE creator_address IN ({ph}) GROUP BY {col}", creators)
+            if r[0] and r[0] not in PLACEHOLDERS and r[0] not in mapped and r[1] >= 2]
+    shared_r = _shared("creator_outgoing_transfers", "recipient_address") \
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE name='creator_outgoing_transfers'").fetchone() else []
+    shared_f = _shared("creator_funders", "funder_address") \
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE name='creator_funders'").fetchone() else []
+
+    crow = conn.execute(
+        "SELECT provisioner_count, total_sol_deployed FROM wt_operator_clusters WHERE cluster_id=?",
+        (cluster_id,)).fetchone()
+    provisioners = (crow[0] or 0) if crow else 0
+    sol_deployed = (crow[1] or 0) if crow else 0
+    provisioning_coherence = provisioners > 0 or sol_deployed > 0
+
+    # coherent core: members bound by a real shared recipient (the strongest signal)
+    core = 0
+    if shared_r:
+        srk = [r[0] for r in shared_r]; srph = ",".join("?" * len(srk))
+        core = conn.execute(
+            f"SELECT COUNT(DISTINCT creator_address) FROM creator_outgoing_transfers "
+            f"WHERE creator_address IN ({ph}) AND recipient_address IN ({srph})",
+            creators + srk).fetchone()[0]
+
+    placeholder_bound = conn.execute(
+        f"SELECT COUNT(DISTINCT creator_address) FROM creator_outgoing_transfers "
+        f"WHERE creator_address IN ({ph}) AND recipient_address IN "
+        f"({','.join('?'*len(PLACEHOLDERS))})", creators + list(PLACEHOLDERS)).fetchone()[0]
+
+    has_structure = bool(shared_r or shared_f or provisioning_coherence)
+    core_frac = core / n if n else 0
+    ph_frac = placeholder_bound / n if n else 0
+
+    # ── integrity verdict ──
+    if not has_structure or n < 2:
+        band = LOW                                   # no real signal, or a 1-member "cluster"
+    elif provisioning_coherence and not shared_r and not shared_f:
+        band = MEDIUM                                # coherent via provisioning only (e.g. #89)
+    elif core_frac >= 0.7 and ph_frac < 0.2 and dup_pct < 20:
+        band = HIGH                                  # most members really connected, clean
+    elif core_frac >= 0.3 or shared_r:
+        band = MEDIUM
+    else:
+        band = LOW
+    return band, {
+        "members": n, "stored_rows": stored, "dup_pct": dup_pct,
+        "shared_recipients": len(shared_r), "shared_funders": len(shared_f),
+        "provisioning_coherence": provisioning_coherence,
+        "coherent_core": core, "core_frac": round(core_frac, 2),
+        "placeholder_bound": placeholder_bound, "placeholder_frac": round(ph_frac, 2),
+        "has_structure": has_structure,
+    }
+
+
 def discovery_priority(potential_yield, probability, quality_band) -> float:
     """
     Discovery Priority = Potential Yield × Discovery Probability × Frontier Quality.

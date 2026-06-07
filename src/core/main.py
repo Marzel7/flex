@@ -9349,7 +9349,14 @@ def healthz():
 
 @app.route('/')
 def index():
-    """Serve the migration tracking dashboard"""
+    """Phase 4: Command Center is the home. Live Launches remains one click away at
+    /live-launches (and in the sidebar). Redirect keeps old bookmarks working."""
+    return redirect('/command-center')
+
+
+@app.route('/live-launches')
+def live_launches():
+    """Serve the migration tracking dashboard (formerly served at /)."""
     return render_template('dashboard_home.html', active_page='tokens')
 
 

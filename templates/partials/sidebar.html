@@ -11,26 +11,25 @@
 
         <div class="sidebar-section">
             <div class="sidebar-section-label">Live Market</div>
-            <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/">Live Launches</a>
-            <a class="sidebar-item {% if active_page == 'pumpfun' %}active{% endif %}" href="/pumpfun">PumpFun Feed</a>
+            <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/live-launches">Live Launches</a>
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-label">Intelligence</div>
+            <div class="sidebar-section-label">Review</div>
+            <a class="sidebar-item {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">Predictions<span class="nav-badge" id="badge-predictions"></span></a>
+            <a class="sidebar-item {% if active_page == 'approval_queue' %}active{% endif %}" href="/approval-queue">Token Review<span class="nav-badge" id="badge-token-review"></span></a>
+            <a class="sidebar-item {% if active_page == 'network_approval' %}active{% endif %}" href="/network-approval">Ecosystem Review<span class="nav-badge" id="badge-eco-review"></span></a>
+            <a class="sidebar-item {% if active_page == 'funding_queue' %}active{% endif %}" href="/funding-queue">Funding Review<span class="nav-badge" id="badge-funding-review"></span></a>
+        </div>
+
+        <details class="sidebar-section sidebar-collapse" {% if active_page in ['token_intelligence','creator-analysis','ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders','funder_intelligence','hubs','trading_sim'] %}open{% endif %}>
+            <summary class="sidebar-section-label">Intelligence</summary>
             <a class="sidebar-item {% if active_page == 'token_intelligence' %}active{% endif %}" href="/token-intelligence">Tokens</a>
             <a class="sidebar-item {% if active_page == 'creator-analysis' %}active{% endif %}" href="/creator-analysis">Creators</a>
             <a class="sidebar-item {% if active_page in ['ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders'] %}active{% endif %}" href="/ecosystem">Ecosystems</a>
             <a class="sidebar-item {% if active_page == 'funder_intelligence' or active_page == 'hubs' %}active{% endif %}" href="/funder-intelligence">Funding</a>
             <a class="sidebar-item {% if active_page == 'trading_sim' %}active{% endif %}" href="/trading-sim">Portfolio</a>
-        </div>
-
-        <div class="sidebar-section">
-            <div class="sidebar-section-label">Review</div>
-            <a class="sidebar-item {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">Predictions</a>
-            <a class="sidebar-item {% if active_page == 'approval_queue' %}active{% endif %}" href="/approval-queue">Token Review</a>
-            <a class="sidebar-item {% if active_page == 'network_approval' %}active{% endif %}" href="/network-approval">Ecosystem Review</a>
-            <a class="sidebar-item {% if active_page == 'funding_queue' %}active{% endif %}" href="/funding-queue">Funding Review</a>
-        </div>
+        </details>
 
         <div class="sidebar-section">
             <div class="sidebar-section-label">Investigation</div>
@@ -43,14 +42,18 @@
             <a class="sidebar-item {% if active_page == 'watchtower_interceptor' %}active{% endif %}" href="/watchtower/interceptor" style="padding-left:20px;font-size:11px;">↳ Interceptor</a>
         </div>
 
-        <div class="sidebar-section">
-            <div class="sidebar-section-label">Diagnostics</div>
-            <a class="sidebar-item {% if active_page == 'transfer_graph' %}active{% endif %}" href="/transfer-graph">Graph Diagnostics</a>
+        <details class="sidebar-section sidebar-collapse" {% if active_page in ['transfer_graph','webhook','snapshots','vaults','usage','system_health','pumpfun'] %}open{% endif %}>
+            <summary class="sidebar-section-label">Diagnostics</summary>
+            <a class="sidebar-item {% if active_page == 'system_health' %}active{% endif %}" href="/system-health">System Health</a>
             <a class="sidebar-item {% if active_page == 'webhook' %}active{% endif %}" href="/webhook-monitor">Webhook Monitor</a>
+            <a class="sidebar-item {% if active_page == 'transfer_graph' %}active{% endif %}" href="/transfer-graph">Graph Diagnostics</a>
+            <a class="sidebar-item {% if active_page == 'pumpfun' %}active{% endif %}" href="/pumpfun">PumpFun Feed</a>
             <a class="sidebar-item {% if active_page == 'snapshots' %}active{% endif %}" href="/snapshots">Snapshots</a>
             <a class="sidebar-item {% if active_page == 'vaults' %}active{% endif %}" href="/vaults">Vaults</a>
             <a class="sidebar-item {% if active_page == 'usage' %}active{% endif %}" href="/usage">Usage</a>
-            <a class="sidebar-item {% if active_page == 'system_health' %}active{% endif %}" href="/system-health">System Health</a>
+        </details>
+
+        <div class="sidebar-section">
             <a class="sidebar-item {% if active_page == 'settings' %}active{% endif %}" href="/settings">Settings</a>
         </div>
     </nav>
@@ -79,6 +82,27 @@
 </div>
 
 <style>
+/* Phase 4: collapsible Intelligence/Diagnostics + Review count badges */
+.sidebar-collapse { }
+.sidebar-collapse > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-collapse > summary::-webkit-details-marker { display: none; }
+.sidebar-collapse > summary::after {
+    content: "▸"; font-size: 9px; opacity: .5; transition: transform .15s ease;
+}
+.sidebar-collapse[open] > summary::after { transform: rotate(90deg); }
+.sidebar-collapse > summary:hover::after { opacity: .9; }
+
+.nav-badge {
+    display: none; margin-left: 6px; min-width: 16px; padding: 0 5px;
+    border-radius: 9px; background: var(--accent-primary, #3b82f6); color: #fff;
+    font-size: 10px; font-weight: 700; text-align: center; line-height: 16px;
+}
+.nav-badge.show { display: inline-block; }
+.sidebar-item { display: flex; align-items: center; }
+
 .sh-dot {
     padding: 1px 5px;
     border-radius: 3px;
@@ -178,5 +202,29 @@
     }
     pollHealth();
     setInterval(pollHealth, 30000);
+
+    // ── Phase 4: live count badges on Review queues ─────────────────────────────
+    // Best-effort: badge only queues with a true actionable-pending count; degrade
+    // silently (badge stays hidden) when an endpoint is absent or the count is 0.
+    function setBadge(id, n) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (n && n > 0) { el.textContent = n > 999 ? '999+' : n; el.classList.add('show'); }
+        else { el.classList.remove('show'); }
+    }
+    function pollBadges() {
+        // Ecosystem Review — networks awaiting first review (new + needs_evidence)
+        fetch('/api/network-approval/list').then(function(r){return r.ok?r.json():null;}).then(function(d){
+            if (!d) return; var c = d.counts || {};
+            setBadge('badge-eco-review', (c.new || 0) + (c.needs_evidence || 0) + (c.changed || 0));
+        }).catch(function(){});
+        // Funding Review — queued/ready/retrying funding jobs (not 'complete')
+        fetch('/api/funding-queue').then(function(r){return r.ok?r.json():null;}).then(function(d){
+            if (!d) return; var s = d.stats || {};
+            setBadge('badge-funding-review', (s.pending || 0) + (s.ready || 0) + (s.retry || 0));
+        }).catch(function(){});
+    }
+    pollBadges();
+    setInterval(pollBadges, 60000);
 })();
 </script>

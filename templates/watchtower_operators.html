@@ -345,6 +345,20 @@
 .funnel-arrow { color: var(--text-dim); font-size: 16px; opacity: .5; flex: 0 0 auto; }
 
 /* ── Emerging operators (primary surface) ───────────────────────────────────── */
+/* Mission banners — established intelligence (A) vs intelligence collection (B),
+   the same split as the Command Center. */
+.mission-banner { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    border-radius: 9px; padding: 11px 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+.mission-b-banner { background: linear-gradient(90deg, rgba(34,211,238,.08), rgba(34,211,238,.02));
+    border-left: 4px solid var(--col-cyan); }
+.mission-a-banner { background: linear-gradient(90deg, rgba(139,92,246,.07), rgba(139,92,246,.02));
+    border-left: 4px solid var(--col-purple); }
+.mb-tag { font-size: 12px; font-weight: 800; letter-spacing: .5px; }
+.mission-b-banner .mb-tag { color: var(--col-cyan); }
+.mission-a-banner .mb-tag { color: var(--col-purple); }
+.mb-q { font-size: 12px; color: var(--text-sec, var(--text-dim)); }
+.mb-q b { color: var(--text-pri); }
+
 .emerg-head { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 10px; flex-wrap: wrap; }
 .emerg-title { font-size: 15px; font-weight: 800; color: var(--text-pri); letter-spacing: .3px; }
 .emerg-sub { font-size: 11px; color: var(--text-dim); }
@@ -554,10 +568,16 @@
     <div class="funnel-stage"><div class="funnel-val attributed" id="fn-attributed">—</div><div class="funnel-label">Attributed</div></div>
 </div>
 
+<!-- ══ MISSION B · WAVE INTERCEPTION — intelligence collection (what we may discover next) ══ -->
+<div class="mission-banner mission-b-banner">
+    <span class="mb-tag">MISSION B · WAVE INTERCEPTION</span>
+    <span class="mb-q">Intelligence collection — operators forming before attribution. <b>This is the mission.</b></span>
+</div>
+
 <!-- ══ EMERGING OPERATORS — primary mission surface ═══════════════════════════ -->
 <div class="emerg-head">
     <span class="emerg-title">◎ EMERGING OPERATORS</span>
-    <span class="emerg-sub">Unknown operators forming — sorted by confidence &amp; recent activity. This is the mission.</span>
+    <span class="emerg-sub">Unknown operators forming — sorted by confidence &amp; recent activity.</span>
 </div>
 <div id="emerg-list" class="emerg-list">
     <div class="cc-empty"><div class="cc-empty-icon">◎</div>Loading emerging operators…</div>
@@ -661,8 +681,14 @@
     </div>
 </div>
 
+<!-- ══ MISSION A · KNOWN OPERATORS — established intelligence (what we already know) ══ -->
+<div class="mission-banner mission-a-banner" style="margin-top:28px">
+    <span class="mb-tag">MISSION A · KNOWN OPERATORS</span>
+    <span class="mb-q">Established intelligence — registry, historical campaigns, confirmed operations. Reference, not collection.</span>
+</div>
+
 <!-- ══ SECTION 7 — HISTORICAL CAMPAIGN ANALYSIS (secondary) ═════════ -->
-<div class="cc-section-label idle" style="margin-top:24px">
+<div class="cc-section-label idle" style="margin-top:16px">
     <span class="cc-live-dot"></span> HISTORICAL CAMPAIGN ANALYSIS
 </div>
 <div class="page-sub" style="margin:-4px 0 12px">Investigative context — discovered clusters, corridor operations, Apr–May fingerprint campaigns. Not operational priority.</div>

@@ -96,6 +96,13 @@
 .di-cid { color: var(--text-primary); font-weight: 600; }
 .di-why { color: var(--text-secondary); font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .di-score { color: var(--text-secondary); font-size: 11px; }
+.rank-mode { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--color-yellow); background: rgba(245,158,11,.12); padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+.disc-entities { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border-color); }
+.re-row { display: flex; align-items: baseline; gap: 7px; font-size: 11.5px; margin: 3px 0; }
+.re-row .re-k { color: var(--text-secondary); min-width: 88px; }
+.re-row a { color: var(--accent-cyan); text-decoration: none; }
+.re-age { color: var(--text-secondary); font-size: 10.5px; }
 .mission.dormant-discovery .mission-state { font-size: 26px; }
 
 /* Pulse bar — one-line "what changed", window toggle */
@@ -239,6 +246,7 @@
           <div><span class="k">New Funded (7d)</span><span class="vv green" id="rv-new7">—</span></div>
           <div><span class="k">Age Range</span><span class="vv" id="rv-agerange">—</span></div>
         </div>
+        <div class="disc-entities" id="rv-entities"></div>
         <div class="disc-status" id="rv-status">Conversion Watch Active</div>
       </div>
 
@@ -254,10 +262,16 @@
         <a class="disc-cta" href="/watchtower/operators">Open Discovery Console →</a>
       </div>
 
-      <!-- Investigate Next (ranked top targets) -->
+      <!-- Investigate Next (ranked top targets — always 5) -->
       <div class="disc-card">
-        <div class="disc-card-h">⊕ Investigate Next</div>
+        <div class="disc-card-h">⊕ Investigate Next <span class="rank-mode" id="di-mode"></span></div>
         <div class="disc-invest" id="di-invest"><div class="cc-empty">—</div></div>
+      </div>
+
+      <!-- Top Emerging Operators (entities, not a count) -->
+      <div class="disc-card">
+        <div class="disc-card-h">◎ Top Emerging Operators</div>
+        <div class="disc-invest" id="di-emerging"><div class="cc-empty">—</div></div>
       </div>
     </div>
 
@@ -471,20 +485,40 @@ function renderDiscovery(d) {
         (rv.youngest_d != null && rv.oldest_d != null) ? `${rv.youngest_d}–${rv.oldest_d}d` : '—';
 
     // Discovery status — NEW attributions in 24h (real first-attribution time)
+    const em = d.emerging || {};
     document.getElementById('ds-attr').textContent      = a.new_24h ?? 0;
-    document.getElementById('ds-emerging').textContent  = (d.emerging||{}).total_with_history ?? 0;
-    document.getElementById('ds-growing').textContent   = (d.emerging||{}).growing ?? 0;
+    document.getElementById('ds-emerging').textContent  = em.total ?? 0;
+    document.getElementById('ds-growing').textContent   = em.growing ?? 0;
     document.getElementById('ds-resgrowth').textContent = '+' + (rv.new_funded_7d ?? 0);
 
-    // Investigate Next
+    // Investigate Next — always-5 multi-source ranking; label HEURISTIC when no history
+    const mode = d.ranking_mode || 'HEURISTIC';
+    document.getElementById('di-mode').textContent = mode === 'REAL' ? '' : 'heuristic';
+    const kindIcon = {cluster:'◎', attribution:'●', reservoir:'♻', hub:'⬡'};
     const inv = d.investigate_next || [];
     document.getElementById('di-invest').innerHTML = inv.length
-        ? inv.map((x,i) => `<a class="di-row" href="/watchtower/operator/${x.cluster_id}">
+        ? inv.map((x,i) => `<a class="di-row" href="${x.href||'#'}">
             <span class="di-rank">${i+1}</span>
-            <span class="di-cid">#${x.cluster_id}</span>
-            <span class="di-why">${(x.reasons||[]).join(' · ')}</span>
-            <span class="di-score">${x.score}</span></a>`).join('')
-        : '<div class="cc-empty">No ranked targets yet — clusters need 24h history</div>';
+            <span class="di-cid">${kindIcon[x.kind]||'·'} ${x.target}</span>
+            <span class="di-why">${x.reason||''}</span>
+            <span class="di-score">${x.confidence!=null?x.confidence+'%':''}</span></a>`).join('')
+        : '<div class="cc-empty">No targets</div>';
+
+    // Top Emerging Operators (entities)
+    const top = em.top || [];
+    document.getElementById('di-emerging').innerHTML = top.length
+        ? top.map(c => `<a class="di-row" href="/watchtower/operator/${c.cluster_id}">
+            <span class="di-cid">◎ #${c.cluster_id}</span>
+            <span class="di-why">${c.why||''}</span>
+            <span class="di-score">${Math.round((c.confidence||0)*100)}%</span></a>`).join('')
+        : '<div class="cc-empty">No emerging operators</div>';
+
+    // Reservoir wallet entities (oldest = most conversion-due, newest = freshest staging)
+    const ow = rv.oldest_wallet, nw = rv.newest_wallet;
+    document.getElementById('rv-entities').innerHTML = (ow||nw)
+        ? `${ow?`<div class="re-row"><span class="re-k">Oldest dormant</span><a href="/watchtower/operator/${ow.wallet}">${short(ow.wallet)}</a> <span class="re-age">${ow.age_d}d · ${ow.relay||''}</span></div>`:''}
+           ${nw?`<div class="re-row"><span class="re-k">Newest dormant</span><a href="/watchtower/operator/${nw.wallet}">${short(nw.wallet)}</a> <span class="re-age">${nw.age_d}d · ${nw.relay||''}</span></div>`:''}`
+        : '';
 
     // Discovery feed
     const feed = d.discovery_feed || [];

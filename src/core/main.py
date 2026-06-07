@@ -26747,6 +26747,18 @@ def api_wt_discovery():
         if ages:
             ages.sort(); m = len(ages)//2
             reservoir["median_age_d"] = round(ages[m] if len(ages)%2 else (ages[m-1]+ages[m])/2, 1)
+        # actual oldest/newest dormant WALLET entities (not just counts) — the oldest
+        # is the most conversion-due; the newest is the freshest staging.
+        def _res_entity(order):
+            row = conn.execute(f"""
+                SELECT wallet_address, relay_label,
+                       ROUND((strftime('%s','now')-strftime('%s',funded_at))/86400.0,1) AS age_d
+                FROM wt_creator_reservoir WHERE status='DORMANT'
+                ORDER BY funded_at {order} LIMIT 1""").fetchone()
+            return {"wallet": row["wallet_address"], "relay": row["relay_label"],
+                    "age_d": row["age_d"]} if row else None
+        reservoir["oldest_wallet"] = _res_entity("ASC")
+        reservoir["newest_wallet"] = _res_entity("DESC")
 
     # ── Cluster growth + discovery feed (from snapshot history) ─────────────────
     growth, feed = [], []
@@ -26755,35 +26767,133 @@ def api_wt_discovery():
         feed = _cs.change_feed(conn)
     emerging_growing = [g for g in growth if g.get("trend") == "GROWING"]
 
-    # ── INVESTIGATE NEXT — ranked top targets (where to spend the next 15 min) ───
-    # Score: attribution confidence + cluster growth + new-counterparty evidence.
-    invest = []
-    for g in growth:
-        d = g.get("deltas_24h", {})
-        score = 0.0
-        reasons = []
-        if g.get("trend") == "GROWING":
-            score += 40; reasons.append("growing")
-        if d.get("confidence"):
-            score += max(0, d["confidence"] * 100); reasons.append(f"conf {'+' if d['confidence']>0 else ''}{round(d['confidence']*100)}%")
-        if d.get("token_count"):  score += d["token_count"] * 5; reasons.append(f"+{d['token_count']} launches")
-        if d.get("creator_count"): score += d["creator_count"] * 5; reasons.append(f"+{d['creator_count']} creators")
-        if d.get("new_funders_detected"):    score += 15; reasons.append("new funder")
+    # ── Emerging operators (non-seed clusters) — entities, not just a count ──────
+    growth_by_cid = {g["cluster_id"]: g for g in growth}
+    clusters = []
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_operator_clusters'").fetchone():
+        for c in conn.execute("""
+            SELECT cluster_id, confidence, token_count, provisioner_count,
+                   first_seen, state, origin, total_sol_deployed
+            FROM wt_operator_clusters WHERE origin != 'seed'
+        """).fetchall():
+            cid = c["cluster_id"]
+            mc = conn.execute("SELECT COUNT(*) FROM wt_cluster_members WHERE cluster_id=?", (cid,)).fetchone()
+            members = mc[0] if mc else 0
+            if not (c["token_count"] or members):
+                continue
+            g = growth_by_cid.get(cid, {})
+            clusters.append({
+                "cluster_id": cid, "confidence": c["confidence"] or 0,
+                "tokens": c["token_count"] or 0, "members": members,
+                "provisioners": c["provisioner_count"] or 0,
+                "state": c["state"], "first_seen": c["first_seen"],
+                "trend": g.get("trend"), "deltas": g.get("deltas_24h", {}),
+                "has_baseline": g.get("has_baseline", False),
+            })
+
+    # Top emerging — highest confidence, then growth, then newest
+    top_emerging = sorted(clusters, key=lambda c: (
+        -(c["confidence"]), 0 if c["trend"] == "GROWING" else 1, -(c["first_seen"] or 0)
+    ))[:5]
+    for c in top_emerging:
+        # a one-line "why" per emerging operator
+        bits = []
+        if c["trend"] == "GROWING": bits.append("growing")
+        if c["deltas"].get("creator_count"): bits.append(f"+{c['deltas']['creator_count']} members")
+        if c["deltas"].get("new_funders_detected"): bits.append("new funder")
+        if c["provisioners"]: bits.append(f"{c['provisioners']} provisioners")
+        if not bits: bits.append(f"{c['tokens']} launches · {c['members']} creators")
+        c["why"] = " · ".join(bits)
+
+    # ── INVESTIGATE NEXT — MULTI-SOURCE ranker. Always returns 5 targets across all
+    # categories. When cluster snapshot history exists it uses real growth (REAL mode);
+    # otherwise it falls back to static signals (HEURISTIC mode) so the panel is never
+    # empty. Each target carries target/reason/confidence/age and an explicit basis.
+    cand = []
+    have_growth = any(g.get("has_baseline") for g in growth)
+    ranking_mode = "REAL" if have_growth else "HEURISTIC"
+
+    # 1) clusters — real growth score if available, else static confidence
+    for c in clusters:
+        score, reasons = 0.0, []
+        d = c["deltas"]
+        if c["trend"] == "GROWING": score += 40; reasons.append("growing")
+        if d.get("token_count"):  score += d["token_count"]*5; reasons.append(f"+{d['token_count']} launches")
+        if d.get("creator_count"): score += d["creator_count"]*5; reasons.append(f"+{d['creator_count']} creators")
+        if d.get("new_funders_detected"): score += 15; reasons.append("new funder")
         if d.get("new_recipients_detected"): score += 15; reasons.append("new recipient")
-        if score > 0:
-            invest.append({"cluster_id": g["cluster_id"], "score": round(score, 1),
-                           "trend": g.get("trend"), "reasons": reasons,
-                           "confidence": (g.get("current") or {}).get("confidence")})
-    invest.sort(key=lambda x: -x["score"])
+        # static contribution: cluster confidence (always present)
+        score += (c["confidence"] or 0) * 50
+        if not reasons: reasons.append(f"{int((c['confidence'] or 0)*100)}% cluster · {c['members']} creators")
+        cand.append({"kind": "cluster", "target": f"Cluster #{c['cluster_id']}",
+                     "href": f"/watchtower/operator/{c['cluster_id']}",
+                     "confidence": round((c["confidence"] or 0)*100),
+                     "age_s": (now - c["first_seen"]) if c["first_seen"] else None,
+                     "reason": " · ".join(reasons[:3]), "score": round(score,1)})
+
+    # 2) attributions — confirmed/probable direct-infra & provisioning hits weigh high
+    _link_w = {"WATCHTOWER_DIRECT": 35, "WATCHTOWER_PROVISIONING": 30,
+               "WATCHTOWER_RELAY": 18, "WATCHTOWER_LINEAGE": 20,
+               "WATCHTOWER_COLLECTOR": 15, "WATCHTOWER_FINGERPRINT": 8}
+    _conf_w = {"CONFIRMED": 40, "STRONG": 25, "WEAK": 8}
+    # rank the strongest few attribution rows (re-derive on the already-fetched set)
+    attr_ranked = []
+    for r in attr_rows:
+        a = derive_attribution(r["watchtower_evidence_json"], r["evidence_grade"], r["method"])
+        s = _conf_w.get(a["confidence"], 0) + _link_w.get(a["linkage"], 0)
+        attr_ranked.append((s, r, a))
+    attr_ranked.sort(key=lambda x: -x[0])
+    for s, r, a in attr_ranked[:5]:
+        cand.append({"kind": "attribution",
+                     "target": linkage_label(a["linkage"]) + " attribution",
+                     "href": f"/watchtower/operator/{r['creator_address']}",
+                     "confidence": {"CONFIRMED":100,"STRONG":70,"WEAK":40}.get(a["confidence"],0),
+                     "age_s": (now - r["first_attr"]) if r["first_attr"] else None,
+                     "reason": f"{a['confidence'] or '?'} · {(r['creator_address'][:6]+'…'+r['creator_address'][-4:]) if r['creator_address'] else ''}",
+                     "score": round(float(s),1)})
+
+    # 3) reservoir cohort — one standing target (the relay-funded pool)
+    if reservoir["dormant"] > 0:
+        score = 20 + min(30, reservoir["dormant"] * 0.3) + (15 if reservoir["new_funded_7d"] else 0)
+        cand.append({"kind": "reservoir", "target": "Relay-Funded Reservoir Cohort",
+                     "href": "/watchtower/operators",
+                     "confidence": None,
+                     "age_s": None,
+                     "reason": f"{reservoir['dormant']} dormant · median {reservoir['median_age_d']}d" +
+                               (f" · +{reservoir['new_funded_7d']} new (7d)" if reservoir["new_funded_7d"] else ""),
+                     "score": round(score,1)})
+
+    cand.sort(key=lambda x: -x["score"])
+    # Diversify: cap attribution rows so the panel mixes categories (clusters,
+    # reservoir, attributions) instead of 5 near-identical attribution hits. An analyst
+    # gets more value from 5 DIFFERENT angles than the 5 highest of one kind.
+    invest, attr_taken = [], 0
+    for t in cand:
+        if t["kind"] == "attribution":
+            if attr_taken >= 2:
+                continue
+            attr_taken += 1
+        invest.append(t)
+        if len(invest) >= 5:
+            break
+    # if diversity caps left us short, top up from the remaining ranked candidates
+    if len(invest) < 5:
+        for t in cand:
+            if t not in invest:
+                invest.append(t)
+                if len(invest) >= 5:
+                    break
 
     conn.close()
     return jsonify({
         "ts": now,
         "attribution": attribution,
         "reservoir": reservoir,
-        "emerging": {"growing": len(emerging_growing), "total_with_history": len(growth)},
+        "emerging": {"growing": len(emerging_growing), "total": len(clusters),
+                     "total_with_history": len(growth), "top": top_emerging},
         "discovery_feed": feed,
-        "investigate_next": invest[:5],
+        "investigate_next": invest,
+        "ranking_mode": ranking_mode,
     })
 
 

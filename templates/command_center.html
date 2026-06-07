@@ -246,7 +246,7 @@
       <div class="disc-card">
         <div class="disc-card-h">Discovery Status</div>
         <div class="disc-kv">
-          <div><span class="k">Attributions (active 24h)</span><span class="vv cyan" id="ds-attr">—</span></div>
+          <div><span class="k">New Attributions (24h)</span><span class="vv cyan" id="ds-attr">—</span></div>
           <div><span class="k">Emerging Operators</span><span class="vv" id="ds-emerging">—</span></div>
           <div><span class="k">Growing Clusters</span><span class="vv green" id="ds-growing">—</span></div>
           <div><span class="k">Reservoir Growth (7d)</span><span class="vv" id="ds-resgrowth">—</span></div>
@@ -452,9 +452,13 @@ function renderDiscovery(d) {
         return `<div class="ev ${v?'':'zero'}"><span>${EVIDENCE_LABELS[k]}</span><span class="dots"></span><span>${v}</span></div>`;
     }).join('');
     const lt = a.latest;
+    // "Latest" uses first-attribution time (real discovery). When no row has been
+    // first-attributed since the column was added, we honestly say so rather than
+    // sorting by engine-pass time (which falsely showed dormant wallets as recent).
     document.getElementById('di-latest').innerHTML = lt
-        ? `Latest: <a href="/watchtower/operator/${lt.creator}">${short(lt.creator)}</a> · ${lt.linkage_label} · ${lt.confidence||''} ${lt.checked_at?'· '+ago(lt.checked_at):''}`
-        : 'No attributions yet';
+        ? `Latest attribution: <a href="/watchtower/operator/${lt.creator}">${short(lt.creator)}</a> · ${lt.linkage_label} · ${lt.confidence||''} · ${ago(lt.first_attr)}`
+        : (a.first_attr_tracked ? 'No new attributions recently'
+           : 'Discovery time not yet tracked for existing attributions');
 
     // Reservoir
     const rv = d.reservoir || {};
@@ -466,8 +470,8 @@ function renderDiscovery(d) {
     document.getElementById('rv-agerange').textContent  =
         (rv.youngest_d != null && rv.oldest_d != null) ? `${rv.youngest_d}–${rv.oldest_d}d` : '—';
 
-    // Discovery status
-    document.getElementById('ds-attr').textContent      = a.active_24h ?? 0;
+    // Discovery status — NEW attributions in 24h (real first-attribution time)
+    document.getElementById('ds-attr').textContent      = a.new_24h ?? 0;
     document.getElementById('ds-emerging').textContent  = (d.emerging||{}).total_with_history ?? 0;
     document.getElementById('ds-growing').textContent   = (d.emerging||{}).growing ?? 0;
     document.getElementById('ds-resgrowth').textContent = '+' + (rv.new_funded_7d ?? 0);

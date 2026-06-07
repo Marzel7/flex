@@ -26669,29 +26669,41 @@ def api_wt_discovery():
     h24 = now - 86400
 
     # ── Attribution intelligence (replaces the un-actionable "214 pending") ──────
-    attr_rows = conn.execute("""
+    # first_attr = stamped-once discovery time. watchtower_checked_at is re-stamped
+    # every engine pass, so it must NEVER be used as "latest"/"new" — doing so showed
+    # a month-dormant wallet as "attributed 21m ago" (the engine just re-checked it).
+    has_first_col = conn.execute(
+        "SELECT 1 FROM pragma_table_info('creator_risk_scores') "
+        "WHERE name='watchtower_first_attributed_at'").fetchone() is not None
+    first_sel = "watchtower_first_attributed_at" if has_first_col else "NULL"
+    attr_rows = conn.execute(f"""
         SELECT creator_address, watchtower_evidence_json, evidence_grade,
-               watchtower_checked_at,
+               {first_sel} AS first_attr,
                json_extract(evidence_basis,'$.method') AS method
         FROM creator_risk_scores WHERE watchtower_related = 1
     """).fetchall()
     by_conf = Counter()
     by_linkage = Counter()
     latest = None
+    new_24h = 0
     for r in attr_rows:
         a = derive_attribution(r["watchtower_evidence_json"], r["evidence_grade"], r["method"])
         by_conf[a["confidence"] or "NONE"] += 1
         by_linkage[a["linkage"]] += 1
-        if latest is None or (r["watchtower_checked_at"] or 0) > (latest["checked_at"] or 0):
+        fa = r["first_attr"]
+        if fa and fa >= h24:
+            new_24h += 1
+        # "latest" = most recently FIRST-attributed (real discovery time), not re-checked.
+        # Rows without a first_attr (pre-dating the column) are skipped — honest: we
+        # don't know when they were discovered, so they can't be "latest".
+        if fa and (latest is None or fa > latest["first_attr"]):
             latest = {"creator": r["creator_address"], "linkage": a["linkage"],
                       "linkage_label": linkage_label(a["linkage"]),
-                      "confidence": a["confidence"], "checked_at": r["watchtower_checked_at"]}
-    # active in the last 24h = re-confirmed/checked this window (honest label: ACTIVE,
-    # not "new" — watchtower_checked_at is the engine-pass stamp, re-stamped each cycle)
-    active_24h = sum(1 for r in attr_rows if (r["watchtower_checked_at"] or 0) >= h24)
+                      "confidence": a["confidence"], "first_attr": fa}
     attribution = {
         "total": len(attr_rows),
-        "active_24h": active_24h,
+        "new_24h": new_24h,            # truly NEW attributions (first-attributed in 24h)
+        "first_attr_tracked": has_first_col and any(r["first_attr"] for r in attr_rows),
         "by_confidence": {  # Axis-3 confidence → display tiers
             "confirmed": by_conf.get("CONFIRMED", 0),
             "probable":  by_conf.get("STRONG", 0),

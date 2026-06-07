@@ -743,6 +743,22 @@ def _grade_and_basis(
     return "WEAK", "UNSPECIFIED"
 
 
+_first_attr_col_ready = False
+
+def _ensure_first_attr_col(conn: sqlite3.Connection) -> None:
+    """Add watchtower_first_attributed_at once (idempotent). Stamped-once discovery
+    time, distinct from the re-stamped watchtower_checked_at."""
+    global _first_attr_col_ready
+    if _first_attr_col_ready:
+        return
+    try:
+        conn.execute("ALTER TABLE creator_risk_scores "
+                     "ADD COLUMN watchtower_first_attributed_at INTEGER")
+    except Exception:
+        pass  # already exists
+    _first_attr_col_ready = True
+
+
 def _write_creator_result(
     conn: sqlite3.Connection,
     creator_address: str,
@@ -765,6 +781,11 @@ def _write_creator_result(
     # ABORT → "UNIQUE constraint failed: token_rescore_queue.mint" when the queue
     # row already exists. A plain UPDATE + guarded INSERT (no conflict clause) lets
     # the trigger's REPLACE work. (Same fix as watchtower_lineage_backfill.)
+    # first-attribution timestamp: stamped ONCE when a creator first becomes related,
+    # never overwritten (COALESCE). Distinct from watchtower_checked_at, which is the
+    # engine-pass time re-stamped every cycle. Only this is a true "when discovered".
+    _ensure_first_attr_col(conn)
+    first_at = now if is_related else None
     cur = conn.execute(
         """
         UPDATE creator_risk_scores SET
@@ -772,24 +793,28 @@ def _write_creator_result(
             watchtower_evidence_json  = ?,
             watchtower_checked_at     = ?,
             evidence_grade            = ?,
-            evidence_basis            = ?
+            evidence_basis            = ?,
+            watchtower_first_attributed_at =
+                CASE WHEN ? = 1 THEN COALESCE(watchtower_first_attributed_at, ?)
+                     ELSE watchtower_first_attributed_at END
         WHERE creator_address = ?
         """,
-        (int(is_related), evidence_json, now, grade, basis_json, creator_address),
+        (int(is_related), evidence_json, now, grade, basis_json,
+         int(is_related), now, creator_address),
     )
     if cur.rowcount == 0:
         conn.execute(
             """
             INSERT INTO creator_risk_scores (creator_address, watchtower_related,
                 watchtower_evidence_json, watchtower_checked_at,
-                evidence_grade, evidence_basis)
-            SELECT ?, ?, ?, ?, ?, ?
+                evidence_grade, evidence_basis, watchtower_first_attributed_at)
+            SELECT ?, ?, ?, ?, ?, ?, ?
             WHERE NOT EXISTS (
                 SELECT 1 FROM creator_risk_scores WHERE creator_address = ?
             )
             """,
             (creator_address, int(is_related), evidence_json, now, grade,
-             basis_json, creator_address),
+             basis_json, first_at, creator_address),
         )
 
 

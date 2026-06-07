@@ -26647,6 +26647,27 @@ def api_wt_risk_axis():
     })
 
 
+@app.route('/api/watchtower/reservoir-tripwire')
+def api_wt_reservoir_tripwire():
+    """
+    Conversion trip-wire for the relay-funded reservoir (the primary collection
+    target). All 71 dormant wallets currently have zero outbound activity; the first
+    outbound from any is the earliest observable signal of a new WATCHTOWER wave.
+    Returns fired wallets ordered by priority tier (1=2.10203928 fingerprint,
+    2=fingerprint cohort, 3=round). READ-ONLY.
+    """
+    from src.analysis import watchtower_reservoir as _wtr
+    conn = db_connect(DB_PATH, timeout=5)
+    try:
+        if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                            "AND name='wt_creator_reservoir'").fetchone():
+            return jsonify({"fired": [], "fired_count": 0, "armed": 0, "tier_breakdown": {}})
+        result = _wtr.tripwire(conn)
+    finally:
+        conn.close()
+    return jsonify(result)
+
+
 @app.route('/api/watchtower/discovery')
 def api_wt_discovery():
     """

@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS wt_creator_reservoir (
     launch_token        TEXT,
     launch_creator      TEXT,
     days_since_funded   REAL,
-    updated_at          INTEGER
+    updated_at          INTEGER,
+    priority_tier       INTEGER   -- conversion trip-wire tier: 1=2.10203928, 2=fingerprint, 3=round
 );
 CREATE INDEX IF NOT EXISTS idx_reservoir_status ON wt_creator_reservoir(status);
 """
@@ -53,6 +54,30 @@ CREATE INDEX IF NOT EXISTS idx_reservoir_status ON wt_creator_reservoir(status);
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
+    # defensive: add priority_tier to pre-existing tables
+    try:
+        conn.execute("ALTER TABLE wt_creator_reservoir ADD COLUMN priority_tier INTEGER")
+    except Exception:
+        pass
+    conn.commit()
+
+
+def _assign_tiers(conn: sqlite3.Connection) -> None:
+    """
+    Conversion trip-wire priority tiers (highest signal first):
+      Tier 1 — exactly 2.10203928 SOL (OPERATION_ALPHA's canonical fingerprint)
+      Tier 2 — any '…203928' fingerprint amount (ALPHA family)
+      Tier 3 — round amounts (1.1 SOL bulk-staging cohort)
+    """
+    conn.execute("""
+        UPDATE wt_creator_reservoir SET priority_tier =
+          CASE
+            WHEN CAST(funding_amount AS TEXT) = '2.10203928' THEN 1
+            WHEN CAST(funding_amount AS TEXT) LIKE '%203928%' THEN 2
+            ELSE 3
+          END
+        WHERE status='DORMANT'
+    """)
     conn.commit()
 
 
@@ -149,6 +174,7 @@ def refresh(conn: sqlite3.Connection) -> dict:
                 "UPDATE wt_creator_reservoir SET days_since_funded=?, updated_at=? "
                 "WHERE wallet_address=?", (days, now, wallet))
     conn.commit()
+    _assign_tiers(conn)   # keep conversion trip-wire tiers current
 
     counts = {r[0]: r[1] for r in conn.execute(
         "SELECT status, COUNT(*) FROM wt_creator_reservoir GROUP BY status").fetchall()}
@@ -181,6 +207,51 @@ def stats(conn: sqlite3.Connection) -> dict:
         "total": total,
         "conversion_pct": round(launched / total * 100, 1) if total else 0.0,
         "median_funding_to_launch_days": round(statistics.median(lags), 2) if lags else None,
+    }
+
+
+def tripwire(conn: sqlite3.Connection) -> dict:
+    """
+    CONVERSION TRIP-WIRE — the earliest observable signal of a reservoir wave start.
+
+    All dormant reservoir wallets currently have ZERO outbound activity. The first
+    outbound transfer from any of them (which precedes token CREATE) is the trip-wire.
+    Returns wallets that have moved, ordered by priority tier:
+      Tier 1 — the 2.10203928 wallet (ALPHA's canonical fingerprint)
+      Tier 2 — fingerprint cohort (…203928)
+      Tier 3 — round 1.1 SOL bulk cohort
+    Each fired wallet is a CONFIRMED WATCHTOWER lead (funded by the registered ALPHA
+    hub), so a hit can auto-attribute its downstream creator/token.
+    """
+    ensure_schema(conn)
+    fired = []
+    # tier is a pure function of funding_amount — compute it in the query so the
+    # READ-ONLY trip-wire never depends on a prior write having populated the column.
+    tier_expr = ("CASE WHEN CAST(funding_amount AS TEXT)='2.10203928' THEN 1 "
+                 "WHEN CAST(funding_amount AS TEXT) LIKE '%203928%' THEN 2 ELSE 3 END")
+    rows = conn.execute(
+        f"SELECT wallet_address, relay_label, funding_amount, {tier_expr} AS tier, "
+        f"days_since_funded FROM wt_creator_reservoir WHERE status='DORMANT' "
+        f"ORDER BY tier, funding_amount DESC").fetchall()
+    has_outbound = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_outgoing_transfers'"
+    ).fetchone()
+    for w, rl, amt, tier, age in rows:
+        moved = 0
+        if has_outbound:
+            moved = conn.execute(
+                "SELECT COUNT(*) FROM creator_outgoing_transfers WHERE creator_address=?",
+                (w,)).fetchone()[0]
+        if moved > 0:
+            fired.append({"wallet": w, "relay": rl, "amount": amt,
+                          "tier": tier, "outbound_txs": moved, "days_since_funded": age})
+    return {
+        "fired": fired,
+        "fired_count": len(fired),
+        "armed": len(rows),                 # dormant wallets still being watched
+        "tier_breakdown": {t: c for t, c in conn.execute(
+            f"SELECT {tier_expr} AS tier, COUNT(*) FROM wt_creator_reservoir "
+            f"WHERE status='DORMANT' GROUP BY tier").fetchall()},
     }
 
 

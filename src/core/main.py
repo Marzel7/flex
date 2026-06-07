@@ -26295,18 +26295,24 @@ def api_wt_command_center():
                 })
 
     # ── Reservoir (relay-funded dormant wallet pool) ─────────────────────
-    res = {'dormant': 0, 'converted': 0, 'total': 0, 'conversion_rate': 0.0, 'median_age_d': None}
+    res = {'dormant': 0, 'converted': 0, 'total': 0, 'conversion_rate': 0.0,
+           'median_age_d': None, 'new_funded_24h': 0}
     conversions = []
     if _has_table('wt_creator_reservoir'):
         rstats = conn.execute("""
             SELECT COUNT(*) AS total,
                    SUM(CASE WHEN status='DORMANT' THEN 1 ELSE 0 END) AS dormant,
-                   SUM(CASE WHEN status!='DORMANT' OR launch_token IS NOT NULL THEN 1 ELSE 0 END) AS converted
+                   SUM(CASE WHEN status!='DORMANT' OR launch_token IS NOT NULL THEN 1 ELSE 0 END) AS converted,
+                   -- 24h growth delta: wallets newly added to the reservoir in the last
+                   -- day. This is the RATE-of-change RECYCLING needs; the static pool
+                   -- size (dormant) must never drive mission state on its own.
+                   SUM(CASE WHEN first_seen >= ? THEN 1 ELSE 0 END) AS new_funded_24h
             FROM wt_creator_reservoir
-        """).fetchone()
+        """, (h24,)).fetchone()
         res['total'] = rstats['total'] or 0
         res['dormant'] = rstats['dormant'] or 0
         res['converted'] = rstats['converted'] or 0
+        res['new_funded_24h'] = rstats['new_funded_24h'] or 0
         if res['total']:
             res['conversion_rate'] = round(res['converted'] / res['total'] * 100, 1)
         ages = [r['days_since_funded'] for r in conn.execute(

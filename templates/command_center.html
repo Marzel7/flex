@@ -235,7 +235,7 @@ const W30M = 1800, W24H = 86400;
 // static reservoir level) are deliberately absent and can never drive state.
 const MS_WEIGHT = {
     launches30m: 40, active_hubs: 25, armed_hubs: 20, seeds24: 15,
-    newHubs24: 15, relaysActive: 20, sweepBurst: 15, conv24: 12,
+    newHubs24: 15, relaysActive: 20, sweepBurst: 15, conv24: 12, resGrowth24: 10,
 };
 
 // ── Mission Status: 5-state lifecycle, OPERATIONAL signals only ─────────────────
@@ -255,6 +255,7 @@ function deriveMission(d) {
     const newHubs24   = cnt('NEW_PROVISIONING_HUB', W24H);
     const seeds24     = cnt('OPERATION_CREATED', W24H);   // a forming operation = seeding signal
     const conv24      = cnt('RESERVOIR_CONVERTED', W24H);
+    const resGrowth24 = res.new_funded_24h || 0;   // reservoir RATE-of-change (backend delta)
     const relaysActive = EXTRACT.relays > 0;
     const sweepBurst   = EXTRACT.sweeps >= SWEEP_BURST;
     // analytical (NEVER drive state — shown only in the "ignored" line)
@@ -262,7 +263,8 @@ function deriveMission(d) {
     const dormantPool = res.dormant || 0;
 
     const sig = { launches30m, active_hubs:active, armed_hubs:armed, seeds24,
-                  newHubs24, relaysActive: relaysActive?1:0, sweepBurst: sweepBurst?1:0, conv24 };
+                  newHubs24, relaysActive: relaysActive?1:0, sweepBurst: sweepBurst?1:0,
+                  conv24, resGrowth24 };
     const trig = keys => keys.filter(k => sig[k] > 0)
         .map(k => ({ key:k, val:sig[k], weight: MS_WEIGHT[k] || 0 }));
     const conf = keys => Math.min(100, trig(keys).reduce((s,t) => s + t.weight, 0));
@@ -285,10 +287,10 @@ function deriveMission(d) {
     // NOTE: pending_creators is NOT a trigger (that was the false-FORMING bug).
     if (newHubs24 > 0 || armed > 0 || armed24 > 0 || seeds24 > 0)
         return mk('FORMING', 'ms-forming', true, ['newHubs24','armed_hubs','seeds24']);
-    // RECYCLING — reservoir converting/growing, nothing forming (priority 1).
-    // Driven by conversion EVENTS, not by the static dormant count.
-    if (conv24 > 0)
-        return mk('RECYCLING', 'ms-recycling', false, ['conv24']);
+    // RECYCLING — reservoir converting OR growing, nothing forming (priority 1).
+    // Driven by conversion EVENTS or the 24h growth DELTA — never the static pool size.
+    if (conv24 > 0 || resGrowth24 > 0)
+        return mk('RECYCLING', 'ms-recycling', false, ['conv24','resGrowth24']);
     // DORMANT — no operational signal (priority 0). Confidence = how idle we are.
     const near = Math.max(0, ...Object.keys(MS_WEIGHT).map(k => sig[k] > 0 ? MS_WEIGHT[k] : 0));
     return { state:'DORMANT', cls:'ms-dormant', live:false,
@@ -304,6 +306,7 @@ const MS_TRIGGER_LABEL = {
     relaysActive:() => `profit relay active`,
     sweepBurst:  () => `sweep burst (≥${SWEEP_BURST})`,
     conv24:      n => `${n} reservoir conversion${n>1?'s':''} (24h)`,
+    resGrowth24: n => `+${n} relay-funded dormant wallet${n>1?'s':''} (24h)`,
 };
 
 function renderMission(d) {

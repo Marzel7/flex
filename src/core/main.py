@@ -30372,6 +30372,30 @@ def _build_watch_clusters(conn: sqlite3.Connection) -> int:
     """
     wt_addresses = _get_wt_known_addresses()
 
+    # ── One-time cleanup of pre-existing artifacts (idempotent), in order ─────
+    # (1) Evict placeholder-bound member rows FIRST (e.g. 'shared_recipient:SYSTEM…').
+    #     These are the phantom members (#75: 54 rows glued only by SYSTEM). Doing this
+    #     before dedup means a creator who ALSO has a real-signal row survives via that
+    #     row; one bound ONLY by SYSTEM is removed entirely. The signal filter above
+    #     stops new ones; this removes the already-assigned ones.
+    conn.execute("""
+        DELETE FROM wt_cluster_members
+        WHERE attribution_reason LIKE 'shared_recipient:SYSTEM%'
+           OR attribution_reason LIKE 'shared_recipient:UNKNOWN%'
+           OR attribution_reason LIKE 'shared_funder:SYSTEM%'
+           OR attribution_reason LIKE 'shared_funder:UNKNOWN%'
+    """)
+    # (2) Collapse duplicate creator rows (keep earliest per cluster+creator) so the
+    #     historical 50-83% inflation is corrected, not just prevented going forward.
+    conn.execute("""
+        DELETE FROM wt_cluster_members
+        WHERE id NOT IN (
+            SELECT MIN(id) FROM wt_cluster_members
+            WHERE creator_wallet IS NOT NULL
+            GROUP BY cluster_id, creator_wallet
+        ) AND creator_wallet IS NOT NULL
+    """)
+
     # ── Update seed WATCHTOWER cluster ────────────────────────────────────────
     wt_count = conn.execute(
         "SELECT COUNT(*) FROM watch_candidate_tokens WHERE classified_as='WATCHTOWER'"
@@ -30389,15 +30413,24 @@ def _build_watch_clusters(conn: sqlite3.Connection) -> int:
     # Signal 1: shared recipient among WATCH_LIKE_NEW_OP tokens
     signal_to_mints: dict = {}  # signal_key → set of mints
 
-    recip_rows = conn.execute("""
+    # Placeholder/sentinel "recipients" that are NOT real wallets — they were binding
+    # unrelated creators into phantom clusters (audit: 93/111 of Cluster #75 were glued
+    # ONLY by 'SYSTEM'). They must never contribute to shared-recipient clustering.
+    # (They remain in creator_outgoing_transfers for analysis — we filter here, at the
+    # cluster-formation signal, not at the source data.)
+    _PLACEHOLDER_RECIPIENTS = ('SYSTEM', 'UNKNOWN', '', 'NONE', 'None', 'null')
+    _ph_ph = ",".join("?" * len(_PLACEHOLDER_RECIPIENTS))
+
+    recip_rows = conn.execute(f"""
         SELECT cot.recipient_address, wct.mint, wct.creator_address, wct.classification_conf
         FROM creator_outgoing_transfers cot
         JOIN watch_candidate_tokens wct ON wct.creator_address = cot.creator_address
         WHERE wct.classified_as = 'WATCH_LIKE_NEW_OP'
           AND cot.recipient_address NOT LIKE 'astra%'
+          AND cot.recipient_address NOT IN ({_ph_ph})
           AND cot.recipient_address NOT IN (SELECT address FROM infra_wallets
                 WHERE type NOT IN ('bonding_curve','pumpswap_pool','pool'))
-    """).fetchall()
+    """, _PLACEHOLDER_RECIPIENTS).fetchall()
 
     mint_meta: dict = {}  # mint → (creator, conf)
     for recip, mint, creator, conf in recip_rows:
@@ -30406,15 +30439,16 @@ def _build_watch_clusters(conn: sqlite3.Connection) -> int:
         mint_meta[mint] = (creator, conf, f"shared_recipient:{recip[:16]}")
 
     # Signal 2: shared funder among WATCH_LIKE_NEW_OP tokens
-    funder_rows = conn.execute("""
+    funder_rows = conn.execute(f"""
         SELECT cf.funder_address, wct.mint, wct.creator_address, wct.classification_conf
         FROM creator_funders cf
         JOIN watch_candidate_tokens wct ON wct.creator_address = cf.creator_address
         WHERE wct.classified_as = 'WATCH_LIKE_NEW_OP'
           AND cf.funder_address NOT LIKE 'astra%'
+          AND cf.funder_address NOT IN ({_ph_ph})
           AND cf.funder_address NOT IN (SELECT address FROM infra_wallets
                 WHERE type NOT IN ('bonding_curve','pumpswap_pool','pool'))
-    """).fetchall()
+    """, _PLACEHOLDER_RECIPIENTS).fetchall()
 
     for funder, mint, creator, conf in funder_rows:
         if funder in wt_addresses:
@@ -30492,14 +30526,25 @@ def _build_watch_clusters(conn: sqlite3.Connection) -> int:
             cluster_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
             clusters_created += 1
 
+        # Member rows must be UNIQUE per (cluster_id, creator_wallet) — a creator with
+        # N tokens previously produced N rows (UNIQUE is on token_mint), inflating member
+        # counts 50-83% (#82: 1 creator / 6 rows). Insert one row per creator; the
+        # cluster's token set is tracked via watch_candidate_tokens.cluster_id below.
+        seen_creators = {
+            r[0] for r in conn.execute(
+                "SELECT creator_wallet FROM wt_cluster_members WHERE cluster_id=?",
+                (cluster_id,)).fetchall() if r[0]
+        }
         for mint in group_mints:
             creator, conf, reason = mint_meta.get(mint, (None, 0.0, "watch_pipeline"))
-            conn.execute("""
-                INSERT OR IGNORE INTO wt_cluster_members
-                    (cluster_id, token_mint, creator_wallet, relay_wallet,
-                     confidence, attribution_reason, assigned_at)
-                VALUES (?, ?, ?, '', ?, ?, strftime('%s','now'))
-            """, (cluster_id, mint, creator, conf, reason))
+            if creator and creator not in seen_creators:
+                conn.execute("""
+                    INSERT OR IGNORE INTO wt_cluster_members
+                        (cluster_id, token_mint, creator_wallet, relay_wallet,
+                         confidence, attribution_reason, assigned_at)
+                    VALUES (?, ?, ?, '', ?, ?, strftime('%s','now'))
+                """, (cluster_id, mint, creator, conf, reason))
+                seen_creators.add(creator)
             conn.execute("""
                 UPDATE watch_candidate_tokens SET cluster_id=?, updated_at=strftime('%s','now')
                 WHERE mint=?

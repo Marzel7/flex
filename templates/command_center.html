@@ -64,6 +64,28 @@
 .why-ignored { margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
 .why-ignored li { color: var(--text-secondary); font-size: 12px; }
 
+/* ── Discovery Frontiers (current vs future intelligence paths) ─────────────── */
+.frontiers { display: flex; align-items: stretch; gap: 12px; margin-bottom: 16px; }
+.frontier { flex: 1; border-radius: 11px; padding: 14px 16px; border: 1px solid var(--border-color); }
+.frontier-current { background: linear-gradient(135deg, rgba(34,211,238,.08), rgba(34,211,238,.02)); border-left: 4px solid var(--accent-cyan); }
+.frontier-future  { background: linear-gradient(135deg, rgba(139,92,246,.08), rgba(139,92,246,.02)); border-left: 4px solid var(--accent-purple); }
+.frontier-vs { align-self: center; font-size: 11px; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; }
+.fr-tag { font-size: 10px; font-weight: 800; letter-spacing: .8px; margin-bottom: 8px; }
+.frontier-current .fr-tag { color: var(--accent-cyan); }
+.frontier-future .fr-tag { color: var(--accent-purple); }
+.fr-name { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.fr-name a { color: inherit; text-decoration: none; }
+.fr-metrics { display: flex; gap: 16px; margin: 9px 0; flex-wrap: wrap; }
+.fr-metric { }
+.fr-metric .mv { font-size: 19px; font-weight: 800; color: var(--text-primary); }
+.fr-metric .mv.cyan { color: var(--accent-cyan); } .fr-metric .mv.purple { color: var(--accent-purple); }
+.fr-metric .ml { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); }
+.fr-break { font-size: 11px; color: var(--text-secondary); margin: 6px 0; }
+.fr-break b { color: var(--text-primary); }
+.fr-note { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-top: 6px; }
+.fr-path { font-size: 11px; color: var(--accent-purple); margin-top: 6px; font-family: monospace; }
+@media (max-width: 860px) { .frontiers { flex-direction: column; } .frontier-vs { align-self: flex-start; } }
+
 /* ── Discovery Mode (dormant pivot) ─────────────────────────────────────────── */
 .disc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 12px; margin-bottom: 14px; }
 .disc-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 13px 15px; }
@@ -240,6 +262,19 @@
   <!-- ══ DISCOVERY MODE — shown when dormant; the page pivots to intelligence ════ -->
   <div id="discovery-mode" style="display:none">
     <div class="cc-label">🔍 Discovery Mode <span class="n">— WATCHTOWER dormant · generating intelligence</span></div>
+
+    <!-- DISCOVERY FRONTIERS — the two competing intelligence paths -->
+    <div class="frontiers" id="frontiers">
+      <div class="frontier frontier-current" id="fr-current">
+        <div class="fr-tag">CURRENT FRONTIER</div>
+        <div class="fr-body"><div class="cc-empty">—</div></div>
+      </div>
+      <div class="frontier-vs">vs</div>
+      <div class="frontier frontier-future" id="fr-future">
+        <div class="fr-tag">FUTURE FRONTIER</div>
+        <div class="fr-body"><div class="cc-empty">—</div></div>
+      </div>
+    </div>
     <div class="disc-grid">
       <!-- Attribution Intelligence (replaces "Pending Creators") -->
       <div class="disc-card">
@@ -478,7 +513,39 @@ async function loadDiscovery() {
         renderDiscovery(await r.json());
     } catch (e) { console.error('discovery load failed', e); }
 }
+function renderFrontiers(fr) {
+    fr = fr || {};
+    const cf = fr.current, ff = fr.future;
+    const cEl = document.getElementById('fr-current').querySelector('.fr-body');
+    const fEl = document.getElementById('fr-future').querySelector('.fr-body');
+    if (cf) {
+        const b = cf.breakdown || {};
+        cEl.innerHTML =
+            `<div class="fr-name"><a href="${cf.href}">${cf.label}</a></div>
+             <div class="fr-metrics">
+               <div class="fr-metric"><div class="mv cyan">${cf.potential_yield}</div><div class="ml">Potential Yield</div></div>
+               <div class="fr-metric"><div class="mv">${cf.expected_yield!=null?cf.expected_yield:'—'}</div><div class="ml">Expected Yield</div></div>
+               <div class="fr-metric"><div class="mv">${Math.round((cf.coverage||0)*100)}%</div><div class="ml">Coverage</div></div>
+             </div>
+             <div class="fr-break">Frontier: <b>${b.funders||0}</b> funders · <b>${b.recipients||0}</b> recipients${b.both?` · <b>${b.both}</b> both`:''}</div>
+             <div class="fr-note">${cf.note||''}</div>`;
+    } else cEl.innerHTML = '<div class="cc-empty">No active frontier</div>';
+    if (ff) {
+        const y = ff.yield_unknown ? `~${ff.potential_yield}` : ff.potential_yield;
+        fEl.innerHTML =
+            `<div class="fr-name"><a href="${ff.href}">${ff.label}</a></div>
+             <div class="fr-metrics">
+               <div class="fr-metric"><div class="mv purple">${ff.dormant}</div><div class="ml">Dormant Wallets</div></div>
+               <div class="fr-metric"><div class="mv">${y}</div><div class="ml">Potential Yield</div></div>
+               <div class="fr-metric"><div class="mv">${ff.discovery_prob!=null?Math.round(ff.discovery_prob*100)+'%':'?'}</div><div class="ml">Discovery Prob</div></div>
+             </div>
+             <div class="fr-path">${(ff.path||[]).join(' → ')}</div>
+             <div class="fr-note">${ff.note||''}</div>`;
+    } else fEl.innerHTML = '<div class="cc-empty">No future frontier</div>';
+}
+
 function renderDiscovery(d) {
+    renderFrontiers(d.discovery_frontiers);
     const a = d.attribution || {}, bc = a.by_confidence || {}, be = a.by_evidence || {};
     document.getElementById('di-confirmed').textContent   = bc.confirmed ?? 0;
     document.getElementById('di-probable').textContent    = bc.probable ?? 0;

@@ -119,22 +119,35 @@ def cluster_coverage(conn: sqlite3.Connection, cluster_id: int, mapped: set) -> 
     if not creators:
         return {"coverage": 0.0, "total_cp": 0, "unmapped_cp": 0, "has_frontier": False}
     ph = ",".join("?" * len(creators))
-    cps = set()
-    for tbl, col in (("creator_funders", "funder_address"),
-                     ("creator_outgoing_transfers", "recipient_address")):
-        if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (tbl,)).fetchone():
-            continue
-        for (addr,) in conn.execute(
-            f"SELECT DISTINCT {col} FROM {tbl} WHERE creator_address IN ({ph})", creators):
-            if addr:
-                cps.add(addr)
+    funders, recipients = set(), set()
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_funders'").fetchone():
+        funders = {a for (a,) in conn.execute(
+            f"SELECT DISTINCT funder_address FROM creator_funders WHERE creator_address IN ({ph})",
+            creators) if a}
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_outgoing_transfers'").fetchone():
+        recipients = {a for (a,) in conn.execute(
+            f"SELECT DISTINCT recipient_address FROM creator_outgoing_transfers WHERE creator_address IN ({ph})",
+            creators) if a}
+    cps = funders | recipients
     total = len(cps)
     if total == 0:
-        return {"coverage": 1.0, "total_cp": 0, "unmapped_cp": 0, "has_frontier": False}
-    unmapped = sum(1 for cp in cps if cp not in mapped)
+        return {"coverage": 1.0, "total_cp": 0, "unmapped_cp": 0, "has_frontier": False,
+                "breakdown": {}}
+    unmapped_set = {cp for cp in cps if cp not in mapped}
+    unmapped = len(unmapped_set)
     coverage = (total - unmapped) / total
+    # decompose the UNMAPPED frontier so the analyst knows what it contains: a funder
+    # set vs a recipient set imply different investigation strategies.
+    u_funders = len(unmapped_set & funders)
+    u_recipients = len(unmapped_set & recipients)
+    breakdown = {
+        "funders": u_funders,
+        "recipients": u_recipients,
+        "both": len(unmapped_set & funders & recipients),
+    }
     return {"coverage": round(coverage, 3), "total_cp": total,
-            "unmapped_cp": unmapped, "has_frontier": unmapped > 0}
+            "unmapped_cp": unmapped, "has_frontier": unmapped > 0,
+            "breakdown": breakdown}
 
 
 def cluster_discovery_value(conn, cluster_id, mapped, provisioners=0, growing=False) -> tuple[str, str, dict]:
@@ -219,6 +232,45 @@ def attribution_yield_summary(conn: sqlite3.Connection, creator_addresses: list[
             unexplored += 1
     return {"fully_explored": fully, "partially_explored": partial,
             "unexplored": unexplored, "potential_yield": total_yield}
+
+
+# ── Frontier classification + Expected Yield ─────────────────────────────────
+# CURRENT = infrastructure already active/observable (clusters, attributions) — the
+#   relationships exist now, so discovery probability is relatively high.
+# FUTURE  = not yet active, may generate infrastructure later (reservoir) — yield is
+#   real but unbounded/uncertain, so discovery probability is unknown.
+CURRENT, FUTURE = "CURRENT", "FUTURE"
+
+# Discovery probability per object kind/signal. Heuristic until conversion-rate data
+# exists. Used for Expected Yield = potential_yield × probability. Reservoir is
+# deliberately UNKNOWN (None) — we don't yet have a conversion rate to estimate it.
+_PROB = {"HIGH": 0.7, "MEDIUM": 0.4, "LOW": 0.15}
+
+
+def discovery_probability(kind: str, band: str, has_baseline: bool = True):
+    """Probability that investigating this object actually yields new infra.
+    Returns a float, or None when genuinely unknown (reservoir before first conversion)."""
+    if kind == "reservoir":
+        return None                      # unknown until the first conversion happens
+    p = _PROB.get(band, 0.3)
+    # active/observable infrastructure (clusters/attributions) is more convertible than
+    # a soft signal; baseline-less clusters are slightly less certain.
+    if kind == "cluster" and not has_baseline:
+        p *= 0.85
+    return round(p, 2)
+
+
+def expected_yield(potential_yield, probability):
+    """Expected Yield = potential × probability. None when probability is unknown —
+    the UI shows the raw potential with an 'unknown probability' flag instead."""
+    if probability is None or potential_yield is None:
+        return None
+    return round(potential_yield * probability, 1)
+
+
+def frontier_type(kind: str) -> str:
+    """reservoir → FUTURE (pre-launch staging); everything else → CURRENT (active)."""
+    return FUTURE if kind == "reservoir" else CURRENT
 
 
 def evidence_expansion_potential() -> dict:

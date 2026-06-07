@@ -26819,6 +26819,11 @@ def api_wt_discovery():
         c["why"] = dv_reveal
         c["coverage"] = dv_cov.get("coverage")
         c["potential_yield"] = dv_cov.get("potential_yield", 0)
+        c["breakdown"] = dv_cov.get("breakdown", {})
+        _p = _dv.discovery_probability("cluster", dv_band, c.get("has_baseline", False))
+        c["discovery_prob"] = _p
+        c["expected_yield"] = _dv.expected_yield(c["potential_yield"], _p)
+        c["frontier_type"] = "CURRENT"
     # Top Expansion Targets: band, then POTENTIAL YIELD (largest unexplored frontier
     # first) — what remains unexplained, not what exists.
     top_emerging = sorted(clusters, key=lambda c: (
@@ -26923,6 +26928,40 @@ def api_wt_discovery():
                 if len(invest) >= 5:
                     break
 
+    # ── DISCOVERY FRONTIERS — the two competing intelligence paths ───────────────
+    # CURRENT frontier = the largest active unexplored region (top cluster by yield).
+    # FUTURE frontier  = the reservoir (not yet active; pre-launch staging). Surfacing
+    # both lets the analyst weigh "existing unexplored infra" vs "the reservoir".
+    current_frontier = None
+    if clusters:
+        cf = max(clusters, key=lambda c: c.get("potential_yield") or 0)
+        if (cf.get("potential_yield") or 0) > 0:
+            current_frontier = {
+                "type": "CURRENT", "label": f"Cluster #{cf['cluster_id']}",
+                "href": f"/watchtower/operator/{cf['cluster_id']}",
+                "coverage": cf.get("coverage"), "potential_yield": cf.get("potential_yield"),
+                "expected_yield": cf.get("expected_yield"),
+                "discovery_prob": cf.get("discovery_prob"),
+                "discovery_value": cf.get("discovery_value"),
+                "breakdown": cf.get("breakdown", {}),
+                "note": "Largest unexplored infrastructure region currently visible",
+            }
+    future_frontier = None
+    if reservoir.get("dormant", 0) > 0:
+        future_frontier = {
+            "type": "FUTURE", "label": "Relay-Funded Reservoir",
+            "href": "/watchtower/operators",
+            "coverage": reservoir.get("coverage"),
+            "potential_yield": reservoir.get("potential_yield"),
+            "yield_unknown": reservoir.get("yield_unknown", False),
+            "expected_yield": None,            # discovery probability unknown (no conversion yet)
+            "discovery_prob": None,
+            "discovery_value": reservoir.get("discovery_value"),
+            "dormant": reservoir["dormant"], "converted": reservoir["converted"],
+            "path": ["relay", "creator", "lineage", "provisioning", "operator"],
+            "note": "Potential pre-launch creator staging — earliest known interception point",
+        }
+
     conn.close()
     return jsonify({
         "ts": now,
@@ -26930,6 +26969,7 @@ def api_wt_discovery():
         "reservoir": reservoir,
         "emerging": {"growing": len(emerging_growing), "total": len(clusters),
                      "total_with_history": len(growth), "top": top_emerging},
+        "discovery_frontiers": {"current": current_frontier, "future": future_frontier},
         "discovery_feed": feed,
         "investigate_next": invest,            # kept for back-compat
         "discovery_opportunities": invest,     # ranked by Discovery Value (info gain)

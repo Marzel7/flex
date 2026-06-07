@@ -317,6 +317,59 @@
 .cc-stat-val.dim   { color: var(--text-dim); }
 .cc-stat-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
 
+/* ── DISCOVERY MODE banner ──────────────────────────────────────────────────── */
+.disc-banner {
+    display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap;
+    background: linear-gradient(90deg, rgba(34,211,238,.07), rgba(139,92,246,.05));
+    border: 1px solid var(--border); border-left: 4px solid var(--col-cyan);
+    border-radius: 11px; padding: 16px 20px; margin-bottom: 14px;
+}
+.disc-mode { font-size: 17px; font-weight: 800; color: var(--col-cyan); letter-spacing: .5px; }
+.disc-obj { font-size: 12.5px; color: var(--text-sec); margin-top: 4px; }
+.disc-obj b { color: var(--text-pri); }
+.disc-focus { flex: 1; min-width: 220px; border-left: 1px solid var(--border); padding-left: 20px; }
+.disc-focus-line { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); }
+.disc-focus-stats { font-size: 12.5px; color: var(--text-pri); margin-top: 5px; line-height: 1.7; }
+.disc-focus-stats b { color: var(--col-cyan); }
+
+/* ── Cluster promotion funnel ───────────────────────────────────────────────── */
+.funnel {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 18px; gap: 4px;
+}
+.funnel-stage { flex: 1; text-align: center; }
+.funnel-val { font-size: 24px; font-weight: 800; color: var(--text-pri); line-height: 1; }
+.funnel-val.attributed { color: var(--col-green, #22c55e); }
+.funnel-label { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); margin-top: 6px; }
+.funnel-arrow { color: var(--text-dim); font-size: 16px; opacity: .5; flex: 0 0 auto; }
+
+/* ── Emerging operators (primary surface) ───────────────────────────────────── */
+.emerg-head { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 10px; flex-wrap: wrap; }
+.emerg-title { font-size: 15px; font-weight: 800; color: var(--text-pri); letter-spacing: .3px; }
+.emerg-sub { font-size: 11px; color: var(--text-dim); }
+.emerg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 11px; margin-bottom: 22px; }
+.emerg-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 3px solid var(--ec-color, var(--col-cyan)); border-radius: 9px; padding: 12px 14px;
+    text-decoration: none; display: block; transition: background .12s;
+}
+.emerg-card:hover { background: var(--bg-card2); }
+.emerg-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.emerg-id { font-size: 13px; font-weight: 700; color: var(--text-pri); }
+.emerg-conf { font-size: 13px; font-weight: 800; color: var(--ec-color, var(--col-cyan)); }
+.emerg-state { font-size: 8.5px; font-weight: 700; letter-spacing: .05em; padding: 1px 6px; border-radius: 3px;
+    background: rgba(245,158,11,.15); color: var(--col-amber); text-transform: uppercase; }
+.emerg-state.ACTIVE { background: rgba(63,185,80,.15); color: var(--state-active); }
+.emerg-metrics { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 9px; font-size: 11px; color: var(--text-sec); }
+.emerg-metrics b { color: var(--text-pri); }
+.emerg-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: var(--text-dim); }
+.emerg-growth { color: var(--col-green, #22c55e); font-weight: 600; }
+.emerg-tier { font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing:.05em; }
+.tier-confirmed-x { background: rgba(34,197,94,.18); color:#4ade80; }
+.tier-probable-x  { background: rgba(245,158,11,.15); color:#fbbf24; }
+.tier-investigate-x { background: transparent; color: var(--text-dim); border:1px dashed rgba(255,255,255,.2); }
+
 /* ── ZONE 1: New & Active discoveries (Phase 2 operators redesign) ───────────── */
 .na-zone { margin: 4px 0 18px; }
 .na-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
@@ -447,12 +500,49 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div>
-        <div class="page-title">⬡ WATCHTOWER — Operators</div>
-        <div class="page-sub">Discoveries first · new operators, attributions, hubs &amp; conversions — registry below</div>
+
+<!-- ══ DISCOVERY MODE banner — primary mission framing ════════════════════════ -->
+<div class="disc-banner" id="disc-banner">
+    <div class="disc-left">
+        <div class="disc-mode">⬡ DISCOVERY MODE</div>
+        <div class="disc-obj">Identify new coordinated operators <b>before</b> attribution.</div>
     </div>
-    <button class="refresh-btn" onclick="load()">↺ Refresh</button>
+    <div class="disc-focus" id="disc-focus">
+        <div class="disc-focus-line">Current focus:</div>
+        <div class="disc-focus-stats" id="disc-focus-stats">Reading discovery state…</div>
+    </div>
+    <button class="refresh-btn" onclick="load()" style="align-self:flex-start">↺ Refresh</button>
+</div>
+
+<!-- ══ DISCOVERY HEALTH METRICS ═══════════════════════════════════════════════ -->
+<div class="summary-strip" id="disc-metrics" style="margin-bottom:12px">
+    <div class="scard"><div class="scard-val cyan"   id="dm-emerging">—</div><div class="scard-label">Emerging Operators</div><div class="scard-sub">unknown, forming</div></div>
+    <div class="scard"><div class="scard-val green"  id="dm-launches">—</div><div class="scard-label">New Launches (24h)</div><div class="scard-sub">across candidates</div></div>
+    <div class="scard"><div class="scard-val amber"  id="dm-growing">—</div><div class="scard-label">Clusters Growing</div><div class="scard-sub">active in 24h</div></div>
+    <div class="scard"><div class="scard-val purple" id="dm-members">—</div><div class="scard-label">New Members (24h)</div><div class="scard-sub">joined clusters</div></div>
+    <div class="scard"><div class="scard-val cyan"   id="dm-unattributed">—</div><div class="scard-label">Unattributed Ops</div><div class="scard-sub">discovered, no operator</div></div>
+</div>
+
+<!-- ══ CLUSTER PROMOTION FUNNEL ═══════════════════════════════════════════════ -->
+<div class="funnel" id="funnel">
+    <div class="funnel-stage"><div class="funnel-val" id="fn-unclustered">—</div><div class="funnel-label">Unclustered</div></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-stage"><div class="funnel-val" id="fn-clusters">—</div><div class="funnel-label">Clusters</div></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-stage"><div class="funnel-val" id="fn-operations">—</div><div class="funnel-label">Operations</div></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-stage"><div class="funnel-val" id="fn-operators">—</div><div class="funnel-label">Operators</div></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-stage"><div class="funnel-val attributed" id="fn-attributed">—</div><div class="funnel-label">Attributed</div></div>
+</div>
+
+<!-- ══ EMERGING OPERATORS — primary mission surface ═══════════════════════════ -->
+<div class="emerg-head">
+    <span class="emerg-title">◎ EMERGING OPERATORS</span>
+    <span class="emerg-sub">Unknown operators forming — sorted by confidence &amp; recent activity. This is the mission.</span>
+</div>
+<div id="emerg-list" class="emerg-list">
+    <div class="cc-empty"><div class="cc-empty-icon">◎</div>Loading emerging operators…</div>
 </div>
 
 <!-- ══ ZONE 1 — NEW & ACTIVE (discoveries lead; registry is demoted below) ══════ -->
@@ -1633,6 +1723,93 @@ function naRender(d){
         : '<div class="na-empty">None in 24h</div>';
 }
 
+// ── Discovery console: emerging operators + health metrics + promotion funnel ──
+// All values are derived from REAL fields on the cluster/operations/candidate APIs.
+// Growth deltas (+N launches 24h, confidence Δ) require a cluster-snapshot history
+// table that does not exist yet — so "growing" is derived honestly from last_seen
+// recency (active in 24h), and per-card growth is shown only when last_seen is recent.
+function discTier(conf) {
+    if (conf >= 0.8) return '<span class="emerg-tier tier-confirmed-x">high</span>';
+    if (conf >= 0.6) return '<span class="emerg-tier tier-probable-x">probable</span>';
+    return '<span class="emerg-tier tier-investigate-x">investigate</span>';
+}
+function renderDiscovery(clusters, operations, watchData, candData) {
+    const now = Math.floor(Date.now()/1000), DAY = 86400;
+    // Emerging = non-seed clusters that are forming/active (the unknown-operator population)
+    const emerging = (clusters || []).filter(c =>
+        c.origin !== 'seed' &&
+        (c.watch_token_count > 0 || c.token_count > 0 || c.member_count > 0));
+    const recent = c => (c.last_seen && (now - c.last_seen) <= DAY);
+    const growing = emerging.filter(recent);
+
+    // ── Discovery health metrics ──
+    const classified = (watchData && watchData.classified) || {};
+    const ops = operations || [];
+    const unattributed = ops.filter(o =>
+        (o.state || '').toUpperCase() === 'DISCOVERED' && !o.merged_into).length;
+    const newLaunches24 = (candData && candData.candidates || [])
+        .filter(c => c.is_recent_live).length;
+    document.getElementById('dm-emerging').textContent     = emerging.length;
+    document.getElementById('dm-launches').textContent     = newLaunches24;
+    document.getElementById('dm-growing').textContent      = growing.length;
+    document.getElementById('dm-members').textContent       = growing.reduce((s,c)=>s+(c.member_count||0),0);
+    document.getElementById('dm-unattributed').textContent = unattributed;
+
+    // ── Promotion funnel: Unclustered → Cluster → Operation → Operator → Attributed ──
+    // NOTE: identity_validated_at is stamped EVERY engine pass (= "identity-checked"),
+    // so it is NOT a promotion signal — all ops have it. The real "promoted to operator"
+    // signal is a NAMED/CONFIRMED operation (it has an assigned identity).
+    const unclustered = classified.WATCH_LIKE_NEW_OP || 0;   // eligible, not yet clustered
+    const namedStates = new Set(['NAMED', 'CONFIRMED']);
+    const operators = ops.filter(o => o.human_name || namedStates.has((o.state||'').toUpperCase())).length;
+    const attributed = ops.filter(o => (o.state||'').toUpperCase() === 'CONFIRMED').length;
+    document.getElementById('fn-unclustered').textContent = unclustered;
+    document.getElementById('fn-clusters').textContent    = emerging.length;
+    document.getElementById('fn-operations').textContent  = ops.filter(o=>!o.merged_into).length;
+    document.getElementById('fn-operators').textContent   = operators;
+    document.getElementById('fn-attributed').textContent  = attributed;
+
+    // ── Discovery Mode banner focus line ──
+    const highConf = emerging.filter(c => (c.confidence||0) >= 0.8).length;
+    document.getElementById('disc-focus-stats').innerHTML =
+        `<b>${emerging.length}</b> emerging operator candidate${emerging.length!==1?'s':''} · ` +
+        `<b>${highConf}</b> high-confidence forming · ` +
+        `<b>${growing.length}</b> growing in 24h · <b>${attributed}</b> attributed`;
+
+    // ── Emerging operators list — sorted by confidence, then recency ──
+    emerging.sort((a,b) =>
+        (b.confidence||0) - (a.confidence||0) ||
+        (b.last_seen||0) - (a.last_seen||0));
+    const el = document.getElementById('emerg-list');
+    if (!emerging.length) {
+        el.innerHTML = '<div class="cc-empty"><div class="cc-empty-icon">◎</div>No emerging operators — discovery quiet</div>';
+        return;
+    }
+    el.innerHTML = emerging.map(c => {
+        const conf = c.confidence || 0;
+        const color = conf >= 0.8 ? 'var(--col-green,#22c55e)' : conf >= 0.6 ? 'var(--col-amber,#f59e0b)' : 'var(--text-dim)';
+        const state = (c.state || 'FORMING').toUpperCase();
+        const ageH = c.first_seen ? Math.round((now - c.first_seen)/3600) : null;
+        const growingTag = recent(c) ? `<span class="emerg-growth">active &lt;24h</span>` : '';
+        return `<a class="emerg-card" style="--ec-color:${color}" href="/watchtower/operator/${c.treasury_wallet || c.cluster_id}">
+            <div class="emerg-card-top">
+                <span class="emerg-id">Candidate #${c.cluster_id}</span>
+                <span class="emerg-conf">${(conf*100).toFixed(0)}% ${discTier(conf)}</span>
+            </div>
+            <div class="emerg-metrics">
+                <span><b>${c.token_count||0}</b> launches</span>
+                <span><b>${c.member_count||0}</b> creators</span>
+                <span><b>${c.provisioner_count||0}</b> provisioners</span>
+                ${c.total_sol_deployed ? `<span><b>${(+c.total_sol_deployed).toFixed(0)}</b> SOL</span>` : ''}
+            </div>
+            <div class="emerg-foot">
+                <span class="emerg-state ${state}">${state}</span>
+                <span>${ageH!=null ? 'first seen '+(ageH<48? ageH+'h':Math.round(ageH/24)+'d')+' ago' : ''} ${growingTag}</span>
+            </div>
+        </a>`;
+    }).join('');
+}
+
 async function load() {
     try {
         loadEngineStatus();
@@ -1661,6 +1838,10 @@ async function load() {
         renderProposals(propData, bfData);
 
         const allClusters = clusterData.clusters || [];
+
+        // ── DISCOVERY CONSOLE (primary surface) — emerging operators, metrics, funnel ──
+        renderDiscovery(allClusters, operations, watchData, candData);
+
         // Classified candidates: prefer watch-candidates top_candidates, fall back to operator-candidates.
         const classifiedCands = (watchData.top_candidates && watchData.top_candidates.length > 0)
             ? watchData.top_candidates

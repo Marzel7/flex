@@ -76,6 +76,7 @@
 .disc-card.mission-b { border-top: 2px solid var(--accent-purple); }
 /* trip-wire (Mission B) */
 .tw-armed { font-size: 12px; font-weight: 700; color: var(--color-green); margin-bottom: 8px; }
+.tw-watching { font-size: 12px; font-weight: 700; color: var(--color-yellow); margin-bottom: 8px; }
 .tw-fired { font-size: 13px; font-weight: 800; color: var(--color-red); margin-bottom: 8px;
     background: rgba(239,68,68,.12); padding: 6px 10px; border-radius: 6px; }
 .tw-tier { display: flex; align-items: baseline; gap: 9px; padding: 5px 8px; border-radius: 6px;
@@ -553,9 +554,13 @@ async function loadTripwire() {
                     <span class="yield">${f.outbound_txs} outbound</span></div>
                     <div class="di-reveal">↳ ${f.relay} · ${f.amount} SOL · funded ${f.days_since_funded}d ago</div></a>`).join('');
         } else {
-            // armed and quiet — show the tiered watch posture
-            el.innerHTML =
-                `<div class="tw-armed">● ARMED · ${d.armed} wallets watched · 0 moved</div>` +
+            // quiet watch posture. WATCHING (passive) until a background poller exists;
+            // ARMED only when the poller is actively standing guard.
+            const armedMode = d.mode === 'ARMED';
+            const head = armedMode
+                ? `<div class="tw-armed">● ARMED · ${d.armed} wallets watched · 0 moved · background tripwire active</div>`
+                : `<div class="tw-watching">○ WATCHING · ${d.armed} wallets · 0 moved · passive (evaluated on refresh)</div>`;
+            el.innerHTML = head +
                 [1,2,3].map(t => tiers[t] ? `<div class="tw-tier tw-t${t}">
                     <span class="tw-n">${tiers[t]}</span><span class="tw-l">${tierLabel[t]}</span></div>` : '').join('') +
                 `<div class="di-reveal" style="margin-top:6px">First outbound from any wallet = earliest wave signal · auto-attributes to OPERATION_ALPHA</div>`;
@@ -730,7 +735,12 @@ function renderAttention(d) {
     // discoveries from the feed (24h)
     for (const e of (d.events || [])) {
         if ((now - (e.ts||0)) > 86400) continue;
-        if (e.type === 'NEW_PROVISIONING_HUB')
+        if (e.type === 'RESERVOIR_TRIPWIRE_FIRED')
+            // a reservoir wallet moved — the next wave may be starting. Top priority.
+            rows.push({c:'at-infra', ic:'🎯', ttl:'RESERVOIR TRIP-WIRE FIRED — possible wave start',
+                meta:`${short(e.label)} · ${e.detail||''} · ${ago(e.ts)}`,
+                href:e.href||'/watchtower/operators', rank:0, ts:e.ts});
+        else if (e.type === 'NEW_PROVISIONING_HUB')
             rows.push({c:'at-disc', ic:'⬡', ttl:'New provisioning hub', meta:`${short(e.label)} · ${e.detail||''} · ${ago(e.ts)}`,
                 href:'/watchtower/operators', rank:2, ts:e.ts});
         else if (e.type === 'OPERATION_CREATED')

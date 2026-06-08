@@ -26367,6 +26367,21 @@ def api_wt_command_center():
                     'href': None,
                 })
 
+    # ── Reservoir trip-wire fires — a reservoir wallet made its first outbound move.
+    # Highest-priority discovery event: the earliest observable WATCHTOWER wave signal.
+    if _has_table('wt_tripwire_fired'):
+        for tf in conn.execute("""
+            SELECT wallet_address, tier, relay_label, funding_amount, fired_at, outbound_txs
+            FROM wt_tripwire_fired ORDER BY fired_at DESC LIMIT 25
+        """).fetchall():
+            if tf['fired_at'] and tf['fired_at'] > h24:
+                events.append({
+                    'ts': tf['fired_at'], 'type': 'RESERVOIR_TRIPWIRE_FIRED',
+                    'label': tf['wallet_address'],
+                    'detail': f"T{tf['tier']} · {tf['relay_label']} · {tf['funding_amount']} SOL · {tf['outbound_txs']} outbound",
+                    'href': f"/watchtower/operator/{tf['wallet_address']}",
+                })
+
     # ── Lineage-attributed creators (pending review + recent attributions) ─
     pending_creators = 0
     if _has_table('creator_risk_scores'):
@@ -31324,6 +31339,11 @@ def _run_watch_pipeline(conn: sqlite3.Connection) -> dict:
         from src.analysis import watchtower_reservoir as _wtr
         _wtr.populate(conn)
         reservoir_stats = _wtr.refresh(conn)
+        # Trip-wire poll on the pipeline's own (working) write connection — persists
+        # fires + heartbeat reliably every pipeline pass. The dedicated 3-min thread is
+        # the faster path; this guarantees at least the 15-min cadence even if the
+        # thread is starved by a write-lock.
+        _wtr.poll(conn)
     except Exception as _re:
         print(f"[WATCHTOWER] reservoir tracking error: {_re}", flush=True)
     queued = _enqueue_hub_backfill(conn)
@@ -40770,6 +40790,37 @@ if __name__ == '__main__':
             except Exception:
                 pass
     threading.Thread(target=_wal_checkpoint_loop, daemon=True, name="wal-checkpoint").start()
+
+    # ── Reservoir trip-wire poller — makes the Next Wave Monitor genuinely ARMED ──
+    # Polls the 71 dormant reservoir wallets every 3 min, persists first-outbound
+    # fires (RESERVOIR_TRIPWIRE_FIRED) and a heartbeat so the UI reports ARMED rather
+    # than passive WATCHING. Tiny writes (one heartbeat row + rare fires) with a long
+    # busy timeout to coexist with the single-writer pipeline.
+    def _reservoir_tripwire_loop():
+        import time as _t
+        from src.analysis import watchtower_reservoir as _wtr
+        print("[RESERVOIR_TRIPWIRE] poller thread started", flush=True)
+        _t.sleep(45)  # let the startup pipeline pass finish before competing for the write lock
+        while True:
+            try:
+                if _wt_tables_ready:
+                    # generous busy timeout — this DB sees heavy write contention; the
+                    # poll's writes are tiny, so wait out other writers rather than fail.
+                    _pc = db_connect(DB_PATH, timeout=60)
+                    _pc.execute("PRAGMA busy_timeout=60000")
+                    res = _wtr.poll(_pc)
+                    _pc.close()
+                    _wt_heartbeat("reservoir-tripwire", "ok",
+                                  {"armed": res["armed"], "new_fires": res["new_fires"]})
+                    if res["new_fires"]:
+                        print(f"[RESERVOIR_TRIPWIRE] {res['new_fires']} new fire(s): "
+                              f"{res['new_fire_wallets']}", flush=True)
+            except Exception as _pe:
+                # surface degraded state in healthz so the lock contention is visible
+                _wt_heartbeat("reservoir-tripwire", "degraded", {"error": str(_pe)[:80]})
+                print(f"[RESERVOIR_TRIPWIRE] poll error (will retry): {_pe}", flush=True)
+            _t.sleep(180)  # 3-minute cadence
+    threading.Thread(target=_reservoir_tripwire_loop, daemon=True, name="reservoir-tripwire").start()
 
     # Register internal API blueprint
     try:

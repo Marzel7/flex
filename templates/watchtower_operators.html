@@ -367,6 +367,7 @@
 .nwm-title { font-size: 14px; font-weight: 800; color: var(--col-cyan); letter-spacing: .3px; }
 .nwm-status { font-size: 12px; font-weight: 800; }
 .nwm-status.armed { color: var(--col-green, #22c55e); }
+.nwm-status.watching { color: var(--col-amber, #f59e0b); }
 .nwm-status.fired { color: var(--col-red); background: rgba(239,68,68,.12); padding: 2px 8px; border-radius: 5px; }
 .nwm-tiers { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
 .nwm-tier { flex: 1; min-width: 110px; background: var(--bg-card); border: 1px solid var(--border);
@@ -1967,14 +1968,21 @@ async function loadNextWaveMonitor() {
                 + `${fired.length} reservoir wallet${fired.length>1?'s':''} moved — possible wave start</div>`
                 + fired.slice(0,6).map(f=>`<div class="nwm-meta">T${f.tier} <a href="/watchtower/operator/${f.wallet}" style="color:var(--col-cyan)">${f.wallet.slice(0,8)}…</a> · ${f.outbound_txs} outbound · ${f.amount} SOL</div>`).join('');
         } else {
-            st.className = 'nwm-status armed'; st.textContent = '● ARMED';
+            // Honest label: WATCHING = passive (evaluated on refresh/pipeline) until a
+            // background poller exists; ARMED = a poller is actively standing guard.
+            const armedMode = d.mode === 'ARMED';
+            st.className = 'nwm-status ' + (armedMode ? 'armed' : 'watching');
+            st.textContent = armedMode ? '● ARMED' : '○ WATCHING';
+            const sub = armedMode
+                ? `background tripwire active`
+                : `passive tripwire — evaluated on refresh / pipeline run`;
             body.innerHTML =
                 `<div class="nwm-tiers">
                    <div class="nwm-tier nwm-t1"><div class="tn">${tiers[1]||0}</div><div class="tl">T1 · 2.10203928</div></div>
                    <div class="nwm-tier nwm-t2"><div class="tn">${tiers[2]||0}</div><div class="tl">T2 · fingerprint</div></div>
                    <div class="nwm-tier nwm-t3"><div class="tn">${tiers[3]||0}</div><div class="tl">T3 · round 1.1</div></div>
                  </div>
-                 <div class="nwm-meta"><b>${d.armed}</b> wallets watched · <b>0</b> outbound · funded Jun 2–3 · `
+                 <div class="nwm-meta"><b>${d.armed}</b> wallets watched · <b>0</b> outbound · ${sub} · `
                  + `earliest signal = first outbound tx → auto-attributes to OPERATION_ALPHA</div>`;
         }
     } catch(e) { console.error('next-wave-monitor error', e); }

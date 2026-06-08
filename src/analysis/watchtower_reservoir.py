@@ -30,6 +30,8 @@ PROFIT_RELAYS = {
     "5GZvPqYggF9HS59xBazaTVogMGyCmdMV3sE4oWzJv5Y7": "PROFIT-RELAY-4",
 }
 EXPIRE_DAYS = 30  # dormant > this with no launch → EXPIRED (relay-funding wasn't a reservoir)
+POLLER_FRESH_S = 1200  # ARMED if the poller ran within 20 min — covers the 15-min
+                       # pipeline pass even if the faster 3-min thread is lock-starved
 
 
 SCHEMA = """
@@ -245,7 +247,19 @@ def tripwire(conn: sqlite3.Connection) -> dict:
         if moved > 0:
             fired.append({"wallet": w, "relay": rl, "amount": amt,
                           "tier": tier, "outbound_txs": moved, "days_since_funded": age})
+    # mode: ARMED only when a background poller has run recently (it stamps a heartbeat
+    # in wt_tripwire_heartbeat). Otherwise WATCHING — passive, evaluated on this request
+    # only. Honest about whether the system is actively standing guard.
+    mode = "WATCHING"
+    try:
+        hb = conn.execute(
+            "SELECT last_run FROM wt_tripwire_heartbeat WHERE id=1").fetchone()
+        if hb and hb[0] and (int(time.time()) - int(hb[0])) <= POLLER_FRESH_S:
+            mode = "ARMED"
+    except Exception:
+        pass
     return {
+        "mode": mode,
         "fired": fired,
         "fired_count": len(fired),
         "armed": len(rows),                 # dormant wallets still being watched
@@ -253,6 +267,58 @@ def tripwire(conn: sqlite3.Connection) -> dict:
             f"SELECT {tier_expr} AS tier, COUNT(*) FROM wt_creator_reservoir "
             f"WHERE status='DORMANT' GROUP BY tier").fetchall()},
     }
+
+
+_POLLER_SCHEMA = """
+CREATE TABLE IF NOT EXISTS wt_tripwire_heartbeat (
+    id INTEGER PRIMARY KEY CHECK (id=1),
+    last_run INTEGER, last_armed INTEGER, last_fired INTEGER
+);
+CREATE TABLE IF NOT EXISTS wt_tripwire_fired (
+    wallet_address TEXT PRIMARY KEY,
+    tier INTEGER, relay_label TEXT, funding_amount REAL,
+    fired_at INTEGER, outbound_txs INTEGER, days_since_funded REAL,
+    notified INTEGER NOT NULL DEFAULT 0
+);
+"""
+
+
+def poll(conn: sqlite3.Connection) -> dict:
+    """
+    BACKGROUND POLLER — makes the trip-wire genuinely ARMED rather than passive.
+    Run on a 1-5 min cadence by a worker thread. Each run:
+      1. evaluates the trip-wire over the 71 dormant reservoir wallets
+      2. persists any NEWLY fired wallet (first outbound) to wt_tripwire_fired
+      3. logs a RESERVOIR_TRIPWIRE_FIRED line per new fire
+      4. stamps a heartbeat so the UI/endpoint can report ARMED (poller is live)
+    Idempotent: a wallet fires once (PK on wallet_address); re-runs don't duplicate.
+    """
+    conn.executescript(_POLLER_SCHEMA)
+    now = int(time.time())
+    tw = tripwire(conn)
+    already = {r[0] for r in conn.execute("SELECT wallet_address FROM wt_tripwire_fired").fetchall()}
+    new_fires = []
+    for f in tw["fired"]:
+        if f["wallet"] in already:
+            continue
+        conn.execute(
+            "INSERT OR IGNORE INTO wt_tripwire_fired "
+            "(wallet_address, tier, relay_label, funding_amount, fired_at, "
+            " outbound_txs, days_since_funded) VALUES (?,?,?,?,?,?,?)",
+            (f["wallet"], f["tier"], f["relay"], f["amount"], now,
+             f["outbound_txs"], f["days_since_funded"]))
+        new_fires.append(f)
+        print(f"[RESERVOIR_TRIPWIRE_FIRED] T{f['tier']} {f['wallet']} "
+              f"relay={f['relay']} amount={f['amount']} outbound={f['outbound_txs']} "
+              f"(funded {f['days_since_funded']}d ago) → OPERATION_ALPHA lead", flush=True)
+    conn.execute(
+        "INSERT INTO wt_tripwire_heartbeat (id, last_run, last_armed, last_fired) "
+        "VALUES (1, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET "
+        "last_run=excluded.last_run, last_armed=excluded.last_armed, last_fired=excluded.last_fired",
+        (now, tw["armed"], len(tw["fired"])))
+    conn.commit()
+    return {"ran_at": now, "armed": tw["armed"], "total_fired": tw["fired_count"],
+            "new_fires": len(new_fires), "new_fire_wallets": [f["wallet"] for f in new_fires]}
 
 
 def main() -> None:

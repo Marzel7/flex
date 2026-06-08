@@ -93,6 +93,14 @@ HUB_TREASURY_TOLERANCE = 5.0          # SOL — treasury injection band per tier
 HUB_SIGNALLER_WINDOW_S = 120          # both signaller dust pings within 120s of birth
 _SIGNALLER_2 = "44o1Hecb4QUhqcRNYJBC6XZoeHWzkWAvenR5YYHRGbFM"
 
+# Treasury-AGNOSTIC structural provisioner thresholds. A wallet behaving like a
+# provisioner — funding many fresh single-token creators in a burst — regardless of
+# identity. Produces CANDIDATE_PROVISIONER (not CONFIRMED, not WATCHTOWER); attribution
+# stays a later step. This is what lets a ROTATED/FRESH treasury still surface.
+STRUCT_MIN_FRESH_CREATORS = 3         # fund ≥3 fresh single-token creators to qualify
+STRUCT_STRONG_FRESH       = 5         # ≥5 → stronger candidate
+STRUCT_BURST_WINDOW_S     = 86400     # creators funded within this span → burst (tighter = stronger)
+
 # Service / CEX / infra-internal addresses that must NOT be treated as lineage
 # pass-throughs (walking through them would attribute unrelated wallets). Includes
 # the System Program and well-known hot wallets; CEX rows are also filtered via the
@@ -277,9 +285,108 @@ def discover_provisioning_hubs(
                  now, now, json.dumps(evidence)),
             )
         promoted.append({"hub_address": hub, **evidence})
+
+    # ── Treasury-AGNOSTIC structural pass ────────────────────────────────────
+    # Identify provisioner BEHAVIOUR regardless of identity: a wallet that funds many
+    # fresh single-token creators in a burst, with no creator history of its own. This
+    # is what surfaces a rotated/fresh treasury that the known-address path above misses.
+    # Produces status='CANDIDATE' (never CONFIRMED) — attribution remains a later step.
+    structural = _discover_structural_provisioners(
+        conn, since_ts=since_ts,
+        already={p["hub_address"] for p in promoted}, promote=promote)
+    promoted.extend(structural)
+
     if promote and promoted:
         conn.commit()
     return promoted
+
+
+def _discover_structural_provisioners(
+    conn: sqlite3.Connection,
+    since_ts: Optional[int] = None,
+    already: Optional[set] = None,
+    promote: bool = True,
+) -> list[dict]:
+    """
+    Treasury-agnostic provisioner detection. Same PURPOSE as the known-treasury path
+    (find provisioner wallets) but driven by STRUCTURE, not identity:
+        funder → ≥STRUCT_MIN_FRESH_CREATORS fresh single-token creators, burst-funded,
+        not CEX/infra/astra, not itself a serial creator.
+    Upserts as status='CANDIDATE' in wt_provisioning_hubs so the existing UI/queries
+    pick them up, but they remain unconfirmed and unattributed.
+    """
+    already = already or set()
+    now = int(time.time())
+    since_clause = ("AND CAST(strftime('%s', cf.first_detected_at) AS INTEGER) >= ?"
+                    if since_ts is not None else "")
+    rows = conn.execute(
+        f"""
+        SELECT cf.funder_address,
+               COUNT(DISTINCT cf.creator_address)              AS n_fresh,
+               -- first_detected_at is TEXT ('YYYY-MM-DD HH:MM:SS'); coerce to epoch
+               CAST(strftime('%s', MIN(cf.first_detected_at)) AS INTEGER) AS first_ts,
+               CAST(strftime('%s', MAX(cf.first_detected_at)) AS INTEGER) AS last_ts,
+               GROUP_CONCAT(DISTINCT ROUND(cf.amount_sol, 6))  AS amounts
+        FROM creator_funders cf
+        JOIN creator_risk_scores crs ON crs.creator_address = cf.creator_address
+        WHERE crs.total_tokens = 1                 -- fresh single-token creator profile
+          AND cf.is_cex = 0
+          AND cf.funder_address NOT LIKE 'astra%'
+          AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
+          {since_clause}
+        GROUP BY cf.funder_address
+        HAVING n_fresh >= ?
+        """,
+        ([since_ts] if since_ts is not None else []) + [STRUCT_MIN_FRESH_CREATORS],
+    ).fetchall()
+
+    out: list[dict] = []
+    for funder, n_fresh, first_ts, last_ts, amounts in rows:
+        if funder in already or funder in _INFRA_SET:
+            continue
+        # exclude wallets that are themselves serial creators (a launcher bot, not a hub)
+        own = conn.execute(
+            "SELECT total_tokens FROM creator_risk_scores WHERE creator_address=?",
+            (funder,)).fetchone()
+        if own and (own[0] or 0) > 1:
+            continue
+        span_s = (last_ts - first_ts) if (first_ts and last_ts) else None
+        burst = span_s is not None and span_s <= STRUCT_BURST_WINDOW_S
+        # confidence: structural only, capped well below the CONFIRMED treasury path.
+        conf = 0.35
+        if n_fresh >= STRUCT_STRONG_FRESH:
+            conf += 0.15
+        if burst:
+            conf += 0.15
+        conf = round(min(conf, 0.7), 2)
+        evidence = {
+            "method": "structural_provisioner",     # NOT the treasury birth-signature
+            "fresh_creators_funded": n_fresh,
+            "burst": burst,
+            "span_seconds": span_s,
+            "distinct_amounts": (amounts.split(",") if amounts else [])[:6],
+            "discovered_from": "indexed_edges",
+            "treasury_agnostic": True,
+        }
+        if promote:
+            conn.execute(
+                """
+                INSERT INTO wt_provisioning_hubs
+                    (hub_address, treasury_amount, born_at, creator_seed_count,
+                     confidence, status, discovered_at, last_seen_at, evidence_json)
+                VALUES (?, NULL, ?, ?, ?, 'CANDIDATE', ?, ?, ?)
+                ON CONFLICT(hub_address) DO UPDATE SET
+                    creator_seed_count = excluded.creator_seed_count,
+                    last_seen_at  = excluded.last_seen_at,
+                    evidence_json = excluded.evidence_json,
+                    -- never downgrade a CONFIRMED hub to CANDIDATE
+                    status = CASE WHEN wt_provisioning_hubs.status='CONFIRMED'
+                                  THEN 'CONFIRMED' ELSE 'CANDIDATE' END
+                """,
+                (funder, first_ts, n_fresh, conf, now, now, json.dumps(evidence)),
+            )
+        out.append({"hub_address": funder, **evidence})
+    return out
 
 
 def _edge_ts(conn: sqlite3.Connection, source: str, dest: str) -> Optional[int]:

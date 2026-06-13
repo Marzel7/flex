@@ -9349,9 +9349,10 @@ def healthz():
 
 @app.route('/')
 def index():
-    """Phase 4: Command Center is the home. Live Launches remains one click away at
-    /live-launches (and in the sidebar). Redirect keeps old bookmarks working."""
-    return redirect('/command-center')
+    """Home = the operation-centric Live Operations page (the product). The legacy
+    Command Center + WATCHTOWER research pages remain reachable from the sidebar.
+    Redirect keeps old bookmarks working."""
+    return redirect('/ops')
 
 
 @app.route('/live-launches')
@@ -25966,6 +25967,42 @@ def api_wt_tempo():
     })
 
 
+def _ops_v2_live_signal():
+    """Read the isolated wt_ops_v2 store for live operation signal. Read-only,
+    non-fatal — returns None if the store/tables aren't present yet."""
+    import os as _os
+    ov2_path = _os.environ.get(
+        "OPS_V2_DB_PATH",
+        _os.path.join(_os.path.dirname(__file__), "..", "..", "database", "wt_ops_v2.db"))
+    if not _os.path.exists(ov2_path):
+        return None
+    try:
+        c = db_connect(ov2_path, timeout=3)
+        def _has(t):
+            return c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (t,)).fetchone() is not None
+        out = {"operations": 0, "provisioning": 0, "creators_seen": 0,
+               "candidates_24h": 0, "template_leads": 0}
+        if _has("wt_ops_v2"):
+            out["operations"] = c.execute("SELECT COUNT(*) FROM wt_ops_v2").fetchone()[0]
+        if _has("wt_operation_lifecycle"):
+            for st, n in c.execute("SELECT state, COUNT(*) FROM wt_operation_lifecycle GROUP BY state").fetchall():
+                if st == "PROVISIONING":
+                    out["provisioning"] = n
+                elif st in ("CREATORS_SEEN", "REACTIVATED"):
+                    out["creators_seen"] += n
+        if _has("wt_operation_candidates"):
+            out["candidates_24h"] = c.execute(
+                "SELECT COUNT(*) FROM wt_operation_candidates WHERE first_seen > strftime('%s','now')-86400"
+            ).fetchone()[0]
+            out["template_leads"] = c.execute(
+                "SELECT COUNT(*) FROM wt_operation_candidates WHERE template_base IS NOT NULL"
+            ).fetchone()[0]
+        c.close()
+        return out
+    except Exception:
+        return None
+
+
 @app.route('/api/watchtower/operational-status')
 def api_wt_operational_status():
     """Unified operational intelligence endpoint — powers the new dashboard."""
@@ -26069,9 +26106,28 @@ def api_wt_operational_status():
         network_status = 'UNCERTAIN'
         status_detail = 'Insufficient recent signal. Monitor TREASURY for new outflows.'
 
+    # Operation-centric override (Phase 1.4): the legacy state above is derived from
+    # wt_staged_wallets + attribution, which lag weeks. The operation-centric store
+    # (wt_ops_v2) sees live treasury-rooted operations in real time. If it shows
+    # current expansion, the network is NOT dormant — let the live signal win.
+    ops_v2 = _ops_v2_live_signal()
+    if ops_v2 and network_status in ('DORMANT', 'UNCERTAIN'):
+        if ops_v2['provisioning'] > 0 or ops_v2['creators_seen'] > 0:
+            network_status = 'ACTIVE'
+            status_detail = (f"Operation-centric monitor: {ops_v2['provisioning']} operation(s) "
+                             f"PROVISIONING, {ops_v2['creators_seen']} with creators seen, "
+                             f"{ops_v2['candidates_24h']} candidate creators in 24h. "
+                             f"(Legacy attribution layer still catching up.)")
+        elif ops_v2['candidates_24h'] > 0:
+            network_status = 'WATCHING'
+            status_detail = (f"Operation-centric monitor active: {ops_v2['candidates_24h']} "
+                             f"candidate creators detected in last 24h across "
+                             f"{ops_v2['operations']} tracked operations.")
+
     return jsonify({
         'network_status': network_status,
         'status_detail': status_detail,
+        'ops_v2': ops_v2,
         'staged_states': staged_states,
         'token_stats': dict(token_stats) if token_stats else {},
         'infra_events': [dict(r) for r in infra_events],
@@ -26451,6 +26507,24 @@ def api_wt_command_center():
         'migrations': 0,
     }
 
+    # Operation-centric live signal (Phase 1.4): fold the wt_ops_v2 store into this
+    # SOC payload so the Mission Status banner reflects what the operation-centric
+    # monitor sees in real time, not just the weeks-lagging attribution layer.
+    ov2 = _ops_v2_live_signal()
+    if ov2:
+        # PROVISIONING / CREATORS_SEEN operations are live seeding signal -> drive
+        # the banner out of DORMANT via the existing OPERATION_CREATED trigger.
+        live_ops = (ov2.get('provisioning', 0) or 0) + (ov2.get('creators_seen', 0) or 0)
+        if live_ops > 0:
+            events.append({
+                'ts': now, 'type': 'OPERATION_CREATED',
+                'label': f"{live_ops} operation(s) live in operation-centric monitor",
+                'detail': (f"{ov2.get('provisioning',0)} PROVISIONING, "
+                           f"{ov2.get('creators_seen',0)} CREATORS_SEEN, "
+                           f"{ov2.get('candidates_24h',0)} candidate creators in 24h"),
+                'href': '/operations-v2',
+            })
+
     return jsonify({
         'ts': now,
         'status': {
@@ -26468,6 +26542,7 @@ def api_wt_command_center():
         'pipeline':    pipeline,
         'events':      events,
         'review':      review,
+        'ops_v2':      ov2,
     })
 
 
@@ -29105,15 +29180,16 @@ def _ensure_watchtower_tables(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_wt_events_type ON watchtower_events(event_type, event_sequence ASC)",
         "CREATE INDEX IF NOT EXISTS idx_wt_events_created ON watchtower_events(created_at DESC)",
         """CREATE TABLE IF NOT EXISTS watchtower_infra_events (
-            signature        TEXT NOT NULL PRIMARY KEY,
+            signature        TEXT NOT NULL,
             block_time       INTEGER,
             infra_address    TEXT NOT NULL,
             infra_role       TEXT NOT NULL,
             direction        TEXT NOT NULL,
             counterparty     TEXT NOT NULL,
-            amount_sql       REAL NOT NULL DEFAULT 0,
+            amount_sol       REAL NOT NULL DEFAULT 0,
             raw_payload      TEXT,
-            received_at      INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            received_at      INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            PRIMARY KEY (signature, infra_address, direction)
         )""",
         "CREATE INDEX IF NOT EXISTS idx_wt_infra_events_infra ON watchtower_infra_events(infra_address, block_time DESC)",
         "CREATE INDEX IF NOT EXISTS idx_wt_infra_events_counterparty ON watchtower_infra_events(counterparty)",
@@ -32741,7 +32817,10 @@ def _start_swarm_migration_scanner(db_path: str, interval_s: int = 300) -> None:
                 if pending:
                     _cross_token_fingerprint_match(db_path)
 
-                conn.close()
+                # (no conn.close() here — each `with db_connect(...) as conn` block
+                # above already closes its own connection. The stray close referenced
+                # an unbound `conn` whenever `pending` was empty, raising UnboundLocalError
+                # every idle cycle.)
 
             except Exception as _e:
                 print(f"[WT_SWARM_SCANNER] worker error: {_e}", flush=True)
@@ -33356,6 +33435,228 @@ def webhook_watchtower():
         return "ok", 200
 
 
+_DYN_INFRA_ROLES_CACHE = {"map": {}, "at": 0.0}
+
+
+_CONFIRMED_TREAS_CACHE = {"at": 0.0, "set": set()}
+
+
+def _confirmed_treasuries():
+    """The authoritative confirmed-treasury set (wt_confirmed_treasuries). Cached 60s.
+    Used to guarantee EVERY confirmed-treasury outbound is logged as a raw webhook hit."""
+    now = time.time()
+    if now - _CONFIRMED_TREAS_CACHE["at"] < 60:
+        return _CONFIRMED_TREAS_CACHE["set"]
+    s = set()
+    try:
+        ops_db = os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db")
+        if os.path.exists(ops_db):
+            oc = db_connect(ops_db, timeout=10)
+            try:
+                s = {r[0] for r in oc.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+            finally:
+                oc.close()
+    except Exception:
+        pass
+    if s:
+        _CONFIRMED_TREAS_CACHE["set"] = s
+    _CONFIRMED_TREAS_CACHE["at"] = now
+    return _CONFIRMED_TREAS_CACHE["set"]
+
+
+def _load_dynamic_infra_roles():
+    """CONFIRMED treasuries → role TREASURY, so their webhook events flow through the
+    TREASURY path (→ forward-walk trigger). Cached 60s.
+
+    SOURCE OF TRUTH = wt_confirmed_treasuries (the authoritative live-watch set), NOT
+    ops-graph role labels (which are supporting context only). The forward-walk fires
+    ONLY from this set. New treasuries are NOT auto-promoted from hits — they enter via
+    the review pipeline and a human promotes them into wt_confirmed_treasuries."""
+    now = time.time()
+    if now - _DYN_INFRA_ROLES_CACHE["at"] < 60:
+        return _DYN_INFRA_ROLES_CACHE["map"]
+    roles = {}
+    try:
+        ops_db = os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db")
+        if os.path.exists(ops_db):
+            oc = db_connect(ops_db, timeout=10)
+            try:
+                # AUTHORITATIVE: confirmed treasuries only
+                confirmed = {r[0] for r in oc.execute(
+                    "SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+            finally:
+                oc.close()
+            # only those actually enrolled on the webhook (don't claim un-webhooked ones)
+            ec = db_connect(DB_PATH, timeout=10)
+            try:
+                active = {r[0] for r in ec.execute(
+                    "SELECT DISTINCT wallet_address FROM wt_webhook_enrollments WHERE is_active=1").fetchall()}
+            finally:
+                ec.close()
+            for t in confirmed:
+                if t in active and t not in _WT_INFRA_ROLES:
+                    roles[t] = "TREASURY"
+    except Exception:
+        raise
+    _DYN_INFRA_ROLES_CACHE["map"] = roles
+    _DYN_INFRA_ROLES_CACHE["at"] = now
+    return roles
+
+
+_CREATOR_TEMPLATE_LAMPORTS = 1_112_039_280     # the 1.11 + ATA-rent creator template
+_ARM_INFLIGHT = set()                          # dedup concurrent resolves
+
+
+def _resolve_and_arm_creator(seed_wallet: str, treasury: str, funded_at: int):
+    """Real-time creator resolution. A 1.112039280 hit landed; `seed_wallet` is the
+    recipient — which may be the creator (terminal) OR a relay pass-through. Follow the
+    1.11 chain DOWN (≤3 hops) to the terminal node (the one that CREATEs), then arm it.
+    Runs in a background thread; best-effort, never blocks the webhook 200."""
+    if seed_wallet in _ARM_INFLIGHT:
+        return
+    _ARM_INFLIGHT.add(seed_wallet)
+    try:
+        import urllib.request as _u, json as _j
+        key = os.environ.get("HELIUS_API_KEY", "")
+        if not key:
+            return
+        # resolve the operation from the treasury
+        operation_uuid = ""
+        try:
+            _ac = db_connect(os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db"), timeout=15)
+            _r = _ac.execute("SELECT operation_uuid FROM wt_ops_v2 WHERE treasury_root=? LIMIT 1",
+                             (treasury,)).fetchone()
+            operation_uuid = (_r[0] if _r else "") or ""
+            _ac.close()
+        except Exception:
+            operation_uuid = ""
+
+        _rpc_url = os.environ.get("HELIUS_RPC_URL", f"https://mainnet.helius-rpc.com/?api-key={key}")
+
+        def _sig_count(addr, cap=40):
+            """1-credit getSignaturesForAddress — cheap pre-screen before the 100-credit
+            enhanced fetch. A creator-chain node (relay/fresh creator) has FEW sigs; a
+            busy hub has many → skip the enhanced fetch for it."""
+            try:
+                body = _j.dumps({"jsonrpc": "2.0", "id": 1, "method": "getSignaturesForAddress",
+                                 "params": [addr, {"limit": cap}]}).encode()
+                r = _j.loads(_u.urlopen(_u.Request(_rpc_url, data=body,
+                    headers={"Content-Type": "application/json", "User-Agent": "flex-arm/0.1"}), timeout=10).read())
+                return len(r.get("result") or [])
+            except Exception:
+                return -1
+
+        def _outbound_template(addr):
+            """Returns (forwarded_to, has_create). forwarded_to = next 1.11 recipient
+            (relay) or None; has_create = wallet emitted a CREATE (it's the creator).
+            1-credit sig-screen first: a busy wallet (>=40 sigs) isn't a single-use
+            relay/fresh-creator chain node → stop walking it without the 100cr fetch."""
+            if _sig_count(addr) >= 40:
+                return None, False        # too busy to be a creator-chain node; terminal here
+            try:
+                url = f"https://api.helius.xyz/v0/addresses/{addr}/transactions/?api-key={key}&limit=25"
+                txs = _j.loads(_u.urlopen(_u.Request(url, headers={"User-Agent": "flex-arm/0.1"}), timeout=15).read())
+            except Exception:
+                return None, False
+            has_create = any("CREATE" in (t.get("type") or "") for t in txs)
+            fwd = None
+            for t in txs:
+                for nt in t.get("nativeTransfers", []):
+                    if nt.get("fromUserAccount") == addr and abs(nt.get("amount", 0) - _CREATOR_TEMPLATE_LAMPORTS) < 1000:
+                        fwd = nt.get("toUserAccount"); break
+                if fwd:
+                    break
+            return fwd, has_create
+
+        cur = seed_wallet
+        for _hop in range(4):
+            fwd, has_create = _outbound_template(cur)
+            if has_create or fwd is None:
+                # terminal node — it CREATEd (or holds the 1.11 and will) → the creator
+                creator = cur
+                from src.core.operation_armed import arm_creator
+                ac = db_connect(os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db"), timeout=30)
+                try:
+                    if arm_creator(ac, creator, operation_uuid, treasury, 1.11, funded_at):
+                        print(f"[ARM-RT] ⚡ armed creator {creator[:12]}… (op {operation_uuid[:8]}, "
+                              f"resolved {_hop} hops from treasury hit) — webhook + 58m countdown", flush=True)
+                finally:
+                    ac.close()
+                return
+            cur = fwd          # relay — follow to the next hop
+    except Exception as e:
+        print(f"[ARM-RT] resolve failed for {seed_wallet[:10]}…: {e}", flush=True)
+    finally:
+        _ARM_INFLIGHT.discard(seed_wallet)
+
+
+def _wrap_close_counterparty(tx, infra_addr, current_cp, direction):
+    """For a WSOL wrap-close tx, the real counterparty is the NET payer/payee, not the
+    transient wrap/WSOL account the per-transfer src/dest points at. Returns the resolved
+    counterparty, or None to keep the current one (non-wrap-close txs unchanged).
+
+    Detect: a tx containing createIdempotent + closeAccount (the wrap-close signature).
+    Resolve: from nativeTransfers, sum net SOL per account; the infra wallet is one side,
+    the largest opposite-signed account is the real other party."""
+    try:
+        # cheap signature check on the transfer shape (Helius enhanced payload)
+        types = " ".join(json.dumps(i) for i in (tx.get("instructions") or []))
+        if "createIdempotent" not in types and "CreateIdempotent" not in str(tx.get("description", "")):
+            # fall back: look at nativeTransfers count — a wrap-close has the temp account
+            pass
+        nts = tx.get("nativeTransfers") or []
+        if len(nts) < 2:
+            return None
+        net = {}
+        for t in nts:
+            a = (t.get("amount") or 0) / 1e9
+            f, d = t.get("fromUserAccount") or "", t.get("toUserAccount") or ""
+            if f: net[f] = net.get(f, 0) - a
+            if d: net[d] = net.get(d, 0) + a
+        # infra wallet's net sign tells direction; the real counterparty is the largest
+        # account with the OPPOSITE net sign (and it isn't the infra wallet itself).
+        infra_net = net.get(infra_addr, 0)
+        if abs(infra_net) < 0.001:
+            return None
+        want_negative = infra_net > 0          # infra received → counterparty is the net payer
+        cands = [(w, n) for w, n in net.items() if w != infra_addr
+                 and ((n < -0.001) if want_negative else (n > 0.001))]
+        if not cands:
+            return None
+        real = (min if want_negative else max)(cands, key=lambda x: x[1])[0]
+        return real if real and real != current_cp else None
+    except Exception:
+        return None
+
+
+def _wt_exec(conn, sql, params=(), *, retries=12, label=""):
+    """Execute a write resiliently. A transient 'database is locked' on ONE
+    statement must never abort the whole payload (which skips conn.commit and
+    loses every prior insert — the bug that made confirmed-treasury OUTBOUND
+    rows vanish while inbound rows stored). Retry with escalating backoff, then
+    give up on that single row only. Returns True on success.
+
+    Budget: 12 tries × 0.3s escalating ≈ up to ~23s worst case — generous
+    because the canonical infra_events/webhook_hits rows are the record of a
+    treasury trigger; dropping one is worse than a slow handler. Bounded so a
+    truly stuck DB can't hang the queue forever."""
+    for _i in range(retries):
+        try:
+            conn.execute(sql, params)
+            return True
+        except sqlite3.OperationalError as _oe:
+            if "locked" in str(_oe).lower() or "busy" in str(_oe).lower():
+                time.sleep(min(0.3 * (_i + 1), 3.0))
+                continue
+            print(f"[WT_EXEC] {label} non-lock error: {_oe}", flush=True)
+            return False
+        except Exception as _e:
+            print(f"[WT_EXEC] {label} error: {_e}", flush=True)
+            return False
+    print(f"[WT_EXEC] {label} gave up after {retries} lock-retries (row skipped, payload preserved)", flush=True)
+    return False
+
+
 def _process_wt_infra_payload(payload):
     """Process a batched infra webhook payload from the queue."""
     try:
@@ -33366,6 +33667,15 @@ def _process_wt_infra_payload(payload):
             if not _wt_tables_ready:
                 _ensure_watchtower_tables(conn)
                 _wt_tables_ready = True
+
+            # Recognized-address map = hardcoded infra + dynamically-enrolled wt_ops_v2
+            # treasuries (role TREASURY). Lets any webhooked treasury flow through the
+            # TREASURY path (→ wt_webhook_hits) without hardcoding rotating addresses.
+            _roles = dict(_WT_INFRA_ROLES)
+            try:
+                _roles.update(_load_dynamic_infra_roles())
+            except Exception as _e:
+                print(f"[WT-INFRA] dynamic role load failed (using static only): {_e}", flush=True)
 
             new_treasury_recipients = []   # wallets funded by TREASURY (potential new creators)
             new_subprov_candidates  = []   # large TREASURY outflows (≥50 SOL) to unknown wallets
@@ -33387,30 +33697,103 @@ def _process_wt_infra_payload(payload):
                         continue
 
                     # Determine which infra address is involved and direction
-                    if src in _WT_INFRA_ROLES:
-                        role = _WT_INFRA_ROLES[src]
+                    if src in _roles:
+                        role = _roles[src]
                         direction = "outbound"
                         counterparty = dest
-                    elif dest in _WT_INFRA_ROLES:
-                        role = _WT_INFRA_ROLES[dest]
+                    elif dest in _roles:
+                        role = _roles[dest]
                         direction = "inbound"
                         counterparty = src
                     else:
                         continue
 
-                    # Record the infra event
+                    # WRAP-CLOSE counterparty correction: WATCHTOWER routes SOL through a
+                    # single-use WSOL wrap account (createIdempotent → syncNative →
+                    # closeAccount). The per-transfer src/dest then points at that temp
+                    # account, not the real other party. Resolve to the NET payer/payee of
+                    # the whole tx (the account on the opposite side of the infra wallet).
+                    _real_cp = _wrap_close_counterparty(tx, src if direction == "outbound" else dest,
+                                                        counterparty, direction)
+                    if _real_cp:
+                        counterparty = _real_cp
+
+                    # ── RECORD THE INFRA EVENT FIRST. Webhook storage is a plain DB insert
+                    # and is INDEPENDENT of any downstream consumer (arm / forward-walk).
+                    # Recording the outbound is the handler's primary job; it must happen
+                    # before, and regardless of, whatever the arm/walk layers do. Keeping
+                    # this at the top of the loop body means nothing the consumers do can
+                    # prevent the row from being written.
                     infra_addr = src if direction == "outbound" else dest
-                    conn.execute(
+                    _wt_exec(conn,
                         """INSERT OR IGNORE INTO watchtower_infra_events
                            (signature, block_time, infra_address, infra_role, direction, counterparty, amount_sol, raw_payload)
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                         (sig, block_time, infra_addr, role, direction, counterparty, amount_sol, raw_payload),
-                    )
+                        label="infra_events")
+
+                    # ── REAL-TIME ARM: a TREASURY-rooted transfer carrying the EXACT 1.11
+                    # template (fast path — resolve terminal creator immediately).
+                    _lam = t.get("amount") or 0
+                    if (direction == "outbound" and role in ("TREASURY", "COLLECTOR")
+                            and abs(_lam - _CREATOR_TEMPLATE_LAMPORTS) < 1000):
+                        _threading.Thread(
+                            target=_resolve_and_arm_creator,
+                            args=(dest, src, block_time),
+                            daemon=True, name="arm-rt").start()
+
+                    # ── FORWARD-WALK: a treasury/collector emits a provisioning-sized
+                    # outbound → start a temporary, TTL-bounded forward-walk that follows
+                    # the chain forward until the single-use funder→creator (1.0-1.3 SOL
+                    # into a fresh wallet) fires, then arms it. This is the live
+                    # early-warning layer (backward attribution → forward detection).
+                    # ANCHOR ON VERIFIED TREASURY ONLY — treasuries are the persistent,
+                    # capital-moving roots. Collectors include reclassified sweep/shuffle
+                    # hubs (the 5-of-9 mislabel) that spray ~1 SOL and spawn noise walks
+                    # without ever producing a creator. Triggering only on TREASURY keeps
+                    # the walker focused on real provisioning sources.
+                    _amt_sol = _lam / 1e9
+                    if (direction == "outbound" and role == "TREASURY"
+                            and 0.5 <= _amt_sol <= 1000.0):
+                        # OFF-THREAD: start_walk opens its own write connection to the live
+                        # DB; running it inline would contend with this handler's own write
+                        # transaction. Threading it keeps the walk fully decoupled from the
+                        # storage path above.
+                        def _fire_walk(_src=src, _role=role, _sig=sig, _amt=_amt_sol,
+                                       _dest=dest, _bt=block_time):
+                            try:
+                                from src.core.operation_forward_walk import start_walk
+                                _opx = None
+                                try:
+                                    _oc = db_connect(os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db"), timeout=10)
+                                    _r = _oc.execute("SELECT operation_uuid FROM wt_ops_v2 WHERE treasury_root=? LIMIT 1", (_src,)).fetchone()
+                                    _opx = _r[0] if _r else None
+                                    _oc.close()
+                                except Exception:
+                                    _opx = None
+                                start_walk(_src, _role, _opx or "", _sig, _amt, _dest, _bt)
+                            except Exception as _we:
+                                print(f"[FWALK] trigger failed: {_we}", flush=True)
+                        _threading.Thread(target=_fire_walk, daemon=True, name="fwalk-trigger").start()
 
                     # Tiered telemetry: Tier 2 (PROFIT_RELAY/SWEEP_COLLECTOR/TREASURY_UP)
                     # → minute-bucket aggregation + counterparty tracking (no raw row)
                     # Tier 1 (TREASURY/SIGNALLER/SUB_PROV) → raw hit row (low volume)
                     _wh_infra_id = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+                    # EVERY CONFIRMED-TREASURY OUTBOUND MUST BE LOGGED + DISPLAYED. A treasury
+                    # outbound can trigger a forward-walk/arm; if its role routes into the
+                    # TIER2 aggregation it would leave no raw row → the trigger is invisible in
+                    # the event feed (armed-but-no-visible-cause). So ALWAYS write a raw hit for
+                    # a confirmed-treasury outbound, regardless of the aggregation branch.
+                    if direction == "outbound" and infra_addr in _confirmed_treasuries():
+                        _wt_exec(conn,
+                            """INSERT OR IGNORE INTO wt_webhook_hits
+                                (webhook_id, wallet_address, tx_signature, tx_type, source,
+                                 counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
+                               VALUES (?, ?, ?, ?, 'infra_webhook', ?, ?, ?, 0, ?, 'outbound')""",
+                            (_wh_infra_id, infra_addr, sig, tx.get("type") or "TRANSFER",
+                             counterparty, block_time, amount_sol, int(time.time())),
+                            label="treasury_outbound_hit")
                     if role in _WT_TIER2_AGG_ROLES:
                         _minute = (block_time // 60) * 60
                         conn.execute("""
@@ -33475,11 +33858,11 @@ def _process_wt_infra_payload(payload):
                         conn.execute("""
                             INSERT OR IGNORE INTO wt_webhook_hits
                                 (webhook_id, wallet_address, tx_signature, tx_type, source,
-                                 counterparty, block_time, amount_sol, is_fee_touch, created_at)
-                            VALUES (?, ?, ?, ?, 'infra_webhook', ?, ?, ?, 0, ?)
+                                 counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
+                            VALUES (?, ?, ?, ?, 'infra_webhook', ?, ?, ?, 0, ?, ?)
                         """, (_wh_infra_id, infra_addr, sig,
                               tx.get("type") or "TRANSFER",
-                              counterparty, block_time, amount_sol, int(time.time())))
+                              counterparty, block_time, amount_sol, int(time.time()), direction))
 
                         # ── SIGNALLER outbound: detect SUB_PROV activation signal ──────
                         if role == "SIGNALLER" and direction == "outbound" and amount_sol <= 0.001:
@@ -33879,26 +34262,26 @@ def _process_wt_infra_payload(payload):
 
                         # Always log every TREASURY outbound — regardless of recipient
                         if amount_sol >= 0.001:
-                            seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            try:
+                                seq = conn.execute("SELECT COALESCE(MAX(event_sequence),0)+1 FROM watchtower_events").fetchone()[0]
+                            except sqlite3.OperationalError:
+                                seq = int(time.time() * 1000) % 2000000000  # lock fallback: monotonic-ish
                             _dest_role = _WT_INFRA_ROLES.get(counterparty, 'UNKNOWN')
-                            conn.execute(
+                            _wt_exec(conn,
                                 """INSERT OR IGNORE INTO watchtower_events
                                    (event_sequence, event_type, wallet_address, payload_json, source, created_at)
                                    VALUES (?, 'TREASURY_OUTBOUND', ?, ?, 'infra_webhook', ?)""",
                                 (seq, counterparty,
-                                 json.dumps({"amount_sol": amount_sol, "tx": sig,
+                                 json.dumps({"amount_sol": amount_sol, "tx": sig, "treasury": infra_addr,
                                              "dest_role": _dest_role, "known_infra": _is_known_infra}),
-                                 block_time)
-                            )
-                            conn.execute(
-                                """INSERT OR IGNORE INTO watchtower_infra_events
-                                   (infra_address, infra_role, direction, counterparty,
-                                    amount_sol, signature, block_time, created_at)
-                                   VALUES (?, 'TREASURY', 'outbound', ?, ?, ?, ?, ?)""",
-                                ("44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",
-                                 counterparty, amount_sol, sig, block_time, int(time.time()))
-                            )
-                            print(f"[WT_TREASURY] 💸 OUT→{counterparty[:20]}… {amount_sol:.4f} SOL ({_dest_role}) sig={sig[:20]}…", flush=True)
+                                 block_time),
+                                label="treasury_outbound_event")
+                            # NOTE: the canonical infra_events row is already written above by
+                            # the generic recorder with the REAL infra_addr. The previous code
+                            # here hardcoded 44orWS68… (a legacy treasury constant) which mis-
+                            # attributed every treasury's outbound to one wallet — fixed by
+                            # dropping the duplicate insert and trusting the generic one.
+                            print(f"[WT_TREASURY] 💸 OUT {infra_addr[:8]}…→{counterparty[:12]}… {amount_sol:.4f} SOL ({_dest_role}) sig={sig[:16]}…", flush=True)
 
                         # Auto-enroll recipients in webhook if >= 1 SOL (meaningful capital outflow)
                         if amount_sol >= 1.0 and not _is_known_infra:
@@ -34763,8 +35146,7 @@ def _process_wt_infra_payload(payload):
                         except Exception as exc:
                             print(f"[WATCHTOWER_WEBHOOK] subprov scan error {addr[:16]}: {exc}", flush=True)
 
-                import threading
-                threading.Thread(
+                _threading.Thread(
                     target=_run_detection,
                     args=(new_treasury_recipients, new_subprov_candidates),
                     daemon=True,
@@ -39137,6 +39519,15 @@ except ImportError as e:
     print(f"[WARNING] FLEX Dashboard not available: {e}")
 except Exception as e:
     print(f"[ERROR] Failed to initialize FLEX Dashboard: {e}")
+
+# Operation-centric v2 dashboard (Phase 1.4) — reads the isolated wt_ops_v2 store,
+# parallel to the live wt_operations dashboard. Non-fatal if unavailable.
+try:
+    from src.core.operation_dashboard_routes import register_operation_dashboard_routes
+    register_operation_dashboard_routes(app)
+    print("[DASHBOARD] Operations v2 (operation-centric) routes registered")
+except Exception as e:
+    print(f"[WARNING] Operations v2 dashboard not available: {e}")
 
 # Price API
 try:

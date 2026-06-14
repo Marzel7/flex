@@ -303,11 +303,17 @@ class Cascade:
             conn.close()
 
     # ---- handle a CANDIDATE log notification (CREATE vs SWAP) ---------------
-    def _handle_candidate_tx(self, candidate, sig):
-        """Returns ('CREATE', launch_dict) | ('SWAP', None) | (None, None)."""
+    def _handle_candidate_tx(self, candidate, sig, ws_seen_at=None):
+        """Returns ('CREATE', launch_dict) | ('SWAP', None) | (None, None).
+        Captures the detection-latency timestamps (ws_seen / tx_fetched / mint_extracted) for
+        the launch audit as it goes."""
+        ws_seen_at = ws_seen_at or time.time()
         tx = _get_tx(sig)
+        tx_fetched_at = time.time()
         is_create, mint, btime, extra = _tx_is_create(tx)
+        mint_extracted_at = time.time()
         if is_create:
+            create_slot = (tx or {}).get("slot")
             conn = self._ops()
             try:
                 row = conn.execute(
@@ -325,15 +331,17 @@ class Cascade:
                 newly = store.record_launch(
                     conn, mint=mint, creator=candidate, create_sig=sig, create_time=btime,
                     treasury=treasury, subprov=subprov, wrap_close_sig=wrap_sig,
-                    birth_to_launch_s=btl)
+                    birth_to_launch_s=btl, create_slot=create_slot)
                 if newly:
                     self._reconcile_bridge(conn, candidate, mint, btime, funding_time, subprov, treasury)
                 return "CREATE", {"mint": mint, "subprov": subprov, "treasury": treasury,
                                   "create_time": btime, "btl": btl, "wrap_sig": wrap_sig,
-                                  "create_sig": sig, "newly": newly,
+                                  "create_sig": sig, "newly": newly, "create_slot": create_slot,
                                   "bonding_curve": extra.get("bonding_curve"),
                                   "associated_bonding_curve": extra.get("associated_bonding_curve"),
-                                  "mint_source": extra.get("mint_source")}
+                                  "mint_source": extra.get("mint_source"),
+                                  "ws_seen_at": ws_seen_at, "tx_fetched_at": tx_fetched_at,
+                                  "mint_extracted_at": mint_extracted_at}
             finally:
                 conn.close()
         if _tx_is_swap(tx):
@@ -348,6 +356,7 @@ class Cascade:
         CREATE that fired before the subscription went live is still caught."""
         if self._seen(candidate, sig):
             return None
+        ws_seen_at = time.time()                       # T1 — the candidate sig in hand
         # belt-and-suspenders: if this candidate already fired, don't reprocess at all
         conn = self._ops()
         try:
@@ -358,7 +367,7 @@ class Cascade:
             conn.close()
         if done:
             return "CREATE"
-        verdict, launch = self._handle_candidate_tx(candidate, sig)
+        verdict, launch = self._handle_candidate_tx(candidate, sig, ws_seen_at=ws_seen_at)
         if verdict == "CREATE":
             btl = launch.get("btl")
             mode = "INSTANT" if (btl is not None and btl < 60) else ("STAGED" if btl is not None else "?")
@@ -372,6 +381,10 @@ class Cascade:
                                     "birth_to_launch_s": btl, "mode": mode,
                                     "bonding_curve": launch.get("bonding_curve"),
                                     "mint_source": launch.get("mint_source")})
+                alert_emitted_at = time.time()         # T4
+                # AUDIT phase 1 — off-thread so the realtime path isn't blocked by the
+                # buyer-position + curve-replay RPC work.
+                self._trigger_audit_phase1(launch, candidate, sig, ws_seen_at, alert_emitted_at)
                 await self._teardown_after_create(candidate, launch.get("subprov"))
             return "CREATE"
         elif verdict == "SWAP":
@@ -402,6 +415,25 @@ class Cascade:
             verdict = await self.process_candidate_sig(candidate, sig)
             if verdict == "CREATE":
                 break                                  # creator found; watch torn down
+
+    # ---- launch audit phase 1 (off-thread) ---------------------------------
+    def _trigger_audit_phase1(self, launch, creator, create_sig, ws_seen_at, alert_emitted_at):
+        """Fire the immediate audit capture in a daemon thread. Bounded, best-effort — never
+        blocks or breaks the realtime detection path."""
+        def _run():
+            try:
+                from src.core import launch_audit
+                launch_audit.capture_phase1(
+                    mint=launch.get("mint"), creator=creator, treasury=launch.get("treasury"),
+                    subprov=launch.get("subprov"), create_signature=create_sig,
+                    create_slot=launch.get("create_slot"), create_time=launch.get("create_time"),
+                    ws_seen_at=ws_seen_at, tx_fetched_at=launch.get("tx_fetched_at"),
+                    mint_extracted_at=launch.get("mint_extracted_at"),
+                    alert_emitted_at=alert_emitted_at)
+            except Exception as e:
+                print(f"[WS_CASCADE] audit phase1 failed: {e}", flush=True)
+        import threading
+        threading.Thread(target=_run, daemon=True, name="audit-phase1").start()
 
     # ---- reconcile bridge: keep existing OPS tables consistent -------------
     def _reconcile_bridge(self, conn, creator, mint, launched_at, funded_at, subprov, treasury):
@@ -519,6 +551,31 @@ async def _heartbeat_loop(get_meta):
         await asyncio.sleep(HEARTBEAT_SEC)
 
 
+async def _deferred_audit_loop():
+    """Phase 2: re-visit audited launches at their +5m/+30m/+2h/+24h checkpoints to fill
+    peak/outcome/actionability from the snapshot tables. Bounded per tick, off the WS path.
+    Reads DB only (no RPC), so it's cheap. Runs in a thread to avoid blocking the loop."""
+    import asyncio as _a
+    while not _STOP:
+        try:
+            from src.core import launch_audit
+
+            def _tick():
+                due = launch_audit.due_for_checkpoint(limit=20)
+                for mint in due:
+                    try:
+                        launch_audit.run_phase2(mint)
+                    except Exception:
+                        pass
+                return len(due)
+            n = await _a.get_event_loop().run_in_executor(None, _tick)
+            if n:
+                _log(f"audit phase2: advanced {n} launch(es)")
+        except Exception as e:
+            print(f"[WS_CASCADE] deferred audit error: {e}", flush=True)
+        await _a.sleep(60)
+
+
 async def run_cascade():
     if websockets is None:
         _log("FATAL: `websockets` not installed"); return
@@ -529,6 +586,7 @@ async def run_cascade():
                 "cleanups": _CLEANUP_COUNT}
 
     asyncio.ensure_future(_heartbeat_loop(_meta))
+    asyncio.ensure_future(_deferred_audit_loop())
     reconnect_delay = 5
     while not _STOP:
         try:

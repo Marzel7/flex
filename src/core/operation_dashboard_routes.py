@@ -1488,6 +1488,127 @@ def api_intel_subprovs():
         ov.close()
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/ws-cascade")
+def api_intel_ws_cascade():
+    """Active Websocket Cascade panel. Real-time SUB_PROV sessions + candidate watches +
+    the latest WATCHTOWER launch. Read-only from wt_ops_v2.db (cascade tables) + the
+    ws_cascade worker heartbeat (live db) for WS health."""
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_active_subprov_sessions"):
+            return jsonify({"sessions": [], "watches_by_subprov": {}, "candidate_count": 0,
+                            "latest_launch": None, "ws_health": "DOWN", "cleanup_count": 0,
+                            "last_wrap_close": None, "last_create": None})
+        now = int(time.time())
+        sessions = []
+        for r in ov.execute(
+            "SELECT id, subprov_wallet, treasury_wallet, funding_amount, funding_time, "
+            "detected_at, expires_at FROM wt_active_subprov_sessions WHERE state='ACTIVE' "
+            "ORDER BY detected_at DESC").fetchall():
+            sessions.append({
+                "subprov": r["subprov_wallet"], "treasury": r["treasury_wallet"],
+                "funding_amount": r["funding_amount"], "funding_time": r["funding_time"],
+                "ttl_remaining": max(0, (r["expires_at"] or now) - now),
+                "candidates": ov.execute(
+                    "SELECT COUNT(*) FROM wt_candidate_websocket_watches "
+                    "WHERE subprov_wallet=? AND state='WATCHING'", (r["subprov_wallet"],)).fetchone()[0],
+            })
+        # candidate watches grouped by subprov (WATCHING only)
+        watches = {}
+        total_watching = 0
+        for r in ov.execute(
+            "SELECT candidate_wallet, subprov_wallet, funding_amount, detected_at, expires_at "
+            "FROM wt_candidate_websocket_watches WHERE state='WATCHING' "
+            "ORDER BY detected_at DESC").fetchall():
+            total_watching += 1
+            watches.setdefault(r["subprov_wallet"], []).append({
+                "candidate": r["candidate_wallet"], "amount": r["funding_amount"],
+                "ttl_remaining": max(0, (r["expires_at"] or now) - now),
+            })
+        last_wrap = ov.execute(
+            "SELECT MAX(detected_at) FROM wt_candidate_websocket_watches").fetchone()[0]
+        last_create = ov.execute("SELECT MAX(create_time) FROM wt_watchtower_launches").fetchone()[0]
+        ll = None
+        lr = ov.execute(
+            "SELECT mint, creator_wallet, create_signature, create_time, treasury_wallet, "
+            "subprov_wallet, birth_to_launch_seconds, confidence FROM wt_watchtower_launches "
+            "ORDER BY id DESC LIMIT 1").fetchone()
+        if lr:
+            btl = lr["birth_to_launch_seconds"]
+            ll = {"mint": lr["mint"], "creator": lr["creator_wallet"],
+                  "create_sig": lr["create_signature"], "create_time": lr["create_time"],
+                  "treasury": lr["treasury_wallet"], "subprov": lr["subprov_wallet"],
+                  "birth_to_launch_s": btl, "confidence": lr["confidence"],
+                  "mode": ("INSTANT" if btl is not None and btl < 60 else
+                           ("STAGED" if btl is not None else None))}
+        launches_total = ov.execute("SELECT COUNT(*) FROM wt_watchtower_launches").fetchone()[0]
+        # WS health + cleanup count from the ws_cascade heartbeat (lives in the ops db —
+        # quiet, no lock contention with the hot live db).
+        ws_health, cleanup_count, hb_age = "DOWN", 0, None
+        if _table_exists(ov, "wt_worker_heartbeat"):
+            hb = ov.execute(
+                "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade'").fetchone()
+            if hb:
+                hb_age = int(time.time()) - (hb["last_seen"] or 0)
+                ws_health = "LIVE" if hb_age < 90 else "STALE"
+                try:
+                    cleanup_count = int((_json.loads(hb["meta_json"] or "{}")).get("cleanups", 0))
+                except Exception:
+                    pass
+    finally:
+        ov.close()
+    return jsonify({
+        "sessions": sessions, "watches_by_subprov": watches,
+        "candidate_count": total_watching, "active_subprovs": len(sessions),
+        "latest_launch": ll, "launches_total": launches_total,
+        "ws_health": ws_health, "heartbeat_age_s": hb_age, "cleanup_count": cleanup_count,
+        "last_wrap_close": last_wrap, "last_create": last_create,
+    })
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit")
+def api_intel_launch_audit():
+    """Launch Audit panel — is WATCHTOWER detection ACTIONABLE? Per detected launch: detection
+    latency, our entry position, MC at detection, peak MC, the headline actionable_multiple
+    (peak_mc / mc_at_detection), time-to-peak, outcome. Plus the aggregate report (medians +
+    multiple buckets). Read-only over wt_launch_audit (the audit pipeline owns the writes)."""
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_launch_audit"):
+            return jsonify({"launches": [], "report": None})
+        rows = ov.execute(
+            "SELECT mint, creator, treasury, create_time, detection_latency_ms, "
+            "our_possible_buy_index_estimate, first_external_buy_slot, mc_at_create, "
+            "mc_at_detection, mc_at_first_external_buy, peak_mc, current_mc, "
+            "actionable_multiple, time_to_peak_s, migrated, dumped_before_migration, "
+            "final_state, audit_state, mc_at_detection_source, peak_mc_source, source "
+            "FROM wt_launch_audit ORDER BY created_at DESC LIMIT 50").fetchall()
+        launches = [{
+            "mint": r["mint"], "creator": r["creator"], "treasury": r["treasury"],
+            "create_time": r["create_time"], "detection_latency_ms": r["detection_latency_ms"],
+            "position": r["our_possible_buy_index_estimate"],
+            "first_external_buy_slot": r["first_external_buy_slot"],
+            "mc_at_create": r["mc_at_create"], "mc_at_detection": r["mc_at_detection"],
+            "mc_at_first_external_buy": r["mc_at_first_external_buy"],
+            "peak_mc": r["peak_mc"], "current_mc": r["current_mc"],
+            "actionable_multiple": r["actionable_multiple"], "time_to_peak_s": r["time_to_peak_s"],
+            "migrated": r["migrated"], "dumped": r["dumped_before_migration"],
+            "final_state": r["final_state"], "audit_state": r["audit_state"],
+            "mc_detection_source": r["mc_at_detection_source"], "peak_source": r["peak_mc_source"],
+            "source": r["source"],
+        } for r in rows]
+    finally:
+        ov.close()
+    # aggregate report (reuse the module's own logic so it stays one source of truth)
+    report = None
+    try:
+        from src.core import launch_audit
+        report = launch_audit.outcome_report()
+    except Exception:
+        report = None
+    return jsonify({"launches": launches, "report": report})
+
+
 def _subprov_oldest_funder(subprov):
     """1-RPC verify: page getSignaturesForAddress to the subprov's OLDEST tx (the
     funding), fetch it, and return the SOL sender (the funder). Single-use subprovs

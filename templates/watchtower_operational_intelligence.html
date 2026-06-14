@@ -103,6 +103,35 @@ tr:hover td { background:var(--bg-card2); }
   <!-- PRE-LAUNCH DETECTION STATUS -->
   <div class="hero-grid" id="hero"></div>
 
+  <!-- ACTIVE WEBSOCKET CASCADE — real-time SUB_PROV → candidate → CREATE detection -->
+  <div class="sec-h" style="color:var(--green)">📡 Active Websocket Cascade
+    <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator · watches torn down on CREATE</span>
+    <span id="ws-health" style="margin-left:auto;font-size:11px;font-weight:700"></span>
+  </div>
+  <div class="hero-grid" id="ws-cascade-cards" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:8px">
+    <table><thead><tr>
+      <th>Active SUB_PROV</th><th>Treasury</th><th class="num">Funding SOL</th>
+      <th class="num">Candidates</th><th class="num">Session TTL</th><th>Watching</th>
+    </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  </div>
+  <div id="ws-latest-launch" style="margin-bottom:18px"></div>
+
+  <!-- LAUNCH AUDIT — is detection ACTIONABLE? peak_mc / mc_at_detection -->
+  <div class="sec-h" style="color:var(--green)">🎯 Launch Audit
+    <span class="hint">for every detected launch: detection latency · entry position · MC at detection · peak MC · how much upside was left when we fired</span>
+    <span id="audit-verdict" style="margin-left:auto;font-size:11px;font-weight:800"></span>
+  </div>
+  <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
+  <div id="audit-buckets" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr>
+      <th>Mint</th><th>Creator</th><th class="num">Latency</th><th class="num">Pos</th>
+      <th class="num">MC @ detect</th><th class="num">Peak MC</th>
+      <th class="num">Actionable ×</th><th class="num">→Peak</th><th>Outcome</th>
+    </tr></thead><tbody id="audit-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
   <!-- CONFIRMED TREASURY BANK — the authoritative live-watch set -->
   <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
   <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
@@ -538,6 +567,120 @@ async function loadTreasuryBank(){
     </tr>`).join('') || '<tr><td colspan="6" class="muted">no confirmed treasuries</td></tr>';
 }
 
+function fmtTTL(s){ if(s==null) return '—'; if(s<=0) return 'expired'; const m=Math.floor(s/60), ss=s%60; return m>0?`${m}m ${ss}s`:`${ss}s`; }
+
+async function loadWsCascade(){
+  let d; try{ d=await (await fetch('/api/ops-v2/intel/ws-cascade')).json(); }catch(e){ return; }
+  // health chip
+  const hc = {LIVE:'var(--green)',STALE:'var(--yellow)',DOWN:'var(--red)'}[d.ws_health]||'var(--red)';
+  const he = document.getElementById('ws-health');
+  if(he) he.innerHTML = `<span style="color:${hc}">● WS ${d.ws_health||'DOWN'}</span>${d.heartbeat_age_s!=null?` <span class="muted">(${d.heartbeat_age_s}s ago)</span>`:''}`;
+  // cards
+  const cards = [
+    ['active SUB_PROVs', d.active_subprovs||0, (d.active_subprovs||0)>0?'go':''],
+    ['candidate watches', d.candidate_count||0, ''],
+    ['launches total', d.launches_total||0, (d.launches_total||0)>0?'go':''],
+    ['cleanups', d.cleanup_count||0, ''],
+    ['last wrap-close', d.last_wrap_close?ago(d.last_wrap_close)+' ago':'—', ''],
+    ['last CREATE', d.last_create?ago(d.last_create)+' ago':'—', ''],
+  ];
+  const cc = document.getElementById('ws-cascade-cards');
+  if(cc) cc.innerHTML = cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  // sessions table
+  const body = document.getElementById('ws-cascade-body');
+  const sessions = d.sessions||[];
+  if(body) body.innerHTML = sessions.map(s=>{
+    const w = (d.watches_by_subprov||{})[s.subprov]||[];
+    const watching = w.length
+      ? w.slice(0,8).map(x=>`<span class="addr" onclick="sol('${x.candidate}')" title="${x.amount!=null?x.amount+' SOL':''} · TTL ${fmtTTL(x.ttl_remaining)}">${short(x.candidate)}</span>`).join(' ')
+      : '<span class="muted">— no fan-out yet</span>';
+    return `<tr style="border-left:3px solid var(--green)">
+      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
+      <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="num muted">${s.funding_amount!=null?s.funding_amount.toLocaleString():'—'}</td>
+      <td class="num">${s.candidates}</td>
+      <td class="num" style="color:${s.ttl_remaining<60?'var(--yellow)':'var(--text-sec)'}">${fmtTTL(s.ttl_remaining)}</td>
+      <td>${watching}</td>
+    </tr>`;}).join('') || '<tr><td colspan="6" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV. The standalone ws_cascade service must be running (supervisorctl start ws_cascade).</td></tr>';
+  // latest launch banner
+  const ll = d.latest_launch;
+  const lb = document.getElementById('ws-latest-launch');
+  if(lb){
+    lb.innerHTML = ll ? `<div class="panel" style="border:1px solid var(--green);background:rgba(34,197,94,.06);padding:10px 14px">
+      <span style="color:var(--green);font-weight:800">🚀 latest WATCHTOWER launch</span>
+      &nbsp; mint <span class="addr" onclick="sol('${ll.mint}')">${ll.mint?short(ll.mint):'—'}</span>
+      &nbsp;·&nbsp; creator <span class="addr" onclick="sol('${ll.creator}')">${short(ll.creator)}</span>
+      &nbsp;·&nbsp; treasury <span class="mono muted">${ll.treasury?short(ll.treasury):'—'}</span>
+      &nbsp;·&nbsp; birth→launch <b>${ll.birth_to_launch_s!=null?ll.birth_to_launch_s+'s':'—'}</b>
+      <span style="color:${ll.mode==='INSTANT'?'var(--red)':'var(--yellow)'};font-weight:700">${ll.mode||''}</span>
+      &nbsp;·&nbsp; ${ll.create_time?ago(ll.create_time)+' ago':''}
+    </div>` : '';
+  }
+}
+
+function fmtMC(v){ if(v==null) return '—'; if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M'; if(v>=1e3) return '$'+(v/1e3).toFixed(1)+'k'; return '$'+Math.round(v); }
+function fmtMult(v){ if(v==null) return '—'; return v.toFixed(v>=10?0:1)+'×'; }
+
+async function loadLaunchAudit(){
+  let d; try{ d=await (await fetch('/api/ops-v2/intel/launch-audit')).json(); }catch(e){ return; }
+  const full=d.report||{};
+  // HEADLINE reads LIVE catches only — fixtures must not overstate live performance.
+  const live=full.live||{}; const fix=full.fixtures||{};
+  const rep = (live.n_launches||0)>0 ? live : full;   // fall back to all only if no cohort split
+  // verdict chip: live verdict, with fixtures-validated note
+  const liveHas=(live.n_launches||0)>0;
+  const vc={ACTIONABLE:'var(--green)',MARGINAL:'var(--yellow)',INSUFFICIENT_DATA:'var(--text-dim)'}[rep.verdict]||'var(--text-dim)';
+  const ve=document.getElementById('audit-verdict');
+  if(ve) ve.innerHTML = liveHas
+      ? `<span style="color:${vc}">LIVE: ${rep.verdict.replace(/_/g,' ')}</span>`
+      : `<span style="color:var(--text-dim)">live catches: pending</span>`+
+        ((fix.n_launches||0)>0?` <span style="color:var(--green)">· fixtures: validated (${fix.n_launches})</span>`:'');
+  // cards (live medians; fixtures shown as baseline when no live yet)
+  const src = liveHas?rep:fix;
+  const cards=[
+    ['live launches', live.n_launches||0, (live.n_launches||0)>0?'go':''],
+    ['fixtures', fix.n_launches||0, ''],
+    ['median latency', src.median_detection_latency_ms!=null?src.median_detection_latency_ms+'ms':'—', ''],
+    ['median MC @ detect', fmtMC(src.median_mc_at_detection), ''],
+    ['median peak MC', fmtMC(src.median_peak_mc), ''],
+    ['median actionable ×', fmtMult(src.median_actionable_multiple), (src.median_actionable_multiple||0)>=2?'go':'bad'],
+    ['% >2x left', src.pct_gt_2x!=null?src.pct_gt_2x+'%':'—', (src.pct_gt_2x||0)>=50?'go':''],
+    ['% dumped', src.pct_dumped_before_migration!=null?src.pct_dumped_before_migration+'%':'—', (src.pct_dumped_before_migration||0)>50?'bad':''],
+  ];
+  const cc=document.getElementById('audit-cards');
+  if(cc) cc.innerHTML = cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  // bucket bar (whichever cohort the cards reflect)
+  const bk=src.buckets||{};
+  const order=['<1.5x','1.5-2x','2-5x','5-10x','10x+'];
+  const cols={'<1.5x':'var(--red)','1.5-2x':'#ea580c','2-5x':'var(--yellow)','5-10x':'var(--green)','10x+':'var(--cyan)'};
+  const bb=document.getElementById('audit-buckets');
+  if(bb) bb.innerHTML = `<div class="panel" style="padding:8px 13px;display:flex;gap:14px;font-size:11px">`+
+    `<span class="muted">actionable-multiple buckets:</span>`+
+    order.map(k=>`<span><b style="color:${cols[k]}">${bk[k]||0}</b> <span class="muted">${k}</span></span>`).join(' ')+`</div>`;
+  // table
+  const body=document.getElementById('audit-body');
+  const L=d.launches||[];
+  if(body) body.innerHTML = L.map(a=>{
+    const am=a.actionable_multiple;
+    const amCol = am==null?'var(--text-dim)':am>=5?'var(--cyan)':am>=2?'var(--green)':am>=1.5?'var(--yellow)':'var(--red)';
+    const outcome = a.migrated?'<span style="color:var(--green)">MIGRATED</span>'
+      : a.dumped?'<span style="color:var(--red)">DUMPED</span>'
+      : `<span class="muted">${a.final_state||a.audit_state||'—'}</span>`;
+    const fixTag = a.source==='FIXTURE_BACKFILL'
+      ? '<span style="font-size:8px;font-weight:700;color:var(--text-dim);border:1px solid var(--border2);border-radius:3px;padding:0 3px;margin-left:4px" title="validated baseline fixture, not a live cascade catch">FIXTURE</span>' : '';
+    return `<tr style="${a.source==='FIXTURE_BACKFILL'?'opacity:.72':''}">
+      <td><span class="addr" onclick="sol('${a.mint}')">${a.mint?short(a.mint):'—'}</span>${fixTag}</td>
+      <td><span class="addr" onclick="sol('${a.creator}')">${short(a.creator)}</span></td>
+      <td class="num">${a.detection_latency_ms!=null?a.detection_latency_ms+'ms':'—'}</td>
+      <td class="num">${a.position!=null?'#'+a.position:'—'}</td>
+      <td class="num" title="${a.mc_detection_source||''}">${fmtMC(a.mc_at_detection)}</td>
+      <td class="num" title="${a.peak_source||''}">${fmtMC(a.peak_mc)}</td>
+      <td class="num" style="color:${amCol};font-weight:700">${fmtMult(am)}</td>
+      <td class="num muted">${a.time_to_peak_s!=null?(a.time_to_peak_s>=60?Math.round(a.time_to_peak_s/60)+'m':a.time_to_peak_s+'s'):'—'}</td>
+      <td>${outcome}</td>
+    </tr>`;}).join('') || '<tr><td colspan="9" class="muted">no audited launches yet — audits appear as the cascade detects launches (or run the backfill).</td></tr>';
+}
+
 async function loadSubprovs(){
   let d; try{ d=await (await fetch('/api/ops-v2/intel/subprovs')).json(); }catch(e){ return; }
   const sp=d.subprovs||[];
@@ -701,7 +844,7 @@ async function promoteTreasury(treasury, action, btn){
   }catch(e){ btn.textContent='error'; btn.disabled=false; }
 }
 
-function refresh(){ loadAll(); loadTreasuryBank(); loadApexFunders(); loadSubprovs(); loadTreasuryReview(); loadCreatorModes(); loadAnchorHealth(); loadWalks(); loadArmed(); loadReview(); loadFeed(); }
+function refresh(){ loadAll(); loadWsCascade(); loadLaunchAudit(); loadTreasuryBank(); loadApexFunders(); loadSubprovs(); loadTreasuryReview(); loadCreatorModes(); loadAnchorHealth(); loadWalks(); loadArmed(); loadReview(); loadFeed(); }
 refresh();
 setInterval(refresh, 15000);  // 15s — countdowns must stay fresh
 </script>

@@ -33439,6 +33439,7 @@ _DYN_INFRA_ROLES_CACHE = {"map": {}, "at": 0.0}
 
 
 _CONFIRMED_TREAS_CACHE = {"at": 0.0, "set": set()}
+_KNOWN_SUBPROVS_CACHE = {"at": 0.0, "set": set()}
 
 
 def _confirmed_treasuries():
@@ -33462,6 +33463,30 @@ def _confirmed_treasuries():
         _CONFIRMED_TREAS_CACHE["set"] = s
     _CONFIRMED_TREAS_CACHE["at"] = now
     return _CONFIRMED_TREAS_CACHE["set"]
+
+
+def _known_subprovs():
+    """Known SUB_PROV wallets (wt_discovered_subprovs). Cached 60s. When a confirmed
+    treasury funds one of these, the WS-cascade should open a session — so the webhook
+    handler writes a wt_active_subprov_sessions row (consumed by the ws_cascade daemon)."""
+    now = time.time()
+    if now - _KNOWN_SUBPROVS_CACHE["at"] < 60:
+        return _KNOWN_SUBPROVS_CACHE["set"]
+    s = set()
+    try:
+        ops_db = os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db")
+        if os.path.exists(ops_db):
+            oc = db_connect(ops_db, timeout=10)
+            try:
+                s = {r[0] for r in oc.execute("SELECT subprov FROM wt_discovered_subprovs").fetchall()}
+            finally:
+                oc.close()
+    except Exception:
+        pass
+    if s:
+        _KNOWN_SUBPROVS_CACHE["set"] = s
+    _KNOWN_SUBPROVS_CACHE["at"] = now
+    return _KNOWN_SUBPROVS_CACHE["set"]
 
 
 def _load_dynamic_infra_roles():
@@ -34282,6 +34307,44 @@ def _process_wt_infra_payload(payload):
                             # attributed every treasury's outbound to one wallet — fixed by
                             # dropping the duplicate insert and trusting the generic one.
                             print(f"[WT_TREASURY] 💸 OUT {infra_addr[:8]}…→{counterparty[:12]}… {amount_sol:.4f} SOL ({_dest_role}) sig={sig[:16]}…", flush=True)
+
+                        # ── WS-CASCADE TRIGGER: confirmed treasury → provisioning outbound ──
+                        # The active SUB_PROV is DISCOVERED from this funding — it is NOT known
+                        # in advance, so we must NOT require the recipient to already be in
+                        # wt_discovered_subprovs (that hard gate contradicted the design and
+                        # silently skipped every genuinely-new subprov, e.g. 43PKjr→GCx6Pj 70◎).
+                        # Gate ONLY on: source ∈ confirmed treasuries + a provisioning-sized
+                        # outbound (same 0.5–1000 ◎ band the forward-walk uses). Known-subprov
+                        # membership is recorded as a CONFIDENCE flag, never a gate. This lets the
+                        # cascade WS-subscribe the recipient and catch its downstream wrap-close
+                        # fanout even on a first-seen subprov. Plain INSERT into wt_ops_v2.db (the
+                        # DB is the handoff boundary; this process never touches a websocket).
+                        try:
+                            if (infra_addr in _confirmed_treasuries() and counterparty
+                                    and 0.5 <= amount_sol <= 1000.0):
+                                _sub_known = 1 if counterparty in _known_subprovs() else 0
+                                from src.core.ws_cascade_store import (
+                                    ensure_cascade_schema, start_session, emit_event)
+                                _oc = db_connect(os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db"), timeout=15)
+                                try:
+                                    _oc.execute("PRAGMA busy_timeout=15000")
+                                    ensure_cascade_schema(_oc)
+                                    _ttl = int(os.getenv("WS_SESSION_TTL_SEC", "600"))
+                                    if start_session(_oc, subprov=counterparty, treasury=infra_addr,
+                                                     funding_sig=sig, funding_amount=amount_sol,
+                                                     funding_time=block_time, ttl_seconds=_ttl,
+                                                     subprov_known=_sub_known):
+                                        emit_event("SUBPROV_SESSION_STARTED", wallet=counterparty,
+                                                   related=infra_addr,
+                                                   payload={"treasury": infra_addr, "amount_sol": amount_sol,
+                                                            "funding_sig": sig, "subprov_known": _sub_known})
+                                        print(f"[WS_CASCADE] ▶ session ACTIVE subprov={counterparty[:12]}… "
+                                              f"treasury={infra_addr[:8]}… {amount_sol:.4f} ◎ "
+                                              f"({'known' if _sub_known else 'NEW'})", flush=True)
+                                finally:
+                                    _oc.close()
+                        except Exception as _ce:
+                            print(f"[WS_CASCADE] session-write failed: {_ce}", flush=True)
 
                         # Auto-enroll recipients in webhook if >= 1 SOL (meaningful capital outflow)
                         if amount_sol >= 1.0 and not _is_known_infra:

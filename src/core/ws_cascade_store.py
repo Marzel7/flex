@@ -67,6 +67,7 @@ def ensure_cascade_schema(conn) -> None:
             funding_signature TEXT,
             funding_amount    REAL,
             funding_time      INTEGER,
+            subprov_known     INTEGER DEFAULT 0,   -- 1 = already in wt_discovered_subprovs (confidence, NOT a gate)
             state             TEXT NOT NULL DEFAULT 'ACTIVE',
             detected_at       INTEGER NOT NULL,
             expires_at        INTEGER,
@@ -125,6 +126,13 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN create_slot INTEGER")
     except Exception:
         pass
+    # migrate: add subprov_known to a pre-existing sessions table
+    try:
+        _scols = {r[1] for r in conn.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
+        if "subprov_known" not in _scols:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN subprov_known INTEGER DEFAULT 0")
+    except Exception:
+        pass
     conn.commit()
 
 
@@ -159,17 +167,21 @@ def emit_event(event_type: str, wallet: Optional[str] = None,
 # ──────────────────────────── session helpers ───────────────────────────────
 def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: Optional[str],
                   funding_amount: Optional[float], funding_time: Optional[int],
-                  ttl_seconds: int) -> bool:
+                  ttl_seconds: int, subprov_known: int = 0) -> bool:
     """Record a confirmed treasury→SUB_PROV funding as an ACTIVE session. Idempotent on
-    (subprov, funding_sig). Returns True if a NEW session row was created."""
+    (subprov, funding_sig). Returns True if a NEW session row was created.
+
+    The active SUB_PROV is DISCOVERED from this funding — it need NOT already be in
+    wt_discovered_subprovs. `subprov_known` records whether it happened to be known (a
+    confidence signal), but membership is never a gate for session creation."""
     now = int(time.time())
     cur = conn.execute(
         """INSERT OR IGNORE INTO wt_active_subprov_sessions
              (subprov_wallet, treasury_wallet, funding_signature, funding_amount,
-              funding_time, state, detected_at, expires_at)
-           VALUES (?,?,?,?,?, 'ACTIVE', ?, ?)""",
+              funding_time, subprov_known, state, detected_at, expires_at)
+           VALUES (?,?,?,?,?,?, 'ACTIVE', ?, ?)""",
         (subprov, treasury, funding_sig, funding_amount, funding_time or now,
-         now, now + ttl_seconds))
+         int(subprov_known), now, now + ttl_seconds))
     conn.commit()
     return cur.rowcount > 0
 

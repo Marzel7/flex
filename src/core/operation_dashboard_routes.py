@@ -1843,17 +1843,30 @@ def api_intel_subprov_funder():
         # → "✗ blind"). Decouple them: storage first, enroll on a clean slate.
         ov.close()
 
-        # webhook the newly-confirmed treasury + sync the coverage table (same as promote)
+        # webhook the newly-confirmed treasury + sync the coverage table (same as promote).
+        # RETRY ON LOCK: the enroll opens its own live-DB writer and can lose the race to the
+        # lock storm — leaving a confirmed-but-blind treasury ("✗ blind"). The confirm+link
+        # above are already durable; enroll_batch is idempotent, so retry it a few times with
+        # backoff before reporting failure.
         webhooked = False; webhook_error = None
         try:
-            import asyncio as _asyncio
+            import asyncio as _asyncio, time as _t
             from src.analysis.webhook_manager import WebhookManager, INFRA_ROLE
-            loop = _asyncio.new_event_loop()
-            mgr = WebhookManager(LIVE_DB_PATH)
-            loop.run_until_complete(mgr.enroll_batch([treasury], role=INFRA_ROLE,
-                                                     notes="confirmed via subprov funder trace"))
-            loop.close()
-            webhooked = True
+            for _attempt in range(3):
+                try:
+                    loop = _asyncio.new_event_loop()
+                    mgr = WebhookManager(LIVE_DB_PATH)
+                    loop.run_until_complete(mgr.enroll_batch([treasury], role=INFRA_ROLE,
+                                                             notes="confirmed via subprov funder trace"))
+                    loop.close()
+                    webhooked = True
+                    break
+                except Exception as _enr_e:
+                    webhook_error = str(_enr_e)
+                    if "locked" in webhook_error.lower() and _attempt < 2:
+                        _t.sleep(1.5 * (_attempt + 1))
+                        continue
+                    raise
             oc = _conn()
             try:
                 oc.execute(
@@ -2661,9 +2674,26 @@ def api_intel_webhook_events():
         launched_subprovs = set()    # recipient → produced a CREATE (LAUNCHED)
         buyswarm_subprovs = set()    # recipient → fan-out wallets SWAPped (BUY_SWARM)
         watching_subprovs = set()    # recipient → cascade actively watching (outcome pending)
+        launched_subprov_first_ts = {}   # subprov → earliest CREATE time it produced
+        already_launched_subprovs = set()  # subprov has ALREADY produced a creator (single-use → spent)
         try:
             launched_subprovs = {r[0] for r in ov.execute(
                 "SELECT subprov_wallet FROM wt_watchtower_launches WHERE subprov_wallet IS NOT NULL").fetchall()}
+            # earliest launch time per subprov — splits LAUNCHED (the funding that CAUSED the
+            # launch) from TOP_UP (capital to a subprov that ALREADY launched). Subprovs are
+            # single-use (30/31 produce exactly 1 token), so post-launch capital = refill.
+            for r in ov.execute(
+                "SELECT subprov_wallet, MIN(create_time) ct FROM wt_watchtower_launches "
+                "WHERE subprov_wallet IS NOT NULL AND create_time IS NOT NULL "
+                "GROUP BY subprov_wallet").fetchall():
+                launched_subprov_first_ts[r[0]] = r[1]
+            # AUTHORITATIVE has-launched signal: wt_discovered_subprovs.creator_count ≥ 1 is set by
+            # the discovery job for EVERY subprov that produced a creator — independent of whether
+            # the cascade captured the real-time CREATE (the launches ledger is incomplete). A
+            # single-use subprov that already has a creator will NOT relaunch, so any capital-sized
+            # transfer to it is a TOP_UP, not a new launch-trigger — see single-token-creator-filter.
+            already_launched_subprovs = {r[0] for r in ov.execute(
+                "SELECT subprov FROM wt_discovered_subprovs WHERE creator_count >= 1").fetchall()}
             # a subprov whose wrap-close children are BUY_SWARM (and none fired) = buy-swarm op
             buyswarm_subprovs = {r[0] for r in ov.execute(
                 "SELECT DISTINCT subprov_wallet FROM wt_candidate_websocket_watches "
@@ -2682,7 +2712,8 @@ def api_intel_webhook_events():
 
         def classify_outbound(treasury, recipient, amount, block_time):
             """BEHAVIORAL OUTCOME of a treasury outbound: SIGNAL (dust probe) | LAUNCHED |
-            BUY_SWARM | WATCHING | DORMANT | None. Derived from cascade state (zero RPC)."""
+            TOP_UP | BUY_SWARM | WATCHING | DORMANT | None. Derived from cascade state + the
+            single-use-subprov invariant (zero RPC)."""
             a = amount or 0
             if a <= 0 or not recipient:
                 return None
@@ -2691,10 +2722,19 @@ def api_intel_webhook_events():
             if a < CAPITAL_MIN_SOL:
                 return None                       # mid-band, unclassified
             # capital-sized → label by the recipient's downstream OUTCOME (cascade state).
-            # Precedence: a confirmed launch outranks a swarm verdict outranks active-watching;
-            # if the cascade has seen nothing for this funded recipient, it's DORMANT.
             if recipient in launched_subprovs:
+                # SINGLE-USE INVARIANT: subprovs launch exactly once (30/31 in our data).
+                # Distinguish the funding that CAUSED the launch from a later refill:
+                #   • this transfer is AT/BEFORE the launch's CREATE → it's the provisioning → LAUNCHED
+                #   • this transfer is AFTER the launch → the subprov already fired → TOP_UP
+                lt = launched_subprov_first_ts.get(recipient)
+                if lt is not None and block_time is not None and block_time > lt + 60:
+                    return "TOP_UP"
                 return "LAUNCHED"
+            if recipient in already_launched_subprovs:
+                # known to have launched (discovery job), but no precise CREATE time to compare.
+                # Single-use → it won't relaunch → this capital is a refill.
+                return "TOP_UP"
             if recipient in buyswarm_subprovs:
                 return "BUY_SWARM"
             if recipient in watching_subprovs:

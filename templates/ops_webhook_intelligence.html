@@ -1,0 +1,387 @@
+{% extends "base_shell.html" %}
+{% block title %}Webhook Intelligence — Operations OS{% endblock %}
+
+{% block extra_styles %}
+:root {
+  --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa; --red:#f85149; --yellow:#eab308;
+}
+.wi-wrap { padding:20px 26px; color:var(--text-pri); max-width:1500px; }
+.wi-h { display:flex; align-items:baseline; gap:12px; margin-bottom:2px; }
+.wi-h h1 { font-size:20px; margin:0; }
+.wi-sub { color:var(--text-sec); font-size:12px; margin-bottom:14px; }
+.mono { font-family:ui-monospace,monospace; } .muted { color:var(--text-dim); }
+
+/* status strip */
+.status-strip { display:flex; gap:18px; flex-wrap:wrap; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:11px 16px; margin-bottom:16px; font-size:12px; align-items:center; }
+.st-item { display:flex; align-items:center; gap:7px; }
+.st-dot { width:8px;height:8px;border-radius:50%; }
+.st-dot.ok{background:var(--green)} .st-dot.warn{background:var(--amber)} .st-dot.down{background:var(--red)}
+.st-lbl { color:var(--text-sec); } .st-val { font-weight:600; }
+
+/* headline coverage banner */
+.cov-banner { background:linear-gradient(180deg,#161b22,#13171e); border:1px solid var(--border2); border-radius:12px; padding:16px 20px; margin-bottom:16px; display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+.cov-hero .v { font-size:34px; font-weight:800; line-height:1; }
+.cov-hero .v .cov-of { font-size:18px; color:var(--text-dim); font-weight:600; }
+.cov-hero .l { font-size:11px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.5px; margin-top:5px; }
+.cov-hero.bad .v { color:var(--red); }
+.cov-mini { display:flex; gap:22px; flex-wrap:wrap; }
+.cov-mini .v { font-size:18px; font-weight:700; } .cov-mini .l { font-size:10px; color:var(--text-sec); text-transform:uppercase; }
+.cov-mini .v.hot{color:var(--amber)} .cov-mini .v.bad{color:var(--red)}
+.enroll-cta { margin-left:auto; }
+.btn { font-size:12px; padding:8px 14px; border-radius:8px; border:1px solid var(--cyan); background:rgba(34,211,238,.1); color:var(--cyan); cursor:pointer; font-weight:600; }
+.btn:hover { background:rgba(34,211,238,.2); }
+.btn.ghost { border-color:var(--border2); color:var(--text-sec); background:transparent; }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+
+.sec-h { font-size:13px; font-weight:600; margin:14px 0 8px; }
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:16px; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:8px 12px; color:var(--text-sec); font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:8px 12px; border-bottom:1px solid var(--border); }
+tr:hover td { background:var(--bg-card2); }
+.uuid { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; } .uuid:hover{text-decoration:underline}
+.state { font-size:9.5px; padding:2px 7px; border-radius:9px; font-weight:700; }
+.state.PROVISIONING{background:rgba(217,119,6,.15);color:var(--amber)} .state.CREATORS_SEEN{background:rgba(34,211,238,.15);color:var(--cyan)}
+.state.MIGRATED{background:rgba(167,139,250,.15);color:var(--purple)} .state.DORMANT{background:#1c2128;color:var(--text-dim)}
+.state.DISCOVERED{background:#1c2128;color:var(--text-sec)} .state.ACTIVE{background:rgba(63,185,80,.15);color:var(--green)} .state.REACTIVATED{background:rgba(234,179,8,.15);color:var(--yellow)}
+.cs { font-size:9.5px; padding:2px 8px; border-radius:9px; font-weight:700; }
+.cs.GOOD{background:rgba(63,185,80,.15);color:var(--green)} .cs.PARTIAL{background:rgba(217,119,6,.15);color:var(--amber)}
+.cs.WEAK{background:rgba(248,81,73,.12);color:var(--red)} .cs.UNCOVERED{background:rgba(248,81,73,.2);color:var(--red)}
+.covbar { width:50px; height:6px; background:var(--bg-card2); border-radius:3px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:6px; }
+.covbar>i{display:block;height:100%}
+.tier { font-size:9px; font-weight:800; padding:2px 6px; border-radius:7px; }
+.tier.t0{background:rgba(63,185,80,.25);color:var(--green)}
+.tier.t1{background:rgba(248,81,73,.2);color:var(--red)} .tier.t2{background:rgba(217,119,6,.15);color:var(--amber)}
+.tier.t3{background:rgba(34,211,238,.12);color:var(--cyan)} .tier.t4{background:rgba(167,139,250,.12);color:var(--purple)} .tier.t5{background:#1c2128;color:var(--text-sec)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.metric-strip{display:flex;gap:20px;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:11px 16px;}
+.metric-strip .v{font-size:19px;font-weight:700} .metric-strip .l{font-size:9.5px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.4px}
+.metric-strip .v.go{color:var(--green)} .metric-strip .v.hot{color:var(--amber)}
+.lw{font-size:10px;font-weight:700;padding:2px 8px;border-radius:9px}
+.lw.imminent{background:rgba(248,81,73,.2);color:var(--red)} .lw.soon{background:rgba(217,119,6,.18);color:var(--amber)} .lw.window{background:rgba(63,185,80,.15);color:var(--green)} .lw.past{background:#1c2128;color:var(--text-dim)}
+.legacy-note{font-size:11px;color:var(--text-dim);margin-top:18px;}
+{% endblock %}
+
+{% block content %}
+<div class="wi-wrap">
+  <div class="wi-h"><h1>Webhook Intelligence</h1></div>
+  <div class="wi-sub">Operation account coverage · pre-launch creator monitoring · webhook event intelligence — source <span class="mono">wt_ops_v2</span> ⋈ webhook enrolments</div>
+
+  <div class="status-strip" id="status"></div>
+
+  <!-- LIKELY TO LAUNCH NEXT — the hero pre-launch creator signal (~60-min window) -->
+  <div class="sec-h" style="color:var(--green)">🚀 Likely To Launch Next <span class="muted" style="font-weight:400;font-size:11px">— template-funded creators · ~60-min pre-launch window</span></div>
+  <div class="metric-strip" id="launch-metrics" style="margin-bottom:10px"></div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr><th>Wallet</th><th>Template</th><th>Operation</th><th>Family</th><th>Funded</th><th>Launch Window</th><th>Conf</th><th>Webhooked?</th><th></th></tr></thead>
+      <tbody id="launch-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- Treasury Trigger Coverage — the primary metric (treasuries persist; creators/pass-throughs are single-use) -->
+  <div class="sec-h">🎯 Treasury Trigger Coverage <span class="muted" style="font-weight:400;font-size:11px">— the only persistent webhook targets</span></div>
+  <div class="metric-strip" id="treasury-trigger" style="margin-bottom:16px"></div>
+
+  <div class="cov-banner" id="cov-banner"></div>
+
+  <div class="sec-h">⚡ Priority Enrolment Queue <span class="muted" style="font-weight:400;font-size:11px">— the next wallets to webhook</span></div>
+  <div class="panel">
+    <table><thead><tr><th>Tier</th><th>Wallet</th><th>Role</th><th>Operation</th><th>Family</th><th>Reason</th><th>Webhooked?</th><th></th></tr></thead>
+      <tbody id="queue-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <div class="sec-h">◆ Operation Coverage</div>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Operation</th><th>Family</th><th>State</th><th class="num">Cand</th><th>Candidate Cov</th>
+      <th class="num">Pass</th><th class="num">Coll</th><th>Treasury</th><th class="num">Ev 24h</th><th class="num">Launch</th><th>Status</th>
+    </tr></thead><tbody id="cov-body"><tr><td colspan="11" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <div class="sec-h">⚡ Treasury WebSocket Usage <span class="muted" style="font-weight:400;font-size:11px">— treasuries are permanently WS-subscribed (real-time provisioning trigger); watch for one turning into a swarm hub</span></div>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Treasury</th><th>Confirmed</th><th class="num">Events/hr</th><th class="num">Total notifs</th><th class="num">Sessions opened</th><th>Last activity</th><th>Status</th>
+    </tr></thead><tbody id="twsu-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+    <div id="twsu-summary" class="muted" style="font-size:11px;margin-top:6px"></div>
+  </div>
+
+  <div class="sec-h">🛰 Webhook Event Feed <span class="muted" style="font-weight:400;font-size:11px">— enriched with operation context</span></div>
+  <div class="panel">
+    <table><thead><tr><th>When</th><th>Type</th><th>Wallet</th><th>Role</th><th>Operation</th><th>Family</th><th>Detail</th></tr></thead>
+      <tbody id="feed-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <div class="legacy-note">Legacy WATCHTOWER attribution review, operator-identity proposals and historical hubs have moved to the <b>WATCHTOWER Legacy</b> section. This page now tracks webhook coverage for live operation accounts.</div>
+
+  <!-- drilldown modal -->
+  <div id="drill" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;" onclick="if(event.target===this)this.style.display='none'">
+    <div style="position:absolute;right:0;top:0;bottom:0;width:520px;max-width:90vw;background:var(--bg-card);border-left:1px solid var(--border2);padding:20px;overflow:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="font-size:16px;margin:0;font-family:ui-monospace,monospace" id="drill-title">—</h2>
+        <span style="cursor:pointer;color:var(--text-sec)" onclick="document.getElementById('drill').style.display='none'">✕</span>
+      </div>
+      <div id="drill-body" class="muted">loading…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
+const shortOp = u => u ? u.slice(0,8) : '—';
+const ago = ts => { if(!ts) return '—'; const s=Math.floor(Date.now()/1000-ts);
+  if(s<60)return s+'s'; if(s<3600)return Math.floor(s/60)+'m'; if(s<86400)return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; };
+const covColor = p => p>=80?'var(--green)':p>=40?'var(--amber)':'var(--red)';
+const goOp = u => location.href='/ops/operation/'+u;
+
+async function loadStatus(){
+  const s = await (await fetch('/api/ops-v2/intel/status')).json();
+  const dot = ok => ok==='LIVE'||ok===true?'ok':(ok==='STALE'?'warn':'down');
+  const lr = s.last_scheduler_run;
+  document.getElementById('status').innerHTML = `
+    <div class="st-item"><span class="st-dot ${s.scheduler_running?'ok':'down'}"></span><span class="st-lbl">Scheduler</span><span class="st-val">${s.scheduler_running?'LIVE':'DOWN'}</span></div>
+    <div class="st-item"><span class="st-dot ${dot(s.webhook_listener)}"></span><span class="st-lbl">Webhook listener</span><span class="st-val">${s.webhook_listener}</span></div>
+    <div class="st-item"><span class="st-lbl">Last webhook event</span><span class="st-val">${s.last_webhook_event?ago(s.last_webhook_event)+' ago':'—'}</span></div>
+    <div class="st-item"><span class="st-lbl">Last scheduler run</span><span class="st-val">${lr?ago(lr.started_at)+' ago':'—'}</span></div>`;
+}
+
+async function loadCoverage(){
+  const d = await (await fetch('/api/ops-v2/intel/coverage')).json();
+  const m = d.summary;
+  const bad = m.candidate_cov_pct < 40;
+  document.getElementById('cov-banner').innerHTML = `
+    <div class="cov-hero ${bad?'bad':''}">
+      <div class="v">${m.candidates_covered}<span class="cov-of"> / ${m.candidates_total}</span></div>
+      <div class="l">Creator candidates webhooked (${m.candidate_cov_pct}%)</div>
+    </div>
+    <div class="cov-mini">
+      <div><div class="v ${m.uncovered_high_priority>0?'bad':''}">${m.uncovered_high_priority}</div><div class="l">uncovered high-priority</div></div>
+      <div><div class="v ${m.weak_coverage_ops>0?'hot':''}">${m.weak_coverage_ops}</div><div class="l">weak-coverage ops</div></div>
+      <div><div class="v">${m.events_24h}</div><div class="l">webhook events 24h</div></div>
+      <div><div class="v">${m.launches_24h}</div><div class="l">launches 24h</div></div>
+      <div><div class="v">${m.webhooked_passthroughs}/${m.passthroughs_total}</div><div class="l">pass-throughs</div></div>
+      <div><div class="v">${m.webhooked_collectors}/${m.collectors_total}</div><div class="l">collectors</div></div>
+      <div><div class="v">${m.webhooked_treasuries}/${m.treasuries_total}</div><div class="l">treasuries</div></div>
+    </div>
+    <div class="enroll-cta">
+      <button class="btn" id="enroll-tier1" onclick="enrollTier1()">Enroll all Tier 1 candidates</button>
+    </div>`;
+
+  document.getElementById('cov-body').innerHTML = (d.operations||[]).map(o=>`
+    <tr>
+      <td><span class="uuid" onclick="openDrill('${o.operation_uuid}')">${shortOp(o.operation_uuid)}</span></td>
+      <td class="muted">${o.family}</td>
+      <td><span class="state ${o.state}">${o.state}</span></td>
+      <td class="num">${o.candidates}</td>
+      <td><span class="covbar"><i style="width:${o.candidate_cov_pct}%;background:${covColor(o.candidate_cov_pct)}"></i></span>${o.candidate_cov_pct}%</td>
+      <td class="num">${o.passthrough_cov_pct}%</td>
+      <td class="num">${o.collector_cov_pct}%</td>
+      <td>${o.treasury_webhooked?'<span style="color:var(--green)">✓</span>':'<span class="muted">—</span>'}</td>
+      <td class="num">${o.events_24h}</td>
+      <td class="num">${o.launches}</td>
+      <td><span class="cs ${o.coverage_status}">${o.coverage_status}</span></td>
+    </tr>`).join('') || '<tr><td colspan="11" class="muted">no operations</td></tr>';
+}
+
+async function loadQueue(){
+  const d = await (await fetch('/api/ops-v2/intel/enrollment-queue')).json();
+  document.getElementById('queue-body').innerHTML = (d.queue||[]).slice(0,80).map(r=>`
+    <tr>
+      <td><span class="tier t${r.tier}">T${r.tier}</span></td>
+      <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="window.open('https://solscan.io/account/${r.wallet}','_blank')">${short(r.wallet)}</span></td>
+      <td class="muted">${r.role}</td>
+      <td><span class="uuid" onclick="goOp('${r.operation_uuid}')">${r.operation}</span></td>
+      <td class="muted">${r.family}</td>
+      <td class="muted">${r.reason}</td>
+      <td class="muted">${r.already_webhooked?'yes':'<span style="color:var(--red)">no</span>'}</td>
+      <td><button class="btn ghost" style="padding:3px 9px;font-size:10px" onclick="enrollOne('${r.wallet}',this)">Enroll</button></td>
+    </tr>`).join('') || '<tr><td colspan="8" class="muted">queue empty — all live operation accounts covered</td></tr>';
+}
+
+async function enrollOne(wallet, btn){
+  if(!confirm('Enroll '+wallet.slice(0,12)+'… into the candidate webhook? This calls the Helius API.')) return;
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r = await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,wallets:[wallet]})});
+    const d = await r.json();
+    btn.textContent = d.newly_enrolled>0?'✓ enrolled':(r.ok?'already':'failed');
+    setTimeout(refresh, 800);
+  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+}
+
+async function enrollTier1(){
+  const btn=document.getElementById('enroll-tier1');
+  if(!confirm('Enroll ALL uncovered Tier-1 candidate creators (live operations) into the webhook? This calls the Helius API.')) return;
+  btn.disabled=true; btn.textContent='enrolling…';
+  try{
+    const r = await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,tier1:true})});
+    const d = await r.json();
+    btn.textContent = `✓ enrolled ${d.newly_enrolled||0}${d.capped?' (capped)':''}`;
+    setTimeout(refresh, 1000);
+  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+}
+
+const ET_COLOR = {PUMP_CREATE:'var(--green)',FUNDING_EDGE:'var(--cyan)',SWEEP:'var(--red)',UNKNOWN:'var(--text-dim)'};
+// format the SOL flow with real precision + explicit direction.
+// The webhook is ON e.wallet (the watched account) → it SENT to e.counterparty.
+function fmtAmt(a){
+  a = +a || 0;
+  if (a === 0) return '0';
+  if (a >= 1) return a.toFixed(3);
+  if (a >= 0.001) return a.toFixed(4);
+  if (a >= 0.0000001) return a.toFixed(9).replace(/0+$/,'');   // micro-pings: show real value
+  return a.toExponential(2);
+}
+function fmtFlow(e){
+  if (!e.counterparty) return e.amount ? fmtAmt(e.amount)+' ◎' : '';
+  const a = +e.amount || 0;
+  const dir = (e.direction||'').toLowerCase();
+  const isOut = dir === 'outbound';
+  const isIn  = dir === 'inbound';
+  const unknown = !isOut && !isIn;   // direction not yet resolved — show neutral, not OUT
+  const cp = `<span class="mono" style="color:var(--cyan);cursor:pointer" onclick="window.open('https://solscan.io/account/${e.counterparty}','_blank')">${short(e.counterparty)}</span>`;
+  if (a < 0.001) {
+    // micro-ping coordination dust — dimmed, de-emphasised
+    const arrow = isIn ? '←' : '→';
+    return `<span style="color:var(--text-dim);font-size:10px">· ping ${fmtAmt(a)}◎ ${arrow} ${short(e.counterparty)}</span>`;
+  }
+  if (isIn) {
+    // INCOMING — treasury being topped up. Green, ← in-arrow.
+    return `<span style="color:#3fb950;font-weight:800;font-size:13px">↙ IN</span> `
+         + `<b style="color:#3fb950">${fmtAmt(a)} ◎</b> `
+         + `<span style="color:var(--text-dim)">←</span> ${cp}`;
+  }
+  if (unknown) {
+    // direction not resolved yet — neutral, don't assume OUT
+    return `<span style="color:var(--text-sec)">${fmtAmt(a)} ◎</span> <span style="color:var(--text-dim)">↔</span> ${cp}`;
+  }
+  // OUTGOING — treasury spending. Badge = the recipient's downstream OUTCOME (what the funded
+  // subprov actually DID), not funding frequency. LAUNCHED/BUY_SWARM/WATCHING/DORMANT come from
+  // cascade state; SIGNAL = sub-20 SOL dust probe.
+  const ft = e.funding_type;
+  const ftBadge = ({
+    'SIGNAL':    '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(139,148,158,.2);color:var(--text-sec)" title="sub-20 SOL dust probe (signaller)">⚡ SIGNAL</span> ',
+    'LAUNCHED':  '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(63,185,80,.25);color:#3fb950" title="recipient produced a Pump.fun CREATE — a real launch">🚀 LAUNCHED</span> ',
+    'BUY_SWARM': '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(168,85,247,.18);color:#a855f7" title="recipient fanned out to wallets that SWAPped — trading swarm, no launch">⇄ BUY-SWARM</span> ',
+    'WATCHING':  '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(34,211,238,.18);color:var(--cyan)" title="cascade actively watching this recipient — outcome pending">👁 WATCHING</span> ',
+    'DORMANT':   '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(139,148,158,.12);color:var(--text-dim)" title="funded but no wrap-close/CREATE/swarm observed">· DORMANT</span> '
+  })[ft] || '';
+  return ftBadge
+       + `<span style="color:#e06c2a;font-weight:800;font-size:13px">↗ OUT</span> `
+       + `<b style="color:#e06c2a">${fmtAmt(a)} ◎</b> `
+       + `<span style="color:var(--text-dim)">→</span> ${cp}`;
+}
+
+async function loadFeed(){
+  const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=80')).json();
+  document.getElementById('feed-body').innerHTML = (d.events||[]).map(e=>`
+    <tr style="${e.launch_detected?'background:rgba(63,185,80,.06)':((+e.amount||0)>=0.001?'background:rgba(224,108,42,.07);border-left:3px solid #e06c2a':'opacity:.62')}">
+      <td class="muted mono" style="font-size:10.5px">${e.ts?new Date(e.ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'—'}${e.via==='WS'?' <span title="real-time WebSocket" style="color:#3fb950;font-weight:700;font-size:9px">⚡WS</span>':(e.via==='webhook'?' <span title="enhanced webhook" class="muted" style="font-size:8.5px">wh</span>':'')}</td>
+      <td><span style="font-size:9.5px;font-weight:700;color:${ET_COLOR[e.type]||'var(--text-dim)'}">${e.type}</span>${e.launch_detected?' <span style="font-size:9px;font-weight:800;color:var(--green)">🚀 LAUNCH</span>':''}</td>
+      <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="window.open('https://solscan.io/account/${e.wallet}','_blank')">${short(e.wallet)}</span></td>
+      <td class="muted">${e.role||'—'}${e.candidate?' <span style="color:var(--amber);font-size:9px">CAND</span>':''}</td>
+      <td>${e.operation?`<span class="uuid" onclick="openDrill('${e.operation_uuid}')">${e.operation}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="muted">${e.family||'—'}</td>
+      <td class="muted">${fmtFlow(e)}${e.signature?` <a href="https://solscan.io/tx/${e.signature}" target="_blank" title="view transaction" style="color:var(--cyan);text-decoration:none;font-size:10px;margin-left:6px">↗ tx</a>`:''}</td>
+    </tr>`).join('') || '<tr><td colspan="7" class="muted">no webhook events (listener may be stale)</td></tr>';
+}
+
+async function openDrill(uuid){
+  const m=document.getElementById('drill'); m.style.display='block';
+  document.getElementById('drill-title').textContent=uuid.slice(0,8);
+  document.getElementById('drill-body').innerHTML='loading…';
+  const d = await (await fetch('/api/ops-v2/intel/operation/'+uuid)).json();
+  const cov = d.coverage;
+  const row=(lbl,o)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span class="muted">${lbl}</span><span style="font-weight:600;color:${o.total&&o.covered>=o.total?'var(--green)':o.covered>0?'var(--amber)':'var(--red)'}">${o.covered} / ${o.total}</span></div>`;
+  document.getElementById('drill-body').innerHTML=`
+    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Webhook coverage by role</div>
+    ${row('Treasury',cov.treasury)}${row('Collectors',cov.collectors)}${row('Pass-throughs',cov.passthroughs)}${row('Creator candidates',cov.candidates)}
+    <div style="margin-top:16px;font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px">Uncovered high-priority (${d.uncovered_high_priority.length})</div>
+    <div style="max-height:140px;overflow:auto;margin-top:6px">${d.uncovered_high_priority.slice(0,30).map(w=>`<div class="mono" style="font-size:11px;padding:2px 0;color:var(--cyan)">${short(w)}</div>`).join('')||'<span class="muted">all covered</span>'}</div>
+    ${d.uncovered_high_priority.length?`<button class="btn" style="margin-top:10px" onclick="enrollList(${JSON.stringify(d.uncovered_high_priority.slice(0,50))},this)">Enroll these ${Math.min(50,d.uncovered_high_priority.length)} wallets</button>`:''}
+    <div style="margin-top:16px;font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px">Recent webhook events (${d.recent_events.length})</div>
+    <div style="max-height:140px;overflow:auto;margin-top:6px">${d.recent_events.slice(0,20).map(e=>`<div style="font-size:11px;padding:2px 0"><span class="mono" style="color:var(--cyan)">${short(e.wallet_address)}</span> <span class="muted">${e.tx_type||''} ${e.amount_sol?(+e.amount_sol).toFixed(2)+'◎':''}</span></div>`).join('')||'<span class="muted">none</span>'}</div>`;
+}
+
+async function enrollList(wallets, btn){
+  if(!confirm('Enroll '+wallets.length+' wallets into the candidate webhook? This calls the Helius API.')) return;
+  btn.disabled=true; btn.textContent='enrolling…';
+  const r=await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,wallets})});
+  const d=await r.json(); btn.textContent=`✓ enrolled ${d.newly_enrolled||0}`; setTimeout(refresh,1000);
+}
+
+function launchWindowBadge(mins, window){
+  if (mins > 90) return '<span class="lw past">past window</span>';
+  if (window <= 10) return '<span class="lw imminent">imminent · ~'+window+'m</span>';
+  if (window <= 25) return '<span class="lw soon">soon · ~'+window+'m</span>';
+  return '<span class="lw window">~'+window+'m</span>';
+}
+async function loadLaunch(){
+  const [plc, m] = await Promise.all([
+    (await fetch('/api/ops-v2/intel/pre-launch-creators')).json(),
+    (await fetch('/api/ops-v2/intel/launch-metrics')).json(),
+  ]);
+  document.getElementById('launch-metrics').innerHTML = [
+    ['pre-launch creators', m.pre_launch_creators, m.pre_launch_creators>0?'go':''],
+    ['within 60m', m.within_60m, m.within_60m>0?'hot':''],
+    ['within 30m', m.within_30m, m.within_30m>0?'hot':''],
+    ['launches 24h', m.launches_24h, ''],
+    ['avg lead time', (m.avg_lead_time_min!=null?m.avg_lead_time_min+'m':'—'), 'go'],
+  ].map(([l,v,c])=>`<div><div class="v ${c}">${v}</div><div class="l">${l}</div></div>`).join('');
+
+  document.getElementById('launch-body').innerHTML = (plc.creators||[]).slice(0,40).map(c=>`
+    <tr style="${c.expected_launch_window_min>0&&c.expected_launch_window_min<=25?'background:rgba(217,119,6,.05)':''}">
+      <td><span class="mono" style="color:var(--green);cursor:pointer" onclick="window.open('https://solscan.io/account/${c.wallet}','_blank')">${short(c.wallet)}</span></td>
+      <td><span class="tmpl" style="color:var(--green);font-weight:600">${c.template}</span></td>
+      <td>${c.operation?`<span class="uuid" onclick="openDrill('${c.operation_uuid}')">${c.operation}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="muted">${c.family||'—'}</td>
+      <td class="muted">${c.minutes_since_funding}m ago</td>
+      <td>${launchWindowBadge(c.minutes_since_funding,c.expected_launch_window_min)}</td>
+      <td>${Math.round((c.confidence||0)*100)}%</td>
+      <td>${c.webhooked?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">no</span>'}</td>
+      <td>${c.webhooked?'':`<button class="btn ghost" style="padding:3px 9px;font-size:10px" onclick="enrollOne('${c.wallet}',this)">Enroll</button>`}</td>
+    </tr>`).join('') || '<tr><td colspan="9" class="muted">no template-funded creators in the active window right now</td></tr>';
+}
+
+async function loadTreasuryTrigger(){
+  let tc; try{ tc=await (await fetch('/api/ops-v2/intel/treasury-coverage')).json(); }catch(e){ return; }
+  document.getElementById('treasury-trigger').innerHTML = [
+    ['treasuries covered', tc.covered, tc.covered>0?'go':''],
+    ['treasuries missing', tc.missing, tc.missing>0?'hot':''],
+    ['total treasuries', tc.total, ''],
+  ].map(([l,v,c])=>`<div><div class="v ${c}">${v}</div><div class="l">${l}</div></div>`).join('') +
+    (tc.missing>0?`<div style="margin-left:auto"><button class="btn" onclick="enrollList(${JSON.stringify(tc.treasuries.filter(t=>!t.webhooked).map(t=>t.treasury))},this)">Webhook all ${tc.missing} blind treasuries</button></div>`:'');
+}
+
+async function loadTreasuryWsUsage(){
+  let d; try{ d=await (await fetch('/api/ops-v2/intel/treasury-ws-usage')).json(); }catch(e){ return; }
+  const body=document.getElementById('twsu-body');
+  const rows=d.treasuries||[];
+  if(!rows.length){ body.innerHTML=`<tr><td colspan="7" class="muted">${d.note||'no treasuries WS-subscribed'}</td></tr>`; }
+  else {
+    body.innerHTML=rows.map(t=>{
+      const busy=t.flagged_busy;
+      const status = busy
+        ? `<span class="hot">🔥 BUSY — ${t.events_per_hr}/hr (swarm hub?)</span>`
+        : (t.events_per_hr>0?`<span class="go">active</span>`:`<span class="muted">quiet</span>`);
+      return `<tr${busy?' style="background:rgba(255,80,80,.07)"':''}>`
+        +`<td title="${t.treasury}">${short(t.treasury)}</td>`
+        +`<td>${t.confirmed?'✓':'—'}</td>`
+        +`<td class="num"${busy?' style="color:#ff6b6b;font-weight:700"':''}>${t.events_per_hr}</td>`
+        +`<td class="num">${t.notif_total}</td>`
+        +`<td class="num">${t.sessions_opened}</td>`
+        +`<td>${ago(t.last_notif_at)}</td>`
+        +`<td>${status}</td></tr>`;
+    }).join('');
+  }
+  const sum=document.getElementById('twsu-summary');
+  sum.textContent = `${d.subscribed||0} treasuries WS-subscribed · ${d.flagged||0} flagged busy (>${d.busy_threshold_per_hr||200}/hr) · real-time provisioning trigger (replaces slow webhook path)`;
+}
+
+function refresh(){ loadStatus(); loadTreasuryTrigger(); loadLaunch(); loadCoverage(); loadQueue(); loadTreasuryWsUsage(); loadFeed(); }
+refresh();
+setInterval(refresh, 20000);
+</script>
+{% endblock %}

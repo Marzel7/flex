@@ -34346,45 +34346,27 @@ def _process_wt_infra_payload(payload):
                         except Exception as _ce:
                             print(f"[WS_CASCADE] session-write failed: {_ce}", flush=True)
 
-                        # Auto-enroll recipients in webhook if >= 1 SOL (meaningful capital outflow)
-                        if amount_sol >= 1.0 and not _is_known_infra:
-                            def _auto_enroll_recipient(addr, sol):
-                                try:
-                                    import requests as _req
-                                    _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
-                                    _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
-                                                         "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
-                                    r = _req.get(
-                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                        timeout=10)
-                                    wh = r.json()
-                                    current = set(wh.get("accountAddresses", []))
-                                    if addr in current:
-                                        return
-                                    updated = list(current | {addr})
-                                    payload = {
-                                        "webhookURL":       wh["webhookURL"],
-                                        "transactionTypes": wh.get("transactionTypes", ["Any"]),
-                                        "accountAddresses": updated,
-                                        "webhookType":      wh.get("webhookType", "enhanced"),
-                                        "txnStatus":        wh.get("txnStatus", "all"),
-                                        "encoding":         wh.get("encoding", "jsonParsed"),
-                                    }
-                                    r2 = _req.put(
-                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                        json=payload, timeout=10)
-                                    if r2.status_code == 200:
-                                        print(f"[WT_TREASURY] ✅ Auto-enrolled recipient {addr[:20]}… ({sol:.0f} SOL)", flush=True)
-                                    else:
-                                        print(f"[WT_TREASURY] ⚠️  Auto-enroll failed: {r2.status_code}", flush=True)
-                                except Exception as _e:
-                                    print(f"[WT_TREASURY] auto-enroll error: {_e}", flush=True)
+                        # ── VANITY-FAMILY EVIDENCE: does the recipient (or the treasury) share a
+                        # deliberate vanity prefix with a known WATCHTOWER infra family (e.g. 44or)?
+                        # Same-operator EVIDENCE only — never a role/treasury assignment. Stores the
+                        # FULL address + family + source tx. Best-effort, off the critical path.
+                        try:
+                            from src.core.vanity_family import check_and_record as _vf_check
+                            for _w in (counterparty, infra_addr):
+                                _vd = _vf_check(_w, source_event="treasury_outbound", source_sig=sig)
+                                if _vd and not _vd.get("known_member"):
+                                    print(f"[VANITY] ⚑ {_w[:12]}… matches {_vd['family_label']} "
+                                          f"(prefix '{_vd['matched_prefix']}') — possible same-operator infra "
+                                          f"[{_vd['confidence']}]", flush=True)
+                        except Exception:
+                            pass
 
-                            _threading.Thread(
-                                target=_auto_enroll_recipient,
-                                args=(counterparty, amount_sol),
-                                daemon=True
-                            ).start()
+                        # NOTE: treasury-outbound recipients are NOT auto-enrolled on the webhook.
+                        # The webhook is TREASURIES-ONLY (+ permanent signaller infra). Recipients
+                        # (creators / sub-provs / fan-out targets) are watched via the temporary
+                        # WS cascade opened on this very treasury→recipient event, then torn down.
+                        # The old "auto-enroll every ≥1 SOL recipient" rule was the firehose that
+                        # bloated the webhook to 240+ addresses and flooded the infra queue.
 
                         # OPERATOR GATE: ≥100 SOL to unknown wallet = OPERATOR_WALLET_CANDIDATE
                         # This is the earliest operational signal — fires hours before token launch
@@ -34420,46 +34402,15 @@ def _process_wt_infra_payload(payload):
                                                  "expires_at": _op_expires}),
                                      block_time)
                                 )
-                                print(f"[WT_OPERATOR] 🎯 OPERATOR_WALLET_CANDIDATE {counterparty[:20]}… {amount_sol:.0f} SOL — enrolling, TTL 3h", flush=True)
+                                print(f"[WT_OPERATOR] 🎯 OPERATOR_WALLET_CANDIDATE {counterparty[:20]}… {amount_sol:.0f} SOL — candidate recorded (WS-watched, NOT webhooked)", flush=True)
 
-                                # Enrol in infra webhook for real-time operator activity monitoring
-                                def _enrol_operator(addr, sol, expires):
-                                    try:
-                                        import requests as _req
-                                        _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
-                                        _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
-                                                             "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
-                                        r = _req.get(
-                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                            timeout=10)
-                                        wh = r.json()
-                                        current = set(wh.get("accountAddresses", []))
-                                        if addr in current:
-                                            return
-                                        updated = list(current | {addr})
-                                        wh_payload = {
-                                            "webhookURL":       wh["webhookURL"],
-                                            "transactionTypes": wh.get("transactionTypes", ["Any"]),
-                                            "accountAddresses": updated,
-                                            "webhookType":      wh.get("webhookType", "enhanced"),
-                                            "txnStatus":        wh.get("txnStatus", "all"),
-                                            "encoding":         wh.get("encoding", "jsonParsed"),
-                                        }
-                                        r2 = _req.put(
-                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                            json=wh_payload, timeout=10)
-                                        if r2.status_code == 200:
-                                            print(f"[WT_OPERATOR] ✅ Enrolled operator {addr[:20]}… in webhook ({len(updated)} total, TTL {expires})", flush=True)
-                                        else:
-                                            print(f"[WT_OPERATOR] ⚠️  Operator enrol failed: {r2.status_code}", flush=True)
-                                    except Exception as _e:
-                                        print(f"[WT_OPERATOR] enrol error: {_e}", flush=True)
-
-                                _threading.Thread(
-                                    target=_enrol_operator,
-                                    args=(counterparty, amount_sol, _op_expires),
-                                    daemon=True
-                                ).start()
+                                # NOTE: operators are intentionally NOT enrolled on the Helius
+                                # webhook. The webhook is TREASURIES-ONLY (+ permanent signaller
+                                # infra). Operator/sub-prov activity is watched via the temporary
+                                # WS cascade (ws_cascade), opened on the treasury→subprov event and
+                                # torn down after — see ws-cascade-architecture. Webhook-enrolling
+                                # busy operator wallets (1k+ tx/day each) was what flooded the infra
+                                # queue and dropped low-volume treasury outbounds; that path is gone.
 
                         # SWARM CORRIDOR GATE: ~70 SOL to unknown wallet = potential swarm provisioner
                         _is_swarm_amount = abs(amount_sol - _WT_SWARM_TREASURY_SOL) <= _WT_SWARM_TREASURY_TOL
@@ -34484,49 +34435,14 @@ def _process_wt_infra_payload(payload):
                                      json.dumps({"treasury_sol": amount_sol, "sig": sig}),
                                      block_time)
                                 )
-                                print(f"[WT_SWARM] 🐝 SWARM_DEPLOYMENT_ACTIVE {counterparty[:20]}… {amount_sol:.1f} SOL from TREASURY", flush=True)
+                                print(f"[WT_SWARM] 🐝 SWARM_DEPLOYMENT_ACTIVE {counterparty[:20]}… {amount_sol:.1f} SOL from TREASURY (WS-watched, NOT webhooked)", flush=True)
 
-                                # Dynamically enrol provisioner in webhook + register role
-                                # so all fanout/sweepback hits are captured in real-time
-                                def _enrol_swarm_prov(addr, sol):
-                                    try:
-                                        import requests as _req
-                                        _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
-                                        _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
-                                                             "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
-                                        r = _req.get(
-                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                            timeout=10)
-                                        wh = r.json()
-                                        current = set(wh.get("accountAddresses", []))
-                                        if addr in current:
-                                            return
-                                        updated = list(current | {addr})
-                                        payload = {
-                                            "webhookURL":       wh["webhookURL"],
-                                            "transactionTypes": wh.get("transactionTypes", ["Any"]),
-                                            "accountAddresses": updated,
-                                            "webhookType":      wh.get("webhookType", "enhanced"),
-                                            "txnStatus":        wh.get("txnStatus", "all"),
-                                            "encoding":         wh.get("encoding", "jsonParsed"),
-                                        }
-                                        r2 = _req.put(
-                                            f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                            json=payload, timeout=10)
-                                        if r2.status_code == 200:
-                                            # Register in memory so hits are routed correctly
-                                            _WT_INFRA_ROLES[addr] = "SWARM_PROV"
-                                            print(f"[WT_SWARM] ✅ Enrolled {addr[:20]}… in webhook ({len(updated)} total)", flush=True)
-                                        else:
-                                            print(f"[WT_SWARM] ⚠️  Webhook enrol failed: {r2.status_code}", flush=True)
-                                    except Exception as _e:
-                                        print(f"[WT_SWARM] enrol error: {_e}", flush=True)
-
-                                _threading.Thread(
-                                    target=_enrol_swarm_prov,
-                                    args=(counterparty, amount_sol),
-                                    daemon=True
-                                ).start()
+                                # Swarm provisioners are NOT webhook-enrolled (treasuries-only
+                                # webhook). The corridor is recorded above; fanout/sweepback is
+                                # watched via the temporary WS cascade. Role is registered in
+                                # memory so any hits that DO arrive (e.g. via the treasury's own
+                                # payload or the WS bridge) still classify as SWARM_PROV.
+                                _WT_INFRA_ROLES[counterparty] = "SWARM_PROV"
 
                         # CORRIDOR GATE 1: TREASURY funded a SUB_PROV or new wallet >= 10 SOL
                         _is_deployment_size = amount_sol >= _WT_MIN_DEPLOYMENT_SOL
@@ -34786,46 +34702,12 @@ def _process_wt_infra_payload(payload):
                             )
                             print(f"[WT_OPERATOR] 🔬 LIKELY_DEPLOYER {counterparty[:20]}… gas={amount_sol:.4f} SOL from operator {infra_addr[:16]}… TTL 30m", flush=True)
 
-                            # Enrol deployer in webhook with short TTL — watch for pump.fun create
-                            def _enrol_deployer(dep_addr, op_addr, expires):
-                                try:
-                                    import requests as _req
-                                    _api_key = "16f1a5fc-2592-466c-a5d4-b5799ae8da96"
-                                    _wh_id   = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
-                                                         "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
-                                    r = _req.get(
-                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                        timeout=10)
-                                    wh = r.json()
-                                    current = set(wh.get("accountAddresses", []))
-                                    if dep_addr in current:
-                                        return
-                                    updated = list(current | {dep_addr})
-                                    wh_payload = {
-                                        "webhookURL":       wh["webhookURL"],
-                                        "transactionTypes": wh.get("transactionTypes", ["Any"]),
-                                        "accountAddresses": updated,
-                                        "webhookType":      wh.get("webhookType", "enhanced"),
-                                        "txnStatus":        wh.get("txnStatus", "all"),
-                                        "encoding":         wh.get("encoding", "jsonParsed"),
-                                    }
-                                    r2 = _req.put(
-                                        f"https://api.helius.xyz/v0/webhooks/{_wh_id}?api-key={_api_key}",
-                                        json=wh_payload, timeout=10)
-                                    if r2.status_code == 200:
-                                        print(f"[WT_OPERATOR] ✅ Enrolled deployer {dep_addr[:20]}… in webhook TTL={expires}", flush=True)
-                                    else:
-                                        print(f"[WT_OPERATOR] ⚠️  Deployer enrol failed: {r2.status_code}", flush=True)
-                                except Exception as _e:
-                                    print(f"[WT_OPERATOR] deployer enrol error: {_e}", flush=True)
+                            # Deployer is NOT webhook-enrolled (treasuries-only webhook). Role is
+                            # registered in memory above; the pump.fun-create watch for this
+                            # deployer runs via the temporary WS cascade, not the webhook.
+                            print(f"[WT_OPERATOR] 🔬 deployer {counterparty[:20]}… registered (WS-watched, TTL={_dep_expires})", flush=True)
 
-                            _threading.Thread(
-                                target=_enrol_deployer,
-                                args=(counterparty, infra_addr, _dep_expires),
-                                daemon=True
-                            ).start()
-
-                    # ── LIKELY_DEPLOYER: detect pump.fun create tx → extract mint ──────
+                    # ── LIKELY_DEPLOYER: detect pump.fun create tx → detect mint ──────
                     elif role == "LIKELY_DEPLOYER" and counterparty:
                         # Check if this tx touches the pump.fun fee account (= token create)
                         _all_accounts = {

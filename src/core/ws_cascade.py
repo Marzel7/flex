@@ -26,6 +26,7 @@ import json
 import time
 import signal
 import asyncio
+import threading
 import traceback
 from typing import Optional
 
@@ -51,8 +52,29 @@ HEARTBEAT_SEC     = 30
 # CREATE is the newest tx (just funded), so a small window suffices; bump if INSTANT creators
 # do >1 action before catch-up runs.
 CATCHUP_SIG_LIMIT = int(os.environ.get("WS_CATCHUP_SIG_LIMIT", "8"))
+# How often to sweep ACTIVE subprovs for wrap-closes whose WS notification dropped/stalled.
+# This is the reliability backstop for the ~100s-miss case (a dropped subprov notification).
+# RPC-bounded: one getSignatures per active subprov per sweep, deduped so it doesn't refetch.
+SUBPROV_SWEEP_SEC = float(os.environ.get("WS_SUBPROV_SWEEP_SEC", "6"))
+
+# Treasury WS tier: permanently logsSubscribe the (small, stable) confirmed-treasury set so a
+# provisioning outbound opens a SUB_PROV session in real-time (~3s) instead of waiting on the
+# enhanced webhook (5–390s + ngrok jitter). WS-first; the webhook path remains as a fallback
+# (start_session is idempotent on (subprov, funding_sig), so whichever fires first wins).
+TREASURY_PROVISION_MIN_SOL = float(os.environ.get("WS_TREASURY_MIN_SOL", "0.5"))
+TREASURY_PROVISION_MAX_SOL = float(os.environ.get("WS_TREASURY_MAX_SOL", "1000"))
+TREASURY_REFRESH_SEC       = float(os.environ.get("WS_TREASURY_REFRESH_SEC", "60"))
 
 PUMP_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+
+
+def _confirmed_treasuries(conn) -> set:
+    """The authoritative confirmed-treasury set (wt_confirmed_treasuries, ops DB) — the wallets
+    we WS-subscribe permanently. Small + stable (≈12)."""
+    try:
+        return {r[0] for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+    except Exception:
+        return set()
 # pump.fun instruction discriminators (first 8 bytes of the instruction data). The CREATE ix
 # carries the mint at accounts[0] — verified stable across fixtures (xmaxxing + Donald80):
 #   CREATE = d6904cec5f8b31b4  (16 accounts: [0]=mint [2]=bonding_curve [3]=assoc_bonding_curve)
@@ -76,6 +98,12 @@ def _log(msg):
 
 
 # ── raw RPC (1 credit each — never the enhanced-tx endpoint) ─────────────────
+# IMPORTANT: _rpc uses BLOCKING urllib. It must NEVER be called directly on the asyncio event
+# loop — a slow/stalled RPC would freeze the WHOLE loop (ws.recv stops reading, keepalive pings
+# stop → "keepalive ping timeout", and live logsNotifications back up unread in the socket
+# buffer). All loop-context callers go through `_arpc`/`_aget_tx` (run_in_executor → thread pool),
+# so blocking I/O happens off the loop and recv keeps reading. Direct _rpc is fine only in code
+# already running in a worker thread (audit phase1, backfill).
 def _rpc(method, params, timeout=12):
     import urllib.request
     try:
@@ -90,6 +118,21 @@ def _rpc(method, params, timeout=12):
 
 def _get_tx(sig):
     return _rpc("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
+
+
+# ── async, off-loop wrappers — run blocking RPC + DB work in the default thread-pool executor
+# so the asyncio event loop (ws.recv + keepalive) is NEVER frozen by I/O. ───────────────────
+async def _arpc(method, params, timeout=12):
+    return await asyncio.get_event_loop().run_in_executor(None, lambda: _rpc(method, params, timeout))
+
+
+async def _aget_tx(sig):
+    return await asyncio.get_event_loop().run_in_executor(None, _get_tx, sig)
+
+
+async def _ato_thread(fn, *args):
+    """Run a blocking function (DB writes, sync handlers) off the event loop."""
+    return await asyncio.get_event_loop().run_in_executor(None, lambda: fn(*args))
 
 
 _B58_ALPHABET = b'123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -157,6 +200,22 @@ def _tx_is_swap(tx):
         return False
     logs = " ".join((tx.get("meta") or {}).get("logMessages", []) or [])
     return ("Instruction: Buy" in logs) or ("Instruction: Sell" in logs)
+
+
+def _classify_sibling(sib):
+    """BLOCKING (RPC) — classify a teardown sibling: did it SWAP (→BUY_SWARM) or stay idle
+    (→EXPIRED_SIBLING)? Runs in a worker thread via _ato_thread, never on the event loop."""
+    state, reason = "EXPIRED_SIBLING", "sibling_idle"
+    try:
+        tx_sigs = _rpc("getSignaturesForAddress", [sib, {"limit": 10}]) or []
+        for s in tx_sigs:
+            if s.get("err"):
+                continue
+            if _tx_is_swap(_get_tx(s["signature"])):
+                state, reason = "BUY_SWARM", "sibling_swapped"; break
+    except Exception:
+        pass
+    return state, reason
 
 
 # ── subscription manager ─────────────────────────────────────────────────────
@@ -234,6 +293,10 @@ class Cascade:
         # INSERT OR IGNORE on (creator, create_sig), so the LEDGER is idempotent regardless;
         # this set additionally suppresses duplicate events + teardown. Bounded by eviction.
         self._processed = set()
+        # subprov sigs already scanned by the subprov catch-up — avoids re-fetching the same
+        # wrap-close txs every sweep. (open_candidate_watch is also INSERT OR IGNORE, so even a
+        # re-scan can't double-open a candidate; this just saves the RPC.)
+        self._subprov_seen = set()
 
     def _seen(self, candidate, sig):
         key = (candidate, sig)
@@ -243,6 +306,16 @@ class Cascade:
         if len(self._processed) > 5000:                # bound memory; evict oldest-ish
             for k in list(self._processed)[:1000]:
                 self._processed.discard(k)
+        return False
+
+    def _subprov_sig_seen(self, subprov, sig):
+        key = (subprov, sig)
+        if key in self._subprov_seen:
+            return True
+        self._subprov_seen.add(key)
+        if len(self._subprov_seen) > 5000:
+            for k in list(self._subprov_seen)[:1000]:
+                self._subprov_seen.discard(k)
         return False
 
     def _ops(self):
@@ -255,21 +328,90 @@ class Cascade:
     async def resync_subscriptions(self):
         conn = self._ops()
         try:
+            treasuries = _confirmed_treasuries(conn)
+            for t in treasuries:
+                store.treasury_ws_register(conn, t)
             sessions = store.active_sessions(conn)[:MAX_ACTIVE_SUBPROVS]
             candidates = [c[0] for c in store.watching_candidates(conn)]
         finally:
             conn.close()
+        # TREASURY TIER: permanent WS subscriptions on the confirmed-treasury set. Real-time
+        # trigger for opening SUB_PROV sessions (replaces the slow webhook→session path).
+        for t in treasuries:
+            if t not in self.mgr.wallet_kind:
+                await self.mgr.subscribe(t, "treasury")
+                emit_event("TREASURY_WEBSOCKET_OPENED", wallet=t)
         for s in sessions:
             subprov = s[1]
             if subprov not in self.mgr.wallet_kind:
                 await self.mgr.subscribe(subprov, "subprov")
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov)
+                # catch-up on first subscribe: a wrap-close may have fired in the webhook→session
+                # delay before we subscribed (the 25s gap). Recover it immediately.
+                await self.catch_up_subprov(subprov)
         for cand in candidates:
             if cand not in self.mgr.wallet_kind:
                 await self.mgr.subscribe(cand, "candidate")
                 # catch-up on (re)subscribe: a restored WATCHING candidate may have CREATEd
                 # while we were reconnecting/restarting.
                 await self.catch_up_candidate(cand)
+
+    # ---- handle a TREASURY log notification (provisioning outbound) ---------
+    def _handle_treasury_tx(self, treasury, sig):
+        """A confirmed treasury did something. If it's a provisioning-sized SOL outbound to
+        another wallet, open a SUB_PROV session in real-time (the WS-first trigger). Always
+        meter the notification so the UI can spot a treasury turning into a swarm hub.
+        Returns the list of newly-opened subprov wallets (to subscribe on the loop)."""
+        conn = self._ops()
+        opened = []
+        try:
+            tx = _get_tx(sig)
+            if not tx:
+                store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
+                return []
+            meta = tx.get("meta") or {}
+            keys = [k.get("pubkey") if isinstance(k, dict) else k
+                    for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or [])]
+            pre, post = meta.get("preBalances") or [], meta.get("postBalances") or []
+            btime = tx.get("blockTime")
+            try:
+                ti = keys.index(treasury)
+            except ValueError:
+                store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
+                return []
+            # treasury must have SENT SOL (lost lamports)
+            if ti >= min(len(pre), len(post)) or post[ti] >= pre[ti]:
+                store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
+                return []
+            # recipient(s) = wallet(s) that GAINED a provisioning-sized amount
+            for i, w in enumerate(keys):
+                if i >= min(len(pre), len(post)) or w == treasury:
+                    continue
+                gain = (post[i] - pre[i]) / 1e9
+                if not (TREASURY_PROVISION_MIN_SOL <= gain <= TREASURY_PROVISION_MAX_SOL):
+                    continue
+                # REAL-TIME FEED: write the treasury outbound into wt_webhook_hits (live db)
+                # tagged source='treasury_ws'. Off-thread + best-effort so a locked live db
+                # can't stall the cascade — the webhook backfills the row if this misses.
+                # Deduped by UNIQUE(tx_signature, wallet_address).
+                threading.Thread(
+                    target=store.record_treasury_hit,
+                    kwargs=dict(treasury=treasury, counterparty=w, sig=sig,
+                                amount_sol=gain, block_time=btime),
+                    daemon=True, name="tws-hit").start()
+                # open a session on this recipient (the discovered SUB_PROV). Idempotent on
+                # (subprov, funding_sig) → if the webhook already opened it, this is a no-op.
+                if store.start_session(conn, subprov=w, treasury=treasury, funding_sig=sig,
+                                       funding_amount=gain, funding_time=btime,
+                                       ttl_seconds=SESSION_TTL_SEC, subprov_known=0):
+                    opened.append(w)
+                    emit_event("SUBPROV_SESSION_OPENED_WS", wallet=w, related=treasury,
+                               payload={"funding_sol": gain, "sig": sig, "via": "treasury_ws"})
+                    _log(f"⚡ treasury {treasury[:10]}… → seed {w[:12]}… {gain:.2f} ◎ (WS, session opened)")
+            store.treasury_ws_record_notif(conn, treasury, sig, opened_session=bool(opened))
+            return opened
+        finally:
+            conn.close()
 
     # ---- handle a SUB_PROV log notification (wrap-close fan-out) ------------
     def _handle_subprov_tx(self, subprov, sig):
@@ -282,6 +424,7 @@ class Cascade:
             if store.candidate_count_for_subprov(conn, subprov) >= MAX_CANDIDATES:
                 return []
             tx = _get_tx(sig)
+            wrap_close_time = (tx or {}).get("blockTime")   # on-chain creator BIRTH time
             dests = extract_close_destinations(tx)
             if not dests:
                 return []
@@ -294,10 +437,20 @@ class Cascade:
                         conn, candidate=cand, subprov=subprov, treasury=treasury,
                         wrap_close_sig=sig, wrap_wallet=d.get("wrap_wallet"),
                         temp_wsol=d.get("temp_wsol_account"),
-                        funding_amount=d.get("base_amount_sol"), ttl_seconds=CANDIDATE_TTL_SEC):
+                        funding_amount=d.get("base_amount_sol"), ttl_seconds=CANDIDATE_TTL_SEC,
+                        wrap_close_time=wrap_close_time):
                     new_watches.append(cand)
                     emit_event("WRAP_CLOSE_FANOUT_DETECTED", wallet=subprov, related=cand,
                                payload={"wrap_close_sig": sig, "base": d.get("base_amount_sol")})
+                    # VANITY-FAMILY EVIDENCE on the wrap-close participants (candidate, wrap
+                    # wallet, subprov) — same-operator signal only, full address stored.
+                    try:
+                        from src.core.vanity_family import check_and_record as _vf_check
+                        for _w in (cand, d.get("wrap_wallet"), subprov):
+                            if _w:
+                                _vf_check(_w, source_event="wrap_close", source_sig=sig)
+                    except Exception:
+                        pass
             return new_watches
         finally:
             conn.close()
@@ -317,23 +470,45 @@ class Cascade:
             conn = self._ops()
             try:
                 row = conn.execute(
-                    "SELECT subprov_wallet, treasury_wallet, wrap_close_signature "
+                    "SELECT subprov_wallet, treasury_wallet, wrap_close_signature, wrap_close_time, "
+                    "funding_amount "
                     "FROM wt_candidate_websocket_watches WHERE candidate_wallet=? "
                     "ORDER BY detected_at DESC LIMIT 1", (candidate,)).fetchone()
                 subprov = row[0] if row else None
                 treasury = row[1] if row else None
                 wrap_sig = row[2] if row else None
-                funding_time = None
+                wrap_close_time = row[3] if row else None
+                wrap_close_sol = row[4] if row else None    # subprov→creator wrap-close seed
+                # birth_to_launch = CREATE time − the creator's BIRTH (the wrap-close that funded
+                # it), NOT the treasury→subprov session funding (which adds the subprov pipeline
+                # time and mislabels INSTANT launches as STAGED — e.g. Memeville read 125s vs the
+                # true 1s). Fall back to the session funding_time only if wrap_close_time is absent.
+                birth_time = wrap_close_time
+                subprov_funding_sol = None                  # treasury→subprov load (from the session)
                 if subprov:
                     sess = store.session_for_subprov(conn, subprov)
-                    funding_time = sess[2] if sess else None
-                btl = (btime - funding_time) if (btime and funding_time) else None
+                    if sess:
+                        if birth_time is None:
+                            birth_time = sess[2]
+                        # session row: (id, treasury, funding_time, funding_sig, [funding_amount?])
+                        try:
+                            # most-recent session for this subprov (any state — by launch time it
+                            # may have COMPLETED/EXPIRED); the funding_amount is the treasury load.
+                            sf = conn.execute(
+                                "SELECT funding_amount FROM wt_active_subprov_sessions "
+                                "WHERE subprov_wallet=? ORDER BY detected_at DESC LIMIT 1",
+                                (subprov,)).fetchone()
+                            subprov_funding_sol = sf[0] if sf else None
+                        except Exception:
+                            subprov_funding_sol = None
+                btl = (btime - birth_time) if (btime and birth_time) else None
                 newly = store.record_launch(
                     conn, mint=mint, creator=candidate, create_sig=sig, create_time=btime,
                     treasury=treasury, subprov=subprov, wrap_close_sig=wrap_sig,
-                    birth_to_launch_s=btl, create_slot=create_slot)
+                    birth_to_launch_s=btl, create_slot=create_slot,
+                    subprov_funding_sol=subprov_funding_sol, wrap_close_sol=wrap_close_sol)
                 if newly:
-                    self._reconcile_bridge(conn, candidate, mint, btime, funding_time, subprov, treasury)
+                    self._reconcile_bridge(conn, candidate, mint, btime, birth_time, subprov, treasury)
                 return "CREATE", {"mint": mint, "subprov": subprov, "treasury": treasury,
                                   "create_time": btime, "btl": btl, "wrap_sig": wrap_sig,
                                   "create_sig": sig, "newly": newly, "create_slot": create_slot,
@@ -367,7 +542,9 @@ class Cascade:
             conn.close()
         if done:
             return "CREATE"
-        verdict, launch = self._handle_candidate_tx(candidate, sig, ws_seen_at=ws_seen_at)
+        # _handle_candidate_tx does the blocking getTransaction + DB writes → run it OFF the
+        # event loop so a slow RPC can't freeze recv / keepalive.
+        verdict, launch = await _ato_thread(self._handle_candidate_tx, candidate, sig, ws_seen_at)
         if verdict == "CREATE":
             btl = launch.get("btl")
             mode = "INSTANT" if (btl is not None and btl < 60) else ("STAGED" if btl is not None else "?")
@@ -403,7 +580,7 @@ class Cascade:
     #      candidate's most-recent signatures and process any that already happened. ----
     async def catch_up_candidate(self, candidate, limit=CATCHUP_SIG_LIMIT):
         try:
-            sigs = _rpc("getSignaturesForAddress", [candidate, {"limit": limit}]) or []
+            sigs = await _arpc("getSignaturesForAddress", [candidate, {"limit": limit}]) or []
         except Exception:
             return
         # oldest → newest so a CREATE is recorded before any later swap is seen
@@ -415,6 +592,32 @@ class Cascade:
             verdict = await self.process_candidate_sig(candidate, sig)
             if verdict == "CREATE":
                 break                                  # creator found; watch torn down
+
+    # ---- subprov-side catch-up: recover a DROPPED/LATE wrap-close notification ----
+    #      The subprov's wrap-close logsNotification can be dropped or arrive ~100s late
+    #      (WS drop / receive-loop stall). Because the creator wallet is UNKNOWN until we see
+    #      the wrap-close, a missed subprov notification delays discovering the creator at all.
+    #      This scans an ACTIVE subprov's recent sigs for wrap-closes we haven't processed and
+    #      runs the same discover→subscribe→candidate-catch-up flow — turning a ~100s miss into
+    #      a few seconds. Polling can't beat a 1s atomic launch, but it makes recovery RELIABLE.
+    async def catch_up_subprov(self, subprov, limit=CATCHUP_SIG_LIMIT):
+        try:
+            sigs = await _arpc("getSignaturesForAddress", [subprov, {"limit": limit}]) or []
+        except Exception:
+            return
+        for s in sorted([x for x in sigs if not x.get("err")],
+                        key=lambda x: x.get("blockTime") or 0):
+            sig = s.get("signature")
+            if not sig or self._subprov_sig_seen(subprov, sig):
+                continue
+            # process the wrap-close exactly like a live notification would (idempotent:
+            # open_candidate_watch is INSERT OR IGNORE on (candidate, wrap_close_sig)) — off-loop.
+            new_watches = await _ato_thread(self._handle_subprov_tx, subprov, sig)
+            for cand in new_watches:
+                await self.mgr.subscribe(cand, "candidate")
+                emit_event("CANDIDATE_WEBSOCKET_OPENED", wallet=cand, related=subprov)
+                _log(f"👁  watching candidate {cand[:12]}… (subprov {subprov[:10]}… · catch-up)")
+                await self.catch_up_candidate(cand)
 
     # ---- launch audit phase 1 (off-thread) ---------------------------------
     def _trigger_audit_phase1(self, launch, creator, create_sig, ws_seen_at, alert_emitted_at):
@@ -456,7 +659,9 @@ class Cascade:
             except Exception:
                 op_uuid = None
             if not op_uuid:
-                op_uuid = f"ws-cascade:{(treasury or subprov or creator)[:16]}"
+                # FULL address in the fallback op key — a truncated prefix could merge two
+                # distinct treasuries' creators under one operation_uuid.
+                op_uuid = f"ws-cascade:{treasury or subprov or creator}"
             conn.execute(
                 "INSERT OR IGNORE INTO wt_ops_v2_creators "
                 "(operation_uuid, creator_wallet, token_mint, migration_time) VALUES (?,?,?,?)",
@@ -483,17 +688,8 @@ class Cascade:
         try:
             if subprov:
                 for (sib,) in store.siblings_of(conn, subprov, creator):
-                    # classify sibling: SWAP → BUY_SWARM, idle → EXPIRED_SIBLING
-                    state = "EXPIRED_SIBLING"; reason = "sibling_idle"
-                    try:
-                        tx_sigs = _rpc("getSignaturesForAddress", [sib, {"limit": 10}]) or []
-                        for s in tx_sigs:
-                            if s.get("err"):
-                                continue
-                            if _tx_is_swap(_get_tx(s["signature"])):
-                                state = "BUY_SWARM"; reason = "sibling_swapped"; break
-                    except Exception:
-                        pass
+                    # classify sibling OFF-LOOP (blocking RPC): SWAP → BUY_SWARM, idle → EXPIRED_SIBLING
+                    state, reason = await _ato_thread(_classify_sibling, sib)
                     store.close_candidate(conn, sib, state, reason)
                     await self.mgr.unsubscribe(sib)
                     if state == "BUY_SWARM":
@@ -524,6 +720,18 @@ class Cascade:
                 emit_event("SUBPROV_SESSION_EXPIRED", wallet=subprov)
         finally:
             conn.close()
+
+    # ---- subprov sweep: catch-up every ACTIVE subprov (reliability backstop) ----
+    async def subprov_sweep_pass(self):
+        """Run catch_up_subprov over all ACTIVE subprovs to recover any wrap-close whose WS
+        notification dropped/stalled. Bounded (MAX_ACTIVE_SUBPROVS, deduped sigs)."""
+        conn = self._ops()
+        try:
+            subprovs = [s[1] for s in store.active_sessions(conn)[:MAX_ACTIVE_SUBPROVS]]
+        finally:
+            conn.close()
+        for subprov in subprovs:
+            await self.catch_up_subprov(subprov)
 
 
 # ── async runner ─────────────────────────────────────────────────────────────
@@ -598,27 +806,66 @@ async def run_cascade():
                 _log(f"✓ WS connected ({WS_URL.split('?')[0]})")
                 await casc.resync_subscriptions()
                 reconnect_delay = 5
-                last_poll = 0.0
-                last_cleanup = 0.0
-                while not _STOP:
-                    # periodic poll (new sessions) + cleanup
-                    now = time.time()
-                    if now - last_poll >= POLL_SEC:
-                        await casc.resync_subscriptions()
-                        last_poll = now
-                    if now - last_cleanup >= CLEANUP_SEC:
-                        await casc.cleanup_pass()
-                        last_cleanup = now
-                    # receive (short timeout so the poll/cleanup cadence holds)
-                    try:
-                        raw = await asyncio.wait_for(ws.recv(), timeout=POLL_SEC)
-                    except asyncio.TimeoutError:
-                        continue
-                    await _on_message(casc, raw)
+
+                # READER / PROCESSOR / MAINTENANCE split — the whole point of the cascade is to
+                # LISTEN for the create tx in real time. The reader does NOTHING but ws.recv() →
+                # queue, so a slow message (RPC/DB) can never starve recv or stall keepalive. A
+                # separate processor drains the queue; maintenance (poll/cleanup/sweep) is its own
+                # task. All blocking RPC/DB inside processing runs off-loop (run_in_executor).
+                inbox: asyncio.Queue = asyncio.Queue(maxsize=1000)
+
+                async def _reader():
+                    while not _STOP:
+                        raw = await ws.recv()              # only job: read, fast
+                        try:
+                            inbox.put_nowait(raw)
+                        except asyncio.QueueFull:
+                            # drop oldest to stay live (catch-up/sweep will recover anything missed)
+                            try:
+                                inbox.get_nowait()
+                            except Exception:
+                                pass
+                            try:
+                                inbox.put_nowait(raw)
+                            except Exception:
+                                pass
+
+                async def _processor():
+                    while not _STOP:
+                        raw = await inbox.get()
+                        try:
+                            await _on_message(casc, raw)
+                        except Exception as _pe:
+                            print(f"[WS_CASCADE] process error: {_pe}", flush=True)
+
+                async def _maintenance():
+                    last_poll = last_cleanup = last_sweep = 0.0
+                    while not _STOP:
+                        now = time.time()
+                        if now - last_poll >= POLL_SEC:
+                            await casc.resync_subscriptions(); last_poll = now
+                        if now - last_cleanup >= CLEANUP_SEC:
+                            await casc.cleanup_pass(); last_cleanup = now
+                        if now - last_sweep >= SUBPROV_SWEEP_SEC:
+                            await casc.subprov_sweep_pass(); last_sweep = now
+                        await asyncio.sleep(0.5)
+
+                tasks = [asyncio.ensure_future(t()) for t in (_reader, _processor, _maintenance)]
+                try:
+                    # if any task exits (e.g. reader on ws close), tear them all down + reconnect
+                    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+                    for p in pending:
+                        p.cancel()
+                    for d in done:                          # surface the reason (ws closed, etc.)
+                        exc = d.exception()
+                        if exc:
+                            raise exc
+                finally:
+                    for t in tasks:
+                        t.cancel()
         except Exception as e:
             if not _STOP:
                 _log(f"WS loop error: {e} — reconnecting in {reconnect_delay}s")
-                traceback.print_exc()
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 2, 60)
     _log("stopped")
@@ -647,10 +894,23 @@ async def _on_message(casc: Cascade, raw):
         return
     wallet, kind = ent
 
-    if kind == "subprov":
-        new_watches = casc._handle_subprov_tx(wallet, sig)
+    if kind == "treasury":
+        # _handle_treasury_tx does blocking RPC + DB → off the loop. Opens SUB_PROV sessions
+        # in real-time on a provisioning outbound (WS-first trigger).
+        opened = await _ato_thread(casc._handle_treasury_tx, wallet, sig)
+        for subprov in opened:
+            if subprov not in casc.mgr.wallet_kind:
+                await casc.mgr.subscribe(subprov, "subprov")    # WS send — stays on the loop
+                emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov, related=wallet)
+                # catch-up: the wrap-close may already have fired in the slot or two before
+                # this subscription went live (INSTANT provisioning).
+                await casc.catch_up_subprov(subprov)
+    elif kind == "subprov":
+        # _handle_subprov_tx does blocking RPC + DB → run it OFF the event loop so recv keeps
+        # reading the next notification while this one's tx is fetched/decoded.
+        new_watches = await _ato_thread(casc._handle_subprov_tx, wallet, sig)
         for cand in new_watches:
-            await casc.mgr.subscribe(cand, "candidate")
+            await casc.mgr.subscribe(cand, "candidate")     # WS send — stays on the loop
             emit_event("CANDIDATE_WEBSOCKET_OPENED", wallet=cand, related=wallet)
             _log(f"👁  watching candidate {cand[:12]}… (subprov {wallet[:10]}…)")
             # CATCH-UP: an INSTANT launch can CREATE in the ~1-2s before this subscription

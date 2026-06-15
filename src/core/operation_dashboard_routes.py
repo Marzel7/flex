@@ -1211,6 +1211,54 @@ def api_intel_active_walks():
         return jsonify({"walks": [], "walking": 0, "armed_from_walk": 0, "error": str(e)})
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/treasury-ws-usage")
+def api_intel_treasury_ws_usage():
+    """Per-treasury WebSocket usage. Treasuries are permanently WS-subscribed (real-time
+    provisioning trigger). This surfaces each treasury's notification volume so a treasury
+    that turns into a high-volume swarm hub is visible BEFORE it bloats the daemon. Zero RPC.
+
+    flagged=True when events/hr exceeds WS_TREASURY_BUSY_PER_HR (default 200) — the 'getting
+    heavy' signal."""
+    BUSY_PER_HR = int(os.environ.get("WS_TREASURY_BUSY_PER_HR", "200"))
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_treasury_ws_usage"):
+            return jsonify({"treasuries": [], "subscribed": 0, "flagged": 0,
+                            "note": "treasury WS tier not yet initialised"})
+        now = int(time.time()); hb = now // 3600
+        confirmed = set()
+        if _table_exists(ov, "wt_confirmed_treasuries"):
+            confirmed = {r[0] for r in ov.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        rows = ov.execute(
+            "SELECT treasury_wallet, subscribed_at, notif_count, sessions_opened, "
+            "last_notif_at, last_notif_sig, notif_count_1h, hour_bucket "
+            "FROM wt_treasury_ws_usage ORDER BY notif_count DESC").fetchall()
+        out, flagged = [], 0
+        for r in rows:
+            # 1h count only valid if it's the current hour bucket; otherwise it's stale → 0
+            per_hr = r["notif_count_1h"] if r["hour_bucket"] == hb else 0
+            is_flagged = per_hr >= BUSY_PER_HR
+            if is_flagged:
+                flagged += 1
+            out.append({
+                "treasury": r["treasury_wallet"],
+                "confirmed": r["treasury_wallet"] in confirmed,
+                "notif_total": r["notif_count"] or 0,
+                "sessions_opened": r["sessions_opened"] or 0,
+                "events_per_hr": per_hr,
+                "last_notif_at": r["last_notif_at"],
+                "last_notif_ago_s": (now - r["last_notif_at"]) if r["last_notif_at"] else None,
+                "subscribed_at": r["subscribed_at"],
+                "flagged_busy": is_flagged,
+            })
+        return jsonify({"treasuries": out, "subscribed": len(out), "flagged": flagged,
+                        "busy_threshold_per_hr": BUSY_PER_HR})
+    except Exception as e:
+        return jsonify({"treasuries": [], "subscribed": 0, "flagged": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/armed")
 def api_intel_armed():
     """Currently-ARMED creators: template-funded, webhooked, ~58-min countdown running.
@@ -1349,9 +1397,27 @@ def api_intel_treasury_funders():
         if not confirmed:
             return jsonify({"funders": [], "shared_apexes": [], "count": 0})
         subprovs = set()
+        buyswarm_wallets = set()       # wallets the system ALREADY classified BUY_SWARM (local, zero RPC)
         try:
+            # known subprovs = BOTH sources (wrap-close candidates AND the discovered-subprov table).
+            # A known subprov sending into a treasury is SWEEP (recycling up), NOT external capital —
+            # reading only wt_wrap_close_candidates missed subprovs that live only in
+            # wt_discovered_subprovs (e.g. DZ81n7cc, 8oackoLD → were false EXTERNAL leads).
             subprovs = {r[0] for r in ov.execute(
                 "SELECT DISTINCT subprov_wallet FROM wt_wrap_close_candidates WHERE subprov_wallet IS NOT NULL").fetchall()}
+            try:
+                subprovs |= {r[0] for r in ov.execute(
+                    "SELECT subprov FROM wt_discovered_subprovs WHERE subprov IS NOT NULL").fetchall()}
+            except Exception:
+                pass
+            # a wallet is buy-swarm infra if it (or its wrap-close children) were marked BUY_SWARM —
+            # the subprov runs a trading/fan-out op (wallets SWAP many tokens, never CREATE).
+            for r in ov.execute(
+                "SELECT subprov_wallet, creator FROM wt_wrap_close_candidates WHERE state='BUY_SWARM'").fetchall():
+                if r[0]:
+                    buyswarm_wallets.add(r[0])
+                if r[1]:
+                    buyswarm_wallets.add(r[1])
         except Exception:
             pass
         ph = ",".join("?" * len(confirmed))
@@ -1366,12 +1432,15 @@ def api_intel_treasury_funders():
         # funder = the funder is recycling treasury money back, NOT genuine external capital.
         # Needs the bidirectional log (treasury outbounds — fixed via composite-PK storage).
         paid_back = set()
+        out_to_funder = {}             # funder → total SOL the treasuries sent OUT to it (for net-flow)
         try:
             for r in live.execute(
-                f"SELECT wallet_address t, counterparty f FROM wt_webhook_hits "
-                f"WHERE direction='outbound' AND counterparty IS NOT NULL AND wallet_address IN ({ph})",
+                f"SELECT wallet_address t, counterparty f, SUM(amount_sol) o FROM wt_webhook_hits "
+                f"WHERE direction='outbound' AND counterparty IS NOT NULL AND wallet_address IN ({ph}) "
+                f"GROUP BY wallet_address, counterparty",
                 list(confirmed)).fetchall():
                 paid_back.add((r["t"], r["f"]))
+                out_to_funder[r["f"]] = (out_to_funder.get(r["f"], 0.0) + (r["o"] or 0.0))
         except Exception:
             pass
         agg = {}
@@ -1397,24 +1466,38 @@ def api_intel_treasury_funders():
             d.pop("treasuries"); d.pop("recycled_to")
             d["is_shared_apex"] = tf > 1 and not d["is_subprov_sweep"]
             d["total_sol"] = round(d["total_sol"], 1)
+            # BUY-SWARM signals (local, zero RPC):
+            #  (a) the wallet is already BUY_SWARM-classified (it/its wrap-close children SWAP
+            #      many tokens, never CREATE), OR
+            #  (b) net-NEGATIVE treasury flow: the treasury sent it MORE than came back (out > in
+            #      by a margin) — the fingerprint of a TRADING op (capital spent on tokens),
+            #      distinct from RECYCLING (a wash, net ≈ 0).
+            _out = out_to_funder.get(d["funder"], 0.0)
+            _in = d["total_sol"]
+            d["treasury_out_sol"] = round(_out, 1)
+            d["net_to_treasury_sol"] = round(_in - _out, 1)
+            _net_negative_trade = _out > 0 and (_in < _out * 0.9)   # returned <90% → spent on trades
+            d["is_buy_swarm"] = (d["funder"] in buyswarm_wallets) or _net_negative_trade
             # ── EXPANSION CLASS (priority order) — the network-growth classifier ──
             # MESH (known treasury funds another) and HUB (funds multiple treasuries) are
-            # structural network signals that OUTRANK recycling — a wallet linking treasuries
-            # is a hub even if it also recycles to one. Recycling/sweep only apply to
-            # single-treasury funders that the treasury paid back.
+            # structural network signals that OUTRANK everything — a wallet linking treasuries
+            # is a hub even if it also trades/recycles. BUY_SWARM/recycling/sweep are
+            # "not-an-expansion-lead" categories for single-treasury funders.
             if d["is_known_treasury"]:
                 d["expansion_class"] = "TREASURY_MESH"    # known treasury funds another = mesh growth ★★★
             elif tf > 1:
                 d["expansion_class"] = "HUB"              # funds multiple treasuries = network hub ★★
+            elif d["is_buy_swarm"]:
+                d["expansion_class"] = "BUY_SWARM"        # treasury-funded TRADING op (swaps many tokens, net-negative) — NOT a lead
             elif d["is_subprov_sweep"]:
                 d["expansion_class"] = "SWEEP"            # subprov recycling up
             elif d["is_recycling"]:
-                d["expansion_class"] = "RECYCLING"        # treasury funded it first, pays back
+                d["expansion_class"] = "RECYCLING"        # treasury funded it first, pays back (wash)
             else:
                 d["expansion_class"] = "EXTERNAL"         # genuine external capital → expansion candidate ★
             funders.append(d)
-        # expansion-priority first: mesh > hub > external, then recency
-        _rank = {"TREASURY_MESH": 0, "HUB": 1, "EXTERNAL": 2, "RECYCLING": 3, "SWEEP": 4}
+        # expansion-priority first: mesh > hub > external, then the non-lead categories, then recency
+        _rank = {"TREASURY_MESH": 0, "HUB": 1, "EXTERNAL": 2, "BUY_SWARM": 3, "RECYCLING": 4, "SWEEP": 5}
         funders.sort(key=lambda x: (_rank.get(x["expansion_class"], 5), -(x["last_seen"] or 0)))
         from collections import Counter as _C
         return jsonify({"funders": funders, "count": len(funders),
@@ -1583,6 +1666,16 @@ def api_intel_launch_audit():
             "actionable_multiple, time_to_peak_s, migrated, dumped_before_migration, "
             "final_state, audit_state, mc_at_detection_source, peak_mc_source, source "
             "FROM wt_launch_audit ORDER BY created_at DESC LIMIT 50").fetchall()
+        # the FULL funding profile per launch (treasury→subprov load + wrap-close seed) lives on
+        # the cascade's launch ledger — join it by mint so each audit row shows provisioning cost.
+        funding = {}
+        try:
+            for fr in ov.execute(
+                "SELECT mint, subprov_funding_sol, wrap_close_sol FROM wt_watchtower_launches "
+                "WHERE mint IS NOT NULL").fetchall():
+                funding[fr["mint"]] = (fr["subprov_funding_sol"], fr["wrap_close_sol"])
+        except Exception:
+            pass
         launches = [{
             "mint": r["mint"], "creator": r["creator"], "treasury": r["treasury"],
             "create_time": r["create_time"], "detection_latency_ms": r["detection_latency_ms"],
@@ -1596,6 +1689,8 @@ def api_intel_launch_audit():
             "final_state": r["final_state"], "audit_state": r["audit_state"],
             "mc_detection_source": r["mc_at_detection_source"], "peak_source": r["peak_mc_source"],
             "source": r["source"],
+            "subprov_funding_sol": funding.get(r["mint"], (None, None))[0],
+            "wrap_close_sol": funding.get(r["mint"], (None, None))[1],
         } for r in rows]
     finally:
         ov.close()
@@ -1609,15 +1704,30 @@ def api_intel_launch_audit():
     return jsonify({"launches": launches, "report": report})
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/vanity-families")
+def api_intel_vanity_families():
+    """Vanity-family evidence — wallets sharing a deliberate vanity prefix with known
+    WATCHTOWER infra (e.g. the 44or family: treasury + dual signallers). EVIDENCE of same
+    operator, never a role/treasury assignment. Read-only over wt_vanity_families +
+    wt_vanity_matches; full addresses throughout."""
+    try:
+        from src.core import vanity_family
+        return jsonify(vanity_family.families_overview())
+    except Exception as e:
+        return jsonify({"families": [], "matches": [], "match_count": 0, "error": str(e)})
+
+
 def _subprov_oldest_funder(subprov):
-    """1-RPC verify: page getSignaturesForAddress to the subprov's OLDEST tx (the
-    funding), fetch it, and return the SOL sender (the funder). Single-use subprovs
-    have few txs so this is cheap; busy ones are bounded by the page cap. Returns
-    (funder|None, note)."""
+    """RPC verify: find the subprov's PROVISIONING funder — the SOL sender in its
+    OLDEST transaction. A provisioned wallet's first-ever tx is the treasury seeding it
+    (confirmed: BZeKsV's oldest tx is yUpm7rKX → 700 SOL, exactly Solscan's "Funded by";
+    matches the 700/800-SOL provisioning signature). This holds for single-use subprovs
+    AND busy fan-out wallets alike — the seed precedes all activity. Returns
+    (funder|None, note, amount_sol|None)."""
     import urllib.request, urllib.error
     key = os.environ.get("HELIUS_API_KEY", "")
     if not key:
-        return None, "no HELIUS_API_KEY — cannot verify"
+        return None, "no HELIUS_API_KEY — cannot verify", None
     rpc = f"https://mainnet.helius-rpc.com/?api-key={key}"
 
     def _post(method, params):
@@ -1627,9 +1737,11 @@ def _subprov_oldest_funder(subprov):
         return _json.loads(urllib.request.urlopen(req, timeout=20).read()).get("result")
 
     try:
-        # page to the oldest signature (the funding tx)
+        # page (oldest-first via repeated `before=`) to the very oldest signature — the
+        # seeding tx. Bounded by MAX_PAGES; busy wallets (14k+ sigs) still terminate.
+        MAX_PAGES = 30
         oldest, before, pages = None, None, 0
-        while pages < 8:
+        while pages < MAX_PAGES:
             r = _post("getSignaturesForAddress",
                       [subprov, {"limit": 1000, **({"before": before} if before else {})}])
             if not r:
@@ -1639,11 +1751,10 @@ def _subprov_oldest_funder(subprov):
                 break
             before = oldest; pages += 1
         if not oldest:
-            return None, "no transactions found for subprov"
-        # fetch the oldest tx and find who sent SOL INTO the subprov
+            return None, "no transactions found for subprov", None
         tx = _post("getTransaction", [oldest, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
         if not tx:
-            return None, "could not fetch oldest tx"
+            return None, "could not fetch oldest tx", None
         meta = tx.get("meta") or {}
         keys = [k.get("pubkey") if isinstance(k, dict) else k
                 for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or [])]
@@ -1651,17 +1762,18 @@ def _subprov_oldest_funder(subprov):
         try:
             sp_idx = keys.index(subprov)
         except ValueError:
-            return None, "subprov not in oldest tx account keys"
-        # subprov must have GAINED lamports; funder = the key that LOST the most
-        if sp_idx >= len(pre) or post[sp_idx] <= pre[sp_idx]:
-            return None, "oldest tx is not an inbound funding to subprov"
+            return None, "subprov not in oldest tx account keys", None
+        if sp_idx >= min(len(pre), len(post)) or post[sp_idx] <= pre[sp_idx]:
+            return None, "oldest tx is not an inbound funding to subprov", None
+        gain = post[sp_idx] - pre[sp_idx]
         deltas = [(keys[i], (post[i] - pre[i])) for i in range(min(len(pre), len(post), len(keys)))]
         senders = sorted([d for d in deltas if d[1] < 0], key=lambda x: x[1])
         if not senders:
-            return None, "no net sender in oldest tx"
-        return senders[0][0], f"funder from oldest tx {oldest[:16]}…"
+            return None, "no net sender in oldest tx", None
+        amt = gain / 1e9
+        return senders[0][0], f"seed {amt:.3f} SOL, oldest tx {oldest[:16]}…", amt
     except (urllib.error.URLError, Exception) as e:
-        return None, f"rpc error: {e}"
+        return None, f"rpc error: {e}", None
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/subprov-funder", methods=["POST"])
@@ -1702,18 +1814,18 @@ def api_intel_subprov_funder():
         if not treasury:
             return jsonify({"error": "treasury (funder) address required for set"}), 400
 
-        # 1-RPC verify: the subprov's oldest-tx funder must match the typed treasury.
-        # If it doesn't match (typo, or a multi-hop funding the simple check can't see),
-        # block — UNLESS the caller passes override:true to write the typed value anyway.
-        funder, note = _subprov_oldest_funder(sp)
+        # RPC verify: the subprov's PROVISIONING funder (largest inbound transfer) must
+        # match the typed treasury. If it doesn't match (typo, or a multi-hop funding the
+        # simple check can't see), block — UNLESS the caller passes override:true.
+        funder, note, _amt = _subprov_oldest_funder(sp)
         verified = bool(funder) and funder == treasury
         if not verified and not body.get("override"):
             return jsonify({"error": "on-chain verification failed",
                             "typed_treasury": treasury,
                             "onchain_funder": funder,
                             "note": note,
-                            "hint": "the address you typed does not match the subprov's oldest-tx "
-                                    "funder; pass override:true to write it anyway"}), 409
+                            "hint": "the address you typed does not match the subprov's largest-inbound "
+                                    "(provisioning) funder; pass override:true to write it anyway"}), 409
 
         # write the subprov→treasury link
         ov.execute("UPDATE wt_discovered_subprovs SET treasury=?, treasury_known=1 WHERE subprov=?",
@@ -1909,6 +2021,50 @@ def api_intel_confirmed_treasuries():
         ov.close(); live.close()
 
 
+def _best_source_token(src_creators: dict) -> dict:
+    """ZERO-RPC: for each candidate treasury → its source creator wallets → resolve each creator's
+    migrated token + peak MC from token_analysis, and return the BEST (highest-peak) source token
+    per candidate. {candidate: {mint, peak_mc, creator, migrated_at, count}}."""
+    if not src_creators:
+        return {}
+    all_creators = set()
+    for s in src_creators.values():
+        all_creators |= s
+    if not all_creators:
+        return {}
+    # creator → best (highest-peak) token (local token_analysis)
+    creator_tok = {}
+    try:
+        live = _live_conn()
+        try:
+            ph = ",".join("?" * len(all_creators))
+            for r in live.execute(
+                f"SELECT COALESCE(pf_ws_creator, earliest_tx_creator) creator, mint, "
+                f"market_cap_highest peak, migrated_at "
+                f"FROM token_analysis WHERE COALESCE(pf_ws_creator, earliest_tx_creator) IN ({ph}) "
+                f"AND market_cap_highest IS NOT NULL",
+                list(all_creators)).fetchall():
+                c = r["creator"]
+                cur = creator_tok.get(c)
+                if cur is None or (r["peak"] or 0) > (cur["peak_mc"] or 0):
+                    creator_tok[c] = {"mint": r["mint"], "peak_mc": r["peak"],
+                                      "creator": c, "migrated_at": r["migrated_at"]}
+        finally:
+            live.close()
+    except Exception:
+        return {}
+    # per candidate: pick the highest-peak token among its source creators
+    out = {}
+    for cand, creators in src_creators.items():
+        toks = [creator_tok[c] for c in creators if c in creator_tok]
+        if not toks:
+            continue
+        best = max(toks, key=lambda x: x["peak_mc"] or 0)
+        best = dict(best); best["count"] = len(toks)
+        out[cand] = best
+    return out
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/treasury-review")
 def api_intel_treasury_review():
     """The treasury DISCOVERY candidate queue (review-only). Human promotes from here.
@@ -1920,19 +2076,36 @@ def api_intel_treasury_review():
     ov = _conn()
     try:
         cands = treasury_bank.review_queue(ov)
-        # occurrence count per candidate from the decision ledger (distinct source migrations)
+        # occurrence count + the source CREATORS per candidate from the decision ledger
+        # (source_migration is the CREATOR wallet the fingerprint walked back FROM).
         occ = {}
+        src_creators = {}      # candidate wallet → set of source creator wallets
         try:
             for r in ov.execute(
                 "SELECT wallet, COUNT(DISTINCT source_migration) n "
                 "FROM wt_treasury_fingerprint_decisions WHERE source_migration IS NOT NULL "
                 "GROUP BY wallet").fetchall():
                 occ[r["wallet"]] = r["n"]
+            for r in ov.execute(
+                "SELECT DISTINCT wallet, source_migration FROM wt_treasury_fingerprint_decisions "
+                "WHERE source_migration IS NOT NULL").fetchall():
+                src_creators.setdefault(r["wallet"], set()).add(r["source_migration"])
         except Exception:
             pass
+        # ZERO-RPC source-token enrichment: each candidate was discovered by walking back from a
+        # token's CREATOR. Resolve creator → its token + peak MC (local token_analysis) and attach
+        # the BEST (highest-peak) source token, so "near-miss treasury #34" reads as "treasury
+        # behind a $980k launch". The peak magnitude is the human's strongest review signal.
+        _best_token = _best_source_token(src_creators)
         for c in cands:
-            c["occurrences"] = occ.get(c.get("treasury"), 0)
+            t = c.get("treasury")
+            c["occurrences"] = occ.get(t, 0)
             c["status"] = "PENDING_REVIEW"
+            bt = _best_token.get(t)
+            if bt:
+                c["source_token"] = bt["mint"]; c["source_token_peak_mc"] = bt["peak_mc"]
+                c["source_creator"] = bt["creator"]; c["source_token_migrated"] = bt["migrated_at"]
+                c["source_token_count"] = bt["count"]
         # strongest-evidence first: most occurrences, then capital scale
         cands.sort(key=lambda c: (-(c.get("occurrences") or 0), -(c.get("out_sol") or 0)))
         # RECENTLY-DECIDED candidates (confirmed/rejected) — shown dimmed so the panel reflects
@@ -1945,6 +2118,9 @@ def api_intel_treasury_review():
                 "WHERE status != 'PENDING_REVIEW' ORDER BY COALESCE(reviewed_at, detected_at) DESC LIMIT 12").fetchall():
                 d = dict(r)
                 d["occurrences"] = occ.get(r["treasury"], 0)
+                bt = _best_token.get(r["treasury"])
+                if bt:
+                    d["source_token"] = bt["mint"]; d["source_token_peak_mc"] = bt["peak_mc"]
                 recent.append(d)
         except Exception:
             pass
@@ -2465,45 +2641,65 @@ def api_intel_webhook_events():
         if watch:
             ph = ",".join("?" * len(watch))
             hits = live.execute(
-                f"SELECT wallet_address, counterparty, tx_type, amount_sol, block_time, tx_signature, direction "
+                f"SELECT wallet_address, counterparty, tx_type, amount_sol, block_time, tx_signature, direction, source "
                 f"FROM wt_webhook_hits WHERE wallet_address IN ({ph}) "
                 f"ORDER BY block_time DESC LIMIT ?", list(watch) + [limit]).fetchall()
         else:
             hits = []
-        # ── treasury-outbound CLASSIFICATION: SIGNAL / INITIAL / TOP-UP ──────────────
-        # Verified pattern (DchJquEZ, Cgwr, 43PKjr): a ~1-10 SOL SIGNAL probe precedes a
-        # ≥50 SOL CAPITAL transfer by ~30s; the FIRST capital to a (treasury,recipient) pair
-        # is INITIAL (new operator stood up), subsequent capital is TOP-UP (refill). All from
-        # the hit log — zero RPC. Build the per-pair capital-funding timeline once.
-        CAPITAL_MIN_SOL = 50.0
+        # ── treasury-outbound CLASSIFICATION: BEHAVIORAL OUTCOME (not funding-frequency) ──
+        # A funding transfer to a subprov is INDISTINGUISHABLE at funding time from a refill
+        # vs a launch-trigger — both are "capital to a recipient we've funded before". The
+        # ONLY thing that knows the difference is what the recipient DOES with the capital
+        # (wrap-close → CREATE = launch; fan-out → SWAP = buy-swarm; nothing = dormant). So we
+        # label by the cascade's downstream OUTCOME for that recipient, derived live from the
+        # cascade state tables (zero RPC, always current — the cascade updates these as it
+        # observes CREATE/SWAP/expiry, and the feed re-reads them every refresh). The old
+        # INITIAL/TOP_UP timing label was misleading (TOP_UP looked uninteresting even when the
+        # recipient was an active launch-producer). SIGNAL (sub-20 SOL dust probe) is kept.
         SIGNAL_MAX_SOL = 20.0
-        cap_history = {}     # (treasury, recipient) -> sorted [block_time, ...] of capital txs
+        CAPITAL_MIN_SOL = 50.0
+        launched_subprovs = set()    # recipient → produced a CREATE (LAUNCHED)
+        buyswarm_subprovs = set()    # recipient → fan-out wallets SWAPped (BUY_SWARM)
+        watching_subprovs = set()    # recipient → cascade actively watching (outcome pending)
         try:
-            for r in live.execute(
-                "SELECT wallet_address, counterparty, block_time FROM wt_webhook_hits "
-                "WHERE direction='outbound' AND amount_sol >= ? AND counterparty IS NOT NULL "
-                "ORDER BY block_time", (CAPITAL_MIN_SOL,)).fetchall():
-                cap_history.setdefault((r["wallet_address"], r["counterparty"]), []).append(r["block_time"])
+            launched_subprovs = {r[0] for r in ov.execute(
+                "SELECT subprov_wallet FROM wt_watchtower_launches WHERE subprov_wallet IS NOT NULL").fetchall()}
+            # a subprov whose wrap-close children are BUY_SWARM (and none fired) = buy-swarm op
+            buyswarm_subprovs = {r[0] for r in ov.execute(
+                "SELECT DISTINCT subprov_wallet FROM wt_candidate_websocket_watches "
+                "WHERE state='BUY_SWARM' AND subprov_wallet IS NOT NULL").fetchall()}
+            # also fold in the wrap-close-candidate BUY_SWARM verdicts (broader source)
+            buyswarm_subprovs |= {r[0] for r in ov.execute(
+                "SELECT DISTINCT subprov_wallet FROM wt_wrap_close_candidates "
+                "WHERE state='BUY_SWARM' AND subprov_wallet IS NOT NULL").fetchall()}
+            watching_subprovs = {r[0] for r in ov.execute(
+                "SELECT subprov_wallet FROM wt_active_subprov_sessions WHERE state='ACTIVE'").fetchall()}
+            watching_subprovs |= {r[0] for r in ov.execute(
+                "SELECT DISTINCT subprov_wallet FROM wt_candidate_websocket_watches "
+                "WHERE state='WATCHING' AND subprov_wallet IS NOT NULL").fetchall()}
         except Exception:
             pass
 
         def classify_outbound(treasury, recipient, amount, block_time):
-            """SIGNAL (probe) | INITIAL (first capital to recipient) | TOP_UP (refill) | None."""
+            """BEHAVIORAL OUTCOME of a treasury outbound: SIGNAL (dust probe) | LAUNCHED |
+            BUY_SWARM | WATCHING | DORMANT | None. Derived from cascade state (zero RPC)."""
             a = amount or 0
             if a <= 0 or not recipient:
                 return None
             if a < SIGNAL_MAX_SOL:
-                return "SIGNAL"
+                return "SIGNAL"                   # sub-20 SOL dust probe (signaller)
             if a < CAPITAL_MIN_SOL:
                 return None                       # mid-band, unclassified
-            times = cap_history.get((treasury, recipient), [])
-            # INITIAL if this is the FIRST capital tx to this recipient, else TOP-UP.
-            # Compare against the earliest capital time for the pair; allow a small window so
-            # the tx isn't compared against itself (timestamps can match to the second).
-            if not times or block_time is None:
-                return "INITIAL"
-            first_cap = min(t for t in times if t is not None)
-            return "INITIAL" if block_time <= first_cap + 5 else "TOP_UP"
+            # capital-sized → label by the recipient's downstream OUTCOME (cascade state).
+            # Precedence: a confirmed launch outranks a swarm verdict outranks active-watching;
+            # if the cascade has seen nothing for this funded recipient, it's DORMANT.
+            if recipient in launched_subprovs:
+                return "LAUNCHED"
+            if recipient in buyswarm_subprovs:
+                return "BUY_SWARM"
+            if recipient in watching_subprovs:
+                return "WATCHING"
+            return "DORMANT"                      # funded, but no wrap-close/CREATE/swarm observed
 
         # build wallet -> (operation_uuid, role) maps.
         # PRECEDENCE: confirmed treasury (authoritative) > wrap-close subprov/creator >
@@ -2553,10 +2749,12 @@ def api_intel_webhook_events():
             funding_type = None
             if _dir == "outbound" and role == "CONFIRMED_TREASURY":
                 funding_type = classify_outbound(w, h["counterparty"], h["amount_sol"], h["block_time"])
+            _src = (h["source"] if "source" in h.keys() else None)
+            _via = "WS" if _src == "treasury_ws" else ("webhook" if _src else None)
             events.append({
                 "wallet": w, "counterparty": h["counterparty"], "type": et,
                 "amount": h["amount_sol"], "ts": h["block_time"], "signature": h["tx_signature"],
-                "direction": _dir, "funding_type": funding_type,
+                "direction": _dir, "funding_type": funding_type, "via": _via,
                 "operation_uuid": op, "operation": op[:8] if op else None,
                 "family": fam.get(op_fam.get(op)) if op else None,
                 "role": role, "candidate": is_cand,

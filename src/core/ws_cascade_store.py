@@ -82,6 +82,7 @@ def ensure_cascade_schema(conn) -> None:
             subprov_wallet           TEXT,
             treasury_wallet          TEXT,
             wrap_close_signature     TEXT,
+            wrap_close_time          INTEGER,    -- on-chain blockTime of the wrap-close = the creator's BIRTH
             wrap_wallet              TEXT,
             temp_wsol_account        TEXT,
             close_destination        TEXT,
@@ -105,6 +106,8 @@ def ensure_cascade_schema(conn) -> None:
             create_slot               INTEGER,
             treasury_wallet           TEXT,
             subprov_wallet            TEXT,
+            subprov_funding_sol       REAL,    -- treasury → subprov load (the big provisioning capital)
+            wrap_close_sol            REAL,    -- subprov → creator wrap-close seed (the creator's birth amount)
             wrap_close_signature      TEXT,
             birth_to_launch_seconds   INTEGER,
             funding_mechanism         TEXT DEFAULT 'WSOL_WRAP_CLOSE',
@@ -113,6 +116,20 @@ def ensure_cascade_schema(conn) -> None:
             state                     TEXT DEFAULT 'FIRED_CREATE',
             recorded_at               INTEGER NOT NULL DEFAULT (strftime('%s','now')),
             UNIQUE(creator_wallet, create_signature)
+        )"""
+    )
+    # Per-treasury WS usage meter — one row per treasury, hit counters so the UI can
+    # spot a treasury that turns into a high-volume swarm hub BEFORE it bloats the daemon.
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_treasury_ws_usage (
+            treasury_wallet           TEXT PRIMARY KEY,
+            subscribed_at             INTEGER,
+            notif_count               INTEGER DEFAULT 0,   -- total WS notifications seen
+            sessions_opened           INTEGER DEFAULT 0,   -- provisioning outbounds → sessions
+            last_notif_at             INTEGER,
+            last_notif_sig            TEXT,
+            notif_count_1h            INTEGER DEFAULT 0,    -- rolling-hour count (reset by reader)
+            hour_bucket               INTEGER DEFAULT 0     -- epoch//3600 the 1h count belongs to
         )"""
     )
     conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sessions_state ON wt_active_subprov_sessions(state)")
@@ -131,6 +148,22 @@ def ensure_cascade_schema(conn) -> None:
         _scols = {r[1] for r in conn.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
         if "subprov_known" not in _scols:
             conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN subprov_known INTEGER DEFAULT 0")
+    except Exception:
+        pass
+    # migrate: add wrap_close_time to a pre-existing watches table (true creator birth)
+    try:
+        _wcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_candidate_websocket_watches)").fetchall()}
+        if "wrap_close_time" not in _wcols:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN wrap_close_time INTEGER")
+    except Exception:
+        pass
+    # migrate: add the two funding amounts to a pre-existing launches table
+    try:
+        _lcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_watchtower_launches)").fetchall()}
+        if "subprov_funding_sol" not in _lcols:
+            conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN subprov_funding_sol REAL")
+        if "wrap_close_sol" not in _lcols:
+            conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN wrap_close_sol REAL")
     except Exception:
         pass
     conn.commit()
@@ -164,6 +197,37 @@ def emit_event(event_type: str, wallet: Optional[str] = None,
             return
 
 
+def record_treasury_hit(*, treasury: str, counterparty: str, sig: str,
+                        amount_sol: float, block_time: Optional[int]) -> None:
+    """Write a treasury outbound into wt_webhook_hits (LIVE db) tagged source='treasury_ws'
+    so the Webhook Event Feed becomes real-time. Deduped against the webhook path by the
+    UNIQUE(tx_signature, wallet_address) index — whichever path (WS ~3s vs webhook 5–390s)
+    arrives first wins; the other INSERT OR IGNOREs. Best-effort/off the cascade hot path:
+    a locked live DB degrades to 'the webhook backfills it', never blocks detection."""
+    wh_id = os.environ.get("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+    for _attempt in range(3):
+        try:
+            c = db_connect(LIVE_DB_PATH, timeout=30)
+            try:
+                c.execute("PRAGMA busy_timeout=30000")
+                c.execute(
+                    """INSERT OR IGNORE INTO wt_webhook_hits
+                         (webhook_id, wallet_address, tx_signature, tx_type, source,
+                          counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
+                       VALUES (?, ?, ?, 'TRANSFER', 'treasury_ws', ?, ?, ?, 0, ?, 'outbound')""",
+                    (wh_id, treasury, sig, counterparty, block_time, amount_sol, int(time.time())))
+                c.commit()
+                return
+            finally:
+                c.close()
+        except Exception as e:
+            if "locked" in str(e).lower() and _attempt < 2:
+                time.sleep(1.0)
+                continue
+            print(f"[WS_CASCADE] treasury hit write failed {sig[:12]}…: {e}", flush=True)
+            return
+
+
 # ──────────────────────────── session helpers ───────────────────────────────
 def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: Optional[str],
                   funding_amount: Optional[float], funding_time: Optional[int],
@@ -190,6 +254,43 @@ def active_sessions(conn) -> list:
     return conn.execute(
         "SELECT id, subprov_wallet, treasury_wallet, funding_signature, funding_amount, "
         "funding_time, expires_at FROM wt_active_subprov_sessions WHERE state='ACTIVE'").fetchall()
+
+
+# ───────────────────── treasury WS usage metering ───────────────────────────
+def treasury_ws_register(conn, treasury: str) -> None:
+    """Ensure a usage row exists for a treasury we're WS-subscribing (idempotent)."""
+    now = int(time.time())
+    conn.execute(
+        "INSERT OR IGNORE INTO wt_treasury_ws_usage (treasury_wallet, subscribed_at) VALUES (?, ?)",
+        (treasury, now))
+    conn.commit()
+
+
+def treasury_ws_record_notif(conn, treasury: str, sig: Optional[str], opened_session: bool) -> None:
+    """Count one WS notification for a treasury. Maintains a rolling 1-hour bucket so the UI
+    can show events/hr and flag a treasury that's turning into a swarm hub."""
+    now = int(time.time())
+    hb = now // 3600
+    row = conn.execute(
+        "SELECT hour_bucket, notif_count_1h FROM wt_treasury_ws_usage WHERE treasury_wallet=?",
+        (treasury,)).fetchone()
+    if row is None:
+        conn.execute("INSERT OR IGNORE INTO wt_treasury_ws_usage (treasury_wallet, subscribed_at) "
+                     "VALUES (?, ?)", (treasury, now))
+        cur_bucket, cur_1h = hb, 0
+    else:
+        cur_bucket, cur_1h = row[0], row[1]
+    # reset the 1h counter when we roll into a new hour bucket
+    new_1h = (cur_1h + 1) if cur_bucket == hb else 1
+    conn.execute(
+        """UPDATE wt_treasury_ws_usage
+              SET notif_count = notif_count + 1,
+                  sessions_opened = sessions_opened + ?,
+                  last_notif_at = ?, last_notif_sig = ?,
+                  notif_count_1h = ?, hour_bucket = ?
+            WHERE treasury_wallet = ?""",
+        (1 if opened_session else 0, now, sig, new_1h, hb, treasury))
+    conn.commit()
 
 
 def session_for_subprov(conn, subprov: str):
@@ -224,17 +325,21 @@ def expire_stale_sessions(conn) -> list:
 def open_candidate_watch(conn, *, candidate: str, subprov: str, treasury: Optional[str],
                          wrap_close_sig: Optional[str], wrap_wallet: Optional[str],
                          temp_wsol: Optional[str], funding_amount: Optional[float],
-                         ttl_seconds: int) -> bool:
+                         ttl_seconds: int, wrap_close_time: Optional[int] = None) -> bool:
     """Record a wrap-close destination as a WATCHING candidate. Idempotent on
-    (candidate, wrap_close_sig). Returns True if newly inserted (caller should subscribe)."""
+    (candidate, wrap_close_sig). Returns True if newly inserted (caller should subscribe).
+
+    wrap_close_time = the on-chain blockTime of the wrap-close tx = the creator's BIRTH. Used
+    for an ACCURATE birth_to_launch (create_time − wrap_close_time), NOT the treasury→subprov
+    session funding time (which over-counts the subprov pipeline and mislabels INSTANT as STAGED)."""
     now = int(time.time())
     cur = conn.execute(
         """INSERT OR IGNORE INTO wt_candidate_websocket_watches
              (candidate_wallet, subprov_wallet, treasury_wallet, wrap_close_signature,
-              wrap_wallet, temp_wsol_account, close_destination, funding_amount,
+              wrap_close_time, wrap_wallet, temp_wsol_account, close_destination, funding_amount,
               state, detected_at, expires_at)
-           VALUES (?,?,?,?,?,?,?,?, 'WATCHING', ?, ?)""",
-        (candidate, subprov, treasury, wrap_close_sig, wrap_wallet, temp_wsol,
+           VALUES (?,?,?,?,?,?,?,?,?, 'WATCHING', ?, ?)""",
+        (candidate, subprov, treasury, wrap_close_sig, wrap_close_time, wrap_wallet, temp_wsol,
          candidate, funding_amount, now, now + ttl_seconds))
     conn.commit()
     return cur.rowcount > 0
@@ -300,16 +405,23 @@ def candidate_count_for_subprov(conn, subprov: str) -> int:
 def record_launch(conn, *, mint: Optional[str], creator: str, create_sig: Optional[str],
                   create_time: Optional[int], treasury: Optional[str], subprov: Optional[str],
                   wrap_close_sig: Optional[str], birth_to_launch_s: Optional[int],
-                  create_slot: Optional[int] = None, confidence: str = "STRICT") -> bool:
+                  create_slot: Optional[int] = None, confidence: str = "STRICT",
+                  subprov_funding_sol: Optional[float] = None,
+                  wrap_close_sol: Optional[float] = None) -> bool:
     """Authoritative launch record. Idempotent on (creator, create_sig). Marks the
-    candidate FIRED_CREATE. Returns True if newly recorded."""
+    candidate FIRED_CREATE. Returns True if newly recorded.
+
+    subprov_funding_sol = treasury→subprov load (the big provisioning capital).
+    wrap_close_sol       = subprov→creator wrap-close seed (the creator's birth amount).
+    Together: the full provisioning-cost chain that produced this launch."""
     cur = conn.execute(
         """INSERT OR IGNORE INTO wt_watchtower_launches
              (mint, creator_wallet, create_signature, create_time, create_slot, treasury_wallet,
-              subprov_wallet, wrap_close_signature, birth_to_launch_seconds,
-              funding_mechanism, creator_extraction_method, confidence, state)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 'FIRED_CREATE')""",
-        (mint, creator, create_sig, create_time, create_slot, treasury, subprov, wrap_close_sig,
+              subprov_wallet, subprov_funding_sol, wrap_close_sol, wrap_close_signature,
+              birth_to_launch_seconds, funding_mechanism, creator_extraction_method, confidence, state)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'FIRED_CREATE')""",
+        (mint, creator, create_sig, create_time, create_slot, treasury, subprov,
+         subprov_funding_sol, wrap_close_sol, wrap_close_sig,
          birth_to_launch_s, FUNDING_MECHANISM, EXTRACTION_METHOD, confidence))
     conn.execute(
         "UPDATE wt_candidate_websocket_watches SET state='FIRED_CREATE', close_reason='create', "

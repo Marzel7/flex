@@ -1703,12 +1703,28 @@ def api_intel_token_tree(mint):
             }
         treasuries = [{"treasury": t, "subprovs": list(v["subprovs"].values())}
                       for t, v in treas_map.items()]
+        # LATER swarm WAVES: wallets that BOUGHT this mint, captured reverse-direction by the
+        # cascade (wt_swarm_buys) — zero-RPC, populated from swap txs already fetched. Group by the
+        # subprov that funded each buyer. Excludes buyers already shown in the provisioning tree.
+        in_tree = {c["wallet"] for t in treasuries for sp in t["subprovs"]
+                   for c in (sp["creators"] + sp["swarm"])}
+        swarm_waves = {}
+        try:
+            for r in ov.execute(
+                "SELECT swarm_wallet, subprov_wallet, treasury_wallet, observed_at "
+                "FROM wt_swarm_buys WHERE mint=? ORDER BY observed_at", (mint,)).fetchall():
+                if r[0] in in_tree:
+                    continue
+                sp = r[1] or "UNKNOWN_SUBPROV"
+                wv = swarm_waves.setdefault(sp, {"subprov": sp, "treasury": r[2], "buyers": []})
+                wv["buyers"].append({"wallet": r[0], "observed_at": r[3]})
+        except Exception:
+            pass
         return jsonify({
             "mint": mint, "creator": creator, "treasuries": treasuries,
-            # GnaMKX-style LATER swarm waves (a different subprov funding buyers that SWAP this
-            # mint) link by swap-target, not provisioning — not captured here (it's a buy, not a
-            # wrap-close provision). Flagged so the absence is honest, not a silent gap.
-            "note": "direct provisioning fan-out; later cross-subprov swarm BUY waves not included",
+            "swarm_waves": list(swarm_waves.values()),
+            "note": ("direct provisioning fan-out + reverse-attributed later swarm waves "
+                     "(captured going forward; historical waves before this ran are absent)"),
         })
     finally:
         ov.close(); live.close()

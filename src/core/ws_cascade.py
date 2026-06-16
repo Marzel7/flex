@@ -212,6 +212,21 @@ def _tx_is_swap(tx):
     return ("Instruction: Buy" in logs) or ("Instruction: Sell" in logs)
 
 
+def _swap_target_mint(tx):
+    """The non-WSOL mint a swap tx traded — extracted from the tx WE ALREADY HOLD (zero extra
+    RPC). This is how the reverse-direction swarm-attribution links a BUY_SWARM candidate to the
+    token it bought: a pump.fun swap touches WSOL + the target mint, so the target is the lone
+    non-WSOL mint in the token balances. Returns the mint or None."""
+    if not tx:
+        return None
+    meta = tx.get("meta") or {}
+    for tb in ((meta.get("postTokenBalances") or []) + (meta.get("preTokenBalances") or [])):
+        m = tb.get("mint")
+        if m and "So111" not in m:          # skip WSOL
+            return m
+    return None
+
+
 def _classify_sibling(sib):
     """BLOCKING (RPC) — classify a teardown sibling: did it SWAP (→BUY_SWARM) or stay idle
     (→EXPIRED_SIBLING)? Runs in a worker thread via _ato_thread, never on the event loop."""
@@ -553,7 +568,9 @@ class Cascade:
             finally:
                 conn.close()
         if _tx_is_swap(tx):
-            return "SWAP", None
+            # reverse-direction swarm attribution: capture the mint this swarm wallet BOUGHT,
+            # from the tx we already have (zero extra RPC), so it can be linked to its launch.
+            return "SWAP", {"swap_mint": _swap_target_mint(tx)}
         return None, None
 
     # ---- shared candidate-sig processor (WS notification AND catch-up) ------
@@ -598,13 +615,21 @@ class Cascade:
                 await self._teardown_after_create(candidate, launch.get("subprov"))
             return "CREATE"
         elif verdict == "SWAP":
+            swap_mint = (launch or {}).get("swap_mint")
             conn = self._ops()
             try:
                 store.close_candidate(conn, candidate, "BUY_SWARM", "swapped")
+                # REVERSE-DIRECTION swarm attribution: link this swarm wallet (and its subprov)
+                # to the mint it bought, so a later swarm WAVE attaches to its launch in the UI.
+                # Zero extra RPC — swap_mint came from the tx already fetched above.
+                if swap_mint:
+                    store.record_swarm_buy(conn, swarm_wallet=candidate, mint=swap_mint,
+                                           swap_sig=sig, observed_at=int(ws_seen_at))
             finally:
                 conn.close()
             await self.mgr.unsubscribe(candidate)
-            emit_event("CANDIDATE_CLASSIFIED_BUY_SWARM", wallet=candidate)
+            emit_event("CANDIDATE_CLASSIFIED_BUY_SWARM", wallet=candidate,
+                       token_mint=swap_mint, payload={"swap_mint": swap_mint, "swap_sig": sig})
             return "SWAP"
         return None
 

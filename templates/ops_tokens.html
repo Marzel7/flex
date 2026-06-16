@@ -164,6 +164,14 @@ function renderTree(d){
       }
     }
   }
+  // LATER swarm waves (reverse-attributed buyers of this mint, funded by a different subprov)
+  if(d.swarm_waves && d.swarm_waves.length){
+    h+=`<div style="margin-top:8px;border-top:1px dashed rgba(168,85,247,.3);padding-top:6px"><b style="color:#a855f7">↻ LATER SWARM WAVES</b> <span class="muted">(bought this token after launch)</span></div>`;
+    for(const w of d.swarm_waves){
+      h+=`<div style="margin-left:20px">└ 🛠 <b style="color:var(--cyan)">SUBPROV</b> ${wchip(w.subprov,null,'SUBPROV')} <span class="muted">· ${w.buyers.length} buyer(s)</span></div>`;
+      h+=`<div style="margin-left:42px">${w.buyers.slice(0,30).map(b=>wchip(b.wallet,null,'SWARM')).join(' ')}</div>`;
+    }
+  }
   if(d.note) h+=`<div class="muted" style="margin-top:6px;font-size:10px">ℹ ${d.note}</div>`;
   h+='</div>';
   return h;

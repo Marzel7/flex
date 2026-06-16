@@ -132,6 +132,22 @@ def ensure_cascade_schema(conn) -> None:
             hour_bucket               INTEGER DEFAULT 0     -- epoch//3600 the 1h count belongs to
         )"""
     )
+    # REVERSE-DIRECTION swarm attribution: a BUY_SWARM candidate (a wrap-close-seeded wallet that
+    # SWAPped instead of CREATEd) recorded against the mint it bought + its subprov. Lets a later
+    # swarm WAVE attach to its launch in the token tree. Populated zero-extra-RPC from the swap tx
+    # the cascade already fetched. UNIQUE(swarm_wallet, mint) dedupes repeat buys.
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_swarm_buys (
+            swarm_wallet              TEXT,
+            mint                      TEXT,
+            subprov_wallet            TEXT,
+            treasury_wallet           TEXT,
+            swap_signature            TEXT,
+            observed_at               INTEGER,
+            UNIQUE(swarm_wallet, mint)
+        )"""
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_swarm_buys_mint ON wt_swarm_buys(mint)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sessions_state ON wt_active_subprov_sessions(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_state ON wt_candidate_websocket_watches(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)")
@@ -409,6 +425,28 @@ def close_candidate(conn, candidate: str, state: str, reason: str = "") -> None:
         "UPDATE wt_candidate_websocket_watches SET state=?, close_reason=?, closed_at=? "
         "WHERE candidate_wallet=? AND state='WATCHING'",
         (state, reason, int(time.time()), candidate))
+    conn.commit()
+
+
+def record_swarm_buy(conn, *, swarm_wallet: str, mint: str, swap_sig: Optional[str],
+                     observed_at: Optional[int]) -> None:
+    """Link a BUY_SWARM wallet to the mint it bought (reverse-direction swarm attribution).
+    Resolves the wallet's subprov/treasury from its candidate watch so the token tree can group
+    a later swarm wave under the launch's lineage. Idempotent on (swarm_wallet, mint)."""
+    sub = treas = None
+    try:
+        row = conn.execute(
+            "SELECT subprov_wallet, treasury_wallet FROM wt_candidate_websocket_watches "
+            "WHERE candidate_wallet=? ORDER BY detected_at DESC LIMIT 1", (swarm_wallet,)).fetchone()
+        if row:
+            sub, treas = row[0], row[1]
+    except Exception:
+        pass
+    conn.execute(
+        "INSERT OR IGNORE INTO wt_swarm_buys "
+        "(swarm_wallet, mint, subprov_wallet, treasury_wallet, swap_signature, observed_at) "
+        "VALUES (?,?,?,?,?,?)",
+        (swarm_wallet, mint, sub, treas, swap_sig, observed_at or int(time.time())))
     conn.commit()
 
 

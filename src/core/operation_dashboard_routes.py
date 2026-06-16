@@ -1644,6 +1644,76 @@ def api_intel_pre_launch():
         ov.close(); live.close()
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/token-tree/<mint>")
+def api_intel_token_tree(mint):
+    """The full PROVISIONING TREE for one launched token: treasury → subprov(s) → creator
+    (CREATE) + swarm wallets (BUY/SELL), so 'everything related to this token' is one view.
+    A single subprov fan-out often bootstraps BOTH the creator AND its initial buy/sell swarm
+    in one wrap-close burst (e.g. 642MWKJD seeded 4fmaor→CREATE + 22 dust swarm wallets for
+    OILMAXXING). We classify each child CREATOR vs SWARM by whether it ever created a token.
+    Zero RPC — all from wt_wrap_close_candidates ⋈ live token_analysis."""
+    ov = _conn(); live = _live_conn()
+    try:
+        # 1) mint → creator (the wallet that CREATEd it)
+        row = live.execute("SELECT pf_ws_creator FROM token_analysis WHERE mint=?", (mint,)).fetchone()
+        creator = row[0] if row else None
+        if not creator:
+            return jsonify({"mint": mint, "creator": None, "treasuries": [],
+                            "note": "no creator on record for this mint"})
+        # 2) creator → its provisioning subprov(s) + lineage treasury
+        prov = ov.execute(
+            "SELECT subprov_wallet, lineage_source_treasury, base_amount_sol "
+            "FROM wt_wrap_close_candidates WHERE creator=?", (creator,)).fetchall()
+        # 3) for each provisioning subprov, pull its FULL child fan-out and split creator vs swarm
+        # cache: which child wallets created a token? (one bounded query over all children)
+        all_subprovs = {p[0] for p in prov if p[0]}
+        children = {}   # subprov -> list of (child_creator, state, base_sol)
+        for sp in all_subprovs:
+            children[sp] = ov.execute(
+                "SELECT creator, state, base_amount_sol FROM wt_wrap_close_candidates "
+                "WHERE subprov_wallet=?", (sp,)).fetchall()
+        child_wallets = list({c[0] for kids in children.values() for c in kids if c[0]})
+        created_set = set()
+        if child_wallets:
+            cph = ",".join("?" * len(child_wallets))
+            created_set = {r[0] for r in live.execute(
+                f"SELECT DISTINCT pf_ws_creator FROM token_analysis WHERE pf_ws_creator IN ({cph})",
+                child_wallets).fetchall()}
+        # build the tree grouped by treasury → subprov
+        treas_map = {}
+        for sp, lineage_treas, base in prov:
+            t = lineage_treas or "UNKNOWN_TREASURY"
+            tnode = treas_map.setdefault(t, {"treasury": t, "subprovs": {}})
+            if sp in tnode["subprovs"]:
+                continue
+            kids = children.get(sp, [])
+            creators_k, swarm_k = [], []
+            for ck, state, csol in kids:
+                node = {"wallet": ck, "sol": csol, "state": state,
+                        "created": ck in created_set}
+                (creators_k if ck in created_set else swarm_k).append(node)
+            tnode["subprovs"][sp] = {
+                "subprov": sp,
+                "seed_to_this_creator": base,
+                "role": ("LAUNCH+SWARM" if creators_k and swarm_k
+                         else "CREATOR" if creators_k else "SWARM"),
+                "n_creators": len(creators_k), "n_swarm": len(swarm_k),
+                "creators": sorted(creators_k, key=lambda x: -(x["sol"] or 0)),
+                "swarm": sorted(swarm_k, key=lambda x: -(x["sol"] or 0)),
+            }
+        treasuries = [{"treasury": t, "subprovs": list(v["subprovs"].values())}
+                      for t, v in treas_map.items()]
+        return jsonify({
+            "mint": mint, "creator": creator, "treasuries": treasuries,
+            # GnaMKX-style LATER swarm waves (a different subprov funding buyers that SWAP this
+            # mint) link by swap-target, not provisioning — not captured here (it's a buy, not a
+            # wrap-close provision). Flagged so the absence is honest, not a silent gap.
+            "note": "direct provisioning fan-out; later cross-subprov swarm BUY waves not included",
+        })
+    finally:
+        ov.close(); live.close()
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/launch-metrics")
 def api_intel_launch_metrics():
     """Pre-launch counts + average lead time (template funding → migration)."""

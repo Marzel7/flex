@@ -277,11 +277,22 @@ function fmtFlow(e){
     'WATCHING':  '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(34,211,238,.18);color:var(--cyan)" title="cascade actively watching this recipient — outcome pending">👁 WATCHING</span> ',
     'DORMANT':   '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(139,148,158,.12);color:var(--text-dim)" title="funded but no wrap-close/CREATE/swarm observed">· DORMANT</span> '
   })[ft] || '';
-  return ftBadge
+  // funded by a KNOWN confirmed treasury → high-confidence source highlight
+  const knownTreas = e.from_known_treasury
+    ? `<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(63,185,80,.18);color:#3fb950" title="funder ${e.funder||''} is a CONFIRMED treasury — known-source provisioning, not noise">🏦 KNOWN TREASURY</span> `
+    : '';
+  // token the recipient produced, if we have it
+  const tok = e.token_symbol || e.token_mint;
+  const tokChip = tok
+    ? ` <span onclick="event.stopPropagation();window.open('https://solscan.io/token/${e.token_mint}','_blank')" style="cursor:pointer;font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(234,179,8,.16);color:#eab308" title="recipient's token ${e.token_mint||''} — open in Solscan">🪙 ${e.token_symbol?short2(e.token_symbol):short(e.token_mint)}↗</span>`
+    : '';
+  return knownTreas + ftBadge
        + `<span style="color:#e06c2a;font-weight:800;font-size:13px">↗ OUT</span> `
        + `<b style="color:#e06c2a">${fmtAmt(a)} ◎</b> `
-       + `<span style="color:var(--text-dim)">→</span> ${cp}`;
+       + `<span style="color:var(--text-dim)">→</span> ${cp}${tokChip}`;
 }
+// short symbol guard (symbols can be long/garbage)
+function short2(s){ s=String(s||''); return s.length>10 ? s.slice(0,10)+'…' : s; }
 
 async function loadFeed(){
   const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=80')).json();

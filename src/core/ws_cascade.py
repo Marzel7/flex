@@ -62,11 +62,16 @@ SUBPROV_SWEEP_SEC = float(os.environ.get("WS_SUBPROV_SWEEP_SEC", "6"))
 # enhanced webhook (5–390s + ngrok jitter). WS-first; the webhook path remains as a fallback
 # (start_session is idempotent on (subprov, funding_sig), so whichever fires first wins).
 # Floor for what counts as a launch-PROVISIONING outbound (→ open a SUB_PROV session).
-# Set from data: across 154 historical sessions the amounts are bimodal — a sub-13◎ cluster
-# (peer-treasury top-ups + dust spray; 91 sessions, ZERO ever produced a launch) and a 60–990◎
-# cluster where every real creator-provision and all 3 launch-producing sessions (740/800◎) live.
-# 50◎ sits in the empty gap (13–60◎): rejects all the noise, keeps every real provision.
-TREASURY_PROVISION_MIN_SOL = float(os.environ.get("WS_TREASURY_MIN_SOL", "50"))
+# SOURCE-AWARE: the WS tier only subscribes to CONFIRMED treasuries, so the sender is already
+# authoritative — a known treasury seeding ANY provisioning-sized amount is signal regardless of
+# size. Real subprovs can start small: GnaMKX's FIRST seed from 5JWii73 was 1◎ before later 100s◎
+# top-ups, and 2/22 confirmed-fan-out subprovs were funded ENTIRELY below 50◎. So from a known
+# treasury we use a LOW floor (1◎); the 50◎ figure (below) is kept only as the documented
+# noise-vs-provision boundary for any future UNATTRIBUTED-source path.
+#   Bimodal evidence (154 historical sessions): sub-13◎ cluster = peer-treasury top-ups + dust
+#   (mesh noise), 60–990◎ cluster = real provisions. 50◎ sits in the empty 13–60◎ gap.
+TREASURY_PROVISION_MIN_SOL       = float(os.environ.get("WS_TREASURY_MIN_SOL", "1"))    # known-treasury floor
+TREASURY_PROVISION_NOISE_SOL     = float(os.environ.get("WS_TREASURY_NOISE_SOL", "50")) # unattributed-source floor (ref)
 TREASURY_PROVISION_MAX_SOL = float(os.environ.get("WS_TREASURY_MAX_SOL", "1000"))
 TREASURY_REFRESH_SEC       = float(os.environ.get("WS_TREASURY_REFRESH_SEC", "60"))
 
@@ -343,6 +348,7 @@ class Cascade:
         conn = self._ops()
         try:
             treasuries = _confirmed_treasuries(conn)
+            self._treasuries = treasuries     # cache for the mesh-skip gate in _handle_treasury_tx
             for t in treasuries:
                 store.treasury_ws_register(conn, t)
             sessions = store.active_sessions(conn)[:MAX_ACTIVE_SUBPROVS]
@@ -397,12 +403,25 @@ class Cascade:
             if ti >= min(len(pre), len(post)) or post[ti] >= pre[ti]:
                 store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
                 return []
-            # recipient(s) = wallet(s) that GAINED a provisioning-sized amount
+            # recipient(s) = wallet(s) that GAINED a provisioning-sized amount.
+            # GATE BY RECIPIENT IDENTITY, not amount: the "noise" cluster we want to drop is the
+            # treasury↔treasury MESH (peer treasuries topping each other up — 91% of historical
+            # noise sessions, ZERO launches). Those are filtered because the recipient is itself a
+            # confirmed treasury. A non-treasury recipient is a real SUB_PROV seed and is opened at
+            # ANY size ≥ the low floor — real subprovs can start tiny (GnaMKX's first seed from
+            # 5JWii73 was 1◎ before later 100s◎ top-ups; 2/22 fan-out subprovs were always <50◎).
+            _known_treasuries = getattr(self, "_treasuries", None)
+            if _known_treasuries is None:        # before first resync — derive once
+                _known_treasuries = _confirmed_treasuries(conn)
+                self._treasuries = _known_treasuries
             for i, w in enumerate(keys):
                 if i >= min(len(pre), len(post)) or w == treasury:
                     continue
                 gain = (post[i] - pre[i]) / 1e9
                 if not (TREASURY_PROVISION_MIN_SOL <= gain <= TREASURY_PROVISION_MAX_SOL):
+                    continue
+                if w in _known_treasuries:
+                    # treasury→treasury = MESH top-up, not a subprov seed → meter but don't open.
                     continue
                 # REAL-TIME FEED: write the treasury outbound into wt_webhook_hits (live db)
                 # tagged source='treasury_ws'. Off-thread + best-effort so a locked live db

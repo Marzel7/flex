@@ -1818,8 +1818,16 @@ def api_intel_treasury_funders():
             _in = d["total_sol"]
             d["treasury_out_sol"] = round(_out, 1)
             d["net_to_treasury_sol"] = round(_in - _out, 1)
-            _net_negative_trade = _out > 0 and (_in < _out * 0.9)   # returned <90% → spent on trades
-            d["is_buy_swarm"] = (d["funder"] in buyswarm_wallets) or _net_negative_trade
+            # net-negative flow is AMBIGUOUS — it's the fingerprint of a trading op AND of an active
+            # SUB-PROVISIONER pushing capital DOWN to creators (both spend, don't return). So the FLOW
+            # heuristic alone must NOT tag a known subprov (has wrap-close fan-out) as BUY_SWARM —
+            # only EXPLICIT membership does: its wrap-close children were on-chain SWAP-classified
+            # (state='BUY_SWARM'), which is the authoritative create-vs-swap discriminator. A single
+            # treasury can run BOTH arms via sibling subprovs — e.g. 5JWii73 funds GnaMKX (15 SWAP
+            # children → correctly BUY_SWARM) AND 642MWKJDVt (provisioned FFRQbb…pump, $45k migrated).
+            _net_negative_trade = _out > 0 and (_in < _out * 0.9)   # returned <90% → spent (trades OR provisioning)
+            d["is_buy_swarm"] = (d["funder"] in buyswarm_wallets) or (
+                _net_negative_trade and d["funder"] not in subprovs)
             # ── EXPANSION CLASS (priority order) — the network-growth classifier ──
             # MESH (known treasury funds another) and HUB (funds multiple treasuries) are
             # structural network signals that OUTRANK everything — a wallet linking treasuries
@@ -3112,6 +3120,41 @@ def api_intel_webhook_events():
         fam = {r["family_uuid"]: r["family_label"] for r in ov.execute("SELECT family_uuid, family_label FROM wt_ops_v2_families").fetchall()}
         migrated = {r[0] for r in ov.execute("SELECT creator_wallet FROM wt_ops_v2_creators WHERE migration_time IS NOT NULL").fetchall()}
 
+        # known confirmed treasuries — for the "funded by a known TREASURY" highlight on edges
+        known_treasuries = {r[0] for r in ov.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        # wallet → token (mint, symbol). The feed edges are treasury→SUBPROV, but the token lives
+        # one hop further down (subprov → creator → token). So map BOTH the creator AND its subprov
+        # to the token: the subprov→creator link is in wt_wrap_close_candidates, creator→mint via
+        # live token_analysis.pf_ws_creator, symbol via metadata_cache. Zero RPC.
+        wallet_token = {}
+        try:
+            sub_creator = ov.execute(
+                "SELECT subprov_wallet, creator FROM wt_wrap_close_candidates "
+                "WHERE creator IS NOT NULL").fetchall()
+            creators = list({r[1] for r in sub_creator})
+            creator_token = {}
+            if creators:
+                lc2 = _live_conn()
+                try:
+                    cph = ",".join("?" * len(creators))
+                    for r in lc2.execute(
+                        f"SELECT ta.pf_ws_creator c, ta.mint m, mc.symbol s "
+                        f"FROM token_analysis ta LEFT JOIN metadata_cache mc ON mc.mint = ta.mint "
+                        f"WHERE ta.pf_ws_creator IN ({cph})", creators).fetchall():
+                        if r["c"]:
+                            creator_token[r["c"]] = {"mint": r["m"], "symbol": r["s"]}
+                finally:
+                    lc2.close()
+            for sub, cre in sub_creator:
+                tok = creator_token.get(cre)
+                if not tok:
+                    continue
+                wallet_token.setdefault(cre, tok)   # recipient IS the creator
+                if sub:
+                    wallet_token.setdefault(sub, tok)   # recipient is the subprov one hop up
+        except Exception:
+            pass
+
         def etype(tx):
             tx = (tx or "").upper()
             if "CREATE" in tx: return "PUMP_CREATE"
@@ -3133,8 +3176,16 @@ def api_intel_webhook_events():
                 funding_type = classify_outbound(w, h["counterparty"], h["amount_sol"], h["block_time"])
             _src = (h["source"] if "source" in h.keys() else None)
             _via = "WS" if _src == "treasury_ws" else ("webhook" if _src else None)
+            cp = h["counterparty"]
+            # the funder side of this edge: for an outbound it's `w` (the treasury); for an inbound
+            # it's the counterparty. Flag when that funder is a CONFIRMED treasury (known-source).
+            _funder = w if _dir == "outbound" else cp
+            from_known_treasury = _funder in known_treasuries
+            # token the recipient produced (recipient = cp on an outbound, w on an inbound)
+            _recipient = cp if _dir == "outbound" else w
+            _tok = wallet_token.get(_recipient) or wallet_token.get(w)
             events.append({
-                "wallet": w, "counterparty": h["counterparty"], "type": et,
+                "wallet": w, "counterparty": cp, "type": et,
                 "amount": h["amount_sol"], "ts": h["block_time"], "signature": h["tx_signature"],
                 "direction": _dir, "funding_type": funding_type, "via": _via,
                 "operation_uuid": op, "operation": op[:8] if op else None,
@@ -3143,6 +3194,10 @@ def api_intel_webhook_events():
                 "candidate_status": ("MIGRATED" if w in migrated else "PENDING") if is_cand else None,
                 "launch_detected": launch,
                 "from_operation": op is not None,
+                "from_known_treasury": from_known_treasury,
+                "funder": _funder,
+                "token_mint": (_tok or {}).get("mint"),
+                "token_symbol": (_tok or {}).get("symbol"),
             })
         # PRE_LAUNCH_CREATOR_DETECTED — synthetic high-priority events from the
         # template-funding signal (the ~60-min pre-launch window). Prepended so they

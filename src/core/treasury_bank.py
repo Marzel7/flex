@@ -164,14 +164,25 @@ def fingerprint_treasury(addr: str, raw_txs_fn, micro_ping_count: int = 0) -> di
     out_sol = 0.0
     recipients = set()
     last_ts = 0
+    raw_ping_count = 0          # micro-pings counted FROM THE RAW TXS (same source as the other
+                                # signals) — works for candidates that aren't webhooked. The
+                                # wt_webhook_hits-based micro_ping_count only sees WEBHOOKED
+                                # wallets, so post-migration lineage-discovered candidates always
+                                # scored 0 pings and could never reach 3/3 (stuck at REVIEW).
     for t in txs:
         last_ts = max(last_ts, t.get("timestamp") or t.get("blockTime") or 0)
         for nt in t.get("nativeTransfers", []) or []:
+            amt = (nt.get("amount", 0) or 0) / 1e9
             if nt.get("fromUserAccount") == addr:
-                out_sol += nt.get("amount", 0) / 1e9
+                out_sol += amt
                 recipients.add(nt.get("toUserAccount"))
+                if 0.000005 <= amt <= 0.00002:      # ~0.00001 SOL coordination ping
+                    raw_ping_count += 1
 
     age_days = (time.time() - last_ts) / 86400 if last_ts else 9999
+    # prefer the webhook-based count (more complete history) but FALL BACK to the raw-tx count
+    # so non-webhooked candidates still get a real ping signal instead of a forced 0.
+    micro_ping_count = max(micro_ping_count or 0, raw_ping_count)
     sig = {"transfer_pct": transfer_pct, "out_sol": round(out_sol, 1),
            "recipients": len(recipients), "micro_pings": micro_ping_count, "tx_count": n,
            "last_active_days": round(age_days, 1)}
@@ -229,7 +240,7 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
                   confidence, provenance, confirmed_at)
                VALUES (?,?,?,?,?, 'AUTO_FINGERPRINT', 'STRICT', 'CONFIRMED_AUTO', ?)
                ON CONFLICT(treasury) DO NOTHING""",
-            (addr, fp["transfer_pct"], fp["out_sol"], fp["recipients"], micro_ping_count, now))
+            (addr, fp["transfer_pct"], fp["out_sol"], fp["recipients"], fp.get("micro_pings", 0), now))
         _log_decision(conn, addr, "CONFIRMED", fp, source_migration=source_migration,
                       evidence_txs=evidence_txs, promoted_at=now, webhook_status="PENDING")
         conn.commit()
@@ -237,7 +248,7 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
                 "provenance": "CONFIRMED_AUTO"}
     if v == "REVIEW":
         add_review_candidate(conn, addr, transfer_pct=fp["transfer_pct"], out_sol=fp["out_sol"],
-                             recipients=fp["recipients"], micro_pings=micro_ping_count,
+                             recipients=fp["recipients"], micro_pings=fp.get("micro_pings", 0),
                              detected_via="auto_fingerprint_nearmiss")
         _log_decision(conn, addr, "NEAR_MISS", fp, source_migration=source_migration,
                       evidence_txs=evidence_txs)

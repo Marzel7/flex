@@ -256,9 +256,9 @@ function fmtFlow(e){
     return `<span style="color:var(--text-dim);font-size:10px">· ping ${fmtAmt(a)}◎ ${arrow} ${short(e.counterparty)}</span>`;
   }
   if (isIn) {
-    // INCOMING — treasury being topped up. Green, ← in-arrow.
-    return `<span style="color:#3fb950;font-weight:800;font-size:13px">↙ IN</span> `
-         + `<b style="color:#3fb950">${fmtAmt(a)} ◎</b> `
+    // INCOMING — treasury being topped up. Muted, ← in-arrow.
+    return `<span style="color:var(--text-sec);font-weight:700;font-size:12px">↙ IN</span> `
+         + `<b style="color:var(--text-sec)">${fmtAmt(a)} ◎</b> `
          + `<span style="color:var(--text-dim)">←</span> ${cp}`;
   }
   if (unknown) {
@@ -273,7 +273,7 @@ function fmtFlow(e){
     'SIGNAL':    '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(139,148,158,.2);color:var(--text-sec)" title="sub-20 SOL dust probe (signaller)">⚡ SIGNAL</span> ',
     'LAUNCHED':  '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(63,185,80,.25);color:#3fb950" title="recipient produced a Pump.fun CREATE — a real launch">🚀 LAUNCHED</span> ',
     'TOP_UP':    '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(96,108,168,.18);color:#8b9adf" title="recipient already launched (single-use subprov) — this is a refill, not a new launch">⟳ TOP-UP</span> ',
-    'BUY_SWARM': '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(168,85,247,.18);color:#a855f7" title="recipient fanned out to wallets that SWAPped — trading swarm, no launch">⇄ BUY-SWARM</span> ',
+    'BUY_SWARM': '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(139,148,158,.14);color:var(--text-sec)" title="recipient fanned out to wallets that SWAPped — trading swarm, no launch">⇄ BUY-SWARM</span> ',
     'WATCHING':  '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(34,211,238,.18);color:var(--cyan)" title="cascade actively watching this recipient — outcome pending">👁 WATCHING</span> ',
     'DORMANT':   '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(139,148,158,.12);color:var(--text-dim)" title="funded but no wrap-close/CREATE/swarm observed">· DORMANT</span> '
   })[ft] || '';
@@ -283,8 +283,8 @@ function fmtFlow(e){
     ? ` <span onclick="event.stopPropagation();window.open('https://solscan.io/token/${e.token_mint}','_blank')" style="cursor:pointer;font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(234,179,8,.16);color:#eab308" title="recipient's token ${e.token_mint||''} — open in Solscan">🪙 ${e.token_symbol?short2(e.token_symbol):short(e.token_mint)}↗</span>`
     : '';
   return ftBadge
-       + `<span style="color:#e06c2a;font-weight:800;font-size:13px">↗ OUT</span> `
-       + `<b style="color:#e06c2a">${fmtAmt(a)} ◎</b> `
+       + `<span style="color:var(--text-sec);font-weight:700;font-size:12px">↗ OUT</span> `
+       + `<b style="color:var(--text-sec)">${fmtAmt(a)} ◎</b> `
        + `<span style="color:var(--text-dim)">→</span> ${cp}${tokChip}`;
 }
 // short symbol guard (symbols can be long/garbage)
@@ -294,7 +294,7 @@ function short2(s){ s=String(s||''); return s.length>10 ? s.slice(0,10)+'…' : 
 function isDust(e){ return e.direction==='outbound' && (+e.amount||0)<1 && (+e.amount||0)>0
                           && !e.launch_detected && !e.token_symbol && !e.token_mint; }
 function feedRow(e, extraClass='', extraStyle=''){
-  return `<tr class="${extraClass}" style="${extraStyle}${e.launch_detected?'background:rgba(63,185,80,.06)':((e.token_symbol||e.token_mint)?'background:rgba(234,179,8,.07);border-left:3px solid #eab308':((+e.amount||0)>=0.001?'background:rgba(224,108,42,.07);border-left:3px solid #e06c2a':'opacity:.62'))}">
+  return `<tr class="${extraClass}" style="${extraStyle}${e.launch_detected?'background:rgba(63,185,80,.05)':((e.token_symbol||e.token_mint)?'background:rgba(234,179,8,.05);border-left:2px solid rgba(234,179,8,.45)':((+e.amount||0)>=0.001?'border-left:2px solid var(--border2)':'opacity:.6'))}">
       <td class="muted mono" style="font-size:10.5px">${e.ts?new Date(e.ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'—'}${e.via==='WS'?' <span title="real-time WebSocket" style="color:#3fb950;font-weight:700;font-size:9px">⚡WS</span>':(e.via==='webhook'?' <span title="enhanced webhook" class="muted" style="font-size:8.5px">wh</span>':'')}</td>
       <td><span style="font-size:9.5px;font-weight:700;color:${ET_COLOR[e.type]||'var(--text-dim)'}">${e.type}</span>${e.launch_detected?' <span style="font-size:9px;font-weight:800;color:var(--green)">🚀 LAUNCH</span>':''}</td>
       <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="window.open('https://solscan.io/account/${e.wallet}','_blank')">${short(e.wallet)}</span></td>

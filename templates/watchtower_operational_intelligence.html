@@ -126,10 +126,10 @@ tr:hover td { background:var(--bg-card2); }
   <div id="audit-buckets" style="margin-bottom:8px"></div>
   <div class="panel" style="margin-bottom:18px">
     <table><thead><tr>
-      <th>Mint</th><th>Creator</th><th class="num">Latency</th><th class="num">Pos</th>
+      <th>Mint</th><th>Creator</th><th class="num">Funding ◎</th><th class="num">Latency</th><th class="num">Pos</th>
       <th class="num">MC @ detect</th><th class="num">Peak MC</th>
       <th class="num">Actionable ×</th><th class="num">→Peak</th><th>Outcome</th>
-    </tr></thead><tbody id="audit-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
+    </tr></thead><tbody id="audit-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
   </div>
 
   <!-- CONFIRMED TREASURY BANK — the authoritative live-watch set -->
@@ -157,12 +157,21 @@ tr:hover td { background:var(--bg-card2); }
     </tr></thead><tbody id="subprovs-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- POTENTIAL TREASURIES — surfaced as tokens migrate; auto-promote on 3/3, else review -->
-  <div class="sec-h" style="color:var(--amber)">🔎 Potential Treasuries <span class="hint">surfaced post-migration · 3 signals: TRANSFER-purity + capital-scale + micro-pings · auto-promoted at 3/3, near-miss = review</span></div>
+  <!-- VANITY FAMILY — wallets sharing a deliberate vanity prefix with known infra -->
+  <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families (e.g. 44or = treasury + signallers) · a new wallet sharing the prefix = same-operator EVIDENCE (not a role)</span></div>
+  <div id="vanity-families" style="margin-bottom:6px"></div>
   <div class="panel" style="margin-bottom:18px">
     <table><thead><tr>
-      <th>Candidate</th><th class="num">Seen</th><th class="num">TRANSFER %</th><th class="num">OUT SOL</th><th class="num">Recip</th><th class="num">Pings</th><th>Signals</th><th>Detected</th><th></th>
-    </tr></thead><tbody id="treasury-review-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
+      <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
+    </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- POTENTIAL TREASURIES — surfaced as tokens migrate; auto-promote on 3/3, else review -->
+  <div class="sec-h" style="color:var(--amber)">🔎 Potential Treasuries <span class="hint">surfaced post-migration · 3 signals: TRANSFER-purity + capital-scale + micro-pings · ALL require human ✓ promote (3/3 = ready, 2/3 = near-miss); auto-confirm only on a completed launch chain</span></div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr>
+      <th>Candidate</th><th>Source launch</th><th class="num">Seen</th><th class="num">TRANSFER %</th><th class="num">OUT SOL</th><th class="num">Recip</th><th class="num">Pings</th><th>Signals</th><th>Detected</th><th></th>
+    </tr></thead><tbody id="treasury-review-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
   </div>
 
   <!-- LIKELY TO LAUNCH NEXT — the core operational panel -->
@@ -671,6 +680,7 @@ async function loadLaunchAudit(){
     return `<tr style="${a.source==='FIXTURE_BACKFILL'?'opacity:.72':''}">
       <td><span class="addr" onclick="sol('${a.mint}')">${a.mint?short(a.mint):'—'}</span>${fixTag}</td>
       <td><span class="addr" onclick="sol('${a.creator}')">${short(a.creator)}</span></td>
+      <td class="num" title="treasury→subprov load · subprov→creator wrap-close seed">${a.subprov_funding_sol!=null?`<b>${Math.round(a.subprov_funding_sol)}</b>`:'—'}<span class="muted" style="font-size:9px">${a.wrap_close_sol!=null?' / '+(+a.wrap_close_sol).toFixed(2):''}</span></td>
       <td class="num">${a.detection_latency_ms!=null?a.detection_latency_ms+'ms':'—'}</td>
       <td class="num">${a.position!=null?'#'+a.position:'—'}</td>
       <td class="num" title="${a.mc_detection_source||''}">${fmtMC(a.mc_at_detection)}</td>
@@ -678,7 +688,30 @@ async function loadLaunchAudit(){
       <td class="num" style="color:${amCol};font-weight:700">${fmtMult(am)}</td>
       <td class="num muted">${a.time_to_peak_s!=null?(a.time_to_peak_s>=60?Math.round(a.time_to_peak_s/60)+'m':a.time_to_peak_s+'s'):'—'}</td>
       <td>${outcome}</td>
-    </tr>`;}).join('') || '<tr><td colspan="9" class="muted">no audited launches yet — audits appear as the cascade detects launches (or run the backfill).</td></tr>';
+    </tr>`;}).join('') || '<tr><td colspan="10" class="muted">no audited launches yet — audits appear as the cascade detects launches (or run the backfill).</td></tr>';
+}
+
+async function loadVanity(){
+  let d; try{ d=await (await fetch('/api/ops-v2/intel/vanity-families')).json(); }catch(e){ return; }
+  // configured families summary
+  const fams=d.families||[];
+  const fe=document.getElementById('vanity-families');
+  if(fe) fe.innerHTML = `<div class="panel" style="padding:8px 13px;font-size:11px;display:flex;flex-wrap:wrap;gap:16px">`+
+    fams.map(f=>`<span><b style="color:var(--purple)">${f.label}</b> <span class="muted">prefix</span> ${(f.prefixes||[]).map(p=>`<code>${p}</code>`).join('/')} <span class="muted">·</span> ${(f.known_wallets||[]).length} known infra <span class="muted">[${f.confidence}]</span></span>`).join('')
+    + (fams.length?'':'<span class="muted">no vanity families configured</span>')+`</div>`;
+  // observed matches (new wallets sharing a known prefix)
+  const M=d.matches||[];
+  const body=document.getElementById('vanity-body');
+  if(body) body.innerHTML = M.map(m=>{
+    const cc = m.confidence==='KNOWN_MEMBER'?'var(--green)':m.confidence==='STRONG'?'var(--cyan)':'var(--purple)';
+    return `<tr>
+      <td><span class="addr" onclick="sol('${m.wallet}')" title="${m.wallet}">${short(m.wallet)}</span></td>
+      <td><span style="color:var(--purple);font-weight:700">${m.family_label}</span></td>
+      <td><code>${m.matched_prefix||'—'}</code></td>
+      <td style="color:${cc};font-weight:700">${m.confidence||'—'}</td>
+      <td class="muted" style="font-size:10px">${m.source_event||'—'}</td>
+      <td>${m.source_sig?`<span class="addr" onclick="window.open('https://solscan.io/tx/${m.source_sig}','_blank')" title="${m.source_sig}">${m.source_sig.slice(0,8)}…</span>`:'—'}</td>
+    </tr>`;}).join('') || '<tr><td colspan="6" class="muted">no vanity-family matches observed yet — a new wallet sharing a known family prefix (e.g. 44or) surfaces here as same-operator evidence.</td></tr>';
 }
 
 async function loadSubprovs(){
@@ -749,15 +782,16 @@ async function loadApexFunders(){
     TREASURY_MESH:{lbl:'★★★ TREASURY MESH',col:'#22d3ee',bg:'rgba(34,211,238,.1)',hint:'known treasury funds another — network growth'},
     HUB:          {lbl:'★★ HUB',          col:'#3fb950',bg:'rgba(63,185,80,.1)', hint:'funds multiple treasuries — network hub'},
     EXTERNAL:     {lbl:'★ EXTERNAL',      col:'var(--amber)',bg:'rgba(217,119,6,.06)',hint:'genuine external capital — expansion candidate'},
-    RECYCLING:    {lbl:'↻ recycling',     col:'var(--text-dim)',bg:'',hint:'treasury funded it first — pays back (not new)'},
+    BUY_SWARM:    {lbl:'⇄ buy-swarm',     col:'#a855f7',bg:'rgba(168,85,247,.07)',hint:'treasury-funded TRADING op — swaps many tokens, net-negative return — not an expansion lead'},
+    RECYCLING:    {lbl:'↻ recycling',     col:'var(--text-dim)',bg:'',hint:'treasury funded it first — pays back (wash, not new)'},
     SWEEP:        {lbl:'↻ sweep-up',      col:'var(--text-dim)',bg:'',hint:'subprov recycling capital up'}
   };
   const cc = d.class_counts||{};
   // summary line
-  const summary = `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">EXPANSION CANDIDATES: ${(cc.TREASURY_MESH||0)} mesh · ${(cc.HUB||0)} hubs · ${(cc.EXTERNAL||0)} external &nbsp;|&nbsp; ${(cc.RECYCLING||0)+(cc.SWEEP||0)} recycling (filtered down)</td></tr>`;
+  const summary = `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">EXPANSION CANDIDATES: ${(cc.TREASURY_MESH||0)} mesh · ${(cc.HUB||0)} hubs · ${(cc.EXTERNAL||0)} external &nbsp;|&nbsp; ${(cc.BUY_SWARM||0)} buy-swarm · ${(cc.RECYCLING||0)+(cc.SWEEP||0)} recycling (filtered down)</td></tr>`;
   document.getElementById('apex-funders-body').innerHTML = summary + fs.map(f=>{
     const c=CLS[f.expansion_class]||CLS.EXTERNAL;
-    const dim = (f.expansion_class==='RECYCLING'||f.expansion_class==='SWEEP');
+    const dim = (f.expansion_class==='RECYCLING'||f.expansion_class==='SWEEP'||f.expansion_class==='BUY_SWARM');
     return `<tr style="${c.bg?'background:'+c.bg:''};${dim?'opacity:.5':''}">
       <td><span class="addr" onclick="sol('${f.funder}')">${short(f.funder)}</span></td>
       <td class="num" style="${f.treasuries_funded>1?'font-weight:800;color:#3fb950':''}">${f.treasuries_funded}</td>
@@ -787,6 +821,16 @@ async function loadTreasuryReview(){
       return `<span style="font-size:9px;color:var(--text-sec)" title="surfaced from micro-ping signature">ping-seed</span>`;
     return `<span style="font-size:9px;color:var(--text-dim)" title="post-migration lineage near-miss">migration</span>`;
   };
+  // source-launch cell: the token (by peak MC) this candidate was discovered from. The peak is
+  // the human's strongest review signal — a near-miss behind a $980k launch is worth promoting.
+  const srcTok = c => {
+    if(!c.source_token) return '<span class="muted" style="font-size:10px">—</span>';
+    const mc=c.source_token_peak_mc;
+    const mcCol = mc>=250000?'var(--green)':mc>=100000?'var(--cyan)':mc>=25000?'var(--amber)':'var(--text-dim)';
+    const more = (c.source_token_count||1)>1?` <span class="muted" style="font-size:8px">+${c.source_token_count-1}</span>`:'';
+    return `<span class="addr" onclick="sol('${c.source_token}')" title="discovered by walking back from this launch">${short(c.source_token)}</span>`+
+           ` <b style="color:${mcCol};font-size:10px">${fmtMC(mc)}</b>${more}`;
+  };
   // PENDING candidates (actionable) — amber, with promote/reject.
   // Expansion-sourced (funds a known treasury) rows get a cyan left-border to stand out.
   const pendingRows = cands.map(c=>{
@@ -795,6 +839,7 @@ async function loadTreasuryReview(){
     <tr style="background:${isExp?'rgba(34,211,238,.07)':'rgba(217,119,6,.05)'}${isExp?';border-left:3px solid var(--cyan)':''}">
       <td><span class="addr" onclick="sol('${c.treasury}')">${short(c.treasury)}</span>
           <button class="btn ghost" style="font-size:9px;padding:1px 5px" onclick="scoreRole('${c.treasury}',this)">score</button></td>
+      <td>${srcTok(c)}</td>
       <td class="num">${(c.occurrences||0) > 1
           ? `<span style="font-weight:800;color:#3fb950" title="${c.occurrences} distinct migrations traced to this candidate — repeat = strong">×${c.occurrences}</span>`
           : `<span class="muted">×${c.occurrences||1}</span>`}</td>
@@ -816,6 +861,7 @@ async function loadTreasuryReview(){
       : '<span style="font-size:9px;font-weight:700;color:var(--red)">✗ REJECTED</span>';
     return `<tr style="opacity:.5">
       <td><span class="addr" onclick="sol('${c.treasury}')">${short(c.treasury)}</span></td>
+      <td>${srcTok(c)}</td>
       <td class="num muted">×${c.occurrences||1}</td>
       <td class="num muted">${c.transfer_pct!=null?c.transfer_pct+'%':'—'}</td>
       <td class="num muted">${c.out_sol!=null?Math.round(c.out_sol).toLocaleString():'—'}</td>
@@ -826,10 +872,10 @@ async function loadTreasuryReview(){
       <td class="muted" style="font-size:10px">${c.reviewed_by||'auto'}</td>
     </tr>`;}).join('');
   const dc = d.decided_counts || {};
-  const sep = recent.length ? `<tr><td colspan="9" style="padding:6px 13px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;background:var(--bg-card2)">recently decided · ${dc.CONFIRMED||0} confirmed · ${dc.REJECTED||0} rejected (discovery active — pending queue worked)</td></tr>` : '';
+  const sep = recent.length ? `<tr><td colspan="10" style="padding:6px 13px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;background:var(--bg-card2)">recently decided · ${dc.CONFIRMED||0} confirmed · ${dc.REJECTED||0} rejected (discovery active — pending queue worked)</td></tr>` : '';
   const body = pendingRows + sep + recentRows;
   document.getElementById('treasury-review-body').innerHTML = body
-    || '<tr><td colspan="9" class="muted">no candidates yet — discovery engine running (fingerprints migrations as they land)</td></tr>';
+    || '<tr><td colspan="10" class="muted">no candidates yet — discovery engine running (fingerprints migrations as they land)</td></tr>';
 }
 
 async function promoteTreasury(treasury, action, btn){
@@ -844,7 +890,7 @@ async function promoteTreasury(treasury, action, btn){
   }catch(e){ btn.textContent='error'; btn.disabled=false; }
 }
 
-function refresh(){ loadAll(); loadWsCascade(); loadLaunchAudit(); loadTreasuryBank(); loadApexFunders(); loadSubprovs(); loadTreasuryReview(); loadCreatorModes(); loadAnchorHealth(); loadWalks(); loadArmed(); loadReview(); loadFeed(); }
+function refresh(){ loadAll(); loadWsCascade(); loadLaunchAudit(); loadTreasuryBank(); loadApexFunders(); loadSubprovs(); loadVanity(); loadTreasuryReview(); loadCreatorModes(); loadAnchorHealth(); loadWalks(); loadArmed(); loadReview(); loadFeed(); }
 refresh();
 setInterval(refresh, 15000);  // 15s — countdowns must stay fresh
 </script>

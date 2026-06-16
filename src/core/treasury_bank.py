@@ -233,27 +233,24 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
     fp = fingerprint_treasury(addr, raw_txs_fn, micro_ping_count)
     v = fp["verdict"]
     now = int(time.time())
-    if v == "CONFIRMED":
-        conn.execute(
-            """INSERT INTO wt_confirmed_treasuries
-                 (treasury, transfer_pct, out_sol, recipients, micro_pings, method,
-                  confidence, provenance, confirmed_at)
-               VALUES (?,?,?,?,?, 'AUTO_FINGERPRINT', 'STRICT', 'CONFIRMED_AUTO', ?)
-               ON CONFLICT(treasury) DO NOTHING""",
-            (addr, fp["transfer_pct"], fp["out_sol"], fp["recipients"], fp.get("micro_pings", 0), now))
-        _log_decision(conn, addr, "CONFIRMED", fp, source_migration=source_migration,
-                      evidence_txs=evidence_txs, promoted_at=now, webhook_status="PENDING")
-        conn.commit()
-        return {"verdict": v, "treasury": addr, "needs_webhook": True, "signals": fp,
-                "provenance": "CONFIRMED_AUTO"}
-    if v == "REVIEW":
+    # NO AUTO-PROMOTION — every candidate, even a full 3/3 CONFIRMED, goes to the human review
+    # queue and requires an explicit ✓ promote. A 3/3 lands as a high-confidence (READY) candidate;
+    # a 2/3 lands as a near-miss. Promotion into wt_confirmed_treasuries only happens via
+    # promote_to_confirmed() (the human "✓ promote" button). This is deliberate: auto-re-rooting /
+    # auto-confirming overshoots (a treasury-shaped wallet may be a peer mesh node, a piggybacking
+    # op, etc.) — judgment stays with the human.
+    if v in ("CONFIRMED", "REVIEW"):
         add_review_candidate(conn, addr, transfer_pct=fp["transfer_pct"], out_sol=fp["out_sol"],
                              recipients=fp["recipients"], micro_pings=fp.get("micro_pings", 0),
-                             detected_via="auto_fingerprint_nearmiss")
-        _log_decision(conn, addr, "NEAR_MISS", fp, source_migration=source_migration,
-                      evidence_txs=evidence_txs)
+                             detected_via=("auto_fingerprint_3of3" if v == "CONFIRMED"
+                                           else "auto_fingerprint_nearmiss"))
+        _log_decision(conn, addr, ("READY_3OF3" if v == "CONFIRMED" else "NEAR_MISS"), fp,
+                      source_migration=source_migration, evidence_txs=evidence_txs)
         conn.commit()
-        return {"verdict": v, "treasury": addr, "needs_webhook": False, "signals": fp}
+        # signals carry the verdict so the UI can show "3/3 ready" vs "2/3 review"; needs_webhook
+        # stays False — webhooking happens only on human promote.
+        return {"verdict": v, "treasury": addr, "needs_webhook": False, "signals": fp,
+                "queued_for_review": True}
     _log_decision(conn, addr, "REJECT", fp, source_migration=source_migration,
                   evidence_txs=evidence_txs)
     conn.commit()
@@ -372,24 +369,17 @@ def _evaluate_funder_candidate(conn, live_conn, treasury, top, raw_txs_fn) -> No
     """Fingerprint one treasury-funder candidate; promote/review/reject."""
     fp = fingerprint_treasury(top, raw_txs_fn, micro_ping_count=micro_ping_count(live_conn, top))
     v = fp.get("verdict")
-    if v == "CONFIRMED":
-        # 3/3 — auto-promote the new treasury (it's the well-defined fingerprint)
-        now = int(time.time())
-        conn.execute(
-            "INSERT INTO wt_confirmed_treasuries (treasury, transfer_pct, out_sol, recipients, "
-            "micro_pings, method, confidence, provenance, confirmed_at) "
-            "VALUES (?,?,?,?,?, 'FUNDER_DISCOVERY', 'STRICT', 'CONFIRMED_AUTO', ?) "
-            "ON CONFLICT(treasury) DO NOTHING",
-            (top, fp["transfer_pct"], fp["out_sol"], fp["recipients"], fp.get("micro_pings", 0), now))
-        _log_decision(conn, top, "CONFIRMED", fp, source_migration=treasury,
-                      promoted_at=now, webhook_status="PENDING")
-    elif v in ("REVIEW",) or (fp.get("transfer_pct", 0) >= 95 and fp.get("out_sol", 0) >= 50
-                              and fp.get("recipients", 0) >= 3):
-        # treasury-shaped (pure-transfer + capital-scale) but not 3/3 → review for human confirm
+    # NO AUTO-PROMOTION from the fingerprint — a 3/3 lands as a high-confidence (READY) review
+    # candidate, a near-miss as a 2/3. Promotion only via the human ✓ promote. (Only the
+    # behavioral LAUNCH-CHAIN path — a completed CREATE — auto-confirms.)
+    if v == "CONFIRMED" or v == "REVIEW" or (fp.get("transfer_pct", 0) >= 95
+            and fp.get("out_sol", 0) >= 50 and fp.get("recipients", 0) >= 3):
         add_review_candidate(conn, top, transfer_pct=fp.get("transfer_pct"), out_sol=fp.get("out_sol"),
                              recipients=fp.get("recipients"), micro_pings=fp.get("micro_pings", 0),
-                             detected_via="funder_discovery")
-        _log_decision(conn, top, "NEAR_MISS", fp, source_migration=treasury)
+                             detected_via=("funder_discovery_3of3" if v == "CONFIRMED"
+                                           else "funder_discovery"))
+        _log_decision(conn, top, ("READY_3OF3" if v == "CONFIRMED" else "NEAR_MISS"), fp,
+                      source_migration=treasury)
     else:
         _log_decision(conn, top, "REJECT", fp, source_migration=treasury)
 

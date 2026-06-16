@@ -515,10 +515,28 @@ def record_launch(conn, *, mint: Optional[str], creator: str, create_sig: Option
                 lc = db_connect(LIVE_DB_PATH, timeout=20)
                 try:
                     lc.execute("PRAGMA busy_timeout=15000")
+                    # resolve the pool/pair address so the price worker can ACTUALLY price it —
+                    # enrolling with pair_address=NULL makes the token unpriceable → 0 snapshots →
+                    # TokenInactivityManager deactivates it after 60min (the WATCHTOWER 0-snapshot
+                    # bug). token_pool_accounts already holds the discovered pool for migrated mints.
+                    _pair = None
+                    try:
+                        _pr = lc.execute(
+                            "SELECT pool_address FROM token_pool_accounts "
+                            "WHERE mint=? AND pool_address IS NOT NULL ORDER BY is_active DESC LIMIT 1",
+                            (mint,)).fetchone()
+                        _pair = _pr[0] if _pr else None
+                    except Exception:
+                        pass
+                    now_ = int(time.time())
+                    # INSERT, and on conflict REACTIVATE + fill the pair (clears inactive_since)
                     lc.execute(
-                        "INSERT OR IGNORE INTO tracked_tokens (mint, priority_level, is_active, "
-                        "created_at, updated_at) VALUES (?, 'high', 1, ?, ?)",
-                        (mint, int(time.time()), int(time.time())))
+                        "INSERT INTO tracked_tokens (mint, pair_address, priority_level, is_active, "
+                        "created_at, updated_at) VALUES (?, ?, 'high', 1, ?, ?) "
+                        "ON CONFLICT(mint) DO UPDATE SET "
+                        "  pair_address=COALESCE(excluded.pair_address, tracked_tokens.pair_address), "
+                        "  is_active=1, inactive_since=NULL, updated_at=excluded.updated_at",
+                        (mint, _pair, now_, now_))
                     lc.commit()
                 finally:
                     lc.close()

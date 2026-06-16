@@ -365,6 +365,45 @@ def _discover_treasury_funder(conn, live_conn, treasury: str, funder_walk_fn, ra
         _evaluate_funder_candidate(conn, live_conn, treasury, top, raw_txs_fn)
 
 
+def rescore_decided_candidates(conn, raw_txs_fn, *, max_candidates: int = 40,
+                               include_rejected: bool = True) -> dict:
+    """ONE-SHOT re-evaluation of fingerprint candidates already in wt_treasury_review, using the
+    CURRENT fingerprint logic (raw-tx micro-pings). Built for the webhook-blind ping fix: every
+    prior near-miss scored ping=0 because micro_ping_count only saw webhooked wallets, so strong
+    treasuries were stuck at 2/3 (and many human-rejected on a broken signal). Re-runs the
+    fingerprint; a candidate that now hits 3/3 is bumped to a high-confidence READY review row
+    (status reset to PENDING_REVIEW). NEVER auto-promotes — still needs the human ✓. Bounded RPC
+    (raw_txs_fn per candidate, capped). Returns a summary."""
+    ensure_schema(conn)
+    try:
+        conn.execute("PRAGMA busy_timeout=15000")
+    except Exception:
+        pass
+    statuses = "('PENDING_REVIEW','REJECTED')" if include_rejected else "('PENDING_REVIEW')"
+    cands = [r[0] for r in conn.execute(
+        f"SELECT treasury FROM wt_treasury_review "
+        f"WHERE status IN {statuses} AND (detected_via LIKE 'auto_fingerprint%' "
+        f"OR detected_via LIKE 'funder_discovery%') ORDER BY out_sol DESC LIMIT ?",
+        (max_candidates,)).fetchall()]
+    promoted_ready, still_near, now = [], 0, int(time.time())
+    for addr in cands:
+        try:
+            fp = fingerprint_treasury(addr, raw_txs_fn, micro_ping_count=0)  # raw-tx pings only
+        except Exception:
+            continue
+        if fp.get("verdict") == "CONFIRMED":     # now 3/3 with the fixed ping → bump to READY
+            conn.execute(
+                "UPDATE wt_treasury_review SET status='PENDING_REVIEW', micro_pings=?, "
+                "detected_via='rescore_3of3', detected_at=? WHERE treasury=?",
+                (fp.get("micro_pings", 0), now, addr))
+            promoted_ready.append((addr, fp.get("out_sol"), fp.get("micro_pings")))
+        elif fp.get("verdict") == "REVIEW":
+            still_near += 1
+    conn.commit()
+    return {"checked": len(cands), "now_ready_3of3": len(promoted_ready),
+            "still_near_miss": still_near, "ready": promoted_ready}
+
+
 def _evaluate_funder_candidate(conn, live_conn, treasury, top, raw_txs_fn) -> None:
     """Fingerprint one treasury-funder candidate; promote/review/reject."""
     fp = fingerprint_treasury(top, raw_txs_fn, micro_ping_count=micro_ping_count(live_conn, top))

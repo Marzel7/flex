@@ -352,6 +352,22 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
             ") ORDER BY last_mig DESC LIMIT 200").fetchall()]
         # process the first 25 NEW (not-yet-fingerprinted) ones this cycle; the rest next cycle
         creators = [c for c in cand if c and c not in done][:25]
+        # ONE-SHOT: re-score prior fingerprint candidates with the fixed raw-tx ping logic. The
+        # webhook-blind ping bug forced every near-miss to ping=0, so strong treasuries were stuck
+        # at 2/3 (some human-rejected on the broken signal). Runs once (sentinel), bounded RPC.
+        _resc_sentinel = os.path.join(os.path.dirname(__file__), "../../logs/.treasury_rescore_done")
+        if not os.path.exists(_resc_sentinel):
+            try:
+                rs = treasury_bank.rescore_decided_candidates(conn, _raw_txs, max_candidates=40)
+                print(f"[SCHED] treasury rescore: checked={rs['checked']} now_ready_3of3={rs['now_ready_3of3']} "
+                      f"still_near={rs['still_near_miss']}", flush=True)
+                for addr, out_sol, pings in rs.get("ready", []):
+                    print(f"[SCHED]   READY 3/3: {addr[:12]}… out={out_sol}◎ pings={pings}", flush=True)
+                with open(_resc_sentinel, "w") as _f:
+                    _f.write(str(int(time.time())))
+            except Exception as e:
+                print(f"[SCHED] treasury rescore failed: {e}", flush=True)
+
         evaluated = 0
         for cw in creators:
             if calls[0] > 800:               # RPC safety cap for one cycle

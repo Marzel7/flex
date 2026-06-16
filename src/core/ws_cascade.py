@@ -61,7 +61,12 @@ SUBPROV_SWEEP_SEC = float(os.environ.get("WS_SUBPROV_SWEEP_SEC", "6"))
 # provisioning outbound opens a SUB_PROV session in real-time (~3s) instead of waiting on the
 # enhanced webhook (5–390s + ngrok jitter). WS-first; the webhook path remains as a fallback
 # (start_session is idempotent on (subprov, funding_sig), so whichever fires first wins).
-TREASURY_PROVISION_MIN_SOL = float(os.environ.get("WS_TREASURY_MIN_SOL", "0.5"))
+# Floor for what counts as a launch-PROVISIONING outbound (→ open a SUB_PROV session).
+# Set from data: across 154 historical sessions the amounts are bimodal — a sub-13◎ cluster
+# (peer-treasury top-ups + dust spray; 91 sessions, ZERO ever produced a launch) and a 60–990◎
+# cluster where every real creator-provision and all 3 launch-producing sessions (740/800◎) live.
+# 50◎ sits in the empty gap (13–60◎): rejects all the noise, keeps every real provision.
+TREASURY_PROVISION_MIN_SOL = float(os.environ.get("WS_TREASURY_MIN_SOL", "50"))
 TREASURY_PROVISION_MAX_SOL = float(os.environ.get("WS_TREASURY_MAX_SOL", "1000"))
 TREASURY_REFRESH_SEC       = float(os.environ.get("WS_TREASURY_REFRESH_SEC", "60"))
 

@@ -3120,8 +3120,6 @@ def api_intel_webhook_events():
         fam = {r["family_uuid"]: r["family_label"] for r in ov.execute("SELECT family_uuid, family_label FROM wt_ops_v2_families").fetchall()}
         migrated = {r[0] for r in ov.execute("SELECT creator_wallet FROM wt_ops_v2_creators WHERE migration_time IS NOT NULL").fetchall()}
 
-        # known confirmed treasuries — for the "funded by a known TREASURY" highlight on edges
-        known_treasuries = {r[0] for r in ov.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
         # wallet → token (mint, symbol). The feed edges are treasury→SUBPROV, but the token lives
         # one hop further down (subprov → creator → token). So map BOTH the creator AND its subprov
         # to the token: the subprov→creator link is in wt_wrap_close_candidates, creator→mint via
@@ -3177,10 +3175,6 @@ def api_intel_webhook_events():
             _src = (h["source"] if "source" in h.keys() else None)
             _via = "WS" if _src == "treasury_ws" else ("webhook" if _src else None)
             cp = h["counterparty"]
-            # the funder side of this edge: for an outbound it's `w` (the treasury); for an inbound
-            # it's the counterparty. Flag when that funder is a CONFIRMED treasury (known-source).
-            _funder = w if _dir == "outbound" else cp
-            from_known_treasury = _funder in known_treasuries
             # token the recipient produced (recipient = cp on an outbound, w on an inbound)
             _recipient = cp if _dir == "outbound" else w
             _tok = wallet_token.get(_recipient) or wallet_token.get(w)
@@ -3194,8 +3188,6 @@ def api_intel_webhook_events():
                 "candidate_status": ("MIGRATED" if w in migrated else "PENDING") if is_cand else None,
                 "launch_detected": launch,
                 "from_operation": op is not None,
-                "from_known_treasury": from_known_treasury,
-                "funder": _funder,
                 "token_mint": (_tok or {}).get("mint"),
                 "token_symbol": (_tok or {}).get("symbol"),
             })

@@ -291,7 +291,7 @@ function fmtFlow(e){
 function short2(s){ s=String(s||''); return s.length>10 ? s.slice(0,10)+'…' : s; }
 
 async function loadFeed(){
-  const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=80')).json();
+  const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=160')).json();
   document.getElementById('feed-body').innerHTML = (d.events||[]).map(e=>`
     <tr style="${e.launch_detected?'background:rgba(63,185,80,.06)':((+e.amount||0)>=0.001?'background:rgba(224,108,42,.07);border-left:3px solid #e06c2a':'opacity:.62')}">
       <td class="muted mono" style="font-size:10.5px">${e.ts?new Date(e.ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'—'}${e.via==='WS'?' <span title="real-time WebSocket" style="color:#3fb950;font-weight:700;font-size:9px">⚡WS</span>':(e.via==='webhook'?' <span title="enhanced webhook" class="muted" style="font-size:8.5px">wh</span>':'')}</td>

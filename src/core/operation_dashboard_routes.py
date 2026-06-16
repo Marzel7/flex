@@ -3175,9 +3175,10 @@ def api_intel_webhook_events():
             _src = (h["source"] if "source" in h.keys() else None)
             _via = "WS" if _src == "treasury_ws" else ("webhook" if _src else None)
             cp = h["counterparty"]
-            # token the recipient produced (recipient = cp on an outbound, w on an inbound)
-            _recipient = cp if _dir == "outbound" else w
-            _tok = wallet_token.get(_recipient) or wallet_token.get(w)
+            # token the recipient produced — check BOTH endpoints of the edge (the stored
+            # `direction` is unreliable: the same treasury→subprov edge appears as both 'inbound'
+            # and 'outbound' rows), so resolve by whichever side is a known token wallet.
+            _tok = wallet_token.get(cp) or wallet_token.get(w)
             events.append({
                 "wallet": w, "counterparty": cp, "type": et,
                 "amount": h["amount_sol"], "ts": h["block_time"], "signature": h["tx_signature"],
@@ -3204,7 +3205,12 @@ def api_intel_webhook_events():
                 "candidate_status": "PENDING", "launch_detected": False, "from_operation": True,
                 "template": plc["template"], "expected_launch_min": plc["expected_launch_window_min"],
             })
-        events.sort(key=lambda x: x["ts"] or 0, reverse=True)
+        # PRIORITY: a launch / token-bearing edge must surface even if older than routine top-ups —
+        # otherwise a resolved launch (e.g. OILMAXXING) gets buried below dozens of dust transfers.
+        # Order: launch_detected first, then edges that resolve to a known token, then by recency.
+        events.sort(key=lambda x: (
+            0 if x.get("launch_detected") else (1 if x.get("token_symbol") or x.get("token_mint") else 2),
+            -(x["ts"] or 0)))
         return jsonify({"events": events})
     finally:
         ov.close(); live.close()

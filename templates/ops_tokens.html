@@ -38,6 +38,7 @@ tr:hover td { background:var(--bg-card2); }
 .opchip:hover { color:#f59e0b; border-bottom-color:#f59e0b; }
 .opchip.copied, .cexchip.copied { color:var(--green); }
 .cexchip { font-size:9px; margin-left:4px; color:#eab308; cursor:pointer; border-bottom:1px dotted #eab308; font-weight:700; }
+.cyclechip { font-size:9px; margin-left:4px; color:#22d3ee; cursor:pointer; border:1px solid rgba(34,211,238,.3); border-radius:4px; padding:0 4px; font-weight:700; }
 .cexchip:hover { color:#fde047; }
 .copytoast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--bg-card2);
   border:1px solid var(--green); color:var(--green); padding:7px 14px; border-radius:6px; font-size:12px;
@@ -103,8 +104,17 @@ function fundChip(t){
   if(ft==='PLATFORM'||ft==='INFRA') return `<span class="cexchip" data-sol="account/${a}" title="funded via ${lbl||'platform'} — ${a} (shared launch platform; cluster is platform-routed, not one operator)">🛠 ${lbl||'platform'}·${n}↗</span>`;
   return `<span class="opchip" data-sol="account/${a}" title="operator ${a} — open in Solscan">${a.slice(0,4)}…·${n} · ${(t.farm_mechanism||'').replace('PLAIN_XFER','plain').replace('WRAP_CLOSE','wrap')}↗</span>`;
 }
+// FUNDING CYCLE chip: the treasury→subprov capital lifecycle for this token's provisioner —
+// INITIAL seed, N top-ups, total in/out, and whether it's now sweeping capital back.
+function cycleChip(t){
+  const c=t.funding_cycle; if(!c) return '';
+  const tops=Math.max((c.n_out||0)-1,0);
+  const label = (tops>0?`⟳ INITIAL+${tops}`:`⟳ 1-shot`) + (c.sweeping?' · ↩sweep':'');
+  const tip=`funding cycle — subprov ${c.subprov} ← treasury ${c.treasury}\nINITIAL ${c.initial_sol}◎, ${tops} top-up(s), Σout ${c.total_out}◎, back ${c.total_back}◎${c.sweeping?' (sweeping)':''}`;
+  return `<span class="cyclechip" data-sol="account/${c.subprov}" title="${tip}">${label}↗</span>`;
+}
 // clicking any address chip opens it in Solscan (data-sol holds the path, e.g. account/<addr>)
-document.addEventListener('click', e=>{ const c=e.target.closest('.opchip,.cexchip'); if(c&&c.dataset.sol){ e.stopPropagation(); window.open('https://solscan.io/'+c.dataset.sol,'_blank'); } });
+document.addEventListener('click', e=>{ const c=e.target.closest('.opchip,.cexchip,.cyclechip'); if(c&&c.dataset.sol){ e.stopPropagation(); window.open('https://solscan.io/'+c.dataset.sol,'_blank'); } });
 const usd = v => v==null ? '—' : (v>=1e6 ? '$'+(v/1e6).toFixed(2)+'M' : v>=1e3 ? '$'+(v/1e3).toFixed(1)+'k' : '$'+(+v).toFixed(0));
 const ago = ts => { if(!ts) return '—'; const s=Math.floor(Date.now()/1000-ts); if(s<3600)return Math.floor(s/60)+'m'; if(s<86400)return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; };
 let DATA=[], curTag='', sortKey='migrated_at', sortDir=-1;
@@ -124,7 +134,7 @@ function render(){
     const multCls = mult>=5?'pos':mult&&mult<1.2?'neg':'';
     const retr = t.retrace_pct;
     return `<tr class="trow" data-mint="${t.mint}" style="cursor:pointer" title="click to expand the provisioning tree (treasury → subprov → creator + swarm)">
-      <td><span class="exp" style="color:var(--text-dim);font-size:10px;display:inline-block;width:11px">▸</span><span class="tag ${t.tag}">${t.tag}</span>${t.wt_confirmed?'<span class="chip wt">✓</span>':''}${t.swarm&&t.tag!=='SWARM'?'<span class="chip swarm">swarm</span>':''}${fundChip(t)}${(t.tag==='FRESH'&&t.creator)?`<span class="opchip" data-sol="account/${t.creator}" title="creator ${t.creator} — open in Solscan">creator ${t.creator.slice(0,4)}…↗</span>`:''}</td>
+      <td><span class="exp" style="color:var(--text-dim);font-size:10px;display:inline-block;width:11px">▸</span><span class="tag ${t.tag}">${t.tag}</span>${t.wt_confirmed?'<span class="chip wt">✓</span>':''}${t.swarm&&t.tag!=='SWARM'?'<span class="chip swarm">swarm</span>':''}${fundChip(t)}${cycleChip(t)}${(t.tag==='FRESH'&&t.creator)?`<span class="opchip" data-sol="account/${t.creator}" title="creator ${t.creator} — open in Solscan">creator ${t.creator.slice(0,4)}…↗</span>`:''}</td>
       <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="event.stopPropagation();window.open('https://solscan.io/token/${t.mint}','_blank')" title="${t.mint}">${short(t.mint)}</span></td>
       <td class="num mc">${usd(t.peak_mc)}</td>
       <td class="num">${usd(t.current_mc)}</td>

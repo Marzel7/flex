@@ -1484,6 +1484,52 @@ def api_intel_token_performance():
                              "creator_address": tr.pop("earliest_tx_creator", None), **tr})
         except Exception:
             pass
+        # ── FUNDING CYCLE (batch, once for the whole page) ────────────────────────────────
+        # For each token's creator → its subprov (wrap_close_candidates) → the treasury→subprov
+        # capital lifecycle (wt_webhook_hits): INITIAL seed, N TOP-UPs, and whether it's SWEEPING
+        # back. Summarized to a compact per-row badge. Bounded + zero RPC.
+        cycle_by_creator = {}
+        try:
+            page_creators = [r.get("creator_address") for r in rows if r.get("creator_address")]
+            if page_creators:
+                cph = ",".join("?" * len(page_creators))
+                # creator → subprov + treasury
+                cre_sub = {}
+                for cr, sp, tre in ov.execute(
+                    f"SELECT creator, subprov_wallet, lineage_source_treasury "
+                    f"FROM wt_wrap_close_candidates WHERE creator IN ({cph})", page_creators).fetchall():
+                    if cr and sp and cr not in cre_sub:
+                        cre_sub[cr] = (sp, tre)
+                # gather treasury↔subprov events for all involved (subprov, treasury) pairs
+                pairs = {(sp, tre) for sp, tre in cre_sub.values() if tre}
+                ev_by_sub = {}
+                _lc = _live_conn()
+                try:
+                    for (sp, tre) in pairs:
+                        evs = _lc.execute(
+                            "SELECT amount_sol, direction, block_time FROM wt_webhook_hits "
+                            "WHERE ((wallet_address=? AND counterparty=?) OR (wallet_address=? AND counterparty=?)) "
+                            "ORDER BY block_time ASC", (tre, sp, sp, tre)).fetchall()
+                        outs = [e for e in evs if e["direction"] == "outbound" and (e["amount_sol"] or 0) >= 0.5]
+                        backs = [e for e in evs if e["direction"] == "inbound" and (e["amount_sol"] or 0) >= 0.5]
+                        ev_by_sub[(sp, tre)] = {
+                            "n_out": len(outs), "n_back": len(backs),
+                            "initial_sol": (outs[0]["amount_sol"] if outs else None),
+                            "total_out": round(sum(e["amount_sol"] or 0 for e in outs), 1),
+                            "total_back": round(sum(e["amount_sol"] or 0 for e in backs), 1),
+                            "first_at": (outs[0]["block_time"] if outs else None),
+                            "last_at": (evs[-1]["block_time"] if evs else None),
+                            "sweeping": bool(backs and evs and evs[-1]["direction"] == "inbound"),
+                        }
+                finally:
+                    _lc.close()
+                for cr, (sp, tre) in cre_sub.items():
+                    c = ev_by_sub.get((sp, tre))
+                    if c and c["n_out"]:
+                        cycle_by_creator[cr] = {**c, "subprov": sp, "treasury": tre}
+        except Exception:
+            pass
+
         out = []
         for r in rows:
             mint = r["mint"]
@@ -1522,6 +1568,7 @@ def api_intel_token_performance():
                 "classification_reason": r.get("classification_reason"),
                 "prediction_score": r.get("prediction_score"),
                 "creator": r.get("creator_address"),
+                "funding_cycle": cycle_by_creator.get(r.get("creator_address")),
                 "peak_mc": peak, "current_mc": cur, "entry_mc": entry,
                 "peak_multiple": round(mult, 1) if mult else None,
                 "retrace_pct": round(retrace * 100, 0) if retrace is not None else None,

@@ -290,17 +290,53 @@ function fmtFlow(e){
 // short symbol guard (symbols can be long/garbage)
 function short2(s){ s=String(s||''); return s.length>10 ? s.slice(0,10)+'…' : s; }
 
-async function loadFeed(){
-  const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=160')).json();
-  document.getElementById('feed-body').innerHTML = (d.events||[]).map(e=>`
-    <tr style="${e.launch_detected?'background:rgba(63,185,80,.06)':((e.token_symbol||e.token_mint)?'background:rgba(234,179,8,.07);border-left:3px solid #eab308':((+e.amount||0)>=0.001?'background:rgba(224,108,42,.07);border-left:3px solid #e06c2a':'opacity:.62'))}">
+// a sub-1◎ OUTBOUND with no token/launch = swarm/signaller dust spray (zero launch signal)
+function isDust(e){ return e.direction==='outbound' && (+e.amount||0)<1 && (+e.amount||0)>0
+                          && !e.launch_detected && !e.token_symbol && !e.token_mint; }
+function feedRow(e, extraClass='', extraStyle=''){
+  return `<tr class="${extraClass}" style="${extraStyle}${e.launch_detected?'background:rgba(63,185,80,.06)':((e.token_symbol||e.token_mint)?'background:rgba(234,179,8,.07);border-left:3px solid #eab308':((+e.amount||0)>=0.001?'background:rgba(224,108,42,.07);border-left:3px solid #e06c2a':'opacity:.62'))}">
       <td class="muted mono" style="font-size:10.5px">${e.ts?new Date(e.ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'—'}${e.via==='WS'?' <span title="real-time WebSocket" style="color:#3fb950;font-weight:700;font-size:9px">⚡WS</span>':(e.via==='webhook'?' <span title="enhanced webhook" class="muted" style="font-size:8.5px">wh</span>':'')}</td>
       <td><span style="font-size:9.5px;font-weight:700;color:${ET_COLOR[e.type]||'var(--text-dim)'}">${e.type}</span>${e.launch_detected?' <span style="font-size:9px;font-weight:800;color:var(--green)">🚀 LAUNCH</span>':''}</td>
       <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="window.open('https://solscan.io/account/${e.wallet}','_blank')">${short(e.wallet)}</span></td>
       <td class="muted">${e.role||'—'}${e.candidate?' <span style="color:var(--amber);font-size:9px">CAND</span>':''}</td>
       <td>${e.operation?`<span class="uuid" onclick="openDrill('${e.operation_uuid}')">${e.operation}</span>`:'<span class="muted">—</span>'}</td>
       <td class="muted">${fmtFlow(e)}${e.signature?` <a href="https://solscan.io/tx/${e.signature}" target="_blank" title="view transaction" style="color:var(--cyan);text-decoration:none;font-size:10px;margin-left:6px">↗ tx</a>`:''}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="muted">no webhook events (listener may be stale)</td></tr>';
+    </tr>`;
+}
+let _dustGrp=0;
+function dustSummaryRow(group){
+  const id='dust'+(_dustGrp++);
+  const tot=group.reduce((s,e)=>s+(+e.amount||0),0);
+  const senders=[...new Set(group.map(e=>short(e.wallet)))];
+  const amts=group.map(e=>+e.amount||0);
+  const lo=Math.min(...amts).toFixed(3), hi=Math.max(...amts).toFixed(3);
+  const sender=senders.length===1?senders[0]:`${senders.length} senders`;
+  const t0=group[0].ts, t1=group[group.length-1].ts;
+  const hdr=`<tr class="dusthdr" style="opacity:.7;cursor:pointer" onclick="document.querySelectorAll('.${id}').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.querySelector('.dexp').textContent=this.querySelector('.dexp').textContent==='▸'?'▾':'▸'">
+      <td class="muted mono" style="font-size:10.5px">${t0?new Date(t0*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—'}</td>
+      <td><span class="dexp" style="color:var(--text-dim)">▸</span> <span style="font-size:9px;font-weight:700;color:var(--text-dim)">DUST SPRAY</span></td>
+      <td class="muted mono">${sender}</td>
+      <td class="muted">signaller/swarm</td>
+      <td class="muted">—</td>
+      <td class="muted"><b>${group.length}×</b> dust outbound · ${lo}–${hi}◎ · Σ ${tot.toFixed(2)}◎ <span style="font-size:9px">(click to expand)</span></td>
+    </tr>`;
+  const rows=group.map(e=>feedRow(e, id, 'display:none;')).join('');
+  return hdr+rows;
+}
+async function loadFeed(){
+  const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=160')).json();
+  const ev = d.events||[];
+  let html='', i=0;
+  while(i<ev.length){
+    if(isDust(ev[i])){
+      let j=i; const grp=[];
+      while(j<ev.length && isDust(ev[j])){ grp.push(ev[j]); j++; }
+      // only collapse runs of 3+; a lone dust row stays inline
+      if(grp.length>=3){ html+=dustSummaryRow(grp); i=j; continue; }
+    }
+    html+=feedRow(ev[i]); i++;
+  }
+  document.getElementById('feed-body').innerHTML = html || '<tr><td colspan="6" class="muted">no webhook events (listener may be stale)</td></tr>';
 }
 
 async function openDrill(uuid){

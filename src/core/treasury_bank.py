@@ -1,0 +1,427 @@
+"""
+Treasury bank — the authoritative live-watch set + the review pipeline.
+
+Clean architectural split:
+  • wt_confirmed_treasuries   = the AUTHORITATIVE live detection anchors (source of truth).
+                                 The forward-walk fires ONLY from this set. Pages read it.
+  • wt_treasury_review        = candidate pipeline (discovery, review-only).
+  • ops-graph roles           = supporting context, NOT authority.
+
+Flow:  micro-ping candidate → RPC confirm (3-signal) → wt_treasury_review (PENDING)
+       → human confirm → promote to wt_confirmed_treasuries → webhook.
+
+NEW treasuries are NEVER auto-promoted from webhook hits — promotion is a deliberate
+human action via promote_to_confirmed().
+"""
+from __future__ import annotations
+
+import os
+import json
+import time
+
+try:
+    from src.utils.db_locking import db_connect
+except Exception:                                    # pragma: no cover
+    import sqlite3
+    def db_connect(path, timeout=30):
+        c = sqlite3.connect(path, timeout=timeout); c.row_factory = sqlite3.Row; return c
+
+OPS_DB_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"))
+
+
+def ensure_schema(conn) -> None:
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_confirmed_treasuries (
+        treasury TEXT PRIMARY KEY, transfer_pct INTEGER, out_sol REAL, recipients INTEGER,
+        micro_pings INTEGER, method TEXT, confidence TEXT, confirmed_at INTEGER)""")
+    # provenance: CONFIRMED_SEED (manual/hand-verified) vs CONFIRMED_AUTO (fingerprint).
+    # Lets us separate seed truth from auto truth if the fingerprint ever leaks.
+    try:
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(wt_confirmed_treasuries)").fetchall()]
+        if "provenance" not in cols:
+            conn.execute("ALTER TABLE wt_confirmed_treasuries ADD COLUMN provenance TEXT DEFAULT 'CONFIRMED_SEED'")
+    except Exception:
+        pass
+    # AUDIT LEDGER — every fingerprint decision, reversible. Auto-promotion must never
+    # silently mutate core truth; this is the trail.
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_treasury_fingerprint_decisions (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        wallet          TEXT NOT NULL,
+        decision        TEXT NOT NULL,          -- CONFIRMED | NEAR_MISS | REJECT
+        signals_json    TEXT,
+        evidence_txs_json TEXT,
+        source_migration TEXT,                  -- the migrated creator that surfaced it
+        promoted_at     INTEGER,                -- set if it became CONFIRMED_AUTO
+        webhook_status  TEXT,                   -- PENDING | WEBHOOKED | FAILED | N/A
+        decided_at      INTEGER NOT NULL)""")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_tfd_wallet ON wt_treasury_fingerprint_decisions(wallet)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_tfd_decision ON wt_treasury_fingerprint_decisions(decision)")
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_confirmed_treasury_webhooks (
+        treasury TEXT PRIMARY KEY, source TEXT DEFAULT 'CONFIRMED_TREASURY',
+        enrolled_at INTEGER, webhook_active INTEGER DEFAULT 1, last_hit INTEGER,
+        last_fanout INTEGER, last_strict_candidate INTEGER, last_fired_token TEXT,
+        last_fired_at INTEGER)""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_treasury_review (
+        treasury TEXT PRIMARY KEY, transfer_pct INTEGER, out_sol REAL, recipients INTEGER,
+        micro_pings INTEGER, detected_via TEXT, status TEXT DEFAULT 'PENDING_REVIEW',
+        reviewed_by TEXT, detected_at INTEGER, reviewed_at INTEGER)""")
+    conn.commit()
+
+
+# ── review pipeline ──────────────────────────────────────────────────────────
+def add_review_candidate(conn, treasury, *, transfer_pct=None, out_sol=None,
+                         recipients=None, micro_pings=None, detected_via="micro_ping") -> bool:
+    """Add an RPC-confirmed candidate to the review queue. Skips ones already confirmed."""
+    ensure_schema(conn)
+    if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
+        return False                                  # already a confirmed treasury
+    conn.execute(
+        """INSERT INTO wt_treasury_review
+             (treasury, transfer_pct, out_sol, recipients, micro_pings, detected_via,
+              status, detected_at)
+           VALUES (?,?,?,?,?,?, 'PENDING_REVIEW', ?)
+           ON CONFLICT(treasury) DO UPDATE SET
+             transfer_pct=excluded.transfer_pct, out_sol=excluded.out_sol,
+             recipients=excluded.recipients, micro_pings=excluded.micro_pings""",
+        (treasury, transfer_pct, out_sol, recipients, micro_pings, detected_via, int(time.time())))
+    conn.commit()
+    return True
+
+
+def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
+    """Human action: promote a reviewed candidate into the authoritative confirmed set.
+    Does NOT webhook here — the caller webhooks (needs the live-DB Helius key)."""
+    ensure_schema(conn)
+    r = conn.execute(
+        "SELECT transfer_pct, out_sol, recipients, micro_pings FROM wt_treasury_review WHERE treasury=?",
+        (treasury,)).fetchone()
+    if not r:
+        return {"ok": False, "error": "not in review queue"}
+    now = int(time.time())
+    conn.execute(
+        """INSERT INTO wt_confirmed_treasuries
+             (treasury, transfer_pct, out_sol, recipients, micro_pings, method, confidence, provenance, confirmed_at)
+           VALUES (?,?,?,?,?, 'REVIEW_PROMOTED', 'CONFIRMED', 'CONFIRMED_REVIEW', ?)
+           ON CONFLICT(treasury) DO NOTHING""",
+        (treasury, r[0], r[1], r[2], r[3], now))
+    conn.execute(
+        "UPDATE wt_treasury_review SET status='CONFIRMED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
+        (reviewed_by, now, treasury))
+    conn.commit()
+    return {"ok": True, "treasury": treasury, "needs_webhook": True}
+
+
+def reject_candidate(conn, treasury, reviewed_by="human") -> dict:
+    ensure_schema(conn)
+    conn.execute(
+        "UPDATE wt_treasury_review SET status='REJECTED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
+        (reviewed_by, int(time.time()), treasury))
+    conn.commit()
+    return {"ok": True, "treasury": treasury}
+
+
+# ── reads for the dashboard ──────────────────────────────────────────────────
+def confirmed_treasuries(conn) -> list:
+    ensure_schema(conn)
+    return [dict(r) for r in conn.execute(
+        """SELECT c.treasury, c.transfer_pct, c.out_sol, c.recipients, c.micro_pings,
+                  c.confidence, COALESCE(w.webhook_active,0) webhooked,
+                  w.last_hit, w.last_fanout, w.last_strict_candidate, w.last_fired_token, w.last_fired_at
+           FROM wt_confirmed_treasuries c
+           LEFT JOIN wt_confirmed_treasury_webhooks w ON w.treasury=c.treasury
+           ORDER BY c.out_sol DESC""").fetchall()]
+
+
+def review_queue(conn) -> list:
+    ensure_schema(conn)
+    return [dict(r) for r in conn.execute(
+        "SELECT * FROM wt_treasury_review WHERE status='PENDING_REVIEW' ORDER BY out_sol DESC").fetchall()]
+
+
+# ── the treasury FINGERPRINT — well-defined, deterministic, no human needed ──
+# 1. TRANSFER-purity : ≥95% of txs are plain TRANSFER (no SWAP/trade) — separates treasury
+#                      from trading wallets (the dominant false positive)
+# 2. capital-scale   : distributes ≥50 SOL to ≥3 recipients
+# 3. micro-ping      : carries the ~0.00001 SOL coordination-ping signature
+# 4. RECENCY (gate)  : active within the last STALE_DAYS — a dormant wallet is not a live
+#                      provisioning treasury, however treasury-shaped it looks.
+STRICT_TRANSFER_PCT = 95
+STRICT_MIN_OUT_SOL = 50.0
+STRICT_MIN_RECIPIENTS = 3
+STALE_DAYS = 7                  # no activity in this long → STALE, not an active treasury
+
+
+def fingerprint_treasury(addr: str, raw_txs_fn, micro_ping_count: int = 0) -> dict:
+    """Run the treasury fingerprint on `addr`. raw_txs_fn(addr) -> list of Helius-shaped
+    txs with `type`, `nativeTransfers`, and `timestamp` (RAW RPC, cheap). Returns the
+    measured signals + a verdict: CONFIRMED | REVIEW | REJECT | STALE."""
+    txs = raw_txs_fn(addr) or []
+    n = len(txs)
+    if n == 0:
+        return {"verdict": "REJECT", "reason": "no txs"}
+    transfer = sum(1 for t in txs if (t.get("type") or "").upper() == "TRANSFER")
+    transfer_pct = round(100 * transfer / n)
+    out_sol = 0.0
+    recipients = set()
+    last_ts = 0
+    for t in txs:
+        last_ts = max(last_ts, t.get("timestamp") or t.get("blockTime") or 0)
+        for nt in t.get("nativeTransfers", []) or []:
+            if nt.get("fromUserAccount") == addr:
+                out_sol += nt.get("amount", 0) / 1e9
+                recipients.add(nt.get("toUserAccount"))
+
+    age_days = (time.time() - last_ts) / 86400 if last_ts else 9999
+    sig = {"transfer_pct": transfer_pct, "out_sol": round(out_sol, 1),
+           "recipients": len(recipients), "micro_pings": micro_ping_count, "tx_count": n,
+           "last_active_days": round(age_days, 1)}
+
+    # RECENCY GATE first — a stale wallet is not an active treasury, period.
+    if age_days > STALE_DAYS:
+        sig["verdict"] = "STALE"
+        sig["reason"] = f"dormant {age_days:.0f}d (>{STALE_DAYS}d) — not an active treasury"
+        return sig
+
+    pure = transfer_pct >= STRICT_TRANSFER_PCT
+    capital = out_sol >= STRICT_MIN_OUT_SOL and len(recipients) >= STRICT_MIN_RECIPIENTS
+    ping = micro_ping_count > 0
+
+    if pure and capital and ping:
+        sig["verdict"] = "CONFIRMED"           # all 3 + recent → auto-promote
+    elif pure and (capital or ping):
+        sig["verdict"] = "REVIEW"              # treasury-shaped but missing one signal
+    else:
+        sig["verdict"] = "REJECT"              # not a treasury (trades, or no scale)
+    sig["reason"] = f"transfer={transfer_pct}% out={out_sol:.0f}SOL/{len(recipients)} pings={micro_ping_count} active={age_days:.0f}d"
+    return sig
+
+
+def _log_decision(conn, wallet, decision, signals, *, source_migration=None,
+                  evidence_txs=None, promoted_at=None, webhook_status="N/A") -> None:
+    """Append to the audit ledger — every fingerprint decision is recorded."""
+    conn.execute(
+        """INSERT INTO wt_treasury_fingerprint_decisions
+             (wallet, decision, signals_json, evidence_txs_json, source_migration,
+              promoted_at, webhook_status, decided_at)
+           VALUES (?,?,?,?,?,?,?,?)""",
+        (wallet, decision, json.dumps(signals), json.dumps(evidence_txs or []),
+         source_migration, promoted_at, webhook_status, int(time.time())))
+
+
+def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
+                  source_migration: Optional[str] = None,
+                  evidence_txs: Optional[list] = None) -> dict:
+    """Fingerprint a candidate and ACT automatically (no human):
+       CONFIRMED → promote into wt_confirmed_treasuries as CONFIRMED_AUTO (caller webhooks).
+       NEAR_MISS → add to wt_treasury_review for an optional look.
+       REJECT    → nothing.
+    EVERY decision is written to the audit ledger (reversible). Idempotent."""
+    ensure_schema(conn)
+    if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (addr,)).fetchone():
+        return {"verdict": "ALREADY_CONFIRMED", "treasury": addr, "needs_webhook": False}
+    fp = fingerprint_treasury(addr, raw_txs_fn, micro_ping_count)
+    v = fp["verdict"]
+    now = int(time.time())
+    if v == "CONFIRMED":
+        conn.execute(
+            """INSERT INTO wt_confirmed_treasuries
+                 (treasury, transfer_pct, out_sol, recipients, micro_pings, method,
+                  confidence, provenance, confirmed_at)
+               VALUES (?,?,?,?,?, 'AUTO_FINGERPRINT', 'STRICT', 'CONFIRMED_AUTO', ?)
+               ON CONFLICT(treasury) DO NOTHING""",
+            (addr, fp["transfer_pct"], fp["out_sol"], fp["recipients"], micro_ping_count, now))
+        _log_decision(conn, addr, "CONFIRMED", fp, source_migration=source_migration,
+                      evidence_txs=evidence_txs, promoted_at=now, webhook_status="PENDING")
+        conn.commit()
+        return {"verdict": v, "treasury": addr, "needs_webhook": True, "signals": fp,
+                "provenance": "CONFIRMED_AUTO"}
+    if v == "REVIEW":
+        add_review_candidate(conn, addr, transfer_pct=fp["transfer_pct"], out_sol=fp["out_sol"],
+                             recipients=fp["recipients"], micro_pings=micro_ping_count,
+                             detected_via="auto_fingerprint_nearmiss")
+        _log_decision(conn, addr, "NEAR_MISS", fp, source_migration=source_migration,
+                      evidence_txs=evidence_txs)
+        conn.commit()
+        return {"verdict": v, "treasury": addr, "needs_webhook": False, "signals": fp}
+    _log_decision(conn, addr, "REJECT", fp, source_migration=source_migration,
+                  evidence_txs=evidence_txs)
+    conn.commit()
+    return {"verdict": v, "treasury": addr, "needs_webhook": False, "signals": fp}
+
+
+def auto_confirm_from_launch_chain(conn, treasury: str, *, subprov: str, creator: str,
+                                   mint: str, create_sig: Optional[str] = None) -> dict:
+    """BEHAVIORAL auto-confirm: a wallet that funds a SUB_PROV which demonstrably
+    wrap-closed → a CREATOR that actually CREATEd a pump.fun token IS a WATCHTOWER
+    treasury — by the definition of the mechanism, not a statistical fingerprint. This
+    is the STRONGEST evidence (the chain completed), and unlike the transfer-purity
+    fingerprint it cannot be fooled by a recycling/trading desk (those never produce a
+    CREATE — see the 5WG7sw case). Auto-confirms the treasury so its FUTURE provisioning
+    arms in real time, instead of waiting on a manual funder-trace (the gap that missed
+    DchJqu's 14:07 wrap-close: discovered 12:55, manually confirmed 16:56).
+
+    Idempotent. Returns {verdict, treasury, needs_webhook}. The caller webhooks +
+    WS-subscribes on needs_webhook=True."""
+    ensure_schema(conn)
+    if not treasury or not creator or not mint:
+        return {"verdict": "INSUFFICIENT", "treasury": treasury, "needs_webhook": False}
+    if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
+        return {"verdict": "ALREADY_CONFIRMED", "treasury": treasury, "needs_webhook": False}
+    now = int(time.time())
+    conn.execute(
+        """INSERT INTO wt_confirmed_treasuries
+             (treasury, method, confidence, provenance, confirmed_at)
+           VALUES (?, 'LAUNCH_CHAIN', 'STRICT', 'CONFIRMED_LAUNCH_CHAIN', ?)
+           ON CONFLICT(treasury) DO NOTHING""",
+        (treasury, now))
+    _log_decision(conn, treasury, "CONFIRMED",
+                  {"verdict": "CONFIRMED", "reason": "treasury→subprov→wrap-close→creator→CREATE chain",
+                   "subprov": subprov, "creator": creator, "mint": mint},
+                  evidence_txs=[create_sig] if create_sig else [],
+                  promoted_at=now, webhook_status="PENDING")
+    conn.commit()
+    return {"verdict": "CONFIRMED", "treasury": treasury, "needs_webhook": True,
+            "provenance": "CONFIRMED_LAUNCH_CHAIN",
+            "evidence": {"subprov": subprov, "creator": creator, "mint": mint}}
+
+
+def mark_webhooked(conn, treasury: str, ok: bool = True) -> None:
+    """Update the ledger's webhook_status for the most recent decision of this treasury."""
+    conn.execute(
+        "UPDATE wt_treasury_fingerprint_decisions SET webhook_status=? "
+        "WHERE wallet=? AND id=(SELECT MAX(id) FROM wt_treasury_fingerprint_decisions WHERE wallet=?)",
+        ("WEBHOOKED" if ok else "FAILED", treasury, treasury))
+    conn.commit()
+
+
+def revert_auto_promotion(conn, treasury: str, reason: str = "manual_revert") -> dict:
+    """Reverse an AUTO promotion (seed treasuries are protected — cannot be reverted here).
+    Removes from confirmed set + logs the reversal. Caller un-webhooks separately."""
+    ensure_schema(conn)
+    r = conn.execute("SELECT provenance FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone()
+    if not r:
+        return {"ok": False, "error": "not confirmed"}
+    if r[0] == "CONFIRMED_SEED":
+        return {"ok": False, "error": "seed treasury — protected from auto-revert"}
+    conn.execute("DELETE FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,))
+    _log_decision(conn, treasury, "REVERTED", {"reason": reason}, webhook_status="REMOVE")
+    conn.commit()
+    return {"ok": True, "treasury": treasury, "reverted": True}
+
+
+def micro_ping_count(live_conn, addr: str) -> int:
+    """Local count of the ~0.00001 SOL coordination-ping signature for `addr`
+    (from wt_webhook_hits — no RPC). Part of the treasury fingerprint."""
+    try:
+        r = live_conn.execute(
+            "SELECT COUNT(*) FROM wt_webhook_hits WHERE wallet_address=? "
+            "AND amount_sol BETWEEN 0.000005 AND 0.00002", (addr,)).fetchone()
+        return r[0] if r else 0
+    except Exception:
+        return 0
+
+
+def _discover_treasury_funder(conn, live_conn, treasury: str, funder_walk_fn, raw_txs_fn) -> None:
+    """AUTO-DISCOVERY of the layer ABOVE a known treasury: who funds it? A treasury's top
+    funder that is itself treasury-shaped (pure-transfer + capital-scale) is a NEW treasury
+    (the network is a mesh — treasuries fund treasuries, e.g. G2CQewGx funds Cgwr+43PKjr).
+    Queues treasury-shaped funders for review; marks evaluated funders so they aren't redone.
+    One extra hop per already-confirmed lineage — cheap, raw RPC only."""
+    funders = funder_walk_fn(treasury) or []
+    if not funders:
+        return
+    # Evaluate the TOP FEW funders (not just #1) — a recycling subprov can outrank the genuine
+    # treasury-funder (e.g. 43PKjr's #1 is a sweep subprov, but #3 G2CQewGx is the real treasury
+    # above it). Check the top 3 capital funders, skipping known/decided/recycling ones.
+    for top, _amt in sorted(funders, key=lambda x: -x[1])[:3]:
+        if not top:
+            continue
+        # skip if already confirmed, reviewed, or fingerprint-decided
+        if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (top,)).fetchone():
+            continue
+        if conn.execute("SELECT 1 FROM wt_treasury_review WHERE treasury=?", (top,)).fetchone():
+            continue
+        if conn.execute("SELECT 1 FROM wt_treasury_fingerprint_decisions WHERE wallet=?", (top,)).fetchone():
+            continue
+        # RECYCLING guard: if the treasury also SENT to this funder, it's recycling, not apex.
+        try:
+            paid = live_conn.execute(
+                "SELECT 1 FROM wt_webhook_hits WHERE direction='outbound' AND wallet_address=? AND counterparty=? LIMIT 1",
+                (treasury, top)).fetchone()
+            if paid:
+                _log_decision(conn, top, "REJECT", {"reason": "recycling — treasury funded it"},
+                              source_migration=treasury)
+                continue
+        except Exception:
+            pass
+        _evaluate_funder_candidate(conn, live_conn, treasury, top, raw_txs_fn)
+
+
+def _evaluate_funder_candidate(conn, live_conn, treasury, top, raw_txs_fn) -> None:
+    """Fingerprint one treasury-funder candidate; promote/review/reject."""
+    fp = fingerprint_treasury(top, raw_txs_fn, micro_ping_count=micro_ping_count(live_conn, top))
+    v = fp.get("verdict")
+    if v == "CONFIRMED":
+        # 3/3 — auto-promote the new treasury (it's the well-defined fingerprint)
+        now = int(time.time())
+        conn.execute(
+            "INSERT INTO wt_confirmed_treasuries (treasury, transfer_pct, out_sol, recipients, "
+            "micro_pings, method, confidence, provenance, confirmed_at) "
+            "VALUES (?,?,?,?,?, 'FUNDER_DISCOVERY', 'STRICT', 'CONFIRMED_AUTO', ?) "
+            "ON CONFLICT(treasury) DO NOTHING",
+            (top, fp["transfer_pct"], fp["out_sol"], fp["recipients"], fp.get("micro_pings", 0), now))
+        _log_decision(conn, top, "CONFIRMED", fp, source_migration=treasury,
+                      promoted_at=now, webhook_status="PENDING")
+    elif v in ("REVIEW",) or (fp.get("transfer_pct", 0) >= 95 and fp.get("out_sol", 0) >= 50
+                              and fp.get("recipients", 0) >= 3):
+        # treasury-shaped (pure-transfer + capital-scale) but not 3/3 → review for human confirm
+        add_review_candidate(conn, top, transfer_pct=fp.get("transfer_pct"), out_sol=fp.get("out_sol"),
+                             recipients=fp.get("recipients"), micro_pings=fp.get("micro_pings", 0),
+                             detected_via="funder_discovery")
+        _log_decision(conn, top, "NEAR_MISS", fp, source_migration=treasury)
+    else:
+        _log_decision(conn, top, "REJECT", fp, source_migration=treasury)
+
+
+def evaluate_lineage_root(conn, live_conn, creator: str, funder_walk_fn, raw_txs_fn,
+                          max_hops: int = 4) -> Optional[dict]:
+    """POST-MIGRATION TRIGGER. Walk up from a migrated creator to the funding-chain root,
+    then auto-fingerprint that root as a treasury. No human gate: strict pass auto-promotes.
+
+    funder_walk_fn(addr)->[(funder, amount_sol)]; raw_txs_fn(addr)->[txs]. Both raw RPC.
+    Returns the auto_evaluate result for the root, or None if no root reached."""
+    cur, seen = creator, {creator}
+    root = None
+    hops = 0
+    for _ in range(max_hops):
+        funders = funder_walk_fn(cur) or []
+        if not funders:
+            root = cur if cur != creator else None
+            break
+        top = max(funders, key=lambda x: x[1])[0]
+        if top in seen:
+            root = cur; break
+        seen.add(top); cur = top; root = top; hops += 1
+        if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (root,)).fetchone():
+            # creator's lineage already rooted at a known treasury — log it so we don't redo.
+            # FUNDER-LAYER DISCOVERY: don't stop here — walk ONE hop ABOVE the known treasury
+            # to find what FUNDS it (the G2CQewGx layer). A treasury's top funder that is
+            # ITSELF treasury-shaped (pure-transfer + capital-scale) is a NEW treasury (network
+            # mesh: treasuries fund treasuries). This is the auto-discovery of the layer above.
+            try:
+                _discover_treasury_funder(conn, live_conn, root, funder_walk_fn, raw_txs_fn)
+            except Exception:
+                pass
+            _log_decision(conn, creator, "ALREADY_CONFIRMED",
+                          {"root": root, "hops": hops}, source_migration=creator)
+            conn.commit()
+            return {"verdict": "ALREADY_CONFIRMED", "treasury": root, "needs_webhook": False}
+    if not root:
+        # no funding root reached — still LOG it against the creator so it's marked done
+        # (won't be re-checked next cycle) and the audit trail is complete.
+        _log_decision(conn, creator, "NO_ROOT", {"hops": hops, "reason": "no funding root within max_hops"},
+                      source_migration=creator)
+        conn.commit()
+        return {"verdict": "NO_ROOT", "treasury": None, "needs_webhook": False}
+    return auto_evaluate(conn, root, raw_txs_fn, micro_ping_count(live_conn, root),
+                         source_migration=creator)

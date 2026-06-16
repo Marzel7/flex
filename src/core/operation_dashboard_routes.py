@@ -546,6 +546,21 @@ def api_live():
             feed.append({"ts": r["migration_time"], "type": "CREATOR_MIGRATED",
                          "operation": r["operation_uuid"], "wallet": r["creator_wallet"],
                          "detail": r["token_mint"]})
+        # WATCHTOWER_LAUNCH — the real-time CREATEs the cascade caught (the highest-value event;
+        # this is what the feed exists to surface). Includes the treasury/subprov lineage.
+        try:
+            for r in c.execute(
+                "SELECT mint, creator_wallet, treasury_wallet, subprov_wallet, create_time, "
+                "subprov_funding_sol, birth_to_launch_seconds FROM wt_watchtower_launches "
+                "WHERE create_time IS NOT NULL ORDER BY create_time DESC LIMIT 60").fetchall():
+                btl = r["birth_to_launch_seconds"]
+                feed.append({"ts": r["create_time"], "type": "WATCHTOWER_LAUNCH",
+                             "wallet": r["creator_wallet"],
+                             "treasury": r["treasury_wallet"], "subprov": r["subprov_wallet"],
+                             "detail": (f"{r['mint']} · {r['subprov_funding_sol'] or '?'}◎"
+                                        + (f" · {btl}s birth→launch" if btl is not None else ""))})
+        except Exception:
+            pass
         if has_act:
             # NEW_COLLECTOR / NEW_CANDIDATE / OPERATION_EXPANDED — confirmed-rooted ops only
             for r in c.execute("""SELECT operation_uuid, wallet, counterparty, event_type, amount, block_time
@@ -567,6 +582,44 @@ def api_live():
                 feed.append({"ts": r["last_changed"],
                              "type": "OPERATION_REACTIVATED" if r["state"] == "REACTIVATED" else "OPERATION_DORMANT",
                              "operation": r["operation_uuid"], "detail": ""})
+        # LIVE CASCADE STREAM — the real-time WATCHTOWER pulse (watchtower_events, live DB):
+        # treasury provisioning outbounds, wrap-close fan-outs, launch detections, swarm rejects.
+        # This is the high-frequency activity that makes the feed actually live; the ops-graph
+        # sources above are slow/post-hoc by comparison.
+        # MEANINGFUL cascade events only — NOT raw TREASURY_OUTBOUND (345/day of mostly
+        # dust/top-ups would flood the feed and bury the launches; treasury moves already
+        # have the dedicated webhook feed). "Changes only on real events": a launch, a
+        # wrap-close fan-out (a creator was just provisioned), or a buy-swarm classification.
+        _CASCADE_FEED_TYPES = {
+            "WATCHTOWER_LAUNCH_DETECTED": "LAUNCH_DETECTED",
+            "WRAP_CLOSE_FANOUT_DETECTED": "WRAP_CLOSE_FANOUT",
+            "CANDIDATE_CLASSIFIED_BUY_SWARM": "BUY_SWARM",
+        }
+        try:
+            _lc = _live_conn()
+            try:
+                ph = ",".join("?" * len(_CASCADE_FEED_TYPES))
+                # DEDUPE bursty fan-outs: one subprov firing produces many per-candidate
+                # WRAP_CLOSE_FANOUT rows in the same minute — collapse to one feed entry per
+                # (type, wallet, minute) so a single provisioning event reads as one line, not 10.
+                _seen_fanout = set()
+                for r in _lc.execute(
+                    f"SELECT event_type, wallet_address, related_wallet, token_mint, created_at "
+                    f"FROM watchtower_events WHERE event_type IN ({ph}) "
+                    f"ORDER BY created_at DESC LIMIT 300", list(_CASCADE_FEED_TYPES)).fetchall():
+                    et = _CASCADE_FEED_TYPES.get(r["event_type"], r["event_type"])
+                    if et in ("WRAP_CLOSE_FANOUT", "BUY_SWARM"):
+                        key = (et, r["wallet_address"], (r["created_at"] or 0) // 60)
+                        if key in _seen_fanout:
+                            continue
+                        _seen_fanout.add(key)
+                    feed.append({"ts": r["created_at"], "type": et,
+                                 "wallet": r["wallet_address"], "related": r["related_wallet"],
+                                 "detail": r["token_mint"] or (r["related_wallet"] or "")})
+            finally:
+                _lc.close()
+        except Exception:
+            pass
         feed.sort(key=lambda x: x["ts"] or 0, reverse=True)
         feed = feed[:60]
 
@@ -1255,6 +1308,271 @@ def api_intel_treasury_ws_usage():
                         "busy_threshold_per_hr": BUSY_PER_HR})
     except Exception as e:
         return jsonify({"treasuries": [], "subscribed": 0, "flagged": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/ops/tokens")
+def ops_tokens_page():
+    return render_template("ops_tokens.html", active_page="ops_tokens")
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/token-performance")
+def api_intel_token_performance():
+    """Recent WATCH tokens with performance + classification tags. Joins the WATCH pipeline's
+    classification (watch_candidate_tokens.classified_as) with on-chain performance
+    (token_analysis: peak/current MC, migration, risk). Tags: WATCHTOWER (✓ if a confirmed
+    cascade launch), SWARM (linked to a buy-swarm subprov), WATCH_LIKE_NEW_OP, UNKNOWN.
+    Zero RPC. Query: ?limit=, ?tag=WATCHTOWER|SWARM|... , ?migrated_only=1."""
+    limit = min(int(request.args.get("limit", 100)), 500)
+    tag_filter = (request.args.get("tag") or "").upper().strip()
+    migrated_only = request.args.get("migrated_only") == "1"
+    live = _live_conn(); ov = _conn()
+    try:
+        # confirmed WATCHTOWER launch mints (strongest tag) + buy-swarm subprov→mint links
+        wt_launch_mints, swarm_mints = set(), set()
+        try:
+            wt_launch_mints = {r[0] for r in ov.execute(
+                "SELECT mint FROM wt_watchtower_launches WHERE mint IS NOT NULL").fetchall()}
+        except Exception:
+            pass
+        # FARM clustering (operator detection beyond WATCHTOWER) — mint → {funder, mechanism,...}.
+        # Persisted by farm_detector.run_farm_scan; mechanism-agnostic (catches the plain-transfer
+        # farms WATCHTOWER's wrap-close detection is blind to). Zero RPC here (pure DB read).
+        farm_by_mint = {}
+        try:
+            for r in ov.execute(
+                "SELECT l.mint, l.funder, f.mechanism, f.creator_count, f.is_known_treasury "
+                "FROM wt_farm_launches l JOIN wt_farms f ON f.funder=l.funder").fetchall():
+                farm_by_mint[r[0]] = {"funder": r[1], "mechanism": r[2],
+                                      "farm_creators": r[3], "is_known": bool(r[4])}
+        except Exception:
+            pass
+        try:
+            swarm_mints = {r[0] for r in ov.execute(
+                "SELECT DISTINCT token_mint FROM wt_candidate_websocket_watches "
+                "WHERE state='BUY_SWARM' AND token_mint IS NOT NULL").fetchall()}
+        except Exception:
+            pass
+
+        where = "WHERE 1=1"
+        if migrated_only:
+            where += " AND t.migrated_at IS NOT NULL"
+        rows = live.execute(
+            f"""SELECT w.mint, w.classified_as, w.classification_conf, w.classification_reason,
+                       w.prediction_score, w.creator_address,
+                       t.market_cap_highest, t.market_cap_current, t.first_observed_mc,
+                       t.migrated_at, t.lifecycle_stage, t.risk_level, t.rug_probability,
+                       t.market_cap_highest_at_ts, t.created_at
+                FROM watch_candidate_tokens w
+                LEFT JOIN token_analysis t ON t.mint = w.mint
+                {where}
+                ORDER BY COALESCE(t.migrated_at, t.created_at, w.updated_at) DESC
+                LIMIT ?""", (limit * 3,)).fetchall()
+        rows = [dict(r) for r in rows]
+        seen_mints = {r["mint"] for r in rows}
+
+        # UNION the DISCOVERY-confirmed WATCHTOWER launches. The cascade ledger
+        # (wt_watchtower_launches, 4 rows) only captures the tiny fraction caught in real time;
+        # the discovery job (wt_discovered_subprovs, 32 treasury→subprov→creator chains) is the
+        # AUTHORITATIVE recent-launch source. Resolve each chain's creator → mint via
+        # token_analysis (zero RPC), so the page reflects ALL recent WATCHTOWER launches, not the
+        # 18h-stale ledger view. discovery_mints get the WATCHTOWER tag (✓ only if also in ledger).
+        discovery_mints = set()
+        try:
+            disc_creators = [r[0] for r in ov.execute(
+                "SELECT DISTINCT first_creator FROM wt_discovered_subprovs "
+                "WHERE first_creator IS NOT NULL AND treasury_known=1").fetchall()]
+            for _cr in disc_creators:
+                tr = live.execute(
+                    "SELECT mint, market_cap_highest, market_cap_current, first_observed_mc, "
+                    "migrated_at, lifecycle_stage, risk_level, rug_probability, "
+                    "market_cap_highest_at_ts, created_at FROM token_analysis "
+                    "WHERE earliest_tx_creator=? OR pf_ws_creator=? LIMIT 1", (_cr, _cr)).fetchone()
+                if not tr:
+                    continue
+                tr = dict(tr); m = tr["mint"]
+                discovery_mints.add(m)
+                if m in seen_mints:
+                    continue
+                if migrated_only and not tr.get("migrated_at"):
+                    continue
+                rows.append({"mint": m, "classified_as": "WATCHTOWER", "classification_conf": 1.0,
+                             "classification_reason": "discovery_launch_chain", "prediction_score": None,
+                             "creator_address": _cr, **{k: v for k, v in tr.items() if k != "mint"}})
+                seen_mints.add(m)
+        except Exception:
+            pass
+        # treat discovery mints as WATCHTOWER for tagging even if they also have a watch_candidate row
+        wt_launch_mints = set(wt_launch_mints)   # cascade-confirmed (gets the ✓)
+        _wt_tag_mints = wt_launch_mints | discovery_mints
+
+        # UNION the confirmed cascade launches not already present (they get the ✓ badge).
+        # cascade launch create_times (so a just-caught launch not yet in token_analysis still
+        # has a date to sort by — and is NOT hidden by migrated_only).
+        wt_create_time = {}
+        try:
+            for r in ov.execute("SELECT mint, create_time FROM wt_watchtower_launches "
+                                "WHERE mint IS NOT NULL").fetchall():
+                wt_create_time[r[0]] = r[1]
+        except Exception:
+            pass
+        for m in (wt_launch_mints - seen_mints):
+            tr = live.execute(
+                "SELECT market_cap_highest, market_cap_current, first_observed_mc, migrated_at, "
+                "lifecycle_stage, risk_level, rug_probability, market_cap_highest_at_ts, created_at "
+                "FROM token_analysis WHERE mint=?", (m,)).fetchone()
+            tr = dict(tr) if tr else {}
+            # A cascade-CONFIRMED launch (STRICT, caught at CREATE) is real regardless of whether
+            # token_analysis has migrated it yet — do NOT drop it on migrated_only. Fall back to
+            # the launch's create_time for sorting when token_analysis hasn't caught up.
+            if not tr.get("created_at") and not tr.get("migrated_at"):
+                tr["created_at"] = wt_create_time.get(m)
+            rows.append({"mint": m, "classified_as": "WATCHTOWER", "classification_conf": 1.0,
+                         "classification_reason": "confirmed_cascade_launch",
+                         "prediction_score": None, "creator_address": None, **tr})
+        # UNION the FARM launches not already present (plain-transfer farms that aren't in the
+        # WATCH pipeline OR the WATCHTOWER set — the larger ecosystem we were blind to).
+        for m, fm in farm_by_mint.items():
+            if m in seen_mints:
+                continue
+            tr = live.execute(
+                "SELECT market_cap_highest, market_cap_current, first_observed_mc, migrated_at, "
+                "lifecycle_stage, risk_level, rug_probability, market_cap_highest_at_ts, created_at "
+                "FROM token_analysis WHERE mint=?", (m,)).fetchone()
+            tr = dict(tr) if tr else {}
+            if migrated_only and not tr.get("migrated_at"):
+                continue
+            rows.append({"mint": m, "classified_as": "FARM", "classification_conf": None,
+                         "classification_reason": f"farm:{fm['funder'][:8]} ({fm['mechanism']})",
+                         "prediction_score": None, "creator_address": fm.get("funder"), **tr})
+            seen_mints.add(m)
+        # UNION RECENT GENERAL MIGRATIONS from token_analysis. The page's original base
+        # (watch_candidate_tokens) froze ~2 weeks ago, so recent migrated tokens that aren't
+        # WATCHTOWER/FARM were invisible. token_analysis IS current (migrations flow live), so
+        # pull recent migrated tokens directly — tagged UNKNOWN unless a tag source matches.
+        # This makes the page show ALL recent migrated tokens with classification overlaid.
+        try:
+            for r in live.execute(
+                "SELECT mint, market_cap_highest, market_cap_current, first_observed_mc, migrated_at, "
+                "lifecycle_stage, risk_level, rug_probability, market_cap_highest_at_ts, created_at, "
+                "earliest_tx_creator FROM token_analysis "
+                "WHERE migrated_at > strftime('%s','now','-14 days') AND migrated_at IS NOT NULL "
+                "ORDER BY migrated_at DESC LIMIT 400").fetchall():
+                tr = dict(r); m = tr["mint"]
+                if m in seen_mints:
+                    continue
+                seen_mints.add(m)
+                rows.append({"mint": m, "classified_as": "UNKNOWN", "classification_conf": None,
+                             "classification_reason": "recent_migration", "prediction_score": None,
+                             "creator_address": tr.pop("earliest_tx_creator", None), **tr})
+        except Exception:
+            pass
+        out = []
+        for r in rows:
+            mint = r["mint"]
+            # tag precedence: confirmed launch > pipeline classification > swarm overlay
+            base = r.get("classified_as") or "UNKNOWN"
+            is_wt_confirmed = mint in wt_launch_mints     # cascade ledger → ✓
+            is_wt = mint in _wt_tag_mints                 # cascade OR discovery → WATCHTOWER tag
+            is_swarm = mint in swarm_mints
+            farm = farm_by_mint.get(mint)                 # operator cluster (any mechanism)
+            # tag precedence: WATCHTOWER (wrap-close, confirmed) > FARM (operator cluster) > base
+            if is_wt or base == "WATCHTOWER":
+                tag = "WATCHTOWER"
+            elif farm:
+                tag = "FARM"
+            else:
+                tag = base
+            peak = r.get("market_cap_highest"); cur = r.get("market_cap_current")
+            entry = r.get("first_observed_mc")
+            mult = (peak / entry) if (peak and entry and entry > 0) else None
+            retrace = (1 - cur / peak) if (peak and cur and peak > 0) else None
+            rec = {
+                "mint": mint, "tag": tag,
+                "wt_confirmed": is_wt_confirmed, "swarm": is_swarm,
+                "farm_funder": (farm or {}).get("funder"),
+                "farm_mechanism": (farm or {}).get("mechanism"),
+                "farm_creators": (farm or {}).get("farm_creators"),
+                "classification_conf": r.get("classification_conf"),
+                "classification_reason": r.get("classification_reason"),
+                "prediction_score": r.get("prediction_score"),
+                "creator": r.get("creator_address"),
+                "peak_mc": peak, "current_mc": cur, "entry_mc": entry,
+                "peak_multiple": round(mult, 1) if mult else None,
+                "retrace_pct": round(retrace * 100, 0) if retrace is not None else None,
+                "migrated_at": r.get("migrated_at"), "stage": r.get("lifecycle_stage"),
+                "risk_level": r.get("risk_level"), "rug_probability": r.get("rug_probability"),
+                "peak_at": r.get("market_cap_highest_at_ts"), "created_at": r.get("created_at"),
+            }
+            if tag_filter:
+                if tag_filter == "SWARM" and not is_swarm:
+                    continue
+                if tag_filter != "SWARM" and tag != tag_filter:
+                    continue
+            out.append(rec)
+        # SORT BY RECENCY ACROSS ALL SOURCES, THEN truncate. The watch_candidate rows and the
+        # UNION'd discovery/cascade launches are merged out of order — the discovery launches are
+        # the freshest but were appended last, so a source-order cut buried them (the page started
+        # at 13-day-old tokens). Order by migrated_at → created_at → 0 so the newest float up.
+        out.sort(key=lambda r: (r.get("migrated_at") or r.get("created_at") or 0), reverse=True)
+        out = out[:limit]
+        # summary counts (over the returned window)
+        from collections import Counter as _Ct
+        counts = dict(_Ct(r["tag"] for r in out))
+        counts["SWARM"] = sum(1 for r in out if r["swarm"])
+        counts["WATCHTOWER_confirmed"] = sum(1 for r in out if r["wt_confirmed"])
+        return jsonify({"tokens": out, "count": len(out), "counts": counts,
+                        "farms_total": len({r["farm_funder"] for r in out if r.get("farm_funder")})})
+    except Exception as e:
+        return jsonify({"tokens": [], "count": 0, "error": str(e)})
+    finally:
+        live.close(); ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/active-ws-sessions")
+def api_intel_active_ws_sessions():
+    """The TEMPORARY WS subscriptions the cascade currently holds beyond the permanent
+    treasuries — one per ACTIVE subprov session, opened only on a ≥WS_TREASURY_MIN_SOL
+    provisioning load. Lets you SEE that only large-amount launch candidates are subscribed
+    and no buy-swarm/dust account slipped in (any row below the floor = a swarm leak). Zero RPC."""
+    FLOOR = float(os.environ.get("WS_TREASURY_MIN_SOL", "50"))
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_active_subprov_sessions"):
+            return jsonify({"sessions": [], "active": 0, "floor_sol": FLOOR})
+        now = int(time.time())
+        # candidate counts per ACTIVE subprov (watching vs total)
+        cand_total, cand_watching = {}, {}
+        if _table_exists(ov, "wt_candidate_websocket_watches"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) n, SUM(state='WATCHING') w "
+                "FROM wt_candidate_websocket_watches GROUP BY subprov_wallet").fetchall():
+                cand_total[r[0]] = r[1]; cand_watching[r[0]] = r[2] or 0
+        rows = ov.execute(
+            "SELECT subprov_wallet, treasury_wallet, funding_amount, detected_at, expires_at "
+            "FROM wt_active_subprov_sessions WHERE state='ACTIVE' ORDER BY detected_at DESC").fetchall()
+        out, below_floor = [], 0
+        for r in rows:
+            amt = r["funding_amount"]
+            leak = amt is not None and amt < FLOOR
+            if leak:
+                below_floor += 1
+            ttl = (r["expires_at"] - now) if r["expires_at"] else None
+            sp = r["subprov_wallet"]
+            out.append({
+                "subprov": sp, "treasury": r["treasury_wallet"],
+                "funding_sol": amt,
+                "candidates_total": cand_total.get(sp, 0),
+                "candidates_watching": cand_watching.get(sp, 0),
+                "ttl_remaining_s": ttl if (ttl is None or ttl > 0) else 0,
+                "age_s": (now - r["detected_at"]) if r["detected_at"] else None,
+                "below_floor": leak,   # True = a swarm/dust account that shouldn't be subscribed
+            })
+        return jsonify({"sessions": out, "active": len(out), "floor_sol": FLOOR,
+                        "below_floor": below_floor})
+    except Exception as e:
+        return jsonify({"sessions": [], "active": 0, "floor_sol": FLOOR, "error": str(e)})
     finally:
         ov.close()
 

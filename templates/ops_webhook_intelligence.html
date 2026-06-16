@@ -108,6 +108,14 @@ tr:hover td { background:var(--bg-card2); }
     <div id="twsu-summary" class="muted" style="font-size:11px;margin-top:6px"></div>
   </div>
 
+  <div class="sec-h">👁 Active WS Sessions <span class="muted" style="font-weight:400;font-size:11px">— temporary subprov subscriptions (opened only on a ≥50◎ provisioning load); any row below the floor = a swarm account that leaked in</span></div>
+  <div class="panel">
+    <table><thead><tr>
+      <th>Sub-Provisioner</th><th>Treasury</th><th class="num">Funding ◎</th><th class="num">Candidates</th><th class="num">TTL</th><th>Age</th><th>Status</th>
+    </tr></thead><tbody id="aws-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+    <div id="aws-summary" class="muted" style="font-size:11px;margin-top:6px"></div>
+  </div>
+
   <div class="sec-h">🛰 Webhook Event Feed <span class="muted" style="font-weight:400;font-size:11px">— enriched with operation context</span></div>
   <div class="panel">
     <table><thead><tr><th>When</th><th>Type</th><th>Wallet</th><th>Role</th><th>Operation</th><th>Family</th><th>Detail</th></tr></thead>
@@ -381,7 +389,35 @@ async function loadTreasuryWsUsage(){
   sum.textContent = `${d.subscribed||0} treasuries WS-subscribed · ${d.flagged||0} flagged busy (>${d.busy_threshold_per_hr||200}/hr) · real-time provisioning trigger (replaces slow webhook path)`;
 }
 
-function refresh(){ loadStatus(); loadTreasuryTrigger(); loadLaunch(); loadCoverage(); loadQueue(); loadTreasuryWsUsage(); loadFeed(); }
+async function loadActiveWsSessions(){
+  let d; try{ d=await (await fetch('/api/ops-v2/intel/active-ws-sessions')).json(); }catch(e){ return; }
+  const body=document.getElementById('aws-body');
+  const rows=d.sessions||[];
+  const fmtTtl=s=>s==null?'—':(s<=0?'expiring':(s<60?s+'s':Math.floor(s/60)+'m'));
+  if(!rows.length){ body.innerHTML=`<tr><td colspan="7" class="muted">no active subprov sessions (quiet — only the ${d.floor_sol||50}◎+ provisioning loads open a session)</td></tr>`; }
+  else {
+    body.innerHTML=rows.map(s=>{
+      const leak=s.below_floor;
+      const status = leak
+        ? `<span class="hot">⚠ BELOW FLOOR — swarm leak</span>`
+        : (s.candidates_watching>0?`<span class="go">watching ${s.candidates_watching}</span>`:`<span class="muted">open</span>`);
+      return `<tr${leak?' style="background:rgba(255,80,80,.08)"':''}>`
+        +`<td title="${s.subprov}"><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="window.open('https://solscan.io/account/${s.subprov}','_blank')">${short(s.subprov)}</span></td>`
+        +`<td class="muted" title="${s.treasury||''}">${s.treasury?short(s.treasury):'—'}</td>`
+        +`<td class="num"${leak?' style="color:#ff6b6b;font-weight:700"':' style="font-weight:600"'}>${s.funding_sol!=null?(+s.funding_sol).toFixed(1):'—'}</td>`
+        +`<td class="num">${s.candidates_watching}/${s.candidates_total}</td>`
+        +`<td class="num">${fmtTtl(s.ttl_remaining_s)}</td>`
+        +`<td class="muted">${fmtTtl(s.age_s)} ago</td>`
+        +`<td>${status}</td></tr>`;
+    }).join('');
+  }
+  const sum=document.getElementById('aws-summary');
+  const leaks=d.below_floor||0;
+  sum.textContent = `${d.active||0} active WS session(s) · floor ${d.floor_sol||50}◎ · ` +
+    (leaks>0 ? `⚠ ${leaks} BELOW FLOOR (swarm accounts leaked in)` : `✓ all above floor — no swarm/dust accounts subscribed`);
+}
+
+function refresh(){ loadStatus(); loadTreasuryTrigger(); loadLaunch(); loadCoverage(); loadQueue(); loadTreasuryWsUsage(); loadActiveWsSessions(); loadFeed(); }
 refresh();
 setInterval(refresh, 20000);
 </script>

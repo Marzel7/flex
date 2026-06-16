@@ -34320,8 +34320,15 @@ def _process_wt_infra_payload(payload):
                         # fanout even on a first-seen subprov. Plain INSERT into wt_ops_v2.db (the
                         # DB is the handoff boundary; this process never touches a websocket).
                         try:
+                            # LAUNCHES REQUIRE A LARGE PROVISIONING LOAD. Floor at 50◎ (env
+                            # WS_TREASURY_MIN_SOL) — a <10◎ outbound is dust/buy-swarm noise that
+                            # never launches and only exhausts the cascade's bounded watch budget.
+                            # Real launch subprovs get 700/800-SOL-class loads. Keep in sync with
+                            # ws_cascade.TREASURY_PROVISION_MIN_SOL.
+                            _sess_min = float(os.getenv("WS_TREASURY_MIN_SOL", "50"))
+                            _sess_max = float(os.getenv("WS_TREASURY_MAX_SOL", "2000"))
                             if (infra_addr in _confirmed_treasuries() and counterparty
-                                    and 0.5 <= amount_sol <= 1000.0):
+                                    and _sess_min <= amount_sol <= _sess_max):
                                 _sub_known = 1 if counterparty in _known_subprovs() else 0
                                 from src.core.ws_cascade_store import (
                                     ensure_cascade_schema, start_session, emit_event)

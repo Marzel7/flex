@@ -1,0 +1,248 @@
+"""
+Farm detector — operator clustering for SINGLE-USE-CREATOR migrated launches.
+
+WATCHTOWER is only ONE farm style (the WSOL wrap-close provisioning mechanism). On-chain
+there is a much larger ecosystem of PLAIN-TRANSFER farms running the identical playbook —
+fresh single-use creator → migrate — funded by a plain SOL transfer instead of a wrap-close.
+WATCHTOWER detection is 100% blind to them (it keys on the wrap-close signature).
+
+This detector is mechanism-AGNOSTIC: it clusters recent single-use-creator MIGRATED tokens by
+their creator's FUNDER. A funder that provisioned ≥2 such creators is a farm/operator,
+regardless of whether it used wrap-close or plain transfer. (Measured 2026-06-16: 15 active
+plain-transfer farms, 67 launches in 3 days — far outnumbering the wrap-close WATCHTOWER set.)
+
+  funder → [single-use migrated creators]  ·  ≥2 = FARM
+  mechanism = WRAP_CLOSE (wt-style) | PLAIN_XFER (the larger ecosystem)
+
+Stored in wt_farms / wt_farm_launches (ops db). Read-only over token_analysis + RPC for the
+funder trace (1 getSignatures + 1 getTransaction per new creator, cached by checked-set).
+"""
+from __future__ import annotations
+import os
+import json
+import time
+import sqlite3
+import urllib.request
+from collections import defaultdict
+from typing import Optional
+
+try:
+    from src.utils.db_locking import db_connect
+except Exception:
+    def db_connect(path, timeout=30, row_factory=None):
+        c = sqlite3.connect(path, timeout=timeout)
+        if row_factory:
+            c.row_factory = row_factory
+        return c
+
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+OPS_DB = os.environ.get("OPS_V2_DB_PATH", os.path.join(_REPO, "database", "wt_ops_v2.db"))
+LIVE_DB = os.environ.get("FLEX_DB_PATH", os.path.join(_REPO, "database", "flex_complete_database.db"))
+_RPC = os.environ.get("HELIUS_RPC_URL", "")
+
+
+def ensure_farm_schema(conn) -> None:
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_farms (
+        funder            TEXT PRIMARY KEY,
+        creator_count     INTEGER DEFAULT 0,      -- distinct single-use migrated creators funded
+        wrap_close_count  INTEGER DEFAULT 0,      -- how many via the wrap-close mechanism
+        mechanism         TEXT,                   -- WRAP_CLOSE | PLAIN_XFER | MIXED
+        peak_mc_sum       REAL DEFAULT 0,
+        last_launch_at    INTEGER,
+        is_known_treasury INTEGER DEFAULT 0,
+        first_detected    INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+        updated_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+    )""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_farm_launches (
+        mint            TEXT PRIMARY KEY,
+        funder          TEXT NOT NULL,
+        creator         TEXT,
+        peak_mc         REAL,
+        migrated_at     INTEGER,
+        wrap_close      INTEGER DEFAULT 0,
+        seed_sol        REAL,
+        detected_at     INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+    )""")
+    # which creators we've already traced (avoid re-RPC)
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_farm_checked (
+        creator TEXT PRIMARY KEY, checked_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+    )""")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_farm_launch_funder ON wt_farm_launches(funder)")
+    conn.commit()
+
+
+def _rpc(method, params, retry=2):
+    if not _RPC:
+        key = os.environ.get("HELIUS_API_KEY", "")
+        url = f"https://mainnet.helius-rpc.com/?api-key={key}"
+    else:
+        url = _RPC
+    for a in range(retry):
+        try:
+            body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode()
+            req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+            return json.loads(urllib.request.urlopen(req, timeout=15).read()).get("result")
+        except Exception:
+            time.sleep(0.5 * (a + 1))
+    return None
+
+
+def _trace_funder(creator: str):
+    """The creator's funder = the SOL sender in its OLDEST tx. Also detect whether that
+    funding tx is a wrap-close (syncNative+closeAccount). Returns (funder, wrap_close, seed)."""
+    sigs = _rpc("getSignaturesForAddress", [creator, {"limit": 1000}])
+    if not sigs:
+        return None, False, 0.0
+    # page to the true oldest (busy creators rare, but be safe)
+    before = sigs[-1]["signature"]
+    while len(sigs) == 1000:
+        nx = _rpc("getSignaturesForAddress", [creator, {"limit": 1000, "before": before}])
+        if not nx:
+            break
+        sigs = nx; before = sigs[-1]["signature"]
+    tx = _rpc("getTransaction", [sigs[-1]["signature"], {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
+    if not tx:
+        return None, False, 0.0
+    meta = tx.get("meta") or {}
+    keys = [k.get("pubkey") if isinstance(k, dict) else k
+            for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or [])]
+    pre, post = meta.get("preBalances") or [], meta.get("postBalances") or []
+    types = {ix.get("parsed", {}).get("type")
+             for ix in (tx.get("transaction", {}).get("message", {}).get("instructions") or [])
+             if isinstance(ix.get("parsed"), dict)}
+    wc = "closeAccount" in types and "syncNative" in types
+    if creator in keys:
+        ci = keys.index(creator)
+        seed = (post[ci] - pre[ci]) / 1e9 if ci < min(len(pre), len(post)) else 0.0
+        cand = sorted([(keys[i], post[i] - pre[i]) for i in range(min(len(pre), len(post), len(keys)))
+                       if keys[i] != creator], key=lambda x: x[1])
+        return (cand[0][0] if cand else None), wc, seed
+    return None, wc, 0.0
+
+
+def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = False) -> dict:
+    """Scan recent single-use-creator migrated tokens, trace each NEW creator's funder, cluster
+    into farms. Idempotent: only traces creators not already in wt_farm_checked (bounded RPC).
+    Lock-resilient: busy_timeout + retry on the DDL, so the lock storm doesn't fail the scan."""
+    # Plain sqlite3 connects (not the db_connect wrapper, which runs startup checks that log
+    # DB_LOCK_ERROR and fail under the lock storm). Opening a connection takes no lock; we add
+    # busy_timeout so the actual reads/writes wait-and-retry instead of erroring.
+    oc = sqlite3.connect(OPS_DB, timeout=30)
+    oc.execute("PRAGMA busy_timeout=20000")
+    # LIVE db is read-only here (we only SELECT token_analysis; all writes go to the ops db).
+    # A read-only URI connection bypasses write locks entirely in WAL mode — essential because
+    # the live db is heavily WAL-pinned by the listener/API.
+    lc = sqlite3.connect(f"file:{LIVE_DB}?mode=ro", uri=True, timeout=20)
+    # schema DDL takes a write lock — only run it if the tables don't exist yet (after first
+    # run they always do). Re-running CREATE TABLE every scan needlessly competed for the write
+    # lock under the storm and was the failing op.
+    try:
+        have = oc.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_farms'").fetchone()
+        if not have:
+            for _a in range(3):
+                try:
+                    ensure_farm_schema(oc); break
+                except Exception:
+                    time.sleep(1.5 * (_a + 1))
+    except Exception:
+        pass
+    try:
+        known = {r[0] for r in oc.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        checked = {r[0] for r in oc.execute("SELECT creator FROM wt_farm_checked").fetchall()}
+        rows = lc.execute(
+            """SELECT ta.mint, ta.earliest_tx_creator, ta.market_cap_highest, ta.migrated_at
+               FROM token_analysis ta
+               JOIN (SELECT earliest_tx_creator cr, COUNT(*) cnt FROM token_analysis
+                     WHERE earliest_tx_creator IS NOT NULL GROUP BY earliest_tx_creator) cc
+                 ON cc.cr = ta.earliest_tx_creator
+               WHERE ta.migrated_at > strftime('%s','now', ?)
+                 AND cc.cnt = 1 AND ta.earliest_tx_creator IS NOT NULL
+               ORDER BY ta.migrated_at DESC""", (f"-{lookback_days} days",)).fetchall()
+        # BUFFER all writes during the RPC loop (no DB touch) — a transaction held open across
+        # the slow getSignatures/getTransaction calls straddled the ops-db WAL and lost the lock
+        # race to the scheduler. Collect rows, write them ALL at the end in one short txn.
+        rpc_used = 0
+        checked_rows, launch_rows = [], []
+        for mint, creator, peak, mig in rows:
+            if creator in checked or rpc_used >= max_rpc:
+                continue
+            funder, wc, seed = _trace_funder(creator)
+            rpc_used += 2
+            checked_rows.append((creator,))
+            if not funder:
+                continue
+            launch_rows.append((mint, funder, creator, peak, mig, 1 if wc else 0, round(seed, 4)))
+
+        # single short write transaction, retried on lock (ops db is contended by the scheduler)
+        for _attempt in range(4):
+            try:
+                if checked_rows:
+                    oc.executemany("INSERT OR IGNORE INTO wt_farm_checked (creator) VALUES (?)", checked_rows)
+                if launch_rows:
+                    oc.executemany(
+                        "INSERT OR REPLACE INTO wt_farm_launches "
+                        "(mint, funder, creator, peak_mc, migrated_at, wrap_close, seed_sol) "
+                        "VALUES (?,?,?,?,?,?,?)", launch_rows)
+                oc.commit()
+                break
+            except Exception as e:
+                if "locked" in str(e).lower() and _attempt < 3:
+                    time.sleep(1.5 * (_attempt + 1)); continue
+                raise
+        # rebuild the farm aggregate from launches (funders with ≥2 launches = a farm)
+        oc.execute("DELETE FROM wt_farms")
+        agg = defaultdict(lambda: {"n": 0, "wc": 0, "peak": 0.0, "last": 0})
+        for r in oc.execute("SELECT funder, wrap_close, peak_mc, migrated_at FROM wt_farm_launches").fetchall():
+            a = agg[r[0]]; a["n"] += 1; a["wc"] += (r[1] or 0)
+            a["peak"] += (r[2] or 0); a["last"] = max(a["last"], r[3] or 0)
+        farms = 0
+        now = int(time.time())
+        for funder, a in agg.items():
+            if a["n"] < 2:
+                continue
+            mech = "WRAP_CLOSE" if a["wc"] >= a["n"] else ("PLAIN_XFER" if a["wc"] == 0 else "MIXED")
+            oc.execute(
+                """INSERT OR REPLACE INTO wt_farms
+                   (funder, creator_count, wrap_close_count, mechanism, peak_mc_sum,
+                    last_launch_at, is_known_treasury, updated_at)
+                   VALUES (?,?,?,?,?,?,?,?)""",
+                (funder, a["n"], a["wc"], mech, a["peak"], a["last"],
+                 1 if funder in known else 0, now))
+            farms += 1
+        oc.commit()
+        s = {"scanned": len(rows), "rpc_used": rpc_used, "farms": farms,
+             "launches_total": sum(1 for _ in oc.execute("SELECT 1 FROM wt_farm_launches"))}
+        if not quiet:
+            print(f"[FARM_SCAN] scanned={len(rows)} rpc={rpc_used} farms={farms}", flush=True)
+        return {"status": "OK", "summary": s}
+    except Exception as exc:
+        if not quiet:
+            print(f"[FARM_SCAN] error: {exc}", flush=True)
+        return {"status": "ERROR", "error": str(exc)}
+    finally:
+        oc.close(); lc.close()
+
+
+def farm_for_mints(conn, mints: list) -> dict:
+    """mint → {funder, mechanism, farm_creator_count, is_known} for any mint that's a farm launch.
+    Zero RPC — pure DB read of the persisted clustering. For the token-performance page tag."""
+    if not mints:
+        return {}
+    out = {}
+    try:
+        ph = ",".join("?" * len(mints))
+        for r in conn.execute(
+            f"""SELECT l.mint, l.funder, f.mechanism, f.creator_count, f.is_known_treasury, l.wrap_close
+                FROM wt_farm_launches l JOIN wt_farms f ON f.funder = l.funder
+                WHERE l.mint IN ({ph})""", list(mints)).fetchall():
+            out[r[0]] = {"funder": r[1], "mechanism": r[2], "farm_creator_count": r[3],
+                         "is_known_treasury": bool(r[4]), "wrap_close": bool(r[5])}
+    except Exception:
+        pass
+    return out
+
+
+if __name__ == "__main__":
+    import sys
+    days = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+    print(json.dumps(run_farm_scan(lookback_days=days), indent=2))

@@ -6,7 +6,12 @@
 
     <nav class="sidebar-nav">
         <div class="sidebar-section">
-            <a class="sidebar-item {% if active_page == 'command_center' %}active{% endif %}" href="/command-center" style="font-weight:600;">◆ Command Center</a>
+            <div class="sidebar-section-label" style="color:var(--accent-cyan,#22d3ee);">◆ Operations OS</div>
+            <a class="sidebar-item {% if active_page == 'ops_live' %}active{% endif %}" href="/ops" style="font-weight:600;">Live Operations <span style="color:#6e7681;font-size:9px;">graph</span></a>
+            <a class="sidebar-item {% if active_page == 'ops_live_cards' %}active{% endif %}" href="/ops/cards" style="padding-left:14px;font-size:11.5px;">Pipeline &amp; States <span style="color:#6e7681;font-size:9px;">cards</span></a>
+            <a class="sidebar-item {% if active_page == 'ops_operations' %}active{% endif %}" href="/ops/operations" style="padding-left:14px;font-size:11.5px;">Operations Table</a>
+            <a class="sidebar-item {% if active_page == 'ops_webhook' %}active{% endif %}" href="/ops/webhook-coverage" style="padding-left:14px;font-size:11.5px;">Webhook Coverage</a>
+            <a class="sidebar-item {% if active_page == 'ops_tokens' %}active{% endif %}" href="/ops/tokens" style="padding-left:14px;font-size:11.5px;">Token Performance <span style="color:#6e7681;font-size:9px;">tagged</span></a>
         </div>
 
         <div class="sidebar-section">
@@ -22,8 +27,10 @@
             <a class="sidebar-item {% if active_page == 'funding_queue' %}active{% endif %}" href="/funding-queue">Funding Review<span class="nav-badge" id="badge-funding-review"></span></a>
         </div>
 
-        <details class="sidebar-section sidebar-collapse" {% if active_page in ['token_intelligence','creator-analysis','ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders','funder_intelligence','hubs','trading_sim'] %}open{% endif %}>
-            <summary class="sidebar-section-label">Intelligence</summary>
+        <details class="sidebar-section sidebar-collapse" {% if active_page in ['watchtower_operators','watchtower_ops','token_intelligence','creator-analysis','ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders','funder_intelligence','hubs','trading_sim'] %}open{% endif %}>
+            <summary class="sidebar-section-label">Intelligence <span style="color:var(--text-dim,#6e7681);font-size:9px;font-weight:400;">— research</span></summary>
+            <a class="sidebar-item {% if active_page == 'watchtower_operators' %}active{% endif %}" href="/watchtower/operators">Discovery Mode</a>
+            <a class="sidebar-item {% if active_page == 'watchtower_ops' %}active{% endif %}" href="/watchtower/intelligence">Attribution Review</a>
             <a class="sidebar-item {% if active_page == 'token_intelligence' %}active{% endif %}" href="/token-intelligence">Tokens</a>
             <a class="sidebar-item {% if active_page == 'creator-analysis' %}active{% endif %}" href="/creator-analysis">Creators</a>
             <a class="sidebar-item {% if active_page in ['ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders'] %}active{% endif %}" href="/ecosystem">Ecosystems</a>
@@ -35,12 +42,15 @@
             <div class="sidebar-section-label">Investigation</div>
             <a class="sidebar-item {% if active_page == 'spike_analysis' %}active{% endif %}" href="/spike-analysis">Flash Spikes</a>
             <a class="sidebar-item {% if active_page == 'network_diagram' %}active{% endif %}" href="/network-diagram">Investigations</a>
-            <a class="sidebar-item {% if active_page == 'watchtower' %}active{% endif %}" href="/watchtower">⬡ WATCHTOWER</a>
-            <a class="sidebar-item {% if active_page == 'watchtower_dashboard' %}active{% endif %}" href="/watchtower/dashboard" style="padding-left:20px;font-size:11px;">↳ Dashboard</a>
-            <a class="sidebar-item {% if active_page == 'watchtower_ops' %}active{% endif %}" href="/watchtower/intelligence" style="padding-left:20px;font-size:11px;">↳ Operations</a>
-            <a class="sidebar-item {% if active_page == 'watchtower_operators' %}active{% endif %}" href="/watchtower/operators" style="padding-left:20px;font-size:11px;">↳ Operators</a>
-            <a class="sidebar-item {% if active_page == 'watchtower_interceptor' %}active{% endif %}" href="/watchtower/interceptor" style="padding-left:20px;font-size:11px;">↳ Interceptor</a>
         </div>
+
+        <details class="sidebar-section sidebar-collapse" {% if active_page in ['watchtower','command_center','watchtower_dashboard','watchtower_interceptor'] %}open{% endif %}>
+            <summary class="sidebar-section-label">WATCHTOWER Legacy <span style="color:var(--text-dim,#6e7681);font-size:9px;font-weight:400;">— reference</span></summary>
+            <a class="sidebar-item {% if active_page == 'watchtower' %}active{% endif %}" href="/watchtower">⬡ WATCHTOWER</a>
+            <a class="sidebar-item {% if active_page == 'command_center' %}active{% endif %}" href="/command-center" style="padding-left:14px;font-size:11px;">Command Center (old)</a>
+            <a class="sidebar-item {% if active_page == 'watchtower_dashboard' %}active{% endif %}" href="/watchtower/dashboard" style="padding-left:14px;font-size:11px;">Campaigns / Dashboard</a>
+            <a class="sidebar-item {% if active_page == 'watchtower_interceptor' %}active{% endif %}" href="/watchtower/interceptor" style="padding-left:14px;font-size:11px;">Interceptor</a>
+        </details>
 
         <details class="sidebar-section sidebar-collapse" {% if active_page in ['transfer_graph','webhook','snapshots','vaults','usage','system_health','pumpfun'] %}open{% endif %}>
             <summary class="sidebar-section-label">Diagnostics</summary>

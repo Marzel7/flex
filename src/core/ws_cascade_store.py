@@ -170,31 +170,69 @@ def ensure_cascade_schema(conn) -> None:
 
 
 # ─────────────────────────────── events ─────────────────────────────────────
+# CRITICAL: emit_event is called INLINE from the cascade's async processor task. It MUST NOT
+# block the event loop — a blocking live-DB write under the lock storm (time.sleep retry +
+# 30s busy_timeout) was stalling the processor for seconds per event, which timed out WS
+# subscription confirmations (30s) and broke the treasury tier entirely (0 sessions opened).
+# Fix: emit_event just enqueues; a single background writer thread drains + writes the live DB
+# (with the lock-retry happening THERE, off the event loop). Fire-and-forget, never blocks.
+import queue as _queue_mod
+import threading as _threading_mod
+
+_event_q: "_queue_mod.Queue" = _queue_mod.Queue(maxsize=5000)
+_writer_started = False
+_writer_lock = _threading_mod.Lock()
+
+
+def _event_writer_loop():
+    while True:
+        ev = _event_q.get()
+        if ev is None:
+            continue
+        et, wallet, related, mint, payload, ts = ev
+        for _attempt in range(4):
+            try:
+                c = db_connect(LIVE_DB_PATH, timeout=30)
+                try:
+                    c.execute("PRAGMA busy_timeout=15000")
+                    c.execute(
+                        "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
+                        "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
+                        (et, wallet, related, mint, json.dumps(payload or {}), "ws_cascade", ts))
+                    c.commit()
+                    break
+                finally:
+                    c.close()
+            except Exception as e:
+                if "locked" in str(e).lower() and _attempt < 3:
+                    time.sleep(1.0 * (_attempt + 1))
+                    continue
+                print(f"[WS_CASCADE] event write failed {et}: {e}", flush=True)
+                break
+
+
+def _ensure_writer():
+    global _writer_started
+    if _writer_started:
+        return
+    with _writer_lock:
+        if _writer_started:
+            return
+        _threading_mod.Thread(target=_event_writer_loop, daemon=True,
+                              name="ws-cascade-event-writer").start()
+        _writer_started = True
+
+
 def emit_event(event_type: str, wallet: Optional[str] = None,
                related: Optional[str] = None, token_mint: Optional[str] = None,
                payload: Optional[dict] = None) -> None:
-    """Write a cascade event into watchtower_events (LIVE db) — fire-and-forget, retries
-    on lock. Same sink the forward-walk uses, so events show in the existing feed."""
-    for _attempt in range(3):
-        try:
-            c = db_connect(LIVE_DB_PATH, timeout=30)
-            try:
-                c.execute("PRAGMA busy_timeout=30000")
-                c.execute(
-                    "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
-                    "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
-                    (event_type, wallet, related, token_mint, json.dumps(payload or {}),
-                     "ws_cascade", int(time.time())))
-                c.commit()
-                return
-            finally:
-                c.close()
-        except Exception as e:
-            if "locked" in str(e).lower() and _attempt < 2:
-                time.sleep(1.0)
-                continue
-            print(f"[WS_CASCADE] event emit failed {event_type}: {e}", flush=True)
-            return
+    """Enqueue a cascade event for the background writer (NON-BLOCKING — never touches the DB
+    on the caller's thread). Drops silently if the queue is full (telemetry, not critical)."""
+    _ensure_writer()
+    try:
+        _event_q.put_nowait((event_type, wallet, related, token_mint, payload, int(time.time())))
+    except _queue_mod.Full:
+        pass   # event log is best-effort; never block the cascade for a breadcrumb
 
 
 def record_treasury_hit(*, treasury: str, counterparty: str, sig: str,
@@ -427,6 +465,31 @@ def record_launch(conn, *, mint: Optional[str], creator: str, create_sig: Option
         "UPDATE wt_candidate_websocket_watches SET state='FIRED_CREATE', close_reason='create', "
         "closed_at=? WHERE candidate_wallet=?", (int(time.time()), creator))
     conn.commit()
+    # ENROLL the launched mint into the live price monitor (tracked_tokens, LIVE db). The price
+    # worker only snapshots MC for tokens in token_analysis OR tracked_tokens — a cascade-caught
+    # launch is in NEITHER until now, so it had no MC anywhere (the 2PZAgP gap: caught live but no
+    # peak/current MC on any page). Enrolling it makes the price worker start tracking it → MC
+    # flows into token_market_cap_peaks → the migrated-tokens + token-performance pages fill in.
+    # Best-effort/retry on lock; never block the cascade.
+    if mint and cur.rowcount > 0:
+        for _attempt in range(3):
+            try:
+                lc = db_connect(LIVE_DB_PATH, timeout=20)
+                try:
+                    lc.execute("PRAGMA busy_timeout=15000")
+                    lc.execute(
+                        "INSERT OR IGNORE INTO tracked_tokens (mint, priority_level, is_active, "
+                        "created_at, updated_at) VALUES (?, 'high', 1, ?, ?)",
+                        (mint, int(time.time()), int(time.time())))
+                    lc.commit()
+                finally:
+                    lc.close()
+                break
+            except Exception as e:
+                if "locked" in str(e).lower() and _attempt < 2:
+                    time.sleep(1.0); continue
+                print(f"[WS_CASCADE] tracked_tokens enroll failed for {mint[:10]}…: {e}", flush=True)
+                break
     return cur.rowcount > 0
 
 

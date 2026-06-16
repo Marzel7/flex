@@ -237,8 +237,17 @@ class SubscriptionManager:
         rid = self.next_req; self.next_req += 1
         self.pending_req[rid] = (wallet, kind, time.time())
         self.wallet_kind[wallet] = kind
-        msg = {"jsonrpc": "2.0", "id": rid, "method": "logsSubscribe",
-               "params": [{"mentions": [wallet]}, {"commitment": "confirmed"}]}
+        if kind == "treasury":
+            # TREASURIES move SOL via plain system:transfer, which emits no program logs that
+            # logsSubscribe's `mentions` filter matches — so logsSubscribe NEVER fired for them.
+            # accountSubscribe fires on every balance change (a plain transfer always changes the
+            # balance), so it's the correct primitive for the treasury tier. (Subprovs/candidates
+            # keep logsSubscribe — their wrap-close emits token-program logs that DO mention them.)
+            msg = {"jsonrpc": "2.0", "id": rid, "method": "accountSubscribe",
+                   "params": [wallet, {"commitment": "confirmed", "encoding": "jsonParsed"}]}
+        else:
+            msg = {"jsonrpc": "2.0", "id": rid, "method": "logsSubscribe",
+                   "params": [{"mentions": [wallet]}, {"commitment": "confirmed"}]}
         await self.ws.send(json.dumps(msg))
 
     def sweep_stale_pending(self, max_age=30):
@@ -880,6 +889,28 @@ async def _on_message(casc: Cascade, raw):
     if "result" in data and isinstance(data.get("id"), int):
         casc.mgr.on_subscribe_confirmed(data["id"], data["result"])
         return
+
+    # TREASURY tier uses accountSubscribe → accountNotification (balance change, NO signature).
+    # Resolve the treasury's latest signature off-loop, then route to the treasury handler.
+    if data.get("method") == "accountNotification":
+        params = data.get("params") or {}
+        ent = casc.mgr.lookup(params.get("subscription"))
+        if not ent or ent[1] != "treasury":
+            return
+        wallet = ent[0]
+        sigs = await _arpc("getSignaturesForAddress", [wallet, {"limit": 1}])
+        sig = sigs[0]["signature"] if (sigs and not sigs[0].get("err")) else None
+        if not sig or sig in casc._processed:
+            return
+        casc._processed.add(sig)
+        opened = await _ato_thread(casc._handle_treasury_tx, wallet, sig)
+        for subprov in opened:
+            if subprov not in casc.mgr.wallet_kind:
+                await casc.mgr.subscribe(subprov, "subprov")
+                emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov, related=wallet)
+                await casc.catch_up_subprov(subprov)
+        return
+
     if data.get("method") != "logsNotification":
         return
     params = data.get("params") or {}

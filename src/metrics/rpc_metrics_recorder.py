@@ -233,6 +233,69 @@ def _ensure_rpc_metrics_table():
     except Exception as e:
         print(f"[WARNING] Could not ensure RPC metrics table: {e}", flush=True)
 
+# ── BATCHED metric persistence ───────────────────────────────────────────────
+# Previously every RPC call did its own connect→INSERT→commit→close = one write-lock
+# acquisition PER CALL. With the cascade/listener/scheduler/price-worker all making RPC
+# calls constantly, that was thousands of write-locks/minute hammering the live db — the
+# dominant source of the lock storm (per DB_LOCK_STORM_DIAGNOSIS). Fix: buffer rows in
+# memory and flush as ONE batched transaction every few seconds, turning thousands of
+# lock acquisitions into a handful.
+import queue as _queue_mod
+import threading as _threading_mod
+
+_metric_buffer: "_queue_mod.Queue" = _queue_mod.Queue(maxsize=20000)
+_flusher_started = False
+_flusher_lock = _threading_mod.Lock()
+_FLUSH_INTERVAL_S = 5.0
+_FLUSH_MAX_BATCH = 500
+
+
+def _metric_flush_loop():
+    import os as _os
+    while True:
+        time.sleep(_FLUSH_INTERVAL_S)
+        rows = []
+        try:
+            while len(rows) < _FLUSH_MAX_BATCH:
+                rows.append(_metric_buffer.get_nowait())
+        except _queue_mod.Empty:
+            pass
+        if not rows:
+            continue
+        for _attempt in range(3):
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=30)
+                try:
+                    conn.execute("PRAGMA busy_timeout=15000")
+                    conn.executemany(
+                        """INSERT INTO rpc_metrics
+                           (timestamp, section, provider, method, status_code, latency_ms, credits,
+                            mode, retries, source_file, error, process_pid, cache_action,
+                            credits_saved, optimization_layer)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", rows)
+                    conn.commit()
+                finally:
+                    conn.close()
+                break
+            except Exception as e:
+                if "locked" in str(e).lower() and _attempt < 2:
+                    time.sleep(1.0); continue
+                print(f"[RPC_METRICS] batch write failed ({len(rows)} rows): {e}", flush=True)
+                break
+
+
+def _ensure_flusher():
+    global _flusher_started
+    if _flusher_started:
+        return
+    with _flusher_lock:
+        if _flusher_started:
+            return
+        _threading_mod.Thread(target=_metric_flush_loop, daemon=True,
+                              name="rpc-metrics-flusher").start()
+        _flusher_started = True
+
+
 def _persist_rpc_metric(
     timestamp: float,
     section: str,
@@ -249,26 +312,17 @@ def _persist_rpc_metric(
     credits_saved: int = 0,
     optimization_layer: str = "none",
 ):
-    """Write RPC metric to database for persistent cross-process tracking"""
+    """Enqueue an RPC metric for the background batch writer (NON-BLOCKING — no per-call DB
+    write). Drops silently if the buffer is full (metrics are telemetry, never block an RPC)."""
+    _ensure_flusher()
     try:
         import os as os_module
-        pid = os_module.getpid()
-        conn = sqlite3.connect(DB_PATH, timeout=30)
-        conn.execute(
-            """
-            INSERT INTO rpc_metrics
+        _metric_buffer.put_nowait(
             (timestamp, section, provider, method, status_code, latency_ms, credits,
-             mode, retries, source_file, error, process_pid, cache_action, credits_saved, optimization_layer)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (timestamp, section, provider, method, status_code, latency_ms, credits,
-             mode, retries, source_file, error, pid, cache_action, credits_saved, optimization_layer),
-        )
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        # Log persistence failures (but don't disrupt normal operation)
-        print(f"[RPC_METRICS] DB write failed: {e}", flush=True)
+             mode, retries, source_file, error, os_module.getpid(), cache_action,
+             credits_saved, optimization_layer))
+    except _queue_mod.Full:
+        pass
 
 def _set_state(key: str, value: str) -> None:
     """Persist a recorder state value to database"""

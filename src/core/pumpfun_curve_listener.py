@@ -341,7 +341,7 @@ def rebuild_super_clusters_from_funding():
     try:
         # Serialize writes: prevent other threads from interfering with clustering writes
         with DB_WRITE_LOCK:
-            conn = db_connect('flex_complete_database.db', timeout=60)
+            conn = db_connect(DB_PATH, timeout=60)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA busy_timeout=60000")
@@ -435,10 +435,17 @@ def rebuild_super_clusters_from_funding():
                                 """, (funder, cluster_id))
                                 funders_assigned += 1
 
-                    # Commit every 50 creators to release write lock and yield to other writers
+                    # Commit and reopen every 10 creators to release the write lock slot
                     _batch_n += 1
-                    if _batch_n % 50 == 0:
+                    if _batch_n % 10 == 0:
                         conn.commit()
+                        conn.close()
+                        import time as _time; _time.sleep(0.05)
+                        conn = db_connect(DB_PATH, timeout=60)
+                        conn.execute("PRAGMA journal_mode=WAL")
+                        conn.execute("PRAGMA synchronous=NORMAL")
+                        conn.execute("PRAGMA busy_timeout=60000")
+                        cursor = conn.cursor()
 
                 conn.commit()
                 log_print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
@@ -833,7 +840,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         asyncio.create_task(self._cleanup_tx_cache_periodic())
         asyncio.create_task(self._process_creator_resolution_queue_periodic())
         asyncio.create_task(self._process_creator_funding_queue_periodic())
-        asyncio.create_task(self._periodic_cluster_rebuild())
+        # DISABLED: _periodic_cluster_rebuild reprocessed ~3000 creators every 10min (O(n) funding
+        # walk + heavy super_clusters rewrite) — the listener's 113% CPU hog and a major live-db
+        # write/lock-storm source. It's network-ANALYSIS, not needed for launch detection; the
+        # 77s page loads were the live db starved by its writes. Re-enable if cluster analysis is
+        # needed, ideally as a standalone off-peak job (not inline in the hot listener).
+        # asyncio.create_task(self._periodic_cluster_rebuild())
         asyncio.create_task(self._flush_portal_vsol_periodic())
         asyncio.create_task(self._db_maintenance_periodic())
 
@@ -2602,6 +2614,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         now_ts: Optional[int] = None,
         *,
         source_hint: Optional[str] = None,
+        shared_conn=None,
     ) -> None:
         now = int(now_ts or time.time())
         signal = self._compute_pre_migration_signal(mint, current_market_cap or 0.0, now)
@@ -2610,9 +2623,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         pf_ws_creator_band: Optional[str] = None
 
         async with self.db_lock:
+            _owns_conn = shared_conn is None
             conn = None
             try:
-                conn = db_connect(DB_PATH, timeout=30)
+                conn = shared_conn if shared_conn is not None else db_connect(DB_PATH, timeout=30)
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -2744,7 +2758,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # observed pre-migration signal and do not change stored state.
                 if source_hint != "flow" and (not signal_has_presence) and (not changed_values):
                     premig_log(f"[DB_SKIP] mint={mint} reason=empty_periodic_refresh")
-                    return
+                    return  # conn left open if shared — caller closes
 
                 cursor.execute(
                     """
@@ -2783,7 +2797,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     ),
                 )
                 changed = cursor.rowcount
-                conn.commit()
+                if _owns_conn:
+                    conn.commit()
 
                 if not changed:
                     premig_log(
@@ -2866,7 +2881,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
             finally:
-                if conn is not None:
+                if _owns_conn and conn is not None:
                     conn.close()
 
         # Add to curve watcher when token crosses the hot threshold
@@ -2968,7 +2983,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                           COALESCE(migration_progress_pct, 0) DESC,
                           COALESCE(market_cap_current, 0) DESC,
                           mint ASC
-                        LIMIT 75
+                        LIMIT 25
                         """
                     )
                     rows = cursor.fetchall()
@@ -2981,15 +2996,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     now_ts = int(time.time())
                     flow_count = 0
                     fallback_count = 0
-                    for mint, current_market_cap in candidates:
-                        await self._persist_pre_migration_signal(mint, current_market_cap, now_ts)
-                        refreshed += 1
-                        await asyncio.sleep(0)  # yield event loop between each persist
-                        # Count flow vs fallback based on cached flow windows
-                        if self._flow_windows_by_mint.get(mint):
-                            flow_count += 1
-                        else:
-                            fallback_count += 1
+                    sweep_conn = db_connect(DB_PATH, timeout=60)
+                    sweep_conn.execute("PRAGMA busy_timeout=60000")
+                    try:
+                        for mint, current_market_cap in candidates:
+                            await self._persist_pre_migration_signal(
+                                mint, current_market_cap, now_ts, shared_conn=sweep_conn
+                            )
+                            refreshed += 1
+                            # Count flow vs fallback based on cached flow windows
+                            if self._flow_windows_by_mint.get(mint):
+                                flow_count += 1
+                            else:
+                                fallback_count += 1
+                        sweep_conn.commit()
+                    finally:
+                        sweep_conn.close()
                     premig_log(
                         f"[SUMMARY] active_mints={len(self._flow_windows_by_mint)} "
                         f"index_rows={index_rows} "
@@ -3000,7 +3022,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     log_print(f"[PREMIG_SWEEP] refreshed={refreshed} index_rows={index_rows}", flush=True)
             except Exception as e:
                 log_print(f"[PREMIG_SWEEP] ⚠ refresh failed: {e}", flush=True)
-            await asyncio.sleep(15)
+            await asyncio.sleep(60)
 
     def _log_fl(self, msg: str):
         """Override fast-lane logging to use log_print for consistent output."""
@@ -3603,8 +3625,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 ckpt = conn.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
                 wal_pages = ckpt[2] if ckpt else 0
 
-                # 5. VACUUM rpc_response_cache (reclaim freed pages)
-                conn.execute("VACUUM")
+                # 5. NO full VACUUM. VACUUM rewrites the ENTIRE database into the WAL
+                # (observed 8.9 GB WAL spike) AND holds an exclusive lock for its whole
+                # duration → "database is locked" for every other writer. This was THE
+                # root cause of the recurring lock-storm. The DELETEs above already free
+                # pages for reuse; a periodic full VACUUM on a large, busy DB is never
+                # worth the exclusive-lock + multi-GB WAL cost. Left intentionally absent.
 
                 duration_ms = int((_time.time() - t0) * 1000)
 
@@ -4313,6 +4339,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 stale_running_recovered = 0
                 overdue_ready_count = 0
                 oldest_overdue_seconds = 0
+                conn = None     # tracked so the loop's except can close on any failure
                 async with self.db_lock:
                     conn = db_connect(DB_PATH, timeout=30)
                     conn.execute("PRAGMA journal_mode=WAL")
@@ -4696,6 +4723,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         )
             except Exception as e:
                 log_print(f"[FUNDING_QUEUE] ⚠ Queue processor error: {e}", flush=True)
+            finally:
+                # guarantee the per-iteration connection is released even when a query
+                # above raised before its close — this was the WAL-hang / lock-storm leak
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
             try:
                 await asyncio.wait_for(self._creator_funding_queue_wakeup.wait(), timeout=2.0)
                 self._creator_funding_queue_wakeup.clear()
@@ -5555,7 +5590,32 @@ class PumpFunCurveListener(FastLaneDiscovery):
         finally:
             self.processing_launches.discard(signature)
 
-    async def _fetch_mint_from_transaction(self, signature: str) -> Optional[str]:
+    def _extract_mint_from_tx_result(self, tx_result: Dict) -> Optional[str]:
+        """Parse a getTransaction `result` for the token mint (postTokenBalances first,
+        accountKeys fallback). Pure parse — no RPC — so it works on prefetched tx data."""
+        if not tx_result:
+            return None
+        meta = tx_result.get("meta", {}) or {}
+        for balance in meta.get("postTokenBalances", []) or []:
+            mint = balance.get("mint", "")
+            if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
+                return mint
+        message = tx_result.get("transaction", {}).get("message", {})
+        accounts = message.get("accountKeys", []) or []
+        system_programs = {
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
+            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+            "11111111111111111111111111111111",               # System program
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
+            "So11111111111111111111111111111111111111112",   # Wrapped SOL
+        }
+        for account in accounts[:10]:
+            if len(account) in (43, 44) and account not in system_programs:
+                return account
+        return None
+
+    async def _fetch_mint_from_transaction(self, signature: str, prefetched_tx: Optional[Dict] = None) -> Optional[str]:
         """
         Fetch full transaction and extract token mint.
 
@@ -5565,9 +5625,24 @@ class PumpFunCurveListener(FastLaneDiscovery):
         3. Filter out system programs
         4. Accept 43 or 44 char addresses (Pump.Fun token length variance)
 
+        prefetched_tx: the already-fetched migration tx (the `result` object). The migration
+        tx is immutable and handle_migration already fetched it — reuse it to avoid a
+        duplicate getTransaction (the hot path = zero repeat RPC). If None, fall back to the
+        TTL-cached fetch (cold path = cached fallback).
+
         Includes retry logic for newly-confirmed transactions that may have indexing delays.
-        Uses RPC failover chain: Primary QuickNode -> Secondary QuickNode -> Helius -> Public.
         """
+        # HOT PATH: caller already has the immutable migration tx → parse it directly.
+        if prefetched_tx:
+            return self._extract_mint_from_tx_result(prefetched_tx)
+        # COLD PATH: no prefetch → use the TTL-cached fetcher (singleflight-deduped),
+        # so even the fallback doesn't re-hit Helius for an already-seen signature.
+        _cached = await self._get_transaction_cached(signature)
+        if _cached:
+            _m = self._extract_mint_from_tx_result(_cached)
+            if _m:
+                return _m
+
         max_retries = 12
         retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 10.0, 15.0, 20.0, 30.0, 45.0, 60.0]  # Extended backoff for slow indexing
 
@@ -5589,34 +5664,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     log_print(f"[MINT] ⚠ Transaction not found after retries: {signature}", flush=True)
                     return None
 
-                tx_data = data["result"]
-                meta = tx_data.get("meta", {})
-
-                # Strategy 1: Try postTokenBalances first
-                post_balances = meta.get("postTokenBalances", [])
-                for balance in post_balances:
-                    mint = balance.get("mint", "")
-                    # Accept valid token mints (43-44 chars), exclude SOL
-                    if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
-                        return mint
-
-                # Strategy 2: Fall back to accountKeys
-                message = tx_data.get("transaction", {}).get("message", {})
-                accounts = message.get("accountKeys", [])
-
-                system_programs = {
-                    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
-                    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
-                    "11111111111111111111111111111111",               # System program
-                    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
-                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
-                    "So11111111111111111111111111111111111111112",   # Wrapped SOL
-                }
-
-                for account in accounts[:10]:
-                    if len(account) in (43, 44) and account not in system_programs:
-                        return account
-
+                _mint = self._extract_mint_from_tx_result(data["result"])
+                if _mint:
+                    return _mint
                 log_print(f"[MINT] ⚠ No valid mint found in {signature}", flush=True)
                 return None
 
@@ -5684,7 +5734,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         return None
 
-    async def _extract_pool_from_migration_tx(self, signature: str) -> List[str]:
+    async def _extract_pool_from_migration_tx(self, signature: str, prefetched_tx: Optional[Dict] = None) -> List[str]:
         """
         Extract ALL PumpSwap pool candidates from migration transaction.
         
@@ -5697,12 +5747,21 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         for attempt in range(max_retries):
             try:
-                # Use discovery RPC tier (still part of pool detection pipeline)
-                data = await self.call_discovery_rpc(
-                    "getTransaction",
-                    [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
-                    timeout=10
-                )
+                # HOT PATH: reuse the already-fetched immutable migration tx (zero repeat
+                # RPC). COLD PATH: TTL-cached fetch (singleflight-deduped) before raw RPC.
+                if prefetched_tx and attempt == 0:
+                    data = {"result": prefetched_tx}
+                else:
+                    _cached = await self._get_transaction_cached(signature) if attempt == 0 else None
+                    if _cached:
+                        data = {"result": _cached}
+                    else:
+                        # Use discovery RPC tier (still part of pool detection pipeline)
+                        data = await self.call_discovery_rpc(
+                            "getTransaction",
+                            [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                            timeout=10
+                        )
 
                 if not data or "result" not in data or not data["result"]:
                     return []

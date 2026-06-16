@@ -480,8 +480,13 @@ def subprov_has_live_candidates(conn, subprov: str) -> bool:
 
 
 def candidate_count_for_subprov(conn, subprov: str) -> int:
+    # Count only LIVE (WATCHING) candidates — the cap exists to bound concurrent WS subscriptions,
+    # NOT lifetime fan-out. Counting EXPIRED/closed rows let a long-active subprov permanently hit
+    # MAX_CANDIDATES and silently DROP every new wrap-close (the 595Xin→HXNyboe miss: 25 expired
+    # candidates pinned the count at the cap, so HXNyboe's live wrap-close was discarded uncaught).
     return conn.execute(
-        "SELECT COUNT(*) FROM wt_candidate_websocket_watches WHERE subprov_wallet=?",
+        "SELECT COUNT(*) FROM wt_candidate_websocket_watches "
+        "WHERE subprov_wallet=? AND state='WATCHING'",
         (subprov,)).fetchone()[0]
 
 

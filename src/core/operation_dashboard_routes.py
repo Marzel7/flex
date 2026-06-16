@@ -3291,12 +3291,11 @@ def api_intel_webhook_events():
                 "candidate_status": "PENDING", "launch_detected": False, "from_operation": True,
                 "template": plc["template"], "expected_launch_min": plc["expected_launch_window_min"],
             })
-        # PRIORITY: a launch / token-bearing edge must surface even if older than routine top-ups —
-        # otherwise a resolved launch (e.g. OILMAXXING) gets buried below dozens of dust transfers.
-        # Order: launch_detected first, then edges that resolve to a known token, then by recency.
-        events.sort(key=lambda x: (
-            0 if x.get("launch_detected") else (1 if x.get("token_symbol") or x.get("token_mint") else 2),
-            -(x["ts"] or 0)))
+        # LIVE FEED = newest-first (a feed must read as a time-ordered stream — hoisting older
+        # token edges to the top made it look stalled). Token/launch edges are surfaced by an
+        # in-place ROW HIGHLIGHT in the UI, not by reordering. Exception: a true launch_detected
+        # is rare + worth pinning, so it still floats to the top.
+        events.sort(key=lambda x: (0 if x.get("launch_detected") else 1, -(x["ts"] or 0)))
         return jsonify({"events": events})
     finally:
         ov.close(); live.close()

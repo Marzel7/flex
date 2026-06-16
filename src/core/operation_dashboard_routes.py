@@ -1342,10 +1342,12 @@ def api_intel_token_performance():
         farm_by_mint = {}
         try:
             for r in ov.execute(
-                "SELECT l.mint, l.funder, f.mechanism, f.creator_count, f.is_known_treasury "
+                "SELECT l.mint, l.funder, f.mechanism, f.creator_count, f.is_known_treasury, "
+                "f.funder_type, f.cex_label "
                 "FROM wt_farm_launches l JOIN wt_farms f ON f.funder=l.funder").fetchall():
                 farm_by_mint[r[0]] = {"funder": r[1], "mechanism": r[2],
-                                      "farm_creators": r[3], "is_known": bool(r[4])}
+                                      "farm_creators": r[3], "is_known": bool(r[4]),
+                                      "funder_type": r[5] or "OPERATOR", "cex_label": r[6]}
         except Exception:
             pass
         try:
@@ -1452,19 +1454,33 @@ def api_intel_token_performance():
         # WATCHTOWER/FARM were invisible. token_analysis IS current (migrations flow live), so
         # pull recent migrated tokens directly — tagged UNKNOWN unless a tag source matches.
         # This makes the page show ALL recent migrated tokens with classification overlaid.
+        # FRESH vs UNKNOWN split: a migrated token whose creator is SINGLE-USE (made exactly ONE
+        # token ever) carries the WATCHTOWER-style fingerprint — fresh wallet, one launch, migrated.
+        # That's high-signal and must NOT be buried in generic UNKNOWN. A serial creator (n>1) is
+        # noise → stays UNKNOWN. The creator-count subquery does the split.
         try:
             for r in live.execute(
-                "SELECT mint, market_cap_highest, market_cap_current, first_observed_mc, migrated_at, "
-                "lifecycle_stage, risk_level, rug_probability, market_cap_highest_at_ts, created_at, "
-                "earliest_tx_creator FROM token_analysis "
-                "WHERE migrated_at > strftime('%s','now','-14 days') AND migrated_at IS NOT NULL "
-                "ORDER BY migrated_at DESC LIMIT 400").fetchall():
+                "SELECT ta.mint, ta.market_cap_highest, ta.market_cap_current, ta.first_observed_mc, "
+                "ta.migrated_at, ta.lifecycle_stage, ta.risk_level, ta.rug_probability, "
+                "ta.market_cap_highest_at_ts, ta.created_at, ta.earliest_tx_creator, cc.n AS creator_tokens "
+                "FROM token_analysis ta "
+                "LEFT JOIN (SELECT earliest_tx_creator cr, COUNT(*) n FROM token_analysis "
+                "           WHERE earliest_tx_creator IS NOT NULL GROUP BY earliest_tx_creator) cc "
+                "  ON cc.cr = ta.earliest_tx_creator "
+                "WHERE ta.migrated_at > strftime('%s','now','-14 days') AND ta.migrated_at IS NOT NULL "
+                "ORDER BY ta.migrated_at DESC LIMIT 400").fetchall():
                 tr = dict(r); m = tr["mint"]
                 if m in seen_mints:
                     continue
                 seen_mints.add(m)
-                rows.append({"mint": m, "classified_as": "UNKNOWN", "classification_conf": None,
-                             "classification_reason": "recent_migration", "prediction_score": None,
+                ctok = tr.pop("creator_tokens", None)
+                is_fresh = (ctok == 1)   # single-use creator = FRESH (WATCHTOWER-style signature)
+                rows.append({"mint": m,
+                             "classified_as": "FRESH" if is_fresh else "UNKNOWN",
+                             "classification_conf": None,
+                             "classification_reason": ("single_use_creator_migrated" if is_fresh
+                                                       else "recent_migration"),
+                             "prediction_score": None,
                              "creator_address": tr.pop("earliest_tx_creator", None), **tr})
         except Exception:
             pass
@@ -1473,6 +1489,12 @@ def api_intel_token_performance():
             mint = r["mint"]
             # tag precedence: confirmed launch > pipeline classification > swarm overlay
             base = r.get("classified_as") or "UNKNOWN"
+            # WATCH_LIKE_NEW_OP is DROPPED — the WATCH prediction pipeline that produced it froze
+            # ~2 weeks ago (all NEW-OP tokens are 3+ weeks old, nothing recent surfaces), and its
+            # signals (shared_funder/dormant) are now covered by the live FARM/FRESH tags. Collapse
+            # it to UNKNOWN so those stale rows fall back to FRESH/UNKNOWN by their creator instead.
+            if base == "WATCH_LIKE_NEW_OP":
+                base = "UNKNOWN"
             is_wt_confirmed = mint in wt_launch_mints     # cascade ledger → ✓
             is_wt = mint in _wt_tag_mints                 # cascade OR discovery → WATCHTOWER tag
             is_swarm = mint in swarm_mints
@@ -1494,6 +1516,8 @@ def api_intel_token_performance():
                 "farm_funder": (farm or {}).get("funder"),
                 "farm_mechanism": (farm or {}).get("mechanism"),
                 "farm_creators": (farm or {}).get("farm_creators"),
+                "farm_funder_type": (farm or {}).get("funder_type"),
+                "farm_cex_label": (farm or {}).get("cex_label"),
                 "classification_conf": r.get("classification_conf"),
                 "classification_reason": r.get("classification_reason"),
                 "prediction_score": r.get("prediction_score"),

@@ -38,6 +38,16 @@ INFRASTRUCTURE_ACCOUNTS = {
         "risk_level": "neutral",
         "tags": ["infra", "automation", "oracle"],
     },
+    # Axiom Trade (trading platform / launchpad funding wallet) — many unrelated users route
+    # launches through it, so clusters funded by it are PLATFORM, not a single operator.
+    "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9": {
+        "name": "Axiom Trade",
+        "category": "platform",
+        "platform": "Axiom Trade",
+        "description": "Axiom Trade — trading platform / launchpad funding wallet",
+        "risk_level": "neutral",
+        "tags": ["infra", "platform", "axiom", "trade", "launchpad"],
+    },
 
     # Axiom automation account
     "XGqpChiohw1ZPX11vyeNUGxV12a6TcBej2tbJg9iwzC": {
@@ -1406,6 +1416,21 @@ def get_account_info(address: str) -> Optional[Dict]:
 def get_cex_info(address: str) -> Optional[Dict]:
     """Get CEX info for an account (CEX only)"""
     return CEX_ACCOUNTS.get(address)
+
+
+def get_funder_label(address: str) -> Optional[Dict]:
+    """Unified lookup for funder classification: CEX, then platform/infrastructure. Returns
+    {name, kind} where kind = 'CEX' | 'PLATFORM' | 'INFRA', or None for an unknown wallet
+    (a candidate operator). Used by the farm detector to tag who a cluster's funder really is."""
+    c = CEX_ACCOUNTS.get(address)
+    if c:
+        return {"name": c.get("name") or c.get("exchange"), "kind": "CEX"}
+    i = INFRASTRUCTURE_ACCOUNTS.get(address)
+    if i:
+        cat = (i.get("category") or "").lower()
+        kind = "PLATFORM" if cat in ("platform",) else "INFRA"
+        return {"name": i.get("name"), "kind": kind}
+    return None
 
 def get_pumpfun_creator_info(address: str) -> Optional[Dict]:
     """Get PumpFun token creator info (NOT excluded from suspicious analysis)"""

@@ -50,9 +50,20 @@ def ensure_farm_schema(conn) -> None:
         peak_mc_sum       REAL DEFAULT 0,
         last_launch_at    INTEGER,
         is_known_treasury INTEGER DEFAULT 0,
-        first_detected    INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-        updated_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        funder_type       TEXT,                   -- OPERATOR | CEX  (a CEX-funded cluster is still
+        cex_label         TEXT,                   --   valuable: an operator funding via CEX
+        first_detected    INTEGER NOT NULL DEFAULT (strftime('%s','now')),  -- withdrawals = an
+        updated_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))   -- upstream lead, not noise)
     )""")
+    # migrate: add funder_type/cex_label to a pre-existing table
+    try:
+        _cols = {r[1] for r in conn.execute("PRAGMA table_info(wt_farms)").fetchall()}
+        if "funder_type" not in _cols:
+            conn.execute("ALTER TABLE wt_farms ADD COLUMN funder_type TEXT")
+        if "cex_label" not in _cols:
+            conn.execute("ALTER TABLE wt_farms ADD COLUMN cex_label TEXT")
+    except Exception:
+        pass
     conn.execute("""CREATE TABLE IF NOT EXISTS wt_farm_launches (
         mint            TEXT PRIMARY KEY,
         funder          TEXT NOT NULL,
@@ -148,6 +159,15 @@ def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = Fals
         pass
     try:
         known = {r[0] for r in oc.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        # self-heal: any creator we ALREADY have a launch for is already checked — seed it so we
+        # never re-RPC-trace creators we've resolved (a partial earlier write left checked far
+        # behind launches, causing ~200 redundant traces/scan).
+        try:
+            oc.execute("INSERT OR IGNORE INTO wt_farm_checked (creator) "
+                       "SELECT DISTINCT creator FROM wt_farm_launches WHERE creator IS NOT NULL")
+            oc.commit()
+        except Exception:
+            pass
         checked = {r[0] for r in oc.execute("SELECT creator FROM wt_farm_checked").fetchall()}
         rows = lc.execute(
             """SELECT ta.mint, ta.earliest_tx_creator, ta.market_cap_highest, ta.migrated_at
@@ -196,18 +216,32 @@ def run_farm_scan(lookback_days: int = 3, max_rpc: int = 250, quiet: bool = Fals
             a = agg[r[0]]; a["n"] += 1; a["wc"] += (r[1] or 0)
             a["peak"] += (r[2] or 0); a["last"] = max(a["last"], r[3] or 0)
         farms = 0
+        # CEX detection — a funder that is a known exchange hot wallet (Coinbase, Binance, …) is
+        # NOT an operator, but the cluster is STILL valuable: creators all withdrawing from the
+        # same CEX may be one operator obfuscating via withdrawals, and the CEX is an upstream
+        # investigation point. So we TAG it (funder_type=CEX + exchange), not exclude it.
+        try:
+            from src.utils.infra_mapping import get_funder_label
+        except Exception:
+            get_funder_label = lambda a: None
         now = int(time.time())
         for funder, a in agg.items():
             if a["n"] < 2:
                 continue
             mech = "WRAP_CLOSE" if a["wc"] >= a["n"] else ("PLAIN_XFER" if a["wc"] == 0 else "MIXED")
+            lbl = get_funder_label(funder)
+            # CEX / PLATFORM / INFRA = a shared service (Coinbase, Axiom Trade, …), not an operator.
+            # The cluster is still valuable (an operator may fund via a shared service to obfuscate),
+            # so TAG it; only an UNLABELED funder is a candidate OPERATOR.
+            funder_type = lbl["kind"] if lbl else "OPERATOR"
+            cex_label = lbl["name"] if lbl else None
             oc.execute(
                 """INSERT OR REPLACE INTO wt_farms
                    (funder, creator_count, wrap_close_count, mechanism, peak_mc_sum,
-                    last_launch_at, is_known_treasury, updated_at)
-                   VALUES (?,?,?,?,?,?,?,?)""",
+                    last_launch_at, is_known_treasury, funder_type, cex_label, updated_at)
+                   VALUES (?,?,?,?,?,?,?,?,?,?)""",
                 (funder, a["n"], a["wc"], mech, a["peak"], a["last"],
-                 1 if funder in known else 0, now))
+                 1 if funder in known else 0, funder_type, cex_label, now))
             farms += 1
         oc.commit()
         s = {"scanned": len(rows), "rpc_used": rpc_used, "farms": farms,

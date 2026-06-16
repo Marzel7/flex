@@ -256,9 +256,8 @@ function fmtFlow(e){
     return `<span style="color:var(--text-dim);font-size:10px">· ping ${fmtAmt(a)}◎ ${arrow} ${short(e.counterparty)}</span>`;
   }
   if (isIn) {
-    // INCOMING — treasury being topped up. Muted, ← in-arrow.
-    return `<span style="color:var(--text-sec);font-weight:700;font-size:12px">↙ IN</span> `
-         + `<b style="color:var(--text-sec)">${fmtAmt(a)} ◎</b> `
+    // INCOMING — treasury being topped up. Arrow indicates direction (no IN label).
+    return `<b style="color:var(--text-sec)">${fmtAmt(a)} ◎</b> `
          + `<span style="color:var(--text-dim)">←</span> ${cp}`;
   }
   if (unknown) {
@@ -283,7 +282,6 @@ function fmtFlow(e){
     ? ` <span onclick="event.stopPropagation();window.open('https://solscan.io/token/${e.token_mint}','_blank')" style="cursor:pointer;font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(234,179,8,.16);color:#eab308" title="recipient's token ${e.token_mint||''} — open in Solscan">🪙 ${e.token_symbol?short2(e.token_symbol):short(e.token_mint)}↗</span>`
     : '';
   return ftBadge
-       + `<span style="color:var(--text-sec);font-weight:700;font-size:12px">↗ OUT</span> `
        + `<b style="color:var(--text-sec)">${fmtAmt(a)} ◎</b> `
        + `<span style="color:var(--text-dim)">→</span> ${cp}${tokChip}`;
 }

@@ -41,8 +41,14 @@ from src.core.ws_cascade_store import OPS_DB_PATH, LIVE_DB_PATH, emit_event
 from src.core.wrap_close_detector import extract_close_destinations
 
 # ── config (env, conservative defaults) ──────────────────────────────────────
-SESSION_TTL_SEC   = int(os.environ.get("WS_SESSION_TTL_SEC", "600"))     # 10 min
-CANDIDATE_TTL_SEC = int(os.environ.get("WS_CANDIDATE_TTL_SEC", "180"))   # 3 min
+# TTLs sized from data: real subprovs stay actively provisioning for a MEDIAN of ~2h (p75 ~10h,
+# p90 16h) — 16/19 multi-funding subprovs exceeded the old 10-min session TTL, so the subscription
+# died mid-campaign and had to be re-opened on the next funding (losing the catch-up window). 2h
+# covers the median; refresh_session() extends it on each new funding so an active subprov stays
+# subscribed as long as it keeps provisioning. Candidate TTL stays short (a wrap-close→CREATE is
+# seconds-to-minutes), but bumped 3→10min for the occasional STAGED launch.
+SESSION_TTL_SEC   = int(os.environ.get("WS_SESSION_TTL_SEC", "7200"))    # 2h (was 10min — too short)
+CANDIDATE_TTL_SEC = int(os.environ.get("WS_CANDIDATE_TTL_SEC", "600"))   # 10 min (was 3min)
 MAX_CANDIDATES    = int(os.environ.get("WS_MAX_CANDIDATES", "25"))       # per sub-prov
 MAX_ACTIVE_SUBPROVS = int(os.environ.get("WS_MAX_ACTIVE_SUBPROVS", "10"))
 POLL_SEC          = float(os.environ.get("WS_POLL_SEC", "2"))

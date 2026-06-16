@@ -108,7 +108,7 @@ tr:hover td { background:var(--bg-card2); }
     <div id="twsu-summary" class="muted" style="font-size:11px;margin-top:6px"></div>
   </div>
 
-  <div class="sec-h">👁 Active WS Sessions <span class="muted" style="font-weight:400;font-size:11px">— temporary subprov subscriptions (opened only on a ≥50◎ provisioning load); any row below the floor = a swarm account that leaked in</span></div>
+  <div class="sec-h">👁 Active WS Sessions <span class="muted" style="font-weight:400;font-size:11px">— temporary subprov subscriptions, opened when a CONFIRMED treasury seeds a non-treasury wallet (any size ≥1◎; treasury→treasury mesh is skipped). TTL extends on each new funding so a multi-hour provisioning campaign keeps its subscription.</span></div>
   <div class="panel">
     <table><thead><tr>
       <th>Sub-Provisioner</th><th>Treasury</th><th class="num">Funding ◎</th><th class="num">Candidates</th><th class="num">TTL</th><th>Age</th><th>Status</th>
@@ -436,7 +436,7 @@ async function loadActiveWsSessions(){
   const body=document.getElementById('aws-body');
   const rows=d.sessions||[];
   const fmtTtl=s=>s==null?'—':(s<=0?'expiring':(s<60?s+'s':Math.floor(s/60)+'m'));
-  if(!rows.length){ body.innerHTML=`<tr><td colspan="7" class="muted">no active subprov sessions (quiet — only the ${d.floor_sol||50}◎+ provisioning loads open a session)</td></tr>`; }
+  if(!rows.length){ body.innerHTML=`<tr><td colspan="7" class="muted">no active subprov sessions (quiet — a session opens when a confirmed treasury seeds a non-treasury wallet)</td></tr>`; }
   else {
     body.innerHTML=rows.map(s=>{
       const leak=s.below_floor;

@@ -301,6 +301,14 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
         (subprov, treasury, funding_sig, funding_amount, funding_time or now,
          int(subprov_known), now, now + ttl_seconds))
     conn.commit()
+    if cur.rowcount == 0:
+        # repeat funding of an already-active subprov → EXTEND its TTL so the subscription
+        # survives a multi-hour provisioning campaign instead of expiring mid-stream.
+        conn.execute(
+            "UPDATE wt_active_subprov_sessions SET expires_at=? "
+            "WHERE subprov_wallet=? AND state='ACTIVE' AND expires_at < ?",
+            (now + ttl_seconds, subprov, now + ttl_seconds))
+        conn.commit()
     return cur.rowcount > 0
 
 

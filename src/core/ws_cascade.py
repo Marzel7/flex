@@ -133,7 +133,10 @@ def _rpc(method, params, timeout=12):
 
 
 def _get_tx(sig):
-    return _rpc("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
+    # 'processed' commitment — see a just-landed CREATE/wrap-close near the chain tip instead of
+    # waiting ~13s for 'confirmed' (the dominant create→detection latency on INSTANT launches).
+    return _rpc("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0,
+                                         "commitment": "processed"}])
 
 
 # ── async, off-loop wrappers — run blocking RPC + DB work in the default thread-pool executor
@@ -274,11 +277,19 @@ class SubscriptionManager:
             # accountSubscribe fires on every balance change (a plain transfer always changes the
             # balance), so it's the correct primitive for the treasury tier. (Subprovs/candidates
             # keep logsSubscribe — their wrap-close emits token-program logs that DO mention them.)
+            # Treasury stays at 'confirmed' — provisioning isn't sub-second-critical and a treasury
+            # balance read at 'processed' has higher reorg exposure.
             msg = {"jsonrpc": "2.0", "id": rid, "method": "accountSubscribe",
                    "params": [wallet, {"commitment": "confirmed", "encoding": "jsonParsed"}]}
         else:
+            # SUBPROV + CANDIDATE → 'processed' commitment. 'confirmed' lags the chain tip by ~13s,
+            # which is most of the create→detection latency on an INSTANT (1s) launch — by the time
+            # a confirmed wrap-close/CREATE notification arrives the token has already moved. A
+            # pump.fun CREATE / wrap-close essentially never reorgs, and we record the sig either
+            # way, so 'processed' (~sub-second, near tip) is the right tradeoff for real-time catch.
+            _commit = os.environ.get("WS_LOGS_COMMITMENT", "processed")
             msg = {"jsonrpc": "2.0", "id": rid, "method": "logsSubscribe",
-                   "params": [{"mentions": [wallet]}, {"commitment": "confirmed"}]}
+                   "params": [{"mentions": [wallet]}, {"commitment": _commit}]}
         await self.ws.send(json.dumps(msg))
 
     def sweep_stale_pending(self, max_age=30):
@@ -644,7 +655,8 @@ class Cascade:
     #      candidate's most-recent signatures and process any that already happened. ----
     async def catch_up_candidate(self, candidate, limit=CATCHUP_SIG_LIMIT):
         try:
-            sigs = await _arpc("getSignaturesForAddress", [candidate, {"limit": limit}]) or []
+            sigs = await _arpc("getSignaturesForAddress",
+                               [candidate, {"limit": limit, "commitment": "processed"}]) or []
         except Exception:
             return
         # oldest → newest so a CREATE is recorded before any later swap is seen
@@ -666,7 +678,8 @@ class Cascade:
     #      a few seconds. Polling can't beat a 1s atomic launch, but it makes recovery RELIABLE.
     async def catch_up_subprov(self, subprov, limit=CATCHUP_SIG_LIMIT):
         try:
-            sigs = await _arpc("getSignaturesForAddress", [subprov, {"limit": limit}]) or []
+            sigs = await _arpc("getSignaturesForAddress",
+                               [subprov, {"limit": limit, "commitment": "processed"}]) or []
         except Exception:
             return
         for s in sorted([x for x in sigs if not x.get("err")],

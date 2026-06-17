@@ -724,7 +724,9 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
         except Exception as _e:
             log_print(f"[WATCHTOWER] _check_watchtower_migration error: {_e}", flush=True)
 
-    _th.Thread(target=_run, daemon=True, name="wt-migration-check").start()
+    # route through the BOUNDED pool, not a fresh per-migration thread — under DB lock contention
+    # these blocked on db_connect and accumulated unbounded (the recurring 17→300 thread leak).
+    _TOKEN_WORK_POOL.submit(_run)
 
 
 def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
@@ -4517,7 +4519,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 ).fetchone()[0]
                             if _cf_count == 0:
                                 log_print(f"[FRESH_CREATOR] ⏳ No funders found — scanning immediately: {creator[:8]}", flush=True)
-                                import threading as _threading
                                 def _scan_and_rescore(_creator, _mint):
                                     try:
                                         # Use extract_funder_transfers (sync) which already knows DB_PATH
@@ -4532,7 +4533,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         log_print(f"[FRESH_CREATOR] ✅ Rescored after scan: {_mint[:16]}", flush=True)
                                     except Exception as _e:
                                         log_print(f"[FRESH_CREATOR] ⚠ Scan/rescore failed: {_e}", flush=True)
-                                _threading.Thread(target=_scan_and_rescore, args=(creator, mint), daemon=True).start()
+                                # BOUNDED pool, not a fresh per-creator thread — these block on the DB
+                                # (timeout=30) under lock contention and accumulated unbounded.
+                                _TOKEN_WORK_POOL.submit(_scan_and_rescore, creator, mint)
                         except Exception as _fc_e:
                             log_print(f"[FRESH_CREATOR] ⚠ Failed to start scan thread: {_fc_e}", flush=True)
                         if get_migration_setting('auto_extract_funders', False):

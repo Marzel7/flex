@@ -1605,6 +1605,10 @@
                         <div class="home-command-value" id="homeCmdMode">INTEL</div>
                         <div class="home-command-label">View Mode</div>
                     </div>
+                    <div class="home-command-metric" title="Migration capture reliability (24h): WS fast-path vs reconciler recoveries. A nonzero recovery rate means the WS dropped migrations the reconciler backstopped.">
+                        <div class="home-command-value" id="homeCmdMigCapture">—</div>
+                        <div class="home-command-label">Migration Capture</div>
+                    </div>
                 </div>
                 <div class="home-command-right">
                     <span class="home-live-dot"></span>
@@ -4842,6 +4846,25 @@ function switchToTokensTab() {
             initDashboardPriceStream();    // Start SSE price stream
             setInterval(loadTokens, 30000);
             setInterval(loadFutureBound, 30000);
+
+            // Migration capture reliability metric (WS fast-path vs reconciler recoveries)
+            async function loadMigrationCapture() {
+                try {
+                    const r = await fetch('/api/migration-capture-metrics');
+                    const m = await r.json();
+                    const el = document.getElementById('homeCmdMigCapture');
+                    if (!el || m.error) return;
+                    const ws = m.ws_migrations || 0;
+                    const rec = m.reconciler_recoveries || 0;
+                    const rate = m.recovery_rate_pct || 0;
+                    // healthy = reconciler recovering nothing (WS catching all). Flag if it isn't.
+                    el.textContent = `${ws} WS · ${rec} rec`;
+                    el.title = `Migration capture (24h): WS ${ws}, reconciler recoveries ${rec}, recovery rate ${rate}%, total ${m.total_migrations||0}. Recoveries>0 means the WS dropped migrations the reconciler backstopped.`;
+                    el.style.color = rec > 0 ? 'var(--accent-amber, #f0b429)' : '';
+                } catch (e) { /* non-fatal */ }
+            }
+            loadMigrationCapture();
+            setInterval(loadMigrationCapture, 30000);
 
             // Refresh Age and Peak Timing text without requiring a full table rebuild
             setInterval(() => {

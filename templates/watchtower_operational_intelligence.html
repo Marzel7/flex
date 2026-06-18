@@ -717,7 +717,14 @@ async function loadVanity(){
 async function loadSubprovs(){
   let d; try{ d=await (await fetch('/api/ops-v2/intel/subprovs')).json(); }catch(e){ return; }
   const sp=d.subprovs||[];
-  const hdr = `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${d.count||0} UNKNOWN-treasury sub-provisioners to investigate · ${d.known_resolved||0} resolved (hidden) — trace the funder on-chain, then Set it here (verified by 1 RPC, auto-confirms + webhooks the treasury)</td></tr>`;
+  // DISTRIBUTION TIER: real subprovs that fund OTHER real subprovs (root treasury →
+  // distribution subprov → subprov → creator). Roles are non-exclusive — a subprov can
+  // also be a funder of subprovs without being a treasury.
+  const dn = d.distribution_nodes||[];
+  const distHdr = dn.length
+    ? `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:rgba(124,58,237,.10);border-left:3px solid #7c3aed">🪢 ${dn.length} DISTRIBUTION sub-provisioner${dn.length>1?'s':''} — subprov that ALSO funds other subprovs (a tier between treasury and subprov): ${dn.slice(0,3).map(n=>`<span class="addr" onclick="sol('${n.distributor}')" title="funds ${n.n} downstream subprovs">${short(n.distributor)}→${n.n}</span>`).join(' · ')}</td></tr>`
+    : '';
+  const hdr = distHdr + `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${d.count||0} UNKNOWN-treasury sub-provisioners to investigate · ${d.known_resolved||0} resolved (hidden) — trace the funder on-chain, then Set it here (verified by 1 RPC, auto-confirms + webhooks the treasury)</td></tr>`;
   document.getElementById('subprovs-body').innerHTML = hdr + sp.map(s=>{
     const known = s.treasury_known;
     const treasCell = s.treasury
@@ -726,8 +733,12 @@ async function loadSubprovs(){
     const status = known
       ? '<span style="color:var(--green);font-size:9px;font-weight:700">✓ known treasury</span>'
       : '<span style="color:var(--amber);font-size:9px;font-weight:800" title="treasury not confirmed — trace who funded this subprov to discover it">⚠️ UNKNOWN — investigate</span>';
-    // Funder action: Set (when no/unknown treasury) or Remove (when one is linked)
-    const action = s.treasury
+    // Funder action / DISTRIBUTION tag: if this subprov was funded by ANOTHER subprov,
+    // show that distribution node (root treasury → distribution subprov → THIS subprov)
+    // instead of the set-funder action.
+    const action = s.funder_is_subprov && s.immediate_funder
+      ? `<span style="font-size:9px;font-weight:800;color:#a78bfa" title="funded by a DISTRIBUTION subprov (a subprov that also funds subprovs) — not a treasury">🪢 via <span class="addr" onclick="sol('${s.immediate_funder}')">${short(s.immediate_funder)}</span></span>`
+      : s.treasury
       ? `<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--text-dim);color:var(--text-dim)" onclick="subprovRemoveFunder('${s.subprov}')" title="clear this funder → back to UNKNOWN lead">✕ remove</button>`
       : `<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--amber);color:var(--amber)" onclick="subprovSetFunder('${s.subprov}')" title="enter who funded this subprov on-chain (verified via 1 RPC; auto-confirms the treasury)">＋ set funder</button>`;
     return `<tr style="${known?'':'background:rgba(217,119,6,.07);border-left:3px solid var(--amber)'}">

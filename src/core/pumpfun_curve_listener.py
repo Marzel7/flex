@@ -9286,14 +9286,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
     async def _reconcile_one(self, sig: str):
         """Process one reconciler-discovered migration sig OFF the sweep loop (its own task), so a
         slow handle_migration (45s delayed mint re-check) can't stall the reconciler. Bounded by a
-        hard timeout; records a recovery + tags provenance only if a real token_analysis row results."""
+        hard timeout.
+
+        RACE GUARD (correctness of the recovery metric): the dedup checks token_analysis.migration_tx,
+        but a WS migration is mid-flight for a few seconds (event → minimal entry → mark_migrated →
+        write migration_tx). If a sweep lands in that window the sig looks 'unseen', so we call
+        handle_migration — but the WS is the one actually doing the work. handle_migration's
+        completed_migrations/processing_migrations guard means our call is a NO-OP in that case, and
+        crediting it as a RECONCILER recovery would OVERCOUNT (the pw5DuxM2 mislabel). So we only
+        count a genuine recovery when the WS had NOT claimed the sig — otherwise it's the WS's, leave
+        the source WEBSOCKET."""
+        ws_owned_before = sig in self.completed_migrations or sig in self.processing_migrations
         try:
             await asyncio.wait_for(self.handle_migration(sig, [], source="RECONCILER"), timeout=90)
-            if self._sig_now_in_token_analysis(sig):
+            ws_owned = ws_owned_before or sig in self.completed_migrations or sig in self.processing_migrations
+            if self._sig_now_in_token_analysis(sig) and not ws_owned:
+                # genuine recovery — the WS never handled this sig; the reconciler did.
                 self.reconciler_recovered += 1
                 self._tag_migration_source(sig, "RECONCILER")
                 self._reconciler_failed.pop(sig, None)
                 log_print(f"[RECONCILER] ♻ RECOVERED migration {sig[:16]}… (WS missed it)", flush=True)
+            elif self._sig_now_in_token_analysis(sig):
+                # the WS handled it concurrently — not a recovery; ensure it's tagged WEBSOCKET.
+                self._tag_migration_source(sig, "WEBSOCKET")
+                self._reconciler_failed.pop(sig, None)
             else:
                 # no token_analysis row resulted → not a resolvable migration; count the attempt
                 self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1

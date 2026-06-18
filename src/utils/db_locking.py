@@ -34,12 +34,19 @@ def record_lock_error(caller: Optional[str] = None) -> None:
     now = time.time()
     with _global_lock_errors_lock:
         _global_lock_errors.append(now)
-        # trim to last hour
-        cutoff = now - 3600
+        # keep 24h for the serializer dashboard's lock_errors_24h metric
+        cutoff = now - 86400
         while _global_lock_errors and _global_lock_errors[0] < cutoff:
             _global_lock_errors.pop(0)
     if caller:
         _db_logger.warning(f"[DB_LOCK_ERROR] caller={caller}")
+
+
+def lock_errors_window(window_secs: int = 86400) -> int:
+    """Count of recorded 'database is locked' errors within the window (for the dashboard)."""
+    now = time.time()
+    with _global_lock_errors_lock:
+        return sum(1 for t in _global_lock_errors if t > now - window_secs)
 
 
 def record_failed_write(caller: Optional[str] = None) -> None:
@@ -71,6 +78,115 @@ _DB_WRITE_LOCK = threading.Lock()
 _DB_WRITE_STATS = {"acquisitions": 0, "contended": 0, "total_wait_ms": 0.0, "max_wait_ms": 0.0}
 _DB_WRITE_STATS_LOCK = threading.Lock()
 
+# ── SERIALIZER OBSERVABILITY (in-memory; no DB writes — measuring must not add write load) ──
+from collections import deque as _deque
+_DBM_START = time.time()
+_DBM_WAIT_SAMPLES = _deque(maxlen=5000)      # recent acquire wait_ms (for P50/P95/P99)
+_DBM_COMMIT_SAMPLES = _deque(maxlen=5000)    # recent commit dur_ms
+_DBM_QUEUE_DEPTH = 0                          # current writers waiting/holding the lane
+_DBM_MAX_QUEUE_DEPTH = 0
+_DBM_SLOW = {"gt100": 0, "gt500": 0, "gt1000": 0}
+_DBM_BY_WRITER = {}                           # label -> {writes, wait_ms, commit_ms}
+_DBM_LOCK = threading.Lock()
+
+
+def _writer_label(caller) -> str:
+    """Map a _db_caller ('file.py:line in func') to a coarse subsystem label for attribution."""
+    if not caller:
+        return "unknown"
+    fname = str(caller).split(":")[0].replace(".py", "")
+    _MAP = {
+        "pumpfun_curve_listener": "listener",
+        "token_prediction_builder": "prediction_builder",
+        "rpc_metrics_recorder": "rpc_metrics",
+        "risk_scoring_builder": "risk_scoring",
+        "realtime_creator_funding_extractor": "creator_resolution",
+        "funder_incoming_extractor": "funder_extraction",
+        "launch_audit": "launch_audit",
+        "operation_forward_walk": "forward_walk",
+        "ws_cascade_store": "ws_cascade",
+        "ws_cascade": "ws_cascade",
+        "treasury_bank": "treasury",
+        "watchtower_backfill": "migration_reconciler",
+    }
+    return _MAP.get(fname, fname)
+
+
+def _dbm_record_acquire(caller, wait_ms: float):
+    label = _writer_label(caller)
+    with _DBM_LOCK:
+        _DBM_WAIT_SAMPLES.append(wait_ms)
+        w = _DBM_BY_WRITER.setdefault(label, {"writes": 0, "wait_ms": 0.0, "commit_ms": 0.0})
+        w["writes"] += 1
+        w["wait_ms"] += wait_ms
+
+
+def _dbm_record_commit(caller, dur_ms: float):
+    label = _writer_label(caller)
+    with _DBM_LOCK:
+        _DBM_COMMIT_SAMPLES.append(dur_ms)
+        if dur_ms > 1000: _DBM_SLOW["gt1000"] += 1
+        if dur_ms > 500:  _DBM_SLOW["gt500"] += 1
+        if dur_ms > 100:  _DBM_SLOW["gt100"] += 1
+        w = _DBM_BY_WRITER.setdefault(label, {"writes": 0, "wait_ms": 0.0, "commit_ms": 0.0})
+        w["commit_ms"] += dur_ms
+
+
+def _dbm_queue(delta: int):
+    global _DBM_QUEUE_DEPTH, _DBM_MAX_QUEUE_DEPTH
+    with _DBM_LOCK:
+        _DBM_QUEUE_DEPTH += delta
+        if _DBM_QUEUE_DEPTH > _DBM_MAX_QUEUE_DEPTH:
+            _DBM_MAX_QUEUE_DEPTH = _DBM_QUEUE_DEPTH
+
+
+def _pct(samples, p):
+    if not samples:
+        return 0.0
+    s = sorted(samples)
+    k = int(round((p / 100.0) * (len(s) - 1)))
+    return round(s[k], 2)
+
+
+def serializer_metrics() -> dict:
+    """Full DB-serializer observability snapshot for the dashboard (in-memory, no DB read)."""
+    now = time.time()
+    with _DBM_LOCK:
+        waits = list(_DBM_WAIT_SAMPLES)
+        commits = list(_DBM_COMMIT_SAMPLES)
+        slow = dict(_DBM_SLOW)
+        by_writer = {k: dict(v) for k, v in _DBM_BY_WRITER.items()}
+        qd, mqd = _DBM_QUEUE_DEPTH, _DBM_MAX_QUEUE_DEPTH
+    with _DB_WRITE_STATS_LOCK:
+        total = _DB_WRITE_STATS["acquisitions"]
+    uptime_min = max((now - _DBM_START) / 60.0, 0.001)
+    lock_err_24h = lock_errors_window(86400)
+    # top writers by count
+    top = sorted(by_writer.items(), key=lambda kv: -kv[1]["writes"])
+    top_writers = []
+    for label, w in top:
+        c = w["writes"] or 1
+        top_writers.append({
+            "writer": label, "write_count": w["writes"],
+            "avg_wait_ms": round(w["wait_ms"] / c, 2),
+            "avg_commit_ms": round(w["commit_ms"] / c, 2),
+            "total_time_waiting_ms": round(w["wait_ms"], 1),
+        })
+    return {
+        "total_writes": total,
+        "writes_per_min": round(total / uptime_min, 1),
+        "uptime_min": round(uptime_min, 1),
+        "avg_wait_ms": round(sum(waits) / len(waits), 2) if waits else 0.0,
+        "p50_wait_ms": _pct(waits, 50), "p95_wait_ms": _pct(waits, 95), "p99_wait_ms": _pct(waits, 99),
+        "avg_commit_ms": round(sum(commits) / len(commits), 2) if commits else 0.0,
+        "p95_commit_ms": _pct(commits, 95), "p99_commit_ms": _pct(commits, 99),
+        "queue_depth": qd, "max_queue_depth": mqd,
+        "slow_commits_gt100": slow["gt100"], "slow_commits_gt500": slow["gt500"], "slow_commits_gt1000": slow["gt1000"],
+        "lock_errors_24h": lock_err_24h,
+        "top_writers": top_writers,
+        "serialize_enabled": _DB_WRITE_SERIALIZE,
+    }
+
 
 # Central write serialization toggle: when on, every TrackedConnection acquires the one global
 # write lock for the duration of a write TRANSACTION (first write stmt → commit/rollback/close),
@@ -98,11 +214,15 @@ class TrackedConnection(sqlite3.Connection):
         """Acquire the global write lock once per write transaction (idempotent within the conn)."""
         if not _DB_WRITE_SERIALIZE or getattr(self, "_holds_write_lock", False):
             return
+        caller = getattr(self, "_db_caller", None)
+        _dbm_queue(+1)                      # this writer is now WAITING for the lane
         t0 = time.monotonic()
         acquired = _DB_WRITE_LOCK.acquire(timeout=60)
         wait_ms = (time.monotonic() - t0) * 1000.0
+        _dbm_queue(-1)                      # no longer waiting (acquired OR timed out) — symmetric,
+                                            # so an abandoned-after-acquire conn can't leak the counter
         if not acquired:
-            record_lock_error(getattr(self, "_db_caller", None))
+            record_lock_error(caller)
             return  # fall through to SQLite's own busy_timeout rather than deadlock
         self._holds_write_lock = True
         try:
@@ -115,6 +235,7 @@ class TrackedConnection(sqlite3.Connection):
                     _DB_WRITE_STATS["max_wait_ms"] = wait_ms
         except Exception:
             pass
+        _dbm_record_acquire(caller, wait_ms)   # percentile + per-writer attribution
 
     def _release_write_lane(self):
         if getattr(self, "_holds_write_lock", False):
@@ -145,13 +266,21 @@ class TrackedConnection(sqlite3.Connection):
             raise
 
     def commit(self):
+        # Acquire the lane at commit too: writes done via cursor.execute() (not conn.execute)
+        # bypass the execute-level acquire, but they ALL funnel through conn.commit(). In WAL mode
+        # the commit is where the write lock is held longest, so serializing commits is the
+        # high-value catch for cursor-based writers (price_service, etc.). No-op if already held.
+        if _DB_WRITE_SERIALIZE and self.in_transaction and not getattr(self, "_holds_write_lock", False):
+            self._acquire_write_lane()
         t0 = time.monotonic()
         try:
             return super().commit()
         finally:
             dur_ms = (time.monotonic() - t0) * 1000.0
+            caller = getattr(self, "_db_caller", None)
             if dur_ms > 50.0:
-                _db_logger.warning(f"[DB_COMMIT_SLOW] {dur_ms:.0f}ms caller={getattr(self,'_db_caller',None)}")
+                _db_logger.warning(f"[DB_COMMIT_SLOW] {dur_ms:.0f}ms caller={caller}")
+            _dbm_record_commit(caller, dur_ms)   # commit-time percentiles + slow buckets + attribution
             self._release_write_lane()
 
     def rollback(self):

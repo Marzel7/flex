@@ -9674,6 +9674,46 @@ def api_migration_capture_metrics():
         return jsonify({"error": str(e)}), 200
 
 
+@app.route('/api/db-serializer-metrics')
+def api_db_serializer_metrics():
+    """DB write-serializer observability: total writes, write rate, wait/commit percentiles,
+    queue depth, slow-commit buckets, 24h lock errors, and per-writer attribution. In-memory
+    (no DB read), sourced from db_locking.serializer_metrics(). NOTE: these are PER-PROCESS — this
+    endpoint runs in the API process; the listener process (where most writes happen) has its own
+    counters. The api_process metrics show API-side write load; live-DB lock_errors_24h is global."""
+    try:
+        import json as _json, os as _os
+        # PREFER the listener's snapshot (it does the bulk of writes); fall back to this process's
+        # own in-memory metrics. The listener snapshots to logs/db_serializer_metrics.json every 15s.
+        m = None
+        snap_path = _os.path.join(_os.path.dirname(__file__), "../../logs/db_serializer_metrics.json")
+        try:
+            if _os.path.exists(snap_path):
+                with open(snap_path) as f:
+                    m = _json.load(f)
+                m["_snapshot_age_secs"] = int(time.time()) - m.get("_snapshot_at", 0)
+        except Exception:
+            m = None
+        if m is None:
+            from src.utils.db_locking import serializer_metrics
+            m = serializer_metrics()
+            m["_process"] = "api"
+        # augment with live WAL state (global, cross-process)
+        try:
+            import sqlite3 as _sq
+            wal = DB_PATH + "-wal"
+            m["wal_size_mb"] = round(_os.path.getsize(wal) / 1e6, 2) if _os.path.exists(wal) else 0.0
+            _c = _sq.connect(DB_PATH, timeout=5)
+            cp = _c.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+            _c.close()
+            m["wal_checkpoint"] = {"busy": cp[0], "log_frames": cp[1], "checkpointed": cp[2]}
+        except Exception:
+            pass
+        return jsonify(m)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 200
+
+
 @app.route('/api/future-bound-tokens')
 def api_future_bound_tokens():
     """Get Pump.fun bonding-curve tokens that appear close to migration."""

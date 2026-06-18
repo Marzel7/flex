@@ -59,6 +59,13 @@ PREMIG_LOG_PATH = os.path.join(
 CURVE_WATCH_STATE_PATH = os.path.join(
     os.path.dirname(__file__), "../../logs/curve_watch_state.json"
 )
+# The listener process does the bulk of DB writes, but its serializer metrics are in-memory and
+# per-process — the API process can't read them directly. The listener periodically snapshots
+# db_locking.serializer_metrics() to this file so the dashboard endpoint (API process) can surface
+# the REAL write load. JSON file (not DB) keeps measurement off the write lane it measures.
+DB_SERIALIZER_METRICS_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/db_serializer_metrics.json"
+)
 
 
 def premig_log(message: str) -> None:
@@ -898,6 +905,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         asyncio.create_task(self._db_maintenance_periodic())
         # CORRECTNESS PATH: reconcile migrations the WS dropped during reconnect gaps
         asyncio.create_task(self._migration_reconciler_loop())
+        # OBSERVABILITY: snapshot DB-serializer metrics to disk so the API/dashboard can read the
+        # listener's (the heavy writer's) real write load cross-process. Runs in a plain DAEMON
+        # THREAD, not an asyncio task — the listener's event loop is heavily loaded and was starving
+        # the async version (it logged 'started' but never wrote). A thread can't be starved by the
+        # loop, which is exactly what makes it a trustworthy observer of a saturated process.
+        import threading as _th_dbm
+        _th_dbm.Thread(target=self._db_serializer_metrics_snapshot_thread, daemon=True,
+                       name="db-metrics-snapshot").start()
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -9227,6 +9242,26 @@ class PumpFunCurveListener(FastLaneDiscovery):
         existing = self._retry_tasks_by_mint.get(mint)
         if existing is asyncio.current_task():
             self._retry_tasks_by_mint.pop(mint, None)
+
+    def _db_serializer_metrics_snapshot_thread(self):
+        """Write db_locking.serializer_metrics() to a JSON file every 15s (plain thread — immune to
+        event-loop starvation) so the API process can surface the listener's real write-lane load."""
+        interval = float(os.environ.get("DB_SERIALIZER_SNAPSHOT_SECS", "15"))
+        log_print(f"[DB_METRICS] ✅ Serializer metrics snapshot thread started (every {interval:.0f}s → {DB_SERIALIZER_METRICS_PATH})", flush=True)
+        time.sleep(20)
+        while True:
+            try:
+                from src.utils.db_locking import serializer_metrics
+                m = serializer_metrics()
+                m["_process"] = "listener"
+                m["_snapshot_at"] = int(time.time())
+                tmp = DB_SERIALIZER_METRICS_PATH + ".tmp"
+                with open(tmp, "w") as f:
+                    json.dump(m, f)
+                os.replace(tmp, DB_SERIALIZER_METRICS_PATH)   # atomic
+            except Exception as e:
+                log_print(f"[DB_METRICS] snapshot error: {e}", flush=True)
+            time.sleep(interval)
 
     async def _migration_reconciler_loop(self):
         """CORRECTNESS PATH — guarantees migration completeness even when the WS drops events.

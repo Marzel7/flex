@@ -1404,14 +1404,25 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         Full enrichment path for detail-heavy pages.
     """
     conn = None
+    _gmt_t0 = time.perf_counter()
+    def _gmt_mark(label):
+        print(f"[GMT] {label} +{time.perf_counter()-_gmt_t0:.2f}s", flush=True)
     try:
+        _gmt_mark("enter")
         from src.utils.infra_mapping import CEX_ACCOUNTS
+        _gmt_mark("imported CEX_ACCOUNTS")
 
-        # Read-only URI connection bypasses write locks entirely in WAL mode
-        conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=3)
-        conn.execute("PRAGMA journal_mode=WAL")
+        # Read-only URI connection bypasses write locks entirely in WAL mode.
+        # NOTE: do NOT run "PRAGMA journal_mode=WAL" here — that is a WRITE and on
+        # a mode=ro connection it must take a write lock, which during a write
+        # storm stalls/retries and turns a ~150ms read into 100s+ (the cause of
+        # /api/migrated-tokens timeouts). The DB is already in WAL (set by writers);
+        # readers don't need to set it. busy_timeout absorbs brief lock blips.
+        conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=30)
+        conn.execute("PRAGMA busy_timeout=30000")
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
+        _gmt_mark("connected")
 
         def _parse_unix_ts(value):
             if value is None or value == '':
@@ -1581,7 +1592,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
             LIMIT ?
         """, (MIN_LIVE_MARKET_CAP, now_ts - 900, now_ts - 1800, now_ts - 60, limit,))
 
+        _gmt_mark("before execute")
         rows = cursor.fetchall()
+        _gmt_mark(f"after fetchall rows={len(rows)}")
 
         if light:
             from src.core.token_behavior import compute_token_class
@@ -9664,12 +9677,18 @@ def _refresh_migrated_tokens_cache():
         return
     _migrated_tokens_cache["refreshing"] = True
     def _run():
+        _t0 = time.perf_counter()
+        print("[CACHE] migrated-tokens refresh START", flush=True)
         try:
             tokens = get_migrated_tokens(limit=25, light=True)
             _migrated_tokens_cache["tokens"] = tokens
             _migrated_tokens_cache["at"] = time.time()
+            print(f"[CACHE] migrated-tokens refresh DONE tokens={len(tokens)} "
+                  f"took {time.perf_counter()-_t0:.2f}s", flush=True)
         except Exception as _e:
-            print(f"[CACHE] migrated-tokens refresh error: {_e}", flush=True)
+            import traceback as _tb
+            print(f"[CACHE] migrated-tokens refresh ERROR after "
+                  f"{time.perf_counter()-_t0:.2f}s: {_e!r}\n{_tb.format_exc()}", flush=True)
         finally:
             _migrated_tokens_cache["refreshing"] = False
     threading.Thread(target=_run, daemon=True, name="migrated-tokens-cache-refresh").start()
@@ -9681,10 +9700,13 @@ def api_migrated_tokens():
     cached = _migrated_tokens_cache
     stale = cached["tokens"] is None or (time.time() - cached["at"]) > _MIGRATED_TOKENS_TTL
     if cached["tokens"] is None:
-        # No cache yet — must block once to get initial data
-        tokens = get_migrated_tokens(limit=25, light=True)
-        _migrated_tokens_cache["tokens"] = tokens
-        _migrated_tokens_cache["at"] = time.time()
+        # No cache yet — do NOT block the HTTP request on the full query (under a
+        # write storm it can run 100s+ and exceed the worker timeout, so the
+        # cache never sets and every request re-blocks). Kick off the background
+        # build and return empty immediately; the page poll picks up data on the
+        # next tick once the warm cache lands.
+        _refresh_migrated_tokens_cache()
+        tokens = []
     else:
         tokens = cached["tokens"]
         if stale:
@@ -9705,10 +9727,29 @@ def api_migration_capture_metrics():
     token_analysis.migration_source column (cross-process, survives restarts). A nonzero/climbing
     recovery rate = the WS is dropping migrations the reconciler is backstopping."""
     try:
-        from src.core.pumpfun_curve_listener import migration_capture_metrics
+        # Inlined to avoid importing the 10.6k-line listener module into the API
+        # process (its import-time thread/DB side effects hang the request). This
+        # is the same self-contained query as listener.migration_capture_metrics.
         window = int(request.args.get('window_hours', 24)) * 3600
-        m = migration_capture_metrics(DB_PATH, window_secs=window)
-        return jsonify(m or {})
+        cutoff = int(time.time()) - window
+        conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=10)
+        conn.execute("PRAGMA busy_timeout=10000")
+        rows = conn.execute(
+            "SELECT COALESCE(migration_source,'UNKNOWN'), COUNT(*) FROM token_analysis "
+            "WHERE migrated_at IS NOT NULL AND migrated_at > ? GROUP BY 1", (cutoff,)
+        ).fetchall()
+        conn.close()
+        by = {r[0]: r[1] for r in rows}
+        ws, rec, unknown = by.get("WEBSOCKET", 0), by.get("RECONCILER", 0), by.get("UNKNOWN", 0)
+        total = ws + rec + unknown
+        return jsonify({
+            "window_hours": round(window / 3600, 1),
+            "ws_migrations": ws,
+            "reconciler_recoveries": rec,
+            "unattributed": unknown,
+            "total_migrations": total,
+            "recovery_rate_pct": round(100.0 * rec / total, 2) if total else 0.0,
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 200
 
@@ -9951,8 +9992,9 @@ def _fetch_pumpfun_live():
     """Inner function: fetch pumpfun live data. Called by cache refresh thread."""
     import json as _json
     now = int(time.time())
-    conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=3)
-    conn.execute("PRAGMA journal_mode=WAL")
+    # mode=ro read: do NOT set journal_mode (a WRITE that stalls under load).
+    conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=30)
+    conn.execute("PRAGMA busy_timeout=30000")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -10049,8 +10091,8 @@ def _fetch_pumpfun_live():
     _missing_meta = [t["mint"] for t in near_migration if not t["symbol"] and not t["name"]]
     if _missing_meta:
         try:
-            _mc = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=3)
-            _mc.execute("PRAGMA journal_mode=WAL")
+            _mc = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=30)
+            _mc.execute("PRAGMA busy_timeout=30000")
             _ph = ",".join("?" * len(_missing_meta))
             _meta = {r[0]: (r[1], r[2]) for r in _mc.execute(
                 f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({_ph})", _missing_meta

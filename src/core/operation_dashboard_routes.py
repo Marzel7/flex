@@ -3201,10 +3201,25 @@ def api_intel_webhook_events():
             pass
         if watch:
             ph = ",".join("?" * len(watch))
-            hits = live.execute(
-                f"SELECT wallet_address, counterparty, tx_type, amount_sol, block_time, tx_signature, direction, source "
-                f"FROM wt_webhook_hits WHERE wallet_address IN ({ph}) "
-                f"ORDER BY block_time DESC LIMIT ?", list(watch) + [limit]).fetchall()
+            _cols = ("SELECT wallet_address, counterparty, tx_type, amount_sol, block_time, "
+                     "tx_signature, direction, source FROM wt_webhook_hits "
+                     f"WHERE wallet_address IN ({ph}) ORDER BY block_time DESC LIMIT ?")
+            # The cascade (WS) now writes its treasury_ws hits to the OPS DB; the legacy HTTP
+            # webhook still writes the HOT DB. UNION both so the feed reflects the LIVE WS, not
+            # just the (often stale) webhook. Merge + sort + cap.
+            hits = list(live.execute(_cols, list(watch) + [limit]).fetchall())
+            try:
+                hits += list(ov.execute(_cols, list(watch) + [limit]).fetchall())
+            except Exception:
+                pass
+            # dedupe on (tx_signature, wallet_address); keep newest; re-sort; cap
+            _seen = set(); _merged = []
+            for h in sorted(hits, key=lambda r: (r[4] or 0), reverse=True):
+                k = (h[5], h[0])
+                if k in _seen:
+                    continue
+                _seen.add(k); _merged.append(h)
+            hits = _merged[:limit]
         else:
             hits = []
         # ── treasury-outbound CLASSIFICATION: BEHAVIORAL OUTCOME (not funding-frequency) ──
@@ -3408,7 +3423,22 @@ def api_intel_webhook_events():
         # in-place ROW HIGHLIGHT in the UI, not by reordering. Exception: a true launch_detected
         # is rare + worth pinning, so it still floats to the top.
         events.sort(key=lambda x: (0 if x.get("launch_detected") else 1, -(x["ts"] or 0)))
-        return jsonify({"events": events})
+        # WS ACTIVITY SUMMARY: hit rows are only written on ≥1◎ provisioning outbounds, so the
+        # feed looks empty while a treasury is busy with sub-1◎ dust. Surface the live WS metering
+        # (wt_treasury_ws_usage) so the feed shows the WS IS active even with no hit rows.
+        ws_activity = []
+        try:
+            for r in ov.execute(
+                "SELECT treasury_wallet, notif_count, notif_count_1h, sessions_opened, last_notif_at "
+                "FROM wt_treasury_ws_usage WHERE last_notif_at > strftime('%s','now')-3600 "
+                "ORDER BY last_notif_at DESC LIMIT 20").fetchall():
+                ws_activity.append({
+                    "treasury": r[0], "notifs_total": r[1], "notifs_1h": r[2],
+                    "sessions_opened": r[3], "last_notif_at": r[4]})
+        except Exception:
+            pass
+        return jsonify({"events": events, "ws_activity": ws_activity,
+                        "ws_active": bool(ws_activity)})
     finally:
         ov.close(); live.close()
 

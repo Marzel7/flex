@@ -324,7 +324,18 @@ function dustSummaryRow(group){
 async function loadFeed(){
   const d = await (await fetch('/api/ops-v2/intel/webhook-events?limit=160')).json();
   const ev = d.events||[];
+  const wa = d.ws_activity||[];
   let html='', i=0;
+  // WS-ACTIVITY banner: hit rows are only written on ≥1◎ provisioning outbounds, so the feed
+  // can be empty while the WS is busy with sub-1◎ dust. Show the live WS metering so it's clear
+  // the WebSocket IS active (not a stale listener).
+  if(wa.length){
+    const top=wa[0]; const age=Math.max(0,Math.floor(Date.now()/1000)-(top.last_notif_at||0));
+    const n1h=wa.reduce((s,a)=>s+(a.notifs_1h||0),0);
+    html += `<tr><td colspan="6" style="padding:6px 13px;font-size:10px;background:rgba(63,185,80,.10);border-left:3px solid var(--green)">`
+      + `🛰 <b>WS LIVE</b> — ${wa.length} treasur${wa.length>1?'ies':'y'} active · ${n1h} notifs/last-hour · most recent ${age<90?age+'s':Math.floor(age/60)+'m'} ago `
+      + `<span class="muted">(sub-1◎ dust is metered, not shown as hit rows)</span></td></tr>`;
+  }
   while(i<ev.length){
     if(isDust(ev[i])){
       let j=i; const grp=[];
@@ -334,7 +345,10 @@ async function loadFeed(){
     }
     html+=feedRow(ev[i]); i++;
   }
-  document.getElementById('feed-body').innerHTML = html || '<tr><td colspan="6" class="muted">no webhook events (listener may be stale)</td></tr>';
+  const empty = d.ws_active
+    ? '<tr><td colspan="6" class="muted">no ≥1◎ provisioning hits — WS is live (banner above); treasuries doing sub-1◎ dust only</td></tr>'
+    : '<tr><td colspan="6" class="muted">no webhook events and no WS activity</td></tr>';
+  document.getElementById('feed-body').innerHTML = html ? html : empty;
 }
 
 async function openDrill(uuid){

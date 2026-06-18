@@ -4847,24 +4847,6 @@ function switchToTokensTab() {
             setInterval(loadTokens, 30000);
             setInterval(loadFutureBound, 30000);
 
-            // Migration capture reliability metric (WS fast-path vs reconciler recoveries)
-            async function loadMigrationCapture() {
-                try {
-                    const r = await fetch('/api/migration-capture-metrics');
-                    const m = await r.json();
-                    const el = document.getElementById('homeCmdMigCapture');
-                    if (!el || m.error) return;
-                    const ws = m.ws_migrations || 0;
-                    const rec = m.reconciler_recoveries || 0;
-                    const rate = m.recovery_rate_pct || 0;
-                    // healthy = reconciler recovering nothing (WS catching all). Flag if it isn't.
-                    el.textContent = `${ws} WS · ${rec} rec`;
-                    el.title = `Migration capture (24h): WS ${ws}, reconciler recoveries ${rec}, recovery rate ${rate}%, total ${m.total_migrations||0}. Recoveries>0 means the WS dropped migrations the reconciler backstopped.`;
-                    el.style.color = rec > 0 ? 'var(--accent-amber, #f0b429)' : '';
-                } catch (e) { /* non-fatal */ }
-            }
-            loadMigrationCapture();
-            setInterval(loadMigrationCapture, 30000);
 
             // Refresh Age and Peak Timing text without requiring a full table rebuild
             setInterval(() => {
@@ -7604,6 +7586,25 @@ function switchToTokensTab() {
     const tick = () => { el.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); };
     tick();
     setInterval(tick, 1000);
+})();
+
+// Migration capture reliability metric — self-contained (independent of the token-load init
+// chain, which can hang and leave this showing the '—' placeholder).
+(function migrationCaptureMetric(){
+    const el = document.getElementById('homeCmdMigCapture');
+    if (!el) return;
+    async function load(){
+        try {
+            const m = await (await fetch('/api/migration-capture-metrics')).json();
+            if (m.error) return;
+            const ws = m.ws_migrations || 0, rec = m.reconciler_recoveries || 0, rate = m.recovery_rate_pct || 0;
+            el.textContent = `${ws} WS · ${rec} rec`;
+            el.title = `Migration capture (24h): WS ${ws}, reconciler recoveries ${rec}, recovery rate ${rate}%, total ${m.total_migrations||0}. Recoveries>0 = the WS dropped migrations the reconciler backstopped.`;
+            el.style.color = rec > 0 ? '#f0b429' : '';
+        } catch(e){ /* non-fatal */ }
+    }
+    load();
+    setInterval(load, 30000);
 })();
 </script>
 

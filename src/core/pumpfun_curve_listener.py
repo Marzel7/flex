@@ -729,6 +729,41 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
     _TOKEN_WORK_POOL.submit(_run)
 
 
+def migration_capture_metrics(db_path: str, window_secs: int = 86400) -> dict:
+    """Migration capture metrics from token_analysis.migration_source (the durable, cross-process
+    source of truth — survives restarts, unlike in-process counters). Shows how many migrations the
+    real-time WS caught vs how many the reconciler had to recover, i.e. the WS-drop rate the
+    reconciler is closing.
+
+        WS migrations / Reconciler recoveries / Recovery rate % / Total migrations
+    """
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(f"file:{db_path}?mode=ro", uri=True, timeout=10)
+        cutoff = int(time.time()) - window_secs
+        rows = conn.execute(
+            "SELECT COALESCE(migration_source,'UNKNOWN'), COUNT(*) FROM token_analysis "
+            "WHERE migrated_at IS NOT NULL AND migrated_at > ? GROUP BY 1", (cutoff,)
+        ).fetchall()
+        conn.close()
+    except Exception:
+        return {}
+    by = {r[0]: r[1] for r in rows}
+    ws = by.get("WEBSOCKET", 0)
+    rec = by.get("RECONCILER", 0)
+    unknown = by.get("UNKNOWN", 0)   # migrations recorded before provenance existed
+    total = ws + rec + unknown
+    rate = round(100.0 * rec / total, 2) if total else 0.0
+    return {
+        "window_hours": round(window_secs / 3600, 1),
+        "ws_migrations": ws,
+        "reconciler_recoveries": rec,
+        "unattributed": unknown,
+        "total_migrations": total,
+        "recovery_rate_pct": rate,
+    }
+
+
 def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
     import sqlite3 as _sq
     conn = _sq.connect(db_path, timeout=10)
@@ -761,6 +796,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.websocket_connected = False
         self.websocket_msg_count = 0  # Track message receipt
         self.websocket_migration_count = 0  # Track migrations detected
+        # MIGRATION RECONCILER counters — the WS is the fast path; the reconciler is the
+        # correctness path that recovers migrations dropped during a WS reconnect gap.
+        self.reconciler_checked = 0       # migration sigs examined by the sweep
+        self.reconciler_recovered = 0     # migrations the WS missed and the reconciler recovered
+        self.reconciler_last_run = 0.0
+        self._reconciler_pending: Set[str] = set()   # sigs the reconciler is currently routing
+        self._reconciler_failed: dict = {}            # sig -> attempts; skip after N (non-migrations)
+        self._last_migration_source = "WEBSOCKET"     # provenance flag for the next migration write
 
         # === NEW: Transaction caching ===
         self.tx_cache = {}  # {signature: (tx_data, timestamp)}
@@ -850,6 +893,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # asyncio.create_task(self._periodic_cluster_rebuild())
         asyncio.create_task(self._flush_portal_vsol_periodic())
         asyncio.create_task(self._db_maintenance_periodic())
+        # CORRECTNESS PATH: reconcile migrations the WS dropped during reconnect gaps
+        asyncio.create_task(self._migration_reconciler_loop())
 
         # Telemetry for discovery attempts
         self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
@@ -3912,6 +3957,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if "is_about_to_migrate" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN is_about_to_migrate BOOLEAN DEFAULT 0")
                 log_print("[DB] ✅ Added is_about_to_migrate column to token_analysis", flush=True)
+
+            # migration provenance — WEBSOCKET (real-time WS) vs RECONCILER (recovered by the
+            # reliability sweep on PUMPFUN_MIGRATION_ACCOUNT). Lets us measure recovery rate and
+            # prove the reconciler is closing the WS-drop gap.
+            if "migration_source" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_source TEXT")
+                log_print("[DB] ✅ Added migration_source column to token_analysis", flush=True)
 
             if "migration_progress_pct" not in columns:
                 cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL")
@@ -7738,8 +7790,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn = db_connect(DB_PATH, timeout=15)
                 cursor = conn.cursor()
                 cursor.execute(
-                    "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), source_platform = COALESCE(source_platform, 'pumpfun') WHERE mint = ?",
-                    (signature, migrated_at_ts, mint)
+                    "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', "
+                    "migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), "
+                    "source_platform = COALESCE(source_platform, 'pumpfun'), "
+                    "migration_source = COALESCE(migration_source, ?) WHERE mint = ?",
+                    (signature, migrated_at_ts, getattr(self, "_last_migration_source", "WEBSOCKET"), mint)
                 )
                 conn.commit()
                 conn.close()
@@ -9169,8 +9224,127 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if existing is asyncio.current_task():
             self._retry_tasks_by_mint.pop(mint, None)
 
-    async def handle_migration(self, signature: str, logs: list):
-        """Process detected migration."""
+    async def _migration_reconciler_loop(self):
+        """CORRECTNESS PATH — guarantees migration completeness even when the WS drops events.
+
+        The websocket (logsSubscribe on PUMPFUN_MIGRATION_ACCOUNT) is the FAST path but provides
+        no replay: a MigrateV2 that lands during a disconnect→reconnect→resubscribe window is
+        permanently missed (root cause of AeFSni25/Hepc74 — both valid MigrateV2 txs that touch
+        the authority and pass the filter, yet never processed). This loop periodically reads the
+        authority account's recent signatures and routes any migration the WS missed through the
+        SAME handle_migration() path — fully idempotent (in-memory completed_migrations guard +
+        token_analysis mint/migration_tx DB idempotency), so a sig caught by both is processed once.
+
+        Bounded: the authority account carries ONLY migrations (low volume — not swaps), so the
+        signature list is small. We fetch a tx only for sigs not already recorded as a
+        migration_tx in token_analysis, keeping RPC cost proportional to *missed* migrations.
+        """
+        interval = float(os.environ.get("MIGRATION_RECONCILER_INTERVAL", "120"))   # 2 min
+        sig_limit = int(os.environ.get("MIGRATION_RECONCILER_SIG_LIMIT", "100"))
+        await self._wait_for_launch_toggle("PUMPSWAP")
+        log_print(f"[RECONCILER] ✅ Migration reconciler started (every {interval:.0f}s, limit {sig_limit})", flush=True)
+        # warm-up: let the WS establish first so we don't double-fetch the live stream on boot
+        await asyncio.sleep(30)
+        while True:
+            try:
+                self.reconciler_last_run = time.time()
+                res = await self.call_discovery_rpc(
+                    "getSignaturesForAddress",
+                    [PUMPFUN_MIGRATION_ACCOUNT, {"limit": sig_limit, "commitment": "confirmed"}],
+                    timeout=15,
+                )
+                sigs = (res or {}).get("result") if isinstance(res, dict) else res
+                sigs = sigs or []
+                # which of these sigs are already recorded as a migration? (persistent dedup —
+                # survives restarts, unlike the in-memory completed_migrations set)
+                cand_sigs = [s["signature"] for s in sigs if s.get("signature") and not s.get("err")]
+                missing = self._reconciler_unseen_sigs(cand_sigs)
+                self.reconciler_checked += len(cand_sigs)
+                if missing:
+                    log_print(f"[RECONCILER] {len(missing)}/{len(cand_sigs)} authority sigs not in token_analysis — verifying", flush=True)
+                for sig in missing:
+                    # already handled live this session? skip (in-memory guard)
+                    if sig in self.completed_migrations or sig in self.processing_migrations:
+                        continue
+                    # skip sigs that repeatedly failed to resolve a mint (non-migration authority
+                    # txs, or un-indexable) — don't re-attempt them every sweep forever.
+                    if self._reconciler_failed.get(sig, 0) >= 3:
+                        continue
+                    if sig in self._reconciler_pending:
+                        continue   # already being processed by an in-flight task
+                    # Route through the SAME path the WS uses, but DO NOT block the sweep on it —
+                    # handle_migration may take 45s+ (delayed mint re-check) on a bad sig; awaiting
+                    # it sequentially would stall the whole reconciler. Fire-and-forget like the WS
+                    # path (create_task), exactly as line ~9450 does. Each task records the recovery
+                    # + tags provenance on its own.
+                    self._reconciler_pending.add(sig)
+                    asyncio.create_task(self._reconcile_one(sig))
+            except Exception as e:
+                log_print(f"[RECONCILER] ⚠ sweep error: {e}", flush=True)
+            await asyncio.sleep(interval)
+
+    async def _reconcile_one(self, sig: str):
+        """Process one reconciler-discovered migration sig OFF the sweep loop (its own task), so a
+        slow handle_migration (45s delayed mint re-check) can't stall the reconciler. Bounded by a
+        hard timeout; records a recovery + tags provenance only if a real token_analysis row results."""
+        try:
+            await asyncio.wait_for(self.handle_migration(sig, [], source="RECONCILER"), timeout=90)
+            if self._sig_now_in_token_analysis(sig):
+                self.reconciler_recovered += 1
+                self._tag_migration_source(sig, "RECONCILER")
+                self._reconciler_failed.pop(sig, None)
+                log_print(f"[RECONCILER] ♻ RECOVERED migration {sig[:16]}… (WS missed it)", flush=True)
+            else:
+                # no token_analysis row resulted → not a resolvable migration; count the attempt
+                self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1
+        except asyncio.TimeoutError:
+            self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1
+            log_print(f"[RECONCILER] ⚠ {sig[:16]}… timed out (attempt {self._reconciler_failed[sig]})", flush=True)
+        except Exception as e:
+            self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1
+            log_print(f"[RECONCILER] ⚠ {sig[:16]}… error: {e}", flush=True)
+        finally:
+            self._reconciler_pending.discard(sig)
+
+    def _reconciler_unseen_sigs(self, sigs: list) -> list:
+        """Return the subset of migration signatures NOT already recorded as migration_tx in
+        token_analysis (persistent dedup, survives restarts). Cheap single query."""
+        if not sigs:
+            return []
+        try:
+            with managed_db_connect(DB_PATH, timeout=10) as conn:
+                ph = ",".join("?" * len(sigs))
+                rows = conn.execute(
+                    f"SELECT migration_tx FROM token_analysis WHERE migration_tx IN ({ph})", sigs
+                ).fetchall()
+            seen = {r[0] for r in rows}
+            return [s for s in sigs if s not in seen]
+        except Exception:
+            return []   # on error, do nothing this cycle (handle_migration is idempotent anyway)
+
+    def _sig_now_in_token_analysis(self, sig: str) -> bool:
+        try:
+            with managed_db_connect(DB_PATH, timeout=10) as conn:
+                return conn.execute(
+                    "SELECT 1 FROM token_analysis WHERE migration_tx=? LIMIT 1", (sig,)
+                ).fetchone() is not None
+        except Exception:
+            return False
+
+    def _tag_migration_source(self, sig: str, source: str) -> None:
+        try:
+            with managed_db_connect(DB_PATH, timeout=10) as conn:
+                conn.execute(
+                    "UPDATE token_analysis SET migration_source=COALESCE(migration_source, ?) "
+                    "WHERE migration_tx=?", (source, sig))
+                conn.commit()
+        except Exception:
+            pass
+
+    async def handle_migration(self, signature: str, logs: list, source: str = "WEBSOCKET"):
+        """Process detected migration. `source` records provenance (WEBSOCKET fast-path vs
+        RECONCILER correctness-path) for the migration_source column + capture metrics."""
+        self._last_migration_source = source
         if signature in self.processing_migrations or signature in self.completed_migrations:
             return
 
@@ -9305,8 +9479,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 endpoint, name = endpoints[current_endpoint_idx]
                 async with websockets.connect(
                     endpoint,
-                    ping_interval=None,
-                    ping_timeout=None,
+                    # KEEPALIVE — THIS is the migration listener (logsSubscribe on the pump.fun
+                    # migration account 39azUYFW…); it detects every graduation in real-time. It had
+                    # ping_interval=None, so an idle Helius connection looked dead to the 180s
+                    # watchdog and got torn down (122 reconnects in one log). Migrations that fire
+                    # during a reconnect are LOST (no replay) — the real migration-miss cause
+                    # (PumpPortal only does births; THIS WS does migrations). Ping every 20s to keep
+                    # an idle connection alive + detect a dead one fast, minimising the drop window.
+                    ping_interval=float(os.environ.get("PUMPSWAP_PING_INTERVAL", "20")),
+                    ping_timeout=float(os.environ.get("PUMPSWAP_PING_TIMEOUT", "20")),
                     close_timeout=10,
                     max_size=10 * 1024 * 1024,
                 ) as ws:

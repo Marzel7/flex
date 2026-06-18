@@ -351,13 +351,19 @@ def get_open_connection_summary(limit: int = 25) -> dict:
     }
 
 
-def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connection:
+def db_connect(path: str, timeout: int = 30, row_factory=None,
+               read_only: bool = False) -> sqlite3.Connection:
     """
     Open a SQLite connection with safe defaults for concurrent access.
 
     - timeout=30: waits up to 30s for a write lock (Python-level)
     - busy_timeout=30000: mirrors at the SQLite C level (handles WAL checkpoints)
     - WAL journal mode for concurrent readers
+
+    read_only=True: open the file with URI mode=ro. In WAL this reads the last
+    committed snapshot WITHOUT taking the database write lock, so it can NEVER be
+    blocked by a write storm. Use it for dashboard/read endpoints. A read-only
+    connection cannot run write PRAGMAs, so we skip journal_mode/synchronous setup.
 
     Use this instead of sqlite3.connect() everywhere to avoid "database is locked".
     Logs caller location and elapsed time when acquisition is slow (>1s).
@@ -368,6 +374,19 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
 
     t0 = time.monotonic()
     try:
+        if read_only:
+            # mode=ro URI connection — pure read, bypasses the write lane entirely.
+            conn = _sqlite3_connect_orig(f"file:{path}?mode=ro", timeout=timeout,
+                                         uri=True, factory=TrackedConnection)
+            conn.execute("PRAGMA busy_timeout=%d" % int(timeout * 1000))
+            if row_factory is not None:
+                conn.row_factory = row_factory
+            _register_connection(conn, path, caller)
+            try:
+                conn._db_caller = caller
+            except Exception:
+                pass
+            return conn
         conn = _sqlite3_connect_orig(path, timeout=timeout, factory=TrackedConnection)
     except Exception as e:
         elapsed = time.monotonic() - t0
@@ -386,7 +405,18 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
     if row_factory is not None:
         conn.row_factory = row_factory
     conn.execute("PRAGMA busy_timeout=30000")
-    conn.execute("PRAGMA journal_mode=WAL")
+    # CRITICAL: `PRAGMA journal_mode=WAL` is a WRITE — it takes the database write
+    # lock. Running it on EVERY connect (incl. pure-read connections) meant every
+    # connect serialized behind the write lane during a write storm, turning fast
+    # reads into multi-second stalls and exhausting the gunicorn worker on busy
+    # dashboard pages. The DB is already WAL (writers set it once), so only set it
+    # when it is NOT already WAL — a cheap read that avoids the write-lock entirely.
+    try:
+        _mode = conn.execute("PRAGMA journal_mode").fetchone()
+        if not _mode or str(_mode[0]).lower() != "wal":
+            conn.execute("PRAGMA journal_mode=WAL")
+    except Exception:
+        conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA wal_autocheckpoint=400")        # ~1.6MB — checkpoint sooner
     # Cap WAL at 32 MB — was 256 MB, which let a single pinned reader balloon the
@@ -397,16 +427,17 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
 
 
 @contextlib.contextmanager
-def managed_db_connect(path: str, timeout: int = 30, row_factory=None):
+def managed_db_connect(path: str, timeout: int = 30, row_factory=None,
+                       read_only: bool = False):
     """Context manager wrapper around db_connect — guarantees conn.close() on exit.
 
     Use this in Flask routes and anywhere a connection must be closed even if an
     exception or early return occurs:
 
-        with managed_db_connect(DB_PATH) as conn:
+        with managed_db_connect(DB_PATH, read_only=True) as conn:
             ...
     """
-    conn = db_connect(path, timeout=timeout, row_factory=row_factory)
+    conn = db_connect(path, timeout=timeout, row_factory=row_factory, read_only=read_only)
     try:
         yield conn
     finally:

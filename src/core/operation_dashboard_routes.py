@@ -2780,10 +2780,11 @@ def api_intel_treasury_coverage():
 def api_intel_detection_health():
     """Real-time detection health — the listener is the biggest risk right now."""
     now = int(time.time())
-    # The WS cascade now writes its hits to the OPS DB (it owns its telemetry — see
-    # ws_cascade_store). UNION ops (cascade) + live (legacy non-cascade webhook hits) so the
-    # banner reflects ALL real-time hits. Without the ops read the dashboard went BLIND even
-    # while the cascade was detecting fine — the writes had just moved.
+    # WS liveness is driven by TREASURY WS NOTIFICATIONS (wt_treasury_ws_usage.last_notif_at),
+    # NOT by wt_webhook_hits. A treasury fires a WS notification on EVERY tx, but a HIT row is
+    # only written on a provisioning-sized outbound (rare) — so the old check called the WS
+    # "BLIND" whenever provisioning was quiet even though 1000s of notifications were flowing.
+    # last_webhook_hit / hits24 stay as the PROVISIONING signal; status reflects WS receipt.
     live = _live_conn(); ov = _conn()
     try:
         def _q1(conn, sql):
@@ -2791,21 +2792,28 @@ def api_intel_detection_health():
                 return (conn.execute(sql).fetchone() or [None])[0]
             except Exception:
                 return None
-        last_live = _q1(live, "SELECT MAX(block_time) FROM wt_webhook_hits")
-        last_ops  = _q1(ov,   "SELECT MAX(block_time) FROM wt_webhook_hits")
-        last = max([x for x in (last_live, last_ops) if x is not None], default=None)
+        # true WS liveness: most recent treasury WS notification (ops DB)
+        last_notif = _q1(ov, "SELECT MAX(last_notif_at) FROM wt_treasury_ws_usage")
+        notif_total = _q1(ov, "SELECT SUM(notif_count) FROM wt_treasury_ws_usage") or 0
+        # provisioning hits (separate, rarer signal) — union ops (cascade) + live (legacy)
+        last_hit = max([x for x in (_q1(live, "SELECT MAX(block_time) FROM wt_webhook_hits"),
+                                    _q1(ov,   "SELECT MAX(block_time) FROM wt_webhook_hits"))
+                        if x is not None], default=None)
         hits24 = (_q1(live, "SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400") or 0) \
                + (_q1(ov,   "SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400") or 0)
         _tmpl_sql = ("SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400 "
                      "AND CAST(ROUND(amount_sol*1e9) AS INT)%1000000=39280")
         tmpl24 = (_q1(live, _tmpl_sql) or 0) + (_q1(ov, _tmpl_sql) or 0)
-        age = (now - last) if last else None
-        listener = "DOWN" if last is None else ("LIVE" if age < 3600 else "STALE")
+        notif_age = (now - last_notif) if last_notif else None
+        # LIVE if WS notifications are recent (the WS is receiving); STALE/DOWN only if notifs dried up.
+        listener = "DOWN" if last_notif is None else ("LIVE" if notif_age < 3600 else "STALE")
         return jsonify({
-            "listener_status": listener, "last_webhook_hit": last, "last_hit_age_s": age,
+            "listener_status": listener,
+            "last_ws_notif": last_notif, "last_ws_notif_age_s": notif_age, "ws_notif_total": notif_total,
+            "last_webhook_hit": last_hit, "last_hit_age_s": (now - last_hit) if last_hit else None,
             "hits_24h": hits24, "template_hits_24h": tmpl24,
             "rpc_follow_success_pct": None, "failed_follows": None,
-            "warning": "NO_WEBHOOK_EVENTS" if (last is None or (age and age > 3600)) else None,
+            "warning": "NO_WS_NOTIFS" if (last_notif is None or (notif_age and notif_age > 3600)) else None,
         })
     finally:
         live.close(); ov.close()
@@ -2834,16 +2842,15 @@ def api_intel_status():
             out["scheduler_running"] = True
         except (OSError, ValueError):
             pass
-    # webhook listener freshness — UNION cascade hits (ops DB) + legacy hits (hot DB),
-    # since the WS cascade now writes its hits to the ops DB.
-    live = _live_conn(); ovh = _conn()
+    # WS liveness = treasury WS NOTIFICATIONS (wt_treasury_ws_usage), not provisioning hits.
+    ovh = _conn()
     try:
-        def _maxbt(conn):
+        def _q(conn, sql):
             try:
-                return (conn.execute("SELECT MAX(block_time) FROM wt_webhook_hits").fetchone() or [None])[0]
+                return (conn.execute(sql).fetchone() or [None])[0]
             except Exception:
                 return None
-        last = max([x for x in (_maxbt(live), _maxbt(ovh)) if x is not None], default=None)
+        last = _q(ovh, "SELECT MAX(last_notif_at) FROM wt_treasury_ws_usage")
         try:
             ovh.close()
         except Exception:

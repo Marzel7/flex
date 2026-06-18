@@ -273,10 +273,10 @@ async function loadAll(){
 
   // warning banner
   const wb=document.getElementById('warn-banner');
-  if (dh.warning==='NO_WEBHOOK_EVENTS'){
+  if (dh.warning==='NO_WS_NOTIFS'){
     wb.classList.add('show');
     document.getElementById('warn-text').textContent =
-      `NO WEBHOOK EVENTS RECEIVED — listener ${dh.listener_status} (last hit ${dh.last_webhook_hit?ago(dh.last_webhook_hit)+' ago':'never'}). Real-time launch detection is BLIND. ${tc.missing}/${tc.total} treasuries unmonitored.`;
+      `NO WS NOTIFICATIONS — treasury WebSocket ${dh.listener_status} (last notif ${dh.last_ws_notif?ago(dh.last_ws_notif)+' ago':'never'}). Real-time detection may be BLIND. ${tc.missing}/${tc.total} treasuries unmonitored.`;
   } else wb.classList.remove('show');
 
   // hero status cards

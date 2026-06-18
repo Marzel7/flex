@@ -366,23 +366,38 @@ def _backfill_missing_creator(mint: str) -> None:
 
 
 def _schedule_missing_creator_backfill(mint: Optional[str]) -> None:
-    """Fire-and-forget creator repair for tokens that slipped through without creator metadata."""
+    """Fire-and-forget creator repair for tokens that slipped through without creator metadata.
+
+    IMPORTANT: the enqueue is a DB WRITE. It must NOT run inline — this is called
+    per-row from the read-only /api/migrated-tokens cache build, and a synchronous
+    write there takes the (frequently-jammed) write lane and HANGS the whole build
+    under a listener write storm. Do the enqueue inside the daemon thread so the
+    caller never blocks on a write."""
     if not mint:
         return
-    try:
-        from src.core.creator_resolution_queue import enqueue_missing_creator, connect
-        with connect(DB_PATH, timeout=10) as conn:
-            enqueue_missing_creator(conn, mint, reason="missing_creator_p0", source="dashboard_missing_creator")
-            conn.commit()
-    except Exception as exc:
-        print(f"[CREATOR_RESOLUTION_QUEUE] enqueue failed mint={mint[:8]}: {exc}", flush=True)
+
+    def _enqueue():
+        try:
+            from src.core.creator_resolution_queue import enqueue_missing_creator, connect
+            with connect(DB_PATH, timeout=10) as conn:
+                enqueue_missing_creator(conn, mint, reason="missing_creator_p0", source="dashboard_missing_creator")
+                conn.commit()
+        except Exception as exc:
+            print(f"[CREATOR_RESOLUTION_QUEUE] enqueue failed mint={mint[:8]}: {exc}", flush=True)
+
     if not _CREATOR_BACKFILL_ENABLED:
+        # Still enqueue (off-thread), but no resolver run.
+        threading.Thread(target=_enqueue, daemon=True).start()
         return
     with _creator_backfill_lock:
         if mint in _creator_backfill_inflight:
             return
         _creator_backfill_inflight.add(mint)
-    threading.Thread(target=_backfill_missing_creator, args=(mint,), daemon=True).start()
+
+    def _enqueue_then_backfill():
+        _enqueue()
+        _backfill_missing_creator(mint)
+    threading.Thread(target=_enqueue_then_backfill, daemon=True).start()
 
 
 def _schedule_missing_creator_backfill_throttled(mint: Optional[str], *, cooldown_seconds: int = 15 * 60) -> bool:

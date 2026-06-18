@@ -9714,6 +9714,62 @@ def api_db_serializer_metrics():
         return jsonify({"error": str(e)}), 200
 
 
+@app.route('/db-serializer')
+def db_serializer_dashboard():
+    """DB write-serializer monitoring dashboard (polls /api/db-serializer-metrics)."""
+    return """<!doctype html><html><head><meta charset=utf-8><title>DB Serializer</title>
+<style>
+body{background:#0d1117;color:#c9d1d9;font:13px ui-monospace,monospace;margin:0;padding:24px}
+h1{font-size:18px;margin:0 0 4px}.sub{color:#8b949e;font-size:12px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px}
+.lbl{color:#8b949e;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.val{font-size:22px;font-weight:700;margin-top:4px}
+.val.warn{color:#f0b429}.val.bad{color:#f85149}.val.ok{color:#3fb950}
+.sec{font-size:11px;font-weight:700;color:#8b949e;text-transform:uppercase;margin:20px 0 8px;border-bottom:1px solid #30363d;padding-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:5px 10px;border-bottom:1px solid #21262d}
+th{color:#8b949e;font-weight:600}td.num{text-align:right}.dim{color:#8b949e}
+</style></head><body>
+<h1>DB Write Serializer</h1>
+<div class=sub id=meta>loading…</div>
+<div class=grid id=cards></div>
+<div class=sec>Top Writers (since process start)</div>
+<table><thead><tr><th>Writer</th><th class=num>Writes</th><th class=num>Avg Wait</th><th class=num>Avg Commit</th><th class=num>Total Wait</th></tr></thead><tbody id=writers></tbody></table>
+<script>
+const card=(lbl,val,cls='')=>`<div class=card><div class=lbl>${lbl}</div><div class="val ${cls}">${val}</div></div>`;
+async function load(){
+  let m; try{ m=await (await fetch('/api/db-serializer-metrics')).json(); }catch(e){ return; }
+  if(m.error){ document.getElementById('meta').textContent='error: '+m.error; return; }
+  document.getElementById('meta').textContent =
+    `source=${m._process||'?'} · snapshot age ${m._snapshot_age_secs??0}s · uptime ${m.uptime_min??'?'}min · serialize=${m.serialize_enabled?'ON':'OFF'}`;
+  const lockCls = (m.lock_errors_24h>0)?'bad':'ok';
+  const qCls = (m.queue_depth>3)?'warn':(m.queue_depth>10?'bad':'');
+  document.getElementById('cards').innerHTML = [
+    card('Total Writes', (m.total_writes||0).toLocaleString()),
+    card('Writes / min', m.writes_per_min??0),
+    card('Avg Wait', (m.avg_wait_ms??0)+'ms'),
+    card('P95 Wait', (m.p95_wait_ms??0)+'ms', m.p95_wait_ms>50?'warn':''),
+    card('P99 Wait', (m.p99_wait_ms??0)+'ms', m.p99_wait_ms>100?'warn':''),
+    card('Avg Commit', (m.avg_commit_ms??0)+'ms'),
+    card('P95 Commit', (m.p95_commit_ms??0)+'ms'),
+    card('P99 Commit', (m.p99_commit_ms??0)+'ms'),
+    card('Queue Depth', m.queue_depth??0, qCls),
+    card('Max Queue', m.max_queue_depth??0, m.max_queue_depth>10?'warn':''),
+    card('Slow >100ms', m.slow_commits_gt100??0, m.slow_commits_gt100>0?'warn':''),
+    card('Slow >500ms', m.slow_commits_gt500??0, m.slow_commits_gt500>0?'bad':''),
+    card('Slow >1s', m.slow_commits_gt1000??0, m.slow_commits_gt1000>0?'bad':''),
+    card('Lock Errors 24h', m.lock_errors_24h??0, lockCls),
+    card('WAL Size', (m.wal_size_mb??0)+'MB', m.wal_size_mb>32?'warn':''),
+    card('WAL Pinned', (m.wal_checkpoint?.busy?'YES':'no'), m.wal_checkpoint?.busy?'bad':'ok'),
+  ].join('');
+  document.getElementById('writers').innerHTML = (m.top_writers||[]).map(w=>
+    `<tr><td>${w.writer}</td><td class=num>${(w.write_count||0).toLocaleString()}</td><td class=num>${w.avg_wait_ms}ms</td><td class=num>${w.avg_commit_ms}ms</td><td class="num dim">${Math.round(w.total_time_waiting_ms||0)}ms</td></tr>`
+  ).join('') || '<tr><td colspan=5 class=dim>no writes recorded yet</td></tr>';
+}
+load(); setInterval(load, 5000);
+</script></body></html>"""
+
+
 @app.route('/api/future-bound-tokens')
 def api_future_bound_tokens():
     """Get Pump.fun bonding-curve tokens that appear close to migration."""

@@ -372,6 +372,20 @@ class Cascade:
         # wrap-close txs every sweep. (open_candidate_watch is also INSERT OR IGNORE, so even a
         # re-scan can't double-open a candidate; this just saves the RPC.)
         self._subprov_seen = set()
+        # Ensure the cascade schema ONCE at startup — NOT on every _ops() call. The schema
+        # ensure is a WRITE (CREATE TABLE/INDEX); running it on the hot _ops() path (called
+        # from resync_subscriptions + cleanup on the async WS loop) blocked the event loop
+        # under write contention, so subscription-confirmation acks were never processed and
+        # ALL subscriptions were reaped as "never-confirmed" (419 dropped / 0 confirmed). One
+        # short startup write fixes it; _ops() is now a pure read-path connection.
+        try:
+            c = db_connect(OPS_DB_PATH, timeout=20)
+            try:
+                store.ensure_cascade_schema(c)
+            finally:
+                c.close()
+        except Exception as _e:
+            _log(f"⚠ startup schema ensure failed (will retry lazily): {_e}")
 
     def _seen(self, candidate, sig):
         key = (candidate, sig)
@@ -394,9 +408,11 @@ class Cascade:
         return False
 
     def _ops(self):
+        # HOT PATH — pure connection, NO schema write. Schema is ensured once in __init__.
+        # (Running ensure_cascade_schema here blocked the async WS loop under contention and
+        # killed subscription confirmation — see __init__.)
         c = db_connect(OPS_DB_PATH, timeout=20)
         c.execute("PRAGMA busy_timeout=20000")
-        store.ensure_cascade_schema(c)
         return c
 
     # ---- (re)build subscriptions from DB (startup + reconnect) --------------

@@ -1404,13 +1404,8 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         Full enrichment path for detail-heavy pages.
     """
     conn = None
-    _gmt_t0 = time.perf_counter()
-    def _gmt_mark(label):
-        print(f"[GMT] {label} +{time.perf_counter()-_gmt_t0:.2f}s", flush=True)
     try:
-        _gmt_mark("enter")
         from src.utils.infra_mapping import CEX_ACCOUNTS
-        _gmt_mark("imported CEX_ACCOUNTS")
 
         # Read-only URI connection bypasses write locks entirely in WAL mode.
         # NOTE: do NOT run "PRAGMA journal_mode=WAL" here — that is a WRITE and on
@@ -1422,7 +1417,6 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         conn.execute("PRAGMA busy_timeout=30000")
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        _gmt_mark("connected")
 
         def _parse_unix_ts(value):
             if value is None or value == '':
@@ -1592,9 +1586,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
             LIMIT ?
         """, (MIN_LIVE_MARKET_CAP, now_ts - 900, now_ts - 1800, now_ts - 60, limit,))
 
-        _gmt_mark("before execute")
         rows = cursor.fetchall()
-        _gmt_mark(f"after fetchall rows={len(rows)}")
 
         if light:
             from src.core.token_behavior import compute_token_class

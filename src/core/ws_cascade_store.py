@@ -182,6 +182,29 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN wrap_close_sol REAL")
     except Exception:
         pass
+    # Cascade telemetry now lives in the OPS DB (not the contended hot DB): the cascade is its
+    # own service, so its WS hits + events persist here where there's no listener write storm.
+    # (The hot DB keeps its OWN copies for the legacy listener/main.py writers — untouched.)
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_webhook_hits (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            webhook_id       TEXT NOT NULL, wallet_address TEXT NOT NULL,
+            tx_signature     TEXT, tx_type TEXT, source TEXT, counterparty TEXT,
+            slot INTEGER, block_time INTEGER, amount_sol REAL,
+            is_fee_touch INTEGER NOT NULL DEFAULT 0, is_pamm_interaction INTEGER NOT NULL DEFAULT 0,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')), direction TEXT)""")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_wh_created ON wt_webhook_hits(created_at DESC)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_wh_wallet_time ON wt_webhook_hits(wallet_address, created_at DESC)")
+    conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_wh_sig_wallet ON wt_webhook_hits(tx_signature, wallet_address)")
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS watchtower_events (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_sequence   INTEGER NOT NULL DEFAULT 0,
+            event_type TEXT NOT NULL, wallet_address TEXT, related_wallet TEXT,
+            token_mint TEXT, payload_json TEXT, source TEXT,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')))""")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_wt_events_wallet ON watchtower_events(wallet_address, created_at DESC)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_wt_events_type ON watchtower_events(event_type, created_at DESC)")
     conn.commit()
 
 
@@ -208,7 +231,8 @@ def _event_writer_loop():
         et, wallet, related, mint, payload, ts = ev
         for _attempt in range(4):
             try:
-                c = db_connect(LIVE_DB_PATH, timeout=30)
+                # OPS DB (cascade owns its telemetry) — not the contended hot DB.
+                c = db_connect(OPS_DB_PATH, timeout=30)
                 try:
                     c.execute("PRAGMA busy_timeout=15000")
                     c.execute(
@@ -253,15 +277,15 @@ def emit_event(event_type: str, wallet: Optional[str] = None,
 
 def record_treasury_hit(*, treasury: str, counterparty: str, sig: str,
                         amount_sol: float, block_time: Optional[int]) -> None:
-    """Write a treasury outbound into wt_webhook_hits (LIVE db) tagged source='treasury_ws'
-    so the Webhook Event Feed becomes real-time. Deduped against the webhook path by the
-    UNIQUE(tx_signature, wallet_address) index — whichever path (WS ~3s vs webhook 5–390s)
-    arrives first wins; the other INSERT OR IGNOREs. Best-effort/off the cascade hot path:
-    a locked live DB degrades to 'the webhook backfills it', never blocks detection."""
+    """Write a treasury outbound into wt_webhook_hits in the OPS DB (cascade owns its telemetry —
+    NOT the contended hot DB, where these writes lost the lock race to the listener and went BLIND).
+    Tagged source='treasury_ws' so the Webhook Event Feed becomes real-time. Deduped by the
+    UNIQUE(tx_signature, wallet_address) index. The dashboard detection-health/treasury-coverage
+    read the cascade's hits from the OPS DB."""
     wh_id = os.environ.get("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
     for _attempt in range(3):
         try:
-            c = db_connect(LIVE_DB_PATH, timeout=30)
+            c = db_connect(OPS_DB_PATH, timeout=30)
             try:
                 c.execute("PRAGMA busy_timeout=30000")
                 c.execute(

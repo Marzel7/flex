@@ -2780,13 +2780,25 @@ def api_intel_treasury_coverage():
 def api_intel_detection_health():
     """Real-time detection health — the listener is the biggest risk right now."""
     now = int(time.time())
-    live = _live_conn()
+    # The WS cascade now writes its hits to the OPS DB (it owns its telemetry — see
+    # ws_cascade_store). UNION ops (cascade) + live (legacy non-cascade webhook hits) so the
+    # banner reflects ALL real-time hits. Without the ops read the dashboard went BLIND even
+    # while the cascade was detecting fine — the writes had just moved.
+    live = _live_conn(); ov = _conn()
     try:
-        last = (live.execute("SELECT MAX(block_time) FROM wt_webhook_hits").fetchone() or [None])[0]
-        hits24 = live.execute("SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400").fetchone()[0]
-        tmpl24 = live.execute(
-            "SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400 "
-            "AND CAST(ROUND(amount_sol*1e9) AS INT)%1000000=39280").fetchone()[0]
+        def _q1(conn, sql):
+            try:
+                return (conn.execute(sql).fetchone() or [None])[0]
+            except Exception:
+                return None
+        last_live = _q1(live, "SELECT MAX(block_time) FROM wt_webhook_hits")
+        last_ops  = _q1(ov,   "SELECT MAX(block_time) FROM wt_webhook_hits")
+        last = max([x for x in (last_live, last_ops) if x is not None], default=None)
+        hits24 = (_q1(live, "SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400") or 0) \
+               + (_q1(ov,   "SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400") or 0)
+        _tmpl_sql = ("SELECT COUNT(*) FROM wt_webhook_hits WHERE block_time > strftime('%s','now')-86400 "
+                     "AND CAST(ROUND(amount_sol*1e9) AS INT)%1000000=39280")
+        tmpl24 = (_q1(live, _tmpl_sql) or 0) + (_q1(ov, _tmpl_sql) or 0)
         age = (now - last) if last else None
         listener = "DOWN" if last is None else ("LIVE" if age < 3600 else "STALE")
         return jsonify({
@@ -2796,7 +2808,7 @@ def api_intel_detection_health():
             "warning": "NO_WEBHOOK_EVENTS" if (last is None or (age and age > 3600)) else None,
         })
     finally:
-        live.close()
+        live.close(); ov.close()
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/status")
@@ -2822,11 +2834,20 @@ def api_intel_status():
             out["scheduler_running"] = True
         except (OSError, ValueError):
             pass
-    # webhook listener freshness
-    live = _live_conn()
+    # webhook listener freshness — UNION cascade hits (ops DB) + legacy hits (hot DB),
+    # since the WS cascade now writes its hits to the ops DB.
+    live = _live_conn(); ovh = _conn()
     try:
-        r = live.execute("SELECT MAX(block_time) FROM wt_webhook_hits").fetchone()
-        last = r[0] if r else None
+        def _maxbt(conn):
+            try:
+                return (conn.execute("SELECT MAX(block_time) FROM wt_webhook_hits").fetchone() or [None])[0]
+            except Exception:
+                return None
+        last = max([x for x in (_maxbt(live), _maxbt(ovh)) if x is not None], default=None)
+        try:
+            ovh.close()
+        except Exception:
+            pass
         out["last_webhook_event"] = last
         if last:
             age = now - last

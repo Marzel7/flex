@@ -45,6 +45,45 @@ _DEFAULT_DB_PATH = os.path.join(_REPO_ROOT, "database", "flex_complete_database.
 
 # Database
 DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH))
+
+# Investigation archive DB — cold storage for funder_networks (moved out of the
+# hot DB). Investigation-only reader routes ATTACH this read-only and qualify
+# the table as arch.funder_networks. See scripts/archive_funder_networks.py.
+INVESTIGATION_ARCHIVE_DB = os.path.abspath(os.environ.get(
+    'INVESTIGATION_ARCHIVE_DB',
+    os.path.join(_REPO_ROOT, "database", "flex_investigation_archive.db")))
+
+
+class FunderArchiveUnavailable(Exception):
+    """Raised when the funder_networks archive DB/table is missing.
+
+    Reader routes catch this and return a clear message rather than silently
+    falling back to the hot DB (which may no longer hold the table)."""
+
+
+def _attach_funder_archive(conn):
+    """ATTACH the investigation archive read-only as `arch` on an existing conn.
+
+    Lets investigation routes reference arch.funder_networks while still
+    cross-joining hot tables (e.g. token_analysis) on the same connection.
+    Fails loudly via FunderArchiveUnavailable if the archive is absent."""
+    if not os.path.exists(INVESTIGATION_ARCHIVE_DB):
+        raise FunderArchiveUnavailable(
+            f"investigation archive DB not found: {INVESTIGATION_ARCHIVE_DB}")
+    try:
+        # Plain-path ATTACH (db_connect does not enable URI filenames). The
+        # routes that use this set PRAGMA query_only=ON, so the attached DB is
+        # only ever read; the archive is a separate file from the hot DB.
+        conn.execute("ATTACH DATABASE ? AS arch", (INVESTIGATION_ARCHIVE_DB,))
+    except sqlite3.OperationalError as e:
+        # Already attached on a reused connection is fine; anything else is fatal.
+        if "already in use" not in str(e).lower() and "already exists" not in str(e).lower():
+            raise FunderArchiveUnavailable(f"could not attach archive: {e}")
+    row = conn.execute(
+        "SELECT name FROM arch.sqlite_master WHERE type='table' AND name='funder_networks'"
+    ).fetchone()
+    if not row:
+        raise FunderArchiveUnavailable("arch.funder_networks table missing in archive DB")
 PUMPFUN_PREMIGRATION_LOG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../logs/premigration.log"))
 PUMPFUN_LISTENER_LOG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../listener.log"))
 
@@ -13019,9 +13058,11 @@ def clusters_dashboard():
         conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
+        _attach_funder_archive(conn)  # funder_networks now lives in arch.*
         cursor = conn.cursor()
 
         # Get all clusters with token stats
+        # funder_networks reads from the archive DB (arch.*); token_analysis is hot.
         cursor.execute("""
             SELECT
                 fn.cluster_id,
@@ -13032,7 +13073,7 @@ def clusters_dashboard():
                 COUNT(DISTINCT ta.mint) as token_count,
                 ROUND(AVG(ta.rug_probability), 3) as avg_rug_probability,
                 SUM(CASE WHEN ta.rug_indicator = 'rug' THEN 1 ELSE 0 END) as rug_count
-            FROM funder_networks fn
+            FROM arch.funder_networks fn
             LEFT JOIN token_analysis ta ON fn.primary_funder = ta.network_funder_address
             WHERE fn.cluster_id IS NOT NULL
             GROUP BY fn.cluster_id
@@ -13109,6 +13150,9 @@ def clusters_dashboard():
         # Template now loads via JS from /api/graph-clusters
         return render_template('clusters.html', active_page='clusters')
 
+    except FunderArchiveUnavailable as e:
+        return render_template('clusters.html', active_page='clusters',
+                               archive_error=f"Funder cluster data unavailable: {e}")
     except Exception as e:
         return render_template('clusters.html', active_page='clusters')
 
@@ -16454,6 +16498,9 @@ def api_validate_transaction():
             )
         })
 
+    except FunderArchiveUnavailable as e:
+        return jsonify({'error': f'Funder cluster archive unavailable: {e}',
+                        'clusters': []}), 503
     except requests.exceptions.Timeout:
         return jsonify({'error': 'RPC timeout - transaction fetch took too long'}), 503
     except requests.exceptions.RequestException as e:
@@ -16469,9 +16516,10 @@ def api_funder_clusters():
         conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
+        _attach_funder_archive(conn)  # funder_networks now lives in arch.*
         cursor = conn.cursor()
 
-        # Get all clusters with their aggregated stats
+        # Get all clusters with their aggregated stats (from the archive DB)
         cursor.execute("""
             SELECT
                 cluster_id,
@@ -16479,7 +16527,7 @@ def api_funder_clusters():
                 MAX(network_size) as network_size,
                 MAX(total_volume_sol) as total_volume_sol,
                 MAX(creators_served) as creators_served_json
-            FROM funder_networks
+            FROM arch.funder_networks
             WHERE cluster_id IS NOT NULL
             GROUP BY cluster_id
             ORDER BY funder_count DESC, total_volume_sol DESC
@@ -16559,9 +16607,10 @@ def api_funder_cluster_details(cluster_id):
         conn = db_connect(DB_PATH, timeout=5)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA query_only = ON")
+        _attach_funder_archive(conn)  # funder_networks now lives in arch.*
         cursor = conn.cursor()
 
-        # Get cluster metadata
+        # Get cluster metadata (from the archive DB)
         cursor.execute("""
             SELECT
                 cluster_id,
@@ -16569,7 +16618,7 @@ def api_funder_cluster_details(cluster_id):
                 MAX(network_size) as network_size,
                 MAX(total_volume_sol) as total_volume_sol,
                 MAX(creators_served) as creators_served_json
-            FROM funder_networks
+            FROM arch.funder_networks
             WHERE cluster_id = ?
             GROUP BY cluster_id
         """, (cluster_id,))
@@ -16581,7 +16630,7 @@ def api_funder_cluster_details(cluster_id):
         # Get all funders in this cluster
         cursor.execute("""
             SELECT DISTINCT primary_funder as funder_address
-            FROM funder_networks
+            FROM arch.funder_networks
             WHERE cluster_id = ?
             ORDER BY primary_funder
         """, (cluster_id,))
@@ -16638,6 +16687,8 @@ def api_funder_cluster_details(cluster_id):
             'risk_level': risk_info['level']
         })
 
+    except FunderArchiveUnavailable as e:
+        return jsonify({'error': f'Funder cluster archive unavailable: {e}'}), 503
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

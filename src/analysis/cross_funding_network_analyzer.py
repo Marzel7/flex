@@ -31,6 +31,14 @@ from collections import defaultdict, deque
 
 DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
 
+# funder_networks lives in the investigation archive DB (moved out of the hot
+# DB). The analyzer writes cluster membership there, not to the hot DB, so the
+# offline build never refills the hot table after the archive move.
+_ANALYZER_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+INVESTIGATION_ARCHIVE_DB = os.path.abspath(os.getenv(
+    "INVESTIGATION_ARCHIVE_DB",
+    os.path.join(_ANALYZER_REPO_ROOT, "database", "flex_investigation_archive.db")))
+
 # -----------------------------
 # Tuning knobs
 # -----------------------------
@@ -210,10 +218,13 @@ class UnionFind:
 # =========================================================================
 
 class CrossFundingClusterAnalyzer:
-    def __init__(self, db_path: str = DB_PATH):
+    def __init__(self, db_path: str = DB_PATH, archive_db_path: str = INVESTIGATION_ARCHIVE_DB):
         self.db_path = db_path
+        # funder_networks writes target the archive DB, not the hot DB.
+        self.archive_db_path = archive_db_path
         self.creators_set: Set[str] = set()
         self._ensure_db()
+        self._ensure_archive_db()
         self._load_creators()
 
     # -----------------------------
@@ -288,20 +299,9 @@ class CrossFundingClusterAnalyzer:
             )
         """)
 
-        # clustered funders (members of clusters) — add cluster_id if missing
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS funder_networks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                primary_funder TEXT NOT NULL UNIQUE,
-                connected_funders TEXT,
-                transfer_chain TEXT,
-                creators_served TEXT,
-                network_size INTEGER,
-                total_volume_sol REAL,
-                cluster_id TEXT,
-                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
+        # NOTE: funder_networks is no longer created here — it has been moved to
+        # the investigation archive DB (see _ensure_archive_db). This prevents
+        # the analyzer from recreating/refilling the table in the hot DB.
 
         # unified per-creator
         cur.execute("""
@@ -351,10 +351,37 @@ class CrossFundingClusterAnalyzer:
         cur.execute("CREATE INDEX IF NOT EXISTS idx_recipient_address ON creator_recipients_unified(recipient_address)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_coordinator ON network_coordinators(coordinator_address)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_atomic_funder ON atomic_funder_networks(funder_address)")
-        cur.execute("CREATE INDEX IF NOT EXISTS idx_funder_cluster_id ON funder_networks(cluster_id)")
+        # idx_funder_cluster_id is created in the archive DB (see _ensure_archive_db)
 
         conn.commit()
         conn.close()
+
+    def _ensure_archive_db(self) -> None:
+        """Create funder_networks (+ index) in the investigation archive DB.
+
+        funder_networks was moved out of the hot DB; the analyzer now writes
+        cluster membership here so the hot DB is never refilled."""
+        os.makedirs(os.path.dirname(self.archive_db_path), exist_ok=True)
+        conn = _connect(self.archive_db_path, timeout=30)
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS funder_networks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    primary_funder TEXT NOT NULL UNIQUE,
+                    connected_funders TEXT,
+                    transfer_chain TEXT,
+                    creators_served TEXT,
+                    network_size INTEGER,
+                    total_volume_sol REAL,
+                    cluster_id TEXT,
+                    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_funder_cluster_id ON funder_networks(cluster_id)")
+            conn.commit()
+        finally:
+            conn.close()
 
     def _load_creators(self) -> None:
         conn = _connect(self.db_path, timeout=60)
@@ -682,8 +709,10 @@ class CrossFundingClusterAnalyzer:
                 edges=cluster_edges,
             ))
 
-        # Persist cluster membership (only clustered funders)
-        conn = _connect(self.db_path, timeout=60)
+        # Persist cluster membership (only clustered funders) to the ARCHIVE DB.
+        # funder_networks no longer lives in the hot DB; we ATTACH the archive
+        # and write to arch.funder_networks so the hot DB is never refilled.
+        conn = _connect(self.archive_db_path, timeout=60)
         try:
             cur = conn.cursor()
 

@@ -51,6 +51,14 @@ SESSION_TTL_SEC   = int(os.environ.get("WS_SESSION_TTL_SEC", "7200"))    # 2h (w
 CANDIDATE_TTL_SEC = int(os.environ.get("WS_CANDIDATE_TTL_SEC", "600"))   # 10 min (was 3min)
 MAX_CANDIDATES    = int(os.environ.get("WS_MAX_CANDIDATES", "25"))       # per sub-prov
 MAX_ACTIVE_SUBPROVS = int(os.environ.get("WS_MAX_ACTIVE_SUBPROVS", "10"))
+# PROMOTED SUBPROV TIER (Phase 1 subscription-promotion) — a STANDING watchlist of subprovs we
+# already discovered (treasury_known + wrap-close producer), subscribed directly so their NEXT
+# launch is caught in real time without waiting for a treasury-funded session. This is a SEPARATE
+# pool from the session subprovs (live treasury-funded sessions) with its own budget. Measured
+# baseline before this: 2.8% real-time detection (9/322); the 196 unwatched launch funders are
+# the gap. Gated behind WS_PROMOTE_DISCOVERED so it can be toggled cleanly during measurement.
+WS_PROMOTE_DISCOVERED   = os.environ.get("WS_PROMOTE_DISCOVERED", "0") == "1"
+MAX_PROMOTED_SUBPROVS   = int(os.environ.get("WS_MAX_PROMOTED_SUBPROVS", "40"))
 POLL_SEC          = float(os.environ.get("WS_POLL_SEC", "2"))
 CLEANUP_SEC       = float(os.environ.get("WS_CLEANUP_SEC", "5"))
 HEARTBEAT_SEC     = 30
@@ -91,6 +99,22 @@ def _confirmed_treasuries(conn) -> set:
         return {r[0] for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
     except Exception:
         return set()
+
+
+def _promotable_subprovs(conn) -> list:
+    """Phase 1 subscription-promotion set: discovered subprovs we should put on a STANDING
+    watchlist so their NEXT launch is caught in real time (not only after a treasury-funded
+    session opens). EXACTLY scoped — treasury is known AND the wallet is a confirmed wrap-close
+    producer (the mechanism guardrail; never a raw mid-chain/collector). Bounded + newest-first."""
+    try:
+        return [r[0] for r in conn.execute(
+            "SELECT s.subprov FROM wt_discovered_subprovs s "
+            "WHERE s.treasury_known=1 "
+            "  AND s.subprov IN (SELECT subprov_wallet FROM wt_wrap_close_candidates) "
+            "ORDER BY s.last_seen DESC "
+            "LIMIT ?", (MAX_PROMOTED_SUBPROVS,)).fetchall()]
+    except Exception:
+        return []
 # pump.fun instruction discriminators (first 8 bytes of the instruction data). The CREATE ix
 # carries the mint at accounts[0] — verified stable across fixtures (xmaxxing + Donald80):
 #   CREATE = d6904cec5f8b31b4  (16 accounts: [0]=mint [2]=bonding_curve [3]=assoc_bonding_curve)
@@ -385,6 +409,9 @@ class Cascade:
                 store.treasury_ws_register(conn, t)
             sessions = store.active_sessions(conn)[:MAX_ACTIVE_SUBPROVS]
             candidates = [c[0] for c in store.watching_candidates(conn)]
+            # PROMOTED tier (Phase 1): standing watchlist of discovered+wrap-close subprovs,
+            # SEPARATE pool/budget from the session subprovs above. Gated by WS_PROMOTE_DISCOVERED.
+            promoted = _promotable_subprovs(conn) if WS_PROMOTE_DISCOVERED else []
         finally:
             conn.close()
         # TREASURY TIER: permanent WS subscriptions on the confirmed-treasury set. Real-time
@@ -400,6 +427,15 @@ class Cascade:
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov)
                 # catch-up on first subscribe: a wrap-close may have fired in the webhook→session
                 # delay before we subscribed (the 25s gap). Recover it immediately.
+                await self.catch_up_subprov(subprov)
+        # PROMOTED SUBPROV TIER: standing watchlist (separate pool/budget). Deduped against
+        # everything already subscribed (treasuries, session subprovs). source=discovered_promotion
+        # so a launch caught here is attributable to this Phase-1 tier when measuring detection lift.
+        for subprov in promoted:
+            if subprov not in self.mgr.wallet_kind:
+                await self.mgr.subscribe(subprov, "subprov")
+                emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov,
+                           payload={"source": "discovered_promotion"})
                 await self.catch_up_subprov(subprov)
         for cand in candidates:
             if cand not in self.mgr.wallet_kind:

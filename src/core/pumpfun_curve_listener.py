@@ -9534,8 +9534,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 async with websockets.connect(
                     PUMPPORTAL_WS,
-                    ping_interval=None,
-                    ping_timeout=None,
+                    # KEEPALIVE: ping_interval=None disabled WS pings, so an IDLE-but-healthy
+                    # PumpPortal connection looked dead to the 60s recv watchdog and got torn down
+                    # — every reconnect drops subscribeMigration events (THE migration-miss root
+                    # cause: 21 "No message in 60s" stalls in one log → AeFSni25/Hepc74 graduated
+                    # during gaps and were never recorded). Pinging every 20s keeps an idle
+                    # connection alive AND detects a genuinely dead one in ~40s, so we reconnect
+                    # only when truly necessary instead of on every quiet spell.
+                    ping_interval=float(os.environ.get("PUMPPORTAL_PING_INTERVAL", "20")),
+                    ping_timeout=float(os.environ.get("PUMPPORTAL_PING_TIMEOUT", "20")),
                     close_timeout=10,
                     max_size=10 * 1024 * 1024,
                 ) as ws:

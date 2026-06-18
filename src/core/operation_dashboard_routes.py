@@ -2043,9 +2043,13 @@ def api_intel_subprovs():
                     lineage[r[0]] = r[1]
         except Exception:
             pass
+        # immediate_funder/funder_is_subprov added by the subprov-mesh model — the
+        # DISTRIBUTION tier (a subprov funded by another subprov). Tolerate older DBs.
+        _have_mesh = _column_exists(ov, "wt_discovered_subprovs", "immediate_funder")
+        _mesh_cols = ", immediate_funder, funder_is_subprov" if _have_mesh else ""
         rows = ov.execute(
-            "SELECT subprov, first_creator, creator_count, treasury, treasury_known, last_seen "
-            "FROM wt_discovered_subprovs ORDER BY last_seen DESC").fetchall()
+            "SELECT subprov, first_creator, creator_count, treasury, treasury_known, last_seen"
+            + _mesh_cols + " FROM wt_discovered_subprovs ORDER BY last_seen DESC").fetchall()
         out = []
         known_count = 0
         for r in rows:
@@ -2065,9 +2069,24 @@ def api_intel_subprovs():
                 "total_sol": None,
                 "last_seen": r["last_seen"],
                 "first_creator": r["first_creator"],
+                # DISTRIBUTION tier: who DIRECTLY seeded this subprov, and whether that
+                # funder is itself a subprov (root treasury → distribution subprov → this).
+                "immediate_funder": (r["immediate_funder"] if _have_mesh else None),
+                "funder_is_subprov": (bool(r["funder_is_subprov"]) if _have_mesh else False),
             })
+        # DISTRIBUTION NODES: real subprovs that fund OTHER real subprovs (read-only
+        # derivation, mechanism-guarded — never raw mid-chain nodes). Surfaced so the UI
+        # can render root treasury → distribution subprov → subprov → creator.
+        distribution_nodes = []
+        try:
+            from src.core.subprov_distribution import mid_tier_subprovs
+            distribution_nodes = mid_tier_subprovs()
+        except Exception:
+            distribution_nodes = []
         return jsonify({"subprovs": out, "count": len(out),
-                        "unknown_treasury": len(out), "known_resolved": known_count})
+                        "unknown_treasury": len(out), "known_resolved": known_count,
+                        "distribution_nodes": distribution_nodes,
+                        "distribution_count": len(distribution_nodes)})
     finally:
         ov.close()
 

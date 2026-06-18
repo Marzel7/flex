@@ -479,7 +479,19 @@ def run_subprov_discovery_job(quiet=False) -> dict:
             creator TEXT PRIMARY KEY, result TEXT, subprov TEXT, checked_at INTEGER)""")
         conn.execute("""CREATE TABLE IF NOT EXISTS wt_discovered_subprovs (
             subprov TEXT PRIMARY KEY, first_creator TEXT, creator_count INTEGER DEFAULT 1,
-            treasury TEXT, treasury_known INTEGER DEFAULT 0, first_seen INTEGER, last_seen INTEGER)""")
+            treasury TEXT, treasury_known INTEGER DEFAULT 0, first_seen INTEGER, last_seen INTEGER,
+            immediate_funder TEXT, funder_is_subprov INTEGER DEFAULT 0)""")
+        # Additive migration for pre-existing tables (immediate_funder = the wallet that
+        # directly seeded this subprov; may itself be a subprov → the distribution tier).
+        # `treasury` (root) is left UNTOUCHED — we only ADD the immediate-funder tier.
+        for _col, _ddl in (("immediate_funder", "immediate_funder TEXT"),
+                           ("funder_is_subprov", "funder_is_subprov INTEGER DEFAULT 0")):
+            try:
+                _have = {r[1] for r in conn.execute("PRAGMA table_info(wt_discovered_subprovs)").fetchall()}
+                if _col not in _have:
+                    conn.execute(f"ALTER TABLE wt_discovered_subprovs ADD COLUMN {_ddl}")
+            except Exception:
+                pass
         confirmed = {r[0] for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
         done = {r[0] for r in conn.execute("SELECT creator FROM wt_subprov_discovery_checked").fetchall()}
         # EVERY recent migration's creator (NO creator_funders filter, NO single-token filter)
@@ -592,18 +604,37 @@ def run_subprov_discovery_job(quiet=False) -> dict:
                                             t_unconfirmed_funder = cand[0][0]
                     except Exception:
                         pass
+                # The IMMEDIATE funder = the wallet that directly seeded this subprov
+                # (confirmed sender if known, else the largest inbound non-system sender).
+                # This is the missing tier: it may itself be a subprov (distribution node).
+                _imm_funder = t_known or t_unconfirmed_funder
+                _funder_is_sp = 0
+                if _imm_funder:
+                    try:
+                        # Mechanism guardrail: the funder is a SUBPROV-DISTRIBUTOR only if it
+                        # PRODUCES creator-directed wrap-closes (present as a subprov_wallet).
+                        _funder_is_sp = 1 if conn.execute(
+                            "SELECT 1 FROM wt_wrap_close_candidates WHERE subprov_wallet=? LIMIT 1",
+                            (_imm_funder,)).fetchone() else 0
+                    except Exception:
+                        _funder_is_sp = 0
                 exists = conn.execute("SELECT creator_count FROM wt_discovered_subprovs WHERE subprov=?", (subprov,)).fetchone()
                 if exists:
                     conn.execute("UPDATE wt_discovered_subprovs SET creator_count=creator_count+1, last_seen=?, "
-                                 "treasury=COALESCE(treasury,?), treasury_known=MAX(treasury_known,?) WHERE subprov=?",
-                                 (int(time.time()), t_known, 1 if t_known else 0, subprov))
+                                 "treasury=COALESCE(treasury,?), treasury_known=MAX(treasury_known,?), "
+                                 "immediate_funder=COALESCE(immediate_funder,?), "
+                                 "funder_is_subprov=MAX(funder_is_subprov,?) WHERE subprov=?",
+                                 (int(time.time()), t_known, 1 if t_known else 0,
+                                  _imm_funder, _funder_is_sp, subprov))
                 else:
                     new_subprovs += 1
                     if not t_known:
                         unknown += 1
                     conn.execute("INSERT INTO wt_discovered_subprovs (subprov, first_creator, treasury, "
-                                 "treasury_known, first_seen, last_seen) VALUES (?,?,?,?,?,?)",
-                                 (subprov, creator, t_known, 1 if t_known else 0, int(time.time()), int(time.time())))
+                                 "treasury_known, first_seen, last_seen, immediate_funder, funder_is_subprov) "
+                                 "VALUES (?,?,?,?,?,?,?,?)",
+                                 (subprov, creator, t_known, 1 if t_known else 0,
+                                  int(time.time()), int(time.time()), _imm_funder, _funder_is_sp))
 
                 # LAUNCH-CHAIN AUTO-CONFIRM: we just observed a COMPLETED chain (this subprov
                 # wrap-closed → a real creator). If its provisioning funder is NOT yet confirmed,

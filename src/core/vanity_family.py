@@ -51,6 +51,11 @@ MIN_SUFFIX_LEN = 4
 PREFIX_ONLY_CONFIDENCE = "EVIDENCE"     # EVIDENCE < LIKELY < STRONG (never CONFIRMED from prefix)
 
 
+def _table_exists_vf(conn, name) -> bool:
+    return conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() is not None
+
+
 # ─────────────────────────────── schema ────────────────────────────────────
 def ensure_vanity_schema(conn) -> None:
     conn.execute("""CREATE TABLE IF NOT EXISTS wt_vanity_families (
@@ -231,15 +236,21 @@ def _families(conn=None):
     if own:
         conn = db_connect(OPS_DB_PATH, timeout=15)
     try:
-        ensure_vanity_schema(conn)
-        if not conn.execute("SELECT COUNT(*) FROM wt_vanity_families").fetchone()[0]:
-            seed_known_families(conn)
-        # auto-derive families from the confirmed-treasury set (idempotent, INSERT OR IGNORE;
-        # picks up newly-confirmed treasuries that form a shared-grind cluster). Zero RPC.
-        try:
-            auto_seed_from_confirmed(conn)
-        except Exception:
-            pass
+        # The schema/seed steps are WRITES — skip them on a read-only connection
+        # (the dashboard read path). They run from the writer/detection pipeline.
+        _ro = bool(getattr(conn, "_read_only", False))
+        if not _ro:
+            ensure_vanity_schema(conn)
+            try:
+                if not conn.execute("SELECT COUNT(*) FROM wt_vanity_families").fetchone()[0]:
+                    seed_known_families(conn)
+                # auto-derive families from the confirmed-treasury set (idempotent,
+                # INSERT OR IGNORE; picks up newly-confirmed treasuries). Zero RPC.
+                auto_seed_from_confirmed(conn)
+            except Exception:
+                pass
+        if not _table_exists_vf(conn, "wt_vanity_families"):
+            return []
         fams = []
         for r in conn.execute(
             "SELECT family_label, family_prefixes_json, confirmed_wallets_json, roles_json, "
@@ -350,9 +361,11 @@ def check_and_record(wallet_address: str, *, source_event: str = "", source_sig:
 def families_overview(conn=None) -> Dict:
     own = conn is None
     if own:
-        conn = db_connect(OPS_DB_PATH, timeout=15)
+        # Read-only: this is a dashboard read. A writable db_connect here blocked
+        # on the write lane during the scheduler's wt_ops_v2 write storm (25s
+        # stalls). _families() skips its schema/seed writes for ro connections.
+        conn = db_connect(OPS_DB_PATH, timeout=15, read_only=True)
     try:
-        ensure_vanity_schema(conn)
         fams = [{"label": f["label"], "prefixes": f["prefixes"],
                  "confidence": f["confidence"], "known_wallets": sorted(f["wallets"]),
                  "roles": f["roles"]} for f in _families(conn)]

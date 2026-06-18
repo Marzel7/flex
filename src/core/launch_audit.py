@@ -206,7 +206,18 @@ def ensure_audit_schema(conn) -> None:
     conn.commit()
 
 
-def _ops():
+def _ops(read_only: bool = False):
+    if read_only:
+        # Dashboard read path: a writable connection + ensure_audit_schema (a
+        # WRITE) blocked on the write lane during the scheduler's write storm
+        # (25s stalls). Read-only bypasses the lane; schema is ensured by the
+        # audit writer pipeline, not the dashboard.
+        try:
+            c = db_connect(OPS_DB_PATH, timeout=20, read_only=True)
+            # if the table doesn't exist yet, caller handles the empty result
+            return c
+        except TypeError:
+            pass  # older db_connect without read_only — fall through
     c = db_connect(OPS_DB_PATH, timeout=20)
     c.execute("PRAGMA busy_timeout=20000")
     ensure_audit_schema(c)
@@ -416,9 +427,18 @@ def run_phase2(mint: str) -> Dict:
             # INSTANT vs STAGED by birth→launch is recorded on the launch row; here classify by
             # whether it's still developing
             final_state = "STAGED" if age < CHECKPOINTS[-1] else "EXPIRED"
-    # workflow state by age + data completeness
-    if migrated or (age >= CHECKPOINTS[-1]):
+    # workflow state by age + data completeness.
+    # DO NOT finalize while peak_mc is still NULL just because the token migrated — migration
+    # is NOT the peak. A token can migrate early and keep climbing on the AMM for hours
+    # (observed: Bn9kT5… migrated at +6min but peaked at +3h17m → $194k). Finalizing on
+    # migration alone froze the row before token_market_cap_peaks was populated, so peak_mc /
+    # actionable_multiple stayed blank forever (FINALIZED rows are skipped by the checkpoint
+    # loop). Require peak_mc present to FINALIZE; otherwise keep re-checking, with the 24h
+    # window as the hard backstop so a token that genuinely never gets a peak still closes out.
+    if peak_mc is not None and (migrated or age >= CHECKPOINTS[-1]):
         new_state = "FINALIZED"
+    elif age >= CHECKPOINTS[-1]:
+        new_state = "FINALIZED"                        # backstop: 24h elapsed, close out even w/o peak
     elif peak_mc is not None:
         new_state = "PEAK_CAPTURED"
     else:
@@ -505,8 +525,10 @@ def outcome_report() -> Dict:
     """The §8 actionability answer, SPLIT BY SOURCE so fixtures don't overstate live performance.
     Returns {all, live, fixtures} KPI blocks. The dashboard headline should read live; fixtures
     are the validated baseline. Top-level keys mirror `all` for backward compat."""
-    conn = _ops()
+    conn = _ops(read_only=True)
     try:
+        if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_launch_audit'").fetchone():
+            return {"all": _stats([]), "live": _stats([]), "fixtures": _stats([])}
         rows = conn.execute(
             "SELECT detection_latency_ms, mc_at_detection, peak_mc, actionable_multiple, "
             "final_state, dumped_before_migration, source FROM wt_launch_audit").fetchall()

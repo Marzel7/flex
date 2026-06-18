@@ -11,8 +11,12 @@ bind = "0.0.0.0:5002"
 # Workers — sync+threaded is safer with our daemon-thread-heavy architecture.
 # gevent monkey-patches can deadlock with threading.Thread I/O.
 worker_class = "gthread"
-workers = 2
-threads = 4
+workers = 1
+# Dashboard pages fan out 11-22 concurrent /api fetches on load. With only 8
+# threads the page's own requests starved each other — one transiently-slow
+# handler queued the rest, manifesting as "loading very slow". These handlers are
+# I/O-bound (SQLite reads release the GIL), so more threads is the right lever.
+threads = 24
 
 # Recycling — prevents slow memory leaks over multi-day runs
 max_requests = 2000

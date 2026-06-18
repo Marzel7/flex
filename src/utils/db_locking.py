@@ -384,6 +384,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
             _register_connection(conn, path, caller)
             try:
                 conn._db_caller = caller
+                conn._read_only = True   # lets callers skip write-only setup
             except Exception:
                 pass
             return conn

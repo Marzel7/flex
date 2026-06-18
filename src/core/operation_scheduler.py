@@ -387,6 +387,27 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
             elif v == "REJECT":
                 rejected += 1
         conn.close(); live.close()
+
+        # POST-MIGRATION LAUNCH BACKFILL: walk recent migrations backward; any whose lineage
+        # reaches a known WATCHTOWER treasury is RECORDED as a launch (wt_watchtower_launches is
+        # otherwise live-cascade-only, so a token missed live never surfaces on /ops/tokens). This
+        # is ATTRIBUTION from the proven migration, distinct from real-time DETECTION.
+        try:
+            from src.core import watchtower_backfill as _bf
+            def _get_sigs(addr, limit=20):
+                return _rpc("getSignaturesForAddress", [addr, {"limit": limit}])
+            def _get_tx(sig):
+                return _rpc("getTransaction", [sig, {"encoding": "jsonParsed",
+                                                     "maxSupportedTransactionVersion": 0}])
+            _bres = _bf.backfill_recent_migrations(
+                raw_txs_fn=_raw_txs, funder_walk_fn=_funders,
+                get_tx_fn=_get_tx, get_sigs_fn=_get_sigs)
+            if not quiet and (_bres.get("recorded") or _bres.get("checked")):
+                print(f"[SCHED][BACKFILL] checked={_bres['checked']} recorded={_bres['recorded']}"
+                      + (f" → {[m[:10] for m,_ in _bres.get('details',[])]}" if _bres.get('recorded') else ""))
+        except Exception as _be:
+            if not quiet:
+                print(f"[SCHED][BACKFILL] error: {_be}")
         # auto-webhook the newly promoted treasuries (live-DB key, in this process)
         if promoted:
             try:

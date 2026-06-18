@@ -128,13 +128,27 @@ its coverage (subscribed, active session, right mechanism) because the **[[buy-s
 same-instant-fan-out rule swept the real creator into a rejected swarm batch.** This is a
 classification FALSE-NEGATIVE, not a coverage boundary or (primarily) the DB-lock issue.
 
-### Open questions / next steps (NOT yet done)
-1. **Buy-swarm filter is the #1 gap (FALSE-NEGATIVE).** The >2-wallets-at-same-instant rule
-   rejects the WHOLE fan-out, discarding the real creator mixed into a swarm batch. Needs a
-   discriminator that separates the 1 creator (goes on to CREATE) from the N swarm wallets
-   (SWAP) WITHIN a same-instant batch — not reject the batch wholesale.
-2. **Fix `ws_cascade_store.py:211` lock failures** — secondary; 17 WRAP_CLOSE_FANOUT_DETECTED
-   + 21 session events lost to DB locks. Same write-contention pattern fixed elsewhere this
-   session; cascade event writer still hits the hot DB.
-3. **PLAIN_XFER is a separate operator class**, not a WATCHTOWER gap — track separately if at
-   all; do not conflate with subprov coverage.
+### MEASUREMENT PASS (supersedes the buy-swarm theory above)
+A 7-30d measurement DISPROVED the buy-swarm false-negative hypothesis. Numbers
+(watchtower_events + wt_farm_launches):
+- 322 real launch creators. Only **9 (2.8%) had ANY cascade event**; **0 were BUY_SWARM_REJECTED.**
+- 695 BUY_SWARM_REJECTED / 681 wallets — **0 became a farm-launch creator** (0 false negatives).
+- FAouag misled: its creator was NEVER DETECTED, not rejected.
+- 218 launch funders (subprovs); only **21 (10%) ever had a cascade session**; **196 unwatched.**
+- Subscription set: 17 confirmed treasuries, **12 webhooked**. Real launches come from a far
+  larger subprov set the WS never watches.
+
+**ROOT CAUSE = SUBSCRIPTION COVERAGE, not classification.** The cascade can only detect a
+wrap-close from a subprov it subscribes to. Baseline real-time detection = **2.8% (9/322)**.
+
+### Next steps (prioritised by measurement)
+1. **#1 — close the subscription gap.** 34 blind-spot launch funders are already in
+   wt_discovered_subprovs, **33 with treasury_known**, but were never promoted to live WS
+   subscription. Promote discovered+treasury_known subprovs → live watch set. Staged:
+   Phase 1 the 33 known; measure detection %; Phase 2 review/auto-confirm path for the rest;
+   Phase 3 broader expansion.
+2. **Secondary (separate) — fix `ws_cascade_store.py:211` lock failures.** Even watched
+   subprovs lose some detection events to DB locks (FAouag's subprov was watched yet missed).
+   Do NOT mix with subscription promotion.
+3. **NOT a gap — buy-swarm (0 false negatives)** and **PLAIN_XFER (separate operator class).**
+   Do not touch buy-swarm logic; do not add PLAIN_XFER logic.

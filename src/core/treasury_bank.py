@@ -71,10 +71,22 @@ def ensure_schema(conn) -> None:
 # ── review pipeline ──────────────────────────────────────────────────────────
 def add_review_candidate(conn, treasury, *, transfer_pct=None, out_sol=None,
                          recipients=None, micro_pings=None, detected_via="micro_ping") -> bool:
-    """Add an RPC-confirmed candidate to the review queue. Skips ones already confirmed."""
+    """Add an RPC-confirmed candidate to the review queue. Skips ones already confirmed, and
+    REJECTS known sub-provisioners — a wallet with recorded wrap-close fan-out is a SUBPROV, not a
+    treasury. The treasury fingerprint (100% transfer-purity + capital-scale) CANNOT tell them
+    apart on flow alone: a subprov's wrap-close fan-out is also 100% pure transfers to many
+    recipients, so subprovs like Efm1jBsiGv8k (15 wrap-closes) falsely fingerprinted as treasuries.
+    The discriminator is what it PRODUCES: wrap-close children = subprov."""
     ensure_schema(conn)
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
         return False                                  # already a confirmed treasury
+    try:
+        if conn.execute(
+            "SELECT 1 FROM wt_wrap_close_candidates WHERE subprov_wallet=? LIMIT 1",
+            (treasury,)).fetchone():
+            return False                              # has wrap-close fan-out → SUBPROV, not treasury
+    except Exception:
+        pass
     conn.execute(
         """INSERT INTO wt_treasury_review
              (treasury, transfer_pct, out_sol, recipients, micro_pings, detected_via,

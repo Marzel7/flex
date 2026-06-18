@@ -43,6 +43,18 @@ ops_dashboard_bp = Blueprint("ops_dashboard", __name__)
 
 
 def _conn():
+    # Read-only URI connection over wt_ops_v2.db — see _live_conn rationale.
+    # Dashboard reads only; bypass the write lane so the operation_scheduler's
+    # writes can't block the page. Handlers that WRITE must use _conn_rw().
+    c = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=10)
+    c.execute("PRAGMA busy_timeout=10000")
+    c.row_factory = sqlite3.Row
+    return c
+
+
+def _conn_rw():
+    # Writable, serialized connection over wt_ops_v2.db for the few action
+    # handlers that mutate (subprov-funder, treasury-promote, treasury_stats).
     c = db_connect(OPS_DB_PATH, timeout=10)
     c.row_factory = sqlite3.Row
     return c
@@ -952,7 +964,13 @@ ENROLL_BATCH_CAP = 50           # max wallets per enrol call (runaway-Helius gua
 
 
 def _live_conn():
-    c = db_connect(LIVE_DB_PATH, timeout=8)
+    # Read-only URI connection: this dashboard NEVER writes the live DB, and a
+    # read-only WAL connection reads the last committed snapshot WITHOUT taking
+    # the file write lock — so it can't be blocked by the listener's write storm.
+    # (Using db_connect here meant reads waited up to busy_timeout under load and
+    # wedged the 8-thread worker when the page fired ~22 requests at once.)
+    c = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=8)
+    c.execute("PRAGMA busy_timeout=8000")
     c.row_factory = sqlite3.Row
     return c
 
@@ -1781,7 +1799,7 @@ def api_intel_token_tree(mint):
 def api_intel_launch_metrics():
     """Pre-launch counts + average lead time (template funding → migration)."""
     import statistics
-    ov = _conn(); live = _live_conn()
+    ov = _conn_rw(); live = _live_conn()  # writes treasury_stats below
     try:
         plc = _pre_launch_creators(ov, live, limit=1000)
         within60 = sum(1 for c in plc if c["minutes_since_funding"] <= 60)
@@ -2278,7 +2296,7 @@ def api_intel_subprov_funder():
         return jsonify({"error": "confirmation + subprov required"}), 400
     sp = body["subprov"].strip()
     action = body.get("action", "set")
-    ov = _conn()
+    ov = _conn_rw()  # POST handler: writes wt_discovered_subprovs / confirmed_treasuries
     try:
         if not _table_exists(ov, "wt_discovered_subprovs"):
             return jsonify({"error": "wt_discovered_subprovs missing"}), 400
@@ -2350,7 +2368,7 @@ def api_intel_subprov_funder():
                         _t.sleep(1.5 * (_attempt + 1))
                         continue
                     raise
-            oc = _conn()
+            oc = _conn_rw()  # writes wt_confirmed_treasury_webhooks
             try:
                 oc.execute(
                     "INSERT INTO wt_confirmed_treasury_webhooks (treasury, source, enrolled_at, webhook_active) "
@@ -2665,7 +2683,7 @@ def api_intel_treasury_promote():
         # `webhooked` from wt_confirmed_treasury_webhooks (NOT wt_webhook_enrollments). Without
         # this, a promoted treasury shows "✗ blind" even though it IS webhooked.
         try:
-            oc = _conn()
+            oc = _conn_rw()  # writes wt_confirmed_treasury_webhooks
             oc.execute(
                 "INSERT INTO wt_confirmed_treasury_webhooks (treasury, source, enrolled_at, webhook_active) "
                 "VALUES (?, 'CONFIRMED_TREASURY', ?, 1) "

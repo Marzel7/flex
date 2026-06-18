@@ -9659,6 +9659,21 @@ def api_migrated_tokens():
     return response
 
 
+@app.route('/api/migration-capture-metrics')
+def api_migration_capture_metrics():
+    """Migration capture reliability metrics for the live-launches dashboard:
+    WS (fast-path) migrations vs RECONCILER recoveries vs recovery rate. Sourced from the durable
+    token_analysis.migration_source column (cross-process, survives restarts). A nonzero/climbing
+    recovery rate = the WS is dropping migrations the reconciler is backstopping."""
+    try:
+        from src.core.pumpfun_curve_listener import migration_capture_metrics
+        window = int(request.args.get('window_hours', 24)) * 3600
+        m = migration_capture_metrics(DB_PATH, window_secs=window)
+        return jsonify(m or {})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 200
+
+
 @app.route('/api/future-bound-tokens')
 def api_future_bound_tokens():
     """Get Pump.fun bonding-curve tokens that appear close to migration."""

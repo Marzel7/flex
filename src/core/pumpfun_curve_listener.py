@@ -803,7 +803,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.reconciler_last_run = 0.0
         self._reconciler_pending: Set[str] = set()   # sigs the reconciler is currently routing
         self._reconciler_failed: dict = {}            # sig -> attempts; skip after N (non-migrations)
-        self._last_migration_source = "WEBSOCKET"     # provenance flag for the next migration write
 
         # === NEW: Transaction caching ===
         self.tx_cache = {}  # {signature: (tx_data, timestamp)}
@@ -7601,8 +7600,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[FAST_PATH_REGISTER] ❌ Registration error: {e}", flush=True)
             return RegisterResult.FAIL
 
-    async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None):
-        """Continue migration pipeline once mint is known."""
+    async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None, source: str = "WEBSOCKET"):
+        """Continue migration pipeline once mint is known. `source` (WEBSOCKET/RECONCILER) is passed
+        EXPLICITLY — not via a shared instance var — so concurrent WS + reconciler processing of the
+        same migration can't cross-contaminate the migration_source tag (the burst-mislabel race)."""
         _mig_t = int(time.time())
         try:
             _gc = db_connect(DB_PATH, timeout=5)
@@ -7794,7 +7795,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     "migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), "
                     "source_platform = COALESCE(source_platform, 'pumpfun'), "
                     "migration_source = COALESCE(migration_source, ?) WHERE mint = ?",
-                    (signature, migrated_at_ts, getattr(self, "_last_migration_source", "WEBSOCKET"), mint)
+                    (signature, migrated_at_ts, source, mint)
                 )
                 conn.commit()
                 conn.close()
@@ -9358,9 +9359,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             pass
 
     async def handle_migration(self, signature: str, logs: list, source: str = "WEBSOCKET"):
-        """Process detected migration. `source` records provenance (WEBSOCKET fast-path vs
-        RECONCILER correctness-path) for the migration_source column + capture metrics."""
-        self._last_migration_source = source
+        """Process detected migration. `source` (WEBSOCKET fast-path vs RECONCILER correctness-path)
+        is threaded EXPLICITLY into _process_migration_with_mint — no shared instance var — so
+        concurrent WS+reconciler processing can't mislabel migration_source (the burst race)."""
         if signature in self.processing_migrations or signature in self.completed_migrations:
             return
 
@@ -9417,7 +9418,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             return
 
                         log_print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
-                        await self._process_migration_with_mint(signature, logs, mint_retry, tx_data_retry)
+                        await self._process_migration_with_mint(signature, logs, mint_retry, tx_data_retry, source=source)
                         self.completed_migrations.add(signature)
 
                     except Exception as e:
@@ -9433,7 +9434,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 return
 
             # Mint found immediately - continue with normal pipeline
-            await self._process_migration_with_mint(signature, logs, mint, tx_data)
+            await self._process_migration_with_mint(signature, logs, mint, tx_data, source=source)
             self.completed_migrations.add(signature)
 
             # Cancel any pending delayed retry since migration succeeded

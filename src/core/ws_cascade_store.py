@@ -38,6 +38,24 @@ except Exception:  # pragma: no cover - fallback for isolated runs
             c.row_factory = row_factory
         return c
 
+# RAW connect for best-effort telemetry writes (treasury hits + events). These must NOT go
+# through db_connect's process-wide write SERIALIZER: the cascade has multiple writer threads
+# (event-writer + per-hit threads), and the serializer turned their concurrency into immediate
+# SQLITE_BUSY failures (the "database is locked" storm after moving to the ops DB). A plain
+# connection with busy_timeout correctly WAITS out the brief scheduler write-bursts on the ops
+# DB (measured: 20/20 writes succeed under a hammering concurrent writer). Cross-process
+# coordination is busy_timeout's job, not the in-process serializer's.
+def _telemetry_conn(path, busy_ms=15000):
+    """Raw connection bypassing the write serializer (see note above)."""
+    try:
+        from src.utils.db_locking import _sqlite3_connect_orig as _orig
+    except Exception:
+        import sqlite3 as _s
+        _orig = _s.connect
+    c = _orig(path, timeout=max(30, busy_ms // 1000))
+    c.execute(f"PRAGMA busy_timeout={int(busy_ms)}")
+    return c
+
 
 OPS_DB_PATH = os.environ.get(
     "OPS_V2_DB_PATH",
@@ -229,12 +247,12 @@ def _event_writer_loop():
         if ev is None:
             continue
         et, wallet, related, mint, payload, ts = ev
-        for _attempt in range(4):
+        for _attempt in range(5):
             try:
-                # OPS DB (cascade owns its telemetry) — not the contended hot DB.
-                c = db_connect(OPS_DB_PATH, timeout=30)
+                # OPS DB, RAW connection (bypass the serializer — see _telemetry_conn). busy_timeout
+                # waits out brief scheduler write-bursts instead of failing on immediate SQLITE_BUSY.
+                c = _telemetry_conn(OPS_DB_PATH, busy_ms=15000)
                 try:
-                    c.execute("PRAGMA busy_timeout=15000")
                     c.execute(
                         "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
                         "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
@@ -244,8 +262,8 @@ def _event_writer_loop():
                 finally:
                     c.close()
             except Exception as e:
-                if "locked" in str(e).lower() and _attempt < 3:
-                    time.sleep(1.0 * (_attempt + 1))
+                if "locked" in str(e).lower() and _attempt < 4:
+                    time.sleep(0.5 * (_attempt + 1))
                     continue
                 print(f"[WS_CASCADE] event write failed {et}: {e}", flush=True)
                 break
@@ -283,11 +301,11 @@ def record_treasury_hit(*, treasury: str, counterparty: str, sig: str,
     UNIQUE(tx_signature, wallet_address) index. The dashboard detection-health/treasury-coverage
     read the cascade's hits from the OPS DB."""
     wh_id = os.environ.get("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
-    for _attempt in range(3):
+    for _attempt in range(5):
         try:
-            c = db_connect(OPS_DB_PATH, timeout=30)
+            # RAW connection (bypass serializer) + busy_timeout — see _telemetry_conn.
+            c = _telemetry_conn(OPS_DB_PATH, busy_ms=30000)
             try:
-                c.execute("PRAGMA busy_timeout=30000")
                 c.execute(
                     """INSERT OR IGNORE INTO wt_webhook_hits
                          (webhook_id, wallet_address, tx_signature, tx_type, source,
@@ -299,8 +317,8 @@ def record_treasury_hit(*, treasury: str, counterparty: str, sig: str,
             finally:
                 c.close()
         except Exception as e:
-            if "locked" in str(e).lower() and _attempt < 2:
-                time.sleep(1.0)
+            if "locked" in str(e).lower() and _attempt < 4:
+                time.sleep(0.5 * (_attempt + 1))
                 continue
             print(f"[WS_CASCADE] treasury hit write failed {sig[:12]}…: {e}", flush=True)
             return
@@ -344,12 +362,24 @@ def active_sessions(conn) -> list:
 
 # ───────────────────── treasury WS usage metering ───────────────────────────
 def treasury_ws_register(conn, treasury: str) -> None:
-    """Ensure a usage row exists for a treasury we're WS-subscribing (idempotent)."""
+    """Ensure a usage row exists for a treasury we're WS-subscribing (idempotent).
+
+    Called from resync_subscriptions ON THE ASYNC WS LOOP. It MUST NOT raise a lock error —
+    a "database is locked" here propagated up and crashed/reconnected the whole WS connection
+    (the BLIND loop). Use a raw lock-tolerant connection and swallow contention (it's just usage
+    metering; the row gets created on a later pass)."""
     now = int(time.time())
-    conn.execute(
-        "INSERT OR IGNORE INTO wt_treasury_ws_usage (treasury_wallet, subscribed_at) VALUES (?, ?)",
-        (treasury, now))
-    conn.commit()
+    try:
+        c = _telemetry_conn(OPS_DB_PATH, busy_ms=8000)
+        try:
+            c.execute(
+                "INSERT OR IGNORE INTO wt_treasury_ws_usage (treasury_wallet, subscribed_at) VALUES (?, ?)",
+                (treasury, now))
+            c.commit()
+        finally:
+            c.close()
+    except Exception:
+        pass  # best-effort metering — never crash the WS loop on a transient lock
 
 
 def treasury_ws_record_notif(conn, treasury: str, sig: Optional[str], opened_session: bool) -> None:

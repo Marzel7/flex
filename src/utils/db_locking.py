@@ -9,6 +9,7 @@ in concurrent scenarios (token launches, clustering, extractors, etc.)
 import contextlib
 import inspect
 import logging
+import os
 import sqlite3
 import threading
 import time
@@ -64,29 +65,104 @@ _db_logger = logging.getLogger("db_locking")
 _open_connections = {}
 _open_connections_lock = threading.Lock()
 
+# Process-wide write serializer (the single write lane). Plain Lock (not RLock): releasable from
+# any thread, which the async adapter needs; write transactions are short and never nest it.
+_DB_WRITE_LOCK = threading.Lock()
+_DB_WRITE_STATS = {"acquisitions": 0, "contended": 0, "total_wait_ms": 0.0, "max_wait_ms": 0.0}
+_DB_WRITE_STATS_LOCK = threading.Lock()
+
+
+# Central write serialization toggle: when on, every TrackedConnection acquires the one global
+# write lock for the duration of a write TRANSACTION (first write stmt → commit/rollback/close),
+# turning N independent writers (listener, prediction_builder, rpc_metrics, symbol_fetch, …) into
+# one orderly write lane. Reads (SELECT-only conns) never acquire → read concurrency preserved.
+# Env-flagged so it can be rolled out / backed out without code changes.
+_DB_WRITE_SERIALIZE = os.environ.get("DB_WRITE_SERIALIZE", "1") == "1"
+_WRITE_SQL_PREFIXES = ("INSERT", "UPDATE", "DELETE", "REPLACE", "CREATE", "ALTER", "DROP", "UPSERT")
+
+
+def _is_write_sql(sql) -> bool:
+    try:
+        s = sql.lstrip().upper()
+    except Exception:
+        return False
+    return s.startswith(_WRITE_SQL_PREFIXES)
+
 
 class TrackedConnection(sqlite3.Connection):
-    """SQLite connection that unregisters itself when closed and tracks lock errors."""
+    """SQLite connection that unregisters itself when closed, tracks lock errors, and (when
+    DB_WRITE_SERIALIZE=1) holds the global write lock for the duration of a write transaction so
+    concurrent writers across all modules serialize instead of colliding on the file."""
+
+    def _acquire_write_lane(self):
+        """Acquire the global write lock once per write transaction (idempotent within the conn)."""
+        if not _DB_WRITE_SERIALIZE or getattr(self, "_holds_write_lock", False):
+            return
+        t0 = time.monotonic()
+        acquired = _DB_WRITE_LOCK.acquire(timeout=60)
+        wait_ms = (time.monotonic() - t0) * 1000.0
+        if not acquired:
+            record_lock_error(getattr(self, "_db_caller", None))
+            return  # fall through to SQLite's own busy_timeout rather than deadlock
+        self._holds_write_lock = True
+        try:
+            with _DB_WRITE_STATS_LOCK:
+                _DB_WRITE_STATS["acquisitions"] += 1
+                if wait_ms > 1.0:
+                    _DB_WRITE_STATS["contended"] += 1
+                _DB_WRITE_STATS["total_wait_ms"] += wait_ms
+                if wait_ms > _DB_WRITE_STATS["max_wait_ms"]:
+                    _DB_WRITE_STATS["max_wait_ms"] = wait_ms
+        except Exception:
+            pass
+
+    def _release_write_lane(self):
+        if getattr(self, "_holds_write_lock", False):
+            self._holds_write_lock = False
+            try:
+                _DB_WRITE_LOCK.release()
+            except RuntimeError:
+                pass
 
     def execute(self, sql, parameters=()):
+        if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
+            self._acquire_write_lane()
         try:
             return super().execute(sql, parameters)
         except sqlite3.OperationalError as e:
             if "locked" in str(e).lower():
-                caller = getattr(self, "_db_caller", None)
-                record_lock_error(caller)
+                record_lock_error(getattr(self, "_db_caller", None))
             raise
 
     def executemany(self, sql, parameters):
+        if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
+            self._acquire_write_lane()
         try:
             return super().executemany(sql, parameters)
         except sqlite3.OperationalError as e:
             if "locked" in str(e).lower():
-                caller = getattr(self, "_db_caller", None)
-                record_lock_error(caller)
+                record_lock_error(getattr(self, "_db_caller", None))
             raise
 
+    def commit(self):
+        t0 = time.monotonic()
+        try:
+            return super().commit()
+        finally:
+            dur_ms = (time.monotonic() - t0) * 1000.0
+            if dur_ms > 50.0:
+                _db_logger.warning(f"[DB_COMMIT_SLOW] {dur_ms:.0f}ms caller={getattr(self,'_db_caller',None)}")
+            self._release_write_lane()
+
+    def rollback(self):
+        try:
+            return super().rollback()
+        finally:
+            self._release_write_lane()
+
     def close(self):
+        # release the write lane if a transaction was abandoned without commit/rollback
+        self._release_write_lane()
         tracking_id = getattr(self, "_db_tracking_id", None)
         if tracking_id is not None:
             with _open_connections_lock:
@@ -183,9 +259,11 @@ def db_connect(path: str, timeout: int = 30, row_factory=None) -> sqlite3.Connec
     conn.execute("PRAGMA busy_timeout=30000")
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA wal_autocheckpoint=1000")
-    # Cap WAL file size at 256 MB — SQLite truncates to this after each checkpoint
-    conn.execute("PRAGMA journal_size_limit=268435456")
+    conn.execute("PRAGMA wal_autocheckpoint=400")        # ~1.6MB — checkpoint sooner
+    # Cap WAL at 32 MB — was 256 MB, which let a single pinned reader balloon the
+    # WAL to 130-230 MB and starve the checkpoint (the recurring lock-storm). A tight
+    # cap forces truncation far earlier so a transient pin can't bloat unbounded.
+    conn.execute("PRAGMA journal_size_limit=33554432")   # 32 MB
     return conn
 
 
@@ -220,7 +298,7 @@ _MAX_CONNECTION_AGE_SECS = 20  # idle connections held longer than this are leak
 # in_transaction, the reaper's in_transaction guard then protects it FOREVER, and
 # such connections pile up (145 observed) and starve the WAL checkpoint. We rollback
 # and close them past this threshold. A legitimate write never holds a txn this long.
-_MAX_TXN_CONNECTION_AGE_SECS = 120
+_MAX_TXN_CONNECTION_AGE_SECS = 45   # was 120 — abandoned txns pin the WAL; reap sooner
 _reaper_db_path: Optional[str] = None  # set from first registered connection
 
 
@@ -246,8 +324,8 @@ def _reaper_loop() -> None:
 # which resets the write position to the start of the file so it stops growing.
 # RESTART waits for all readers to finish (up to busy_timeout) then truncates.
 
-_WAL_WATCHDOG_INTERVAL = 60        # seconds between checks
-_WAL_SIZE_THRESHOLD    = 200 * 1024 * 1024  # 200 MB
+_WAL_WATCHDOG_INTERVAL = 30        # seconds between checks (was 60)
+_WAL_SIZE_THRESHOLD    = 32 * 1024 * 1024   # 32 MB (was 200 MB — too loose; let it bloat)
 
 
 def _wal_watchdog_loop() -> None:
@@ -263,12 +341,14 @@ def _wal_watchdog_loop() -> None:
             wal_size = os.path.getsize(wal_path)
             if wal_size < _WAL_SIZE_THRESHOLD:
                 continue
-            _db_logger.info(f"[WAL_WATCHDOG] WAL is {wal_size/1e9:.2f} GB — running RESTART checkpoint")
+            _db_logger.info(f"[WAL_WATCHDOG] WAL is {wal_size/1e6:.1f} MB — running TRUNCATE checkpoint")
             conn = sqlite3.connect(_reaper_db_path, timeout=10)
-            result = conn.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
+            # TRUNCATE actually shrinks the -wal file (RESTART only resets the write
+            # position). Falls back to RESTART semantics if readers block truncation.
+            result = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
             conn.close()
             wal_after = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
-            _db_logger.info(f"[WAL_WATCHDOG] checkpoint result={result}  WAL after={wal_after/1e9:.2f} GB")
+            _db_logger.info(f"[WAL_WATCHDOG] checkpoint result={result}  WAL after={wal_after/1e6:.1f} MB")
         except Exception as e:
             _db_logger.warning(f"[WAL_WATCHDOG] checkpoint failed: {e}")
 
@@ -378,6 +458,87 @@ def _patched_connect(database, timeout=5, *args, **kwargs):
 
 
 sqlite3.connect = _patched_connect
+
+
+# ── WRITE SERIALIZER ─────────────────────────────────────────────────────────
+# The recurring lock-storm root: many subsystems in the listener process write the live DB
+# CONCURRENTLY (births, creator resolution, funding, prediction, reconciler — 19 unguarded write
+# sites). busy_timeout + retry don't help when N writers collide simultaneously; SQLite still
+# serializes at the file level and the losers exhaust their timeout → birth writes fail (1699
+# observed), the WAL gets pinned, everything chokes. self.db_lock (asyncio.Lock) only covers async
+# tasks — it does nothing for the executor-thread/pool writers, which is why it was applied to only
+# ~12 of 31 sites.
+#
+# Fix: a process-wide threading.Lock that EVERY write path acquires — works from BOTH async tasks
+# AND threads. Serializing writes turns N-way file contention into an orderly queue, so no writer
+# starves another. Reads stay lock-free (RO connections).
+#
+# Use as a context manager around the write transaction:
+#     with db_write_lock():
+#         with db_connect(DB_PATH) as conn:
+#             conn.execute(...); conn.commit()
+# (_DB_WRITE_LOCK / _DB_WRITE_STATS defined near the top, before TrackedConnection.)
+
+
+@contextlib.contextmanager
+def db_write_lock(label: str = ""):
+    """Serialize a DB write across async tasks AND threads. Records contention metrics so the
+    before/after impact of serialization is measurable. Cheap when uncontended."""
+    t0 = time.monotonic()
+    acquired = _DB_WRITE_LOCK.acquire(timeout=60)
+    wait_ms = (time.monotonic() - t0) * 1000.0
+    if not acquired:
+        _db_logger.warning(f"[DB_WRITE_LOCK] timeout acquiring after 60s label={label}")
+        raise sqlite3.OperationalError("db_write_lock acquire timeout")
+    try:
+        with _DB_WRITE_STATS_LOCK:
+            _DB_WRITE_STATS["acquisitions"] += 1
+            if wait_ms > 1.0:
+                _DB_WRITE_STATS["contended"] += 1
+            _DB_WRITE_STATS["total_wait_ms"] += wait_ms
+            if wait_ms > _DB_WRITE_STATS["max_wait_ms"]:
+                _DB_WRITE_STATS["max_wait_ms"] = wait_ms
+        yield
+    finally:
+        _DB_WRITE_LOCK.release()
+
+
+class AsyncDbWriteLock:
+    """`async with` adapter over the SAME process-wide _DB_WRITE_LOCK used by db_write_lock().
+
+    This is the unification: async-task writers (`async with self.db_lock`) and thread/pool writers
+    (`with db_write_lock()`) acquire ONE lock, so they actually serialize against each other. The
+    acquire runs in a thread executor so it never blocks the event loop while waiting. Drop-in for
+    the old `asyncio.Lock()` (same `async with` interface)."""
+    async def __aenter__(self):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        # acquire off the loop so a contended write can't stall the event loop
+        ok = await loop.run_in_executor(None, lambda: _DB_WRITE_LOCK.acquire(timeout=60))
+        if not ok:
+            _db_logger.warning("[DB_WRITE_LOCK] async acquire timeout after 60s")
+            raise sqlite3.OperationalError("async db_write_lock acquire timeout")
+        with _DB_WRITE_STATS_LOCK:
+            _DB_WRITE_STATS["acquisitions"] += 1
+        return self
+
+    async def __aexit__(self, *exc):
+        try:
+            _DB_WRITE_LOCK.release()
+        except RuntimeError:
+            pass
+        return False
+
+
+def db_write_stats() -> dict:
+    """Snapshot of write-serializer contention metrics (for before/after measurement)."""
+    with _DB_WRITE_STATS_LOCK:
+        s = dict(_DB_WRITE_STATS)
+    acq = s["acquisitions"] or 1
+    s["avg_wait_ms"] = round(s["total_wait_ms"] / acq, 2)
+    s["contended_pct"] = round(100.0 * s["contended"] / acq, 1)
+    s["max_wait_ms"] = round(s["max_wait_ms"], 1)
+    return s
 
 
 @contextlib.contextmanager

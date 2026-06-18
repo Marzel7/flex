@@ -13,7 +13,7 @@ import json
 import os
 import re
 import sqlite3
-from src.utils.db_locking import db_connect, managed_db_connect
+from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
 from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
 import sys
 import time
@@ -790,6 +790,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.processing_launches: Set[str] = set()
         self.completed_launches: Set[str] = set()
         self.analyzed_tokens = {}
+        # Write serialization is now enforced at the CONNECTION layer (TrackedConnection acquires the
+        # one global write lane per write transaction — covers ALL modules transparently). self.db_lock
+        # stays a plain asyncio.Lock for its original in-process async coordination; it must NOT be the
+        # write-lane lock, or callers wrapping it would double-acquire and self-deadlock.
         self.db_lock = asyncio.Lock()
         # PumpPortal live vSol state: {mint: {"v_sol": float, "ts": int, "symbol": str, "name": str, "creator": str}}
         self._portal_vsol: dict = {}
@@ -7244,11 +7248,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         for attempt in range(max_retries):
             conn = None
             try:
-                # Hot-path migration persistence should not queue behind listener-local
-                # async DB work; the global write lock + SQLite busy_timeout is enough here.
+                # Write serialization is handled at the connection layer (TrackedConnection) — the
+                # INSERT below automatically acquires the global write lane through commit. No caller
+                # wrapping needed (and wrapping would double-acquire → deadlock).
                 conn = db_connect(DB_PATH, timeout=30)
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
                 cursor = conn.cursor()
 

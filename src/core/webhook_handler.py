@@ -38,7 +38,6 @@ from src.metrics.rpc_metrics_recorder import record_request
 def get_webhook_db():
     """Create optimized database connection for webhook processing."""
     conn = db_connect(DB_PATH, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA busy_timeout=30000")
     conn.row_factory = sqlite3.Row

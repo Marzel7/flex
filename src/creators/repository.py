@@ -39,7 +39,6 @@ class CreatorRepository:
         """Apply DDL for new tables.  Safe to call on every startup."""
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             cur = conn.cursor()
             cur.executescript("""
@@ -253,7 +252,6 @@ class CreatorRepository:
 
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             # Ensure row exists
             conn.execute("""
@@ -278,7 +276,6 @@ class CreatorRepository:
         now = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             cur = conn.execute(
                 """INSERT INTO creator_tokens (creator_address, mint, created_at)
                    VALUES (?, ?, ?)
@@ -306,7 +303,6 @@ class CreatorRepository:
         now    = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             if is_new:
                 # Upsert profile row and increment count atomically.
                 conn.execute("""
@@ -343,7 +339,6 @@ class CreatorRepository:
         now = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 INSERT INTO creator_profile (creator_address, token_count_seen, last_launch_at,
                                              first_seen_at, created_at, updated_at)
@@ -451,7 +446,6 @@ class CreatorRepository:
 
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 INSERT INTO creator_activity_state (creator_address, created_at, updated_at)
                 VALUES (?, ?, ?)
@@ -487,7 +481,6 @@ class CreatorRepository:
 
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             try:
                 cur = conn.execute("""
                     INSERT INTO creator_activity_jobs
@@ -513,7 +506,6 @@ class CreatorRepository:
         now = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.row_factory = sqlite3.Row
 
             # Release stale locks so they can be retried
@@ -550,7 +542,6 @@ class CreatorRepository:
         now = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 UPDATE creator_activity_jobs
                 SET status = 'complete', completed_at = ?, locked_at = NULL, updated_at = ?
@@ -570,7 +561,6 @@ class CreatorRepository:
         now = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.row_factory = sqlite3.Row
             row = conn.execute(
                 "SELECT attempt_count FROM creator_activity_jobs WHERE id = ?", (job_id,)
@@ -618,7 +608,6 @@ class CreatorRepository:
         now = int(time.time())
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 INSERT INTO system_config (key, value, updated_at)
                 VALUES (?, ?, ?)
@@ -647,7 +636,6 @@ class CreatorRepository:
         """INSERT OR IGNORE. Returns True if new row, False if duplicate."""
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 INSERT OR IGNORE INTO creator_sol_movements
                     (creator_address, signature, slot, block_time,
@@ -704,7 +692,6 @@ class CreatorRepository:
         """Conservative startup reset — re-verify all watches on restart."""
         async with self._lock:
             conn = db_connect(self._db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 UPDATE creator_activity_state
                 SET watch_status = 'stale',

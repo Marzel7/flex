@@ -215,7 +215,6 @@ class TokenPredictionBuilder:
         # ── WRITE PHASE — lock held only for bulk inserts ─────────────────────
         conn = db_connect(self.db_path, timeout=60)
         conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA synchronous=NORMAL")
         conn.execute("PRAGMA busy_timeout=60000")
         try:
@@ -324,7 +323,6 @@ class TokenPredictionBuilder:
                 service = TradingSimulationService()
                 conn = db_connect(self.db_path, timeout=30)
                 conn.row_factory = sqlite3.Row
-                conn.execute("PRAGMA journal_mode=WAL")
                 service.ensure_schema(conn)
                 if service.has_simulation_for_mint(conn, score.mint):
                     return
@@ -374,15 +372,22 @@ class TokenPredictionBuilder:
         import threading
         for delay in (300, 1800, 7200):  # 5m, 30m, 2h
             def _check(m=mint):
+                # finally-close: under lock contention _resolve_outcomes raises
+                # "database is locked"; without finally the connection leaked, and these
+                # fire on a Timer per-token ×3 (5m/30m/2h) → hundreds of leaked readers
+                # that then starve the WAL checkpoint and hang the app.
+                c = None
                 try:
                     c = db_connect(self.db_path, timeout=30)
                     c.row_factory = sqlite3.Row
                     c.execute("PRAGMA journal_mode=WAL")
                     self._resolve_outcomes(c)
                     c.commit()
-                    c.close()
                 except Exception as e:
                     logger.warning(f"[PREDICTION] outcome check failed for {m[:16]}: {e}")
+                finally:
+                    if c is not None:
+                        c.close()
             timer = threading.Timer(delay, _check)
             timer.daemon = True
             timer.start()
@@ -1473,7 +1478,6 @@ class TokenPredictionRescoreWorker:
         builder = TokenPredictionBuilder(self.db_path)
         conn = db_connect(self.db_path, timeout=60)
         conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
         try:
             builder._apply_migration(conn)
             context = builder._build_context(conn)

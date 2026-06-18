@@ -397,7 +397,6 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
 
     try:
         conn = db_connect(db_path, timeout=15)
-        conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA busy_timeout=10000")
         conn.row_factory = sqlite3.Row
 

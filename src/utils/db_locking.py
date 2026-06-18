@@ -28,6 +28,11 @@ _global_lock_errors: list[float] = []
 _global_lock_errors_lock = threading.Lock()
 _global_failed_writes: int = 0
 
+# DB paths whose persistent (DB-level) PRAGMAs have already been applied this
+# process — so db_connect sets them once, not on every connect (avoids taking the
+# write lock at connection-open time under a write storm). A set of str paths.
+_PERSISTENT_PRAGMAS_DONE: set = set()
+
 
 def record_lock_error(caller: Optional[str] = None) -> None:
     """Called anywhere a 'database is locked' OperationalError is caught."""
@@ -405,25 +410,26 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
         pass
     if row_factory is not None:
         conn.row_factory = row_factory
+    # busy_timeout & synchronous are CONNECTION-level (cheap, no write lock) — set always.
     conn.execute("PRAGMA busy_timeout=30000")
-    # CRITICAL: `PRAGMA journal_mode=WAL` is a WRITE — it takes the database write
-    # lock. Running it on EVERY connect (incl. pure-read connections) meant every
-    # connect serialized behind the write lane during a write storm, turning fast
-    # reads into multi-second stalls and exhausting the gunicorn worker on busy
-    # dashboard pages. The DB is already WAL (writers set it once), so only set it
-    # when it is NOT already WAL — a cheap read that avoids the write-lock entirely.
-    try:
-        _mode = conn.execute("PRAGMA journal_mode").fetchone()
-        if not _mode or str(_mode[0]).lower() != "wal":
-            conn.execute("PRAGMA journal_mode=WAL")
-    except Exception:
-        conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA wal_autocheckpoint=400")        # ~1.6MB — checkpoint sooner
-    # Cap WAL at 32 MB — was 256 MB, which let a single pinned reader balloon the
-    # WAL to 130-230 MB and starve the checkpoint (the recurring lock-storm). A tight
-    # cap forces truncation far earlier so a transient pin can't bloat unbounded.
-    conn.execute("PRAGMA journal_size_limit=33554432")   # 32 MB
+    # journal_mode, wal_autocheckpoint, journal_size_limit are PERSISTENT (DB-level)
+    # settings — they survive in the DB header and only need to be set ONCE per file.
+    # Running them on EVERY connect took the database WRITE LOCK on every open, which
+    # under a write storm collided → "database is locked" at connect time (the
+    # _patched_connect lock errors). Set them once per path, then skip forever.
+    global _PERSISTENT_PRAGMAS_DONE
+    if path not in _PERSISTENT_PRAGMAS_DONE:
+        try:
+            _mode = conn.execute("PRAGMA journal_mode").fetchone()
+            if not _mode or str(_mode[0]).lower() != "wal":
+                conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA wal_autocheckpoint=400")        # ~1.6MB — checkpoint sooner
+            # Cap WAL at 32 MB so a transient pin can't balloon it (the lock-storm).
+            conn.execute("PRAGMA journal_size_limit=33554432")   # 32 MB
+            _PERSISTENT_PRAGMAS_DONE.add(path)
+        except Exception:
+            pass  # transient lock on setup — another connect will complete it
     return conn
 
 

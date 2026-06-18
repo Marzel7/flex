@@ -132,7 +132,6 @@ async def ensure_pf_ws_creator(
     try:
         async with db_lock:
             conn = db_connect(db_path, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute(
                 """UPDATE token_analysis SET pf_ws_creator = ?, updated_at = ?
                    WHERE mint = ? AND pf_ws_creator IS NULL""",

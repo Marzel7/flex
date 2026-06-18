@@ -25375,7 +25375,6 @@ def api_funding_queue_clear():
     """Delete all rows from creator_funding_queue."""
     try:
         conn = db_connect(DB_PATH, timeout=10)
-        conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
         cursor.execute("DELETE FROM creator_funding_queue")
         deleted = cursor.rowcount

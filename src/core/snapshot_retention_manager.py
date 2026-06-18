@@ -268,7 +268,16 @@ class SnapshotRetentionManager:
                 FROM token_snapshot_counts
             """).fetchall()
 
+            # Batch-commit so the cleanup never holds the write lock across the
+            # WHOLE loop — a long single transaction here pinned the WAL and made
+            # every other writer hit "database is locked". Commit every N tokens
+            # to release the lock and let the checkpoint + other writers through.
+            _BATCH = 50
+            _since_commit = 0
             for row in tokens:
+                if _since_commit >= _BATCH:
+                    conn.commit()
+                    _since_commit = 0
                 mint = row["mint"]
                 snap_count = row["snap_count"]
                 last_updated = row["last_updated"]
@@ -286,6 +295,7 @@ class SnapshotRetentionManager:
                     stats["snapshots_deleted"] += deleted
                     stats["tokens_deleted"] += 1
                     stats["tokens_processed"] += 1
+                    _since_commit += 1
                     ws_log.info(
                         f"[SNAP_DELETE] lifecycle mint={mint[:16]} "
                         f"snaps={deleted} below_mc={bool(below_since)} "
@@ -312,6 +322,7 @@ class SnapshotRetentionManager:
                     stats["snapshots_deleted"] += deleted
                     stats["tokens_deleted"] += 1
                     stats["tokens_processed"] += 1
+                    _since_commit += 1
                     ws_log.info(f"[SNAP_DELETE] inactive mint={mint[:16]} snaps={deleted} age_secs={age}")
                     continue
 
@@ -322,6 +333,7 @@ class SnapshotRetentionManager:
                     stats["snapshots_deleted"] += deleted
                     stats["snapshots_downsampled"] += deleted
                     stats["tokens_processed"] += 1
+                    _since_commit += 1
                     ws_log.debug(f"[SNAP_DOWNSAMPLE] mint={mint[:16]} removed={deleted}")
 
             # --- PASS 2: stale low-snapshot tokens (snap_count <= MIN_KEEP_SNAPSHOTS) ---
@@ -335,6 +347,9 @@ class SnapshotRetentionManager:
                 """, (self.MIN_KEEP_SNAPSHOTS, now - self.DELETE_AFTER_INACTIVE_SECS)).fetchall()
 
                 for row in stale_low:
+                    if _since_commit >= _BATCH:
+                        conn.commit()
+                        _since_commit = 0
                     mint = row["mint"]
                     _finalize_outcome(conn, mint, 'stale_low_snap')
                     deleted = conn.execute(
@@ -347,6 +362,7 @@ class SnapshotRetentionManager:
                     stats["snapshots_deleted"] += deleted
                     stats["tokens_deleted"] += 1
                     stats["tokens_processed"] += 1
+                    _since_commit += 1
                     ws_log.info(f"[SNAP_DELETE] stale_low mint={mint[:16]} snaps={deleted}")
 
             # --- PASS 3: retroactive 12h low-value / no-movement pruning ---
@@ -368,6 +384,9 @@ class SnapshotRetentionManager:
             """, (now - self.LIFECYCLE_DELETE_AFTER,)).fetchall()
 
             for row in candidates:
+                if _since_commit >= _BATCH:
+                    conn.commit()
+                    _since_commit = 0
                 mint = row["mint"]
                 _finalize_outcome(conn, mint, 'low_value_12h')
                 deleted = conn.execute(

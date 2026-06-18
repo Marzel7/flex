@@ -72,7 +72,6 @@ RISK_THRESHOLDS = {
 def get_ranker_db():
     """Create optimized database connection for ranking."""
     conn = db_connect(DB_PATH, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.row_factory = sqlite3.Row
     return conn

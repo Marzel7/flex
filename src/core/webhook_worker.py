@@ -40,7 +40,6 @@ WORKER_SLEEP = 1  # seconds between batches
 def get_worker_db():
     """Create optimized database connection for worker."""
     conn = db_connect(DB_PATH, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA busy_timeout=30000")
     conn.row_factory = sqlite3.Row
@@ -608,41 +607,48 @@ def run_worker(max_iterations: Optional[int] = None):
                 print(f"[WORKER] Stopped after {max_iterations} iterations", flush=True)
                 break
 
-            conn = get_worker_db()
+            try:
+                conn = get_worker_db()
 
-            # Process creator analysis queue (5 at a time)
-            creator_items = fetch_next_creator_analysis(conn, batch_size=5)
-            for creator_address, priority, status, locked_until in creator_items:
-                try:
-                    process_creator_analysis(conn, creator_address)
-                except Exception as e:
-                    print(f"[CREATOR_ANALYSIS] Error: {creator_address[:8]}... - {e}", flush=True)
+                # Process creator analysis queue (5 at a time)
+                creator_items = fetch_next_creator_analysis(conn, batch_size=5)
+                for creator_address, priority, status, locked_until in creator_items:
+                    try:
+                        process_creator_analysis(conn, creator_address)
+                    except Exception as e:
+                        print(f"[CREATOR_ANALYSIS] Error: {creator_address[:8]}... - {e}", flush=True)
 
-            # Fetch next batch of regular work queue
-            work_items = fetch_next_work(conn, BATCH_SIZE)
+                # Fetch next batch of regular work queue
+                work_items = fetch_next_work(conn, BATCH_SIZE)
 
-            if not work_items and not creator_items:
+                if not work_items and not creator_items:
+                    conn.close()
+                    time.sleep(WORKER_SLEEP)
+                    iteration += 1
+                    continue
+
+                # Process each work queue item
+                for address, priority, reason, locked_until in work_items:
+                    try:
+                        process_work_item(conn, address, priority, reason)
+                    except Exception as e:
+                        print(f"[WORKER] Error: {address[:8]}... - {e}", flush=True)
+
                 conn.close()
-                time.sleep(WORKER_SLEEP)
-                iteration += 1
-                continue
 
-            # Process each work queue item
-            for address, priority, reason, locked_until in work_items:
+            except Exception as e:
+                print(f"[WORKER] Error (will retry): {e}", flush=True)
                 try:
-                    process_work_item(conn, address, priority, reason)
-                except Exception as e:
-                    print(f"[WORKER] Error: {address[:8]}... - {e}", flush=True)
+                    conn.close()
+                except Exception:
+                    pass
+                time.sleep(10)
 
-            conn.close()
             iteration += 1
             time.sleep(WORKER_SLEEP)
 
     except KeyboardInterrupt:
         print("[WORKER] Stopped by user", flush=True)
-    except Exception as e:
-        print(f"[WORKER] Fatal error: {e}", flush=True)
-        raise
 
 
 # ============================================================================

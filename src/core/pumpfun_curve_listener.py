@@ -349,7 +349,6 @@ def rebuild_super_clusters_from_funding():
         # Serialize writes: prevent other threads from interfering with clustering writes
         with DB_WRITE_LOCK:
             conn = db_connect(DB_PATH, timeout=60)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA busy_timeout=60000")
             cursor = conn.cursor()
@@ -449,7 +448,6 @@ def rebuild_super_clusters_from_funding():
                         conn.close()
                         import time as _time; _time.sleep(0.05)
                         conn = db_connect(DB_PATH, timeout=60)
-                        conn.execute("PRAGMA journal_mode=WAL")
                         conn.execute("PRAGMA synchronous=NORMAL")
                         conn.execute("PRAGMA busy_timeout=60000")
                         cursor = conn.cursor()
@@ -1927,7 +1925,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 service = TradingSimulationService()
                 conn = db_connect(DB_PATH, timeout=30)
                 conn.row_factory = sqlite3.Row
-                conn.execute("PRAGMA journal_mode=WAL")
                 service.ensure_schema(conn)
                 if service.has_simulation_for_mint(conn, mint):
                     log_print(f"[TRADING_SIM] ⏭️  Auto migration buy skipped; simulation exists mint={mint[:16]}...", flush=True)
@@ -3637,7 +3634,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         def _run():
             conn = db_connect(DB_PATH, timeout=60)
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=60000")
             try:
                 conn.execute("""
@@ -3756,7 +3752,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
     # --- Database ---
     def _ensure_db(self):
         conn = db_connect(DB_PATH, timeout=15)
-        conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
         # Post-migration token analysis with live on-chain price and market cap tracking
@@ -4414,7 +4409,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn = None     # tracked so the loop's except can close on any failure
                 async with self.db_lock:
                     conn = db_connect(DB_PATH, timeout=30)
-                    conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
                     conn.execute("PRAGMA busy_timeout=30000")
                     conn.row_factory = sqlite3.Row
@@ -5325,7 +5319,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             async with self.db_lock:
                 conn = db_connect(DB_PATH, timeout=30)
-                conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
                 cursor = conn.cursor()
@@ -5383,7 +5376,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 async with self.db_lock:
                     conn = db_connect(DB_PATH, timeout=30)
-                    conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
                     conn.execute("UPDATE token_analysis SET pf_ws_creator=? WHERE mint=?", (portal_creator, mint))
                     conn.commit()
@@ -7341,7 +7333,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 async with self.db_lock:
                     conn = db_connect(DB_PATH, timeout=30)
-                    conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
                     conn.execute("PRAGMA busy_timeout=30000")
                     cursor = conn.cursor()
@@ -10133,7 +10124,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             async with self.db_lock:
                 conn = db_connect(DB_PATH, timeout=30)
-                conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=30000")
                 conn.execute(

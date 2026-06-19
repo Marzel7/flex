@@ -4346,7 +4346,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
         await loop.run_in_executor(None, _run_refresh)
 
     async def _process_creator_resolution_queue_periodic(self) -> None:
-        """Drain P0 missing-creator jobs before creator funding extraction."""
+        """Drain P0 missing-creator jobs before creator funding extraction.
+
+        PARKABLE: this is a best-effort BACKFILL. Its get_creator_from_earliest_tx paging can
+        grind hundreds of RPC pages on a single stubborn token and starve the listener's LIVE
+        migration capture (the critical path). Set CREATOR_BACKFILL_ENABLED=0 to park it so
+        migrations keep flowing; re-enable once the live path is healthy."""
+        if os.environ.get("CREATOR_BACKFILL_ENABLED", "1") != "1":
+            log_print("[CREATOR] backfill PARKED (CREATOR_BACKFILL_ENABLED=0) — live migration "
+                      "capture has priority; not draining the missing-creator queue", flush=True)
+            return
         await asyncio.sleep(2)
         while True:
             sleep_seconds = 15
@@ -9898,7 +9907,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 tracked_trade_mints.add(mint)
                                 await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
 
-                        elif tx_type == "migration" and sig:
+                        elif tx_type in ("migration", "migrate") and sig:
+                            # PumpPortal sends txType="migrate" (historically routed via the Helius
+                            # migration-account WS; this branch only matched "migration" so PumpPortal
+                            # migrations were silently dropped here). Accept both spellings.
                             if sig not in self.completed_migrations:
                                 log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
                                 asyncio.create_task(self.handle_migration(sig, []))

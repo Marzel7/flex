@@ -1508,6 +1508,12 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
             return payload
 
         now_ts = int(time.time())
+        # SCOPED floor for the live-launches feed only — do NOT use the shared
+        # MIN_LIVE_MARKET_CAP ($5k), which also gates profitability/other modules. Post-migration
+        # tokens often pump then dump below $5k current MC, so a $5k current-MC floor hides every
+        # recent launch (page goes empty). Default $1k, env-tunable. The recent-time window still
+        # surfaces brand-new migrations regardless of MC.
+        _live_feed_floor = float(os.environ.get("LIVE_LAUNCHES_MIN_MC", "1000"))
         cursor.execute("""
             SELECT
                 ta.mint,
@@ -1629,7 +1635,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 COALESCE(tps.market_cap, 0) DESC,
                 ta.created_at DESC
             LIMIT ?
-        """, (MIN_LIVE_MARKET_CAP, now_ts - 900, now_ts - 1800, now_ts - 60, limit,))
+        """, (_live_feed_floor, now_ts - 900, now_ts - 1800, now_ts - 60, limit,))
 
         rows = cursor.fetchall()
 

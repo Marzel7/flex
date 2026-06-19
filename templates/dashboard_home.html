@@ -2631,6 +2631,11 @@
                 window.currentTokens = displayTokens;
                 window._lastCreatorDataSignature = creatorDataSignature;
 
+                if (window.RECENT_ONLY_MODE) {
+                    renderRecentLaunches(displayTokens);
+                    return;
+                }
+
                 if (tokensChanged || creatorDataChanged) {
                     console.log(`[TABLE] full_rebuild reason=${tokensChanged ? 'mint_set_changed' : 'creator_data_changed'}`);
                     window._lastTokenList = displayTokens;
@@ -2650,6 +2655,52 @@
         function _shortMint(mint) {
             if (!mint) return 'Unknown';
             return mint.length > 12 ? `${mint.slice(0, 6)}...${mint.slice(-4)}` : mint;
+        }
+
+        function _htmlEscape(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
+        function renderRecentLaunches(tokens) {
+            const container = document.getElementById('tokens-container');
+            if (!container) return;
+            if (!tokens || tokens.length === 0) {
+                container.innerHTML = '<div class="no-data">No tokens recorded yet.</div>';
+                return;
+            }
+            container.innerHTML = `<div class="tokens-table-wrap"><table class="tokens-table">
+                <thead><tr>
+                    <th style="width:180px">Token</th>
+                    <th style="width:90px">Stage</th>
+                    <th style="width:150px">Creator</th>
+                    <th style="width:90px">Market Cap</th>
+                    <th style="width:70px">Age</th>
+                </tr></thead>
+                <tbody>
+                    ${tokens.map(token => {
+                        const label = token.symbol || token.name || _shortMint(token.mint);
+                        const stage = token.lifecycle_stage || 'unknown';
+                        const creator = token.creator || token.pf_ws_creator || token.earliest_tx_creator || '';
+                        const mc = token.market_cap_current ? '$' + formatMarketCap(token.market_cap_current) : '—';
+                        return `<tr data-mint="${_htmlEscape(token.mint)}">
+                            <td>
+                                <div class="token-primary">
+                                    <span class="token-symbol" title="${_htmlEscape(token.name || token.symbol || token.mint)}">${_htmlEscape(label)}</span>
+                                </div>
+                                <div class="token-links">
+                                    <a href="#" onclick="showTokenMetrics('${_htmlEscape(token.mint)}'); return false;" title="${_htmlEscape(token.mint)}">Token ↗</a>
+                                </div>
+                            </td>
+                            <td><span class="creator-tag">${_htmlEscape(stage)}</span></td>
+                            <td><span class="mint-link" title="${_htmlEscape(creator)}">${_htmlEscape(_shortMint(creator))}</span></td>
+                            <td>${_htmlEscape(mc)}</td>
+                            <td>${_htmlEscape(timeSinceLaunch(token.created_at || token.analyzed_at))}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table></div>`;
         }
 
         function _futureBoundBadge(token) {

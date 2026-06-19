@@ -1542,10 +1542,6 @@
             font-weight: 800 !important;
             letter-spacing: .14em !important;
         }
-        #future-bound-list {
-            background: rgba(8,11,16,.45);
-        }
-
         .loading, .no-data, .refresh-info {
             color: var(--home-text-muted) !important;
             font-size: 11px !important;
@@ -1643,15 +1639,6 @@
                 <div class="loading">Loading...</div>
             </div>
 
-            <!-- Right panel -->
-            <div id="right-panel" style="width:250px;flex-shrink:0;align-self:stretch">
-                <div class="tokens-table-wrap" style="height:100%;box-sizing:border-box;display:flex;flex-direction:column">
-                    <div style="background:rgba(0,0,0,0.3);border-bottom:1px solid var(--border-color);padding:8px 10px;flex-shrink:0;font-size:11px;line-height:1.2;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#8b949e;white-space:nowrap;text-align:center">Future Bound</div>
-                    <div id="future-bound-list" style="flex:1;overflow-y:auto;padding:8px">
-                        <div style="color:var(--text-secondary);font-size:12px;padding:8px 4px">Loading…</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- CEX Funders View -->
@@ -2701,67 +2688,6 @@
                     }).join('')}
                 </tbody>
             </table></div>`;
-        }
-
-        function _futureBoundBadge(token) {
-            const label = token?.readiness_label || 'Watching';
-            let palette = { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.28)' };
-            if (label === 'About to migrate') {
-                palette = { color: '#f97316', bg: 'rgba(249,115,22,0.14)', border: 'rgba(249,115,22,0.32)' };
-            } else if (label === 'Hot') {
-                palette = { color: '#ef4444', bg: 'rgba(239,68,68,0.14)', border: 'rgba(239,68,68,0.32)' };
-            } else if (label === 'Warm') {
-                palette = { color: '#f59e0b', bg: 'rgba(245,158,11,0.14)', border: 'rgba(245,158,11,0.32)' };
-            }
-            return `<span class="creator-tag" style="border-color:${palette.border};color:${palette.color};background:${palette.bg};font-size:10px;">${label}</span>`;
-        }
-
-        function renderFutureBound(tokens) {
-            const host = document.getElementById('future-bound-list');
-            if (!host) return;
-
-            if (!tokens || tokens.length === 0) {
-                host.innerHTML = `<div style="color:var(--text-secondary);font-size:12px;padding:8px 4px;line-height:1.4">No near-migration Pump.fun tokens right now.</div>`;
-                return;
-            }
-
-            host.innerHTML = tokens.map(token => {
-                const pct = token.migration_progress_pct || 0;
-                const isHot = pct >= 80;
-                const borderColor = pct >= 95 ? 'rgba(249,115,22,0.5)' : pct >= 80 ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.06)';
-                const bgColor = pct >= 95 ? 'rgba(249,115,22,0.07)' : pct >= 80 ? 'rgba(239,68,68,0.06)' : 'transparent';
-                const progressColor = pct >= 95 ? '#f97316' : pct >= 80 ? '#ef4444' : pct >= 60 ? '#f59e0b' : '#60a5fa';
-                const nameDisplay = token.symbol || token.name || _shortMint(token.mint);
-                const nameColor = pct >= 80 ? '#fff' : 'var(--text-primary)';
-                return `
-                <div style="padding:10px 8px;border-bottom:1px solid ${borderColor};background:${bgColor};display:flex;flex-direction:column;gap:6px;">
-                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-                        <div style="min-width:0;">
-                            <div style="color:${nameColor};font-weight:700;font-size:12px;line-height:1.2;word-break:break-word;" title="${token.name || token.symbol || token.mint}">${nameDisplay}</div>
-                            <div style="color:var(--text-secondary);font-size:11px;font-family:monospace;line-height:1.3;" title="${token.mint}">${_shortMint(token.mint)}</div>
-                        </div>
-                        ${_futureBoundBadge(token)}
-                    </div>
-                    <div style="display:flex;justify-content:flex-end;font-size:11px;color:var(--text-primary);font-weight:600;">${token.v_sol != null ? Number(token.v_sol).toFixed(1) + ' SOL' : '—'}</div>
-                    <div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;align-items:center;">
-                        <span style="color:var(--text-secondary);">Progress</span>
-                        <span style="color:${progressColor};font-weight:${isHot ? '700' : '400'};">${pct.toFixed(1)}%</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        async function loadFutureBound() {
-            const host = document.getElementById('future-bound-list');
-            if (!host) return;
-            try {
-                const response = await fetch(`/api/future-bound-tokens?_=${Date.now()}`, { cache: 'no-store' });
-                const data = await response.json();
-                renderFutureBound(data.tokens || []);
-            } catch (error) {
-                console.error('Error loading future bound tokens:', error);
-                host.innerHTML = `<div style="color:#ef4444;font-size:12px;padding:8px 4px;line-height:1.4">Failed to load Future Bound.</div>`;
-            }
         }
 
         // ---------------------------------------------------------------------------
@@ -4815,10 +4741,8 @@ function switchToTokensTab() {
             initializeSettings();          // fire-and-forget; do not block first table render
             loadIntelligenceSummary();     // fire-and-forget, no need to block token load
             await loadTokens();            // await so data-mint rows exist before SSE starts
-            await loadFutureBound();
             initDashboardPriceStream();    // Start SSE price stream
             setInterval(loadTokens, 30000);
-            setInterval(loadFutureBound, 30000);
 
 
             // Refresh Age and Peak Timing text without requiring a full table rebuild

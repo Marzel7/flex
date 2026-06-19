@@ -46,6 +46,10 @@ _DEFAULT_DB_PATH = os.path.join(_REPO_ROOT, "database", "flex_complete_database.
 # Database
 DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH))
 
+
+def _ui_recovery_mode_enabled() -> bool:
+    return os.environ.get("FLEX_UI_RECOVERY_MODE", "0").lower() in {"1", "true", "yes"}
+
 # Investigation archive DB — cold storage for funder_networks (moved out of the
 # hot DB). Investigation-only reader routes ATTACH this read-only and qualify
 # the table as arch.funder_networks. See scripts/archive_funder_networks.py.
@@ -229,7 +233,10 @@ def _ensure_schema():
                 print(f"[SCHEMA] note: {_e}")
     _conn.close()
 
-_ensure_schema()
+if _ui_recovery_mode_enabled():
+    print("[UI_RECOVERY] FLEX_UI_RECOVERY_MODE=1; skipping import-time schema/bootstrap writes")
+else:
+    _ensure_schema()
 
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -238,6 +245,18 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.jinja_env.auto_reload = True
 Compress(app)  # gzip all text/html and application/json responses automatically
 
+
+@app.before_request
+def _ui_recovery_read_only_guard():
+    """Keep Gunicorn/UI from acting as a writer during migration recovery."""
+    if not _ui_recovery_mode_enabled():
+        return
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        return jsonify({
+            "error": "UI recovery mode is read-only",
+            "mode": "FLEX_UI_RECOVERY_MODE",
+        }), 503
+
 from flask_sock import Sock as _Sock
 sock = _Sock(app)
 
@@ -245,7 +264,9 @@ sock = _Sock(app)
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # Initialize WATCHTOWER CREATE Interceptor if enabled (runs once on module import, works with Gunicorn)
-if os.environ.get("ENABLE_CREATE_INTERCEPTOR", "").lower() == "true":
+if _ui_recovery_mode_enabled():
+    print("[UI_RECOVERY] Skipping WATCHTOWER CREATE Interceptor startup", flush=True)
+elif os.environ.get("ENABLE_CREATE_INTERCEPTOR", "").lower() == "true":
     try:
         def _init_interceptor():
             time.sleep(2)  # Let DB settle
@@ -693,7 +714,9 @@ app.has_networks_release = None  # Set to True/False on first request
 # =========================================================================
 # WEBHOOK SYSTEM INITIALIZATION (M5)
 # =========================================================================
-if WEBHOOK_ENABLED:
+if WEBHOOK_ENABLED and _ui_recovery_mode_enabled():
+    print("[UI_RECOVERY] Skipping webhook system initialization", flush=True)
+elif WEBHOOK_ENABLED:
     try:
         print("[STARTUP_DIAG] init_webhook_system: begin", flush=True)
         init_webhook_system(app)
@@ -881,6 +904,11 @@ def _wt_startup_once():
     The threading.Lock guards within a single worker; table CREATE IF NOT EXISTS is idempotent.
     """
     global _wt_startup_done
+    if _ui_recovery_mode_enabled():
+        if not _wt_startup_done:
+            print("[UI_RECOVERY] Skipping Gunicorn Watchtower startup workers", flush=True)
+        _wt_startup_done = True
+        return
     if _wt_startup_done:
         return
     with _wt_startup_lock:

@@ -5066,21 +5066,31 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     def _token_exists_in_db(self, mint: str) -> bool:
         """
-        Check whether a token is already in a post-birth lifecycle stage.
+        Check whether a token's migration has already been persisted.
 
-        Pre-migration launch rows are inserted early with `lifecycle_stage='bonding_curve'`.
-        Those rows must still be allowed to flow through the later migration pipeline.
+        Birth/minimal rows can exist before migration_tx is written. Those rows must
+        continue through the migration path so _mark_token_migrated_in_db can persist
+        migration_tx, migrated_at, dex, and pool details.
         """
         try:
             conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
-            cursor.execute("SELECT lifecycle_stage FROM token_analysis WHERE mint = ?", (mint,))
+            cursor.execute(
+                """
+                SELECT lifecycle_stage, migration_tx, migrated_at
+                FROM token_analysis
+                WHERE mint = ?
+                """,
+                (mint,),
+            )
             result = cursor.fetchone()
             conn.close()
             if not result:
                 return False
-            lifecycle_stage = result[0]
-            return lifecycle_stage != 'bonding_curve'
+            lifecycle_stage, migration_tx, migrated_at = result
+            return bool(migration_tx) or (
+                lifecycle_stage == "migrated" and migrated_at is not None
+            )
         except Exception as e:
             log_print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
             return False
@@ -9616,8 +9626,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         else:
                             await self._mark_migration_inbox_retry(sig, "handle_migration did not complete")
                     except Exception as exc:
-                        await self._mark_migration_inbox_retry(sig, f"{type(exc).__name__}: {exc}")
-                        log_print(f"[MIGRATION_INBOX] ⚠ retry sig={sig[:16]}... error={type(exc).__name__}: {exc}", flush=True)
+                        if self._migration_inbox_already_persisted(sig):
+                            await self._mark_migration_inbox_processed(sig)
+                            log_print(
+                                f"[MIGRATION_INBOX] ✅ processed sig={sig[:16]}... "
+                                f"after {type(exc).__name__}",
+                                flush=True,
+                            )
+                        else:
+                            await self._mark_migration_inbox_retry(sig, f"{type(exc).__name__}: {exc}")
+                            log_print(f"[MIGRATION_INBOX] ⚠ retry sig={sig[:16]}... error={type(exc).__name__}: {exc}", flush=True)
             except Exception as exc:
                 log_print(f"[MIGRATION_INBOX] ⚠ worker error: {exc}", flush=True)
                 await asyncio.sleep(5)

@@ -863,8 +863,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._trading_sim_retry_timers: Dict[str, Any] = {}
 
         self._ensure_db()
-        self._normalize_existing_pumpfun_rows()
-        self._hydrate_bonding_curve_index()
+        if os.environ.get("LISTENER_DB_STARTUP_MAINTENANCE_ENABLED", "1") == "1":
+            self._normalize_existing_pumpfun_rows()
+        else:
+            log_print(
+                "[PREMIG_NORMALIZE] PARKED (LISTENER_DB_STARTUP_MAINTENANCE_ENABLED=0) — "
+                "live websocket capture has priority",
+                flush=True,
+            )
+        if os.environ.get("LISTENER_BONDING_INDEX_FULL_HYDRATE_ENABLED", "1") == "1":
+            self._hydrate_bonding_curve_index()
+        else:
+            log_print(
+                "[INIT] Bonding-curve full hydrate PARKED "
+                "(LISTENER_BONDING_INDEX_FULL_HYDRATE_ENABLED=0) — live websocket capture has priority",
+                flush=True,
+            )
         log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
         log_print(f"[INIT] 🔄 Pool detection retries enabled (max {self.pool_detection_max_retries} retries, {self.pool_detection_retry_delay}s delay)", flush=True)
@@ -887,22 +901,40 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.background_job_queue = asyncio.Queue()
         self.background_jobs_processing = False
         self._creator_funding_queue_wakeup = asyncio.Event()
-        asyncio.create_task(self._process_background_queue())
+        if os.environ.get("LISTENER_BACKGROUND_QUEUE_ENABLED", "1") == "1":
+            asyncio.create_task(self._process_background_queue())
+        else:
+            log_print("[INIT] Background queue PARKED (LISTENER_BACKGROUND_QUEUE_ENABLED=0)", flush=True)
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
         asyncio.create_task(self._cleanup_tx_cache_periodic())
-        asyncio.create_task(self._process_creator_resolution_queue_periodic())
-        asyncio.create_task(self._process_creator_funding_queue_periodic())
+        if os.environ.get("LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED", "1") == "1":
+            asyncio.create_task(self._process_creator_resolution_queue_periodic())
+        else:
+            log_print("[INIT] Creator resolution queue PARKED (LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0)", flush=True)
+        if os.environ.get("LISTENER_CREATOR_FUNDING_QUEUE_ENABLED", "1") == "1":
+            asyncio.create_task(self._process_creator_funding_queue_periodic())
+        else:
+            log_print("[INIT] Creator funding queue PARKED (LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0)", flush=True)
         # DISABLED: _periodic_cluster_rebuild reprocessed ~3000 creators every 10min (O(n) funding
         # walk + heavy super_clusters rewrite) — the listener's 113% CPU hog and a major live-db
         # write/lock-storm source. It's network-ANALYSIS, not needed for launch detection; the
         # 77s page loads were the live db starved by its writes. Re-enable if cluster analysis is
         # needed, ideally as a standalone off-peak job (not inline in the hot listener).
         # asyncio.create_task(self._periodic_cluster_rebuild())
-        asyncio.create_task(self._flush_portal_vsol_periodic())
-        asyncio.create_task(self._db_maintenance_periodic())
+        if os.environ.get("LISTENER_PORTAL_VSOL_FLUSH_ENABLED", "1") == "1":
+            asyncio.create_task(self._flush_portal_vsol_periodic())
+        else:
+            log_print("[INIT] Portal vSOL flush PARKED (LISTENER_PORTAL_VSOL_FLUSH_ENABLED=0)", flush=True)
+        if os.environ.get("LISTENER_DB_MAINTENANCE_ENABLED", "1") == "1":
+            asyncio.create_task(self._db_maintenance_periodic())
+        else:
+            log_print("[INIT] DB maintenance PARKED (LISTENER_DB_MAINTENANCE_ENABLED=0)", flush=True)
         # CORRECTNESS PATH: reconcile migrations the WS dropped during reconnect gaps
-        asyncio.create_task(self._migration_reconciler_loop())
+        if os.environ.get("LISTENER_MIGRATION_RECONCILER_ENABLED", "1") == "1":
+            asyncio.create_task(self._migration_reconciler_loop())
+        else:
+            log_print("[INIT] Migration reconciler PARKED (LISTENER_MIGRATION_RECONCILER_ENABLED=0)", flush=True)
         # OBSERVABILITY: snapshot DB-serializer metrics to disk so the API/dashboard can read the
         # listener's (the heavy writer's) real write load cross-process. Runs in a plain DAEMON
         # THREAD, not an asyncio task — the listener's event loop is heavily loaded and was starving
@@ -921,8 +953,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # === Initialize price worker with WebSocket for pool price streaming ===
         try:
-            from src.core.price_worker import get_price_worker
-            import os
             import sys
             from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
             _db_abs = os.path.abspath(self.db_path if hasattr(self, 'db_path') else 'database/flex_complete_database.db')
@@ -933,9 +963,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}", flush=True)
             log_print(f"[STARTUP] cwd={os.getcwd()}", flush=True)
             log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
-            self.price_worker = get_price_worker()
-            self.price_worker.start()  # Start background thread + WebSocket
-            log_print(f"[INIT] ✅ Price worker started pid={os.getpid()} worker=0x{id(self.price_worker):x}", flush=True)
+            if os.environ.get("LISTENER_PRICE_WORKER_ENABLED", "1") != "1":
+                self.price_worker = None
+                log_print(
+                    "[INIT] Price worker PARKED (LISTENER_PRICE_WORKER_ENABLED=0) — "
+                    "migration websocket startup has priority",
+                    flush=True,
+                )
+            else:
+                from src.core.price_worker import get_price_worker
+                self.price_worker = get_price_worker()
+                self.price_worker.start()  # Start background thread + WebSocket
+                log_print(f"[INIT] ✅ Price worker started pid={os.getpid()} worker=0x{id(self.price_worker):x}", flush=True)
         except Exception as e:
             log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
             self.price_worker = None
@@ -1795,44 +1834,45 @@ class PumpFunCurveListener(FastLaneDiscovery):
         migration_slot: Optional[int] = None,
     ) -> None:
         migrated_ts = int(migrated_at or time.time())
-        try:
-            with managed_db_connect(DB_PATH, timeout=30) as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    INSERT INTO token_analysis (
-                        mint, analyzed_at, created_at, source_platform,
-                        lifecycle_stage, migrated_at, migration_tx,
-                        dex, pumpswap_pool_address, pool_address, migration_slot, is_new
-                    ) VALUES (?, ?, ?, 'pumpfun', 'migrated', ?, ?, ?, ?, ?, ?, 1)
-                    ON CONFLICT(mint) DO UPDATE SET
-                        analyzed_at = excluded.analyzed_at,
-                        source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
-                        lifecycle_stage = 'migrated',
-                        migrated_at = COALESCE(token_analysis.migrated_at, excluded.migrated_at),
-                        migration_tx = COALESCE(excluded.migration_tx, token_analysis.migration_tx),
-                        dex = COALESCE(excluded.dex, token_analysis.dex),
-                        pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, token_analysis.pumpswap_pool_address),
-                        pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
-                        migration_slot = COALESCE(excluded.migration_slot, token_analysis.migration_slot),
-                        is_new = 1
-                    """,
-                    (
-                        mint,
-                        float(time.time()),
-                        migrated_ts,
-                        migrated_ts,
-                        migration_tx,
-                        dex,
-                        pool_address,
-                        pool_address,
-                        migration_slot,
-                    ),
-                )
-                conn.commit()
+        ok = await async_write_with_retry(
+            DB_PATH,
+            """
+            INSERT INTO token_analysis (
+                mint, analyzed_at, created_at, source_platform,
+                lifecycle_stage, migrated_at, migration_tx,
+                dex, pumpswap_pool_address, pool_address, migration_slot, is_new
+            ) VALUES (?, ?, ?, 'pumpfun', 'migrated', ?, ?, ?, ?, ?, ?, 1)
+            ON CONFLICT(mint) DO UPDATE SET
+                analyzed_at = excluded.analyzed_at,
+                source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
+                lifecycle_stage = 'migrated',
+                migrated_at = COALESCE(token_analysis.migrated_at, excluded.migrated_at),
+                migration_tx = COALESCE(excluded.migration_tx, token_analysis.migration_tx),
+                dex = COALESCE(excluded.dex, token_analysis.dex),
+                pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, token_analysis.pumpswap_pool_address),
+                pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
+                migration_slot = COALESCE(excluded.migration_slot, token_analysis.migration_slot),
+                is_new = 1
+            """,
+            (
+                mint,
+                float(time.time()),
+                migrated_ts,
+                migrated_ts,
+                migration_tx,
+                dex,
+                pool_address,
+                pool_address,
+                migration_slot,
+            ),
+            label="migration_mark_token_migrated",
+            max_attempts=10,
+            base_delay=0.5,
+        )
+        if ok:
             log_print(f"[DB] ✅ Marked token migrated: {mint[:16]}... dex={dex} tx={migration_tx[:20] if migration_tx else 'N/A'}...", flush=True)
-        except Exception as exc:
-            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc}", flush=True)
+        else:
+            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}... after retries", flush=True)
             return
 
         self._submit_auto_sim_buy_on_migration(
@@ -3753,6 +3793,34 @@ class PumpFunCurveListener(FastLaneDiscovery):
     def _ensure_db(self):
         conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
+
+        def ensure_migration_inbox_schema():
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS migration_inbox (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    signature TEXT UNIQUE NOT NULL,
+                    source TEXT,
+                    mint_hint TEXT,
+                    received_at INTEGER,
+                    status TEXT DEFAULT 'PENDING',
+                    attempts INTEGER DEFAULT 0,
+                    last_attempt_at INTEGER,
+                    last_error TEXT,
+                    processed_at INTEGER
+                )
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_migration_inbox_status ON migration_inbox(status, last_attempt_at, id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_migration_inbox_received_at ON migration_inbox(received_at)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_migration_inbox_processed_at ON migration_inbox(processed_at)")
+
+        # This table is on the critical path for not losing websocket receipts. Ensure it
+        # before any enrichment or broader startup schema work can block on SQLite locks.
+        ensure_migration_inbox_schema()
+        if os.environ.get("LISTENER_MINIMAL_DB_SCHEMA_ENABLED", "0") == "1":
+            conn.commit()
+            conn.close()
+            log_print("[DB] ✅ Minimal listener schema ensured (migration_inbox)", flush=True)
+            return
 
         # Post-migration token analysis with live on-chain price and market cap tracking
         cursor.execute("""
@@ -7258,61 +7326,30 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def _create_minimal_token_entry(self, mint: str):
         """Create a minimal token entry in database immediately when migration is detected"""
-        max_retries = 6
-        base_delay = 0.25
-
-        for attempt in range(max_retries):
-            conn = None
-            try:
-                # Write serialization is handled at the connection layer (TrackedConnection) — the
-                # INSERT below automatically acquires the global write lane through commit. No caller
-                # wrapping needed (and wrapping would double-acquire → deadlock).
-                conn = db_connect(DB_PATH, timeout=30)
-                conn.execute("PRAGMA busy_timeout=30000")
-                cursor = conn.cursor()
-
-                now = time.time()
-                cursor.execute("""
-                    INSERT INTO token_analysis (
-                        mint, created_at, analyzed_at,
-                        lifecycle_stage,
-                        rug_probability, risk_level, post_migration_coverage,
-                        rug_indicator, events_parsed
-                    ) VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)
-                    ON CONFLICT(mint) DO UPDATE SET
-                        created_at = COALESCE(token_analysis.created_at, excluded.created_at),
-                        analyzed_at = excluded.analyzed_at,
-                        lifecycle_stage = COALESCE(token_analysis.lifecycle_stage, excluded.lifecycle_stage)
-                """, (mint, now, now, 'migration_pending'))
-
-                conn.commit()
-                conn.close()
-                conn = None
-
-                log_print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
-                return
-
-            except sqlite3.OperationalError as e:
-                if conn is not None:
-                    try:
-                        conn.close()
-                    except Exception:
-                        pass
-                if "database is locked" in str(e).lower() and attempt < max_retries - 1:
-                    wait = base_delay * (2 ** attempt)
-                    log_print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
-                    await asyncio.sleep(wait)
-                    continue
-                log_print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                return
-            except Exception as e:
-                if conn is not None:
-                    try:
-                        conn.close()
-                    except Exception:
-                        pass
-                log_print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
-                return
+        now = time.time()
+        ok = await async_write_with_retry(
+            DB_PATH,
+            """
+            INSERT INTO token_analysis (
+                mint, created_at, analyzed_at,
+                lifecycle_stage,
+                rug_probability, risk_level, post_migration_coverage,
+                rug_indicator, events_parsed
+            ) VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+            ON CONFLICT(mint) DO UPDATE SET
+                created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                analyzed_at = excluded.analyzed_at,
+                lifecycle_stage = COALESCE(token_analysis.lifecycle_stage, excluded.lifecycle_stage)
+            """,
+            (mint, now, now, "migration_pending"),
+            label="migration_create_minimal_token",
+            max_attempts=10,
+            base_delay=0.5,
+        )
+        if ok:
+            log_print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+        else:
+            log_print(f"[DB_ERROR] Failed to create minimal token entry for {mint} after retries", flush=True)
 
     async def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
         """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
@@ -7805,18 +7842,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _broadcast_to_flask(_det_event)
 
             # Store migration TX signature (needed for retry discovery and analytics)
-            try:
-                conn = db_connect(DB_PATH, timeout=15)
-                cursor = conn.cursor()
-                cursor.execute(
-                    "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', "
-                    "migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), "
-                    "source_platform = COALESCE(source_platform, 'pumpfun'), "
-                    "migration_source = COALESCE(migration_source, ?) WHERE mint = ?",
-                    (signature, migrated_at_ts, source, mint)
-                )
-                conn.commit()
-                conn.close()
+            ok = await async_write_with_retry(
+                DB_PATH,
+                "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', "
+                "migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), "
+                "source_platform = COALESCE(source_platform, 'pumpfun'), "
+                "migration_source = COALESCE(migration_source, ?) WHERE mint = ?",
+                (signature, migrated_at_ts, source, mint),
+                label="migration_store_tx",
+                max_attempts=10,
+                base_delay=0.5,
+            )
+            if ok:
                 log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
                 _check_watchtower_migration(mint, migrated_at=migrated_at_ts, migration_tx=signature, source='migration_tx_store')
                 self._submit_auto_sim_buy_on_migration(
@@ -7836,8 +7873,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     except Exception as _e:
                         log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
                 _TOKEN_WORK_POOL.submit(_score_migrated_tx)
-            except Exception as e:
-                log_print(f"[DB] ⚠️  Failed to store migration TX: {e}", flush=True)
+            else:
+                log_print(f"[DB] ⚠️  Failed to store migration TX after retries: {signature[:20]}...", flush=True)
 
             # === NEW: Track token state (pending initially) ===
             current_state = self.token_states.get(mint)
@@ -9396,12 +9433,214 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception:
             pass
 
+    async def _enqueue_migration_inbox(self, signature: str, source: str, mint_hint: Optional[str] = None) -> bool:
+        """Durably record a migration receipt before any getTransaction enrichment."""
+        if not signature:
+            return False
+        now = int(time.time())
+        ok = await async_write_with_retry(
+            DB_PATH,
+            """
+            INSERT INTO migration_inbox (
+                signature, source, mint_hint, received_at, status, attempts, last_error
+            ) VALUES (?, ?, ?, ?, 'PENDING', 0, NULL)
+            ON CONFLICT(signature) DO UPDATE SET
+                source = COALESCE(migration_inbox.source, excluded.source),
+                mint_hint = COALESCE(NULLIF(excluded.mint_hint, ''), migration_inbox.mint_hint),
+                received_at = COALESCE(migration_inbox.received_at, excluded.received_at),
+                status = CASE
+                    WHEN migration_inbox.status = 'PROCESSED' THEN 'PROCESSED'
+                    ELSE 'PENDING'
+                END
+            """,
+            (signature, source, mint_hint or "", now),
+            label="migration_inbox_enqueue",
+            max_attempts=5,
+            base_delay=0.25,
+        )
+        if ok:
+            log_print(
+                f"[MIGRATION_INBOX] 📥 queued sig={signature[:16]}... source={source} "
+                f"mint_hint={mint_hint[:16] if mint_hint else ''}",
+                flush=True,
+            )
+        else:
+            log_print(f"[MIGRATION_INBOX] ❌ failed to queue sig={signature[:16]}...", flush=True)
+        return ok
+
+    def _migration_inbox_already_persisted(self, signature: str) -> bool:
+        try:
+            with managed_db_connect(DB_PATH, timeout=5, read_only=True) as conn:
+                row = conn.execute(
+                    "SELECT 1 FROM token_analysis WHERE migration_tx = ? LIMIT 1",
+                    (signature,),
+                ).fetchone()
+                return bool(row)
+        except Exception:
+            return False
+
+    async def _mark_migration_inbox_processed(self, signature: str) -> None:
+        now = int(time.time())
+        await async_write_with_retry(
+            DB_PATH,
+            """
+            UPDATE migration_inbox
+            SET status='PROCESSED', processed_at=?, last_error=NULL
+            WHERE signature=?
+            """,
+            (now, signature),
+            label="migration_inbox_processed",
+            max_attempts=5,
+            base_delay=0.25,
+        )
+
+    async def _mark_migration_inbox_retry(self, signature: str, error: str) -> None:
+        now = int(time.time())
+        await async_write_with_retry(
+            DB_PATH,
+            """
+            UPDATE migration_inbox
+            SET status='RETRY',
+                attempts=attempts + 1,
+                last_attempt_at=?,
+                last_error=?
+            WHERE signature=?
+            """,
+            (now, str(error)[:500], signature),
+            label="migration_inbox_retry",
+            max_attempts=5,
+            base_delay=0.25,
+        )
+
+    def _migration_inbox_due_rows(self, limit: int = 10) -> List[Dict[str, Any]]:
+        now = int(time.time())
+        rows: List[Dict[str, Any]] = []
+        try:
+            with managed_db_connect(DB_PATH, timeout=5, row_factory=sqlite3.Row, read_only=True) as conn:
+                for row in conn.execute(
+                    """
+                    SELECT id, signature, source, mint_hint, attempts, last_attempt_at, received_at
+                    FROM migration_inbox
+                    WHERE status IN ('PENDING', 'RETRY')
+                      AND (
+                            last_attempt_at IS NULL
+                            OR (? - last_attempt_at) >=
+                               CASE
+                                   WHEN attempts <= 0 THEN 0
+                                   WHEN attempts = 1 THEN 5
+                                   WHEN attempts = 2 THEN 15
+                                   WHEN attempts = 3 THEN 45
+                                   WHEN attempts = 4 THEN 120
+                                   ELSE 300
+                               END
+                          )
+                    ORDER BY received_at ASC, id ASC
+                    LIMIT ?
+                    """,
+                    (now, limit),
+                ):
+                    rows.append(dict(row))
+        except Exception as exc:
+            log_print(f"[MIGRATION_INBOX] ⚠ failed to read due rows: {exc}", flush=True)
+        return rows
+
+    def _migration_inbox_health(self) -> Dict[str, Any]:
+        now = int(time.time())
+        health = {
+            "inbox_pending": 0,
+            "inbox_retry": 0,
+            "inbox_processed_24h": 0,
+            "oldest_pending_age": None,
+            "last_received_at": None,
+            "last_processed_at": None,
+        }
+        try:
+            with managed_db_connect(DB_PATH, timeout=5, read_only=True) as conn:
+                row = conn.execute(
+                    """
+                    SELECT
+                        SUM(CASE WHEN status='PENDING' THEN 1 ELSE 0 END),
+                        SUM(CASE WHEN status='RETRY' THEN 1 ELSE 0 END),
+                        SUM(CASE WHEN status='PROCESSED' AND processed_at >= ? THEN 1 ELSE 0 END),
+                        MIN(CASE WHEN status IN ('PENDING','RETRY') THEN received_at ELSE NULL END),
+                        MAX(received_at),
+                        MAX(processed_at)
+                    FROM migration_inbox
+                    """,
+                    (now - 86400,),
+                ).fetchone()
+            if row:
+                health["inbox_pending"] = int(row[0] or 0)
+                health["inbox_retry"] = int(row[1] or 0)
+                health["inbox_processed_24h"] = int(row[2] or 0)
+                health["oldest_pending_age"] = (now - int(row[3])) if row[3] else None
+                health["last_received_at"] = int(row[4]) if row[4] else None
+                health["last_processed_at"] = int(row[5]) if row[5] else None
+        except Exception as exc:
+            health["error"] = str(exc)[:200]
+        return health
+
+    async def _migration_inbox_worker(self) -> None:
+        log_print("[MIGRATION_INBOX] worker started", flush=True)
+        base58_chars = set("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
+        while True:
+            try:
+                due = self._migration_inbox_due_rows(limit=5)
+                if not due:
+                    await asyncio.sleep(2)
+                    continue
+                for row in due:
+                    sig = str(row.get("signature") or "")
+                    source = str(row.get("source") or "INBOX")
+                    if not sig:
+                        continue
+                    if len(sig) < 80 or len(sig) > 100 or any(ch not in base58_chars for ch in sig):
+                        await self._mark_migration_inbox_retry(sig, "invalid or truncated migration signature")
+                        log_print(f"[MIGRATION_INBOX] ⚠ invalid signature sig={sig[:16]}... marked RETRY", flush=True)
+                        continue
+                    if self._migration_inbox_already_persisted(sig):
+                        await self._mark_migration_inbox_processed(sig)
+                        log_print(f"[MIGRATION_INBOX] ✅ already persisted sig={sig[:16]}...", flush=True)
+                        continue
+                    if sig in self.processing_migrations:
+                        continue
+                    try:
+                        log_print(f"[MIGRATION_INBOX] ▶ processing sig={sig[:16]}... attempts={row.get('attempts') or 0}", flush=True)
+                        completed = await asyncio.wait_for(
+                            self.handle_migration(sig, [], source=f"{source}_INBOX"),
+                            timeout=120,
+                        )
+                        if completed or self._migration_inbox_already_persisted(sig):
+                            await self._mark_migration_inbox_processed(sig)
+                            log_print(f"[MIGRATION_INBOX] ✅ processed sig={sig[:16]}...", flush=True)
+                        else:
+                            await self._mark_migration_inbox_retry(sig, "handle_migration did not complete")
+                    except Exception as exc:
+                        await self._mark_migration_inbox_retry(sig, f"{type(exc).__name__}: {exc}")
+                        log_print(f"[MIGRATION_INBOX] ⚠ retry sig={sig[:16]}... error={type(exc).__name__}: {exc}", flush=True)
+            except Exception as exc:
+                log_print(f"[MIGRATION_INBOX] ⚠ worker error: {exc}", flush=True)
+                await asyncio.sleep(5)
+
+    async def _migration_inbox_health_snapshot_loop(self) -> None:
+        path = os.path.join(os.path.dirname(__file__), "../../logs/migration_inbox_health.json")
+        while True:
+            try:
+                data = self._migration_inbox_health()
+                tmp = path + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    json.dump(data, f)
+                os.replace(tmp, path)
+            except Exception:
+                pass
+            await asyncio.sleep(15)
+
     async def handle_migration(self, signature: str, logs: list, source: str = "WEBSOCKET"):
         """Process detected migration. `source` (WEBSOCKET fast-path vs RECONCILER correctness-path)
         is threaded EXPLICITLY into _process_migration_with_mint — no shared instance var — so
         concurrent WS+reconciler processing can't mislabel migration_source (the burst race)."""
         if signature in self.processing_migrations or signature in self.completed_migrations:
-            return
+            return signature in self.completed_migrations or self._migration_inbox_already_persisted(signature)
 
         self.processing_migrations.add(signature)
 
@@ -9469,7 +9708,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 if signature not in self.tx_cache_pending_retries:
                     task = asyncio.create_task(delayed_mint_recheck())
                     self.tx_cache_pending_retries[signature] = task
-                return
+                return False
 
             # Mint found immediately - continue with normal pipeline
             await self._process_migration_with_mint(signature, logs, mint, tx_data, source=source)
@@ -9479,11 +9718,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
             pending = self.tx_cache_pending_retries.pop(signature, None)
             if pending and not pending.done():
                 pending.cancel()
+            return True
 
         except Exception as e:
             log_print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback
             traceback.print_exc()
+            return False
         finally:
             if signature in self.completed_migrations:
                 self.processing_migrations.discard(signature)
@@ -9750,11 +9991,83 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 1.5, 60)
 
+    async def listen_pumpportal_migration_websocket(self):
+        """DEDICATED migration capture — subscribeMigration ONLY, on its own PumpPortal connection.
+
+        Migration messages are SPARSE and CRITICAL; trade messages are NOISY and optional. Sharing
+        one connection meant the 200× subscribeTokenTrade flood (and PumpPortal closing the
+        over-subscribed socket) starved/dropped the rare migration events — the listener captured
+        0 for 23h while a clean migration-only standalone caught them fine. This connection does
+        NOTHING but subscribeMigration → handle_migration, so it stays stable and low-volume. The
+        noisy births/trades live on listen_pumpportal_websocket; separate failure domains.
+        """
+        PUMPPORTAL_WS = "wss://pumpportal.fun/api/data"
+        reconnect_delay = 5
+        # live migration-WS health metrics (surfaced for monitoring)
+        self.migration_ws_connected = False
+        self.migration_ws_reconnects = getattr(self, "migration_ws_reconnects", 0)
+        self.migration_ws_last_msg_at = getattr(self, "migration_ws_last_msg_at", 0.0)
+        self.migration_ws_migrations_seen = getattr(self, "migration_ws_migrations_seen", 0)
+
+        while True:
+            try:
+                async with websockets.connect(
+                    PUMPPORTAL_WS,
+                    ping_interval=float(os.environ.get("PUMPPORTAL_PING_INTERVAL", "20")),
+                    ping_timeout=float(os.environ.get("PUMPPORTAL_PING_TIMEOUT", "20")),
+                    close_timeout=10,
+                    max_size=10 * 1024 * 1024,
+                ) as ws:
+                    self.migration_ws_connected = True
+                    reconnect_delay = 5
+                    await ws.send(json.dumps({"method": "subscribeMigration"}))
+                    log_print("[PUMPPORTAL_MIG] ✓ Connected — subscribeMigration (dedicated)", flush=True)
+
+                    while True:
+                        # No 60s recv-timeout reconnect here: migrations are sparse (minutes between
+                        # bursts); WS pings keep the connection alive, so a quiet spell is NOT a dead
+                        # connection. recv blocks until a message or a real close.
+                        msg = await ws.recv()
+                        self.migration_ws_last_msg_at = time.time()
+                        try:
+                            data = json.loads(msg)
+                        except Exception:
+                            continue
+                        # ignore the subscribe-confirmation frame ("Subscribed to 'migration' events.")
+                        if "message" in data and "txType" not in data:
+                            continue
+                        tx_type = data.get("txType")
+                        sig = data.get("signature", "")
+                        mint = data.get("mint", "")
+                        try:
+                            record_wss(f"pumpportal_mig_{tx_type or 'other'}", "pumpfun_curve_listener",
+                                       msg_count=1, est_bytes=len(msg))
+                        except Exception:
+                            pass
+                        # PumpPortal sends txType='migrate' (accept 'migration' too for safety).
+                        if tx_type in ("migrate", "migration") and sig:
+                            if sig not in self.completed_migrations:
+                                self.migration_ws_migrations_seen += 1
+                                log_print(f"[PUMPPORTAL_MIG] 🚀 Migration: {mint[:16]}… sig={sig[:16]}… "
+                                          f"(#{self.migration_ws_migrations_seen})", flush=True)
+                                await self._enqueue_migration_inbox(sig, "PUMPPORTAL", mint_hint=mint)
+            except Exception as e:
+                self.migration_ws_connected = False
+                self.migration_ws_reconnects += 1
+                # Log the REAL failure — the old combined handler logged an empty 'Connection error:'.
+                _code = getattr(e, "code", None)
+                _reason = getattr(e, "reason", None)
+                log_print(f"[PUMPPORTAL_MIG] ⚠ WS closed: {type(e).__name__}: {e!r} "
+                          f"code={_code} reason={_reason} — reconnect #{self.migration_ws_reconnects} "
+                          f"in {reconnect_delay}s", flush=True)
+            await asyncio.sleep(reconnect_delay)
+            reconnect_delay = min(reconnect_delay * 1.5, 60)
+
     async def listen_pumpportal_websocket(self):
         """
         Single PumpPortal WSS connection replacing all Helius pump.fun subscriptions:
           - subscribeNewToken  → handle_birth (no RPC getTransaction needed)
-          - subscribeMigration → handle_migration
+          - subscribeMigration → handle_migration  (MOVED to listen_pumpportal_migration_websocket)
           - subscribeTokenTrade on near-complete tokens → handle_migration when vSol >= threshold
 
         Zero Helius WSS credits consumed for pump.fun events.
@@ -9786,8 +10099,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     log_print("[PUMPPORTAL] ✓ Connected", flush=True)
 
                     await ws.send(json.dumps({"method": "subscribeNewToken"}))
-                    await ws.send(json.dumps({"method": "subscribeMigration"}))
-                    log_print("[PUMPPORTAL] Subscribed to newToken + migration", flush=True)
+                    # subscribeMigration is now on its OWN dedicated connection
+                    # (listen_pumpportal_migration_websocket) — sparse/critical migrations must not
+                    # share a failure domain with the noisy trade flood that closes this socket.
+                    log_print("[PUMPPORTAL] Subscribed to newToken (+ trade subs below)", flush=True)
 
                     # Seed trade subscriptions for recently active bonding curve tokens
                     # so we get vSol updates immediately without waiting for new births
@@ -9922,7 +10237,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 error_str = str(e).lower()
                 if "close frame" not in error_str:
-                    log_print(f"[PUMPPORTAL] ⚠ Connection error: {e} — retrying in {reconnect_delay}s", flush=True)
+                    # repr + type + close code/reason — the old `{e}` logged an empty string,
+                    # hiding the real failure (PumpPortal closing the over-subscribed socket).
+                    _code = getattr(e, "code", None); _reason = getattr(e, "reason", None)
+                    log_print(f"[PUMPPORTAL] ⚠ WS closed: {type(e).__name__}: {e!r} "
+                              f"code={_code} reason={_reason} — retrying in {reconnect_delay}s", flush=True)
             await asyncio.sleep(reconnect_delay)
             reconnect_delay = min(reconnect_delay * 1.5, 60)
 
@@ -10404,74 +10723,109 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def listen(self):
         """Main entry point - start WebSocket listener with live price updater"""
-        # ENABLED: Price updater is now ON
-        PRICE_UPDATER_ENABLED = True
+        PRICE_UPDATER_ENABLED = os.environ.get("LISTENER_LIVE_PRICE_UPDATER_ENABLED", "1") == "1"
 
         if PRICE_UPDATER_ENABLED:
             # Start live price updater in background
             asyncio.create_task(self.update_live_prices_background())
             log_print("[LISTENER] ✅ Price updater started", flush=True)
         else:
-            log_print("[LISTENER] ⏸ Price updater disabled (HARDCODED OFF)", flush=True)
+            log_print("[LISTENER] Price updater PARKED (LISTENER_LIVE_PRICE_UPDATER_ENABLED=0)", flush=True)
 
         # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
         log_print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
 
+        asyncio.create_task(self._migration_inbox_worker())
+        asyncio.create_task(self._migration_inbox_health_snapshot_loop())
+        log_print("[LISTENER] ✅ Migration inbox worker started", flush=True)
+
         # Start creator activity worker
-        try:
-            from src.creators.repository import CreatorRepository
-            from src.creators.worker import CreatorActivityWorker
-            from src.creators.baseline import CreatorBaselineScanner
-            from src.creators.helius_watch import register_creator_address
-            from src.creators.service import restore_creator_watches, enqueue_stale_creator_reconciles
+        if os.environ.get("LISTENER_CREATOR_ACTIVITY_ENABLED", "1") != "1":
+            log_print("[LISTENER] Creator activity worker PARKED (LISTENER_CREATOR_ACTIVITY_ENABLED=0)", flush=True)
+        else:
+            try:
+                from src.creators.repository import CreatorRepository
+                from src.creators.worker import CreatorActivityWorker
+                from src.creators.baseline import CreatorBaselineScanner
+                from src.creators.helius_watch import register_creator_address
+                from src.creators.service import restore_creator_watches, enqueue_stale_creator_reconciles
 
-            _creator_lock = asyncio.Lock()
-            _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
-            await _creator_repo.ensure_schema()
+                _creator_lock = asyncio.Lock()
+                _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
+                await _creator_repo.ensure_schema()
 
-            _scanner = CreatorBaselineScanner(
-                background_rpc_fn=self.call_background_rpc,
-                repo=_creator_repo,
-            )
-            _creator_worker = CreatorActivityWorker(
-                _creator_repo,
-                run_baseline_scan_fn=_scanner.run_baseline_scan,
-                get_signatures_fn=_scanner.get_signatures,
-                process_signature_fn=_scanner.process_signature,
-            )
-            asyncio.create_task(_creator_worker.run())
-            log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
+                _scanner = CreatorBaselineScanner(
+                    background_rpc_fn=self.call_background_rpc,
+                    repo=_creator_repo,
+                )
+                _creator_worker = CreatorActivityWorker(
+                    _creator_repo,
+                    run_baseline_scan_fn=_scanner.run_baseline_scan,
+                    get_signatures_fn=_scanner.get_signatures,
+                    process_signature_fn=_scanner.process_signature,
+                )
+                asyncio.create_task(_creator_worker.run())
+                log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
 
-            # Re-register all creator watches after restart (marks stale, then re-registers).
-            asyncio.create_task(
-                restore_creator_watches(repo=_creator_repo, register_webhook_fn=register_creator_address)
-            )
+                # Re-register all creator watches after restart (marks stale, then re-registers).
+                asyncio.create_task(
+                    restore_creator_watches(repo=_creator_repo, register_webhook_fn=register_creator_address)
+                )
 
-            # Periodic stale-reconcile scheduler: every 10 minutes.
-            async def _stale_reconcile_loop():
-                while True:
-                    await asyncio.sleep(600)
-                    try:
-                        n = await enqueue_stale_creator_reconciles(repo=_creator_repo)
-                        if n:
-                            log_print(f"[LISTENER] Enqueued {n} stale creator reconciles", flush=True)
-                    except Exception as exc:
-                        log_print(f"[LISTENER] ⚠ stale reconcile loop error: {exc}", flush=True)
+                # Periodic stale-reconcile scheduler: every 10 minutes.
+                async def _stale_reconcile_loop():
+                    while True:
+                        await asyncio.sleep(600)
+                        try:
+                            n = await enqueue_stale_creator_reconciles(repo=_creator_repo)
+                            if n:
+                                log_print(f"[LISTENER] Enqueued {n} stale creator reconciles", flush=True)
+                        except Exception as exc:
+                            log_print(f"[LISTENER] ⚠ stale reconcile loop error: {exc}", flush=True)
 
-            asyncio.create_task(_stale_reconcile_loop())
+                asyncio.create_task(_stale_reconcile_loop())
 
-        except Exception as e:
-            log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
+            except Exception as e:
+                log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
 
         # PumpPortal WSS handles births, migrations, and near-complete curve tracking.
         # listen_pumpswap_websocket detects PumpSwap pool creation (migrations) via Helius logsSubscribe.
         # listen_pumpportal_websocket handles pump.fun births via PumpPortal WSS (free, no Helius cost).
         # drain_webhook_birth_queue is a fallback for Helius birth webhook delivery.
-        await asyncio.gather(
+        # DEDICATED migration capture as its OWN independent task (not buried in the gather, so a
+        # thrash/reconnect in the noisy combined connection can't affect its scheduling). Guarded
+        # so it never dies silently — restart the coroutine if it ever returns/raises.
+        async def _migration_ws_supervisor():
+            while True:
+                try:
+                    log_print("[PUMPPORTAL_MIG] supervisor starting migration WS task", flush=True)
+                    await self.listen_pumpportal_migration_websocket()
+                except Exception as _e:
+                    log_print(f"[PUMPPORTAL_MIG] supervisor caught: {type(_e).__name__}: {_e!r} — restarting in 5s", flush=True)
+                await asyncio.sleep(5)
+        asyncio.create_task(_migration_ws_supervisor())
+
+        main_tasks = [
             self.listen_pumpswap_websocket(),
-            self.listen_pumpportal_websocket(),
-            self.drain_webhook_birth_queue(),
-        )
+        ]
+        if os.environ.get("LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED", "1") == "1":
+            main_tasks.append(self.drain_webhook_birth_queue())
+        else:
+            log_print(
+                "[LISTENER] Webhook birth queue drainer PARKED "
+                "(LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED=0)",
+                flush=True,
+            )
+        if os.environ.get("LISTENER_PUMPPORTAL_BIRTHS_ENABLED", "1") == "1":
+            main_tasks.append(self.listen_pumpportal_websocket())  # births + trades (noisy)
+        else:
+            log_print(
+                "[LISTENER] PumpPortal birth/trade socket PARKED "
+                "(LISTENER_PUMPPORTAL_BIRTHS_ENABLED=0); births stay on API/webhook path",
+                flush=True,
+            )
+
+        await asyncio.gather(*main_tasks)
 
 
 _listener_singleton: Optional["PumpFunCurveListener"] = None

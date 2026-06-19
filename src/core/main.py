@@ -1892,7 +1892,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
 
 
 def get_recent_live_launch_tokens(limit: int = 20) -> List[Dict]:
-    """Return the newest token_analysis rows with minimal joins and no feed filtering."""
+    """Return newest migrated token_analysis rows with minimal joins and no feed filtering."""
     conn = None
     try:
         conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=10)
@@ -1925,6 +1925,10 @@ def get_recent_live_launch_tokens(limit: int = 20) -> List[Dict]:
                 NULL AS token_name
             FROM token_analysis ta
             WHERE ta.mint IS NOT NULL
+              AND (
+                  ta.migration_tx IS NOT NULL
+                  OR ta.lifecycle_stage = 'migrated'
+              )
             ORDER BY ta.rowid DESC
             LIMIT ?
             """,

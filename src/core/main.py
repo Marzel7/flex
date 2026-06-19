@@ -251,6 +251,8 @@ def _ui_recovery_read_only_guard():
     """Keep Gunicorn/UI from acting as a writer during migration recovery."""
     if not _ui_recovery_mode_enabled():
         return
+    if request.path == "/api/webhook/pumpfun-birth" and request.method == "POST":
+        return
     if request.method not in ("GET", "HEAD", "OPTIONS"):
         return jsonify({
             "error": "UI recovery mode is read-only",

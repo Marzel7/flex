@@ -2577,7 +2577,8 @@
     <script>
         async function loadTokens() {
             try {
-                const response = await fetch(`/api/migrated-tokens?_=${Date.now()}`, { cache: 'no-store' });
+                window.RECENT_ONLY_MODE = true;
+                const response = await fetch(`/api/migrated-tokens?recent=1&limit=20&_=${Date.now()}`, { cache: 'no-store' });
                 const data = await response.json();
                 console.log('Loaded tokens:', data.tokens?.length || 0, 'tokens');
                 console.log('Token data keys:', Object.keys(data));
@@ -2590,9 +2591,9 @@
                     return;
                 }
 
-                // Extract unique creator addresses. Render immediately with cached
-                // enrichment, then hydrate creator/network metadata in the background.
-                const creators = [...new Set(data.tokens.map(t => t.creator).filter(c => c))];
+                // Live Launches is intentionally raw: newest 20 rows, no feed filtering
+                // or background enrichment calls.
+                const creators = [];
                 window._creatorDataCache = window._creatorDataCache || {};
                 window.infraMapping = window.infraMapping || { infrastructure: {}, cex: {} };
                 const creatorData = window._creatorDataCache;
@@ -2604,31 +2605,7 @@
                 }));
                 seedNewPinsFromServer(enrichedTokens);
 
-                Object.keys(_newPinStore.all()).forEach((mint) => {
-                    const liveToken = enrichedTokens.find(t => t.mint === mint);
-                    if (!liveToken || !isMainFeedEligible(liveToken)) {
-                        _newPinStore.expire(mint);
-                        document.querySelector(`tr[data-mint="${mint}"]`)?.remove();
-                    }
-                });
-
-                // Filter out tokens below MIN_LIVE_MARKET_CAP — must match backend threshold
-                // so every visible token is guaranteed to receive SSE/WS live updates.
-                const minMarketCap = 5000;
-                const now = Math.floor(Date.now() / 1000);
-                const filteredTokens = enrichedTokens.filter(t => {
-                    // Always keep NEW-pinned tokens regardless of MC
-                    if (_newPinStore.isNew(t.mint)) return true;
-                    if (!isMainFeedEligible(t)) return false;
-                    const tokenAgeSeconds = now - new Date(t.created_at).getTime() / 1000;
-                    const isRecentToken = tokenAgeSeconds < 3600;
-                    return t.market_cap_current >= minMarketCap || !t.market_cap_current || isRecentToken;
-                });
-
-                // Display top 25, but always include NEW-pinned tokens even if beyond 25
-                const pinnedInList = filteredTokens.filter(t => _newPinStore.isNew(t.mint));
-                const nonPinned = filteredTokens.filter(t => !_newPinStore.isNew(t.mint));
-                const displayTokens = [...pinnedInList, ...nonPinned].slice(0, 25 + pinnedInList.length);
+                const displayTokens = enrichedTokens.slice(0, 20);
                 const creatorDataSignature = JSON.stringify(
                     displayTokens.map(t => [
                         t.mint,
@@ -2654,22 +2631,6 @@
                 window.currentTokens = displayTokens;
                 window._lastCreatorDataSignature = creatorDataSignature;
 
-                // Register all displayed tokens for price tracking
-                const mints = displayTokens.map(t => t.mint).filter(m => m);
-
-                if (mints.length > 0) {
-                    fetch('/api/price/batch/register', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({mints: mints})
-                    }).then(r => r.json()).then(res => {
-                        console.log(`Registered ${res.registered}/${res.total} tokens with market cap >= $${minMarketCap}`);
-                    }).catch(e => {
-                        console.error('Error registering tokens for price tracking:', e);
-                    });
-                }
-
-
                 if (tokensChanged || creatorDataChanged) {
                     console.log(`[TABLE] full_rebuild reason=${tokensChanged ? 'mint_set_changed' : 'creator_data_changed'}`);
                     window._lastTokenList = displayTokens;
@@ -2677,53 +2638,6 @@
                 } else {
                     console.log(`[TABLE] patch_only reason=same_mint_set`);
                     displayTokens.forEach(token => updateOrInsertRow(token));
-                }
-
-                // Boost visible tokens so worker prioritises them for ~30s
-                if (mints.length > 0) {
-                    fetch('/api/boost-tokens', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({mints, ttl: 30})
-                    }).catch(() => {});
-                }
-
-                if (creators.length > 0 && !window._creatorBatchHydrationInFlight) {
-                    window._creatorBatchHydrationInFlight = fetch('/api/creators-batch', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({"creators": creators})
-                    })
-                        .then(r => r.ok ? r.json() : {})
-                        .then(batchData => {
-                            window._creatorDataCache = { ...(window._creatorDataCache || {}), ...batchData };
-                            const refreshed = (window.currentTokens || []).map(token => ({
-                                ...token,
-                                creatorData: window._creatorDataCache[token.creator] || token.creatorData || {}
-                            }));
-                            window.currentTokens = refreshed;
-                            window._lastTokenList = refreshed;
-                            buildTable(refreshed);
-                        })
-                        .catch(e => console.error('Error loading creator data:', e))
-                        .finally(() => {
-                            window._creatorBatchHydrationInFlight = null;
-                        });
-                }
-
-                if (!window._infraMappingLoaded && !window._infraMappingInFlight) {
-                    window._infraMappingInFlight = fetch('/api/infrastructure-mapping')
-                        .then(r => r.ok ? r.json() : null)
-                        .then(mapping => {
-                            if (!mapping) return;
-                            window.infraMapping = mapping;
-                            window._infraMappingLoaded = true;
-                            _rebuildVisibleTable();
-                        })
-                        .catch(() => console.log('Infrastructure mapping not available'))
-                        .finally(() => {
-                            window._infraMappingInFlight = null;
-                        });
                 }
 
             } catch (error) {
@@ -3262,16 +3176,18 @@
             window._pinnedTokenCache = [..._cachedByMint.values()];
 
             const pinnedExtra = [];
-            Object.entries(_newPinStore.all()).forEach(([mint, pin]) => {
-                if (!tokenMints.has(mint)) {
-                    const cached = _cachedByMint.get(mint);
-                    if (cached) {
-                        pinnedExtra.push({ ...cached, _pinned: true, _newUntil: pin.newUntil });
-                    } else {
-                        pinnedExtra.push({ mint, _pinned: true, _newUntil: pin.newUntil });
+            if (!window.RECENT_ONLY_MODE) {
+                Object.entries(_newPinStore.all()).forEach(([mint, pin]) => {
+                    if (!tokenMints.has(mint)) {
+                        const cached = _cachedByMint.get(mint);
+                        if (cached) {
+                            pinnedExtra.push({ ...cached, _pinned: true, _newUntil: pin.newUntil });
+                        } else {
+                            pinnedExtra.push({ mint, _pinned: true, _newUntil: pin.newUntil });
+                        }
                     }
-                }
-            });
+                });
+            }
 
             const allTokens = [...tokens, ...pinnedExtra];
 
@@ -3293,13 +3209,19 @@
                     : String(bVal).localeCompare(String(aVal));
             };
 
-            const pinned = allTokens.filter(t => _newPinStore.isNew(t.mint));
-            const rest   = allTokens.filter(t => !_newPinStore.isNew(t.mint));
-            // Sort pinned by arrival order (pinRank, ascending) — NEVER changes after first pin
-            pinned.sort((a, b) => _newPinStore.pinRank(a.mint) - _newPinStore.pinRank(b.mint));
-            rest.sort(normalSort);
-            const sortedTokens = [...pinned, ...rest];
-            const firstRestIdx = pinned.length; // index where live tokens begin
+            let sortedTokens;
+            let firstRestIdx = 0;
+            if (window.RECENT_ONLY_MODE) {
+                sortedTokens = allTokens.slice(0, 20);
+            } else {
+                const pinned = allTokens.filter(t => _newPinStore.isNew(t.mint));
+                const rest   = allTokens.filter(t => !_newPinStore.isNew(t.mint));
+                // Sort pinned by arrival order (pinRank, ascending) — NEVER changes after first pin
+                pinned.sort((a, b) => _newPinStore.pinRank(a.mint) - _newPinStore.pinRank(b.mint));
+                rest.sort(normalSort);
+                sortedTokens = [...pinned, ...rest];
+                firstRestIdx = pinned.length; // index where live tokens begin
+            }
 
             // ── Ensure table shell exists ─────────────────────────────────────
             let container = document.getElementById('tokens-container');

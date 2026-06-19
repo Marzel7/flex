@@ -1891,6 +1891,124 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
         return []
 
 
+def get_recent_live_launch_tokens(limit: int = 20) -> List[Dict]:
+    """Return the newest token_analysis rows with minimal joins and no feed filtering."""
+    conn = None
+    try:
+        conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True, timeout=10)
+        conn.execute("PRAGMA busy_timeout=10000")
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT
+                ta.mint,
+                ta.analyzed_at,
+                ta.created_at,
+                ta.rug_probability,
+                ta.risk_level,
+                ta.price_current,
+                ta.price_highest,
+                ta.market_cap_current,
+                ta.market_cap_highest,
+                ta.market_cap_highest_at,
+                ta.rug_indicator,
+                ta.earliest_tx_creator,
+                ta.pf_ws_creator,
+                ta.lifecycle_stage,
+                ta.migrated_at,
+                ta.dex,
+                ta.source_platform,
+                ta.is_new,
+                ta.pumpswap_pool_address,
+                ta.pool_address,
+                NULL AS token_symbol,
+                NULL AS token_name
+            FROM token_analysis ta
+            WHERE ta.mint IS NOT NULL
+            ORDER BY ta.rowid DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        tokens = []
+        for row in rows:
+            created_at = row["created_at"]
+            migrated_at = row["migrated_at"]
+            tokens.append({
+                "mint": row["mint"],
+                "analyzed_at": row["analyzed_at"],
+                "created_at": created_at,
+                "rug_probability": row["rug_probability"] or 0,
+                "risk_level": row["risk_level"],
+                "total_txs": 0,
+                "total_events": 0,
+                "coverage": 0,
+                "price_current": row["price_current"],
+                "price_highest": row["price_highest"],
+                "rug_indicator": row["rug_indicator"],
+                "creator": row["earliest_tx_creator"] or row["pf_ws_creator"] or None,
+                "creator_is_blocked": False,
+                "network_risk": False,
+                "connected_malicious_count": 0,
+                "creator_infra_tags": [],
+                "top_funder": None,
+                "funding_checked": False,
+                "funding_queued": False,
+                "funding_progress": {
+                    "status": "skipped",
+                    "progress_percent": 0,
+                    "funder_count": 0,
+                    "sources_extracted": 0,
+                    "completion_ratio": "0/0",
+                },
+                "network_name": None,
+                "network_id": None,
+                "cluster_id": None,
+                "cluster_name": None,
+                "cluster_risk_multiplier": 1.0,
+                "atomic_network_name": None,
+                "atomic_network_tier": None,
+                "atomic_network_is_cex": False,
+                "lifecycle_stage": row["lifecycle_stage"] or "unknown",
+                "migrated_at": migrated_at,
+                "dex": row["dex"] or None,
+                "source_platform": row["source_platform"] or None,
+                "db_is_new": bool(row["is_new"]) if row["is_new"] is not None else False,
+                "pool_address": row["pumpswap_pool_address"] or row["pool_address"] or None,
+                "pumpswap_pool_address": row["pumpswap_pool_address"] or row["pool_address"] or None,
+                "snap_age": 99999,
+                "data_freshness_seconds": None,
+                "pool_quote_liquidity": None,
+                "liquidity_removed": False,
+                "liquidity_removed_at": None,
+                "is_low_liquidity": False,
+                "symbol": row["token_symbol"] or None,
+                "name": row["token_name"] or None,
+                "is_self_funding": False,
+                "self_funding_pct": 0,
+                "coordinated_count": 0,
+                "in_farm_cluster": 0,
+                "watchtower_related": False,
+                "watchtower_label": None,
+                "market_cap_current": row["market_cap_current"],
+                "market_cap_highest": row["market_cap_highest"],
+                "market_cap_highest_at": row["market_cap_highest_at"],
+                "peak_time_seconds": None,
+                "is_new": False,
+                "token_class": None,
+            })
+        return tokens
+    except Exception as e:
+        print(f"[DB] Error fetching recent live launch tokens: {e}", flush=True)
+        return []
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
 def get_future_bound_tokens(limit: int = 20) -> List[Dict]:
     """Get near-graduation PumpFun tokens from PumpPortal real-time vSol tracking."""
     import json as _json
@@ -9734,6 +9852,16 @@ def _refresh_migrated_tokens_cache():
 def api_migrated_tokens():
     """Get all migrated tokens with analysis data"""
     start = time.perf_counter()
+    if request.args.get("recent") == "1":
+        limit = min(max(request.args.get("limit", default=20, type=int) or 20, 1), 50)
+        tokens = get_recent_live_launch_tokens(limit=limit)
+        response = jsonify({'tokens': tokens})
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        print(f"[TIMING] /api/migrated-tokens recent=1 tokens={len(tokens)} took {time.perf_counter() - start:.3f}s", flush=True)
+        return response
+
     cached = _migrated_tokens_cache
     stale = cached["tokens"] is None or (time.time() - cached["at"]) > _MIGRATED_TOKENS_TTL
     if cached["tokens"] is None:

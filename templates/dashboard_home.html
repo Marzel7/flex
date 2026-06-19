@@ -2612,9 +2612,11 @@
                     }
                 });
 
-                // Filter out tokens below MIN_LIVE_MARKET_CAP — must match backend threshold
-                // so every visible token is guaranteed to receive SSE/WS live updates.
-                const minMarketCap = 5000;
+                // Client-side floor — must match the BACKEND live-launches floor
+                // (LIVE_LAUNCHES_MIN_MC, default $1000), NOT the old shared $5k. With $5k the JS
+                // re-filtered out every token the API returned (post-migration tokens dump below
+                // $5k current MC) → page went empty despite the API returning 25 rows.
+                const minMarketCap = 1000;
                 const now = Math.floor(Date.now() / 1000);
                 const filteredTokens = enrichedTokens.filter(t => {
                     // Always keep NEW-pinned tokens regardless of MC

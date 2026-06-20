@@ -221,82 +221,29 @@
                     <div id="wsStatus"></div>
                     <div id="ingressStatus"></div>
                 </div>
+                <div id="ingestionStatus"></div>
             </div>
         </div>
 
-        <!-- WebSocket & Pool Stats -->
+        <!-- WebSocket Ingress (always visible — reflects PumpSwap/Helius, not price worker) -->
         <div class="grid">
             <div class="card">
                 <div class="card-title"><i class="fas fa-wifi"></i> WebSocket Ingress</div>
                 <div id="wsPoolStats" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
             <div class="card">
-                <div class="card-title"><i class="fas fa-layer-group"></i> Pool Pricing</div>
-                <div id="poolPricingStats" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-            <div class="card">
-                <div class="card-title"><i class="fas fa-check-circle"></i> Aggregation Status</div>
-                <div id="aggregationStats" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
-        <!-- Worker & Cache -->
-        <div class="grid">
-            <div class="card">
-                <div class="card-title"><i class="fas fa-cogs"></i> Worker Status</div>
-                <div id="workerDetails" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-            <div class="card">
-                <div class="card-title"><i class="fas fa-database"></i> Cache Performance</div>
-                <div id="cacheStats" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-            <div class="card">
                 <div class="card-title"><i class="fas fa-hourglass-half"></i> Queue Status</div>
                 <div id="queueStats" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
-        </div>
-
-        <!-- DB Write Reliability -->
-        <div class="grid">
-            <div class="card wide-card">
-                <div class="card-title"><i class="fas fa-shield-alt"></i> DB Write Reliability</div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-shield-alt"></i> API Write Reliability
+                    <span style="font-size:0.72rem;font-weight:400;color:var(--text-secondary);margin-left:0.75rem;">Flask/Gunicorn process only — listener lock errors shown in Listener Recovery Status</span>
+                </div>
                 <div id="dbWriteReliability" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
         </div>
 
-        <!-- Source Health -->
-        <div class="grid">
-            <div class="card wide-card">
-                <div class="card-title"><i class="fas fa-heartbeat"></i> Price Source Health</div>
-                <div id="sourceHealth"></div>
-            </div>
-        </div>
-
-        <!-- Circuit Breaker -->
-        <div class="grid">
-            <div class="card wide-card">
-                <div class="card-title"><i class="fas fa-shield-alt"></i> Circuit Breaker Status</div>
-                <div id="circuitBreaker"></div>
-            </div>
-        </div>
-
-        <!-- Rolling Window Stats -->
-        <div class="grid">
-            <div class="card wide-card">
-                <div class="card-title"><i class="fas fa-window-maximize"></i> Rolling Window (5-min)</div>
-                <div id="rollingWindow"></div>
-            </div>
-        </div>
-
-        <!-- Snapshot Cleanup Stats -->
-        <div class="grid">
-            <div class="card wide-card">
-                <div class="card-title"><i class="fas fa-broom"></i> Snapshot Cleanup (24h)</div>
-                <div id="snapshotCleanup" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
-        <!-- First Snapshot Health -->
+        <!-- First Snapshot Health (always visible) -->
         <div class="grid">
             <div class="card wide-card">
                 <div class="card-title"><i class="fas fa-anchor"></i> First Snapshot Health</div>
@@ -304,14 +251,66 @@
             </div>
         </div>
 
-        <!-- Local Flask Process Diagnostics (NOT global system health) -->
-        <div class="grid">
-            <div class="card wide-card" style="border-color: rgba(234,179,8,0.3);">
-                <div class="card-title" style="color: var(--color-watch);">
-                    <i class="fas fa-flask"></i> Local Flask Process Diagnostics
-                    <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">⚠ Flask-process only — does NOT reflect listener/worker state</span>
+        <!-- Recovery-mode toggle banner (injected by JS when recovery=ON) -->
+        <div id="priceDiagnosticsBanner"></div>
+
+        <!-- Price diagnostics — collapsed in recovery mode, always shown in normal mode -->
+        <div id="priceDiagnosticsSection">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-layer-group"></i> Pool Pricing</div>
+                    <div id="poolPricingStats" class="loading"><span class="spinner"></span> Loading...</div>
                 </div>
-                <div id="localDiagnostics" class="loading"><span class="spinner"></span> Loading...</div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-check-circle"></i> Aggregation Status</div>
+                    <div id="aggregationStats" class="loading"><span class="spinner"></span> Loading...</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-cogs"></i> Worker Status</div>
+                    <div id="workerDetails" class="loading"><span class="spinner"></span> Loading...</div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-database"></i> Cache Performance</div>
+                    <div id="cacheStats" class="loading"><span class="spinner"></span> Loading...</div>
+                </div>
+                <div class="card wide-card">
+                    <div class="card-title"><i class="fas fa-heartbeat"></i> Price Source Health</div>
+                    <div id="sourceHealth"></div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card wide-card">
+                    <div class="card-title"><i class="fas fa-shield-alt"></i> Circuit Breaker Status</div>
+                    <div id="circuitBreaker"></div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card wide-card">
+                    <div class="card-title"><i class="fas fa-window-maximize"></i> Rolling Window (5-min)</div>
+                    <div id="rollingWindow"></div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card wide-card">
+                    <div class="card-title"><i class="fas fa-broom"></i> Snapshot Cleanup (24h)</div>
+                    <div id="snapshotCleanup" class="loading"><span class="spinner"></span> Loading...</div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card wide-card" style="border-color: rgba(234,179,8,0.3);">
+                    <div class="card-title" style="color: var(--color-watch);">
+                        <i class="fas fa-flask"></i> Local Flask Process Diagnostics
+                        <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">⚠ Flask-process only — does NOT reflect listener/worker state</span>
+                    </div>
+                    <div id="localDiagnostics" class="loading"><span class="spinner"></span> Loading...</div>
+                </div>
             </div>
         </div>
 
@@ -334,6 +333,17 @@
                     <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">relay · sweep collector · treasury · aggregated minute-buckets</span>
                 </div>
                 <div id="tier2Monitor" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
+        <!-- Listener Recovery Status -->
+        <div class="grid">
+            <div class="card wide-card" id="recoveryCard" style="border-color: rgba(34,197,94,0.3);">
+                <div class="card-title" style="display:flex;align-items:center;gap:0.75rem;">
+                    <span>🔧 Listener Recovery Status</span>
+                    <span id="recoveryBadge" style="font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:9999px;background:rgba(100,116,139,0.3);color:#94a3b8;">…</span>
+                </div>
+                <div id="recoveryPanel" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
         </div>
 {% endblock %}
@@ -375,49 +385,99 @@
             return 'critical';
         }
 
-        function renderOverallStatus(data) {
-            const s = data?.status || 'unknown';
-            const color = statusColor(s);
-            const html = `
-                <div class="status-indicator status-${color}">
+        function renderOverallStatus(data, recovery) {
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+            let html;
+            if (inRecovery) {
+                html = `<div class="status-indicator" style="background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);border-radius:6px;padding:0.4rem 0.8rem;display:inline-flex;align-items:center;gap:0.5rem;">
+                    <span class="status-dot" style="background:#a78bfa"></span>
+                    Service: RECOVERY MODE
+                </div>`;
+            } else {
+                const s = data?.status || 'unknown';
+                const color = statusColor(s);
+                html = `<div class="status-indicator status-${color}">
                     <span class="status-dot ${color}"></span>
                     Service: ${s.toUpperCase()}
-                </div>
-            `;
+                </div>`;
+            }
             document.getElementById('overallStatus').innerHTML = html;
         }
 
-        function renderWorkerStatus(data) {
-            const running = data?.worker_running;
-            const secs = data?.db_signals?.seconds_since_last_update;
-            const staleness = secs != null ? ` (${Math.round(secs)}s ago)` : '';
-            const writer = data?.db_signals?.inferred_active_writer || '';
-            const html = `
-                <div class="status-indicator status-${getStatusColor(running)}">
+        function renderWorkerStatus(data, recovery) {
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+            let html;
+            if (inRecovery) {
+                html = `<div class="status-indicator" style="background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.3);border-radius:6px;padding:0.4rem 0.8rem;display:inline-flex;align-items:center;gap:0.5rem;">
+                    <span class="status-dot" style="background:#6b7280"></span>
+                    Worker: PRICE WORKER PARKED
+                </div>`;
+            } else {
+                const running = data?.worker_running;
+                const secs = data?.db_signals?.seconds_since_last_update;
+                const staleness = secs != null ? ` (${Math.round(secs)}s ago)` : '';
+                const writer = data?.db_signals?.inferred_active_writer || '';
+                html = `<div class="status-indicator status-${getStatusColor(running)}">
                     <span class="status-dot ${getStatusColor(running)}"></span>
                     Worker: ${running ? 'RUNNING' : 'STOPPED'}${staleness}
                     ${writer ? `<span style="font-size:0.8rem;opacity:0.7;margin-left:0.5rem;">[${writer}]</span>` : ''}
-                </div>
-            `;
+                </div>`;
+            }
             document.getElementById('workerStatus').innerHTML = html;
         }
 
-        function renderWSStatus(data) {
-            const ws = data?.pool_stats?.ws || {};
-            const wsStatus = ws.status || (ws.connected ? 'CONNECTED' : 'DISCONNECTED');
-            const color = statusColor(wsStatus);
-            const listenerSecs = ws.listener_log_age_secs;
-            const dbSecs = data?.db_signals?.seconds_since_last_update;
-            const lagSource = listenerSecs != null ? 'listener logs' : 'db';
-            const lagValue = listenerSecs != null ? listenerSecs : dbSecs;
-            const lag = lagValue != null ? ` (${Math.round(lagValue)}s lag via ${lagSource})` : '';
-            const html = `
-                <div class="status-indicator status-${color}">
+        function renderWSStatus(data, recovery) {
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+            let html;
+            if (inRecovery) {
+                html = `<div class="status-indicator" style="background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.3);border-radius:6px;padding:0.4rem 0.8rem;display:inline-flex;align-items:center;gap:0.5rem;">
+                    <span class="status-dot" style="background:#6b7280"></span>
+                    Snapshot Freshness: PARKED
+                </div>`;
+            } else {
+                const ws = data?.pool_stats?.ws || {};
+                const wsStatus = ws.status || (ws.connected ? 'CONNECTED' : 'DISCONNECTED');
+                const color = statusColor(wsStatus);
+                const listenerSecs = ws.listener_log_age_secs;
+                const dbSecs = data?.db_signals?.seconds_since_last_update;
+                const lagSource = listenerSecs != null ? 'listener logs' : 'db';
+                const lagValue = listenerSecs != null ? listenerSecs : dbSecs;
+                const lag = lagValue != null ? ` (${Math.round(lagValue)}s lag via ${lagSource})` : '';
+                html = `<div class="status-indicator status-${color}">
                     <span class="status-dot ${color}"></span>
                     Snapshot Freshness: ${wsStatus}${lag}
-                </div>
-            `;
+                </div>`;
+            }
             document.getElementById('wsStatus').innerHTML = html;
+        }
+
+        function renderIngestionStatus(recovery) {
+            const el = document.getElementById('ingestionStatus');
+            if (!el) return;
+            if (!recovery) { el.innerHTML = ''; return; }
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+            if (!inRecovery) { el.innerHTML = ''; return; }
+            const L = recovery.listener || {};
+            const I = recovery.ingestion || {};
+            const ppColor = L.pumpportal_status === 'CONNECTED' ? '#22c55e' : L.pumpportal_status === 'RETRYING' ? '#f59e0b' : '#ef4444';
+            const psColor = L.pumpswap_status === 'CONNECTED' ? '#22c55e' : L.pumpswap_status === 'RETRYING' ? '#f59e0b' : '#ef4444';
+            const birthAge = I.latest_birth_age_s;
+            const migAge = I.latest_migration_age_s;
+            const birthLabel = birthAge == null ? 'unknown' : birthAge < 300 ? 'FLOWING' : 'STALE';
+            const migLabel = migAge == null ? 'unknown' : migAge < 300 ? 'FLOWING' : 'STALE';
+            const birthColor = birthLabel === 'FLOWING' ? '#22c55e' : '#f59e0b';
+            const migColor = migLabel === 'FLOWING' ? '#22c55e' : '#f59e0b';
+            const birthAgeStr = birthAge != null ? ` (${Math.round(birthAge/60)}m ago)` : '';
+            const migAgeStr = migAge != null ? ` (${Math.round(migAge/60)}m ago)` : '';
+            el.innerHTML = `
+                <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.25rem;font-size:0.85rem;">
+                    <span>PumpPortal: <b style="color:${ppColor}">${L.pumpportal_status || '?'}</b></span>
+                    <span>PumpSwap: <b style="color:${psColor}">${L.pumpswap_status || '?'}</b></span>
+                    <span>Births: <b style="color:${birthColor}">${birthLabel}${birthAgeStr}</b></span>
+                    <span>Migrations: <b style="color:${migColor}">${migLabel}${migAgeStr}</b></span>
+                    <span>Birth Queue: <b>${I.birth_queue_pending ?? 0} pending</b></span>
+                    <span>Migration Queue: <b>${I.migration_queue_pending ?? 0} pending</b></span>
+                </div>`;
         }
 
         function renderIngressStatus(data) {
@@ -857,11 +917,58 @@
                 </div>`;
         }
 
+        let _recoveryLayoutApplied = false;
+
+        function applyRecoveryLayout(recovery) {
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+            const section = document.getElementById('priceDiagnosticsSection');
+            const banner  = document.getElementById('priceDiagnosticsBanner');
+            if (!section || !banner) return;
+
+            if (!inRecovery) {
+                // Normal mode: show everything, no banner
+                section.style.display = '';
+                banner.innerHTML = '';
+                return;
+            }
+
+            // Recovery mode: collapse on first load, preserve toggle state on refresh
+            if (!_recoveryLayoutApplied) {
+                section.style.display = 'none';
+                _recoveryLayoutApplied = true;
+            }
+
+            // Render banner only once (toggle state preserved across refreshes)
+            if (!banner.dataset.rendered) {
+                banner.dataset.rendered = '1';
+                banner.innerHTML = `
+                    <div style="margin:0.75rem 0;padding:10px 14px;background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.25);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                        <span style="font-size:0.82rem;color:#9ca3af;">
+                            <i class="fas fa-eye-slash" style="margin-right:6px;"></i>
+                            Price-worker diagnostics are collapsed because <code style="background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">FLEX_UI_RECOVERY_MODE=1</code> and the price updater is intentionally parked.
+                        </span>
+                        <button id="togglePriceDiagnosticsBtn" onclick="togglePriceDiagnostics()" style="font-size:0.78rem;padding:4px 12px;background:rgba(107,114,128,0.2);border:1px solid rgba(107,114,128,0.4);border-radius:4px;color:#d1d5db;cursor:pointer;white-space:nowrap;">
+                            Show parked price diagnostics
+                        </button>
+                    </div>`;
+            }
+        }
+
+        function togglePriceDiagnostics() {
+            const section = document.getElementById('priceDiagnosticsSection');
+            const btn = document.getElementById('togglePriceDiagnosticsBtn');
+            if (!section || !btn) return;
+            const hidden = section.style.display === 'none';
+            section.style.display = hidden ? '' : 'none';
+            btn.textContent = hidden ? 'Hide parked price diagnostics' : 'Show parked price diagnostics';
+        }
+
         async function updateDashboard() {
-            const [data, dbHealth, firstSnapshotHealth] = await Promise.all([
+            const [data, dbHealth, firstSnapshotHealth, recovery] = await Promise.all([
                 fetchHealth(),
                 fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/first-snapshot-health').then(r => r.json()).catch(() => ({})),
+                fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
             ]);
             if (!data) {
                 document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
@@ -871,9 +978,11 @@
             // Merge queue_depths from db-health into data for renderQueueStats
             data.queue_depths = dbHealth.queue_depths || {};
 
-            renderOverallStatus(data);
-            renderWorkerStatus(data);
-            renderWSStatus(data);
+            renderOverallStatus(data, recovery);
+            renderWorkerStatus(data, recovery);
+            renderWSStatus(data, recovery);
+            renderIngestionStatus(recovery);
+            applyRecoveryLayout(recovery);
             renderWSPoolStats(data);
             renderPoolPricingStats(data);
             renderAggregationStats(data);
@@ -888,7 +997,7 @@
             renderFirstSnapshotHealth(firstSnapshotHealth);
             renderLocalDiagnostics(data);
             renderIngressStatus(data);
-            renderWebhookMonitor();
+            if (typeof renderWebhookMonitor === 'function') renderWebhookMonitor();
 
             const now = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
@@ -1048,14 +1157,144 @@
             }
         }
 
+        // ── Listener Recovery Status ─────────────────────────────────────
+        async function updateRecoveryPanel() {
+            const el = document.getElementById('recoveryPanel');
+            const badge = document.getElementById('recoveryBadge');
+            const card = document.getElementById('recoveryCard');
+            try {
+                const d = await fetch('/api/listener-recovery-status').then(r => r.json());
+
+                // Badge
+                const statusColors = {
+                    HEALTHY_RECOVERY:  ['#22c55e', 'rgba(34,197,94,0.15)',  'rgba(34,197,94,0.4)'],
+                    HEALTHY:           ['#22c55e', 'rgba(34,197,94,0.15)',  'rgba(34,197,94,0.3)'],
+                    DEGRADED_RECOVERY: ['#f59e0b', 'rgba(245,158,11,0.15)', 'rgba(245,158,11,0.4)'],
+                    INGESTION_RISK:    ['#f87171', 'rgba(248,113,113,0.15)','rgba(248,113,113,0.4)'],
+                };
+                const [sc, sbg, sborder] = statusColors[d.status] || ['#94a3b8','rgba(100,116,139,0.15)','rgba(100,116,139,0.3)'];
+                badge.textContent = d.status;
+                badge.style.color = sc;
+                badge.style.background = sbg;
+                card.style.borderColor = sborder;
+
+                const env = d.env_flags || {};
+                const ing = d.ingestion || {};
+                const lst = d.listener  || {};
+                const rts = (d.recovery_routes || {}).blocked || [];
+                const lke = d.lock_errors || {};
+
+                function pill(val, trueLabel, falseLabel, trueColor, falseColor) {
+                    // val=null → UNKNOWN (grey), val=false → falseLabel, val=true → trueLabel
+                    if (val === null || val === undefined) {
+                        return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:#4b5563;color:#fff">UNKNOWN</span>`;
+                    }
+                    const on = !!val;
+                    return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:${on ? trueColor : falseColor};color:#fff">${on ? trueLabel : falseLabel}</span>`;
+                }
+                function connPill(status) {
+                    const map = {
+                        CONNECTED: ['#22c55e', 'CONNECTED'],
+                        RETRYING:  ['#f59e0b', 'RETRYING'],
+                        STALE:     ['#ef4444', 'STALE'],
+                        UNKNOWN:   ['#4b5563', 'UNKNOWN'],
+                    };
+                    const [c, l] = map[status] || ['#4b5563', status || '—'];
+                    return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:${c};color:#fff">${l}</span>`;
+                }
+                function age(s) {
+                    if (s == null) return '—';
+                    if (s < 60)   return `${s}s ago`;
+                    if (s < 3600) return `${Math.floor(s/60)}m ago`;
+                    return `${Math.floor(s/3600)}h ago`;
+                }
+                function queueNum(v) {
+                    if (v && typeof v === 'object' && v.available === false) return '—';
+                    return v == null ? '—' : v;
+                }
+
+                const row = (label, val) =>
+                    `<tr><td style="color:var(--text-secondary);padding:3px 8px 3px 0;white-space:nowrap">${label}</td><td style="padding:3px 0">${val}</td></tr>`;
+
+                const blockedHtml = rts.length
+                    ? rts.map(r => `<code style="font-size:0.72rem;background:rgba(248,113,113,0.1);padding:1px 5px;border-radius:3px;color:#fca5a5">${r}</code>`).join('  ')
+                    : '<span style="color:#22c55e;font-size:0.8rem">none</span>';
+
+                const allWarnings = [...(d.warnings || [])];
+                if (lke.listener_tail_count > 0) {
+                    allWarnings.push(`Listener DB lock errors in recent log tail (${lke.listener_tail_count} total)`);
+                }
+                const warnHtml = allWarnings.length
+                    ? `<div style="margin-top:0.6rem;padding:6px 10px;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-radius:4px;font-size:0.78rem;color:#fbbf24">${allWarnings.join(' · ')}</div>`
+                    : '';
+
+                el.innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+                  <div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Mode Flags</div>
+                    <table style="border-collapse:collapse;font-size:0.82rem">
+                      ${row('Recovery Mode',   pill(env.recovery_mode,           'ON',     'OFF',    '#f59e0b','#22c55e'))}
+                      ${row('Creator Activity',pill(env.creator_activity_enabled,'RUNNING','PARKED','#22c55e','#6b7280'))}
+                      ${row('Price Updater',   pill(env.price_updater_enabled,   'RUNNING','PARKED','#22c55e','#6b7280'))}
+                      ${row('WS TTL',          `<span style="font-size:0.8rem">${env.ws_session_ttl_sec ?? '—'}s</span>`)}
+                      ${row('MIN SOL',         `<span style="font-size:0.8rem">${env.ws_treasury_min_sol ?? '—'} ◎</span>`)}
+                      ${row('Auto-promote',    pill(env.ws_promote_discovered, 'ON','OFF','#22c55e','#94a3b8'))}
+                    </table>
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Ingestion</div>
+                    <table style="border-collapse:collapse;font-size:0.82rem">
+                      ${row('Latest Birth',     age(ing.latest_birth_age_s))}
+                      ${row('Latest Migration', age(ing.latest_migration_age_s))}
+                      ${row('Birth Queue',       `${queueNum(ing.birth_queue_pending)} pending · max retry ${queueNum(ing.birth_queue_retry_max)}`)}
+                      ${row('Migration Queue',   `${queueNum(ing.migration_queue_pending)} pending · ${queueNum(ing.migration_queue_retry)} retry · max ${queueNum(ing.migration_queue_retry_max)}`)}
+                    </table>
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Listener</div>
+                    <table style="border-collapse:collapse;font-size:0.82rem">
+                      ${row('PumpPortal', connPill(lst.pumpportal_status))}
+                      ${row('PumpSwap',   connPill(lst.pumpswap_status))}
+                      ${row('Log age',    age(lst.listener_log_age_s))}
+                      ${(function() {
+                          const total = lke.listener_tail_count;
+                          if (total == null) return row('DB Locks (tail)', '<span style="color:var(--text-secondary)">—</span>');
+                          const color = total === 0 ? '#22c55e' : total < 20 ? '#f59e0b' : '#ef4444';
+                          const tags = lke.by_tag || {};
+                          const tagStr = Object.entries(tags)
+                              .filter(([k,v]) => v > 0)
+                              .map(([k,v]) => `${k}×${v}`)
+                              .join(' · ') || 'none';
+                          return row('DB Locks (tail)',
+                              `<span style="color:${color};font-weight:600">${total}</span>` +
+                              (total > 0 ? `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">${tagStr}</div>` : ''));
+                      })()}
+                    </table>
+                    <div style="margin-top:0.8rem">
+                      <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:.05em">Blocked Routes</div>
+                      <div style="display:flex;flex-wrap:wrap;gap:0.3rem">${blockedHtml}</div>
+                    </div>
+                  </div>
+                </div>
+                ${warnHtml}`;
+            } catch(e) {
+                document.getElementById('recoveryPanel').innerHTML =
+                    `<div style="color:#f87171;font-size:0.85rem">Recovery status unavailable: ${e}</div>`;
+                document.getElementById('recoveryBadge').textContent = 'ERROR';
+            }
+        }
+
         document.getElementById('refreshBtn').addEventListener('click', async () => {
             const btn = document.getElementById('refreshBtn');
             btn.classList.add('refreshing');
-            await updateDashboard();
+            await Promise.all([updateDashboard(), updateRecoveryPanel()]);
             btn.classList.remove('refreshing');
         });
 
         updateDashboard();
-        setInterval(updateDashboard, 10000);
+        updateRecoveryPanel();
+        renderTier1Monitor();
+        renderTier2Monitor();
+        setInterval(() => { updateDashboard(); updateRecoveryPanel(); renderTier1Monitor(); renderTier2Monitor(); }, 10000);
     </script>
 {% endblock %}

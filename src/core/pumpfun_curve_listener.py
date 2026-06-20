@@ -783,6 +783,16 @@ def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
                 created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
             )
         """)
+        # Columns added for PumpPortal retry path — ALTER is idempotent (ignored if column exists).
+        for _col, _defn in [
+            ("payload",     "TEXT"),
+            ("source",      "TEXT NOT NULL DEFAULT 'helius_webhook'"),
+            ("retry_count", "INTEGER NOT NULL DEFAULT 0"),
+        ]:
+            try:
+                conn.execute(f"ALTER TABLE webhook_birth_queue ADD COLUMN {_col} {_defn}")
+            except Exception:
+                pass  # column already present — not an error
     conn.close()
 
 
@@ -864,9 +874,24 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._trading_sim_retry_attempts: Dict[str, int] = {}
         self._trading_sim_retry_timers: Dict[str, Any] = {}
 
+        _t0 = time.monotonic()
         self._ensure_db()
-        self._normalize_existing_pumpfun_rows()
-        self._hydrate_bonding_curve_index()
+        log_print(f"[STARTUP] _ensure_db done in {(time.monotonic()-_t0)*1000:.0f}ms", flush=True)
+
+        _t1 = time.monotonic()
+        if __import__('os').environ.get("LISTENER_DB_STARTUP_MAINTENANCE_ENABLED", "1") != "0":
+            self._normalize_existing_pumpfun_rows()
+            log_print(f"[STARTUP] _normalize_existing_pumpfun_rows done in {(time.monotonic()-_t1)*1000:.0f}ms", flush=True)
+        else:
+            log_print("[STARTUP] Skipping normalize_existing_pumpfun_rows due to recovery flag", flush=True)
+
+        _t2 = time.monotonic()
+        if __import__('os').environ.get("LISTENER_BONDING_INDEX_FULL_HYDRATE_ENABLED", "1") != "0":
+            self._hydrate_bonding_curve_index()
+            log_print(f"[STARTUP] _hydrate_bonding_curve_index done in {(time.monotonic()-_t2)*1000:.0f}ms", flush=True)
+        else:
+            log_print("[STARTUP] Skipping full bonding curve hydrate due to recovery flag", flush=True)
+
         log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
         log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
         log_print(f"[INIT] 🔄 Pool detection retries enabled (max {self.pool_detection_max_retries} retries, {self.pool_detection_retry_delay}s delay)", flush=True)
@@ -893,7 +918,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
         asyncio.create_task(self._cleanup_tx_cache_periodic())
-        asyncio.create_task(self._process_creator_resolution_queue_periodic())
+        if __import__('os').environ.get("LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED", "1") != "0":
+            asyncio.create_task(self._process_creator_resolution_queue_periodic())
+            log_print("[STARTUP] Creator resolution queue enabled", flush=True)
+        else:
+            log_print("[STARTUP] Skipping creator resolution queue due to LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0", flush=True)
         asyncio.create_task(self._process_creator_funding_queue_periodic())
         # DISABLED: _periodic_cluster_rebuild reprocessed ~3000 creators every 10min (O(n) funding
         # walk + heavy super_clusters rewrite) — the listener's 113% CPU hog and a major live-db
@@ -1834,7 +1863,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn.commit()
             log_print(f"[DB] ✅ Marked token migrated: {mint[:16]}... dex={dex} tx={migration_tx[:20] if migration_tx else 'N/A'}...", flush=True)
         except Exception as exc:
-            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc}", flush=True)
+            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc} — queuing for retry", flush=True)
+            try:
+                import sqlite3 as _sq
+                _qc = _sq.connect(DB_PATH, timeout=5)
+                with _qc:
+                    _qc.execute(
+                        """INSERT OR IGNORE INTO migration_persist_queue
+                           (signature, source, mint, received_at, status, last_error)
+                           VALUES (?, 'mark_migrated', ?, ?, 'PENDING', ?)""",
+                        (migration_tx or mint, mint, migrated_ts, str(exc)),
+                    )
+                _qc.close()
+            except Exception as _qe:
+                log_print(f"[MIGRATION_VERIFY] ⚠ Failed to queue migration retry for {mint[:16]}: {_qe}", flush=True)
             return
 
         self._submit_auto_sim_buy_on_migration(
@@ -4128,6 +4170,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         log_print("[DB] ✅ Funder webhook tables ensured", flush=True)
         log_print("[DB] ✅ Creator funders and funding graph tables ensured", flush=True)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS migration_persist_queue (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                signature       TEXT    NOT NULL,
+                source          TEXT    NOT NULL DEFAULT 'mark_migrated',
+                mint            TEXT,
+                received_at     INTEGER,
+                status          TEXT    NOT NULL DEFAULT 'PENDING',
+                retry_count     INTEGER NOT NULL DEFAULT 0,
+                last_error      TEXT,
+                last_attempt_at INTEGER,
+                processed_at    INTEGER,
+                UNIQUE(signature)
+            )
+        """)
 
         conn.commit()
         conn.close()
@@ -9485,8 +9543,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             import traceback
             traceback.print_exc()
         finally:
-            if signature in self.completed_migrations:
-                self.processing_migrations.discard(signature)
+            # Always release processing lock so the sig can be retried (completed_migrations
+            # guards against true duplicate processing; processing_migrations is a per-run lock).
+            self.processing_migrations.discard(signature)
 
     # --- WebSocket Listener ---
     def get_tx_cache_stats(self) -> Dict:
@@ -9765,8 +9824,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # Mints we are tracking trades for (near migration)
         tracked_trade_mints: set = set()
         reconnect_delay = 5
+        _attempt = 0
 
         while True:
+            _attempt += 1
             try:
                 async with websockets.connect(
                     PUMPPORTAL_WS,
@@ -9882,7 +9943,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         self._ensure_pf_ws_creator(mint, reason="birth")
                                     )
                                 except Exception as e:
-                                    log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e}", flush=True)
+                                    log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e} — queuing for retry", flush=True)
+                                    try:
+                                        import sqlite3 as _sq, json as _json
+                                        _qconn = _sq.connect(DB_PATH, timeout=5)
+                                        with _qconn:
+                                            _qconn.execute(
+                                                """INSERT OR IGNORE INTO webhook_birth_queue
+                                                   (signature, payload, source, consumed)
+                                                   VALUES (?, ?, 'pumpportal_retry', 0)""",
+                                                (sig, _json.dumps(data)),
+                                            )
+                                        _qconn.close()
+                                    except Exception as _qe:
+                                        log_print(f"[PUMPPORTAL] ⚠ Failed to queue birth retry for {mint[:16]}: {_qe}", flush=True)
 
                                 # Subscribe to trades if already near migration threshold
                                 if v_sol >= MIGRATION_SOL_THRESHOLD and mint not in tracked_trade_mints:
@@ -9917,44 +9991,186 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     await ws.send(json.dumps({"method": "unsubscribeTokenTrade", "keys": [mint]}))
 
             except Exception as e:
-                error_str = str(e).lower()
-                if "close frame" not in error_str:
-                    log_print(f"[PUMPPORTAL] ⚠ Connection error: {e} — retrying in {reconnect_delay}s", flush=True)
+                _subs_desc = f"newToken,migration,trades={len(tracked_trade_mints)}"
+                log_print(
+                    f"[PUMPPORTAL] ⚠ reconnect attempt={_attempt} delay={reconnect_delay:.0f}s"
+                    f" exc_type={type(e).__name__} exc={repr(e)} subs={_subs_desc}",
+                    flush=True,
+                )
             await asyncio.sleep(reconnect_delay)
             reconnect_delay = min(reconnect_delay * 1.5, 60)
 
     async def drain_webhook_birth_queue(self):
         """
-        Drains the webhook_birth_queue table (written by the Flask process when Helius
-        POSTs a pumpfun-birth event).  Runs forever on a 5-second poll cadence.
+        Drains the webhook_birth_queue table.  Runs forever on a 5-second poll cadence.
+
+        Rows with a payload column (source=pumpportal_retry) are replayed directly from
+        the stored JSON — no getTransaction RPC needed.  Helius-sourced rows (no payload)
+        fall back to handle_birth(sig, []).
+
+        A row is only marked consumed AFTER successful processing so a crash or lock error
+        leaves it unconsumed and eligible for the next drain cycle.
         """
-        import sqlite3 as _sq
+        import sqlite3 as _sq, json as _json
         _ensure_webhook_birth_queue_schema(DB_PATH)
         log_print("[LISTENER] ✅ Webhook birth queue drainer started", flush=True)
         while True:
             try:
                 conn = _sq.connect(DB_PATH, timeout=10)
                 conn.row_factory = _sq.Row
-                with conn:
+                try:
                     rows = conn.execute(
-                        "SELECT id, signature FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                        "SELECT id, signature, payload, source FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
                     ).fetchall()
-                    if rows:
-                        ids = [r["id"] for r in rows]
-                        conn.execute(
-                            f"UPDATE webhook_birth_queue SET consumed = 1 WHERE id IN ({','.join('?' * len(ids))})",
-                            ids,
-                        )
+                except Exception:
+                    # payload/source columns may not exist yet if ALTER TABLE lost the race
+                    rows = [
+                        {"id": r[0], "signature": r[1], "payload": None, "source": "helius_webhook"}
+                        for r in conn.execute(
+                            "SELECT id, signature FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                        ).fetchall()
+                    ]
                 conn.close()
+
                 for row in rows:
-                    sig = row["signature"]
-                    if sig not in self.processing_launches and sig not in self.completed_launches:
-                        premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source=helius_webhook")
-                        asyncio.create_task(self.handle_birth(sig, []))
+                    sig    = row["signature"]
+                    source = (row["source"] or "helius_webhook") if row["source"] is not None else "helius_webhook"
+                    raw    = row["payload"]
+                    row_id = row["id"]
+
+                    if sig in self.completed_launches:
+                        # Already processed this birth — just mark consumed.
+                        _mark_consumed(DB_PATH, row_id)
+                        continue
+
+                    success = False
+                    if raw:
+                        # Fast path: raw PumpPortal payload available — insert directly.
+                        try:
+                            data = _json.loads(raw)
+                            _mint    = data.get("mint", "")
+                            _creator = data.get("traderPublicKey")
+                            _bcp     = data.get("bondingCurveKey")
+                            _symbol  = data.get("symbol")
+                            _name    = data.get("name")
+                            if _mint:
+                                await self._insert_bonding_curve_token(
+                                    _mint, _creator, str(int(time.time())),
+                                    bonding_curve_pda=_bcp,
+                                    create_tx_signature=sig,
+                                    symbol=_symbol,
+                                    name=_name,
+                                )
+                                if _bcp:
+                                    self._remember_bonding_curve_token(_mint, _bcp)
+                                self.seen_mints.add(_mint)
+                                self.completed_launches.add(sig)
+                                premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source={source} mint={_mint[:16]} replayed_from_payload")
+                                success = True
+                        except Exception as _re:
+                            log_print(f"[WEBHOOK_BIRTH] ⚠ payload replay failed sig={sig[:16]}: {_re}", flush=True)
+                    else:
+                        # Helius-sourced rows: use handle_birth which fetches the tx.
+                        try:
+                            premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source={source}")
+                            await self.handle_birth(sig, [])
+                            self.completed_launches.add(sig)
+                            success = True
+                        except Exception as _he:
+                            log_print(f"[WEBHOOK_BIRTH] ⚠ handle_birth failed sig={sig[:16]}: {_he}", flush=True)
+
+                    if success:
+                        _mark_consumed(DB_PATH, row_id)
+                    else:
+                        # Increment retry_count so runaway rows are visible.
+                        try:
+                            _rc = _sq.connect(DB_PATH, timeout=5)
+                            with _rc:
+                                _rc.execute("UPDATE webhook_birth_queue SET retry_count = retry_count + 1 WHERE id = ?", (row_id,))
+                            _rc.close()
+                        except Exception:
+                            pass
+
             except Exception as exc:
                 log_print(f"[LISTENER] ⚠ webhook birth drain error: {exc}", flush=True)
             await asyncio.sleep(5)
 
+    async def drain_migration_persist_queue(self):
+        """Retry failed migration DB writes from migration_persist_queue. 10s poll cadence."""
+        import sqlite3 as _sq
+        log_print("[STARTUP] Migration persist queue drainer started", flush=True)
+        while True:
+            try:
+                conn = _sq.connect(DB_PATH, timeout=10)
+                conn.row_factory = _sq.Row
+                rows = conn.execute(
+                    "SELECT signature, mint, received_at, retry_count FROM migration_persist_queue"
+                    " WHERE status IN ('PENDING','RETRY') ORDER BY id LIMIT 20"
+                ).fetchall()
+                conn.close()
+
+                for row in rows:
+                    sig  = row["signature"]
+                    mint = row["mint"]
+                    if not mint or not sig:
+                        continue
+                    try:
+                        await self._mark_token_migrated_in_db(
+                            mint,
+                            migrated_at=row["received_at"],
+                            migration_tx=sig,
+                            dex="pumpswap",
+                        )
+                        # If _mark_token_migrated_in_db returned without re-raising, it succeeded
+                        # (it enqueues on failure but doesn't raise). Check token_analysis directly.
+                        _vc = _sq.connect(DB_PATH, timeout=5)
+                        persisted = _vc.execute(
+                            "SELECT migration_tx FROM token_analysis WHERE mint=? AND migration_tx IS NOT NULL LIMIT 1",
+                            (mint,)
+                        ).fetchone()
+                        _vc.close()
+                        if persisted:
+                            _uc = _sq.connect(DB_PATH, timeout=5)
+                            with _uc:
+                                _uc.execute(
+                                    "UPDATE migration_persist_queue SET status='PROCESSED', processed_at=? WHERE signature=?",
+                                    (int(time.time()), sig),
+                                )
+                            _uc.close()
+                            log_print(f"[MIGRATION_RETRY] ✅ Persisted mint={mint[:16]} sig={sig[:16]}", flush=True)
+                            self.completed_migrations.add(sig)
+                        else:
+                            raise RuntimeError("migration_tx not in token_analysis after write attempt")
+                    except Exception as _re:
+                        try:
+                            _ec = _sq.connect(DB_PATH, timeout=5)
+                            with _ec:
+                                _ec.execute(
+                                    "UPDATE migration_persist_queue SET status='RETRY', retry_count=retry_count+1,"
+                                    " last_attempt_at=?, last_error=? WHERE signature=?",
+                                    (int(time.time()), str(_re)[:200], sig),
+                                )
+                            _ec.close()
+                        except Exception:
+                            pass
+            except Exception as exc:
+                log_print(f"[LISTENER] ⚠ migration persist drain error: {exc}", flush=True)
+            await asyncio.sleep(10)
+
+
+def _mark_consumed(db_path: str, row_id: int) -> None:
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(db_path, timeout=5)
+        with conn:
+            conn.execute("UPDATE webhook_birth_queue SET consumed = 1 WHERE id = ?", (row_id,))
+        conn.close()
+    except Exception as _e:
+        log_print(f"[WEBHOOK_BIRTH] ⚠ mark_consumed failed row_id={row_id}: {_e}", flush=True)
+
+
+# _mark_consumed is a module-level helper; PumpFunCurveListener continues below.
+class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
     async def listen_pumpfun_websocket(self):
         """Dedicated Pump.fun websocket for births and pre-migration trade flow."""
         await self._wait_for_launch_toggle("PUMPFUN")
@@ -10402,73 +10618,80 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def listen(self):
         """Main entry point - start WebSocket listener with live price updater"""
-        # ENABLED: Price updater is now ON
-        PRICE_UPDATER_ENABLED = True
+        PRICE_UPDATER_ENABLED = __import__('os').environ.get("LISTENER_LIVE_PRICE_UPDATER_ENABLED", "1") != "0"
 
         if PRICE_UPDATER_ENABLED:
-            # Start live price updater in background
             asyncio.create_task(self.update_live_prices_background())
-            log_print("[LISTENER] ✅ Price updater started", flush=True)
+            log_print("[STARTUP] Live price updater enabled", flush=True)
         else:
-            log_print("[LISTENER] ⏸ Price updater disabled (HARDCODED OFF)", flush=True)
+            log_print("[STARTUP] Skipping live price updater due to LISTENER_LIVE_PRICE_UPDATER_ENABLED=0", flush=True)
 
         # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
         log_print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
 
         # Start creator activity worker
-        try:
-            from src.creators.repository import CreatorRepository
-            from src.creators.worker import CreatorActivityWorker
-            from src.creators.baseline import CreatorBaselineScanner
-            from src.creators.helius_watch import register_creator_address
-            from src.creators.service import restore_creator_watches, enqueue_stale_creator_reconciles
+        if __import__('os').environ.get("LISTENER_CREATOR_ACTIVITY_ENABLED", "1") != "0":
+            try:
+                from src.creators.repository import CreatorRepository
+                from src.creators.worker import CreatorActivityWorker
+                from src.creators.baseline import CreatorBaselineScanner
+                from src.creators.helius_watch import register_creator_address
+                from src.creators.service import restore_creator_watches, enqueue_stale_creator_reconciles
 
-            _creator_lock = asyncio.Lock()
-            _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
-            await _creator_repo.ensure_schema()
+                _creator_lock = asyncio.Lock()
+                _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
+                _t_schema = time.monotonic()
+                await _creator_repo.ensure_schema()
+                log_print(f"[STARTUP] creator_repo.ensure_schema done in {(time.monotonic()-_t_schema)*1000:.0f}ms", flush=True)
 
-            _scanner = CreatorBaselineScanner(
-                background_rpc_fn=self.call_background_rpc,
-                repo=_creator_repo,
-            )
-            _creator_worker = CreatorActivityWorker(
-                _creator_repo,
-                run_baseline_scan_fn=_scanner.run_baseline_scan,
-                get_signatures_fn=_scanner.get_signatures,
-                process_signature_fn=_scanner.process_signature,
-            )
-            asyncio.create_task(_creator_worker.run())
-            log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
+                _scanner = CreatorBaselineScanner(
+                    background_rpc_fn=self.call_background_rpc,
+                    repo=_creator_repo,
+                )
+                _creator_worker = CreatorActivityWorker(
+                    _creator_repo,
+                    run_baseline_scan_fn=_scanner.run_baseline_scan,
+                    get_signatures_fn=_scanner.get_signatures,
+                    process_signature_fn=_scanner.process_signature,
+                )
+                asyncio.create_task(_creator_worker.run())
+                log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
 
-            # Re-register all creator watches after restart (marks stale, then re-registers).
-            asyncio.create_task(
-                restore_creator_watches(repo=_creator_repo, register_webhook_fn=register_creator_address)
-            )
+                # Re-register all creator watches after restart (marks stale, then re-registers).
+                _t_restore = time.monotonic()
+                asyncio.create_task(
+                    restore_creator_watches(repo=_creator_repo, register_webhook_fn=register_creator_address)
+                )
+                log_print(f"[STARTUP] restore_creator_watches task queued in {(time.monotonic()-_t_restore)*1000:.0f}ms", flush=True)
 
-            # Periodic stale-reconcile scheduler: every 10 minutes.
-            async def _stale_reconcile_loop():
-                while True:
-                    await asyncio.sleep(600)
-                    try:
-                        n = await enqueue_stale_creator_reconciles(repo=_creator_repo)
-                        if n:
-                            log_print(f"[LISTENER] Enqueued {n} stale creator reconciles", flush=True)
-                    except Exception as exc:
-                        log_print(f"[LISTENER] ⚠ stale reconcile loop error: {exc}", flush=True)
+                # Periodic stale-reconcile scheduler: every 10 minutes.
+                async def _stale_reconcile_loop():
+                    while True:
+                        await asyncio.sleep(600)
+                        try:
+                            n = await enqueue_stale_creator_reconciles(repo=_creator_repo)
+                            if n:
+                                log_print(f"[LISTENER] Enqueued {n} stale creator reconciles", flush=True)
+                        except Exception as exc:
+                            log_print(f"[LISTENER] ⚠ stale reconcile loop error: {exc}", flush=True)
 
-            asyncio.create_task(_stale_reconcile_loop())
+                asyncio.create_task(_stale_reconcile_loop())
 
-        except Exception as e:
-            log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
+            except Exception as e:
+                log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
+        else:
+            log_print("[STARTUP] Skipping creator activity block due to LISTENER_CREATOR_ACTIVITY_ENABLED=0", flush=True)
 
         # PumpPortal WSS handles births, migrations, and near-complete curve tracking.
         # listen_pumpswap_websocket detects PumpSwap pool creation (migrations) via Helius logsSubscribe.
         # listen_pumpportal_websocket handles pump.fun births via PumpPortal WSS (free, no Helius cost).
         # drain_webhook_birth_queue is a fallback for Helius birth webhook delivery.
+        log_print("[STARTUP] gather() starting — pumpswap WS + pumpportal WS + birth drainer + migration persist drainer", flush=True)
         await asyncio.gather(
             self.listen_pumpswap_websocket(),
             self.listen_pumpportal_websocket(),
             self.drain_webhook_birth_queue(),
+            self.drain_migration_persist_queue(),
         )
 
 

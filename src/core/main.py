@@ -19520,6 +19520,9 @@ def network_approval_page():
     return render_template('network_approval.html', active_page='network_approval')
 
 
+_network_review_status_schema_ensured = False
+
+
 def _ensure_network_review_status(conn):
     conn.execute("""
         CREATE TABLE IF NOT EXISTS network_review_status (
@@ -19686,11 +19689,19 @@ def _network_review_state(review, evidence_hash):
 
 @app.route('/api/network-approval/list')
 def api_network_approval_list():
+    if _ui_recovery_mode_enabled():
+        return jsonify({"error": "network-approval unavailable in recovery mode", "networks": []}), 503
+    global _network_review_status_schema_ensured
     conn = None
     try:
-        conn = db_connect(DB_PATH, timeout=10)
+        conn = db_connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
-        _ensure_network_review_status(conn)
+        if not _network_review_status_schema_ensured:
+            try:
+                _ensure_network_review_status(conn)
+            except Exception:
+                pass  # schema already exists or locked — table was created at app startup
+            _network_review_status_schema_ensured = True
 
         try:
             from src.core.token_behavior import compute_token_class
@@ -23921,7 +23932,7 @@ def creator_network_page(network_name: str):
 @app.route('/system-health')
 def system_health():
     """System health dashboard with real-time monitoring."""
-    return render_template('system_health_dashboard.html', active_page='health')
+    return render_template('system_health_dashboard.html', active_page='system_health')
 
 
 @app.route('/network-monitoring')
@@ -24565,6 +24576,245 @@ def api_first_snapshot_health():
         })
     except Exception as exc:
         return jsonify({'ok': False, 'error': str(exc)}), 500
+
+
+@app.route('/api/listener-recovery-status')
+def api_listener_recovery_status():
+    """Lightweight recovery-mode visibility endpoint.
+    Read-only: env vars + log mtime + hot DB mode=ro (3 tiny indexed queries).
+    No writes, no DDL, no table scans. Target <200ms."""
+    import sqlite3 as _sq
+    import time as _t
+    import os as _os
+
+    now = int(_t.time())
+    _na = {"available": False, "value": None}
+
+    # ── 1. Env flags (Gunicorn env — recovery_mode and WS flags only) ────────
+    def _env(key, default=""):
+        return _os.environ.get(key, default)
+
+    recovery_mode   = _env("FLEX_UI_RECOVERY_MODE", "0").lower() in ("1", "true", "yes")
+    # creator/price flags intentionally NOT read from Gunicorn env — those vars
+    # live only in the listener process.  We derive them from the listener log instead.
+    ws_ttl          = _env("WS_SESSION_TTL_SEC", "7200")
+    ws_min_sol      = _env("WS_TREASURY_MIN_SOL", "0.05")
+    ws_promote      = _env("WS_PROMOTE_DISCOVERED", "1")
+
+    try: ws_ttl = int(ws_ttl)
+    except Exception: ws_ttl = None
+    try: ws_min_sol = float(ws_min_sol)
+    except Exception: ws_min_sol = None
+    try: ws_promote = ws_promote not in ("0", "false", "no")
+    except Exception: ws_promote = None
+
+    # ── 2. Hot DB — read-only URI, single connection, 3 indexed queries ───
+    ingestion = {}
+    _db = DB_PATH
+    try:
+        _c = _sq.connect(f"file:{_db}?mode=ro", uri=True, timeout=1)
+        _c.row_factory = _sq.Row
+
+        # latest migration (migrated_at is indexed via token_analysis PK lookups)
+        _r = _c.execute("SELECT MAX(migrated_at) FROM token_analysis WHERE migrated_at IS NOT NULL").fetchone()
+        _mts = _r[0] if _r else None
+        ingestion["latest_migration_ts"]   = _mts
+        ingestion["latest_migration_age_s"] = (now - _mts) if _mts else None
+
+        # latest birth via analyzed_at proxy (births set analyzed_at at creation)
+        _r2 = _c.execute(
+            "SELECT MAX(analyzed_at) FROM token_analysis WHERE source_platform='pumpfun' AND analyzed_at IS NOT NULL"
+        ).fetchone()
+        _bts = int(_r2[0]) if (_r2 and _r2[0]) else None
+        ingestion["latest_birth_ts"]   = _bts
+        ingestion["latest_birth_age_s"] = (now - _bts) if _bts else None
+
+        # birth retry queue
+        try:
+            _bq = _c.execute(
+                "SELECT SUM(CASE WHEN consumed=0 THEN 1 ELSE 0 END) AS pending,"
+                "       MAX(COALESCE(retry_count,0)) AS max_retry"
+                " FROM webhook_birth_queue"
+            ).fetchone()
+            ingestion["birth_queue_pending"]  = int(_bq["pending"] or 0)
+            ingestion["birth_queue_retry_max"] = int(_bq["max_retry"] or 0)
+        except Exception:
+            ingestion["birth_queue_pending"]  = _na
+            ingestion["birth_queue_retry_max"] = _na
+
+        # migration persist queue
+        try:
+            _mq = _c.execute(
+                "SELECT"
+                "  SUM(CASE WHEN status='PENDING' THEN 1 ELSE 0 END) AS pending,"
+                "  SUM(CASE WHEN status='RETRY'   THEN 1 ELSE 0 END) AS retry,"
+                "  MAX(retry_count) AS max_retry"
+                " FROM migration_persist_queue"
+            ).fetchone()
+            ingestion["migration_queue_pending"] = int(_mq["pending"] or 0)
+            ingestion["migration_queue_retry"]   = int(_mq["retry"]   or 0)
+            ingestion["migration_queue_retry_max"] = int(_mq["max_retry"] or 0)
+        except Exception:
+            ingestion["migration_queue_pending"] = _na
+            ingestion["migration_queue_retry"]   = _na
+            ingestion["migration_queue_retry_max"] = _na
+
+        _c.close()
+    except Exception as _de:
+        ingestion.setdefault("error", str(_de))
+
+    # ── 3. Listener log scan — tail last 64 KB ────────────────────────────
+    # 64 KB covers ~500 lines — enough for STARTUP flags + recent WS state.
+    # All signals use last-wins so a newer CONNECTED beats an old RETRYING line.
+    _LOG = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                         "..", "..", "logs", "supervisor", "listener.log")
+    _LOG = _os.path.normpath(_LOG)
+
+    pumpportal_status  = "UNKNOWN"
+    pumpswap_status    = "UNKNOWN"
+    creator_enabled    = None   # None = could not determine
+    price_enabled      = None
+    listener_log_age_s = None
+
+    try:
+        _st = _os.stat(_LOG)
+        listener_log_age_s = now - int(_st.st_mtime)
+        with open(_LOG, "rb") as _lf:
+            _lf.seek(max(0, _st.st_size - 204800))
+            _tail = _lf.read().decode("utf-8", errors="replace")
+
+        for _line in _tail.splitlines():
+            # ── creator activity ──────────────────────────────────────────
+            if "Skipping creator activity" in _line or "LISTENER_CREATOR_ACTIVITY_ENABLED=0" in _line:
+                creator_enabled = False
+            elif "Creator activity enabled" in _line or "LISTENER_CREATOR_ACTIVITY_ENABLED=1" in _line:
+                creator_enabled = True
+
+            # ── live price updater ────────────────────────────────────────
+            if "Skipping live price updater" in _line or "LISTENER_LIVE_PRICE_UPDATER_ENABLED=0" in _line:
+                price_enabled = False
+            elif "Live price updater enabled" in _line or "LISTENER_LIVE_PRICE_UPDATER_ENABLED=1" in _line:
+                price_enabled = True
+
+            # ── PumpPortal (last-wins per signal) ─────────────────────────
+            if "PUMPPORTAL" in _line:
+                if "reconnect" in _line or ("⚠" in _line and "PUMPPORTAL" in _line):
+                    pumpportal_status = "RETRYING"
+                elif ("Connected" in _line or "connected" in _line or "🟢" in _line
+                      or "Birth" in _line):
+                    pumpportal_status = "CONNECTED"
+
+            # ── PumpSwap / Helius WS (last-wins per signal) ───────────────
+            if "PUMPSWAP" in _line or ("[WEBSOCKET]" in _line):
+                if ("connection error" in _line or "Retrying" in _line
+                        or ("⚠" in _line and ("PUMPSWAP" in _line or "WEBSOCKET" in _line))):
+                    pumpswap_status = "RETRYING"
+                elif ("subscrib" in _line.lower() or "✓" in _line
+                      or ("Connect" in _line and "error" not in _line.lower())):
+                    pumpswap_status = "CONNECTED"
+
+        # ── Lock error counts by tag (additional pass over same _tail) ──────
+        _LOCK_TAGS = {
+            "BIRTH":                    "[BIRTH]",
+            "PREDICTION":               "[PREDICTION]",
+            "SYMBOL_FETCH":             "[SYMBOL_FETCH]",
+            "RPC_METRICS":              "[RPC_METRICS]",
+            "FUNDING_QUEUE":            "[FUNDING_QUEUE]",
+            "CREATOR_RESOLUTION_QUEUE": "[CREATOR_RESOLUTION_QUEUE]",
+            "MIGRATION":                "[MIGRATION",
+        }
+        _lock_by_tag = {k: 0 for k in _LOCK_TAGS}
+        _lock_other  = 0
+        _lock_total  = 0
+        for _line in _tail.splitlines():
+            if "database is locked" not in _line and "batch write failed" not in _line:
+                continue
+            _lock_total += 1
+            _matched = False
+            for _tag, _marker in _LOCK_TAGS.items():
+                if _marker in _line:
+                    _lock_by_tag[_tag] += 1
+                    _matched = True
+                    break
+            if not _matched:
+                _lock_other += 1
+        _lock_by_tag["OTHER"] = _lock_other
+
+        # If log is stale (no activity in 5 min) override to STALE
+        if listener_log_age_s is not None and listener_log_age_s > 300:
+            pumpportal_status = "STALE"
+            pumpswap_status   = "STALE"
+    except Exception:
+        _lock_total  = None
+        _lock_by_tag = None
+        pass
+
+    # ── 4. Status + warnings ───────────────────────────────────────────────
+    warnings = []
+    _bq_pend = ingestion.get("birth_queue_pending")
+    _mq_pend = ingestion.get("migration_queue_pending")
+    _bq_int  = _bq_pend if isinstance(_bq_pend, int) else 0
+    _mq_int  = _mq_pend if isinstance(_mq_pend, int) else 0
+    _b_age   = ingestion.get("latest_birth_age_s")
+    _m_age   = ingestion.get("latest_migration_age_s")
+
+    if pumpportal_status == "RETRYING":
+        warnings.append("PumpPortal reconnecting")
+    if pumpswap_status == "RETRYING":
+        warnings.append("PumpSwap reconnecting")
+    if _bq_int > 0:
+        warnings.append(f"birth_queue has {_bq_int} pending")
+    if _mq_int > 0:
+        warnings.append(f"migration_queue has {_mq_int} pending")
+    if _b_age is not None and _b_age > 300:
+        warnings.append(f"latest birth stale ({_b_age}s)")
+    if _m_age is not None and _m_age > 600:
+        warnings.append(f"latest migration stale ({_m_age}s)")
+
+    if not warnings and recovery_mode:
+        status = "HEALTHY_RECOVERY"
+    elif warnings and (_bq_int > 5 or _mq_int > 5 or
+                       (_b_age is not None and _b_age > 600 and
+                        _m_age is not None and _m_age > 600)):
+        status = "INGESTION_RISK"
+    elif warnings:
+        status = "DEGRADED_RECOVERY"
+    else:
+        status = "HEALTHY"
+
+    blocked_routes = []
+    if recovery_mode:
+        blocked_routes = ["/api/price/batch/register", "/api/network-approval/list"]
+    elif not price_enabled:
+        blocked_routes = ["/api/price/batch/register"]
+
+    return jsonify({
+        "env_flags": {
+            "recovery_mode":            recovery_mode,
+            # log-derived: False=PARKED, True=RUNNING, None=unknown (log unreadable)
+            "creator_activity_enabled": creator_enabled,
+            "price_updater_enabled":    price_enabled,
+            "ws_session_ttl_sec":       ws_ttl,
+            "ws_treasury_min_sol":      ws_min_sol,
+            "ws_promote_discovered":    ws_promote,
+        },
+        "ingestion": ingestion,
+        "listener": {
+            "pumpportal_status":  pumpportal_status,
+            "pumpswap_status":    pumpswap_status,
+            "listener_log_age_s": listener_log_age_s,
+        },
+        "lock_errors": {
+            "listener_tail_count": _lock_total,
+            "by_tag":              _lock_by_tag,
+            "tail_window_bytes":   204800,
+            "note": "Count of 'database is locked' in recent listener log tail; not time-windowed.",
+        } if _lock_total is not None else {"listener_tail_count": None, "by_tag": None},
+        "recovery_routes": {"blocked": blocked_routes},
+        "status":   status,
+        "warnings": warnings,
+        "ts":       now,
+    })
 
 
 @app.route('/api/db-health')
@@ -34703,7 +34953,7 @@ def _process_wt_infra_payload(payload):
                             # never launches and only exhausts the cascade's bounded watch budget.
                             # Real launch subprovs get 700/800-SOL-class loads. Keep in sync with
                             # ws_cascade.TREASURY_PROVISION_MIN_SOL.
-                            _sess_min = float(os.getenv("WS_TREASURY_MIN_SOL", "50"))
+                            _sess_min = float(os.getenv("WS_TREASURY_MIN_SOL", "0.05"))
                             _sess_max = float(os.getenv("WS_TREASURY_MAX_SOL", "2000"))
                             if (infra_addr in _confirmed_treasuries() and counterparty
                                     and _sess_min <= amount_sol <= _sess_max):
@@ -34714,7 +34964,7 @@ def _process_wt_infra_payload(payload):
                                 try:
                                     _oc.execute("PRAGMA busy_timeout=15000")
                                     ensure_cascade_schema(_oc)
-                                    _ttl = int(os.getenv("WS_SESSION_TTL_SEC", "600"))
+                                    _ttl = int(os.getenv("WS_SESSION_TTL_SEC", "7200"))
                                     if start_session(_oc, subprov=counterparty, treasury=infra_addr,
                                                      funding_sig=sig, funding_amount=amount_sol,
                                                      funding_time=block_time, ttl_seconds=_ttl,

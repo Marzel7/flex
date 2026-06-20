@@ -4908,6 +4908,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def _store_analysis(self, mint: str, analysis: dict, signature: str = None, pool_address: str = None):
         """Store post-migration analysis results"""
+        rpc_creator = None
+        _enqueue_create_tx_sig = None
         async with self.db_lock:
             conn = None
             try:
@@ -5054,40 +5056,44 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 f"[CREATOR_CHECK] ✅ MATCH {mint} | WS={row[0][:8]}... RPC={rpc_creator[:8]}...",
                                 flush=True,
                             )
+                    # capture for enqueue after lock release
+                    _enqueue_create_tx_sig = getattr(analyzer, "_create_tx_signature", None) if analyzer else None
 
-                if rpc_creator:
-                    create_tx_sig = getattr(analyzer, "_create_tx_signature", None) if analyzer else None
-                    await self._enqueue_creator_funding_job(
-                        rpc_creator,
-                        mint=mint,
-                        migration_timestamp=created_at,
-                        create_tx_signature=create_tx_sig,
-                        delay_seconds=0,
-                        source="store_analysis",
-                    )
-                else:
-                    try:
-                        from src.core.creator_resolution_queue import connect as _crq_connect, enqueue_missing_creator
-                        with _crq_connect(DB_PATH, timeout=10) as _crq_conn:
-                            enqueue_missing_creator(
-                                _crq_conn,
-                                mint,
-                                reason="store_analysis_missing_creator",
-                                source="store_analysis",
-                            )
-                            _crq_conn.commit()
-                    except Exception as _crq_e:
-                        log_print(
-                            f"[CREATOR_RESOLUTION_QUEUE] ⚠ enqueue failed mint={mint[:8]}...: {_crq_e}",
-                            flush=True,
-                        )
                 pool_info = f"Pool: {pool_address[:16]}" if pool_address else "Pool: will discover at price-time"
                 log_print(f"[DB] ✅ Stored analysis {mint} | {pool_info}", flush=True)
             except Exception as e:
                 log_print(f"[DB] ❌ Failed to store analysis for {mint}: {e}", flush=True)
+                rpc_creator = None  # don't attempt enqueue if DB write failed
             finally:
                 if conn is not None:
                     conn.close()
+
+        # Enqueue creator funding / resolution outside the write lock to avoid self-deadlock.
+        if rpc_creator:
+            await self._enqueue_creator_funding_job(
+                rpc_creator,
+                mint=mint,
+                migration_timestamp=created_at,
+                create_tx_signature=_enqueue_create_tx_sig,
+                delay_seconds=0,
+                source="store_analysis",
+            )
+        else:
+            try:
+                from src.core.creator_resolution_queue import connect as _crq_connect, enqueue_missing_creator
+                with _crq_connect(DB_PATH, timeout=10) as _crq_conn:
+                    enqueue_missing_creator(
+                        _crq_conn,
+                        mint,
+                        reason="store_analysis_missing_creator",
+                        source="store_analysis",
+                    )
+                    _crq_conn.commit()
+            except Exception as _crq_e:
+                log_print(
+                    f"[CREATOR_RESOLUTION_QUEUE] ⚠ enqueue failed mint={mint[:8]}...: {_crq_e}",
+                    flush=True,
+                )
 
     def _token_exists_in_db(self, mint: str) -> bool:
         """

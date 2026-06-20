@@ -175,14 +175,21 @@ class TokenPredictionBuilder:
     def __init__(self, db_path: str):
         self.db_path = db_path
 
-    def _get_cached_context(self, conn: sqlite3.Connection) -> dict[str, Any]:
+    def _get_cached_context(self, conn: sqlite3.Connection = None) -> dict[str, Any]:
         db_key = str(Path(self.db_path).resolve())
         if (
             time.time() - _context_cache_ts_by_db.get(db_key, 0) > _CONTEXT_TTL
             or db_key not in _context_cache_by_db
         ):
-            _context_cache_by_db[db_key] = self._build_context(conn)
-            _context_cache_ts_by_db[db_key] = time.time()
+            # Always use a fresh read-only connection for context scans so we never
+            # hold the write-lane TrackedConnection while scanning large tables.
+            rconn = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True, timeout=30)
+            rconn.row_factory = sqlite3.Row
+            try:
+                _context_cache_by_db[db_key] = self._build_context(rconn)
+                _context_cache_ts_by_db[db_key] = time.time()
+            finally:
+                rconn.close()
         return _context_cache_by_db[db_key]
 
     def run(self) -> dict[str, Any]:
@@ -259,13 +266,21 @@ class TokenPredictionBuilder:
         """, (mint,)).fetchone()
         if not row:
             return None
-        # Bypass cache for FUNDING_COMPLETE — funder rows just landed, cache is stale
+        # Bypass cache for FUNDING_COMPLETE — funder rows just landed, cache is stale.
+        # Both paths use a fresh read-only connection via _get_cached_context so the
+        # write-lane conn is never held during the heavy table scans.
         if event_type == 'FUNDING_COMPLETE':
-            context = self._build_context(conn)
-            _context_cache_by_db[self.db_path] = context
-            _context_cache_ts_by_db[self.db_path] = time.time()
+            db_key = str(Path(self.db_path).resolve())
+            rconn = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True, timeout=30)
+            rconn.row_factory = sqlite3.Row
+            try:
+                context = self._build_context(rconn)
+                _context_cache_by_db[db_key] = context
+                _context_cache_ts_by_db[db_key] = time.time()
+            finally:
+                rconn.close()
         else:
-            context = self._get_cached_context(conn)
+            context = self._get_cached_context()
         score = self._score_token(dict(row), context)
         self._write_scores(conn, [score])
         self._write_events(conn, [score], event_type)

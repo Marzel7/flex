@@ -252,6 +252,9 @@ _FLUSH_MAX_BATCH = 500
 
 def _metric_flush_loop():
     import os as _os
+    _db_enabled = _os.environ.get("LISTENER_RPC_METRICS_DB_ENABLED", "1") not in ("0", "false", "no", "off")
+    if not _db_enabled:
+        print("[RPC_METRICS] DB writes disabled via LISTENER_RPC_METRICS_DB_ENABLED=0 — draining buffer without writing", flush=True)
     while True:
         time.sleep(_FLUSH_INTERVAL_S)
         rows = []
@@ -262,6 +265,8 @@ def _metric_flush_loop():
             pass
         if not rows:
             continue
+        if not _db_enabled:
+            continue  # discard rows, keep buffer clear, no DB contention
         for _attempt in range(3):
             try:
                 conn = sqlite3.connect(DB_PATH, timeout=30)

@@ -1248,7 +1248,44 @@
                       ${row('Latest Migration', age(ing.latest_migration_age_s))}
                       ${row('Birth Queue',       `${queueNum(ing.birth_queue_pending)} pending · max retry ${queueNum(ing.birth_queue_retry_max)}`)}
                       ${row('Migration Queue',   `${queueNum(ing.migration_queue_pending)} pending · ${queueNum(ing.migration_queue_retry)} retry · max ${queueNum(ing.migration_queue_retry_max)}`)}
+                      ${(function() {
+                          const buckets = ing.migration_hourly;
+                          if (!buckets || !buckets.length) return row('Migrations/hr', '<span style="color:var(--text-secondary)">—</span>');
+                          const bars = buckets.map(b => {
+                              const color = b.count === 0 ? '#374151' : b.count < 5 ? '#6b7280' : '#22c55e';
+                              return `<span title="-${b.hour_ago}h: ${b.count}" style="display:inline-block;width:18px;height:${Math.max(2, Math.min(b.count * 2, 24))}px;background:${color};margin-right:2px;vertical-align:bottom;border-radius:2px"></span>`;
+                          }).join('');
+                          const last = buckets[buckets.length - 1];
+                          return row('Migrations/hr', `<span style="font-size:0.78rem">${bars} <span style="color:var(--text-secondary);margin-left:4px">${last.count} this hour</span></span>`);
+                      })()}
                     </table>
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Completeness</div>
+                    ${(function() {
+                        const c = d.ingestion_completeness;
+                        if (!c || c.error) {
+                            return `<div style="font-size:0.78rem;color:var(--text-secondary)">unavailable${c && c.error ? ': ' + c.error : ''}</div>`;
+                        }
+                        if (c.births && c.births.seen === 0 && c.migrations && c.migrations.seen === 0) {
+                            return `<div style="font-size:0.78rem;color:var(--text-secondary)">insufficient recent data</div>`;
+                        }
+                        function compBadge(item) {
+                            if (!item || item.seen === 0) return '<span style="color:var(--text-secondary)">—</span>';
+                            const color = item.missing > 0 ? '#ef4444' : item.pending_retry > 0 ? '#f59e0b' : '#22c55e';
+                            const pct   = item.persistence_rate != null ? Math.round(item.persistence_rate * 100) + '%' : '?%';
+                            return `<span style="color:${color};font-weight:600">${item.seen} seen · ${item.persisted} persisted · ${item.missing} missing · ${pct}</span>`;
+                        }
+                        const confColor = c.confidence === 'full' ? '#22c55e' : '#f59e0b';
+                        const warnHtml2 = (c.warnings || []).length
+                            ? `<div style="font-size:0.7rem;color:#f59e0b;margin-top:0.3rem">${c.warnings.join(' · ')}</div>` : '';
+                        return `<table style="border-collapse:collapse;font-size:0.82rem">
+                            ${row('Births',     compBadge(c.births))}
+                            ${row('Migrations', compBadge(c.migrations))}
+                            ${row('Window',     `<span style="font-size:0.75rem;color:var(--text-secondary)">${c.window || '—'}</span>`)}
+                            ${row('Confidence', `<span style="color:${confColor};font-size:0.75rem">${c.confidence || '—'}</span>`)}
+                        </table>${warnHtml2}`;
+                    })()}
                   </div>
                   <div>
                     <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Listener</div>
@@ -1276,7 +1313,40 @@
                     </div>
                   </div>
                 </div>
-                ${warnHtml}`;
+                ${warnHtml}
+                ${(function() {
+                    const ca = d.migration_coverage_audit;
+                    if (!ca) return '';
+                    const statusColors = {
+                        VERIFIED_SAMPLE: '#22c55e', STALE: '#f59e0b',
+                        ATTENTION: '#ef4444', DEGRADED: '#f59e0b',
+                        UNKNOWN: 'var(--text-secondary)', ERROR: '#ef4444',
+                    };
+                    const statusColor = statusColors[ca.audit_status] || 'var(--text-secondary)';
+                    const classColor  = ca.classification === 'A' ? '#22c55e' : ca.classification === 'B' ? '#f59e0b' : '#ef4444';
+                    const ageStr = ca.audit_age_seconds != null
+                        ? (ca.audit_age_seconds < 120 ? 'just now'
+                           : ca.audit_age_seconds < 3600 ? Math.round(ca.audit_age_seconds/60) + 'm ago'
+                           : Math.round(ca.audit_age_seconds/3600) + 'h ago')
+                        : '—';
+                    const windowStr = ca.window_end ? ca.window_end.replace('T',' ').replace('Z','') + ' UTC' : '—';
+                    const missingStr = ca.evidence_of_missing
+                        ? `<span style="color:#ef4444;font-weight:600">${ca.missing} MISSING</span>`
+                        : `<span style="color:#22c55e">NONE</span>`;
+                    return `<div style="margin-top:1rem;border-top:1px solid rgba(148,163,184,0.1);padding-top:0.8rem">
+                        <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Migration Coverage Audit <span style="font-weight:400;font-style:italic">(sampled RPC)</span></div>
+                        <table style="border-collapse:collapse;font-size:0.82rem">
+                            ${row('Status',       `<span style="color:${statusColor};font-weight:600">${ca.audit_status || '—'}</span>`)}
+                            ${row('Last audit',   `<span style="color:var(--text-secondary);font-size:0.75rem">${ageStr} · ${windowStr}</span>`)}
+                            ${row('Sample',       ca.unique_tokens_sampled != null ? ca.unique_tokens_sampled + ' migrations' : '—')}
+                            ${row('Matched',      ca.matched != null ? `<span style="color:#22c55e;font-weight:600">${ca.matched}</span>` : '—')}
+                            ${row('Coverage',     ca.coverage_pct != null ? `<span style="color:#22c55e;font-weight:600">${ca.coverage_pct}%</span>` : '—')}
+                            ${row('Class / Conf', ca.classification ? `<span style="color:${classColor};font-weight:600">${ca.classification}</span> · <span style="color:var(--text-secondary)">${ca.confidence || '—'}</span>` : '—')}
+                            ${row('PumpSwap sub', `<span style="color:var(--text-secondary)">${ca.pumpswap_direct_subscription ? '✓ ON' : '✗ OFF'}</span>`)}
+                            ${row('Missing',      missingStr)}
+                        </table>
+                    </div>`;
+                })()}`;
             } catch(e) {
                 document.getElementById('recoveryPanel').innerHTML =
                     `<div style="color:#f87171;font-size:0.85rem">Recovery status unavailable: ${e}</div>`;

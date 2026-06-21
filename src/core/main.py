@@ -24586,6 +24586,7 @@ def api_listener_recovery_status():
     import sqlite3 as _sq
     import time as _t
     import os as _os
+    import json as _json
 
     now = int(_t.time())
     _na = {"available": False, "value": None}
@@ -24659,6 +24660,21 @@ def api_listener_recovery_status():
             ingestion["migration_queue_retry"]   = _na
             ingestion["migration_queue_retry_max"] = _na
 
+        # migration hourly buckets — last 6h, indexed on migrated_at
+        try:
+            _buckets = []
+            for _h in range(6, 0, -1):
+                _t0 = now - _h * 3600
+                _t1 = now - (_h - 1) * 3600
+                _cnt = _c.execute(
+                    "SELECT COUNT(*) FROM token_analysis WHERE migrated_at >= ? AND migrated_at < ?",
+                    (_t0, _t1)
+                ).fetchone()[0]
+                _buckets.append({"hour_ago": _h, "count": int(_cnt)})
+            ingestion["migration_hourly"] = _buckets
+        except Exception:
+            ingestion["migration_hourly"] = None
+
         _c.close()
     except Exception as _de:
         ingestion.setdefault("error", str(_de))
@@ -24679,8 +24695,9 @@ def api_listener_recovery_status():
     try:
         _st = _os.stat(_LOG)
         listener_log_age_s = now - int(_st.st_mtime)
+        _SCAN_WINDOW = 2 * 1024 * 1024  # 2MB — enough for many hours of log
         with open(_LOG, "rb") as _lf:
-            _lf.seek(max(0, _st.st_size - 204800))
+            _lf.seek(max(0, _st.st_size - _SCAN_WINDOW))
             _tail = _lf.read().decode("utf-8", errors="replace")
 
         for _line in _tail.splitlines():
@@ -24749,6 +24766,85 @@ def api_listener_recovery_status():
         _lock_by_tag = None
         pass
 
+    # ── 5. Ingestion completeness — log-count only, zero DB queries ─────────────
+    # Counts log lines as a proxy for seen vs persisted. No LIKE/full-table scans.
+    # [PUMPPORTAL] 🟢 Birth:  = received by listener (seen)
+    # [PREMIG_BIRTH_SEED]      = written to token_analysis (persisted)
+    # [DB] ✅ Marked token migrated: = migration written (persisted = seen for migrations,
+    #   since the DB write line fires on success only)
+    # [MIGRATION] ✅ CRITICAL PATH COMPLETE = full pipeline done (used as persisted count)
+    _completeness = None
+    try:
+        import re as _re
+
+        # Scope to current listener run if start marker is in tail
+        _start_idx = _tail.rfind("[WATCHDOG]")
+        if _start_idx != -1:
+            _scan_text = _tail[_start_idx:]
+            _window = "current_listener_run"
+            _confidence = "full"
+        else:
+            _scan_text = _tail
+            _window = "log_tail"
+            _confidence = "partial"
+
+        # Birth counts
+        _births_seen      = len(_re.findall(r'\[PUMPPORTAL\][^\n]*Birth:', _scan_text))
+        _births_persisted = _scan_text.count("[PREMIG_BIRTH_SEED]")
+
+        # Migration counts — persisted = DB write success line
+        _migs_persisted = len(_re.findall(r'Marked token migrated:', _scan_text))
+        # seen = persisted (we only log received migrations when we process them;
+        # there's no separate "received" log line distinct from "persisted")
+        # Use CRITICAL PATH COMPLETE as a cross-check
+        _cp_count = len(_re.findall(r'CRITICAL PATH COMPLETE', _scan_text))
+        _migs_seen = max(_migs_persisted, _cp_count)
+
+        _comp_warnings = []
+
+        # Pending queues already in ingestion block
+        _b_pending = ingestion.get("birth_queue_pending", 0) if isinstance(ingestion.get("birth_queue_pending"), int) else 0
+        _m_pending = (ingestion.get("migration_queue_pending", 0) or 0) + (ingestion.get("migration_queue_retry", 0) or 0)
+        if not isinstance(_m_pending, int):
+            _m_pending = 0
+
+        _b_missing = max(0, _births_seen - _births_persisted - _b_pending)
+        _m_missing = max(0, _migs_seen - _migs_persisted - _m_pending)
+
+        if _b_missing > 0:
+            _comp_warnings.append(f"{_b_missing} birth(s) received but not yet persisted or queued")
+        if _m_missing > 0:
+            _comp_warnings.append(f"{_m_missing} migration(s) received but not yet persisted")
+        if _confidence == "partial":
+            _comp_warnings.append("listener start not found in log tail — counts cover tail only")
+        if _births_seen == 0 and _migs_seen == 0:
+            _comp_warnings.append("insufficient recent data — no events found in scan window")
+
+        _b_rate = round(_births_persisted / _births_seen, 4) if _births_seen > 0 else None
+        _m_rate = round(_migs_persisted / _migs_seen, 4)    if _migs_seen   > 0 else None
+
+        _completeness = {
+            "window":     _window,
+            "confidence": _confidence,
+            "births": {
+                "seen":             _births_seen,
+                "persisted":        _births_persisted,
+                "pending_retry":    _b_pending,
+                "missing":          _b_missing,
+                "persistence_rate": _b_rate,
+            },
+            "migrations": {
+                "seen":             _migs_seen,
+                "persisted":        _migs_persisted,
+                "pending_retry":    _m_pending,
+                "missing":          _m_missing,
+                "persistence_rate": _m_rate,
+            },
+            "warnings": _comp_warnings,
+        }
+    except Exception as _comp_exc:
+        _completeness = {"error": str(_comp_exc), "warnings": [f"completeness scan failed: {_comp_exc}"]}
+
     # ── 4. Status + warnings ───────────────────────────────────────────────
     warnings = []
     _bq_pend = ingestion.get("birth_queue_pending")
@@ -24788,6 +24884,36 @@ def api_listener_recovery_status():
     elif not price_enabled:
         blocked_routes = ["/api/price/batch/register"]
 
+    # ── Migration coverage audit — read from JSON file, no RPC, no DB ────────
+    _migration_coverage = None
+    try:
+        _audit_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                    "..", "..", "logs", "migration_coverage_audit.json")
+        _audit_path = _os.path.normpath(_audit_path)
+        if _os.path.exists(_audit_path):
+            _audit_age = now - int(_os.path.getmtime(_audit_path))
+            with open(_audit_path) as _af:
+                _audit_data = _json.load(_af)
+            # Staleness classification
+            if _audit_age > 7200:
+                _audit_status = "STALE"
+            elif _audit_data.get("evidence_of_missing"):
+                _audit_status = "ATTENTION"
+            elif _audit_data.get("coverage_pct") == 100.0:
+                _audit_status = "VERIFIED_SAMPLE"
+            else:
+                _audit_status = "DEGRADED"
+            _migration_coverage = {
+                **_audit_data,
+                "audit_age_seconds": _audit_age,
+                "audit_status":      _audit_status,
+                "pumpswap_direct_subscription": False,
+            }
+        else:
+            _migration_coverage = {"audit_status": "UNKNOWN", "pumpswap_direct_subscription": False}
+    except Exception as _ce:
+        _migration_coverage = {"audit_status": "ERROR", "error": str(_ce), "pumpswap_direct_subscription": False}
+
     return jsonify({
         "env_flags": {
             "recovery_mode":            recovery_mode,
@@ -24810,6 +24936,8 @@ def api_listener_recovery_status():
             "tail_window_bytes":   204800,
             "note": "Count of 'database is locked' in recent listener log tail; not time-windowed.",
         } if _lock_total is not None else {"listener_tail_count": None, "by_tag": None},
+        "ingestion_completeness":   _completeness,
+        "migration_coverage_audit": _migration_coverage,
         "recovery_routes": {"blocked": blocked_routes},
         "status":   status,
         "warnings": warnings,

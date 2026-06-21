@@ -6071,6 +6071,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
             valid = []
             rejections = {}
 
+            # Hoist PoolDiscovery construction outside the loop — instantiating per-candidate
+            # caused repeated module imports and object construction on the event loop.
+            from src.core.pool_discovery import PoolDiscovery
+            _pd_db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+            _pd = PoolDiscovery(_pd_db_path, "")
+            _shared_threshold = 2 if strict_mode else 3
+
             for addr, acc in zip(candidates, values):
                 addr_short = addr[:16] if isinstance(addr, str) else str(addr)[:16]
 
@@ -6091,16 +6098,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 # Check 3: Shared account check (always enforce, never accept ADyA-like accounts)
                 try:
-                    from src.core.pool_discovery import PoolDiscovery
-                    db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
-                    pd = PoolDiscovery(db_path, "")
-
-                    # Use stricter threshold in strict mode
-                    threshold = 2 if strict_mode else 3
-                    is_shared = await pd._is_shared_account(addr, threshold=threshold)
+                    is_shared = await _pd._is_shared_account(addr, threshold=_shared_threshold)
                     if is_shared:
                         reason = "shared_account"
-                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} threshold={threshold}", flush=True)
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} threshold={_shared_threshold}", flush=True)
                         rejections[addr] = reason
                         continue
 
@@ -6165,6 +6166,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[BATCH_VALIDATE] Validating {len(candidates)} candidates (strict_mode={strict_mode})", flush=True)
 
             valid = []
+
+            from src.core.pool_discovery import PoolDiscovery
+            _pd_db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+            _pd = PoolDiscovery(_pd_db_path, "")
+            _shared_threshold = 2 if strict_mode else 3
+
             for addr, acc in zip(candidates, values):
                 addr_short = addr[:16] if isinstance(addr, str) else str(addr)[:16]
 
@@ -6181,15 +6188,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 # Check 3: Shared account check (always enforce, never accept ADyA-like accounts)
                 try:
-                    from src.core.pool_discovery import PoolDiscovery
-                    db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
-                    pd = PoolDiscovery(db_path, "")
-
-                    # Use stricter threshold in strict mode
-                    threshold = 2 if strict_mode else 3
-                    is_shared = await pd._is_shared_account(addr, threshold=threshold)
+                    is_shared = await _pd._is_shared_account(addr, threshold=_shared_threshold)
                     if is_shared:
-                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_account threshold={threshold}", flush=True)
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_account threshold={_shared_threshold}", flush=True)
                         continue
 
                 except Exception as check_error:

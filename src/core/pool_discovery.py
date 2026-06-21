@@ -333,33 +333,36 @@ class PoolDiscovery:
         Returns:
             True if shared (should reject), False if token-specific
         """
+        def _check_sync(db_path: str, addr: str, thresh: int) -> bool:
+            conn = sqlite3.connect(db_path, timeout=10)
+            try:
+                cursor = conn.cursor()
+                # Check ALL roles: vault base, vault quote, pool address
+                cursor.execute(
+                    """
+                    SELECT COUNT(DISTINCT mint)
+                    FROM token_pool_accounts
+                    WHERE base_account = ?
+                       OR quote_account = ?
+                       OR pool_address = ?
+                    """,
+                    (addr, addr, addr),
+                )
+                count = cursor.fetchone()[0]
+                return count > thresh
+            finally:
+                conn.close()
+
         try:
-            conn = sqlite3.connect(self.db_path, timeout=10)
-            cursor = conn.cursor()
-
-            # Check ALL roles: vault base, vault quote, pool address
-            cursor.execute(
-                """
-                SELECT COUNT(DISTINCT mint)
-                FROM token_pool_accounts
-                WHERE base_account = ?
-                   OR quote_account = ?
-                   OR pool_address = ?
-                """,
-                (account_address, account_address, account_address),
+            is_shared = await asyncio.to_thread(
+                _check_sync, self.db_path, account_address, threshold
             )
-
-            count = cursor.fetchone()[0]
-            conn.close()
-
-            if count > threshold:
+            if is_shared:
                 logger.warning(
                     f"[SHARED_ACCOUNT_CHECK] ⚠️  Account {account_address[:16]}... "
-                    f"appears in {count} tokens across roles (marked as shared)"
+                    f"appears in multiple tokens across roles (marked as shared)"
                 )
-                return True
-
-            return False
+            return is_shared
 
         except Exception as e:
             logger.debug(f"[SHARED_ACCOUNT_CHECK] Could not check account {account_address[:16]}...: {e}")

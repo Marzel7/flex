@@ -5414,7 +5414,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             event["symbol"] = symbol
         if name:
             event["name"] = name
-        _broadcast_to_flask(event)
+        asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, event)
 
     async def _ensure_pf_ws_creator(self, mint: str, reason: str = "premig") -> Optional[str]:
         """
@@ -7699,7 +7699,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     _reg_creator = _rr[0]
             except Exception:
                 pass
-            _broadcast_to_flask({
+            asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, {
                 "type": "pool_registered",
                 "mint": mint,
                 "pool_address": pool_address,
@@ -7900,7 +7900,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     if _row[2]: _det_event["pool_address"] = _row[2]
             except Exception:
                 pass
-            _broadcast_to_flask(_det_event)
+            asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, _det_event)
 
             # Store migration TX signature (needed for retry discovery and analytics)
             try:

@@ -9647,7 +9647,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     # an idle connection alive + detect a dead one fast, minimising the drop window.
                     ping_interval=float(os.environ.get("PUMPSWAP_PING_INTERVAL", "20")),
                     ping_timeout=float(os.environ.get("PUMPSWAP_PING_TIMEOUT", "20")),
-                    close_timeout=10,
+                    close_timeout=2,
                     max_size=10 * 1024 * 1024,
                 ) as ws:
                     self.websocket_connected = True
@@ -9701,6 +9701,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ No subscription confirmation after 10s (attempt {_sub_attempts})", flush=True)
                             if _sub_attempts >= 3:
                                 log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Subscription never confirmed — backing off {reconnect_delay}s", flush=True)
+                                try:
+                                    await asyncio.wait_for(ws.close(), timeout=2)
+                                except Exception:
+                                    pass
                                 # Apply backoff before reconnecting (don't just continue)
                                 await asyncio.sleep(reconnect_delay)
                                 reconnect_delay = min(reconnect_delay * 2, 60)
@@ -9814,15 +9818,27 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Re-subscribed (new id={subscription_id})", flush=True)
                                     else:
                                         log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Re-subscribe confirmation not received — reconnecting", flush=True)
+                                        try:
+                                            await asyncio.wait_for(ws.close(), timeout=2)
+                                        except Exception:
+                                            pass
                                         break
                                 except Exception as _resub_err:
                                     log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Re-subscribe failed ({_resub_err}) — reconnecting", flush=True)
+                                    try:
+                                        await asyncio.wait_for(ws.close(), timeout=2)
+                                    except Exception:
+                                        pass
                                     break
 
                         except asyncio.TimeoutError:
                             _consecutive_timeouts += 1
                             if _consecutive_timeouts >= 3:
                                 log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ No messages for {_consecutive_timeouts * 60}s — reconnecting...", flush=True)
+                                try:
+                                    await asyncio.wait_for(ws.close(), timeout=2)
+                                except Exception:
+                                    pass
                                 break
                             continue
                         except json.JSONDecodeError:

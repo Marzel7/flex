@@ -57,6 +57,8 @@ def record_vault_discovery_result(
         ...     256.8
         ... )
     """
+    _tp_vp_t0 = time.monotonic()
+    logger.debug(f"[TIMING_PROBE] VAULT_PERSISTENCE_START mint={mint[:16]} strategy={strategy}")
     try:
         conn = sqlite3.connect(db_path, timeout=10)
         cursor = conn.cursor()
@@ -150,6 +152,8 @@ def record_vault_discovery_result(
             f"[VAULT_DISCOVERY_PERSIST] ❌ Failed to persist discovery data: {e}"
         )
         return False
+    finally:
+        logger.debug(f"[TIMING_PROBE] VAULT_PERSISTENCE_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_vp_t0)*1000)}")
 
 
 def increment_vault_discovery_attempts(

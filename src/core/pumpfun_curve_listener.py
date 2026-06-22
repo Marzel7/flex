@@ -99,6 +99,7 @@ _MIGRATION_LOG_PREFIXES = (
     "[BATCH_VALIDATE_REASONS]",
     "[CANDIDATE_REJECTED]",
     "[FAST_LANE_PRIMARY]",
+    "[TIMING_PROBE]",
 )
 
 _FLASK_BROADCAST_URL = "http://127.0.0.1:5002/api/internal/broadcast"
@@ -3341,6 +3342,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def _write_resolution_telemetry(self, mint: str, resolve_source: str, pool_address: str = None, retry_count: int = 0):
         """Write token resolution telemetry to database."""
+        _tp_tel_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] TELEMETRY_START mint={mint[:16]} source={resolve_source}", flush=True)
         try:
             import time
             from src.core.vault_discovery_persistence import record_vault_discovery_result
@@ -3397,6 +3400,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as e:
             log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
 
+        log_print(f"[TIMING_PROBE] TELEMETRY_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_tel_t0)*1000)}", flush=True)
         # Fire-and-forget symbol fetch for every resolved token (covers all resolution paths)
         _spawn_symbol_fetch(mint, DB_PATH)
 
@@ -6046,6 +6050,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if not candidates:
             return [], {}
 
+        _tp_val_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] VALIDATE_START n_candidates={len(candidates)}", flush=True)
         try:
             result = await self.call_discovery_rpc(
                 "getMultipleAccounts",
@@ -6122,10 +6128,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 self._validated_account_cache[addr] = acc
 
             log_print(f"[BATCH_VALIDATE_REASONS] Result: {len(valid)} valid, {len(rejections)} rejected from {len(candidates)} input", flush=True)
+            log_print(f"[TIMING_PROBE] VALIDATE_DONE n_valid={len(valid)} elapsed_ms={int((time.monotonic()-_tp_val_t0)*1000)}", flush=True)
             return valid, rejections
 
         except Exception as e:
             log_print(f"[BATCH_VALIDATE_REASONS] ❌ Fatal error during validation: {e}", flush=True)
+            log_print(f"[TIMING_PROBE] VALIDATE_DONE n_valid=0 elapsed_ms={int((time.monotonic()-_tp_val_t0)*1000)} error=1", flush=True)
             return [], {}
 
     async def batch_validate_candidates(self, candidates: list, strict_mode: bool = True) -> list:
@@ -6416,6 +6424,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if not tx_data:
             return []
 
+        _tp_ext_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] POOL_EXTRACT_START", flush=True)
         try:
             message = tx_data.get("transaction", {}).get("message", {})
             meta = tx_data.get("meta", {})
@@ -6518,10 +6528,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[_EXTRACT_POOL_FROM_TX] Limiting candidates from {len(candidates)} to 50", flush=True)
                 candidates = candidates[:50]
 
+            log_print(f"[TIMING_PROBE] POOL_EXTRACT_DONE n_candidates={len(candidates)} elapsed_ms={int((time.monotonic()-_tp_ext_t0)*1000)}", flush=True)
             return candidates
 
         except Exception as e:
             log_print(f"[_EXTRACT_POOL_FROM_TX] Error: {e}", flush=True)
+            log_print(f"[TIMING_PROBE] POOL_EXTRACT_DONE n_candidates=0 elapsed_ms={int((time.monotonic()-_tp_ext_t0)*1000)} error=1", flush=True)
             return []
 
     async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
@@ -7532,6 +7544,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         cached_account_info=None,
     ) -> RegisterResult:
         """Inner registration logic — called via _register_pool_and_mark_resolved with a timeout."""
+        _tp_reg_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] REGISTER_START mint={mint[:16]} pool={pool_address[:16]}", flush=True)
         try:
             from src.core.pool_discovery import PoolDiscovery
             from src.core.pool_detector import AMMPrograms
@@ -7591,13 +7605,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # Write pool_address to token_analysis so _get_pool_address can find it for price extraction
             try:
+                _tp_reg_db1 = time.monotonic()
+                log_print(f"[TIMING_PROBE] REGISTER_DB_WRITE stage=pool_addr_update mint={mint[:16]} reg_elapsed_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
                 _conn = db_connect(DB_PATH, timeout=15)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=pool_addr_update mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db1)*1000)}", flush=True)
                 _conn.execute(
                     "UPDATE token_analysis SET pool_address = ?, pumpswap_pool_address = COALESCE(pumpswap_pool_address, ?), dex = COALESCE(dex, 'pumpswap'), lifecycle_stage = 'migrated' WHERE mint = ?",
                     (pool_address, pool_address, mint),
                 )
                 _conn.commit()
                 _conn.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=pool_addr_update mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db1)*1000)}", flush=True)
             except Exception as _e:
                 log_print(f"[FAST_PATH_REGISTER] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
 
@@ -7653,13 +7671,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # can price it right away — without this, the new mint is invisible to the WS
                 # price cycle until the first on-chain vault event arrives (potentially 30-60s gap).
                 try:
+                    _tp_reg_db2 = time.monotonic()
+                    log_print(f"[TIMING_PROBE] REGISTER_DB_WRITE stage=bootstrap_read mint={mint[:16]} reg_elapsed_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
                     _conn2 = db_connect(DB_PATH, timeout=15)
+                    log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=bootstrap_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db2)*1000)}", flush=True)
                     _conn2.row_factory = sqlite3.Row
                     _pool_row = _conn2.execute(
                         "SELECT * FROM token_pool_accounts WHERE mint = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1",
                         (mint,)
                     ).fetchone()
                     _conn2.close()
+                    log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=bootstrap_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db2)*1000)}", flush=True)
                     if _pool_row:
                         import threading as _thr
                         _pool_meta = dict(_pool_row)
@@ -7691,11 +7713,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Broadcast pool_registered event so the UI refreshes immediately
             _reg_creator = None
             try:
+                _tp_reg_db3 = time.monotonic()
+                log_print(f"[TIMING_PROBE] REGISTER_DB_WRITE stage=reg_creator_read mint={mint[:16]} reg_elapsed_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
                 _rc = db_connect(DB_PATH, timeout=15)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=reg_creator_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db3)*1000)}", flush=True)
                 _rr = _rc.execute(
                     "SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (mint,)
                 ).fetchone()
                 _rc.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=reg_creator_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db3)*1000)}", flush=True)
                 if _rr and _rr[0]:
                     _reg_creator = _rr[0]
             except Exception:
@@ -7708,6 +7734,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 **({"creator": _reg_creator} if _reg_creator else {}),
             })
 
+            log_print(f"[TIMING_PROBE] REGISTER_DONE mint={mint[:16]} reg_total_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
             return RegisterResult.SUCCESS
 
         except Exception as e:
@@ -7718,13 +7745,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Continue migration pipeline once mint is known. `source` (WEBSOCKET/RECONCILER) is passed
         EXPLICITLY — not via a shared instance var — so concurrent WS + reconciler processing of the
         same migration can't cross-contaminate the migration_source tag (the burst-mislabel race)."""
+        import threading as _tp_threading
+        _tp_t0 = time.monotonic()
+        _tp_is_loop = threading.current_thread() is threading.main_thread()
+        log_print(f"[TIMING_PROBE] MIGRATION_START mint={mint[:16]} sig={signature[:16]} thread={_tp_threading.current_thread().name} on_loop={_tp_is_loop}", flush=True)
         _mig_t = int(time.time())
         try:
+            _tp_db1 = time.monotonic()
             _gc = db_connect(DB_PATH, timeout=5)
+            log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=curve_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db1)*1000)}", flush=True)
             _cc_row = _gc.execute(
                 "SELECT curve_complete, curve_completed_at FROM token_analysis WHERE mint=? LIMIT 1", (mint,)
             ).fetchone()
             _gc.close()
+            log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=curve_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db1)*1000)}", flush=True)
             if _cc_row and _cc_row[1]:
                 _delta = _mig_t - int(_cc_row[1])
                 premig_log(f"[TIMING] mint={mint} migration_arrived t={_mig_t} curve_complete_was={'yes' if _cc_row[0] else 'no'} delta_since_complete={_delta}s")
@@ -7889,12 +7923,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
             }
             # Enrich with any data already in DB from minimal entry
             try:
+                _tp_db2 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=enrich_det_event mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 _conn = db_connect(DB_PATH, timeout=15)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=enrich_det_event mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db2)*1000)}", flush=True)
                 _row = _conn.execute(
                     "SELECT symbol, earliest_tx_creator, pool_address FROM token_analysis WHERE mint = ?",
                     (mint,)
                 ).fetchone()
                 _conn.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=enrich_det_event mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db2)*1000)}", flush=True)
                 if _row:
                     if _row[0]: _det_event["symbol"] = _row[0]
                     if _row[1]: _det_event["creator"] = _row[1]
@@ -7905,7 +7943,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # Store migration TX signature (needed for retry discovery and analytics)
             try:
+                _tp_db3 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=store_migration_tx mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 conn = db_connect(DB_PATH, timeout=15)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=store_migration_tx mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db3)*1000)}", flush=True)
                 cursor = conn.cursor()
                 cursor.execute(
                     "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', "
@@ -7916,6 +7957,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 conn.commit()
                 conn.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=store_migration_tx mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db3)*1000)}", flush=True)
                 log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
                 _check_watchtower_migration(mint, migrated_at=migrated_at_ts, migration_tx=signature, source='migration_tx_store')
                 self._submit_auto_sim_buy_on_migration(
@@ -7965,8 +8007,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             # === Write initial telemetry entry ===
             try:
+                _tp_db4 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=init_telemetry mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 now = int(time.time())
                 conn = db_connect(DB_PATH, timeout=15)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=init_telemetry mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db4)*1000)}", flush=True)
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR IGNORE INTO token_resolution_telemetry
@@ -7975,6 +8020,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 """, (mint, now, now, now))
                 conn.commit()
                 conn.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=init_telemetry mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db4)*1000)}", flush=True)
             except Exception as e:
                 log_print(f"[TELEMETRY] ⚠️  Failed to write initial telemetry for {mint}: {e}", flush=True)
 
@@ -7996,11 +8042,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     # Fast-lane with TX data: extract candidates, score, validate, and retry on transient failures.
                     # 8.0s window: RPC visibility lag can exceed 4-7s for slower-indexing migrations;
                     # retries are distributed across the full window via fast_candidate_retry delay schedule.
+                    _tp_fl = time.monotonic()
+                    log_print(f"[TIMING_PROBE] FAST_LANE_START mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                     pool = await self.fast_lane_resolve_with_retries(
                         mint=mint,
                         tx_data=tx_data,
                         max_wait_secs=8.0
                     )
+                    log_print(f"[TIMING_PROBE] FAST_LANE_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_fl)*1000)} found={pool is not None}", flush=True)
 
                     if pool:
                         # ✅ FAST-LANE SUCCESS: Record first valid pool timestamp
@@ -8422,11 +8471,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _fast_creator = (self._portal_vsol.get(mint) or {}).get('creator') or None
             if not _fast_creator:
                 try:
+                    _tp_db5 = time.monotonic()
+                    log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=fast_creator mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                     _gc = db_connect(DB_PATH, timeout=5)
+                    log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=fast_creator mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db5)*1000)}", flush=True)
                     _db_fast = _gc.execute(
                         "SELECT pf_ws_creator, earliest_tx_creator FROM token_analysis WHERE mint=? LIMIT 1", (mint,)
                     ).fetchone()
                     _gc.close()
+                    log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=fast_creator mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db5)*1000)}", flush=True)
                     if _db_fast:
                         _fast_creator = (str(_db_fast[0]).strip() if _db_fast[0] else "") or (str(_db_fast[1]).strip() if _db_fast[1] else "") or None
                 except Exception:
@@ -8552,11 +8605,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Only runs for WATCH risk tokens (or if globally enabled for all tokens)
             _run_history_check = False
             try:
+                _tp_db6 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=risk_check mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 _hist_conn = db_connect(DB_PATH, timeout=5)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=risk_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db6)*1000)}", flush=True)
                 _risk_row = _hist_conn.execute(
                     "SELECT risk_level FROM token_prediction_scores WHERE mint = ? LIMIT 1", (mint,)
                 ).fetchone()
                 _hist_conn.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=risk_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db6)*1000)}", flush=True)
                 _token_risk = _risk_row[0] if _risk_row else None
                 _run_history_check = _token_risk == 'WATCH'
             except Exception:
@@ -8574,12 +8631,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Always check DB — earliest_tx_creator may have been set via a path
             # that bypasses pool discovery (e.g. pre-migration RPC fallback)
             try:
+                _tp_db7 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=enqueue_creator_check mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 _gc = db_connect(DB_PATH, timeout=5)
+                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=enqueue_creator_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db7)*1000)}", flush=True)
                 _db_row = _gc.execute(
                     "SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature FROM token_analysis WHERE mint = ? LIMIT 1",
                     (mint,),
                 ).fetchone()
                 _gc.close()
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=enqueue_creator_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db7)*1000)}", flush=True)
                 if _db_row:
                     db_creator = (str(_db_row[0]).strip() if _db_row[0] else "") or (str(_db_row[1]).strip() if _db_row[1] else "") or None
                     if not enqueue_creator and db_creator:
@@ -8589,6 +8650,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 pass
             if enqueue_creator:
                 create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
+                _tp_eq = time.monotonic()
+                log_print(f"[TIMING_PROBE] FUNDING_ENQUEUE_START mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
                 await self._enqueue_creator_funding_job(
                     enqueue_creator,
                     mint=mint,
@@ -8597,8 +8660,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     delay_seconds=0,
                     source=enqueue_source,
                 )
+                log_print(f"[TIMING_PROBE] FUNDING_ENQUEUE_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_eq)*1000)}", flush=True)
             else:
                 log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
+
+            log_print(f"[TIMING_PROBE] MIGRATION_TOTAL mint={mint[:16]} sig={signature[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
 
         finally:
             # Clean up active discovery tracking

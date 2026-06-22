@@ -5515,6 +5515,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         analyzer = PostMigrationAnalyzer(mint, rpc_url=rpc_url)
 
         if not create_tx_signature:
+            if os.environ.get("CREATOR_BACKFILL_ENABLED", "0") == "0":
+                log_print(
+                    f"[PF_WS_CREATOR] Inline RPC backfill disabled; skipping signature walk for {mint[:8]}...",
+                    flush=True,
+                )
+                return None
             # Fallback: find creator via getSignaturesForAddress on the mint
             log_print(
                 f"[PF_WS_CREATOR] ℹ No create_tx_signature for {mint[:8]}..., trying RPC fallback trigger={reason}",
@@ -6957,10 +6963,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
             summary = await analyzer.get_summary_async()
 
             # Extract creator from earliest transaction with provenance validation
-            provenance = await analyzer.get_creator_from_earliest_tx()
             earliest_creator = None
             creator_is_blocked = 0
             network_risk = None
+            if os.environ.get("CREATOR_BACKFILL_ENABLED", "0") != "0":
+                provenance = await analyzer.get_creator_from_earliest_tx()
+            else:
+                provenance = None
+                log_print(f"[ANALYZER] Inline RPC backfill disabled; skipping creator walk for {mint[:16]}...", flush=True)
 
             if provenance:
                 earliest_creator = provenance.get('creator')
@@ -8500,9 +8510,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
                 analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+                _backfill_enabled = os.environ.get("CREATOR_BACKFILL_ENABLED", "0") != "0"
                 if not earliest_creator:
-                    provenance = await analyzer.get_creator_from_earliest_tx()
-                    earliest_creator = provenance.get('creator') if provenance else None
+                    if _backfill_enabled:
+                        provenance = await analyzer.get_creator_from_earliest_tx()
+                        earliest_creator = provenance.get('creator') if provenance else None
+                    else:
+                        provenance = None
+                        log_print(
+                            f"[CREATOR] Inline RPC backfill disabled (CREATOR_BACKFILL_ENABLED=0); "
+                            f"earliest_creator=None for {mint[:16]}... — resolution queue will handle",
+                            flush=True,
+                        )
                 else:
                     provenance = None
 

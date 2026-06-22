@@ -245,6 +245,12 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.jinja_env.auto_reload = True
 Compress(app)  # gzip all text/html and application/json responses automatically
 
+try:
+    from src.core.internal_api import internal_bp
+    app.register_blueprint(internal_bp)
+except Exception as _e:
+    print(f"[STARTUP] WARNING: Internal API blueprint failed: {_e}", flush=True)
+
 
 @app.before_request
 def _ui_recovery_read_only_guard():
@@ -252,6 +258,15 @@ def _ui_recovery_read_only_guard():
     if not _ui_recovery_mode_enabled():
         return
     if request.path == "/api/webhook/pumpfun-birth" and request.method == "POST":
+        return
+    # Ops-v2 approval/audit routes write only to wt_ops_v2.db — safe in recovery mode
+    _OPS_WRITE_PATHS = {
+        "/api/ops-v2/intel/treasury-approve",
+        "/api/ops-v2/intel/treasury-webhook-enroll",
+        "/api/ops-v2/intel/treasury-promote",
+        "/api/ops-v2/intel/subprov-funder",
+    }
+    if request.path in _OPS_WRITE_PATHS:
         return
     if request.method not in ("GET", "HEAD", "OPTIONS"):
         return jsonify({
@@ -24686,11 +24701,12 @@ def api_listener_recovery_status():
                          "..", "..", "logs", "supervisor", "listener.log")
     _LOG = _os.path.normpath(_LOG)
 
-    pumpportal_status  = "UNKNOWN"
-    pumpswap_status    = "UNKNOWN"
-    creator_enabled    = None   # None = could not determine
-    price_enabled      = None
-    listener_log_age_s = None
+    pumpportal_status          = "UNKNOWN"
+    pumpswap_status            = "UNKNOWN"
+    birth_reconciler_status    = "UNKNOWN"  # IDLE/ACTIVE/DISABLED
+    creator_enabled            = None   # None = could not determine
+    price_enabled          = None
+    listener_log_age_s     = None
 
     try:
         _st = _os.stat(_LOG)
@@ -24722,15 +24738,31 @@ def api_listener_recovery_status():
                     pumpportal_status = "CONNECTED"
 
             # ── PumpSwap / Helius WS (last-wins per signal) ───────────────
-            if "PUMPSWAP" in _line or ("[WEBSOCKET]" in _line):
+            if "PUMPSWAP" in _line or ("[WEBSOCKET]" in _line and "PUMPFUN" not in _line):
                 if ("connection error" in _line or "Retrying" in _line
                         or ("⚠" in _line and ("PUMPSWAP" in _line or "WEBSOCKET" in _line))):
                     pumpswap_status = "RETRYING"
                 elif ("subscrib" in _line.lower() or "✓" in _line
+                      or "migration account sub" in _line
                       or ("Connect" in _line and "error" not in _line.lower())):
                     pumpswap_status = "CONNECTED"
 
-        # ── Lock error counts by tag (additional pass over same _tail) ──────
+            # ── Birth reconciler (RPC poll, only when PumpPortal down) ──
+            if "[BIRTH_RECONCILER]" in _line:
+                if "Started" in _line:
+                    birth_reconciler_status = "IDLE"
+                elif "sweep done" in _line:
+                    birth_reconciler_status = "IDLE"
+                elif "PumpPortal down" in _line:
+                    birth_reconciler_status = "ACTIVE"
+                elif "DISABLED" in _line or "PUMPFUN_BIRTH_RECONCILER_ENABLED=0" in _line:
+                    birth_reconciler_status = "DISABLED"
+
+        # ── Lock error counts by tag (scoped to current listener run) ───────
+        # Scope to text after the most recent "gather() starting" so pre-restart
+        # lock errors from earlier runs don't inflate the count.
+        _startup_idx = _tail.rfind("gather() starting")
+        _lock_scan_text = _tail[_startup_idx:] if _startup_idx != -1 else _tail
         _LOCK_TAGS = {
             "BIRTH":                    "[BIRTH]",
             "PREDICTION":               "[PREDICTION]",
@@ -24743,7 +24775,7 @@ def api_listener_recovery_status():
         _lock_by_tag = {k: 0 for k in _LOCK_TAGS}
         _lock_other  = 0
         _lock_total  = 0
-        for _line in _tail.splitlines():
+        for _line in _lock_scan_text.splitlines():
             if "database is locked" not in _line and "batch write failed" not in _line:
                 continue
             _lock_total += 1
@@ -24757,10 +24789,25 @@ def api_listener_recovery_status():
                 _lock_other += 1
         _lock_by_tag["OTHER"] = _lock_other
 
+        # Birth reconciler disabled if not in gather line
+        if "gather() starting" in _tail and "birth reconciler" not in _tail:
+            birth_reconciler_status = "DISABLED"
+
+        # Fallback: log may be freshly rotated with no startup/reconciler lines yet.
+        # Infer from env rather than showing UNKNOWN when listener is clearly alive.
+        import os as _os_health
+        if birth_reconciler_status == "UNKNOWN" and listener_log_age_s is not None and listener_log_age_s < 300:
+            _br_env = _os_health.environ.get("PUMPFUN_BIRTH_RECONCILER_ENABLED", "1")
+            if _br_env.lower() in ("0", "false", "no"):
+                birth_reconciler_status = "DISABLED"
+            else:
+                birth_reconciler_status = "IDLE"
+
         # If log is stale (no activity in 5 min) override to STALE
         if listener_log_age_s is not None and listener_log_age_s > 300:
-            pumpportal_status = "STALE"
-            pumpswap_status   = "STALE"
+            pumpportal_status       = "STALE"
+            pumpswap_status         = "STALE"
+            birth_reconciler_status = "STALE"
     except Exception:
         _lock_total  = None
         _lock_by_tag = None
@@ -24788,9 +24835,11 @@ def api_listener_recovery_status():
             _window = "log_tail"
             _confidence = "partial"
 
-        # Birth counts
-        _births_seen      = len(_re.findall(r'\[PUMPPORTAL\][^\n]*Birth:', _scan_text))
-        _births_persisted = _scan_text.count("[PREMIG_BIRTH_SEED]")
+        # Birth counts — PumpPortal (rich) + Helius WS fallback (both write [BIRTH] ✅)
+        _births_seen_pp     = len(_re.findall(r'\[PUMPPORTAL\][^\n]*Birth:', _scan_text))
+        _births_seen_helius = len(_re.findall(r'\[BIRTH\][^\n]*Pump\.fun launch detected', _scan_text))
+        _births_seen        = _births_seen_pp + _births_seen_helius
+        _births_persisted   = _scan_text.count("[PREMIG_BIRTH_SEED]")
 
         # Migration counts — persisted = DB write success line
         _migs_persisted = len(_re.findall(r'Marked token migrated:', _scan_text))
@@ -24828,6 +24877,8 @@ def api_listener_recovery_status():
             "confidence": _confidence,
             "births": {
                 "seen":             _births_seen,
+                "seen_pumpportal":  _births_seen_pp,
+                "seen_helius_ws":   _births_seen_helius,
                 "persisted":        _births_persisted,
                 "pending_retry":    _b_pending,
                 "missing":          _b_missing,
@@ -24926,15 +24977,16 @@ def api_listener_recovery_status():
         },
         "ingestion": ingestion,
         "listener": {
-            "pumpportal_status":  pumpportal_status,
-            "pumpswap_status":    pumpswap_status,
-            "listener_log_age_s": listener_log_age_s,
+            "pumpportal_status":       pumpportal_status,
+            "pumpswap_status":         pumpswap_status,
+            "birth_reconciler_status": birth_reconciler_status,
+            "listener_log_age_s":      listener_log_age_s,
         },
         "lock_errors": {
             "listener_tail_count": _lock_total,
             "by_tag":              _lock_by_tag,
             "tail_window_bytes":   204800,
-            "note": "Count of 'database is locked' in recent listener log tail; not time-windowed.",
+            "note": "Count of 'database is locked' since last listener restart (scoped to current run).",
         } if _lock_total is not None else {"listener_tail_count": None, "by_tag": None},
         "ingestion_completeness":   _completeness,
         "migration_coverage_audit": _migration_coverage,
@@ -25839,7 +25891,7 @@ def api_funding_queue():
             FROM creator_funding_queue cfq
             LEFT JOIN metadata_cache mc ON mc.mint = cfq.mint
             ORDER BY cfq.created_at DESC
-            LIMIT 200
+            LIMIT 100
         """).fetchall()
 
         conn.close()
@@ -25869,6 +25921,13 @@ def api_funding_queue_coverage():
         conn = db_connect(DB_PATH, timeout=10)
         conn.execute("PRAGMA query_only = ON")
         row = conn.execute("""
+            WITH recent AS (
+                SELECT earliest_tx_creator
+                FROM token_analysis
+                WHERE earliest_tx_creator IS NOT NULL AND migrated_at IS NOT NULL
+                ORDER BY migrated_at DESC
+                LIMIT 100
+            )
             SELECT
                 COUNT(DISTINCT ta.earliest_tx_creator) AS total,
                 COUNT(DISTINCT CASE WHEN EXISTS (
@@ -25884,26 +25943,24 @@ def api_funding_queue_coverage():
                 ) AND EXISTS (
                     SELECT 1 FROM creator_funding_queue cfq WHERE cfq.creator_address = ta.earliest_tx_creator
                 ) THEN ta.earliest_tx_creator END) AS missing_queued,
-                COUNT(DISTINCT CASE WHEN ta.created_at >= strftime('%s','now') - 86400
-                    AND NOT EXISTS (
-                        SELECT 1 FROM creator_funders cf WHERE cf.creator_address = ta.earliest_tx_creator
-                    ) THEN ta.earliest_tx_creator END) AS missing_24h
-            FROM token_analysis ta
-            WHERE ta.earliest_tx_creator IS NOT NULL AND ta.migrated_at IS NOT NULL
+                COUNT(DISTINCT CASE WHEN NOT EXISTS (
+                    SELECT 1 FROM creator_funders cf WHERE cf.creator_address = ta.earliest_tx_creator
+                ) THEN ta.earliest_tx_creator END) AS missing_24h
+            FROM recent ta
         """).fetchone()
         conn.close()
         total = row[0] or 1
         has_funding = row[1] or 0
         missing_no_queue = row[2] or 0
         missing_queued = row[3] or 0
-        missing_24h = row[4] or 0
+        missing_recent = row[4] or 0
         return {
             "ok": True,
             "total_creators": total,
             "has_funding": has_funding,
             "missing_no_queue": missing_no_queue,
             "missing_queued": missing_queued,
-            "missing_24h": missing_24h,
+            "missing_24h": missing_recent,
             "coverage_pct": round(has_funding / total * 100, 1),
             "missing_pct": round((missing_no_queue + missing_queued) / total * 100, 1),
         }
@@ -41947,23 +42004,28 @@ if __name__ == '__main__':
     print(f"[FLASK] Database: {_os.path.abspath(DB_PATH)}")
 
     # Prediction builder daemon — score new migrations and drain rescore queue
-    def _prediction_daemon():
-        import time as _t
-        _t.sleep(2)  # let DB settle after startup
-        while True:
-            try:
-                from src.core.token_prediction_builder import TokenPredictionBuilder
-                TokenPredictionBuilder(DB_PATH).run()
-            except Exception as _e:
-                if "database is locked" in str(_e):
-                    print(f"[PREDICTION_DAEMON] DB locked, retrying in 15s", flush=True)
-                    _t.sleep(15)
-                    continue
-                print(f"[PREDICTION_DAEMON] error: {_e}", flush=True)
-            _t.sleep(120)  # run every 2 minutes
+    # Gated by PREDICTION_DAEMON_ENABLED (default true). Set false during listener recovery
+    # to avoid competing for the write lane with WATCHTOWER pipeline workers.
+    if _os.environ.get("PREDICTION_DAEMON_ENABLED", "true").lower() not in ("false", "0", "no"):
+        def _prediction_daemon():
+            import time as _t
+            _t.sleep(2)  # let DB settle after startup
+            while True:
+                try:
+                    from src.core.token_prediction_builder import TokenPredictionBuilder
+                    TokenPredictionBuilder(DB_PATH).run()
+                except Exception as _e:
+                    if "database is locked" in str(_e):
+                        print(f"[PREDICTION_DAEMON] DB locked, retrying in 15s", flush=True)
+                        _t.sleep(15)
+                        continue
+                    print(f"[PREDICTION_DAEMON] error: {_e}", flush=True)
+                _t.sleep(120)  # run every 2 minutes
 
-    threading.Thread(target=_prediction_daemon, daemon=True, name="prediction-daemon").start()
-    print("[PREDICTION_DAEMON] Token prediction daemon started (2 min loop)", flush=True)
+        threading.Thread(target=_prediction_daemon, daemon=True, name="prediction-daemon").start()
+        print("[PREDICTION_DAEMON] Token prediction daemon started (2 min loop)", flush=True)
+    else:
+        print("[PREDICTION_DAEMON] PARKED — PREDICTION_DAEMON_ENABLED=false (re-enable after recovery)", flush=True)
 
 
     # Creator resolution queue daemon — process pending resolution jobs every 30s

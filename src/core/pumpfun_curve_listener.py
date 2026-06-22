@@ -34,9 +34,10 @@ from src.core.ws_price_tracer import trace as _wstrace
 from dotenv import load_dotenv
 
 class RegisterResult(str, Enum):
-    SUCCESS = "success"
-    RETRY   = "retry"   # transient: not yet visible on-chain — safe to re-attempt
-    FAIL    = "fail"    # permanent: wrong owner / extraction failure — never retry
+    SUCCESS    = "success"
+    RETRY      = "retry"      # transient: not yet visible on-chain — safe to re-attempt
+    FAIL       = "fail"       # permanent: wrong owner / extraction failure — never retry
+    DISPATCHED = "dispatched" # indexed + valid owner; heavy work enqueued as background Task
 
 
 # === ANSI Color Codes ===
@@ -822,6 +823,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # PumpPortal live vSol state: {mint: {"v_sol": float, "ts": int, "symbol": str, "name": str, "creator": str}}
         self._portal_vsol: dict = {}
         self.websocket_connected = False
+        self._pumpportal_connected = False   # True only while inside the active WS context
+        self._birth_reconciler_last_seen_sig: Optional[str] = None  # dedup anchor
         self.websocket_msg_count = 0  # Track message receipt
         self.websocket_migration_count = 0  # Track migrations detected
         # MIGRATION RECONCILER counters — the WS is the fast path; the reconciler is the
@@ -913,8 +916,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS = 90
         self.critical_window_tasks = {}  # {mint: critical_window_expiry_time}
 
-        # RPC isolation: separate quotas for discovery vs background
-        self.discovery_rpc_semaphore = asyncio.Semaphore(8)  # 8 concurrent discovery calls
+        # RPC isolation: separate quotas for discovery vs background.
+        # LISTENER_DISCOVERY_RPC_CONCURRENCY caps concurrent getTransaction chains — lower
+        # values prevent semaphore saturation under RPC degradation (239s avg lag observed
+        # at concurrency=8; target=3 keeps slots free so the loop stays responsive).
+        _disc_concurrency = int(os.environ.get("LISTENER_DISCOVERY_RPC_CONCURRENCY", "8"))
+        self.discovery_rpc_semaphore = asyncio.Semaphore(_disc_concurrency)
         self.background_rpc_semaphore = asyncio.Semaphore(2)  # 2 concurrent background calls
 
         # Background job queue (deferred execution during critical window)
@@ -978,12 +985,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if _os_pw.environ.get("LISTENER_PRICE_WORKER_ENABLED", "1") != "0":
             try:
                 from src.core.price_worker import get_price_worker
-                import os
+                import os as _os_init
                 from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
-                _db_abs = os.path.abspath(self.db_path if hasattr(self, 'db_path') else 'database/flex_complete_database.db')
-                _ws_log_abs = os.path.abspath(_ws_log_path)
+                _db_abs = _os_init.path.abspath(self.db_path if hasattr(self, 'db_path') else 'database/flex_complete_database.db')
+                _ws_log_abs = _os_init.path.abspath(_ws_log_path)
                 log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
-                log_print(f"[STARTUP] role=listener pid={os.getpid()}", flush=True)
+                log_print(f"[STARTUP] role=listener pid={_os_init.getpid()}", flush=True)
                 log_print(f"[STARTUP] db={_db_abs}", flush=True)
                 log_print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}", flush=True)
                 log_print(f"[STARTUP] cwd={os.getcwd()}", flush=True)
@@ -1012,6 +1019,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
         self._failed_registration: dict = {}            # {mint: set(addr)}
         # Account info fetched during batch validation — reused in registration to skip re-fetch
         self._validated_account_cache: dict = {}        # {addr: account_info}
+        # Candidates FAST_LANE validated but could not register (indexing lag).
+        # Handed to _retry_pool_discovery so it can skip re-extraction/scoring/getMultipleAccounts.
+        self._retry_candidates: dict = {}              # {mint: [addr, ...]}
 
     def _hydrate_bonding_curve_index(self) -> None:
         """Warm a mint/bonding-curve lookup table from the local DB without RPC."""
@@ -3351,7 +3361,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         _tp_tel_t0 = time.monotonic()
         log_print(f"[TIMING_PROBE] TELEMETRY_START mint={mint[:16]} source={resolve_source}", flush=True)
         try:
-            import time
             from src.core.vault_discovery_persistence import record_vault_discovery_result
 
             now = int(time.time())
@@ -3365,35 +3374,35 @@ class PumpFunCurveListener(FastLaneDiscovery):
             pool_registered_at = times.get("pool_registered_at") or resolved_at
             resolve_seconds = pool_registered_at - detected_at if detected_at else 0.0
 
-            with managed_db_connect(DB_PATH, timeout=15) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT OR REPLACE INTO token_resolution_telemetry
-                    (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (mint, int(detected_at), int(resolved_at), resolve_seconds, resolve_source, retry_count, pool_address, now, now))
-                conn.commit()
+            def _telemetry_db_sync():
+                with managed_db_connect(DB_PATH, timeout=15) as _conn:
+                    _conn.execute("""
+                        INSERT OR REPLACE INTO token_resolution_telemetry
+                        (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (mint, int(detected_at), int(resolved_at), resolve_seconds, resolve_source, retry_count, pool_address, now, now))
+                    _conn.commit()
 
-            # IMPORTANT: Also persist vault discovery metadata to token_pool_accounts
-            # This ensures the Vaults page shows real discovery data, not defaults
+                if pool_address:
+                    _attempts = retry_count + 1
+                    return record_vault_discovery_result(
+                        db_path=DB_PATH,
+                        mint=mint,
+                        base_account=pool_address,
+                        strategy=resolve_source,
+                        attempts=_attempts,
+                        elapsed_secs=float(resolve_seconds),
+                        pool_address=pool_address,
+                    )
+                return None
+
+            vault_success = await asyncio.to_thread(_telemetry_db_sync)
+
             if pool_address:
-                # Attempt is retry_count + 1 (attempts are 1-indexed)
-                attempts = retry_count + 1
-                
-                success = record_vault_discovery_result(
-                    db_path=DB_PATH,
-                    mint=mint,
-                    base_account=pool_address,
-                    strategy=resolve_source,
-                    attempts=attempts,
-                    elapsed_secs=float(resolve_seconds),
-                    pool_address=pool_address,
-                )
-                
-                if success:
+                if vault_success:
                     log_print(
                         f"[VAULT_PERSISTENCE] ✅ Persisted discovery: "
-                        f"strategy={resolve_source} attempts={attempts} elapsed={resolve_seconds}s",
+                        f"strategy={resolve_source} attempts={retry_count + 1} elapsed={resolve_seconds}s",
                         flush=True
                     )
                 else:
@@ -3603,8 +3612,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             log_print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
 
-            # Retry with backoff for indexing delays
-            retry_delays = [1, 2, 4, 6, 10, 15, 20, 30]
+            # Retry with backoff for indexing delays.
+            # LISTENER_GETTX_RETRY_DELAYS overrides the delay list (comma-separated seconds).
+            # Default [1,2,4,8] = 15s max, 5 attempts. Under RPC degradation set to "1" (1
+            # attempt after first miss, 2 total) — reconciler backstop covers any misses.
+            _delays_env = os.environ.get("LISTENER_GETTX_RETRY_DELAYS", "1,2,4,8")
+            retry_delays = [int(x) for x in _delays_env.split(",") if x.strip().isdigit()]
+            if not retry_delays:
+                retry_delays = [1, 2, 4, 8]
             total_attempts = len(retry_delays) + 1
 
             for attempt in range(total_attempts):
@@ -4257,18 +4272,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Brand-new creators (no existing funder data) get priority=1 so they jump
         # ahead of any backlog in the queue worker. Known creators stay at priority=0.
-        try:
-            _check = db_connect(DB_PATH, timeout=3)
-            _funder_count = _check.execute(
-                "SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (creator,)
-            ).fetchone()[0]
-            _check.close()
-            job_priority = 1 if _funder_count == 0 else 0
-            priority_reason = "brand_new_creator" if job_priority else "known_creator"
-        except Exception:
-            job_priority = 0
-            priority_reason = "unknown"
-        async with self.db_lock:
+        def _enqueue_sync():
+            # Priority check
+            try:
+                _check = db_connect(DB_PATH, timeout=3)
+                _funder_count = _check.execute(
+                    "SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (creator,)
+                ).fetchone()[0]
+                _check.close()
+                _job_priority = 1 if _funder_count == 0 else 0
+                _priority_reason = "brand_new_creator" if _job_priority else "known_creator"
+            except Exception:
+                _job_priority = 0
+                _priority_reason = "unknown"
+
             conn = None
             try:
                 conn = db_connect(DB_PATH, timeout=30)
@@ -4285,11 +4302,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 if existing:
                     existing_creator = str(existing[0]) if existing[0] else "unknown"
                     existing_status = str(existing[1]) if existing[1] else "unknown"
-                    log_print(
-                        f"[FUNDING_QUEUE] ⏭️ Skip duplicate enqueue for mint={mint[:8]}... existing_creator={existing_creator[:8]}... status={existing_status}",
-                        flush=True,
-                    )
-                    return False
+                    return ("skip", existing_creator, existing_status, _job_priority, _priority_reason)
                 cursor.execute(
                     """
                     INSERT INTO creator_funding_queue (
@@ -4301,14 +4314,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     ON CONFLICT(creator_address, mint) DO NOTHING
                     """,
                     (creator, mint, migration_timestamp, create_tx_signature, source, next_attempt_at,
-                     now, curve_completed_slot, curve_completed_slot, job_priority, priority_reason, now, now),
+                     now, curve_completed_slot, curve_completed_slot, _job_priority, _priority_reason, now, now),
                 )
                 conn.commit()
-                log_print(
-                    f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}",
-                    flush=True,
-                )
-                premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
                 try:
                     conn2 = db_connect(DB_PATH, timeout=10)
                     conn2.execute(
@@ -4319,14 +4327,35 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     conn2.close()
                 except Exception:
                     pass
-                self._creator_funding_queue_wakeup.set()
-                return True
+                return ("ok", _job_priority, _priority_reason)
             except Exception as e:
-                log_print(f"[FUNDING_QUEUE] ⚠ Failed to enqueue funding for {creator[:16]}...: {e}", flush=True)
-                return False
+                return ("error", str(e))
             finally:
                 if conn is not None:
                     conn.close()
+
+        async with self.db_lock:
+            result = await asyncio.to_thread(_enqueue_sync)
+
+        if result[0] == "skip":
+            _, existing_creator, existing_status, _, _ = result
+            log_print(
+                f"[FUNDING_QUEUE] ⏭️ Skip duplicate enqueue for mint={mint[:8]}... existing_creator={existing_creator[:8]}... status={existing_status}",
+                flush=True,
+            )
+            return False
+        elif result[0] == "ok":
+            _, job_priority, priority_reason = result
+            log_print(
+                f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}",
+                flush=True,
+            )
+            premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
+            self._creator_funding_queue_wakeup.set()
+            return True
+        else:
+            log_print(f"[FUNDING_QUEUE] ⚠ Failed to enqueue funding for {creator[:16]}...: {result[1]}", flush=True)
+            return False
 
     async def _post_extraction_intelligence_refresh(self, creator: str) -> None:
         """
@@ -5105,13 +5134,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     flush=True,
                 )
 
-    def _token_exists_in_db(self, mint: str) -> bool:
-        """
-        Check whether a token is already in a post-birth lifecycle stage.
-
-        Pre-migration launch rows are inserted early with `lifecycle_stage='bonding_curve'`.
-        Those rows must still be allowed to flow through the later migration pipeline.
-        """
+    def _token_exists_in_db_sync(self, mint: str) -> bool:
         try:
             conn = db_connect(DB_PATH, timeout=60)
             cursor = conn.cursor()
@@ -5125,6 +5148,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as e:
             log_print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
             return False
+
+    async def _token_exists_in_db(self, mint: str) -> bool:
+        """
+        Check whether a token is already in a post-birth lifecycle stage.
+
+        Pre-migration launch rows are inserted early with `lifecycle_stage='bonding_curve'`.
+        Those rows must still be allowed to flow through the later migration pipeline.
+        """
+        return await asyncio.to_thread(self._token_exists_in_db_sync, mint)
 
     # --- Migration Detection ---
     def _is_migration_transaction(self, logs: list) -> bool:
@@ -5670,8 +5702,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         earliest_tx_creator = str(row[1]).strip() if row[1] else ""
         return not (pf_ws_creator or earliest_tx_creator)
 
-    def _get_resolved_creator_for_mint(self, mint: str) -> Tuple[Optional[str], Optional[str]]:
-        """Return the best resolved creator plus create-tx signature for a mint."""
+    def _get_resolved_creator_for_mint_sync(self, mint: str) -> Tuple[Optional[str], Optional[str]]:
         if not mint:
             return None, None
         try:
@@ -5698,6 +5729,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         earliest_tx_creator = str(row[1]).strip() if row[1] else ""
         create_tx_signature = str(row[2]).strip() if row[2] else None
         return (pf_ws_creator or earliest_tx_creator or None), create_tx_signature
+
+    async def _get_resolved_creator_for_mint(self, mint: str) -> Tuple[Optional[str], Optional[str]]:
+        """Return the best resolved creator plus create-tx signature for a mint."""
+        return await asyncio.to_thread(self._get_resolved_creator_for_mint_sync, mint)
 
     async def handle_birth(self, signature: str, logs: list):
         """Process a Pump.fun token birth event."""
@@ -6049,7 +6084,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         return []
 
-    async def batch_validate_candidates_with_reasons(self, candidates: list, strict_mode: bool = True) -> Tuple[list, Dict[str, str]]:
+    async def batch_validate_candidates_with_reasons(self, candidates: list, strict_mode: bool = True, loose_mode: bool = False) -> Tuple[list, Dict[str, str]]:
         """
         Batch validate all candidates and return both valid addresses and rejection reasons.
 
@@ -6063,12 +6098,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return [], {}
 
         _tp_val_t0 = time.monotonic()
-        log_print(f"[TIMING_PROBE] VALIDATE_START n_candidates={len(candidates)}", flush=True)
+        log_print(f"[TIMING_PROBE] VALIDATE_START n_candidates={len(candidates)} loose={loose_mode}", flush=True)
         try:
+            # Loose mode: 3s. Strict mode: 5s (reduced from 10s — 10s timeout on 17-candidate
+            # cold batch was the dominant source of 15s+ VALIDATE_DONE events).
+            _rpc_timeout = 3 if loose_mode else 5
             result = await self.call_discovery_rpc(
                 "getMultipleAccounts",
                 [candidates, {"encoding": "base64", "commitment": "processed"}],
-                timeout=10
+                timeout=_rpc_timeout,
             )
 
             if not result or "result" not in result:
@@ -6095,6 +6133,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _pd_db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
             _pd = PoolDiscovery(_pd_db_path, "")
             _shared_threshold = 2 if strict_mode else 3
+            # Loose mode: tighter per-candidate timeout + lower concurrency
+            _shared_timeout = 0.5 if loose_mode else 3.0
+            _semaphore_size = 2 if loose_mode else 8
 
             # Phase A: cheap synchronous checks (exist + owner) — no I/O, no await
             need_shared_check = []  # (addr, acc, owner) pairs that passed checks 1+2
@@ -6111,15 +6152,25 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     continue
                 need_shared_check.append((addr, acc, owner))
 
-            # Phase B: shared-account checks run concurrently, capped at 8 in-flight
-            # (previously serial — 19 candidates × 10s timeout = up to 190s loop stall)
-            _sem = asyncio.Semaphore(8)
+            # Phase B: shared-account checks run concurrently.
+            # Strict: Semaphore(8), 3s per check. Loose: Semaphore(2), 0.5s per check.
+            _sem = asyncio.Semaphore(_semaphore_size)
 
             async def _check_shared(addr, acc, owner):
                 addr_short = addr[:16]
                 async with _sem:
                     try:
-                        is_shared = await _pd._is_shared_account(addr, threshold=_shared_threshold)
+                        is_shared = await asyncio.wait_for(
+                            _pd._is_shared_account(addr, threshold=_shared_threshold),
+                            timeout=_shared_timeout,
+                        )
+                    except asyncio.TimeoutError:
+                        # Loose: timeout = fail open (accept candidate, don't block)
+                        if loose_mode:
+                            log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check timed out {_shared_timeout}s, accepting in loose mode)", flush=True)
+                            return addr, {"address": addr, "account_info": acc, "owner": owner}, None
+                        # Strict: timeout = fail closed
+                        return addr, None, "shared_check_timeout"
                     except Exception as check_error:
                         reason = "shared_check_failed"
                         log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} error={str(check_error)[:40]}", flush=True)
@@ -7561,11 +7612,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
         discovery_source: str,
         cached_account_info=None,
     ) -> RegisterResult:
-        """Inner registration logic — called via _register_pool_and_mark_resolved with a timeout."""
-        _tp_reg_t0 = time.monotonic()
+        """Light gate: check indexing + owner. Dispatches heavy work as a background Task.
+
+        Returns:
+            RETRY      — pool not yet visible at processed commitment (transient)
+            FAIL       — wrong owner / permanent error
+            DISPATCHED — indexed + valid owner; _heavy_pool_registration Task enqueued
+        """
         log_print(f"[TIMING_PROBE] REGISTER_START mint={mint[:16]} pool={pool_address[:16]}", flush=True)
         try:
-            from src.core.pool_discovery import PoolDiscovery
             from src.core.pool_detector import AMMPrograms
 
             # Reuse account info from batch validation when available (saves one RPC round-trip)
@@ -7600,15 +7655,50 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 return RegisterResult.FAIL
 
-            # Register the pool — pass cached account info to skip redundant RPC fetch
+            # Pool is indexed with a valid AMM owner. Enqueue heavy work as a background Task
+            # so the listener hot path returns immediately without waiting for vault extraction,
+            # reserve registration, DB writes, or price bootstrap.
+            log_print(
+                f"[FAST_PATH_REGISTER] ✅ Indexed + valid owner — dispatching heavy registration for {pool_address[:16]}...",
+                flush=True
+            )
+            asyncio.create_task(
+                self._heavy_pool_registration(mint, pool_address, value, discovery_source),
+                name=f"heavy_reg_{mint[:12]}",
+            )
+            return RegisterResult.DISPATCHED
+
+        except Exception as e:
+            log_print(f"[FAST_PATH_REGISTER] ❌ Registration error: {e}", flush=True)
+            return RegisterResult.FAIL
+
+    async def _heavy_pool_registration(
+        self,
+        mint: str,
+        pool_address: str,
+        pool_account_info: dict,
+        discovery_source: str,
+    ) -> None:
+        """Heavy pool registration: vault discovery, DB writes, price bootstrap, broadcast.
+
+        Runs as a background Task (via asyncio.create_task). The listener hot path
+        returns DISPATCHED immediately; this Task completes asynchronously and marks
+        token_states[mint] = 'resolved' when done.
+        """
+        _tp_reg_t0 = time.monotonic()
+        try:
+            from src.core.pool_discovery import PoolDiscovery
+
+            # discover_and_register_pool: extract vaults, validate mint membership, persist
             discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
             registered = await discovery.discover_and_register_pool(
-                pool_address, mint, pool_account_info=value
+                pool_address, mint, pool_account_info=pool_account_info
             )
 
             if not registered:
-                log_print(f"[FAST_PATH_REGISTER] ❌ Pool registration failed: {pool_address[:16]}...", flush=True)
-                return RegisterResult.FAIL
+                log_print(f"[HEAVY_REG] ❌ Pool registration failed: {pool_address[:16]}...", flush=True)
+                self._mark_registration_failed(mint, pool_address)
+                return
 
             # Mark token as resolved
             self.token_states[mint] = "resolved"
@@ -7616,26 +7706,24 @@ class PumpFunCurveListener(FastLaneDiscovery):
             elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
 
             log_print(
-                f"{Colors.DETECT}[FAST_PATH_REGISTER] ✅ Pool {pool_address[:16]}... registered (resolved in {elapsed:.1f}s){Colors.RESET}",
+                f"{Colors.DETECT}[HEAVY_REG] ✅ Pool {pool_address[:16]}... registered (resolved in {elapsed:.1f}s){Colors.RESET}",
                 flush=True
             )
             _wstrace('POOL_REGISTERED', mint, f"pool={pool_address[:20]} elapsed={elapsed:.1f}s")
 
             # Write pool_address to token_analysis so _get_pool_address can find it for price extraction
             try:
-                _tp_reg_db1 = time.monotonic()
-                log_print(f"[TIMING_PROBE] REGISTER_DB_WRITE stage=pool_addr_update mint={mint[:16]} reg_elapsed_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
-                _conn = db_connect(DB_PATH, timeout=15)
-                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=pool_addr_update mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db1)*1000)}", flush=True)
-                _conn.execute(
-                    "UPDATE token_analysis SET pool_address = ?, pumpswap_pool_address = COALESCE(pumpswap_pool_address, ?), dex = COALESCE(dex, 'pumpswap'), lifecycle_stage = 'migrated' WHERE mint = ?",
-                    (pool_address, pool_address, mint),
-                )
-                _conn.commit()
-                _conn.close()
-                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=pool_addr_update mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db1)*1000)}", flush=True)
+                def _pool_addr_update_sync():
+                    _conn = db_connect(DB_PATH, timeout=15)
+                    _conn.execute(
+                        "UPDATE token_analysis SET pool_address = ?, pumpswap_pool_address = COALESCE(pumpswap_pool_address, ?), dex = COALESCE(dex, 'pumpswap'), lifecycle_stage = 'migrated' WHERE mint = ?",
+                        (pool_address, pool_address, mint),
+                    )
+                    _conn.commit()
+                    _conn.close()
+                await asyncio.to_thread(_pool_addr_update_sync)
             except Exception as _e:
-                log_print(f"[FAST_PATH_REGISTER] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
+                log_print(f"[HEAVY_REG] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
 
             _check_watchtower_migration(mint, migrated_at=int(time.time()), migration_tx=None, source='fast_path_register')
 
@@ -7672,37 +7760,26 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # Persist telemetry (retry_count=0 for primary fast-lane path)
             await self._write_resolution_telemetry(mint, discovery_source, pool_address, 0)
 
-            # Non-blocking reserve check — warmup is async, no reason to block the critical path
-            if self.price_worker and self.price_worker.has_pool_data(pool_address):
-                log_print(f"[FAST_PATH_REGISTER] ✅ Pool {pool_address[:16]}... reserves ready", flush=True)
-            else:
-                log_print(f"[FAST_PATH_REGISTER] ℹ️  Pool {pool_address[:16]}... reserves not ready yet (async warmup)", flush=True)
-
-            # Trigger WebSocket refresh (pool data should now be ready for price extraction)
+            # Trigger WebSocket refresh and bootstrap reserves
             if self.price_worker:
                 try:
                     self.price_worker.trigger_pool_refresh()
                 except Exception as e:
-                    log_print(f"[FAST_PATH_REGISTER] ⚠️  WebSocket refresh failed: {e}", flush=True)
+                    log_print(f"[HEAVY_REG] ⚠️  WebSocket refresh failed: {e}", flush=True)
 
-                # Bootstrap reserves for this pool immediately so _recompute_prices_from_ws_state()
-                # can price it right away — without this, the new mint is invisible to the WS
-                # price cycle until the first on-chain vault event arrives (potentially 30-60s gap).
                 try:
-                    _tp_reg_db2 = time.monotonic()
-                    log_print(f"[TIMING_PROBE] REGISTER_DB_WRITE stage=bootstrap_read mint={mint[:16]} reg_elapsed_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
-                    _conn2 = db_connect(DB_PATH, timeout=15)
-                    log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=bootstrap_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db2)*1000)}", flush=True)
-                    _conn2.row_factory = sqlite3.Row
-                    _pool_row = _conn2.execute(
-                        "SELECT * FROM token_pool_accounts WHERE mint = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1",
-                        (mint,)
-                    ).fetchone()
-                    _conn2.close()
-                    log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=bootstrap_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db2)*1000)}", flush=True)
-                    if _pool_row:
-                        import threading as _thr
-                        _pool_meta = dict(_pool_row)
+                    def _bootstrap_read_sync():
+                        _conn2 = db_connect(DB_PATH, timeout=15)
+                        _conn2.row_factory = sqlite3.Row
+                        _row = _conn2.execute(
+                            "SELECT * FROM token_pool_accounts WHERE mint = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1",
+                            (mint,)
+                        ).fetchone()
+                        _conn2.close()
+                        return dict(_row) if _row else None
+                    _pool_row_dict = await asyncio.to_thread(_bootstrap_read_sync)
+                    if _pool_row_dict:
+                        _pool_meta = _pool_row_dict
                         def _bootstrap_with_retry(mint=mint, pool_meta=_pool_meta):
                             import time as _time
                             for _attempt, _delay in enumerate([0, 3, 8, 20], 1):
@@ -7710,38 +7787,35 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     _time.sleep(_delay)
                                 ok = self.price_worker.bootstrap_single_pool(mint, pool_meta)
                                 if ok:
-                                    log_print(f"[FAST_PATH_REGISTER] ✅ Bootstrap succeeded on attempt {_attempt} for {mint[:16]}...", flush=True)
+                                    log_print(f"[HEAVY_REG] ✅ Bootstrap succeeded on attempt {_attempt} for {mint[:16]}...", flush=True)
                                     return
-                                log_print(f"[FAST_PATH_REGISTER] ⏳ Bootstrap attempt {_attempt} returned no reserves for {mint[:16]}... (retrying)", flush=True)
-                            log_print(f"[FAST_PATH_REGISTER] ⚠️  Bootstrap gave up after 4 attempts for {mint[:16]}...", flush=True)
+                                log_print(f"[HEAVY_REG] ⏳ Bootstrap attempt {_attempt} returned no reserves for {mint[:16]}... (retrying)", flush=True)
+                            log_print(f"[HEAVY_REG] ⚠️  Bootstrap gave up after 4 attempts for {mint[:16]}...", flush=True)
                         _TOKEN_WORK_POOL.submit(_bootstrap_with_retry)
-                        log_print(f"[FAST_PATH_REGISTER] 🔄 Bootstrapping reserves for {mint[:16]}... (with retry)", flush=True)
+                        log_print(f"[HEAVY_REG] 🔄 Bootstrapping reserves for {mint[:16]}... (with retry)", flush=True)
                 except Exception as _be:
-                    log_print(f"[FAST_PATH_REGISTER] ⚠️  Reserve bootstrap failed: {_be}", flush=True)
+                    log_print(f"[HEAVY_REG] ⚠️  Reserve bootstrap failed: {_be}", flush=True)
 
-            # Register mint for price tracking immediately (don't wait for dashboard load)
+            # Register mint for price tracking immediately
             try:
                 from src.core.price_worker import PriceWorkerRegistry
                 PriceWorkerRegistry(DB_PATH).register_token(mint, priority_level='HIGH')
-                log_print(f"[FAST_PATH_REGISTER] 📈 Registered {mint[:16]}... for price tracking (HIGH priority)", flush=True)
+                log_print(f"[HEAVY_REG] 📈 Registered {mint[:16]}... for price tracking (HIGH priority)", flush=True)
                 _spawn_symbol_fetch(mint, DB_PATH)
             except Exception as _e:
-                log_print(f"[FAST_PATH_REGISTER] ⚠️  Price tracking registration failed: {_e}", flush=True)
+                log_print(f"[HEAVY_REG] ⚠️  Price tracking registration failed: {_e}", flush=True)
 
-            # Broadcast pool_registered event so the UI refreshes immediately
+            # Broadcast pool_registered event so the UI refreshes
             _reg_creator = None
             try:
-                _tp_reg_db3 = time.monotonic()
-                log_print(f"[TIMING_PROBE] REGISTER_DB_WRITE stage=reg_creator_read mint={mint[:16]} reg_elapsed_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
-                _rc = db_connect(DB_PATH, timeout=15)
-                log_print(f"[TIMING_PROBE] DB_CONNECT_OPEN stage=reg_creator_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db3)*1000)}", flush=True)
-                _rr = _rc.execute(
-                    "SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (mint,)
-                ).fetchone()
-                _rc.close()
-                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=reg_creator_read mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_reg_db3)*1000)}", flush=True)
-                if _rr and _rr[0]:
-                    _reg_creator = _rr[0]
+                def _reg_creator_read_sync():
+                    _rc = db_connect(DB_PATH, timeout=15)
+                    _rr = _rc.execute(
+                        "SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (mint,)
+                    ).fetchone()
+                    _rc.close()
+                    return _rr[0] if (_rr and _rr[0]) else None
+                _reg_creator = await asyncio.to_thread(_reg_creator_read_sync)
             except Exception:
                 pass
             asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, {
@@ -7752,12 +7826,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 **({"creator": _reg_creator} if _reg_creator else {}),
             })
 
-            log_print(f"[TIMING_PROBE] REGISTER_DONE mint={mint[:16]} reg_total_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
-            return RegisterResult.SUCCESS
+            log_print(f"[HEAVY_REG] DONE mint={mint[:16]} reg_total_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
 
         except Exception as e:
-            log_print(f"[FAST_PATH_REGISTER] ❌ Registration error: {e}", flush=True)
-            return RegisterResult.FAIL
+            import traceback as _tb
+            log_print(f"[HEAVY_REG] ❌ Unhandled error for {pool_address[:16]}...: {e}\n{_tb.format_exc()}", flush=True)
 
     async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None, source: str = "WEBSOCKET"):
         """Continue migration pipeline once mint is known. `source` (WEBSOCKET/RECONCILER) is passed
@@ -7784,7 +7857,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 premig_log(f"[TIMING] mint={mint} migration_arrived t={_mig_t} curve_complete_was=no")
         except Exception:
             pass
-        if self._token_exists_in_db(mint):
+        if await self._token_exists_in_db(mint):
             log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
             self._submit_auto_sim_buy_on_migration(
                 mint,
@@ -7792,7 +7865,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 migration_tx=signature,
                 source="already_known_migration_fast",
             )
-            resolved_creator, create_tx_sig = self._get_resolved_creator_for_mint(mint)
+            resolved_creator, create_tx_sig = await self._get_resolved_creator_for_mint(mint)
             if resolved_creator:
                 migration_time_str = datetime.utcfromtimestamp(int(time.time())).isoformat() + "Z"
                 await self._enqueue_creator_funding_job(
@@ -8097,6 +8170,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             ranked = raw_ranked  # all failed before — keep them as last resort
 
                         registered = False
+                        retry_pending = []
 
                         # Single-candidate fast path: no parallel overhead needed
                         if len(ranked) == 1:
@@ -8104,7 +8178,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 mint, ranked[0], "tx_parsing", timeout=8.0,
                                 pool_account_info=winner_account_info if ranked[0] == pool else None,
                             )
-                            if res == RegisterResult.SUCCESS:
+                            if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
                                 registered = True
                             elif res == RegisterResult.RETRY:
                                 retry_pending = [ranked[0]]
@@ -8113,7 +8187,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     res = await self._register_pool_and_mark_resolved(
                                         mint, ranked[0], "tx_parsing", timeout=8.0
                                     )
-                                    if res == RegisterResult.SUCCESS:
+                                    if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
                                         registered = True
                                         break
 
@@ -8143,7 +8217,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     pending_tasks, return_when=asyncio.FIRST_COMPLETED
                                 )
                                 for t in done:
-                                    if t.result() == RegisterResult.SUCCESS:
+                                    if t.result() in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
                                         winner = tasks[t]
                                     elif t.result() == RegisterResult.RETRY:
                                         retry_pending.append(tasks[t])
@@ -8158,7 +8232,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     res = await self._register_pool_and_mark_resolved(
                                         mint, candidate, "tx_parsing", timeout=8.0
                                     )
-                                    if res == RegisterResult.SUCCESS:
+                                    if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
                                         registered = True
                                         pool = candidate
                                         break
@@ -8178,7 +8252,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     res = await self._register_pool_and_mark_resolved(
                                         mint, candidate, "tx_parsing", timeout=8.0
                                     )
-                                    if res == RegisterResult.SUCCESS:
+                                    if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
                                         registered = True
                                         pool = candidate
                                         break
@@ -8209,6 +8283,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             pool_address = pool
                             pool_discovery_source = "tx_parsing"
                             # Continue to creator extraction below, but skip secondary/retries
+                        else:
+                            # FAST_LANE found valid candidates but registration returned RETRY
+                            # (pool account not yet indexed). Save ranked list so the retry
+                            # loop can attempt _register_pool_and_mark_resolved directly,
+                            # skipping re-extraction / scoring / getMultipleAccounts.
+                            if ranked:
+                                self._retry_candidates[mint] = list(ranked)
+                                log_print(
+                                    f"[FAST_LANE_PRIMARY] 💾 Saved {len(ranked)} validated candidate(s) for retry: "
+                                    f"{ranked[0][:16]}...{Colors.RESET}",
+                                    flush=True,
+                                )
                     else:
                         log_print(
                             f"{Colors.DISCOVER}[FAST_LANE_PRIMARY] ⏭️  Fast-lane timed out or found no valid pool{Colors.RESET}",
@@ -8895,8 +8981,88 @@ class PumpFunCurveListener(FastLaneDiscovery):
             try:
                 await asyncio.sleep(delay)
 
+                # Guard: heavy registration Task may have resolved this mint already
+                if self.token_states.get(mint) == "resolved":
+                    self._retry_candidates.pop(mint, None)
+                    log_print(
+                        f"[FAST_PATH_RETRY] ✅ {mint[:16]}... already resolved (heavy_reg Task completed) — exiting retry loop",
+                        flush=True,
+                    )
+                    return
+
                 elapsed = time.time() - self.token_discovery_times[mint]["detected"]
                 in_critical_window = self.is_in_critical_window(mint)
+
+                # ── FAST PATH: reuse FAST_LANE's validated candidates ──────────────
+                # If FAST_LANE already identified valid pool candidates but couldn't
+                # register them (indexing lag), try them directly before doing any
+                # re-extraction, scoring, or getMultipleAccounts validation.
+                # Only candidates that returned RETRY (not FAIL) are kept — FAIL means
+                # wrong owner at _register_pool_inner level, not indexing lag.
+                _saved = self._retry_candidates.get(mint)
+                if _saved:
+                    _has_retry = False
+                    for _cand in list(_saved):
+                        _res = await self._register_pool_and_mark_resolved(
+                            mint, _cand, "tx_parsing", timeout=8.0
+                        )
+                        if _res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                            self._retry_candidates.pop(mint, None)
+                            if _res == RegisterResult.DISPATCHED:
+                                # Heavy work is running as a background Task; token_states
+                                # will be set to "resolved" when it completes.
+                                log_print(
+                                    f"[FAST_PATH_RETRY] ✅ {_cand[:16]}... dispatched on attempt {attempt} "
+                                    f"— heavy registration running in background",
+                                    flush=True,
+                                )
+                            else:
+                                resolved_at = time.time()
+                                self.token_states[mint] = "resolved"
+                                self.token_discovery_times[mint]["resolved"] = resolved_at
+                                elapsed_ok = resolved_at - self.token_discovery_times[mint]["detected"]
+                                log_print(
+                                    f"[FAST_PATH_RETRY] ✅ {_cand[:16]}... registered on attempt {attempt} "
+                                    f"({elapsed_ok:.1f}s) — skipped re-extraction",
+                                    flush=True,
+                                )
+                            await self._write_resolution_telemetry(mint, "tx_parsing", _cand, attempt - 1)
+                            if self.price_worker:
+                                try:
+                                    self.price_worker.trigger_pool_refresh()
+                                except Exception:
+                                    pass
+                            return
+                        elif _res == RegisterResult.RETRY:
+                            # Still not indexed — keep candidate, skip rediscovery this attempt
+                            _has_retry = True
+                        else:
+                            # RegisterResult.FAIL → permanent owner mismatch; discard
+                            _saved.remove(_cand)
+
+                    if not _saved:
+                        # All saved candidates permanently failed (owner mismatch, not indexing lag).
+                        # Clear and let full rediscovery run from next attempt onward.
+                        self._retry_candidates.pop(mint, None)
+                        log_print(
+                            f"[FAST_PATH_RETRY] ⚠️  All saved candidates invalid for {mint[:16]}..., "
+                            f"falling back to full rediscovery next attempt",
+                            flush=True,
+                        )
+                        # Skip full rediscovery THIS attempt — we just burned getAccountInfo
+                        # calls on each candidate. Wait for next delay slot.
+                        continue
+
+                    if _has_retry:
+                        # At least one candidate still viable but not yet indexed.
+                        # Skip full rediscovery this attempt.
+                        log_print(
+                            f"[FAST_PATH_RETRY] ⏳ attempt={attempt} saved candidate(s) not yet indexed, "
+                            f"skipping re-extraction",
+                            flush=True,
+                        )
+                        continue
+                # ── END FAST PATH ────────────────────────────────────────────────
 
                 # Determine retry tier based on attempt number
                 if attempt <= 5:
@@ -9439,6 +9605,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         existing = self._retry_tasks_by_mint.get(mint)
         if existing is asyncio.current_task():
             self._retry_tasks_by_mint.pop(mint, None)
+        self._retry_candidates.pop(mint, None)
 
     def _db_serializer_metrics_snapshot_thread(self):
         """Write db_locking.serializer_metrics() to a JSON file every 15s (plain thread — immune to
@@ -9999,6 +10166,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     max_size=10 * 1024 * 1024,
                 ) as ws:
                     reconnect_delay = 5
+                    self._pumpportal_connected = True
                     log_print("[PUMPPORTAL] ✓ Connected", flush=True)
 
                     await ws.send(json.dumps({"method": "subscribeNewToken"}))
@@ -10152,6 +10320,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     f" exc_type={type(e).__name__} exc={repr(e)} subs={_subs_desc}",
                     flush=True,
                 )
+            self._pumpportal_connected = False
             await asyncio.sleep(reconnect_delay)
             reconnect_delay = min(reconnect_delay * 1.5, 60)
 
@@ -10840,15 +11009,129 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
         # PumpPortal WSS handles births, migrations, and near-complete curve tracking.
         # listen_pumpswap_websocket detects PumpSwap pool creation (migrations) via Helius logsSubscribe.
         # listen_pumpportal_websocket handles pump.fun births via PumpPortal WSS (free, no Helius cost).
+        # listen_pumpfun_websocket is a Helius logsSubscribe fallback for births when PumpPortal is down.
         # drain_webhook_birth_queue is a fallback for Helius birth webhook delivery.
-        log_print("[STARTUP] gather() starting — pumpswap WS + pumpportal WS + birth drainer + migration persist drainer", flush=True)
-        await asyncio.gather(
+        _helius_birth_enabled = os.environ.get("HELIUS_BIRTH_WS_ENABLED", "0").lower() not in ("0", "false", "no")
+        _birth_reconciler_enabled = os.environ.get("PUMPFUN_BIRTH_RECONCILER_ENABLED", "1").lower() not in ("0", "false", "no")
+        _tasks = [
             self.listen_pumpswap_websocket(),
             self.listen_pumpportal_websocket(),
             self.drain_webhook_birth_queue(),
             self.drain_migration_persist_queue(),
             self._loop_lag_watchdog(),
+        ]
+        _desc = "pumpswap WS + pumpportal WS + birth drainer + migration persist drainer"
+        if _helius_birth_enabled:
+            _tasks.append(self.listen_pumpfun_websocket())
+            _desc += " + helius birth WS"
+        if _birth_reconciler_enabled:
+            _tasks.append(self._birth_reconciler_loop())
+            _desc += " + birth reconciler"
+        log_print(f"[STARTUP] gather() starting — {_desc}", flush=True)
+        await asyncio.gather(*_tasks)
+
+    async def _birth_reconciler_loop(self) -> None:
+        """
+        RPC-based birth reconciler: runs only when PumpPortal is down.
+
+        Every PUMPFUN_BIRTH_RECONCILE_INTERVAL_SECONDS, calls getSignaturesForAddress on
+        PUMPFUN_PROGRAM (limit=PUMPFUN_BIRTH_RECONCILE_LIMIT), stops at the last seen
+        signature, fetches and parses only unseen create candidates, and upserts births.
+        Concurrency=1 — one getTransaction at a time. Hard cap at limit per run.
+
+        Cost: ~10cr per getSignaturesForAddress + 10cr per getTransaction fetched.
+        At limit=100 and ~10% create rate: ~10 + 10×10 = 110cr per run max.
+        """
+        _interval = float(os.environ.get("PUMPFUN_BIRTH_RECONCILE_INTERVAL_SECONDS", "60"))
+        _limit = int(os.environ.get("PUMPFUN_BIRTH_RECONCILE_LIMIT", "100"))
+        _only_when_down = os.environ.get("PUMPFUN_BIRTH_RECONCILE_ONLY_WHEN_PUMPPORTAL_DOWN", "1") not in ("0", "false", "no")
+        _concurrency = int(os.environ.get("PUMPFUN_BIRTH_TX_CONCURRENCY", "1"))
+
+        # warm-up: let PumpPortal WS attempt connection before we start polling
+        await asyncio.sleep(45)
+        log_print(
+            f"[BIRTH_RECONCILER] Started — interval={_interval:.0f}s limit={_limit} "
+            f"only_when_pp_down={_only_when_down} concurrency={_concurrency}",
+            flush=True,
         )
+
+        while True:
+            try:
+                if _only_when_down and self._pumpportal_connected:
+                    await asyncio.sleep(_interval)
+                    continue
+
+                if _only_when_down:
+                    log_print("[BIRTH_RECONCILER] PumpPortal down — running birth reconcile sweep", flush=True)
+
+                # 1. Fetch recent signatures for the Pump.fun program
+                res = await self.call_discovery_rpc(
+                    "getSignaturesForAddress",
+                    [PUMPFUN_PROGRAM, {"limit": _limit, "commitment": "confirmed"}],
+                    timeout=15,
+                )
+                sigs = (res or {}).get("result") if isinstance(res, dict) else (res or [])
+                if not sigs:
+                    await asyncio.sleep(_interval)
+                    continue
+
+                # 2. Stop at anchor — skip already-seen signatures
+                unseen = []
+                for entry in sigs:
+                    sig = entry.get("signature", "")
+                    if not sig or entry.get("err"):
+                        continue
+                    if sig == self._birth_reconciler_last_seen_sig:
+                        break
+                    unseen.append(sig)
+
+                if not unseen:
+                    await asyncio.sleep(_interval)
+                    continue
+
+                # Update anchor to the most recent sig from this batch
+                self._birth_reconciler_last_seen_sig = sigs[0].get("signature") or self._birth_reconciler_last_seen_sig
+
+                # 3. Filter: only fetch sigs not already in completed_launches / seen_mints
+                to_fetch = [s for s in unseen if s not in self.completed_launches]
+                log_print(
+                    f"[BIRTH_RECONCILER] {len(unseen)} unseen sigs, {len(to_fetch)} not in completed_launches",
+                    flush=True,
+                )
+
+                # 4. Fetch + parse — serial, concurrency=1 (configurable)
+                _sem = asyncio.Semaphore(_concurrency)
+                inserted = 0
+                skipped = 0
+
+                async def _try_one(sig: str) -> None:
+                    nonlocal inserted, skipped
+                    async with _sem:
+                        try:
+                            tx_data = await self._get_transaction_cached(sig)
+                            if not tx_data:
+                                return
+                            # cheap log-free pre-filter using existing parsed tx
+                            logs = ((tx_data.get("meta") or {}).get("logMessages") or [])
+                            if not self._is_pumpfun_create_candidate(logs):
+                                skipped += 1
+                                return
+                            # Delegate to handle_birth which does full parse + idempotent upsert
+                            await self.handle_birth(sig, logs)
+                            inserted += 1
+                        except Exception as _e:
+                            log_print(f"[BIRTH_RECONCILER] ⚠ sig={sig[:16]} error={_e}", flush=True)
+
+                await asyncio.gather(*[_try_one(s) for s in to_fetch])
+                log_print(
+                    f"[BIRTH_RECONCILER] sweep done — fetched={len(to_fetch)} inserted={inserted} skipped={skipped}",
+                    flush=True,
+                )
+
+            except Exception as exc:
+                log_print(f"[BIRTH_RECONCILER] ⚠ sweep error: {exc}", flush=True)
+
+            await asyncio.sleep(_interval)
 
     async def _loop_lag_watchdog(self) -> None:
         """Measure event-loop lag every 5s. Logs WARNING >2s, CRITICAL >10s. No DB writes."""

@@ -334,7 +334,7 @@ class PoolDiscovery:
             True if shared (should reject), False if token-specific
         """
         def _check_sync(db_path: str, addr: str, thresh: int) -> bool:
-            conn = sqlite3.connect(db_path, timeout=10)
+            conn = sqlite3.connect(db_path, timeout=3)  # 3s cap — fail open on contention
             try:
                 cursor = conn.cursor()
                 # Check ALL roles: vault base, vault quote, pool address
@@ -354,8 +354,9 @@ class PoolDiscovery:
                 conn.close()
 
         try:
-            is_shared = await asyncio.to_thread(
-                _check_sync, self.db_path, account_address, threshold
+            is_shared = await asyncio.wait_for(
+                asyncio.to_thread(_check_sync, self.db_path, account_address, threshold),
+                timeout=3.0,  # never block event loop >3s per candidate
             )
             if is_shared:
                 logger.warning(
@@ -366,7 +367,7 @@ class PoolDiscovery:
 
         except Exception as e:
             logger.debug(f"[SHARED_ACCOUNT_CHECK] Could not check account {account_address[:16]}...: {e}")
-            # On error, don't reject (false negative is safer than false positive)
+            # On error/timeout, don't reject (false negative is safer than false positive)
             return False
 
     async def _extract_vaults_by_mint(

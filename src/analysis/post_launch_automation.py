@@ -19,7 +19,11 @@ import json
 from src.analysis.cross_funding_network_analyzer import CrossFundingClusterAnalyzer
 from src.analysis.watchtower_detector import analyze_creator_from_conn, ensure_schema as wt_ensure_schema
 
-DB_PATH = "flex_complete_database.db"
+import os as _os
+DB_PATH = _os.environ.get(
+    "DB_PATH",
+    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "../../database/flex_complete_database.db"),
+)
 
 
 class PostLaunchAutomationCoordinator:
@@ -83,8 +87,10 @@ class PostLaunchAutomationCoordinator:
                 updates["coordinated_funders"] = True
 
             # 3.5. Comprehensive network analysis using CrossFundingClusterAnalyzer
-            # This analyzes the creator's position in atomic networks, clusters, and hubs
-            await self._analyze_creator_network_using_cluster_analyzer(creator)
+            # Gated: rebuilds 142k-creator graph synchronously on event loop — parked during recovery.
+            # Re-enable via CROSS_FUNDING_CLUSTER_ANALYZER_ENABLED=1
+            if _os.environ.get("CROSS_FUNDING_CLUSTER_ANALYZER_ENABLED", "0") == "1":
+                await self._analyze_creator_network_using_cluster_analyzer(creator)
 
             # 4. Rebuild clusters
             await self._rebuild_clusters_for_creator(creator)

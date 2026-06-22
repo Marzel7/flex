@@ -100,6 +100,12 @@ _MIGRATION_LOG_PREFIXES = (
     "[CANDIDATE_REJECTED]",
     "[FAST_LANE_PRIMARY]",
     "[TIMING_PROBE]",
+    "[FUNDING_QUEUE]",
+    "[FRESH_CREATOR]",
+    "[RISK_SCORE]",
+    "[PREDICTION]",
+    "[LIVE_NETWORK]",
+    "[LOOP_LAG]",
 )
 
 _FLASK_BROADCAST_URL = "http://127.0.0.1:5002/api/internal/broadcast"
@@ -6084,48 +6090,50 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _pd = PoolDiscovery(_pd_db_path, "")
             _shared_threshold = 2 if strict_mode else 3
 
+            # Phase A: cheap synchronous checks (exist + owner) — no I/O, no await
+            need_shared_check = []  # (addr, acc, owner) pairs that passed checks 1+2
             for addr, acc in zip(candidates, values):
                 addr_short = addr[:16] if isinstance(addr, str) else str(addr)[:16]
-
-                # Check 1: Account must exist
                 if not acc:
-                    reason = "account_not_found"
-                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason}", flush=True)
-                    rejections[addr] = reason
+                    rejections[addr] = "account_not_found"
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=account_not_found", flush=True)
                     continue
-
-                # Check 2: Owner must be PumpSwap pool program or a token vault program (SPL/Token-2022)
                 owner = acc.get("owner")
                 if owner not in ALLOWED_POOL_OWNERS:
-                    reason = "wrong_owner"
-                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} owner={owner[:16] if owner else 'null'}...", flush=True)
-                    rejections[addr] = reason
+                    rejections[addr] = "wrong_owner"
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=wrong_owner owner={owner[:16] if owner else 'null'}...", flush=True)
                     continue
+                need_shared_check.append((addr, acc, owner))
 
-                # Check 3: Shared account check (always enforce, never accept ADyA-like accounts)
-                try:
-                    is_shared = await _pd._is_shared_account(addr, threshold=_shared_threshold)
+            # Phase B: shared-account checks run concurrently, capped at 8 in-flight
+            # (previously serial — 19 candidates × 10s timeout = up to 190s loop stall)
+            _sem = asyncio.Semaphore(8)
+
+            async def _check_shared(addr, acc, owner):
+                addr_short = addr[:16]
+                async with _sem:
+                    try:
+                        is_shared = await _pd._is_shared_account(addr, threshold=_shared_threshold)
+                    except Exception as check_error:
+                        reason = "shared_check_failed"
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} error={str(check_error)[:40]}", flush=True)
+                        if strict_mode:
+                            return addr, None, "shared_check_failed"
+                        log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check failed but accepting in retry mode)", flush=True)
+                        return addr, {"address": addr, "account_info": acc, "owner": owner}, None
                     if is_shared:
-                        reason = "shared_account"
-                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} threshold={_shared_threshold}", flush=True)
-                        rejections[addr] = reason
-                        continue
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_account threshold={_shared_threshold}", flush=True)
+                        return addr, None, "shared_account"
+                    log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... passed all validation checks", flush=True)
+                    return addr, {"address": addr, "account_info": acc, "owner": owner}, None
 
-                except Exception as check_error:
-                    reason = "shared_check_failed"
-                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} error={str(check_error)[:40]}", flush=True)
-                    # Only skip in strict mode; in retry mode, accept if check fails
-                    if strict_mode:
-                        rejections[addr] = reason
-                        continue
-                    log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check failed but accepting in retry mode)", flush=True)
-                    valid.append(addr)
-                    continue
-
-                # All checks passed — return rich object so registration skips re-fetch
-                log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... passed all validation checks", flush=True)
-                valid.append({"address": addr, "account_info": acc, "owner": owner})
-                self._validated_account_cache[addr] = acc
+            results = await asyncio.gather(*[_check_shared(a, ac, ow) for a, ac, ow in need_shared_check])
+            for addr, rich_obj, rejection_reason in results:
+                if rejection_reason:
+                    rejections[addr] = rejection_reason
+                else:
+                    valid.append(rich_obj)
+                    self._validated_account_cache[addr] = rich_obj["account_info"]
 
             log_print(f"[BATCH_VALIDATE_REASONS] Result: {len(valid)} valid, {len(rejections)} rejected from {len(candidates)} input", flush=True)
             log_print(f"[TIMING_PROBE] VALIDATE_DONE n_valid={len(valid)} elapsed_ms={int((time.monotonic()-_tp_val_t0)*1000)}", flush=True)

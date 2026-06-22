@@ -422,13 +422,16 @@ class FastLaneDiscovery:
                 sleep_time = 0.25 if attempt < 2 else 0.5
                 await asyncio.sleep(sleep_time)
 
-            # Timeout - try loose validation as last resort
+            # Timeout - try loose validation as last resort on top-5 scored candidates only.
+            # Using the full candidate list here would re-run all shared-account checks
+            # serially and stall the loop again for another 60-120s.
+            loose_candidates = [addr for addr, _ in scored[:5]]
             self._log_fl(
                 f"[FAST_LANE] Timeout reached for {mint[:16]} after {max_wait_secs:.1f}s, "
-                f"trying loose validation"
+                f"trying loose validation on top-{len(loose_candidates)} candidates"
             )
 
-            valid_r, _ = await self.batch_validate_candidates_with_reasons(candidates, strict_mode=False)
+            valid_r, _ = await self.batch_validate_candidates_with_reasons(loose_candidates, strict_mode=False)
             if valid_r:
                 valid = [v["address"] if isinstance(v, dict) else v for v in valid_r]
                 elapsed = time.time() - start_time

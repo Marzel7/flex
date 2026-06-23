@@ -26177,7 +26177,7 @@ def api_funding_queue_recent_activity():
                 mc.symbol,
                 cfq.source                              AS creator_source,
                 cfq.status                              AS funding_status,
-                cfq.created_at                          AS enqueued_at,
+                COALESCE(ta.first_pre_migration_signal_at, cfq.created_at) AS enqueued_at,
                 cfq.funding_extracted_at                AS completed_at,
                 ta.migrated_at,
                 ta.migration_band,
@@ -26227,8 +26227,7 @@ def api_funding_queue_recent_activity():
                 )
             )
             ORDER BY
-                CASE WHEN ta.migrated_at IS NULL THEN 0 ELSE 1 END,
-                COALESCE(ta.migrated_at, ta.migration_signal_updated_at, ta.created_at) DESC
+                ta.migrated_at DESC NULLS LAST
             LIMIT 100
         """).fetchall()
         conn.close()

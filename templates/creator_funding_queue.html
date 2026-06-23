@@ -533,7 +533,8 @@ async function loadTimingCards() {
         const scanBySource = scanData.by_source || {};
         const rows = liveData.migrations || [];
         const groups = {};
-        for (const t of rows) {
+        const cutoff = (Date.now() / 1000) - 48 * 3600;
+        for (const t of rows.filter(r => parseTs(r.migrated_at) > cutoff)) {
             const src = t.funding_source || 'unknown';
             if (src === 'unknown' || src === 'migration_db_fallback') continue;
             if (!groups[src]) groups[src] = { extract: [] };

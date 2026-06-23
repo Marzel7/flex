@@ -306,7 +306,7 @@ table.cfq-table td:last-child {
 
 <div class="cfq-section">
     <div class="cfq-section-title">Creator Pipeline Timing <span style="font-weight:400;color:var(--text-secondary);font-size:11px;">avg of last 10 migrations per source</span></div>
-    <div id="cfq-timing-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px;"></div>
+    <div id="cfq-timing-cards" style="margin-top:10px;"></div>
 </div>
 
 <!-- Funding Coverage Panel -->
@@ -536,54 +536,44 @@ async function loadTimingCards() {
         for (const t of rows) {
             const src = t.funding_source || 'unknown';
             if (src === 'unknown' || src === 'migration_db_fallback') continue;
-            if (!groups[src]) groups[src] = { enqueue: [], extract: [] };
+            if (!groups[src]) groups[src] = { extract: [] };
             const migTs = parseTs(t.migrated_at);
-            if (t.funding_enqueued_at && isFinite(migTs)) {
-                const d = parseTs(t.funding_enqueued_at) - migTs;
-                if (d >= 0 && d < 3600) groups[src].enqueue.push(d);
-            }
             if (t.funding_extracted_at && isFinite(migTs)) {
                 const d = parseTs(t.funding_extracted_at) - migTs;
-                if (d >= 0 && d < 3600) groups[src].extract.push(d);
+                if (d >= 0 && d < 86400) groups[src].extract.push(d);
             }
         }
-        const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length * 10) / 10 : null;
-        const order = ['pf_ws_creator_migration','pf_ws_creator_curve_complete','creator_discovery','migration_already_known'];
+        const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : null;
+        const order = ['pf_ws_creator_existing_migration','pf_ws_creator_migration','creator_discovery','migration_already_known','approval_queue_funding_coverage'];
         const sorted = Object.keys(groups).sort((a,b) => {
             const ai = order.indexOf(a), bi = order.indexOf(b);
             return (ai===-1?99:ai) - (bi===-1?99:bi);
         });
-        const legendCard = `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">Legend</div>
-            <div><span style="font-size:13px;font-weight:700;color:#e2e8f0;">Enqueue</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator identity job queued</div></div>
-            <div><span style="font-size:13px;font-weight:700;color:#6ee7b7;">Extract</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator funding source established</div></div>
-            <div><span style="font-size:13px;font-weight:700;color:#93c5fd;">Scan</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Avg time for funding scan to complete (last 10 completed jobs, 7d window)</div></div>
-        </div>`;
         if (!sorted.length) {
-            cards.innerHTML = legendCard + `<div style="color:var(--text-secondary);font-size:13px;padding:8px 0;">No timing data yet.</div>`;
+            cards.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;">No timing data yet.</div>';
             return;
         }
-        const totalMigrations = sorted.reduce((sum, src) => sum + Math.max(groups[src].enqueue.length, groups[src].extract.length), 0) || 1;
-        cards.innerHTML = legendCard + sorted.filter(src => src !== 'unknown' && src !== 'migration_db_fallback').map(src => {
+        const totalMigrations = sorted.reduce((sum, src) => sum + groups[src].extract.length, 0) || 1;
+        // Header row
+        let html = `<div style="display:grid;grid-template-columns:160px 1fr 1fr 60px;gap:0;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);padding:0 12px 6px;">
+            <div>Source</div><div style="color:#6ee7b7;">Extract</div><div style="color:#93c5fd;">Scan</div><div>Share</div>
+        </div>`;
+        html += sorted.map((src, i) => {
             const g = groups[src];
-            const aEnq = avg(g.enqueue.slice(-10));
             const aExt = avg(g.extract.slice(-10));
-            const count = Math.min(Math.max(g.enqueue.length, g.extract.length), 10);
-            const total = Math.max(g.enqueue.length, g.extract.length);
-            const pct = Math.round(total / totalMigrations * 100);
+            const n = Math.min(g.extract.length, 10);
+            const pct = Math.round(g.extract.length / totalMigrations * 100);
             const scanInfo = scanBySource[src];
             const aScan = scanInfo ? scanInfo.avg_secs : null;
-            const scanN = scanInfo ? scanInfo.n : 0;
-            return `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
-                <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">${esc(fmtSource(src))} <span style="font-weight:400;opacity:0.6;">· avg of last ${count}</span></div>
-                <div style="display:flex;gap:24px;align-items:baseline;margin-top:2px;">
-                    <div><div style="font-size:28px;font-weight:700;color:#e2e8f0;line-height:1;">${fmtSec(aEnq)}</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Enqueue</div></div>
-                    <div><div style="font-size:28px;font-weight:700;color:#6ee7b7;line-height:1;">${fmtSec(aExt)}</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Extract</div></div>
-                    <div><div style="font-size:28px;font-weight:700;color:#93c5fd;line-height:1;">${aScan !== null ? fmtSec(aScan) : '—'}</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Scan${scanN ? ' (' + scanN + ')' : ''}</div></div>
-                    <div style="margin-left:auto;align-self:flex-end;"><div style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1;">${pct}%</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">of migrations</div></div>
-                </div>
+            const bg = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+            return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 60px;gap:0;align-items:center;padding:8px 12px;border-radius:6px;background:${bg};">
+                <div><span class="cfq-source-chip">${esc(fmtSource(src))}</span></div>
+                <div style="font-size:18px;font-weight:700;color:#6ee7b7;">${aExt !== null ? fmtSec(aExt) : '—'} <span style="font-size:11px;font-weight:400;color:var(--text-secondary);">avg ${n}</span></div>
+                <div style="font-size:18px;font-weight:700;color:#93c5fd;">${aScan !== null ? fmtSec(Math.round(aScan)) : '—'} <span style="font-size:11px;font-weight:400;color:var(--text-secondary);">${scanInfo ? 'n='+scanInfo.n : ''}</span></div>
+                <div style="font-size:14px;font-weight:600;color:var(--text-secondary);">${pct}%</div>
             </div>`;
         }).join('');
+        cards.innerHTML = html;
     } catch(e) {
         console.error('loadTimingCards failed', e);
         cards.innerHTML = '<div class="cfq-empty">Timing data unavailable.</div>';

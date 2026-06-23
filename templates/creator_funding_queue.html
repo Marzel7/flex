@@ -607,7 +607,12 @@ async function loadTimingCards() {
     const cards = document.getElementById('cfq-timing-cards');
     if (!cards) return;
     try {
-        const data = await fetchJsonWithTimeout('/api/pumpfun/live');
+        const [liveData, scanData] = await Promise.all([
+            fetchJsonWithTimeout('/api/pumpfun/live'),
+            fetchJsonWithTimeout('/api/funding-queue/scan-timing').catch(() => ({by_source: {}})),
+        ]);
+        const data = liveData;
+        const scanBySource = scanData.by_source || {};
         const rows = data.migrations || [];
 
         const groups = {};
@@ -637,6 +642,7 @@ async function loadTimingCards() {
             <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">Legend</div>
             <div><span style="font-size:13px;font-weight:700;color:#e2e8f0;">Enqueue</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator identity job queued</div></div>
             <div><span style="font-size:13px;font-weight:700;color:#6ee7b7;">Extract</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator funding source established</div></div>
+            <div><span style="font-size:13px;font-weight:700;color:#93c5fd;">Scan</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Avg time for funding scan to complete (last 10 completed jobs, 7d window)</div></div>
         </div>`;
 
         if (!sorted.length) {
@@ -653,6 +659,9 @@ async function loadTimingCards() {
             const count = Math.min(Math.max(g.enqueue.length, g.extract.length), 10);
             const total = Math.max(g.enqueue.length, g.extract.length);
             const pct = Math.round(total / totalMigrations * 100);
+            const scanInfo = scanBySource[src];
+            const aScan = scanInfo ? scanInfo.avg_secs : null;
+            const scanN = scanInfo ? scanInfo.n : 0;
             return `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
                 <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">${esc(fmtSource(src))} <span style="font-weight:400;opacity:0.6;">· avg of last ${count}</span></div>
                 <div style="display:flex;gap:24px;align-items:baseline;margin-top:2px;">
@@ -663,6 +672,10 @@ async function loadTimingCards() {
                     <div>
                         <div style="font-size:28px;font-weight:700;color:#6ee7b7;line-height:1;">${fmtSec(aExt)}</div>
                         <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Extract</div>
+                    </div>
+                    <div>
+                        <div style="font-size:28px;font-weight:700;color:#93c5fd;line-height:1;">${aScan !== null ? fmtSec(aScan) : '—'}</div>
+                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Scan${scanN ? ' (' + scanN + ')' : ''}</div>
                     </div>
                     <div style="margin-left:auto;align-self:flex-end;">
                         <div style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1;">${pct}%</div>

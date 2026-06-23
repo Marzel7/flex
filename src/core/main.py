@@ -25973,6 +25973,38 @@ def api_funding_queue_coverage():
         return {"ok": False, "error": str(e)}, 500
 
 
+@app.route('/api/funding-queue/scan-timing')
+def api_funding_queue_scan_timing():
+    """Avg funding scan duration (created_at→updated_at) for last 10 completed jobs per source.
+    Only includes jobs completed in the last 7 days so stale pre-outage rows don't pollute."""
+    conn = None
+    try:
+        import time as _t
+        conn = db_connect(DB_PATH, timeout=10)
+        conn.execute("PRAGMA query_only = ON")
+        cutoff = int(_t.time()) - 7 * 86400
+        rows = conn.execute("""
+            SELECT source, ROUND(AVG(scan_secs), 1) AS avg_secs, COUNT(*) AS n
+            FROM (
+                SELECT source, (updated_at - created_at) AS scan_secs,
+                    ROW_NUMBER() OVER (PARTITION BY source ORDER BY updated_at DESC) AS rn
+                FROM creator_funding_queue
+                WHERE status = 'complete' AND updated_at >= ?
+            )
+            WHERE rn <= 10
+            GROUP BY source
+        """, (cutoff,)).fetchall()
+        conn.close()
+        return {"ok": True, "by_source": {r[0]: {"avg_secs": r[1], "n": r[2]} for r in rows}}
+    except Exception as e:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return {"ok": False, "error": str(e)}, 500
+
+
 @app.route('/api/funding-queue/clear', methods=['POST'])
 def api_funding_queue_clear():
     """Delete all rows from creator_funding_queue."""

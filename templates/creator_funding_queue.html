@@ -342,7 +342,7 @@ function cfqFmtAge(ts) {
     if (!ts) return '—';
     const diff = _raNow - ts;
     if (diff < 0) return 'in ' + cfqFmtDur(-diff);
-    return cfqFmtDur(diff) + ' ago';
+    return cfqFmtDur(diff);
 }
 function cfqFmtDur(secs) {
     if (secs < 60) return secs + 's';

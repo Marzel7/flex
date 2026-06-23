@@ -465,8 +465,12 @@ function raRender() {
             ? `<span style="font-weight:600;color:#e2e8f0">${esc(r.symbol)}</span>`
             : '<span style="color:var(--text-secondary)">—</span>';
         const mintCell = `<a href="https://pump.fun/coin/${esc(r.mint)}" target="_blank" style="text-decoration:none"><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></a>`;
-        const srcChip = `<span class="cfq-source-chip" title="${esc(fmtSourceDesc(r.creator_source))}">${esc(fmtSource(r.creator_source))}</span>`;
-        const statusChip = `<span class="cfq-chip ${esc(r.funding_status)}">${esc(r.funding_status)}</span>`;
+        const srcChip = r.creator_source
+            ? `<span class="cfq-source-chip" title="${esc(fmtSourceDesc(r.creator_source))}">${esc(fmtSource(r.creator_source))}</span>`
+            : '<span style="color:var(--text-secondary)">—</span>';
+        const statusChip = r.funding_status
+            ? `<span class="cfq-chip ${esc(r.funding_status)}">${esc(r.funding_status)}</span>`
+            : '<span style="color:var(--text-secondary)">—</span>';
         const pointChip = POINT_CHIPS[r.funding_point] || `<span style="color:var(--text-secondary)">${esc(r.funding_point||'—')}</span>`;
         const lag = r.lag_secs;
         const lagCell = lag == null

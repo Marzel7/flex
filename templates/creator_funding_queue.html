@@ -391,7 +391,7 @@ table.cfq-table td:last-child {
         <input id="f-search" type="text" placeholder="Filter by mint or creator…" oninput="cfqRender()" style="min-width:220px;">
     </div>
     <div class="cfq-table-wrap">
-        <table class="cfq-table">
+        <table class="cfq-table" id="cfq-main-table">
             <thead>
                 <colgroup>
                     <col style="width:13%">
@@ -508,8 +508,8 @@ function cfqRender() {
         return 0;
     });
 
-    document.querySelectorAll('table.cfq-table thead th').forEach(th => th.classList.remove('sorted'));
-    const ths = document.querySelectorAll('table.cfq-table thead th');
+    document.querySelectorAll('#cfq-main-table thead th').forEach(th => th.classList.remove('sorted'));
+    const ths = document.querySelectorAll('#cfq-main-table thead th');
     const keys = ['creator_address','mint','symbol','status','source','attempts','next_attempt_at','created_at','last_error'];
     keys.forEach((k, i) => {
         if (k === _cfqSortKey && ths[i]) {

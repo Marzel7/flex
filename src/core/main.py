@@ -26189,6 +26189,9 @@ def api_funding_queue_recent_activity():
                         SELECT 1 FROM creator_funders cf
                         WHERE cf.creator_address = COALESCE(ta.pf_ws_creator, ta.earliest_tx_creator)
                     ) THEN 'cached'
+                    WHEN cfq.mint IS NULL AND ta.migrated_at IS NOT NULL
+                         AND ta.created_at IS NOT NULL
+                         AND (ta.migrated_at - ta.created_at) < 2 THEN 'instant'
                     WHEN cfq.mint IS NULL THEN 'no_job'
                     WHEN cfq.funding_extracted_at IS NULL THEN 'pending'
                     WHEN cfq.funding_extracted_at < ta.migrated_at THEN 'pre_migration'

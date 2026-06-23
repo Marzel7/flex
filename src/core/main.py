@@ -26093,26 +26093,18 @@ def api_pre_migration_stats():
             LIMIT 50
         """).fetchall()
 
-        # Missed: migrated tokens where no pre-migration job exists and creator has no funding
-        # (migration happened but 75% trigger was never seen — the gap we need to measure)
+        # Missed: migrated tokens where the creator has NO funding queue job of any kind
+        # and no rows in creator_funders — truly blind at migration time.
+        # Tokens with a migration-time job (pf_ws_creator_migration etc.) are NOT misses —
+        # they have funding coverage, just not pre-migration coverage.
         missed = conn.execute("""
             SELECT
                 ta.mint, ta.earliest_tx_creator, ta.migrated_at, ta.migration_band,
                 ta.migration_progress_pct,
                 mc.symbol,
-                EXISTS(
-                    SELECT 1 FROM creator_funders cf
-                    WHERE cf.creator_address = ta.earliest_tx_creator
-                ) AS has_funding,
-                EXISTS(
-                    SELECT 1 FROM creator_funding_queue cfq
-                    WHERE cfq.creator_address = ta.earliest_tx_creator
-                      AND cfq.source = 'pre_migration_bonding_75pct'
-                ) AS had_pre_migration_job,
-                EXISTS(
-                    SELECT 1 FROM creator_funding_queue cfq
-                    WHERE cfq.creator_address = ta.earliest_tx_creator
-                ) AS has_any_queue_job
+                0 AS has_funding,
+                0 AS had_pre_migration_job,
+                0 AS has_any_queue_job
             FROM token_analysis ta
             LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
             WHERE ta.migrated_at IS NOT NULL
@@ -26120,7 +26112,6 @@ def api_pre_migration_stats():
               AND NOT EXISTS(
                   SELECT 1 FROM creator_funding_queue cfq
                   WHERE cfq.creator_address = ta.earliest_tx_creator
-                    AND cfq.source = 'pre_migration_bonding_75pct'
               )
               AND NOT EXISTS(
                   SELECT 1 FROM creator_funders cf

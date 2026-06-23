@@ -347,12 +347,12 @@ table.cfq-table td:last-child {
 
 <!-- Migrated Without Pre-Migration Funding Panel -->
 <div class="cfq-section" id="missed-section">
-    <div class="cfq-section-title" style="color:#f87171;">Migrated Without Funding <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">75% trigger was missed — no funding data at migration</span></div>
+    <div class="cfq-section-title" style="color:#f87171;">Migrated Without Funding <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">no queue job of any kind — completely blind at migration</span></div>
     <div id="missed-summary" style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;padding:8px 12px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:6px;"></div>
     <div class="cfq-table-wrap">
         <table class="cfq-table">
             <thead><tr>
-                <th>Mint</th><th>Token</th><th>Creator</th><th>Migrated</th><th>Band at migration</th><th>Progress %</th><th>Any queue job?</th>
+                <th>Mint</th><th>Token</th><th>Creator</th><th>Migrated</th><th>Band at migration</th><th>Progress %</th>
             </tr></thead>
             <tbody id="missed-tbody"><tr><td colspan="7" class="cfq-empty">Loading…</td></tr></tbody>
         </table>
@@ -857,9 +857,6 @@ async function loadPreMigStats() {
                 const bandChip = band
                     ? `<span class="cfq-chip" style="${band==='hot'?'background:rgba(248,113,113,0.15);color:#f87171':band==='warm'?'background:rgba(251,191,36,0.15);color:#fbbf24':'background:rgba(148,163,184,0.1);color:#94a3b8'}">${esc(band)}</span>`
                     : '<span style="color:var(--text-secondary)">—</span>';
-                const anyJob = r.has_any_queue_job
-                    ? '<span class="cfq-chip" style="background:rgba(251,191,36,0.15);color:#fbbf24">other source</span>'
-                    : '<span class="cfq-chip" style="background:rgba(248,113,113,0.12);color:#f87171">none</span>';
                 const pct = r.migration_progress_pct != null
                     ? `<span style="font-weight:600;color:${r.migration_progress_pct>=87.5?'#f87171':r.migration_progress_pct>=67.5?'#fbbf24':'#94a3b8'}">${r.migration_progress_pct.toFixed(1)}%</span>`
                     : '<span style="color:var(--text-secondary)">—</span>';
@@ -874,7 +871,6 @@ async function loadPreMigStats() {
                     + `<td class="cfq-age">${cfqFmtAge(r.migrated_at)}</td>`
                     + `<td>${bandChip}</td>`
                     + `<td>${pct}</td>`
-                    + `<td>${anyJob}</td>`
                     + '</tr>';
             }).join('');
         }

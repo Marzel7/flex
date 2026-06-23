@@ -354,7 +354,7 @@ table.cfq-table td:last-child {
             <thead><tr>
                 <th>Mint</th><th>Token</th><th>Creator</th><th>Migrated</th><th>Band at migration</th><th>Progress %</th>
             </tr></thead>
-            <tbody id="missed-tbody"><tr><td colspan="7" class="cfq-empty">Loading…</td></tr></tbody>
+            <tbody id="missed-tbody"><tr><td colspan="6" class="cfq-empty">Loading…</td></tr></tbody>
         </table>
     </div>
 </div>
@@ -845,13 +845,15 @@ async function loadPreMigStats() {
         const missed = d.missed || [];
         const mTbody = document.getElementById('missed-tbody');
         const mSummary = document.getElementById('missed-summary');
+        const oldestMissed = missed.length ? missed[missed.length - 1] : null;
+        const newestMissed = missed.length ? missed[0] : null;
+        const hint = ' <span style="color:var(--text-secondary);font-size:11px;">If the most recent is hours ago, current coverage is complete.</span>';
         if (!missed.length) {
-            mTbody.innerHTML = '<tr><td colspan="7" class="cfq-empty" style="color:#4ade80;">No missed tokens — all recent migrations had pre-migration funding coverage.</td></tr>';
-            mSummary.textContent = '0 recently migrated tokens without funding data.';
-            mSummary.style.color = '#4ade80';
+            mTbody.innerHTML = '<tr><td colspan="6" class="cfq-empty" style="color:#4ade80;">No missed tokens — all recent migrations are covered.</td></tr>';
+            mSummary.innerHTML = '<span style="color:#4ade80;font-weight:700;">✓ 0 gaps</span> — every recently migrated creator has a funding queue job.' + hint;
         } else {
-            mSummary.innerHTML = `<span style="color:#f87171;font-weight:700;">${missed.length}</span> recently migrated tokens have no funding data and no pre-migration trigger was seen. These are gaps in the 75% coverage.`;
-            mSummary.style.color = 'var(--text-secondary)';
+            const newestAge = newestMissed ? cfqFmtAge(newestMissed.migrated_at) : '?';
+            mSummary.innerHTML = `<span style="color:#f87171;font-weight:700;">${missed.length} gaps</span> — most recent missed migration was <b>${newestAge}</b>.` + hint;
             mTbody.innerHTML = missed.map(r => {
                 const band = r.migration_band || '';
                 const bandChip = band

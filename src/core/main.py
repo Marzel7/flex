@@ -26177,7 +26177,10 @@ def api_funding_queue_recent_activity():
                 mc.symbol,
                 cfq.source                              AS creator_source,
                 cfq.status                              AS funding_status,
-                ta.first_pre_migration_signal_at AS enqueued_at,
+                CASE
+                    WHEN ta.migrated_at IS NOT NULL AND ta.first_pre_migration_signal_at IS NOT NULL
+                    THEN ta.migrated_at - ta.first_pre_migration_signal_at
+                END AS time_to_migrate,
                 cfq.funding_extracted_at                AS completed_at,
                 ta.migrated_at,
                 ta.migration_band,

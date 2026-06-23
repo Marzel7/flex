@@ -26185,6 +26185,10 @@ def api_funding_queue_recent_activity():
                 CASE
                     WHEN ta.migrated_at IS NULL AND cfq.mint IS NULL THEN 'not_migrated'
                     WHEN ta.migrated_at IS NULL THEN 'not_migrated'
+                    WHEN cfq.mint IS NULL AND EXISTS (
+                        SELECT 1 FROM creator_funders cf
+                        WHERE cf.creator_address = COALESCE(ta.pf_ws_creator, ta.earliest_tx_creator)
+                    ) THEN 'cached'
                     WHEN cfq.mint IS NULL THEN 'no_job'
                     WHEN cfq.funding_extracted_at IS NULL THEN 'pending'
                     WHEN cfq.funding_extracted_at < ta.migrated_at THEN 'pre_migration'

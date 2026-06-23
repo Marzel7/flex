@@ -26183,7 +26183,9 @@ def api_funding_queue_recent_activity():
                 ta.migration_band,
                 ta.migration_progress_pct,
                 CASE
+                    WHEN ta.migrated_at IS NULL AND cfq.mint IS NULL THEN 'not_migrated'
                     WHEN ta.migrated_at IS NULL THEN 'not_migrated'
+                    WHEN cfq.mint IS NULL THEN 'no_job'
                     WHEN cfq.funding_extracted_at IS NULL THEN 'pending'
                     WHEN cfq.funding_extracted_at < ta.migrated_at THEN 'pre_migration'
                     ELSE 'post_migration'
@@ -26194,19 +26196,21 @@ def api_funding_queue_recent_activity():
                 END AS lag_secs
             FROM token_analysis ta
             LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
-            LEFT JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
-                AND cfq.rowid = (
-                    SELECT rowid FROM creator_funding_queue q2
-                    WHERE q2.mint = ta.mint
-                    ORDER BY
-                        CASE q2.source
-                            WHEN 'pre_migration_bonding_75pct' THEN 0
-                            WHEN 'early_hot_band' THEN 1
-                            ELSE 2
-                        END,
-                        q2.created_at DESC
-                    LIMIT 1
-                )
+            LEFT JOIN (
+                SELECT q2.mint,
+                    q2.source, q2.status, q2.created_at, q2.funding_extracted_at,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY q2.mint
+                        ORDER BY
+                            CASE q2.source
+                                WHEN 'pre_migration_bonding_75pct' THEN 0
+                                WHEN 'early_hot_band' THEN 1
+                                ELSE 2
+                            END,
+                            q2.created_at DESC
+                    ) AS rn
+                FROM creator_funding_queue q2
+            ) cfq ON cfq.mint = ta.mint AND cfq.rn = 1
             WHERE (
                 ta.migrated_at > strftime('%s','now') - 48*3600
                 OR (ta.migration_band IN ('warm','hot') AND ta.migrated_at IS NULL

@@ -453,8 +453,8 @@ function raRender() {
     const rows = [..._raData].sort((a, b) => {
         const av = a[_raSortKey] ?? '';
         const bv = b[_raSortKey] ?? '';
-        if (av < bv) return _raSortDir;
-        if (av > bv) return -_raSortDir;
+        if (av > bv) return _raSortDir;
+        if (av < bv) return -_raSortDir;
         return 0;
     });
 
@@ -469,7 +469,7 @@ function raRender() {
         if (k === _raSortKey && ths[i]) {
             ths[i].classList.add('sorted');
             const arr = ths[i].querySelector('.sort-arrow');
-            if (arr) arr.textContent = _raSortDir > 0 ? '↑' : '↓';
+            if (arr) arr.textContent = _raSortDir < 0 ? '↓' : '↑';
         }
     });
 

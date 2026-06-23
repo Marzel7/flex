@@ -26172,8 +26172,8 @@ def api_funding_queue_recent_activity():
         now = int(_t.time())
         rows = conn.execute("""
             SELECT
-                cfq.mint,
-                cfq.creator_address,
+                ta.mint,
+                COALESCE(ta.pf_ws_creator, ta.earliest_tx_creator) AS creator_address,
                 mc.symbol,
                 cfq.source                              AS creator_source,
                 cfq.status                              AS funding_status,
@@ -26192,10 +26192,29 @@ def api_funding_queue_recent_activity():
                     WHEN cfq.funding_extracted_at IS NOT NULL AND ta.migrated_at IS NOT NULL
                     THEN cfq.funding_extracted_at - ta.migrated_at
                 END AS lag_secs
-            FROM creator_funding_queue cfq
-            LEFT JOIN token_analysis ta  ON ta.mint = cfq.mint
-            LEFT JOIN metadata_cache mc  ON mc.mint = cfq.mint
-            ORDER BY cfq.created_at DESC
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+            LEFT JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
+                AND cfq.rowid = (
+                    SELECT rowid FROM creator_funding_queue q2
+                    WHERE q2.mint = ta.mint
+                    ORDER BY
+                        CASE q2.source
+                            WHEN 'pre_migration_bonding_75pct' THEN 0
+                            WHEN 'early_hot_band' THEN 1
+                            ELSE 2
+                        END,
+                        q2.created_at DESC
+                    LIMIT 1
+                )
+            WHERE (
+                ta.migrated_at > strftime('%s','now') - 48*3600
+                OR (ta.migration_band IN ('warm','hot') AND ta.migrated_at IS NULL
+                    AND ta.migration_signal_updated_at > strftime('%s','now') - 2*3600)
+            )
+            ORDER BY
+                CASE WHEN ta.migration_band IN ('warm','hot') AND ta.migrated_at IS NULL THEN 0 ELSE 1 END,
+                COALESCE(ta.migrated_at, ta.migration_signal_updated_at, ta.created_at) DESC
             LIMIT 100
         """).fetchall()
         conn.close()

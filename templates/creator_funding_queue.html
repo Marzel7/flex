@@ -322,27 +322,33 @@ table.cfq-table td:last-child {
     </div>
 </div>
 
-<!-- Pre-Migration 75% Trigger Panel -->
+<!-- Pre-Migration Funding Success Panel -->
 <div class="cfq-section" id="premig-section">
-    <div class="cfq-section-title">Pre-Migration 75% Trigger <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">warm/hot band → enqueued before migration</span></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:12px;" id="premig-stats-grid">
-        <div class="cfq-stat"><div class="cfq-stat-label">Triggered</div><div class="cfq-stat-value blue" id="pm-total">—</div></div>
-        <div class="cfq-stat"><div class="cfq-stat-label">Complete</div><div class="cfq-stat-value green" id="pm-complete">—</div></div>
-        <div class="cfq-stat"><div class="cfq-stat-label">Pending</div><div class="cfq-stat-value yellow" id="pm-pending">—</div></div>
-        <div class="cfq-stat"><div class="cfq-stat-label">Avg Scan</div><div class="cfq-stat-value purple" id="pm-scan">—</div></div>
-        <div class="cfq-stat"><div class="cfq-stat-label">Cache Hits</div><div class="cfq-stat-value green" id="pm-cache-hits" title="Migration-time jobs skipped — analysis already done">—</div></div>
+    <div class="cfq-section-title">Funding Before vs After Migration <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">7-day window · did analysis complete before or after migration?</span></div>
+
+    <!-- Trigger counters -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px;margin-bottom:18px;">
+        <div class="cfq-stat"><div class="cfq-stat-label">75% Triggered</div><div class="cfq-stat-value blue" id="pm-total">—</div><div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">pre_migration_bonding_75pct jobs</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Complete Before Mig</div><div class="cfq-stat-value green" id="pm-before">—</div><div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">funding ready before migration</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Still Pending</div><div class="cfq-stat-value yellow" id="pm-pending">—</div><div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">not yet complete</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Cache Hits</div><div class="cfq-stat-value purple" id="pm-cache-hits">—</div><div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">migration-time jobs skipped</div></div>
     </div>
-    <div style="margin-top:16px;">
-        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:8px;">Recent Pre-Migration Jobs</div>
-        <div class="cfq-table-wrap">
-            <table class="cfq-table">
-                <thead><tr>
-                    <th>Creator</th><th>Mint</th><th>Token</th><th>Status</th><th>Triggered</th><th>Migrated</th><th>Error</th>
-                </tr></thead>
-                <tbody id="pm-recent-tbody"><tr><td colspan="7" class="cfq-empty">Loading…</td></tr></tbody>
-            </table>
-        </div>
+
+    <!-- Before/after table by source -->
+    <div class="cfq-table-wrap">
+        <table class="cfq-table" id="pm-timing-table">
+            <thead><tr>
+                <th>Source</th>
+                <th>Jobs (7d)</th>
+                <th style="color:#4ade80;">✓ Before migration</th>
+                <th style="color:#f87171;">✗ After migration</th>
+                <th>Incomplete</th>
+                <th>Avg lag</th>
+            </tr></thead>
+            <tbody id="pm-timing-tbody"><tr><td colspan="6" class="cfq-empty">Loading…</td></tr></tbody>
+        </table>
     </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">Avg lag = seconds between funding extraction completing and migration time. Negative = completed before migration (goal). Positive = completed after.</div>
 </div>
 
 <!-- Migrated Without Pre-Migration Funding Panel -->
@@ -808,35 +814,36 @@ async function loadPreMigStats() {
         if (!d.ok) return;
         const s = d.summary || {};
 
-        document.getElementById('pm-total').textContent    = (s.total    ?? 0).toLocaleString();
-        document.getElementById('pm-complete').textContent = (s.complete ?? 0).toLocaleString();
-        document.getElementById('pm-pending').textContent  = ((s.pending ?? 0) + (s.running ?? 0) + (s.retry ?? 0)).toLocaleString();
-        document.getElementById('pm-scan').textContent     = s.avg_scan_secs != null ? fmtSec(s.avg_scan_secs) : '—';
-        const chEl = document.getElementById('pm-cache-hits');
-        chEl.textContent = (d.cache_hits ?? 0).toLocaleString();
-        chEl.title = 'Migration-time jobs skipped because pre-migration analysis already complete';
+        document.getElementById('pm-total').textContent = (s.total ?? 0).toLocaleString();
+        document.getElementById('pm-pending').textContent = ((s.pending ?? 0) + (s.running ?? 0) + (s.retry ?? 0)).toLocaleString();
+        document.getElementById('pm-cache-hits').textContent = (d.cache_hits ?? 0).toLocaleString();
 
-        // Recent pre-migration jobs table
-        const recent = d.recent || [];
-        const rTbody = document.getElementById('pm-recent-tbody');
-        if (!recent.length) {
-            rTbody.innerHTML = '<tr><td colspan="7" class="cfq-empty">No pre-migration jobs yet — trigger fires when a token crosses warm/hot band.</td></tr>';
+        // Before/after timing table
+        const timing = d.timing || [];
+        const tTbody = document.getElementById('pm-timing-tbody');
+        // Count complete_before for pm-before tile (sum across pre_migration source)
+        const preMigRow = timing.find(r => r.source === 'pre_migration_bonding_75pct');
+        document.getElementById('pm-before').textContent = preMigRow ? (preMigRow.complete_before ?? 0).toLocaleString() : '0';
+
+        if (!timing.length) {
+            tTbody.innerHTML = '<tr><td colspan="6" class="cfq-empty">No migration timing data in last 7 days.</td></tr>';
         } else {
-            rTbody.innerHTML = recent.map(r => {
-                const migratedCell = r.migrated_at
-                    ? `<span class="cfq-age">${cfqFmtAge(r.migrated_at)}</span>`
-                    : '<span style="color:var(--text-secondary)">not yet</span>';
-                const errHtml = r.last_error
-                    ? `<span class="cfq-error" title="${esc(r.last_error)}">${esc(r.last_error)}</span>`
-                    : '<span style="color:var(--text-secondary)">—</span>';
-                return '<tr>'
-                    + `<td><span class="cfq-mono" title="${esc(r.creator_address)}">${cfqShort(r.creator_address)}</span></td>`
-                    + `<td><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></td>`
-                    + `<td>${r.symbol ? `<span style="font-weight:600">${esc(r.symbol)}</span>` : '<span style="color:var(--text-secondary)">—</span>'}</td>`
-                    + `<td><span class="cfq-chip ${esc(r.status)}">${esc(r.status)}</span></td>`
-                    + `<td class="cfq-age">${cfqFmtAge(r.created_at)}</td>`
-                    + `<td>${migratedCell}</td>`
-                    + `<td>${errHtml}</td>`
+            tTbody.innerHTML = timing.map(r => {
+                const lag = r.avg_lag_secs;
+                const lagFmt = lag == null ? '—'
+                    : lag < 0
+                        ? `<span style="color:#4ade80;font-weight:600">−${fmtSec(Math.abs(lag))} early</span>`
+                        : `<span style="color:#f87171;">+${fmtSec(lag)} late</span>`;
+                const beforePct = r.n ? Math.round(r.complete_before / r.n * 100) : 0;
+                const afterPct  = r.n ? Math.round(r.complete_after  / r.n * 100) : 0;
+                const isPreMig = r.source === 'pre_migration_bonding_75pct';
+                return '<tr' + (isPreMig ? ' style="background:rgba(96,165,250,0.06)"' : '') + '>'
+                    + `<td><span class="cfq-source-chip">${esc(fmtSource(r.source))}</span></td>`
+                    + `<td>${r.n}</td>`
+                    + `<td>${r.complete_before > 0 ? `<span style="color:#4ade80;font-weight:600">${r.complete_before}</span> <span style="color:var(--text-secondary);font-size:11px;">(${beforePct}%)</span>` : '<span style="color:var(--text-secondary)">0</span>'}</td>`
+                    + `<td>${r.complete_after > 0 ? `<span style="color:#f87171;">${r.complete_after}</span> <span style="color:var(--text-secondary);font-size:11px;">(${afterPct}%)</span>` : '<span style="color:var(--text-secondary)">0</span>'}</td>`
+                    + `<td>${r.not_complete > 0 ? `<span style="color:#fbbf24">${r.not_complete}</span>` : '<span style="color:var(--text-secondary)">0</span>'}</td>`
+                    + `<td>${lagFmt}</td>`
                     + '</tr>';
             }).join('');
         }

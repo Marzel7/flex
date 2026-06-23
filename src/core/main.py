@@ -26121,6 +26121,27 @@ def api_pre_migration_stats():
             LIMIT 50
         """).fetchall()
 
+        # Before-vs-after breakdown: for each source, how many jobs completed
+        # before migration_at vs after (joined on mint so each row is one token)
+        timing = conn.execute("""
+            SELECT
+                COALESCE(cfq.source, 'unknown') AS source,
+                COUNT(*) AS n,
+                SUM(CASE WHEN cfq.funding_extracted_at IS NOT NULL
+                          AND cfq.funding_extracted_at < ta.migrated_at THEN 1 ELSE 0 END) AS complete_before,
+                SUM(CASE WHEN cfq.funding_extracted_at IS NOT NULL
+                          AND cfq.funding_extracted_at >= ta.migrated_at THEN 1 ELSE 0 END) AS complete_after,
+                SUM(CASE WHEN cfq.funding_extracted_at IS NULL THEN 1 ELSE 0 END) AS not_complete,
+                ROUND(AVG(CASE WHEN cfq.funding_extracted_at IS NOT NULL
+                    THEN cfq.funding_extracted_at - ta.migrated_at END)) AS avg_lag_secs
+            FROM token_analysis ta
+            JOIN creator_funding_queue cfq ON cfq.mint = ta.mint
+            WHERE ta.migrated_at IS NOT NULL
+              AND ta.migrated_at > strftime('%s','now') - 7*86400
+            GROUP BY cfq.source
+            ORDER BY n DESC
+        """).fetchall()
+
         now = int(_t.time())
         conn.close()
         return {
@@ -26130,6 +26151,7 @@ def api_pre_migration_stats():
             "cache_hits": cache_hits["n"] if cache_hits else 0,
             "recent": [dict(r) for r in recent],
             "missed": [dict(r) for r in missed],
+            "timing": [dict(r) for r in timing],
         }
     except Exception as e:
         if conn:

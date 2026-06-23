@@ -26049,6 +26049,104 @@ def api_early_extractions():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/funding-queue/pre-migration-stats')
+def api_pre_migration_stats():
+    """Stats for the pre_migration_bonding_75pct trigger pipeline and missed tokens."""
+    import time as _t
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
+
+        # Summary counts for pre_migration_bonding_75pct jobs
+        summary = conn.execute("""
+            SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN status='complete' THEN 1 ELSE 0 END) AS complete,
+                SUM(CASE WHEN status='pending'  THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN status='running'  THEN 1 ELSE 0 END) AS running,
+                SUM(CASE WHEN status='retry'    THEN 1 ELSE 0 END) AS retry,
+                ROUND(AVG(CASE WHEN status='complete' AND updated_at > created_at
+                               THEN updated_at - created_at END), 0) AS avg_scan_secs
+            FROM creator_funding_queue
+            WHERE source = 'pre_migration_bonding_75pct'
+        """).fetchone()
+
+        # Cache hits: migration-time jobs skipped because pre-migration job already complete
+        cache_hits = conn.execute("""
+            SELECT COUNT(*) AS n FROM creator_funding_queue
+            WHERE source = 'pre_migration_cache_hit'
+        """).fetchone()
+
+        # Recent pre-migration trigger rows (last 50)
+        recent = conn.execute("""
+            SELECT
+                cfq.creator_address, cfq.mint, cfq.status, cfq.attempts,
+                cfq.created_at, cfq.updated_at, cfq.last_error,
+                ta.migrated_at, ta.migration_band,
+                mc.symbol
+            FROM creator_funding_queue cfq
+            LEFT JOIN token_analysis ta ON ta.mint = cfq.mint
+            LEFT JOIN metadata_cache mc ON mc.mint = cfq.mint
+            WHERE cfq.source = 'pre_migration_bonding_75pct'
+            ORDER BY cfq.created_at DESC
+            LIMIT 50
+        """).fetchall()
+
+        # Missed: migrated tokens where no pre-migration job exists and creator has no funding
+        # (migration happened but 75% trigger was never seen — the gap we need to measure)
+        missed = conn.execute("""
+            SELECT
+                ta.mint, ta.earliest_tx_creator, ta.migrated_at, ta.migration_band,
+                ta.migration_progress_pct,
+                mc.symbol,
+                EXISTS(
+                    SELECT 1 FROM creator_funders cf
+                    WHERE cf.creator_address = ta.earliest_tx_creator
+                ) AS has_funding,
+                EXISTS(
+                    SELECT 1 FROM creator_funding_queue cfq
+                    WHERE cfq.creator_address = ta.earliest_tx_creator
+                      AND cfq.source = 'pre_migration_bonding_75pct'
+                ) AS had_pre_migration_job,
+                EXISTS(
+                    SELECT 1 FROM creator_funding_queue cfq
+                    WHERE cfq.creator_address = ta.earliest_tx_creator
+                ) AS has_any_queue_job
+            FROM token_analysis ta
+            LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
+            WHERE ta.migrated_at IS NOT NULL
+              AND ta.earliest_tx_creator IS NOT NULL
+              AND NOT EXISTS(
+                  SELECT 1 FROM creator_funding_queue cfq
+                  WHERE cfq.creator_address = ta.earliest_tx_creator
+                    AND cfq.source = 'pre_migration_bonding_75pct'
+              )
+              AND NOT EXISTS(
+                  SELECT 1 FROM creator_funders cf
+                  WHERE cf.creator_address = ta.earliest_tx_creator
+              )
+            ORDER BY ta.migrated_at DESC
+            LIMIT 50
+        """).fetchall()
+
+        now = int(_t.time())
+        conn.close()
+        return {
+            "ok": True,
+            "now": now,
+            "summary": dict(summary) if summary else {},
+            "cache_hits": cache_hits["n"] if cache_hits else 0,
+            "recent": [dict(r) for r in recent],
+            "missed": [dict(r) for r in missed],
+        }
+    except Exception as e:
+        if conn:
+            try: conn.close()
+            except Exception: pass
+        return {"ok": False, "error": str(e)}, 500
+
+
 @app.route('/transfer-graph')
 def transfer_graph_page():
     return render_template("transfer_graph.html", active_page="transfer_graph")

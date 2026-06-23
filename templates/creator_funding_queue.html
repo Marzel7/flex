@@ -322,6 +322,43 @@ table.cfq-table td:last-child {
     </div>
 </div>
 
+<!-- Pre-Migration 75% Trigger Panel -->
+<div class="cfq-section" id="premig-section">
+    <div class="cfq-section-title">Pre-Migration 75% Trigger <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">warm/hot band → enqueued before migration</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:12px;" id="premig-stats-grid">
+        <div class="cfq-stat"><div class="cfq-stat-label">Triggered</div><div class="cfq-stat-value blue" id="pm-total">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Complete</div><div class="cfq-stat-value green" id="pm-complete">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Pending</div><div class="cfq-stat-value yellow" id="pm-pending">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Avg Scan</div><div class="cfq-stat-value purple" id="pm-scan">—</div></div>
+        <div class="cfq-stat"><div class="cfq-stat-label">Cache Hits</div><div class="cfq-stat-value green" id="pm-cache-hits" title="Migration-time jobs skipped — analysis already done">—</div></div>
+    </div>
+    <div style="margin-top:16px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:8px;">Recent Pre-Migration Jobs</div>
+        <div class="cfq-table-wrap">
+            <table class="cfq-table">
+                <thead><tr>
+                    <th>Creator</th><th>Mint</th><th>Token</th><th>Status</th><th>Triggered</th><th>Migrated</th><th>Error</th>
+                </tr></thead>
+                <tbody id="pm-recent-tbody"><tr><td colspan="7" class="cfq-empty">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Migrated Without Pre-Migration Funding Panel -->
+<div class="cfq-section" id="missed-section">
+    <div class="cfq-section-title" style="color:#f87171;">Migrated Without Funding <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">75% trigger was missed — no funding data at migration</span></div>
+    <div id="missed-summary" style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;padding:8px 12px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:6px;"></div>
+    <div class="cfq-table-wrap">
+        <table class="cfq-table">
+            <thead><tr>
+                <th>Mint</th><th>Token</th><th>Creator</th><th>Migrated</th><th>Band at migration</th><th>Progress %</th><th>Any queue job?</th>
+            </tr></thead>
+            <tbody id="missed-tbody"><tr><td colspan="7" class="cfq-empty">Loading…</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
 <div class="cfq-stats" id="cfq-stats">
     <div class="cfq-stat"><div class="cfq-stat-label">Total</div><div class="cfq-stat-value blue" id="s-total">—</div></div>
     <div class="cfq-stat"><div class="cfq-stat-label">Ready</div><div class="cfq-stat-value yellow" id="s-ready">—</div></div>
@@ -390,11 +427,14 @@ table.cfq-table td:last-child {
 
 <script>
 const SOURCE_LABELS = {
-    'pf_ws_creator_migration':      ['WS Migration',      'Caught in real-time via PumpSwap logsSubscribe'],
-    'pf_ws_creator_curve_complete': ['WS Curve Complete', 'Curve completed before migration, caught via WSS'],
-    'migration_db_fallback':        ['DB Fallback',       ''],
-    'creator_discovery':            ['Discovery',         'Creator stored when birth transaction was processed'],
-    'migration_already_known':      ['Already Known',     'Migration seen but creator funding job already existed'],
+    'pf_ws_creator_migration':        ['WS Migration',        'Caught in real-time via PumpSwap logsSubscribe'],
+    'pf_ws_creator_curve_complete':   ['WS Curve Complete',   'Curve completed before migration, caught via WSS'],
+    'migration_db_fallback':          ['DB Fallback',         ''],
+    'creator_discovery':              ['Discovery',           'Creator stored when birth transaction was processed'],
+    'migration_already_known':        ['Already Known',       'Migration seen but creator funding job already existed'],
+    'pre_migration_bonding_75pct':    ['Pre-Mig 75%',         'Triggered at warm/hot band (~75% bonding) before migration'],
+    'early_hot_band':                 ['Hot Band Early',      'Triggered when token first hit hot band'],
+    'pre_migration_cache_hit':        ['Cache Hit',           'Migration-time job skipped — pre-migration analysis already complete'],
 };
 function fmtSource(s) { return (SOURCE_LABELS[s] || [s])[0]; }
 function fmtSourceDesc(s) { return (SOURCE_LABELS[s] || [s, ''])[1]; }
@@ -762,14 +802,89 @@ async function loadCoverage() {
     }
 }
 
+async function loadPreMigStats() {
+    try {
+        const d = await fetchJsonWithTimeout('/api/funding-queue/pre-migration-stats');
+        if (!d.ok) return;
+        const s = d.summary || {};
+
+        document.getElementById('pm-total').textContent    = (s.total    ?? 0).toLocaleString();
+        document.getElementById('pm-complete').textContent = (s.complete ?? 0).toLocaleString();
+        document.getElementById('pm-pending').textContent  = ((s.pending ?? 0) + (s.running ?? 0) + (s.retry ?? 0)).toLocaleString();
+        document.getElementById('pm-scan').textContent     = s.avg_scan_secs != null ? fmtSec(s.avg_scan_secs) : '—';
+        const chEl = document.getElementById('pm-cache-hits');
+        chEl.textContent = (d.cache_hits ?? 0).toLocaleString();
+        chEl.title = 'Migration-time jobs skipped because pre-migration analysis already complete';
+
+        // Recent pre-migration jobs table
+        const recent = d.recent || [];
+        const rTbody = document.getElementById('pm-recent-tbody');
+        if (!recent.length) {
+            rTbody.innerHTML = '<tr><td colspan="7" class="cfq-empty">No pre-migration jobs yet — trigger fires when a token crosses warm/hot band.</td></tr>';
+        } else {
+            rTbody.innerHTML = recent.map(r => {
+                const migratedCell = r.migrated_at
+                    ? `<span class="cfq-age">${cfqFmtAge(r.migrated_at)}</span>`
+                    : '<span style="color:var(--text-secondary)">not yet</span>';
+                const errHtml = r.last_error
+                    ? `<span class="cfq-error" title="${esc(r.last_error)}">${esc(r.last_error)}</span>`
+                    : '<span style="color:var(--text-secondary)">—</span>';
+                return '<tr>'
+                    + `<td><span class="cfq-mono" title="${esc(r.creator_address)}">${cfqShort(r.creator_address)}</span></td>`
+                    + `<td><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></td>`
+                    + `<td>${r.symbol ? `<span style="font-weight:600">${esc(r.symbol)}</span>` : '<span style="color:var(--text-secondary)">—</span>'}</td>`
+                    + `<td><span class="cfq-chip ${esc(r.status)}">${esc(r.status)}</span></td>`
+                    + `<td class="cfq-age">${cfqFmtAge(r.created_at)}</td>`
+                    + `<td>${migratedCell}</td>`
+                    + `<td>${errHtml}</td>`
+                    + '</tr>';
+            }).join('');
+        }
+
+        // Missed tokens
+        const missed = d.missed || [];
+        const mTbody = document.getElementById('missed-tbody');
+        const mSummary = document.getElementById('missed-summary');
+        if (!missed.length) {
+            mTbody.innerHTML = '<tr><td colspan="7" class="cfq-empty" style="color:#4ade80;">No missed tokens — all recent migrations had pre-migration funding coverage.</td></tr>';
+            mSummary.textContent = '0 recently migrated tokens without funding data.';
+            mSummary.style.color = '#4ade80';
+        } else {
+            mSummary.innerHTML = `<span style="color:#f87171;font-weight:700;">${missed.length}</span> recently migrated tokens have no funding data and no pre-migration trigger was seen. These are gaps in the 75% coverage.`;
+            mSummary.style.color = 'var(--text-secondary)';
+            mTbody.innerHTML = missed.map(r => {
+                const bandStyle = r.migration_band === 'hot' ? 'color:#f87171' : r.migration_band === 'warm' ? 'color:#fbbf24' : 'color:var(--text-secondary)';
+                const anyJob = r.has_any_queue_job
+                    ? '<span style="color:#fbbf24">yes (other source)</span>'
+                    : '<span style="color:#f87171">none</span>';
+                return '<tr>'
+                    + `<td><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></td>`
+                    + `<td>${r.symbol ? `<span style="font-weight:600">${esc(r.symbol)}</span>` : '<span style="color:var(--text-secondary)">—</span>'}</td>`
+                    + `<td><span class="cfq-mono" title="${esc(r.earliest_tx_creator || '')}">${cfqShort(r.earliest_tx_creator)}</span></td>`
+                    + `<td class="cfq-age">${cfqFmtAge(r.migrated_at)}</td>`
+                    + `<td><span style="${bandStyle}">${esc(r.migration_band || '—')}</span></td>`
+                    + `<td>${r.migration_progress_pct != null ? r.migration_progress_pct.toFixed(1) + '%' : '—'}</td>`
+                    + `<td>${anyJob}</td>`
+                    + '</tr>';
+            }).join('');
+        }
+    } catch(e) {
+        console.error('loadPreMigStats failed', e);
+        document.getElementById('pm-recent-tbody').innerHTML =
+            '<tr><td colspan="7" class="cfq-empty">Pre-migration data unavailable.</td></tr>';
+    }
+}
+
 cfqLoad().finally(() => {
     setTimeout(loadTimingCards, 100);
     setTimeout(loadDbHealth, 200);
     setTimeout(loadCoverage, 300);
+    setTimeout(loadPreMigStats, 400);
 });
 setInterval(cfqLoad, 30000);
 setInterval(loadTimingCards, 120000);
 setInterval(loadDbHealth, 120000);
 setInterval(loadCoverage, 120000);
+setInterval(loadPreMigStats, 60000);
 </script>
 {% endblock %}

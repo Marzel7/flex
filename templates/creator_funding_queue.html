@@ -853,17 +853,27 @@ async function loadPreMigStats() {
             mSummary.innerHTML = `<span style="color:#f87171;font-weight:700;">${missed.length}</span> recently migrated tokens have no funding data and no pre-migration trigger was seen. These are gaps in the 75% coverage.`;
             mSummary.style.color = 'var(--text-secondary)';
             mTbody.innerHTML = missed.map(r => {
-                const bandStyle = r.migration_band === 'hot' ? 'color:#f87171' : r.migration_band === 'warm' ? 'color:#fbbf24' : 'color:var(--text-secondary)';
+                const band = r.migration_band || '';
+                const bandChip = band
+                    ? `<span class="cfq-chip" style="${band==='hot'?'background:rgba(248,113,113,0.15);color:#f87171':band==='warm'?'background:rgba(251,191,36,0.15);color:#fbbf24':'background:rgba(148,163,184,0.1);color:#94a3b8'}">${esc(band)}</span>`
+                    : '<span style="color:var(--text-secondary)">—</span>';
                 const anyJob = r.has_any_queue_job
-                    ? '<span style="color:#fbbf24">yes (other source)</span>'
-                    : '<span style="color:#f87171">none</span>';
+                    ? '<span class="cfq-chip" style="background:rgba(251,191,36,0.15);color:#fbbf24">other source</span>'
+                    : '<span class="cfq-chip" style="background:rgba(248,113,113,0.12);color:#f87171">none</span>';
+                const pct = r.migration_progress_pct != null
+                    ? `<span style="font-weight:600;color:${r.migration_progress_pct>=87.5?'#f87171':r.migration_progress_pct>=67.5?'#fbbf24':'#94a3b8'}">${r.migration_progress_pct.toFixed(1)}%</span>`
+                    : '<span style="color:var(--text-secondary)">—</span>';
+                const mintLink = `<a href="https://pump.fun/coin/${esc(r.mint)}" target="_blank" style="text-decoration:none;"><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></a>`;
+                const tokenCell = r.symbol
+                    ? `<span style="font-weight:600;color:#e2e8f0">${esc(r.symbol)}</span>`
+                    : '<span style="color:var(--text-secondary)">—</span>';
                 return '<tr>'
-                    + `<td><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></td>`
-                    + `<td>${r.symbol ? `<span style="font-weight:600">${esc(r.symbol)}</span>` : '<span style="color:var(--text-secondary)">—</span>'}</td>`
+                    + `<td>${mintLink}</td>`
+                    + `<td>${tokenCell}</td>`
                     + `<td><span class="cfq-mono" title="${esc(r.earliest_tx_creator || '')}">${cfqShort(r.earliest_tx_creator)}</span></td>`
                     + `<td class="cfq-age">${cfqFmtAge(r.migrated_at)}</td>`
-                    + `<td><span style="${bandStyle}">${esc(r.migration_band || '—')}</span></td>`
-                    + `<td>${r.migration_progress_pct != null ? r.migration_progress_pct.toFixed(1) + '%' : '—'}</td>`
+                    + `<td>${bandChip}</td>`
+                    + `<td>${pct}</td>`
                     + `<td>${anyJob}</td>`
                     + '</tr>';
             }).join('');

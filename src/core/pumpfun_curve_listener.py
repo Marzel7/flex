@@ -3040,6 +3040,46 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         # Risk scoring runs after extraction completes in the queue processor
                         # (see score_creator_now call in _process_funding_queue) — not here,
                         # since funders aren't written yet at HOT band detection time.
+
+                    # Pre-migration 75% trigger — fires when token first reaches warm or above
+                    # (warm = MC >= $50k = ~75% bonding proxy). Catches tokens before they hit hot,
+                    # and also catches the common NULL → hot jump via the "band in (warm, hot)" guard.
+                    # Uses lower job_priority so migration-triggered jobs always take precedence.
+                    _prev_band = (before_row[1] or "") if before_row else ""
+                    if (
+                        changed_values
+                        and signal.get("band") in ("warm", "hot")
+                        and _prev_band not in ("warm", "hot")
+                    ):
+                        _pre75_creator = pf_ws_creator_from_row
+                        _pre75_sig = str(row[6]) if row and row[6] else None
+                        _pre75_band = signal.get("band")
+
+                        async def _enqueue_pre_migration_75(_mint=mint, _creator=_pre75_creator,
+                                                             _sig=_pre75_sig, _band=_pre75_band):
+                            if not _creator:
+                                _creator = await self._ensure_pf_ws_creator(_mint, reason="pre_migration_75pct")
+                            if not _creator:
+                                log_print(
+                                    f"[PRE75_FUNDING] ⚠ mint={_mint[:8]} band={_band} — creator unresolved, skipping",
+                                    flush=True,
+                                )
+                                return
+                            log_print(
+                                f"[PRE75_FUNDING] 📶 mint={_mint[:8]} band={_band} → pre-migration enqueue creator={_creator[:8]}",
+                                flush=True,
+                            )
+                            await self._enqueue_creator_funding_job(
+                                _creator,
+                                mint=_mint,
+                                migration_timestamp=None,
+                                create_tx_signature=_sig,
+                                delay_seconds=0,
+                                source="pre_migration_bonding_75pct",
+                                pre_migration=True,
+                            )
+
+                        asyncio.create_task(_enqueue_pre_migration_75())
             except Exception as e:
                 log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
             finally:
@@ -4263,6 +4303,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         delay_seconds: Optional[int] = None,
         source: Optional[str] = None,
         curve_completed_slot: Optional[int] = None,
+        pre_migration: bool = False,
     ) -> bool:
         """Persist creator funding extraction so it survives restarts."""
         if not creator or not mint:
@@ -4272,19 +4313,55 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         # Brand-new creators (no existing funder data) get priority=1 so they jump
         # ahead of any backlog in the queue worker. Known creators stay at priority=0.
+        # Pre-migration jobs use priority=-1 so migration-triggered jobs always win.
         def _enqueue_sync():
-            # Priority check
+            # Priority check + creator-level cache check
             try:
                 _check = db_connect(DB_PATH, timeout=3)
-                _funder_count = _check.execute(
-                    "SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (creator,)
-                ).fetchone()[0]
+                _funder_row = _check.execute(
+                    """SELECT COUNT(*), MAX(CASE WHEN fully_analyzed=1 THEN last_analyzed END)
+                       FROM creator_funders WHERE creator_address=?""",
+                    (creator,),
+                ).fetchone()
+                _funder_count = _funder_row[0] if _funder_row else 0
+                _last_analyzed = _funder_row[1] if _funder_row else None
+
+                # Cache hit: creator already fully analyzed within 30 days on a prior mint.
+                # Only applies to migration-triggered jobs (pre_migration jobs can proceed
+                # to build the cache in the first place).
+                _cache_fresh = bool(
+                    not pre_migration
+                    and _last_analyzed is not None
+                    and (now - int(_last_analyzed)) < 30 * 86400
+                )
+                if not _cache_fresh:
+                    # Also check queue: a complete row for this creator on any mint
+                    _queue_row = _check.execute(
+                        """SELECT source FROM creator_funding_queue
+                           WHERE creator_address=? AND status='complete'
+                           ORDER BY updated_at DESC LIMIT 1""",
+                        (creator,),
+                    ).fetchone()
+                    _cache_fresh = bool(not pre_migration and _queue_row is not None)
+                    _cache_prior_source = str(_queue_row[0]) if _queue_row else None
+                else:
+                    _cache_prior_source = "creator_funders_fully_analyzed"
+
                 _check.close()
-                _job_priority = 1 if _funder_count == 0 else 0
-                _priority_reason = "brand_new_creator" if _job_priority else "known_creator"
+
+                if _cache_fresh and not pre_migration:
+                    return ("cache_hit", _cache_prior_source or "unknown")
+
+                if pre_migration:
+                    _job_priority = -1
+                    _priority_reason = "pre_migration_75pct"
+                else:
+                    _job_priority = 1 if _funder_count == 0 else 0
+                    _priority_reason = "brand_new_creator" if _job_priority else "known_creator"
             except Exception:
                 _job_priority = 0
                 _priority_reason = "unknown"
+                _cache_fresh = False
 
             conn = None
             try:
@@ -4337,7 +4414,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         async with self.db_lock:
             result = await asyncio.to_thread(_enqueue_sync)
 
-        if result[0] == "skip":
+        if result[0] == "cache_hit":
+            _, prior_source = result
+            log_print(
+                f"[FUNDING_QUEUE] ✅ Cache hit creator={creator[:8]}... mint={mint[:8]} prior_source={prior_source} — skipping re-analysis",
+                flush=True,
+            )
+            return True
+        elif result[0] == "skip":
             _, existing_creator, existing_status, _, _ = result
             log_print(
                 f"[FUNDING_QUEUE] ⏭️ Skip duplicate enqueue for mint={mint[:8]}... existing_creator={existing_creator[:8]}... status={existing_status}",
@@ -4347,7 +4431,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         elif result[0] == "ok":
             _, job_priority, priority_reason = result
             log_print(
-                f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}",
+                f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority > 0 else ('PRE_MIG' if job_priority < 0 else 'normal')} reason={priority_reason}",
                 flush=True,
             )
             premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")

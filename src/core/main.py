@@ -26177,7 +26177,7 @@ def api_funding_queue_recent_activity():
                 mc.symbol,
                 cfq.source                              AS creator_source,
                 cfq.status                              AS funding_status,
-                COALESCE(ta.first_pre_migration_signal_at, cfq.created_at) AS enqueued_at,
+                ta.first_pre_migration_signal_at AS enqueued_at,
                 cfq.funding_extracted_at                AS completed_at,
                 ta.migrated_at,
                 ta.migration_band,

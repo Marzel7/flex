@@ -455,7 +455,7 @@ function raRender() {
             + `<td>${srcChip}</td>`
             + `<td>${statusChip}</td>`
             + `<td>${pointChip}</td>`
-            + `<td class="cfq-age">${cfqFmtAge(r.enqueued_at)}</td>`
+            + `<td class="cfq-age">${r.enqueued_at ? cfqFmtAge(r.enqueued_at) : '<span style="color:var(--text-secondary)">—</span>'}</td>`
             + `<td class="cfq-age">${r.migrated_at ? cfqFmtAge(r.migrated_at) : '<span style="color:var(--text-secondary)">—</span>'}</td>`
             + `<td>${lagCell}</td>`
             + '</tr>';

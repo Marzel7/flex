@@ -26213,11 +26213,14 @@ def api_funding_queue_recent_activity():
             ) cfq ON cfq.mint = ta.mint AND cfq.rn = 1
             WHERE (
                 ta.migrated_at > strftime('%s','now') - 48*3600
-                OR (ta.migration_band IN ('warm','hot') AND ta.migrated_at IS NULL
-                    AND ta.migration_signal_updated_at > strftime('%s','now') - 2*3600)
+                OR EXISTS (
+                    SELECT 1 FROM creator_funding_queue q3
+                    WHERE q3.mint = ta.mint
+                      AND q3.source IN ('pre_migration_bonding_75pct', 'early_hot_band')
+                )
             )
             ORDER BY
-                CASE WHEN ta.migration_band IN ('warm','hot') AND ta.migrated_at IS NULL THEN 0 ELSE 1 END,
+                CASE WHEN ta.migrated_at IS NULL THEN 0 ELSE 1 END,
                 COALESCE(ta.migrated_at, ta.migration_signal_updated_at, ta.created_at) DESC
             LIMIT 100
         """).fetchall()

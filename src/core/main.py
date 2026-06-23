@@ -26160,6 +26160,53 @@ def api_pre_migration_stats():
         return {"ok": False, "error": str(e)}, 500
 
 
+@app.route('/api/funding-queue/recent-activity')
+def api_funding_queue_recent_activity():
+    """Most recent tokens that triggered creator funding — migrated or 75% bonding.
+    Shows creator source, funding job status, and whether analysis completed pre or post migration."""
+    import time as _t
+    conn = None
+    try:
+        conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
+        now = int(_t.time())
+        rows = conn.execute("""
+            SELECT
+                cfq.mint,
+                cfq.creator_address,
+                mc.symbol,
+                cfq.source                              AS creator_source,
+                cfq.status                              AS funding_status,
+                cfq.created_at                          AS enqueued_at,
+                cfq.funding_extracted_at                AS completed_at,
+                ta.migrated_at,
+                ta.migration_band,
+                ta.migration_progress_pct,
+                CASE
+                    WHEN ta.migrated_at IS NULL THEN 'not_migrated'
+                    WHEN cfq.funding_extracted_at IS NULL THEN 'pending'
+                    WHEN cfq.funding_extracted_at < ta.migrated_at THEN 'pre_migration'
+                    ELSE 'post_migration'
+                END AS funding_point,
+                CASE
+                    WHEN cfq.funding_extracted_at IS NOT NULL AND ta.migrated_at IS NOT NULL
+                    THEN cfq.funding_extracted_at - ta.migrated_at
+                END AS lag_secs
+            FROM creator_funding_queue cfq
+            LEFT JOIN token_analysis ta  ON ta.mint = cfq.mint
+            LEFT JOIN metadata_cache mc  ON mc.mint = cfq.mint
+            ORDER BY cfq.created_at DESC
+            LIMIT 100
+        """).fetchall()
+        conn.close()
+        return {"ok": True, "now": now, "rows": [dict(r) for r in rows]}
+    except Exception as e:
+        if conn:
+            try: conn.close()
+            except Exception: pass
+        return {"ok": False, "error": str(e)}, 500
+
+
 @app.route('/transfer-graph')
 def transfer_graph_page():
     return render_template("transfer_graph.html", active_page="transfer_graph")

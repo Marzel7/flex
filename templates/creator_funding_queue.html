@@ -266,7 +266,7 @@ table.cfq-table td:last-child {
     <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">Creator pipeline timing and funding extraction jobs</p>
     <div class="cfq-controls">
         <span class="cfq-last-updated" id="cfq-last-updated">—</span>
-        <button class="cfq-btn" onclick="cfqLoad()">Refresh</button>
+        <button class="cfq-btn" onclick="raLoad()">Refresh</button>
         <button class="cfq-btn cfq-btn-danger" id="cfq-clear-btn" onclick="cfqClear()">Empty Queue</button>
         <a class="cfq-btn" href="/">← Home</a>
     </div>
@@ -351,112 +351,58 @@ table.cfq-table td:last-child {
     <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">Avg lag = seconds between funding extraction completing and migration time. Negative = completed before migration (goal). Positive = completed after.</div>
 </div>
 
-<!-- Migrated Without Pre-Migration Funding Panel -->
-<div class="cfq-section" id="missed-section">
-    <div class="cfq-section-title" style="color:#f87171;">Migrated Without Funding <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">no queue job of any kind — completely blind at migration</span></div>
-    <div id="missed-summary" style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;padding:8px 12px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:6px;"></div>
-    <div class="cfq-table-wrap">
-        <table class="cfq-table">
-            <thead><tr>
-                <th>Mint</th><th>Token</th><th>Creator</th><th>Migrated</th><th>Band at migration</th><th>Progress %</th>
-            </tr></thead>
-            <tbody id="missed-tbody"><tr><td colspan="6" class="cfq-empty">Loading…</td></tr></tbody>
-        </table>
-    </div>
-</div>
-
-<div class="cfq-stats" id="cfq-stats">
-    <div class="cfq-stat"><div class="cfq-stat-label">Total</div><div class="cfq-stat-value blue" id="s-total">—</div></div>
-    <div class="cfq-stat"><div class="cfq-stat-label">Ready</div><div class="cfq-stat-value yellow" id="s-ready">—</div></div>
-    <div class="cfq-stat"><div class="cfq-stat-label">Running</div><div class="cfq-stat-value purple" id="s-running">—</div></div>
-    <div class="cfq-stat"><div class="cfq-stat-label">Pending</div><div class="cfq-stat-value blue" id="s-pending">—</div></div>
-    <div class="cfq-stat"><div class="cfq-stat-label">Retry</div><div class="cfq-stat-value red" id="s-retry">—</div></div>
-    <div class="cfq-stat"><div class="cfq-stat-label">Complete</div><div class="cfq-stat-value green" id="s-complete">—</div></div>
-</div>
-
 <div class="cfq-section">
-    <div class="cfq-section-title">By Source</div>
-    <div class="cfq-source-grid" id="cfq-source-grid">
-        <div class="cfq-empty">Loading…</div>
-    </div>
-</div>
-
-<div class="cfq-section">
-    <div class="cfq-section-title">Queue Entries</div>
-    <div class="cfq-filter-bar">
-        <select id="f-status" onchange="cfqRender()">
-            <option value="">All statuses</option>
-            <option value="pending">pending</option>
-            <option value="running">running</option>
-            <option value="retry">retry</option>
-            <option value="complete">complete</option>
-        </select>
-        <select id="f-source" onchange="cfqRender()">
-            <option value="">All sources</option>
-        </select>
-        <input id="f-search" type="text" placeholder="Filter by mint or creator…" oninput="cfqRender()" style="min-width:220px;">
-    </div>
+    <div class="cfq-section-title">Recent Activity <span style="font-size:11px;color:var(--text-secondary);font-weight:normal;">most recent 100 tokens that triggered funding · creator source + pre/post migration</span></div>
     <div class="cfq-table-wrap">
         <table class="cfq-table" id="cfq-main-table">
-            <thead>
-                <colgroup>
-                    <col style="width:13%">
-                    <col style="width:13%">
-                    <col style="width:14%">
-                    <col style="width:8%">
-                    <col style="width:14%">
-                    <col style="width:8%">
-                    <col style="width:10%">
-                    <col style="width:10%">
-                    <col style="width:10%">
-                </colgroup>
-                <tr>
-                    <th onclick="cfqSort('creator_address')">Creator <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('mint')">Mint <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('symbol')">Token <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('status')">Status <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('source')">Source <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('attempts')">Attempts <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('next_attempt_at')">Next Attempt <span class="sort-arrow">↕</span></th>
-                    <th onclick="cfqSort('created_at')">Enqueued <span class="sort-arrow">↕</span></th>
-                    <th>Last Error</th>
-                </tr>
-            </thead>
-            <tbody id="cfq-tbody">
-                <tr><td colspan="9" class="cfq-empty">Loading…</td></tr>
+            <thead><tr>
+                <th onclick="raSort('symbol')">Token <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('mint')">Mint <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('creator_source')">Creator Source <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('funding_status')">Funding <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('funding_point')">Pre / Post Mig <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('enqueued_at')">Triggered <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('migrated_at')">Migrated <span class="sort-arrow">↕</span></th>
+                <th onclick="raSort('lag_secs')">Lag <span class="sort-arrow">↕</span></th>
+            </tr></thead>
+            <tbody id="ra-tbody">
+                <tr><td colspan="8" class="cfq-empty">Loading…</td></tr>
             </tbody>
         </table>
     </div>
-    <div style="margin-top:8px; font-size:12px; color:var(--text-secondary);" id="cfq-row-count"></div>
+    <div style="margin-top:6px;font-size:11px;color:var(--text-secondary);">Lag = funding completed vs migration time. Negative/green = before migration (goal). Positive/red = after.</div>
+    <div style="margin-top:4px;font-size:12px;color:var(--text-secondary);" id="ra-row-count"></div>
 </div>
-
 
 <script>
 const SOURCE_LABELS = {
-    'pf_ws_creator_migration':        ['WS Migration',        'Caught in real-time via PumpSwap logsSubscribe'],
-    'pf_ws_creator_curve_complete':   ['WS Curve Complete',   'Curve completed before migration, caught via WSS'],
-    'migration_db_fallback':          ['DB Fallback',         ''],
-    'creator_discovery':              ['Discovery',           'Creator stored when birth transaction was processed'],
-    'migration_already_known':        ['Already Known',       'Migration seen but creator funding job already existed'],
-    'pre_migration_bonding_75pct':    ['Pre-Mig 75%',         'Triggered at warm/hot band (~75% bonding) before migration'],
-    'early_hot_band':                 ['Hot Band Early',      'Triggered when token first hit hot band'],
-    'pre_migration_cache_hit':        ['Cache Hit',           'Migration-time job skipped — pre-migration analysis already complete'],
+    'pf_ws_creator_migration':        ['WS Migration',      'Caught in real-time via PumpSwap logsSubscribe'],
+    'pf_ws_creator_curve_complete':   ['WS Curve Complete', 'Curve completed before migration, caught via WSS'],
+    'pf_ws_creator_existing_migration':['WS Existing Mig',  'Creator resolved from existing migration record'],
+    'migration_db_fallback':          ['DB Fallback',       ''],
+    'creator_discovery':              ['Discovery',         'Creator stored when birth transaction was processed'],
+    'creator_resolution_queue':       ['Resolution Queue',  'Creator resolved via background resolution queue'],
+    'migration_already_known':        ['Already Known',     'Migration seen but creator funding job already existed'],
+    'pre_migration_bonding_75pct':    ['Pre-Mig 75%',       'Triggered at warm/hot band (~75% bonding) before migration'],
+    'early_hot_band':                 ['Hot Band Early',    'Triggered when token first hit hot band'],
+    'pre_migration_cache_hit':        ['Cache Hit',         'Migration-time job skipped — pre-migration analysis already complete'],
+    'store_analysis':                 ['Store Analysis',    'Enqueued when token analysis was stored'],
+    'approval_queue_funding_coverage':['Approval Queue',    'Enqueued via approval queue funding coverage pass'],
 };
 function fmtSource(s) { return (SOURCE_LABELS[s] || [s])[0]; }
 function fmtSourceDesc(s) { return (SOURCE_LABELS[s] || [s, ''])[1]; }
 
-let _cfqData = [];
-let _cfqNow = 0;
-let _cfqSortKey = 'created_at';
-let _cfqSortDir = -1;
+let _raNow = 0;
+let _raData = [];
+let _raSortKey = 'enqueued_at';
+let _raSortDir = -1;
 
 function cfqFmtAge(ts) {
     if (!ts) return '—';
-    const diff = _cfqNow - ts;
+    const diff = _raNow - ts;
     if (diff < 0) return 'in ' + cfqFmtDur(-diff);
     return cfqFmtDur(diff) + ' ago';
 }
-
 function cfqFmtDur(secs) {
     if (secs < 60) return secs + 's';
     if (secs < 3600) return Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
@@ -464,16 +410,13 @@ function cfqFmtDur(secs) {
     const m = Math.floor((secs % 3600) / 60);
     return h + 'h ' + m + 'm';
 }
-
 function cfqShort(addr) {
     if (!addr) return '—';
     return addr.slice(0, 8) + '…' + addr.slice(-4);
 }
-
 function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 async function fetchJsonWithTimeout(url, options = {}, timeoutMs = 8000) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -484,155 +427,6 @@ async function fetchJsonWithTimeout(url, options = {}, timeoutMs = 8000) {
         clearTimeout(timer);
     }
 }
-
-function cfqSort(key) {
-    if (_cfqSortKey === key) { _cfqSortDir *= -1; }
-    else { _cfqSortKey = key; _cfqSortDir = key === 'created_at' ? -1 : 1; }
-    cfqRender();
-}
-
-function cfqRender() {
-    const fStatus = document.getElementById('f-status').value;
-    const fSource = document.getElementById('f-source').value;
-    const fSearch = document.getElementById('f-search').value.trim().toLowerCase();
-
-    let rows = _cfqData.filter(r => {
-        if (fStatus && r.status !== fStatus) return false;
-        if (fSource && r.source !== fSource) return false;
-        if (fSearch) {
-            const hay = (r.creator_address + r.mint).toLowerCase();
-            if (!hay.includes(fSearch)) return false;
-        }
-        return true;
-    });
-
-    rows.sort((a, b) => {
-        const av = a[_cfqSortKey] ?? '';
-        const bv = b[_cfqSortKey] ?? '';
-        if (av < bv) return -_cfqSortDir;
-        if (av > bv) return _cfqSortDir;
-        return 0;
-    });
-
-    document.querySelectorAll('#cfq-main-table thead th').forEach(th => th.classList.remove('sorted'));
-    const ths = document.querySelectorAll('#cfq-main-table thead th');
-    const keys = ['creator_address','mint','symbol','status','source','attempts','next_attempt_at','created_at','last_error'];
-    keys.forEach((k, i) => {
-        if (k === _cfqSortKey && ths[i]) {
-            ths[i].classList.add('sorted');
-            ths[i].querySelector('.sort-arrow').textContent = _cfqSortDir > 0 ? '↑' : '↓';
-        } else if (ths[i] && ths[i].querySelector('.sort-arrow')) {
-            ths[i].querySelector('.sort-arrow').textContent = '↕';
-        }
-    });
-
-    const tbody = document.getElementById('cfq-tbody');
-    if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="cfq-empty">No entries match the current filters.</td></tr>';
-        document.getElementById('cfq-row-count').textContent = '';
-        return;
-    }
-
-    tbody.innerHTML = rows.map(r => {
-        const nextIn = r.status === 'complete' ? '—' : (r.next_attempt_at ? cfqFmtAge(r.next_attempt_at) : '—');
-        const enqueued = r.status === 'complete' ? '—' : (r.created_at ? cfqFmtAge(r.created_at) : '—');
-        const errHtml = r.last_error
-            ? `<span class="cfq-error" title="${esc(r.last_error)}">${esc(r.last_error)}</span>`
-            : '<span style="color:var(--text-secondary)">—</span>';
-        let tokenCell = '<span style="color:var(--text-secondary)">—</span>';
-        if (r.symbol) {
-            tokenCell = '<span style="font-weight:600;color:#e2e8f0">' + esc(r.symbol) + '</span>';
-            if (r.token_name) tokenCell += ' <span style="color:var(--text-secondary);font-size:11px">' + esc(r.token_name) + '</span>';
-        }
-        return '<tr>'
-            + '<td><span class="cfq-mono" title="' + esc(r.creator_address) + '">' + cfqShort(r.creator_address) + '</span></td>'
-            + '<td><span class="cfq-mono" title="' + esc(r.mint) + '">' + cfqShort(r.mint) + '</span></td>'
-            + '<td>' + tokenCell + '</td>'
-            + '<td><span class="cfq-chip ' + esc(r.status) + '">' + esc(r.status) + '</span></td>'
-            + '<td><span class="cfq-source-chip">' + esc(fmtSource(r.source || 'unknown')) + '</span></td>'
-            + '<td>' + r.attempts + '</td>'
-            + '<td class="cfq-age">' + nextIn + '</td>'
-            + '<td class="cfq-age">' + enqueued + '</td>'
-            + '<td>' + errHtml + '</td>'
-            + '</tr>';
-    }).join('');
-
-    document.getElementById('cfq-row-count').textContent = `Showing ${rows.length} of ${_cfqData.length} entries`;
-}
-
-async function cfqLoad() {
-    try {
-        const data = await fetchJsonWithTimeout('/api/funding-queue');
-        if (!data.ok) { console.error('API error', data.error); return; }
-
-        _cfqNow = data.now;
-        _cfqData = data.rows || [];
-
-        const s = data.stats || {};
-        document.getElementById('s-total').textContent   = s.total   ?? 0;
-        document.getElementById('s-ready').textContent   = s.ready   ?? 0;
-        document.getElementById('s-running').textContent = s.running ?? 0;
-        document.getElementById('s-pending').textContent = s.pending ?? 0;
-        document.getElementById('s-retry').textContent   = s.retry   ?? 0;
-        document.getElementById('s-complete').textContent= s.complete ?? 0;
-
-        const sourceGrid = document.getElementById('cfq-source-grid');
-        const bySource = data.by_source || [];
-        if (bySource.length) {
-            sourceGrid.innerHTML = bySource.filter(src => src.source !== 'migration_db_fallback').map(src => `
-                <div class="cfq-source-card">
-                    <div class="cfq-source-name">${esc(fmtSource(src.source))}</div>
-                    <div class="cfq-source-meta">total ${src.total} &bull; active ${src.active} &bull; done ${src.complete}</div>
-                    ${fmtSourceDesc(src.source) ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.4;">${esc(fmtSourceDesc(src.source))}</div>` : ''}
-                </div>
-            `).join('');
-        } else {
-            sourceGrid.innerHTML = '<div class="cfq-empty">No entries yet.</div>';
-        }
-
-        // Populate source filter
-        const fSource = document.getElementById('f-source');
-        const currentSrc = fSource.value;
-        fSource.innerHTML = '<option value="">All sources</option>' +
-            bySource.map(s => `<option value="${esc(s.source)}">${esc(fmtSource(s.source))} (${s.total})</option>`).join('');
-        if (currentSrc) fSource.value = currentSrc;
-
-        document.getElementById('cfq-last-updated').textContent =
-            'Updated ' + new Date().toLocaleTimeString();
-
-        cfqRender();
-    } catch (e) {
-        console.error('cfqLoad failed', e);
-        document.getElementById('cfq-tbody').innerHTML =
-            '<tr><td colspan="9" class="cfq-empty">Queue data did not load. Try Refresh.</td></tr>';
-        document.getElementById('cfq-source-grid').innerHTML =
-            '<div class="cfq-empty">Source data unavailable.</div>';
-    }
-}
-
-async function cfqClear() {
-    if (!confirm('Empty the entire funding queue?')) return;
-    const btn = document.getElementById('cfq-clear-btn');
-    btn.disabled = true;
-    btn.textContent = 'Clearing…';
-    try {
-        const res = await fetch('/api/funding-queue/clear', { method: 'POST' });
-        const data = await res.json();
-        if (data.ok) {
-            btn.textContent = `Cleared (${data.deleted})`;
-            await cfqLoad();
-        } else {
-            btn.textContent = 'Error';
-            console.error(data.error);
-        }
-    } catch (e) {
-        btn.textContent = 'Error';
-        console.error(e);
-    } finally {
-        setTimeout(() => { btn.disabled = false; btn.textContent = 'Empty Queue'; }, 2000);
-    }
-}
-
 function parseTs(v) {
     if (!v) return NaN;
     const n = Number(v);
@@ -640,13 +434,113 @@ function parseTs(v) {
     const d = Date.parse(v);
     return isNaN(d) ? NaN : d / 1000;
 }
-
 function fmtSec(s) {
     if (s === null || s === undefined) return '—';
-    if (s < 60) return `${s.toFixed(1)}s`;
-    const m = Math.floor(s / 60);
-    const sec = (s % 60).toFixed(1);
-    return `${m}m ${sec}s`;
+    const abs = Math.abs(s);
+    if (abs < 60) return `${s.toFixed(0)}s`;
+    const m = Math.floor(abs / 60);
+    const sec = Math.round(abs % 60);
+    return (s < 0 ? '-' : '') + `${m}m ${sec}s`;
+}
+
+function raSort(key) {
+    if (_raSortKey === key) { _raSortDir *= -1; }
+    else { _raSortKey = key; _raSortDir = -1; }
+    raRender();
+}
+
+function raRender() {
+    const rows = [..._raData].sort((a, b) => {
+        const av = a[_raSortKey] ?? '';
+        const bv = b[_raSortKey] ?? '';
+        if (av < bv) return _raSortDir;
+        if (av > bv) return -_raSortDir;
+        return 0;
+    });
+
+    document.querySelectorAll('#cfq-main-table thead th').forEach(th => {
+        th.classList.remove('sorted');
+        const arr = th.querySelector('.sort-arrow');
+        if (arr) arr.textContent = '↕';
+    });
+    const ths = document.querySelectorAll('#cfq-main-table thead th');
+    const keys = ['symbol','mint','creator_source','funding_status','funding_point','enqueued_at','migrated_at','lag_secs'];
+    keys.forEach((k, i) => {
+        if (k === _raSortKey && ths[i]) {
+            ths[i].classList.add('sorted');
+            const arr = ths[i].querySelector('.sort-arrow');
+            if (arr) arr.textContent = _raSortDir > 0 ? '↑' : '↓';
+        }
+    });
+
+    const tbody = document.getElementById('ra-tbody');
+    if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="cfq-empty">No activity yet.</td></tr>';
+        document.getElementById('ra-row-count').textContent = '';
+        return;
+    }
+
+    const POINT_CHIPS = {
+        'pre_migration':  '<span class="cfq-chip" style="background:rgba(34,197,94,0.15);color:#4ade80">pre-mig</span>',
+        'post_migration': '<span class="cfq-chip" style="background:rgba(248,113,113,0.15);color:#f87171">post-mig</span>',
+        'not_migrated':   '<span class="cfq-chip" style="background:rgba(96,165,250,0.15);color:#60a5fa">not migrated</span>',
+        'pending':        '<span class="cfq-chip pending">pending</span>',
+    };
+
+    tbody.innerHTML = rows.map(r => {
+        const tokenCell = r.symbol
+            ? `<span style="font-weight:600;color:#e2e8f0">${esc(r.symbol)}</span>`
+            : '<span style="color:var(--text-secondary)">—</span>';
+        const mintCell = `<a href="https://pump.fun/coin/${esc(r.mint)}" target="_blank" style="text-decoration:none"><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></a>`;
+        const srcChip = `<span class="cfq-source-chip" title="${esc(fmtSourceDesc(r.creator_source))}">${esc(fmtSource(r.creator_source))}</span>`;
+        const statusChip = `<span class="cfq-chip ${esc(r.funding_status)}">${esc(r.funding_status)}</span>`;
+        const pointChip = POINT_CHIPS[r.funding_point] || `<span style="color:var(--text-secondary)">${esc(r.funding_point||'—')}</span>`;
+        const lag = r.lag_secs;
+        const lagCell = lag == null
+            ? '<span style="color:var(--text-secondary)">—</span>'
+            : lag < 0
+                ? `<span style="color:#4ade80;font-weight:600">${fmtSec(lag)}</span>`
+                : `<span style="color:#f87171">${fmtSec(lag)}</span>`;
+        return '<tr>'
+            + `<td>${tokenCell}</td>`
+            + `<td>${mintCell}</td>`
+            + `<td>${srcChip}</td>`
+            + `<td>${statusChip}</td>`
+            + `<td>${pointChip}</td>`
+            + `<td class="cfq-age">${cfqFmtAge(r.enqueued_at)}</td>`
+            + `<td class="cfq-age">${r.migrated_at ? cfqFmtAge(r.migrated_at) : '<span style="color:var(--text-secondary)">—</span>'}</td>`
+            + `<td>${lagCell}</td>`
+            + '</tr>';
+    }).join('');
+
+    document.getElementById('ra-row-count').textContent = `${rows.length} entries`;
+}
+
+async function raLoad() {
+    try {
+        const data = await fetchJsonWithTimeout('/api/funding-queue/recent-activity');
+        if (!data.ok) { console.error('raLoad error', data.error); return; }
+        _raNow = data.now;
+        _raData = data.rows || [];
+        document.getElementById('cfq-last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+        raRender();
+    } catch(e) {
+        console.error('raLoad failed', e);
+        document.getElementById('ra-tbody').innerHTML = '<tr><td colspan="8" class="cfq-empty">Could not load. Try Refresh.</td></tr>';
+    }
+}
+
+async function cfqClear() {
+    if (!confirm('Empty the entire funding queue?')) return;
+    const btn = document.getElementById('cfq-clear-btn');
+    btn.disabled = true; btn.textContent = 'Clearing…';
+    try {
+        const res = await fetch('/api/funding-queue/clear', { method: 'POST' });
+        const data = await res.json();
+        if (data.ok) { btn.textContent = `Cleared (${data.deleted})`; await raLoad(); }
+        else { btn.textContent = 'Error'; console.error(data.error); }
+    } catch(e) { btn.textContent = 'Error'; console.error(e); }
+    finally { setTimeout(() => { btn.disabled = false; btn.textContent = 'Empty Queue'; }, 2000); }
 }
 
 async function loadTimingCards() {
@@ -657,10 +551,8 @@ async function loadTimingCards() {
             fetchJsonWithTimeout('/api/pumpfun/live'),
             fetchJsonWithTimeout('/api/funding-queue/scan-timing').catch(() => ({by_source: {}})),
         ]);
-        const data = liveData;
         const scanBySource = scanData.by_source || {};
-        const rows = data.migrations || [];
-
+        const rows = liveData.migrations || [];
         const groups = {};
         for (const t of rows) {
             const src = t.funding_source || 'unknown';
@@ -676,28 +568,23 @@ async function loadTimingCards() {
                 if (d >= 0 && d < 3600) groups[src].extract.push(d);
             }
         }
-
         const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length * 10) / 10 : null;
         const order = ['pf_ws_creator_migration','pf_ws_creator_curve_complete','creator_discovery','migration_already_known'];
         const sorted = Object.keys(groups).sort((a,b) => {
             const ai = order.indexOf(a), bi = order.indexOf(b);
             return (ai===-1?99:ai) - (bi===-1?99:bi);
         });
-
         const legendCard = `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">Legend</div>
             <div><span style="font-size:13px;font-weight:700;color:#e2e8f0;">Enqueue</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator identity job queued</div></div>
             <div><span style="font-size:13px;font-weight:700;color:#6ee7b7;">Extract</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Time from migration detected to creator funding source established</div></div>
             <div><span style="font-size:13px;font-weight:700;color:#93c5fd;">Scan</span><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">Avg time for funding scan to complete (last 10 completed jobs, 7d window)</div></div>
         </div>`;
-
         if (!sorted.length) {
             cards.innerHTML = legendCard + `<div style="color:var(--text-secondary);font-size:13px;padding:8px 0;">No timing data yet.</div>`;
             return;
         }
-
         const totalMigrations = sorted.reduce((sum, src) => sum + Math.max(groups[src].enqueue.length, groups[src].extract.length), 0) || 1;
-
         cards.innerHTML = legendCard + sorted.filter(src => src !== 'unknown' && src !== 'migration_db_fallback').map(src => {
             const g = groups[src];
             const aEnq = avg(g.enqueue.slice(-10));
@@ -711,22 +598,10 @@ async function loadTimingCards() {
             return `<div style="background:linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82));border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
                 <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">${esc(fmtSource(src))} <span style="font-weight:400;opacity:0.6;">· avg of last ${count}</span></div>
                 <div style="display:flex;gap:24px;align-items:baseline;margin-top:2px;">
-                    <div>
-                        <div style="font-size:28px;font-weight:700;color:#e2e8f0;line-height:1;">${fmtSec(aEnq)}</div>
-                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Enqueue</div>
-                    </div>
-                    <div>
-                        <div style="font-size:28px;font-weight:700;color:#6ee7b7;line-height:1;">${fmtSec(aExt)}</div>
-                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Extract</div>
-                    </div>
-                    <div>
-                        <div style="font-size:28px;font-weight:700;color:#93c5fd;line-height:1;">${aScan !== null ? fmtSec(aScan) : '—'}</div>
-                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Scan${scanN ? ' (' + scanN + ')' : ''}</div>
-                    </div>
-                    <div style="margin-left:auto;align-self:flex-end;">
-                        <div style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1;">${pct}%</div>
-                        <div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">of migrations</div>
-                    </div>
+                    <div><div style="font-size:28px;font-weight:700;color:#e2e8f0;line-height:1;">${fmtSec(aEnq)}</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Enqueue</div></div>
+                    <div><div style="font-size:28px;font-weight:700;color:#6ee7b7;line-height:1;">${fmtSec(aExt)}</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Extract</div></div>
+                    <div><div style="font-size:28px;font-weight:700;color:#93c5fd;line-height:1;">${aScan !== null ? fmtSec(aScan) : '—'}</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">Scan${scanN ? ' (' + scanN + ')' : ''}</div></div>
+                    <div style="margin-left:auto;align-self:flex-end;"><div style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1;">${pct}%</div><div style="font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px;">of migrations</div></div>
                 </div>
             </div>`;
         }).join('');
@@ -741,26 +616,20 @@ async function loadDbHealth() {
         const d = await fetchJsonWithTimeout('/api/db-health');
         if (d.error) return;
         const fmt = n => n == null ? '—' : n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
-
         const cacheEl = document.getElementById('dbh-rpc-cache-rows');
         cacheEl.textContent = fmt(d.rpc_cache_rows);
         cacheEl.style.color = d.rpc_cache_expired > 500 ? '#ef4444' : '#22c55e';
-        const expEl = document.getElementById('dbh-rpc-cache-expired');
-        expEl.textContent = d.rpc_cache_expired != null ? `${fmt(d.rpc_cache_expired)} expired` : 'rows';
-        expEl.style.color = d.rpc_cache_expired > 500 ? '#ef4444' : 'var(--text-secondary)';
-
+        document.getElementById('dbh-rpc-cache-expired').textContent = d.rpc_cache_expired != null ? `${fmt(d.rpc_cache_expired)} expired` : 'rows';
+        document.getElementById('dbh-rpc-cache-expired').style.color = d.rpc_cache_expired > 500 ? '#ef4444' : 'var(--text-secondary)';
         const metricsEl = document.getElementById('dbh-rpc-metrics-rows');
         metricsEl.textContent = fmt(d.rpc_metrics_rows);
         metricsEl.style.color = d.rpc_metrics_rows > 500000 ? '#ef4444' : '#22c55e';
-
         const helEl = document.getElementById('dbh-helius-rows');
         helEl.textContent = fmt(d.helius_snapshots_rows);
         helEl.style.color = d.helius_snapshots_rows > 10000 ? '#ef4444' : '#22c55e';
-
         const walEl = document.getElementById('dbh-wal-mb');
         walEl.textContent = d.wal_mb != null ? d.wal_mb.toFixed(1) : '—';
         walEl.style.color = d.wal_mb > 50 ? '#ef4444' : '#22c55e';
-
         const lm = d.last_maintenance;
         const lastRanEl = document.getElementById('dbh-last-ran');
         const lastDetailEl = document.getElementById('dbh-last-detail');
@@ -770,21 +639,13 @@ async function loadDbHealth() {
             lastRanEl.textContent = age < 1 ? '< 1h ago' : `${age}h ago`;
             lastRanEl.style.color = age > 7 ? '#e2e8f0' : '#22c55e';
             lastDetailEl.textContent = `${lm.duration_ms}ms`;
-            summaryEl.innerHTML =
-                `Last run: deleted <b>${(lm.rpc_cache_deleted||0).toLocaleString()}</b> expired RPC cache rows, ` +
-                `<b>${(lm.rpc_metrics_deleted||0).toLocaleString()}</b> old metric rows, ` +
-                `<b>${(lm.helius_snapshots_deleted||0).toLocaleString()}</b> helius snapshots — ` +
-                `WAL checkpoint freed <b>${lm.wal_checkpoint_pages||0}</b> pages`;
+            summaryEl.innerHTML = `Last run: deleted <b>${(lm.rpc_cache_deleted||0).toLocaleString()}</b> expired RPC cache rows, <b>${(lm.rpc_metrics_deleted||0).toLocaleString()}</b> old metric rows, <b>${(lm.helius_snapshots_deleted||0).toLocaleString()}</b> helius snapshots — WAL checkpoint freed <b>${lm.wal_checkpoint_pages||0}</b> pages`;
         } else {
             lastRanEl.textContent = 'Never';
             lastRanEl.style.color = '#e2e8f0';
-            lastDetailEl.textContent = '';
-            summaryEl.textContent = 'Maintenance has not run yet — will run on next listener startup, then every 6 hours.';
+            summaryEl.textContent = 'Maintenance has not run yet.';
         }
-    } catch(e) {
-        console.error('loadDbHealth failed', e);
-        document.getElementById('dbh-summary').textContent = 'DB health data unavailable.';
-    }
+    } catch(e) { console.error('loadDbHealth failed', e); }
 }
 
 async function loadCoverage() {
@@ -801,11 +662,7 @@ async function loadCoverage() {
         missingEl.style.color = d.missing_pct > 10 ? '#f87171' : '#fde047';
         document.getElementById('cov-queued').textContent = d.missing_queued.toLocaleString();
         document.getElementById('cov-24h').textContent = d.missing_24h.toLocaleString();
-    } catch(e) {
-        console.error('loadCoverage failed', e);
-        document.getElementById('cov-total').textContent = '—';
-        document.getElementById('cov-pct').textContent = 'Unavailable';
-    }
+    } catch(e) { console.error('loadCoverage failed', e); }
 }
 
 async function loadPreMigStats() {
@@ -813,27 +670,21 @@ async function loadPreMigStats() {
         const d = await fetchJsonWithTimeout('/api/funding-queue/pre-migration-stats');
         if (!d.ok) return;
         const s = d.summary || {};
-
         document.getElementById('pm-total').textContent = (s.total ?? 0).toLocaleString();
         document.getElementById('pm-pending').textContent = ((s.pending ?? 0) + (s.running ?? 0) + (s.retry ?? 0)).toLocaleString();
         document.getElementById('pm-cache-hits').textContent = (d.cache_hits ?? 0).toLocaleString();
-
-        // Before/after timing table
         const timing = d.timing || [];
         const tTbody = document.getElementById('pm-timing-tbody');
-        // Count complete_before for pm-before tile (sum across pre_migration source)
         const preMigRow = timing.find(r => r.source === 'pre_migration_bonding_75pct');
         document.getElementById('pm-before').textContent = preMigRow ? (preMigRow.complete_before ?? 0).toLocaleString() : '0';
-
         if (!timing.length) {
             tTbody.innerHTML = '<tr><td colspan="6" class="cfq-empty">No migration timing data in last 7 days.</td></tr>';
         } else {
             tTbody.innerHTML = timing.map(r => {
                 const lag = r.avg_lag_secs;
                 const lagFmt = lag == null ? '—'
-                    : lag < 0
-                        ? `<span style="color:#4ade80;font-weight:600">−${fmtSec(Math.abs(lag))} early</span>`
-                        : `<span style="color:#f87171;">+${fmtSec(lag)} late</span>`;
+                    : lag < 0 ? `<span style="color:#4ade80;font-weight:600">−${fmtSec(Math.abs(lag))} early</span>`
+                    : `<span style="color:#f87171;">+${fmtSec(lag)} late</span>`;
                 const beforePct = r.n ? Math.round(r.complete_before / r.n * 100) : 0;
                 const afterPct  = r.n ? Math.round(r.complete_after  / r.n * 100) : 0;
                 const isPreMig = r.source === 'pre_migration_bonding_75pct';
@@ -847,56 +698,16 @@ async function loadPreMigStats() {
                     + '</tr>';
             }).join('');
         }
-
-        // Missed tokens
-        const missed = d.missed || [];
-        const mTbody = document.getElementById('missed-tbody');
-        const mSummary = document.getElementById('missed-summary');
-        const oldestMissed = missed.length ? missed[missed.length - 1] : null;
-        const newestMissed = missed.length ? missed[0] : null;
-        const hint = ' <span style="color:var(--text-secondary);font-size:11px;">If the most recent is hours ago, current coverage is complete.</span>';
-        if (!missed.length) {
-            mTbody.innerHTML = '<tr><td colspan="6" class="cfq-empty" style="color:#4ade80;">No missed tokens — all recent migrations are covered.</td></tr>';
-            mSummary.innerHTML = '<span style="color:#4ade80;font-weight:700;">✓ 0 gaps</span> — every recently migrated creator has a funding queue job.' + hint;
-        } else {
-            const newestAge = newestMissed ? cfqFmtAge(newestMissed.migrated_at) : '?';
-            mSummary.innerHTML = `<span style="color:#f87171;font-weight:700;">${missed.length} gaps</span> — most recent missed migration was <b>${newestAge}</b>.` + hint;
-            mTbody.innerHTML = missed.map(r => {
-                const band = r.migration_band || '';
-                const bandChip = band
-                    ? `<span class="cfq-chip" style="${band==='hot'?'background:rgba(248,113,113,0.15);color:#f87171':band==='warm'?'background:rgba(251,191,36,0.15);color:#fbbf24':'background:rgba(148,163,184,0.1);color:#94a3b8'}">${esc(band)}</span>`
-                    : '<span style="color:var(--text-secondary)">—</span>';
-                const pct = r.migration_progress_pct != null
-                    ? `<span style="font-weight:600;color:${r.migration_progress_pct>=87.5?'#f87171':r.migration_progress_pct>=67.5?'#fbbf24':'#94a3b8'}">${r.migration_progress_pct.toFixed(1)}%</span>`
-                    : '<span style="color:var(--text-secondary)">—</span>';
-                const mintLink = `<a href="https://pump.fun/coin/${esc(r.mint)}" target="_blank" style="text-decoration:none;"><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></a>`;
-                const tokenCell = r.symbol
-                    ? `<span style="font-weight:600;color:#e2e8f0">${esc(r.symbol)}</span>`
-                    : '<span style="color:var(--text-secondary)">—</span>';
-                return '<tr>'
-                    + `<td>${mintLink}</td>`
-                    + `<td>${tokenCell}</td>`
-                    + `<td><span class="cfq-mono" title="${esc(r.earliest_tx_creator || '')}">${cfqShort(r.earliest_tx_creator)}</span></td>`
-                    + `<td class="cfq-age">${cfqFmtAge(r.migrated_at)}</td>`
-                    + `<td>${bandChip}</td>`
-                    + `<td>${pct}</td>`
-                    + '</tr>';
-            }).join('');
-        }
-    } catch(e) {
-        console.error('loadPreMigStats failed', e);
-        document.getElementById('pm-recent-tbody').innerHTML =
-            '<tr><td colspan="7" class="cfq-empty">Pre-migration data unavailable.</td></tr>';
-    }
+    } catch(e) { console.error('loadPreMigStats failed', e); }
 }
 
-cfqLoad().finally(() => {
+raLoad().finally(() => {
     setTimeout(loadTimingCards, 100);
     setTimeout(loadDbHealth, 200);
     setTimeout(loadCoverage, 300);
     setTimeout(loadPreMigStats, 400);
 });
-setInterval(cfqLoad, 30000);
+setInterval(raLoad, 30000);
 setInterval(loadTimingCards, 120000);
 setInterval(loadDbHealth, 120000);
 setInterval(loadCoverage, 120000);

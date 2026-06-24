@@ -201,7 +201,7 @@
         <header>
             <div>
                 <h1><i class="fas fa-heartbeat" style="color: var(--color-low);"></i> System Health</h1>
-                <p style="color: var(--text-secondary); margin: 0.5rem 0 0; font-size: 0.9rem;">Real-time monitoring of price service, WebSocket pools, and API health</p>
+                <p style="color: var(--text-secondary); margin: 0.5rem 0 0; font-size: 0.9rem;">Listener ingestion · WebSocket connections · DB reliability · price service</p>
             </div>
             <div class="controls">
                 <button class="btn-refresh" id="refreshBtn">
@@ -225,6 +225,18 @@
             </div>
         </div>
 
+        <!-- Listener Status — centre stage -->
+        <div class="grid">
+            <div class="card wide-card" id="recoveryCard" style="border-color: rgba(34,197,94,0.3); border-width: 1px;">
+                <div class="card-title" style="display:flex;align-items:center;gap:0.75rem;font-size:1.05rem;">
+                    <i class="fas fa-satellite-dish" style="color:#22d3ee"></i>
+                    <span style="color:var(--text-primary)">Listener</span>
+                    <span id="recoveryBadge" style="font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:9999px;background:rgba(100,116,139,0.3);color:#94a3b8;">…</span>
+                </div>
+                <div id="recoveryPanel" class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+        </div>
+
         <!-- WebSocket Ingress (always visible — reflects PumpSwap/Helius, not price worker) -->
         <div class="grid">
             <div class="card">
@@ -237,7 +249,7 @@
             </div>
             <div class="card">
                 <div class="card-title"><i class="fas fa-shield-alt"></i> API Write Reliability
-                    <span style="font-size:0.72rem;font-weight:400;color:var(--text-secondary);margin-left:0.75rem;">Flask/Gunicorn process only — listener lock errors shown in Listener Recovery Status</span>
+                    <span style="font-size:0.72rem;font-weight:400;color:var(--text-secondary);margin-left:0.75rem;">Flask/Gunicorn process only — listener lock errors shown above</span>
                 </div>
                 <div id="dbWriteReliability" class="loading"><span class="spinner"></span> Loading...</div>
             </div>
@@ -336,16 +348,6 @@
             </div>
         </div>
 
-        <!-- Listener Recovery Status -->
-        <div class="grid">
-            <div class="card wide-card" id="recoveryCard" style="border-color: rgba(34,197,94,0.3);">
-                <div class="card-title" style="display:flex;align-items:center;gap:0.75rem;">
-                    <span>🔧 Listener Recovery Status</span>
-                    <span id="recoveryBadge" style="font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:9999px;background:rgba(100,116,139,0.3);color:#94a3b8;">…</span>
-                </div>
-                <div id="recoveryPanel" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
 {% endblock %}
 
 {% block scripts %}
@@ -461,6 +463,9 @@
             const I = recovery.ingestion || {};
             const ppColor = L.pumpportal_status === 'CONNECTED' ? '#22c55e' : L.pumpportal_status === 'RETRYING' ? '#f59e0b' : '#ef4444';
             const psColor = L.pumpswap_status === 'CONNECTED' ? '#22c55e' : L.pumpswap_status === 'RETRYING' ? '#f59e0b' : '#ef4444';
+            const _brPpDown = L.pumpportal_status === 'RETRYING' || L.pumpportal_status === 'STALE';
+            const _brActive = L.birth_reconciler_status === 'ACTIVE' || (L.birth_reconciler_status === 'IDLE' && _brPpDown);
+            const brColor = L.birth_reconciler_status === 'DISABLED' ? '#6b7280' : _brActive ? '#f59e0b' : '#22c55e';
             const birthAge = I.latest_birth_age_s;
             const migAge = I.latest_migration_age_s;
             const birthLabel = birthAge == null ? 'unknown' : birthAge < 300 ? 'FLOWING' : 'STALE';
@@ -473,6 +478,7 @@
                 <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.25rem;font-size:0.85rem;">
                     <span>PumpPortal: <b style="color:${ppColor}">${L.pumpportal_status || '?'}</b></span>
                     <span>PumpSwap: <b style="color:${psColor}">${L.pumpswap_status || '?'}</b></span>
+                    <span>Birth Reconciler: <b style="color:${brColor}">${_brActive ? 'ACTIVE' : (L.birth_reconciler_status || '?')}</b></span>
                     <span>Births: <b style="color:${birthColor}">${birthLabel}${birthAgeStr}</b></span>
                     <span>Migrations: <b style="color:${migColor}">${migLabel}${migAgeStr}</b></span>
                     <span>Birth Queue: <b>${I.birth_queue_pending ?? 0} pending</b></span>
@@ -670,27 +676,47 @@
             document.getElementById('cacheStats').innerHTML = html;
         }
 
-        function renderQueueStats(data) {
+        function renderQueueStats(data, fundingStats) {
             const db = data?.db_signals || {};
             const secs = db.seconds_since_last_update;
-            const queues = data?.queue_depths || {};
-            const qLabels = {
-                funding_queue: 'Funding Queue',
-                creator_resolution: 'Creator Resolution',
-                prediction_rescore: 'Prediction Rescore',
-                second_hop: 'Second Hop',
-            };
-            let qHtml = '';
-            for (const [key, label] of Object.entries(qLabels)) {
-                const q = queues[key] || {};
-                const pending = (q.pending || 0) + (q.retry || 0);
-                const running = q.running || 0;
-                const color = running > 0 ? 'var(--color-watch)' : pending > 0 ? 'var(--color-low)' : 'var(--color-success)';
-                qHtml += `<div class="metric">
-                    <div class="metric-label">${label}</div>
-                    <div class="metric-value small" style="color:${color};">${pending} pending${running ? ` · ${running} running` : ''}</div>
-                </div>`;
+
+            // Funding Queue — from SQLite-backed stats
+            const fq = fundingStats || {};
+            const fqPending = (fq.pending || 0) + (fq.retry || 0);
+            const fqRunning = fq.running || 0;
+            const fqComplete = fq.complete || 0;
+            const fqComplete24h = fq.complete_24h || 0;
+            const fqFailed = fq.failed || 0;
+            const fqColor = fqRunning > 0 ? 'var(--color-watch)' : fqPending > 0 ? 'var(--color-low)' : 'var(--color-success)';
+            const fqFailColor = fqFailed > 0 ? 'var(--color-critical)' : 'var(--color-success)';
+            let fqLastRun = '—';
+            if (fq.last_worker_run) {
+                const m = fq.last_worker_run.match(/completed=(\d+).*pending_after=(\d+).*elapsed=([\d.]+)s/);
+                if (m) fqLastRun = `${m[1]} done · ${m[2]} left · ${m[3]}s`;
             }
+
+            let qHtml = `
+                <div class="metric">
+                    <div class="metric-label">Funding Queue</div>
+                    <div class="metric-value small" style="color:${fqColor};">${fqPending} pending${fqRunning ? ` · ${fqRunning} running` : ''}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Funding Complete (24h / total)</div>
+                    <div class="metric-value small" style="color:var(--color-success);">${fqComplete24h} / ${fqComplete}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Funding Failed</div>
+                    <div class="metric-value small" style="color:${fqFailColor};">${fqFailed}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Last Worker Run</div>
+                    <div class="metric-value small">${fqLastRun}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Worker Mode</div>
+                    <div class="metric-value small" style="color:var(--color-watch);">${fq.worker_mode || 'external_cron_5m'}</div>
+                </div>`;
+
             const html = qHtml + `
                 <div class="metric">
                     <div class="metric-label">Snapshots (60s)</div>
@@ -964,11 +990,12 @@
         }
 
         async function updateDashboard() {
-            const [data, dbHealth, firstSnapshotHealth, recovery] = await Promise.all([
+            const [data, dbHealth, firstSnapshotHealth, recovery, fundingStats] = await Promise.all([
                 fetchHealth(),
                 fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/first-snapshot-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
+                fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
             ]);
             if (!data) {
                 document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
@@ -988,7 +1015,7 @@
             renderAggregationStats(data);
             renderWorkerDetails(data);
             renderCacheStats(data);
-            renderQueueStats(data);
+            renderQueueStats(data, fundingStats);
             renderDbWriteReliability(dbHealth);
             renderSourceHealth(data);
             renderCircuitBreaker(data);
@@ -1221,7 +1248,7 @@
                     : '<span style="color:#22c55e;font-size:0.8rem">none</span>';
 
                 const allWarnings = [...(d.warnings || [])];
-                if (lke.listener_tail_count > 0) {
+                if (lke.listener_tail_count >= 10) {
                     allWarnings.push(`Listener DB lock errors in recent log tail (${lke.listener_tail_count} total)`);
                 }
                 const warnHtml = allWarnings.length
@@ -1279,8 +1306,16 @@
                         const confColor = c.confidence === 'full' ? '#22c55e' : '#f59e0b';
                         const warnHtml2 = (c.warnings || []).length
                             ? `<div style="font-size:0.7rem;color:#f59e0b;margin-top:0.3rem">${c.warnings.join(' · ')}</div>` : '';
+                        const birthSourceHtml = (function() {
+                            const b = c.births;
+                            if (!b || (b.seen_pumpportal == null && b.seen_helius_ws == null)) return '';
+                            const pp = b.seen_pumpportal || 0;
+                            const hw = b.seen_helius_ws || 0;
+                            if (pp === 0 && hw === 0) return '';
+                            return `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">PP:${pp} · Helius:${hw}</div>`;
+                        })();
                         return `<table style="border-collapse:collapse;font-size:0.82rem">
-                            ${row('Births',     compBadge(c.births))}
+                            ${row('Births',     compBadge(c.births) + birthSourceHtml)}
                             ${row('Migrations', compBadge(c.migrations))}
                             ${row('Window',     `<span style="font-size:0.75rem;color:var(--text-secondary)">${c.window || '—'}</span>`)}
                             ${row('Confidence', `<span style="color:${confColor};font-size:0.75rem">${c.confidence || '—'}</span>`)}
@@ -1292,7 +1327,18 @@
                     <table style="border-collapse:collapse;font-size:0.82rem">
                       ${row('PumpPortal', connPill(lst.pumpportal_status))}
                       ${row('PumpSwap',   connPill(lst.pumpswap_status))}
-                      ${row('Log age',    age(lst.listener_log_age_s))}
+                      ${row('Birth Reconciler', (function() {
+                          const s = lst.birth_reconciler_status;
+                          if (!s || s === 'UNKNOWN') return '<span style="color:var(--text-secondary)">—</span>';
+                          if (s === 'DISABLED') return '<span style="color:#6b7280;font-size:0.75rem">DISABLED</span>';
+                          if (s === 'STALE')    return '<span style="color:#ef4444">STALE</span>';
+                          // Derive effective state from PP status
+                          const ppDown = lst.pumpportal_status === 'RETRYING' || lst.pumpportal_status === 'STALE';
+                          if (s === 'ACTIVE' || (s === 'IDLE' && ppDown))
+                              return '<span style="color:#f59e0b;font-weight:600">ACTIVE (PP down)</span>';
+                          return '<span style="color:#22c55e">IDLE (PP up)</span>';
+                      })())}
+                      ${row('Log age', age(lst.listener_log_age_s))}
                       ${(function() {
                           const total = lke.listener_tail_count;
                           if (total == null) return row('DB Locks (tail)', '<span style="color:var(--text-secondary)">—</span>');

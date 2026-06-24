@@ -36,6 +36,16 @@ export PYTHONPATH="$PROJECT_ROOT"
 export RPC_METRICS_DB="$PROJECT_ROOT/database/flex_complete_database.db"
 export HELIUS_RPC_URL HELIUS_WS_URL CREATOR_MOVEMENT_WEBHOOK_ID CREATOR_MOVEMENT_WEBHOOK_URL
 
+# WATCHTOWER CREATE Interceptor (Passive validation mode)
+export ENABLE_CREATE_INTERCEPTOR=true
+export INTERCEPTOR_MODE=PASSIVE
+export INTERCEPTOR_BUY_SOL=0
+
+# Benchmark mode: monitor ALL pump.fun CREATEs for latency/position validation
+# Set CREATE_BENCHMARK_TTL_HOURS=4 for initial trial run, 24 for full benchmark
+export INTERCEPTOR_CREATE_BENCHMARK=true
+export CREATE_BENCHMARK_TTL_HOURS=4
+
 echo "🔄 Stopping any existing supervisor instance..."
 "$SUPERVISORCTL" -c "$CONF" shutdown 2>/dev/null || true
 pkill -f "supervisord.*watchtower" 2>/dev/null || true
@@ -69,6 +79,17 @@ CAFF_PID=$!
 echo "✓ caffeinate + supervisord launched (PID: $CAFF_PID)"
 
 sleep 5
+
+# Explicitly start the autostart=false standalone services. They are autostart=false so a
+# bare `supervisord -c` reload does NOT auto-launch them — but a deliberate start via this
+# script SHOULD bring them up. (operation_scheduler writes wt_operation_activity that feeds
+# the /ops/cards activity feed; ws_cascade is the real-time launch detector. Leaving them
+# down silently staled the feed by ~18h.)
+echo ""
+echo "▶️  Starting standalone services (operation_scheduler, ws_cascade)..."
+for svc in operation_scheduler ws_cascade; do
+    "$SUPERVISORCTL" -c "$CONF" start "$svc" 2>&1 | sed 's/^/   /'
+done
 
 echo ""
 echo "📋 Process status:"

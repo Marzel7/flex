@@ -1,5 +1,5 @@
 {% extends "base_shell.html" %}
-{% block title %}Pre-Launch Intelligence — Operations OS{% endblock %}
+{% block title %}WATCHTOWER Intelligence — Coverage{% endblock %}
 
 {% block extra_styles %}
 :root {
@@ -25,7 +25,7 @@
 .hcard { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:13px 15px; }
 .hcard .v { font-size:24px; font-weight:800; line-height:1; }
 .hcard .l { font-size:9.5px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; margin-top:5px; }
-.hcard.go .v{color:var(--green)} .hcard.hot .v{color:var(--amber)} .hcard.bad .v{color:var(--red)} .hcard.cy .v{color:var(--cyan)}
+.hcard.go .v{color:var(--green)} .hcard.hot .v{color:var(--amber)} .hcard.bad .v{color:var(--red)} .hcard.cy .v{color:var(--cyan)} .hcard.yl .v{color:var(--yellow)}
 
 .sec-h { font-size:14px; font-weight:700; margin:6px 0 9px; display:flex; align-items:center; gap:8px; }
 .sec-h .hint { font-size:11px; color:var(--text-dim); font-weight:400; }
@@ -37,7 +37,43 @@ tr:hover td { background:var(--bg-card2); }
 .addr { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; } .addr:hover{text-decoration:underline}
 .uuid { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; } .uuid:hover{text-decoration:underline}
 .tmpl { color:var(--green); font-weight:700; font-family:ui-monospace,monospace; }
-/* LIKELY TO LAUNCH NEXT — the largest panel */
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.btn { font-size:11px; padding:5px 11px; border-radius:7px; border:1px solid var(--cyan); background:rgba(34,211,238,.1); color:var(--cyan); cursor:pointer; font-weight:600; }
+.btn:hover{background:rgba(34,211,238,.2)} .btn:disabled{opacity:.4;cursor:not-allowed}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.dot.ok{background:var(--green)} .dot.warn{background:var(--amber)} .dot.down{background:var(--red)}
+.btn.ghost{border-color:var(--border2);background:transparent;color:var(--text-sec)} .btn.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* cascade status pill */
+.cs-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:.05em}
+.cs-LIVE,.cs-ACTIVE{background:rgba(63,185,80,.18);color:var(--green);border:1px solid rgba(63,185,80,.4)}
+.cs-LIVE_IDLE{background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.4)}
+.cs-STALE{background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.4)}
+.cs-DEGRADED,.cs-DISABLED{background:rgba(217,119,6,.15);color:var(--amber);border:1px solid rgba(217,119,6,.4)}
+.cs-DOWN{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.4)}
+
+/* coverage gap badge */
+.gap-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:9.5px;font-weight:800}
+.gap-none{background:rgba(63,185,80,.18);color:var(--green)}
+.gap-warn{background:rgba(217,119,6,.18);color:var(--amber)}
+.gap-bad{background:rgba(248,81,73,.18);color:var(--red)}
+
+/* collapse sections */
+details.collapse-section { margin-bottom:18px; }
+details.collapse-section > summary {
+  cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px;
+  font-size:13px; font-weight:700; padding:10px 14px;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+  color:var(--text-sec); user-select:none;
+}
+details.collapse-section > summary::-webkit-details-marker { display:none; }
+details.collapse-section > summary::before { content:"▶"; font-size:10px; color:var(--text-dim); transition:transform .15s; }
+details.collapse-section[open] > summary::before { transform:rotate(90deg); }
+details.collapse-section > summary .cs-label { flex:1; }
+details.collapse-section > summary .cs-hint { font-size:10px; color:var(--text-dim); font-weight:400; }
+details.collapse-section .collapse-body { padding-top:14px; }
+
+/* launch panel */
 #launch-panel table { font-size:13px; }
 #launch-panel td { padding:11px 13px; }
 .countdown { font-size:16px; font-weight:800; font-variant-numeric:tabular-nums; }
@@ -47,13 +83,8 @@ tr:hover td { background:var(--bg-card2); }
 .cdbar > i{display:block;height:100%}
 .tstat { font-size:9.5px; font-weight:700; padding:2px 9px; border-radius:9px; }
 .tstat.MONITORED{background:rgba(63,185,80,.18);color:var(--green)} .tstat.BLIND{background:rgba(248,81,73,.18);color:var(--red)}
-.num{text-align:right;font-variant-numeric:tabular-nums}
-.btn { font-size:11px; padding:5px 11px; border-radius:7px; border:1px solid var(--cyan); background:rgba(34,211,238,.1); color:var(--cyan); cursor:pointer; font-weight:600; }
-.btn:hover{background:rgba(34,211,238,.2)} .btn:disabled{opacity:.4;cursor:not-allowed}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
-.dot.ok{background:var(--green)} .dot.warn{background:var(--amber)} .dot.down{background:var(--red)}
 .etype-pl{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:9px;background:rgba(63,185,80,.18);color:var(--green)}
-.btn.ghost{border-color:var(--border2);background:transparent;color:var(--text-sec)} .btn.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+
 /* role-score drawer */
 #role-drawer{position:fixed;top:0;right:0;width:380px;max-width:92vw;height:100vh;background:var(--bg-card);border-left:1px solid var(--border2);box-shadow:-8px 0 28px rgba(0,0,0,.45);transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:60;overflow-y:auto;padding:22px 22px 40px}
 #role-drawer.open{transform:translateX(0)}
@@ -95,20 +126,103 @@ tr:hover td { background:var(--bg-card2); }
 </div>
 
 <div class="pl-wrap">
-  <div class="pl-h"><h1>Pre-Launch Intelligence</h1><span class="muted" style="font-size:13px">— launch-prediction console</span></div>
-  <div class="pl-sub">Real-time treasury monitoring · creator funding detection · launch prediction. Operation management → <a href="/ops" style="color:var(--cyan)">/ops</a></div>
+  <div class="pl-h">
+    <h1>WATCHTOWER Intelligence</h1>
+    <span id="cascade-status-pill" style="margin-left:8px"></span>
+    <span class="muted" style="font-size:13px;margin-left:4px">— coverage console</span>
+  </div>
+  <div class="pl-sub">How much launch infrastructure are we watching right now? &nbsp;·&nbsp; Operation management → <a href="/ops" style="color:var(--cyan)">/ops</a></div>
 
   <div class="warn-banner" id="warn-banner"><span class="pulse-dot"></span><span id="warn-text"></span></div>
 
-  <!-- PRE-LAUNCH DETECTION STATUS -->
+  <!-- COVERAGE HERO — replaces prediction-centric hero -->
   <div class="hero-grid" id="hero"></div>
 
-  <!-- ACTIVE WEBSOCKET CASCADE — real-time SUB_PROV → candidate → CREATE detection -->
-  <div class="sec-h" style="color:var(--green)">📡 Active Websocket Cascade
-    <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator · watches torn down on CREATE</span>
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- COVERAGE PRIORITY BANNER                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div id="coverage-priority-banner" style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:13px 18px;margin-bottom:18px;display:none">
+    <div style="font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--red);margin-bottom:8px">⚠ Coverage Priority</div>
+    <div style="display:flex;flex-wrap:wrap;gap:18px;font-size:12px">
+      <span><b id="cpb-webhooked" style="color:var(--amber)">—</b> <span style="color:var(--text-sec)">treasuries monitored</span></span>
+      <span><b id="cpb-gap" style="color:var(--red)">—</b> <span style="color:var(--text-sec)">known sub-provisioners unsubscribed</span></span>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text-dim)">
+      Increasing webhook coverage and enabling cascade subscriptions is currently the largest opportunity to improve detection performance.
+      <span style="color:var(--text-dim);font-style:italic">Read-only indicator — no actions here.</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 — CREATOR MODE DISTRIBUTION (moved up)               -->
+  <!-- explains the detection model BEFORE showing detection panels    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h" style="color:var(--cyan)">⏱️ Creator Mode Distribution
+    <span class="hint">birth→launch gap · INSTANT (&lt;60s, attribution-only) vs STAGED (≥60s, catchable) · includes all funded+migrated creators, not exclusively confirmed-WATCHTOWER · this split determines the detection model</span>
+  </div>
+  <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--cyan)">Why this matters:</b>
+    Measured across creators that passed through the funding pipeline and migrated — regardless of whether their treasury is confirmed.
+    Of confirmed-treasury creators only, the INSTANT share is even higher (~92%).
+    The key finding holds either way: the vast majority have a birth→launch gap under 60 seconds (median 1s)
+    and are structurally unpredictable before the CREATE transaction fires.
+    The cascade detects these <em>at</em> the moment of launch, not before.
+    Only the STAGED cohort has a catchable lead time — which is why the prediction pipeline is collapsed below.
+    <span style="color:var(--text-dim)">Note: this table includes creators from unknown operators, not exclusively confirmed WATCHTOWER infrastructure.</span>
+  </div>
+  <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:8px">
+    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Birth → Launch histogram</div>
+    <div id="creator-mode-histogram" style="font-family:var(--mono,monospace);font-size:12px;padding:4px 13px 12px">loading…</div>
+  </div>
+  <div class="panel" style="margin-bottom:18px">
+    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Per-treasury mode — which operators run INSTANT vs STAGED</div>
+    <table><thead><tr>
+      <th>Treasury</th><th>Mode</th><th class="num">Instant</th><th class="num">Staged</th><th class="num">Min</th><th class="num">Max</th>
+    </tr></thead><tbody id="creator-mode-treasury"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 — LAUNCH AUDIT (elevated: primary effectiveness KPI) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h" style="color:var(--green);font-size:15px">📊 Launch Effectiveness
+    <span class="hint" style="font-size:11px">when we detect a launch: how much upside was left? · MC @ detection · peak MC · actionable multiple = peak ÷ entry</span>
+    <span id="audit-verdict" style="margin-left:auto;font-size:12px;font-weight:800"></span>
+  </div>
+  <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--green)">Primary KPI:</b>
+    Actionable Multiple = peak MC ÷ MC at detection.
+    A value of 10× means detection fired when only 10% of the move had occurred — 90% of upside was still ahead.
+    Fixtures are historical backfill; live catches are real cascade detections.
+  </div>
+  <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
+  <div id="audit-buckets" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:18px;border-color:rgba(63,185,80,.3)">
+    <table><thead><tr>
+      <th>Mint</th><th>Creator</th><th class="num">Funding ◎</th><th class="num">Latency</th><th class="num">Pos</th>
+      <th class="num">MC @ detect</th><th class="num">Peak MC</th>
+      <th class="num">Actionable ×</th><th class="num">→Peak</th><th>Outcome</th>
+    </tr></thead><tbody id="audit-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 — WS CASCADE                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h" style="color:var(--green)">📡 Active WebSocket Cascade
+    <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator</span>
     <span id="ws-health" style="margin-left:auto;font-size:11px;font-weight:700"></span>
   </div>
   <div class="hero-grid" id="ws-cascade-cards" style="margin-bottom:8px"></div>
+  <div id="cascade-disabled-notice" style="display:none;margin-bottom:10px">
+    <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.4);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--amber)">
+      <b>Cascade offline (not running)</b> — 0 active sessions. No sub-provisioner wallets are being watched in real time.
+      <br><span style="color:var(--text-sec);font-size:11px;margin-top:4px;display:block">
+        WATCHTOWER continues to detect launches and perform attribution via the migration path.
+        Only the treasury→subprov live cascade monitoring is inactive.
+      </span>
+      Detection gap: <span id="cascade-gap-count" style="font-weight:800;color:var(--amber)"></span> known subprovs would be watched if cascade were enabled.
+    </div>
+  </div>
   <div class="panel" style="margin-bottom:8px">
     <table><thead><tr>
       <th>Active SUB_PROV</th><th>Treasury</th><th class="num">Funding SOL</th>
@@ -117,22 +231,56 @@ tr:hover td { background:var(--bg-card2); }
   </div>
   <div id="ws-latest-launch" style="margin-bottom:18px"></div>
 
-  <!-- LAUNCH AUDIT — is detection ACTIONABLE? peak_mc / mc_at_detection -->
-  <div class="sec-h" style="color:var(--green)">🎯 Launch Audit
-    <span class="hint">for every detected launch: detection latency · entry position · MC at detection · peak MC · how much upside was left when we fired</span>
-    <span id="audit-verdict" style="margin-left:auto;font-size:11px;font-weight:800"></span>
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 — TREASURY TRIGGER HEALTH (renamed from Anchor)      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h">⚓ Treasury Trigger Health
+    <span class="hint">treasury webhook triggers only · silent ≠ WATCHTOWER broken · migration attribution and launch auditing operate independently</span>
   </div>
-  <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
-  <div id="audit-buckets" style="margin-bottom:8px"></div>
+  <div style="background:rgba(110,118,129,.06);border:1px solid rgba(110,118,129,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--text-pri)">Two independent paths:</b>
+    <span style="color:var(--green)">Migration attribution</span> — operates continuously, populates Launch Effectiveness above, does not depend on treasury webhooks.
+    <span style="color:var(--cyan)">Treasury trigger path</span> — the real-time ARMED / cascade system; dormant when webhooks are silent.
+    Silent anchors here do <em>not</em> mean WATCHTOWER is broken — they mean the pre-launch alert system is dormant.
+  </div>
+  <div class="hero-grid" id="anchor-health" style="margin-bottom:10px"></div>
   <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Mint</th><th>Creator</th><th class="num">Funding ◎</th><th class="num">Latency</th><th class="num">Pos</th>
-      <th class="num">MC @ detect</th><th class="num">Peak MC</th>
-      <th class="num">Actionable ×</th><th class="num">→Peak</th><th>Outcome</th>
-    </tr></thead><tbody id="audit-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
+    <table><thead><tr><th>Treasury Anchor</th><th>Role</th><th>Delivering</th><th>Last Hit</th><th>Hits 1h</th></tr></thead>
+      <tbody id="anchor-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- CONFIRMED TREASURY BANK — the authoritative live-watch set -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 — PRE-LAUNCH DETECTION HEALTH (renamed)              -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h">📡 Pre-Launch Detection Health
+    <span class="hint">treasury trigger path only · migration attribution and launch auditing operate independently</span>
+  </div>
+  <div class="hero-grid" id="health"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 6 — SUB-PROVISIONERS + COVERAGE GAP                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h" style="color:var(--amber)">🔧 Sub-Provisioners
+    <span class="hint">do the wrap-close creator provisioning · UNKNOWN-treasury rows = leads to a new treasury · coverage gap = known but unsubscribed</span>
+    <span id="subprov-gap-badge" style="margin-left:auto"></span>
+  </div>
+  <!-- Coverage gap explainer -->
+  <div id="subprov-gap-explainer" style="margin-bottom:10px;display:none">
+    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--text-sec)">
+      <b style="color:var(--red)">Coverage gap:</b>
+      <span id="subprov-gap-text"></span>
+      These are the subprovs that <em>would</em> open a cascade session when funded — subscribing them is the #1 lever to raise real-time detection above 2.8%.
+    </div>
+  </div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr>
+      <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
+    </tr></thead><tbody id="subprovs-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 7 — CONFIRMED TREASURY BANK                            -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
   <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
   <div class="panel" style="margin-bottom:18px">
@@ -141,91 +289,9 @@ tr:hover td { background:var(--bg-card2); }
     </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- APEX FUNDERS — the layer ABOVE treasuries; predicted next-rotation sources -->
-  <div class="sec-h" style="color:var(--cyan)">⬆️ Apex Funders <span class="hint">who funds our treasuries (the layer above) · multi-treasury = shared apex · predicted next-rotation source · from hit log, zero RPC</span></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Funder</th><th class="num">Treasuries</th><th class="num">Max SOL</th><th class="num">Total</th><th class="num">Funds</th><th>Type</th><th>Last</th>
-    </tr></thead><tbody id="apex-funders-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- SUB-PROVISIONERS — the wallets doing wrap-close provisioning; trace UP to find treasuries -->
-  <div class="sec-h" style="color:var(--amber)">🔧 Sub-Provisioners <span class="hint">do the wrap-close creator provisioning · each was funded by a TREASURY · UNKNOWN-treasury rows = lead to a new treasury (check who funded the subprov on-chain)</span></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
-    </tr></thead><tbody id="subprovs-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- VANITY FAMILY — wallets sharing a deliberate vanity prefix with known infra -->
-  <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families (e.g. 44or = treasury + signallers) · a new wallet sharing the prefix = same-operator EVIDENCE (not a role)</span></div>
-  <div id="vanity-families" style="margin-bottom:6px"></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
-    </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- POTENTIAL TREASURIES — surfaced as tokens migrate; auto-promote on 3/3, else review -->
-  <div class="sec-h" style="color:var(--amber)">🔎 Potential Treasuries <span class="hint">surfaced post-migration · 3 signals: TRANSFER-purity + capital-scale + micro-pings · ALL require human ✓ promote (3/3 = ready, 2/3 = near-miss); auto-confirm only on a completed launch chain</span></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Candidate</th><th>Source launch</th><th class="num">Seen</th><th class="num">TRANSFER %</th><th class="num">OUT SOL</th><th class="num">Recip</th><th class="num">Pings</th><th>Signals</th><th>Detected</th><th></th>
-    </tr></thead><tbody id="treasury-review-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- LIKELY TO LAUNCH NEXT — the core operational panel -->
-  <div class="sec-h" style="color:var(--green)">🚀 Likely To Launch Next <span class="hint">template-funded creators · ~58-min average lead · closest to launch first</span></div>
-  <div class="panel" id="launch-panel">
-    <table><thead><tr>
-      <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded At</th><th>Min Since</th><th>Expected Launch</th><th>Countdown</th><th>Webhook Source</th><th></th>
-    </tr></thead><tbody id="launch-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- ANCHOR HEALTH — are the treasury/collector webhooks delivering? -->
-  <div class="sec-h">⚓ Anchor Health <span class="hint">are the treasury/collector webhooks delivering the triggers?</span></div>
-  <div class="hero-grid" id="anchor-health" style="margin-bottom:10px"></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr><th>Anchor</th><th>Role</th><th>Delivering</th><th>Last Hit</th><th>Hits 1h</th></tr></thead>
-      <tbody id="anchor-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- ACTIVE FORWARD WALKS — live early-warning chain-followers in flight -->
-  <div class="sec-h" style="color:var(--cyan)">🛰 Active Forward Walks <span class="hint">following provisioning chains forward from treasury triggers → catch the creator before launch</span></div>
-  <div class="panel" id="walks-panel">
-    <table><thead><tr>
-      <th>Session</th><th>Trigger</th><th>Operation</th><th>Current Wallet</th><th>Depth</th><th>State</th><th>TTL</th>
-    </tr></thead><tbody id="walks-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- CREATOR MODE — the strategic metric: STAGED (catchable) vs INSTANT (uncatchable) -->
-  <div class="sec-h" style="color:var(--cyan)">⏱️ Creator Mode Distribution <span class="hint">birth → launch gap · STAGED (≥60s, catchable) vs INSTANT (&lt;60s, funding≈launch) · decides prediction vs attribution</span></div>
-  <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
-  <div class="panel" style="margin-bottom:8px">
-    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Birth → Launch histogram</div>
-    <div id="creator-mode-histogram" style="font-family:var(--mono,monospace);font-size:12px">loading…</div>
-  </div>
-  <div class="panel" style="margin-bottom:18px">
-    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Per-treasury mode — which operators run INSTANT vs STAGED</div>
-    <table><thead><tr>
-      <th>Treasury</th><th>Mode</th><th class="num">Instant</th><th class="num">Staged</th><th class="num">Min</th><th class="num">Max</th>
-    </tr></thead><tbody id="creator-mode-treasury"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- ARMED — auto-webhooked creators, countdown running, disarm on launch -->
-  <div class="sec-h" style="color:var(--amber)">🎯 ARMED <span class="hint">auto-webhooked on template funding · countdown to launch · auto-disarmed on migration</span></div>
-  <div class="panel" id="armed-panel">
-    <table><thead><tr>
-      <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded</th><th>Expected Launch</th><th>Countdown</th><th>Webhook</th>
-    </tr></thead><tbody id="armed-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
-  </div>
-  <div id="fired-wrap" style="display:none">
-    <div class="sec-h" style="font-size:12px;color:var(--text-sec)">✓ Recently Fired <span class="hint">armed → launched · actual lead time</span></div>
-    <div class="panel"><table><thead><tr><th>Creator</th><th>Operation</th><th>Lead Time</th><th>Migrated</th></tr></thead>
-      <tbody id="fired-body"></tbody></table></div>
-  </div>
-
-  <!-- TREASURY COVERAGE -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 8 — TREASURY COVERAGE (webhook toggles)                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <div class="sec-h">🎯 Treasury Coverage <span class="hint">the persistent webhook triggers · toggle each ON/OFF</span></div>
   <div class="panel">
     <table><thead><tr>
@@ -233,7 +299,126 @@ tr:hover td { background:var(--bg-card2); }
     </tr></thead><tbody id="treasury-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- TREASURY REVIEW — positional resolver flagged mismatches (assigned vs true root) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- COLLAPSED: STAGED-ONLY PREDICTION PIPELINE                     -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">🚀 STAGED-Only Prediction Pipeline</span>
+      <span class="cs-hint">covers 18% of launches · INSTANT launches (81%) are uncatchable pre-launch · expand for countdown / ARMED / forward walk panels</span>
+    </summary>
+    <div class="collapse-body">
+
+      <div class="sec-h" style="color:var(--green)">🚀 Likely To Launch Next <span class="hint">template-funded creators · ~58-min average lead · closest to launch first · STAGED operators only</span></div>
+      <div class="panel" id="launch-panel">
+        <table><thead><tr>
+          <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded At</th><th>Min Since</th><th>Expected Launch</th><th>Countdown</th><th>Webhook Source</th><th></th>
+        </tr></thead><tbody id="launch-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
+      </div>
+
+      <div class="sec-h" style="color:var(--amber)">🎯 ARMED <span class="hint">auto-webhooked on template funding · countdown to launch · auto-disarmed on migration</span></div>
+      <div class="panel" id="armed-panel">
+        <table><thead><tr>
+          <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded</th><th>Expected Launch</th><th>Countdown</th><th>Webhook</th>
+        </tr></thead><tbody id="armed-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <div id="fired-wrap" style="display:none">
+        <div class="sec-h" style="font-size:12px;color:var(--text-sec)">✓ Recently Fired <span class="hint">armed → launched · actual lead time</span></div>
+        <div class="panel"><table><thead><tr><th>Creator</th><th>Operation</th><th>Lead Time</th><th>Migrated</th></tr></thead>
+          <tbody id="fired-body"></tbody></table></div>
+      </div>
+
+      <div class="sec-h" style="color:var(--cyan)">🛰 Active Forward Walks <span class="hint">following provisioning chains forward from treasury triggers</span></div>
+      <div class="panel" id="walks-panel">
+        <table><thead><tr>
+          <th>Session</th><th>Trigger</th><th>Operation</th><th>Current Wallet</th><th>Depth</th><th>State</th><th>TTL</th>
+        </tr></thead><tbody id="walks-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- COLLAPSED: NETWORK INTELLIGENCE                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">🔬 Network Intelligence</span>
+      <span class="cs-hint">apex funders · vanity families · expand for network topology panels</span>
+    </summary>
+    <div class="collapse-body">
+
+      <div class="sec-h" style="color:var(--cyan)">⬆️ Apex Funders <span class="hint">who funds our treasuries · multi-treasury = shared apex · 30-day window · zero RPC</span></div>
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Funder</th><th class="num">Treasuries</th><th class="num">Max SOL</th><th class="num">Total</th><th class="num">Funds</th><th>Type</th><th>Last</th>
+        </tr></thead><tbody id="apex-funders-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+      </div>
+
+      <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families · a new wallet sharing the prefix = same-operator evidence (not a role)</span></div>
+      <div id="vanity-families" style="margin-bottom:6px"></div>
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
+        </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- DISCOVERY LEADS                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h" style="color:var(--cyan)">🔭 Discovery Leads
+    <span class="hint">wallets exhibiting operator infrastructure behaviour · not yet confirmed · human review required before any pipeline action</span>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;align-items:center">
+    <span id="dl-count-high" style="padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-weight:700">HIGH 0</span>
+    <span id="dl-count-medium" style="padding:2px 8px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-weight:700">MEDIUM 0</span>
+    <span id="dl-count-low" style="padding:2px 8px;border-radius:4px;background:rgba(110,118,129,.12);border:1px solid rgba(110,118,129,.3);color:var(--text-dim);font-weight:700">LOW 0</span>
+    <span style="color:var(--text-dim)">Score ≥60 = HIGH · 35–59 = MEDIUM · 15–34 = LOW · Conditional badges: ✓=confirmed ✗=absent ?=unresolvable without on-chain confirmation</span>
+  </div>
+  <div class="panel" style="margin-bottom:18px" id="discovery-leads-panel">
+    <div id="discovery-leads-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- POTENTIAL TREASURIES                                            -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="sec-h" style="color:var(--amber)">🔎 Potential Treasuries <span class="hint">surfaced post-migration · 3 signals: TRANSFER-purity + capital-scale + micro-pings · ALL require human ✓ approve</span></div>
+  <div id="recovery-approval-banner" style="
+    background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.35);
+    border-radius:6px;padding:12px 16px;margin-bottom:10px;font-size:11px;line-height:1.7">
+    <div style="font-weight:800;color:var(--cyan);letter-spacing:.05em;margin-bottom:6px">🛡 RECOVERY-SAFE APPROVAL MODE</div>
+    <div style="color:var(--text-pri);margin-bottom:6px">Treasury approvals are enabled. Approving a treasury will <strong>only</strong> add it to the confirmed treasury registry.</div>
+    <div style="color:var(--text-sec)">Approvals will <strong style="color:var(--red)">NOT</strong>:
+      <span style="color:var(--text-dim)">enrol webhooks &nbsp;·&nbsp; rewrite operation assignments &nbsp;·&nbsp; re-root treasury lineage &nbsp;·&nbsp; modify sub-provisioners &nbsp;·&nbsp; rebuild graphs &nbsp;·&nbsp; activate workers</span>
+    </div>
+    <div style="color:var(--text-dim);margin-top:6px;font-size:10px">Webhook enrolment is a <strong>separate</strong> button — disabled by default.</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:10px">
+    <span style="padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-weight:700">✓ APPROVE NOW</span>
+    <span style="font-size:10px;color:var(--text-dim)">3-of-3 · repeat occurrences · high peak MC · active behaviour</span>
+    <span style="margin-left:12px;padding:2px 8px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-weight:700">👁 WATCH</span>
+    <span style="font-size:10px;color:var(--text-dim)">high SOL · single occurrence · limited evidence</span>
+    <span style="margin-left:12px;padding:2px 8px;border-radius:4px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);color:var(--red);font-weight:700">✗ REJECT LIKELY</span>
+    <span style="font-size:10px;color:var(--text-dim)">mesh-only · 0 peak MC · weak evidence</span>
+  </div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr>
+      <th>Candidate</th><th>Source launch</th><th class="num">Seen</th><th class="num">TRANSFER %</th><th class="num">OUT SOL</th><th class="num">Recip</th><th class="num">Pings</th><th>Signals</th><th>Confidence</th><th>Detected</th><th></th>
+    </tr></thead><tbody id="treasury-review-body"><tr><td colspan="11" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- APPROVAL AUDIT TRAIL -->
+  <div class="sec-h" style="color:var(--text-sec);font-size:10px;margin-top:-6px">📋 Approved Treasuries <span class="hint">approved + webhook-enrolled only · rejections not shown</span></div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr>
+      <th>Treasury</th><th>Action</th><th>Confidence</th><th>Reviewer</th><th>Notes</th><th>When</th>
+    </tr></thead><tbody id="approval-audit-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- TREASURY ATTRIBUTION REVIEW -->
   <div class="sec-h">🔍 Treasury Attribution Review <span class="hint">positional resolver — where the assigned treasury may be a relay, not the true root</span></div>
   <div class="panel" id="review-panel" style="margin-bottom:18px">
     <table><thead><tr>
@@ -241,10 +426,7 @@ tr:hover td { background:var(--bg-card2); }
     </tr></thead><tbody id="review-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- DETECTION HEALTH + FEED -->
-  <div class="sec-h">📡 Detection Health</div>
-  <div class="hero-grid" id="health"></div>
-
+  <!-- EVENT FEED -->
   <div class="sec-h">🛰 Event Feed <span class="hint">pre-launch detections first</span></div>
   <div class="panel">
     <table><thead><tr><th>When</th><th>Type</th><th>Wallet</th><th>Operation</th><th>Detail</th></tr></thead>
@@ -256,52 +438,365 @@ tr:hover td { background:var(--bg-card2); }
 const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
 const shortOp = u => u ? u.slice(0,8) : '—';
 const hm = ts => ts ? new Date(ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—';
-const ago = ts => { if(!ts) return '—'; const s=Math.floor(Date.now()/1000-ts);
-  if(s<60)return s+'s'; if(s<3600)return Math.floor(s/60)+'m'; if(s<86400)return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; };
+const ago = ts => {
+  if(!ts) return '—';
+  const s=Math.floor(Date.now()/1000-ts);
+  if(s<60) return s+'s'; if(s<3600) return Math.floor(s/60)+'m';
+  if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d';
+};
 const goOp = u => location.href='/ops/operation/'+u;
 const sol = a => window.open('https://solscan.io/account/'+a,'_blank');
+function fmtGap(s){ if(s==null) return '—'; if(s<60) return s+'s'; if(s<3600) return Math.round(s/60)+'m'; return Math.round(s/3600)+'h'; }
+function fmtMC(v){ if(v==null) return '—'; if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M'; if(v>=1e3) return '$'+(v/1e3).toFixed(1)+'k'; return '$'+Math.round(v); }
+function fmtMult(v){ if(v==null) return '—'; return v.toFixed(v>=10?0:1)+'×'; }
+function fmtTTL(s){ if(s==null) return '—'; if(s<=0) return 'expired'; const m=Math.floor(s/60),ss=s%60; return m>0?`${m}m ${ss}s`:`${ss}s`; }
 
-async function loadAll(){
-  let plc={creators:[]}, m={}, tc={treasuries:[]}, dh={}, st={};
-  try{ [plc,m,tc,dh,st] = await Promise.all([
-    fetch('/api/ops-v2/intel/pre-launch-creators').then(r=>r.json()),
-    fetch('/api/ops-v2/intel/launch-metrics').then(r=>r.json()),
-    fetch('/api/ops-v2/intel/treasury-coverage').then(r=>r.json()),
-    fetch('/api/ops-v2/intel/detection-health').then(r=>r.json()),
-    fetch('/api/ops-v2/intel/status').then(r=>r.json()),
-  ]); }catch(e){ return; }
+// ── PHASE 2: coverage-first hero (single endpoint, ops-DB only) ──────────────
+async function loadCoverageSummary(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/coverage-summary')).json(); }catch(e){ return; }
 
-  // warning banner
-  const wb=document.getElementById('warn-banner');
-  if (dh.warning==='NO_WS_NOTIFS'){
-    wb.classList.add('show');
-    document.getElementById('warn-text').textContent =
-      `NO WS NOTIFICATIONS — treasury WebSocket ${dh.listener_status} (last notif ${dh.last_ws_notif?ago(dh.last_ws_notif)+' ago':'never'}). Real-time detection may be BLIND. ${tc.missing}/${tc.total} treasuries unmonitored.`;
-  } else wb.classList.remove('show');
+  // cascade status pill in header
+  const sp=document.getElementById('cascade-status-pill');
+  if(sp){
+    const col={ACTIVE:'cs-ACTIVE',LIVE:'cs-LIVE',LIVE_IDLE:'cs-LIVE_IDLE',STALE:'cs-STALE',DEGRADED:'cs-DEGRADED',DISABLED:'cs-DISABLED',DOWN:'cs-DOWN'}[d.cascade_status]||'cs-DOWN';
+    const dot={ACTIVE:'●',LIVE:'●',LIVE_IDLE:'◉',STALE:'◉',DEGRADED:'◐',DISABLED:'○',DOWN:'✕'}[d.cascade_status]||'✕';
+    const label={ACTIVE:'CASCADE ACTIVE',LIVE:'CASCADE LIVE',LIVE_IDLE:'CASCADE WATCHING',STALE:'CASCADE STALE',DEGRADED:'CASCADE DEGRADED',DISABLED:'CASCADE OFFLINE',DOWN:'CASCADE DOWN'}[d.cascade_status]||d.cascade_status;
+    sp.innerHTML=`<span class="cs-pill ${col}">${dot} ${label}</span>`;
+  }
 
-  // hero status cards
-  const inWindow = (plc.creators||[]).filter(c=>c.countdown_min>0).length;
-  let armedCount = 0;
-  try{ armedCount = ((await (await fetch('/api/ops-v2/intel/armed')).json()).armed||[]).length; }catch(e){}
+  // coverage-first hero cards
+  const covPct = d.coverage_pct;
+  const noFarm = (d.launches_total_7d === 0);
+  const covCol = noFarm?'':covPct>=50?'go':covPct>=20?'hot':'bad';
+  const covLabel = noFarm?`${d.launches_detected_7d||0} / no farm data`:`${covPct}%`;
+  const cascCol = {ACTIVE:'go',LIVE:'go',LIVE_IDLE:'go',STALE:'yl',DEGRADED:'hot',DISABLED:'hot',DOWN:'bad'}[d.cascade_status]||'bad';
+  const blindTreas = d.blind_treasuries||0;
+  const gap = d.subprovs_gap||0;
+
+  const cascLabel={ACTIVE:'ACTIVE',LIVE:'LIVE',LIVE_IDLE:'WATCHING',STALE:'STALE',DEGRADED:'DEGRADED',DISABLED:'OFFLINE',DOWN:'DOWN'}[d.cascade_status]||d.cascade_status;
+  const tSubs  = d.cascade_treasury_subs||0;
+  const spSubs = d.cascade_subprov_subs||0;
+  const cSubs  = d.cascade_candidate_subs||0;
+  const sessSubs = d.cascade_session_subs||0;
+  const spSubCol = spSubs>0?'go':gap>0?'bad':'';
   document.getElementById('hero').innerHTML = [
-    ['ARMED', armedCount, armedCount>0?'hot':''],
-    ['treasuries monitored', `${tc.covered}/${tc.total}`, tc.covered>0?'go':'bad'],
-    ['treasuries blind', tc.missing, tc.missing>0?'bad':'go'],
-    ['template events 24h', m.launches_24h, 'cy'],
-    ['pre-launch creators', m.pre_launch_creators, m.pre_launch_creators>0?'go':''],
-    ['creators in window', inWindow, inWindow>0?'hot':''],
-    ['avg lead time', (m.avg_lead_time_min!=null?m.avg_lead_time_min+'m':'—'), 'go'],
-    ['webhook hits 24h', dh.hits_24h, dh.hits_24h>0?'':'bad'],
-    ['listener', dh.listener_status, dh.listener_status==='LIVE'?'go':'bad'],
+    ['cascade',              cascLabel,                                            cascCol],
+    ['treasury WS subs',     tSubs,                                               tSubs>0?'go':'bad'],
+    ['standing subprov subs',spSubs,                                              spSubCol],
+    ['session subprov subs', sessSubs,                                            sessSubs>0?'go':''],
+    ['candidate watches',    cSubs,                                               cSubs>0?'go':''],
+    ['treasuries webhooked', `${d.webhooked_treasuries||0}/${d.confirmed_treasuries||0}`, blindTreas>0?'hot':'go'],
+    ['blind treasuries',     blindTreas,                                          blindTreas>0?'bad':'go'],
+    ['subprov gap',          gap,                                                 gap>0?'bad':'go'],
+    ['detection 7d',         covLabel,                                            covCol],
+    ['last wrap-close',      d.last_wrap_close?ago(d.last_wrap_close)+' ago':'—',''],
+    ['last CREATE',          d.last_create?ago(d.last_create)+' ago':'—',        ''],
   ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
 
-  // LIKELY TO LAUNCH NEXT
-  document.getElementById('launch-body').innerHTML = (plc.creators||[]).slice(0,30).map(c=>{
-    // spec bands: 0-15 RED · 15-30 ORANGE · 30-60 YELLOW · 60+ GREEN
+  // coverage priority banner (zero new calls — same data as hero)
+  const cpb=document.getElementById('coverage-priority-banner');
+  if(cpb){
+    const showBanner=(blindTreas>0)||(gap>0);
+    cpb.style.display=showBanner?'':'none';
+    const wb=document.getElementById('cpb-webhooked');
+    const gn=document.getElementById('cpb-gap');
+    if(wb) wb.textContent=`${d.webhooked_treasuries||0}/${d.confirmed_treasuries||0}`;
+    if(gn) gn.textContent=`${gap}/70`;
+  }
+
+  // cascade disabled notice
+  const notice=document.getElementById('cascade-disabled-notice');
+  if(notice){
+    if(d.cascade_status==='DISABLED'||d.cascade_status==='DOWN'){
+      notice.style.display='';
+      const gc=document.getElementById('cascade-gap-count');
+      if(gc) gc.textContent=gap;
+    } else {
+      notice.style.display='none';
+    }
+  }
+
+  // subprov gap badge + explainer
+  const gb=document.getElementById('subprov-gap-badge');
+  if(gb){
+    const gclass=gap===0?'gap-none':gap<10?'gap-warn':'gap-bad';
+    gb.innerHTML=`<span class="gap-badge ${gclass}">${gap} unsubscribed</span>`;
+  }
+  const ge=document.getElementById('subprov-gap-explainer');
+  if(ge && gap>0){
+    ge.style.display='';
+    const gt=document.getElementById('subprov-gap-text');
+    if(gt) gt.textContent=` ${gap} of ${d.subprovs_known||0} known-treasury subprovs have no active cascade session. `;
+  } else if(ge){ ge.style.display='none'; }
+
+  // warn banner: check detection health for WS silence
+  try{
+    const dh=await(await fetch('/api/ops-v2/intel/detection-health')).json();
+    const wb=document.getElementById('warn-banner');
+    if(dh.warning==='NO_WS_NOTIFS'){
+      wb.classList.add('show');
+      document.getElementById('warn-text').textContent=
+        `NO WS NOTIFICATIONS — listener ${dh.listener_status} (last notif ${dh.last_ws_notif?ago(dh.last_ws_notif)+' ago':'never'}). Real-time detection may be BLIND.`;
+    } else wb.classList.remove('show');
+  }catch(e){}
+}
+
+// ── WS CASCADE ────────────────────────────────────────────────────────────────
+async function loadWsCascade(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/ws-cascade')).json(); }catch(e){ return; }
+  // WS health chip (section header)
+  const wsState = (d.active_subprovs===0 && d.ws_health!=='LIVE') ? 'DISABLED' : (d.ws_health||'DOWN');
+  const hc={LIVE:'var(--green)',STALE:'var(--yellow)',DISABLED:'var(--amber)',DOWN:'var(--red)'}[wsState]||'var(--red)';
+  const he=document.getElementById('ws-health');
+  if(he) he.innerHTML=`<span style="color:${hc}">● WS ${wsState}</span>${d.heartbeat_age_s!=null?` <span class="muted">(${d.heartbeat_age_s}s ago)</span>`:''}`;
+  // cards
+  const cards=[
+    ['active SUB_PROVs', d.active_subprovs||0, (d.active_subprovs||0)>0?'go':''],
+    ['candidate watches', d.candidate_count||0, ''],
+    ['launches total',   d.launches_total||0, (d.launches_total||0)>0?'go':''],
+    ['cleanups',         d.cleanup_count||0, ''],
+    ['last wrap-close',  d.last_wrap_close?ago(d.last_wrap_close)+' ago':'—', ''],
+    ['last CREATE',      d.last_create?ago(d.last_create)+' ago':'—', ''],
+  ];
+  const cc=document.getElementById('ws-cascade-cards');
+  if(cc) cc.innerHTML=cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  // sessions table
+  const body=document.getElementById('ws-cascade-body');
+  const sessions=d.sessions||[];
+  if(body) body.innerHTML=sessions.map(s=>{
+    const w=(d.watches_by_subprov||{})[s.subprov]||[];
+    const watching=w.length
+      ?w.slice(0,8).map(x=>`<span class="addr" onclick="sol('${x.candidate}')" title="${x.amount!=null?x.amount+' SOL':''} · TTL ${fmtTTL(x.ttl_remaining)}">${short(x.candidate)}</span>`).join(' ')
+      :'<span class="muted">— no fan-out yet</span>';
+    return`<tr style="border-left:3px solid var(--green)">
+      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
+      <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="num muted">${s.funding_amount!=null?s.funding_amount.toLocaleString():'—'}</td>
+      <td class="num">${s.candidates}</td>
+      <td class="num" style="color:${s.ttl_remaining<60?'var(--yellow)':'var(--text-sec)'}">${fmtTTL(s.ttl_remaining)}</td>
+      <td>${watching}</td>
+    </tr>`;}).join('')||'<tr><td colspan="6" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV (ws_cascade daemon must be running and subscribed)</td></tr>';
+  // latest launch banner
+  const ll=d.latest_launch;
+  const lb=document.getElementById('ws-latest-launch');
+  if(lb){
+    lb.innerHTML=ll?`<div class="panel" style="border:1px solid var(--green);background:rgba(34,197,94,.06);padding:10px 14px">
+      <span style="color:var(--green);font-weight:800">🚀 latest WATCHTOWER launch</span>
+      &nbsp; mint <span class="addr" onclick="sol('${ll.mint}')">${ll.mint?short(ll.mint):'—'}</span>
+      &nbsp;·&nbsp; creator <span class="addr" onclick="sol('${ll.creator}')">${short(ll.creator)}</span>
+      &nbsp;·&nbsp; treasury <span class="mono muted">${ll.treasury?short(ll.treasury):'—'}</span>
+      &nbsp;·&nbsp; birth→launch <b>${ll.birth_to_launch_s!=null?ll.birth_to_launch_s+'s':'—'}</b>
+      <span style="color:${ll.mode==='INSTANT'?'var(--red)':'var(--yellow)'};font-weight:700">${ll.mode||''}</span>
+      &nbsp;·&nbsp; ${ll.create_time?ago(ll.create_time)+' ago':''}
+    </div>`:'';
+  }
+}
+
+// ── LAUNCH AUDIT ──────────────────────────────────────────────────────────────
+async function loadLaunchAudit(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/launch-audit')).json(); }catch(e){ return; }
+  const full=d.report||{};
+  const live=full.live||{}; const fix=full.fixtures||{};
+  const rep=(live.n_launches||0)>0?live:full;
+  const liveHas=(live.n_launches||0)>0;
+  const vc={ACTIONABLE:'var(--green)',MARGINAL:'var(--yellow)',INSUFFICIENT_DATA:'var(--text-dim)'}[rep.verdict]||'var(--text-dim)';
+  const ve=document.getElementById('audit-verdict');
+  if(ve) ve.innerHTML=liveHas
+    ?`<span style="color:${vc}">LIVE: ${rep.verdict.replace(/_/g,' ')}</span>`
+    :`<span style="color:var(--text-dim)">live catches: pending</span>`+
+     ((fix.n_launches||0)>0?` <span style="color:var(--green)">· fixtures: validated (${fix.n_launches})</span>`:'');
+  const src=liveHas?rep:fix;
+  const cards=[
+    ['live launches',  live.n_launches||0,               (live.n_launches||0)>0?'go':''],
+    ['fixtures',       fix.n_launches||0,                ''],
+    ['median latency', src.median_detection_latency_ms!=null?src.median_detection_latency_ms+'ms':'—', ''],
+    ['median MC @ detect', fmtMC(src.median_mc_at_detection), ''],
+    ['median peak MC', fmtMC(src.median_peak_mc),        ''],
+    ['median ×',       fmtMult(src.median_actionable_multiple), (src.median_actionable_multiple||0)>=2?'go':'bad'],
+    ['% >2x left',     src.pct_gt_2x!=null?src.pct_gt_2x+'%':'—', (src.pct_gt_2x||0)>=50?'go':''],
+    ['% dumped',       src.pct_dumped_before_migration!=null?src.pct_dumped_before_migration+'%':'—', (src.pct_dumped_before_migration||0)>50?'bad':''],
+  ];
+  const cc=document.getElementById('audit-cards');
+  if(cc) cc.innerHTML=cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  const bk=src.buckets||{};
+  const order=['<1.5x','1.5-2x','2-5x','5-10x','10x+'];
+  const cols={'<1.5x':'var(--red)','1.5-2x':'#ea580c','2-5x':'var(--yellow)','5-10x':'var(--green)','10x+':'var(--cyan)'};
+  const bb=document.getElementById('audit-buckets');
+  if(bb) bb.innerHTML=`<div class="panel" style="padding:8px 13px;display:flex;gap:14px;font-size:11px">`+
+    `<span class="muted">actionable-multiple buckets:</span>`+
+    order.map(k=>`<span><b style="color:${cols[k]}">${bk[k]||0}</b> <span class="muted">${k}</span></span>`).join(' ')+`</div>`;
+  const body=document.getElementById('audit-body');
+  const L=d.launches||[];
+  if(body) body.innerHTML=L.map(a=>{
+    const am=a.actionable_multiple;
+    const amCol=am==null?'var(--text-dim)':am>=5?'var(--cyan)':am>=2?'var(--green)':am>=1.5?'var(--yellow)':'var(--red)';
+    const outcome=a.migrated?'<span style="color:var(--green)">MIGRATED</span>'
+      :a.dumped?'<span style="color:var(--red)">DUMPED</span>'
+      :`<span class="muted">${a.final_state||a.audit_state||'—'}</span>`;
+    const fixTag=a.source==='FIXTURE_BACKFILL'
+      ?'<span style="font-size:8px;font-weight:700;color:var(--text-dim);border:1px solid var(--border2);border-radius:3px;padding:0 3px;margin-left:4px">FIXTURE</span>':'';
+    return`<tr style="${a.source==='FIXTURE_BACKFILL'?'opacity:.72':''}">
+      <td><span class="addr" onclick="sol('${a.mint}')">${a.mint?short(a.mint):'—'}</span>${fixTag}</td>
+      <td><span class="addr" onclick="sol('${a.creator}')">${short(a.creator)}</span></td>
+      <td class="num" title="treasury→subprov load / wrap-close seed">${a.subprov_funding_sol!=null?`<b>${Math.round(a.subprov_funding_sol)}</b>`:'—'}<span class="muted" style="font-size:9px">${a.wrap_close_sol!=null?' / '+(+a.wrap_close_sol).toFixed(2):''}</span></td>
+      <td class="num">${a.detection_latency_ms!=null?a.detection_latency_ms+'ms':'—'}</td>
+      <td class="num">${a.position!=null?'#'+a.position:'—'}</td>
+      <td class="num" title="${a.mc_detection_source||''}">${fmtMC(a.mc_at_detection)}</td>
+      <td class="num" title="${a.peak_source||''}">${fmtMC(a.peak_mc)}</td>
+      <td class="num" style="color:${amCol};font-weight:700">${fmtMult(am)}</td>
+      <td class="num muted">${a.time_to_peak_s!=null?(a.time_to_peak_s>=60?Math.round(a.time_to_peak_s/60)+'m':a.time_to_peak_s+'s'):'—'}</td>
+      <td>${outcome}</td>
+    </tr>`;}).join('')||'<tr><td colspan="10" class="muted">no audited launches yet — audits appear as the cascade detects launches (or run the backfill)</td></tr>';
+}
+
+// ── CREATOR MODES ─────────────────────────────────────────────────────────────
+async function loadCreatorModes(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/creator-modes')).json(); }catch(e){ return; }
+  const s=d.summary||{};
+  const dom=s.dominant||'—';
+  const domColor=dom==='INSTANT'?'#e06c2a':'#3fb950';
+  document.getElementById('creator-mode-summary').innerHTML=`
+    <div class="hcard"><div class="v" style="color:${domColor}">${dom}</div><div class="l">Dominant Mode</div></div>
+    <div class="hcard"><div class="v" style="color:#e06c2a">${s.instant||0}</div><div class="l">Instant &lt;60s (${s.instant_pct||0}%)</div></div>
+    <div class="hcard"><div class="v" style="color:#3fb950">${s.staged||0}</div><div class="l">Staged ≥60s (${s.staged_pct||0}%)</div></div>
+    <div class="hcard"><div class="v">${fmtGap(s.median_s)}</div><div class="l">Median gap</div></div>`;
+  const h=d.histogram||{}; const order=['0-10s','10-60s','1-10m','10-60m','60m+'];
+  const max=Math.max(1,...order.map(k=>h[k]||0));
+  document.getElementById('creator-mode-histogram').innerHTML=order.map(k=>{
+    const n=h[k]||0; const w=Math.round(60*n/max);
+    const col=(k==='0-10s'||k==='10-60s')?'#e06c2a':'#3fb950';
+    return`<div style="display:flex;align-items:center;gap:8px;padding:1px 0">
+      <span style="display:inline-block;width:54px;text-align:right;color:var(--text-sec)">${k}</span>
+      <span style="color:${col}">${'█'.repeat(w)}</span>
+      <span style="color:var(--text-dim)">${n}</span></div>`;
+  }).join('')+`<div style="margin-top:6px;color:var(--text-dim);font-size:10px">measured ${d.measured||0} · unknown ${d.unknown||0}</div>`;
+  document.getElementById('creator-mode-treasury').innerHTML=(d.by_treasury||[]).map(t=>{
+    const col=t.mode==='INSTANT'?'#e06c2a':t.mode==='STAGED'?'#3fb950':'var(--amber)';
+    return`<tr>
+      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span></td>
+      <td><span style="color:${col};font-weight:700;font-size:10px">${t.mode}</span></td>
+      <td class="num" style="color:#e06c2a">${t.instant}</td>
+      <td class="num" style="color:#3fb950">${t.staged}</td>
+      <td class="num muted">${fmtGap(t.min_s)}</td>
+      <td class="num muted">${fmtGap(t.max_s)}</td>
+    </tr>`;}).join('')||'<tr><td colspan="6" class="muted">no measured creators yet</td></tr>';
+}
+
+// ── ANCHOR HEALTH ─────────────────────────────────────────────────────────────
+async function loadAnchorHealth(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/anchor-health')).json(); }catch(e){ return; }
+  document.getElementById('anchor-health').innerHTML=[
+    ['anchor status',       d.status,                           d.status==='DELIVERING'?'go':'bad'],
+    ['anchors delivering',  `${d.anchors_delivering}/${d.anchors_total}`, d.anchors_delivering>0?'go':'bad'],
+    ['last webhook hit',    d.last_webhook_hit?ago(d.last_webhook_hit)+' ago':'never', d.last_webhook_hit?'':'bad'],
+    ['last walk started',   d.last_walk_started?ago(d.last_walk_started)+' ago':'never', ''],
+    ['last armed creator',  d.last_armed_creator?ago(d.last_armed_creator.armed_at)+' ago':'never', d.last_armed_creator?'go':''],
+  ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v" style="font-size:16px">${v}</div><div class="l">${l}</div></div>`).join('');
+  document.getElementById('anchor-body').innerHTML=(d.anchors||[]).map(a=>`
+    <tr style="${!a.delivering?'background:rgba(248,81,73,.04)':''}">
+      <td><span class="addr" onclick="sol('${a.wallet}')">${short(a.wallet)}</span></td>
+      <td class="muted">${a.role}</td>
+      <td>${a.delivering?'<span style="color:var(--green)">✓ live</span>':'<span style="color:var(--red)">✗ silent</span>'}</td>
+      <td class="muted">${a.last_hit?ago(a.last_hit)+' ago':'never'}</td>
+      <td class="num">${a.hits_1h}</td>
+    </tr>`).join('')||'<tr><td colspan="5" class="muted">no webhooked anchors</td></tr>';
+}
+
+// ── DETECTION HEALTH ──────────────────────────────────────────────────────────
+async function loadDetectionHealth(){
+  let dh; try{ dh=await(await fetch('/api/ops-v2/intel/detection-health')).json(); }catch(e){ return; }
+  document.getElementById('health').innerHTML=[
+    ['listener',         dh.listener_status,                         dh.listener_status==='LIVE'?'go':'bad'],
+    ['last webhook hit', dh.last_webhook_hit?ago(dh.last_webhook_hit)+' ago':'never', dh.last_webhook_hit?'':'bad'],
+    ['hits 24h',         dh.hits_24h,                                dh.hits_24h>0?'':'bad'],
+    ['template hits 24h',dh.template_hits_24h,                       ''],
+    ['rpc follow %',     dh.rpc_follow_success_pct!=null?dh.rpc_follow_success_pct+'%':'—', ''],
+    ['failed follows',   dh.failed_follows!=null?dh.failed_follows:'—', ''],
+  ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v" style="font-size:18px">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+
+// ── SUB-PROVISIONERS ──────────────────────────────────────────────────────────
+async function loadSubprovs(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/subprovs')).json(); }catch(e){ return; }
+  const sp=d.subprovs||[];
+  const dn=d.distribution_nodes||[];
+  const distHdr=dn.length
+    ?`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:rgba(124,58,237,.10);border-left:3px solid #7c3aed">🪢 ${dn.length} DISTRIBUTION sub-provisioner${dn.length>1?'s':''} — subprov that ALSO funds other subprovs: ${dn.slice(0,3).map(n=>`<span class="addr" onclick="sol('${n.distributor}')" title="funds ${n.n} downstream subprovs">${short(n.distributor)}→${n.n}</span>`).join(' · ')}</td></tr>`:'';
+  const hdr=distHdr+`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${d.count||0} UNKNOWN-treasury sub-provisioners to investigate · ${d.known_resolved||0} resolved (hidden)</td></tr>`;
+  document.getElementById('subprovs-body').innerHTML=hdr+sp.map(s=>{
+    const known=s.treasury_known;
+    const treasCell=s.treasury?`<span class="addr" onclick="sol('${s.treasury}')" style="${known?'':'color:var(--amber)'}">${short(s.treasury)}</span>`:'<span class="muted">—</span>';
+    const status=known
+      ?'<span style="color:var(--green);font-size:9px;font-weight:700">✓ known treasury</span>'
+      :'<span style="color:var(--amber);font-size:9px;font-weight:800">⚠️ UNKNOWN — investigate</span>';
+    const action=s.funder_is_subprov&&s.immediate_funder
+      ?`<span style="font-size:9px;font-weight:800;color:#a78bfa">🪢 via <span class="addr" onclick="sol('${s.immediate_funder}')">${short(s.immediate_funder)}</span></span>`
+      :s.treasury
+      ?`<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--text-dim);color:var(--text-dim)" onclick="subprovRemoveFunder('${s.subprov}')">✕ remove</button>`
+      :`<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--amber);color:var(--amber)" onclick="subprovSetFunder('${s.subprov}')">＋ set funder</button>`;
+    return`<tr style="${known?'':'background:rgba(217,119,6,.07);border-left:3px solid var(--amber)'}">
+      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
+      <td class="num">${s.creators}</td>
+      <td class="num muted">${s.total_sol!=null?s.total_sol.toLocaleString():'—'}</td>
+      <td>${treasCell}</td>
+      <td>${status}</td>
+      <td class="muted" style="font-size:10px">${s.last_seen?ago(s.last_seen)+' ago':'—'}</td>
+      <td>${action}</td>
+    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no unknown-treasury sub-provisioners — all resolved</td></tr>';
+}
+
+// ── TREASURY BANK ─────────────────────────────────────────────────────────────
+async function loadTreasuryBank(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/confirmed-treasuries')).json(); }catch(e){ return; }
+  const c=d.card||{};
+  const card=(label,val,cls)=>`<div class="hcard ${cls||''}"><div class="v">${val}</div><div class="l">${label}</div></div>`;
+  document.getElementById('treasury-bank-card').innerHTML=
+    card('Confirmed Treasuries',c.confirmed||0,'cy')+
+    card('Webhooked',`${c.webhooked||0}/${c.confirmed||0}`,(c.webhooked===c.confirmed?'go':'bad'))+
+    card('Last Hit',c.last_hit?ago(c.last_hit)+' ago':'never',c.last_hit?'':'bad')+
+    card('Last Fanout',c.last_fanout?ago(c.last_fanout)+' ago':'—')+
+    card('Last Strict Candidate',c.last_strict_candidate?ago(c.last_strict_candidate)+' ago':'—')+
+    card('Last Fired Token',c.last_fired_token?short(c.last_fired_token):'none yet',c.last_fired_token?'go':'');
+  document.getElementById('treasury-bank-body').innerHTML=(d.treasuries||[]).map(t=>`
+    <tr>
+      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span></td>
+      <td class="num">${t.out_sol!=null?Math.round(t.out_sol).toLocaleString():'—'}</td>
+      <td class="num">${t.recipients??'—'}</td>
+      <td>${t.webhooked?'<span style="color:var(--green)">✓ live</span>':'<span style="color:var(--red)">✗ blind</span>'}</td>
+      <td class="muted">${t.last_hit?ago(t.last_hit)+' ago':'never'}</td>
+      <td><span style="font-size:9.5px;font-weight:700;color:var(--cyan)">${t.confidence||''}</span></td>
+    </tr>`).join('')||'<tr><td colspan="6" class="muted">no confirmed treasuries</td></tr>';
+}
+
+// ── TREASURY COVERAGE ─────────────────────────────────────────────────────────
+async function loadTreasuryCoverage(){
+  let tc; try{ tc=await(await fetch('/api/ops-v2/intel/treasury-coverage')).json(); }catch(e){ return; }
+  document.getElementById('treasury-body').innerHTML=(tc.treasuries||[]).map(t=>`
+    <tr style="${!t.webhooked?'background:rgba(248,81,73,.04)':''}">
+      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span>${t.high_value?'<span class="hv-tag">HIGH-VALUE</span>':''}
+          <button class="btn ghost" style="font-size:9px;padding:1px 5px;margin-left:4px" onclick="scoreRole('${t.treasury}',this)">score</button></td>
+      <td>${t.operation?`<span class="uuid" onclick="goOp('${t.operation_uuid}')">${t.operation}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="num" style="${t.launches>=3?'color:var(--green);font-weight:700':''}">${t.launches}</td>
+      <td class="num">${t.tx_24h!=null?t.tx_24h:'<span class="muted">—</span>'}</td>
+      <td>${t.webhooked?'<span style="color:var(--green)">✓ '+t.webhook_state+'</span>':'<span style="color:var(--red)">✗ blind</span>'}</td>
+      <td class="muted">${t.last_event?ago(t.last_event)+' ago':'—'}</td>
+      <td class="num">${t.template_events}</td>
+      <td><span class="tstat ${t.status}">${t.status}</span></td>
+      <td>${t.webhooked
+            ?`<button class="btn ghost" style="border-color:var(--red);color:var(--red)" onclick="toggleWebhook('${t.treasury}',false,this)">● ON</button>`
+            :`<button class="btn" onclick="toggleWebhook('${t.treasury}',true,this)">○ OFF</button>`}</td>
+    </tr>`).join('')||'<tr><td colspan="9" class="muted">no treasuries</td></tr>';
+}
+
+// ── STAGED-ONLY PREDICTION PANELS (collapse section) ─────────────────────────
+async function loadAll(){
+  let plc={creators:[]}; try{ plc=await(await fetch('/api/ops-v2/intel/pre-launch-creators')).json(); }catch(e){}
+  // Likely To Launch Next
+  document.getElementById('launch-body').innerHTML=(plc.creators||[]).slice(0,30).map(c=>{
     const cd=c.countdown_min;
     const cls=cd<=0?'cd-past':cd<=15?'cd-imminent':cd<=30?'cd-soon':cd<=60?'cd-yellow':'cd-window';
     const barcol=cd<=15?'var(--red)':cd<=30?'#ea580c':cd<=60?'var(--yellow)':'var(--green)';
-    return `<tr>
+    return`<tr>
       <td><span class="addr" onclick="sol('${c.wallet}')">${short(c.wallet)}</span></td>
       <td>${c.operation?`<span class="uuid" onclick="goOp('${c.operation_uuid}')">${c.operation}</span>`:'<span class="muted">—</span>'}</td>
       <td class="mono muted">${c.treasury?short(c.treasury):'—'}</td>
@@ -312,131 +807,23 @@ async function loadAll(){
       <td><span class="countdown ${cls}">${cd>0?cd+'m':'past'}</span><div class="cdbar"><i style="width:${Math.min(100,Math.round((1-cd/58)*100))}%;background:${barcol}"></i></div></td>
       <td>${c.webhooked?'<span style="color:var(--green)">✓ webhook</span>':'<span style="color:var(--red)">not monitored</span>'}</td>
       <td>${c.webhooked?'':`<button class="btn" onclick="enroll(['${c.wallet}'],this)">Enroll</button>`}</td>
-    </tr>`;}).join('') || '<tr><td colspan="10" class="muted">no creators in launch window — pipeline quiet (next treasury emission will appear here with a live countdown)</td></tr>';
-
-  // TREASURY COVERAGE
-  document.getElementById('treasury-body').innerHTML = (tc.treasuries||[]).map(t=>`
-    <tr style="${!t.webhooked?'background:rgba(248,81,73,.04)':''}">
-      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span>${t.high_value?'<span class="hv-tag">HIGH-VALUE</span>':''}
-          <button class="btn ghost" style="font-size:9px;padding:1px 5px;margin-left:4px" onclick="scoreRole('${t.treasury}',this)" title="behavioural role score (treasury vs sub-prov vs collector)">score</button></td>
-      <td>${t.operation?`<span class="uuid" onclick="goOp('${t.operation_uuid}')">${t.operation}</span>`:'<span class="muted">—</span>'}</td>
-      <td class="num" style="${t.launches>=3?'color:var(--green);font-weight:700':''}">${t.launches}</td>
-      <td class="num">${t.tx_24h!=null?t.tx_24h:'<span class="muted">—</span>'}</td>
-      <td>${t.webhooked?'<span style="color:var(--green)">✓ '+t.webhook_state+'</span>':'<span style="color:var(--red)">✗ blind</span>'}</td>
-      <td class="muted">${ago(t.last_event)} ago</td>
-      <td class="num">${t.template_events}</td>
-      <td><span class="tstat ${t.status}">${t.status}</span></td>
-      <td>${t.webhooked
-            ? `<button class="btn ghost" style="border-color:var(--red);color:var(--red)" onclick="toggleWebhook('${t.treasury}',false,this)" title="remove from webhook">● ON</button>`
-            : `<button class="btn" onclick="toggleWebhook('${t.treasury}',true,this)" title="enrol on webhook">○ OFF</button>`}</td>
-    </tr>`).join('') || '<tr><td colspan="9" class="muted">no treasuries</td></tr>';
-
-  // DETECTION HEALTH
-  document.getElementById('health').innerHTML = [
-    ['listener', dh.listener_status, dh.listener_status==='LIVE'?'go':'bad'],
-    ['last webhook hit', dh.last_webhook_hit?ago(dh.last_webhook_hit)+' ago':'never', dh.last_webhook_hit?'':'bad'],
-    ['hits 24h', dh.hits_24h, dh.hits_24h>0?'':'bad'],
-    ['template hits 24h', dh.template_hits_24h, ''],
-    ['rpc follow %', dh.rpc_follow_success_pct!=null?dh.rpc_follow_success_pct+'%':'—', ''],
-    ['failed follows', dh.failed_follows!=null?dh.failed_follows:'—', ''],
-  ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v" style="font-size:18px">${v}</div><div class="l">${l}</div></div>`).join('');
-}
-
-const EVENT_STYLE = {
-  CREATOR_CANDIDATE_ARMED:     ['🎯 CREATOR ARMED','var(--green)','rgba(63,185,80,.14)',true],
-  CREATOR_FUNDING_DETECTED:    ['💰 CREATOR FUNDED','var(--green)','rgba(63,185,80,.06)'],
-  PRE_LAUNCH_CREATOR_DETECTED: ['🚀 PRE-LAUNCH','var(--green)','rgba(63,185,80,.06)'],
-  FORWARD_HOP_DETECTED:        ['↳ WALK HOP','var(--cyan)',''],
-  FORWARD_WALK_STARTED:        ['▶ WALK STARTED','var(--cyan)',''],
-  FORWARD_WALK_EXPIRED:        ['✕ WALK ENDED','var(--text-dim)',''],
-  SIGNAL_ACTIVATION:           ['⚡ SIGNAL','var(--amber)',''],
-};
-async function loadFeed(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/operational-events')).json(); }catch(e){ return; }
-  document.getElementById('feed-body').innerHTML = (d.events||[]).slice(0,35).map(e=>{
-    const st = EVENT_STYLE[e.type] || [e.type, 'var(--text-dim)', ''];
-    const [label,color,bg,top] = st;
-    const p = e.payload||{};
-    const detail = e.type==='CREATOR_CANDIDATE_ARMED' ? `armed · ~${p.expected_launch_min||58}m to launch`
-                 : e.type==='FORWARD_HOP_DETECTED' ? `depth ${p.depth} · ${(p.amount||0).toFixed?.(3)||p.amount} SOL`
-                 : e.type==='FORWARD_WALK_STARTED' ? `provisioning chain · ${(p.amount||0)} SOL`
-                 : (p.amount?(p.amount+' SOL'):'');
-    return `<tr style="${bg?'background:'+bg:''};${top?'border-left:3px solid var(--green)':''}">
-      <td class="muted mono" style="font-size:10.5px">${hm(e.ts)}</td>
-      <td><span style="font-size:${top?'11px':'9.5px'};font-weight:${top?'800':'600'};color:${color}">${label}</span></td>
-      <td><span class="addr" onclick="sol('${e.wallet}')">${short(e.wallet)}</span></td>
-      <td>${p.operation?`<span class="uuid" onclick="goOp('${p.operation}')">${(p.operation||'').slice(0,8)}</span>`:'<span class="muted">—</span>'}</td>
-      <td class="muted">${detail}</td>
-    </tr>`;}).join('') || '<tr><td colspan="5" class="muted">no operational events</td></tr>';
-}
-
-async function enroll(wallets, btn){
-  if(!confirm('Enroll '+wallets.length+' wallet(s) into the webhook? This calls the Helius API.')) return;
-  btn.disabled=true; btn.textContent='…';
-  try{
-    const r=await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,wallets})});
-    const d=await r.json(); btn.textContent=d.newly_enrolled>0?'✓ enrolled':(r.ok?'already':'failed');
-    setTimeout(refresh,800);
-  }catch(e){ btn.textContent='error'; btn.disabled=false; }
-}
-
-function fmtGap(s){
-  if(s==null) return '—';
-  if(s<60) return s+'s';
-  if(s<3600) return Math.round(s/60)+'m';
-  return Math.round(s/3600)+'h';
-}
-async function loadCreatorModes(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/creator-modes')).json(); }catch(e){ return; }
-  const s=d.summary||{};
-  const dom = s.dominant||'—';
-  const domColor = dom==='INSTANT' ? '#e06c2a' : '#3fb950';
-  // hero cards
-  document.getElementById('creator-mode-summary').innerHTML = `
-    <div class="hero"><div class="hl">Dominant Mode</div><div class="hv" style="color:${domColor}">${dom}</div><div class="hs">${s.endgame||''}</div></div>
-    <div class="hero"><div class="hl">Instant &lt;60s</div><div class="hv" style="color:#e06c2a">${s.instant||0}</div><div class="hs">${s.instant_pct||0}% · uncatchable pre-launch</div></div>
-    <div class="hero"><div class="hl">Staged ≥60s</div><div class="hv" style="color:#3fb950">${s.staged||0}</div><div class="hs">${s.staged_pct||0}% · catchable</div></div>
-    <div class="hero"><div class="hl">Median Gap</div><div class="hv">${fmtGap(s.median_s)}</div><div class="hs">min ${fmtGap(s.min_s)} · max ${fmtGap(s.max_s)}</div></div>`;
-  // histogram
-  const h=d.histogram||{}; const order=['0-10s','10-60s','1-10m','10-60m','60m+'];
-  const max=Math.max(1,...order.map(k=>h[k]||0));
-  document.getElementById('creator-mode-histogram').innerHTML = order.map(k=>{
-    const n=h[k]||0; const w=Math.round(60*n/max);
-    const col = (k==='0-10s'||k==='10-60s') ? '#e06c2a' : '#3fb950';
-    return `<div style="display:flex;align-items:center;gap:8px;padding:1px 0">
-      <span style="display:inline-block;width:54px;text-align:right;color:var(--text-sec)">${k}</span>
-      <span style="color:${col}">${'█'.repeat(w)}</span>
-      <span style="color:var(--text-dim)">${n}</span></div>`;
-  }).join('') + `<div style="margin-top:6px;color:var(--text-dim);font-size:10px">measured ${d.measured||0} · unknown ${d.unknown||0}</div>`;
-  // per-treasury
-  document.getElementById('creator-mode-treasury').innerHTML = (d.by_treasury||[]).map(t=>{
-    const col = t.mode==='INSTANT'?'#e06c2a':t.mode==='STAGED'?'#3fb950':'var(--amber)';
-    return `<tr>
-      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span></td>
-      <td><span style="color:${col};font-weight:700;font-size:10px">${t.mode}</span></td>
-      <td class="num" style="color:#e06c2a">${t.instant}</td>
-      <td class="num" style="color:#3fb950">${t.staged}</td>
-      <td class="num muted">${fmtGap(t.min_s)}</td>
-      <td class="num muted">${fmtGap(t.max_s)}</td>
-    </tr>`;}).join('') || '<tr><td colspan="6" class="muted">no measured creators yet — populates as creators launch (live) or via the measurement job</td></tr>';
+    </tr>`;}).join('')||'<tr><td colspan="10" class="muted">no creators in launch window (STAGED operators only — INSTANT operators do not populate this panel)</td></tr>';
 }
 
 async function loadArmed(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/armed')).json(); }catch(e){ return; }
-  const STALE_MIN = 180;   // arms auto-expire this long after expected_launch (matches ARM_STALE_MIN)
-  const nowS = Date.now()/1000;
-  document.getElementById('armed-body').innerHTML = (d.armed||[]).map(a=>{
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/armed')).json(); }catch(e){ return; }
+  const STALE_MIN=180; const nowS=Date.now()/1000;
+  document.getElementById('armed-body').innerHTML=(d.armed||[]).map(a=>{
     const cd=a.countdown_min;
-    const overdueMin = a.expected_launch ? Math.floor((nowS - a.expected_launch)/60) : 0;
-    const winding = cd<=0;                                  // past expected launch — winding down
-    const expiresInMin = Math.max(0, STALE_MIN - overdueMin);
+    const overdueMin=a.expected_launch?Math.floor((nowS-a.expected_launch)/60):0;
+    const winding=cd<=0;
+    const expiresInMin=Math.max(0,STALE_MIN-overdueMin);
     const cls=cd<=15?'cd-imminent':cd<=30?'cd-soon':cd<=60?'cd-yellow':'cd-window';
-    // winding-down arms: faded + honest label (won't fire, auto-expiring). Fresh arms: amber.
-    const rowStyle = winding ? 'background:rgba(110,118,129,.05);opacity:.55' : 'background:rgba(217,119,6,.05)';
-    const cdCell = winding
-      ? `<span style="color:var(--text-dim);font-weight:700">⌛ overdue ${overdueMin}m</span><div style="font-size:9px;color:var(--text-dim)">auto-expires in ${expiresInMin}m</div>`
-      : `<span class="countdown ${cls}">${cd}m</span>`;
-    return `<tr style="${rowStyle}">
+    const rowStyle=winding?'background:rgba(110,118,129,.05);opacity:.55':'background:rgba(217,119,6,.05)';
+    const cdCell=winding
+      ?`<span style="color:var(--text-dim);font-weight:700">⌛ overdue ${overdueMin}m</span><div style="font-size:9px;color:var(--text-dim)">auto-expires in ${expiresInMin}m</div>`
+      :`<span class="countdown ${cls}">${cd}m</span>`;
+    return`<tr style="${rowStyle}">
       <td><span class="addr" onclick="sol('${a.creator}')">${short(a.creator)}</span></td>
       <td>${a.operation?`<span class="uuid" onclick="goOp('${a.operation_uuid}')">${a.operation}</span>`:'—'}</td>
       <td class="mono muted">${a.treasury?short(a.treasury):'—'}</td>
@@ -445,12 +832,11 @@ async function loadArmed(){
       <td style="font-weight:600">${hm(a.expected_launch)}</td>
       <td>${cdCell}</td>
       <td>${winding?'<span style="color:var(--text-dim)">○ winding down</span>':(a.webhooked?'<span style="color:var(--green)">✓ armed</span>':'<span style="color:var(--amber)">enrolling…</span>')}</td>
-    </tr>`;}).join('') || '<tr><td colspan="8" class="muted">no armed creators — nothing in the launch window (arms automatically when a treasury funds a template creator)</td></tr>';
-  // recently fired
+    </tr>`;}).join('')||'<tr><td colspan="8" class="muted">no armed creators — arms automatically when a treasury funds a template creator (STAGED operators only)</td></tr>';
   const fw=document.getElementById('fired-wrap');
-  if ((d.recently_fired||[]).length){
+  if((d.recently_fired||[]).length){
     fw.style.display='block';
-    document.getElementById('fired-body').innerHTML = d.recently_fired.map(f=>`<tr>
+    document.getElementById('fired-body').innerHTML=d.recently_fired.map(f=>`<tr>
       <td><span class="addr" onclick="sol('${f.creator}')">${short(f.creator)}</span></td>
       <td class="muted">${f.operation||'—'}</td>
       <td>${f.lead_time_min!=null?`<span style="color:var(--green);font-weight:600">${f.lead_time_min} min</span>`:'—'}</td>
@@ -459,11 +845,11 @@ async function loadArmed(){
 }
 
 async function loadWalks(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/active-walks')).json(); }catch(e){ return; }
-  const stateColor = {WALKING:'var(--cyan)',ARMED:'var(--green)',EXPIRED:'var(--text-dim)',COLD:'var(--text-dim)',AMM_STOP:'var(--amber)',DEPTH_STOP:'var(--amber)'};
-  document.getElementById('walks-body').innerHTML = (d.walks||[]).map(w=>{
-    const ttlm = Math.floor((w.ttl_remaining_s||0)/60);
-    return `<tr style="${w.state==='WALKING'?'background:rgba(34,211,238,.05)':w.state==='ARMED'?'background:rgba(63,185,80,.06)':''}">
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/active-walks')).json(); }catch(e){ return; }
+  const stateColor={WALKING:'var(--cyan)',ARMED:'var(--green)',EXPIRED:'var(--text-dim)',COLD:'var(--text-dim)',AMM_STOP:'var(--amber)',DEPTH_STOP:'var(--amber)'};
+  document.getElementById('walks-body').innerHTML=(d.walks||[]).map(w=>{
+    const ttlm=Math.floor((w.ttl_remaining_s||0)/60);
+    return`<tr style="${w.state==='WALKING'?'background:rgba(34,211,238,.05)':w.state==='ARMED'?'background:rgba(63,185,80,.06)':''}">
       <td class="mono muted" style="font-size:10px">${(w.session_id||'').slice(0,16)}</td>
       <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="sol('${w.trigger_wallet}')">${short(w.trigger_wallet)}</span> <span class="muted" style="font-size:9px">${w.trigger_role||''}</span></td>
       <td>${w.operation?`<span class="uuid" onclick="goOp('${w.operation_uuid}')">${w.operation}</span>`:'—'}</td>
@@ -471,45 +857,189 @@ async function loadWalks(){
       <td style="text-align:center">${w.depth}</td>
       <td><span style="font-weight:700;color:${stateColor[w.state]||'var(--text-sec)'}">${w.state}${w.creator_wallet?' 🎯':''}</span></td>
       <td class="muted">${w.state==='WALKING'?ttlm+'m':(w.stop_reason||'—')}</td>
-    </tr>`;}).join('') || '<tr><td colspan="7" class="muted">no active walks — a walk starts when a tracked treasury/collector emits a provisioning outbound</td></tr>';
+    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no active walks</td></tr>';
 }
 
-async function loadAnchorHealth(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/anchor-health')).json(); }catch(e){ return; }
-  document.getElementById('anchor-health').innerHTML = [
-    ['anchor status', d.status, d.status==='DELIVERING'?'go':'bad'],
-    ['anchors delivering', `${d.anchors_delivering}/${d.anchors_total}`, d.anchors_delivering>0?'go':'bad'],
-    ['last webhook hit', d.last_webhook_hit?ago(d.last_webhook_hit)+' ago':'never', d.last_webhook_hit?'':'bad'],
-    ['last walk started', d.last_walk_started?ago(d.last_walk_started)+' ago':'never', ''],
-    ['last armed creator', d.last_armed_creator?ago(d.last_armed_creator.armed_at)+' ago':'never', d.last_armed_creator?'go':''],
-  ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v" style="font-size:16px">${v}</div><div class="l">${l}</div></div>`).join('');
-  document.getElementById('anchor-body').innerHTML = (d.anchors||[]).map(a=>`
-    <tr style="${!a.delivering?'background:rgba(248,81,73,.04)':''}">
-      <td><span class="addr" onclick="sol('${a.wallet}')">${short(a.wallet)}</span></td>
-      <td class="muted">${a.role}</td>
-      <td>${a.delivering?'<span style="color:var(--green)">✓ live</span>':'<span style="color:var(--red)">✗ silent</span>'}</td>
-      <td class="muted">${a.last_hit?ago(a.last_hit)+' ago':'never'}</td>
-      <td class="num">${a.hits_1h}</td>
-    </tr>`).join('') || '<tr><td colspan="5" class="muted">no webhooked anchors</td></tr>';
+// ── NETWORK INTELLIGENCE (collapse section, 60s refresh) ──────────────────────
+async function loadApexFunders(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/treasury-funders')).json(); }catch(e){ return; }
+  const fs=d.funders||[];
+  const CLS={
+    TREASURY_MESH:{lbl:'★★★ TREASURY MESH',col:'#22d3ee',bg:'rgba(34,211,238,.1)'},
+    HUB:          {lbl:'★★ HUB',            col:'#3fb950',bg:'rgba(63,185,80,.1)'},
+    EXTERNAL:     {lbl:'★ EXTERNAL',        col:'var(--amber)',bg:'rgba(217,119,6,.06)'},
+    BUY_SWARM:    {lbl:'⇄ buy-swarm',       col:'#a855f7',bg:'rgba(168,85,247,.07)'},
+    RECYCLING:    {lbl:'↻ recycling',       col:'var(--text-dim)',bg:''},
+    SWEEP:        {lbl:'↻ sweep-up',        col:'var(--text-dim)',bg:''}
+  };
+  const cc=d.class_counts||{};
+  const summary=`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">EXPANSION: ${cc.TREASURY_MESH||0} mesh · ${cc.HUB||0} hubs · ${cc.EXTERNAL||0} external &nbsp;|&nbsp; ${cc.BUY_SWARM||0} buy-swarm · ${(cc.RECYCLING||0)+(cc.SWEEP||0)} recycling · 30-day window</td></tr>`;
+  document.getElementById('apex-funders-body').innerHTML=summary+fs.map(f=>{
+    const c=CLS[f.expansion_class]||CLS.EXTERNAL;
+    const dim=f.expansion_class==='RECYCLING'||f.expansion_class==='SWEEP'||f.expansion_class==='BUY_SWARM';
+    return`<tr style="${c.bg?'background:'+c.bg:''};${dim?'opacity:.5':''}">
+      <td><span class="addr" onclick="sol('${f.funder}')">${short(f.funder)}</span></td>
+      <td class="num" style="${f.treasuries_funded>1?'font-weight:800;color:#3fb950':''}">${f.treasuries_funded}</td>
+      <td class="num">${Math.round(f.max_sol).toLocaleString()}</td>
+      <td class="num muted">${Math.round(f.total_sol).toLocaleString()}</td>
+      <td class="num muted">${f.fund_count}</td>
+      <td><span style="color:${c.col};font-size:9px;font-weight:800">${c.lbl}</span></td>
+      <td class="muted" style="font-size:10px">${f.last_seen?ago(f.last_seen)+' ago':'—'}</td>
+    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no apex funders logged</td></tr>';
 }
 
-async function toggleWebhook(wallet, turnOn, btn){
-  const verb = turnOn ? 'enrol on' : 'remove from';
-  if(!confirm(`${turnOn?'Enrol':'Remove'} ${wallet.slice(0,12)}… ${verb} the webhook? This calls the Helius API.`)) return;
-  btn.disabled=true; btn.textContent='…';
-  try{
-    const body = turnOn ? {confirm:true, wallets:[wallet]} : {confirm:true, action:'off', wallets:[wallet]};
-    const r = await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d = await r.json();
-    btn.textContent = r.ok ? (turnOn?'✓ ON':'✓ OFF') : 'failed';
-    setTimeout(()=>{ loadAll(); loadAnchorHealth(); }, 900);
-  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+async function loadVanity(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/vanity-families')).json(); }catch(e){ return; }
+  const fams=d.families||[];
+  const fe=document.getElementById('vanity-families');
+  if(fe) fe.innerHTML=`<div class="panel" style="padding:8px 13px;font-size:11px;display:flex;flex-wrap:wrap;gap:16px">`+
+    fams.map(f=>`<span><b style="color:var(--purple)">${f.label}</b> <span class="muted">prefix</span> ${(f.prefixes||[]).map(p=>`<code>${p}</code>`).join('/')} <span class="muted">·</span> ${(f.known_wallets||[]).length} known infra [${f.confidence}]</span>`).join('')+
+    (fams.length?'':'<span class="muted">no vanity families configured</span>')+`</div>`;
+  const M=d.matches||[];
+  const body=document.getElementById('vanity-body');
+  if(body) body.innerHTML=M.map(m=>{
+    const cc=m.confidence==='KNOWN_MEMBER'?'var(--green)':m.confidence==='STRONG'?'var(--cyan)':'var(--purple)';
+    return`<tr>
+      <td><span class="addr" onclick="sol('${m.wallet}')">${short(m.wallet)}</span></td>
+      <td><span style="color:var(--purple);font-weight:700">${m.family_label}</span></td>
+      <td><code>${m.matched_prefix||'—'}</code></td>
+      <td style="color:${cc};font-weight:700">${m.confidence||'—'}</td>
+      <td class="muted" style="font-size:10px">${m.source_event||'—'}</td>
+      <td>${m.source_sig?`<span class="addr" onclick="window.open('https://solscan.io/tx/${m.source_sig}','_blank')">${m.source_sig.slice(0,8)}…</span>`:'—'}</td>
+    </tr>`;}).join('')||'<tr><td colspan="6" class="muted">no vanity-family matches observed yet</td></tr>';
 }
 
+// ── POTENTIAL TREASURIES + APPROVAL AUDIT ─────────────────────────────────────
+function _confBadge(conf){
+  if(conf==='HIGH')   return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(63,185,80,.18);color:var(--green)">HIGH</span>`;
+  if(conf==='MEDIUM') return`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(240,136,62,.15);color:var(--amber)">MEDIUM</span>`;
+  return`<span style="font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:rgba(248,81,73,.12);color:var(--red)">LOW</span>`;
+}
+function _categoryBadge(c){
+  const via=c.detected_via||''; const is3of3=via==='auto_fingerprint_3of3';
+  const repeat=(c.occurrences||0)>=2; const highMC=(c.source_token_peak_mc||0)>=25000; const pings=(c.micro_pings||0)>0;
+  if(is3of3||(repeat&&highMC)||(repeat&&pings))
+    return`<span style="padding:1px 7px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-size:9px;font-weight:800">✓ APPROVE NOW</span>`;
+  if((c.out_sol||0)>=200&&!repeat)
+    return`<span style="padding:1px 7px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-size:9px;font-weight:700">👁 WATCH</span>`;
+  return`<span style="padding:1px 7px;border-radius:4px;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);color:var(--red);font-size:9px;font-weight:600">✗ REJECT LIKELY</span>`;
+}
+function _computeConfidence(c){
+  let s=0;
+  if((c.detected_via||'')==='auto_fingerprint_3of3') s+=3;
+  if((c.occurrences||0)>=2) s+=2; else if((c.occurrences||0)===1) s+=1;
+  if((c.micro_pings||0)>=5) s+=2; else if((c.micro_pings||0)>0) s+=1;
+  if((c.source_token_peak_mc||0)>=100000) s+=2; else if((c.source_token_peak_mc||0)>=25000) s+=1;
+  if((c.recipients||0)>=20) s+=1; if((c.out_sol||0)>=500) s+=1;
+  return s>=6?'HIGH':s>=3?'MEDIUM':'LOW';
+}
+async function loadTreasuryReview(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/treasury-review')).json(); }catch(e){ return; }
+  const cands=d.candidates||[];
+  const sig3=(c)=>{
+    const t=(c.transfer_pct||0)>=95,k=(c.out_sol||0)>=50&&(c.recipients||0)>=3,p=(c.micro_pings||0)>0;
+    const chip=(ok,lbl)=>`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:${ok?'rgba(63,185,80,.18)':'rgba(110,118,129,.18)'};color:${ok?'var(--green)':'var(--text-dim)'}">${ok?'✓':'✗'} ${lbl}</span>`;
+    return chip(t,'transfer')+' '+chip(k,'capital')+' '+chip(p,'ping');
+  };
+  const srcFlag=(via)=>{
+    via=(via||'');
+    if(via==='expansion_hub'||via==='funder_discovery') return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(34,211,238,.18);color:var(--cyan)">⬆️ FUNDS KNOWN TREASURY</span>`;
+    if(via==='auto_fingerprint_3of3') return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(63,185,80,.18);color:var(--green)">3-of-3</span>`;
+    if(via==='micro_ping') return`<span style="font-size:9px;color:var(--text-sec)">ping-seed</span>`;
+    if(via==='discovery_lead') return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(0,153,204,.15);color:var(--cyan)">🔭 DISCOVERY</span>`;
+    return`<span style="font-size:9px;color:var(--text-dim)">migration</span>`;
+  };
+  const srcTok=c=>{
+    if(!c.source_token) return'<span class="muted" style="font-size:10px">—</span>';
+    const mc=c.source_token_peak_mc;
+    const mcCol=mc>=250000?'var(--green)':mc>=100000?'var(--cyan)':mc>=25000?'var(--amber)':'var(--text-dim)';
+    const more=(c.source_token_count||1)>1?` <span class="muted" style="font-size:8px">+${c.source_token_count-1}</span>`:'';
+    return`<span class="addr" onclick="sol('${c.source_token}')">${short(c.source_token)}</span><b style="color:${mcCol};font-size:10px"> ${fmtMC(mc)}</b>${more}`;
+  };
+  const _dlEvidence=(c)=>{
+    if(c.detected_via!=='discovery_lead') return'';
+    let ev=[],reas=[];
+    try{ ev=typeof c.evidence_json==='string'?JSON.parse(c.evidence_json):(c.evidence_json||[]); }catch(e){}
+    try{ reas=typeof c.discovery_reasons==='string'?JSON.parse(c.discovery_reasons):(c.discovery_reasons||[]); }catch(e){}
+    if(!ev.length&&!reas.length) return'';
+    const score=c.discovery_score!=null?`Score: ${c.discovery_score} · `:'';
+    const badges=ev.filter(b=>b.state==='PRESENT').map(b=>`<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(63,185,80,.15);color:var(--green);margin:1px;display:inline-block">${b.name.replace(/_/g,' ')}</span>`).join('');
+    const unkn=ev.filter(b=>b.state==='UNKNOWN').map(b=>`<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(210,153,34,.1);color:var(--amber);margin:1px;display:inline-block">? ${b.name.replace(/_/g,' ')}</span>`).join('');
+    const reasonHtml=reas.slice(0,3).map(r=>`<li style="color:var(--text-sec);font-size:9px;margin:0">${r}</li>`).join('');
+    return`<details style="margin-top:4px"><summary style="font-size:8px;color:var(--cyan);cursor:pointer;font-weight:700">🔭 DISCOVERY LEAD &nbsp;${score}</summary>
+      <div style="margin-top:3px">${badges}${unkn}</div>
+      ${reasonHtml?`<ul style="margin:3px 0 0;padding-left:14px">${reasonHtml}</ul>`:''}
+    </details>`;
+  };
+  const pendingRows=cands.map(c=>{
+    const isExp=c.detected_via==='expansion_hub'||c.detected_via==='funder_discovery';
+    const is3of3=c.detected_via==='auto_fingerprint_3of3';
+    const isDL=c.detected_via==='discovery_lead';
+    const conf=_computeConfidence(c);
+    const rowBg=isExp?'rgba(34,211,238,.07)':is3of3?'rgba(63,185,80,.05)':isDL?'rgba(0,153,204,.05)':'rgba(217,119,6,.04)';
+    const rowBorder=isExp?';border-left:3px solid var(--cyan)':is3of3?';border-left:3px solid var(--green)':isDL?';border-left:3px solid rgba(0,153,204,.6)':'';
+    return`<tr style="background:${rowBg}${rowBorder}">
+      <td>${_categoryBadge(c)}<span class="addr" onclick="sol('${c.treasury}')" style="display:block;margin-top:2px">${short(c.treasury)}</span>
+          <button class="btn ghost" style="font-size:9px;padding:1px 5px;margin-top:2px" onclick="scoreRole('${c.treasury}',this)">score</button>
+          ${_dlEvidence(c)}</td>
+      <td>${srcTok(c)}</td>
+      <td class="num">${(c.occurrences||0)>1?`<span style="font-weight:800;color:#3fb950">×${c.occurrences}</span>`:`<span class="muted">×${c.occurrences||1}</span>`}</td>
+      <td class="num">${c.transfer_pct!=null?c.transfer_pct+'%':'—'}</td>
+      <td class="num">${c.out_sol!=null?Math.round(c.out_sol).toLocaleString():'—'}</td>
+      <td class="num">${c.recipients??'—'}</td>
+      <td class="num">${c.micro_pings??'—'}</td>
+      <td>${sig3(c)}</td>
+      <td>${_confBadge(conf)}</td>
+      <td>${srcFlag(c.detected_via)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn" style="font-size:10px;padding:2px 8px;background:rgba(63,185,80,.15);border-color:var(--green);color:var(--green)"
+          onclick="approveTreasury('${c.treasury}','${conf}',this)">✓ Approve</button>
+        <button class="btn ghost" style="font-size:9px;padding:1px 6px;margin-top:3px;border-color:var(--text-dim);color:var(--text-dim);opacity:.5;cursor:not-allowed"
+          title="Disabled — approve first" disabled>🔌 Enroll</button>
+        <button class="btn ghost" style="font-size:10px;padding:2px 8px;margin-top:3px;border-color:var(--red);color:var(--red)"
+          onclick="approveTreasury('${c.treasury}','${conf}',this,'reject')">✗</button>
+      </td>
+    </tr>`;}).join('');
+  const recent=d.recent_decided||[];
+  const recentRows=recent.map(c=>{
+    const isConf=c.status==='CONFIRMED'||c.status==='APPROVED';
+    const badge=isConf?'<span style="font-size:9px;font-weight:800;color:#3fb950">✓ APPROVED</span>':'<span style="font-size:9px;font-weight:700;color:var(--red)">✗ REJECTED</span>';
+    return`<tr style="opacity:.5">
+      <td><span class="addr" onclick="sol('${c.treasury}')">${short(c.treasury)}</span></td>
+      <td>${srcTok(c)}</td><td class="num muted">×${c.occurrences||1}</td>
+      <td class="num muted">${c.transfer_pct!=null?c.transfer_pct+'%':'—'}</td>
+      <td class="num muted">${c.out_sol!=null?Math.round(c.out_sol).toLocaleString():'—'}</td>
+      <td class="num muted">${c.recipients??'—'}</td>
+      <td class="num muted">${c.micro_pings??'—'}</td>
+      <td>${badge}</td><td>—</td><td>${srcFlag(c.detected_via)}</td>
+      <td class="muted" style="font-size:10px">${c.reviewed_by||'auto'}${isConf?`<button class="btn ghost" style="font-size:9px;padding:1px 6px;border-color:var(--cyan);color:var(--cyan);display:block;margin-top:2px" onclick="enrollWebhook('${c.treasury}',this)">🔌 Enroll Webhook</button>`:''}</td>
+    </tr>`;}).join('');
+  const dc=d.decided_counts||{};
+  const sep=recent.length?`<tr><td colspan="11" style="padding:6px 13px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;background:var(--bg-card2)">recently decided · ${(dc.CONFIRMED||0)+(dc.APPROVED||0)} approved · ${dc.REJECTED||0} rejected</td></tr>`:'';
+  document.getElementById('treasury-review-body').innerHTML=pendingRows+sep+recentRows||'<tr><td colspan="11" class="muted">no candidates yet</td></tr>';
+}
+
+async function loadApprovalAudit(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/treasury-approval-audit')).json(); }catch(e){ return; }
+  const rows=(d.audit||[]).filter(r=>r.action==='APPROVED'||r.action==='WEBHOOK_ENROLLED');
+  const actionColor={APPROVED:'var(--green)',REJECTED:'var(--red)',WEBHOOK_ENROLLED:'var(--cyan)'};
+  document.getElementById('approval-audit-body').innerHTML=rows.length===0
+    ?'<tr><td colspan="6" class="muted">no approved treasuries yet</td></tr>'
+    :rows.map(r=>`<tr>
+        <td><span class="addr" onclick="sol('${r.treasury}')">${short(r.treasury)}</span></td>
+        <td><span style="font-size:9px;font-weight:800;color:${actionColor[r.action]||'var(--text-sec)'}">${r.action}</span></td>
+        <td>${r.confidence?_confBadge(r.confidence):'—'}</td>
+        <td class="muted" style="font-size:10px">${r.reviewer||'—'}</td>
+        <td class="muted" style="font-size:10px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notes||'—'}</td>
+        <td class="muted" style="font-size:10px">${r.created_at?ago(r.created_at)+' ago':'—'}</td>
+      </tr>`).join('');
+}
+
+// ── TREASURY REVIEW (attribution) ─────────────────────────────────────────────
 async function loadReview(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/treasury-resolution')).json(); }catch(e){ return; }
-  const rows = (d.resolutions||[]).filter(r=>r.status==='ROLE_MISMATCH_REVIEW');
-  document.getElementById('review-body').innerHTML = rows.map(r=>`
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/treasury-resolution')).json(); }catch(e){ return; }
+  const rows=(d.resolutions||[]).filter(r=>r.status==='ROLE_MISMATCH_REVIEW');
+  document.getElementById('review-body').innerHTML=rows.map(r=>`
     <tr style="background:rgba(217,119,6,.05)">
       <td>${r.operation_uuid?`<span class="uuid" onclick="goOp('${r.operation_uuid}')">${(r.operation_uuid||'').slice(0,8)}</span>`:'—'}</td>
       <td><span class="addr" onclick="sol('${r.current_assigned_treasury}')">${short(r.current_assigned_treasury)}</span>
@@ -519,390 +1049,307 @@ async function loadReview(){
       <td class="num">${r.confidence}</td>
       <td><span style="font-size:9.5px;font-weight:700;color:var(--amber)">REVIEW</span></td>
       <td class="muted" style="font-size:11px">${r.reason||''}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="muted">no attribution mismatches — assigned treasuries match positional roots ✓</td></tr>';
+    </tr>`).join('')||'<tr><td colspan="6" class="muted">no attribution mismatches ✓</td></tr>';
+}
+
+// ── EVENT FEED ────────────────────────────────────────────────────────────────
+const EVENT_STYLE={
+  CREATOR_CANDIDATE_ARMED:     ['🎯 CREATOR ARMED','var(--green)','rgba(63,185,80,.14)',true],
+  CREATOR_FUNDING_DETECTED:    ['💰 CREATOR FUNDED','var(--green)','rgba(63,185,80,.06)'],
+  PRE_LAUNCH_CREATOR_DETECTED: ['🚀 PRE-LAUNCH','var(--green)','rgba(63,185,80,.06)'],
+  FORWARD_HOP_DETECTED:        ['↳ WALK HOP','var(--cyan)',''],
+  FORWARD_WALK_STARTED:        ['▶ WALK STARTED','var(--cyan)',''],
+  FORWARD_WALK_EXPIRED:        ['✕ WALK ENDED','var(--text-dim)',''],
+  SIGNAL_ACTIVATION:           ['⚡ SIGNAL','var(--amber)',''],
+};
+async function loadFeed(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/operational-events')).json(); }catch(e){ return; }
+  document.getElementById('feed-body').innerHTML=(d.events||[]).slice(0,35).map(e=>{
+    const st=EVENT_STYLE[e.type]||[e.type,'var(--text-dim)',''];
+    const [label,color,bg,top]=st;
+    const p=e.payload||{};
+    const detail=e.type==='CREATOR_CANDIDATE_ARMED'?`armed · ~${p.expected_launch_min||58}m to launch`
+               :e.type==='FORWARD_HOP_DETECTED'?`depth ${p.depth} · ${(p.amount||0).toFixed?.(3)||p.amount} SOL`
+               :e.type==='FORWARD_WALK_STARTED'?`provisioning chain · ${p.amount||0} SOL`
+               :(p.amount?(p.amount+' SOL'):'');
+    return`<tr style="${bg?'background:'+bg:''};${top?'border-left:3px solid var(--green)':''}">
+      <td class="muted mono" style="font-size:10.5px">${hm(e.ts)}</td>
+      <td><span style="font-size:${top?'11px':'9.5px'};font-weight:${top?'800':'600'};color:${color}">${label}</span></td>
+      <td><span class="addr" onclick="sol('${e.wallet}')">${short(e.wallet)}</span></td>
+      <td>${p.operation?`<span class="uuid" onclick="goOp('${p.operation}')">${(p.operation||'').slice(0,8)}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="muted">${detail}</td>
+    </tr>`;}).join('')||'<tr><td colspan="5" class="muted">no operational events</td></tr>';
+}
+
+// ── MANUAL ACTIONS (unchanged — all require explicit user click) ──────────────
+async function enroll(wallets,btn){
+  if(!confirm('Enroll '+wallets.length+' wallet(s) into the webhook? This calls the Helius API.')) return;
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r=await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,wallets})});
+    const d=await r.json(); btn.textContent=d.newly_enrolled>0?'✓ enrolled':(r.ok?'already':'failed');
+    setTimeout(refresh,800);
+  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+}
+async function toggleWebhook(wallet,turnOn,btn){
+  if(!confirm(`${turnOn?'Enrol':'Remove'} ${wallet.slice(0,12)}… ${turnOn?'on':'from'} the webhook? This calls the Helius API.`)) return;
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const body=turnOn?{confirm:true,wallets:[wallet]}:{confirm:true,action:'off',wallets:[wallet]};
+    const r=await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json(); btn.textContent=r.ok?(turnOn?'✓ ON':'✓ OFF'):'failed';
+    setTimeout(()=>{loadTreasuryCoverage();loadTreasuryBank();},900);
+  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+}
+async function subprovSetFunder(subprov){
+  const treasury=((prompt(`Funder (TREASURY) address that funded sub-provisioner\n${subprov}\n\nPaste the address you traced on-chain:`)||'').trim());
+  if(!treasury) return;
+  try{
+    let r=await fetch('/api/ops-v2/intel/subprov-funder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,action:'set',subprov,treasury})});
+    let j=await r.json();
+    if(r.status===409){
+      const ok=confirm(`On-chain verification did NOT match.\nYou typed: ${treasury}\nOldest-tx funder: ${j.onchain_funder||'(none found)'}\n\nWrite it anyway (override)?`);
+      if(!ok) return;
+      r=await fetch('/api/ops-v2/intel/subprov-funder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,action:'set',subprov,treasury,override:true})});
+      j=await r.json();
+    }
+    if(j.ok){ alert(`✓ Funder set.\nTreasury ${j.treasury} confirmed${j.webhooked?' + webhooked':''}.\n${j.verified?'On-chain verified ✓':'written via override'}`); loadSubprovs(); }
+    else alert('Error: '+(j.error||'unknown'));
+  }catch(e){ alert('request failed: '+e); }
+}
+async function subprovRemoveFunder(subprov){
+  if(!confirm(`Remove the funder from sub-provisioner ${subprov}?\nIt returns to the UNKNOWN-treasury leads list.`)) return;
+  try{
+    const r=await fetch('/api/ops-v2/intel/subprov-funder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,action:'remove',subprov})});
+    const j=await r.json();
+    if(j.ok) loadSubprovs(); else alert('Error: '+(j.error||'unknown'));
+  }catch(e){ alert('request failed: '+e); }
+}
+async function approveTreasury(treasury,confidence,btn,action='approve'){
+  const isReject=action==='reject';
+  const verb=isReject?'REJECT':'APPROVE (registry only — no webhook)';
+  if(!confirm(`${verb} ${treasury.slice(0,16)}…?\n\n`+(isReject?'Marks as rejected.':'Adds to confirmed treasury registry.\n\nNO webhook will be enrolled.\nNO operation assignments will change.'))) return;
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r=await fetch('/api/ops-v2/intel/treasury-approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,treasury,action,confidence,reviewer:'human'})});
+    const d=await r.json();
+    if(r.ok&&d.ok){
+      btn.textContent=isReject?'✗ rejected':'✓ approved';
+      btn.style.color=isReject?'var(--red)':'var(--green)';
+      if(!isReject){
+        const row=btn.closest('tr');
+        if(row){ const eb=row.querySelector('button[title="Disabled — approve first"]'); if(eb){ eb.disabled=false;eb.style.opacity='1';eb.style.cursor='pointer';eb.title='Click to enroll webhook';eb.onclick=function(){ enrollWebhook(treasury,this); }; } }
+      }
+    } else { btn.textContent='failed'; btn.disabled=false; }
+    setTimeout(()=>{ loadTreasuryReview(); loadTreasuryBank(); loadApprovalAudit(); },900);
+  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+}
+async function enrollWebhook(treasury,btn){
+  if(!confirm(`ENROLL WEBHOOK for ${treasury.slice(0,16)}…?\n\nThis will add the treasury to the live Helius webhook subscription.\nOnly proceed when ready to activate in the detection pipeline.`)) return;
+  btn.disabled=true; btn.textContent='enrolling…';
+  try{
+    const r=await fetch('/api/ops-v2/intel/treasury-webhook-enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,treasury,reviewer:'human'})});
+    const d=await r.json();
+    if(r.ok&&d.webhooked){ btn.textContent='🔌 enrolled'; btn.style.color='var(--cyan)'; }
+    else { btn.textContent='failed: '+(d.webhook_error||'unknown'); btn.disabled=false; }
+    setTimeout(()=>{ loadTreasuryReview(); loadTreasuryBank(); loadApprovalAudit(); },900);
+  }catch(e){ btn.textContent='error'; btn.disabled=false; }
 }
 
 let rdWallet='';
 const RD_COLORS={treasury:'var(--green)',sub_prov:'var(--amber)',collector:'var(--purple)',pass_through:'var(--text-sec)'};
 function closeRole(){ document.getElementById('role-drawer').classList.remove('open'); document.getElementById('role-scrim').classList.remove('open'); }
-async function scoreRole(wallet, btn){
+async function scoreRole(wallet,btn){
   rdWallet=wallet;
   const t0=btn.textContent; btn.disabled=true; btn.textContent='…';
-  // open immediately with a loading state
   document.getElementById('rd-addr').textContent=wallet;
   document.getElementById('rd-verdict').innerHTML='<span class="muted" style="font-size:11px">scoring…</span>';
   document.getElementById('rd-scores').innerHTML=''; document.getElementById('rd-signals').innerHTML=''; document.getElementById('rd-reasons').innerHTML='';
   document.getElementById('role-drawer').classList.add('open'); document.getElementById('role-scrim').classList.add('open');
   try{
-    const d = await (await fetch('/api/ops-v2/intel/role-scores/'+wallet)).json();
+    const d=await(await fetch('/api/ops-v2/intel/role-scores/'+wallet)).json();
     btn.textContent=t0; btn.disabled=false;
     if(d.error){ document.getElementById('rd-verdict').innerHTML='<span style="color:var(--red);font-size:11px">scoring failed</span>'; return; }
     document.getElementById('rd-verdict').innerHTML=`<span class="rd-verdict rv-${d.top_role}">${d.top_role.replace('_',' ')}</span>`;
     const order=['treasury','sub_prov','collector','pass_through'];
     document.getElementById('rd-scores').innerHTML=order.map(k=>{
       const v=d[k+'_score']||0, pct=Math.round(v*100);
-      return `<div class="rd-score"><div class="lab"><span>${k.replace('_',' ').toUpperCase()}</span><b>${v.toFixed(2)}</b></div>
-        <div class="rd-bar"><i style="width:${pct}%;background:${RD_COLORS[k]}"></i></div></div>`;
+      return`<div class="rd-score"><div class="lab"><span>${k.replace('_',' ').toUpperCase()}</span><b>${v.toFixed(2)}</b></div><div class="rd-bar"><i style="width:${pct}%;background:${RD_COLORS[k]}"></i></div></div>`;
     }).join('');
     const s=d.signals||{};
     document.getElementById('rd-signals').innerHTML=
       `<span>fan-in <b>${s.fanin}</b></span><span>fan-out <b>${s.fanout}</b></span>`+
-      `<span>max tx <b>${s.max_tx}</b> SOL</span><span>vol in <b>${s.sol_in}</b></span>`+
-      `<span>vol out <b>${s.sol_out}</b></span><span>sweepbacks <b>${s.sweepbacks}</b></span>`;
+      `<span>max tx <b>${s.max_tx}</b> SOL</span><span>vol in <b>${s.vol_in||s.sol_in}</b></span>`+
+      `<span>vol out <b>${s.vol_out||s.sol_out}</b></span><span>sweepbacks <b>${s.sweepbacks}</b></span>`;
     document.getElementById('rd-reasons').innerHTML=(d.reasons||[]).map(r=>`<div class="rd-reason">${r}</div>`).join('')
-      || '<div class="muted" style="font-size:11px">no strong signals — thin/ambiguous behaviour</div>';
+      ||'<div class="muted" style="font-size:11px">no strong signals</div>';
   }catch(e){ btn.textContent=t0; btn.disabled=false; document.getElementById('rd-verdict').innerHTML='<span style="color:var(--red);font-size:11px">error</span>'; }
 }
 
-async function loadTreasuryBank(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/confirmed-treasuries')).json(); }catch(e){ return; }
-  const c=d.card||{};
-  const card=(label,val,cls)=>`<div class="hcard ${cls||''}"><div class="v">${val}</div><div class="l">${label}</div></div>`;
-  document.getElementById('treasury-bank-card').innerHTML =
-    card('Confirmed Treasuries', c.confirmed||0, 'cy')+
-    card('Webhooked', `${c.webhooked||0}/${c.confirmed||0}`, (c.webhooked===c.confirmed?'go':'bad'))+
-    card('Last Hit', c.last_hit?ago(c.last_hit)+' ago':'never', c.last_hit?'':'bad')+
-    card('Last Fanout', c.last_fanout?ago(c.last_fanout)+' ago':'—')+
-    card('Last Strict Candidate', c.last_strict_candidate?ago(c.last_strict_candidate)+' ago':'—')+
-    card('Last Fired Token', c.last_fired_token?short(c.last_fired_token):'none yet', c.last_fired_token?'go':'');
-  document.getElementById('treasury-bank-body').innerHTML = (d.treasuries||[]).map(t=>`
-    <tr>
-      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span></td>
-      <td class="num">${t.out_sol!=null?Math.round(t.out_sol).toLocaleString():'—'}</td>
-      <td class="num">${t.recipients??'—'}</td>
-      <td>${t.webhooked?'<span style="color:var(--green)">✓ live</span>':'<span style="color:var(--red)">✗ blind</span>'}</td>
-      <td class="muted">${t.last_hit?ago(t.last_hit)+' ago':'never'}</td>
-      <td><span style="font-size:9.5px;font-weight:700;color:var(--cyan)">${t.confidence||''}</span></td>
-    </tr>`).join('') || '<tr><td colspan="6" class="muted">no confirmed treasuries</td></tr>';
+// ── REFRESH ORCHESTRATION ─────────────────────────────────────────────────────
+// Fast (15s): coverage summary, cascade, audit, modes, anchor, detection, subprovs, treasury bank, coverage, staged panels, feed, review
+// Slow (60s): apex funders, vanity (heavy live-DB queries)
+// ── Discovery Leads ────────────────────────────────────────────────────────
+async function loadDiscoveryLeads(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/discovery-leads')).json(); }catch(e){ return; }
+  const leads=d.leads||[];
+  const counts=d.counts||{};
+
+  // Update tier count badges
+  const setCount=(id,tier)=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=`${tier} ${counts[tier]||0}`;
+  };
+  setCount('dl-count-high','HIGH');
+  setCount('dl-count-medium','MEDIUM');
+  setCount('dl-count-low','LOW');
+
+  const container=document.getElementById('discovery-leads-body');
+  if(!container) return;
+
+  if(!leads.length){
+    container.innerHTML='<div style="color:var(--text-dim);padding:12px">No discovery leads found.</div>';
+    return;
+  }
+
+  // Badge rendering with tri-state
+  const badgeEl=(b)=>{
+    const col=b.state==='PRESENT'?'var(--green)':b.state==='UNKNOWN'?'var(--amber)':'var(--text-dim)';
+    const sym=b.symbol||({PRESENT:'✓',ABSENT:'✗',UNKNOWN:'?'}[b.state]||'?');
+    const title=b.detail?` title="${b.detail.replace(/"/g,'&quot;')}"`:' title="Unresolvable without on-chain confirmation"';
+    return`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin:1px;display:inline-block;
+      background:${b.state==='PRESENT'?'rgba(63,185,80,.15)':b.state==='UNKNOWN'?'rgba(210,153,34,.15)':'rgba(110,118,129,.12)'};
+      border:1px solid ${b.state==='PRESENT'?'rgba(63,185,80,.35)':b.state==='UNKNOWN'?'rgba(210,153,34,.3)':'rgba(110,118,129,.25)'};
+      color:${col}"${title}>${sym} ${b.name.replace(/_/g,' ')}</span>`;
+  };
+
+  // Tier colour
+  const tierStyle=(tier)=>{
+    if(tier==='HIGH') return'color:var(--green);font-weight:800';
+    if(tier==='MEDIUM') return'color:var(--amber);font-weight:700';
+    return'color:var(--text-dim)';
+  };
+
+  // Per-lead card
+  const renderLead=(l)=>{
+    const timeSensitive=(l.badges||[]).some(b=>b.name==='ACTIVE_RECENTLY'&&b.state==='PRESENT');
+    const borderCol=l.tier==='HIGH'?'rgba(63,185,80,.4)':l.tier==='MEDIUM'?'rgba(210,153,34,.3)':'rgba(110,118,129,.2)';
+    const bgCol=l.tier==='HIGH'?'rgba(63,185,80,.05)':'rgba(0,0,0,0)';
+    const reviewBtn=l.in_review
+      ?`<span style="font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(34,211,238,.12);color:var(--cyan);font-weight:700">IN REVIEW</span>`
+      :`<button class="btn ghost" style="font-size:9px;padding:2px 7px" onclick="dlAddReview('${l.funder}',${JSON.stringify(l.score)},${JSON.stringify(l.badges||[])},${JSON.stringify(l.reasons||[])})">+ Add to Review</button>`;
+    const tsTag=timeSensitive?`<span style="font-size:9px;font-weight:800;color:var(--red);margin-left:6px">← TIME SENSITIVE</span>`:'';
+    const badges=(l.badges||[]).map(badgeEl).join('');
+    const reasons=(l.reasons||[]).map(r=>`<li style="color:var(--text-sec);margin:1px 0">${r}</li>`).join('');
+    const nowS=Math.floor(Date.now()/1000);
+    const ageS=l.last_seen?(nowS-l.last_seen):null;
+    const ageStr=ageS===null?'—':ageS<3600?`${Math.floor(ageS/60)}m ago`:ageS<86400?`${Math.floor(ageS/3600)}h ago`:`${Math.floor(ageS/86400)}d ago`;
+
+    return`<div style="border:1px solid ${borderCol};border-radius:6px;background:${bgCol};padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+        <span class="addr" onclick="sol('${l.funder}')" style="font-size:12px;font-weight:700">${short(l.funder)}</span>
+        <span style="${tierStyle(l.tier)};font-size:10px">${l.tier}</span>
+        <span style="font-size:10px;color:var(--text-dim)">Score: ${l.score}</span>
+        <span style="font-size:10px;color:var(--text-dim)">${l.creator_count} creator${l.creator_count!==1?'s':''}</span>
+        <span style="font-size:10px;color:var(--text-dim)">Last seen: ${ageStr}</span>
+        ${tsTag}
+        <span style="margin-left:auto">${reviewBtn}</span>
+      </div>
+      <div style="margin-bottom:6px">
+        <div style="font-size:10px;color:var(--text-dim);font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em">Why surfaced</div>
+        <ul style="margin:0;padding-left:16px;font-size:11px">${reasons}</ul>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text-dim);font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em">Evidence</div>
+        <div>${badges}</div>
+      </div>
+    </div>`;
+  };
+
+  // Group by tier
+  const high=leads.filter(l=>l.tier==='HIGH');
+  const medium=leads.filter(l=>l.tier==='MEDIUM');
+  const low=leads.filter(l=>l.tier==='LOW');
+
+  let html='';
+  if(high.length){
+    html+=`<div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">HIGH · ${high.length} lead${high.length!==1?'s':''}</div>`;
+    html+=high.map(renderLead).join('');
+  }
+  if(medium.length){
+    const showing=medium.slice(0,5);
+    const rest=medium.length-showing.length;
+    html+=`<div style="font-size:10px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;margin-top:${high.length?'10px':'0'}">MEDIUM · ${medium.length} leads</div>`;
+    html+=showing.map(renderLead).join('');
+    if(rest>0) html+=`<div style="font-size:10px;color:var(--text-dim);padding:6px 0;cursor:pointer" onclick="dlShowAll('medium')" id="dl-medium-more">+ ${rest} more MEDIUM leads <span style="color:var(--cyan)">[show all]</span></div><div id="dl-medium-rest" style="display:none">${medium.slice(5).map(renderLead).join('')}</div>`;
+  }
+  if(low.length){
+    html+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--text-dim);cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.05em">LOW · ${low.length} leads (collapsed)</summary><div style="margin-top:6px">${low.map(renderLead).join('')}</div></details>`;
+  }
+  if(!html) html='<div style="color:var(--text-dim);padding:8px">No leads at current thresholds.</div>';
+
+  container.innerHTML=html;
 }
 
-function fmtTTL(s){ if(s==null) return '—'; if(s<=0) return 'expired'; const m=Math.floor(s/60), ss=s%60; return m>0?`${m}m ${ss}s`:`${ss}s`; }
-
-async function loadWsCascade(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/ws-cascade')).json(); }catch(e){ return; }
-  // health chip
-  const hc = {LIVE:'var(--green)',STALE:'var(--yellow)',DOWN:'var(--red)'}[d.ws_health]||'var(--red)';
-  const he = document.getElementById('ws-health');
-  if(he) he.innerHTML = `<span style="color:${hc}">● WS ${d.ws_health||'DOWN'}</span>${d.heartbeat_age_s!=null?` <span class="muted">(${d.heartbeat_age_s}s ago)</span>`:''}`;
-  // cards
-  const cards = [
-    ['active SUB_PROVs', d.active_subprovs||0, (d.active_subprovs||0)>0?'go':''],
-    ['candidate watches', d.candidate_count||0, ''],
-    ['launches total', d.launches_total||0, (d.launches_total||0)>0?'go':''],
-    ['cleanups', d.cleanup_count||0, ''],
-    ['last wrap-close', d.last_wrap_close?ago(d.last_wrap_close)+' ago':'—', ''],
-    ['last CREATE', d.last_create?ago(d.last_create)+' ago':'—', ''],
-  ];
-  const cc = document.getElementById('ws-cascade-cards');
-  if(cc) cc.innerHTML = cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
-  // sessions table
-  const body = document.getElementById('ws-cascade-body');
-  const sessions = d.sessions||[];
-  if(body) body.innerHTML = sessions.map(s=>{
-    const w = (d.watches_by_subprov||{})[s.subprov]||[];
-    const watching = w.length
-      ? w.slice(0,8).map(x=>`<span class="addr" onclick="sol('${x.candidate}')" title="${x.amount!=null?x.amount+' SOL':''} · TTL ${fmtTTL(x.ttl_remaining)}">${short(x.candidate)}</span>`).join(' ')
-      : '<span class="muted">— no fan-out yet</span>';
-    return `<tr style="border-left:3px solid var(--green)">
-      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
-      <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
-      <td class="num muted">${s.funding_amount!=null?s.funding_amount.toLocaleString():'—'}</td>
-      <td class="num">${s.candidates}</td>
-      <td class="num" style="color:${s.ttl_remaining<60?'var(--yellow)':'var(--text-sec)'}">${fmtTTL(s.ttl_remaining)}</td>
-      <td>${watching}</td>
-    </tr>`;}).join('') || '<tr><td colspan="6" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV. The standalone ws_cascade service must be running (supervisorctl start ws_cascade).</td></tr>';
-  // latest launch banner
-  const ll = d.latest_launch;
-  const lb = document.getElementById('ws-latest-launch');
-  if(lb){
-    lb.innerHTML = ll ? `<div class="panel" style="border:1px solid var(--green);background:rgba(34,197,94,.06);padding:10px 14px">
-      <span style="color:var(--green);font-weight:800">🚀 latest WATCHTOWER launch</span>
-      &nbsp; mint <span class="addr" onclick="sol('${ll.mint}')">${ll.mint?short(ll.mint):'—'}</span>
-      &nbsp;·&nbsp; creator <span class="addr" onclick="sol('${ll.creator}')">${short(ll.creator)}</span>
-      &nbsp;·&nbsp; treasury <span class="mono muted">${ll.treasury?short(ll.treasury):'—'}</span>
-      &nbsp;·&nbsp; birth→launch <b>${ll.birth_to_launch_s!=null?ll.birth_to_launch_s+'s':'—'}</b>
-      <span style="color:${ll.mode==='INSTANT'?'var(--red)':'var(--yellow)'};font-weight:700">${ll.mode||''}</span>
-      &nbsp;·&nbsp; ${ll.create_time?ago(ll.create_time)+' ago':''}
-    </div>` : '';
+function dlShowAll(tier){
+  if(tier==='medium'){
+    const more=document.getElementById('dl-medium-more');
+    const rest=document.getElementById('dl-medium-rest');
+    if(more) more.style.display='none';
+    if(rest) rest.style.display='block';
   }
 }
 
-function fmtMC(v){ if(v==null) return '—'; if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M'; if(v>=1e3) return '$'+(v/1e3).toFixed(1)+'k'; return '$'+Math.round(v); }
-function fmtMult(v){ if(v==null) return '—'; return v.toFixed(v>=10?0:1)+'×'; }
-
-async function loadLaunchAudit(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/launch-audit')).json(); }catch(e){ return; }
-  const full=d.report||{};
-  // HEADLINE reads LIVE catches only — fixtures must not overstate live performance.
-  const live=full.live||{}; const fix=full.fixtures||{};
-  const rep = (live.n_launches||0)>0 ? live : full;   // fall back to all only if no cohort split
-  // verdict chip: live verdict, with fixtures-validated note
-  const liveHas=(live.n_launches||0)>0;
-  const vc={ACTIONABLE:'var(--green)',MARGINAL:'var(--yellow)',INSUFFICIENT_DATA:'var(--text-dim)'}[rep.verdict]||'var(--text-dim)';
-  const ve=document.getElementById('audit-verdict');
-  if(ve) ve.innerHTML = liveHas
-      ? `<span style="color:${vc}">LIVE: ${rep.verdict.replace(/_/g,' ')}</span>`
-      : `<span style="color:var(--text-dim)">live catches: pending</span>`+
-        ((fix.n_launches||0)>0?` <span style="color:var(--green)">· fixtures: validated (${fix.n_launches})</span>`:'');
-  // cards (live medians; fixtures shown as baseline when no live yet)
-  const src = liveHas?rep:fix;
-  const cards=[
-    ['live launches', live.n_launches||0, (live.n_launches||0)>0?'go':''],
-    ['fixtures', fix.n_launches||0, ''],
-    ['median latency', src.median_detection_latency_ms!=null?src.median_detection_latency_ms+'ms':'—', ''],
-    ['median MC @ detect', fmtMC(src.median_mc_at_detection), ''],
-    ['median peak MC', fmtMC(src.median_peak_mc), ''],
-    ['median actionable ×', fmtMult(src.median_actionable_multiple), (src.median_actionable_multiple||0)>=2?'go':'bad'],
-    ['% >2x left', src.pct_gt_2x!=null?src.pct_gt_2x+'%':'—', (src.pct_gt_2x||0)>=50?'go':''],
-    ['% dumped', src.pct_dumped_before_migration!=null?src.pct_dumped_before_migration+'%':'—', (src.pct_dumped_before_migration||0)>50?'bad':''],
-  ];
-  const cc=document.getElementById('audit-cards');
-  if(cc) cc.innerHTML = cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
-  // bucket bar (whichever cohort the cards reflect)
-  const bk=src.buckets||{};
-  const order=['<1.5x','1.5-2x','2-5x','5-10x','10x+'];
-  const cols={'<1.5x':'var(--red)','1.5-2x':'#ea580c','2-5x':'var(--yellow)','5-10x':'var(--green)','10x+':'var(--cyan)'};
-  const bb=document.getElementById('audit-buckets');
-  if(bb) bb.innerHTML = `<div class="panel" style="padding:8px 13px;display:flex;gap:14px;font-size:11px">`+
-    `<span class="muted">actionable-multiple buckets:</span>`+
-    order.map(k=>`<span><b style="color:${cols[k]}">${bk[k]||0}</b> <span class="muted">${k}</span></span>`).join(' ')+`</div>`;
-  // table
-  const body=document.getElementById('audit-body');
-  const L=d.launches||[];
-  if(body) body.innerHTML = L.map(a=>{
-    const am=a.actionable_multiple;
-    const amCol = am==null?'var(--text-dim)':am>=5?'var(--cyan)':am>=2?'var(--green)':am>=1.5?'var(--yellow)':'var(--red)';
-    const outcome = a.migrated?'<span style="color:var(--green)">MIGRATED</span>'
-      : a.dumped?'<span style="color:var(--red)">DUMPED</span>'
-      : `<span class="muted">${a.final_state||a.audit_state||'—'}</span>`;
-    const fixTag = a.source==='FIXTURE_BACKFILL'
-      ? '<span style="font-size:8px;font-weight:700;color:var(--text-dim);border:1px solid var(--border2);border-radius:3px;padding:0 3px;margin-left:4px" title="validated baseline fixture, not a live cascade catch">FIXTURE</span>' : '';
-    return `<tr style="${a.source==='FIXTURE_BACKFILL'?'opacity:.72':''}">
-      <td><span class="addr" onclick="sol('${a.mint}')">${a.mint?short(a.mint):'—'}</span>${fixTag}</td>
-      <td><span class="addr" onclick="sol('${a.creator}')">${short(a.creator)}</span></td>
-      <td class="num" title="treasury→subprov load · subprov→creator wrap-close seed">${a.subprov_funding_sol!=null?`<b>${Math.round(a.subprov_funding_sol)}</b>`:'—'}<span class="muted" style="font-size:9px">${a.wrap_close_sol!=null?' / '+(+a.wrap_close_sol).toFixed(2):''}</span></td>
-      <td class="num">${a.detection_latency_ms!=null?a.detection_latency_ms+'ms':'—'}</td>
-      <td class="num">${a.position!=null?'#'+a.position:'—'}</td>
-      <td class="num" title="${a.mc_detection_source||''}">${fmtMC(a.mc_at_detection)}</td>
-      <td class="num" title="${a.peak_source||''}">${fmtMC(a.peak_mc)}</td>
-      <td class="num" style="color:${amCol};font-weight:700">${fmtMult(am)}</td>
-      <td class="num muted">${a.time_to_peak_s!=null?(a.time_to_peak_s>=60?Math.round(a.time_to_peak_s/60)+'m':a.time_to_peak_s+'s'):'—'}</td>
-      <td>${outcome}</td>
-    </tr>`;}).join('') || '<tr><td colspan="10" class="muted">no audited launches yet — audits appear as the cascade detects launches (or run the backfill).</td></tr>';
-}
-
-async function loadVanity(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/vanity-families')).json(); }catch(e){ return; }
-  // configured families summary
-  const fams=d.families||[];
-  const fe=document.getElementById('vanity-families');
-  if(fe) fe.innerHTML = `<div class="panel" style="padding:8px 13px;font-size:11px;display:flex;flex-wrap:wrap;gap:16px">`+
-    fams.map(f=>`<span><b style="color:var(--purple)">${f.label}</b> <span class="muted">prefix</span> ${(f.prefixes||[]).map(p=>`<code>${p}</code>`).join('/')} <span class="muted">·</span> ${(f.known_wallets||[]).length} known infra <span class="muted">[${f.confidence}]</span></span>`).join('')
-    + (fams.length?'':'<span class="muted">no vanity families configured</span>')+`</div>`;
-  // observed matches (new wallets sharing a known prefix)
-  const M=d.matches||[];
-  const body=document.getElementById('vanity-body');
-  if(body) body.innerHTML = M.map(m=>{
-    const cc = m.confidence==='KNOWN_MEMBER'?'var(--green)':m.confidence==='STRONG'?'var(--cyan)':'var(--purple)';
-    return `<tr>
-      <td><span class="addr" onclick="sol('${m.wallet}')" title="${m.wallet}">${short(m.wallet)}</span></td>
-      <td><span style="color:var(--purple);font-weight:700">${m.family_label}</span></td>
-      <td><code>${m.matched_prefix||'—'}</code></td>
-      <td style="color:${cc};font-weight:700">${m.confidence||'—'}</td>
-      <td class="muted" style="font-size:10px">${m.source_event||'—'}</td>
-      <td>${m.source_sig?`<span class="addr" onclick="window.open('https://solscan.io/tx/${m.source_sig}','_blank')" title="${m.source_sig}">${m.source_sig.slice(0,8)}…</span>`:'—'}</td>
-    </tr>`;}).join('') || '<tr><td colspan="6" class="muted">no vanity-family matches observed yet — a new wallet sharing a known family prefix (e.g. 44or) surfaces here as same-operator evidence.</td></tr>';
-}
-
-async function loadSubprovs(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/subprovs')).json(); }catch(e){ return; }
-  const sp=d.subprovs||[];
-  // DISTRIBUTION TIER: real subprovs that fund OTHER real subprovs (root treasury →
-  // distribution subprov → subprov → creator). Roles are non-exclusive — a subprov can
-  // also be a funder of subprovs without being a treasury.
-  const dn = d.distribution_nodes||[];
-  const distHdr = dn.length
-    ? `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:rgba(124,58,237,.10);border-left:3px solid #7c3aed">🪢 ${dn.length} DISTRIBUTION sub-provisioner${dn.length>1?'s':''} — subprov that ALSO funds other subprovs (a tier between treasury and subprov): ${dn.slice(0,3).map(n=>`<span class="addr" onclick="sol('${n.distributor}')" title="funds ${n.n} downstream subprovs">${short(n.distributor)}→${n.n}</span>`).join(' · ')}</td></tr>`
-    : '';
-  const hdr = distHdr + `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${d.count||0} UNKNOWN-treasury sub-provisioners to investigate · ${d.known_resolved||0} resolved (hidden) — trace the funder on-chain, then Set it here (verified by 1 RPC, auto-confirms + webhooks the treasury)</td></tr>`;
-  document.getElementById('subprovs-body').innerHTML = hdr + sp.map(s=>{
-    const known = s.treasury_known;
-    const treasCell = s.treasury
-      ? `<span class="addr" onclick="sol('${s.treasury}')" style="${known?'':'color:var(--amber)'}">${short(s.treasury)}</span>`
-      : '<span class="muted">—</span>';
-    const status = known
-      ? '<span style="color:var(--green);font-size:9px;font-weight:700">✓ known treasury</span>'
-      : '<span style="color:var(--amber);font-size:9px;font-weight:800" title="treasury not confirmed — trace who funded this subprov to discover it">⚠️ UNKNOWN — investigate</span>';
-    // Funder action / DISTRIBUTION tag: if this subprov was funded by ANOTHER subprov,
-    // show that distribution node (root treasury → distribution subprov → THIS subprov)
-    // instead of the set-funder action.
-    const action = s.funder_is_subprov && s.immediate_funder
-      ? `<span style="font-size:9px;font-weight:800;color:#a78bfa" title="funded by a DISTRIBUTION subprov (a subprov that also funds subprovs) — not a treasury">🪢 via <span class="addr" onclick="sol('${s.immediate_funder}')">${short(s.immediate_funder)}</span></span>`
-      : s.treasury
-      ? `<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--text-dim);color:var(--text-dim)" onclick="subprovRemoveFunder('${s.subprov}')" title="clear this funder → back to UNKNOWN lead">✕ remove</button>`
-      : `<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--amber);color:var(--amber)" onclick="subprovSetFunder('${s.subprov}')" title="enter who funded this subprov on-chain (verified via 1 RPC; auto-confirms the treasury)">＋ set funder</button>`;
-    return `<tr style="${known?'':'background:rgba(217,119,6,.07);border-left:3px solid var(--amber)'}">
-      <td><span class="addr" onclick="sol('${s.subprov}')" title="click to view on Solscan + check who funded it">${short(s.subprov)}</span></td>
-      <td class="num">${s.creators}</td>
-      <td class="num muted">${s.total_sol!=null?s.total_sol.toLocaleString():'—'}</td>
-      <td>${treasCell}</td>
-      <td>${status}</td>
-      <td class="muted" style="font-size:10px">${s.last_seen?ago(s.last_seen)+' ago':'—'}</td>
-      <td>${action}</td>
-    </tr>`;}).join('') || '<tr><td colspan="7" class="muted">no unknown-treasury sub-provisioners — all detected ones are resolved. New leads appear here as post-migration checks surface subprovs we can\'t attribute.</td></tr>';
-}
-
-async function subprovSetFunder(subprov){
-  const treasury = (prompt(`Funder (TREASURY) address that funded sub-provisioner\n${subprov}\n\nPaste the address you traced on-chain — it will be verified against the subprov's oldest tx, then auto-confirmed + webhooked:`)||'').trim();
-  if(!treasury) return;
+async function dlAddReview(funder, score, badges, reasons){
+  if(!confirm(`Add ${funder.slice(0,8)}… to Treasury Review for human evaluation?\n\nThis does NOT approve or activate anything.`)) return;
   try{
-    let r = await fetch('/api/ops-v2/intel/subprov-funder',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({confirm:true, action:'set', subprov, treasury})});
-    let j = await r.json();
-    if(r.status===409){
-      // verification mismatch — offer override
-      const ok = confirm(`On-chain verification did NOT match.\n\nYou typed:   ${treasury}\nOldest-tx funder: ${j.onchain_funder||'(none found)'}\n${j.note||''}\n\nWrite it anyway (override)?`);
-      if(!ok) return;
-      r = await fetch('/api/ops-v2/intel/subprov-funder',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({confirm:true, action:'set', subprov, treasury, override:true})});
-      j = await r.json();
-    }
-    if(j.ok){
-      alert(`✓ Funder set.\nTreasury ${j.treasury} confirmed${j.webhooked?' + webhooked':(j.webhook_error?' (webhook failed: '+j.webhook_error+')':'')}.\n${j.verified?'On-chain verified ✓':'written via override'}`);
-      loadSubprovs();
-    } else {
-      alert('Error: '+(j.error||'unknown')+(j.note?'\n'+j.note:''));
-    }
-  }catch(e){ alert('request failed: '+e); }
-}
-
-async function subprovRemoveFunder(subprov){
-  if(!confirm(`Remove the funder from sub-provisioner ${subprov}?\nIt returns to the UNKNOWN-treasury leads list. (The treasury itself is not un-confirmed.)`)) return;
-  try{
-    const r = await fetch('/api/ops-v2/intel/subprov-funder',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({confirm:true, action:'remove', subprov})});
-    const j = await r.json();
-    if(j.ok){ loadSubprovs(); } else { alert('Error: '+(j.error||'unknown')); }
-  }catch(e){ alert('request failed: '+e); }
-}
-
-async function loadApexFunders(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/treasury-funders')).json(); }catch(e){ return; }
-  const fs=d.funders||[];
-  const CLS={
-    TREASURY_MESH:{lbl:'★★★ TREASURY MESH',col:'#22d3ee',bg:'rgba(34,211,238,.1)',hint:'known treasury funds another — network growth'},
-    HUB:          {lbl:'★★ HUB',          col:'#3fb950',bg:'rgba(63,185,80,.1)', hint:'funds multiple treasuries — network hub'},
-    EXTERNAL:     {lbl:'★ EXTERNAL',      col:'var(--amber)',bg:'rgba(217,119,6,.06)',hint:'genuine external capital — expansion candidate'},
-    BUY_SWARM:    {lbl:'⇄ buy-swarm',     col:'#a855f7',bg:'rgba(168,85,247,.07)',hint:'treasury-funded TRADING op — swaps many tokens, net-negative return — not an expansion lead'},
-    RECYCLING:    {lbl:'↻ recycling',     col:'var(--text-dim)',bg:'',hint:'treasury funded it first — pays back (wash, not new)'},
-    SWEEP:        {lbl:'↻ sweep-up',      col:'var(--text-dim)',bg:'',hint:'subprov recycling capital up'}
-  };
-  const cc = d.class_counts||{};
-  // summary line
-  const summary = `<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">EXPANSION CANDIDATES: ${(cc.TREASURY_MESH||0)} mesh · ${(cc.HUB||0)} hubs · ${(cc.EXTERNAL||0)} external &nbsp;|&nbsp; ${(cc.BUY_SWARM||0)} buy-swarm · ${(cc.RECYCLING||0)+(cc.SWEEP||0)} recycling (filtered down)</td></tr>`;
-  document.getElementById('apex-funders-body').innerHTML = summary + fs.map(f=>{
-    const c=CLS[f.expansion_class]||CLS.EXTERNAL;
-    const dim = (f.expansion_class==='RECYCLING'||f.expansion_class==='SWEEP'||f.expansion_class==='BUY_SWARM');
-    return `<tr style="${c.bg?'background:'+c.bg:''};${dim?'opacity:.5':''}">
-      <td><span class="addr" onclick="sol('${f.funder}')">${short(f.funder)}</span></td>
-      <td class="num" style="${f.treasuries_funded>1?'font-weight:800;color:#3fb950':''}">${f.treasuries_funded}</td>
-      <td class="num">${Math.round(f.max_sol).toLocaleString()}</td>
-      <td class="num muted">${Math.round(f.total_sol).toLocaleString()}</td>
-      <td class="num muted">${f.fund_count}</td>
-      <td><span style="color:${c.col};font-size:9px;font-weight:800" title="${c.hint}">${c.lbl}</span></td>
-      <td class="muted" style="font-size:10px">${f.last_seen?ago(f.last_seen)+' ago':'—'}</td>
-    </tr>`;}).join('') || '<tr><td colspan="7" class="muted">no apex funders logged yet — populates from treasury inbound hits</td></tr>';
-}
-
-async function loadTreasuryReview(){
-  let d; try{ d=await (await fetch('/api/ops-v2/intel/treasury-review')).json(); }catch(e){ return; }
-  const cands=d.candidates||[];
-  const sig3=(c)=>{
-    const t=(c.transfer_pct||0)>=95, k=(c.out_sol||0)>=50&&(c.recipients||0)>=3, p=(c.micro_pings||0)>0;
-    const chip=(ok,lbl)=>`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:${ok?'rgba(63,185,80,.18)':'rgba(110,118,129,.18)'};color:${ok?'var(--green)':'var(--text-dim)'}">${ok?'✓':'✗'} ${lbl}</span>`;
-    return chip(t,'transfer')+' '+chip(k,'capital')+' '+chip(p,'ping');
-  };
-  // SOURCE flag — where the candidate came from. EXPANSION (funds a KNOWN treasury) is a
-  // distinct, stronger provenance than post-migration lineage. Surface it clearly.
-  const srcFlag=(via)=>{
-    via=(via||'');
-    if(via==='expansion_hub'||via==='funder_discovery')
-      return `<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(34,211,238,.18);color:var(--cyan)" title="discovered by analysing the FUNDERS of known treasuries — it funds a confirmed treasury (network mesh)">⬆️ FUNDS KNOWN TREASURY</span>`;
-    if(via==='micro_ping')
-      return `<span style="font-size:9px;color:var(--text-sec)" title="surfaced from micro-ping signature">ping-seed</span>`;
-    return `<span style="font-size:9px;color:var(--text-dim)" title="post-migration lineage near-miss">migration</span>`;
-  };
-  // source-launch cell: the token (by peak MC) this candidate was discovered from. The peak is
-  // the human's strongest review signal — a near-miss behind a $980k launch is worth promoting.
-  const srcTok = c => {
-    if(!c.source_token) return '<span class="muted" style="font-size:10px">—</span>';
-    const mc=c.source_token_peak_mc;
-    const mcCol = mc>=250000?'var(--green)':mc>=100000?'var(--cyan)':mc>=25000?'var(--amber)':'var(--text-dim)';
-    const more = (c.source_token_count||1)>1?` <span class="muted" style="font-size:8px">+${c.source_token_count-1}</span>`:'';
-    return `<span class="addr" onclick="sol('${c.source_token}')" title="discovered by walking back from this launch">${short(c.source_token)}</span>`+
-           ` <b style="color:${mcCol};font-size:10px">${fmtMC(mc)}</b>${more}`;
-  };
-  // PENDING candidates (actionable) — amber, with promote/reject.
-  // Expansion-sourced (funds a known treasury) rows get a cyan left-border to stand out.
-  const pendingRows = cands.map(c=>{
-    const isExp = c.detected_via==='expansion_hub'||c.detected_via==='funder_discovery';
-    return `
-    <tr style="background:${isExp?'rgba(34,211,238,.07)':'rgba(217,119,6,.05)'}${isExp?';border-left:3px solid var(--cyan)':''}">
-      <td><span class="addr" onclick="sol('${c.treasury}')">${short(c.treasury)}</span>
-          <button class="btn ghost" style="font-size:9px;padding:1px 5px" onclick="scoreRole('${c.treasury}',this)">score</button></td>
-      <td>${srcTok(c)}</td>
-      <td class="num">${(c.occurrences||0) > 1
-          ? `<span style="font-weight:800;color:#3fb950" title="${c.occurrences} distinct migrations traced to this candidate — repeat = strong">×${c.occurrences}</span>`
-          : `<span class="muted">×${c.occurrences||1}</span>`}</td>
-      <td class="num">${c.transfer_pct!=null?c.transfer_pct+'%':'—'}</td>
-      <td class="num">${c.out_sol!=null?Math.round(c.out_sol).toLocaleString():'—'}</td>
-      <td class="num">${c.recipients??'—'}</td>
-      <td class="num">${c.micro_pings??'—'}</td>
-      <td>${sig3(c)}</td>
-      <td>${srcFlag(c.detected_via)}</td>
-      <td><button class="btn" style="font-size:10px;padding:2px 8px" onclick="promoteTreasury('${c.treasury}','promote',this)">✓ promote</button>
-          <button class="btn ghost" style="font-size:10px;padding:2px 8px;border-color:var(--red);color:var(--red)" onclick="promoteTreasury('${c.treasury}','reject',this)">✗</button></td>
-    </tr>`;}).join('');
-  // RECENTLY-DECIDED (confirmed/rejected) — dimmed, shows discovery is active even when 0 pending
-  const recent = d.recent_decided || [];
-  const recentRows = recent.map(c=>{
-    const isConf = c.status==='CONFIRMED';
-    const badge = isConf
-      ? '<span style="font-size:9px;font-weight:800;color:#3fb950">✓ CONFIRMED</span>'
-      : '<span style="font-size:9px;font-weight:700;color:var(--red)">✗ REJECTED</span>';
-    return `<tr style="opacity:.5">
-      <td><span class="addr" onclick="sol('${c.treasury}')">${short(c.treasury)}</span></td>
-      <td>${srcTok(c)}</td>
-      <td class="num muted">×${c.occurrences||1}</td>
-      <td class="num muted">${c.transfer_pct!=null?c.transfer_pct+'%':'—'}</td>
-      <td class="num muted">${c.out_sol!=null?Math.round(c.out_sol).toLocaleString():'—'}</td>
-      <td class="num muted">${c.recipients??'—'}</td>
-      <td class="num muted">${c.micro_pings??'—'}</td>
-      <td>${badge}</td>
-      <td>${srcFlag(c.detected_via)}</td>
-      <td class="muted" style="font-size:10px">${c.reviewed_by||'auto'}</td>
-    </tr>`;}).join('');
-  const dc = d.decided_counts || {};
-  const sep = recent.length ? `<tr><td colspan="10" style="padding:6px 13px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;background:var(--bg-card2)">recently decided · ${dc.CONFIRMED||0} confirmed · ${dc.REJECTED||0} rejected (discovery active — pending queue worked)</td></tr>` : '';
-  const body = pendingRows + sep + recentRows;
-  document.getElementById('treasury-review-body').innerHTML = body
-    || '<tr><td colspan="10" class="muted">no candidates yet — discovery engine running (fingerprints migrations as they land)</td></tr>';
-}
-
-async function promoteTreasury(treasury, action, btn){
-  const verb = action==='promote' ? 'promote to confirmed + webhook' : 'reject';
-  if(!confirm(`${action==='promote'?'Promote':'Reject'} ${treasury.slice(0,12)}…?\n\n${action==='promote'?'Adds to confirmed treasuries and webhooks it.':'Removes from review.'}`)) return;
-  btn.disabled=true; btn.textContent='…';
-  try{
-    const r=await fetch('/api/ops-v2/intel/treasury-promote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true,treasury,action})});
+    const r=await fetch('/api/ops-v2/intel/discovery-review-add',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({treasury:funder, score, evidence:badges, reasons})
+    });
     const d=await r.json();
-    btn.textContent = r.ok ? (action==='promote'?'✓ confirmed':'rejected') : 'failed';
-    setTimeout(()=>{ loadTreasuryReview(); loadTreasuryBank(); }, 900);
-  }catch(e){ btn.textContent='error'; btn.disabled=false; }
+    if(d.ok){
+      alert(d.message||'Added to Treasury Review.');
+      loadDiscoveryLeads();
+      loadTreasuryReview();
+    } else {
+      alert(d.message||d.error||'Error adding to review.');
+    }
+  }catch(e){ alert('Request failed: '+e); }
 }
 
-function refresh(){ loadAll(); loadWsCascade(); loadLaunchAudit(); loadTreasuryBank(); loadApexFunders(); loadSubprovs(); loadVanity(); loadTreasuryReview(); loadCreatorModes(); loadAnchorHealth(); loadWalks(); loadArmed(); loadReview(); loadFeed(); }
-refresh();
-setInterval(refresh, 15000);  // 15s — countdowns must stay fresh
+let _apexInterval=null;
+
+function refreshFast(){
+  loadCoverageSummary();   // Phase 2: single ops-DB endpoint replaces hero fan-out
+  loadWsCascade();
+  loadLaunchAudit();
+  loadCreatorModes();
+  loadAnchorHealth();
+  loadDetectionHealth();
+  loadSubprovs();
+  loadTreasuryBank();
+  loadTreasuryCoverage();
+  loadAll();               // pre-launch creators (STAGED pipeline, collapsed)
+  loadArmed();
+  loadWalks();
+  loadTreasuryReview();
+  loadApprovalAudit();
+  loadReview();
+  loadFeed();
+}
+
+function refreshSlow(){
+  loadApexFunders();       // 30d-filtered, but still live-DB GROUP BY — 60s is enough
+  loadVanity();
+  loadDiscoveryLeads();    // ops-DB only, read-only, safe at 60s cadence
+}
+
+refreshFast();
+refreshSlow();
+loadDiscoveryLeads();   // initial load — don't wait 60s for first render
+setInterval(refreshFast, 15000);
+setInterval(refreshSlow, 60000);  // Phase 3: apex funders moved to 60s
 </script>
 {% endblock %}

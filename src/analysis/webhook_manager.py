@@ -67,7 +67,7 @@ def _webhooks() -> dict[str, WebhookDef]:
     infra_id = os.getenv("WATCHTOWER_INFRA_WEBHOOK_ID",
                          "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
     cand_id  = os.getenv("CREATOR_MOVEMENT_WEBHOOK_ID",
-                         "fec2b429-d262-43b9-81d2-31b9efc74f77")
+                         "763810e4-e41c-4f83-9ebc-55e9ab413ea4")
     return {
         INFRA_ROLE: WebhookDef(
             webhook_id  = infra_id,

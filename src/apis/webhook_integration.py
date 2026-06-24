@@ -302,6 +302,52 @@ def get_top_webhook_creators(limit: int = 10, hours: int = 24):
     conn.close()
     return creators
 
+_WT_PERMANENT_INFRA = [
+    "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM",  # TREASURY
+    "44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM",  # SIGNALLER
+    "44o1Hecb4QUhqcRNYJBC6XZoeHWzkWAvenR5YYHRGbFM",  # SIGNALLER_2
+    "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1",  # TREASURY_UP
+    "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7",   # SUB_PROV (reclassified from PROFIT_RELAY)
+    "8g2qFR27iDPZimUpmaySqg8TgmNKTDAwimEdBB6w96mn",  # TRADING_MGR
+    "2ujRcf1fwQjW8cjUPK6krBJBMdbiMiSKvNscYjdbFW6R", # SUB_PROV (800 SOL 2026-05-30)
+    "CcdyBAT7L2cbfBYNGAdJffUrZibCKsXEmq3q6cVxTNUV",  # SUB_PROV
+    "Dw7xNxxwuBnTfpwSrZMhcAQqFp4XNe9XNaVhhsvyx6Da",  # SUB_PROV
+    "96b4e8qvhjEPsXDtenEgs1VLBTkFqAcgYV8tE16Mgt7h",  # SUB_PROV
+    "kFycb9QoQaRgLy3zZpF4Zw5DM5gKoT5HkZogSerq1Hd",   # SUB_PROV
+    "C745erBxwn4sJZGDRZpi71FPV3MA3kBQUXWbeJxRsGS4",  # SUB_PROV
+    "Gs7zXNYwdd2X1PoyBbsJBCuNTz6EyTT5KSd38tLMEmif",  # SUB_PROV
+    "2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz",  # SUB_PROV: capital redistribution hub, most-signalled (27x)
+]
+
+
+def _enroll_permanent_infra():
+    """Ensure all permanent infra addresses are in the INFRA webhook at startup."""
+    import asyncio
+    import os
+    from src.analysis.webhook_manager import enroll_infra
+
+    db_path = os.getenv("DB_PATH", "flex_complete_database.db")
+
+    async def _run():
+        enrolled = 0
+        for addr in _WT_PERMANENT_INFRA:
+            try:
+                result = await enroll_infra(addr, db_path, notes="permanent_infra_startup")
+                if result:
+                    enrolled += 1
+                    print(f"[WEBHOOK_INTEGRATION] Enrolled permanent infra: {addr[:20]}…", flush=True)
+            except Exception as e:
+                print(f"[WEBHOOK_INTEGRATION] Failed to enroll {addr[:20]}…: {e}", flush=True)
+        print(f"[WEBHOOK_INTEGRATION] Permanent infra enrollment: {enrolled}/{len(_WT_PERMANENT_INFRA)} newly enrolled", flush=True)
+
+    try:
+        asyncio.run(_run())
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(_run())
+        loop.close()
+
+
 def init_webhook_system(app):
     """
     Complete webhook system initialization.
@@ -314,6 +360,7 @@ def init_webhook_system(app):
     """
     init_webhook()
     setup_webhook_routes(app)
+    _enroll_permanent_infra()
     start_webhook_worker(daemon=True)
 
     print("[WEBHOOK_INTEGRATION] Webhook system initialized", flush=True)

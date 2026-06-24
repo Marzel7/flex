@@ -349,6 +349,27 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
 
     with connect(db_path) as conn:
         ensure_schema(conn)
+
+        # STALE-RUNNING REAPER. A job is marked 'running' when claimed; if its worker dies
+        # (lock error, restart, crash) the row stays 'running' forever because the claim
+        # query only selects pending/retry. Over time these zombies accumulate (observed:
+        # 149 stuck, oldest a month old) and inflate the queue. Reclaim any 'running' job
+        # whose lock has expired: send it back to 'retry' (or 'failed'/'ignored' past max
+        # attempts) so it re-enters normal processing instead of leaking.
+        _MAX_ATTEMPTS = 5
+        reaped = conn.execute(
+            """
+            UPDATE creator_resolution_queue
+            SET status = CASE WHEN attempts >= ? THEN 'failed' ELSE 'retry' END,
+                locked_until = 0,
+                last_error = COALESCE(last_error,'') || ' | reaped: stale-running expired lock'
+            WHERE status='running' AND locked_until < ?
+            """,
+            (_MAX_ATTEMPTS, now),
+        ).rowcount
+        if reaped:
+            conn.commit()
+
         rows = conn.execute(
             """
             SELECT mint, attempts

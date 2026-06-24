@@ -952,13 +952,16 @@ def _wt_startup_once():
                 global _wt_tables_ready
                 _wt_tables_ready = True
                 print(f"[STARTUP] Watchtower tables verified (pid={os.getpid()})", flush=True)
-                _start_corridor_monitor_worker(DB_PATH)
-                _start_relay_counterparty_discovery_worker(DB_PATH)
-                _start_swarm_migration_scanner(DB_PATH)
-                _start_wt_infra_processor()
-                _start_wt_candidate_processor()
-                _start_wt_operator_ttl_reaper()
-                _start_hub_backfill_worker()
+                if os.environ.get('FLEX_ENABLE_FLASK_BACKGROUND_WORKERS', '0') == '1':
+                    _start_corridor_monitor_worker(DB_PATH)
+                    _start_relay_counterparty_discovery_worker(DB_PATH)
+                    _start_swarm_migration_scanner(DB_PATH)
+                    _start_wt_infra_processor()
+                    _start_wt_candidate_processor()
+                    _start_wt_operator_ttl_reaper()
+                    _start_hub_backfill_worker()
+                else:
+                    print("[STARTUP] Background workers suppressed (FLEX_ENABLE_FLASK_BACKGROUND_WORKERS=0)", flush=True)
                 return
             except Exception as _e:
                 print(f"[STARTUP] WT table init attempt {_attempt+1} failed: {_e} — retrying in 5s", flush=True)
@@ -19709,7 +19712,10 @@ def api_network_approval_list():
     global _network_review_status_schema_ensured
     conn = None
     try:
-        conn = db_connect(DB_PATH, timeout=30)
+        from src.utils.db_locking import _sqlite3_connect_orig
+        conn = _sqlite3_connect_orig(DB_PATH, 30)
+        conn.execute("PRAGMA busy_timeout=30000")
+        conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
         if not _network_review_status_schema_ensured:
             try:
@@ -19768,6 +19774,8 @@ def api_network_approval_list():
                 stats_by_creator[row['creator_address']] = dict(row)
 
         rows = []
+        _pending_inserts = []
+        _pending_updates = []
         counts = {
             'new': 0,
             'changed': 0,
@@ -19799,19 +19807,11 @@ def api_network_approval_list():
             review_state = _network_review_state(review, evidence_hash)
             counts[review_state] = counts.get(review_state, 0) + 1
 
+            # Collect tracking writes for background thread (never block request path)
             if not review:
-                conn.execute("""
-                    INSERT INTO network_review_status
-                        (network_name, status, first_seen_at, last_seen_at, last_evidence_hash, last_evidence_summary, updated_at)
-                    VALUES (?, 'pending', ?, ?, ?, ?, ?)
-                    ON CONFLICT(network_name) DO NOTHING
-                """, (network_name, now, now, evidence_hash, json.dumps(evidence_summary, sort_keys=True), now))
-            else:
-                conn.execute("""
-                    UPDATE network_review_status
-                    SET last_seen_at = ?, updated_at = ?
-                    WHERE network_name = ?
-                """, (now, now, network_name))
+                _pending_inserts.append((network_name, now, now, evidence_hash, json.dumps(evidence_summary, sort_keys=True), now))
+            elif now - (review.get('last_seen_at') or 0) > 60:
+                _pending_updates.append((now, now, network_name))
 
             rows.append({
                 'network_name': network_name,
@@ -19847,7 +19847,35 @@ def api_network_approval_list():
                 'decision_reason': review.get('decision_reason'),
             })
 
-        conn.commit()
+        # Fire tracking writes in background — long busy_timeout absorbs listener contention
+        # without ever touching the request path or the lock-error counter.
+        if _pending_inserts or _pending_updates:
+            _ins = list(_pending_inserts)
+            _upd = list(_pending_updates)
+            _db  = DB_PATH
+            def _bg_write(_ins=_ins, _upd=_upd, _db=_db):
+                try:
+                    from src.utils.db_locking import _sqlite3_connect_orig
+                    _c = _sqlite3_connect_orig(_db, 60)
+                    _c.execute("PRAGMA busy_timeout=60000")
+                    _c.execute("PRAGMA journal_mode=WAL")
+                    for _row in _ins:
+                        _c.execute("""
+                            INSERT INTO network_review_status
+                                (network_name, status, first_seen_at, last_seen_at, last_evidence_hash, last_evidence_summary, updated_at)
+                            VALUES (?, 'pending', ?, ?, ?, ?, ?)
+                            ON CONFLICT(network_name) DO NOTHING
+                        """, _row)
+                    for _row in _upd:
+                        _c.execute("""
+                            UPDATE network_review_status SET last_seen_at=?, updated_at=? WHERE network_name=?
+                        """, _row)
+                    _c.commit()
+                    _c.close()
+                except Exception:
+                    pass
+            threading.Thread(target=_bg_write, daemon=True).start()
+
         rows.sort(key=lambda row: (row.get('latest_used_at') or 0, row.get('migrated_count') or 0), reverse=True)
         return jsonify({'networks': rows, 'counts': counts, 'total': len(rows)})
 
@@ -26194,7 +26222,8 @@ def api_funding_queue_recent_activity():
                     ) THEN 'cached'
                     WHEN cfq.mint IS NULL AND ta.migrated_at IS NOT NULL
                          AND ta.created_at IS NOT NULL
-                         AND (ta.migrated_at - ta.created_at) < 2 THEN 'instant'
+                         AND (ta.migrated_at - ta.created_at) < 2
+                         AND (ta.create_tx_signature IS NOT NULL OR ta.pf_ws_creator IS NOT NULL) THEN 'instant'
                     WHEN cfq.mint IS NULL THEN 'no_job'
                     WHEN cfq.funding_extracted_at IS NULL THEN 'pending'
                     WHEN cfq.funding_extracted_at < ta.migrated_at THEN 'pre_migration'

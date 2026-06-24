@@ -1360,6 +1360,8 @@ def register_tokens_batch():
         "queue_depth": int
     }
     """
+    if __import__('os').environ.get("LISTENER_LIVE_PRICE_UPDATER_ENABLED", "1") == "0":
+        return jsonify({"registered": 0, "skipped": True, "reason": "price_updater_disabled"}), 200
     try:
         from src.core.price_fetch_queue import FetchTask, get_price_queue
 

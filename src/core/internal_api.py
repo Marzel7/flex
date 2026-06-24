@@ -44,6 +44,61 @@ def queue_health():
     })
 
 
+@internal_bp.route("/funding-queue-stats", methods=["GET"])
+def funding_queue_stats():
+    """SQLite-backed creator_funding_queue counts + last worker run info."""
+    import sqlite3
+    import re as _re
+
+    db_path = os.getenv("DB_PATH", os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "../../database/flex_complete_database.db"
+    ))
+
+    stats = {"pending": 0, "running": 0, "complete": 0, "failed": 0, "retry": 0,
+             "complete_24h": 0, "last_worker_run": None, "last_worker_completed": 0,
+             "worker_mode": "external_cron_5m"}
+    try:
+        conn = sqlite3.connect(db_path, timeout=3)
+        conn.execute("PRAGMA query_only = ON")
+        rows = conn.execute(
+            "SELECT status, COUNT(*) FROM creator_funding_queue GROUP BY status"
+        ).fetchall()
+        for status, count in rows:
+            stats[status] = count
+
+        cutoff_24h = int(time.time()) - 86400
+        stats["complete_24h"] = conn.execute(
+            "SELECT COUNT(*) FROM creator_funding_queue WHERE status='complete' AND funding_extracted_at >= ?",
+            (cutoff_24h,)
+        ).fetchone()[0]
+        conn.close()
+    except Exception as e:
+        stats["db_error"] = str(e)
+
+    # Parse last run from worker log
+    log_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "../../logs/creator_funding_worker.log"
+    )
+    try:
+        with open(log_path, "rb") as f:
+            f.seek(0, 2)
+            size = f.tell()
+            f.seek(max(0, size - 8192))
+            tail = f.read().decode("utf-8", errors="ignore")
+        lines = tail.splitlines()
+        for line in reversed(lines):
+            if "[FUNDING_WORKER] summary" in line:
+                stats["last_worker_run"] = line.strip()
+                m = _re.search(r"completed=(\d+)", line)
+                if m:
+                    stats["last_worker_completed"] = int(m.group(1))
+                break
+    except Exception:
+        pass
+
+    return jsonify(stats)
+
+
 # ---------------------------------------------------------------------------
 # Operators to scan (read-only — workers fetch this to know what to scan)
 # ---------------------------------------------------------------------------

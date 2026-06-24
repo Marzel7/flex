@@ -74,7 +74,12 @@ async def _put_webhook(
         return body
 
 
-async def register_creator_address(creator_address: str) -> Optional[str]:
+async def register_creator_address(creator_address: str) -> Optional[str]:  # noqa: RET505
+    # Webhook is reserved for treasury monitoring only — creator registration disabled.
+    logger.debug("[WATCH] creator registration disabled — webhook reserved for treasury only")
+    return None
+    # Original implementation below (disabled):
+async def _register_creator_address_disabled(creator_address: str) -> Optional[str]:
     """
     Add creator_address to the shared Helius webhook's accountAddresses list.
 

@@ -62,6 +62,7 @@ MAX_PROMOTED_SUBPROVS   = int(os.environ.get("WS_MAX_PROMOTED_SUBPROVS", "40"))
 POLL_SEC          = float(os.environ.get("WS_POLL_SEC", "2"))
 CLEANUP_SEC       = float(os.environ.get("WS_CLEANUP_SEC", "5"))
 HEARTBEAT_SEC     = 30
+WATCHDOG_STALE_SEC = int(os.environ.get("WS_WATCHDOG_STALE_SEC", "90"))  # alert if heartbeat this old
 # catch-up scans the candidate's most-recent sigs immediately after subscribing. Live, the
 # CREATE is the newest tx (just funded), so a small window suffices; bump if INSTANT creators
 # do >1 action before catch-up runs.
@@ -84,7 +85,7 @@ SUBPROV_SWEEP_SEC = float(os.environ.get("WS_SUBPROV_SWEEP_SEC", "6"))
 # noise-vs-provision boundary for any future UNATTRIBUTED-source path.
 #   Bimodal evidence (154 historical sessions): sub-13◎ cluster = peer-treasury top-ups + dust
 #   (mesh noise), 60–990◎ cluster = real provisions. 50◎ sits in the empty 13–60◎ gap.
-TREASURY_PROVISION_MIN_SOL       = float(os.environ.get("WS_TREASURY_MIN_SOL", "1"))    # known-treasury floor
+TREASURY_PROVISION_MIN_SOL       = float(os.environ.get("WS_TREASURY_MIN_SOL", "0.05")) # known-treasury floor (sub-1◎ provisions confirmed in data: 0.132–0.780◎)
 TREASURY_PROVISION_NOISE_SOL     = float(os.environ.get("WS_TREASURY_NOISE_SOL", "50")) # unattributed-source floor (ref)
 TREASURY_PROVISION_MAX_SOL = float(os.environ.get("WS_TREASURY_MAX_SOL", "1000"))
 TREASURY_REFRESH_SEC       = float(os.environ.get("WS_TREASURY_REFRESH_SEC", "60"))
@@ -316,7 +317,7 @@ class SubscriptionManager:
                    "params": [{"mentions": [wallet]}, {"commitment": _commit}]}
         await self.ws.send(json.dumps(msg))
 
-    def sweep_stale_pending(self, max_age=30):
+    def sweep_stale_pending(self, max_age=90):
         """Clear pending subscribe requests that never confirmed (e.g. an invalid pubkey
         Helius silently rejects). Frees wallet_kind so a future valid retry can proceed and
         avoids a permanent leak. Returns the wallets dropped."""
@@ -411,8 +412,8 @@ class Cascade:
         # HOT PATH — pure connection, NO schema write. Schema is ensured once in __init__.
         # (Running ensure_cascade_schema here blocked the async WS loop under contention and
         # killed subscription confirmation — see __init__.)
-        c = db_connect(OPS_DB_PATH, timeout=20)
-        c.execute("PRAGMA busy_timeout=20000")
+        c = db_connect(OPS_DB_PATH, timeout=60)
+        c.execute("PRAGMA busy_timeout=60000")
         return c
 
     # ---- (re)build subscriptions from DB (startup + reconnect) --------------
@@ -430,35 +431,56 @@ class Cascade:
             promoted = _promotable_subprovs(conn) if WS_PROMOTE_DISCOVERED else []
         finally:
             conn.close()
-        # TREASURY TIER: permanent WS subscriptions on the confirmed-treasury set. Real-time
-        # trigger for opening SUB_PROV sessions (replaces the slow webhook→session path).
+
+        # SUBSCRIBE-FIRST, CATCH-UP-AFTER.
+        # Previously catch_up_subprov/catch_up_candidate were awaited inline between subscribe
+        # calls. Each catch-up does multiple _arpc() calls (~12s each under RPC pressure), blocking
+        # the reader task from draining ws.recv(). Helius then fires a keepalive ping timeout
+        # (1011) and drops the connection before any subscription confirmation arrives. Fix: send
+        # ALL subscribe requests first (fast, just ws.send), then schedule catch-ups as independent
+        # tasks so the WS reader stays live throughout.
+        catchup_tasks = []
+
+        # TREASURY TIER: permanent WS subscriptions on the confirmed-treasury set.
         for t in treasuries:
             if t not in self.mgr.wallet_kind:
                 await self.mgr.subscribe(t, "treasury")
                 emit_event("TREASURY_WEBSOCKET_OPENED", wallet=t)
+
+        # SESSION SUBPROV TIER
         for s in sessions:
             subprov = s[1]
             if subprov not in self.mgr.wallet_kind:
                 await self.mgr.subscribe(subprov, "subprov")
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov)
-                # catch-up on first subscribe: a wrap-close may have fired in the webhook→session
-                # delay before we subscribed (the 25s gap). Recover it immediately.
-                await self.catch_up_subprov(subprov)
+                catchup_tasks.append(("subprov", subprov))
+
         # PROMOTED SUBPROV TIER: standing watchlist (separate pool/budget). Deduped against
-        # everything already subscribed (treasuries, session subprovs). source=discovered_promotion
-        # so a launch caught here is attributable to this Phase-1 tier when measuring detection lift.
+        # everything already subscribed (treasuries, session subprovs).
         for subprov in promoted:
             if subprov not in self.mgr.wallet_kind:
                 await self.mgr.subscribe(subprov, "subprov")
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov,
                            payload={"source": "discovered_promotion"})
-                await self.catch_up_subprov(subprov)
+                catchup_tasks.append(("subprov", subprov))
+
+        # CANDIDATE TIER
         for cand in candidates:
             if cand not in self.mgr.wallet_kind:
                 await self.mgr.subscribe(cand, "candidate")
-                # catch-up on (re)subscribe: a restored WATCHING candidate may have CREATEd
-                # while we were reconnecting/restarting.
-                await self.catch_up_candidate(cand)
+                catchup_tasks.append(("candidate", cand))
+
+        # Schedule catch-ups as fire-and-forget tasks — they do RPC and must not block the
+        # reader. A small initial delay lets the subscription confirmations arrive first.
+        async def _deferred_catchups():
+            await asyncio.sleep(30)  # let all subscription confirmations arrive before scanning
+            for kind, wallet in catchup_tasks:
+                if kind == "subprov":
+                    await self.catch_up_subprov(wallet)
+                else:
+                    await self.catch_up_candidate(wallet)
+        if catchup_tasks:
+            asyncio.ensure_future(_deferred_catchups())
 
     # ---- handle a TREASURY log notification (provisioning outbound) ---------
     def _handle_treasury_tx(self, treasury, sig):
@@ -871,8 +893,9 @@ async def _heartbeat_loop(get_meta):
             # webhook/API writes and was throwing DB_LOCK_ERROR on every heartbeat. The
             # cascade's tables are here anyway, so it's the natural home; the dashboard reads
             # it from the ops db too.
-            c = db_connect(OPS_DB_PATH, timeout=15)
-            c.execute("PRAGMA busy_timeout=15000")
+            meta = get_meta()
+            c = db_connect(OPS_DB_PATH, timeout=60)
+            c.execute("PRAGMA busy_timeout=60000")
             c.execute(
                 """CREATE TABLE IF NOT EXISTS wt_worker_heartbeat (
                     worker_name TEXT PRIMARY KEY, last_seen INTEGER, status TEXT, meta_json TEXT)""")
@@ -881,8 +904,15 @@ async def _heartbeat_loop(get_meta):
                    VALUES ('ws_cascade', strftime('%s','now'), 'ok', ?)
                    ON CONFLICT(worker_name) DO UPDATE SET
                      last_seen=excluded.last_seen, status=excluded.status, meta_json=excluded.meta_json""",
-                (json.dumps(get_meta()),))
+                (json.dumps(meta),))
             c.commit(); c.close()
+            # Self-watchdog: emit visible warnings for conditions that have caused blind periods.
+            # Supervisor will restart on crash, but a stalled WS (no reconnect) or zero-sub state
+            # is silent — these log lines make it detectable in the log without external tooling.
+            if meta.get("subs", 0) == 0:
+                _log("WATCHDOG ⚠ zero active WS subscriptions — treasury monitoring is dark")
+            if meta.get("pending", 0) > 20:
+                _log(f"WATCHDOG ⚠ {meta['pending']} pending subscribe requests stuck")
         except Exception:
             pass
         await asyncio.sleep(HEARTBEAT_SEC)
@@ -919,15 +949,22 @@ async def run_cascade():
     casc = Cascade()
 
     def _meta():
-        return {"subs": len(casc.mgr.wallet_sub), "pending": len(casc.mgr.pending_req),
-                "cleanups": _CLEANUP_COUNT}
+        kinds = casc.mgr.wallet_kind
+        return {
+            "subs":      len(casc.mgr.wallet_sub),
+            "pending":   len(casc.mgr.pending_req),
+            "cleanups":  _CLEANUP_COUNT,
+            "treasury_subs":   sum(1 for k in kinds.values() if k == "treasury"),
+            "subprov_subs":    sum(1 for k in kinds.values() if k == "subprov"),
+            "candidate_subs":  sum(1 for k in kinds.values() if k == "candidate"),
+        }
 
     asyncio.ensure_future(_heartbeat_loop(_meta))
     asyncio.ensure_future(_deferred_audit_loop())
     reconnect_delay = 5
     while not _STOP:
         try:
-            async with websockets.connect(WS_URL, ping_interval=20, ping_timeout=20,
+            async with websockets.connect(WS_URL, ping_interval=20, ping_timeout=60,
                                           open_timeout=30, close_timeout=10,
                                           max_size=10 * 1024 * 1024) as ws:
                 casc.mgr.ws = ws
@@ -965,7 +1002,7 @@ async def run_cascade():
                         try:
                             await _on_message(casc, raw)
                         except Exception as _pe:
-                            print(f"[WS_CASCADE] process error: {_pe}", flush=True)
+                            print(f"[WS_CASCADE] process error: {_pe} ts={int(time.time())}", flush=True)
 
                 async def _maintenance():
                     last_poll = last_cleanup = last_sweep = 0.0

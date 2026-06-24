@@ -458,6 +458,18 @@ function deriveMission(d) {
     const mk = (state, cls, live, keys) =>
         ({ state, cls, live, confidence: conf(keys), triggers: trig(keys), ignored });
 
+    // Operation-centric live signal (Phase 1.4): the wt_ops_v2 monitor sees live
+    // operations in real time, ahead of the attribution layer. If it reports
+    // PROVISIONING/CREATORS_SEEN operations or fresh candidate creators, the network
+    // is demonstrably NOT dormant — surface that with its own honest state.
+    const ov2 = d.ops_v2 || {};
+    const ov2Live = (ov2.provisioning||0) + (ov2.creators_seen||0);
+    const ov2Cands24 = ov2.candidates_24h || 0;
+    if (ov2Live > 0)
+        return { state:'PROVISIONING', cls:'ms-forming', live:true, confidence:90,
+                 triggers:[{key:'ops_v2_live', val:ov2Live, weight:90}],
+                 ignored, detail:`Operation-centric monitor: ${ov2.provisioning||0} PROVISIONING, ${ov2.creators_seen||0} creators-seen, ${ov2Cands24} candidates/24h` };
+
     // ACTIVE — launching now (priority 4)
     if (launches30m > 0 || (armed > 0 && seeds24 > 0) || active > 0)
         return mk('ACTIVE', 'ms-active', true,
@@ -489,6 +501,7 @@ const MS_TRIGGER_LABEL = {
     sweepBurst:  () => `sweep burst (≥${SWEEP_BURST})`,
     conv24:      n => `${n} reservoir conversion${n>1?'s':''} (24h)`,
     resGrowth24: n => `+${n} relay-funded dormant wallet${n>1?'s':''} (24h)`,
+    ops_v2_live: n => `${n} operation${n>1?'s':''} live (operation-centric monitor)`,
 };
 
 function renderMission(d) {
@@ -497,10 +510,12 @@ function renderMission(d) {
     banner.className = 'mission ' + m.cls + (m.live ? ' live' : '');
     document.getElementById('ms-word').textContent = m.state;
     // banner sub-line: the triggers as a sentence, or the idle caption
-    const subBits = m.triggers.map(t => MS_TRIGGER_LABEL[t.key](t.val));
-    document.getElementById('ms-sub').innerHTML = subBits.length
-        ? subBits.map(s => `<b>${s}</b>`).join(' · ')
-        : 'No active hubs · no launches · no extraction — watching';
+    const subBits = m.triggers.map(t => (MS_TRIGGER_LABEL[t.key] ? MS_TRIGGER_LABEL[t.key](t.val) : `${t.val} ${t.key}`));
+    document.getElementById('ms-sub').innerHTML = m.detail
+        ? m.detail
+        : (subBits.length
+            ? subBits.map(s => `<b>${s}</b>`).join(' · ')
+            : 'No active hubs · no launches · no extraction — watching');
     renderWhyPanel(m);
     applyMode(m);   // pivot to DISCOVERY MODE when dormant (no operational activity)
 }

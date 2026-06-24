@@ -36,6 +36,8 @@ class FastLaneDiscovery:
         # Stores all valid candidates from the most recent fast-lane run per mint.
         # Written just before cleanup so the caller can try each one for registration.
         self._last_valid_candidates: Dict[str, List[str]] = {}
+        # Burst gate: (creator, symbol) → first-seen timestamp; prune entries >10s old
+        self._loose_burst_seen: Dict[Tuple[str, str], float] = {}
 
     def _log_fl(self, msg: str):
         """Log fast-lane message. Override by subclass for custom logging."""
@@ -90,7 +92,7 @@ class FastLaneDiscovery:
             result = await self.call_discovery_rpc(
                 "getMultipleAccounts",
                 [candidates, {"encoding": "base64", "commitment": "processed"}],
-                timeout=5.0,
+                timeout=3.0,
             )
             values = (result or {}).get("result", {}).get("value", []) if result else []
 
@@ -188,7 +190,7 @@ class FastLaneDiscovery:
             # Avoids one large RPC call for 17 candidates when the winner is typically
             # in the first few highest-scored addresses.
             hot_candidates  = [addr for addr, _ in scored[:2]]
-            cold_candidates = [addr for addr, _ in scored[2:]]
+            cold_candidates = [addr for addr, _ in scored[2:10]]  # cap at 8 (scored[2:10])
 
             valid_rich, rejections = await self.batch_validate_candidates_with_reasons(
                 hot_candidates, strict_mode=True
@@ -196,7 +198,7 @@ class FastLaneDiscovery:
 
             if not valid_rich and cold_candidates:
                 self._log_fl(
-                    f"[FAST_LANE] Top-2 failed, widening to {len(cold_candidates)} remaining candidates"
+                    f"[FAST_LANE] Top-2 failed, widening to {len(cold_candidates)} remaining candidates (capped at 8)"
                 )
                 valid2, rejections2 = await self.batch_validate_candidates_with_reasons(
                     cold_candidates, strict_mode=True
@@ -423,15 +425,51 @@ class FastLaneDiscovery:
                 await asyncio.sleep(sleep_time)
 
             # Timeout - try loose validation as last resort on top-5 scored candidates only.
-            # Using the full candidate list here would re-run all shared-account checks
-            # serially and stall the loop again for another 60-120s.
+            # HARD INVARIANT: loose validation must never block the event loop.
+            # Total budget: 2s wall-clock. On timeout we return None — miss is acceptable.
             loose_candidates = [addr for addr, _ in scored[:5]]
+
+            # Burst pre-gate: same (creator, symbol) seen within 10s = bot spam, skip loose.
+            _creator = (getattr(self, '_portal_vsol', {}).get(mint) or {}).get('creator', '')
+            _symbol  = (getattr(self, '_portal_vsol', {}).get(mint) or {}).get('symbol', '')
+            _burst_key = (_creator, _symbol) if (_creator and _symbol) else None
+            _now = time.time()
+            # Prune stale burst entries
+            self._loose_burst_seen = {k: v for k, v in self._loose_burst_seen.items() if _now - v < 10}
+            _is_burst = False
+            if _burst_key:
+                if _burst_key in self._loose_burst_seen:
+                    _is_burst = True
+                    self._log_fl(
+                        f"[FAST_LANE] Burst gate: skipping loose validation for {mint[:16]} "
+                        f"(creator={_creator[:8]} symbol={_symbol} already seen within 10s)"
+                    )
+                else:
+                    self._loose_burst_seen[_burst_key] = _now
+
+            if _is_burst:
+                self.pending_candidates.cleanup_mint(mint)
+                return None
+
             self._log_fl(
                 f"[FAST_LANE] Timeout reached for {mint[:16]} after {max_wait_secs:.1f}s, "
-                f"trying loose validation on top-{len(loose_candidates)} candidates"
+                f"trying loose validation on top-{len(loose_candidates)} candidates (budget=2s)"
             )
 
-            valid_r, _ = await self.batch_validate_candidates_with_reasons(loose_candidates, strict_mode=False)
+            try:
+                valid_r, _ = await asyncio.wait_for(
+                    self.batch_validate_candidates_with_reasons(
+                        loose_candidates, strict_mode=False, loose_mode=True
+                    ),
+                    timeout=2.0,
+                )
+            except asyncio.TimeoutError:
+                self._log_fl(
+                    f"[FAST_LANE] Loose validation timed out (2s budget) for {mint[:16]} — skipping"
+                )
+                self.pending_candidates.cleanup_mint(mint)
+                return None
+
             if valid_r:
                 valid = [v["address"] if isinstance(v, dict) else v for v in valid_r]
                 elapsed = time.time() - start_time

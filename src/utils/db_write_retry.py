@@ -119,15 +119,23 @@ def write_with_retry(
 
     for attempt in range(max_attempts):
         t0 = time.monotonic()
+        conn = None
         try:
             conn = _connect(db_path, timeout=30)
             conn.execute(sql, params)
             conn.commit()
             conn.close()
+            conn = None
             ms = (time.monotonic() - t0) * 1000
             _record_write_latency(ms)
             return True
         except sqlite3.OperationalError as e:
+            if conn:
+                try:
+                    conn.rollback()
+                    conn.close()
+                except Exception:
+                    pass
             ms = (time.monotonic() - t0) * 1000
             _record_lock_error()
             delay = base_delay * (2 ** attempt)
@@ -230,15 +238,23 @@ async def async_write_with_retry(
 
     for attempt in range(max_attempts):
         t0 = time.monotonic()
+        conn = None
         try:
             conn = _connect(db_path, timeout=30)
             conn.execute(sql, params)
             conn.commit()
             conn.close()
+            conn = None
             ms = (time.monotonic() - t0) * 1000
             _record_write_latency(ms)
             return True
         except sqlite3.OperationalError as e:
+            if conn:
+                try:
+                    conn.rollback()
+                    conn.close()
+                except Exception:
+                    pass
             _record_lock_error()
             delay = base_delay * (2 ** attempt)
             logger.warning(

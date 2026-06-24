@@ -309,25 +309,38 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
         return sorted(plain_totals.items(), key=lambda x: -x[1])
 
     promoted, reviewed, rejected = [], 0, 0
+    # Validation: track total DB-open time vs total wall time to measure lock-hold reduction.
+    _db_open_intervals = []   # list of (open_ts, close_ts) pairs
+    def _open_conn():
+        """Open a fresh short-lived ops DB connection. raw sqlite3 (isolation_level=None =
+        autocommit) so each statement is its own transaction — no read snapshot held between
+        statements. busy_timeout=30s absorbs brief contention from other writers."""
+        import sqlite3 as _sq_sched
+        _t = time.time()
+        c = _sq_sched.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
+        c.execute("PRAGMA busy_timeout=30000")
+        _db_open_intervals.append([_t, None])   # None = still open
+        return c
+    def _close_conn(c):
+        """Close and record hold duration."""
+        if c:
+            try:
+                c.close()
+            except Exception:
+                pass
+        if _db_open_intervals and _db_open_intervals[-1][1] is None:
+            _db_open_intervals[-1][1] = time.time()
+
     try:
         from src.core import treasury_bank
         from src.utils.db_locking import db_connect
-        # autocommit (isolation_level=None): each statement is its own transaction so NO read
-        # snapshot is held across the RPC-heavy loop. A held snapshot pinned the ops-db WAL for the
-        # whole cycle, blocking ALL other ops-db writers — it FROZE the ws_cascade heartbeat loop
-        # (2.5h hang) and starved the farm scan. (lock-storm remaining cause #1.)
-        import sqlite3 as _sq_sched
-        conn = _sq_sched.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
-        conn.execute("PRAGMA busy_timeout=30000")
         live = db_connect(os.path.join(os.path.dirname(OPS_DB_PATH), "flex_complete_database.db"), timeout=20)
-        treasury_bank.ensure_schema(conn)
-        # ── creator selection: EVERY recently-migrated creator whose funding is known,
-        #    that we HAVEN'T fingerprinted yet. Source = creator_funders (well-populated by
-        #    the funding-extraction queue) joined to recent migrations, NOT just the narrow
-        #    wt_ops_v2_creators intake set. Skip done creators so each cycle processes NEW
-        #    ones (no re-checking the same recent 10). Raw RPC only downstream.
+
+        # ── PHASE A: reads only (no RPC) — short-lived conn, close before any RPC work ──
         # already-fingerprinted — don't redo. A creator is "done" if it (or its lineage) was
         # logged either as the decision wallet OR as the source_migration of a decision.
+        conn = _open_conn()
+        treasury_bank.ensure_schema(conn)
         done = set()
         for r in conn.execute(
             "SELECT wallet, source_migration FROM wt_treasury_fingerprint_decisions").fetchall():
@@ -352,13 +365,21 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
             ") ORDER BY last_mig DESC LIMIT 200").fetchall()]
         # process the first 25 NEW (not-yet-fingerprinted) ones this cycle; the rest next cycle
         creators = [c for c in cand if c and c not in done][:25]
-        # ONE-SHOT: re-score prior fingerprint candidates with the fixed raw-tx ping logic. The
+        _close_conn(conn); conn = None   # ← release before any RPC
+
+        # ── PHASE B: ONE-SHOT rescore (sentinel-gated — runs at most once ever) ──
+        # Re-scores prior fingerprint candidates with the fixed raw-tx ping logic. The
         # webhook-blind ping bug forced every near-miss to ping=0, so strong treasuries were stuck
-        # at 2/3 (some human-rejected on the broken signal). Runs once (sentinel), bounded RPC.
+        # at 2/3 (some human-rejected on the broken signal).
         _resc_sentinel = os.path.join(os.path.dirname(__file__), "../../logs/.treasury_rescore_done")
         if not os.path.exists(_resc_sentinel):
             try:
+                # rescore_decided_candidates internally opens the conn it receives for reads+writes.
+                # Open a fresh conn for the entire rescore pass (it's bounded to 40 candidates,
+                # each requiring RPC + a write — the hold is short relative to the 25-creator loop).
+                conn = _open_conn()
                 rs = treasury_bank.rescore_decided_candidates(conn, _raw_txs, max_candidates=40)
+                _close_conn(conn); conn = None
                 print(f"[SCHED] treasury rescore: checked={rs['checked']} now_ready_3of3={rs['now_ready_3of3']} "
                       f"still_near={rs['still_near_miss']}", flush=True)
                 for addr, out_sol, pings in rs.get("ready", []):
@@ -366,14 +387,23 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
                 with open(_resc_sentinel, "w") as _f:
                     _f.write(str(int(time.time())))
             except Exception as e:
+                if conn is not None:
+                    _close_conn(conn); conn = None
                 print(f"[SCHED] treasury rescore failed: {e}", flush=True)
 
-        evaluated = 0
+        # ── PHASE C: per-creator evaluation — fresh conn per creator, closed between creators ──
+        # evaluate_lineage_root interleaves DB reads with RPC calls then writes a single decision
+        # at the end. A per-creator conn means the max hold per conn is one creator's evaluation
+        # (~5–20s of RPC), not the full 25-creator cycle (~230s). The ops DB is free between
+        # creators so the cascade and forward-monitor can write without contention.
         for cw in creators:
             if calls[0] > 800:               # RPC safety cap for one cycle
                 break
-            res = treasury_bank.evaluate_lineage_root(conn, live, cw, _funders, _raw_txs)
-            evaluated += 1
+            conn = _open_conn()
+            try:
+                res = treasury_bank.evaluate_lineage_root(conn, live, cw, _funders, _raw_txs)
+            finally:
+                _close_conn(conn); conn = None   # ← always release after each creator
             # evaluate_lineage_root now ALWAYS logs a decision against the creator
             # (CONFIRMED/REVIEW/REJECT/NO_ROOT/ALREADY_CONFIRMED), so cw is marked done and
             # won't be re-checked next cycle — the loop processes NEW creators each run.
@@ -386,7 +416,15 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
                 reviewed += 1
             elif v == "REJECT":
                 rejected += 1
-        conn.close(); live.close()
+
+        live.close()
+
+        # Validation: compute total DB hold time vs wall time for this cycle.
+        _wall = time.time() - started
+        _hold = sum((iv[1] or time.time()) - iv[0] for iv in _db_open_intervals)
+        _pct = round(100 * _hold / _wall, 1) if _wall > 0 else 0
+        print(f"[SCHED][TREASURY_FP] conn_hold={round(_hold,1)}s wall={round(_wall,1)}s "
+              f"hold_pct={_pct}% opens={len(_db_open_intervals)}", flush=True)
 
         # POST-MIGRATION LAUNCH BACKFILL: walk recent migrations backward; any whose lineage
         # reaches a known WATCHTOWER treasury is RECORDED as a launch (wt_watchtower_launches is
@@ -426,7 +464,8 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
             except Exception as exc:
                 if not quiet:
                     print(f"[SCHED][TREASURY_FP] webhook of promoted failed: {exc}")
-        s = {"promoted": len(promoted), "reviewed": reviewed, "rejected": rejected, "rpc": calls[0]}
+        s = {"promoted": len(promoted), "reviewed": reviewed, "rejected": rejected, "rpc": calls[0],
+             "runtime_s": round(time.time() - started, 1)}
         _log_run("TREASURY_FP", started, s, "OK", None, 800, False)
         if not quiet and (promoted or reviewed):
             print(f"[SCHED][TREASURY_FP] OK promoted={len(promoted)} review={reviewed} reject={rejected} rpc={calls[0]}"
@@ -696,7 +735,8 @@ def run_subprov_discovery_job(quiet=False) -> dict:
                 print(f"[SCHED][SUBPROV] webhook path error: {_oe}", flush=True)
         s = {"checked": len(todo), "wrap_close_found": found, "new_subprovs": new_subprovs,
              "new_unknown_treasury": unknown, "rpc": calls[0],
-             "launch_chain_confirmed": len(set(_t_to_webhook))}
+             "launch_chain_confirmed": len(set(_t_to_webhook)),
+             "runtime_s": round(time.time() - started, 1)}
         _log_run("SUBPROV_DISCOVERY", started, s, "OK", None, 400, False)
         if not quiet and (found or new_subprovs):
             print(f"[SCHED][SUBPROV] checked={len(todo)} wrapclose={found} new_subprovs={new_subprovs} "
@@ -821,14 +861,22 @@ def loop(quiet=False):
                           f"rpc={su.get('rpc_calls',0)}")
                 # POST-MIGRATION treasury auto-promotion (fingerprint → auto-confirm+webhook)
                 try:
+                    if not quiet:
+                        print(f"[SCHED][TREASURY_FP] START {int(time.time())}", flush=True)
                     run_treasury_fingerprint_job(quiet=quiet)
+                    if not quiet:
+                        print(f"[SCHED][TREASURY_FP] END {int(time.time())}", flush=True)
                 except Exception as _tf:
                     if not quiet:
                         print(f"[SCHED][TREASURY_FP] error: {_tf}")
                 # SUBPROV DISCOVERY — every migration's creator → wrap-close → subprov (bypasses
                 # the creator_funders extraction gap; feeds the unknown-treasury investigation panel)
                 try:
+                    if not quiet:
+                        print(f"[SCHED][SUBPROV] START {int(time.time())}", flush=True)
                     run_subprov_discovery_job(quiet=quiet)
+                    if not quiet:
+                        print(f"[SCHED][SUBPROV] END {int(time.time())}", flush=True)
                 except Exception as _sp:
                     if not quiet:
                         print(f"[SCHED][SUBPROV] error: {_sp}")

@@ -265,7 +265,7 @@ def _event_writer_loop():
                 if "locked" in str(e).lower() and _attempt < 4:
                     time.sleep(0.5 * (_attempt + 1))
                     continue
-                print(f"[WS_CASCADE] event write failed {et}: {e}", flush=True)
+                print(f"[WS_CASCADE] event write failed {et}: {e} ts={int(time.time())}", flush=True)
                 break
 
 

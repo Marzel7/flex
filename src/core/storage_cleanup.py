@@ -169,8 +169,9 @@ class TransferIndexCleanup:
             )
             deleted = cursor.rowcount
 
-            # 2. Reclaim space
-            cursor.execute("VACUUM")
+            # 2. Reclaim space — NO full VACUUM (rewrites whole DB into the WAL →
+            # multi-GB spike + exclusive lock = the lock-storm root cause). The DELETE
+            # frees pages for reuse; that's sufficient.
 
             # 3. Reset WAL checkpoint
             cursor.execute("PRAGMA wal_checkpoint(RESTART)")

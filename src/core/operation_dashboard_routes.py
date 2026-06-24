@@ -1914,12 +1914,14 @@ def api_intel_treasury_funders():
         except Exception:
             pass
         ph = ",".join("?" * len(confirmed))
-        # inbound capital to confirmed treasuries, grouped by (treasury, funder)
+        # inbound capital to confirmed treasuries — 30-day window prevents unbounded scan
+        # over the full wt_webhook_hits table (54k rows, no time cap was the lock risk).
+        _30d = "AND block_time > strftime('%s','now')-2592000"
         rows = live.execute(
             f"SELECT wallet_address treasury, counterparty funder, COUNT(*) n, "
             f"SUM(amount_sol) tot, MAX(amount_sol) mx, MAX(block_time) ls "
             f"FROM wt_webhook_hits WHERE direction='inbound' AND amount_sol > 1 "
-            f"AND counterparty IS NOT NULL AND wallet_address IN ({ph}) "
+            f"AND counterparty IS NOT NULL AND wallet_address IN ({ph}) {_30d} "
             f"GROUP BY wallet_address, counterparty", list(confirmed)).fetchall()
         # RECYCLING detection: a (treasury,funder) pair where the treasury ALSO sent OUT to the
         # funder = the funder is recycling treasury money back, NOT genuine external capital.
@@ -1929,7 +1931,7 @@ def api_intel_treasury_funders():
         try:
             for r in live.execute(
                 f"SELECT wallet_address t, counterparty f, SUM(amount_sol) o FROM wt_webhook_hits "
-                f"WHERE direction='outbound' AND counterparty IS NOT NULL AND wallet_address IN ({ph}) "
+                f"WHERE direction='outbound' AND counterparty IS NOT NULL AND wallet_address IN ({ph}) {_30d} "
                 f"GROUP BY wallet_address, counterparty",
                 list(confirmed)).fetchall():
                 paid_back.add((r["t"], r["f"]))
@@ -2055,8 +2057,11 @@ def api_intel_subprovs():
         for r in rows:
             sp = r["subprov"]
             treasury = r["treasury"] or lineage.get(sp)
-            # resolved if the treasury is known (confirmed OR in review OR linked via lineage)
-            if treasury and (treasury in confirmed or treasury in reviewing):
+            funder_is_subprov = bool(r["funder_is_subprov"]) if _have_mesh else False
+            # resolved if the treasury is known (confirmed OR in review OR linked via lineage),
+            # OR if the immediate funder is a known distribution subprov (funder_is_subprov=True —
+            # chain is treasury→distribution_subprov→this_subprov; the lead is identified).
+            if (treasury and (treasury in confirmed or treasury in reviewing)) or funder_is_subprov:
                 known_count += 1
                 continue
             # a treasury we have but haven't confirmed/reviewed = still a lead, but show the addr
@@ -2072,7 +2077,7 @@ def api_intel_subprovs():
                 # DISTRIBUTION tier: who DIRECTLY seeded this subprov, and whether that
                 # funder is itself a subprov (root treasury → distribution subprov → this).
                 "immediate_funder": (r["immediate_funder"] if _have_mesh else None),
-                "funder_is_subprov": (bool(r["funder_is_subprov"]) if _have_mesh else False),
+                "funder_is_subprov": funder_is_subprov,
             })
         # DISTRIBUTION NODES: real subprovs that fund OTHER real subprovs (read-only
         # derivation, mechanism-guarded — never raw mid-chain nodes). Surfaced so the UI
@@ -2716,6 +2721,258 @@ def api_intel_treasury_promote():
     return jsonify(res)
 
 
+# ════════════════════════════════════════════════════════════════════════════
+#  RECOVERY-SAFE APPROVAL — registry-only, zero activation side-effects.
+#
+#  treasury-approve  → wt_confirmed_treasuries + audit trail ONLY.
+#                      NO webhook, NO op reassignment, NO subprov changes.
+#  treasury-webhook-enroll → explicit second step, separate button.
+#
+#  The existing treasury-promote route is kept as-is (full promote+webhook
+#  in one call) for use once recovery is complete. During recovery the UI
+#  renders the split buttons instead.
+# ════════════════════════════════════════════════════════════════════════════
+
+def _ensure_approval_audit_table(ov):
+    ov.execute("""CREATE TABLE IF NOT EXISTS wt_treasury_approval_audit (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        treasury    TEXT NOT NULL,
+        action      TEXT NOT NULL,          -- APPROVED | REJECTED | WEBHOOK_ENROLLED
+        reviewer    TEXT,
+        confidence  TEXT,                   -- HIGH | MEDIUM | LOW
+        notes       TEXT,
+        evidence_json TEXT,                 -- snapshot of review evidence at approval time
+        created_at  INTEGER NOT NULL
+    )""")
+    # Add reviewer/confidence/notes columns to wt_treasury_review if absent (migration-safe)
+    for col, defn in [("reviewer", "TEXT"), ("confidence", "TEXT"), ("notes", "TEXT"),
+                      ("evidence_json", "TEXT")]:
+        try:
+            ov.execute(f"ALTER TABLE wt_treasury_review ADD COLUMN {col} {defn}")
+        except Exception:
+            pass
+    ov.commit()
+
+
+def _compute_confidence(c: dict) -> str:
+    """Derive HIGH/MEDIUM/LOW confidence from a review candidate dict."""
+    score = 0
+    if c.get("detected_via") == "auto_fingerprint_3of3":
+        score += 3
+    if (c.get("occurrences") or 0) >= 2:
+        score += 2
+    elif (c.get("occurrences") or 0) == 1:
+        score += 1
+    if (c.get("micro_pings") or 0) >= 5:
+        score += 2
+    elif (c.get("micro_pings") or 0) > 0:
+        score += 1
+    if (c.get("source_token_peak_mc") or 0) >= 100_000:
+        score += 2
+    elif (c.get("source_token_peak_mc") or 0) >= 25_000:
+        score += 1
+    if (c.get("recipients") or 0) >= 20:
+        score += 1
+    if (c.get("out_sol") or 0) >= 500:
+        score += 1
+    if score >= 6:
+        return "HIGH"
+    if score >= 3:
+        return "MEDIUM"
+    return "LOW"
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/treasury-approve", methods=["POST"])
+def api_intel_treasury_approve():
+    """Recovery-safe treasury approval.
+
+    Adds the treasury to wt_confirmed_treasuries and records the decision in the
+    permanent audit log.  NOTHING ELSE HAPPENS:
+      - no webhook enrolment
+      - no operation reassignment
+      - no subprov record changes
+      - no graph rebuilds
+      - no background workers started
+
+    POST { confirm:true, treasury:<addr>, action:'approve'|'reject',
+           confidence:'HIGH'|'MEDIUM'|'LOW', notes:<str>, reviewer:<str> }
+    """
+    from src.core import treasury_bank
+    import json as _json
+    body = request.get_json(silent=True) or {}
+    if body.get("confirm") is not True or not body.get("treasury"):
+        return jsonify({"error": "confirm:true + treasury required"}), 400
+    t = body["treasury"].strip()
+    action = body.get("action", "approve")
+    confidence = body.get("confidence", "MEDIUM")
+    notes = body.get("notes", "")
+    reviewer = body.get("reviewer", "human")
+    now = int(time.time())
+
+    ov = _conn_rw()
+    try:
+        _ensure_approval_audit_table(ov)
+
+        # Fetch candidate evidence snapshot for the audit record
+        evidence = {}
+        try:
+            row = ov.execute(
+                "SELECT transfer_pct, out_sol, recipients, micro_pings, detected_via, "
+                "detected_at FROM wt_treasury_review WHERE treasury=?", (t,)).fetchone()
+            if row:
+                evidence = dict(row)
+        except Exception:
+            pass
+        evidence_json = _json.dumps(evidence)
+
+        if action == "reject":
+            # Mark rejected in review table
+            ov.execute(
+                "UPDATE wt_treasury_review SET status='REJECTED', reviewed_at=?, "
+                "reviewed_by=?, confidence=?, notes=? WHERE treasury=?",
+                (now, reviewer, confidence, notes, t))
+            # Audit trail
+            ov.execute(
+                "INSERT INTO wt_treasury_approval_audit "
+                "(treasury, action, reviewer, confidence, notes, evidence_json, created_at) "
+                "VALUES (?,?,?,?,?,?,?)",
+                (t, "REJECTED", reviewer, confidence, notes, evidence_json, now))
+            ov.commit()
+            return jsonify({"ok": True, "action": "reject", "treasury": t,
+                            "message": "marked REJECTED — registry unchanged, no activation"})
+
+        # APPROVE — registry only
+        # 1. Update wt_treasury_review status
+        ov.execute(
+            "UPDATE wt_treasury_review SET status='APPROVED', reviewed_at=?, "
+            "reviewed_by=?, confidence=?, notes=? WHERE treasury=?",
+            (now, reviewer, confidence, notes, t))
+
+        # 2. Insert into wt_confirmed_treasuries (idempotent)
+        ov.execute(
+            "INSERT INTO wt_confirmed_treasuries "
+            "(treasury, method, confidence, confirmed_at, provenance) "
+            "VALUES (?, 'human_review_recovery_safe', ?, ?, 'APPROVED_NO_WEBHOOK') "
+            "ON CONFLICT(treasury) DO UPDATE SET "
+            "confidence=excluded.confidence, confirmed_at=excluded.confirmed_at, "
+            "provenance=excluded.provenance",
+            (t, confidence, now))
+
+        # 3. Permanent audit record
+        ov.execute(
+            "INSERT INTO wt_treasury_approval_audit "
+            "(treasury, action, reviewer, confidence, notes, evidence_json, created_at) "
+            "VALUES (?,?,?,?,?,?,?)",
+            (t, "APPROVED", reviewer, confidence, notes, evidence_json, now))
+        ov.commit()
+
+        return jsonify({
+            "ok": True, "action": "approve", "treasury": t,
+            "confidence": confidence, "reviewer": reviewer,
+            "registry_updated": True,
+            "webhooked": False,
+            "message": (
+                "Treasury added to confirmed registry. "
+                "NO webhook enrolled — use Enroll Webhook button when ready to activate."
+            ),
+            "activation_needed": True,
+        })
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/treasury-webhook-enroll", methods=["POST"])
+def api_intel_treasury_webhook_enroll():
+    """Explicit webhook enrolment — a SEPARATE step from approval.
+
+    Only allowed for treasuries already in wt_confirmed_treasuries.
+    POST { confirm:true, treasury:<addr>, reviewer:<str> }
+    """
+    import asyncio as _asyncio, json as _json
+    body = request.get_json(silent=True) or {}
+    if body.get("confirm") is not True or not body.get("treasury"):
+        return jsonify({"error": "confirm:true + treasury required"}), 400
+    t = body["treasury"].strip()
+    reviewer = body.get("reviewer", "human")
+    now = int(time.time())
+
+    ov = _conn_rw()
+    try:
+        # Guard: must already be confirmed
+        row = ov.execute(
+            "SELECT treasury FROM wt_confirmed_treasuries WHERE treasury=?", (t,)).fetchone()
+        if not row:
+            return jsonify({"error": "treasury not in confirmed registry — approve first"}), 400
+
+        _ensure_approval_audit_table(ov)
+
+        # Enroll via WebhookManager
+        webhooked = False; webhook_error = None
+        try:
+            from src.analysis.webhook_manager import WebhookManager, INFRA_ROLE
+            for attempt in range(3):
+                try:
+                    loop = _asyncio.new_event_loop()
+                    mgr = WebhookManager(LIVE_DB_PATH)
+                    loop.run_until_complete(mgr.enroll_batch(
+                        [t], role=INFRA_ROLE, notes="explicit enroll post recovery-safe approval"))
+                    loop.close()
+                    webhooked = True
+                    break
+                except Exception as _e:
+                    webhook_error = str(_e)
+                    if "locked" in webhook_error.lower() and attempt < 2:
+                        import time as _t2; _t2.sleep(1.5 * (attempt + 1))
+                    else:
+                        raise
+        except Exception as exc:
+            webhook_error = str(exc)
+
+        if webhooked:
+            # Sync coverage table
+            try:
+                ov.execute(
+                    "INSERT INTO wt_confirmed_treasury_webhooks "
+                    "(treasury, source, enrolled_at, webhook_active) "
+                    "VALUES (?, 'EXPLICIT_ENROLL', ?, 1) "
+                    "ON CONFLICT(treasury) DO UPDATE SET webhook_active=1, enrolled_at=?",
+                    (t, now, now))
+            except Exception:
+                pass
+            # Audit trail
+            ov.execute(
+                "INSERT INTO wt_treasury_approval_audit "
+                "(treasury, action, reviewer, confidence, notes, evidence_json, created_at) "
+                "VALUES (?,?,?,?,?,?,?)",
+                (t, "WEBHOOK_ENROLLED", reviewer, None,
+                 "explicit enroll — separate from approval", "{}", now))
+            ov.commit()
+
+        return jsonify({
+            "ok": webhooked, "treasury": t,
+            "webhooked": webhooked, "webhook_error": webhook_error,
+            "message": "Webhook enrolled — treasury is now live in the detection pipeline." if webhooked
+                       else f"Enrolment failed: {webhook_error}",
+        })
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/treasury-approval-audit")
+def api_intel_treasury_approval_audit():
+    """Permanent audit trail of all approval actions."""
+    ov = _conn()
+    try:
+        _ensure_approval_audit_table(_conn_rw())
+        rows = ov.execute(
+            "SELECT treasury, action, reviewer, confidence, notes, created_at "
+            "FROM wt_treasury_approval_audit ORDER BY created_at DESC LIMIT 200"
+        ).fetchall()
+        return jsonify({"audit": [dict(r) for r in rows], "count": len(rows)})
+    finally:
+        ov.close()
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/treasury-coverage")
 def api_intel_treasury_coverage():
     """Treasury trigger coverage — the persistent webhook targets. Per treasury:
@@ -2861,8 +3118,98 @@ def api_intel_status():
             out["webhook_listener"] = "LIVE" if age < WEBHOOK_STALE_S else "STALE"
             out["webhook_event_age_s"] = age
     finally:
-        live.close()
+        pass  # ovh already closed above
     return jsonify(out)
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/coverage-summary")
+def api_intel_coverage_summary():
+    """Coverage-first hero summary. Read-only ops DB only — no live DB, no RPC, no mutations.
+    Answers: how much WATCHTOWER launch infrastructure are we actually watching right now?
+    All tables are small (≤262 rows max); this replaces the 5-call parallel hero fetch."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+
+        def _c(sql):
+            try:
+                return (ov.execute(sql).fetchone() or [0])[0] or 0
+            except Exception:
+                return 0
+
+        confirmed    = _c("SELECT COUNT(*) FROM wt_confirmed_treasuries")
+        webhooked    = _c("SELECT COUNT(*) FROM wt_confirmed_treasury_webhooks WHERE webhook_active=1")
+        subprov_total= _c("SELECT COUNT(*) FROM wt_discovered_subprovs")
+        subprov_known= _c("SELECT COUNT(*) FROM wt_discovered_subprovs WHERE treasury_known=1")
+        active_sess  = _c("SELECT COUNT(*) FROM wt_active_subprov_sessions WHERE state='ACTIVE'")
+        launches_7d  = _c("SELECT COUNT(*) FROM wt_watchtower_launches WHERE create_time > strftime('%s','now')-604800")
+        farm_7d      = _c("SELECT COUNT(*) FROM wt_farm_launches WHERE created_at > strftime('%s','now')-604800")
+        last_wrap    = (ov.execute("SELECT MAX(detected_at) FROM wt_candidate_websocket_watches").fetchone() or [None])[0]
+        last_create  = (ov.execute("SELECT MAX(create_time) FROM wt_watchtower_launches").fetchone() or [None])[0]
+
+        # cascade daemon health — ws_cascade writes its heartbeat here (ops DB, not live)
+        hb = None
+        try:
+            hb = ov.execute(
+                "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade'").fetchone()
+        except Exception:
+            pass
+        hb_age = (now - hb["last_seen"]) if (hb and hb["last_seen"]) else None
+
+        # Parse per-tier WS subscription counts from heartbeat meta
+        hb_subs = hb_treasury_subs = hb_subprov_subs = hb_candidate_subs = 0
+        try:
+            import json as _json
+            if hb and hb["meta_json"]:
+                _m = _json.loads(hb["meta_json"])
+                hb_subs           = _m.get("subs", 0)
+                hb_treasury_subs  = _m.get("treasury_subs", 0)
+                hb_subprov_subs   = _m.get("subprov_subs", 0)
+                hb_candidate_subs = _m.get("candidate_subs", 0)
+        except Exception:
+            pass
+
+        # State model (priority order):
+        # DOWN      = no heartbeat row at all
+        # STALE     = daemon last seen ≥90s ago (may be hung/crashed without supervisor notice)
+        # DEGRADED  = daemon alive + heartbeat fresh + WS subscriptions = 0 (connected but dark)
+        # LIVE_IDLE = daemon alive + subscriptions confirmed + no active sessions (quiet period)
+        # ACTIVE    = daemon alive + subscriptions confirmed + active sessions open
+        if hb_age is None:
+            cascade_status = "DOWN"
+        elif hb_age >= 90:
+            cascade_status = "STALE"
+        elif hb_subs == 0:
+            cascade_status = "DEGRADED"
+        elif active_sess == 0:
+            cascade_status = "LIVE_IDLE"
+        else:
+            cascade_status = "ACTIVE"
+
+        coverage_pct = round(100 * launches_7d / farm_7d) if farm_7d else 0
+
+        return jsonify({
+            "confirmed_treasuries": confirmed,
+            "webhooked_treasuries": webhooked,
+            "blind_treasuries": max(0, confirmed - webhooked),
+            "subprovs_total": subprov_total,
+            "subprovs_known": subprov_known,
+            "subprovs_gap": max(0, subprov_known - hb_subprov_subs),
+            "cascade_status": cascade_status,
+            "cascade_hb_age_s": hb_age,
+            "cascade_ws_subs": hb_subs,
+            "cascade_treasury_subs": hb_treasury_subs,
+            "cascade_subprov_subs": hb_subprov_subs,
+            "cascade_candidate_subs": hb_candidate_subs,
+            "cascade_session_subs": active_sess,
+            "launches_detected_7d": launches_7d,
+            "launches_total_7d": farm_7d,
+            "coverage_pct": coverage_pct,
+            "last_wrap_close": last_wrap,
+            "last_create": last_create,
+        })
+    finally:
+        ov.close()
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/coverage")
@@ -3566,6 +3913,111 @@ def api_intel_enroll():
     return jsonify({"ok": True, "requested": len(targets), "validated": len(valid),
                     "newly_enrolled": enrolled, "capped": capped,
                     "rejected_non_op_accounts": len(rejected)})
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/discovery-leads")
+def api_intel_discovery_leads():
+    """
+    Discovery Lead Scoring Engine — read-only, ops DB only, no RPC.
+
+    Returns unconfirmed funders ranked by evidence of operator infrastructure behaviour.
+    Evidence badges use tri-state (PRESENT / ABSENT / UNKNOWN) so conditional signals
+    (WRAP_CLOSE, TREASURY_PROXIMITY, SUBPROV_PROXIMITY) never show as falsely negative.
+    """
+    from src.core.discovery_evidence import build_leads
+    c = _conn()
+    try:
+        leads = build_leads(c)
+        by_tier = {"HIGH": [], "MEDIUM": [], "LOW": []}
+        for lead in leads:
+            if lead.tier in by_tier:
+                by_tier[lead.tier].append(lead.to_dict())
+        return jsonify({
+            "leads": [l.to_dict() for l in leads],
+            "by_tier": by_tier,
+            "counts": {
+                "HIGH": len(by_tier["HIGH"]),
+                "MEDIUM": len(by_tier["MEDIUM"]),
+                "LOW": len(by_tier["LOW"]),
+                "total": len(leads),
+            },
+        })
+    finally:
+        c.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/discovery-review-add", methods=["POST"])
+def api_intel_discovery_review_add():
+    """
+    Add a discovery lead to wt_treasury_review. Human-triggered only.
+
+    POST { treasury: <addr>, score: int, evidence: [...badges], reasons: [...str] }
+
+    Stores discovery evidence alongside the review entry so the review card can
+    show why the lead was surfaced. Idempotent — safe to call if already pending.
+    Does NOT approve, webhook, or activate anything.
+    """
+    import json as _json
+    body = request.get_json(silent=True) or {}
+    treasury = (body.get("treasury") or "").strip()
+    if not treasury:
+        return jsonify({"error": "treasury required"}), 400
+
+    score = body.get("score")
+    evidence = body.get("evidence", [])
+    reasons = body.get("reasons", [])
+    now = int(time.time())
+
+    ov = _conn_rw()
+    try:
+        # Ensure evidence columns exist (idempotent ALTER TABLE)
+        for col, coltype in [("evidence_json", "TEXT"), ("discovery_score", "INTEGER"),
+                             ("discovery_reasons", "TEXT")]:
+            if not _column_exists(ov, "wt_treasury_review", col):
+                try:
+                    ov.execute(f"ALTER TABLE wt_treasury_review ADD COLUMN {col} {coltype}")
+                except Exception:
+                    pass
+
+        existing = ov.execute(
+            "SELECT status FROM wt_treasury_review WHERE treasury=?", (treasury,)
+        ).fetchone()
+
+        if existing:
+            if existing["status"] in ("CONFIRMED", "REJECTED"):
+                return jsonify({
+                    "ok": False,
+                    "message": f"Already {existing['status']} — no change made",
+                    "status": existing["status"],
+                })
+            # Already pending — update evidence (it may have improved)
+            ov.execute(
+                "UPDATE wt_treasury_review SET evidence_json=?, discovery_score=?, "
+                "discovery_reasons=? WHERE treasury=?",
+                (_json.dumps(evidence), score, _json.dumps(reasons), treasury)
+            )
+            ov.commit()
+            return jsonify({
+                "ok": True, "action": "updated",
+                "message": "Already in review — evidence refreshed",
+                "status": "PENDING_REVIEW",
+            })
+
+        ov.execute(
+            "INSERT INTO wt_treasury_review "
+            "(treasury, detected_via, status, detected_at, evidence_json, "
+            " discovery_score, discovery_reasons) "
+            "VALUES (?, 'discovery_lead', 'PENDING_REVIEW', ?, ?, ?, ?)",
+            (treasury, now, _json.dumps(evidence), score, _json.dumps(reasons))
+        )
+        ov.commit()
+        return jsonify({
+            "ok": True, "action": "added",
+            "message": "Added to Treasury Review — no activation. Use Approve to confirm.",
+            "status": "PENDING_REVIEW",
+        })
+    finally:
+        ov.close()
 
 
 def register_operation_dashboard_routes(app):

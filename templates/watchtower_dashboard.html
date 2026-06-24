@@ -1,5 +1,5 @@
 {% extends "base_shell.html" %}
-{% block title %}WATCHTOWER — Live Topology{% endblock %}
+{% block title %}OPERATIONS OS — Live Topology{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -2077,7 +2077,7 @@ line.edge-active {
 <div id="cmd-bar">
   <div class="cmd-brand">
     <div>
-      <div class="cmd-brand-name">WATCHTOWER</div>
+      <div class="cmd-brand-name">OPERATIONS OS</div>
       <div class="cmd-brand-live">
         <div class="brand-live-ring"></div>
         <span class="brand-live-txt">LIVE</span>
@@ -2193,9 +2193,16 @@ line.edge-active {
 
   <!-- ══ WATCHTOWER TEMPO — honest activity breakdown (launch vs attribution) ══ -->
   <div id="wt-tempo-card" style="grid-column:1/-1;background:var(--bg-secondary,#12151c);border:1px solid rgba(56,189,248,0.25);border-radius:10px;padding:12px 16px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;font-size:12px;">
-    <div style="font-weight:600;color:#38bdf8;letter-spacing:0.5px;">WATCHTOWER TEMPO</div>
-    <div title="migrated AND strong lineage (TREASURY/root/hub/signaller) — confirmed WATCHTOWER launches">
-      <span style="color:var(--txt-muted,#8b949e);">Launch confirmed</span>
+    <div style="font-weight:600;color:#38bdf8;letter-spacing:0.5px;">OPERATIONS TEMPO</div>
+    <!-- Scheduler health widget — mission critical; RED if the watcher stops -->
+    <div id="sched-widget" title="operation-centric scheduler (intake + forward monitor)"
+         style="display:flex;align-items:center;gap:8px;padding:3px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.25);cursor:default;">
+      <span id="sched-dot" style="width:8px;height:8px;border-radius:50%;background:#6e7681;"></span>
+      <span id="sched-label" style="font-weight:600;font-size:11px;color:#8b949e;">SCHEDULER</span>
+      <span id="sched-detail" style="font-size:10px;color:#6e7681;"></span>
+    </div>
+    <div title="operations currently PROVISIONING">
+      <span style="color:var(--txt-muted,#8b949e);">Provisioning</span>
       <span id="tempo-launch" style="font-size:18px;font-weight:700;color:#22c55e;margin-left:6px;">–</span>
     </div>
     <div title="migrated but ONLY relay attribution — weak; launched, not confirmed WATCHTOWER">
@@ -2237,7 +2244,7 @@ line.edge-active {
     <div class="sec-hdr">
       <span class="sec-hdr-title">
         <span class="title-accent" style="background:var(--clr-subprov)"></span>
-        DEPLOYMENT OPERATORS
+        LIVE OPERATIONS
         <span class="sec-live-dot" id="camp-live-dot"></span>
       </span>
       <div class="sec-hdr-right">
@@ -2256,7 +2263,7 @@ line.edge-active {
       <div class="sec-hdr">
         <span class="sec-hdr-title">
           <span class="title-accent" style="background:#22d3ee"></span>
-          ACTIVE CORRIDORS
+          ACTIVE TREASURY CORRIDORS
           <span class="sec-live-dot" id="corridor-live-dot"></span>
         </span>
         <div class="sec-hdr-right">
@@ -2286,7 +2293,7 @@ line.edge-active {
       <div class="sec-hdr">
         <span class="sec-hdr-title">
           <span class="title-accent" style="background:#d4a017"></span>
-          OPERATOR LAUNCHES
+          CREATOR CANDIDATES
         </span>
         <div class="sec-hdr-right">
           <span class="sec-badge" id="op-launches-badge">0</span>
@@ -2363,7 +2370,7 @@ line.edge-active {
       <div class="sec-hdr">
         <span class="sec-hdr-title">
           <span class="title-accent" style="background:#2d3748"></span>
-          ARCHIVED SWARM COORDINATORS
+          DORMANT OPERATIONS
         </span>
         <div class="sec-hdr-right">
           <span class="sec-badge sec-badge-dim" id="swarm-count-badge">0</span>
@@ -3231,7 +3238,7 @@ function applyNodeShimmer(state, extraction) {
 /* ── Poll ops-overview and drive all graph kinetics ─────────────── */
 async function refreshOpsOverview() {
   try {
-    const res = await fetch('/api/watchtower/ops-overview');
+    const res = await fetch('/api/ops-v2/ops-overview');
     if (!res.ok) return;
     const d = await res.json();
     if (!d.ok) return;
@@ -3408,7 +3415,7 @@ function updateHeat(m) {
 /* ── WATCHTOWER tempo (honest launch-vs-attribution breakdown) ─────── */
 async function refreshTempo() {
   try {
-    const t = await fetch('/api/watchtower/tempo').then(r=>r.ok?r.json():null);
+    const t = await fetch('/api/ops-v2/tempo').then(r=>r.ok?r.json():null);
     if (!t) return;
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
     set('tempo-launch',      t.launch_confirmed ?? 0);
@@ -3424,11 +3431,40 @@ async function refreshTempo() {
   } catch(e) { /* non-fatal */ }
 }
 
+/* ── Scheduler health (mission critical) ─────────────────────────── */
+async function refreshScheduler() {
+  try {
+    const s = await fetch('/api/ops-v2/scheduler').then(r=>r.ok?r.json():null);
+    if (!s) return;
+    const dot = document.getElementById('sched-dot');
+    const lbl = document.getElementById('sched-label');
+    const det = document.getElementById('sched-detail');
+    const card = document.getElementById('sched-widget');
+    if (!dot) return;
+    const ageMin = ts => ts ? Math.floor((Date.now()/1000 - ts)/60) : null;
+    const fwd = s.last_forward && ageMin(s.last_forward.started_at);
+    if (s.running) {
+      dot.style.background = '#3fb950';
+      lbl.style.color = '#3fb950'; lbl.textContent = 'SCHEDULER LIVE';
+      card.style.border = '1px solid rgba(63,185,80,0.3)';
+      det.textContent = `fwd ${fwd!=null?fwd+'m':'—'} · rpc ${(s.rpc_today||0).toLocaleString()}` + (s.budget_status==='throttled'?' · throttled':'');
+      det.style.color = '#8b949e';
+    } else {
+      dot.style.background = '#f85149';
+      lbl.style.color = '#f85149'; lbl.textContent = 'SCHEDULER DOWN';
+      card.style.border = '1px solid rgba(248,81,73,0.5)';
+      card.style.background = 'rgba(248,81,73,0.08)';
+      det.textContent = 'not watching — restart required';
+      det.style.color = '#f85149';
+    }
+  } catch {}
+}
+
 /* ── Metrics ─────────────────────────────────────────────────────── */
 async function refreshMetrics() {
   try {
     const [mr, sr] = await Promise.all([
-      fetch('/api/watchtower/live-metrics').then(r=>r.ok?r.json():null),
+      fetch('/api/ops-v2/metrics').then(r=>r.ok?r.json():null),
       fetch('/api/watchtower/operator-stats').then(r=>r.ok?r.json():null),
     ]);
     const m = mr || {};
@@ -3643,7 +3679,7 @@ function selectCampaign(el, c) {
 
 async function refreshCampaigns() {
   try {
-    const res = await fetch('/api/watchtower/campaigns?limit=20');
+    const res = await fetch('/api/ops-v2/campaigns?limit=20');
     if (!res.ok) return;
     const data = await res.json();
     const list = document.getElementById('campaign-list');
@@ -3848,7 +3884,7 @@ function buildCorridorCard(c) {
 
 async function refreshCorridors() {
   try {
-    const r = await fetch('/api/watchtower/corridors');
+    const r = await fetch('/api/ops-v2/_empty');  // ACTIVE TREASURY CORRIDORS — v2 wiring deferred
     if (!r.ok) return;
     const d = await r.json();
 
@@ -4043,8 +4079,9 @@ function derivedScore(c) {
 async function refreshCreators() {
   try {
     const [candRes, hitsRes] = await Promise.all([
-      fetch('/api/watchtower/launch-candidates?limit=50'),
-      fetch('/api/watchtower/hit-activity?window_s=86400&limit=200'),
+      fetch('/api/ops-v2/creators?limit=50'),
+      fetch('/api/ops-v2/_empty'),  // hit-activity has no v2 analog; harmless empty
+
     ]);
     if (!candRes.ok) return;
     const data = await candRes.json();
@@ -4205,7 +4242,7 @@ function buildSwarmCard(s) {
 /* ── Operator Launches Panel ──────────────────────────────────────── */
 async function refreshOpLaunches() {
   try {
-    const r = await fetch('/api/watchtower/operator-launches');
+    const r = await fetch('/api/ops-v2/_empty');  // secondary panel — v2 wiring deferred
     if (!r.ok) return;
     const d = await r.json();
     const launches = d.launches || [];
@@ -4251,7 +4288,7 @@ async function refreshOpLaunches() {
 
 async function refreshSwarms() {
   try {
-    const res = await fetch('/api/watchtower/swarms?limit=15');
+    const res = await fetch('/api/ops-v2/_empty');  // DORMANT OPERATIONS — v2 wiring deferred
     if (!res.ok) return;
     const data = await res.json();
     const swarms = data.swarms || [];
@@ -4413,7 +4450,7 @@ async function refreshFeed() {
 
     let events = [];
     try {
-      const r = await fetch(`/api/watchtower/events-feed?limit=${fetchLimit}${sinceParam}`);
+      const r = await fetch(`/api/ops-v2/events-feed?limit=${fetchLimit}${sinceParam}`);
       if (r.ok) {
         const d = await r.json();
         events = d.events || [];
@@ -4421,7 +4458,7 @@ async function refreshFeed() {
     } catch {}
 
     if (!events.length) {
-      const r2 = await fetch(`/api/network-diagram/watchtower/signals?limit=${fetchLimit}${sinceParam}`);
+      const r2 = await fetch(`/api/ops-v2/_empty`);
       if (r2.ok) {
         const d2 = await r2.json();
         events = d2.signals || d2.events || [];
@@ -4499,7 +4536,7 @@ async function refreshFeed() {
 /* ── Sweep Timeline ───────────────────────────────────────────────── */
 async function refreshSweeps() {
   try {
-    const res = await fetch('/api/watchtower/sweep-events?limit=500');
+    const res = await fetch('/api/ops-v2/_empty');  // sweeps overlay — v2 wiring deferred
     if (!res.ok) return;
     const data = await res.json();
     const events = data.events || data.sweeps || [];
@@ -4757,7 +4794,7 @@ const wtGraph = (() => {
   return {
     async refresh() {
       try {
-        const res = await fetch('/api/watchtower/graph');
+        const res = await fetch('/api/ops-v2/graph');
         if (!res.ok) return;
         const data = await res.json();
 
@@ -5457,6 +5494,7 @@ async function boot() {
     refreshSwarms(),
     refreshSweeps(),
     refreshOpLaunches(),
+    refreshScheduler(),
   ]);
   markPollSuccess();
 
@@ -5489,6 +5527,7 @@ async function boot() {
   setInterval(()=>_poll(refreshSwarms),           WT.POLL_SWARMS);
   setInterval(()=>_poll(refreshOpLaunches),        30_000);
   setInterval(()=>_poll(refreshSweeps),           WT.POLL_SWEEPS);
+  setInterval(refreshScheduler, 30_000);
   setInterval(refreshWebhookStatus, 60_000);
   refreshWebhookStatus();
 

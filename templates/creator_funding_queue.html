@@ -426,7 +426,7 @@ function raRender() {
         'post_migration': '<span class="cfq-chip" style="background:rgba(248,113,113,0.15);color:#f87171">post-mig</span>',
         'not_migrated':   '<span class="cfq-chip" style="background:rgba(96,165,250,0.15);color:#60a5fa">not migrated</span>',
         'instant':        '<span class="cfq-chip" style="background:rgba(239,68,68,0.15);color:#ef4444;font-weight:700">instant</span>',
-        'no_job':         '<span class="cfq-chip" style="background:rgba(251,191,36,0.15);color:#fbbf24">no job</span>',
+        'no_job':         '<span class="cfq-chip" style="background:rgba(148,163,184,0.15);color:#94a3b8">unknown</span>',
         'cached':         '<span class="cfq-chip" style="background:rgba(167,139,250,0.15);color:#a78bfa">cached</span>',
         'pending':        '<span class="cfq-chip pending">pending</span>',
     };
@@ -435,7 +435,7 @@ function raRender() {
         const tokenCell = r.symbol
             ? `<span style="font-weight:600;color:#e2e8f0">${esc(r.symbol)}</span>`
             : '<span style="color:var(--text-secondary)">—</span>';
-        const mintCell = `<a href="https://pump.fun/coin/${esc(r.mint)}" target="_blank" style="text-decoration:none"><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></a>`;
+        const mintCell = `<a href="https://solscan.io/token/${esc(r.mint)}" target="_blank" style="text-decoration:none"><span class="cfq-mono" title="${esc(r.mint)}">${cfqShort(r.mint)}</span></a>`;
         const srcChip = r.creator_source
             ? `<span class="cfq-source-chip" title="${esc(fmtSourceDesc(r.creator_source))}">${esc(fmtSource(r.creator_source))}</span>`
             : '<span style="color:var(--text-secondary)">—</span>';

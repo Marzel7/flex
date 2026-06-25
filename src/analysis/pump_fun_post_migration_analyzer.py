@@ -1206,7 +1206,12 @@ class PostMigrationAnalyzer:
         bt = tx.get("blockTime")
         return bt if isinstance(bt, int) else None
 
-    async def extract_bonding_curve_from_creation_tx(self, migration_blocktime: Optional[int] = None) -> Optional[str]:
+    async def extract_bonding_curve_from_creation_tx(
+        self,
+        migration_blocktime: Optional[int] = None,
+        max_pages_override: Optional[int] = None,
+        deadline_monotonic: Optional[float] = None,
+    ) -> Optional[str]:
         """
         Find the true Pump.fun CREATE tx by scanning mint signature history from oldest to newest
         until STRICT CREATE validation passes.
@@ -1227,6 +1232,13 @@ class PostMigrationAnalyzer:
             bc = await self.extract_bonding_curve_via_helius_parse(self._create_tx_signature)
             if bc:
                 return bc
+
+        import time as _t_budget
+
+        # Budget tracking — read by _resolve_creator_rpc after asyncio.run() returns
+        self._budget_exceeded = False
+        self._pages_checked   = 0
+        self._sigs_examined   = 0
 
         earliest_create_sig = None
         earliest_create_tx = None
@@ -1258,10 +1270,17 @@ class PostMigrationAnalyzer:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=40)) as session:
             rpc_url = HISTORY_RPC_URLS[0] if HISTORY_RPC_URLS else "https://api.mainnet-beta.solana.com"
             before = None
-            max_pages = 5000
+            max_pages = max_pages_override if max_pages_override is not None else 5000
 
             while pages_checked < max_pages:
+                # Deadline check before each page fetch (primary enforcement point)
+                if deadline_monotonic is not None and _t_budget.monotonic() > deadline_monotonic:
+                    self._budget_exceeded = True
+                    print(f"[CREATOR] ⏱ Deadline exceeded before page {pages_checked + 1}", flush=True)
+                    break
+
                 pages_checked += 1
+                self._pages_checked = pages_checked
                 if pages_checked > 1:
                     await asyncio.sleep(0.1)
 
@@ -1281,6 +1300,8 @@ class PostMigrationAnalyzer:
                     print(f"[CREATOR] ✅ Reached true end of mint history after {pages_checked} pages", flush=True)
                     proven_end = True
                     break
+
+                self._sigs_examined += len(sigs)
 
                 # Walk oldest->newest within the page
                 candidates = []
@@ -1322,6 +1343,12 @@ class PostMigrationAnalyzer:
                     )
 
                 for sig_item in candidates_to_check:
+                    # Deadline check before each getTransaction call
+                    if deadline_monotonic is not None and _t_budget.monotonic() > deadline_monotonic:
+                        self._budget_exceeded = True
+                        print(f"[CREATOR] ⏱ Deadline exceeded mid-page {pages_checked}", flush=True)
+                        break
+
                     sig = sig_item.get("signature")
                     if not sig:
                         continue
@@ -1377,6 +1404,9 @@ class PostMigrationAnalyzer:
                 if earliest_create_sig:
                     break
 
+                if getattr(self, "_budget_exceeded", False):
+                    break
+
                 before = sigs[-1].get("signature")
                 print(
                     f"[CREATOR] Page {pages_checked}: checked={len(candidates_to_check)}/{len(candidates)} candidates "
@@ -1384,8 +1414,8 @@ class PostMigrationAnalyzer:
                     flush=True,
                 )
 
-            if pages_checked >= max_pages:
-                proven_end = False
+            if pages_checked >= max_pages and not proven_end:
+                self._budget_exceeded = True
                 print(f"[CREATOR] ⚠ Hit max_pages={max_pages} (proven_end=False)", flush=True)
 
         if not earliest_create_sig or not earliest_create_tx or not earliest_create_validation:
@@ -1471,7 +1501,13 @@ class PostMigrationAnalyzer:
 
         return None, False, "none"
 
-    async def get_creator_from_earliest_tx(self, migration_signature: Optional[str] = None, migration_blocktime: Optional[int] = None) -> dict:
+    async def get_creator_from_earliest_tx(
+        self,
+        migration_signature: Optional[str] = None,
+        migration_blocktime: Optional[int] = None,
+        max_pages_override: Optional[int] = None,
+        deadline_monotonic: Optional[float] = None,
+    ) -> dict:
         """
         Creator = fee payer of the STRICT CREATE tx.
         Also tracks earliest bonding curve activity signature separately.
@@ -1505,7 +1541,11 @@ class PostMigrationAnalyzer:
 
         provenance["migration_blocktime"] = migration_blocktime
 
-        bonding_curve_pda = await self.extract_bonding_curve_from_creation_tx(migration_blocktime=migration_blocktime)
+        bonding_curve_pda = await self.extract_bonding_curve_from_creation_tx(
+            migration_blocktime=migration_blocktime,
+            max_pages_override=max_pages_override,
+            deadline_monotonic=deadline_monotonic,
+        )
         if not bonding_curve_pda:
             provenance["validation_notes"].append("Could not extract bonding curve from strict CREATE tx")
             print(f"[CREATOR] ⚠ Fallback inference triggered", flush=True)
@@ -1530,7 +1570,17 @@ class PostMigrationAnalyzer:
                     print(f"[CREATOR] ⚠ Error during scanned-candidate inference: {e}", flush=True)
 
             # Tier 2B: Fallback to earliest mint transaction lookup
-            earliest_sig, reached_end, rpc_used = await self.get_true_earliest_signature()
+            # Skip fallback if the budget deadline is already exceeded
+            import time as _t_check
+            if deadline_monotonic is not None and _t_check.monotonic() > deadline_monotonic:
+                self._budget_exceeded = True
+                print("[CREATOR] ⏱ Deadline exceeded before Tier 2B fallback — skipping", flush=True)
+            elif not getattr(self, "_budget_exceeded", False):
+                pass  # proceed to call below
+            earliest_sig, reached_end, rpc_used = (
+                (None, False, "deadline") if getattr(self, "_budget_exceeded", False)
+                else await self.get_true_earliest_signature()
+            )
             if earliest_sig:
                 try:
                     async with aiohttp.ClientSession() as session:

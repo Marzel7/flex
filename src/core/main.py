@@ -25025,6 +25025,526 @@ def api_listener_recovery_status():
     })
 
 
+@app.route('/api/health/full')
+def api_health_full():
+    """Full WATCHTOWER platform health — 7 subsystems, fail-soft per block.
+
+    Each subsystem is independently try/except'd. One failing read returns that
+    subsystem as UNKNOWN rather than 500'ing the whole endpoint.
+    Old endpoints (/api/price/health, /api/listener-recovery-status) are kept alive.
+    """
+    import sqlite3 as _sq
+    import os as _os
+    import json as _json
+    import time as _t
+
+    now = int(_t.time())
+
+    _OPS_DB = _os.path.abspath(_os.path.join(
+        _os.path.dirname(_os.path.abspath(__file__)),
+        "..", "..", "database", "wt_ops_v2.db"
+    ))
+
+    def _ts(val):
+        """Format epoch → 'HH:MM:SS' UTC string, or None."""
+        try:
+            return __import__('datetime').datetime.utcfromtimestamp(int(val)).strftime('%H:%M:%S') + 'Z'
+        except Exception:
+            return None
+
+    def _age(val):
+        try:
+            return now - int(val)
+        except Exception:
+            return None
+
+    # ── 1. Ingestion ──────────────────────────────────────────────────────────
+    ingestion = {"status": "UNKNOWN"}
+    try:
+        import re as _re
+        _LOG = _os.path.normpath(_os.path.join(
+            _os.path.dirname(_os.path.abspath(__file__)),
+            "..", "..", "logs", "supervisor", "listener.log"))
+
+        listener_log_age = None
+        pp_status = "UNKNOWN"
+        ps_status = "UNKNOWN"
+        lock_total = 0
+        pw_enabled = None  # None=unknown, True=enabled, False=disabled
+
+        if _os.path.exists(_LOG):
+            _st = _os.stat(_LOG)
+            listener_log_age = now - int(_st.st_mtime)
+            _SCAN = 2 * 1024 * 1024
+            with open(_LOG, "rb") as _f:
+                _f.seek(max(0, _st.st_size - _SCAN))
+                _tail = _f.read().decode("utf-8", errors="replace")
+
+            for _ln in _tail.splitlines():
+                if "LISTENER_PRICE_WORKER_ENABLED=0" in _ln or "Skipping price worker" in _ln:
+                    pw_enabled = False
+                elif "LISTENER_PRICE_WORKER_ENABLED=1" in _ln or ("price worker" in _ln.lower() and "start" in _ln.lower()):
+                    pw_enabled = True
+                if "PUMPPORTAL" in _ln:
+                    if "reconnect" in _ln or ("⚠" in _ln and "PUMPPORTAL" in _ln):
+                        pp_status = "RETRYING"
+                    elif "Connected" in _ln or "connected" in _ln or "🟢" in _ln or "Birth" in _ln:
+                        pp_status = "CONNECTED"
+                if "PUMPSWAP" in _ln or ("[WEBSOCKET]" in _ln and "PUMPFUN" not in _ln):
+                    if "connection error" in _ln or "Retrying" in _ln or ("⚠" in _ln and ("PUMPSWAP" in _ln or "WEBSOCKET" in _ln)):
+                        ps_status = "RETRYING"
+                    elif "subscrib" in _ln.lower() or "✓" in _ln or "migration account sub" in _ln or ("Connect" in _ln and "error" not in _ln.lower()):
+                        ps_status = "CONNECTED"
+            if listener_log_age is not None and listener_log_age > 300:
+                pp_status = "STALE"
+                ps_status = "STALE"
+
+            # lock errors since startup
+            _sidx = _tail.rfind("gather() starting")
+            _scan = _tail[_sidx:] if _sidx != -1 else _tail
+            for _ln in _scan.splitlines():
+                if "database is locked" in _ln or "batch write failed" in _ln:
+                    lock_total += 1
+
+        _db2 = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+        _db2.row_factory = _sq.Row
+        _mts = _db2.execute("SELECT MAX(migrated_at) FROM token_analysis WHERE migrated_at IS NOT NULL").fetchone()[0]
+        _bts = _db2.execute("SELECT MAX(analyzed_at) FROM token_analysis WHERE source_platform='pumpfun' AND analyzed_at IS NOT NULL").fetchone()[0]
+        _bq  = _db2.execute("SELECT SUM(CASE WHEN consumed=0 THEN 1 ELSE 0 END) FROM webhook_birth_queue").fetchone()[0] or 0
+        try:
+            _mq = _db2.execute("SELECT SUM(CASE WHEN status='PENDING' THEN 1 ELSE 0 END) FROM migration_persist_queue").fetchone()[0] or 0
+        except Exception:
+            _mq = 0
+        _db2.close()
+
+        mig_age  = _age(_mts)
+        birth_age = _age(_bts) if _bts else None
+
+        ing_status = "HEALTHY"
+        if listener_log_age is not None and listener_log_age > 600:
+            ing_status = "DOWN"
+        elif int(_mq) > 5 or int(_bq) > 5 or pp_status == "RETRYING":
+            ing_status = "DEGRADED"
+        elif pp_status == "STALE" or (mig_age is not None and mig_age > 600):
+            ing_status = "DEGRADED"
+
+        ingestion = {
+            "status":                   ing_status,
+            "pumpportal":               pp_status,
+            "pumpswap":                 ps_status,
+            "last_birth_age_secs":      birth_age,
+            "last_birth_at":            int(_bts) if _bts else None,
+            "last_birth_at_utc":        _ts(_bts) if _bts else None,
+            "last_migration_age_secs":  mig_age,
+            "last_migration_at":        int(_mts) if _mts else None,
+            "last_migration_at_utc":    _ts(_mts) if _mts else None,
+            "birth_queue_pending":      int(_bq),
+            "migration_queue_pending":  int(_mq),
+            "listener_log_age_secs":    listener_log_age,
+            "lock_errors_since_start":  lock_total,
+            "price_worker_enabled":     pw_enabled,
+        }
+    except Exception as _e:
+        ingestion = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── 2. Price Worker ───────────────────────────────────────────────────────
+    price_worker = {"status": "UNKNOWN"}
+    try:
+        _db3 = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+        _db3.row_factory = _sq.Row
+
+        _peak_ts = _db3.execute("SELECT MAX(peak_market_cap_at) FROM token_market_cap_peaks").fetchone()[0]
+        _snap_ts = _db3.execute("SELECT MAX(captured_at) FROM token_price_snapshots").fetchone()[0]
+        _scnt_ts = _db3.execute("SELECT MAX(last_updated) FROM token_snapshot_counts").fetchone()[0]
+
+        _tier = _db3.execute("""
+            SELECT
+              COUNT(*) FILTER (WHERE is_active=1)                                            AS total,
+              COUNT(*) FILTER (WHERE is_active=1 AND tracking_reason IN ('WATCH','OWNED','MANUAL')) AS watch_owned,
+              COUNT(*) FILTER (WHERE is_active=1 AND tracking_reason='DISCOVERY'
+                               AND created_at > strftime('%s','now') - 3600)                AS disc_active,
+              COUNT(*) FILTER (WHERE is_active=1 AND tracking_reason='DISCOVERY'
+                               AND created_at <= strftime('%s','now') - 3600)               AS disc_expired
+            FROM tracked_tokens
+        """).fetchone()
+        _db3.close()
+
+        peak_age   = _age(_peak_ts)
+        snap_age   = _age(_snap_ts)
+        scnt_age   = _age(_scnt_ts)
+        wo_count   = int(_tier["watch_owned"])
+        snap_expected = wo_count > 0
+
+        # Derive enabled state from listener log scan (already in ingestion block)
+        _pw_enabled = ingestion.get("price_worker_enabled")  # True/False/None
+
+        # worker_alive: peak OR snapshot_count updated in last 90s
+        effective_age = min(x for x in [peak_age, snap_age, scnt_age] if x is not None) if any(
+            x is not None for x in [peak_age, snap_age, scnt_age]) else 9999
+        worker_alive  = effective_age <= 90
+
+        pw_status = "HEALTHY"
+        if _pw_enabled is False:
+            # Intentionally disabled — peak MC still updates via listener cycle
+            pw_status = "PEAK-ONLY"
+        elif not worker_alive and int(_tier["total"]) > 0:
+            pw_status = "DOWN"
+        elif peak_age is not None and peak_age > 120 and int(_tier["total"]) > 0:
+            pw_status = "STALE"
+        elif snap_expected and snap_age is not None and snap_age > 120:
+            pw_status = "DEGRADED"
+
+        price_worker = {
+            "status":                       pw_status,
+            "worker_alive":                 worker_alive,
+            "last_peak_update_age_secs":    peak_age,
+            "last_peak_update_at":          int(_peak_ts) if _peak_ts else None,
+            "last_peak_update_at_utc":      _ts(_peak_ts) if _peak_ts else None,
+            "last_snapshot_write_age_secs": snap_age,
+            "last_snapshot_write_at":       int(_snap_ts) if _snap_ts else None,
+            "last_snapshot_write_at_utc":   _ts(_snap_ts) if _snap_ts else None,
+            "snapshot_expected":            snap_expected,
+            "active_tokens":                int(_tier["total"]),
+            "watch_owned_count":            wo_count,
+            "discovery_active_count":       int(_tier["disc_active"]),
+            "discovery_expired_count":      int(_tier["disc_expired"]),
+        }
+    except Exception as _e:
+        price_worker = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── 3. Cascade Infrastructure ─────────────────────────────────────────────
+    cascade_infra = {"status": "UNKNOWN"}
+    try:
+        _co = _sq.connect(f"file:{_OPS_DB}?mode=ro", uri=True, timeout=1)
+        _cr = _co.execute(
+            "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade' LIMIT 1"
+        ).fetchone()
+        _co.close()
+
+        if _cr is None:
+            cascade_infra = {"status": "OFFLINE", "note": "no heartbeat row"}
+        else:
+            _hb_age = now - int(_cr[0])
+            try:
+                _meta = _json.loads(_cr[2]) if _cr[2] else {}
+            except Exception:
+                _meta = {}
+
+            subs       = int(_meta.get("subs", 0))
+            t_subs     = int(_meta.get("treasury_subs", 0))
+            sp_subs    = int(_meta.get("subprov_subs", 0))
+            cand_subs  = int(_meta.get("candidate_subs", 0))
+            pending    = int(_meta.get("pending", 0))
+
+            ci_status = "CONNECTED"
+            if _hb_age > 120:
+                ci_status = "OFFLINE"
+            elif subs == 0:
+                ci_status = "DEGRADED"
+
+            cascade_infra = {
+                "status":            ci_status,
+                "heartbeat_age_secs": _hb_age,
+                "last_heartbeat_at": int(_cr[0]),
+                "last_heartbeat_utc": _ts(_cr[0]),
+                "subs_total":        subs,
+                "subs_treasury":     t_subs,
+                "subs_subprov":      sp_subs,
+                "subs_candidate":    cand_subs,
+                "pending_reqs":      pending,
+            }
+    except Exception as _e:
+        cascade_infra = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── 4. Cascade Activity ───────────────────────────────────────────────────
+    cascade_activity = {"status": "UNKNOWN"}
+    try:
+        _co2 = _sq.connect(f"file:{_OPS_DB}?mode=ro", uri=True, timeout=1)
+        _lr  = _co2.execute(
+            "SELECT MAX(create_time) FROM wt_watchtower_launches"
+        ).fetchone()[0]
+        _l24 = _co2.execute(
+            "SELECT COUNT(*) FROM wt_watchtower_launches WHERE create_time >= ?",
+            (now - 86400,)
+        ).fetchone()[0]
+        _co2.close()
+
+        last_launch_age = _age(_lr)
+        ca_subs = cascade_infra.get("subs_candidate", 0)
+
+        # Status derivation: separate from infra
+        ca_status = "IDLE"
+        if last_launch_age is not None and last_launch_age < 300:
+            ca_status = "ACTIVE"
+        elif ca_subs and int(ca_subs) > 0:
+            ca_status = "WATCHING"
+
+        cascade_activity = {
+            "status":                ca_status,
+            "last_launch_age_secs":  last_launch_age,
+            "last_launch_at":        int(_lr) if _lr else None,
+            "last_launch_at_utc":    _ts(_lr) if _lr else None,
+            "launches_24h":          int(_l24),
+        }
+    except Exception as _e:
+        cascade_activity = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── 5. Database ───────────────────────────────────────────────────────────
+    database = {"status": "UNKNOWN"}
+    try:
+        # Read listener's serializer snapshot (same source as /api/db-serializer-metrics)
+        _sm = {}
+        _snap = _os.path.normpath(_os.path.join(
+            _os.path.dirname(_os.path.abspath(__file__)), "..", "..", "logs", "db_serializer_metrics.json"))
+        if _os.path.exists(_snap):
+            try:
+                with open(_snap) as _sf:
+                    _sm = _json.load(_sf)
+            except Exception:
+                pass
+        if not _sm:
+            try:
+                from src.utils.db_locking import serializer_metrics as _ser_metrics
+                _sm = _ser_metrics()
+            except Exception:
+                pass
+
+        wal_mb = None
+        try:
+            _wal_path = DB_PATH + "-wal"
+            if _os.path.exists(_wal_path):
+                wal_mb = round(_os.path.getsize(_wal_path) / 1024 / 1024, 1)
+        except Exception:
+            pass
+
+        q_depth  = int(_sm.get("queue_depth", 0))
+        p99      = float(_sm.get("p99_wait_ms", 0))
+        wpm      = float(_sm.get("writes_per_min", 0))
+        top_w    = _sm.get("top_writer") or (
+            max(_sm.get("writers", {}).items(), key=lambda x: x[1].get("count", 0))[0]
+            if _sm.get("writers") else "unknown"
+        )
+
+        _ing_lock = ingestion.get("lock_errors_since_start", 0) or 0
+        db_status = "HEALTHY"
+        if p99 > 30000 or _ing_lock > 20:
+            db_status = "CRITICAL"
+        elif p99 > 5000 or q_depth > 3:
+            db_status = "AT_RISK"
+        elif p99 > 1000:
+            db_status = "PRESSURE"
+
+        database = {
+            "status":                db_status,
+            "serializer_queue_depth": q_depth,
+            "p99_wait_ms":           p99,
+            "top_writer":            top_w,
+            "wal_mb":                wal_mb,
+            "writes_per_min":        wpm,
+        }
+    except Exception as _e:
+        database = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── 6. API / Gunicorn ─────────────────────────────────────────────────────
+    api_health = {"status": "UNKNOWN"}
+    try:
+        # Gunicorn alive: we ARE gunicorn (this code runs inside the API process).
+        # pgrep from within gunicorn worker often misses itself. Use /proc or ps instead.
+        gunicorn_alive = True  # if this endpoint is reachable, gunicorn is alive
+
+        errors_5m = 0
+        try:
+            _GLOG = _os.path.normpath(_os.path.join(
+                _os.path.dirname(_os.path.abspath(__file__)), "..", "..", "logs", "gunicorn_error.log"))
+            if _os.path.exists(_GLOG):
+                _gst = _os.stat(_GLOG)
+                with open(_GLOG, "rb") as _gf:
+                    _gf.seek(max(0, _gst.st_size - 65536))
+                    _gtail = _gf.read().decode("utf-8", errors="replace")
+                cutoff = now - 300
+                for _gln in _gtail.splitlines():
+                    if '" 5' in _gln:
+                        errors_5m += 1
+        except Exception:
+            pass
+
+        a_status = "DOWN" if not gunicorn_alive else ("ERRORS" if errors_5m > 5 else "HEALTHY")
+        api_health = {
+            "status":        a_status,
+            "gunicorn_alive": gunicorn_alive,
+            "errors_5m":     errors_5m,
+        }
+    except Exception as _e:
+        api_health = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── 7. Intelligence Engine ────────────────────────────────────────────────
+    intelligence = {"status": "UNKNOWN"}
+    try:
+        _idb = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+        _idb.row_factory = _sq.Row
+
+        _crq = _idb.execute(
+            "SELECT status, COUNT(*) AS n FROM creator_resolution_queue GROUP BY status"
+        ).fetchall()
+        crq_counts = {r["status"]: int(r["n"]) for r in _crq}
+
+        _crq_skip    = _idb.execute("SELECT COUNT(*) FROM creator_resolution_queue WHERE status='skipped'").fetchone()[0]
+        _crq_budget  = _idb.execute("SELECT COUNT(*) FROM creator_resolution_queue WHERE skip_reason='BUDGET_EXCEEDED'").fetchone()[0]
+        _crq_rt_avg  = _idb.execute("SELECT AVG(runtime_secs) FROM creator_resolution_queue WHERE runtime_secs IS NOT NULL").fetchone()[0]
+        _crq_pg_avg  = _idb.execute("SELECT AVG(pages_examined) FROM creator_resolution_queue WHERE pages_examined IS NOT NULL").fetchone()[0]
+        _crq_pg_max  = _idb.execute("SELECT MAX(pages_examined) FROM creator_resolution_queue WHERE pages_examined IS NOT NULL").fetchone()[0]
+        # p95 runtime: offset = CEIL(count * 0.95) - 1
+        _crq_rt_p95r = _idb.execute(
+            "SELECT runtime_secs FROM creator_resolution_queue WHERE runtime_secs IS NOT NULL "
+            "ORDER BY runtime_secs ASC LIMIT 1 OFFSET "
+            "MAX(0, CAST((SELECT COUNT(*) FROM creator_resolution_queue WHERE runtime_secs IS NOT NULL) * 0.95 AS INTEGER) - 1)"
+        ).fetchone()
+
+        _fq = _idb.execute(
+            "SELECT COUNT(*) FROM creator_funding_queue WHERE status IN ('pending','retry','running','in_progress')"
+        ).fetchone()[0]
+        _miss = _idb.execute(
+            "SELECT COUNT(*) FROM token_analysis WHERE lifecycle_stage='migrated' "
+            "AND COALESCE(NULLIF(TRIM(earliest_tx_creator),''),NULLIF(TRIM(pf_ws_creator),'')) IS NULL "
+            "AND COALESCE(migrated_at,created_at,analyzed_at,0) >= ?",
+            (now - 3600,)
+        ).fetchone()[0]
+        _idb.close()
+
+        # Watch pipeline heartbeat from hot DB
+        wp_age = None
+        cp_age = None
+        pending_attr = 0
+        try:
+            _wdb = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+            _wp = _wdb.execute(
+                "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='watch-pipeline' LIMIT 1"
+            ).fetchone()
+            _cp = _wdb.execute(
+                "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='creator-resolution' LIMIT 1"
+            ).fetchone()
+            _pa = _wdb.execute(
+                "SELECT COUNT(*) FROM wt_operations WHERE state='UNKNOWN'"
+            ).fetchone()
+            _wdb.close()
+            if _wp:
+                wp_age = now - int(_wp[0])
+                try:
+                    _wpm = _json.loads(_wp[1]) if _wp[1] else {}
+                    wp_interval = int(_wpm.get("interval_s", 300))
+                except Exception:
+                    wp_interval = 300
+            else:
+                wp_interval = 300
+            if _cp:
+                cp_age = now - int(_cp[0])
+                try:
+                    _cpm = _json.loads(_cp[1]) if _cp[1] else {}
+                    cp_meta = {
+                        "cycles":             _cpm.get("cycles"),
+                        "total_resolved":     _cpm.get("total_resolved"),
+                        "total_failed":       _cpm.get("total_failed"),
+                        "total_skipped":      _cpm.get("total_skipped"),
+                        "resolution_eff_pct": _cpm.get("resolution_eff_pct"),
+                        "uptime_s":           _cpm.get("uptime_s"),
+                        "batch_size":         _cpm.get("batch_size"),
+                        "db_p99_ms":          _cpm.get("db_p99_ms"),
+                    }
+                except Exception:
+                    cp_meta = {}
+            else:
+                cp_meta = {}
+            if _pa:
+                pending_attr = int(_pa[0])
+        except Exception:
+            wp_interval = 300
+
+        crq_pending  = crq_counts.get("pending", 0) + crq_counts.get("retry", 0)
+        crq_running  = crq_counts.get("running", 0)
+        crq_failed   = crq_counts.get("failed", 0)
+        crq_skipped  = int(_crq_skip or 0)
+        crq_budget_exceeded = int(_crq_budget or 0)
+
+        # Resolution efficiency: resolved / (resolved + failed + skipped)
+        _crq_complete = crq_counts.get("complete", 0)
+        _crq_eff_denom = _crq_complete + crq_failed + crq_skipped
+        crq_efficiency = round(100 * _crq_complete / _crq_eff_denom, 1) if _crq_eff_denom else None
+
+        int_status = "HEALTHY"
+        if crq_failed > 5:
+            int_status = "DEGRADED"
+        elif wp_age is not None and wp_age > wp_interval * 2:
+            int_status = "DEGRADED"
+        elif cp_age is not None and cp_age > 120:
+            int_status = "DEGRADED"
+
+        intelligence = {
+            "status":                       int_status,
+            "creator_queue_pending":        crq_pending,
+            "creator_queue_running":        crq_running,
+            "creator_queue_failed":         crq_failed,
+            "creator_queue_skipped":        crq_skipped,
+            "crq_budget_exceeded":          crq_budget_exceeded,
+            "crq_resolution_efficiency":    crq_efficiency,
+            "crq_avg_runtime_secs":         round(float(_crq_rt_avg), 1) if _crq_rt_avg else None,
+            "crq_p95_runtime_secs":         round(float(_crq_rt_p95r[0]), 1) if _crq_rt_p95r else None,
+            "crq_avg_pages":                round(float(_crq_pg_avg), 1) if _crq_pg_avg else None,
+            "crq_max_pages":                int(_crq_pg_max) if _crq_pg_max else None,
+            "funding_queue_pending":        int(_fq),
+            "crq_worker_age_secs":          cp_age,
+            "crq_worker_meta":              cp_meta,
+            "missing_creators_1h":          int(_miss),
+            "watch_pipeline_age_secs":      wp_age,
+            "watch_pipeline_interval_secs": wp_interval,
+            "candidate_processor_age_secs": cp_age,
+            "pending_attribution":          pending_attr,
+        }
+    except Exception as _e:
+        intelligence = {"status": "UNKNOWN", "error": str(_e)[:120]}
+
+    # ── Top-level status ──────────────────────────────────────────────────────
+    def _s(sub, key="status"):
+        return (sub or {}).get(key, "UNKNOWN")
+
+    top = "HEALTHY"
+    if (
+        _s(ingestion) == "DOWN"
+        or _s(price_worker) == "DOWN"   # PARKED is excluded — only true DOWN
+        or _s(api_health) == "DOWN"
+    ):
+        top = "DOWN"
+    elif (
+        _s(database) in ("AT_RISK", "CRITICAL")
+        or _s(cascade_infra) == "OFFLINE"
+        or (_s(price_worker) == "STALE" and price_worker.get("active_tokens", 0) > 0)
+    ):
+        top = "AT_RISK"
+    elif (
+        _s(ingestion) == "DEGRADED"
+        or _s(cascade_infra) == "DEGRADED"
+        or _s(price_worker) == "DEGRADED"
+        or _s(database) in ("PRESSURE",)
+        or _s(api_health) == "ERRORS"
+        or _s(intelligence) == "DEGRADED"
+    ):
+        top = "DEGRADED"
+
+    return jsonify({
+        "platform": "WATCHTOWER",
+        "status":   top,
+        "ts":       now,
+        "subsystems": {
+            "ingestion":          ingestion,
+            "price_worker":       price_worker,
+            "cascade_infrastructure": cascade_infra,
+            "cascade_activity":   cascade_activity,
+            "database":           database,
+            "api":                api_health,
+            "intelligence":       intelligence,
+        }
+    })
+
+
 @app.route('/api/db-health')
 def api_db_health():
     """Return live DB table sizes and last maintenance run for the performance dashboard."""
@@ -42282,22 +42802,9 @@ if __name__ == '__main__':
         print("[PREDICTION_DAEMON] PARKED — PREDICTION_DAEMON_ENABLED=false (re-enable after recovery)", flush=True)
 
 
-    # Creator resolution queue daemon — process pending resolution jobs every 30s
-    def _creator_resolution_daemon():
-        import time as _t
-        _t.sleep(3)
-        while True:
-            try:
-                from src.core.creator_resolution_queue import process_queue
-                result = process_queue(DB_PATH, limit=10)
-                if result.get("processed", 0) > 0:
-                    print(f"[CREATOR_RES] processed={result['processed']} resolved={result.get('resolved',0)} funding_enqueued={result.get('funding_enqueued',0)}", flush=True)
-            except Exception as _e:
-                print(f"[CREATOR_RES] error: {_e}", flush=True)
-            _t.sleep(30)
-
-    threading.Thread(target=_creator_resolution_daemon, daemon=True, name="creator-resolution-daemon").start()
-    print("[CREATOR_RES] Creator resolution daemon started (30s loop)", flush=True)
+    # Creator resolution queue is now a standalone supervised worker (creator_resolution_worker.py).
+    # The gunicorn daemon was removed — it competed for DB locks and died silently on restarts.
+    print("[CREATOR_RES] Queue processing handled by creator_resolution_worker (standalone)", flush=True)
 
     # Under gunicorn, _wt_startup_once() (before_request) starts these — skip here
     if not _wt_startup_done:

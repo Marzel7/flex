@@ -16,9 +16,35 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional
 
 
-TERMINAL_STATUSES = {"complete", "ignored"}
+TERMINAL_STATUSES = {"complete", "ignored", "skipped"}
 ACTIVE_STATUSES = {"pending", "retry", "running"}
 P0_PRIORITY = 100
+
+# ── runtime budget config ──────────────────────────────────────────────────────
+_GENERIC_MAX_RUNTIME  = float(os.environ.get("CREATOR_RESOLUTION_MAX_RUNTIME_SECS",              "15"))
+_GENERIC_MAX_PAGES    = int(os.environ.get("CREATOR_RESOLUTION_MAX_PAGES",                        "1"))
+_HP_MAX_RUNTIME       = float(os.environ.get("CREATOR_RESOLUTION_HIGH_PRIORITY_MAX_RUNTIME_SECS", "120"))
+_HP_MAX_PAGES         = int(os.environ.get("CREATOR_RESOLUTION_HIGH_PRIORITY_MAX_PAGES",          "5000"))
+
+_OPS_DB_PATH = os.environ.get(
+    "WT_OPS_DB_PATH",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"),
+)
+_DB_SERIALIZER_METRICS_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "db_serializer_metrics.json"
+)
+
+
+class _BudgetExceeded(Exception):
+    """Raised when the RPC walk hits a runtime or page budget."""
+    def __init__(self, *, pages: int, sigs: int, runtime: float, tier: str):
+        self.pages   = pages
+        self.sigs    = sigs
+        self.runtime = runtime
+        self.tier    = tier
+        super().__init__(
+            f"BUDGET_EXCEEDED tier={tier} pages={pages} sigs={sigs} runtime={runtime:.1f}s"
+        )
 
 
 def connect(db_path: str, timeout: int = 30) -> sqlite3.Connection:
@@ -67,6 +93,11 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         "ALTER TABLE creator_resolution_queue ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0",
         "ALTER TABLE creator_resolution_queue ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0",
         "ALTER TABLE creator_resolution_queue ADD COLUMN resolved_at INTEGER",
+        "ALTER TABLE creator_resolution_queue ADD COLUMN sigs_examined INTEGER",
+        "ALTER TABLE creator_resolution_queue ADD COLUMN pages_examined INTEGER",
+        "ALTER TABLE creator_resolution_queue ADD COLUMN runtime_secs REAL",
+        "ALTER TABLE creator_resolution_queue ADD COLUMN skip_reason TEXT",
+        "ALTER TABLE creator_resolution_queue ADD COLUMN resolution_tier TEXT",
     ):
         column = ddl.split(" ADD COLUMN ", 1)[1].split()[0]
         if column not in existing:
@@ -312,50 +343,137 @@ def enqueue_missing_funding_jobs(
     return enqueued
 
 
-def _resolve_creator_rpc(mint: str) -> Dict[str, Any]:
+def _read_serializer_p99() -> float:
+    """Read DB write p99 from the listener's metrics snapshot file. Returns 0.0 on any error."""
+    try:
+        import json as _json
+        with open(_DB_SERIALIZER_METRICS_PATH) as _f:
+            return float(_json.load(_f).get("p99_wait_ms", 0.0))
+    except Exception:
+        return 0.0
+
+
+def _is_high_priority(hot_conn: sqlite3.Connection, mint: str, source: str, priority: int) -> bool:
+    """
+    Return True if this job should bypass the generic budget and receive a full history walk.
+
+    Uses only reliable PRE-resolution signals — fields that are known before creator resolution
+    completes. Does NOT rely on earliest_tx_creator / pf_ws_creator (those may be NULL).
+
+    Priority signals (hot DB — zero extra connections):
+      - tracked_tokens.tracking_reason IN ('OWNED', 'WATCH')
+      - queue source starts with 'manual'
+      - queue priority > 200
+
+    Priority signals (ops DB — fail-open if unreachable):
+      - mint in wt_watchtower_launches   (confirmed WATCHTOWER launch)
+      - mint in wt_creator_birth_launch  (mint produced by a known birth event)
+      - mint has an active operation candidate (wt_candidate_websocket_watches via creator/subprov)
+    """
+    if int(priority or 0) > 200:
+        return True
+    if (source or "").startswith("manual"):
+        return True
+
+    # Hot-DB check: OWNED or WATCH
+    row = hot_conn.execute(
+        "SELECT 1 FROM tracked_tokens WHERE mint=? AND tracking_reason IN ('OWNED','WATCH') LIMIT 1",
+        (mint,),
+    ).fetchone()
+    if row:
+        return True
+
+    # Ops-DB checks (fail-open)
+    try:
+        ops = sqlite3.connect(f"file:{_OPS_DB_PATH}?mode=ro", uri=True, timeout=2)
+        # Confirmed WATCHTOWER launch for this mint
+        if ops.execute("SELECT 1 FROM wt_watchtower_launches WHERE mint=? LIMIT 1", (mint,)).fetchone():
+            ops.close()
+            return True
+        # Mint produced by a confirmed WATCHTOWER birth event
+        if ops.execute("SELECT 1 FROM wt_creator_birth_launch WHERE token_mint=? LIMIT 1", (mint,)).fetchone():
+            ops.close()
+            return True
+        ops.close()
+    except Exception:
+        pass
+
+    return False
+
+
+def _resolve_creator_rpc(
+    mint: str,
+    *,
+    max_runtime_secs: float,
+    max_pages: int,
+    tier: str,
+) -> Dict[str, Any]:
+    import time as _t
     from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
 
-    analyzer = PostMigrationAnalyzer(
-        mint,
-        rpc_url=os.environ.get("RPC_HTTP") or os.environ.get("RPC_URL") or os.environ.get("HELIUS_RPC_URL"),
+    rpc_url = (
+        os.environ.get("RPC_HTTP")
+        or os.environ.get("RPC_URL")
+        or os.environ.get("HELIUS_RPC_URL")
     )
-    provenance = asyncio.run(analyzer.get_creator_from_earliest_tx())
-    creator = provenance.get("creator") if provenance else None
+    analyzer = PostMigrationAnalyzer(mint, rpc_url=rpc_url)
+
+    deadline = _t.monotonic() + max_runtime_secs
+    t0 = _t.monotonic()
+
+    provenance = asyncio.run(
+        analyzer.get_creator_from_earliest_tx(
+            max_pages_override=max_pages,
+            deadline_monotonic=deadline,
+        )
+    )
+
+    elapsed    = _t.monotonic() - t0
+    pages_seen = int(getattr(analyzer, "_pages_checked",   0))
+    sigs_seen  = int(getattr(analyzer, "_sigs_examined",   0))
+    budget_hit = bool(getattr(analyzer, "_budget_exceeded", False))
+
+    creator = (provenance or {}).get("creator")
+
+    if budget_hit and not creator:
+        raise _BudgetExceeded(
+            pages=pages_seen, sigs=sigs_seen, runtime=round(elapsed, 2), tier=tier
+        )
+
     if not creator:
         raise RuntimeError("creator not found from earliest transaction")
 
     created_at = None
-    if provenance and provenance.get("blockTime"):
+    if (provenance or {}).get("blockTime"):
         created_at = datetime.utcfromtimestamp(provenance["blockTime"]).isoformat() + "Z"
 
-    is_pumpfun_create = bool(provenance.get("is_pumpfun_create")) if provenance else False
-    create_tx_signature = (
+    is_pf_create = bool((provenance or {}).get("is_pumpfun_create"))
+    create_tx = (
         getattr(analyzer, "_create_tx_signature", None)
-        if is_pumpfun_create and hasattr(analyzer, "_create_tx_signature")
+        if is_pf_create and hasattr(analyzer, "_create_tx_signature")
         else None
     )
     return {
-        "creator": creator,
-        "created_at": created_at,
-        "bonding_curve_pda": provenance.get("bonding_curve_pda") if provenance else None,
-        "create_tx_signature": create_tx_signature,
+        "creator":             creator,
+        "created_at":          created_at,
+        "bonding_curve_pda":   (provenance or {}).get("bonding_curve_pda"),
+        "create_tx_signature": create_tx,
+        "pages_examined":      pages_seen,
+        "sigs_examined":       sigs_seen,
+        "runtime_secs":        round(elapsed, 2),
+        "tier":                tier,
     }
 
 
 def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> Dict[str, Any]:
     now = int(time.time())
-    processed = resolved = failed = funding_enqueued = 0
+    processed = resolved = failed = skipped = funding_enqueued = 0
     errors: List[Dict[str, str]] = []
 
     with connect(db_path) as conn:
         ensure_schema(conn)
 
-        # STALE-RUNNING REAPER. A job is marked 'running' when claimed; if its worker dies
-        # (lock error, restart, crash) the row stays 'running' forever because the claim
-        # query only selects pending/retry. Over time these zombies accumulate (observed:
-        # 149 stuck, oldest a month old) and inflate the queue. Reclaim any 'running' job
-        # whose lock has expired: send it back to 'retry' (or 'failed'/'ignored' past max
-        # attempts) so it re-enters normal processing instead of leaking.
+        # STALE-RUNNING REAPER: reclaim 'running' rows whose locks expired (crashed/restarted worker).
         _MAX_ATTEMPTS = 5
         reaped = conn.execute(
             """
@@ -370,14 +488,22 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
         if reaped:
             conn.commit()
 
+        # Priority-ordered claim: manual/elevated first, then by age.
         rows = conn.execute(
             """
-            SELECT mint, attempts
+            SELECT mint, attempts, source, priority
             FROM creator_resolution_queue
             WHERE status IN ('pending','retry')
               AND locked_until < ?
               AND next_attempt_at <= ?
-            ORDER BY priority DESC, next_attempt_at ASC, created_at ASC
+            ORDER BY
+              CASE
+                WHEN priority > 200        THEN 0
+                WHEN source LIKE 'manual%' THEN 0
+                WHEN priority > 100        THEN 1
+                ELSE                            2
+              END ASC,
+              created_at ASC
             LIMIT ?
             """,
             (now, now, max(1, int(limit))),
@@ -394,12 +520,24 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
         conn.commit()
 
     for row in rows:
-        mint = row["mint"]
+        mint     = row["mint"]
         attempts = int(row["attempts"] or 0)
+        source   = row["source"] or ""
+        priority = int(row["priority"] or 0)
         processed += 1
+
+        # Determine tier with one cheap DB read + fail-open ops-DB read
+        with connect(db_path) as _pc:
+            high_pri = _is_high_priority(_pc, mint, source, priority)
+
+        tier        = "HIGH_PRIORITY" if high_pri else "GENERIC"
+        max_runtime = _HP_MAX_RUNTIME  if high_pri else _GENERIC_MAX_RUNTIME
+        max_pages_v = _HP_MAX_PAGES    if high_pri else _GENERIC_MAX_PAGES
+
         try:
-            data = _resolve_creator_rpc(mint)
+            data    = _resolve_creator_rpc(mint, max_runtime_secs=max_runtime, max_pages=max_pages_v, tier=tier)
             creator = data["creator"]
+
             with connect(db_path) as conn:
                 ensure_schema(conn)
                 token = conn.execute(
@@ -419,41 +557,52 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
                         creator_resolved_slot = COALESCE(creator_resolved_slot, migration_slot, curve_completed_slot)
                     WHERE mint = ?
                     """,
-                    (
-                        creator,
-                        creator,
-                        data.get("created_at"),
-                        data.get("bonding_curve_pda"),
-                        create_tx,
-                        mint,
-                    ),
+                    (creator, creator, data.get("created_at"),
+                     data.get("bonding_curve_pda"), create_tx, mint),
                 )
                 did_enqueue = _enqueue_funding_handoff(
-                    conn,
-                    creator=creator,
-                    mint=mint,
-                    migration_timestamp=migration_ts,
-                    create_tx_signature=create_tx,
+                    conn, creator=creator, mint=mint,
+                    migration_timestamp=migration_ts, create_tx_signature=create_tx,
                 )
                 if did_enqueue:
                     funding_enqueued += 1
                 conn.execute(
                     """
                     UPDATE creator_resolution_queue
-                    SET status='complete',
-                        locked_until=0,
-                        attempts=?,
-                        last_error=NULL,
-                        resolved_creator=?,
+                    SET status='complete', locked_until=0, attempts=?,
+                        last_error=NULL, resolved_creator=?,
                         create_tx_signature=COALESCE(create_tx_signature, ?),
-                        resolved_at=?,
-                        updated_at=?
+                        pages_examined=?, sigs_examined=?, runtime_secs=?,
+                        resolution_tier=?, resolved_at=?, updated_at=?
                     WHERE mint=?
                     """,
-                    (attempts + 1, creator, create_tx, int(time.time()), int(time.time()), mint),
+                    (attempts + 1, creator, create_tx,
+                     data.get("pages_examined"), data.get("sigs_examined"), data.get("runtime_secs"),
+                     tier, int(time.time()), int(time.time()), mint),
                 )
                 conn.commit()
                 resolved += 1
+
+        except _BudgetExceeded as bx:
+            # Budget hit — move to offline queue (status='skipped'), not a failure, no retry.
+            skipped += 1
+            with connect(db_path) as conn:
+                ensure_schema(conn)
+                conn.execute(
+                    """
+                    UPDATE creator_resolution_queue
+                    SET status='skipped', locked_until=0, attempts=?,
+                        skip_reason='BUDGET_EXCEEDED',
+                        pages_examined=?, sigs_examined=?, runtime_secs=?,
+                        resolution_tier=?,
+                        last_error=?, updated_at=?
+                    WHERE mint=?
+                    """,
+                    (attempts + 1, bx.pages, bx.sigs, bx.runtime,
+                     bx.tier, str(bx)[:200], int(time.time()), mint),
+                )
+                conn.commit()
+
         except Exception as exc:
             failed += 1
             error = str(exc)[:500]
@@ -463,33 +612,26 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
                 conn.execute(
                     """
                     UPDATE creator_resolution_queue
-                    SET status=?,
-                        locked_until=0,
-                        attempts=?,
-                        next_attempt_at=?,
-                        last_error=?,
-                        updated_at=?
+                    SET status=?, locked_until=0, attempts=?,
+                        next_attempt_at=?, last_error=?, updated_at=?
                     WHERE mint=?
                     """,
                     (
-                        "failed" if attempts >= 5 else "retry",
-                        attempts + 1,
-                        retry_at,
-                        error,
-                        int(time.time()),
-                        mint,
+                        "failed" if attempts >= _MAX_ATTEMPTS else "retry",
+                        attempts + 1, retry_at, error, int(time.time()), mint,
                     ),
                 )
                 conn.commit()
             errors.append({"mint": mint, "error": error})
 
     return {
-        "status": "ok",
-        "processed": processed,
-        "resolved": resolved,
-        "failed": failed,
+        "status":          "ok",
+        "processed":       processed,
+        "resolved":        resolved,
+        "failed":          failed,
+        "skipped":         skipped,
         "funding_enqueued": funding_enqueued,
-        "errors": errors[:10],
+        "errors":          errors[:10],
     }
 
 

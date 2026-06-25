@@ -211,18 +211,27 @@
             </div>
         </header>
 
-        <!-- Overall Status -->
-        <div class="grid">
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-title"><i class="fas fa-pulse"></i> Overall Service Status</div>
-                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                    <div id="overallStatus"></div>
-                    <div id="workerStatus"></div>
-                    <div id="wsStatus"></div>
-                    <div id="ingressStatus"></div>
+        <!-- WATCHTOWER Platform Health (new /api/health/full) -->
+        <div class="grid" style="margin-bottom:1rem;">
+            <div class="card" style="grid-column: 1 / -1; padding:1.25rem 1.5rem;" id="watchtowerPlatformCard">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">WATCHTOWER PLATFORM</div>
+                    <div id="wt-platform-status" style="font-size:0.8rem;color:#94a3b8;">Loading…</div>
                 </div>
-                <div id="ingestionStatus"></div>
+                <!-- Row 1: 7 subsystem pills -->
+                <div id="wt-subsystem-pills" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;"></div>
+                <!-- Row 2: detail rows for price worker + cascade activity + intelligence -->
+                <div id="wt-detail-rows" style="display:flex;flex-wrap:wrap;gap:0.75rem;"></div>
             </div>
+        </div>
+
+        <!-- Overall Status (legacy — hidden, superseded by WATCHTOWER platform card above) -->
+        <div style="display:none;">
+            <div id="overallStatus"></div>
+            <div id="workerStatus"></div>
+            <div id="wsStatus"></div>
+            <div id="ingressStatus"></div>
+            <div id="ingestionStatus"></div>
         </div>
 
         <!-- Listener Status — centre stage -->
@@ -701,8 +710,8 @@
                     <div class="metric-value small" style="color:${fqColor};">${fqPending} pending${fqRunning ? ` · ${fqRunning} running` : ''}</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Funding Complete (24h / total)</div>
-                    <div class="metric-value small" style="color:var(--color-success);">${fqComplete24h} / ${fqComplete}</div>
+                    <div class="metric-label">Funding Complete</div>
+                    <div class="metric-value small" style="color:var(--color-success);">${fqComplete24h} today</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Funding Failed</div>
@@ -989,18 +998,144 @@
             btn.textContent = hidden ? 'Hide parked price diagnostics' : 'Show parked price diagnostics';
         }
 
+        // ── WATCHTOWER Platform Health (/api/health/full) ───────────────────
+
+        function _wtColor(s) {
+            if (!s) return 'warning';
+            const ok      = ['HEALTHY','CONNECTED','LIVE','WATCHING','ACTIVE','LIVE_IDLE','RUNNING'];
+            const neutral = ['PARKED','PEAK-ONLY','PEAK ONLY','IDLE','UNKNOWN'];
+            const warn    = ['DEGRADED','PRESSURE','RETRYING'];
+            const up = s.toUpperCase();
+            if (ok.some(v => up.includes(v))) return 'healthy';
+            if (neutral.some(v => up.includes(v))) return 'neutral';
+            if (warn.some(v => up.includes(v))) return 'warning';
+            return 'critical';
+        }
+
+        function _wtPill(label, value, detail) {
+            const c = _wtColor(value);
+            const colorMap = {healthy:'#22c55e', warning:'#eab308', critical:'#ef4444', neutral:'#94a3b8'};
+            const bgMap    = {healthy:'rgba(34,197,94,0.12)', warning:'rgba(234,179,8,0.12)', critical:'rgba(239,68,68,0.12)', neutral:'rgba(100,116,139,0.12)'};
+            const col = colorMap[c] || '#94a3b8';
+            const bg  = bgMap[c]   || 'rgba(100,116,139,0.12)';
+            return `<div style="background:${bg};border:1px solid ${col}33;border-radius:6px;padding:0.35rem 0.75rem;min-width:120px;">
+                <div style="font-size:0.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">${label}</div>
+                <div style="font-size:0.85rem;font-weight:700;color:${col};">${value || 'UNKNOWN'}</div>
+                ${detail ? `<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">${detail}</div>` : ''}
+            </div>`;
+        }
+
+        function _fmtAge(secs) {
+            if (secs == null) return '—';
+            if (secs < 60) return `${Math.round(secs)}s ago`;
+            if (secs < 3600) return `${Math.round(secs/60)}m ago`;
+            return `${Math.round(secs/3600)}h ago`;
+        }
+
+        function _fmtDetail(ageSecs, utcStr) {
+            const a = ageSecs != null ? _fmtAge(ageSecs) : '—';
+            const t = utcStr || '—';
+            return `${a} · last ${t}`;
+        }
+
+        function renderWatchtowerPlatform(h) {
+            if (!h) return;
+            const ss = h.subsystems || {};
+            const top = h.status || 'UNKNOWN';
+            const topColor = _wtColor(top);
+            const colMap = {healthy:'#22c55e', warning:'#eab308', critical:'#ef4444'};
+
+            // Top-level status label
+            document.getElementById('wt-platform-status').innerHTML =
+                `<span style="font-weight:700;color:${colMap[topColor]||'#94a3b8'};">● ${top}</span>`;
+
+            const ing  = ss.ingestion || {};
+            const pw   = ss.price_worker || {};
+            const ci   = ss.cascade_infrastructure || {};
+            const ca   = ss.cascade_activity || {};
+            const db   = ss.database || {};
+            const api  = ss.api || {};
+            const intel = ss.intelligence || {};
+
+            // Row 1: subsystem pills
+            const pills = [
+                _wtPill('Listener',     ing.status,  ing.pumpportal ? `PP:${ing.pumpportal} · PS:${ing.pumpswap}` : null),
+                _wtPill('Price Worker', pw.worker_alive === false ? 'DOWN' : (pw.status || 'UNKNOWN'), null),
+                _wtPill('Cascade',      ci.status,   ci.subs_total != null ? `${ci.subs_total} subs · hb ${_fmtAge(ci.heartbeat_age_secs)}` : null),
+                _wtPill('Database',     db.status,   db.p99_wait_ms != null ? `p99 ${Math.round(db.p99_wait_ms)}ms` : null),
+                _wtPill('API',          api.status,  api.gunicorn_alive === false ? 'gunicorn dead' : null),
+                _wtPill('Intelligence', intel.status, intel.creator_queue_pending != null ? `CRQ ${intel.creator_queue_pending} · FQ ${intel.funding_queue_pending}` : null),
+            ];
+            document.getElementById('wt-subsystem-pills').innerHTML = pills.join('');
+
+            // Row 2: detail blocks
+            let details = '';
+
+            // Peak MC
+            const peakLabel = pw.last_peak_update_age_secs != null
+                ? _fmtDetail(pw.last_peak_update_age_secs, pw.last_peak_update_at_utc)
+                : '—';
+            const workerPeakOnly = pw.status === 'PEAK-ONLY';
+            const peakStatus = workerPeakOnly ? 'PEAK-ONLY'
+                : (pw.last_peak_update_age_secs != null && pw.last_peak_update_age_secs < 120) ? 'LIVE' : 'STALE';
+            details += _wtPill('Peak MC', peakStatus, peakLabel);
+
+            // Snapshots
+            let snapStatus, snapDetail;
+            if (!pw.snapshot_expected) {
+                const exp = pw.discovery_expired_count || 0;
+                const wo  = pw.watch_owned_count || 0;
+                snapStatus = exp > 0 ? 'PEAK ONLY' : 'IDLE';
+                snapDetail = `${exp} DISCOVERY expired · ${wo} WATCH/OWNED · no write expected ✓`;
+            } else {
+                const age = pw.last_snapshot_write_age_secs;
+                snapStatus = (age != null && age < 120) ? 'ACTIVE' : 'STALE';
+                snapDetail = age != null ? _fmtDetail(age, pw.last_snapshot_write_at_utc) : '—';
+            }
+            details += _wtPill('Snapshots', snapStatus, snapDetail);
+
+            // Cascade Activity (separate from infra)
+            const caDetail = ca.launches_24h != null
+                ? `${ca.launches_24h} launches 24h · last ${_fmtAge(ca.last_launch_age_secs)}`
+                : null;
+            details += _wtPill('Cascade Activity', ca.status, caDetail);
+
+            // Intelligence queue detail — always show
+            const crqFailed   = intel.creator_queue_failed  ?? 0;
+            const crqSkipped  = intel.creator_queue_skipped ?? 0;
+            const crqEff      = intel.crq_resolution_efficiency;
+            const crqAvgPages = intel.crq_avg_pages;
+            const crqP95rt    = intel.crq_p95_runtime_secs;
+            const crqStatus   = crqFailed > 0 ? `${crqFailed} FAILED` : `${intel.creator_queue_pending} pending`;
+            // Efficiency KPI: warn only when efficiency is known and falling below 50%
+            const crqEffLabel = crqEff != null ? ` · eff ${crqEff}%` : '';
+            const crqDetail   = [
+                `pending ${intel.creator_queue_pending}`,
+                crqSkipped > 0 ? `${crqSkipped} skipped` : null,
+                crqAvgPages != null ? `avg ${crqAvgPages}p` : null,
+                crqP95rt    != null ? `p95 ${crqP95rt}s`  : null,
+                `missing 1h ${intel.missing_creators_1h}`,
+            ].filter(Boolean).join(' · ');
+            details += _wtPill('Creator Queue', crqStatus + crqEffLabel, crqDetail);
+
+            document.getElementById('wt-detail-rows').innerHTML = details;
+        }
+
         async function updateDashboard() {
-            const [data, dbHealth, firstSnapshotHealth, recovery, fundingStats] = await Promise.all([
+            const [data, dbHealth, firstSnapshotHealth, recovery, fundingStats, fullHealth] = await Promise.all([
                 fetchHealth(),
                 fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/first-snapshot-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
                 fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
+                fetch('/api/health/full').then(r => r.json()).catch(() => null),
             ]);
             if (!data) {
                 document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
                 return;
             }
+
+            renderWatchtowerPlatform(fullHealth);
 
             // Merge queue_depths from db-health into data for renderQueueStats
             data.queue_depths = dbHealth.queue_depths || {};

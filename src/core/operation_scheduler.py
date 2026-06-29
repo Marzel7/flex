@@ -54,6 +54,220 @@ LOCK_FILE = os.environ.get(
 
 _STOP = False
 
+# ── pressure thresholds (env-overridable) ─────────────────────────────────────
+PRESSURE_HIGH     = int(os.environ.get("SCHEDULER_PRESSURE_HIGH",     "10"))
+PRESSURE_CRITICAL = int(os.environ.get("SCHEDULER_PRESSURE_CRITICAL", "20"))
+STARVATION_MIN    = int(os.environ.get("SCHEDULER_STARVATION_MIN",    "3600"))  # 1 hour
+BATCH_ROWS_LOW    = int(os.environ.get("SCHEDULER_BATCH_ROWS_LOW",    "25"))
+BATCH_ROWS_HIGH   = int(os.environ.get("SCHEDULER_BATCH_ROWS_HIGH",   "5"))
+
+# ── scheduler runtime state ───────────────────────────────────────────────────
+_sched_state: dict = {
+    # pressure tracking
+    "pressure_score":           0,
+    "pressure_level":           "LOW",   # LOW | MEDIUM | HIGH | CRITICAL
+    "pressure_checks":          0,
+    "last_pressure_detail":     {},
+    # defer tracking
+    "deferred_cycles":          0,
+    "last_defer_reason":        None,
+    "last_defer_at":            None,
+    "starvation_override_count": 0,
+    # success tracking
+    "last_success_at":          None,
+    "last_success_job":         None,
+    # cycle metrics
+    "scheduler_runtime_ms":     0,
+    "scheduler_rows_written":   0,
+    "scheduler_batch_size":     BATCH_ROWS_LOW,
+    "scheduler_batches_written": 0,
+}
+
+
+# ── runtime pressure model ────────────────────────────────────────────────────
+def calculate_runtime_pressure() -> tuple[int, str, dict]:
+    """Read cross-process signals from the ops DB and return (score, level, detail).
+
+    All signals are DB reads — no RPC, no sockets, no shared memory.
+    The scheduler is a separate process so in-process metrics (p99, lock_errors)
+    from db_locking.py are not available here. We use only what's persisted in the DB.
+
+    Score → Level:
+      0–9   LOW      run normally
+      10–19 MEDIUM   smaller batches, frequent pressure re-checks
+      20–29 HIGH     do not start new forward walks
+      30+   CRITICAL defer immediately
+    """
+    import sqlite3
+    _sched_state["pressure_checks"] += 1
+    score = 0
+    detail: dict = {}
+
+    try:
+        conn = sqlite3.connect(OPS_DB_PATH, timeout=2)
+        conn.row_factory = sqlite3.Row
+
+        # ── active sessions ───────────────────────────────────────────────────
+        # count ALL sessions for reporting, but only score actionable types
+        # (PREV_SEEN / CREATOR are observation-only — they don't drive DB contention)
+        active = conn.execute(
+            "SELECT COUNT(*) FROM wt_active_subprov_sessions WHERE state='ACTIVE'"
+        ).fetchone()[0]
+        active_pressure = conn.execute(
+            "SELECT COUNT(*) FROM wt_active_subprov_sessions "
+            "WHERE state='ACTIVE' AND open_reason NOT IN "
+            "('HISTORICAL_SUBPROV_DISCOVERED','CREATOR')"
+        ).fetchone()[0]
+        detail["active_sessions"] = active
+        detail["active_pressure_sessions"] = active_pressure
+        if active_pressure > 0:
+            score += 3
+        if active_pressure > 10:
+            score += 6
+        if active_pressure > 25:
+            score += 10
+
+        # ── pending session writes ────────────────────────────────────────────
+        pending = critical = 0
+        try:
+            for row in conn.execute(
+                "SELECT priority, COUNT(*) n FROM wt_pending_session_writes "
+                "WHERE state='PENDING' GROUP BY priority"
+            ).fetchall():
+                pending += row["n"]
+                if row["priority"] == "CRITICAL":
+                    critical += row["n"]
+        except Exception:
+            pass
+        detail["pending_writes"] = pending
+        detail["critical_pending"] = critical
+        if pending > 0:
+            score += 10
+        if critical > 0:
+            score += 15
+
+        # ── cascade heartbeat age + state ─────────────────────────────────────
+        try:
+            hb = conn.execute(
+                "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat "
+                "WHERE worker_name='ws_cascade' ORDER BY last_seen DESC LIMIT 1"
+            ).fetchone()
+            if hb:
+                age = int(time.time()) - (hb["last_seen"] or 0)
+                detail["heartbeat_age_s"] = age
+                import json as _json
+                meta = _json.loads(hb["meta_json"] or "{}")
+                cs = meta.get("cascade_state", "")
+                detail["cascade_state"] = cs
+                # recent treasury notifications (classify_counts shows tx volume)
+                cc = meta.get("classify_counts", {})
+                total_classified = sum(cc.values())
+                detail["recent_classified"] = total_classified
+                if total_classified > 5:
+                    score += 2
+                if cs in ("ACTIVE", "LIVE"):
+                    score += 2
+        except Exception:
+            pass
+
+        # ── starvation relief: subtract score if deferred too long ───────────
+        last_success = _sched_state.get("last_success_at")
+        if last_success:
+            starved_s = int(time.time()) - last_success
+            detail["starved_s"] = starved_s
+            if starved_s > STARVATION_MIN:
+                score = max(0, score - 8)  # let it through even under moderate pressure
+        else:
+            detail["starved_s"] = None
+
+        conn.close()
+
+    except Exception as e:
+        # Can't read — be conservative
+        score = PRESSURE_CRITICAL
+        detail["error"] = str(e)
+
+    if score >= PRESSURE_CRITICAL:
+        level = "CRITICAL"
+    elif score >= PRESSURE_HIGH:
+        level = "HIGH"
+    elif score >= PRESSURE_HIGH // 2:
+        level = "MEDIUM"
+    else:
+        level = "LOW"
+
+    _sched_state["pressure_score"] = score
+    _sched_state["pressure_level"] = level
+    _sched_state["last_pressure_detail"] = detail
+    return score, level, detail
+
+
+def _current_batch_size(level: str) -> int:
+    if level in ("HIGH", "CRITICAL"):
+        return BATCH_ROWS_HIGH
+    if level == "MEDIUM":
+        return max(BATCH_ROWS_HIGH, BATCH_ROWS_LOW // 2)
+    return BATCH_ROWS_LOW
+
+
+def _log_defer(job: str, score: int, level: str, detail: dict) -> None:
+    _sched_state["deferred_cycles"] += 1
+    _sched_state["last_defer_reason"] = level
+    _sched_state["last_defer_at"] = int(time.time())
+    print(
+        f"[SCHED] SCHEDULER_DEFERRED job={job} reason=runtime_pressure "
+        f"pressure={level} score={score} "
+        f"active_sessions={detail.get('active_sessions', 0)} "
+        f"pending_writes={detail.get('pending_writes', 0)} "
+        f"critical_pending={detail.get('critical_pending', 0)} "
+        f"starved_s={detail.get('starved_s', 0)}",
+        flush=True,
+    )
+
+
+def _log_success(job: str) -> None:
+    _sched_state["last_success_at"] = int(time.time())
+    _sched_state["last_success_job"] = job
+    _sched_state["deferred_cycles"] = 0  # reset on success
+
+
+def _check_starvation_override(detail: dict) -> bool:
+    """Return True if we've been deferred long enough that a micro-cycle should run."""
+    starved_s = detail.get("starved_s") or 0
+    if starved_s and starved_s > STARVATION_MIN:
+        _sched_state["starvation_override_count"] += 1
+        print(
+            f"[SCHED] STARVATION_OVERRIDE starved={starved_s}s "
+            f"override_count={_sched_state['starvation_override_count']} "
+            f"batch_size={BATCH_ROWS_HIGH}",
+            flush=True,
+        )
+        return True
+    return False
+
+
+# ── scheduler state flush (cross-process visibility) ─────────────────────────
+def _flush_sched_state() -> None:
+    """Write _sched_state to wt_scheduler_state so the dashboard can read it cross-process."""
+    import json as _json
+    try:
+        conn = db_connect(OPS_DB_PATH, timeout=2)
+        try:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS wt_scheduler_state "
+                "(key TEXT PRIMARY KEY, value_json TEXT, updated_at INTEGER)"
+            )
+            conn.execute(
+                "INSERT INTO wt_scheduler_state(key,value_json,updated_at) VALUES('main',?,?) "
+                "ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json, updated_at=excluded.updated_at",
+                (_json.dumps(_sched_state), int(time.time())),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
 
 # ── run-log schema ─────────────────────────────────────────────────────────
 def ensure_run_log(conn) -> None:
@@ -305,6 +519,9 @@ def run_treasury_fingerprint_job(quiet=False) -> dict:
         # PREFER wrap-close funders. Else the biggest plain-transfer funder (treasury sends
         # one large lump → it dominates the total, beating noise/sweeps).
         if wrap_funders:
+            # Tag the closure so score_token() can detect wrap-close lineage at hop-0
+            _funders._last_wrap_close_subprov = addr
+            _funders._last_wrap_close_amount = wrap_funders[0][1]
             return sorted(wrap_funders, key=lambda x: -x[1])
         return sorted(plain_totals.items(), key=lambda x: -x[1])
 
@@ -725,6 +942,12 @@ def run_subprov_discovery_job(quiet=False) -> dict:
                         _loop.close()
                         import src.core.treasury_bank as _tb
                         _tb.mark_webhooked(conn, _tw, True)
+                        # register in wt_confirmed_treasury_webhooks so the UI shows webhooked=1
+                        conn.execute(
+                            "INSERT OR IGNORE INTO wt_confirmed_treasury_webhooks "
+                            "(treasury, source, enrolled_at, webhook_active) VALUES (?,?,?,1)",
+                            (_tw, "CONFIRMED_TREASURY", int(time.time())))
+                        conn.commit()
                         break
                     except Exception as _we:
                         if "locked" in str(_we).lower() and _att < 2:
@@ -826,15 +1049,33 @@ def loop(quiet=False):
     next_forward = 0.0
     while not _STOP:
         now = time.time()
+        # ── shared pressure check for this tick ──────────────────────────────
+        _score, _level, _detail = calculate_runtime_pressure()
+        _batch = _current_batch_size(_level)
+        _sched_state["scheduler_batch_size"] = _batch
+
         # forward monitor (fast cadence) — independent of intake
         if now >= next_forward:
-            if now >= _degraded_until["FORWARD_MONITOR"]:
+            if _level == "CRITICAL":
+                if _check_starvation_override(_detail):
+                    # micro-cycle: run with tiny batch, don't update next_forward normally
+                    r = run_forward_job(quiet=quiet)
+                    _log_success("FORWARD_MONITOR")
+                    next_forward = time.time() + FORWARD_INTERVAL
+                else:
+                    _log_defer("FORWARD_MONITOR", _score, _level, _detail)
+                    next_forward = time.time() + min(FORWARD_INTERVAL, 60)
+            elif now >= _degraded_until["FORWARD_MONITOR"]:
+                if _level == "MEDIUM" and not quiet:
+                    print(f"[SCHED][FORWARD] MEDIUM pressure (score={_score}) — running with batch={_batch}")
                 r = run_forward_job(quiet=quiet)
                 if not quiet:
                     su = (r.get("summary") or {})
                     print(f"[SCHED][FORWARD] {r['status']} "
                           f"children={su.get('new_children',0)} cand={su.get('new_candidates',0)} "
-                          f"armed={su.get('armed',0)} rpc={su.get('rpc_calls',0)}")
+                          f"armed={su.get('armed',0)} rpc={su.get('rpc_calls',0)} "
+                          f"pressure={_level}({_score})")
+                _log_success("FORWARD_MONITOR")
                 # ARM reconcile: disarm creators that migrated (remove webhook, mark
                 # FIRED), expire stale armed creators, retry failed enrolments.
                 try:
@@ -846,20 +1087,38 @@ def loop(quiet=False):
                 except Exception as _re:
                     if not quiet:
                         print(f"[SCHED][ARMED] reconcile error: {_re}")
+                next_forward = time.time() + FORWARD_INTERVAL
             elif not quiet:
                 print("[SCHED][FORWARD] skipped (degraded)")
-            next_forward = time.time() + FORWARD_INTERVAL
+                next_forward = time.time() + FORWARD_INTERVAL
+
         # intake (slow cadence)
         now = time.time()
         if now >= next_intake:
-            if now >= _degraded_until["INTAKE"]:
+            if _level == "CRITICAL":
+                if _check_starvation_override(_detail):
+                    r = run_intake_job(quiet=quiet)
+                    _log_success("INTAKE")
+                    next_intake = time.time() + INTAKE_INTERVAL
+                else:
+                    _log_defer("INTAKE", _score, _level, _detail)
+                    next_intake = time.time() + 60
+            elif _level == "HIGH":
+                _log_defer("INTAKE", _score, _level, _detail)
+                next_intake = time.time() + 60
+            elif now >= _degraded_until["INTAKE"]:
+                if _level == "MEDIUM" and not quiet:
+                    print(f"[SCHED][INTAKE] MEDIUM pressure (score={_score}) — running with batch={_batch}")
+                _t0 = time.time()
                 r = run_intake_job(quiet=quiet)
                 if not quiet:
                     su = (r.get("summary") or {})
                     print(f"[SCHED][INTAKE] {r['status']} "
                           f"disc={su.get('discovered',0)} merge={su.get('merged',0)} "
-                          f"rpc={su.get('rpc_calls',0)}")
-                # POST-MIGRATION treasury auto-promotion (fingerprint → auto-confirm+webhook)
+                          f"rpc={su.get('rpc_calls',0)} pressure={_level}({_score})")
+                _sched_state["scheduler_runtime_ms"] = int((time.time() - _t0) * 1000)
+                _log_success("INTAKE")
+                # POST-MIGRATION treasury auto-promotion
                 try:
                     if not quiet:
                         print(f"[SCHED][TREASURY_FP] START {int(time.time())}", flush=True)
@@ -869,8 +1128,7 @@ def loop(quiet=False):
                 except Exception as _tf:
                     if not quiet:
                         print(f"[SCHED][TREASURY_FP] error: {_tf}")
-                # SUBPROV DISCOVERY — every migration's creator → wrap-close → subprov (bypasses
-                # the creator_funders extraction gap; feeds the unknown-treasury investigation panel)
+                # SUBPROV DISCOVERY
                 try:
                     if not quiet:
                         print(f"[SCHED][SUBPROV] START {int(time.time())}", flush=True)
@@ -880,10 +1138,7 @@ def loop(quiet=False):
                 except Exception as _sp:
                     if not quiet:
                         print(f"[SCHED][SUBPROV] error: {_sp}")
-                # FARM DETECTION — cluster recent single-use-creator migrated launches by funder
-                # (mechanism-agnostic; catches the plain-transfer farms WATCHTOWER is blind to).
-                # Bounded RPC; only traces creators not already in wt_farm_checked. Feeds the
-                # Token Performance page's FARM tag.
+                # FARM DETECTION
                 try:
                     from src.core.farm_detector import run_farm_scan
                     _fr = run_farm_scan(lookback_days=3, max_rpc=120, quiet=quiet)
@@ -894,10 +1149,13 @@ def loop(quiet=False):
                 except Exception as _fe:
                     if not quiet:
                         print(f"[SCHED][FARM] error: {_fe}")
-            elif not quiet:
-                print("[SCHED][INTAKE] skipped (degraded)")
-            next_intake = time.time() + INTAKE_INTERVAL
+                next_intake = time.time() + INTAKE_INTERVAL
+            else:
+                if not quiet:
+                    print("[SCHED][INTAKE] skipped (degraded)")
+                next_intake = time.time() + INTAKE_INTERVAL
         # brief sleep with jitter (avoids tight spin + thundering herd)
+        _flush_sched_state()
         time.sleep(min(5.0, 1.0 + random.random()))
     print("[SCHED] stopped cleanly.")
 
@@ -949,6 +1207,142 @@ def print_status():
     conn.close()
 
 
+def _run_backfill_uwl(quiet=False):
+    """Re-score every NONE-tier token in wt_ops_v2.db against the wrap-close UWL logic.
+    Runs sequentially. Opens a fresh DB connection per token (closed immediately after write)
+    so no long-held locks. RPC budget: ~150 getTransaction calls per token × tokens."""
+    import sqlite3 as _sq
+    import os as _os
+    from src.core import watchtower_attribution as _wa
+    from src.core.wrap_close_detector import detect_wrap_close
+
+    # ── read the candidate list (read-only, close before RPC) ──
+    _c = _sq.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
+    _c.execute("PRAGMA busy_timeout=30000")
+    try:
+        rows = _c.execute(
+            "SELECT mint, creator FROM watchtower_token_attribution WHERE tier='NONE'"
+        ).fetchall()
+    finally:
+        _c.close()
+
+    if not rows:
+        print("[UWL-BACKFILL] no NONE-tier tokens found"); return
+
+    print(f"[UWL-BACKFILL] {len(rows)} NONE-tier token(s) to re-score")
+
+    # ── build lightweight RPC helpers (same pattern as run_intake_job) ──
+    import requests as _req
+    _rpc_url = os.environ.get("HELIUS_RPC_URL") or os.environ.get("SOLANA_RPC_URL", "")
+    _calls = [0]
+    def _rpc(method, params):
+        _calls[0] += 1
+        try:
+            r = _req.post(_rpc_url, json={"jsonrpc": "2.0", "id": 1,
+                                           "method": method, "params": params}, timeout=25)
+            return (r.json().get("result") or {}) if r.ok else {}
+        except Exception:
+            return {}
+
+    def _raw_txs(addr, limit=50):
+        sigs = _rpc("getSignaturesForAddress", [addr, {"limit": limit}]) or []
+        out = []
+        for s in sigs:
+            if s.get("err"): continue
+            tx = _rpc("getTransaction", [s["signature"], {
+                "encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
+            if tx:
+                out.append(tx)
+        return out
+
+    # ── build a _funders closure (same logic as run_intake_job, abbreviated) ──
+    from collections import defaultdict as _dd
+
+    def _funders(addr):
+        all_sigs = []
+        before = None
+        for _ in range(4):
+            params = [addr, {"limit": 50}]
+            if before:
+                params[1]["before"] = before
+            batch = _rpc("getSignaturesForAddress", params) or []
+            if not batch: break
+            all_sigs += batch
+            before = batch[-1].get("signature")
+            if len(batch) < 50: break
+        wrap_funders = []
+        plain_totals = _dd(float)
+        for s in all_sigs:
+            if s.get("err"): continue
+            tx = _rpc("getTransaction", [s["signature"], {
+                "encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
+            if not tx: continue
+            try:
+                ext = detect_wrap_close(tx)
+            except Exception:
+                ext = None
+            if ext and ext.get("creator") == addr and ext.get("subprov"):
+                wrap_funders.append((ext["subprov"], ext.get("base_amount_sol") or 0.0))
+                continue
+            meta = tx.get("meta") or {}
+            msg = tx.get("transaction", {}).get("message", {})
+            keys = [k.get("pubkey") if isinstance(k, dict) else k
+                    for k in msg.get("accountKeys", [])]
+            pre, post = meta.get("preBalances") or [], meta.get("postBalances") or []
+            if addr not in keys or len(pre) != len(keys): continue
+            ai = keys.index(addr)
+            if post[ai] - pre[ai] > 0.05:
+                debs = [(keys[j], pre[j] - post[j]) for j in range(len(keys))
+                        if j != ai and pre[j] - post[j] > 0.05]
+                if debs:
+                    f = max(debs, key=lambda x: x[1])
+                    plain_totals[f[0]] += f[1] / 1e9
+        if wrap_funders:
+            _funders._last_wrap_close_subprov = addr
+            _funders._last_wrap_close_amount = wrap_funders[0][1]
+            return sorted(wrap_funders, key=lambda x: -x[1])
+        return sorted(plain_totals.items(), key=lambda x: -x[1])
+
+    upgraded = 0
+    for mint, creator in rows:
+        _funders._last_wrap_close_subprov = None
+        _funders._last_wrap_close_amount = None
+        try:
+            # score via the same pipeline as live intake
+            # open fresh conn, write, close immediately — no held lock between tokens
+            _c2 = _sq.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
+            _c2.execute("PRAGMA busy_timeout=30000")
+            _wa.ensure_schema(_c2)
+            a = _wa.score_token(_c2, mint, creator, _funders)
+            if a["tier"] == "UNCONFIRMED_WATCHTOWER_LIKE":
+                _wa.record_unconfirmed_watchtower_like(
+                    _c2, mint=mint, creator=creator or "",
+                    subprov=a.get("uwl_subprov") or "",
+                    unknown_root=a.get("uwl_root") or "",
+                    root_hop=a.get("uwl_root_hop") or 0,
+                    amount_sol=getattr(_funders, "_last_wrap_close_amount", None) or 0.0)
+                _wa.persist_attribution(_c2, a, reviewed_status="REVIEW")
+                upgraded += 1
+                if not quiet:
+                    print(f"[UWL-BACKFILL] ✅ {mint[:12]}… → UWL via {a.get('uwl_subprov','?')[:10]}…")
+            elif a["tier"] in ("STRONG", "WEAK"):
+                _wa.persist_attribution(_c2, a,
+                    reviewed_status="REVIEW" if a["tier"] == "WEAK" else "AUTO")
+                upgraded += 1
+                if not quiet:
+                    print(f"[UWL-BACKFILL] ✅ {mint[:12]}… → {a['tier']} (persisted)")
+            else:
+                if not quiet:
+                    print(f"[UWL-BACKFILL]    {mint[:12]}… tier=NONE (no change)")
+            _c2.close()
+        except Exception as e:
+            print(f"[UWL-BACKFILL] ⚠️  {mint[:12]}… error: {e}")
+            try: _c2.close()
+            except Exception: pass
+
+    print(f"[UWL-BACKFILL] done — upgraded={upgraded}/{len(rows)} rpc_calls={_calls[0]}")
+
+
 def main():
     import argparse
     global LOCK_FILE
@@ -960,6 +1354,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--lock-file", type=str, default=None)
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--backfill-uwl", action="store_true",
+                    help="Re-score NONE-tier tokens against UWL wrap-close lineage logic")
     args = ap.parse_args()
     if args.lock_file:
         LOCK_FILE = args.lock_file
@@ -976,6 +1372,8 @@ def main():
     if args.once_forward:
         r = run_forward_job(quiet=args.quiet)
         print(f"[once-forward] {r['status']}"); return
+    if getattr(args, "backfill_uwl", False):
+        _run_backfill_uwl(quiet=args.quiet); return
     if args.loop:
         if not acquire_lock(LOCK_FILE):
             sys.exit(1)

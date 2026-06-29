@@ -35,6 +35,7 @@ th { text-align:left; padding:9px 13px; color:var(--text-sec); font-weight:500; 
 td { padding:9px 13px; border-bottom:1px solid var(--border); }
 tr:hover td { background:var(--bg-card2); }
 .addr { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; } .addr:hover{text-decoration:underline}
+.fanout-row{display:flex;align-items:center;padding:7px 16px;gap:10px;border-bottom:1px solid rgba(48,54,61,.5)}.fanout-row:last-child{border-bottom:none}.fanout-row:hover{background:rgba(255,255,255,.03)}
 .uuid { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; } .uuid:hover{text-decoration:underline}
 .tmpl { color:var(--green); font-weight:700; font-family:ui-monospace,monospace; }
 .num{text-align:right;font-variant-numeric:tabular-nums}
@@ -57,6 +58,47 @@ tr:hover td { background:var(--bg-card2); }
 .gap-none{background:rgba(63,185,80,.18);color:var(--green)}
 .gap-warn{background:rgba(217,119,6,.18);color:var(--amber)}
 .gap-bad{background:rgba(248,81,73,.18);color:var(--red)}
+
+/* coverage opportunity widget */
+.cov-opp { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; margin-bottom:18px; overflow:hidden; }
+.cov-opp-head { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(248,81,73,.04); }
+.cov-opp-head .co-title { font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:var(--red); flex:1; }
+.cov-opp-head .co-hint  { font-size:10px; color:var(--text-dim); }
+.cov-summary-chips { display:flex; flex-wrap:wrap; gap:8px; padding:10px 16px; border-bottom:1px solid var(--border); }
+.cov-chip { font-size:10px; font-weight:700; padding:3px 9px; border-radius:6px; }
+.cov-chip.edy  { background:rgba(63,185,80,.15);  color:var(--green);  border:1px solid rgba(63,185,80,.3); }
+.cov-chip.t1   { background:rgba(248,81,73,.12);  color:var(--red);    border:1px solid rgba(248,81,73,.3); }
+.cov-chip.t2   { background:rgba(217,119,6,.12);  color:var(--amber);  border:1px solid rgba(217,119,6,.3); }
+.cov-chip.act  { background:rgba(34,211,238,.10); color:var(--cyan);   border:1px solid rgba(34,211,238,.25); }
+.cov-chip.dorm { background:rgba(110,118,129,.12);color:var(--text-sec);border:1px solid rgba(110,118,129,.3); }
+.cov-tier-hdr { padding:8px 16px; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.cov-tier-hdr.t1 { color:var(--red);   background:rgba(248,81,73,.05);  }
+.cov-tier-hdr.t2 { color:var(--amber); background:rgba(217,119,6,.05);  }
+.cov-tier-hdr .tier-note { font-size:9px; color:var(--text-dim); font-weight:400; }
+.edy-bar-wrap { width:60px; background:var(--bg-card2); border-radius:3px; overflow:hidden; height:5px; display:inline-block; vertical-align:middle; margin-left:5px; }
+.edy-bar-fill { height:100%; border-radius:3px; }
+details.cov-expand > summary { list-style:none; cursor:pointer; padding:8px 16px; font-size:10px; color:var(--text-dim); font-weight:600; user-select:none; }
+details.cov-expand > summary::-webkit-details-marker { display:none; }
+details.cov-expand > summary::before { content:"▶ "; font-size:9px; }
+details.cov-expand[open] > summary::before { content:"▼ "; }
+
+/* section banners */
+.section-banner {
+  display:flex; align-items:flex-start; gap:14px;
+  border-radius:10px; padding:14px 18px; margin:22px 0 16px;
+  border-width:1px; border-style:solid;
+}
+.section-banner .sb-icon { font-size:22px; line-height:1; flex-shrink:0; margin-top:1px; }
+.section-banner .sb-body { flex:1; }
+.section-banner .sb-title { font-size:13px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; margin-bottom:3px; }
+.section-banner .sb-desc { font-size:11px; line-height:1.55; }
+.section-banner .sb-pop  { font-size:10px; margin-top:5px; color:var(--text-dim); font-style:italic; }
+.sb-wt    { background:rgba(63,185,80,.06);  border-color:rgba(63,185,80,.3);  }
+.sb-wt .sb-title  { color:var(--green);  }
+.sb-disc  { background:rgba(34,211,238,.05); border-color:rgba(34,211,238,.25); }
+.sb-disc .sb-title { color:var(--cyan);   }
+.sb-attr  { background:rgba(167,139,250,.05);border-color:rgba(167,139,250,.25);}
+.sb-attr .sb-title { color:var(--purple); }
 
 /* collapse sections */
 details.collapse-section { margin-bottom:18px; }
@@ -135,58 +177,172 @@ details.collapse-section .collapse-body { padding-top:14px; }
 
   <div class="warn-banner" id="warn-banner"><span class="pulse-dot"></span><span id="warn-text"></span></div>
 
-  <!-- COVERAGE HERO — replaces prediction-centric hero -->
+  <!-- COVERAGE HERO — top of page, always visible -->
   <div class="hero-grid" id="hero"></div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- COVERAGE PRIORITY BANNER                                        -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div id="coverage-priority-banner" style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:13px 18px;margin-bottom:18px;display:none">
-    <div style="font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--red);margin-bottom:8px">⚠ Coverage Priority</div>
-    <div style="display:flex;flex-wrap:wrap;gap:18px;font-size:12px">
-      <span><b id="cpb-webhooked" style="color:var(--amber)">—</b> <span style="color:var(--text-sec)">treasuries monitored</span></span>
-      <span><b id="cpb-gap" style="color:var(--red)">—</b> <span style="color:var(--text-sec)">known sub-provisioners unsubscribed</span></span>
+  <!-- RUNTIME BUDGET HEALTH -->
+  <div class="sec-h" style="color:var(--text-sec);font-size:14px;margin-top:4px">
+    ⚙ Runtime Budget
+    <span id="rb-overall-pill" style="margin-left:10px;font-size:11px;padding:2px 9px;border-radius:6px;background:rgba(107,114,128,.15);color:var(--text-sec)">loading…</span>
+    <span id="rb-health-note" style="margin-left:10px;font-size:11px;color:var(--text-sec);font-weight:400"></span>
+  </div>
+
+  <!-- Summary row: critical path + degrade count -->
+  <div id="rb-summary-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px"></div>
+
+  <!-- Main panel: 3 sections -->
+  <div class="panel" id="rb-panel" style="margin-bottom:8px;display:none">
+    <!-- Section 1: Critical path status -->
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">CRITICAL PATH</div>
+      <div id="rb-critical-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
     </div>
-    <div style="margin-top:8px;font-size:11px;color:var(--text-dim)">
-      Increasing webhook coverage and enabling cascade subscriptions is currently the largest opportunity to improve detection performance.
-      <span style="color:var(--text-dim);font-style:italic">Read-only indicator — no actions here.</span>
+
+    <!-- Section 2: Graceful degradation -->
+    <div style="margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">
+        GRACEFUL DEGRADATION
+        <span style="font-weight:400;color:var(--text-sec);font-size:10px;margin-left:8px">— counts confirm the budget system is working, not failures</span>
+      </div>
+      <div id="rb-degrade-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+    </div>
+
+    <!-- Section 3: Runtime pressure -->
+    <div style="margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">RUNTIME PRESSURE</div>
+      <div id="rb-pressure-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+    </div>
+
+    <!-- Section 4: Config (collapsed) -->
+    <details style="border-top:1px solid var(--border);padding-top:8px">
+      <summary style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;cursor:pointer;list-style:none">
+        ▸ BUDGET CONFIGURATION <span style="font-weight:400;font-size:10px">(from runtime_budget.py)</span>
+      </summary>
+      <div id="rb-config-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px"></div>
+    </details>
+  </div>
+
+  <!-- SCHEDULER PRESSURE CARD -->
+  <div class="sec-h" style="color:var(--text-sec);font-size:14px;margin-top:4px">
+    ⏱ Scheduler
+    <span id="sched-pressure-pill" style="margin-left:10px;font-size:11px;padding:2px 9px;border-radius:6px;background:rgba(107,114,128,.15);color:var(--text-sec)">loading…</span>
+  </div>
+  <div id="sched-summary-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px"></div>
+  <div id="sched-runs-panel" style="display:none;margin-bottom:8px"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!--  SECTION A — CONFIRMED WATCHTOWER                                      -->
+  <!--  Only confirmed infrastructure: wt_confirmed_treasuries scope          -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="section-banner sb-wt">
+    <div class="sb-icon">🟢</div>
+    <div class="sb-body">
+      <div class="sb-title">Confirmed WATCHTOWER</div>
+      <div class="sb-desc">Infrastructure with confirmed treasury classification — launchers whose funding lineage has been verified on-chain. All widgets below reflect the <em>confirmed</em> treasury set only.</div>
+      <div class="sb-pop">Coverage Hero cards · Treasury Bank · Treasury Coverage · Trigger Health · Pre-Launch Detection · WebSocket Cascade · Launch Effectiveness · confirmed sub-provisioners (treasury IS NOT NULL)</div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 1 — CREATOR MODE DISTRIBUTION (moved up)               -->
-  <!-- explains the detection model BEFORE showing detection panels    -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h" style="color:var(--cyan)">⏱️ Creator Mode Distribution
-    <span class="hint">birth→launch gap · INSTANT (&lt;60s, attribution-only) vs STAGED (≥60s, catchable) · includes all funded+migrated creators, not exclusively confirmed-WATCHTOWER · this split determines the detection model</span>
-  </div>
-  <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
-    <b style="color:var(--cyan)">Why this matters:</b>
-    Measured across creators that passed through the funding pipeline and migrated — regardless of whether their treasury is confirmed.
-    Of confirmed-treasury creators only, the INSTANT share is even higher (~92%).
-    The key finding holds either way: the vast majority have a birth→launch gap under 60 seconds (median 1s)
-    and are structurally unpredictable before the CREATE transaction fires.
-    The cascade detects these <em>at</em> the moment of launch, not before.
-    Only the STAGED cohort has a catchable lead time — which is why the prediction pipeline is collapsed below.
-    <span style="color:var(--text-dim)">Note: this table includes creators from unknown operators, not exclusively confirmed WATCHTOWER infrastructure.</span>
-  </div>
-  <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
-  <div class="panel" style="margin-bottom:8px">
-    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Birth → Launch histogram</div>
-    <div id="creator-mode-histogram" style="font-family:var(--mono,monospace);font-size:12px;padding:4px 13px 12px">loading…</div>
-  </div>
+  <!-- CONFIRMED TREASURY BANK -->
+  <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
+  <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
   <div class="panel" style="margin-bottom:18px">
-    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Per-treasury mode — which operators run INSTANT vs STAGED</div>
     <table><thead><tr>
-      <th>Treasury</th><th>Mode</th><th class="num">Instant</th><th class="num">Staged</th><th class="num">Min</th><th class="num">Max</th>
-    </tr></thead><tbody id="creator-mode-treasury"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      <th>Treasury</th><th class="num">OUT SOL</th><th class="num">Active Subprovs</th><th class="num">Launches</th><th class="num">TX/24h</th><th>Webhooked</th><th>Last Outbound</th><th>Confidence</th>
+    </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 2 — LAUNCH AUDIT (elevated: primary effectiveness KPI) -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h" style="color:var(--green);font-size:15px">📊 Launch Effectiveness
-    <span class="hint" style="font-size:11px">when we detect a launch: how much upside was left? · MC @ detection · peak MC · actionable multiple = peak ÷ entry</span>
+  <!-- Coverage Opportunity Widget — ranked by Expected Detection Yield -->
+  <div class="cov-opp" id="cov-opp-widget" style="display:none">
+    <div class="cov-opp-head">
+      <span class="co-title">⚠ Coverage Opportunity</span>
+      <span class="co-hint">ranked by Expected Detection Yield · subscribe in order · read-only</span>
+    </div>
+    <div class="cov-summary-chips" id="cov-summary-chips">
+      <span class="cov-chip edy" id="cov-chip-edy">top-10 EDY —</span>
+      <span class="cov-chip t1"  id="cov-chip-t1">— blind treasuries</span>
+      <span class="cov-chip t2"  id="cov-chip-t2" style="display:none"></span>
+      <span class="cov-chip act" id="cov-chip-act">— active &lt;7d</span>
+      <span class="cov-chip dorm" id="cov-chip-dorm">— dormant &gt;90d</span>
+    </div>
+    <!-- TIER 1: Blind confirmed treasuries -->
+    <div class="cov-tier-hdr t1">
+      🔴 Tier 1 — Blind Confirmed Treasuries
+      <span class="tier-note">one subscription can expose all downstream subprovs · subscribe these first</span>
+      <span id="cov-t1-count" style="margin-left:auto;font-size:10px;color:var(--red);font-weight:800"></span>
+    </div>
+    <table style="font-size:11px">
+      <thead><tr>
+        <th style="width:32px">#</th>
+        <th>Treasury</th>
+        <th class="num">EDY</th>
+        <th class="num">Last Active</th>
+        <th class="num">Downstream</th>
+        <th class="num">Creators</th>
+        <th class="num">Launches</th>
+        <th class="num">Median Peak MC</th>
+        <th>Note</th>
+      </tr></thead>
+      <tbody id="cov-t1-body"><tr><td colspan="9" class="muted" style="padding:10px 13px">loading…</td></tr></tbody>
+    </table>
+    <!-- TIER 2: hidden — all historical single-use subprovs, no forward value -->
+    <div id="cov-t2-footnote" style="font-size:10px;color:var(--text-dim);margin-top:6px;padding:4px 8px;display:none"></div>
+  </div>
+
+
+  <!-- TREASURY TRIGGER HEALTH -->
+
+  <!-- PRE-LAUNCH DETECTION HEALTH -->
+  <!-- WS CASCADE -->
+  <div class="sec-h" style="color:var(--green)">📡 Active WebSocket Cascade
+    <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator</span>
+    <span id="ws-health" style="margin-left:auto;font-size:11px;font-weight:700"></span>
+  </div>
+  <div class="hero-grid" id="ws-cascade-cards" style="margin-bottom:8px"></div>
+  <div id="cascade-disabled-notice" style="display:none;margin-bottom:10px">
+    <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.4);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--amber)">
+      <b>Cascade offline (not running)</b> — 0 active sessions. No sub-provisioner wallets are being watched in real time.
+      <br><span style="color:var(--text-sec);font-size:11px;margin-top:4px;display:block">
+        WATCHTOWER continues to detect launches and perform attribution via the migration path.
+        Only the treasury→subprov live cascade monitoring is inactive.
+      </span>
+    </div>
+  </div>
+  <div id="cascade-armed-banner" style="margin-bottom:8px;display:none"></div>
+  <div id="pending-session-alert" style="margin-bottom:8px;padding:6px 10px;border-radius:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);display:none;font-size:11px"></div>
+  <div class="panel" style="margin-bottom:8px">
+    <div class="panel-title" style="margin-bottom:8px">Subscription Queue</div>
+    <div id="sub-queue-panel" style="font-size:11px;color:var(--text-dim)">loading…</div>
+  </div>
+  <div class="panel" style="margin-bottom:8px">
+    <table><thead><tr>
+      <th>Active SUB_PROV</th><th>Treasury</th><th>Operator</th>
+      <th class="num">Funding SOL</th><th>Fan-out</th><th>Type</th><th class="num">Session TTL</th>
+    </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- Program CREATE watcher shadow panel — only visible when WS_PROGRAM_CREATE_WATCHER_ENABLED=1 -->
+  <div id="pw-shadow-panel" style="display:none;margin-bottom:10px">
+    <div style="background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.35);border-radius:8px;padding:10px 14px">
+      <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;letter-spacing:.4px">
+        🔬 PROGRAM WATCHER — Phase 1 Shadow Mode
+        <span id="pw-stream-badge" style="margin-left:8px;font-size:10px;padding:1px 7px;border-radius:5px;background:rgba(139,92,246,.2)">CLOSED</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-active-candidates" style="font-size:18px">—</div><div class="l">active candidates</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v go" id="pw-matches" style="font-size:18px">—</div><div class="l">matches</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-persist-queue" style="font-size:18px">—</div><div class="l">persist queue</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-fetch-dropped" style="font-size:18px">—</div><div class="l">fetch dropped</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-fetch-timeout" style="font-size:18px">—</div><div class="l">fetch timeout</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-expired" style="font-size:18px">—</div><div class="l">expired</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="ws-latest-launch" style="margin-bottom:18px"></div>
+
+  <!-- WATCHTOWER LAUNCH EFFECTIVENESS -->
+  <div class="sec-h" style="color:var(--green);font-size:15px">📊 WATCHTOWER Launch Effectiveness
+    <span class="hint" style="font-size:11px">confirmed-treasury launches only · MC @ detection · peak MC · actionable multiple = peak ÷ entry</span>
     <span id="audit-verdict" style="margin-left:auto;font-size:12px;font-weight:800"></span>
   </div>
   <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
@@ -205,103 +361,33 @@ details.collapse-section .collapse-body { padding-top:14px; }
     </tr></thead><tbody id="audit-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 3 — WS CASCADE                                         -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h" style="color:var(--green)">📡 Active WebSocket Cascade
-    <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator</span>
-    <span id="ws-health" style="margin-left:auto;font-size:11px;font-weight:700"></span>
-  </div>
-  <div class="hero-grid" id="ws-cascade-cards" style="margin-bottom:8px"></div>
-  <div id="cascade-disabled-notice" style="display:none;margin-bottom:10px">
-    <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.4);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--amber)">
-      <b>Cascade offline (not running)</b> — 0 active sessions. No sub-provisioner wallets are being watched in real time.
-      <br><span style="color:var(--text-sec);font-size:11px;margin-top:4px;display:block">
-        WATCHTOWER continues to detect launches and perform attribution via the migration path.
-        Only the treasury→subprov live cascade monitoring is inactive.
-      </span>
-      Detection gap: <span id="cascade-gap-count" style="font-weight:800;color:var(--amber)"></span> known subprovs would be watched if cascade were enabled.
-    </div>
-  </div>
-  <div class="panel" style="margin-bottom:8px">
-    <table><thead><tr>
-      <th>Active SUB_PROV</th><th>Treasury</th><th class="num">Funding SOL</th>
-      <th class="num">Candidates</th><th class="num">Session TTL</th><th>Watching</th>
-    </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
-  </div>
-  <div id="ws-latest-launch" style="margin-bottom:18px"></div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 4 — TREASURY TRIGGER HEALTH (renamed from Anchor)      -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h">⚓ Treasury Trigger Health
-    <span class="hint">treasury webhook triggers only · silent ≠ WATCHTOWER broken · migration attribution and launch auditing operate independently</span>
-  </div>
-  <div style="background:rgba(110,118,129,.06);border:1px solid rgba(110,118,129,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
-    <b style="color:var(--text-pri)">Two independent paths:</b>
-    <span style="color:var(--green)">Migration attribution</span> — operates continuously, populates Launch Effectiveness above, does not depend on treasury webhooks.
-    <span style="color:var(--cyan)">Treasury trigger path</span> — the real-time ARMED / cascade system; dormant when webhooks are silent.
-    Silent anchors here do <em>not</em> mean WATCHTOWER is broken — they mean the pre-launch alert system is dormant.
-  </div>
-  <div class="hero-grid" id="anchor-health" style="margin-bottom:10px"></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr><th>Treasury Anchor</th><th>Role</th><th>Delivering</th><th>Last Hit</th><th>Hits 1h</th></tr></thead>
-      <tbody id="anchor-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 5 — PRE-LAUNCH DETECTION HEALTH (renamed)              -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h">📡 Pre-Launch Detection Health
-    <span class="hint">treasury trigger path only · migration attribution and launch auditing operate independently</span>
-  </div>
-  <div class="hero-grid" id="health"></div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 6 — SUB-PROVISIONERS + COVERAGE GAP                   -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h" style="color:var(--amber)">🔧 Sub-Provisioners
-    <span class="hint">do the wrap-close creator provisioning · UNKNOWN-treasury rows = leads to a new treasury · coverage gap = known but unsubscribed</span>
-    <span id="subprov-gap-badge" style="margin-left:auto"></span>
-  </div>
-  <!-- Coverage gap explainer -->
-  <div id="subprov-gap-explainer" style="margin-bottom:10px;display:none">
-    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--text-sec)">
-      <b style="color:var(--red)">Coverage gap:</b>
-      <span id="subprov-gap-text"></span>
-      These are the subprovs that <em>would</em> open a cascade session when funded — subscribing them is the #1 lever to raise real-time detection above 2.8%.
-    </div>
+  <!-- CONFIRMED SUB-PROVISIONERS -->
+  <div class="sec-h">🔧 Confirmed Sub-Provisioners
+    <span class="hint">treasury IS NOT NULL · wrap-close creator provisioning with known treasury · historical record · single-use wallets rotate each launch</span>
   </div>
   <div class="panel" style="margin-bottom:18px">
     <table><thead><tr>
       <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
-    </tr></thead><tbody id="subprovs-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+    </tr></thead><tbody id="subprovs-body-confirmed"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 7 — CONFIRMED TREASURY BANK                            -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
-  <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
+  <!-- UNKNOWN-TREASURY SUB-PROVISIONERS -->
+  <div class="sec-h" style="color:var(--amber)">🔧 Unknown-Treasury Sub-Provisioners
+    <span class="hint">treasury IS NULL · wrap-close behaviour confirmed but treasury not yet identified · each is a lead to a new treasury</span>
+  </div>
+  <div style="background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--cyan)">Unconfirmed infrastructure gap:</b>
+    These subprovs perform wrap-close creator provisioning but their funding treasury has not been confirmed.
+    Each row is a discovery lead — tracing the funder identifies a potential new treasury for the WATCHTOWER section.
+    Use "＋ set funder" to assign a treasury after on-chain investigation.
+  </div>
   <div class="panel" style="margin-bottom:18px">
     <table><thead><tr>
-      <th>Treasury</th><th class="num">OUT SOL</th><th class="num">Recip</th><th>Webhooked</th><th>Last Hit</th><th>Confidence</th>
-    </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
+    </tr></thead><tbody id="subprovs-body-unknown"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 8 — TREASURY COVERAGE (webhook toggles)                -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="sec-h">🎯 Treasury Coverage <span class="hint">the persistent webhook triggers · toggle each ON/OFF</span></div>
-  <div class="panel">
-    <table><thead><tr>
-      <th>Treasury</th><th>Operation</th><th class="num">Launches</th><th class="num">TX/24h</th><th>Webhooked</th><th>Last Event</th><th class="num">Template Events</th><th>Status</th><th>Webhook</th>
-    </tr></thead><tbody id="treasury-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- COLLAPSED: STAGED-ONLY PREDICTION PIPELINE                     -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STAGED + NETWORK (collapsed) -->
   <details class="collapse-section">
     <summary>
       <span class="cs-label">🚀 STAGED-Only Prediction Pipeline</span>
@@ -328,19 +414,9 @@ details.collapse-section .collapse-body { padding-top:14px; }
           <tbody id="fired-body"></tbody></table></div>
       </div>
 
-      <div class="sec-h" style="color:var(--cyan)">🛰 Active Forward Walks <span class="hint">following provisioning chains forward from treasury triggers</span></div>
-      <div class="panel" id="walks-panel">
-        <table><thead><tr>
-          <th>Session</th><th>Trigger</th><th>Operation</th><th>Current Wallet</th><th>Depth</th><th>State</th><th>TTL</th>
-        </tr></thead><tbody id="walks-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-      </div>
-
     </div>
   </details>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- COLLAPSED: NETWORK INTELLIGENCE                                 -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
   <details class="collapse-section">
     <summary>
       <span class="cs-label">🔬 Network Intelligence</span>
@@ -366,9 +442,20 @@ details.collapse-section .collapse-body { padding-top:14px; }
     </div>
   </details>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- DISCOVERY LEADS                                                 -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!--  SECTION B — OPERATOR DISCOVERY                                        -->
+  <!--  Wallets under investigation — not yet confirmed                       -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="section-banner sb-disc">
+    <div class="sb-icon">🔭</div>
+    <div class="sb-body">
+      <div class="sb-title">Operator Discovery</div>
+      <div class="sb-desc">Wallets exhibiting operator behaviour that have not yet been confirmed as treasuries. Human review required before any pipeline action. Data below is investigative, not authoritative.</div>
+      <div class="sb-pop">Discovery Leads · Potential Treasuries · Approved Treasuries audit · Treasury Attribution Review · unknown-treasury sub-provisioners (treasury IS NULL)</div>
+    </div>
+  </div>
+
+  <!-- DISCOVERY LEADS -->
   <div class="sec-h" style="color:var(--cyan)">🔭 Discovery Leads
     <span class="hint">wallets exhibiting operator infrastructure behaviour · not yet confirmed · human review required before any pipeline action</span>
   </div>
@@ -382,9 +469,15 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <div id="discovery-leads-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- POTENTIAL TREASURIES                                            -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- UNCONFIRMED WATCHTOWER-LIKE -->
+  <div class="sec-h" style="color:var(--amber)">⚠️ Unconfirmed WATCHTOWER-like Launches
+    <span class="hint">wrap-close lineage confirmed · root treasury unknown · needs human review before enrolment</span>
+  </div>
+  <div class="panel" style="margin-bottom:18px" id="uwl-panel">
+    <div id="uwl-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
+  </div>
+
+  <!-- POTENTIAL TREASURIES -->
   <div class="sec-h" style="color:var(--amber)">🔎 Potential Treasuries <span class="hint">surfaced post-migration · 3 signals: TRANSFER-purity + capital-scale + micro-pings · ALL require human ✓ approve</span></div>
   <div id="recovery-approval-banner" style="
     background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.35);
@@ -426,6 +519,44 @@ details.collapse-section .collapse-body { padding-top:14px; }
     </tr></thead><tbody id="review-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!--  SECTION C — ATTRIBUTION PIPELINE                                      -->
+  <!--  All attributed tokens regardless of confirmation status               -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="section-banner sb-attr">
+    <div class="sb-icon">📊</div>
+    <div class="sb-body">
+      <div class="sb-title">Attribution Pipeline</div>
+      <div class="sb-desc">All tokens attributed through the funding pipeline — confirmed WATCHTOWER and unknown operators alike. The creator mode split applies to the full attributed population, not the confirmed-treasury subset.</div>
+      <div class="sb-pop">Creator Mode Distribution · Birth→Launch histogram · Per-treasury mode table · Event Feed</div>
+    </div>
+  </div>
+
+  <!-- CREATOR MODE DISTRIBUTION -->
+  <div class="sec-h" style="color:var(--cyan)">⏱️ Creator Mode Distribution
+    <span class="hint">birth→launch gap · INSTANT (&lt;60s, attribution-only) vs STAGED (≥60s, catchable) · includes all funded+migrated creators, not exclusively confirmed-WATCHTOWER · this split determines the detection model</span>
+  </div>
+  <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--cyan)">Why this matters:</b>
+    Measured across creators that passed through the funding pipeline and migrated — regardless of whether their treasury is confirmed.
+    Of confirmed-treasury creators only, the INSTANT share is even higher (~92%).
+    The key finding holds either way: the vast majority have a birth→launch gap under 60 seconds (median 1s)
+    and are structurally unpredictable before the CREATE transaction fires.
+    The cascade detects these <em>at</em> the moment of launch, not before.
+    Only the STAGED cohort has a catchable lead time — which is why the prediction pipeline is collapsed in the WATCHTOWER section above.
+  </div>
+  <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:8px">
+    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Birth → Launch histogram</div>
+    <div id="creator-mode-histogram" style="font-family:var(--mono,monospace);font-size:12px;padding:4px 13px 12px">loading…</div>
+  </div>
+  <div class="panel" style="margin-bottom:18px">
+    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Per-treasury mode — which operators run INSTANT vs STAGED</div>
+    <table><thead><tr>
+      <th>Treasury</th><th>Mode</th><th class="num">Instant</th><th class="num">Staged</th><th class="num">Min</th><th class="num">Max</th>
+    </tr></thead><tbody id="creator-mode-treasury"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
   <!-- EVENT FEED -->
   <div class="sec-h">🛰 Event Feed <span class="hint">pre-launch detections first</span></div>
   <div class="panel">
@@ -451,6 +582,74 @@ function fmtMC(v){ if(v==null) return '—'; if(v>=1e6) return '$'+(v/1e6).toFix
 function fmtMult(v){ if(v==null) return '—'; return v.toFixed(v>=10?0:1)+'×'; }
 function fmtTTL(s){ if(s==null) return '—'; if(s<=0) return 'expired'; const m=Math.floor(s/60),ss=s%60; return m>0?`${m}m ${ss}s`:`${ss}s`; }
 
+
+// ── COVERAGE OPPORTUNITY — ranked EDY widget ─────────────────────────────────
+async function loadCoverageOpportunity(){
+  let d;
+  try{ d=await(await fetch('/api/ops-v2/intel/coverage-opportunity')).json(); }catch(e){ return; }
+  const s=d.summary||{};
+  const t1=d.tier1_blind_treasuries||[];
+  const t2=d.tier2_unsubscribed_subprovs||[];
+
+  // Hide widget entirely if nothing to report
+  const widget=document.getElementById('cov-opp-widget');
+  if(!widget) return;
+  if(s.total_candidates===0){ widget.style.display='none'; return; }
+  widget.style.display='';
+
+  // Summary chips
+  const $=id=>document.getElementById(id);
+  $('cov-chip-edy').textContent=`top-10 avg EDY ${s.top10_avg_edy??'—'} · best ${s.highest_edy??'—'}`;
+  $('cov-chip-t1').textContent=`${s.tier1_count} blind treasur${s.tier1_count===1?'y':'ies'}`;
+  // t2/act/dorm chips hidden — historical single-use subprovs have no forward value
+
+  function edyColor(score){
+    if(score>=70) return 'var(--green)';
+    if(score>=40) return 'var(--amber)';
+    if(score>=15) return '#d97706';
+    return 'var(--text-dim)';
+  }
+  function edyBar(score){
+    const pct=Math.round(Math.min(100,score));
+    const col=edyColor(score);
+    return `<span class="edy-bar-wrap"><span class="edy-bar-fill" style="width:${pct}%;background:${col}"></span></span>`;
+  }
+  function fmtMC(v){
+    if(!v) return '—';
+    if(v>=1000000) return '$'+(v/1000000).toFixed(1)+'M';
+    if(v>=1000) return '$'+(v/1000).toFixed(0)+'k';
+    return '$'+Math.round(v);
+  }
+
+  // TIER 1
+  $('cov-t1-count').textContent=`${t1.length} wallet${t1.length!==1?'s':''}`;
+  $('cov-t1-body').innerHTML=t1.length?t1.slice(0,15).map((r,i)=>`
+    <tr>
+      <td class="muted" style="padding:8px 13px">${i+1}</td>
+      <td><span class="addr" onclick="sol('${r.wallet}')">${short(r.wallet)}</span></td>
+      <td class="num" style="color:${edyColor(r.edy_score)};font-weight:800">${r.edy_score}${edyBar(r.edy_score)}</td>
+      <td class="num muted">${r.last_active_label?r.last_active_label+' ago':'<span style="color:var(--red)">never seen</span>'}</td>
+      <td class="num">${r.downstream_subprovs||'—'}</td>
+      <td class="num">${r.creator_count||'—'}</td>
+      <td class="num">${r.confirmed_launches||'—'}</td>
+      <td class="num">${fmtMC(r.median_peak_mc_usd)}</td>
+      <td style="font-size:9.5px;color:var(--text-dim)">${r.note||''}</td>
+    </tr>`).join('')
+  :'<tr><td colspan="9" class="muted" style="padding:10px 13px">no blind treasuries — all confirmed treasuries are webhooked ✓</td></tr>';
+
+  // TIER 2 — footnote only (all single-use, no forward value)
+  const fn=$('cov-t2-footnote');
+  if(fn){
+    const total=s.tier2_count||0;
+    if(total>0){
+      fn.textContent=`${total} historical single-use sub-provisioner${total===1?'':'s'} · all have fired once and returned funds · no forward value`;
+      fn.style.display='';
+    } else {
+      fn.style.display='none';
+    }
+  }
+}
+
 // ── PHASE 2: coverage-first hero (single endpoint, ops-DB only) ──────────────
 async function loadCoverageSummary(){
   let d; try{ d=await(await fetch('/api/ops-v2/intel/coverage-summary')).json(); }catch(e){ return; }
@@ -458,9 +657,9 @@ async function loadCoverageSummary(){
   // cascade status pill in header
   const sp=document.getElementById('cascade-status-pill');
   if(sp){
-    const col={ACTIVE:'cs-ACTIVE',LIVE:'cs-LIVE',LIVE_IDLE:'cs-LIVE_IDLE',STALE:'cs-STALE',DEGRADED:'cs-DEGRADED',DISABLED:'cs-DISABLED',DOWN:'cs-DOWN'}[d.cascade_status]||'cs-DOWN';
-    const dot={ACTIVE:'●',LIVE:'●',LIVE_IDLE:'◉',STALE:'◉',DEGRADED:'◐',DISABLED:'○',DOWN:'✕'}[d.cascade_status]||'✕';
-    const label={ACTIVE:'CASCADE ACTIVE',LIVE:'CASCADE LIVE',LIVE_IDLE:'CASCADE WATCHING',STALE:'CASCADE STALE',DEGRADED:'CASCADE DEGRADED',DISABLED:'CASCADE OFFLINE',DOWN:'CASCADE DOWN'}[d.cascade_status]||d.cascade_status;
+    const col={ACTIVE:'cs-ACTIVE',LIVE:'cs-LIVE',LIVE_IDLE:'cs-LIVE_IDLE',CONNECTING:'cs-STALE',SUBSCRIBING:'cs-STALE',RECONCILING:'cs-LIVE_IDLE',STALE:'cs-STALE',DEGRADED:'cs-DEGRADED',FAILED:'cs-DOWN',DISABLED:'cs-DISABLED',DOWN:'cs-DOWN'}[d.cascade_status]||'cs-DOWN';
+    const dot={ACTIVE:'●',LIVE:'●',LIVE_IDLE:'◉',CONNECTING:'⟳',SUBSCRIBING:'⟳',RECONCILING:'⟳',STALE:'◉',DEGRADED:'◐',FAILED:'✕',DISABLED:'○',DOWN:'✕'}[d.cascade_status]||'✕';
+    const label={ACTIVE:'CASCADE ACTIVE',LIVE:'CASCADE LIVE',LIVE_IDLE:'CASCADE WATCHING',CONNECTING:'CONNECTING',SUBSCRIBING:'SUBSCRIBING',RECONCILING:'RECONCILING',STALE:'CASCADE STALE',DEGRADED:'CASCADE DEGRADED',FAILED:'RESOURCE EXHAUSTION',DISABLED:'CASCADE OFFLINE',DOWN:'CASCADE DOWN'}[d.cascade_status]||d.cascade_status;
     sp.innerHTML=`<span class="cs-pill ${col}">${dot} ${label}</span>`;
   }
 
@@ -469,11 +668,11 @@ async function loadCoverageSummary(){
   const noFarm = (d.launches_total_7d === 0);
   const covCol = noFarm?'':covPct>=50?'go':covPct>=20?'hot':'bad';
   const covLabel = noFarm?`${d.launches_detected_7d||0} / no farm data`:`${covPct}%`;
-  const cascCol = {ACTIVE:'go',LIVE:'go',LIVE_IDLE:'go',STALE:'yl',DEGRADED:'hot',DISABLED:'hot',DOWN:'bad'}[d.cascade_status]||'bad';
+  const cascCol = {ACTIVE:'go',LIVE:'go',LIVE_IDLE:'go',CONNECTING:'yl',SUBSCRIBING:'yl',RECONCILING:'cy',STALE:'yl',DEGRADED:'hot',FAILED:'bad',DISABLED:'hot',DOWN:'bad'}[d.cascade_status]||'bad';
   const blindTreas = d.blind_treasuries||0;
   const gap = d.subprovs_gap||0;
 
-  const cascLabel={ACTIVE:'ACTIVE',LIVE:'LIVE',LIVE_IDLE:'WATCHING',STALE:'STALE',DEGRADED:'DEGRADED',DISABLED:'OFFLINE',DOWN:'DOWN'}[d.cascade_status]||d.cascade_status;
+  const cascLabel={ACTIVE:'ACTIVE',LIVE:'LIVE',LIVE_IDLE:'WATCHING',CONNECTING:'CONNECTING',SUBSCRIBING:'SUBSCRIBING',RECONCILING:'RECONCILING',STALE:'STALE',DEGRADED:'DEGRADED',FAILED:'EXHAUSTED',DISABLED:'OFFLINE',DOWN:'DOWN'}[d.cascade_status]||d.cascade_status;
   const tSubs  = d.cascade_treasury_subs||0;
   const spSubs = d.cascade_subprov_subs||0;
   const cSubs  = d.cascade_candidate_subs||0;
@@ -483,51 +682,24 @@ async function loadCoverageSummary(){
     ['cascade',              cascLabel,                                            cascCol],
     ['treasury WS subs',     tSubs,                                               tSubs>0?'go':'bad'],
     ['standing subprov subs',spSubs,                                              spSubCol],
-    ['session subprov subs', sessSubs,                                            sessSubs>0?'go':''],
+    ['active DB sessions',   sessSubs,                                            sessSubs>0?'go':''],
     ['candidate watches',    cSubs,                                               cSubs>0?'go':''],
     ['treasuries webhooked', `${d.webhooked_treasuries||0}/${d.confirmed_treasuries||0}`, blindTreas>0?'hot':'go'],
     ['blind treasuries',     blindTreas,                                          blindTreas>0?'bad':'go'],
-    ['subprov gap',          gap,                                                 gap>0?'bad':'go'],
     ['detection 7d',         covLabel,                                            covCol],
     ['last wrap-close',      d.last_wrap_close?ago(d.last_wrap_close)+' ago':'—',''],
     ['last CREATE',          d.last_create?ago(d.last_create)+' ago':'—',        ''],
   ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
-
-  // coverage priority banner (zero new calls — same data as hero)
-  const cpb=document.getElementById('coverage-priority-banner');
-  if(cpb){
-    const showBanner=(blindTreas>0)||(gap>0);
-    cpb.style.display=showBanner?'':'none';
-    const wb=document.getElementById('cpb-webhooked');
-    const gn=document.getElementById('cpb-gap');
-    if(wb) wb.textContent=`${d.webhooked_treasuries||0}/${d.confirmed_treasuries||0}`;
-    if(gn) gn.textContent=`${gap}/70`;
-  }
 
   // cascade disabled notice
   const notice=document.getElementById('cascade-disabled-notice');
   if(notice){
     if(d.cascade_status==='DISABLED'||d.cascade_status==='DOWN'){
       notice.style.display='';
-      const gc=document.getElementById('cascade-gap-count');
-      if(gc) gc.textContent=gap;
     } else {
       notice.style.display='none';
     }
   }
-
-  // subprov gap badge + explainer
-  const gb=document.getElementById('subprov-gap-badge');
-  if(gb){
-    const gclass=gap===0?'gap-none':gap<10?'gap-warn':'gap-bad';
-    gb.innerHTML=`<span class="gap-badge ${gclass}">${gap} unsubscribed</span>`;
-  }
-  const ge=document.getElementById('subprov-gap-explainer');
-  if(ge && gap>0){
-    ge.style.display='';
-    const gt=document.getElementById('subprov-gap-text');
-    if(gt) gt.textContent=` ${gap} of ${d.subprovs_known||0} known-treasury subprovs have no active cascade session. `;
-  } else if(ge){ ge.style.display='none'; }
 
   // warn banner: check detection health for WS silence
   try{
@@ -545,14 +717,28 @@ async function loadCoverageSummary(){
 async function loadWsCascade(){
   let d; try{ d=await(await fetch('/api/ops-v2/intel/ws-cascade')).json(); }catch(e){ return; }
   // WS health chip (section header)
-  const wsState = (d.active_subprovs===0 && d.ws_health!=='LIVE') ? 'DISABLED' : (d.ws_health||'DOWN');
-  const hc={LIVE:'var(--green)',STALE:'var(--yellow)',DISABLED:'var(--amber)',DOWN:'var(--red)'}[wsState]||'var(--red)';
+  const wsState = (d.active_subprovs===0 && !['LIVE','CONNECTING','SUBSCRIBING','RECONCILING'].includes(d.ws_health)) ? 'DISABLED' : (d.ws_health||'DOWN');
+  const hc={LIVE:'var(--green)',CONNECTING:'var(--yellow)',SUBSCRIBING:'var(--yellow)',RECONCILING:'var(--cyan)',STALE:'var(--yellow)',DISABLED:'var(--amber)',DOWN:'var(--red)',DEGRADED:'var(--red)',FAILED:'var(--red)'}[wsState]||'var(--red)';
+  const wd={LIVE:'●',CONNECTING:'⟳',SUBSCRIBING:'⟳',RECONCILING:'⟳',STALE:'◉',DISABLED:'○',DOWN:'✕',DEGRADED:'◐',FAILED:'✕'}[wsState]||'✕';
   const he=document.getElementById('ws-health');
-  if(he) he.innerHTML=`<span style="color:${hc}">● WS ${wsState}</span>${d.heartbeat_age_s!=null?` <span class="muted">(${d.heartbeat_age_s}s ago)</span>`:''}`;
+  if(he) he.innerHTML=`<span style="color:${hc}">${wd} ${wsState}</span>${d.heartbeat_age_s!=null?` <span class="muted">heartbeat ${d.heartbeat_age_s}s ago</span>`:''}`;
+  // pending session write alert
+  const pendEl=document.getElementById('pending-session-alert');
+  if(pendEl){
+    const pend=d.pending_session_writes||0;
+    const crit=d.critical_pending||0;
+    if(pend>0){
+      pendEl.style.display='';
+      pendEl.innerHTML=crit>0
+        ? `<span style="color:var(--red);font-weight:800">🚨 ${crit} CRITICAL pending session write${crit>1?'s':''} (≥${d.high_value_sol||10}◎) — retrying</span>${pend>crit?` <span class="muted">+ ${pend-crit} normal</span>`:''}`
+        : `<span style="color:var(--amber)">⚠️ ${pend} pending session write${pend>1?'s':''} — retrying</span>`;
+    } else {
+      pendEl.style.display='none';
+    }
+  }
   // cards
   const cards=[
     ['active SUB_PROVs', d.active_subprovs||0, (d.active_subprovs||0)>0?'go':''],
-    ['candidate watches', d.candidate_count||0, ''],
     ['launches total',   d.launches_total||0, (d.launches_total||0)>0?'go':''],
     ['cleanups',         d.cleanup_count||0, ''],
     ['last wrap-close',  d.last_wrap_close?ago(d.last_wrap_close)+' ago':'—', ''],
@@ -560,23 +746,235 @@ async function loadWsCascade(){
   ];
   const cc=document.getElementById('ws-cascade-cards');
   if(cc) cc.innerHTML=cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  // armed banner
+  const banner=document.getElementById('cascade-armed-banner');
+  if(banner){
+    const nSess=d.active_subprovs||0;
+    const nCand=d.candidate_count||0;
+    const pw=d.pw||{};
+    const pwOn=!!(pw.pw_enabled||pw.pw_stream_state);
+    const pwState=pw.pw_stream_state||'OFF';
+    const pwMatches=pw.pw_matches||0;
+    const pwActiveStyle='background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.5)';
+    const pwOpeningStyle='background:rgba(217,119,6,.15);color:var(--amber);border:1px solid rgba(217,119,6,.4)';
+    const pwDimStyle='background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)';
+    const pwBadgeStyle=pwState==='ACTIVE'?pwActiveStyle:pwState==='OPENING'?pwOpeningStyle:pwDimStyle;
+    const pwIcon=pwState==='ACTIVE'?'🟢':pwState==='OPENING'?'🟡':'⭘';
+    const detectionMode=pwOn
+      ?`<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;${pwBadgeStyle}">${pwIcon} pump.fun CREATE stream ${pwState}${pwMatches>0?' · '+pwMatches+' match'+(pwMatches>1?'es':''):''}</span>`
+      :`<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;${pwDimStyle}">⭘ CREATE stream OFF</span>`;
+    const dismissAllBtn=`<button onclick="dismissAllSessions()" title="Expire all active sessions" style="font-size:10px;padding:2px 8px;background:none;border:1px solid rgba(255,255,255,.2);border-radius:3px;color:var(--text-dim);cursor:pointer;margin-left:auto">✕ dismiss all</button>`;
+    if(nSess>0&&nCand>0){
+      banner.style.display='';
+      banner.innerHTML=`<div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.5);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:18px;font-weight:900;color:var(--green);letter-spacing:.5px">⚡ ARMED</span>
+        <span style="font-size:12px;color:var(--green)">${nSess} active session${nSess>1?'s':''} · <b>${nCand}</b> candidate wallet${nCand>1?'s':''} under live watch</span>
+        ${detectionMode}
+        <span style="font-size:11px;color:var(--text-dim)">any CREATE from a watched wallet fires a detection</span>
+        ${dismissAllBtn}
+      </div>`;
+    } else if(nSess>0){
+      banner.style.display='';
+      banner.innerHTML=`<div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.35);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:18px;font-weight:900;color:var(--amber);letter-spacing:.5px">◑ WATCHING</span>
+        <span style="font-size:12px;color:var(--amber)">${nSess} session${nSess>1?'s':''} open · waiting for wrap-close fan-out</span>
+        ${detectionMode}
+        <span style="font-size:11px;color:var(--text-dim)">CREATE stream opens when first candidate arrives</span>
+        ${dismissAllBtn}
+      </div>`;
+    } else {
+      banner.style.display='';
+      banner.innerHTML=`<div style="background:rgba(139,148,158,.06);border:1px solid rgba(139,148,158,.2);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:18px;font-weight:900;color:var(--text-dim);letter-spacing:.5px">○ IDLE</span>
+        <span style="font-size:12px;color:var(--text-dim)">no active sessions · waiting for treasury→subprov funding</span>
+      </div>`;
+    }
+  }
+  // ── Subscription queue instrumentation panel (Task 1 / Task 5) ──────────────
+  const subPanel = document.getElementById('sub-queue-panel');
+  if(subPanel){
+    const pending   = d.pending||0;
+    const gen       = d.reconnect_gen||0;
+    const sent      = d.subs_sent_total||0;
+    const conf      = d.subs_conf_total||0;
+    const rate      = d.sub_rate||0;
+    const avgAck    = d.sub_avg_ack_ms;
+    const p95Ack    = d.sub_p95_ack_ms;
+    const maxAck    = d.sub_max_ack_ms;
+    const p0Count       = d.sub_p0_count||0;
+    const p0AvgDelay    = d.sub_p0_avg_send_delay_ms;
+    const p0MaxDelay    = d.sub_p0_max_send_delay_ms;
+    const p0P95Delay    = d.sub_p0_p95_send_delay_ms;
+    const p0AvgAck      = d.sub_p0_avg_ack_ms;
+    const p0MaxAck      = d.sub_p0_max_ack_ms;
+    const p0P95Ack      = d.sub_p0_p95_ack_ms;
+    const p0Recent      = d.sub_p0_recent||[];
+    const fmtMs = v => v==null?'—':`${v}ms`;
+    const delayCol = v => v==null?'':v>100?'color:var(--red)':v>50?'color:var(--amber)':'color:var(--green)';
+    const ackCol   = v => v==null?'':v>500?'color:var(--red)':v>200?'color:var(--amber)':'color:var(--green)';
+    const recentRows = p0Recent.slice().reverse().map(ev=>`
+      <tr>
+        <td style="padding:2px 8px 2px 0;color:var(--text-dim)">${ev.wallet}</td>
+        <td style="text-align:right;padding:2px 4px;${delayCol(ev.send_delay_ms)}">${fmtMs(ev.send_delay_ms)}</td>
+        <td style="text-align:right;padding:2px 4px;${ackCol(ev.ack_latency_ms)}">${fmtMs(ev.ack_latency_ms)}</td>
+        <td style="text-align:right;padding:2px 4px;color:var(--text-dim)">${ev.gen}</td>
+      </tr>`).join('');
+    subPanel.innerHTML = `
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="hcard ${pending>=40?'bad':pending>=10?'hot':'go'}"><div class="v">${pending}</div><div class="l">pending queue</div></div>
+        <div class="hcard"><div class="v">${gen}</div><div class="l">reconnect gen</div></div>
+        <div class="hcard"><div class="v">${sent}</div><div class="l">subs sent</div></div>
+        <div class="hcard"><div class="v">${conf}</div><div class="l">subs confirmed</div></div>
+        <div class="hcard"><div class="v">${rate}/s</div><div class="l">replay rate</div></div>
+      </div>
+      <table style="width:100%;font-size:11px;border-collapse:collapse;margin-bottom:10px">
+        <thead><tr style="color:var(--text-dim)">
+          <th style="text-align:left;padding:2px 8px 2px 0">tier</th>
+          <th style="text-align:right;padding:2px 4px">avg send delay</th>
+          <th style="text-align:right;padding:2px 4px">p95 send delay</th>
+          <th style="text-align:right;padding:2px 4px">max send delay</th>
+          <th style="text-align:right;padding:2px 4px">avg ACK</th>
+          <th style="text-align:right;padding:2px 4px">p95 ACK</th>
+          <th style="text-align:right;padding:2px 4px">max ACK</th>
+          <th style="text-align:right;padding:2px 4px">n</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--green);padding:2px 8px 2px 0">P0 LIVE_ARMED</td>
+            <td style="text-align:right;padding:2px 4px;${delayCol(p0AvgDelay)}">${fmtMs(p0AvgDelay)}</td>
+            <td style="text-align:right;padding:2px 4px;${delayCol(p0P95Delay)}">${fmtMs(p0P95Delay)}</td>
+            <td style="text-align:right;padding:2px 4px;${delayCol(p0MaxDelay)}">${fmtMs(p0MaxDelay)}</td>
+            <td style="text-align:right;padding:2px 4px;${ackCol(p0AvgAck)}">${fmtMs(p0AvgAck)}</td>
+            <td style="text-align:right;padding:2px 4px;${ackCol(p0P95Ack)}">${fmtMs(p0P95Ack)}</td>
+            <td style="text-align:right;padding:2px 4px;${ackCol(p0MaxAck)}">${fmtMs(p0MaxAck)}</td>
+            <td style="text-align:right;padding:2px 4px">${p0Count}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim);padding:2px 8px 2px 0">all tiers (ACK only)</td>
+            <td colspan="3" style="text-align:right;padding:2px 4px;color:var(--text-dim)">—</td>
+            <td style="text-align:right;padding:2px 4px">${fmtMs(avgAck)}</td>
+            <td style="text-align:right;padding:2px 4px">${fmtMs(p95Ack)}</td>
+            <td style="text-align:right;padding:2px 4px">${fmtMs(maxAck)}</td>
+            <td style="text-align:right;padding:2px 4px">${d.sub_ack_count||0}</td>
+          </tr>
+        </tbody>
+      </table>
+      ${p0Recent.length?`
+      <div style="color:var(--text-dim);font-size:10px;margin-bottom:4px">Recent P0 events (newest first)</div>
+      <table style="width:100%;font-size:11px;border-collapse:collapse">
+        <thead><tr style="color:var(--text-dim)">
+          <th style="text-align:left;padding:2px 8px 2px 0">wallet</th>
+          <th style="text-align:right;padding:2px 4px">send delay</th>
+          <th style="text-align:right;padding:2px 4px">ACK latency</th>
+          <th style="text-align:right;padding:2px 4px">gen</th>
+        </tr></thead>
+        <tbody>${recentRows}</tbody>
+      </table>`:'<span style="color:var(--text-dim);font-size:10px">no P0 events yet</span>'}`;
+  }
+
   // sessions table
   const body=document.getElementById('ws-cascade-body');
   const sessions=d.sessions||[];
+  const _typeStyle={
+    // Phase E 6-way classification
+    'NEW_SUBPROV':                   'background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.3)',
+    'PROVISION_CANDIDATE':           'background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.3)',
+    'HISTORICAL_SUBPROV_DISCOVERED': 'background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25)',
+    'KNOWN_SUBPROV_TOPUP':           'background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.35)',
+    'SUBPROV_REACTIVATED':           'background:rgba(34,211,238,.1);color:var(--cyan);border:1px solid rgba(34,211,238,.3)',
+    'BUY_SWARM_PROVISIONER':         'background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3)',
+    'TREASURY_MESH':                 'background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)',
+    // legacy / promoted labels
+    'SUBPROV_TOP_UP':                'background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.35)',
+    'TEMP_PROMOTED':                 'background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.3)',
+    'CREATOR':                       'background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.25)',
+    'REARMED_SUBPROV_CANDIDATE':     'background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.35)',
+  };
+  // What will this wallet do if it receives CREATE instructions?
+  const _typeLabel={
+    'NEW_SUBPROV':                   'FRESH DEPLOYER',   // never launched before — expecting first launch
+    'PROVISION_CANDIDATE':           'FRESH DEPLOYER',
+    'HISTORICAL_SUBPROV_DISCOVERED': 'PREV SEEN',         // in WATCHTOWER history but no confirmed wrap-close
+    'KNOWN_SUBPROV_TOPUP':           'MID-CAMPAIGN',     // already active this campaign — top-up
+    'SUBPROV_REACTIVATED':           'REACTIVATED',      // deployed before, went quiet, now funded again
+    'BUY_SWARM_PROVISIONER':         'BUY SWARM',        // mostly funds swarms, rarely launches
+    'TREASURY_MESH':                 'MESH',
+    'SUBPROV_TOP_UP':                'MID-CAMPAIGN',
+    'TEMP_PROMOTED':                 'TEMP PROMOTED',
+    'CREATOR':                       'CREATOR',
+    'REARMED_SUBPROV_CANDIDATE':     'REARMED',          // ≥1◎ re-funding of a previously-expired wallet
+  };
+  // Operator identity: confidence badge colours
+  const _confStyle={
+    'CERTAIN':   'background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.4)',
+    'CONFIRMED': 'background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)',
+    'STRICT':    'background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.3)',
+    'MANUAL':    'background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.3)',
+    'LOW':       'background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)',
+  };
   if(body) body.innerHTML=sessions.map(s=>{
-    const w=(d.watches_by_subprov||{})[s.subprov]||[];
-    const watching=w.length
-      ?w.slice(0,8).map(x=>`<span class="addr" onclick="sol('${x.candidate}')" title="${x.amount!=null?x.amount+' SOL':''} · TTL ${fmtTTL(x.ttl_remaining)}">${short(x.candidate)}</span>`).join(' ')
-      :'<span class="muted">— no fan-out yet</span>';
-    return`<tr style="border-left:3px solid var(--green)">
-      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
+    const reason=s.open_reason||'PROVISION_CANDIDATE';
+    const badgeStyle=_typeStyle[reason]||_typeStyle['PROVISION_CANDIDATE'];
+    const badgeLabel=_typeLabel[reason]||reason;
+    // Operator column: family label > treasury short > confidence
+    const fam=s.treasury_family;
+    const conf=s.treasury_confidence;
+    const confStyle=_confStyle[conf]||_confStyle['LOW'];
+    let operatorCell='<span class="muted">—</span>';
+    if(fam||conf){
+      const famPart=fam?`<span style="font-size:10px;font-weight:700">${fam.replace(/^(AUTO_PFX_|AUTO_SFX_|WATCHTOWER_)/,'')}</span>`:'';
+      const sep=(fam&&conf)?`<span class="muted" style="margin:0 4px;font-size:9px">·</span>`:'';
+      const confPart=conf?`<span style="font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.3px;${confStyle}">${conf}</span>`:'';
+      operatorCell=famPart+sep+confPart;
+    }
+    const cands=s.candidates||0;
+    const fanCell=cands>0
+      ? `<span style="font-size:11px;font-weight:800;color:var(--green)">⚡ ${cands}</span>`
+      : `<span class="muted" style="font-size:11px">—</span>`;
+    const wsIcon=s.ws_subscribed
+      ? `<span title="LIVE_ARMED — WebSocket subscribed, candidate pipeline active" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)">ARMED</span>`
+      : `<span title="INTEL_ONLY — funding recorded, no WS subscription" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)">INTEL</span>`;
+    return`<tr style="border-left:3px solid ${cands>0?'var(--green)':'var(--border)'}">
+      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${wsIcon}</td>
       <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
-      <td class="num muted">${s.funding_amount!=null?s.funding_amount.toLocaleString():'—'}</td>
-      <td class="num">${s.candidates}</td>
+      <td style="white-space:nowrap">${operatorCell}</td>
+      <td class="num muted" style="white-space:nowrap" title="${s.topup_count>0?`opened: ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(3):'-'}◎\ntop-ups ×${s.topup_count}: +${s.topup_amount_total!=null?(+s.topup_amount_total).toFixed(3):'-'}◎\ntotal: ${s.session_total_sol!=null?(+s.session_total_sol).toFixed(3):'-'}◎`:''}">
+        ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(2):'—'}${s.topup_count>0?`<span style="color:var(--amber);font-size:9px;margin-left:3px">+${s.topup_count} <span style="opacity:.8">(${(+s.session_total_sol).toFixed(2)}◎)</span></span>`:''}
+      </td>
+      <td style="text-align:center">${fanCell}</td>
+      <td><span style="font-size:10px;font-weight:700;border-radius:5px;padding:2px 7px;letter-spacing:.3px;${badgeStyle}">${badgeLabel}</span></td>
       <td class="num" style="color:${s.ttl_remaining<60?'var(--yellow)':'var(--text-sec)'}">${fmtTTL(s.ttl_remaining)}</td>
-      <td>${watching}</td>
-    </tr>`;}).join('')||'<tr><td colspan="6" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV (ws_cascade daemon must be running and subscribed)</td></tr>';
+      <td><button data-subprov="${s.subprov}" onclick="dismissSession(this.dataset.subprov)" title="Expire session — unsubscribes WS within 5s" style="font-size:9px;padding:1px 6px;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);cursor:pointer">✕</button></td>
+    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV (ws_cascade daemon must be running and subscribed)</td></tr>';
   // latest launch banner
+  // program watcher shadow panel
+  const pw=d.pw||{};
+  const pwPanel=document.getElementById('pw-shadow-panel');
+  if(pwPanel){
+    if(pw.pw_enabled||pw.pw_stream_state){
+      pwPanel.style.display='';
+      const stateEl=document.getElementById('pw-stream-badge');
+      if(stateEl){
+        const st=pw.pw_stream_state||'CLOSED';
+        const stColor={ACTIVE:'var(--green)',OPENING:'var(--amber)',DRAINING:'var(--yellow)',CLOSED:'var(--text-sec)'}[st]||'var(--text-sec)';
+        stateEl.textContent=st;stateEl.style.color=stColor;
+      }
+      const _set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v??'—';};
+      _set('pw-active-candidates', pw.pw_active_candidates);
+      _set('pw-matches', pw.pw_matches);
+      _set('pw-persist-queue', pw.pw_persist_queue_depth);
+      _set('pw-fetch-dropped', pw.pw_fetch_dropped);
+      _set('pw-fetch-timeout', pw.pw_fetch_timeout);
+      _set('pw-expired', pw.pw_candidates_expired);
+      // colour fetch_dropped/timeout red if non-zero
+      const fd=document.getElementById('pw-fetch-dropped');
+      if(fd) fd.style.color=(pw.pw_fetch_dropped||0)>0?'var(--red)':'';
+      const ft=document.getElementById('pw-fetch-timeout');
+      if(ft) ft.style.color=(pw.pw_fetch_timeout||0)>0?'var(--yellow)':'';
+    } else {
+      pwPanel.style.display='none';
+    }
+  }
   const ll=d.latest_launch;
   const lb=document.getElementById('ws-latest-launch');
   if(lb){
@@ -683,66 +1081,53 @@ async function loadCreatorModes(){
 }
 
 // ── ANCHOR HEALTH ─────────────────────────────────────────────────────────────
-async function loadAnchorHealth(){
-  let d; try{ d=await(await fetch('/api/ops-v2/intel/anchor-health')).json(); }catch(e){ return; }
-  document.getElementById('anchor-health').innerHTML=[
-    ['anchor status',       d.status,                           d.status==='DELIVERING'?'go':'bad'],
-    ['anchors delivering',  `${d.anchors_delivering}/${d.anchors_total}`, d.anchors_delivering>0?'go':'bad'],
-    ['last webhook hit',    d.last_webhook_hit?ago(d.last_webhook_hit)+' ago':'never', d.last_webhook_hit?'':'bad'],
-    ['last walk started',   d.last_walk_started?ago(d.last_walk_started)+' ago':'never', ''],
-    ['last armed creator',  d.last_armed_creator?ago(d.last_armed_creator.armed_at)+' ago':'never', d.last_armed_creator?'go':''],
-  ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v" style="font-size:16px">${v}</div><div class="l">${l}</div></div>`).join('');
-  document.getElementById('anchor-body').innerHTML=(d.anchors||[]).map(a=>`
-    <tr style="${!a.delivering?'background:rgba(248,81,73,.04)':''}">
-      <td><span class="addr" onclick="sol('${a.wallet}')">${short(a.wallet)}</span></td>
-      <td class="muted">${a.role}</td>
-      <td>${a.delivering?'<span style="color:var(--green)">✓ live</span>':'<span style="color:var(--red)">✗ silent</span>'}</td>
-      <td class="muted">${a.last_hit?ago(a.last_hit)+' ago':'never'}</td>
-      <td class="num">${a.hits_1h}</td>
-    </tr>`).join('')||'<tr><td colspan="5" class="muted">no webhooked anchors</td></tr>';
-}
 
 // ── DETECTION HEALTH ──────────────────────────────────────────────────────────
-async function loadDetectionHealth(){
-  let dh; try{ dh=await(await fetch('/api/ops-v2/intel/detection-health')).json(); }catch(e){ return; }
-  document.getElementById('health').innerHTML=[
-    ['listener',         dh.listener_status,                         dh.listener_status==='LIVE'?'go':'bad'],
-    ['last webhook hit', dh.last_webhook_hit?ago(dh.last_webhook_hit)+' ago':'never', dh.last_webhook_hit?'':'bad'],
-    ['hits 24h',         dh.hits_24h,                                dh.hits_24h>0?'':'bad'],
-    ['template hits 24h',dh.template_hits_24h,                       ''],
-    ['rpc follow %',     dh.rpc_follow_success_pct!=null?dh.rpc_follow_success_pct+'%':'—', ''],
-    ['failed follows',   dh.failed_follows!=null?dh.failed_follows:'—', ''],
-  ].map(([l,v,c])=>`<div class="hcard ${c}"><div class="v" style="font-size:18px">${v}</div><div class="l">${l}</div></div>`).join('');
-}
 
 // ── SUB-PROVISIONERS ──────────────────────────────────────────────────────────
+function _renderSubprovRow(s){
+  const known=s.treasury_known;
+  const treasCell=s.treasury?`<span class="addr" onclick="sol('${s.treasury}')" style="${known?'':'color:var(--amber)'}">${short(s.treasury)}</span>`:'<span class="muted">—</span>';
+  const status=known
+    ?'<span style="color:var(--green);font-size:9px;font-weight:700">✓ known treasury</span>'
+    :'<span style="color:var(--amber);font-size:9px;font-weight:800">⚠️ UNKNOWN — investigate</span>';
+  const action=s.treasury
+    ?`<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--text-dim);color:var(--text-dim)" onclick="subprovRemoveFunder('${s.subprov}')">✕ remove</button>`
+    :`<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--amber);color:var(--amber)" onclick="subprovSetFunder('${s.subprov}')">＋ set funder</button>`;
+  const hubTag=s.is_distribution_hub?`<span style="font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;background:rgba(167,139,250,.15);color:#a78bfa;margin-left:5px">🪢 HUB</span>`:'';
+  return`<tr style="${known?'':'background:rgba(217,119,6,.07);border-left:3px solid var(--amber)'}">
+    <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${hubTag}</td>
+    <td class="num">${s.creators}</td>
+    <td class="num muted">${s.total_sol!=null?s.total_sol.toLocaleString():'—'}</td>
+    <td>${treasCell}</td>
+    <td>${status}</td>
+    <td class="muted" style="font-size:10px">${s.last_seen?ago(s.last_seen)+' ago':'—'}</td>
+    <td>${action}</td>
+  </tr>`;
+}
+
 async function loadSubprovs(){
   let d; try{ d=await(await fetch('/api/ops-v2/intel/subprovs')).json(); }catch(e){ return; }
   const sp=d.subprovs||[];
   const dn=d.distribution_nodes||[];
+
+  // Split by treasury presence
+  const confirmed=sp.filter(s=>s.treasury);
+  const unknown=sp.filter(s=>!s.treasury);
+
   const distHdr=dn.length
     ?`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:rgba(124,58,237,.10);border-left:3px solid #7c3aed">🪢 ${dn.length} DISTRIBUTION sub-provisioner${dn.length>1?'s':''} — subprov that ALSO funds other subprovs: ${dn.slice(0,3).map(n=>`<span class="addr" onclick="sol('${n.distributor}')" title="funds ${n.n} downstream subprovs">${short(n.distributor)}→${n.n}</span>`).join(' · ')}</td></tr>`:'';
-  const hdr=distHdr+`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${d.count||0} UNKNOWN-treasury sub-provisioners to investigate · ${d.known_resolved||0} resolved (hidden)</td></tr>`;
-  document.getElementById('subprovs-body').innerHTML=hdr+sp.map(s=>{
-    const known=s.treasury_known;
-    const treasCell=s.treasury?`<span class="addr" onclick="sol('${s.treasury}')" style="${known?'':'color:var(--amber)'}">${short(s.treasury)}</span>`:'<span class="muted">—</span>';
-    const status=known
-      ?'<span style="color:var(--green);font-size:9px;font-weight:700">✓ known treasury</span>'
-      :'<span style="color:var(--amber);font-size:9px;font-weight:800">⚠️ UNKNOWN — investigate</span>';
-    const action=s.funder_is_subprov&&s.immediate_funder
-      ?`<span style="font-size:9px;font-weight:800;color:#a78bfa">🪢 via <span class="addr" onclick="sol('${s.immediate_funder}')">${short(s.immediate_funder)}</span></span>`
-      :s.treasury
-      ?`<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--text-dim);color:var(--text-dim)" onclick="subprovRemoveFunder('${s.subprov}')">✕ remove</button>`
-      :`<button class="btn ghost" style="font-size:9px;padding:2px 7px;border-color:var(--amber);color:var(--amber)" onclick="subprovSetFunder('${s.subprov}')">＋ set funder</button>`;
-    return`<tr style="${known?'':'background:rgba(217,119,6,.07);border-left:3px solid var(--amber)'}">
-      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
-      <td class="num">${s.creators}</td>
-      <td class="num muted">${s.total_sol!=null?s.total_sol.toLocaleString():'—'}</td>
-      <td>${treasCell}</td>
-      <td>${status}</td>
-      <td class="muted" style="font-size:10px">${s.last_seen?ago(s.last_seen)+' ago':'—'}</td>
-      <td>${action}</td>
-    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no unknown-treasury sub-provisioners — all resolved</td></tr>';
+
+  // WATCHTOWER section: confirmed-treasury subprovs
+  const confHdr=distHdr+(confirmed.length?`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${confirmed.length} confirmed-treasury sub-provisioners · ${d.known_resolved||0} resolved (hidden)</td></tr>`:'');
+  document.getElementById('subprovs-body-confirmed').innerHTML=confHdr+
+    (confirmed.map(_renderSubprovRow).join('')||'<tr><td colspan="7" class="muted">no confirmed-treasury sub-provisioners</td></tr>');
+
+  // DISCOVERY section: unknown-treasury subprovs
+  const unknHdr=`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:var(--bg-card2)">${unknown.length} UNKNOWN-treasury sub-provisioners to investigate</td></tr>`;
+  document.getElementById('subprovs-body-unknown').innerHTML=unknHdr+
+    (unknown.map(_renderSubprovRow).join('')||'<tr><td colspan="7" class="muted">no unknown-treasury sub-provisioners — all resolved</td></tr>');
+
 }
 
 // ── TREASURY BANK ─────────────────────────────────────────────────────────────
@@ -757,38 +1142,177 @@ async function loadTreasuryBank(){
     card('Last Fanout',c.last_fanout?ago(c.last_fanout)+' ago':'—')+
     card('Last Strict Candidate',c.last_strict_candidate?ago(c.last_strict_candidate)+' ago':'—')+
     card('Last Fired Token',c.last_fired_token?short(c.last_fired_token):'none yet',c.last_fired_token?'go':'');
-  document.getElementById('treasury-bank-body').innerHTML=(d.treasuries||[]).map(t=>`
+  const srcBadge=(src,sig)=>{
+    if(!src) return '';
+    const url=sig?`https://solscan.io/tx/${sig}`:'';
+    const wrap=(html)=>url?`<a href="${url}" target="_blank" style="text-decoration:none">${html}</a>`:html;
+    if(src==='launch')   return wrap('<span style="font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(63,185,80,.15);color:var(--green);margin-left:4px">LAUNCH</span>');
+    if(src==='outbound') return wrap('<span style="font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(34,211,238,.12);color:var(--cyan);margin-left:4px">SEED</span>');
+    if(src==='mesh')     return wrap('<span style="font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(251,191,36,.12);color:#fbbf24;margin-left:4px">MESH</span>');
+    return '';
+  };
+  const now3d = Math.floor(Date.now()/1000) - 3*86400;
+  const active = (d.treasuries||[]).filter(t => (t.last_action||0) >= now3d);
+  const dormant = (d.treasuries||[]).filter(t => (t.last_action||0) < now3d);
+  const mkRow = t => `
     <tr>
       <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span></td>
-      <td class="num">${t.out_sol!=null?Math.round(t.out_sol).toLocaleString():'—'}</td>
-      <td class="num">${t.recipients??'—'}</td>
+      <td class="num">${t.last_outbound_sol!=null?(t.last_outbound_sol>=1?Math.round(t.last_outbound_sol).toLocaleString():t.last_outbound_sol.toFixed(2)):'—'}</td>
+      <td class="num">${t.active_subprovs||'—'}</td>
+      <td class="num" style="${(t.launches||0)>=3?'color:var(--green);font-weight:700':''}">${t.launches||'—'}</td>
+      <td class="num">${t.tx_24h!=null?t.tx_24h:'<span class="muted">—</span>'}</td>
       <td>${t.webhooked?'<span style="color:var(--green)">✓ live</span>':'<span style="color:var(--red)">✗ blind</span>'}</td>
-      <td class="muted">${t.last_hit?ago(t.last_hit)+' ago':'never'}</td>
+      <td class="muted">${t.last_action?ago(t.last_action)+' ago '+srcBadge(t.last_action_src,t.last_action_sig):t.last_subprov_activity?'<span style="color:var(--text-dim);font-size:10px">subprov '+ago(t.last_subprov_activity)+' ago</span>':'<span style="color:var(--red)">never seen</span>'}</td>
       <td><span style="font-size:9.5px;font-weight:700;color:var(--cyan)">${t.confidence||''}</span></td>
-    </tr>`).join('')||'<tr><td colspan="6" class="muted">no confirmed treasuries</td></tr>';
+    </tr>`;
+  const blindDormant = dormant.filter(t=>!t.webhooked);
+  const watchedDormant = dormant.filter(t=>t.webhooked);
+  const dormantNote = watchedDormant.length ? `
+    <tr>
+      <td colspan="8" style="padding:8px 13px;border-top:1px solid var(--border)">
+        <span style="color:var(--text-dim);font-size:11px">+ ${watchedDormant.length} more WS-subscribed · dormant · will reappear on outbound activity</span>
+      </td>
+    </tr>` : '';
+  document.getElementById('treasury-bank-body').innerHTML=
+    (active.length ? active.map(mkRow).join('') : '<tr><td colspan="8" class="muted">no active treasuries</td></tr>')
+    + dormantNote
+    + blindDormant.map(mkRow).join('');
 }
 
-// ── TREASURY COVERAGE ─────────────────────────────────────────────────────────
-async function loadTreasuryCoverage(){
-  let tc; try{ tc=await(await fetch('/api/ops-v2/intel/treasury-coverage')).json(); }catch(e){ return; }
-  document.getElementById('treasury-body').innerHTML=(tc.treasuries||[]).map(t=>`
-    <tr style="${!t.webhooked?'background:rgba(248,81,73,.04)':''}">
-      <td><span class="addr" onclick="sol('${t.treasury}')">${short(t.treasury)}</span>${t.high_value?'<span class="hv-tag">HIGH-VALUE</span>':''}
-          <button class="btn ghost" style="font-size:9px;padding:1px 5px;margin-left:4px" onclick="scoreRole('${t.treasury}',this)">score</button></td>
-      <td>${t.operation?`<span class="uuid" onclick="goOp('${t.operation_uuid}')">${t.operation}</span>`:'<span class="muted">—</span>'}</td>
-      <td class="num" style="${t.launches>=3?'color:var(--green);font-weight:700':''}">${t.launches}</td>
-      <td class="num">${t.tx_24h!=null?t.tx_24h:'<span class="muted">—</span>'}</td>
-      <td>${t.webhooked?'<span style="color:var(--green)">✓ '+t.webhook_state+'</span>':'<span style="color:var(--red)">✗ blind</span>'}</td>
-      <td class="muted">${t.last_event?ago(t.last_event)+' ago':'—'}</td>
-      <td class="num">${t.template_events}</td>
-      <td><span class="tstat ${t.status}">${t.status}</span></td>
-      <td>${t.webhooked
-            ?`<button class="btn ghost" style="border-color:var(--red);color:var(--red)" onclick="toggleWebhook('${t.treasury}',false,this)">● ON</button>`
-            :`<button class="btn" onclick="toggleWebhook('${t.treasury}',true,this)">○ OFF</button>`}</td>
-    </tr>`).join('')||'<tr><td colspan="9" class="muted">no treasuries</td></tr>';
-}
 
 // ── STAGED-ONLY PREDICTION PANELS (collapse section) ─────────────────────────
+async function loadScheduler(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/scheduler-pressure')).json(); }catch(e){ return; }
+  const lvl=d.pressure_level||'LOW';
+  const score=d.pressure_score??0;
+  const pillColor={'LOW':'var(--green)','MEDIUM':'var(--amber)','HIGH':'#ea580c','CRITICAL':'var(--red)'}[lvl]||'var(--text-sec)';
+  const pillBg={'LOW':'rgba(34,197,94,.12)','MEDIUM':'rgba(217,119,6,.12)','HIGH':'rgba(234,88,12,.12)','CRITICAL':'rgba(239,68,68,.12)'}[lvl]||'';
+  const pill=document.getElementById('sched-pressure-pill');
+  if(pill){ pill.style.background=pillBg; pill.style.color=pillColor; pill.textContent=`${score} ${lvl}`; }
+
+  // find last success + deferred count from recent_runs
+  const runs=d.recent_runs||[];
+  const lastOk=runs.find(r=>r.status==='OK'||r.status==='ok');
+  const deferCount=d.deferred_cycles??runs.filter(r=>r.status==='DEFERRED').length;
+  const batchSize=d.current_batch_size??'—';
+  const reasonMap={'HIGH':'active wave','CRITICAL':'critical wave','MEDIUM':'light pressure','LOW':'none'};
+  const lastReason=d.last_defer_reason?reasonMap[d.last_defer_reason]||d.last_defer_reason:'—';
+  const lastSuccessAgo=lastOk?(lastOk.ago_s<120?`${lastOk.ago_s}s ago`:Math.round(lastOk.ago_s/60)+'m ago'):'unknown';
+
+  const sc=(label,val,color='')=>`<div style="padding:6px 10px;background:rgba(255,255,255,.03);border-radius:6px;font-size:11px">
+    <div style="color:var(--text-sec);margin-bottom:2px">${label}</div>
+    <div style="font-weight:700;font-size:13px;color:${color||'var(--text-primary)'};">${val}</div>
+  </div>`;
+
+  const stateLabel=lvl==='CRITICAL'?'CRITICAL (deferred)':lvl==='HIGH'?'HIGH (deferred)':lvl==='MEDIUM'?'MEDIUM (throttled)':'Active';
+  const stateColor=lvl==='CRITICAL'?'var(--red)':lvl==='HIGH'?'#ea580c':lvl==='MEDIUM'?'var(--amber)':'var(--green)';
+
+  const el=document.getElementById('sched-summary-row');
+  if(el) el.innerHTML=`
+    ${sc('State',stateLabel,stateColor)}
+    ${sc('Pressure',`${score} (${lvl})`,pillColor)}
+    ${sc('Deferred cycles',deferCount,(deferCount>10?'var(--red)':deferCount>3?'var(--amber)':''))}
+    ${sc('Last successful run',lastSuccessAgo)}
+    ${sc('Batch size',batchSize)}
+    ${sc('Active sessions',d.active_pressure_sessions!=null?`${d.active_pressure_sessions} / ${d.active_sessions} total`:(d.active_sessions??'—'))}
+    ${sc('Pending writes',d.pending_writes??0,(d.pending_writes>0?'var(--amber)':''))}
+    ${sc('Starvation overrides',d.starvation_override_count??0,(d.starvation_override_count>0?'var(--amber)':''))}
+  `;
+}
+
+async function loadRuntimeBudget(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/runtime-budget')).json(); }catch(e){ return; }
+  const r=d.runtime||{}, cfg=d.config||{};
+
+  // ── overall pill ──────────────────────────────────────────────────────────
+  const pill=document.getElementById('rb-overall-pill');
+  const note=document.getElementById('rb-health-note');
+  const healthColor={'GREEN':'var(--green)','YELLOW':'var(--amber)','RED':'var(--red)'}[d.health]||'var(--text-sec)';
+  const healthBg={'GREEN':'rgba(34,197,94,.12)','YELLOW':'rgba(217,119,6,.12)','RED':'rgba(239,68,68,.12)'}[d.health]||'';
+  const healthIcon={'GREEN':'🟢','YELLOW':'🟡','RED':'🔴'}[d.health]||'⚪';
+  if(pill){ pill.style.background=healthBg; pill.style.color=healthColor; pill.textContent=`${healthIcon} ${d.health_label||d.health}`; }
+  if(note){ note.textContent=d.health_note||''; }
+
+  // ── summary row ───────────────────────────────────────────────────────────
+  const totalDeferred=(r.creator_resolution_skipped||0)+(r.pool_discovery_deferred||0)+
+    (r.validation_timeout||0)+(r.catchup_timeout||0)+(r.create_fetch_dropped||0);
+  const totalCritical=(r.treasury_timeout||0)+(r.create_fetch_timeout||0);
+  const summaryEl=document.getElementById('rb-summary-row');
+  if(summaryEl) summaryEl.innerHTML=`
+    <div class="hcard"><div class="v" style="color:${totalCritical>0?'var(--amber)':'var(--green)'}">
+      ${totalCritical>0?'⚠ '+totalCritical+' timeout(s)':'✓ Protected'}
+    </div><div class="l">Critical path</div></div>
+    <div class="hcard"><div class="v" style="color:${totalDeferred>0?'var(--cyan)':'var(--text-sec)'}">
+      ${totalDeferred}
+    </div><div class="l">Optional work deferred</div></div>
+    <div class="hcard"><div class="v" style="color:${(r.db_lock_errors_5m||0)>0?'var(--amber)':'var(--green)'}">
+      ${r.db_lock_errors_5m||0}/5m
+    </div><div class="l">DB lock errors</div></div>`;
+
+  // Show the main panel once we have data
+  const panel=document.getElementById('rb-panel'); if(panel) panel.style.display='';
+
+  // ── helper: mini stat cell ───────────────────────────────────────────────
+  const stat=(label,val,{warn=false,bad=false,good=false,note='',zero_ok=false}={})=>{
+    const v=val==null?'—':val;
+    const isZero=(v===0||v==='0');
+    const col=bad?'var(--red)':warn?'var(--amber)':good?'var(--green)':'var(--text-primary)';
+    return`<div class="hcard" style="padding:8px 10px">
+      <div class="v" style="font-size:17px;color:${col}">${v}${note?`<span style="font-size:10px;color:var(--text-sec);margin-left:3px">${note}</span>`:''}</div>
+      <div class="l" style="font-size:10px">${label}</div>
+    </div>`;
+  };
+
+  // ── critical path cells ───────────────────────────────────────────────────
+  const cascOk=r.cascade_state==='LIVE'||r.cascade_state==null;
+  const dbOk=(r.db_p99_wait_ms||0)<1000;
+  const lockOk=(r.db_lock_errors_5m||0)===0;
+  document.getElementById('rb-critical-grid').innerHTML=`
+    ${stat('WS Cascade',cascOk?'LIVE':r.cascade_state||'?',{good:cascOk,bad:!cascOk})}
+    ${stat('DB p99',((r.db_p99_wait_ms||0)+'ms'),{good:dbOk,warn:(r.db_p99_wait_ms||0)>=500&&dbOk,bad:!dbOk})}
+    ${stat('Treasury timeout',r.treasury_timeout||0,{warn:(r.treasury_timeout||0)>0,zero_ok:true})}
+    ${stat('Validation timeout',r.validation_timeout||0,{warn:(r.validation_timeout||0)>0,zero_ok:true})}
+    ${stat('CREATE fetch timeout',r.create_fetch_timeout||0,{warn:(r.create_fetch_timeout||0)>0,zero_ok:true})}
+    ${stat('DB lock errors',`${r.db_lock_errors_5m||0}/5m`,{good:lockOk,warn:(r.db_lock_errors_5m||0)>0&&(r.db_lock_errors_5m||0)<=5,bad:(r.db_lock_errors_5m||0)>5})}`;
+
+  // ── degrade section (optional work) ──────────────────────────────────────
+  document.getElementById('rb-degrade-grid').innerHTML=`
+    ${stat('Creator res. skipped',r.creator_resolution_skipped??'—',{note:'ok'})}
+    ${stat('Validation aborted',r.validation_timeout||0,{note:'ok'})}
+    ${stat('Catch-up timeout',r.catchup_timeout||0,{note:'ok'})}
+    ${stat('CREATE fetch dropped',r.create_fetch_dropped||0,{note:'ok'})}
+    ${stat('Pool disc. deferred',r.pool_discovery_deferred||0,{note:'ok'})}
+    ${stat('Migration deferred',r.migration_deferred||0,{note:'ok'})}
+    ${stat('CREATE fetch queue',r.create_fetch_queue||0,{warn:(r.create_fetch_queue||0)>15})}
+    ${stat('Budget exceeded (crr)',r.creator_resolution_budget_exceeded??'—',{note:'ok'})}`;
+
+  // ── pressure section ─────────────────────────────────────────────────────
+  document.getElementById('rb-pressure-grid').innerHTML=`
+    ${stat('DB p99',((r.db_p99_wait_ms||0)+'ms'),{good:(r.db_p99_wait_ms||0)<500,warn:(r.db_p99_wait_ms||0)>=500})}
+    ${stat('DB queue depth',r.db_queue_depth||0,{warn:(r.db_queue_depth||0)>3})}
+    ${stat('Lock errors 1h',r.db_lock_errors_1h||0,{warn:(r.db_lock_errors_1h||0)>0})}
+    ${stat('Lock errors 5m',r.db_lock_errors_5m||0,{warn:(r.db_lock_errors_5m||0)>0,bad:(r.db_lock_errors_5m||0)>5})}`;
+
+  // ── config section ───────────────────────────────────────────────────────
+  const cfgStat=(label,val)=>`<div style="padding:5px 8px;background:rgba(255,255,255,.03);border-radius:4px;font-size:11px">
+    <span style="color:var(--text-sec)">${label}</span>
+    <span style="float:right;font-weight:600;color:var(--text-primary)">${val}</span>
+  </div>`;
+  document.getElementById('rb-config-grid').innerHTML=`
+    ${cfgStat('Critical RPC total',(cfg.critical_rpc_total_s||'—')+'s')}
+    ${cfgStat('Outer timeout',(cfg.critical_outer_timeout_s||'—')+'s')}
+    ${cfgStat('Pool validate',(cfg.pool_validate_timeout_s||'—')+'s')}
+    ${cfgStat('Pool discovery',(cfg.pool_discovery_total_s||'—')+'s')}
+    ${cfgStat('Migration outer',(cfg.migration_outer_timeout_s||'—')+'s')}
+    ${cfgStat('CREATE concurrency',cfg.create_fetch_concurrency||'—')}
+    ${cfgStat('CREATE queue max',cfg.create_fetch_queue_max||'—')}
+    ${cfgStat('Creator res. fast',(cfg.creator_resolution_fast_s||'—')+'s')}
+    ${cfgStat('Creator res. deep',(cfg.creator_resolution_deep_s||'—')+'s')}
+    ${cfgStat('DB busy (critical)',(cfg.critical_db_busy_ms||'—')+'ms')}
+    ${cfgStat('Max candidate watches',cfg.max_candidate_watches||'—')}
+    ${cfgStat('Public RPC policy',cfg.public_rpc_policy||'—')}`;
+}
+
 async function loadAll(){
   let plc={creators:[]}; try{ plc=await(await fetch('/api/ops-v2/intel/pre-launch-creators')).json(); }catch(e){}
   // Likely To Launch Next
@@ -844,21 +1368,6 @@ async function loadArmed(){
   } else fw.style.display='none';
 }
 
-async function loadWalks(){
-  let d; try{ d=await(await fetch('/api/ops-v2/intel/active-walks')).json(); }catch(e){ return; }
-  const stateColor={WALKING:'var(--cyan)',ARMED:'var(--green)',EXPIRED:'var(--text-dim)',COLD:'var(--text-dim)',AMM_STOP:'var(--amber)',DEPTH_STOP:'var(--amber)'};
-  document.getElementById('walks-body').innerHTML=(d.walks||[]).map(w=>{
-    const ttlm=Math.floor((w.ttl_remaining_s||0)/60);
-    return`<tr style="${w.state==='WALKING'?'background:rgba(34,211,238,.05)':w.state==='ARMED'?'background:rgba(63,185,80,.06)':''}">
-      <td class="mono muted" style="font-size:10px">${(w.session_id||'').slice(0,16)}</td>
-      <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="sol('${w.trigger_wallet}')">${short(w.trigger_wallet)}</span> <span class="muted" style="font-size:9px">${w.trigger_role||''}</span></td>
-      <td>${w.operation?`<span class="uuid" onclick="goOp('${w.operation_uuid}')">${w.operation}</span>`:'—'}</td>
-      <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="sol('${w.current_wallet}')">${short(w.current_wallet)}</span></td>
-      <td style="text-align:center">${w.depth}</td>
-      <td><span style="font-weight:700;color:${stateColor[w.state]||'var(--text-sec)'}">${w.state}${w.creator_wallet?' 🎯':''}</span></td>
-      <td class="muted">${w.state==='WALKING'?ttlm+'m':(w.stop_reason||'—')}</td>
-    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no active walks</td></tr>';
-}
 
 // ── NETWORK INTELLIGENCE (collapse section, 60s refresh) ──────────────────────
 async function loadApexFunders(){
@@ -1098,7 +1607,7 @@ async function toggleWebhook(wallet,turnOn,btn){
     const body=turnOn?{confirm:true,wallets:[wallet]}:{confirm:true,action:'off',wallets:[wallet]};
     const r=await fetch('/api/ops-v2/intel/enroll',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json(); btn.textContent=r.ok?(turnOn?'✓ ON':'✓ OFF'):'failed';
-    setTimeout(()=>{loadTreasuryCoverage();loadTreasuryBank();},900);
+    setTimeout(()=>{loadTreasuryBank();},900);
   }catch(e){ btn.textContent='error'; btn.disabled=false; }
 }
 async function subprovSetFunder(subprov){
@@ -1115,6 +1624,24 @@ async function subprovSetFunder(subprov){
     }
     if(j.ok){ alert(`✓ Funder set.\nTreasury ${j.treasury} confirmed${j.webhooked?' + webhooked':''}.\n${j.verified?'On-chain verified ✓':'written via override'}`); loadSubprovs(); }
     else alert('Error: '+(j.error||'unknown'));
+  }catch(e){ alert('request failed: '+e); }
+}
+async function dismissSession(subprov){
+  if(!confirm(`Expire session for ${subprov.slice(0,12)}…?\n\nThis will unsubscribe the WS within 5s. If no sessions remain, the PumpFun program stream will also close.`)) return;
+  try{
+    const r=await fetch('/api/ops-v2/intel/dismiss-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subprov})});
+    if(!r.ok){ const t=await r.text(); alert('HTTP '+r.status+' from '+r.url+'\n\n'+t.slice(0,200)); return; }
+    const j=await r.json();
+    if(j.ok) setTimeout(loadWsCascade, 200); else alert('Error: '+(j.error||'unknown'));
+  }catch(e){ alert('request failed: '+e); }
+}
+async function dismissAllSessions(){
+  if(!confirm('Expire ALL active sessions?\n\nAll WS subscriptions will be dropped within 5s.')) return;
+  try{
+    const r=await fetch('/api/ops-v2/intel/dismiss-all-sessions',{method:'POST',headers:{'Content-Type':'application/json'}});
+    if(!r.ok){ const t=await r.text(); alert('HTTP '+r.status+'\n\n'+t.slice(0,200)); return; }
+    const j=await r.json();
+    if(j.ok) setTimeout(loadWsCascade, 500); else alert('Error: '+(j.error||'unknown'));
   }catch(e){ alert('request failed: '+e); }
 }
 async function subprovRemoveFunder(subprov){
@@ -1322,33 +1849,67 @@ async function dlAddReview(funder, score, badges, reasons){
 let _apexInterval=null;
 
 function refreshFast(){
-  loadCoverageSummary();   // Phase 2: single ops-DB endpoint replaces hero fan-out
+  loadCoverageSummary();        // Phase 2: single ops-DB endpoint replaces hero fan-out
+  loadCoverageOpportunity();    // ranked EDY widget (ops-DB only, read-only)
   loadWsCascade();
   loadLaunchAudit();
   loadCreatorModes();
-  loadAnchorHealth();
-  loadDetectionHealth();
   loadSubprovs();
   loadTreasuryBank();
-  loadTreasuryCoverage();
   loadAll();               // pre-launch creators (STAGED pipeline, collapsed)
   loadArmed();
-  loadWalks();
   loadTreasuryReview();
   loadApprovalAudit();
   loadReview();
   loadFeed();
 }
 
+async function loadUnconfirmedWatchtowerLike(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/unconfirmed-watchtower-like')).json(); }catch(e){ return; }
+  const el=document.getElementById('uwl-body'); if(!el) return;
+  if(!d.leads||d.leads.length===0){
+    el.innerHTML='<span class="muted">no unconfirmed WATCHTOWER-like leads</span>'; return;
+  }
+  const rootCounts=d.root_counts||{};
+  const rows=d.leads.map(r=>{
+    const rootCount=rootCounts[r.unknown_root_wallet]||1;
+    const rootBadge=rootCount>1
+      ? `<span style="font-size:9px;background:rgba(217,119,6,.15);color:var(--amber);border:1px solid rgba(217,119,6,.3);border-radius:3px;padding:1px 5px;margin-left:4px">${rootCount} tokens</span>`
+      : '';
+    return `<tr>
+      <td><span class="addr" onclick="sol('${r.mint}')">${short(r.mint)}</span></td>
+      <td><span class="addr" onclick="sol('${r.creator_wallet||''}')">${short(r.creator_wallet||'')}</span></td>
+      <td><span class="addr" onclick="sol('${r.subprov_wallet||''}')">${short(r.subprov_wallet||'')}</span></td>
+      <td><span class="addr" onclick="sol('${r.unknown_root_wallet||''}')">${short(r.unknown_root_wallet||'')}</span>${rootBadge}</td>
+      <td class="num">${r.root_hop||'?'}</td>
+      <td class="num">${r.amount_sol!=null?(+r.amount_sol).toFixed(2):'—'}◎</td>
+      <td class="num muted">${ago(r.last_seen)}</td>
+      <td class="num">${r.occurrence_count||1}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML=`<table style="width:100%;font-size:12px">
+    <thead><tr>
+      <th>Mint</th><th>Creator</th><th>Subprov</th><th>Unknown Root</th>
+      <th>Hop</th><th>Amount</th><th>Last seen</th><th>Seen</th>
+    </tr></thead><tbody>${rows}</tbody>
+  </table><div style="margin-top:8px;font-size:11px;color:var(--text-dim)">${d.total} total leads · review root wallets for treasury confirmation</div>`;
+}
+
 function refreshSlow(){
   loadApexFunders();       // 30d-filtered, but still live-DB GROUP BY — 60s is enough
   loadVanity();
   loadDiscoveryLeads();    // ops-DB only, read-only, safe at 60s cadence
+  loadRuntimeBudget();     // runtime health — counters reset on process restart
+  loadScheduler();         // scheduler pressure card
+  loadUnconfirmedWatchtowerLike();
 }
 
 refreshFast();
 refreshSlow();
-loadDiscoveryLeads();   // initial load — don't wait 60s for first render
+loadDiscoveryLeads();           // initial load — don't wait 60s for first render
+loadUnconfirmedWatchtowerLike(); // initial load
+loadRuntimeBudget();    // initial load
+loadScheduler();        // initial load
 setInterval(refreshFast, 15000);
 setInterval(refreshSlow, 60000);  // Phase 3: apex funders moved to 60s
 </script>

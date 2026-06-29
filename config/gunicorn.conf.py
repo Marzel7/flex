@@ -21,8 +21,8 @@ workers = 1
 threads = 4 if recovery_mode else 24
 
 # Recycling — prevents slow memory leaks over multi-day runs
-max_requests = 2000
-max_requests_jitter = 200
+max_requests = 500
+max_requests_jitter = 50
 
 # Timeouts
 timeout = 120           # worker killed if no response in 120s

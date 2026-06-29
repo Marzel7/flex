@@ -206,7 +206,10 @@ def ensure_audit_schema(conn) -> None:
     conn.commit()
 
 
+_audit_schema_ensured = False
+
 def _ops(read_only: bool = False):
+    global _audit_schema_ensured
     if read_only:
         # Dashboard read path: a writable connection + ensure_audit_schema (a
         # WRITE) blocked on the write lane during the scheduler's write storm
@@ -220,7 +223,9 @@ def _ops(read_only: bool = False):
             pass  # older db_connect without read_only — fall through
     c = db_connect(OPS_DB_PATH, timeout=20)
     c.execute("PRAGMA busy_timeout=20000")
-    ensure_audit_schema(c)
+    if not _audit_schema_ensured:
+        ensure_audit_schema(c)
+        _audit_schema_ensured = True
     return c
 
 

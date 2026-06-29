@@ -22,6 +22,7 @@ Routes:
 
 import os
 import sqlite3
+import threading
 import time
 import json as _json
 
@@ -55,7 +56,8 @@ def _conn():
 def _conn_rw():
     # Writable, serialized connection over wt_ops_v2.db for the few action
     # handlers that mutate (subprov-funder, treasury-promote, treasury_stats).
-    c = db_connect(OPS_DB_PATH, timeout=10)
+    c = db_connect(OPS_DB_PATH, timeout=60)
+    c.execute("PRAGMA busy_timeout=60000")  # 60s C-level wait — survives cross-process lock contention
     c.row_factory = sqlite3.Row
     return c
 
@@ -902,9 +904,10 @@ def api_candidates():
             SELECT c.wallet, c.source_wallet, c.source_role, c.amount, c.template_base,
                    c.confidence, c.status, c.first_seen,
                    o.treasury_root,
-                   (SELECT 1 FROM wt_ops_v2_creators cr WHERE cr.creator_wallet=c.wallet) AS migrated
+                   CASE WHEN cr.creator_wallet IS NOT NULL THEN 1 END AS migrated
             FROM wt_operation_candidates c
             JOIN wt_ops_v2 o ON o.operation_uuid=c.operation_uuid
+            LEFT JOIN wt_ops_v2_creators cr ON cr.creator_wallet=c.wallet
             {where}
             ORDER BY c.template_base IS NOT NULL DESC, c.confidence DESC, c.first_seen DESC
             LIMIT 300
@@ -967,10 +970,8 @@ def _live_conn():
     # Read-only URI connection: this dashboard NEVER writes the live DB, and a
     # read-only WAL connection reads the last committed snapshot WITHOUT taking
     # the file write lock — so it can't be blocked by the listener's write storm.
-    # (Using db_connect here meant reads waited up to busy_timeout under load and
-    # wedged the 8-thread worker when the page fired ~22 requests at once.)
-    c = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=8)
-    c.execute("PRAGMA busy_timeout=8000")
+    c = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=2)
+    c.execute("PRAGMA busy_timeout=1500")
     c.row_factory = sqlite3.Row
     return c
 
@@ -1374,6 +1375,22 @@ def api_intel_token_performance():
                 "WHERE state='BUY_SWARM' AND token_mint IS NOT NULL").fetchall()}
         except Exception:
             pass
+        # UNCONFIRMED_WATCHTOWER_LIKE — wrap-close lineage confirmed, root unknown
+        uwl_by_mint = {}
+        try:
+            live_conn_uwl = __import__("sqlite3").connect(LIVE_DB_PATH, timeout=5)
+            live_conn_uwl.row_factory = __import__("sqlite3").Row
+            for r in live_conn_uwl.execute(
+                "SELECT mint, subprov_wallet, unknown_root_wallet, root_hop, amount_sol "
+                "FROM wt_unconfirmed_watchtower_like WHERE status='REVIEW'"
+            ).fetchall():
+                uwl_by_mint[r["mint"]] = {
+                    "subprov": r["subprov_wallet"], "root": r["unknown_root_wallet"],
+                    "hop": r["root_hop"], "amount": r["amount_sol"],
+                }
+            live_conn_uwl.close()
+        except Exception:
+            pass
 
         where = "WHERE 1=1"
         if migrated_only:
@@ -1423,9 +1440,17 @@ def api_intel_token_performance():
                 seen_mints.add(m)
         except Exception:
             pass
+        # STRONG attribution mints (backfill lineage-walk confirmed) also get the WATCHTOWER tag
+        attribution_mints = set()
+        try:
+            attribution_mints = {r[0] for r in ov.execute(
+                "SELECT mint FROM watchtower_token_attribution WHERE tier='STRONG'").fetchall()}
+        except Exception:
+            pass
+
         # treat discovery mints as WATCHTOWER for tagging even if they also have a watch_candidate row
         wt_launch_mints = set(wt_launch_mints)   # cascade-confirmed (gets the ✓)
-        _wt_tag_mints = wt_launch_mints | discovery_mints
+        _wt_tag_mints = wt_launch_mints | discovery_mints | attribution_mints
 
         # UNION the confirmed cascade launches not already present (they get the ✓ badge).
         # cascade launch create_times (so a just-caught launch not yet in token_analysis still
@@ -1563,9 +1588,12 @@ def api_intel_token_performance():
             is_wt = mint in _wt_tag_mints                 # cascade OR discovery → WATCHTOWER tag
             is_swarm = mint in swarm_mints
             farm = farm_by_mint.get(mint)                 # operator cluster (any mechanism)
-            # tag precedence: WATCHTOWER (wrap-close, confirmed) > FARM (operator cluster) > base
+            uwl = uwl_by_mint.get(mint)                   # wrap-close lineage, unknown root
+            # tag precedence: WATCHTOWER > UNCONFIRMED_WT_LIKE > FARM > base
             if is_wt or base == "WATCHTOWER":
                 tag = "WATCHTOWER"
+            elif uwl:
+                tag = "WT_LIKE"
             elif farm:
                 tag = "FARM"
             else:
@@ -1577,6 +1605,9 @@ def api_intel_token_performance():
             rec = {
                 "mint": mint, "tag": tag,
                 "wt_confirmed": is_wt_confirmed, "swarm": is_swarm,
+                "uwl_subprov": (uwl or {}).get("subprov"),
+                "uwl_root": (uwl or {}).get("root"),
+                "uwl_hop": (uwl or {}).get("hop"),
                 "farm_funder": (farm or {}).get("funder"),
                 "farm_mechanism": (farm or {}).get("mechanism"),
                 "farm_creators": (farm or {}).get("farm_creators"),
@@ -2052,19 +2083,49 @@ def api_intel_subprovs():
         rows = ov.execute(
             "SELECT subprov, first_creator, creator_count, treasury, treasury_known, last_seen"
             + _mesh_cols + " FROM wt_discovered_subprovs ORDER BY last_seen DESC").fetchall()
+        # Build a map: immediate_funder → treasury for distribution nodes
+        funder_treasury: dict = {}
+        if _have_mesh:
+            try:
+                for fr in ov.execute(
+                    "SELECT subprov, treasury FROM wt_discovered_subprovs "
+                    "WHERE immediate_funder IS NOT NULL OR funder_is_subprov=1"
+                ).fetchall():
+                    if fr["treasury"]:
+                        funder_treasury[fr["subprov"]] = fr["treasury"]
+            except Exception:
+                pass
         out = []
         known_count = 0
+        # Distribution hubs that need surfacing: immediate_funder with unknown treasury.
+        # We surface the HUB as the single lead rather than all its downstream rows.
+        unresolved_hubs: dict = {}  # hub_addr → {last_seen, creator_count}
         for r in rows:
             sp = r["subprov"]
             treasury = r["treasury"] or lineage.get(sp)
             funder_is_subprov = bool(r["funder_is_subprov"]) if _have_mesh else False
+            immediate_funder = (r["immediate_funder"] if _have_mesh else None)
+            # funder_is_subprov only counts as "resolved" if the distribution subprov's
+            # OWN treasury is also confirmed — otherwise the chain is still unknown.
+            funder_resolved = False
+            if funder_is_subprov and immediate_funder:
+                funder_t = funder_treasury.get(immediate_funder)
+                funder_resolved = bool(funder_t and (funder_t in confirmed or funder_t in reviewing))
             # resolved if the treasury is known (confirmed OR in review OR linked via lineage),
-            # OR if the immediate funder is a known distribution subprov (funder_is_subprov=True —
-            # chain is treasury→distribution_subprov→this_subprov; the lead is identified).
-            if (treasury and (treasury in confirmed or treasury in reviewing)) or funder_is_subprov:
+            # OR if the immediate funder distribution subprov has a confirmed treasury.
+            if (treasury and (treasury in confirmed or treasury in reviewing)) or funder_resolved:
                 known_count += 1
                 continue
-            # a treasury we have but haven't confirmed/reviewed = still a lead, but show the addr
+            # If funded via an unresolved distribution hub, suppress this downstream row
+            # and accumulate the hub itself as the single lead to investigate.
+            if funder_is_subprov and immediate_funder and not funder_resolved:
+                known_count += 1  # downstream row is accounted for
+                hub = unresolved_hubs.setdefault(immediate_funder, {"last_seen": None, "creator_count": 0})
+                hub["creator_count"] += r["creator_count"] or 0
+                if r["last_seen"] and (hub["last_seen"] is None or r["last_seen"] > hub["last_seen"]):
+                    hub["last_seen"] = r["last_seen"]
+                continue
+            # a treasury we have but haven't confirmed/reviewed = still a lead, show the addr
             out.append({
                 "subprov": sp,
                 "creators": r["creator_count"],
@@ -2074,10 +2135,27 @@ def api_intel_subprovs():
                 "total_sol": None,
                 "last_seen": r["last_seen"],
                 "first_creator": r["first_creator"],
-                # DISTRIBUTION tier: who DIRECTLY seeded this subprov, and whether that
-                # funder is itself a subprov (root treasury → distribution subprov → this).
-                "immediate_funder": (r["immediate_funder"] if _have_mesh else None),
+                "immediate_funder": immediate_funder,
                 "funder_is_subprov": funder_is_subprov,
+            })
+        # Surface each unresolved distribution hub as a single lead with ＋ set funder.
+        # If the hub's lineage treasury is already confirmed, skip it — it's resolved.
+        for hub_addr, hub_info in unresolved_hubs.items():
+            hub_treasury = lineage.get(hub_addr)
+            if hub_treasury and (hub_treasury in confirmed or hub_treasury in reviewing):
+                continue
+            out.append({
+                "subprov": hub_addr,
+                "creators": hub_info["creator_count"],
+                "treasury": hub_treasury,
+                "treasury_status": "unknown",
+                "treasury_known": False,
+                "total_sol": None,
+                "last_seen": hub_info["last_seen"],
+                "first_creator": None,
+                "immediate_funder": None,
+                "funder_is_subprov": False,
+                "is_distribution_hub": True,
             })
         # DISTRIBUTION NODES: real subprovs that fund OTHER real subprovs (read-only
         # derivation, mechanism-guarded — never raw mid-chain nodes). Surfaced so the UI
@@ -2108,26 +2186,96 @@ def api_intel_ws_cascade():
                             "latest_launch": None, "ws_health": "DOWN", "cleanup_count": 0,
                             "last_wrap_close": None, "last_create": None})
         now = int(time.time())
+        # Deduplicate by subprov: one row per active subprov, most-recent session wins for
+        # treasury/TTL; funding_amount = sum across all active sessions for that subprov.
+        _scols = {r[1] for r in ov.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
+        _topup_cols = "initial_funding_amount, topup_count, topup_amount_total, last_topup_at" \
+            if "initial_funding_amount" in _scols else \
+            "NULL AS initial_funding_amount, 0 AS topup_count, 0.0 AS topup_amount_total, NULL AS last_topup_at"
+        _sess_raw = ov.execute(
+            f"SELECT subprov_wallet, treasury_wallet, funding_amount, funding_time, "
+            f"detected_at, expires_at, open_reason, COALESCE(monitoring_state,'LIVE_ARMED') as monitoring_state, {_topup_cols} "
+            "FROM wt_active_subprov_sessions WHERE state='ACTIVE' "
+            "ORDER BY detected_at DESC").fetchall()
+        _by_subprov: dict = {}
+        for r in _sess_raw:
+            sp = r["subprov_wallet"]
+            if sp not in _by_subprov:
+                initial = r["initial_funding_amount"] or r["funding_amount"] or 0
+                topup_total = r["topup_amount_total"] or 0
+                _by_subprov[sp] = {
+                    "subprov": sp, "treasury": r["treasury_wallet"],
+                    "funding_amount": r["funding_amount"] or 0,
+                    "funding_time": r["funding_time"],
+                    "ttl_remaining": max(0, (r["expires_at"] or now) - now),
+                    "open_reason": r["open_reason"] or "PROVISION_CANDIDATE",
+                    "monitoring_state": r["monitoring_state"],
+                    "ws_subscribed": r["monitoring_state"] == "LIVE_ARMED",
+                    "initial_funding_sol": initial,
+                    "topup_count": r["topup_count"] or 0,
+                    "topup_amount_total": topup_total,
+                    "session_total_sol": initial + topup_total,
+                    "last_topup_at": r["last_topup_at"],
+                }
+            else:
+                _by_subprov[sp]["funding_amount"] = (_by_subprov[sp]["funding_amount"] or 0) + (r["funding_amount"] or 0)
+        # attach candidate count once per subprov
+        _cand_counts = {
+            row[0]: row[1] for row in ov.execute(
+                "SELECT subprov_wallet, COUNT(DISTINCT candidate_wallet) FROM wt_candidate_websocket_watches "
+                "WHERE state IN ('WATCHING','AUDIT_ONLY') GROUP BY subprov_wallet").fetchall()
+        }
+        # Enrich each session with treasury identity from confirmed_treasuries + vanity_families
+        _treasury_set = {s["treasury"] for s in _by_subprov.values() if s.get("treasury")}
+        _treasury_meta: dict = {}
+        if _treasury_set:
+            placeholders = ",".join("?" * len(_treasury_set))
+            t_list = list(_treasury_set)
+            for row in ov.execute(
+                f"SELECT treasury, confidence, method, provenance, out_sol, recipients "
+                f"FROM wt_confirmed_treasuries WHERE treasury IN ({placeholders})", t_list
+            ).fetchall():
+                _treasury_meta[row["treasury"]] = {
+                    "confidence": row["confidence"], "method": row["method"],
+                    "provenance": row["provenance"], "out_sol": row["out_sol"],
+                    "recipients": row["recipients"],
+                }
+            # Vanity family lookup — family_label and role for each treasury
+            for row in ov.execute(
+                f"SELECT family_label, confirmed_wallets_json, roles_json "
+                f"FROM wt_vanity_families"
+            ).fetchall():
+                try:
+                    wallets = _json.loads(row["confirmed_wallets_json"] or "[]")
+                    roles   = _json.loads(row["roles_json"] or "{}")
+                    for w in wallets:
+                        if w in _treasury_meta:
+                            _treasury_meta[w]["family"] = row["family_label"]
+                            _treasury_meta[w]["role"]   = roles.get(w)
+                except Exception:
+                    pass
         sessions = []
-        for r in ov.execute(
-            "SELECT id, subprov_wallet, treasury_wallet, funding_amount, funding_time, "
-            "detected_at, expires_at FROM wt_active_subprov_sessions WHERE state='ACTIVE' "
-            "ORDER BY detected_at DESC").fetchall():
-            sessions.append({
-                "subprov": r["subprov_wallet"], "treasury": r["treasury_wallet"],
-                "funding_amount": r["funding_amount"], "funding_time": r["funding_time"],
-                "ttl_remaining": max(0, (r["expires_at"] or now) - now),
-                "candidates": ov.execute(
-                    "SELECT COUNT(*) FROM wt_candidate_websocket_watches "
-                    "WHERE subprov_wallet=? AND state='WATCHING'", (r["subprov_wallet"],)).fetchone()[0],
-            })
-        # candidate watches grouped by subprov (WATCHING only)
+        for sp, s in _by_subprov.items():
+            s["candidates"] = _cand_counts.get(sp, 0)
+            tm = _treasury_meta.get(s.get("treasury") or "")
+            if tm:
+                s["treasury_confidence"] = tm.get("confidence")
+                s["treasury_method"]     = tm.get("method")
+                s["treasury_family"]     = tm.get("family")
+                s["treasury_role"]       = tm.get("role")
+                s["treasury_out_sol"]    = tm.get("out_sol")
+                s["treasury_recipients"] = tm.get("recipients")
+            sessions.append(s)
+        sessions.sort(key=lambda s: s["candidates"], reverse=True)
+        # candidate watches grouped by subprov — one entry per unique (candidate, subprov)
         watches = {}
         total_watching = 0
         for r in ov.execute(
-            "SELECT candidate_wallet, subprov_wallet, funding_amount, detected_at, expires_at "
-            "FROM wt_candidate_websocket_watches WHERE state='WATCHING' "
-            "ORDER BY detected_at DESC").fetchall():
+            "SELECT candidate_wallet, subprov_wallet, "
+            "  MAX(funding_amount) as funding_amount, MAX(expires_at) as expires_at "
+            "FROM wt_candidate_websocket_watches WHERE state='WATCHING' AND subprov_wallet IS NOT NULL "
+            "GROUP BY candidate_wallet, subprov_wallet "
+            "ORDER BY MAX(expires_at) DESC").fetchall():
             total_watching += 1
             watches.setdefault(r["subprov_wallet"], []).append({
                 "candidate": r["candidate_wallet"], "amount": r["funding_amount"],
@@ -2153,25 +2301,144 @@ def api_intel_ws_cascade():
         # WS health + cleanup count from the ws_cascade heartbeat (lives in the ops db —
         # quiet, no lock contention with the hot live db).
         ws_health, cleanup_count, hb_age = "DOWN", 0, None
+        pw_metrics = {"pw_enabled": False, "pw_stream_state": None, "pw_active_candidates": 0,
+                      "pw_matches": 0, "pw_fetch_timeout": 0, "pw_fetch_dropped": 0,
+                      "pw_persist_queue_depth": 0, "pw_candidates_expired": 0}
         if _table_exists(ov, "wt_worker_heartbeat"):
             hb = ov.execute(
                 "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade'").fetchone()
             if hb:
                 hb_age = int(time.time()) - (hb["last_seen"] or 0)
-                ws_health = "LIVE" if hb_age < 90 else "STALE"
                 try:
-                    cleanup_count = int((_json.loads(hb["meta_json"] or "{}")).get("cleanups", 0))
+                    _hb_meta = _json.loads(hb["meta_json"] or "{}")
+                    cleanup_count = int(_hb_meta.get("cleanups", 0))
+                    # Use explicit lifecycle state when available; fall back to age-based heuristic.
+                    cascade_state = _hb_meta.get("cascade_state")
+                    if cascade_state:
+                        ws_health = cascade_state  # CONNECTING/SUBSCRIBING/RECONCILING/LIVE/DEGRADED/FAILED
+                        if hb_age >= 90:
+                            ws_health = "STALE"    # heartbeat too old regardless of last state
+                    else:
+                        ws_health = "LIVE" if hb_age < 90 else "STALE"
+                    pw_metrics = {
+                        "pw_enabled":       bool(_hb_meta.get("pw_stream_state")),
+                        "pw_stream_state":  _hb_meta.get("pw_stream_state"),
+                        "pw_active_candidates": _hb_meta.get("pw_active_candidates", 0),
+                        "pw_matches":       _hb_meta.get("pw_matches", 0),
+                        "pw_fetch_timeout": _hb_meta.get("pw_fetch_timeout", 0),
+                        "pw_fetch_dropped": _hb_meta.get("pw_fetch_dropped", 0),
+                        "pw_persist_queue_depth": _hb_meta.get("pw_persist_queue_depth", 0),
+                        "pw_candidates_expired": _hb_meta.get("pw_candidates_expired", 0),
+                    }
                 except Exception:
-                    pass
+                    ws_health = "LIVE" if hb_age < 90 else "STALE"
     finally:
         ov.close()
+    # Phase E: 6-way classification breakdown from wt_discovered_subprovs
+    subprov_type_counts = {}
+    open_reason_counts = {}
+    try:
+        ov2 = _conn()
+        try:
+            if _table_exists(ov2, "wt_discovered_subprovs"):
+                for row in ov2.execute(
+                    "SELECT COALESCE(subprov_type,'UNKNOWN') as t, COUNT(*) FROM wt_discovered_subprovs GROUP BY t"
+                ).fetchall():
+                    subprov_type_counts[row[0]] = row[1]
+            if _table_exists(ov2, "wt_active_subprov_sessions"):
+                for row in ov2.execute(
+                    "SELECT COALESCE(open_reason,'PROVISION_CANDIDATE') as r, COUNT(*) "
+                    "FROM wt_active_subprov_sessions WHERE state='ACTIVE' GROUP BY r"
+                ).fetchall():
+                    open_reason_counts[row[0]] = row[1]
+        finally:
+            ov2.close()
+    except Exception:
+        pass
+    # Pass subscription instrumentation fields from heartbeat meta_json to the dashboard
+    sub_meta = {}
+    try:
+        _hb_meta_ref = _hb_meta if 'hb' in dir() and hb else {}
+        for k in ("reconnect_gen", "subs_sent_total", "subs_conf_total", "sub_rate",
+                  "sub_ack_count", "sub_avg_ack_ms", "sub_p95_ack_ms", "sub_max_ack_ms",
+                  "sub_p0_count",
+                  "sub_p0_avg_send_delay_ms", "sub_p0_max_send_delay_ms", "sub_p0_p95_send_delay_ms",
+                  "sub_p0_avg_ack_ms", "sub_p0_max_ack_ms", "sub_p0_p95_ack_ms",
+                  "sub_p0_recent",
+                  "pending", "pending_hot", "pending_subprov", "pending_treasury",
+                  "pending_candidate"):
+            if k in _hb_meta:
+                sub_meta[k] = _hb_meta[k]
+    except Exception:
+        pass
     return jsonify({
         "sessions": sessions, "watches_by_subprov": watches,
         "candidate_count": total_watching, "active_subprovs": len(sessions),
         "latest_launch": ll, "launches_total": launches_total,
         "ws_health": ws_health, "heartbeat_age_s": hb_age, "cleanup_count": cleanup_count,
         "last_wrap_close": last_wrap, "last_create": last_create,
+        "pw": pw_metrics,
+        "subprov_type_counts": subprov_type_counts,
+        "open_reason_counts": open_reason_counts,
+        **sub_meta,
     })
+
+
+def _ops_dismiss_write(sql, params=()):
+    """Execute a single write against the ops DB. WAL mode is already on; use a plain
+    deferred transaction with a long busy_timeout so SQLite retries automatically."""
+    from src.core.ws_cascade_store import OPS_DB_PATH
+    import sqlite3 as _sq
+    conn = _sq.connect(OPS_DB_PATH, timeout=60)
+    conn.execute("PRAGMA busy_timeout=55000")
+    try:
+        cur = conn.execute(sql, params)
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/dismiss-all-sessions", methods=["POST"])
+def api_dismiss_all_sessions():
+    """Expire ALL active sessions immediately."""
+    import time as _t
+    try:
+        n = _ops_dismiss_write(
+            "UPDATE wt_active_subprov_sessions SET expires_at=0, closed_at=? WHERE state='ACTIVE'",
+            (int(_t.time()),))
+        return jsonify({"ok": True, "dismissed": n})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/dismiss-session", methods=["POST"])
+def api_dismiss_session():
+    """Expire a LIVE_ARMED session immediately. The cascade cleanup loop (every 5s) will
+    unsubscribe the wallet and, if no sessions remain, drain the ProgramWatcher stream."""
+    from src.core.ws_cascade_store import OPS_DB_PATH
+    import sqlite3 as _sq, time as _t
+    data = request.get_json(silent=True) or {}
+    subprov = (data.get("subprov") or "").strip()
+    if not subprov:
+        return jsonify({"ok": False, "error": "subprov required"}), 400
+    # Read the session id first (read-only, never blocked)
+    conn = _sq.connect(OPS_DB_PATH, timeout=10)
+    try:
+        row = conn.execute(
+            "SELECT id FROM wt_active_subprov_sessions "
+            "WHERE subprov_wallet=? AND state='ACTIVE' LIMIT 1", (subprov,)).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        return jsonify({"ok": False, "error": "no active session found"}), 404
+    try:
+        _ops_dismiss_write(
+            "UPDATE wt_active_subprov_sessions SET expires_at=0, closed_at=? WHERE id=?",
+            (int(_t.time()), row[0]))
+        return jsonify({"ok": True, "subprov": subprov, "session_id": row[0]})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit")
@@ -2388,10 +2655,10 @@ def api_intel_subprov_funder():
                     break
                 except Exception as _enr_e:
                     webhook_error = str(_enr_e)
-                    if "locked" in webhook_error.lower() and _attempt < 2:
+                    if _attempt < 2:
                         _t.sleep(1.5 * (_attempt + 1))
                         continue
-                    raise
+                    break  # exhausted retries — webhook_error set, webhooked=False, return ok anyway
             oc = _conn_rw()  # writes wt_confirmed_treasury_webhooks
             try:
                 oc.execute(
@@ -2525,24 +2792,160 @@ def api_intel_confirmed_treasuries():
     """The CONFIRMED TREASURY BANK — authoritative live-watch set + the dashboard card.
     Source of truth = wt_confirmed_treasuries (NOT ops-graph roles)."""
     from src.core import treasury_bank
-    ov = _conn(); live = _live_conn()
+    ov = _conn()
     try:
         rows = treasury_bank.confirmed_treasuries(ov)
-        # enrich with live last-hit / last-fanout from webhook hits
+        # enrich with last-hit / last-fanout from webhook hits (ops DB only)
         addrs = [r["treasury"] for r in rows]
         last_hit = {}
+        last_outbound = {}
+        last_outbound_type: dict = {}
+        last_outbound_sig: dict = {}
+        last_outbound_sol: dict = {}
         if addrs:
             ph = ",".join("?" * len(addrs))
-            for w, mx in live.execute(
-                f"SELECT wallet_address, MAX(block_time) FROM wt_webhook_hits "
-                f"WHERE wallet_address IN ({ph}) GROUP BY wallet_address", addrs).fetchall():
-                last_hit[w] = mx
+            # wt_webhook_hits lives only in the ops DB (cascade WS hits) — skip live DB entirely.
+            try:
+                for w, mx in ov.execute(
+                    f"SELECT wallet_address, MAX(block_time) FROM wt_webhook_hits "
+                    f"WHERE wallet_address IN ({ph}) GROUP BY wallet_address", addrs).fetchall():
+                    if mx:
+                        last_hit[w] = max(last_hit.get(w) or 0, mx)
+                for w, mx, tx_type, sig, sol in ov.execute(
+                    f"SELECT wallet_address, block_time, tx_type, tx_signature, amount_sol FROM wt_webhook_hits h1 "
+                    f"WHERE direction='outbound' AND wallet_address IN ({ph}) "
+                    f"  AND block_time = (SELECT MAX(h2.block_time) FROM wt_webhook_hits h2 "
+                    f"                    WHERE h2.wallet_address=h1.wallet_address AND h2.direction='outbound') "
+                    f"GROUP BY wallet_address",
+                    addrs).fetchall():
+                    if mx and mx > (last_outbound.get(w) or 0):
+                        last_outbound[w] = mx
+                        last_outbound_type[w] = tx_type
+                        last_outbound_sig[w] = sig
+                        last_outbound_sol[w] = sol
+            except Exception:
+                pass
+        # Best downstream subprov activity per treasury (fills the gap for CONFIRMED_SUBPROV_TRACE
+        # treasuries that were enrolled yesterday and have 0 webhook hits yet).
+        max_subprov_ts: dict = {}
+        try:
+            if addrs:
+                ph2 = ",".join("?" * len(addrs))
+                for w, mx in ov.execute(
+                    f"SELECT treasury, MAX(last_seen) FROM wt_discovered_subprovs "
+                    f"WHERE treasury IN ({ph2}) GROUP BY treasury", addrs).fetchall():
+                    if mx:
+                        max_subprov_ts[w] = mx
+        except Exception:
+            pass
+        # Last confirmed launch per treasury
+        last_launch_ts: dict = {}
+        last_launch_mint: dict = {}
+        last_launch_sig: dict = {}
+        try:
+            if addrs and _table_exists(ov, "wt_watchtower_launches"):
+                ph3 = ",".join("?" * len(addrs))
+                for w, mx, mint, sig in ov.execute(
+                    f"SELECT treasury_wallet, MAX(create_time), "
+                    f"  (SELECT mint FROM wt_watchtower_launches l2 "
+                    f"   WHERE l2.treasury_wallet=l.treasury_wallet "
+                    f"   ORDER BY create_time DESC LIMIT 1), "
+                    f"  (SELECT create_signature FROM wt_watchtower_launches l3 "
+                    f"   WHERE l3.treasury_wallet=l.treasury_wallet "
+                    f"   ORDER BY create_time DESC LIMIT 1) "
+                    f"FROM wt_watchtower_launches l "
+                    f"WHERE treasury_wallet IN ({ph3}) GROUP BY treasury_wallet", addrs).fetchall():
+                    if mx:
+                        last_launch_ts[w] = mx
+                        last_launch_mint[w] = mint
+                        last_launch_sig[w] = sig
+        except Exception:
+            pass
         for r in rows:
-            r["last_hit"] = last_hit.get(r["treasury"]) or r.get("last_hit")
+            t = r["treasury"]
+            wh_ts   = last_hit.get(t) or r.get("last_hit")
+            ob_ts   = last_outbound.get(t)
+            sp_ts   = max_subprov_ts.get(t)
+            ln_ts   = last_launch_ts.get(t)
+            r["last_hit"] = wh_ts
+            r["last_outbound"] = ob_ts
+            r["last_outbound_sol"] = last_outbound_sol.get(t)
+            # last_action = most recent outbound activity: confirmed launch or outbound WS hit.
+            # Inbound hits and subprov scheduler timestamps excluded — they don't indicate
+            # the treasury is provisioning.
+            direct = [ts for ts in [ob_ts, ln_ts] if ts]
+            r["last_action"]      = max(direct) if direct else None
+            ob_type = last_outbound_type.get(t)
+            is_launch = ln_ts and ln_ts == r["last_action"]
+            is_mesh   = ob_ts and ob_ts == r["last_action"] and ob_type == "TREASURY_MESH"
+            r["last_action_src"] = (
+                "launch"   if is_launch else
+                "mesh"     if is_mesh   else
+                "outbound" if ob_ts and ob_ts == r["last_action"] else None
+            )
+            r["last_action_sig"] = (
+                last_launch_sig.get(t) if is_launch else
+                last_outbound_sig.get(t)
+            )
+            # Fallback display field: show subprov activity when no direct signal exists
+            r["last_subprov_activity"] = sp_ts
+        # Enrich with launches + tx_24h from coverage stats tables
+        wc_by_treasury: dict = {}
+        tx24_by_treasury: dict = {}
+        try:
+            if addrs:
+                ph4 = ",".join("?" * len(addrs))
+                for w, armed, det, lat in ov.execute(
+                    f"SELECT treasury_wallet, SUM(armed), COUNT(*), MAX(last_seen) "
+                    f"FROM wt_wrap_close_candidates WHERE treasury_wallet IN ({ph4}) GROUP BY treasury_wallet",
+                    addrs).fetchall():
+                    wc_by_treasury[w] = {"armed": armed or 0, "detections": det or 0, "last_at": lat}
+        except Exception:
+            pass
+        try:
+            if addrs:
+                ph5 = ",".join("?" * len(addrs))
+                for w, tx24 in ov.execute(
+                    f"SELECT treasury, tx_24h FROM wt_ops_v2_treasury_stats WHERE treasury IN ({ph5})",
+                    addrs).fetchall():
+                    tx24_by_treasury[w] = tx24
+        except Exception:
+            pass
+        # Active subprov session counts per treasury
+        active_subprovs: dict = {}
+        try:
+            if addrs:
+                ph6 = ",".join("?" * len(addrs))
+                for w, cnt in ov.execute(
+                    f"SELECT treasury_wallet, COUNT(*) FROM wt_active_subprov_sessions "
+                    f"WHERE state='ACTIVE' AND treasury_wallet IN ({ph6}) GROUP BY treasury_wallet",
+                    addrs).fetchall():
+                    active_subprovs[w] = cnt
+        except Exception:
+            pass
+        for r in rows:
+            t = r["treasury"]
+            wc = wc_by_treasury.get(t, {})
+            r["launches"]  = wc.get("armed", 0)
+            r["tx_24h"]    = tx24_by_treasury.get(t)
+            r["active_subprovs"] = active_subprovs.get(t, 0)
+        # Sort by most recent outbound action descending (nulls last).
+        rows.sort(key=lambda r: (r["last_action"] or 0, r["last_outbound"] or 0), reverse=True)
         webhooked = sum(1 for r in rows if r["webhooked"])
-        # card aggregates
-        all_hits = [r["last_hit"] for r in rows if r["last_hit"]]
+        # card aggregates — use last_action (outbound, both DBs) for recency, fall back to any hit
+        all_hits = [r["last_action"] or r["last_hit"] for r in rows if (r["last_action"] or r["last_hit"])]
+        # Best launch across all treasuries (from wt_watchtower_launches — authoritative)
+        best_launch_ts = max(last_launch_ts.values()) if last_launch_ts else None
+        best_launch_mint = None
+        if best_launch_ts:
+            for tw, ts in last_launch_ts.items():
+                if ts == best_launch_ts:
+                    best_launch_mint = last_launch_mint.get(tw)
+                    break
+        # Fall back to webhook table fields if cascade hasn't written any launches yet
         fired = [r for r in rows if r.get("last_fired_at")]
+        wh_last_fired_at = max([r["last_fired_at"] for r in fired]) if fired else None
+        wh_last_fired_token = (sorted(fired, key=lambda x: x["last_fired_at"])[-1]["last_fired_token"] if fired else None)
         return jsonify({
             "treasuries": rows,
             "card": {
@@ -2551,12 +2954,12 @@ def api_intel_confirmed_treasuries():
                 "last_hit": max(all_hits) if all_hits else None,
                 "last_fanout": max([r["last_fanout"] for r in rows if r.get("last_fanout")] or [0]) or None,
                 "last_strict_candidate": max([r["last_strict_candidate"] for r in rows if r.get("last_strict_candidate")] or [0]) or None,
-                "last_fired_token": (sorted(fired, key=lambda x: x["last_fired_at"])[-1]["last_fired_token"] if fired else None),
-                "last_fired_at": (max([r["last_fired_at"] for r in fired]) if fired else None),
+                "last_fired_token": best_launch_mint or wh_last_fired_token,
+                "last_fired_at": best_launch_ts or wh_last_fired_at,
             },
         })
     finally:
-        ov.close(); live.close()
+        ov.close()
 
 
 def _best_source_token(src_creators: dict) -> dict:
@@ -3122,6 +3525,296 @@ def api_intel_status():
     return jsonify(out)
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/coverage-opportunity")
+def api_intel_coverage_opportunity():
+    """Coverage Opportunity ranking — read-only, zero RPC, zero schema changes.
+
+    Returns two ranked tiers of unsubscribed wallets ordered by Expected Detection
+    Yield (EDY): blind confirmed treasuries first (structurally more efficient —
+    one subscription exposes all downstream subprovs), then unsubscribed known
+    subprovs second.
+
+    Scoring (0-100 per component, weighted sum → EDY 0-100):
+      recency  40%  exp(-days_inactive / 7)  half-life ≈ 5 days
+      cadence  30%  launches-per-30-days × 5, capped 100
+      quality  20%  median peak MC USD / 1000, capped 100 ($100k median → 100)
+      network  10%  downstream wallets × 10, capped 100
+
+    Role multipliers applied after sum:
+      TREASURY (blind)            × 1.5  (one sub covers all downstream)
+      SUBPROV (treasury webhooked) × 0.5  (treasury already provides partial coverage)
+      SUBPROV (unknown treasury)   × 0.7
+    """
+    import math
+    import json as _json
+
+    ov = _conn()
+    try:
+        now = int(time.time())
+
+        # ── helpers ───────────────────────────────────────────────────────────
+        confirmed_set = {r[0] for r in ov.execute(
+            "SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        webhooked_set = {r[0] for r in ov.execute(
+            "SELECT treasury FROM wt_confirmed_treasury_webhooks WHERE webhook_active=1"
+        ).fetchall()} if _table_exists(ov, "wt_confirmed_treasury_webhooks") else set()
+        active_session_set = {r[0] for r in ov.execute(
+            "SELECT DISTINCT subprov_wallet FROM wt_active_subprov_sessions WHERE state='ACTIVE'"
+        ).fetchall()} if _table_exists(ov, "wt_active_subprov_sessions") else set()
+
+        # ── Attach live DB for peak MC data (fail-open) ───────────────────────
+        live_attached = False
+        try:
+            ov.execute(f"ATTACH DATABASE 'file:{LIVE_DB_PATH}?mode=ro' AS live")
+            live_attached = True
+        except Exception:
+            pass
+
+        # ── Median peak MC per subprov / treasury via confirmed launches ───────
+        # Builds a dict: wallet → median_peak_mc_usd (None if no data)
+        mc_by_subprov: dict = {}
+        mc_by_treasury: dict = {}
+        if live_attached and _table_exists(ov, "wt_watchtower_launches"):
+            try:
+                rows = ov.execute("""
+                    SELECT wl.subprov_wallet, wl.treasury_wallet,
+                           mp.peak_market_cap
+                    FROM wt_watchtower_launches wl
+                    JOIN live.token_market_cap_peaks mp ON mp.mint = wl.mint
+                    WHERE mp.peak_market_cap > 0
+                """).fetchall()
+                from collections import defaultdict
+                sp_mc: dict = defaultdict(list)
+                tr_mc: dict = defaultdict(list)
+                for r in rows:
+                    if r[0]:
+                        sp_mc[r[0]].append(r[2])
+                    if r[1]:
+                        tr_mc[r[1]].append(r[2])
+                def _median(lst):
+                    s = sorted(lst)
+                    n = len(s)
+                    return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
+                mc_by_subprov  = {k: _median(v) for k, v in sp_mc.items()}
+                mc_by_treasury = {k: _median(v) for k, v in tr_mc.items()}
+            except Exception:
+                pass
+
+        # ── Launch counts per subprov / treasury ─────────────────────────────
+        launches_by_subprov: dict  = {}
+        launches_by_treasury: dict = {}
+        first_seen_by_treasury: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            try:
+                for r in ov.execute("""
+                    SELECT subprov_wallet, COUNT(*) as n, MIN(create_time) as first
+                    FROM wt_watchtower_launches GROUP BY subprov_wallet
+                """).fetchall():
+                    launches_by_subprov[r[0]] = (r[1], r[2])
+                for r in ov.execute("""
+                    SELECT treasury_wallet, COUNT(*) as n, MIN(create_time) as first
+                    FROM wt_watchtower_launches GROUP BY treasury_wallet
+                """).fetchall():
+                    launches_by_treasury[r[0]] = (r[1], r[2])
+            except Exception:
+                pass
+
+        # Downstream subprov count per treasury (network importance)
+        downstream: dict = {}
+        try:
+            for r in ov.execute("""
+                SELECT treasury, COUNT(*) as n FROM wt_discovered_subprovs
+                WHERE treasury IS NOT NULL GROUP BY treasury
+            """).fetchall():
+                downstream[r[0]] = r[1]
+        except Exception:
+            pass
+
+        # Last webhook-hit per treasury (recency signal for treasuries)
+        last_hit: dict = {}
+        if _table_exists(ov, "wt_webhook_hits"):
+            try:
+                for r in ov.execute(
+                    "SELECT wallet_address, MAX(block_time) as last FROM wt_webhook_hits GROUP BY wallet_address"
+                ).fetchall():
+                    last_hit[r[0]] = r[1]
+            except Exception:
+                pass
+
+        # Max downstream subprov activity per treasury — best recency proxy for
+        # treasuries that are confirmed but have never had a webhook hit (blind).
+        # When the treasury fired a subprov last week, that IS treasury activity.
+        max_subprov_last_seen: dict = {}
+        try:
+            for r in ov.execute(
+                "SELECT treasury, MAX(last_seen) as last FROM wt_discovered_subprovs "
+                "WHERE treasury IS NOT NULL GROUP BY treasury"
+            ).fetchall():
+                if r[1]:
+                    max_subprov_last_seen[r[0]] = r[1]
+        except Exception:
+            pass
+
+        # ── Scoring helper ───────────────────────────────────────────────────
+        def _edy(wallet, role, last_active_ts, creator_count, first_active_ts,
+                 launch_count, first_launch_ts, treasury_wallet=None):
+            # Recency (40%) — exponential decay, λ=7 days
+            days_inactive = (now - (last_active_ts or 0)) / 86400 if last_active_ts else 999
+            recency = 100 * math.exp(-days_inactive / 7)
+
+            # Cadence (30%) — launches per 30 days when active
+            # Use creator_count as a proxy when confirmed launches are few
+            span_days = max(1, (now - (first_active_ts or now)) / 86400)
+            events = max(creator_count or 0, launch_count or 0)
+            cadence = min(100, 5 * (events / span_days * 30))
+
+            # Quality (20%) — median peak MC USD, capped at $100k → 100
+            mc = mc_by_subprov.get(wallet) or mc_by_treasury.get(wallet or "") or \
+                 (mc_by_treasury.get(treasury_wallet) if treasury_wallet else None)
+            quality = min(100, (mc / 1000)) if mc else 0
+
+            # Network (10%) — downstream wallets (for treasuries) or 1 for leaf subprovs
+            net_count = downstream.get(wallet, 1 if role == "SUBPROV" else 0)
+            network = min(100, 10 * net_count)
+
+            edy = 0.40 * recency + 0.30 * cadence + 0.20 * quality + 0.10 * network
+
+            # Role multiplier
+            if role == "TREASURY":
+                edy *= 1.5
+            elif role == "SUBPROV":
+                # Single-use decay: creator_count==1 means fired once and spent.
+                # After 48h with no reuse, value collapses — floor at 5%.
+                if (creator_count or 0) == 1 and days_inactive > 2:
+                    edy *= max(0.05, math.exp(-(days_inactive - 2) / 1.5))
+                if treasury_wallet and treasury_wallet in webhooked_set:
+                    edy *= 0.5   # treasury already provides partial coverage
+                elif not treasury_wallet:
+                    edy *= 0.7   # unknown treasury — unconfirmed lead
+
+            return round(min(100, edy), 1)
+
+        def _ago_label(ts):
+            if not ts:
+                return None
+            delta = now - ts
+            if delta < 3600:
+                return f"{delta // 60}m"
+            if delta < 86400:
+                return f"{delta // 3600}h"
+            return f"{delta // 86400}d"
+
+        # ── TIER 1: Blind confirmed treasuries ───────────────────────────────
+        # confirmed_at keyed by treasury for first_ts fallback
+        confirmed_at_map: dict = {}
+        try:
+            for r in ov.execute("SELECT treasury, confirmed_at FROM wt_confirmed_treasuries").fetchall():
+                confirmed_at_map[r[0]] = r[1]
+        except Exception:
+            pass
+
+        tier1 = []
+        for t in confirmed_set - webhooked_set:
+            # Recency: best of webhook-hit, max-downstream-subprov-activity, confirmed_at
+            last_ts = max(
+                filter(None, [
+                    last_hit.get(t),
+                    max_subprov_last_seen.get(t),
+                    confirmed_at_map.get(t),
+                ]),
+                default=None,
+            )
+            ln, fl   = launches_by_treasury.get(t, (0, None))
+            first_ts = fl or confirmed_at_map.get(t)
+            creators = downstream.get(t, 0)
+            edy = _edy(t, "TREASURY", last_ts, creators, first_ts, ln, fl)
+            days_inactive = round((now - last_ts) / 86400, 1) if last_ts else None
+            tier1.append({
+                "wallet":            t,
+                "role":              "TREASURY",
+                "edy_score":         edy,
+                "days_since_active": days_inactive,
+                "last_active_label": _ago_label(last_ts),
+                "creator_count":     creators,
+                "confirmed_launches": ln,
+                "median_peak_mc_usd": round(mc_by_treasury.get(t, 0)) or None,
+                "downstream_subprovs": downstream.get(t, 0),
+                "already_subscribed": False,
+                "note": f"1 subscription covers {downstream.get(t, 0)} known downstream subprovs" if downstream.get(t) else None,
+            })
+        tier1.sort(key=lambda x: -x["edy_score"])
+
+        # ── TIER 2: Unsubscribed known subprovs ──────────────────────────────
+        tier2 = []
+        if _table_exists(ov, "wt_discovered_subprovs"):
+            _have_mesh = _column_exists(ov, "wt_discovered_subprovs", "immediate_funder")
+            _mesh_sel  = ", immediate_funder, funder_is_subprov" if _have_mesh else ""
+            rows = ov.execute(
+                "SELECT subprov, creator_count, treasury, treasury_known, "
+                "first_seen, last_seen" + _mesh_sel +
+                " FROM wt_discovered_subprovs WHERE treasury_known=1"
+            ).fetchall()
+            for r in rows:
+                sp = r["subprov"]
+                if sp in active_session_set:
+                    continue   # already subscribed — skip
+                treasury = r["treasury"]
+                if treasury and treasury not in confirmed_set:
+                    continue   # treasury not confirmed — goes in TIER 3 (unknown-treasury leads)
+                ln, fl = launches_by_subprov.get(sp, (0, None))
+                edy = _edy(sp, "SUBPROV", r["last_seen"], r["creator_count"],
+                           r["first_seen"], ln, fl, treasury_wallet=treasury)
+                days_inactive = round((now - r["last_seen"]) / 86400, 1) if r["last_seen"] else None
+                tier2.append({
+                    "wallet":            sp,
+                    "role":              "SUBPROV",
+                    "treasury":          treasury,
+                    "treasury_webhooked": treasury in webhooked_set,
+                    "edy_score":         edy,
+                    "days_since_active": days_inactive,
+                    "last_active_label": _ago_label(r["last_seen"]),
+                    "creator_count":     r["creator_count"] or 0,
+                    "confirmed_launches": ln,
+                    "median_peak_mc_usd": round(mc_by_subprov.get(sp) or mc_by_treasury.get(treasury or "") or 0) or None,
+                    "already_subscribed": False,
+                })
+        tier2.sort(key=lambda x: -x["edy_score"])
+        # Drop spent single-use subprovs — EDY<5 after decay means no forward value
+        tier2 = [x for x in tier2 if x["edy_score"] >= 5]
+
+        # ── Summary ──────────────────────────────────────────────────────────
+        all_scores = [x["edy_score"] for x in tier1 + tier2]
+        top10 = sorted(all_scores, reverse=True)[:10]
+        active_7d = sum(
+            1 for x in tier1 + tier2
+            if x["days_since_active"] is not None and x["days_since_active"] <= 7
+        )
+        dormant_90d = sum(
+            1 for x in tier1 + tier2
+            if x["days_since_active"] is None or x["days_since_active"] > 90
+        )
+
+        return jsonify({
+            "tier1_blind_treasuries":    tier1,
+            "tier2_unsubscribed_subprovs": tier2[:50],
+            "summary": {
+                "tier1_count":        len(tier1),
+                "tier2_count":        len(tier2),
+                "total_candidates":   len(tier1) + len(tier2),
+                "top10_avg_edy":      round(sum(top10) / len(top10), 1) if top10 else 0,
+                "highest_edy":        top10[0] if top10 else 0,
+                "active_7d_count":    active_7d,
+                "dormant_90d_count":  dormant_90d,
+            },
+        })
+    finally:
+        try:
+            ov.execute("DETACH DATABASE live")
+        except Exception:
+            pass
+        ov.close()
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/coverage-summary")
 def api_intel_coverage_summary():
     """Coverage-first hero summary. Read-only ops DB only — no live DB, no RPC, no mutations.
@@ -3156,8 +3849,9 @@ def api_intel_coverage_summary():
             pass
         hb_age = (now - hb["last_seen"]) if (hb and hb["last_seen"]) else None
 
-        # Parse per-tier WS subscription counts from heartbeat meta
+        # Parse per-tier WS subscription counts + lifecycle state from heartbeat meta
         hb_subs = hb_treasury_subs = hb_subprov_subs = hb_candidate_subs = 0
+        hb_lifecycle = None
         try:
             import json as _json
             if hb and hb["meta_json"]:
@@ -3166,19 +3860,17 @@ def api_intel_coverage_summary():
                 hb_treasury_subs  = _m.get("treasury_subs", 0)
                 hb_subprov_subs   = _m.get("subprov_subs", 0)
                 hb_candidate_subs = _m.get("candidate_subs", 0)
+                hb_lifecycle      = _m.get("cascade_state")  # CONNECTING/SUBSCRIBING/RECONCILING/LIVE/DEGRADED/FAILED
         except Exception:
             pass
 
-        # State model (priority order):
-        # DOWN      = no heartbeat row at all
-        # STALE     = daemon last seen ≥90s ago (may be hung/crashed without supervisor notice)
-        # DEGRADED  = daemon alive + heartbeat fresh + WS subscriptions = 0 (connected but dark)
-        # LIVE_IDLE = daemon alive + subscriptions confirmed + no active sessions (quiet period)
-        # ACTIVE    = daemon alive + subscriptions confirmed + active sessions open
+        # State model: prefer explicit lifecycle state from heartbeat; fall back to heuristic.
         if hb_age is None:
             cascade_status = "DOWN"
         elif hb_age >= 90:
             cascade_status = "STALE"
+        elif hb_lifecycle in ("CONNECTING", "SUBSCRIBING", "RECONCILING", "DEGRADED", "FAILED"):
+            cascade_status = hb_lifecycle   # transient startup or error state — not yet LIVE
         elif hb_subs == 0:
             cascade_status = "DEGRADED"
         elif active_sess == 0:
@@ -4018,6 +4710,310 @@ def api_intel_discovery_review_add():
         })
     finally:
         ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/runtime-budget")
+def api_intel_runtime_budget():
+    """Runtime Budget Health — is WATCHTOWER operating within its design budgets?
+    Returns both configuration (from runtime_budget.py) and live runtime counters
+    (degrade events, timeouts, DB pressure) so the UI can show health vs degradation."""
+    from src.core import runtime_budget as rb
+
+    # ── Budget configuration ──────────────────────────────────────────────────
+    config = {
+        "critical_rpc_total_s":       rb.CRITICAL_RPC_TOTAL_S,
+        "critical_outer_timeout_s":   rb.CRITICAL_OUTER_TIMEOUT_S,
+        "nearrt_rpc_total_s":         rb.NEARRT_RPC_TOTAL_S,
+        "pool_validate_timeout_s":    rb.POOL_VALIDATE_TIMEOUT_S,
+        "pool_discovery_total_s":     rb.POOL_DISCOVERY_TOTAL_S,
+        "migration_outer_timeout_s":  rb.MIGRATION_OUTER_TIMEOUT_S,
+        "create_fetch_concurrency":   rb.CREATE_FETCH_CONCURRENCY,
+        "create_fetch_timeout_s":     rb.CREATE_FETCH_TIMEOUT_S,
+        "create_fetch_queue_max":     rb.CREATE_FETCH_QUEUE_MAX,
+        "creator_resolution_fast_s":  rb.CREATOR_RESOLUTION_FAST_S,
+        "creator_resolution_deep_s":  rb.CREATOR_RESOLUTION_DEEP_S,
+        "max_db_inline_writes":       rb.MAX_DB_INLINE_WRITES_PER_EVENT,
+        "critical_db_busy_ms":        rb.CRITICAL_DB_BUSY_TIMEOUT_MS,
+        "max_active_subprov_sessions": rb.MAX_ACTIVE_SUBPROV_SESSIONS,
+        "max_candidate_watches":      rb.MAX_CANDIDATE_WATCHES,
+        "public_rpc_policy":          "DEFERRED_ONLY",
+    }
+
+    # ── Runtime degrade counters (from live process memory) ──────────────────
+    # ws_cascade counters live in its heartbeat (ops DB). Listener counters from its module.
+    runtime = {
+        "treasury_timeout":       0,
+        "catchup_timeout":        0,
+        "validation_timeout":     0,
+        "pool_discovery_deferred": 0,
+        "migration_deferred":     0,
+        "create_fetch_dropped":   0,
+        "create_fetch_timeout":   0,
+        "create_fetch_queue":     0,
+        "db_lock_errors_5m":      0,
+        "db_lock_errors_1h":      0,
+        "db_p99_wait_ms":         0,
+        "db_queue_depth":         0,
+        "loop_lag_s":             None,   # from listener heartbeat if available
+        "cascade_state":          None,
+        "listener_birth_stale_s": None,
+    }
+
+    # Cascade degrade counters from heartbeat meta_json (ops DB)
+    try:
+        ov = _conn()
+        try:
+            if _table_exists(ov, "wt_worker_heartbeat"):
+                hb = ov.execute(
+                    "SELECT last_seen, meta_json FROM wt_worker_heartbeat "
+                    "WHERE worker_name='ws_cascade'"
+                ).fetchone()
+                if hb and hb["meta_json"]:
+                    _m = _json.loads(hb["meta_json"] or "{}")
+                    runtime["treasury_timeout"]     = _m.get("budget_treasury_timeout", 0)
+                    runtime["catchup_timeout"]      = _m.get("budget_catchup_timeout", 0)
+                    runtime["create_fetch_dropped"] = _m.get("pw_fetch_dropped", 0)
+                    runtime["create_fetch_timeout"] = _m.get("pw_fetch_timeout", 0)
+                    runtime["create_fetch_queue"]   = _m.get("pw_fetch_queue", 0)
+                    runtime["cascade_state"]        = _m.get("cascade_state")
+        finally:
+            ov.close()
+    except Exception:
+        pass
+
+    # Listener budget counters — read directly from the live module if in-process,
+    # fall back gracefully when called from the API process (different interpreter).
+    try:
+        import importlib
+        _lcm = importlib.import_module("src.core.pumpfun_curve_listener")
+        with _lcm._BUDGET_COUNTERS_LOCK:
+            _lc = dict(_lcm._BUDGET_COUNTERS)
+        runtime["validation_timeout"]      = _lc.get("validation_timeout", 0)
+        runtime["pool_discovery_deferred"] = _lc.get("pool_discovery_deferred", 0)
+        runtime["migration_deferred"]      = _lc.get("migration_deferred", 0)
+    except Exception:
+        pass
+
+    # DB health — serializer metrics (in-process, no DB read)
+    try:
+        from src.utils.db_locking import serializer_metrics as _sm, get_lock_error_metrics as _glm
+        _s = _sm()
+        _g = _glm()
+        runtime["db_p99_wait_ms"]    = _s.get("p99_wait_ms", 0)
+        runtime["db_queue_depth"]    = _s.get("queue_depth", 0)
+        runtime["db_lock_errors_5m"] = _g.get("lock_errors_5m", 0)
+        runtime["db_lock_errors_1h"] = _g.get("lock_errors_1h", 0)
+    except Exception:
+        pass
+
+    # Creator resolution skip count from the resolution queue table
+    try:
+        lv = _live_conn()
+        try:
+            row = lv.execute(
+                "SELECT COUNT(*) FROM creator_resolution_queue WHERE status='skipped'"
+            ).fetchone()
+            runtime["creator_resolution_skipped"] = row[0] if row else 0
+            # Also check budget_exceeded status
+            row2 = lv.execute(
+                "SELECT COUNT(*) FROM creator_resolution_queue WHERE status='budget_exceeded'"
+            ).fetchone()
+            runtime["creator_resolution_budget_exceeded"] = row2[0] if row2 else 0
+        finally:
+            lv.close()
+    except Exception:
+        runtime["creator_resolution_skipped"] = 0
+        runtime["creator_resolution_budget_exceeded"] = 0
+
+    # ── Derive overall health status ──────────────────────────────────────────
+    # RED: critical path threatened (loop lag, critical RPC storm, DB p99 spike)
+    # YELLOW: optional work being skipped/deferred (healthy behaviour)
+    # GREEN: everything within budget
+    _critical_failures = (
+        runtime["treasury_timeout"] +
+        runtime["create_fetch_timeout"]
+    )
+    _optional_deferred = (
+        runtime.get("creator_resolution_skipped", 0) +
+        runtime["pool_discovery_deferred"] +
+        runtime["validation_timeout"] +
+        runtime["catchup_timeout"]
+    )
+    _db_pressure = runtime["db_lock_errors_5m"]
+    _db_p99      = runtime["db_p99_wait_ms"] or 0
+    _cascade_ok  = runtime["cascade_state"] in ("LIVE", None)
+
+    if not _cascade_ok or _db_p99 > 5000 or _db_pressure > 10:
+        health = "RED"
+        health_label = "Critical path at risk"
+        health_note  = ("DB pressure or cascade down" if not _cascade_ok
+                        else f"DB p99={_db_p99}ms, lock errors={_db_pressure}/5m")
+    elif _critical_failures > 0 or _db_p99 > 1000:
+        health = "YELLOW"
+        health_label = "Near budget"
+        health_note  = f"{_critical_failures} critical timeout(s) — monitor"
+    elif _optional_deferred > 0:
+        health = "GREEN"
+        health_label = "Degrading gracefully"
+        health_note  = f"{_optional_deferred} optional operation(s) deferred — critical path protected"
+    else:
+        health = "GREEN"
+        health_label = "Healthy"
+        health_note  = "All paths within budget"
+
+    budget_table = [
+        {"path": p, "file": f, "tier": t, "budget_s": b, "degrade": d, "risk": r}
+        for p, f, t, b, d, r in rb.BUDGET_TABLE
+    ]
+
+    return jsonify({
+        "health": health,
+        "health_label": health_label,
+        "health_note": health_note,
+        "runtime": runtime,
+        "config": config,
+        "budget_table": budget_table,
+    })
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/scheduler-pressure")
+def api_intel_scheduler_pressure():
+    """Scheduler runtime pressure state — read directly from ops DB (cross-process safe).
+    Returns current pressure score/level, defer counts, starvation state, and last success."""
+    import sqlite3, json as _json
+    now = int(time.time())
+    ov = _conn()
+    try:
+        active = ov.execute(
+            "SELECT COUNT(*) FROM wt_active_subprov_sessions WHERE state='ACTIVE'"
+        ).fetchone()[0]
+        active_pressure = ov.execute(
+            "SELECT COUNT(*) FROM wt_active_subprov_sessions "
+            "WHERE state='ACTIVE' AND open_reason NOT IN "
+            "('HISTORICAL_SUBPROV_DISCOVERED','CREATOR')"
+        ).fetchone()[0]
+        pending = critical = 0
+        try:
+            for row in ov.execute(
+                "SELECT priority, COUNT(*) n FROM wt_pending_session_writes "
+                "WHERE state='PENDING' GROUP BY priority"
+            ).fetchall():
+                pending += row["n"]
+                if row["priority"] == "CRITICAL":
+                    critical += row["n"]
+        except Exception:
+            pass
+        # last run log entries
+        runs = []
+        try:
+            for r in ov.execute(
+                "SELECT job_type, started_at, status, runtime_sec, rpc_used "
+                "FROM wt_ops_v2_runs ORDER BY started_at DESC LIMIT 10"
+            ).fetchall():
+                runs.append({
+                    "job": r["job_type"], "ago_s": now - (r["started_at"] or now),
+                    "status": r["status"], "runtime_s": r["runtime_sec"], "rpc": r["rpc_used"],
+                })
+        except Exception:
+            pass
+        # cascade heartbeat
+        hb_age = None
+        cascade_state = None
+        try:
+            hb = ov.execute(
+                "SELECT last_seen, meta_json FROM wt_worker_heartbeat "
+                "WHERE worker_name='ws_cascade' ORDER BY last_seen DESC LIMIT 1"
+            ).fetchone()
+            if hb:
+                hb_age = now - (hb["last_seen"] or now)
+                meta = _json.loads(hb["meta_json"] or "{}")
+                cascade_state = meta.get("cascade_state")
+        except Exception:
+            pass
+        # derive pressure score (mirrors calculate_runtime_pressure logic)
+        score = 0
+        if critical > 0: score += 25
+        if pending > 0: score += 10
+        if active > 0: score += 3
+        if active > 10: score += 6
+        if active > 25: score += 10
+        if cascade_state in ("ACTIVE", "LIVE"): score += 2
+        level = "CRITICAL" if score >= 30 else "HIGH" if score >= 20 else "MEDIUM" if score >= 10 else "LOW"
+        # pull scheduler state flushed by the scheduler process into wt_scheduler_state
+        sched_extra = {}
+        try:
+            import json as _json2
+            ss_row = ov.execute(
+                "SELECT value_json, updated_at FROM wt_scheduler_state WHERE key='main' LIMIT 1"
+            ).fetchone()
+            if ss_row:
+                ss = _json2.loads(ss_row["value_json"] or "{}")
+                # prefer the scheduler's authoritative score/level (it has more signals)
+                sched_age = now - (ss_row["updated_at"] or now)
+                if sched_age < 60:  # only trust if flushed within last minute
+                    score = ss.get("pressure_score", score)
+                    level = ss.get("pressure_level", level)
+                sched_extra = {
+                    "current_batch_size": ss.get("scheduler_batch_size"),
+                    "last_defer_reason": ss.get("last_defer_reason"),
+                    "deferred_cycles": ss.get("deferred_cycles", 0),
+                    "starvation_override_count": ss.get("starvation_override_count", 0),
+                    "sched_state_age_s": sched_age,
+                }
+        except Exception:
+            pass
+        return jsonify({
+            "pressure_score": score,
+            "pressure_level": level,
+            "active_sessions": active,
+            "active_pressure_sessions": active_pressure,
+            "pending_writes": pending,
+            "critical_pending": critical,
+            "cascade_state": cascade_state,
+            "heartbeat_age_s": hb_age,
+            "recent_runs": runs,
+            **sched_extra,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "pressure_level": "UNKNOWN"})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/unconfirmed-watchtower-like")
+def api_intel_unconfirmed_watchtower_like():
+    try:
+        from src.utils.db_locking import db_connect as _dbc
+        conn = _dbc(LIVE_DB_PATH, timeout=10)
+        conn.row_factory = __import__("sqlite3").Row
+        try:
+            if not _table_exists(conn, "wt_unconfirmed_watchtower_like"):
+                return __import__("flask").jsonify({"leads": [], "total": 0})
+            rows = conn.execute(
+                """SELECT mint, creator_wallet, subprov_wallet, unknown_root_wallet,
+                          root_hop, amount_sol, first_seen, last_seen,
+                          occurrence_count, status
+                   FROM wt_unconfirmed_watchtower_like
+                   WHERE status='REVIEW'
+                   ORDER BY last_seen DESC LIMIT 50""").fetchall()
+            leads = [dict(r) for r in rows]
+            total = conn.execute(
+                "SELECT COUNT(*) FROM wt_unconfirmed_watchtower_like WHERE status='REVIEW'"
+            ).fetchone()[0]
+            # Group by unknown_root to show how many tokens share the same root
+            root_counts = {}
+            for r in conn.execute(
+                "SELECT unknown_root_wallet, COUNT(*) n FROM wt_unconfirmed_watchtower_like "
+                "WHERE status='REVIEW' GROUP BY unknown_root_wallet ORDER BY n DESC LIMIT 20"
+            ).fetchall():
+                root_counts[r[0]] = r[1]
+            return __import__("flask").jsonify({
+                "leads": leads, "total": total, "root_counts": root_counts
+            })
+        finally:
+            conn.close()
+    except Exception as e:
+        return __import__("flask").jsonify({"error": str(e), "leads": [], "total": 0})
 
 
 def register_operation_dashboard_routes(app):

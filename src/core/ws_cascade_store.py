@@ -25,6 +25,7 @@ from __future__ import annotations
 import os
 import json
 import time
+import threading
 from typing import Optional
 
 try:
@@ -128,6 +129,8 @@ def ensure_cascade_schema(conn) -> None:
             wrap_close_sol            REAL,    -- subprov → creator wrap-close seed (the creator's birth amount)
             wrap_close_signature      TEXT,
             birth_to_launch_seconds   INTEGER,
+            detection_source           TEXT,
+            detection_delay_seconds    INTEGER,
             funding_mechanism         TEXT DEFAULT 'WSOL_WRAP_CLOSE',
             creator_extraction_method TEXT DEFAULT 'CLOSE_ACCOUNT_DESTINATION',
             confidence                TEXT DEFAULT 'STRICT',
@@ -184,11 +187,13 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN subprov_known INTEGER DEFAULT 0")
     except Exception:
         pass
-    # migrate: add wrap_close_time to a pre-existing watches table (true creator birth)
+    # migrate: add wrap_close_time + funding_mechanism to a pre-existing watches table
     try:
         _wcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_candidate_websocket_watches)").fetchall()}
         if "wrap_close_time" not in _wcols:
             conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN wrap_close_time INTEGER")
+        if "funding_mechanism" not in _wcols:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE'")
     except Exception:
         pass
     # migrate: add the two funding amounts to a pre-existing launches table
@@ -198,6 +203,10 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN subprov_funding_sol REAL")
         if "wrap_close_sol" not in _lcols:
             conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN wrap_close_sol REAL")
+        if "detection_source" not in _lcols:
+            conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN detection_source TEXT")
+        if "detection_delay_seconds" not in _lcols:
+            conn.execute("ALTER TABLE wt_watchtower_launches ADD COLUMN detection_delay_seconds INTEGER")
     except Exception:
         pass
     # ── Phase A: subprov classification instrumentation ──────────────────────
@@ -231,13 +240,15 @@ def ensure_cascade_schema(conn) -> None:
             )
         if "wrap_close_count" not in _dcols:
             conn.execute("ALTER TABLE wt_discovered_subprovs ADD COLUMN wrap_close_count INTEGER DEFAULT 0")
+        if "seeded_account_count" not in _dcols:
+            conn.execute("ALTER TABLE wt_discovered_subprovs ADD COLUMN seeded_account_count INTEGER DEFAULT 0")
         if "topup_count" not in _dcols:
             conn.execute("ALTER TABLE wt_discovered_subprovs ADD COLUMN topup_count INTEGER DEFAULT 0")
         if "rejected_reason" not in _dcols:
             conn.execute("ALTER TABLE wt_discovered_subprovs ADD COLUMN rejected_reason TEXT")
     except Exception:
         pass
-    # wt_subprov_evidence — one row per observed wrap-close, links subprov→creator
+    # wt_subprov_evidence — one row per observed provisioning event, links subprov→creator
     conn.execute(
         """CREATE TABLE IF NOT EXISTS wt_subprov_evidence (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -246,10 +257,46 @@ def ensure_cascade_schema(conn) -> None:
             creator_wallet  TEXT NOT NULL,
             amount_sol      REAL,
             observed_at     INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            create_fired    INTEGER DEFAULT 0
+            create_fired    INTEGER DEFAULT 0,
+            funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE'
         )"""
     )
     conn.execute("CREATE INDEX IF NOT EXISTS ix_se_subprov ON wt_subprov_evidence(subprov)")
+    # Durable subprov signature intake. This is the backstop for a live subprov
+    # logsSubscribe notification that drops, times out, or fails under DB/RPC
+    # pressure. The retry table is intentionally keyed by (subprov, signature)
+    # so every seen funding signature has a durable processing record.
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_subprov_sig_cursor (
+            subprov_wallet  TEXT PRIMARY KEY,
+            last_seen_sig   TEXT,
+            last_seen_slot  INTEGER,
+            last_seen_at    INTEGER,
+            updated_at      INTEGER NOT NULL
+        )"""
+    )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_subprov_sig_retry (
+            subprov_wallet  TEXT NOT NULL,
+            signature       TEXT NOT NULL,
+            slot            INTEGER,
+            first_seen_at   INTEGER NOT NULL,
+            last_attempt_at INTEGER,
+            attempts        INTEGER DEFAULT 0,
+            last_error      TEXT,
+            status          TEXT NOT NULL DEFAULT 'PENDING',
+            PRIMARY KEY (subprov_wallet, signature)
+        )"""
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sig_retry_status ON wt_subprov_sig_retry(status, last_attempt_at)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sig_retry_subprov ON wt_subprov_sig_retry(subprov_wallet)")
+    # migrate: add funding_mechanism to pre-existing evidence table
+    try:
+        _evcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_subprov_evidence)").fetchall()}
+        if "funding_mechanism" not in _evcols:
+            conn.execute("ALTER TABLE wt_subprov_evidence ADD COLUMN funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE'")
+    except Exception:
+        pass
     # wt_subprov_topups — top-up history (treasury seeds same subprov again)
     conn.execute(
         """CREATE TABLE IF NOT EXISTS wt_subprov_topups (
@@ -262,6 +309,69 @@ def ensure_cascade_schema(conn) -> None:
         )"""
     )
     conn.execute("CREATE INDEX IF NOT EXISTS ix_st_subprov ON wt_subprov_topups(subprov)")
+    # wt_capital_reloads — large treasury injections into known launched subprovs
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_capital_reloads (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            subprov         TEXT NOT NULL,
+            treasury        TEXT NOT NULL,
+            sig             TEXT UNIQUE,
+            amount_sol      REAL NOT NULL,
+            wrap_close_count INTEGER DEFAULT 0,
+            first_creator   TEXT,
+            linked_mint     TEXT,
+            recorded_at     INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )"""
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_cr_subprov ON wt_capital_reloads(subprov)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_cr_recorded ON wt_capital_reloads(recorded_at)")
+    # ── Capital Distributor Candidates ────────────────────────────────────────
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_capital_distributor_candidates (
+            wallet                TEXT PRIMARY KEY,
+            source_treasury       TEXT NOT NULL,
+            funding_sig           TEXT NOT NULL,
+            funding_amount_sol    REAL NOT NULL,
+            first_seen            INTEGER NOT NULL,
+            observation_state     TEXT NOT NULL DEFAULT 'OBSERVING',
+            subscription_started  INTEGER,
+            subscription_ended    INTEGER,
+            last_activity         INTEGER,
+            total_outbound_sol    REAL DEFAULT 0,
+            recipient_count       INTEGER DEFAULT 0,
+            fanout_count          INTEGER DEFAULT 0,
+            largest_fanout        INTEGER DEFAULT 0,
+            wrap_close_count      INTEGER DEFAULT 0,
+            creator_count         INTEGER DEFAULT 0,
+            buy_swarm_count       INTEGER DEFAULT 0,
+            migration_count       INTEGER DEFAULT 0,
+            derived_role          TEXT DEFAULT 'UNKNOWN',
+            role_confidence       TEXT DEFAULT 'NONE',
+            role_evidence_json    TEXT,
+            recorded_at           INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )"""
+    )
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_cdc_outbound_events (
+            id                        INTEGER PRIMARY KEY AUTOINCREMENT,
+            cdc_wallet                TEXT NOT NULL,
+            sig                       TEXT NOT NULL,
+            block_time                INTEGER,
+            recipient                 TEXT NOT NULL,
+            amount_sol                REAL,
+            fanout_size               INTEGER DEFAULT 1,
+            recipient_did_wrap_close  INTEGER DEFAULT 0,
+            recipient_did_create      INTEGER DEFAULT 0,
+            recipient_did_swap        INTEGER DEFAULT 0,
+            recipient_did_migrate     INTEGER DEFAULT 0,
+            recorded_at               INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            UNIQUE(sig, recipient)
+        )"""
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_cdc_wallet    ON wt_capital_distributor_candidates(source_treasury)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_cdc_state     ON wt_capital_distributor_candidates(observation_state)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_cdcoe_wallet  ON wt_cdc_outbound_events(cdc_wallet)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_cdcoe_sig     ON wt_cdc_outbound_events(sig)")
     # ── Phase E Pass 1: subprov behaviour typing ──────────────────────────────
     try:
         _dcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_discovered_subprovs)").fetchall()}
@@ -448,14 +558,16 @@ def lookup_subprov(conn, wallet: str) -> Optional[dict]:
         "SELECT subprov, creator_count, treasury, treasury_known, "
         "wrap_close_count, topup_count, confidence, state, "
         "COALESCE(buy_swarm_count,0), COALESCE(create_count,0), "
-        "COALESCE(buy_swarm_ratio,0.0), COALESCE(subprov_type,'UNKNOWN') "
+        "COALESCE(buy_swarm_ratio,0.0), COALESCE(subprov_type,'UNKNOWN'), "
+        "first_creator "
         "FROM wt_discovered_subprovs WHERE subprov=?", (wallet,)
     ).fetchone()
     if row is None:
         return None
     cols = ["subprov", "creator_count", "treasury", "treasury_known",
             "wrap_close_count", "topup_count", "confidence", "state",
-            "buy_swarm_count", "create_count", "buy_swarm_ratio", "subprov_type"]
+            "buy_swarm_count", "create_count", "buy_swarm_ratio", "subprov_type",
+            "first_creator"]
     return dict(zip(cols, row))
 
 
@@ -470,7 +582,7 @@ def is_historical_subprov(conn, wallet: str) -> bool:
     """
     if conn.execute(
         "SELECT 1 FROM wt_discovered_subprovs "
-        "WHERE subprov=? AND wrap_close_count > 0 LIMIT 1", (wallet,)
+        "WHERE subprov=? AND (wrap_close_count + COALESCE(seeded_account_count,0)) > 0 LIMIT 1", (wallet,)
     ).fetchone():
         return True
     if conn.execute(
@@ -578,37 +690,161 @@ def mark_non_provisioning_recipients(conn) -> int:
         return 0
 
 
-def promote_to_subprov(conn, *, subprov: str, treasury: str,
-                       wrap_close_sig: str, creator: str,
-                       amount_sol: Optional[float]) -> None:
-    """Record wrap-close evidence and promote a PROVISION_CANDIDATE to PROVISIONAL_SUBPROV.
-
-    Called once per wrap-close fan-out observed in _handle_subprov_tx. Idempotent on
-    wrap_close_sig (UNIQUE constraint on wt_subprov_evidence). Updates confidence and
-    state on wt_discovered_subprovs so _classify_recipient returns REACTIVATED next time
-    this wallet receives treasury funding.
+def record_capital_reload(conn, *, subprov: str, treasury: str, sig: str,
+                          amount_sol: float, wrap_close_count: int = 0,
+                          first_creator: Optional[str] = None,
+                          linked_mint: Optional[str] = None) -> None:
+    """Persist a CAPITAL_RELOAD event: a large treasury injection into a known, launched subprov.
+    Idempotent on sig (UNIQUE constraint). Does NOT arm ProgramWatcher — purely an intel record.
     """
     now = int(time.time())
-    # 1. Record the evidence row (idempotent)
+    try:
+        conn.execute(
+            "INSERT OR IGNORE INTO wt_capital_reloads "
+            "(subprov, treasury, sig, amount_sol, wrap_close_count, first_creator, linked_mint, recorded_at) "
+            "VALUES (?,?,?,?,?,?,?,?)",
+            (subprov, treasury, sig, amount_sol, wrap_close_count, first_creator, linked_mint, now))
+        conn.commit()
+    except Exception:
+        pass
+
+
+def register_cdc(conn, *, wallet: str, source_treasury: str, funding_sig: str,
+                 funding_amount_sol: float, block_time: int) -> bool:
+    """Insert a new Capital Distributor Candidate. Returns True if newly inserted."""
+    now = int(time.time())
+    try:
+        conn.execute(
+            "INSERT OR IGNORE INTO wt_capital_distributor_candidates "
+            "(wallet, source_treasury, funding_sig, funding_amount_sol, first_seen, "
+            " observation_state, recorded_at) "
+            "VALUES (?,?,?,?,?,'OBSERVING',?)",
+            (wallet, source_treasury, funding_sig, funding_amount_sol, block_time or now, now))
+        conn.commit()
+        return conn.execute("SELECT changes()").fetchone()[0] == 1
+    except Exception:
+        return False
+
+
+def cdc_mark_subscribed(conn, *, wallet: str) -> None:
+    conn.execute(
+        "UPDATE wt_capital_distributor_candidates "
+        "SET observation_state='SUBSCRIBED', subscription_started=? WHERE wallet=?",
+        (int(time.time()), wallet))
+    conn.commit()
+
+
+def cdc_mark_inactive(conn, *, wallet: str) -> None:
+    conn.execute(
+        "UPDATE wt_capital_distributor_candidates "
+        "SET observation_state='INACTIVE', subscription_ended=? WHERE wallet=?",
+        (int(time.time()), wallet))
+    conn.commit()
+
+
+def record_cdc_outbound(conn, *, cdc_wallet: str, sig: str, block_time: int,
+                        recipients: list) -> None:
+    """Record outbound tx from a CDC wallet. recipients = list of (address, amount_sol)."""
+    now = int(time.time())
+    fanout_size = len(recipients)
+    rows = [(cdc_wallet, sig, block_time, addr, amt, fanout_size, now)
+            for addr, amt in recipients]
+    conn.executemany(
+        "INSERT OR IGNORE INTO wt_cdc_outbound_events "
+        "(cdc_wallet, sig, block_time, recipient, amount_sol, fanout_size, recorded_at) "
+        "VALUES (?,?,?,?,?,?,?)", rows)
+    total_sol = sum(amt for _, amt in recipients if amt)
+    conn.execute(
+        "UPDATE wt_capital_distributor_candidates SET "
+        "last_activity=?, "
+        "recipient_count = recipient_count + ?, "
+        "total_outbound_sol = total_outbound_sol + ?, "
+        "fanout_count = fanout_count + CASE WHEN ? > 3 THEN 1 ELSE 0 END, "
+        "largest_fanout = MAX(largest_fanout, ?) "
+        "WHERE wallet=?",
+        (block_time or now, fanout_size, total_sol, fanout_size, fanout_size, cdc_wallet))
+    conn.commit()
+
+
+def get_active_cdcs(conn) -> list:
+    """All CDC wallets currently in OBSERVING state."""
+    return [r[0] for r in conn.execute(
+        "SELECT wallet FROM wt_capital_distributor_candidates "
+        "WHERE observation_state='OBSERVING'").fetchall()]
+
+
+def get_subscribed_cdcs(conn) -> list:
+    """CDC wallets currently SUBSCRIBED — needed to rehydrate WS subscriptions after restart."""
+    return [r[0] for r in conn.execute(
+        "SELECT wallet FROM wt_capital_distributor_candidates "
+        "WHERE observation_state='SUBSCRIBED'").fetchall()]
+
+
+def is_cdc_wallet(conn, wallet: str) -> bool:
+    return conn.execute(
+        "SELECT 1 FROM wt_capital_distributor_candidates WHERE wallet=?",
+        (wallet,)).fetchone() is not None
+
+
+def expire_inactive_cdcs(conn, cutoff_ts: int) -> list:
+    """Return CDC wallets subscribed but quiet since cutoff_ts and mark them INACTIVE."""
+    rows = conn.execute(
+        "SELECT wallet FROM wt_capital_distributor_candidates "
+        "WHERE observation_state='SUBSCRIBED' "
+        "AND (last_activity IS NULL OR last_activity < ?)",
+        (cutoff_ts,)).fetchall()
+    wallets = [r[0] for r in rows]
+    if wallets:
+        now = int(time.time())
+        for w in wallets:
+            conn.execute(
+                "UPDATE wt_capital_distributor_candidates "
+                "SET observation_state='INACTIVE', subscription_ended=? WHERE wallet=?",
+                (now, w))
+        conn.commit()
+    return wallets
+
+
+def promote_to_subprov(conn, *, subprov: str, treasury: str,
+                       wrap_close_sig: str, creator: str,
+                       amount_sol: Optional[float],
+                       funding_mechanism: str = "WSOL_WRAP_CLOSE") -> None:
+    """Record provisioning evidence and promote a PROVISION_CANDIDATE to PROVISIONAL_SUBPROV.
+
+    Supports both Mechanism A (WSOL_WRAP_CLOSE) and Mechanism B (SEEDED_ACCOUNT_CLOSE).
+    Idempotent on wrap_close_sig (UNIQUE constraint on wt_subprov_evidence).
+    """
+    now = int(time.time())
+    # 1. Record the evidence row (idempotent on wrap_close_sig UNIQUE)
     try:
         conn.execute(
             "INSERT OR IGNORE INTO wt_subprov_evidence "
-            "(subprov, wrap_close_sig, creator_wallet, amount_sol, observed_at) "
-            "VALUES (?,?,?,?,?)",
-            (subprov, wrap_close_sig, creator, amount_sol, now))
+            "(subprov, wrap_close_sig, creator_wallet, amount_sol, funding_mechanism, observed_at) "
+            "VALUES (?,?,?,?,?,?)",
+            (subprov, wrap_close_sig, creator, amount_sol, funding_mechanism, now))
     except Exception:
         pass
 
     # 2. Upsert wt_discovered_subprovs — recount from evidence table (idempotent).
+    # seeded_account_count tracks Mechanism B independently; wrap_close_count = Mechanism A only.
+    is_mech_b = funding_mechanism == "SEEDED_ACCOUNT_CLOSE"
+    # INSERT initialises counts to 0; the UPDATE below does all incrementing so there's
+    # no double-count when the row already exists (INSERT OR IGNORE is a no-op then).
     conn.execute(
         """INSERT OR IGNORE INTO wt_discovered_subprovs
              (subprov, first_creator, creator_count, treasury, treasury_known,
-              first_seen, last_seen, wrap_close_count, state, confidence)
-           VALUES (?,?,1,?,0,?,?,1,'PROVISIONAL_SUBPROV',0.45)""",
+              first_seen, last_seen, wrap_close_count, seeded_account_count, state, confidence)
+           VALUES (?,?,1,?,0,?,?,0,0,'PROVISIONAL_SUBPROV',0.45)""",
         (subprov, creator, treasury, now, now))
+    # wrap_close_count is recounted from wt_subprov_evidence (idempotent via UNIQUE sig).
+    # seeded_account_count is incremented only when the evidence row was newly inserted
+    # (rowcount > 0 on the evidence INSERT OR IGNORE) — prevents double-count on replay.
+    _ev_rows = conn.execute(
+        "SELECT changes()").fetchone()[0]  # 1 if new, 0 if duplicate sig
     conn.execute(
         """UPDATE wt_discovered_subprovs SET
-             wrap_close_count = (SELECT COUNT(*)                    FROM wt_subprov_evidence WHERE subprov=?),
+             wrap_close_count     = (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=? AND COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE')='WSOL_WRAP_CLOSE'),
+             seeded_account_count = seeded_account_count + ?,
              creator_count    = (SELECT COUNT(DISTINCT creator_wallet) FROM wt_subprov_evidence WHERE subprov=?),
              last_seen        = ?,
              state            = CASE
@@ -617,7 +853,7 @@ def promote_to_subprov(conn, *, subprov: str, treasury: str,
              confidence       = MIN(0.74, 0.20 +
                (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=?) * 0.08)
            WHERE subprov = ?""",
-        (subprov, subprov, now, subprov, subprov))
+        (subprov, (1 if is_mech_b else 0) * _ev_rows, subprov, now, subprov, subprov))
     conn.commit()
 
 
@@ -638,7 +874,10 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
                   funding_amount: Optional[float], funding_time: Optional[int],
                   ttl_seconds: int, subprov_known: int = 0,
                   open_reason: str = "PROVISION_CANDIDATE",
-                  monitoring_state: str = "LIVE_ARMED") -> bool:
+                  monitoring_state: str = "LIVE_ARMED",
+                  funding_sequence_number: Optional[int] = None,
+                  treasury_rotated: bool = False,
+                  last_activity_at: Optional[int] = None) -> bool:
     """Record a confirmed treasury→SUB_PROV funding as an ACTIVE session. Idempotent on
     (subprov, funding_sig). Returns True if a NEW session row was created.
 
@@ -670,9 +909,13 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
                 "SET expires_at=MAX(expires_at,?), "
                 "    topup_count=COALESCE(topup_count,0)+1, "
                 "    topup_amount_total=COALESCE(topup_amount_total,0)+?, "
-                "    last_topup_at=? "
+                "    last_topup_at=?, "
+                "    funding_sequence_number=COALESCE(funding_sequence_number,?), "
+                "    treasury_rotated=COALESCE(treasury_rotated,?), "
+                "    last_activity_at=COALESCE(last_activity_at,?) "
                 "WHERE subprov_wallet=? AND state='ACTIVE'",
-                (now + ttl_seconds, _amt, now, subprov))
+                (now + ttl_seconds, _amt, now,
+                 funding_sequence_number, int(treasury_rotated), last_activity_at, subprov))
         else:
             conn.execute(
                 "UPDATE wt_active_subprov_sessions SET expires_at=MAX(expires_at,?) "
@@ -693,18 +936,26 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
         """INSERT OR IGNORE INTO wt_active_subprov_sessions
              (subprov_wallet, treasury_wallet, funding_signature, funding_amount,
               initial_funding_amount, funding_time, subprov_known, open_reason,
-              monitoring_state, state, detected_at, expires_at)
-           VALUES (?,?,?,?,?,?,?,?,?, 'ACTIVE', ?, ?)""",
+              monitoring_state, state, detected_at, expires_at,
+              funding_sequence_number, treasury_rotated, last_activity_at)
+           VALUES (?,?,?,?,?,?,?,?,?, 'ACTIVE', ?, ?,?,?,?)""",
         (subprov, treasury, funding_sig, funding_amount, funding_amount,
-         funding_time or now, int(subprov_known), open_reason, monitoring_state, now, now + ttl_seconds))
+         funding_time or now, int(subprov_known), open_reason, monitoring_state, now, now + ttl_seconds,
+         funding_sequence_number, int(treasury_rotated), last_activity_at))
     conn.commit()
     if cur.rowcount == 0:
-        # duplicate funding_sig for a non-TOP_UP (e.g. webhook + WS both fire) →
-        # extend TTL so an active subprov stays subscribed through a long campaign.
+        # duplicate funding_sig (e.g. webhook + WS both fire, or pre-restart row) →
+        # extend TTL and backfill sequence/reason if the existing row lacks them.
         conn.execute(
-            "UPDATE wt_active_subprov_sessions SET expires_at=MAX(expires_at,?) "
+            "UPDATE wt_active_subprov_sessions "
+            "SET expires_at=MAX(expires_at,?), "
+            "    open_reason=COALESCE(NULLIF(open_reason,''),?), "
+            "    funding_sequence_number=COALESCE(funding_sequence_number,?), "
+            "    treasury_rotated=COALESCE(treasury_rotated,?), "
+            "    last_activity_at=COALESCE(last_activity_at,?) "
             "WHERE subprov_wallet=? AND state='ACTIVE'",
-            (now + ttl_seconds, subprov))
+            (now + ttl_seconds, open_reason, funding_sequence_number,
+             int(treasury_rotated), last_activity_at, subprov))
         conn.commit()
     return cur.rowcount > 0
 
@@ -744,12 +995,16 @@ def drain_pending_sessions(conn) -> tuple[int, int]:
     """Retry PENDING session writes. Returns (written, remaining).
     Replays original detection context — does NOT reclassify under current runtime flags."""
     now = int(time.time())
+    import sqlite3 as _sq3
+    _prev_rf = conn.row_factory
+    conn.row_factory = _sq3.Row
     rows = conn.execute(
         "SELECT id, treasury, subprov, funding_sig, funding_amount, funding_time, "
         "open_reason, subprov_known, ttl_seconds, priority "
         "FROM wt_pending_session_writes WHERE state='PENDING' "
         "ORDER BY priority DESC, enqueued_at ASC LIMIT 20"
     ).fetchall()
+    conn.row_factory = _prev_rf
     written = 0
     superseded = 0
     for r in rows:
@@ -865,6 +1120,37 @@ def close_session(conn, session_id: int, state: str) -> None:
     conn.commit()
 
 
+def set_session_post_create(conn, subprov: str) -> Optional[int]:
+    """Transition the active session for *subprov* to POST_CREATE_ACTIVE monitoring state.
+    Session stays ACTIVE (not closed) — subprov WS subscription stays live for the 120s
+    continuation window. Returns the session id, or None if no active session found."""
+    now = int(time.time())
+    row = conn.execute(
+        "SELECT id FROM wt_active_subprov_sessions "
+        "WHERE subprov_wallet=? AND state='ACTIVE' ORDER BY detected_at DESC LIMIT 1",
+        (subprov,)).fetchone()
+    if not row:
+        return None
+    conn.execute(
+        "UPDATE wt_active_subprov_sessions "
+        "SET monitoring_state='POST_CREATE_ACTIVE' WHERE id=?",
+        (row[0],))
+    conn.commit()
+    return row[0]
+
+
+def set_session_intel_only(conn, subprov: str) -> None:
+    """Downgrade a POST_CREATE_ACTIVE session to INTEL_ONLY (passive intelligence window).
+    Session stays ACTIVE so the 4h operation-grouping window is preserved — but the
+    subprov WS subscription is dropped by the caller."""
+    conn.execute(
+        "UPDATE wt_active_subprov_sessions "
+        "SET monitoring_state='INTEL_ONLY' "
+        "WHERE subprov_wallet=? AND state='ACTIVE'",
+        (subprov,))
+    conn.commit()
+
+
 def expire_stale_sessions(conn) -> list:
     """Return + mark EXPIRED any ACTIVE session past its TTL. Returns the expired rows
     (id, subprov_wallet) so the caller can unsubscribe."""
@@ -880,7 +1166,9 @@ def expire_stale_sessions(conn) -> list:
 
 
 # Phase D window: PROVISION_CANDIDATE sessions older than this with no wrap-close → REJECTED
-_CANDIDATE_REJECT_WINDOW_S = int(os.environ.get("WS_CANDIDATE_REJECT_WINDOW_S", str(2 * 3600)))
+_CANDIDATE_REJECT_WINDOW_S      = int(os.environ.get("WS_CANDIDATE_REJECT_WINDOW_S",      str(2 * 3600)))
+_CANDIDATE_REJECT_WINDOW_HV_S   = int(os.environ.get("WS_CANDIDATE_REJECT_WINDOW_HV_S",   str(6 * 3600)))
+_CANDIDATE_REJECT_HV_FLOOR      = float(os.environ.get("WS_CANDIDATE_REJECT_HV_FLOOR",    "100"))
 
 
 def reject_unproven_sessions(conn) -> list:
@@ -894,14 +1182,22 @@ def reject_unproven_sessions(conn) -> list:
     Returns list of (id, subprov_wallet) expired so caller can unsubscribe.
     """
     now = int(time.time())
-    cutoff = now - _CANDIDATE_REJECT_WINDOW_S
-    # Find PROVISION_CANDIDATE sessions opened before the cutoff with no wrap-close evidence
+    cutoff    = now - _CANDIDATE_REJECT_WINDOW_S
+    cutoff_hv = now - _CANDIDATE_REJECT_WINDOW_HV_S
+    # Find PROVISION_CANDIDATE sessions opened before the cutoff with no wrap-close evidence.
+    # High-value sessions (≥ SESSION_HIGH_SOL_FLOOR) use the longer 6h reject window.
     rows = conn.execute(
         """SELECT s.id, s.subprov_wallet
            FROM wt_active_subprov_sessions s
            WHERE s.state = 'ACTIVE'
              AND s.open_reason = 'PROVISION_CANDIDATE'
-             AND s.detected_at < ?
+             AND (
+               CASE
+                 WHEN COALESCE(s.initial_funding_amount, s.funding_amount, 0) >= ?
+                   THEN s.detected_at < ?
+                 ELSE s.detected_at < ?
+               END
+             )
              AND NOT EXISTS (
                SELECT 1 FROM wt_subprov_evidence e WHERE e.subprov = s.subprov_wallet
              )
@@ -910,7 +1206,7 @@ def reject_unproven_sessions(conn) -> list:
                WHERE w.subprov_wallet = s.subprov_wallet
                  AND w.state IN ('WATCHING','FIRED_CREATE','BUY_SWARM')
              )""",
-        (cutoff,)).fetchall()
+        (_CANDIDATE_REJECT_HV_FLOOR, cutoff_hv, cutoff)).fetchall()
     for r in rows:
         conn.execute(
             "UPDATE wt_active_subprov_sessions "
@@ -926,7 +1222,8 @@ def reject_unproven_sessions(conn) -> list:
 def open_candidate_watch(conn, *, candidate: str, subprov: str, treasury: Optional[str],
                          wrap_close_sig: Optional[str], wrap_wallet: Optional[str],
                          temp_wsol: Optional[str], funding_amount: Optional[float],
-                         ttl_seconds: int, wrap_close_time: Optional[int] = None) -> bool:
+                         ttl_seconds: int, wrap_close_time: Optional[int] = None,
+                         funding_mechanism: str = "WSOL_WRAP_CLOSE") -> bool:
     """Record a wrap-close destination as a WATCHING candidate. Idempotent on
     (candidate, wrap_close_sig). Returns True if newly inserted (caller should subscribe).
 
@@ -948,12 +1245,130 @@ def open_candidate_watch(conn, *, candidate: str, subprov: str, treasury: Option
         """INSERT OR IGNORE INTO wt_candidate_websocket_watches
              (candidate_wallet, subprov_wallet, treasury_wallet, wrap_close_signature,
               wrap_close_time, wrap_wallet, temp_wsol_account, close_destination, funding_amount,
-              state, detected_at, expires_at)
-           VALUES (?,?,?,?,?,?,?,?,?, 'WATCHING', ?, ?)""",
+              funding_mechanism, state, detected_at, expires_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?, 'WATCHING', ?, ?)""",
         (candidate, subprov, treasury, wrap_close_sig, wrap_close_time, wrap_wallet, temp_wsol,
-         candidate, funding_amount, now, now + ttl_seconds))
+         candidate, funding_amount, funding_mechanism, now, now + ttl_seconds))
     conn.commit()
     return cur.rowcount > 0
+
+
+def subprov_sig_enqueue(conn, *, subprov: str, signature: str,
+                        slot: Optional[int] = None) -> bool:
+    """Durably record that a subprov signature must be processed.
+
+    Returns True when this is a new pending record. Existing DONE records are left
+    untouched; existing FAILED/PENDING records stay retryable.
+    """
+    now = int(time.time())
+    cur = conn.execute(
+        """INSERT INTO wt_subprov_sig_retry
+             (subprov_wallet, signature, slot, first_seen_at, status)
+           VALUES (?,?,?,?, 'PENDING')
+           ON CONFLICT(subprov_wallet, signature) DO UPDATE SET
+             slot = COALESCE(wt_subprov_sig_retry.slot, excluded.slot),
+             status = CASE
+               WHEN wt_subprov_sig_retry.status='DONE' THEN 'DONE'
+               WHEN wt_subprov_sig_retry.status='RUNNING' THEN 'RUNNING'
+               ELSE 'PENDING'
+             END""",
+        (subprov, signature, slot, now))
+    conn.commit()
+    return cur.rowcount > 0
+
+
+def subprov_sig_mark_running(conn, *, subprov: str, signature: str,
+                             slot: Optional[int] = None) -> None:
+    now = int(time.time())
+    conn.execute(
+        """INSERT INTO wt_subprov_sig_retry
+             (subprov_wallet, signature, slot, first_seen_at, last_attempt_at,
+              attempts, status)
+           VALUES (?,?,?,?,?, 1, 'RUNNING')
+           ON CONFLICT(subprov_wallet, signature) DO UPDATE SET
+             slot = COALESCE(wt_subprov_sig_retry.slot, excluded.slot),
+             last_attempt_at = excluded.last_attempt_at,
+             attempts = wt_subprov_sig_retry.attempts + 1,
+             status = 'RUNNING',
+             last_error = NULL""",
+        (subprov, signature, slot, now, now))
+    conn.commit()
+
+
+def subprov_sig_mark_done(conn, *, subprov: str, signature: str,
+                          slot: Optional[int] = None, block_time: Optional[int] = None) -> None:
+    now = int(time.time())
+    conn.execute(
+        """UPDATE wt_subprov_sig_retry
+           SET status='DONE', last_error=NULL, last_attempt_at=?
+           WHERE subprov_wallet=? AND signature=?""",
+        (now, subprov, signature))
+    conn.execute(
+        """INSERT INTO wt_subprov_sig_cursor
+             (subprov_wallet, last_seen_sig, last_seen_slot, last_seen_at, updated_at)
+           VALUES (?,?,?,?,?)
+           ON CONFLICT(subprov_wallet) DO UPDATE SET
+             last_seen_sig=excluded.last_seen_sig,
+             last_seen_slot=COALESCE(excluded.last_seen_slot, wt_subprov_sig_cursor.last_seen_slot),
+             last_seen_at=COALESCE(excluded.last_seen_at, wt_subprov_sig_cursor.last_seen_at),
+             updated_at=excluded.updated_at""",
+        (subprov, signature, slot, block_time, now))
+    conn.commit()
+
+
+def subprov_sig_mark_failed(conn, *, subprov: str, signature: str, error: str,
+                            max_attempts: int = 8) -> None:
+    now = int(time.time())
+    err = (error or "")[:500]
+    row = conn.execute(
+        "SELECT attempts FROM wt_subprov_sig_retry WHERE subprov_wallet=? AND signature=?",
+        (subprov, signature)).fetchone()
+    attempts = int(row[0] or 0) if row else 0
+    status = "FAILED" if attempts >= max_attempts else "PENDING"
+    conn.execute(
+        """INSERT INTO wt_subprov_sig_retry
+             (subprov_wallet, signature, first_seen_at, last_attempt_at,
+              attempts, last_error, status)
+           VALUES (?,?,?,?, 1, ?, ?)
+           ON CONFLICT(subprov_wallet, signature) DO UPDATE SET
+             last_attempt_at=excluded.last_attempt_at,
+             last_error=excluded.last_error,
+             status=excluded.status""",
+        (subprov, signature, now, now, err, status))
+    conn.commit()
+
+
+def subprov_cursor(conn, subprov: str) -> Optional[str]:
+    row = conn.execute(
+        "SELECT last_seen_sig FROM wt_subprov_sig_cursor WHERE subprov_wallet=?",
+        (subprov,)).fetchone()
+    return row[0] if row and row[0] else None
+
+
+def due_subprov_sig_retries(conn, *, limit: int = 25, now: Optional[int] = None) -> list:
+    """Return retryable active-subprov signatures with exponential-ish backoff."""
+    now = int(now or time.time())
+    rows = conn.execute(
+        """SELECT r.subprov_wallet, r.signature, r.slot, r.attempts,
+                  r.last_attempt_at
+           FROM wt_subprov_sig_retry r
+           JOIN wt_active_subprov_sessions s
+             ON s.subprov_wallet=r.subprov_wallet AND s.state='ACTIVE'
+           WHERE r.status='PENDING'
+              OR (r.status='RUNNING' AND COALESCE(r.last_attempt_at, 0) < ?)
+           ORDER BY COALESCE(r.last_attempt_at, 0), r.first_seen_at
+           LIMIT ?""",
+        (now - 120, limit * 4,)).fetchall()
+    due = []
+    for row in rows:
+        attempts = int(row[3] or 0)
+        last_attempt = int(row[4] or 0)
+        delay = min(300, 2 ** min(attempts, 8))
+        if not last_attempt or now - last_attempt >= delay:
+            due.append(row)
+        if len(due) >= limit:
+            break
+    return due
 
 
 def record_fanout_audit(conn, *, candidate: str, subprov: str, treasury: str,
@@ -1153,7 +1568,10 @@ def record_launch(conn, *, mint: Optional[str], creator: str, create_sig: Option
                   wrap_close_sig: Optional[str], birth_to_launch_s: Optional[int],
                   create_slot: Optional[int] = None, confidence: str = "STRICT",
                   subprov_funding_sol: Optional[float] = None,
-                  wrap_close_sol: Optional[float] = None) -> bool:
+                  wrap_close_sol: Optional[float] = None,
+                  detection_source: Optional[str] = None,
+                  detection_delay_seconds: Optional[int] = None,
+                  funding_mechanism: str = FUNDING_MECHANISM) -> bool:
     """Authoritative launch record. Idempotent on (creator, create_sig). Marks the
     candidate FIRED_CREATE. Returns True if newly recorded.
 
@@ -1164,11 +1582,13 @@ def record_launch(conn, *, mint: Optional[str], creator: str, create_sig: Option
         """INSERT OR IGNORE INTO wt_watchtower_launches
              (mint, creator_wallet, create_signature, create_time, create_slot, treasury_wallet,
               subprov_wallet, subprov_funding_sol, wrap_close_sol, wrap_close_signature,
-              birth_to_launch_seconds, funding_mechanism, creator_extraction_method, confidence, state)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'FIRED_CREATE')""",
+              birth_to_launch_seconds, detection_source, detection_delay_seconds,
+              funding_mechanism, creator_extraction_method, confidence, state)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'FIRED_CREATE')""",
         (mint, creator, create_sig, create_time, create_slot, treasury, subprov,
          subprov_funding_sol, wrap_close_sol, wrap_close_sig,
-         birth_to_launch_s, FUNDING_MECHANISM, EXTRACTION_METHOD, confidence))
+         birth_to_launch_s, detection_source, detection_delay_seconds,
+         funding_mechanism, EXTRACTION_METHOD, confidence))
     conn.execute(
         "UPDATE wt_candidate_websocket_watches SET state='FIRED_CREATE', close_reason='create', "
         "closed_at=? WHERE candidate_wallet=?", (int(time.time()), creator))
@@ -1187,6 +1607,9 @@ def record_launch(conn, *, mint: Optional[str], creator: str, create_sig: Option
     if mint and cur.rowcount > 0:
         threading.Thread(target=_enroll_tracked_token, args=(mint,),
                          daemon=True, name="wt-enroll").start()
+        threading.Thread(target=_write_detected_create,
+                         args=(mint, creator, create_sig, create_slot),
+                         daemon=True, name="wt-detected-create").start()
     return cur.rowcount > 0
 
 
@@ -1227,6 +1650,38 @@ def _enroll_tracked_token(mint: str) -> None:
             return
 
 
+def _write_detected_create(mint: str, creator: str, create_sig: Optional[str],
+                           create_slot: Optional[int]) -> None:
+    """Write wt_detected_creates + update token_analysis.create_tx_signature in the live DB.
+    Idempotent (INSERT OR IGNORE on mint). Runs in a daemon thread off the detection path."""
+    for _attempt in range(3):
+        try:
+            lc = db_connect(LIVE_DB_PATH, timeout=20)
+            try:
+                lc.execute("PRAGMA busy_timeout=15000")
+                now_ = time.time()
+                lc.execute(
+                    "INSERT OR IGNORE INTO wt_detected_creates "
+                    "(mint, creator, slot, signature, detected_at, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, strftime('%s','now'))",
+                    (mint, creator, create_slot, create_sig, now_))
+                if create_sig:
+                    lc.execute(
+                        "UPDATE token_analysis SET "
+                        "create_tx_signature = COALESCE(create_tx_signature, ?) "
+                        "WHERE mint = ?",
+                        (create_sig, mint))
+                lc.commit()
+            finally:
+                lc.close()
+            return
+        except Exception as e:
+            if "locked" in str(e).lower() and _attempt < 2:
+                time.sleep(1.0); continue
+            print(f"[WS_CASCADE] wt_detected_creates write failed for {mint[:10]}…: {e}", flush=True)
+            return
+
+
 def batch_upsert_candidates(conn, rows: list) -> None:
     """Batch INSERT OR IGNORE for candidate rows from the ProgramCreateWatcher persist queue.
     One commit for the whole batch. rows are dicts with action='insert' or action='expire'."""
@@ -1244,6 +1699,49 @@ def batch_upsert_candidates(conn, rows: list) -> None:
         conn.execute(
             f"UPDATE wt_candidate_websocket_watches SET state='EXPIRED', closed_at=strftime('%s','now') "
             f"WHERE candidate_wallet IN ({ph}) AND state='WATCHING'", expires)
+    conn.commit()
+
+
+def record_fanout_event(conn, *, subprov: str, treasury: Optional[str],
+                        fanout_time: int, dests: list, sig: str) -> None:
+    """Write one row to wt_fanout_events summarising this wrap-close fan-out burst.
+    dests: list of {"candidate": str, "base_amount_sol": float|None, ...}"""
+    if not dests:
+        return
+    amounts = [d.get("base_amount_sol") or 0.0 for d in dests]
+    total_sol = sum(amounts)
+    largest = max(amounts) if amounts else 0.0
+    smallest = min(amounts) if amounts else 0.0
+    avg_sol = total_sol / len(amounts) if amounts else 0.0
+    # identical if all non-zero amounts are within 0.1% of each other
+    nonzero = [a for a in amounts if a > 0]
+    has_identical = bool(nonzero and (max(nonzero) - min(nonzero)) / max(nonzero) < 0.001)
+    now = int(time.time())
+    conn.execute(
+        """INSERT INTO wt_fanout_events
+             (subprov_wallet, treasury_wallet, fanout_time, fanout_count, total_sol,
+              largest_sol, smallest_sol, avg_sol, has_identical_amounts, sig_sample,
+              creates_fired, buy_swarms, created_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?, 0, 0, ?)
+           ON CONFLICT(subprov_wallet, fanout_time) DO UPDATE SET
+             fanout_count = wt_fanout_events.fanout_count + excluded.fanout_count,
+             total_sol = COALESCE(wt_fanout_events.total_sol, 0) + COALESCE(excluded.total_sol, 0),
+             largest_sol = MAX(COALESCE(wt_fanout_events.largest_sol, 0), COALESCE(excluded.largest_sol, 0)),
+             smallest_sol = CASE
+               WHEN COALESCE(wt_fanout_events.smallest_sol, 0)=0 THEN excluded.smallest_sol
+               WHEN COALESCE(excluded.smallest_sol, 0)=0 THEN wt_fanout_events.smallest_sol
+               ELSE MIN(wt_fanout_events.smallest_sol, excluded.smallest_sol)
+             END,
+             avg_sol = (COALESCE(wt_fanout_events.total_sol, 0) + COALESCE(excluded.total_sol, 0))
+                       / (wt_fanout_events.fanout_count + excluded.fanout_count),
+             has_identical_amounts = CASE
+               WHEN wt_fanout_events.has_identical_amounts=1 AND excluded.has_identical_amounts=1 THEN 1
+               ELSE 0
+             END,
+             sig_sample = COALESCE(wt_fanout_events.sig_sample, excluded.sig_sample)""",
+        (subprov, treasury, fanout_time, len(dests), round(total_sol, 9),
+         round(largest, 9), round(smallest, 9), round(avg_sol, 9),
+         int(has_identical), sig[:88], now))
     conn.commit()
 
 

@@ -38,7 +38,7 @@ except Exception:                                    # pragma: no cover
 from src.utils.db_locking import db_connect
 from src.core import ws_cascade_store as store
 from src.core.ws_cascade_store import OPS_DB_PATH, LIVE_DB_PATH, emit_event
-from src.core.wrap_close_detector import extract_close_destinations
+from src.core.wrap_close_detector import extract_close_destinations, detect_seeded_account_close
 from src.core import runtime_budget as _budget
 
 # ── config (env, conservative defaults) ──────────────────────────────────────
@@ -48,8 +48,13 @@ from src.core import runtime_budget as _budget
 # covers the median; refresh_session() extends it on each new funding so an active subprov stays
 # subscribed as long as it keeps provisioning. Candidate TTL stays short (a wrap-close→CREATE is
 # seconds-to-minutes), but bumped 3→10min for the occasional STAGED launch.
-SESSION_TTL_SEC   = int(os.environ.get("WS_SESSION_TTL_SEC", "7200"))    # 2h (was 10min — too short)
-CANDIDATE_TTL_SEC = int(os.environ.get("WS_CANDIDATE_TTL_SEC", "600"))   # 10 min (was 3min)
+SESSION_TTL_SEC        = int(os.environ.get("WS_SESSION_TTL_SEC", "1800"))         # 30m default
+SESSION_TTL_HIGH_SOL   = int(os.environ.get("WS_SESSION_TTL_HIGH_SOL_SEC", "21600")) # 6h for large new subprovs
+SESSION_HIGH_SOL_FLOOR = float(os.environ.get("WS_SESSION_HIGH_SOL_FLOOR", "100"))   # ≥100◎ triggers 6h TTL
+CAPITAL_RELOAD_MIN_SOL = float(os.environ.get("WS_CAPITAL_RELOAD_MIN_SOL", "50"))    # threshold for CAPITAL_RELOAD event
+CDC_MIN_SOL            = float(os.environ.get("WS_CDC_MIN_SOL", "50"))               # Capital Distributor Candidate threshold
+CDC_INACTIVITY_TTL_SEC = int(os.environ.get("WS_CDC_INACTIVITY_TTL_SEC", "3600"))   # unsubscribe after 60min quiet
+CANDIDATE_TTL_SEC      = int(os.environ.get("WS_CANDIDATE_TTL_SEC", "600"))          # 10 min (was 3min)
 MAX_CANDIDATES    = int(os.environ.get("WS_MAX_CANDIDATES", "0"))        # 0 = no cap
 MAX_ACTIVE_SUBPROVS = int(os.environ.get("WS_MAX_ACTIVE_SUBPROVS", "10"))
 # PROMOTED SUBPROV TIER (Phase 1 subscription-promotion) — a STANDING watchlist of subprovs we
@@ -68,6 +73,9 @@ WATCHDOG_STALE_SEC = int(os.environ.get("WS_WATCHDOG_STALE_SEC", "90"))  # alert
 # CREATE is the newest tx (just funded), so a small window suffices; bump if INSTANT creators
 # do >1 action before catch-up runs.
 CATCHUP_SIG_LIMIT = int(os.environ.get("WS_CATCHUP_SIG_LIMIT", "8"))
+SUBPROV_DURABLE_CATCHUP_LIMIT = int(os.environ.get("WS_SUBPROV_DURABLE_CATCHUP_LIMIT", "50"))
+SUBPROV_SIG_RETRY_LIMIT = int(os.environ.get("WS_SUBPROV_SIG_RETRY_LIMIT", "25"))
+SUBPROV_SIG_MAX_ATTEMPTS = int(os.environ.get("WS_SUBPROV_SIG_MAX_ATTEMPTS", "8"))
 # How often to sweep ACTIVE subprovs for wrap-closes whose WS notification dropped/stalled.
 # This is the reliability backstop for the ~100s-miss case (a dropped subprov notification).
 # RPC-bounded: one getSignatures per active subprov per sweep, deduped so it doesn't refetch.
@@ -134,7 +142,18 @@ CLASSIFICATION_ENFORCE = os.environ.get("WS_SUBPROV_CLASSIFICATION_ENFORCE", "0"
 #                          correct model is one pump.fun program stream (ProgramWatcher),
 #                          not N per-wallet streams.
 # CANDIDATE_WATCH_ENABLED kept as alias for SAVE_CANDIDATE_FANOUT (backward compat).
-SAVE_CANDIDATE_FANOUT       = os.environ.get("WS_SAVE_CANDIDATE_FANOUT",       "1") == "1"
+# ARMED state can be overridden by a file so the toggle works without restarting supervisord.
+# The file contains "1" or "0"; absent = fall back to env var.
+_ARMED_STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "database", "armed_mode.txt")
+def _read_armed_file():
+    try:
+        return open(_ARMED_STATE_FILE).read().strip()
+    except Exception:
+        return None
+_armed_file_val = _read_armed_file()
+SAVE_CANDIDATE_FANOUT       = (_armed_file_val == "1") if _armed_file_val is not None \
+                              else os.environ.get("WS_SAVE_CANDIDATE_FANOUT", "1") == "1"
+PROGRAM_WATCHER_ENABLED_FILE = (_armed_file_val == "1") if _armed_file_val is not None else None
 CANDIDATE_WALLET_WS_ENABLED = os.environ.get("WS_CANDIDATE_WALLET_WS_ENABLED", "0") == "1"
 CANDIDATE_WATCH_ENABLED     = SAVE_CANDIDATE_FANOUT   # alias used in older code paths
 SUBPROV_WATCH_ENABLED       = os.environ.get("WS_SUBPROV_WATCH_ENABLED", "1") == "1"
@@ -182,7 +201,8 @@ _SUBPROV_BLOCKLIST: frozenset = frozenset({
 WALLET_PROFILE_REFRESH_SEC = float(os.environ.get("WS_WALLET_PROFILE_REFRESH_SEC", "900"))  # 15 min
 
 # ── program-CREATE watcher (Phase 1: shadow mode, gated) ─────────────────────
-PROGRAM_WATCHER_ENABLED  = os.environ.get("WS_PROGRAM_CREATE_WATCHER_ENABLED", "1") == "1"
+PROGRAM_WATCHER_ENABLED  = PROGRAM_WATCHER_ENABLED_FILE if PROGRAM_WATCHER_ENABLED_FILE is not None \
+                          else os.environ.get("WS_PROGRAM_CREATE_WATCHER_ENABLED", "1") == "1"
 CREATE_FETCH_CONCURRENCY = int(os.environ.get("WS_CREATE_FETCH_CONCURRENCY", "4"))
 CREATE_FETCH_TIMEOUT_S   = int(os.environ.get("WS_CREATE_FETCH_TIMEOUT_S", "4"))
 CREATE_FETCH_MAX_QUEUE   = int(os.environ.get("WS_CREATE_FETCH_MAX_QUEUE", "20"))
@@ -196,6 +216,31 @@ def _confirmed_treasuries(conn) -> set:
         return {r[0] for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
     except Exception:
         return set()
+
+
+def _no_subscribe_treasuries(conn) -> set:
+    """Treasuries flagged no_subscribe=1 — their subprovs are recorded INTEL_ONLY, never websocketed."""
+    try:
+        return {r[0] for r in conn.execute(
+            "SELECT treasury FROM wt_confirmed_treasuries WHERE no_subscribe=1").fetchall()}
+    except Exception:
+        return set()
+
+
+def _resolve_linked_mint(conn, subprov: str) -> Optional[str]:
+    """Return the most recent mint this subprov launched, if known. Zero RPC — DB only.
+    Checks wt_watchtower_launches first (confirmed WATCHTOWER launches), then falls back
+    to wt_candidate_websocket_watches for any resolved candidate."""
+    try:
+        row = conn.execute(
+            "SELECT mint FROM wt_watchtower_launches "
+            "WHERE subprov_wallet=? ORDER BY create_time DESC LIMIT 1", (subprov,)
+        ).fetchone()
+        if row:
+            return row[0]
+    except Exception:
+        pass
+    return None
 
 
 def _promotable_subprovs(conn) -> list:
@@ -358,9 +403,9 @@ async def _aget_tx(sig):
     return await asyncio.get_event_loop().run_in_executor(None, _get_tx, sig)
 
 
-async def _ato_thread(fn, *args):
+async def _ato_thread(fn, *args, **kwargs):
     """Run a blocking function (DB writes, sync handlers) off the event loop."""
-    return await asyncio.get_event_loop().run_in_executor(None, lambda: fn(*args))
+    return await asyncio.get_event_loop().run_in_executor(None, lambda: fn(*args, **kwargs))
 
 
 _B58_ALPHABET = b'123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -465,21 +510,27 @@ def _classify_sibling(sib):
 class ProgramCreateWatcher:
     """Subscribes ONCE to the pump.fun program via logsSubscribe.
     On each CREATE notification: fetches tx, checks creator against
-    active_candidates dict, logs match (Phase 1: shadow only — does NOT record
-    launches and does NOT interfere with the existing per-wallet path).
+    active_candidates dict, and on match delegates to Cascade.process_candidate_sig
+    for durable launch recording (wt_watchtower_launches, wt_detected_creates,
+    token_analysis.create_tx_signature) + emit + audit phase 1.
 
     Lifecycle: CLOSED → OPENING → ACTIVE → DRAINING → CLOSED
     Opens on first candidate, closes after PROGRAM_DRAIN_GRACE_S with zero candidates.
+    On OPENING → ACTIVE transition runs a tiny per-candidate catch-up scan to cover
+    instant launches that land before the subscription is confirmed.
     """
 
     def __init__(self):
         self.active_candidates: dict = {}        # wallet → {subprov, treasury, expires_at, ...}
         self._state: str = "CLOSED"              # CLOSED|OPENING|ACTIVE|DRAINING
         self._sub_id: int | None = None
+        self._ws = None
+        self._next_req_id: int = 99001
         self._drain_task: asyncio.Task | None = None
         self._fetch_sem: asyncio.Semaphore = asyncio.Semaphore(CREATE_FETCH_CONCURRENCY)
         self._candidate_persist_queue: asyncio.Queue = asyncio.Queue()
         self._loop: asyncio.AbstractEventLoop | None = None  # set by run_cascade()
+        self._cascade_ref = None                 # set by run_cascade() after Cascade is created
 
         # metrics (int/str, updated from the asyncio loop only)
         self.metric_active_candidates: int = 0
@@ -488,6 +539,13 @@ class ProgramCreateWatcher:
         self.metric_create_fetch_queue_depth: int = 0
         self.metric_create_fetch_dropped: int = 0
         self.metric_create_fetch_timeout: int = 0
+        self.metric_active_catchup_runs: int = 0
+        self.metric_active_catchup_checked: int = 0
+        self.metric_active_catchup_hits: int = 0
+        self.metric_active_catchup_errors: int = 0
+        self.metric_expire_probe_runs: int = 0
+        self.metric_expire_probe_hits: int = 0
+        self.metric_expire_probe_errors: int = 0
         self.metric_program_matches: int = 0
         self.metric_candidates_expired: int = 0
         self.metric_program_opens: int = 0
@@ -515,7 +573,9 @@ class ProgramCreateWatcher:
             if not wallet:
                 continue
             expires_at = now + CANDIDATE_TTL_SEC
-            self.active_candidates[wallet] = {**meta, "expires_at": expires_at}
+            # added_at=0 for DB-restored candidates (reconnect reload) so catch-up skips them
+            added_at = meta.get("added_at", now)
+            self.active_candidates[wallet] = {**meta, "expires_at": expires_at, "added_at": added_at}
             row = {
                 "candidate":   wallet,
                 "subprov":     meta.get("subprov"),
@@ -533,12 +593,71 @@ class ProgramCreateWatcher:
 
         self.metric_active_candidates = len(self.active_candidates)
 
+        new_wallets = [m.get("candidate") for m in candidates if m.get("candidate")]
+
         # if candidates present and stream is closed: trigger open (thread-safe)
         if self.active_candidates and self._state == "CLOSED":
             if self._loop and self._loop.is_running():
                 asyncio.run_coroutine_threadsafe(self._trigger_open(), self._loop)
             else:
                 asyncio.ensure_future(self._trigger_open())
+
+        # If the stream is already ACTIVE, the new candidate was not visible when the
+        # logsSubscribe was opened. Schedule a bounded catch-up (5 sigs per creator) so a
+        # CREATE that landed in the 1-2 second handoff window is not permanently missed.
+        # Off the event loop (run_coroutine_threadsafe) — add_candidates is called from a thread.
+        if self._state == "ACTIVE" and new_wallets and self._cascade_ref is not None:
+            async def _instant_catchup(wallets):
+                checked = 0
+                hits = 0
+                errors = 0
+                self.metric_active_catchup_runs += 1
+                for creator in wallets:
+                    if creator not in self.active_candidates:
+                        continue  # evicted before we started
+                    checked += 1
+                    try:
+                        sigs = await asyncio.wait_for(
+                            _arpc("getSignaturesForAddress",
+                                  [creator, {"limit": 5, "commitment": "processed"}]),
+                            timeout=5.0,
+                        ) or []
+                    except Exception as exc:
+                        errors += 1
+                        _log(f"[ProgramWatcher] ACTIVE-window catch-up error {creator[:12]}...: {exc}")
+                        continue
+                    for s in sorted([x for x in sigs if not x.get("err")],
+                                    key=lambda x: x.get("blockTime") or 0):
+                        sig = s.get("signature")
+                        if not sig:
+                            continue
+                        verdict = await self._cascade_ref.process_candidate_sig(
+                            creator, sig, detection_source="ACTIVE_CATCHUP")
+                        if verdict == "CREATE":
+                            hits += 1
+                            _log(f"[ProgramWatcher] ACTIVE-window catch-up CREATE {creator[:12]}... sig={sig[:12]}...")
+                            break
+                self.metric_active_catchup_checked += checked
+                self.metric_active_catchup_hits += hits
+                self.metric_active_catchup_errors += errors
+                if checked or errors:
+                    _log(f"[ProgramWatcher] ACTIVE-window catch-up done checked={checked} hits={hits} errors={errors}")
+            if self._loop and self._loop.is_running():
+                asyncio.run_coroutine_threadsafe(_instant_catchup(new_wallets), self._loop)
+            else:
+                asyncio.ensure_future(_instant_catchup(new_wallets))
+
+    def evict_by_subprov(self, subprov: str) -> int:
+        """Remove all active_candidates belonging to a dismissed/expired subprov."""
+        to_evict = [w for w, m in self.active_candidates.items() if m.get("subprov") == subprov]
+        for w in to_evict:
+            self.active_candidates.pop(w, None)
+        if to_evict:
+            self.metric_active_candidates = len(self.active_candidates)
+            _log(f"[ProgramWatcher] evicted {len(to_evict)} candidates for dismissed subprov {subprov[:12]}…")
+            if len(self.active_candidates) == 0 and self._state == "ACTIVE":
+                asyncio.ensure_future(self._close_stream(reason="evicted_zero_candidates"))
+        return len(to_evict)
 
     async def _trigger_open(self):
         """Fire the stream open; called from add_candidates when CLOSED → should open."""
@@ -554,8 +673,13 @@ class ProgramCreateWatcher:
         """Send logsSubscribe for the pump.fun program on the shared WS connection."""
         if self._state not in ("OPENING", "CLOSED"):
             return
+        if not self.active_candidates:
+            self._state = "CLOSED"
+            self.metric_stream_state = "CLOSED"
+            return
         self._state = "OPENING"
         self.metric_stream_state = "OPENING"
+        self._ws = ws
         # Cancel drain timer if one is running
         if self._drain_task and not self._drain_task.done():
             self._drain_task.cancel()
@@ -581,15 +705,30 @@ class ProgramCreateWatcher:
     def on_subscribe_confirmed(self, sub_id: int) -> None:
         """Called when the subscription confirmation for our req arrives."""
         self._sub_id = sub_id
+        if not self.active_candidates:
+            _log(f"[ProgramWatcher] sub_id={sub_id} confirmed with zero candidates — closing")
+            if self._loop and self._loop.is_running():
+                asyncio.run_coroutine_threadsafe(
+                    self._close_stream(reason="confirmed_zero_candidates"),
+                    self._loop,
+                )
+            else:
+                asyncio.ensure_future(self._close_stream(reason="confirmed_zero_candidates"))
+            return
         self._state = "ACTIVE"
         self.metric_stream_state = "ACTIVE"
         self.metric_program_opens += 1
         self._stream_opened_at = time.time()
         _log(f"[ProgramWatcher] state → ACTIVE sub_id={sub_id}")
+        # Catch-up: a candidate that CREATEd during OPENING (before this confirm) is already
+        # on-chain but never triggered a logsNotification for us. Check each active candidate's
+        # most-recent sigs over a tiny window — bounded, best-effort, off the WS recv path.
+        if self.active_candidates and self._cascade_ref is not None:
+            asyncio.ensure_future(self._catchup_on_active())
 
     async def _on_notification(self, data: dict, ws) -> None:
         """Called when a logsNotification arrives on the pump.fun subscription.
-        Phase 1: fetch tx, check creator against active_candidates, log match only."""
+        Fetch only likely CREATE txs, then check creator against active_candidates."""
         if self._state != "ACTIVE":
             return
         params = data.get("params") or {}
@@ -597,6 +736,10 @@ class ProgramCreateWatcher:
         value = result.get("value") or {}
         sig = value.get("signature")
         if value.get("err") or not sig:
+            return
+
+        logs = value.get("logs") or []
+        if not any("Instruction: Create" in str(line) for line in logs):
             return
 
         # Rate-limit: if all fetch slots are busy AND too many are queued, drop.
@@ -617,7 +760,7 @@ class ProgramCreateWatcher:
                         tx = await _arpc("getTransaction",
                                          [sig, {"encoding": "jsonParsed",
                                                 "maxSupportedTransactionVersion": 0,
-                                                "commitment": "processed"}])
+                                                "commitment": "confirmed"}])
                 except TimeoutError:
                     self.metric_create_fetch_timeout += 1
                     return
@@ -633,30 +776,74 @@ class ProgramCreateWatcher:
         if not is_create or not mint:
             return
 
-        # The signer / fee payer is the creator wallet on a pump.fun CREATE.
-        # accounts[1] in the CREATE ix is the creator/signer per the pump IDL.
-        # We extract it from the tx account keys: the CREATE ix signer is accountKeys[1].
-        acct_keys = []
+        # The pump.fun CREATE account order can vary across parser versions. Do not
+        # hardcode an index; match the decoded CREATE instruction/signers against the
+        # armed candidate set.
+        signer_keys = []
         try:
-            acct_keys = [
-                k.get("pubkey") if isinstance(k, dict) else k
-                for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or [])
-            ]
+            for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or []):
+                if isinstance(k, dict) and k.get("signer"):
+                    signer_keys.append(k.get("pubkey"))
         except Exception:
             pass
 
-        # Pump CREATE ix accounts[1] is the creator (user who signed the CREATE).
-        # We look in the ix account list for a wallet that's in active_candidates.
         create_accts = _find_pump_create_ix(tx)
-        creator = create_accts[1] if len(create_accts) > 1 else None
+        creator = None
+        for acct in create_accts:
+            if acct in self.active_candidates:
+                creator = acct
+                break
+        if not creator:
+            for acct in signer_keys:
+                if acct in self.active_candidates:
+                    creator = acct
+                    break
 
         # Cross-check with our candidates dict (O(1) — no DB)
         if creator and creator in self.active_candidates:
             meta = self.active_candidates[creator]
             self.metric_program_matches += 1
-            _log(f"[ProgramWatcher] SHADOW MATCH creator={creator[:12]}… "
-                 f"mint={mint} subprov={str(meta.get('subprov','?'))[:12]}… "
-                 f"sig={sig[:16]}… (Phase 1: log only)")
+            subprov_s = str(meta.get("subprov", "?"))[:12]
+            _log(f"[ProgramWatcher] MATCH creator={creator[:12]}… "
+                 f"mint={mint} subprov={subprov_s}… sig={sig[:16]}…")
+            if self._cascade_ref is not None:
+                # Delegate to the canonical durable path: record_launch + emit + audit.
+                # process_candidate_sig is idempotent (INSERT OR IGNORE + _seen guard).
+                asyncio.ensure_future(
+                    self._cascade_ref.process_candidate_sig(
+                        creator, sig, detection_source="PROGRAM_LOGS"))
+
+    async def _catchup_on_active(self) -> None:
+        """Run immediately when the stream becomes ACTIVE: check only recently-added candidates
+        for a CREATE that landed during the OPENING window (before subscription was confirmed).
+        Scoped to WS_OPENING_CATCHUP_MAX_AGE_SEC (default 30s) and capped at 5 wallets so
+        reconnect storms don't burn RPC across the full restored candidate set."""
+        max_age = int(os.environ.get("WS_OPENING_CATCHUP_MAX_AGE_SEC", "30"))
+        cap     = int(os.environ.get("WS_OPENING_CATCHUP_LIMIT", "5"))
+        cutoff  = int(time.time()) - max_age
+        recent  = [w for w, m in self.active_candidates.items()
+                   if (m.get("added_at") or 0) >= cutoff][:cap]
+        _log(f"[ProgramWatcher] ACTIVE catch-up: checking {len(recent)}/{len(self.active_candidates)} recent candidate(s) max_age={max_age}s")
+        for creator in recent:
+            if self._cascade_ref is None:
+                break
+            try:
+                sigs = await asyncio.wait_for(
+                    _arpc("getSignaturesForAddress",
+                          [creator, {"limit": 5, "commitment": "processed"}]),
+                    timeout=5.0,
+                ) or []
+            except Exception:
+                continue
+            for s in sorted([x for x in sigs if not x.get("err")],
+                            key=lambda x: x.get("blockTime") or 0):
+                sig = s.get("signature")
+                if not sig:
+                    continue
+                verdict = await self._cascade_ref.process_candidate_sig(
+                    creator, sig, detection_source="OPENING_CATCHUP")
+                if verdict == "CREATE":
+                    break
 
     async def _expire_loop(self) -> None:
         """Runs every 30s: expire stale candidates, enqueue expire records, maybe drain."""
@@ -667,6 +854,35 @@ class ProgramCreateWatcher:
                 expired = [w for w, m in self.active_candidates.items()
                            if m.get("expires_at", 0) < now]
                 for w in expired:
+                    if self._cascade_ref is not None and w in self.active_candidates:
+                        self.metric_expire_probe_runs += 1
+                        try:
+                            sigs = await asyncio.wait_for(
+                                _arpc("getSignaturesForAddress",
+                                      [w, {"limit": 8, "commitment": "confirmed"}]),
+                                timeout=8.0,
+                            ) or []
+                            checked = 0
+                            found = False
+                            for s in sorted([x for x in sigs if not x.get("err")],
+                                            key=lambda x: x.get("blockTime") or 0):
+                                sig = s.get("signature")
+                                if not sig:
+                                    continue
+                                checked += 1
+                                verdict = await self._cascade_ref.process_candidate_sig(
+                                    w, sig, detection_source="EXPIRE_PROBE")
+                                if verdict == "CREATE":
+                                    found = True
+                                    self.metric_expire_probe_hits += 1
+                                    _log(f"[ProgramWatcher] expire-probe recovered CREATE {w[:12]}... sig={sig[:12]}...")
+                                    break
+                            if found or w not in self.active_candidates:
+                                continue
+                            _log(f"[ProgramWatcher] expire-probe no CREATE {w[:12]}... checked={checked}")
+                        except Exception as e:
+                            self.metric_expire_probe_errors += 1
+                            _log(f"[ProgramWatcher] expire-probe error {w[:12]}...: {e}")
                     meta = self.active_candidates.pop(w, {})
                     self.metric_candidates_expired += 1
                     try:
@@ -678,12 +894,7 @@ class ProgramCreateWatcher:
                 self.metric_persist_queue_depth = self._candidate_persist_queue.qsize()
 
                 if len(self.active_candidates) == 0 and self._state == "ACTIVE":
-                    _log("[ProgramWatcher] zero candidates — starting drain timer")
-                    self._state = "DRAINING"
-                    self.metric_stream_state = "DRAINING"
-                    if self._drain_task and not self._drain_task.done():
-                        self._drain_task.cancel()
-                    self._drain_task = asyncio.ensure_future(self._drain_timer())
+                    asyncio.ensure_future(self._close_stream(reason="zero_candidates"))
             except Exception as e:
                 _log(f"[ProgramWatcher] expire_loop error: {e}")
 
@@ -712,14 +923,39 @@ class ProgramCreateWatcher:
         """Wait PROGRAM_DRAIN_GRACE_S, then if still zero candidates: unsubscribe + CLOSED."""
         await asyncio.sleep(PROGRAM_DRAIN_GRACE_S)
         if len(self.active_candidates) == 0 and self._state == "DRAINING":
-            _log("[ProgramWatcher] drain timer expired — closing stream")
-            self._state = "CLOSED"
+            await self._close_stream(reason="drain_timer")
+
+    async def _close_stream(self, reason: str = "close") -> None:
+        """Unsubscribe the pump.fun program stream and mark ProgramWatcher closed."""
+        if self._state == "CLOSED" and self._sub_id is None:
             self.metric_stream_state = "CLOSED"
-            self._sub_id = None
-            self.metric_program_closes += 1
-            if self._stream_opened_at:
-                self.metric_program_open_seconds += time.time() - self._stream_opened_at
-                self._stream_opened_at = 0.0
+            return
+        sub_id = self._sub_id
+        ws = self._ws
+        if sub_id is not None and ws is not None:
+            try:
+                req_id = self._next_req_id
+                self._next_req_id += 1
+                await ws.send(json.dumps({
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "method": "logsUnsubscribe",
+                    "params": [sub_id],
+                }))
+                _log(f"[ProgramWatcher] logsUnsubscribe sent sub_id={sub_id} reason={reason}")
+            except Exception as e:
+                _log(f"[ProgramWatcher] logsUnsubscribe failed sub_id={sub_id} reason={reason}: {e}")
+        else:
+            _log(f"[ProgramWatcher] closing stream reason={reason} sub_id={sub_id}")
+
+        self._state = "CLOSED"
+        self.metric_stream_state = "CLOSED"
+        self._sub_id = None
+        self._ws = None
+        self.metric_program_closes += 1
+        if self._stream_opened_at:
+            self.metric_program_open_seconds += time.time() - self._stream_opened_at
+            self._stream_opened_at = 0.0
 
     def get_metrics(self) -> dict:
         current_open_s = (time.time() - self._stream_opened_at) if self._stream_opened_at else 0.0
@@ -730,6 +966,13 @@ class ProgramCreateWatcher:
             "pw_fetch_queue":         self.metric_create_fetch_queue_depth,
             "pw_fetch_dropped":       self.metric_create_fetch_dropped,
             "pw_fetch_timeout":       self.metric_create_fetch_timeout,
+            "pw_active_catchup_runs": self.metric_active_catchup_runs,
+            "pw_active_catchup_checked": self.metric_active_catchup_checked,
+            "pw_active_catchup_hits":  self.metric_active_catchup_hits,
+            "pw_active_catchup_errors": self.metric_active_catchup_errors,
+            "pw_expire_probe_runs":   self.metric_expire_probe_runs,
+            "pw_expire_probe_hits":   self.metric_expire_probe_hits,
+            "pw_expire_probe_errors": self.metric_expire_probe_errors,
             "pw_matches":             self.metric_program_matches,
             "pw_candidates_expired":  self.metric_candidates_expired,
             "pw_opens":               self.metric_program_opens,
@@ -989,6 +1232,11 @@ class Cascade:
         # wrap-close txs every sweep. (open_candidate_watch is also INSERT OR IGNORE, so even a
         # re-scan can't double-open a candidate; this just saves the RPC.)
         self._subprov_seen = set()
+        # POST_CREATE_ACTIVE tracking: maps subprov_wallet → unix timestamp of last observed
+        # fan-out event. The _post_create_watchdog reads this to decide whether to extend the
+        # 120s armed window. Updated whenever a new wrap-close is detected for a subprov that
+        # is in POST_CREATE_ACTIVE monitoring state.
+        self._post_create_last_fanout: dict[str, float] = {}
 
         # ── Wallet profile cache ──────────────────────────────────────────────
         # Single dict lookup replaces 1–4 DB queries on every treasury outbound.
@@ -1000,6 +1248,14 @@ class Cascade:
         self._profile_hits:   int = 0   # wallet found in profile
         self._profile_misses: int = 0   # wallet not in profile (→ NEW_SUBPROV path)
         self._classify_counts: dict[str, int] = {}  # classification → count
+        self._subprov_sig_metrics: dict[str, int] = {
+            "subprov_ws_sig_seen": 0,
+            "subprov_sig_processed": 0,
+            "subprov_sig_failed": 0,
+            "subprov_sig_retry_enqueued": 0,
+            "subprov_sig_catchup_recovered": 0,
+            "subprov_sig_gap_detected": 0,
+        }
         # Ensure the cascade schema ONCE at startup — NOT on every _ops() call. The schema
         # ensure is a WRITE (CREATE TABLE/INDEX); running it on the hot _ops() path (called
         # from resync_subscriptions + cleanup on the async WS loop) blocked the event loop
@@ -1035,6 +1291,71 @@ class Cascade:
                 self._subprov_seen.discard(k)
         return False
 
+    def _metric(self, name: str, inc: int = 1) -> None:
+        self._subprov_sig_metrics[name] = self._subprov_sig_metrics.get(name, 0) + inc
+
+    def _process_subprov_sig_durable(self, subprov: str, sig: str, *,
+                                     slot: Optional[int] = None,
+                                     source: str = "WS") -> list:
+        """Durably process one subprov signature through the existing handler.
+
+        The retry row is written before getTransaction/parser/DB fanout work, so
+        a process restart, RPC timeout, or DB lock cannot erase the fact that the
+        signature was seen.
+        """
+        if not subprov or not sig:
+            return []
+        conn = self._ops()
+        try:
+            row = conn.execute(
+                "SELECT status FROM wt_subprov_sig_retry "
+                "WHERE subprov_wallet=? AND signature=?",
+                (subprov, sig)).fetchone()
+            if row and row[0] == "DONE":
+                return []
+            enqueued = store.subprov_sig_enqueue(conn, subprov=subprov, signature=sig, slot=slot)
+            if enqueued:
+                self._metric("subprov_sig_retry_enqueued")
+        finally:
+            conn.close()
+
+        try:
+            conn = self._ops()
+            try:
+                store.subprov_sig_mark_running(conn, subprov=subprov, signature=sig, slot=slot)
+            finally:
+                conn.close()
+
+            result = self._handle_subprov_tx(subprov, sig)
+
+            conn = self._ops()
+            try:
+                row = conn.execute(
+                    "SELECT wrap_close_time FROM wt_candidate_websocket_watches "
+                    "WHERE subprov_wallet=? AND wrap_close_signature=? "
+                    "ORDER BY detected_at DESC LIMIT 1",
+                    (subprov, sig)).fetchone()
+                block_time = row[0] if row else None
+                store.subprov_sig_mark_done(
+                    conn, subprov=subprov, signature=sig, slot=slot, block_time=block_time)
+            finally:
+                conn.close()
+            self._metric("subprov_sig_processed")
+            if source == "CATCHUP":
+                self._metric("subprov_sig_catchup_recovered")
+            return result or []
+        except Exception as exc:
+            conn = self._ops()
+            try:
+                store.subprov_sig_mark_failed(
+                    conn, subprov=subprov, signature=sig, error=repr(exc),
+                    max_attempts=SUBPROV_SIG_MAX_ATTEMPTS)
+            finally:
+                conn.close()
+            self._metric("subprov_sig_failed")
+            _log(f"⚠ subprov sig failed {subprov[:12]}… sig={sig[:12]}… source={source}: {exc}")
+            raise
+
     def _ops(self):
         # HOT PATH — pure connection, NO schema write. Schema is ensured once in __init__.
         # (Running ensure_cascade_schema here blocked the async WS loop under contention and
@@ -1056,11 +1377,12 @@ class Cascade:
                 s = store.active_sessions(conn)[:MAX_ACTIVE_SUBPROVS]
                 c = []  # candidates no longer individually subscribed — reloaded via _recent_candidates
                 p = _promotable_subprovs(conn) if WS_PROMOTE_DISCOVERED else []
-                return t, s, c, p
+                cdc = store.get_subscribed_cdcs(conn)  # rehydrate WS after restart
+                return t, s, c, p, cdc
             finally:
                 conn.close()
 
-        treasuries, sessions, candidates, promoted = await loop.run_in_executor(None, _db_load)
+        treasuries, sessions, candidates, promoted, subscribed_cdcs = await loop.run_in_executor(None, _db_load)
         self._treasuries = treasuries     # cache for the mesh-skip gate in _handle_treasury_tx
 
         # Reload recent WATCHING candidates into ProgramWatcher on (re)connect.
@@ -1141,7 +1463,8 @@ class Cascade:
                 catchup_tasks.append((catchup_kind, wallet))
 
         # P1: TREASURY TIER — confirmed-treasury set, permanent subscriptions
-        for t in treasuries:
+        _max_t = int(os.environ.get("WS_MAX_TREASURY_SUBSCRIBE", "0")) or len(treasuries)
+        for t in list(treasuries)[:_max_t]:
             await _rate_send(t, "treasury", SUB_PRIORITY_TREASURY)
             if t not in self.mgr.wallet_kind or _sent_this_resync == 1:
                 emit_event("TREASURY_WEBSOCKET_OPENED", wallet=t)
@@ -1163,7 +1486,18 @@ class Cascade:
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov,
                            payload={"source": "discovered_promotion"})
 
+        # P4: CDC REHYDRATION — re-subscribe CDCs that were SUBSCRIBED before this restart
+        for cdc_w in subscribed_cdcs:
+            await _rate_send(cdc_w, "cdc", SUB_PRIORITY_OTHER)
+            _log(f"🔵 CDC rehydrated {cdc_w[:12]}… (was SUBSCRIBED before restart)")
+
         # Candidate wallets are NOT subscribed — CREATE detection is via ProgramWatcher (one stream).
+
+        # P5: DUST OBSERVATORY — subscribe known DUST_MARKER wallets (permanent, low-priority).
+        # Purely observational: notifications are only enqueued for off-thread processing.
+        _dust = getattr(self, "_dust_markers", set())
+        for dm in _dust:
+            await _rate_send(dm, "dust", SUB_PRIORITY_OTHER)
 
         _log(f"resync complete: sent={_sent_this_resync} gen={self.mgr._reconnect_gen} "
              f"pending={len(self.mgr.pending_req)} rate={RECONNECT_SUBSCRIBE_RATE}/s")
@@ -1272,19 +1606,76 @@ class Cascade:
         if current is None or PRIORITY.get(role, 0) > PRIORITY.get(current, 0):
             self._wallet_profile[wallet] = role
 
-    def _classify_recipient(self, conn, recipient: str, amount_sol: float = 0.0) -> tuple:
+    # Gap threshold separating "continuing operation" from "genuine reactivation" (seconds)
+    _DORMANCY_THRESHOLD_S: int = int(os.environ.get("WS_DORMANCY_THRESHOLD_S", str(4 * 3600)))
+
+    def _last_operational_activity(self, conn, subprov: str) -> int | None:
+        """Return the most-recent operational event timestamp for subprov across all tables.
+        Includes: session open, wrap-close fan-out, CREATE, swarm buy.
+        Used to compute the dormancy gap for operation continuation logic."""
+        row = conn.execute("""
+            SELECT MAX(t) FROM (
+                SELECT MAX(detected_at)    AS t FROM wt_active_subprov_sessions
+                  WHERE subprov_wallet=?
+                UNION ALL
+                SELECT MAX(fanout_time)    AS t FROM wt_fanout_events
+                  WHERE subprov_wallet=?
+                UNION ALL
+                SELECT MAX(create_time)    AS t FROM wt_watchtower_launches
+                  WHERE subprov_wallet=?
+                UNION ALL
+                SELECT MAX(observed_at)    AS t FROM wt_swarm_buys
+                  WHERE subprov_wallet=?
+                UNION ALL
+                SELECT MAX(wrap_close_time) AS t FROM wt_candidate_websocket_watches
+                  WHERE subprov_wallet=?
+            )
+        """, (subprov, subprov, subprov, subprov, subprov)).fetchone()
+        return row[0] if row else None
+
+    def _funding_sequence_number(self, conn, subprov: str) -> int:
+        """Return the funding sequence number within the current operation (1-based).
+        Counts sessions since the last dormancy break (gap ≥ _DORMANCY_THRESHOLD_S between
+        consecutive sessions). Rejected/expired sessions still count as fundings — the capital
+        was deployed regardless of whether the pipeline accepted the session."""
+        rows = conn.execute(
+            "SELECT detected_at FROM wt_active_subprov_sessions "
+            "WHERE subprov_wallet=? ORDER BY detected_at ASC", (subprov,)
+        ).fetchall()
+        if not rows:
+            return 1
+        # Walk backwards to find the start of the current operation
+        times = [r[0] for r in rows]
+        op_start_idx = 0
+        for i in range(len(times) - 1, 0, -1):
+            if times[i] - times[i - 1] >= self._DORMANCY_THRESHOLD_S:
+                op_start_idx = i
+                break
+        # +1 because this call happens BEFORE the new row is inserted
+        return len(times) - op_start_idx + 1
+        # e.g. 4 existing rows in one operation → next funding = #5
+
+    def _classify_recipient(self, conn, recipient: str, amount_sol: float = 0.0,
+                            funding_treasury: str | None = None) -> tuple:
         """Return (classification, subprov_meta) for a treasury outbound recipient.
 
-        6-way classification (Pass 1 — instrumentation only, WS_SUBPROV_CLASSIFICATION_ENFORCE=0):
+        Classification labels (operation-centric model):
           TREASURY_MESH              — recipient is a confirmed treasury (mesh capital routing)
           BUY_SWARM_PROVISIONER      — known subprov whose destinations are predominantly swaps
-          KNOWN_SUBPROV_TOPUP        — known subprov, active session exists (mid-campaign top-up)
-          SUBPROV_REACTIVATED        — known subprov, wrap-close history, no active session
-          HISTORICAL_SUBPROV_DISCOVERED — wallet existed/operated before WATCHTOWER found it
+          CONTINUING_OPERATION       — known subprov, last activity < _DORMANCY_THRESHOLD_S ago
+                                       (this is another funding tranche within the same operation;
+                                        meta includes treasury_rotated=True if treasury changed)
+          SUBPROV_REACTIVATED        — known subprov, last activity ≥ _DORMANCY_THRESHOLD_S ago
+                                       (genuine dormant→active transition)
+          HISTORICAL_SUBPROV_DISCOVERED — wallet operated before WATCHTOWER, no active op context
           NEW_SUBPROV                — fresh wallet, no prior evidence (open_reason=PROVISION_CANDIDATE)
 
-        When ENFORCE=0 (default): all non-mesh recipients still open sessions as before.
-        When ENFORCE=1 (Pass 2): BUY_SWARM_PROVISIONER and KNOWN_SUBPROV_TOPUP skip the creator pipeline.
+        Replaces KNOWN_SUBPROV_TOPUP and REARMED_SUBPROV_CANDIDATE — both were imprecise.
+        The dormancy gap is measured against last *operational* activity (fanout/create/swarm/
+        wrap-close/session-open), not merely when the session record expired.
+
+        When ENFORCE=0 (default): all non-mesh recipients still open sessions.
+        When ENFORCE=1: BUY_SWARM_PROVISIONER skips the creator pipeline.
 
         Fast path: consults in-memory _wallet_profile (O(1)) before any DB query.
         """
@@ -1305,38 +1696,23 @@ class Cascade:
         if role == "CREATOR":
             return "CREATOR", {}
         if role == "HISTORICAL":
-            # Large funding → REARMED label so you can see re-activations in WATCHING
-            if amount_sol >= 1.0:
-                expired_count = (conn.execute(
-                    "SELECT COUNT(*) FROM wt_active_subprov_sessions "
-                    "WHERE subprov_wallet=? AND state='EXPIRED'", (recipient,)
-                ).fetchone() or (0,))[0]
-                if expired_count >= 5:
-                    return "REARMED_SUBPROV_CANDIDATE", {}
-            return "HISTORICAL_SUBPROV_DISCOVERED", {}
+            return self._classify_known_subprov(conn, recipient, {}, funding_treasury)
 
-        # SUBPROV / BUY_SWARM: fetch the row for the fine-grained sub-classification
+        # SUBPROV / BUY_SWARM: fetch the row for fine-grained sub-classification
         if role in ("SUBPROV", "BUY_SWARM"):
             known = store.lookup_subprov(conn, recipient) or {}
             bsr   = known.get("buy_swarm_ratio") or 0.0
             n_obs = (known.get("buy_swarm_count") or 0) + (known.get("create_count") or 0)
-            # creator_count (discovery-time) overrides the real-time ratio if it shows
-            # substantial creator provisioning — guards against divergence between the two counters
             has_creators = (known.get("creator_count") or 0) >= 5
             if bsr > 0.7 and n_obs >= 10 and not has_creators:
                 return "BUY_SWARM_PROVISIONER", known
             if (known.get("wrap_close_count") or 0) >= 1:
-                active = conn.execute(
-                    "SELECT 1 FROM wt_active_subprov_sessions "
-                    "WHERE subprov_wallet=? AND state='ACTIVE' LIMIT 1", (recipient,)
-                ).fetchone()
-                return ("KNOWN_SUBPROV_TOPUP" if active else "SUBPROV_REACTIVATED"), known
-            # Profile said SUBPROV but DB row missing wrap_close — fall through to historical check
+                return self._classify_known_subprov(conn, recipient, known, funding_treasury)
             if store.is_historical_subprov(conn, recipient):
                 return "HISTORICAL_SUBPROV_DISCOVERED", known
             return "NEW_SUBPROV", {}
 
-        # Cache miss — full DB lookup (cold path, drives incremental updates below)
+        # Cache miss — full DB lookup (cold path)
         _known_treasuries = getattr(self, "_treasuries", None)
         if _known_treasuries is None:
             _known_treasuries = _confirmed_treasuries(conn)
@@ -1358,13 +1734,9 @@ class Cascade:
                 return "BUY_SWARM_PROVISIONER", known
             if (known.get("wrap_close_count") or 0) >= 1:
                 self._profile_set(recipient, "SUBPROV")
-                active = conn.execute(
-                    "SELECT 1 FROM wt_active_subprov_sessions "
-                    "WHERE subprov_wallet=? AND state='ACTIVE' LIMIT 1", (recipient,)
-                ).fetchone()
-                return ("KNOWN_SUBPROV_TOPUP" if active else "SUBPROV_REACTIVATED"), known
+                return self._classify_known_subprov(conn, recipient, known, funding_treasury)
 
-        # CREATOR check before historical — mirrors profile priority (CREATOR > HISTORICAL)
+        # CREATOR check before historical
         hot_conn = db_connect(LIVE_DB_PATH, timeout=2)
         is_creator = hot_conn.execute(
             "SELECT 1 FROM token_analysis WHERE pf_ws_creator=? LIMIT 1", (recipient,)
@@ -1376,16 +1748,41 @@ class Cascade:
 
         if store.is_historical_subprov(conn, recipient):
             self._profile_set(recipient, "HISTORICAL")
-            if amount_sol >= 1.0:
-                expired_count = (conn.execute(
-                    "SELECT COUNT(*) FROM wt_active_subprov_sessions "
-                    "WHERE subprov_wallet=? AND state='EXPIRED'", (recipient,)
-                ).fetchone() or (0,))[0]
-                if expired_count >= 5:
-                    return "REARMED_SUBPROV_CANDIDATE", known or {}
-            return "HISTORICAL_SUBPROV_DISCOVERED", known or {}
+            return self._classify_known_subprov(conn, recipient, known or {}, funding_treasury)
 
         return "NEW_SUBPROV", {}
+
+    def _classify_known_subprov(self, conn, subprov: str, meta: dict,
+                                 funding_treasury: str | None) -> tuple:
+        """Determine CONTINUING_OPERATION vs SUBPROV_REACTIVATED based on dormancy gap.
+
+        Uses last *operational* activity across all event tables — not just session close time.
+        Attaches funding_sequence_number and treasury_rotated flag to meta.
+        """
+        now = int(time.time())
+        last_activity = self._last_operational_activity(conn, subprov)
+        gap_s = (now - last_activity) if last_activity else None
+        seq   = self._funding_sequence_number(conn, subprov)
+
+        # Detect treasury rotation: look at the most recent prior session's treasury
+        treasury_rotated = False
+        if funding_treasury and last_activity:
+            prior_row = conn.execute(
+                "SELECT treasury_wallet FROM wt_active_subprov_sessions "
+                "WHERE subprov_wallet=? ORDER BY detected_at DESC LIMIT 1", (subprov,)
+            ).fetchone()
+            if prior_row and prior_row[0] and prior_row[0] != funding_treasury:
+                treasury_rotated = True
+
+        enriched = dict(meta)
+        enriched["funding_sequence_number"] = seq
+        enriched["last_activity_at"] = last_activity
+        enriched["gap_s"] = gap_s
+        enriched["treasury_rotated"] = treasury_rotated
+
+        if gap_s is not None and gap_s < self._DORMANCY_THRESHOLD_S:
+            return "CONTINUING_OPERATION", enriched
+        return "SUBPROV_REACTIVATED", enriched
 
     def _is_buy_swarm_burst(self, conn, subprov: str) -> bool:
         """True if the subprov's WATCHING candidates look like a buy-swarm burst:
@@ -1404,9 +1801,12 @@ class Cascade:
         median = amounts[len(amounts) // 2]
         if not (BURST_MEDIAN_SOL_LO <= median <= BURST_MEDIAN_SOL_HI):
             return False
-        # Historical create evidence from wt_discovered_subprovs
+        # Historical create evidence from wt_discovered_subprovs.
+        # creator_count = discovery-time tally of creator wallets funded (reliable).
+        # create_count  = real-time pipeline counter (may be 0 for pre-pipeline subprovs).
+        # Either ≥ 1 is sufficient to exempt from the swarm gate.
         known = store.lookup_subprov(conn, subprov)
-        if known and (known.get("create_count") or 0) > 0:
+        if known and ((known.get("create_count") or 0) > 0 or (known.get("creator_count") or 0) > 0):
             return False
         # In-flight create evidence: a candidate from this subprov already fired a CREATE
         # this session (state=FIRED_CREATE). wt_discovered_subprovs hasn't been updated yet
@@ -1483,13 +1883,15 @@ class Cascade:
                                       and d.get("candidate") not in _known_treasuries]
                         if real_dests:
                             found_wrap_close = True
+                            _mech_temp = real_dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
                             # Promote: write evidence + open a real session
                             try:
                                 store.promote_to_subprov(
                                     conn, subprov=wallet, treasury=treasury_addr or "",
                                     wrap_close_sig=sig_str,
                                     creator=real_dests[0]["candidate"],
-                                    amount_sol=real_dests[0].get("base_amount_sol"))
+                                    amount_sol=real_dests[0].get("base_amount_sol"),
+                                    funding_mechanism=_mech_temp)
                             except Exception:
                                 pass
                             store.promote_temp_candidate(conn, wallet)
@@ -1505,7 +1907,8 @@ class Cascade:
                             emit_event("TEMP_CANDIDATE_PROMOTED", wallet=wallet,
                                        related=treasury_addr,
                                        payload={"wrap_close_sig": sig_str,
-                                                "creator": real_dests[0]["candidate"]})
+                                                "creator": real_dests[0]["candidate"],
+                                                "funding_mechanism": _mech_temp})
                             _log(f"✅ TEMP_PROMOTED {wallet[:14]}… wrap-close confirmed → session opened")
                             promoted += 1
                             break
@@ -1565,10 +1968,14 @@ class Cascade:
                 if gain < TREASURY_PROVISION_MIN_SOL:
                     continue
                 # ── Phase E Pass 1: 6-way classify, audit log, no behaviour gate ──
-                classification, _meta = self._classify_recipient(conn, w, amount_sol=gain)
+                classification, _meta = self._classify_recipient(conn, w, amount_sol=gain,
+                                                                    funding_treasury=treasury)
                 _log(
                     f"CLASSIFY treasury={treasury[:10]}… recipient={w[:12]}… "
                     f"amount={gain:.4f}◎ result={classification}"
+                    + (f" seq=#{_meta.get('funding_sequence_number')} gap={_meta.get('gap_s')}s"
+                       if _meta.get("funding_sequence_number") else "")
+                    + (" treasury_rotated=True" if _meta.get("treasury_rotated") else "")
                 )
                 if classification == "TREASURY_MESH":
                     store.record_treasury_hit(treasury=treasury, counterparty=w, sig=sig,
@@ -1594,19 +2001,28 @@ class Cascade:
                 store.record_treasury_hit(treasury=treasury, counterparty=w, sig=sig,
                                           amount_sol=gain, block_time=btime)
                 subprov_known = 1 if classification in (
-                    "KNOWN_SUBPROV_TOPUP", "SUBPROV_REACTIVATED",
+                    "CONTINUING_OPERATION", "SUBPROV_REACTIVATED",
                     "BUY_SWARM_PROVISIONER", "HISTORICAL_SUBPROV_DISCOVERED",
-                    "REARMED_SUBPROV_CANDIDATE",
                 ) else 0
                 open_reason = "PROVISION_CANDIDATE" if classification == "NEW_SUBPROV" else classification
 
                 # ── Monitoring state: LIVE_ARMED vs INTEL_ONLY ────────────────
                 # LIVE_ARMED: subscribe to WS, open candidate pipeline, spend RPC budget
                 # INTEL_ONLY: record funding intelligence only — no WS, no candidate watch
-                _LIVE_ARMED_CLASSIFICATIONS = {
-                    "NEW_SUBPROV", "SUBPROV_REACTIVATED", "REARMED_SUBPROV_CANDIDATE",
-                }
+                # Only a genuinely new subprov earns LIVE_ARMED + ProgramWatcher.
+                # Known (reactivated / continuing) subprovs are INTEL_ONLY: funding
+                # alone doesn't arm; a detected wrap-close fan-out would need to promote
+                # them explicitly (via the reconciler / a future upgrade path).
+                _LIVE_ARMED_CLASSIFICATIONS = {"NEW_SUBPROV"}
                 monitoring_state = "LIVE_ARMED" if classification in _LIVE_ARMED_CLASSIFICATIONS else "INTEL_ONLY"
+                # no_subscribe treasuries: record session intel but never websocket their subprovs
+                _no_sub = getattr(self, "_no_subscribe_set", None)
+                if _no_sub is None:
+                    _no_sub = _no_subscribe_treasuries(conn)
+                    self._no_subscribe_set = _no_sub
+                if monitoring_state == "LIVE_ARMED" and treasury in _no_sub:
+                    monitoring_state = "INTEL_ONLY"
+                    _log(f"⊘ NO_SUBSCRIBE treasury {treasury[:10]}… → {w[:12]}… {gain:.2f} ◎ (INTEL_ONLY, no WS)")
 
                 # ── Pass F: behaviour-first gate ──────────────────────────────
                 if classification == "NEW_SUBPROV":
@@ -1633,14 +2049,46 @@ class Cascade:
                     emit_event("SUBPROV_BLOCKLISTED", wallet=w, related=treasury,
                                payload={"funding_sol": gain, "sig": sig})
                     continue
+                # CEX / exchange hot wallets — never session
+                _cex = getattr(self, "_cex_set", None)
+                if _cex is None:
+                    try:
+                        _live = db_connect(LIVE_DB_PATH, timeout=2)
+                        _cex = {r[0] for r in _live.execute(
+                            "SELECT cex_address FROM cex_wallets WHERE is_active=1").fetchall()}
+                        _live.close()
+                    except Exception:
+                        _cex = set()
+                    try:
+                        from src.utils.infra_mapping import INFRASTRUCTURE_ACCOUNTS
+                        _cex |= set(INFRASTRUCTURE_ACCOUNTS.keys())
+                    except Exception:
+                        pass
+                    self._cex_set = _cex
+                if w in _cex:
+                    _log(f"🏦 CEX {w[:12]}… from {treasury[:10]}… {gain:.2f}◎ — exchange wallet, skipping")
+                    emit_event("SUBPROV_BLOCKLISTED", wallet=w, related=treasury,
+                               payload={"funding_sol": gain, "sig": sig, "reason": "CEX"})
+                    continue
 
                 _session_opened = False
+                # Brand-new subprovs funded with ≥SESSION_HIGH_SOL_FLOOR◎ get a 6h TTL —
+                # large capital deployments often stage their wrap-close fan-out minutes to
+                # hours after provisioning; the default 2h window misses them.
+                _ttl = (SESSION_TTL_HIGH_SOL
+                        if subprov_known == 0 and gain >= SESSION_HIGH_SOL_FLOOR
+                        else SESSION_TTL_SEC)
+                if _ttl != SESSION_TTL_SEC:
+                    _log(f"⏱ HIGH_SOL_TTL {w[:12]}… {gain:.1f}◎ → {_ttl//3600}h session (new subprov)")
                 try:
                     _session_opened = store.start_session(
                         conn, subprov=w, treasury=treasury, funding_sig=sig,
                         funding_amount=gain, funding_time=btime,
-                        ttl_seconds=SESSION_TTL_SEC, subprov_known=subprov_known,
-                        open_reason=open_reason, monitoring_state=monitoring_state)
+                        ttl_seconds=_ttl, subprov_known=subprov_known,
+                        open_reason=open_reason, monitoring_state=monitoring_state,
+                        funding_sequence_number=_meta.get("funding_sequence_number"),
+                        treasury_rotated=bool(_meta.get("treasury_rotated")),
+                        last_activity_at=_meta.get("last_activity_at"))
                 except Exception as _lock_err:
                     is_hv = gain >= store.HIGH_VALUE_PROVISION_SOL
                     _log(f"{'🚨' if is_hv else '⚠️'} SESSION_WRITE_{'DROPPED_HIGH_VALUE' if is_hv else 'FAILED'} "
@@ -1650,18 +2098,17 @@ class Cascade:
                             conn, treasury=treasury, subprov=w, funding_sig=sig,
                             funding_amount=gain, funding_time=btime,
                             open_reason=open_reason, subprov_known=subprov_known,
-                            ttl_seconds=SESSION_TTL_SEC)
+                            ttl_seconds=_ttl)
                     except Exception as _eq:
                         _log(f"🚨 ENQUEUE_FAILED {w[:12]}… {gain:.2f}◎ — session write permanently lost: {_eq}")
+                icon = {
+                    "CONTINUING_OPERATION":          "🔄",
+                    "SUBPROV_REACTIVATED":           "♻️",
+                    "BUY_SWARM_PROVISIONER":         "⚠️",
+                    "HISTORICAL_SUBPROV_DISCOVERED": "🔍",
+                    "NEW_SUBPROV":                   "⚡",
+                }.get(classification, "⚡")
                 if _session_opened:
-                    icon = {
-                        "KNOWN_SUBPROV_TOPUP":           "🔄",
-                        "SUBPROV_REACTIVATED":           "♻️",
-                        "BUY_SWARM_PROVISIONER":         "⚠️",
-                        "HISTORICAL_SUBPROV_DISCOVERED": "🔍",
-                        "REARMED_SUBPROV_CANDIDATE":     "🔁",
-                        "NEW_SUBPROV":                   "⚡",
-                    }.get(classification, "⚡")
                     if monitoring_state == "LIVE_ARMED":
                         opened.append(w)
                         emit_event("SUBPROV_SESSION_OPENED_WS", wallet=w, related=treasury,
@@ -1681,6 +2128,56 @@ class Cascade:
                                    payload={"funding_sol": gain, "sig": sig,
                                             "classification": classification})
                         _log(f"{icon} {classification} {treasury[:10]}… → {w[:12]}… {gain:.2f} ◎ (INTEL_ONLY — no WS)")
+                else:
+                    # Top-up into existing active session — log the continuation
+                    _log(f"{icon} {classification} {treasury[:10]}… → {w[:12]}… {gain:.2f} ◎ (TOP_UP — session extended)")
+
+                # ── CAPITAL_RELOAD detection (new session OR top-up) ───────────
+                # Fires regardless of _session_opened: a large injection into a known
+                # launched subprov is a capital deployment event on either path.
+                # INVARIANT: never arms ProgramWatcher — purely an intel record.
+                if subprov_known == 1 and gain >= CAPITAL_RELOAD_MIN_SOL:
+                    _discovered = store.lookup_subprov(conn, w) or {}
+                    _wcc = _discovered.get("wrap_close_count", 0) or 0
+                    if _wcc > 0:
+                        _linked_mint = _resolve_linked_mint(conn, w)
+                        _first_creator = _discovered.get("first_creator")
+                        store.record_capital_reload(
+                            conn, subprov=w, treasury=treasury, sig=sig,
+                            amount_sol=gain, wrap_close_count=_wcc,
+                            first_creator=_first_creator, linked_mint=_linked_mint)
+                        emit_event("CAPITAL_RELOAD", wallet=w, related=treasury,
+                                   payload={"funding_sol": gain, "sig": sig,
+                                            "wrap_close_count": _wcc,
+                                            "first_creator": _first_creator,
+                                            "linked_mint": _linked_mint,
+                                            "classification": classification,
+                                            "via": "new_session" if _session_opened else "topup"})
+                        _log(f"🚨 CAPITAL_RELOAD {treasury[:10]}… → {w[:12]}… "
+                             f"{gain:.2f} ◎ wcc={_wcc} mint={(_linked_mint or 'unknown')[:12]} "
+                             f"({'new session' if _session_opened else 'top-up'} — PW OFF)")
+                # ── CDC gate (independent of subprov session logic) ────────────
+                # Large recipient (≥ CDC_MIN_SOL) with no confirmed treasury record
+                # and no wrap-close history → Capital Distributor Candidate.
+                # INVARIANTS: never arms ProgramWatcher, never creates creator
+                # candidates, never modifies the subprov session. Pure observation.
+                if (gain >= CDC_MIN_SOL
+                        and w not in (_confirmed_treasuries(conn) if not hasattr(self, "_treasuries")
+                                      else self._treasuries)
+                        and (store.lookup_subprov(conn, w) or {}).get("wrap_close_count", 0) == 0):
+                    _is_new_cdc = store.register_cdc(
+                        conn, wallet=w, source_treasury=treasury,
+                        funding_sig=sig, funding_amount_sol=gain, block_time=btime or 0)
+                    if _is_new_cdc:
+                        emit_event("CDC_REGISTERED", wallet=w, related=treasury,
+                                   payload={"funding_sol": gain, "sig": sig})
+                        _log(f"🔵 CDC {treasury[:10]}… → {w[:12]}… {gain:.2f} ◎ "
+                             f"(capital distributor candidate — observing, no WS yet)")
+                        opened.append(("CDC", w))   # signal to caller: subscribe this wallet
+                    elif w not in self.mgr.wallet_kind:
+                        # Already registered but not subscribed (e.g. post-restart).
+                        # Re-subscribe so _handle_cdc_tx receives its future txs.
+                        opened.append(("CDC", w))
             # ── Treasury-as-subprov: direct wrap-close fan-out ──────────────────
             # Some treasuries (e.g. Dtwi1e…) ALSO do wrap-close→creator directly,
             # without routing through a child subprov. Detect that here by running
@@ -1696,18 +2193,24 @@ class Cascade:
                             and d.get("candidate") not in _known_treasuries]
             if direct_dests:
                 wrap_close_time = tx.get("blockTime")
+                _mech_direct = direct_dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
                 try:
                     store.promote_to_subprov(
                         conn, subprov=treasury, treasury=treasury,
                         wrap_close_sig=sig, creator=direct_dests[0]["candidate"],
                         amount_sol=direct_dests[0].get("base_amount_sol"),
+                        funding_mechanism=_mech_direct,
                     )
                 except Exception as _e:
                     _log(f"[treasury-as-subprov] promote_to_subprov failed: {_e}")
                 emit_event("WRAP_CLOSE_FANOUT_DETECTED", wallet=treasury,
                            related=direct_dests[0]["candidate"],
                            payload={"wrap_close_sig": sig, "via": "treasury_direct",
-                                    "dest_count": len(direct_dests)})
+                                    "dest_count": len(direct_dests),
+                                    "funding_mechanism": _mech_direct})
+                if treasury in self._post_create_last_fanout:
+                    self._post_create_last_fanout[treasury] = time.time()
+                    _log(f"⏱ POST_CREATE_ACTIVE {treasury[:12]}… — fanout heartbeat (treasury-direct), window extended")
                 if SAVE_CANDIDATE_FANOUT:
                     new_direct = []
                     direct_metas = []
@@ -1718,7 +2221,8 @@ class Cascade:
                                 wrap_close_sig=sig, wrap_wallet=d.get("wrap_wallet"),
                                 temp_wsol=d.get("temp_wsol_account"),
                                 funding_amount=d.get("base_amount_sol"), ttl_seconds=CANDIDATE_TTL_SEC,
-                                wrap_close_time=wrap_close_time):
+                                wrap_close_time=wrap_close_time,
+                                funding_mechanism=d.get("funding_mechanism", "WSOL_WRAP_CLOSE")):
                             new_direct.append(cand)
                         direct_metas.append({
                             "candidate": cand, "subprov": treasury, "treasury": treasury,
@@ -1727,11 +2231,35 @@ class Cascade:
                         })
                     if new_direct:
                         _log(f"🎯 treasury-direct wrap-close {treasury[:10]}… → {len(new_direct)} candidate(s) saved")
+                    # Record fanout event for treasury-direct path
+                    try:
+                        store.record_fanout_event(
+                            conn, subprov=treasury, treasury=treasury,
+                            fanout_time=wrap_close_time or int(time.time()),
+                            dests=direct_dests, sig=sig)
+                    except Exception as _fe:
+                        _log(f"[fanout_event/direct] write failed: {_fe}")
                     # Feed ProgramWatcher — one program stream, no per-wallet subscriptions
                     prog_watcher = getattr(self, "_prog_watcher", None)
                     if prog_watcher and direct_metas:
-                        prog_watcher.add_candidates(direct_metas, conn)
-                        _log(f"🎯 ProgramWatcher armed with {len(direct_metas)} candidate(s) from treasury-direct fanout")
+                        prior_creates = (conn.execute(
+                            "SELECT COUNT(*) FROM wt_watchtower_launches WHERE subprov_wallet=?", (treasury,)
+                        ).fetchone()[0] or 0)
+                        burst_size = len(direct_dests)
+                        op_phase = "PRE_CREATE" if prior_creates == 0 else "POST_CREATE"
+                        if op_phase == "PRE_CREATE":
+                            arm_pw = True
+                        elif burst_size <= 6:
+                            arm_pw = True
+                        elif burst_size >= 11:
+                            arm_pw = False
+                        else:
+                            arm_pw = burst_size <= 8
+                        if arm_pw:
+                            prog_watcher.add_candidates(direct_metas, conn)
+                            _log(f"🎯 ProgramWatcher armed {len(direct_metas)} candidate(s) [treasury-direct {op_phase} burst={burst_size}]")
+                        else:
+                            _log(f"⏸ ProgramWatcher deferred [treasury-direct {op_phase} burst={burst_size} ≥ threshold — INTEL only]")
 
             store.treasury_ws_record_notif(conn, treasury, sig, opened_session=bool(opened))
             return opened
@@ -1739,6 +2267,91 @@ class Cascade:
             conn.close()
 
     # ---- handle a SUB_PROV log notification (wrap-close fan-out) ------------
+    def _handle_cdc_tx(self, cdc_wallet, sig):
+        """Account notification for a Capital Distributor Candidate.
+        Record outbound transfers (intelligence). If this tx contains a wrap-close,
+        the CDC has proven itself to be a subprov — promote it and process the
+        wrap-close recipients as creator candidates."""
+        conn = self._ops()
+        try:
+            tx = _get_tx(sig)
+            if not tx:
+                return
+            btime = (tx or {}).get("blockTime") or 0
+
+            # ── Wrap-close detection: CDC → SUBPROV promotion ─────────────────
+            # If the CDC performs a wrap-close, it is confirmed as a subprov.
+            # Promote it, open a session, then hand off to _handle_subprov_tx.
+            close_dests = extract_close_destinations(tx)
+            self_closes = [d for d in close_dests if d.get("candidate") == cdc_wallet]
+            real_dests = [d for d in close_dests if d.get("candidate") != cdc_wallet]
+            if real_dests:
+                # Resolve the CDC's source treasury
+                cdc_row = conn.execute(
+                    "SELECT source_treasury, funding_amount_sol, funding_sig "
+                    "FROM wt_capital_distributor_candidates WHERE wallet=? LIMIT 1",
+                    (cdc_wallet,)).fetchone()
+                treasury = cdc_row[0] if cdc_row else None
+                funding_amount = cdc_row[1] if cdc_row else 0.0
+                funding_sig = cdc_row[2] if cdc_row else sig
+
+                # Open a subprov session (may already exist — start_session is idempotent)
+                store.start_session(
+                    conn, subprov=cdc_wallet, treasury=treasury or "",
+                    funding_sig=funding_sig, funding_amount=funding_amount,
+                    funding_time=btime, ttl_seconds=SESSION_TTL_SEC,
+                    subprov_known=1, open_reason="CDC_WRAP_CLOSE_PROMOTED")
+                # Update CDC state to PROMOTED so we stop routing future txs here
+                conn.execute(
+                    "UPDATE wt_capital_distributor_candidates "
+                    "SET observation_state='PROMOTED', subscription_ended=? WHERE wallet=?",
+                    (btime or int(time.time()), cdc_wallet))
+                conn.commit()
+                # Re-register WS subscription as 'subprov' so future txs route correctly
+                try:
+                    self.mgr.wallet_kind[cdc_wallet] = "subprov"
+                except Exception:
+                    pass
+                emit_event("CDC_PROMOTED_TO_SUBPROV", wallet=cdc_wallet, related=treasury,
+                           payload={"sig": sig, "wrap_close_dests": len(real_dests),
+                                    "treasury": treasury})
+                _log(f"🔵→🟡 CDC PROMOTED {cdc_wallet[:12]}… → subprov "
+                     f"(wrap-close to {len(real_dests)} dest(s), treasury={treasury[:12] if treasury else 'unknown'}…)")
+                # Now process this tx as a subprov tx (it already has the session)
+                return self._handle_subprov_tx(cdc_wallet, sig)
+
+            # ── Plain outbound recording (pure intelligence) ──────────────────
+            meta = (tx or {}).get("meta") or {}
+            keys = [k.get("pubkey") if isinstance(k, dict) else k
+                    for k in ((tx or {}).get("transaction", {}).get("message", {})
+                              .get("accountKeys") or [])]
+            pre  = meta.get("preBalances") or []
+            post = meta.get("postBalances") or []
+            try:
+                si = keys.index(cdc_wallet)
+            except ValueError:
+                return
+            if si >= len(pre) or si >= len(post) or post[si] >= pre[si]:
+                return  # not a sender in this tx
+            recipients = []
+            for i, w in enumerate(keys):
+                if i == si or not w:
+                    continue
+                if i < len(pre) and i < len(post) and post[i] > pre[i]:
+                    gain_lamports = post[i] - pre[i]
+                    if gain_lamports >= 1_000_000:   # ≥ 0.001 SOL
+                        recipients.append((w, gain_lamports / 1e9))
+            if recipients:
+                store.record_cdc_outbound(conn, cdc_wallet=cdc_wallet, sig=sig,
+                                          block_time=btime, recipients=recipients)
+                emit_event("CDC_OUTBOUND_RECORDED", wallet=cdc_wallet,
+                           payload={"sig": sig, "recipients": len(recipients)})
+                _log(f"🔵 CDC outbound {cdc_wallet[:12]}… → {len(recipients)} recipients (sig {sig[:16]}…)")
+        except Exception as exc:
+            _log(f"_handle_cdc_tx error {cdc_wallet[:12]}… {exc}")
+        finally:
+            conn.close()
+
     def _handle_subprov_tx(self, subprov, sig):
         conn = self._ops()
         try:
@@ -1747,6 +2360,8 @@ class Cascade:
                 return []                              # session gone/expired
             treasury, funding_time = sess[1], sess[2]
             tx = _get_tx(sig)
+            if not tx:
+                raise RuntimeError("getTransaction returned None")
             wrap_close_time = (tx or {}).get("blockTime")   # on-chain creator BIRTH time
             _known_treasuries = getattr(self, "_treasuries", None)
             if _known_treasuries is None:
@@ -1785,7 +2400,8 @@ class Cascade:
                         if gain < TREASURY_PROVISION_MIN_SOL:
                             continue
                         # Only open session if w is not already known as a buy-swarm producer
-                        classification, _cmeta = self._classify_recipient(conn, w, amount_sol=gain)
+                        classification, _cmeta = self._classify_recipient(conn, w, amount_sol=gain,
+                                                                            funding_treasury=subprov)
                         if classification in ("TREASURY_MESH", "BUY_SWARM_PROVISIONER"):
                             _log(f"⏭ subprov plain-xfer skip {w[:12]}… classification={classification}")
                             continue
@@ -1821,6 +2437,7 @@ class Cascade:
                 return []
             # ── Phase B: record wrap-close evidence + promote to PROVISIONAL_SUBPROV ──
             # Always runs — preserves classification data even when candidate watching is off.
+            _mech = dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
             try:
                 store.promote_to_subprov(
                     conn,
@@ -1829,13 +2446,19 @@ class Cascade:
                     wrap_close_sig=sig,
                     creator=dests[0]["candidate"],
                     amount_sol=dests[0].get("base_amount_sol"),
+                    funding_mechanism=_mech,
                 )
             except Exception as _e:
                 _log(f"[Phase B] promote_to_subprov failed: {_e}")
             emit_event("WRAP_CLOSE_FANOUT_DETECTED", wallet=subprov,
                        related=dests[0]["candidate"],
                        payload={"wrap_close_sig": sig, "base": dests[0].get("base_amount_sol"),
-                                "dest_count": len(dests)})
+                                "dest_count": len(dests), "funding_mechanism": _mech})
+            # POST_CREATE_ACTIVE heartbeat: if this subprov is in the 120s continuation window,
+            # update the last-fanout timestamp to extend the armed window.
+            if subprov in self._post_create_last_fanout:
+                self._post_create_last_fanout[subprov] = time.time()
+                _log(f"⏱ POST_CREATE_ACTIVE {subprov[:12]}… — fanout heartbeat, window extended")
             # Persist fan-out destinations + feed ProgramWatcher (one program stream, not per-wallet WS)
             new_watches = []
             watcher_metas = []
@@ -1847,7 +2470,8 @@ class Cascade:
                             wrap_close_sig=sig, wrap_wallet=d.get("wrap_wallet"),
                             temp_wsol=d.get("temp_wsol_account"),
                             funding_amount=d.get("base_amount_sol"), ttl_seconds=CANDIDATE_TTL_SEC,
-                            wrap_close_time=wrap_close_time):
+                            wrap_close_time=wrap_close_time,
+                            funding_mechanism=d.get("funding_mechanism", "WSOL_WRAP_CLOSE")):
                         new_watches.append(cand)
                         # VANITY-FAMILY EVIDENCE on the wrap-close participants
                         try:
@@ -1864,11 +2488,35 @@ class Cascade:
                     })
                 if new_watches:
                     _log(f"📋 wrap-close fanout {subprov[:12]}… → {len(new_watches)} candidate(s) saved")
+            # Record fanout event (powers Bursts/Recipients columns in the ops dashboard)
+            try:
+                store.record_fanout_event(
+                    conn, subprov=subprov, treasury=treasury,
+                    fanout_time=wrap_close_time or int(time.time()),
+                    dests=dests, sig=sig)
+            except Exception as _fe:
+                _log(f"[fanout_event] write failed: {_fe}")
             # Feed ProgramWatcher in-memory set → one pump.fun program stream, no per-wallet WS
             prog_watcher = getattr(self, "_prog_watcher", None)
             if prog_watcher and watcher_metas:
-                prog_watcher.add_candidates(watcher_metas, conn)
-                _log(f"🎯 ProgramWatcher armed with {len(watcher_metas)} candidate(s) from fanout")
+                prior_creates = (conn.execute(
+                    "SELECT COUNT(*) FROM wt_watchtower_launches WHERE subprov_wallet=?", (subprov,)
+                ).fetchone()[0] or 0)
+                burst_size = len(dests)
+                op_phase = "PRE_CREATE" if prior_creates == 0 else "POST_CREATE"
+                if op_phase == "PRE_CREATE":
+                    arm_pw = True
+                elif burst_size <= 6:
+                    arm_pw = True
+                elif burst_size >= 11:
+                    arm_pw = False
+                else:  # 7-10: soft confidence threshold
+                    arm_pw = burst_size <= 8
+                if arm_pw:
+                    prog_watcher.add_candidates(watcher_metas, conn)
+                    _log(f"🎯 ProgramWatcher armed {len(watcher_metas)} candidate(s) [{op_phase} burst={burst_size}]")
+                else:
+                    _log(f"⏸ ProgramWatcher deferred [{op_phase} burst={burst_size} ≥ threshold — INTEL only]")
             # ── Live burst-detection (BUY_SWARM safety valve) ─────────────────
             if CLASSIFICATION_ENFORCE and new_watches and self._is_buy_swarm_burst(conn, subprov):
                 _log(f"⚡ burst threshold hit for {subprov[:14]}… — triggering BUY_SWARM gate")
@@ -1880,7 +2528,7 @@ class Cascade:
             conn.close()
 
     # ---- handle a CANDIDATE log notification (CREATE vs SWAP) ---------------
-    def _handle_candidate_tx(self, candidate, sig, ws_seen_at=None):
+    def _handle_candidate_tx(self, candidate, sig, ws_seen_at=None, detection_source="LIVE_STREAM"):
         """Returns ('CREATE', launch_dict) | ('SWAP', None) | (None, None).
         Captures the detection-latency timestamps (ws_seen / tx_fetched / mint_extracted) for
         the launch audit as it goes."""
@@ -1895,7 +2543,7 @@ class Cascade:
             try:
                 row = conn.execute(
                     "SELECT subprov_wallet, treasury_wallet, wrap_close_signature, wrap_close_time, "
-                    "funding_amount "
+                    "funding_amount, COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE') "
                     "FROM wt_candidate_websocket_watches WHERE candidate_wallet=? "
                     "ORDER BY detected_at DESC LIMIT 1", (candidate,)).fetchone()
                 subprov = row[0] if row else None
@@ -1903,6 +2551,7 @@ class Cascade:
                 wrap_sig = row[2] if row else None
                 wrap_close_time = row[3] if row else None
                 wrap_close_sol = row[4] if row else None    # subprov→creator wrap-close seed
+                _launch_mech = row[5] if row else "WSOL_WRAP_CLOSE"
                 # birth_to_launch = CREATE time − the creator's BIRTH (the wrap-close that funded
                 # it), NOT the treasury→subprov session funding (which adds the subprov pipeline
                 # time and mislabels INSTANT launches as STAGED — e.g. Memeville read 125s vs the
@@ -1926,21 +2575,29 @@ class Cascade:
                         except Exception:
                             subprov_funding_sol = None
                 btl = (btime - birth_time) if (btime and birth_time) else None
+                detection_delay_s = (int(time.time()) - btime) if btime else None
                 newly = store.record_launch(
                     conn, mint=mint, creator=candidate, create_sig=sig, create_time=btime,
                     treasury=treasury, subprov=subprov, wrap_close_sig=wrap_sig,
                     birth_to_launch_s=btl, create_slot=create_slot,
-                    subprov_funding_sol=subprov_funding_sol, wrap_close_sol=wrap_close_sol)
+                    subprov_funding_sol=subprov_funding_sol, wrap_close_sol=wrap_close_sol,
+                    detection_source=detection_source,
+                    detection_delay_seconds=detection_delay_s,
+                    funding_mechanism=_launch_mech)
                 if newly:
                     self._reconcile_bridge(conn, candidate, mint, btime, birth_time, subprov, treasury)
-                return "CREATE", {"mint": mint, "subprov": subprov, "treasury": treasury,
-                                  "create_time": btime, "btl": btl, "wrap_sig": wrap_sig,
-                                  "create_sig": sig, "newly": newly, "create_slot": create_slot,
-                                  "bonding_curve": extra.get("bonding_curve"),
-                                  "associated_bonding_curve": extra.get("associated_bonding_curve"),
-                                  "mint_source": extra.get("mint_source"),
-                                  "ws_seen_at": ws_seen_at, "tx_fetched_at": tx_fetched_at,
-                                  "mint_extracted_at": mint_extracted_at}
+                return "CREATE", {
+                    "mint": mint, "subprov": subprov, "treasury": treasury,
+                    "create_time": btime, "btl": btl, "wrap_sig": wrap_sig,
+                    "create_sig": sig, "newly": newly, "create_slot": create_slot,
+                    "bonding_curve": extra.get("bonding_curve"),
+                    "associated_bonding_curve": extra.get("associated_bonding_curve"),
+                    "mint_source": extra.get("mint_source"),
+                    "ws_seen_at": ws_seen_at, "tx_fetched_at": tx_fetched_at,
+                    "mint_extracted_at": mint_extracted_at,
+                    "detection_source": detection_source,
+                    "detection_delay_s": detection_delay_s,
+                }
             finally:
                 conn.close()
         if _tx_is_swap(tx):
@@ -1950,7 +2607,7 @@ class Cascade:
         return None, None
 
     # ---- shared candidate-sig processor (WS notification AND catch-up) ------
-    async def process_candidate_sig(self, candidate, sig):
+    async def process_candidate_sig(self, candidate, sig, detection_source="LIVE_STREAM"):
         """Process ONE candidate signature: CREATE → record launch + emit + teardown;
         SWAP → BUY_SWARM + unsubscribe. Idempotent via self._seen and record_launch's
         INSERT OR IGNORE. Used by both the live WS notification and the catch-up scan, so a
@@ -1970,18 +2627,22 @@ class Cascade:
             return "CREATE"
         # _handle_candidate_tx does the blocking getTransaction + DB writes → run it OFF the
         # event loop so a slow RPC can't freeze recv / keepalive.
-        verdict, launch = await _ato_thread(self._handle_candidate_tx, candidate, sig, ws_seen_at)
+        verdict, launch = await _ato_thread(
+            self._handle_candidate_tx, candidate, sig, ws_seen_at, detection_source)
         if verdict == "CREATE":
             btl = launch.get("btl")
             mode = "INSTANT" if (btl is not None and btl < 60) else ("STAGED" if btl is not None else "?")
             # only emit + teardown when THIS call newly recorded the launch (idempotent)
             if launch.get("newly"):
                 _log(f"🚀 WATCHTOWER LAUNCH creator={candidate[:12]}… mint={launch.get('mint')} "
-                     f"btl={btl}s [{mode}] (src={launch.get('mint_source')})")
+                     f"btl={btl}s [{mode}] detection={launch.get('detection_source')} "
+                     f"delay={launch.get('detection_delay_s')}s (src={launch.get('mint_source')})")
                 emit_event("WATCHTOWER_LAUNCH_DETECTED", wallet=candidate, related=launch.get("subprov"),
                            token_mint=launch.get("mint"),
                            payload={"create_sig": sig, "treasury": launch.get("treasury"),
                                     "birth_to_launch_s": btl, "mode": mode,
+                                    "detection_source": launch.get("detection_source"),
+                                    "detection_delay_s": launch.get("detection_delay_s"),
                                     "bonding_curve": launch.get("bonding_curve"),
                                     "mint_source": launch.get("mint_source")})
                 alert_emitted_at = time.time()         # T4
@@ -2046,7 +2707,8 @@ class Cascade:
             sig = s.get("signature")
             if not sig:
                 continue
-            verdict = await self.process_candidate_sig(candidate, sig)
+            verdict = await self.process_candidate_sig(
+                candidate, sig, detection_source="CANDIDATE_CATCHUP")
             if verdict == "CREATE":
                 break                                  # creator found; watch torn down
 
@@ -2057,32 +2719,48 @@ class Cascade:
     #      This scans an ACTIVE subprov's recent sigs for wrap-closes we haven't processed and
     #      runs the same discover→subscribe→candidate-catch-up flow — turning a ~100s miss into
     #      a few seconds. Polling can't beat a 1s atomic launch, but it makes recovery RELIABLE.
-    async def catch_up_subprov(self, subprov, limit=CATCHUP_SIG_LIMIT):
+    async def catch_up_subprov(self, subprov, limit=SUBPROV_DURABLE_CATCHUP_LIMIT):
+        conn = self._ops()
+        try:
+            last_seen = store.subprov_cursor(conn, subprov)
+        finally:
+            conn.close()
+        params = {"limit": limit, "commitment": "processed"}
+        if last_seen:
+            params["until"] = last_seen
         try:
             sigs = await asyncio.wait_for(
-                _arpc("getSignaturesForAddress",
-                      [subprov, {"limit": limit, "commitment": "processed"}]),
+                _arpc("getSignaturesForAddress", [subprov, params]),
                 timeout=_budget.NEARRT_RPC_TOTAL_S,
             ) or []
         except asyncio.TimeoutError:
             global _CATCHUP_TIMEOUT_COUNT
             _CATCHUP_TIMEOUT_COUNT += 1
             return
-        except Exception:
+        except Exception as exc:
+            _log(f"⚠ subprov catch-up sig fetch failed {subprov[:12]}…: {exc}")
             return
-        for s in sorted([x for x in sigs if not x.get("err")],
-                        key=lambda x: x.get("blockTime") or 0):
+
+        clean = [x for x in sigs if isinstance(x, dict) and x.get("signature") and not x.get("err")]
+        if len(clean) >= limit:
+            self._metric("subprov_sig_gap_detected")
+            _log(f"⚠ subprov_sig_gap_detected {subprov[:12]}… fetched limit={limit}; cursor may lag")
+        # RPC returns newest→oldest; process oldest→newest so cursor ends on
+        # the newest processed signature and candidate timing remains natural.
+        for s in reversed(clean):
             sig = s.get("signature")
-            if not sig or self._subprov_sig_seen(subprov, sig):
+            if not sig:
                 continue
-            # process the wrap-close exactly like a live notification would (idempotent:
-            # open_candidate_watch is INSERT OR IGNORE on (candidate, wrap_close_sig)) — off-loop.
-            new_watches = await _ato_thread(self._handle_subprov_tx, subprov, sig)
+            try:
+                new_watches = await _ato_thread(
+                    self._process_subprov_sig_durable,
+                    subprov, sig, slot=s.get("slot"), source="CATCHUP")
+            except Exception:
+                continue
             for item in new_watches:
                 if isinstance(item, tuple) and item[0] == "UNSUBSCRIBE":
                     await self.mgr.unsubscribe(item[1])
-                    # new_watches is always [] now (handle_subprov_tx returns [] after fanout)
-                    # UNSUBSCRIBE tuples are only for legacy BUY_SWARM gate; candidates never subscribed
+                    # new_watches is usually [] now; sentinels are legacy BUY_SWARM gate.
 
     # ---- launch audit phase 1 (off-thread) ---------------------------------
     def _trigger_audit_phase1(self, launch, creator, create_sig, ws_seen_at, alert_emitted_at):
@@ -2147,29 +2825,60 @@ class Cascade:
 
     # ---- teardown after a CREATE -------------------------------------------
     async def _teardown_after_create(self, creator, subprov):
+        """Post-CREATE teardown — three phases:
+          1. Unsubscribe the creator (single-use wallet, done).
+          2. Classify + close sibling candidates (co-provisioned wallets).
+          3. Transition subprov session to POST_CREATE_ACTIVE for 120s continuation
+             window instead of closing immediately. The subprov WS subscription stays
+             live. After 120s (extended by any new fan-out), drop to INTEL_ONLY and
+             unsubscribe. The session itself stays ACTIVE for 4h operation-grouping.
+        """
         global _CLEANUP_COUNT
         await self.mgr.unsubscribe(creator)
         conn = self._ops()
         try:
             if subprov:
                 for (sib,) in store.siblings_of(conn, subprov, creator):
-                    # classify sibling OFF-LOOP (blocking RPC): SWAP → BUY_SWARM, idle → EXPIRED_SIBLING
                     state, reason = await _ato_thread(_classify_sibling, sib)
                     store.close_candidate(conn, sib, state, reason)
                     await self.mgr.unsubscribe(sib)
                     if state == "BUY_SWARM":
                         emit_event("CANDIDATE_CLASSIFIED_BUY_SWARM", wallet=sib, related=subprov)
-                # close the sub-prov session if no live candidates remain
-                if not store.subprov_has_live_candidates(conn, subprov):
-                    sess = store.session_for_subprov(conn, subprov)
-                    if sess:
-                        store.close_session(conn, sess[0], "COMPLETED")
-                    await self.mgr.unsubscribe(subprov)
+                # Transition session to POST_CREATE_ACTIVE — do NOT close or unsubscribe.
+                # 40% of observed launches had fan-out activity within 120s of CREATE.
+                store.set_session_post_create(conn, subprov)
+                _log(f"⏱ POST_CREATE_ACTIVE {subprov[:12]}… — keeping armed 120s")
+                emit_event("SUBPROV_POST_CREATE_ACTIVE", wallet=subprov, related=creator)
+                # Schedule the 120s watchdog off-loop so the event loop isn't blocked.
+                asyncio.ensure_future(self._post_create_watchdog(subprov))
             _CLEANUP_COUNT += 1
             emit_event("WEBSOCKET_CLEANUP_COMPLETED", wallet=creator, related=subprov,
                        payload={"cleanup_count": _CLEANUP_COUNT})
         finally:
             conn.close()
+
+    async def _post_create_watchdog(self, subprov: str):
+        """120s armed continuation window after CREATE. If more fan-out is observed
+        (tracked via self._post_create_last_fanout), the deadline resets. When the
+        window expires with no new fan-out, drop to INTEL_ONLY + unsubscribe subprov.
+        The session stays ACTIVE for 4h operation-grouping — only monitoring drops."""
+        _POST_CREATE_ARMED_S = int(os.environ.get("WS_POST_CREATE_ARMED_S", "120"))
+        # Track the last-fanout time for this subprov so fan-out events can extend the window.
+        self._post_create_last_fanout[subprov] = time.time()
+        while True:
+            await asyncio.sleep(10)
+            last = self._post_create_last_fanout.get(subprov, 0)
+            if time.time() - last >= _POST_CREATE_ARMED_S:
+                break
+        # Window expired — drop to INTEL_ONLY
+        conn = self._ops()
+        try:
+            store.set_session_intel_only(conn, subprov)
+        finally:
+            conn.close()
+        self._post_create_last_fanout.pop(subprov, None)
+        await self.mgr.unsubscribe(subprov)
+        _log(f"🔕 POST_CREATE→INTEL_ONLY {subprov[:12]}… — armed window closed")
 
     # ---- TTL cleanup pass --------------------------------------------------
     def _drain_pending_sessions(self):
@@ -2205,15 +2914,26 @@ class Cascade:
             for (cand,) in store.expire_stale_candidates(conn):
                 await self.mgr.unsubscribe(cand)
                 emit_event("CANDIDATE_WATCH_EXPIRED", wallet=cand)
+            _pw = getattr(self, "_prog_watcher", None)
             for sid, subprov in store.expire_stale_sessions(conn):
                 await self.mgr.unsubscribe(subprov)
                 _log(f"🗑 session expired/dismissed {subprov[:12]}…")
                 emit_event("SUBPROV_SESSION_EXPIRED", wallet=subprov)
+                if _pw:
+                    _pw.evict_by_subprov(subprov)
             # ── Phase D: reject unproven PROVISION_CANDIDATEs after 2h ──────
             for sid, subprov in store.reject_unproven_sessions(conn):
                 await self.mgr.unsubscribe(subprov)
                 _log(f"🚫 REJECTED {subprov[:12]}… — PROVISION_CANDIDATE, no wrap-close in 2h")
                 emit_event("SUBPROV_CANDIDATE_REJECTED", wallet=subprov)
+                if _pw:
+                    _pw.evict_by_subprov(subprov)
+            # ── CDC inactivity TTL ─────────────────────────────────────────────
+            cutoff = int(time.time()) - CDC_INACTIVITY_TTL_SEC
+            for cdc_w in store.expire_inactive_cdcs(conn, cutoff):
+                await self.mgr.unsubscribe(cdc_w)
+                _log(f"🔵 CDC inactivity unsubscribe {cdc_w[:12]}…")
+                emit_event("CDC_INACTIVITY_EXPIRED", wallet=cdc_w)
         finally:
             conn.close()
 
@@ -2228,6 +2948,21 @@ class Cascade:
             conn.close()
         for subprov in subprovs:
             await self.catch_up_subprov(subprov)
+
+    async def subprov_retry_pass(self):
+        conn = self._ops()
+        try:
+            rows = store.due_subprov_sig_retries(conn, limit=SUBPROV_SIG_RETRY_LIMIT)
+        finally:
+            conn.close()
+        for row in rows:
+            subprov, sig, slot = row[0], row[1], row[2]
+            try:
+                await _ato_thread(
+                    self._process_subprov_sig_durable,
+                    subprov, sig, slot=slot, source="RETRY")
+            except Exception:
+                continue
 
 
 # ── HOT subprov RPC burst fallback ───────────────────────────────────────────
@@ -2296,7 +3031,8 @@ async def _hot_subprov_burst(casc: "Cascade", subprov: str) -> None:
             _log(f"🔥 burst hit {subprov[:12]}… +{delay}s — {len(new_sigs)} new sig(s)")
         for sig in new_sigs:
             try:
-                new_watches = await _ato_thread(casc._handle_subprov_tx, subprov, sig)
+                new_watches = await _ato_thread(
+                    casc._process_subprov_sig_durable, subprov, sig, source="HOT_BURST")
                 for item in new_watches:
                     if isinstance(item, tuple) and item[0] == "UNSUBSCRIBE":
                         await casc.mgr.unsubscribe(item[1])
@@ -2326,17 +3062,20 @@ async def _heartbeat_loop(get_meta):
             meta = get_meta()
             meta["cascade_state"] = _CASCADE_STATE
             c = db_connect(OPS_DB_PATH, timeout=60)
-            c.execute("PRAGMA busy_timeout=60000")
-            c.execute(
-                """CREATE TABLE IF NOT EXISTS wt_worker_heartbeat (
-                    worker_name TEXT PRIMARY KEY, last_seen INTEGER, status TEXT, meta_json TEXT)""")
-            c.execute(
-                """INSERT INTO wt_worker_heartbeat (worker_name, last_seen, status, meta_json)
-                   VALUES ('ws_cascade', strftime('%s','now'), 'ok', ?)
-                   ON CONFLICT(worker_name) DO UPDATE SET
-                     last_seen=excluded.last_seen, status=excluded.status, meta_json=excluded.meta_json""",
-                (json.dumps(meta),))
-            c.commit(); c.close()
+            try:
+                c.execute("PRAGMA busy_timeout=60000")
+                c.execute(
+                    """CREATE TABLE IF NOT EXISTS wt_worker_heartbeat (
+                        worker_name TEXT PRIMARY KEY, last_seen INTEGER, status TEXT, meta_json TEXT)""")
+                c.execute(
+                    """INSERT INTO wt_worker_heartbeat (worker_name, last_seen, status, meta_json)
+                       VALUES ('ws_cascade', strftime('%s','now'), 'ok', ?)
+                       ON CONFLICT(worker_name) DO UPDATE SET
+                         last_seen=excluded.last_seen, status=excluded.status, meta_json=excluded.meta_json""",
+                    (json.dumps(meta),))
+                c.commit()
+            finally:
+                c.close()
             # Self-watchdog: only fire if LIVE — during SUBSCRIBING/RECONCILING zero subs is expected.
             if _CASCADE_STATE == "LIVE" and meta.get("subs", 0) == 0:
                 _log("WATCHDOG ⚠ zero active WS subscriptions — treasury monitoring is dark")
@@ -2389,8 +3128,48 @@ async def run_cascade():
         prog_watcher = ProgramCreateWatcher()
         prog_watcher._loop = asyncio.get_event_loop()
         prog_watcher.start_background_tasks()
-        _log("[ProgramWatcher] enabled (Phase 1 shadow mode)")
+        _log("[ProgramWatcher] enabled (durable CREATE capture path)")
+        # Reload WATCHING candidates from DB — they are lost when the process restarts
+        # because active_candidates is in-memory only. Without this, the ProgramWatcher
+        # stream fires correctly but no candidates match → every CREATE is silently missed.
+        _pw_conn = casc._ops()
+        try:
+            _pw_rows = _pw_conn.execute(
+                "SELECT c.candidate_wallet, c.subprov_wallet, c.treasury_wallet, "
+                "c.wrap_close_signature, c.wrap_close_time, c.funding_amount "
+                "FROM wt_candidate_websocket_watches c "
+                "WHERE c.state='WATCHING' AND c.expires_at > strftime('%s','now') "
+                "AND NOT EXISTS ("
+                "  SELECT 1 FROM wt_confirmed_treasuries t "
+                "  WHERE t.treasury = c.treasury_wallet AND t.no_subscribe = 1"
+                ")"
+            ).fetchall()
+            if _pw_rows:
+                _pw_metas = [{"candidate": r[0], "subprov": r[1], "treasury": r[2],
+                              "wrap_sig": r[3], "wrap_time": r[4], "amount": r[5],
+                              "added_at": 0}  # restored from DB — exclude from catch-up
+                             for r in _pw_rows]
+                prog_watcher.add_candidates(_pw_metas, _pw_conn)
+                _log(f"[ProgramWatcher] reloaded {len(_pw_rows)} WATCHING candidates from DB")
+        except Exception as _e:
+            _log(f"[ProgramWatcher] candidate reload failed: {_e}")
+        finally:
+            _pw_conn.close()
     casc._prog_watcher = prog_watcher   # attach so _handle_subprov_tx can reach it
+    if prog_watcher:
+        prog_watcher._cascade_ref = casc  # back-ref so ProgramWatcher can call process_candidate_sig
+
+    # Dust Observatory — subscribe to known DUST_MARKER wallets.
+    # Purely observational: enqueues sigs for off-thread processing, zero influence on detection.
+    _dust_markers: list = []
+    try:
+        from src.core import dust_observatory as _dobs
+        _dust_markers = _dobs.init(start_enricher=True)
+        casc._dust_markers = set(_dust_markers)
+        _log(f"[DustObs] loaded {len(_dust_markers)} dust marker wallet(s)")
+    except Exception as _de:
+        _log(f"[DustObs] init failed (non-fatal): {_de}")
+        casc._dust_markers = set()
 
     def _meta():
         kinds = casc.mgr.wallet_kind
@@ -2427,6 +3206,7 @@ async def run_cascade():
             "profile_hits":          casc._profile_hits,
             "profile_misses":        casc._profile_misses,
             "classify_counts":       dict(casc._classify_counts),
+            **dict(casc._subprov_sig_metrics),
         })
         try:
             _hconn = casc._ops()
@@ -2445,12 +3225,20 @@ async def run_cascade():
     consecutive_errno49 = 0          # Phase 3: exit after 3 consecutive socket failures
 
     _set_state("CONNECTING")
+    _cf_cookie: str = ""   # Cloudflare __cf_bm session cookie — persisted across reconnects
     while not _STOP:
         try:
             _set_state("CONNECTING")
+            _extra = {"Cookie": _cf_cookie} if _cf_cookie else {}
+            _log(f"WS attempting connect: {WS_URL[:60]}… key_len={len(WS_URL.split('api-key=')[-1]) if 'api-key=' in WS_URL else 0}")
             async with websockets.connect(WS_URL, ping_interval=20, ping_timeout=60,
                                           open_timeout=30, close_timeout=10,
-                                          max_size=10 * 1024 * 1024) as ws:
+                                          max_size=10 * 1024 * 1024,
+                                          extra_headers=_extra) as ws:
+                # Capture Cloudflare __cf_bm cookie from response headers for reuse
+                _set_cookie = ws.response_headers.get("set-cookie", "")
+                if "__cf_bm=" in _set_cookie:
+                    _cf_cookie = _set_cookie.split(";")[0].strip()
                 consecutive_errno49 = 0          # successful connect resets the counter
                 casc.mgr.ws = ws
                 casc.mgr.reset()
@@ -2510,7 +3298,10 @@ async def run_cascade():
                             print(f"[WS_CASCADE] process error: {_pe} ts={int(time.time())}", flush=True)
 
                 async def _maintenance():
-                    last_poll = last_cleanup = last_sweep = last_temp_sweep = last_drain = 0.0
+                    last_poll = last_cleanup = last_sweep = last_temp_sweep = last_retry = last_drain = 0.0
+                    last_fd_check = 0.0
+                    _FD_WARN = int(os.environ.get("WS_CASCADE_DB_FD_WARN", "16"))
+                    _FD_EXIT = int(os.environ.get("WS_CASCADE_DB_FD_EXIT", "28"))
                     while not _STOP:
                         now = time.time()
                         try:
@@ -2520,6 +3311,8 @@ async def run_cascade():
                                 await casc.cleanup_pass(); last_cleanup = now
                             if now - last_sweep >= SUBPROV_SWEEP_SEC:
                                 await casc.subprov_sweep_pass(); last_sweep = now
+                            if now - last_retry >= SUBPROV_SWEEP_SEC:
+                                await casc.subprov_retry_pass(); last_retry = now
                             if now - last_temp_sweep >= TEMP_SWEEP_INTERVAL_SEC:
                                 await _ato_thread(casc._temp_candidate_sweep)
                                 last_temp_sweep = now
@@ -2527,9 +3320,35 @@ async def run_cascade():
                                 await _ato_thread(casc._drain_pending_sessions)
                                 last_drain = now
                             await _ato_thread(casc._refresh_wallet_profile_if_due)
+                            # ProgramWatcher is intentionally expensive: keep it open only while
+                            # there are candidate wallets to match against.
+                            if (
+                                prog_watcher
+                                and prog_watcher._state in ("OPENING", "ACTIVE", "DRAINING")
+                                and len(prog_watcher.active_candidates) == 0
+                            ):
+                                await prog_watcher._close_stream(reason="maintenance_zero_candidates")
                             # Open program-CREATE stream if candidates arrived after connect
-                            if prog_watcher and prog_watcher._state == "OPENING":
+                            if prog_watcher and prog_watcher._state == "OPENING" and len(prog_watcher.active_candidates) > 0:
                                 await prog_watcher._open_stream(ws)
+                            # FD watchdog: leaked connections pin the WAL → p99 spikes
+                            if now - last_fd_check >= 120:
+                                import subprocess as _sp
+                                try:
+                                    _fd_out = _sp.check_output(
+                                        ["lsof", "-p", str(os.getpid())], stderr=_sp.DEVNULL)
+                                    # Count only real DB connections (not -wal/-shm siblings)
+                                    _db_fds = sum(
+                                        1 for _ln in _fd_out.decode().splitlines()
+                                        if ".db" in _ln and ".db-" not in _ln)
+                                    if _db_fds >= _FD_EXIT:
+                                        _log(f"🔴 FD watchdog: {_db_fds} DB FDs ≥ exit threshold {_FD_EXIT} — exiting for supervisord restart")
+                                        os._exit(1)
+                                    elif _db_fds >= _FD_WARN:
+                                        _log(f"⚠ FD watchdog: {_db_fds} DB FDs ≥ warn threshold {_FD_WARN}")
+                                except Exception:
+                                    pass
+                                last_fd_check = now
                         except Exception as _me:
                             _log(f"⚠ maintenance error (non-fatal): {_me}")
                         await asyncio.sleep(0.5)
@@ -2573,7 +3392,16 @@ async def run_cascade():
                 else:
                     consecutive_errno49 = 0
                     _set_state("DEGRADED")
-                    _log(f"WS loop error: {e} — reconnecting in {reconnect_delay}s")
+                    _extra_detail = ""
+                    try:
+                        import websockets.exceptions as _wse
+                        if isinstance(e, _wse.InvalidStatusCode):
+                            _extra_detail = f" status={e.status_code} headers={dict(e.headers)}"
+                        elif hasattr(e, 'status_code'):
+                            _extra_detail = f" status={e.status_code}"
+                    except Exception:
+                        pass
+                    _log(f"WS loop error: {e}{_extra_detail} — reconnecting in {reconnect_delay}s")
                     await asyncio.sleep(reconnect_delay)
                     reconnect_delay = min(reconnect_delay * 2, 60)
     _log("stopped")
@@ -2637,7 +3465,19 @@ async def _on_message(casc: Cascade, raw):
             casc._processed.add(sig)
             opened = await _ato_thread(casc._handle_treasury_tx, wallet, sig)
             any_opened.extend(opened)
-        for subprov in any_opened:
+        for entry in any_opened:
+            if isinstance(entry, tuple) and entry[0] == "CDC":
+                _cdc_w = entry[1]
+                if _cdc_w not in casc.mgr.wallet_kind:
+                    await casc.mgr.subscribe(_cdc_w, "cdc")
+                    _ops = casc._ops()
+                    try:
+                        store.cdc_mark_subscribed(_ops, wallet=_cdc_w)
+                    finally:
+                        _ops.close()
+                    _log(f"🔵 CDC subscribed {_cdc_w[:12]}… (accountSubscribe, 60min TTL)")
+                continue
+            subprov = entry
             if SUBPROV_WATCH_ENABLED and subprov not in casc.mgr.wallet_kind:
                 await casc.mgr.subscribe(subprov, "subprov")
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov, related=wallet)
@@ -2678,7 +3518,19 @@ async def _on_message(casc: Cascade, raw):
             _TREASURY_TIMEOUT_COUNT += 1
             _log(f"⚠ treasury_tx timeout ({_budget.CRITICAL_OUTER_TIMEOUT_S}s) sig={sig[:12]}… — deferred (total={_TREASURY_TIMEOUT_COUNT})")
             opened = []
-        for subprov in opened:
+        for entry in opened:
+            if isinstance(entry, tuple) and entry[0] == "CDC":
+                _cdc_w = entry[1]
+                if _cdc_w not in casc.mgr.wallet_kind:
+                    await casc.mgr.subscribe(_cdc_w, "cdc")
+                    _ops = casc._ops()
+                    try:
+                        store.cdc_mark_subscribed(_ops, wallet=_cdc_w)
+                    finally:
+                        _ops.close()
+                    _log(f"🔵 CDC subscribed {_cdc_w[:12]}… (accountSubscribe, 60min TTL)")
+                continue
+            subprov = entry
             if subprov not in casc.mgr.wallet_kind:
                 # HOT path: newly-funded subprov from a confirmed treasury.
                 # Use "hot_subprov" kind so sweep_stale_pending retries it at 2s
@@ -2693,7 +3545,9 @@ async def _on_message(casc: Cascade, raw):
     elif kind == "subprov":
         # _handle_subprov_tx does blocking RPC + DB → run it OFF the event loop so recv keeps
         # reading the next notification while this one's tx is fetched/decoded.
-        raw_result = await _ato_thread(casc._handle_subprov_tx, wallet, sig)
+        casc._metric("subprov_ws_sig_seen")
+        raw_result = await _ato_thread(
+            casc._process_subprov_sig_durable, wallet, sig, source="WS")
         # Separate real candidates from UNSUBSCRIBE sentinels (BUY_SWARM burst gate)
         new_watches = []
         for item in raw_result:
@@ -2713,6 +3567,30 @@ async def _on_message(casc: Cascade, raw):
                 conn_pw.close()
         # Candidates are saved to DB + ProgramWatcher by _handle_subprov_tx.
         # No per-candidate WS subscriptions — CREATE detection is via the program stream.
+    elif kind == "cdc":
+        cdc_result = await _ato_thread(casc._handle_cdc_tx, wallet, sig)
+        # If the CDC was promoted to subprov during this tx, cdc_result contains
+        # new candidate watches from _handle_subprov_tx — wire them into ProgramWatcher.
+        if cdc_result and CANDIDATE_WATCH_ENABLED and prog_watcher:
+            cdc_new_watches = [item for item in cdc_result
+                               if not (isinstance(item, tuple) and item[0] == "UNSUBSCRIBE")]
+            if cdc_new_watches:
+                conn_pw = casc._ops()
+                try:
+                    watcher_metas = [{"candidate": c, "subprov": wallet, "treasury": None,
+                                      "wrap_sig": sig, "wrap_time": None, "amount": None}
+                                     for c in cdc_new_watches]
+                    prog_watcher.add_candidates(watcher_metas, conn_pw)
+                finally:
+                    conn_pw.close()
+    elif kind == "dust":
+        # Dust Observatory: enqueue the sig for off-thread processing.
+        # No RPC here — the writer thread fetches the tx and extracts recipients.
+        try:
+            from src.core import dust_observatory as _dobs
+            _dobs.enqueue_sig(wallet, sig)
+        except Exception:
+            pass
     elif kind == "candidate":
         # Should not be reached: candidate wallets are no longer individually subscribed.
         # ProgramWatcher handles CREATE detection via the pump.fun program stream.

@@ -167,132 +167,35 @@ details.collapse-section .collapse-body { padding-top:14px; }
   <div class="rd-foot">Scores only — they rank & explain. Re-rooting a treasury is always a manual, verified action.</div>
 </div>
 
+<!-- STICKY STATUS BANNER -->
+<div id="ops-status-banner" style="
+  position:sticky;top:0;z-index:50;
+  background:rgba(13,17,23,.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+  padding:7px 26px;font-size:12px;font-weight:700;
+  display:flex;align-items:center;gap:14px;
+">
+  <span id="ops-banner-dot" style="width:9px;height:9px;border-radius:50%;background:var(--text-dim);flex-shrink:0"></span>
+  <span id="ops-banner-text" style="color:var(--text-sec)">WATCHTOWER — loading…</span>
+  <span id="ops-banner-detail" style="font-weight:400;color:var(--text-dim);font-size:11px"></span>
+  <a href="/ops" style="margin-left:auto;font-size:10px;color:var(--text-dim);font-weight:400;text-decoration:none">Operations → /ops</a>
+</div>
+
 <div class="pl-wrap">
-  <div class="pl-h">
-    <h1>WATCHTOWER Intelligence</h1>
-    <span id="cascade-status-pill" style="margin-left:8px"></span>
-    <span class="muted" style="font-size:13px;margin-left:4px">— coverage console</span>
+  <div class="warn-banner" id="warn-banner" style="margin-top:12px"><span class="pulse-dot"></span><span id="warn-text"></span></div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  SYSTEM HEALTH                                                        -->
+  <!--  Single glance: can I trust WATCHTOWER right now?                    -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:16px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase">System Health</div>
+    <div style="flex:1;height:1px;background:var(--border)"></div>
   </div>
-  <div class="pl-sub">How much launch infrastructure are we watching right now? &nbsp;·&nbsp; Operation management → <a href="/ops" style="color:var(--cyan)">/ops</a></div>
 
-  <div class="warn-banner" id="warn-banner"><span class="pulse-dot"></span><span id="warn-text"></span></div>
-
-  <!-- COVERAGE HERO — top of page, always visible -->
+  <!-- Coverage hero cards -->
   <div class="hero-grid" id="hero"></div>
 
-  <!-- RUNTIME BUDGET HEALTH -->
-  <div class="sec-h" style="color:var(--text-sec);font-size:14px;margin-top:4px">
-    ⚙ Runtime Budget
-    <span id="rb-overall-pill" style="margin-left:10px;font-size:11px;padding:2px 9px;border-radius:6px;background:rgba(107,114,128,.15);color:var(--text-sec)">loading…</span>
-    <span id="rb-health-note" style="margin-left:10px;font-size:11px;color:var(--text-sec);font-weight:400"></span>
-  </div>
-
-  <!-- Summary row: critical path + degrade count -->
-  <div id="rb-summary-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px"></div>
-
-  <!-- Main panel: 3 sections -->
-  <div class="panel" id="rb-panel" style="margin-bottom:8px;display:none">
-    <!-- Section 1: Critical path status -->
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">CRITICAL PATH</div>
-      <div id="rb-critical-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
-    </div>
-
-    <!-- Section 2: Graceful degradation -->
-    <div style="margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">
-        GRACEFUL DEGRADATION
-        <span style="font-weight:400;color:var(--text-sec);font-size:10px;margin-left:8px">— counts confirm the budget system is working, not failures</span>
-      </div>
-      <div id="rb-degrade-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
-    </div>
-
-    <!-- Section 3: Runtime pressure -->
-    <div style="margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">RUNTIME PRESSURE</div>
-      <div id="rb-pressure-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
-    </div>
-
-    <!-- Section 4: Config (collapsed) -->
-    <details style="border-top:1px solid var(--border);padding-top:8px">
-      <summary style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;cursor:pointer;list-style:none">
-        ▸ BUDGET CONFIGURATION <span style="font-weight:400;font-size:10px">(from runtime_budget.py)</span>
-      </summary>
-      <div id="rb-config-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px"></div>
-    </details>
-  </div>
-
-  <!-- SCHEDULER PRESSURE CARD -->
-  <div class="sec-h" style="color:var(--text-sec);font-size:14px;margin-top:4px">
-    ⏱ Scheduler
-    <span id="sched-pressure-pill" style="margin-left:10px;font-size:11px;padding:2px 9px;border-radius:6px;background:rgba(107,114,128,.15);color:var(--text-sec)">loading…</span>
-  </div>
-  <div id="sched-summary-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px"></div>
-  <div id="sched-runs-panel" style="display:none;margin-bottom:8px"></div>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!--  SECTION A — CONFIRMED WATCHTOWER                                      -->
-  <!--  Only confirmed infrastructure: wt_confirmed_treasuries scope          -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <div class="section-banner sb-wt">
-    <div class="sb-icon">🟢</div>
-    <div class="sb-body">
-      <div class="sb-title">Confirmed WATCHTOWER</div>
-      <div class="sb-desc">Infrastructure with confirmed treasury classification — launchers whose funding lineage has been verified on-chain. All widgets below reflect the <em>confirmed</em> treasury set only.</div>
-      <div class="sb-pop">Coverage Hero cards · Treasury Bank · Treasury Coverage · Trigger Health · Pre-Launch Detection · WebSocket Cascade · Launch Effectiveness · confirmed sub-provisioners (treasury IS NOT NULL)</div>
-    </div>
-  </div>
-
-  <!-- CONFIRMED TREASURY BANK -->
-  <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
-  <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Treasury</th><th class="num">OUT SOL</th><th class="num">Active Subprovs</th><th class="num">Launches</th><th class="num">TX/24h</th><th>Webhooked</th><th>Last Outbound</th><th>Confidence</th>
-    </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- Coverage Opportunity Widget — ranked by Expected Detection Yield -->
-  <div class="cov-opp" id="cov-opp-widget" style="display:none">
-    <div class="cov-opp-head">
-      <span class="co-title">⚠ Coverage Opportunity</span>
-      <span class="co-hint">ranked by Expected Detection Yield · subscribe in order · read-only</span>
-    </div>
-    <div class="cov-summary-chips" id="cov-summary-chips">
-      <span class="cov-chip edy" id="cov-chip-edy">top-10 EDY —</span>
-      <span class="cov-chip t1"  id="cov-chip-t1">— blind treasuries</span>
-      <span class="cov-chip t2"  id="cov-chip-t2" style="display:none"></span>
-      <span class="cov-chip act" id="cov-chip-act">— active &lt;7d</span>
-      <span class="cov-chip dorm" id="cov-chip-dorm">— dormant &gt;90d</span>
-    </div>
-    <!-- TIER 1: Blind confirmed treasuries -->
-    <div class="cov-tier-hdr t1">
-      🔴 Tier 1 — Blind Confirmed Treasuries
-      <span class="tier-note">one subscription can expose all downstream subprovs · subscribe these first</span>
-      <span id="cov-t1-count" style="margin-left:auto;font-size:10px;color:var(--red);font-weight:800"></span>
-    </div>
-    <table style="font-size:11px">
-      <thead><tr>
-        <th style="width:32px">#</th>
-        <th>Treasury</th>
-        <th class="num">EDY</th>
-        <th class="num">Last Active</th>
-        <th class="num">Downstream</th>
-        <th class="num">Creators</th>
-        <th class="num">Launches</th>
-        <th class="num">Median Peak MC</th>
-        <th>Note</th>
-      </tr></thead>
-      <tbody id="cov-t1-body"><tr><td colspan="9" class="muted" style="padding:10px 13px">loading…</td></tr></tbody>
-    </table>
-    <!-- TIER 2: hidden — all historical single-use subprovs, no forward value -->
-    <div id="cov-t2-footnote" style="font-size:10px;color:var(--text-dim);margin-top:6px;padding:4px 8px;display:none"></div>
-  </div>
-
-
-  <!-- TREASURY TRIGGER HEALTH -->
-
-  <!-- PRE-LAUNCH DETECTION HEALTH -->
   <!-- WS CASCADE -->
   <div class="sec-h" style="color:var(--green)">📡 Active WebSocket Cascade
     <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator</span>
@@ -314,14 +217,8 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <div class="panel-title" style="margin-bottom:8px">Subscription Queue</div>
     <div id="sub-queue-panel" style="font-size:11px;color:var(--text-dim)">loading…</div>
   </div>
-  <div class="panel" style="margin-bottom:8px">
-    <table><thead><tr>
-      <th>Active SUB_PROV</th><th>Treasury</th><th>Operator</th>
-      <th class="num">Funding SOL</th><th>Fan-out</th><th>Type</th><th class="num">Session TTL</th>
-    </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
 
-  <!-- Program CREATE watcher shadow panel — only visible when WS_PROGRAM_CREATE_WATCHER_ENABLED=1 -->
+  <!-- Program CREATE watcher -->
   <div id="pw-shadow-panel" style="display:none;margin-bottom:10px">
     <div style="background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.35);border-radius:8px;padding:10px 14px">
       <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;letter-spacing:.4px">
@@ -340,25 +237,21 @@ details.collapse-section .collapse-body { padding-top:14px; }
   </div>
   <div id="ws-latest-launch" style="margin-bottom:18px"></div>
 
-  <!-- WATCHTOWER LAUNCH EFFECTIVENESS -->
-  <div class="sec-h" style="color:var(--green);font-size:15px">📊 WATCHTOWER Launch Effectiveness
-    <span class="hint" style="font-size:11px">confirmed-treasury launches only · MC @ detection · peak MC · actionable multiple = peak ÷ entry</span>
-    <span id="audit-verdict" style="margin-left:auto;font-size:12px;font-weight:800"></span>
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  LIVE OPERATIONS                                                      -->
+  <!--  What is happening right now?                                         -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase">Live Operations</div>
+    <div style="flex:1;height:1px;background:var(--border)"></div>
   </div>
-  <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
-    <b style="color:var(--green)">Primary KPI:</b>
-    Actionable Multiple = peak MC ÷ MC at detection.
-    A value of 10× means detection fired when only 10% of the move had occurred — 90% of upside was still ahead.
-    Fixtures are historical backfill; live catches are real cascade detections.
-  </div>
-  <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
-  <div id="audit-buckets" style="margin-bottom:8px"></div>
-  <div class="panel" style="margin-bottom:18px;border-color:rgba(63,185,80,.3)">
+
+  <!-- ACTIVE SESSIONS -->
+  <div class="panel" style="margin-bottom:8px">
     <table><thead><tr>
-      <th>Mint</th><th>Creator</th><th class="num">Funding ◎</th><th class="num">Latency</th><th class="num">Pos</th>
-      <th class="num">MC @ detect</th><th class="num">Peak MC</th>
-      <th class="num">Actionable ×</th><th class="num">→Peak</th><th>Outcome</th>
-    </tr></thead><tbody id="audit-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
+      <th>Active SUB_PROV</th><th>Treasury</th><th>Operator</th>
+      <th class="num">Funding SOL</th><th>Fan-out</th><th>Type</th><th class="num">Session TTL</th><th></th>
+    </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
   </div>
 
   <!-- CONFIRMED SUB-PROVISIONERS -->
@@ -369,6 +262,120 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <table><thead><tr>
       <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
     </tr></thead><tbody id="subprovs-body-confirmed"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- CAPITAL DISTRIBUTOR CANDIDATES -->
+  <div class="sec-h" style="color:#60a5fa">🔵 Capital Distributor Candidates
+    <span class="hint">large treasury recipients (≥50◎) with no wrap-close history · pure infrastructure observation · zero creator/candidate impact</span>
+  </div>
+  <div class="panel" style="margin-bottom:18px" id="cdc-panel">
+    <div id="cdc-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
+  </div>
+
+  <!-- CONFIRMED TREASURY BANK -->
+  <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
+  <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:18px">
+    <table><thead><tr>
+      <th>Treasury</th><th class="num">OUT SOL</th><th class="num">Active Subprovs</th><th class="num">Launches</th><th class="num">TX/24h</th><th>Webhooked</th><th>Last Outbound</th><th>Confidence</th>
+    </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- Coverage Opportunity Widget -->
+  <div class="cov-opp" id="cov-opp-widget" style="display:none">
+    <div class="cov-opp-head">
+      <span class="co-title">⚠ Coverage Opportunity</span>
+      <span class="co-hint">ranked by Expected Detection Yield · subscribe in order · read-only</span>
+    </div>
+    <div class="cov-summary-chips" id="cov-summary-chips">
+      <span class="cov-chip edy" id="cov-chip-edy">top-10 EDY —</span>
+      <span class="cov-chip t1"  id="cov-chip-t1">— blind treasuries</span>
+      <span class="cov-chip t2"  id="cov-chip-t2" style="display:none"></span>
+      <span class="cov-chip act" id="cov-chip-act">— active &lt;7d</span>
+      <span class="cov-chip dorm" id="cov-chip-dorm">— dormant &gt;90d</span>
+    </div>
+    <div class="cov-tier-hdr t1">
+      🔴 Tier 1 — Blind Confirmed Treasuries
+      <span class="tier-note">one subscription can expose all downstream subprovs · subscribe these first</span>
+      <span id="cov-t1-count" style="margin-left:auto;font-size:10px;color:var(--red);font-weight:800"></span>
+    </div>
+    <table style="font-size:11px">
+      <thead><tr>
+        <th style="width:32px">#</th><th>Treasury</th><th class="num">EDY</th><th class="num">Last Active</th>
+        <th class="num">Downstream</th><th class="num">Creators</th><th class="num">Launches</th><th class="num">Median Peak MC</th><th>Note</th>
+      </tr></thead>
+      <tbody id="cov-t1-body"><tr><td colspan="9" class="muted" style="padding:10px 13px">loading…</td></tr></tbody>
+    </table>
+    <div id="cov-t2-footnote" style="font-size:10px;color:var(--text-dim);margin-top:6px;padding:4px 8px;display:none"></div>
+  </div>
+
+  <!-- STAGED prediction (collapsed) -->
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">🚀 STAGED-Only Prediction Pipeline</span>
+      <span class="cs-hint">covers 18% of launches · INSTANT launches (81%) are uncatchable pre-launch · expand for countdown / ARMED / forward walk panels</span>
+    </summary>
+    <div class="collapse-body">
+      <div class="sec-h" style="color:var(--green)">🚀 Likely To Launch Next <span class="hint">template-funded creators · ~58-min average lead · closest to launch first · STAGED operators only</span></div>
+      <div class="panel" id="launch-panel">
+        <table><thead><tr>
+          <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded At</th><th>Min Since</th><th>Expected Launch</th><th>Countdown</th><th>Webhook Source</th><th></th>
+        </tr></thead><tbody id="launch-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <div class="sec-h" style="color:var(--amber)">🎯 ARMED <span class="hint">auto-webhooked on template funding · countdown to launch · auto-disarmed on migration</span></div>
+      <div class="panel" id="armed-panel">
+        <table><thead><tr>
+          <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded</th><th>Expected Launch</th><th>Countdown</th><th>Webhook</th>
+        </tr></thead><tbody id="armed-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <div id="fired-wrap" style="display:none">
+        <div class="sec-h" style="font-size:12px;color:var(--text-sec)">✓ Recently Fired <span class="hint">armed → launched · actual lead time</span></div>
+        <div class="panel"><table><thead><tr><th>Creator</th><th>Operation</th><th>Lead Time</th><th>Migrated</th></tr></thead>
+          <tbody id="fired-body"></tbody></table></div>
+      </div>
+    </div>
+  </details>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ACTION REQUIRED                                                      -->
+  <!--  Everything needing human attention — nothing historical              -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--amber);text-transform:uppercase">Action Required</div>
+    <div style="flex:1;height:1px;background:rgba(217,119,6,.3)"></div>
+  </div>
+
+  <!-- CAPITAL RELOAD MONITOR -->
+  <div class="sec-h" style="color:#e06c2a;font-size:15px">🚨 Capital Reload Monitor
+    <span class="hint" style="font-size:11px">known launched subprovs receiving large treasury injections · post-launch capital deployment · CREATE monitoring OFF</span>
+    <span id="reload-total" style="margin-left:auto;font-size:12px;font-weight:800"></span>
+  </div>
+  <div style="background:rgba(224,108,42,.06);border:1px solid rgba(224,108,42,.3);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:#e06c2a">Mission 2 — Capital Deployment Intelligence:</b>
+    Large treasury injections into subprovs that already launched a token are price-action / liquidity / buy-swarm events,
+    NOT new creator signals. ProgramWatcher is <b style="color:var(--red)">never armed</b> by these events.
+    Threshold: ≥50 SOL + confirmed wrap-close history.
+  </div>
+  <div id="reload-cards" class="hero-grid" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:18px;border-color:rgba(224,108,42,.3)">
+    <table><thead><tr>
+      <th>SubProv</th><th>Treasury</th><th class="num">SOL</th><th class="num">WCC</th>
+      <th>Linked Token</th><th>Creator</th><th>CREATE Mon.</th><th>When</th>
+    </tr></thead><tbody id="reload-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- DISCOVERY LEADS -->
+  <div class="sec-h" style="color:var(--cyan)">🔭 Discovery Leads
+    <span class="hint">wallets exhibiting operator infrastructure behaviour · not yet confirmed · human review required before any pipeline action</span>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;align-items:center">
+    <span id="dl-count-high" style="padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-weight:700">HIGH 0</span>
+    <span id="dl-count-medium" style="padding:2px 8px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-weight:700">MEDIUM 0</span>
+    <span id="dl-count-low" style="padding:2px 8px;border-radius:4px;background:rgba(110,118,129,.12);border:1px solid rgba(110,118,129,.3);color:var(--text-dim);font-weight:700">LOW 0</span>
+    <span style="color:var(--text-dim)">Score ≥60 = HIGH · 35–59 = MEDIUM · 15–34 = LOW · Conditional badges: ✓=confirmed ✗=absent ?=unresolvable without on-chain confirmation</span>
+  </div>
+  <div class="panel" style="margin-bottom:18px" id="discovery-leads-panel">
+    <div id="discovery-leads-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
   </div>
 
   <!-- UNKNOWN-TREASURY SUB-PROVISIONERS -->
@@ -385,88 +392,6 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <table><thead><tr>
       <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
     </tr></thead><tbody id="subprovs-body-unknown"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- STAGED + NETWORK (collapsed) -->
-  <details class="collapse-section">
-    <summary>
-      <span class="cs-label">🚀 STAGED-Only Prediction Pipeline</span>
-      <span class="cs-hint">covers 18% of launches · INSTANT launches (81%) are uncatchable pre-launch · expand for countdown / ARMED / forward walk panels</span>
-    </summary>
-    <div class="collapse-body">
-
-      <div class="sec-h" style="color:var(--green)">🚀 Likely To Launch Next <span class="hint">template-funded creators · ~58-min average lead · closest to launch first · STAGED operators only</span></div>
-      <div class="panel" id="launch-panel">
-        <table><thead><tr>
-          <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded At</th><th>Min Since</th><th>Expected Launch</th><th>Countdown</th><th>Webhook Source</th><th></th>
-        </tr></thead><tbody id="launch-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
-      </div>
-
-      <div class="sec-h" style="color:var(--amber)">🎯 ARMED <span class="hint">auto-webhooked on template funding · countdown to launch · auto-disarmed on migration</span></div>
-      <div class="panel" id="armed-panel">
-        <table><thead><tr>
-          <th>Creator</th><th>Operation</th><th>Treasury</th><th>Template</th><th>Funded</th><th>Expected Launch</th><th>Countdown</th><th>Webhook</th>
-        </tr></thead><tbody id="armed-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
-      </div>
-      <div id="fired-wrap" style="display:none">
-        <div class="sec-h" style="font-size:12px;color:var(--text-sec)">✓ Recently Fired <span class="hint">armed → launched · actual lead time</span></div>
-        <div class="panel"><table><thead><tr><th>Creator</th><th>Operation</th><th>Lead Time</th><th>Migrated</th></tr></thead>
-          <tbody id="fired-body"></tbody></table></div>
-      </div>
-
-    </div>
-  </details>
-
-  <details class="collapse-section">
-    <summary>
-      <span class="cs-label">🔬 Network Intelligence</span>
-      <span class="cs-hint">apex funders · vanity families · expand for network topology panels</span>
-    </summary>
-    <div class="collapse-body">
-
-      <div class="sec-h" style="color:var(--cyan)">⬆️ Apex Funders <span class="hint">who funds our treasuries · multi-treasury = shared apex · 30-day window · zero RPC</span></div>
-      <div class="panel" style="margin-bottom:18px">
-        <table><thead><tr>
-          <th>Funder</th><th class="num">Treasuries</th><th class="num">Max SOL</th><th class="num">Total</th><th class="num">Funds</th><th>Type</th><th>Last</th>
-        </tr></thead><tbody id="apex-funders-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-      </div>
-
-      <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families · a new wallet sharing the prefix = same-operator evidence (not a role)</span></div>
-      <div id="vanity-families" style="margin-bottom:6px"></div>
-      <div class="panel" style="margin-bottom:18px">
-        <table><thead><tr>
-          <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
-        </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
-      </div>
-
-    </div>
-  </details>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!--  SECTION B — OPERATOR DISCOVERY                                        -->
-  <!--  Wallets under investigation — not yet confirmed                       -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <div class="section-banner sb-disc">
-    <div class="sb-icon">🔭</div>
-    <div class="sb-body">
-      <div class="sb-title">Operator Discovery</div>
-      <div class="sb-desc">Wallets exhibiting operator behaviour that have not yet been confirmed as treasuries. Human review required before any pipeline action. Data below is investigative, not authoritative.</div>
-      <div class="sb-pop">Discovery Leads · Potential Treasuries · Approved Treasuries audit · Treasury Attribution Review · unknown-treasury sub-provisioners (treasury IS NULL)</div>
-    </div>
-  </div>
-
-  <!-- DISCOVERY LEADS -->
-  <div class="sec-h" style="color:var(--cyan)">🔭 Discovery Leads
-    <span class="hint">wallets exhibiting operator infrastructure behaviour · not yet confirmed · human review required before any pipeline action</span>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;align-items:center">
-    <span id="dl-count-high" style="padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-weight:700">HIGH 0</span>
-    <span id="dl-count-medium" style="padding:2px 8px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-weight:700">MEDIUM 0</span>
-    <span id="dl-count-low" style="padding:2px 8px;border-radius:4px;background:rgba(110,118,129,.12);border:1px solid rgba(110,118,129,.3);color:var(--text-dim);font-weight:700">LOW 0</span>
-    <span style="color:var(--text-dim)">Score ≥60 = HIGH · 35–59 = MEDIUM · 15–34 = LOW · Conditional badges: ✓=confirmed ✗=absent ?=unresolvable without on-chain confirmation</span>
-  </div>
-  <div class="panel" style="margin-bottom:18px" id="discovery-leads-panel">
-    <div id="discovery-leads-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
   </div>
 
   <!-- UNCONFIRMED WATCHTOWER-LIKE -->
@@ -503,33 +428,74 @@ details.collapse-section .collapse-body { padding-top:14px; }
     </tr></thead><tbody id="treasury-review-body"><tr><td colspan="11" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- APPROVAL AUDIT TRAIL -->
-  <div class="sec-h" style="color:var(--text-sec);font-size:10px;margin-top:-6px">📋 Approved Treasuries <span class="hint">approved + webhook-enrolled only · rejections not shown</span></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Treasury</th><th>Action</th><th>Confidence</th><th>Reviewer</th><th>Notes</th><th>When</th>
-    </tr></thead><tbody id="approval-audit-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  INTELLIGENCE                                                         -->
+  <!--  What WATCHTOWER has learned                                          -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--cyan);text-transform:uppercase">Intelligence</div>
+    <div style="flex:1;height:1px;background:rgba(34,211,238,.2)"></div>
   </div>
 
-  <!-- TREASURY ATTRIBUTION REVIEW -->
-  <div class="sec-h">🔍 Treasury Attribution Review <span class="hint">positional resolver — where the assigned treasury may be a relay, not the true root</span></div>
-  <div class="panel" id="review-panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Operation</th><th>Assigned Treasury</th><th>Positional Root</th><th class="num">Conf</th><th>Status</th><th>Reason</th>
-    </tr></thead><tbody id="review-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+  <!-- WALKBACK QUEUE -->
+  <div class="sec-h" style="color:var(--cyan)">🔗 Attribution Walkback Queue
+    <span class="hint">migration lineage completeness · zero-RPC attribution first · RPC only for genuine gaps</span>
+  </div>
+  <div class="panel" style="margin-bottom:18px" id="walkback-panel">
+    <div id="walkback-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!--  SECTION C — ATTRIBUTION PIPELINE                                      -->
-  <!--  All attributed tokens regardless of confirmation status               -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <div class="section-banner sb-attr">
-    <div class="sb-icon">📊</div>
-    <div class="sb-body">
-      <div class="sb-title">Attribution Pipeline</div>
-      <div class="sb-desc">All tokens attributed through the funding pipeline — confirmed WATCHTOWER and unknown operators alike. The creator mode split applies to the full attributed population, not the confirmed-treasury subset.</div>
-      <div class="sb-pop">Creator Mode Distribution · Birth→Launch histogram · Per-treasury mode table · Event Feed</div>
+  <!-- NETWORK INTELLIGENCE -->
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">🔬 Network Intelligence</span>
+      <span class="cs-hint">apex funders · vanity families · expand for network topology panels</span>
+    </summary>
+    <div class="collapse-body">
+      <div class="sec-h" style="color:var(--cyan)">⬆️ Apex Funders <span class="hint">who funds our treasuries · multi-treasury = shared apex · 30-day window · zero RPC</span></div>
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Funder</th><th class="num">Treasuries</th><th class="num">Max SOL</th><th class="num">Total</th><th class="num">Funds</th><th>Type</th><th>Last</th>
+        </tr></thead><tbody id="apex-funders-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families · a new wallet sharing the prefix = same-operator evidence (not a role)</span></div>
+      <div id="vanity-families" style="margin-bottom:6px"></div>
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
+        </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      </div>
     </div>
+  </details>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ANALYTICS                                                            -->
+  <!--  Historical effectiveness — never interrupts live operations          -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--green);text-transform:uppercase">Analytics</div>
+    <div style="flex:1;height:1px;background:rgba(63,185,80,.2)"></div>
+  </div>
+
+  <!-- LAUNCH EFFECTIVENESS -->
+  <div class="sec-h" style="color:var(--green);font-size:15px">📊 WATCHTOWER Launch Effectiveness
+    <span class="hint" style="font-size:11px">confirmed-treasury launches only · MC @ detection · peak MC · actionable multiple = peak ÷ entry</span>
+    <span id="audit-verdict" style="margin-left:auto;font-size:12px;font-weight:800"></span>
+  </div>
+  <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--green)">Primary KPI:</b>
+    Actionable Multiple = peak MC ÷ MC at detection.
+    A value of 10× means detection fired when only 10% of the move had occurred — 90% of upside was still ahead.
+    Fixtures are historical backfill; live catches are real cascade detections.
+  </div>
+  <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
+  <div id="audit-buckets" style="margin-bottom:8px"></div>
+  <div class="panel" style="margin-bottom:18px;border-color:rgba(63,185,80,.3)">
+    <table><thead><tr>
+      <th>Mint</th><th>Creator</th><th class="num">Funding ◎</th><th class="num">Latency</th><th class="num">Pos</th>
+      <th class="num">MC @ detect</th><th class="num">Peak MC</th>
+      <th class="num">Actionable ×</th><th class="num">→Peak</th><th>Outcome</th>
+    </tr></thead><tbody id="audit-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody></table>
   </div>
 
   <!-- CREATOR MODE DISTRIBUTION -->
@@ -543,7 +509,7 @@ details.collapse-section .collapse-body { padding-top:14px; }
     The key finding holds either way: the vast majority have a birth→launch gap under 60 seconds (median 1s)
     and are structurally unpredictable before the CREATE transaction fires.
     The cascade detects these <em>at</em> the moment of launch, not before.
-    Only the STAGED cohort has a catchable lead time — which is why the prediction pipeline is collapsed in the WATCHTOWER section above.
+    Only the STAGED cohort has a catchable lead time — which is why the prediction pipeline is in Live Operations above.
   </div>
   <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
   <div class="panel" style="margin-bottom:8px">
@@ -557,12 +523,112 @@ details.collapse-section .collapse-body { padding-top:14px; }
     </tr></thead><tbody id="creator-mode-treasury"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
   </div>
 
-  <!-- EVENT FEED -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  DIAGNOSTICS  (collapsed by default)                                  -->
+  <!--  Developer information — valuable during investigation                -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase">Diagnostics</div>
+    <div style="flex:1;height:1px;background:var(--border)"></div>
+  </div>
+
+  <!-- Event Feed — visible by default within diagnostics -->
   <div class="sec-h">🛰 Event Feed <span class="hint">pre-launch detections first</span></div>
-  <div class="panel">
+  <div class="panel" style="margin-bottom:18px">
     <table><thead><tr><th>When</th><th>Type</th><th>Wallet</th><th>Operation</th><th>Detail</th></tr></thead>
       <tbody id="feed-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
   </div>
+
+  <!-- Dust Observatory summary card -->
+  <div class="sec-h">🔭 Dust Observatory
+    <span class="hint">intelligence layer — longitudinal dataset, read-only · <a href="/ops/dust-observatory" style="color:var(--cyan);text-decoration:none">full view →</a></span>
+  </div>
+  <div id="dust-obs-card" class="panel" style="margin-bottom:18px">
+    <div style="padding:11px 15px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <div class="hcard yl" style="min-width:0"><div class="v" id="do-markers">—</div><div class="l">Dust Markers</div></div>
+      <div class="hcard cy" style="min-width:0"><div class="v" id="do-obs">—</div><div class="l">Observations</div></div>
+      <div class="hcard go" style="min-width:0"><div class="v" id="do-recipients">—</div><div class="l">Recipients</div></div>
+      <div class="hcard" style="min-width:0"><div class="v" id="do-classified">—</div><div class="l">Classified %</div></div>
+      <div class="hcard" style="min-width:0"><div class="v" id="do-new7d">—</div><div class="l">New 7d</div></div>
+      <div style="margin-left:auto;font-size:10.5px;color:var(--text-dim)">
+        Top role: <span id="do-top-role" style="color:var(--text-sec)">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsed diagnostic panels -->
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">⚙ Runtime Budget &amp; Scheduler</span>
+      <span class="cs-hint">RPC credits · critical path · deferred work · scheduler pressure</span>
+    </summary>
+    <div class="collapse-body">
+      <div class="sec-h" style="color:var(--text-sec);font-size:14px;margin-top:4px">
+        ⚙ Runtime Budget
+        <span id="rb-overall-pill" style="margin-left:10px;font-size:11px;padding:2px 9px;border-radius:6px;background:rgba(107,114,128,.15);color:var(--text-sec)">loading…</span>
+        <span id="rb-health-note" style="margin-left:10px;font-size:11px;color:var(--text-sec);font-weight:400"></span>
+      </div>
+      <div id="rb-summary-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px"></div>
+      <div class="panel" id="rb-panel" style="margin-bottom:8px;display:none">
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">CRITICAL PATH</div>
+          <div id="rb-critical-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
+        </div>
+        <div style="margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">
+            GRACEFUL DEGRADATION
+            <span style="font-weight:400;color:var(--text-sec);font-size:10px;margin-left:8px">— counts confirm the budget system is working, not failures</span>
+          </div>
+          <div id="rb-degrade-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+        </div>
+        <div style="margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;margin-bottom:6px">RUNTIME PRESSURE</div>
+          <div id="rb-pressure-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+        </div>
+        <details style="border-top:1px solid var(--border);padding-top:8px">
+          <summary style="font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.6px;cursor:pointer;list-style:none">
+            ▸ BUDGET CONFIGURATION <span style="font-weight:400;font-size:10px">(from runtime_budget.py)</span>
+          </summary>
+          <div id="rb-config-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px"></div>
+        </details>
+      </div>
+      <div class="sec-h" style="color:var(--text-sec);font-size:14px;margin-top:4px">
+        ⏱ Scheduler
+        <span id="sched-pressure-pill" style="margin-left:10px;font-size:11px;padding:2px 9px;border-radius:6px;background:rgba(107,114,128,.15);color:var(--text-sec)">loading…</span>
+      </div>
+      <div id="sched-summary-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px"></div>
+      <div id="sched-runs-panel" style="display:none;margin-bottom:8px"></div>
+    </div>
+  </details>
+
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">🔍 Treasury Attribution Review</span>
+      <span class="cs-hint">positional resolver · assigned treasury may be a relay, not the true root</span>
+    </summary>
+    <div class="collapse-body">
+      <div class="panel" id="review-panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Operation</th><th>Assigned Treasury</th><th>Positional Root</th><th class="num">Conf</th><th>Status</th><th>Reason</th>
+        </tr></thead><tbody id="review-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </details>
+
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">📋 Approved Treasuries Audit</span>
+      <span class="cs-hint">approved + webhook-enrolled only · rejections not shown</span>
+    </summary>
+    <div class="collapse-body">
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Treasury</th><th>Action</th><th>Confidence</th><th>Reviewer</th><th>Notes</th><th>When</th>
+        </tr></thead><tbody id="approval-audit-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </details>
+
 </div>
 
 <script>
@@ -654,13 +720,32 @@ async function loadCoverageOpportunity(){
 async function loadCoverageSummary(){
   let d; try{ d=await(await fetch('/api/ops-v2/intel/coverage-summary')).json(); }catch(e){ return; }
 
-  // cascade status pill in header
-  const sp=document.getElementById('cascade-status-pill');
-  if(sp){
-    const col={ACTIVE:'cs-ACTIVE',LIVE:'cs-LIVE',LIVE_IDLE:'cs-LIVE_IDLE',CONNECTING:'cs-STALE',SUBSCRIBING:'cs-STALE',RECONCILING:'cs-LIVE_IDLE',STALE:'cs-STALE',DEGRADED:'cs-DEGRADED',FAILED:'cs-DOWN',DISABLED:'cs-DISABLED',DOWN:'cs-DOWN'}[d.cascade_status]||'cs-DOWN';
-    const dot={ACTIVE:'●',LIVE:'●',LIVE_IDLE:'◉',CONNECTING:'⟳',SUBSCRIBING:'⟳',RECONCILING:'⟳',STALE:'◉',DEGRADED:'◐',FAILED:'✕',DISABLED:'○',DOWN:'✕'}[d.cascade_status]||'✕';
-    const label={ACTIVE:'CASCADE ACTIVE',LIVE:'CASCADE LIVE',LIVE_IDLE:'CASCADE WATCHING',CONNECTING:'CONNECTING',SUBSCRIBING:'SUBSCRIBING',RECONCILING:'RECONCILING',STALE:'CASCADE STALE',DEGRADED:'CASCADE DEGRADED',FAILED:'RESOURCE EXHAUSTION',DISABLED:'CASCADE OFFLINE',DOWN:'CASCADE DOWN'}[d.cascade_status]||d.cascade_status;
-    sp.innerHTML=`<span class="cs-pill ${col}">${dot} ${label}</span>`;
+  // sticky status banner
+  const isHealthy = ['ACTIVE','LIVE','LIVE_IDLE'].includes(d.cascade_status);
+  const isDegraded = ['STALE','DEGRADED','CONNECTING','SUBSCRIBING','RECONCILING'].includes(d.cascade_status);
+  const bannerDot = document.getElementById('ops-banner-dot');
+  const bannerText = document.getElementById('ops-banner-text');
+  const bannerDetail = document.getElementById('ops-banner-detail');
+  if(bannerDot && bannerText){
+    if(isHealthy){
+      bannerDot.style.background='var(--green)';
+      bannerText.style.color='var(--text-pri)';
+      bannerText.textContent='WATCHTOWER OPERATIONAL';
+    } else if(isDegraded){
+      bannerDot.style.background='var(--amber)';
+      bannerText.style.color='var(--amber)';
+      bannerText.textContent='WATCHTOWER DEGRADED';
+    } else {
+      bannerDot.style.background='var(--red)';
+      bannerText.style.color='var(--red)';
+      bannerText.textContent='WATCHTOWER DOWN';
+    }
+    const cascLabel={ACTIVE:'Cascade ACTIVE',LIVE:'Cascade LIVE',LIVE_IDLE:'Cascade WATCHING',CONNECTING:'Cascade CONNECTING',SUBSCRIBING:'Cascade SUBSCRIBING',RECONCILING:'Cascade RECONCILING',STALE:'Cascade STALE',DEGRADED:'Cascade DEGRADED',FAILED:'RESOURCE EXHAUSTION',DISABLED:'Cascade OFFLINE',DOWN:'Cascade DOWN'}[d.cascade_status]||d.cascade_status;
+    const tSubs=d.cascade_treasury_subs||0;
+    const wsGen=d.cascade_reconnect_gen!=null?`gen=${d.cascade_reconnect_gen}`:'';
+    const wsAge=d.cascade_hb_age_s!=null?`hb ${d.cascade_hb_age_s}s ago`:'';
+    const parts=[cascLabel, tSubs>0?`${tSubs} treasury subs`:'', wsGen, wsAge].filter(Boolean);
+    if(bannerDetail) bannerDetail.textContent='— '+parts.join(' · ');
   }
 
   // coverage-first hero cards
@@ -678,8 +763,12 @@ async function loadCoverageSummary(){
   const cSubs  = d.cascade_candidate_subs||0;
   const sessSubs = d.cascade_session_subs||0;
   const spSubCol = spSubs>0?'go':gap>0?'bad':'';
+  const wsState = d.cascade_ws_state||'—';
+  const wsGen   = d.cascade_reconnect_gen!=null ? `gen=${d.cascade_reconnect_gen}` : '';
+  const wsAge   = d.cascade_hb_age_s!=null ? `hb ${d.cascade_hb_age_s}s ago` : '';
+  const wsDetail = [wsState, wsGen, wsAge].filter(Boolean).join(' · ');
   document.getElementById('hero').innerHTML = [
-    ['cascade',              cascLabel,                                            cascCol],
+    ['cascade',              `${cascLabel}<br><span style="font-size:0.7em;opacity:0.7">${wsDetail}</span>`, cascCol],
     ['treasury WS subs',     tSubs,                                               tSubs>0?'go':'bad'],
     ['standing subprov subs',spSubs,                                              spSubCol],
     ['active DB sessions',   sessSubs,                                            sessSubs>0?'go':''],
@@ -752,8 +841,8 @@ async function loadWsCascade(){
     const nSess=d.active_subprovs||0;
     const nCand=d.candidate_count||0;
     const pw=d.pw||{};
-    const pwOn=!!(pw.pw_enabled||pw.pw_stream_state);
-    const pwState=pw.pw_stream_state||'OFF';
+    const pwOn=pw.pw_stream_state==='ACTIVE'||pw.pw_stream_state==='OPENING';
+    const pwState=pwOn?pw.pw_stream_state:'OFF';
     const pwMatches=pw.pw_matches||0;
     const pwActiveStyle='background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.5)';
     const pwOpeningStyle='background:rgba(217,119,6,.15);color:var(--amber);border:1px solid rgba(217,119,6,.4)';
@@ -764,11 +853,12 @@ async function loadWsCascade(){
       ?`<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;${pwBadgeStyle}">${pwIcon} pump.fun CREATE stream ${pwState}${pwMatches>0?' · '+pwMatches+' match'+(pwMatches>1?'es':''):''}</span>`
       :`<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;${pwDimStyle}">⭘ CREATE stream OFF</span>`;
     const dismissAllBtn=`<button onclick="dismissAllSessions()" title="Expire all active sessions" style="font-size:10px;padding:2px 8px;background:none;border:1px solid rgba(255,255,255,.2);border-radius:3px;color:var(--text-dim);cursor:pointer;margin-left:auto">✕ dismiss all</button>`;
-    if(nSess>0&&nCand>0){
+    const nArmed=(d.sessions||[]).filter(s=>s.monitoring_state==='LIVE_ARMED'||s.monitoring_state==='POST_CREATE_ACTIVE').length;
+    if(nArmed>0&&nCand>0){
       banner.style.display='';
       banner.innerHTML=`<div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.5);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px">
         <span style="font-size:18px;font-weight:900;color:var(--green);letter-spacing:.5px">⚡ ARMED</span>
-        <span style="font-size:12px;color:var(--green)">${nSess} active session${nSess>1?'s':''} · <b>${nCand}</b> candidate wallet${nCand>1?'s':''} under live watch</span>
+        <span style="font-size:12px;color:var(--green)">${nArmed} LIVE_ARMED session${nArmed>1?'s':''} · <b>${nCand}</b> candidate wallet${nCand>1?'s':''} under live watch</span>
         ${detectionMode}
         <span style="font-size:11px;color:var(--text-dim)">any CREATE from a watched wallet fires a detection</span>
         ${dismissAllBtn}
@@ -779,7 +869,7 @@ async function loadWsCascade(){
         <span style="font-size:18px;font-weight:900;color:var(--amber);letter-spacing:.5px">◑ WATCHING</span>
         <span style="font-size:12px;color:var(--amber)">${nSess} session${nSess>1?'s':''} open · waiting for wrap-close fan-out</span>
         ${detectionMode}
-        <span style="font-size:11px;color:var(--text-dim)">CREATE stream opens when first candidate arrives</span>
+        <span style="font-size:11px;color:var(--text-dim)">${pwOn?'no LIVE_ARMED sessions — detections paused until a wrap-close arms a candidate':'CREATE stream opens when first candidate arrives'}</span>
         ${dismissAllBtn}
       </div>`;
     } else {
@@ -880,29 +970,31 @@ async function loadWsCascade(){
     'NEW_SUBPROV':                   'background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.3)',
     'PROVISION_CANDIDATE':           'background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.3)',
     'HISTORICAL_SUBPROV_DISCOVERED': 'background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25)',
-    'KNOWN_SUBPROV_TOPUP':           'background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.35)',
-    'SUBPROV_REACTIVATED':           'background:rgba(34,211,238,.1);color:var(--cyan);border:1px solid rgba(34,211,238,.3)',
+    'CONTINUING_OPERATION':          'background:rgba(34,211,238,.12);color:var(--cyan);border:1px solid rgba(34,211,238,.35)',
+    'SUBPROV_REACTIVATED':           'background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.35)',
     'BUY_SWARM_PROVISIONER':         'background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3)',
     'TREASURY_MESH':                 'background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)',
-    // legacy / promoted labels
+    // legacy labels — kept for historical rows, never assigned to new sessions
+    'KNOWN_SUBPROV_TOPUP':           'background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.35)',
     'SUBPROV_TOP_UP':                'background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.35)',
+    'REARMED_SUBPROV_CANDIDATE':     'background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.35)',
     'TEMP_PROMOTED':                 'background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.3)',
     'CREATOR':                       'background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.25)',
-    'REARMED_SUBPROV_CANDIDATE':     'background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.35)',
   };
-  // What will this wallet do if it receives CREATE instructions?
   const _typeLabel={
-    'NEW_SUBPROV':                   'FRESH DEPLOYER',   // never launched before — expecting first launch
-    'PROVISION_CANDIDATE':           'FRESH DEPLOYER',
-    'HISTORICAL_SUBPROV_DISCOVERED': 'PREV SEEN',         // in WATCHTOWER history but no confirmed wrap-close
-    'KNOWN_SUBPROV_TOPUP':           'MID-CAMPAIGN',     // already active this campaign — top-up
-    'SUBPROV_REACTIVATED':           'REACTIVATED',      // deployed before, went quiet, now funded again
-    'BUY_SWARM_PROVISIONER':         'BUY SWARM',        // mostly funds swarms, rarely launches
+    'NEW_SUBPROV':                   'FRESH',
+    'PROVISION_CANDIDATE':           'FRESH',
+    'HISTORICAL_SUBPROV_DISCOVERED': 'PREV SEEN',
+    'CONTINUING_OPERATION':          'CONTINUING',       // same operation, new funding tranche
+    'SUBPROV_REACTIVATED':           'REACTIVATED',      // dormant ≥4h, genuine return
+    'BUY_SWARM_PROVISIONER':         'BUY SWARM',
     'TREASURY_MESH':                 'MESH',
-    'SUBPROV_TOP_UP':                'MID-CAMPAIGN',
+    // legacy — historical rows only
+    'KNOWN_SUBPROV_TOPUP':           'CONTINUING',
+    'SUBPROV_TOP_UP':                'CONTINUING',
+    'REARMED_SUBPROV_CANDIDATE':     'REARMED',
     'TEMP_PROMOTED':                 'TEMP PROMOTED',
     'CREATOR':                       'CREATOR',
-    'REARMED_SUBPROV_CANDIDATE':     'REARMED',          // ≥1◎ re-funding of a previously-expired wallet
   };
   // Operator identity: confidence badge colours
   const _confStyle={
@@ -912,40 +1004,99 @@ async function loadWsCascade(){
     'MANUAL':    'background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.3)',
     'LOW':       'background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)',
   };
-  if(body) body.innerHTML=sessions.map(s=>{
+  // Flat rows per subprov — EXCEPT fanout batches (same treasury funded within 10s window)
+  // which collapse to a single ▶ FAN-OUT row with click-to-expand
+  const _mkSubprovRow=(s,indent)=>{
     const reason=s.open_reason||'PROVISION_CANDIDATE';
     const badgeStyle=_typeStyle[reason]||_typeStyle['PROVISION_CANDIDATE'];
     const badgeLabel=_typeLabel[reason]||reason;
-    // Operator column: family label > treasury short > confidence
-    const fam=s.treasury_family;
-    const conf=s.treasury_confidence;
-    const confStyle=_confStyle[conf]||_confStyle['LOW'];
-    let operatorCell='<span class="muted">—</span>';
-    if(fam||conf){
-      const famPart=fam?`<span style="font-size:10px;font-weight:700">${fam.replace(/^(AUTO_PFX_|AUTO_SFX_|WATCHTOWER_)/,'')}</span>`:'';
-      const sep=(fam&&conf)?`<span class="muted" style="margin:0 4px;font-size:9px">·</span>`:'';
-      const confPart=conf?`<span style="font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.3px;${confStyle}">${conf}</span>`:'';
-      operatorCell=famPart+sep+confPart;
-    }
     const cands=s.candidates||0;
     const fanCell=cands>0
-      ? `<span style="font-size:11px;font-weight:800;color:var(--green)">⚡ ${cands}</span>`
-      : `<span class="muted" style="font-size:11px">—</span>`;
-    const wsIcon=s.ws_subscribed
-      ? `<span title="LIVE_ARMED — WebSocket subscribed, candidate pipeline active" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)">ARMED</span>`
-      : `<span title="INTEL_ONLY — funding recorded, no WS subscription" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)">INTEL</span>`;
-    return`<tr style="border-left:3px solid ${cands>0?'var(--green)':'var(--border)'}">
-      <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${wsIcon}</td>
+      ?`<span style="font-size:11px;font-weight:800;color:var(--green)">⚡ ${cands}</span>`
+      :`<span class="muted" style="font-size:11px">—</span>`;
+    const wsIcon=s.monitoring_state==='LIVE_ARMED'
+      ?`<span title="LIVE_ARMED" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)">ARMED</span>`
+      :s.monitoring_state==='POST_CREATE_ACTIVE'
+        ?`<span title="POST_CREATE_ACTIVE" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(251,191,36,.15);color:var(--amber);border:1px solid rgba(251,191,36,.3)">🚀 POST-LAUNCH</span>`
+        :`<span title="INTEL_ONLY" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle;background:rgba(139,148,158,.1);color:var(--text-dim);border:1px solid rgba(139,148,158,.2)">INTEL</span>`;
+    const fam=s.treasury_family; const conf=s.treasury_confidence;
+    const confStyle=_confStyle[conf]||_confStyle['LOW'];
+    const operatorCell=(fam||conf)
+      ?(fam?`<span style="font-size:10px;font-weight:700">${fam.replace(/^(AUTO_PFX_|AUTO_SFX_|WATCHTOWER_)/,'')}</span>`:'')
+       +(fam&&conf?'<span class="muted" style="margin:0 4px;font-size:9px">·</span>':'')
+       +(conf?`<span style="font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.3px;${confStyle}">${conf}</span>`:'')
+      :'<span class="muted">—</span>';
+    return`<tr style="border-left:3px solid ${cands>0?'var(--green)':'var(--border)'}${indent?';background:rgba(0,0,0,.12)':''}">
+      <td${indent?' style="padding-left:20px"':''}><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${wsIcon}</td>
       <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
       <td style="white-space:nowrap">${operatorCell}</td>
-      <td class="num muted" style="white-space:nowrap" title="${s.topup_count>0?`opened: ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(3):'-'}◎\ntop-ups ×${s.topup_count}: +${s.topup_amount_total!=null?(+s.topup_amount_total).toFixed(3):'-'}◎\ntotal: ${s.session_total_sol!=null?(+s.session_total_sol).toFixed(3):'-'}◎`:''}">
-        ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(2):'—'}${s.topup_count>0?`<span style="color:var(--amber);font-size:9px;margin-left:3px">+${s.topup_count} <span style="opacity:.8">(${(+s.session_total_sol).toFixed(2)}◎)</span></span>`:''}
+      <td class="num muted" style="white-space:nowrap" title="${s.topup_count>0?`opened: ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(3):'-'}◎\ntop-ups ×${s.topup_count}: +${s.topup_amount_total!=null?(+s.topup_amount_total).toFixed(3):'-'}◎`:''}">
+        ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(2):'—'}${s.topup_count>0?`<span style="color:var(--amber);font-size:9px;margin-left:3px">+${s.topup_count}</span>`:''}
       </td>
       <td style="text-align:center">${fanCell}</td>
       <td><span style="font-size:10px;font-weight:700;border-radius:5px;padding:2px 7px;letter-spacing:.3px;${badgeStyle}">${badgeLabel}</span></td>
       <td class="num" style="color:${s.ttl_remaining<60?'var(--yellow)':'var(--text-sec)'}">${fmtTTL(s.ttl_remaining)}</td>
-      <td><button data-subprov="${s.subprov}" onclick="dismissSession(this.dataset.subprov)" title="Expire session — unsubscribes WS within 5s" style="font-size:9px;padding:1px 6px;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);cursor:pointer">✕</button></td>
-    </tr>`;}).join('')||'<tr><td colspan="7" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV (ws_cascade daemon must be running and subscribed)</td></tr>';
+      <td><button data-subprov="${s.subprov}" onclick="dismissSession(this.dataset.subprov)" title="Expire session" style="font-size:9px;padding:1px 6px;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);cursor:pointer">✕</button></td>
+    </tr>`;
+  };
+  // Group sessions: per-treasury, burst-collapse (gap <=60s between consecutive fundings)
+  // Build per-treasury sorted lists first, then split into bursts, then merge all bursts sorted by latest funding_time DESC.
+  const _byTreasury={};
+  for(const s of sessions){
+    const t=s.treasury||'';
+    if(!_byTreasury[t]) _byTreasury[t]=[];
+    _byTreasury[t].push(s);
+  }
+  const _allGroups=[];
+  for(const [t,tsessions] of Object.entries(_byTreasury)){
+    const sorted=[...tsessions].sort((a,b)=>(a.funding_time||0)-(b.funding_time||0));
+    let burst=[sorted[0]];
+    for(let i=1;i<sorted.length;i++){
+      const gap=(sorted[i].funding_time||0)-(sorted[i-1].funding_time||0);
+      if(gap<=60){burst.push(sorted[i]);}
+      else{_allGroups.push({treasury:t,sessions:burst});burst=[sorted[i]];}
+    }
+    _allGroups.push({treasury:t,sessions:burst});
+  }
+  // Sort groups by most-recent funding_time DESC so newest burst appears first
+  _allGroups.sort((a,b)=>{
+    const at=Math.max(...a.sessions.map(s=>s.funding_time||0));
+    const bt=Math.max(...b.sessions.map(s=>s.funding_time||0));
+    return bt-at;
+  });
+  const _rows=[]; let _grpIdx=0;
+  for(const grp of _allGroups){
+    const batch=grp.sessions;
+    if(batch.length<=1){
+      _rows.push(_mkSubprovRow(batch[0],false));
+    } else {
+      const gid=`csc-fb-${_grpIdx++}`;
+      const rep=batch[batch.length-1]; // most-recent session as representative
+      const totalCands=batch.reduce((a,r)=>a+(r.candidates||0),0);
+      const totalSol=batch.reduce((a,r)=>a+(r.initial_funding_sol||0),0);
+      const armed=batch.filter(r=>r.monitoring_state==='LIVE_ARMED'||r.monitoring_state==='POST_CREATE_ACTIVE').length;
+      const fanCell=totalCands>0?`<span style="font-size:11px;font-weight:800;color:var(--green)">⚡ ${totalCands}</span>`:`<span class="muted">—</span>`;
+      const fam=rep.treasury_family; const conf=rep.treasury_confidence;
+      const confStyle=_confStyle[conf]||_confStyle['LOW'];
+      const operatorCell=(fam||conf)
+        ?(fam?`<span style="font-size:10px;font-weight:700">${fam.replace(/^(AUTO_PFX_|AUTO_SFX_|WATCHTOWER_)/,'')}</span>`:'')
+         +(fam&&conf?'<span class="muted" style="margin:0 4px;font-size:9px">·</span>':'')
+         +(conf?`<span style="font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.3px;${confStyle}">${conf}</span>`:'')
+        :'<span class="muted">—</span>';
+      _rows.push(`<tr style="border-left:3px solid var(--cyan);background:rgba(34,211,238,.04);cursor:pointer" onclick="const d=document.getElementById('${gid}');d.style.display=d.style.display==='none'?'':'none'">
+        <td><span style="color:var(--cyan);font-size:9px;font-weight:700">▶ FAN-OUT ×${batch.length}</span></td>
+        <td>${rep.treasury?`<span class="addr" onclick="event.stopPropagation();sol('${rep.treasury}')">${short(rep.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+        <td style="white-space:nowrap">${operatorCell}</td>
+        <td class="num muted">${totalSol>=1?Math.round(totalSol):totalSol.toFixed(2)}◎</td>
+        <td style="text-align:center">${fanCell}</td>
+        <td><span style="font-size:9px;color:var(--cyan)">${armed}/${batch.length} ARMED</span></td>
+        <td class="muted" style="font-size:9px">click to expand</td>
+        <td></td>
+      </tr>`);
+      _rows.push(`<tr id="${gid}" style="display:none"><td colspan="8" style="padding:0"><table style="width:100%;border-collapse:collapse">${[...batch].reverse().map(r=>_mkSubprovRow(r,true)).join('')}</table></td></tr>`);
+    }
+  }
+  if(body) body.innerHTML=_rows.join('')||'<tr><td colspan="8" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV (ws_cascade daemon must be running and subscribed)</td></tr>';
   // latest launch banner
   // program watcher shadow panel
   const pw=d.pw||{};
@@ -956,8 +1107,9 @@ async function loadWsCascade(){
       const stateEl=document.getElementById('pw-stream-badge');
       if(stateEl){
         const st=pw.pw_stream_state||'CLOSED';
-        const stColor={ACTIVE:'var(--green)',OPENING:'var(--amber)',DRAINING:'var(--yellow)',CLOSED:'var(--text-sec)'}[st]||'var(--text-sec)';
-        stateEl.textContent=st;stateEl.style.color=stColor;
+        const stDisplay=(st==='DRAINING'||st==='CLOSED')?'OFF':(st==='OPENING'?'OPENING':'ON');
+        const stColor={ON:'var(--green)',OPENING:'var(--amber)',OFF:'var(--text-sec)'}[stDisplay]||'var(--text-sec)';
+        stateEl.textContent=stDisplay;stateEl.style.color=stColor;
       }
       const _set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v??'—';};
       _set('pw-active-candidates', pw.pw_active_candidates);
@@ -1045,6 +1197,48 @@ async function loadLaunchAudit(){
       <td class="num muted">${a.time_to_peak_s!=null?(a.time_to_peak_s>=60?Math.round(a.time_to_peak_s/60)+'m':a.time_to_peak_s+'s'):'—'}</td>
       <td>${outcome}</td>
     </tr>`;}).join('')||'<tr><td colspan="10" class="muted">no audited launches yet — audits appear as the cascade detects launches (or run the backfill)</td></tr>';
+}
+
+// ── CAPITAL RELOAD MONITOR ────────────────────────────────────────────────────
+async function loadCapitalReloads(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/capital-reloads')).json(); }catch(e){ return; }
+  const reloads=d.reloads||[];
+  const total=d.total_sol||0;
+  const te=document.getElementById('reload-total');
+  if(te) te.innerHTML=reloads.length>0
+    ?`<span style="color:#e06c2a;font-size:13px">${reloads.length} event${reloads.length!==1?'s':''} · ${total.toFixed(1)} SOL total</span>`
+    :`<span class="muted" style="font-size:12px">none recorded yet</span>`;
+  const cc=document.getElementById('reload-cards');
+  if(cc && reloads.length>0){
+    const biggest=reloads.reduce((a,b)=>b.amount_sol>a.amount_sol?b:a,reloads[0]);
+    const total_wcc=reloads.reduce((s,r)=>s+(r.wrap_close_count||0),0);
+    cc.innerHTML=`
+      <div class="hcard bad"><div class="v" style="color:#e06c2a">${reloads.length}</div><div class="l">reload events</div></div>
+      <div class="hcard bad"><div class="v" style="color:#e06c2a">${total.toFixed(1)}</div><div class="l">SOL deployed</div></div>
+      <div class="hcard"><div class="v">${biggest.amount_sol.toFixed(1)}</div><div class="l">largest single reload (◎)</div></div>
+      <div class="hcard"><div class="v">${total_wcc.toLocaleString()}</div><div class="l">combined WCC (launch history)</div></div>`;
+  } else if(cc){
+    cc.innerHTML='';
+  }
+  const body=document.getElementById('reload-body');
+  if(body) body.innerHTML=reloads.map(r=>{
+    const amtCol=r.amount_sol>=200?'var(--red)':r.amount_sol>=100?'#e06c2a':'var(--yellow)';
+    const mintCell=r.linked_mint
+      ?`<span class="addr" onclick="sol('${r.linked_mint}')" title="${r.linked_mint}">${short(r.linked_mint)}</span>`
+      :`<span class="muted">unknown</span>`;
+    const creatorCell=r.first_creator
+      ?`<span class="addr" onclick="sol('${r.first_creator}')" title="${r.first_creator}">${short(r.first_creator)}</span>`
+      :`<span class="muted">—</span>`;
+    return`<tr>
+      <td><span class="addr" onclick="sol('${r.subprov}')" title="${r.subprov}">${r.subprov_short}</span></td>
+      <td><span class="addr" onclick="sol('${r.treasury}')" title="${r.treasury}">${r.treasury_short}</span></td>
+      <td class="num"><b style="color:${amtCol}">${r.amount_sol.toFixed(1)}</b></td>
+      <td class="num muted">${(r.wrap_close_count||0).toLocaleString()}</td>
+      <td>${mintCell}</td>
+      <td>${creatorCell}</td>
+      <td><span style="color:var(--red);font-size:10px;font-weight:700">OFF</span></td>
+      <td class="muted" style="font-size:10px">${r.ago||'—'}</td>
+    </tr>`;}).join('')||'<tr><td colspan="8" class="muted">no capital reload events recorded yet — fires when known subprov receives ≥50 SOL</td></tr>';
 }
 
 // ── CREATOR MODES ─────────────────────────────────────────────────────────────
@@ -1424,16 +1618,36 @@ function _confBadge(conf){
   if(conf==='MEDIUM') return`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(240,136,62,.15);color:var(--amber)">MEDIUM</span>`;
   return`<span style="font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:rgba(248,81,73,.12);color:var(--red)">LOW</span>`;
 }
+function _isWalkback(c){ return c.has_walkback_evidence||c.detected_via==='walkback_hop2'; }
+function _wbScore(c){
+  // Walkback-specific confidence: based on structural lineage evidence, not fingerprint signals
+  let s=2; // base: completed 2-hop on-chain lineage reconstruction
+  const nsp=c.distinct_subprovs||1, ncr=c.distinct_creators||1;
+  s+=Math.min(ncr,3);                         // each additional distinct creator is independent corroboration
+  s+=Math.min(nsp-1,2);                       // additional distinct subprovs
+  if((c.out_sol||0)>=500) s+=2;
+  else if((c.out_sol||0)>=50) s+=1;
+  return s;
+}
 function _categoryBadge(c){
   const via=c.detected_via||''; const is3of3=via==='auto_fingerprint_3of3';
   const repeat=(c.occurrences||0)>=2; const highMC=(c.source_token_peak_mc||0)>=25000; const pings=(c.micro_pings||0)>0;
   if(is3of3||(repeat&&highMC)||(repeat&&pings))
     return`<span style="padding:1px 7px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-size:9px;font-weight:800">✓ APPROVE NOW</span>`;
+  if(_isWalkback(c)){
+    const ws=_wbScore(c);
+    if(ws>=7) return`<span style="padding:1px 7px;border-radius:4px;background:rgba(240,136,62,.18);border:1px solid var(--amber);color:var(--amber);font-size:9px;font-weight:800">⛓ INVESTIGATE</span>`;
+    return`<span style="padding:1px 7px;border-radius:4px;background:rgba(240,136,62,.10);border:1px solid rgba(240,136,62,.4);color:var(--amber);font-size:9px;font-weight:700">⛓ WALKBACK LEAD</span>`;
+  }
   if((c.out_sol||0)>=200&&!repeat)
     return`<span style="padding:1px 7px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-size:9px;font-weight:700">👁 WATCH</span>`;
   return`<span style="padding:1px 7px;border-radius:4px;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);color:var(--red);font-size:9px;font-weight:600">✗ REJECT LIKELY</span>`;
 }
 function _computeConfidence(c){
+  if(_isWalkback(c)){
+    const s=_wbScore(c);
+    return s>=7?'HIGH':s>=4?'MEDIUM':'LOW';
+  }
   let s=0;
   if((c.detected_via||'')==='auto_fingerprint_3of3') s+=3;
   if((c.occurrences||0)>=2) s+=2; else if((c.occurrences||0)===1) s+=1;
@@ -1456,7 +1670,14 @@ async function loadTreasuryReview(){
     if(via==='auto_fingerprint_3of3') return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(63,185,80,.18);color:var(--green)">3-of-3</span>`;
     if(via==='micro_ping') return`<span style="font-size:9px;color:var(--text-sec)">ping-seed</span>`;
     if(via==='discovery_lead') return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(0,153,204,.15);color:var(--cyan)">🔭 DISCOVERY</span>`;
+    if(via==='walkback_hop2') return`<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;background:rgba(240,136,62,.18);color:var(--amber)">⛓ WALKBACK HOP-2</span>`;
     return`<span style="font-size:9px;color:var(--text-dim)">migration</span>`;
+  };
+  const srcFlagFull=(c)=>{
+    const base=srcFlag(c.detected_via);
+    if(c.has_walkback_evidence&&c.detected_via!=='walkback_hop2')
+      return base+`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(240,136,62,.15);color:var(--amber);display:block;margin-top:2px">⛓ +walkback</span>`;
+    return base;
   };
   const srcTok=c=>{
     if(!c.source_token) return'<span class="muted" style="font-size:10px">—</span>';
@@ -1480,17 +1701,35 @@ async function loadTreasuryReview(){
       ${reasonHtml?`<ul style="margin:3px 0 0;padding-left:14px">${reasonHtml}</ul>`:''}
     </details>`;
   };
+  const _wbLineage=(c)=>{
+    if(!_isWalkback(c)) return'';
+    const sp=c.subprov_wallet?`<span class="addr" onclick="sol('${c.subprov_wallet}')" title="subprov">${short(c.subprov_wallet)}</span>`:'?';
+    const cr=c.creator_wallet?`<span class="addr" onclick="sol('${c.creator_wallet}')" title="creator">${short(c.creator_wallet)}</span>`:'?';
+    const nsp=c.distinct_subprovs||1, ncr=c.distinct_creators||1;
+    // Parse evidence arrays if present
+    let subprovList=[], creatorList=[];
+    try{ subprovList=JSON.parse(c.evidence_subprovs||'[]'); }catch(e){}
+    try{ creatorList=JSON.parse(c.evidence_creators||'[]'); }catch(e){}
+    const extraSp=subprovList.length>1?` <span style="font-size:8px;color:var(--text-dim)">(${subprovList.length} distinct)</span>`:'';
+    const extraCr=creatorList.length>1?` <span style="font-size:8px;color:var(--text-dim)">(${creatorList.length} distinct)</span>`:'';
+    return`<div style="margin-top:4px;font-size:9px;color:var(--text-sec);line-height:1.7">
+      <span style="color:var(--text-dim)">⛓ via subprov</span> ${sp}${extraSp}
+      <span style="color:var(--text-dim)"> → creator</span> ${cr}${extraCr}
+      ${nsp>1||ncr>1?`<div style="margin-top:2px">${nsp>1?`<span style="padding:1px 4px;border-radius:3px;background:rgba(240,136,62,.15);color:var(--amber);font-size:8px;font-weight:700;margin-right:3px">${nsp} subprovs</span>`:''}${ncr>1?`<span style="padding:1px 4px;border-radius:3px;background:rgba(240,136,62,.15);color:var(--amber);font-size:8px;font-weight:700">${ncr} creators</span>`:''}</div>`:''}
+    </div>`;
+  };
   const pendingRows=cands.map(c=>{
     const isExp=c.detected_via==='expansion_hub'||c.detected_via==='funder_discovery';
     const is3of3=c.detected_via==='auto_fingerprint_3of3';
     const isDL=c.detected_via==='discovery_lead';
+    const isWB=_isWalkback(c);
     const conf=_computeConfidence(c);
-    const rowBg=isExp?'rgba(34,211,238,.07)':is3of3?'rgba(63,185,80,.05)':isDL?'rgba(0,153,204,.05)':'rgba(217,119,6,.04)';
-    const rowBorder=isExp?';border-left:3px solid var(--cyan)':is3of3?';border-left:3px solid var(--green)':isDL?';border-left:3px solid rgba(0,153,204,.6)':'';
+    const rowBg=isExp?'rgba(34,211,238,.07)':is3of3?'rgba(63,185,80,.05)':isDL?'rgba(0,153,204,.05)':isWB?'rgba(240,136,62,.05)':'rgba(217,119,6,.04)';
+    const rowBorder=isExp?';border-left:3px solid var(--cyan)':is3of3?';border-left:3px solid var(--green)':isDL?';border-left:3px solid rgba(0,153,204,.6)':isWB?';border-left:3px solid var(--amber)':'';
     return`<tr style="background:${rowBg}${rowBorder}">
       <td>${_categoryBadge(c)}<span class="addr" onclick="sol('${c.treasury}')" style="display:block;margin-top:2px">${short(c.treasury)}</span>
           <button class="btn ghost" style="font-size:9px;padding:1px 5px;margin-top:2px" onclick="scoreRole('${c.treasury}',this)">score</button>
-          ${_dlEvidence(c)}</td>
+          ${_dlEvidence(c)}${_wbLineage(c)}</td>
       <td>${srcTok(c)}</td>
       <td class="num">${(c.occurrences||0)>1?`<span style="font-weight:800;color:#3fb950">×${c.occurrences}</span>`:`<span class="muted">×${c.occurrences||1}</span>`}</td>
       <td class="num">${c.transfer_pct!=null?c.transfer_pct+'%':'—'}</td>
@@ -1499,7 +1738,7 @@ async function loadTreasuryReview(){
       <td class="num">${c.micro_pings??'—'}</td>
       <td>${sig3(c)}</td>
       <td>${_confBadge(conf)}</td>
-      <td>${srcFlag(c.detected_via)}</td>
+      <td>${srcFlagFull(c)}</td>
       <td style="white-space:nowrap">
         <button class="btn" style="font-size:10px;padding:2px 8px;background:rgba(63,185,80,.15);border-color:var(--green);color:var(--green)"
           onclick="approveTreasury('${c.treasury}','${conf}',this)">✓ Approve</button>
@@ -1633,6 +1872,19 @@ async function dismissSession(subprov){
     if(!r.ok){ const t=await r.text(); alert('HTTP '+r.status+' from '+r.url+'\n\n'+t.slice(0,200)); return; }
     const j=await r.json();
     if(j.ok) setTimeout(loadWsCascade, 200); else alert('Error: '+(j.error||'unknown'));
+  }catch(e){ alert('request failed: '+e); }
+}
+async function dismissAllSessionsFor(treasury){
+  const label=treasury?treasury.slice(0,12)+'…':'(unknown treasury)';
+  if(!confirm(`Expire ALL sessions for ${label}?\n\nAll sub-provisioner WS subscriptions for this treasury will be dropped within 5s.`)) return;
+  try{
+    // Dismiss each session individually — no bulk-by-treasury API yet
+    const sps=(document.querySelectorAll(`[data-subprov]`));
+    // Fall back to dismissAllSessions for now (no treasury filter at API level)
+    const r=await fetch('/api/ops-v2/intel/dismiss-all-sessions',{method:'POST',headers:{'Content-Type':'application/json'}});
+    if(!r.ok){ const t=await r.text(); alert('HTTP '+r.status+'\n\n'+t.slice(0,200)); return; }
+    const j=await r.json();
+    if(j.ok) setTimeout(loadWsCascade, 500); else alert('Error: '+(j.error||'unknown'));
   }catch(e){ alert('request failed: '+e); }
 }
 async function dismissAllSessions(){
@@ -1853,6 +2105,7 @@ function refreshFast(){
   loadCoverageOpportunity();    // ranked EDY widget (ops-DB only, read-only)
   loadWsCascade();
   loadLaunchAudit();
+  loadCapitalReloads();
   loadCreatorModes();
   loadSubprovs();
   loadTreasuryBank();
@@ -1895,6 +2148,172 @@ async function loadUnconfirmedWatchtowerLike(){
   </table><div style="margin-top:8px;font-size:11px;color:var(--text-dim)">${d.total} total leads · review root wallets for treasury confirmation</div>`;
 }
 
+async function loadWalkback(){
+  let d; try{ d=await(await fetch('/api/ops/walkback-queue')).json(); }catch(e){ return; }
+  const el=document.getElementById('walkback-body'); if(!el) return;
+  const bc=d.by_class||{}, bs=d.by_status||{}, bo=d.by_outcome||{};
+  const total=Object.values(bc).reduce((a,b)=>a+b,0);
+  if(total===0){ el.innerHTML='<span class="muted">no walkback entries yet — queue activates on first migration</span>'; return; }
+
+  // ── Intelligence outcome view (primary) ──────────────────────────────────
+  const oc={
+    WATCHTOWER_ATTRIBUTED:{label:'WATCHTOWER ATTRIBUTED', icon:'✓', col:'var(--green)'},
+    TREASURY_CANDIDATE:   {label:'Treasury Candidates',   icon:'⚠', col:'var(--cyan)'},
+    LINEAGE_GAP:          {label:'Lineage Gaps',           icon:'⚠', col:'var(--yellow)'},
+    GRAPH_QUALITY_ISSUE:  {label:'Graph Quality Issues',   icon:'⚠', col:'var(--orange)'},
+    NON_WATCHTOWER:       {label:'Market traffic (non-WATCHTOWER)', icon:' ', col:'var(--text-dim)'},
+    NO_ATTRIBUTION_FOUND: {label:'No Attribution Found',   icon:' ', col:'var(--text-dim)'},
+  };
+  // bo uses WATCHTOWER_CONFIRMED internally; map for display
+  const boDisplay={...bo, WATCHTOWER_ATTRIBUTED: bo['WATCHTOWER_CONFIRMED']||0};
+  const pending=bo['PENDING']||0;
+
+  // Coverage summary bar
+  const wt=bo['WATCHTOWER_CONFIRMED']||0;
+  const nonWt=(bo['NON_WATCHTOWER']||0)+(bo['NO_ATTRIBUTION_FOUND']||0);
+  const wtPct=total>0?((wt/total)*100).toFixed(1):'0.0';
+  const coverageSummary=`<div style="margin-bottom:12px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:4px;font-size:11px">
+    <div style="display:flex;gap:0;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px;padding:2px 0">
+        <span style="color:var(--text-dim)">Total migrations</span>
+        <span style="color:var(--text-pri);font-weight:700;margin-left:8px">${total}</span>
+      </div>
+      <div style="flex:1;min-width:160px;padding:2px 0">
+        <span style="color:var(--text-dim)">WATCHTOWER attributed</span>
+        <span style="color:var(--green);font-weight:700;margin-left:8px">${wt}</span>
+        <span style="color:var(--text-dim);font-size:10px;margin-left:4px" title="Attribution rate: share of all migrated tokens linked to known WATCHTOWER infrastructure">(${wtPct}% attribution rate)</span>
+      </div>
+      <div style="flex:1;min-width:160px;padding:2px 0">
+        <span style="color:var(--text-dim)">Market traffic</span>
+        <span style="color:var(--text-sec);font-weight:700;margin-left:8px">${nonWt}</span>
+      </div>
+      <div style="flex:1;min-width:160px;padding:2px 0">
+        <span style="color:var(--text-dim)">Awaiting attribution</span>
+        <span style="color:var(--cyan);font-weight:700;margin-left:8px">${pending}</span>
+      </div>
+    </div>
+  </div>`;
+
+  const divider=`<tr><td colspan="3"><div style="border-top:1px solid rgba(255,255,255,0.08);margin:4px 0"></div></td></tr>`;
+  // Insert divider before NON_WATCHTOWER
+  const outcomeTable=`<table style="border-collapse:collapse">
+    ${Object.entries(oc).map(([k,v])=>{
+      const n=k==='WATCHTOWER_ATTRIBUTED'?(bo['WATCHTOWER_CONFIRMED']||0):(bo[k]||0);
+      const row=`<tr>
+        <td style="padding:3px 10px 3px 0;color:${v.icon==='⚠'&&n>0?v.col:'var(--text-sec)'};width:20px;font-size:13px">${v.icon}</td>
+        <td style="padding:3px 0;color:${n>0?v.col:'var(--text-dim)'};font-size:12px">${v.label}</td>
+        <td style="padding:3px 0 3px 16px;text-align:right;font-weight:700;color:${n>0?v.col:'var(--text-dim)'};font-size:13px;min-width:40px">${n}</td>
+      </tr>`;
+      return (k==='NON_WATCHTOWER'?divider:'')+row;
+    }).join('')}
+  </table>`;
+
+  const pendingBadge=pending>0
+    ? `<div style="margin-top:10px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:4px">
+        <div style="font-size:11px;color:var(--text-sec);font-weight:600">Background Attribution</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px"><span style="color:var(--cyan);font-weight:600">${pending}</span> unknown creators queued for lineage analysis</div>
+      </div>`
+    : '';
+
+  // ── Queue health + RPC (secondary) ──────────────────────────────────────
+  const statCols={complete:'var(--green)',pending:'var(--cyan)',running:'var(--amber)',skipped:'var(--text-dim)',failed:'var(--red)'};
+  const statusLine=Object.entries(bs).map(([s,n])=>
+    `<span style="color:${statCols[s]||'var(--text-dim)'};margin-right:10px">${s} ${n}</span>`
+  ).join('');
+  const queueHealth=`<div style="margin-top:10px;font-size:11px;color:var(--text-dim)">${statusLine}<span style="margin-left:4px">· RPC credits used: ${d.rpc_total||0}</span></div>`;
+
+  // ── Developer detail (collapsed) ─────────────────────────────────────────
+  const clsCols={
+    LINK_ONLY:'var(--green)', LINK_ONLY_GRAPH:'var(--green)',
+    PARTIAL_TREASURY:'var(--yellow)', PARTIAL_SUBPROV:'var(--amber)',
+    FULL_WALKBACK:'var(--red)', SKIP:'var(--text-dim)',
+    OP_GRAPH_ROLE_MISMATCH:'var(--orange)', SELF_ROOTED_OPERATION:'var(--orange)',
+  };
+  const clsLabels={
+    LINK_ONLY:'LINK_ONLY', LINK_ONLY_GRAPH:'LINK_ONLY_GRAPH',
+    PARTIAL_TREASURY:'PARTIAL_TREASURY',PARTIAL_SUBPROV:'PARTIAL_SUBPROV',
+    FULL_WALKBACK:'FULL_WALKBACK', SKIP:'SKIP',
+    OP_GRAPH_ROLE_MISMATCH:'ROLE_MISMATCH', SELF_ROOTED_OPERATION:'SELF_ROOTED',
+  };
+  const outcCols={
+    WATCHTOWER_CONFIRMED:'var(--green)',TREASURY_CANDIDATE:'var(--cyan)',
+    LINEAGE_GAP:'var(--yellow)',GRAPH_QUALITY_ISSUE:'var(--orange)',
+    NON_WATCHTOWER:'var(--text-dim)',NO_ATTRIBUTION_FOUND:'var(--text-dim)',
+  };
+  // Display label for the internal WATCHTOWER_CONFIRMED value
+  const outcLabels={WATCHTOWER_CONFIRMED:'WATCHTOWER_ATTRIBUTED'};
+  const detailRows=(d.recent||[]).map(r=>`<tr>
+    <td><span class="addr" onclick="sol('${r.mint}')">${short(r.mint)}</span></td>
+    <td><span class="addr" onclick="sol('${r.creator||''}')">${r.creator?short(r.creator):'—'}</span></td>
+    <td><span style="color:${r.intelligence_outcome?outcCols[r.intelligence_outcome]||'var(--text-dim)':'var(--text-dim)'};font-weight:600;font-size:10px">${r.intelligence_outcome?(outcLabels[r.intelligence_outcome]||r.intelligence_outcome):'pending'}</span></td>
+    <td><span style="color:${clsCols[r.walkback_class]||'var(--text-dim)'};font-size:10px">${clsLabels[r.walkback_class]||r.walkback_class}</span></td>
+    <td class="muted" style="font-size:10px">${r.attribution_source||'—'}</td>
+    <td class="num muted" style="font-size:10px">${ago(r.enqueued_at)}</td>
+  </tr>`).join('');
+
+  const devDetail=`<details style="margin-top:12px">
+    <summary style="font-size:11px;color:var(--text-dim);cursor:pointer;user-select:none">Developer detail (${(d.recent||[]).length} recent entries)</summary>
+    <table style="width:100%;font-size:11px;margin-top:6px">
+      <thead><tr><th>Mint</th><th>Creator</th><th>Outcome</th><th>Class</th><th>Source</th><th>Enqueued</th></tr></thead>
+      <tbody>${detailRows}</tbody>
+    </table>
+  </details>`;
+
+  el.innerHTML=coverageSummary+outcomeTable+pendingBadge+queueHealth+devDetail;
+}
+
+async function loadCdc(){
+  let d; try{ d=await(await fetch('/api/ops/cdc-intelligence')).json(); }catch(e){ return; }
+  const el=document.getElementById('cdc-body'); if(!el) return;
+  if(!d.cdcs||d.cdcs.length===0){
+    el.innerHTML='<span class="muted">no capital distributor candidates observed yet</span>'; return;
+  }
+  const stateCol={OBSERVING:'var(--cyan)',SUBSCRIBED:'var(--green)',INACTIVE:'var(--text-dim)'};
+  const rows=d.cdcs.map(c=>`<tr>
+    <td><span class="addr" onclick="sol('${c.wallet}')">${short(c.wallet)}</span></td>
+    <td><span class="addr" onclick="sol('${c.source_treasury}')">${short(c.source_treasury)}</span></td>
+    <td class="num">${c.funding_sol.toFixed(1)}◎</td>
+    <td><span style="color:${stateCol[c.state]||'var(--text-dim)'};font-weight:600">${c.state}</span></td>
+    <td class="num muted">${ago(c.first_seen)}</td>
+    <td class="num muted">${c.last_activity_ago!=null?ago2(c.last_activity_ago):'—'}</td>
+    <td class="num">${c.total_outbound_sol.toFixed(1)}◎</td>
+    <td class="num">${c.recipient_count}</td>
+    <td class="num">${c.fanout_count}</td>
+    <td><span class="muted">${c.derived_role}</span></td>
+  </tr>`).join('');
+  const cnt=d.counts||{};
+  const hdr=`<div style="font-size:11px;margin-bottom:8px;color:var(--text-sec)">
+    <span style="color:var(--cyan)">${cnt.observing||0} OBSERVING</span> ·
+    <span style="color:var(--green)">${cnt.subscribed||0} SUBSCRIBED</span> ·
+    <span style="color:var(--text-dim)">${cnt.inactive||0} INACTIVE</span>
+    <span style="float:right;color:var(--text-dim);font-size:10px">intelligence only — no ProgramWatcher, no candidates</span>
+  </div>`;
+  el.innerHTML=hdr+`<table style="width:100%;font-size:12px">
+    <thead><tr>
+      <th>Wallet</th><th>Source Treasury</th><th>Funded</th><th>State</th>
+      <th>First seen</th><th>Last active</th><th>Outbound</th><th>Recipients</th><th>Fanouts</th><th>Role</th>
+    </tr></thead><tbody>${rows}</tbody>
+  </table>`;
+}
+
+function ago2(s){ if(s==null)return'—'; if(s<60)return s+'s ago'; if(s<3600)return Math.floor(s/60)+'m ago'; return Math.floor(s/3600)+'h ago'; }
+
+// ── DUST OBSERVATORY summary card ──────────────────────────────────────────────
+async function loadDustObservatory(){
+  let d; try{ d=await(await fetch('/api/ops-v2/dust-observatory')).json(); }catch(e){ return; }
+  if(!d||!d.ok) return;
+  const intel=d.intel||{};
+  const markers=d.markers||[];
+  function el(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+  el('do-markers', markers.length);
+  el('do-obs', intel.total_observations||0);
+  el('do-recipients', intel.total_recipients||0);
+  el('do-classified', (intel.classified_pct||0)+'%');
+  el('do-new7d', (intel.new_roles_7d||[]).reduce((s,r)=>s+(r.count||0),0));
+  const top=(intel.role_breakdown||[]).sort((a,b)=>b.count-a.count)[0];
+  el('do-top-role', top ? top.role.replace(/_/g,' ')+' ('+top.count+')' : '—');
+}
+
 function refreshSlow(){
   loadApexFunders();       // 30d-filtered, but still live-DB GROUP BY — 60s is enough
   loadVanity();
@@ -1902,6 +2321,9 @@ function refreshSlow(){
   loadRuntimeBudget();     // runtime health — counters reset on process restart
   loadScheduler();         // scheduler pressure card
   loadUnconfirmedWatchtowerLike();
+  loadCdc();
+  loadWalkback();
+  loadDustObservatory();   // intelligence layer card — 60s is fine
 }
 
 refreshFast();
@@ -1910,6 +2332,9 @@ loadDiscoveryLeads();           // initial load — don't wait 60s for first ren
 loadUnconfirmedWatchtowerLike(); // initial load
 loadRuntimeBudget();    // initial load
 loadScheduler();        // initial load
+loadCdc();              // initial load
+loadWalkback();         // initial load
+loadDustObservatory();  // initial load
 setInterval(refreshFast, 15000);
 setInterval(refreshSlow, 60000);  // Phase 3: apex funders moved to 60s
 </script>

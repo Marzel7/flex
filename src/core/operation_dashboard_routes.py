@@ -1350,9 +1350,17 @@ def api_intel_token_performance():
     try:
         # confirmed WATCHTOWER launch mints (strongest tag) + buy-swarm subprov→mint links
         wt_launch_mints, swarm_mints = set(), set()
+        wt_detection_by_mint = {}
         try:
-            wt_launch_mints = {r[0] for r in ov.execute(
-                "SELECT mint FROM wt_watchtower_launches WHERE mint IS NOT NULL").fetchall()}
+            for r in ov.execute(
+                "SELECT mint, detection_source, detection_delay_seconds "
+                "FROM wt_watchtower_launches WHERE mint IS NOT NULL"
+            ).fetchall():
+                wt_launch_mints.add(r[0])
+                wt_detection_by_mint[r[0]] = {
+                    "source": r[1],
+                    "delay_seconds": r[2],
+                }
         except Exception:
             pass
         # FARM clustering (operator detection beyond WATCHTOWER) — mint → {funder, mechanism,...}.
@@ -1450,7 +1458,24 @@ def api_intel_token_performance():
 
         # treat discovery mints as WATCHTOWER for tagging even if they also have a watch_candidate row
         wt_launch_mints = set(wt_launch_mints)   # cascade-confirmed (gets the ✓)
-        _wt_tag_mints = wt_launch_mints | discovery_mints | attribution_mints
+        # candidate-lineage: resolve creator→mint via bulk attach (zero per-row RPC)
+        candidate_lineage_mints = {}  # mint → subprov
+        try:
+            # Attach live DB to ov (ops conn) — NOT to live (read-only URI conn can't ATTACH r/w DBs)
+            _live_db_path = LIVE_DB_PATH
+            ov.execute(f"ATTACH DATABASE 'file:{_live_db_path}?mode=ro' AS _live")
+            for r in ov.execute(
+                "SELECT t.mint, c.subprov_wallet FROM _live.token_analysis t "
+                "JOIN wt_candidate_websocket_watches c "
+                "  ON t.earliest_tx_creator=c.candidate_wallet OR t.pf_ws_creator=c.candidate_wallet "
+                "WHERE c.candidate_wallet IS NOT NULL"
+            ).fetchall():
+                candidate_lineage_mints[r[0]] = r[1]
+            ov.execute("DETACH DATABASE _live")
+        except Exception:
+            try: ov.execute("DETACH DATABASE _live")
+            except Exception: pass
+        _wt_tag_mints = wt_launch_mints | discovery_mints | attribution_mints | set(candidate_lineage_mints.keys())
 
         # UNION the confirmed cascade launches not already present (they get the ✓ badge).
         # cascade launch create_times (so a just-caught launch not yet in token_analysis still
@@ -1502,6 +1527,7 @@ def api_intel_token_performance():
         # That's high-signal and must NOT be buried in generic UNKNOWN. A serial creator (n>1) is
         # noise → stays UNKNOWN. The creator-count subquery does the split.
         try:
+            _now = int(time.time())
             for r in live.execute(
                 "SELECT ta.mint, ta.market_cap_highest, ta.market_cap_current, ta.first_observed_mc, "
                 "ta.migrated_at, ta.lifecycle_stage, ta.risk_level, ta.rug_probability, "
@@ -1517,7 +1543,8 @@ def api_intel_token_performance():
                     continue
                 seen_mints.add(m)
                 ctok = tr.pop("creator_tokens", None)
-                is_fresh = (ctok == 1)   # single-use creator = FRESH (WATCHTOWER-style signature)
+                _age_s = _now - (tr.get("migrated_at") or _now)
+                is_fresh = (ctok == 1) and (_age_s < 3600)  # single-use creator AND migrated within 1h
                 rows.append({"mint": m,
                              "classified_as": "FRESH" if is_fresh else "UNKNOWN",
                              "classification_conf": None,
@@ -1573,6 +1600,22 @@ def api_intel_token_performance():
         except Exception:
             pass
 
+        # CEX funder per creator — batch lookup from creator_funders for FRESH label
+        cex_by_creator = {}
+        try:
+            all_creators = [r.get("creator_address") for r in rows if r.get("creator_address")]
+            if all_creators:
+                cph = ",".join("?" * len(all_creators))
+                for cr, faddr, cex_ex, cex_ty in live.execute(
+                    f"SELECT creator_address, funder_address, cex_exchange, cex_type "
+                    f"FROM creator_funders WHERE is_cex=1 AND creator_address IN ({cph}) "
+                    f"AND cex_exchange IS NOT NULL AND cex_exchange NOT LIKE 'Unknown%' "
+                    f"GROUP BY creator_address", all_creators).fetchall():
+                    if cr not in cex_by_creator:
+                        cex_by_creator[cr] = {"funder": faddr, "cex_label": cex_ex, "cex_type": cex_ty}
+        except Exception:
+            pass
+
         out = []
         for r in rows:
             mint = r["mint"]
@@ -1605,6 +1648,8 @@ def api_intel_token_performance():
             rec = {
                 "mint": mint, "tag": tag,
                 "wt_confirmed": is_wt_confirmed, "swarm": is_swarm,
+                "wt_detection_source": (wt_detection_by_mint.get(mint) or {}).get("source"),
+                "wt_detection_delay_seconds": (wt_detection_by_mint.get(mint) or {}).get("delay_seconds"),
                 "uwl_subprov": (uwl or {}).get("subprov"),
                 "uwl_root": (uwl or {}).get("root"),
                 "uwl_hop": (uwl or {}).get("hop"),
@@ -1613,6 +1658,8 @@ def api_intel_token_performance():
                 "farm_creators": (farm or {}).get("farm_creators"),
                 "farm_funder_type": (farm or {}).get("funder_type"),
                 "farm_cex_label": (farm or {}).get("cex_label"),
+                "creator_cex_label": (cex_by_creator.get(r.get("creator_address")) or {}).get("cex_label"),
+                "creator_cex_funder": (cex_by_creator.get(r.get("creator_address")) or {}).get("funder"),
                 "classification_conf": r.get("classification_conf"),
                 "classification_reason": r.get("classification_reason"),
                 "prediction_score": r.get("prediction_score"),
@@ -1910,135 +1957,98 @@ def _treasury_tx_24h(treasury: str, ov) -> int:
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/treasury-funders")
 def api_intel_treasury_funders():
-    """The APEX layer: wallets that FUND the confirmed treasuries (the layer above).
-    Computed LIVE from the inbound-hit log every call (zero RPC, always current — no stale
-    snapshot table). A funder that funds MULTIPLE treasuries is a shared apex (links the
-    operation); subprov-sweeps (a subprov recycling capital back up) are flagged separately.
-    These are the predicted next-rotation sources."""
-    ov = _conn(); live = _live_conn()
+    """Apex Funders panel — read-only aggregation over wt_treasury_funders (ops DB only).
+
+    Zero RPC. No writes. No live-DB access. No lock risk.
+    wt_treasury_funders is a pre-aggregated summary written by the cascade as it observes
+    inbound treasury funding events; this endpoint only reads and reshapes it.
+
+    Query param: window = 24h | 7d | 30d | all  (default: 30d)
+    """
+    import sqlite3 as _sq, time as _t, collections as _col
+    from src.core.ws_cascade_store import OPS_DB_PATH
+
+    _WINDOWS = {"24h": 86400, "7d": 604800, "30d": 2592000}
+    window = request.args.get("window", "30d")
+    cutoff = int(_t.time()) - _WINDOWS.get(window, _WINDOWS["30d"]) if window != "all" else 0
+
+    conn = _sq.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=5,
+                       check_same_thread=False)
+    conn.row_factory = _sq.Row
     try:
-        confirmed = {r[0] for r in ov.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
-        if not confirmed:
-            return jsonify({"funders": [], "shared_apexes": [], "count": 0})
-        subprovs = set()
-        buyswarm_wallets = set()       # wallets the system ALREADY classified BUY_SWARM (local, zero RPC)
-        try:
-            # known subprovs = BOTH sources (wrap-close candidates AND the discovered-subprov table).
-            # A known subprov sending into a treasury is SWEEP (recycling up), NOT external capital —
-            # reading only wt_wrap_close_candidates missed subprovs that live only in
-            # wt_discovered_subprovs (e.g. DZ81n7cc, 8oackoLD → were false EXTERNAL leads).
-            subprovs = {r[0] for r in ov.execute(
-                "SELECT DISTINCT subprov_wallet FROM wt_wrap_close_candidates WHERE subprov_wallet IS NOT NULL").fetchall()}
-            try:
-                subprovs |= {r[0] for r in ov.execute(
-                    "SELECT subprov FROM wt_discovered_subprovs WHERE subprov IS NOT NULL").fetchall()}
-            except Exception:
-                pass
-            # a wallet is buy-swarm infra if it (or its wrap-close children) were marked BUY_SWARM —
-            # the subprov runs a trading/fan-out op (wallets SWAP many tokens, never CREATE).
-            for r in ov.execute(
-                "SELECT subprov_wallet, creator FROM wt_wrap_close_candidates WHERE state='BUY_SWARM'").fetchall():
-                if r[0]:
-                    buyswarm_wallets.add(r[0])
-                if r[1]:
-                    buyswarm_wallets.add(r[1])
-        except Exception:
-            pass
-        ph = ",".join("?" * len(confirmed))
-        # inbound capital to confirmed treasuries — 30-day window prevents unbounded scan
-        # over the full wt_webhook_hits table (54k rows, no time cap was the lock risk).
-        _30d = "AND block_time > strftime('%s','now')-2592000"
-        rows = live.execute(
-            f"SELECT wallet_address treasury, counterparty funder, COUNT(*) n, "
-            f"SUM(amount_sol) tot, MAX(amount_sol) mx, MAX(block_time) ls "
-            f"FROM wt_webhook_hits WHERE direction='inbound' AND amount_sol > 1 "
-            f"AND counterparty IS NOT NULL AND wallet_address IN ({ph}) {_30d} "
-            f"GROUP BY wallet_address, counterparty", list(confirmed)).fetchall()
-        # RECYCLING detection: a (treasury,funder) pair where the treasury ALSO sent OUT to the
-        # funder = the funder is recycling treasury money back, NOT genuine external capital.
-        # Needs the bidirectional log (treasury outbounds — fixed via composite-PK storage).
-        paid_back = set()
-        out_to_funder = {}             # funder → total SOL the treasuries sent OUT to it (for net-flow)
-        try:
-            for r in live.execute(
-                f"SELECT wallet_address t, counterparty f, SUM(amount_sol) o FROM wt_webhook_hits "
-                f"WHERE direction='outbound' AND counterparty IS NOT NULL AND wallet_address IN ({ph}) {_30d} "
-                f"GROUP BY wallet_address, counterparty",
-                list(confirmed)).fetchall():
-                paid_back.add((r["t"], r["f"]))
-                out_to_funder[r["f"]] = (out_to_funder.get(r["f"], 0.0) + (r["o"] or 0.0))
-        except Exception:
-            pass
-        agg = {}
-        for r in rows:
-            f = r["funder"]
-            d = agg.setdefault(f, {"funder": f, "treasuries": set(), "recycled_to": set(),
-                                   "fund_count": 0, "total_sol": 0.0, "max_sol": 0.0, "last_seen": 0,
-                                   "is_subprov_sweep": 1 if f in subprovs else 0})
-            d["treasuries"].add(r["treasury"])
-            if (r["treasury"], f) in paid_back:
-                d["recycled_to"].add(r["treasury"])
-            d["fund_count"] += r["n"] or 0
-            d["total_sol"] += r["tot"] or 0
-            d["max_sol"] = max(d["max_sol"], r["mx"] or 0)
-            d["last_seen"] = max(d["last_seen"], r["ls"] or 0)
+        conn.execute("PRAGMA busy_timeout=5000")
+
+        # Ensure indexes exist (create-if-missing, safe on read-only connection via attached check)
+        # Note: can't CREATE INDEX on a mode=ro connection — indexes must exist already.
+        # We verify via the writable path at startup; see ensure_cascade_schema.
+
+        # Confirmed treasury set for TREASURY_MESH classification
+        confirmed = {r[0] for r in conn.execute(
+            "SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+
+        # Time-window filter on last_seen
+        time_clause = "AND last_seen >= ?" if cutoff else ""
+        params = (cutoff,) if cutoff else ()
+
+        # One row per (funder, treasury) — aggregate across treasuries per funder
+        sql = f"""
+            SELECT
+                funder,
+                COUNT(DISTINCT treasury)   AS treasuries_funded,
+                SUM(fund_count)            AS fund_count,
+                ROUND(SUM(total_sol), 1)   AS total_sol,
+                ROUND(MAX(max_sol), 1)     AS max_sol,
+                MAX(last_seen)             AS last_seen,
+                MAX(is_subprov_sweep)      AS is_subprov_sweep
+            FROM wt_treasury_funders
+            WHERE 1=1 {time_clause}
+            GROUP BY funder
+            ORDER BY treasuries_funded DESC, total_sol DESC
+            LIMIT 100
+        """
+        rows = conn.execute(sql, params).fetchall()
+
+        _RANK = {"TREASURY_MESH": 0, "HUB": 1, "EXTERNAL": 2, "SWEEP": 3}
         funders = []
-        for d in agg.values():
-            tf = len(d["treasuries"])
-            d["treasuries_funded"] = tf
-            d["is_known_treasury"] = d["funder"] in confirmed
-            # recycling = treasury paid this funder back for at least one of the pairs
-            d["is_recycling"] = len(d["recycled_to"]) > 0
-            d.pop("treasuries"); d.pop("recycled_to")
-            d["is_shared_apex"] = tf > 1 and not d["is_subprov_sweep"]
-            d["total_sol"] = round(d["total_sol"], 1)
-            # BUY-SWARM signals (local, zero RPC):
-            #  (a) the wallet is already BUY_SWARM-classified (it/its wrap-close children SWAP
-            #      many tokens, never CREATE), OR
-            #  (b) net-NEGATIVE treasury flow: the treasury sent it MORE than came back (out > in
-            #      by a margin) — the fingerprint of a TRADING op (capital spent on tokens),
-            #      distinct from RECYCLING (a wash, net ≈ 0).
-            _out = out_to_funder.get(d["funder"], 0.0)
-            _in = d["total_sol"]
-            d["treasury_out_sol"] = round(_out, 1)
-            d["net_to_treasury_sol"] = round(_in - _out, 1)
-            # net-negative flow is AMBIGUOUS — it's the fingerprint of a trading op AND of an active
-            # SUB-PROVISIONER pushing capital DOWN to creators (both spend, don't return). So the FLOW
-            # heuristic alone must NOT tag a known subprov (has wrap-close fan-out) as BUY_SWARM —
-            # only EXPLICIT membership does: its wrap-close children were on-chain SWAP-classified
-            # (state='BUY_SWARM'), which is the authoritative create-vs-swap discriminator. A single
-            # treasury can run BOTH arms via sibling subprovs — e.g. 5JWii73 funds GnaMKX (15 SWAP
-            # children → correctly BUY_SWARM) AND 642MWKJDVt (provisioned FFRQbb…pump, $45k migrated).
-            _net_negative_trade = _out > 0 and (_in < _out * 0.9)   # returned <90% → spent (trades OR provisioning)
-            d["is_buy_swarm"] = (d["funder"] in buyswarm_wallets) or (
-                _net_negative_trade and d["funder"] not in subprovs)
-            # ── EXPANSION CLASS (priority order) — the network-growth classifier ──
-            # MESH (known treasury funds another) and HUB (funds multiple treasuries) are
-            # structural network signals that OUTRANK everything — a wallet linking treasuries
-            # is a hub even if it also trades/recycles. BUY_SWARM/recycling/sweep are
-            # "not-an-expansion-lead" categories for single-treasury funders.
-            if d["is_known_treasury"]:
-                d["expansion_class"] = "TREASURY_MESH"    # known treasury funds another = mesh growth ★★★
+        for r in rows:
+            funder = r["funder"]
+            tf = r["treasuries_funded"] or 0
+            is_sweep = bool(r["is_subprov_sweep"])
+            is_mesh = funder in confirmed
+
+            if is_mesh:
+                cls = "TREASURY_MESH"
             elif tf > 1:
-                d["expansion_class"] = "HUB"              # funds multiple treasuries = network hub ★★
-            elif d["is_buy_swarm"]:
-                d["expansion_class"] = "BUY_SWARM"        # treasury-funded TRADING op (swaps many tokens, net-negative) — NOT a lead
-            elif d["is_subprov_sweep"]:
-                d["expansion_class"] = "SWEEP"            # subprov recycling up
-            elif d["is_recycling"]:
-                d["expansion_class"] = "RECYCLING"        # treasury funded it first, pays back (wash)
+                cls = "HUB"
+            elif is_sweep:
+                cls = "SWEEP"
             else:
-                d["expansion_class"] = "EXTERNAL"         # genuine external capital → expansion candidate ★
-            funders.append(d)
-        # expansion-priority first: mesh > hub > external, then the non-lead categories, then recency
-        _rank = {"TREASURY_MESH": 0, "HUB": 1, "EXTERNAL": 2, "BUY_SWARM": 3, "RECYCLING": 4, "SWEEP": 5}
-        funders.sort(key=lambda x: (_rank.get(x["expansion_class"], 5), -(x["last_seen"] or 0)))
-        from collections import Counter as _C
-        return jsonify({"funders": funders, "count": len(funders),
-                        "shared_apexes": [f["funder"] for f in funders if f["is_shared_apex"]],
-                        "class_counts": dict(_C(f["expansion_class"] for f in funders))})
+                cls = "EXTERNAL"
+
+            funders.append({
+                "funder":           funder,
+                "treasuries_funded": tf,
+                "max_sol":          r["max_sol"] or 0,
+                "total_sol":        r["total_sol"] or 0,
+                "fund_count":       r["fund_count"] or 0,
+                "expansion_class":  cls,
+                "last_seen":        r["last_seen"],
+                "is_shared_apex":   tf > 1 and not is_sweep,
+                "is_subprov_sweep": is_sweep,
+                "is_known_treasury": is_mesh,
+            })
+
+        funders.sort(key=lambda x: (_RANK.get(x["expansion_class"], 9), -(x["last_seen"] or 0)))
+        cc = dict(_col.Counter(f["expansion_class"] for f in funders))
+        return jsonify({
+            "funders":       funders,
+            "count":         len(funders),
+            "shared_apexes": [f["funder"] for f in funders if f["is_shared_apex"]],
+            "class_counts":  cc,
+            "window":        window,
+        })
     finally:
-        ov.close(); live.close()
+        conn.close()
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/subprovs")
@@ -2194,7 +2204,7 @@ def api_intel_ws_cascade():
             "NULL AS initial_funding_amount, 0 AS topup_count, 0.0 AS topup_amount_total, NULL AS last_topup_at"
         _sess_raw = ov.execute(
             f"SELECT subprov_wallet, treasury_wallet, funding_amount, funding_time, "
-            f"detected_at, expires_at, open_reason, COALESCE(monitoring_state,'LIVE_ARMED') as monitoring_state, {_topup_cols} "
+            f"detected_at, expires_at, open_reason, COALESCE(monitoring_state,'INTEL_ONLY') as monitoring_state, {_topup_cols} "
             "FROM wt_active_subprov_sessions WHERE state='ACTIVE' "
             "ORDER BY detected_at DESC").fetchall()
         _by_subprov: dict = {}
@@ -2210,7 +2220,8 @@ def api_intel_ws_cascade():
                     "ttl_remaining": max(0, (r["expires_at"] or now) - now),
                     "open_reason": r["open_reason"] or "PROVISION_CANDIDATE",
                     "monitoring_state": r["monitoring_state"],
-                    "ws_subscribed": r["monitoring_state"] == "LIVE_ARMED",
+                    "ws_subscribed": r["monitoring_state"] in ("LIVE_ARMED", "POST_CREATE_ACTIVE"),
+                    "post_create_active": r["monitoring_state"] == "POST_CREATE_ACTIVE",
                     "initial_funding_sol": initial,
                     "topup_count": r["topup_count"] or 0,
                     "topup_amount_total": topup_total,
@@ -2223,7 +2234,8 @@ def api_intel_ws_cascade():
         _cand_counts = {
             row[0]: row[1] for row in ov.execute(
                 "SELECT subprov_wallet, COUNT(DISTINCT candidate_wallet) FROM wt_candidate_websocket_watches "
-                "WHERE state IN ('WATCHING','AUDIT_ONLY') GROUP BY subprov_wallet").fetchall()
+                "WHERE state='WATCHING' AND expires_at > ? "
+                "GROUP BY subprov_wallet", (now,)).fetchall()
         }
         # Enrich each session with treasury identity from confirmed_treasuries + vanity_families
         _treasury_set = {s["treasury"] for s in _by_subprov.values() if s.get("treasury")}
@@ -2266,7 +2278,7 @@ def api_intel_ws_cascade():
                 s["treasury_out_sol"]    = tm.get("out_sol")
                 s["treasury_recipients"] = tm.get("recipients")
             sessions.append(s)
-        sessions.sort(key=lambda s: s["candidates"], reverse=True)
+        sessions.sort(key=lambda s: s.get("funding_time") or 0, reverse=True)
         # candidate watches grouped by subprov — one entry per unique (candidate, subprov)
         watches = {}
         total_watching = 0
@@ -2274,8 +2286,9 @@ def api_intel_ws_cascade():
             "SELECT candidate_wallet, subprov_wallet, "
             "  MAX(funding_amount) as funding_amount, MAX(expires_at) as expires_at "
             "FROM wt_candidate_websocket_watches WHERE state='WATCHING' AND subprov_wallet IS NOT NULL "
+            "  AND expires_at > ? "
             "GROUP BY candidate_wallet, subprov_wallet "
-            "ORDER BY MAX(expires_at) DESC").fetchall():
+            "ORDER BY MAX(expires_at) DESC", (now,)).fetchall():
             total_watching += 1
             watches.setdefault(r["subprov_wallet"], []).append({
                 "candidate": r["candidate_wallet"], "amount": r["funding_amount"],
@@ -2384,6 +2397,43 @@ def api_intel_ws_cascade():
     })
 
 
+_SUPERVISORD_CONF = os.path.join(_REPO_ROOT, "config", "supervisor", "supervisord.conf")
+_ARMED_FLAGS = {
+    "WS_PROGRAM_CREATE_WATCHER_ENABLED": "1",
+    "WS_SAVE_CANDIDATE_FANOUT": "1",
+}
+
+def _armed_enabled() -> bool:
+    try:
+        return open(_ARMED_STATE_FILE).read().strip() == "1"
+    except Exception:
+        return False
+
+_ARMED_STATE_FILE = os.path.join(_REPO_ROOT, "database", "armed_mode.txt")
+
+def _set_armed(enabled: bool):
+    """Write armed state to a file the cascade reads on startup, then SIGTERM the cascade.
+    Supervisord restarts it automatically; the new process reads the file — no supervisord
+    reload needed, so gunicorn stays up and the HTTP response returns normally."""
+    import subprocess
+    open(_ARMED_STATE_FILE, "w").write("1" if enabled else "0")
+    subprocess.run(["pkill", "-TERM", "-f", "ws_cascade"], capture_output=True)
+
+
+@ops_dashboard_bp.route("/api/ops/armed-mode", methods=["GET"])
+def api_armed_mode_get():
+    return jsonify({"armed": _armed_enabled()})
+
+
+@ops_dashboard_bp.route("/api/ops/armed-mode", methods=["POST"])
+def api_armed_mode_set():
+    data = request.get_json(silent=True) or {}
+    if "armed" not in data:
+        return jsonify({"ok": False, "error": "armed field required"}), 400
+    _set_armed(bool(data["armed"]))
+    return jsonify({"ok": True, "armed": bool(data["armed"])})
+
+
 def _ops_dismiss_write(sql, params=()):
     """Execute a single write against the ops DB. WAL mode is already on; use a plain
     deferred transaction with a long busy_timeout so SQLite retries automatically."""
@@ -2401,12 +2451,19 @@ def _ops_dismiss_write(sql, params=()):
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/dismiss-all-sessions", methods=["POST"])
 def api_dismiss_all_sessions():
-    """Expire ALL active sessions immediately."""
+    """Expire ALL active sessions + their candidates immediately."""
     import time as _t
     try:
+        now = int(_t.time())
         n = _ops_dismiss_write(
             "UPDATE wt_active_subprov_sessions SET expires_at=0, closed_at=? WHERE state='ACTIVE'",
-            (int(_t.time()),))
+            (now,))
+        # Expire all WATCHING candidates so ProgramWatcher closes the CREATE stream
+        _ops_dismiss_write(
+            "UPDATE wt_wrap_close_candidates SET state='EXPIRED' WHERE state='WATCHING'")
+        _ops_dismiss_write(
+            "UPDATE wt_candidate_websocket_watches SET state='EXPIRED', close_reason='dismissed', closed_at=? WHERE state='WATCHING'",
+            (now,))
         return jsonify({"ok": True, "dismissed": n})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -2433,9 +2490,17 @@ def api_dismiss_session():
     if not row:
         return jsonify({"ok": False, "error": "no active session found"}), 404
     try:
+        now = int(_t.time())
         _ops_dismiss_write(
             "UPDATE wt_active_subprov_sessions SET expires_at=0, closed_at=? WHERE id=?",
-            (int(_t.time()), row[0]))
+            (now, row[0]))
+        # Expire candidates from this subprov so ProgramWatcher removes them
+        _ops_dismiss_write(
+            "UPDATE wt_wrap_close_candidates SET state='EXPIRED' WHERE subprov_wallet=? AND state='WATCHING'",
+            (subprov,))
+        _ops_dismiss_write(
+            "UPDATE wt_candidate_websocket_watches SET state='EXPIRED', close_reason='dismissed', closed_at=? WHERE subprov_wallet=? AND state='WATCHING'",
+            (now, subprov))
         return jsonify({"ok": True, "subprov": subprov, "session_id": row[0]})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -2494,6 +2559,44 @@ def api_intel_launch_audit():
     except Exception:
         report = None
     return jsonify({"launches": launches, "report": report})
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/capital-reloads")
+def api_intel_capital_reloads():
+    """Capital Reload panel — large treasury injections into known launched subprovs.
+    These are post-launch capital deployment events (price action / liquidity / buy-swarm support),
+    NOT new creator signals. ProgramWatcher is never armed by these events."""
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_capital_reloads"):
+            return jsonify({"reloads": [], "total_sol": 0})
+        rows = ov.execute(
+            "SELECT subprov, treasury, sig, amount_sol, wrap_close_count, "
+            "first_creator, linked_mint, recorded_at "
+            "FROM wt_capital_reloads ORDER BY recorded_at DESC LIMIT 50"
+        ).fetchall()
+        reloads = []
+        for r in rows:
+            subprov, treasury, sig, amount_sol, wcc, first_creator, linked_mint, recorded_at = r
+            reloads.append({
+                "subprov": subprov,
+                "subprov_short": subprov[:10] + "…" if subprov else "",
+                "treasury": treasury,
+                "treasury_short": treasury[:10] + "…" if treasury else "",
+                "sig": sig,
+                "amount_sol": round(amount_sol or 0, 2),
+                "wrap_close_count": wcc or 0,
+                "first_creator": first_creator,
+                "linked_mint": linked_mint,
+                "recorded_at": recorded_at,
+                "ago": _ago(recorded_at) if recorded_at else None,
+            })
+        total_sol = sum(r["amount_sol"] for r in reloads)
+        return jsonify({"reloads": reloads, "total_sol": round(total_sol, 2)})
+    except Exception as e:
+        return jsonify({"reloads": [], "total_sol": 0, "error": str(e)})
+    finally:
+        ov.close()
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/vanity-families")
@@ -3852,6 +3955,7 @@ def api_intel_coverage_summary():
         # Parse per-tier WS subscription counts + lifecycle state from heartbeat meta
         hb_subs = hb_treasury_subs = hb_subprov_subs = hb_candidate_subs = 0
         hb_lifecycle = None
+        hb_reconnect_gen = None
         try:
             import json as _json
             if hb and hb["meta_json"]:
@@ -3861,6 +3965,7 @@ def api_intel_coverage_summary():
                 hb_subprov_subs   = _m.get("subprov_subs", 0)
                 hb_candidate_subs = _m.get("candidate_subs", 0)
                 hb_lifecycle      = _m.get("cascade_state")  # CONNECTING/SUBSCRIBING/RECONCILING/LIVE/DEGRADED/FAILED
+                hb_reconnect_gen  = _m.get("reconnect_gen")
         except Exception:
             pass
 
@@ -3888,7 +3993,9 @@ def api_intel_coverage_summary():
             "subprovs_known": subprov_known,
             "subprovs_gap": max(0, subprov_known - hb_subprov_subs),
             "cascade_status": cascade_status,
+            "cascade_ws_state": hb_lifecycle,
             "cascade_hb_age_s": hb_age,
+            "cascade_reconnect_gen": hb_reconnect_gen,
             "cascade_ws_subs": hb_subs,
             "cascade_treasury_subs": hb_treasury_subs,
             "cascade_subprov_subs": hb_subprov_subs,
@@ -5014,6 +5121,1952 @@ def api_intel_unconfirmed_watchtower_like():
             conn.close()
     except Exception as e:
         return __import__("flask").jsonify({"error": str(e), "leads": [], "total": 0})
+
+
+# ── /watchtower/operations API endpoints ─────────────────────────────────────
+
+@ops_dashboard_bp.route("/api/ops/active-operations")
+def api_ops_active_operations():
+    """One row per active subprov session, enriched with fanout/create/swarm counts.
+    Groups multiple sessions for the same treasury together."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+        if not _table_exists(ov, "wt_active_subprov_sessions"):
+            return jsonify({"operations": [], "total": 0})
+
+        _scols = {r[1] for r in ov.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
+        _topup_sql = "initial_funding_amount, topup_count, topup_amount_total" \
+            if "initial_funding_amount" in _scols else \
+            "NULL AS initial_funding_amount, 0 AS topup_count, 0.0 AS topup_amount_total"
+        _seq_sql = "funding_sequence_number, COALESCE(treasury_rotated,0) as treasury_rotated" \
+            if "funding_sequence_number" in _scols else \
+            "NULL AS funding_sequence_number, 0 AS treasury_rotated"
+
+        sessions = ov.execute(
+            f"SELECT subprov_wallet, treasury_wallet, funding_amount, detected_at, expires_at, "
+            f"open_reason, COALESCE(monitoring_state,'INTEL_ONLY') as monitoring_state, "
+            f"{_topup_sql}, {_seq_sql} "
+            "FROM wt_active_subprov_sessions WHERE state='ACTIVE' ORDER BY detected_at DESC"
+        ).fetchall()
+
+        # fanout stats per subprov
+        fanout_stats: dict = {}
+        if _table_exists(ov, "wt_fanout_events"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) as bursts, SUM(fanout_count) as recipients, "
+                "SUM(creates_fired) as creates, SUM(buy_swarms) as swarms, "
+                "MAX(fanout_time) as last_fanout "
+                "FROM wt_fanout_events GROUP BY subprov_wallet"
+            ).fetchall():
+                fanout_stats[r["subprov_wallet"]] = {
+                    "bursts": r["bursts"], "recipients": r["recipients"] or 0,
+                    "creates": r["creates"] or 0, "swarms": r["swarms"] or 0,
+                    "last_fanout": r["last_fanout"],
+                }
+
+        # launch count per subprov
+        launch_counts: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) n FROM wt_watchtower_launches GROUP BY subprov_wallet"
+            ).fetchall():
+                launch_counts[r["subprov_wallet"]] = r["n"]
+
+        # swarm count per subprov (from wt_swarm_buys distinct mints)
+        swarm_counts: dict = {}
+        if _table_exists(ov, "wt_swarm_buys"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(DISTINCT mint) n FROM wt_swarm_buys GROUP BY subprov_wallet"
+            ).fetchall():
+                swarm_counts[r["subprov_wallet"]] = r["n"]
+
+        ops = []
+        for s in sessions:
+            sp = s["subprov_wallet"]
+            fs = fanout_stats.get(sp, {})
+            last_activity = max(
+                s["detected_at"] or 0,
+                fs.get("last_fanout") or 0,
+            )
+            initial = s["initial_funding_amount"] or s["funding_amount"] or 0
+            topup = s["topup_amount_total"] or 0
+            ops.append({
+                "subprov": sp,
+                "treasury": s["treasury_wallet"],
+                "monitoring_state": s["monitoring_state"],
+                "open_reason": s["open_reason"] or "PROVISION_CANDIDATE",
+                "funding_sequence_number": s["funding_sequence_number"],
+                "treasury_rotated": bool(s["treasury_rotated"]),
+                "detected_at": s["detected_at"],
+                "ttl_remaining": max(0, (s["expires_at"] or now) - now),
+                "age_s": now - (s["detected_at"] or now),
+                "initial_sol": initial,
+                "topup_count": s["topup_count"] or 0,
+                "topup_sol": topup,
+                "total_sol": initial + topup,
+                "fanout_bursts": fs.get("bursts", 0),
+                "fanout_recipients": fs.get("recipients", 0),
+                "creates": launch_counts.get(sp, fs.get("creates", 0)),
+                "swarms": swarm_counts.get(sp, fs.get("swarms", 0)),
+                "last_activity": last_activity,
+                "last_activity_ago": now - last_activity if last_activity else None,
+                # Fanout batch key: same treasury funded within a 10s window = one batch
+                "fanout_batch_id": f"{s['treasury_wallet']}_{(s['detected_at'] or 0) // 10}",
+            })
+
+        # Mark batch_size so the frontend knows which rows are part of a multi-subprov fanout
+        from collections import Counter as _Counter
+        batch_sizes = _Counter(o["fanout_batch_id"] for o in ops)
+        for o in ops:
+            o["fanout_batch_size"] = batch_sizes[o["fanout_batch_id"]]
+
+        # sort by last_activity desc
+        ops.sort(key=lambda x: x["last_activity"], reverse=True)
+        return jsonify({"operations": ops, "total": len(ops), "now": now})
+    except Exception as e:
+        return jsonify({"operations": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/operation-board")
+def api_ops_operation_board():
+    """Operation-centric board view: one row per treasury, enriched with phase/lifecycle."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+        if not _table_exists(ov, "wt_ops_v2"):
+            return jsonify({"operations": [], "phase_counts": {}, "now": now})
+
+        # Pull all ops with a treasury_root — one row per operation_uuid
+        _ops_cols = {r[1] for r in ov.execute("PRAGMA table_info(wt_ops_v2)").fetchall()}
+        _src_sel = ", source" if "source" in _ops_cols else ", NULL as source"
+        _ot_sel  = ", op_type" if "op_type" in _ops_cols else ", NULL as op_type"
+        # Only show operations that have at least one currently ACTIVE subprov session.
+        # UNION with active-session treasuries that have no wt_ops_v2 record yet (newly seen).
+        if _table_exists(ov, "wt_active_subprov_sessions"):
+            ops_rows = ov.execute(
+                # Known ops with active sessions
+                f"SELECT operation_uuid, treasury_root, status, confidence, created_at, updated_at{_src_sel}{_ot_sel} "
+                "FROM wt_ops_v2 WHERE treasury_root IS NOT NULL "
+                "AND EXISTS ("
+                "  SELECT 1 FROM wt_active_subprov_sessions s "
+                "  WHERE s.treasury_wallet = treasury_root AND s.state = 'ACTIVE'"
+                ") "
+                "UNION ALL "
+                # Active-session treasuries not yet in wt_ops_v2 (synthesise a minimal row)
+                "SELECT NULL as operation_uuid, s.treasury_wallet as treasury_root, "
+                "  'ACTIVE' as status, NULL as confidence, MIN(s.detected_at) as created_at, "
+                f"  MAX(s.detected_at) as updated_at, NULL as source, NULL as op_type "
+                "FROM wt_active_subprov_sessions s "
+                "WHERE s.state = 'ACTIVE' AND s.treasury_wallet IS NOT NULL "
+                "AND NOT EXISTS (SELECT 1 FROM wt_ops_v2 o WHERE o.treasury_root = s.treasury_wallet) "
+                "GROUP BY s.treasury_wallet"
+            ).fetchall()
+        else:
+            ops_rows = ov.execute(
+                f"SELECT operation_uuid, treasury_root, status, confidence, created_at, updated_at{_src_sel}{_ot_sel} "
+                "FROM wt_ops_v2 WHERE treasury_root IS NOT NULL"
+            ).fetchall()
+
+        # lifecycle state per operation_uuid
+        lifecycle_map: dict = {}  # operation_uuid -> state
+        if _table_exists(ov, "wt_operation_lifecycle"):
+            for r in ov.execute(
+                "SELECT operation_uuid, state FROM wt_operation_lifecycle"
+            ).fetchall():
+                lifecycle_map[r["operation_uuid"]] = r["state"]
+
+        # live/armed subprov counts per treasury_wallet (the treasury_root)
+        live_map: dict = {}
+        armed_map: dict = {}
+        cand_map: dict = {}           # treasury -> WATCHING candidate count (real PW input)
+        last_session_map: dict = {}
+        subprov_total_map: dict = {}  # all-time distinct subprovs
+        active_focus_map: dict = {}   # treasury -> {subprov, opened_ago, last_sol, state}
+        if _table_exists(ov, "wt_candidate_websocket_watches"):
+            for r in ov.execute(
+                "SELECT c.treasury_wallet, COUNT(*) n "
+                "FROM wt_candidate_websocket_watches c "
+                "WHERE c.state='WATCHING' AND c.treasury_wallet IS NOT NULL "
+                "GROUP BY c.treasury_wallet"
+            ).fetchall():
+                cand_map[r["treasury_wallet"]] = r["n"] or 0
+        if _table_exists(ov, "wt_active_subprov_sessions"):
+            sess_cols = {r[1] for r in ov.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
+            # column name variations
+            sprov_col = "subprov_wallet" if "subprov_wallet" in sess_cols else "subprov"
+            sol_col = ("funding_amount" if "funding_amount" in sess_cols
+                       else "total_sol" if "total_sol" in sess_cols else "funding_sol")
+            for r in ov.execute(
+                f"SELECT treasury_wallet, "
+                f"SUM(CASE WHEN state='ACTIVE' THEN 1 ELSE 0 END) as live_count, "
+                f"SUM(CASE WHEN state='ACTIVE' AND monitoring_state='LIVE_ARMED' THEN 1 ELSE 0 END) as armed_count, "
+                f"MAX(detected_at) as last_session, "
+                f"COUNT(DISTINCT {sprov_col}) as total_subprovs "
+                "FROM wt_active_subprov_sessions GROUP BY treasury_wallet"
+            ).fetchall():
+                tw = r["treasury_wallet"]
+                live_map[tw] = r["live_count"] or 0
+                armed_map[tw] = r["armed_count"] or 0
+                last_session_map[tw] = r["last_session"] or 0
+                subprov_total_map[tw] = r["total_subprovs"] or 0
+            # active focus: most recently opened ACTIVE subprov per treasury
+            for r in ov.execute(
+                f"SELECT treasury_wallet, {sprov_col} as sprov, detected_at, {sol_col} as sol, monitoring_state "
+                "FROM wt_active_subprov_sessions WHERE state='ACTIVE' "
+                "ORDER BY detected_at DESC"
+            ).fetchall():
+                tw = r["treasury_wallet"]
+                if tw not in active_focus_map:
+                    active_focus_map[tw] = {
+                        "subprov": r["sprov"],
+                        "opened_at": r["detected_at"] or 0,
+                        "sol": r["sol"] or 0,
+                        "state": r["monitoring_state"] or "",
+                    }
+
+        # fanout stats per treasury_wallet
+        fanouts_24h_map: dict = {}
+        recipients_24h_map: dict = {}
+        last_fanout_map: dict = {}
+        funding_rounds_map: dict = {}  # distinct fanout events = funding rounds
+        # historical behavioural profile per treasury (for predictive intelligence)
+        hist_profile_map: dict = {}  # tw -> {avg_recipients, avg_sol, swarm_rate, create_rate, sample_n}
+        if _table_exists(ov, "wt_fanout_events"):
+            cutoff = now - 86400
+            for r in ov.execute(
+                "SELECT treasury_wallet, "
+                "SUM(CASE WHEN fanout_time > ? THEN 1 ELSE 0 END) as fanouts_24h, "
+                "SUM(CASE WHEN fanout_time > ? THEN fanout_count ELSE 0 END) as recipients_24h, "
+                "MAX(fanout_time) as last_fanout, "
+                "COUNT(*) as total_rounds "
+                "FROM wt_fanout_events GROUP BY treasury_wallet",
+                (cutoff, cutoff)
+            ).fetchall():
+                tw = r["treasury_wallet"]
+                fanouts_24h_map[tw] = r["fanouts_24h"] or 0
+                recipients_24h_map[tw] = r["recipients_24h"] or 0
+                last_fanout_map[tw] = r["last_fanout"] or 0
+                funding_rounds_map[tw] = r["total_rounds"] or 0
+            # historical profile (all-time, excludes swarm-only events)
+            for r in ov.execute(
+                "SELECT treasury_wallet, "
+                "AVG(fanout_count) as avg_recipients, "
+                "AVG(total_sol) as avg_sol, "
+                "AVG(CASE WHEN buy_swarms > 0 THEN 1.0 ELSE 0.0 END) as swarm_rate, "
+                "AVG(CASE WHEN creates_fired > 0 THEN 1.0 ELSE 0.0 END) as create_rate, "
+                "COUNT(*) as sample_n "
+                "FROM wt_fanout_events GROUP BY treasury_wallet"
+            ).fetchall():
+                hist_profile_map[r["treasury_wallet"]] = {
+                    "avg_recipients": r["avg_recipients"] or 0,
+                    "avg_sol": r["avg_sol"] or 0,
+                    "swarm_rate": r["swarm_rate"] or 0,
+                    "create_rate": r["create_rate"] or 0,
+                    "sample_n": r["sample_n"] or 0,
+                }
+
+        # launch timing history per treasury (fanout-to-create latency)
+        launch_timing_map: dict = {}  # tw -> {avg_s, min_s, max_s, n}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            _lc2 = {r[1] for r in ov.execute("PRAGMA table_info(wt_watchtower_launches)").fetchall()}
+            if "fanout_to_create_secs" in _lc2:
+                for r in ov.execute(
+                    "SELECT treasury_wallet, "
+                    "AVG(fanout_to_create_secs) as avg_s, "
+                    "MIN(fanout_to_create_secs) as min_s, "
+                    "MAX(fanout_to_create_secs) as max_s, "
+                    "COUNT(*) as n "
+                    "FROM wt_watchtower_launches "
+                    "WHERE fanout_to_create_secs IS NOT NULL "
+                    "GROUP BY treasury_wallet"
+                ).fetchall():
+                    launch_timing_map[r["treasury_wallet"]] = {
+                        "avg_s": r["avg_s"] or 0,
+                        "min_s": r["min_s"] or 0,
+                        "max_s": r["max_s"] or 0,
+                        "n": r["n"] or 0,
+                    }
+
+        # launch counts per treasury_wallet
+        creates_total_map: dict = {}
+        creates_24h_map: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            cutoff = now - 86400
+            # check if create_time column exists
+            _lc = {r[1] for r in ov.execute("PRAGMA table_info(wt_watchtower_launches)").fetchall()}
+            _create_time_col = "create_time" if "create_time" in _lc else "created_at"
+            for r in ov.execute(
+                f"SELECT treasury_wallet, COUNT(*) as total, "
+                f"SUM(CASE WHEN {_create_time_col} > ? THEN 1 ELSE 0 END) as c24h "
+                "FROM wt_watchtower_launches GROUP BY treasury_wallet",
+                (cutoff,)
+            ).fetchall():
+                tw = r["treasury_wallet"]
+                creates_total_map[tw] = r["total"] or 0
+                creates_24h_map[tw] = r["c24h"] or 0
+
+        # buy swarm counts per treasury (from wt_swarm_buys if available)
+        swarm_map: dict = {}
+        if _table_exists(ov, "wt_swarm_buys"):
+            _sb_cols = {r[1] for r in ov.execute("PRAGMA table_info(wt_swarm_buys)").fetchall()}
+            _tw_col = "treasury_wallet" if "treasury_wallet" in _sb_cols else None
+            if _tw_col:
+                for r in ov.execute(
+                    f"SELECT {_tw_col}, COUNT(DISTINCT mint) as cnt FROM wt_swarm_buys GROUP BY {_tw_col}"
+                ).fetchall():
+                    swarm_map[r[_tw_col]] = r["cnt"] or 0
+
+        # ── Treasury WS open status ───────────────────────────────────────────
+        # webhook_active=1 means the cascade has this treasury subscribed
+        treasury_ws_map: dict = {}   # treasury -> bool (WS open)
+        treasury_ws_age_map: dict = {}  # treasury -> seconds since last hit
+        if _table_exists(ov, "wt_confirmed_treasury_webhooks"):
+            for r in ov.execute(
+                "SELECT treasury, webhook_active, last_hit FROM wt_confirmed_treasury_webhooks"
+            ).fetchall():
+                treasury_ws_map[r["treasury"]] = bool(r["webhook_active"])
+                lh = r["last_hit"] or 0
+                treasury_ws_age_map[r["treasury"]] = now - lh if lh else None
+        # also check wt_treasury_ws_usage for recent activity (supplement)
+        if _table_exists(ov, "wt_treasury_ws_usage"):
+            for r in ov.execute(
+                "SELECT treasury_wallet, last_notif_at FROM wt_treasury_ws_usage"
+            ).fetchall():
+                tw2 = r["treasury_wallet"]
+                if tw2 not in treasury_ws_map:
+                    treasury_ws_map[tw2] = False
+                lna = r["last_notif_at"] or 0
+                if lna:
+                    treasury_ws_age_map[tw2] = now - lna
+
+        # ── Intel-only subprov counts ─────────────────────────────────────────
+        intel_map: dict = {}
+        if _table_exists(ov, "wt_active_subprov_sessions"):
+            # sprov_col / sol_col already resolved in the live/armed block above
+            for r in ov.execute(
+                "SELECT treasury_wallet, "
+                "SUM(CASE WHEN state='ACTIVE' AND monitoring_state='INTEL_ONLY' THEN 1 ELSE 0 END) as intel_count "
+                "FROM wt_active_subprov_sessions GROUP BY treasury_wallet"
+            ).fetchall():
+                intel_map[r["treasury_wallet"]] = r["intel_count"] or 0
+
+        # ── Assessment timeline per treasury ─────────────────────────────────
+        # Reconstructed from watchtower_events (treasury-keyed events, recent 8)
+        # Event types we care about, in display priority order
+        _WE_LABELS = {
+            "TREASURY_WEBSOCKET_OPENED":    ("TREASURY SUBSCRIBED",  "Treasury WS opened"),
+            "SUBPROV_SESSION_OPENED_WS":    ("SUBPROV FUNDED",       "SubProv session opened"),
+            "SUBPROV_SESSION_STARTED":      ("SUBPROV STARTED",      "SubProv session started"),
+            "WRAP_CLOSE_FANOUT_DETECTED":   ("FAN-OUT DETECTED",     "Wrap-close fan-out observed"),
+            "CANDIDATE_WEBSOCKET_OPENED":   ("CANDIDATE ARMED",      "ProgramWatcher armed on candidate"),
+            "CANDIDATE_WATCH_EXPIRED":      ("CANDIDATE EXPIRED",    "Candidate watch expired without CREATE"),
+            "CANDIDATE_CLASSIFIED_BUY_SWARM":("BUY-SWARM",          "Candidate classified as buy-swarm"),
+            "SUBPROV_SESSION_EXPIRED":      ("SESSION EXPIRED",      "SubProv session expired"),
+            "SUBPROV_SESSION_INTEL_ONLY":   ("INTEL ONLY",           "Session downgraded to intel-only"),
+            "WATCHTOWER_LAUNCH_DETECTED":   ("CREATE DETECTED",      "Pump.fun CREATE detected"),
+        }
+        assessment_timeline_map: dict = {}  # tw -> list of {ts, label, detail}
+        if _table_exists(ov, "watchtower_events"):
+            # fetch the most recent meaningful events per treasury
+            # wallet_address = the subprov/treasury; related_wallet = treasury context
+            we_cols = {r[1] for r in ov.execute("PRAGMA table_info(watchtower_events)").fetchall()}
+            if "created_at" in we_cols:
+                _we_types = "','".join(_WE_LABELS.keys())
+                for r in ov.execute(
+                    f"SELECT wallet_address, related_wallet, event_type, created_at "
+                    f"FROM watchtower_events "
+                    f"WHERE event_type IN ('{_we_types}') "
+                    f"ORDER BY created_at DESC LIMIT 2000"
+                ).fetchall():
+                    # treasury-keyed: TREASURY events use wallet_address; SUBPROV/CANDIDATE use related_wallet
+                    et = r["event_type"]
+                    if et in ("TREASURY_WEBSOCKET_OPENED",):
+                        tw_key = r["wallet_address"]
+                    else:
+                        tw_key = r["related_wallet"]
+                    if not tw_key:
+                        continue
+                    if tw_key not in assessment_timeline_map:
+                        assessment_timeline_map[tw_key] = []
+                    if len(assessment_timeline_map[tw_key]) < 8:
+                        lbl, detail = _WE_LABELS.get(et, (et, et))
+                        assessment_timeline_map[tw_key].append({
+                            "ts": r["created_at"],
+                            "label": lbl,
+                            "detail": detail,
+                            "event_type": et,
+                        })
+
+        # ── Similar campaign profiles (cross-treasury behavioural distance) ────
+        # Uses hist_profile_map already built. Compute pairwise similarity at render time.
+        # We'll pass the full profile map to the per-op payload so the frontend can display matches.
+        # Pre-compute a compact profile list for comparison.
+        _all_profiles: list[dict] = []
+        for _tw, _p in hist_profile_map.items():
+            if _p["sample_n"] >= 3:
+                _all_profiles.append({
+                    "treasury": _tw,
+                    "avg_recipients": _p["avg_recipients"],
+                    "avg_sol": _p["avg_sol"],
+                    "create_rate": _p["create_rate"],
+                    "swarm_rate": _p["swarm_rate"],
+                    "sample_n": _p["sample_n"],
+                })
+
+        def _similar_campaigns(tw: str, top_n: int = 3) -> list[dict]:
+            """Return top_n most behaviourally similar treasuries (excluding self)."""
+            import math
+            p = hist_profile_map.get(tw)
+            if not p or p["sample_n"] < 3:
+                return []
+            results = []
+            for other in _all_profiles:
+                if other["treasury"] == tw:
+                    continue
+                # Normalised Euclidean distance on 4 dimensions
+                dr = (p["avg_recipients"] - other["avg_recipients"]) / max(p["avg_recipients"], 1)
+                ds = (p["avg_sol"] - other["avg_sol"]) / max(p["avg_sol"], 1)
+                dc = p["create_rate"] - other["create_rate"]
+                dw = p["swarm_rate"] - other["swarm_rate"]
+                dist = math.sqrt(dr**2 + ds**2 + dc**2 + dw**2)
+                # Convert distance to match % (0 dist → 100%, dist≥2 → ~0%)
+                match_pct = max(0, round(100 * (1 - dist / 2)))
+                if match_pct >= 40:
+                    results.append({
+                        "treasury": other["treasury"],
+                        "match_pct": match_pct,
+                        "sample_n": other["sample_n"],
+                    })
+            results.sort(key=lambda x: -x["match_pct"])
+            return results[:top_n]
+
+        # ── Behaviour model maturity per treasury ─────────────────────────────
+        # Combines launch count + fanout sample count + last-launch age
+        last_launch_map: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            _lc3 = {r[1] for r in ov.execute("PRAGMA table_info(wt_watchtower_launches)").fetchall()}
+            _ct_col = "create_time" if "create_time" in _lc3 else "recorded_at"
+            for r in ov.execute(
+                f"SELECT treasury_wallet, MAX({_ct_col}) as last_launch "
+                "FROM wt_watchtower_launches GROUP BY treasury_wallet"
+            ).fetchall():
+                last_launch_map[r["treasury_wallet"]] = r["last_launch"] or 0
+
+        def _model_maturity(tw: str) -> dict:
+            """Describe how mature the behavioural model is for this treasury."""
+            t = launch_timing_map.get(tw, {})
+            h = hist_profile_map.get(tw, {})
+            launches = t.get("n", 0)
+            fanout_n = int(h.get("sample_n", 0))
+            last_launch = last_launch_map.get(tw)
+            last_launch_age = (now - last_launch) if last_launch else None
+
+            if launches >= 5 and fanout_n >= 20:
+                stage = "MATURE"
+                confidence = "HIGH"
+                desc = f"{launches} confirmed launches · {fanout_n} fan-out observations"
+            elif launches >= 2 and fanout_n >= 5:
+                stage = "DEVELOPING"
+                confidence = "MEDIUM"
+                desc = f"{launches} confirmed launches · {fanout_n} fan-out observations"
+            elif launches >= 1:
+                stage = "EARLY"
+                confidence = "LOW"
+                desc = f"{launches} launch on record · needs {2 - launches} more for timing baseline"
+            else:
+                stage = "LEARNING"
+                confidence = "INSUFFICIENT"
+                desc = f"No confirmed launches yet · {fanout_n} fan-out observations"
+
+            return {
+                "stage": stage,
+                "confidence": confidence,
+                "desc": desc,
+                "launches": launches,
+                "fanout_n": fanout_n,
+                "last_launch_age": last_launch_age,
+            }
+
+        # ── Origin (historical metadata only) ────────────────────────────────
+        def _origin(src: str, ot: str) -> str:
+            if ot == "MICRO_DEPLOYER":
+                return "MICRO_DEPLOYER"
+            if src == "watch_migration":
+                return "DISCOVERED_VIA_MIGRATION"
+            if src == "wrap_close_forward":
+                return "LIVE_DETECTION"
+            return src.upper() if src else "UNKNOWN"
+
+        # ── Phase + monitoring state derivation ──────────────────────────────
+        # op_phase      = lifecycle position (ACTIVE / POST_CREATE / DORMANT)
+        # monitoring    = what WATCHTOWER is ACTUALLY doing RIGHT NOW
+        #                 derived from live component states, not DB labels
+        # Both are independent. A card with no live subprovs is never "WATCHING CREATE".
+
+        _PHASE_ORDER = ["ACTIVE", "POST_CREATE", "DORMANT"]
+
+        # assign sequential op numbers (sorted by created_at)
+        sorted_rows = sorted(ops_rows, key=lambda r: r["created_at"] or 0)
+        op_number_map = {r["operation_uuid"]: i + 1 for i, r in enumerate(sorted_rows)}
+
+        operations = []
+        for row in ops_rows:
+            op_uuid = row["operation_uuid"]
+            tw = row["treasury_root"]
+            lc_state = lifecycle_map.get(op_uuid, "")
+            live_sub = live_map.get(tw, 0)
+            armed_sub = armed_map.get(tw, 0)
+            intel_sub = intel_map.get(tw, 0)
+            fanouts_24h = fanouts_24h_map.get(tw, 0)
+            recipients_24h = recipients_24h_map.get(tw, 0)
+            creates_total = creates_total_map.get(tw, 0)
+            creates_24h = creates_24h_map.get(tw, 0)
+            last_fanout = last_fanout_map.get(tw, 0)
+            last_session = last_session_map.get(tw, 0)
+            funding_rounds = funding_rounds_map.get(tw, 0)
+            subprov_count = subprov_total_map.get(tw, 0)
+            buy_swarms = swarm_map.get(tw, 0)
+            active_focus = active_focus_map.get(tw)
+
+            # ── Live component states ─────────────────────────────────────────
+            treasury_ws_open = treasury_ws_map.get(tw, False)
+            treasury_ws_age  = treasury_ws_age_map.get(tw)
+            subprov_ws_open  = live_sub > intel_sub   # ACTIVE non-intel subprovs
+            pw_open          = cand_map.get(tw, 0) > 0  # ProgramWatcher has actual candidates to match
+
+            # ── Operation Phase (lifecycle position) ─────────────────────────
+            # Simple 3-state: ACTIVE (something live), POST_CREATE (ran before), DORMANT
+            if live_sub > 0 or (treasury_ws_open and lc_state in ("PROVISIONING", "")):
+                op_phase = "ACTIVE"
+            elif lc_state in ("MIGRATED", "REACTIVATED", "PROVISIONING"):
+                op_phase = "POST_CREATE"
+            else:
+                op_phase = "DORMANT"
+
+            # ── Monitoring State (what WATCHTOWER is doing NOW) ───────────────
+            # Derived strictly from live component states.
+            if pw_open:
+                monitoring = "WATCHING CREATE"
+            elif subprov_ws_open:
+                monitoring = "WAITING FOR FAN-OUT"
+            elif intel_sub > 0:
+                monitoring = "INTEL ONLY"
+            elif treasury_ws_open and lc_state in ("MIGRATED", "REACTIVATED"):
+                monitoring = "MONITORING CONTINUATION"
+            elif treasury_ws_open:
+                monitoring = "WATCHING TREASURY"
+            elif lc_state in ("MIGRATED", "REACTIVATED"):
+                monitoring = "MONITORING CONTINUATION"
+            elif lc_state == "PROVISIONING":
+                monitoring = "WAITING FOR FUNDING"
+            else:
+                monitoring = "IDLE"
+
+            # ── Origin (historical, metadata only) ───────────────────────────
+            origin = _origin(row["source"] or "", row["op_type"] or "")
+
+            # ── Confidence label ─────────────────────────────────────────────
+            conf = row["confidence"] or 0
+            conf_label = ("CERTAIN" if conf >= 1.0 else "HIGH" if conf >= 0.8
+                          else "PROBABLE" if conf >= 0.6 else "POSSIBLE")
+
+            # ── Next expected event (driven by monitoring state) ──────────────
+            next_event_map = {
+                "WATCHING CREATE":         "CREATE on pump.fun",
+                "WAITING FOR FAN-OUT":     "SubProv wrap-close fan-out",
+                "INTEL ONLY":              "Escalation to armed watch",
+                "MONITORING CONTINUATION": "Treasury reactivation or new funding",
+                "WATCHING TREASURY":       "New SubProv funding",
+                "WAITING FOR FUNDING":     "Treasury to fund SubProv",
+                "IDLE":                    "New treasury activity",
+            }
+            next_event = next_event_map.get(monitoring, "Unknown")
+
+            # ── Lifecycle steps (operational journey, active stage highlighted) ─
+            has_launched = creates_total > 0
+            lc_steps = [
+                {"step": "FUNDING",
+                 "done": True,
+                 "active": monitoring == "WAITING FOR FUNDING"},
+                {"step": "FAN-OUT",
+                 "done": fanouts_24h > 0 or has_launched,
+                 "active": monitoring in ("WAITING FOR FAN-OUT", "WATCHING TREASURY")},
+                {"step": "CREATE",
+                 "done": has_launched,
+                 "active": monitoring == "WATCHING CREATE"},
+                {"step": "CONTINUATION",
+                 "done": lc_state in ("MIGRATED", "REACTIVATED") and not (live_sub > 0),
+                 "active": monitoring == "MONITORING CONTINUATION"},
+            ]
+
+            last_activity = max(last_fanout, last_session, row["updated_at"] or 0)
+
+            # ── WATCHTOWER Assessment ─────────────────────────────────────────
+            # Produces structured explanation fields — not just labels.
+            # All derived from existing DB data. Zero RPC.
+            #
+            # Fields:
+            #   health          ON_PATTERN / SLOW / UNUSUAL / ANOMALOUS / UNKNOWN / IDLE_WATCH
+            #   timing_status   same scale, specifically for fanout→create timing
+            #   timing_elapsed_s  seconds since last fanout (WATCHING CREATE) or session open
+            #   timing_window   human range from historical data e.g. "1–6s"
+            #   timing_samples  number of historical launches used
+            #   score_value     0-100 operation score
+            #   score_checks    list of {label, pass} for score breakdown
+            #   belief          one-sentence "what do we believe"
+            #   why             one-sentence "why"
+            #   assessment      one-sentence "what does this imply"
+            #   prediction_level  HIGH / MEDIUM / LOW
+            #   prediction_text   "CREATE likely · Expected 1–6 seconds"
+            #   action          recommended operator action
+            #   hist_*          historical profile values for comparison
+            #   unknown_reason  if UNKNOWN, explains the limitation
+
+            def _fmt_elapsed(s: int) -> str:
+                if s < 60:   return f"{s}s"
+                if s < 3600: return f"{s//60}m {s%60}s"
+                h = s // 3600; m = (s % 3600) // 60
+                return f"{h}h {m}m" if m else f"{h}h"
+
+            predictive: dict | None = None
+            hist = hist_profile_map.get(tw)
+            timing = launch_timing_map.get(tw)
+
+            if monitoring == "WATCHING CREATE" and last_fanout:
+                elapsed_s = int(now - last_fanout)
+                has_history = timing and timing["n"] >= 2
+
+                if has_history:
+                    max_expected = max(timing["max_s"] * 3, 30)
+                    if elapsed_s <= timing["max_s"] * 1.5:
+                        timing_status = health = "ON_PATTERN"
+                    elif elapsed_s <= max_expected:
+                        timing_status = health = "SLOW"
+                    elif elapsed_s <= max_expected * 10:
+                        timing_status = health = "UNUSUAL"
+                    else:
+                        timing_status = health = "ANOMALOUS"
+
+                    tw_str = f"{int(timing['min_s'])}–{int(timing['max_s'])}s"
+                    elapsed_fmt = _fmt_elapsed(elapsed_s)
+
+                    if health == "ON_PATTERN":
+                        belief = "CREATE is imminent."
+                        why    = f"Elapsed time ({elapsed_fmt}) is within the historical window of {tw_str}."
+                        assessment = f"This treasury has completed {timing['n']} previous launches in this timing range."
+                        prediction_level = "HIGH"
+                        prediction_text = f"CREATE likely · Expected within {tw_str}"
+                        action = "Continue CREATE monitoring. No action required."
+                    elif health == "SLOW":
+                        belief = "CREATE is still possible but delayed."
+                        why    = f"Elapsed {elapsed_fmt} exceeds the typical window of {tw_str}."
+                        assessment = "This is outside normal range but within an acceptable outer bound."
+                        prediction_level = "MEDIUM"
+                        prediction_text = f"CREATE possible · Timing slow vs historical {tw_str}"
+                        action = "Monitor. If no CREATE within the next window, assess for abort."
+                    elif health == "UNUSUAL":
+                        belief = "CREATE probability is reduced."
+                        why    = f"Elapsed {elapsed_fmt} is far outside the historical window of {tw_str}."
+                        assessment = "This treasury may have aborted or delayed this campaign wave."
+                        prediction_level = "LOW"
+                        prediction_text = "Delayed · Immediate CREATE unlikely"
+                        action = "Reduce attention. Monitor for new fan-out or treasury funding instead."
+                    else:  # ANOMALOUS
+                        belief = "This operation has broken from its historical creator pattern."
+                        why    = f"Elapsed {elapsed_fmt} — historical maximum was {int(timing['max_s'])}s across {timing['n']} launches."
+                        assessment = "The armed ProgramWatcher is still open but CREATE is very unlikely now."
+                        prediction_level = "LOW"
+                        prediction_text = "Likely abandoned · ProgramWatcher may be stale"
+                        action = "Switch attention. Monitor treasury for new funding or reactivation signal."
+
+                    score_checks = [
+                        {"label": "Treasury fingerprint confirmed", "pass": True},
+                        {"label": "Fan-out pattern observed",       "pass": (fanouts_24h > 0 or funding_rounds > 0)},
+                        {"label": "Timing within historical window","pass": health == "ON_PATTERN"},
+                        {"label": "ProgramWatcher armed",           "pass": pw_open},
+                        {"label": f"Historical launches ≥ 2 ({timing['n']} found)", "pass": True},
+                    ]
+                    score_value = (100 if health == "ON_PATTERN"
+                                   else 65 if health == "SLOW"
+                                   else 30 if health == "UNUSUAL"
+                                   else 10)
+                else:
+                    timing_status = health = "UNKNOWN"
+                    tw_str = None
+                    elapsed_fmt = _fmt_elapsed(elapsed_s)
+                    belief = "Insufficient historical data to assess timing."
+                    why    = f"Only {timing['n'] if timing else 0} confirmed launches recorded; minimum 2 required."
+                    assessment = "WATCHTOWER cannot evaluate timing deviation without a baseline."
+                    prediction_level = "MEDIUM"
+                    prediction_text = "ProgramWatcher armed · timing unverifiable"
+                    action = "Continue monitoring. Score will improve after the next confirmed launch."
+                    score_checks = [
+                        {"label": "Treasury fingerprint confirmed", "pass": True},
+                        {"label": "ProgramWatcher armed",           "pass": pw_open},
+                        {"label": "Historical launches ≥ 2",        "pass": False},
+                        {"label": "Timing within historical window", "pass": False},
+                    ]
+                    score_value = 50
+                    unknown_reason = (
+                        f"Only {timing['n'] if timing else 0} confirmed launch{'es' if (timing['n'] if timing else 0)!=1 else ''} "
+                        f"on record. Minimum 2 required for timing baseline."
+                    )
+
+                predictive = {
+                    "health": health,
+                    "timing_status": timing_status,
+                    "timing_elapsed_s": elapsed_s,
+                    "timing_elapsed_fmt": elapsed_fmt,
+                    "timing_window": tw_str,
+                    "timing_samples": timing["n"] if timing else 0,
+                    "score_value": score_value,
+                    "score_checks": score_checks,
+                    "belief": belief,
+                    "why": why,
+                    "assessment": assessment,
+                    "prediction_level": prediction_level,
+                    "prediction_text": prediction_text,
+                    "action": action,
+                    "hist_avg_recipients": round(hist["avg_recipients"], 1) if hist else None,
+                    "hist_avg_sol": round(hist["avg_sol"], 2) if hist else None,
+                    "hist_create_rate": round(hist["create_rate"] * 100) if hist else None,
+                    "unknown_reason": unknown_reason if health == "UNKNOWN" else None,
+                }
+
+            elif monitoring == "WAITING FOR FAN-OUT":
+                session_age = (now - active_focus["opened_at"]
+                               if active_focus and active_focus.get("opened_at") else None)
+                create_rate_pct = round(hist["create_rate"] * 100) if hist else None
+                elapsed_fmt = _fmt_elapsed(int(session_age)) if session_age else "unknown"
+
+                if session_age is not None and session_age > 3600:
+                    health = "SLOW"
+                    belief = "Fan-out is delayed beyond the expected window."
+                    why    = f"SubProv session open for {elapsed_fmt} without a wrap-close fan-out."
+                    assessment = "Most funded subprovs produce a fan-out within 30 minutes."
+                    prediction_level = "MEDIUM"
+                    prediction_text = "Fan-out delayed · May still occur"
+                    action = "Continue monitoring. Treasury may be staging or waiting for market conditions."
+                elif session_age is not None and session_age > 900:
+                    health = "UNUSUAL"
+                    belief = "Fan-out is taking longer than typical."
+                    why    = f"Session open {elapsed_fmt}."
+                    assessment = "Delayed but not yet anomalous."
+                    prediction_level = "MEDIUM"
+                    prediction_text = "Waiting · Fan-out expected soon"
+                    action = "Monitor. No action required yet."
+                else:
+                    health = "ON_PATTERN"
+                    belief = "SubProv is active and expected to fan-out imminently."
+                    why    = "Session was opened recently and is within the normal pre-fanout window."
+                    assessment = f"Historical create rate for this treasury is {create_rate_pct}%." if create_rate_pct else "Awaiting fan-out."
+                    prediction_level = "HIGH"
+                    prediction_text = "Fan-out expected · Watching for wrap-close"
+                    action = "ProgramWatcher will arm automatically on fan-out. No action required."
+
+                score_checks = [
+                    {"label": "Treasury fingerprint confirmed", "pass": True},
+                    {"label": "SubProv session active",         "pass": True},
+                    {"label": "Session within timing window",   "pass": health == "ON_PATTERN"},
+                    {"label": f"Historical create rate {create_rate_pct}%+", "pass": (create_rate_pct or 0) >= 50},
+                ]
+                predictive = {
+                    "health": health,
+                    "timing_elapsed_s": int(session_age) if session_age else None,
+                    "timing_elapsed_fmt": elapsed_fmt,
+                    "timing_samples": timing["n"] if timing else 0,
+                    "score_value": 80 if health == "ON_PATTERN" else 55,
+                    "score_checks": score_checks,
+                    "belief": belief,
+                    "why": why,
+                    "assessment": assessment,
+                    "prediction_level": prediction_level,
+                    "prediction_text": prediction_text,
+                    "action": action,
+                    "hist_create_rate": create_rate_pct,
+                    "hist_avg_recipients": round(hist["avg_recipients"], 1) if hist else None,
+                }
+
+            elif monitoring in ("WATCHING TREASURY", "MONITORING CONTINUATION"):
+                last_activity_age = now - last_activity if last_activity else None
+                elapsed_fmt = _fmt_elapsed(int(last_activity_age)) if last_activity_age else "unknown"
+                has_history = creates_total > 0
+
+                if has_history:
+                    health = "ON_PATTERN"
+                    belief = f"Treasury is established with {creates_total} confirmed launch{'es' if creates_total!=1 else ''}."
+                    why    = "Continuation monitoring follows a completed campaign wave."
+                    assessment = "Treasury may reactivate with new funding or a fresh SubProv."
+                    prediction_level = "MEDIUM"
+                    prediction_text = f"Reactivation possible · {creates_total} prior launches"
+                    action = "Monitor treasury for new funding events. No immediate action required."
+                else:
+                    health = "IDLE_WATCH"
+                    belief = "Treasury is subscribed but no launches have been recorded."
+                    why    = "No confirmed creator fan-outs or pump.fun CREATEs observed."
+                    assessment = "This treasury may be in a pre-campaign state or may not be a launch operator."
+                    prediction_level = "LOW"
+                    prediction_text = "No launch history · Watching for first activity"
+                    action = "Monitor. If no activity within 7 days, consider rotating to a higher-signal target."
+
+                score_checks = [
+                    {"label": "Treasury fingerprint confirmed", "pass": True},
+                    {"label": "Treasury WS subscribed",         "pass": treasury_ws_open},
+                    {"label": f"Prior launches observed ({creates_total})", "pass": has_history},
+                    {"label": "Recent activity (< 24h)",        "pass": (last_activity_age or 99999) < 86400},
+                ]
+                predictive = {
+                    "health": health,
+                    "timing_elapsed_s": int(last_activity_age) if last_activity_age else None,
+                    "timing_elapsed_fmt": elapsed_fmt,
+                    "timing_samples": timing["n"] if timing else 0,
+                    "score_value": 65 if has_history else 35,
+                    "score_checks": score_checks,
+                    "belief": belief,
+                    "why": why,
+                    "assessment": assessment,
+                    "prediction_level": prediction_level,
+                    "prediction_text": prediction_text,
+                    "action": action,
+                    "hist_create_rate": round(hist["create_rate"] * 100) if hist else None,
+                    "hist_avg_recipients": round(hist["avg_recipients"], 1) if hist else None,
+                }
+
+            elif monitoring == "INTEL ONLY":
+                health = "ON_PATTERN"
+                predictive = {
+                    "health": health,
+                    "timing_samples": timing["n"] if timing else 0,
+                    "score_value": 60,
+                    "score_checks": [
+                        {"label": "Treasury fingerprint confirmed", "pass": True},
+                        {"label": "SubProv under observation",      "pass": True},
+                        {"label": "Armed session active",           "pass": False},
+                    ],
+                    "belief": "SubProv is being tracked in intelligence-only mode.",
+                    "why": "Session exists but monitoring state is INTEL_ONLY — not yet escalated to armed watch.",
+                    "assessment": "Waiting for criteria to escalate to ProgramWatcher.",
+                    "prediction_level": "MEDIUM",
+                    "prediction_text": "Watching for escalation trigger",
+                    "action": "No action required. WATCHTOWER will escalate automatically on qualifying fan-out.",
+                    "hist_create_rate": round(hist["create_rate"] * 100) if hist else None,
+                }
+
+            elif monitoring == "WAITING FOR FUNDING":
+                health = "ON_PATTERN"
+                predictive = {
+                    "health": health,
+                    "timing_samples": timing["n"] if timing else 0,
+                    "score_value": 50,
+                    "score_checks": [
+                        {"label": "Treasury fingerprint confirmed", "pass": True},
+                        {"label": "SubProv funding observed",       "pass": False},
+                    ],
+                    "belief": "Treasury is confirmed but no SubProv has been funded yet.",
+                    "why": "No wrap-close events or active sessions detected.",
+                    "assessment": "Campaign may be in a pre-launch preparation stage.",
+                    "prediction_level": "LOW",
+                    "prediction_text": "Waiting for treasury to fund a SubProv",
+                    "action": "Monitor treasury outbound transfers. No action required.",
+                }
+
+            # ── Enrich predictive with timeline, similar campaigns, model maturity ─
+            model = _model_maturity(tw)
+            if predictive is not None:
+                predictive["model"] = model
+                predictive["similar_campaigns"] = _similar_campaigns(tw)
+                # Enrich score_checks with model maturity check
+                if "score_checks" in predictive:
+                    predictive["score_checks"].append({
+                        "label": f"Behaviour model {model['stage'].lower()} ({model['launches']} launches, n={model['fanout_n']})",
+                        "pass": model["stage"] in ("MATURE", "DEVELOPING"),
+                    })
+
+            # ── Active focus (current subprov being monitored) ────────────────
+            focus = None
+            if active_focus and (subprov_ws_open or pw_open or intel_sub > 0):
+                ms = active_focus["state"]
+                focus = {
+                    "subprov": active_focus["subprov"],
+                    "opened_ago": now - active_focus["opened_at"] if active_focus["opened_at"] else None,
+                    "sol": active_focus["sol"],
+                    "monitoring_state": ms,
+                    "pw_open": pw_open,
+                    "subprov_ws_open": subprov_ws_open,
+                    "treasury_ws_open": treasury_ws_open,
+                }
+
+            operations.append({
+                "treasury": tw,
+                "treasury_short": tw[-4:] if tw else "????",
+                "op_id": op_uuid,
+                "op_number": op_number_map.get(op_uuid, 0),
+                "op_phase": op_phase,
+                "monitoring": monitoring,
+                "origin": origin,
+                "confidence": conf_label,
+                "lifecycle_state": lc_state,
+                "next_event": next_event,
+                "treasury_ws_open": treasury_ws_open,
+                "treasury_ws_age": treasury_ws_age,
+                "subprov_ws_open": subprov_ws_open,
+                "pw_open": pw_open,
+                "live_subprovs": live_sub,
+                "armed_subprovs": armed_sub,
+                "intel_subprovs": intel_sub,
+                "fanouts_24h": fanouts_24h,
+                "recipients_24h": recipients_24h,
+                "creates_total": creates_total,
+                "creates_24h": creates_24h,
+                "funding_rounds": funding_rounds,
+                "subprov_count": subprov_count,
+                "buy_swarms": buy_swarms,
+                "last_fanout": last_fanout,
+                "last_session": last_session,
+                "last_activity": last_activity,
+                "last_activity_ago": now - last_activity if last_activity else None,
+                "lifecycle_steps": lc_steps,
+                "active_focus": focus,
+                "predictive": predictive,
+                "assessment_timeline": assessment_timeline_map.get(tw, []),
+            })
+
+        # sort by monitoring state urgency, then last_activity desc
+        _MON_ORDER = ["WATCHING CREATE", "WAITING FOR FAN-OUT", "INTEL ONLY",
+                      "WATCHING TREASURY", "MONITORING CONTINUATION",
+                      "WAITING FOR FUNDING", "IDLE"]
+        mon_idx = {m: i for i, m in enumerate(_MON_ORDER)}
+        operations.sort(key=lambda x: (mon_idx.get(x["monitoring"], 99), -(x["last_activity"] or 0)))
+
+        # phase_counts keyed by monitoring state (what UI phase pills show)
+        phase_counts: dict = {m: 0 for m in _MON_ORDER}
+        for o in operations:
+            mon = o["monitoring"]
+            phase_counts[mon] = phase_counts.get(mon, 0) + 1
+
+        return jsonify({"operations": operations, "phase_counts": phase_counts, "now": now})
+    except Exception as e:
+        return jsonify({"operations": [], "phase_counts": {}, "now": now, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/timeline")
+def api_ops_timeline():
+    """Unified event timeline for all active subprovs (or a specific one via ?subprov=).
+    Returns FUNDING / FANOUT / CREATE / SWARM events sorted by time desc. Max 200 events."""
+    subprov_filter = request.args.get("subprov")
+    limit = min(int(request.args.get("limit", 200)), 500)
+    ov = _conn()
+    try:
+        now = int(time.time())
+        events = []
+
+        # FUNDING events from active sessions
+        if _table_exists(ov, "wt_active_subprov_sessions"):
+            q = ("SELECT 'FUNDING' as etype, detected_at as etime, subprov_wallet as subprov, "
+                 "treasury_wallet as treasury, funding_amount as amount, NULL as count, "
+                 "open_reason as detail, NULL as mint "
+                 "FROM wt_active_subprov_sessions WHERE state='ACTIVE'")
+            params: list = []
+            if subprov_filter:
+                q += " AND subprov_wallet=?"; params.append(subprov_filter)
+            for r in ov.execute(q, params).fetchall():
+                events.append(dict(r))
+
+        # FANOUT events
+        if _table_exists(ov, "wt_fanout_events"):
+            q = ("SELECT 'FANOUT' as etype, fanout_time as etime, subprov_wallet as subprov, "
+                 "treasury_wallet as treasury, total_sol as amount, fanout_count as count, "
+                 "CASE WHEN creates_fired>0 THEN 'CREATOR_BURST' "
+                 "     WHEN buy_swarms>0 THEN 'SWARM_BURST' "
+                 "     ELSE 'UNKNOWN' END as detail, NULL as mint "
+                 "FROM wt_fanout_events")
+            params = []
+            if subprov_filter:
+                q += " WHERE subprov_wallet=?"; params.append(subprov_filter)
+            for r in ov.execute(q, params).fetchall():
+                events.append(dict(r))
+
+        # CREATE events from watchtower_launches
+        if _table_exists(ov, "wt_watchtower_launches"):
+            q = ("SELECT 'CREATE' as etype, create_time as etime, subprov_wallet as subprov, "
+                 "treasury_wallet as treasury, wrap_close_sol as amount, NULL as count, "
+                 "launch_mode as detail, mint "
+                 "FROM wt_watchtower_launches")
+            params = []
+            if subprov_filter:
+                q += " WHERE subprov_wallet=?"; params.append(subprov_filter)
+            for r in ov.execute(q, params).fetchall():
+                events.append(dict(r))
+
+        # SWARM events (one per distinct mint, most recent observed_at)
+        if _table_exists(ov, "wt_swarm_buys"):
+            q = ("SELECT 'SWARM' as etype, MAX(observed_at) as etime, subprov_wallet as subprov, "
+                 "treasury_wallet as treasury, NULL as amount, COUNT(*) as count, "
+                 "NULL as detail, mint "
+                 "FROM wt_swarm_buys")
+            params = []
+            if subprov_filter:
+                q += " WHERE subprov_wallet=?"; params.append(subprov_filter)
+            q += " GROUP BY mint, subprov_wallet"
+            for r in ov.execute(q, params).fetchall():
+                events.append(dict(r))
+
+        events.sort(key=lambda x: x.get("etime") or 0, reverse=True)
+        events = events[:limit]
+        for e in events:
+            t = e.get("etime")
+            e["ago_s"] = (now - t) if t else None
+        return jsonify({"events": events, "total": len(events), "now": now})
+    except Exception as e:
+        return jsonify({"events": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/fanout-intelligence")
+def api_ops_fanout_intelligence():
+    """Fanout burst table.
+    Default (?grouped=1, the default): one row per subprov — total bursts, recipients, creates, swarms.
+    Raw (?grouped=0): one row per fanout event, ordered by time desc (original behaviour)."""
+    limit = min(int(request.args.get("limit", 200)), 1000)
+    grouped = request.args.get("grouped", "1") != "0"
+    ov = _conn()
+    try:
+        now = int(time.time())
+        if not _table_exists(ov, "wt_fanout_events"):
+            return jsonify({"bursts": [], "rolling": {}, "total": 0, "grouped": grouped})
+
+        bursts = []
+        if grouped:
+            for r in ov.execute(
+                "SELECT subprov_wallet, treasury_wallet, "
+                "COUNT(*) as burst_count, "
+                "SUM(fanout_count) as total_recipients, "
+                "SUM(total_sol) as total_sol, "
+                "AVG(avg_sol) as avg_sol, "
+                "MAX(fanout_count) as max_burst_size, "
+                "MIN(fanout_count) as min_burst_size, "
+                "SUM(creates_fired) as creates, "
+                "SUM(buy_swarms) as swarms, "
+                "MAX(fanout_time) as last_fanout, "
+                "MIN(fanout_time) as first_fanout, "
+                "SUM(CASE WHEN has_identical_amounts THEN 1 ELSE 0 END) as identical_count "
+                "FROM wt_fanout_events GROUP BY subprov_wallet "
+                "ORDER BY last_fanout DESC LIMIT ?", (limit,)
+            ).fetchall():
+                creates = r["creates"] or 0
+                swarms = r["swarms"] or 0
+                burst_type = ("CREATOR" if creates > 0 else "SWARM" if swarms > 0 else "UNKNOWN")
+                bursts.append({
+                    "subprov": r["subprov_wallet"],
+                    "treasury": r["treasury_wallet"],
+                    "burst_count": r["burst_count"],
+                    "total_recipients": r["total_recipients"] or 0,
+                    "total_sol": r["total_sol"],
+                    "avg_sol": r["avg_sol"],
+                    "max_burst_size": r["max_burst_size"],
+                    "min_burst_size": r["min_burst_size"],
+                    "creates": creates,
+                    "swarms": swarms,
+                    "last_fanout": r["last_fanout"],
+                    "first_fanout": r["first_fanout"],
+                    "last_fanout_ago": now - (r["last_fanout"] or now),
+                    "identical_bursts": r["identical_count"] or 0,
+                    "burst_type": burst_type,
+                    "grouped": True,
+                })
+        else:
+            for r in ov.execute(
+                "SELECT subprov_wallet, treasury_wallet, fanout_time, fanout_count, total_sol, "
+                "largest_sol, smallest_sol, avg_sol, has_identical_amounts, "
+                "creates_fired, buy_swarms "
+                "FROM wt_fanout_events ORDER BY fanout_time DESC LIMIT ?", (limit,)
+            ).fetchall():
+                burst_type = ("CREATOR" if r["creates_fired"] > 0
+                              else "SWARM" if r["buy_swarms"] > 0
+                              else "UNKNOWN")
+                bursts.append({
+                    "subprov": r["subprov_wallet"],
+                    "treasury": r["treasury_wallet"],
+                    "fanout_time": r["fanout_time"],
+                    "ago_s": now - (r["fanout_time"] or now),
+                    "recipients": r["fanout_count"],
+                    "total_sol": r["total_sol"],
+                    "largest_sol": r["largest_sol"],
+                    "smallest_sol": r["smallest_sol"],
+                    "avg_sol": r["avg_sol"],
+                    "identical_amounts": bool(r["has_identical_amounts"]),
+                    "creates": r["creates_fired"] or 0,
+                    "swarms": r["buy_swarms"] or 0,
+                    "burst_type": burst_type,
+                    "grouped": False,
+                })
+
+        # rolling 30s / 60s / 120s aggregates
+        rolling = {}
+        for window_s, label in [(30, "30s"), (60, "60s"), (120, "120s")]:
+            cutoff = now - window_s
+            row = ov.execute(
+                "SELECT COUNT(*) bursts, SUM(fanout_count) recipients, "
+                "SUM(creates_fired) creates, SUM(buy_swarms) swarms, SUM(total_sol) sol "
+                "FROM wt_fanout_events WHERE fanout_time >= ?", (cutoff,)
+            ).fetchone()
+            rolling[label] = {
+                "bursts": row["bursts"] or 0,
+                "recipients": row["recipients"] or 0,
+                "creates": row["creates"] or 0,
+                "swarms": row["swarms"] or 0,
+                "sol": round(row["sol"] or 0, 3),
+            }
+
+        # summary stats
+        stats_row = ov.execute(
+            "SELECT COUNT(*) total, SUM(fanout_count) total_recipients, "
+            "SUM(creates_fired) total_creates, SUM(buy_swarms) total_swarms, "
+            "AVG(fanout_count) avg_burst_size "
+            "FROM wt_fanout_events"
+        ).fetchone()
+
+        return jsonify({
+            "bursts": bursts,
+            "rolling": rolling,
+            "total": stats_row["total"] or 0,
+            "total_recipients": stats_row["total_recipients"] or 0,
+            "total_creates": stats_row["total_creates"] or 0,
+            "total_swarms": stats_row["total_swarms"] or 0,
+            "avg_burst_size": round(stats_row["avg_burst_size"] or 0, 1),
+            "now": now,
+        })
+    except Exception as e:
+        return jsonify({"bursts": [], "rolling": {}, "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/subprov-intelligence")
+def api_ops_subprov_intelligence():
+    """SubProv dossier: per-subprov behavioural profile from wt_discovered_subprovs
+    enriched with live session + fanout + launch stats."""
+    limit = min(int(request.args.get("limit", 200)), 1000)
+    ov = _conn()
+    try:
+        now = int(time.time())
+        rows = []
+
+        if not _table_exists(ov, "wt_discovered_subprovs"):
+            return jsonify({"subprovs": [], "total": 0})
+
+        discovered = {
+            r["subprov"]: dict(r)
+            for r in ov.execute("SELECT * FROM wt_discovered_subprovs ORDER BY last_seen DESC").fetchall()
+        }
+
+        # live session map
+        sessions: dict = {}
+        if _table_exists(ov, "wt_active_subprov_sessions"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, treasury_wallet, funding_amount, initial_funding_amount, "
+                "topup_count, topup_amount_total, monitoring_state, open_reason, detected_at, "
+                "funding_sequence_number, COALESCE(treasury_rotated,0) as treasury_rotated "
+                "FROM wt_active_subprov_sessions WHERE state='ACTIVE'"
+            ).fetchall():
+                sessions[r["subprov_wallet"]] = dict(r)
+
+        # fanout stats
+        fanout: dict = {}
+        if _table_exists(ov, "wt_fanout_events"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) bursts, SUM(fanout_count) recipients, "
+                "SUM(creates_fired) creates, SUM(buy_swarms) swarms, "
+                "MIN(fanout_time) first_fanout, MAX(fanout_time) last_fanout, "
+                "AVG(fanout_count) avg_burst_size "
+                "FROM wt_fanout_events GROUP BY subprov_wallet"
+            ).fetchall():
+                fanout[r["subprov_wallet"]] = dict(r)
+
+        # launch stats
+        launches: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) n, MIN(create_time) first_create, "
+                "MAX(create_time) last_create, AVG(birth_to_launch_seconds) avg_birth_to_launch "
+                "FROM wt_watchtower_launches GROUP BY subprov_wallet"
+            ).fetchall():
+                launches[r["subprov_wallet"]] = dict(r)
+
+        # candidate watch counts
+        cand_counts: dict = {}
+        if _table_exists(ov, "wt_candidate_websocket_watches"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) total, "
+                "SUM(CASE WHEN state='WATCHING' THEN 1 ELSE 0 END) watching, "
+                "SUM(CASE WHEN state='RESOLVED_CREATE' THEN 1 ELSE 0 END) resolved_create "
+                "FROM wt_candidate_websocket_watches GROUP BY subprov_wallet"
+            ).fetchall():
+                cand_counts[r["subprov_wallet"]] = dict(r)
+
+        for sp, d in list(discovered.items())[:limit]:
+            sess = sessions.get(sp)
+            fo = fanout.get(sp, {})
+            la = launches.get(sp, {})
+            cc = cand_counts.get(sp, {})
+
+            # data quality flags
+            dq = []
+            if not fo:
+                dq.append("NO_FANOUT_HISTORY")
+            if not la:
+                dq.append("NO_CONFIRMED_CREATES")
+            if d.get("subprov_type") == "UNKNOWN":
+                dq.append("TYPE_UNCLASSIFIED")
+            if not sess:
+                dq.append("NOT_LIVE")
+
+            rows.append({
+                "subprov": sp,
+                "treasury": d.get("treasury"),
+                "treasury_known": bool(d.get("treasury_known")),
+                "state": d.get("state"),
+                "confidence": d.get("confidence"),
+                "subprov_type": d.get("subprov_type") or "UNKNOWN",
+                "rejected_reason": d.get("rejected_reason"),
+                # lifetime stats from discovered table
+                "creator_count": d.get("creator_count") or 0,
+                "wrap_close_count": d.get("wrap_close_count") or 0,
+                "buy_swarm_count": d.get("buy_swarm_count") or 0,
+                "create_count": d.get("create_count") or 0,
+                "buy_swarm_ratio": round(d.get("buy_swarm_ratio") or 0, 3),
+                "topup_count_hist": d.get("topup_count") or 0,
+                "first_seen": d.get("first_seen"),
+                "last_seen": d.get("last_seen"),
+                "first_seen_ago": (now - d["first_seen"]) if d.get("first_seen") else None,
+                "last_seen_ago": (now - d["last_seen"]) if d.get("last_seen") else None,
+                # live session (LIVE)
+                "live": bool(sess),
+                "monitoring_state": sess["monitoring_state"] if sess else None,
+                "open_reason": sess["open_reason"] if sess else None,
+                "funding_sequence_number": sess["funding_sequence_number"] if sess else None,
+                "treasury_rotated": bool(sess["treasury_rotated"]) if sess else False,
+                "live_sol": ((sess["initial_funding_amount"] or sess["funding_amount"] or 0) + (sess["topup_amount_total"] or 0)) if sess else None,
+                # fanout intel (DERIVED from wt_fanout_events)
+                "fanout_bursts": fo.get("bursts") or 0,
+                "fanout_recipients": fo.get("recipients") or 0,
+                "fanout_creates": fo.get("creates") or 0,
+                "fanout_swarms": fo.get("swarms") or 0,
+                "avg_burst_size": round(fo.get("avg_burst_size") or 0, 1),
+                "first_fanout": fo.get("first_fanout"),
+                "last_fanout": fo.get("last_fanout"),
+                # confirmed launches (LIVE)
+                "confirmed_creates": la.get("n") or 0,
+                "first_create": la.get("first_create"),
+                "last_create": la.get("last_create"),
+                "avg_birth_to_launch": round(la.get("avg_birth_to_launch") or 0, 1),
+                # candidate watches (DERIVED)
+                "candidates_total": cc.get("total") or 0,
+                "candidates_watching": cc.get("watching") or 0,
+                "candidates_resolved_create": cc.get("resolved_create") or 0,
+                "data_quality": dq,
+            })
+
+        rows.sort(key=lambda x: x["last_seen"] or 0, reverse=True)
+        return jsonify({"subprovs": rows, "total": len(rows), "now": now})
+    except Exception as e:
+        return jsonify({"subprovs": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/launch-intelligence")
+def api_ops_launch_intelligence():
+    """Launch Intelligence: all confirmed WATCHTOWER launches with audit data where available."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+        if not _table_exists(ov, "wt_watchtower_launches"):
+            return jsonify({"launches": [], "total": 0})
+
+        launches_raw = ov.execute(
+            "SELECT * FROM wt_watchtower_launches ORDER BY create_time DESC"
+        ).fetchall()
+
+        # audit data keyed by mint
+        audit_map: dict = {}
+        if _table_exists(ov, "wt_launch_audit"):
+            for r in ov.execute(
+                "SELECT mint, detection_latency_ms, fetch_latency_ms, alert_latency_ms, "
+                "mc_at_create, mc_at_detection, mc_at_first_external_buy, "
+                "peak_mc, current_mc, time_to_peak_s, retrace_from_peak_pct, "
+                "actionable_multiple, peak_multiple_from_first_external, "
+                "seconds_from_detection_to_peak, final_state, audit_state, "
+                "buys_before_first_external_buy, buys_before_detection, "
+                "mc_at_create_source, mc_at_detection_source, migrated, migration_time "
+                "FROM wt_launch_audit"
+            ).fetchall():
+                audit_map[r["mint"]] = dict(r)
+
+        launches = []
+        for r in launches_raw:
+            mint = r["mint"]
+            audit = audit_map.get(mint, {})
+            dq = []
+            if not audit:
+                dq.append("NO_AUDIT")
+            elif audit.get("audit_state") not in ("FINALIZED", "PEAK_CAPTURED"):
+                dq.append(f"AUDIT_{audit.get('audit_state','UNKNOWN')}")
+            if not r["wrap_close_signature"]:
+                dq.append("NO_WRAP_SIG")
+            if r["fanout_time"] is None:
+                dq.append("NO_FANOUT_TIME")
+
+            am = audit.get("actionable_multiple")
+            launches.append({
+                "mint": mint,
+                "creator": r["creator_wallet"],
+                "subprov": r["subprov_wallet"],
+                "treasury": r["treasury_wallet"],
+                "create_time": r["create_time"],
+                "create_ago": (now - r["create_time"]) if r["create_time"] else None,
+                "launch_mode": r["launch_mode"] or "UNKNOWN",
+                "confidence": r["confidence"],
+                "birth_to_launch_s": r["birth_to_launch_seconds"],
+                "fanout_count": r["fanout_count"],
+                "fanout_to_create_s": r["fanout_to_create_secs"],
+                "create_to_migration_s": r["create_to_migration_secs"],
+                # audit fields (FORWARD-ONLY — only present if audit ran)
+                "detection_latency_ms": audit.get("detection_latency_ms"),
+                "mc_at_create": audit.get("mc_at_create"),
+                "mc_at_detection": audit.get("mc_at_detection"),
+                "peak_mc": audit.get("peak_mc"),
+                "actionable_multiple": am,
+                "actionable_bucket": (
+                    ">10x" if am and am >= 10 else
+                    "5-10x" if am and am >= 5 else
+                    "2-5x" if am and am >= 2 else
+                    "1.5-2x" if am and am >= 1.5 else
+                    "<1.5x" if am else None
+                ),
+                "time_to_peak_s": audit.get("time_to_peak_s"),
+                "final_state": audit.get("final_state") or "UNKNOWN",
+                "audit_state": audit.get("audit_state"),
+                "migrated": bool(audit.get("migrated")),
+                "data_quality": dq,
+            })
+
+        # summary stats
+        audited = [l for l in launches if l["actionable_multiple"] is not None]
+        migrated = [l for l in launches if l["migrated"]]
+        buckets = {}
+        for b in (">10x", "5-10x", "2-5x", "1.5-2x", "<1.5x"):
+            buckets[b] = len([l for l in audited if l["actionable_bucket"] == b])
+
+        return jsonify({
+            "launches": launches,
+            "total": len(launches),
+            "audited": len(audited),
+            "migrated": len(migrated),
+            "actionable_buckets": buckets,
+            "median_multiple": sorted([l["actionable_multiple"] for l in audited])[len(audited)//2] if audited else None,
+            "now": now,
+        })
+    except Exception as e:
+        return jsonify({"launches": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/post-create-activity")
+def api_ops_post_create_activity():
+    """Post-CREATE activity: subprovs that have at least one confirmed create,
+    showing subsequent fanout/swarm/reactivation behaviour."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+        if not _table_exists(ov, "wt_watchtower_launches"):
+            return jsonify({"subprovs": [], "total": 0})
+
+        # subprovs with at least one confirmed create
+        launched = {
+            r["subprov_wallet"]: dict(r)
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) creates, MIN(create_time) first_create, "
+                "MAX(create_time) last_create, treasury_wallet "
+                "FROM wt_watchtower_launches GROUP BY subprov_wallet"
+            ).fetchall()
+        }
+
+        # post-create fanout activity (fanout events AFTER last create)
+        post_fanout: dict = {}
+        if _table_exists(ov, "wt_fanout_events"):
+            for sp, la in launched.items():
+                rows = ov.execute(
+                    "SELECT COUNT(*) bursts, SUM(fanout_count) recipients, SUM(creates_fired) creates "
+                    "FROM wt_fanout_events WHERE subprov_wallet=? AND fanout_time > ?",
+                    (sp, la["last_create"])
+                ).fetchone()
+                if rows and rows["bursts"]:
+                    post_fanout[sp] = dict(rows)
+
+        # live session info
+        sessions: dict = {}
+        if _table_exists(ov, "wt_active_subprov_sessions"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, monitoring_state, open_reason, detected_at, expires_at "
+                "FROM wt_active_subprov_sessions WHERE state='ACTIVE'"
+            ).fetchall():
+                sessions[r["subprov_wallet"]] = dict(r)
+
+        # swarm activity per subprov
+        swarms: dict = {}
+        if _table_exists(ov, "wt_swarm_buys"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(DISTINCT mint) tokens, COUNT(*) total_buys "
+                "FROM wt_swarm_buys GROUP BY subprov_wallet"
+            ).fetchall():
+                swarms[r["subprov_wallet"]] = dict(r)
+
+        result = []
+        for sp, la in launched.items():
+            sess = sessions.get(sp)
+            pf = post_fanout.get(sp, {})
+            sw = swarms.get(sp, {})
+
+            # op_phase derived from whether we're live
+            is_live = bool(sess)
+            has_post_fanout = bool(pf)
+            op_phase = "POST_CREATE_ACTIVE" if (is_live and sess.get("monitoring_state") == "POST_CREATE_ACTIVE") else (
+                "POST_CREATE_LIVE" if is_live else "DORMANT"
+            )
+
+            result.append({
+                "subprov": sp,
+                "treasury": la["treasury_wallet"],
+                "creates": la["creates"],
+                "first_create": la["first_create"],
+                "last_create": la["last_create"],
+                "last_create_ago": (now - la["last_create"]) if la["last_create"] else None,
+                "op_phase": op_phase,
+                # live session (LIVE)
+                "live": is_live,
+                "monitoring_state": sess["monitoring_state"] if sess else None,
+                "open_reason": sess["open_reason"] if sess else None,
+                "ttl_remaining": max(0, (sess["expires_at"] or now) - now) if sess else None,
+                # post-create fanout (DERIVED — fanout events AFTER last create)
+                "post_create_bursts": pf.get("bursts") or 0,
+                "post_create_recipients": pf.get("recipients") or 0,
+                "post_create_further_creates": pf.get("creates") or 0,
+                # swarm activity (DERIVED)
+                "swarm_tokens": sw.get("tokens") or 0,
+                "swarm_total_buys": sw.get("total_buys") or 0,
+                # data quality
+                "data_quality": (
+                    (["POST_FANOUT_ACTIVE"] if has_post_fanout else ["NO_POST_FANOUT"]) +
+                    ([] if is_live else ["SESSION_EXPIRED"])
+                ),
+            })
+
+        result.sort(key=lambda x: x["last_create"] or 0, reverse=True)
+        return jsonify({"subprovs": result, "total": len(result), "now": now})
+    except Exception as e:
+        return jsonify({"subprovs": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/miss-analysis")
+def api_ops_miss_analysis():
+    """Miss Analysis: subprovs where creates fired without a confirmed WATCHTOWER detection.
+    Sources: wt_discovered_subprovs create_count vs wt_watchtower_launches,
+    wt_unconfirmed_watchtower_like, candidate watches resolved outside pipeline."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+
+        # confirmed launches per subprov
+        confirmed: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) n FROM wt_watchtower_launches GROUP BY subprov_wallet"
+            ).fetchall():
+                confirmed[r["subprov_wallet"]] = r["n"]
+
+        # discovered subprovs with create activity
+        discovered_creates = []
+        if _table_exists(ov, "wt_discovered_subprovs"):
+            for r in ov.execute(
+                "SELECT subprov, treasury, creator_count, create_count, wrap_close_count, "
+                "buy_swarm_count, first_seen, last_seen, state, confidence "
+                "FROM wt_discovered_subprovs WHERE creator_count > 0 ORDER BY creator_count DESC"
+            ).fetchall():
+                sp = r["subprov"]
+                conf = confirmed.get(sp, 0)
+                gap = (r["creator_count"] or 0) - conf
+                discovered_creates.append({
+                    "subprov": sp,
+                    "treasury": r["treasury"],
+                    "creator_count": r["creator_count"] or 0,
+                    "confirmed_launches": conf,
+                    "detection_gap": max(0, gap),
+                    "detection_rate": round(conf / r["creator_count"], 3) if r["creator_count"] else None,
+                    "wrap_close_count": r["wrap_close_count"] or 0,
+                    "buy_swarm_count": r["buy_swarm_count"] or 0,
+                    "first_seen": r["first_seen"],
+                    "last_seen": r["last_seen"],
+                    "last_seen_ago": (now - r["last_seen"]) if r["last_seen"] else None,
+                    "state": r["state"],
+                    "confidence": r["confidence"],
+                    "miss_type": (
+                        "FULL_MISS" if conf == 0 and gap > 0 else
+                        "PARTIAL_MISS" if gap > 0 else
+                        "COVERED"
+                    ),
+                })
+
+        # unconfirmed watchtower-like patterns (FORWARD-ONLY)
+        unconfirmed = []
+        if _table_exists(ov, "wt_unconfirmed_watchtower_like"):
+            for r in ov.execute(
+                "SELECT * FROM wt_unconfirmed_watchtower_like ORDER BY first_seen DESC LIMIT 100"
+            ).fetchall():
+                unconfirmed.append(dict(r))
+
+        # candidate watches that resolved to CREATE but have no matching launch record (pipeline gap)
+        pipeline_gaps = []
+        if _table_exists(ov, "wt_candidate_websocket_watches"):
+            confirmed_sigs = set()
+            if _table_exists(ov, "wt_watchtower_launches"):
+                for r in ov.execute("SELECT create_signature FROM wt_watchtower_launches").fetchall():
+                    if r["create_signature"]:
+                        confirmed_sigs.add(r["create_signature"])
+            # RESOLVED_CREATE candidates without a matching launch — data gap
+            gap_rows = ov.execute(
+                "SELECT candidate_wallet, subprov_wallet, treasury_wallet, wrap_close_signature, "
+                "wrap_close_time, close_reason "
+                "FROM wt_candidate_websocket_watches WHERE state='RESOLVED_CREATE' LIMIT 200"
+            ).fetchall()
+            for r in gap_rows:
+                # We can't match by sig directly (candidate watch stores wrap_close_sig not create_sig)
+                # Surface as potential pipeline gap for human review
+                pipeline_gaps.append({
+                    "candidate": r["candidate_wallet"],
+                    "subprov": r["subprov_wallet"],
+                    "treasury": r["treasury_wallet"],
+                    "wrap_close_sig": r["wrap_close_signature"],
+                    "wrap_close_time": r["wrap_close_time"],
+                    "close_reason": r["close_reason"],
+                    "gap_type": "FORWARD_ONLY",
+                })
+
+        total_creators = sum(d["creator_count"] for d in discovered_creates)
+        total_confirmed = sum(d["confirmed_launches"] for d in discovered_creates)
+        total_gap = sum(d["detection_gap"] for d in discovered_creates)
+        full_misses = [d for d in discovered_creates if d["miss_type"] == "FULL_MISS"]
+        partial_misses = [d for d in discovered_creates if d["miss_type"] == "PARTIAL_MISS"]
+
+        return jsonify({
+            "discovered_creates": discovered_creates,
+            "unconfirmed_patterns": unconfirmed,
+            "pipeline_gaps": pipeline_gaps,
+            "summary": {
+                "total_subprovs_with_creates": len(discovered_creates),
+                "total_creator_count": total_creators,
+                "total_confirmed_launches": total_confirmed,
+                "total_detection_gap": total_gap,
+                "full_miss_subprovs": len(full_misses),
+                "partial_miss_subprovs": len(partial_misses),
+                "covered_subprovs": len(discovered_creates) - len(full_misses) - len(partial_misses),
+                "overall_detection_rate": round(total_confirmed / total_creators, 3) if total_creators else None,
+            },
+            "data_quality_note": (
+                "creator_count in wt_discovered_subprovs is FORWARD-ONLY (only populated from "
+                "wrap-close events observed during active WS session). Historical creates before "
+                "pipeline deployment are not counted. detection_gap is a lower bound on misses."
+            ),
+            "now": now,
+        })
+    except Exception as e:
+        return jsonify({"discovered_creates": [], "summary": {}, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/behaviour-fingerprints")
+def api_ops_behaviour_fingerprints():
+    """Behaviour fingerprints: per-subprov operational signatures derived from fanout patterns,
+    timing, and launch outcomes. Read-only derived from existing tables."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+
+        fingerprints = []
+
+        if not _table_exists(ov, "wt_fanout_events"):
+            return jsonify({"fingerprints": [], "total": 0})
+
+        # Per-subprov fanout distribution stats
+        subprov_fanout = {}
+        for r in ov.execute(
+            "SELECT subprov_wallet, treasury_wallet, "
+            "COUNT(*) bursts, "
+            "AVG(fanout_count) avg_size, MIN(fanout_count) min_size, MAX(fanout_count) max_size, "
+            "SUM(CASE WHEN fanout_count <= 6 THEN 1 ELSE 0 END) small_bursts, "
+            "SUM(CASE WHEN fanout_count >= 11 THEN 1 ELSE 0 END) large_bursts, "
+            "AVG(total_sol) avg_total_sol, AVG(avg_sol) avg_per_recipient, "
+            "SUM(CASE WHEN has_identical_amounts THEN 1 ELSE 0 END) identical_bursts, "
+            "SUM(creates_fired) total_creates, SUM(buy_swarms) total_swarms, "
+            "MIN(fanout_time) first_burst, MAX(fanout_time) last_burst "
+            "FROM wt_fanout_events GROUP BY subprov_wallet"
+        ).fetchall():
+            subprov_fanout[r["subprov_wallet"]] = dict(r)
+
+        # launch timing from watchtower_launches
+        launch_timing: dict = {}
+        if _table_exists(ov, "wt_watchtower_launches"):
+            for r in ov.execute(
+                "SELECT subprov_wallet, "
+                "COUNT(*) n, AVG(birth_to_launch_seconds) avg_birth_s, "
+                "AVG(fanout_to_create_secs) avg_fanout_to_create, "
+                "SUM(CASE WHEN launch_mode='INSTANT' THEN 1 ELSE 0 END) instant_count, "
+                "SUM(CASE WHEN launch_mode='STAGED' THEN 1 ELSE 0 END) staged_count "
+                "FROM wt_watchtower_launches GROUP BY subprov_wallet"
+            ).fetchall():
+                launch_timing[r["subprov_wallet"]] = dict(r)
+
+        for sp, fo in subprov_fanout.items():
+            la = launch_timing.get(sp, {})
+            bursts = fo["bursts"] or 1
+            small = fo["small_bursts"] or 0
+            large = fo["large_bursts"] or 0
+            identical = fo["identical_bursts"] or 0
+            creates = fo["total_creates"] or 0
+            swarms = fo["total_swarms"] or 0
+
+            # Derive behaviour signature
+            creator_ratio = creates / bursts if bursts else 0
+            swarm_ratio = swarms / bursts if bursts else 0
+            small_ratio = small / bursts if bursts else 0
+            identical_ratio = identical / bursts if bursts else 0
+
+            sig_parts = []
+            if creator_ratio > 0.5:
+                sig_parts.append("CREATOR_DOMINANT")
+            elif swarm_ratio > 0.5:
+                sig_parts.append("SWARM_DOMINANT")
+            else:
+                sig_parts.append("MIXED")
+
+            if small_ratio > 0.8:
+                sig_parts.append("PRECISION_BURSTS")
+            elif (large / bursts if bursts else 0) > 0.5:
+                sig_parts.append("MASS_BURSTS")
+
+            if identical_ratio > 0.7:
+                sig_parts.append("UNIFORM_AMOUNTS")
+
+            instant = la.get("instant_count") or 0
+            staged = la.get("staged_count") or 0
+            if instant + staged > 0:
+                if instant / (instant + staged) > 0.8:
+                    sig_parts.append("INSTANT_MODE")
+                elif staged / (instant + staged) > 0.8:
+                    sig_parts.append("STAGED_MODE")
+
+            # operational lifespan
+            first = fo.get("first_burst")
+            last = fo.get("last_burst")
+            lifespan_s = (last - first) if first and last else None
+
+            fingerprints.append({
+                "subprov": sp,
+                "treasury": fo.get("treasury_wallet"),
+                # raw stats
+                "total_bursts": bursts,
+                "avg_burst_size": round(fo.get("avg_size") or 0, 1),
+                "min_burst_size": fo.get("min_size"),
+                "max_burst_size": fo.get("max_size"),
+                "small_burst_pct": round(small_ratio * 100, 1),
+                "large_burst_pct": round((large / bursts) * 100 if bursts else 0, 1),
+                "identical_amount_pct": round(identical_ratio * 100, 1),
+                "avg_per_recipient_sol": round(fo.get("avg_per_recipient") or 0, 4),
+                "avg_total_sol": round(fo.get("avg_total_sol") or 0, 3),
+                "total_creates": creates,
+                "total_swarms": swarms,
+                "creator_ratio": round(creator_ratio, 3),
+                "swarm_ratio": round(swarm_ratio, 3),
+                # launch timing (FORWARD-ONLY — only from pipeline-detected launches)
+                "confirmed_launches": la.get("n") or 0,
+                "avg_birth_to_launch_s": round(la.get("avg_birth_s") or 0, 1),
+                "avg_fanout_to_create_s": round(la.get("avg_fanout_to_create") or 0, 1) if la.get("avg_fanout_to_create") else None,
+                "instant_launches": instant,
+                "staged_launches": staged,
+                # derived signature
+                "behaviour_signature": "+".join(sig_parts) if sig_parts else "UNKNOWN",
+                "first_burst": first,
+                "last_burst": last,
+                "lifespan_s": lifespan_s,
+                "data_quality": (
+                    (["FORWARD_ONLY_TIMING"] if la else ["NO_CONFIRMED_LAUNCHES"]) +
+                    (["LOW_SAMPLE"] if bursts < 5 else [])
+                ),
+            })
+
+        fingerprints.sort(key=lambda x: x["total_bursts"], reverse=True)
+        return jsonify({"fingerprints": fingerprints, "total": len(fingerprints), "now": now})
+    except Exception as e:
+        return jsonify({"fingerprints": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/rolling-activity")
+def api_ops_rolling_activity():
+    """Rolling activity heatmap: 24h of fanout + create + swarm events binned by hour,
+    plus per-hour burst counts for the heatmap grid."""
+    ov = _conn()
+    try:
+        now = int(time.time())
+        cutoff_24h = now - 86400
+        cutoff_7d = now - 7 * 86400
+
+        hourly_bins: dict = {}
+
+        if _table_exists(ov, "wt_fanout_events"):
+            for r in ov.execute(
+                "SELECT fanout_time, fanout_count, creates_fired, buy_swarms, total_sol "
+                "FROM wt_fanout_events WHERE fanout_time >= ? ORDER BY fanout_time",
+                (cutoff_24h,)
+            ).fetchall():
+                t = r["fanout_time"] or 0
+                bucket = (t // 3600) * 3600  # floor to hour
+                b = hourly_bins.setdefault(bucket, {"ts": bucket, "bursts": 0, "recipients": 0,
+                                                     "creates": 0, "swarms": 0, "sol": 0.0})
+                b["bursts"] += 1
+                b["recipients"] += r["fanout_count"] or 0
+                b["creates"] += r["creates_fired"] or 0
+                b["swarms"] += r["buy_swarms"] or 0
+                b["sol"] += r["total_sol"] or 0
+
+        if _table_exists(ov, "wt_watchtower_launches"):
+            for r in ov.execute(
+                "SELECT create_time FROM wt_watchtower_launches WHERE create_time >= ?",
+                (cutoff_24h,)
+            ).fetchall():
+                t = r["create_time"] or 0
+                bucket = (t // 3600) * 3600
+                b = hourly_bins.setdefault(bucket, {"ts": bucket, "bursts": 0, "recipients": 0,
+                                                     "creates": 0, "swarms": 0, "sol": 0.0})
+                b["creates"] = b.get("creates", 0) + 1
+
+        bins = sorted(hourly_bins.values(), key=lambda x: x["ts"])
+        for b in bins:
+            b["ago_h"] = round((now - b["ts"]) / 3600, 1)
+            b["sol"] = round(b["sol"], 2)
+
+        # 7d daily summary
+        daily_bins: dict = {}
+        if _table_exists(ov, "wt_fanout_events"):
+            for r in ov.execute(
+                "SELECT fanout_time, fanout_count, creates_fired, buy_swarms "
+                "FROM wt_fanout_events WHERE fanout_time >= ?", (cutoff_7d,)
+            ).fetchall():
+                t = r["fanout_time"] or 0
+                bucket = (t // 86400) * 86400
+                b = daily_bins.setdefault(bucket, {"ts": bucket, "bursts": 0,
+                                                    "recipients": 0, "creates": 0, "swarms": 0})
+                b["bursts"] += 1
+                b["recipients"] += r["fanout_count"] or 0
+                b["creates"] += r["creates_fired"] or 0
+                b["swarms"] += r["buy_swarms"] or 0
+
+        daily = sorted(daily_bins.values(), key=lambda x: x["ts"])
+
+        # rolling windows (same logic as fanout-intelligence endpoint)
+        rolling = {}
+        if _table_exists(ov, "wt_fanout_events"):
+            for window_s, label in [(300, "5m"), (1800, "30m"), (3600, "1h"), (21600, "6h"), (86400, "24h")]:
+                cutoff = now - window_s
+                row = ov.execute(
+                    "SELECT COUNT(*) bursts, SUM(fanout_count) recipients, "
+                    "SUM(creates_fired) creates, SUM(buy_swarms) swarms, SUM(total_sol) sol "
+                    "FROM wt_fanout_events WHERE fanout_time >= ?", (cutoff,)
+                ).fetchone()
+                rolling[label] = {
+                    "bursts": row["bursts"] or 0,
+                    "recipients": row["recipients"] or 0,
+                    "creates": row["creates"] or 0,
+                    "swarms": row["swarms"] or 0,
+                    "sol": round(row["sol"] or 0, 2),
+                }
+
+        return jsonify({
+            "hourly_bins": bins,
+            "daily_bins": daily,
+            "rolling": rolling,
+            "now": now,
+        })
+    except Exception as e:
+        return jsonify({"hourly_bins": [], "daily_bins": [], "rolling": {}, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/walkback-queue")
+def api_ops_walkback_queue():
+    """Walkback queue stats: lineage completeness split + trend."""
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_walkback_queue"):
+            return jsonify({"by_class": {}, "by_status": {}, "rpc_total": 0, "trend_24h": {},
+                            "recent": []})
+        from src.core.walkback_queue import queue_stats
+        stats = queue_stats(ov)
+
+        # recent entries (last 50, newest first)
+        recent = []
+        for r in ov.execute(
+            "SELECT mint, creator, subprov, treasury, walkback_class, attribution_source, "
+            "intelligence_outcome, status, rpc_used, enqueued_at, completed_at "
+            "FROM wt_walkback_queue ORDER BY enqueued_at DESC LIMIT 50"
+        ).fetchall():
+            recent.append({
+                "mint": r["mint"],
+                "creator": r["creator"],
+                "subprov": r["subprov"],
+                "treasury": r["treasury"],
+                "walkback_class": r["walkback_class"],
+                "attribution_source": r["attribution_source"],
+                "intelligence_outcome": r["intelligence_outcome"],
+                "status": r["status"],
+                "rpc_used": r["rpc_used"],
+                "enqueued_at": r["enqueued_at"],
+                "completed_at": r["completed_at"],
+            })
+
+        stats["recent"] = recent
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({"error": str(e), "by_class": {}, "by_status": {}, "trend_24h": {}})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops/cdc-intelligence")
+def api_ops_cdc_intelligence():
+    """Capital Distributor Candidates — infrastructure observation only, no creator detection."""
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_capital_distributor_candidates"):
+            return jsonify({"cdcs": [], "total": 0})
+
+        cdcs_raw = ov.execute(
+            "SELECT wallet, source_treasury, funding_amount_sol, first_seen, "
+            "observation_state, last_activity, total_outbound_sol, recipient_count, "
+            "fanout_count, largest_fanout, derived_role, role_confidence "
+            "FROM wt_capital_distributor_candidates ORDER BY first_seen DESC LIMIT 100"
+        ).fetchall()
+
+        now = int(time.time())
+        cdcs = []
+        for r in cdcs_raw:
+            cdcs.append({
+                "wallet": r["wallet"],
+                "source_treasury": r["source_treasury"],
+                "funding_sol": round(r["funding_amount_sol"] or 0, 2),
+                "first_seen": r["first_seen"],
+                "first_seen_ago": now - (r["first_seen"] or now),
+                "state": r["observation_state"],
+                "last_activity": r["last_activity"],
+                "last_activity_ago": (now - r["last_activity"]) if r["last_activity"] else None,
+                "total_outbound_sol": round(r["total_outbound_sol"] or 0, 2),
+                "recipient_count": r["recipient_count"] or 0,
+                "fanout_count": r["fanout_count"] or 0,
+                "largest_fanout": r["largest_fanout"] or 0,
+                "derived_role": r["derived_role"] or "UNKNOWN",
+                "role_confidence": r["role_confidence"] or "NONE",
+            })
+
+        # recent outbound events (last 50)
+        recent_outbounds = []
+        if _table_exists(ov, "wt_cdc_outbound_events"):
+            for r in ov.execute(
+                "SELECT cdc_wallet, sig, block_time, recipient, amount_sol, fanout_size "
+                "FROM wt_cdc_outbound_events ORDER BY block_time DESC LIMIT 50"
+            ).fetchall():
+                recent_outbounds.append({
+                    "cdc_wallet": r["cdc_wallet"],
+                    "sig": r["sig"],
+                    "block_time": r["block_time"],
+                    "block_time_ago": now - (r["block_time"] or now),
+                    "recipient": r["recipient"],
+                    "amount_sol": round(r["amount_sol"] or 0, 3),
+                    "fanout_size": r["fanout_size"],
+                })
+
+        counts = {
+            "observing":   sum(1 for c in cdcs if c["state"] == "OBSERVING"),
+            "subscribed":  sum(1 for c in cdcs if c["state"] == "SUBSCRIBED"),
+            "inactive":    sum(1 for c in cdcs if c["state"] == "INACTIVE"),
+        }
+
+        return jsonify({
+            "cdcs": cdcs,
+            "total": len(cdcs),
+            "counts": counts,
+            "recent_outbounds": recent_outbounds,
+            "now": now,
+        })
+    except Exception as e:
+        return jsonify({"cdcs": [], "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/dust-observatory")
+def dust_observatory_summary():
+    """Dust Observatory: marker summary + role transition stats + intelligence overview."""
+    try:
+        from src.core import dust_observatory as dobs
+        markers   = dobs.get_dust_marker_summary()
+        stats     = dobs.get_role_transition_stats()
+        intel     = dobs.get_intelligence_summary()
+        return jsonify({
+            "ok": True,
+            "generated_at": time.time(),
+            "markers": markers,
+            "stats": stats,
+            "intel": intel,
+        })
+    except Exception as e:
+        return jsonify({
+            "ok": False,
+            "generated_at": time.time(),
+            "markers": [],
+            "stats": {},
+            "intel": {},
+            "error": str(e),
+        })
+
+
+@ops_dashboard_bp.route("/api/ops-v2/dust-observatory/recipient/<wallet>")
+def dust_observatory_recipient(wallet):
+    """Return the full lifecycle record for one recipient wallet."""
+    try:
+        from src.core import dust_observatory as dobs
+        data = dobs.get_recipient_lifecycle(wallet)
+        if data is None:
+            return jsonify({"error": "not found"}), 404
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@ops_dashboard_bp.route("/ops/dust-observatory")
+def dust_observatory_page():
+    return render_template("watchtower_dust_observatory.html", active_page="dust_observatory")
 
 
 def register_operation_dashboard_routes(app):

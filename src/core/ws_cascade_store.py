@@ -226,8 +226,64 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN topup_amount_total REAL DEFAULT 0.0")
         if "last_topup_at" not in _scols2:
             conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN last_topup_at INTEGER")
+        if "funding_mechanism" not in _scols2:
+            conn.execute(
+                "ALTER TABLE wt_active_subprov_sessions ADD COLUMN "
+                "funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE'"
+            )
+        if "session_tag" not in _scols2:
+            conn.execute(
+                "ALTER TABLE wt_active_subprov_sessions ADD COLUMN "
+                "session_tag TEXT DEFAULT NULL"
+            )
     except Exception:
         pass
+    # wt_capital_reloads: add enrolment_reason + block_time for plain-transfer enrolments
+    try:
+        _crcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_capital_reloads)").fetchall()}
+        if "enrolment_reason" not in _crcols:
+            conn.execute("ALTER TABLE wt_capital_reloads ADD COLUMN enrolment_reason TEXT")
+        if "block_time" not in _crcols:
+            conn.execute("ALTER TABLE wt_capital_reloads ADD COLUMN block_time INTEGER")
+        if "session_opened" not in _crcols:
+            conn.execute("ALTER TABLE wt_capital_reloads ADD COLUMN session_opened INTEGER DEFAULT 0")
+        if "linked_mint_basis" not in _crcols:
+            conn.execute("ALTER TABLE wt_capital_reloads ADD COLUMN linked_mint_basis TEXT")
+        if "operation_uuid" not in _crcols:
+            conn.execute("ALTER TABLE wt_capital_reloads ADD COLUMN operation_uuid TEXT")
+    except Exception:
+        pass
+    try:
+        _stcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_subprov_topups)").fetchall()}
+        if "operation_uuid" not in _stcols:
+            conn.execute("ALTER TABLE wt_subprov_topups ADD COLUMN operation_uuid TEXT")
+    except Exception:
+        pass
+    # wt_token_lifecycle — derived lifecycle aggregation (read-only view of confirmed launches)
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_token_lifecycle (
+            mint                    TEXT PRIMARY KEY,
+            treasury                TEXT,
+            subprov                 TEXT,
+            creator                 TEXT,
+            create_sig              TEXT,
+            lifecycle_state         TEXT NOT NULL DEFAULT 'LAUNCHED',
+            funded_at               INTEGER,
+            launched_at             INTEGER,
+            migrated_at             INTEGER,
+            recycled_at             INTEGER,
+            campaign_end_reason     TEXT,
+            migration_sig           TEXT,
+            recycle_sig             TEXT,
+            recycle_amount_sol      REAL,
+            recycle_direction       TEXT,
+            operation_uuid          TEXT,
+            updated_at              INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )"""
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_tl_subprov ON wt_token_lifecycle(subprov)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_tl_treasury ON wt_token_lifecycle(treasury)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_tl_state ON wt_token_lifecycle(lifecycle_state)")
     # confidence + state + wrap_close_count + topup_count on discovered subprovs
     try:
         _dcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_discovered_subprovs)").fetchall()}
@@ -693,17 +749,25 @@ def mark_non_provisioning_recipients(conn) -> int:
 def record_capital_reload(conn, *, subprov: str, treasury: str, sig: str,
                           amount_sol: float, wrap_close_count: int = 0,
                           first_creator: Optional[str] = None,
-                          linked_mint: Optional[str] = None) -> None:
-    """Persist a CAPITAL_RELOAD event: a large treasury injection into a known, launched subprov.
+                          linked_mint: Optional[str] = None,
+                          enrolment_reason: Optional[str] = None,
+                          block_time: Optional[int] = None,
+                          session_opened: bool = False,
+                          operation_uuid: Optional[str] = None) -> None:
+    """Persist a CAPITAL_RELOAD event: a large treasury injection into a known or new subprov.
     Idempotent on sig (UNIQUE constraint). Does NOT arm ProgramWatcher — purely an intel record.
+    enrolment_reason: PLAIN_TRANSFER_NEW_SUBPROV | PLAIN_TRANSFER_RELOAD | WRAP_CLOSE_RELOAD etc.
+    operation_uuid: linked campaign if resolvable at write time (NULL = UNRESOLVED / Mission 2).
     """
     now = int(time.time())
     try:
         conn.execute(
             "INSERT OR IGNORE INTO wt_capital_reloads "
-            "(subprov, treasury, sig, amount_sol, wrap_close_count, first_creator, linked_mint, recorded_at) "
-            "VALUES (?,?,?,?,?,?,?,?)",
-            (subprov, treasury, sig, amount_sol, wrap_close_count, first_creator, linked_mint, now))
+            "(subprov, treasury, sig, amount_sol, wrap_close_count, first_creator, linked_mint, "
+            " enrolment_reason, block_time, session_opened, operation_uuid, recorded_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (subprov, treasury, sig, amount_sol, wrap_close_count, first_creator, linked_mint,
+             enrolment_reason, block_time, int(session_opened), operation_uuid, now))
         conn.commit()
     except Exception:
         pass
@@ -877,7 +941,8 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
                   monitoring_state: str = "LIVE_ARMED",
                   funding_sequence_number: Optional[int] = None,
                   treasury_rotated: bool = False,
-                  last_activity_at: Optional[int] = None) -> bool:
+                  last_activity_at: Optional[int] = None,
+                  funding_mechanism: Optional[str] = None) -> bool:
     """Record a confirmed treasury→SUB_PROV funding as an ACTIVE session. Idempotent on
     (subprov, funding_sig). Returns True if a NEW session row was created.
 
@@ -912,36 +977,52 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
                 "    last_topup_at=?, "
                 "    funding_sequence_number=COALESCE(funding_sequence_number,?), "
                 "    treasury_rotated=COALESCE(treasury_rotated,?), "
-                "    last_activity_at=COALESCE(last_activity_at,?) "
+                "    last_activity_at=COALESCE(last_activity_at,?), "
+                "    monitoring_state=CASE WHEN ?='INTEL_ONLY' THEN 'INTEL_ONLY' ELSE monitoring_state END "
                 "WHERE subprov_wallet=? AND state='ACTIVE'",
                 (now + ttl_seconds, _amt, now,
-                 funding_sequence_number, int(treasury_rotated), last_activity_at, subprov))
+                 funding_sequence_number, int(treasury_rotated), last_activity_at,
+                 monitoring_state, subprov))
         else:
             conn.execute(
-                "UPDATE wt_active_subprov_sessions SET expires_at=MAX(expires_at,?) "
+                "UPDATE wt_active_subprov_sessions "
+                "SET expires_at=MAX(expires_at,?), "
+                "    monitoring_state=CASE WHEN ?='INTEL_ONLY' THEN 'INTEL_ONLY' ELSE monitoring_state END "
                 "WHERE subprov_wallet=? AND state='ACTIVE'",
-                (now + ttl_seconds, subprov))
+                (now + ttl_seconds, monitoring_state, subprov))
         if open_reason == "SUBPROV_TOP_UP":
             try:
+                _topup_op_uuid = None
+                try:
+                    _r = conn.execute(
+                        "SELECT operation_uuid FROM wt_ops_v2 "
+                        "WHERE treasury_root=? ORDER BY last_seen DESC LIMIT 1",
+                        (treasury or "",)).fetchone()
+                    _topup_op_uuid = _r["operation_uuid"] if _r else None
+                except Exception:
+                    pass
                 conn.execute(
                     "INSERT OR IGNORE INTO wt_subprov_topups "
-                    "(subprov, treasury, sig, amount_sol, recorded_at) VALUES (?,?,?,?,?)",
-                    (subprov, treasury or "", funding_sig or "", funding_amount, now))
+                    "(subprov, treasury, sig, amount_sol, operation_uuid, recorded_at) "
+                    "VALUES (?,?,?,?,?,?)",
+                    (subprov, treasury or "", funding_sig or "", funding_amount,
+                     _topup_op_uuid, now))
             except Exception:
                 pass
         conn.commit()
         return False   # no new session row — caller should not re-subscribe
 
+    _fmech = funding_mechanism or "WSOL_WRAP_CLOSE"
     cur = conn.execute(
         """INSERT OR IGNORE INTO wt_active_subprov_sessions
              (subprov_wallet, treasury_wallet, funding_signature, funding_amount,
               initial_funding_amount, funding_time, subprov_known, open_reason,
-              monitoring_state, state, detected_at, expires_at,
+              monitoring_state, funding_mechanism, state, detected_at, expires_at,
               funding_sequence_number, treasury_rotated, last_activity_at)
-           VALUES (?,?,?,?,?,?,?,?,?, 'ACTIVE', ?, ?,?,?,?)""",
+           VALUES (?,?,?,?,?,?,?,?,?,?, 'ACTIVE', ?, ?,?,?,?)""",
         (subprov, treasury, funding_sig, funding_amount, funding_amount,
-         funding_time or now, int(subprov_known), open_reason, monitoring_state, now, now + ttl_seconds,
-         funding_sequence_number, int(treasury_rotated), last_activity_at))
+         funding_time or now, int(subprov_known), open_reason, monitoring_state, _fmech,
+         now, now + ttl_seconds, funding_sequence_number, int(treasury_rotated), last_activity_at))
     conn.commit()
     if cur.rowcount == 0:
         # duplicate funding_sig (e.g. webhook + WS both fire, or pre-restart row) →
@@ -1216,6 +1297,195 @@ def reject_unproven_sessions(conn) -> list:
     if rows:
         conn.commit()
     return rows
+
+
+def tag_operational_spend_proxies(conn) -> int:
+    """Retrospectively tag expired, zero-fanout sessions as OPERATIONAL_SPEND_PROXY.
+
+    Two detection paths (either qualifies):
+
+    PATH A — Direct on-chain signal (strongest):
+      The session wallet appears in wt_webhook_hits as a SENDER to a known Hello
+      fee wallet (FudPMePe…, JBGUGPmK…) or the shared service recipient (21wG4F3Z…).
+      Requires the proxy to be webhooked, which is rare — this path catches future
+      cases if we ever subscribe the proxy wallet.
+
+    PATH B — Structural inference (covers current unwebhooked proxies):
+      The session is EXPIRED, zero fan-out, AND the treasury sends the same small
+      amount (within ±0.5 SOL) to at least 2 other wallets that also expired with
+      zero fan-out in the same DB. This fingerprints the treasury's repeating
+      spend-proxy pattern without needing the proxy's own outbound data.
+      Only fires for amounts in the operational-spend band (2–20 SOL), never for
+      amounts ≥ 50 SOL (which could be a real small-cap subprov).
+
+    Soft tag only — does not change session state or affect the live pipeline.
+    Excludes tagged sessions from ARMED strip and Mission 3 provisioning views.
+    Idempotent — skips already-tagged rows.
+
+    Returns count of newly tagged sessions.
+    """
+    now = int(time.time())
+    count = 0
+
+    # PATH A — two sub-paths:
+    #
+    # A1: proxy wallet's own outbounds to Hello signals (requires proxy to be webhooked).
+    #     Covers future cases where we subscribe the proxy wallet directly.
+    _hello_recipients = [
+        "FudPMePe",          # Hello fee wallet 1 (prefix)
+        "JBGUGPmK",          # Hello fee wallet 2 (prefix)
+        "21wG4F3ZR8gwGC47CkpD6ySBUgH9AABtYMBWFiYdTTgv",  # shared service recipient A
+        "FjzGoWfjuTBEpVA4CpGFSEgmkLPCMFCfJcpLvPCwYNk",   # shared service recipient B (seen via 77WErjic + DNS3T5)
+    ]
+    recipient_clauses = " OR ".join(
+        f"h.counterparty LIKE '{r}%'" if len(r) < 44 else f"h.counterparty = '{r}'"
+        for r in _hello_recipients
+    )
+    path_a1 = conn.execute(
+        f"""SELECT s.id
+            FROM wt_active_subprov_sessions s
+            WHERE s.state = 'EXPIRED'
+              AND (s.session_tag IS NULL OR s.session_tag = 'POSSIBLE_OPERATIONAL_SPEND_PROXY')
+              AND NOT EXISTS (
+                SELECT 1 FROM wt_subprov_evidence e WHERE e.subprov = s.subprov_wallet
+              )
+              AND EXISTS (
+                SELECT 1 FROM wt_webhook_hits h
+                WHERE h.wallet_address = s.subprov_wallet
+                  AND h.direction = 'OUT'
+                  AND ({recipient_clauses})
+              )"""
+    ).fetchall()
+    for row in path_a1:
+        conn.execute(
+            "UPDATE wt_active_subprov_sessions "
+            "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row[0],))
+        count += 1
+
+    # A2: confirmed Hello proxy wallets identified via Solscan forensic investigation.
+    #     These wallets were directly observed making singleSolPayment calls to 21wG4F3Z.
+    #     Enumerated explicitly because they are not webhooked (outbounds not in DB).
+    _CONFIRMED_HELLO_PROXIES = {
+        "DNS3T5cHmJxjD3TnU6t3vvmRw1FstxTZjRErxJSU5Xf1",  # DchJqu proxy, confirmed 2026-07-07
+        "J1dLKj4TJC6S9HCHCGEbwGmXjPByGBvPuNBCJVePMdtE",   # Dtwi proxy, confirmed 2026-07-07
+        "77WErjicCa9Popxi8J5pMvQ93oF1ZBRuF7KUUwPvUjc9",   # DchJqu proxy, confirmed 2026-07-07
+        "G6kpDV5DeePqXZR7FERqxAARyFJdDLc5LJtBfCS4WuFd",   # DchJqu proxy, confirmed 2026-07-07
+        "zeczXRxxdEUpG8YYd2kGPsyFGCvB8JDQxbgTNGN5suP",    # DchJqu proxy, confirmed 2026-07-07
+        "7ftn3aHCQzGeJdL2MsfyPMKaeqHwkpYL5QRDYiehdrU3",   # DchJqu proxy, confirmed 2026-07-07
+    }
+    if _CONFIRMED_HELLO_PROXIES:
+        placeholders = ",".join("?" * len(_CONFIRMED_HELLO_PROXIES))
+        path_a2 = conn.execute(
+            f"""SELECT s.id FROM wt_active_subprov_sessions s
+                WHERE s.subprov_wallet IN ({placeholders})
+                  AND s.session_tag IS NULL""",
+            list(_CONFIRMED_HELLO_PROXIES)
+        ).fetchall()
+        for row in path_a2:
+            conn.execute(
+                "UPDATE wt_active_subprov_sessions "
+                "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row[0],))
+            count += 1
+
+    # PATH B: structural — same treasury, same round PLAIN_TRANSFER amount, ≥3 peers
+    # Targets the repeating spend-proxy pattern: treasury sends an identical round SOL
+    # amount via plain transfer to multiple wallets that all expire with zero fan-out.
+    # Guards:
+    #   - funding_mechanism = PLAIN_TRANSFER only (eliminates all WSOL_WRAP_CLOSE seeds)
+    #   - amount in 2–20 SOL band
+    #   - amount must be "round" (within ±0.1 SOL of a whole number) — operational
+    #     budgets are round; creator seeds from wrap-close are fractional
+    #   - ≥3 peer sessions from same treasury at same amount (±0.1 SOL), all zero-fanout
+    #     (≥3 is much harder to hit by coincidence than ≥2)
+    path_b_candidates = conn.execute(
+        """SELECT s.id, s.subprov_wallet, s.treasury_wallet, s.funding_amount
+           FROM wt_active_subprov_sessions s
+           WHERE s.state = 'EXPIRED'
+             AND s.session_tag IS NULL
+             AND s.funding_mechanism = 'PLAIN_TRANSFER'
+             AND s.funding_amount BETWEEN 2.0 AND 20.0
+             AND ABS(s.funding_amount - ROUND(s.funding_amount)) < 0.1
+             AND s.treasury_wallet IS NOT NULL
+             AND NOT EXISTS (
+               SELECT 1 FROM wt_subprov_evidence e WHERE e.subprov = s.subprov_wallet
+             )"""
+    ).fetchall()
+    for row in path_b_candidates:
+        peers = conn.execute(
+            """SELECT COUNT(*) FROM wt_active_subprov_sessions peer
+               WHERE peer.treasury_wallet = ?
+                 AND peer.subprov_wallet != ?
+                 AND peer.state = 'EXPIRED'
+                 AND peer.funding_mechanism = 'PLAIN_TRANSFER'
+                 AND ABS(peer.funding_amount - ?) < 0.1
+                 AND NOT EXISTS (
+                   SELECT 1 FROM wt_subprov_evidence e WHERE e.subprov = peer.subprov_wallet
+                 )""",
+            (row["treasury_wallet"], row["subprov_wallet"], row["funding_amount"])
+        ).fetchone()[0]
+        if peers >= 3:
+            conn.execute(
+                "UPDATE wt_active_subprov_sessions "
+                "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row["id"],))
+            count += 1
+
+    # PATH C: fast post-expiry single-wallet classifier.
+    # Fires on any expired zero-fanout session that looks like a one-shot operational
+    # budget transfer — does NOT require peers (fires on the first instance) but uses
+    # a tighter signal set to compensate:
+    #   - exactly ONE treasury transfer into the wallet (no seed+capital pair)
+    #   - round amount in the known operational-spend band (5–20 SOL ± 0.1)
+    #   - confirmed treasury funder
+    #   - zero wrap-close / seeded-close evidence
+    #   - session already EXPIRED (never promoted beyond PROVISION_CANDIDATE)
+    # Tags as POSSIBLE_OPERATIONAL_SPEND_PROXY (softer than A/B) — removed from ARMED
+    # views but auditable; promoted to OPERATIONAL_SPEND_PROXY if Hello evidence appears.
+    _OPEX_BAND_MIN = 5.0
+    _OPEX_BAND_MAX = 20.0
+    path_c_candidates = conn.execute(
+        """SELECT s.id, s.subprov_wallet, s.treasury_wallet, s.funding_amount
+           FROM wt_active_subprov_sessions s
+           WHERE s.state = 'EXPIRED'
+             AND s.session_tag IS NULL
+             AND s.treasury_wallet IS NOT NULL
+             AND s.funding_amount BETWEEN ? AND ?
+             AND ABS(s.funding_amount - ROUND(s.funding_amount)) < 0.1
+             AND NOT EXISTS (
+               SELECT 1 FROM wt_subprov_evidence e WHERE e.subprov = s.subprov_wallet
+             )""",
+        (_OPEX_BAND_MIN, _OPEX_BAND_MAX)
+    ).fetchall()
+    for row in path_c_candidates:
+        # Count ALL treasury transfers into this wallet (from any source, not just webhook hits)
+        # using wt_webhook_hits inbounds — a seed+capital pair would show as 2 transfers.
+        # If the wallet isn't in webhook_hits at all, fall back to checking capital_reloads.
+        inbound_count = conn.execute(
+            """SELECT COUNT(DISTINCT h.tx_signature) FROM wt_webhook_hits h
+               WHERE h.counterparty = ?
+                 AND h.direction = 'OUT'
+                 AND h.wallet_address IN (SELECT treasury FROM wt_confirmed_treasuries)""",
+            (row["subprov_wallet"],)
+        ).fetchone()[0]
+
+        # If not in webhook_hits, check capital_reloads for transfer count
+        if inbound_count == 0:
+            inbound_count = conn.execute(
+                """SELECT COUNT(*) FROM wt_capital_reloads cr
+                   WHERE cr.subprov = ? AND cr.treasury IN (SELECT treasury FROM wt_confirmed_treasuries)""",
+                (row["subprov_wallet"],)
+            ).fetchone()[0]
+
+        # Exactly 1 inbound treasury transfer = one-shot operational budget (not seed+capital)
+        if inbound_count == 1:
+            conn.execute(
+                "UPDATE wt_active_subprov_sessions "
+                "SET session_tag = 'POSSIBLE_OPERATIONAL_SPEND_PROXY' WHERE id = ?",
+                (row["id"],))
+            count += 1
+
+    if count:
+        conn.commit()
+    return count
 
 
 # ─────────────────────────── candidate helpers ──────────────────────────────
@@ -1750,3 +2020,145 @@ def latest_launch(conn):
         "SELECT mint, creator_wallet, create_signature, create_time, treasury_wallet, "
         "subprov_wallet, birth_to_launch_seconds, confidence, recorded_at "
         "FROM wt_watchtower_launches ORDER BY id DESC LIMIT 1").fetchone()
+
+
+# ── Token Lifecycle (derived, read-only aggregation) ─────────────────────────
+
+def upsert_lifecycle_launched(conn, *, mint: str, treasury: str, subprov: str,
+                               creator: str, create_sig: str, launched_at: int,
+                               operation_uuid: Optional[str] = None) -> None:
+    """Insert or update lifecycle row to LAUNCHED state. Idempotent on mint.
+
+    Pulls funded_at from the matching LIVE_ARMED session so the full
+    ARMED→LAUNCHED duration is visible in the ledger without a separate join.
+    """
+    now = int(time.time())
+    # Any session for this subprov is valid — INTEL_ONLY sessions (e.g. PLAIN_TRANSFER
+    # funded subprovs) never reach LIVE_ARMED but still carry the correct funding_time.
+    session_row = conn.execute(
+        """SELECT funding_time, funding_signature FROM wt_active_subprov_sessions
+           WHERE subprov_wallet = ?
+           ORDER BY funding_time DESC LIMIT 1""",
+        (subprov,)).fetchone()
+    funded_at = session_row["funding_time"] if session_row else None
+    conn.execute(
+        """INSERT INTO wt_token_lifecycle
+               (mint, treasury, subprov, creator, create_sig, lifecycle_state,
+                funded_at, launched_at, operation_uuid, updated_at)
+           VALUES (?,?,?,?,?,'LAUNCHED',?,?,?,?)
+           ON CONFLICT(mint) DO UPDATE SET
+               lifecycle_state = CASE WHEN lifecycle_state='LAUNCHED' THEN 'LAUNCHED'
+                                      ELSE lifecycle_state END,
+               funded_at = COALESCE(wt_token_lifecycle.funded_at, excluded.funded_at),
+               updated_at = excluded.updated_at""",
+        (mint, treasury, subprov, creator, create_sig, funded_at, launched_at, operation_uuid, now))
+    conn.commit()
+
+
+def advance_lifecycle_migrated(conn, *, mint: str, migrated_at: int,
+                                migration_sig: Optional[str] = None) -> None:
+    """Advance lifecycle to MIGRATED if currently LAUNCHED. No-op otherwise."""
+    now = int(time.time())
+    conn.execute(
+        """UPDATE wt_token_lifecycle
+           SET lifecycle_state='MIGRATED', migrated_at=?, migration_sig=?,
+               campaign_end_reason='MIGRATED_NO_RECYCLE_OBSERVED', updated_at=?
+           WHERE mint=? AND lifecycle_state='LAUNCHED'""",
+        (migrated_at, migration_sig, now, mint))
+    conn.commit()
+
+
+def advance_lifecycle_recycled(conn, *, mint: str, recycled_at: int,
+                                recycle_sig: str, recycle_amount_sol: float,
+                                recycle_direction: str,
+                                campaign_end_reason: str) -> bool:
+    """Advance lifecycle to RECYCLED (HIGH confidence only). Returns True if updated."""
+    now = int(time.time())
+    conn.execute(
+        """UPDATE wt_token_lifecycle
+           SET lifecycle_state='RECYCLED', recycled_at=?, recycle_sig=?,
+               recycle_amount_sol=?, recycle_direction=?,
+               campaign_end_reason=?, updated_at=?
+           WHERE mint=? AND lifecycle_state='MIGRATED'""",
+        (recycled_at, recycle_sig, recycle_amount_sol, recycle_direction,
+         campaign_end_reason, now, mint))
+    conn.commit()
+    return conn.execute("SELECT changes()").fetchone()[0] == 1
+
+
+def get_lifecycle_rows(conn, limit: int = 100) -> list:
+    """Merged operations ledger: ARMED/EXPIRED pre-launch sessions + LAUNCHED/MIGRATED/RECYCLED mints.
+
+    Session rows (no mint yet) appear with lifecycle_state = 'ARMED' or 'EXPIRED'.
+    Token rows keep their existing lifecycle_state. Sorted by the earliest relevant
+    timestamp so the ledger reads as a single chronological operation stream.
+    """
+    # Pre-launch sessions: LIVE_ARMED (active) or closed without a mint (EXPIRED)
+    session_rows = conn.execute(
+        """SELECT s.subprov_wallet AS subprov,
+                  s.treasury_wallet AS treasury,
+                  NULL AS mint,
+                  NULL AS creator,
+                  NULL AS create_sig,
+                  CASE
+                      WHEN s.state = 'ACTIVE' AND s.monitoring_state = 'LIVE_ARMED' THEN 'ARMED'
+                      WHEN s.state = 'ACTIVE' AND s.monitoring_state = 'POST_CREATE_ACTIVE' THEN 'ARMED'
+                      ELSE 'EXPIRED'
+                  END AS lifecycle_state,
+                  s.funding_time AS funded_at,
+                  NULL AS launched_at,
+                  NULL AS migrated_at,
+                  NULL AS recycled_at,
+                  NULL AS campaign_end_reason,
+                  NULL AS recycle_amount_sol,
+                  NULL AS recycle_direction,
+                  NULL AS operation_uuid,
+                  s.funding_amount,
+                  s.expires_at,
+                  s.topup_count,
+                  s.topup_amount_total,
+                  NULL AS birth_to_launch_seconds,
+                  NULL AS confidence,
+                  s.funding_time AS sort_ts
+           FROM wt_active_subprov_sessions s
+           WHERE s.monitoring_state IN ('LIVE_ARMED', 'POST_CREATE_ACTIVE')
+             -- exclude operational spend proxies (confirmed and possible)
+             AND s.session_tag NOT IN ('OPERATIONAL_SPEND_PROXY','POSSIBLE_OPERATIONAL_SPEND_PROXY')
+             -- exclude sessions whose subprov already has a launched mint (handled below)
+             AND s.subprov_wallet NOT IN (SELECT subprov FROM wt_token_lifecycle WHERE subprov IS NOT NULL)
+           ORDER BY s.funding_time DESC
+           LIMIT ?""",
+        (limit,)).fetchall()
+
+    # Token rows: LAUNCHED / MIGRATED / RECYCLED
+    token_rows = conn.execute(
+        """SELECT tl.subprov, tl.treasury, tl.mint, tl.creator, tl.create_sig,
+                  tl.lifecycle_state,
+                  tl.funded_at,
+                  tl.launched_at,
+                  tl.migrated_at,
+                  tl.recycled_at,
+                  tl.campaign_end_reason,
+                  tl.recycle_amount_sol,
+                  tl.recycle_direction,
+                  tl.operation_uuid,
+                  NULL AS funding_amount,
+                  NULL AS expires_at,
+                  NULL AS topup_count,
+                  NULL AS topup_amount_total,
+                  wl.birth_to_launch_seconds,
+                  wl.confidence,
+                  COALESCE(tl.funded_at, tl.launched_at) AS sort_ts
+           FROM wt_token_lifecycle tl
+           LEFT JOIN wt_watchtower_launches wl ON wl.mint = tl.mint
+           ORDER BY tl.launched_at DESC
+           LIMIT ?""",
+        (limit,)).fetchall()
+
+    # Merge: most-recent first; cap at limit
+    merged = sorted(
+        [dict(r) for r in session_rows] + [dict(r) for r in token_rows],
+        key=lambda r: r.get("sort_ts") or 0,
+        reverse=True,
+    )
+    return merged[:limit]

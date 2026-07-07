@@ -1147,10 +1147,15 @@ def api_intel_operational_events():
     operational event — above sweeps, relay activity, or normal infra movement."""
     live = _live_conn()
     try:
+        # 69SNcR… is a known noisy infrastructure wallet — suppress from the live feed
+        _FEED_SUPPRESSED = {"69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk"}
         rows = live.execute(
             "SELECT event_type, wallet_address, related_wallet, payload_json, created_at "
             "FROM watchtower_events WHERE created_at > strftime('%s','now')-86400 "
-            "ORDER BY created_at DESC LIMIT 200").fetchall()
+            "AND wallet_address NOT IN ({}) "
+            "ORDER BY created_at DESC LIMIT 200".format(
+                ",".join("?" * len(_FEED_SUPPRESSED))
+            ), list(_FEED_SUPPRESSED)).fetchall()
         events = []
         for r in rows:
             try:
@@ -1378,9 +1383,10 @@ def api_intel_token_performance():
         except Exception:
             pass
         try:
+            # close_destination holds the token mint for BUY_SWARM candidates
             swarm_mints = {r[0] for r in ov.execute(
-                "SELECT DISTINCT token_mint FROM wt_candidate_websocket_watches "
-                "WHERE state='BUY_SWARM' AND token_mint IS NOT NULL").fetchall()}
+                "SELECT DISTINCT close_destination FROM wt_candidate_websocket_watches "
+                "WHERE state='BUY_SWARM' AND close_destination IS NOT NULL").fetchall()}
         except Exception:
             pass
         # UNCONFIRMED_WATCHTOWER_LIKE — wrap-close lineage confirmed, root unknown
@@ -1503,8 +1509,20 @@ def api_intel_token_performance():
                          "prediction_score": None, "creator_address": None, **tr})
         # UNION the FARM launches not already present (plain-transfer farms that aren't in the
         # WATCH pipeline OR the WATCHTOWER set — the larger ecosystem we were blind to).
+        # Note: FARM mints already in seen_mints (from watch_candidate_tokens) are tagged UNKNOWN
+        # there; we still need to add the farm metadata so the tag override fires at render time.
         for m, fm in farm_by_mint.items():
             if m in seen_mints:
+                # Already in rows from base query — inject farm metadata so tagging applies
+                for row in rows:
+                    if row.get("mint") == m and not row.get("_farm"):
+                        row["_farm_funder"] = fm["funder"]
+                        row["_farm_mechanism"] = fm["mechanism"]
+                        row["_farm_creators"] = fm["farm_creators"]
+                        row["_farm_funder_type"] = fm.get("funder_type", "OPERATOR")
+                        row["_farm_cex_label"] = fm.get("cex_label")
+                        row["_farm"] = True
+                        break
                 continue
             tr = live.execute(
                 "SELECT market_cap_highest, market_cap_current, first_observed_mc, migrated_at, "
@@ -1544,7 +1562,7 @@ def api_intel_token_performance():
                 seen_mints.add(m)
                 ctok = tr.pop("creator_tokens", None)
                 _age_s = _now - (tr.get("migrated_at") or _now)
-                is_fresh = (ctok == 1) and (_age_s < 3600)  # single-use creator AND migrated within 1h
+                is_fresh = (ctok == 1)  # single-use creator — fresh wallet, one launch
                 rows.append({"mint": m,
                              "classified_as": "FRESH" if is_fresh else "UNKNOWN",
                              "classification_conf": None,
@@ -1617,8 +1635,11 @@ def api_intel_token_performance():
             pass
 
         out = []
+        out_mints: set = set()
         for r in rows:
             mint = r["mint"]
+            if mint in out_mints:
+                continue
             # tag precedence: confirmed launch > pipeline classification > swarm overlay
             base = r.get("classified_as") or "UNKNOWN"
             # WATCH_LIKE_NEW_OP is DROPPED — the WATCH prediction pipeline that produced it froze
@@ -1630,7 +1651,11 @@ def api_intel_token_performance():
             is_wt_confirmed = mint in wt_launch_mints     # cascade ledger → ✓
             is_wt = mint in _wt_tag_mints                 # cascade OR discovery → WATCHTOWER tag
             is_swarm = mint in swarm_mints
-            farm = farm_by_mint.get(mint)                 # operator cluster (any mechanism)
+            farm = farm_by_mint.get(mint) or (
+                {"funder": r.get("_farm_funder"), "mechanism": r.get("_farm_mechanism"),
+                 "farm_creators": r.get("_farm_creators"),
+                 "funder_type": r.get("_farm_funder_type"), "cex_label": r.get("_farm_cex_label")}
+                if r.get("_farm") else None)
             uwl = uwl_by_mint.get(mint)                   # wrap-close lineage, unknown root
             # tag precedence: WATCHTOWER > UNCONFIRMED_WT_LIKE > FARM > base
             if is_wt or base == "WATCHTOWER":
@@ -1678,10 +1703,16 @@ def api_intel_token_performance():
                 if tag_filter != "SWARM" and tag != tag_filter:
                     continue
             out.append(rec)
-        # SORT BY RECENCY ACROSS ALL SOURCES, THEN truncate. The watch_candidate rows and the
-        # UNION'd discovery/cascade launches are merged out of order — the discovery launches are
-        # the freshest but were appended last, so a source-order cut buried them (the page started
-        # at 13-day-old tokens). Order by migrated_at → created_at → 0 so the newest float up.
+            out_mints.add(mint)
+        # Deduplicate by mint (multiple sources can produce the same mint; keep highest-priority tag)
+        _tag_rank = {"WATCHTOWER": 0, "WT_LIKE": 1, "FARM": 2, "SWARM": 3, "FRESH": 4, "UNKNOWN": 5}
+        seen_out: dict = {}
+        for rec in out:
+            m = rec["mint"]
+            if m not in seen_out or _tag_rank.get(rec["tag"], 9) < _tag_rank.get(seen_out[m]["tag"], 9):
+                seen_out[m] = rec
+        out = list(seen_out.values())
+        # Sort by recency (migrated_at → created_at) then cap at limit.
         out.sort(key=lambda r: (r.get("migrated_at") or r.get("created_at") or 0), reverse=True)
         out = out[:limit]
         # summary counts (over the returned window)
@@ -2065,6 +2096,10 @@ def api_intel_subprovs():
         # UNKNOWN-treasury subprovs (the leads to investigate); known ones are resolved/hidden.
         if not _table_exists(ov, "wt_discovered_subprovs"):
             return jsonify({"subprovs": [], "count": 0, "unknown_treasury": 0, "known_resolved": 0})
+        try:
+            from src.utils.infra_mapping import is_known_account as _subprov_is_known
+        except Exception:
+            _subprov_is_known = lambda _: False
         # A subprov is RESOLVED (removed from leads) once we know its treasury — that means the
         # treasury is CONFIRMED *or* already in REVIEW (we've identified it, awaiting promotion).
         # Plus the existing wrap-close lineage data. Only subprovs whose treasury is genuinely
@@ -2092,7 +2127,8 @@ def api_intel_subprovs():
         _mesh_cols = ", immediate_funder, funder_is_subprov" if _have_mesh else ""
         rows = ov.execute(
             "SELECT subprov, first_creator, creator_count, treasury, treasury_known, last_seen"
-            + _mesh_cols + " FROM wt_discovered_subprovs ORDER BY last_seen DESC").fetchall()
+            + _mesh_cols + " FROM wt_discovered_subprovs"
+            " WHERE COALESCE(state,'active') != 'dismissed' ORDER BY last_seen DESC").fetchall()
         # Build a map: immediate_funder → treasury for distribution nodes
         funder_treasury: dict = {}
         if _have_mesh:
@@ -2112,6 +2148,9 @@ def api_intel_subprovs():
         unresolved_hubs: dict = {}  # hub_addr → {last_seen, creator_count}
         for r in rows:
             sp = r["subprov"]
+            if _subprov_is_known(sp):
+                known_count += 1
+                continue
             treasury = r["treasury"] or lineage.get(sp)
             funder_is_subprov = bool(r["funder_is_subprov"]) if _have_mesh else False
             immediate_funder = (r["immediate_funder"] if _have_mesh else None)
@@ -2207,9 +2246,12 @@ def api_intel_ws_cascade():
             f"detected_at, expires_at, open_reason, COALESCE(monitoring_state,'INTEL_ONLY') as monitoring_state, {_topup_cols} "
             "FROM wt_active_subprov_sessions WHERE state='ACTIVE' "
             "ORDER BY detected_at DESC").fetchall()
+        _WS_CASCADE_SUPPRESSED = {"69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk"}
         _by_subprov: dict = {}
         for r in _sess_raw:
             sp = r["subprov_wallet"]
+            if r["treasury_wallet"] in _WS_CASCADE_SUPPRESSED:
+                continue
             if sp not in _by_subprov:
                 initial = r["initial_funding_amount"] or r["funding_amount"] or 0
                 topup_total = r["topup_amount_total"] or 0
@@ -2506,6 +2548,45 @@ def api_dismiss_session():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/token-lifecycle")
+def api_intel_token_lifecycle():
+    """Operations Ledger — merged session + token lifecycle view.
+
+    Returns ARMED (LIVE_ARMED sessions without a mint), EXPIRED (closed sessions
+    without a launch), and LAUNCHED/MIGRATED/RECYCLED token rows in a single
+    chronological stream. The full lifecycle: ARMED → LAUNCHED → MIGRATED → RECYCLED.
+    """
+    ov = _conn()
+    try:
+        from src.core.ws_cascade_store import get_lifecycle_rows, ensure_cascade_schema
+        ensure_cascade_schema(ov)
+        rows = get_lifecycle_rows(ov, limit=100)
+        state_counts: dict = {}
+        for r in rows:
+            state_counts[r["lifecycle_state"]] = state_counts.get(r["lifecycle_state"], 0) + 1
+        armed_count   = state_counts.get("ARMED", 0)
+        expired_count = state_counts.get("EXPIRED", 0)
+        launched = sum(state_counts.get(s, 0) for s in ("LAUNCHED", "MIGRATED", "RECYCLED"))
+        migrated  = state_counts.get("MIGRATED", 0) + state_counts.get("RECYCLED", 0)
+        return jsonify({
+            "lifecycle": rows,
+            "summary": state_counts,
+            "total": len(rows),
+            "kpis": {
+                "armed": armed_count,
+                "expired": expired_count,
+                "launched": launched,
+                "migrated": migrated,
+                "conversion_pct": round(launched / (armed_count + launched) * 100)
+                                  if (armed_count + launched) else None,
+            },
+        })
+    except Exception as e:
+        return jsonify({"lifecycle": [], "summary": {}, "total": 0, "error": str(e)})
+    finally:
+        ov.close()
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit")
 def api_intel_launch_audit():
     """Launch Audit panel — is WATCHTOWER detection ACTIONABLE? Per detected launch: detection
@@ -2515,27 +2596,274 @@ def api_intel_launch_audit():
     ov = _conn()
     try:
         if not _table_exists(ov, "wt_launch_audit"):
-            return jsonify({"launches": [], "report": None})
+            return jsonify({"launches": [], "report": None, "latency_breakdown": None})
+        try:
+            from src.core import launch_audit as _launch_audit
+            _launch_audit.ensure_audit_schema(ov)
+        except Exception:
+            pass
         rows = ov.execute(
-            "SELECT mint, creator, treasury, create_time, detection_latency_ms, "
+            "SELECT mint, creator, treasury, subprov, create_time, detection_latency_ms, "
+            "program_log_context_slot, tx_slot, slot_lag, estimated_slot_to_ws_ms, "
+            "program_fetch_duration_ms, handoff_to_canonical_ms, canonical_fetch_skipped, "
+            "duplicate_fetch_count, "
+            "block_time_to_ws_seen_ms, ws_seen_to_fetch_start_ms, fetch_duration_ms, "
+            "fetch_to_mint_extract_ms, mint_extract_to_db_start_ms, db_commit_duration_ms, "
+            "db_commit_to_alert_ms, total_ws_to_commit_ms, total_block_time_to_commit_ms, "
             "our_possible_buy_index_estimate, first_external_buy_slot, mc_at_create, "
             "mc_at_detection, mc_at_first_external_buy, peak_mc, current_mc, "
             "actionable_multiple, time_to_peak_s, migrated, dumped_before_migration, "
-            "final_state, audit_state, mc_at_detection_source, peak_mc_source, source "
+            "final_state, audit_state, mc_at_detection_source, peak_mc_source, source, "
+            "create_signature "
             "FROM wt_launch_audit ORDER BY created_at DESC LIMIT 50").fetchall()
-        # the FULL funding profile per launch (treasury→subprov load + wrap-close seed) lives on
-        # the cascade's launch ledger — join it by mint so each audit row shows provisioning cost.
+        # the FULL funding profile per launch: launch ledger + aggregated session data.
+        # Session data is aggregated (SUM/MAX) so multi-session subprovs are handled correctly —
+        # a GROUP BY wl.mint with no ORDER picks arbitrary rows for non-aggregated columns.
         funding = {}
         try:
             for fr in ov.execute(
-                "SELECT mint, subprov_funding_sol, wrap_close_sol FROM wt_watchtower_launches "
-                "WHERE mint IS NOT NULL").fetchall():
-                funding[fr["mint"]] = (fr["subprov_funding_sol"], fr["wrap_close_sol"])
+                "SELECT wl.mint, wl.subprov_wallet, wl.subprov_funding_sol, wl.wrap_close_sol, "
+                "wl.detection_source, "
+                "SUM(s.topup_count) AS topup_count, "
+                "SUM(s.topup_amount_total) AS topup_amount_total, "
+                "MAX(s.last_topup_at) AS last_topup_at, "
+                "MIN(s.funding_time) AS session_funded_at "
+                "FROM wt_watchtower_launches wl "
+                "LEFT JOIN wt_active_subprov_sessions s ON s.subprov_wallet = wl.subprov_wallet "
+                "WHERE wl.mint IS NOT NULL "
+                "GROUP BY wl.mint").fetchall():
+                funding[fr["mint"]] = {
+                    "subprov": fr["subprov_wallet"],
+                    "subprov_funding_sol": fr["subprov_funding_sol"],
+                    "wrap_close_sol": fr["wrap_close_sol"],
+                    "detection_source": fr["detection_source"],
+                    "topup_count": fr["topup_count"] or 0,
+                    "topup_amount_total": fr["topup_amount_total"] or 0,
+                    "last_topup_at": fr["last_topup_at"],
+                    "session_funded_at": fr["session_funded_at"],
+                }
         except Exception:
             pass
+        include_events = request.args.get("include_events") == "1"
+        # per-mint events index — only built when requested (zero cost otherwise)
+        events_by_mint: dict = {}
+        if include_events:
+            # build a unified event stream per mint from three tables, sorted by timestamp
+            try:
+                # 1. Creator seed: the wrap-close that funded each creator
+                for ev in ov.execute(
+                    "SELECT se.creator_wallet, se.amount_sol, se.observed_at, "
+                    "       se.wrap_close_sig, se.funding_mechanism, "
+                    "       wl.mint, wl.subprov_wallet, wl.treasury_wallet "
+                    "FROM wt_subprov_evidence se "
+                    "JOIN wt_watchtower_launches wl ON wl.creator_wallet = se.creator_wallet "
+                    "WHERE se.create_fired = 1"
+                ).fetchall():
+                    events_by_mint.setdefault(ev["mint"], []).append({
+                        "type": "CREATOR_SEED",
+                        "timestamp": ev["observed_at"],
+                        "amount_sol": ev["amount_sol"],
+                        "mechanism": ev["funding_mechanism"] or "WSOL_WRAP_CLOSE",
+                        "from": ev["subprov_wallet"],
+                        "to": ev["creator_wallet"],
+                        "sig": ev["wrap_close_sig"],
+                    })
+                # 2a. Initial session funding transfer (first treasury→subprov transfer that
+                #     opened the session — lives only in wt_active_subprov_sessions)
+                for ev in ov.execute(
+                    "SELECT s.subprov_wallet, s.treasury_wallet, s.funding_amount, "
+                    "       s.funding_time, s.funding_signature, wl.mint "
+                    "FROM wt_active_subprov_sessions s "
+                    "JOIN wt_watchtower_launches wl ON wl.subprov_wallet = s.subprov_wallet "
+                    "WHERE s.funding_signature IS NOT NULL"
+                ).fetchall():
+                    events_by_mint.setdefault(ev["mint"], []).append({
+                        "type": "TREASURY_INITIAL",
+                        "timestamp": ev["funding_time"],
+                        "amount_sol": ev["funding_amount"],
+                        "mechanism": "PLAIN_TRANSFER",
+                        "from": ev["treasury_wallet"],
+                        "to": ev["subprov_wallet"],
+                        "sig": ev["funding_signature"],
+                    })
+                # 2b. Treasury top-ups recorded in wt_subprov_topups
+                for ev in ov.execute(
+                    "SELECT st.subprov, st.treasury, st.amount_sol, st.recorded_at, st.sig, "
+                    "       wl.mint "
+                    "FROM wt_subprov_topups st "
+                    "JOIN wt_watchtower_launches wl ON wl.subprov_wallet = st.subprov"
+                ).fetchall():
+                    events_by_mint.setdefault(ev["mint"], []).append({
+                        "type": "TREASURY_TOPUP",
+                        "timestamp": ev["recorded_at"],
+                        "amount_sol": ev["amount_sol"],
+                        "mechanism": "PLAIN_TRANSFER",
+                        "from": ev["treasury"],
+                        "to": ev["subprov"],
+                        "sig": ev["sig"],
+                    })
+                # 3. Capital reloads — include initial provisioning transfers
+                #    (PLAIN_TRANSFER_NEW_SUBPROV) as well as reloads; exclude only
+                #    internal wrap-close activity that isn't a treasury→subprov transfer
+                for ev in ov.execute(
+                    "SELECT cr.subprov, cr.treasury, cr.amount_sol, cr.block_time, cr.sig, "
+                    "       cr.enrolment_reason, cr.linked_mint, wl.mint "
+                    "FROM wt_capital_reloads cr "
+                    "JOIN wt_watchtower_launches wl ON wl.subprov_wallet = cr.subprov "
+                    "WHERE cr.enrolment_reason NOT IN ('WRAP_CLOSE_SEED','WSOL_WRAP_CLOSE') "
+                    "   OR cr.enrolment_reason IS NULL"
+                ).fetchall():
+                    target_mint = ev["linked_mint"] or ev["mint"]
+                    reason = ev["enrolment_reason"] or "UNKNOWN"
+                    ev_type = "TREASURY_INITIAL" if "NEW_SUBPROV" in reason else "TREASURY_RELOAD"
+                    events_by_mint.setdefault(target_mint, []).append({
+                        "type": ev_type,
+                        "timestamp": ev["block_time"],
+                        "amount_sol": ev["amount_sol"],
+                        "mechanism": reason,
+                        "from": ev["treasury"],
+                        "to": ev["subprov"],
+                        "sig": ev["sig"],
+                    })
+                # deduplicate by sig (same transfer may appear in sessions + capital_reloads)
+                # then sort each mint's events by timestamp ascending
+                for mint_key in events_by_mint:
+                    seen_sigs: set = set()
+                    deduped = []
+                    for e in events_by_mint[mint_key]:
+                        sig = e.get("sig")
+                        if sig and sig in seen_sigs:
+                            continue
+                        if sig:
+                            seen_sigs.add(sig)
+                        deduped.append(e)
+                    events_by_mint[mint_key] = sorted(deduped, key=lambda e: e["timestamp"] or 0)
+            except Exception as _ev_e:
+                events_by_mint = {}
+
+        # sibling wallets: other wallets funded by the same treasury within ±120s of the
+        # launch subprov's initial funding — reveals concurrent buy-swarm + payment legs
+        siblings_by_mint: dict = {}
+        if include_events:
+            try:
+                for fr in ov.execute(
+                    "SELECT wl.mint, wl.subprov_wallet, wl.treasury_wallet, "
+                    "       s.funding_time "
+                    "FROM wt_watchtower_launches wl "
+                    "JOIN wt_active_subprov_sessions s ON s.subprov_wallet = wl.subprov_wallet "
+                    "WHERE wl.mint IS NOT NULL AND s.funding_time IS NOT NULL"
+                ).fetchall():
+                    mint = fr["mint"]
+                    treasury = fr["treasury_wallet"]
+                    t0 = fr["funding_time"]
+                    subprov = fr["subprov_wallet"]
+                    if not treasury or not t0:
+                        continue
+                    # all other wallets funded by same treasury in ±120s window
+                    sibs = ov.execute(
+                        "SELECT h.counterparty AS wallet, SUM(h.amount_sol) AS total_sol, "
+                        "       MIN(h.block_time) AS first_seen, "
+                        "       (SELECT COUNT(*) FROM wt_subprov_evidence se "
+                        "        WHERE se.subprov=h.counterparty) AS fan_out, "
+                        "       (SELECT COUNT(*) FROM wt_active_subprov_sessions ss "
+                        "        WHERE ss.subprov_wallet=h.counterparty) AS has_session "
+                        "FROM wt_webhook_hits h "
+                        "WHERE h.wallet_address=? AND h.direction IN ('OUT','outbound') "
+                        "  AND h.block_time BETWEEN ? AND ? "
+                        "  AND h.counterparty != ? "
+                        "GROUP BY h.counterparty "
+                        "ORDER BY MIN(h.block_time) ASC",
+                        (treasury, t0 - 120, t0 + 120, subprov)
+                    ).fetchall()
+                    siblings_by_mint[mint] = []
+                    for s in sibs:
+                        fan_out = s["fan_out"] or 0
+                        role = ("BUY_SWARM" if fan_out > 10
+                                else "PAYMENT" if s["total_sol"] and s["total_sol"] < 15
+                                else "SUBPROV" if s["has_session"] else "UNKNOWN")
+                        siblings_by_mint[mint].append({
+                            "wallet": s["wallet"],
+                            "sol": s["total_sol"],
+                            "first_seen": s["first_seen"],
+                            "fan_out": fan_out,
+                            "role": role,
+                        })
+                        # inject individual sibling transfers into the timeline
+                        sib_xfers = ov.execute(
+                            "SELECT h.amount_sol, h.block_time, h.tx_signature AS sig "
+                            "FROM wt_webhook_hits h "
+                            "WHERE h.wallet_address=? AND h.direction IN ('OUT','outbound') "
+                            "  AND h.block_time BETWEEN ? AND ? "
+                            "  AND h.counterparty=? "
+                            "ORDER BY h.block_time ASC",
+                            (treasury, t0 - 120, t0 + 120, s["wallet"])
+                        ).fetchall()
+                        for xf in sib_xfers:
+                            events_by_mint.setdefault(mint, []).append({
+                                "type": "TREASURY_SIBLING_XFER",
+                                "timestamp": xf["block_time"],
+                                "amount_sol": xf["amount_sol"],
+                                "from": treasury,
+                                "to": s["wallet"],
+                                "sibling_role": role,
+                                "sig": xf["sig"],
+                            })
+            except Exception as _sib_e:
+                siblings_by_mint = {}
+
+        # operation_uuid + op_status + live count per operation_uuid
+        op_uuid_by_mint: dict = {}
+        op_meta: dict = {}   # operation_uuid -> {status, live_count}
+        try:
+            lc_rows = ov.execute(
+                "SELECT mint, operation_uuid, lifecycle_state "
+                "FROM wt_token_lifecycle WHERE operation_uuid IS NOT NULL"
+            ).fetchall()
+            for lc in lc_rows:
+                op_uuid_by_mint[lc["mint"]] = lc["operation_uuid"]
+                m = op_meta.setdefault(lc["operation_uuid"], {"status": None, "live_count": 0})
+                if lc["lifecycle_state"] == "LAUNCHED":
+                    m["live_count"] += 1
+        except Exception:
+            pass
+        # pull operation lifecycle status for each known operation_uuid
+        if op_meta:
+            try:
+                placeholders = ",".join("?" * len(op_meta))
+                for ol in ov.execute(
+                    f"SELECT operation_uuid, state FROM wt_operation_lifecycle "
+                    f"WHERE operation_uuid IN ({placeholders})",
+                    list(op_meta.keys())
+                ).fetchall():
+                    op_meta[ol["operation_uuid"]]["status"] = ol["state"]
+            except Exception:
+                pass
+
         launches = [{
             "mint": r["mint"], "creator": r["creator"], "treasury": r["treasury"],
+            "subprov": r["subprov"] or (funding.get(r["mint"]) or {}).get("subprov"),
+            "subprov_wallet": r["subprov"] or (funding.get(r["mint"]) or {}).get("subprov"),
+            "operation_uuid": op_uuid_by_mint.get(r["mint"]),
+            "op_status": op_meta.get(op_uuid_by_mint.get(r["mint"]), {}).get("status"),
+            "op_live_count": op_meta.get(op_uuid_by_mint.get(r["mint"]), {}).get("live_count", 0),
             "create_time": r["create_time"], "detection_latency_ms": r["detection_latency_ms"],
+            "program_log_context_slot": r["program_log_context_slot"],
+            "tx_slot": r["tx_slot"],
+            "slot_lag": r["slot_lag"],
+            "estimated_slot_to_ws_ms": r["estimated_slot_to_ws_ms"],
+            "program_fetch_duration_ms": r["program_fetch_duration_ms"],
+            "handoff_to_canonical_ms": r["handoff_to_canonical_ms"],
+            "canonical_fetch_skipped": bool(r["canonical_fetch_skipped"]) if r["canonical_fetch_skipped"] is not None else None,
+            "duplicate_fetch_count": r["duplicate_fetch_count"],
+            "block_time_to_ws_seen_ms": r["block_time_to_ws_seen_ms"],
+            "ws_seen_to_fetch_start_ms": r["ws_seen_to_fetch_start_ms"],
+            "fetch_duration_ms": r["fetch_duration_ms"],
+            "fetch_to_mint_extract_ms": r["fetch_to_mint_extract_ms"],
+            "mint_extract_to_db_start_ms": r["mint_extract_to_db_start_ms"],
+            "db_commit_duration_ms": r["db_commit_duration_ms"],
+            "db_commit_to_alert_ms": r["db_commit_to_alert_ms"],
+            "total_ws_to_commit_ms": r["total_ws_to_commit_ms"],
+            "total_block_time_to_commit_ms": r["total_block_time_to_commit_ms"],
             "position": r["our_possible_buy_index_estimate"],
             "first_external_buy_slot": r["first_external_buy_slot"],
             "mc_at_create": r["mc_at_create"], "mc_at_detection": r["mc_at_detection"],
@@ -2546,9 +2874,52 @@ def api_intel_launch_audit():
             "final_state": r["final_state"], "audit_state": r["audit_state"],
             "mc_detection_source": r["mc_at_detection_source"], "peak_source": r["peak_mc_source"],
             "source": r["source"],
-            "subprov_funding_sol": funding.get(r["mint"], (None, None))[0],
-            "wrap_close_sol": funding.get(r["mint"], (None, None))[1],
+            "create_signature": r["create_signature"],
+            "detection_source": (funding.get(r["mint"]) or {}).get("detection_source"),
+            "subprov_funding_sol": (funding.get(r["mint"]) or {}).get("subprov_funding_sol"),
+            "wrap_close_sol": (funding.get(r["mint"]) or {}).get("wrap_close_sol"),
+            "topup_count": (funding.get(r["mint"]) or {}).get("topup_count", 0),
+            "topup_amount_total": (funding.get(r["mint"]) or {}).get("topup_amount_total", 0),
+            "last_topup_at": (funding.get(r["mint"]) or {}).get("last_topup_at"),
+            "session_funded_at": (funding.get(r["mint"]) or {}).get("session_funded_at"),
+            **({"events": events_by_mint.get(r["mint"], [])} if include_events else {}),
+            **({"siblings": siblings_by_mint.get(r["mint"], [])} if include_events else {}),
         } for r in rows]
+        def _median(vals):
+            vals = sorted(v for v in vals if v is not None)
+            if not vals:
+                return None
+            mid = len(vals) // 2
+            return vals[mid] if len(vals) % 2 else int((vals[mid - 1] + vals[mid]) / 2)
+        def _p95(vals):
+            vals = sorted(v for v in vals if v is not None)
+            if not vals:
+                return None
+            return vals[min(len(vals) - 1, int((len(vals) - 1) * 0.95))]
+        slowest = None
+        with_total = [x for x in launches if x.get("total_ws_to_commit_ms") is not None]
+        if with_total:
+            slowest = max(with_total, key=lambda x: x.get("total_ws_to_commit_ms") or 0)
+            slowest = {
+                "mint": slowest.get("mint"),
+                "creator": slowest.get("creator"),
+                "total_ws_to_commit_ms": slowest.get("total_ws_to_commit_ms"),
+                "fetch_duration_ms": slowest.get("program_fetch_duration_ms") or slowest.get("fetch_duration_ms"),
+                "db_commit_duration_ms": slowest.get("db_commit_duration_ms"),
+            }
+        _fetch_ms = [
+            (x.get("program_fetch_duration_ms")
+             if x.get("program_fetch_duration_ms") is not None
+             else x.get("fetch_duration_ms"))
+            for x in launches
+        ]
+        latency_breakdown = {
+            "median_ws_to_commit_ms": _median([x.get("total_ws_to_commit_ms") for x in launches]),
+            "median_rpc_fetch_ms": _median(_fetch_ms),
+            "median_db_commit_ms": _median([x.get("db_commit_duration_ms") for x in launches]),
+            "p95_ws_to_commit_ms": _p95([x.get("total_ws_to_commit_ms") for x in launches]),
+            "slowest_recent_launch": slowest,
+        }
     finally:
         ov.close()
     # aggregate report (reuse the module's own logic so it stays one source of truth)
@@ -2558,26 +2929,57 @@ def api_intel_launch_audit():
         report = launch_audit.outcome_report()
     except Exception:
         report = None
-    return jsonify({"launches": launches, "report": report})
+    return jsonify({"launches": launches, "report": report,
+                    "latency_breakdown": latency_breakdown})
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/capital-reloads")
 def api_intel_capital_reloads():
-    """Capital Reload panel — large treasury injections into known launched subprovs.
-    These are post-launch capital deployment events (price action / liquidity / buy-swarm support),
-    NOT new creator signals. ProgramWatcher is never armed by these events."""
+    """Mission 2: Capital Deployment panel — UNRESOLVED capital movements only.
+    Rows with operation_uuid are attributed to a campaign and appear in the Operations Ledger
+    timeline instead. This endpoint returns only orphaned / pre-campaign capital intelligence.
+    ?all=1 returns everything (attributed + unresolved) for debugging."""
+    import time as _time
+    _now_cr = int(_time.time())
+    _show_all = request.args.get("all") == "1"
+    def _cr_ago(ts):
+        if not ts: return None
+        s = _now_cr - int(ts)
+        if s < 60: return f"{s}s"
+        if s < 3600: return f"{s//60}m"
+        if s < 86400: return f"{s//3600}h"
+        return f"{s//86400}d"
     ov = _conn()
     try:
         if not _table_exists(ov, "wt_capital_reloads"):
             return jsonify({"reloads": [], "total_sol": 0})
+        _op_filter = "" if _show_all else "AND cr.operation_uuid IS NULL"
         rows = ov.execute(
-            "SELECT subprov, treasury, sig, amount_sol, wrap_close_count, "
-            "first_creator, linked_mint, recorded_at "
-            "FROM wt_capital_reloads ORDER BY recorded_at DESC LIMIT 50"
+            f"SELECT cr.subprov, cr.treasury, cr.sig, cr.amount_sol, cr.wrap_close_count, "
+            "       cr.first_creator, cr.linked_mint, cr.recorded_at, "
+            "       COALESCE(cr.enrolment_reason,'WRAP_CLOSE_RELOAD') AS enrolment_reason, "
+            "       COALESCE(cr.block_time, cr.recorded_at) AS block_time, "
+            "       COALESCE(cr.session_opened,0) AS session_opened, "
+            "       cr.operation_uuid, "
+            "       s.monitoring_state, s.state AS session_state, "
+            "       d.wrap_close_count AS live_wcc, d.create_count AS live_creators "
+            "FROM wt_capital_reloads cr "
+            "LEFT JOIN wt_active_subprov_sessions s "
+            "       ON s.subprov_wallet=cr.subprov AND s.state='ACTIVE' "
+            "LEFT JOIN wt_discovered_subprovs d ON d.subprov=cr.subprov "
+            f"WHERE 1=1 {_op_filter} "
+            "ORDER BY cr.recorded_at DESC LIMIT 100"
+        ).fetchall()
+        # Totals across ALL rows (not just UNRESOLVED) for the headline stats
+        all_rows = ov.execute(
+            "SELECT amount_sol, enrolment_reason, operation_uuid "
+            "FROM wt_capital_reloads ORDER BY recorded_at DESC LIMIT 500"
         ).fetchall()
         reloads = []
         for r in rows:
-            subprov, treasury, sig, amount_sol, wcc, first_creator, linked_mint, recorded_at = r
+            (subprov, treasury, sig, amount_sol, wcc, first_creator, linked_mint, recorded_at,
+             enrolment_reason, block_time, session_opened, operation_uuid,
+             monitoring_state, session_state, live_wcc, live_creators) = r
             reloads.append({
                 "subprov": subprov,
                 "subprov_short": subprov[:10] + "…" if subprov else "",
@@ -2586,13 +2988,32 @@ def api_intel_capital_reloads():
                 "sig": sig,
                 "amount_sol": round(amount_sol or 0, 2),
                 "wrap_close_count": wcc or 0,
+                "live_wcc": live_wcc or 0,
+                "live_creators": live_creators or 0,
                 "first_creator": first_creator,
                 "linked_mint": linked_mint,
                 "recorded_at": recorded_at,
-                "ago": _ago(recorded_at) if recorded_at else None,
+                "ago": _cr_ago(recorded_at),
+                "enrolment_reason": enrolment_reason or "WRAP_CLOSE_RELOAD",
+                "is_plain_transfer": (enrolment_reason or "").startswith("PLAIN_TRANSFER"),
+                "session_opened": bool(session_opened),
+                "operation_uuid": operation_uuid,
+                "monitoring_state": monitoring_state,
+                "session_state": session_state,
             })
-        total_sol = sum(r["amount_sol"] for r in reloads)
-        return jsonify({"reloads": reloads, "total_sol": round(total_sol, 2)})
+        total_sol = sum((r[0] or 0) for r in all_rows)
+        plain_count = sum(1 for r in all_rows if (r[1] or "").startswith("PLAIN_TRANSFER"))
+        attributed_count = sum(1 for r in all_rows if r[2] is not None)
+        unresolved_count = sum(1 for r in all_rows if r[2] is None)
+        return jsonify({
+            "reloads": reloads,
+            "total_sol": round(total_sol, 2),
+            "plain_transfer_count": plain_count,
+            "reload_count": len(reloads),
+            "attributed_count": attributed_count,
+            "unresolved_count": unresolved_count,
+            "total_event_count": len(all_rows),
+        })
     except Exception as e:
         return jsonify({"reloads": [], "total_sol": 0, "error": str(e)})
     finally:
@@ -2682,9 +3103,11 @@ def api_intel_subprov_funder():
                       (treasury_known=1), AUTO-CONFIRM the treasury into
                       wt_confirmed_treasuries, and webhook it. The subprov leaves the
                       UNKNOWN-leads list.
-    action='remove' → clear the funder off the subprov (treasury=NULL,
-                      treasury_known=0) → back to an UNKNOWN lead. Does NOT touch the
-                      treasury itself (it may fund other subprovs)."""
+    action='remove'  → clear the funder off the subprov (treasury=NULL,
+                       treasury_known=0) → back to an UNKNOWN lead. Does NOT touch the
+                       treasury itself (it may fund other subprovs).
+    action='dismiss' → mark state='dismissed' so the subprov no longer appears in the
+                       UNKNOWN leads list. Reversible (state can be reset)."""
     body = request.get_json(silent=True) or {}
     if body.get("confirm") is not True or not body.get("subprov"):
         return jsonify({"error": "confirmation + subprov required"}), 400
@@ -2697,6 +3120,12 @@ def api_intel_subprov_funder():
         exists = ov.execute("SELECT 1 FROM wt_discovered_subprovs WHERE subprov=?", (sp,)).fetchone()
         if not exists:
             return jsonify({"error": f"subprov {sp[:12]}… not found"}), 404
+
+        if action == "dismiss":
+            ov.execute("UPDATE wt_discovered_subprovs SET state='dismissed' WHERE subprov=?", (sp,))
+            ov.commit()
+            ov.close()
+            return jsonify({"ok": True, "action": "dismiss", "subprov": sp})
 
         if action == "remove":
             ov.execute("UPDATE wt_discovered_subprovs SET treasury=NULL, treasury_known=0 WHERE subprov=?", (sp,))
@@ -2964,6 +3393,8 @@ def api_intel_confirmed_treasuries():
                         last_launch_sig[w] = sig
         except Exception:
             pass
+        _TREASURY_SUPPRESSED = {"69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk"}
+        rows = [r for r in rows if r["treasury"] not in _TREASURY_SUPPRESSED]
         for r in rows:
             t = r["treasury"]
             wh_ts   = last_hit.get(t) or r.get("last_hit")
@@ -6914,6 +7345,280 @@ def api_ops_rolling_activity():
         ov.close()
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/mission3")
+def api_intel_mission3():
+    """Mission 3 — Attribution Intelligence.
+
+    Unified investigation queue with type badge + status.
+
+    Type derivation (highest-confidence wins):
+      WT          → any walkback outcome WATCHTOWER_CONFIRMED/WATCHTOWER_ATTRIBUTED or LINK_ONLY class
+      NON-WT      → all walkback entries completed, best outcome = NON_WATCHTOWER
+      DISMISSED   → ds.state = 'dismissed'
+      WT-LIKE     → everything else (wrap-close confirmed, not yet attributed)
+
+    Status derivation per subprov (precedence order):
+      CANDIDATE_FOUND   → any walkback entry has TREASURY_CANDIDATE outcome
+      WALKBACK_PENDING  → any walkback entry is PENDING or IN_PROGRESS, none CANDIDATE_FOUND
+      NON_WATCHTOWER    → all walkback entries completed, best outcome = NON_WATCHTOWER
+      NEW               → no walkback entries at all
+      DISMISSED         → ds.state = 'dismissed'
+
+    Sort: (STATUS_PRIORITY, TYPE_PRIORITY, age_seconds)
+      STATUS: CANDIDATE_FOUND=0, NEW=1, WALKBACK_PENDING=2, NON_WATCHTOWER=3, DISMISSED=9
+      TYPE within same status: WT=0, WT-LIKE=1, NON-WT=2, DISMISSED=3
+
+    Coverage KPIs:
+      Attribution coverage = attributed / total walkback entries (WT rows contribute)
+      Discovery queue = count of WT-LIKE rows (primary new-operator pipeline)
+    """
+    ov = _conn()
+    try:
+        now = int(time.time())
+
+        # ── Coverage: total migrations attributed vs total walkback queue entries ──
+        total_migrations = 0
+        attributed = 0
+        try:
+            from src.core.walkback_queue import queue_stats as _wq_stats
+            wq = _wq_stats(ov)
+            by_outcome = wq.get("by_outcome", {})
+            by_class = wq.get("by_class", {})
+            total_migrations = sum(by_outcome.values())
+            # WATCHTOWER_CONFIRMED = walkback traced lineage to confirmed treasury
+            # LINK_ONLY class = token directly linked to confirmed treasury (no walkback needed)
+            # Both count as attributed
+            attributed = (by_outcome.get("WATCHTOWER_CONFIRMED", 0)
+                          + by_outcome.get("WATCHTOWER_ATTRIBUTED", 0)
+                          + by_class.get("LINK_ONLY", 0))
+            wq_diagnostics = wq
+        except Exception:
+            wq = {}
+            wq_diagnostics = {}
+            by_outcome = {}
+
+        coverage_pct = round(attributed / total_migrations * 100, 1) if total_migrations else 0
+
+        # ── Walkback status per subprov (aggregate across all queue entries) ──
+        # Also track LINK_ONLY class hits per subprov for type derivation.
+        subprov_walkback: dict = {}  # subprov → {status, best_outcome, candidate_wallet, last_at, has_link_only}
+        try:
+            for r in ov.execute(
+                "SELECT subprov, status, intelligence_outcome, walkback_class, funder_wallet, "
+                "funder_amount_sol, funder_sig, funder_block_time, completed_at "
+                "FROM wt_walkback_queue ORDER BY enqueued_at ASC"
+            ).fetchall():
+                sp = r["subprov"]
+                if sp not in subprov_walkback:
+                    subprov_walkback[sp] = {
+                        "status": r["status"], "best_outcome": r["intelligence_outcome"],
+                        "candidate_wallet": None, "last_at": r["completed_at"],
+                        "has_link_only": False, "hops": []
+                    }
+                entry = subprov_walkback[sp]
+                # Update status: COMPLETED > IN_PROGRESS > PENDING
+                if r["status"] == "COMPLETED":
+                    entry["status"] = "COMPLETED"
+                elif r["status"] == "IN_PROGRESS" and entry["status"] != "COMPLETED":
+                    entry["status"] = "IN_PROGRESS"
+                # Update best outcome using precedence
+                outcome_rank = {"TREASURY_CANDIDATE": 4, "WATCHTOWER_CONFIRMED": 3,
+                                "WATCHTOWER_ATTRIBUTED": 3, "LINEAGE_GAP": 2,
+                                "NON_WATCHTOWER": 1, "NO_ATTRIBUTION_FOUND": 0}
+                cur_rank = outcome_rank.get(entry["best_outcome"] or "", -1)
+                new_rank = outcome_rank.get(r["intelligence_outcome"] or "", -1)
+                if new_rank > cur_rank:
+                    entry["best_outcome"] = r["intelligence_outcome"]
+                if r["intelligence_outcome"] == "TREASURY_CANDIDATE" and r["funder_wallet"]:
+                    entry["candidate_wallet"] = r["funder_wallet"]
+                if r["completed_at"] and (not entry["last_at"] or r["completed_at"] > entry["last_at"]):
+                    entry["last_at"] = r["completed_at"]
+                # Track LINK_ONLY class — direct treasury linkage, no walkback needed
+                if (r["walkback_class"] if "walkback_class" in r.keys() else None) == "LINK_ONLY":
+                    entry["has_link_only"] = True
+                # Collect hop evidence
+                if r["funder_wallet"]:
+                    entry["hops"].append({
+                        "wallet": r["funder_wallet"],
+                        "amount_sol": r["funder_amount_sol"],
+                        "sig": r["funder_sig"],
+                        "block_time": r["funder_block_time"],
+                        "outcome": r["intelligence_outcome"],
+                    })
+        except Exception:
+            pass
+
+        # Derive UI type badge: WT | WT-LIKE | NON-WT | DISMISSED
+        def _derive_type(sp_addr: str, ds_state: str) -> str:
+            if ds_state == "dismissed":
+                return "DISMISSED"
+            wb = subprov_walkback.get(sp_addr)
+            if not wb:
+                return "WT-LIKE"
+            if wb.get("has_link_only") or wb.get("best_outcome") in (
+                    "WATCHTOWER_CONFIRMED", "WATCHTOWER_ATTRIBUTED"):
+                return "WT"
+            if wb.get("best_outcome") == "NON_WATCHTOWER" and wb.get("status") == "COMPLETED":
+                return "NON-WT"
+            return "WT-LIKE"
+
+        # Derive UI status from walkback aggregation
+        def _derive_status(sp_addr: str, ds_state: str) -> str:
+            if ds_state == "dismissed":
+                return "DISMISSED"
+            wb = subprov_walkback.get(sp_addr)
+            if not wb:
+                return "NEW"
+            if wb["best_outcome"] == "TREASURY_CANDIDATE":
+                return "CANDIDATE_FOUND"
+            if wb["status"] in ("PENDING", "IN_PROGRESS") and wb["status"] != "COMPLETED":
+                return "WALKBACK_PENDING"
+            if wb["best_outcome"] in ("NON_WATCHTOWER", "NO_ATTRIBUTION_FOUND") and wb["status"] == "COMPLETED":
+                return "NON_WATCHTOWER"
+            if wb["status"] == "COMPLETED":
+                return "NON_WATCHTOWER"
+            return "WALKBACK_PENDING"
+
+        # ── CEX/INFRA filter — skip known exchanges and infrastructure accounts ──
+        try:
+            from src.utils.infra_mapping import is_known_account as _is_known
+        except Exception:
+            _is_known = lambda _: False
+
+        # ── Load treasury review candidates and confirmed set ──
+        confirmed = {r[0] for r in ov.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        reviewing = set()
+        try:
+            reviewing = {r[0] for r in ov.execute(
+                "SELECT treasury FROM wt_treasury_review WHERE status='PENDING_REVIEW'").fetchall()}
+        except Exception:
+            pass
+
+        # ── Build per-subprov launch count from wt_watchtower_launches ──
+        launch_counts: dict = {}
+        try:
+            for r in ov.execute(
+                "SELECT subprov_wallet, COUNT(*) n FROM wt_watchtower_launches "
+                "GROUP BY subprov_wallet"
+            ).fetchall():
+                launch_counts[r["subprov_wallet"]] = r["n"]
+        except Exception:
+            pass
+
+        # ── Unknown subprovs: treasury IS NULL, exclude already-confirmed ──
+        _have_mesh = _column_exists(ov, "wt_discovered_subprovs", "immediate_funder")
+        _mesh_cols = ", immediate_funder, funder_is_subprov" if _have_mesh else ""
+        ds_rows = ov.execute(
+            "SELECT subprov, first_creator, creator_count, treasury, state, "
+            "first_seen, last_seen, discovery_source" + _mesh_cols
+            + " FROM wt_discovered_subprovs "
+            "WHERE treasury IS NULL OR (treasury NOT IN "
+            "(SELECT treasury FROM wt_confirmed_treasuries)) "
+            "ORDER BY first_seen ASC"
+        ).fetchall()
+
+        subprovs = []
+        for r in ds_rows:
+            sp = r["subprov"]
+            treasury = r["treasury"]
+            ds_state = r["state"] or "active"
+            # Skip already-confirmed or in-review (resolved by another path)
+            if treasury and (treasury in confirmed or treasury in reviewing):
+                continue
+            # Skip known CEX / infrastructure accounts — they are not WATCHTOWER subprovs
+            if _is_known(sp):
+                continue
+            # Skip zero-launch subprovs — no confirmed token means no actionable attribution case
+            if launch_counts.get(sp, 0) == 0:
+                continue
+            wb = subprov_walkback.get(sp, {})
+            ui_type = _derive_type(sp, ds_state)
+            ui_status = _derive_status(sp, ds_state)
+            first_seen = r["first_seen"] or now
+            age_s = now - int(first_seen)
+
+            subprovs.append({
+                "subprov": sp,
+                "type": ui_type,
+                "creators": r["creator_count"] or 0,
+                "launches": launch_counts.get(sp, 0),
+                "first_seen": first_seen,
+                "last_seen": r["last_seen"],
+                "age_seconds": age_s,
+                "status": ui_status,
+                "walkback_status": wb.get("status"),
+                "walkback_outcome": wb.get("best_outcome"),
+                "candidate_wallet": wb.get("candidate_wallet"),
+                "walkback_hops": wb.get("hops", []),
+                "discovery_source": r["discovery_source"],
+                "treasury": treasury,
+            })
+
+        # Sort: (status_priority, type_priority, age) — CANDIDATE_FOUND/WT floats to top
+        STATUS_PRIORITY = {"CANDIDATE_FOUND": 0, "NEW": 1, "WALKBACK_PENDING": 2,
+                           "NON_WATCHTOWER": 3, "DISMISSED": 9}
+        TYPE_PRIORITY = {"WT": 0, "WT-LIKE": 1, "NON-WT": 2, "DISMISSED": 3}
+        subprovs.sort(key=lambda r: (
+            STATUS_PRIORITY.get(r["status"], 9),
+            TYPE_PRIORITY.get(r["type"], 9),
+            r["age_seconds"]
+        ))
+
+        wt_like_count = sum(1 for s in subprovs if s["type"] == "WT-LIKE")
+        wt_count = sum(1 for s in subprovs if s["type"] == "WT")
+        dismissed_count = sum(1 for s in subprovs if s["type"] == "DISMISSED")
+        return jsonify({
+            "coverage": {
+                "attributed": attributed,
+                "total": total_migrations,
+                "pct": coverage_pct,
+                "wt_like_count": wt_like_count,
+                "wt_count": wt_count,
+                "dismissed_count": dismissed_count,
+                "non_watchtower": by_outcome.get("NON_WATCHTOWER", 0),
+            },
+            "subprovs": subprovs,
+            "walkback_diagnostics": {
+                "by_class": wq_diagnostics.get("by_class", {}),
+                "by_status": wq_diagnostics.get("by_status", {}),
+                "by_outcome": by_outcome,
+                "rpc_total": wq_diagnostics.get("rpc_total", 0),
+                "total_entries": total_migrations,
+            },
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "coverage": {}, "subprovs": [],
+                        "walkback_diagnostics": {}})
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/operator-pattern-report")
+def api_intel_operator_pattern_report():
+    """Read-only operator pattern discovery report.
+
+    Clusters confirmed WATCHTOWER launches by behavioural fingerprint.
+    Generated on demand — no writes, no background processing, no schema changes.
+    Shared logic with scripts/report_operator_patterns.py via src.core.pattern_discovery.
+    """
+    try:
+        min_members = int(request.args.get("min_members", 2))
+    except (TypeError, ValueError):
+        min_members = 2
+
+    ov = _conn()
+    try:
+        from src.core.pattern_discovery import build_report
+        report = build_report(ov, min_members=min_members)
+        return jsonify(report)
+    except Exception as e:
+        return jsonify({"error": str(e), "launches_total": 0,
+                        "primary_clusters": [], "secondary_clusters": [],
+                        "singletons": [], "summary": {}})
+    finally:
+        ov.close()
+
+
 @ops_dashboard_bp.route("/api/ops/walkback-queue")
 def api_ops_walkback_queue():
     """Walkback queue stats: lineage completeness split + trend."""
@@ -7030,15 +7735,17 @@ def dust_observatory_summary():
     """Dust Observatory: marker summary + role transition stats + intelligence overview."""
     try:
         from src.core import dust_observatory as dobs
-        markers   = dobs.get_dust_marker_summary()
-        stats     = dobs.get_role_transition_stats()
-        intel     = dobs.get_intelligence_summary()
+        markers    = dobs.get_dust_marker_summary()
+        stats      = dobs.get_role_transition_stats()
+        intel      = dobs.get_intelligence_summary()
+        recipients = dobs.get_all_recipients()
         return jsonify({
             "ok": True,
             "generated_at": time.time(),
             "markers": markers,
             "stats": stats,
             "intel": intel,
+            "recipients": recipients,
         })
     except Exception as e:
         return jsonify({

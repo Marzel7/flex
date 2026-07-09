@@ -509,6 +509,54 @@ def _surface_treasury_review_lead(ops: sqlite3.Connection,
         return "error"
 
 
+# ── creator recovery (DB-only, zero RPC) ─────────────────────────────────────
+
+def _recover_creator_from_db(ops: sqlite3.Connection, mint: str) -> Optional[str]:
+    """Attempt to resolve a missing creator wallet from local DB tables.
+    Called when wt_walkback_queue.creator is NULL — typically because the
+    enqueue fired before the async creator-resolution task completed.
+
+    Lookup order (most reliable → least reliable):
+      1. wt_watchtower_launches   — immutable WATCHTOWER detection record
+      2. token_analysis           — earliest_tx_creator / pf_ws_creator (live DB)
+      3. migrated_tokens          — creator stored at migration time (live DB)
+
+    Returns the first non-empty creator found, or None. Zero RPC.
+    """
+    # 1. wt_watchtower_launches (ops DB — already open, no extra connection)
+    row = ops.execute(
+        "SELECT creator_wallet FROM wt_watchtower_launches WHERE mint=? LIMIT 1",
+        (mint,)).fetchone()
+    if row and row["creator_wallet"]:
+        return row["creator_wallet"]
+
+    # 2 + 3. Live DB (token_analysis, migrated_tokens)
+    try:
+        live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
+        live.row_factory = sqlite3.Row
+        try:
+            row = live.execute(
+                "SELECT earliest_tx_creator, pf_ws_creator "
+                "FROM token_analysis WHERE mint=? LIMIT 1",
+                (mint,)).fetchone()
+            if row:
+                creator = row["earliest_tx_creator"] or row["pf_ws_creator"]
+                if creator:
+                    return creator
+
+            row = live.execute(
+                "SELECT creator FROM migrated_tokens WHERE mint=? LIMIT 1",
+                (mint,)).fetchone()
+            if row and row["creator"]:
+                return row["creator"]
+        finally:
+            live.close()
+    except Exception as e:
+        print(f"[WALKBACK] creator recovery DB error for {mint[:20]}…: {e}", flush=True)
+
+    return None
+
+
 # ── per-row processing ─────────────────────────────────────────────────────────
 
 def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
@@ -567,8 +615,16 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
         elif wclass == "FULL_WALKBACK":
             # creator unknown or lineage completely missing — 2-hop walk
             if not creator:
-                _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, 0)
-                return 0
+                creator = _recover_creator_from_db(ops, mint)
+                if creator:
+                    # Persist so future runs and attribution reads see the resolved creator.
+                    ops.execute(
+                        "UPDATE wt_walkback_queue SET creator=? WHERE mint=?",
+                        (creator, mint))
+                    ops.commit()
+                else:
+                    _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, 0)
+                    return 0
 
             # Hop 1: who funded creator?
             hop1, sig1, slot1, bt1, amt1, mech1 = _find_funder_via_rpc(creator, rpc, ops)

@@ -262,19 +262,23 @@ def ensure_cascade_schema(conn) -> None:
     # ── Operation Lifecycle v2: operation_state ──────────────────────────────
     # Additive interpretation column on PROVISION_CANDIDATE sessions.
     # Design rule: this is a trailing annotation, never a detection precondition.
-    # Values: FUNDED | ARMED | CREATE | POST_CREATE | ABORTED | COMPLETE | RECYCLED
+    # Values: FUNDED | ARMED | POST_CREATE | ABORTED | COMPLETE | RECYCLED
     # NULL = pre-v2 row (treat as FUNDED for display).
+    import logging as _opstate_log
+    _opstate_logger = _opstate_log.getLogger(__name__)
     try:
         _oscols = {r[1] for r in conn.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
         if "operation_state" not in _oscols:
             conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN operation_state TEXT")
-    except Exception:
-        pass
+            _opstate_logger.info("[op_state] Added operation_state column to wt_active_subprov_sessions")
+    except Exception as _e:
+        _opstate_logger.error("[op_state] Failed to add operation_state column: %s", _e)
     # Idempotent backfill: derive minimum guaranteed state for pre-v2 PROVISION_CANDIDATE rows.
     # Source of truth for CREATE: wt_watchtower_launches (immutable detection record).
+    # Backfills to POST_CREATE (not CREATE) — we know CREATE happened, not exactly when.
     # Re-runnable: only touches rows where operation_state IS NULL.
     try:
-        conn.execute("""
+        _bf_cur = conn.execute("""
             UPDATE wt_active_subprov_sessions
             SET operation_state = (
                 SELECT CASE
@@ -296,7 +300,11 @@ def ensure_cascade_schema(conn) -> None:
               AND operation_state IS NULL
         """)
         conn.commit()
-        # Self-audit: verify distribution matches expected shape.
+        _opstate_logger.info("[op_state] Backfill complete — %d rows updated", _bf_cur.rowcount)
+    except Exception as _e:
+        _opstate_logger.error("[op_state] Backfill failed: %s", _e)
+    # Self-audit: verify no NULL rows remain after backfill.
+    try:
         _audit = {r[0]: r[1] for r in conn.execute(
             "SELECT COALESCE(operation_state,'NULL') as s, COUNT(*) "
             "FROM wt_active_subprov_sessions "
@@ -304,14 +312,14 @@ def ensure_cascade_schema(conn) -> None:
         ).fetchall()}
         _null_count = _audit.get('NULL', 0)
         if _null_count > 0:
-            import logging as _log
-            _log.getLogger(__name__).warning(
-                "[op_state_backfill] %d PROVISION_CANDIDATE rows still have operation_state=NULL "
-                "after backfill — non-PROVISION_CANDIDATE open_reasons or schema mismatch. "
+            _opstate_logger.warning(
+                "[op_state] %d PROVISION_CANDIDATE rows still NULL after backfill. "
                 "Distribution: %s", _null_count, _audit
             )
-    except Exception:
-        pass
+        else:
+            _opstate_logger.info("[op_state] Self-audit passed. Distribution: %s", _audit)
+    except Exception as _e:
+        _opstate_logger.error("[op_state] Self-audit query failed: %s", _e)
     # wt_token_lifecycle — derived lifecycle aggregation (read-only view of confirmed launches)
     conn.execute(
         """CREATE TABLE IF NOT EXISTS wt_token_lifecycle (
@@ -1252,10 +1260,12 @@ def session_for_subprov(conn, subprov: str):
 
 
 def close_session(conn, session_id: int, state: str) -> None:
-    # operation_state: only write ABORTED if no CREATE has been observed yet.
-    # POST_CREATE sessions that expire naturally should keep their operation_state.
+    # operation_state: transition FUNDED or ARMED → ABORTED on terminal close without CREATE.
+    # Only these two source states are eligible — any state that reached POST_CREATE or beyond
+    # is immutable here. Using an allowlist on the source state (not a denylist on targets)
+    # so future states added downstream are never silently overwritten.
     _op_update = (
-        ", operation_state=CASE WHEN operation_state NOT IN ('POST_CREATE','COMPLETE','RECYCLED') "
+        ", operation_state=CASE WHEN operation_state IN ('FUNDED','ARMED') "
         "THEN 'ABORTED' ELSE operation_state END"
         if state in ("EXPIRED", "BUY_SWARM_REJECTED") else ""
     )

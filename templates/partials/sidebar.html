@@ -27,7 +27,7 @@
             <a class="sidebar-item {% if active_page == 'funding_queue' %}active{% endif %}" href="/funding-queue">Funding Review<span class="nav-badge" id="badge-funding-review"></span></a>
         </div>
 
-        <details class="sidebar-section sidebar-collapse" {% if active_page in ['watchtower_operators','watchtower_ops','token_intelligence','creator-analysis','ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders','funder_intelligence','hubs','trading_sim'] %}open{% endif %}>
+        <details class="sidebar-section sidebar-collapse" {% if active_page in ['watchtower_operators','watchtower_ops','token_intelligence','creator-analysis','ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders','funder_intelligence','hubs','trading_sim','dust_observatory'] %}open{% endif %}>
             <summary class="sidebar-section-label">Intelligence <span style="color:var(--text-dim,#6e7681);font-size:9px;font-weight:400;">— research</span></summary>
             <a class="sidebar-item {% if active_page == 'watchtower_operators' %}active{% endif %}" href="/watchtower/operators">Discovery Mode</a>
             <a class="sidebar-item {% if active_page == 'watchtower_ops' %}active{% endif %}" href="/watchtower/intelligence">Attribution Review</a>
@@ -36,6 +36,7 @@
             <a class="sidebar-item {% if active_page in ['ecosystem','ecosystem-creators','ecosystem-networks','ecosystem-funders','ecosystem-clusters','networks','network_intelligence','clusters','coordinators','coordinated-funders'] %}active{% endif %}" href="/ecosystem">Ecosystems</a>
             <a class="sidebar-item {% if active_page == 'funder_intelligence' or active_page == 'hubs' %}active{% endif %}" href="/funder-intelligence">Funding</a>
             <a class="sidebar-item {% if active_page == 'trading_sim' %}active{% endif %}" href="/trading-sim">Portfolio</a>
+            <a class="sidebar-item {% if active_page == 'dust_observatory' %}active{% endif %}" href="/ops/dust-observatory">Dust Observatory</a>
         </details>
 
         <div class="sidebar-section">

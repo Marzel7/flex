@@ -1,0 +1,1750 @@
+{% extends "base_shell.html" %}
+{% block title %}WATCHTOWER Operations{% endblock %}
+
+{% block extra_styles %}
+:root {
+  --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa;
+  --red:#f85149; --yellow:#eab308; --blue:#58a6ff;
+}
+.pl-wrap { padding:20px 26px; color:var(--text-pri); max-width:1700px; }
+.pl-h { display:flex; align-items:baseline; gap:12px; margin-bottom:2px; }
+.pl-h h1 { font-size:21px; margin:0; }
+.pl-sub { color:var(--text-sec); font-size:12px; margin-bottom:14px; }
+.mono { font-family:ui-monospace,monospace; }
+.muted { color:var(--text-dim); }
+
+/* hero stats */
+.hero-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; margin-bottom:14px; }
+.hcard { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
+.hcard .v { font-size:20px; font-weight:800; line-height:1; }
+.hcard .l { font-size:9px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; margin-top:4px; }
+.hcard.go .v{color:var(--green)} .hcard.hot .v{color:var(--amber)} .hcard.cy .v{color:var(--cyan)}
+.hcard.bad .v{color:var(--red)} .hcard.yl .v{color:var(--yellow)} .hcard.bl .v{color:var(--blue)}
+
+/* tab bar */
+.tab-bar { display:flex; gap:3px; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:0; flex-wrap:wrap; }
+.tab { padding:7px 13px; font-size:11px; font-weight:600; cursor:pointer; border-radius:5px 5px 0 0;
+       color:var(--text-sec); border:1px solid transparent; border-bottom:none; margin-bottom:-1px;
+       background:none; transition:all .12s; white-space:nowrap; }
+.tab:hover { color:var(--text-pri); background:var(--bg-card); }
+.tab.active { color:var(--cyan); background:var(--bg-card); border-color:var(--border); border-bottom-color:var(--bg-card); }
+.tab-group-sep { width:1px; background:var(--border); margin:4px 2px; }
+
+/* panels */
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:12px; }
+.panel-hdr { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); }
+.panel-hdr .title { font-size:12px; font-weight:700; }
+.panel-hdr .hint { font-size:10px; color:var(--text-dim); margin-left:auto; }
+.panel-hdr .dq-note { font-size:10px; color:var(--amber); margin-left:6px; }
+
+/* tables */
+table { width:100%; border-collapse:collapse; font-size:11.5px; }
+th { text-align:left; padding:7px 10px; color:var(--text-sec); font-weight:500; font-size:10px;
+     text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:7px 10px; border-bottom:1px solid rgba(33,38,45,.6); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--bg-card2); }
+.addr { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; font-size:10.5px; }
+.addr:hover { text-decoration:underline; }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+
+/* state badges */
+.badge { display:inline-block; font-size:8.5px; font-weight:700; border-radius:3px; padding:1px 4px;
+         vertical-align:middle; white-space:nowrap; }
+.badge-armed   { background:rgba(63,185,80,.15);  color:var(--green);  border:1px solid rgba(63,185,80,.3); }
+.badge-post    { background:rgba(217,119,6,.15);  color:var(--amber);  border:1px solid rgba(217,119,6,.3); }
+.badge-intel   { background:rgba(139,148,158,.1); color:var(--text-dim); border:1px solid rgba(139,148,158,.2); }
+.badge-miss    { background:rgba(248,81,73,.12);  color:var(--red);    border:1px solid rgba(248,81,73,.25); }
+.badge-partial { background:rgba(234,179,8,.12);  color:var(--yellow); border:1px solid rgba(234,179,8,.25); }
+.badge-ok      { background:rgba(63,185,80,.1);   color:var(--green);  border:1px solid rgba(63,185,80,.2); }
+
+/* data quality tags */
+.dq { display:inline-block; font-size:8px; font-weight:600; border-radius:2px; padding:1px 4px;
+      margin-left:3px; vertical-align:middle; }
+.dq-live    { background:rgba(63,185,80,.15); color:var(--green); }
+.dq-derived { background:rgba(34,211,238,.1); color:var(--cyan); }
+.dq-fwd     { background:rgba(234,179,8,.12); color:var(--yellow); }
+.dq-missing { background:rgba(248,81,73,.12); color:var(--red); }
+
+/* event timeline */
+.tl-row { display:flex; align-items:flex-start; gap:10px; padding:6px 14px; border-bottom:1px solid rgba(33,38,45,.5); }
+.tl-row:last-child { border-bottom:none; }
+.tl-row:hover { background:rgba(255,255,255,.02); }
+.tl-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.tl-dot.FUNDING{background:var(--cyan)} .tl-dot.FANOUT{background:var(--yellow)}
+.tl-dot.CREATE{background:var(--green)} .tl-dot.SWARM{background:var(--red)}
+.tl-meta { flex:1; min-width:0; }
+.tl-primary { font-size:11.5px; font-weight:600; }
+.tl-secondary { font-size:10px; color:var(--text-dim); margin-top:1px; }
+.tl-time { font-size:9.5px; color:var(--text-sec); white-space:nowrap; }
+.ev-FUNDING{color:var(--cyan);font-weight:700} .ev-FANOUT{color:var(--yellow);font-weight:700}
+.ev-CREATE{color:var(--green);font-weight:700}  .ev-SWARM{color:var(--red);font-weight:700}
+
+/* rolling stats bar */
+.rolling-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); }
+.rwin { background:var(--bg-card2); border:1px solid var(--border2); border-radius:7px; padding:9px 12px; }
+.rwin .label { font-size:9.5px; color:var(--text-sec); font-weight:700; text-transform:uppercase; letter-spacing:.4px; margin-bottom:5px; }
+.rwin .row { display:flex; justify-content:space-between; font-size:10.5px; margin-top:2px; }
+.rwin .row .k { color:var(--text-dim); } .rwin .row .v { font-weight:600; }
+
+/* heatmap */
+.heatmap-grid { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; padding:10px 14px; }
+.hm-cell { height:28px; border-radius:3px; background:var(--bg-card2); border:1px solid var(--border2);
+            cursor:default; position:relative; }
+.hm-cell:hover .hm-tip { display:block; }
+.hm-tip { display:none; position:absolute; bottom:110%; left:50%; transform:translateX(-50%);
+           background:#0d1117; border:1px solid var(--border2); border-radius:5px; padding:5px 8px;
+           font-size:9.5px; white-space:nowrap; z-index:10; color:var(--text-pri); pointer-events:none; }
+
+/* summary cards */
+.summary-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); }
+.scard { background:var(--bg-card2); border:1px solid var(--border2); border-radius:7px; padding:10px 14px; }
+.scard .sv { font-size:22px; font-weight:800; }
+.scard .sl { font-size:9.5px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; margin-top:3px; }
+
+/* filter bar */
+.filter-bar { display:flex; gap:8px; align-items:center; padding:7px 14px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.filter-bar input,.filter-bar select { background:var(--bg-card2); border:1px solid var(--border2); border-radius:5px;
+                    color:var(--text-pri); padding:4px 8px; font-size:10.5px; }
+.filter-bar input { width:240px; }
+.filter-bar input:focus,.filter-bar select:focus { outline:none; border-color:var(--cyan); }
+.filter-bar .hint { font-size:10px; color:var(--text-dim); }
+
+/* view containers */
+.view { display:none; }
+.view.active { display:block; }
+
+/* bucket bar */
+.bucket-bar { display:flex; gap:2px; height:6px; border-radius:3px; overflow:hidden; margin-top:4px; }
+.bb-seg { flex:1; }
+
+/* ── monitoring state pills ──────────────────────────────────────────── */
+.phase-counts { display:flex; gap:6px; flex-wrap:wrap; padding:8px 14px; border-bottom:1px solid var(--border); }
+.pc-pill { font-size:10px; font-weight:700; padding:3px 10px; border-radius:12px; white-space:nowrap; }
+.pc-pill.mon-watch-create { background:rgba(63,185,80,.15);   color:var(--green);   border:1px solid rgba(63,185,80,.3); }
+.pc-pill.mon-wait-fanout  { background:rgba(88,166,255,.1);   color:#58a6ff;        border:1px solid rgba(88,166,255,.2); }
+.pc-pill.mon-intel        { background:rgba(234,179,8,.1);    color:var(--yellow);  border:1px solid rgba(234,179,8,.2); }
+.pc-pill.mon-watch-treas  { background:rgba(34,211,238,.12);  color:var(--cyan);    border:1px solid rgba(34,211,238,.25); }
+.pc-pill.mon-continuation { background:rgba(217,119,6,.15);   color:var(--amber);   border:1px solid rgba(217,119,6,.3); }
+.pc-pill.mon-wait-funding { background:rgba(167,139,250,.12); color:var(--purple);  border:1px solid rgba(167,139,250,.25); }
+.pc-pill.mon-idle         { background:rgba(110,118,129,.1);  color:var(--text-dim);border:1px solid rgba(110,118,129,.2); }
+
+/* ── OPS STRIP — Layer 1: operational summary row ───────────────────── */
+.ops-strip {
+  background:var(--bg-card2); border:1px solid var(--border2); border-radius:8px;
+  border-left:4px solid var(--border2); overflow:hidden; transition:border-color .12s;
+}
+.ops-strip:hover { border-color:rgba(255,255,255,.1); }
+.ops-strip.mon-watch-create { border-left-color:var(--green); }
+.ops-strip.mon-wait-fanout  { border-left-color:#58a6ff; }
+.ops-strip.mon-intel        { border-left-color:var(--yellow); }
+.ops-strip.mon-watch-treas  { border-left-color:var(--cyan); }
+.ops-strip.mon-continuation { border-left-color:var(--amber); }
+.ops-strip.mon-wait-funding { border-left-color:var(--purple); }
+.ops-strip.mon-idle         { border-left-color:var(--border2); opacity:.55; }
+/* The single operational row */
+.ops-row {
+  display:grid;
+  grid-template-columns: 140px 200px 110px 160px 160px 1fr auto;
+  align-items:center; gap:0; cursor:pointer; user-select:none;
+  min-height:52px;
+}
+.ops-row:hover { background:rgba(255,255,255,.02); }
+/* each cell */
+.ops-cell { padding:10px 14px; border-right:1px solid var(--border); }
+.ops-cell:last-child { border-right:none; }
+/* identity cell */
+.ops-treasury { font-family:ui-monospace,monospace; font-size:13px; font-weight:700;
+                color:var(--cyan); letter-spacing:.5px; cursor:pointer; }
+.ops-treasury:hover { text-decoration:underline; }
+.ops-opnum { font-size:9px; color:var(--text-dim); margin-bottom:2px; }
+/* monitoring state — dominant element */
+.ops-mon { font-size:11px; font-weight:800; letter-spacing:.3px; white-space:nowrap; }
+.ops-mon.mon-watch-create { color:var(--green); }
+.ops-mon.mon-wait-fanout  { color:#58a6ff; }
+.ops-mon.mon-intel        { color:var(--yellow); }
+.ops-mon.mon-watch-treas  { color:var(--cyan); }
+.ops-mon.mon-continuation { color:var(--amber); }
+.ops-mon.mon-wait-funding { color:var(--purple); }
+.ops-mon.mon-idle         { color:var(--text-dim); }
+.ops-mon-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; flex-shrink:0; }
+.ops-mon-dot.mon-watch-create { background:var(--green); animation:pulse 1.4s infinite; }
+.ops-mon-dot.mon-wait-fanout  { background:#58a6ff; }
+.ops-mon-dot.mon-intel        { background:var(--yellow); }
+.ops-mon-dot.mon-watch-treas  { background:var(--cyan); }
+.ops-mon-dot.mon-continuation { background:var(--amber); }
+.ops-mon-dot.mon-wait-funding { background:var(--purple); }
+.ops-mon-dot.mon-idle         { background:var(--border2); }
+/* prediction cell */
+.ops-pred-level { font-size:9px; font-weight:700; padding:1px 5px; border-radius:2px; margin-bottom:2px; display:inline-block; }
+.ops-pred-level.HIGH   { background:rgba(63,185,80,.15);  color:var(--green); }
+.ops-pred-level.MEDIUM { background:rgba(234,179,8,.12);  color:var(--yellow); }
+.ops-pred-level.LOW    { background:rgba(110,118,129,.1); color:var(--text-dim); }
+.ops-pred-text { font-size:10px; color:var(--text-sec); }
+/* action cell */
+.ops-action { font-size:10px; color:var(--text-sec); line-height:1.4; }
+.ops-action strong { color:var(--text-pri); font-weight:600; }
+/* focus cell */
+.ops-focus-addr { font-family:ui-monospace,monospace; font-size:11px; color:var(--cyan); }
+.ops-focus-sub  { font-size:9px; color:var(--text-dim); margin-top:2px; }
+/* expand toggle */
+.ops-toggle { padding:10px 14px; color:var(--text-dim); font-size:10px; white-space:nowrap;
+              display:flex; align-items:center; gap:4px; }
+.ops-toggle:hover { color:var(--text-sec); }
+
+/* ── Layer 2: Live Status (always visible when not idle) ─────────────── */
+.ops-live { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+            gap:0; border-top:1px solid var(--border); background:rgba(0,0,0,.15); }
+.ops-live-cell { padding:7px 14px; border-right:1px solid var(--border); }
+.ops-live-cell:last-child { border-right:none; }
+.ops-live-label { font-size:8px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:3px; }
+.ops-live-val   { font-size:11px; font-weight:700; }
+
+/* ── Layer 3: Analysis drawer (collapsed by default) ────────────────── */
+.ops-drawer { display:none; border-top:1px solid var(--border); }
+.ops-drawer.open { display:block; }
+/* drawer uses a 2-column layout inside */
+.ops-drawer-inner { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.ops-drawer-col   { padding:12px 16px; border-right:1px solid var(--border); }
+.ops-drawer-col:last-child { border-right:none; }
+/* stats in drawer */
+.stat-row { display:flex; justify-content:space-between; align-items:baseline; gap:6px; padding:2px 0; }
+.stat-key { font-size:9.5px; color:var(--text-dim); }
+.stat-val { font-size:11px; font-weight:700; color:var(--text-pri); font-variant-numeric:tabular-nums; }
+/* lifecycle bar (in drawer) */
+.lc-bar { display:flex; align-items:flex-start; gap:0; margin:8px 0 4px; }
+.lc-step { display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; position:relative; }
+.lc-step:not(:last-child)::after { content:''; position:absolute; top:6px; left:calc(50% + 7px);
+  right:calc(-50% + 7px); height:1px; background:var(--border2); }
+.lc-dot { width:11px; height:11px; border-radius:50%; border:2px solid var(--border2);
+          background:var(--bg-deep); flex-shrink:0; }
+.lc-dot.done   { background:var(--green); border-color:var(--green); }
+.lc-dot.active { background:var(--amber); border-color:var(--amber); animation:pulse 1.4s infinite; }
+.lc-dot-label  { font-size:7.5px; color:var(--text-dim); white-space:nowrap; text-align:center; }
+.lc-dot-label.active { color:var(--amber); font-weight:700; }
+/* monitoring state pill — kept for drawer use */
+.mon-pill { display:inline-block; font-size:9px; font-weight:800; border-radius:3px;
+            padding:2px 7px; letter-spacing:.4px; white-space:nowrap; }
+.mon-pill.mon-watch-create { background:rgba(63,185,80,.18);   color:var(--green); }
+.mon-pill.mon-wait-fanout  { background:rgba(88,166,255,.12);  color:#58a6ff; }
+.mon-pill.mon-intel        { background:rgba(234,179,8,.12);   color:var(--yellow); }
+.mon-pill.mon-watch-treas  { background:rgba(34,211,238,.15);  color:var(--cyan); }
+.mon-pill.mon-continuation { background:rgba(217,119,6,.18);   color:var(--amber); }
+.mon-pill.mon-wait-funding { background:rgba(167,139,250,.15); color:var(--purple); }
+.mon-pill.mon-idle         { background:rgba(110,118,129,.12); color:var(--text-dim); }
+/* origin badge */
+.origin-badge { display:inline-block; font-size:8px; font-weight:600; border-radius:2px;
+                padding:1px 5px; background:rgba(139,148,158,.1); color:var(--text-dim);
+                border:1px solid rgba(139,148,158,.2); letter-spacing:.3px; }
+/* focus row */
+.focus-row { display:flex; justify-content:space-between; font-size:9.5px; padding:1px 0; }
+.focus-key { color:var(--text-dim); }
+.focus-addr { font-family:ui-monospace,monospace; font-size:11px; color:var(--cyan);
+              cursor:pointer; }
+.focus-addr:hover { text-decoration:underline; }
+/* ── WATCHTOWER Assessment panel ─────────────────────────────────────── */
+.assess-wrap { display:flex; flex-direction:column; gap:0; }
+/* health chip */
+.health-chip { display:inline-flex; align-items:center; gap:5px; font-size:9px;
+               font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+               padding:2px 8px; border-radius:3px; }
+.health-chip.ON_PATTERN   { background:rgba(63,185,80,.15);  color:var(--green);  border:1px solid rgba(63,185,80,.3); }
+.health-chip.SLOW         { background:rgba(234,179,8,.12);  color:var(--yellow); border:1px solid rgba(234,179,8,.3); }
+.health-chip.UNUSUAL      { background:rgba(217,119,6,.15);  color:var(--amber);  border:1px solid rgba(217,119,6,.3); }
+.health-chip.ANOMALOUS    { background:rgba(248,81,73,.12);  color:var(--red);    border:1px solid rgba(248,81,73,.3); animation:pulse 1.2s infinite; }
+.health-chip.UNKNOWN      { background:rgba(110,118,129,.1); color:var(--text-dim); border:1px solid rgba(110,118,129,.2); }
+.health-chip.IDLE_WATCH   { background:rgba(34,211,238,.08); color:var(--cyan);   border:1px solid rgba(34,211,238,.2); }
+/* assess sections */
+.assess-section { padding:8px 10px; border-bottom:1px solid var(--border); }
+.assess-section:last-child { border-bottom:none; }
+.assess-label { font-size:8px; font-weight:700; color:var(--text-dim); text-transform:uppercase;
+                letter-spacing:.5px; margin-bottom:4px; }
+.assess-text  { font-size:10px; color:var(--text-sec); line-height:1.5; }
+.assess-text strong { color:var(--text-pri); font-weight:600; }
+/* prediction badge */
+.pred-level { display:inline-block; font-size:8px; font-weight:700; padding:1px 5px;
+              border-radius:2px; margin-right:5px; vertical-align:middle; }
+.pred-level.HIGH   { background:rgba(63,185,80,.15);  color:var(--green); }
+.pred-level.MEDIUM { background:rgba(234,179,8,.12);  color:var(--yellow); }
+.pred-level.LOW    { background:rgba(110,118,129,.1); color:var(--text-dim); }
+/* score bar */
+.score-bar-wrap { display:flex; align-items:center; gap:6px; margin-top:4px; }
+.score-bar { flex:1; height:4px; border-radius:2px; background:var(--border2); overflow:hidden; position:relative; }
+.score-fill { position:absolute; left:0; top:0; height:100%; border-radius:2px; transition:width .3s; }
+.score-num  { font-size:9px; font-weight:700; min-width:28px; text-align:right; }
+/* score checks / evidence */
+.score-checks { display:flex; flex-direction:column; gap:2px; margin-top:4px; }
+.score-check  { display:flex; align-items:flex-start; gap:5px; font-size:9px; line-height:1.4; }
+.score-check .ck { width:11px; height:11px; border-radius:2px; flex-shrink:0; display:flex;
+                   align-items:center; justify-content:center; font-size:8px; font-weight:700; margin-top:1px; }
+.score-check .ck.pass { background:rgba(63,185,80,.2); color:var(--green); }
+.score-check .ck.fail { background:rgba(248,81,73,.12); color:var(--red); }
+/* action box */
+.action-box { background:rgba(34,211,238,.04); border:1px solid rgba(34,211,238,.12);
+              border-radius:4px; padding:6px 8px; font-size:9.5px; color:var(--cyan); line-height:1.5; }
+/* facts grid */
+.facts-grid { display:flex; flex-direction:column; gap:2px; margin-top:3px; }
+.fact-row   { display:flex; justify-content:space-between; align-items:baseline; gap:4px; font-size:9.5px; }
+.fact-k     { color:var(--text-dim); flex-shrink:0; }
+.fact-v     { font-weight:600; color:var(--text-pri); text-align:right; }
+.sample-n   { font-size:8px; font-weight:400; color:var(--text-dim); }
+/* mini event timeline */
+.tl-entries { display:flex; flex-direction:column; gap:0; margin-top:3px; }
+.tl-entry   { display:flex; align-items:flex-start; gap:6px; position:relative; padding-bottom:4px; }
+.tl-e-dot   { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+.tl-e-line  { position:absolute; left:3px; top:10px; width:1px; bottom:0; background:var(--border2); }
+.tl-e-body  { flex:1; display:flex; justify-content:space-between; align-items:baseline; }
+.tl-e-label { font-size:9px; font-weight:700; }
+.tl-e-time  { font-size:8.5px; color:var(--text-dim); flex-shrink:0; }
+/* exec summary banner */
+.exec-banner { background:var(--bg-card); border:1px solid var(--border); border-radius:8px;
+               margin-bottom:10px; overflow:hidden; }
+.exec-banner .eb-hdr { display:flex; align-items:center; gap:8px; padding:8px 14px;
+                        border-bottom:1px solid var(--border); }
+.exec-banner .eb-title { font-size:11px; font-weight:700; color:var(--cyan); }
+.exec-banner .eb-body  { display:flex; flex-wrap:wrap; gap:0; }
+.exec-banner .eb-stat  { padding:10px 16px; border-right:1px solid var(--border); min-width:120px; }
+.exec-banner .eb-stat:last-child { border-right:none; flex:1; }
+.exec-banner .eb-stat .ev { font-size:18px; font-weight:800; line-height:1; }
+.exec-banner .eb-stat .el { font-size:9px; color:var(--text-sec); text-transform:uppercase;
+                             letter-spacing:.4px; margin-top:3px; }
+.exec-banner .eb-highlight { padding:10px 16px; flex:2; border-top:0; }
+.eb-best { font-size:10px; color:var(--text-sec); line-height:1.7; }
+.eb-best strong { color:var(--text-pri); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+{% endblock %}
+
+{% block content %}
+<div class="pl-wrap">
+  <div class="pl-h">
+    <h1>⚙ WATCHTOWER Operations</h1>
+    <a href="/watchtower/intelligence" style="font-size:11px;color:var(--text-dim);text-decoration:none">← NOC</a>
+  </div>
+  <div class="pl-sub">Behavioural intelligence view — subprov profiles, launch outcomes, miss analysis, operational fingerprints.</div>
+
+  <!-- hero stats — kept for cross-tab consumers, hidden on active-ops tab -->
+  <div class="hero-grid" id="hero-grid" style="display:none">
+    <div class="hcard go"><div class="v" id="h-active">—</div><div class="l">Active Ops</div></div>
+    <div class="hcard hot"><div class="v" id="h-armed">—</div><div class="l">Live Armed</div></div>
+    <div class="hcard cy"><div class="v" id="h-fanouts">—</div><div class="l">Total Bursts</div></div>
+    <div class="hcard go"><div class="v" id="h-creates">—</div><div class="l">Confirmed Creates</div></div>
+    <div class="hcard bl"><div class="v" id="h-subprovs">—</div><div class="l">Known SubProvs</div></div>
+    <div class="hcard bad"><div class="v" id="h-misses">—</div><div class="l">Miss Gap</div></div>
+    <div class="hcard yl"><div class="v" id="h-median-x">—</div><div class="l">Median Multiple</div></div>
+  </div>
+
+  <!-- tab bar — Phase 1 | Phase 2 | Phase 3 -->
+  <div class="tab-bar">
+    <!-- Phase 1 -->
+    <button class="tab active" onclick="switchTab('active-ops')">Active Operations</button>
+    <button class="tab" onclick="switchTab('timeline')">Operation Timeline</button>
+    <button class="tab" onclick="switchTab('fanout')">Fan-out Intelligence</button>
+    <div class="tab-group-sep"></div>
+    <!-- Phase 2 -->
+    <button class="tab" onclick="switchTab('subprov')">SubProv Intelligence</button>
+    <button class="tab" onclick="switchTab('launch')">Launch Intelligence</button>
+    <button class="tab" onclick="switchTab('post-create')">Post-CREATE Activity</button>
+    <div class="tab-group-sep"></div>
+    <!-- Phase 3 -->
+    <button class="tab" onclick="switchTab('miss')">Miss Analysis</button>
+    <button class="tab" onclick="switchTab('fingerprints')">Behaviour Fingerprints</button>
+    <button class="tab" onclick="switchTab('rolling')">Rolling Activity</button>
+  </div>
+
+  <!-- ── VIEW 1: Active Operations ─────────────────────────────────────────── -->
+  <div class="view active" id="view-active-ops">
+    <!-- Executive summary banner -->
+    <div class="exec-banner" id="exec-banner" style="display:none">
+      <div class="eb-hdr">
+        <span class="eb-title">WATCHTOWER Assessment</span>
+        <span style="font-size:9.5px;color:var(--text-dim)" id="eb-updated"></span>
+      </div>
+      <div class="eb-body" id="eb-body"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Active Operations</span>
+        <span class="dq-note">LIVE</span>
+        <span class="hint" id="ops-updated"></span>
+      </div>
+      <!-- operational stat pills -->
+      <div class="phase-counts" id="board-phase-counts"></div>
+      <!-- operational focus stats -->
+      <div id="ops-focus-stats" style="display:flex;gap:8px;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid var(--border);font-size:10.5px"></div>
+      <!-- filter bar -->
+      <div class="filter-bar">
+        <input id="ops-filter" placeholder="Filter by treasury…" oninput="renderActiveOps()">
+        <span class="hint" id="ops-count"></span>
+        <label style="display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-sec);cursor:pointer;margin-left:auto">
+          <input type="checkbox" id="ops-show-dormant" onchange="renderActiveOps()" style="cursor:pointer"> Show dormant
+        </label>
+      </div>
+      <!-- campaign cards -->
+      <div id="ops-cards" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px"></div>
+      <!-- dormant archive (collapsed) -->
+      <div id="ops-dormant-section" style="border-top:1px solid var(--border)">
+        <div style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="toggleDormant()">
+          <span style="font-size:10px;color:var(--text-dim);font-weight:700" id="dormant-toggle-label">▶ IDLE / DORMANT ARCHIVE</span>
+          <span style="font-size:10px;color:var(--text-dim)" id="dormant-count"></span>
+        </div>
+        <div id="ops-dormant-cards" style="display:none;padding:0 14px 10px;display:none;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIEW 2: Operation Timeline ────────────────────────────────────────── -->
+  <div class="view" id="view-timeline">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Operation Timeline</span>
+        <span style="font-size:10.5px;color:var(--text-dim);margin-left:6px">FUNDING · FANOUT · CREATE · SWARM</span>
+        <span class="hint" id="tl-updated"></span>
+      </div>
+      <div class="filter-bar">
+        <input id="tl-filter" placeholder="Filter by subprov address…" oninput="renderTimeline()">
+        <span class="hint" id="tl-count"></span>
+      </div>
+      <div id="tl-body" style="max-height:680px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- ── VIEW 3: Fan-out Intelligence ──────────────────────────────────────── -->
+  <div class="view" id="view-fanout">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Fan-out Intelligence</span>
+        <span class="dq-note">DERIVED</span>
+        <span class="hint" id="fi-updated"></span>
+      </div>
+      <div class="rolling-grid" id="rolling-grid">
+        <div class="rwin" id="rwin-30s"><div class="label">Last 30s</div></div>
+        <div class="rwin" id="rwin-60s"><div class="label">Last 60s</div></div>
+        <div class="rwin" id="rwin-120s"><div class="label">Last 120s</div></div>
+      </div>
+      <div class="filter-bar">
+        <input id="fi-filter" placeholder="Filter by subprov or type…" oninput="renderFanout()">
+        <label style="display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-sec);cursor:pointer;margin-left:8px">
+          <input type="checkbox" id="fi-raw" onchange="loadFanout()" style="cursor:pointer">
+          Raw bursts
+        </label>
+        <span class="hint" id="fi-count"></span>
+      </div>
+      <table>
+        <thead id="fi-thead"><tr>
+          <th>SubProv</th><th>Treasury</th>
+          <th class="num">Bursts</th><th class="num">Recipients</th>
+          <th class="num">Total ◎</th><th class="num">Avg ◎/burst</th>
+          <th class="num">Max size</th>
+          <th class="num">Creates</th><th class="num">Swarms</th>
+          <th>Type</th><th>Last Fanout</th>
+        </tr></thead>
+        <tbody id="fi-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VIEW 4: SubProv Intelligence ──────────────────────────────────────── -->
+  <div class="view" id="view-subprov">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">SubProv Intelligence</span>
+        <span class="dq-note">DERIVED + LIVE</span>
+        <span class="hint" id="sp-updated"></span>
+      </div>
+      <div class="filter-bar">
+        <input id="sp-filter" placeholder="Filter by subprov or treasury…" oninput="renderSubprov()">
+        <select id="sp-state" onchange="renderSubprov()">
+          <option value="">All states</option>
+          <option value="live">Live only</option>
+          <option value="PROVISIONAL_SUBPROV">Provisional</option>
+          <option value="CONFIRMED_SUBPROV">Confirmed</option>
+        </select>
+        <span class="hint" id="sp-count"></span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>SubProv</th><th>Treasury</th><th>State</th>
+          <th class="num">Creators</th><th class="num">Wrap-Closes</th>
+          <th class="num">Creates<br><span style="font-size:8px;font-weight:400">(confirmed)</span></th>
+          <th class="num">Swarms</th><th class="num">Confidence</th>
+          <th>Burst Avg</th><th>First Seen</th><th>Last Seen</th><th>Data Quality</th>
+        </tr></thead>
+        <tbody id="sp-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VIEW 5: Launch Intelligence ───────────────────────────────────────── -->
+  <div class="view" id="view-launch">
+    <!-- summary cards -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Launch Intelligence</span>
+        <span class="dq-note">FORWARD-ONLY — audit available for pipeline-detected launches only</span>
+        <span class="hint" id="li-updated"></span>
+      </div>
+      <div class="summary-row" id="li-summary"></div>
+      <div class="filter-bar">
+        <input id="li-filter" placeholder="Filter by mint, subprov, or treasury…" oninput="renderLaunch()">
+        <select id="li-state" onchange="renderLaunch()">
+          <option value="">All outcomes</option>
+          <option value="MIGRATED">Migrated</option>
+          <option value="UNKNOWN">Unknown</option>
+        </select>
+        <span class="hint" id="li-count"></span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Mint</th><th>SubProv</th><th>Treasury</th>
+          <th>Mode</th><th class="num">Detect ms</th>
+          <th class="num">MC at Detect</th><th class="num">Peak MC</th>
+          <th class="num">Multiple</th><th>Outcome</th><th>Time</th><th>Data Quality</th>
+        </tr></thead>
+        <tbody id="li-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VIEW 6: Post-CREATE Activity ──────────────────────────────────────── -->
+  <div class="view" id="view-post-create">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Post-CREATE Activity</span>
+        <span class="dq-note">DERIVED — post-create fanout derived from wt_fanout_events after last create_time</span>
+        <span class="hint" id="pc-updated"></span>
+      </div>
+      <div class="filter-bar">
+        <input id="pc-filter" placeholder="Filter by subprov…" oninput="renderPostCreate()">
+        <span class="hint" id="pc-count"></span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>SubProv</th><th>Treasury</th><th>Creates</th><th>Last Create</th>
+          <th>Phase</th>
+          <th class="num">Post-Create Bursts</th>
+          <th class="num">Post-Create Recipients</th>
+          <th class="num">Further Creates</th>
+          <th class="num">Swarm Tokens</th>
+          <th>Data Quality</th>
+        </tr></thead>
+        <tbody id="pc-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VIEW 7: Miss Analysis ──────────────────────────────────────────────── -->
+  <div class="view" id="view-miss">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Miss Analysis</span>
+        <span class="dq-note">MISSING data surfaced — creator_count is FORWARD-ONLY</span>
+        <span class="hint" id="ma-updated"></span>
+      </div>
+      <div class="summary-row" id="ma-summary"></div>
+      <div class="filter-bar">
+        <input id="ma-filter" placeholder="Filter by subprov…" oninput="renderMiss()">
+        <select id="ma-type" onchange="renderMiss()">
+          <option value="">All</option>
+          <option value="FULL_MISS">Full misses only</option>
+          <option value="PARTIAL_MISS">Partial misses</option>
+          <option value="COVERED">Covered</option>
+        </select>
+        <span class="hint" id="ma-count"></span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>SubProv</th><th>Treasury</th>
+          <th class="num">Creator Count<br><span style="font-size:8px;font-weight:400">(FORWARD-ONLY)</span></th>
+          <th class="num">Confirmed<br>Launches</th>
+          <th class="num">Detection Gap</th>
+          <th class="num">Detection Rate</th>
+          <th>Miss Type</th><th>State</th><th>Last Seen</th>
+        </tr></thead>
+        <tbody id="ma-body"></tbody>
+      </table>
+    </div>
+    <!-- pipeline gaps panel -->
+    <div class="panel" id="ma-gaps-panel" style="display:none">
+      <div class="panel-hdr">
+        <span class="title">Candidate Watch Pipeline Gaps</span>
+        <span class="dq-note">FORWARD-ONLY — candidates resolved_create without confirmed launch record</span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Candidate</th><th>SubProv</th><th>Treasury</th><th>Close Reason</th><th>Wrap Close Time</th>
+        </tr></thead>
+        <tbody id="ma-gaps-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VIEW 8: Behaviour Fingerprints ────────────────────────────────────── -->
+  <div class="view" id="view-fingerprints">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Behaviour Fingerprints</span>
+        <span class="dq-note">DERIVED from wt_fanout_events — FORWARD-ONLY timing from confirmed launches</span>
+        <span class="hint" id="fp-updated"></span>
+      </div>
+      <div class="filter-bar">
+        <input id="fp-filter" placeholder="Filter by subprov or signature…" oninput="renderFingerprints()">
+        <select id="fp-sig" onchange="renderFingerprints()">
+          <option value="">All signatures</option>
+          <option value="CREATOR_DOMINANT">Creator dominant</option>
+          <option value="SWARM_DOMINANT">Swarm dominant</option>
+          <option value="MIXED">Mixed</option>
+          <option value="PRECISION_BURSTS">Precision bursts</option>
+          <option value="UNIFORM_AMOUNTS">Uniform amounts</option>
+        </select>
+        <span class="hint" id="fp-count"></span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>SubProv</th><th>Treasury</th><th>Signature</th>
+          <th class="num">Bursts</th><th class="num">Avg Size</th>
+          <th class="num">Small %<br><span style="font-size:8px;font-weight:400">≤6</span></th>
+          <th class="num">Identical %</th>
+          <th class="num">Creator<br>Ratio</th>
+          <th class="num">Swarm<br>Ratio</th>
+          <th class="num">Avg ◎ /recipient</th>
+          <th class="num">Confirms</th>
+          <th class="num">Avg Birth→Launch</th>
+          <th>Data Quality</th>
+        </tr></thead>
+        <tbody id="fp-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VIEW 9: Rolling Activity / Heatmap ────────────────────────────────── -->
+  <div class="view" id="view-rolling">
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="title">Rolling Activity</span>
+        <span class="dq-note">DERIVED from wt_fanout_events + wt_watchtower_launches</span>
+        <span class="hint" id="ra-updated"></span>
+      </div>
+      <!-- rolling windows -->
+      <div class="rolling-grid" id="ra-rolling"></div>
+      <!-- 24h heatmap -->
+      <div style="padding:10px 14px 4px;font-size:10px;color:var(--text-sec);font-weight:600;text-transform:uppercase;letter-spacing:.4px;">
+        24-Hour Fanout Heatmap (bursts per hour, newest right)
+      </div>
+      <div class="heatmap-grid" id="ra-heatmap"></div>
+      <div style="padding:4px 14px 10px;font-size:9.5px;color:var(--text-dim)">
+        Colour: <span style="color:var(--green)">■</span> creates &nbsp;
+        <span style="color:var(--yellow)">■</span> burst only &nbsp;
+        <span style="color:var(--red)">■</span> swarms &nbsp;
+        <span style="color:var(--bg-card2)">■</span> quiet
+      </div>
+    </div>
+    <!-- 7d daily summary -->
+    <div class="panel">
+      <div class="panel-hdr"><span class="title">7-Day Daily Summary</span></div>
+      <table>
+        <thead><tr>
+          <th>Date</th>
+          <th class="num">Bursts</th><th class="num">Recipients</th>
+          <th class="num">Creates</th><th class="num">Swarms</th>
+        </tr></thead>
+        <tbody id="ra-daily-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /pl-wrap -->
+
+<script>
+// ── helpers ────────────────────────────────────────────────────────────────
+const short = w => w ? w.slice(0,6)+'…'+w.slice(-4) : '—';
+const solscan = w => w && window.open(`https://solscan.io/account/${w}`,'_blank');
+const pumpfun = m => m && window.open(`https://pump.fun/${m}`,'_blank');
+
+function ago(secs) {
+  if (secs==null) return '—';
+  if (secs<5) return 'now';
+  if (secs<60) return `${Math.floor(secs)}s`;
+  if (secs<3600) return `${Math.floor(secs/60)}m`;
+  if (secs<86400) return `${Math.floor(secs/3600)}h ${Math.floor((secs%3600)/60)}m`;
+  return `${Math.floor(secs/86400)}d`;
+}
+function dur(secs) {
+  if (secs==null) return '—';
+  if (secs<60) return `${Math.floor(secs)}s`;
+  const h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+function fmtSol(v,dp=3) { return v!=null ? (+v).toFixed(dp) : '—'; }
+function fmtUsd(v) {
+  if (v==null) return '—';
+  if (v>=1e6) return `$${(v/1e6).toFixed(2)}M`;
+  if (v>=1e3) return `$${(v/1e3).toFixed(1)}k`;
+  return `$${v.toFixed(0)}`;
+}
+function fmtTs(ts) {
+  if (!ts) return '—';
+  const d=new Date(ts*1000);
+  return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// data quality badge
+function dqBadge(tag) {
+  const cls = tag.startsWith('NO_')||tag==='MISSING'||tag.includes('MISS')||tag==='SESSION_EXPIRED'||tag==='FULL_MISS' ? 'dq-missing'
+            : tag==='LIVE'||tag==='LIVE_DATA' ? 'dq-live'
+            : tag.includes('FORWARD')||tag.includes('FWD') ? 'dq-fwd'
+            : 'dq-derived';
+  return `<span class="dq ${cls}">${tag.replace(/_/g,' ')}</span>`;
+}
+function dqBadges(arr) { return (arr||[]).map(dqBadge).join(''); }
+
+// state badge
+function stateBadge(ms) {
+  if (ms==='LIVE_ARMED')        return `<span class="badge badge-armed">ARMED</span>`;
+  if (ms==='POST_CREATE_ACTIVE') return `<span class="badge badge-post">🚀 POST</span>`;
+  if (ms)                        return `<span class="badge badge-intel">INTEL</span>`;
+  return '';
+}
+
+// reason cell
+function reasonCell(r, seq, rotated) {
+  if (r==='CONTINUING_OPERATION') {
+    const s=seq?` <span style="color:var(--yellow);font-size:9px">#${seq}</span>`:'';
+    const t=rotated?` <span style="color:var(--amber);font-size:9px" title="treasury changed">↻</span>`:'';
+    return `<span style="color:var(--cyan);font-size:10px;font-weight:600">CONTINUING${s}${t}</span>`;
+  }
+  if (r==='SUBPROV_REACTIVATED')        return `<span style="color:var(--purple);font-size:10px;font-weight:600">REACTIVATED</span>`;
+  if (r==='HISTORICAL_SUBPROV_DISCOVERED') return `<span style="color:var(--text-sec);font-size:10px">HISTORICAL</span>`;
+  if (r==='BUY_SWARM_PROVISIONER')      return `<span style="color:var(--red);font-size:10px;font-weight:600">SWARM</span>`;
+  if (!r||r==='PROVISION_CANDIDATE'||r==='NEW_SUBPROV') return `<span style="color:var(--text-dim);font-size:10px">NEW</span>`;
+  return `<span style="color:var(--text-dim);font-size:9px">${r.replace(/_/g,' ')}</span>`;
+}
+
+// ── data stores ───────────────────────────────────────────────────────────
+let _ops=[], _timeline=[], _fanout={}, _subprovs=[], _launches={},
+    _postCreate=[], _miss={}, _fingerprints=[], _rolling={};
+let _boardData={operations:[], phase_counts:{}};
+let _opsView='table';
+
+// ── tab switching ─────────────────────────────────────────────────────────
+const TAB_NAMES=['active-ops','timeline','fanout','subprov','launch','post-create','miss','fingerprints','rolling'];
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TAB_NAMES[i]===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById('view-'+name);
+  if(el) el.classList.add('active');
+  // show/hide hero grid depending on tab
+  document.getElementById('hero-grid').style.display = (name==='active-ops') ? 'none' : 'grid';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 1 — Active Operations (Campaign Cards)
+// ═══════════════════════════════════════════════════════════════════════════
+let _dormantOpen = false;
+function toggleDormant() {
+  _dormantOpen = !_dormantOpen;
+  document.getElementById('ops-dormant-cards').style.display = _dormantOpen ? 'flex' : 'none';
+  document.getElementById('dormant-toggle-label').textContent = (_dormantOpen ? '▼' : '▶') + ' IDLE / DORMANT ARCHIVE';
+}
+
+function renderActiveOps() { renderCampaigns(); }
+
+// Monitoring state → CSS class key
+const MON_CSS = {
+  'WATCHING CREATE':         'mon-watch-create',
+  'WAITING FOR FAN-OUT':     'mon-wait-fanout',
+  'INTEL ONLY':              'mon-intel',
+  'WATCHING TREASURY':       'mon-watch-treas',
+  'MONITORING CONTINUATION': 'mon-continuation',
+  'WAITING FOR FUNDING':     'mon-wait-funding',
+  'IDLE':                    'mon-idle',
+};
+
+function _wsIndicator(open) {
+  return open
+    ? `<span style="color:var(--green);font-weight:700;font-size:9.5px">● OPEN</span>`
+    : `<span style="color:var(--border2);font-size:9.5px">○ CLOSED</span>`;
+}
+
+const HEALTH_ICON = {
+  'ON_PATTERN': '✓', 'SLOW': '⏳', 'UNUSUAL': '⚠', 'ANOMALOUS': '⚡',
+  'UNKNOWN': '?', 'IDLE_WATCH': '◉',
+};
+
+function _scoreColor(s) {
+  return s >= 75 ? 'var(--green)' : s >= 45 ? 'var(--yellow)' : 'var(--red)';
+}
+
+function _fmtTs(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts * 1000);
+  return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+// ── Assessment panel — 8-question reasoning flow ─────────────────────
+// Q1 What am I watching?  → monitoring state (in card header, not here)
+// Q2 What happened?       → assessment_timeline
+// Q3 What will happen?    → prediction
+// Q4 Why?                 → belief + why
+// Q5 Evidence?            → score_checks
+// Q6 How confident?       → confidence score + model maturity
+// Q7 What changed?        → health chip (the deviation signal)
+// Q8 What to do?          → action
+
+function _mkAssessmentPanel(o) {
+  const p = o.predictive;
+  const tl = o.assessment_timeline || [];
+
+  if (!p) {
+    return `<div class="assess-section" style="color:var(--text-dim);font-size:9.5px;font-style:italic">
+      No assessment available.</div>`;
+  }
+
+  const health = p.health || 'UNKNOWN';
+  const icon = HEALTH_ICON[health] || '?';
+  const sv = p.score_value != null ? p.score_value : null;
+  const model = p.model || {};
+  const sim = p.similar_campaigns || [];
+
+  // ── Q7: What changed? — health chip (always first, the deviation signal) ─
+  const chipHtml = `
+    <div class="assess-section" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+      <span class="health-chip ${health}">${icon} ${health.replace(/_/g,' ')}</span>
+      ${sv!=null?`<div style="display:flex;align-items:center;gap:5px">
+        <div style="font-size:8px;color:var(--text-dim)">Prediction confidence</div>
+        <div class="score-bar" style="width:50px"><span class="score-fill" style="width:${sv}%;background:${_scoreColor(sv)}"></span></div>
+        <span style="font-size:9px;font-weight:700;color:${_scoreColor(sv)}">${sv}</span>
+      </div>`:''}
+    </div>`;
+
+  // ── Q2: What happened? — recent event timeline ─────────────────────────
+  let timelineHtml = '';
+  if (tl.length > 0) {
+    const TL_COLORS = {
+      'TREASURY SUBSCRIBED': 'var(--cyan)',
+      'SUBPROV FUNDED':      '#58a6ff',
+      'FAN-OUT DETECTED':    'var(--yellow)',
+      'CANDIDATE ARMED':     'var(--green)',
+      'CANDIDATE EXPIRED':   'var(--text-dim)',
+      'BUY-SWARM':           'var(--red)',
+      'SESSION EXPIRED':     'var(--text-dim)',
+      'INTEL ONLY':          'var(--amber)',
+      'CREATE DETECTED':     'var(--green)',
+    };
+    const tlRows = tl.slice(0,5).map((e,i) => {
+      const col = TL_COLORS[e.label] || 'var(--text-dim)';
+      const isLast = i === tl.length - 1 || i === 4;
+      return `<div class="tl-entry">
+        <div class="tl-e-dot" style="background:${col}"></div>
+        ${!isLast?'<div class="tl-e-line"></div>':''}
+        <div class="tl-e-body">
+          <span class="tl-e-label" style="color:${col}">${e.label}</span>
+          <span class="tl-e-time">${_fmtTs(e.ts)}</span>
+        </div>
+      </div>`;
+    }).join('');
+    timelineHtml = `
+    <div class="assess-section">
+      <div class="assess-label">Recent Events</div>
+      <div class="tl-entries">${tlRows}</div>
+    </div>`;
+  }
+
+  // ── Q3+Q7: What changed / prediction ──────────────────────────────────
+  const predLevel = p.prediction_level || 'MEDIUM';
+  const predColor = predLevel==='HIGH'?'var(--green)':predLevel==='MEDIUM'?'var(--yellow)':'var(--text-dim)';
+
+  // Timing facts block (WATCHING CREATE)
+  let factsHtml = '';
+  if (p.timing_window || p.timing_elapsed_fmt) {
+    const elColor = health==='ON_PATTERN'?'var(--green)':health==='ANOMALOUS'?'var(--red)':'var(--yellow)';
+    factsHtml = `
+    <div class="assess-section">
+      <div class="assess-label">Observed Facts</div>
+      <div class="facts-grid">
+        ${p.timing_window?`<div class="fact-row"><span class="fact-k">Historical window</span><span class="fact-v">${p.timing_window} <span class="sample-n">(n=${p.timing_samples})</span></span></div>`:''}
+        ${p.timing_elapsed_fmt?`<div class="fact-row"><span class="fact-k">Elapsed</span><span class="fact-v" style="color:${elColor}">${p.timing_elapsed_fmt}</span></div>`:''}
+        ${p.hist_avg_recipients!=null?`<div class="fact-row"><span class="fact-k">Avg fan-out</span><span class="fact-v">${p.hist_avg_recipients} wallets <span class="sample-n">(n=${model.fanout_n||'?'})</span></span></div>`:''}
+        ${p.hist_avg_sol!=null?`<div class="fact-row"><span class="fact-k">Avg funding</span><span class="fact-v">${p.hist_avg_sol}◎</span></div>`:''}
+        ${p.hist_create_rate!=null?`<div class="fact-row"><span class="fact-k">Create rate</span><span class="fact-v">${p.hist_create_rate}% <span class="sample-n">(n=${model.fanout_n||'?'})</span></span></div>`:''}
+      </div>
+    </div>`;
+  } else if (p.hist_avg_recipients != null || p.hist_create_rate != null) {
+    factsHtml = `
+    <div class="assess-section">
+      <div class="assess-label">Historical Profile</div>
+      <div class="facts-grid">
+        ${p.hist_avg_recipients!=null?`<div class="fact-row"><span class="fact-k">Avg fan-out</span><span class="fact-v">${p.hist_avg_recipients} <span class="sample-n">(n=${model.fanout_n||'?'})</span></span></div>`:''}
+        ${p.hist_create_rate!=null?`<div class="fact-row"><span class="fact-k">Create rate</span><span class="fact-v">${p.hist_create_rate}% <span class="sample-n">(n=${model.fanout_n||'?'})</span></span></div>`:''}
+      </div>
+    </div>`;
+  }
+
+  // ── Q4+Q3: Why + prediction ────────────────────────────────────────────
+  const reasonHtml = `
+    <div class="assess-section">
+      <div class="assess-label">WATCHTOWER Assessment</div>
+      <div class="assess-text">${p.belief||'—'}</div>
+      ${p.why?`<div class="assess-text" style="color:var(--text-dim);font-size:9.5px;margin-top:3px">${p.why}</div>`:''}
+      ${health==='UNKNOWN'&&p.unknown_reason?`<div class="assess-text" style="color:var(--amber);font-size:9.5px;margin-top:4px">${p.unknown_reason}</div>`:''}
+      ${p.prediction_text?`<div style="margin-top:6px;display:flex;align-items:center;gap:5px">
+        <span class="pred-level ${predLevel}">${predLevel}</span>
+        <span style="font-size:10px;color:${predColor}">${p.prediction_text}</span>
+      </div>`:''}
+    </div>`;
+
+  // ── Q5: Evidence ─────────────────────────────────────────────────────
+  let evidenceHtml = '';
+  if (p.score_checks && p.score_checks.length) {
+    const checksHtml = p.score_checks.map(c =>
+      `<div class="score-check">
+        <span class="ck ${c.pass?'pass':'fail'}">${c.pass?'✓':'✗'}</span>
+        <span style="color:${c.pass?'var(--text-sec)':'var(--text-dim)'}">${c.label}</span>
+      </div>`
+    ).join('');
+    evidenceHtml = `
+    <div class="assess-section">
+      <div class="assess-label">Evidence</div>
+      <div class="score-checks">${checksHtml}</div>
+    </div>`;
+  }
+
+  // ── Q6: How confident? — model maturity ───────────────────────────────
+  const maturityColor = model.confidence==='HIGH'?'var(--green)':model.confidence==='MEDIUM'?'var(--yellow)':model.confidence==='LOW'?'var(--amber)':'var(--text-dim)';
+  const lastLaunchStr = model.last_launch_age != null
+    ? (model.last_launch_age < 3600 ? `${Math.round(model.last_launch_age/60)}m ago`
+      : model.last_launch_age < 86400 ? `${Math.round(model.last_launch_age/3600)}h ago`
+      : `${Math.round(model.last_launch_age/86400)}d ago`)
+    : 'never';
+  const maturityHtml = `
+    <div class="assess-section">
+      <div class="assess-label">Behaviour Model</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+        <span style="font-size:9.5px;font-weight:700;color:${maturityColor}">${model.stage||'UNKNOWN'}</span>
+        <span style="font-size:8.5px;color:var(--text-dim)">· model confidence ${model.confidence||'?'}</span>
+      </div>
+      <div class="facts-grid">
+        <div class="fact-row"><span class="fact-k">Launches</span><span class="fact-v">${model.launches||0}</span></div>
+        <div class="fact-row"><span class="fact-k">Fan-out obs</span><span class="fact-v">${model.fanout_n||0}</span></div>
+        <div class="fact-row"><span class="fact-k">Last launch</span><span class="fact-v">${lastLaunchStr}</span></div>
+      </div>
+      ${model.stage==='LEARNING'||model.stage==='EARLY'?`<div style="font-size:8.5px;color:var(--amber);margin-top:4px">⚠ ${model.desc}</div>`:''}
+    </div>`;
+
+  // ── Similar campaigns ─────────────────────────────────────────────────
+  let similarHtml = '';
+  if (sim.length > 0) {
+    similarHtml = `
+    <div class="assess-section">
+      <div class="assess-label">Most Similar Campaigns</div>
+      ${sim.map(s=>`<div class="fact-row" style="margin-top:3px">
+        <span class="fact-k addr" onclick="solscan('${s.treasury}')">${short(s.treasury)}</span>
+        <span class="fact-v" style="color:${s.match_pct>=80?'var(--green)':s.match_pct>=60?'var(--yellow)':'var(--text-dim)'}">${s.match_pct}% match <span class="sample-n">(n=${s.sample_n})</span></span>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  // ── Q8: Recommended Action ────────────────────────────────────────────
+  const actionHtml = p.action ? `
+    <div class="assess-section">
+      <div class="assess-label">Recommended Action</div>
+      <div class="action-box">${p.action}</div>
+    </div>` : '';
+
+  return `<div class="assess-wrap">
+    ${chipHtml}
+    ${timelineHtml}
+    ${factsHtml}
+    ${reasonHtml}
+    ${evidenceHtml}
+    ${maturityHtml}
+    ${similarHtml}
+    ${actionHtml}
+  </div>`;
+}
+
+let _expandedOps = new Set(); // track which op IDs have their drawer open
+
+function _toggleDrawer(opId) {
+  const drawer = document.getElementById('drawer-' + opId);
+  const toggle = document.getElementById('toggle-' + opId);
+  if (!drawer || !toggle) return;
+  if (_expandedOps.has(opId)) {
+    _expandedOps.delete(opId);
+    drawer.classList.remove('open');
+    toggle.textContent = '▶ Analysis';
+  } else {
+    _expandedOps.add(opId);
+    drawer.classList.add('open');
+    toggle.textContent = '▼ Analysis';
+  }
+}
+
+function _mkCampaignCard(o) {
+  const mon     = o.monitoring || 'IDLE';
+  const monCss  = MON_CSS[mon] || 'mon-idle';
+  const p       = o.predictive || {};
+  const health  = p.health || '';
+  const predLevel = p.prediction_level || 'LOW';
+  const opId    = o.op_id || o.treasury;
+  const isExpanded = _expandedOps.has(opId);
+  const lastAgo = o.last_activity_ago != null ? ago(o.last_activity_ago) : '—';
+
+  // ── Layer 1: OPERATIONAL STRIP ────────────────────────────────────────
+  // 7 columns: identity | monitoring state | prediction | expected | focus | action | toggle
+
+  // col 1 — identity
+  const identityCell = `<div class="ops-cell">
+    <div class="ops-opnum">Op #${o.op_number||'?'}</div>
+    <div class="ops-treasury" onclick="event.stopPropagation();solscan('${o.treasury}')">${short(o.treasury)}</div>
+  </div>`;
+
+  // col 2 — monitoring state (dominant)
+  const monDot = `<span class="ops-mon-dot ${monCss}"></span>`;
+  const monCell = `<div class="ops-cell">
+    <div class="ops-mon ${monCss}">${monDot}${mon}</div>
+    <div style="font-size:9px;color:var(--text-dim);margin-top:3px">${lastAgo} ago</div>
+  </div>`;
+
+  // col 3 — prediction confidence
+  const sv = p.score_value != null ? p.score_value : null;
+  const predCell = `<div class="ops-cell">
+    <div><span class="ops-pred-level ${predLevel}">${predLevel}</span></div>
+    ${sv!=null?`<div style="margin-top:4px;display:flex;align-items:center;gap:4px">
+      <div style="width:40px;height:3px;border-radius:2px;background:var(--border2);overflow:hidden;position:relative">
+        <span style="position:absolute;left:0;top:0;height:100%;width:${sv}%;background:${_scoreColor(sv)};border-radius:2px"></span>
+      </div>
+      <span style="font-size:9px;color:${_scoreColor(sv)}">${sv}</span>
+    </div>`:''}
+  </div>`;
+
+  // col 4 — expected next
+  // For WATCHING CREATE show the timing window + elapsed if available
+  let expectedContent = `<div class="ops-pred-text">${o.next_event||'—'}</div>`;
+  if (p.timing_window && p.timing_elapsed_fmt) {
+    const elColor = health==='ON_PATTERN'?'var(--green)':health==='ANOMALOUS'?'var(--red)':health==='SLOW'?'var(--yellow)':'var(--text-sec)';
+    expectedContent = `<div class="ops-pred-text">CREATE</div>
+      <div style="font-size:9px;margin-top:2px">
+        <span style="color:var(--text-dim)">window </span><span style="color:var(--text-sec)">${p.timing_window}</span>
+        <span style="color:var(--text-dim);margin-left:5px">elapsed </span><span style="color:${elColor};font-weight:600">${p.timing_elapsed_fmt}</span>
+      </div>`;
+  } else if (mon === 'MONITORING CONTINUATION') {
+    expectedContent = `<div class="ops-pred-text">Reactivation</div>`;
+  }
+  const expectedCell = `<div class="ops-cell">${expectedContent}</div>`;
+
+  // col 5 — current focus
+  const f = o.active_focus;
+  let focusContent = `<div style="font-size:9px;color:var(--text-dim);font-style:italic">No active focus</div>`;
+  if (f) {
+    focusContent = `<div class="ops-focus-addr" onclick="event.stopPropagation();solscan('${f.subprov}')">${short(f.subprov)}</div>
+      <div class="ops-focus-sub">${f.opened_ago!=null?ago(f.opened_ago)+' ago':''}${f.sol?' · '+fmtSol(f.sol):''}</div>`;
+  }
+  const focusCell = `<div class="ops-cell">${focusContent}</div>`;
+
+  // col 6 — operator action (the most actionable text)
+  const actionText = p.action
+    ? p.action.split('.')[0]   // first sentence only
+    : (mon === 'IDLE' ? 'Low priority.' : 'Monitor.');
+  const actionCell = `<div class="ops-cell ops-action">${actionText}</div>`;
+
+  // col 7 — expand toggle
+  const toggleCell = `<div class="ops-toggle" id="toggle-${opId}" onclick="_toggleDrawer('${opId}')">
+    ${isExpanded?'▼':'▶'} Analysis
+  </div>`;
+
+  const opsRow = `<div class="ops-row" onclick="_toggleDrawer('${opId}')">
+    ${identityCell}${monCell}${predCell}${expectedCell}${focusCell}${actionCell}${toggleCell}
+  </div>`;
+
+  // ── Layer 2: LIVE STATUS (always shown for non-idle ops) ──────────────
+  let liveBar = '';
+  if (mon !== 'IDLE') {
+    const ws = (open) => open
+      ? `<span style="color:var(--green);font-weight:700">● LIVE</span>`
+      : `<span style="color:var(--border2)">○ OFF</span>`;
+    const lc_active = (o.lifecycle_steps||[]).find(s=>s.active);
+    liveBar = `<div class="ops-live">
+      <div class="ops-live-cell"><div class="ops-live-label">Treasury WS</div><div class="ops-live-val">${ws(o.treasury_ws_open)}</div></div>
+      <div class="ops-live-cell"><div class="ops-live-label">SubProv WS</div><div class="ops-live-val">${ws(o.subprov_ws_open)}</div></div>
+      <div class="ops-live-cell"><div class="ops-live-label">ProgramWatcher</div><div class="ops-live-val">${ws(o.pw_open)}</div></div>
+      ${o.live_subprovs>0?`<div class="ops-live-cell"><div class="ops-live-label">Active SubProvs</div><div class="ops-live-val" style="color:var(--cyan)">${o.live_subprovs} <span style="font-size:9px;color:var(--text-dim)">(${o.armed_subprovs||0} armed)</span></div></div>`:''}
+      ${o.fanouts_24h>0?`<div class="ops-live-cell"><div class="ops-live-label">Fan-outs (24h)</div><div class="ops-live-val" style="color:var(--yellow)">${o.fanouts_24h}</div></div>`:''}
+      ${o.creates_total>0?`<div class="ops-live-cell"><div class="ops-live-label">Launches</div><div class="ops-live-val" style="color:var(--green)">${o.creates_total}</div></div>`:''}
+      <div class="ops-live-cell" style="border-right:none;flex:1"></div>
+    </div>`;
+  }
+
+  // ── Layer 3: ANALYSIS DRAWER (collapsed, opened by toggle) ───────────
+  const lcBar = (o.lifecycle_steps||[]).map(s => {
+    const cls = s.done ? 'done' : (s.active ? 'active' : '');
+    const label = s.active ? `▶ ${s.step}` : (s.done ? `✓ ${s.step}` : `○ ${s.step}`);
+    return `<div class="lc-step"><div class="lc-dot ${cls}"></div><div class="lc-dot-label ${s.active?'active':''}">${label}</div></div>`;
+  }).join('');
+
+  const drawerLeft = `<div class="ops-drawer-col">
+    <div style="font-size:8.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Operation</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <span class="mon-pill ${monCss}">${mon}</span>
+      <span class="origin-badge">${(o.origin||'').replace(/_/g,' ')}</span>
+      <span class="badge ${o.confidence==='CERTAIN'?'badge-ok':o.confidence==='HIGH'?'badge-armed':'badge-intel'}">${o.confidence||'—'}</span>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Lifecycle</div>
+      <div class="lc-bar">${lcBar}</div>
+    </div>
+    <div style="font-size:8.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Campaign Stats</div>
+    <div class="stat-row"><span class="stat-key">Funding rounds</span><span class="stat-val">${o.funding_rounds||'—'}</span></div>
+    <div class="stat-row"><span class="stat-key">Known SubProvs</span><span class="stat-val">${o.subprov_count||'—'}</span></div>
+    <div class="stat-row"><span class="stat-key">Creator launches</span><span class="stat-val" style="color:${o.creates_total>0?'var(--green)':'inherit'}">${o.creates_total||'—'}</span></div>
+    <div class="stat-row"><span class="stat-key">Buy swarms</span><span class="stat-val" style="color:${o.buy_swarms>0?'var(--red)':'inherit'}">${o.buy_swarms||'—'}</span></div>
+    <div class="stat-row"><span class="stat-key">Recipients (24h)</span><span class="stat-val">${o.recipients_24h||'—'}</span></div>
+    ${f?`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+      <div style="font-size:8.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Current Focus</div>
+      <div class="focus-addr" onclick="solscan('${f.subprov}')">${short(f.subprov)}</div>
+      <div class="focus-row"><span class="focus-key">Opened</span><span>${f.opened_ago!=null?ago(f.opened_ago)+' ago':'—'}</span></div>
+      <div class="focus-row"><span class="focus-key">Funded</span><span>${f.sol?fmtSol(f.sol):'—'}</span></div>
+      <div class="focus-row"><span class="focus-key">PW armed</span><span>${f.pw_open?'Yes':'No'}</span></div>
+    </div>`:''}
+  </div>`;
+
+  const drawerRight = `<div class="ops-drawer-col" style="padding:0">
+    <div style="padding:10px 14px 6px;border-bottom:1px solid var(--border);font-size:8.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px">WATCHTOWER Assessment</div>
+    ${_mkAssessmentPanel(o)}
+  </div>`;
+
+  const drawer = `<div class="ops-drawer${isExpanded?' open':''}" id="drawer-${opId}">
+    <div class="ops-drawer-inner">
+      ${drawerLeft}
+      ${drawerRight}
+    </div>
+  </div>`;
+
+  return `<div class="ops-strip ${monCss}">${opsRow}${liveBar}${drawer}</div>`;
+}
+
+const MON_ORDER_UI = [
+  'WATCHING CREATE','WAITING FOR FAN-OUT','INTEL ONLY',
+  'WATCHING TREASURY','MONITORING CONTINUATION','WAITING FOR FUNDING','IDLE'
+];
+
+function _renderExecBanner(all) {
+  const active = all.filter(o => o.monitoring !== 'IDLE');
+  const watchCreate = active.filter(o => o.monitoring === 'WATCHING CREATE');
+  const anomalous   = active.filter(o => (o.predictive||{}).health === 'ANOMALOUS');
+  const totalLaunches = all.reduce((a,o)=>a+(o.creates_total||0),0);
+
+  // Best candidate: WATCHING CREATE with highest score
+  const ranked = watchCreate
+    .filter(o => o.predictive)
+    .sort((a,b) => (b.predictive.score_value||0)-(a.predictive.score_value||0));
+  const best = ranked[0] || null;
+
+  const bannerEl = document.getElementById('exec-banner');
+  if (!active.length) { bannerEl.style.display='none'; return; }
+  bannerEl.style.display='block';
+  document.getElementById('eb-updated').textContent = 'live';
+
+  let bestHtml = '';
+  if (best) {
+    const p = best.predictive;
+    const health = p.health || 'UNKNOWN';
+    const icon = HEALTH_ICON[health] || '?';
+    const predColor = p.prediction_level === 'HIGH' ? 'var(--green)'
+                    : p.prediction_level === 'MEDIUM' ? 'var(--yellow)' : 'var(--text-dim)';
+    bestHtml = `<div class="eb-highlight">
+      <div class="eb-best">
+        <strong>Highest probability launch</strong><br>
+        Treasury <strong>${short(best.treasury)}</strong>
+        ${best.active_focus ? ` · SubProv <strong>${short(best.active_focus.subprov)}</strong>` : ''}<br>
+        <span class="health-chip ${health}" style="margin-top:4px;display:inline-flex">${icon} ${health.replace(/_/g,' ')}</span>
+        ${p.prediction_text ? `<br><span style="font-size:9.5px;color:${predColor};margin-top:3px;display:block">${p.prediction_text}</span>` : ''}
+        ${p.action ? `<span style="font-size:9px;color:var(--text-dim);margin-top:2px;display:block">${p.action}</span>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // Summary sentence
+  const summaryParts = [];
+  if (watchCreate.length) summaryParts.push(`<strong style="color:var(--green)">${watchCreate.length}</strong> operation${watchCreate.length!==1?'s':''} inside active CREATE windows`);
+  if (anomalous.length)   summaryParts.push(`<strong style="color:var(--red)">${anomalous.length}</strong> deviating from historical behaviour`);
+
+  document.getElementById('eb-body').innerHTML = `
+    <div class="eb-stat">
+      <div class="ev" style="color:var(--green)">${active.length}</div>
+      <div class="el">Active campaigns</div>
+    </div>
+    <div class="eb-stat">
+      <div class="ev" style="color:${watchCreate.length>0?'var(--green)':'var(--text-pri)'}">${watchCreate.length}</div>
+      <div class="el">Watching CREATE</div>
+    </div>
+    <div class="eb-stat">
+      <div class="ev" style="color:${anomalous.length>0?'var(--red)':'var(--text-pri)'}">${anomalous.length}</div>
+      <div class="el">Anomalous</div>
+    </div>
+    <div class="eb-stat">
+      <div class="ev" style="color:var(--cyan)">${totalLaunches}</div>
+      <div class="el">Total launches</div>
+    </div>
+    ${summaryParts.length ? `<div class="eb-stat" style="flex:2;border-right:none">
+      <div class="el" style="margin-bottom:4px">Assessment</div>
+      <div style="font-size:10px;color:var(--text-sec);line-height:1.6">${summaryParts.join(' · ')}</div>
+    </div>` : ''}
+    ${bestHtml}
+  `;
+}
+
+function renderCampaigns() {
+  const q = document.getElementById('ops-filter').value.toLowerCase();
+  const all = (_boardData.operations||[]).filter(o =>
+    !q || (o.treasury||'').toLowerCase().includes(q)
+  );
+  const active = all.filter(o => o.monitoring !== 'IDLE');
+  const idle   = all.filter(o => o.monitoring === 'IDLE');
+
+  // executive summary banner
+  _renderExecBanner(all);
+
+  // monitoring state pills (counts what system is ACTUALLY doing)
+  const pc = _boardData.phase_counts || {};
+  document.getElementById('board-phase-counts').innerHTML = MON_ORDER_UI.map(m => {
+    const css = MON_CSS[m] || 'mon-idle';
+    const cnt = pc[m] || 0;
+    if (cnt === 0 && m === 'IDLE') return ''; // hide zero IDLE pill
+    return `<span class="pc-pill ${css}">${m} ${cnt}</span>`;
+  }).filter(Boolean).join('');
+
+  // focus stat bar (monitoring-based counts)
+  const watchCreate  = active.filter(o => o.monitoring === 'WATCHING CREATE').length;
+  const waitFanout   = active.filter(o => o.monitoring === 'WAITING FOR FAN-OUT').length;
+  const continuation = active.filter(o => o.monitoring === 'MONITORING CONTINUATION').length;
+  const totalSwarms  = all.reduce((a,o)=>a+(o.buy_swarms||0),0);
+  document.getElementById('ops-focus-stats').innerHTML = [
+    `<span style="font-size:10.5px;color:var(--text-dim)">Watching CREATE: <strong style="color:${watchCreate>0?'var(--green)':'var(--text-pri)'}">${watchCreate}</strong></span>`,
+    `<span style="color:var(--border2)">·</span>`,
+    `<span style="font-size:10.5px;color:var(--text-dim)">Waiting fan-out: <strong style="color:${waitFanout>0?'#58a6ff':'var(--text-pri)'}">${waitFanout}</strong></span>`,
+    `<span style="color:var(--border2)">·</span>`,
+    `<span style="font-size:10.5px;color:var(--text-dim)">Monitoring continuation: <strong style="color:${continuation>0?'var(--amber)':'var(--text-pri)'}">${continuation}</strong></span>`,
+    `<span style="color:var(--border2)">·</span>`,
+    `<span style="font-size:10.5px;color:var(--text-dim)">Buy swarms tracked: <strong style="color:${totalSwarms>0?'var(--red)':'var(--text-pri)'}">${totalSwarms}</strong></span>`,
+  ].join('');
+
+  document.getElementById('ops-count').textContent = `${active.length} active · ${idle.length} idle`;
+
+  const cardsEl = document.getElementById('ops-cards');
+  cardsEl.innerHTML = active.length
+    ? active.map(_mkCampaignCard).join('')
+    : '<div style="padding:24px;color:var(--text-dim);font-size:12px;text-align:center">no active monitoring</div>';
+
+  document.getElementById('dormant-count').textContent = `${idle.length} idle operations`;
+  const dormantCards = document.getElementById('ops-dormant-cards');
+  dormantCards.innerHTML = idle.map(_mkCampaignCard).join('');
+  if (_dormantOpen) { dormantCards.style.display='flex'; dormantCards.style.flexDirection='column'; }
+}
+
+async function loadBoard() {
+  try {
+    const d = await (await fetch('/api/ops/operation-board')).json();
+    _boardData = d;
+    document.getElementById('ops-updated').textContent = 'updated now';
+    renderCampaigns();
+  } catch(e) { console.error('loadBoard', e); }
+}
+
+async function loadOps() {
+  try {
+    const d = await(await fetch('/api/ops/active-operations')).json();
+    _ops = d.operations||[];
+    document.getElementById('h-active').textContent = _ops.length;
+    document.getElementById('h-armed').textContent = _ops.filter(o=>o.monitoring_state==='LIVE_ARMED').length;
+    document.getElementById('h-creates').textContent = _ops.reduce((a,o)=>a+(o.creates||0),0);
+    document.getElementById('h-fanouts').textContent = _ops.reduce((a,o)=>a+(o.fanout_bursts||0),0);
+  } catch(e) { console.error('loadOps',e); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 2 — Timeline
+// ═══════════════════════════════════════════════════════════════════════════
+const TL_ICONS={FUNDING:'💰',FANOUT:'⚡',CREATE:'🟢',SWARM:'🔴'};
+const TL_LABELS={FUNDING:'FUND',FANOUT:'FAN-OUT',CREATE:'CREATE',SWARM:'SWARM'};
+
+function renderTimeline() {
+  const q=document.getElementById('tl-filter').value.toLowerCase();
+  const rows=_timeline.filter(e=>!q||(e.subprov||'').toLowerCase().includes(q)||(e.treasury||'').toLowerCase().includes(q));
+  document.getElementById('tl-count').textContent=`${rows.length} events`;
+  const body=document.getElementById('tl-body');
+  if(!rows.length){body.innerHTML='<div class="muted" style="padding:18px;text-align:center">no events</div>';return;}
+  body.innerHTML=rows.map(e=>{
+    let detail='';
+    if(e.etype==='FUNDING') detail=`${fmtSol(e.amount)}◎ — ${(e.detail||'').replace(/_/g,' ')}`;
+    else if(e.etype==='FANOUT') detail=`${e.count} recipients · ${fmtSol(e.amount)}◎ · ${(e.detail||'UNKNOWN').replace(/_/g,' ')}`;
+    else if(e.etype==='CREATE') detail=e.mint?`<span class="addr" onclick="pumpfun('${e.mint}')">${short(e.mint)}</span>${e.detail?` · ${e.detail}`:''}`:e.detail||'';
+    else if(e.etype==='SWARM') detail=e.mint?`<span class="addr" onclick="pumpfun('${e.mint}')">${short(e.mint)}</span> · ${e.count} buyers`:'';
+    return `<div class="tl-row">
+      <div class="tl-dot ${e.etype}"></div>
+      <div class="tl-meta">
+        <div class="tl-primary"><span class="ev-${e.etype}">${TL_ICONS[e.etype]||'·'} ${TL_LABELS[e.etype]||e.etype}</span>
+          <span style="color:var(--text-sec);font-size:10px;margin-left:6px">
+            <span class="addr" onclick="solscan('${e.subprov}')">${short(e.subprov)}</span>
+            ${e.treasury&&e.treasury!==e.subprov?`<span style="color:var(--text-dim)"> via </span><span class="addr" onclick="solscan('${e.treasury}')">${short(e.treasury)}</span>`:''}
+          </span>
+        </div>
+        ${detail?`<div class="tl-secondary">${detail}</div>`:''}
+      </div>
+      <div class="tl-time">${ago(e.ago_s)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadTimeline() {
+  try {
+    const d=await(await fetch('/api/ops/timeline?limit=300')).json();
+    _timeline=d.events||[];
+    document.getElementById('tl-updated').textContent=`${_timeline.length} events`;
+    renderTimeline();
+  } catch(e){console.error('loadTimeline',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 3 — Fan-out Intelligence
+// ═══════════════════════════════════════════════════════════════════════════
+function renderRolling(r, prefix) {
+  ['30s','60s','120s'].forEach(w=>{
+    const d=r[w]||{};
+    const el=document.getElementById(`rwin-${w}`);
+    if(!el) return;
+    el.innerHTML=`<div class="label">Last ${w}</div>
+      <div class="row"><span class="k">bursts</span><span class="v" style="color:var(--yellow)">${d.bursts||0}</span></div>
+      <div class="row"><span class="k">recipients</span><span class="v">${d.recipients||0}</span></div>
+      <div class="row"><span class="k">creates</span><span class="v" style="color:var(--green)">${d.creates||0}</span></div>
+      <div class="row"><span class="k">swarms</span><span class="v" style="color:var(--red)">${d.swarms||0}</span></div>
+      <div class="row"><span class="k">◎</span><span class="v">${(d.sol||0).toFixed(1)}</span></div>`;
+  });
+}
+
+function renderFanout() {
+  const d=_fanout;
+  const raw=d.grouped===false;
+  const q=document.getElementById('fi-filter').value.toLowerCase();
+  const items=(d.bursts||[]).filter(b=>!q||(b.subprov||'').toLowerCase().includes(q)||b.burst_type.toLowerCase().includes(q));
+  document.getElementById('fi-count').textContent=`${items.length} ${raw?'bursts':'subprovs'}`;
+  document.getElementById('fi-updated').textContent=`${d.total||0} total bursts · avg size ${d.avg_burst_size||0}`;
+  const body=document.getElementById('fi-body');
+  if(!items.length){body.innerHTML=`<tr><td colspan="11" class="muted" style="padding:16px;text-align:center">no data</td></tr>`;return;}
+
+  if (raw) {
+    // Raw mode: one row per burst event (original layout)
+    document.getElementById('fi-thead').innerHTML=`<tr>
+      <th>Time</th><th>SubProv</th><th>Treasury</th>
+      <th class="num">Recipients</th><th class="num">Total ◎</th><th class="num">Avg ◎</th>
+      <th class="num">Creates</th><th class="num">Swarms</th><th>Type</th><th>Identical?</th>
+    </tr>`;
+    body.innerHTML=items.map(b=>{
+      const rowBg=b.burst_type==='CREATOR'?'rgba(63,185,80,.04)':b.burst_type==='SWARM'?'rgba(248,81,73,.04)':'';
+      const typeColor=b.burst_type==='CREATOR'?'var(--green)':b.burst_type==='SWARM'?'var(--red)':'var(--text-dim)';
+      return `<tr style="background:${rowBg}">
+        <td style="color:var(--text-sec);font-size:10.5px;white-space:nowrap">${ago(b.ago_s)}</td>
+        <td><span class="addr" onclick="solscan('${b.subprov}')">${short(b.subprov)}</span></td>
+        <td>${b.treasury&&b.treasury!==b.subprov?`<span class="addr" onclick="solscan('${b.treasury}')">${short(b.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+        <td class="num" style="font-weight:700">${b.recipients}</td>
+        <td class="num">${fmtSol(b.total_sol)}◎</td>
+        <td class="num" style="color:var(--text-sec)">${fmtSol(b.avg_sol)}◎</td>
+        <td class="num" style="color:${b.creates>0?'var(--green)':'var(--text-dim)'}">${b.creates||'—'}</td>
+        <td class="num" style="color:${b.swarms>0?'var(--red)':'var(--text-dim)'}">${b.swarms||'—'}</td>
+        <td style="color:${typeColor};font-size:10.5px;font-weight:700">${b.burst_type}</td>
+        <td style="font-size:10px;color:${b.identical_amounts?'var(--amber)':'var(--text-dim)'}">${b.identical_amounts?'✓':'—'}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    // Grouped mode (default): one row per subprov
+    document.getElementById('fi-thead').innerHTML=`<tr>
+      <th>SubProv</th><th>Treasury</th>
+      <th class="num">Bursts</th><th class="num">Recipients</th>
+      <th class="num">Total ◎</th><th class="num">Avg ◎/burst</th>
+      <th class="num">Max size</th>
+      <th class="num">Creates</th><th class="num">Swarms</th>
+      <th>Type</th><th>Last Fanout</th>
+    </tr>`;
+    body.innerHTML=items.map(b=>{
+      const rowBg=b.burst_type==='CREATOR'?'rgba(63,185,80,.04)':b.burst_type==='SWARM'?'rgba(248,81,73,.04)':'';
+      const typeColor=b.burst_type==='CREATOR'?'var(--green)':b.burst_type==='SWARM'?'var(--red)':'var(--text-dim)';
+      return `<tr style="background:${rowBg}">
+        <td><span class="addr" onclick="solscan('${b.subprov}')">${short(b.subprov)}</span></td>
+        <td>${b.treasury&&b.treasury!==b.subprov?`<span class="addr" onclick="solscan('${b.treasury}')">${short(b.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+        <td class="num" style="font-weight:700;color:var(--yellow)">${b.burst_count}</td>
+        <td class="num">${b.total_recipients||'—'}</td>
+        <td class="num">${fmtSol(b.total_sol)}◎</td>
+        <td class="num" style="color:var(--text-sec)">${fmtSol(b.avg_sol)}◎</td>
+        <td class="num" style="color:var(--text-dim)">${b.max_burst_size||'—'}</td>
+        <td class="num" style="color:${b.creates>0?'var(--green)':'var(--text-dim)'}">${b.creates||'—'}</td>
+        <td class="num" style="color:${b.swarms>0?'var(--red)':'var(--text-dim)'}">${b.swarms||'—'}</td>
+        <td style="color:${typeColor};font-size:10.5px;font-weight:700">${b.burst_type}</td>
+        <td style="color:var(--text-sec);font-size:10.5px">${ago(b.last_fanout_ago)}</td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+async function loadFanout() {
+  try {
+    const raw=document.getElementById('fi-raw').checked;
+    const url=raw?'/api/ops/fanout-intelligence?grouped=0&limit=200':'/api/ops/fanout-intelligence?limit=500';
+    const d=await(await fetch(url)).json();
+    _fanout=d;
+    renderRolling(d.rolling||{});
+    renderFanout();
+  } catch(e){console.error('loadFanout',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 4 — SubProv Intelligence
+// ═══════════════════════════════════════════════════════════════════════════
+function renderSubprov() {
+  const q=document.getElementById('sp-filter').value.toLowerCase();
+  const stateF=document.getElementById('sp-state').value;
+  let rows=_subprovs.filter(s=>{
+    if(q&&!s.subprov.toLowerCase().includes(q)&&!(s.treasury||'').toLowerCase().includes(q)) return false;
+    if(stateF==='live') return s.live;
+    if(stateF&&s.state!==stateF) return false;
+    return true;
+  });
+  document.getElementById('sp-count').textContent=`${rows.length} subprovs`;
+  document.getElementById('sp-updated').textContent=`${_subprovs.length} total`;
+  const body=document.getElementById('sp-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="12" class="muted" style="padding:16px;text-align:center">no subprovs</td></tr>';return;}
+  body.innerHTML=rows.map(s=>{
+    const stateColor=s.state==='CONFIRMED_SUBPROV'?'var(--green)':s.state==='PROVISIONAL_SUBPROV'?'var(--cyan)':'var(--text-dim)';
+    return `<tr>
+      <td><span class="addr" onclick="solscan('${s.subprov}')">${short(s.subprov)}</span>
+          ${s.live?stateBadge(s.monitoring_state):''}</td>
+      <td>${s.treasury?`<span class="addr" onclick="solscan('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+      <td><span style="color:${stateColor};font-size:10px">${(s.state||'').replace(/_/g,' ')}</span></td>
+      <td class="num">${s.creator_count}</td>
+      <td class="num">${s.wrap_close_count}</td>
+      <td class="num" style="color:${s.confirmed_creates>0?'var(--green)':'var(--text-dim)'}">${s.confirmed_creates||'—'}</td>
+      <td class="num" style="color:${s.buy_swarm_count>0?'var(--red)':'var(--text-dim)'}">${s.buy_swarm_count||'—'}</td>
+      <td class="num" style="color:${s.confidence>=0.9?'var(--green)':s.confidence>=0.7?'var(--yellow)':'var(--red)'}">
+        ${s.confidence!=null?(s.confidence*100).toFixed(0)+'%':'—'}</td>
+      <td class="num">${s.avg_burst_size||'—'}</td>
+      <td style="color:var(--text-dim);font-size:10px">${ago(s.first_seen_ago)}</td>
+      <td style="color:var(--text-dim);font-size:10px">${ago(s.last_seen_ago)}</td>
+      <td>${dqBadges(s.data_quality)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadSubprov() {
+  try {
+    const d=await(await fetch('/api/ops/subprov-intelligence?limit=200')).json();
+    _subprovs=d.subprovs||[];
+    document.getElementById('h-subprovs').textContent=_subprovs.length;
+    renderSubprov();
+  } catch(e){console.error('loadSubprov',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 5 — Launch Intelligence
+// ═══════════════════════════════════════════════════════════════════════════
+function renderLaunchSummary(d) {
+  const buckets=d.actionable_buckets||{};
+  const total=Object.values(buckets).reduce((a,b)=>a+b,0)||1;
+  const bar=['#f85149','#d97706','#eab308','#3fb950','#22d3ee'].map((c,i)=>{
+    const b=['>10x','5-10x','2-5x','1.5-2x','<1.5x'][i];
+    const n=buckets[b]||0;
+    return `<div class="bb-seg" style="background:${c};flex:${n||0.1};opacity:${n?1:.2}" title="${b}: ${n}"></div>`;
+  }).join('');
+  document.getElementById('li-summary').innerHTML=`
+    <div class="scard"><div class="sv" style="color:var(--green)">${d.total||0}</div><div class="sl">Total Launches</div></div>
+    <div class="scard"><div class="sv" style="color:var(--cyan)">${d.audited||0}</div><div class="sl">Audited <span class="dq dq-fwd">FORWARD-ONLY</span></div></div>
+    <div class="scard"><div class="sv" style="color:var(--blue)">${d.migrated||0}</div><div class="sl">Migrated</div></div>
+    <div class="scard">
+      <div class="sv" style="color:var(--yellow)">${d.median_multiple!=null?d.median_multiple.toFixed(1)+'x':'—'}</div>
+      <div class="sl">Median Multiple</div>
+      <div class="bucket-bar">${bar}</div>
+    </div>`;
+}
+
+function renderLaunch() {
+  const d=_launches;
+  const q=document.getElementById('li-filter').value.toLowerCase();
+  const stateF=document.getElementById('li-state').value;
+  let rows=(d.launches||[]).filter(l=>{
+    if(q&&!(l.mint||'').toLowerCase().includes(q)&&!(l.subprov||'').toLowerCase().includes(q)&&!(l.treasury||'').toLowerCase().includes(q)) return false;
+    if(stateF&&l.final_state!==stateF) return false;
+    return true;
+  });
+  document.getElementById('li-count').textContent=`${rows.length} launches`;
+  const body=document.getElementById('li-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="11" class="muted" style="padding:16px;text-align:center">no launches</td></tr>';return;}
+  body.innerHTML=rows.map(l=>{
+    const am=l.actionable_multiple;
+    const amColor=am==null?'var(--text-dim)':am>=10?'var(--green)':am>=5?'var(--cyan)':am>=2?'var(--yellow)':'var(--red)';
+    const stateColor=l.final_state==='MIGRATED'?'var(--green)':l.final_state==='UNKNOWN'?'var(--text-dim)':'var(--red)';
+    return `<tr>
+      <td><span class="addr" onclick="pumpfun('${l.mint}')">${short(l.mint)}</span></td>
+      <td><span class="addr" onclick="solscan('${l.subprov}')">${short(l.subprov)}</span></td>
+      <td>${l.treasury?`<span class="addr" onclick="solscan('${l.treasury}')">${short(l.treasury)}</span>`:'—'}</td>
+      <td><span style="font-size:10px;color:var(--text-sec)">${l.launch_mode||'—'}</span></td>
+      <td class="num" style="color:${l.detection_latency_ms!=null?'var(--text-pri)':'var(--text-dim)'}">${l.detection_latency_ms!=null?l.detection_latency_ms+'ms':`<span class="dq dq-missing">MISSING</span>`}</td>
+      <td class="num">${fmtUsd(l.mc_at_detection)}</td>
+      <td class="num">${fmtUsd(l.peak_mc)}</td>
+      <td class="num" style="color:${amColor};font-weight:700">${am!=null?am.toFixed(1)+'x':`<span style="color:var(--text-dim)">—</span>`}</td>
+      <td><span style="color:${stateColor};font-size:10px">${l.final_state||'UNKNOWN'}</span></td>
+      <td style="color:var(--text-sec);font-size:10px">${ago(l.create_ago)}</td>
+      <td>${dqBadges(l.data_quality)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadLaunch() {
+  try {
+    const d=await(await fetch('/api/ops/launch-intelligence')).json();
+    _launches=d;
+    document.getElementById('li-updated').textContent=`${d.total||0} total`;
+    document.getElementById('h-median-x').textContent=d.median_multiple!=null?d.median_multiple.toFixed(1)+'x':'—';
+    if(d.total) renderLaunchSummary(d);
+    renderLaunch();
+  } catch(e){console.error('loadLaunch',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 6 — Post-CREATE Activity
+// ═══════════════════════════════════════════════════════════════════════════
+function renderPostCreate() {
+  const q=document.getElementById('pc-filter').value.toLowerCase();
+  const rows=_postCreate.filter(s=>!q||s.subprov.toLowerCase().includes(q)||(s.treasury||'').toLowerCase().includes(q));
+  document.getElementById('pc-count').textContent=`${rows.length} subprovs`;
+  const body=document.getElementById('pc-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="10" class="muted" style="padding:16px;text-align:center">no post-create data</td></tr>';return;}
+  body.innerHTML=rows.map(s=>{
+    const phaseColor=s.op_phase==='POST_CREATE_ACTIVE'?'var(--amber)':s.op_phase==='POST_CREATE_LIVE'?'var(--green)':'var(--text-dim)';
+    return `<tr>
+      <td><span class="addr" onclick="solscan('${s.subprov}')">${short(s.subprov)}</span>
+          ${s.live?stateBadge(s.monitoring_state):''}</td>
+      <td>${s.treasury?`<span class="addr" onclick="solscan('${s.treasury}')">${short(s.treasury)}</span>`:'—'}</td>
+      <td class="num" style="color:var(--green);font-weight:700">${s.creates}</td>
+      <td style="color:var(--text-sec);font-size:10px">${ago(s.last_create_ago)}</td>
+      <td><span style="color:${phaseColor};font-size:10px;font-weight:600">${s.op_phase.replace(/_/g,' ')}</span></td>
+      <td class="num" style="color:${s.post_create_bursts>0?'var(--yellow)':'var(--text-dim)'}">${s.post_create_bursts||'—'}</td>
+      <td class="num">${s.post_create_recipients||'—'}</td>
+      <td class="num" style="color:${s.post_create_further_creates>0?'var(--green)':'var(--text-dim)'}">${s.post_create_further_creates||'—'}</td>
+      <td class="num" style="color:${s.swarm_tokens>0?'var(--red)':'var(--text-dim)'}">${s.swarm_tokens||'—'}</td>
+      <td>${dqBadges(s.data_quality)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadPostCreate() {
+  try {
+    const d=await(await fetch('/api/ops/post-create-activity')).json();
+    _postCreate=d.subprovs||[];
+    document.getElementById('pc-updated').textContent=`${_postCreate.length} subprovs with creates`;
+    renderPostCreate();
+  } catch(e){console.error('loadPostCreate',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 7 — Miss Analysis
+// ═══════════════════════════════════════════════════════════════════════════
+function renderMissSummary(s) {
+  document.getElementById('ma-summary').innerHTML=`
+    <div class="scard"><div class="sv" style="color:var(--red)">${s.full_miss_subprovs||0}</div><div class="sl">Full Misses <span class="dq dq-missing">MISSING</span></div></div>
+    <div class="scard"><div class="sv" style="color:var(--yellow)">${s.partial_miss_subprovs||0}</div><div class="sl">Partial Misses</div></div>
+    <div class="scard"><div class="sv" style="color:var(--green)">${s.covered_subprovs||0}</div><div class="sl">Covered</div></div>
+    <div class="scard"><div class="sv" style="color:var(--cyan)">${s.overall_detection_rate!=null?(s.overall_detection_rate*100).toFixed(1)+'%':'—'}</div><div class="sl">Detection Rate <span class="dq dq-fwd">FORWARD-ONLY</span></div></div>
+    <div class="scard"><div class="sv" style="color:var(--text-sec)">${s.total_detection_gap||0}</div><div class="sl">Total Detection Gap</div></div>`;
+  document.getElementById('h-misses').textContent=s.total_detection_gap||0;
+}
+
+function renderMiss() {
+  const d=_miss;
+  const q=document.getElementById('ma-filter').value.toLowerCase();
+  const typeF=document.getElementById('ma-type').value;
+  let rows=(d.discovered_creates||[]).filter(r=>{
+    if(q&&!r.subprov.toLowerCase().includes(q)) return false;
+    if(typeF&&r.miss_type!==typeF) return false;
+    return true;
+  });
+  document.getElementById('ma-count').textContent=`${rows.length} subprovs`;
+  const body=document.getElementById('ma-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="9" class="muted" style="padding:16px;text-align:center">no data</td></tr>';return;}
+  body.innerHTML=rows.map(r=>{
+    const missColor=r.miss_type==='FULL_MISS'?'var(--red)':r.miss_type==='PARTIAL_MISS'?'var(--yellow)':'var(--green)';
+    const missBadge=r.miss_type==='FULL_MISS'?'badge-miss':r.miss_type==='PARTIAL_MISS'?'badge-partial':'badge-ok';
+    const rateColor=r.detection_rate==null?'var(--text-dim)':r.detection_rate>=0.9?'var(--green)':r.detection_rate>=0.5?'var(--yellow)':'var(--red)';
+    return `<tr>
+      <td><span class="addr" onclick="solscan('${r.subprov}')">${short(r.subprov)}</span></td>
+      <td>${r.treasury?`<span class="addr" onclick="solscan('${r.treasury}')">${short(r.treasury)}</span>`:'—'}</td>
+      <td class="num">${r.creator_count}</td>
+      <td class="num" style="color:var(--green)">${r.confirmed_launches}</td>
+      <td class="num" style="color:${r.detection_gap>0?'var(--red)':'var(--text-dim)'};font-weight:${r.detection_gap>0?700:400}">${r.detection_gap||'—'}</td>
+      <td class="num" style="color:${rateColor}">${r.detection_rate!=null?(r.detection_rate*100).toFixed(0)+'%':'—'}</td>
+      <td><span class="badge ${missBadge}">${r.miss_type.replace(/_/g,' ')}</span></td>
+      <td style="color:var(--text-dim);font-size:10px">${(r.state||'').replace(/_/g,' ')}</td>
+      <td style="color:var(--text-dim);font-size:10px">${ago(r.last_seen_ago)}</td>
+    </tr>`;
+  }).join('');
+
+  // pipeline gaps
+  const gaps=d.pipeline_gaps||[];
+  const gapPanel=document.getElementById('ma-gaps-panel');
+  gapPanel.style.display=gaps.length?'':'none';
+  if(gaps.length) {
+    document.getElementById('ma-gaps-body').innerHTML=gaps.slice(0,50).map(g=>`<tr>
+      <td><span class="addr" onclick="solscan('${g.candidate}')">${short(g.candidate)}</span></td>
+      <td><span class="addr" onclick="solscan('${g.subprov}')">${short(g.subprov)}</span></td>
+      <td>${g.treasury?`<span class="addr" onclick="solscan('${g.treasury}')">${short(g.treasury)}</span>`:'—'}</td>
+      <td style="font-size:10px;color:var(--text-dim)">${g.close_reason||'—'}</td>
+      <td style="font-size:10px;color:var(--text-sec)">${g.wrap_close_time?fmtTs(g.wrap_close_time):'—'}</td>
+    </tr>`).join('');
+  }
+}
+
+async function loadMiss() {
+  try {
+    const d=await(await fetch('/api/ops/miss-analysis')).json();
+    _miss=d;
+    document.getElementById('ma-updated').textContent=`${(d.discovered_creates||[]).length} subprovs analysed`;
+    if(d.summary) renderMissSummary(d.summary);
+    renderMiss();
+  } catch(e){console.error('loadMiss',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 8 — Behaviour Fingerprints
+// ═══════════════════════════════════════════════════════════════════════════
+function renderFingerprints() {
+  const q=document.getElementById('fp-filter').value.toLowerCase();
+  const sigF=document.getElementById('fp-sig').value;
+  let rows=_fingerprints.filter(f=>{
+    if(q&&!f.subprov.toLowerCase().includes(q)&&!f.behaviour_signature.toLowerCase().includes(q)) return false;
+    if(sigF&&!f.behaviour_signature.includes(sigF)) return false;
+    return true;
+  });
+  document.getElementById('fp-count').textContent=`${rows.length} fingerprints`;
+  document.getElementById('fp-updated').textContent=`${_fingerprints.length} total`;
+  const body=document.getElementById('fp-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="13" class="muted" style="padding:16px;text-align:center">no data</td></tr>';return;}
+  body.innerHTML=rows.map(f=>{
+    const sigParts=f.behaviour_signature.split('+');
+    const sigHtml=sigParts.map(p=>{
+      const c=p==='CREATOR_DOMINANT'?'var(--green)':p==='SWARM_DOMINANT'?'var(--red)':p==='MIXED'?'var(--text-sec)':p==='PRECISION_BURSTS'?'var(--cyan)':p==='UNIFORM_AMOUNTS'?'var(--amber)':'var(--text-dim)';
+      return `<span style="color:${c};font-size:9px;font-weight:700">${p.replace(/_/g,' ')}</span>`;
+    }).join('<span style="color:var(--text-dim)"> + </span>');
+    return `<tr>
+      <td><span class="addr" onclick="solscan('${f.subprov}')">${short(f.subprov)}</span></td>
+      <td>${f.treasury?`<span class="addr" onclick="solscan('${f.treasury}')">${short(f.treasury)}</span>`:'—'}</td>
+      <td>${sigHtml}</td>
+      <td class="num">${f.total_bursts}</td>
+      <td class="num">${f.avg_burst_size}</td>
+      <td class="num" style="color:${f.small_burst_pct>70?'var(--cyan)':'var(--text-sec)'}">${f.small_burst_pct}%</td>
+      <td class="num" style="color:${f.identical_amount_pct>60?'var(--amber)':'var(--text-sec)'}">${f.identical_amount_pct}%</td>
+      <td class="num" style="color:${f.creator_ratio>0.5?'var(--green)':'var(--text-dim)'}">${(f.creator_ratio*100).toFixed(0)}%</td>
+      <td class="num" style="color:${f.swarm_ratio>0.5?'var(--red)':'var(--text-dim)'}">${(f.swarm_ratio*100).toFixed(0)}%</td>
+      <td class="num">${fmtSol(f.avg_per_recipient_sol,4)}◎</td>
+      <td class="num" style="color:${f.confirmed_launches>0?'var(--green)':'var(--text-dim)'}">${f.confirmed_launches||'—'}</td>
+      <td class="num">${f.avg_birth_to_launch_s?f.avg_birth_to_launch_s+'s':'—'}</td>
+      <td>${dqBadges(f.data_quality)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadFingerprints() {
+  try {
+    const d=await(await fetch('/api/ops/behaviour-fingerprints')).json();
+    _fingerprints=d.fingerprints||[];
+    renderFingerprints();
+  } catch(e){console.error('loadFingerprints',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VIEW 9 — Rolling Activity / Heatmap
+// ═══════════════════════════════════════════════════════════════════════════
+function renderRollingWindows(r) {
+  const windows=['5m','30m','1h','6h','24h'];
+  const colors=['var(--green)','var(--cyan)','var(--blue)','var(--amber)','var(--text-sec)'];
+  document.getElementById('ra-rolling').innerHTML=windows.map((w,i)=>{
+    const d=r[w]||{};
+    return `<div class="rwin">
+      <div class="label" style="color:${colors[i]}">${w}</div>
+      <div class="row"><span class="k">bursts</span><span class="v" style="color:var(--yellow)">${d.bursts||0}</span></div>
+      <div class="row"><span class="k">recipients</span><span class="v">${d.recipients||0}</span></div>
+      <div class="row"><span class="k">creates</span><span class="v" style="color:var(--green)">${d.creates||0}</span></div>
+      <div class="row"><span class="k">swarms</span><span class="v" style="color:var(--red)">${d.swarms||0}</span></div>
+      <div class="row"><span class="k">◎</span><span class="v">${d.sol||0}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderHeatmap(bins) {
+  // fill 24 slots (last 24 hours)
+  const now=Math.floor(Date.now()/1000);
+  const slots=[];
+  for(let i=23;i>=0;i--){
+    const ts=(Math.floor(now/3600)-i)*3600;
+    slots.push(ts);
+  }
+  const binMap={};
+  bins.forEach(b=>binMap[b.ts]=b);
+
+  document.getElementById('ra-heatmap').innerHTML=slots.map(ts=>{
+    const b=binMap[ts];
+    const hasBursts=b&&b.bursts>0;
+    const hasCreates=b&&b.creates>0;
+    const hasSwarms=b&&b.swarms>0;
+    const intensity=b?Math.min(1,b.bursts/10):0;
+    const bg=hasCreates?`rgba(63,185,80,${0.2+intensity*0.7})`
+            :hasSwarms?`rgba(248,81,73,${0.2+intensity*0.7})`
+            :hasBursts?`rgba(234,179,8,${0.15+intensity*0.6})`
+            :'var(--bg-card2)';
+    const label=new Date(ts*1000).getHours()+'h';
+    const tip=b?`${label}: ${b.bursts} bursts, ${b.creates} creates, ${b.swarms} swarms, ${b.sol}◎`:`${label}: quiet`;
+    return `<div class="hm-cell" style="background:${bg}" title="${tip}">
+      <div class="hm-tip">${tip}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDaily(daily) {
+  const body=document.getElementById('ra-daily-body');
+  if(!daily.length){body.innerHTML='<tr><td colspan="5" class="muted" style="padding:14px;text-align:center">no data</td></tr>';return;}
+  body.innerHTML=[...daily].reverse().map(d=>{
+    const date=new Date(d.ts*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<tr>
+      <td style="color:var(--text-sec)">${date}</td>
+      <td class="num" style="color:var(--yellow)">${d.bursts||0}</td>
+      <td class="num">${d.recipients||0}</td>
+      <td class="num" style="color:${d.creates>0?'var(--green)':'var(--text-dim)'}">${d.creates||0}</td>
+      <td class="num" style="color:${d.swarms>0?'var(--red)':'var(--text-dim)'}">${d.swarms||0}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadRolling() {
+  try {
+    const d=await(await fetch('/api/ops/rolling-activity')).json();
+    _rolling=d;
+    document.getElementById('ra-updated').textContent='updated now';
+    renderRollingWindows(d.rolling||{});
+    renderHeatmap(d.hourly_bins||[]);
+    renderDaily(d.daily_bins||[]);
+  } catch(e){console.error('loadRolling',e);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Bootstrap
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadAll() {
+  await Promise.all([
+    loadBoard(), loadOps(), loadTimeline(), loadFanout(),
+    loadSubprov(), loadLaunch(), loadPostCreate(),
+    loadMiss(), loadFingerprints(), loadRolling()
+  ]);
+}
+
+loadAll();
+setInterval(loadAll, 20000);
+</script>
+{% endblock %}

@@ -136,15 +136,39 @@ def ensure_audit_schema(conn) -> None:
         create_signature            TEXT,
         create_slot                 INTEGER,
         create_time                 INTEGER,
+        program_log_context_slot    INTEGER,
+        tx_slot                     INTEGER,
+        slot_lag                    INTEGER,
+        estimated_slot_to_ws_ms      INTEGER,
 
         -- detection latency (epoch seconds, float where sub-second)
         ws_seen_at                  REAL,
+        program_log_seen_at          REAL,
+        program_fetch_started_at     REAL,
+        program_tx_fetched_at        REAL,
+        handoff_to_canonical_at      REAL,
+        get_transaction_started_at   REAL,
         tx_fetched_at               REAL,
         mint_extracted_at           REAL,
+        record_launch_started_at     REAL,
+        record_launch_committed_at   REAL,
         alert_emitted_at            REAL,
         detection_latency_ms        INTEGER,      -- alert_emitted - create_time
         fetch_latency_ms            INTEGER,      -- tx_fetched - ws_seen
         alert_latency_ms            INTEGER,      -- alert_emitted - ws_seen
+        program_fetch_duration_ms    INTEGER,
+        handoff_to_canonical_ms      INTEGER,
+        canonical_fetch_skipped      INTEGER DEFAULT 0,
+        duplicate_fetch_count        INTEGER DEFAULT 0,
+        block_time_to_ws_seen_ms     INTEGER,
+        ws_seen_to_fetch_start_ms    INTEGER,
+        fetch_duration_ms            INTEGER,
+        fetch_to_mint_extract_ms     INTEGER,
+        mint_extract_to_db_start_ms  INTEGER,
+        db_commit_duration_ms        INTEGER,
+        db_commit_to_alert_ms        INTEGER,
+        total_ws_to_commit_ms        INTEGER,
+        total_block_time_to_commit_ms INTEGER,
 
         -- position / tx ordering
         create_tx_index_in_slot     INTEGER,
@@ -199,6 +223,34 @@ def ensure_audit_schema(conn) -> None:
         _cols = {r[1] for r in conn.execute("PRAGMA table_info(wt_launch_audit)").fetchall()}
         if "source" not in _cols:
             conn.execute("ALTER TABLE wt_launch_audit ADD COLUMN source TEXT DEFAULT 'LIVE_WS_CASCADE'")
+        for _name, _typ in {
+            "program_log_context_slot": "INTEGER",
+            "tx_slot": "INTEGER",
+            "slot_lag": "INTEGER",
+            "estimated_slot_to_ws_ms": "INTEGER",
+            "program_log_seen_at": "REAL",
+            "program_fetch_started_at": "REAL",
+            "program_tx_fetched_at": "REAL",
+            "handoff_to_canonical_at": "REAL",
+            "get_transaction_started_at": "REAL",
+            "record_launch_started_at": "REAL",
+            "record_launch_committed_at": "REAL",
+            "program_fetch_duration_ms": "INTEGER",
+            "handoff_to_canonical_ms": "INTEGER",
+            "canonical_fetch_skipped": "INTEGER DEFAULT 0",
+            "duplicate_fetch_count": "INTEGER DEFAULT 0",
+            "block_time_to_ws_seen_ms": "INTEGER",
+            "ws_seen_to_fetch_start_ms": "INTEGER",
+            "fetch_duration_ms": "INTEGER",
+            "fetch_to_mint_extract_ms": "INTEGER",
+            "mint_extract_to_db_start_ms": "INTEGER",
+            "db_commit_duration_ms": "INTEGER",
+            "db_commit_to_alert_ms": "INTEGER",
+            "total_ws_to_commit_ms": "INTEGER",
+            "total_block_time_to_commit_ms": "INTEGER",
+        }.items():
+            if _name not in _cols:
+                conn.execute(f"ALTER TABLE wt_launch_audit ADD COLUMN {_name} {_typ}")
     except Exception:
         pass
     conn.execute("CREATE INDEX IF NOT EXISTS ix_launch_audit_state ON wt_launch_audit(audit_state)")
@@ -232,8 +284,14 @@ def _ops(read_only: bool = False):
 # ─────────────────────── Phase 1: timing + entry MC ─────────────────────────
 def capture_phase1(*, mint: str, creator: str, treasury: str = None, subprov: str = None,
                    create_signature: str = None, create_slot: int = None, create_time: int = None,
-                   ws_seen_at: float = None, tx_fetched_at: float = None,
-                   mint_extracted_at: float = None, alert_emitted_at: float = None,
+                   program_log_context_slot: int = None, tx_slot: int = None,
+                   ws_seen_at: float = None, program_log_seen_at: float = None,
+                   program_fetch_started_at: float = None, program_tx_fetched_at: float = None,
+                   handoff_to_canonical_at: float = None,
+                   get_transaction_started_at: float = None, tx_fetched_at: float = None,
+                   mint_extracted_at: float = None, record_launch_started_at: float = None,
+                   record_launch_committed_at: float = None, alert_emitted_at: float = None,
+                   canonical_fetch_skipped: bool = False, duplicate_fetch_count: int = 0,
                    source: str = "LIVE_WS_CASCADE") -> Dict:
     """Immediate audit capture at detection. Latencies + tx-position + entry-point MC (raw curve).
     Idempotent on mint. Returns the captured field dict. Safe to call off-thread."""
@@ -244,6 +302,21 @@ def capture_phase1(*, mint: str, creator: str, treasury: str = None, subprov: st
     detection_latency_ms = _ms(alert_emitted_at, create_time)
     fetch_latency_ms     = _ms(tx_fetched_at, ws_seen_at)
     alert_latency_ms     = _ms(alert_emitted_at, ws_seen_at)
+    effective_ws_seen_at = program_log_seen_at or ws_seen_at
+    program_fetch_duration_ms = _ms(program_tx_fetched_at, program_fetch_started_at)
+    handoff_to_canonical_ms = _ms(handoff_to_canonical_at, program_tx_fetched_at)
+    block_time_to_ws_seen_ms = _ms(effective_ws_seen_at, create_time)
+    ws_seen_to_fetch_start_ms = _ms(get_transaction_started_at, effective_ws_seen_at)
+    fetch_duration_ms = _ms(tx_fetched_at, get_transaction_started_at)
+    fetch_to_mint_extract_ms = _ms(mint_extracted_at, tx_fetched_at)
+    mint_extract_to_db_start_ms = _ms(record_launch_started_at, mint_extracted_at)
+    db_commit_duration_ms = _ms(record_launch_committed_at, record_launch_started_at)
+    db_commit_to_alert_ms = _ms(alert_emitted_at, record_launch_committed_at)
+    total_ws_to_commit_ms = _ms(record_launch_committed_at, effective_ws_seen_at)
+    total_block_time_to_commit_ms = _ms(record_launch_committed_at, create_time)
+    tx_slot = tx_slot if tx_slot is not None else create_slot
+    slot_lag = ((program_log_context_slot - tx_slot)
+                if (program_log_context_slot is not None and tx_slot is not None) else None)
 
     # ---- tx position + first external buy (reuse buyer_position_analyzer) ----
     first_ext_sig = first_ext_slot = est_position = buyer_count = None
@@ -315,10 +388,31 @@ def capture_phase1(*, mint: str, creator: str, treasury: str = None, subprov: st
     fields = dict(
         mint=mint, creator=creator, treasury=treasury, subprov=subprov,
         create_signature=create_signature, create_slot=create_slot, create_time=create_time,
-        ws_seen_at=ws_seen_at, tx_fetched_at=tx_fetched_at, mint_extracted_at=mint_extracted_at,
-        alert_emitted_at=alert_emitted_at,
+        program_log_context_slot=program_log_context_slot, tx_slot=tx_slot,
+        slot_lag=slot_lag, estimated_slot_to_ws_ms=None,
+        ws_seen_at=ws_seen_at, program_log_seen_at=program_log_seen_at,
+        program_fetch_started_at=program_fetch_started_at,
+        program_tx_fetched_at=program_tx_fetched_at,
+        handoff_to_canonical_at=handoff_to_canonical_at,
+        get_transaction_started_at=get_transaction_started_at,
+        tx_fetched_at=tx_fetched_at, mint_extracted_at=mint_extracted_at,
+        record_launch_started_at=record_launch_started_at,
+        record_launch_committed_at=record_launch_committed_at, alert_emitted_at=alert_emitted_at,
         detection_latency_ms=detection_latency_ms, fetch_latency_ms=fetch_latency_ms,
         alert_latency_ms=alert_latency_ms,
+        program_fetch_duration_ms=program_fetch_duration_ms,
+        handoff_to_canonical_ms=handoff_to_canonical_ms,
+        canonical_fetch_skipped=1 if canonical_fetch_skipped else 0,
+        duplicate_fetch_count=duplicate_fetch_count or 0,
+        block_time_to_ws_seen_ms=block_time_to_ws_seen_ms,
+        ws_seen_to_fetch_start_ms=ws_seen_to_fetch_start_ms,
+        fetch_duration_ms=fetch_duration_ms,
+        fetch_to_mint_extract_ms=fetch_to_mint_extract_ms,
+        mint_extract_to_db_start_ms=mint_extract_to_db_start_ms,
+        db_commit_duration_ms=db_commit_duration_ms,
+        db_commit_to_alert_ms=db_commit_to_alert_ms,
+        total_ws_to_commit_ms=total_ws_to_commit_ms,
+        total_block_time_to_commit_ms=total_block_time_to_commit_ms,
         first_external_buy_sig=first_ext_sig, first_external_buy_slot=first_ext_slot,
         our_possible_buy_slot=(create_slot + 2) if create_slot else None,
         our_possible_buy_index_estimate=est_position,
@@ -472,7 +566,7 @@ def due_for_checkpoint(limit: int = 20) -> List[str]:
         now = int(time.time())
         rows = conn.execute(
             "SELECT mint, create_time, last_checkpoint FROM wt_launch_audit "
-            "WHERE audit_state != 'FINALIZED' AND audit_state != 'PENDING' "
+            "WHERE (audit_state != 'FINALIZED' OR peak_mc IS NULL) AND audit_state != 'PENDING' "
             "ORDER BY last_checkpoint ASC LIMIT ?", (limit * 3,)).fetchall()
     finally:
         conn.close()

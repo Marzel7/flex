@@ -2201,7 +2201,7 @@ class Cascade:
             if bsr > 0.7 and n_obs >= 10 and not has_creators:
                 self._profile_set(recipient, "BUY_SWARM")
                 return "BUY_SWARM_PROVISIONER", known
-            if (known.get("wrap_close_count") or 0) >= 1:
+            if ((known.get("wrap_close_count") or 0) + (known.get("seeded_account_count") or 0)) >= 1:
                 self._profile_set(recipient, "SUBPROV")
                 return self._classify_known_subprov(conn, recipient, known, funding_treasury)
 
@@ -2477,13 +2477,23 @@ class Cascade:
 
                 # ── Monitoring state: LIVE_ARMED vs INTEL_ONLY ────────────────
                 # LIVE_ARMED: subscribe to WS, open candidate pipeline, spend RPC budget
-                # INTEL_ONLY: record funding intelligence only — no WS, no candidate watch
-                # Only a genuinely new subprov earns LIVE_ARMED + ProgramWatcher.
-                # Known (reactivated / continuing) subprovs are INTEL_ONLY: funding
-                # alone doesn't arm; a detected wrap-close fan-out would need to promote
-                # them explicitly (via the reconciler / a future upgrade path).
+                # LIVE_ARMED: proven subprovs (CONTINUING_OPERATION / SUBPROV_REACTIVATED)
+                # get LIVE_ARMED on reload if they have confirmed wrap-close history — they
+                # have already demonstrated the creator-funding pattern so a capital reload
+                # is unambiguously a new operation round. NEW_SUBPROV also arms immediately.
+                # INTEL_ONLY only for truly ambiguous recipients (BUY_SWARM_PROVISIONER etc).
+                _m = _meta or {}
+                # wrap_close_count = mechanism A (WSOL_WRAP_CLOSE)
+                # seeded_account_count = mechanism B (SEEDED_ACCOUNT_CLOSE / PLAIN_TRANSFER subprovs)
+                # either proves creator-funding behaviour
+                _proven_fanout = (_m.get("wrap_close_count") or 0) + (_m.get("seeded_account_count") or 0)
+                _proven_subprov = (classification in ("CONTINUING_OPERATION", "SUBPROV_REACTIVATED",
+                                                      "HISTORICAL_SUBPROV_DISCOVERED")
+                                   and _proven_fanout >= 1)
                 _LIVE_ARMED_CLASSIFICATIONS = {"NEW_SUBPROV"}
-                monitoring_state = "LIVE_ARMED" if classification in _LIVE_ARMED_CLASSIFICATIONS else "INTEL_ONLY"
+                monitoring_state = ("LIVE_ARMED"
+                                    if (classification in _LIVE_ARMED_CLASSIFICATIONS or _proven_subprov)
+                                    else "INTEL_ONLY")
                 # no_subscribe treasuries: record session intel but never websocket their subprovs.
                 # Check the DB directly here; this gate is safety-critical and the flag can be
                 # changed while the daemon is running.
@@ -2551,9 +2561,9 @@ class Cascade:
                     _log(f"💸 PLAIN_TRANSFER {treasury[:10]}… → {w[:12]}… {gain:.1f} ◎ "
                          f"(treasury→subprov capital injection, mechanism=PLAIN_TRANSFER)")
 
-                # Brand-new subprovs funded with ≥SESSION_HIGH_SOL_FLOOR◎ get a 6h TTL —
+                # Brand-new subprovs funded with ≥SESSION_HIGH_SOL_FLOOR◎ get a longer TTL —
                 # large capital deployments often stage their wrap-close fan-out minutes to
-                # hours after provisioning; the default 2h window misses them.
+                # hours after provisioning; the default 30m window misses them.
                 _ttl = (SESSION_TTL_HIGH_SOL
                         if subprov_known == 0 and gain >= SESSION_HIGH_SOL_FLOOR
                         else SESSION_TTL_SEC)

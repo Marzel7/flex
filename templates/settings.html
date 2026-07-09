@@ -245,6 +245,22 @@
     </div>
 </div>
 
+<div class="settings-section">
+    <div class="settings-section-title">WATCHTOWER</div>
+    <div class="setting-row">
+        <div class="setting-info">
+            <div class="setting-label">ARMED Mode</div>
+            <div class="setting-desc">Enable candidate watch + ProgramWatcher logsSubscribe. Disable when RPC credits are low — treasury monitoring continues unaffected.</div>
+        </div>
+        <div class="toggle-wrap">
+            <span class="status-dot" id="armedStatus"></span>
+            <div class="toggle-switch" id="armedToggle" onclick="toggleArmed()">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="save-toast" id="save-toast">Saved</div>
 
 <script>
@@ -466,14 +482,34 @@ async function pollFullRescore() {
     }
 }
 
+async function toggleArmed() {
+    const current = document.getElementById('armedToggle').classList.contains('active');
+    const next = !current;
+    setToggle('armed', next);
+    try {
+        await fetch('/api/ops/armed-mode', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({armed: next})
+        });
+        showToast();
+    } catch(e) {
+        setToggle('armed', current);  // revert on failure
+        console.error(e);
+    }
+}
+
 async function loadSettings() {
     try {
-        const [migResp, listenerResp] = await Promise.all([
+        const [migResp, listenerResp, armedResp] = await Promise.all([
             fetch('/api/migration-settings'),
-            fetch('/api/listener-settings')
+            fetch('/api/listener-settings'),
+            fetch('/api/ops/armed-mode')
         ]);
         const mig = await migResp.json();
         const listener = await listenerResp.json();
+        const armed = await armedResp.json();
+        setToggle('armed', !!armed.armed);
 
         tokenHistoryEnabled = !!mig.token_history_check;
         listenLaunchesEnabled = !!listener.listen_to_launches;

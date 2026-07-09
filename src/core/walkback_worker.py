@@ -253,17 +253,35 @@ FunderInfo = tuple[Optional[str], Optional[str], Optional[int], Optional[int],
                    Optional[float], Optional[str]]
 
 
-def _find_funder_via_rpc(wallet: str, rpc_counter: list) -> FunderInfo:
+_PRIORITY_REASON = {1: "CONFIRMED_TREASURY", 2: "KNOWN_SUBPROV",
+                    4: "WSOL_WRAP_CLOSE",   5: "SEEDED_ACCOUNT_CLOSE", 6: "PLAIN_XFER"}
+
+
+def _find_funder_via_rpc(wallet: str, rpc_counter: list,
+                         ops: Optional[sqlite3.Connection] = None) -> FunderInfo:
     """
-    Fetch recent sigs for wallet, walk transactions to find who funded it.
-    Returns (funder_wallet, sig, slot, block_time, amount_sol, mechanism).
-    rpc_counter is a mutable [int] so callers can track cumulative budget.
+    Collect all valid funders within the bounded tx window then select the strongest.
+
+    Priority (lower = better):
+      1  confirmed treasury   — beats all mechanism evidence
+      2  known subprov        — structural WATCHTOWER evidence
+      4  WSOL_WRAP_CLOSE      — mechanism evidence
+      5  SEEDED_ACCOUNT_CLOSE — mechanism evidence
+      6  PLAIN_XFER / UNKNOWN — weakest
+
+    Tie-break: oldest slot (lowest slot number = earliest funding edge).
+
+    Logs: selected_funder, reason, candidates_seen — for false-positive diagnosis.
+    RPC budget: unchanged — same getSignaturesForAddress + TX_FETCH_LIMIT getTransaction calls.
+    getAccountInfo calls increase only when multiple candidates exist in the window.
     """
     sigs = _get_sigs(wallet)
     rpc_counter[0] += 1
     _empty: FunderInfo = (None, None, None, None, None, None)
     if not sigs:
         return _empty
+
+    candidates: list[tuple[int, FunderInfo]] = []  # (priority, FunderInfo)
 
     for entry in sigs[:TX_FETCH_LIMIT]:
         if entry.get("err"):
@@ -276,26 +294,47 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list) -> FunderInfo:
         if not tx:
             continue
         sender = _extract_sol_sender(tx, wallet)
-        if sender and sender != wallet and sender not in _FUNDER_BLOCKLIST:
-            owner = _get_account_owner(sender, rpc_counter)
-            if owner is None or owner == _SYSTEM_PROGRAM:
-                # Regular wallet — accept as funder
-                pass
-            elif owner == _TOKEN_PROGRAM:
-                # WSOL ATA: resolve the wallet that holds this ATA
-                real_sender = _resolve_ata_owner(sender, rpc_counter)
-                if not real_sender or real_sender in _FUNDER_BLOCKLIST:
-                    continue
-                sender = real_sender
-            else:
-                continue  # AMM pool, PDA, or other program account — skip
-            mechanism = _detect_mechanism(tx, sender, wallet)
-            amount    = _extract_amount_sol(tx, wallet)
-            slot      = tx.get("slot")
-            block_time= tx.get("blockTime")
-            return (sender, sig, slot, block_time, amount, mechanism)
+        if not sender or sender == wallet or sender in _FUNDER_BLOCKLIST:
+            continue
+        owner = _get_account_owner(sender, rpc_counter)
+        if owner is None or owner == _SYSTEM_PROGRAM:
+            pass  # regular wallet
+        elif owner == _TOKEN_PROGRAM:
+            real_sender = _resolve_ata_owner(sender, rpc_counter)
+            if not real_sender or real_sender in _FUNDER_BLOCKLIST:
+                continue
+            sender = real_sender
+        else:
+            continue  # AMM pool, PDA, or other program account — skip
 
-    return _empty
+        mechanism  = _detect_mechanism(tx, sender, wallet)
+        amount     = _extract_amount_sol(tx, wallet)
+        slot       = tx.get("slot")
+        block_time = tx.get("blockTime")
+
+        if ops and _is_known_treasury(ops, sender):
+            priority = 1
+        elif ops and _is_known_subprov(ops, sender):
+            priority = 2
+        elif mechanism == "WSOL_WRAP_CLOSE":
+            priority = 4
+        elif mechanism == "SEEDED_ACCOUNT_CLOSE":
+            priority = 5
+        else:
+            priority = 6
+
+        candidates.append((priority, (sender, sig, slot, block_time, amount, mechanism)))
+
+    if not candidates:
+        return _empty
+
+    # Select best: lowest priority wins; ties broken by oldest slot (earliest funding edge)
+    candidates.sort(key=lambda x: (x[0], x[1][2] or 0))
+    best_priority, best = candidates[0]
+    reason = _PRIORITY_REASON.get(best_priority, "PLAIN_XFER")
+    print(f"[WALKBACK] selected_funder={best[0][:14]}… reason={reason} "
+          f"candidates_seen={len(candidates)} wallet={wallet[:14]}…", flush=True)
+    return best
 
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
@@ -396,16 +435,27 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
                     scored_at        = excluded.scored_at
                 """,
                 (mint, creator, subprov if confirmed_subprov else None, treasury, now))
-    # LINEAGE_GAP: unconfirmed hop-1 → surface as subprov discovery lead, NOT as attribution
+    # LINEAGE_GAP: unconfirmed hop-1 → surface as subprov discovery lead, NOT as attribution.
+    # Also surface the funder_wallet (the wallet that funded this unknown hop-1) as a treasury
+    # review lead — a wallet that funded multiple subprovs across tokens is a treasury candidate.
     if outcome == "LINEAGE_GAP" and subprov and not treasury:
-        row = ops.execute("SELECT creator, enqueued_at FROM wt_walkback_queue WHERE mint=?",
-                          (mint,)).fetchone()
-        creator = row["creator"] if row else None
-        first_seen = row["enqueued_at"] if row else None
+        row = ops.execute(
+            "SELECT creator, enqueued_at, funder_wallet, funder_sig, funder_amount_sol "
+            "FROM wt_walkback_queue WHERE mint=?", (mint,)).fetchone()
+        creator    = row["creator"]         if row else None
+        first_seen = row["enqueued_at"]     if row else None
+        funder_w   = row["funder_wallet"]   if row else None
+        funder_sig = row["funder_sig"]      if row else None
+        funder_amt = row["funder_amount_sol"] if row else None
         if not _is_known_subprov(ops, subprov):
             _ensure_subprov_lead(ops, subprov, creator, first_seen)
             print(f"[WALKBACK] LINEAGE_GAP → promoted {subprov[:14]}… to subprov discovery lead",
                   flush=True)
+        # Surface the wallet that funded this unconfirmed hop-1 as a treasury review lead
+        if funder_w and funder_w != subprov and not _is_known_treasury(ops, funder_w) and not _is_known_subprov(ops, funder_w):
+            disp = _surface_treasury_review_lead(ops, funder_w, subprov, creator, mint,
+                                                 funder_sig, funder_amt, None)
+            print(f"[WALKBACK] LINEAGE_GAP funder lead {disp}: {funder_w[:14]}…", flush=True)
     ops.commit()
 
 
@@ -480,7 +530,7 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             if not subprov:
                 _mark_failed(ops, mint, "PARTIAL_TREASURY but subprov is NULL", 0)
                 return 0
-            hop1, sig, slot, bt, amt, mech = _find_funder_via_rpc(subprov, rpc)
+            hop1, sig, slot, bt, amt, mech = _find_funder_via_rpc(subprov, rpc, ops)
             _store_funder(ops, mint, hop1, sig, slot, bt, amt, mech)  # preserve evidence
             if hop1 and _is_known_treasury(ops, hop1):
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", subprov, hop1, rpc[0],
@@ -497,7 +547,7 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             if not creator:
                 _mark_failed(ops, mint, "PARTIAL_SUBPROV but creator is NULL", 0)
                 return 0
-            hop1, sig, slot, bt, amt, mech = _find_funder_via_rpc(creator, rpc)
+            hop1, sig, slot, bt, amt, mech = _find_funder_via_rpc(creator, rpc, ops)
             _store_funder(ops, mint, hop1, sig, slot, bt, amt, mech)
             if hop1 and _is_known_subprov(ops, hop1):
                 t_row = ops.execute(
@@ -521,7 +571,7 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 return 0
 
             # Hop 1: who funded creator?
-            hop1, sig1, slot1, bt1, amt1, mech1 = _find_funder_via_rpc(creator, rpc)
+            hop1, sig1, slot1, bt1, amt1, mech1 = _find_funder_via_rpc(creator, rpc, ops)
             if not hop1:
                 _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, rpc[0])
                 return rpc[0]
@@ -544,7 +594,7 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 return rpc[0]
 
             # Hop 2: who funded hop1?
-            hop2, sig2, slot2, bt2, amt2, mech2 = _find_funder_via_rpc(hop1, rpc)
+            hop2, sig2, slot2, bt2, amt2, mech2 = _find_funder_via_rpc(hop1, rpc, ops)
             if hop2 and _is_known_treasury(ops, hop2):
                 # hop1 is now confirmed as subprov (its funder is a known treasury)
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", hop1, hop2, rpc[0],

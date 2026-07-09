@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Candidate Chain — WATCHTOWER</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #e6edf3; font-family: 'SF Mono', monospace; overflow: hidden; }
+  svg { width: 100vw; height: 100vh; }
+
+  .link { fill: none; stroke-opacity: 0.6; }
+  .link.flow    { stroke: #3fb950; }
+  .link.init    { stroke: #58a6ff; }
+  .link.profit  { stroke: #bc8cff; }
+  .link.fee-wt  { stroke: #bc8cff; }
+  .link.unknown { stroke: #484f58; stroke-dasharray: 4,3; }
+
+  .label { font-size: 10px; fill: #e6edf3; pointer-events: none; }
+
+  #header {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(13,17,23,.92); border-bottom: 1px solid #21262d;
+    padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+    z-index: 10;
+  }
+  #header .back { color: #58a6ff; text-decoration: none; font-size: 11px; }
+  #header .back:hover { text-decoration: underline; }
+  #header .title { font-size: 13px; font-weight: 700; color: #e6edf3; }
+  #header .op-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
+  }
+  #header .op-badge.WATCHTOWER { color: #f85149; background: rgba(248,81,73,.15); border: 1px solid rgba(248,81,73,.3); }
+  #header .op-badge.OTHER_OP   { color: #f59e0b; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.3); }
+  #header .op-badge.UNRESOLVED { color: #8b949e; background: rgba(139,148,158,.1); border: 1px solid #21262d; }
+  #header .op-badge.UNKNOWN    { color: #8b949e; background: rgba(139,148,158,.1); border: 1px solid #21262d; }
+  #header .meta { font-size: 10px; color: #8b949e; }
+
+  #tooltip {
+    position: fixed; display: none; max-width: 280px;
+    background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+    padding: 10px 12px; z-index: 100; pointer-events: none;
+  }
+  #tooltip .label { font-size: 11px; font-weight: 700; color: #e6edf3; margin-bottom: 4px; }
+  #tooltip .addr  { font-size: 10px; color: #58a6ff; word-break: break-all; margin-bottom: 6px; cursor: pointer; }
+  #tooltip .meta  { font-size: 10px; color: #8b949e; line-height: 1.5; white-space: pre-wrap; }
+
+  #loading {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    color: #8b949e; font-size: 12px;
+  }
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #161b22; border: 1px solid #30363d; border-radius: 4px;
+    padding: 6px 14px; font-size: 11px; color: #3fb950;
+    opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 200;
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <a class="back" href="/watchtower/operators">← Operators</a>
+  <div class="title" id="h-title">Loading…</div>
+  <div class="op-badge" id="h-op"></div>
+  <div class="meta" id="h-meta"></div>
+</div>
+
+<div id="loading">Fetching chain data…</div>
+<svg id="graph"></svg>
+<div id="tooltip"></div>
+<div id="toast"></div>
+
+<script>
+const MINT = "{{ mint }}";
+
+const color = {
+  treasury:  '#f85149',
+  deployer:  '#58a6ff',
+  operators: '#d97706',
+  profit:    '#bc8cff',
+  watch:     '#3fb950',
+  unknown:   '#484f58',
+};
+
+let _toastTimer;
+function copyAddr(addr) {
+  if (!addr || addr === '—') return;
+  navigator.clipboard.writeText(addr).then(() => {
+    const t = document.getElementById('toast');
+    t.textContent = `Copied ${addr.slice(0,8)}…`;
+    t.style.opacity = 1;
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.style.opacity = 0, 1800);
+  });
+}
+
+async function load() {
+  const res = await fetch(`/api/watchtower/candidate/${MINT}/chain`);
+  if (!res.ok) {
+    document.getElementById('loading').textContent = 'Error loading chain data';
+    return;
+  }
+  const data = await res.json();
+  document.getElementById('loading').style.display = 'none';
+
+  // Header
+  document.getElementById('h-title').textContent = `${data.symbol || MINT.slice(0,8)} — Chain Analysis`;
+  const opEl = document.getElementById('h-op');
+  opEl.textContent = data.operation;
+  opEl.className = `op-badge ${data.operation}`;
+  const confStr = data.operation === 'WATCHTOWER'
+    ? `${data.operator_class || ''} · CONFIRMED`
+    : `${data.operator_class || ''} · confidence ${((data.confidence||0)*100).toFixed(0)}%`;
+  document.getElementById('h-meta').textContent = confStr;
+
+  const nodes = data.nodes;
+  const links = data.links;
+
+  const W = window.innerWidth, H = window.innerHeight;
+  const svg = d3.select("#graph").attr("viewBox", `0 0 ${W} ${H}`);
+  const g = svg.append("g");
+  svg.call(d3.zoom().scaleExtent([0.2, 4]).on("zoom", e => g.attr("transform", e.transform)));
+
+  // Arrow markers
+  const defs = svg.append("defs");
+  ["flow","init","profit","fee-wt","unknown"].forEach(t => {
+    defs.append("marker")
+      .attr("id", `arrow-${t}`)
+      .attr("viewBox","0 -5 10 10").attr("refX",10).attr("refY",0)
+      .attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto")
+      .append("path").attr("d","M0,-5L10,0L0,5")
+      .attr("fill",
+        t==="flow"?"#3fb950":t==="init"?"#58a6ff":t==="profit"?"#bc8cff":
+        t==="fee-wt"?"#bc8cff":"#484f58")
+      .attr("opacity", 0.7);
+  });
+
+  const simulation = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).id(d=>d.id).distance(120).strength(0.4))
+    .force("charge", d3.forceManyBody().strength(-600))
+    .force("center", d3.forceCenter(W/2, H/2))
+    .force("collision", d3.forceCollide(d => d.r + 30));
+
+  const link = g.append("g").selectAll("line")
+    .data(links).join("line")
+    .attr("class", d => `link ${d.type}`)
+    .attr("stroke-width", 1.5)
+    .attr("marker-end", d => `url(#arrow-${d.type})`);
+
+  const linkLabel = g.append("g").selectAll("text")
+    .data(links).join("text")
+    .attr("font-size", 9).attr("fill", "#484f58").attr("text-anchor","middle")
+    .text(d => d.label || '');
+
+  const node = g.append("g").selectAll("g")
+    .data(nodes).join("g")
+    .attr("class","node")
+    .call(d3.drag()
+      .on("start", (e,d) => { if(!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on("drag",  (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on("end",   (e,d) => { if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; })
+    );
+
+  node.append("circle")
+    .attr("r", d => d.r)
+    .attr("fill", d => (color[d.type] || "#8b949e") + (d.id === 'WT_TREASURY' ? '44' : '22'))
+    .attr("stroke", d => color[d.type] || "#8b949e")
+    .attr("stroke-width", d => d.id === 'WT_TREASURY' ? 2.5 : 1.5)
+    .attr("stroke-dasharray", d => d.type === "unknown" ? "4,3" : null)
+    .attr("filter", d => d.id === 'WT_TREASURY' ? "drop-shadow(0 0 6px #f85149)" : null);
+
+  node.append("text")
+    .attr("class","label")
+    .attr("text-anchor","middle")
+    .attr("dy", d => d.r + 12)
+    .selectAll("tspan")
+    .data(d => d.label.split("\n"))
+    .join("tspan")
+    .attr("x", 0).attr("dy", (d,i) => i===0 ? 0 : 11)
+    .text(d => d);
+
+  const tip = document.getElementById("tooltip");
+  node.on("mousemove", (e, d) => {
+    tip.style.display = "block";
+    tip.style.left = (e.clientX + 14) + "px";
+    tip.style.top  = (e.clientY - 10) + "px";
+    tip.innerHTML = `
+      <div class="label">${d.label.replace(/\n/g," · ")}</div>
+      <div class="addr" onclick="copyAddr('${d.addr}')">${d.addr}</div>
+      <div class="meta">${d.meta}</div>
+    `;
+  }).on("mouseleave", () => tip.style.display = "none");
+
+  node.on("click", (e, d) => { e.stopPropagation(); copyAddr(d.addr); });
+
+  simulation.on("tick", () => {
+    link
+      .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+      .attr("x2", d => {
+        const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+        return d.target.x - (dx/dist) * (d.target.r + 8);
+      })
+      .attr("y2", d => {
+        const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+        return d.target.y - (dy/dist) * (d.target.r + 8);
+      });
+
+    linkLabel
+      .attr("x", d => (d.source.x + d.target.x) / 2)
+      .attr("y", d => (d.source.y + d.target.y) / 2 - 4);
+
+    node.attr("transform", d => `translate(${d.x},${d.y})`);
+  });
+}
+
+load();
+</script>
+</body>
+</html>

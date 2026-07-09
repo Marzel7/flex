@@ -225,6 +225,37 @@
             </div>
         </div>
 
+        <!-- Runtime Budget Health -->
+        <div class="grid" style="margin-bottom:1rem;">
+            <div class="card wide-card" id="sh-rb-card">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">⚙ Runtime Budget</div>
+                    <span id="sh-rb-pill" style="font-size:0.7rem;font-weight:700;padding:2px 10px;border-radius:9999px;background:rgba(100,116,139,0.2);color:#94a3b8;">loading…</span>
+                    <span id="sh-rb-note" style="font-size:0.75rem;color:#64748b;margin-left:4px"></span>
+                </div>
+                <!-- 3-card summary -->
+                <div id="sh-rb-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;"></div>
+                <!-- 4 detail sections -->
+                <div id="sh-rb-detail" style="display:none">
+                    <div style="margin-bottom:1rem;">
+                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">Critical Path</div>
+                        <div id="sh-rb-critical" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;"></div>
+                    </div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;margin-bottom:1rem;">
+                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:4px;">Graceful Degradation <span style="font-weight:400;font-size:0.6rem;color:#475569">— non-zero counts are healthy (budget system working)</span></div>
+                        <div id="sh-rb-degrade" style="display:grid;grid-template-columns:repeat(8,1fr);gap:0.5rem;margin-top:0.5rem;"></div>
+                    </div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;">
+                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">Runtime Pressure</div>
+                        <div id="sh-rb-pressure" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;"></div>
+                    </div>
+                </div>
+                <div style="margin-top:0.5rem;">
+                    <button onclick="toggleSHRBDetail()" id="sh-rb-toggle" style="font-size:0.7rem;color:#64748b;background:none;border:none;cursor:pointer;padding:0;">▸ show detail</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Overall Status (legacy — hidden, superseded by WATCHTOWER platform card above) -->
         <div style="display:none;">
             <div id="overallStatus"></div>
@@ -1003,7 +1034,7 @@
         function _wtColor(s) {
             if (!s) return 'warning';
             const ok      = ['HEALTHY','CONNECTED','LIVE','WATCHING','ACTIVE','LIVE_IDLE','RUNNING'];
-            const neutral = ['PARKED','PEAK-ONLY','PEAK ONLY','IDLE','UNKNOWN'];
+            const neutral = ['PARKED','PEAK-ONLY','PEAK ONLY','IDLE','UNKNOWN','PENDING'];
             const warn    = ['DEGRADED','PRESSURE','RETRYING'];
             const up = s.toUpperCase();
             if (ok.some(v => up.includes(v))) return 'healthy';
@@ -1547,5 +1578,75 @@
         renderTier1Monitor();
         renderTier2Monitor();
         setInterval(() => { updateDashboard(); updateRecoveryPanel(); renderTier1Monitor(); renderTier2Monitor(); }, 10000);
+
+        // ── Runtime Budget Health card ────────────────────────────────────────
+        let _shRBDetailVisible = false;
+        function toggleSHRBDetail(){
+            _shRBDetailVisible = !_shRBDetailVisible;
+            const d = document.getElementById('sh-rb-detail');
+            const btn = document.getElementById('sh-rb-toggle');
+            if(d) d.style.display = _shRBDetailVisible ? '' : 'none';
+            if(btn) btn.textContent = (_shRBDetailVisible ? '▾ hide detail' : '▸ show detail');
+        }
+
+        async function loadSHRuntimeBudget(){
+            let d; try{ d = await(await fetch('/api/ops-v2/intel/runtime-budget')).json(); }catch(e){ return; }
+            const r = d.runtime||{}, cfg = d.config||{};
+
+            const pill = document.getElementById('sh-rb-pill');
+            const note = document.getElementById('sh-rb-note');
+            const healthColor = {'GREEN':'#22c55e','YELLOW':'#f59e0b','RED':'#ef4444'}[d.health]||'#94a3b8';
+            const healthBg = {'GREEN':'rgba(34,197,94,.15)','YELLOW':'rgba(245,158,11,.15)','RED':'rgba(239,68,68,.15)'}[d.health]||'rgba(100,116,139,.2)';
+            const healthIcon = {'GREEN':'🟢','YELLOW':'🟡','RED':'🔴'}[d.health]||'⚪';
+            if(pill){ pill.style.background=healthBg; pill.style.color=healthColor; pill.textContent=`${healthIcon} ${d.health_label||d.health}`; }
+            if(note){ note.textContent = d.health_note||''; }
+
+            const totalDeferred = (r.creator_resolution_skipped||0)+(r.pool_discovery_deferred||0)+
+                (r.validation_timeout||0)+(r.catchup_timeout||0)+(r.create_fetch_dropped||0);
+            const totalCritical = (r.treasury_timeout||0)+(r.create_fetch_timeout||0);
+            const summaryEl = document.getElementById('sh-rb-summary');
+            const mk = (val, label, col) => `<div class="card" style="padding:0.75rem 1rem;text-align:center">
+                <div style="font-size:1.4rem;font-weight:800;color:${col}">${val}</div>
+                <div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px">${label}</div>
+            </div>`;
+            if(summaryEl) summaryEl.innerHTML =
+                mk(totalCritical>0?'⚠ '+totalCritical:'✓', 'Critical path', totalCritical>0?'#f59e0b':'#22c55e') +
+                mk(totalDeferred, 'Optional work deferred', totalDeferred>0?'#22d3ee':'#64748b') +
+                mk((r.db_lock_errors_5m||0)+'/5m', 'DB lock errors', (r.db_lock_errors_5m||0)>0?'#f59e0b':'#22c55e');
+
+            document.getElementById('sh-rb-detail').style.display = _shRBDetailVisible ? '' : 'none';
+
+            const s = (label, val, col='#e2e8f0', note='') => `<div style="padding:8px;background:rgba(255,255,255,.03);border-radius:6px;text-align:center">
+                <div style="font-size:1.1rem;font-weight:700;color:${col}">${val??'—'}${note?`<span style="font-size:9px;color:#64748b;margin-left:2px">${note}</span>`:''}</div>
+                <div style="font-size:0.6rem;color:#64748b;margin-top:2px">${label}</div>
+            </div>`;
+            const cascOk = r.cascade_state==='LIVE'||r.cascade_state==null;
+            const dbOk = (r.db_p99_wait_ms||0)<1000;
+            const lockOk = (r.db_lock_errors_5m||0)===0;
+            document.getElementById('sh-rb-critical').innerHTML =
+                s('WS Cascade', cascOk?'LIVE':r.cascade_state||'?', cascOk?'#22c55e':'#ef4444') +
+                s('DB p99', (r.db_p99_wait_ms||0)+'ms', dbOk?'#22c55e':'#ef4444') +
+                s('Treasury timeout', r.treasury_timeout||0, (r.treasury_timeout||0)>0?'#f59e0b':'#22c55e') +
+                s('Validation timeout', r.validation_timeout||0, (r.validation_timeout||0)>0?'#f59e0b':'#22c55e') +
+                s('CREATE fetch timeout', r.create_fetch_timeout||0, (r.create_fetch_timeout||0)>0?'#f59e0b':'#22c55e') +
+                s('DB lock errors', (r.db_lock_errors_5m||0)+'/5m', lockOk?'#22c55e':(r.db_lock_errors_5m||0)>5?'#ef4444':'#f59e0b');
+            document.getElementById('sh-rb-degrade').innerHTML =
+                s('Creator res. skipped', r.creator_resolution_skipped??'—', '#94a3b8', 'ok') +
+                s('Validation aborted', r.validation_timeout||0, '#94a3b8', 'ok') +
+                s('Catch-up timeout', r.catchup_timeout||0, '#94a3b8', 'ok') +
+                s('CREATE fetch dropped', r.create_fetch_dropped||0, '#94a3b8', 'ok') +
+                s('Pool disc. deferred', r.pool_discovery_deferred||0, '#94a3b8', 'ok') +
+                s('Migration deferred', r.migration_deferred||0, '#94a3b8', 'ok') +
+                s('CREATE fetch queue', r.create_fetch_queue||0, (r.create_fetch_queue||0)>15?'#f59e0b':'#94a3b8') +
+                s('Budget exceeded (crr)', r.creator_resolution_budget_exceeded??'—', '#94a3b8', 'ok');
+            document.getElementById('sh-rb-pressure').innerHTML =
+                s('DB p99', (r.db_p99_wait_ms||0)+'ms', (r.db_p99_wait_ms||0)<500?'#22c55e':'#f59e0b') +
+                s('DB queue depth', r.db_queue_depth||0, (r.db_queue_depth||0)>3?'#f59e0b':'#e2e8f0') +
+                s('Lock errors 1h', r.db_lock_errors_1h||0, (r.db_lock_errors_1h||0)>0?'#f59e0b':'#22c55e') +
+                s('Lock errors 5m', r.db_lock_errors_5m||0, (r.db_lock_errors_5m||0)>5?'#ef4444':(r.db_lock_errors_5m||0)>0?'#f59e0b':'#22c55e');
+        }
+
+        loadSHRuntimeBudget();
+        setInterval(loadSHRuntimeBudget, 30000);
     </script>
 {% endblock %}

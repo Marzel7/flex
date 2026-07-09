@@ -1,0 +1,190 @@
+{% extends "base_shell.html" %}
+{% block title %}Operations v2 — Live Operation Intelligence{% endblock %}
+
+{% block extra_styles %}
+:root {
+    --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+    --border:#21262d; --border2:#30363d;
+    --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+    --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa;
+    --red:#f85149; --yellow:#eab308;
+}
+.ov2-wrap { padding:20px 26px; color:var(--text-pri); }
+.ov2-head { display:flex; align-items:baseline; gap:14px; margin-bottom:4px; }
+.ov2-head h1 { font-size:20px; margin:0; }
+.ov2-sub { color:var(--text-sec); font-size:12px; margin-bottom:18px; }
+.ov2-sub .pill { background:var(--bg-card2); border:1px solid var(--border2); border-radius:10px; padding:2px 8px; margin-left:6px; }
+.ov2-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:18px; }
+.ov2-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.ov2-card .v { font-size:24px; font-weight:700; }
+.ov2-card .l { font-size:11px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+.ov2-card.accent .v { color:var(--cyan); }
+.ov2-card.warn .v { color:var(--amber); }
+.ov2-grid { display:grid; grid-template-columns:1.6fr 1fr; gap:18px; }
+@media (max-width:1100px){ .ov2-grid{ grid-template-columns:1fr; } }
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:18px; }
+.panel-h { padding:12px 16px; border-bottom:1px solid var(--border); font-size:13px; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+.panel-h .hint { font-size:11px; color:var(--text-dim); font-weight:400; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:8px 14px; color:var(--text-sec); font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--border); }
+td { padding:8px 14px; border-bottom:1px solid var(--border); }
+tr:hover td { background:var(--bg-card2); }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.addr { color:var(--cyan); cursor:pointer; }
+.addr:hover { text-decoration:underline; }
+.state { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+.state.DISCOVERED{ background:#1c2128; color:var(--text-sec); }
+.state.ACTIVE{ background:rgba(63,185,80,.15); color:var(--green); }
+.state.PROVISIONING{ background:rgba(217,119,6,.15); color:var(--amber); }
+.state.CREATORS_SEEN{ background:rgba(34,211,238,.15); color:var(--cyan); }
+.state.MIGRATED{ background:rgba(167,139,250,.15); color:var(--purple); }
+.state.DORMANT{ background:#1c2128; color:var(--text-dim); }
+.state.REACTIVATED{ background:rgba(234,179,8,.15); color:var(--yellow); }
+.tmpl { color:var(--green); font-weight:600; }
+.sched-row { display:flex; gap:18px; flex-wrap:wrap; }
+.sched-box { flex:1; min-width:200px; background:var(--bg-card2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; }
+.sched-box .job { font-size:11px; color:var(--text-sec); text-transform:uppercase; }
+.dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
+.dot.ok{ background:var(--green); } .dot.budget{ background:var(--amber); } .dot.error{ background:var(--red); } .dot.none{ background:var(--text-dim); }
+.conf-bar { height:5px; background:var(--bg-card2); border-radius:3px; overflow:hidden; width:48px; display:inline-block; vertical-align:middle; }
+.conf-bar > i { display:block; height:100%; background:var(--cyan); }
+.tabs { display:flex; gap:6px; margin-bottom:12px; }
+.tab { font-size:12px; padding:5px 12px; border:1px solid var(--border2); border-radius:8px; cursor:pointer; color:var(--text-sec); }
+.tab.active { background:var(--bg-card2); color:var(--text-pri); border-color:var(--cyan); }
+.muted{ color:var(--text-dim); }
+{% endblock %}
+
+{% block content %}
+<div class="ov2-wrap">
+  <div class="ov2-head">
+    <h1>Operations v2 <span class="muted" style="font-size:13px;">— live operation intelligence</span></h1>
+  </div>
+  <div class="ov2-sub">
+    Treasury-rooted operations auto-discovered by the operation-centric system (backward intake + forward monitor).
+    Isolated from the live WATCH pipeline — reads <span class="mono">wt_ops_v2</span>.
+    <span class="pill" id="sched-pill">scheduler: …</span>
+    <span class="pill" id="rpc-pill">rpc today: …</span>
+  </div>
+
+  <div class="ov2-cards" id="cards"></div>
+
+  <div class="panel">
+    <div class="panel-h">Scheduler health <span class="hint">post-migration intake + pre-migration forward monitor</span></div>
+    <div style="padding:14px 16px;"><div class="sched-row" id="sched"></div></div>
+  </div>
+
+  <div class="ov2-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-h">Operations <span class="hint">ranked by live candidates, then size</span></div>
+        <table><thead><tr>
+          <th>Treasury</th><th>State</th><th>Conf</th><th>Wallets</th><th>Coll</th><th>Creators</th><th>Candidates</th><th>Last activity</th>
+        </tr></thead><tbody id="ops-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="panel-h">
+          Pre-launch creator candidates
+          <span class="hint">detected before migration</span>
+        </div>
+        <div style="padding:10px 14px 0;">
+          <div class="tabs">
+            <div class="tab active" data-f="template" onclick="setCandFilter('template',this)">Template leads</div>
+            <div class="tab" data-f="all" onclick="setCandFilter('all',this)">All children</div>
+          </div>
+        </div>
+        <table><thead><tr><th>Candidate</th><th>From</th><th>Amt</th><th>Tmpl</th><th>Conf</th></tr></thead>
+          <tbody id="cand-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-h">Scheduler run log <span class="hint">one row per scheduled cycle — proves continuous watching</span></div>
+    <table><thead><tr>
+      <th>Job</th><th>When</th><th>Status</th><th>Runtime</th><th>Disc</th><th>Merge</th><th>Events</th><th>Cand</th><th>RPC</th>
+    </tr></thead><tbody id="runs-body"><tr><td colspan="9" class="muted">loading…</td></tr></tbody></table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
+const ago = ts => { if(!ts) return '—'; const s=Math.floor(Date.now()/1000-ts);
+  if(s<60)return s+'s ago'; if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; };
+const solscan = a => window.open('https://solscan.io/account/'+a,'_blank');
+
+async function loadSummary(){
+  const s = await (await fetch('/api/ops-v2/summary')).json();
+  const cards = [
+    ['operations',s.operations,'accent'],['families',s.families,''],
+    ['treasuries',s.treasuries,''],['collectors',s.collectors,''],
+    ['creators',s.creators,''],['live candidates',s.candidates,'warn'],
+    ['template leads',s.template_leads,'accent'],['activity events',s.activity_events,''],
+  ];
+  document.getElementById('cards').innerHTML = cards.map(([l,v,c])=>
+    `<div class="ov2-card ${c}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`).join('');
+
+  const sched = s.scheduler||{};
+  const box = (job)=>{ const r=sched[job];
+    const st=(r&&r.status||'none').toLowerCase();
+    return `<div class="sched-box"><div class="job">${job.replace('_',' ')}</div>
+      <div style="margin-top:5px;"><span class="dot ${st}"></span>
+      ${r? r.status+' · '+ago(r.started_at)+' · rpc '+r.rpc_used+' · '+(r.runtime_sec||0)+'s' : 'never run'}</div></div>`; };
+  document.getElementById('sched').innerHTML = box('INTAKE')+box('FORWARD_MONITOR');
+  const states = Object.entries(s.states||{}).map(([k,v])=>`${k}:${v}`).join('  ');
+  document.getElementById('sched-pill').textContent = 'states · '+(states||'none');
+  document.getElementById('rpc-pill').textContent = 'rpc today: '+(sched.rpc_today??0);
+}
+
+async function loadOps(){
+  const d = await (await fetch('/api/ops-v2/operations')).json();
+  document.getElementById('ops-body').innerHTML = (d.operations||[]).map(o=>`
+    <tr>
+      <td><span class="addr mono" onclick="solscan('${o.treasury_root}')">${short(o.treasury_root)}</span></td>
+      <td><span class="state ${o.state}">${o.state}</span></td>
+      <td><span class="conf-bar"><i style="width:${Math.round((o.confidence||0)*100)}%"></i></span></td>
+      <td>${o.wallets}</td><td>${o.collectors}</td><td>${o.creators}</td>
+      <td>${o.candidates? '<b style="color:var(--amber)">'+o.candidates+'</b>':'0'}</td>
+      <td class="muted">${ago(o.last_activity)}</td>
+    </tr>`).join('') || '<tr><td colspan="8" class="muted">no operations yet</td></tr>';
+}
+
+let candFilter='template';
+function setCandFilter(f,el){ candFilter=f;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); loadCands(); }
+async function loadCands(){
+  const q = candFilter==='template' ? '?template=1' : '';
+  const d = await (await fetch('/api/ops-v2/candidates'+q)).json();
+  document.getElementById('cand-body').innerHTML = (d.candidates||[]).slice(0,60).map(c=>`
+    <tr>
+      <td><span class="addr mono" onclick="solscan('${c.wallet}')">${short(c.wallet)}</span>${c.migrated?' <span class="muted">✓mig</span>':''}</td>
+      <td class="mono muted">${short(c.source_wallet)}<br><span style="font-size:10px">${c.source_role||''}</span></td>
+      <td class="mono">${(c.amount||0).toFixed(3)}</td>
+      <td>${c.template_base!=null?'<span class="tmpl">'+c.template_base+'</span>':'<span class="muted">—</span>'}</td>
+      <td><span class="conf-bar"><i style="width:${Math.round((c.confidence||0)*100)}%"></i></span></td>
+    </tr>`).join('') || '<tr><td colspan="5" class="muted">no candidates</td></tr>';
+}
+
+async function loadRuns(){
+  const d = await (await fetch('/api/ops-v2/runs')).json();
+  document.getElementById('runs-body').innerHTML = (d.runs||[]).map(r=>`
+    <tr>
+      <td>${r.job_type.replace('_MONITOR','')}</td>
+      <td class="muted">${ago(r.started_at)}</td>
+      <td><span class="dot ${(r.status||'').toLowerCase()}"></span>${r.status}${r.stopped_due_to_budget?' <span class="muted">(budget)</span>':''}</td>
+      <td>${(r.runtime_sec||0)}s</td>
+      <td>${r.operations_discovered||0}</td><td>${r.operations_merged||0}</td>
+      <td>${r.activity_events_added||0}</td><td>${r.candidate_creators_added||0}</td>
+      <td class="muted">${r.rpc_used||0}/${r.rpc_budget||0}</td>
+    </tr>`).join('') || '<tr><td colspan="9" class="muted">no runs logged yet</td></tr>';
+}
+
+function refresh(){ loadSummary(); loadOps(); loadCands(); loadRuns(); }
+refresh();
+setInterval(refresh, 15000);  // auto-refresh — the store is continuously watching
+</script>
+{% endblock %}

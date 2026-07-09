@@ -26,9 +26,15 @@ tr:hover td { background:var(--bg-card2); }
 .tag.FRESH { background:rgba(234,179,8,.16); color:#eab308; }
 .tag.UNKNOWN { background:rgba(139,148,158,.13); color:var(--text-dim); }
 .tag.SWARM { background:rgba(168,85,247,.2); color:#a855f7; }
+.tag.WT_LIKE { background:rgba(34,197,94,.1); color:#4ade80; border:1px dashed rgba(34,197,94,.4); }
 .chip { display:inline-block; font-size:9px; font-weight:800; padding:1px 5px; border-radius:3px; margin-left:4px; }
 .chip.wt { background:rgba(63,185,80,.3); color:#7ee787; }
 .chip.swarm { background:rgba(168,85,247,.25); color:#c08cf7; }
+.det { display:inline-flex; align-items:center; justify-content:center; min-width:54px; font-size:9px; font-weight:800;
+  padding:2px 6px; border-radius:4px; background:rgba(139,148,158,.12); color:var(--text-dim); white-space:nowrap; }
+.det.live { background:rgba(63,185,80,.16); color:#7ee787; }
+.det.catchup { background:rgba(34,211,238,.14); color:#67e8f9; }
+.det.late { background:rgba(217,119,6,.18); color:#fbbf24; }
 .filters { display:flex; gap:6px; margin:10px 0 12px; flex-wrap:wrap; align-items:center; }
 .fbtn { font-size:11px; padding:4px 11px; border-radius:5px; border:1px solid var(--border2); background:var(--bg-card);
         color:var(--text-sec); cursor:pointer; }
@@ -66,7 +72,7 @@ tr:hover td { background:var(--bg-card2); }
 {% block content %}
 <div class="tk-wrap">
   <div class="tk-h"><h1>Token Performance</h1><span class="muted" style="font-size:12px">tagged · most recent WATCH tokens</span></div>
-  <div class="tk-sub">Every recent migrated token, tagged. <b style="color:#3fb950">WATCHTOWER</b> = treasury wrap-close launch (✓ = confirmed cascade catch) · <b style="color:#f59e0b">FARM</b> = shared funder ≥2 fresh creators (operator / 🏦 CEX / platform) · <b style="color:#eab308">FRESH</b> = single-use creator, no cluster yet (same WATCHTOWER fingerprint — a solo or rotating-funder launch) · the rest = serial-creator UNKNOWN.</div>
+  <div class="tk-sub">Every recent migrated token, tagged. <b style="color:#3fb950">WATCHTOWER</b> = treasury wrap-close launch (✓ = confirmed cascade catch) · <b style="color:#4ade80">WT_LIKE</b> = wrap-close lineage confirmed, root treasury unknown (review lead) · <b style="color:#f59e0b">FARM</b> = shared funder ≥2 fresh creators (operator / 🏦 CEX / platform) · <b style="color:#eab308">FRESH</b> = single-use creator, no cluster yet · the rest = serial-creator UNKNOWN.</div>
 
   <div class="filters">
     <span class="muted" style="font-size:11px">Tag:</span>
@@ -75,6 +81,7 @@ tr:hover td { background:var(--bg-card2); }
     <button class="fbtn" data-tag="FARM">🟠 FARM</button>
     <button class="fbtn" data-tag="FRESH">🟡 FRESH</button>
     <button class="fbtn" data-tag="SWARM">🟣 SWARM</button>
+    <button class="fbtn" data-tag="WT_LIKE">🟩 WT_LIKE</button>
     <button class="fbtn" data-tag="UNKNOWN">UNKNOWN</button>
     <span style="margin-left:14px"><label class="muted" style="font-size:11px"><input type="checkbox" id="migOnly" checked> migrated only</label></span>
   </div>
@@ -84,16 +91,15 @@ tr:hover td { background:var(--bg-card2); }
     <table>
       <thead><tr>
         <th data-sort="tag">Tag</th>
+        <th data-sort="wt_detection_source">Detection</th>
         <th data-sort="mint">Token</th>
         <th class="num" data-sort="peak_mc">Peak MC</th>
         <th class="num" data-sort="current_mc">Current MC</th>
         <th class="num" data-sort="peak_multiple">Peak ×</th>
         <th class="num" data-sort="retrace_pct">Retrace</th>
-        <th data-sort="stage">Stage</th>
-        <th class="num" data-sort="prediction_score">Score</th>
         <th data-sort="migrated_at">Migrated</th>
       </tr></thead>
-      <tbody id="rows"><tr><td colspan="9" class="muted">loading…</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="8" class="muted">loading…</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -115,6 +121,25 @@ tr:hover td { background:var(--bg-card2); }
 
 <script>
 const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
+function detectionChip(t){
+  if(!t.wt_confirmed) return '<span class="muted">—</span>';
+  const src=t.wt_detection_source || 'UNKNOWN';
+  const delay=t.wt_detection_delay_seconds;
+  const labelMap={
+    PROGRAM_LOGS:'LIVE',
+    OPENING_CATCHUP:'OPEN',
+    ACTIVE_CATCHUP:'CATCH',
+    CANDIDATE_CATCHUP:'CATCH',
+    EXPIRE_PROBE:'LATE',
+    UNKNOWN:'LEGACY'
+  };
+  const cls=src==='PROGRAM_LOGS'?'live':(src==='EXPIRE_PROBE'?'late':(src==='UNKNOWN'?'':'catchup'));
+  const delayTxt=delay!=null?` · ${delay}s`:'';
+  const title=src==='UNKNOWN'
+    ? 'Confirmed WATCHTOWER launch recorded before detection-source tracking existed'
+    : `WATCHTOWER detection source: ${src}${delayTxt}`;
+  return `<span class="det ${cls}" title="${title}">${labelMap[src]||src.replace(/_/g,' ')}</span>`;
+}
 
 // copy operator address on click (delegated — survives table re-renders)
 function copyAddr(addr, el){
@@ -126,6 +151,12 @@ function copyAddr(addr, el){
 }
 function fallback(addr,cb){ const ta=document.createElement('textarea'); ta.value=addr; ta.style.position='fixed'; ta.style.opacity='0';
   document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); cb&&cb(); }
+// root chip for a WT_LIKE row — unknown treasury root
+function wtLikeChip(t){
+  if(t.tag!=='WT_LIKE' || !t.uwl_root) return '';
+  const r=t.uwl_root, s=t.uwl_subprov, h=t.uwl_hop;
+  return `<span class="opchip" data-sol="account/${r}" title="unknown root treasury ${r} (hop ${h||'?'}) via subprov ${s||'?'} — wrap-close lineage confirmed, not yet enrolled">root ${r.slice(0,4)}…↗</span>`;
+}
 // funder chip for a FARM row — CEX / PLATFORM / OPERATOR, each opens the funder in Solscan
 function fundChip(t){
   if(t.tag!=='FARM' || !t.farm_funder) return '';
@@ -158,20 +189,19 @@ function render(){
   rows.sort((a,b)=>{ const x=keyVal(a,sortKey), y=keyVal(b,sortKey);
     if(x==null&&y==null)return 0; if(x==null)return 1; if(y==null)return -1;
     return (x>y?1:x<y?-1:0)*sortDir; });
-  if(!rows.length){ tb.innerHTML='<tr><td colspan="9" class="muted">no tokens</td></tr>'; return; }
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="8" class="muted">no tokens</td></tr>'; return; }
   tb.innerHTML=rows.map(t=>{
     const mult=t.peak_multiple;
     const multCls = mult>=5?'pos':mult&&mult<1.2?'neg':'';
     const retr = t.retrace_pct;
     return `<tr class="trow" data-mint="${t.mint}" style="cursor:pointer" title="click for full detail — funding cycle + provisioning tree">
-      <td><span class="exp" style="color:var(--text-dim);font-size:10px;display:inline-block;width:11px">›</span><span class="tag ${t.tag}">${t.tag}</span>${t.wt_confirmed?'<span class="chip wt">✓</span>':''}${t.swarm&&t.tag!=='SWARM'?'<span class="chip swarm">swarm</span>':''}${fundChip(t)}${cycleChip(t)}${(t.tag==='FRESH'&&t.creator)?`<span class="opchip" data-sol="account/${t.creator}" title="creator ${t.creator} — open in Solscan">creator ${t.creator.slice(0,4)}…↗</span>`:''}</td>
+      <td><span class="exp" style="color:var(--text-dim);font-size:10px;display:inline-block;width:11px">›</span><span class="tag ${t.tag}">${t.tag}</span>${t.wt_confirmed?'<span class="chip wt">✓</span>':''}${t.swarm&&t.tag!=='SWARM'?'<span class="chip swarm">swarm</span>':''}${wtLikeChip(t)}${fundChip(t)}${cycleChip(t)}${(t.tag==='FRESH'&&t.creator_cex_label)?`<span class="cexchip" data-sol="account/${t.creator_cex_funder||t.creator}" title="funded via ${t.creator_cex_label} withdrawal — creator ${t.creator}">🏦 ${t.creator_cex_label}↗</span>`:(t.tag==='FRESH'&&t.creator)?`<span class="opchip" data-sol="account/${t.creator}" title="creator ${t.creator} — open in Solscan">creator ${t.creator.slice(0,4)}…↗</span>`:''}</td>
+      <td>${detectionChip(t)}</td>
       <td><span class="mono" style="color:var(--cyan);cursor:pointer" onclick="event.stopPropagation();window.open('https://solscan.io/token/${t.mint}','_blank')" title="${t.mint}">${short(t.mint)}</span></td>
       <td class="num mc">${usd(t.peak_mc)}</td>
       <td class="num">${usd(t.current_mc)}</td>
       <td class="num ${multCls}" style="font-weight:700">${mult?mult+'×':'—'}</td>
       <td class="num ${retr>=80?'neg':''}">${retr!=null?retr+'%':'—'}</td>
-      <td class="muted">${t.stage||'—'}</td>
-      <td class="num muted">${t.prediction_score!=null?t.prediction_score:'—'}</td>
       <td class="muted">${ago(t.migrated_at||t.created_at)}${!t.migrated_at&&t.created_at?' <span style="font-size:8px;color:var(--text-dim)">new</span>':''}</td>
     </tr>`;
   }).join('');
@@ -258,7 +288,7 @@ async function load(){
   DATA=d.tokens||[];
   const c=d.counts||{};
   document.getElementById('summary').textContent =
-    `${d.count||0} tokens · WATCHTOWER ${c.WATCHTOWER||0} (✓${c.WATCHTOWER_confirmed||0}) · FARM ${c.FARM||0} (${d.farms_total||0} operators) · FRESH ${c.FRESH||0} (single-use creator) · SWARM ${c.SWARM||0} · Unknown ${c.UNKNOWN||0}`;
+    `${d.count||0} tokens · WATCHTOWER ${c.WATCHTOWER||0} (✓${c.WATCHTOWER_confirmed||0}) · WT_LIKE ${c.WT_LIKE||0} · FARM ${c.FARM||0} (${d.farms_total||0} operators) · FRESH ${c.FRESH||0} · SWARM ${c.SWARM||0} · Unknown ${c.UNKNOWN||0}`;
   render();
 }
 

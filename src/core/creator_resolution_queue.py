@@ -56,6 +56,18 @@ def connect(db_path: str, timeout: int = 30) -> sqlite3.Connection:
     return conn
 
 
+from contextlib import contextmanager
+
+@contextmanager
+def _db(db_path: str, timeout: int = 30):
+    """Context manager that opens, yields, and always closes a DB connection."""
+    conn = connect(db_path, timeout=timeout)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
@@ -202,7 +214,7 @@ def enqueue_missing_migrated_tokens(
     source: str = "approval_queue",
     max_age_seconds: int = None,
 ) -> int:
-    with connect(db_path) as conn:
+    with _db(db_path) as conn:
         ensure_schema(conn)
         rows = conn.execute(
             """
@@ -296,7 +308,7 @@ def enqueue_missing_funding_jobs(
     """Backfill migrated tokens that already have a creator but no funding job."""
     now = int(time.time())
     enqueued = 0
-    with connect(db_path) as conn:
+    with _db(db_path) as conn:
         ensure_schema(conn)
         rows = conn.execute(
             """
@@ -470,7 +482,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
     processed = resolved = failed = skipped = funding_enqueued = 0
     errors: List[Dict[str, str]] = []
 
-    with connect(db_path) as conn:
+    with _db(db_path) as conn:
         ensure_schema(conn)
 
         # STALE-RUNNING REAPER: reclaim 'running' rows whose locks expired (crashed/restarted worker).
@@ -527,7 +539,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
         processed += 1
 
         # Determine tier with one cheap DB read + fail-open ops-DB read
-        with connect(db_path) as _pc:
+        with _db(db_path) as _pc:
             high_pri = _is_high_priority(_pc, mint, source, priority)
 
         tier        = "HIGH_PRIORITY" if high_pri else "GENERIC"
@@ -538,7 +550,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             data    = _resolve_creator_rpc(mint, max_runtime_secs=max_runtime, max_pages=max_pages_v, tier=tier)
             creator = data["creator"]
 
-            with connect(db_path) as conn:
+            with _db(db_path) as conn:
                 ensure_schema(conn)
                 token = conn.execute(
                     "SELECT migrated_at, created_at, create_tx_signature FROM token_analysis WHERE mint=?",
@@ -586,7 +598,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
         except _BudgetExceeded as bx:
             # Budget hit — move to offline queue (status='skipped'), not a failure, no retry.
             skipped += 1
-            with connect(db_path) as conn:
+            with _db(db_path) as conn:
                 ensure_schema(conn)
                 conn.execute(
                     """
@@ -607,7 +619,7 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
             failed += 1
             error = str(exc)[:500]
             retry_at = int(time.time()) + min(900, 30 * (attempts + 1))
-            with connect(db_path) as conn:
+            with _db(db_path) as conn:
                 ensure_schema(conn)
                 conn.execute(
                     """
@@ -647,7 +659,7 @@ def get_status(db_path: str, *, auto_enqueue_limit: int = 25) -> Dict[str, Any]:
         source="approval_queue_funding_coverage",
     )
     now = int(time.time())
-    with connect(db_path) as conn:
+    with _db(db_path) as conn:
         ensure_schema(conn)
         counts = {
             row["status"]: row["cnt"]

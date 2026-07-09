@@ -1,0 +1,187 @@
+{% extends "base_shell.html" %}
+{% block title %}Live Operations — Operation Intelligence{% endblock %}
+
+{% block extra_styles %}
+:root {
+  --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa; --red:#f85149; --yellow:#eab308;
+}
+.ops-wrap { padding:20px 26px; color:var(--text-pri); max-width:1500px; }
+.ops-h { display:flex; align-items:baseline; gap:12px; margin-bottom:2px; }
+.ops-h h1 { font-size:21px; margin:0; }
+.ops-sub { color:var(--text-sec); font-size:12px; margin-bottom:18px; }
+.live-dot { width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.mono { font-family:ui-monospace,monospace; } .muted { color:var(--text-dim); }
+
+/* HERO: creator pipeline — the most important number, made dominant */
+.hero { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:16px; }
+@media(max-width:1000px){ .hero{grid-template-columns:1fr;} }
+.pipe-panel { background:linear-gradient(180deg,#161b22,#13171e); border:1px solid var(--border2); border-radius:12px; padding:18px 22px; }
+.pipe-h { font-size:11px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.6px; margin-bottom:14px; }
+.pipe-flow { display:flex; align-items:center; gap:8px; }
+.pstage { flex:1; text-align:center; cursor:pointer; }
+.pstage .v { font-size:40px; font-weight:800; line-height:1; }
+.pstage.cand .v{color:var(--amber)} .pstage.mig .v{color:var(--purple)} .pstage.attr .v{color:var(--text-dim)}
+.pstage .l { font-size:11px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.5px; margin-top:6px; }
+.pstage .sub { font-size:10px; color:var(--text-dim); margin-top:2px; }
+.pstage:hover .v { filter:brightness(1.15); }
+.parrow { color:var(--text-dim); font-size:22px; }
+/* state distribution strip */
+.states-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+.states-h { font-size:11px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px; }
+.state-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:12px; }
+.state-row .nm { display:flex; align-items:center; gap:8px; }
+.sdot { width:8px;height:8px;border-radius:50%; }
+.sdot.DISCOVERED{background:var(--text-sec)} .sdot.ACTIVE{background:var(--green)} .sdot.PROVISIONING{background:var(--amber)}
+.sdot.CREATORS_SEEN{background:var(--cyan)} .sdot.MIGRATED{background:var(--purple)} .sdot.DORMANT{background:var(--text-dim)} .sdot.REACTIVATED{background:var(--yellow)}
+.state-row .ct { font-weight:700; font-variant-numeric:tabular-nums; }
+
+/* compact metric strip */
+.metric-strip { display:flex; gap:22px; flex-wrap:wrap; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px 18px; margin-bottom:18px; }
+.ms-item .v { font-size:18px; font-weight:700; } .ms-item .l { font-size:10px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; }
+.ms-item.hot .v{color:var(--amber)} .ms-item.go .v{color:var(--green)}
+
+/* LIVE OPERATIONS — dominant center */
+.sec-h { font-size:13px; font-weight:600; margin:6px 0 10px; display:flex; justify-content:space-between; align-items:center; }
+.sec-h .hint { font-size:11px; color:var(--text-dim); font-weight:400; }
+.op-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-bottom:20px; }
+.opcard { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; cursor:pointer; transition:border-color .15s; }
+.opcard:hover { border-color:var(--cyan); }
+.opcard.live { border-left:3px solid var(--amber); }
+.opcard-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.opcard .uuid { font-family:ui-monospace,monospace; font-weight:700; color:var(--cyan); font-size:13px; }
+.ot-badge { font-size:9px; font-weight:800; padding:1px 5px; border-radius:5px; letter-spacing:.5px; margin-right:5px; vertical-align:middle; }
+.ot-badge.wt { background:rgba(34,211,238,.18); color:var(--cyan); }
+.ot-badge.md { background:rgba(217,119,6,.18); color:var(--amber, #d97706); }
+.state { font-size:9.5px; padding:3px 8px; border-radius:9px; font-weight:700; letter-spacing:.4px; }
+.state.DISCOVERED{ background:#1c2128; color:var(--text-sec); }
+.state.ACTIVE{ background:rgba(63,185,80,.15); color:var(--green); }
+.state.PROVISIONING{ background:rgba(217,119,6,.15); color:var(--amber); }
+.state.CREATORS_SEEN{ background:rgba(34,211,238,.15); color:var(--cyan); }
+.state.MIGRATED{ background:rgba(167,139,250,.15); color:var(--purple); }
+.state.DORMANT{ background:#1c2128; color:var(--text-dim); }
+.state.REACTIVATED{ background:rgba(234,179,8,.15); color:var(--yellow); }
+.opcard .treasury { font-family:ui-monospace,monospace; font-size:11px; color:var(--text-sec); margin-bottom:10px; }
+.opcard-stats { display:flex; gap:16px; }
+.opstat .v { font-size:17px; font-weight:700; } .opstat .l { font-size:9px; color:var(--text-dim); text-transform:uppercase; }
+.opstat.cand .v{color:var(--amber)}
+.opcard-foot { margin-top:9px; font-size:10px; color:var(--text-dim); }
+
+/* feed (secondary rail) */
+.feed { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.frow { display:flex; align-items:center; gap:12px; padding:9px 14px; border-bottom:1px solid var(--border); font-size:11.5px; }
+.frow:last-child{border-bottom:none} .frow:hover{background:var(--bg-card2)}
+.frow .ftime { color:var(--text-dim); font-family:ui-monospace,monospace; min-width:50px; font-size:10.5px; }
+.ftype { font-size:9px; font-weight:700; letter-spacing:.3px; padding:2px 7px; border-radius:9px; min-width:128px; text-align:center; }
+.ftype.NEW_OPERATION{background:rgba(34,211,238,.15);color:var(--cyan)} .ftype.OPERATION_EXPANDED{background:rgba(63,185,80,.1);color:var(--green)}
+.ftype.NEW_CANDIDATE{background:rgba(217,119,6,.15);color:var(--amber)} .ftype.CREATOR_MIGRATED{background:rgba(167,139,250,.18);color:var(--purple)}
+.ftype.OPERATION_REACTIVATED{background:rgba(234,179,8,.15);color:var(--yellow)} .ftype.OPERATION_DORMANT{background:#1c2128;color:var(--text-dim)}
+.fop { color:var(--cyan); cursor:pointer; font-family:ui-monospace,monospace; } .fop:hover{text-decoration:underline}
+.bottom-grid { display:grid; grid-template-columns:1fr; gap:16px; }
+{% endblock %}
+
+{% block content %}
+<div class="ops-wrap">
+  <div class="ops-h"><h1>Live Operations</h1><span class="muted" style="font-size:13px;">— which operations are alive right now</span></div>
+  <div class="ops-sub"><span class="live-dot"></span>operation-centric intelligence · <span class="mono">wt_ops_v2</span> · auto-refresh 15s</div>
+
+  <!-- HERO: creator pipeline + state distribution -->
+  <div class="hero">
+    <div class="pipe-panel">
+      <div class="pipe-h">Creator Pipeline — detected before migration</div>
+      <div class="pipe-flow" id="pipe"></div>
+    </div>
+    <div class="states-panel">
+      <div class="states-h">Operation States</div>
+      <div id="states"></div>
+    </div>
+  </div>
+
+  <!-- compact secondary metrics -->
+  <div class="metric-strip" id="metrics"></div>
+
+  <!-- LIVE OPERATIONS — the dominant center -->
+  <div class="sec-h">◆ Live Operations <span class="hint" id="op-count"></span></div>
+  <div class="op-grid" id="ops"></div>
+
+  <!-- activity feed (secondary) -->
+  <div class="sec-h">🛰 Activity Feed <span class="hint">reverse-chronological · changes only on real events</span></div>
+  <div class="feed" id="feed"><div class="frow muted">loading…</div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
+const shortOp = u => u ? u.slice(0,8) : '—';
+const fmtTime = ts => ts ? new Date(ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—';
+const ago = ts => { if(!ts) return ''; const s=Math.floor(Date.now()/1000-ts);
+  if(s<60)return s+'s'; if(s<3600)return Math.floor(s/60)+'m'; if(s<86400)return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; };
+const goOp = u => location.href='/ops/operation/'+u;
+const STATE_ORDER = ['PROVISIONING','CREATORS_SEEN','REACTIVATED','ACTIVE','DISCOVERED','MIGRATED','DORMANT'];
+const TYPE_LABEL = { NEW_OPERATION:'NEW OPERATION', OPERATION_EXPANDED:'OPERATION EXPANDED', NEW_CANDIDATE:'CREATOR CANDIDATE',
+  CREATOR_MIGRATED:'CREATOR MIGRATED', OPERATION_REACTIVATED:'REACTIVATED', OPERATION_DORMANT:'DORMANT' };
+
+async function load(){
+  let d; try { d = await (await fetch('/api/ops-v2/live')).json(); } catch(e){ return; }
+  const m=d.metrics, p=d.pipeline||{};
+
+  // HERO pipeline
+  document.getElementById('pipe').innerHTML = `
+    <div class="pstage cand" onclick="location.href='/ops/operations'">
+      <div class="v">${p.candidates||0}</div><div class="l">Candidates</div>
+      <div class="sub">+${p.candidates_24h||0} in 24h · ${p.template_leads||0} template leads</div></div>
+    <span class="parrow">→</span>
+    <div class="pstage mig" onclick="location.href='/ops/operations'">
+      <div class="v">${p.migrated||0}</div><div class="l">Migrated</div><div class="sub">creators launched</div></div>
+    <span class="parrow">→</span>
+    <div class="pstage attr"><div class="v">${p.attributed||0}</div><div class="l">Attributed</div><div class="sub">optional enrichment</div></div>`;
+
+  // state distribution
+  const st=d.states||{};
+  document.getElementById('states').innerHTML = STATE_ORDER.filter(s=>st[s]!=null||['PROVISIONING','CREATORS_SEEN','MIGRATED','DORMANT'].includes(s))
+    .map(s=>`<div class="state-row"><span class="nm"><span class="sdot ${s}"></span>${s}</span><span class="ct">${st[s]||0}</span></div>`).join('');
+
+  // secondary metric strip
+  const ms = [['active ops',m.active_operations,'go'],['families',m.active_families,''],['new ops 24h',m.new_operations_24h,''],
+    ['new migrations 24h',m.new_migrations_24h,''],['reactivated',m.reactivated, m.reactivated>0?'hot':''],['rpc today',(m.rpc_today||0).toLocaleString(),'']];
+  document.getElementById('metrics').innerHTML = ms.map(([l,v,c])=>`<div class="ms-item ${c}"><div class="v">${v??0}</div><div class="l">${l}</div></div>`).join('');
+
+  // LIVE OPERATIONS cards
+  const ops=d.operations||[];
+  document.getElementById('op-count').textContent = ops.length+' operations';
+  document.getElementById('ops').innerHTML = ops.map(o=>{
+    const live = ['PROVISIONING','CREATORS_SEEN','REACTIVATED','ACTIVE'].includes(o.state);
+    const ot = o.op_type || 'WATCHTOWER';
+    const otBadge = ot === 'MICRO_DEPLOYER'
+      ? '<span class="ot-badge md" title="Micro-deployer — mass token operator">MD</span>'
+      : '<span class="ot-badge wt" title="WATCHTOWER — single-use creator operation">WT</span>';
+    return `<div class="opcard ${live?'live':''}" onclick="goOp('${o.operation_uuid}')">
+      <div class="opcard-top"><span class="uuid">${otBadge} ${shortOp(o.operation_uuid)}</span><span class="state ${o.state}">${o.state}</span></div>
+      <div class="treasury">${short(o.treasury_root)}</div>
+      <div class="opcard-stats">
+        <div class="opstat"><div class="v">${o.collectors}</div><div class="l">Collectors</div></div>
+        <div class="opstat cand"><div class="v">${o.candidates}</div><div class="l">Candidates</div></div>
+        <div class="opstat"><div class="v">${o.migrated}</div><div class="l">Migrated</div></div>
+      </div>
+      <div class="opcard-foot">last activity ${ago(o.last_activity)||'—'} ago</div>
+    </div>`;
+  }).join('') || '<div class="muted">no operations yet</div>';
+
+  // feed
+  document.getElementById('feed').innerHTML = (d.feed||[]).slice(0,30).map(e=>{
+    const lbl=TYPE_LABEL[e.type]||e.type;
+    return `<div class="frow"><span class="ftime">${fmtTime(e.ts)}</span>
+      <span class="ftype ${e.type}">${lbl}</span>
+      <span style="flex:1"><span class="fop" onclick="goOp('${e.operation}')">${shortOp(e.operation)}</span>
+        ${e.wallet?` · <span class="mono muted">${short(e.wallet)}</span>`:''} <span class="muted">${e.detail||''}</span></span>
+      <span class="muted" style="font-size:10.5px">${ago(e.ts)} ago</span></div>`;
+  }).join('') || '<div class="frow muted">no activity yet</div>';
+}
+load();
+setInterval(load, 15000);
+</script>
+{% endblock %}

@@ -413,287 +413,6 @@ def _effective_budget(base: int) -> tuple[int, bool]:
     return min(base, left), left < base
 
 
-def run_treasury_fingerprint_job(quiet=False) -> dict:
-    """POST-MIGRATION treasury auto-promotion. For recent migrations, walk the creator's
-    lineage to its root and run the 3-signal treasury fingerprint. Strict pass →
-    auto-promote into wt_confirmed_treasuries + webhook. Near-miss → review. No human gate
-    (the fingerprint is well-defined). Cheap raw RPC only."""
-    import urllib.request as _u, json as _j
-    started = int(time.time())
-    key = os.environ.get("HELIUS_API_KEY", "")
-    rpc_url = os.environ.get("HELIUS_RPC_URL", f"https://mainnet.helius-rpc.com/?api-key={key}")
-    calls = [0]
-
-    def _rpc(method, params):
-        calls[0] += 1
-        body = _j.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode()
-        try:
-            req = _u.Request(rpc_url, data=body, headers={"Content-Type": "application/json"})
-            return _j.loads(_u.urlopen(req, timeout=15).read()).get("result")
-        except Exception:
-            return None
-
-    AMM = {"pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA", "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"}
-    PUMP = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
-
-    def _raw_txs(addr):
-        sigs = _rpc("getSignaturesForAddress", [addr, {"limit": 40}]) or []
-        out = []
-        for s in sigs[:40]:
-            if s.get("err"):
-                continue
-            tx = _rpc("getTransaction", [s["signature"], {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
-            if not tx:
-                continue
-            meta = tx.get("meta") or {}
-            msg = tx.get("transaction", {}).get("message", {})
-            keys = [k.get("pubkey") if isinstance(k, dict) else k for k in msg.get("accountKeys", [])]
-            progs = {ix.get("programId") for ix in msg.get("instructions", []) if ix.get("programId")}
-            ttype = "SWAP" if (progs & AMM or PUMP in progs) else "TRANSFER"
-            pre, post = meta.get("preBalances") or [], meta.get("postBalances") or []
-            nts = []
-            if addr in keys and len(pre) == len(keys):
-                ai = keys.index(addr); fee = meta.get("fee", 0) or 0
-                if pre[ai] - post[ai] - (fee if ai == 0 else 0) > 0:
-                    for j, k in enumerate(keys):
-                        if j != ai and post[j] - pre[j] > 0:
-                            nts.append({"fromUserAccount": addr, "toUserAccount": k, "amount": post[j] - pre[j]})
-            out.append({"type": ttype, "nativeTransfers": nts,
-                        "timestamp": s.get("blockTime") or tx.get("blockTime", 0)})
-        return out
-
-    def _funders(addr):
-        """WRAP-CLOSE-AWARE funder walk. The naive 'biggest inbound transfer' FAILS on the
-        WATCHTOWER structure: a creator/subprov is funded via a WSOL wrap→close cycle through a
-        single-use wrap wallet, so the biggest plain transfer is the dev-buy/trading inflow,
-        NOT the provisioning edge. This wandered off and never reached the treasury (0
-        ALREADY_CONFIRMED). FIX: if the funding tx is a wrap-close, the REAL funder is the
-        subprov (the closeAccount lineage source), not the wrap wallet. Prefer wrap-close
-        funders; fall back to plain-transfer only if no wrap-close found."""
-        from src.core.wrap_close_detector import detect_wrap_close
-        from collections import defaultdict as _dd
-        # PAGINATE deep — a treasury→subprov funding is a one-time LARGE plain transfer that's
-        # often OLD (busy subprovs bury it under newer wrap-closes/sweeps). Verified: 43PKjr →
-        # 8aBvMmr was 600 SOL plain transfer, outside a 40-sig window. Page back up to ~150 txs.
-        all_sigs = []
-        before = None
-        for _ in range(4):
-            params = [addr, {"limit": 50}]
-            if before:
-                params[1]["before"] = before
-            batch = _rpc("getSignaturesForAddress", params) or []
-            if not batch:
-                break
-            all_sigs += batch
-            before = batch[-1].get("signature")
-            if len(batch) < 50:
-                break
-        wrap_funders = []                 # (subprov, amount) — TRUE creator-provisioning edge
-        plain_totals = _dd(float)         # sender -> TOTAL SOL into addr (treasury = biggest)
-        for s in all_sigs:
-            if s.get("err"):
-                continue
-            tx = _rpc("getTransaction", [s["signature"], {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
-            if not tx:
-                continue
-            # 1. WRAP-CLOSE funding (addr = closeAccount destination) → subprov is the funder
-            try:
-                ext = detect_wrap_close(tx)
-            except Exception:
-                ext = None
-            if ext and ext.get("creator") == addr and ext.get("subprov"):
-                wrap_funders.append((ext["subprov"], ext.get("base_amount_sol") or 0.0))
-                continue
-            # 2. plain transfer INTO addr — accumulate per sender (treasury→subprov is the LARGEST)
-            meta = tx.get("meta") or {}; msg = tx.get("transaction", {}).get("message", {})
-            keys = [k.get("pubkey") if isinstance(k, dict) else k for k in msg.get("accountKeys", [])]
-            pre, post = meta.get("preBalances") or [], meta.get("postBalances") or []
-            if addr not in keys or len(pre) != len(keys):
-                continue
-            ai = keys.index(addr)
-            if post[ai] - pre[ai] > 0.05:
-                debs = [(keys[j], pre[j] - post[j]) for j in range(len(keys)) if j != ai and pre[j] - post[j] > 0.05]
-                if debs:
-                    f = max(debs, key=lambda x: x[1])
-                    plain_totals[f[0]] += f[1] / 1e9
-        # PREFER wrap-close funders. Else the biggest plain-transfer funder (treasury sends
-        # one large lump → it dominates the total, beating noise/sweeps).
-        if wrap_funders:
-            # Tag the closure so score_token() can detect wrap-close lineage at hop-0
-            _funders._last_wrap_close_subprov = addr
-            _funders._last_wrap_close_amount = wrap_funders[0][1]
-            return sorted(wrap_funders, key=lambda x: -x[1])
-        return sorted(plain_totals.items(), key=lambda x: -x[1])
-
-    promoted, reviewed, rejected = [], 0, 0
-    # Validation: track total DB-open time vs total wall time to measure lock-hold reduction.
-    _db_open_intervals = []   # list of (open_ts, close_ts) pairs
-    def _open_conn():
-        """Open a fresh short-lived ops DB connection. raw sqlite3 (isolation_level=None =
-        autocommit) so each statement is its own transaction — no read snapshot held between
-        statements. busy_timeout=30s absorbs brief contention from other writers."""
-        import sqlite3 as _sq_sched
-        _t = time.time()
-        c = _sq_sched.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
-        c.execute("PRAGMA busy_timeout=30000")
-        _db_open_intervals.append([_t, None])   # None = still open
-        return c
-    def _close_conn(c):
-        """Close and record hold duration."""
-        if c:
-            try:
-                c.close()
-            except Exception:
-                pass
-        if _db_open_intervals and _db_open_intervals[-1][1] is None:
-            _db_open_intervals[-1][1] = time.time()
-
-    try:
-        from src.core import treasury_bank
-        from src.utils.db_locking import db_connect
-        live = db_connect(os.path.join(os.path.dirname(OPS_DB_PATH), "flex_complete_database.db"), timeout=20)
-
-        # ── PHASE A: reads only (no RPC) — short-lived conn, close before any RPC work ──
-        # already-fingerprinted — don't redo. A creator is "done" if it (or its lineage) was
-        # logged either as the decision wallet OR as the source_migration of a decision.
-        conn = _open_conn()
-        treasury_bank.ensure_schema(conn)
-        done = set()
-        for r in conn.execute(
-            "SELECT wallet, source_migration FROM wt_treasury_fingerprint_decisions").fetchall():
-            if r[0]: done.add(r[0])
-            if r[1]: done.add(r[1])
-        # recently-migrated creators with known funding (live DB), newest first.
-        # EXCLUDE serial deployers: the WATCHTOWER pattern uses FRESH single-use creators
-        # (one creator → one token → discarded). A creator with >1 token in token_analysis
-        # is a serial deployer, NOT a WATCHTOWER creator — the exact false-positive class.
-        # This is computed from LOCAL token_analysis only (zero RPC) and cuts the candidate
-        # set ~45% while removing noise.
-        cand = [r[0] for r in live.execute(
-            "SELECT cw FROM ("
-            "  SELECT COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) cw, MAX(ta.migrated_at) last_mig "
-            "  FROM token_analysis ta "
-            "  WHERE COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator) IS NOT NULL "
-            "  GROUP BY cw "
-            "  HAVING COUNT(*) <= 1 "                                    # single-token creators only
-            "    AND MAX(ta.migrated_at) IS NOT NULL "
-            "    AND MAX(ta.migrated_at) > strftime('%s','now')-259200 "  # migrated in last 3 days
-            "    AND cw IN (SELECT creator_address FROM creator_funders) "
-            ") ORDER BY last_mig DESC LIMIT 200").fetchall()]
-        # process the first 25 NEW (not-yet-fingerprinted) ones this cycle; the rest next cycle
-        creators = [c for c in cand if c and c not in done][:25]
-        _close_conn(conn); conn = None   # ← release before any RPC
-
-        # ── PHASE B: ONE-SHOT rescore (sentinel-gated — runs at most once ever) ──
-        # Re-scores prior fingerprint candidates with the fixed raw-tx ping logic. The
-        # webhook-blind ping bug forced every near-miss to ping=0, so strong treasuries were stuck
-        # at 2/3 (some human-rejected on the broken signal).
-        _resc_sentinel = os.path.join(os.path.dirname(__file__), "../../logs/.treasury_rescore_done")
-        if not os.path.exists(_resc_sentinel):
-            try:
-                # rescore_decided_candidates internally opens the conn it receives for reads+writes.
-                # Open a fresh conn for the entire rescore pass (it's bounded to 40 candidates,
-                # each requiring RPC + a write — the hold is short relative to the 25-creator loop).
-                conn = _open_conn()
-                rs = treasury_bank.rescore_decided_candidates(conn, _raw_txs, max_candidates=40)
-                _close_conn(conn); conn = None
-                print(f"[SCHED] treasury rescore: checked={rs['checked']} now_ready_3of3={rs['now_ready_3of3']} "
-                      f"still_near={rs['still_near_miss']}", flush=True)
-                for addr, out_sol, pings in rs.get("ready", []):
-                    print(f"[SCHED]   READY 3/3: {addr[:12]}… out={out_sol}◎ pings={pings}", flush=True)
-                with open(_resc_sentinel, "w") as _f:
-                    _f.write(str(int(time.time())))
-            except Exception as e:
-                if conn is not None:
-                    _close_conn(conn); conn = None
-                print(f"[SCHED] treasury rescore failed: {e}", flush=True)
-
-        # ── PHASE C: per-creator evaluation — fresh conn per creator, closed between creators ──
-        # evaluate_lineage_root interleaves DB reads with RPC calls then writes a single decision
-        # at the end. A per-creator conn means the max hold per conn is one creator's evaluation
-        # (~5–20s of RPC), not the full 25-creator cycle (~230s). The ops DB is free between
-        # creators so the cascade and forward-monitor can write without contention.
-        for cw in creators:
-            if calls[0] > 800:               # RPC safety cap for one cycle
-                break
-            conn = _open_conn()
-            try:
-                res = treasury_bank.evaluate_lineage_root(conn, live, cw, _funders, _raw_txs)
-            finally:
-                _close_conn(conn); conn = None   # ← always release after each creator
-            # evaluate_lineage_root now ALWAYS logs a decision against the creator
-            # (CONFIRMED/REVIEW/REJECT/NO_ROOT/ALREADY_CONFIRMED), so cw is marked done and
-            # won't be re-checked next cycle — the loop processes NEW creators each run.
-            if not res:
-                continue
-            v = res.get("verdict")
-            if v == "CONFIRMED" and res.get("needs_webhook"):
-                promoted.append(res["treasury"])
-            elif v == "REVIEW":
-                reviewed += 1
-            elif v == "REJECT":
-                rejected += 1
-
-        live.close()
-
-        # Validation: compute total DB hold time vs wall time for this cycle.
-        _wall = time.time() - started
-        _hold = sum((iv[1] or time.time()) - iv[0] for iv in _db_open_intervals)
-        _pct = round(100 * _hold / _wall, 1) if _wall > 0 else 0
-        print(f"[SCHED][TREASURY_FP] conn_hold={round(_hold,1)}s wall={round(_wall,1)}s "
-              f"hold_pct={_pct}% opens={len(_db_open_intervals)}", flush=True)
-
-        # POST-MIGRATION LAUNCH BACKFILL: walk recent migrations backward; any whose lineage
-        # reaches a known WATCHTOWER treasury is RECORDED as a launch (wt_watchtower_launches is
-        # otherwise live-cascade-only, so a token missed live never surfaces on /ops/tokens). This
-        # is ATTRIBUTION from the proven migration, distinct from real-time DETECTION.
-        try:
-            from src.core import watchtower_backfill as _bf
-            def _get_sigs(addr, limit=20):
-                return _rpc("getSignaturesForAddress", [addr, {"limit": limit}])
-            def _get_tx(sig):
-                return _rpc("getTransaction", [sig, {"encoding": "jsonParsed",
-                                                     "maxSupportedTransactionVersion": 0}])
-            _bres = _bf.backfill_recent_migrations(
-                raw_txs_fn=_raw_txs, funder_walk_fn=_funders,
-                get_tx_fn=_get_tx, get_sigs_fn=_get_sigs)
-            if not quiet and (_bres.get("recorded") or _bres.get("checked")):
-                print(f"[SCHED][BACKFILL] checked={_bres['checked']} recorded={_bres['recorded']}"
-                      + (f" → {[m[:10] for m,_ in _bres.get('details',[])]}" if _bres.get('recorded') else ""))
-        except Exception as _be:
-            if not quiet:
-                print(f"[SCHED][BACKFILL] error: {_be}")
-        # auto-webhook the newly promoted treasuries (live-DB key, in this process)
-        if promoted:
-            try:
-                import asyncio as _a
-                from src.analysis.webhook_manager import WebhookManager, INFRA_ROLE
-                loop = _a.new_event_loop()
-                mgr = WebhookManager(os.path.join(os.path.dirname(OPS_DB_PATH), "flex_complete_database.db"))
-                loop.run_until_complete(mgr.enroll_batch(promoted, role=INFRA_ROLE, notes="auto-fingerprint confirmed treasury"))
-                loop.close()
-                # update the audit ledger's webhook_status for each promoted treasury
-                from src.utils.db_locking import db_connect as _dbc
-                _c = _dbc(OPS_DB_PATH, timeout=20)
-                for _t in promoted:
-                    treasury_bank.mark_webhooked(_c, _t, ok=True)
-                _c.close()
-            except Exception as exc:
-                if not quiet:
-                    print(f"[SCHED][TREASURY_FP] webhook of promoted failed: {exc}")
-        s = {"promoted": len(promoted), "reviewed": reviewed, "rejected": rejected, "rpc": calls[0],
-             "runtime_s": round(time.time() - started, 1)}
-        _log_run("TREASURY_FP", started, s, "OK", None, 800, False)
-        if not quiet and (promoted or reviewed):
-            print(f"[SCHED][TREASURY_FP] OK promoted={len(promoted)} review={reviewed} reject={rejected} rpc={calls[0]}"
-                  + (f" → {[p[:10] for p in promoted]}" if promoted else ""))
-        return {"status": "OK", "summary": s}
-    except Exception as exc:
-        if not quiet:
-            print(f"[SCHED][TREASURY_FP] error: {type(exc).__name__}: {exc}")
-        return {"status": "ERROR", "error": str(exc)}
-
-
 def run_subprov_discovery_job(quiet=False) -> dict:
     """SUBPROV DISCOVERY — surfaces sub-provisioners (and thus UNKNOWN treasuries) from EVERY
     recent migration, bypassing the creator_funders extraction dependency (which lags/gaps on
@@ -749,6 +468,15 @@ def run_subprov_discovery_job(quiet=False) -> dict:
             except Exception:
                 pass
         confirmed = {r[0] for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        # Sync treasury_known flag — backfill any rows where treasury was confirmed after discovery
+        try:
+            _sync = conn.execute(
+                "UPDATE wt_discovered_subprovs SET treasury_known=1 "
+                "WHERE treasury_known=0 AND treasury IN (SELECT treasury FROM wt_confirmed_treasuries)")
+            if _sync.rowcount:
+                conn.commit()
+        except Exception:
+            pass
         done = {r[0] for r in conn.execute("SELECT creator FROM wt_subprov_discovery_checked").fetchall()}
         # EVERY recent migration's creator (NO creator_funders filter, NO single-token filter)
         cands = [r[0] for r in live.execute(
@@ -913,6 +641,28 @@ def run_subprov_discovery_job(quiet=False) -> dict:
                             _t_to_webhook.append(t_unconfirmed_funder)
                     except Exception as _ace:
                         print(f"[SCHED][SUBPROV] auto-confirm error: {_ace}", flush=True)
+
+                # WT_LIKE: wrap-close confirmed but treasury still unknown → tag the token
+                if not t_known and subprov and creator:
+                    try:
+                        _mint_row = live.execute(
+                            "SELECT mint FROM token_analysis "
+                            "WHERE earliest_tx_creator=? OR pf_ws_creator=? LIMIT 1",
+                            (creator, creator)).fetchone()
+                        if _mint_row:
+                            from src.core import watchtower_attribution as _wa
+                            _wa.ensure_schema(conn)
+                            _now = int(time.time())
+                            conn.execute(
+                                "INSERT OR IGNORE INTO wt_unconfirmed_watchtower_like "
+                                "(mint, subprov_wallet, unknown_root_wallet, root_hop, amount_sol, status, first_seen, last_seen) "
+                                "VALUES (?,?,?,?,?,?,?,?)",
+                                (_mint_row[0], subprov, t_unconfirmed_funder or subprov,
+                                 1, None, 'REVIEW', _now, _now))
+                            print(f"[SCHED][SUBPROV] 🔶 WT_LIKE {_mint_row[0][:12]}… "
+                                  f"subprov={subprov[:10]}… root={t_unconfirmed_funder[:10] if t_unconfirmed_funder else '?'}…")
+                    except Exception as _uwle:
+                        print(f"[SCHED][SUBPROV] WT_LIKE write error: {_uwle}", flush=True)
 
                 # COMMIT PER CREATOR — do NOT hold one transaction open across the whole
                 # RPC-heavy loop. An open read+write txn pins the ops-db WAL for the loop's full
@@ -1118,16 +868,6 @@ def loop(quiet=False):
                           f"rpc={su.get('rpc_calls',0)} pressure={_level}({_score})")
                 _sched_state["scheduler_runtime_ms"] = int((time.time() - _t0) * 1000)
                 _log_success("INTAKE")
-                # POST-MIGRATION treasury auto-promotion
-                try:
-                    if not quiet:
-                        print(f"[SCHED][TREASURY_FP] START {int(time.time())}", flush=True)
-                    run_treasury_fingerprint_job(quiet=quiet)
-                    if not quiet:
-                        print(f"[SCHED][TREASURY_FP] END {int(time.time())}", flush=True)
-                except Exception as _tf:
-                    if not quiet:
-                        print(f"[SCHED][TREASURY_FP] error: {_tf}")
                 # SUBPROV DISCOVERY
                 try:
                     if not quiet:

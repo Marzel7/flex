@@ -1,0 +1,390 @@
+{% extends "base_shell.html" %}
+{% block title %}WATCHTOWER — Dust Observatory{% endblock %}
+
+{% block extra_styles %}
+:root {
+  /* Use base_shell vars where possible; only define what base_shell doesn't provide */
+  --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:var(--text-primary, #e6edf3); --text-sec:var(--text-secondary, #7a8899); --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:var(--accent-cyan, #22d3ee); --purple:#a78bfa;
+  --red:#f85149; --yellow:#eab308; --dust:#f59e0b;
+}
+.ob-wrap { padding:20px 26px; color:var(--text-pri); max-width:1500px; }
+.ob-h { display:flex; align-items:baseline; gap:12px; margin-bottom:2px; }
+.ob-h h1 { font-size:21px; margin:0; }
+.ob-sub { color:var(--text-sec); font-size:12px; margin-bottom:16px; }
+
+/* hero cards */
+.hero-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:11px; margin-bottom:18px; }
+.hcard { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:13px 15px; }
+.hcard .v { font-size:24px; font-weight:800; line-height:1; }
+.hcard .l { font-size:9.5px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; margin-top:5px; }
+.hcard.go .v{color:var(--green)} .hcard.yl .v{color:var(--dust)} .hcard.cy .v{color:var(--cyan)} .hcard.pu .v{color:var(--purple)}
+
+/* panels */
+.sec-h { font-size:14px; font-weight:700; margin:6px 0 9px; display:flex; align-items:center; gap:8px; }
+.sec-h .hint { font-size:11px; color:var(--text-dim); font-weight:400; }
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:18px; }
+.panel-head { padding:11px 15px; border-bottom:1px solid var(--border); font-size:12px; font-weight:700; display:flex; align-items:center; gap:8px; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:9px 13px; color:var(--text-sec); font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:9px 13px; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--bg-card2); }
+.addr { color:var(--cyan); font-family:ui-monospace,monospace; cursor:pointer; font-size:11px; }
+.addr:hover { text-decoration:underline; }
+.muted { color:var(--text-dim); }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+
+/* role badge */
+.role-badge { display:inline-block; padding:2px 8px; border-radius:5px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; }
+.rb-TREASURY       { background:rgba(234,179,8,.18); color:var(--yellow); }
+.rb-TREASURY_MESH  { background:rgba(234,179,8,.12); color:var(--yellow); }
+.rb-CAPITAL_RELAY  { background:rgba(167,139,250,.18); color:var(--purple); }
+.rb-SUBPROV        { background:rgba(34,211,238,.18); color:var(--cyan); }
+.rb-BUY_SWARM      { background:rgba(248,81,73,.18); color:var(--red); }
+.rb-PROVISION_CANDIDATE { background:rgba(63,185,80,.18); color:var(--green); }
+.rb-PROFIT_RELAY   { background:rgba(217,119,6,.18); color:var(--amber); }
+.rb-CREATOR        { background:rgba(63,185,80,.18); color:var(--green); }
+.rb-UNKNOWN        { background:rgba(110,118,129,.12); color:var(--text-dim); }
+
+/* role bar chart */
+.role-bar-wrap { display:flex; flex-direction:column; gap:4px; min-width:160px; }
+.role-bar-row { display:flex; align-items:center; gap:7px; font-size:10.5px; }
+.role-bar-label { min-width:100px; color:var(--text-sec); }
+.role-bar-track { flex:1; background:var(--bg-card2); border-radius:3px; overflow:hidden; height:6px; }
+.role-bar-fill  { height:100%; border-radius:3px; background:var(--cyan); }
+.role-bar-pct   { min-width:32px; text-align:right; color:var(--text-dim); font-size:10px; }
+
+/* specialisation grid */
+.spec-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; padding:14px; }
+.spec-card { background:var(--bg-card2); border:1px solid var(--border2); border-radius:8px; padding:11px 13px; }
+.spec-card .sc-addr { font-family:ui-monospace,monospace; font-size:10.5px; color:var(--cyan); margin-bottom:8px; }
+.spec-card .sc-row  { display:flex; justify-content:space-between; font-size:10.5px; padding:2px 0; }
+.spec-card .sc-role { color:var(--text-sec); }
+.spec-card .sc-pct  { color:var(--text-pri); font-weight:700; }
+
+/* lag table */
+.lag-row { display:grid; grid-template-columns:160px 60px 60px; gap:8px; padding:5px 14px; font-size:11px; border-bottom:1px solid rgba(33,38,45,.6); align-items:center; }
+.lag-row:last-child { border-bottom:none; }
+.lag-label { color:var(--text-sec); }
+.lag-avg   { color:var(--cyan); font-weight:700; font-variant-numeric:tabular-nums; }
+.lag-n     { color:var(--text-dim); font-size:10px; }
+
+/* transition flow */
+.flow-wrap { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:14px; font-size:11px; }
+.flow-node { background:var(--bg-card2); border:1px solid var(--border2); border-radius:7px; padding:6px 12px; }
+.flow-arrow { color:var(--text-dim); font-size:16px; }
+
+/* detail panel */
+#detail-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:100; justify-content:center; align-items:flex-start; padding-top:60px; }
+#detail-overlay.show { display:flex; }
+#detail-box { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; width:640px; max-height:80vh; overflow-y:auto; padding:20px; position:relative; }
+#detail-box .db-close { position:absolute; top:12px; right:14px; cursor:pointer; color:var(--text-dim); font-size:18px; }
+#detail-box .db-h { font-size:14px; font-weight:700; margin-bottom:14px; }
+.lifecycle-step { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+.ls-dot { width:10px; height:10px; border-radius:50%; background:var(--cyan); flex-shrink:0; margin-top:3px; }
+.ls-dot.unk { background:var(--text-dim); }
+.ls-body { font-size:11px; }
+.ls-label { font-weight:700; color:var(--text-pri); }
+.ls-time  { color:var(--text-dim); margin-left:6px; }
+
+.refresh-btn { font-size:11px; padding:5px 11px; border-radius:7px; border:1px solid var(--border2); background:transparent; color:var(--text-sec); cursor:pointer; }
+.refresh-btn:hover { border-color:var(--cyan); color:var(--cyan); }
+{% endblock %}
+
+{% block content %}
+<div class="ob-wrap">
+  <div class="ob-h">
+    <h1>DUST OBSERVATORY</h1>
+    <span class="muted" style="font-size:11px">intelligence layer</span>
+    <button class="refresh-btn" onclick="load()">↻ refresh</button>
+    <span id="last-refresh" style="font-size:10px;color:var(--text-dim)"></span>
+  </div>
+  <div class="ob-sub">Longitudinal intelligence dataset — observes DUST_MARKER wallets and tracks how their recipients evolve into known WATCHTOWER roles over time. Read-only: no detection influence, no classification changes, no RPC in UI path.</div>
+
+  <div id="hero" class="hero-grid"></div>
+
+  <div class="sec-h">Known Dust Marker Wallets <span class="hint">one logsSubscribe each · permanent · low-activity</span></div>
+  <div id="markers-panel" class="panel"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div>
+      <div class="sec-h">Role Transition Statistics <span class="hint">no RPC · derived from WATCHTOWER tables</span></div>
+      <div id="transition-panel" class="panel"></div>
+    </div>
+    <div>
+      <div class="sec-h">Detection Lag <span class="hint">hours from first dust → role confirmed</span></div>
+      <div id="lag-panel" class="panel"></div>
+    </div>
+  </div>
+
+  <div class="sec-h">Observed Recipients <span class="hint">wallets dusted by a marker · click row for lifecycle detail</span></div>
+  <div id="recipients-panel" class="panel"></div>
+
+  <div class="sec-h">Per-Wallet Specialisation <span class="hint">which roles each dust wallet predominantly marks</span></div>
+  <div id="spec-panel" class="panel"></div>
+
+  <div class="sec-h">Intelligence Summary <span class="hint">longitudinal dataset — grows over months</span></div>
+  <div id="intel-panel" class="panel"></div>
+</div>
+
+<!-- recipient detail overlay -->
+<div id="detail-overlay">
+  <div id="detail-box">
+    <span class="db-close" onclick="closeDetail()">✕</span>
+    <div class="db-h" id="detail-title">Recipient Lifecycle</div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ROLE_COLORS = {
+  TREASURY: '#eab308', TREASURY_MESH: '#ca8a04',
+  CAPITAL_RELAY: '#a78bfa', SUBPROV: '#22d3ee',
+  BUY_SWARM: '#f85149', PROVISION_CANDIDATE: '#3fb950',
+  PROFIT_RELAY: '#d97706', CREATOR: '#4ade80', UNKNOWN: '#6e7681'
+};
+
+function ago(ts) {
+  if (!ts) return '—';
+  const s = Math.round(Date.now()/1000 - ts);
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+function shortAddr(a) { return a ? a.slice(0,8)+'…' : '—'; }
+function roleBadge(r) {
+  return `<span class="role-badge rb-${r||'UNKNOWN'}">${(r||'UNKNOWN').replace('_',' ')}</span>`;
+}
+
+function roleBar(dist, total) {
+  if (!dist || !dist.length) return '<span class="muted">no data</span>';
+  const rows = dist.map(d => {
+    const pct = total > 0 ? Math.round(100*d.count/total) : 0;
+    const col = ROLE_COLORS[d.role] || '#6e7681';
+    return `<div class="role-bar-row">
+      <span class="role-bar-label">${d.role.replace('_',' ')}</span>
+      <div class="role-bar-track"><div class="role-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <span class="role-bar-pct">${pct}%</span>
+    </div>`;
+  });
+  return `<div class="role-bar-wrap">${rows.join('')}</div>`;
+}
+
+async function load() {
+  const r = await fetch('/api/ops-v2/dust-observatory').then(r=>r.json()).catch(()=>({}));
+  if (!r.ok) { document.getElementById('hero').innerHTML='<span class="muted">error loading data</span>'; return; }
+
+  const intel = r.intel || {};
+  const stats  = r.stats  || {};
+  const markers= r.markers || [];
+
+  // Hero cards
+  document.getElementById('hero').innerHTML = `
+    <div class="hcard yl"><div class="v">${markers.length}</div><div class="l">Dust Markers</div></div>
+    <div class="hcard cy"><div class="v">${intel.total_observations||0}</div><div class="l">Total Observations</div></div>
+    <div class="hcard go"><div class="v">${intel.total_recipients||0}</div><div class="l">Unique Recipients</div></div>
+    <div class="hcard pu"><div class="v">${intel.classified_pct||0}%</div><div class="l">Classified</div></div>
+  `;
+
+  // Markers table
+  const mRows = markers.map(m => {
+    const total = m.total_observations;
+    return `<tr>
+      <td><span class="addr" onclick="copyAddr('${m.wallet}')" title="${m.wallet}">${shortAddr(m.wallet)}</span>
+          ${m.label ? `<span class="muted" style="font-size:9.5px;margin-left:5px">${m.label}</span>` : ''}</td>
+      <td>${m.associated_treasury ? `<span class="addr" title="${m.associated_treasury}">${shortAddr(m.associated_treasury)}</span>` : '<span class="muted">—</span>'}</td>
+      <td class="num">${total}</td>
+      <td class="num">${m.unique_recipients}</td>
+      <td class="num" style="color:var(--cyan)">${m.active_recipients_24h}</td>
+      <td class="num">${m.today_count}</td>
+      <td>${m.first_seen ? ago(m.first_seen) : '<span class="muted">—</span>'}</td>
+      <td>${m.last_seen  ? ago(m.last_seen)  : '<span class="muted">—</span>'}</td>
+      <td>${roleBar(m.role_distribution, total)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('markers-panel').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Wallet</th><th>Treasury</th><th class="num">Obs</th>
+        <th class="num">Recipients</th><th class="num">Active 24h</th>
+        <th class="num">Today</th><th>First Seen</th><th>Last Seen</th>
+        <th>Role Distribution</th>
+      </tr></thead>
+      <tbody>${mRows || '<tr><td colspan="9" class="muted" style="padding:20px;text-align:center">No observations yet — waiting for dust wallet activity</td></tr>'}</tbody>
+    </table>`;
+
+  // Role transition stats
+  const roles = stats.role_counts || {};
+  const total_rec = intel.total_recipients || 1;
+  const transRows = Object.entries(roles).sort((a,b)=>b[1]-a[1]).map(([role, cnt]) => {
+    const pct = Math.round(100*cnt/total_rec);
+    const col = ROLE_COLORS[role] || '#6e7681';
+    return `<div class="lag-row">
+      <div class="lag-label">${roleBadge(role)}</div>
+      <div class="lag-avg" style="color:${col}">${cnt}</div>
+      <div class="lag-n">${pct}%</div>
+    </div>`;
+  }).join('');
+  document.getElementById('transition-panel').innerHTML =
+    `<div class="panel-head">Recipients by Current Role</div>
+     ${transRows || '<div class="muted" style="padding:14px">No recipients classified yet</div>'}`;
+
+  // Lag stats
+  const lags = stats.lag_hours || {};
+  const lagRows = [
+    ['dust → treasury', lags.dust_to_treasury],
+    ['dust → CDC',      lags.dust_to_cdc],
+    ['dust → subprov',  lags.dust_to_subprov],
+    ['dust → creator',  lags.dust_to_creator],
+  ].map(([label, d]) => {
+    const avg = d && d.avg ? d.avg + 'h' : '—';
+    const n   = d && d.n   ? d.n + ' samples' : '0 samples';
+    return `<div class="lag-row">
+      <div class="lag-label">${label}</div>
+      <div class="lag-avg">${avg}</div>
+      <div class="lag-n">${n}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('lag-panel').innerHTML =
+    `<div class="panel-head">Average Hours from First Dust to Role Confirmation</div>${lagRows}`;
+
+  // Recipients table
+  const recipients = r.recipients || [];
+  const recRows = recipients.map(rec => {
+    const lagStr = v => v != null ? (v < 0.1 ? '<1m' : v.toFixed(1)+'h') : '<span class="muted">—</span>';
+    return `<tr style="cursor:pointer" onclick="showRecipient('${rec.recipient_wallet}')">
+      <td><span class="addr" title="${rec.recipient_wallet}">${shortAddr(rec.recipient_wallet)}</span></td>
+      <td>${roleBadge(rec.current_role)}</td>
+      <td><span style="font-size:10px;color:var(--text-dim)">${rec.role_confidence||'—'}</span></td>
+      <td><span class="addr" style="font-size:10px" title="${rec.first_dust_wallet||''}">${rec.first_dust_wallet ? shortAddr(rec.first_dust_wallet) : '<span class="muted">—</span>'}</span></td>
+      <td class="num">${rec.dust_count||0}</td>
+      <td class="num">${lagStr(rec.hours_dust_to_subprov)}</td>
+      <td class="num">${lagStr(rec.hours_dust_to_treasury)}</td>
+      <td class="muted" style="font-size:10px">${rec.first_dust_at ? ago(rec.first_dust_at) : '—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('recipients-panel').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Recipient</th><th>Current Role</th><th>Confidence</th>
+        <th>Marker Wallet</th><th class="num">Dust Count</th>
+        <th class="num">→ Subprov</th><th class="num">→ Treasury</th><th>First Dusted</th>
+      </tr></thead>
+      <tbody>${recRows || '<tr><td colspan="8" class="muted" style="padding:20px;text-align:center">No recipients observed yet</td></tr>'}</tbody>
+    </table>`;
+
+  // Specialisation
+  const spec = stats.specialisation_by_wallet || {};
+  const specCards = Object.entries(spec).map(([wallet_short, roles]) => {
+    const roleRows = roles.map(r =>
+      `<div class="sc-row"><span class="sc-role">${r.role.replace('_',' ')}</span><span class="sc-pct">${r.pct}%</span></div>`
+    ).join('');
+    return `<div class="spec-card">
+      <div class="sc-addr">${wallet_short}</div>
+      ${roleRows}
+    </div>`;
+  }).join('');
+  document.getElementById('spec-panel').innerHTML =
+    `<div class="spec-grid">${specCards || '<div class="muted" style="padding:14px">No specialisation data yet</div>'}</div>`;
+
+  // Intelligence summary
+  const breakdown = intel.role_breakdown || [];
+  const breakRows = breakdown.map(b =>
+    `<tr><td>${roleBadge(b.role)}</td><td class="num">${b.count}</td><td class="num">${b.pct}%</td></tr>`
+  ).join('');
+  const new7d = (intel.new_roles_7d || []).map(r =>
+    `<span class="role-badge rb-${r.role}" style="margin-right:4px">${r.role.replace('_',' ')} +${r.count}</span>`
+  ).join('');
+  document.getElementById('intel-panel').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border)">
+      <div style="padding:14px;border-right:1px solid var(--border)">
+        <div class="panel-head" style="padding:0 0 10px">Role Breakdown</div>
+        <table><thead><tr><th>Role</th><th class="num">Count</th><th class="num">%</th></tr></thead>
+        <tbody>${breakRows}</tbody></table>
+      </div>
+      <div style="padding:14px">
+        <div class="panel-head" style="padding:0 0 10px">New Role Detections — Last 7 Days</div>
+        ${new7d || '<div class="muted">No new detections in 7 days</div>'}
+        <div style="margin-top:16px;font-size:10.5px;color:var(--text-dim)">
+          This dataset grows longitudinally. In 6+ months it will reveal which dust wallets
+          specialise in marking treasury infrastructure vs relay nodes vs provisioners.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function showRecipient(wallet) {
+  document.getElementById('detail-title').textContent = 'Recipient: ' + wallet.slice(0,16) + '…';
+  document.getElementById('detail-body').innerHTML = '<span class="muted">loading…</span>';
+  document.getElementById('detail-overlay').classList.add('show');
+  const d = await fetch('/api/ops-v2/dust-observatory/recipient/' + wallet).then(r=>r.json()).catch(()=>null);
+  if (!d || d.error) {
+    document.getElementById('detail-body').innerHTML = '<span class="muted">not found</span>';
+    return;
+  }
+  const steps = [
+    ['First dusted',           d.first_dust_at, d.first_dust_wallet, false],
+    ['Treasury funded',        d.first_treasury_funded_at, null, false],
+    ['CDC detected',           d.first_cdc_detected_at, null, false],
+    ['Subprov detected',       d.first_subprov_detected_at, null, false],
+    ['Creator role confirmed', d.first_creator_funded_at, null, false],
+  ].map(([label, ts, extra, _]) => {
+    const has = !!ts;
+    return `<div class="lifecycle-step">
+      <div class="ls-dot ${has?'':'unk'}"></div>
+      <div class="ls-body">
+        <span class="ls-label">${label}</span>
+        ${has ? `<span class="ls-time">${ago(ts)}</span>` : '<span class="muted ls-time">not yet</span>'}
+        ${extra ? `<br><span class="addr" style="font-size:10px">${shortAddr(extra)}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const obsRows = (d.observations||[]).slice(0,10).map(o =>
+    `<tr>
+      <td><span class="addr" title="${o.dust_wallet}">${shortAddr(o.dust_wallet)}</span></td>
+      <td class="num">${o.amount_lamports}</td>
+      <td class="muted">${ago(o.observed_at)}</td>
+    </tr>`
+  ).join('');
+
+  document.getElementById('detail-body').innerHTML = `
+    <div style="margin-bottom:14px">${roleBadge(d.current_role)}<span class="muted" style="margin-left:8px;font-size:10.5px">${d.role_confidence}</span></div>
+    <div style="margin-bottom:14px">${steps}</div>
+    ${(d.observations||[]).length ? `
+    <div class="sec-h" style="margin-top:14px">Recent Dust Observations (${d.observations.length})</div>
+    <table><thead><tr><th>Dust Wallet</th><th class="num">Lamports</th><th>When</th></tr></thead>
+    <tbody>${obsRows}</tbody></table>` : ''}
+  `;
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('show');
+}
+
+function copyAddr(a) {
+  navigator.clipboard.writeText(a).catch(()=>{});
+}
+
+document.getElementById('detail-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeDetail();
+});
+
+function stampRefresh() {
+  const el = document.getElementById('last-refresh');
+  if (el) el.textContent = 'refreshed ' + new Date().toLocaleTimeString();
+}
+
+async function loadAndStamp() { await load(); stampRefresh(); }
+
+loadAndStamp();
+setInterval(loadAndStamp, 45000);
+</script>
+{% endblock %}

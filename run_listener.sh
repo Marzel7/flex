@@ -46,10 +46,5 @@ export LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED=1
 # means 2 attempts total (15s→2s max per sig) — reconciler backstop covers any misses.
 export LISTENER_DISCOVERY_RPC_CONCURRENCY=3
 export LISTENER_GETTX_RETRY_DELAYS=1
-while true; do
-    echo "[WATCHDOG] $(date -u +%Y-%m-%dT%H:%M:%SZ) Starting listener..."
-    python -u -m src.core.pumpfun_curve_listener
-    EXIT_CODE=$?
-    echo "[WATCHDOG] $(date -u +%Y-%m-%dT%H:%M:%SZ) Listener exited with code $EXIT_CODE — restarting in 10s..."
-    sleep 10
-done
+echo "[LISTENER] $(date -u +%Y-%m-%dT%H:%M:%SZ) Starting listener (exec — supervisord owns the Python process)..."
+exec python -u -m src.core.pumpfun_curve_listener

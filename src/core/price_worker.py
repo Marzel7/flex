@@ -13,6 +13,7 @@ Architecture:
 5. Store snapshots
 """
 
+import os
 import sqlite3
 from src.utils.db_locking import db_connect
 import logging
@@ -216,6 +217,12 @@ class PriceWorkerRegistry:
                 ON tracked_tokens(last_price_update ASC)
             """)
 
+            # tracking_reason: IGNORE|DISCOVERY|WATCH|OWNED|MANUAL — why is this token priced?
+            try:
+                cursor.execute("ALTER TABLE tracked_tokens ADD COLUMN tracking_reason TEXT")
+            except Exception:
+                pass  # column already exists
+
             conn.commit()
             logger.info("Tracked tokens registry initialized")
         finally:
@@ -223,8 +230,13 @@ class PriceWorkerRegistry:
                 conn.close()
 
     def register_token(self, mint: str, symbol: str = None,
-                      pair_address: str = None, priority_level: str = 'MEDIUM') -> bool:
-        """Register a token for price tracking."""
+                      pair_address: str = None, priority_level: str = 'MEDIUM',
+                      tracking_reason: str = None) -> bool:
+        """Register a token for price tracking.
+
+        tracking_reason: IGNORE|DISCOVERY|WATCH|OWNED|MANUAL — stored for dashboard visibility.
+        Priority only ever moves up (MEDIUM→HIGH), never down.
+        """
         conn = None
         try:
             conn = self._get_conn()
@@ -242,8 +254,9 @@ class PriceWorkerRegistry:
 
             cursor.execute("""
                 INSERT INTO tracked_tokens
-                (mint, symbol, pair_address, priority_level, last_price_update, is_active, created_at, updated_at)
-                VALUES (?, ?, ?, ?, 0, 1, ?, ?)
+                (mint, symbol, pair_address, priority_level, last_price_update, is_active,
+                 created_at, updated_at, tracking_reason)
+                VALUES (?, ?, ?, ?, 0, 1, ?, ?, ?)
                 ON CONFLICT(mint) DO UPDATE SET
                     symbol = COALESCE(excluded.symbol, tracked_tokens.symbol),
                     pair_address = COALESCE(excluded.pair_address, tracked_tokens.pair_address),
@@ -252,9 +265,13 @@ class PriceWorkerRegistry:
                             THEN tracked_tokens.priority_level
                         ELSE excluded.priority_level
                     END,
+                    tracking_reason = CASE
+                        WHEN excluded.tracking_reason IS NOT NULL THEN excluded.tracking_reason
+                        ELSE tracked_tokens.tracking_reason
+                    END,
                     is_active = 1,
                     updated_at = excluded.updated_at
-            """, (mint, symbol, pair_address, priority_level, now, now))
+            """, (mint, symbol, pair_address, priority_level, now, now, tracking_reason))
 
             conn.commit()
             return True
@@ -480,6 +497,12 @@ class BackgroundPriceWorker:
         self._pool_map_cache: dict = {}  # (mint, base_account) -> pool dict
         self._last_snapshot_price: dict = {}  # mint -> last price_usd written to snapshot
         self._pool_map_updated: float = 0
+
+        # Phase 2: snapshot eligibility cache
+        # mint -> (tracking_reason: str|None, created_at: int)
+        # Populated lazily on first price cycle for each mint; evicted when is_active flips.
+        self._snapshot_eligibility: dict = {}   # mint -> (reason, created_at)
+        self._snapshot_skip_logged: dict = {}   # mint -> last_log_ts (throttle 1 log / 5 min)
 
         # Snapshot retention cleanup — runs every hour
         self._last_cleanup_run: float = 0
@@ -926,7 +949,8 @@ class BackgroundPriceWorker:
             try:
                 token_price = self._snapshot_queue.get(timeout=5)
                 try:
-                    self.price_service._store_snapshot(token_price)
+                    if self.should_store_full_snapshot(token_price.mint, int(time.time())):
+                        self.price_service._store_snapshot(token_price)
                 except Exception as e:
                     logger.warning(f"[SNAPSHOT_DRAINER] write failed for {token_price.mint[:16]}: {e}")
                 finally:
@@ -1699,7 +1723,8 @@ class BackgroundPriceWorker:
                     )
                     overdue = (now - last_ts) >= 60
                     if price_changed or overdue:
-                        self.price_service._store_snapshot(token_price)
+                        if self.should_store_full_snapshot(mint, now):
+                            self.price_service._store_snapshot(token_price)
                         self._last_snapshot_price[mint] = (new_price, now)
                 except Exception as e:
                     logger.error(f"[PRICE_DEBUG] {mint[:16]}... ✗ snapshot store failed: {e}")
@@ -1768,10 +1793,9 @@ class BackgroundPriceWorker:
             _db_path = self.db_path
             def _run_cascade_sells():
                 try:
-                    import sqlite3 as _sq
                     from src.trading.simulation import process_cascade_sells, TradingSimulationService
-                    _conn = _sq.connect(_db_path, timeout=3)
-                    _conn.row_factory = _sq.Row
+                    from src.utils.db_locking import db_connect as _db_connect
+                    _conn = _db_connect(_db_path, timeout=3)
                     TradingSimulationService().ensure_schema(_conn)
                     n = process_cascade_sells(_conn, _cache_snapshot)
                     _conn.close()
@@ -1793,8 +1817,7 @@ class BackgroundPriceWorker:
         try:
             # Load or initialise in-memory state for this mint
             if mint not in self._peak_state:
-                import sqlite3 as _sq
-                conn = _sq.connect(self.db_path, timeout=5)
+                conn = db_connect(self.db_path, timeout=5)
                 row = conn.execute(
                     "SELECT raw_peak_mc, peak_market_cap, peak_market_cap_at "
                     "FROM token_market_cap_peaks WHERE mint = ?", (mint,)
@@ -1823,8 +1846,7 @@ class BackgroundPriceWorker:
 
             peak_iso = datetime.utcfromtimestamp(s['peak_at']).isoformat() + "Z" if s.get('peak_at') else None
 
-            import sqlite3 as _sq
-            conn = _sq.connect(self.db_path, timeout=5)
+            conn = db_connect(self.db_path, timeout=5)
             conn.execute("""
                 INSERT INTO token_market_cap_peaks
                     (mint, peak_market_cap, peak_market_cap_at,
@@ -1893,6 +1915,70 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.debug(f"Error fetching peak market cap for {mint}: {e}")
             return None
+
+    # How long DISCOVERY tokens receive full snapshots before dropping to peak-only.
+    # Override via PRICE_DISCOVERY_SNAPSHOT_WINDOW_SECS env var.
+    _DISCOVERY_SNAPSHOT_WINDOW_SECS: int = int(
+        os.environ.get("PRICE_DISCOVERY_SNAPSHOT_WINDOW_SECS", "3600")
+    )
+    # Set PRICE_DISCOVERY_PEAK_ONLY_ENABLED=0 to disable the gate entirely (instant rollback).
+    _DISCOVERY_PEAK_ONLY_ENABLED: bool = os.environ.get(
+        "PRICE_DISCOVERY_PEAK_ONLY_ENABLED", "1"
+    ) not in ("0", "false", "False", "no")
+
+    def should_store_full_snapshot(self, mint: str, now: int) -> bool:
+        """Return True if this mint should receive a full token_price_snapshots write.
+
+        OWNED / WATCH / MANUAL / None  → always True
+        DISCOVERY within first 60 min  → True
+        DISCOVERY after 60 min         → False (peak-only mode)
+
+        Gate disabled entirely by PRICE_DISCOVERY_PEAK_ONLY_ENABLED=0.
+        Window overrideable via PRICE_DISCOVERY_SNAPSHOT_WINDOW_SECS.
+        Result is cached per-mint after the first DB lookup; cache is never invalidated
+        mid-session (tracking_reason only moves up, never down).
+        """
+        entry = self._snapshot_eligibility.get(mint)
+        if entry is None:
+            # Lazy load from tracked_tokens — one DB read per new mint per process lifetime.
+            try:
+                conn = db_connect(self.db_path, timeout=5)
+                row = conn.execute(
+                    "SELECT tracking_reason, created_at FROM tracked_tokens WHERE mint = ? LIMIT 1",
+                    (mint,),
+                ).fetchone()
+                conn.close()
+                if row:
+                    entry = (row[0], int(row[1]) if row[1] else 0)
+                else:
+                    entry = (None, 0)
+            except Exception:
+                return True  # fail-open: never silently drop a snapshot on DB error
+            self._snapshot_eligibility[mint] = entry
+
+        reason, created_at = entry
+
+        # OWNED / WATCH / MANUAL / unknown — always write full snapshots.
+        if reason in (None, 'OWNED', 'WATCH', 'MANUAL'):
+            return True
+
+        # DISCOVERY: full snapshots only for the first 60 minutes (unless gate disabled).
+        if reason == 'DISCOVERY':
+            if not self._DISCOVERY_PEAK_ONLY_ENABLED:
+                return True
+            within_window = created_at > 0 and (now - created_at) < self._DISCOVERY_SNAPSHOT_WINDOW_SECS
+            if not within_window:
+                # Throttled log: at most once per 5 minutes per mint.
+                last_log = self._snapshot_skip_logged.get(mint, 0)
+                if now - last_log >= 300:
+                    logger.info(
+                        f"[PRICE_SNAPSHOT_SKIP] mint={mint[:16]}… reason=DISCOVERY_EXPIRED peak_only=1"
+                    )
+                    self._snapshot_skip_logged[mint] = now
+            return within_window
+
+        # Any other reason value (future-proof) — write full snapshots.
+        return True
 
     def _sync_new_tokens(self) -> None:
         """
@@ -2286,11 +2372,13 @@ class BackgroundPriceWorker:
 
                 # Store snapshot so peak tracking works for queue-fetched tokens
                 # Guard: skip onchain prices with no liquidity (bad pool-reserve ratio)
+                # Phase 2: additionally skip expired DISCOVERY tokens (peak-only mode).
                 if market_cap > 1.0 and not (price.source == 'onchain' and (price.liquidity_usd or 0) < 10):
-                    try:
-                        self.price_service._store_snapshot(price)
-                    except Exception as snap_err:
-                        logger.debug(f"[ON_PRICE_FETCHED] snapshot store failed for {mint[:16]}: {snap_err}")
+                    if self.should_store_full_snapshot(mint, int(time.time())):
+                        try:
+                            self.price_service._store_snapshot(price)
+                        except Exception as snap_err:
+                            logger.debug(f"[ON_PRICE_FETCHED] snapshot store failed for {mint[:16]}: {snap_err}")
 
                 # Record activity for inactivity tracking (reset inactivity timer)
                 self._inactivity_manager.record_activity(mint)

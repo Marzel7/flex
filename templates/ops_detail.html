@@ -1,0 +1,216 @@
+{% extends "base_shell.html" %}
+{% block title %}Operation {{ operation_uuid[:8] }} — Detail{% endblock %}
+
+{% block extra_styles %}
+:root {
+  --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa; --red:#f85149; --yellow:#eab308;
+}
+.d-wrap { padding:20px 26px; color:var(--text-pri); max-width:1400px; }
+.d-back { font-size:12px; color:var(--cyan); cursor:pointer; margin-bottom:12px; display:inline-block; }
+.d-back:hover { text-decoration:underline; }
+.d-head { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
+.d-head h1 { font-size:22px; margin:0; font-family:ui-monospace,monospace; }
+.fam { font-size:11px; padding:3px 10px; border-radius:10px; background:rgba(167,139,250,.12); color:var(--purple); }
+.state { font-size:12px; padding:4px 12px; border-radius:10px; font-weight:700; letter-spacing:.5px; }
+.state.DISCOVERED{ background:#1c2128; color:var(--text-sec); }
+.state.ACTIVE{ background:rgba(63,185,80,.15); color:var(--green); }
+.state.PROVISIONING{ background:rgba(217,119,6,.15); color:var(--amber); }
+.state.CREATORS_SEEN{ background:rgba(34,211,238,.15); color:var(--cyan); }
+.state.MIGRATED{ background:rgba(167,139,250,.15); color:var(--purple); }
+.state.DORMANT{ background:#1c2128; color:var(--text-dim); }
+.state.REACTIVATED{ background:rgba(234,179,8,.15); color:var(--yellow); }
+.d-treasury { color:var(--text-sec); font-size:12px; margin-bottom:18px; }
+.d-treasury .addr { color:var(--cyan); cursor:pointer; font-family:ui-monospace,monospace; }
+.tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-bottom:22px; }
+.tile { background:var(--bg-card); border:1px solid var(--border); border-radius:9px; padding:12px 14px; }
+.tile .v { font-size:22px; font-weight:700; } .tile .l { font-size:10px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; margin-top:3px; }
+.grid2 { display:grid; grid-template-columns:1.4fr 1fr; gap:18px; }
+@media(max-width:1050px){ .grid2{grid-template-columns:1fr;} }
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:18px; }
+.panel-h { padding:11px 16px; border-bottom:1px solid var(--border); font-size:13px; font-weight:600; display:flex; justify-content:space-between; }
+.panel-h .hint { font-size:11px; color:var(--text-dim); font-weight:400; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:8px 14px; color:var(--text-sec); font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--border); }
+td { padding:8px 14px; border-bottom:1px solid var(--border); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--bg-card2); }
+.addr { color:var(--cyan); cursor:pointer; font-family:ui-monospace,monospace; }
+.addr:hover { text-decoration:underline; }
+.mono { font-family:ui-monospace,monospace; } .muted { color:var(--text-dim); }
+.role { font-size:10px; padding:2px 8px; border-radius:9px; font-weight:700; }
+.role.TREASURY{ background:rgba(248,81,73,.15); color:var(--red); }
+.role.COLLECTOR{ background:rgba(217,119,6,.15); color:var(--amber); }
+.role.PASS_THROUGH{ background:#1c2128; color:var(--text-sec); }
+.role.DIRECT_FUNDER{ background:rgba(34,211,238,.12); color:var(--cyan); }
+.role.CREATOR{ background:rgba(63,185,80,.15); color:var(--green); }
+.tmpl { color:var(--green); font-weight:600; }
+/* pipeline */
+.pipe { display:flex; align-items:center; gap:10px; padding:16px; }
+.pstage { flex:1; text-align:center; background:var(--bg-card2); border:1px solid var(--border2); border-radius:9px; padding:14px 8px; }
+.pstage .v { font-size:24px; font-weight:700; } .pstage .l { font-size:10px; color:var(--text-sec); text-transform:uppercase; margin-top:3px; }
+.pstage.cand .v{color:var(--amber)} .pstage.mig .v{color:var(--purple)} .pstage.attr .v{color:var(--text-dim)}
+.parrow { color:var(--text-dim); font-size:18px; }
+/* timeline */
+.tl { padding:6px 16px 14px; }
+.tl-row { display:flex; gap:14px; padding:9px 0; border-bottom:1px dashed var(--border); }
+.tl-row:last-child{border-bottom:none}
+.tl-dot { width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0; }
+.tl-dot.DISCOVERED{background:var(--cyan)} .tl-dot.COLLECTOR_ADDED{background:var(--amber)}
+.tl-dot.CANDIDATE_DETECTED{background:var(--amber)} .tl-dot.MIGRATION{background:var(--purple)}
+.tl-dot.DORMANT{background:var(--text-dim)} .tl-dot.REACTIVATED{background:var(--yellow)}
+.tl-body .t { font-size:12px; } .tl-body .ts { font-size:11px; color:var(--text-dim); }
+.frow { display:flex; gap:12px; padding:8px 16px; border-bottom:1px solid var(--border); font-size:11.5px; align-items:center; }
+.frow:last-child{border-bottom:none} .frow .ft{color:var(--text-dim);font-family:ui-monospace,monospace;min-width:54px;font-size:10.5px}
+.etype{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:9px;min-width:120px;text-align:center}
+.etype.NEW_CHILD{background:rgba(63,185,80,.1);color:var(--green)}
+.etype.NEW_CREATOR_CANDIDATE{background:rgba(217,119,6,.15);color:var(--amber)}
+.etype.FUNDING{background:#1c2128;color:var(--text-sec)}
+{% endblock %}
+
+{% block content %}
+<div class="d-wrap">
+  <span class="d-back" onclick="location.href='/ops/operations'">← all operations</span>
+  <div id="detail"><div class="muted">loading operation…</div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const OP_UUID = "{{ operation_uuid }}";
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
+const ago = ts => { if(!ts) return '—'; const s=Math.floor(Date.now()/1000-ts);
+  if(s<60)return s+'s ago'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; };
+const dt = ts => ts ? new Date(ts*1000).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+const solscan = a => window.open('https://solscan.io/account/'+a,'_blank');
+
+async function load(){
+  let d; try { const r = await fetch('/api/ops-v2/operation/'+OP_UUID); if(!r.ok){document.getElementById('detail').innerHTML='<div class="muted">operation not found</div>';return;} d = await r.json(); } catch(e){ return; }
+  const o=d.operation, st=(d.state&&d.state.state)||'DISCOVERED';
+  const byRole = r => d.wallets.filter(w=>w.role===r).length;
+  const migrated = d.creators.filter(c=>c.migration_time).length;
+  const migSet = new Set(d.creators.filter(c=>c.migration_time).map(c=>c.creator_wallet));
+  // split candidates: template-funded (small base) = pre-launch creators; large = infrastructure
+  const isTemplate = c => c.template_base!=null && c.template_base>=0.05 && c.template_base<=6.0;
+  const preLaunch = d.candidates.filter(c=>isTemplate(c) && !migSet.has(c.wallet));
+  const infra = d.candidates.filter(c=>!isTemplate(c));
+
+  const tiles = [
+    ['wallets', d.wallets.length],['treasuries', byRole('TREASURY')],['collectors', byRole('COLLECTOR')],
+    ['pass-throughs', byRole('PASS_THROUGH')],['pre-launch creators', preLaunch.length],['migrated', migrated],
+    ['confidence', Math.round((o.confidence||0)*100)+'%'],
+  ];
+
+  document.getElementById('detail').innerHTML = `
+    <div class="d-head">
+      <h1>${o.operation_uuid.slice(0,8)}</h1>
+      ${d.family?`<span class="fam">${d.family}</span>`:''}
+      <span class="state ${st}">${st}</span>
+      <span class="muted" style="font-size:12px">last activity ${ago(d.state&&d.state.last_activity)}</span>
+    </div>
+    <div class="d-treasury">treasury root <span class="addr" onclick="solscan('${o.treasury_root}')">${o.treasury_root}</span></div>
+
+    <div class="tiles">${tiles.map(([l,v])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+
+    <div class="panel">
+      <div class="panel-h">Creator Pipeline <span class="hint">template-funded pre-launch creators → migrated</span></div>
+      <div class="pipe">
+        <div class="pstage cand"><div class="v">${preLaunch.length}</div><div class="l">Pre-Launch Creators</div></div>
+        <span class="parrow">→</span>
+        <div class="pstage mig"><div class="v">${migrated}</div><div class="l">Migrated</div></div>
+        <span class="parrow">→</span>
+        <div class="pstage attr"><div class="v">—</div><div class="l">Attributed (optional)</div></div>
+      </div>
+    </div>
+
+    ${(d.launch_path&&d.launch_path.length)?(()=>{
+      const leads=d.launch_path.filter(p=>p.lead_time_min!=null).map(p=>p.lead_time_min);
+      const avg=leads.length?Math.round(leads.reduce((a,b)=>a+b,0)/leads.length):null;
+      return `<div class="panel" style="margin-bottom:18px">
+      <div class="panel-h">Launch Pipeline <span class="hint">treasury → collector → pass-through → creator${avg!=null?` · avg lead <span style="color:var(--green);font-weight:700">${avg} min</span>`:''}</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;font-size:11px;color:var(--text-sec);border-bottom:1px solid var(--border)">
+        <span style="color:var(--red);font-weight:700">TREASURY</span><span class="parrow">→</span>
+        <span style="color:var(--amber)">COLLECTOR</span><span class="parrow">→</span>
+        <span style="color:var(--text-sec)">PASS-THROUGH</span><span class="parrow">→</span>
+        <span style="color:var(--green);font-weight:700">CREATOR</span>
+        <span style="margin-left:auto;color:var(--green)">⟵ ~${avg||58} min before launch</span>
+      </div>
+      <table><thead><tr><th>Creator</th><th>Token</th><th>Template</th><th>Funded by</th><th>Funded</th><th>Migrated</th><th>Lead time</th></tr></thead><tbody>
+      ${d.launch_path.map(p=>`<tr>
+        <td><span class="addr" onclick="solscan('${p.creator}')">${short(p.creator)}</span></td>
+        <td>${p.token_mint&&p.token_mint!=='UNKNOWN'?`<span class="addr" onclick="window.open('https://solscan.io/token/${p.token_mint}','_blank')">${short(p.token_mint)}</span>`:'<span class="muted">—</span>'}</td>
+        <td>${p.template!=null?'<span class="tmpl">'+p.template+'</span>':'<span class="muted">—</span>'}</td>
+        <td class="mono muted">${p.funded_by?short(p.funded_by):'—'}</td>
+        <td class="muted">${dt(p.funded_at)}</td>
+        <td class="muted">${dt(p.migration_time)}</td>
+        <td>${p.lead_time_min!=null?`<span style="color:var(--green);font-weight:600">${p.lead_time_min} min</span>`:'<span class="muted">—</span>'}</td></tr>`).join('')}
+      </tbody></table>
+    </div>`;})():''}
+
+    <div class="grid2">
+      <div>
+        <div class="panel">
+          <div class="panel-h">Infrastructure <span class="hint">${d.wallets.length} wallets</span></div>
+          <table><thead><tr><th>Role</th><th>Wallet</th><th>First seen</th><th>Last seen</th></tr></thead><tbody>
+          ${d.wallets.map(w=>`<tr>
+            <td><span class="role ${w.role}">${w.role}</span></td>
+            <td><span class="addr" onclick="solscan('${w.wallet}')">${short(w.wallet)}</span>${migSet.has(w.wallet)?' <span style="color:var(--purple);font-size:9px;font-weight:700">✓ LAUNCHED</span>':''}</td>
+            <td class="muted">${dt(w.first_seen)}</td><td class="muted">${ago(w.last_seen)}</td></tr>`).join('')}
+          </tbody></table>
+        </div>
+        <div class="panel">
+          <div class="panel-h">Activity Feed <span class="hint">recent on-chain events</span></div>
+          ${(d.activity||[]).slice(0,30).map(a=>`<div class="frow">
+            <span class="ft">${a.block_time?new Date(a.block_time*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'—'}</span>
+            <span class="etype ${a.event_type}">${a.event_type.replace('NEW_','').replace('_',' ')}</span>
+            <span style="flex:1"><span class="addr" onclick="solscan('${a.counterparty}')">${short(a.counterparty)}</span>
+              ${a.amount?`<span class="muted"> · ${(+a.amount).toFixed(3)} SOL</span>`:''}</span>
+          </div>`).join('') || '<div class="frow muted">no activity</div>'}
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-h">Timeline</div>
+          <div class="tl">${(d.timeline||[]).map(t=>`<div class="tl-row">
+            <span class="tl-dot ${t.kind}"></span>
+            <div class="tl-body"><div class="t">${t.label}</div><div class="ts">${dt(t.ts)} · ${ago(t.ts)}</div></div>
+          </div>`).join('') || '<div class="muted">no events</div>'}</div>
+        </div>
+        <div class="panel">
+          <div class="panel-h">Migrated Creators <span class="hint">confirmed launches — the proven creators</span></div>
+          <table><thead><tr><th>Creator</th><th>Token</th><th>Tmpl</th><th>Migrated</th></tr></thead><tbody>
+          ${d.creators.filter(c=>c.migration_time).map(c=>`<tr>
+            <td><span class="addr" onclick="solscan('${c.creator_wallet}')">${short(c.creator_wallet)}</span> <span style="color:var(--purple);font-size:9px;font-weight:700">✓ LAUNCHED</span></td>
+            <td>${c.token_mint&&c.token_mint!=='UNKNOWN'?`<span class="addr" onclick="window.open('https://solscan.io/token/${c.token_mint}','_blank')">${short(c.token_mint)}</span>`:'<span class="muted">—</span>'}</td>
+            <td>${c.template_base!=null?'<span class="tmpl">'+c.template_base+'</span>':'<span class="muted">—</span>'}</td>
+            <td class="muted">${dt(c.migration_time)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">none migrated yet</td></tr>'}
+          </tbody></table>
+        </div>
+        <div class="panel">
+          <div class="panel-h" style="color:var(--green)">Pre-Launch Creators <span class="hint">template-funded · ~60-min window · the real launch leads</span></div>
+          <table><thead><tr><th>Wallet</th><th>Template</th><th>Conf</th><th>Status</th></tr></thead><tbody>
+          ${preLaunch.slice(0,40).map(c=>`<tr>
+            <td><span class="addr" onclick="solscan('${c.wallet}')">${short(c.wallet)}</span></td>
+            <td><span class="tmpl">${c.template_base}</span></td>
+            <td>${Math.round((c.confidence||0)*100)}%</td>
+            <td class="muted">${c.status}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">none in window</td></tr>'}
+          </tbody></table>
+        </div>
+        ${infra.length?`<div class="panel">
+          <div class="panel-h" style="color:var(--text-sec)">Infrastructure Wallets <span class="hint">large treasury allocations — not launch predictions</span></div>
+          <table><thead><tr><th>Wallet</th><th>Funded</th><th>From</th></tr></thead><tbody>
+          ${infra.slice(0,30).map(c=>`<tr>
+            <td><span class="addr" onclick="solscan('${c.wallet}')">${short(c.wallet)}</span></td>
+            <td class="muted">${c.amount?(+c.amount).toFixed(1)+' SOL':'—'}</td>
+            <td class="muted">${c.source_role||'—'}</td></tr>`).join('')}
+          </tbody></table>
+        </div>`:''}
+      </div>
+    </div>`;
+}
+load();
+setInterval(load, 20000);
+</script>
+{% endblock %}

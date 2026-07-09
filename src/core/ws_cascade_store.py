@@ -615,7 +615,7 @@ def lookup_subprov(conn, wallet: str) -> Optional[dict]:
         "wrap_close_count, topup_count, confidence, state, "
         "COALESCE(buy_swarm_count,0), COALESCE(create_count,0), "
         "COALESCE(buy_swarm_ratio,0.0), COALESCE(subprov_type,'UNKNOWN'), "
-        "first_creator "
+        "first_creator, COALESCE(seeded_account_count,0) "
         "FROM wt_discovered_subprovs WHERE subprov=?", (wallet,)
     ).fetchone()
     if row is None:
@@ -623,7 +623,7 @@ def lookup_subprov(conn, wallet: str) -> Optional[dict]:
     cols = ["subprov", "creator_count", "treasury", "treasury_known",
             "wrap_close_count", "topup_count", "confidence", "state",
             "buy_swarm_count", "create_count", "buy_swarm_ratio", "subprov_type",
-            "first_creator"]
+            "first_creator", "seeded_account_count"]
     return dict(zip(cols, row))
 
 
@@ -1302,9 +1302,11 @@ def reject_unproven_sessions(conn) -> list:
 def tag_operational_spend_proxies(conn) -> int:
     """Retrospectively tag expired, zero-fanout sessions as OPERATIONAL_SPEND_PROXY.
 
+    Requires dict-style row access; ensures row_factory is set if caller omitted it.
+
     Two detection paths (either qualifies):
 
-    PATH A — Direct on-chain signal (strongest):
+    PATH A - Direct on-chain signal (strongest):
       The session wallet appears in wt_webhook_hits as a SENDER to a known Hello
       fee wallet (FudPMePe…, JBGUGPmK…) or the shared service recipient (21wG4F3Z…).
       Requires the proxy to be webhooked, which is rare — this path catches future
@@ -1324,6 +1326,9 @@ def tag_operational_spend_proxies(conn) -> int:
 
     Returns count of newly tagged sessions.
     """
+    import sqlite3 as _sqlite3
+    if conn.row_factory is None:
+        conn.row_factory = _sqlite3.Row
     now = int(time.time())
     count = 0
 

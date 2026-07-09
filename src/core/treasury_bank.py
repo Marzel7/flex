@@ -29,6 +29,33 @@ except Exception:                                    # pragma: no cover
 OPS_DB_PATH = os.path.abspath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"))
 
+_schema_ensured = False
+
+
+def _add_cols_if_missing(conn, table: str, cols: list) -> None:
+    existing = {r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    for col, defn in cols:
+        if col not in existing:
+            try:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {defn}")
+            except Exception:
+                pass
+
+
+def _ensure_schema_once() -> None:
+    global _schema_ensured
+    if _schema_ensured:
+        return
+    try:
+        c = db_connect(OPS_DB_PATH, timeout=30)
+        ensure_schema(c)
+        c.commit()
+        c.close()
+        _schema_ensured = True
+    except Exception:
+        pass
+
+
 
 def ensure_schema(conn) -> None:
     conn.execute("""CREATE TABLE IF NOT EXISTS wt_confirmed_treasuries (
@@ -65,6 +92,21 @@ def ensure_schema(conn) -> None:
         treasury TEXT PRIMARY KEY, transfer_pct INTEGER, out_sol REAL, recipients INTEGER,
         micro_pings INTEGER, detected_via TEXT, status TEXT DEFAULT 'PENDING_REVIEW',
         reviewed_by TEXT, detected_at INTEGER, reviewed_at INTEGER)""")
+    # Walkback-sourced evidence columns (migration-safe)
+    _add_cols_if_missing(conn, "wt_treasury_review", [
+        ("subprov_wallet",      "TEXT"),
+        ("creator_wallet",      "TEXT"),
+        ("token_mint",          "TEXT"),
+        ("distinct_subprovs",   "INTEGER DEFAULT 1"),
+        ("distinct_creators",   "INTEGER DEFAULT 1"),
+        ("evidence_sigs",       "TEXT"),   # JSON array of unique funding sigs
+        ("evidence_subprovs",   "TEXT"),   # JSON array of unique subprov wallets seen
+        ("evidence_creators",   "TEXT"),   # JSON array of unique creator wallets seen
+        ("evidence_mints",      "TEXT"),   # JSON array of unique token mints seen
+        ("has_walkback_evidence","INTEGER DEFAULT 0"),  # 1 if ever surfaced by walkback
+        ("first_walkback_at",   "INTEGER"),
+        ("last_walkback_at",    "INTEGER"),
+    ])
     conn.commit()
 
 
@@ -77,7 +119,7 @@ def add_review_candidate(conn, treasury, *, transfer_pct=None, out_sol=None,
     apart on flow alone: a subprov's wrap-close fan-out is also 100% pure transfers to many
     recipients, so subprovs like Efm1jBsiGv8k (15 wrap-closes) falsely fingerprinted as treasuries.
     The discriminator is what it PRODUCES: wrap-close children = subprov."""
-    ensure_schema(conn)
+    _ensure_schema_once()
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
         return False                                  # already a confirmed treasury
     try:
@@ -100,10 +142,156 @@ def add_review_candidate(conn, treasury, *, transfer_pct=None, out_sol=None,
     return True
 
 
+# Addresses that must never be surfaced as treasury review leads.
+# This is a boundary defence — the worker also filters these, but this function
+# must be safe to call from any path.
+_TREASURY_LEAD_BLOCKLIST: frozenset = frozenset({
+    # System / native programs
+    "11111111111111111111111111111111",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bzvs",
+    "ComputeBudget111111111111111111111111111111",
+    "SysvarRent111111111111111111111111111111111",
+    "SysvarC1ock11111111111111111111111111111111",
+    "Vote111111111111111111111111111111111111111h",
+    # pump.fun + PumpSwap programs / authorities
+    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",   # pump.fun program
+    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",   # PumpSwap AMM program
+    "39azUYFWPez6bovNoRRfmmJMeGouAr6j7K43BuVFiaTD",   # pump.fun migration authority
+    "BSjC7wR1kRQhjBsBiqgB6p2H5nm4shKmkDw3vzmrE8k8",  # PumpSwap WSOL market pool
+    # Raydium
+    "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",  # Raydium fee account
+    "7YttLkHDoNj9wyDur5pM1ejNaAvT9X4eqaYcHQqtj2G5",  # Raydium authority
+    # Burn / null
+    "1nc1nerator11111111111111111111111111111111",
+})
+
+
+def add_walkback_hop2_lead(conn, upstream_wallet: str, *,
+                           subprov_wallet: str | None = None,
+                           creator_wallet: str | None = None,
+                           token_mint: str | None = None,
+                           funding_sig: str | None = None,
+                           funding_amount_sol: float | None = None,
+                           funding_mechanism: str | None = None) -> str:
+    """
+    Surface an unknown hop-2 wallet as a treasury review lead.
+
+    Called by walkback_worker when FULL_WALKBACK finds:
+        creator ← hop1 (subprov candidate) ← hop2 (upstream_wallet, unknown)
+
+    Never auto-confirms. Never touches wt_confirmed_treasuries.
+    Aggregates evidence correctly using deduped JSON sets — out_sol only added
+    when the sig is new, distinct counts derived from set lengths.
+
+    Returns a string disposition: 'inserted' | 'updated' | 'skipped:<reason>'
+    """
+    _ensure_schema_once()
+
+    # ── boundary blocklist (self-defending) ──────────────────────────────────
+    if upstream_wallet in _TREASURY_LEAD_BLOCKLIST:
+        return "skipped:blocklist"
+
+    # Already a confirmed treasury — no action needed
+    if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?",
+                    (upstream_wallet,)).fetchone():
+        return "skipped:confirmed_treasury"
+
+    # Known subprov — distribution mesh, not treasury tier
+    try:
+        if conn.execute("SELECT 1 FROM wt_discovered_subprovs WHERE subprov=? LIMIT 1",
+                        (upstream_wallet,)).fetchone():
+            return "skipped:known_subprov"
+    except Exception:
+        pass
+
+    # Reject if upstream IS the creator (self-rooted noise)
+    if upstream_wallet == creator_wallet:
+        return "skipped:self_rooted"
+
+    now = int(time.time())
+
+    existing = conn.execute(
+        "SELECT distinct_subprovs, distinct_creators, out_sol, "
+        "       evidence_sigs, evidence_subprovs, evidence_creators, evidence_mints "
+        "FROM wt_treasury_review WHERE treasury=?",
+        (upstream_wallet,)).fetchone()
+
+    def _load(field) -> list:
+        try:
+            v = existing[field] if existing else None
+            return json.loads(v) if v else []
+        except Exception:
+            return []
+
+    sigs      = _load("evidence_sigs")
+    subprovs  = _load("evidence_subprovs")
+    creators  = _load("evidence_creators")
+    mints     = _load("evidence_mints")
+
+    # Only add capital and evidence if this is a genuinely new sig (prevents retry double-counting)
+    sig_is_new = bool(funding_sig and funding_sig not in sigs)
+
+    if sig_is_new and funding_sig:
+        sigs.append(funding_sig)
+    if subprov_wallet and subprov_wallet not in subprovs:
+        subprovs.append(subprov_wallet)
+    if creator_wallet and creator_wallet not in creators:
+        creators.append(creator_wallet)
+    if token_mint and token_mint not in mints:
+        mints.append(token_mint)
+
+    # out_sol only increments when a new sig is seen (dedup-gated)
+    added_sol = (funding_amount_sol or 0) if sig_is_new else 0
+
+    n_subprovs = max(1, len(subprovs))
+    n_creators = max(1, len(creators))
+
+    if existing:
+        existing_sol = existing["out_sol"] or 0
+        conn.execute("""
+            UPDATE wt_treasury_review
+            SET distinct_subprovs    = ?,
+                distinct_creators    = ?,
+                out_sol              = ?,
+                evidence_sigs        = ?,
+                evidence_subprovs    = ?,
+                evidence_creators    = ?,
+                evidence_mints       = ?,
+                has_walkback_evidence= 1,
+                last_walkback_at     = ?,
+                subprov_wallet       = COALESCE(subprov_wallet, ?),
+                creator_wallet       = COALESCE(creator_wallet, ?),
+                token_mint           = COALESCE(token_mint, ?)
+            WHERE treasury = ?
+        """, (n_subprovs, n_creators, existing_sol + added_sol,
+              json.dumps(sigs), json.dumps(subprovs), json.dumps(creators), json.dumps(mints),
+              now, subprov_wallet, creator_wallet, token_mint,
+              upstream_wallet))
+        conn.commit()
+        return "updated"
+    else:
+        conn.execute("""
+            INSERT INTO wt_treasury_review
+                (treasury, out_sol, detected_via, status, detected_at,
+                 subprov_wallet, creator_wallet, token_mint,
+                 distinct_subprovs, distinct_creators,
+                 evidence_sigs, evidence_subprovs, evidence_creators, evidence_mints,
+                 has_walkback_evidence, first_walkback_at, last_walkback_at)
+            VALUES (?,?,?,?,?, ?,?,?, ?,?, ?,?,?,?, 1,?,?)
+        """, (upstream_wallet, funding_amount_sol or 0, "walkback_hop2", "PENDING_REVIEW", now,
+              subprov_wallet, creator_wallet, token_mint,
+              n_subprovs, n_creators,
+              json.dumps(sigs), json.dumps(subprovs), json.dumps(creators), json.dumps(mints),
+              now, now))
+        conn.commit()
+        return "inserted"
+
+
 def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
     """Human action: promote a reviewed candidate into the authoritative confirmed set.
     Does NOT webhook here — the caller webhooks (needs the live-DB Helius key)."""
-    ensure_schema(conn)
+    _ensure_schema_once()
     r = conn.execute(
         "SELECT transfer_pct, out_sol, recipients, micro_pings FROM wt_treasury_review WHERE treasury=?",
         (treasury,)).fetchone()
@@ -124,7 +312,7 @@ def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
 
 
 def reject_candidate(conn, treasury, reviewed_by="human") -> dict:
-    ensure_schema(conn)
+    _ensure_schema_once()
     conn.execute(
         "UPDATE wt_treasury_review SET status='REJECTED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
         (reviewed_by, int(time.time()), treasury))
@@ -134,7 +322,7 @@ def reject_candidate(conn, treasury, reviewed_by="human") -> dict:
 
 # ── reads for the dashboard ──────────────────────────────────────────────────
 def confirmed_treasuries(conn) -> list:
-    ensure_schema(conn)
+    _ensure_schema_once()
     return [dict(r) for r in conn.execute(
         """SELECT c.treasury, c.transfer_pct, c.out_sol, c.recipients, c.micro_pings,
                   c.confidence, COALESCE(w.webhook_active,0) webhooked,
@@ -145,7 +333,7 @@ def confirmed_treasuries(conn) -> list:
 
 
 def review_queue(conn) -> list:
-    ensure_schema(conn)
+    _ensure_schema_once()
     return [dict(r) for r in conn.execute(
         "SELECT * FROM wt_treasury_review WHERE status='PENDING_REVIEW' ORDER BY out_sol DESC").fetchall()]
 
@@ -239,7 +427,7 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
        NEAR_MISS → add to wt_treasury_review for an optional look.
        REJECT    → nothing.
     EVERY decision is written to the audit ledger (reversible). Idempotent."""
-    ensure_schema(conn)
+    _ensure_schema_once()
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (addr,)).fetchone():
         return {"verdict": "ALREADY_CONFIRMED", "treasury": addr, "needs_webhook": False}
     fp = fingerprint_treasury(addr, raw_txs_fn, micro_ping_count)
@@ -282,7 +470,7 @@ def auto_confirm_from_launch_chain(conn, treasury: str, *, subprov: str, creator
 
     Idempotent. Returns {verdict, treasury, needs_webhook}. The caller webhooks +
     WS-subscribes on needs_webhook=True."""
-    ensure_schema(conn)
+    _ensure_schema_once()
     if not treasury or not creator or not mint:
         return {"verdict": "INSUFFICIENT", "treasury": treasury, "needs_webhook": False}
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
@@ -317,7 +505,7 @@ def mark_webhooked(conn, treasury: str, ok: bool = True) -> None:
 def revert_auto_promotion(conn, treasury: str, reason: str = "manual_revert") -> dict:
     """Reverse an AUTO promotion (seed treasuries are protected — cannot be reverted here).
     Removes from confirmed set + logs the reversal. Caller un-webhooks separately."""
-    ensure_schema(conn)
+    _ensure_schema_once()
     r = conn.execute("SELECT provenance FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone()
     if not r:
         return {"ok": False, "error": "not confirmed"}
@@ -386,7 +574,7 @@ def rescore_decided_candidates(conn, raw_txs_fn, *, max_candidates: int = 40,
     fingerprint; a candidate that now hits 3/3 is bumped to a high-confidence READY review row
     (status reset to PENDING_REVIEW). NEVER auto-promotes — still needs the human ✓. Bounded RPC
     (raw_txs_fn per candidate, capped). Returns a summary."""
-    ensure_schema(conn)
+    _ensure_schema_once()
     try:
         conn.execute("PRAGMA busy_timeout=15000")
     except Exception:

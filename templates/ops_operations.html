@@ -1,0 +1,82 @@
+{% extends "base_shell.html" %}
+{% block title %}Operations — Operation Intelligence{% endblock %}
+
+{% block extra_styles %}
+:root {
+  --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa; --red:#f85149; --yellow:#eab308;
+}
+.ops-wrap { padding:20px 26px; color:var(--text-pri); max-width:1500px; }
+.ops-h { display:flex; align-items:baseline; gap:12px; margin-bottom:2px; }
+.ops-h h1 { font-size:20px; margin:0; }
+.ops-sub { color:var(--text-sec); font-size:12px; margin-bottom:18px; }
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:10px 14px; color:var(--text-sec); font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:10px 14px; border-bottom:1px solid var(--border); }
+tr.orow { cursor:pointer; }
+tr.orow:hover td { background:var(--bg-card2); }
+.uuid { color:var(--cyan); font-family:ui-monospace,monospace; font-weight:600; }
+.mono { font-family:ui-monospace,monospace; }
+.muted { color:var(--text-dim); }
+.fam { font-size:10px; padding:2px 8px; border-radius:10px; background:rgba(167,139,250,.12); color:var(--purple); }
+.state { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; letter-spacing:.4px; }
+.state.DISCOVERED{ background:#1c2128; color:var(--text-sec); }
+.state.ACTIVE{ background:rgba(63,185,80,.15); color:var(--green); }
+.state.PROVISIONING{ background:rgba(217,119,6,.15); color:var(--amber); }
+.state.CREATORS_SEEN{ background:rgba(34,211,238,.15); color:var(--cyan); }
+.state.MIGRATED{ background:rgba(167,139,250,.15); color:var(--purple); }
+.state.DORMANT{ background:#1c2128; color:var(--text-dim); }
+.state.REACTIVATED{ background:rgba(234,179,8,.15); color:var(--yellow); }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+.cand-hot { color:var(--amber); font-weight:700; }
+.conf-bar { height:5px; background:var(--bg-card2); border-radius:3px; overflow:hidden; width:46px; display:inline-block; vertical-align:middle; }
+.conf-bar > i { display:block; height:100%; background:var(--cyan); }
+{% endblock %}
+
+{% block content %}
+<div class="ops-wrap">
+  <div class="ops-h"><h1>Operations</h1><span class="muted" style="font-size:13px;">— treasury-rooted infrastructure islands</span></div>
+  <div class="ops-sub">Each operation persists across wallet rotation. Click a row for full detail. Ranked by live candidates, then size.</div>
+
+  <div class="panel">
+    <table>
+      <thead><tr>
+        <th>Operation</th><th>Family</th><th>Treasury</th><th>State</th>
+        <th class="num">Wallets</th><th class="num">Coll</th><th class="num">Cand</th><th class="num">Migrated</th>
+        <th class="num">Conf</th><th>Last activity</th>
+      </tr></thead>
+      <tbody id="ops-body"><tr><td colspan="10" class="muted">loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
+const ago = ts => { if(!ts) return '—'; const s=Math.floor(Date.now()/1000-ts);
+  if(s<60)return s+'s ago'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; };
+
+async function load(){
+  let d; try { d = await (await fetch('/api/ops-v2/operations')).json(); } catch(e){ return; }
+  document.getElementById('ops-body').innerHTML = (d.operations||[]).map(o=>`
+    <tr class="orow" onclick="location.href='/ops/operation/${o.operation_uuid}'">
+      <td><span class="uuid">${o.operation_uuid.slice(0,8)}</span></td>
+      <td><span class="fam">${o.family}</span></td>
+      <td class="mono muted">${short(o.treasury_root)}</td>
+      <td><span class="state ${o.state}">${o.state}</span></td>
+      <td class="num">${o.wallets}</td>
+      <td class="num">${o.collectors}</td>
+      <td class="num">${o.candidates? '<span class="cand-hot">'+o.candidates+'</span>':'0'}</td>
+      <td class="num">${o.migrated||0}</td>
+      <td class="num"><span class="conf-bar"><i style="width:${Math.round((o.confidence||0)*100)}%"></i></span></td>
+      <td class="muted">${ago(o.last_activity)}</td>
+    </tr>`).join('') || '<tr><td colspan="10" class="muted">no operations yet</td></tr>';
+}
+load();
+setInterval(load, 20000);
+</script>
+{% endblock %}

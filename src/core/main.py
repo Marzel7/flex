@@ -245,6 +245,36 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.jinja_env.auto_reload = True
 Compress(app)  # gzip all text/html and application/json responses automatically
 
+def _start_db_fd_watchdog():
+    """Background thread: watch open FDs on this process for flex_complete_database.db.
+    Warns at >8, exits (triggering supervisord restart) at >12.
+    Root cause: leaked read connections accumulate over time, pin the WAL, and cause
+    p99 spikes. A clean restart is cheaper than hunting each leak site."""
+    import threading, time as _t, os as _os
+    _DB_NAME = "flex_complete_database.db"
+    _WARN_FD  = int(_os.environ.get("DB_FD_WARN",  "8"))
+    _EXIT_FD  = int(_os.environ.get("DB_FD_EXIT", "12"))
+    _INTERVAL = int(_os.environ.get("DB_FD_INTERVAL_SEC", "60"))
+    def _loop():
+        pid = _os.getpid()
+        while True:
+            _t.sleep(_INTERVAL)
+            try:
+                import subprocess
+                out = subprocess.check_output(["lsof", "-p", str(pid)], stderr=subprocess.DEVNULL).decode()
+                count = sum(1 for line in out.splitlines() if _DB_NAME in line and line.split()[-1].endswith(_DB_NAME))
+                if count >= _EXIT_FD:
+                    print(f"[FD_WATCHDOG] CRITICAL: {count} open FDs on {_DB_NAME} (>= {_EXIT_FD}) — exiting to trigger restart", flush=True)
+                    _os._exit(1)
+                elif count >= _WARN_FD:
+                    print(f"[FD_WATCHDOG] WARNING: {count} open FDs on {_DB_NAME} (>= {_WARN_FD})", flush=True)
+            except Exception as _e:
+                print(f"[FD_WATCHDOG] error: {_e}", flush=True)
+    t = threading.Thread(target=_loop, daemon=True, name="db_fd_watchdog")
+    t.start()
+
+_start_db_fd_watchdog()
+
 try:
     from src.core.internal_api import internal_bp
     app.register_blueprint(internal_bp)
@@ -24539,8 +24569,8 @@ def metrics_rpc_optimizations_proxy():
 @app.route('/api/first-snapshot-health')
 def api_first_snapshot_health():
     """Coverage monitor for immutable first-observed market-cap anchors."""
+    conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
     try:
-        conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
         cols = {r[1] for r in conn.execute('PRAGMA table_info(token_analysis)').fetchall()}
         has_first = 'first_observed_mc' in cols
         now = int(time.time())
@@ -24593,7 +24623,6 @@ def api_first_snapshot_health():
         ''', (now - 60, retention_enabled_at)).fetchone()
         recent_seen = recent['pools_seen'] or 0
         recent_written = recent['anchors_written'] or 0
-        conn.close()
         return jsonify({
             'ok': True,
             'retention_enabled_at': retention_enabled_at,
@@ -24619,6 +24648,8 @@ def api_first_snapshot_health():
         })
     except Exception as exc:
         return jsonify({'ok': False, 'error': str(exc)}), 500
+    finally:
+        conn.close()
 
 
 @app.route('/api/listener-recovery-status')
@@ -24718,9 +24749,11 @@ def api_listener_recovery_status():
         except Exception:
             ingestion["migration_hourly"] = None
 
-        _c.close()
     except Exception as _de:
         ingestion.setdefault("error", str(_de))
+    finally:
+        try: _c.close()
+        except Exception: pass
 
     # ── 3. Listener log scan — tail last 64 KB ────────────────────────────
     # 64 KB covers ~500 lines — enough for STARTUP flags + recent WS state.
@@ -25329,9 +25362,9 @@ def api_health_full():
         db_status = "HEALTHY"
         if p99 > 30000 or _ing_lock > 20:
             db_status = "CRITICAL"
-        elif p99 > 5000 or q_depth > 3:
+        elif p99 > 5000 or q_depth > 10:
             db_status = "AT_RISK"
-        elif p99 > 1000:
+        elif p99 > 1000 or q_depth > 6:
             db_status = "PRESSURE"
 
         database = {
@@ -26998,6 +27031,11 @@ def watchtower_operator_detail(address: str):
 @app.route('/watchtower/intelligence')
 def watchtower_operational_intelligence():
     return render_template("watchtower_operational_intelligence.html", active_page='watchtower_ops')
+
+
+@app.route('/watchtower/operations')
+def watchtower_operations():
+    return render_template("watchtower_operations.html", active_page='watchtower_operations')
 
 
 @app.route('/command-center')

@@ -259,6 +259,59 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_subprov_topups ADD COLUMN operation_uuid TEXT")
     except Exception:
         pass
+    # ── Operation Lifecycle v2: operation_state ──────────────────────────────
+    # Additive interpretation column on PROVISION_CANDIDATE sessions.
+    # Design rule: this is a trailing annotation, never a detection precondition.
+    # Values: FUNDED | ARMED | CREATE | POST_CREATE | ABORTED | COMPLETE | RECYCLED
+    # NULL = pre-v2 row (treat as FUNDED for display).
+    try:
+        _oscols = {r[1] for r in conn.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
+        if "operation_state" not in _oscols:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN operation_state TEXT")
+    except Exception:
+        pass
+    # Idempotent backfill: derive minimum guaranteed state for pre-v2 PROVISION_CANDIDATE rows.
+    # Source of truth for CREATE: wt_watchtower_launches (immutable detection record).
+    # Re-runnable: only touches rows where operation_state IS NULL.
+    try:
+        conn.execute("""
+            UPDATE wt_active_subprov_sessions
+            SET operation_state = (
+                SELECT CASE
+                    WHEN l.subprov_wallet IS NOT NULL           THEN 'POST_CREATE'
+                    WHEN wt_active_subprov_sessions.state = 'COMPLETED'   THEN 'POST_CREATE'
+                    WHEN wt_active_subprov_sessions.monitoring_state = 'LIVE_ARMED'
+                         AND wt_active_subprov_sessions.state = 'ACTIVE'  THEN 'ARMED'
+                    WHEN wt_active_subprov_sessions.state IN ('BUY_SWARM_REJECTED', 'EXPIRED')
+                                                                THEN 'ABORTED'
+                    ELSE                                             'FUNDED'
+                END
+                FROM wt_active_subprov_sessions s2
+                LEFT JOIN wt_watchtower_launches l
+                    ON l.subprov_wallet = s2.subprov_wallet
+                   AND l.treasury_wallet = s2.treasury_wallet
+                WHERE s2.id = wt_active_subprov_sessions.id
+            )
+            WHERE open_reason = 'PROVISION_CANDIDATE'
+              AND operation_state IS NULL
+        """)
+        conn.commit()
+        # Self-audit: verify distribution matches expected shape.
+        _audit = {r[0]: r[1] for r in conn.execute(
+            "SELECT COALESCE(operation_state,'NULL') as s, COUNT(*) "
+            "FROM wt_active_subprov_sessions "
+            "WHERE open_reason='PROVISION_CANDIDATE' GROUP BY s"
+        ).fetchall()}
+        _null_count = _audit.get('NULL', 0)
+        if _null_count > 0:
+            import logging as _log
+            _log.getLogger(__name__).warning(
+                "[op_state_backfill] %d PROVISION_CANDIDATE rows still have operation_state=NULL "
+                "after backfill — non-PROVISION_CANDIDATE open_reasons or schema mismatch. "
+                "Distribution: %s", _null_count, _audit
+            )
+    except Exception:
+        pass
     # wt_token_lifecycle — derived lifecycle aggregation (read-only view of confirmed launches)
     conn.execute(
         """CREATE TABLE IF NOT EXISTS wt_token_lifecycle (
@@ -1013,15 +1066,19 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
         return False   # no new session row — caller should not re-subscribe
 
     _fmech = funding_mechanism or "WSOL_WRAP_CLOSE"
+    # operation_state: ARMED if LIVE_ARMED (subscribed, candidate pipeline active),
+    # FUNDED otherwise (INTEL_ONLY — capital received but not actively monitored).
+    # Trailing annotation only — written after detection decisions are already made.
+    _op_state = "ARMED" if (monitoring_state == "LIVE_ARMED" and open_reason == "PROVISION_CANDIDATE") else "FUNDED"
     cur = conn.execute(
         """INSERT OR IGNORE INTO wt_active_subprov_sessions
              (subprov_wallet, treasury_wallet, funding_signature, funding_amount,
               initial_funding_amount, funding_time, subprov_known, open_reason,
-              monitoring_state, funding_mechanism, state, detected_at, expires_at,
+              monitoring_state, funding_mechanism, operation_state, state, detected_at, expires_at,
               funding_sequence_number, treasury_rotated, last_activity_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?, 'ACTIVE', ?, ?,?,?,?)""",
+           VALUES (?,?,?,?,?,?,?,?,?,?,?, 'ACTIVE', ?, ?,?,?,?)""",
         (subprov, treasury, funding_sig, funding_amount, funding_amount,
-         funding_time or now, int(subprov_known), open_reason, monitoring_state, _fmech,
+         funding_time or now, int(subprov_known), open_reason, monitoring_state, _fmech, _op_state,
          now, now + ttl_seconds, funding_sequence_number, int(treasury_rotated), last_activity_at))
     conn.commit()
     if cur.rowcount == 0:
@@ -1195,8 +1252,15 @@ def session_for_subprov(conn, subprov: str):
 
 
 def close_session(conn, session_id: int, state: str) -> None:
+    # operation_state: only write ABORTED if no CREATE has been observed yet.
+    # POST_CREATE sessions that expire naturally should keep their operation_state.
+    _op_update = (
+        ", operation_state=CASE WHEN operation_state NOT IN ('POST_CREATE','COMPLETE','RECYCLED') "
+        "THEN 'ABORTED' ELSE operation_state END"
+        if state in ("EXPIRED", "BUY_SWARM_REJECTED") else ""
+    )
     conn.execute(
-        "UPDATE wt_active_subprov_sessions SET state=?, closed_at=? WHERE id=?",
+        f"UPDATE wt_active_subprov_sessions SET state=?, closed_at=?{_op_update} WHERE id=?",
         (state, int(time.time()), session_id))
     conn.commit()
 
@@ -1214,7 +1278,9 @@ def set_session_post_create(conn, subprov: str) -> Optional[int]:
         return None
     conn.execute(
         "UPDATE wt_active_subprov_sessions "
-        "SET monitoring_state='POST_CREATE_ACTIVE' WHERE id=?",
+        "SET monitoring_state='POST_CREATE_ACTIVE', "
+        "    operation_state='POST_CREATE' "
+        "WHERE id=?",
         (row[0],))
     conn.commit()
     return row[0]

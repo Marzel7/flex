@@ -115,6 +115,57 @@ details.collapse-section > summary .cs-label { flex:1; }
 details.collapse-section > summary .cs-hint { font-size:10px; color:var(--text-dim); font-weight:400; }
 details.collapse-section .collapse-body { padding-top:14px; }
 
+/* operational summary hero (X22B — replaces the flat KPI wall) */
+.op-summary { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px 22px; margin-bottom:20px; display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+.op-summary .os-status { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:800; letter-spacing:.4px; }
+.op-summary .os-status .dot { width:10px; height:10px; border-radius:50%; }
+.op-summary .os-status.go .dot { background:var(--green); box-shadow:0 0 8px rgba(63,185,80,.6); } .op-summary .os-status.go { color:var(--green); }
+.op-summary .os-status.warn .dot { background:var(--amber); } .op-summary .os-status.warn { color:var(--amber); }
+.op-summary .os-status.bad .dot { background:var(--red); } .op-summary .os-status.bad { color:var(--red); }
+.op-summary .os-stats { display:flex; gap:22px; flex-wrap:wrap; flex:1; }
+.op-summary .os-stat .v { font-size:20px; font-weight:800; line-height:1; }
+.op-summary .os-stat .l { font-size:9.5px; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; margin-top:4px; }
+.op-summary .os-recency { display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-sec); width:100%; border-top:1px solid var(--border); padding-top:12px; margin-top:2px; }
+.op-summary .os-recency b { color:var(--text-pri); font-weight:700; }
+
+/* active treasury group cards */
+.atg-grid { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+.atg-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.atg-card > summary { cursor:pointer; list-style:none; padding:13px 16px; user-select:none; }
+.atg-card > summary::-webkit-details-marker { display:none; }
+.atg-head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.atg-badge { font-size:9px; font-weight:800; letter-spacing:.5px; padding:2px 8px; border-radius:6px; background:rgba(63,185,80,.15); color:var(--green); }
+.atg-treasury { font-family:ui-monospace,monospace; color:var(--cyan); font-size:12.5px; font-weight:600; }
+.atg-phase { font-size:9.5px; font-weight:700; padding:2px 8px; border-radius:9px; }
+.atg-phase.ACTIVE { background:rgba(63,185,80,.18); color:var(--green); }
+.atg-phase.DORMANT { background:rgba(110,118,129,.18); color:var(--text-sec); }
+.atg-stats { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; font-size:12px; color:var(--text-sec); }
+.atg-stats b { color:var(--text-pri); font-weight:700; font-size:13px; }
+/* X22E — labeled record fields (Status / Live sessions / Recent launches / Latest activity), read top-to-bottom like an operational record rather than a flat stat row */
+.atg-record { display:flex; gap:24px; flex-wrap:wrap; margin-top:10px; }
+.atg-field { min-width:80px; }
+.atg-field-l { font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:3px; }
+.atg-field-v { font-size:13px; color:var(--text-pri); }
+.atg-field-v b { font-weight:800; }
+.atg-foot { display:flex; align-items:center; gap:14px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.05); font-size:11px; color:var(--text-dim); }
+.atg-foot b { color:var(--text-sec); font-weight:600; }
+.atg-expand-hint { margin-left:auto; font-size:10.5px; color:var(--cyan); font-weight:700; }
+.atg-body { padding:0 16px 14px; border-top:1px solid var(--border); margin-top:2px; }
+/* X23 — internal sub-sections inside an expanded Operation card: Overview /
+   Live Activity / Historical Behaviour / Evidence / Infrastructure. Everything
+   about ONE treasury lives here so the analyst never leaves the card. */
+.atg-op-block { margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.06); }
+.atg-op-block:first-of-type { margin-top:10px; }
+.atg-op-h { font-size:11px; font-weight:800; color:var(--text-pri); letter-spacing:.3px; }
+.atg-op-hint { font-size:9.5px; color:var(--text-dim); font-style:italic; margin-bottom:4px; }
+
+/* infrastructure health summary card */
+.infra-health { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:18px; }
+.infra-health .ih-title { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; margin-bottom:10px; }
+.infra-health .ih-title .dot { width:8px; height:8px; border-radius:50%; }
+.infra-health .ih-stats { display:flex; gap:20px; flex-wrap:wrap; font-size:11px; color:var(--text-sec); }
+.infra-health .ih-stats b { color:var(--text-pri); font-weight:700; }
+
 /* launch panel */
 #launch-panel table { font-size:13px; }
 #launch-panel td { padding:11px 13px; }
@@ -185,91 +236,177 @@ details.collapse-section .collapse-body { padding-top:14px; }
   <div class="warn-banner" id="warn-banner" style="margin-top:12px"><span class="pulse-dot"></span><span id="warn-text"></span></div>
 
   <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <!--  WATCHTOWER                                                           -->
-  <!--  System health — single glance: can I trust WATCHTOWER right now?   -->
+  <!--  HERO — X22C: five facts in sentence form, not a KPI wall. The legacy    -->
+  <!--  10-tile grid (id="hero") moved entirely into Diagnostics — it's         -->
+  <!--  subscription/cascade internals, not an operational answer.              -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <div style="margin:16px 0 12px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase">WATCHTOWER</div>
+  <div class="op-summary" id="op-summary">
+    <div class="os-status" id="os-status"><span class="dot"></span><span id="os-status-text">loading…</span></div>
+    <div class="os-stats" id="os-stats"></div>
+    <div class="os-recency" id="os-recency"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  OPERATIONS — X23: object-centric. Treasury is today's operational      -->
+  <!--  root (no first-class Operation model exists — documented gap, not      -->
+  <!--  invented). Everything about ONE treasury — live sessions, launch       -->
+  <!--  history, sub-provisioners, creator timing, webhook trust — lives       -->
+  <!--  inside its own card. An analyst should never need to leave a card to   -->
+  <!--  understand that operation.                                            -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--green);text-transform:uppercase">Operations</div>
+    <div style="flex:1;height:1px;background:rgba(63,185,80,.3)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400">one card per active treasury · everything about that operation lives together</span>
+  </div>
+  <div class="atg-grid" id="atg-grid"><div class="muted" style="font-size:11px;padding:8px 0">loading…</div></div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  NEEDS ATTRIBUTION — rows that don't yet resolve to a confirmed         -->
+  <!--  treasury, so they can't live inside an Operation card. Distinct        -->
+  <!--  analyst workflows, kept as separate small queues rather than one       -->
+  <!--  merged grab-bag (per explicit design decision).                       -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-dim);text-transform:uppercase">Needs Attribution</div>
     <div style="flex:1;height:1px;background:var(--border)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400">objects waiting to become part of an operation</span>
   </div>
 
-  <!-- Coverage hero cards -->
-  <div class="hero-grid" id="hero"></div>
-
-  <!-- WS CASCADE -->
-  <div class="sec-h" style="color:var(--green)">📡 Active WebSocket Cascade
-    <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator</span>
-    <span id="ws-health" style="margin-left:auto;font-size:11px;font-weight:700"></span>
-  </div>
-  <div class="hero-grid" id="ws-cascade-cards" style="margin-bottom:8px"></div>
-  <div id="cascade-disabled-notice" style="display:none;margin-bottom:10px">
-    <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.4);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--amber)">
-      <b>Cascade offline (not running)</b> — 0 active sessions. No sub-provisioner wallets are being watched in real time.
-      <br><span style="color:var(--text-sec);font-size:11px;margin-top:4px;display:block">
-        WATCHTOWER continues to detect launches and perform attribution via the migration path.
-        Only the treasury→subprov live cascade monitoring is inactive.
-      </span>
-    </div>
-  </div>
-  <div id="cascade-armed-banner" style="margin-bottom:8px;display:none"></div>
-  <div id="pending-session-alert" style="margin-bottom:8px;padding:6px 10px;border-radius:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);display:none;font-size:11px"></div>
-  <div class="panel" style="margin-bottom:8px">
-    <div class="panel-title" style="margin-bottom:8px">Subscription Queue</div>
-    <div id="sub-queue-panel" style="font-size:11px;color:var(--text-dim)">loading…</div>
-  </div>
-
-  <!-- Program CREATE watcher -->
-  <div id="pw-shadow-panel" style="display:none;margin-bottom:10px">
-    <div style="background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.35);border-radius:8px;padding:10px 14px">
-      <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;letter-spacing:.4px">
-        🔬 PROGRAM WATCHER — Phase 1 Shadow Mode
-        <span id="pw-stream-badge" style="margin-left:8px;font-size:10px;padding:1px 7px;border-radius:5px;background:rgba(139,92,246,.2)">CLOSED</span>
+  <details class="collapse-section">
+    <summary><span class="cs-label">Sessions</span><span class="cs-hint" id="na-sessions-hint">live WS sessions without a resolved treasury</span></summary>
+    <div class="collapse-body">
+      <div class="sec-h" style="color:var(--green)">Active WebSocket Cascade
+        <span class="hint">treasury→SUB_PROV funding opens a live WS · watches every wrap-close destination · the wallet that CREATEs is the creator</span>
+        <span id="ws-health" style="margin-left:auto;font-size:11px;font-weight:700"></span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">
-        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-active-candidates" style="font-size:18px">—</div><div class="l">active candidates</div></div>
-        <div class="hcard" style="padding:8px 10px"><div class="v go" id="pw-matches" style="font-size:18px">—</div><div class="l">matches</div></div>
-        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-persist-queue" style="font-size:18px">—</div><div class="l">persist queue</div></div>
-        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-fetch-dropped" style="font-size:18px">—</div><div class="l">fetch dropped</div></div>
-        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-fetch-timeout" style="font-size:18px">—</div><div class="l">fetch timeout</div></div>
-        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-expired" style="font-size:18px">—</div><div class="l">expired</div></div>
+      <div class="hero-grid" id="ws-cascade-cards" style="margin-bottom:8px"></div>
+      <div id="cascade-disabled-notice" style="display:none;margin-bottom:10px">
+        <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.4);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--amber)">
+          <b>Cascade offline (not running)</b> — 0 active sessions. No sub-provisioner wallets are being watched in real time.
+          <br><span style="color:var(--text-sec);font-size:11px;margin-top:4px;display:block">
+            WATCHTOWER continues to detect launches and perform attribution via the migration path.
+            Only the treasury→subprov live cascade monitoring is inactive.
+          </span>
+        </div>
+      </div>
+      <div id="cascade-armed-banner" style="margin-bottom:8px;display:none"></div>
+      <div id="pending-session-alert" style="margin-bottom:8px;padding:6px 10px;border-radius:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);display:none;font-size:11px"></div>
+      <div id="ws-latest-launch" style="margin-bottom:18px"></div>
+      <div class="panel" style="margin-bottom:8px">
+        <table><thead><tr>
+          <th>Active SUB_PROV</th><th>Treasury</th><th>Operator</th>
+          <th class="num">Funding SOL</th><th>Fan-out</th><th>Type</th><th class="num">Session TTL</th><th></th>
+        </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
       </div>
     </div>
+  </details>
+
+  <details class="collapse-section">
+    <summary><span class="cs-label">Sub-Provisioners</span><span class="cs-hint" id="na-subprovs-hint">unknown-treasury sub-provisioners — investigation workload</span></summary>
+    <div class="collapse-body">
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
+        </tr></thead><tbody id="subprovs-body-unknown"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <!-- confirmed-treasury subprovs are absorbed into Operation cards above; this
+           body is kept mounted for JS compatibility but intentionally not surfaced
+           as a separate always-visible table anymore. -->
+      <table style="display:none"><tbody id="subprovs-body-confirmed"></tbody></table>
+    </div>
+  </details>
+
+  <details class="collapse-section">
+    <summary><span class="cs-label">Launches</span><span class="cs-hint" id="na-launches-hint">launches whose treasury didn't resolve · full launch table</span></summary>
+    <div class="collapse-body">
+      <div id="audit-buckets" style="margin-bottom:8px"></div>
+      <!-- ARMED pre-launch rows WITHOUT a resolved treasury — rows with a treasury
+           are shown inside their Operation card's Live Activity section instead. -->
+      <div class="panel" style="margin-bottom:8px;border-color:rgba(63,185,80,.4)" id="armed-body-wrap">
+        <table><thead><tr>
+          <th style="width:70px">State</th><th>Subprov</th><th>Treasury</th>
+          <th class="num">Capital</th><th class="num">Age</th><th class="num">TTL</th>
+        </tr></thead><tbody id="armed-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <!-- Lifecycle filter tabs -->
+      <div id="audit-filter-bar" style="display:flex;gap:6px;margin-bottom:8px;font-size:11px;font-weight:700">
+        <span class="lc-filter active" data-filter="ALL"     onclick="setAuditFilter('ALL')"     style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">ALL</span>
+        <span class="lc-filter"        data-filter="LAUNCHED" onclick="setAuditFilter('LAUNCHED')" style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">LAUNCHED</span>
+        <span class="lc-filter"        data-filter="MIGRATED" onclick="setAuditFilter('MIGRATED')" style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">MIGRATED</span>
+        <span class="lc-filter"        data-filter="RECYCLED" onclick="setAuditFilter('RECYCLED')" style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">RECYCLED</span>
+      </div>
+      <div class="panel" style="margin-bottom:0;border-color:rgba(63,185,80,.3)">
+        <table><thead><tr>
+          <th>Token</th><th>Campaign</th><th>Lifecycle</th>
+          <th class="num">Funding</th><th class="num">Detected</th>
+          <th class="num">MC @ detect</th><th class="num">Peak MC · ×</th>
+        </tr></thead><tbody id="audit-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </details>
+
+  <!-- Ledger narrative + lifecycle summary cards stay mounted (feed the hero and
+       are cross-treasury aggregates, not a single operation's story) but no
+       longer headline the page as their own section — folded into this queue's
+       context since they're supporting evidence for "what needs attribution." -->
+  <div style="display:none">
+    <div id="ledger-narrative"></div>
+    <div id="lifecycle-cards"></div>
+    <span id="audit-verdict"></span>
   </div>
-  <div id="ws-latest-launch" style="margin-bottom:18px"></div>
 
   <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <!--  LIVE OPERATIONS                                                      -->
-  <!--  What is happening right now?                                         -->
+  <!--  INTELLIGENCE — accumulated knowledge with NO treasury linkage:        -->
+  <!--  cross-treasury aggregates, network topology, historical baselines.    -->
+  <!--  Everything treasury-scoped now lives inside its Operation card above.  -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase">Live Operations</div>
-    <div style="flex:1;height:1px;background:var(--border)"></div>
+  <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--purple);text-transform:uppercase">Intelligence</div>
+    <div style="flex:1;height:1px;background:rgba(167,139,250,.3)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400">cross-operation reference: creator timing, network topology, baselines</span>
   </div>
 
-  <!-- ACTIVE SESSIONS -->
-  <div class="panel" style="margin-bottom:8px">
-    <table><thead><tr>
-      <th>Active SUB_PROV</th><th>Treasury</th><th>Operator</th>
-      <th class="num">Funding SOL</th><th>Fan-out</th><th>Type</th><th class="num">Session TTL</th><th></th>
-    </tr></thead><tbody id="ws-cascade-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+  <!-- CREATOR MODE DISTRIBUTION — the cross-treasury histogram/summary stay here
+       (aggregate across ALL creators, not one treasury); the per-treasury table
+       is absorbed into each Operation card's Historical Behaviour section. -->
+  <div class="sec-h" style="color:var(--cyan)">⏱️ Creator Mode Distribution
+    <span class="hint">birth→launch gap · INSTANT (&lt;60s, attribution-only) vs STAGED (≥60s, catchable) · includes all funded+migrated creators, not exclusively confirmed-WATCHTOWER · this split determines the detection model</span>
   </div>
-
-  <!-- CONFIRMED SUB-PROVISIONERS -->
-  <div class="sec-h">🔧 Confirmed Sub-Provisioners
-    <span class="hint">treasury IS NOT NULL · wrap-close creator provisioning with known treasury · historical record · single-use wallets rotate each launch</span>
+  <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
+    <b style="color:var(--cyan)">Why this matters:</b>
+    Measured across creators that passed through the funding pipeline and migrated — regardless of whether their treasury is confirmed.
+    Of confirmed-treasury creators only, the INSTANT share is even higher (~92%).
+    The key finding holds either way: the vast majority have a birth→launch gap under 60 seconds (median 1s)
+    and are structurally unpredictable before the CREATE transaction fires.
+    The cascade detects these <em>at</em> the moment of launch, not before.
+    Only the STAGED cohort has a catchable lead time.
   </div>
-  <div class="panel" style="margin-bottom:8px">
-    <table><thead><tr>
-      <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
-    </tr></thead><tbody id="subprovs-body-confirmed"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
+  <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
   <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Sub-Provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Treasury</th><th>Status</th><th>Last Active</th><th>Funder</th>
-    </tr></thead><tbody id="subprovs-body-unknown"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Birth → Launch histogram</div>
+    <div id="creator-mode-histogram" style="font-family:var(--mono,monospace);font-size:12px;padding:4px 13px 12px">loading…</div>
   </div>
+  <!-- per-treasury creator-mode table stays mounted (Operation cards read from
+       window._creatorModesByTreasury instead) but no longer surfaced directly -->
+  <div style="display:none"><table><tbody id="creator-mode-treasury"></tbody></table></div>
 
-  <!-- CAPITAL DISTRIBUTOR CANDIDATES — collapsed, discovery artefact not live ops -->
+  <!-- CONFIRMED TREASURY BANK — full roster reference (including dormant/blind
+       treasuries not shown as Operation cards, since those only cover CURRENT
+       activity). This is the "browse everything we know" fallback. -->
+  <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">full roster reference, including dormant treasuries · authoritative live anchors</span></div>
+  <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
+  <details class="collapse-section">
+    <summary><span class="cs-label">Full Treasury Roster</span><span class="cs-hint">including dormant/blind treasuries not shown as active Operation cards</span></summary>
+    <div class="collapse-body">
+      <div class="panel" style="margin-bottom:0">
+        <table><thead><tr>
+          <th>Treasury</th><th class="num">OUT SOL</th><th class="num">Active Subprovs</th><th class="num">Launches</th><th class="num">TX/24h</th><th>Webhooked</th><th>Last Outbound</th><th>Confidence</th>
+        </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </details>
+  <!-- CAPITAL DISTRIBUTOR CANDIDATES — discovery artefact, accumulated knowledge not live ops -->
   <details style="margin-bottom:18px">
     <summary style="cursor:pointer;list-style:none;font-size:11px;font-weight:700;color:#60a5fa;padding:4px 0;user-select:none">
       ▶ Capital Distributor Candidates
@@ -279,16 +416,54 @@ details.collapse-section .collapse-body { padding-top:14px; }
       <div id="cdc-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
     </div>
   </details>
-
-  <!-- CONFIRMED TREASURY BANK -->
-  <div class="sec-h" style="color:var(--cyan)">🏛️ Confirmed Treasury Bank <span class="hint">authoritative live anchors · forward-walk fires only from this set</span></div>
-  <div class="hero-grid" id="treasury-bank-card" style="margin-bottom:8px"></div>
-  <div class="panel" style="margin-bottom:18px">
-    <table><thead><tr>
-      <th>Treasury</th><th class="num">OUT SOL</th><th class="num">Active Subprovs</th><th class="num">Launches</th><th class="num">TX/24h</th><th>Webhooked</th><th>Last Outbound</th><th>Confidence</th>
-    </tr></thead><tbody id="treasury-bank-body"><tr><td colspan="8" class="muted">loading…</td></tr></tbody></table>
+  <!-- Known Operator Baselines — on-demand analyst report -->
+  <details id="m3-patterns-section" style="margin-bottom:18px">
+    <summary style="cursor:pointer;list-style:none;font-size:11px;font-weight:700;color:var(--text-sec);padding:6px 0;user-select:none" onclick="loadPatternReport()">
+      ▶ Known Operator Baselines
+      <span style="font-size:10px;font-weight:400;color:var(--text-dim);margin-left:8px">confirmed operator fingerprints · behavioural reference · generated on demand</span>
+      <span id="m3-pattern-badge" style="margin-left:8px"></span>
+    </summary>
+    <div id="m3-patterns-body" style="padding:8px 0">
+      <span class="muted" style="font-size:11px">Click to generate report…</span>
+    </div>
+  </details>
+  <!-- NETWORK INTELLIGENCE -->
+  <details class="collapse-section">
+    <summary>
+      <span class="cs-label">🔬 Network Intelligence</span>
+      <span class="cs-hint">apex funders · vanity families · expand for network topology panels</span>
+    </summary>
+    <div class="collapse-body">
+      <div class="sec-h" style="color:var(--cyan)">⬆️ Apex Funders <span class="hint">who funds our treasuries · multi-treasury = shared apex · 30-day window · zero RPC</span></div>
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Funder</th><th class="num">Treasuries</th><th class="num">Max SOL</th><th class="num">Total</th><th class="num">Funds</th><th>Type</th><th>Last</th>
+        </tr></thead><tbody id="apex-funders-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
+      </div>
+      <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families · a new wallet sharing the prefix = same-operator evidence (not a role)</span></div>
+      <div id="vanity-families" style="margin-bottom:6px"></div>
+      <div class="panel" style="margin-bottom:18px">
+        <table><thead><tr>
+          <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
+        </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </details>
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  REVIEW QUEUE — where analyst effort is best spent next -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--amber);text-transform:uppercase">Review Queue</div>
+    <div style="flex:1;height:1px;background:rgba(217,119,6,.3)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400">where analyst effort is best spent next</span>
   </div>
+  <!-- X22E — task-list summary: what needs attention, in one sentence, before
+       the sections that supply the detail. Each count is real and already
+       computed by the load functions below (tier1_count / lead counts / open
+       investigations) — this just states them together as a briefing. -->
+  <div class="panel" style="margin-bottom:14px;padding:12px 16px;font-size:12.5px;color:var(--text-sec)" id="review-queue-summary">loading…</div>
 
+  <!-- Coverage Opportunity Widget — ranked subscription guidance, this IS analyst effort allocation -->
   <!-- Coverage Opportunity Widget -->
   <div class="cov-opp" id="cov-opp-widget" style="display:none">
     <div class="cov-opp-head">
@@ -317,83 +492,43 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <div id="cov-t2-footnote" style="font-size:10px;color:var(--text-dim);margin-top:6px;padding:4px 8px;display:none"></div>
   </div>
 
-
-  <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <!--  OPERATIONS LEDGER                                                    -->
-  <!--  Historical continuation of live ops — confirmed-treasury launches   -->
-  <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--green);text-transform:uppercase">Operations Ledger</div>
-    <div style="flex:1;height:1px;background:rgba(63,185,80,.2)"></div>
+  <!-- DISCOVERY LEADS -->
+  <div class="sec-h" style="color:var(--cyan)">🔭 Discovery Leads
+    <span class="hint">wallets exhibiting operator infrastructure behaviour · not yet confirmed · human review required before any pipeline action</span>
   </div>
-
-  <!-- OPERATIONS LEDGER TABLE -->
-  <div class="sec-h" style="color:var(--green);font-size:15px">📋 Operations Ledger
-    <span class="hint" style="font-size:11px">ARMED → LAUNCHED → MIGRATED → RECYCLED · full operation lifecycle from activation to exit</span>
-    <span id="audit-verdict" style="margin-left:auto;font-size:12px;font-weight:800"></span>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;align-items:center">
+    <span id="dl-count-high" style="padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-weight:700">HIGH 0</span>
+    <span id="dl-count-medium" style="padding:2px 8px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-weight:700">MEDIUM 0</span>
+    <span id="dl-count-low" style="padding:2px 8px;border-radius:4px;background:rgba(110,118,129,.12);border:1px solid rgba(110,118,129,.3);color:var(--text-dim);font-weight:700">LOW 0</span>
+    <span style="color:var(--text-dim)">Score ≥60 = HIGH · 35–59 = MEDIUM · 15–34 = LOW · Conditional badges: ✓=confirmed ✗=absent ?=unresolvable without on-chain confirmation</span>
   </div>
-  <!-- Lifecycle state summary cards -->
-  <div class="hero-grid" id="lifecycle-cards" style="margin-bottom:8px"></div>
-
-  <!-- ARMED pre-launch strip -->
-  <div class="panel" style="margin-bottom:8px;border-color:rgba(63,185,80,.4)">
+  <div class="panel" style="margin-bottom:18px" id="discovery-leads-panel">
+    <div id="discovery-leads-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
+  </div>
+  <!-- Attribution coverage strip -->
+  <!-- Coverage strip -->
+  <div id="m3-coverage" style="background:rgba(217,119,6,.06);border:1px solid rgba(217,119,6,.2);border-radius:8px;padding:8px 14px;margin-bottom:14px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:11px">
+    <span style="color:var(--text-dim)">loading attribution coverage…</span>
+  </div>
+  <!-- Investigation Queue — unified, type-badged -->
+  <div class="sec-h" style="color:var(--amber)">Investigation Queue
+    <span class="hint">wrap-close confirmed · one queue · type badge shows confidence · sorted by status then type</span>
+    <span id="m3-unknown-count" style="margin-left:auto;font-size:11px;color:var(--amber);font-weight:800"></span>
+  </div>
+  <div class="panel" style="margin-bottom:10px;border-color:rgba(217,119,6,.3)">
     <table><thead><tr>
-      <th style="width:70px">State</th><th>Subprov</th><th>Treasury</th>
-      <th class="num">Capital</th><th class="num">Age</th><th class="num">TTL</th>
-    </tr></thead><tbody id="armed-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+      <th style="width:72px">Type</th><th style="width:120px">Status</th><th>Subprov</th>
+      <th class="num">Creators</th><th class="num">Launches</th>
+      <th class="num">Age</th><th>Walkback</th>
+    </tr></thead><tbody id="m3-unknown-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
   </div>
-  <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
-  <div id="audit-latency-strip" class="panel" style="margin-bottom:8px;padding:8px 13px;display:flex;gap:14px;flex-wrap:wrap;font-size:11px"></div>
-  <div id="audit-buckets" style="margin-bottom:8px"></div>
-  <!-- Lifecycle filter tabs -->
-  <div id="audit-filter-bar" style="display:flex;gap:6px;margin-bottom:8px;font-size:11px;font-weight:700">
-    <span class="lc-filter active" data-filter="ALL"     onclick="setAuditFilter('ALL')"     style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">ALL</span>
-    <span class="lc-filter"        data-filter="LAUNCHED" onclick="setAuditFilter('LAUNCHED')" style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">LAUNCHED</span>
-    <span class="lc-filter"        data-filter="MIGRATED" onclick="setAuditFilter('MIGRATED')" style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">MIGRATED</span>
-    <span class="lc-filter"        data-filter="RECYCLED" onclick="setAuditFilter('RECYCLED')" style="padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2)">RECYCLED</span>
-  </div>
-  <div class="panel" style="margin-bottom:18px;border-color:rgba(63,185,80,.3)">
-    <table><thead><tr>
-      <th>Token</th><th>Campaign</th><th>Lifecycle</th>
-      <th class="num">Funding</th><th class="num">Detected</th>
-      <th class="num">MC @ detect</th><th class="num">Peak MC · ×</th>
-    </tr></thead><tbody id="audit-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- CREATOR MODE DISTRIBUTION -->
-  <div class="sec-h" style="color:var(--cyan)">⏱️ Creator Mode Distribution
-    <span class="hint">birth→launch gap · INSTANT (&lt;60s, attribution-only) vs STAGED (≥60s, catchable) · includes all funded+migrated creators, not exclusively confirmed-WATCHTOWER · this split determines the detection model</span>
-  </div>
-  <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:9px 14px;margin-bottom:10px;font-size:11px;color:var(--text-sec)">
-    <b style="color:var(--cyan)">Why this matters:</b>
-    Measured across creators that passed through the funding pipeline and migrated — regardless of whether their treasury is confirmed.
-    Of confirmed-treasury creators only, the INSTANT share is even higher (~92%).
-    The key finding holds either way: the vast majority have a birth→launch gap under 60 seconds (median 1s)
-    and are structurally unpredictable before the CREATE transaction fires.
-    The cascade detects these <em>at</em> the moment of launch, not before.
-    Only the STAGED cohort has a catchable lead time — which is why the prediction pipeline is in Live Operations above.
-  </div>
-  <div class="hero-grid" id="creator-mode-summary" style="margin-bottom:8px"></div>
-  <div class="panel" style="margin-bottom:8px">
-    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Birth → Launch histogram</div>
-    <div id="creator-mode-histogram" style="font-family:var(--mono,monospace);font-size:12px;padding:4px 13px 12px">loading…</div>
-  </div>
-  <div class="panel" style="margin-bottom:18px">
-    <div style="font-size:11px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;padding:10px 13px 4px">Per-treasury mode — which operators run INSTANT vs STAGED</div>
-    <table><thead><tr>
-      <th>Treasury</th><th>Mode</th><th class="num">Instant</th><th class="num">Staged</th><th class="num">Min</th><th class="num">Max</th>
-    </tr></thead><tbody id="creator-mode-treasury"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <!--  MISSION 2 — CAPITAL DEPLOYMENT                                       -->
-  <!--  Unresolved capital movements · pre-campaign intelligence             -->
-  <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--amber);text-transform:uppercase">Mission 2 — Capital Deployment</div>
-    <div style="flex:1;height:1px;background:rgba(217,119,6,.3)"></div>
-  </div>
-
+  <!-- Walkback Diagnostics — collapsed by default -->
+  <details id="m3-diagnostics" style="margin-bottom:18px">
+    <summary style="cursor:pointer;list-style:none;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;padding:4px 0;user-select:none">
+      ▶ Walkback Diagnostics
+    </summary>
+    <div id="m3-diagnostics-body" style="padding:8px 0;font-size:11px;color:var(--text-sec)">loading…</div>
+  </details>
   <!-- MISSION 2: CAPITAL DEPLOYMENT -->
   <details id="capital-deployment-section" style="margin-bottom:18px">
     <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:8px 0;user-select:none">
@@ -412,98 +547,83 @@ details.collapse-section .collapse-body { padding-top:14px; }
       </tr></thead><tbody id="reload-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
     </div>
   </details>
-
-  <!-- DISCOVERY LEADS -->
-  <div class="sec-h" style="color:var(--cyan)">🔭 Discovery Leads
-    <span class="hint">wallets exhibiting operator infrastructure behaviour · not yet confirmed · human review required before any pipeline action</span>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:10px;align-items:center">
-    <span id="dl-count-high" style="padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--green);font-weight:700">HIGH 0</span>
-    <span id="dl-count-medium" style="padding:2px 8px;border-radius:4px;background:rgba(240,136,62,.12);border:1px solid rgba(240,136,62,.3);color:var(--amber);font-weight:700">MEDIUM 0</span>
-    <span id="dl-count-low" style="padding:2px 8px;border-radius:4px;background:rgba(110,118,129,.12);border:1px solid rgba(110,118,129,.3);color:var(--text-dim);font-weight:700">LOW 0</span>
-    <span style="color:var(--text-dim)">Score ≥60 = HIGH · 35–59 = MEDIUM · 15–34 = LOW · Conditional badges: ✓=confirmed ✗=absent ?=unresolvable without on-chain confirmation</span>
-  </div>
-  <div class="panel" style="margin-bottom:18px" id="discovery-leads-panel">
-    <div id="discovery-leads-body" style="color:var(--text-dim);font-size:11px;padding:10px">loading…</div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <!--  MISSION 3 — ATTRIBUTION INTELLIGENCE                                  -->
-  <!--  What don't we understand yet, and how do we resolve it?               -->
-  <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--amber);text-transform:uppercase">Mission 3 — Attribution Intelligence</div>
-    <div style="flex:1;height:1px;background:rgba(217,119,6,.25)"></div>
-  </div>
-
-  <!-- Coverage strip -->
-  <div id="m3-coverage" style="background:rgba(217,119,6,.06);border:1px solid rgba(217,119,6,.2);border-radius:8px;padding:8px 14px;margin-bottom:14px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:11px">
-    <span style="color:var(--text-dim)">loading attribution coverage…</span>
-  </div>
-
-  <!-- Investigation Queue — unified, type-badged -->
-  <div class="sec-h" style="color:var(--amber)">Investigation Queue
-    <span class="hint">wrap-close confirmed · one queue · type badge shows confidence · sorted by status then type</span>
-    <span id="m3-unknown-count" style="margin-left:auto;font-size:11px;color:var(--amber);font-weight:800"></span>
-  </div>
-  <div class="panel" style="margin-bottom:10px;border-color:rgba(217,119,6,.3)">
-    <table><thead><tr>
-      <th style="width:72px">Type</th><th style="width:120px">Status</th><th>Subprov</th>
-      <th class="num">Creators</th><th class="num">Launches</th>
-      <th class="num">Age</th><th>Walkback</th>
-    </tr></thead><tbody id="m3-unknown-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-  </div>
-
-  <!-- Walkback Diagnostics — collapsed by default -->
-  <details id="m3-diagnostics" style="margin-bottom:18px">
-    <summary style="cursor:pointer;list-style:none;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;padding:4px 0;user-select:none">
-      ▶ Walkback Diagnostics
-    </summary>
-    <div id="m3-diagnostics-body" style="padding:8px 0;font-size:11px;color:var(--text-sec)">loading…</div>
-  </details>
-
-  <!-- Known Operator Baselines — on-demand analyst report -->
-  <details id="m3-patterns-section" style="margin-bottom:18px">
-    <summary style="cursor:pointer;list-style:none;font-size:11px;font-weight:700;color:var(--text-sec);padding:6px 0;user-select:none" onclick="loadPatternReport()">
-      ▶ Known Operator Baselines
-      <span style="font-size:10px;font-weight:400;color:var(--text-dim);margin-left:8px">confirmed operator fingerprints · behavioural reference · generated on demand</span>
-      <span id="m3-pattern-badge" style="margin-left:8px"></span>
-    </summary>
-    <div id="m3-patterns-body" style="padding:8px 0">
-      <span class="muted" style="font-size:11px">Click to generate report…</span>
-    </div>
-  </details>
-
-  <!-- NETWORK INTELLIGENCE -->
   <details class="collapse-section">
     <summary>
-      <span class="cs-label">🔬 Network Intelligence</span>
-      <span class="cs-hint">apex funders · vanity families · expand for network topology panels</span>
+      <span class="cs-label">🔍 Treasury Attribution Review</span>
+      <span class="cs-hint">positional resolver · assigned treasury may be a relay, not the true root</span>
     </summary>
     <div class="collapse-body">
-      <div class="sec-h" style="color:var(--cyan)">⬆️ Apex Funders <span class="hint">who funds our treasuries · multi-treasury = shared apex · 30-day window · zero RPC</span></div>
-      <div class="panel" style="margin-bottom:18px">
+      <div class="panel" id="review-panel" style="margin-bottom:18px">
         <table><thead><tr>
-          <th>Funder</th><th class="num">Treasuries</th><th class="num">Max SOL</th><th class="num">Total</th><th class="num">Funds</th><th>Type</th><th>Last</th>
-        </tr></thead><tbody id="apex-funders-body"><tr><td colspan="7" class="muted">loading…</td></tr></tbody></table>
-      </div>
-      <div class="sec-h" style="color:var(--purple)">⬡ Vanity Family <span class="hint">deliberate ground-prefix infra families · a new wallet sharing the prefix = same-operator evidence (not a role)</span></div>
-      <div id="vanity-families" style="margin-bottom:6px"></div>
-      <div class="panel" style="margin-bottom:18px">
-        <table><thead><tr>
-          <th>Matched Wallet</th><th>Family</th><th>Prefix</th><th>Confidence</th><th>Seen via</th><th>Tx</th>
-        </tr></thead><tbody id="vanity-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
+          <th>Operation</th><th>Assigned Treasury</th><th>Positional Root</th><th class="num">Conf</th><th>Status</th><th>Reason</th>
+        </tr></thead><tbody id="review-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
       </div>
     </div>
   </details>
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  INFRASTRUCTURE HEALTH — is monitoring itself healthy? (analyst-relevant, -->
+  <!--  unlike Diagnostics below which is engineering-only)                     -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--cyan);text-transform:uppercase">Infrastructure Health</div>
+    <div style="flex:1;height:1px;background:rgba(34,211,238,.3)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400">is treasury monitoring itself healthy — not engineering internals</span>
+  </div>
+  <div class="infra-health" id="infra-health">
+    <div class="ih-title"><span class="dot"></span><span id="ih-title-text">loading…</span></div>
+    <div class="ih-stats" id="ih-stats"></div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <!--  DIAGNOSTICS  (collapsed by default)                                  -->
-  <!--  Developer information — valuable during investigation                -->
+  <!--  DIAGNOSTICS — engineering health, not analyst intelligence -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
-  <div style="margin:24px 0 12px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase">Diagnostics</div>
+  <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-dim);text-transform:uppercase">Diagnostics</div>
     <div style="flex:1;height:1px;background:var(--border)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400">engineering health, not analyst intelligence</span>
+  </div>
+
+  <!-- Legacy detailed coverage/cascade KPI wall — X22C moved this out of the
+       hero entirely (it's subscription/cascade internals, not an operational
+       answer). Kept reachable here, not deleted. -->
+  <details class="collapse-section">
+    <summary><span class="cs-label">Detailed Coverage Metrics</span><span class="cs-hint">full cascade/subscription KPI breakdown</span></summary>
+    <div class="collapse-body"><div class="hero-grid" id="hero"></div></div>
+  </details>
+
+  <!-- Detection latency detail — moved out of Operations Ledger. RPC fetch,
+       chain-clock, DB commit, p95 timing are engineering diagnostics, not an
+       operational answer; the Ledger keeps only launches/migrated/median ×/peak MC. -->
+  <details class="collapse-section">
+    <summary><span class="cs-label">Detection Latency Detail</span><span class="cs-hint">RPC fetch · chain-clock · DB commit · p95 timing per launch</span></summary>
+    <div class="collapse-body">
+      <div class="hero-grid" id="audit-cards" style="margin-bottom:8px"></div>
+      <div id="audit-latency-strip" class="panel" style="margin-bottom:8px;padding:8px 13px;display:flex;gap:14px;flex-wrap:wrap;font-size:11px"></div>
+    </div>
+  </details>
+
+  <!-- Subscription Queue -->
+  <div class="panel" style="margin-bottom:8px">
+    <div class="panel-title" style="margin-bottom:8px">Subscription Queue</div>
+    <div id="sub-queue-panel" style="font-size:11px;color:var(--text-dim)">loading…</div>
+  </div>
+
+  <!-- Program CREATE watcher -->
+  <div id="pw-shadow-panel" style="display:none;margin-bottom:10px">
+    <div style="background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.35);border-radius:8px;padding:10px 14px">
+      <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;letter-spacing:.4px">
+        🔬 PROGRAM WATCHER — Phase 1 Shadow Mode
+        <span id="pw-stream-badge" style="margin-left:8px;font-size:10px;padding:1px 7px;border-radius:5px;background:rgba(139,92,246,.2)">CLOSED</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-active-candidates" style="font-size:18px">—</div><div class="l">active candidates</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v go" id="pw-matches" style="font-size:18px">—</div><div class="l">matches</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-persist-queue" style="font-size:18px">—</div><div class="l">persist queue</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-fetch-dropped" style="font-size:18px">—</div><div class="l">fetch dropped</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-fetch-timeout" style="font-size:18px">—</div><div class="l">fetch timeout</div></div>
+        <div class="hcard" style="padding:8px 10px"><div class="v" id="pw-expired" style="font-size:18px">—</div><div class="l">expired</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- Event Feed — visible by default within diagnostics -->
@@ -512,7 +632,6 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <table><thead><tr><th>When</th><th>Type</th><th>Wallet</th><th>Operation</th><th>Detail</th></tr></thead>
       <tbody id="feed-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
   </div>
-
   <!-- Dust Observatory summary card -->
   <div class="sec-h">🔭 Dust Observatory
     <span class="hint">intelligence layer — longitudinal dataset, read-only · <a href="/ops/dust-observatory" style="color:var(--cyan);text-decoration:none">full view →</a></span>
@@ -529,7 +648,6 @@ details.collapse-section .collapse-body { padding-top:14px; }
       </div>
     </div>
   </div>
-
   <!-- Collapsed diagnostic panels -->
   <details class="collapse-section">
     <summary>
@@ -575,20 +693,6 @@ details.collapse-section .collapse-body { padding-top:14px; }
     </div>
   </details>
 
-  <details class="collapse-section">
-    <summary>
-      <span class="cs-label">🔍 Treasury Attribution Review</span>
-      <span class="cs-hint">positional resolver · assigned treasury may be a relay, not the true root</span>
-    </summary>
-    <div class="collapse-body">
-      <div class="panel" id="review-panel" style="margin-bottom:18px">
-        <table><thead><tr>
-          <th>Operation</th><th>Assigned Treasury</th><th>Positional Root</th><th class="num">Conf</th><th>Status</th><th>Reason</th>
-        </tr></thead><tbody id="review-body"><tr><td colspan="6" class="muted">loading…</td></tr></tbody></table>
-      </div>
-    </div>
-  </details>
-
 
 </div>
 
@@ -620,6 +724,12 @@ async function loadCoverageOpportunity(){
   const s=d.summary||{};
   const t1=d.tier1_blind_treasuries||[];
   const t2=d.tier2_unsubscribed_subprovs||[];
+
+  // X22E — captured before any early return, so the Review Queue task-list
+  // summary always knows the real blind-treasury count.
+  window._reviewQueueCounts = window._reviewQueueCounts||{};
+  window._reviewQueueCounts.blindTreasuries = s.tier1_count||0;
+  renderReviewQueueSummary();
 
   // Hide widget entirely if nothing to report
   const widget=document.getElementById('cov-opp-widget');
@@ -756,6 +866,96 @@ async function loadCoverageSummary(){
         `NO WS NOTIFICATIONS — listener ${dh.listener_status} (last notif ${dh.last_ws_notif?ago(dh.last_ws_notif)+' ago':'never'}). Real-time detection may be BLIND.`;
     } else wb.classList.remove('show');
   }catch(e){}
+
+  // X22B — consolidated operational summary + infrastructure health, built from
+  // the SAME coverage-summary payload already fetched above (no new endpoint).
+  renderOpSummary(d);
+  renderInfraHealth(d);
+}
+
+// ── X22C — HERO: five facts in sentence form (Status / Active Operations /
+// Active Sessions / Launches 24h·7d / Last Launch). No KPI wall.
+// "Active operations" = confirmed treasuries with activity in the last 3 days
+// (the same window loadActiveTreasuryGroups() uses) — treasury remains the
+// operational unit; no first-class Operation object exists (documented
+// modelling limitation, not fabricated). Recomputed once confirmed-treasuries
+// data is available (see loadActiveTreasuryGroups) since coverage-summary
+// alone doesn't carry a per-treasury activity list.
+window._lastCoverageSummary = null;
+function renderOpSummary(d){
+  window._lastCoverageSummary = d;
+  const isHealthy = ['ACTIVE','LIVE','LIVE_IDLE'].includes(d.cascade_status);
+  const isDegraded = ['STALE','DEGRADED','CONNECTING','SUBSCRIBING','RECONCILING'].includes(d.cascade_status);
+  const statusEl = document.getElementById('os-status');
+  const statusText = document.getElementById('os-status-text');
+  if(statusEl && statusText){
+    statusEl.className = 'os-status ' + (isHealthy?'go':isDegraded?'warn':'bad');
+    statusText.textContent = isHealthy?'ACTIVE':isDegraded?'DEGRADED':'DOWN';
+  }
+  // 24h launches: computed client-side from already-fetched launch-audit rows
+  // (window._auditData carries real create_time values) — not fabricated, just
+  // not present in coverage-summary's own 7d-only field.
+  const auditRows = window._auditData||[];
+  const now24h = Math.floor(Date.now()/1000) - 86400;
+  const launches24h = auditRows.filter(r=>(r.create_time||0) >= now24h).length;
+  const launches7d = d.launches_detected_7d||0;
+  const activeOpsCount = (window._activeTreasuryCount!=null) ? window._activeTreasuryCount : null;
+  const stats=[
+    ['Active Operations', activeOpsCount!=null ? activeOpsCount : '—'],
+    ['Active Sessions', d.cascade_session_subs||0],
+    ['Launches (24h / 7d)', `${launches24h} / ${launches7d}`],
+  ];
+  const st=document.getElementById('os-stats');
+  if(st) st.innerHTML = stats.map(([l,v])=>`<div class="os-stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  const rc=document.getElementById('os-recency');
+  if(rc) rc.innerHTML = `<span>Last launch: <b>${d.last_create?ago(d.last_create)+' ago':'—'}</b></span>`;
+}
+
+// ── X22C — INFRASTRUCTURE: one concise health summary, not a wall of
+// subscription metrics. "Cascade healthy"/"Heartbeat healthy" are derived from
+// cascade_status/cascade_hb_age_s (both already in coverage-summary) — real
+// facts, not invented labels.
+function renderInfraHealth(d){
+  const blindTreas = d.blind_treasuries||0;
+  const confirmed = d.confirmed_treasuries||0;
+  const webhooked = d.webhooked_treasuries||0;
+  const healthy = blindTreas===0 && confirmed>0;
+  const titleEl = document.getElementById('ih-title-text');
+  const dotEl = document.querySelector('#infra-health .dot');
+  if(titleEl) titleEl.textContent = healthy ? 'Treasury monitoring healthy' : (confirmed===0 ? 'No confirmed treasuries yet' : `${blindTreas} treasur${blindTreas===1?'y':'ies'} blind — coverage gap`);
+  if(dotEl) dotEl.style.background = healthy?'var(--green)':(confirmed===0?'var(--text-dim)':'var(--red)');
+  const cascadeHealthy = ['ACTIVE','LIVE','LIVE_IDLE'].includes(d.cascade_status);
+  const hbHealthy = d.cascade_hb_age_s!=null && d.cascade_hb_age_s < 90;
+  const stats=[
+    ['subscribed', d.cascade_treasury_subs||0],
+    ['blind treasuries', blindTreas],
+  ];
+  const s=document.getElementById('ih-stats');
+  if(s) s.innerHTML = stats.map(([l,v])=>`<span><b>${v}</b> ${l}</span>`).join('')
+    + `<span style="color:${cascadeHealthy?'var(--green)':'var(--red)'}">Cascade ${cascadeHealthy?'healthy':'unhealthy'}</span>`
+    + `<span style="color:${hbHealthy?'var(--green)':'var(--red)'}">Heartbeat ${hbHealthy?'healthy':(d.cascade_hb_age_s!=null?'stale':'unknown')}</span>`;
+}
+
+// ── X22E — REVIEW QUEUE task-list summary: one sentence naming what needs
+// attention, computed from real counts already produced by three existing
+// loaders (coverage-opportunity, discovery-leads, mission3). Degrades
+// honestly — only mentions a category once its real count has arrived;
+// never guesses at a count that hasn't loaded yet.
+function renderReviewQueueSummary(){
+  const el=document.getElementById('review-queue-summary');
+  if(!el) return;
+  const c=window._reviewQueueCounts||{};
+  const parts=[];
+  if(c.blindTreasuries!=null && c.blindTreasuries>0) parts.push(`<b style="color:var(--red)">${c.blindTreasuries}</b> blind treasur${c.blindTreasuries===1?'y':'ies'} limiting real-time coverage`);
+  if(c.openInvestigations!=null && c.openInvestigations>0) parts.push(`<b style="color:var(--amber)">${c.openInvestigations}</b> open investigation${c.openInvestigations===1?'':'s'}`);
+  if(c.highLeads!=null && c.highLeads>0) parts.push(`<b style="color:var(--green)">${c.highLeads}</b> high-confidence discovery lead${c.highLeads===1?'':'s'} awaiting review`);
+  if(!parts.length){
+    const anyLoaded = c.blindTreasuries!=null || c.openInvestigations!=null || c.highLeads!=null;
+    el.textContent = anyLoaded ? 'Nothing currently needs analyst attention — review queue is clear.' : 'loading…';
+    return;
+  }
+  const total = (c.blindTreasuries||0) + (c.openInvestigations||0) + (c.highLeads||0);
+  el.innerHTML = `<b style="color:var(--text-pri)">${total}</b> item${total===1?'':'s'} need${total===1?'s':''} analyst attention: ${parts.join(', ')}.`;
 }
 
 // ── WS CASCADE ────────────────────────────────────────────────────────────────
@@ -1003,6 +1203,8 @@ async function loadWsCascade(){
     if(!_byTreasury[t]) _byTreasury[t]=[];
     _byTreasury[t].push(s);
   }
+  // X23 — keyed by treasury for Operation cards' Live Activity section.
+  window._sessionsByTreasury = _byTreasury;
   const _allGroups=[];
   for(const [t,tsessions] of Object.entries(_byTreasury)){
     const sorted=[...tsessions].sort((a,b)=>(a.funding_time||0)-(b.funding_time||0));
@@ -1020,8 +1222,12 @@ async function loadWsCascade(){
     const bt=Math.max(...b.sessions.map(s=>s.funding_time||0));
     return bt-at;
   });
+  // X23 — this table is now the "Needs Attribution → Sessions" fallback queue:
+  // sessions WITH a resolved treasury are shown inside their Operation card's
+  // Live Activity section instead, so only unattributed groups render here.
   const _rows=[]; let _grpIdx=0;
   for(const grp of _allGroups){
+    if(grp.treasury) continue;
     const batch=grp.sessions;
     if(batch.length<=1){
       _rows.push(_mkSubprovRow(batch[0],false));
@@ -1052,7 +1258,7 @@ async function loadWsCascade(){
       _rows.push(`<tr id="${gid}" style="display:none"><td colspan="8" style="padding:0"><table style="width:100%;border-collapse:collapse">${[...batch].reverse().map(r=>_mkSubprovRow(r,true)).join('')}</table></td></tr>`);
     }
   }
-  if(body) body.innerHTML=_rows.join('')||'<tr><td colspan="8" class="muted">no active cascade sessions — a session opens when a confirmed treasury funds a known SUB_PROV (ws_cascade daemon must be running and subscribed)</td></tr>';
+  if(body) body.innerHTML=_rows.join('')||'<tr><td colspan="8" class="muted">no unattributed sessions — every active session belongs to an Operation card above, or the cascade has no active sessions at all</td></tr>';
   // latest launch banner
   // program watcher shadow panel
   const pw=d.pw||{};
@@ -1428,8 +1634,14 @@ async function loadTokenLifecycle(){
   const cc=document.getElementById('lifecycle-cards');
   if(cc) cc.innerHTML=cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
 
-  // Render ARMED pre-launch rows in the ledger top strip
-  const armedRows=(d.lifecycle||[]).filter(r=>r.lifecycle_state==='ARMED');
+  // X23 — full lifecycle rows kept for per-treasury filtering inside Operation
+  // cards (Live Activity section reads ARMED rows for its own treasury).
+  window._lifecycleRows = d.lifecycle||[];
+
+  // Render ARMED pre-launch rows without a resolved treasury — the "Needs
+  // Attribution → Launches" fallback queue. Rows WITH a treasury are shown
+  // inside their Operation card's Live Activity section instead.
+  const armedRows=(d.lifecycle||[]).filter(r=>r.lifecycle_state==='ARMED' && !r.treasury);
   const armedBody=document.getElementById('armed-body');
   if(armedBody){
     if(armedRows.length){
@@ -1488,6 +1700,11 @@ async function loadLaunchAudit(){
   ];
   const cc=document.getElementById('audit-cards');
   if(cc) cc.innerHTML=cards.map(([l,v,c])=>`<div class="hcard ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+
+  // Ledger narrative is rendered by _renderLedgerNarrative() from _mergeAndRender()
+  // below (window._auditData is set at the end of this function) — it needs the
+  // lifecycle merge to know real migrated/recycled counts, which this function
+  // alone doesn't carry.
   const ls=document.getElementById('audit-latency-strip');
   if(ls){
     const ms=v=>v!=null?`${v}ms`:'—';
@@ -1529,6 +1746,30 @@ function _mergeAndRender(){
     });
   });
   _renderAuditRows();
+  _renderLedgerNarrative();
+}
+
+// X22E — Operations Ledger narrative: a real briefing paragraph, not a caption.
+// Migrated count is computed here (not in loadLaunchAudit) because it needs
+// the lifecycle merge above (_lc_state) to know which launches actually
+// reached MIGRATED/RECYCLED — a fact loadLaunchAudit alone doesn't carry.
+function _renderLedgerNarrative(){
+  const ln=document.getElementById('ledger-narrative');
+  if(!ln) return;
+  const rows=_auditRows||[];
+  const nLaunches=rows.length;
+  if(!nLaunches){ ln.textContent='No launches recorded yet this period.'; return; }
+  const migrated=rows.filter(r=>r._lc_state==='MIGRATED'||r._lc_state==='RECYCLED').length;
+  const pctMigrated=Math.round(100*migrated/nLaunches);
+  const mults=rows.map(r=>r.actionable_multiple).filter(v=>v!=null);
+  const medMult = mults.length ? fmtMult(mults.slice().sort((a,b)=>a-b)[Math.floor(mults.length/2)]) : null;
+  const peaks=rows.map(r=>r.peak_mc).filter(v=>v!=null);
+  const medPeak = peaks.length ? fmtMC(peaks.slice().sort((a,b)=>a-b)[Math.floor(peaks.length/2)]) : null;
+  ln.innerHTML = `WATCHTOWER completed <b style="color:var(--text-pri)">${nLaunches}</b> launch${nLaunches===1?'':'es'} during the current observation window.`
+    + (medMult?` Median outcome was <b style="color:var(--text-pri)">${medMult}</b>.`:'')
+    + ` <b style="color:${pctMigrated===100?'var(--green)':pctMigrated>=50?'var(--amber)':'var(--red)'}">${pctMigrated}%</b> of completed launches reached migration${pctMigrated===100?' — none stalled':''}.`
+    + (medPeak?` Median peak market cap was <b style="color:var(--text-pri)">${medPeak}</b>.`:'')
+    + ` The table below contains the individual launches.`;
 }
 
 // ── CAPITAL RELOAD MONITOR ────────────────────────────────────────────────────
@@ -1600,6 +1841,9 @@ async function loadCreatorModes(){
       <span style="color:${col}">${'█'.repeat(w)}</span>
       <span style="color:var(--text-dim)">${n}</span></div>`;
   }).join('')+`<div style="margin-top:6px;color:var(--text-dim);font-size:10px">measured ${d.measured||0} · unknown ${d.unknown||0}</div>`;
+  // X23 — keyed by treasury for Operation cards' Historical Behaviour section.
+  window._creatorModesByTreasury = {};
+  (d.by_treasury||[]).forEach(t=>{ if(t.treasury) window._creatorModesByTreasury[t.treasury]=t; });
   document.getElementById('creator-mode-treasury').innerHTML=(d.by_treasury||[]).map(t=>{
     const col=t.mode==='INSTANT'?'#e06c2a':t.mode==='STAGED'?'#3fb950':'var(--amber)';
     return`<tr>
@@ -1649,6 +1893,10 @@ async function loadSubprovs(){
   // Split by treasury presence
   const confirmed=sp.filter(s=>s.treasury);
   const unknown=sp.filter(s=>!s.treasury);
+
+  // X23 — keyed by treasury for Operation cards' Evidence section.
+  window._subprovsByTreasury = {};
+  confirmed.forEach(s=>{ (window._subprovsByTreasury[s.treasury]=window._subprovsByTreasury[s.treasury]||[]).push(s); });
 
   const distHdr=dn.length
     ?`<tr><td colspan="7" style="padding:6px 13px;font-size:10px;color:var(--text-sec);background:rgba(124,58,237,.10);border-left:3px solid #7c3aed">🪢 ${dn.length} DISTRIBUTION sub-provisioner${dn.length>1?'s':''} — subprov that ALSO funds other subprovs: ${dn.slice(0,3).map(n=>`<span class="addr" onclick="sol('${n.distributor}')" title="funds ${n.n} downstream subprovs">${short(n.distributor)}→${n.n}</span>`).join(' · ')}</td></tr>`:'';
@@ -1716,6 +1964,154 @@ async function loadTreasuryBank(){
     + blindDormant.map(mkRow).join('');
 }
 
+// ── X22B — ACTIVE TREASURY GROUPS: the new centrepiece ───────────────────────
+// A treasury is an infrastructure anchor WITHIN an operation, not the operation
+// itself — no first-class "Operation" aggregate exists in the data model yet
+// (documented gap). Cards are keyed by treasury address; the WATCHTOWER badge
+// is shown only when a real wt_watchtower_launches row backs it (never invented).
+// "Observed creators" (not "active creators") because launch-audit rows are a
+// historical record, not a live creator-session count — no defensible current-
+// state creator count exists in the data today.
+// X23 — object-centric rebuild. Each card now colocates Overview / Live
+// Activity / Historical Behaviour / Evidence / Infrastructure for ONE
+// treasury by joining data already fetched by the other loaders on this page
+// (window._sessionsByTreasury, window._lifecycleRows, window._subprovsByTreasury,
+// window._creatorModesByTreasury, window._auditData) — no new fetches, no
+// invented Operation entity. This function should run AFTER loadWsCascade,
+// loadTokenLifecycle, loadSubprovs, loadCreatorModes, loadLaunchAudit have
+// populated those globals (enforced by the existing setTimeout(...,900) in
+// refreshFast()).
+async function loadActiveTreasuryGroups(){
+  let d; try{ d=await(await fetch('/api/ops-v2/intel/confirmed-treasuries')).json(); }catch(e){ return; }
+  const grid=document.getElementById('atg-grid');
+  if(!grid) return;
+  const now3d = Math.floor(Date.now()/1000) - 3*86400;
+  const active = (d.treasuries||[]).filter(t => (t.last_action||0) >= now3d)
+    .sort((a,b)=>(b.last_action||0)-(a.last_action||0));
+  if(!active.length){
+    grid.innerHTML = '<div class="muted" style="font-size:11px;padding:8px 0">no treasuries with current activity — see Operational Intelligence for the full roster</div>';
+    return;
+  }
+  const auditRows = window._auditData||[];
+  const auditByTreasury = {};
+  auditRows.forEach(r=>{ if(r.treasury) (auditByTreasury[r.treasury]=auditByTreasury[r.treasury]||[]).push(r); });
+  const sessionsByTreasury = window._sessionsByTreasury||{};
+  const lifecycleRows = window._lifecycleRows||[];
+  const subprovsByTreasury = window._subprovsByTreasury||{};
+  const creatorModesByTreasury = window._creatorModesByTreasury||{};
+
+  window._activeTreasuryCount = active.length;
+  if(window._lastCoverageSummary) renderOpSummary(window._lastCoverageSummary); // refresh hero now count is known
+
+  const field=(l,v)=>`<div class="atg-field"><div class="atg-field-l">${l}</div><div class="atg-field-v">${v}</div></div>`;
+  const opBlock=(title,hint,body)=>`<div class="atg-op-block"><div class="atg-op-h">${title}</div><div class="atg-op-hint">${hint}</div>${body}</div>`;
+
+  grid.innerHTML = active.map(t=>{
+    const launchRows = auditByTreasury[t.treasury]||[];
+    const observedCreators = new Set(launchRows.map(r=>r.creator).filter(Boolean)).size;
+    const isWatchtower = launchRows.length>0; // backed by a real wt_watchtower_launches-derived row
+    const badge = isWatchtower ? '<span class="atg-badge">WATCHTOWER</span>' : '';
+    const recentLaunches = t.launches||0;
+
+    // Live Activity — real sessions + ARMED rows for THIS treasury only.
+    const liveSessions = sessionsByTreasury[t.treasury]||[];
+    const armedRows = lifecycleRows.filter(r=>r.lifecycle_state==='ARMED' && r.treasury===t.treasury);
+
+    // Historical Behaviour — creator-mode signature for this treasury (if measured).
+    const mode = creatorModesByTreasury[t.treasury];
+
+    // Evidence — sub-provisioners this treasury is known to fund.
+    const subprovs = subprovsByTreasury[t.treasury]||[];
+
+    return `<details class="atg-card">
+      <summary>
+        <div class="atg-head">
+          ${badge}
+          <span class="atg-treasury" onclick="event.preventDefault();sol('${t.treasury}')">Treasury ${short(t.treasury)}</span>
+        </div>
+        <div class="atg-record">
+          ${field('Status', '<span class="atg-phase ACTIVE">ACTIVE</span>')}
+          ${field('Live sessions', `<b>${t.active_subprovs||0}</b>`)}
+          ${field('Recent launches', `<b>${recentLaunches}</b>`)}
+          ${field('Latest activity', `<b>${t.last_action?ago(t.last_action)+' ago':'—'}</b>`)}
+        </div>
+        <div class="atg-foot">
+          ${observedCreators?`<span>${observedCreators} observed creator${observedCreators===1?'':'s'}</span>`:''}
+          <span class="atg-expand-hint">Open Operation →</span>
+        </div>
+      </summary>
+      <div class="atg-body">
+
+        ${opBlock('Overview', 'What is this?', `
+          <div class="atg-record" style="margin-top:6px">
+            ${field('Operator', isWatchtower?'<span class="atg-badge">WATCHTOWER</span>':'<span class="muted">unattributed</span>')}
+            ${field('Confidence', t.confidence||'—')}
+            ${field('Observed launches', recentLaunches)}
+            ${field('Observed creators', observedCreators||0)}
+          </div>
+        `)}
+
+        ${opBlock('Live Activity', 'What is happening now?', liveSessions.length||armedRows.length ? `
+          ${armedRows.length ? `<div class="muted" style="font-size:10px;margin:6px 0 4px">ARMED (pre-launch)</div>
+          <table style="font-size:11px"><thead><tr><th>Subprov</th><th class="num">Capital</th><th class="num">Age</th><th class="num">TTL</th></tr></thead><tbody>${
+            armedRows.map(r=>{
+              const age=r.funded_at?Math.round((Date.now()/1000)-r.funded_at):null;
+              const ttl=r.expires_at?Math.max(0,r.expires_at-Math.round(Date.now()/1000)):null;
+              return `<tr><td><span class="addr" onclick="sol('${r.subprov||''}')">${r.subprov?short(r.subprov):'—'}</span></td>
+                <td class="num">${r.funding_amount!=null?(+r.funding_amount).toFixed(2)+' SOL':'—'}</td>
+                <td class="num muted">${age!=null?ago(age):'—'}</td>
+                <td class="num muted">${ttl!=null?ttl+'s left':'—'}</td></tr>`;
+            }).join('')
+          }</tbody></table>` : ''}
+          ${liveSessions.length ? `<div class="muted" style="font-size:10px;margin:8px 0 4px">Live sessions</div>
+          <table style="font-size:11px"><thead><tr><th>Subprov</th><th class="num">Funding SOL</th><th>Fan-out</th><th>State</th></tr></thead><tbody>${
+            liveSessions.map(s=>`<tr>
+              <td><span class="addr" onclick="sol('${s.subprov||''}')">${s.subprov?short(s.subprov):'—'}</span></td>
+              <td class="num">${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(2):'—'}</td>
+              <td class="num">${s.candidates||0}</td>
+              <td class="muted" style="font-size:10px">${s.monitoring_state||'—'}</td>
+            </tr>`).join('')
+          }</tbody></table>` : ''}
+        ` : '<div class="muted" style="font-size:11px;margin-top:6px">No live sessions or ARMED capital open for this treasury right now.</div>')}
+
+        ${opBlock('Historical Behaviour', 'What has happened before?', `
+          <div style="font-size:11px;color:var(--text-sec);margin:6px 0 10px;line-height:1.6">
+            ${recentLaunches>0
+              ? `This treasury has produced <b style="color:var(--text-pri)">${recentLaunches}</b> launch${recentLaunches===1?'':'es'} across <b style="color:var(--text-pri)">${observedCreators||0}</b> observed creator${observedCreators===1?'':'s'}, most recently ${t.last_action?ago(t.last_action)+' ago':'at an unknown time'}.`
+              : `No launch-audit history recorded yet for this treasury.`}
+            ${mode?` Creator timing signature: <b style="color:${mode.mode==='INSTANT'?'#e06c2a':'#3fb950'}">${mode.mode}</b> (${mode.instant} instant / ${mode.staged} staged).`:''}
+          </div>
+          ${launchRows.length ? `<table style="font-size:11px"><thead><tr><th>Creator</th><th>Mint</th><th class="num">When</th></tr></thead><tbody>${
+            launchRows.slice(0,10).map(r=>`<tr>
+              <td><span class="addr" onclick="sol('${r.creator||''}')">${r.creator?short(r.creator):'—'}</span></td>
+              <td><span class="addr" onclick="sol('${r.mint||''}')">${r.mint?short(r.mint):'—'}</span></td>
+              <td class="num muted">${r.create_time?ago(r.create_time)+' ago':'—'}</td>
+            </tr>`).join('')
+          }</tbody></table>` : '<div class="muted" style="font-size:11px">no launch-audit rows recorded yet for this treasury</div>'}
+        `)}
+
+        ${opBlock('Evidence', 'Why do we believe this?', subprovs.length ? `
+          <table style="font-size:11px"><thead><tr><th>Sub-provisioner</th><th class="num">Creators</th><th class="num">Total SOL</th><th>Last Active</th></tr></thead><tbody>${
+            subprovs.map(s=>`<tr>
+              <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span></td>
+              <td class="num">${s.creators}</td>
+              <td class="num muted">${s.total_sol!=null?s.total_sol.toLocaleString():'—'}</td>
+              <td class="muted" style="font-size:10px">${s.last_seen?ago(s.last_seen)+' ago':'—'}</td>
+            </tr>`).join('')
+          }</tbody></table>` : '<div class="muted" style="font-size:11px">no sub-provisioners recorded for this treasury yet</div>')}
+
+        ${opBlock('Infrastructure', 'Can I trust monitoring?', `
+          <div class="atg-record" style="margin-top:6px">
+            ${field('Webhooked', `<b style="color:${t.webhooked?'var(--green)':'var(--red)'}">${t.webhooked?'Live':'Blind'}</b>`)}
+            ${field('Last hit', t.last_hit?ago(t.last_hit)+' ago':'—')}
+            ${field('Last fanout', t.last_fanout?ago(t.last_fanout)+' ago':'—')}
+          </div>
+        `)}
+
+      </div>
+    </details>`;
+  }).join('');
+}
 
 // ── STAGED-ONLY PREDICTION PANELS (collapse section) ─────────────────────────
 async function loadScheduler(){
@@ -2100,6 +2496,10 @@ async function loadDiscoveryLeads(){
   const leads=d.leads||[];
   const counts=d.counts||{};
 
+  window._reviewQueueCounts = window._reviewQueueCounts||{};
+  window._reviewQueueCounts.highLeads = counts.HIGH||0;
+  renderReviewQueueSummary();
+
   // Update tier count badges
   const setCount=(id,tier)=>{
     const el=document.getElementById(id);
@@ -2239,6 +2639,9 @@ function refreshFast(){
   loadMission3();
   loadReview();
   loadFeed();
+  // X22B — depends on window._auditData from loadLaunchAudit(); short delay matches
+  // the existing dependent-load pattern used elsewhere on this page (e.g. line ~2131).
+  setTimeout(()=>{ loadActiveTreasuryGroups(); }, 900);
 }
 
 // ── MISSION 3 — ATTRIBUTION INTELLIGENCE ─────────────────────────────────────
@@ -2428,6 +2831,10 @@ async function loadMission3(){
   // Investigation queue count badge
   const uc=document.getElementById('m3-unknown-count');
   if(uc) uc.textContent=active.length>0?`${active.length} open`:'';
+
+  window._reviewQueueCounts = window._reviewQueueCounts||{};
+  window._reviewQueueCounts.openInvestigations = active.length;
+  renderReviewQueueSummary();
 
   // Build candidate→linked_subprov_count index from active rows
   // (each subprov already carries candidate_wallet; count peers sharing the same candidate)

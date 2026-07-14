@@ -51,6 +51,12 @@ test_*.py
 !test_vault_price_template.py
 !test_helius_analysis.py
 !tests/pool_validation/worker/test_worker_integration_live.py
+# The bare test_*.py rule above also matches tests/test_*.py at any depth (gitignore
+# patterns with no leading/embedded slash match every directory level). The six
+# !exceptions above are root-level filenames and do NOT reach into tests/, so this
+# was silently excluding the entire tests/ suite from version control. Track it
+# explicitly going forward.
+!tests/test_*.py
 backfill_*.py
 !backfill_complete_funding_analysis.py
 !backfill_risk_assessment.py

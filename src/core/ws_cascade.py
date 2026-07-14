@@ -1640,14 +1640,21 @@ class SubscriptionManager:
         self._queue_pos_counter += 1
         self._subs_sent_total += 1
         self.wallet_kind[wallet] = kind
-        if kind == "treasury":
-            # TREASURIES move SOL via plain system:transfer, which emits no program logs that
-            # logsSubscribe's `mentions` filter matches — so logsSubscribe NEVER fired for them.
-            # accountSubscribe fires on every balance change (a plain transfer always changes the
-            # balance), so it's the correct primitive for the treasury tier. (Subprovs/candidates
-            # keep logsSubscribe — their wrap-close emits token-program logs that DO mention them.)
-            # Treasury stays at 'confirmed' — provisioning isn't sub-second-critical and a treasury
-            # balance read at 'processed' has higher reorg exposure.
+        # X24.1 — mechanism-aware primitive selection. Both "treasury" and
+        # "subprov_account" (a PLAIN_TRANSFER-funded sub-provisioner) move SOL via
+        # plain system::transfer, which emits no program logs that logsSubscribe's
+        # `mentions` filter can match — so BOTH need accountSubscribe (balance-change
+        # notifications), not just the treasury tier. Every other kind (subprov,
+        # hot_subprov, candidate, cdc, dust) is only ever opened for a WSOL_WRAP_CLOSE
+        # / SEEDED_ACCOUNT_CLOSE funding chain, whose terminal instruction is
+        # spl-token::closeAccount — a real program instruction that DOES emit a
+        # matching log, so logsSubscribe remains correct for them.
+        if kind in ("treasury", "subprov_account"):
+            # Treasury stays at 'confirmed' — provisioning isn't sub-second-critical and a
+            # treasury balance read at 'processed' has higher reorg exposure. subprov_account
+            # uses the same commitment for the same reason: this tier exists specifically to
+            # catch capital movement, not to race the CREATE itself (that's still logsSubscribe
+            # on the resulting candidate once a wrap-close/seeded-close is later observed).
             msg = {"jsonrpc": "2.0", "id": rid, "method": "accountSubscribe",
                    "params": [wallet, {"commitment": "confirmed", "encoding": "jsonParsed"}]}
         else:
@@ -1731,13 +1738,21 @@ class SubscriptionManager:
 
     async def unsubscribe(self, wallet):
         sub_id = self.wallet_sub.pop(wallet, None)
-        self.wallet_kind.pop(wallet, None)
+        kind = self.wallet_kind.pop(wallet, None)
         if sub_id is not None:
             self.sub_wallet.pop(sub_id, None)
+            # X24.1 — the unsubscribe RPC method must match how the subscription was
+            # opened: accountSubscribe → accountUnsubscribe, logsSubscribe →
+            # logsUnsubscribe. Pre-existing bug found while adding "subprov_account":
+            # this always sent logsUnsubscribe, which is also wrong for the existing
+            # "treasury" kind (accountSubscribe) — fixed for both here, since Helius
+            # silently no-ops an unsubscribe call for the wrong method, leaking the
+            # server-side subscription slot indefinitely otherwise.
+            method = "accountUnsubscribe" if kind in ("treasury", "subprov_account") else "logsUnsubscribe"
             try:
                 rid = self.next_req; self.next_req += 1
                 await self.ws.send(json.dumps(
-                    {"jsonrpc": "2.0", "id": rid, "method": "logsUnsubscribe", "params": [sub_id]}))
+                    {"jsonrpc": "2.0", "id": rid, "method": method, "params": [sub_id]}))
             except Exception:
                 pass
 
@@ -2114,14 +2129,20 @@ class Cascade:
                 emit_event("TREASURY_WEBSOCKET_OPENED", wallet=t)
 
         # P2: SESSION SUBPROV TIER — existing LIVE_ARMED sessions (reconnect replay)
+        # X24.1 — mechanism-aware kind: a PLAIN_TRANSFER-funded session must resubscribe
+        # via accountSubscribe ("subprov_account"), not logsSubscribe ("subprov"), or it
+        # would silently lose live detection capability again on every reconnect.
         if SUBPROV_WATCH_ENABLED:
             for s in sessions:
                 subprov = s[1]
                 monitoring_state = s[9] if len(s) > 9 else "LIVE_ARMED"
+                funding_mechanism = s[10] if len(s) > 10 else "WSOL_WRAP_CLOSE"
                 if monitoring_state != "LIVE_ARMED":
                     continue   # never subscribe INTEL_ONLY
-                await _rate_send(subprov, "subprov", SUB_PRIORITY_SESSION, catchup_kind="subprov")
-                emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov)
+                _kind = "subprov_account" if funding_mechanism == "PLAIN_TRANSFER" else "subprov"
+                await _rate_send(subprov, _kind, SUB_PRIORITY_SESSION, catchup_kind=_kind)
+                emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov,
+                           payload={"funding_mechanism": funding_mechanism})
 
         # P3: PROMOTED SUBPROV TIER (standing watchlist, lower priority than sessions)
         if SUBPROV_WATCH_ENABLED:
@@ -2151,18 +2172,29 @@ class Cascade:
         async def _deferred_catchups():
             await asyncio.sleep(30)  # let all subscription confirmations arrive before scanning
             for kind, wallet in catchup_tasks:
-                if kind == "subprov":
+                # X24.1 — "subprov_account" (PLAIN_TRANSFER, accountSubscribe) reuses the
+                # exact same signature-history catch-up as "subprov" (logsSubscribe):
+                # catch_up_subprov scans getSignaturesForAddress for the subprov wallet,
+                # which is identical regardless of which WS primitive is watching it live.
+                if kind in ("subprov", "subprov_account"):
                     await self.catch_up_subprov(wallet)
                 else:
                     await self.catch_up_candidate(wallet)
         if catchup_tasks:
             asyncio.ensure_future(_deferred_catchups())
 
-    async def subscribe_live_armed(self, wallet: str) -> None:
+    async def subscribe_live_armed(self, wallet: str, funding_mechanism: Optional[str] = None) -> None:
         """P0 subscribe — new LIVE_ARMED subprov, bypasses all rate limiting.
         Called immediately when a session is opened from _handle_treasury_tx so the
-        subscription races ahead of any pending reconnect-replay queue."""
-        await self.mgr.subscribe(wallet, "subprov", priority=SUB_PRIORITY_LIVE_ARMED)
+        subscription races ahead of any pending reconnect-replay queue.
+
+        X24.1 — mechanism-aware kind selection. A PLAIN_TRANSFER-funded subprov must be
+        subscribed via "subprov_account" (accountSubscribe) — logsSubscribe cannot see a
+        plain system::transfer. Everything else (WSOL_WRAP_CLOSE, SEEDED_ACCOUNT_CLOSE,
+        and any unrecognised/null mechanism) keeps the existing "subprov" kind
+        (logsSubscribe), preserving current behaviour exactly for those cases."""
+        kind = "subprov_account" if funding_mechanism == "PLAIN_TRANSFER" else "subprov"
+        await self.mgr.subscribe(wallet, kind, priority=SUB_PRIORITY_LIVE_ARMED)
 
     # ---- offline reconciliation: recover treasury events missed during downtime ----
     async def reconcile_pass(self):
@@ -2785,11 +2817,13 @@ class Cascade:
                         # P0 subscribe: fire immediately, ahead of any reconnect-replay queue.
                         # Use run_coroutine_threadsafe when called from a thread (RECONCILE),
                         # ensure_future when already on the event loop (WS notification path).
+                        # X24.1 — pass the real funding mechanism so subscribe_live_armed can
+                        # select accountSubscribe for PLAIN_TRANSFER sessions.
                         if self._loop and self._loop.is_running():
                             asyncio.run_coroutine_threadsafe(
-                                self.subscribe_live_armed(w), self._loop)
+                                self.subscribe_live_armed(w, funding_mechanism=_funding_mechanism), self._loop)
                         else:
-                            asyncio.ensure_future(self.subscribe_live_armed(w))
+                            asyncio.ensure_future(self.subscribe_live_armed(w, funding_mechanism=_funding_mechanism))
                     else:
                         emit_event("SUBPROV_SESSION_INTEL_ONLY", wallet=w, related=treasury,
                                    payload={"funding_sol": gain, "sig": sig,
@@ -4436,6 +4470,59 @@ async def _on_message(casc: Cascade, raw):
                 await casc.mgr.subscribe(subprov, "subprov")
                 emit_event("SUBPROV_WEBSOCKET_OPENED", wallet=subprov, related=wallet)
                 await casc.catch_up_subprov(subprov)
+        return
+
+    # X24.1 — SUBPROV_ACCOUNT tier: PLAIN_TRANSFER-funded sub-provisioners use
+    # accountSubscribe → accountNotification (balance change, NO signature), mirroring
+    # the treasury branch above exactly. Reuses _handle_subprov_tx (the same handler the
+    # "subprov"/logsSubscribe path calls) so a qualifying event flows through the SAME
+    # candidate-extraction → candidate-watch → CREATE-detection → record_launch() path —
+    # no second launch pipeline.
+    if data.get("method") == "accountNotification":
+        params = data.get("params") or {}
+        ent = casc.mgr.lookup(params.get("subscription"))
+        if not ent or ent[1] != "subprov_account":
+            return
+        wallet = ent[0]
+
+        def _fetch_new_subprov_sigs():
+            conn = casc._ops()
+            try:
+                row = conn.execute(
+                    "SELECT last_notif_sig FROM wt_subprov_account_ws_usage WHERE subprov_wallet=?",
+                    (wallet,)).fetchone()
+                last_sig = row[0] if row else None
+            finally:
+                conn.close()
+            if last_sig:
+                raw = _rpc("getSignaturesForAddress",
+                           [wallet, {"limit": 5, "until": last_sig, "commitment": "confirmed"}]) or []
+            else:
+                raw = _rpc("getSignaturesForAddress",
+                           [wallet, {"limit": 3, "commitment": "confirmed"}]) or []
+            return list(reversed([e["signature"] for e in raw
+                                   if isinstance(e, dict) and e.get("signature") and not e.get("err")]))
+
+        new_sigs = await asyncio.get_event_loop().run_in_executor(None, _fetch_new_subprov_sigs)
+        last_sig_seen = None
+        for sig in new_sigs:
+            last_sig_seen = sig
+            if sig in casc._processed:
+                continue
+            casc._processed.add(sig)
+            try:
+                new_watches = await _ato_thread(casc._handle_subprov_tx, wallet, sig)
+            except Exception:
+                new_watches = []
+            for item in new_watches:
+                if isinstance(item, tuple) and item[0] == "UNSUBSCRIBE":
+                    await casc.mgr.unsubscribe(item[1])
+        if last_sig_seen:
+            _ops = casc._ops()
+            try:
+                store.subprov_account_ws_record_notif(_ops, wallet, last_sig_seen)
+            finally:
+                _ops.close()
         return
 
     if data.get("method") != "logsNotification":

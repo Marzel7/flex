@@ -143,6 +143,22 @@ def ensure_cascade_schema(conn) -> None:
             hour_bucket               INTEGER DEFAULT 0     -- epoch//3600 the 1h count belongs to
         )"""
     )
+    # X24.1 — mirror of wt_treasury_ws_usage for PLAIN_TRANSFER-funded sub-provisioners,
+    # which are observed via accountSubscribe (balance change) exactly like treasuries,
+    # NOT logsSubscribe (a plain system::transfer emits no program logs the `mentions`
+    # filter can match). Kept as its own table rather than reusing wt_treasury_ws_usage
+    # so subprov-tier usage never conflates with treasury-tier usage under one PK space.
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_subprov_account_ws_usage (
+            subprov_wallet            TEXT PRIMARY KEY,
+            subscribed_at             INTEGER,
+            notif_count               INTEGER DEFAULT 0,
+            last_notif_at             INTEGER,
+            last_notif_sig            TEXT,
+            notif_count_1h            INTEGER DEFAULT 0,
+            hour_bucket               INTEGER DEFAULT 0
+        )"""
+    )
     # REVERSE-DIRECTION swarm attribution: a BUY_SWARM candidate (a wrap-close-seeded wallet that
     # SWAPped instead of CREATEd) recorded against the mint it bought + its subprov. Lets a later
     # swarm WAVE attach to its launch in the token tree. Populated zero-extra-RPC from the swap tx
@@ -1095,7 +1111,8 @@ def active_sessions(conn) -> list:
     return conn.execute(
         "SELECT id, subprov_wallet, treasury_wallet, funding_signature, funding_amount, "
         "funding_time, expires_at, open_reason, subprov_known, "
-        "COALESCE(monitoring_state,'LIVE_ARMED') as monitoring_state "
+        "COALESCE(monitoring_state,'LIVE_ARMED') as monitoring_state, "
+        "COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE') as funding_mechanism "
         "FROM wt_active_subprov_sessions WHERE state='ACTIVE'").fetchall()
 
 
@@ -1231,6 +1248,44 @@ def treasury_ws_record_notif(conn, treasury: str, sig: Optional[str], opened_ses
                   notif_count_1h = ?, hour_bucket = ?
             WHERE treasury_wallet = ?""",
         (1 if opened_session else 0, now, sig, new_1h, hb, treasury))
+    conn.commit()
+
+
+def subprov_account_ws_register(conn, subprov: str) -> None:
+    """Mirror of treasury_ws_register for accountSubscribe-watched (PLAIN_TRANSFER-funded)
+    sub-provisioners. Must not raise a lock error — best-effort metering only."""
+    now = int(time.time())
+    try:
+        def write(c):
+            c.execute(
+                "INSERT OR IGNORE INTO wt_subprov_account_ws_usage (subprov_wallet, subscribed_at) "
+                "VALUES (?, ?)", (subprov, now))
+        operations_write("ws-cascade-subprov-account-register", write)
+    except Exception:
+        pass
+
+
+def subprov_account_ws_record_notif(conn, subprov: str, sig: Optional[str]) -> None:
+    """Mirror of treasury_ws_record_notif for accountSubscribe-watched sub-provisioners."""
+    now = int(time.time())
+    hb = now // 3600
+    row = conn.execute(
+        "SELECT hour_bucket, notif_count_1h FROM wt_subprov_account_ws_usage WHERE subprov_wallet=?",
+        (subprov,)).fetchone()
+    if row is None:
+        conn.execute("INSERT OR IGNORE INTO wt_subprov_account_ws_usage (subprov_wallet, subscribed_at) "
+                     "VALUES (?, ?)", (subprov, now))
+        cur_bucket, cur_1h = hb, 0
+    else:
+        cur_bucket, cur_1h = row[0], row[1]
+    new_1h = (cur_1h + 1) if cur_bucket == hb else 1
+    conn.execute(
+        """UPDATE wt_subprov_account_ws_usage
+              SET notif_count = notif_count + 1,
+                  last_notif_at = ?, last_notif_sig = ?,
+                  notif_count_1h = ?, hour_bucket = ?
+            WHERE subprov_wallet = ?""",
+        (now, sig, new_1h, hb, subprov))
     conn.commit()
 
 

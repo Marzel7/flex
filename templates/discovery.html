@@ -454,10 +454,40 @@
     var missingHtml=missing.length?'<div class="dw-ob-block"><div class="dw-ob-h">Missing evidence</div>'+missing.map(function(m){return '<div class="dw-te-row dw-te-unavailable">— '+esc(m)+'</div>'}).join('')+'</div>':'';
     return '<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Operational behaviour</summary><div class="x19-disclosure-body">'+summaryHtml+infraHtml+timingHtml+consistencyHtml+missingHtml+'</div></details>';
   }
+  // X24.1 Phase 5 — how was this attribution obtained: detected live, recovered by
+  // catch-up/reconciliation, or only ever recovered retrospectively by walkback?
+  // Answers "how did we get this" separate from "what is the result" (outcome()
+  // above). A WALKBACK_RECOVERED or PIPELINE_INCONSISTENCY classification must say
+  // so explicitly — never implied to be a live catch. All labels/timestamps come
+  // directly from d.detection_reconciliation (src/ops/detection_reconciliation.py);
+  // nothing here is inferred or fabricated.
+  function detectionReconciliation(r){
+    if(!r)return '';
+    var cls=r.classification;
+    var cfg={
+      'LIVE_DETECTED':        {label:'Live Detected',       colour:'var(--ip-green)',  icon:'●'},
+      'RECONCILED':           {label:'Reconciled',          colour:'var(--ip-cyan)',   icon:'◐'},
+      'WALKBACK_RECOVERED':   {label:'Walkback Recovered',  colour:'var(--ip-amber,#d29922)', icon:'◇'},
+      'PIPELINE_INCONSISTENCY':{label:'Pipeline Inconsistency', colour:'var(--ip-red,#f85149)', icon:'⚠'},
+    }[cls]||{label:cls||'Unknown',colour:'var(--ip-dim)',icon:'—'};
+    var explain={
+      'LIVE_DETECTED':'This launch was detected live'+(r.live_detection_source?' via '+esc(r.live_detection_source.replace(/_/g,' ').toLowerCase()):'')+'. Attribution and detection agree.',
+      'RECONCILED':'This launch was recovered by the reconciliation/backfill path'+(r.live_detection_source?' ('+esc(r.live_detection_source.replace(/_/g,' ').toLowerCase())+')':'')+', not the live cascade. A wt_watchtower_launches record exists.',
+      'WALKBACK_RECOVERED':'WATCHTOWER attribution confirmed — recovered retrospectively by walkback. Live detection was not recorded, and no live-armed session ever covered this launch, so this is expected: the system was never watching this infrastructure at the time.',
+      'PIPELINE_INCONSISTENCY':'WATCHTOWER attribution confirmed — recovered retrospectively by walkback. Live detection was not recorded, even though a live-armed monitoring session covered this launch at the time. This is a detection-pipeline gap, not an attribution gap.',
+    }[cls]||'Attribution recovery method could not be classified from persisted data.';
+    var mechNote=r.plain_transfer_associated?'<div class="dw-te-row dw-te-detail" style="margin-top:4px">Funding used a plain SOL transfer at one hop — this mechanism does not emit the on-chain program logs the live websocket subscription watches for, which is why walkback (a retrospective chain-history scan) could resolve it when live detection could not.</div>':'';
+    return '<section class="dw-outcome" style="border-left:3px solid '+cfg.colour+'">'
+      +'<div class="x19-answer-label">How was this obtained · Level 1</div>'
+      +'<div class="dw-outcome-title" style="color:'+cfg.colour+'">'+cfg.icon+' '+esc(cfg.label)+'</div>'
+      +'<div class="dw-outcome-reason">'+explain+'</div>'
+      +mechNote
+      +'</section>';
+  }
   function render(d){
     $('dw-loading').style.display='none';var overall=$('dw-overall-state');overall.style.display='';overall.className='dw-state '+d.state;overall.textContent=d.state;
     var subject=d.subject||{}, resolved=subject.resolved_entity, resolvedText=resolved&&resolved.id!==subject.id?'<div class="dw-summary">Resolved from this '+esc(subject.type)+' to <a class="dw-addr" href="'+href(resolved.id,resolved.type)+'">'+esc(resolved.id)+'</a>.</div>':'';
-    var top=outcome(d.attribution_outcome)+treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate)+'<div class="x19-answer"><div class="x19-answer-label">Identity · Level 1</div><div class="x19-answer-value">'+esc(d.summary)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(subject.type)+'</span> · <span class="dw-subject-id">'+esc(subject.id)+'</span> · '+esc(d.state)+'</div>'+resolvedText+'</div>'+canonicalIdentity(d.canonical_identity);
+    var top=outcome(d.attribution_outcome)+detectionReconciliation(d.detection_reconciliation)+treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate)+'<div class="x19-answer"><div class="x19-answer-label">Identity · Level 1</div><div class="x19-answer-value">'+esc(d.summary)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(subject.type)+'</span> · <span class="dw-subject-id">'+esc(subject.id)+'</span> · '+esc(d.state)+'</div>'+resolvedText+'</div>'+canonicalIdentity(d.canonical_identity);
     if(!d.timeline||!d.timeline.length){$('dw-content').innerHTML=top+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';return}
     var flow=visualChain(d);
     var wb='<details class="x19-disclosure x19-level2" open><summary><span class="level">Level 2</span> Funding walkback</summary><div class="x19-disclosure-body">'+walkback(d.walkback||{}, subject, d.attribution_outcome, d.canonical_identity)+'</div></details>';

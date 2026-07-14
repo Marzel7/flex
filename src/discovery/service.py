@@ -212,6 +212,7 @@ class DiscoveryService:
             "emerging_candidate": None,
             "treasury_expansion": None,
             "operational_behaviour": None,
+            "detection_reconciliation": None,
             "operator_history": [], "network_discovery": [], "cross_operation": [],
             "generated_at": generated_at, "discovery_states": list(DISCOVERY_STATES),
         }
@@ -525,6 +526,22 @@ class DiscoveryService:
             except (OSError, sqlite3.Error, ValueError):
                 operational_behaviour = None
 
+        # X24.1 Phase 5: how was this attribution obtained — detected live, recovered
+        # by catch-up/reconciliation, or only ever recovered retrospectively by
+        # walkback? Purely additive/read-only, reuses the X24.1 Phase 4 classifier
+        # (src/ops/detection_reconciliation.py) against this token's own mint —
+        # never touches attribution, walkback, scoring, detector, or schema.
+        detection_reconciliation = None
+        if token:
+            try:
+                from src.ops.detection_reconciliation import classify_walkback_confirmed_launches
+                _recon = classify_walkback_confirmed_launches(self.ops_db_path)
+                detection_reconciliation = next(
+                    (r for r in _recon.get("rows", []) if r.get("mint") == token), None
+                )
+            except (OSError, sqlite3.Error, ValueError):
+                detection_reconciliation = None
+
         return {
             "ok": True,
             "subject": {"id": requested_id, "type": kind, "resolved_entity": {"id": subject_id, "type": subject_type}},
@@ -541,6 +558,7 @@ class DiscoveryService:
             "emerging_candidate": emerging_candidate,
             "treasury_expansion": treasury_expansion,
             "operational_behaviour": operational_behaviour,
+            "detection_reconciliation": detection_reconciliation,
         }
 
     def _canonical_identity(
@@ -691,6 +709,7 @@ class DiscoveryService:
             "attribution_outcome": None,
             "treasury_expansion": None,
             "operational_behaviour": None,
+            "detection_reconciliation": None,
             "entities": entities,
             "observed_since": op.get("first_seen"),
             "first_attribution": min((e.get("created_at") for e in evidence if e.get("created_at")), default=None),

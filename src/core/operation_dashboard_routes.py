@@ -2586,6 +2586,19 @@ def api_intel_token_lifecycle():
         ov.close()
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/detection-reconciliation")
+def api_intel_detection_reconciliation():
+    """X24.1 Phase 4/5 — classifies every walkback-confirmed launch as
+    LIVE_DETECTED / RECONCILED / WALKBACK_RECOVERED / PIPELINE_INCONSISTENCY.
+    Read-only, never writes wt_watchtower_launches. See
+    src/ops/detection_reconciliation.py for the classification rules."""
+    try:
+        from src.ops.detection_reconciliation import classify_walkback_confirmed_launches
+        return jsonify(classify_walkback_confirmed_launches())
+    except Exception as e:
+        return jsonify({"rows": [], "summary": {}, "total": 0, "error": str(e)}), 500
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit")
 def api_intel_launch_audit():
     """Launch Audit panel — is WATCHTOWER detection ACTIONABLE? Per detected launch: detection

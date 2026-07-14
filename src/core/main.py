@@ -50,6 +50,37 @@ DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH))
 def _ui_recovery_mode_enabled() -> bool:
     return os.environ.get("FLEX_UI_RECOVERY_MODE", "0").lower() in {"1", "true", "yes"}
 
+
+def _read_only_schema_has(db_path: str, *, tables=None, indexes=None) -> bool:
+    """Return True when the requested schema objects already exist.
+
+    Startup uses this before any idempotent DDL so a healthy deployed database
+    does not acquire the write lane just to prove it is healthy.
+    """
+    tables = set(tables or ())
+    indexes = set(indexes or ())
+    if not tables and not indexes:
+        return True
+    conn = db_connect(db_path, timeout=5, read_only=True)
+    try:
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA query_only=ON")
+        rows = conn.execute(
+            "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'index')"
+        ).fetchall()
+        existing_tables = {row["name"] for row in rows if row["type"] == "table"}
+        existing_indexes = {row["name"] for row in rows if row["type"] == "index"}
+        return tables <= existing_tables and indexes <= existing_indexes
+    finally:
+        conn.close()
+
+
+def _read_only_ops_connection(db_path: str) -> sqlite3.Connection:
+    conn = db_connect(db_path, timeout=10, read_only=True)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA query_only=ON")
+    return conn
+
 # Investigation archive DB — cold storage for funder_networks (moved out of the
 # hot DB). Investigation-only reader routes ATTACH this read-only and qualify
 # the table as arch.funder_networks. See scripts/archive_funder_networks.py.
@@ -100,143 +131,15 @@ _pumpfun_runtime_state_cache: Dict[str, Any] = {
 # so G-class is withheld rather than shown as G? or computed from early noise.
 NEW_TOKEN_WINDOW_SECS = 15 * 60  # 15 minutes
 
-# Schema migration — runs at import time regardless of how the app is started
-def _ensure_schema():
-    _migrations = [
-        "ALTER TABLE token_analysis ADD COLUMN market_cap_highest_at_ts INTEGER",
-        "ALTER TABLE token_analysis ADD COLUMN is_about_to_migrate BOOLEAN DEFAULT 0",
-        "ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL",
-        "ALTER TABLE token_analysis ADD COLUMN migration_band TEXT",
-        "ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER",
-        "ALTER TABLE token_analysis ADD COLUMN first_pre_migration_signal_at INTEGER",
-        "ALTER TABLE token_analysis ADD COLUMN migration_signal_source TEXT",
-        "ALTER TABLE token_analysis ADD COLUMN lifecycle_stage TEXT DEFAULT 'migration_pending'",
-        "ALTER TABLE token_analysis ADD COLUMN migrated_at INTEGER",
-        "ALTER TABLE token_analysis ADD COLUMN dex TEXT",
-        "ALTER TABLE token_analysis ADD COLUMN pumpswap_pool_address TEXT",
-        "ALTER TABLE token_analysis ADD COLUMN source_platform TEXT",
-        "ALTER TABLE token_analysis ADD COLUMN is_new INTEGER DEFAULT 0",
-        "ALTER TABLE token_analysis ADD COLUMN pf_ws_creator TEXT",
-        "ALTER TABLE token_analysis ADD COLUMN creator_mismatch INTEGER DEFAULT 0",
-        "ALTER TABLE token_market_cap_peaks ADD COLUMN raw_peak_mc_at INTEGER",
-        """UPDATE token_analysis
-           SET market_cap_highest_at_ts = CAST(strftime('%s', market_cap_highest_at) AS INTEGER)
-           WHERE market_cap_highest_at IS NOT NULL
-             AND market_cap_highest_at_ts IS NULL
-             AND CAST(strftime('%s', market_cap_highest_at) AS INTEGER) > 1577836800""",
-        """UPDATE token_market_cap_peaks
-           SET raw_peak_mc_at = peak_market_cap_at
-           WHERE raw_peak_mc_at IS NULL AND peak_market_cap_at IS NOT NULL""",
-        """UPDATE token_market_cap_peaks
-           SET peak_market_cap_at = COALESCE(
-               peak_market_cap_at,
-               (
-                   SELECT MIN(tps.captured_at)
-                   FROM token_price_snapshots tps
-                   WHERE tps.mint = token_market_cap_peaks.mint
-                     AND tps.market_cap >= token_market_cap_peaks.peak_market_cap
-                     AND tps.market_cap > 0
-               ),
-               (
-                   SELECT CASE
-                       WHEN CAST(ta.created_at AS REAL) > 1000000000 THEN CAST(ta.created_at AS INTEGER)
-                       ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
-                   END
-                   FROM token_analysis ta
-                   WHERE ta.mint = token_market_cap_peaks.mint
-               ),
-               raw_peak_mc_at
-           )
-           WHERE peak_market_cap > 0
-             AND (peak_market_cap_at IS NULL OR peak_market_cap_at = 0)""",
-        """UPDATE token_analysis
-           SET market_cap_highest_at_ts = COALESCE(
-               market_cap_highest_at_ts,
-               (
-                   SELECT tmp.peak_market_cap_at
-                   FROM token_market_cap_peaks tmp
-                   WHERE tmp.mint = token_analysis.mint
-               ),
-               CASE
-                   WHEN CAST(created_at AS REAL) > 1000000000 THEN CAST(created_at AS INTEGER)
-                   ELSE CAST(strftime('%s', created_at) AS INTEGER)
-               END
-           )
-           WHERE market_cap_highest IS NOT NULL
-             AND market_cap_highest > 0
-             AND (market_cap_highest_at_ts IS NULL OR market_cap_highest_at_ts = 0)""",
-        """UPDATE token_analysis
-           SET market_cap_highest_at = datetime(market_cap_highest_at_ts, 'unixepoch') || 'Z'
-           WHERE market_cap_highest IS NOT NULL
-             AND market_cap_highest > 0
-             AND market_cap_highest_at_ts IS NOT NULL
-             AND market_cap_highest_at_ts > 0
-             AND (market_cap_highest_at IS NULL OR market_cap_highest_at = '')""",
-        """CREATE TABLE IF NOT EXISTS pumpfun_migration_verification (
-               mint TEXT PRIMARY KEY,
-               migrated_at INTEGER,
-               migration_tx TEXT,
-               dex TEXT,
-               pumpswap_pool_address TEXT,
-               pre_is_about_to_migrate INTEGER DEFAULT 0,
-               pre_migration_band TEXT,
-               pre_migration_progress_pct REAL,
-               pre_migration_signal_updated_at INTEGER,
-               pre_market_cap_current REAL,
-               pre_market_cap_updated_at INTEGER,
-               pre_buys_10s INTEGER DEFAULT 0,
-               pre_unique_30s INTEGER DEFAULT 0,
-               pre_sol_15s REAL DEFAULT 0,
-               pre_inflow_accel REAL DEFAULT 0,
-               pre_signal_score INTEGER DEFAULT 0,
-               pre_migration_signal_source TEXT,
-               predicted_by_flow INTEGER DEFAULT 0,
-               predicted_by_market_cap INTEGER DEFAULT 0,
-               predicted_by_explicit_signal INTEGER DEFAULT 0,
-               was_about_to_migrate_at_migration INTEGER DEFAULT 0,
-               was_hot_or_warm_before_migration INTEGER DEFAULT 0,
-               signal_age_seconds INTEGER,
-               signal_was_fresh INTEGER DEFAULT 0,
-               final_verdict TEXT,
-               created_at INTEGER
-           )""",
-        "ALTER TABLE wt_sub_provisioners ADD COLUMN token_mint TEXT",
-        "ALTER TABLE wt_sub_provisioners ADD COLUMN token_symbol TEXT",
-        "ALTER TABLE wt_sub_provisioners ADD COLUMN traded_amount REAL",
-        "ALTER TABLE wt_sub_provisioners ADD COLUMN last_trade_tx TEXT",
-        "ALTER TABLE wt_sub_provisioners ADD COLUMN last_trade_at INTEGER",
-        "ALTER TABLE watchtower_infra_events ADD COLUMN token_mint TEXT",
-        "ALTER TABLE watchtower_infra_events ADD COLUMN token_symbol TEXT",
-        "ALTER TABLE watchtower_infra_events ADD COLUMN traded_amount REAL",
-    ]
-    # Fast check: if the last column we'd add already exists, all migrations have run — skip entirely.
-    # Use raw db_connect() with no PRAGMAs — PRAGMA table_info is a read-only operation
-    # that works even while another process holds a write lock.
-    try:
-        _check = db_connect(DB_PATH, timeout=5)
-        _cols = {row[1] for row in _check.execute("PRAGMA table_info(token_analysis)")}
-        _check.close()
-        if 'pf_ws_creator' in _cols and 'creator_mismatch' in _cols:
-            print("[SCHEMA] All migrations already applied — skipping")
-            return
-    except Exception as _e:
-        print(f"[SCHEMA] Could not check columns, will attempt migrations: {_e}")
+# Schema migration — owned by scripts/ensure_schema.py; imported here for
+# callability and to keep rollback trivial (restore the two lines below).
+from src.core.schema_init import ensure_schema as _ensure_schema
 
-    _conn = db_connect(DB_PATH, timeout=60)
-    _conn.execute("PRAGMA journal_mode=WAL")
-    for sql in _migrations:
-        try:
-            _conn.execute(sql)
-            _conn.commit()
-        except Exception as _e:
-            if 'duplicate column' not in str(_e).lower():
-                print(f"[SCHEMA] note: {_e}")
-    _conn.close()
-
-if _ui_recovery_mode_enabled():
-    print("[UI_RECOVERY] FLEX_UI_RECOVERY_MODE=1; skipping import-time schema/bootstrap writes")
-else:
-    _ensure_schema()
+# To restore import-time schema migration:
+#   if _ui_recovery_mode_enabled():
+#       print("[UI_RECOVERY] FLEX_UI_RECOVERY_MODE=1; skipping import-time schema/bootstrap writes")
+#   else:
+#       _ensure_schema()
 
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -927,14 +830,7 @@ def check_networks_release_capability() -> bool:
         bool: True if networks_release table exists, False otherwise
     """
     try:
-        conn = db_connect(DB_PATH, timeout=10)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='networks_release'"
-        )
-        result = cursor.fetchone() is not None
-        conn.close()
-        return result
+        return _read_only_schema_has(DB_PATH, tables={"networks_release"})
     except Exception as e:
         # On error, assume old path (conservative fallback)
         print(f"[CAPABILITY_CHECK] Error checking networks_release: {e}")
@@ -946,9 +842,14 @@ _wt_startup_lock = threading.Lock()
 
 @app.before_request
 def _wt_startup_once():
-    """Ensure WT tables exist on first request — works under gunicorn and dev server.
-    Each gunicorn worker process runs this independently (no shared memory between workers).
-    The threading.Lock guards within a single worker; table CREATE IF NOT EXISTS is idempotent.
+    """Start background workers on first request after verifying WATCHTOWER tables exist.
+
+    Table creation and tier seeding are now owned by scripts/ensure_watchtower_tables.py
+    (run before Gunicorn starts). This hook only verifies readiness and starts workers.
+
+    To restore the original write/bootstrap path:
+      Replace this function body with the original (see git history).
+      Remove the sentinel verify_sentinel() call and restore the full _run() loop.
     """
     global _wt_startup_done
     if _ui_recovery_mode_enabled():
@@ -962,41 +863,27 @@ def _wt_startup_once():
         if _wt_startup_done:
             return
         _wt_startup_done = True
+
     def _run():
-        import time as _t
-        _t.sleep(5)  # let listener settle before competing for write lock
-        for _attempt in range(20):
-            try:
-                _c = db_connect(DB_PATH, timeout=60)
-                _c.execute("PRAGMA busy_timeout=55000")
-                _ensure_watchtower_tables(_c)
-                for _addr, _role in _WT_INFRA_ROLES.items():
-                    _tier = 1 if _role in ("SIGNALLER", "SUB_PROV") else 2
-                    _c.execute("""
-                        INSERT OR IGNORE INTO wt_wallet_tier
-                            (wallet_address, tier, role, auto_classified)
-                        VALUES (?, ?, ?, 1)
-                    """, (_addr, _tier, _role))
-                _c.commit()
-                _c.close()
-                global _wt_tables_ready
-                _wt_tables_ready = True
-                print(f"[STARTUP] Watchtower tables verified (pid={os.getpid()})", flush=True)
-                if os.environ.get('FLEX_ENABLE_FLASK_BACKGROUND_WORKERS', '0') == '1':
-                    _start_corridor_monitor_worker(DB_PATH)
-                    _start_relay_counterparty_discovery_worker(DB_PATH)
-                    _start_swarm_migration_scanner(DB_PATH)
-                    _start_wt_infra_processor()
-                    _start_wt_candidate_processor()
-                    _start_wt_operator_ttl_reaper()
-                    _start_hub_backfill_worker()
-                else:
-                    print("[STARTUP] Background workers suppressed (FLEX_ENABLE_FLASK_BACKGROUND_WORKERS=0)", flush=True)
-                return
-            except Exception as _e:
-                print(f"[STARTUP] WT table init attempt {_attempt+1} failed: {_e} — retrying in 5s", flush=True)
-                _t.sleep(5)
-        print("[STARTUP] WT table init failed after 10 attempts — workers not started", flush=True)
+        from src.core.watchtower_init import verify_sentinel
+        global _wt_tables_ready
+        if not verify_sentinel():
+            print("[STARTUP] WARNING: WATCHTOWER sentinel table missing — "
+                  "run scripts/ensure_watchtower_tables.py before starting Gunicorn", flush=True)
+            return
+        _wt_tables_ready = True
+        print(f"[STARTUP] Watchtower tables verified (pid={os.getpid()})", flush=True)
+        if os.environ.get('FLEX_ENABLE_FLASK_BACKGROUND_WORKERS', '0') == '1':
+            _start_corridor_monitor_worker(DB_PATH)
+            _start_relay_counterparty_discovery_worker(DB_PATH)
+            _start_swarm_migration_scanner(DB_PATH)
+            _start_wt_infra_processor()
+            _start_wt_candidate_processor()
+            _start_wt_operator_ttl_reaper()
+            _start_hub_backfill_worker()
+        else:
+            print("[STARTUP] Background workers suppressed (FLEX_ENABLE_FLASK_BACKGROUND_WORKERS=0)", flush=True)
+
     threading.Thread(target=_run, daemon=True, name="wt-gunicorn-startup").start()
 
 
@@ -9568,7 +9455,7 @@ def healthz():
     db_ok = False
     rows = {}
     try:
-        with managed_db_connect(DB_PATH, timeout=3) as _hc:
+        with managed_db_connect(DB_PATH, timeout=3, read_only=True) as _hc:
             _hc.execute("SELECT 1")
             db_ok = True
     except Exception:
@@ -9576,7 +9463,7 @@ def healthz():
 
     if db_ok:
         try:
-            with managed_db_connect(DB_PATH, timeout=3) as _hc2:
+            with managed_db_connect(DB_PATH, timeout=3, read_only=True) as _hc2:
                 _hc2.row_factory = sqlite3.Row
                 for r in _hc2.execute("SELECT worker_name, last_seen, status FROM wt_worker_heartbeat").fetchall():
                     rows[r["worker_name"]] = {
@@ -9614,10 +9501,8 @@ def healthz():
 
 @app.route('/')
 def index():
-    """Home = the operation-centric Live Operations page (the product). The legacy
-    Command Center + WATCHTOWER research pages remain reachable from the sidebar.
-    Redirect keeps old bookmarks working."""
-    return redirect('/ops')
+    """Mission Control is the canonical analyst starting point."""
+    return redirect('/ops-os')
 
 
 @app.route('/live-launches')
@@ -19742,10 +19627,7 @@ def api_network_approval_list():
     global _network_review_status_schema_ensured
     conn = None
     try:
-        from src.utils.db_locking import _sqlite3_connect_orig
-        conn = _sqlite3_connect_orig(DB_PATH, 30)
-        conn.execute("PRAGMA busy_timeout=30000")
-        conn.execute("PRAGMA journal_mode=WAL")
+        conn = db_connect(DB_PATH, timeout=15, read_only=True)
         conn.row_factory = sqlite3.Row
         if not _network_review_status_schema_ensured:
             try:
@@ -24568,88 +24450,10 @@ def metrics_rpc_optimizations_proxy():
 
 @app.route('/api/first-snapshot-health')
 def api_first_snapshot_health():
-    """Coverage monitor for immutable first-observed market-cap anchors."""
-    conn = db_connect(DB_PATH, timeout=5); conn.row_factory = sqlite3.Row
-    try:
-        cols = {r[1] for r in conn.execute('PRAGMA table_info(token_analysis)').fetchall()}
-        has_first = 'first_observed_mc' in cols
-        now = int(time.time())
-        pool_stats = conn.execute('''
-            SELECT
-              COUNT(DISTINCT mint) AS pools_seen,
-              COUNT(DISTINCT CASE WHEN is_active=1 THEN mint END) AS active_pools,
-              COUNT(DISTINCT CASE WHEN created_at <= ? THEN mint END) AS pools_older_than_60s
-            FROM token_pool_accounts
-        ''', (now - 60,)).fetchone()
-        retention_row = conn.execute(
-            "SELECT value FROM system_metadata WHERE key='first_snapshot_retention_enabled_at'"
-        ).fetchone()
-        if retention_row and retention_row[0]:
-            retention_enabled_at = int(retention_row[0])
-        else:
-            retention_enabled_at = conn.execute("""
-                SELECT MIN(first_observed_at)
-                FROM token_analysis
-                WHERE first_observed_source LIKE 'price_snapshot:%'
-                  AND first_observed_at IS NOT NULL
-            """).fetchone()[0] or now
-            conn.execute(
-                "INSERT OR REPLACE INTO system_metadata (key, value) VALUES (?, ?)",
-                ('first_snapshot_retention_enabled_at', str(retention_enabled_at))
-            )
-            conn.commit()
-        if has_first:
-            written = conn.execute("SELECT COUNT(*) FROM token_analysis WHERE first_observed_mc IS NOT NULL").fetchone()[0]
-            bad = conn.execute("SELECT COUNT(*) FROM token_analysis WHERE first_observed_mc IS NOT NULL AND (first_observed_mc <= 0 OR first_observed_price <= 0)").fetchone()[0]
-            missing_after_60 = conn.execute('''
-                SELECT COUNT(DISTINCT tpa.mint)
-                FROM token_pool_accounts tpa
-                LEFT JOIN token_analysis ta ON ta.mint=tpa.mint
-                WHERE tpa.created_at <= ?
-                  AND ta.first_observed_mc IS NULL
-            ''', (now - 60,)).fetchone()[0]
-        else:
-            written = bad = 0
-            missing_after_60 = pool_stats['pools_older_than_60s'] or 0
-        pools_seen = pool_stats['pools_seen'] or 0
-        recent = conn.execute('''
-            SELECT
-              COUNT(DISTINCT tpa.mint) AS pools_seen,
-              COUNT(DISTINCT CASE WHEN ta.first_observed_mc IS NOT NULL THEN tpa.mint END) AS anchors_written,
-              COUNT(DISTINCT CASE WHEN tpa.created_at <= ? AND ta.first_observed_mc IS NULL THEN tpa.mint END) AS missing_after_60s
-            FROM token_pool_accounts tpa
-            LEFT JOIN token_analysis ta ON ta.mint=tpa.mint
-            WHERE tpa.created_at >= ?
-        ''', (now - 60, retention_enabled_at)).fetchone()
-        recent_seen = recent['pools_seen'] or 0
-        recent_written = recent['anchors_written'] or 0
-        return jsonify({
-            'ok': True,
-            'retention_enabled_at': retention_enabled_at,
-            'since_retention_enabled': {
-                'pools_seen': recent_seen,
-                'anchors_written': recent_written,
-                'coverage_pct': round((recent_written / recent_seen * 100), 2) if recent_seen else 0,
-                'missing_after_60s': recent['missing_after_60s'] or 0,
-            },
-            'all_time_legacy': {
-                'pools_seen': pools_seen,
-                'anchors_written': written,
-                'coverage_pct': round((written / pools_seen * 100), 2) if pools_seen else 0,
-                'missing_after_60s': missing_after_60,
-            },
-            'new_pools_seen': pools_seen,
-            'active_pools': pool_stats['active_pools'] or 0,
-            'pools_with_first_observed_mc': written,
-            'coverage_pct_of_seen_pools': round((written / pools_seen * 100), 2) if pools_seen else 0,
-            'pools_missing_valid_pricing_after_60s': missing_after_60,
-            'bad_or_null_first_mc_count': bad,
-            'label': 'First snapshot health: immutable initial-MC anchors'
-        })
-    except Exception as exc:
-        return jsonify({'ok': False, 'error': str(exc)}), 500
-    finally:
-        conn.close()
+    return jsonify({
+        "status": "disabled",
+        "reason": "endpoint_retired_for_stability"
+    }), 200
 
 
 @app.route('/api/listener-recovery-status')
@@ -30703,825 +30507,10 @@ def webhook_pumpfun_birth():
 WATCHTOWER_ADDR = "5Ww9G6XuSHgXLoNmWusVz2SbESAeL7Q6stZMeEhPU25H"
 
 
-def _ensure_watchtower_tables(conn: sqlite3.Connection) -> None:
-    """Create all WATCHTOWER tables and indexes using individual execute calls.
-
-    Deliberately avoids executescript() — that method issues an implicit COMMIT
-    and holds a broader write lock for the duration of the entire script, causing
-    lock contention when called on every webhook hit. Individual CREATE IF NOT EXISTS
-    statements acquire the lock briefly per statement and release it immediately.
-    """
-    stmts = [
-        """CREATE TABLE IF NOT EXISTS watchtower_fee_payers (
-            address          TEXT    NOT NULL PRIMARY KEY,
-            first_seen_at    INTEGER NOT NULL,
-            last_seen_at     INTEGER NOT NULL,
-            tx_count         INTEGER NOT NULL DEFAULT 1,
-            total_sol_sent   REAL    NOT NULL DEFAULT 0,
-            first_sig        TEXT,
-            last_sig         TEXT,
-            detection_run    INTEGER NOT NULL DEFAULT 0
-        )""",
-        """CREATE TABLE IF NOT EXISTS watchtower_sweep_events (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            signature     TEXT    NOT NULL UNIQUE,
-            block_time    INTEGER,
-            payer_count   INTEGER NOT NULL DEFAULT 0,
-            total_sol     REAL    NOT NULL DEFAULT 0,
-            raw_payload   TEXT,
-            received_at   INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_fee_payers_unseen ON watchtower_fee_payers(detection_run) WHERE detection_run = 0",
-        """CREATE TABLE IF NOT EXISTS watchtower_dormant_seen (
-            creator  TEXT NOT NULL,
-            mint     TEXT NOT NULL,
-            seen_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            PRIMARY KEY (creator, mint)
-        )""",
-        """CREATE TABLE IF NOT EXISTS watchtower_wallet_state (
-            address          TEXT    NOT NULL PRIMARY KEY,
-            state            TEXT    NOT NULL DEFAULT 'provisioned',
-            state_changed_at INTEGER,
-            provisioned_at   INTEGER,
-            activated_at     INTEGER,
-            first_fee_at     INTEGER,
-            last_fee_at      INTEGER,
-            launch_count     INTEGER NOT NULL DEFAULT 0,
-            evidence_json    TEXT,
-            updated_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        """CREATE TABLE IF NOT EXISTS watchtower_operator_graph (
-            operator_address TEXT NOT NULL,
-            child_address    TEXT NOT NULL,
-            relationship     TEXT NOT NULL,
-            amount_sol       REAL,
-            first_seen_at    INTEGER,
-            last_seen_at     INTEGER,
-            tx_signature     TEXT,
-            hop              INTEGER NOT NULL DEFAULT 1,
-            PRIMARY KEY (operator_address, child_address, relationship)
-        )""",
-        """CREATE TABLE IF NOT EXISTS watchtower_launch_candidates (
-            address          TEXT    NOT NULL PRIMARY KEY,
-            source_operator  TEXT,
-            candidate_reason TEXT,
-            confidence       TEXT    NOT NULL DEFAULT 'medium',
-            first_signal_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            last_signal_at   INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            launched_mint    TEXT,
-            evidence_json    TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS watchtower_raydium_launches (
-            pool_address          TEXT NOT NULL PRIMARY KEY,
-            mint                  TEXT NOT NULL,
-            creator_address       TEXT,
-            pool_program          TEXT,
-            initial_liquidity_sol REAL,
-            detected_at           INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            block_time            INTEGER,
-            tx_signature          TEXT,
-            operator_link         TEXT,
-            link_type             TEXT,
-            evidence_json         TEXT
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_wallet_state ON watchtower_wallet_state(state)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_op_graph_operator ON watchtower_operator_graph(operator_address)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_op_graph_child ON watchtower_operator_graph(child_address)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_candidates_operator ON watchtower_launch_candidates(source_operator)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_raydium_mint ON watchtower_raydium_launches(mint)",
-        """CREATE TABLE IF NOT EXISTS watchtower_events (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            event_sequence   INTEGER NOT NULL DEFAULT 0,
-            event_type       TEXT    NOT NULL,
-            wallet_address   TEXT,
-            related_wallet   TEXT,
-            token_mint       TEXT,
-            payload_json     TEXT,
-            source           TEXT,
-            created_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE UNIQUE INDEX IF NOT EXISTS idx_wt_events_sequence ON watchtower_events(event_sequence) WHERE event_sequence > 0",
-        "CREATE INDEX IF NOT EXISTS idx_wt_events_wallet ON watchtower_events(wallet_address, event_sequence ASC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_events_type ON watchtower_events(event_type, event_sequence ASC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_events_created ON watchtower_events(created_at DESC)",
-        """CREATE TABLE IF NOT EXISTS watchtower_infra_events (
-            signature        TEXT NOT NULL,
-            block_time       INTEGER,
-            infra_address    TEXT NOT NULL,
-            infra_role       TEXT NOT NULL,
-            direction        TEXT NOT NULL,
-            counterparty     TEXT NOT NULL,
-            amount_sol       REAL NOT NULL DEFAULT 0,
-            raw_payload      TEXT,
-            received_at      INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            PRIMARY KEY (signature, infra_address, direction)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_infra_events_infra ON watchtower_infra_events(infra_address, block_time DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_infra_events_counterparty ON watchtower_infra_events(counterparty)",
-        """CREATE TABLE IF NOT EXISTS wt_discovery_log (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            discovered_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            discovery_type TEXT    NOT NULL,
-            address        TEXT,
-            detail_json    TEXT
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_discovery_log_at ON wt_discovery_log(discovered_at DESC)",
-        """CREATE TABLE IF NOT EXISTS wt_sub_provisioners (
-            address        TEXT NOT NULL PRIMARY KEY,
-            first_seen_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            funding_tx     TEXT,
-            funding_amount REAL,
-            funded_by      TEXT,
-            fanout_count   INTEGER NOT NULL DEFAULT 0,
-            fanout_amount  REAL,
-            fanout_fingerprint TEXT,
-            last_scanned_at INTEGER,
-            scan_status    TEXT NOT NULL DEFAULT 'pending'
-        )""",
-        """CREATE TABLE IF NOT EXISTS wt_creator_launches (
-            creator_wallet   TEXT NOT NULL,
-            mint_address     TEXT NOT NULL,
-            launch_tx        TEXT,
-            launched_at      INTEGER,
-            launch_platform  TEXT NOT NULL DEFAULT 'pump_fun',
-            evidence_grade   TEXT NOT NULL DEFAULT 'STRONG',
-            evidence_basis   TEXT,
-            launch_success_state TEXT NOT NULL DEFAULT 'launched_only',
-            migrated_at      INTEGER,
-            migration_tx     TEXT,
-            PRIMARY KEY (creator_wallet, mint_address)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_creator_launches_mint ON wt_creator_launches(mint_address)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_creator_launches_creator ON wt_creator_launches(creator_wallet)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_creator_launches_state ON wt_creator_launches(launch_success_state)",
-        """CREATE TABLE IF NOT EXISTS wt_staged_wallets (
-            wallet_address    TEXT PRIMARY KEY,
-            provisioned_at    INTEGER,
-            provisioner_address TEXT,
-            last_sig          TEXT,
-            first_move_sig    TEXT,
-            first_move_type   TEXT,
-            first_move_at     INTEGER,
-            state             TEXT DEFAULT 'DORMANT_FUNDED',
-            evidence_grade    TEXT,
-            evidence_basis    TEXT
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_staged_state ON wt_staged_wallets(state)",
-        # ── Phase 2: topology graph, campaigns, trader tracking, scoring ──────────
-        """CREATE TABLE IF NOT EXISTS wt_graph_nodes (
-            address        TEXT NOT NULL PRIMARY KEY,
-            node_type      TEXT NOT NULL DEFAULT 'UNKNOWN',
-            campaign_id    TEXT,
-            first_seen_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            last_active_at INTEGER,
-            state          TEXT,
-            score          INTEGER,
-            evidence_json  TEXT
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_graph_nodes_type     ON wt_graph_nodes(node_type)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_graph_nodes_campaign ON wt_graph_nodes(campaign_id) WHERE campaign_id IS NOT NULL",
-        """CREATE TABLE IF NOT EXISTS wt_graph_edges (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            from_address   TEXT NOT NULL,
-            to_address     TEXT NOT NULL,
-            edge_type      TEXT NOT NULL,
-            amount_sol     REAL,
-            tx_signature   TEXT,
-            block_time     INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            campaign_id    TEXT,
-            UNIQUE(from_address, to_address, edge_type, tx_signature)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_edges_from     ON wt_graph_edges(from_address, block_time DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_edges_to       ON wt_graph_edges(to_address,   block_time DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_edges_campaign ON wt_graph_edges(campaign_id) WHERE campaign_id IS NOT NULL",
-        """CREATE TABLE IF NOT EXISTS wt_campaigns (
-            campaign_id        TEXT NOT NULL PRIMARY KEY,
-            sub_provisioner    TEXT NOT NULL,
-            started_at         INTEGER NOT NULL,
-            ended_at           INTEGER,
-            state              TEXT NOT NULL DEFAULT 'PROVISIONING',
-            creator_count      INTEGER NOT NULL DEFAULT 0,
-            trader_count       INTEGER NOT NULL DEFAULT 0,
-            token_mints_json   TEXT,
-            total_sol_deployed REAL NOT NULL DEFAULT 0,
-            total_sol_swept    REAL NOT NULL DEFAULT 0,
-            evidence_json      TEXT,
-            created_at         INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at         INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_campaigns_provisioner ON wt_campaigns(sub_provisioner)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_campaigns_state       ON wt_campaigns(state)",
-        """CREATE TABLE IF NOT EXISTS wt_trader_wallets (
-            wallet_address      TEXT NOT NULL PRIMARY KEY,
-            provisioner_address TEXT NOT NULL,
-            campaign_id         TEXT,
-            funded_at           INTEGER,
-            funded_amount_sol   REAL,
-            state               TEXT NOT NULL DEFAULT 'FUNDED',
-            state_changed_at    INTEGER,
-            total_buys          INTEGER NOT NULL DEFAULT 0,
-            total_sells         INTEGER NOT NULL DEFAULT 0,
-            total_bought_sol    REAL NOT NULL DEFAULT 0,
-            total_sold_sol      REAL NOT NULL DEFAULT 0,
-            net_pnl_sol         REAL,
-            last_pamm_at        INTEGER,
-            last_sweep_at       INTEGER,
-            sweep_destination   TEXT,
-            evidence_json       TEXT,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_traders_provisioner ON wt_trader_wallets(provisioner_address)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_traders_campaign    ON wt_trader_wallets(campaign_id) WHERE campaign_id IS NOT NULL",
-        "CREATE INDEX IF NOT EXISTS idx_wt_traders_state       ON wt_trader_wallets(state)",
-        """CREATE TABLE IF NOT EXISTS wt_pamm_interactions (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            signature      TEXT NOT NULL UNIQUE,
-            block_time     INTEGER NOT NULL,
-            wallet_address TEXT NOT NULL,
-            token_mint     TEXT NOT NULL,
-            direction      TEXT NOT NULL,
-            sol_amount     REAL NOT NULL,
-            token_amount   REAL,
-            campaign_id    TEXT,
-            created_at     INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_wallet   ON wt_pamm_interactions(wallet_address, block_time DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_mint     ON wt_pamm_interactions(token_mint, block_time DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_campaign ON wt_pamm_interactions(campaign_id, block_time DESC) WHERE campaign_id IS NOT NULL",
-        "CREATE INDEX IF NOT EXISTS idx_wt_pamm_time     ON wt_pamm_interactions(block_time DESC)",
-        """CREATE TABLE IF NOT EXISTS wt_candidate_scores (
-            wallet_address   TEXT NOT NULL PRIMARY KEY,
-            score            INTEGER NOT NULL DEFAULT 0,
-            score_breakdown  TEXT,
-            lineage_path     TEXT,
-            reaches_treasury INTEGER NOT NULL DEFAULT 0,
-            enrolled_at      INTEGER,
-            scored_at        INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            rescored_at      INTEGER
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_scores_score ON wt_candidate_scores(score DESC)",
-        """CREATE TABLE IF NOT EXISTS wt_webhook_enrollments (
-            wallet_address TEXT NOT NULL PRIMARY KEY,
-            webhook_id     TEXT NOT NULL,
-            enrolled_at    INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            de_enrolled_at INTEGER,
-            is_active      INTEGER NOT NULL DEFAULT 1
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_enrollment_active ON wt_webhook_enrollments(is_active, webhook_id)",
-        # ── Hit telemetry: one row per transfer received from any watched address ──
-        """CREATE TABLE IF NOT EXISTS wt_webhook_hits (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            webhook_id       TEXT    NOT NULL,
-            wallet_address   TEXT    NOT NULL,
-            tx_signature     TEXT,
-            tx_type          TEXT,
-            source           TEXT,        -- 'candidate_webhook' | 'infra_webhook'
-            counterparty     TEXT,        -- destination address
-            slot             INTEGER,
-            block_time       INTEGER,
-            amount_sol       REAL,
-            is_fee_touch     INTEGER NOT NULL DEFAULT 0,
-            is_pamm_interaction INTEGER NOT NULL DEFAULT 0,
-            created_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wh_wallet_time  ON wt_webhook_hits(wallet_address, created_at DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wh_created      ON wt_webhook_hits(created_at DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wh_fee_touch    ON wt_webhook_hits(is_fee_touch) WHERE is_fee_touch=1",
-        "CREATE INDEX IF NOT EXISTS idx_wh_source       ON wt_webhook_hits(source, created_at DESC)",
-        "CREATE UNIQUE INDEX IF NOT EXISTS idx_wh_sig_wallet ON wt_webhook_hits(tx_signature, wallet_address)",
-        # ── Tier 2: minute-bucket aggregation for high-volume relay/infra ──────────
-        """CREATE TABLE IF NOT EXISTS wt_infra_telemetry_buckets (
-            wallet_address        TEXT    NOT NULL,
-            minute_bucket         INTEGER NOT NULL,
-            role                  TEXT    NOT NULL,
-            hit_count             INTEGER NOT NULL DEFAULT 0,
-            unique_counterparties INTEGER NOT NULL DEFAULT 0,
-            total_sol             REAL    NOT NULL DEFAULT 0,
-            max_tx_sol            REAL    NOT NULL DEFAULT 0,
-            burst_score           INTEGER NOT NULL DEFAULT 0,
-            created_at            INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            PRIMARY KEY (wallet_address, minute_bucket)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_buckets_time   ON wt_infra_telemetry_buckets(minute_bucket DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_buckets_wallet ON wt_infra_telemetry_buckets(wallet_address, minute_bucket DESC)",
-        # ── Relay counterparties: post-launch creator discovery from sweep senders ─
-        """CREATE TABLE IF NOT EXISTS wt_relay_counterparties (
-            sender_address   TEXT    NOT NULL,
-            relay_address    TEXT    NOT NULL,
-            first_sweep_at   INTEGER,
-            last_sweep_at    INTEGER,
-            sweep_count      INTEGER NOT NULL DEFAULT 1,
-            total_sol        REAL    NOT NULL DEFAULT 0,
-            discovery_state  TEXT    NOT NULL DEFAULT 'NEW',
-            linked_mint      TEXT,
-            linked_campaign  TEXT,
-            backtrace_at     INTEGER,
-            notes            TEXT,
-            PRIMARY KEY (sender_address, relay_address)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_relay_cp_state    ON wt_relay_counterparties(discovery_state, last_sweep_at DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_relay_cp_sender   ON wt_relay_counterparties(sender_address)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_relay_cp_priority ON wt_relay_counterparties(priority_score DESC)",
-        # ── Relay sweep epochs: time-bounded burst windows ────────────────────────
-        """CREATE TABLE IF NOT EXISTS wt_relay_sweep_epochs (
-            epoch_id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            relay_address     TEXT    NOT NULL,
-            collector_address TEXT,
-            sweep_count       INTEGER NOT NULL DEFAULT 0,
-            unique_senders    INTEGER NOT NULL DEFAULT 0,
-            total_sol         REAL    NOT NULL DEFAULT 0,
-            started_at        INTEGER NOT NULL,
-            ended_at          INTEGER,
-            epoch_state       TEXT    NOT NULL DEFAULT 'OPEN',
-            created_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_epochs_relay ON wt_relay_sweep_epochs(relay_address, started_at DESC)",
-        # ── Extraction clusters: operational attribution groups ───────────────────
-        """CREATE TABLE IF NOT EXISTS wt_extraction_clusters (
-            cluster_id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            relay_wallet      TEXT    NOT NULL,
-            collector_wallet  TEXT,
-            token_count       INTEGER NOT NULL DEFAULT 0,
-            creator_count     INTEGER NOT NULL DEFAULT 0,
-            total_sol_swept   REAL    NOT NULL DEFAULT 0,
-            first_seen        INTEGER,
-            last_seen         INTEGER,
-            confidence_score  REAL    NOT NULL DEFAULT 0,
-            cluster_state     TEXT    NOT NULL DEFAULT 'FORMING',
-            evidence_json     TEXT,
-            created_at        INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_clusters_relay ON wt_extraction_clusters(relay_wallet, confidence_score DESC)",
-        # ── Cluster members: token/creator → cluster assignment ──────────────────
-        """CREATE TABLE IF NOT EXISTS wt_cluster_members (
-            id                INTEGER PRIMARY KEY AUTOINCREMENT,
-            cluster_id        INTEGER NOT NULL,
-            token_mint        TEXT,
-            creator_wallet    TEXT,
-            relay_wallet      TEXT    NOT NULL,
-            sweep_sig         TEXT,
-            confidence        REAL    NOT NULL DEFAULT 0,
-            attribution_reason TEXT,
-            assigned_at       INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            UNIQUE(cluster_id, token_mint)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_members_cluster  ON wt_cluster_members(cluster_id)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_members_mint     ON wt_cluster_members(token_mint)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_members_creator  ON wt_cluster_members(creator_wallet)",
-        # ── Wallet tier: explicit Tier 1 / Tier 2 classification ─────────────────
-        """CREATE TABLE IF NOT EXISTS wt_wallet_tier (
-            wallet_address  TEXT    PRIMARY KEY,
-            tier            INTEGER NOT NULL,
-            role            TEXT    NOT NULL,
-            classified_at   INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            auto_classified INTEGER NOT NULL DEFAULT 1,
-            notes           TEXT
-        )""",
-        # ── Launch corridor tracking: fresh capital deployment windows ────────────
-        """CREATE TABLE IF NOT EXISTS wt_launch_corridors (
-            wallet_address      TEXT    NOT NULL PRIMARY KEY,
-            treasury_sig        TEXT,
-            treasury_ts         INTEGER NOT NULL,
-            treasury_sol        REAL    NOT NULL,
-            signaller_sig       TEXT,
-            signaller_ts        INTEGER,
-            signaller_lag_s     INTEGER,
-            state               TEXT    NOT NULL DEFAULT 'AWAITING_SIGNALLER',
-            -- AWAITING_SIGNALLER | CORRIDOR_ACTIVE | LAUNCH_CONFIRMED
-            -- | SPECULATION_EXECUTOR | ARB_EXECUTOR | ABORTED | STALLED
-            first_tx_sig        TEXT,
-            first_tx_ts         INTEGER,
-            first_tx_dest       TEXT,
-            first_tx_program    TEXT,
-            corridor_resolved_at INTEGER,
-            mint_address        TEXT,
-            enrolled_at         INTEGER,
-            f5m_expires_at      INTEGER,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_corridors_state   ON wt_launch_corridors(state, treasury_ts DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_corridors_created ON wt_launch_corridors(created_at DESC)",
-        # ── Swarm corridor tracking: coordinated buyer deployment waves ───────────
-        """CREATE TABLE IF NOT EXISTS wt_swarm_corridors (
-            id                      INTEGER PRIMARY KEY AUTOINCREMENT,
-            provisioner_wallet      TEXT    NOT NULL UNIQUE,
-            treasury_sig            TEXT,
-            treasury_ts             INTEGER NOT NULL,
-            treasury_sol            REAL    NOT NULL,
-            -- Fanout metrics
-            wallet_count            INTEGER NOT NULL DEFAULT 0,
-            median_fanout_sol       REAL,
-            min_fanout_sol          REAL,
-            max_fanout_sol          REAL,
-            fanout_duration_s       INTEGER,
-            fanout_started_at       INTEGER,
-            fanout_completed_at     INTEGER,
-            -- Target intelligence
-            target_token_count      INTEGER NOT NULL DEFAULT 0,
-            primary_token_mint      TEXT,
-            -- Lifecycle state
-            -- SWARM_DEPLOYMENT_ACTIVE | SWARM_DEPLOYMENT_ESCALATING
-            -- | SWARM_EXTRACTION_ACTIVE | SWARM_RECYCLE_COMPLETE | ABORTED
-            state                   TEXT    NOT NULL DEFAULT 'SWARM_DEPLOYMENT_ACTIVE',
-            coordinated_exit_detected INTEGER NOT NULL DEFAULT 0,
-            sweepback_detected      INTEGER NOT NULL DEFAULT 0,
-            treasury_recycle_detected INTEGER NOT NULL DEFAULT 0,
-            recycle_sig             TEXT,
-            recycle_ts              INTEGER,
-            recycle_sol             REAL,
-            created_at              INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at              INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_state     ON wt_swarm_corridors(state, treasury_ts DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provisioner ON wt_swarm_corridors(provisioner_wallet)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_token     ON wt_swarm_corridors(primary_token_mint)",
-        # Sampled fanout recipients — max _WT_SWARM_SAMPLE_SIZE rows per swarm
-        """CREATE TABLE IF NOT EXISTS wt_swarm_corridors_samples (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            swarm_id         INTEGER NOT NULL,
-            recipient_wallet TEXT    NOT NULL,
-            sample_ts        INTEGER NOT NULL,
-            fanout_sol       REAL,
-            sequence         INTEGER,
-            first_buy_mint   TEXT,
-            confirmed_at     INTEGER,
-            UNIQUE(swarm_id, recipient_wallet)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_samples_swarm ON wt_swarm_corridors_samples(swarm_id)",
-        # ── Operator-layer launch intelligence ────────────────────────────────────
-        """CREATE TABLE IF NOT EXISTS wt_operator_launches (
-            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            operator_wallet     TEXT    NOT NULL,
-            deployer_wallet     TEXT    NOT NULL,
-            mint                TEXT,
-            create_tx           TEXT,
-            first_seen_ts       INTEGER NOT NULL,
-            -- DEPLOYER_IDENTIFIED | LAUNCH_CONFIRMED | SWARM_CONFIRMED
-            confidence          TEXT    NOT NULL DEFAULT 'DEPLOYER_IDENTIFIED',
-            swarm_provisioner   TEXT,
-            swarm_confirmed_at  INTEGER,
-            swarm_sample_json   TEXT,
-            treasury_sol        REAL,
-            treasury_sig        TEXT,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            UNIQUE(deployer_wallet)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_op_launches_operator ON wt_operator_launches(operator_wallet, first_seen_ts DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_op_launches_mint     ON wt_operator_launches(mint)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_op_launches_conf     ON wt_operator_launches(confidence)",
-            # ── Worker heartbeat ──────────────────────────────────────────────────
-        # ── Generic swarm operator intelligence ──────────────────────────────────
-        """CREATE TABLE IF NOT EXISTS wt_operator_clusters (
-            cluster_id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            -- FORMING | ACTIVE | DORMANT | DISSOLVED
-            state               TEXT    NOT NULL DEFAULT 'FORMING',
-            confidence          REAL    NOT NULL DEFAULT 0,
-            -- seed = manually identified, discovered = auto-detected
-            origin              TEXT    NOT NULL DEFAULT 'discovered',
-            label               TEXT,
-            treasury_wallet     TEXT,
-            token_count         INTEGER NOT NULL DEFAULT 0,
-            provisioner_count   INTEGER NOT NULL DEFAULT 0,
-            total_sol_deployed  REAL    NOT NULL DEFAULT 0,
-            total_sol_recycled  REAL    NOT NULL DEFAULT 0,
-            first_seen          INTEGER,
-            last_seen           INTEGER,
-            deployment_fingerprint_id INTEGER,
-            notes               TEXT,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_clusters_conf ON wt_operator_clusters(confidence DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_clusters_treasury ON wt_operator_clusters(treasury_wallet)",
-
-        """CREATE TABLE IF NOT EXISTS wt_operator_treasuries (
-            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            wallet              TEXT    NOT NULL UNIQUE,
-            cluster_id          INTEGER,
-            -- CANDIDATE | CONFIRMED | REJECTED
-            state               TEXT    NOT NULL DEFAULT 'CANDIDATE',
-            confidence          REAL    NOT NULL DEFAULT 0,
-            total_deployed_sol  REAL    NOT NULL DEFAULT 0,
-            total_recycled_sol  REAL    NOT NULL DEFAULT 0,
-            deployment_count    INTEGER NOT NULL DEFAULT 0,
-            first_deployment    INTEGER,
-            last_deployment     INTEGER,
-            typical_deploy_sol  REAL,
-            deploy_cadence_h    REAL,
-            evidence_json       TEXT,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_treasuries_cluster ON wt_operator_treasuries(cluster_id)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_treasuries_state   ON wt_operator_treasuries(state, confidence DESC)",
-
-        """CREATE TABLE IF NOT EXISTS wt_swarm_provisioners (
-            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            wallet              TEXT    NOT NULL UNIQUE,
-            cluster_id          INTEGER,
-            treasury_wallet     TEXT,
-            -- CANDIDATE | CONFIRMED | REJECTED
-            state               TEXT    NOT NULL DEFAULT 'CANDIDATE',
-            funded_at           INTEGER,
-            funding_sol         REAL,
-            wallet_count        INTEGER NOT NULL DEFAULT 0,
-            median_fanout_sol   REAL,
-            stddev_fanout_sol   REAL,
-            fanout_window_s     INTEGER,
-            primary_token_mint  TEXT,
-            swept_at            INTEGER,
-            recycled_sol        REAL,
-            evidence_json       TEXT,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provs_cluster  ON wt_swarm_provisioners(cluster_id)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provs_treasury ON wt_swarm_provisioners(treasury_wallet)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_provs_token    ON wt_swarm_provisioners(primary_token_mint)",
-
-        """CREATE TABLE IF NOT EXISTS wt_operator_fingerprints (
-            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            cluster_id          INTEGER,
-            -- SWARM | CREATOR | HYBRID
-            archetype           TEXT    NOT NULL DEFAULT 'SWARM',
-            typical_deploy_sol  REAL,
-            deploy_sol_stddev   REAL,
-            median_fanout_sol   REAL,
-            fanout_sol_stddev   REAL,
-            typical_wallet_count INTEGER,
-            fanout_window_s     INTEGER,
-            buy_window_s        INTEGER,
-            exit_window_s       INTEGER,
-            one_token_concentration REAL,
-            recycle_rate        REAL,
-            sample_count        INTEGER NOT NULL DEFAULT 0,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_fingerprints_cluster ON wt_operator_fingerprints(cluster_id)",
-
-        """CREATE TABLE IF NOT EXISTS wt_swarm_candidates (
-            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            token_mint          TEXT    NOT NULL UNIQUE,
-            migrated_at         INTEGER,
-            scanned_at          INTEGER,
-            -- PENDING | SCANNING | POSSIBLE_SWARM | CONFIRMED_SWARM | NOT_SWARM
-            state               TEXT    NOT NULL DEFAULT 'PENDING',
-            cluster_id          INTEGER,
-            provisioner_wallet  TEXT,
-            treasury_wallet     TEXT,
-            unique_buyers       INTEGER,
-            buy_window_s        INTEGER,
-            median_funding_sol  REAL,
-            stddev_funding_sol  REAL,
-            one_token_pct       REAL,
-            confidence          REAL    NOT NULL DEFAULT 0,
-            operator_class      TEXT,
-            evidence_json       TEXT,
-            created_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_cands_state   ON wt_swarm_candidates(state, migrated_at DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_cands_cluster ON wt_swarm_candidates(cluster_id)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_swarm_cands_prov    ON wt_swarm_candidates(provisioner_wallet)",
-
-        """CREATE TABLE IF NOT EXISTS wt_worker_heartbeat (
-            worker_name   TEXT    PRIMARY KEY,
-            last_seen     INTEGER NOT NULL,
-            status        TEXT    NOT NULL DEFAULT 'unknown',
-            meta_json     TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS wt_worker_failures (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            worker_name   TEXT    NOT NULL,
-            failed_at     INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            restart_count INTEGER NOT NULL DEFAULT 0,
-            error         TEXT
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_hb_worker ON wt_worker_heartbeat(worker_name)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_failures_worker ON wt_worker_failures(worker_name, failed_at DESC)",
-
-        # ── WATCH candidate pipeline ──────────────────────────────────────────
-        """CREATE TABLE IF NOT EXISTS watch_candidate_tokens (
-            mint                  TEXT    PRIMARY KEY,
-            creator_address       TEXT    NOT NULL,
-            prediction_score      INTEGER,
-            has_sol_flows         INTEGER NOT NULL DEFAULT 0,
-            classified_as         TEXT    NOT NULL DEFAULT 'UNKNOWN',
-            classification_conf   REAL    NOT NULL DEFAULT 0.0,
-            classification_reason TEXT,
-            cluster_id            INTEGER,
-            added_at              INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at            INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wct_creator   ON watch_candidate_tokens(creator_address)",
-        "CREATE INDEX IF NOT EXISTS idx_wct_class     ON watch_candidate_tokens(classified_as, classification_conf DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_wct_cluster   ON watch_candidate_tokens(cluster_id)",
-
-        # ── Operation Discovery Engine (Phase 1) ──────────────────────────────
-        # Operations are the primary object: TOKEN → OPERATION → OPERATOR.
-        # Discovered automatically via funding-corridor + timing-window grouping.
-        """CREATE TABLE IF NOT EXISTS wt_operations (
-            operation_id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            auto_name           TEXT,
-            human_name          TEXT,
-            operator_identity   TEXT    NOT NULL DEFAULT 'UNKNOWN',
-            identity_confidence TEXT    NOT NULL DEFAULT 'UNKNOWN',
-            identity_validated_at INTEGER,
-            state               TEXT    NOT NULL DEFAULT 'DISCOVERED',
-            token_count         INTEGER NOT NULL DEFAULT 0,
-            creator_count       INTEGER NOT NULL DEFAULT 0,
-            confidence          REAL    NOT NULL DEFAULT 0.0,
-            corridor_amount     TEXT,
-            window_start        INTEGER,
-            window_end          INTEGER,
-            discovery_signals   TEXT,
-            discovered_at       INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_ops_corridor ON wt_operations(corridor_amount, window_start)",
-        "CREATE INDEX IF NOT EXISTS idx_wt_ops_identity ON wt_operations(operator_identity)",
-        """CREATE TABLE IF NOT EXISTS wt_operation_members (
-            operation_id        INTEGER NOT NULL,
-            token_mint          TEXT    NOT NULL,
-            creator_wallet      TEXT,
-            funding_amount      REAL,
-            migrated_at         INTEGER,
-            join_signal         TEXT,
-            PRIMARY KEY (operation_id, token_mint)
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_opmem_mint ON wt_operation_members(token_mint)",
-
-        # ── Operation lifecycle tracking ──────────────────────────────────────
-        # Append-only log of every state change. The conversion funnel
-        # (DISCOVERED → NAMED → CONFIRMED → DORMANT / MERGED / NOISE) is the
-        # real measure of whether the discovery engine works.
-        """CREATE TABLE IF NOT EXISTS wt_operation_transitions (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            operation_id   INTEGER NOT NULL,
-            from_state     TEXT,
-            to_state       TEXT    NOT NULL,
-            actor          TEXT,                -- 'engine' | 'human' | username
-            detail         TEXT,                -- JSON: name set, merge target, reason
-            at             INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_optrans_op ON wt_operation_transitions(operation_id, at)",
-
-        # ── Phase 2: hub-backfill worker + safe-mode identity proposals ───────
-        """CREATE TABLE IF NOT EXISTS wt_hub_backfill_queue (
-            funder_address   TEXT PRIMARY KEY,
-            seed_creator     TEXT,
-            corridor_amount  TEXT,
-            status           TEXT NOT NULL DEFAULT 'pending',
-            hops_written     INTEGER DEFAULT 0,
-            reached_hub      TEXT,
-            attempts         INTEGER DEFAULT 0,
-            last_error       TEXT,
-            enqueued_at      INTEGER DEFAULT (strftime('%s','now')),
-            processed_at     INTEGER
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_hbq_status ON wt_hub_backfill_queue(status)",
-        """CREATE TABLE IF NOT EXISTS wt_identity_proposals (
-            id                INTEGER PRIMARY KEY AUTOINCREMENT,
-            operation_id      INTEGER,
-            corridor_amount   TEXT,
-            current_identity  TEXT,
-            proposed_identity TEXT,
-            evidence_hub      TEXT,
-            evidence_role     TEXT,
-            token_count       INTEGER,
-            proposed_at       INTEGER DEFAULT (strftime('%s','now')),
-            applied           INTEGER DEFAULT 0
-        )""",
-        "CREATE INDEX IF NOT EXISTS idx_wt_idprop_op ON wt_identity_proposals(operation_id, applied)",
-]
-    for stmt in stmts:
-        try:
-            conn.execute(stmt)
-        except Exception:
-            pass  # table/index already exists with different schema — non-fatal
-
-    # ── Seed WATCH as Operator Cluster #1 (reference fingerprint) ─────────────
-    try:
-        existing = conn.execute(
-            "SELECT cluster_id FROM wt_operator_clusters WHERE label='WATCH'"
-        ).fetchone()
-        if not existing:
-            conn.execute("""
-                INSERT OR IGNORE INTO wt_operator_clusters
-                    (state, confidence, origin, label, treasury_wallet,
-                     token_count, provisioner_count, total_sol_deployed,
-                     first_seen, last_seen, notes, created_at, updated_at)
-                VALUES ('ACTIVE', 1.0, 'seed', 'WATCH',
-                        '44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM',
-                        35, 13, 2450.0,
-                        1745791200, strftime('%s','now'),
-                        'Seed cluster: known WATCH operator. 35+ SWARM ops Apr-May 2026. Fingerprint: 60-80 SOL deploy, 0.014 SOL fanout, 800-5000 wallets, 1 token.',
-                        strftime('%s','now'), strftime('%s','now'))
-            """)
-            # Seed treasury
-            conn.execute("""
-                INSERT OR IGNORE INTO wt_operator_treasuries
-                    (wallet, state, confidence, deployment_count,
-                     typical_deploy_sol, first_deployment, last_deployment, created_at, updated_at)
-                VALUES ('44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM',
-                        'CONFIRMED', 1.0, 35, 70.0,
-                        1745791200, strftime('%s','now'),
-                        strftime('%s','now'), strftime('%s','now'))
-            """)
-            cluster_id = conn.execute(
-                "SELECT cluster_id FROM wt_operator_clusters WHERE label='WATCH'"
-            ).fetchone()
-            if cluster_id:
-                cid = cluster_id[0]
-                conn.execute(
-                    "UPDATE wt_operator_treasuries SET cluster_id=? WHERE wallet=?",
-                    (cid, "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM")
-                )
-                # Seed fingerprint
-                conn.execute("""
-                    INSERT OR IGNORE INTO wt_operator_fingerprints
-                        (cluster_id, archetype, typical_deploy_sol, deploy_sol_stddev,
-                         median_fanout_sol, fanout_sol_stddev, typical_wallet_count,
-                         fanout_window_s, one_token_concentration, recycle_rate,
-                         sample_count, created_at, updated_at)
-                    VALUES (?, 'SWARM', 70.0, 5.0, 0.014, 0.001, 2000,
-                            3600, 0.98, 0.88, 35,
-                            strftime('%s','now'), strftime('%s','now'))
-                """, (cid,))
-    except Exception as _e:
-        print(f"[WT_SEED] WATCH cluster seed error: {_e}", flush=True)
-
-    conn.commit()
-
-    # ── Migrate wt_launch_corridors: add corridor_type column ─────────────────
-    _corridor_migrations = [
-        "ALTER TABLE wt_launch_corridors ADD COLUMN corridor_type TEXT DEFAULT 'CREATOR'",
-    ]
-    for _m in _corridor_migrations:
-        try:
-            conn.execute(_m)
-        except Exception:
-            pass  # column already exists
-
-    # ── Migrate wt_relay_counterparties: add extraction clustering columns ────
-    _relay_cp_migrations = [
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN downstream_collector TEXT",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN tx_sig TEXT",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN block_time INTEGER",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN inferred_mint TEXT",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN inferred_creator TEXT",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN sweep_epoch_id INTEGER",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN treasury_recycle_detected INTEGER DEFAULT 0",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN cluster_id INTEGER",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN backtrace_depth INTEGER DEFAULT 0",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN backtrace_error TEXT",
-        "ALTER TABLE wt_relay_counterparties ADD COLUMN priority_score REAL DEFAULT 0",
-    ]
-    for _m in _relay_cp_migrations:
-        try:
-            conn.execute(_m)
-        except Exception:
-            pass  # column already exists
-
-    _swarm_cand_migrations = [
-        "ALTER TABLE wt_swarm_candidates ADD COLUMN operator_class TEXT",
-        "ALTER TABLE wt_swarm_candidates ADD COLUMN operation TEXT",
-        "ALTER TABLE wt_swarm_candidates ADD COLUMN wt_link TEXT",
-    ]
-    for _m in _swarm_cand_migrations:
-        try:
-            conn.execute(_m)
-        except Exception:
-            pass
-
-    _wt_cluster_migrations = [
-        "ALTER TABLE wt_operator_clusters ADD COLUMN operator_classification TEXT DEFAULT 'UNKNOWN'",
-        "ALTER TABLE wt_operator_clusters ADD COLUMN classification_confidence REAL DEFAULT 0.0",
-        "ALTER TABLE wt_operator_clusters ADD COLUMN classification_reason TEXT",
-        "ALTER TABLE wt_operator_clusters ADD COLUMN cluster_evidence_json TEXT",
-        "ALTER TABLE wt_operator_clusters ADD COLUMN watch_token_count INTEGER DEFAULT 0",
-        # Operation lifecycle + coherence columns
-        "ALTER TABLE wt_operations ADD COLUMN coherence_score REAL DEFAULT 0.0",
-        "ALTER TABLE wt_operations ADD COLUMN coherence_flag TEXT",
-        "ALTER TABLE wt_operations ADD COLUMN merged_into INTEGER",
-        "ALTER TABLE wt_operations ADD COLUMN noise_reason TEXT",
-        "ALTER TABLE wt_operations ADD COLUMN first_discovered_at INTEGER",
-        # Provenance for operator_identity: LINEAGE_CONFIRMED | BEHAVIORAL_MATCH | UNKNOWN
-        "ALTER TABLE wt_operations ADD COLUMN identity_confidence TEXT NOT NULL DEFAULT 'UNKNOWN'",
-        # First-class timestamp for identity: bumped only when operator_identity or
-        # identity_confidence CHANGES across rebuilds (NOT every engine pass like updated_at).
-        "ALTER TABLE wt_operations ADD COLUMN identity_validated_at INTEGER",
-    ]
-    for _m in _wt_cluster_migrations:
-        try:
-            conn.execute(_m)
-        except Exception:
-            pass
-    conn.commit()
+# WATCHTOWER table creation/seeding — owned by scripts/ensure_watchtower_tables.py.
+# Imported here so existing callers (_process_wt_infra_payload, webhook path) still work.
+# To restore import-time table creation: replace this import with the original function body.
+from src.core.watchtower_init import ensure_watchtower_tables as _ensure_watchtower_tables
 
 
 # ── Funding origin helpers ───────────────────────────────────────────────────
@@ -41105,6 +40094,208 @@ try:
     print("[DASHBOARD] Operations v2 (operation-centric) routes registered")
 except Exception as e:
     print(f"[WARNING] Operations v2 dashboard not available: {e}")
+
+try:
+    from src.ops.shell_routes import register_ops_shell_routes
+    register_ops_shell_routes(app)
+    print("[OPS_OS] Generic Operations Shell registered (/ops-os)")
+except Exception as e:
+    print(f"[WARNING] Operations OS shell not available: {e}")
+
+try:
+    from src.ops.demo_provider_routes import register_demo_provider_routes
+    register_demo_provider_routes(app)
+    print("[OPS_OS] Observatory Demo providers registered (/api/ops-demo/*)")
+except Exception as e:
+    print(f"[WARNING] Observatory Demo providers not available: {e}")
+
+try:
+    from src.ops.launcher_observatory_routes import register_launcher_observatory_routes
+    register_launcher_observatory_routes(app)
+    print("[OPS_OS] Launcher Observatory providers registered (/api/ops/launcher-observatory/*)")
+except Exception as e:
+    print(f"[WARNING] Launcher Observatory providers not available: {e}")
+
+try:
+    from src.knowledge.routes import register_knowledge_routes
+    register_knowledge_routes(app)
+    print("[KNOWLEDGE] Knowledge Layer routes registered (/api/knowledge/*)")
+except Exception as e:
+    print(f"[WARNING] Knowledge Layer routes not available: {e}")
+
+try:
+    from src.intelligence.routes import register_intelligence_routes
+    register_intelligence_routes(app)
+    print("[INTELLIGENCE] Entity Intelligence routes registered (/api/intelligence/*)")
+except Exception as e:
+    print(f"[WARNING] Entity Intelligence routes not available: {e}")
+
+try:
+    from src.intelligence.page_routes import register_intelligence_page_routes
+    register_intelligence_page_routes(app)
+    print("[INTELLIGENCE] Entity Intelligence page registered (/intelligence/entity/<id>)")
+except Exception as e:
+    print(f"[WARNING] Entity Intelligence page not available: {e}")
+
+try:
+    from src.discovery.routes import register_discovery_routes
+    register_discovery_routes(app)
+    print("[DISCOVERY] Provenance workspace registered (/discovery, /api/discovery/*)")
+except Exception as e:
+    print(f"[WARNING] Discovery workspace not available: {e}")
+
+try:
+    from src.ops.provisioning_edges_routes import register_provisioning_edges_routes
+    register_provisioning_edges_routes(app)
+    print("[X21B] Provisioning edges routes registered (/api/ops-v2/provisioning-*)")
+except Exception as e:
+    print(f"[WARNING] Provisioning edges routes not available: {e}")
+
+try:
+    from src.ops.buy_swarm_observatory_routes import register_buy_swarm_observatory_routes
+    register_buy_swarm_observatory_routes(app)
+    print("[OPS_OS] Buy Swarm Observatory providers registered (/api/ops/buy-swarm-observatory/*)")
+except Exception as e:
+    print(f"[WARNING] Buy Swarm Observatory providers not available: {e}")
+
+try:
+    from src.cross_operation.routes import register_cross_operation_routes
+    register_cross_operation_routes(app)
+    print("[CROSS_OP] Cross-Operation Intelligence registered (/api/intelligence/entity/*/relationships)")
+except Exception as e:
+    print(f"[WARNING] Cross-Operation Intelligence not available: {e}")
+
+try:
+    from src.ops.lifecycle_routes import register_lifecycle_routes
+    register_lifecycle_routes(app)
+    print("[OPS_OS] Lifecycle routes registered (/api/ops/<op_id>/lifecycle, /api/ops/lifecycle/platform)")
+except Exception as e:
+    print(f"[WARNING] Lifecycle routes not available: {e}")
+
+try:
+    from src.ops.inbox_routes import register_inbox_routes
+    register_inbox_routes(app)
+    print("[INBOX] Analyst Inbox registered (/api/ops/inbox, /intelligence/inbox)")
+except Exception as e:
+    print(f"[WARNING] Analyst Inbox not available: {e}")
+
+try:
+    from src.core.database_write_routes import register_database_write_routes
+    register_database_write_routes(app)
+    print("[DB_WRITES] Transaction telemetry registered")
+except Exception as e:
+    print(f"[WARNING] Database write telemetry not available: {e}")
+
+try:
+    # Canonical operator schema is an explicit process-start operation. Reader
+    # construction and request handling never perform DDL.
+    from src.core.db import OPS_DB_PATH
+    _ops_db_path = str(OPS_DB_PATH)
+    if not _read_only_schema_has(
+        _ops_db_path,
+        tables={
+            "operators",
+            "operator_entities",
+            "operator_evidence",
+            "operator_reviews",
+            "operator_promotion_reviews",
+        },
+        indexes={
+            "ix_ope_entity",
+            "ix_oe_operator",
+            "ix_oe_type",
+            "ix_oe_entity_a",
+            "ix_or_operator",
+            "ix_opr_proposal",
+            "ix_opr_operator",
+        },
+    ):
+        from src.ops.operator_writer import initialize_operator_schema
+        initialize_operator_schema(_ops_db_path)
+    from src.ops.watchtower_alignment import (
+        audit_alignment,
+        initialize_and_reconcile,
+    )
+    try:
+        _alignment_conn = _read_only_ops_connection(_ops_db_path)
+        try:
+            _watchtower_alignment = {"audit": audit_alignment(_alignment_conn)}
+        finally:
+            _alignment_conn.close()
+    except Exception:
+        _watchtower_alignment = initialize_and_reconcile(_ops_db_path)
+    if not _watchtower_alignment["audit"]["healthy"]:
+        _watchtower_alignment = initialize_and_reconcile(_ops_db_path)
+        if not _watchtower_alignment["audit"]["healthy"]:
+            raise RuntimeError(f"WATCHTOWER canonical reconciliation incomplete: {_watchtower_alignment['audit']}")
+    from src.ops.observation_store import ObservationStore
+    if not _read_only_schema_has(
+        _ops_db_path,
+        tables={"operator_observations", "operator_observation_runs"},
+        indexes={"ix_oo_operator_time", "ix_oo_operator_type"},
+    ):
+        ObservationStore(_ops_db_path).initialize_schema()
+    from src.ops.attribution_outcome import initialize_schema as _initialize_attribution_outcomes
+    if not _read_only_schema_has(
+        _ops_db_path,
+        tables={"wt_attribution_outcomes", "wt_unknown_infrastructure_registry"},
+        indexes={"ix_wao_type_time", "ix_wao_terminal", "ix_wuir_eligible"},
+    ):
+        _initialize_attribution_outcomes(_ops_db_path)
+    from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+    if not _read_only_schema_has(
+        _ops_db_path,
+        tables={"wt_walkback_queue"},
+        indexes={"ix_wbq_status", "ix_wbq_class", "ix_wbq_outcome", "ix_wbq_funder"},
+    ):
+        _walkback_schema_conn = db_connect(_ops_db_path, timeout=30)
+        try:
+            _ensure_walkback_schema(_walkback_schema_conn)
+        finally:
+            _walkback_schema_conn.close()
+    print(
+        "[OPERATORS] Canonical operator schema verified; "
+        f"WATCHTOWER treasuries aligned={_watchtower_alignment['audit']['canonical_watchtower']}"
+    )
+except Exception as e:
+    print(f"[WARNING] Operator schema startup failed: {e}")
+
+try:
+    from src.ops.operator_routes import register_operator_routes
+    register_operator_routes(app)
+    print("[OPERATORS] Operator Resolution registered (/api/ops/operators)")
+except Exception as e:
+    print(f"[WARNING] Operator Resolution not available: {e}")
+
+try:
+    from src.ops.behaviour_routes import register_behaviour_routes
+    register_behaviour_routes(app)
+except Exception as e:
+    print(f"[WARNING] Behaviour Intelligence not available: {e}")
+
+try:
+    from src.ops.behaviour_change_routes import register_behaviour_change_routes
+    register_behaviour_change_routes(app)
+except Exception as e:
+    print(f"[WARNING] Behaviour Change Detection not available: {e}")
+
+try:
+    from src.ops.similarity_routes import register_similarity_routes
+    register_similarity_routes(app)
+except Exception as e:
+    print(f"[WARNING] Operator Similarity not available: {e}")
+
+try:
+    from src.ops.assessment_routes import register_assessment_routes
+    register_assessment_routes(app)
+except Exception as e:
+    print(f"[WARNING] Intelligence Assessment not available: {e}")
+
+try:
+    from src.ops.forecast_routes import register_forecast_routes
+    register_forecast_routes(app)
+except Exception as e:
+    print(f"[WARNING] Lifecycle Forecast not available: {e}")
 
 # Price API
 try:

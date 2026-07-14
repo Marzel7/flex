@@ -1,0 +1,129 @@
+operation_id: buy-swarm-observatory
+display_name: Buy Swarm Observatory
+status: INSTRUMENTED
+framework_schema_version: 1
+definition_version: 1
+operation_version: "buy-swarm-observatory-v1"
+
+# ── Archetype ─────────────────────────────────────────────────────────────────
+#
+# COORDINATED_SWARM differs from WATCHTOWER (infrastructure graph) and from
+# Launcher Observatory (persistent identity).
+#
+# This operation classifies GROUPS, not individuals:
+#   - The unit of analysis is the swarm, not the wallet.
+#   - A swarm exists only in relation to a shared target (token mint).
+#   - Operator identity is inferred from treasury/subprov linkage, not assumed.
+#
+# Infrastructure model FLAT: participants interact with a shared target
+# but not directly with each other.  There is no hub-and-spoke provisioning
+# graph; the coordination signal is temporal co-occurrence on the same mint.
+# The conceptual topology is a mesh (many wallets converging on one target),
+# but the framework FLAT model is correct: no node tiers to enumerate.
+
+infrastructure_model: FLAT
+
+vocabulary:
+  observed_asset:    "Swarm"
+  signal_source:     "Swarm Participant"
+  observation_event: "Coordinated Buy"
+  observed_outcome:  "Campaign"
+  id_format:         "solana_address"
+
+# ── Qualification rules (deterministic — no heuristic scoring) ────────────────
+#
+# A qualifying swarm must satisfy ALL three conditions simultaneously:
+#
+# RULE 1 — MINIMUM_PARTICIPANTS: >= 3 distinct swarm_wallet addresses buying
+#   the same mint.
+#   Rationale: a single wallet or two wallets can be coincidence.  Three or
+#   more distinct funded wallets acting on the same target within a bounded
+#   window is the minimum credible coordination signal from a provisioned set.
+#   Data: 92 / 269 observed targets meet this threshold (34%).
+#
+# RULE 2 — COORDINATION_WINDOW: MAX(observed_at) - MIN(observed_at) <= 7200s
+#   (2 hours).
+#   Rationale: swarm activity is front-loaded at launch.  The empirical data
+#   shows 244 / 269 targets have all buys within 2 hours; the long-tail
+#   outlier (EPjFWdd5Aufq, 840 403 s window) is USDC — a permanent fixture,
+#   not a swarm.  7200s captures coordinated behaviour and excludes organic
+#   accumulation over days.
+#
+# RULE 3 — KNOWN_PROVISIONER: subprov_wallet IS NOT NULL.
+#   Rationale: swarm buys with no provisioner linkage cannot be attributed to
+#   a WATCHTOWER-style operator.  183 / 269 targets have NULL treasury/subprov
+#   and cannot be attributed.  Requiring a known subprov keeps this operation
+#   honest about what it can and cannot claim.  Unknown-provisioner swarms are
+#   counted in failure attribution under DISC_NO_PROVISIONER.
+
+qualification:
+  min_participants:       3
+  max_window_seconds:  7200
+  require_known_subprov: true
+
+# ── Capabilities ──────────────────────────────────────────────────────────────
+capabilities:
+  health:
+    state: SUPPORTED
+    contract: health_v1
+    provider: buy_swarm_observatory_health
+
+  infrastructure:
+    state: UNSUPPORTED
+    reason: >
+      MESH model: participants coordinate on a shared target but do not form
+      a provisioning graph.  There is no hub-and-spoke infrastructure to map.
+
+  discovery_assurance:
+    state: UNSUPPORTED
+    reason: >
+      Buy Swarm Observatory is itself a classification tool over already-
+      collected observations (wt_swarm_buys).  It has no discovery pipeline
+      of its own to assure.
+
+  detection_coverage:
+    state: NOT_DECLARED
+
+  failure_attribution:
+    state: SUPPORTED
+    contract: failure_attribution_v1
+    provider: buy_swarm_observatory_failure_attribution
+
+  behaviour:
+    state: SUPPORTED
+    contract: behaviour_v1
+    provider: buy_swarm_observatory_behaviour
+
+  intelligence:
+    state: SUPPORTED
+    contract: intelligence_v1
+    provider: buy_swarm_observatory_intelligence
+
+  signal_observatory:
+    state: NOT_DECLARED
+
+  outcome_intelligence:
+    state: SUPPORTED
+    contract: outcome_intelligence_v1
+    provider: buy_swarm_observatory_outcome_intelligence
+
+  alerts:
+    state: NOT_DECLARED
+
+# ── Assurance mapping ──────────────────────────────────────────────────────────
+assurance_mapping:
+  ground_truth_source: >
+    wt_swarm_buys (ops DB) — populated by the ws_cascade daemon from confirmed
+    WATCHTOWER-linked provisioning lineage.  13 724 buy observations across
+    269 target mints as of initial instrumentation.
+  ground_truth_independent: true
+  scope_note: >
+    269 targets observed.  70 qualify (>= 3 participants, <= 2h window, any
+    provisioner).  60 qualify with known subprov linkage.  183 targets have
+    no provisioner attribution and fall under DISC_NO_PROVISIONER.
+  failure_taxonomy:
+    DISC_NO_PROVISIONER:   "Target observed but subprov_wallet is NULL — cannot be attributed to a known operator"
+    DISC_SINGLE_BUY:       "Target observed but only 1 unique swarm wallet — not coordinated"
+    DISC_BELOW_THRESHOLD:  "Target has 2 participants — below minimum-3 threshold"
+    DISC_WINDOW_TOO_WIDE:  "Participants span > 7200s — likely organic accumulation, not coordinated"
+    QUALIFIED:             "Target meets all three qualification rules"

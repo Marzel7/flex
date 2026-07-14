@@ -12,6 +12,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
 import logging
+from src.utils.db_locking import db_connect
 
 logger = logging.getLogger(__name__)
 
@@ -119,8 +120,8 @@ class HealthReport:
 
 
 def get_db_connection():
-    """Get SQLite connection with proper settings"""
-    conn = sqlite3.connect(DB_PATH, timeout=30)
+    """Get a read-only SQLite connection for dashboard queries."""
+    conn = db_connect(DB_PATH, timeout=30, read_only=True)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -430,4 +431,3 @@ def api_efficiency_health():
     reports = query_health_status(days)
     return jsonify([asdict(r) for r in reports])
 """
-

@@ -1,0 +1,967 @@
+{% extends "base_shell.html" %}
+{% block title %}Entity Intelligence · {{ entity_id[:12] }}…{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+/* ── Dossier identity sidebar ──────────────────────────────────────────── */
+.ei-identity-card {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  overflow: hidden;
+}
+.ei-identity-top {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ip-border);
+  background: rgba(255,255,255,.015);
+}
+.ei-address-full {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ip-cyan);
+  word-break: break-all;
+  cursor: pointer;
+  line-height: 1.5;
+}
+.ei-address-full:hover { opacity: .8; }
+.ei-entity-type {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--ip-purple-bg);
+  border: 1px solid rgba(167,139,250,.25);
+  color: var(--ip-purple);
+  margin-top: 8px;
+  display: inline-block;
+}
+.ei-identity-body { padding: 12px 16px; }
+.ei-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ei-meta-row:last-child { border-bottom: none; }
+.ei-meta-label { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; color: var(--ip-dim); }
+.ei-meta-val   { font-size: 12px; color: var(--ip-text); font-weight: 600; }
+
+/* Op coverage chips in identity panel */
+.ei-op-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--ip-border);
+}
+.ei-op-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--ip-border);
+}
+.ei-op-chip.seen   { border-color: rgba(34,211,238,.25); background: rgba(34,211,238,.07); }
+.ei-op-chip.unseen { opacity: .45; }
+.ei-op-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ip-border2); flex-shrink: 0; }
+.ei-op-chip.seen .ei-op-chip-dot { background: var(--ip-green); box-shadow: 0 0 6px rgba(63,185,80,.5); }
+.ei-op-chip-name { color: var(--ip-text); font-weight: 600; font-size: 11px; }
+.ei-op-chip-link { margin-left: auto; font-size: 10px; color: var(--ip-cyan); text-decoration: none; opacity: .7; }
+.ei-op-chip-link:hover { opacity: 1; }
+
+/* ── Centre column: sections ───────────────────────────────────────────── */
+.ei-section { margin-bottom: 18px; }
+.ei-panel {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  overflow: hidden;
+}
+
+/* Summary bullets */
+.ei-summary-list { padding: 12px 16px; }
+.ei-summary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 12.5px;
+  color: var(--ip-text);
+  line-height: 1.5;
+}
+.ei-summary-item:last-child { border-bottom: none; }
+.ei-summary-bullet {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ip-cyan); margin-top: 5px; flex-shrink: 0;
+}
+
+/* Confidence grid */
+.ei-conf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 14px; }
+.ei-conf-cell { background: var(--ip-card2); border-radius: 6px; padding: 10px 12px; }
+.ei-conf-cell .cl { font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--ip-dim); margin-bottom: 5px; }
+.ei-contributing { padding: 0 14px 14px; }
+.ei-contrib-fact {
+  font-size: 11px; color: var(--ip-sec); padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04); line-height: 1.45;
+}
+.ei-contrib-fact:last-child { border-bottom: none; }
+.ei-contrib-fact::before { content: "›"; color: var(--ip-dim); margin-right: 7px; }
+
+/* Operation cards */
+.ei-ops-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.ei-op-card {
+  background: var(--ip-card2);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  overflow: hidden;
+}
+.ei-op-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid var(--ip-border);
+  background: rgba(255,255,255,.015);
+}
+.ei-op-name { font-size: 12px; font-weight: 700; color: var(--ip-text); }
+.ei-op-role {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  padding: 2px 7px; border-radius: 8px;
+  background: var(--ip-cyan-bg); border: 1px solid rgba(34,211,238,.2); color: var(--ip-cyan);
+}
+.ei-op-facts { padding: 10px 14px; }
+.ei-op-fact-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 4px 0; font-size: 11.5px; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ei-op-fact-row:last-child { border-bottom: none; }
+.ei-op-fact-k { color: var(--ip-sec); }
+.ei-op-fact-v { color: var(--ip-text); font-family: ui-monospace, monospace; font-size: 11px; text-align: right; max-width: 60%; word-break: break-all; }
+
+/* Knowledge items */
+.ei-kn-group-h {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--ip-purple); padding: 8px 14px;
+  border-bottom: 1px solid var(--ip-border); background: rgba(167,139,250,.04);
+}
+.ei-kn-item { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.ei-kn-item:last-child { border-bottom: none; }
+.ei-kn-value { font-size: 13px; color: var(--ip-text); font-weight: 500; margin-bottom: 5px; }
+.ei-kn-meta  { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.ei-kn-pill  {
+  font-size: 10px; padding: 1px 7px; border-radius: 8px;
+  background: rgba(79,93,110,.08); border: 1px solid rgba(79,93,110,.15); color: var(--ip-sec);
+}
+.ei-kn-pill.type { background: var(--ip-blue-bg); border-color: rgba(96,165,250,.2); color: var(--ip-blue); }
+.ei-kn-prov { font-size: 10px; color: var(--ip-dim); margin-top: 5px; font-family: ui-monospace, monospace; }
+
+/* Timeline */
+.ei-tl-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ei-tl-table th {
+  text-align: left; padding: 8px 13px; color: var(--ip-sec); font-weight: 500;
+  font-size: 10px; text-transform: uppercase; letter-spacing: .04em;
+  border-bottom: 1px solid var(--ip-border); white-space: nowrap;
+}
+.ei-tl-table td { padding: 9px 13px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: top; }
+.ei-tl-table tr:hover td { background: var(--ip-card2); }
+.ei-tl-table tr:last-child td { border-bottom: none; }
+.ei-tl-time  { color: var(--ip-sec); white-space: nowrap; font-family: ui-monospace, monospace; font-size: 10px; }
+.ei-tl-src-badge {
+  font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 8px; white-space: nowrap;
+}
+.src-WATCHTOWER            { background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.25); color: var(--ip-purple); }
+.src-LAUNCHER_OBSERVATORY  { background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.2);  color: var(--ip-cyan); }
+.src-BUY_SWARM_OBSERVATORY { background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.2);  color: var(--ip-blue); }
+.src-KNOWLEDGE_LAYER       { background: rgba(63,185,80,.08);  border: 1px solid rgba(63,185,80,.2);   color: var(--ip-green); }
+.ei-tl-evt  { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--ip-sec); }
+.ei-tl-desc { color: var(--ip-text); font-size: 12px; line-height: 1.45; }
+.ei-tl-prov { color: var(--ip-dim); font-size: 10px; margin-top: 3px; font-family: ui-monospace, monospace; }
+
+/* Relationship cards (right column) */
+.ei-rel-header {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--ip-dim); margin-bottom: 8px;
+}
+
+/* Raw accordion */
+.ei-raw-toggle {
+  cursor: pointer; padding: 10px 14px; display: flex; align-items: center;
+  justify-content: space-between; font-size: 11px; color: var(--ip-sec); user-select: none;
+}
+.ei-raw-toggle:hover { color: var(--ip-text); }
+.ei-raw-toggle .arr { transition: transform .15s; }
+.ei-raw-toggle[aria-expanded="true"] .arr { transform: rotate(90deg); }
+.ei-raw-body { display: none; padding: 0 14px 14px; }
+.ei-raw-body.open { display: block; }
+pre.ei-json {
+  background: var(--ip-card2); border-radius: 6px; padding: 12px;
+  font-size: 11px; color: var(--ip-sec); overflow-x: auto;
+  white-space: pre-wrap; word-break: break-all;
+  max-height: 400px; overflow-y: auto;
+}
+
+/* Unknown entity */
+.ei-unknown {
+  text-align: center; padding: 48px 20px; color: var(--ip-sec);
+}
+.ei-unknown .big { font-size: 32px; margin-bottom: 10px; opacity: .25; }
+.ei-unknown .msg { font-size: 14px; margin-bottom: 6px; color: var(--ip-text); }
+.ei-unknown .sub { font-size: 12px; }
+
+/* Sticky search bar */
+.ei-search-row { display: flex; gap: 8px; margin-bottom: 18px; }
+.ei-search-row input {
+  flex: 1; background: var(--ip-card); border: 1px solid var(--ip-border);
+  border-radius: 6px; padding: 9px 13px; font-size: 12px;
+  color: var(--ip-text); font-family: ui-monospace, monospace; outline: none;
+}
+.ei-search-row input:focus { border-color: rgba(34,211,238,.5); }
+.ei-search-row input::placeholder { color: var(--ip-dim); }
+.ei-search-row button {
+  padding: 9px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  background: var(--ip-cyan-bg); border: 1px solid rgba(34,211,238,.3); color: var(--ip-cyan); cursor: pointer;
+}
+.ei-search-row button:hover { background: rgba(34,211,238,.18); }
+
+.ei-perf { font-size: 9.5px; color: var(--ip-dim); padding: 4px 0 0; text-align: right; }
+
+/* Legacy aliases — keep for backward compat with tests and other templates */
+.conf-CERTAIN { background: rgba(63,185,80,.14);  border: 1px solid rgba(63,185,80,.35);  color: var(--ip-green); }
+.conf-HIGH    { background: rgba(34,211,238,.11); border: 1px solid rgba(34,211,238,.3);  color: var(--ip-cyan); }
+.conf-MEDIUM  { background: rgba(234,179,8,.11);  border: 1px solid rgba(234,179,8,.3);   color: var(--ip-yellow); }
+.conf-LOW     { background: rgba(245,158,11,.11); border: 1px solid rgba(245,158,11,.3);  color: var(--ip-amber); }
+.conf-UNKNOWN { background: rgba(79,93,110,.1);   border: 1px solid rgba(79,93,110,.22);  color: var(--ip-sec); }
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <!-- ── Breadcrumb ─────────────────────────────────────────────────────── -->
+  <div class="ip-breadcrumb">
+    <a href="/ops-os">Mission Control</a>
+    <span class="sep">›</span>
+    <span>Entity Intelligence</span>
+    <span class="sep">›</span>
+    <span id="ei-addr-crumb" style="font-family:monospace;color:var(--ip-cyan);">
+      {{ entity_id[:12] }}…{{ entity_id[-6:] }}
+    </span>
+  </div>
+
+  <!-- ── Address header ────────────────────────────────────────────────── -->
+  <div class="ip-title-row" style="margin-bottom:10px;">
+    <h1 class="ip-title" style="font-family:ui-monospace,monospace;font-size:16px;"
+        id="ei-title-addr" onclick="copyAddress()" title="Click to copy"
+        style="cursor:pointer;">
+      {{ entity_id[:16] }}…{{ entity_id[-8:] }}
+    </h1>
+    <span id="ei-entity-type" class="ei-entity-type">—</span>
+    <span class="ip-ts" id="ei-gen-ts"></span>
+  </div>
+
+  <!-- ── Search another entity ──────────────────────────────────────────── -->
+  <form class="ei-search-row" action="/intelligence/search" method="get">
+    <input name="address" placeholder="Look up another entity…" autocomplete="off" spellcheck="false">
+    <button type="submit">Lookup →</button>
+  </form>
+
+  <!-- ── Loading ───────────────────────────────────────────────────────── -->
+  <div id="ei-loading" style="padding:40px;text-align:center;color:var(--ip-dim);">
+    Loading entity intelligence…
+  </div>
+
+  <div id="ei-level1" style="display:none;">
+    <div class="x19-question">What do we know about this entity?</div>
+    <div class="x19-flow"><span>Discovery</span><span>→</span><span class="current">Entity</span><span>→</span><span>Operator</span><span>→</span><span>Assessment</span></div>
+    <div class="vi-grid">
+      <div class="vi-card discovery"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Who</div><div class="vi-title">Identity</div></div></div><div class="vi-scorecards"><div class="vi-scorecard"><div class="vi-scorecard-label">Current role</div><div class="vi-scorecard-value" id="ei-l1-role">—</div></div><div class="vi-scorecard"><div class="vi-scorecard-label">Known operator</div><div class="vi-scorecard-value" id="ei-l1-operator">Resolving…</div></div></div></div>
+      <div class="vi-card monitoring"><div class="vi-card-head"><span class="vi-icon">◇</span><div><div class="vi-eyebrow">What</div><div class="vi-title">Current state</div></div></div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="ei-l1-operations">—</div><div class="vi-metric-label">Operations observed</div></div><div class="vi-metric"><div class="vi-metric-value" id="ei-l1-status" style="font-size:13px">Monitoring</div><div class="vi-metric-label">Current status</div></div></div></div>
+      <div class="vi-card confirmed"><div class="vi-card-head"><span class="vi-icon">✓</span><div><div class="vi-eyebrow">Why</div><div class="vi-title">Confidence & activity</div></div></div><div class="vi-confidence"><span>Confidence</span><span class="vi-confidence-track"><span class="vi-confidence-fill" id="ei-l1-confidence-bar"></span></span><span id="ei-l1-confidence">—</span></div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="ei-l1-recent" style="font-size:13px">—</div><div class="vi-metric-label">Recent activity</div></div></div></div>
+    </div>
+  </div>
+
+  <details id="ei-supporting" class="x19-disclosure x19-level2" style="display:none;">
+    <summary><span class="level">Level 2</span> Supporting intelligence</summary>
+    <div class="x19-disclosure-body">
+  <div id="ei-dossier" class="ip-dossier">
+
+    <!-- LEFT: Identity panel + operations observed + quick actions -->
+    <div class="ip-dossier-left">
+
+      <!-- Identity card -->
+      <div class="ei-identity-card">
+        <div class="ei-identity-top">
+          <div class="ei-address-full" id="ei-addr-full"
+               onclick="copyAddress()" title="Click to copy full address">
+            {{ entity_id }}
+          </div>
+          <div id="ei-type-chip" class="ei-entity-type">—</div>
+        </div>
+        <div class="ei-identity-body" id="ei-meta-body">
+          <div class="ip-loading" style="padding:8px 0;">Loading…</div>
+        </div>
+        <div class="ei-op-coverage" id="ei-op-coverage">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="ip-card">
+        <div class="ip-card-header">
+          <span class="ip-section-label">Quick Actions</span>
+        </div>
+        <div class="ip-card-body" style="padding:10px 12px;">
+          <div class="ip-actions">
+            <button class="ip-action-btn primary" onclick="copyAddress()">⎘ Copy Address</button>
+            <a class="ip-action-btn primary" href="/discovery?entity={{ entity_id|urlencode }}&type=auto">
+              ◇ View Attribution Chain →
+            </a>
+            <a class="ip-action-btn" href="/intelligence/cross-operation#{{ entity_id }}">
+              ◈ Cross-Operation →
+            </a>
+            <a class="ip-action-btn" id="ei-operator-link" href="/intelligence/operators" style="display:none;">
+              ◉ View Operator →
+            </a>
+            <a class="ip-action-btn" href="/intelligence/knowledge">⟳ Knowledge Rules →</a>
+            <a class="ip-action-btn" href="/watchtower/intelligence">
+              ◆ WATCHTOWER Live →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Lifecycle -->
+      <div class="ip-card" id="ei-lifecycle-card" style="display:none;">
+        <div class="ip-card-header">
+          <span class="ip-section-label">Current Lifecycle</span>
+        </div>
+        <div class="ip-card-body" id="ei-lifecycle-body" style="padding:10px 12px;"></div>
+      </div>
+
+      <!-- Tags -->
+      <div class="ip-card" id="ei-tags-card" style="display:none;">
+        <div class="ip-card-header">
+          <span class="ip-section-label">Tags</span>
+        </div>
+        <div class="ip-card-body">
+          <div class="ip-tags" id="ei-tags-list"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CENTRE: Main analysis -->
+    <div class="ip-dossier-centre" id="ei-centre">
+      <!-- filled by JS -->
+    </div>
+
+    <!-- RIGHT: Relationships + connected entities -->
+    <div class="ip-dossier-right" id="ei-right">
+
+      <!-- Relationships placeholder -->
+      <div class="ip-card" id="ei-rel-card">
+        <div class="ip-card-header">
+          <span class="ip-section-label">Relationships</span>
+          <span id="ei-rel-count" style="font-size:10px;color:var(--ip-dim);margin-left:auto;"></span>
+        </div>
+        <div class="ip-card-body" style="padding:8px;">
+          <div id="ei-rel-body" class="ip-loading" style="padding:8px 4px;">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Connected entities -->
+      <div class="ip-card" id="ei-connected-card" style="display:none;">
+        <div class="ip-card-header">
+          <span class="ip-section-label">Connected Entities</span>
+        </div>
+        <div class="ip-card-body" style="padding:8px;" id="ei-connected-body">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+    </div>
+  </details>
+
+  <details id="ei-raw-disclosure" class="x19-disclosure x19-level3" style="display:none;">
+    <summary><span class="level">Level 3</span> Raw entity evidence</summary>
+    <div class="x19-disclosure-body"><pre class="ei-json" id="ei-raw-body" style="margin:0;"></pre></div>
+  </details>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var ENTITY_ID = {{ entity_id | tojson }};
+  var t0 = performance.now();
+
+  /* ── Utilities ──────────────────────────────────────────────────────────── */
+  function abbr(addr) {
+    if (!addr || addr.length < 16) return addr || '—';
+    return addr.slice(0,8) + '…' + addr.slice(-4);
+  }
+  function fmtTs(ts) {
+    if (!ts) return '—';
+    return new Date(ts * 1000).toISOString().replace('T',' ').slice(0,19) + ' UTC';
+  }
+  function fmtAgo(ts) {
+    if (!ts) return '—';
+    var d = Math.floor(Date.now() / 1000 - ts);
+    if (d < 60)    return d + 's ago';
+    if (d < 3600)  return Math.floor(d / 60) + 'm ago';
+    if (d < 86400) return Math.floor(d / 3600) + 'h ago';
+    return Math.floor(d / 86400) + 'd ago';
+  }
+  function fmtVal(v) {
+    if (v === null || v === undefined) return '—';
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    if (typeof v === 'number' && !Number.isInteger(v)) return v.toFixed(3);
+    return String(v);
+  }
+
+  function copyAddress() {
+    navigator.clipboard && navigator.clipboard.writeText(ENTITY_ID);
+    var el = document.getElementById('ei-addr-full');
+    if (el) { el.style.color = 'var(--ip-green)'; setTimeout(function(){ el.style.color = ''; }, 1200); }
+  }
+  window.copyAddress = copyAddress;
+
+  function eiLink(addr, label) {
+    if (!addr || addr === 'UNKNOWN') return label || '—';
+    var d = label || abbr(addr);
+    return '<a href="/intelligence/entity/' + encodeURIComponent(addr)
+      + '" class="ip-addr" title="' + addr + '">' + d
+      + '<span class="ip-addr-arrow">↗</span></a>';
+  }
+
+  /* ── Confidence badge ───────────────────────────────────────────────────── */
+  function confBadge(level) {
+    var l = level || 'UNKNOWN';
+    return '<span class="ip-conf ' + l + ' conf-' + l + '">' + l + '</span>';
+  }
+
+  /* ── Entity type label ──────────────────────────────────────────────────── */
+  var TYPE_LABELS = {
+    wallet:'Wallet', operator:'Operator', creator:'Creator',
+    treasury:'Treasury', sub_provisioner:'Sub-Provisioner', unknown:'Unknown'
+  };
+  function typeLabel(t) { return TYPE_LABELS[t] || t; }
+
+  /* ── Op label mapping ───────────────────────────────────────────────────── */
+  var OP_LABELS = {
+    'watchtower': 'WATCHTOWER',
+    'launcher-observatory': 'Launcher Observatory',
+    'buy-swarm-observatory': 'Buy Swarm Observatory',
+  };
+  var OP_LINKS = {
+    'watchtower': '/watchtower/intelligence',
+    'launcher-observatory': '/ops-os/launcher-observatory',
+    'buy-swarm-observatory': '/ops-os/buy-swarm-observatory',
+  };
+
+  /* ── Section header ─────────────────────────────────────────────────────── */
+  function sectionHdr(title, hint) {
+    return '<div class="ip-section-hdr">'
+      + '<span class="ip-section-label">' + title + '</span>'
+      + '<span class="ip-section-line"></span>'
+      + (hint ? '<span class="ip-section-count">' + hint + '</span>' : '')
+      + '</div>';
+  }
+
+  /* ── LEFT COLUMN: identity, meta, op coverage ───────────────────────────── */
+  function fillLeft(d) {
+    /* entity type chip */
+    var tl = typeLabel(d.entity_type);
+    document.getElementById('ei-type-chip').textContent = tl;
+    document.getElementById('ei-entity-type').textContent = tl;
+
+    /* generated-at */
+    document.getElementById('ei-gen-ts').textContent = 'Generated ' + fmtAgo(d.generated_at);
+
+    /* meta rows */
+    var metaHtml = [
+      ['Confidence', confBadge(d.confidence.level)],
+      ['First seen', fmtAgo(d.first_seen)],
+      ['Last seen',  fmtAgo(d.last_seen)],
+      ['Operations', d.operations.length + ' observed'],
+      ['Knowledge',  d.knowledge.length + ' items'],
+      ['Timeline',   d.timeline.length + ' events'],
+    ].map(function(r) {
+      return '<div class="ei-meta-row">'
+        + '<span class="ei-meta-label">' + r[0] + '</span>'
+        + '<span class="ei-meta-val">' + r[1] + '</span>'
+        + '</div>';
+    }).join('');
+    document.getElementById('ei-meta-body').innerHTML = metaHtml;
+
+    /* op coverage chips */
+    var ops = ['watchtower','launcher-observatory','buy-swarm-observatory'];
+    var observed = d.operations.map(function(o) { return o.operation_id; });
+    var coverageHtml = ops.map(function(op) {
+      var seen = observed.indexOf(op) >= 0;
+      return '<div class="ei-op-chip ' + (seen ? 'seen' : 'unseen') + '">'
+        + '<span class="ei-op-chip-dot"></span>'
+        + '<span class="ei-op-chip-name">' + (OP_LABELS[op] || op) + '</span>'
+        + (seen ? '<a class="ei-op-chip-link" href="' + (OP_LINKS[op]||'#') + '">→</a>' : '')
+        + '</div>';
+    }).join('');
+    document.getElementById('ei-op-coverage').innerHTML = coverageHtml;
+
+    /* Tags from knowledge */
+    var tags = [];
+    d.knowledge.forEach(function(k) {
+      if (k.type) tags.push({ label: k.type, cls: 'cyan' });
+    });
+    if (d.entity_type && d.entity_type !== 'unknown') tags.unshift({ label: typeLabel(d.entity_type), cls: 'purple' });
+    if (d.operations.length > 1) tags.push({ label: d.operations.length + ' operations', cls: 'green' });
+
+    if (tags.length) {
+      var tagsHtml = tags.slice(0, 8).map(function(t) {
+        return '<span class="ip-tag ' + t.cls + '">' + t.label + '</span>';
+      }).join('');
+      document.getElementById('ei-tags-list').innerHTML = tagsHtml;
+      document.getElementById('ei-tags-card').style.display = '';
+    }
+
+    /* Lifecycle participation: fetch lifecycle for each observed operation */
+    if (observed.length) {
+      var lcCard = document.getElementById('ei-lifecycle-card');
+      var lcBody = document.getElementById('ei-lifecycle-body');
+      if (lcCard && lcBody) {
+        lcCard.style.display = '';
+        lcBody.innerHTML = '<div style="font-size:10px;color:var(--ip-dim);">Loading…</div>';
+        Promise.all(observed.map(function(opId) {
+          return fetch('/api/ops/' + opId + '/lifecycle')
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(lc) { return { opId: opId, lc: lc }; })
+            .catch(function() { return { opId: opId, lc: null }; });
+        })).then(function(results) {
+          var priority = ['ACTIVE','ARMED','OBSERVING','COMPLETED','IDLE'];
+          var states = results.filter(function(x) { return x.lc; }).map(function(x) {
+            return x.lc.lifecycle_state || 'IDLE';
+          });
+          var currentState = priority.find(function(state) { return states.indexOf(state) >= 0; });
+          if (currentState) document.getElementById('ei-l1-status').textContent = currentState;
+          var rows = results.filter(function(x) { return x.lc; }).map(function(x) {
+            var lc = x.lc;
+            var state = lc.lifecycle_state || 'IDLE';
+            /* Never surface adapter errors in the UI */
+            var reason = (lc.state_reason || '');
+            if (reason.toLowerCase().indexOf('adapter error') === 0 ||
+                reason.toLowerCase().indexOf('error:') === 0) {
+              reason = '';
+            }
+            var badge = '<span class="ip-lc ' + state + '">'
+              + '<span class="ip-lc-dot"></span>' + state + '</span>';
+            var opLabel = (OP_LABELS && OP_LABELS[x.opId]) || x.opId;
+            var nextState = lc.next_expected_state && lc.next_expected_state !== 'IDLE'
+              ? '<span style="font-size:9px;color:var(--ip-dim);margin-left:4px;">→ ' + lc.next_expected_state + '</span>'
+              : '';
+            return '<div style="margin-bottom:10px;">'
+              + '<div style="font-size:9px;color:var(--ip-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">' + opLabel + '</div>'
+              + badge + nextState
+              + (reason ? '<div style="font-size:10px;color:var(--ip-sec);margin-top:3px;">' + reason + '</div>' : '')
+              + '</div>';
+          });
+          lcBody.innerHTML = rows.length
+            ? rows.join('')
+            : '<div class="ip-quiet" style="padding:8px 0;">Monitoring</div>';
+        });
+      }
+    }
+  }
+
+  /* ── Progressive disclosure toggle ──────────────────────────────────────── */
+  window.pdToggle = function(btn, bodyId) {
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    var open = !body.classList.contains('open');
+    body.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  };
+
+  /* ── CENTRE COLUMN: summary (L1), then detail behind disclosure (L2/L3) ── */
+  function buildCentre(d) {
+    var html = '';
+
+    var isUnknown = d.entity_type === 'unknown'
+                 && d.operations.length === 0
+                 && d.knowledge.length === 0;
+
+    if (isUnknown) {
+      html += '<div class="ei-panel"><div class="ei-unknown">'
+        + '<div class="big">○</div>'
+        + '<div class="msg">Not observed</div>'
+        + '<div class="sub">No intelligence derived for this address.</div>'
+        + '</div></div>';
+      return html;
+    }
+
+    /* ── LEVEL 1: Summary ───────────────────────────────────────────────── */
+    if (d.summary_sentences && d.summary_sentences.length) {
+      html += sectionHdr('Summary');
+      html += '<div class="ei-panel"><div class="ei-summary-list">';
+      d.summary_sentences.forEach(function(s) {
+        html += '<div class="ei-summary-item"><div class="ei-summary-bullet"></div><div>' + s + '</div></div>';
+      });
+      html += '</div></div>';
+    }
+
+    /* ── LEVEL 1: Operator Attribution ──────────────────────────────────── */
+    /* Populated asynchronously — placeholder filled by fetchOperator() */
+    html += '<div id="ei-operator-section"></div>';
+
+    /* ── LEVEL 1: Operations (condensed — role + first/last seen only) ──── */
+    if (d.operations.length) {
+      html += sectionHdr('Observed by', d.operations.length + ' operation(s)');
+      html += '<div class="ei-ops-grid">';
+      d.operations.forEach(function(obs) {
+        html += '<div class="ei-op-card">'
+          + '<div class="ei-op-card-head">'
+          +   '<span class="ei-op-name">' + obs.display_name + '</span>'
+          +   '<span class="ei-op-role">' + obs.role + '</span>'
+          + '</div>'
+          + '<div class="ei-op-facts">';
+        /* Show only first_seen / last_seen by default */
+        if (obs.first_seen) {
+          html += '<div class="ei-op-fact-row">'
+            + '<span class="ei-op-fact-k">first seen</span>'
+            + '<span class="ei-op-fact-v">' + fmtAgo(obs.first_seen) + '</span>'
+            + '</div>';
+        }
+        if (obs.last_seen && obs.last_seen !== obs.first_seen) {
+          html += '<div class="ei-op-fact-row">'
+            + '<span class="ei-op-fact-k">last seen</span>'
+            + '<span class="ei-op-fact-v">' + fmtAgo(obs.last_seen) + '</span>'
+            + '</div>';
+        }
+        /* Remaining facts behind disclosure */
+        var factEntries = Object.entries(obs.facts || {});
+        if (factEntries.length) {
+          var factsId = 'ei-op-facts-' + obs.operation_id;
+          html += '<button class="pd-toggle" onclick="pdToggle(this,\'' + factsId + '\')" aria-expanded="false" style="border-top:none;padding:5px 0;font-size:9px;">'
+            + 'Show ' + factEntries.length + ' detail(s) <span class="pd-arr">▸</span>'
+            + '</button>'
+            + '<div class="pd-body" id="' + factsId + '">';
+          factEntries.forEach(function(e) {
+            html += '<div class="ei-op-fact-row">'
+              + '<span class="ei-op-fact-k">' + e[0].replace(/_/g,' ') + '</span>'
+              + '<span class="ei-op-fact-v">' + fmtVal(e[1]) + '</span>'
+              + '</div>';
+          });
+          html += '</div>';
+        }
+        html += '</div>'
+          + '<div style="padding:4px 14px 8px;font-size:9.5px;color:var(--ip-dim);">⬡ ' + obs.provenance + '</div>'
+          + '</div>';
+      });
+      html += '</div>';
+    }
+
+    /* ── LEVEL 2: Knowledge (behind disclosure) ──────────────────────────── */
+    if (d.knowledge.length) {
+      html += '<div class="ei-panel" style="margin-top:8px;">';
+      html += '<button class="pd-toggle" onclick="pdToggle(this,\'ei-kn-body\')" aria-expanded="false">'
+        + 'Derived Knowledge <span style="color:var(--ip-dim);font-size:9px;margin-left:4px;">' + d.knowledge.length + ' item(s)</span>'
+        + '<span class="pd-arr">▸</span></button>';
+      html += '<div class="pd-body" id="ei-kn-body">';
+      var groups = {}, groupOrder = [];
+      d.knowledge.forEach(function(item) {
+        var cat = item.category || 'OTHER';
+        if (!groups[cat]) { groups[cat] = []; groupOrder.push(cat); }
+        groups[cat].push(item);
+      });
+      var catLabels = { EXECUTION:'Execution', FUNDER_TYPE:'Funding Type', TOOLING:'Tooling', BEHAVIOUR:'Behaviour' };
+      groupOrder.forEach(function(cat, gi) {
+        if (gi > 0) html += '<div style="border-top:1px solid var(--ip-border);"></div>';
+        html += '<div class="ei-kn-group-h">' + (catLabels[cat] || cat) + '</div>';
+        groups[cat].forEach(function(item) {
+          html += '<div class="ei-kn-item">'
+            + '<div class="ei-kn-value">' + item.value + '</div>'
+            + '<div class="ei-kn-meta">'
+            +   '<span class="ei-kn-pill type">' + item.type + '</span>'
+            +   confBadge(item.confidence)
+            +   '<span class="ei-kn-pill">' + item.source + '</span>'
+            + '</div>'
+            + '<div class="ei-kn-prov">' + (item.provenance || '—') + '</div>'
+            + '</div>';
+        });
+      });
+      html += '</div></div>';
+    }
+
+    /* ── LEVEL 2: Confidence (behind disclosure) ─────────────────────────── */
+    var c = d.confidence;
+    if (c && c.level) {
+      html += '<div class="ei-panel" style="margin-top:8px;">';
+      html += '<button class="pd-toggle" onclick="pdToggle(this,\'ei-conf-body\')" aria-expanded="false">'
+        + 'Confidence — ' + confBadge(c.level)
+        + '<span class="pd-arr" style="margin-left:8px;">▸</span></button>';
+      html += '<div class="pd-body" id="ei-conf-body">';
+      html += '<div class="ei-conf-grid">';
+      [['Final', c.level], ['Ceiling', c.ceiling], ['Floor', c.floor]].forEach(function(r) {
+        html += '<div class="ei-conf-cell"><div class="cl">' + r[0] + '</div>' + confBadge(r[1]) + '</div>';
+      });
+      html += '</div>';
+      if (c.contributing_facts && c.contributing_facts.length) {
+        html += '<div style="border-top:1px solid var(--ip-border);margin:0 14px;"></div>';
+        html += '<div class="ip-section-label" style="padding:10px 14px 4px;">Contributing Evidence</div>';
+        html += '<div class="ei-contributing">';
+        c.contributing_facts.forEach(function(f) {
+          html += '<div class="ei-contrib-fact">' + f + '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+
+    /* ── LEVEL 2: Timeline (behind disclosure) ───────────────────────────── */
+    if (d.timeline.length) {
+      html += '<div class="ei-panel" style="margin-top:8px;">';
+      html += '<button class="pd-toggle" onclick="pdToggle(this,\'ei-tl-body\')" aria-expanded="false">'
+        + 'Timeline <span style="color:var(--ip-dim);font-size:9px;margin-left:4px;">' + d.timeline.length + ' events</span>'
+        + '<span class="pd-arr">▸</span></button>';
+      html += '<div class="pd-body" id="ei-tl-body">';
+      html += '<table class="x19-timeline ei-tl-table">'
+        + '<thead><tr><th>Time</th><th>Source</th><th>Event</th><th>Description</th></tr></thead>'
+        + '<tbody>';
+      d.timeline.forEach(function(ev) {
+        var srcKey = (ev.source || '').replace(/\s+/g,'_').toUpperCase();
+        html += '<tr>'
+          + '<td class="ei-tl-time" title="' + fmtTs(ev.ts) + '">' + fmtAgo(ev.ts) + '</td>'
+          + '<td><span class="ei-tl-src-badge src-' + srcKey + '">' + (ev.source || '—') + '</span></td>'
+          + '<td class="ei-tl-evt">' + ev.event_type + '</td>'
+          + '<td><div class="ei-tl-desc">' + ev.description + '</div>'
+          +     '<div class="ei-tl-prov">' + (ev.provenance || '') + '</div></td>'
+          + '</tr>';
+      });
+      html += '</tbody></table>';
+      html += '</div></div>';
+    }
+
+    return html;
+  }
+
+  window.toggleRaw = function() {};  /* kept for backward compat */
+
+  /* ── RIGHT COLUMN: relationships ────────────────────────────────────────── */
+  var REL_LABELS = {
+    'OBSERVED_BY_MULTIPLE_OPERATIONS': 'Multi-Op Entity',
+    'SHARED_TARGET':   'Shared Target',
+    'SHARED_FUNDER':   'Shared Funder',
+    'SHARED_SWARM':    'Shared Swarm',
+    'SHARED_OPERATOR': 'Shared Operator',
+  };
+
+  function fillRelationships(relData) {
+    var countEl = document.getElementById('ei-rel-count');
+    if (countEl) countEl.textContent = relData.relationships.length + ' found';
+
+    var body = document.getElementById('ei-rel-body');
+    if (!body) return;
+
+    if (!relData.relationships || !relData.relationships.length) {
+      body.innerHTML = '<div class="ip-empty">'
+        + (relData.operation_count === 0 ? 'Not observed by any operation.' :
+           'Observed by ' + relData.operation_count + ' operation(s) — no cross-operation relationships.')
+        + '</div>';
+      return;
+    }
+
+    var html = relData.relationships.map(function(r) {
+      var ev = (r.supporting_evidence || []).map(function(e) {
+        return '<div class="ip-rel-ev">' + e + '</div>';
+      }).join('');
+      return '<div class="ip-rel-card">'
+        + '<div class="ip-rel-header">'
+        +   '<span class="ip-rel-type">' + (REL_LABELS[r.relationship_type] || r.relationship_type.replace(/_/g,' ')) + '</span>'
+        +   '<span class="ip-rel-conf">' + r.confidence + '</span>'
+        + '</div>'
+        + '<div class="ip-rel-ops">' + (r.supporting_operations || []).join(' + ') + '</div>'
+        + ev
+        + '<div class="ip-rel-meta">since ' + (r.first_seen ? new Date(r.first_seen*1000).toISOString().slice(0,10) : '—') + '</div>'
+        + '</div>';
+    }).join('');
+
+    body.innerHTML = html;
+
+    /* Connected entities from relationship data */
+    var connected = new Set();
+    relData.relationships.forEach(function(r) {
+      if (r.entity_b && r.entity_b !== ENTITY_ID) connected.add(r.entity_b);
+      if (r.entity_a && r.entity_a !== ENTITY_ID) connected.add(r.entity_a);
+    });
+    if (connected.size) {
+      var connHtml = Array.from(connected).slice(0, 10).map(function(addr) {
+        return '<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+          + eiLink(addr) + '</div>';
+      }).join('');
+      document.getElementById('ei-connected-body').innerHTML = connHtml;
+      document.getElementById('ei-connected-card').style.display = '';
+    }
+
+    /* Unified timeline */
+    if (relData.unified_timeline && relData.unified_timeline.length > 1) {
+      var tlSection = document.createElement('div');
+      tlSection.innerHTML = '<div class="ip-card" style="margin-top:10px;">'
+        + '<div class="ip-card-header"><span class="ip-section-label">Unified Timeline</span></div>'
+        + '<div class="ip-card-body" style="padding:8px;">'
+        + relData.unified_timeline.map(function(ev) {
+          return '<div style="display:flex;gap:8px;font-size:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);">'
+            + '<span style="color:var(--ip-dim);min-width:68px;flex-shrink:0;font-family:monospace;">'
+            +   (ev.ts ? new Date(ev.ts*1000).toISOString().slice(0,10) : '—')
+            + '</span>'
+            + '<span style="color:var(--ip-sec);">[' + ev.source + '] ' + ev.description + '</span>'
+            + '</div>';
+        }).join('')
+        + '</div></div>';
+      document.getElementById('ei-right').appendChild(tlSection);
+    }
+  }
+
+  /* ── Main render ────────────────────────────────────────────────────────── */
+  function render(d) {
+    window._EI_RAW = d;
+
+    document.getElementById('ei-loading').style.display = 'none';
+    document.getElementById('ei-level1').style.display = '';
+    document.getElementById('ei-supporting').style.display = '';
+    document.getElementById('ei-raw-disclosure').style.display = '';
+    document.getElementById('ei-dossier').style.display = '';
+    document.getElementById('ei-raw-body').textContent = JSON.stringify(d, null, 2);
+
+    document.getElementById('ei-l1-role').textContent = typeLabel(d.entity_type);
+    document.getElementById('ei-l1-operations').textContent = d.operations.length;
+    document.getElementById('ei-l1-confidence').textContent = d.confidence.level || 'UNKNOWN';
+    var confWidths = {CERTAIN:100,HIGH:85,MEDIUM:60,LOW:30,UNKNOWN:5};
+    document.getElementById('ei-l1-confidence-bar').style.setProperty('--vi-confidence', (confWidths[d.confidence.level] || 5) + '%');
+    document.getElementById('ei-l1-recent').textContent = d.last_seen ? fmtAgo(d.last_seen) : 'Unknown';
+    document.getElementById('ei-l1-status').textContent = d.operations.length ? 'OBSERVED' : 'NOT OBSERVED';
+
+    fillLeft(d);
+
+    var centre = document.getElementById('ei-centre');
+    centre.innerHTML = buildCentre(d);
+
+  }
+
+  /* ── Operator Attribution section ───────────────────────────────────────── */
+  var CONF_COLOUR = {CERTAIN:'green', HIGH:'green', MEDIUM:'blue', LOW:'amber', UNKNOWN:'dim'};
+  var STATUS_ICON = {CONFIRMED:'✓', PROVISIONAL:'◑', CANDIDATE:'○', REJECTED:'✗'};
+
+  function fillOperator(operators) {
+    var el = document.getElementById('ei-operator-section');
+    if (!el) return;
+
+    /* Show the operator quick-action link if we found one */
+    if (operators && operators.length) {
+      var opLink = document.getElementById('ei-operator-link');
+      if (opLink) {
+        opLink.href = '/intelligence/operator/' + operators[0].operator_id;
+        opLink.style.display = '';
+      }
+    }
+
+    if (!operators || !operators.length) {
+      document.getElementById('ei-l1-operator').textContent = 'Unresolved';
+      el.innerHTML = '<div class="ip-section-hdr" style="margin-top:8px;">'
+        + '<span class="ip-section-label">Operator Attribution</span>'
+        + '<span class="ip-section-line"></span></div>'
+        + '<div class="ei-panel">'
+        + '<div class="ip-quiet" style="padding:14px 0;">'
+        + '<span class="ip-quiet-icon">○</span>'
+        + '<span class="ip-quiet-title">No operator currently resolved</span>'
+        + 'This wallet has not been attributed to a known operator. Evidence accumulates automatically.'
+        + '</div></div>';
+      return;
+    }
+
+    document.getElementById('ei-l1-operator').textContent =
+      operators[0].display_name || operators[0].summary || ('Operator ' + operators[0].operator_id.slice(0,8) + '…');
+
+    var html = '<div class="ip-section-hdr" style="margin-top:8px;">'
+      + '<span class="ip-section-label">Operator Attribution</span>'
+      + '<span class="ip-section-line"></span></div>';
+
+    operators.forEach(function(op) {
+      var confCol  = CONF_COLOUR[op.confidence] || 'dim';
+      var statusIc = STATUS_ICON[op.status] || '?';
+      var evCnt    = (op.evidence_count !== undefined) ? op.evidence_count : '—';
+      var entType  = op.entity_type || '';
+
+      html += '<div class="ei-panel" style="padding:0;overflow:hidden;">';
+
+      /* Header row */
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ip-border);">'
+        + '<span style="font-size:14px;color:var(--ip-dim);">' + statusIc + '</span>'
+        + '<div style="flex:1;min-width:0;">'
+        +   '<div style="font-size:12px;font-weight:700;color:var(--ip-text);">'
+        +     (op.display_name || op.summary || ('Operator ' + op.operator_id.slice(0,8) + '…'))
+        +   '</div>'
+        +   (entType ? '<div style="font-size:10px;color:var(--ip-dim);">Role: ' + entType + '</div>' : '')
+        + '</div>'
+        + '<div style="text-align:right;flex-shrink:0;">'
+        +   '<div class="ip-badge ' + confCol + '" style="margin-bottom:3px;">' + op.confidence + '</div>'
+        +   '<div style="font-size:9px;color:var(--ip-dim);">' + op.status + '</div>'
+        + '</div>'
+        + '</div>';
+
+      /* Evidence + review state row */
+      html += '<div style="display:flex;align-items:center;gap:12px;padding:8px 14px;font-size:10px;color:var(--ip-sec);">'
+        + '<span>' + evCnt + ' evidence record(s)</span>'
+        + '<span style="color:var(--ip-dim);">·</span>'
+        + '<span>Review: ' + op.review_state + '</span>'
+        + '<a href="/intelligence/operator/' + op.operator_id + '" style="margin-left:auto;color:var(--ip-cyan);font-weight:600;text-decoration:none;font-size:10px;">Open →</a>'
+        + '</div>';
+
+      /* Summary */
+      if (op.summary) {
+        html += '<div style="padding:0 14px 10px;font-size:11px;color:var(--ip-sec);line-height:1.5;">'
+          + op.summary + '</div>';
+      }
+
+      html += '</div>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ── Fetch #1: entity intelligence ─────────────────────────────────────── */
+  fetch('/api/intelligence/entity/' + encodeURIComponent(ENTITY_ID))
+    .then(function(r) {
+      if (!r.ok) throw new Error('API returned ' + r.status);
+      return r.json();
+    })
+    .then(function(d) {
+      render(d);
+      /* ── Fetch #2: cross-op relationships ─────────────────────────────── */
+      return fetch('/api/intelligence/entity/' + encodeURIComponent(ENTITY_ID) + '/relationships');
+    })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(relData) {
+      if (relData) fillRelationships(relData);
+      else document.getElementById('ei-rel-body').innerHTML =
+        '<div class="ip-empty">Relationships unavailable.</div>';
+      /* ── Fetch #3: operator attribution ──────────────────────────────── */
+      return fetch('/api/ops/operators/by-entity/' + encodeURIComponent(ENTITY_ID));
+    })
+    .then(function(r) { return r && r.ok ? r.json() : null; })
+    .then(function(d) { fillOperator(d ? d.operators : []); })
+    .catch(function(err) {
+      document.getElementById('ei-loading').innerHTML =
+        '<div class="ip-error ei-error">Intelligence unavailable for this address.</div>'
+        + '<div style="color:var(--ip-sec);font-size:12px;padding:8px 0;">'
+        + '<span style="font-family:monospace;color:var(--ip-cyan);">' + ENTITY_ID + '</span></div>';
+    });
+
+})();
+</script>
+{% endblock %}

@@ -595,6 +595,9 @@ details.collapse-section .collapse-body { padding-top:14px; }
 <script>
 const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '—';
 const shortOp = u => u ? u.slice(0,8) : '—';
+const eiLink = (addr, label) => addr
+  ? `<a href="/intelligence/entity/${encodeURIComponent(addr)}" style="color:var(--cyan);text-decoration:none;font-size:9px;margin-left:4px;" title="Entity Intelligence">${label||'EI↗'}</a>`
+  : '';
 const hm = ts => ts ? new Date(ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—';
 const ago = ts => {
   if(!ts) return '—';
@@ -980,8 +983,8 @@ async function loadWsCascade(){
        +(conf?`<span style="font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.3px;${confStyle}">${conf}</span>`:'')
       :'<span class="muted">—</span>';
     return`<tr style="border-left:3px solid ${cands>0?'var(--green)':'var(--border)'}${indent?';background:rgba(0,0,0,.12)':''}">
-      <td${indent?' style="padding-left:20px"':''}><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${wsIcon}</td>
-      <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>`:'<span class="muted">—</span>'}</td>
+      <td${indent?' style="padding-left:20px"':''}><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${eiLink(s.subprov)}${wsIcon}</td>
+      <td>${s.treasury?`<span class="addr" onclick="sol('${s.treasury}')">${short(s.treasury)}</span>${eiLink(s.treasury)}`:'<span class="muted">—</span>'}</td>
       <td style="white-space:nowrap">${operatorCell}</td>
       <td class="num muted" style="white-space:nowrap" title="${s.topup_count>0?`opened: ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(3):'-'}◎\ntop-ups ×${s.topup_count}: +${s.topup_amount_total!=null?(+s.topup_amount_total).toFixed(3):'-'}◎`:''}">
         ${s.initial_funding_sol!=null?(+s.initial_funding_sol).toFixed(2):'—'}${s.topup_count>0?`<span style="color:var(--amber);font-size:9px;margin-left:3px">+${s.topup_count}</span>`:''}
@@ -1616,7 +1619,7 @@ async function loadCreatorModes(){
 // ── SUB-PROVISIONERS ──────────────────────────────────────────────────────────
 function _renderSubprovRow(s){
   const known=s.treasury_known;
-  const treasCell=s.treasury?`<span class="addr" onclick="sol('${s.treasury}')" style="${known?'':'color:var(--amber)'}">${short(s.treasury)}</span>`:'<span class="muted">—</span>';
+  const treasCell=s.treasury?`<span class="addr" onclick="sol('${s.treasury}')" style="${known?'':'color:var(--amber)'}">${short(s.treasury)}</span>${eiLink(s.treasury)}`:'<span class="muted">—</span>';
   const status=known
     ?'<span style="color:var(--green);font-size:9px;font-weight:700">✓ known treasury</span>'
     :'<span style="color:var(--amber);font-size:9px;font-weight:800">⚠️ UNKNOWN — investigate</span>';
@@ -1628,7 +1631,7 @@ function _renderSubprovRow(s){
       </span>`;
   const hubTag=s.is_distribution_hub?`<span style="font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;background:rgba(167,139,250,.15);color:#a78bfa;margin-left:5px">🪢 HUB</span>`:'';
   return`<tr style="${known?'':'background:rgba(217,119,6,.07);border-left:3px solid var(--amber)'}">
-    <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${hubTag}</td>
+    <td><span class="addr" onclick="sol('${s.subprov}')">${short(s.subprov)}</span>${eiLink(s.subprov)}${hubTag}</td>
     <td class="num">${s.creators}</td>
     <td class="num muted">${s.total_sol!=null?s.total_sol.toLocaleString():'—'}</td>
     <td>${treasCell}</td>
@@ -2900,7 +2903,6 @@ function refreshSlow(){
   loadDiscoveryLeads();    // ops-DB only, read-only, safe at 60s cadence
   loadRuntimeBudget();     // runtime health — counters reset on process restart
   loadScheduler();         // scheduler pressure card
-  loadMission3();
   loadCdc();
   loadDustObservatory();   // intelligence layer card — 60s is fine
 }
@@ -2924,7 +2926,7 @@ document.addEventListener('click', e=>{
   const row=id?document.getElementById(id):null;
   if(row) row.style.display=row.style.display==='none'?'':'none';
 });
-setInterval(refreshFast, 15000);
+setInterval(refreshFast, 30000);
 setInterval(refreshSlow, 60000);  // Phase 3: apex funders moved to 60s
 </script>
 {% endblock %}

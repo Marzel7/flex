@@ -1,0 +1,700 @@
+{% extends "base_shell.html" %}
+{% block title %}{{ operation.display_name if operation else 'Error' }} — Operations OS{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+/* colour aliases used by display metadata */
+.col-green   { color: var(--ip-green)  !important; }
+.col-amber   { color: var(--ip-amber)  !important; }
+.col-red     { color: var(--ip-red)    !important; }
+.col-dim     { color: var(--ip-dim)    !important; }
+.col-cyan    { color: var(--ip-cyan)   !important; }
+.col-purple  { color: var(--ip-purple) !important; }
+.col-default { color: var(--ip-text); }
+
+/* ── Operation hero ──────────────────────────────────────────────────────── */
+.op-hero {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.op-hero-accent { height: 3px; }
+.op-hero-accent.ACTIVE        { background: linear-gradient(90deg, var(--ip-green), var(--ip-cyan)); }
+.op-hero-accent.INSTRUMENTED  { background: linear-gradient(90deg, var(--ip-cyan), var(--ip-blue)); }
+.op-hero-accent.VALIDATED     { background: linear-gradient(90deg, var(--ip-purple), var(--ip-cyan)); }
+.op-hero-accent.REGISTERED    { background: var(--ip-border2); }
+
+.op-hero-body {
+  padding: 18px 20px 14px;
+}
+.op-hero-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.op-hero-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ip-text);
+}
+.op-hero-desc {
+  font-size: 12px;
+  color: var(--ip-sec);
+  line-height: 1.6;
+  margin-bottom: 0;
+  max-width: 680px;
+}
+
+/* Lifecycle state inline within hero */
+.op-lc-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--ip-border);
+  flex-wrap: wrap;
+}
+.op-lc-reason {
+  font-size: 11px;
+  color: var(--ip-sec);
+}
+.op-lc-counts {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.op-lc-count { display: flex; flex-direction: column; gap: 1px; align-items: center; min-width: 40px; }
+.op-lc-count-val {
+  font-size: 18px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  line-height: 1;
+}
+.op-lc-count-val.blue   { color: var(--ip-blue); }
+.op-lc-count-val.amber  { color: var(--ip-amber); }
+.op-lc-count-val.green  { color: var(--ip-green); }
+.op-lc-count-val.dim    { color: var(--ip-dim); }
+.op-lc-count-lbl {
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ip-dim);
+}
+
+.op-hero-nav {
+  padding: 10px 20px;
+  border-top: 1px solid var(--ip-border);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Capability cards (level 2 — behind disclosure) ─────────────────────── */
+.cap-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+.cap-card {
+  background: var(--ip-card2);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 14px 16px;
+}
+.cap-card.valid    { border-left: 3px solid var(--ip-green); }
+.cap-card.error    { border-left: 3px solid var(--ip-red); }
+.cap-card.inactive { opacity: .6; }
+.cap-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.cap-card-title { font-size: 12px; font-weight: 700; flex: 1; color: var(--ip-text); }
+.cap-state {
+  font-size: 9px; padding: 2px 7px; border-radius: 4px;
+  font-weight: 700; letter-spacing: .04em;
+}
+.state-VALID .state-SUPPORTED        { background: rgba(63,185,80,.12);  color: var(--ip-green); }
+.state-NOT_DECLARED                  { background: rgba(79,93,110,.12); color: var(--ip-sec); }
+.state-UNSUPPORTED                   { background: rgba(79,93,110,.08); color: var(--ip-dim); }
+.state-FETCH_ERROR .state-INVALID_CONTRACT { background: rgba(248,81,73,.1); color: var(--ip-red); }
+.cap-primary { margin-bottom: 10px; }
+.cap-primary-label { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; color: var(--ip-dim); }
+.cap-primary-val   { font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--ip-text); }
+.cap-kv       { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
+.cap-kv-k     { color: var(--ip-dim); }
+.cap-kv-v     { color: var(--ip-text); font-weight: 600; text-align: right; max-width: 60%; word-break: break-word; }
+.cap-breakdown { margin-top: 4px; }
+.cap-breakdown-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--ip-sec); padding: 1px 0; }
+.cap-breakdown-k { font-family: monospace; color: var(--ip-dim); }
+.cap-breakdown-v { font-weight: 600; color: var(--ip-text); }
+.cap-card-coming { font-size: 10px; color: var(--ip-dim); font-style: italic; margin-top: 4px; }
+.cap-error    { color: var(--ip-red); font-size: 10px; margin-top: 4px; }
+
+/* ── Vocabulary (level 2) ───────────────────────────────────────────────── */
+.vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  padding: 14px;
+}
+.vocab-card {
+  background: var(--ip-card2);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 10px 13px;
+}
+.vocab-generic { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; color: var(--ip-dim); margin-bottom: 3px; }
+.vocab-val     { font-size: 12px; color: var(--ip-cyan); font-weight: 600; }
+
+/* ── Entity explorer ────────────────────────────────────────────────────── */
+.entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 6px;
+}
+.entity-card {
+  background: var(--ip-card2);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.entity-card-count { font-size: 10px; color: var(--ip-dim); white-space: nowrap; }
+
+/* ── Engineering details wrapper ────────────────────────────────────────── */
+.eng-details-card {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.eng-section-hdr {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--ip-dim);
+  padding: 10px 14px 6px;
+  border-bottom: 1px solid var(--ip-border);
+}
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+{% if error %}
+  <div class="ip-unavailable">Lifecycle data currently unavailable.</div>
+{% elif not operation %}
+  <div class="ip-unavailable">Operation not found.</div>
+{% else %}
+
+  <!-- ── Breadcrumb ───────────────────────────────────────────────────── -->
+  <div class="ip-breadcrumb">
+    <a href="/ops-os">Mission Control</a>
+    <span class="sep">›</span>
+    <span>{{ operation.display_name }}</span>
+  </div>
+
+  <!-- ── Operation hero (Level 1) ──────────────────────────────────────── -->
+  <div class="op-hero">
+    <div class="op-hero-accent {{ operation.status }}"></div>
+    <div class="op-hero-body">
+      <div class="op-hero-name-row">
+        <span class="op-hero-name">{{ operation.display_name }}</span>
+        {% if operation.status in ('ACTIVE','INSTRUMENTED') %}
+        <span class="ip-badge green live"><span class="dot"></span>LIVE</span>
+        {% endif %}
+      </div>
+      {% if operation.description %}
+      <div class="op-hero-desc">{{ operation.description }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Lifecycle state (loaded by JS) -->
+    <div id="op-lc-inline" class="op-lc-inline" style="display:none;">
+      <span id="op-lc-badge"></span>
+      <span id="op-lc-reason" class="op-lc-reason"></span>
+      <div id="op-lc-counts" class="op-lc-counts"></div>
+    </div>
+
+    <div class="op-hero-nav">
+      <a class="ip-nav-link primary" href="/intelligence/entity/">Investigate Entity ↗</a>
+      {% if operation.operation_id == 'watchtower' %}
+      <a class="ip-nav-link" href="/watchtower/intelligence">Live Monitor →</a>
+      {% elif operation.operation_id == 'launcher-observatory' %}
+      <a class="ip-nav-link" href="/live-launches">Live Launches →</a>
+      {% endif %}
+      <a class="ip-nav-link" href="/ops-os">← Mission Control</a>
+    </div>
+  </div>
+
+  <!-- ── Current Activity (Level 1) ────────────────────────────────────── -->
+  <div class="ip-section-hdr">
+    <span class="ip-section-label">Current Activity</span>
+    <span class="ip-section-line"></span>
+  </div>
+  <div id="entity-explorer" class="ip-loading">Loading…</div>
+
+  <!-- ── Inbox items for this operation (Level 1) ──────────────────────── -->
+  <div id="op-inbox-section" style="margin-top:16px;display:none;">
+    <div class="ip-section-hdr">
+      <span class="ip-section-label">Attention</span>
+      <span class="ip-section-line"></span>
+      <a href="/intelligence/inbox" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;font-weight:600;">All items →</a>
+    </div>
+    <div id="op-inbox-list" class="inbox-list" style="gap:6px;"></div>
+  </div>
+
+  <!-- ── Operational Context (Level 2) ─────────────────────────────────── -->
+  {% if cap_summary %}
+  <div class="ip-card" style="margin-top:16px;overflow:hidden;">
+    <button class="pd-toggle" onclick="pdToggle(this,'op-context-body')" aria-expanded="false">
+      Operational Context
+      <span class="pd-arr">▸</span>
+    </button>
+    <div class="pd-body" id="op-context-body">
+
+      {% if operation.vocabulary %}
+      <div class="eng-section-hdr">Vocabulary</div>
+      <div class="vocab-grid">
+        {% set vocab = operation.vocabulary %}
+        {% set vocab_map = [
+          ('origin_node',          'Origin Node'),
+          ('intermediate_node',    'Intermediate Node'),
+          ('terminal_node',        'Terminal Node'),
+          ('discovery_event',      'Discovery Event'),
+          ('observable_event',     'Observable Event'),
+          ('detection_event',      'Detection Event'),
+          ('attributed_outcome',   'Attributed Outcome'),
+          ('unattributed_outcome', 'Unattributed Outcome'),
+        ] %}
+        {% for key, generic_label in vocab_map %}
+          {% if vocab.get(key) %}
+          <div class="vocab-card">
+            <div class="vocab-generic">{{ generic_label }}</div>
+            <div class="vocab-val">{{ vocab[key] }}</div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="eng-section-hdr">Capabilities</div>
+      <div class="cap-cards-grid">
+        {% for cap in cap_summary %}
+        {% set card_class = 'valid' if cap.render_status == 'VALID'
+           else ('error' if cap.render_status in ('FETCH_ERROR','INVALID_CONTRACT') else 'inactive') %}
+        <div class="cap-card {{ card_class }}">
+          <div class="cap-card-head">
+            <span class="cap-card-title">{{ cap.label }}</span>
+            <span class="cap-state state-{{ cap.render_status }}">{{ cap.render_status }}</span>
+          </div>
+
+          {% if cap.state == 'SUPPORTED' %}
+            {% if cap.render_status == 'VALID' and cap.display and cap.display.available %}
+              {% set d = cap.display %}
+              {% if d.primary and d.primary.display is not none %}
+              <div class="cap-primary">
+                <div class="cap-primary-label">{{ d.primary.label }}</div>
+                {% set pc = d.primary.colour or 'default' %}
+                <div class="cap-primary-val col-{{ pc }}" data-fmt="{{ d.primary.format }}" data-raw="{{ d.primary.raw }}">
+                  {%- if d.primary.format == 'timestamp_ago' -%}
+                    <span class="ts-ago" data-ts="{{ d.primary.raw }}">…</span>
+                  {%- elif d.primary.format == 'pct' -%}
+                    {{ d.primary.display }}%
+                  {%- elif d.primary.format == 'bool_yesno' -%}
+                    {{ 'yes' if d.primary.raw else 'no' }}
+                  {%- elif d.primary.format == 'breakdown_dict' -%}{# skip #}
+                  {%- else -%}{{ d.primary.display }}{%- endif -%}
+                </div>
+              </div>
+              {% endif %}
+
+              {% for field in d.fields %}
+                {% set fc = field.colour or 'default' %}
+                {% if field.format == 'breakdown_dict' %}
+                  {% if field.raw and field.raw is mapping %}
+                  <div class="cap-breakdown">
+                    <div class="cap-kv-k" style="font-size:9px;margin-bottom:3px;">{{ field.label }}</div>
+                    {% for k, v in field.raw.items() %}
+                    <div class="cap-breakdown-row">
+                      <span class="cap-breakdown-k">{{ k }}</span>
+                      <span class="cap-breakdown-v">{{ v }}</span>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% elif field.raw is iterable and field.raw is not string %}
+                  <div class="cap-kv">
+                    <span class="cap-kv-k">{{ field.label }}</span>
+                    <span class="cap-kv-v col-{{ fc }}">{{ field.raw | length }} item(s)</span>
+                  </div>
+                  {% else %}
+                  <div class="cap-kv">
+                    <span class="cap-kv-k">{{ field.label }}</span>
+                    <span class="cap-kv-v col-dim">{{ field.fallback if field.fallback is defined else '—' }}</span>
+                  </div>
+                  {% endif %}
+                {% elif field.format == 'timestamp_ago' %}
+                <div class="cap-kv">
+                  <span class="cap-kv-k">{{ field.label }}</span>
+                  <span class="cap-kv-v col-{{ fc }}">
+                    {% if field.raw %}<span class="ts-ago" data-ts="{{ field.raw }}">…</span>
+                    {% else %}—{% endif %}
+                  </span>
+                </div>
+                {% elif field.format == 'pct' %}
+                <div class="cap-kv">
+                  <span class="cap-kv-k">{{ field.label }}</span>
+                  <span class="cap-kv-v col-{{ fc }}">{% if field.raw is not none %}{{ field.display }}%{% else %}{{ field.display }}{% endif %}</span>
+                </div>
+                {% elif field.format == 'bool_yesno' %}
+                <div class="cap-kv">
+                  <span class="cap-kv-k">{{ field.label }}</span>
+                  <span class="cap-kv-v col-{{ fc }}">{{ 'yes' if field.raw else 'no' }}</span>
+                </div>
+                {% else %}
+                <div class="cap-kv">
+                  <span class="cap-kv-k">{{ field.label }}</span>
+                  <span class="cap-kv-v col-{{ fc }}">{{ field.display }}</span>
+                </div>
+                {% endif %}
+              {% endfor %}
+
+            {% elif cap.fetch_error %}
+              <div class="cap-kv" style="color:var(--ip-red);font-size:10px;">{{ cap.fetch_error[:120] }}</div>
+            {% elif cap.contract_errors %}
+              <div style="color:var(--ip-red);font-size:10px;margin-bottom:4px;">INVALID CONTRACT:</div>
+              {% for err in cap.contract_errors %}
+              <div class="cap-error">{{ err }}</div>
+              {% endfor %}
+            {% else %}
+              <div class="cap-kv">
+                <span class="cap-kv-k">Provider</span><span class="cap-kv-v">{{ cap.provider_id }}</span>
+              </div>
+            {% endif %}
+          {% elif cap.state == 'UNSUPPORTED' %}
+            <div class="cap-card-coming">Not applicable.{% if cap.unsupported_reason %} {{ cap.unsupported_reason }}{% endif %}</div>
+          {% else %}
+            <div class="cap-card-coming">Not yet instrumented.</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Engineering Details (Level 3) ─────────────────────────────────── -->
+  <div class="ip-card" style="margin-top:8px;overflow:hidden;">
+    <button class="pd-toggle" onclick="pdToggle(this,'eng-details-body')" aria-expanded="false">
+      Engineering Details
+      <span class="pd-arr">▸</span>
+    </button>
+    <div class="pd-body" id="eng-details-body">
+
+      <!-- Definition metadata -->
+      <div style="padding:14px;display:flex;flex-wrap:wrap;gap:20px;font-size:12px;">
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:3px;">Operation ID</div>
+          <code style="color:var(--ip-cyan);">{{ operation.operation_id }}</code>
+        </div>
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:3px;">Status</div>
+          <span>{{ operation.status }}</span>
+        </div>
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:3px;">Infrastructure Model</div>
+          <span>{{ operation.infrastructure_model }}</span>
+        </div>
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:3px;">Definition Version</div>
+          <span>v{{ operation.definition_version }}</span>
+        </div>
+        {% if operation.graph %}
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:3px;">Graph Depth</div>
+          <span>{{ operation.graph.depth }}</span>
+        </div>
+        {% endif %}
+        {% if operation.owner %}
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:3px;">Owner</div>
+          <span>{{ operation.owner }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Assurance mapping -->
+      {% if operation.assurance_mapping %}
+      <div style="border-top:1px solid var(--ip-border);padding:14px;font-size:11px;color:var(--ip-sec);line-height:1.7;">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);margin-bottom:8px;">Assurance Mapping</div>
+        {% set am = operation.assurance_mapping %}
+        <div><span style="color:var(--ip-dim);">Ground truth source:</span> {{ am.get('ground_truth_source','—') }}</div>
+        <div><span style="color:var(--ip-dim);">Independent:</span>
+          {% if am.get('ground_truth_independent') %}
+            <span style="color:var(--ip-green);">✓ YES</span>
+          {% else %}
+            <span style="color:var(--ip-red);">✗ NO — coverage metrics unreliable</span>
+          {% endif %}
+        </div>
+        {% if am.get('scope_note') %}
+        <div style="margin-top:6px;color:var(--ip-dim);font-style:italic;">{{ am.scope_note }}</div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Capability matrix (engineering detail) -->
+      {% if cap_summary %}
+      <div style="border-top:1px solid var(--ip-border);overflow-x:auto;">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ip-dim);padding:10px 14px 6px;">Capability Matrix</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:7px 14px;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--ip-dim);border-bottom:1px solid var(--ip-border);">Capability</th>
+              <th style="text-align:left;padding:7px 14px;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--ip-dim);border-bottom:1px solid var(--ip-border);">Status</th>
+              <th style="text-align:left;padding:7px 14px;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--ip-dim);border-bottom:1px solid var(--ip-border);">Provider</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cap in cap_summary %}
+            <tr>
+              <td style="padding:8px 14px;color:var(--ip-text);font-weight:600;border-bottom:1px solid rgba(255,255,255,.04);">{{ cap.label }}</td>
+              <td style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.04);">
+                <span class="cap-state state-{{ cap.render_status }}">{{ cap.render_status }}</span>
+              </td>
+              <td style="padding:8px 14px;font-family:monospace;font-size:10px;color:var(--ip-dim);border-bottom:1px solid rgba(255,255,255,.04);">{{ cap.provider_id or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+{% endif %}
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Progressive disclosure toggle ─────────────────────────────────────── */
+  window.pdToggle = function(btn, bodyId) {
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    var open = !body.classList.contains('open');
+    body.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  };
+
+  /* ── Timestamp ago ────────────────────────────────────────────────────── */
+  function fmtAgo(ts) {
+    if (!ts) return 'no data';
+    var ago = Math.floor(Date.now() / 1000 - ts);
+    if (ago < 60)    return ago + 's ago';
+    if (ago < 3600)  return Math.floor(ago / 60) + 'm ago';
+    if (ago < 86400) return Math.floor(ago / 3600) + 'h ago';
+    return Math.floor(ago / 86400) + 'd ago';
+  }
+
+  /* Fill ts-ago spans */
+  document.querySelectorAll('.ts-ago[data-ts]').forEach(function (el) {
+    el.textContent = fmtAgo(parseInt(el.dataset.ts, 10));
+  });
+
+  /* ── Entity link helper ───────────────────────────────────────────────── */
+  function eiLink(fullAddr, label) {
+    if (!fullAddr || fullAddr === 'UNKNOWN') {
+      return '<span style="color:var(--ip-dim)">' + (label || fullAddr || '—') + '</span>';
+    }
+    var display = label || (fullAddr.length > 20 ? fullAddr.slice(0,8) + '…' + fullAddr.slice(-4) : fullAddr);
+    return '<a href="/intelligence/entity/' + encodeURIComponent(fullAddr) + '" class="ip-addr" title="' + fullAddr + '">'
+      + display + '<span class="ip-addr-arrow">↗</span></a>';
+  }
+
+  var OP_ID = {{ operation.operation_id | tojson if operation else 'null' }};
+  if (!OP_ID) return;
+
+  /* ── Lifecycle (Level 1 — always visible) ────────────────────────────── */
+  fetch('/api/ops/' + OP_ID + '/lifecycle')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(lc) {
+      if (!lc) return;
+      var inline = document.getElementById('op-lc-inline');
+      if (!inline) return;
+
+      var state  = lc.lifecycle_state || 'IDLE';
+      document.getElementById('op-lc-badge').innerHTML =
+        '<span class="ip-lc ' + state + '"><span class="ip-lc-dot"></span>' + state + '</span>';
+      document.getElementById('op-lc-reason').textContent = lc.state_reason || '';
+
+      var counts = lc.counts || {};
+      var pairs = [
+        ['ACTIVE',    'green',  'Active'],
+        ['ARMED',     'amber',  'Armed'],
+        ['OBSERVING', 'blue',   'Observing'],
+        ['COMPLETED', 'dim',    'Today'],
+      ];
+      document.getElementById('op-lc-counts').innerHTML = pairs
+        .filter(function(p) { return counts[p[0]] > 0; })
+        .map(function(p) {
+          return '<div class="op-lc-count">'
+            + '<span class="op-lc-count-val ' + p[1] + '">' + counts[p[0]] + '</span>'
+            + '<span class="op-lc-count-lbl">' + p[2] + '</span>'
+            + '</div>';
+        }).join('');
+
+      inline.style.display = 'flex';
+    })
+    .catch(function() {
+      /* Silently unavailable — never show adapter errors on operation pages */
+    });
+
+  /* ── Entity Explorer (Level 1 — current activity) ────────────────────── */
+  function renderEntities(intel) {
+    var el = document.getElementById('entity-explorer');
+    if (!el) return;
+    var html = '';
+
+    /* Launcher Observatory: top_operators */
+    if (intel.top_operators && typeof intel.top_operators === 'object' && !Array.isArray(intel.top_operators)) {
+      var entries = Object.entries(intel.top_operators);
+      if (entries.length) {
+        html += '<div class="ip-section-hdr" style="margin-top:0;margin-bottom:8px;"><span class="ip-section-label">Top Funders</span><span class="ip-section-line"></span></div>';
+        html += '<div class="entity-grid">';
+        entries.slice(0, 12).forEach(function(e) {
+          var abbr = e[0], val = e[1];
+          var full  = (val && val.full_address) ? val.full_address : null;
+          var count = (val && val.launch_count)  ? val.launch_count
+                    : (val && val.swarm_count)   ? val.swarm_count : val;
+          html += '<div class="entity-card">'
+            + eiLink(full, abbr)
+            + '<span class="entity-card-count">' + count + ' launches</span>'
+            + '</div>';
+        });
+        html += '</div>';
+      }
+    }
+
+    /* Buy Swarm Observatory: top_swarms */
+    if (intel.top_swarms && intel.top_swarms.length) {
+      html += '<div class="ip-section-hdr" style="margin-top:16px;margin-bottom:8px;"><span class="ip-section-label">Top Swarms</span><span class="ip-section-line"></span></div>';
+      html += '<div class="ip-table-wrap"><table class="ip-table">'
+        + '<thead><tr><th>Mint</th><th>Participants</th><th>Subprov</th><th>Treasury</th></tr></thead><tbody>';
+      intel.top_swarms.slice(0, 10).forEach(function(s) {
+        html += '<tr>'
+          + '<td style="font-family:monospace;color:var(--ip-sec);">' + (s.mint_abbr || '—') + '</td>'
+          + '<td style="text-align:center;color:var(--ip-cyan);font-weight:700;">' + (s.participant_count || '—') + '</td>'
+          + '<td>' + eiLink(s.subprov_wallet) + '</td>'
+          + '<td>' + eiLink(s.treasury_wallet) + '</td>'
+          + '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    /* BSO campaigns */
+    if (intel.campaigns && intel.campaigns.length) {
+      html += '<div class="ip-section-hdr" style="margin-top:16px;margin-bottom:8px;"><span class="ip-section-label">Campaigns</span><span class="ip-section-line"></span></div>';
+      html += '<div class="ip-table-wrap"><table class="ip-table">'
+        + '<thead><tr><th>Treasury</th><th>Subprov</th><th>Targets</th><th>Participants</th></tr></thead><tbody>';
+      intel.campaigns.slice(0, 10).forEach(function(c) {
+        html += '<tr>'
+          + '<td>' + eiLink(c.treasury_full, c.treasury) + '</td>'
+          + '<td>' + eiLink(c.subprov_full,  c.subprov)  + '</td>'
+          + '<td style="text-align:center;color:var(--ip-sec);">' + (c.target_count  || '—') + '</td>'
+          + '<td style="text-align:center;color:var(--ip-cyan);font-weight:700;">' + (c.participants || '—') + '</td>'
+          + '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    if (!html) {
+      el.innerHTML = '<div class="ip-quiet">'
+        + '<span class="ip-quiet-icon">○</span>'
+        + '<span class="ip-quiet-title">Quiet</span>'
+        + 'No current activity from this operation.'
+        + '</div>';
+      return;
+    }
+    el.innerHTML = html;
+  }
+
+  fetch('/api/ops/' + OP_ID + '/intelligence')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (d && d.ok !== false) renderEntities(d);
+      else {
+        document.getElementById('entity-explorer').innerHTML =
+          '<div class="ip-quiet">'
+          + '<span class="ip-quiet-icon">○</span>'
+          + '<span class="ip-quiet-title">No current signals</span>'
+          + 'Intelligence data not available.'
+          + '</div>';
+      }
+    })
+    .catch(function() {
+      document.getElementById('entity-explorer').innerHTML =
+        '<div class="ip-quiet">'
+        + '<span class="ip-quiet-icon">○</span>'
+        + '<span class="ip-quiet-title">Monitoring</span>'
+        + 'No active observations.'
+        + '</div>';
+    });
+
+  /* ── Inbox items for this operation ─────────────────────────────────────── */
+  fetch('/api/ops/inbox/' + OP_ID + '?limit=5')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d || !d.items || !d.items.length) return; /* hidden when empty */
+      var section = document.getElementById('op-inbox-section');
+      var el      = document.getElementById('op-inbox-list');
+      if (!section || !el) return;
+
+      function ago(ts) {
+        if (!ts) return '—';
+        var s = Math.floor(Date.now() / 1000 - ts);
+        if (s < 60)    return s + 's ago';
+        if (s < 3600)  return Math.floor(s/60) + 'm ago';
+        if (s < 86400) return Math.floor(s/3600) + 'h ago';
+        return Math.floor(s/86400) + 'd ago';
+      }
+
+      el.innerHTML = d.items.map(function(item) {
+        return '<div class="inbox-item ' + item.priority + '">'
+          + '<div class="inbox-item-head">'
+          +   '<span class="ip-priority ' + item.priority + '">' + item.priority + '</span>'
+          +   '<span class="inbox-item-headline">' + item.headline + '</span>'
+          +   '<span class="inbox-item-ts">' + ago(item.updated_at) + '</span>'
+          + '</div>'
+          + '<div class="inbox-item-body">'
+          +   '<div class="inbox-item-text">'
+          +     '<div class="inbox-item-summary">' + item.summary + '</div>'
+          +   '</div>'
+          +   '<div class="inbox-item-controls">'
+          +     '<a class="inbox-btn primary" href="/intelligence/inbox">Review →</a>'
+          +   '</div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+
+      section.style.display = '';
+    })
+    .catch(function() { /* Inbox unavailable — section stays hidden */ });
+
+})();
+</script>
+{% endblock %}

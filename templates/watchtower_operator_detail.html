@@ -59,6 +59,12 @@
     <span style="color:#bc8cff;font-size:13px">⬡ Operator</span>
     <span class="op-addr" id="op-addr-display" onclick="copyFull()" title="Click to copy">{{ address[:16] }}…{{ address[-8:] }}</span>
     <span id="op-state-pill"></span>
+    <a href="/intelligence/entity/{{ address }}"
+       style="font-size:11px;color:#22d3ee;text-decoration:none;border:1px solid rgba(34,211,238,.3);
+              padding:3px 9px;border-radius:8px;background:rgba(34,211,238,.06);margin-left:4px;"
+       title="Entity Intelligence — full cross-operation view">
+      Entity Intelligence →
+    </a>
   </div>
 
   <div class="op-grid" id="op-stats-grid">

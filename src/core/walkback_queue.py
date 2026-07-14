@@ -140,6 +140,8 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS ix_wbq_funder
             ON wt_walkback_queue(funder_wallet);
     """)
+    from src.ops.attribution_outcome import ensure_schema as ensure_outcome_schema
+    ensure_outcome_schema(conn)
     conn.commit()
 
 
@@ -187,15 +189,6 @@ def classify_creator(creator: Optional[str], ops_conn: sqlite3.Connection,
     """
     if not creator:
         return "FULL_WALKBACK", None, None, None, "no_creator"
-
-    # ── Case 0: creator in wt_ops_v2_wallets → operation → treasury ─────────
-    # Guard: WATCHTOWER creators are single-use. A creator with >1 token is a serial deployer —
-    # definitively not WATCHTOWER, no RPC needed.
-    token_count = (ops_conn.execute(
-        "SELECT COUNT(*) FROM wt_ops_v2_creators WHERE creator_wallet=?",
-        (creator,)).fetchone() or [0])[0]
-    if token_count > 1:
-        return ("SKIP", creator, None, None, "serial_deployer")
 
     # ── Case 0: creator in wt_ops_v2_wallets → operation → treasury ─────────
     row = ops_conn.execute(
@@ -285,7 +278,15 @@ def classify_creator(creator: Optional[str], ops_conn: sqlite3.Connection,
                 return (outcome, creator, sp, treasury, "watchtower_token_attribution")
             return ("PARTIAL_TREASURY", creator, sp, None, "watchtower_token_attribution")
 
-    # ── Case 6: CEX/relay check — skip if not WATCHTOWER lineage ───────────
+    # ── Case 6: established launcher profile ──────────────────────────
+    # Repetition alone is not exclusion evidence. Canonical lineage checks above
+    # always win, and fresh provisioning/infrastructure changes disqualify this stop.
+    if live_conn:
+        from src.ops.attribution_outcome import evaluate_launcher_profile
+        if evaluate_launcher_profile(ops_conn, live_conn, creator)["established"]:
+            return ("SKIP", creator, None, None, "known_multi_token_creator")
+
+    # ── Case 7: CEX/relay check — skip if not WATCHTOWER lineage ───────────
     if live_conn:
         cex_row = live_conn.execute(
             "SELECT is_cex FROM creator_funders WHERE creator_address=? LIMIT 1",
@@ -293,7 +294,7 @@ def classify_creator(creator: Optional[str], ops_conn: sqlite3.Connection,
         if cex_row and cex_row["is_cex"]:
             return ("SKIP", creator, None, None, "cex_funded")
 
-    # ── Case 7: completely unknown — full walkback needed ──────────────────
+    # ── Case 8: completely unknown — full walkback needed ──────────────────
     return ("FULL_WALKBACK", creator, None, None, "unknown")
 
 
@@ -309,8 +310,6 @@ def enqueue_migration(conn: sqlite3.Connection, *,
     Returns the walkback_class assigned, or None if already queued and force=False.
     Idempotent on (mint) — uses INSERT OR IGNORE unless force=True.
     """
-    ensure_schema(conn)
-
     if not force:
         existing = conn.execute(
             "SELECT walkback_class, status FROM wt_walkback_queue WHERE mint=?",
@@ -340,6 +339,9 @@ def enqueue_migration(conn: sqlite3.Connection, *,
         """,
         (mint, r_creator, r_subprov, r_treasury, cls, src,
          initial_outcome, initial_status, now, now))
+    if initial_status in {"complete", "skipped"}:
+        from src.ops.attribution_outcome import materialize_outcome
+        materialize_outcome(conn, mint, core_conn=live_conn)
     conn.commit()
     return cls
 
@@ -369,6 +371,8 @@ def link_only(conn: sqlite3.Connection, *, mint: str,
         WHERE mint=?
         """,
         (now, now, mint))
+    from src.ops.attribution_outcome import materialize_outcome
+    materialize_outcome(conn, mint)
     conn.commit()
 
 
@@ -390,12 +394,13 @@ def set_intelligence_outcome(conn: sqlite3.Connection, *, mint: str,
         WHERE mint=?
         """,
         (outcome, rpc_used, now, now, mint))
+    from src.ops.attribution_outcome import materialize_outcome
+    materialize_outcome(conn, mint)
     conn.commit()
 
 
 def queue_stats(conn: sqlite3.Connection) -> dict:
     """Return per-outcome, per-class, and per-status counts for the dashboard panel."""
-    ensure_schema(conn)
     by_outcome = {}
     for row in conn.execute(
         "SELECT intelligence_outcome, COUNT(*) as n FROM wt_walkback_queue "

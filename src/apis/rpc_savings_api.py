@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 import logging
+from src.utils.db_locking import db_connect
 
 logger = logging.getLogger(__name__)
 
@@ -118,8 +119,8 @@ class DashboardResponse:
 
 
 def get_db_connection():
-    """Get SQLite connection with proper settings for WAL mode"""
-    conn = sqlite3.connect(DB_PATH, timeout=30)
+    """Get a read-only SQLite connection for dashboard queries."""
+    conn = db_connect(DB_PATH, timeout=30, read_only=True)
     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
     return conn
 
@@ -411,4 +412,3 @@ def api_rpc_cache_performance():
     performance = query_cache_performance()
     return jsonify([asdict(c) for c in performance])
 """
-

@@ -1,0 +1,11 @@
+# Known token bundler service addresses.
+#
+# Bundlers are services that coordinate multi-wallet token purchases at
+# launch time. A funder wallet associated with a known bundler service
+# indicates automated coordinated buying, not organic launch activity.
+#
+# Currently empty — add entries as bundler service addresses are confirmed.
+# Use HIGH confidence only for addresses directly verified via service docs
+# or confirmed multi-tx pattern analysis.
+
+entries: []

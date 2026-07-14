@@ -39,25 +39,6 @@ except Exception:  # pragma: no cover - fallback for isolated runs
             c.row_factory = row_factory
         return c
 
-# RAW connect for best-effort telemetry writes (treasury hits + events). These must NOT go
-# through db_connect's process-wide write SERIALIZER: the cascade has multiple writer threads
-# (event-writer + per-hit threads), and the serializer turned their concurrency into immediate
-# SQLITE_BUSY failures (the "database is locked" storm after moving to the ops DB). A plain
-# connection with busy_timeout correctly WAITS out the brief scheduler write-bursts on the ops
-# DB (measured: 20/20 writes succeed under a hammering concurrent writer). Cross-process
-# coordination is busy_timeout's job, not the in-process serializer's.
-def _telemetry_conn(path, busy_ms=15000):
-    """Raw connection bypassing the write serializer (see note above)."""
-    try:
-        from src.utils.db_locking import _sqlite3_connect_orig as _orig
-    except Exception:
-        import sqlite3 as _s
-        _orig = _s.connect
-    c = _orig(path, timeout=max(30, busy_ms // 1000))
-    c.execute(f"PRAGMA busy_timeout={int(busy_ms)}")
-    return c
-
-
 OPS_DB_PATH = os.environ.get(
     "OPS_V2_DB_PATH",
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "database", "wt_ops_v2.db")),
@@ -66,6 +47,15 @@ LIVE_DB_PATH = os.environ.get(
     "DB_PATH",
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "database", "flex_complete_database.db")),
 )
+
+
+def operations_write(command: str, transaction):
+    """The only wt_ops_v2 mutation boundary used by cascade infrastructure."""
+    from src.core.database_write_service import database_write_service
+
+    selector = f"operations:{os.path.realpath(OPS_DB_PATH)}"
+    database_write_service.register_database(selector, OPS_DB_PATH)
+    return database_write_service.submit(selector, command, transaction)
 
 # state vocab (single source of truth)
 SESSION_STATES = ("ACTIVE", "COMPLETED", "EXPIRED", "ERROR")
@@ -170,6 +160,10 @@ def ensure_cascade_schema(conn) -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS ix_swarm_buys_mint ON wt_swarm_buys(mint)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sessions_state ON wt_active_subprov_sessions(state)")
+    # X20.8 perf audit: /api/discovery/entity/<id> looks up funding_signature on every call
+    # (src/discovery/service.py:_identify); with 90k+ rows and no index this was a full table
+    # scan costing ~3.1s per request (measured). Read-only lookup, safe additive index.
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sessions_funding_signature ON wt_active_subprov_sessions(funding_signature)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_state ON wt_candidate_websocket_watches(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_creator ON wt_watchtower_launches(creator_wallet)")
@@ -610,35 +604,26 @@ def _event_writer_loop():
         if item is None:
             continue
         kind = item[0]
-        for _attempt in range(3):
-            try:
-                c = _telemetry_conn(OPS_DB_PATH, busy_ms=60000)
-                try:
-                    if kind == 'event':
-                        _, et, wallet, related, mint, payload, ts = item
-                        c.execute(
-                            "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
-                            "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
-                            (et, wallet, related, mint, json.dumps(payload or {}), "ws_cascade", ts))
-                    elif kind == 'hit':
-                        _, treasury, counterparty, sig, amount_sol, block_time, ts = item[:7]
-                        hit_tx_type = item[7] if len(item) > 7 else 'TRANSFER'
-                        c.execute(
-                            """INSERT OR IGNORE INTO wt_webhook_hits
-                                 (webhook_id, wallet_address, tx_signature, tx_type, source,
-                                  counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
-                               VALUES (?, ?, ?, ?, 'treasury_ws', ?, ?, ?, 0, ?, 'outbound')""",
-                            (wh_id, treasury, sig, hit_tx_type, counterparty, block_time, amount_sol, ts))
-                    c.commit()
-                    break
-                finally:
-                    c.close()
-            except Exception as e:
-                if _attempt < 2:
-                    time.sleep(2 ** _attempt)
-                    continue
-                print(f"[WS_CASCADE] ops-db write failed {kind}: {e}", flush=True)
-                break
+        try:
+            def write(c):
+                if kind == 'event':
+                    _, et, wallet, related, mint, payload, ts = item
+                    c.execute(
+                        "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
+                        "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
+                        (et, wallet, related, mint, json.dumps(payload or {}), "ws_cascade", ts))
+                elif kind == 'hit':
+                    _, treasury, counterparty, sig, amount_sol, block_time, ts = item[:7]
+                    hit_tx_type = item[7] if len(item) > 7 else 'TRANSFER'
+                    c.execute(
+                        """INSERT OR IGNORE INTO wt_webhook_hits
+                             (webhook_id, wallet_address, tx_signature, tx_type, source,
+                              counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
+                           VALUES (?, ?, ?, ?, 'treasury_ws', ?, ?, ?, 0, ?, 'outbound')""",
+                        (wh_id, treasury, sig, hit_tx_type, counterparty, block_time, amount_sol, ts))
+            operations_write(f"ws-cascade-{kind}", write)
+        except Exception as e:
+            print(f"[WS_CASCADE] ops-db write failed {kind}: {e}", flush=True)
 
 
 def _ensure_writer():
@@ -1213,16 +1198,13 @@ def treasury_ws_register(conn, treasury: str) -> None:
     metering; the row gets created on a later pass)."""
     now = int(time.time())
     try:
-        c = _telemetry_conn(OPS_DB_PATH, busy_ms=8000)
-        try:
+        def write(c):
             c.execute(
                 "INSERT OR IGNORE INTO wt_treasury_ws_usage (treasury_wallet, subscribed_at) VALUES (?, ?)",
                 (treasury, now))
-            c.commit()
-        finally:
-            c.close()
+        operations_write("ws-cascade-treasury-register", write)
     except Exception:
-        pass  # best-effort metering — never crash the WS loop on a transient lock
+        pass  # best-effort metering — never crash the WS loop
 
 
 def treasury_ws_record_notif(conn, treasury: str, sig: Optional[str], opened_session: bool) -> None:

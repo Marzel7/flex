@@ -808,18 +808,21 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
                         "SELECT earliest_tx_creator FROM token_analysis WHERE mint=?", (mint,)
                     ).fetchone()
                     _creator_for_wb = ta2['earliest_tx_creator'] if ta2 else None
-                    import sqlite3 as _sq2
-                    _ops_conn = _sq2.connect(
-                        __import__('os').environ.get(
+                    _ops_path = __import__('os').environ.get(
                             "WT_OPS_DB_PATH",
                             __import__('os').path.join(
                                 __import__('os').path.dirname(__import__('os').path.abspath(__file__)),
-                                "..", "..", "database", "wt_ops_v2.db")),
-                        timeout=10)
-                    _ops_conn.row_factory = _sq2.Row
+                                "..", "..", "database", "wt_ops_v2.db"))
                     from src.core.walkback_queue import enqueue_migration as _enq
-                    _cls = _enq(_ops_conn, mint=mint, creator=_creator_for_wb)
-                    _ops_conn.close()
+                    from src.core.database_write_service import database_write_service
+                    _ops_selector = f"operations:{__import__('os').path.realpath(_ops_path)}"
+                    database_write_service.register_database(_ops_selector, _ops_path)
+                    _cls = database_write_service.submit(
+                        _ops_selector, "listener-walkback-enqueue",
+                        lambda _ops_conn: _enq(
+                            _ops_conn, mint=mint, creator=_creator_for_wb
+                        ),
+                    )
                     if _cls:
                         log_print(f"[WATCHTOWER] walkback enqueued mint={mint[:20]} cls={_cls} creator={(_creator_for_wb or '')[:20]}", flush=True)
                 except Exception as _wb_e:
@@ -853,17 +856,22 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
             log_print(f"[WATCHTOWER] 🔴 CREATOR MIGRATED — creator={creator_wallet[:20]}... mint={mint[:20]}...", flush=True)
             # Advance derived lifecycle table (wt_ops_v2.db), best-effort
             try:
-                import sqlite3 as _sq3
                 _lc_path = __import__('os').environ.get(
                     "WT_OPS_DB_PATH",
                     __import__('os').path.join(
                         __import__('os').path.dirname(__import__('os').path.abspath(__file__)),
                         "..", "..", "database", "wt_ops_v2.db"))
-                _lc_conn = _sq3.connect(_lc_path, timeout=10)
-                _lc_conn.row_factory = _sq3.Row
                 from src.core.ws_cascade_store import advance_lifecycle_migrated as _adv
-                _adv(_lc_conn, mint=mint, migrated_at=migrated_at, migration_sig=migration_tx)
-                _lc_conn.close()
+                from src.core.database_write_service import database_write_service
+                _lc_selector = f"operations:{__import__('os').path.realpath(_lc_path)}"
+                database_write_service.register_database(_lc_selector, _lc_path)
+                database_write_service.submit(
+                    _lc_selector, "listener-lifecycle-migrated",
+                    lambda _lc_conn: _adv(
+                        _lc_conn, mint=mint, migrated_at=migrated_at,
+                        migration_sig=migration_tx,
+                    ),
+                )
             except Exception as _lc_e:
                 log_print(f"[LIFECYCLE] advance_lifecycle_migrated error: {_lc_e}", flush=True)
         except Exception as _e:
@@ -4227,6 +4235,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_queue_status ON creator_funding_queue(status, next_attempt_at)")
+        # X21D.4 Part B: /api/funding-queue's row-listing query does
+        # ORDER BY created_at DESC LIMIT 100 combined with a LEFT JOIN against
+        # metadata_cache. Without this index, SQLite cannot use the join's
+        # LIMIT to short-circuit the scan — it must join all 12k+ rows against
+        # metadata_cache THEN sort THEN limit (measured: 2.5-4.8s). Proven via
+        # EXPLAIN QUERY PLAN: this index changes the plan from
+        # "SCAN cfq" + "USE TEMP B-TREE FOR ORDER BY" to
+        # "SCAN cfq USING INDEX idx_creator_funding_queue_created_at" with no
+        # temp b-tree — measured 3.4s -> 16-75ms (45-200x).
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_queue_created_at ON creator_funding_queue(created_at DESC)")
         try:
             cursor.execute("PRAGMA table_info(creator_funding_queue)")
             cfq_cols = [col[1] for col in cursor.fetchall()]
@@ -11694,6 +11712,21 @@ async def main():
     except BlockingIOError:
         log_print("[STARTUP] Another pumpfun_curve_listener instance is already running; exiting", flush=True)
         return
+
+    # Walkback DDL is startup-only. Enqueue paths never initialize schema.
+    try:
+        from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+        from src.core.db import OPS_DB_PATH as _OPS_SCHEMA_PATH
+        from src.core.database_write_service import database_write_service
+        _schema_selector = f"operations:{os.path.realpath(str(_OPS_SCHEMA_PATH))}"
+        database_write_service.register_database(_schema_selector, str(_OPS_SCHEMA_PATH))
+        database_write_service.submit(
+            _schema_selector, "listener-walkback-schema-startup",
+            _ensure_walkback_schema,
+        )
+        log_print("[STARTUP] Walkback schema verified", flush=True)
+    except Exception as _schema_error:
+        log_print(f"[STARTUP] Walkback schema verification failed: {_schema_error}", flush=True)
     
     global _listener_singleton
     listener = PumpFunCurveListener()

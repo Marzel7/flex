@@ -1,0 +1,129 @@
+# ============================================================
+# Operations OS — Operation Definition
+# LAUNCHER OBSERVATORY
+#
+# Archetype: PERSISTENT_OPERATOR
+# Identifies operators who persistently launch tokens from
+# stable funder wallet identities, independent of WATCHTOWER
+# infrastructure classification.
+#
+# Central question:
+#   How much of the 54.4% Unknown Scope in Discovery Assurance
+#   is explained by persistent operator identities?
+#
+# Data sources (read-only, retrospective):
+#   - wt_farm_launches       (ops DB — independent ground truth)
+#   - wt_confirmed_treasuries (ops DB — WATCHTOWER exclusion list)
+#   - wt_discovered_subprovs  (ops DB — WATCHTOWER exclusion list)
+#   - creator_tokens          (pumpswap_tokens.db — launch history)
+#   - creator_profile         (pumpswap_tokens.db — operator profiles)
+#
+# No RPC. No websocket. No new workers. No schema changes.
+# ============================================================
+
+# ── Identity ─────────────────────────────────────────────────
+operation_id: launcher-observatory
+display_name: Launcher Observatory
+description: >
+  Identifies and profiles persistent token launchers — operators
+  who repeatedly launch from stable funder wallet identities.
+  Measures how much of WATCHTOWER's Unknown Scope (54.4%) is
+  explained by persistent operator behaviour versus truly unknown
+  single-event funders.
+owner: operations-team
+
+# ── Lifecycle ────────────────────────────────────────────────
+status: INSTRUMENTED
+
+# ── Versions ─────────────────────────────────────────────────
+framework_schema_version: 1
+definition_version: 1
+operation_version: "launch-observatory-v1"
+
+# ── Infrastructure Model ─────────────────────────────────────
+# FLAT: operators are independent identities — no funding graph,
+# no provisioning hierarchy. Each operator is self-contained.
+infrastructure_model: FLAT
+
+# ── Vocabulary ───────────────────────────────────────────────
+# PERSISTENT_OPERATOR archetype vocabulary.
+# No WATCHTOWER terms.
+vocabulary:
+  observed_asset:      "Operator"
+  signal_source:       "Funder Wallet"
+  observation_event:   "Token Launch"
+  observed_outcome:    "Campaign"
+  id_format:           "solana_address"
+
+# ── Capability Declarations ───────────────────────────────────
+capabilities:
+  health:
+    state: SUPPORTED
+    contract: health_v1
+    provider: launcher_observatory_health
+
+  infrastructure:
+    state: UNSUPPORTED
+    reason: >
+      FLAT model — operators are independent identities, not a
+      provisioning graph. No graph topology is meaningful here.
+
+  discovery_assurance:
+    state: UNSUPPORTED
+    reason: >
+      Launcher Observatory is itself an explanation tool for
+      WATCHTOWER's Discovery Assurance Unknown Scope. It does
+      not have its own independent ground truth table and does
+      not need to self-assess discovery coverage.
+
+  detection_coverage:
+    state: NOT_DECLARED
+    # Launcher Observatory is retrospective-only. There is no
+    # real-time detection pipeline to measure coverage for.
+
+  failure_attribution:
+    state: SUPPORTED
+    contract: failure_attribution_v1
+    provider: launcher_observatory_failure_attribution
+
+  behaviour:
+    state: SUPPORTED
+    contract: behaviour_v1
+    provider: launcher_observatory_behaviour
+
+  intelligence:
+    state: SUPPORTED
+    contract: intelligence_v1
+    provider: launcher_observatory_intelligence
+
+  signal_observatory:
+    state: NOT_DECLARED
+
+  outcome_intelligence:
+    state: SUPPORTED
+    contract: outcome_intelligence_v1
+    provider: launcher_observatory_outcome_intelligence
+
+  alerts:
+    state: NOT_DECLARED
+    # No real-time alerting. Launcher Observatory is retrospective.
+
+# ── Assurance Mapping ─────────────────────────────────────────
+assurance_mapping:
+  ground_truth_source: >
+    wt_farm_launches (ops DB). Independent ground truth populated
+    by farm_detector.py from migrated pump.fun tokens.
+  ground_truth_independent: true
+  scope_note: >
+    The 739 'Unknown Scope' launches in WATCHTOWER Discovery
+    Assurance have funders not in wt_confirmed_treasuries or
+    wt_discovered_subprovs. Launcher Observatory identifies how
+    many of those funders are persistent (repeated) operators.
+    Threshold: funder wallet with >= 3 launches across >= 7 days.
+    This threshold avoids conflating single-session bursts with
+    genuine persistent operator identities.
+  failure_taxonomy:
+    DISC_SINGLE_EVENT: "Funder appeared only once — not a persistent operator"
+    DISC_BELOW_THRESHOLD: "Funder has multiple launches but below persistence threshold"
+    DISC_WATCHTOWER_KNOWN: "Funder already classified by WATCHTOWER (treasury or subprov)"
+    DET_DATA_UNAVAILABLE: "Creator profile data not available for this funder"

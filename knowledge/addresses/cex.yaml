@@ -1,0 +1,24 @@
+# Known centralised-exchange hot wallets and withdrawal addresses.
+#
+# Format per entry:
+#   address:    Solana base58 address
+#   label:      Human-readable exchange name
+#   confidence: CERTAIN | HIGH | MEDIUM
+#   source:     Where this address was confirmed
+#   note:       Optional context
+#
+# Loader tolerates an empty entries list — add entries as they are confirmed.
+# Only include addresses confirmed as CEX infrastructure, not retail wallets.
+
+entries:
+  # Binance hot wallets (publicly documented)
+  - address: "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9"
+    label: "Binance Hot Wallet"
+    confidence: HIGH
+    source: "on-chain analysis + public documentation"
+
+  # Placeholder — expand as confirmed
+  # - address: ""
+  #   label: "Coinbase"
+  #   confidence: HIGH
+  #   source: ""

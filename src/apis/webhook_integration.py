@@ -360,7 +360,7 @@ def init_webhook_system(app):
     """
     init_webhook()
     setup_webhook_routes(app)
-    _enroll_permanent_infra()
-    start_webhook_worker(daemon=True)
+    # A2.6: run_worker moved to standalone supervised process (scripts/run_webhook_worker.py).
+    # Route registration remains here. Queue polling is no longer Gunicorn's responsibility.
 
     print("[WEBHOOK_INTEGRATION] Webhook system initialized", flush=True)

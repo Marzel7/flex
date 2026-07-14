@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>X18 Analyst Journey Wireframes</title>
+<style>
+:root{--bg:#080b11;--surface:#0d121b;--card:#111925;--line:#253044;--text:#e7edf7;--muted:#8793a6;--cyan:#22d3ee;--blue:#60a5fa;--amber:#f59e0b;--green:#22c55e}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:13px Inter,system-ui,sans-serif} a{color:inherit;text-decoration:none}
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}.side{border-right:1px solid var(--line);padding:20px 12px;background:#090d14}.brand{font-size:21px;font-weight:900;letter-spacing:.12em;margin:0 8px 22px}.brand small{display:block;font-size:9px;color:var(--muted);letter-spacing:.08em;margin-top:4px}.group{margin:18px 0}.label{font-size:9px;color:#637086;text-transform:uppercase;letter-spacing:.12em;margin:0 9px 6px}.nav{display:block;padding:7px 9px;border-radius:5px;color:#aeb8c8}.nav.active{background:#112633;color:var(--cyan);font-weight:700}.legacy{opacity:.48}.main{padding:28px 34px;max-width:1250px;width:100%}.switcher{display:flex;gap:8px;margin-bottom:25px}.switcher a{border:1px solid var(--line);padding:6px 10px;border-radius:5px;color:var(--muted)}
+h1{font-size:24px;margin:0}.question{color:var(--muted);margin:5px 0 22px}.answer{border:1px solid #245067;background:#0c1d28;padding:18px 20px;border-radius:8px;margin-bottom:14px}.answer .kicker,.section-title{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--cyan)}.answer strong{display:block;font-size:18px;margin:7px 0}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.card{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:14px}.metric{font:800 25px ui-monospace;color:var(--blue)}.sub{font-size:10px;color:var(--muted);margin-top:5px}.section{margin-top:18px}.section-head{display:flex;justify-content:space-between;margin-bottom:8px}.row{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;border:1px solid var(--line);background:var(--surface);padding:11px 13px;margin:5px 0;border-radius:6px}.pill{font-size:9px;border:1px solid #3c4a60;padding:3px 6px;border-radius:20px;color:var(--muted)}.pill.amber{color:var(--amber);border-color:#705214}.go{color:var(--cyan);font-size:11px}.hidden{display:none}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.steps{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:10px;margin:0 0 18px}.steps b{color:var(--cyan)} details{border:1px solid var(--line);background:var(--surface);border-radius:7px;margin-top:8px} summary{cursor:pointer;padding:12px 14px;font-weight:650} details div{border-top:1px solid var(--line);padding:12px 14px;color:var(--muted)}.seven{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.seven .card:first-child{grid-column:1/-1;border-color:#245067}.wire-note{border:1px dashed #3d4b60;color:var(--muted);padding:10px 12px;margin-top:18px;border-radius:6px;font-size:10px}@media(max-width:800px){.shell{grid-template-columns:1fr}.side{display:none}.main{padding:20px}.grid,.two,.seven{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <div class="brand">FLEX<small>OPERATIONS INTELLIGENCE</small></div>
+  <a class="nav active" href="#mission">◆ Mission Control</a>
+  <div class="group"><div class="label">Investigate</div><a class="nav" href="#discovery">Discovery</a><a class="nav" href="#entity">Entity Intelligence</a><a class="nav" href="#operator">Operators</a></div>
+  <div class="group"><div class="label">Operations</div><a class="nav">Live Operations</a><a class="nav">WATCHTOWER</a><a class="nav">Launcher Observatory</a><a class="nav">Buy Swarm Observatory</a></div>
+  <div class="group"><div class="label">Review</div><a class="nav">Analyst Inbox</a><a class="nav">Promotion Review</a></div>
+  <div class="group"><div class="label">Analysis</div><a class="nav">Cross-Operation</a><a class="nav">Knowledge</a></div>
+  <div class="group legacy"><div class="label">Legacy</div><a class="nav">Legacy Features ▸</a><a class="nav">Legacy WATCHTOWER ▸</a></div>
+</aside>
+<main class="main">
+  <div class="switcher"><a href="#mission">Mission</a><a href="#discovery">Discovery</a><a href="#entity">Entity</a><a href="#operator">Operator</a></div>
+
+  <section id="mission">
+    <h1>Mission Control</h1><div class="question">What requires analyst attention?</div>
+    <div class="answer"><span class="kicker">Current answer · Level 1</span><strong>Two operators require review; one campaign became active.</strong><span class="sub">All collection systems current · last update 18 seconds ago</span></div>
+    <div class="grid"><div class="card"><div class="metric">2</div><div class="sub">operators requiring attention</div></div><div class="card"><div class="metric">3</div><div class="sub">active campaigns</div></div><div class="card"><div class="metric">1</div><div class="sub">promotion awaiting review</div></div><div class="card"><div class="metric">7</div><div class="sub">material discoveries today</div></div></div>
+    <div class="section"><div class="section-head"><span class="section-title">Needs attention · Level 2</span><span class="go">Open Inbox →</span></div><div class="row"><span class="pill amber">HIGH</span><span>New operator proposal has three independent identity classes</span><span class="go">Review →</span></div><div class="row"><span class="pill">CHANGE</span><span>Operator 04265d… entered an active campaign</span><span class="go">Investigate →</span></div></div>
+    <details><summary>Raw activity and system detail · Level 3</summary><div>Full event feed, capability telemetry, freshness diagnostics, and source payloads.</div></details>
+  </section>
+
+  <section id="discovery" class="section">
+    <h1>Discovery</h1><div class="question">How did we establish this?</div>
+    <div class="steps"><b>Discovery</b> → Entity → Operator → Assessment</div>
+    <div class="answer"><span class="kicker">Current answer · Level 1</span><strong>This entity entered through provisioning-hub discovery and was corroborated by infrastructure reuse.</strong><span class="sub">First established 4 days ago · 3 independent sources</span></div>
+    <div class="two"><div class="card"><span class="section-title">Provenance chain</span><p>Observed transfer → provisioning pattern → entity role → operator proposal</p></div><div class="card"><span class="section-title">Continue</span><p>Entity role and appearances are owned by Entity Intelligence.</p><span class="go">Open Entity →</span></div></div>
+    <details><summary>Source records · Level 3</summary><div>Database table, record key, detector version, raw evidence payload.</div></details>
+  </section>
+
+  <section id="entity" class="section">
+    <h1>Entity Intelligence</h1><div class="question">What do we know about this entity?</div>
+    <div class="steps">Discovery → <b>Entity</b> → Operator → Assessment</div>
+    <div class="answer"><span class="kicker">Current answer · Level 1</span><strong>Confirmed provisioning infrastructure linked to canonical operator 04265d…</strong><span class="sub">Current role: Provisioner · historical roles: Treasury relay, creator funder</span></div>
+    <div class="grid"><div class="card"><span class="section-title">Appearances</span><div class="metric">8</div></div><div class="card"><span class="section-title">Operations</span><div class="metric">3</div></div><div class="card"><span class="section-title">Relationships</span><div class="metric">12</div></div><div class="card"><span class="section-title">Operator</span><div class="go">Open actor →</div></div></div>
+    <details><summary>Timeline and supporting intelligence · Level 2</summary><div>Role changes, operation appearances, and material relationships.</div></details><details><summary>Raw entity evidence · Level 3</summary><div>Source rows and complete relationship payloads.</div></details>
+  </section>
+
+  <section id="operator" class="section">
+    <h1>Operator Intelligence</h1><div class="question">What do we know about this actor?</div>
+    <div class="steps">Discovery → Entity → <b>Operator</b> → Assessment → Forecast</div>
+    <div class="seven"><div class="card"><span class="section-title">Who are they?</span><h2>Confirmed operator · High confidence</h2><p class="sub">Nine identity entities supported by five evidence records.</p></div><div class="card"><span class="section-title">What do we know?</span><p>69 materialised observations across seven types.</p></div><div class="card"><span class="section-title">What are they doing now?</span><p>One active campaign; most recent observation 18m ago.</p></div><div class="card"><span class="section-title">How have they behaved?</span><p>Stable provisioning with variable funding size.</p></div><div class="card"><span class="section-title">Has that changed?</span><p>No material high-confidence deviation.</p></div><div class="card"><span class="section-title">What do we assess?</span><p>Identity established; operational continuity likely.</p></div><div class="card"><span class="section-title">What happens next?</span><p>Forecast available · observing lifecycle.</p></div></div>
+    <details><summary>Supporting behaviour, change, assessment, and forecast · Level 2</summary><div>Expanded intelligence dimensions with one confidence treatment per claim.</div></details><details><summary>Observations, evidence, and governance history · Level 3</summary><div>Canonical observations, immutable review record, source provenance, raw timelines.</div></details>
+  </section>
+
+  <div class="wire-note">Wireframe only. It demonstrates hierarchy and information depth; it does not introduce backend capability or prescribe final visual styling.</div>
+</main>
+</div>
+</body>
+</html>

@@ -10,6 +10,7 @@ import threading
 import time
 import sqlite3
 from flask import Blueprint, request, jsonify
+from src.utils.db_locking import db_connect
 from src.core.price_service import get_price_service, TokenPrice
 from src.core.price_confidence import get_confidence_scorer
 from src.core.launch_outcome_tracker import get_outcome_tracker
@@ -104,9 +105,22 @@ def _configure_sqlite_wal(db_path: str) -> None:
 def _ensure_metadata_cache_table(db_path: str) -> None:
     """Create metadata_cache table if not exists."""
     try:
-        conn = sqlite3.connect(db_path, timeout=5)
-        cursor = conn.cursor()
-        cursor.execute("""
+        conn = db_connect(db_path, timeout=5, read_only=True)
+        try:
+            row = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='metadata_cache'"
+            ).fetchone()
+            if row is not None:
+                return
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+    from src.core.database_write_service import database_write_service
+
+    def _ensure(conn):
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS metadata_cache (
                 mint TEXT PRIMARY KEY,
                 symbol TEXT NOT NULL,
@@ -115,8 +129,14 @@ def _ensure_metadata_cache_table(db_path: str) -> None:
                 cached_source TEXT
             )
         """)
-        conn.commit()
-        conn.close()
+
+    try:
+        database_write_service.submit(
+            "price-api",
+            "ensure-metadata-cache-table",
+            _ensure,
+            path=db_path,
+        )
         logger.info("metadata_cache table ensured")
     except Exception as e:
         logger.error(f"Failed to ensure metadata_cache table: {e}")
@@ -1577,8 +1597,7 @@ def register_price_api(app):
     if hasattr(app, 'config') and 'DATABASE' in app.config:
         _db_path = app.config['DATABASE']
     
-    # Configure SQLite WAL mode and create metadata cache table
-    _configure_sqlite_wal(_db_path)
+    # Metadata cache bootstrap is read-only first; DDL runs only if missing.
     _ensure_metadata_cache_table(_db_path)
     
     app.register_blueprint(price_api)

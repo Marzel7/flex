@@ -1,0 +1,1297 @@
+{% extends "base_shell.html" %}
+{% block title %}Operator · {{ operator_id[:12] }}… — Intelligence{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+/* ── Identity sidebar (mirrors entity_intelligence.html) ─────────────────── */
+.oi-identity-card {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  overflow: hidden;
+}
+.oi-identity-top {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ip-border);
+  background: rgba(255,255,255,.015);
+}
+.oi-id-full {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--ip-cyan);
+  word-break: break-all;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.oi-id-full:hover { opacity: .8; }
+.oi-status-chip {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 8px;
+}
+.oi-status-chip.CANDIDATE   { background:rgba(79,93,110,.3);  border:1px solid rgba(79,93,110,.5);  color:var(--ip-dim); }
+.oi-status-chip.REVIEW_CANDIDATE { background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.3); color:var(--ip-purple); }
+.oi-status-chip.PROVISIONAL { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); color:var(--ip-amber); }
+.oi-status-chip.CONFIRMED   { background:rgba(63,185,80,.1);  border:1px solid rgba(63,185,80,.3);  color:var(--ip-green); }
+.oi-status-chip.REJECTED    { background:rgba(248,81,73,.1);  border:1px solid rgba(248,81,73,.3);  color:var(--ip-red); }
+.oi-status-chip.MERGE_REVIEW,.oi-status-chip.SPLIT_REVIEW {
+  background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.3); color:var(--ip-purple);
+}
+
+.oi-identity-body { padding: 12px 16px; }
+.oi-meta-row {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.oi-meta-row:last-child { border-bottom: none; }
+.oi-meta-label { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; color: var(--ip-dim); }
+.oi-meta-val   { font-size: 12px; color: var(--ip-text); font-weight: 600; }
+
+/* ── Entity group list (right column) ───────────────────────────────────── */
+.oi-entity-group { margin-bottom: 14px; }
+.oi-entity-group-label {
+  font-size: 9px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--ip-dim); padding: 6px 0 4px;
+}
+.oi-entity-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; font-size: 11px;
+  background: var(--ip-card2); border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius); margin-bottom: 4px;
+}
+.oi-entity-row:last-child { margin-bottom: 0; }
+.oi-entity-type-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--ip-border2);
+}
+.oi-entity-type-dot.TREASURY    { background: var(--ip-amber); }
+.oi-entity-type-dot.SUB_PROVISIONER { background: var(--ip-blue); }
+.oi-entity-type-dot.CREATOR     { background: var(--ip-green); }
+.oi-entity-type-dot.RELAY       { background: var(--ip-purple); }
+.oi-entity-type-dot.SIGNALLER   { background: var(--ip-cyan); }
+
+/* ── Evidence cards (centre) ─────────────────────────────────────────────── */
+.oi-ev-card {
+  background: var(--ip-card2); border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius); padding: 12px 14px; margin-bottom: 6px;
+}
+.oi-ev-card.IDENTITY   { border-left: 3px solid var(--ip-amber); }
+.oi-ev-card.SUPPORTING { border-left: 3px solid var(--ip-blue); }
+.oi-ev-card.CONTEXT    { border-left: 3px solid var(--ip-border2); opacity:.7; }
+.oi-ev-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.oi-ev-type {
+  font-size: 10px; font-weight: 700; color: var(--ip-text);
+  text-transform: uppercase; letter-spacing: .05em; flex: 1;
+}
+.oi-ev-cat {
+  font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: 700;
+}
+.oi-ev-cat.IDENTITY   { background:rgba(245,158,11,.12); color:var(--ip-amber); }
+.oi-ev-cat.SUPPORTING { background:rgba(56,189,248,.1);  color:var(--ip-blue); }
+.oi-ev-cat.CONTEXT    { background:rgba(79,93,110,.15);  color:var(--ip-dim); }
+.oi-ev-notes { font-size: 11px; color: var(--ip-sec); line-height: 1.55; margin-bottom: 6px; }
+.oi-ev-meta  { font-size: 10px; color: var(--ip-dim); display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Timeline (mirrors entity_intelligence) ──────────────────────────────── */
+.oi-timeline { display: flex; flex-direction: column; gap: 0; }
+.oi-tl-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 11px;
+}
+.oi-tl-row:last-child { border-bottom: none; }
+.oi-tl-ts  { color: var(--ip-dim); font-family: monospace; font-size: 10px; min-width: 72px; flex-shrink: 0; padding-top: 1px; }
+.oi-tl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ip-border2); flex-shrink: 0; margin-top: 4px; }
+.oi-tl-dot.ev-CREATED   { background: var(--ip-cyan); }
+.oi-tl-dot.ev-ENTITY    { background: var(--ip-blue); }
+.oi-tl-dot.ev-EVIDENCE  { background: var(--ip-amber); }
+.oi-tl-dot.ev-REVIEW    { background: var(--ip-green); }
+.oi-tl-body { color: var(--ip-text); line-height: 1.45; }
+
+/* ── Review panel ────────────────────────────────────────────────────────── */
+.oi-review-history { display: flex; flex-direction: column; gap: 6px; }
+.oi-review-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; background: var(--ip-card2);
+  border: 1px solid var(--ip-border); border-radius: var(--ip-radius); font-size: 11px;
+}
+.oi-review-decision {
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 4px; flex-shrink: 0;
+}
+.oi-review-decision.CONFIRMED { background:rgba(63,185,80,.12); color:var(--ip-green); }
+.oi-review-decision.REJECTED  { background:rgba(248,81,73,.1);  color:var(--ip-red); }
+.oi-review-decision.MERGE     { background:rgba(167,139,250,.1); color:var(--ip-purple); }
+.oi-review-decision.SPLIT     { background:rgba(167,139,250,.1); color:var(--ip-purple); }
+.oi-review-decision.FLAGGED   { background:rgba(245,158,11,.1); color:var(--ip-amber); }
+.oi-review-body { flex: 1; min-width: 0; }
+.oi-review-ts   { color: var(--ip-dim); font-size: 10px; margin-top: 3px; }
+
+/* ── Action buttons ──────────────────────────────────────────────────────── */
+.oi-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.oi-action-btn  {
+  padding: 8px 10px; border-radius: var(--ip-radius); border: 1px solid var(--ip-border);
+  background: var(--ip-card2); color: var(--ip-sec); font-size: 11px; font-weight: 600;
+  cursor: pointer; text-align: center; text-decoration: none; display: block;
+  transition: border-color .12s, color .12s;
+}
+.oi-action-btn:hover { border-color: var(--ip-border2); color: var(--ip-text); }
+.oi-action-btn.confirm  { border-color:rgba(63,185,80,.3); color:var(--ip-green); }
+.oi-action-btn.confirm:hover { background:rgba(63,185,80,.08); }
+.oi-action-btn.reject   { border-color:rgba(248,81,73,.3);  color:var(--ip-red); }
+.oi-action-btn.reject:hover  { background:rgba(248,81,73,.08); }
+.oi-action-btn.primary  { border-color:rgba(34,211,238,.3); color:var(--ip-cyan); }
+.oi-action-btn.primary:hover { background:rgba(34,211,238,.07); }
+
+/* ── Operations observed (right) ─────────────────────────────────────────── */
+.oi-op-obs-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; font-size: 11px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.oi-op-obs-row:last-child { border-bottom: none; }
+.oi-op-obs-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+
+/* ── Behaviour Intelligence ─────────────────────────────────────────────── */
+.oi-beh-dim {
+  background: var(--ip-card); border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius); margin-bottom: 10px; overflow: hidden;
+}
+.oi-beh-dim-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-bottom: 1px solid var(--ip-border);
+  background: var(--ip-surface);
+}
+.oi-beh-dim-label { font-size: 11px; font-weight: 700; color: var(--ip-text); }
+.oi-beh-dim-summary {
+  font-size: 10.5px; color: var(--ip-sec); padding: 7px 14px 4px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.oi-beh-facts { padding: 6px 14px 10px; display: flex; flex-direction: column; gap: 5px; }
+.oi-beh-fact {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.oi-beh-fact:last-child { border-bottom: none; }
+.oi-beh-fact-label { color: var(--ip-sec); min-width: 180px; flex-shrink: 0; }
+.oi-beh-fact-val   { font-weight: 700; color: var(--ip-text); margin-right: auto; }
+.oi-beh-fact-note  { font-size: 9.5px; color: var(--ip-dim); font-style: italic; width: 100%; }
+.oi-beh-insufficient .oi-beh-fact-val { color: var(--ip-dim); font-weight: 400; font-style: italic; }
+.oi-beh-stab {
+  background: var(--ip-card); border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius); padding: 10px 14px; margin-bottom: 10px;
+}
+.oi-beh-stab-title { font-size: 11px; font-weight: 700; color: var(--ip-text); margin-bottom: 8px; }
+.oi-beh-stab-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.oi-beh-stab-row:last-child { border-bottom: none; }
+.oi-beh-stab-label { color: var(--ip-sec); flex: 1; }
+.oi-beh-gaps {
+  background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2);
+  border-radius: var(--ip-radius); padding: 10px 14px; margin-bottom: 10px;
+}
+.oi-beh-gap { font-size: 10.5px; color: var(--ip-amber); padding: 2px 0; }
+
+/* ── Behaviour Change Detection ─────────────────────────────────────────── */
+.oi-cmp-dim {
+  background: var(--ip-card); border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius); margin-bottom: 10px; overflow: hidden;
+}
+.oi-cmp-dim-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-bottom: 1px solid var(--ip-border);
+  background: var(--ip-surface);
+}
+.oi-cmp-dim-label { font-size: 11px; font-weight: 700; color: var(--ip-text); }
+.oi-cmp-dim-summary {
+  font-size: 10.5px; color: var(--ip-sec); padding: 7px 14px 4px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.oi-cmp-facts { padding: 6px 14px 10px; }
+.oi-cmp-group-hdr {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--ip-red); margin: 6px 0 4px; padding-bottom: 3px;
+  border-bottom: 1px solid rgba(239,68,68,.15);
+}
+.oi-cmp-group-hdr.unchanged { color: var(--ip-green); border-bottom-color: rgba(34,197,94,.15); }
+.oi-cmp-row {
+  display: flex; align-items: flex-start; gap: 7px; flex-wrap: wrap;
+  font-size: 11px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.oi-cmp-row:last-child { border-bottom: none; }
+.oi-cmp-label { color: var(--ip-sec); min-width: 170px; flex-shrink: 0; }
+.oi-cmp-hist  { color: var(--ip-dim); font-family: ui-monospace,monospace; font-size: 10.5px; }
+.oi-cmp-arrow { color: var(--ip-border2); font-size: 10px; margin: 0 2px; }
+.oi-cmp-curr  { font-weight: 700; color: var(--ip-text); font-family: ui-monospace,monospace; font-size: 10.5px; margin-right: auto; }
+.oi-cmp-reason {
+  width: 100%; font-size: 9.5px; color: var(--ip-dim); padding-top: 3px;
+  font-style: italic; line-height: 1.4;
+}
+.oi-cmp-insuf .oi-cmp-insuf-msg {
+  font-size: 9.5px; color: var(--ip-dim); font-style: italic; margin-left: auto;
+}
+.oi-cmp-drift-strip {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+  gap: 6px; margin-bottom: 12px;
+}
+.oi-cmp-drift-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--ip-card); border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius); padding: 7px 12px; font-size: 11px;
+}
+.oi-cmp-drift-label { color: var(--ip-sec); flex: 1; }
+.oi-cmp-meta {
+  font-size: 10px; color: var(--ip-dim); padding: 4px 0 10px;
+  display: flex; align-items: center;
+}
+
+/* ── Intelligence Assessment ─────────────────────────────────────────────── */
+.oi-ass-card {
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  padding: 10px 0 8px;
+}
+.oi-ass-card:last-child { border-bottom: none; }
+.oi-ass-hdr {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.oi-ass-icon {
+  font-size: 14px; line-height: 1; width: 20px; text-align: center;
+  flex-shrink: 0; color: var(--ip-cyan); margin-top: 1px;
+}
+.oi-ass-main { flex: 1; min-width: 0; }
+.oi-ass-headline {
+  font-size: 12px; font-weight: 700; color: var(--ip-text); line-height: 1.3;
+}
+.oi-ass-summary {
+  font-size: 11px; color: var(--ip-sec); line-height: 1.5; margin-top: 3px;
+}
+.oi-ass-meta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+  flex-shrink: 0;
+}
+.oi-ass-ev-group { margin-top: 8px; }
+.oi-ass-ev-label {
+  font-size: 9.5px; font-weight: 700; color: var(--ip-dim); text-transform: uppercase;
+  letter-spacing: .04em; margin-bottom: 4px;
+}
+.oi-ass-ev-row {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 10.5px; color: var(--ip-sec); line-height: 1.4; padding: 2px 0;
+}
+.oi-ass-ev-row.support .oi-ass-ev-icon { color: var(--ip-green); }
+.oi-ass-ev-row.contra  .oi-ass-ev-icon { color: var(--ip-amber); }
+.oi-ass-ev-icon { flex-shrink: 0; font-size: 10px; margin-top: 2px; }
+.oi-ass-ev-text { flex: 1; }
+.oi-ass-gaps {
+  font-size: 10px; color: var(--ip-dim); margin-top: 6px;
+  padding: 4px 8px; background: rgba(255,255,255,.03);
+  border-radius: 4px;
+}
+
+/* ── Lifecycle Forecast ───────────────────────────────────────────────────── */
+.oi-fc-card { padding: 10px 0 8px; }
+.oi-fc-arrow {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.oi-fc-rarr { color: var(--ip-dim); font-size: 14px; }
+.oi-fc-reason { font-size: 11px; color: var(--ip-sec); line-height: 1.5; margin-bottom: 6px; }
+.oi-fc-meta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.oi-fc-window { font-size: 10px; color: var(--ip-cyan); }
+.oi-fc-hist   { font-size: 9.5px; color: var(--ip-dim); }
+.oi-fc-hist-basis {
+  font-size: 10.5px; color: var(--ip-sec); padding: 4px 0 6px;
+  border-bottom: 1px solid rgba(255,255,255,.04); margin-bottom: 6px;
+}
+.oi-fc-ev-group  { margin-top: 6px; }
+.oi-fc-ev-label  { font-size: 9.5px; font-weight: 700; color: var(--ip-dim); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+.oi-fc-ev-row    { display: flex; align-items: flex-start; gap: 6px; font-size: 10.5px; color: var(--ip-sec); padding: 2px 0; }
+.oi-fc-ev-row.support .oi-fc-ev-icon { color: var(--ip-green); }
+.oi-fc-ev-row.contra  .oi-fc-ev-icon { color: var(--ip-amber); }
+.oi-fc-ev-icon { flex-shrink: 0; font-size: 10px; margin-top: 2px; }
+
+/* Mission Control forecast badge (appended to ARMED operations) */
+.mc-forecast-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9px; color: var(--ip-amber); font-weight: 600;
+  padding: 1px 5px; border: 1px solid rgba(255,180,0,.3);
+  border-radius: 3px; margin-left: 6px; vertical-align: middle;
+}
+
+/* ── Similar Operators ───────────────────────────────────────────────────── */
+.oi-sim-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  text-decoration: none; color: inherit;
+  transition: background .1s;
+}
+.oi-sim-row:last-child { border-bottom: none; }
+.oi-sim-row:hover { background: rgba(255,255,255,.02); }
+.oi-sim-id     { font-size: 10.5px; font-weight: 700; color: var(--ip-cyan); font-family: ui-monospace,monospace; }
+.oi-sim-reason { font-size: 9.5px; color: var(--ip-sec); margin-top: 3px; line-height: 1.3; }
+.oi-sim-diff   { font-size: 9px; color: var(--ip-dim); margin-top: 2px; font-style: italic; }
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <div class="ip-breadcrumb">
+    <a href="/ops-os">Mission Control</a>
+    <span class="sep">›</span>
+    <a href="/intelligence/operators">Operators</a>
+    <span class="sep">›</span>
+    <span>{{ operator_id[:12] }}…</span>
+  </div>
+
+  {% if error %}
+  <div class="ip-unavailable" style="margin-top:24px;">{{ error }}</div>
+  {% else %}
+
+  <div id="oi-dossier">
+    <div class="x19-question">What do we know about this actor?</div>
+    <div class="x19-flow"><span>Discovery</span><span>→</span><span>Entity</span><span>→</span><span class="current">Operator</span><span>→</span><span>Assessment</span><span>→</span><span>Forecast</span></div>
+
+    <div class="x19-answer">
+      <div>
+        <div class="x19-answer-label">Identity</div>
+        <div class="x19-answer-value" id="oi-display-name">{{ operator.display_name or ('Operator ' ~ operator_id[:8] ~ '…') }}</div>
+        <div class="x19-answer-meta">{{ operator.summary or 'Identity established from accumulated evidence.' }}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="oi-status-chip {{ operator.status }}" id="oi-status-chip">{{ operator.status }}</div>
+        <div class="x19-answer-meta">Confidence <span id="oi-confidence">{{ operator.confidence }}</span> · Review State <span id="oi-review-state">{{ operator.review_state }}</span></div>
+      </div>
+    </div>
+
+    <div class="vi-grid" style="margin:12px 0 16px;">
+      <section class="vi-card confirmed"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Current situation</div><div class="vi-title">Situation</div></div><span class="vi-status confirmed" style="margin-left:auto">Confirmed</span></div><div class="vi-title" id="oi-current-headline">Identity confirmed; current observations are loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-observation-count">—</div><div class="vi-metric-label">Observations</div></div></div><div id="oi-observation-lifecycle" class="x19-answer-meta">Checking current observation coverage…</div></section>
+      <section class="vi-card historical"><span class="x19-time-section historical" hidden></span><div class="vi-card-head"><span class="vi-icon">≈</span><div><div class="vi-eyebrow">Historical · Behaviour summary</div><div class="vi-title">Behaviour</div></div><span id="oi-beh-conf" style="margin-left:auto"></span></div><div class="vi-title" id="oi-behaviour-headline">Historical behaviour is loading.</div><div class="vi-confidence"><span>Confidence</span><span class="vi-confidence-track"><span class="vi-confidence-fill" id="oi-beh-confidence-bar"></span></span><span id="oi-behaviour-observations">— obs</span></div></section>
+      <section class="vi-card discovery"><div class="vi-card-head"><span class="vi-icon">✓</span><div><div class="vi-eyebrow">Current</div><div class="vi-title">Assessment <span aria-hidden="true">✓</span></div></div><span id="oi-assess-badge" style="margin-left:auto"></span></div><div class="vi-title" id="oi-assess-headline">Current assessment is loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-assessment-evidence">—</div><div class="vi-metric-label">Evidence</div></div><div class="vi-metric"><div class="vi-metric-value" id="oi-assessment-contradictions">—</div><div class="vi-metric-label">Contradictions</div></div></div></section>
+      <section class="vi-card promotion"><span class="x19-time-section forecast" hidden></span><div class="vi-card-head"><span class="vi-icon">↗</span><div><div class="vi-eyebrow">Expected next</div><div class="vi-title">Forecast <span aria-hidden="true">↗</span></div></div><span id="oi-fc-badge" style="margin-left:auto"></span></div><div class="vi-title" id="oi-forecast-headline">Forecast is loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-forecast-window" style="font-size:13px">—</div><div class="vi-metric-label">Expected window</div></div><div class="vi-metric"><div class="vi-metric-value" id="oi-forecast-confidence" style="font-size:13px">—</div><div class="vi-metric-label">Confidence</div></div></div></section>
+    </div>
+
+    <!-- Legacy layout class names retained as a DOM-contract marker: ip-dossier-left ip-dossier-centre ip-dossier-right -->
+    <details class="x19-disclosure x19-level2">
+      <summary><span class="level">Level 2</span> Supporting intelligence</summary>
+      <div class="x19-disclosure-body x19-section-stack">
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Known Entities</span><span class="ip-section-line"></span><span id="oi-entity-count"></span></div><div id="oi-entities-body"><div class="ip-loading">Loading…</div></div></section>
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Operations observed</span><span class="ip-section-line"></span></div><div id="oi-ops-body"><div class="ip-loading">Loading…</div></div></section>
+        <section id="oi-behaviour-section"><div class="ip-section-hdr"><span class="ip-section-label">Behaviour intelligence</span><span class="ip-section-line"></span></div><div id="oi-behaviour-body"><div class="ip-loading">Loading…</div></div></section>
+        <section id="oi-change-section"><div class="ip-section-hdr"><span class="ip-section-label">Behaviour change</span><span class="ip-section-line"></span><span id="oi-chg-drift"></span></div><div id="oi-change-body"><div class="ip-loading">Loading…</div></div></section>
+        <section id="oi-assess-section"><div class="ip-section-hdr"><span class="ip-section-label">Assessment detail</span><span class="ip-section-line"></span></div><div id="oi-assess-body"><div class="ip-loading">Loading…</div></div></section>
+        <section id="oi-forecast-section"><div class="ip-section-hdr"><span class="ip-section-label">Forecast detail</span><span class="ip-section-line"></span></div><div id="oi-forecast-body"><div class="ip-loading">Loading…</div></div></section>
+        <section id="oi-rel-card" style="display:none;"><div class="ip-section-hdr"><span class="ip-section-label">Related Operators</span><span class="ip-section-line"></span></div><div id="oi-rel-body"></div></section>
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Similar Operators</span><span class="ip-section-line"></span><button class="pd-toggle" onclick="pdToggle(this,'oi-sim-body')">▸</button></div><div class="pd-body" id="oi-sim-body" style="display:none;"><div id="oi-sim-content"><div class="ip-loading">Loading…</div></div></div></section>
+      </div>
+    </details>
+
+    <div id="oi-inbox-section" style="display:none;margin-top:10px;">
+      <div class="ip-section-hdr"><span class="ip-section-label">Attention</span><span class="ip-section-line"></span><a href="/intelligence/inbox" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;font-weight:600;margin-left:auto;">All items →</a></div>
+      <div id="oi-inbox-list" class="inbox-list" style="gap:6px;"></div>
+    </div>
+
+    <details class="x19-disclosure x19-level3">
+      <summary><span class="level">Level 3</span> Evidence, history and engineering detail</summary>
+      <div class="x19-disclosure-body x19-section-stack">
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Evidence</span><span class="ip-section-line"></span><span id="oi-ev-count"></span></div><div id="oi-evidence-body"><div class="ip-loading">Loading…</div></div></section>
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Timeline</span><span class="ip-section-line"></span></div><div id="oi-timeline-body" class="x19-timeline oi-timeline"><div class="ip-loading">Loading…</div></div></section>
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Review History</span><span class="ip-section-line"></span></div><div id="oi-review-body"><div class="ip-loading">Loading…</div></div></section>
+        {% if operator.promotion_history %}<section><div class="ip-section-hdr"><span class="ip-section-label">Canonical Promotion</span><span class="ip-section-line"></span></div><div class="ei-panel oi-review-history">{% for promotion in operator.promotion_history %}<div class="oi-review-row"><span class="oi-review-decision CONFIRMED">{{ promotion.decision }}</span><div class="oi-review-body"><div>{{ promotion.reason }}</div><div class="oi-review-ts">by {{ promotion.reviewer }} · {{ promotion.timestamp }}</div></div></div>{% endfor %}</div></section>{% endif %}
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Identity record</span><span class="ip-section-line"></span></div><div class="oi-identity-card"><div class="oi-identity-top"><div class="oi-id-full" onclick="copyId()">{{ operator_id }}</div></div><div class="oi-identity-body"><div class="oi-meta-row"><span class="oi-meta-label">First Seen</span><span class="oi-meta-val" id="oi-first-seen">{{ operator.first_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Last Seen</span><span class="oi-meta-val" id="oi-last-seen">{{ operator.last_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Promotion Status</span><span class="oi-meta-val">{% if operator.promotion_history %}CANONICAL{% else %}LEGACY / NOT RECORDED{% endif %}</span></div></div></div></section>
+        <section><div class="ip-section-hdr"><span class="ip-section-label">Actions</span><span class="ip-section-line"></span></div><div class="oi-action-grid"><a class="oi-action-btn primary" href="/intelligence/operator-promotions">Promotion Review</a><a class="oi-action-btn primary" href="/discovery?entity={{ operator_id|urlencode }}&type=operator">Discovery History →</a><a class="oi-action-btn primary" href="/intelligence/operators">All Operators</a><button class="oi-action-btn" onclick="triggerResolve()">Run Resolver</button></div><div id="oi-action-msg"></div></section>
+      </div>
+    </details>
+  </div>
+
+  {% endif %}
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var OP_ID = {{ operator_id | tojson }};
+  {% if operator %}
+  var OP    = {{ operator | tojson }};
+  {% else %}
+  var OP    = null;
+  {% endif %}
+
+  if (!OP) return;
+
+  /* ── Utilities ─────────────────────────────────────────────────────────── */
+  function ago(ts) {
+    if (!ts) return '—';
+    var s = Math.floor(Date.now() / 1000 - ts);
+    if (s < 60)    return s + 's ago';
+    if (s < 3600)  return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+  function fmtTs(ts) {
+    if (!ts) return '—';
+    return new Date(ts * 1000).toISOString().replace('T',' ').slice(0,19) + ' UTC';
+  }
+  function abbr(addr) {
+    if (!addr || addr.length < 14) return addr || '—';
+    return addr.slice(0,8) + '…' + addr.slice(-4);
+  }
+  function confidenceWidth(level) {
+    return ({HIGH:92,MEDIUM:65,LOW:35,INSUFFICIENT:8,UNKNOWN:8})[level] || 8;
+  }
+  function eiLink(addr, label) {
+    if (!addr) return '<span style="color:var(--ip-dim)">—</span>';
+    var display = label || abbr(addr);
+    return '<a href="/intelligence/entity/' + encodeURIComponent(addr)
+      + '" class="ip-addr" title="' + addr + '">'
+      + display + '<span class="ip-addr-arrow">↗</span></a>';
+  }
+
+  /* ── Fix first_seen / last_seen display ─────────────────────────────────── */
+  var fsEl = document.getElementById('oi-first-seen');
+  var lsEl = document.getElementById('oi-last-seen');
+  if (fsEl && OP.first_seen) fsEl.textContent = fmtTs(OP.first_seen);
+  if (lsEl && OP.last_seen)  lsEl.textContent = fmtTs(OP.last_seen);
+
+  /* ── Copy operator ID ───────────────────────────────────────────────────── */
+  window.copyId = function() {
+    navigator.clipboard && navigator.clipboard.writeText(OP_ID);
+  };
+
+  /* ── Evidence section ───────────────────────────────────────────────────── */
+  function buildEvidence(evidence) {
+    var el = document.getElementById('oi-evidence-body');
+    var cnt = document.getElementById('oi-ev-count');
+    if (!evidence || !evidence.length) {
+      el.innerHTML = '<div class="ip-quiet" style="padding:14px 0;">'
+        + '<span class="ip-quiet-icon">○</span>'
+        + '<span class="ip-quiet-title">No evidence recorded</span>'
+        + 'Evidence accumulates automatically as the resolver runs.'
+        + '</div>';
+      return;
+    }
+
+    if (cnt) cnt.textContent = evidence.length + ' record(s)';
+
+    /* Group by category */
+    var groups = { IDENTITY: [], SUPPORTING: [], CONTEXT: [] };
+    evidence.forEach(function(e) {
+      var cat = e.evidence_category || 'SUPPORTING';
+      (groups[cat] = groups[cat] || []).push(e);
+    });
+
+    var CAT_LABELS = { IDENTITY: 'Identity Evidence', SUPPORTING: 'Supporting Evidence', CONTEXT: 'Context' };
+    var html = '';
+
+    ['IDENTITY', 'SUPPORTING', 'CONTEXT'].forEach(function(cat) {
+      var items = groups[cat];
+      if (!items || !items.length) return;
+      html += '<div class="ip-section-hdr" style="margin-top:4px;margin-bottom:6px;">'
+        + '<span class="ip-section-label">' + CAT_LABELS[cat] + '</span>'
+        + '<span class="ip-section-line"></span></div>';
+      var byType = {};
+      items.forEach(function(ev) {
+        (byType[ev.evidence_type] = byType[ev.evidence_type] || []).push(ev);
+      });
+      Object.keys(byType).forEach(function(type) {
+        var typeItems = byType[type];
+        html += '<details class="x19-disclosure x19-evidence-group">'
+          + '<summary><span>' + typeItems.length + ' ' + type.replace(/_/g,' ').toLowerCase() + '</span><span style="margin-left:auto;color:var(--ip-cyan);">View →</span></summary>'
+          + '<div class="x19-disclosure-body">';
+      typeItems.forEach(function(ev) {
+        var det = ev.details || {};
+        html += '<div class="oi-ev-card ' + cat + '">'
+          + '<div class="oi-ev-head">'
+          +   '<span class="oi-ev-type">' + ev.evidence_type.replace(/_/g,' ') + '</span>'
+          +   '<span class="oi-ev-cat ' + cat + '">' + cat + '</span>'
+          + '</div>';
+
+        /* Explanation from catalogue notes — stored in details.notes or we use the type */
+        if (ev.entity_a || ev.entity_b) {
+          html += '<div class="oi-ev-meta">';
+          if (ev.entity_a) html += '<span>' + eiLink(ev.entity_a) + '</span>';
+          if (ev.entity_b) html += '<span>↔ ' + eiLink(ev.entity_b) + '</span>';
+          html += '</div>';
+        }
+
+        /* Extra detail fields */
+        var detEntries = Object.entries(det).filter(function(kv) {
+          return kv[0] !== 'notes' && typeof kv[1] !== 'object';
+        });
+        if (detEntries.length) {
+          html += '<div class="oi-ev-meta" style="margin-top:4px;">';
+          detEntries.slice(0,4).forEach(function(kv) {
+            html += '<span style="color:var(--ip-dim);">' + kv[0].replace(/_/g,' ') + ':</span> '
+              + '<span>' + kv[1] + '</span>';
+          });
+          html += '</div>';
+        }
+
+        html += '<div class="oi-ev-meta" style="margin-top:6px;">'
+          + '<span style="color:var(--ip-dim);">source: ' + (ev.source_operation || '—') + '</span>'
+          + '<span style="color:var(--ip-dim);">' + ago(ev.created_at) + '</span>'
+          + '</div>'
+          + '</div>';
+      });
+        html += '</div></details>';
+      });
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ── Timeline ────────────────────────────────────────────────────────────── */
+  function buildTimeline(op) {
+    var events = [];
+    var now = Math.floor(Date.now() / 1000);
+
+    /* Synthesise from operator data */
+    if (op.created_at) events.push({ ts: op.created_at, type: 'CREATED',  text: 'Operator record created' });
+    (op.entities || []).forEach(function(e) {
+      if (e.added_at) events.push({
+        ts:   e.added_at,
+        type: 'ENTITY',
+        text: (e.entity_type || 'wallet') + ' ' + abbr(e.entity_address) + ' attributed',
+      });
+    });
+    (op.evidence || []).forEach(function(ev) {
+      if (ev.created_at) events.push({
+        ts:   ev.created_at,
+        type: 'EVIDENCE',
+        text: ev.evidence_type.replace(/_/g,' ').toLowerCase() + ' evidence recorded',
+      });
+    });
+    (op.reviews || []).forEach(function(r) {
+      if (r.timestamp) events.push({
+        ts:   r.timestamp,
+        type: 'REVIEW',
+        text: 'Review: ' + r.decision + (r.reason ? ' — ' + r.reason : ''),
+      });
+    });
+
+    events.sort(function(a, b) { return a.ts - b.ts; });
+
+    var el = document.getElementById('oi-timeline-body');
+    if (!events.length) {
+      el.innerHTML = '<div class="ip-quiet" style="padding:10px 0;">'
+        + '<span class="ip-quiet-icon">○</span>'
+        + '<span class="ip-quiet-title">No timeline events</span></div>';
+      return;
+    }
+
+    el.innerHTML = events.map(function(ev) {
+      return '<div class="oi-tl-row">'
+        + '<span class="oi-tl-ts">' + fmtTs(ev.ts).slice(0,10) + '</span>'
+        + '<div class="oi-tl-dot ev-' + ev.type + '"></div>'
+        + '<div class="oi-tl-body">' + ev.text + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* ── Review history ─────────────────────────────────────────────────────── */
+  function buildReviews(reviews) {
+    var el = document.getElementById('oi-review-body');
+    if (!reviews || !reviews.length) {
+      el.innerHTML = '<div class="ei-panel" style="padding:14px 16px;">'
+        + '<div style="font-size:12px;color:var(--ip-sec);">No review decisions recorded.</div>'
+        + '<div style="font-size:11px;color:var(--ip-dim);margin-top:6px;">'
+        + 'Use the Quick Actions panel to confirm, reject, or flag this operator.'
+        + '</div></div>';
+      return;
+    }
+    el.innerHTML = '<div class="ei-panel" style="overflow:hidden;">'
+      + '<div class="oi-review-history" style="padding:10px 12px;">'
+      + reviews.map(function(r) {
+          return '<div class="oi-review-row">'
+            + '<span class="oi-review-decision ' + r.decision + '">' + r.decision + '</span>'
+            + '<div class="oi-review-body">'
+            +   (r.reason ? '<div style="color:var(--ip-text);">' + r.reason + '</div>' : '')
+            +   (r.reviewer ? '<div style="color:var(--ip-dim);font-size:10px;">by ' + r.reviewer + '</div>' : '')
+            +   '<div class="oi-review-ts">' + fmtTs(r.timestamp) + '</div>'
+            + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div></div>';
+  }
+
+  /* ── Entities (right column) ─────────────────────────────────────────────── */
+  function buildEntities(entities) {
+    var el   = document.getElementById('oi-entities-body');
+    var cnt  = document.getElementById('oi-entity-count');
+    if (cnt) cnt.textContent = (entities || []).length + ' infrastructure entities';
+
+    if (!entities || !entities.length) {
+      el.innerHTML = '<div style="font-size:11px;color:var(--ip-sec);padding:6px 0;">'
+        + 'No entities attributed yet.</div>';
+      return;
+    }
+
+    /* Group by entity_type */
+    var groups = {};
+    var order  = ['TREASURY', 'SUB_PROVISIONER', 'SIGNALLER', 'RELAY', 'CREATOR', 'COLLECTOR', 'UNKNOWN'];
+    entities.forEach(function(e) {
+      var t = e.entity_type || 'UNKNOWN';
+      (groups[t] = groups[t] || []).push(e);
+    });
+
+    var TYPE_LABELS = {
+      TREASURY: 'Treasuries', SUB_PROVISIONER: 'Sub-Provisioners',
+      SIGNALLER: 'Signallers', RELAY: 'Relay / Collector',
+      CREATOR: 'Creators', COLLECTOR: 'Collectors', UNKNOWN: 'Unknown',
+    };
+
+    var html = '';
+    order.forEach(function(t) {
+      var items = groups[t];
+      if (!items) return;
+      html += '<details class="x19-disclosure oi-entity-group">'
+        + '<summary><span class="oi-entity-group-label">' + items.length + ' ' + (TYPE_LABELS[t] || t) + '</span><span style="margin-left:auto;color:var(--ip-cyan);">View →</span></summary>'
+        + '<div class="x19-disclosure-body">';
+      items.forEach(function(e) {
+        html += '<div class="oi-entity-row">'
+          + '<div class="oi-entity-type-dot ' + t + '"></div>'
+          + eiLink(e.entity_address)
+          + '<span style="font-size:9px;color:var(--ip-dim);margin-left:auto;">'
+          +   (e.evidence_count || 0) + ' ev'
+          + '</span>'
+          + '</div>';
+      });
+      html += '</div></details>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ── Operations observed ─────────────────────────────────────────────────── */
+  function buildOperations(evidence) {
+    var el = document.getElementById('oi-ops-body');
+
+    /* Derive observed operations from evidence source_operation field */
+    var ops = {};
+    (evidence || []).forEach(function(ev) {
+      var src = ev.source_operation;
+      if (src) {
+        ops[src] = ops[src] || { count: 0, first: ev.created_at, last: ev.created_at };
+        ops[src].count++;
+        if (ev.created_at < ops[src].first) ops[src].first = ev.created_at;
+        if (ev.created_at > ops[src].last)  ops[src].last  = ev.created_at;
+      }
+    });
+
+    var OP_LABELS = {
+      'watchtower':            'WATCHTOWER',
+      'launcher-observatory':  'Launcher Observatory',
+      'buy-swarm-observatory': 'Buy Swarm Observatory',
+      'operator-resolution':   'Operator Resolution',
+    };
+
+    var entries = Object.entries(ops);
+    if (!entries.length) {
+      el.innerHTML = '<div style="padding:12px 14px;font-size:11px;color:var(--ip-sec);">'
+        + 'No operation observations recorded yet.</div>';
+      return;
+    }
+
+    el.innerHTML = entries.map(function(kv) {
+      var src = kv[0], d = kv[1];
+      var label = OP_LABELS[src] || src;
+      return '<div class="oi-op-obs-row">'
+        + '<div class="oi-op-obs-dot" style="background:var(--ip-blue);"></div>'
+        + '<div style="flex:1;min-width:0;">'
+        +   '<div style="font-size:11px;font-weight:600;color:var(--ip-text);">' + label + '</div>'
+        +   '<div style="font-size:10px;color:var(--ip-dim);">' + d.count + ' evidence record(s)</div>'
+        + '</div>'
+        + '<a href="/ops-os/' + src + '" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;">Open →</a>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* ── Inbox items ─────────────────────────────────────────────────────────── */
+  function fillInbox(items) {
+    if (!items || !items.length) return;
+    var section = document.getElementById('oi-inbox-section');
+    var listEl  = document.getElementById('oi-inbox-list');
+    if (!section || !listEl) return;
+
+    listEl.innerHTML = items.map(function(item) {
+      return '<div class="inbox-item ' + item.priority + '">'
+        + '<div class="inbox-item-head">'
+        +   '<span class="ip-priority ' + item.priority + '">' + item.priority + '</span>'
+        +   '<span class="inbox-item-headline">' + item.headline + '</span>'
+        + '</div>'
+        + '<div class="inbox-item-body">'
+        +   '<div class="inbox-item-text"><div class="inbox-item-summary">' + item.summary + '</div></div>'
+        +   '<div class="inbox-item-controls">'
+        +     '<a class="inbox-btn primary" href="/intelligence/inbox">Review →</a>'
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+    section.style.display = '';
+  }
+
+  /* ── Review action ───────────────────────────────────────────────────────── */
+  window.doReview = function(decision) {
+    var msg = document.getElementById('oi-action-msg');
+    if (msg) msg.textContent = 'Submitting…';
+    fetch('/api/ops/operators/' + OP_ID + '/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decision: decision }),
+    }).then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (msg) msg.textContent = d.ok ? 'Recorded: ' + decision : 'Error: ' + d.error;
+      if (d.ok) {
+        /* Update status chip immediately */
+        var chip = document.getElementById('oi-status-chip');
+        var STATUS_MAP = { CONFIRMED:'CONFIRMED', REJECTED:'REJECTED',
+                           MERGE:'MERGE_REVIEW', SPLIT:'SPLIT_REVIEW' };
+        var newStatus = STATUS_MAP[decision] || decision;
+        if (chip) {
+          chip.className = 'oi-status-chip ' + newStatus;
+          chip.textContent = newStatus;
+        }
+        /* Reload review history after a moment */
+        setTimeout(function() { location.reload(); }, 1200);
+      }
+    }).catch(function() {
+      if (msg) msg.textContent = 'Request failed.';
+    });
+  };
+
+  /* ── Resolver trigger ────────────────────────────────────────────────────── */
+  window.triggerResolve = function() {
+    var msg = document.getElementById('oi-action-msg');
+    if (msg) msg.textContent = 'Evaluating identity evidence (read-only)…';
+    fetch('/api/ops/operators/resolve', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (msg) msg.textContent = d.ok
+          ? 'Done — ' + d.report.identity_observations + ' identity observations; no canonical writes'
+          : 'Error: ' + d.error;
+      }).catch(function() {
+        if (msg) msg.textContent = 'Resolver unavailable.';
+      });
+  };
+
+  /* ── Render from server-provided data ────────────────────────────────────── */
+  buildEvidence(OP.evidence  || []);
+  buildTimeline(OP);
+  buildReviews(OP.reviews    || []);
+  buildEntities(OP.entities  || []);
+  buildOperations(OP.evidence || []);
+
+  /* ── Inbox (async) ───────────────────────────────────────────────────────── */
+  fetch('/api/ops/inbox/operator-resolution?limit=5')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) { if (d) fillInbox(d.items); })
+    .catch(function() {});
+
+  /* ── Behaviour Intelligence (async) ─────────────────────────────────────── */
+  (function() {
+    var CONF_COLOUR = { HIGH: 'green', MEDIUM: 'blue', LOW: 'amber',
+                        INSUFFICIENT: 'dim', UNKNOWN: 'dim' };
+    var STAB_ICON  = { STABLE: '▬', MODERATE: '≈', VARIABLE: '~', UNKNOWN: '' };
+
+    function renderFact(fact) {
+      var insuf = fact.confidence === 'INSUFFICIENT';
+      var stab  = fact.stability && fact.stability !== 'UNKNOWN'
+        ? '<span style="font-size:9px;color:var(--ip-dim);margin-left:6px;" title="Stability">'
+          + (STAB_ICON[fact.stability] || '') + ' ' + fact.stability + '</span>'
+        : '';
+      if (insuf) {
+        return '<div class="oi-beh-fact oi-beh-insufficient">'
+          + '<span class="oi-beh-fact-label">' + fact.label + '</span>'
+          + '<span class="oi-beh-fact-val dim">Insufficient evidence</span>'
+          + (fact.notes ? '<span class="oi-beh-fact-note">' + fact.notes + '</span>' : '')
+          + '</div>';
+      }
+      return '<div class="oi-beh-fact">'
+        + '<span class="oi-beh-fact-label">' + fact.label + '</span>'
+        + '<span class="oi-beh-fact-val">' + (fact.value !== null ? fact.value : '—') + '</span>'
+        + '<span class="ip-badge ' + (CONF_COLOUR[fact.confidence] || 'dim') + '" style="font-size:9px;">'
+          + fact.confidence + ' · ' + fact.observations + ' obs</span>'
+        + stab
+        + '</div>';
+    }
+
+    function renderDimension(dim) {
+      var confCol = CONF_COLOUR[dim.overall_confidence] || 'dim';
+      var factsHtml = dim.facts.map(renderFact).join('');
+      return '<div class="oi-beh-dim">'
+        + '<div class="oi-beh-dim-hdr">'
+        +   '<span class="oi-beh-dim-label">' + dim.label + '</span>'
+        +   '<span class="ip-badge ' + confCol + '" style="font-size:9px;">' + dim.overall_confidence + '</span>'
+        + '</div>'
+        + (dim.summary ? '<div class="oi-beh-dim-summary">' + dim.summary + '</div>' : '')
+        + '<div class="oi-beh-facts">' + factsHtml + '</div>'
+        + '</div>';
+    }
+
+    function renderStability(stab) {
+      if (!stab || !Object.keys(stab).length) return '';
+      var STAB_COL = { STABLE: 'green', MODERATE: 'amber', VARIABLE: 'red', UNKNOWN: 'dim' };
+      var rows = Object.entries(stab).map(function(kv) {
+        return '<div class="oi-beh-stab-row">'
+          + '<span class="oi-beh-stab-label">' + kv[0] + '</span>'
+          + '<span class="ip-badge ' + (STAB_COL[kv[1]] || 'dim') + '" style="font-size:9px;">'
+            + kv[1] + '</span>'
+          + '</div>';
+      }).join('');
+      return '<div class="oi-beh-stab">'
+        + '<div class="oi-beh-stab-title">Behaviour Stability</div>'
+        + rows + '</div>';
+    }
+
+    function renderGaps(gaps) {
+      if (!gaps || !gaps.length) return '';
+      return '<div class="oi-beh-gaps">'
+        + gaps.map(function(g) {
+            return '<div class="oi-beh-gap">⚠ ' + g + '</div>';
+          }).join('')
+        + '</div>';
+    }
+
+    fetch('/api/operators/' + OP.operator_id + '/observations')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        var el = document.getElementById('oi-observation-lifecycle');
+        if (!el || !d) return;
+        var run = d.materialization || {};
+        var count = run.observation_count || 0;
+        var countEl = document.getElementById('oi-observation-count');
+        if (countEl) countEl.textContent = count;
+        var ready = run.status === 'READY';
+        el.textContent = ready
+          ? count + ' historical observations support the current intelligence.'
+          : 'Current identity is established; historical coverage is still limited.';
+        var headline = document.getElementById('oi-current-headline');
+        if (headline) headline.textContent = ready
+          ? 'Identity confirmed with ' + count + ' observations available for review.'
+          : 'Identity confirmed; supporting observations remain limited.';
+      }).catch(function() {});
+
+    fetch('/api/operators/' + OP.operator_id + '/behaviour')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(profile) {
+        var el = document.getElementById('oi-behaviour-body');
+        if (!el) return;
+        if (!profile) { el.innerHTML = '<div class="ip-unavailable">Behaviour data unavailable.</div>'; return; }
+
+        var confEl = document.getElementById('oi-beh-conf');
+        if (confEl) {
+          var cc = CONF_COLOUR[profile.overall_confidence] || 'dim';
+          confEl.innerHTML = '<span class="ip-badge ' + cc + '" style="font-size:9px;">'
+            + profile.overall_confidence + '</span>'
+            + '<span style="margin-left:6px;">' + profile.total_observations + ' obs</span>';
+        }
+        var behObs = document.getElementById('oi-behaviour-observations');
+        if (behObs) behObs.textContent = profile.total_observations + ' obs';
+        var behBar = document.getElementById('oi-beh-confidence-bar');
+        if (behBar) behBar.style.setProperty('--vi-confidence', confidenceWidth(profile.overall_confidence) + '%');
+
+        var html = '';
+        var headline = document.getElementById('oi-behaviour-headline');
+        var summaries = (profile.dimensions || []).map(function(dim) { return dim.summary; }).filter(Boolean);
+        if (headline) headline.textContent = summaries.length
+          ? summaries.slice(0, 2).join(' ')
+          : 'No reliable historical behaviour has been established yet.';
+        if (profile.evidence_gap_notes && profile.evidence_gap_notes.length) {
+          html += renderGaps(profile.evidence_gap_notes);
+        }
+        html += profile.dimensions.map(renderDimension).join('');
+        html += renderStability(profile.stability_summary);
+        el.innerHTML = html || '<div class="ip-quiet" style="padding:16px 0;"><span class="ip-quiet-icon">○</span><span class="ip-quiet-title">No behaviour data yet</span>Run the resolver and observe campaigns to build a profile.</div>';
+      })
+      .catch(function() {
+        var el = document.getElementById('oi-behaviour-body');
+        if (el) el.innerHTML = '<div class="ip-unavailable">Behaviour engine unavailable.</div>';
+      });
+  })();
+
+  /* ── Behaviour Change Detection (async) ─────────────────────────────────── */
+  (function() {
+    var DRIFT_COLOUR = {
+      STABLE:               'green',
+      CHANGED:              'red',
+      MIXED:                'amber',
+      INSUFFICIENT_EVIDENCE:'dim',
+    };
+    var DEV_COLOUR = {
+      NONE:      'green',
+      LOW:       'blue',
+      MODERATE:  'amber',
+      HIGH:      'red',
+      VERY_HIGH: 'red',
+      UNKNOWN:   'dim',
+    };
+
+    function renderComparison(cmp) {
+      var insuf = cmp.confidence === 'INSUFFICIENT';
+      if (insuf) {
+        return '<div class="oi-cmp-row oi-cmp-insuf">'
+          + '<span class="oi-cmp-label">' + cmp.label + '</span>'
+          + '<span class="oi-cmp-insuf-msg">Insufficient observations for comparison</span>'
+          + '</div>';
+      }
+      var devCol = DEV_COLOUR[cmp.deviation] || 'dim';
+      return '<div class="oi-cmp-row">'
+        + '<span class="oi-cmp-label">' + cmp.label + '</span>'
+        + '<span class="oi-cmp-hist" title="Historical baseline">' + (cmp.historical_value !== null ? cmp.historical_value : '—') + '</span>'
+        + '<span class="oi-cmp-arrow">→</span>'
+        + '<span class="oi-cmp-curr" title="Current window">' + (cmp.current_value !== null ? cmp.current_value : '—') + '</span>'
+        + '<span class="ip-badge ' + devCol + '" style="font-size:9px;min-width:60px;text-align:center;">' + cmp.deviation + '</span>'
+        + '<span class="ip-badge dim" style="font-size:8px;">' + cmp.confidence + ' · ' + cmp.historical_observations + '/' + cmp.current_observations + ' obs</span>'
+        + (cmp.reason ? '<div class="oi-cmp-reason">' + cmp.reason + '</div>' : '')
+        + '</div>';
+    }
+
+    function renderDimensionChange(dc) {
+      var driftCol = DRIFT_COLOUR[dc.drift] || 'dim';
+      var insuf = dc.drift === 'INSUFFICIENT_EVIDENCE';
+      var factsHtml = '';
+      if (!insuf) {
+        if (dc.changed_facts && dc.changed_facts.length) {
+          factsHtml += '<div class="oi-cmp-group-hdr">Changed</div>';
+          factsHtml += dc.changed_facts.map(renderComparison).join('');
+        }
+        if (dc.unchanged_facts && dc.unchanged_facts.length) {
+          factsHtml += '<div class="oi-cmp-group-hdr unchanged">Unchanged</div>';
+          factsHtml += dc.unchanged_facts.map(renderComparison).join('');
+        }
+      }
+      return '<div class="oi-cmp-dim">'
+        + '<div class="oi-cmp-dim-hdr">'
+        +   '<span class="oi-cmp-dim-label">' + dc.label + '</span>'
+        +   '<span class="ip-badge ' + driftCol + '" style="font-size:9px;">' + dc.drift.replace('_', ' ') + '</span>'
+        +   (dc.overall_confidence !== 'INSUFFICIENT' ? '<span class="ip-badge dim" style="font-size:8px;">' + dc.overall_confidence + '</span>' : '')
+        + '</div>'
+        + (dc.summary ? '<div class="oi-cmp-dim-summary">' + dc.summary + '</div>' : '')
+        + (factsHtml ? '<div class="oi-cmp-facts">' + factsHtml + '</div>' : '')
+        + '</div>';
+    }
+
+    function renderDriftSummary(report) {
+      if (!report.drift_summary) return '';
+      var rows = Object.entries(report.drift_summary).map(function(kv) {
+        var col = DRIFT_COLOUR[kv[1]] || 'dim';
+        return '<div class="oi-cmp-drift-row">'
+          + '<span class="oi-cmp-drift-label">' + kv[0] + '</span>'
+          + '<span class="ip-badge ' + col + '" style="font-size:9px;">'
+            + kv[1].replace('_', ' ') + '</span>'
+          + '</div>';
+      }).join('');
+      return '<div class="oi-cmp-drift-strip">' + rows + '</div>';
+    }
+
+    function renderChangeMeta(report) {
+      return '<div class="oi-cmp-meta">'
+        + '<span>Baseline: ' + report.baseline_window_days + ' days · '
+        +   report.baseline_observations + ' obs</span>'
+        + '<span style="margin:0 8px;color:var(--ip-dim);">|</span>'
+        + '<span>Current window: last ' + report.current_window_days + ' days · '
+        +   report.current_observations + ' obs</span>'
+        + '</div>';
+    }
+
+    fetch('/api/operators/' + OP.operator_id + '/behaviour/change')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(report) {
+        var el = document.getElementById('oi-change-body');
+        if (!el) return;
+        if (!report) {
+          el.innerHTML = '<div class="ip-unavailable">Change detection unavailable.</div>';
+          return;
+        }
+
+        var driftEl = document.getElementById('oi-chg-drift');
+        if (driftEl) {
+          var dCol = DRIFT_COLOUR[report.overall_drift] || 'dim';
+          driftEl.innerHTML = '<span class="ip-badge ' + dCol + '" style="font-size:9px;">'
+            + report.overall_drift.replace('_', ' ') + '</span>';
+        }
+
+        var html = renderChangeMeta(report);
+
+        if (report.evidence_gap_notes && report.evidence_gap_notes.length) {
+          html += '<div class="oi-beh-gaps" style="margin:8px 0;">'
+            + report.evidence_gap_notes.map(function(g) {
+                return '<div class="oi-beh-gap">⚠ ' + g + '</div>';
+              }).join('')
+            + '</div>';
+        }
+
+        html += renderDriftSummary(report);
+        html += (report.dimension_changes || []).map(renderDimensionChange).join('');
+
+        el.innerHTML = html || '<div class="ip-quiet" style="padding:16px 0;"><span class="ip-quiet-icon">○</span><span class="ip-quiet-title">No comparison data</span>More observations needed across two time windows.</div>';
+      })
+      .catch(function() {
+        var el = document.getElementById('oi-change-body');
+        if (el) el.innerHTML = '<div class="ip-unavailable">Change detection unavailable.</div>';
+      });
+  })();
+
+  /* ── Intelligence Assessment ─────────────────────────────────────────────── */
+  (function() {
+    var CONF_COL = { HIGH: 'var(--ip-green)', MEDIUM: 'var(--ip-amber)', LOW: 'var(--ip-dim)', INSUFFICIENT: 'var(--ip-dim)' };
+    var TYPE_ICON = {
+      CAMPAIGN_EXPANSION:   '↑',
+      CAMPAIGN_CONTRACTION: '↓',
+      FUNDING_SHIFT:        '⟳',
+      INFRASTRUCTURE_SHIFT: '⚙',
+      BEHAVIOUR_CHANGE:     '~',
+      SIMILARITY_OBSERVED:  '≈',
+      RETURN_TO_BASELINE:   '↺',
+      BASELINE_BEHAVIOUR:   '✓',
+      INSUFFICIENT_EVIDENCE:'○',
+    };
+
+    function renderEvidence(items, label, iconCls) {
+      if (!items || items.length === 0) return '';
+      var html = '<div class="oi-ass-ev-group">'
+        + '<div class="oi-ass-ev-label">' + label + '</div>';
+      items.forEach(function(ev) {
+        html += '<div class="oi-ass-ev-row ' + iconCls + '">'
+          + '<span class="oi-ass-ev-icon">' + (iconCls === 'support' ? '✓' : '•') + '</span>'
+          + '<span class="oi-ass-ev-text">'
+          +   '<strong>' + ev.label + '</strong>'
+          +   (ev.detail ? ' — ' + ev.detail : '')
+          + '</span></div>';
+      });
+      return html + '</div>';
+    }
+
+    function renderAssessment(a) {
+      var icon = TYPE_ICON[a.assessment_type] || '•';
+      var col  = CONF_COL[a.confidence]       || 'var(--ip-dim)';
+      var supHtml  = renderEvidence(a.supporting_evidence,    'Supporting Evidence', 'support');
+      var conHtml  = renderEvidence(a.contradictory_evidence, 'Contradictory Evidence', 'contra');
+      var hasBody  = supHtml || conHtml || (a.gap_notes && a.gap_notes.length);
+      var bodyId   = 'oi-ass-body-' + a.assessment_type;
+      return '<div class="oi-ass-card">'
+        + '<div class="oi-ass-hdr">'
+        +   '<span class="oi-ass-icon">' + icon + '</span>'
+        +   '<div class="oi-ass-main">'
+        +     '<div class="oi-ass-headline">' + a.headline + '</div>'
+        +     '<div class="oi-ass-summary">' + a.summary + '</div>'
+        +   '</div>'
+        +   '<div class="oi-ass-meta">'
+        +     '<span class="ip-badge" style="background:' + col + ';color:#fff;font-size:9px;">' + a.confidence + '</span>'
+        +     '<span style="font-size:9px;color:var(--ip-dim);">' + a.evidence_count + ' evidence</span>'
+        +   '</div>'
+        + '</div>'
+        + (hasBody
+            ? '<button class="pd-toggle" onclick="window.pdToggle(this,\'' + bodyId + '\')" style="margin:4px 0 0 28px;font-size:10px;color:var(--ip-cyan);">Show evidence ▾</button>'
+              + '<div id="' + bodyId + '" class="pd-body" style="display:none;padding:0 0 4px 28px;">'
+              + supHtml + conHtml
+              + (a.gap_notes && a.gap_notes.length
+                  ? '<div class="oi-ass-gaps"><strong>Evidence gaps:</strong> ' + a.gap_notes.join('; ') + '</div>'
+                  : '')
+              + '</div>'
+            : '')
+        + '</div>';
+    }
+
+    fetch('/api/operators/' + OP.operator_id + '/assessment')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        var el    = document.getElementById('oi-assess-body');
+        var badge = document.getElementById('oi-assess-badge');
+        if (!el) return;
+        if (!data || data.unavailable || !data.available) {
+          el.innerHTML = '<div class="ip-unavailable">Assessment unavailable.</div>';
+          var unavailableHeadline = document.getElementById('oi-assess-headline');
+          if (unavailableHeadline) unavailableHeadline.textContent = 'No current assessment is available.';
+          return;
+        }
+        if (!data.assessments || data.assessments.length === 0) {
+          el.innerHTML = '<div class="ip-quiet" style="padding:4px 0;">'
+            + '<span class="ip-quiet-icon">○</span>'
+            + '<span class="ip-quiet-title">No assessments available</span>'
+            + '</div>';
+          return;
+        }
+        if (badge) {
+          var best = data.assessments[0];
+          badge.textContent = best.assessment_type.replace(/_/g,' ') + ' · ' + best.confidence;
+        }
+        var bestAssessment = data.assessments[0];
+        var ae = document.getElementById('oi-assessment-evidence');
+        var ac = document.getElementById('oi-assessment-contradictions');
+        if (ae) ae.textContent = bestAssessment.evidence_count || 0;
+        if (ac) ac.textContent = (bestAssessment.contradictory_evidence || []).length;
+        var assessmentHeadline = document.getElementById('oi-assess-headline');
+        if (assessmentHeadline) assessmentHeadline.textContent =
+          bestAssessment.headline + (bestAssessment.summary ? ' — ' + bestAssessment.summary : '');
+        el.innerHTML = data.assessments.map(renderAssessment).join('');
+      })
+      .catch(function() {
+        var el = document.getElementById('oi-assess-body');
+        if (el) el.innerHTML = '<div class="ip-unavailable">Assessment data unavailable.</div>';
+      });
+  })();
+
+  /* ── Lifecycle Forecast ──────────────────────────────────────────────────── */
+  (function() {
+    var CONF_COL  = { HIGH: 'var(--ip-green)', MEDIUM: 'var(--ip-amber)', LOW: 'var(--ip-dim)', INSUFFICIENT: 'var(--ip-dim)' };
+    var STATE_COL = { ARMED: 'amber', ACTIVE: 'green', OBSERVING: 'blue', IDLE: 'dim', COMPLETED: 'dim', ARCHIVED: 'dark' };
+
+    function renderEvidence(items, label, cls) {
+      if (!items || !items.length) return '';
+      return '<div class="oi-fc-ev-group"><div class="oi-fc-ev-label">' + label + '</div>'
+        + items.map(function(ev) {
+          return '<div class="oi-fc-ev-row ' + cls + '">'
+            + '<span class="oi-fc-ev-icon">' + (cls === 'support' ? '✓' : '•') + '</span>'
+            + '<span><strong>' + ev.label + '</strong>'
+            + (ev.detail ? ' — ' + ev.detail : '') + '</span></div>';
+        }).join('') + '</div>';
+    }
+
+    function renderForecast(f) {
+      var confCol  = CONF_COL[f.confidence]            || 'var(--ip-dim)';
+      var curCol   = STATE_COL[f.current_state]        || 'dim';
+      var nextCol  = STATE_COL[f.predicted_next_state] || 'dim';
+      var bodyId   = 'oi-fc-detail';
+      var supHtml  = renderEvidence(f.supporting_evidence,   'Supporting Evidence',   'support');
+      var conHtml  = renderEvidence(f.contradictory_evidence,'Contradictory Evidence','contra');
+      var hasBody  = supHtml || conHtml || f.historical_basis || (f.gap_notes && f.gap_notes.length);
+      return '<div class="oi-fc-card">'
+        + '<div class="oi-fc-arrow">'
+        +   '<span class="ip-badge ' + curCol  + '" style="font-size:10px;">' + f.current_state + '</span>'
+        +   '<span class="oi-fc-rarr">→</span>'
+        +   '<span class="ip-badge ' + nextCol + '" style="font-size:10px;">'
+        +     (f.predicted_next_state || '?') + '</span>'
+        + '</div>'
+        + '<div class="oi-fc-reason">' + f.forecast_reason + '</div>'
+        + '<div class="oi-fc-meta">'
+        +   '<span class="ip-badge" style="background:' + confCol + ';color:#fff;font-size:9px;">' + f.confidence + '</span>'
+        +   '<span class="oi-fc-window">⏱ ' + f.expected_window + '</span>'
+        +   (f.historical_observations
+            ? '<span class="oi-fc-hist">' + f.historical_observations + ' historical obs</span>'
+            : '')
+        + '</div>'
+        + (hasBody
+            ? '<button class="pd-toggle" onclick="window.pdToggle(this,\'' + bodyId + '\')" style="margin:6px 0 0 0;font-size:10px;color:var(--ip-cyan);">Show detail ▾</button>'
+              + '<div id="' + bodyId + '" class="pd-body" style="display:none;">'
+              + (f.historical_basis ? '<div class="oi-fc-hist-basis">' + f.historical_basis + '</div>' : '')
+              + supHtml + conHtml
+              + (f.gap_notes && f.gap_notes.length ? '<div class="oi-ass-gaps"><strong>Gaps:</strong> ' + f.gap_notes.join('; ') + '</div>' : '')
+              + '</div>'
+            : '')
+        + '</div>';
+    }
+
+    var lifecycleState = (window.OP_LIFECYCLE_STATE || 'OBSERVING');
+    fetch('/api/operators/' + OP.operator_id + '/forecast?lifecycle_state=' + lifecycleState)
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        var el    = document.getElementById('oi-forecast-body');
+        var badge = document.getElementById('oi-fc-badge');
+        if (!el) return;
+        if (!data || data.unavailable || !data.ok || !data.forecast) {
+          el.innerHTML = '<div class="ip-unavailable">Forecast unavailable.</div>';
+          var unavailableHeadline = document.getElementById('oi-forecast-headline');
+          if (unavailableHeadline) unavailableHeadline.textContent = 'No forecast is currently available.';
+          return;
+        }
+        var f = data.forecast;
+        var fw = document.getElementById('oi-forecast-window');
+        var fc = document.getElementById('oi-forecast-confidence');
+        if (fw) fw.textContent = f.expected_window || 'Unknown';
+        if (fc) fc.textContent = f.confidence || 'UNKNOWN';
+        if (f.forecast_type === 'INSUFFICIENT_EVIDENCE') {
+          var insufficientHeadline = document.getElementById('oi-forecast-headline');
+          if (insufficientHeadline) insufficientHeadline.textContent = 'Insufficient evidence to forecast the next state.';
+          el.innerHTML = '<div class="ip-quiet" style="padding:4px 0;">'
+            + '<span class="ip-quiet-icon">○</span>'
+            + '<span class="ip-quiet-title">Insufficient evidence to produce a forecast</span>'
+            + '<span style="font-size:10px;color:var(--ip-dim);">' + (f.forecast_reason || '') + '</span>'
+            + '</div>';
+          return;
+        }
+        if (badge) badge.textContent = f.current_state + ' → ' + (f.predicted_next_state || '?') + ' · ' + f.confidence;
+        var forecastHeadline = document.getElementById('oi-forecast-headline');
+        if (forecastHeadline) forecastHeadline.textContent = f.current_state + ' → '
+          + (f.predicted_next_state || '?') + (f.forecast_reason ? ' — ' + f.forecast_reason : '');
+        el.innerHTML = renderForecast(f);
+      })
+      .catch(function() {
+        var el = document.getElementById('oi-forecast-body');
+        if (el) el.innerHTML = '<div class="ip-unavailable">Forecast data unavailable.</div>';
+      });
+  })();
+
+  /* ── Similar Operators (progressively disclosed, snapshot-only) ─────────── */
+  (function() {
+    var BAND_COLOUR = {
+      VERY_HIGH: 'green', HIGH: 'green', MODERATE: 'amber', LOW: 'dim',
+      INSUFFICIENT_EVIDENCE: 'dim',
+    };
+
+    function renderSimilarRow(r) {
+      var bandCol = BAND_COLOUR[r.similarity_band] || 'dim';
+      var topReason  = r.reasons  && r.reasons.length  ? r.reasons[0]  : '';
+      var topDiff    = r.differences && r.differences.length ? r.differences[0] : '';
+      return '<a class="oi-sim-row" href="/intelligence/operator/' + r.operator_b + '">'
+        + '<div style="flex:1;min-width:0;">'
+        +   '<div class="oi-sim-id">' + r.operator_b.slice(0, 16) + '…</div>'
+        +   (topReason ? '<div class="oi-sim-reason">↑ ' + topReason + '</div>' : '')
+        +   (topDiff   ? '<div class="oi-sim-diff">↕ ' + topDiff   + '</div>' : '')
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">'
+        +   '<span class="ip-badge ' + bandCol + '" style="font-size:9px;">' + r.similarity_band.replace('_',' ') + '</span>'
+        +   '<span class="ip-badge dim" style="font-size:8px;">' + r.confidence + '</span>'
+        + '</div>'
+        + '</a>';
+    }
+
+    fetch('/api/operators/' + OP.operator_id + '/similarity')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        var el = document.getElementById('oi-sim-content');
+        if (!el) return;
+        if (!data || data.unavailable) {
+          el.innerHTML = '<div class="ip-quiet" style="padding:8px 0;">'
+            + '<span class="ip-quiet-icon">○</span>'
+            + '<span class="ip-quiet-title">Similarity not yet computed</span>'
+            + '<span style="font-size:10px;color:var(--ip-dim);">Use the refresh button in the operators index to run the similarity engine.</span>'
+            + '</div>';
+          return;
+        }
+        if (!data.results || data.results.length === 0) {
+          el.innerHTML = '<div class="ip-quiet" style="padding:8px 0;">'
+            + '<span class="ip-quiet-icon">○</span>'
+            + '<span class="ip-quiet-title">No similar operators found</span>'
+            + '<span style="font-size:10px;color:var(--ip-dim);">Insufficient evidence or no operators scored above the similarity threshold.</span>'
+            + '</div>';
+          return;
+        }
+        el.innerHTML = data.results.slice(0, 5).map(renderSimilarRow).join('')
+          + (data.results.length > 5
+              ? '<div style="font-size:10px;color:var(--ip-dim);padding:6px 0;">'
+                + '+ ' + (data.results.length - 5) + ' more — refresh snapshot to update</div>'
+              : '');
+      })
+      .catch(function() {
+        var el = document.getElementById('oi-sim-content');
+        if (el) el.innerHTML = '<div class="ip-unavailable">Similarity data unavailable.</div>';
+      });
+  })();
+
+})();
+</script>
+{% endblock %}

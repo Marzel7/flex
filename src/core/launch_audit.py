@@ -260,6 +260,33 @@ def ensure_audit_schema(conn) -> None:
 
 _audit_schema_ensured = False
 
+# ── Retry budget for audit writes that hit transient WAL contention ──────────
+_AUDIT_WRITE_RETRIES = 3
+_AUDIT_WRITE_BACKOFF = [0.25, 1.0, 3.0]   # seconds between attempts
+
+
+def insert_pending_audit_row(conn, *, mint: str, creator: str, treasury: str = None,
+                              subprov: str = None, create_signature: str = None,
+                              create_slot: int = None, create_time: int = None,
+                              source: str = "LIVE_WS_CASCADE") -> bool:
+    """Write the minimal PENDING sentinel row inside the CALLER'S connection/transaction.
+
+    Called from _handle_candidate_tx on the detection conn immediately after record_launch
+    commits — so it rides the same write-serializer slot.  The audit worker only ever
+    UPDATES this pre-existing row; it never races to INSERT.
+
+    Returns True if a new row was inserted, False if the row already existed (idempotent).
+    Raises on genuine errors (caller decides whether to swallow).
+    """
+    result = conn.execute(
+        "INSERT OR IGNORE INTO wt_launch_audit "
+        "(mint, creator, treasury, subprov, create_signature, create_slot, create_time, "
+        " source, audit_state, created_at, updated_at) "
+        "VALUES (?,?,?,?,?,?,?,?,'PENDING',strftime('%s','now'),strftime('%s','now'))",
+        (mint, creator, treasury, subprov, create_signature, create_slot, create_time, source))
+    return result.rowcount > 0
+
+
 def _ops(read_only: bool = False):
     global _audit_schema_ensured
     if read_only:
@@ -432,19 +459,60 @@ def capture_phase1(*, mint: str, creator: str, treasury: str = None, subprov: st
 
 
 def _upsert(fields: Dict) -> None:
+    """Write audit fields with retry on transient WAL contention.
+
+    Uses INSERT OR REPLACE (upsert) so it works whether or not insert_pending_audit_row
+    already wrote the PENDING sentinel.  Retries up to _AUDIT_WRITE_RETRIES times with
+    exponential backoff before re-raising — so lock errors are never silently swallowed.
+    """
     cols = [k for k in fields.keys()]
-    conn = _ops()
-    try:
-        placeholders = ",".join("?" for _ in cols)
-        updates = ",".join(f"{c}=excluded.{c}" for c in cols if c != "mint")
-        conn.execute(
-            f"INSERT INTO wt_launch_audit ({','.join(cols)}, updated_at) "
-            f"VALUES ({placeholders}, strftime('%s','now')) "
-            f"ON CONFLICT(mint) DO UPDATE SET {updates}, updated_at=strftime('%s','now')",
-            [fields[c] for c in cols])
-        conn.commit()
-    finally:
-        conn.close()
+    placeholders = ",".join("?" for _ in cols)
+    updates = ",".join(f"{c}=excluded.{c}" for c in cols if c != "mint")
+    sql = (f"INSERT INTO wt_launch_audit ({','.join(cols)}, updated_at) "
+           f"VALUES ({placeholders}, strftime('%s','now')) "
+           f"ON CONFLICT(mint) DO UPDATE SET {updates}, updated_at=strftime('%s','now')")
+    vals = [fields[c] for c in cols]
+    last_exc = None
+    for attempt, backoff in enumerate([0.0] + _AUDIT_WRITE_BACKOFF):
+        if backoff:
+            time.sleep(backoff)
+        conn = _ops()
+        try:
+            conn.execute(sql, vals)
+            conn.commit()
+            return
+        except sqlite3.OperationalError as e:
+            last_exc = e
+            print(f"[LAUNCH_AUDIT] _upsert attempt {attempt+1} locked mint={fields.get('mint','?')[:10]}: {e}",
+                  flush=True)
+        finally:
+            conn.close()
+    raise last_exc
+
+
+def _mark_failed(mint: str, error_type: str, error_msg: str, attempt_count: int = 1) -> None:
+    """Record a FAILED audit state so the row is never silently empty.  Best-effort —
+    uses its own retry budget; if even this fails, the PENDING row still exists (better
+    than nothing) and the reconciler will retry it."""
+    for attempt, backoff in enumerate([0.0] + _AUDIT_WRITE_BACKOFF):
+        if backoff:
+            time.sleep(backoff)
+        conn = _ops()
+        try:
+            conn.execute(
+                "INSERT INTO wt_launch_audit (mint, audit_state, source, created_at, updated_at) "
+                "VALUES (?, 'FAILED', 'LIVE_WS_CASCADE', strftime('%s','now'), strftime('%s','now')) "
+                "ON CONFLICT(mint) DO UPDATE SET "
+                "  audit_state='FAILED', "
+                "  mc_unavailable_reason=?, "
+                "  updated_at=strftime('%s','now')",
+                (mint, f"{error_type}:{error_msg[:200]}"))
+            conn.commit()
+            return
+        except Exception:
+            pass
+        finally:
+            conn.close()
 
 
 # ─────────────────── Phase 2: peak / outcome / actionability ────────────────
@@ -642,33 +710,70 @@ def outcome_report() -> Dict:
     return out
 
 
-# ─────────────────────────────── backfill ──────────────────────────────────
-def backfill(limit: int = None) -> Dict:
-    """Audit every existing wt_watchtower_launches row (idempotent). Latency NULL for historical
-    rows (timestamps unknown) but entry/first-external/outcome MC are computed — the point."""
+# ──────────────────────────── reconciler / backfill ────────────────────────
+def reconcile_missing(limit: int = None) -> Dict:
+    """Reconciliation pass: find wt_watchtower_launches rows with no matching wt_launch_audit
+    row (or a FAILED/stale-PENDING row) and enqueue them by writing a PENDING sentinel via
+    _upsert, then running capture_phase1 + run_phase2.
+
+    This is the ONLY external writer path.  It does not compete with the detection event
+    because it uses _upsert (which retries on lock) rather than a raw competing INSERT.
+    The backfill CLI delegates here — it is not a separate SQLite writer.
+    """
     conn = _ops()
     try:
-        # create_slot is stored on the launch row (the cascade records it) — prefer it; only
-        # re-resolve via RPC when it's missing (older rows).
-        q = ("SELECT mint, creator_wallet, treasury_wallet, subprov_wallet, create_signature, "
-             "create_time, create_slot FROM wt_watchtower_launches ORDER BY id DESC")
+        # LEFT JOIN to find launches with no audit row OR a failed/stale-pending row.
+        stale_pending_cutoff = int(time.time()) - 300   # PENDING >5min old = stale
+        q = """
+            SELECT wl.mint, wl.creator_wallet, wl.treasury_wallet, wl.subprov_wallet,
+                   wl.create_signature, wl.create_time, wl.create_slot,
+                   la.audit_state
+            FROM wt_watchtower_launches wl
+            LEFT JOIN wt_launch_audit la ON la.mint = wl.mint
+            WHERE la.mint IS NULL
+               OR la.audit_state = 'FAILED'
+               OR (la.audit_state = 'PENDING' AND la.updated_at < ?)
+            ORDER BY wl.id DESC
+        """
         if limit:
             q += f" LIMIT {int(limit)}"
-        launches = conn.execute(q).fetchall()
+        rows = conn.execute(q, (stale_pending_cutoff,)).fetchall()
     finally:
         conn.close()
-    done = 0
-    for mint, creator, treasury, subprov, csig, ctime, cslot in launches:
+
+    done = failed = 0
+    for mint, creator, treasury, subprov, csig, ctime, cslot, prior_state in rows:
         if not mint:
             continue
+        print(f"[LAUNCH_AUDIT] reconcile mint={mint[:12]} prior={prior_state}", flush=True)
         if not cslot and csig:
-            cslot = _resolve_create_slot(csig)        # RPC fallback only when slot absent
-        capture_phase1(mint=mint, creator=creator, treasury=treasury, subprov=subprov,
-                       create_signature=csig, create_slot=cslot, create_time=ctime,
-                       alert_emitted_at=None, ws_seen_at=None, source="FIXTURE_BACKFILL")
-        run_phase2(mint)
-        done += 1
-    return {"audited": done}
+            cslot = _resolve_create_slot(csig)
+        # Write/reset PENDING sentinel via _upsert (retries on lock — never a raw competing INSERT)
+        try:
+            _upsert(dict(mint=mint, creator=creator, treasury=treasury, subprov=subprov,
+                         create_signature=csig, create_slot=cslot, create_time=ctime,
+                         source="FIXTURE_BACKFILL", audit_state="PENDING"))
+        except Exception as e:
+            print(f"[LAUNCH_AUDIT] reconcile PENDING upsert failed mint={mint[:12]}: {e}", flush=True)
+            failed += 1
+            continue
+        try:
+            capture_phase1(mint=mint, creator=creator, treasury=treasury, subprov=subprov,
+                           create_signature=csig, create_slot=cslot, create_time=ctime,
+                           alert_emitted_at=None, ws_seen_at=None, source="FIXTURE_BACKFILL")
+            run_phase2(mint)
+            done += 1
+        except Exception as e:
+            print(f"[LAUNCH_AUDIT] reconcile audit failed mint={mint[:12]}: {e}", flush=True)
+            _mark_failed(mint, "RECONCILE_ERROR", str(e))
+            failed += 1
+    return {"reconciled": done, "failed": failed, "total": len(rows)}
+
+
+def backfill(limit: int = None) -> Dict:
+    """Alias for reconcile_missing — processes only rows with missing or failed audit entries.
+    Historical rows get latency=NULL but entry/outcome MC are computed."""
+    return reconcile_missing(limit=limit)
 
 
 def _resolve_create_slot(sig: str) -> Optional[int]:

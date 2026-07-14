@@ -42,18 +42,43 @@ def _add_cols_if_missing(conn, table: str, cols: list) -> None:
                 pass
 
 
-def _ensure_schema_once() -> None:
+def _ensure_schema_once(conn=None) -> None:
     global _schema_ensured
     if _schema_ensured:
         return
     try:
-        c = db_connect(OPS_DB_PATH, timeout=30)
-        ensure_schema(c)
-        c.commit()
-        c.close()
+        if conn is not None:
+            # Runtime callers already own the operations transaction. Schema
+            # verification must use that connection, never a nested write lane.
+            ensure_schema(conn)
+        else:
+            c = db_connect(OPS_DB_PATH, timeout=30)
+            try:
+                ensure_schema(c)
+                c.commit()
+            finally:
+                c.close()
         _schema_ensured = True
     except Exception:
         pass
+
+
+def initialize_schema(conn) -> None:
+    """Explicit process-start bootstrap using the caller-owned connection."""
+    global _schema_ensured
+    ensure_schema(conn)
+    _schema_ensured = True
+
+
+def _align_confirmed_treasury(conn, treasury: str) -> None:
+    """Complete canonical ownership in the same confirmation transaction."""
+    has_operator_schema = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='operators'"
+    ).fetchone()
+    if not has_operator_schema:  # isolated legacy/test database
+        return
+    from src.ops.watchtower_alignment import reconcile_confirmed_treasury
+    reconcile_confirmed_treasury(conn, treasury)
 
 
 
@@ -119,7 +144,7 @@ def add_review_candidate(conn, treasury, *, transfer_pct=None, out_sol=None,
     apart on flow alone: a subprov's wrap-close fan-out is also 100% pure transfers to many
     recipients, so subprovs like Efm1jBsiGv8k (15 wrap-closes) falsely fingerprinted as treasuries.
     The discriminator is what it PRODUCES: wrap-close children = subprov."""
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
         return False                                  # already a confirmed treasury
     try:
@@ -186,7 +211,7 @@ def add_walkback_hop2_lead(conn, upstream_wallet: str, *,
 
     Returns a string disposition: 'inserted' | 'updated' | 'skipped:<reason>'
     """
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
 
     # ── boundary blocklist (self-defending) ──────────────────────────────────
     if upstream_wallet in _TREASURY_LEAD_BLOCKLIST:
@@ -291,7 +316,7 @@ def add_walkback_hop2_lead(conn, upstream_wallet: str, *,
 def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
     """Human action: promote a reviewed candidate into the authoritative confirmed set.
     Does NOT webhook here — the caller webhooks (needs the live-DB Helius key)."""
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     r = conn.execute(
         "SELECT transfer_pct, out_sol, recipients, micro_pings FROM wt_treasury_review WHERE treasury=?",
         (treasury,)).fetchone()
@@ -307,12 +332,13 @@ def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
     conn.execute(
         "UPDATE wt_treasury_review SET status='CONFIRMED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
         (reviewed_by, now, treasury))
+    _align_confirmed_treasury(conn, treasury)
     conn.commit()
     return {"ok": True, "treasury": treasury, "needs_webhook": True}
 
 
 def reject_candidate(conn, treasury, reviewed_by="human") -> dict:
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     conn.execute(
         "UPDATE wt_treasury_review SET status='REJECTED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
         (reviewed_by, int(time.time()), treasury))
@@ -322,7 +348,7 @@ def reject_candidate(conn, treasury, reviewed_by="human") -> dict:
 
 # ── reads for the dashboard ──────────────────────────────────────────────────
 def confirmed_treasuries(conn) -> list:
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     return [dict(r) for r in conn.execute(
         """SELECT c.treasury, c.transfer_pct, c.out_sol, c.recipients, c.micro_pings,
                   c.confidence, COALESCE(w.webhook_active,0) webhooked,
@@ -333,7 +359,7 @@ def confirmed_treasuries(conn) -> list:
 
 
 def review_queue(conn) -> list:
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     return [dict(r) for r in conn.execute(
         "SELECT * FROM wt_treasury_review WHERE status='PENDING_REVIEW' ORDER BY out_sol DESC").fetchall()]
 
@@ -427,7 +453,7 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
        NEAR_MISS → add to wt_treasury_review for an optional look.
        REJECT    → nothing.
     EVERY decision is written to the audit ledger (reversible). Idempotent."""
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (addr,)).fetchone():
         return {"verdict": "ALREADY_CONFIRMED", "treasury": addr, "needs_webhook": False}
     fp = fingerprint_treasury(addr, raw_txs_fn, micro_ping_count)
@@ -470,10 +496,12 @@ def auto_confirm_from_launch_chain(conn, treasury: str, *, subprov: str, creator
 
     Idempotent. Returns {verdict, treasury, needs_webhook}. The caller webhooks +
     WS-subscribes on needs_webhook=True."""
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     if not treasury or not creator or not mint:
         return {"verdict": "INSUFFICIENT", "treasury": treasury, "needs_webhook": False}
     if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
+        _align_confirmed_treasury(conn, treasury)
+        conn.commit()
         return {"verdict": "ALREADY_CONFIRMED", "treasury": treasury, "needs_webhook": False}
     now = int(time.time())
     conn.execute(
@@ -487,6 +515,7 @@ def auto_confirm_from_launch_chain(conn, treasury: str, *, subprov: str, creator
                    "subprov": subprov, "creator": creator, "mint": mint},
                   evidence_txs=[create_sig] if create_sig else [],
                   promoted_at=now, webhook_status="PENDING")
+    _align_confirmed_treasury(conn, treasury)
     conn.commit()
     return {"verdict": "CONFIRMED", "treasury": treasury, "needs_webhook": True,
             "provenance": "CONFIRMED_LAUNCH_CHAIN",
@@ -505,7 +534,7 @@ def mark_webhooked(conn, treasury: str, ok: bool = True) -> None:
 def revert_auto_promotion(conn, treasury: str, reason: str = "manual_revert") -> dict:
     """Reverse an AUTO promotion (seed treasuries are protected — cannot be reverted here).
     Removes from confirmed set + logs the reversal. Caller un-webhooks separately."""
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     r = conn.execute("SELECT provenance FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone()
     if not r:
         return {"ok": False, "error": "not confirmed"}
@@ -574,7 +603,7 @@ def rescore_decided_candidates(conn, raw_txs_fn, *, max_candidates: int = 40,
     fingerprint; a candidate that now hits 3/3 is bumped to a high-confidence READY review row
     (status reset to PENDING_REVIEW). NEVER auto-promotes — still needs the human ✓. Bounded RPC
     (raw_txs_fn per candidate, capped). Returns a summary."""
-    _ensure_schema_once()
+    _ensure_schema_once(conn)
     try:
         conn.execute("PRAGMA busy_timeout=15000")
     except Exception:

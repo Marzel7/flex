@@ -30,7 +30,8 @@ from flask import Blueprint, render_template, jsonify, request, redirect
 from src.utils.db_locking import db_connect
 
 _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
-OPS_DB_PATH = os.environ.get("OPS_V2_DB_PATH", os.path.join(_REPO_ROOT, "database", "wt_ops_v2.db"))
+OPS_DB_PATH    = os.environ.get("OPS_V2_DB_PATH",  os.path.join(_REPO_ROOT, "database", "wt_ops_v2.db"))
+ALERTS_DB_PATH = os.environ.get("ALERTS_DB_PATH", os.path.join(_REPO_ROOT, "database", "wt_alerts.db"))
 
 # Live views show classified operations (WATCHTOWER + MICRO_DEPLOYER — both real operator
 # activity). EXCLUDE: legacy rejected rows, and UNTEMPLATED ops (no …039280 template =
@@ -2477,18 +2478,16 @@ def api_armed_mode_set():
 
 
 def _ops_dismiss_write(sql, params=()):
-    """Execute a single write against the ops DB. WAL mode is already on; use a plain
-    deferred transaction with a long busy_timeout so SQLite retries automatically."""
+    """Submit one operations mutation to the shared transaction owner."""
     from src.core.ws_cascade_store import OPS_DB_PATH
-    import sqlite3 as _sq
-    conn = _sq.connect(OPS_DB_PATH, timeout=60)
-    conn.execute("PRAGMA busy_timeout=55000")
-    try:
+    from src.core.database_write_service import database_write_service
+    import os as _os
+    database = f"operations:{_os.path.realpath(OPS_DB_PATH)}"
+    database_write_service.register_database(database, OPS_DB_PATH)
+    def transaction(conn):
         cur = conn.execute(sql, params)
-        conn.commit()
         return cur.rowcount
-    finally:
-        conn.close()
+    return database_write_service.submit(database, "operations-dashboard-dismiss", transaction)
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/dismiss-all-sessions", methods=["POST"])
@@ -2522,7 +2521,7 @@ def api_dismiss_session():
     if not subprov:
         return jsonify({"ok": False, "error": "subprov required"}), 400
     # Read the session id first (read-only, never blocked)
-    conn = _sq.connect(OPS_DB_PATH, timeout=10)
+    conn = _sq.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=10)
     try:
         row = conn.execute(
             "SELECT id FROM wt_active_subprov_sessions "
@@ -2933,6 +2932,25 @@ def api_intel_launch_audit():
                     "latency_breakdown": latency_breakdown})
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit-reconcile", methods=["POST"])
+def api_intel_launch_audit_reconcile():
+    """In-process reconcile: finds wt_watchtower_launches rows missing from wt_launch_audit
+    (or in FAILED/stale-PENDING state) and re-runs audit capture for each. Runs in a background
+    thread so the HTTP response returns immediately (reconcile can take 60-90s under write-lane
+    contention — longer than the gunicorn worker timeout if run synchronously)."""
+    import threading
+    def _run():
+        try:
+            from src.core import launch_audit as _la
+            result = _la.reconcile_missing()
+            print(f"[LAUNCH_AUDIT] in-process reconcile complete: {result}", flush=True)
+        except Exception as e:
+            import traceback
+            print(f"[LAUNCH_AUDIT] in-process reconcile error: {e}\n{traceback.format_exc()}", flush=True)
+    threading.Thread(target=_run, daemon=True, name="launch-audit-reconcile").start()
+    return jsonify({"status": "reconcile started in background — check server logs for result"})
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/capital-reloads")
 def api_intel_capital_reloads():
     """Mission 2: Capital Deployment panel — UNRESOLVED capital movements only.
@@ -3160,6 +3178,8 @@ def api_intel_subprov_funder():
             "VALUES (?, 'subprov_funder_trace', 'MANUAL', ?, 'CONFIRMED_SUBPROV_TRACE') "
             "ON CONFLICT(treasury) DO NOTHING",
             (treasury, int(time.time())))
+        from src.ops.watchtower_alignment import reconcile_confirmed_treasury
+        reconcile_confirmed_treasury(ov, treasury)
         ov.commit()
         # CLOSE the ops connection BEFORE the webhook enroll — the link + confirm are
         # durable now, and holding ov open while WebhookManager opens its own writer
@@ -3801,6 +3821,8 @@ def api_intel_treasury_approve():
             "(treasury, action, reviewer, confidence, notes, evidence_json, created_at) "
             "VALUES (?,?,?,?,?,?,?)",
             (t, "APPROVED", reviewer, confidence, notes, evidence_json, now))
+        from src.ops.watchtower_alignment import reconcile_confirmed_treasury
+        reconcile_confirmed_treasury(ov, t)
         ov.commit()
 
         return jsonify({
@@ -7774,6 +7796,734 @@ def dust_observatory_recipient(wallet):
 @ops_dashboard_bp.route("/ops/dust-observatory")
 def dust_observatory_page():
     return render_template("watchtower_dust_observatory.html", active_page="dust_observatory")
+
+
+@ops_dashboard_bp.route("/ops/detection-health")
+def detection_health_page():
+    return render_template("watchtower_detection_health.html", active_page="detection_health")
+
+
+@ops_dashboard_bp.route("/api/ops-v2/detection-health")
+def api_detection_health():
+    """Sprint O1.3 — Detection health with finalised confidence model.
+
+    Separates two independent questions:
+      operational_status — can WATCHTOWER currently be trusted to detect launches?
+      historical_status  — how has WATCHTOWER been performing recently?
+
+    Confidence values:
+      LIVE       — freshly observed, value reflects current state
+      STALE      — last known value, system may have changed (heartbeat 120–300s)
+      UNKNOWN    — telemetry too old to trust (heartbeat >300s) or no row exists
+      HISTORICAL — permanent DB record; freshness concept does not apply
+
+    operational_status decision tree (O1.3):
+      No heartbeat row         → UNKNOWN
+      Heartbeat age > 300s     → NO_TELEMETRY
+      PW stream_state ≠ ACTIVE → DEGRADED
+      UNMONITORED treasury > 0 → DEGRADED  (known blind spot)
+      Heartbeat STALE (120–300s) → DEGRADED  (telemetry becoming stale)
+      Otherwise                → LIVE
+
+    Treasury STALE (previously monitored, now quiet) does NOT degrade
+    operational_status — quiet treasuries are expected; no evidence of
+    subscription failure. Only UNMONITORED (never seen a notification)
+    represents a genuine capability gap.
+
+    Read-only, ops DB only, no schema changes, no detection impact.
+    """
+    import time
+    import json
+    import statistics
+
+    # Heartbeat thresholds (seconds)
+    HB_LIVE  = 120
+    HB_STALE = 300
+
+    # Treasury active threshold (seconds) — WS notification within this window = ACTIVE
+    TREASURY_ACTIVE_S = 86400
+
+    now = int(time.time())
+    window_7d = now - 86400 * 7
+
+    try:
+        db = _conn()
+
+        # ── Cascade Heartbeat ────────────────────────────────────────────────
+        hb_row = db.execute(
+            "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade'"
+        ).fetchone()
+
+        if hb_row is None:
+            # No row: process has never written a heartbeat since DB creation
+            hb_confidence = "UNKNOWN"
+            hb_age_s = None
+            hb_last_seen = None
+            meta = {}
+        else:
+            hb_age_s = now - hb_row["last_seen"]
+            hb_last_seen = hb_row["last_seen"]
+            meta = json.loads(hb_row["meta_json"]) if hb_row["meta_json"] else {}
+            if hb_age_s < HB_LIVE:
+                hb_confidence = "LIVE"
+            elif hb_age_s < HB_STALE:
+                hb_confidence = "STALE"
+            else:
+                hb_confidence = "UNKNOWN"
+
+        # cascade_heartbeat status: GREEN/AMBER/RED only when LIVE or STALE
+        if hb_confidence == "LIVE":
+            cascade_status = "GREEN"
+        elif hb_confidence == "STALE":
+            cascade_status = "AMBER"
+        else:
+            cascade_status = "UNKNOWN"
+
+        # Runtime fields — null them when heartbeat is UNKNOWN (too stale to trust)
+        if hb_confidence in ("LIVE", "STALE"):
+            cascade_runtime = {
+                "cascade_state": meta.get("cascade_state"),
+                "reconnect_generation": meta.get("reconnect_gen"),
+                "subs": meta.get("subs"),
+                "treasury_subs": meta.get("treasury_subs"),
+                "subprov_subs": meta.get("subprov_subs"),
+            }
+        else:
+            cascade_runtime = {
+                "cascade_state": None,
+                "reconnect_generation": None,
+                "subs": None,
+                "treasury_subs": None,
+                "subprov_subs": None,
+            }
+
+        cascade_heartbeat = {
+            "confidence": hb_confidence,
+            "status": cascade_status,
+            "last_updated": hb_last_seen,
+            "last_updated_age_s": hb_age_s,
+            **cascade_runtime,
+        }
+
+        # ── ProgramWatcher (inherits heartbeat confidence, no independent source) ──
+        if hb_confidence == "UNKNOWN":
+            program_watcher = {
+                "confidence": "UNKNOWN",
+                "status": "UNKNOWN",
+                "last_updated": hb_last_seen,
+                "last_updated_age_s": hb_age_s,
+                "stream_state": None,
+                "active_candidates": None,
+                "fetch_queue": None,
+                "fetch_timeout": None,
+                "fetch_dropped": None,
+                "active_catchup_hits": None,
+                "matches": None,
+            }
+        else:
+            pw_state = meta.get("pw_stream_state", "")
+            pw_status = "GREEN" if pw_state == "ACTIVE" else "RED"
+            program_watcher = {
+                "confidence": hb_confidence,
+                "status": pw_status,
+                "last_updated": hb_last_seen,
+                "last_updated_age_s": hb_age_s,
+                "stream_state": pw_state or None,
+                "active_candidates": meta.get("pw_active_candidates"),
+                "fetch_queue": meta.get("pw_fetch_queue"),
+                "fetch_timeout": meta.get("pw_fetch_timeout"),
+                "fetch_dropped": meta.get("pw_fetch_dropped"),
+                "active_catchup_hits": meta.get("pw_active_catchup_hits"),
+                "matches": meta.get("pw_matches"),
+            }
+
+        # ── Treasury Coverage (independent of heartbeat — reads DB directly) ──
+        treasury_rows = db.execute(
+            "SELECT treasury, no_subscribe, confidence, confirmed_at FROM wt_confirmed_treasuries"
+        ).fetchall()
+        ws_usage = {
+            r["treasury_wallet"]: r for r in db.execute(
+                "SELECT treasury_wallet, last_notif_at, notif_count, sessions_opened FROM wt_treasury_ws_usage"
+            ).fetchall()
+        }
+
+        coverage_counts = {"ACTIVE": 0, "STALE": 0, "UNMONITORED": 0, "EXCLUDED": 0}
+        treasury_detail = []
+        for t in treasury_rows:
+            addr = t["treasury"]
+            if t["no_subscribe"]:
+                state = "EXCLUDED"
+            else:
+                usage = ws_usage.get(addr)
+                if usage and usage["last_notif_at"]:
+                    age = now - int(usage["last_notif_at"])
+                    state = "ACTIVE" if age < TREASURY_ACTIVE_S else "STALE"
+                else:
+                    # Row in ws_usage with no last_notif_at, or no row at all:
+                    # this treasury has never produced a WS notification
+                    state = "UNMONITORED"
+            coverage_counts[state] += 1
+            usage = ws_usage.get(addr)
+            last_notif_at = usage["last_notif_at"] if usage and usage["last_notif_at"] else None
+            treasury_detail.append({
+                "treasury": addr,
+                "coverage_state": state,
+                "confidence": t["confidence"],
+                "notif_count": usage["notif_count"] if usage else 0,
+                "last_notif_at": last_notif_at,
+                "last_notif_age_s": (now - int(last_notif_at)) if last_notif_at else None,
+            })
+
+        # Coverage status: driven by UNMONITORED (genuine blind spots), not ACTIVE %.
+        # STALE = previously monitored and now quiet — expected, not a failure signal.
+        # ACTIVE % retained as an informational field but does not set tc_status.
+        eligible = coverage_counts["ACTIVE"] + coverage_counts["STALE"] + coverage_counts["UNMONITORED"]
+        active_pct = round(100 * coverage_counts["ACTIVE"] / eligible, 1) if eligible else 0
+        unmonitored_n = coverage_counts["UNMONITORED"]
+        if eligible == 0:
+            tc_status = "UNKNOWN"
+        elif unmonitored_n == 0:
+            tc_status = "GREEN"
+        elif unmonitored_n <= 2:
+            tc_status = "AMBER"
+        else:
+            tc_status = "RED"
+
+        # last_updated = most recent treasury notification across all non-excluded treasuries
+        notif_timestamps = [
+            int(t["last_notif_at"])
+            for t in treasury_detail
+            if t.get("last_notif_at") and t.get("coverage_state") != "EXCLUDED"
+        ]
+        tc_last_updated = max(notif_timestamps) if notif_timestamps else None
+        tc_last_updated_age = (now - tc_last_updated) if tc_last_updated else None
+
+        treasury_coverage = {
+            "confidence": "LIVE",
+            "status": tc_status,
+            "last_updated": tc_last_updated,
+            "last_updated_age_s": tc_last_updated_age,
+            "total": len(treasury_rows),
+            "counts": coverage_counts,
+            "active_pct": active_pct,
+            "treasuries": treasury_detail,
+        }
+
+        # ── Detection Sources — 7d historical ───────────────────────────────
+        source_rows = db.execute(
+            """SELECT detection_source, COUNT(*) n FROM wt_watchtower_launches
+               WHERE recorded_at > ? AND detection_source IS NOT NULL
+               GROUP BY detection_source""",
+            (window_7d,)
+        ).fetchall()
+        source_map = {r["detection_source"]: r["n"] for r in source_rows}
+        total_launches = sum(source_map.values())
+        pl_n = source_map.get("PROGRAM_LOGS", 0)
+        pl_pct = round(100 * pl_n / total_launches, 1) if total_launches else 0
+        ds_status = "GREEN" if pl_pct >= 50 else "AMBER" if pl_pct >= 25 else "RED"
+        detection_sources = {
+            "confidence": "HISTORICAL",
+            "status": ds_status,
+            "last_updated": None,
+            "last_updated_age_s": None,
+            "window_days": 7,
+            "total_launches": total_launches,
+            "by_source": dict(source_map),
+            "program_logs_pct": pl_pct,
+        }
+
+        # ── Detection Latency — 7d historical ───────────────────────────────
+        lat_rows = db.execute(
+            """SELECT a.detection_latency_ms, l.detection_source
+               FROM wt_launch_audit a
+               LEFT JOIN wt_watchtower_launches l ON l.mint = a.mint
+               WHERE a.detection_latency_ms IS NOT NULL
+                 AND a.create_time > ?""",
+            (window_7d,)
+        ).fetchall()
+
+        by_source_lat = {}
+        all_vals = []
+        for r in lat_rows:
+            ms = r["detection_latency_ms"]
+            src = r["detection_source"] or "UNKNOWN"
+            all_vals.append(ms)
+            by_source_lat.setdefault(src, []).append(ms)
+
+        def _percentiles(vals):
+            if not vals:
+                return {}
+            s = sorted(vals)
+            n = len(s)
+            return {
+                "count": n,
+                "p50_ms": round(statistics.median(s)),
+                "p95_ms": round(s[min(int(n * 0.95), n - 1)]),
+                "p99_ms": round(s[min(int(n * 0.99), n - 1)]),
+                "min_ms": round(s[0]),
+                "max_ms": round(s[-1]),
+            }
+
+        p50_all = statistics.median(all_vals) if all_vals else None
+        lat_status = (
+            "GREEN" if p50_all and p50_all < 5000 else
+            "AMBER" if p50_all and p50_all < 30000 else
+            "RED" if p50_all else "UNKNOWN"
+        )
+        detection_latency = {
+            "confidence": "HISTORICAL",
+            "status": lat_status,
+            "last_updated": None,
+            "last_updated_age_s": None,
+            "window_days": 7,
+            "overall": _percentiles(all_vals),
+            "by_source": {src: _percentiles(vals) for src, vals in by_source_lat.items()},
+        }
+
+        db.close()
+
+        # ── Operational Status ───────────────────────────────────────────────
+        # Derived from live metrics only: heartbeat + PW + UNMONITORED treasury count.
+        # active_pct (ACTIVE %) is NOT used — it measures treasury activity, not
+        # WATCHTOWER subscription capability. STALE treasuries are quiet but monitored.
+        # Never derived from historical metrics.
+        if hb_row is None:
+            op_status = "UNKNOWN"
+        elif hb_confidence == "UNKNOWN":
+            op_status = "NO_TELEMETRY"
+        elif pw_state != "ACTIVE":
+            op_status = "DEGRADED"
+        elif unmonitored_n > 0:
+            op_status = "DEGRADED"
+        elif hb_confidence == "STALE":
+            op_status = "DEGRADED"
+        else:
+            op_status = "LIVE"
+
+        # ── Historical Status ────────────────────────────────────────────────
+        # Derived from historical metrics only: sources + latency.
+        # Independent of heartbeat state — remains valid when detector is offline.
+        if total_launches == 0 and not all_vals:
+            hist_status = "UNKNOWN"
+        else:
+            # Worst of the two historical metric statuses
+            rank = {"GREEN": 0, "AMBER": 1, "RED": 2, "UNKNOWN": 3}
+            worst = max(ds_status, lat_status, key=lambda s: rank.get(s, 0))
+            hist_status = worst
+
+        # ── Operational Reasons ──────────────────────────────────────────────
+        op_reasons = []
+        if hb_row is None:
+            op_reasons.append("No cascade heartbeat has ever been recorded")
+        elif hb_confidence == "UNKNOWN":
+            op_reasons.append(
+                f"Cascade heartbeat has not updated for {hb_age_s} seconds "
+                f"(threshold: {HB_STALE}s) — current runtime state cannot be trusted"
+            )
+        elif hb_confidence == "STALE":
+            op_reasons.append(
+                f"Cascade heartbeat is {hb_age_s}s old — telemetry becoming stale "
+                f"(STALE threshold: {HB_LIVE}s)"
+            )
+        if hb_confidence in ("LIVE", "STALE") and meta.get("pw_stream_state") != "ACTIVE":
+            op_reasons.append(
+                f"ProgramWatcher stream state is '{meta.get('pw_stream_state', 'unknown')}' — "
+                f"not ACTIVE"
+            )
+        if hb_confidence == "UNKNOWN":
+            op_reasons.append(
+                "ProgramWatcher state unknown because cascade telemetry is stale"
+            )
+        if unmonitored_n:
+            op_reasons.append(
+                f"{unmonitored_n} confirmed {'treasury has' if unmonitored_n == 1 else 'treasuries have'} "
+                f"never produced a WS notification — monitoring blind spot; cascade restart may be required"
+            )
+
+        # ── Historical Reasons ───────────────────────────────────────────────
+        hist_reasons = []
+        if total_launches:
+            hist_reasons.append(
+                f"PROGRAM_LOGS produced {pl_pct}% of {total_launches} detections in the last 7 days"
+            )
+        else:
+            hist_reasons.append("No detections recorded in the last 7 days")
+        if p50_all is not None:
+            hist_reasons.append(
+                f"Median detection latency {round(p50_all / 1000, 1)}s "
+                f"(p95: {round((sorted(all_vals)[min(int(len(all_vals) * 0.95), len(all_vals) - 1)]) / 1000, 1)}s)"
+            )
+
+        # ── Deprecated overall_status (backwards compatibility) ──────────────
+        # Derived from operational_status only. Retained temporarily so any
+        # existing consumer does not silently break. Do not use in new consumers.
+        _op_rank = {"LIVE": 0, "DEGRADED": 1, "NO_TELEMETRY": 2, "UNKNOWN": 3}
+        overall_status = {
+            0: "GREEN",
+            1: "AMBER",
+            2: "RED",
+            3: "RED",
+        }[_op_rank.get(op_status, 3)]
+
+        return jsonify({
+            "ok": True,
+            "generated_at": now,
+            # Primary status fields
+            "operational_status": op_status,
+            "historical_status": hist_status,
+            "operational_reasons": op_reasons,
+            "historical_reasons": hist_reasons,
+            # Live metrics
+            "cascade_heartbeat": cascade_heartbeat,
+            "program_watcher": program_watcher,
+            "treasury_coverage": treasury_coverage,
+            # Historical metrics
+            "detection_sources": detection_sources,
+            "detection_latency": detection_latency,
+            # Deprecated — derived from operational_status only
+            "overall_status": overall_status,
+            "_overall_status_deprecated": True,
+        })
+
+    except Exception as e:
+        import traceback
+        return jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Sprint O3.1 — Standalone Alert Evaluator
+#
+# All evaluation + persistence logic lives in src/core/alert_evaluator.py.
+# The standalone process (scripts/run_alert_evaluator.py, supervised) polls
+# every 30s and writes wt_alerts.db.  This endpoint is now READ-ONLY.
+#
+# Alert lifecycle:  RAISED → ACTIVE → RECOVERED
+# Raised_at is set once per incident by the evaluator, never by this endpoint.
+# ════════════════════════════════════════════════════════════════════════════
+
+from src.core.alert_evaluator import read_alerts as _ae_read_alerts, SEV_RANK as _AE_SEV_RANK
+
+
+@ops_dashboard_bp.route("/api/ops-v2/alerts")
+def api_alerts():
+    """Sprint O3.1 — Read-only alert endpoint.
+
+    Alert state is maintained by the standalone alert_evaluator process
+    (scripts/run_alert_evaluator.py, managed by supervisord). This endpoint
+    reads the current state from wt_alerts.db and returns it — no evaluation,
+    no writes. raised_at timestamps reflect the first evaluator observation,
+    not the first dashboard view.
+    """
+    import time as _time
+    now = int(_time.time())
+
+    try:
+        active, recovered = _ae_read_alerts()
+
+        return jsonify({
+            "ok":           True,
+            "generated_at": now,
+            "active_count": len(active),
+            "active":       active,
+            "recovered":    recovered,
+        })
+
+    except Exception as e:
+        import traceback
+        return jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Sprint O4.1 — Discovery Assurance
+# ════════════════════════════════════════════════════════════════════════════
+
+@ops_dashboard_bp.route("/api/ops-v2/walkback-health")
+def api_walkback_progress_health():
+    """Progress health; a live PID without completed work is not healthy."""
+    conn = _conn()
+    try:
+        from src.ops.walkback_health import build_walkback_health
+        return jsonify({"ok": True, **build_walkback_health(conn)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/watchtower-attribution-funnel")
+def api_watchtower_attribution_funnel():
+    """Rolling persisted-data launch-to-Mission-Control control funnel."""
+    try:
+        hours = max(1, min(int(request.args.get("hours", 72)), 24 * 30))
+        from src.ops.watchtower_funnel import build_watchtower_funnel
+        return jsonify(build_watchtower_funnel(
+            OPS_DB_PATH, LIVE_DB_PATH, window_seconds=hours * 3600
+        ))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/watchtower-control")
+def api_watchtower_control():
+    """Known-good reference operator status for deployment and NOC use."""
+    conn = _conn()
+    try:
+        from src.ops.watchtower_alignment import audit_alignment
+        from src.ops.walkback_health import build_walkback_health
+        return jsonify({
+            "ok": True,
+            "generated_at": int(time.time()),
+            "identity": audit_alignment(conn),
+            "walkback": build_walkback_health(conn),
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/attribution-outcomes")
+def api_attribution_outcomes():
+    """Canonical terminal conclusions; legacy queue wording is not an API contract."""
+    conn = _conn()
+    try:
+        limit = max(1, min(int(request.args.get("limit", 100)), 500))
+        outcome_type = (request.args.get("outcome_type") or "").strip().upper()
+        where, args = "1=1", []
+        if outcome_type:
+            from src.ops.attribution_outcome import OUTCOME_TYPES
+            if outcome_type not in OUTCOME_TYPES:
+                return jsonify({"ok": False, "error": "invalid outcome_type"}), 400
+            where, args = "outcome_type=?", [outcome_type]
+        rows = [dict(row) for row in conn.execute(
+            "SELECT mint,outcome_type,stop_reason,terminal_entity,terminal_entity_type,confidence,"
+            "operator_id,should_seed_emerging_operator,should_retry,completed_at "
+            f"FROM wt_attribution_outcomes WHERE {where} ORDER BY completed_at DESC LIMIT ?",
+            (*args, limit),
+        )]
+        return jsonify({"ok": True, "outcomes": rows, "count": len(rows)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/discovery-triage/summary")
+def api_discovery_triage_summary():
+    """X21C — Level-1 operational summary + pattern buckets for the Discovery
+    Triage Workspace. Read-only aggregation over wt_attribution_outcomes
+    (INSUFFICIENT_EVIDENCE, LINEAGE_GAP only); no attribution/walkback/resolver
+    logic is touched."""
+    conn = _conn()
+    try:
+        from src.ops.discovery_triage import build_triage_summary
+        return jsonify(build_triage_summary(conn))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/discovery-triage/queue")
+def api_discovery_triage_queue():
+    """X21C — Ranked, grouped investigation queue. Ranking is a deterministic
+    function of persisted signal presence/count, never an opaque score."""
+    conn = _conn()
+    try:
+        from src.ops.discovery_triage import build_investigation_queue
+        limit = max(1, min(int(request.args.get("limit", 100)), 500))
+        filter_key = (request.args.get("filter") or "").strip() or None
+        return jsonify(build_investigation_queue(conn, limit=limit, filter_key=filter_key))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/emerging-operator-seeds")
+def api_emerging_operator_seeds():
+    """Strict X20 intake: only current UNKNOWN_INFRASTRUCTURE conclusions."""
+    conn = _conn()
+    try:
+        from src.ops.attribution_outcome import emerging_operator_seeds
+        rows = emerging_operator_seeds(conn)
+        return jsonify({"ok": True, "required_outcome_type": "UNKNOWN_INFRASTRUCTURE",
+                        "seeds": rows, "count": len(rows)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+@ops_dashboard_bp.route("/api/ops-v2/discovery-assurance")
+def api_discovery_assurance():
+    """Discovery Assurance — DB-only, no RPC, no serializer writes.
+
+    Measures graph completeness: what fraction of WATCHTOWER operator
+    infrastructure is visible and producing WS observations. Ground truth
+    is wt_farm_launches (populated by farm_detector.py from migrated tokens,
+    independent of WATCHTOWER detection decisions).
+
+    Denominator: wt_farm_launches rows with a known-subprov funder (619).
+    Numerator: those where a wrap-close candidate was observed (6).
+    The 739 launches with completely unknown funders are NOT in the
+    denominator — they represent scope we cannot even attribute.
+    """
+    import time as _time
+    now = int(_time.time())
+    try:
+        conn = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=10)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        # ── universe ──────────────────────────────────────────────────────
+        cur.execute("SELECT COUNT(*) FROM wt_farm_launches")
+        total_launches = cur.fetchone()[0]
+
+        # ── known graph infrastructure ─────────────────────────────────────
+        cur.execute("SELECT COUNT(*) FROM wt_confirmed_treasuries WHERE no_subscribe IS NULL OR no_subscribe = 0")
+        active_treasuries = cur.fetchone()[0]
+
+        cur.execute("SELECT COUNT(*) FROM wt_confirmed_treasuries")
+        total_treasuries = cur.fetchone()[0]
+
+        cur.execute("SELECT COUNT(*) FROM wt_confirmed_treasuries WHERE no_subscribe = 1")
+        excluded_treasuries = cur.fetchone()[0]
+
+        cur.execute("SELECT COUNT(*) FROM wt_discovered_subprovs")
+        total_subprovs = cur.fetchone()[0]
+
+        cur.execute("SELECT COUNT(*) FROM wt_discovered_subprovs WHERE treasury IS NOT NULL")
+        linked_subprovs = cur.fetchone()[0]
+
+        # ── D1: unknown scope (funder not in any known graph node) ─────────
+        cur.execute("""
+            SELECT COUNT(*) FROM wt_farm_launches fl
+            WHERE NOT EXISTS (SELECT 1 FROM wt_confirmed_treasuries ct WHERE ct.treasury = fl.funder)
+            AND   NOT EXISTS (SELECT 1 FROM wt_discovered_subprovs  ds WHERE ds.subprov  = fl.funder)
+        """)
+        d1_unknown = cur.fetchone()[0]
+
+        # ── D2: excluded treasury lineage ──────────────────────────────────
+        cur.execute("""
+            SELECT COUNT(*) FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+            JOIN wt_confirmed_treasuries ct ON ct.treasury = ds.treasury
+            WHERE ct.no_subscribe = 1
+        """)
+        d2_excluded = cur.fetchone()[0]
+
+        # ── D6: topology gap (known subprov, treasury unknown) ─────────────
+        cur.execute("""
+            SELECT COUNT(*) FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+            WHERE ds.treasury IS NULL
+        """)
+        d6_topology_gap = cur.fetchone()[0]
+
+        # ── D3: known subprov, no wrap-close observed ──────────────────────
+        cur.execute("""
+            SELECT COUNT(*) FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+            WHERE ds.treasury IS NOT NULL
+            AND   NOT EXISTS (
+                SELECT 1 FROM wt_wrap_close_candidates wcc WHERE wcc.creator = fl.creator
+            )
+        """)
+        d3_no_wcc = cur.fetchone()[0]
+
+        # ── denominator: known-subprov launches ────────────────────────────
+        cur.execute("""
+            SELECT COUNT(*) FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+        """)
+        known_subprov_launches = cur.fetchone()[0]
+
+        # ── numerator: wrap-close observed for those launches ──────────────
+        cur.execute("""
+            SELECT COUNT(DISTINCT fl.mint)
+            FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+            WHERE EXISTS (
+                SELECT 1 FROM wt_wrap_close_candidates wcc WHERE wcc.creator = fl.creator
+            )
+        """)
+        wcc_observed = cur.fetchone()[0]
+
+        # ── worst treasuries by discovery gap ──────────────────────────────
+        cur.execute("""
+            SELECT ct.treasury,
+                   COUNT(*) AS total_launches,
+                   SUM(CASE WHEN NOT EXISTS (
+                       SELECT 1 FROM wt_wrap_close_candidates wcc WHERE wcc.creator = fl.creator
+                   ) THEN 1 ELSE 0 END) AS gap
+            FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+            JOIN wt_confirmed_treasuries ct ON ct.treasury = ds.treasury
+            GROUP BY ct.treasury
+            HAVING gap > 0
+            ORDER BY gap DESC
+            LIMIT 5
+        """)
+        worst_treasuries = [dict(r) for r in cur.fetchall()]
+
+        # ── worst subprovs by discovery gap ────────────────────────────────
+        cur.execute("""
+            SELECT ds.subprov,
+                   COUNT(*) AS total_launches,
+                   SUM(CASE WHEN NOT EXISTS (
+                       SELECT 1 FROM wt_wrap_close_candidates wcc WHERE wcc.creator = fl.creator
+                   ) THEN 1 ELSE 0 END) AS gap
+            FROM wt_farm_launches fl
+            JOIN wt_discovered_subprovs ds ON ds.subprov = fl.funder
+            GROUP BY ds.subprov
+            HAVING gap > 0
+            ORDER BY gap DESC
+            LIMIT 10
+        """)
+        worst_subprovs = [dict(r) for r in cur.fetchall()]
+
+        conn.close()
+
+        discovery_rate_pct = round(100.0 * wcc_observed / known_subprov_launches, 1) if known_subprov_launches else 0.0
+        unknown_pct = round(100.0 * d1_unknown / total_launches, 1) if total_launches else 0.0
+
+        return jsonify({
+            "ok":            True,
+            "generated_at":  now,
+            "summary": {
+                "total_launches":         total_launches,
+                "unknown_scope":          d1_unknown,
+                "unknown_scope_pct":      unknown_pct,
+                "known_subprov_launches": known_subprov_launches,
+                "wcc_observed":           wcc_observed,
+                "discovery_rate_pct":     discovery_rate_pct,
+                "discovery_rate_label":   "Known Graph Only",
+            },
+            "infrastructure": {
+                "total_treasuries":  total_treasuries,
+                "active_treasuries": active_treasuries,
+                "excluded_treasuries": excluded_treasuries,
+                "total_subprovs":    total_subprovs,
+                "linked_subprovs":   linked_subprovs,
+            },
+            "failure_attribution": {
+                "D1_unknown_funder":     d1_unknown,
+                "D2_excluded_treasury":  d2_excluded,
+                "D3_no_wcc_observed":    d3_no_wcc,
+                "D6_topology_gap":       d6_topology_gap,
+            },
+            "worst_treasuries": worst_treasuries,
+            "worst_subprovs":   worst_subprovs,
+        })
+
+    except Exception as e:
+        import traceback
+        return jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500
+
+
+@ops_dashboard_bp.route("/ops/discovery-assurance")
+def page_discovery_assurance():
+    return render_template("watchtower_discovery_assurance.html")
 
 
 def register_operation_dashboard_routes(app):

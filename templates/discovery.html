@@ -1,0 +1,592 @@
+{% extends "base_shell.html" %}
+{% block title %}Discovery · Provenance Workspace{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+.dw-shell { max-width: 1180px; margin: 0 auto; }
+.dw-hero { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:16px; }
+.dw-title { font-size:20px; font-weight:760; color:var(--ip-text); letter-spacing:-.02em; }
+.dw-sub { color:var(--ip-sec); font-size:11.5px; line-height:1.55; margin-top:5px; max-width:650px; }
+.dw-search { display:flex; gap:7px; margin:15px 0 18px; position:relative; }
+.dw-search input { flex:1; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:6px; padding:10px 12px; color:var(--ip-text); font:11px ui-monospace,monospace; outline:none; }
+.dw-search input:focus { border-color:rgba(34,211,238,.45); }
+.dw-search button { background:var(--ip-cyan-bg); color:var(--ip-cyan); border:1px solid rgba(34,211,238,.28); border-radius:6px; padding:9px 15px; cursor:pointer; font-size:11px; font-weight:700; }
+.dw-results { position:absolute; top:44px; left:0; right:82px; z-index:10; background:#0d1117; border:1px solid var(--ip-border2); border-radius:6px; box-shadow:0 12px 32px rgba(0,0,0,.45); display:none; overflow:hidden; }
+.dw-result { display:flex; align-items:center; gap:9px; padding:9px 11px; border-bottom:1px solid var(--ip-border); text-decoration:none; }
+.dw-result:hover { background:var(--ip-card2); }
+.dw-result:last-child { border-bottom:0; }
+.dw-result-type { width:92px; color:var(--ip-purple); font-size:9px; text-transform:uppercase; letter-spacing:.05em; }
+.dw-result-id { font:10px ui-monospace,monospace; color:var(--ip-text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+.dw-result-view { color:var(--ip-cyan); font-size:10px; }
+.dw-state { font-size:9px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:10px; border:1px solid var(--ip-border2); color:var(--ip-sec); }
+.dw-state.CONFIRMED { color:var(--ip-green); border-color:rgba(63,185,80,.3); background:rgba(63,185,80,.08); }
+.dw-state.PROVISIONAL { color:var(--ip-amber); border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.08); }
+.dw-state.EMERGING { color:var(--ip-blue); border-color:rgba(96,165,250,.28); background:rgba(96,165,250,.07); }
+.dw-state.UNRESOLVED { color:var(--ip-dim); }
+.dw-state.REJECTED { color:var(--ip-red); border-color:rgba(248,81,73,.3); background:rgba(248,81,73,.07); }
+.dw-state.SUPERSEDED { color:var(--ip-purple); border-color:rgba(167,139,250,.3); background:rgba(167,139,250,.07); }
+.dw-subject { background:var(--ip-card); border:1px solid var(--ip-border); border-left:3px solid var(--ip-cyan); border-radius:7px; padding:13px 15px; margin-bottom:16px; }
+.dw-subject-top { display:flex; align-items:center; gap:9px; }
+.dw-subject-id { font:11px ui-monospace,monospace; color:var(--ip-cyan); word-break:break-all; flex:1; }
+.dw-summary { color:var(--ip-sec); font-size:11.5px; line-height:1.5; margin-top:7px; }
+.dw-grid { display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:18px; align-items:start; }
+.dw-section-h { display:flex; align-items:center; gap:8px; margin:15px 0 8px; }
+.dw-section-h:first-child { margin-top:0; }
+.dw-section-title { font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:var(--ip-sec); font-weight:800; }
+.dw-line { height:1px; background:var(--ip-border); flex:1; }
+.dw-count { font-size:9px; color:var(--ip-dim); }
+.dw-timeline { position:relative; padding-left:25px; }
+.dw-timeline::before { content:""; position:absolute; left:8px; top:12px; bottom:12px; width:1px; background:linear-gradient(var(--ip-cyan),var(--ip-border2) 70%,transparent); }
+.dw-node { position:relative; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:7px; margin-bottom:8px; overflow:hidden; }
+.dw-node::before { content:""; position:absolute; left:-22px; top:15px; width:9px; height:9px; border-radius:50%; background:#111820; border:2px solid var(--ip-cyan); box-shadow:0 0 0 4px #050709; }
+.dw-node-head { display:flex; align-items:center; gap:8px; padding:10px 12px; cursor:pointer; }
+.dw-node-head:hover { background:rgba(255,255,255,.015); }
+.dw-kind { font-size:10px; font-weight:750; color:var(--ip-text); flex:1; }
+.dw-time { font:9px ui-monospace,monospace; color:var(--ip-dim); white-space:nowrap; }
+.dw-entity-row { display:flex; align-items:baseline; gap:8px; padding:0 12px 10px; }
+.dw-type { font-size:8.5px; color:var(--ip-purple); text-transform:uppercase; letter-spacing:.06em; }
+.dw-addr { font:10px ui-monospace,monospace; color:var(--ip-cyan); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dw-reason { font-size:11px; color:var(--ip-sec); line-height:1.5; padding:0 12px 10px; }
+.dw-detail { display:none; border-top:1px solid var(--ip-border); background:rgba(0,0,0,.12); padding:10px 12px; }
+.dw-node.open .dw-detail { display:block; }
+.dw-detail-grid { display:grid; grid-template-columns:105px 1fr; gap:6px 9px; font-size:10px; }
+.dw-dk { color:var(--ip-dim); text-transform:uppercase; letter-spacing:.04em; font-size:8.5px; }
+.dw-dv { color:var(--ip-sec); overflow-wrap:anywhere; }
+.dw-evidence { margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.04); }
+.dw-ev-row { display:flex; gap:8px; padding:3px 0; font-size:10px; }
+.dw-ev-label { color:var(--ip-dim); min-width:110px; }
+.dw-ev-value { color:var(--ip-text); overflow-wrap:anywhere; }
+.dw-card { background:var(--ip-card); border:1px solid var(--ip-border); border-radius:7px; overflow:hidden; margin-bottom:10px; }
+.dw-card-h { padding:9px 11px; border-bottom:1px solid var(--ip-border); font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--ip-sec); }
+.dw-card-body { padding:10px 11px; }
+.dw-hop { position:relative; padding:0 0 14px 19px; }
+.dw-hop::before { content:""; position:absolute; left:4px; top:7px; bottom:-2px; width:1px; background:var(--ip-border2); }
+.dw-hop:last-child::before { display:none; }
+.dw-hop::after { content:""; position:absolute; left:1px; top:4px; width:7px; height:7px; border-radius:50%; background:var(--ip-blue); }
+.dw-hop-role { font-size:8.5px; color:var(--ip-purple); text-transform:uppercase; letter-spacing:.05em; }
+.dw-hop-addr { font:9.5px ui-monospace,monospace; color:var(--ip-text); margin:3px 0; overflow:hidden; text-overflow:ellipsis; }
+.dw-hop-reason { font-size:9.5px; line-height:1.4; color:var(--ip-sec); }
+.dw-stop { padding:9px 10px; border-radius:5px; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.17); color:var(--ip-amber); font-size:10px; line-height:1.45; }
+.dw-group-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.dw-group-row:last-child { border:0; }
+.dw-group-name { flex:1; font-size:10px; color:var(--ip-sec); }
+.dw-group-count { font:10px ui-monospace,monospace; color:var(--ip-text); }
+.dw-recent-row { display:flex; gap:9px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.04); text-decoration:none; }
+.dw-recent-row:last-child { border:0; }
+.dw-recent-msg { color:var(--ip-text); font-size:10.5px; line-height:1.4; }
+.dw-recent-meta { color:var(--ip-dim); font-size:9px; margin-top:2px; }
+.dw-empty { padding:45px 20px; text-align:center; color:var(--ip-sec); background:var(--ip-card); border:1px solid var(--ip-border); border-radius:7px; }
+.dw-empty-mark { font-size:24px; color:var(--ip-border2); margin-bottom:8px; }
+.dw-chain-node { display:flex; gap:10px; align-items:flex-start; padding:11px 12px; border-bottom:1px solid rgba(255,255,255,.04); }
+.dw-chain-node:last-child { border-bottom:0; }
+.dw-chain-mark { width:8px; height:8px; border-radius:50%; margin-top:4px; flex-shrink:0; background:var(--ip-cyan); box-shadow:0 0 0 3px rgba(34,211,238,.08); }
+.dw-chain-main { min-width:0; flex:1; }
+.dw-chain-title { color:var(--ip-text); font-size:11px; font-weight:700; }
+.dw-chain-reason { color:var(--ip-sec); font-size:10.5px; line-height:1.45; margin-top:3px; }
+.dw-canonical { margin-top:12px; display:grid; grid-template-columns:1.2fr .8fr; gap:1px; background:var(--ip-border); border:1px solid var(--ip-border); border-radius:7px; overflow:hidden; }
+.dw-canonical-cell { background:var(--ip-card); padding:13px 15px; }
+.dw-canonical-name { color:var(--ip-cyan); font-size:18px; font-weight:800; letter-spacing:.02em; }
+.dw-canonical-state { color:var(--ip-text); font-size:11px; font-weight:700; margin-top:4px; }
+.dw-canonical-meta { color:var(--ip-sec); font-size:10px; margin-top:4px; }
+.dw-signal-list { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.dw-signal { border:1px solid rgba(34,197,94,.25); color:var(--ip-green); background:rgba(34,197,94,.05); border-radius:10px; padding:3px 7px; font-size:9px; }
+.dw-outcome { margin:0 0 12px; padding:14px 16px; border:1px solid rgba(34,211,238,.24); border-left:3px solid var(--ip-cyan); border-radius:7px; background:rgba(34,211,238,.045); }
+.dw-outcome-lead { border-color:rgba(245,158,11,.28); border-left-color:var(--ip-amber); background:rgba(245,158,11,.045); }
+.dw-outcome-insufficient { border-color:var(--ip-border2); border-left-color:var(--ip-dim); background:rgba(255,255,255,.015); }
+.dw-outcome-title { color:var(--ip-text); font-size:15px; font-weight:800; }
+.dw-outcome-reason { color:var(--ip-sec); font-size:11px; margin-top:5px; }
+.dw-outcome-meta { display:flex; gap:13px; flex-wrap:wrap; color:var(--ip-dim); font-size:9.5px; margin-top:9px; }
+.dw-outcome-known { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:9px; margin-top:11px; padding-top:11px; border-top:1px solid rgba(255,255,255,.06); }
+.dw-outcome-known-cell .dw-dk { display:block; }
+.dw-outcome-known-cell .dw-dv { display:block; margin-top:2px; font-size:10.5px; }
+.dw-outcome-interpretation { color:var(--ip-sec); font-size:10.5px; line-height:1.5; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
+.dw-outcome-footer { display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-top:11px; }
+.dw-istate { font-size:9px; font-weight:800; letter-spacing:.05em; padding:3px 9px; border-radius:10px; border:1px solid var(--ip-border2); color:var(--ip-sec); }
+.dw-istate.Monitoring { color:var(--ip-amber); border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.08); }
+.dw-istate.Investigation-Complete { color:var(--ip-green); border-color:rgba(63,185,80,.3); background:rgba(63,185,80,.08); }
+.dw-istate.Analyst-Review-Required { color:var(--ip-blue); border-color:rgba(96,165,250,.28); background:rgba(96,165,250,.07); }
+.dw-istate.Terminal { color:var(--ip-dim); }
+.dw-istate.Emerging-Candidate { color:var(--ip-amber); border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.08); }
+.dw-outcome-next { color:var(--ip-text); font-size:10.5px; font-weight:600; }
+.dw-outcome-next::before { content:"Next: "; color:var(--ip-dim); font-weight:600; }
+.dw-outcome-tech dt { color:var(--ip-dim); text-transform:uppercase; letter-spacing:.04em; font-size:8.5px; margin-top:8px; }
+.dw-outcome-tech dt:first-child { margin-top:0; }
+.dw-outcome-tech dd { color:var(--ip-sec); font-size:10.5px; margin:2px 0 0; overflow-wrap:anywhere; }
+.dw-te-section { margin-top:11px; padding-top:11px; border-top:1px solid rgba(255,255,255,.06); }
+.dw-te-h { color:var(--ip-dim); text-transform:uppercase; letter-spacing:.05em; font-size:8.5px; font-weight:800; margin-bottom:6px; }
+.dw-te-row { font-size:10.5px; line-height:1.6; }
+.dw-te-match { color:var(--ip-green); }
+.dw-te-nomatch { color:var(--ip-sec); }
+.dw-te-unavailable { color:var(--ip-dim); font-style:italic; }
+.dw-te-detail { color:var(--ip-dim); font-size:9.5px; font-style:normal; }
+.dw-te-interpretation .dw-te-row { color:var(--ip-sec); font-style:italic; }
+.dw-ob-block { margin-top:11px; padding-top:11px; border-top:1px solid rgba(255,255,255,.06); }
+.dw-ob-block:first-child { margin-top:0; padding-top:0; border-top:none; }
+.dw-ob-h { color:var(--ip-dim); text-transform:uppercase; letter-spacing:.05em; font-size:8.5px; font-weight:800; margin-bottom:6px; }
+.dw-ob-note { color:var(--ip-dim); font-size:9.5px; font-style:italic; margin-bottom:6px; }
+.dw-chain-panel { margin:12px 0; padding:13px; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:8px; }
+.dw-chain-panel-h { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; color:var(--ip-sec); font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.dw-evidence-groups { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+.dw-evidence-group { border:1px solid var(--ip-border); border-radius:7px; background:var(--ip-card2); overflow:hidden; }
+.dw-evidence-group summary { cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; padding:10px 11px; color:var(--ip-sec); font-size:9px; font-weight:750; text-transform:uppercase; letter-spacing:.05em; }
+.dw-evidence-group summary::-webkit-details-marker { display:none; }
+.dw-evidence-group[open] summary { color:var(--ip-text); border-bottom:1px solid var(--ip-border); }
+.dw-evidence-group-body { padding:8px 10px; }
+.dw-evidence-chip { display:flex; gap:7px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:9.5px; color:var(--ip-sec); }
+.dw-evidence-chip:last-child { border:0; }
+.dw-evidence-chip::before { content:"◇"; color:var(--ip-cyan); }
+.dw-landing-head { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:4px 0 12px; }
+.dw-landing-title { color:var(--ip-text); font-size:14px; font-weight:800; }
+.dw-landing-sub { color:var(--ip-sec); font-size:9.5px; margin-top:3px; }
+.dw-today-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; margin-bottom:14px; }
+.dw-today-grid .vi-scorecard { min-height:74px; }
+.dw-today-grid .vi-scorecard-value { font:800 21px/1 ui-monospace,monospace; }
+.dw-landing-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr); gap:12px; align-items:start; }
+.dw-intelligence-list { display:flex; flex-direction:column; gap:7px; }
+.dw-intel-event { --vi-col:var(--ip-blue); display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:center; padding:11px 12px; border:1px solid var(--ip-border); border-left:3px solid var(--vi-col); border-radius:7px; background:var(--ip-card); color:inherit; text-decoration:none; }
+.dw-intel-event:hover { border-color:color-mix(in srgb,var(--vi-col) 28%,var(--ip-border)); }
+.dw-intel-event.confirmed { --vi-col:var(--ip-green); }
+.dw-intel-event.promotion { --vi-col:var(--ip-purple); }
+.dw-intel-event.monitoring { --vi-col:var(--ip-amber); }
+.dw-intel-icon { display:grid; place-items:center; width:28px; height:28px; border-radius:7px; background:color-mix(in srgb,var(--vi-col) 10%,transparent); color:var(--vi-col); border:1px solid color-mix(in srgb,var(--vi-col) 25%,transparent); }
+.dw-intel-headline { color:var(--ip-text); font-size:10.5px; font-weight:700; line-height:1.35; }
+.dw-intel-meta { color:var(--ip-dim); font-size:8.5px; margin-top:3px; text-transform:uppercase; letter-spacing:.04em; }
+.dw-health { padding:0; overflow:hidden; }
+.dw-health-head { padding:12px 13px; border-bottom:1px solid var(--ip-border); }
+.dw-health-list { padding:5px 11px 10px; }
+.dw-health-row { display:grid; grid-template-columns:minmax(0,1fr) 66px 28px; gap:8px; align-items:center; padding:8px 2px; border-bottom:1px solid rgba(255,255,255,.04); color:inherit; text-decoration:none; }
+.dw-health-row:last-child { border:0; }
+.dw-health-name { color:var(--ip-sec); font-size:9px; line-height:1.25; }
+.dw-health-track { height:5px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
+.dw-health-fill { display:block; height:100%; width:var(--health-width,0%); min-width:2px; border-radius:inherit; background:var(--health-col,#f97316); }
+.dw-health-count { color:var(--ip-text); font:10px ui-monospace,monospace; text-align:right; }
+.dw-registry-callout { margin-bottom:10px; }
+.dw-filter-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 15px; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:7px; margin-bottom:10px; }
+.dw-case-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+.dw-case { padding:11px 12px; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:7px; color:inherit; text-decoration:none; min-width:0; }
+.dw-case:hover { border-color:rgba(34,211,238,.25); }
+.dw-case-title { color:var(--ip-text); font:10px ui-monospace,monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dw-case-meta { display:flex; justify-content:space-between; gap:8px; color:var(--ip-dim); font-size:8.5px; margin-top:6px; }
+.dw-triage-l1 { flex:1; }
+.dw-triage-l1-title { color:var(--ip-text); font-size:15px; font-weight:800; margin-top:3px; }
+.dw-triage-l1-sub { font-size:10.5px; margin-top:5px; }
+.dw-triage-worth { color:var(--ip-amber); font-weight:700; }
+.dw-triage-low { color:var(--ip-dim); }
+.dw-pattern-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.dw-pattern-row { display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 12px; background:var(--ip-card2); border:1px solid var(--ip-border); border-radius:7px; text-decoration:none; min-width:110px; }
+.dw-pattern-row:hover { border-color:rgba(34,211,238,.3); }
+.dw-pattern-count { color:var(--ip-text); font:800 16px/1 ui-monospace,monospace; }
+.dw-pattern-label { color:var(--ip-sec); font-size:9.5px; }
+.dw-triage-filters { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.dw-triage-filter { padding:5px 10px; border-radius:12px; border:1px solid var(--ip-border2); color:var(--ip-sec); font-size:9.5px; text-decoration:none; }
+.dw-triage-filter:hover { border-color:rgba(34,211,238,.3); color:var(--ip-text); }
+.dw-triage-filter.active { background:var(--ip-cyan-bg); border-color:rgba(34,211,238,.35); color:var(--ip-cyan); }
+.dw-inv-row { display:flex; align-items:center; gap:12px; padding:11px 12px; border-bottom:1px solid rgba(255,255,255,.04); text-decoration:none; color:inherit; }
+.dw-inv-row:last-child { border-bottom:0; }
+.dw-inv-row:hover { background:rgba(255,255,255,.015); }
+.dw-inv-main { flex:1; min-width:0; }
+.dw-inv-title { color:var(--ip-text); font-size:11px; font-weight:700; }
+.dw-inv-meta { color:var(--ip-sec); font-size:9.5px; margin-top:2px; }
+.dw-inv-signals { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+.dw-inv-signal { padding:2px 7px; border-radius:9px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.22); color:var(--ip-amber); font-size:8.5px; }
+.dw-inv-open { color:var(--ip-cyan); font-size:9.5px; white-space:nowrap; }
+@media(max-width:900px) { .dw-grid{grid-template-columns:1fr}.dw-hero{display:block} }
+@media(max-width:900px) { .dw-today-grid{grid-template-columns:repeat(3,1fr)}.dw-landing-layout{grid-template-columns:1fr} }
+@media(max-width:650px) { .dw-evidence-groups,.dw-case-list{grid-template-columns:1fr}.dw-today-grid{grid-template-columns:repeat(2,1fr)} }
+{% endblock %}
+
+{% block content %}
+<div class="dw-shell">
+  <div class="ip-breadcrumb"><a href="/ops-os">Mission Control</a><span class="sep">›</span><span>Discovery</span></div>
+  <div class="dw-hero">
+    <div><div class="dw-title">Discovery</div><div class="x19-question">How was this established?</div><div class="dw-sub">Follow the recorded attribution path without duplicating the Entity or Operator conclusion.</div></div>
+    <span class="dw-state" id="dw-overall-state" style="display:none"></span>
+  </div>
+  <div class="dw-search">
+    <input id="dw-query" value="{{ entity_id }}" placeholder="Search token, creator, treasury, sub-provisioner, transaction or operator…" autocomplete="off" spellcheck="false">
+    <button id="dw-search-btn" type="button">Search</button>
+    <div class="dw-results" id="dw-results"></div>
+  </div>
+  <div id="dw-loading" style="display:none;padding:35px;text-align:center;color:var(--ip-dim)">Assembling existing discovery evidence…</div>
+  <div id="dw-content"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  'use strict';
+  var INITIAL_ID={{ entity_id|tojson }}, INITIAL_TYPE={{ entity_type|tojson }};
+  var FILTER_OUTCOME=new URLSearchParams(window.location.search).get('outcome_type');
+  var $=function(id){return document.getElementById(id)};
+  function esc(v){return String(v===null||v===undefined?'—':v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
+  function abbr(v){v=String(v||'');return v.length>22?v.slice(0,11)+'…'+v.slice(-7):v||'—'}
+  function ago(ts){if(!ts)return 'time unknown';var n=Math.max(0,Math.floor(Date.now()/1000-ts));if(n<60)return n+'s ago';if(n<3600)return Math.floor(n/60)+'m ago';if(n<86400)return Math.floor(n/3600)+'h ago';return Math.floor(n/86400)+'d ago'}
+  function state(s){s=s||'UNRESOLVED';return '<span class="dw-state '+esc(s)+'">'+esc(s)+'</span>'}
+  function href(id,type){return '/discovery?entity='+encodeURIComponent(id||'')+'&type='+encodeURIComponent(type||'auto')}
+  var ROLE_ICON={token:'◈',creator:'●',sub_provisioner:'◇',treasury:'◆',operator:'◎',emerging_candidate:'◎',wallet:'◇'};
+  function node(n,i){
+    var ev=(n.evidence||[]).filter(function(x){return x.value!==null&&x.value!==undefined&&x.value!==''}).map(function(x){return '<div class="dw-ev-row"><span class="dw-ev-label">'+esc(x.label)+'</span><span class="dw-ev-value">'+esc(x.value)+'</span></div>'}).join('');
+    var connected=n.connected_entity?'<div class="dw-dk">Connected entity</div><div class="dw-dv"><a class="dw-addr" href="'+href(n.connected_entity.id,n.connected_entity.type)+'">'+esc(n.connected_entity.id)+' →</a></div>':'';
+    return '<article class="dw-node" id="dw-node-'+i+'"><div class="dw-node-head" onclick="this.parentNode.classList.toggle(\'open\')"><span class="dw-kind">'+esc(String(n.kind||'Evidence').replace(/_/g,' '))+'</span>'+state(n.state)+'<span class="dw-time" title="'+esc(n.timestamp?new Date(n.timestamp*1000).toISOString():'Timestamp not recorded')+'">'+ago(n.timestamp)+'</span></div><div class="dw-entity-row"><span class="dw-type">'+esc(n.entity.type)+'</span><a class="dw-addr" href="'+href(n.entity.id,n.entity.type)+'">'+esc(n.entity.id)+'</a></div><div class="dw-reason">'+esc(n.reason)+'</div><div class="dw-detail"><div class="dw-detail-grid"><div class="dw-dk">Detector</div><div class="dw-dv">'+esc(n.detector)+'</div><div class="dw-dk">Supporting rule</div><div class="dw-dv">'+esc(n.supporting_rule||'—')+'</div><div class="dw-dk">Confidence</div><div class="dw-dv">'+esc(n.confidence)+'</div><div class="dw-dk">Evidence class</div><div class="dw-dv">'+esc(n.category)+'</div>'+connected+'</div>'+(ev?'<div class="dw-evidence">'+ev+'</div>':'')+'</div></article>';
+  }
+  function visualChain(d){
+    var rank={token:1,creator:2,sub_provisioner:3,treasury:4,operator:5,emerging_candidate:5};
+    var seen={},nodes=[];
+    (d.timeline||[]).slice().sort(function(a,b){return (rank[a.entity.type]||9)-(rank[b.entity.type]||9)}).forEach(function(n){var t=n.entity&&n.entity.type;if(!t||seen[t])return;seen[t]=1;nodes.push({id:n.entity.id,type:t,state:n.state,confidence:n.confidence,label:t.replace(/_/g,' ')});});
+    var o=d.attribution_outcome;
+    if(o&&o.terminal_entity&&!seen[o.terminal_entity_type.toLowerCase()])nodes.push({id:o.terminal_entity,type:o.terminal_entity_type.toLowerCase(),state:o.outcome_type==='CANONICAL_OPERATOR_REACHED'?'CONFIRMED':'EMERGING',confidence:o.confidence,label:o.terminal_entity_type});
+    return '<div class="dw-chain-panel"><div class="dw-chain-panel-h"><span>Recorded relationship chain</span><span>'+nodes.length+' nodes</span></div><div class="vi-chain">'+nodes.map(function(n){var cls=n.state==='CONFIRMED'?'confirmed':n.state==='REJECTED'?'failure':n.state==='EMERGING'?'monitoring':'';return '<a class="vi-chain-node '+cls+'" href="'+href(n.id,n.type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[n.type]||'◇')+'</div><div class="vi-chain-role">'+esc(n.label)+'</div><div class="vi-chain-name" title="'+esc(n.id)+'">'+esc(abbr(n.id))+'</div><div class="vi-chain-meta">'+esc(n.state)+' · '+esc(n.confidence)+'</div></a>'}).join('')+'</div></div>';
+  }
+  // X21D.1: the walkback should represent the ENTIRE persisted investigation, not
+  // just the upstream funding wallets — so it begins with the initiating WATCHTOKEN
+  // (when the subject actually IS a token) and the persisted creator (when known),
+  // using only entities the Discovery model already returns. Never fabricates a
+  // node: if creator isn't in attribution_outcome.evidence.creator, or if the first
+  // recorded hop is already a CREATOR-role hop (a small number of confirmed-launch
+  // walks resolve the creator as hop 1 themselves), nothing is duplicated or invented.
+  function walkbackLeadNodes(subject, attributionOutcome, firstHopRole, confirmed){
+    var nodes=[];
+    if(subject && subject.type==='token' && subject.id){
+      nodes.push({address:subject.id, role:'WATCHTOKEN', type:'token', confidence:null});
+    }
+    var creator=attributionOutcome && attributionOutcome.evidence && attributionOutcome.evidence.creator;
+    if(creator && String(firstHopRole||'').toUpperCase()!=='CREATOR'){
+      nodes.push({address:creator, role:'Creator', type:'creator', confidence:null});
+    }
+    return nodes.map(function(n){return '<a class="vi-chain-node '+(confirmed?'confirmed':'')+'" href="'+href(n.address,n.type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[n.type]||'◇')+'</div><div class="vi-chain-role">'+esc(n.role)+'</div><div class="vi-chain-name" title="'+esc(n.address)+'">'+esc(abbr(n.address))+'</div><div class="vi-chain-meta">'+(n.confidence?'Confidence '+esc(n.confidence):esc(confirmed?'CONFIRMED':'Recorded'))+'</div></a>'}).join('');
+  }
+  // X21D.1 (extended): when canonical operator resolution genuinely exists
+  // (d.canonical_identity is populated by the Discovery model), the walkback's
+  // terminal node should read as the resolved operator ("WATCHTOWER · Canonical
+  // operator reached") rather than the generic "Endpoint · CONFIRMED" — this is
+  // the same persisted fact canonicalIdentity() already renders elsewhere on the
+  // page, just applied to the walkback's own terminal node so the chain reads as
+  // one complete story. Never fabricated: only replaces the label when
+  // canonicalIdentity is non-null; every other (non-canonical) terminal outcome
+  // keeps its existing typed wording (w.status / w.stop_reason) unchanged.
+  function walkback(w, subject, attributionOutcome, canonicalIdentity){
+    var confirmed=w.status==='CONFIRMED';
+    var lead=walkbackLeadNodes(subject, attributionOutcome, w.hops && w.hops[0] && w.hops[0].role, confirmed);
+    var hops=(w.hops||[]).map(function(h){var type=String(h.role||'wallet').toLowerCase();return '<a class="vi-chain-node '+(confirmed?'confirmed':'')+'" href="'+href(h.address,type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[type]||'◇')+'</div><div class="vi-chain-role">'+esc(h.role)+'</div><div class="vi-chain-name" title="'+esc(h.address)+'">'+esc(abbr(h.address))+'</div><div class="vi-chain-meta">Confidence '+esc(h.confidence)+'</div></a>'}).join('');
+    var endpoint;
+    if(canonicalIdentity && canonicalIdentity.operator_name){
+      endpoint='<a class="vi-chain-node confirmed" href="'+esc(canonicalIdentity.operator_href||href(canonicalIdentity.operator_id,'operator'))+'"><div class="vi-chain-icon">'+(ROLE_ICON.operator||'◎')+'</div><div class="vi-chain-role">'+esc(canonicalIdentity.operator_name)+'</div><div class="vi-chain-name">Canonical operator reached</div><div class="vi-chain-meta">'+esc(w.status||'CONFIRMED')+' · Confidence '+esc(canonicalIdentity.confidence)+'</div></a>';
+    } else {
+      endpoint='<div class="vi-chain-node '+(confirmed?'confirmed':'boundary')+'"><div class="vi-chain-icon">■</div><div class="vi-chain-role">Endpoint</div><div class="vi-chain-name">'+esc(w.status||'Stopped')+'</div><div class="vi-chain-meta">'+esc(w.stop_reason)+'</div></div>';
+    }
+    return '<div class="dw-card"><div class="dw-card-h">Funding Walkback · '+esc(w.status)+'</div><div class="dw-card-body"><div class="vi-chain">'+(lead+hops||'<div style="font-size:10px;color:var(--ip-dim)">No recorded hops.</div>')+endpoint+'</div></div></div>';
+  }
+  function groups(g){var keys=['IDENTITY','SUPPORTING','CONTEXT','CONTRADICTIONS'];return '<div class="dw-card"><div class="dw-card-h">Discovery Evidence</div><div class="dw-card-body"><div class="dw-evidence-groups">'+keys.map(function(k){var rows=g[k]||[];return '<details class="dw-evidence-group"><summary><span>'+k.replace('_',' ')+'</span><span class="vi-chip"><b>'+rows.length+'</b></span></summary><div class="dw-evidence-group-body">'+(rows.length?rows.map(function(n){return '<div class="dw-evidence-chip">'+esc(n.reason||n.kind||'Recorded evidence')+'</div>'}).join(''):'<div style="font-size:9px;color:var(--ip-dim)">No recorded items.</div>')+'</div></details>'}).join('')+'</div></div></div>'}
+  function operatorHistory(rows){if(!rows||!rows.length)return '';return '<div class="dw-card"><div class="dw-card-h">Operator Discovery History</div><div class="dw-card-body">'+rows.map(function(x){return '<a class="dw-recent-row" href="'+href(x.operator_id,'operator')+'"><div><div class="dw-recent-msg">'+esc(x.summary||'Operator attribution')+'</div><div class="dw-recent-meta">Observed '+ago(x.observed_since)+' · first attribution '+ago(x.first_attribution)+'</div></div><span style="margin-left:auto">'+state(x.state)+'</span></a>'}).join('')+'</div></div>'}
+  function canonicalIdentity(c){if(!c)return '';var signals=(c.identity_signals||[]).map(function(x){return '<span class="dw-signal">✓ '+esc(x)+'</span>'}).join('');return '<div class="dw-canonical"><div class="dw-canonical-cell"><div class="x19-answer-label">Canonical Operator</div><div class="dw-canonical-name">'+esc(c.operator_name)+'</div><div class="dw-canonical-state">Confirmed Treasury · Confidence '+esc(c.confidence)+'</div><div class="dw-signal-list">'+signals+'</div></div><a class="dw-canonical-cell" style="text-decoration:none;color:inherit" href="'+esc(c.operator_href)+'"><div class="x19-answer-label">Identity</div><div class="dw-canonical-state">'+esc(c.operator_name)+'</div><div class="dw-canonical-meta">Canonical operator record</div><div class="dw-canonical-meta" style="color:var(--ip-cyan);margin-top:9px">Open Operator Intelligence →</div></a></div>'}
+  // Presentation-only adapter: translates the X19.7 canonical outcome_type (src/ops/attribution_outcome.py)
+  // into analyst-facing language. The backend taxonomy and its stop_reason strings are never edited here —
+  // this map only decides how to *talk about* them. Each entry may only assert what the backend actually
+  // determined for that outcome_type; it must not imply fields (creator/funder/treasury/etc.) were checked
+  // when the engine's own logic for that outcome doesn't establish them.
+  var ANALYST_WORDING = {
+    CANONICAL_OPERATOR_REACHED: {
+      title:'Known Operator Identified', investigationState:'Investigation Complete', severity:'confirmed',
+      summary:function(o){return 'Discovery reached a confirmed operator.'},
+      interpretation:'This launch has been attributed to an existing canonical operator.',
+      next:'No further action required. Review the operator record for full context.'
+    },
+    KNOWN_MULTI_TOKEN_CREATOR: {
+      title:'Existing Multi-Launch Creator', investigationState:'Terminal', severity:'historical',
+      summary:function(o){return 'This creator has an established launch history and is not treated as new infrastructure.'},
+      interpretation:'Infrastructure walkback intentionally stopped because this creator already has a stable, non-canonical launch pattern.',
+      next:'No further walkback expected. Revisit only if this creator’s behaviour changes materially.'
+    },
+    KNOWN_CEX_REACHED: {
+      title:'Funding Traced to a Known Exchange', investigationState:'Terminal', severity:'historical',
+      summary:function(o){return 'Funding ends at a known exchange.'},
+      interpretation:'Further attribution is intentionally not attempted past a known exchange boundary.',
+      next:'No further action expected.'
+    },
+    KNOWN_BRIDGE_REACHED: {
+      title:'Funding Traced to a Known Bridge', investigationState:'Terminal', severity:'historical',
+      summary:function(o){return 'Funding ends at a known cross-chain bridge.'},
+      interpretation:'Further attribution is intentionally not attempted past a known bridge boundary.',
+      next:'No further action expected.'
+    },
+    KNOWN_RELAY_REACHED: {
+      title:'Funding Traced to Known Infrastructure', investigationState:'Terminal', severity:'historical',
+      summary:function(o){return 'Funding ends at a recognised infrastructure boundary.'},
+      interpretation:'Further attribution is intentionally not attempted past a reviewed infrastructure boundary.',
+      next:'No further action expected.'
+    },
+    UNKNOWN_INFRASTRUCTURE: {
+      title:'Unknown Infrastructure', investigationState:'Monitoring', severity:'monitoring',
+      summary:function(o){return 'No operational infrastructure has yet been identified for this launch.'},
+      interpretation:'This may represent previously unseen operational infrastructure.',
+      next:'Continue monitoring for future attribution.'
+    },
+    LINEAGE_GAP: {
+      title:'Funding Trail Ends Here', investigationState:'Monitoring', severity:'lead',
+      summary:function(o){return 'Partial lineage was established before the funding trail ended.'},
+      interpretation:'The available funding history ends before the next attribution stage could be established.',
+      next:'Potential lead. Retry only when new on-chain evidence arrives — the recorded lineage below may connect to future activity.'
+    },
+    AMBIGUOUS_BRANCH: {
+      title:'Analyst Review Required', investigationState:'Analyst Review Required', severity:'review',
+      summary:function(o){return 'Multiple valid attribution paths were identified and they do not agree.'},
+      interpretation:'The recorded evidence branches to more than one plausible answer, so this cannot be resolved automatically.',
+      next:'Analyst review required to determine the correct attribution path.'
+    },
+    MAX_DEPTH: {
+      title:'Analyst Review Required', investigationState:'Analyst Review Required', severity:'review',
+      summary:function(o){return 'The attribution trail is longer than the platform currently follows automatically.'},
+      interpretation:'Walkback reached its configured maximum lineage depth before reaching a terminal answer.',
+      next:'Analyst review required to continue this trail manually, if warranted.'
+    },
+    INSUFFICIENT_EVIDENCE: {
+      title:'Insufficient Evidence', investigationState:'Monitoring', severity:'insufficient',
+      summary:function(o){return 'No lineage could be established — there is not enough on-chain information to continue attribution.'},
+      interpretation:'This is not a candidate for new infrastructure and there is no partial trail to revisit — it simply lacks the evidence needed to proceed.',
+      next:'Continue monitoring. Revisit only if new on-chain activity for this entity is recorded.'
+    }
+  };
+  var DEFAULT_WORDING = {
+    title:'Attribution Concluded', investigationState:'Terminal', severity:'historical',
+    summary:function(o){return 'Discovery reached a terminal attribution state.'},
+    interpretation:'See Technical Details for the underlying record.',
+    next:'No further action expected.'
+  };
+  var ISTATE_CLASS={'Monitoring':'Monitoring','Investigation Complete':'Investigation-Complete','Analyst Review Required':'Analyst-Review-Required','Terminal':'Terminal','Emerging Candidate':'Emerging-Candidate'};
+  function istateChip(s){return '<span class="dw-istate '+esc(ISTATE_CLASS[s]||'Terminal')+'">'+esc(s)+'</span>'}
+  // Only shown when the backend actually populated a terminal entity/type for this outcome —
+  // never invent "Creator: Unknown" etc. for fields the engine did not check for this outcome_type.
+  function knownFields(o){
+    if(!o.terminal_entity)return '';
+    var label=String(o.terminal_entity_type||'Entity').replace(/_/g,' ');
+    return '<div class="dw-outcome-known"><div class="dw-outcome-known-cell"><div class="dw-dk">'+esc(label)+'</div><div class="dw-dv">'+esc(abbr(o.terminal_entity))+'</div></div></div>';
+  }
+  // Recorded partial lineage for LINEAGE_GAP: only rendered when the backend's own evidence
+  // (evidence.treasuries / evidence.subprovisioners, populated by derive_outcome() before it
+  // classifies as LINEAGE_GAP) actually contains addresses — never inferred or assumed.
+  function recordedLineage(o){
+    if(o.outcome_type!=='LINEAGE_GAP')return '';
+    var ev=o.evidence||{}, treasuries=(ev.treasuries||[]).filter(Boolean), subprovs=(ev.subprovisioners||[]).filter(Boolean);
+    if(!treasuries.length && !subprovs.length)return '';
+    var rows=treasuries.map(function(a){return {label:'Treasury',addr:a}}).concat(subprovs.map(function(a){return {label:'Sub-provisioner',addr:a}}));
+    return '<div class="dw-outcome-known">'+rows.map(function(r){return '<div class="dw-outcome-known-cell"><div class="dw-dk">'+esc(r.label)+' (recorded lead)</div><div class="dw-dv">'+esc(abbr(r.addr))+'</div></div>'}).join('')+'</div>';
+  }
+  function outcome(o){
+    if(!o)return '';
+    var w=ANALYST_WORDING[o.outcome_type]||DEFAULT_WORDING;
+    var seedNote=o.should_seed_emerging_operator?'<span class="dw-istate Emerging-Candidate">Eligible for Emerging Candidate monitoring</span>':'';
+    var tech='<details class="x19-disclosure x19-level3"><summary><span class="level">Level 3</span> Technical Details</summary><div class="x19-disclosure-body"><dl class="dw-outcome-tech">'
+      +'<dt>Termination Code</dt><dd>'+esc(o.outcome_type)+'</dd>'
+      +'<dt>Engine Stop Reason</dt><dd>'+esc(o.stop_reason)+'</dd>'
+      +'<dt>Confidence</dt><dd>'+esc(o.confidence)+'</dd>'
+      +(o.terminal_entity?'<dt>Terminal Entity</dt><dd>'+esc(o.terminal_entity_type)+' · '+esc(o.terminal_entity)+'</dd>':'')
+      +'</dl></div></details>';
+    return '<section class="dw-outcome dw-outcome-'+esc(w.severity)+'">'
+      +'<div class="x19-answer-label">Discovery Result · Level 1</div>'
+      +'<div class="dw-outcome-title">'+esc(w.title)+'</div>'
+      +'<div class="dw-outcome-reason">'+esc(w.summary(o))+'</div>'
+      +knownFields(o)
+      +recordedLineage(o)
+      +'<div class="dw-outcome-interpretation">'+esc(w.interpretation)+'</div>'
+      +'<div class="dw-outcome-footer">'+istateChip(w.investigationState)+seedNote+'<span class="dw-outcome-next">'+esc(w.next)+'</span></div>'
+      +'</section>'
+      +tech;
+  }
+  function emergingCandidate(c){if(!c)return '';var classes=(c.identity_classes||[]).map(function(x){return '<span class="dw-signal">'+esc(x.replaceAll('_',' '))+'</span>'}).join('');return '<section class="dw-canonical" style="border-color:rgba(245,158,11,.25)"><div class="dw-canonical-cell"><div class="x19-answer-label">Emerging candidate · Level 1</div><div class="dw-canonical-name">Unknown Infrastructure</div><div class="dw-canonical-state">Observed '+esc(c.observed_launches)+' launches · '+esc(c.identity_class_count)+' identity classes</div><div class="dw-signal-list">'+classes+'</div></div><a class="dw-canonical-cell" style="text-decoration:none;color:inherit" href="/intelligence/emerging-operators?entity='+encodeURIComponent(c.terminal_entity)+'"><div class="x19-answer-label">Current status</div><div class="dw-canonical-state">'+esc(c.review_label)+'</div><div class="dw-canonical-meta">Not yet a canonical operator</div><div class="dw-canonical-meta" style="color:var(--ip-cyan);margin-top:9px">Open Emerging Candidate →</div></a></section>'}
+  function cross(rows){if(!rows||!rows.length)return '';return '<div class="dw-card"><div class="dw-card-h">Cross-Operation</div><div class="dw-card-body">'+rows.map(function(x){return '<div class="dw-group-row"><span class="dw-group-name">'+esc(x.operation_id)+'</span><span class="dw-group-count" title="'+esc(x.reason)+'">linked</span></div>'}).join('')+'</div></div>'}
+  // X20.9: Treasury Expansion Resolver output. This is an evidence report, not attribution —
+  // it never claims a confirmed operator, and it never assigns a probabilistic label
+  // ("possible"/"probable"). The title and count are the only claim this card makes; the
+  // matched-evidence list is the fact set; "Analyst interpretation" is explicitly framed as
+  // interpretation, not as an engine conclusion, so the analyst — not the engine — draws it.
+  function treasuryExpansion(t){
+    if(!t||!t.matched_evidence||!t.matched_evidence.length)return '';
+    var n=t.matched_evidence.length;
+    var matched=t.matched_evidence.map(function(e){return '<div class="dw-te-row dw-te-match">✓ '+esc(e.label)+(e.family_label?' <span class="dw-te-detail">('+esc(e.family_label)+')</span>':'')+(e.hub_wallet||e.hub_address?' <span class="dw-te-detail">('+esc(abbr(e.hub_wallet||e.hub_address))+')</span>':'')+'</div>'}).join('');
+    var noMatch=(t.checked_no_match||[]).map(function(e){return '<div class="dw-te-row dw-te-nomatch">✗ '+esc(e.label)+'</div>'}).join('');
+    var unavailable=(t.evidence_not_available||[]).map(function(e){return '<div class="dw-te-row dw-te-unavailable">— '+esc(e)+'</div>'}).join('');
+    return '<section class="dw-outcome dw-outcome-lead">'
+      +'<div class="x19-answer-label">Operational Conclusion · Level 1</div>'
+      +'<div class="dw-outcome-title">Treasury Review Lead</div>'
+      +'<div class="dw-outcome-reason">'+n+' structural '+(n===1?'match':'matches')+' with existing operator infrastructure. Treasury ownership has not been confirmed.</div>'
+      +'<div class="dw-outcome-known">'+(t.treasury?'<div class="dw-outcome-known-cell"><div class="dw-dk">New treasury candidate</div><div class="dw-dv">'+esc(abbr(t.treasury))+'</div></div>':'')+(t.subprov?'<div class="dw-outcome-known-cell"><div class="dw-dk">Known sub-provisioner</div><div class="dw-dv">'+esc(abbr(t.subprov))+'</div></div>':'')+'</div>'
+      +'<div class="dw-te-section"><div class="dw-te-h">Observed similarities</div>'+matched+'</div>'
+      +(noMatch?'<div class="dw-te-section"><div class="dw-te-h">Available but not matched</div>'+noMatch+'</div>':'')
+      +'<div class="dw-te-section"><div class="dw-te-h">Evidence not currently available</div>'+unavailable+'</div>'
+      +'<div class="dw-te-section dw-te-interpretation"><div class="dw-te-h">Analyst interpretation</div><div class="dw-te-row">The observed infrastructure shares '+n+' characteristic'+(n===1?'':'s')+' with an existing operator\'s operational model. Treasury ownership has not been confirmed.</div></div>'
+      +'<div class="dw-outcome-footer"><span class="dw-istate Analyst-Review-Required">Treasury Review Required</span><span class="dw-outcome-next">Open Treasury Review to confirm or reject this candidate.</span></div>'
+      +'</section>';
+  }
+  // X21E — Operational Behaviour: "how did this behave" as a distinct question from
+  // "who is this" (outcome/canonicalIdentity) or "what does it structurally resemble"
+  // (treasuryExpansion). Every line here must trace to a persisted fact from
+  // OperationalBehaviourService; sections that have nothing to show simply don't render
+  // (no placeholder claims), per the X21E "omit unsupported claims" decision.
+  function opBehaviourTiming(t){
+    if(!t)return '';
+    if(!t.available||!t.observations||!t.observations.length){
+      return '<div class="dw-ob-block"><div class="dw-ob-h">Timing observations</div><div class="dw-te-row dw-te-unavailable">— Not yet captured</div></div>';
+    }
+    var rows=t.observations.map(function(o){return '<div class="dw-te-row"><span class="dw-dk">'+esc(o.stage)+'</span> <span class="dw-dv">'+esc(o.seconds)+'s</span></div>'}).join('');
+    return '<div class="dw-ob-block"><div class="dw-ob-h">Timing observations</div>'+rows+'</div>';
+  }
+  function opBehaviourConsistency(rows){
+    if(!rows||!rows.length)return '';
+    var cls={'Observed':'dw-te-match','Not observed':'dw-te-nomatch','Not yet available':'dw-te-unavailable'};
+    var mark={'Observed':'✓','Not observed':'✗','Not yet available':'—'};
+    var body=rows.map(function(r){return '<div class="dw-te-row '+(cls[r.status]||'')+'">'+(mark[r.status]||'—')+' '+esc(r.signal)+' <span class="dw-te-detail">('+esc(r.status)+')</span></div>'}).join('');
+    return '<div class="dw-ob-block"><div class="dw-ob-h">Operational consistency</div><div class="dw-ob-note">Not identity — how similar this launch is to previously observed behaviour.</div>'+body+'</div>';
+  }
+  function operationalBehaviour(ob){
+    if(!ob)return '';
+    var summary=(ob.behaviour_summary||[]);
+    var infra=(ob.infrastructure_pattern||[]);
+    var missing=(ob.missing_evidence||[]);
+    if(!summary.length&&!infra.length&&!(ob.timing&&ob.timing.observations&&ob.timing.observations.length)&&!(ob.operational_consistency||[]).length&&!missing.length)return '';
+    var summaryHtml=summary.length?'<div class="dw-ob-block"><div class="dw-ob-h">Behaviour summary</div>'+summary.map(function(s){return '<div class="dw-te-row">'+esc(s)+'</div>'}).join('')+'</div>':'';
+    var infraHtml=infra.length?'<div class="dw-ob-block"><div class="dw-ob-h">Infrastructure pattern</div>'+infra.map(function(i){return '<div class="dw-te-row">'+esc(i.label)+' <span class="dw-te-detail">('+esc(i.source)+')</span></div>'}).join('')+'</div>':'';
+    var timingHtml=opBehaviourTiming(ob.timing);
+    var consistencyHtml=opBehaviourConsistency(ob.operational_consistency);
+    var missingHtml=missing.length?'<div class="dw-ob-block"><div class="dw-ob-h">Missing evidence</div>'+missing.map(function(m){return '<div class="dw-te-row dw-te-unavailable">— '+esc(m)+'</div>'}).join('')+'</div>':'';
+    return '<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Operational behaviour</summary><div class="x19-disclosure-body">'+summaryHtml+infraHtml+timingHtml+consistencyHtml+missingHtml+'</div></details>';
+  }
+  function render(d){
+    $('dw-loading').style.display='none';var overall=$('dw-overall-state');overall.style.display='';overall.className='dw-state '+d.state;overall.textContent=d.state;
+    var subject=d.subject||{}, resolved=subject.resolved_entity, resolvedText=resolved&&resolved.id!==subject.id?'<div class="dw-summary">Resolved from this '+esc(subject.type)+' to <a class="dw-addr" href="'+href(resolved.id,resolved.type)+'">'+esc(resolved.id)+'</a>.</div>':'';
+    var top=outcome(d.attribution_outcome)+treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate)+'<div class="x19-answer"><div class="x19-answer-label">Identity · Level 1</div><div class="x19-answer-value">'+esc(d.summary)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(subject.type)+'</span> · <span class="dw-subject-id">'+esc(subject.id)+'</span> · '+esc(d.state)+'</div>'+resolvedText+'</div>'+canonicalIdentity(d.canonical_identity);
+    if(!d.timeline||!d.timeline.length){$('dw-content').innerHTML=top+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';return}
+    var flow=visualChain(d);
+    var wb='<details class="x19-disclosure x19-level2" open><summary><span class="level">Level 2</span> Funding walkback</summary><div class="x19-disclosure-body">'+walkback(d.walkback||{}, subject, d.attribution_outcome, d.canonical_identity)+'</div></details>';
+    var opBehaviour=operationalBehaviour(d.operational_behaviour);
+    var attribution='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Attribution chain <span class="dw-count">'+d.timeline.length+' steps</span></summary><div class="x19-disclosure-body"><div class="vi-chip-row">'+d.timeline.map(function(n){return '<span class="vi-chip">'+esc(String(n.kind||'Evidence').replace(/_/g,' '))+' <b>'+esc(n.confidence)+'</b></span>'}).join('')+'</div></div></details>';
+    var evidence='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Evidence groups</summary><div class="x19-disclosure-body"><div class="dw-grid"><main>'+groups(d.evidence_groups||{})+'</main><aside>'+cross(d.cross_operation)+'</aside></div></div></details>';
+    var lineage='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Promotion lineage</summary><div class="x19-disclosure-body">'+(operatorHistory(d.operator_history)||'<div class="dw-empty" style="padding:18px;">No canonical promotion lineage recorded.</div>')+'</div></details>';
+    var raw='<details class="x19-disclosure x19-level3"><summary><span class="level">Level 3</span> Raw provenance</summary><div class="x19-disclosure-body"><div class="x19-timeline dw-timeline">'+d.timeline.map(node).join('')+'</div></div></details>';
+    $('dw-content').innerHTML=top+flow+wb+opBehaviour+attribution+evidence+lineage+raw;
+  }
+  function load(id,type){if(!id)return landing();$('dw-loading').style.display='block';$('dw-content').innerHTML='';fetch('/api/discovery/entity/'+encodeURIComponent(id)+'?type='+encodeURIComponent(type||'auto')).then(function(r){return r.json()}).then(render).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Discovery evidence is temporarily unavailable.</div>'})}
+  function typedLabel(value){return String(value||'Unknown').toLowerCase().split('_').map(function(x){return x.charAt(0).toUpperCase()+x.slice(1)}).join(' ')}
+  function outcomeCount(summary,type){var row=(summary.outcomes||[]).find(function(x){return x.outcome_type===type});return row?row.count:0}
+  function summariseOutcomes(rows,cutoff){var counts={};(rows||[]).filter(function(x){return (x.completed_at||0)>=cutoff}).forEach(function(x){counts[x.outcome_type]=(counts[x.outcome_type]||0)+1});return Object.keys(counts).map(function(k){return {outcome_type:k,count:counts[k]}}).sort(function(a,b){return b.count-a.count})}
+  function todayMetric(value,label,colour){return '<div class="vi-scorecard"><div class="vi-scorecard-label">'+esc(label)+'</div><div class="vi-scorecard-value" style="color:'+colour+'">'+esc(value)+'</div><div class="vi-scorecard-meta">Current 24-hour view</div></div>'}
+  function intelligenceEvent(e,stream){
+    var cfg={watchtower:['confirmed','◆'],promotions:['promotion','⬡'],emerging_operators:['monitoring','◎'],reviews:['discovery','✓'],discovery:['discovery','◇']}[stream]||['discovery','◇'];
+    var entity=e.entity||{},url=e.href||href(entity.id,entity.type);
+    return '<a class="dw-intel-event '+cfg[0]+'" href="'+esc(url)+'"><span class="dw-intel-icon">'+cfg[1]+'</span><span><span class="dw-intel-headline">'+esc(e.message||typedLabel(e.kind))+'</span><span class="dw-intel-meta">'+esc(typedLabel(e.kind))+' · '+esc(entity.type||'intelligence')+' · '+ago(e.timestamp)+'</span></span><span style="color:var(--ip-cyan)">→</span></a>';
+  }
+  function healthPanel(summary,seedType){
+    var rows=(summary.outcomes||[]).slice(),max=Math.max.apply(null,rows.map(function(x){return x.count}).concat([1]));
+    return '<aside class="vi-card walkback dw-health"><div class="dw-health-head"><div class="vi-eyebrow">Pipeline Health</div><div class="vi-title">Attribution Health</div><div class="dw-landing-sub">Expected terminal outcomes, aggregated by the canonical X19.7 type.</div></div><div class="dw-health-list">'+rows.map(function(x){var special=x.outcome_type===seedType,confirmed=x.outcome_type==='CANONICAL_OPERATOR_REACHED',col=special?'var(--ip-amber)':confirmed?'var(--ip-green)':'#f97316';return '<a class="dw-health-row" href="/discovery?outcome_type='+encodeURIComponent(x.outcome_type)+'"><span class="dw-health-name">'+esc(typedLabel(x.outcome_type))+'</span><span class="dw-health-track"><span class="dw-health-fill" style="--health-width:'+Math.round(x.count/max*100)+'%;--health-col:'+col+'"></span></span><span class="dw-health-count">'+x.count+'</span></a>'}).join('')+'</div></aside>';
+  }
+  // X21C — Discovery Triage Workspace. Only INSUFFICIENT_EVIDENCE and LINEAGE_GAP
+  // (the two outcome types representing "attribution stopped without a canonical
+  // answer") get the triage redesign; every other outcome_type keeps the existing
+  // flat drill-down below, unchanged.
+  var TRIAGE_OUTCOME_TYPES = {INSUFFICIENT_EVIDENCE:1, LINEAGE_GAP:1};
+  var TRIAGE_FILTERS = [
+    {key:'CREATOR_IDENTIFIED', label:'Creator identified'},
+    {key:'PARTIAL_FUNDING_TRAIL', label:'Sub-provisioner identified'},
+    {key:'RECORDED_TREASURY_LEAD', label:'Treasury identified'},
+    {key:'Repeated creator', label:'Repeated creator'},
+    {key:'Repeated treasury', label:'Repeated treasury'},
+    {key:'Treasury Review Lead', label:'Treasury Review Lead'},
+    {key:'Emerging Operator candidate', label:'Emerging Operator'},
+    {key:'NO_LINEAGE', label:'No funding lineage'},
+    {key:'LOW_INFORMATION', label:'Low-information'},
+  ];
+  function triageSummaryCard(s){
+    return '<div class="dw-triage-l1"><div class="x19-answer-label">Insufficient Evidence · Level 1</div>'
+      +'<div class="dw-triage-l1-title">'+s.total_terminal_outcomes+' terminal outcomes</div>'
+      +'<div class="dw-triage-l1-sub"><span class="dw-triage-worth">'+s.worth_monitoring+' worth monitoring</span> · <span class="dw-triage-low">'+s.low_information+' no current investigative path</span></div></div>';
+  }
+  function patternSummaryCard(s){
+    var rows=(s.pattern_summary||[]).map(function(b){return '<a class="dw-pattern-row" href="/discovery?outcome_type=INSUFFICIENT_EVIDENCE&filter='+encodeURIComponent(b.bucket)+'"><span class="dw-pattern-count">'+b.count+'</span><span class="dw-pattern-label">'+esc(b.label)+'</span></a>'}).join('');
+    var extra=[
+      s.repeated_treasury_entities?{c:s.repeated_treasury_rows,l:'Repeated treasury',f:'Repeated treasury'}:null,
+      s.repeated_creator_entities?{c:s.repeated_creator_rows,l:'Repeated creator',f:'Repeated creator'}:null,
+      s.treasury_review_lead_rows?{c:s.treasury_review_lead_rows,l:'Treasury Review Leads',f:'Treasury Review Lead'}:null,
+      s.emerging_operator_rows?{c:s.emerging_operator_rows,l:'Emerging Operator candidates',f:'Emerging Operator candidate'}:null,
+    ].filter(Boolean).map(function(x){return '<a class="dw-pattern-row" href="/discovery?outcome_type=INSUFFICIENT_EVIDENCE&filter='+encodeURIComponent(x.f)+'"><span class="dw-pattern-count">'+x.c+'</span><span class="dw-pattern-label">'+esc(x.l)+'</span></a>'}).join('');
+    return '<div class="dw-card"><div class="dw-card-h">Pattern Summary</div><div class="dw-card-body dw-pattern-grid">'+rows+extra+'</div></div>';
+  }
+  function provisioningActivityCard(p){
+    if(!p)return '';
+    if(!p.active){
+      return '<div class="dw-card"><div class="dw-card-h">Provisioning Activity</div><div class="dw-card-body"><div style="font-size:10.5px;color:var(--ip-dim)">No provisioning observations have been captured yet.</div></div></div>';
+    }
+    return '<div class="dw-card"><div class="dw-card-h">Provisioning Activity</div><div class="dw-card-body"><div class="dw-pattern-grid"><span class="dw-pattern-row"><span class="dw-pattern-count">'+p.edges_captured+'</span><span class="dw-pattern-label">Observed edges</span></span><span class="dw-pattern-row"><span class="dw-pattern-count">'+p.sessions_captured+'</span><span class="dw-pattern-label">Provisioning sessions</span></span></div></div></div>';
+  }
+  function triageFilterBar(active){
+    return '<div class="dw-triage-filters">'+TRIAGE_FILTERS.map(function(f){return '<a class="dw-triage-filter'+(active===f.key?' active':'')+'" href="/discovery?outcome_type=INSUFFICIENT_EVIDENCE&filter='+encodeURIComponent(f.key)+'">'+esc(f.label)+'</a>'}).join('')+'<a class="dw-triage-filter'+(!active?' active':'')+'" href="/discovery?outcome_type=INSUFFICIENT_EVIDENCE">All</a></div>';
+  }
+  function investigationRow(e){
+    var typeLabel=e.group_type==='treasury'?'Treasury Candidate':e.group_type==='creator'?'Creator':'Token';
+    var title=e.group_type==='token'?abbr(e.entity):typeLabel+' '+abbr(e.entity);
+    var signals=(e.signals||[]).map(function(s){return '<span class="dw-inv-signal">'+esc(s)+'</span>'}).join('');
+    return '<a class="dw-inv-row" href="'+href(e.entity,e.group_type==='token'?'token':e.group_type)+'"><div class="dw-inv-main"><div class="dw-inv-title">'+esc(title)+'</div><div class="dw-inv-meta">'+e.launch_count+' launch'+(e.launch_count===1?'':'es')+' · '+esc(e.bucket_label)+'</div><div class="dw-inv-signals">'+signals+'</div></div><span class="dw-inv-open">Open Investigation →</span></a>';
+  }
+  function renderTriageWorkspace(filterKey){
+    Promise.all([
+      fetch('/api/ops-v2/discovery-triage/summary').then(function(r){return r.json()}),
+      fetch('/api/ops-v2/discovery-triage/queue?limit=100'+(filterKey?'&filter='+encodeURIComponent(filterKey):'')).then(function(r){return r.json()}),
+    ]).then(function(results){
+      $('dw-loading').style.display='none';
+      var summary=results[0]||{}, queue=results[1]||{};
+      var entries=(queue.entries||[]);
+      var backLink='<a class="vi-status discovery" href="/discovery" style="text-decoration:none">Back to intelligence</a>';
+      $('dw-content').innerHTML =
+        '<div class="dw-filter-head">'+triageSummaryCard(summary)+backLink+'</div>'
+        +patternSummaryCard(summary)
+        +provisioningActivityCard(summary.provisioning_activity)
+        +triageFilterBar(filterKey)
+        +'<div class="dw-card"><div class="dw-card-h">Highest-Value Unresolved Investigations'+(filterKey?' · '+esc((TRIAGE_FILTERS.filter(function(f){return f.key===filterKey})[0]||{label:filterKey}).label):'')+'</div><div class="dw-card-body">'
+        +(entries.length?entries.map(investigationRow).join(''):'<div style="font-size:10.5px;color:var(--ip-dim);padding:8px 0">No investigations match this filter.</div>')
+        +'</div></div>';
+    }).catch(function(){
+      $('dw-loading').style.display='none';
+      $('dw-content').innerHTML='<div class="dw-empty">Triage workspace is temporarily unavailable.</div>';
+    });
+  }
+  function filteredCases(type){
+    $('dw-loading').style.display='block';
+    if(TRIAGE_OUTCOME_TYPES[type]){
+      renderTriageWorkspace(new URLSearchParams(window.location.search).get('filter'));
+      return;
+    }
+    fetch('/api/ops-v2/attribution-outcomes?limit=500&outcome_type='+encodeURIComponent(type)).then(function(r){return r.json()}).then(function(d){$('dw-loading').style.display='none';var rows=d.outcomes||[];$('dw-content').innerHTML='<div class="dw-filter-head"><div><div class="vi-eyebrow">Attribution Health · Underlying cases</div><div class="vi-title">'+esc(typedLabel(type))+'</div><div class="dw-landing-sub">'+rows.length+' typed terminal outcome'+(rows.length===1?'':'s')+'</div></div><a class="vi-status discovery" href="/discovery" style="text-decoration:none">Back to intelligence</a></div><div class="dw-case-list">'+rows.map(function(x){return '<a class="dw-case" href="'+href(x.mint,'token')+'"><div class="dw-case-title" title="'+esc(x.mint)+'">'+esc(abbr(x.mint))+'</div><div class="dw-case-meta"><span>'+esc(x.confidence)+'</span><span>'+ago(x.completed_at)+' →</span></div></a>'}).join('')+'</div>'}).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Typed attribution cases are temporarily unavailable.</div>'});
+  }
+  function landing(){
+    if(FILTER_OUTCOME){filteredCases(FILTER_OUTCOME);return}
+    Promise.all([
+      fetch('/api/discovery/recent?limit=20').then(function(r){return r.json()}),
+      fetch('/api/ops-v2/attribution-outcomes?limit=500').then(function(r){return r.json()}),
+      fetch('/api/ops/emerging-operators?limit=50').then(function(r){return r.json()}),
+      fetch('/api/operators/promotions').then(function(r){return r.json()}),
+      fetch('/api/ops-v2/emerging-operator-seeds').then(function(r){return r.json()})
+    ]).then(function(results){
+      var recent=results[0]||{},typed=results[1]||{},emerging=results[2]||{},promotions=results[3]||{},seeds=results[4]||{};
+      var streams=recent.streams||{},order=['watchtower','promotions','emerging_operators','reviews','discovery'],events=[];
+      var caps={watchtower:4,promotions:2,emerging_operators:6,reviews:4,discovery:4};
+      function displayPriority(e,stream){var kind=String(e.kind||'');if(kind==='CANONICAL_OPERATOR_REACHED')return 0;if(kind==='PROMOTION_ELIGIBLE')return 1;if(stream==='promotions')return 2;if(stream==='emerging_operators')return 3;if(stream==='watchtower')return 4;if(kind.indexOf('TREASURY')>=0)return 5;if(kind.indexOf('CONTRADICTION')>=0)return 6;if(kind.indexOf('BEHAVIOUR')>=0)return 7;if(kind.indexOf('FORECAST')>=0)return 8;if(kind.indexOf('CROSS_OPERATION')>=0)return 9;return 10}
+      order.forEach(function(stream){(streams[stream]||[]).slice(0,caps[stream]).forEach(function(e){events.push({event:e,stream:stream,priority:displayPriority(e,stream)})})});
+      (promotions.proposals||[]).filter(function(p){return ['PROMOTION_ELIGIBLE','REVIEW_CANDIDATE','REVIEW_REQUIRED'].indexOf(p.status)>=0}).slice(0,4).forEach(function(p){var e={kind:p.status,message:(p.display_name||'Operator')+' · '+typedLabel(p.status),timestamp:promotions.generated_at,entity:{id:p.proposal_id,type:'promotion_proposal'},href:'/intelligence/operator-promotions'};events.push({stream:'promotions',priority:displayPriority(e,'promotions'),event:e})});
+      events.sort(function(a,b){return a.priority-b.priority||(b.event.timestamp||0)-(a.event.timestamp||0)});
+      var seedType=seeds.required_outcome_type||'UNKNOWN_INFRASTRUCTURE';
+      var cutoff=Math.floor(Date.now()/1000)-86400,summary={outcomes:summariseOutcomes(typed.outcomes||[],cutoff)};
+      var canonical=outcomeCount(summary,'CANONICAL_OPERATOR_REACHED'),unknown=outcomeCount(summary,seedType),treasuries=(streams.discovery||[]).filter(function(x){return String(x.kind||'').indexOf('TREASURY')>=0&&(x.timestamp||0)>=cutoff}).length;
+      var metrics=todayMetric(canonical,'Canonical operators','var(--ip-green)')+todayMetric(emerging.total||emerging.count||0,'Emerging operators','var(--ip-amber)')+todayMetric((promotions.proposals||[]).length,'Promotion candidates','var(--ip-purple)')+todayMetric(treasuries,'New treasuries','var(--ip-blue)')+todayMetric(unknown,'Unknown infrastructure','#f97316');
+      var registry='<a class="vi-card monitoring dw-registry-callout" href="/intelligence/emerging-operators"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">X20 intake</div><div class="vi-title">Emerging Operator Candidates</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value">'+esc(emerging.total||emerging.count||0)+'</div><div class="vi-metric-label">Active</div></div><div class="vi-metric"><div class="vi-metric-value">'+esc(unknown)+'</div><div class="vi-metric-label">New today</div></div></div><div class="vi-action"><span>View Registry</span><span>→</span></div></a>';
+      var feed=events.slice(0,24).map(function(x){return intelligenceEvent(x.event,x.stream)}).join('')||'<div class="dw-empty" style="padding:22px">No new meaningful intelligence in this window.</div>';
+      $('dw-content').innerHTML='<div class="dw-landing-head"><div><div class="dw-landing-title">New Intelligence Today</div><div class="dw-landing-sub">Knowledge changes and analyst actions first. Attribution termination is summarised separately.</div></div><span class="vi-status discovery">24 hours</span></div><div class="dw-today-grid">'+metrics+'</div><div class="dw-landing-layout"><main><div class="ip-section-hdr"><span class="ip-section-label">Intelligence</span><span class="ip-section-line"></span><span class="ip-section-count">Prioritised</span></div>'+registry+'<div class="dw-intelligence-list">'+feed+'</div></main>'+healthPanel(summary,seedType)+'</div>';
+    }).catch(function(){$('dw-content').innerHTML='<div class="dw-empty">Discovery intelligence is temporarily unavailable.</div>'});
+  }
+  function search(){var q=$('dw-query').value.trim();if(!q)return;fetch('/api/discovery/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){var box=$('dw-results'),rows=d.results||[];if(rows.length===1){location.href=href(rows[0].id,rows[0].type);return}box.innerHTML=rows.map(function(x){return '<a class="dw-result" href="'+href(x.id,x.type)+'"><span class="dw-result-type">'+esc(x.label||x.type)+'</span><span class="dw-result-id">'+esc(x.id)+'</span><span class="dw-result-view">View Discovery →</span></a>'}).join('')||'<div style="padding:11px;color:var(--ip-dim);font-size:10px">No existing evidence found.</div>';box.style.display='block'})}
+  $('dw-search-btn').addEventListener('click',search);$('dw-query').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();search()}});document.addEventListener('click',function(e){if(!e.target.closest('.dw-search'))$('dw-results').style.display='none'});
+  load(INITIAL_ID,INITIAL_TYPE);
+})();
+</script>
+{% endblock %}

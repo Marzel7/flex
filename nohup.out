@@ -1,0 +1,39 @@
+[SCHEMA] All migrations already applied — skipping
+[STARTUP_DIAG] init_webhook_system: begin
+[WEBHOOK_INIT] Tables created/verified
+[WEBHOOK_INTEGRATION] Routes registered: /helius/webhook, /api/webhook/status, /api/webhook/usage-snapshot
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WH_MGR] HELIUS_API_KEY not set
+[WEBHOOK_INTEGRATION] Permanent infra enrollment: 0/13 newly enrolled
+[WORKER] Started
+[WEBHOOK_INTEGRATION] Worker thread started
+[WEBHOOK_INTEGRATION] Webhook system initialized
+[STARTUP_DIAG] setup_enriched_routes: begin
+[WEBHOOK_API] Enriched routes registered: /creator-recent-checks/enriched, /creators/top-risk, /creator/<>/risk-details
+[WEBHOOK] M5 Webhook-First Low-RPC Architecture initialized successfully
+[OPTIMIZATION] Helius optimization metrics API routes registered successfully
+[RPC_SAVINGS] RPC savings and efficiency dashboard APIs registered successfully
+[LAUNCH_PREDICTION] Phase 3.3+ launch prediction API routes registered successfully
+[ADVANCED_FARM_INTELLIGENCE] Phase 4 advanced farm intelligence API routes registered successfully
+[DEV_INTELLIGENCE] Dev intelligence graph API routes registered successfully
+[GRAPH_ANALYZER] Graph analyzer API routes registered successfully
+[FLEX_UI] FLEX UI API routes registered successfully
+[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully
+[PRICE_API] Token Price API routes registered successfully
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[CAPABILITY_CHECK] Phase 2A networks_release: ENABLED
+[STARTUP] Watchtower tables verified (pid=50128)
+[WT_CORRIDOR_MONITOR] F5M corridor monitor started (15s poll)
+[WT-BACKTRACE] Tiered relay backtrace worker started (120s interval)
+[WT_SWARM_SCANNER] Migration scanner started (300s interval)

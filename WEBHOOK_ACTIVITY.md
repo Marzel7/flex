@@ -1,0 +1,444 @@
+# WATCHTOWER Webhook Activity Summary
+_Generated: 2026-05-22 17:40_
+
+---
+
+## Webhooks
+
+| ID | Purpose | Endpoint | Tx Types |
+|----|---------|----------|----------|
+| `fec2b429-d262-43b9-81d2-31b9efc74f77` | TIER 1 — Creator Candidates | `/api/webhook/watchtower-candidate` | TRANSFER |
+| `106e20f6-f542-42b0-83d5-ca8c7b1a7162` | TIER 2 — Infrastructure Telemetry | `/api/webhook/watchtower` | ANY |
+
+Both route through: `https://uncatholical-rylie-phrenetically.ngrok-free.app`
+
+---
+
+## TIER 1 — Creator Candidate Webhook (`fec2b429`)
+
+### Status
+| Metric | Value |
+|--------|-------|
+| Addresses enrolled (Helius) | **341** |
+| Addresses enrolled (DB) | **353** active |
+| Total hits recorded | **0** |
+| Last hit | _none — no candidate has transacted_ |
+| Last candidate event | 2026-05-22 13:25:51 (`G3oGTf…ejqf` staged via G2BbetUg…) |
+| Staged wallets (total) | 4,992 |
+| Staged — DORMANT_FUNDED | 0 |
+| Staged — ACTIVATED | 4,992 |
+| Staged — LAUNCHED | 0 |
+
+### Notes
+No candidate webhook hits have been recorded since the system started. The 341 monitored wallets have not transacted since 13:25. This is expected — they are pre-launch wallets waiting to move. Activity will resume when the operator next distributes funds or signals a launch.
+
+### Candidate Addresses (341 — live on Helius)
+```
+3XoUvPJFZ21KeVQBWVDVJP7nQtQvDRvW5n2Mw3wnb5w8
+5iaNmPnDBs6irKrJ6Da6u3WmRAXVmpoZHc23RR9JckeH
+3eQnn6bXEdukQzwMcdb7h3vyeJtCFDZrGiC8mYzQ65hB
+2KeeVYw73LsXbpvYAtm2njDBYLc3rZK1vkutH41ZQ8Vi
+241t1VYnx43p1GJdn3xggG9S5YzR8ZfevoXwWjhtKtbq
+2y9SWk5SRQRbksyVcKQaT4YqMdUUs6dcBJQJzHPkrsUt
+2zjFU54h36Vyn77KPipW1nSbrFbZe7Qfea71wR6QS55T
+2eqwfuGhdHSxaxZbb6e5U9d2zwtb3uTH88tHzSq2rGyJ
+22aQ831NNXcwJJoFchJkmqJLsf9wtkTXQnEadNFUzGtT
+3KyktjmbwDXUGwastPszXw6pmQLPJUZtgEctqM2J2c46
+2J8Y6iGoyNhoVqAV8kki6noe1yRFw2bjNMrT7V8RF91o
+3Nztf8QBdRyhk7ugC1H6QYu4CkMGcdBx4jfzrBmnprsg
+37uM1rp8TK7eVURVRnjtaxGkdJyXjgA9uz83DjApcHvq
+2hWao5uTzxUmBTvEv6wwaR5fAVjstiJLc7xKU7e8CPTU
+2ShPEGC4y7upzNv9h1UuR3FJxkTrTW9V8657vHd7VWnL
+3Ru41s7pJRYQuShPFKGMqcX8SmdJU5S4d2zfnv4BQVjN
+3gu8KyK3bQo21c8BQEKCojn3Usu9Z7oeZoCuyGXbmSv8
+3KFHj1cVJcyDNzaVFYnYEUdCsKve16vkWQtcmRypVeEF
+3pTewPJjm7EtuJrPkJHjKFmqa9AAUJropjcXyL4yiZLP
+127FkvAs8aoSEtqDMjs8Tu7Mxv8JxShvjUDGBLgsgWse
+28A8QYEMgC851kkJDP5Q7Xu18fYGChycxk6nigzZjY1a
+36SGgZevPGz218GFtafoVqu77SPMYfBNkdJ4pUYyYhn6
+3d65pdf4qphXNkDRhZf3RARmsYg6EypmFAb5oKD2C3ZH
+3K6kyZqR8NSDFz41LE8kqT33FwjgW1EpXqCTL9kmqzZj
+cLF63Pg5CA3UQPXjLDYn3J95Us14MuoaA9dKPKaYzta
+3At9KLrEE8bFBfD7fxRQnM6fBdqs8wYQuu5tjHJJUS5e
+3AWgDscuEMx9vrGToHh9cR9b2K3Jsqw6L8c6wtSKXUMd
+2y818eGm4tFsMqne6vg1CmjP5nsiu4q4PpTMr9FMjnTi
+2QZ8uDCrLDoZ9fp6kNwbgPwRT7LdRsAeiWscHMcTiK8t
+2og64sMmLx5vGe8vhvBAF7Jhfj5cBLqiikC4VEYLN48u
+3TKfTx1VfDLYJ9PURmAcq7dnHFtvvpdzE1yiTX3DbGyK
+J5PqWdoBKXK43HeJkCWZWdFPKqcdD4ksd5js6MiTioBk
+2cMTKcbHerkzzcesvY6dVxpJp7aPavQsbbwXRCH1j6gS
+E8ZL8djoTzhjuwB8RcUHoKJPTHXZRSm4cAkJufNruQsH
+2JhrU4fQ1WEnF8isht96SmfoJrPCtKTGm6aKPjMawyqC
+3aryJAKk5YQZzCzGM8dm1GivkPjRBbNxcfQ44QeucKzs
+22mRirAnEChQb9Mq33TS8W1yE9akouE6AjiTGknc4j3H
+3DhNP7cMNYjLhXYMgzfH7uUngbcmxaRKWBMAistSw1dQ
+3pGKgseP5F19CSScQePPpktaRZo4qPTscFcXVgXEeMaT
+22vPL8vpjN9cbQXZxadhUzRo6tsU5MNXXxTwqrnSAVMP
+37dwhg53ZH8NMFhZcQFhQgV35gb8UiwzWhDw67y8U3M4
+2CqdsHE566rGEiYmc3HiHsswYcN9JW8wXYQR3EHCb9Cm
+3B89CbqeaNcFhETjfGjJk8FX5uuUy7Q2U6SgbMgXV9yr
+3iJp16XLUthPnvdKwx4wYojHTGdyue3736jHqJjNoNBi
+22ce3kbTWFiRDSCcvxRR4iCmep2Xc8pGzEJw1Ancs3q8
+2Rj7aaKde1xKhRurjnSh1XHfgGGPME4Fc92BSWFwzg2d
+5HC2YmpNZ5Ea5ccdzBdz9d2zs3dg6pPVTA3cGJd3QXFf
+2zYoYY4wdvagwgKBSgqwGXSxY18TUZgEg2ixdwfpsGMh
+3jKwp9dY9PWxpzr7Hxmm64ZhJBhGWvXmKP8Xcc5opcMc
+3mvNN96D1qvEbr2CyjqmBJ6FRAPz2Si1LHAsFVEeVxxG
+Gr7ir6ZXy8SQzPoArbSZ6EGjSrAruRMDJsnQ5UmwZiTR
+3Cc73kasuFTJ9CVSGk35c3SwiKFeSNzcqT4YksRw2Fj9
+7znKnvxbfkk8B2znV9LmANgL8sgBMGVmkuTQKe4N1YSf
+3fqmoiR6TgwPduZcPkRZn7QwXAPVVqs4YMnPfNotaMq2
+3dxmSSoSbLpmyZZTJhGP4w9DUPLCrMyyUNpb6eL8e3Rf
+3H7NxdkxwLsJfBrWRAn5bqWuk1iGfasPfStK3DS8Jv2T
+2vXFRfiSCwhmCvd9ngAwex9xqPrP7anmuFFgrMvt4zGy
+213DrgTPF4q19NM61XLSZR41Sac37qB8LFoH5J3EiQS3
+3RkDGFWnVqX2fUccqY7N3x8tZpmTt5iSWSxcp2xfqYf8
+3BJpPHQqS5vkpdnuHZoejW8tN7ThYqtkKpC5DxwyAxFW
+26bzAqX5oD3rKh1BSxhsZCMdLWJgujBMrU5NbLXy9J4X
+32KRDKzDW7djjMvZdQ2dKGdgKoTDjbFVt2PqVEZECfza
+rcBx4ncFLT6U7TDcq6U1xhi97oKbPwvg7stf36kTRJp
+8LJTLCzEVvGG54N7Fb3w7f4LwWCyahdfqfb2n1YjvkCz
+2pH2717jzhnZYCNHbPvDJEqCWP8tuqJy3xMNNGiDYPXy
+3BJ9XoKvgoCA5M1QEqQA3Sxaub6dn6w6t67i6xhE8qah
+3Ec5HFHn6CU1VcYSALSLRJe8qkAy3epFNtcHFxT4Hsmp
+2LAyN7LwtdTFSb4YqLLknMoqiHiWeZeohLopKiPWa5nc
+3hWYsnwLnG5QnQQdAUbj6TZeQvLpMH3bsUw1iqgiapxe
+3Tcj2yMWKSexQ7X3bsGbZFCkoYd4TTPWoEsDRzwVBdjw
+3UEAQKvCYHZR1j8t5ubZxxjDckGJFkEzu1YFR1Y4rrK7
+29BTJe4ZmYtkC4Tqtu54zbHxqHy33D4dZZWT1C59jZDd
+3aBuN1DjeSJubuLfVfBzfwnR4X1AUAJZ6a81vUPNvca5
+34Kq3jEpUxjr41CCE9ot6nSgdANgvqA44hLpYwuPHTB6
+3p9qX6ZXniESWxJ79BNFmFprKMaeKVGv7fdwHDVs4G8o
+3NtHGPvy4PvBWPfSA7b9ooj2BEmPBiLbCzcv3vnd6KvP
+3cBqg6k7g9kBH17hLQPwe4KWn89s3qoP5HN5jGng2p3i
+3DBVsdpKrcmNJsZSKjjYcM3tHvBZvYQqjzvcThiG1NxS
+27QTCs8BnHo6cPSRft1rbryC28q2MBQuGdjX2PuJcCaK
+t2sYWNnRx3wkzyyunu2mUrps3LR65WtZ8NpqGqZU18R
+2t7qffaCq8s13jXvNSjEktxPeoQDm4trsbjG2TbWDoDB
+2uPTVEeidad9H45rtjvJckYq1G1YFbCQjXbGf4XhChmQ
+2NJQY4GpGKC1YZEVRmo1uzNMx9A3NoQfC3sTG3X1yDoB
+D2LgVAnGsexqGhiEHG337dkwF8akUMfbp3dMWnum4xQp
+2uqW2ydRQA3fgAJ1cQeohtAvyCxp2Qs6bnGnL9cwt9qy
+2bBRwhGoL4fRZk6g8NnhBZywsF8PdLJnBRfWDCEMogD2
+EZCzRFiGU9b3K6ANVeVxZYfs8WRCcvGHoJpQL6QLQ9qd
+G3oGTf6ZCGmouaAwGt1M2wmXumZ5TQ222jq8A38Zejqf
+8ABBcUvN7Ni5cC2CCd2bCQVQ9n2KS6sWByWjMa8Ebty6
+31KhNoxHnoscN4Ehzd2XE9ntauB5EeAk4L5Uw9s8H6RP
+29BjuhPrG7rRHxnvH1B76H4ys9eFgUDZE7fepuae3k6z
+7spaGwEDGA1Ey4SqojzvtHfpSoT5xfmG6QhjNwcg7A9Y
+2w8ssLMPboEZ6CeEv4BvFRXQ34M4Vx1nRmnaLQDmBhWS
+35HFGxqDXyeRBkSjCfFeNhe4fZDQqPhtpjtPJmigByfY
+3tFpW9MmBfcuNv99BotVkJCdag6EtSXhNy85is7SMYk4
+2s7oQTgrGRYVGm4G4ZHSCjh34WngSr7ABUDfBvm8zc8Q
+3gmseae9rRg3V3HGqBQgcK6hXvVcSfgMqP53wm5FPsHv
+7EwPx1W9CUpNxi5Dn4apeq1vA4711GyTpG2e4LAEZEJ3
+39a7X9aD5XhprXQRFAoA27Rg8E3MyseUkPUx6GwV7KXC
+3TwfRgApk4zC5LWuEtEE7VKnqLik9dso53GhMZ6GJkPY
+3KFT9Nvr14DiZWVYLwRBc6R4QUsTSYabLk2BEofZxkjf
+2SssDAZBovyY7bnTYH2wFLDL2tpAvQBpAcEywUfbE8GN
+3AV5GF26WwcFsFPfsErWNPAw3q1tqFCNTMY4XBF3nBF2
+4E5fWLBJpRhcdzC15FXeuWuw6Y5Bd3fC1myfRFSJbtwM
+134Uz16jfAAi7HUBM79Ey7sXTDebzQJfSPbBYGj6wQdM
+2jgfUDxMYxz81pQW4FVR1gY1vfty7KYYTf2e9H9vmXun
+2J4vPEQyiPyQuds5kukmsHVCbyTz4MJAmxqvS3vvKmdJ
+7UfsgbZBpP3D3nE51tW7EktC6z7m2RKCYzp4QNFc7Snz
+75BKtbePSKgawiRxwAfCg9Pmdes7BQ936pstja8BTFwo
+24qVEf8pwrbVHbnzBebxME3cxHUToUosGuK1Xb77edW4
+EA9SkGppLgzx1CFKqtTQS5w2P4AXxTf6aprCeoNYzWA3
+3biTs9X2NRihvKbuy1yoQ4xLuzfoteeXLgp4cpege8YR
+2BEdHEQY2fJNUXyndKZWgJni7uPsLThiFpB1MJ7MEHBs
+yX7GSPCMhxNPerHBE9YPwzixkHuGmyn9syzwuKbRXYv
+2DAwissezSCFyDFYb5769p5hU6z57HJfsB1ExFWEZELJ
+2QjAae1C3D7L4qXp84cZMm4MQWDrFT7dUBoMYGGzRXf2
+2spvGAd437Uks961GDy2Mf4iAKvbTSh5wYv2dzW4qenF
+2pHQkKgsqCrxHRd4AQsQcZ8xbuk35Zxg13ZkDW72rL3W
+3a6HaxKPcAwt2RNkuHZZM23Z2WRdBqmd59HxCYAAW96g
+3CUzpwiHzuoSP2WayezASAtvf5Z4AknRvVCFs6iYjJhm
+3Tx9rimPi7nwAyNqHB8U4JhdcaLdhpVLuN9uSENYWJoY
+6nSbz1rMn4EuEf77GFtFQWHJqYJYe62Fr9pCM664niky
+2YVUC5e1AR8p7SbK9hQxm7tKTmpmBuUNvH7gd3kbUSWp
+2Z8iCSDgQrdXtLxXhfiYA21aU7x9M6CJD1bcvbv6u5Kz
+2sY4mm1jyPzgdyby6fWFicN5vc5xqfrh3j8M687hQLGf
+3V5BVEWr9QvbcPrRjqHdMDqH2rZHhs9rYXASXft1FQfp
+2tdSRzMwUhU4iCeZuBsmmPD1NfznhJs36879YNsPRYqc
+2NEVQjiwRdRUpj452h9JWUga8GGQX7ztWkhiqwrXxLCt
+3Ax99CaQ3soB7eT2goYdX4gw3yxHXZRGdUYRJv4Jowpb
+3DZkSo9wf5vb86UsxWL5qiNNFvMuY7gL2whLUgzz8EFM
+3XeZQFJgDJDtgJvzQnLi8oNrPgVcPYFt8LRC922VfAbW
+3hV3hXEdCjQW7z2TLrofpnHALtSTVgVUcArxqHW8unQA
+22tjcNV5nQf2cvmEHnamUEc154bN8WpDjDcM28jzofcS
+2FWMpthyEJ3AGsq61TogQevJT5S5sU8bTngsDtgwBwBV
+3VmNQ8ForGkoBpvyHyfS31VQuQqWn4NuxTTsvf7bGGot
+2pYVEE3NcabZFoEZPi72HyFxTUzicsQ3HWvEhJXUPtFM
+2rv6NkMhDEENk3csjuvdYDww2CvCJAmjioq6pVtX5Mg6
+5A7ciXyz9qYb52QuhtjjdJyp8f3VUFrpvZ9uNUvoNsuR
+36A6mEN5rYJdVTb6fMqVvG6ez8g2mTYdr1omWcQ1kDKG
+3efZVhXv2QWZpxUEQj8zJEt49CRgKCJu6nnMPRtnZ6HH
+A8w5tD44egKLSS2GGx8kiwNZ4uSdTNAjCtWz5W13u3dA
+37JcicoNvYFbbAZd83iEMVSs7gHLbxkRwiRrj3JoaSZy
+14nxEC69bZ16bPWqSZXMHnGd8YmbcvLqvDprfRu3oDqj
+2GwzAG8X8dPBFpKbenthhh6W6pJT3rfY21NmpaFgbTry
+2cUPv2XHvq13QCYpijmy2ranrSu39rhHwtSrPpkVQvGP
+3JhQmhsxQQ3DkhwUbHquD4SVBDUb3q314jvopw8KVnr1
+3X8h7xd1GFaZgHrP2HaB1iWiyVThQx8ATSDgdewJahoF
+3bkXrWGfvepizziE7xjVdjxLEwWCCAwR53Fs7gM2tUdv
+2ZZkPcnmxDjJzXoD5hF7L18myV5EyijkHwVMgjDfaR2o
+14pxfkRuG7ZZKQeKGpqtdDUZwKEokKcRM1Z2tHs69NYN
+44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM
+3KioS3PWnqfjMhTPyNdyshe6cUJYMMKHyZrA515x8yc2
+34LR8PQh8sTbn3jcvazE4tynJhfZU9vmZsSR4Lwgzucg
+2QzFgnmACSpk28wjXaMYC1HSHX9F3gBsLocdgQdTuLwC
+2c9VCFhADoyThq6Zm4stN2DeV5D1crV4o6xRyLneTY9b
+3VWZCX1SNQeTZrMXgVSYkKkC3Q9TYx9ZggpLeaoqWUTj
+3o4EhamPgkoSUhSc2JAWfGL1NC3mWuhfboap4Bq93SVc
+FUJhJoRebFgg5J3i1kL1xKHfm4H5LyBmD3A4FQzLWiBa
+2FLEtG94UJ9hp17y3tf3Xp9xwsz4d2o2YcSgrb8LyfWw
+3R3fVzEhRwvRET9LyL7NGk5oU2kzMKvqesy6HPjXZinR
+3FTxeKEhHyHXNZJJHmqDAaXQqC9fC24jjw7dA71tgMTS
+2JptG7VJTuohCNrEE2iVT43UtjTNqRTVMsgNs8xeotbC
+2rZ5GDPy9V3gjrPqEpq3tufGNx3YvA48cCeuoXXsceb7
+2kBJEUNjWNgDJwMjWbxgEeZ7krvH324mxwagoJgtmgGR
+37PFnmTNkWXimFbU13VjKk59ahgD9fqBxZnm32dYeQED
+3oJZuXkgMNWJ2RAnkGcjHBHyvci5SXHxeFjY2w31DUft
+3DyHAbWKBwVuZN7qzUeVugyPp4S5Sq7rAonEkvLaTbhf
+14AZaTw4WoaVWnZJZqD1uZDWxwr4oCo9uADvNWgM6cuw
+3HPv4PorfkvqNkyrcLg7JLQsay6BgQpcuLo2XHqJMK9g
+2bRoascfGCKkRnyZLmzJh7cKpiD45zyEzUmg9XPZzueC
+2svAkuNrtNQK1Ftod6cDdwXMcaQmLoxkhXjVcJoTtw6H
+12EoVMFn1jjK8RAawV31Vz8R49WSFnxxa2BVtBocuC1c
+2To7TPb3BiiQ5GmWXb6vhamXYdEJSn48yEpaiamxjP2w
+2M8sKxmx38GpJE2fK3WuLf44bHVZWfcRJeekJY22DQWT
+3CrQ8gcrsqF55Et3qQzei1ZsKvYyVBUwx1KqZKkML5ty
+13yLRffreBZn483Wbkfec5MratYXWjQ9DyGTvA2VHPy4
+9zPQ9F41hSpLL3Dy5at4GUrX43QNKWEcQMhKUAb4WSeD
+2p6gwKzVgmPyjzrA88CAYnjpoB8ZjUpfh6QusK3QMCJe
+29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8
+2ApvYqZPmVnXJa8bnU1Aa8iFWJMdXDDkCJFChWxGB6o
+2tadqyLqk1e4tkrKTeAUurnLhVq5qUzMAGANTzfwNz1f
+2itfH8wrHQCXgqwWzYyZAKv7kwtgdbpgbTDTCz5kHhsg
+2TShMMcR1FBm6aQ97cwfYRsH6cNXYG9pQZYoVatMdksC
+28wsHDKW3oyq8W7WGhRmDHqTGPTLMGhNrd5ATJYp95Az
+2CD7hXnABRENrL5WsMZdV2SZ71Q8Wa7bsNLZdNfkho4o
+3ADPUjNJrzZfyyyAFreBWD6XFG2PCXKHon3MsAbEELnD
+2yy5EULmzQfhRf7fEGZsfSr4bx8kd9xgz88taDR6rPhi
+3SbjDjHjPYWwR6pgMM1iTnRjSxvaYeqGgd3mLUqyEChk
+9aUrC6coeue3uutBmrcsKTMpfNkrzBTRmhsCKpfYm7Yn
+FawetSfvftbN8L3NG8vdT5VDoBwFKX4vDLrMongtYn8N
+3HZ2paqhAEx7EyktwkLAXooQoV5fNBZJxNe5H5CuhVZP
+2VL3VCsgYv4ghhj4xKyK7hDhVCuJQEScwk34xMTxzEkr
+3egQ1DBiBQucNwLYEqUDRhqaa5eXDHfPh5pmZn45zJcT
+2YGJkpuPRp3256LYJCqu6KxBd3Ba99t89WrbHKVfEvAs
+9WvCgVzEr85oqrQiNSLA3mZGAvUQBY2y4qXtN4V6ZRti
+3q8cKFnq3jpgkFgM4ApeQyLKWBPjGfazTwPFpZ7kCqGg
+A823v7LkrDHxN61n4EoD6Xyy4QstDoons8Xw3h78QpM3
+2k7K6NGLEL6rSEAdqsU8f3Q6rXHA17huVRgY3Uqgiz21
+3hc57wxHDsGiTMKgXWDePDVgb4hyMsdUfQWXrr7zeZDt
+HaWeCBpDpC55u975ej6xCBJ52mG4cZA7GoV6ZHnpad9w
+3LUfv2u5yzsDtUzPdsSJ7ygPBuqwfycMkjpNreRR2Yww
+39MjnPdBEdG5pPYYvjif3BsApB7SyHuu2bzEU5JZEtYM
+2GYNU7t9kLKRHHWtQVUZzzz6xvCTW9PPayvgspGbX1Mx
+3i4xvD3nPCG3FdRnE2aJR6FfMkALP5inQ6c9eQLPaGxG
+3SEqGFMKLTBSPviQ5EBHVNR3vYw6BKjrXm69g5BgZBKK
+42mSaHtrWAeXXFNk2hPXi112Tgv7Cz39H7Nuw2DhLHj1
+3MRDfmETzYdR1TNon3p4t7iDmpJHm1Mo41WPAcUs5Qtt
+1A1zcT94hUQABPDj3g4gbTZpzhzGH5syNfyw8tgzGP5
+2CFywHXDPjDK2iRQsb95vnjgncDUZeQKJ6MceJ4ALpdc
+2TgEQbZme2C89qwusu7Yg5PZteH1G5zAp8CZw5VHoa9t
+2ero5NDGjKZdtPZhmeRJRUD7pL846LStBzTZZLCLFy3s
+2nhobB1XPprceMU9MxjHNnW786FMSYTSNvqBUKxt4aJ2
+38z696sdQXZEV64t7mDVi9G1cfQweQei8ZuzmohR5RMd
+2A1ac5JTQ9UdtnaFrKUkmd5ZqJv41s4GM9KVbkh1KYM2
+3UGBiwmjMoy6kNYUbqHKNp7PzevfLEQwWamqxeNQRotF
+3c7Gk1wRTfhiKuwM9v7LqxU5Gx55GJkizZsSXwjvNdLx
+36v6gkEdjb7euMUPjSJYGHE6Y6jsyRrefgqM1b9pic8k
+24XmpY1Xk2miETKYwFpLnHyqKLyewcQujMWXcfz6hHiv
+2cwcYGgB92fh25VVPZPkk1PHRh1FfbgbkE71j4dngYUd
+2dQ1R6VyDTsHqo59qSv3cFCzHkkdkmAvEbRNd4bHyn9k
+2hwWWhyjvsJrqzbGYTJLzGtmimbg2mkBRsHx9Zca3EV4
+2i35VkkPCYPszeqwHSCznwYhL6rPHM2hwCoAgBWSoh1E
+2naWyJw6REE7SYeqDAeUaoJ3at5gTm8DLnjXsnmgmE8F
+2oUwULj1twXBbYZWtG9asSV78yJ4Q2eNyXZ8u2tcRjis
+2xCgGjRewsaXU23PVX2SWnDoZ9cqbcS5UM2ZMyEuW4om
+3qZEbjMiGaDm3EELNqTBs1M4PGt7RHsQf4hJLNu8MALs
+3rLuY1jtzWwvjGRtN78y5SggcAHD33bmx26T8RK1x49m
+3rNRT6j1ZvE1hKiNEvKVFW69KsiEdAbpGAwvRa7QzWgu
+3rhUBnfnT76pvsPmQdULBwoS7u19kYVjtdJohLqhiHHA
+3rn98PHSiEVA6AJoqXysxzmWup8NcmsxdLEB3hMwDYpb
+3sosf6FaYjZHQibu7MBAS3qFtSaAxRYFVTDQ8ur7hwsG
+3tj78Aszqx87GMwq2igcjcNypGKe3W793GMnMv6dKv4z
+3tj7vjdg7Ujb86y1bdSPY3dFYHz4gaPszBD8mSRqdMRD
+3uX1FCuenRTLMtRmjNLVpqUThcWtRZR45hMGubKDFpZA
+3um789SupMbUEKDa1oEV1kgQKg4LYhc22R7KxCehkFz9
+3uoGU2S2kQX3ALnDvwNARvivJT9qTxMzEGjxa6m1yYyr
+3v68M6nyQwyPzY2xEnfFRwGtdt4qEN7AS9skegbuxuWJ
+3vDNo8jDPaG6q89k2A55wN7vGSSij1VDuo4E3ebezrTX
+3vyLhussuS9wdj6V7pwZdEVW7t7PZ4tS7v8pPupUE6o4
+3wQr5u9YnfxyFq31pe1s3xSzNDzTSkAtEFC9iKsLgfwc
+3x8P1odwVPpbVa9asDaZSAbRYkcGmApVWp1ST4CEqZgs
+3xVJVtHpyRJqpF8J5dospx8vr9M9sSedkoNNPubL4VMG
+3z3GtsJPJ3KLvvzERVERfddWu4EKjmZGMfVYGhvzV9dM
+3z4EeAP4s6X8AH4Xzhu5VD4JgRikiuw661gFQxyaPbsA
+3z5FDHPFQTDo2GYpDZT7XCbSVY9q1ehr7T6Gzuu4UMyx
+3zKHSzzFDiuxUEtpX2XRzzuLXXGKFY2TRh7TiPtJ1Dp4
+3zSRekh6FFztkW4xBHv68fnnBodfS54RLm313ZuMhSsp
+3zfxKctiMfhSXgrKhUH5NChC9hzRfkncKdbuZzubJFGS
+41H61KHoC6qZ8ZrW5NBbVj7qEjFjTBebR6w99PTT9BQv
+41HhZiWLRL9Fzk7uEhdxfofMDiiFQWa1S6ijqc3BTGYC
+42UH42uci71XusfDme7DuHQ5UWh6ysbhP5YmeCj6zVBU
+431WUkmnPNaJrJwVN1juGQmabPL7fF7XZBRGKFiLLfBE
+43FRAbkN8xruvKuF48gck2EuVCFNxNzjgAPbG2tektHj
+461vDpXLYQtmDwTXWbcCJ7N444pQAqh2DbHPsKXBUB2p
+46XvpjVnrkrPNaxuriqEdFGcKonMnfGgWJRUcDqmhGkM
+46bUk2sbFFULXRbA977LDZFykgBqnXh1BSGvQL8Lxo2K
+46ujWtbfogaEsuqzNrqu63Cnt8hzxwCGJE9uMFGTgQC9
+4Bf7ExmxLxX8wRTp4keMYqMYdA1cEvkDuk2uLo1WApK3
+4BuQUctgeMUodvqp4JkAb8ALmq7Z7LHUZ2UKPK7sLELg
+4EH2RGDvVrwsR1ue7ohu6RxogqJVcCGJtEHGdwk6Cwxh
+4EP9VUJGG84dXn4qasFNPinPiJZcXzLttsstGQQXBUQZ
+4EYBUFT5awEoBYGkzeLGD9zuRXTiZcqsDmu333qtALui
+4FHF18RKmdu89Mwy3sXPkv8o8wovuJtT324i15cut4iF
+4FncZQemyoVLx8drT5g3ujDd38HEKWXdFRSK4Eygi5x7
+4GBYHnpShnKALGJRECrRsEhWQa1g4sQtnuxwtUNt1muo
+4HB9qgwRvyQ3SDLZfWNaTEDxhUtW38kvF13bY6FUuoET
+4JqniXGd937ashYbnHZ9a1Qmu9NZtz4CvQsXcLSC98JM
+4LVkaw3xYeV2ZQsJuTZSu8MWA1ucJGvisCmvBowcmfcw
+4ML9NSuQSbRjfBcNaw8Dp36hYWY6Y1VPqgNUUG7AhT2i
+4MqKtML54WNGxpBpngUvzJKE32827squ36C23hGnRdY3
+4NjWyo9JQVQ8JBEThvxd5pAXHDkuRSy4XNzpLHay85rN
+4PG3gQ7ahqYKuteAtN3EuivWTQztWEEFk399SHRhXkB4
+4PTpgkQsBkxD5uL6X4gEnbrVkLv4tXecRMt4zfukm1gv
+4QKpJD7rrz13BYaAbcUBpoQw1fLTLtqjJtasAdkaTxXg
+4Qce9p4GYHtc7BGFzLFAKzXjyWVXhmFKUKzsUNSPjeMz
+4T2bsch7p48XFM7qUivVr2NzQeC3TyfKshyz1maE2r27
+4T4kQ4qpqWTATYAnsuJnvLeFWbvEeaBr5FtYc1MJJknw
+4TGUSKQwHiuTBErqQZ4Dr7Dsv6yhfH7CnMNDAKipC5T7
+4TGb4yXdopy1FYAYofSvDRxGoNDEzTzWcpyqgdtFpx7t
+4TJyAeFDABftp4mqXdA5a8t9coESFgQZDuNWMqctP5Kv
+4UXQE4q7okW6pawXfgVUwS7Xh9FjdtZbbJDMuGGMQAXz
+4UcETfQsjwmUypYvp92BCsZunaW2k9y4J38yCVvjAa2D
+4UczsCegGaA6ZLhvkPpbbZiE5USs4gAeTEifXn4TpUUV
+4V5GYkBinLgTyr5povLSjk9YPEbPGum63w9zGm63paJx
+4VNjaWWDjRf89KPrTDQ5XUZ6S4sSFcYuWhkM8HWDgeuv
+4W9DpMmNzMwJZzejKeYWKXxNfatTkA6oBPqE4fjwUQQr
+4WuWfSdocfjcEoXM4oy18sfBah9LXAsiDLdFYmCJwGu9
+4XEWMri4j43K6AG1AaeVSPxGqtd2gkJo37cyHg3spsk5
+4XGbRC1SjVjThtAq3vYmyUx72ugygLmcjUVRV8DjUbU1
+4XHn3ehH1ty1kdUyoaCEKM8JpZGjPMCuumodPGDFiCrK
+4Xbj7gmotX3SYFEDQFBBxcro1N2STh5tyVg1LN3wE4WY
+4Yb3EYyaU2HP2JBbysYjF8t93J8MozBmKmHViYAay4ou
+4Yed6318DZEnpULv9U6UUjKZUUk7Wgd3CTve14jsyw7W
+4YtpoYoqgriPcQ2yo7uYgEuWcKWnMEQYK4XPgeZEPM1X
+4ZEE9XP6zVioa8LitgGsWLNpJpfCBpnd8D5XhbXTpogW
+4ZcCzcnPv2na7rdzyF7zJ9tzYnbfFwrWkrpM2fAR6MJT
+4ZyTQSAjcSETK2937ukuBmtThkbhZfd4sqN5yBbdrsDx
+4aH6AAiowtFHB8z1Y4AYqzqfcdX4UW3nznF7qYNb2n3d
+4abypC2fV9pRmj4Hsw7dM8FXeXWbjksiMpzEAWq5apeK
+4andMbEjXM2JDyRig4u3tk41gJaZskKBw7uGaHLzbWC5
+4bTnyBZwAVehXz52tgKsaZLWe1fx6MdXFKN4jtaew5SW
+4cMfiSChFGp5R58y1u5AXqxe4U19WfycQTFVNfKMPcw5
+4cX9dWEx9zhPWDHYg5x2gFuYG4bUSNMgpTmEjJ1ocNPs
+4cXnf2z85UiZ5cyKsPMEULq1yufAtpkatmX4j4DBZqj2
+4cwSK8bVkLafHrsosXWZ37t1Xqc4xq6EZ4PyRGUquL6C
+4e2YKS2ZjnLE8qua5BRXbvSUK9kuCbCna5sG53ZqoSwy
+4euviEFo1sGxxJUwJsSpik48KYJE6xwsfoMEEhmZPXgt
+4euyaqBe45J5dniAcNARERUo7B1wG96riG21sEpNndfU
+4fqDt3NB4CnbzxXcTH3K6RRsQYx41NQAen6xXTc29FWT
+4g3aRqawDupbpHEEGKrbpksAmnebU2auUMovEJMrLhpX
+4hXwNvJBKVY8U4ckMXAAFqSLhm7tE1yxsu4jcafj7isp
+4iGA6w5xgqXuCvWt9davYjdE12esMxETBxHhdT4pRpaS
+4iJZcdgyeNhpLskjNbF4tuHTk4fn2tXL69FS2xNu3thq
+4iPQaPgzigVyw3XxvtjfsyndYzcdXhC1bfAiGMnL3DJg
+4jNmRRuC1dHw7GNFRy4Y8TTAxahspvRD5YJjHD7ddcoa
+4jyBN4oqpfY3nxHz9aKMaZiHKot9Cv5JEkDZdnfCa6qV
+4jzSEZKTV2o4bC48V9fmh3HpjBGVSHMAAwK2NhGZcejR
+4kNRPAtdWfYnkDbuAwccUmCZuFt9mXfGhh8LxFhNdubm
+4kmdaYHzzwKB2q5dE1ppf1YrTJTgjLgcJvCtV6PCgWuA
+4mAZPLhMv39J1hxNe5be4noxsifNLpNdkdrQmw8HDqjs
+4mLmXQgkEThAWcKpPrXPSUG6QvoCexpBERy7DMXeNAh6
+4mNJgYzVi1T2h2SEDCpAvCJ91JvdktJyp9KVx8ZRKeSH
+4nj1DX6BAyYBxgapQr2EEgkoYxUSJYxUXeoRycLaKieP
+4pDesDYFZf4vJ4jEX7t92dxxtAWQ5GvfHfxRsBG1acuU
+4pTZzhfHbj6VmaHoCtfc3Ho1wXoHPXCEB8t8YyKU5GNE
+4pV6WXBJVrX7nQAS612MqNYrC4mu9DCzfMexP3S4WLCr
+4qNLWyzpot6Zmy6EVPM2jziejbNYaWX9X3mSkLB2aYTw
+4r7sFFdVSRWTow6Zwn5HySsc5TDfDd6vj4hFMhkznPtX
+4sAUSQFdvWRBxR8UoLBYbw8CcXuwXWxnN8pXa4mtm5nU
+4sDYAS4hXLaVBqWEjzTGR1vMS9EChhjcPzR1ZcYcwcHm
+4soXdD3WynJqXyz2mCgg4scDRmvx1YN8tVVEQ4ezhihM
+4t5SyK1WvgzEwfS9MHLJrx8sY7qp4tTA9nrAGwureJsi
+4tfgT8cesz16khBx9SL86btvC7NHa3n9JiGTGDSGFcZD
+4uKti3apCkYefjKVavGMMNrX5i17rwjR4bqYPjr4ynex
+4uLSqMJ1ELztnLwoWUwhHYbWfFfN5nA79MX2N5C4iTtx
+4vqHuQdJ1ZvRgz1a9q8mwkEtxy7wAgtBWYusvMAy7BLN
+4x7NXFn5S3Du5dS1tjL8ygaghYodehquBxdRVSD8GoUE
+4x8L843uLk4LwUE2PbSBbqG7e7kCpv9nN8q16gxDHnuX
+4xcDkwRMnGtWE8AJGACvJRvPSRGmJwbnWFjEyTk7XsVT
+4yWDmvn7TUVQuZvZRYcEcQuFijEWZ73FpnrtRnFb66aC
+4yZZpYyyVZpBFih6KLFvEv35UfViPsXpugdZLsfhYDw4
+```
+
+---
+
+## TIER 2 — Infrastructure Telemetry Webhook (`106e20f6`)
+
+### Status
+| Metric | Value |
+|--------|-------|
+| Addresses monitored | **12** |
+| Raw hit rows (`wt_webhook_hits`) | **26,116** (pre-tiering backfill) |
+| Bucket rows (`wt_infra_telemetry_buckets`) | **11** minute-buckets |
+| Total hits (bucketed) | **408** |
+| Total SOL tracked (buckets) | **466.6 SOL** |
+| Last bucket written | 2026-05-22 16:36:28 |
+| Relay counterparties tracked | **408** unique sender→relay pairs |
+| Discovery state NEW | 408 (pending RPC backtrace) |
+| Discovery state CREATOR_CONFIRMED | 0 |
+
+### Infrastructure Addresses
+
+| Address | Role | Telemetry |
+|---------|------|-----------|
+| `44orA1BxQfFaX2iMjRbWstoqqWBE7ag8BD93ikxR4JFM` | SIGNALLER | Raw rows (low volume) |
+| `44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM` | TREASURY | Raw rows (low volume) |
+| `6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1` | TREASURY_UP | Bucket aggregation |
+| `C745erBxwn4sJZGDRZpi71FPV3MA3kBQUXWbeJxRsGS4` | SUB_PROV | Raw rows (low volume) |
+| `Gs7zXNYwdd2X1PoyBbsJBCuNTz6EyTT5KSd38tLMEmif` | SUB_PROV | Raw rows (low volume) |
+| `N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7` | PROFIT_RELAY | Bucket aggregation |
+| `F17dbo3EeumSte7hEBgn6wDAv65BEN4U8eba9zXcNTg` | PROFIT_RELAY | Bucket aggregation |
+| `EYjGUZamSQ9vJBxZ4yj7pCK2XaZ99MAEQx9xRMrzyMx1` | SWEEP_COLLECTOR | Bucket aggregation (was 20k+ hits/day) |
+| `96b4e8qvhjEPsXDtenEgs1VLBTkFqAcgYV8tE16Mgt7h` | SUB_PROV | Raw rows (low volume) |
+| `kFycb9QoQaRgLy3zZpF4Zw5DM5gKoT5HkZogSerq1Hd` | SUB_PROV | Raw rows (low volume) |
+| `67UoZBTBGhFa3irg6hv5dETdwLRTx2HCTyq5H51KFMFu` | PROFIT_RELAY | Bucket aggregation |
+| `3UnqbigDhZvHpQFR29aDhKLEWSNkFcMbuNCrSDk6iikj` | PROFIT_RELAY | Bucket aggregation |
+
+---
+
+## Operational Event Timeline
+
+| Time | Event | Wallet |
+|------|-------|--------|
+| 13:25:51 | candidate staged | `G3oGTf…ejqf` via G2BbetUg… |
+| 13:23:44 | candidate staged | `HaWeC8…ad9w` |
+| 13:15:13 | candidate staged | `Fawet5…Yn8N` |
+| 13:05:18 | candidate staged | `75BKtb…TFvo` |
+| 12:54:44 | candidate staged | `7Ufsgb…75nz` |
+| 12:47:22 | candidate staged | `FUJhJo…Wi8a` |
+| 12:43:36 | candidate staged | `A8w5tD…u3dA` |
+| 12:43:01 | candidate staged | `EZCzRF…09qd` |
+| 11:56:46 | candidate staged | `yX7GSP…RXYv` |
+| 16:20:53 | profit_sweep (last infra event) | — |
+
+_All times UTC. No events since 16:20 — candidate wallets are dormant pending next operator action._
+
+---
+
+## Pipeline Health
+
+| Component | Status |
+|-----------|--------|
+| ngrok tunnel | Live (`uncatholical-rylie-phrenetically.ngrok-free.app`) |
+| Flask endpoint reachability | ✅ Returns 200 |
+| DB lock errors | ✅ Zero (fixed 2026-05-22 — chunked `token_prediction_builder` writes + relay discovery worker no longer holds DB during RPC calls) |
+| Queue-based webhook handlers | ✅ Active (`_wt_infra_queue`, `_wt_candidate_queue`) |
+| Bucket aggregation for SWEEP_COLLECTOR | ✅ Active |
+| Relay counterparty discovery worker | ✅ Running (300s interval) |

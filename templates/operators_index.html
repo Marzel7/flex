@@ -1,0 +1,243 @@
+{% extends "base_shell.html" %}
+{% block title %}Operators — Intelligence{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+.op-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 90px auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s;
+  border-left: 3px solid transparent;
+}
+.op-row:hover { border-color: rgba(34,211,238,.25); }
+.op-row.CONFIRMED   { border-left-color: var(--ip-green); }
+.op-row.PROVISIONAL { border-left-color: var(--ip-amber); }
+.op-row.REVIEW_CANDIDATE { border-left-color: var(--ip-purple); }
+.op-row.CANDIDATE   { border-left-color: var(--ip-border2); }
+.op-row.REJECTED    { border-left-color: var(--ip-red); opacity: .5; }
+.op-row.MERGE_REVIEW,.op-row.SPLIT_REVIEW { border-left-color: var(--ip-purple); }
+
+.op-row-name   { font-size: 12px; font-weight: 700; color: var(--ip-text); }
+.op-row-sub    { font-size: 10px; color: var(--ip-dim); margin-top: 2px; font-family: monospace; }
+.op-row-status { font-size: 9px; font-weight: 700; text-align: center; }
+.op-row-conf   { font-size: 10px; color: var(--ip-sec); text-align: center; }
+.op-row-link   { font-size: 11px; font-weight: 600; color: var(--ip-cyan); white-space: nowrap; }
+
+.ops-filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.ops-filter-btn {
+  font-size: 10px; font-weight: 600; padding: 5px 12px;
+  border-radius: var(--ip-radius); border: 1px solid var(--ip-border);
+  background: var(--ip-card); color: var(--ip-dim); cursor: pointer;
+  transition: border-color .12s, color .12s;
+}
+.ops-filter-btn:hover,.ops-filter-btn.active {
+  border-color: rgba(34,211,238,.3); color: var(--ip-cyan);
+  background: rgba(34,211,238,.07);
+}
+.ops-search-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.ops-search-input {
+  flex: 1; background: var(--ip-surface); border: 1px solid var(--ip-border2);
+  border-radius: var(--ip-radius); padding: 9px 14px; font-size: 12px;
+  color: var(--ip-text); font-family: ui-monospace, monospace; outline: none;
+  transition: border-color .15s;
+}
+.ops-search-input:focus { border-color: var(--ip-cyan); }
+.ops-search-input::placeholder { color: var(--ip-dim); }
+.ops-search-btn {
+  background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.25);
+  border-radius: var(--ip-radius); color: var(--ip-cyan);
+  font-size: 11px; font-weight: 700; padding: 9px 16px; cursor: pointer;
+  white-space: nowrap;
+}
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <div class="ip-breadcrumb">
+    <a href="/ops-os">Mission Control</a>
+    <span class="sep">›</span>
+    <span>Operators</span>
+  </div>
+
+  <div class="ip-header">
+    <div class="ip-title-row">
+      <h1 class="ip-title">Operator Intelligence</h1>
+      <span class="ip-ts" id="ops-ts"></span>
+    </div>
+    <div class="ip-subtitle">
+      Persistent actor identities resolved from cross-operation evidence.
+      Each operator represents the same controlling entity behind one or more campaigns.
+    </div>
+  </div>
+
+  <!-- Summary strip -->
+  <div class="ip-strip" style="margin-bottom:20px;">
+    <div class="ip-metric"><div class="ip-metric-val" id="s-total">—</div><div class="ip-metric-label">Total</div></div>
+    <div class="ip-metric"><div class="ip-metric-val amber"  id="s-candidate">—</div><div class="ip-metric-label">Candidate</div></div>
+    <div class="ip-metric"><div class="ip-metric-val amber"  id="s-provisional">—</div><div class="ip-metric-label">Provisional</div></div>
+    <div class="ip-metric"><div class="ip-metric-val green"  id="s-confirmed">—</div><div class="ip-metric-label">Confirmed</div></div>
+    <div class="ip-metric"><div class="ip-metric-val purple" id="s-review">—</div><div class="ip-metric-label">Review Candidates</div></div>
+  </div>
+
+  <!-- Search -->
+  <div class="ops-search-row">
+    <input class="ops-search-input" id="ops-search"
+           placeholder="Search by operator ID, wallet address, or name…"
+           autocomplete="off" spellcheck="false">
+    <button class="ops-search-btn" onclick="doSearch()">Search →</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="ops-filter-bar">
+    <a class="ops-search-btn" href="/intelligence/operator-promotions" style="font-size:10px;padding:5px 12px;text-decoration:none;">Promotion Review</a>
+    <button class="ops-filter-btn active" data-status="" onclick="setFilter(this)">All</button>
+    <button class="ops-filter-btn" data-status="CONFIRMED"   onclick="setFilter(this)">Confirmed</button>
+    <button class="ops-filter-btn" data-status="PROVISIONAL" onclick="setFilter(this)">Provisional</button>
+    <button class="ops-filter-btn" data-status="REVIEW_CANDIDATE" onclick="setFilter(this)">Review Candidate</button>
+    <button class="ops-filter-btn" data-status="CANDIDATE"   onclick="setFilter(this)">Candidate</button>
+    <button class="ops-filter-btn" data-status="MERGE_REVIEW" onclick="setFilter(this)">Review</button>
+    <button class="ops-search-btn" onclick="triggerResolve()" style="font-size:10px;padding:5px 12px;">↻ Evaluate Identity</button>
+  </div>
+
+  <div id="ops-list" style="display:flex;flex-direction:column;gap:6px;" class="ip-loading">Loading…</div>
+
+  <div id="ops-resolve-msg" style="font-size:11px;color:var(--ip-sec);margin-top:10px;min-height:16px;"></div>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var ALL_OPS   = [];
+  var activeStatus = '';
+
+  function ago(ts) {
+    if (!ts) return '—';
+    var s = Math.floor(Date.now() / 1000 - ts);
+    if (s < 60)    return s + 's ago';
+    if (s < 3600)  return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+
+  var CONF_COLOUR = {CERTAIN:'green',HIGH:'green',MEDIUM:'blue',LOW:'amber',UNKNOWN:'dim'};
+
+  function renderList(ops) {
+    var el = document.getElementById('ops-list');
+    el.classList.remove('ip-loading');
+    if (!ops || !ops.length) {
+      el.innerHTML = '<div class="ip-quiet" style="padding:32px 0;">'
+        + '<span class="ip-quiet-icon">○</span>'
+        + '<span class="ip-quiet-title">No operators match</span>'
+        + 'Try a different filter. Identity evaluation is read-only and does not populate operators.'
+        + '</div>';
+      return;
+    }
+    el.innerHTML = ops.map(function(op) {
+      var name    = op.display_name || op.summary || ('Operator ' + op.operator_id.slice(0,12) + '…');
+      var confCol = CONF_COLOUR[op.confidence] || 'dim';
+      return '<a class="op-row ' + op.status + '" href="/intelligence/operator/' + op.operator_id + '">'
+        + '<div>'
+        +   '<div class="op-row-name">' + name + '</div>'
+        +   '<div class="op-row-sub">' + op.operator_id.slice(0,20) + '…</div>'
+        + '</div>'
+        + '<div class="op-row-status"><span class="ip-badge ' + (op.status==='CONFIRMED'?'green':op.status==='REJECTED'?'dim':'amber') + '">' + op.status + '</span></div>'
+        + '<div class="op-row-conf"><span class="ip-badge ' + confCol + '">' + op.confidence + '</span></div>'
+        + '<span class="op-row-link">Open →</span>'
+        + '</a>';
+    }).join('');
+  }
+
+  function filtered() {
+    return activeStatus
+      ? ALL_OPS.filter(function(o) { return o.status === activeStatus; })
+      : ALL_OPS;
+  }
+
+  window.setFilter = function(btn) {
+    activeStatus = btn.dataset.status;
+    document.querySelectorAll('.ops-filter-btn').forEach(function(b) {
+      b.classList.toggle('active', b === btn);
+    });
+    renderList(filtered());
+  };
+
+  window.doSearch = function() {
+    var q = document.getElementById('ops-search').value.trim();
+    if (!q) { renderList(filtered()); return; }
+    fetch('/api/ops/operators/search?q=' + encodeURIComponent(q))
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (d) renderList(d.results);
+      }).catch(function() {});
+  };
+
+  document.getElementById('ops-search').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') window.doSearch();
+  });
+
+  window.triggerResolve = function() {
+    var msg = document.getElementById('ops-resolve-msg');
+    if (msg) msg.textContent = 'Evaluating identity evidence (read-only)…';
+    fetch('/api/ops/operators/resolve', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (msg) msg.textContent = d.ok
+          ? 'Evaluation complete — ' + d.report.identity_observations + ' identity observations, '
+            + d.report.proposals.length + ' proposals; no canonical writes.'
+          : 'Error: ' + (d.error || 'unknown');
+        if (d.ok) load();
+      }).catch(function() {
+        if (msg) msg.textContent = 'Resolver unavailable.';
+      });
+  };
+
+  function load() {
+    Promise.all([
+      fetch('/api/ops/operators/summary').then(function(r) { return r.ok ? r.json() : null; }),
+      fetch('/api/ops/operators').then(function(r) { return r.ok ? r.json() : null; }),
+    ]).then(function(results) {
+      var summary = results[0];
+      var data    = results[1];
+
+      if (summary) {
+        document.getElementById('s-total').textContent       = summary.total        || 0;
+        document.getElementById('s-candidate').textContent   = summary.candidates   || 0;
+        document.getElementById('s-provisional').textContent = summary.provisional  || 0;
+        document.getElementById('s-confirmed').textContent   = summary.confirmed    || 0;
+        document.getElementById('s-review').textContent      = summary.review_candidates || 0;
+        var ts = document.getElementById('ops-ts');
+        if (ts && summary.generated_at) {
+          ts.textContent = ago(summary.generated_at) + ' ago';
+        }
+      }
+
+      if (data && data.operators) {
+        ALL_OPS = data.operators;
+        renderList(filtered());
+      }
+    }).catch(function() {
+      document.getElementById('ops-list').innerHTML =
+        '<div class="ip-unavailable">Operator data unavailable.</div>';
+    });
+  }
+
+  load();
+})();
+</script>
+{% endblock %}

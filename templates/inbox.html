@@ -1,0 +1,286 @@
+{% extends "base_shell.html" %}
+{% block title %}Analyst Inbox — Operations OS{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+.inbox-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.inbox-filter-btn {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--ip-radius);
+  border: 1px solid var(--ip-border);
+  background: var(--ip-card);
+  color: var(--ip-dim);
+  cursor: pointer;
+  transition: border-color .12s, color .12s;
+}
+.inbox-filter-btn:hover,
+.inbox-filter-btn.active {
+  border-color: rgba(34,211,238,.3);
+  color: var(--ip-cyan);
+  background: rgba(34,211,238,.07);
+}
+.inbox-list { display: flex; flex-direction: column; gap: 8px; }
+.inbox-empty {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  padding: 48px 20px;
+  text-align: center;
+}
+.inbox-empty-icon { font-size: 32px; opacity: .15; display: block; margin-bottom: 14px; }
+.inbox-empty-title { font-size: 14px; font-weight: 700; color: var(--ip-text); margin-bottom: 6px; }
+.inbox-empty-sub   { font-size: 12px; color: var(--ip-sec); line-height: 1.6; }
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <div class="ip-breadcrumb">
+    <a href="/ops-os">Mission Control</a>
+    <span class="sep">›</span>
+    <span>Analyst Inbox</span>
+  </div>
+
+  <div class="ip-header">
+    <div class="ip-title-row">
+      <h1 class="ip-title">Analyst Inbox</h1>
+      <span class="ip-ts" id="inbox-ts"></span>
+    </div>
+    <div class="ip-subtitle">
+      Items requiring analyst attention, sorted by priority. Dismiss when reviewed.
+    </div>
+  </div>
+
+  <!-- Summary strip -->
+  <div class="ip-strip" style="margin-bottom:20px;" id="inbox-strip">
+    <div class="ip-metric"><div class="ip-metric-val amber" id="strip-new">—</div><div class="ip-metric-label">New</div></div>
+    <div class="ip-metric"><div class="ip-metric-val blue"  id="strip-ack">—</div><div class="ip-metric-label">Acknowledged</div></div>
+    <div class="ip-metric"><div class="ip-metric-val"       id="strip-ip">—</div><div class="ip-metric-label">In Progress</div></div>
+    <div class="ip-metric"><div class="ip-metric-val green" id="strip-res">—</div><div class="ip-metric-label">Resolved Today</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="inbox-filters" id="inbox-filters">
+    <button class="inbox-filter-btn active" data-filter="all"          onclick="setFilter(this)">All Active</button>
+    <button class="inbox-filter-btn"        data-filter="CRITICAL"     onclick="setFilter(this)">CRITICAL</button>
+    <button class="inbox-filter-btn"        data-filter="HIGH"         onclick="setFilter(this)">HIGH</button>
+    <button class="inbox-filter-btn"        data-filter="MEDIUM"       onclick="setFilter(this)">MEDIUM</button>
+    <button class="inbox-filter-btn"        data-filter="LIFECYCLE"    onclick="setFilter(this)">Lifecycle</button>
+    <button class="inbox-filter-btn"        data-filter="BEHAVIOUR"    onclick="setFilter(this)">Behaviour</button>
+    <button class="inbox-filter-btn"        data-filter="OPERATION"    onclick="setFilter(this)">Operation</button>
+    <button class="inbox-filter-btn"        data-op-filter="watchtower"             onclick="setOpFilter(this)">WATCHTOWER</button>
+    <button class="inbox-filter-btn"        data-op-filter="launcher-observatory"   onclick="setOpFilter(this)">Launcher Obs.</button>
+    <button class="inbox-filter-btn"        data-op-filter="buy-swarm-observatory"  onclick="setOpFilter(this)">Buy Swarm Obs.</button>
+  </div>
+
+  <!-- List -->
+  <div id="inbox-list" class="inbox-list ip-loading">Loading…</div>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var ALL_ITEMS = [];
+  var activeFilter    = 'all';
+  var activeOpFilter  = null;
+
+  function ago(ts) {
+    if (!ts) return '—';
+    var d = Math.floor(Date.now() / 1000 - ts);
+    if (d < 60)    return d + 's ago';
+    if (d < 3600)  return Math.floor(d/60) + 'm ago';
+    if (d < 86400) return Math.floor(d/3600) + 'h ago';
+    return Math.floor(d/86400) + 'd ago';
+  }
+
+  var OP_LABELS = {
+    'watchtower':            'WATCHTOWER',
+    'launcher-observatory':  'Launcher Observatory',
+    'buy-swarm-observatory': 'Buy Swarm Observatory',
+  };
+
+  function confPct(c) {
+    if (c == null) return '';
+    return Math.round(c * 100) + '%';
+  }
+
+  function renderItem(item) {
+    var entityLink = item.entity_id
+      ? '<a href="/intelligence/entity/' + encodeURIComponent(item.entity_id)
+        + '" class="ip-addr" style="font-size:10px;">'
+        + item.entity_id.slice(0,8) + '…' + item.entity_id.slice(-4)
+        + '<span class="ip-addr-arrow">↗</span></a>'
+      : '';
+
+    var opLabel = OP_LABELS[item.operation_id] || item.operation_id;
+    var conf    = confPct(item.confidence);
+
+    return '<div class="inbox-item ' + item.priority + '" id="item-' + item.item_id + '">'
+
+      /* Head */
+      + '<div class="inbox-item-head">'
+      +   '<span class="ip-priority ' + item.priority + '">' + item.priority + '</span>'
+      +   '<span class="inbox-item-headline">' + item.headline + '</span>'
+      +   (conf ? '<span style="font-size:10px;color:var(--ip-sec);">' + conf + '</span>' : '')
+      +   '<span class="inbox-item-op">' + opLabel + '</span>'
+      +   (item.entity_id ? entityLink : '')
+      + '</div>'
+
+      /* Body */
+      + '<div class="inbox-item-body">'
+      +   '<div class="inbox-item-text">'
+      +     '<div class="inbox-item-summary">' + item.summary + '</div>'
+      +     '<div class="inbox-item-action-label">Recommended action</div>'
+      +     '<div class="inbox-item-action">' + item.recommended_action + '</div>'
+      +   '</div>'
+      +   '<div class="inbox-item-controls">'
+      +     (item.entity_id
+          ? '<a class="inbox-btn primary" href="/intelligence/entity/' + encodeURIComponent(item.entity_id) + '">Open →</a>'
+          : '<a class="inbox-btn primary" href="/ops-os/' + item.operation_id + '">Open →</a>')
+      +     '<button class="inbox-btn" onclick="ack(\'' + item.item_id + '\')">Acknowledge</button>'
+      +     '<button class="inbox-btn dismiss" onclick="resolve(\'' + item.item_id + '\')">Dismiss</button>'
+      +   '</div>'
+      + '</div>'
+
+      /* Footer */
+      + '<div class="inbox-item-footer">'
+      +   '<span class="ip-status ' + item.status + '">' + item.status + '</span>'
+      +   '<span class="ip-badge dim" style="font-size:9px;">' + item.subject_type + '</span>'
+      +   '<span class="inbox-item-ts">' + ago(item.updated_at) + '</span>'
+      + '</div>'
+
+      + '</div>';
+  }
+
+  function renderList() {
+    var items = ALL_ITEMS.filter(function(it) {
+      if (activeOpFilter && it.operation_id !== activeOpFilter) return false;
+      if (activeFilter === 'all') return true;
+      if (['CRITICAL','HIGH','MEDIUM','LOW','INFO'].indexOf(activeFilter) >= 0)
+        return it.priority === activeFilter;
+      return it.subject_type === activeFilter;
+    });
+
+    var el = document.getElementById('inbox-list');
+    if (!items.length) {
+      el.innerHTML = '<div class="inbox-empty">'
+        + '<span class="inbox-empty-icon">○</span>'
+        + '<div class="inbox-empty-title">No items match this filter</div>'
+        + '<div class="inbox-empty-sub">Try a different filter, or open All Active.</div>'
+        + '</div>';
+      return;
+    }
+    el.innerHTML = '<div class="inbox-list">' + items.map(renderItem).join('') + '</div>';
+  }
+
+  window.setFilter = function(btn) {
+    activeFilter = btn.dataset.filter;
+    activeOpFilter = null;
+    document.querySelectorAll('.inbox-filter-btn').forEach(function(b) {
+      b.classList.toggle('active', b === btn);
+    });
+    renderList();
+  };
+
+  window.setOpFilter = function(btn) {
+    var op = btn.dataset.opFilter;
+    if (activeOpFilter === op) {
+      activeOpFilter = null;
+      btn.classList.remove('active');
+    } else {
+      activeOpFilter = op;
+      document.querySelectorAll('[data-op-filter]').forEach(function(b) {
+        b.classList.toggle('active', b === btn);
+      });
+    }
+    renderList();
+  };
+
+  function removeItem(itemId) {
+    ALL_ITEMS = ALL_ITEMS.filter(function(it) { return it.item_id !== itemId; });
+    var el = document.getElementById('item-' + itemId);
+    if (el) {
+      el.style.transition = 'opacity .3s';
+      el.style.opacity    = '0';
+      setTimeout(function() { renderList(); }, 320);
+    } else {
+      renderList();
+    }
+  }
+
+  window.ack = function(id) {
+    fetch('/api/ops/inbox/' + id + '/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'ACKNOWLEDGED' }),
+    }).then(function() {
+      var item = ALL_ITEMS.find(function(it) { return it.item_id === id; });
+      if (item) { item.status = 'ACKNOWLEDGED'; renderList(); }
+    }).catch(function() {});
+  };
+
+  window.resolve = function(id) {
+    fetch('/api/ops/inbox/' + id + '/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'RESOLVED' }),
+    }).then(function() { removeItem(id); })
+    .catch(function() {});
+  };
+
+  /* ── Load ─────────────────────────────────────────────────────────────── */
+  function load() {
+    /* Refresh inbox from lifecycle before fetching */
+    fetch('/api/ops/inbox/refresh', { method: 'POST' })
+      .catch(function() {});
+
+    Promise.all([
+      fetch('/api/ops/inbox').then(function(r) { return r.ok ? r.json() : null; }),
+      fetch('/api/ops/inbox/summary').then(function(r) { return r.ok ? r.json() : null; }),
+    ]).then(function(results) {
+      var data    = results[0];
+      var summary = results[1];
+
+      if (summary) {
+        document.getElementById('strip-new').textContent = summary.new          || 0;
+        document.getElementById('strip-ack').textContent = summary.acknowledged || 0;
+        document.getElementById('strip-ip').textContent  = summary.in_progress  || 0;
+        document.getElementById('strip-res').textContent = summary.resolved_today || 0;
+        document.getElementById('inbox-ts').textContent  =
+          'Updated ' + ago(summary.generated_at);
+      }
+
+      if (data && data.items) {
+        ALL_ITEMS = data.items;
+        renderList();
+      } else {
+        document.getElementById('inbox-list').innerHTML =
+          '<div class="inbox-empty">'
+          + '<span class="inbox-empty-icon">○</span>'
+          + '<div class="inbox-empty-title">No items requiring attention</div>'
+          + '<div class="inbox-empty-sub">Operations are monitoring. The platform will surface items here when analyst review is needed.</div>'
+          + '</div>';
+      }
+    }).catch(function(e) {
+      document.getElementById('inbox-list').innerHTML =
+        '<div class="ip-unavailable">Inbox unavailable.</div>';
+    });
+  }
+
+  load();
+
+})();
+</script>
+{% endblock %}

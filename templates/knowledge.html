@@ -1,0 +1,343 @@
+{% extends "base_shell.html" %}
+{% block title %}Knowledge Base — Operations OS{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+/* Rule category sections */
+.kb-cat-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--ip-border);
+  background: rgba(255,255,255,.015);
+}
+.kb-cat-name { font-size: 11px; font-weight: 700; color: var(--ip-text); }
+.kb-cat-count { font-size: 10px; color: var(--ip-dim); }
+.kb-cat-icon { font-size: 14px; }
+
+.kb-rule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 8px;
+}
+.kb-rule-card {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 13px 16px;
+  transition: border-color .15s;
+}
+.kb-rule-card:hover { border-color: var(--ip-border2); }
+.kb-rule-id {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--ip-cyan);
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.kb-rule-desc {
+  font-size: 11px;
+  color: var(--ip-sec);
+  line-height: 1.55;
+}
+
+/* Knowledge item cards */
+.kb-item-card {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.kb-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.kb-item-type {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--ip-cyan-bg);
+  color: var(--ip-cyan);
+}
+.kb-item-val {
+  font-size: 13px;
+  color: var(--ip-text);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.kb-item-ev {
+  font-size: 11px;
+  color: var(--ip-sec);
+  padding-left: 10px;
+  border-left: 2px solid var(--ip-border2);
+  margin-bottom: 3px;
+  line-height: 1.5;
+}
+.kb-item-meta {
+  font-size: 9.5px;
+  color: var(--ip-dim);
+  margin-top: 6px;
+  font-family: ui-monospace, monospace;
+}
+
+/* Category badge colours */
+.cat-EXECUTION   { background: rgba(63,185,80,.12);   color: var(--ip-green);  border-color: rgba(63,185,80,.25); }
+.cat-BEHAVIOUR   { background: rgba(167,139,250,.12); color: var(--ip-purple); border-color: rgba(167,139,250,.25); }
+.cat-FUNDER_TYPE { background: rgba(34,211,238,.12);  color: var(--ip-cyan);   border-color: rgba(34,211,238,.25); }
+.cat-TOOLING     { background: rgba(234,179,8,.12);   color: var(--ip-yellow); border-color: rgba(234,179,8,.25); }
+
+.cat-icon-EXECUTION   { color: var(--ip-green); }
+.cat-icon-BEHAVIOUR   { color: var(--ip-purple); }
+.cat-icon-FUNDER_TYPE { color: var(--ip-cyan); }
+.cat-icon-TOOLING     { color: var(--ip-yellow); }
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="ip-header">
+    <div class="ip-breadcrumb">
+      <a href="/ops-os">Mission Control</a>
+      <span class="sep">›</span>
+      <span>Intelligence</span>
+      <span class="sep">›</span>
+      <span>Knowledge</span>
+    </div>
+    <div class="ip-title-row">
+      <h1 class="ip-title">Knowledge Base</h1>
+      <span class="ip-ts" id="kb-ts"></span>
+    </div>
+    <div class="ip-subtitle">
+      Active derivation rules applied read-only to entities observed across all operations.
+      Rules generate knowledge items — they never write to the database.
+    </div>
+    <div class="ip-nav-links">
+      <a class="ip-nav-link primary" href="/intelligence/entity/">Entity Intelligence ↗</a>
+      <a class="ip-nav-link purple-link" href="/intelligence/cross-operation">Cross-Operation ↗</a>
+      <a class="ip-nav-link" href="/ops-os">Mission Control →</a>
+    </div>
+  </div>
+
+  <!-- ── Summary strip ──────────────────────────────────────────────────── -->
+  <div class="ip-strip" style="max-width:600px;">
+    <div class="ip-metric"><div class="ip-metric-val green" id="kb-rule-count">—</div><div class="ip-metric-label">Active Rules</div></div>
+    <div class="ip-metric"><div class="ip-metric-val cyan" id="kb-cat-count">—</div><div class="ip-metric-label">Categories</div></div>
+    <div class="ip-metric"><div class="ip-metric-val purple" id="kb-exec-count">—</div><div class="ip-metric-label">Execution Rules</div></div>
+    <div class="ip-metric"><div class="ip-metric-val" id="kb-beh-count">—</div><div class="ip-metric-label">Behaviour Rules</div></div>
+  </div>
+
+  <!-- ── Derivation Rules ───────────────────────────────────────────────── -->
+  <div class="ip-section-hdr">
+    <span class="ip-section-label">Derivation Rules</span>
+    <span class="ip-section-line"></span>
+    <span class="ip-section-count" id="kb-rules-count-label"></span>
+  </div>
+  <div id="kb-rules-body" class="ip-loading">Loading rules…</div>
+
+  <!-- ── Address Classification Note ───────────────────────────────────── -->
+  <div class="ip-section-hdr" style="margin-top:28px;">
+    <span class="ip-section-label">Address Classifications</span>
+    <span class="ip-section-line"></span>
+  </div>
+  <div class="ip-card">
+    <div class="ip-card-body" style="font-size:12px;color:var(--ip-sec);line-height:1.7;">
+      Address classifications are loaded at startup from the <code>data/known_addresses/</code> directory.
+      They are applied by derivation rules to classify funding sources, infrastructure, and tooling.
+      Use the Entity Knowledge Lookup below to derive all facts for a specific wallet.
+    </div>
+  </div>
+
+  <!-- ── Entity Knowledge Lookup ───────────────────────────────────────── -->
+  <div class="ip-section-hdr" style="margin-top:28px;">
+    <span class="ip-section-label">Entity Knowledge Lookup</span>
+    <span class="ip-section-line"></span>
+    <span class="ip-section-count">enter any wallet address</span>
+  </div>
+  <div class="ip-search">
+    <input class="ip-search-input" id="kb-addr-input"
+           placeholder="Wallet address (base58)…"
+           autocomplete="off" spellcheck="false">
+    <button class="ip-search-btn" onclick="lookupKnowledge()">Derive Knowledge →</button>
+  </div>
+  <div id="kb-lookup-result" style="display:none;"></div>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  function eiLink(addr, label) {
+    if (!addr) return '—';
+    var d = label || (addr.length > 20 ? addr.slice(0,8)+'…'+addr.slice(-4) : addr);
+    return '<a href="/intelligence/entity/'+encodeURIComponent(addr)+'" '
+      +'class="ip-addr" title="'+addr+'">'+d+'<span class="ip-addr-arrow">↗</span></a>';
+  }
+
+  var CAT_ICONS = {
+    EXECUTION:   '⚡',
+    BEHAVIOUR:   '◈',
+    FUNDER_TYPE: '◆',
+    TOOLING:     '⟳',
+  };
+  var CAT_ORDER = ['EXECUTION','FUNDER_TYPE','BEHAVIOUR','TOOLING'];
+  var CAT_LABELS = {
+    EXECUTION:   'Execution Rules',
+    FUNDER_TYPE: 'Funding Classification',
+    BEHAVIOUR:   'Behaviour Rules',
+    TOOLING:     'Tooling Detection',
+  };
+
+  /* ── Load rules ───────────────────────────────────────────────────────── */
+  fetch('/api/knowledge/rules')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      document.getElementById('kb-ts').textContent =
+        'Updated ' + new Date().toLocaleTimeString();
+
+      var rules = d.rules || [];
+      document.getElementById('kb-rule-count').textContent = rules.length;
+      document.getElementById('kb-rules-count-label').textContent = rules.length + ' registered';
+
+      /* Group by category */
+      var groups = {}, seenCats = [];
+      rules.forEach(function(r) {
+        var cat = r.category || 'OTHER';
+        if (!groups[cat]) { groups[cat] = []; seenCats.push(cat); }
+        groups[cat].push(r);
+      });
+
+      /* Summary counts */
+      document.getElementById('kb-cat-count').textContent = seenCats.length;
+      document.getElementById('kb-exec-count').textContent = (groups['EXECUTION'] || []).length;
+      document.getElementById('kb-beh-count').textContent  = (groups['BEHAVIOUR'] || []).length;
+
+      if (!rules.length) {
+        document.getElementById('kb-rules-body').innerHTML =
+          '<div class="ip-empty">No rules registered.</div>';
+        return;
+      }
+
+      /* Render by category order */
+      var orderedCats = CAT_ORDER.filter(function(c){ return groups[c]; })
+        .concat(seenCats.filter(function(c){ return CAT_ORDER.indexOf(c) < 0; }));
+
+      var html = orderedCats.map(function(cat) {
+        var catRules = groups[cat];
+        var icon = CAT_ICONS[cat] || '▸';
+        var label = CAT_LABELS[cat] || cat;
+        var catClass = 'cat-' + cat.replace(/[^A-Z_]/g,'');
+
+        var cards = catRules.map(function(r) {
+          return '<div class="kb-rule-card">'
+            + '<div class="kb-rule-id">' + r.rule_id + '</div>'
+            + '<div class="kb-rule-desc">' + r.description + '</div>'
+            + '</div>';
+        }).join('');
+
+        return '<div class="ip-card" style="margin-bottom:12px;">'
+          + '<div class="kb-cat-hdr">'
+          +   '<span class="kb-cat-icon cat-icon-' + cat + '">' + icon + '</span>'
+          +   '<span class="kb-cat-name">' + label + '</span>'
+          +   '<span class="ip-badge ' + catClass.toLowerCase().replace('cat-','') + ' ip-badge" '
+          +      'style="font-size:9px;padding:2px 8px;border-radius:4px;border:1px solid;">'
+          +      cat
+          +   '</span>'
+          +   '<span class="kb-cat-count" style="margin-left:auto;">' + catRules.length + ' rule(s)</span>'
+          + '</div>'
+          + '<div class="ip-card-body">'
+          +   '<div class="kb-rule-grid">' + cards + '</div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+
+      document.getElementById('kb-rules-body').innerHTML = html;
+    })
+    .catch(function(e) {
+      document.getElementById('kb-rules-body').innerHTML =
+        '<div class="ip-error">Error loading rules: ' + e + '</div>';
+    });
+
+  /* ── Entity Knowledge Lookup ──────────────────────────────────────────── */
+  function lookupKnowledge() {
+    var addr = document.getElementById('kb-addr-input').value.trim();
+    if (!addr) return;
+
+    var el = document.getElementById('kb-lookup-result');
+    el.style.display = '';
+    el.innerHTML = '<div class="ip-loading">Deriving knowledge…</div>';
+
+    fetch('/api/knowledge/entity/' + encodeURIComponent(addr))
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var items = d.items || [];
+
+        var header = '<div class="ip-card" style="margin-bottom:12px;">'
+          + '<div class="ip-card-header">'
+          +   eiLink(addr)
+          +   '<span class="ip-badge dim" style="margin-left:8px;">' + items.length + ' item(s) derived</span>'
+          +   '<a href="/intelligence/entity/' + encodeURIComponent(addr) + '" '
+          +      'class="ip-nav-link primary" style="margin-left:auto;font-size:10px;">Full Entity Intelligence →</a>'
+          +   '<a href="/intelligence/entity/' + encodeURIComponent(addr) + '" '
+          +      'class="ip-nav-link purple-link" style="font-size:10px;">Relationships →</a>'
+          + '</div>'
+          + '</div>';
+
+        if (!items.length) {
+          el.innerHTML = header
+            + '<div class="ip-empty">No knowledge derived. This address may not appear in any operation or known address table.</div>';
+          return;
+        }
+
+        /* Group by category */
+        var groups = {}, seenCats = [];
+        items.forEach(function(it) {
+          var cat = it.category || 'OTHER';
+          if (!groups[cat]) { groups[cat] = []; seenCats.push(cat); }
+          groups[cat].push(it);
+        });
+
+        var orderedCats = CAT_ORDER.filter(function(c){ return groups[c]; })
+          .concat(seenCats.filter(function(c){ return CAT_ORDER.indexOf(c) < 0; }));
+
+        var cardsHtml = orderedCats.map(function(cat) {
+          return (groups[cat] || []).map(function(it) {
+            var ev = (it.supporting_evidence || []).map(function(e) {
+              return '<div class="kb-item-ev">' + e + '</div>';
+            }).join('');
+            return '<div class="kb-item-card">'
+              + '<div class="kb-item-header">'
+              +   '<span class="kb-item-type">' + it.type + '</span>'
+              +   '<span class="ip-conf ' + (it.confidence||'UNKNOWN') + '">' + (it.confidence||'UNKNOWN') + '</span>'
+              + '</div>'
+              + '<div class="kb-item-val">' + it.value + '</div>'
+              + ev
+              + '<div class="kb-item-meta">source: ' + it.source + ' · rule: ' + (it.provenance||'—') + '</div>'
+              + '</div>';
+          }).join('');
+        }).join('');
+
+        el.innerHTML = header + cardsHtml;
+      })
+      .catch(function(e) {
+        el.innerHTML = '<div class="ip-error">Error: ' + e + '</div>';
+      });
+  }
+
+  document.getElementById('kb-addr-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') lookupKnowledge();
+  });
+
+})();
+</script>
+{% endblock %}

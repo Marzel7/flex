@@ -26,6 +26,7 @@ import urllib.request
 import sqlite3
 import argparse
 from typing import Any, Optional
+from src.utils.db_locking import db_connect
 
 _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
 
@@ -340,10 +341,8 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
 # ── DB helpers ─────────────────────────────────────────────────────────────────
 
 def _ops_conn() -> sqlite3.Connection:
-    c = sqlite3.connect(OPS_DB_PATH, timeout=30)
+    c = db_connect(OPS_DB_PATH, timeout=30)
     c.row_factory = sqlite3.Row
-    c.execute("PRAGMA journal_mode=WAL")
-    c.execute("PRAGMA busy_timeout=30000")
     return c
 
 
@@ -456,6 +455,8 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
             disp = _surface_treasury_review_lead(ops, funder_w, subprov, creator, mint,
                                                  funder_sig, funder_amt, None)
             print(f"[WALKBACK] LINEAGE_GAP funder lead {disp}: {funder_w[:14]}…", flush=True)
+    from src.ops.attribution_outcome import materialize_outcome
+    materialize_outcome(ops, mint)
     ops.commit()
 
 
@@ -463,9 +464,11 @@ def _mark_failed(ops: sqlite3.Connection, mint: str, error: str, rpc_used: int) 
     now = int(time.time())
     ops.execute(
         "UPDATE wt_walkback_queue "
-        "SET status='failed', last_error=?, rpc_used=rpc_used+?, updated_at=? "
+        "SET status='failed', last_error=?, rpc_used=rpc_used+?, completed_at=?, updated_at=? "
         "WHERE mint=?",
-        (error[:500], rpc_used, now, mint))
+        (error[:500], rpc_used, now, now, mint))
+    from src.ops.attribution_outcome import materialize_outcome
+    materialize_outcome(ops, mint)
     ops.commit()
 
 
@@ -475,10 +478,54 @@ def _mark_exhausted(ops: sqlite3.Connection, mint: str, rpc_used: int) -> None:
     ops.execute(
         "UPDATE wt_walkback_queue "
         "SET status='failed', intelligence_outcome='NO_ATTRIBUTION_FOUND', "
-        "    rpc_used=rpc_used+?, updated_at=? "
+        "    rpc_used=rpc_used+?, completed_at=?, updated_at=? "
         "WHERE mint=?",
-        (rpc_used, now, mint))
+        (rpc_used, now, now, mint))
+    from src.ops.attribution_outcome import materialize_outcome
+    materialize_outcome(ops, mint)
     ops.commit()
+
+
+def finalize_exhausted_pending(ops: sqlite3.Connection, max_attempts: int = MAX_ATTEMPTS) -> int:
+    """Close legacy/recovered rows that exhausted attempts but remained pending."""
+    rows = ops.execute(
+        "SELECT mint FROM wt_walkback_queue WHERE status='pending' AND attempts>=?",
+        (max_attempts,),
+    ).fetchall()
+    for row in rows:
+        _mark_exhausted(ops, row["mint"], 0)
+    return len(rows)
+
+
+# ── X21B provisioning-relationship capture (append-only facts, no attribution) ──
+
+def _capture_provisioning_facts(
+    ops: sqlite3.Connection, *, mint: str,
+    treasury: Optional[str] = None, subprov: Optional[str] = None, creator: Optional[str] = None,
+    treasury_to_subprov_sig: Optional[str] = None, treasury_to_subprov_block_time: Optional[int] = None,
+    treasury_to_subprov_amount_sol: Optional[float] = None, treasury_to_subprov_mechanism: Optional[str] = None,
+    subprov_to_creator_sig: Optional[str] = None, subprov_to_creator_block_time: Optional[int] = None,
+    subprov_to_creator_amount_sol: Optional[float] = None, subprov_to_creator_mechanism: Optional[str] = None,
+) -> None:
+    """Best-effort capture of observed provisioning edges/session facts for this walk.
+    Never raises — a capture failure must never break walkback completion. Writes no
+    attribution, no operator identity, and calls no RPC of its own (all evidence here
+    was already fetched by the walkback hop that called this)."""
+    try:
+        from src.ops.provisioning_edges import capture_provisioning_relationship
+        capture_provisioning_relationship(
+            ops, source_mint=mint, treasury=treasury, subprov=subprov, creator=creator,
+            treasury_to_subprov_sig=treasury_to_subprov_sig,
+            treasury_to_subprov_block_time=treasury_to_subprov_block_time,
+            treasury_to_subprov_amount_sol=treasury_to_subprov_amount_sol,
+            treasury_to_subprov_mechanism=treasury_to_subprov_mechanism,
+            subprov_to_creator_sig=subprov_to_creator_sig,
+            subprov_to_creator_block_time=subprov_to_creator_block_time,
+            subprov_to_creator_amount_sol=subprov_to_creator_amount_sol,
+            subprov_to_creator_mechanism=subprov_to_creator_mechanism,
+        )
+    except Exception as e:
+        print(f"[WALKBACK] provisioning-edge capture failed for {mint[:16]}…: {e}", flush=True)
 
 
 # ── treasury review lead surfacing ────────────────────────────────────────────
@@ -641,6 +688,15 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                     (hop1,)).fetchone()
                 treasury = t_row["treasury"] if t_row else None
                 outcome = "WATCHTOWER_CONFIRMED" if treasury else "LINEAGE_GAP"
+                # X21B: the subprov(hop1)->creator edge was freshly observed via RPC
+                # (sig1/bt1/amt1/mech1); the treasury(hop2)->subprov edge, if any, comes
+                # from an existing DB lookup rather than a fresh funding observation in
+                # THIS walk, so only the subprov->creator side is captured here.
+                _capture_provisioning_facts(
+                    ops, mint=mint, treasury=None, subprov=hop1, creator=creator,
+                    subprov_to_creator_sig=sig1, subprov_to_creator_block_time=bt1,
+                    subprov_to_creator_amount_sol=amt1, subprov_to_creator_mechanism=mech1,
+                )
                 _mark_complete(ops, mint, outcome, hop1, treasury, rpc[0],
                                confirmed_subprov=True)
                 return rpc[0]
@@ -651,6 +707,22 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
 
             # Hop 2: who funded hop1?
             hop2, sig2, slot2, bt2, amt2, mech2 = _find_funder_via_rpc(hop1, rpc, ops)
+
+            # X21B: capture the observed treasury(hop2)->subprov(hop1)->creator relationship
+            # as an operation-agnostic fact, REGARDLESS of whether hop2 is a confirmed
+            # treasury. This never writes attribution — it is a separate, append-only
+            # provisioning-edge record. hop1 is always the subprov role here since it was
+            # already established as the wallet that funded the creator; hop2 (if found)
+            # is whatever funded hop1, known or not.
+            if hop2:
+                _capture_provisioning_facts(
+                    ops, mint=mint, treasury=hop2, subprov=hop1, creator=creator,
+                    treasury_to_subprov_sig=sig2, treasury_to_subprov_block_time=bt2,
+                    treasury_to_subprov_amount_sol=amt2, treasury_to_subprov_mechanism=mech2,
+                    subprov_to_creator_sig=sig1, subprov_to_creator_block_time=bt1,
+                    subprov_to_creator_amount_sol=amt1, subprov_to_creator_mechanism=mech1,
+                )
+
             if hop2 and _is_known_treasury(ops, hop2):
                 # hop1 is now confirmed as subprov (its funder is a known treasury)
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", hop1, hop2, rpc[0],
@@ -849,34 +921,108 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
 
 def _write_heartbeat(ops: sqlite3.Connection) -> None:
     now = int(time.time())
+    from src.ops.walkback_health import build_walkback_health
+    health = build_walkback_health(ops, now=now, heartbeat_override=now)
     ops.execute(
-        "INSERT INTO wt_worker_heartbeat (worker_name, last_seen) VALUES (?,?) "
-        "ON CONFLICT(worker_name) DO UPDATE SET last_seen=excluded.last_seen",
-        ("walkback_worker", now))
+        "INSERT INTO wt_worker_heartbeat (worker_name,last_seen,status,meta_json) VALUES (?,?,?,?) "
+        "ON CONFLICT(worker_name) DO UPDATE SET last_seen=excluded.last_seen,"
+        "status=excluded.status,meta_json=excluded.meta_json",
+        ("walkback_worker", now, health["status"], json.dumps(health, sort_keys=True)))
     ops.commit()
 
 
 # ── main loop ──────────────────────────────────────────────────────────────────
 
+def _is_lock_error(exc: Exception) -> bool:
+    return isinstance(exc, sqlite3.OperationalError) and "locked" in str(exc).lower()
+
+
 def run_loop() -> None:
+    from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+    from src.core import treasury_bank
+    from src.ops.walkback_health import recover_stalled_running_jobs
+    from src.ops.walkback_cycle_trace import trace_boundary, trace_failure
+    startup = _ops_conn()
+    try:
+        # Schema initialization must never be silently skipped — a schema failure
+        # here means every downstream operation is unsafe, so these re-raise as before.
+        _ensure_walkback_schema(startup)
+        treasury_bank.initialize_schema(startup)
+        from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
+        _ensure_outcome_schema(startup)
+
+        # Startup MAINTENANCE (recover-stalled / finalize-exhausted) is non-essential:
+        # skipping it for one boot only delays cleanup of crash-stranded rows, which
+        # the next successful boot (or a later scheduled pass) will still catch. A
+        # transient lock here must not crash the whole process before it ever reaches
+        # the main loop. Only a lock-contention OperationalError is swallowed; any
+        # other exception still fails loudly, since that would indicate a real defect
+        # rather than transient contention.
+        recovered = {"requeued": 0, "failed": 0}
+        trace_boundary("maintenance_write_attempted", extra={"task": "recover_stalled_running_jobs"})
+        _t0 = time.monotonic()
+        try:
+            recovered = recover_stalled_running_jobs(
+                startup, max_attempts=MAX_ATTEMPTS,
+                stalled_after_seconds=max(INTERVAL_SEC * 3, 180),
+            )
+        except Exception as e:
+            trace_failure("maintenance_write_attempted:recover_stalled_running_jobs", e, elapsed_s=time.monotonic() - _t0)
+            if not _is_lock_error(e):
+                raise
+            print(f"[WALKBACK] startup maintenance skipped (recover_stalled_running_jobs): {e}", flush=True)
+
+        exhausted = 0
+        trace_boundary("maintenance_write_attempted", extra={"task": "finalize_exhausted_pending"})
+        _t0 = time.monotonic()
+        try:
+            exhausted = finalize_exhausted_pending(startup)
+        except Exception as e:
+            trace_failure("maintenance_write_attempted:finalize_exhausted_pending", e, elapsed_s=time.monotonic() - _t0)
+            if not _is_lock_error(e):
+                raise
+            print(f"[WALKBACK] startup maintenance skipped (finalize_exhausted_pending): {e}", flush=True)
+    finally:
+        startup.close()
     print(f"[WALKBACK] worker starting: batch={BATCH_SIZE} interval={INTERVAL_SEC}s "
-          f"max_attempts={MAX_ATTEMPTS} rpc_budget={RPC_BUDGET_BATCH}", flush=True)
+          f"max_attempts={MAX_ATTEMPTS} rpc_budget={RPC_BUDGET_BATCH} "
+          f"recovered={recovered} exhausted={exhausted}", flush=True)
     while True:
+        trace_boundary("cycle_started")
         try:
             ops = _ops_conn()
             try:
-                _write_heartbeat(ops)
+                trace_boundary("heartbeat_write_attempted")
+                _t0 = time.monotonic()
+                try:
+                    _write_heartbeat(ops)
+                    trace_boundary("heartbeat_write_completed", extra={"elapsed_s": round(time.monotonic() - _t0, 3)})
+                except Exception as e:
+                    trace_failure("heartbeat_write_attempted", e, elapsed_s=time.monotonic() - _t0)
+                    raise
+
+                trace_boundary("queue_inspection_started")
                 pending = ops.execute(
                     "SELECT COUNT(*) FROM wt_walkback_queue "
                     "WHERE status='pending' AND attempts < ?",
                     (MAX_ATTEMPTS,)).fetchone()[0]
                 if pending > 0:
-                    drain_batch(ops)
+                    trace_boundary("queue_claim_attempted", extra={"pending": pending})
+                    _t0 = time.monotonic()
+                    try:
+                        drain_batch(ops)
+                        trace_boundary("queue_claim_completed", extra={"elapsed_s": round(time.monotonic() - _t0, 3)})
+                    except Exception as e:
+                        trace_failure("queue_claim_attempted", e, elapsed_s=time.monotonic() - _t0)
+                        raise
+                    _write_heartbeat(ops)
                 else:
                     print(f"[WALKBACK] queue empty (pending=0), sleeping {INTERVAL_SEC}s", flush=True)
             finally:
                 ops.close()
+            trace_boundary("cycle_completed")
         except Exception as e:
+            trace_failure("cycle_completed", e)
             print(f"[WALKBACK] outer loop error: {e}", flush=True)
         time.sleep(INTERVAL_SEC)
 
@@ -890,7 +1036,16 @@ if __name__ == "__main__":
     if args.loop:
         run_loop()
     elif args.once:
+        from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+        from src.core import treasury_bank
+        from src.ops.walkback_health import recover_stalled_running_jobs
         ops = _ops_conn()
+        _ensure_walkback_schema(ops)
+        treasury_bank.initialize_schema(ops)
+        from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
+        _ensure_outcome_schema(ops)
+        recover_stalled_running_jobs(ops, max_attempts=MAX_ATTEMPTS)
+        finalize_exhausted_pending(ops)
         result = drain_batch(ops)
         ops.close()
         print(f"done: {result}")

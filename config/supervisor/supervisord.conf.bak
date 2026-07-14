@@ -1,0 +1,177 @@
+[unix_http_server]
+file=/tmp/watchtower_supervisord.sock
+
+[supervisord]
+logfile=%(here)s/../../logs/supervisor/supervisord.log
+logfile_maxbytes=10MB
+logfile_backups=3
+loglevel=info
+pidfile=/tmp/watchtower_supervisord.pid
+nodaemon=false
+childlogdir=%(here)s/../../logs/supervisor
+; Environment inherited by all child processes
+environment=
+    PYTHONPATH="/Users/kevinkeaveney/Dev/claude/flex",
+    FLEX_WS_DISABLED="1",
+    RPC_METRICS_DB="/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    DB_PATH="/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    HELIUS_API_KEY="16f1a5fc-2592-466c-a5d4-b5799ae8da96",
+    HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d4-b5799ae8da96",
+    HELIUS_WS_URL="wss://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d4-b5799ae8da96",
+    CREATOR_MOVEMENT_WEBHOOK_ID="763810e4-e41c-4f83-9ebc-55e9ab413ea4",
+    CREATOR_MOVEMENT_WEBHOOK_URL="https://uncatholical-rylie-phrenetically.ngrok-free.app/api/webhook/watchtower",
+    WATCHTOWER_INFRA_WEBHOOK_ID="106e20f6-f542-42b0-83d5-ca8c7b1a7162",
+    WATCHTOWER_INFRA_WEBHOOK_URL="https://uncatholical-rylie-phrenetically.ngrok-free.app/api/webhook/watchtower",
+    TRADING_SIM_DRY_RUN_PUBLIC_KEY="5ZpgwwHAxs5kuer3dwwJQxjxvWaXHaLvchZJCRqigPtJ",
+    FLEX_ENABLE_FLASK_BACKGROUND_WORKERS="1"
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///tmp/watchtower_supervisord.sock
+
+; ── WATCHTOWER API (Gunicorn) ────────────────────────────────────────────────
+[program:watchtower_api]
+command=/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/gunicorn
+    --config /Users/kevinkeaveney/Dev/claude/flex/config/gunicorn.conf.py
+    src.core.main:app
+directory=/Users/kevinkeaveney/Dev/claude/flex
+environment=
+    PYTHONPATH="/Users/kevinkeaveney/Dev/claude/flex",
+    FLEX_WS_DISABLED="1",
+    FLEX_UI_RECOVERY_MODE="1",
+    FLEX_ENABLE_FLASK_BACKGROUND_WORKERS="0",
+    ENABLE_CREATE_INTERCEPTOR="false",
+    INTERCEPTOR_CREATE_BENCHMARK="false",
+    INTERCEPTOR_MODE="PASSIVE",
+    INTERCEPTOR_BUY_SOL="0.01",
+    IGNITION_WINDOW_S="120",
+    SUBMIT_DISABLED="true",
+    CREATOR_MOVEMENT_WEBHOOK_ID="763810e4-e41c-4f83-9ebc-55e9ab413ea4"
+autostart=true
+autorestart=true
+startretries=999
+startsecs=8
+stopwaitsecs=15
+stopasgroup=true
+killasgroup=true
+stdout_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/api.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/api_err.log
+stderr_logfile_maxbytes=10MB
+stderr_logfile_backups=2
+
+; ── LISTENER WATCHDOG ────────────────────────────────────────────────────────
+[program:watchtower_listener]
+command=/bin/bash /Users/kevinkeaveney/Dev/claude/flex/run_listener.sh
+directory=/Users/kevinkeaveney/Dev/claude/flex
+autostart=true
+autorestart=true
+startretries=999
+startsecs=5
+stopwaitsecs=15
+stopasgroup=true
+killasgroup=true
+stdout_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener_err.log
+stderr_logfile_maxbytes=10MB
+stderr_logfile_backups=2
+
+; ── NGROK TUNNEL ─────────────────────────────────────────────────────────────
+[program:watchtower_ngrok]
+command=/opt/homebrew/bin/ngrok http 5002 --log=stdout --log-format=json
+directory=/Users/kevinkeaveney/Dev/claude/flex
+autostart=true
+autorestart=true
+startretries=999
+startsecs=3
+stopwaitsecs=5
+stopasgroup=true
+killasgroup=true
+stdout_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/ngrok.log
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=2
+stderr_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/ngrok_err.log
+stderr_logfile_maxbytes=2MB
+stderr_logfile_backups=1
+
+; ── HELIUS CLI MONITOR ───────────────────────────────────────────────────────
+[program:watchtower_helius_monitor]
+command=/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python
+    -m src.monitoring.helius_cli_monitor
+directory=/Users/kevinkeaveney/Dev/claude/flex
+autostart=true
+autorestart=true
+startretries=999
+startsecs=5
+stopwaitsecs=10
+stdout_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/helius_monitor.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=2
+stderr_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/helius_monitor_err.log
+stderr_logfile_maxbytes=5MB
+stderr_logfile_backups=1
+
+[program:operation_scheduler]
+; Phase 1.3 — operation-centric continuous watching. STANDALONE, isolated from the
+; live WATCH pipeline. Writes only to database/wt_ops_v2.db. autostart=false so it
+; does not launch on a plain reload — start it explicitly (see commands below).
+command=/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python
+    -m src.core.operation_scheduler --loop
+directory=/Users/kevinkeaveney/Dev/claude/flex
+environment=
+    PYTHONPATH="/Users/kevinkeaveney/Dev/claude/flex",
+    OPS_INTAKE_INTERVAL_SEC="900",
+    OPS_FORWARD_INTERVAL_SEC="180",
+    OPS_INTAKE_MAX_RPC="120",
+    OPS_FORWARD_MAX_RPC="180"
+autostart=false
+autorestart=true
+startretries=999
+startsecs=5
+stopwaitsecs=15
+stopsignal=TERM
+stdout_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/operation_scheduler.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=2
+stderr_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/operation_scheduler_err.log
+stderr_logfile_maxbytes=5MB
+stderr_logfile_backups=1
+
+[program:ws_cascade]
+; WATCHTOWER real-time websocket cascade. STANDALONE daemon — owns one Helius WS
+; connection + the subscribe/teardown loop. Triggered by sessions the webhook writes
+; into wt_active_subprov_sessions (DB is the handoff boundary; no shared connections
+; with the API/webhook process → no lock-storm risk). autostart=false; start explicitly.
+command=/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python
+    -m src.core.ws_cascade --loop
+directory=/Users/kevinkeaveney/Dev/claude/flex
+environment=
+    PYTHONPATH="/Users/kevinkeaveney/Dev/claude/flex",
+    DB_PATH="/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    HELIUS_API_KEY="16f1a5fc-2592-466c-a5d4-b5799ae8da96",
+    HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d4-b5799ae8da96",
+    HELIUS_WS_URL="wss://mainnet.helius-rpc.com/?api-key=16f1a5fc-2592-466c-a5d4-b5799ae8da96",
+    WS_SESSION_TTL_SEC="7200",
+    WS_CANDIDATE_TTL_SEC="600",
+    WS_MAX_CANDIDATES="25",
+    WS_MAX_ACTIVE_SUBPROVS="10",
+    WS_POLL_SEC="2",
+    WS_PROMOTE_DISCOVERED="1",
+    WS_MAX_PROMOTED_SUBPROVS="40"
+autostart=false
+autorestart=true
+startretries=999
+startsecs=5
+stopwaitsecs=15
+stopsignal=TERM
+stdout_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/ws_cascade.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=2
+stderr_logfile=/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/ws_cascade_err.log
+stderr_logfile_maxbytes=5MB
+stderr_logfile_backups=1

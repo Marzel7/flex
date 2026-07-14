@@ -974,6 +974,15 @@ function truncAddr(addr, n=8) {
     return addr.slice(0,n)+'…'+addr.slice(-4);
 }
 
+/* Entity Intelligence link — wraps any wallet address */
+function eiLink(addr, display) {
+    if (!addr) return display || '—';
+    const label = display || truncAddr(addr);
+    return `<a href="/intelligence/entity/${encodeURIComponent(addr)}" `
+         + `style="color:var(--col-cyan);text-decoration:none;" `
+         + `title="Entity Intelligence: ${addr}">${label}<span style="opacity:.4;font-size:9px;margin-left:2px;">↗</span></a>`;
+}
+
 function copyToClipboard(text, elem) {
     navigator.clipboard.writeText(text).then(() => {
         const orig = elem.textContent;
@@ -1048,7 +1057,7 @@ function renderClusters(clusters) {
         </div>` : '';
 
         const treasury = c.treasury_wallet
-            ? `<div class="cluster-treasury">Treasury: <span class="copyable-addr" title="Click to copy" onclick="copyToClipboard('${c.treasury_wallet}', this)" style="cursor:pointer;border-bottom:1px dashed rgba(230,237,243,.3);transition:all .15s;">${truncAddr(c.treasury_wallet, 10)}</span></div>`
+            ? `<div class="cluster-treasury">Treasury: ${eiLink(c.treasury_wallet, truncAddr(c.treasury_wallet, 10))}</div>`
             : '';
 
         const firstSeen = c.first_seen ? new Date(c.first_seen*1000).toLocaleDateString() : '—';
@@ -1710,7 +1719,7 @@ function ccRenderHubs(hubs, counts) {
     wrap.innerHTML = `<table class="cc-table">
         <thead><tr><th>Hub</th><th>Status</th><th>Age</th><th>Seeds</th><th>Launches</th></tr></thead>
         <tbody>${hubs.map(h => `<tr>
-            <td><a href="/watchtower/operator/${h.hub}" class="addr" style="text-decoration:none">${truncAddr(h.hub, 7)}</a></td>
+            <td style="display:flex;gap:6px;align-items:center;"><a href="/watchtower/operator/${h.hub}" class="addr" style="text-decoration:none">${truncAddr(h.hub, 7)}</a>${eiLink(h.hub, '↗')}</td>
             <td><span class="cc-hub-badge ${h.op_status}">${h.op_status}</span></td>
             <td>${ccAgo(h.born_at)}</td>
             <td>${h.creator_seeds}</td>
@@ -1845,8 +1854,9 @@ function renderChangedFeed(feed) {
     };
     el.innerHTML = feed.map(e => {
         const m = meta[e.kind] || {ic:'·', cls:'cf-info'};
-        return `<a class="cf-row ${m.cls}" href="/watchtower/operator/${e.cluster_id}">
-            <span class="cf-ic">${m.ic}</span><span>${e.text}</span></a>`;
+        return `<div class="cf-row ${m.cls}" style="display:flex;align-items:center;gap:4px;">
+            <a href="/watchtower/operator/${e.cluster_id}" style="flex:1;display:flex;align-items:center;gap:4px;text-decoration:none;color:inherit"><span class="cf-ic">${m.ic}</span><span>${e.text}</span></a>
+            ${eiLink(e.cluster_id, '↗')}</div>`;
     }).join('');
 }
 
@@ -1934,7 +1944,9 @@ function renderDiscovery(clusters, operations, watchData, candData, growthMap) {
         else if (g && g.trend === 'DECLINING') tag = `<span class="emerg-decline">▼ declining</span>`;
         else if (!g || !g.has_baseline) tag = `<span class="emerg-new">new — no 24h baseline</span>`;
         const confDeltaPct = dd && dd.confidence != null ? dchip(Math.round(dd.confidence*100)) : '';
-        return `<a class="emerg-card" style="--ec-color:${color}" href="/watchtower/operator/${c.treasury_wallet || c.cluster_id}">
+        const entityAddr = c.treasury_wallet || null;
+        return `<div class="emerg-card" style="--ec-color:${color};position:relative;">
+            <a href="/watchtower/operator/${c.treasury_wallet || c.cluster_id}" style="display:block;text-decoration:none;color:inherit;">
             <div class="emerg-card-top">
                 <span class="emerg-id">Candidate #${c.cluster_id}</span>
                 <span class="emerg-conf">${(conf*100).toFixed(0)}%${confDeltaPct} ${discTier(conf)}</span>
@@ -1949,7 +1961,9 @@ function renderDiscovery(clusters, operations, watchData, candData, growthMap) {
                 <span class="obj-type obj-${ot.cls}">${ot.label}</span>
                 <span>${ageH!=null ? (ageH<48? ageH+'h':Math.round(ageH/24)+'d')+' old' : ''} ${tag}</span>
             </div>
-        </a>`;
+            </a>
+            ${entityAddr ? `<div style="position:absolute;top:8px;right:8px;">${eiLink(entityAddr, 'EI ↗')}</div>` : ''}
+        </div>`;
     }).join('');
 }
 

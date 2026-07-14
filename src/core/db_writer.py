@@ -1,19 +1,18 @@
 """
-db_writer.py — The single SQLite writer thread.
+db_writer.py — SQL-batch client of the shared Database Write Service.
 
-ONLY this module may call BEGIN IMMEDIATE on flex_complete_database.db.
-All other code routes writes through db_write_queue.enqueue_write().
+Feature code queues statements here; transaction ownership belongs to
+database_write_service and the database path is a parameter.
 
 Design:
 - Priority-triggered flush: threading.Event wakes writer immediately for migration events
 - Otherwise flushes every 500ms (webhook/poller cadence)
 - executemany batching for homogeneous SQL statements
 - Monotonic event_sequence counter assigned here — never by callers
-- Exponential backoff retry on lock errors
+- Shared transaction telemetry and rollback ownership
 - Dead-letter logging on fatal errors
 """
 
-import sqlite3
 import threading
 import time
 import logging
@@ -22,14 +21,13 @@ from collections import defaultdict
 from typing import Optional
 
 from src.core.db_write_queue import drain_batch, WriteItem, queue_depths, migration_signal
+from src.core.database_write_service import database_write_service
 
 logger = logging.getLogger("db_writer")
 
 # Configuration
 _FLUSH_TIMEOUT_SEC = float(os.getenv("DB_WRITER_FLUSH_MS", "500")) / 1000.0
 _MAX_BATCH         = int(os.getenv("DB_WRITER_MAX_BATCH", "300"))
-_MAX_RETRIES       = 5
-_BASE_DELAY        = 0.25  # seconds, doubles each retry
 
 # Monotonic event sequence — assigned ONLY by writer thread, never by callers
 # Callers use -1 as sentinel in watchtower_events inserts
@@ -84,101 +82,48 @@ def _commit_batch(db_path: str, items: list[WriteItem]) -> tuple[int, int]:
     # Assign monotonic sequence numbers to any event inserts
     all_statements = _assign_event_sequences(all_statements)
 
-    for attempt in range(_MAX_RETRIES):
-        conn: Optional[sqlite3.Connection] = None
-        try:
-            t0 = time.monotonic()
-            conn = sqlite3.connect(db_path, timeout=30, check_same_thread=False)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
-            conn.execute("BEGIN IMMEDIATE")
+    t0 = time.monotonic()
+    database = f"live:{os.path.realpath(db_path)}"
 
-            # Group identical SQL for executemany efficiency
-            groups: dict[str, list] = defaultdict(list)
-            for sql, params in all_statements:
-                groups[sql].append(params)
+    def transaction(conn):
+        groups: dict[str, list] = defaultdict(list)
+        for sql, params in all_statements:
+            groups[sql].append(params)
+        for sql, param_list in groups.items():
+            if len(param_list) == 1:
+                conn.execute(sql, param_list[0])
+            else:
+                conn.executemany(sql, param_list)
 
-            for sql, param_list in groups.items():
-                if len(param_list) == 1:
-                    conn.execute(sql, param_list[0])
-                else:
-                    conn.executemany(sql, param_list)
-
-            conn.commit()
-
-            # Checkpoint WAL if large batch to prevent WAL file growth
-            if len(all_statements) > 1000:
-                try:
-                    conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
-                except Exception:
-                    pass
-
-            elapsed_ms = (time.monotonic() - t0) * 1000
-
-            with _stats_lock:
-                _stats["batches_committed"] += 1
-                _stats["statements_written"] += len(all_statements)
-                _stats["last_flush_at"] = time.time()
-                _stats["last_batch_size"] = len(items)
-                prev_avg = _stats["avg_flush_ms"]
-                _stats["avg_flush_ms"] = round(0.9 * prev_avg + 0.1 * elapsed_ms, 1)
-
-            logger.debug(
-                f"[DB_WRITER] committed {len(all_statements)} stmts "
-                f"({len(items)} items) in {elapsed_ms:.1f}ms"
-            )
-            return len(all_statements), 0
-
-        except sqlite3.OperationalError as e:
-            if conn:
-                try:
-                    conn.rollback()
-                    conn.close()
-                    conn = None
-                except Exception:
-                    pass
-            with _stats_lock:
+    try:
+        database_write_service.register_database(database, db_path)
+        database_write_service.submit(database, "sql-batch", transaction)
+        elapsed_ms = (time.monotonic() - t0) * 1000
+        with _stats_lock:
+            _stats["batches_committed"] += 1
+            _stats["statements_written"] += len(all_statements)
+            _stats["last_flush_at"] = time.time()
+            _stats["last_batch_size"] = len(items)
+            prev_avg = _stats["avg_flush_ms"]
+            _stats["avg_flush_ms"] = round(0.9 * prev_avg + 0.1 * elapsed_ms, 1)
+        return len(all_statements), 0
+    except Exception as exc:
+        logger.error(
+            f"[DB_WRITER] transaction failed — dead-lettering {len(items)} items: {exc}",
+            exc_info=True,
+        )
+        for item in items:
+            logger.error(f"[DEAD_LETTER] domain={item.domain} label={item.label}")
+        with _stats_lock:
+            _stats["dead_letters"] += len(items)
+            if "locked" in str(exc).lower():
                 _stats["lock_errors"] += 1
-            delay = _BASE_DELAY * (2 ** attempt)
-            logger.warning(
-                f"[DB_WRITER] lock error attempt={attempt+1}/{_MAX_RETRIES} "
-                f"delay={delay:.2f}s items={len(items)}: {e}"
-            )
-            if attempt < _MAX_RETRIES - 1:
-                time.sleep(delay)
-
-        except Exception as e:
-            if conn:
-                try:
-                    conn.rollback()
-                    conn.close()
-                    conn = None
-                except Exception:
-                    pass
-            logger.error(f"[DB_WRITER] fatal error — dead-lettering {len(items)} items: {e}", exc_info=True)
-            for item in items:
-                logger.error(f"[DEAD_LETTER] domain={item.domain} label={item.label}")
-            with _stats_lock:
-                _stats["dead_letters"] += len(items)
-            return 0, len(items)
-
-        finally:
-            if conn:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
-
-    # All retries exhausted
-    logger.error(f"[DB_WRITER] max retries exhausted — dead-lettering {len(items)} items")
-    with _stats_lock:
-        _stats["dead_letters"] += len(items)
-    return 0, len(items)
+        return 0, len(items)
 
 
 def _writer_loop(db_path: str) -> None:
     """
-    Priority-triggered flush loop — the only thread that calls BEGIN IMMEDIATE.
+    Priority-triggered flush loop feeding the shared transaction service.
 
     Wakes immediately when migration_signal is set (urgent items).
     Otherwise waits up to FLUSH_TIMEOUT_SEC before flushing whatever has accumulated.

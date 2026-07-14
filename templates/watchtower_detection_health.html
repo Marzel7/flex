@@ -1,0 +1,721 @@
+{% extends "base_shell.html" %}
+{% block title %}Detection Health — WATCHTOWER{% endblock %}
+
+{% block extra_styles %}
+:root {
+  --bg-deep:#0d1117; --bg-card:#161b22; --bg-card2:#1c2128;
+  --border:#21262d; --border2:#30363d;
+  --text-pri:#e6edf3; --text-sec:#8b949e; --text-dim:#6e7681;
+  --green:#3fb950; --amber:#d97706; --cyan:#22d3ee; --purple:#a78bfa;
+  --red:#f85149; --yellow:#eab308; --blue:#58a6ff;
+}
+
+.dh-wrap { padding:20px 26px; color:var(--text-pri); max-width:1200px; }
+.dh-hdr  { display:flex; align-items:baseline; gap:10px; margin-bottom:2px; }
+.dh-hdr h1 { font-size:18px; margin:0; font-weight:700; }
+.dh-sub  { font-size:11px; color:var(--text-dim); margin-bottom:16px; }
+
+/* ── Section labels ──────────────────────────────────────────────────── */
+.section-label {
+  font-size:9px; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+  color:var(--text-dim); margin:18px 0 8px;
+}
+
+/* ── Capability hero ─────────────────────────────────────────────────── */
+.cap-hero {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+  padding:22px 24px; margin-bottom:10px; position:relative; overflow:hidden;
+}
+.cap-hero::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:5px;
+  background:var(--cap-accent, var(--border));
+}
+.cap-badge {
+  font-size:28px; font-weight:900; letter-spacing:1px; line-height:1;
+  color:var(--cap-accent, var(--text-dim)); margin-bottom:8px;
+  display:flex; align-items:center; gap:12px;
+}
+.cap-badge-dot {
+  width:14px; height:14px; border-radius:50%; background:var(--cap-accent, var(--border));
+  flex-shrink:0;
+}
+.cap-badge-dot.pulse { animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulse {
+  0%,100% { box-shadow:0 0 0 0 var(--cap-accent); opacity:1; }
+  50%      { box-shadow:0 0 0 6px transparent; opacity:.7; }
+}
+.cap-reasons { margin-top:10px; display:flex; flex-direction:column; gap:5px; }
+.cap-reason {
+  font-size:12px; color:var(--text-sec); display:flex; align-items:baseline; gap:7px;
+}
+.cap-reason .icon { font-size:11px; flex-shrink:0; width:14px; text-align:center; }
+.cap-meta {
+  position:absolute; top:16px; right:20px; text-align:right;
+  font-size:10px; color:var(--text-dim);
+}
+.cap-meta .age { font-size:13px; font-weight:700; color:var(--text-sec); }
+
+/* ── Panel (shared card) ─────────────────────────────────────────────── */
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:8px; }
+.panel-hdr { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); }
+.panel-hdr .title { font-size:12px; font-weight:700; }
+.panel-hdr .conf  { font-size:9px; font-weight:700; border-radius:3px; padding:1px 5px; margin-left:auto; }
+.panel-body { padding:12px 14px; }
+
+/* ── Status badges ───────────────────────────────────────────────────── */
+.sbadge { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700;
+          border-radius:4px; padding:2px 7px; white-space:nowrap; }
+.sbadge-green  { background:rgba(63,185,80,.12);  color:var(--green);     border:1px solid rgba(63,185,80,.25); }
+.sbadge-amber  { background:rgba(217,119,6,.12);  color:var(--amber);     border:1px solid rgba(217,119,6,.25); }
+.sbadge-red    { background:rgba(248,81,73,.12);  color:var(--red);       border:1px solid rgba(248,81,73,.25); }
+.sbadge-dim    { background:rgba(110,118,129,.1); color:var(--text-dim);  border:1px solid rgba(110,118,129,.2); }
+.sbadge-cyan   { background:rgba(34,211,238,.1);  color:var(--cyan);      border:1px solid rgba(34,211,238,.2); }
+.sbadge-unknown{ background:rgba(167,139,250,.1); color:var(--purple);    border:1px solid rgba(167,139,250,.2); }
+
+/* confidence pills */
+.conf-live    { background:rgba(63,185,80,.12);  color:var(--green);  }
+.conf-stale   { background:rgba(217,119,6,.12);  color:var(--amber);  }
+.conf-unknown { background:rgba(167,139,250,.1); color:var(--purple); }
+.conf-historical { background:rgba(34,211,238,.08); color:var(--cyan); }
+
+/* ── Infra row grid ──────────────────────────────────────────────────── */
+.infra-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+@media(max-width:700px){ .infra-grid { grid-template-columns:1fr; } }
+
+.infra-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.infra-hdr   { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); }
+.infra-hdr .title { font-size:12px; font-weight:700; }
+.infra-body  { padding:12px 14px; }
+.infra-stat  { display:flex; justify-content:space-between; align-items:baseline;
+               font-size:11px; padding:3px 0; }
+.infra-stat .k { color:var(--text-dim); }
+.infra-stat .v { font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* stale overlay hint */
+.stale-veil {
+  font-size:10px; color:var(--amber); background:rgba(217,119,6,.08);
+  border:1px solid rgba(217,119,6,.2); border-radius:5px; padding:5px 10px;
+  margin-bottom:8px; display:none;
+}
+.stale-veil.show { display:block; }
+
+/* ── Treasury list ───────────────────────────────────────────────────── */
+.treasury-summary {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  padding:12px 14px; border-bottom:1px solid var(--border);
+}
+.tscard { background:var(--bg-card2); border:1px solid var(--border2);
+          border-radius:6px; padding:9px 12px; text-align:center; }
+.tscard .tv { font-size:20px; font-weight:800; margin-bottom:2px; }
+.tscard .tl { font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; }
+
+.treasury-list { max-height:320px; overflow-y:auto; }
+.trow { display:flex; align-items:center; gap:10px; padding:7px 14px;
+        border-bottom:1px solid rgba(33,38,45,.6); font-size:11px; }
+.trow:last-child { border-bottom:none; }
+.trow:hover { background:rgba(255,255,255,.02); }
+.trow .t-icon { width:16px; text-align:center; flex-shrink:0; font-size:12px; }
+.trow .t-addr { font-family:ui-monospace,monospace; color:var(--cyan); font-size:10.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.trow .t-state { flex-shrink:0; }
+.trow .t-age   { font-size:9.5px; color:var(--text-dim); flex-shrink:0; text-align:right; min-width:70px; }
+
+/* ── Historical grid ─────────────────────────────────────────────────── */
+.hist-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+@media(max-width:700px){ .hist-grid { grid-template-columns:1fr; } }
+
+.lat-row { display:flex; justify-content:space-between; align-items:center;
+           font-size:11px; padding:5px 0; border-bottom:1px solid rgba(33,38,45,.5); }
+.lat-row:last-child { border-bottom:none; }
+.lat-row .src { color:var(--text-sec); }
+.lat-row .vals { display:flex; gap:10px; font-variant-numeric:tabular-nums; }
+.lat-val { color:var(--text-dim); font-size:10px; }
+.lat-val span { color:var(--text-pri); font-weight:600; }
+
+.src-bar-wrap { margin:4px 0 8px; }
+.src-label-row { display:flex; justify-content:space-between; font-size:9.5px;
+                 color:var(--text-dim); margin-bottom:3px; }
+.src-bar { height:6px; border-radius:3px; overflow:hidden; display:flex; gap:1px; background:var(--border2); }
+.src-seg { height:100%; }
+.seg-pl { background:var(--green); }
+.seg-ac { background:var(--blue); }
+.seg-other { background:var(--text-dim); }
+
+/* ── Alert banner ────────────────────────────────────────────────────── */
+.alert-banner { display:none; margin-bottom:10px; }
+.alert-banner.show { display:block; }
+.alert-row {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:10px 14px; border-radius:7px; margin-bottom:6px;
+  border:1px solid;
+}
+.alert-row.CRITICAL { background:rgba(248,81,73,.07);  border-color:rgba(248,81,73,.3);  }
+.alert-row.HIGH     { background:rgba(217,119,6,.07);  border-color:rgba(217,119,6,.3);  }
+.alert-row.MEDIUM   { background:rgba(234,179,8,.07);  border-color:rgba(234,179,8,.25); }
+.alert-row.LOW      { background:rgba(139,148,158,.07);border-color:rgba(139,148,158,.2);}
+.alert-sev  { font-size:9px; font-weight:800; letter-spacing:.5px; flex-shrink:0; padding-top:1px; }
+.alert-sev.CRITICAL { color:var(--red); }
+.alert-sev.HIGH     { color:var(--amber); }
+.alert-sev.MEDIUM   { color:var(--yellow); }
+.alert-sev.LOW      { color:var(--text-sec); }
+.alert-body { flex:1; min-width:0; }
+.alert-title   { font-size:12px; font-weight:700; margin-bottom:2px; }
+.alert-summary { font-size:11px; color:var(--text-sec); line-height:1.4; }
+.alert-action  { font-size:10px; color:var(--text-dim); margin-top:4px; font-style:italic; }
+.alert-state   { font-size:9px; font-weight:700; flex-shrink:0; padding-top:2px; }
+.alert-state.RAISED   { color:var(--red); }
+.alert-state.ACTIVE   { color:var(--amber); }
+
+/* ── Refresh / meta row ──────────────────────────────────────────────── */
+.meta-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.refresh-btn { background:var(--bg-card2); border:1px solid var(--border2);
+               color:var(--text-sec); font-size:11px; padding:4px 10px;
+               border-radius:5px; cursor:pointer; }
+.refresh-btn:hover { border-color:var(--cyan); color:var(--cyan); }
+.meta-ts { font-size:10px; color:var(--text-dim); }
+.meta-ts span { color:var(--text-sec); }
+
+/* ── Error / loading states ──────────────────────────────────────────── */
+.dh-loading { padding:40px; text-align:center; color:var(--text-dim); font-size:13px; }
+.dh-error   { padding:20px; text-align:center; color:var(--red); font-size:12px;
+              background:rgba(248,81,73,.05); border:1px solid rgba(248,81,73,.15);
+              border-radius:8px; margin:10px 0; }
+
+/* historical label badge */
+.hist-label { font-size:8.5px; font-weight:700; background:rgba(34,211,238,.08);
+              color:var(--cyan); border:1px solid rgba(34,211,238,.15);
+              border-radius:3px; padding:1px 5px; margin-left:6px; letter-spacing:.3px; }
+{% endblock %}
+
+{% block content %}
+<div class="dh-wrap">
+  <div class="dh-hdr">
+    <h1>Detection Health</h1>
+  </div>
+  <div class="dh-sub">Real-time detection capability — powered by <code>/api/ops-v2/detection-health</code></div>
+
+  <div class="meta-row">
+    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    <div class="meta-ts" id="meta-ts">—</div>
+  </div>
+
+  <!-- Alert banner — shown only when active alerts exist -->
+  <div class="alert-banner" id="alert-banner">
+    <div class="section-label" style="margin-top:0">Active Alerts</div>
+    <div id="alert-list"></div>
+  </div>
+
+  <!-- Loading -->
+  <div id="dh-loading" class="dh-loading">Loading…</div>
+  <div id="dh-error"   class="dh-error"   style="display:none"></div>
+  <div id="dh-content" style="display:none">
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1 — DETECTION CAPABILITY                                -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Detection Capability</div>
+
+    <div class="cap-hero" id="cap-hero">
+      <div class="cap-badge">
+        <div class="cap-badge-dot" id="cap-dot"></div>
+        <span id="cap-label">—</span>
+      </div>
+      <div class="cap-reasons" id="cap-reasons"></div>
+      <div class="cap-meta">
+        <div id="cap-hb-age" class="age">—</div>
+        <div>heartbeat age</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2 — INFRASTRUCTURE                                      -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Infrastructure</div>
+
+    <div class="stale-veil" id="stale-veil">
+      ⚠ Heartbeat is stale — runtime values below reflect last known state, not current state.
+    </div>
+
+    <div class="infra-grid">
+      <!-- Cascade Heartbeat -->
+      <div class="infra-panel" id="infra-cascade">
+        <div class="infra-hdr">
+          <div class="title">Cascade Heartbeat</div>
+          <div class="conf panel-hdr" id="cascade-conf" style="margin-left:auto"></div>
+        </div>
+        <div class="infra-body" id="cascade-body">
+          <div class="infra-stat">
+            <span class="k">Status</span>
+            <span class="v" id="cascade-status">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Last seen</span>
+            <span class="v" id="cascade-age">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Cascade state</span>
+            <span class="v" id="cascade-state">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Subscriptions</span>
+            <span class="v" id="cascade-subs">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Reconnect generation</span>
+            <span class="v" id="cascade-gen">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ProgramWatcher -->
+      <div class="infra-panel" id="infra-pw">
+        <div class="infra-hdr">
+          <div class="title">ProgramWatcher</div>
+          <div class="conf panel-hdr" id="pw-conf" style="margin-left:auto"></div>
+        </div>
+        <div class="infra-body" id="pw-body">
+          <div class="infra-stat">
+            <span class="k">Status</span>
+            <span class="v" id="pw-status">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Stream state</span>
+            <span class="v" id="pw-stream">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Active candidates</span>
+            <span class="v" id="pw-candidates">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Catchup hits</span>
+            <span class="v" id="pw-catchup">—</span>
+          </div>
+          <div class="infra-stat">
+            <span class="k">Fetch timeouts</span>
+            <span class="v" id="pw-timeout">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3 — TREASURY COVERAGE                                   -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Treasury Coverage</div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="title">Confirmed Treasuries</div>
+        <span id="tc-status-badge" class="sbadge" style="margin-left:8px"></span>
+        <span class="conf panel-hdr" style="background:rgba(63,185,80,.1);color:var(--green);margin-left:auto;">LIVE</span>
+      </div>
+      <div class="treasury-summary">
+        <div class="tscard">
+          <div class="tv" style="color:var(--green)"  id="tc-active">—</div>
+          <div class="tl">Active</div>
+        </div>
+        <div class="tscard">
+          <div class="tv" style="color:var(--text-dim)" id="tc-stale">—</div>
+          <div class="tl">Stale</div>
+        </div>
+        <div class="tscard">
+          <div class="tv" style="color:var(--red)"    id="tc-unmon">—</div>
+          <div class="tl">Unmonitored</div>
+        </div>
+        <div class="tscard">
+          <div class="tv" style="color:var(--text-dim)" id="tc-excl">—</div>
+          <div class="tl">Excluded</div>
+        </div>
+      </div>
+      <div class="treasury-list" id="treasury-list">
+        <div class="dh-loading" style="padding:20px">Loading treasuries…</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 4 — HISTORICAL PERFORMANCE                              -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">
+      Historical Performance
+      <span class="hist-label">LAST 7 DAYS</span>
+    </div>
+    <div style="font-size:10px;color:var(--text-dim);margin-bottom:10px;">
+      These metrics reflect past detections. They remain valid regardless of current detector state.
+    </div>
+
+    <div class="hist-grid">
+      <!-- Detection Sources -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="title">Detection Sources</div>
+          <span id="ds-status-badge" class="sbadge" style="margin-left:8px"></span>
+          <span class="conf panel-hdr conf-historical" style="margin-left:auto;">HISTORICAL</span>
+        </div>
+        <div class="panel-body">
+          <div id="ds-total" style="font-size:11px;color:var(--text-sec);margin-bottom:8px;"></div>
+          <div class="src-bar-wrap">
+            <div class="src-bar" id="src-bar"></div>
+            <div class="src-label-row" id="src-labels"></div>
+          </div>
+          <div id="ds-by-source"></div>
+        </div>
+      </div>
+
+      <!-- Detection Latency -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="title">Detection Latency</div>
+          <span id="lat-status-badge" class="sbadge" style="margin-left:8px"></span>
+          <span class="conf panel-hdr conf-historical" style="margin-left:auto;">HISTORICAL</span>
+        </div>
+        <div class="panel-body">
+          <div id="lat-overall" style="margin-bottom:10px;"></div>
+          <div id="lat-by-source"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dh-content -->
+</div><!-- /dh-wrap -->
+
+<script>
+(function(){
+
+/* ── Helpers ─────────────────────────────────────────────────────────── */
+function el(id){ return document.getElementById(id); }
+function set(id, html){ var e=el(id); if(e) e.innerHTML=html; }
+function fmtAge(s){
+  if(s===null||s===undefined) return '—';
+  if(s<60)  return s+'s ago';
+  if(s<3600) return Math.round(s/60)+'m ago';
+  return Math.round(s/3600)+'h ago';
+}
+function fmtMs(ms){
+  if(ms===null||ms===undefined) return '—';
+  if(ms<1000) return ms+'ms';
+  return (ms/1000).toFixed(1)+'s';
+}
+function nullDash(v){ return v===null||v===undefined ? '—' : v; }
+
+/* status → badge class */
+function statusBadge(status){
+  var map = {
+    GREEN:'sbadge-green', AMBER:'sbadge-amber', RED:'sbadge-red',
+    UNKNOWN:'sbadge-unknown', LIVE:'sbadge-green', DEGRADED:'sbadge-amber',
+    NO_TELEMETRY:'sbadge-red'
+  };
+  return map[status] || 'sbadge-dim';
+}
+function badgeHtml(status, label){
+  return '<span class="sbadge '+statusBadge(status)+'">'+(label||status)+'</span>';
+}
+
+/* confidence → pill html */
+function confPill(c){
+  var cls = {LIVE:'conf-live',STALE:'conf-stale',UNKNOWN:'conf-unknown',HISTORICAL:'conf-historical'}[c]||'';
+  return '<span class="conf panel-hdr '+cls+'" style="font-size:9px;font-weight:700;border-radius:3px;padding:1px 5px;">'+c+'</span>';
+}
+
+/* operational status → cap-hero accent colour */
+var OP_COLORS = {
+  LIVE:          '#3fb950',
+  DEGRADED:      '#d97706',
+  NO_TELEMETRY:  '#f85149',
+  UNKNOWN:       '#a78bfa'
+};
+var OP_LABELS = {
+  LIVE:          'LIVE',
+  DEGRADED:      'DEGRADED',
+  NO_TELEMETRY:  'NO TELEMETRY',
+  UNKNOWN:       'UNKNOWN'
+};
+/* operational reasons: prefix icons */
+function reasonIcon(text){
+  var t = text.toLowerCase();
+  if(t.includes('has not updated')||t.includes('telemetry')||t.includes('stale')||t.includes('unknown')) return '✗';
+  if(t.includes('unmonitored')||t.includes('never produced')) return '⚠';
+  if(t.includes('not active')||t.includes('programwatcher')) return '✗';
+  return '⚠';
+}
+function reasonColor(icon){
+  return icon==='✗' ? 'var(--red)' : 'var(--amber)';
+}
+
+/* treasury coverage_state → icon + colour */
+function tcIcon(state){
+  return {
+    ACTIVE:'✓', STALE:'◉', UNMONITORED:'✗', EXCLUDED:'—'
+  }[state]||'?';
+}
+function tcColor(state){
+  return {
+    ACTIVE:'var(--green)', STALE:'var(--text-dim)',
+    UNMONITORED:'var(--red)', EXCLUDED:'var(--text-dim)'
+  }[state]||'var(--text-dim)';
+}
+
+/* ── Main render ─────────────────────────────────────────────────────── */
+function render(d){
+  el('dh-loading').style.display='none';
+  el('dh-error').style.display='none';
+  el('dh-content').style.display='block';
+
+  /* generated_at */
+  if(d.generated_at){
+    var dt=new Date(d.generated_at*1000);
+    el('meta-ts').innerHTML='Generated <span>'+dt.toLocaleTimeString()+'</span>';
+  }
+
+  /* ── Section 1: Detection Capability ──────────────────────────────── */
+  var op=d.operational_status||'UNKNOWN';
+  var accent=OP_COLORS[op]||'#6e7681';
+  var hero=el('cap-hero');
+  hero.style.setProperty('--cap-accent', accent);
+
+  /* pulse dot only when LIVE */
+  var dot=el('cap-dot');
+  dot.className='cap-badge-dot'+(op==='LIVE'?' pulse':'');
+
+  el('cap-label').textContent=OP_LABELS[op]||op;
+
+  /* heartbeat age in meta corner */
+  var hbAge=d.cascade_heartbeat&&d.cascade_heartbeat.last_updated_age_s;
+  el('cap-hb-age').textContent= hbAge!==null&&hbAge!==undefined ? fmtAge(hbAge) : '—';
+
+  /* operational reasons */
+  var reasons=d.operational_reasons||[];
+  var html='';
+  /* if LIVE and no reasons, show green confirmations */
+  if(op==='LIVE' && reasons.length===0){
+    html+='<div class="cap-reason"><span class="icon" style="color:var(--green)">✓</span>Cascade heartbeat current</div>';
+    html+='<div class="cap-reason"><span class="icon" style="color:var(--green)">✓</span>ProgramWatcher ACTIVE</div>';
+    html+='<div class="cap-reason"><span class="icon" style="color:var(--green)">✓</span>All confirmed treasuries have prior monitoring</div>';
+  } else {
+    reasons.forEach(function(r){
+      var icon=reasonIcon(r);
+      html+='<div class="cap-reason"><span class="icon" style="color:'+reasonColor(icon)+'">'+icon+'</span>'+r+'</div>';
+    });
+  }
+  el('cap-reasons').innerHTML=html;
+
+  /* ── Section 2: Infrastructure ─────────────────────────────────────── */
+  var cascade=d.cascade_heartbeat||{};
+  var conf=cascade.confidence||'UNKNOWN';
+
+  /* stale veil */
+  var veil=el('stale-veil');
+  veil.className='stale-veil'+(conf==='STALE'?' show':'');
+  if(conf==='UNKNOWN'){
+    veil.textContent='✗ Heartbeat too old — runtime values below are unknown. Showing last recorded values only.';
+    veil.className='stale-veil show';
+    veil.style.color='var(--red)';
+    veil.style.background='rgba(248,81,73,.05)';
+    veil.style.borderColor='rgba(248,81,73,.15)';
+  }
+
+  el('cascade-conf').innerHTML=confPill(conf);
+  el('cascade-conf').className=''; /* reset, use inline */
+
+  set('cascade-status', badgeHtml(cascade.status||'UNKNOWN'));
+  set('cascade-age',    cascade.last_updated_age_s!==null&&cascade.last_updated_age_s!==undefined
+                          ? fmtAge(cascade.last_updated_age_s) : '—');
+
+  if(conf==='UNKNOWN'){
+    set('cascade-state', '<span style="color:var(--text-dim)">—</span>');
+    set('cascade-subs',  '<span style="color:var(--text-dim)">—</span>');
+    set('cascade-gen',   '<span style="color:var(--text-dim)">—</span>');
+  } else {
+    set('cascade-state', cascade.cascade_state||'—');
+    var subs = cascade.subs!==null&&cascade.subs!==undefined
+      ? cascade.subs+' total ('+nullDash(cascade.treasury_subs)+' treasury, '+nullDash(cascade.subprov_subs)+' subprov)'
+      : '—';
+    set('cascade-subs', subs);
+    set('cascade-gen',  nullDash(cascade.reconnect_generation));
+  }
+
+  /* ProgramWatcher */
+  var pw=d.program_watcher||{};
+  var pwConf=pw.confidence||'UNKNOWN';
+  el('pw-conf').innerHTML=confPill(pwConf);
+  el('pw-conf').className='';
+
+  set('pw-status', badgeHtml(pw.status||'UNKNOWN'));
+  if(pwConf==='UNKNOWN'){
+    set('pw-stream',     '<span style="color:var(--text-dim)">—</span>');
+    set('pw-candidates', '<span style="color:var(--text-dim)">—</span>');
+    set('pw-catchup',    '<span style="color:var(--text-dim)">—</span>');
+    set('pw-timeout',    '<span style="color:var(--text-dim)">—</span>');
+  } else {
+    var streamColor = pw.stream_state==='ACTIVE' ? 'var(--green)' : 'var(--red)';
+    set('pw-stream',     '<span style="color:'+streamColor+'">'+nullDash(pw.stream_state)+'</span>');
+    set('pw-candidates', nullDash(pw.active_candidates));
+    set('pw-catchup',    nullDash(pw.active_catchup_hits));
+    var toColor = pw.fetch_timeout && pw.fetch_timeout>100 ? 'var(--amber)' : 'var(--text-pri)';
+    set('pw-timeout',    '<span style="color:'+toColor+'">'+nullDash(pw.fetch_timeout)+'</span>');
+  }
+
+  /* ── Section 3: Treasury Coverage ───────────────────────────────────── */
+  var tc=d.treasury_coverage||{};
+  var counts=tc.counts||{};
+  set('tc-active', nullDash(counts.ACTIVE));
+  set('tc-stale',  nullDash(counts.STALE));
+  set('tc-unmon',  nullDash(counts.UNMONITORED));
+  set('tc-excl',   nullDash(counts.EXCLUDED));
+
+  var tcBadge=el('tc-status-badge');
+  tcBadge.className='sbadge '+statusBadge(tc.status);
+  tcBadge.textContent=tc.status||'—';
+
+  /* Treasury list — sort: UNMONITORED first, then ACTIVE, STALE, EXCLUDED */
+  var order={UNMONITORED:0,ACTIVE:1,STALE:2,EXCLUDED:3};
+  var treasuries=(tc.treasuries||[]).slice().sort(function(a,b){
+    return (order[a.coverage_state]||99)-(order[b.coverage_state]||99);
+  });
+  var thtml='';
+  treasuries.forEach(function(t){
+    var icon=tcIcon(t.coverage_state);
+    var color=tcColor(t.coverage_state);
+    var age=t.last_notif_age_s!==null&&t.last_notif_age_s!==undefined
+      ? fmtAge(t.last_notif_age_s) : 'never';
+    var short=t.treasury ? t.treasury.slice(0,8)+'…'+t.treasury.slice(-6) : '—';
+    var stateBadge='';
+    if(t.coverage_state==='UNMONITORED'){
+      stateBadge='<span class="sbadge sbadge-red" style="font-size:8px">UNMONITORED</span>';
+    } else if(t.coverage_state==='ACTIVE'){
+      stateBadge='<span class="sbadge sbadge-green" style="font-size:8px">ACTIVE</span>';
+    } else if(t.coverage_state==='EXCLUDED'){
+      stateBadge='<span class="sbadge sbadge-dim" style="font-size:8px">EXCLUDED</span>';
+    }
+    thtml+='<div class="trow">'
+      +'<span class="t-icon" style="color:'+color+'">'+icon+'</span>'
+      +'<span class="t-addr" title="'+t.treasury+'">'+short+'</span>'
+      +'<span class="t-state">'+stateBadge+'</span>'
+      +'<span class="t-age">'+age+'</span>'
+      +'</div>';
+  });
+  el('treasury-list').innerHTML=thtml||'<div class="dh-loading" style="padding:20px;color:var(--text-dim)">No treasuries found</div>';
+
+  /* ── Section 4: Historical Performance ──────────────────────────────── */
+  var hist=d.historical_status||'UNKNOWN';
+
+  /* Detection Sources */
+  var ds=d.detection_sources||{};
+  var dsBadge=el('ds-status-badge');
+  dsBadge.className='sbadge '+statusBadge(ds.status);
+  dsBadge.textContent=ds.status||'—';
+
+  var total=ds.total_launches||0;
+  set('ds-total', total+' detections in last 7 days');
+
+  /* source bar */
+  var bySource=ds.by_source||{};
+  var pl=bySource.PROGRAM_LOGS||0;
+  var ac=bySource.ACTIVE_CATCHUP||0;
+  var other=total-pl-ac;
+  var plPct=total?Math.round(pl/total*100):0;
+  var acPct=total?Math.round(ac/total*100):0;
+  var otherPct=total?100-plPct-acPct:0;
+  el('src-bar').innerHTML=
+    '<div class="src-seg seg-pl" style="flex:'+plPct+'"></div>'+
+    '<div class="src-seg seg-ac" style="flex:'+acPct+'"></div>'+
+    (other>0?'<div class="src-seg seg-other" style="flex:'+otherPct+'"></div>':'');
+  el('src-labels').innerHTML=
+    '<span style="color:var(--green)">▬ PROGRAM_LOGS '+plPct+'%</span>'+
+    '<span style="color:var(--blue)">▬ ACTIVE_CATCHUP '+acPct+'%</span>';
+
+  var srcHtml='';
+  Object.keys(bySource).sort().forEach(function(src){
+    var n=bySource[src];
+    var pct=total?Math.round(n/total*100):0;
+    var color=src==='PROGRAM_LOGS'?'var(--green)':src==='ACTIVE_CATCHUP'?'var(--blue)':'var(--text-dim)';
+    srcHtml+='<div class="lat-row"><span class="src" style="color:'+color+'">'+src+'</span>'
+      +'<span class="vals"><span class="lat-val"><span>'+n+'</span></span>'
+      +'<span class="lat-val" style="min-width:32px;text-align:right"><span>'+pct+'%</span></span></span></div>';
+  });
+  el('ds-by-source').innerHTML=srcHtml;
+
+  /* Detection Latency */
+  var lat=d.detection_latency||{};
+  var latBadge=el('lat-status-badge');
+  latBadge.className='sbadge '+statusBadge(lat.status);
+  latBadge.textContent=lat.status||'—';
+
+  var ov=lat.overall||{};
+  set('lat-overall',
+    ov.count
+    ? '<div style="display:flex;gap:16px;font-size:12px;">'
+      +'<div><div style="font-size:20px;font-weight:800;color:var(--text-pri)">'+fmtMs(ov.p50_ms)+'</div><div style="font-size:9px;color:var(--text-dim);margin-top:2px">MEDIAN</div></div>'
+      +'<div><div style="font-size:20px;font-weight:800;color:var(--amber)">'+fmtMs(ov.p95_ms)+'</div><div style="font-size:9px;color:var(--text-dim);margin-top:2px">P95</div></div>'
+      +'<div><div style="font-size:20px;font-weight:800;color:var(--text-sec)">'+ov.count+'</div><div style="font-size:9px;color:var(--text-dim);margin-top:2px">SAMPLES</div></div>'
+      +'</div>'
+    : '<span style="color:var(--text-dim);font-size:12px">No latency data</span>'
+  );
+
+  var bySrcLat=lat.by_source||{};
+  var latHtml='';
+  var srcOrder=['PROGRAM_LOGS','ACTIVE_CATCHUP'];
+  var seen={};
+  srcOrder.forEach(function(s){ if(bySrcLat[s]){ renderLatSrc(s, bySrcLat[s]); seen[s]=1; }});
+  Object.keys(bySrcLat).sort().forEach(function(s){ if(!seen[s]) renderLatSrc(s, bySrcLat[s]); });
+  function renderLatSrc(src, v){
+    var color=src==='PROGRAM_LOGS'?'var(--green)':src==='ACTIVE_CATCHUP'?'var(--blue)':'var(--text-dim)';
+    latHtml+='<div class="lat-row">'
+      +'<span class="src" style="color:'+color+'">'+src+'</span>'
+      +'<span class="vals">'
+      +'<span class="lat-val">p50 <span>'+fmtMs(v.p50_ms)+'</span></span>'
+      +'<span class="lat-val">p95 <span>'+fmtMs(v.p95_ms)+'</span></span>'
+      +'<span class="lat-val">n=<span>'+v.count+'</span></span>'
+      +'</span></div>';
+  }
+  el('lat-by-source').innerHTML=latHtml;
+}
+
+/* ── Alert rendering ─────────────────────────────────────────────────── */
+function renderAlerts(d){
+  var active=d.active||[];
+  var banner=el('alert-banner');
+  var list=el('alert-list');
+  if(!active.length){ banner.className='alert-banner'; return; }
+  banner.className='alert-banner show';
+  var html='';
+  active.forEach(function(a){
+    html+='<div class="alert-row '+a.severity+'">'
+      +'<div class="alert-sev '+a.severity+'">'+a.severity+'</div>'
+      +'<div class="alert-body">'
+        +'<div class="alert-title">'+a.title+'</div>'
+        +'<div class="alert-summary">'+a.summary+'</div>'
+        +(a.action?'<div class="alert-action">→ '+a.action+'</div>':'')
+      +'</div>'
+      +'<div class="alert-state '+a.state+'">'+a.state+'</div>'
+      +'</div>';
+  });
+  list.innerHTML=html;
+}
+
+/* ── Load ────────────────────────────────────────────────────────────── */
+function loadAll(){
+  el('dh-loading').style.display='block';
+  el('dh-content').style.display='none';
+  el('dh-error').style.display='none';
+  Promise.all([
+    fetch('/api/ops-v2/detection-health').then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }),
+    fetch('/api/ops-v2/alerts').then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  ]).then(function(results){
+    var dh=results[0], da=results[1];
+    if(!dh.ok) throw new Error(dh.error||'API error');
+    render(dh);
+    if(da.ok) renderAlerts(da);
+  }).catch(function(e){
+    el('dh-loading').style.display='none';
+    var err=el('dh-error');
+    err.style.display='block';
+    err.textContent='Failed to load detection health: '+e.message;
+  });
+}
+
+loadAll();
+/* refresh every 30s — matches existing dashboard cadence */
+setInterval(loadAll, 30000);
+
+})();
+</script>
+{% endblock %}

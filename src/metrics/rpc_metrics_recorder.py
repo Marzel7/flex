@@ -17,6 +17,8 @@ import json
 import sqlite3
 import os
 
+from src.utils.db_locking import db_connect
+
 # ============================================================================
 # CREDIT SCHEDULE (from rpc_metrics_config.py)
 # ============================================================================
@@ -146,8 +148,54 @@ class SectionStats:
 
 DB_PATH = os.getenv("RPC_METRICS_DB", "flex_complete_database.db")
 
+def _rpc_metrics_schema_ready() -> bool:
+    required_tables = {"rpc_metrics", "rpc_metrics_state"}
+    required_indexes = {
+        "idx_rpc_metrics_timestamp",
+        "idx_rpc_metrics_source_file",
+        "idx_rpc_metrics_method",
+        "idx_rpc_metrics_cache_action",
+        "idx_rpc_metrics_optimization_layer",
+    }
+    required_columns = {
+        "timestamp",
+        "section",
+        "provider",
+        "method",
+        "status_code",
+        "latency_ms",
+        "credits",
+        "mode",
+        "retries",
+        "source_file",
+        "error",
+        "process_pid",
+        "cache_action",
+        "credits_saved",
+        "optimization_layer",
+        "recorded_at",
+    }
+    conn = db_connect(DB_PATH, timeout=5, read_only=True)
+    try:
+        rows = conn.execute(
+            "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'index')"
+        ).fetchall()
+        tables = {row[0] for row in rows if row[1] == "table"}
+        indexes = {row[0] for row in rows if row[1] == "index"}
+        if not (required_tables <= tables and required_indexes <= indexes):
+            return False
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(rpc_metrics)").fetchall()}
+        return required_columns <= columns
+    finally:
+        conn.close()
+
 def _ensure_rpc_metrics_table():
     """Create rpc_metrics table if it doesn't exist, and migrate columns if needed"""
+    try:
+        if _rpc_metrics_schema_ready():
+            return
+    except Exception:
+        pass
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.execute("PRAGMA journal_mode=WAL")

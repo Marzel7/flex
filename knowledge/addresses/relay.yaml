@@ -1,0 +1,11 @@
+# Known Relay.link relay wallet addresses.
+#
+# Relay.link seeds creator wallets with dust amounts on behalf of users.
+# A creator funded by one of these addresses used the Relay.link platform.
+#
+# Format: same as cex.yaml
+#
+# Currently empty — add entries as Relay.link relay addresses are confirmed
+# via their public documentation or on-chain pattern analysis.
+
+entries: []

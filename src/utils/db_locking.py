@@ -14,6 +14,7 @@ import sqlite3
 import threading
 import time
 import weakref
+import uuid
 from collections import Counter
 from typing import Optional
 
@@ -27,12 +28,6 @@ DB_WRITE_LOCK = threading.RLock()
 _global_lock_errors: list[float] = []
 _global_lock_errors_lock = threading.Lock()
 _global_failed_writes: int = 0
-
-# DB paths whose persistent (DB-level) PRAGMAs have already been applied this
-# process — so db_connect sets them once, not on every connect (avoids taking the
-# write lock at connection-open time under a write storm). A set of str paths.
-_PERSISTENT_PRAGMAS_DONE: set = set()
-
 
 def record_lock_error(caller: Optional[str] = None) -> None:
     """Called anywhere a 'database is locked' OperationalError is caught."""
@@ -210,6 +205,20 @@ def _is_write_sql(sql) -> bool:
     return s.startswith(_WRITE_SQL_PREFIXES)
 
 
+class TrackedCursor(sqlite3.Cursor):
+    """Cursor that enters the same managed write lane before its first mutation."""
+
+    def execute(self, sql, parameters=()):
+        if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
+            self.connection._acquire_write_lane()
+        return super().execute(sql, parameters)
+
+    def executemany(self, sql, parameters):
+        if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
+            self.connection._acquire_write_lane()
+        return super().executemany(sql, parameters)
+
+
 class TrackedConnection(sqlite3.Connection):
     """SQLite connection that unregisters itself when closed, tracks lock errors, and (when
     DB_WRITE_SERIALIZE=1) holds the global write lock for the duration of a write transaction so
@@ -231,6 +240,24 @@ class TrackedConnection(sqlite3.Connection):
             return  # fall through to SQLite's own busy_timeout rather than deadlock
         self._holds_write_lock = True
         try:
+            from src.core.database_write_service import acquire_write_lease
+            path = getattr(self, "_db_path", None)
+            if path:
+                txid = str(uuid.uuid4())
+                command = getattr(self, "_db_caller", None) or "tracked-connection-write"
+                self._cross_process_lease = acquire_write_lease(
+                    f"tracked:{os.path.realpath(path)}", path, txid, command
+                )
+                self._write_transaction_id = txid
+                self._write_started_at = time.time()
+                self._write_started_monotonic = time.monotonic()
+                self._write_total_changes_before = self.total_changes
+                self._write_rolled_back = False
+        except Exception:
+            self._holds_write_lock = False
+            _DB_WRITE_LOCK.release()
+            raise
+        try:
             with _DB_WRITE_STATS_LOCK:
                 _DB_WRITE_STATS["acquisitions"] += 1
                 if wait_ms > 1.0:
@@ -243,6 +270,36 @@ class TrackedConnection(sqlite3.Connection):
         _dbm_record_acquire(caller, wait_ms)   # percentile + per-writer attribution
 
     def _release_write_lane(self):
+        lease = getattr(self, "_cross_process_lease", None)
+        if lease is not None:
+            try:
+                from src.core.database_write_service import (
+                    database_write_service, release_write_lease,
+                )
+                started = getattr(self, "_write_started_monotonic", time.monotonic())
+                rolled_back = bool(getattr(self, "_write_rolled_back", False))
+                database_write_service.record_external({
+                    "database": lease.owner["database"],
+                    "database_selector": lease.owner.get("database_selector"),
+                    "database_path": lease.owner["database_path"],
+                    "writer_id": lease.owner["writer_id"],
+                    "process_pid": lease.owner["process_pid"],
+                    "thread": lease.owner["thread"],
+                    "transaction_id": lease.owner["transaction_id"],
+                    "command": lease.owner["command"],
+                    "queue_wait_ms": None,
+                    "begin_timestamp": getattr(self, "_write_started_at", None),
+                    "commit_timestamp": None if rolled_back else time.time(),
+                    "rollback": rolled_back,
+                    "duration_ms": round((time.monotonic() - started) * 1000.0, 3),
+                    "rows_modified": self.total_changes - getattr(
+                        self, "_write_total_changes_before", self.total_changes
+                    ),
+                    "status": "ROLLED_BACK" if rolled_back else "COMMITTED",
+                })
+                release_write_lease(lease)
+            finally:
+                self._cross_process_lease = None
         if getattr(self, "_holds_write_lock", False):
             self._holds_write_lock = False
             try:
@@ -259,6 +316,16 @@ class TrackedConnection(sqlite3.Connection):
             if "locked" in str(e).lower():
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
+
+    def cursor(self, factory=TrackedCursor):
+        return super().cursor(factory)
+
+    def executescript(self, sql_script):
+        if _DB_WRITE_SERIALIZE and any(
+            _is_write_sql(statement) for statement in sql_script.split(";")
+        ):
+            self._acquire_write_lane()
+        return super().executescript(sql_script)
 
     def executemany(self, sql, parameters):
         if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
@@ -278,9 +345,13 @@ class TrackedConnection(sqlite3.Connection):
         if _DB_WRITE_SERIALIZE and self.in_transaction and not getattr(self, "_holds_write_lock", False):
             self._acquire_write_lane()
         t0 = time.monotonic()
+        committed = False
         try:
-            return super().commit()
+            result = super().commit()
+            committed = True
+            return result
         finally:
+            self._write_rolled_back = not committed
             dur_ms = (time.monotonic() - t0) * 1000.0
             caller = getattr(self, "_db_caller", None)
             if dur_ms > 50.0:
@@ -289,6 +360,7 @@ class TrackedConnection(sqlite3.Connection):
             self._release_write_lane()
 
     def rollback(self):
+        self._write_rolled_back = True
         try:
             return super().rollback()
         finally:
@@ -311,7 +383,13 @@ class TrackedConnection(sqlite3.Connection):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+        try:
+            if exc_type is None:
+                self.commit()
+            else:
+                self.rollback()
+        finally:
+            self.close()
         return False
 
 
@@ -363,12 +441,12 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
 
     - timeout=30: waits up to 30s for a write lock (Python-level)
     - busy_timeout=30000: mirrors at the SQLite C level (handles WAL checkpoints)
-    - WAL journal mode for concurrent readers
+    - never mutates persistent database settings at connection time
 
     read_only=True: open the file with URI mode=ro. In WAL this reads the last
     committed snapshot WITHOUT taking the database write lock, so it can NEVER be
     blocked by a write storm. Use it for dashboard/read endpoints. A read-only
-    connection cannot run write PRAGMAs, so we skip journal_mode/synchronous setup.
+    connection cannot run write PRAGMAs, so we skip synchronous setup.
 
     Use this instead of sqlite3.connect() everywhere to avoid "database is locked".
     Logs caller location and elapsed time when acquisition is slow (>1s).
@@ -406,6 +484,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     _register_connection(conn, path, caller)
     try:
         conn._db_caller = caller
+        conn._db_path = path
     except Exception:
         pass
     if row_factory is not None:
@@ -413,23 +492,6 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     # busy_timeout & synchronous are CONNECTION-level (cheap, no write lock) — set always.
     conn.execute("PRAGMA busy_timeout=30000")
     conn.execute("PRAGMA synchronous=NORMAL")
-    # journal_mode, wal_autocheckpoint, journal_size_limit are PERSISTENT (DB-level)
-    # settings — they survive in the DB header and only need to be set ONCE per file.
-    # Running them on EVERY connect took the database WRITE LOCK on every open, which
-    # under a write storm collided → "database is locked" at connect time (the
-    # _patched_connect lock errors). Set them once per path, then skip forever.
-    global _PERSISTENT_PRAGMAS_DONE
-    if path not in _PERSISTENT_PRAGMAS_DONE:
-        try:
-            _mode = conn.execute("PRAGMA journal_mode").fetchone()
-            if not _mode or str(_mode[0]).lower() != "wal":
-                conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA wal_autocheckpoint=400")        # ~1.6MB — checkpoint sooner
-            # Cap WAL at 32 MB so a transient pin can't balloon it (the lock-storm).
-            conn.execute("PRAGMA journal_size_limit=33554432")   # 32 MB
-            _PERSISTENT_PRAGMAS_DONE.add(path)
-        except Exception:
-            pass  # transient lock on setup — another connect will complete it
     return conn
 
 

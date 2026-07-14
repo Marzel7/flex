@@ -694,6 +694,17 @@ class ProgramCreateWatcher:
         # background task handles
         self._expire_task: asyncio.Task | None = None
         self._persist_task: asyncio.Task | None = None
+        self._pending_fetch_task: asyncio.Task | None = None
+
+        # Pending-CREATE-fetch retry queue: sigs whose getTransaction returned None on the
+        # first PROGRAM_LOGS pass (indexer boundary). Each entry: {sig, queued_at, attempts,
+        # next_retry_at, program_log_seen_at, program_log_context_slot}. Bounded by age and
+        # count; entries that match active_candidates on a later retry fire process_candidate_sig
+        # as if they had been caught live. Entries that exceed max retries are dropped.
+        self._pending_create_sigs: dict = {}   # sig → entry dict
+        self.metric_pending_create_queued: int = 0
+        self.metric_pending_create_resolved: int = 0
+        self.metric_pending_create_dropped: int = 0
 
     def start_background_tasks(self):
         """Start the expire + persist background loops. Call once after the event loop is live."""
@@ -701,9 +712,143 @@ class ProgramCreateWatcher:
             self._expire_task = asyncio.ensure_future(self._expire_loop())
         if self._persist_task is None or self._persist_task.done():
             self._persist_task = asyncio.ensure_future(self._persist_loop())
+        if self._pending_fetch_task is None or self._pending_fetch_task.done():
+            self._pending_fetch_task = asyncio.ensure_future(self._pending_create_fetch_loop())
 
     def _ops(self):
         return db_connect(OPS_DB_PATH, timeout=5)
+
+    # ── Pending-CREATE-fetch retry ────────────────────────────────────────────
+    # When _fetch_and_check's getTransaction returns None (indexer boundary), the sig is
+    # placed here instead of being silently dropped. A background loop retries with bounded
+    # delays; on success the tx is checked against active_candidates (same as live path) and
+    # stored in the replay buffer if still unmatched. This closes the gap where a PROGRAM_LOGS
+    # notification fires, the indexer hasn't made the tx available yet, and neither the replay
+    # buffer nor ACTIVE_CATCHUP0 can recover it.
+
+    _PENDING_FETCH_RETRIES = [0.5, 1.5, 4.0]  # seconds between attempts (3 retries max)
+    _PENDING_FETCH_MAX     = 200               # cap the queue to bound memory
+    _PENDING_FETCH_TTL     = 30.0              # drop entries older than this
+
+    def _enqueue_pending_create(self, sig: str, program_log_seen_at: float | None,
+                                program_log_context_slot: int | None) -> None:
+        """Queue a CREATE sig whose getTransaction returned None for later retry."""
+        if sig in self._pending_create_sigs:
+            return
+        if len(self._pending_create_sigs) >= self._PENDING_FETCH_MAX:
+            return
+        now = time.time()
+        self._pending_create_sigs[sig] = {
+            "sig": sig,
+            "queued_at": now,
+            "attempts": 0,
+            "next_retry_at": now + self._PENDING_FETCH_RETRIES[0],
+            "program_log_seen_at": program_log_seen_at,
+            "program_log_context_slot": program_log_context_slot,
+        }
+        self.metric_pending_create_queued += 1
+        _log(f"[ProgramWatcher] PENDING_CREATE_QUEUED sig={sig[:16]}… retry_in={self._PENDING_FETCH_RETRIES[0]}s")
+
+    async def _pending_create_fetch_loop(self) -> None:
+        """Background task: retry fetching pending CREATE txs whose first fetch returned None."""
+        while True:
+            try:
+                await asyncio.sleep(0.25)
+                if not self._pending_create_sigs or self._cascade_ref is None:
+                    continue
+                now = time.time()
+                to_drop = [s for s, e in self._pending_create_sigs.items()
+                           if now - e["queued_at"] > self._PENDING_FETCH_TTL]
+                for s in to_drop:
+                    self._pending_create_sigs.pop(s, None)
+                    self.metric_pending_create_dropped += 1
+                    _log(f"[ProgramWatcher] PENDING_CREATE_EXPIRED sig={s[:16]}…")
+
+                due = [e for e in self._pending_create_sigs.values() if e["next_retry_at"] <= now]
+                for entry in due:
+                    sig = entry["sig"]
+                    attempt = entry["attempts"]
+                    try:
+                        async with asyncio.timeout(CREATE_FETCH_TIMEOUT_S):
+                            tx = await _arpc("getTransaction",
+                                             [sig, {"encoding": "jsonParsed",
+                                                    "maxSupportedTransactionVersion": 0,
+                                                    "commitment": "confirmed"}])
+                    except Exception:
+                        tx = None
+
+                    if tx is None:
+                        next_attempt = attempt + 1
+                        if next_attempt >= len(self._PENDING_FETCH_RETRIES):
+                            self._pending_create_sigs.pop(sig, None)
+                            self.metric_pending_create_dropped += 1
+                            _log(f"[ProgramWatcher] PENDING_CREATE_EXHAUSTED sig={sig[:16]}… attempts={next_attempt}")
+                        else:
+                            entry["attempts"] = next_attempt
+                            entry["next_retry_at"] = now + self._PENDING_FETCH_RETRIES[next_attempt]
+                        continue
+
+                    # Fetch succeeded — process same as _fetch_and_check
+                    self._pending_create_sigs.pop(sig, None)
+                    is_create, mint, _btime, _extra = _tx_is_create(tx)
+                    if not is_create or not mint:
+                        continue
+
+                    signer_keys = []
+                    try:
+                        for k in (tx.get("transaction", {}).get("message", {}).get("accountKeys") or []):
+                            if isinstance(k, dict) and k.get("signer"):
+                                signer_keys.append(k.get("pubkey"))
+                    except Exception:
+                        pass
+
+                    create_accts = _find_pump_create_ix(tx)
+                    creator = None
+                    for acct in create_accts:
+                        if acct in self.active_candidates:
+                            creator = acct
+                            break
+                    if not creator:
+                        for acct in signer_keys:
+                            if acct in self.active_candidates:
+                                creator = acct
+                                break
+
+                    program_log_seen_at = entry.get("program_log_seen_at")
+                    program_log_context_slot = entry.get("program_log_context_slot")
+
+                    if creator and creator in self.active_candidates:
+                        self.metric_pending_create_resolved += 1
+                        _log(
+                            f"[ProgramWatcher] PENDING_CREATE_MATCHED sig={sig[:16]}… "
+                            f"creator={creator[:12]}… mint={mint} "
+                            f"age={int((now - entry['queued_at']) * 1000)}ms attempt={attempt+1}"
+                        )
+                        asyncio.ensure_future(
+                            self._cascade_ref.process_candidate_sig(
+                                creator, sig, tx_data=tx,
+                                detection_source="PENDING_CREATE_RETRY",
+                                timing={
+                                    "program_log_seen_at": program_log_seen_at,
+                                    "program_log_context_slot": program_log_context_slot,
+                                    "handoff_to_canonical_at": time.time(),
+                                }))
+                    else:
+                        # No current match — store in replay buffer so add_candidates() can find it
+                        self._store_create_replay(
+                            sig=sig, tx=tx, mint=mint,
+                            create_accts=create_accts, signer_keys=signer_keys,
+                            program_log_seen_at=program_log_seen_at,
+                            program_log_context_slot=program_log_context_slot,
+                            program_fetch_started_at=None,
+                            program_tx_fetched_at=time.time(),
+                        )
+                        _log(
+                            f"[ProgramWatcher] PENDING_CREATE_BUFFERED sig={sig[:16]}… "
+                            f"mint={mint} age={int((now - entry['queued_at']) * 1000)}ms attempt={attempt+1}"
+                        )
+            except Exception as exc:
+                _log(f"[ProgramWatcher] pending_create_fetch_loop error: {exc}")
 
     def _prune_create_replay(self) -> None:
         """Keep the unmatched CREATE replay buffer bounded by age and count."""
@@ -973,9 +1118,14 @@ class ProgramCreateWatcher:
             wallet = meta.get("candidate")
             if not wallet:
                 continue
-            expires_at = now + CANDIDATE_TTL_SEC
-            # added_at=0 for DB-restored candidates (reconnect reload) so catch-up skips them
-            added_at = meta.get("added_at", now)
+            expires_at = meta.get("expires_at") or (now + CANDIDATE_TTL_SEC)
+            # added_at=0 for DB-restored candidates (reconnect reload) so catch-up skips them.
+            # If the wallet is already in active_candidates with a live added_at (>0), preserve it:
+            # a DB reload must not overwrite a freshly-armed candidate's added_at with 0, which
+            # would make _catchup_on_active's age filter exclude it (root cause of 4p7tnfwPED5 miss).
+            incoming_added_at = meta.get("added_at", now)
+            existing_added_at = (self.active_candidates.get(wallet) or {}).get("added_at", 0) or 0
+            added_at = existing_added_at if (incoming_added_at == 0 and existing_added_at > 0) else incoming_added_at
             registered_at = time.time()
             registered_at_by_wallet[wallet] = registered_at
             self.active_candidates[wallet] = {
@@ -1111,6 +1261,20 @@ class ProgramCreateWatcher:
         # most-recent sigs over a tiny window — bounded, best-effort, off the WS recv path.
         if self.active_candidates and self._cascade_ref is not None:
             asyncio.ensure_future(self._catchup_on_active())
+        # Also schedule delayed catch-up retries (+2s/+5s/+10s) for any live candidate that was
+        # registered during OPENING. Those candidates had add_candidates() called while state was
+        # not ACTIVE, so the normal delayed-retry path was never triggered. Now that we are ACTIVE,
+        # give them the same retry coverage as candidates registered during ACTIVE.
+        # Filter: added_at > 0 (live, not DB-restored) and registered recently (within OPENING window).
+        if self._cascade_ref is not None:
+            _opening_cutoff = time.time() - 10  # OPENING handshake observed <2s; 10s is 5× that
+            _opening_candidates = [
+                w for w, m in self.active_candidates.items()
+                if (m.get("added_at") or 0) >= _opening_cutoff
+            ]
+            if _opening_candidates:
+                _log(f"[ProgramWatcher] OPENING_DELAYED_CATCHUP scheduling {len(_opening_candidates)} candidate(s) added during OPENING")
+                self._schedule_delayed_catchups(_opening_candidates)
 
     async def _on_notification(self, data: dict, ws) -> None:
         """Called when a logsNotification arrives on the pump.fun subscription.
@@ -1170,6 +1334,11 @@ class ProgramCreateWatcher:
             self.metric_create_fetch_queue_depth = max(0, self.metric_create_fetch_queue_depth - 1)
 
         if not tx:
+            # Indexer boundary: tx not yet available at commitment=confirmed. Queue for retry
+            # instead of silently dropping — the retry loop will match against active_candidates
+            # once the tx becomes available, covering the gap where neither the replay buffer
+            # nor ACTIVE_CATCHUP0 can recover a CREATE that indexed slower than the WS notification.
+            self._enqueue_pending_create(sig, program_log_seen_at, program_log_context_slot)
             return
         is_create, mint, btime, extra = _tx_is_create(tx)
         if not is_create or not mint:
@@ -1412,6 +1581,10 @@ class ProgramCreateWatcher:
             "pw_replay_stored":        self.metric_create_replay_stored,
             "pw_replay_hits":          self.metric_create_replay_hits,
             "pw_replay_evicted":       self.metric_create_replay_evicted,
+            "pw_pending_fetch_depth":  len(self._pending_create_sigs),
+            "pw_pending_fetch_queued": self.metric_pending_create_queued,
+            "pw_pending_fetch_resolved": self.metric_pending_create_resolved,
+            "pw_pending_fetch_dropped": self.metric_pending_create_dropped,
             "pw_candidates_expired":  self.metric_candidates_expired,
             "pw_opens":               self.metric_program_opens,
             "pw_closes":              self.metric_program_closes,
@@ -1705,11 +1878,7 @@ class Cascade:
         # ALL subscriptions were reaped as "never-confirmed" (419 dropped / 0 confirmed). One
         # short startup write fixes it; _ops() is now a pure read-path connection.
         try:
-            c = db_connect(OPS_DB_PATH, timeout=20)
-            try:
-                store.ensure_cascade_schema(c)
-            finally:
-                c.close()
+            store.operations_write("ws-cascade-schema-startup", store.ensure_cascade_schema)
         except Exception as _e:
             _log(f"⚠ startup schema ensure failed (will retry lazily): {_e}")
 
@@ -1863,7 +2032,7 @@ class Cascade:
                 try:
                     return conn2.execute(
                         "SELECT candidate_wallet, subprov_wallet, treasury_wallet, "
-                        "wrap_close_signature, wrap_close_time, funding_amount "
+                        "wrap_close_signature, wrap_close_time, funding_amount, expires_at "
                         "FROM wt_candidate_websocket_watches "
                         "WHERE state='WATCHING' AND wrap_close_time > ?", (cutoff,)
                     ).fetchall()
@@ -1871,12 +2040,18 @@ class Cascade:
                     conn2.close()
             recent = await loop.run_in_executor(None, _recent_candidates)
             if recent:
+                now_t = int(time.time())
                 metas = [{"candidate": r[0], "subprov": r[1], "treasury": r[2],
                           "wrap_sig": r[3], "wrap_time": r[4], "amount": r[5],
-                          "added_at": 0}
-                         for r in recent]
-                prog_watcher.add_candidates(metas, None)
-                _log(f"[ProgramWatcher] reloaded {len(recent)} recent candidate(s) from DB on (re)connect")
+                          "added_at": 0, "expires_at": r[6]}
+                         for r in recent
+                         if r[6] and r[6] > now_t]   # skip already-expired candidates
+                skipped = len(recent) - len(metas)
+                if skipped:
+                    _log(f"[ProgramWatcher] skipped {skipped} already-expired candidate(s) on (re)connect")
+                if metas:
+                    prog_watcher.add_candidates(metas, None)
+                    _log(f"[ProgramWatcher] reloaded {len(metas)} recent candidate(s) from DB on (re)connect")
 
         # Startup session cleanup: expire ACTIVE sessions that are clearly orphaned.
         # A session is an orphan if its subprov is not in the resubscription set AND it
@@ -2531,9 +2706,11 @@ class Cascade:
                 if _cex is None:
                     try:
                         _live = db_connect(LIVE_DB_PATH, timeout=2)
-                        _cex = {r[0] for r in _live.execute(
-                            "SELECT cex_address FROM cex_wallets WHERE is_active=1").fetchall()}
-                        _live.close()
+                        try:
+                            _cex = {r[0] for r in _live.execute(
+                                "SELECT cex_address FROM cex_wallets WHERE is_active=1").fetchall()}
+                        finally:
+                            _live.close()
                     except Exception:
                         _cex = set()
                     try:
@@ -3017,8 +3194,55 @@ class Cascade:
                                      f"{gain:.2f}◎ (INTEL_ONLY, no WS)")
                     return child_sessions
                 return []
+            # ── PROTECT FIRST, CLASSIFY SECOND ────────────────────────────────────
+            # Build watcher_metas from dests immediately — no DB writes precede this.
+            # ProgramWatcher in-memory protection is the single most time-critical step;
+            # every DB write below is trailing classification and must never delay it.
+            _protect_first = os.environ.get("PW_PROTECT_BEFORE_CLASSIFY", "1") == "1"
+            watcher_metas_all = [
+                {
+                    "candidate": d["candidate"], "subprov": subprov, "treasury": treasury,
+                    "wrap_sig": sig, "wrap_time": wrap_close_time,
+                    "amount": d.get("base_amount_sol"),
+                }
+                for d in dests
+            ]
+            prog_watcher = getattr(self, "_prog_watcher", None)
+            _arm_pw = False
+            _op_phase = "UNKNOWN"
+            _burst_size = len(dests)
+            if _protect_first and prog_watcher and watcher_metas_all:
+                prior_creates = (conn.execute(
+                    "SELECT COUNT(*) FROM wt_watchtower_launches WHERE subprov_wallet=?", (subprov,)
+                ).fetchone()[0] or 0)
+                _op_phase = "PRE_CREATE" if prior_creates == 0 else "POST_CREATE"
+                if _op_phase == "PRE_CREATE":
+                    _arm_pw = True
+                elif _burst_size <= 6:
+                    _arm_pw = True
+                elif _burst_size >= 11:
+                    _arm_pw = False
+                else:
+                    _arm_pw = _burst_size <= 8
+                if _arm_pw:
+                    _log(f"[CANDIDATE_PROTECT_START] subprov={subprov[:12]}… candidates={len(watcher_metas_all)} phase={_op_phase} burst={_burst_size}")
+                    prog_watcher.add_candidates(watcher_metas_all, conn)
+                    _armed_at = time.time()
+                    _log(f"[CANDIDATE_IN_MEMORY] subprov={subprov[:12]}… candidates={len(watcher_metas_all)} armed in {_lat_ms(_armed_at, seen_at)}ms since seen")
+                    _log(
+                        f"⏱ SUBPROV_ARM_LATENCY subprov={subprov[:12]}… sig={sig[:12]}… "
+                        f"candidates={len(watcher_metas_all)} "
+                        f"seen_to_armed={_lat_ms(_armed_at, seen_at)}ms "
+                        f"first_rpc_to_available={_lat_ms(tx_retry_info.get('tx_available_at'), tx_retry_info.get('first_rpc_started_at'))}ms "
+                        f"attempts={tx_retry_info.get('attempts')} "
+                        f"none_count={tx_retry_info.get('none_count')} "
+                        f"fallback={tx_retry_info.get('fallback')}"
+                    )
+                else:
+                    _log(f"⏸ ProgramWatcher deferred [{_op_phase} burst={_burst_size} ≥ threshold — INTEL only]")
+
             # ── Phase B: record wrap-close evidence + promote to PROVISIONAL_SUBPROV ──
-            # Always runs — preserves classification data even when candidate watching is off.
+            # Trailing classification — runs after in-memory protection is established.
             _mech = dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
             try:
                 store.promote_to_subprov(
@@ -3041,7 +3265,7 @@ class Cascade:
             if subprov in self._post_create_last_fanout:
                 self._post_create_last_fanout[subprov] = time.time()
                 _log(f"⏱ POST_CREATE_ACTIVE {subprov[:12]}… — fanout heartbeat, window extended")
-            # Persist fan-out destinations + feed ProgramWatcher (one program stream, not per-wallet WS)
+            # Persist fan-out destinations (DB classification — trailing, after in-memory protection)
             new_watches = []
             watcher_metas = []
             if SAVE_CANDIDATE_FANOUT:
@@ -3070,6 +3294,7 @@ class Cascade:
                     })
                 if new_watches:
                     _log(f"📋 wrap-close fanout {subprov[:12]}… → {len(new_watches)} candidate(s) saved")
+                    _log(f"[CANDIDATE_CLASSIFIED] subprov={subprov[:12]}… db_saved={len(new_watches)} of {len(dests)}")
             # Record fanout event (powers Bursts/Recipients columns in the ops dashboard)
             try:
                 store.record_fanout_event(
@@ -3078,9 +3303,8 @@ class Cascade:
                     dests=dests, sig=sig)
             except Exception as _fe:
                 _log(f"[fanout_event] write failed: {_fe}")
-            # Feed ProgramWatcher in-memory set → one pump.fun program stream, no per-wallet WS
-            prog_watcher = getattr(self, "_prog_watcher", None)
-            if prog_watcher and watcher_metas:
+            # Legacy path: feed ProgramWatcher if protect-first flag is off
+            if not _protect_first and prog_watcher and watcher_metas:
                 prior_creates = (conn.execute(
                     "SELECT COUNT(*) FROM wt_watchtower_launches WHERE subprov_wallet=?", (subprov,)
                 ).fetchone()[0] or 0)
@@ -3092,7 +3316,7 @@ class Cascade:
                     arm_pw = True
                 elif burst_size >= 11:
                     arm_pw = False
-                else:  # 7-10: soft confidence threshold
+                else:
                     arm_pw = burst_size <= 8
                 if arm_pw:
                     prog_watcher.add_candidates(watcher_metas, conn)
@@ -3110,6 +3334,7 @@ class Cascade:
                 else:
                     _log(f"⏸ ProgramWatcher deferred [{op_phase} burst={burst_size} ≥ threshold — INTEL only]")
             # ── Live burst-detection (BUY_SWARM safety valve) ─────────────────
+            # Retrospective: runs after candidates are already in-memory. Evicts if confirmed swarm.
             if CLASSIFICATION_ENFORCE and new_watches and self._is_buy_swarm_burst(conn, subprov):
                 _log(f"⚡ burst threshold hit for {subprov[:14]}… — triggering BUY_SWARM gate")
                 expired = self._gate_buy_swarm(conn, subprov, source="live_burst")
@@ -3188,6 +3413,18 @@ class Cascade:
                     detection_delay_seconds=detection_delay_s,
                     funding_mechanism=_launch_mech)
                 record_launch_committed_at = time.time()
+                # Guarantee a PENDING audit row exists before the detection conn closes.
+                # This rides the same write-serializer slot as record_launch — the audit
+                # worker that runs later only ever UPDATEs this pre-existing row, so it
+                # can never race to INSERT against the detection transaction.
+                try:
+                    from src.core import launch_audit as _la
+                    _la.insert_pending_audit_row(
+                        conn, mint=mint, creator=candidate, treasury=treasury, subprov=subprov,
+                        create_signature=sig, create_slot=create_slot, create_time=btime)
+                    conn.commit()   # record_launch already committed; this commits the PENDING row
+                except Exception as _audit_pending_err:
+                    _log(f"[AUDIT] PENDING row insert failed mint={mint} err={_audit_pending_err}")
                 # upsert_lifecycle_launched is idempotent (ON CONFLICT DO UPDATE) — run it
                 # BEFORE _reconcile_bridge so it isn't affected by any aborted-txn state
                 # that reconcile's nested ensure_operation_for_treasury import may leave.
@@ -3419,13 +3656,19 @@ class Cascade:
 
     # ---- launch audit phase 1 (off-thread) ---------------------------------
     def _trigger_audit_phase1(self, launch, creator, create_sig, ws_seen_at, alert_emitted_at):
-        """Fire the immediate audit capture in a daemon thread. Bounded, best-effort — never
-        blocks or breaks the realtime detection path."""
+        """Fire the immediate audit capture in a daemon thread.
+
+        The PENDING sentinel row was already written by insert_pending_audit_row() on the
+        detection conn before this is called — so this thread only ever UPDATEs.  On
+        OperationalError (WAL contention) _upsert retries internally; if all retries
+        exhaust, _mark_failed records the failure rather than losing the row silently.
+        """
+        mint = launch.get("mint")
         def _run():
             try:
                 from src.core import launch_audit
                 launch_audit.capture_phase1(
-                    mint=launch.get("mint"), creator=creator, treasury=launch.get("treasury"),
+                    mint=mint, creator=creator, treasury=launch.get("treasury"),
                     subprov=launch.get("subprov"), create_signature=create_sig,
                     create_slot=launch.get("create_slot"), create_time=launch.get("create_time"),
                     ws_seen_at=ws_seen_at,
@@ -3444,7 +3687,15 @@ class Cascade:
                     duplicate_fetch_count=launch.get("duplicate_fetch_count"),
                     alert_emitted_at=alert_emitted_at)
             except Exception as e:
-                print(f"[WS_CASCADE] audit phase1 failed: {e}", flush=True)
+                # PENDING row already exists — record failure visibly rather than losing it.
+                import traceback
+                err = traceback.format_exc()
+                print(f"[WS_CASCADE] audit phase1 failed mint={mint}: {e}\n{err}", flush=True)
+                try:
+                    from src.core import launch_audit
+                    launch_audit._mark_failed(mint, type(e).__name__, str(e))
+                except Exception as _mf_e:
+                    print(f"[WS_CASCADE] _mark_failed also failed mint={mint}: {_mf_e}", flush=True)
         import threading
         threading.Thread(target=_run, daemon=True, name="audit-phase1").start()
 
@@ -3546,6 +3797,31 @@ class Cascade:
         self._post_create_last_fanout.pop(subprov, None)
         await self.mgr.unsubscribe(subprov)
         _log(f"🔕 POST_CREATE→INTEL_ONLY {subprov[:12]}… — armed window closed")
+        # PW_LIFECYCLE_V2: evict candidates for this subprov now that the armed window has
+        # closed. Historical proof (33 launches): zero second-creator wrap-closes ever
+        # occurred after CREATE for the same subprov — post-CREATE activity is exclusively
+        # BUY_SWARM, EXPIRED_SIBLING, or noise. Early eviction lets ProgramWatcher close
+        # naturally (zero-candidate check) instead of waiting for the 30-min TTL.
+        # Feature-flagged: PW_POST_CREATE_EVICT_ENABLED=0 dry-runs (logs only, no eviction).
+        _pw = getattr(self, "_prog_watcher", None)
+        if _pw is not None:
+            _evict_enabled = os.environ.get("PW_POST_CREATE_EVICT_ENABLED", "0") == "1"
+            _candidates_for_subprov = [
+                w for w, m in _pw.active_candidates.items() if m.get("subprov") == subprov
+            ]
+            n = len(_candidates_for_subprov)
+            if _evict_enabled:
+                evicted = _pw.evict_by_subprov(subprov)
+                _log(f"[PW_LIFECYCLE] PW_WATCHDOG_COMPLETE subprov={subprov[:12]}…")
+                _log(f"[PW_LIFECYCLE] PW_EVICT_SUBPROV subprov={subprov[:12]}… wallets_removed={evicted}")
+                remaining = len(_pw.active_candidates)
+                if remaining == 0:
+                    _log("[PW_LIFECYCLE] PW_ZERO_CANDIDATES closing_programwatcher")
+                    # _close_stream is triggered automatically by evict_by_subprov when
+                    # active_candidates reaches zero — no explicit call needed here.
+            else:
+                _log(f"[PW_LIFECYCLE] PW_WATCHDOG_COMPLETE subprov={subprov[:12]}… (dry-run)")
+                _log(f"[PW_LIFECYCLE] PW_EVICT_SUBPROV_DRY_RUN subprov={subprov[:12]}… would_remove={n}")
 
     # ---- TTL cleanup pass --------------------------------------------------
     def _drain_pending_sessions(self):
@@ -3732,9 +4008,7 @@ async def _heartbeat_loop(get_meta):
             # it from the ops db too.
             meta = get_meta()
             meta["cascade_state"] = _CASCADE_STATE
-            c = db_connect(OPS_DB_PATH, timeout=60)
-            try:
-                c.execute("PRAGMA busy_timeout=60000")
+            def write_heartbeat(c):
                 c.execute(
                     """CREATE TABLE IF NOT EXISTS wt_worker_heartbeat (
                         worker_name TEXT PRIMARY KEY, last_seen INTEGER, status TEXT, meta_json TEXT)""")
@@ -3744,9 +4018,7 @@ async def _heartbeat_loop(get_meta):
                        ON CONFLICT(worker_name) DO UPDATE SET
                          last_seen=excluded.last_seen, status=excluded.status, meta_json=excluded.meta_json""",
                     (json.dumps(meta),))
-                c.commit()
-            finally:
-                c.close()
+            store.operations_write("ws-cascade-heartbeat", write_heartbeat)
             # Self-watchdog: only fire if LIVE — during SUBSCRIBING/RECONCILING zero subs is expected.
             if _CASCADE_STATE == "LIVE" and meta.get("subs", 0) == 0:
                 _log("WATCHDOG ⚠ zero active WS subscriptions — treasury monitoring is dark")
@@ -3772,12 +4044,21 @@ async def _deferred_audit_loop():
             from src.core import launch_audit
 
             def _tick():
+                # Advance pending checkpoints
                 due = launch_audit.due_for_checkpoint(limit=20)
                 for mint in due:
                     try:
                         launch_audit.run_phase2(mint)
                     except Exception:
                         pass
+                # Reconcile any launches missing an audit row (catches the missing-commit
+                # edge case and any future detection-side failures)
+                try:
+                    r = launch_audit.reconcile_missing(limit=5)
+                    if r["total"]:
+                        print(f"[WS_CASCADE] audit reconcile: {r}", flush=True)
+                except Exception as _re:
+                    print(f"[WS_CASCADE] audit reconcile error: {_re}", flush=True)
                 return len(due)
             n = await _a.get_event_loop().run_in_executor(None, _tick)
             if n:
@@ -3881,8 +4162,10 @@ async def run_cascade():
         })
         try:
             _hconn = casc._ops()
-            base.update(store.pending_session_counts(_hconn))
-            _hconn.close()
+            try:
+                base.update(store.pending_session_counts(_hconn))
+            finally:
+                _hconn.close()
         except Exception:
             pass
         return base

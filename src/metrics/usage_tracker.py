@@ -56,9 +56,11 @@ CREATE INDEX IF NOT EXISTS idx_webhook_type   ON webhook_metrics(event_type);
 
 def ensure_schema():
     conn = sqlite3.connect(DB_PATH, timeout=10)
-    conn.executescript(_DDL)
-    conn.commit()
-    conn.close()
+    try:
+        conn.executescript(_DDL)
+        conn.commit()
+    finally:
+        conn.close()
 
 # ---------------------------------------------------------------------------
 # Background writer
@@ -75,17 +77,19 @@ def _flush():
             continue
         try:
             conn = sqlite3.connect(DB_PATH, timeout=10)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            for item in batch:
-                table = item.pop("_table")
-                cols = ", ".join(item.keys())
-                placeholders = ", ".join("?" for _ in item)
-                conn.execute(f"INSERT INTO {table} ({cols}) VALUES ({placeholders})", list(item.values()))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            pass  # never crash caller
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                for item in batch:
+                    table = item.pop("_table")
+                    cols = ", ".join(item.keys())
+                    placeholders = ", ".join("?" for _ in item)
+                    conn.execute(f"INSERT INTO {table} ({cols}) VALUES ({placeholders})", list(item.values()))
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception:
+            pass  # never crash caller — connection is guaranteed closed by the finally above
 
 def _ensure_started():
     global _started, _thread

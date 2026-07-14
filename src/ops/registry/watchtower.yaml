@@ -1,0 +1,117 @@
+# ============================================================
+# Operations OS — Operation Definition
+# WATCHTOWER: coordinated pump.fun launch detection
+# ============================================================
+
+# ── Identity ─────────────────────────────────────────────────
+operation_id: watchtower
+display_name: WATCHTOWER
+description: >
+  Detects coordinated pump.fun token launches by monitoring treasury-funded
+  creator wallet infrastructure in real time. Tracks provisioning graphs
+  (Treasury → Subprovisioner → Creator) and fires on pump.fun CREATE events
+  that match known operator lineage.
+owner: operations-team
+
+# ── Lifecycle ────────────────────────────────────────────────
+status: INSTRUMENTED
+
+# ── Versions (three independent fields — do not collapse) ────
+framework_schema_version: 1
+definition_version: 1
+operation_version: "watchtower-current"
+
+# ── Infrastructure Model ─────────────────────────────────────
+infrastructure_model: GRAPH
+graph:
+  depth: 2          # Origin → Intermediate → Terminal
+  cyclic: true      # treasuries fund peer treasuries (mesh at top tier)
+
+# ── Vocabulary (display strings only — never affect field names) ──
+vocabulary:
+  origin_node:                "Treasury"
+  origin_node_plural:         "Treasuries"
+  intermediate_node:          "Subprovisioner"
+  intermediate_node_plural:   "Subprovisioners"
+  terminal_node:              "Creator"
+  terminal_node_plural:       "Creators"
+  discovery_event:            "Wrap-close"
+  observable_event:           "Token Create (pump.fun)"
+  detection_event:            "Launch Detection"
+  attributed_outcome:         "Known-subprov launch"
+  unattributed_outcome:       "Unknown-funder launch"
+  infrastructure_graph:       "Provisioning graph"
+  id_format:                  "solana_address"
+
+# ── Capability Declarations ───────────────────────────────────
+# state: SUPPORTED | UNSUPPORTED | NOT_DECLARED
+# SUPPORTED requires: contract, provider
+# UNSUPPORTED recommends: reason
+# NOT_DECLARED must not carry contract or provider
+
+capabilities:
+  health:
+    state: SUPPORTED
+    contract: health_v1
+    provider: watchtower_health
+
+  infrastructure:
+    state: SUPPORTED
+    contract: infrastructure_v1
+    provider: watchtower_discovery
+
+  discovery_assurance:
+    state: SUPPORTED
+    contract: discovery_assurance_v1
+    provider: watchtower_discovery
+
+  failure_attribution:
+    state: SUPPORTED
+    contract: failure_attribution_v1
+    provider: watchtower_discovery
+
+  alerts:
+    state: SUPPORTED
+    contract: alerts_v1
+    provider: watchtower_alerts
+
+  detection_coverage:
+    state: NOT_DECLARED
+    # No generic-contract-conforming coverage endpoint currently exists.
+    # The underlying data (wt_farm_launches, wt_watchtower_launches) is
+    # available but has not been wired to a provider satisfying
+    # detection_coverage_v1. Promote to SUPPORTED when provider is built.
+
+  behaviour:
+    state: NOT_DECLARED
+
+  intelligence:
+    state: NOT_DECLARED
+
+  signal_observatory:
+    state: NOT_DECLARED
+
+  outcome_intelligence:
+    state: NOT_DECLARED
+
+# ── Assurance Mapping ─────────────────────────────────────────
+assurance_mapping:
+  ground_truth_source: "wt_farm_launches (populated by farm_detector.py)"
+  ground_truth_independent: true
+  scope_note: >
+    Attribution rate excludes 739 launches (54.4%) from completely unknown
+    funders. The Discovery Assurance Rate is labelled 'Known Graph Only'
+    and must not be presented as overall detection coverage.
+
+  failure_taxonomy:
+    DISC_ROOT_UNKNOWN:         "D1 — Unknown Funder"
+    DISC_NODE_EXCLUDED:        "D2 — Excluded Treasury"
+    DISC_SIGNAL_ABSENT:        "D3 — No Wrap-close Observed"
+    DISC_SESSION_EXPIRED:      "D5 — Session Expired Before Launch"
+    DISC_TOPOLOGY_BROKEN:      "D6 — Topology Gap (NULL treasury link)"
+    DET_NOTIFICATION_DROPPED:  "X1 — Notification Dropped"
+    DET_FALSE_REJECTION:       "X2 — Buy-Swarm False Positive"
+    DET_PIPELINE_INACTIVE:     "X3 — ProgramWatcher Not Active"
+    DET_FETCH_TIMEOUT:         "X4 — Transaction Fetch Timeout"
+    DET_CATCHUP_MISSED:        "X5 — Catchup Missed"
+    DET_PERSISTENCE_FAILED:    "X6 — Persistence Failed"

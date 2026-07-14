@@ -1153,10 +1153,13 @@
         }
 
         async function updateDashboard() {
-            const [data, dbHealth, firstSnapshotHealth, recovery, fundingStats, fullHealth] = await Promise.all([
+            // STABILITY: first-snapshot-health opens flex_complete_database.db RW for 8-35s
+            // and was causing WAL reader pinning → cascade write starvation → WS keepalive drops.
+            // Disabled until the endpoint is rewritten with mode=ro + short timeout.
+            const firstSnapshotHealth = {};
+            const [data, dbHealth, recovery, fundingStats, fullHealth] = await Promise.all([
                 fetchHealth(),
                 fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
-                fetch('/api/first-snapshot-health').then(r => r.json()).catch(() => ({})),
                 fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
                 fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
                 fetch('/api/health/full').then(r => r.json()).catch(() => null),
@@ -1577,7 +1580,7 @@
         updateRecoveryPanel();
         renderTier1Monitor();
         renderTier2Monitor();
-        setInterval(() => { updateDashboard(); updateRecoveryPanel(); renderTier1Monitor(); renderTier2Monitor(); }, 10000);
+        setInterval(() => { updateDashboard(); updateRecoveryPanel(); renderTier1Monitor(); renderTier2Monitor(); }, 60000); // STABILITY: raised from 10s → 60s (was causing RW WAL contention with cascade)
 
         // ── Runtime Budget Health card ────────────────────────────────────────
         let _shRBDetailVisible = false;

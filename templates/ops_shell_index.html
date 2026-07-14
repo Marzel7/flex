@@ -1,0 +1,714 @@
+{% extends "base_shell.html" %}
+{% block title %}Mission Control — Operations OS{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+
+/* ── Situation strip ─────────────────────────────────────────────────────── */
+.mc-situation {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--ip-border);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.mc-sit-cell {
+  background: var(--ip-card);
+  padding: 18px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-sit-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ip-dim);
+}
+.mc-sit-val {
+  font-size: 32px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  line-height: 1;
+  color: var(--ip-text);
+}
+.mc-sit-val.blue   { color: var(--ip-blue); }
+.mc-sit-val.amber  { color: var(--ip-amber); }
+.mc-sit-val.green  { color: var(--ip-green); }
+.mc-sit-val.red    { color: var(--ip-red); }
+.mc-sit-sub {
+  font-size: 10px;
+  color: var(--ip-sec);
+  margin-top: 2px;
+}
+/* Armed cell pulses when > 0 */
+.mc-sit-cell.armed-active { background: rgba(245,158,11,.05); }
+
+/* ── Operations list ─────────────────────────────────────────────────────── */
+.mc-ops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mc-op-row {
+  display: grid;
+  grid-template-columns: 180px auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  padding: 16px 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s, background .15s;
+  border-left: 3px solid transparent;
+}
+.mc-op-row:hover { border-color: rgba(34,211,238,.25); color: inherit; background: rgba(34,211,238,.02); }
+.mc-op-row.lc-ACTIVE   { border-left-color: var(--ip-green); }
+.mc-op-row.lc-ARMED    { border-left-color: var(--ip-amber); }
+.mc-op-row.lc-OBSERVING{ border-left-color: var(--ip-blue); }
+.mc-op-row.lc-IDLE     { border-left-color: transparent; }
+
+.mc-op-identity { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mc-op-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ip-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mc-op-sub { font-size: 10px; color: var(--ip-dim); }
+
+.mc-op-state { flex-shrink: 0; }
+
+.mc-op-counts {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.mc-op-count-cell { display: flex; flex-direction: column; gap: 1px; }
+.mc-op-count-val {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  line-height: 1;
+}
+.mc-op-count-val.blue   { color: var(--ip-blue); }
+.mc-op-count-val.amber  { color: var(--ip-amber); }
+.mc-op-count-val.green  { color: var(--ip-green); }
+.mc-op-count-val.dim    { color: var(--ip-dim); }
+.mc-op-count-lbl {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ip-dim);
+}
+
+.mc-op-action {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ip-cyan);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Lifecycle transitions feed ──────────────────────────────────────────── */
+.mc-transitions { display: flex; flex-direction: column; gap: 4px; }
+.mc-streams { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.mc-stream { background:var(--ip-card); border:1px solid var(--ip-border); border-radius:var(--ip-radius-lg); overflow:hidden; min-width:0; }
+.mc-stream-head { display:flex; justify-content:space-between; padding:9px 11px; border-bottom:1px solid var(--ip-border); font-size:9px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ip-sec); }
+.mc-stream-count { color:var(--ip-cyan); font-family:monospace; }
+.mc-stream-empty { padding:13px 11px; color:var(--ip-dim); font-size:10px; }
+.mc-stream .mc-transition-row { border:0; border-bottom:1px solid rgba(255,255,255,.04); border-radius:0; grid-template-columns:1fr auto; padding:9px 11px; }
+.mc-stream .mc-transition-row:last-child { border-bottom:0; }
+.mc-intel-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.mc-intel-grid .vi-card { min-height:190px; }
+.mc-intel-grid .vi-card.featured { grid-column:span 2; min-height:0; }
+.mc-card-summary { color:var(--ip-sec); font-size:10px; line-height:1.45; margin-top:8px; }
+.mc-stream .mc-tr-op { grid-column:1/-1; }
+.mc-transition-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 14px;
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  font-size: 11px;
+}
+.mc-tr-op {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--ip-sec);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.mc-tr-body { display: flex; align-items: center; gap: 8px; color: var(--ip-text); }
+.mc-tr-arrow { color: var(--ip-dim); }
+.mc-tr-ts { font-size: 10px; color: var(--ip-dim); font-family: monospace; text-align: right; }
+
+/* ── Attention summary (inbox preview) ───────────────────────────────────── */
+.mc-attn {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  overflow: hidden;
+}
+.mc-attn.has-items  { border-color: rgba(245,158,11,.3); }
+.mc-attn.all-clear  { border-color: rgba(34,197,94,.2); }
+.mc-attn-counts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--ip-border);
+}
+.mc-attn-cell {
+  background: var(--ip-card);
+  padding: 12px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mc-attn-val {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  line-height: 1;
+  color: var(--ip-text);
+}
+.mc-attn-val.amber { color: var(--ip-amber); }
+.mc-attn-val.blue  { color: var(--ip-blue); }
+.mc-attn-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--ip-dim); }
+.mc-attn-top {
+  padding: 10px 14px;
+  border-top: 1px solid var(--ip-border);
+}
+.mc-attn-top-priority { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.mc-attn-top-priority.HIGH     { color: var(--ip-amber); }
+.mc-attn-top-priority.CRITICAL { color: var(--ip-red); }
+.mc-attn-top-priority.MEDIUM   { color: var(--ip-blue); }
+.mc-attn-top-priority.LOW      { color: var(--ip-dim); }
+.mc-attn-top-headline { font-size: 11px; color: var(--ip-text); margin-top: 4px; line-height: 1.4; }
+.mc-attn-link {
+  display: block;
+  text-align: center;
+  padding: 10px 14px;
+  border-top: 1px solid var(--ip-border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ip-cyan);
+  text-decoration: none;
+  transition: background .12s;
+}
+.mc-attn-link:hover { background: rgba(34,211,238,.05); }
+.mc-all-clear {
+  padding: 18px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ip-sec);
+}
+.mc-all-clear-icon { font-size: 16px; color: var(--ip-green); flex-shrink: 0; }
+
+/* ── Search entry ────────────────────────────────────────────────────────── */
+.mc-search-wrap {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-lg);
+  padding: 18px 20px;
+}
+.mc-search-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ip-dim);
+  margin-bottom: 10px;
+}
+.mc-search-row { display: flex; gap: 8px; }
+.mc-search-input {
+  flex: 1;
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border2);
+  border-radius: var(--ip-radius);
+  padding: 9px 14px;
+  font-size: 13px;
+  color: var(--ip-text);
+  font-family: ui-monospace, monospace;
+  outline: none;
+  transition: border-color .15s;
+}
+.mc-search-input:focus { border-color: var(--ip-cyan); }
+.mc-search-input::placeholder { color: var(--ip-dim); font-family: inherit; }
+.mc-search-btn {
+  background: rgba(34,211,238,.1);
+  border: 1px solid rgba(34,211,238,.25);
+  border-radius: var(--ip-radius);
+  color: var(--ip-cyan);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 9px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.mc-search-btn:hover { background: rgba(34,211,238,.18); }
+.mc-search-shortcuts {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.mc-shortcut {
+  font-size: 10px;
+  color: var(--ip-sec);
+  padding: 4px 10px;
+  border: 1px solid var(--ip-border);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: border-color .12s, color .12s;
+  cursor: pointer;
+  background: none;
+}
+.mc-shortcut:hover { border-color: var(--ip-border2); color: var(--ip-text); }
+
+/* ── Two-column body layout ──────────────────────────────────────────────── */
+.mc-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  align-items: start;
+}
+.mc-col-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.mc-col-side { display: flex; flex-direction: column; gap: 16px; }
+
+@media (max-width: 900px) {
+  .mc-situation { grid-template-columns: repeat(3, 1fr); }
+  .mc-body { grid-template-columns: 1fr; }
+  .mc-op-row { grid-template-columns: 1fr auto; gap: 10px; }
+  .mc-op-counts { display: none; }
+  .mc-streams { grid-template-columns:1fr; }
+  .mc-intel-grid { grid-template-columns:1fr; }
+  .mc-intel-grid .vi-card.featured { grid-column:auto; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="ip-header">
+    <div class="ip-title-row">
+      <h1 class="ip-title">Mission Control</h1>
+      <span class="ip-badge green live" id="mc-status-badge"><span class="dot"></span>CURRENT</span>
+      <span class="ip-ts" id="mc-ts"></span>
+    </div>
+    <div class="x19-question">What requires analyst attention today?</div>
+  </div>
+
+  <!-- ── Level 1: analyst situation ───────────────────────────────────── -->
+  <div class="mc-situation" id="mc-situation">
+    <a class="mc-sit-cell" href="/intelligence/operators" style="text-decoration:none;color:inherit;">
+      <span class="mc-sit-label">Active Operators</span>
+      <span class="mc-sit-val blue" id="sit-observing">—</span>
+      <span class="mc-sit-sub">known actors</span>
+    </a>
+    <a class="mc-sit-cell" id="sit-armed-cell" href="/intelligence/operator-promotions" style="text-decoration:none;color:inherit;">
+      <span class="mc-sit-label">Promotion Candidates</span>
+      <span class="mc-sit-val amber" id="sit-armed">—</span>
+      <span class="mc-sit-sub">awaiting review</span>
+    </a>
+    <a class="mc-sit-cell" href="/ops" style="text-decoration:none;color:inherit;">
+      <span class="mc-sit-label">Active Investigations</span>
+      <span class="mc-sit-val green" id="sit-active">—</span>
+      <span class="mc-sit-sub">requiring context</span>
+    </a>
+    <a class="mc-sit-cell" href="/intelligence/inbox" style="text-decoration:none;color:inherit;">
+      <span class="mc-sit-label">Inbox</span>
+      <span class="mc-sit-val" id="sit-completed">—</span>
+      <span class="mc-sit-sub">active items</span>
+    </a>
+    <a class="mc-sit-cell" href="/discovery" style="text-decoration:none;color:inherit;">
+      <span class="mc-sit-label">Recent Intelligence</span>
+      <span class="mc-sit-val" style="font-size:18px;padding-top:4px;" id="sit-last-event">—</span>
+      <span class="mc-sit-sub" id="sit-last-sub"></span>
+    </a>
+  </div>
+
+  <!-- ── Body ──────────────────────────────────────────────────────────── -->
+  <div class="mc-body">
+
+    <!-- LEFT: actionable intelligence -->
+    <div class="mc-col-main">
+      <div>
+        <div class="ip-section-hdr">
+          <span class="ip-section-label">Recent Intelligence</span>
+          <span class="ip-section-count">Meaningful Intelligence</span>
+          <span class="ip-section-line"></span>
+          <a href="/discovery" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;">Open Discovery →</a>
+        </div>
+        <div id="mc-transitions" class="mc-transitions">
+          <div class="ip-loading">Loading…</div>
+        </div>
+      </div>
+
+      <details class="x19-disclosure x19-level2">
+        <summary><span class="level">Level 2</span> Active investigation detail</summary>
+        <div class="x19-disclosure-body">
+          <div id="mc-ops-list" class="mc-ops-list ip-loading">Loading…</div>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- RIGHT: Alerts + Search -->
+    <div class="mc-col-side">
+
+      <!-- Inbox is the canonical attention surface -->
+      <div>
+        <div class="ip-section-hdr">
+          <span class="ip-section-label">Inbox</span>
+          <span class="ip-section-line"></span>
+        </div>
+        <div id="mc-attn" class="mc-attn">
+          <div style="padding:18px 14px;font-size:11px;color:var(--ip-dim);">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Investigation entry -->
+      <div>
+        <div class="ip-section-hdr">
+          <span class="ip-section-label">Start an Investigation</span>
+          <span class="ip-section-line"></span>
+        </div>
+        <div class="mc-search-wrap">
+          <div class="mc-search-label">Search existing intelligence</div>
+          <div class="mc-search-row">
+            <input class="mc-search-input" id="mc-search-input"
+                   placeholder="Wallet address…" autocomplete="off" spellcheck="false">
+            <button class="mc-search-btn" onclick="mcSearch()">Investigate →</button>
+          </div>
+          <div class="mc-search-shortcuts">
+            <a class="mc-shortcut" href="/discovery">Discovery</a>
+            <a class="mc-shortcut" href="/intelligence/entity/">Entity Intelligence</a>
+            <a class="mc-shortcut" href="/intelligence/cross-operation">Cross-Operation</a>
+            <a class="mc-shortcut" href="/intelligence/knowledge">Knowledge Base</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ───────────────────────────────────────────────────────────── */
+  function ago(ts) {
+    if (!ts) return '—';
+    var d = Math.floor(Date.now() / 1000 - ts);
+    if (d < 60)    return d + 's ago';
+    if (d < 3600)  return Math.floor(d / 60) + 'm ago';
+    if (d < 86400) return Math.floor(d / 3600) + 'h ago';
+    return Math.floor(d / 86400) + 'd ago';
+  }
+
+  function fmtN(n) {
+    if (n === null || n === undefined || n === '') return '—';
+    n = parseInt(n, 10);
+    if (isNaN(n)) return '—';
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000)    return (n / 1000).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  function esc(v) {
+    return String(v === null || v === undefined ? '—' : v).replace(/[&<>"']/g, function(c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  /* Derive headline lifecycle state from per-op counts (priority: ACTIVE > ARMED > OBSERVING > IDLE) */
+  function headlineState(lc) {
+    if (!lc) return 'IDLE';
+    var s = lc.lifecycle_state;
+    if (s === 'ACTIVE')    return 'ACTIVE';
+    if (s === 'ARMED')     return 'ARMED';
+    if (s === 'OBSERVING') return 'OBSERVING';
+    return 'IDLE';
+  }
+
+  var LC_COLOUR = { IDLE: 'dim', OBSERVING: 'blue', ARMED: 'amber', ACTIVE: 'green', COMPLETED: 'muted' };
+
+  loadDiscoveryEvents();
+
+  /* ── 1. Platform lifecycle (situation strip + op states) ─────────────── */
+  fetch('/api/ops/lifecycle/platform')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d) return;
+
+      document.getElementById('mc-ts').textContent = ago(d.generated_at);
+      document.getElementById('sit-active').textContent = fmtN((d.active_total || 0) + (d.armed_total || 0));
+
+      /* Last event: find the most recent last_transition_at across snapshots */
+      var latestTs = null;
+      var latestOp = null;
+      (d.snapshots || []).forEach(function(s) {
+        if (s.last_transition_at && (!latestTs || s.last_transition_at > latestTs)) {
+          latestTs = s.last_transition_at;
+          latestOp = s.display_name;
+        }
+      });
+      if (latestTs && !document.getElementById('sit-last-sub').textContent) {
+        document.getElementById('sit-last-sub').textContent = 'Latest activity ' + ago(latestTs);
+      }
+
+      /* ── Operations list ─────────────────────────────────────────────── */
+      var snaps = d.snapshots || [];
+      if (!snaps.length) {
+        document.getElementById('mc-ops-list').innerHTML =
+          '<div class="ip-empty">No operations registered.</div>';
+        return;
+      }
+
+      /* Sort: ACTIVE first, then ARMED, OBSERVING, IDLE */
+      var order = { ACTIVE: 0, ARMED: 1, OBSERVING: 2, COMPLETED: 3, IDLE: 4, ARCHIVED: 5 };
+      snaps = snaps.slice().sort(function(a, b) {
+        return (order[a.lifecycle_state] || 9) - (order[b.lifecycle_state] || 9);
+      });
+
+      var rows = snaps.map(function(lc) {
+        var hs    = headlineState(lc);
+        var lcCol = LC_COLOUR[hs] || 'dim';
+        var counts = lc.counts || {};
+
+        /* Build count cells — only non-zero */
+        var countCells = [
+          ['ACTIVE',    'green',  'Active'],
+          ['ARMED',     'amber',  'Armed'],
+          ['OBSERVING', 'blue',   'Observing'],
+          ['COMPLETED', 'dim',    'Completed'],
+        ].filter(function(p) { return counts[p[0]] > 0; })
+         .map(function(p) {
+           return '<div class="mc-op-count-cell">'
+             + '<span class="mc-op-count-val ' + p[1] + '">' + counts[p[0]] + '</span>'
+             + '<span class="mc-op-count-lbl">' + p[2] + '</span>'
+             + '</div>';
+         }).join('');
+
+        if (!countCells) {
+          countCells = '<span style="font-size:11px;color:var(--ip-dim);">No qualifying activity</span>';
+        }
+
+        var rawReason = lc.state_reason || '';
+        var safeReason = (rawReason.toLowerCase().indexOf('adapter error') === 0 ||
+                          rawReason.toLowerCase().indexOf('error:') === 0)
+                         ? '' : rawReason;
+        var transitionSub = lc.last_transition_at
+          ? 'Last transition ' + ago(lc.last_transition_at)
+          : (safeReason || 'Monitoring');
+
+        var opUrl = '/ops-os/' + lc.operation_id;
+
+        return '<a class="mc-op-row lc-' + hs + '" href="' + opUrl + '">'
+          + '<div class="mc-op-identity">'
+          +   '<span class="mc-op-name">' + lc.display_name + '</span>'
+          +   '<span class="mc-op-sub">' + transitionSub + '</span>'
+          + '</div>'
+          + '<div class="mc-op-state">'
+          +   '<span class="ip-lc ' + hs + '"><span class="ip-lc-dot"></span>' + hs + '</span>'
+          + '</div>'
+          + '<div class="mc-op-counts">' + countCells + '</div>'
+          + '<span class="mc-op-action">Open →</span>'
+          + '</a>';
+      }).join('');
+
+      document.getElementById('mc-ops-list').innerHTML = rows;
+
+    })
+    .catch(function(e) {
+      document.getElementById('mc-ops-list').innerHTML =
+        '<div class="ip-error">Failed to load lifecycle: ' + e + '</div>';
+    });
+
+  /* ── 2. Inbox summary (Attention panel) ──────────────────────────────────── */
+  fetch('/api/ops/inbox/summary')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      var el = document.getElementById('mc-attn');
+      if (!d) { el.innerHTML = '<div class="ip-unavailable" style="padding:14px;font-size:11px;">Unavailable.</div>'; return; }
+
+      var newN = d.new          || 0;
+      var ackN = d.acknowledged || 0;
+      var ipN  = d.in_progress  || 0;
+      var total = d.total_active || 0;
+      var top   = d.top_item;
+      document.getElementById('sit-completed').textContent = fmtN(total);
+
+      if (total === 0) {
+        el.classList.add('all-clear');
+        el.innerHTML =
+          '<div class="mc-all-clear">'
+          + '<span class="mc-all-clear-icon">✓</span>'
+          + '<span>No items requiring attention. All operations nominal.</span>'
+          + '</div>'
+          + '<a class="mc-attn-link" href="/intelligence/inbox">Open Inbox →</a>';
+        return;
+      }
+
+      el.classList.add('has-items');
+
+      var topHtml = '';
+      if (top) {
+        topHtml = '<div class="mc-attn-top">'
+          + '<div class="mc-attn-top-priority ' + top.priority + '">' + top.priority + '</div>'
+          + '<div class="mc-attn-top-headline">' + top.headline + '</div>'
+          + '</div>';
+      }
+
+      el.innerHTML =
+        '<div class="mc-attn-counts">'
+        + '<div class="mc-attn-cell"><div class="mc-attn-val amber">' + newN + '</div><div class="mc-attn-lbl">New</div></div>'
+        + '<div class="mc-attn-cell"><div class="mc-attn-val blue">'  + ackN + '</div><div class="mc-attn-lbl">Ack\'d</div></div>'
+        + '<div class="mc-attn-cell"><div class="mc-attn-val">'       + ipN  + '</div><div class="mc-attn-lbl">In Progress</div></div>'
+        + '</div>'
+        + topHtml
+        + '<a class="mc-attn-link" href="/intelligence/inbox">Open Inbox — ' + total + ' item(s) →</a>';
+    })
+    .catch(function() {
+      document.getElementById('mc-attn').innerHTML =
+        '<div class="ip-unavailable" style="padding:14px;font-size:11px;">Inbox unavailable.</div>';
+    });
+
+  /* ── Meaningful intelligence only — no implementation events ───────────── */
+  function loadDiscoveryEvents() {
+    var el = document.getElementById('mc-transitions');
+    Promise.all([
+      fetch('/api/discovery/recent?limit=6').then(function(r) { return r.ok ? r.json() : null; }),
+      fetch('/api/operators/promotions').then(function(r) { return r.ok ? r.json() : null; }),
+      fetch('/api/ops/emerging-operators?limit=6').then(function(r) { return r.ok ? r.json() : null; })
+    ]).then(function(results) {
+        var d = results[0], promotions = results[1], emerging = results[2];
+        var streams = (d && d.streams) || {watchtower:[],promotions:[],emerging_operators:[],reviews:[],walkbacks:[],discovery:[],treasury_expansions:[]};
+        streams.promotions = (streams.promotions || []).slice();
+        (promotions && promotions.proposals || []).forEach(function(p) {
+          if (p.status === 'PROMOTION_ELIGIBLE' || p.status === 'REVIEW_CANDIDATE' || p.status === 'REVIEW_REQUIRED') {
+            streams.promotions.push({kind:'OPERATOR_PROMOTION_PENDING', message:p.display_name + ' promotion awaiting review.',
+              timestamp:promotions.generated_at, entity:{id:p.proposal_id,type:'promotion_proposal'},
+              href:'/intelligence/operator-promotions'});
+          }
+        });
+        Object.keys(streams).forEach(function(key){streams[key].sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0)})});
+        var pendingPromotions = (promotions && promotions.proposals || []).filter(function(p) {
+          return p.status === 'PROMOTION_ELIGIBLE' || p.status === 'REVIEW_CANDIDATE' || p.status === 'REVIEW_REQUIRED';
+        });
+        document.getElementById('sit-armed').textContent = fmtN(pendingPromotions.length);
+        document.getElementById('sit-armed-cell').classList.toggle('armed-active', pendingPromotions.length > 0);
+        var totalItems=Object.keys(streams).reduce(function(n,key){return n+(streams[key]||[]).length},0);
+        document.getElementById('sit-last-event').textContent = fmtN(totalItems);
+        document.getElementById('sit-last-sub').textContent = totalItems ? 'across intelligence streams' : 'nothing new';
+        if (!totalItems) {
+          el.innerHTML = '<div class="ip-empty" style="font-size:11px;padding:12px;">No recent discovery decisions recorded.</div>';
+          return;
+        }
+        function metric(value, label) {
+          return '<div class="vi-metric"><div class="vi-metric-value">' + esc(value) + '</div><div class="vi-metric-label">' + esc(label) + '</div></div>';
+        }
+        function action(href, label) {
+          return '<div class="vi-action"><span>' + esc(label) + '</span><span>→</span></div>';
+        }
+        var watch = streams.watchtower || [];
+        var watchCard = '<a class="vi-card confirmed" href="/watchtower/intelligence">'
+          + '<div class="vi-card-head"><span class="vi-icon">◆</span><div><div class="vi-eyebrow">Recent WATCHTOWER</div><div class="vi-title">WATCHTOWER</div></div><span class="vi-status confirmed" style="margin-left:auto">Canonical</span></div>'
+          + '<div class="vi-metrics">' + metric(watch.length, 'attributions') + metric(watch[0] ? ago(watch[0].timestamp) : '—', 'latest') + '</div>'
+          + '<div class="mc-card-summary">' + (watch.length ? 'Recent launches reached the confirmed canonical operator.' : 'No recent canonical attribution changes.') + '</div>'
+          + action('/watchtower/intelligence','View operator') + '</a>';
+
+        var proposals = (promotions && promotions.proposals) || [];
+        function pc(status){return proposals.filter(function(p){return p.status===status}).length}
+        var eligible=pc('PROMOTION_ELIGIBLE'), review=pc('REVIEW_CANDIDATE')+pc('REVIEW_REQUIRED');
+        var promotionCard = '<a class="vi-card promotion" href="/intelligence/operator-promotions">'
+          + '<div class="vi-card-head"><span class="vi-icon">⬡</span><div><div class="vi-eyebrow">Recent Promotions</div><div class="vi-title">Promotion Queue</div></div><span class="vi-status promotion" style="margin-left:auto">Review</span></div>'
+          + '<div class="vi-metrics">' + metric(proposals.length,'awaiting review') + metric(review,'review candidates') + metric(eligible,'promotion eligible') + '</div>'
+          + action('/intelligence/operator-promotions','Open queue') + '</a>';
+
+        var candidates=(emerging && emerging.candidates)||[], candidate=candidates[0];
+        var emergingCard = '<a class="vi-card monitoring" href="/intelligence/emerging-operators' + (candidate?'?entity='+encodeURIComponent(candidate.terminal_entity):'') + '">'
+          + '<div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Recent Emerging Operators</div><div class="vi-title">' + (candidate?'Emerging Operator':'Emerging Operators') + '</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div>'
+          + '<div class="vi-metrics">' + metric(candidate?candidate.observed_launches:0,'launches') + metric(candidate?candidate.campaign_count:0,'campaigns') + metric(candidate?candidate.identity_class_count:0,'identity classes') + '</div>'
+          + (candidate?'<div class="vi-confidence"><span>Identity</span><span class="vi-confidence-track"><span class="vi-confidence-fill" style="--vi-confidence:'+Math.min(100,candidate.identity_class_count*50)+'%"></span></span><span>'+candidate.identity_class_count+'/2</span></div>':'')
+          + action('/intelligence/emerging-operators','Investigate') + '</a>';
+
+        var walkbacks=streams.walkbacks||[], walkCounts={};
+        walkbacks.forEach(function(x){var k=String(x.kind||'OTHER').replace('KNOWN_','').replace('_REACHED','').replace(/_/g,' ');walkCounts[k]=(walkCounts[k]||0)+1});
+        var walkMax=Math.max.apply(null,Object.keys(walkCounts).map(function(k){return walkCounts[k]}).concat([1]));
+        var bars=Object.keys(walkCounts).sort(function(a,b){return walkCounts[b]-walkCounts[a]}).map(function(k){return '<div class="vi-bar-row"><span>'+esc(k)+'</span><span class="vi-bar-track"><span class="vi-bar-fill" style="--vi-width:'+Math.round(walkCounts[k]/walkMax*100)+'%;--vi-col:#f97316"></span></span><span class="vi-bar-value">'+walkCounts[k]+'</span></div>'}).join('');
+        var walkCard='<a class="vi-card walkback featured" href="/discovery"><div class="vi-card-head"><span class="vi-icon">↰</span><div><div class="vi-eyebrow">Recent Walkbacks</div><div class="vi-title">Walkbacks</div></div><span class="vi-status walkback" style="margin-left:auto">'+walkbacks.length+' recent</span></div><div class="vi-outcome-bars">'+(bars||'<div class="mc-card-summary">No recent terminal outcomes.</div>')+'</div>'+action('/discovery','Open underlying cases')+'</a>';
+
+        var reviews=streams.reviews||[], discoveries=streams.discovery||[];
+        var reviewCard='<a class="vi-card discovery" href="/intelligence/inbox"><div class="vi-card-head"><span class="vi-icon">✓</span><div><div class="vi-eyebrow">Analyst decisions</div><div class="vi-title">Recent Reviews</div></div></div><div class="vi-metrics">'+metric(reviews.length,'decisions')+metric(reviews[0]?ago(reviews[0].timestamp):'—','latest')+'</div>'+action('/intelligence/inbox','Open reviews')+'</a>';
+        var discoveryCard='<a class="vi-card discovery" href="/discovery"><div class="vi-card-head"><span class="vi-icon">◇</span><div><div class="vi-eyebrow">Recent Discovery</div><div class="vi-title">Discovery</div></div></div><div class="vi-metrics">'+metric(discoveries.length,'confirmed')+metric(discoveries[0]?ago(discoveries[0].timestamp):'—','latest')+'</div>'+action('/discovery','Investigate')+'</a>';
+
+        // X20.9: surfaced separately from confirmed WATCHTOWER events (watchCard above) —
+        // these are read-only evidence reports, never attribution, and never a
+        // probabilistic label ("possible"/"probable"). Wording states only the matched
+        // signal count and that review is required. Only rendered when at least one
+        // candidate exists, so Mission Control stays quiet when there is nothing to review.
+        var expansions=streams.treasury_expansions||[];
+        var expansionCard='';
+        if (expansions.length) {
+          expansionCard='<a class="vi-card monitoring" href="/discovery"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Known Operation Review</div><div class="vi-title">Treasury Review Lead</div></div><span class="vi-status monitoring" style="margin-left:auto">Review required</span></div>'
+            +'<div class="vi-metrics">'+metric(expansions.length,'leads')+metric(expansions[0]?ago(expansions[0].timestamp):'—','latest')+'</div>'
+            +'<div class="mc-card-summary">'+esc(expansions[0].message||'Previously unseen treasury. Structural signals matched against known operator infrastructure.')+'</div>'
+            +action('/discovery','Review candidates')+'</a>';
+        }
+
+        el.className='mc-intel-grid';
+        el.innerHTML=watchCard+promotionCard+emergingCard+walkCard+expansionCard+reviewCard+discoveryCard;
+      })
+      .catch(function() {
+        el.innerHTML = '<div class="ip-unavailable" style="padding:12px;font-size:11px;">Discovery intelligence unavailable.</div>';
+      });
+  }
+
+  fetch('/api/ops/operators/summary')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d) return;
+      var byStatus = d.by_status || {};
+      var count = d.total;
+      if (count === undefined) count = d.total_operators;
+      if (count === undefined) count = Object.keys(byStatus).reduce(function(n, key) { return n + (byStatus[key] || 0); }, 0);
+      document.getElementById('sit-observing').textContent = fmtN(count || 0);
+    }).catch(function() {
+      document.getElementById('sit-observing').textContent = '—';
+    });
+
+  /* ── Search ────────────────────────────────────────────────────────────── */
+  window.mcSearch = function() {
+    var v = document.getElementById('mc-search-input').value.trim();
+    if (v) window.location.href = '/discovery?entity=' + encodeURIComponent(v);
+  };
+
+  document.getElementById('mc-search-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') window.mcSearch();
+  });
+
+})();
+</script>
+{% endblock %}

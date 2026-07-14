@@ -1,0 +1,41 @@
+# Known Jito Labs infrastructure addresses.
+#
+# Jito is a Solana MEV infrastructure provider. Wallets that route through
+# Jito tip accounts or block engine endpoints are identified here.
+#
+# These addresses identify tooling usage, not funding source.
+
+entries:
+  # Jito tip accounts (publicly documented program addresses)
+  - address: "96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5"
+    label: "Jito Tip Account 0"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe"
+    label: "Jito Tip Account 1"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"
+    label: "Jito Tip Account 2"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt13slots"
+    label: "Jito Tip Account 3"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "DfXygSm4jCyNCybVYYK6DwvWqjKee8pbDmJGcLWNDXjh"
+    label: "Jito Tip Account 4"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "ADuUkR4vqLUMWXxW9gh6D6L8pMSawimctcNZ5pGwDcEt"
+    label: "Jito Tip Account 5"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "DttWaMuVvTiduZRnguLF7jNxTgiMBZ1hyAumKUiL1KHK"
+    label: "Jito Tip Account 6"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"
+  - address: "3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT"
+    label: "Jito Tip Account 7"
+    confidence: CERTAIN
+    source: "Jito Labs public documentation"

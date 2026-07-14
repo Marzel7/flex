@@ -103,8 +103,9 @@ def calculate_runtime_pressure() -> tuple[int, str, dict]:
     score = 0
     detail: dict = {}
 
+    conn = None
     try:
-        conn = sqlite3.connect(OPS_DB_PATH, timeout=2)
+        conn = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=2)
         conn.row_factory = sqlite3.Row
 
         # ── active sessions ───────────────────────────────────────────────────
@@ -180,12 +181,13 @@ def calculate_runtime_pressure() -> tuple[int, str, dict]:
         else:
             detail["starved_s"] = None
 
-        conn.close()
-
     except Exception as e:
         # Can't read — be conservative
         score = PRESSURE_CRITICAL
         detail["error"] = str(e)
+    finally:
+        if conn is not None:
+            conn.close()
 
     if score >= PRESSURE_CRITICAL:
         level = "CRITICAL"
@@ -440,6 +442,7 @@ def run_subprov_discovery_job(quiet=False) -> dict:
             return None
 
     found = new_subprovs = unknown = 0
+    conn = live = None
     try:
         from src.core.wrap_close_detector import detect_wrap_close
         # autocommit (isolation_level=None): each statement is its own transaction so NO read
@@ -714,12 +717,16 @@ def run_subprov_discovery_job(quiet=False) -> dict:
         if not quiet and (found or new_subprovs):
             print(f"[SCHED][SUBPROV] checked={len(todo)} wrapclose={found} new_subprovs={new_subprovs} "
                   f"unknown_treasury={unknown} rpc={calls[0]}")
-        conn.close(); live.close()
         return {"status": "OK", "summary": s}
     except Exception as exc:
         if not quiet:
             print(f"[SCHED][SUBPROV] error: {type(exc).__name__}: {exc}")
         return {"status": "ERROR", "error": str(exc)}
+    finally:
+        if conn is not None:
+            conn.close()
+        if live is not None:
+            live.close()
 
 
 def run_intake_job(dry_run=False, quiet=False) -> dict:
@@ -957,8 +964,7 @@ def _run_backfill_uwl(quiet=False):
     from src.core.wrap_close_detector import detect_wrap_close
 
     # ── read the candidate list (read-only, close before RPC) ──
-    _c = _sq.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
-    _c.execute("PRAGMA busy_timeout=30000")
+    _c = _sq.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=30)
     try:
         rows = _c.execute(
             "SELECT mint, creator FROM watchtower_token_attribution WHERE tier='NONE'"
@@ -1050,8 +1056,7 @@ def _run_backfill_uwl(quiet=False):
         try:
             # score via the same pipeline as live intake
             # open fresh conn, write, close immediately — no held lock between tokens
-            _c2 = _sq.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
-            _c2.execute("PRAGMA busy_timeout=30000")
+            _c2 = db_connect(OPS_DB_PATH, timeout=30)
             _wa.ensure_schema(_c2)
             a = _wa.score_token(_c2, mint, creator, _funders)
             if a["tier"] == "UNCONFIRMED_WATCHTOWER_LIKE":

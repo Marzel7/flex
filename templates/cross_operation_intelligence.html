@@ -1,0 +1,381 @@
+{% extends "base_shell.html" %}
+{% block title %}Cross-Operation Intelligence — Operations OS{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">
+{% endblock %}
+
+{% block extra_styles %}
+/* Overlap matrix */
+.co-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.co-matrix-cell {
+  background: var(--ip-card);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+.co-matrix-val { font-size: 26px; font-weight: 800; color: var(--ip-cyan); font-family: ui-monospace, monospace; line-height: 1; }
+.co-matrix-label { font-size: 9.5px; color: var(--ip-sec); text-transform: uppercase; letter-spacing: .05em; margin-top: 6px; }
+.co-matrix-ops { font-size: 9px; color: var(--ip-dim); margin-top: 4px; }
+
+/* Relationship distribution */
+.co-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.co-dist-row:last-child { border-bottom: none; }
+.co-dist-type {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(96,165,250,.12);
+  color: var(--ip-blue);
+  white-space: nowrap;
+  min-width: 180px;
+}
+.co-dist-bar-wrap { flex: 1; height: 4px; background: rgba(255,255,255,.06); border-radius: 2px; }
+.co-dist-bar { height: 4px; border-radius: 2px; background: var(--ip-cyan); }
+.co-dist-count { font-size: 14px; font-weight: 700; color: var(--ip-text); font-family: monospace; min-width: 40px; text-align: right; }
+
+/* Infrastructure shared cards */
+.co-infra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+.co-infra-card {
+  background: var(--ip-card2);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius);
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.co-infra-ops { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+
+/* Graph placeholder */
+.co-graph-ph {
+  background: var(--ip-card);
+  border: 1px dashed var(--ip-border2);
+  border-radius: var(--ip-radius-lg);
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--ip-dim);
+}
+.co-graph-ph .icon { font-size: 36px; opacity: .2; }
+.co-graph-ph .lbl { font-size: 12px; }
+.co-graph-ph .sub { font-size: 10px; color: var(--ip-dim); }
+
+/* Explorer result */
+.co-result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ip-border);
+  background: rgba(255,255,255,.015);
+  flex-wrap: wrap;
+}
+{% endblock %}
+
+{% block content %}
+<div class="ip-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="ip-header">
+    <div class="ip-breadcrumb">
+      <a href="/ops-os">Mission Control</a>
+      <span class="sep">›</span>
+      <span>Intelligence</span>
+      <span class="sep">›</span>
+      <span>Cross-Operation</span>
+    </div>
+    <div class="ip-title-row">
+      <h1 class="ip-title">Cross-Operation Intelligence</h1>
+      <span class="ip-ts" id="co-ts"></span>
+    </div>
+    <div class="ip-subtitle">
+      Reveals relationships that exist across the evidence from all three operations.
+      No new detection — only correlation of existing observations.
+    </div>
+    <div class="ip-nav-links">
+      <a class="ip-nav-link primary" href="/intelligence/entity/">Entity Intelligence ↗</a>
+      <a class="ip-nav-link" href="/intelligence/knowledge">Knowledge Base →</a>
+      <a class="ip-nav-link" href="/ops-os">Mission Control →</a>
+    </div>
+  </div>
+
+  <!-- ── Platform coverage summary ──────────────────────────────────────── -->
+  <div class="ip-section-hdr">
+    <span class="ip-section-label">Entity Coverage</span>
+    <span class="ip-section-line"></span>
+  </div>
+  <div class="ip-strip" id="co-strip">
+    <div class="ip-metric"><div class="ip-metric-val cyan" id="co-total">—</div><div class="ip-metric-label">Total Entities</div></div>
+    <div class="ip-metric"><div class="ip-metric-val" id="co-1op">—</div><div class="ip-metric-label">1 Operation Only</div></div>
+    <div class="ip-metric"><div class="ip-metric-val green" id="co-2op">—</div><div class="ip-metric-label">2 Operations</div></div>
+    <div class="ip-metric"><div class="ip-metric-val purple" id="co-3op">—</div><div class="ip-metric-label">All 3 Operations</div></div>
+    <div class="ip-metric"><div class="ip-metric-val cyan" id="co-rels">—</div><div class="ip-metric-label">Relationships</div></div>
+    <div class="ip-metric"><div class="ip-metric-val" id="co-avg">—</div><div class="ip-metric-label">Avg / Entity</div></div>
+  </div>
+
+  <!-- ── Operation pair overlap matrix ──────────────────────────────────── -->
+  <div class="ip-section-hdr">
+    <span class="ip-section-label">Operation Pair Overlaps</span>
+    <span class="ip-section-line"></span>
+  </div>
+  <div id="co-matrix" class="co-matrix">
+    <div class="co-matrix-cell"><div class="co-matrix-val ip-loading">…</div></div>
+  </div>
+
+  <!-- ── Relationship distribution ──────────────────────────────────────── -->
+  <div class="ip-section-hdr">
+    <span class="ip-section-label">Relationship Distribution</span>
+    <span class="ip-section-line"></span>
+  </div>
+  <div class="ip-card">
+    <div id="co-dist" class="ip-loading" style="padding:16px;">Loading…</div>
+  </div>
+
+  <!-- ── Graph placeholder ──────────────────────────────────────────────── -->
+  <div class="ip-section-hdr">
+    <span class="ip-section-label">Relationship Graph</span>
+    <span class="ip-section-line"></span>
+    <span class="ip-section-count">reserved</span>
+  </div>
+  <div class="co-graph-ph">
+    <div class="icon">⬡</div>
+    <div class="lbl">Graph Visualisation</div>
+    <div class="sub">Reserved for future implementation — layout is final</div>
+  </div>
+
+  <!-- ── Entity Relationship Explorer ───────────────────────────────────── -->
+  <div class="ip-section-hdr" style="margin-top:28px;">
+    <span class="ip-section-label">Entity Relationship Explorer</span>
+    <span class="ip-section-line"></span>
+  </div>
+  <div class="ip-search">
+    <input class="ip-search-input" id="co-addr-input"
+           placeholder="Enter wallet address (base58)…"
+           autocomplete="off" spellcheck="false">
+    <button class="ip-search-btn" onclick="exploreEntity()">Explore →</button>
+  </div>
+  <div id="co-explorer" style="display:none;"></div>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  function fmtN(n) {
+    if (n === null || n === undefined) return '—';
+    if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
+    if (n >= 1000)    return (n/1000).toFixed(1)+'K';
+    return String(n);
+  }
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts*1000).toISOString().slice(0,10);
+  }
+
+  function eiLink(addr, label) {
+    if (!addr || addr === 'UNKNOWN') return label || addr || '—';
+    var d = label || (addr.length > 20 ? addr.slice(0,8)+'…'+addr.slice(-4) : addr);
+    return '<a href="/intelligence/entity/'+encodeURIComponent(addr)+'" '
+      +'class="ip-addr" title="'+addr+'">'+d+'<span class="ip-addr-arrow">↗</span></a>';
+  }
+
+  var PAIR_LABELS = {
+    'watchtower+launcher-observatory':            'WATCHTOWER ↔ Launcher Observatory',
+    'watchtower+buy-swarm-observatory':           'WATCHTOWER ↔ Buy Swarm Observatory',
+    'launcher-observatory+buy-swarm-observatory': 'Launcher Observatory ↔ Buy Swarm Observatory',
+    'all-three':                                  'All Three Operations',
+  };
+
+  var REL_LABELS = {
+    'OBSERVED_BY_MULTIPLE_OPERATIONS': 'Observed By Multiple Ops',
+    'SHARED_TARGET':   'Shared Target',
+    'SHARED_FUNDER':   'Shared Funder',
+    'SHARED_SWARM':    'Shared Swarm',
+    'SHARED_OPERATOR': 'Shared Operator',
+  };
+
+  /* ── Stats ────────────────────────────────────────────────────────────── */
+  fetch('/api/intelligence/cross-operation/stats')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      document.getElementById('co-ts').textContent =
+        'Generated ' + new Date(d.generated_at*1000).toLocaleTimeString();
+
+      document.getElementById('co-total').textContent = fmtN(d.total_entities||0);
+      document.getElementById('co-1op').textContent   = fmtN(d.entities_in_1_operation||0);
+      document.getElementById('co-2op').textContent   = fmtN(d.entities_in_2_operations||0);
+      document.getElementById('co-3op').textContent   = fmtN(d.entities_in_3_operations||0);
+      document.getElementById('co-rels').textContent  = fmtN(d.total_relationships||0);
+      document.getElementById('co-avg').textContent   = d.avg_relationships_per_entity||0;
+
+      /* Overlap matrix */
+      var pairs = d.operation_pair_overlaps || {};
+      var matrixHtml = Object.entries(PAIR_LABELS).map(function(e) {
+        var key = e[0], label = e[1];
+        var count = pairs[key] || 0;
+        var isAll = key === 'all-three';
+        return '<div class="co-matrix-cell">'
+          + '<div class="co-matrix-val" style="color:' + (isAll ? 'var(--ip-purple)' : 'var(--ip-cyan)') + '">' + fmtN(count) + '</div>'
+          + '<div class="co-matrix-label">' + label + '</div>'
+          + '<div class="co-matrix-ops">shared entities</div>'
+          + '</div>';
+      }).join('');
+      document.getElementById('co-matrix').innerHTML = matrixHtml;
+
+      /* Relationship distribution */
+      var dist = d.relationship_type_distribution || {};
+      var entries = Object.entries(dist).sort(function(a,b){ return b[1]-a[1]; });
+      var maxVal = entries.length ? entries[0][1] : 1;
+      if (!entries.length) {
+        document.getElementById('co-dist').innerHTML =
+          '<div class="ip-empty">No relationships computed yet.</div>';
+        return;
+      }
+      var distHtml = entries.map(function(e) {
+        var type = e[0], count = e[1];
+        var pct = Math.round((count / maxVal) * 100);
+        var label = REL_LABELS[type] || type.replace(/_/g,' ');
+        return '<div class="co-dist-row">'
+          + '<span class="co-dist-type">' + label + '</span>'
+          + '<div class="co-dist-bar-wrap"><div class="co-dist-bar" style="width:'+pct+'%"></div></div>'
+          + '<span class="co-dist-count">' + fmtN(count) + '</span>'
+          + '</div>';
+      }).join('');
+      document.getElementById('co-dist').innerHTML = distHtml;
+    })
+    .catch(function(e) {
+      ['co-matrix','co-dist'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="ip-error">Error: ' + e + '</div>';
+      });
+    });
+
+  /* ── Entity Explorer ──────────────────────────────────────────────────── */
+  var OPS = ['watchtower','launcher-observatory','buy-swarm-observatory'];
+  var OP_LABELS_MAP = {
+    'watchtower': 'WATCHTOWER',
+    'launcher-observatory': 'Launcher Observatory',
+    'buy-swarm-observatory': 'Buy Swarm Observatory',
+  };
+
+  function exploreEntity() {
+    var addr = document.getElementById('co-addr-input').value.trim();
+    if (!addr) return;
+
+    var el = document.getElementById('co-explorer');
+    el.style.display = '';
+    el.innerHTML = '<div class="ip-loading">Loading…</div>';
+
+    fetch('/api/intelligence/entity/' + encodeURIComponent(addr) + '/relationships')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        /* Op coverage chips */
+        var chips = OPS.map(function(op) {
+          var seen = d.observed_by.indexOf(op) >= 0;
+          return '<span class="ip-op-chip ' + (seen ? 'seen' : 'unseen') + '">'
+            + (seen ? '● ' : '○ ') + (OP_LABELS_MAP[op] || op) + '</span>';
+        }).join('');
+
+        /* Relationship cards */
+        var relsHtml = '';
+        if (d.relationships && d.relationships.length) {
+          relsHtml = d.relationships.map(function(r) {
+            var ev = (r.supporting_evidence||[]).map(function(e) {
+              return '<div class="ip-rel-ev">' + e + '</div>';
+            }).join('');
+            return '<div class="ip-rel-card">'
+              + '<div class="ip-rel-header">'
+              +   '<span class="ip-rel-type">' + (REL_LABELS[r.relationship_type] || r.relationship_type.replace(/_/g,' ')) + '</span>'
+              +   '<span class="ip-rel-conf">' + r.confidence + '</span>'
+              + '</div>'
+              + '<div class="ip-rel-ops">' + (r.supporting_operations||[]).join(' + ') + '</div>'
+              + ev
+              + '<div class="ip-rel-meta">since ' + fmtDate(r.first_seen) + ' · ' + r.provenance + '</div>'
+              + '</div>';
+          }).join('');
+        } else {
+          relsHtml = '<div class="ip-empty">'
+            + (d.operation_count === 0 ? 'Not found in any operation.' :
+               'In ' + d.operation_count + ' operation(s) — no cross-operation relationships.')
+            + '</div>';
+        }
+
+        /* Timeline */
+        var tlHtml = '';
+        if (d.unified_timeline && d.unified_timeline.length) {
+          tlHtml = '<div class="ip-section-hdr" style="margin-top:16px;">'
+            + '<span class="ip-section-label">Unified Timeline</span>'
+            + '<span class="ip-section-line"></span>'
+            + '</div>'
+            + '<div class="ip-timeline">';
+          d.unified_timeline.forEach(function(ev) {
+            var srcKey = (ev.source||'').toUpperCase().slice(0,3);
+            var srcCls = {'WAT':'wt','LAU':'lo','BUY':'bso','KNO':'kl'}[srcKey] || '';
+            tlHtml += '<div class="ip-tl-row">'
+              + '<span class="ip-tl-ts">' + fmtDate(ev.ts) + '</span>'
+              + '<span class="ip-tl-src ' + srcCls + '">' + (ev.source||'—') + '</span>'
+              + '<span class="ip-tl-desc">' + ev.description + '</span>'
+              + '</div>';
+          });
+          tlHtml += '</div>';
+        }
+
+        el.innerHTML =
+          '<div class="ip-card" style="margin-bottom:14px;">'
+          + '<div class="co-result-header">'
+          +   eiLink(addr)
+          +   '<span class="ip-badge dim">' + d.operation_count + ' operation(s)</span>'
+          +   '<a href="/intelligence/entity/' + encodeURIComponent(addr) + '" '
+          +      'class="ip-nav-link primary" style="margin-left:auto;">Full Entity Intelligence →</a>'
+          + '</div>'
+          + '<div class="ip-card-body">'
+          +   '<div class="ip-op-chips">' + chips + '</div>'
+          + '</div>'
+          + '</div>'
+          + (d.relationships && d.relationships.length
+              ? '<div class="ip-section-hdr"><span class="ip-section-label">Relationships</span><span class="ip-section-line"></span></div>'
+              : '')
+          + relsHtml
+          + tlHtml;
+      })
+      .catch(function(e) {
+        el.innerHTML = '<div class="ip-error">Error: ' + e + '</div>';
+      });
+  }
+
+  document.getElementById('co-addr-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') exploreEntity();
+  });
+
+  /* Pre-fill if #hash present (e.g. link from EI page) */
+  var hash = location.hash.slice(1);
+  if (hash && hash.length > 20) {
+    document.getElementById('co-addr-input').value = hash;
+    exploreEntity();
+  }
+
+})();
+</script>
+{% endblock %}

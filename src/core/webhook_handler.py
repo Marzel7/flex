@@ -46,97 +46,135 @@ def get_webhook_db():
 
 def ensure_webhook_tables():
     """Create schema tables if they don't exist."""
-    conn = get_webhook_db()
-    cur = conn.cursor()
+    from src.core.database_write_service import database_write_service
 
-    # sol_transfers
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS sol_transfers (
-            signature TEXT PRIMARY KEY,
-            slot INTEGER NOT NULL,
-            block_time INTEGER NOT NULL,
-            source TEXT NOT NULL,
-            destination TEXT NOT NULL,
-            lamports INTEGER NOT NULL,
-            amount_sol REAL NOT NULL,
-            received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            processed BOOLEAN DEFAULT 0
-        )
-    """)
+    required_tables = {
+        "sol_transfers",
+        "address_activity",
+        "work_queue",
+        "creator_analysis_queue",
+        "helius_webhook_assignments",
+    }
+    required_indexes = {
+        "idx_sol_transfers_source",
+        "idx_sol_transfers_destination",
+        "idx_sol_transfers_block_time",
+        "idx_address_activity_last_seen",
+        "idx_work_queue_priority",
+        "idx_work_queue_next_run",
+        "idx_creator_analysis_status",
+        "idx_creator_analysis_priority",
+        "idx_creator_analysis_next",
+    }
 
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_sol_transfers_source ON sol_transfers(source)")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_sol_transfers_destination ON sol_transfers(destination)")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_sol_transfers_block_time ON sol_transfers(block_time DESC)")
+    try:
+        conn = db_connect(DB_PATH, timeout=5, read_only=True)
+        cur = conn.cursor()
+        cur.execute("SELECT name, type FROM sqlite_master WHERE type IN ('table', 'index')")
+        existing = {(row[0], row[1]) for row in cur.fetchall()}
+        conn.close()
+        existing_tables = {name for name, kind in existing if kind == "table"}
+        existing_indexes = {name for name, kind in existing if kind == "index"}
+        if required_tables <= existing_tables and required_indexes <= existing_indexes:
+            return
+    except Exception as exc:
+        print(f"[WEBHOOK_INIT] Read-only schema check failed; falling back to DDL: {exc}", flush=True)
 
-    # address_activity
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS address_activity (
-            address TEXT PRIMARY KEY,
-            last_seen_at INTEGER NOT NULL,
-            tx_5m INTEGER DEFAULT 0,
-            tx_1h INTEGER DEFAULT 0,
-            tx_24h INTEGER DEFAULT 0,
-            sol_in_5m REAL DEFAULT 0.0,
-            sol_in_1h REAL DEFAULT 0.0,
-            sol_in_24h REAL DEFAULT 0.0,
-            sol_out_5m REAL DEFAULT 0.0,
-            sol_out_1h REAL DEFAULT 0.0,
-            sol_out_24h REAL DEFAULT 0.0,
-            last_processed_at INTEGER,
-            last_rpc_fetch_at INTEGER,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+    def _ensure(conn):
+        cur = conn.cursor()
 
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_address_activity_last_seen ON address_activity(last_seen_at DESC)")
+        # sol_transfers
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS sol_transfers (
+                signature TEXT PRIMARY KEY,
+                slot INTEGER NOT NULL,
+                block_time INTEGER NOT NULL,
+                source TEXT NOT NULL,
+                destination TEXT NOT NULL,
+                lamports INTEGER NOT NULL,
+                amount_sol REAL NOT NULL,
+                received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                processed BOOLEAN DEFAULT 0
+            )
+        """)
 
-    # work_queue
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS work_queue (
-            address TEXT PRIMARY KEY,
-            priority REAL DEFAULT 0.0,
-            reason TEXT,
-            next_run_at INTEGER DEFAULT 0,
-            locked_until INTEGER DEFAULT 0,
-            attempts INTEGER DEFAULT 0,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_sol_transfers_source ON sol_transfers(source)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_sol_transfers_destination ON sol_transfers(destination)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_sol_transfers_block_time ON sol_transfers(block_time DESC)")
 
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_work_queue_priority ON work_queue(priority DESC)")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_work_queue_next_run ON work_queue(next_run_at ASC)")
+        # address_activity
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS address_activity (
+                address TEXT PRIMARY KEY,
+                last_seen_at INTEGER NOT NULL,
+                tx_5m INTEGER DEFAULT 0,
+                tx_1h INTEGER DEFAULT 0,
+                tx_24h INTEGER DEFAULT 0,
+                sol_in_5m REAL DEFAULT 0.0,
+                sol_in_1h REAL DEFAULT 0.0,
+                sol_in_24h REAL DEFAULT 0.0,
+                sol_out_5m REAL DEFAULT 0.0,
+                sol_out_1h REAL DEFAULT 0.0,
+                sol_out_24h REAL DEFAULT 0.0,
+                last_processed_at INTEGER,
+                last_rpc_fetch_at INTEGER,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-    # creator_analysis_queue - Background analysis of creator addresses from webhooks
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS creator_analysis_queue (
-            creator_address TEXT PRIMARY KEY,
-            priority REAL DEFAULT 0.0,
-            status TEXT DEFAULT 'pending',
-            last_analyzed_at INTEGER,
-            next_analysis_at INTEGER DEFAULT 0,
-            locked_until INTEGER DEFAULT 0,
-            attempts INTEGER DEFAULT 0,
-            findings_cached TEXT,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_address_activity_last_seen ON address_activity(last_seen_at DESC)")
 
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_status ON creator_analysis_queue(status)")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_priority ON creator_analysis_queue(priority DESC)")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_next ON creator_analysis_queue(next_analysis_at ASC)")
+        # work_queue
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS work_queue (
+                address TEXT PRIMARY KEY,
+                priority REAL DEFAULT 0.0,
+                reason TEXT,
+                next_run_at INTEGER DEFAULT 0,
+                locked_until INTEGER DEFAULT 0,
+                attempts INTEGER DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-    # helius_webhook_assignments - Track which creators are monitored by the webhook
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS helius_webhook_assignments (
-            creator_address TEXT PRIMARY KEY,
-            shard_index INTEGER NOT NULL,
-            webhook_id TEXT NOT NULL,
-            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_work_queue_priority ON work_queue(priority DESC)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_work_queue_next_run ON work_queue(next_run_at ASC)")
 
-    conn.commit()
-    conn.close()
+        # creator_analysis_queue - Background analysis of creator addresses from webhooks
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS creator_analysis_queue (
+                creator_address TEXT PRIMARY KEY,
+                priority REAL DEFAULT 0.0,
+                status TEXT DEFAULT 'pending',
+                last_analyzed_at INTEGER,
+                next_analysis_at INTEGER DEFAULT 0,
+                locked_until INTEGER DEFAULT 0,
+                attempts INTEGER DEFAULT 0,
+                findings_cached TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_status ON creator_analysis_queue(status)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_priority ON creator_analysis_queue(priority DESC)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_creator_analysis_next ON creator_analysis_queue(next_analysis_at ASC)")
+
+        # helius_webhook_assignments - Track which creators are monitored by the webhook
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS helius_webhook_assignments (
+                creator_address TEXT PRIMARY KEY,
+                shard_index INTEGER NOT NULL,
+                webhook_id TEXT NOT NULL,
+                assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+    database_write_service.submit(
+        "webhook-init",
+        "ensure-webhook-tables",
+        _ensure,
+        path=DB_PATH,
+    )
 
 
 # ============================================================================

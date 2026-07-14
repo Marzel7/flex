@@ -1,0 +1,107 @@
+# ============================================================
+# Operations OS — Operation Definition
+# OBSERVATORY DEMO: framework extensibility validation (A5)
+#
+# This operation exists solely to prove the Operations OS
+# framework is genuinely extensible. It is NOT a production
+# detector and does NOT connect to any blockchain, exchange,
+# or external data source.
+#
+# Intentional differences from WATCHTOWER:
+#   • FLAT infrastructure model (no graph, no tiers)
+#   • No tier vocabulary (no origin/intermediate/terminal node)
+#   • Completely different observation terminology
+#   • Different capability mix (infrastructure UNSUPPORTED)
+#   • Separate provider endpoints (/api/ops-demo/*)
+# ============================================================
+
+# ── Identity ─────────────────────────────────────────────────
+operation_id: observatory-demo
+display_name: Observatory Demo
+description: >
+  Synthetic operation for Operations OS framework validation (Sprint A5).
+  Demonstrates that a second operation with a completely different
+  infrastructure model and vocabulary registers, resolves, and renders
+  correctly without any changes to the framework shell.
+owner: operations-team
+
+# ── Lifecycle ────────────────────────────────────────────────
+status: INSTRUMENTED
+
+# ── Versions ─────────────────────────────────────────────────
+framework_schema_version: 1
+definition_version: 1
+operation_version: "a5-validation"
+
+# ── Infrastructure Model ─────────────────────────────────────
+# FLAT: no graph, no tiers, no hierarchy.
+# This operation observes assets directly — there is no
+# funding graph, provisioning hierarchy, or intermediate layer.
+infrastructure_model: FLAT
+
+# ── Vocabulary ───────────────────────────────────────────────
+# Completely different from WATCHTOWER.
+# No treasury, subprovisioner, creator, or wrap-close.
+vocabulary:
+  observed_asset:     "Price Feed"
+  signal_source:      "Signal Source"
+  observation_event:  "Signal Fired"
+  observed_outcome:   "Alert Triggered"
+  id_format:          "opaque"
+
+# ── Capability Declarations ───────────────────────────────────
+# Intentionally different mix from WATCHTOWER.
+capabilities:
+  health:
+    state: SUPPORTED
+    contract: health_v1
+    provider: demo_health
+
+  infrastructure:
+    state: UNSUPPORTED
+    reason: >
+      FLAT model — no graph structure, no tiers, no entity hierarchy.
+      Entity counts are not meaningful for this operation.
+
+  discovery_assurance:
+    state: NOT_DECLARED
+    # Discovery Assurance requires a ground truth table populated by
+    # an independent detector. Not yet instrumented for this operation.
+
+  detection_coverage:
+    state: NOT_DECLARED
+
+  failure_attribution:
+    state: SUPPORTED
+    contract: failure_attribution_v1
+    provider: demo_failure_attribution
+
+  alerts:
+    state: SUPPORTED
+    contract: alerts_v1
+    provider: demo_alerts
+
+  behaviour:
+    state: NOT_DECLARED
+
+  intelligence:
+    state: UNSUPPORTED
+    reason: "No named-actor attribution for this operation type."
+
+  signal_observatory:
+    state: NOT_DECLARED
+
+  outcome_intelligence:
+    state: NOT_DECLARED
+
+# ── Assurance Mapping ─────────────────────────────────────────
+assurance_mapping:
+  ground_truth_source: "demo_observations (not yet populated)"
+  ground_truth_independent: true
+  scope_note: >
+    This is a validation operation. Ground truth is not yet instrumented.
+    All coverage and attribution metrics should be treated as placeholders.
+  failure_taxonomy:
+    DISC_ROOT_UNKNOWN:     "Unknown signal source"
+    DET_FETCH_TIMEOUT:     "Signal fetch timeout"
+    DET_UNCLASSIFIED:      "Unclassified detection miss"

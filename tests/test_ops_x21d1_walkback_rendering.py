@@ -52,12 +52,13 @@ def _build_snippet() -> str:
 _SNIPPET = _build_snippet()
 
 
-def _render(w: dict, subject: dict, attribution_outcome, canonical_identity) -> str:
+def _render(w: dict, subject: dict, attribution_outcome, canonical_identity, launch_profile=None) -> str:
     script = (
         _SNIPPET
         + "\nconsole.log(JSON.stringify(walkback("
         + json.dumps(w) + "," + json.dumps(subject) + ","
-        + json.dumps(attribution_outcome) + "," + json.dumps(canonical_identity)
+        + json.dumps(attribution_outcome) + "," + json.dumps(canonical_identity) + ","
+        + json.dumps(launch_profile)
         + ")));"
     )
     result = subprocess.run(
@@ -90,7 +91,7 @@ def test_confirmed_token_with_persisted_creator_full_chain():
         {"evidence": {"creator": CREATOR_ADDR}}, CANONICAL_IDENTITY,
     )
     # token -> creator -> sub-provisioner -> treasury -> WATCHTOWER, in order.
-    assert html.index("WATCHTOKEN") < html.index(">Creator<")
+    assert html.index(">Launch<") < html.index(">Creator<")
     assert html.index(">Creator<") < html.index("SUB_PROVISIONER")
     assert html.index("SUB_PROVISIONER") < html.index("TREASURY")
     assert html.index("TREASURY") < html.index("WATCHTOWER")
@@ -104,9 +105,10 @@ def test_confirmed_token_without_persisted_creator():
         CONFIRMED_WALKBACK, CONFIRMED_TOKEN,
         {"evidence": {"creator": None}}, CANONICAL_IDENTITY,
     )
-    assert "WATCHTOKEN" in html
+    assert ">Launch<" in html
+    assert "WATCHTOKEN" not in html
     assert ">Creator<" not in html
-    assert html.index("WATCHTOKEN") < html.index("SUB_PROVISIONER")
+    assert html.index(">Launch<") < html.index("SUB_PROVISIONER")
     assert html.index("SUB_PROVISIONER") < html.index("TREASURY")
     assert html.index("TREASURY") < html.index("WATCHTOWER")
 
@@ -121,13 +123,16 @@ def test_unresolved_token_shows_only_persisted_nodes():
         walkback, {"id": "G8rtCCXx89ZQdwsaGLXSuW3qHSPZvk4XhujQMFpepump", "type": "token"},
         {"evidence": {"creator": None}}, None,
     )
-    assert "WATCHTOKEN" in html
+    assert ">Launch<" in html
+    assert "WATCHTOKEN" not in html
     assert "SUB_PROVISIONER" in html
     assert "TREASURY" not in html
     assert ">Creator<" not in html
     assert "WATCHTOWER" not in html
-    # No fabricated operator label; typed endpoint wording preserved.
-    assert "Endpoint" in html
+    # No fabricated operator label; unresolved-gap wording preserved (X25.3:
+    # "Endpoint" replaced with "Walkback Stopped" since no terminal entity
+    # was reached — this is an evidence gap, not an infrastructure boundary).
+    assert "Walkback Stopped" in html
     assert "PROVISIONAL" in html
 
 
@@ -191,7 +196,10 @@ def test_generic_confirmed_endpoint_only_replaced_when_operator_resolution_exist
         {"evidence": {"creator": CREATOR_ADDR}}, None,
     )
     assert "Canonical operator reached" not in html_no_identity
-    assert "Endpoint" in html_no_identity
+    # X25.3: no terminal_entity in this fixture's attribution_outcome, so this
+    # is the unresolved-gap case ("Walkback Stopped"), not a genuine
+    # infrastructure boundary.
+    assert "Walkback Stopped" in html_no_identity
     assert "CONFIRMED" in html_no_identity
 
     html_with_identity = _render(

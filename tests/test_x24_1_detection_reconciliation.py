@@ -45,6 +45,9 @@ def ops_db():
             funding_time INTEGER, expires_at INTEGER, monitoring_state TEXT,
             funding_mechanism TEXT, detected_at INTEGER
         );
+        CREATE TABLE wt_walkback_queue (
+            mint TEXT PRIMARY KEY, intelligence_outcome TEXT
+        );
     """)
     conn.commit()
     conn.close()
@@ -87,10 +90,13 @@ def test_reconciled_when_launch_row_has_reconciler_source(ops_db):
 
 def test_walkback_recovered_when_no_live_armed_session_ever_covered_it(ops_db):
     """No wt_watchtower_launches row, and no LIVE_ARMED session covering CREATE
-    time — the system never believed it was watching. Not a pipeline defect."""
+    time — the system never believed it was watching. Not a pipeline defect.
+    X25.5.1: requires the mint's wt_walkback_queue outcome to be
+    WATCHTOWER_CONFIRMED — a bare provisioning-session row is not enough."""
     _insert(ops_db, "wt_provisioning_sessions", source_mint="MINT_WB", treasury="T3",
             subprov="S3", creator="C3", subprov_to_creator_mechanism="WSOL_WRAP_CLOSE",
             creator_launch_time=300, recorded_at=310)
+    _insert(ops_db, "wt_walkback_queue", mint="MINT_WB", intelligence_outcome="WATCHTOWER_CONFIRMED")
     # session exists but is INTEL_ONLY (never armed for live watching)
     _insert(ops_db, "wt_active_subprov_sessions", subprov_wallet="S3", treasury_wallet="T3",
             funding_time=250, expires_at=2000, monitoring_state="INTEL_ONLY",
@@ -103,10 +109,14 @@ def test_walkback_recovered_when_no_live_armed_session_ever_covered_it(ops_db):
 def test_pipeline_inconsistency_when_live_armed_session_covered_create_but_no_launch(ops_db):
     """The AWiaGsus-class defect: a LIVE_ARMED session's window covers the
     CREATE time, yet no wt_watchtower_launches row exists. This is the bucket
-    this fix targets — must be classified distinctly from WALKBACK_RECOVERED."""
+    this fix targets — must be classified distinctly from WALKBACK_RECOVERED.
+    X25.5.1: requires a confirmed wt_walkback_queue outcome, same as above —
+    a confirmed live-armed miss still renders PIPELINE_INCONSISTENCY when
+    membership is genuinely established."""
     _insert(ops_db, "wt_provisioning_sessions", source_mint="MINT_BUG", treasury="T4",
             subprov="S4", creator="C4", subprov_to_creator_mechanism="WSOL_WRAP_CLOSE",
             creator_launch_time=1784052892, recorded_at=1784052909)
+    _insert(ops_db, "wt_walkback_queue", mint="MINT_BUG", intelligence_outcome="WATCHTOWER_CONFIRMED")
     _insert(ops_db, "wt_active_subprov_sessions", subprov_wallet="S4", treasury_wallet="T4",
             funding_time=1784051480, expires_at=1784053553, monitoring_state="LIVE_ARMED",
             funding_mechanism="PLAIN_TRANSFER", detected_at=1784051480)
@@ -151,6 +161,7 @@ def test_summary_counts_match_row_classifications(ops_db):
             creator="C2", subprov_to_creator_mechanism="WSOL_WRAP_CLOSE", recorded_at=2)
     _insert(ops_db, "wt_watchtower_launches", mint="M1", creator_wallet="C1", treasury_wallet="T",
             subprov_wallet="S", create_time=1, detection_source="LIVE_STREAM")
+    _insert(ops_db, "wt_walkback_queue", mint="M2", intelligence_outcome="WATCHTOWER_CONFIRMED")
     result = classify_walkback_confirmed_launches(ops_db)
     assert result["summary"]["LIVE_DETECTED"] == 1
     assert result["summary"]["WALKBACK_RECOVERED"] == 1

@@ -213,6 +213,7 @@ class DiscoveryService:
             "treasury_expansion": None,
             "operational_behaviour": None,
             "detection_reconciliation": None,
+            "creator_activity": None,
             "operator_history": [], "network_discovery": [], "cross_operation": [],
             "generated_at": generated_at, "discovery_states": list(DISCOVERY_STATES),
         }
@@ -252,6 +253,7 @@ class DiscoveryService:
         launch: dict[str, Any] | None = None
         migration: dict[str, Any] | None = None
         attrib: dict[str, Any] | None = None
+        walk: dict[str, Any] | None = None
 
         if subject_type == "token":
             token = subject_id
@@ -267,7 +269,7 @@ class DiscoveryService:
                 attribution_outcome["evidence"] = _json(
                     attribution_outcome.pop("evidence_json", None), {}
                 )
-            creator = (launch or {}).get("creator_wallet") or (migration or {}).get("creator") or (lifecycle or {}).get("creator") or (attrib or {}).get("creator")
+            creator = (launch or {}).get("creator_wallet") or (migration or {}).get("creator") or (lifecycle or {}).get("creator") or (attrib or {}).get("creator") or (walk or {}).get("creator")
             subprov = (launch or {}).get("subprov_wallet") or (lifecycle or {}).get("subprov") or (attrib or {}).get("matched_subprov") or (walk or {}).get("subprov")
             treasury = (launch or {}).get("treasury_wallet") or (lifecycle or {}).get("treasury") or (attrib or {}).get("matched_treasury") or (walk or {}).get("treasury")
             operation_uuid = (lifecycle or {}).get("operation_uuid")
@@ -284,20 +286,54 @@ class DiscoveryService:
                         {"label": "Migration transaction", "value": (migration or {}).get("migration_tx")},
                     ] if x["value"]], connected={"id": creator, "type": "creator"} if creator else None,
                 ))
-            if attrib:
-                a_state = "REJECTED" if attrib.get("reviewed_status") == "REJECTED" else (
-                    "CONFIRMED" if attrib.get("reviewed_status") == "CONFIRMED" or attrib.get("matched_treasury") else "PROVISIONAL"
-                )
+            elif walk and walk.get("creator"):
+                # X26.7 — a wt_walkback_queue row can be the ONLY record of this
+                # mint (e.g. a PLAIN_XFER-funded launch that never produced a
+                # wt_watchtower_launches/migrated_tokens/wt_token_lifecycle row,
+                # common for the KNOWN_CEX_REACHED/KNOWN_RELAY_REACHED boundary
+                # cases). Previously this meant `timeline` stayed empty even
+                # though a real creator, funding mechanism, and funder wallet
+                # were already persisted — the page fell into the whole-page
+                # "No historical discovery evidence is available" branch and
+                # silently dropped Launch Profile/Funding Walkback/Evidence
+                # Groups, despite Attribution Outcome (attribution_outcome)
+                # being genuinely populated. Surfacing the walkback row itself
+                # as evidence closes that gap without inventing anything new.
                 timeline.append(self._node(
-                    kind="WATCHTOWER_ATTRIBUTION", state=a_state, entity_id=token, entity_type="token",
-                    detector="WATCHTOWER attribution", timestamp=attrib.get("scored_at"),
-                    confidence=attrib.get("score"), rule="Existing WATCHTOWER attribution result",
+                    kind="TOKEN_LAUNCH", state="EMERGING", entity_id=token, entity_type="token",
+                    detector="Walkback queue record", timestamp=walk.get("completed_at") or walk.get("enqueued_at"),
+                    confidence="MEDIUM", rule="Existing walkback-queue observation", category="CONTEXT",
+                    reason="The token launch is recorded in the funding walkback queue; no separate launch-ingestion record exists.",
+                    evidence=[x for x in [
+                        {"label": "Mint", "value": token},
+                        {"label": "Funding mechanism", "value": walk.get("funding_mechanism")},
+                        {"label": "Funder wallet", "value": walk.get("funder_wallet")},
+                        {"label": "Funder transaction", "value": walk.get("funder_sig")},
+                    ] if x["value"]], connected={"id": creator, "type": "creator"} if creator else None,
+                ))
+            # X26.2/X26.2.1: watchtower_token_attribution rows can be written
+            # from mere wt_discovered_subprovs membership with NO confirmed
+            # treasury at all (walkback_worker.py's confirmed_subprov-OR-treasury
+            # gate) — a LINEAGE_GAP outcome is enough. Rendering this as a
+            # "Platform Attribution" card for those rows overstates what the
+            # backend actually confirmed. This node is Discovery's own
+            # presentation choice; other consumers of this table
+            # (operation_scheduler.py, walkback_queue.py, operation_dashboard_routes.py,
+            # watchtower_funnel.py, attribution_outcome.py) read provisional rows
+            # for their own purposes and are unaffected — only Discovery's
+            # rendering gate is narrowed here, the table/rows themselves are untouched.
+            if attrib and attrib.get("matched_treasury"):
+                a_state = "REJECTED" if attrib.get("reviewed_status") == "REJECTED" else "CONFIRMED"
+                timeline.append(self._node(
+                    kind="CONFIRMED_TREASURY_ATTRIBUTION", state=a_state, entity_id=token, entity_type="token",
+                    detector="Platform attribution", timestamp=attrib.get("scored_at"),
+                    confidence=attrib.get("score"), rule="Existing platform attribution result",
                     category="IDENTITY", reason=self._attribution_reason(attrib),
                     evidence=[
                         {"label": "Tier", "value": attrib.get("tier")},
                         {"label": "Matched treasury", "value": attrib.get("matched_treasury")},
                         {"label": "Matched sub-provisioner", "value": attrib.get("matched_subprov")},
-                    ], connected={"id": attrib.get("matched_treasury"), "type": "treasury"} if attrib.get("matched_treasury") else None,
+                    ], connected={"id": attrib.get("matched_treasury"), "type": "treasury"},
                     details={"reasons": _json(attrib.get("reasons_json"), [])},
                 ))
             if lifecycle:
@@ -372,9 +408,39 @@ class DiscoveryService:
                 "" if subprov else "No historical sub-provisioner evidence beyond the creator record.",
                 launch.get("confidence"),
             ))
+        elif creator and walk:
+            # X26.7 — mirrors the wrap/launch branches above for the case where
+            # the ONLY persisted record of this creator's funding is a
+            # wt_walkback_queue row (no wrap-close, no launch-ingestion row).
+            # Common for infrastructure-boundary outcomes (PLAIN_XFER funding
+            # from a CEX/relay never produces a wrap-close record).
+            timeline.append(self._node(
+                kind="CREATOR_IDENTIFIED", state="PROVISIONAL", entity_id=creator, entity_type="creator",
+                detector="Walkback queue record", timestamp=walk.get("funder_block_time") or walk.get("completed_at"),
+                confidence="MEDIUM", rule="Existing walkback-queue funding record", category="SUPPORTING",
+                reason="The creator was identified by the recorded walkback funding evidence; no wrap-close or launch-ingestion record is available.",
+                evidence=[
+                    {"label": "Funding mechanism", "value": walk.get("funding_mechanism")},
+                    {"label": "Funder wallet", "value": walk.get("funder_wallet")},
+                    {"label": "Funder transaction", "value": walk.get("funder_sig")},
+                ], connected={"id": subprov, "type": "sub_provisioner"} if subprov else None,
+            ))
+            walk_hops.append(self._hop(
+                creator, "CREATOR", "Starting entity taken from the recorded walkback funding evidence.",
+                "" if subprov else "No historical sub-provisioner evidence beyond the creator record.",
+                "MEDIUM",
+            ))
 
         sp = self._one(conn, tables, "wt_discovered_subprovs", "subprov = ?", (subprov,)) if subprov else None
-        if sp:
+        # X26.6.1 — a REJECTED* state (e.g. REJECTED_INFRASTRUCTURE, X26.3) means
+        # this row was explicitly disqualified as a sub-provisioner (known
+        # infrastructure funding creators is not provisioning evidence). The raw
+        # funding observations on the row are preserved in the database, but
+        # Discovery must never render a SUBPROVISIONER_RESOLVED node — or any
+        # "creator observations support the role" wording — for a row the
+        # platform has already concluded is not a genuine sub-provisioner.
+        sp_rejected = bool(sp) and str(sp.get("state") or "").upper().startswith("REJECTED")
+        if sp and not sp_rejected:
             treasury = treasury or sp.get("treasury") or sp.get("immediate_funder")
             timeline.append(self._node(
                 kind="SUBPROVISIONER_RESOLVED", state=_state(sp.get("state")),
@@ -415,17 +481,21 @@ class DiscoveryService:
                 source.get("confidence"),
             ))
 
-        # Some WATCHTOWER generations pre-date the separate attribution table.
+        # Some platform generations pre-date the separate attribution table.
         # The strict launch record is itself a materialised attribution output,
         # so surface that provenance when no newer attribution record exists.
+        # X25.6: "confirmed" here means a confirmed treasury (the platform's
+        # own detection mechanism), not a confirmed operator — this node must
+        # never assert WATCHTOWER or any specific operator; operator identity
+        # is established solely by canonicalIdentity().
         if token and launch and confirmed and not attrib:
             timeline.append(self._node(
-                kind="WATCHTOWER_ATTRIBUTION", state="CONFIRMED", entity_id=token,
-                entity_type="token", detector="WATCHTOWER launch attribution",
+                kind="CONFIRMED_TREASURY_ATTRIBUTION", state="CONFIRMED", entity_id=token,
+                entity_type="token", detector="Platform launch attribution",
                 timestamp=launch.get("recorded_at") or launch.get("create_time"),
-                confidence=launch.get("confidence"), rule="Existing attributed WATCHTOWER launch",
+                confidence=launch.get("confidence"), rule="Existing attributed platform launch",
                 category="IDENTITY",
-                reason="The stored launch record links the token through its creator and sub-provisioner to a confirmed WATCHTOWER treasury.",
+                reason="The stored launch record links the token through its creator and sub-provisioner to a confirmed treasury.",
                 evidence=[
                     {"label": "Treasury", "value": treasury},
                     {"label": "Sub-provisioner", "value": subprov},
@@ -516,15 +586,56 @@ class DiscoveryService:
         # never touches attribution, walkback, scoring, or identity. Answers
         # "how did this behave" using X21B provisioning facts (when captured)
         # and existing persisted signals, separate from "who is this."
+        #
+        # X26.10 — attribution_outcome.terminal_entity is sometimes the ONLY
+        # place a reviewed CEX/bridge/relay/automation/custody boundary
+        # address is recorded (e.g. a wallet stored in
+        # wt_walkback_queue.funder_wallet or .treasury rather than .subprov,
+        # a different column than the one `subprov` above is derived from).
+        # Without this, Operational Behaviour silently rendered empty for
+        # those launches even though attribution correctly identified a
+        # reviewed terminal boundary. Only ever fills the gap when `subprov`
+        # is otherwise unresolved, and only for outcome types that represent
+        # a genuine reviewed-infrastructure boundary — never for
+        # CANONICAL_OPERATOR_REACHED or a plain creator/unknown termination.
+        _REVIEWED_TERMINAL_TYPES = {
+            "CEX", "AUTOMATION", "RELAY", "BRIDGE", "CUSTODY",
+            "PLATFORM", "PROTOCOL", "SYSTEM", "INFRASTRUCTURE",
+        }
+        terminal_infrastructure = None
+        if (
+            attribution_outcome
+            and str(attribution_outcome.get("terminal_entity_type") or "").upper() in _REVIEWED_TERMINAL_TYPES
+        ):
+            terminal_infrastructure = attribution_outcome.get("terminal_entity")
+
         operational_behaviour = None
-        if token or treasury or subprov or creator:
+        if token or treasury or subprov or creator or terminal_infrastructure:
             try:
                 from src.ops.operational_behaviour import OperationalBehaviourService
                 operational_behaviour = OperationalBehaviourService(
                     self.ops_db_path, self.core_db_path
-                ).build(source_mint=token, treasury=treasury, subprov=subprov, creator=creator)
+                ).build(
+                    source_mint=token, treasury=treasury, subprov=subprov, creator=creator,
+                    terminal_infrastructure=terminal_infrastructure,
+                )
             except (OSError, sqlite3.Error, ValueError):
                 operational_behaviour = None
+
+        # X27.1: Creator Activity — the creator wallet's OWN historical
+        # launch behaviour (token_analysis-derived), independent of funding
+        # provenance, attribution, infrastructure, or operation identity.
+        # Purely additive/read-only. Answers "what do we already know about
+        # this creator", never "who funded it" or "is this WATCHTOWER" —
+        # those questions are already answered by Funding Walkback,
+        # Attribution Outcome, and Operational Behaviour respectively.
+        creator_activity = None
+        if creator:
+            try:
+                from src.ops.creator_activity import CreatorActivityService
+                creator_activity = CreatorActivityService(self.core_db_path).build(creator)
+            except (OSError, sqlite3.Error, ValueError):
+                creator_activity = None
 
         # X24.1 Phase 5: how was this attribution obtained — detected live, recovered
         # by catch-up/reconciliation, or only ever recovered retrospectively by
@@ -541,6 +652,31 @@ class DiscoveryService:
                 )
             except (OSError, sqlite3.Error, ValueError):
                 detection_reconciliation = None
+
+        # X25.4: Operation Identity — the confirmed treasury-funding-mesh
+        # membership for this launch's treasury, if any. Purely additive/
+        # read-only, reuses src/ops/operation_identity.py (no DB writes, no
+        # new schema). Absence is honest: a token with no resolved confirmed
+        # treasury, or a treasury with no operation membership, returns None
+        # rather than a fabricated "UNKNOWN_OPERATION" placeholder.
+        operation_identity = None
+        if treasury:
+            try:
+                from src.ops.operation_identity import operation_for_treasury
+                _op = operation_for_treasury(treasury, self.ops_db_path)
+                if _op:
+                    operation_identity = {
+                        "operation_id": _op["operation_id"],
+                        "display_name": _op["display_name"],
+                        "identity_basis": _op["identity_basis"],
+                        "confidence": _op["confidence"],
+                        "treasury_count": len(_op["treasuries"]),
+                        "launch_count": _op["launch_count"],
+                        "subject_treasury": treasury,
+                        "member_treasuries": [t["wallet"] for t in _op["treasuries"]],
+                    }
+            except (OSError, sqlite3.Error, ValueError):
+                operation_identity = None
 
         return {
             "ok": True,
@@ -559,6 +695,38 @@ class DiscoveryService:
             "treasury_expansion": treasury_expansion,
             "operational_behaviour": operational_behaviour,
             "detection_reconciliation": detection_reconciliation,
+            "creator_activity": creator_activity,
+            "launch_profile": self._launch_profile(launch) if subject_type == "token" else None,
+            "operation_identity": operation_identity,
+        }
+
+    @staticmethod
+    def _launch_profile(launch: dict[str, Any] | None) -> dict[str, Any]:
+        """X25.1/X25.2 — Launch Profile: PROVISIONED vs OBSERVED_ONLY. Purely
+        additive/read-only, derived only from the wt_watchtower_launches row
+        already fetched for this token. Answers "how was this launch
+        structurally provisioned" — nothing about funding lineage, operation
+        identity, infrastructure reuse, attribution outcome, or detection
+        provenance, which remain on their own independent tracks."""
+        mechanism = (launch or {}).get("funding_mechanism")
+        if launch and launch.get("subprov_wallet") and mechanism in ("WSOL_WRAP_CLOSE", "SEEDED_ACCOUNT_CLOSE"):
+            return {
+                "classification": "PROVISIONED",
+                "reason": f"Verified sub-provisioner and {mechanism.replace('_', ' ').lower()} funding mechanism.",
+                "facts": {
+                    "funding_mechanism": mechanism,
+                    "birth_to_launch_seconds": launch.get("birth_to_launch_seconds"),
+                    "creator_history": "No earlier launch in the admitted population",
+                },
+            }
+        return {
+            "classification": "OBSERVED_ONLY",
+            "reason": (
+                "No verified provisioning session was recorded. The funding chain "
+                "shown below, if any, was reconstructed retrospectively from chain "
+                "history rather than observed live."
+            ),
+            "facts": {},
         }
 
     def _canonical_identity(
@@ -710,6 +878,7 @@ class DiscoveryService:
             "treasury_expansion": None,
             "operational_behaviour": None,
             "detection_reconciliation": None,
+            "creator_activity": None,
             "entities": entities,
             "observed_since": op.get("first_seen"),
             "first_attribution": min((e.get("created_at") for e in evidence if e.get("created_at")), default=None),
@@ -797,13 +966,22 @@ class DiscoveryService:
         if reasons:
             return str(reasons[0])
         if row.get("matched_treasury"):
-            return "Existing ancestry evidence matched a known WATCHTOWER treasury."
+            return "Existing ancestry evidence matched a known confirmed treasury."
         if row.get("matched_subprov"):
-            return "Existing ancestry evidence matched a known WATCHTOWER sub-provisioner."
+            return "Existing ancestry evidence matched a known confirmed sub-provisioner."
         return "Attribution remains provisional because no confirmed treasury match is recorded."
 
     @staticmethod
     def _subprov_reason(row: dict[str, Any]) -> str:
+        # X26.6.1 — defensive: this row's underlying observations can never be
+        # described as "supporting the sub-provisioner role" once the platform
+        # has concluded (state REJECTED*) that they don't. The call site is
+        # already gated to never invoke this for a rejected row, but this
+        # function must not produce supportive wording even if called from
+        # elsewhere in the future.
+        if str(row.get("state") or "").upper().startswith("REJECTED"):
+            reason = row.get("rejected_reason") or "known infrastructure, not genuine provisioning evidence"
+            return f"This wallet was reviewed and rejected as a sub-provisioner ({reason}); its funding observations do not support the role."
         count = row.get("wrap_close_count") or row.get("creator_count") or 0
         if row.get("treasury"):
             return f"The recorded funding chain links this sub-provisioner upstream; {count} creator-funding observation(s) support the role."

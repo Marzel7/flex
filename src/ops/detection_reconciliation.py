@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import time
 from typing import Any, Optional
 
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -53,24 +54,63 @@ def _is_plain(mechanism: Optional[str]) -> bool:
     return mechanism in _PLAIN_MECHANISM_LABELS
 
 
-def classify_walkback_confirmed_launches(ops_db_path: str = OPS_DB_PATH) -> dict[str, Any]:
-    """Returns the full classification for every walkback-confirmed launch
-    (wt_provisioning_sessions rows with a non-null source_mint).
+_CONFIRMED_WALKBACK_OUTCOMES = ("WATCHTOWER_CONFIRMED",)
 
-    Classification taxonomy (per X24.1 Phase 5's UI vocabulary):
-      LIVE_DETECTED         — wt_watchtower_launches row exists,
-                              detection_source in LIVE_STREAM/ACTIVE_CATCHUP.
-      RECONCILED            — wt_watchtower_launches row exists via a
-                              reconciliation/backfill/replay source.
-      WALKBACK_RECOVERED    — no wt_watchtower_launches row, but the session
-                              that should have covered it was never LIVE_ARMED
-                              at the relevant time (INTEL_ONLY, expired before
-                              funding, or no session at all) — the system never
-                              believed it was watching.
-      PIPELINE_INCONSISTENCY — no wt_watchtower_launches row, but a LIVE_ARMED
-                              session DID cover the CREATE-time window — the
-                              system believed it was watching and still missed
-                              it. This is the AWiaGsus-class defect.
+
+def classify_walkback_confirmed_launches(
+    ops_db_path: str = OPS_DB_PATH, *, window_days: Optional[int] = None
+) -> dict[str, Any]:
+    """Returns the full classification for every launch with a persisted
+    wt_provisioning_sessions row (a non-null source_mint).
+
+    window_days: if given, only rows whose best-available event timestamp
+    (launch.create_time, else creator_launch_time, else
+    subprov_to_creator_block_time, else recorded_at, in that preference order)
+    falls within the last window_days are included. Deployment-readiness fix
+    (X24.2 review): detection_path_health() previously compared a windowed
+    live-detection count against an always-all-time walkback-only count,
+    silently mismatching time bases. Default remains None (all-time) so
+    existing callers (X24.1's route, tests) are unaffected.
+
+    Classification taxonomy (per X24.1 Phase 5's UI vocabulary, corrected by
+    X25.5.1):
+      LIVE_DETECTED          — wt_watchtower_launches row exists,
+                               detection_source in LIVE_STREAM/ACTIVE_CATCHUP.
+      RECONCILED             — wt_watchtower_launches row exists via a
+                               reconciliation/backfill/replay source.
+      WALKBACK_RECOVERED     — no wt_watchtower_launches row, the session that
+                               should have covered it was never LIVE_ARMED at
+                               the relevant time, AND this mint's authoritative
+                               walkback outcome (wt_walkback_queue.intelligence_outcome)
+                               is WATCHTOWER_CONFIRMED — a genuinely confirmed
+                               operation launch recovered retrospectively.
+      PIPELINE_INCONSISTENCY — same as above but a LIVE_ARMED session DID
+                               cover the CREATE-time window and still missed
+                               it (the AWiaGsus-class defect) — ALSO requires
+                               the confirmed walkback outcome.
+      WALKBACK_OBSERVED      — a wt_provisioning_sessions row exists (a
+                               partial funding fragment was captured during a
+                               walk) but the mint's authoritative outcome is
+                               NOT WATCHTOWER_CONFIRMED — e.g. LINEAGE_GAP,
+                               NON_WATCHTOWER, or a known-infrastructure
+                               attribution outcome (KNOWN_RELAY_REACHED etc.).
+                               This is evidence a fragment was observed; it is
+                               NOT a membership claim. Replaces the pre-X25.5.1
+                               defect where such rows were misclassified
+                               WALKBACK_RECOVERED and rendered as confirmed
+                               WATCHTOWER-tracked-operation membership.
+      WALKBACK_INCONCLUSIVE  — a wt_provisioning_sessions row exists but no
+                               wt_walkback_queue row can be found for this
+                               mint at all, so membership cannot be
+                               determined either way from persisted data.
+
+    X25.5.1 fix: wt_provisioning_sessions row existence alone is NEVER used as
+    a membership gate. wt_provisioning_sessions is deliberately an
+    operation-agnostic, append-only evidence table (see
+    src/ops/provisioning_edges.py's own docstring) — its mere existence proves
+    only that a funding fragment was observed during a walk, never that the
+    walk confirmed a WATCHTOWER operation. Membership is established solely
+    by joining to wt_walkback_queue.intelligence_outcome.
     """
     conn = _connect(ops_db_path)
     try:
@@ -128,6 +168,7 @@ def classify_walkback_confirmed_launches(ops_db_path: str = OPS_DB_PATH) -> dict
                     # real detection, just not one of the two named-source buckets.
                     # Report faithfully rather than forcing it into LIVE_DETECTED.
                     classification = "RECONCILED" if src else "LIVE_DETECTED"
+                event_time = launch["create_time"]
             else:
                 # No live launch row. Was there ever a LIVE_ARMED session covering the
                 # relevant window? Check by subprov + whether the session state implies
@@ -145,7 +186,39 @@ def classify_walkback_confirmed_launches(ops_db_path: str = OPS_DB_PATH) -> dict
                     ft, exp = session_row["funding_time"], session_row["expires_at"]
                     if create_time and ft and exp and ft <= create_time <= exp:
                         was_live_armed_at_create = True
-                classification = "PIPELINE_INCONSISTENCY" if was_live_armed_at_create else "WALKBACK_RECOVERED"
+
+                # X25.5.1 fix: wt_provisioning_sessions row existence is NOT a
+                # membership gate — join to the mint's own authoritative
+                # walkback verdict before ever claiming WATCHTOWER_RECOVERED/
+                # PIPELINE_INCONSISTENCY (both of which the frontend renders
+                # as confirmed operation membership). A partial funding
+                # fragment with no confirmed treasury (LINEAGE_GAP,
+                # NON_WATCHTOWER, NO_ATTRIBUTION_FOUND, or any
+                # known-infrastructure attribution outcome) must never imply
+                # membership — it is downgraded to a neutral provenance state.
+                queue_row = None
+                if _table_exists(conn, "wt_walkback_queue"):
+                    queue_row = conn.execute(
+                        "SELECT intelligence_outcome FROM wt_walkback_queue WHERE mint=?", (mint,)
+                    ).fetchone()
+                if queue_row is None:
+                    classification = "WALKBACK_INCONCLUSIVE"
+                elif queue_row["intelligence_outcome"] not in _CONFIRMED_WALKBACK_OUTCOMES:
+                    classification = "WALKBACK_OBSERVED"
+                else:
+                    classification = "PIPELINE_INCONSISTENCY" if was_live_armed_at_create else "WALKBACK_RECOVERED"
+                event_time = create_time
+
+            # Deployment-readiness fix: best-available event timestamp, falling back to
+            # walkback's own recorded_at only if no on-chain timestamp is known at all —
+            # this is what window_days filters against, so a windowed caller (e.g.
+            # detection_path_health) compares like-for-like against wt_watchtower_launches'
+            # own create_time-based window rather than an always-all-time count.
+            event_time = event_time or s["recorded_at"]
+            if window_days is not None:
+                cutoff = time.time() - (window_days * 86400)
+                if not event_time or event_time < cutoff:
+                    continue
 
             rows.append({
                 "mint": mint,
@@ -158,6 +231,7 @@ def classify_walkback_confirmed_launches(ops_db_path: str = OPS_DB_PATH) -> dict
                 "walkback_recorded_at": s["recorded_at"],
                 "live_detection_source": launch["detection_source"] if launch else None,
                 "classification": classification,
+                "event_time": event_time,
             })
 
         summary: dict[str, int] = {}

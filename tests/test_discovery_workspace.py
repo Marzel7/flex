@@ -98,7 +98,7 @@ def test_token_chain_is_explainable_and_chronological(discovery_db):
     kinds = {n["kind"] for n in data["timeline"]}
     assert data["state"] == "CONFIRMED"
     assert {"TOKEN_LAUNCH", "CREATOR_IDENTIFIED", "SUBPROVISIONER_RESOLVED",
-            "TREASURY_RESOLVED", "WATCHTOWER_ATTRIBUTION"} <= kinds
+            "TREASURY_RESOLVED", "CONFIRMED_TREASURY_ATTRIBUTION"} <= kinds
     timestamps = [n["timestamp"] for n in data["timeline"] if n["timestamp"]]
     assert timestamps == sorted(timestamps)
     assert data["walkback"]["stop_reason"] == "Reached known treasury."

@@ -84,21 +84,26 @@ def test_reconciled_states_recovery_path_not_live_cascade():
 
 
 def test_walkback_recovered_explicitly_states_no_live_detection():
-    """The sprint's exact required copy: a walkback-only launch must explicitly
-    say attribution was recovered retrospectively, not detected live."""
+    """X24.8 Phase 1: a walkback-only launch must state the evidence outcome
+    and entry path as two separate facts, and never claim live detection.
+    X25.7 replaced process-centric wording ('established by retrospective
+    walkback') with pure outcome wording ('complete funding lineage was
+    established... no live detection covered this launch')."""
     html = _render({"classification": "WALKBACK_RECOVERED", "live_detection_source": None,
                      "plain_transfer_associated": True})
-    assert "recovered retrospectively by walkback" in html
-    assert "Live detection was not recorded" in html
-    assert "Walkback Recovered" in html
+    assert "complete funding lineage was established" in html.lower()
+    assert "no live detection covered this launch" in html.lower()
+    assert "Lineage Established" in html
+    assert "WATCHTOWER attribution confirmed" not in html
 
 
 def test_pipeline_inconsistency_flags_it_as_a_gap_not_expected_behaviour():
     html = _render({"classification": "PIPELINE_INCONSISTENCY", "live_detection_source": None,
                      "plain_transfer_associated": True})
-    assert "Pipeline Inconsistency" in html
-    assert "detection-pipeline gap" in html
-    assert "recovered retrospectively by walkback" in html
+    assert "Detection Gap" in html
+    assert "detection gap" in html.lower()
+    assert "complete funding lineage was established" in html.lower()
+    assert "WATCHTOWER attribution confirmed" not in html
 
 
 def test_plain_transfer_mechanism_note_only_shown_when_true():

@@ -2422,7 +2422,16 @@ def api_intel_ws_cascade():
                   "sub_p0_avg_ack_ms", "sub_p0_max_ack_ms", "sub_p0_p95_ack_ms",
                   "sub_p0_recent",
                   "pending", "pending_hot", "pending_subprov", "pending_treasury",
-                  "pending_candidate"):
+                  "pending_candidate",
+                  # X27.7 — cold-subscription starvation visibility
+                  "subprov_ws_sig_seen", "cold_sub_stale_sec",
+                  "cold_retry_active", "cold_retry_exhausted",
+                  # X24.8 — per-kind sent/confirmed/exhausted breakdown
+                  "sub_kind_breakdown",
+                  # X24.9 — subscription target validation
+                  "invalid_subscription_targets", "invalid_targets_by_source",
+                  "startup_validation_failures", "startup_validation_by_source",
+                  "runtime_validation_failures"):
             if k in _hb_meta:
                 sub_meta[k] = _hb_meta[k]
     except Exception:
@@ -2597,6 +2606,39 @@ def api_intel_detection_reconciliation():
         return jsonify(classify_walkback_confirmed_launches())
     except Exception as e:
         return jsonify({"rows": [], "summary": {}, "total": 0, "error": str(e)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/detection-path-health")
+def api_intel_detection_path_health():
+    """X24.2 Phase 5 — how each recent WATCHTOWER launch was armed/detected,
+    bucketed into primary-live / catch-up / retry-recovery / manual, plus the
+    walkback-only-or-pipeline-gap count for the same window. Read-only,
+    measured baseline only — no target percentages. See
+    src/ops/detection_path_health.py."""
+    try:
+        from src.ops.detection_path_health import detection_path_health
+        return jsonify(detection_path_health())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/sweep-coverage")
+def api_intel_sweep_coverage():
+    """X24.2 Phase 1 — live snapshot of subprov_sweep_pass() fairness/coverage:
+    eligible sessions, never-swept count, sessions expiring soon that have
+    never been swept, and how many were swept within the last 30s. Read-only,
+    computed from the durable last_swept_at/sweep_count columns so it reflects
+    real accumulated state, not just the last in-memory cycle."""
+    try:
+        from src.core import ws_cascade_store as store
+        conn = store.db_connect(store.OPS_DB_PATH, timeout=10)
+        try:
+            cap = int(os.environ.get("WS_MAX_ACTIVE_SUBPROVS", "10"))
+            return jsonify(store.sweep_coverage_snapshot(conn, cap=cap))
+        finally:
+            conn.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit")
@@ -8310,15 +8352,529 @@ def api_attribution_outcomes():
             where, args = "outcome_type=?", [outcome_type]
         rows = [dict(row) for row in conn.execute(
             "SELECT mint,outcome_type,stop_reason,terminal_entity,terminal_entity_type,confidence,"
-            "operator_id,should_seed_emerging_operator,should_retry,completed_at "
+            "operator_id,should_seed_emerging_operator,should_retry,completed_at,evidence_json "
             f"FROM wt_attribution_outcomes WHERE {where} ORDER BY completed_at DESC LIMIT ?",
             (*args, limit),
         )]
+        for row in rows:
+            try:
+                row["evidence"] = _json.loads(row.pop("evidence_json") or "{}")
+            except (TypeError, ValueError):
+                row["evidence"] = {}
+                row.pop("evidence_json", None)
         return jsonify({"ok": True, "outcomes": rows, "count": len(rows)})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
     finally:
         conn.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/attribution-outcomes/summary")
+def api_attribution_outcomes_summary():
+    """X26.5.1 — exact, uncapped, SQL-grouped counts of wt_attribution_outcomes
+    by outcome_type within an explicit window. Built to replace the landing
+    Attribution Health panel's prior client-side pattern (fetch 500 mixed
+    rows -> filter to 24h in JS -> group in JS), which silently under-counted
+    once combined outcome volume across all types exceeded the shared
+    500-row cap within the window. This endpoint never fetches individual
+    rows for the count -- COUNT(*)/GROUP BY runs entirely in SQL, so it
+    cannot be truncated by any row limit regardless of volume.
+
+    window=24h|7d|30d|all (X29.6.1: default 24h). completed_after (unix
+    seconds) may be supplied instead of window for a custom cutoff.
+    """
+    conn = _conn()
+    try:
+        from src.ops.discovery_window import parse_window_param, window_seconds_for
+        completed_after_param = request.args.get("completed_after")
+        if completed_after_param is not None:
+            completed_after = int(completed_after_param)
+            window = "custom"
+        else:
+            window = parse_window_param(request.args.get("window"))
+            completed_after = None if window == "all" else int(time.time()) - window_seconds_for(window)
+
+        if completed_after is None:
+            rows = conn.execute(
+                "SELECT outcome_type, COUNT(*) AS n FROM wt_attribution_outcomes "
+                "GROUP BY outcome_type"
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT outcome_type, COUNT(*) AS n FROM wt_attribution_outcomes "
+                "WHERE completed_at >= ? GROUP BY outcome_type",
+                (completed_after,),
+            ).fetchall()
+        counts = {row["outcome_type"]: row["n"] for row in rows}
+
+        # X26.11 — presentation-only grouping. KNOWN_CEX_REACHED/
+        # KNOWN_BRIDGE_REACHED/KNOWN_RELAY_REACHED are the canonical
+        # attribution outcomes for a reviewed terminal-infrastructure
+        # boundary being legitimately reached (see src/ops/attribution_outcome
+        # .py's OUTCOME_TYPES and _boundary()) -- LINEAGE_GAP/
+        # UNKNOWN_INFRASTRUCTURE are deliberately excluded: their
+        # terminal_entity_type may also read "INFRASTRUCTURE", but they mean
+        # "walkback ran out of evidence" / "not yet a reviewed boundary",
+        # the opposite concept. This never changes wt_attribution_outcomes
+        # or OUTCOME_TYPES -- it's a second, additive aggregation computed
+        # from the same already-fetched counts, with a further breakdown by
+        # terminal_entity_type queried only for those three outcome types so
+        # the drill-down subtypes (Exchange/Relay/Bridge/Automation/Custody)
+        # are available without a second round-trip. Adding a new reviewed
+        # infrastructure registry category later requires no code change
+        # here -- it already gets its own terminal_entity_type row.
+        _REVIEWED_TERMINAL_OUTCOME_TYPES = (
+            "KNOWN_CEX_REACHED", "KNOWN_BRIDGE_REACHED", "KNOWN_RELAY_REACHED",
+        )
+        _SUBTYPE_LABELS = {
+            "CEX": "Exchange (CEX)", "AUTOMATION": "Automation", "BRIDGE": "Bridge",
+            "RELAY": "Relay", "CUSTODY": "Custody", "PLATFORM": "Platform",
+            "PROTOCOL": "Protocol", "SYSTEM": "System", "INFRASTRUCTURE": "Infrastructure",
+        }
+        reviewed_total = sum(counts.get(t, 0) for t in _REVIEWED_TERMINAL_OUTCOME_TYPES)
+        subtype_placeholders = ",".join("?" for _ in _REVIEWED_TERMINAL_OUTCOME_TYPES)
+        if completed_after is None:
+            subtype_rows = conn.execute(
+                "SELECT terminal_entity_type, COUNT(*) AS n FROM wt_attribution_outcomes "
+                f"WHERE outcome_type IN ({subtype_placeholders}) GROUP BY terminal_entity_type",
+                _REVIEWED_TERMINAL_OUTCOME_TYPES,
+            ).fetchall()
+        else:
+            subtype_rows = conn.execute(
+                "SELECT terminal_entity_type, COUNT(*) AS n FROM wt_attribution_outcomes "
+                f"WHERE outcome_type IN ({subtype_placeholders}) AND completed_at >= ? "
+                "GROUP BY terminal_entity_type",
+                (*_REVIEWED_TERMINAL_OUTCOME_TYPES, completed_after),
+            ).fetchall()
+        subtypes = [
+            {
+                "terminal_entity_type": row["terminal_entity_type"],
+                "label": _SUBTYPE_LABELS.get(str(row["terminal_entity_type"] or "").upper(), str(row["terminal_entity_type"] or "Unknown")),
+                "count": row["n"],
+            }
+            for row in subtype_rows
+        ]
+        subtypes.sort(key=lambda x: -x["count"])
+
+        return jsonify({
+            "ok": True,
+            "window": window,
+            "completed_after": completed_after,
+            "counts": counts,
+            "reviewed_infrastructure": {
+                "total": reviewed_total,
+                "subtypes": subtypes,
+            },
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        conn.close()
+
+
+from src.ops.swr_cache import SWRCache as _SWRCache
+
+# X29.1.4 — the legacy Investigation Queue endpoint shares the SAME
+# evaluate_launcher_profile()-per-creator cost as Operational Intelligence
+# (~31s measured live) but had no cache at all, and its fetch sits inside
+# discovery.html's main BLOCKING Promise.all — so every page load was
+# stalling on this endpoint specifically, not the (already-cached,
+# already-async) Operational Intelligence panel. Fixed with the same
+# SWRCache primitive X29.1.2 built.
+#
+# Kept as a SEPARATE cache instance from _OPERATIONAL_INTELLIGENCE_CACHE
+# (below) rather than one shared cache: build_pipeline_health() (bucket
+# assignments) and build_operational_intelligence() (topology/behaviour/
+# mechanism records) are genuinely different functions returning different
+# response shapes, even though both internally call
+# evaluate_launcher_profile() per creator — a single cache keyed only by
+# window_seconds would have to hold two incompatible value shapes under one
+# key, which is more confusing than two clearly-named caches. If a future
+# sprint wants to eliminate the duplicated evaluate_launcher_profile() work
+# itself, that belongs in a shared per-creator profile cache underneath
+# both functions (the wt_launcher_profile_cache table X27.9.1 already
+# flagged as a follow-up candidate), not at this route-caching layer.
+_INVESTIGATION_PIPELINE_CACHE_TTL_SEC = 300
+_INVESTIGATION_PIPELINE_CACHE = _SWRCache(ttl_seconds=_INVESTIGATION_PIPELINE_CACHE_TTL_SEC)
+
+
+def _get_pipeline_health(window_seconds: int):
+    """Returns (pipeline, meta) — meta = {state, age_seconds, generated_at},
+    same optional-metadata shape X29.1.2 established for consistency."""
+    from src.ops.investigation_pipeline import build_pipeline_health
+
+    def compute():
+        return build_pipeline_health(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+
+    return _INVESTIGATION_PIPELINE_CACHE.get(window_seconds, compute)
+
+
+@ops_dashboard_bp.route("/api/ops-v2/investigation-pipeline")
+def api_investigation_pipeline():
+    """X27.2/X27.5 — Investigation Reduction Pipeline. Reduces every migrated
+    launch (wt_attribution_outcomes row) in the window into EXACTLY ONE
+    mutually-exclusive investigative bucket (src/ops/investigation_pipeline
+    .py), re-ranked by investigative usefulness rather than attribution
+    -confidence order. As of X27.5, this includes the two behavioural
+    archetypes (Rapid Birth → Launch, Burst Launches) formerly split into a
+    separate Behaviour Queue dashboard -- every migrated launch now appears
+    in exactly one bucket across the whole platform, not per-panel. Read
+    -only, zero writes; does not alter attribution, detection, walkback, or
+    classification. bucket=<BUCKET_ID> filters the assignment map to a
+    drill-down list for one bucket only; group_by=creator groups that
+    bucket's mints by creator wallet (launch count desc) instead of
+    returning a flat token list -- most useful for REPEAT_CREATOR, where
+    the creator identity is the natural drill-down unit and individual
+    tokens are one click further down from there.
+    """
+    try:
+        from src.ops.discovery_window import parse_window_param, window_seconds_for, empty_state_message
+        window_param = parse_window_param(request.args.get("window"))
+        window_seconds = window_seconds_for(window_param)
+        from src.ops.investigation_pipeline import (
+            launches_in_bucket, creators_in_bucket, BUCKET_ORDER,
+        )
+        pipeline, cache_meta = _get_pipeline_health(window_seconds)
+
+        bucket_filter = request.args.get("bucket")
+        group_by = (request.args.get("group_by") or "").strip().lower()
+        response = {
+            "ok": True,
+            "window": window_param,
+            "generated_at": pipeline["generated_at"],
+            "total_launches": pipeline["total_launches"],
+            "conserved": pipeline["conserved"],
+            "buckets": pipeline["buckets"],
+            # X29.1.4 — additive only, same convention as
+            # /api/ops-v2/operational-intelligence (X29.1.2); every field
+            # above this line is unchanged from X27.2/X27.5.
+            "cache_state": cache_meta["state"],
+            "cache_age_seconds": cache_meta["age_seconds"],
+        }
+        # X29.6.1 — informative empty state: a confirmed, correctly-attributed
+        # launch older than the selected window must never read as "Discovery
+        # has no data" (the exact X29.6 root cause).
+        if pipeline["total_launches"] == 0:
+            response["empty_state_message"] = empty_state_message(window_param)
+        if bucket_filter:
+            if bucket_filter not in BUCKET_ORDER:
+                return jsonify({"ok": False, "error": f"Unknown bucket '{bucket_filter}'"}), 400
+            response["bucket"] = bucket_filter
+            if group_by == "creator":
+                response["group_by"] = "creator"
+                response["creators"] = creators_in_bucket(pipeline, bucket_filter)
+            else:
+                response["mints"] = launches_in_bucket(pipeline, bucket_filter)
+        # X27.9.1 Phase 7 — single-launch lookup: exclusive bucket + supplementary
+        # behavioural evidence, so a launch's exclusive classification and its
+        # secondary evidence can both be verified/consumed without a second endpoint.
+        mint_filter = request.args.get("mint")
+        if mint_filter:
+            assignment = pipeline["assignments"].get(mint_filter)
+            response["mint"] = mint_filter
+            response["assignment"] = assignment
+            # X29.3 — Funding Boundary (renamed from X29.2's Capital Origin):
+            # additive, read-only, zero RPC. Never overrides outcome_type/
+            # assignment above; null when no record exists.
+            from src.ops.funding_boundary import get_funding_boundary, serialize_funding_boundary
+            from src.ops.wallet_quality import get_wallet_quality, serialize_wallet_quality
+            fb_conn = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=10)
+            try:
+                fb_record = get_funding_boundary(fb_conn, mint_filter)
+                # X29.4 — Wallet Quality: a SEPARATE, orthogonal annotation
+                # dimension, never folded into funding_boundary/assignment.
+                # Keyed on the creator wallet when a funding-boundary row
+                # exists (subject_wallet); otherwise not looked up.
+                wq_record = None
+                if fb_record and fb_record.get("subject_wallet"):
+                    wq_record = get_wallet_quality(fb_conn, fb_record["subject_wallet"])
+            finally:
+                fb_conn.close()
+            response["funding_boundary"] = serialize_funding_boundary(fb_record)
+            response["wallet_quality"] = serialize_wallet_quality(wq_record)
+        return jsonify(response)
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+from src.ops.swr_cache import SWRCache as _SWRCache
+
+_OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC = 300
+# X29.1.2 — replaces X29.1's plain TTL cache (which blocked the FIRST request
+# after every 5-minute expiry on the full ~31s evaluate_launcher_profile()
+# recomputation) with stale-while-revalidate + single-flight refresh: once a
+# key has been populated once, no later request ever blocks on recomputation
+# again -- a stale request gets the previous result immediately and schedules
+# exactly one background refresh. See src/ops/swr_cache.py for the full
+# state machine (FRESH/STALE/REFRESHING) and atomic-swap guarantee.
+_OPERATIONAL_INTELLIGENCE_CACHE = _SWRCache(ttl_seconds=_OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC)
+
+
+def _get_operational_intelligence(window_seconds: int):
+    """Returns (intel, meta) — meta = {state, age_seconds, generated_at},
+    optional response metadata per X29.1.2 (existing consumers that only
+    read the `intel`-derived response fields are unaffected)."""
+    from src.ops.operational_intelligence import build_operational_intelligence
+
+    def compute():
+        return build_operational_intelligence(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+
+    return _OPERATIONAL_INTELLIGENCE_CACHE.get(window_seconds, compute)
+
+
+def prewarm_operational_intelligence_cache() -> None:
+    """X29.1.2/X29.1.4/X29.6.1 optional startup prewarm — populates all four
+    Discovery window values (24h/7d/30d/all) for BOTH the Operational
+    Intelligence and the legacy Investigation Queue caches once at process
+    startup, so the very first analyst request at any window never pays
+    either endpoint's cold-compute cost. Each prewarm runs off-thread and
+    independently best-effort; a failure in one does not affect the others
+    or prevent the route's own cold-compute fallback from working."""
+    import threading
+    from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for
+
+    def _prewarm(label, get_fn, window_seconds):
+        try:
+            get_fn(window_seconds)
+        except Exception as exc:
+            try:
+                import logging
+                logging.getLogger(__name__).warning(
+                    "%s prewarm failed for window_seconds=%s: %s", label, window_seconds, exc)
+            except Exception:
+                pass
+
+    for window_param in WINDOW_ORDER:
+        window_seconds = window_seconds_for(window_param)
+        threading.Thread(
+            target=_prewarm, args=("Operational Intelligence", _get_operational_intelligence, window_seconds),
+            daemon=True).start()
+        threading.Thread(
+            target=_prewarm, args=("Investigation Queue", _get_pipeline_health, window_seconds),
+            daemon=True).start()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/operational-intelligence")
+def api_operational_intelligence():
+    """X29.1 — Operational Topology Intelligence Framework. Classifies every
+    launch in the window by three INDEPENDENT dimensions (src/ops/
+    funding_topology.py, operational_behaviour_tags.py, funding_mechanism.py):
+    Funding Topology (exactly one of FAN_OUT/LINEAR/MULTI_LEVEL_FAN_OUT/
+    MESH/UNKNOWN), Operational Behaviour (zero or more additive tags), and
+    Funding Mechanism (zero or more additive tags). Read-only, zero writes;
+    does not alter detection, attribution, or the existing investigation
+    -pipeline bucket model (src/ops/investigation_pipeline.py — retained
+    separately, not replaced by this route).
+
+    Query params:
+      window=24h|7d|30d|all         -- X29.6.1: same convention as
+                                        investigation-pipeline; defaults to 24h
+      view=hierarchy                -- returns the Topology->Behaviour->Mechanism
+                                        drill-down tree (computed fresh from the
+                                        flat per-mint records every call; the
+                                        tree itself is never stored)
+      topology=<FAN_OUT|...>         -- filter mints to this topology
+      behaviour=<RAPID_BIRTH_LAUNCH|...> -- filter mints carrying this tag
+      mechanism=<WSOL_WRAP_CLOSE|...>    -- filter mints carrying this tag
+      Any combination of topology/behaviour/mechanism may be supplied
+      together (cross-dimensional query, e.g.
+      ?topology=FAN_OUT&mechanism=PLAIN_TRANSFER) -- the brief's explicit
+      requirement that no hierarchy prevent cross-dimensional searching.
+      mint=<MINT>                    -- single-launch lookup
+    """
+    try:
+        from src.ops.discovery_window import parse_window_param, window_seconds_for, empty_state_message
+        window_param = parse_window_param(request.args.get("window"))
+        window_seconds = window_seconds_for(window_param)
+        intel, cache_meta = _get_operational_intelligence(window_seconds)
+
+        response = {
+            "ok": True,
+            "window": window_param,
+            "generated_at": intel["generated_at"],
+            "total_launches": intel["total_launches"],
+            "conserved": intel["conserved"],
+            "topology_summary": intel["topology_summary"],
+            "behaviour_summary": intel["behaviour_summary"],
+            "mechanism_summary": intel["mechanism_summary"],
+            # X29.1.2 — optional metadata, additive only; every field above
+            # this line is unchanged from X29.1, so existing consumers keep
+            # working without modification.
+            "cache_state": cache_meta["state"],
+            "cache_age_seconds": cache_meta["age_seconds"],
+        }
+        # X29.6.1 — informative empty state, same convention as
+        # investigation-pipeline.
+        if intel["total_launches"] == 0:
+            response["empty_state_message"] = empty_state_message(window_param)
+
+        if (request.args.get("view") or "").strip().lower() == "hierarchy":
+            from src.ops.operational_intelligence import build_hierarchy
+            response["hierarchy"] = build_hierarchy(intel)["tree"]
+
+        topology_filter = request.args.get("topology")
+        behaviour_filter = request.args.get("behaviour")
+        mechanism_filter = request.args.get("mechanism")
+        if topology_filter or behaviour_filter or mechanism_filter:
+            from src.ops.operational_intelligence import query as oi_query
+            response["filter"] = {
+                "topology": topology_filter, "behaviour": behaviour_filter, "mechanism": mechanism_filter,
+            }
+            mints = oi_query(
+                intel, topology=topology_filter, behaviour=behaviour_filter, mechanism=mechanism_filter,
+            )
+            response["mints"] = mints
+            # X29.1.3 — optional presentation grouping of the matched launches
+            # by attribution outcome (e.g. "separate by CEX-reached vs Repeat
+            # Creator"). Additive: existing consumers reading `mints` are
+            # unaffected; `groups` only appears when explicitly requested.
+            # Reuses wt_attribution_outcomes.outcome_type — no new detection.
+            if (request.args.get("group_by") or "").strip().lower() == "outcome":
+                from src.ops.operational_intelligence import group_mints_by_outcome
+                response["group_by"] = "outcome"
+                response["groups"] = group_mints_by_outcome(OPS_DB_PATH, mints)["groups"]
+
+        mint_filter = request.args.get("mint")
+        if mint_filter:
+            response["mint"] = mint_filter
+            response["record"] = intel["records"].get(mint_filter)
+
+        return jsonify(response)
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/operational-intelligence/cache-metrics")
+def api_operational_intelligence_cache_metrics():
+    """X29.1.2 deliverable — runtime metrics for the Operational Intelligence
+    SWR cache: cache_hits, stale_serves, refreshes_started/succeeded/failed,
+    refreshes_suppressed (single-flight collisions), cold_computes. Also
+    reports each currently-populated window's live state (fresh/stale/
+    refreshing) for direct observability during a cache-expiry event."""
+    try:
+        from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for
+        states = {}
+        for window_param in WINDOW_ORDER:
+            window_seconds = window_seconds_for(window_param)
+            states[str(window_seconds)] = _OPERATIONAL_INTELLIGENCE_CACHE.state_of(window_seconds)
+        return jsonify({"ok": True, "metrics": _OPERATIONAL_INTELLIGENCE_CACHE.metrics, "window_states": states})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/operations/<operation_id>")
+def api_operation_identity_detail(operation_id):
+    """X25.4 Phase 9 — read-only Operation Identity detail. No mutation, no
+    merge/split controls, no analyst override. Reuses
+    src/ops/operation_identity.py's already-built read-only resolver."""
+    try:
+        from src.ops.operation_identity import build_operations
+        result = build_operations()
+        op = result["operations"].get(operation_id)
+        if not op:
+            return jsonify({"ok": False, "error": "operation not found"}), 404
+        return jsonify({"ok": True, "operation": op})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/known-operations")
+def api_operations_list():
+    """X29.7 — Operations-first Discovery landing list. Named distinctly
+    from the pre-existing /api/ops-v2/operations route (a DIFFERENT, older
+    wt_ops_v2/operation_uuid concept -- unrelated to this sprint) to avoid
+    a route collision. Every known operation (src/ops/operation_identity
+    .py's existing treasury-mesh resolver, UNCHANGED) plus a summary (role
+    counts + funding-mechanism/-boundary distributions, all derived from
+    already-persisted evidence -- src/ops/operations_summary.py). Zero new
+    intelligence calculation; zero writes."""
+    try:
+        from src.ops.operations_summary import build_operations_summary
+        result = build_operations_summary(OPS_DB_PATH)
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/lineage/<path:wallet>")
+def api_operational_lineage(wallet):
+    """X29.7 — Operational Lineage for one wallet: a VARIABLE-DEPTH chain
+    (Treasury -> ... -> Creator, however many hops actually exist in
+    wt_provisioning_edges/wt_watchtower_launches), not a fixed four-role
+    model. See src/ops/operational_lineage.py. Read-only, zero writes, zero
+    new intelligence -- reads the same facts funding_topology.py already
+    reads."""
+    try:
+        from src.ops.operational_lineage import build_lineage
+        conn = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=10)
+        try:
+            lineage = build_lineage(conn, wallet)
+        finally:
+            conn.close()
+        return jsonify({"ok": True, **lineage})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/roles/<role_type>")
+def api_roles_browse(role_type):
+    """X29.7 — Browse By Role: list distinct wallets holding a given role
+    (TREASURY/SUBPROVIDER/CREATOR), derived on-the-fly from
+    wt_provisioning_edges + wt_watchtower_launches (the same source of
+    truth src/ops/operational_lineage.py's roles_for_wallet() uses) --
+    no new wt_wallet_roles table, so this can never drift from the edges
+    themselves. limit param bounds the result set (default 100, max 500)."""
+    try:
+        role = (role_type or "").strip().upper()
+        from src.ops.operational_lineage import ROLE_TREASURY, ROLE_SUBPROVIDER, ROLE_CREATOR
+        if role not in (ROLE_TREASURY, ROLE_SUBPROVIDER, ROLE_CREATOR):
+            return jsonify({"ok": False, "error": f"unknown role '{role_type}'"}), 400
+        limit = max(1, min(int(request.args.get("limit", 100)), 500))
+        conn = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True, timeout=10)
+        try:
+            wallets: set[str] = set()
+            if role == ROLE_TREASURY:
+                for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries"):
+                    wallets.add(r[0])
+                for r in conn.execute(
+                    "SELECT DISTINCT from_wallet FROM wt_provisioning_edges WHERE edge_type='TREASURY_TO_SUBPROV'"
+                ):
+                    wallets.add(r[0])
+                for r in conn.execute(
+                    "SELECT DISTINCT treasury_wallet FROM wt_watchtower_launches WHERE treasury_wallet IS NOT NULL"
+                ):
+                    wallets.add(r[0])
+            elif role == ROLE_SUBPROVIDER:
+                for r in conn.execute(
+                    "SELECT DISTINCT to_wallet FROM wt_provisioning_edges WHERE edge_type='TREASURY_TO_SUBPROV'"
+                ):
+                    wallets.add(r[0])
+                for r in conn.execute(
+                    "SELECT DISTINCT from_wallet FROM wt_provisioning_edges WHERE edge_type='SUBPROV_TO_CREATOR'"
+                ):
+                    wallets.add(r[0])
+                for r in conn.execute(
+                    "SELECT DISTINCT subprov_wallet FROM wt_watchtower_launches WHERE subprov_wallet IS NOT NULL"
+                ):
+                    wallets.add(r[0])
+            else:  # CREATOR
+                for r in conn.execute(
+                    "SELECT DISTINCT to_wallet FROM wt_provisioning_edges WHERE edge_type='SUBPROV_TO_CREATOR'"
+                ):
+                    wallets.add(r[0])
+                for r in conn.execute(
+                    "SELECT DISTINCT creator_wallet FROM wt_watchtower_launches WHERE creator_wallet IS NOT NULL"
+                ):
+                    wallets.add(r[0])
+        finally:
+            conn.close()
+        wallet_list = sorted(wallets)
+        return jsonify({
+            "ok": True, "role": role, "total": len(wallet_list),
+            "wallets": wallet_list[:limit],
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
 
 
 @ops_dashboard_bp.route("/api/ops-v2/discovery-triage/summary")

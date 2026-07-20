@@ -80,3 +80,7 @@ network_analysis_output/
 top_funding_distribution_senders.csv
 *.log
 logs/
+
+# DB write-lock runtime artifacts
+*.db.write.lock
+*.db.write.lock.owner

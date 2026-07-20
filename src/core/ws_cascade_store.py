@@ -590,6 +590,49 @@ def ensure_cascade_schema(conn) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS ix_psw_state ON wt_pending_session_writes(state, enqueued_at)"
     )
+    # ── X24.2 Phase 2: durable sweep-fairness bookkeeping ────────────────────
+    # subprov_sweep_pass() previously sliced active_sessions()[:MAX_ACTIVE_SUBPROVS]
+    # with no ordering, so sessions outside the arbitrary top-N could expire without
+    # ever being inspected (the proven AWiaGsus-class coverage defect). These three
+    # additive columns let the fair scheduler order by "never swept first, then
+    # least-recently-swept" and survive a process restart (in-memory-only fairness
+    # state would reset to all-unswept on every restart, which is itself fine — but
+    # a DURABLE cursor means genuine progress isn't lost on restart either).
+    try:
+        _swcols = {r[1] for r in conn.execute("PRAGMA table_info(wt_active_subprov_sessions)").fetchall()}
+        if "last_swept_at" not in _swcols:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN last_swept_at INTEGER")
+        if "sweep_count" not in _swcols:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN sweep_count INTEGER NOT NULL DEFAULT 0")
+        if "first_swept_at" not in _swcols:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN first_swept_at INTEGER")
+    except Exception:
+        pass
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS ix_subprov_sessions_sweep_order "
+        "ON wt_active_subprov_sessions(state, last_swept_at)"
+    )
+    # X28.0 — candidate provenance snapshot, captured at open_candidate_watch() time so a
+    # candidate's funding lineage survives independent of any later join back to
+    # wt_active_subprov_sessions (that row is never deleted today, but a snapshot removes the
+    # dependency entirely — see X28.0 Phase 3). Also carries forward capital-context fields
+    # (Phase 4: preserve, do not act on, the parent subprov's own treasury funding + observed
+    # fan-out totals) so a large treasury load (100+ SOL) is never silently lost once fan-out
+    # begins. NOT used for any closure/eviction decision this sprint — data preservation only.
+    try:
+        _wcols2 = {r[1] for r in conn.execute("PRAGMA table_info(wt_candidate_websocket_watches)").fetchall()}
+        if "initial_subprov_funding_sol" not in _wcols2:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN initial_subprov_funding_sol REAL")
+        if "initial_subprov_funding_signature" not in _wcols2:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN initial_subprov_funding_signature TEXT")
+        if "initial_subprov_funding_time" not in _wcols2:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN initial_subprov_funding_time INTEGER")
+        if "subprov_fanout_count_at_capture" not in _wcols2:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN subprov_fanout_count_at_capture INTEGER")
+        if "subprov_fanout_value_at_capture" not in _wcols2:
+            conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN subprov_fanout_value_at_capture REAL")
+    except Exception:
+        pass
     conn.commit()
 
 
@@ -698,9 +741,31 @@ def is_historical_subprov(conn, wallet: str) -> bool:
       - Appears as subprov_wallet in wt_candidate_websocket_watches (was active before)
       - Has a prior EXPIRED/COMPLETED session (we saw it before, it ran its course)
     """
+    # X26.3.1: wt_candidate_websocket_watches and wt_active_subprov_sessions
+    # both record raw session/watch activity independent of
+    # wt_discovered_subprovs.state — a known-infrastructure wallet (CEX hot
+    # wallet, relay solver, pool authority) can accumulate hundreds of
+    # EXPIRED sessions or watch rows purely because creators transacted
+    # with it, without ever being a real sub-provisioner. Since
+    # wt_discovered_subprovs is the canonical classification record, a
+    # REJECTED_INFRASTRUCTURE row there overrides all raw activity checks
+    # below — this wallet must never be reported as historical
+    # sub-provisioner evidence, regardless of session/watch volume.
     if conn.execute(
         "SELECT 1 FROM wt_discovered_subprovs "
-        "WHERE subprov=? AND (wrap_close_count + COALESCE(seeded_account_count,0)) > 0 LIMIT 1", (wallet,)
+        "WHERE subprov=? AND COALESCE(state,'') LIKE 'REJECTED%' LIMIT 1", (wallet,)
+    ).fetchone():
+        return False
+    # X26.3: a REJECTED_INFRASTRUCTURE row can still carry a nonzero
+    # wrap_close_count (confirmed live false-positive: several CEX hot
+    # wallets produced a wrap-close-shaped funding tx purely because a
+    # creator's first transaction happened to be a CEX withdrawal) — exclude
+    # rejected rows so known infrastructure is never reported as historical
+    # sub-provisioner evidence.
+    if conn.execute(
+        "SELECT 1 FROM wt_discovered_subprovs "
+        "WHERE subprov=? AND (wrap_close_count + COALESCE(seeded_account_count,0)) > 0 "
+        "AND COALESCE(state,'') NOT LIKE 'REJECTED%' LIMIT 1", (wallet,)
     ).fetchone():
         return True
     if conn.execute(
@@ -939,9 +1004,21 @@ def promote_to_subprov(conn, *, subprov: str, treasury: str,
 
     Supports both Mechanism A (WSOL_WRAP_CLOSE) and Mechanism B (SEEDED_ACCOUNT_CLOSE).
     Idempotent on wrap_close_sig (UNIQUE constraint on wt_subprov_evidence).
+
+    X26.3: a wrap-close-shaped funding transaction can originate from known
+    infrastructure (confirmed live example: several CEX hot wallets — KuCoin,
+    OKX, MEXC, WhiteBIT, Bidget, FixedFloat — produced a wrap_close_count=1
+    row purely because a creator's very first transaction happened to be a
+    CEX withdrawal, not a genuine WATCHTOWER treasury->subprov wrap-close).
+    Raw funding evidence is still recorded in wt_subprov_evidence (operation-
+    agnostic, never suppressed) but the wallet is never promoted to
+    PROVISIONAL_SUBPROV state — it is marked REJECTED_INFRASTRUCTURE instead,
+    so it can never be returned as a confirmed_subprov.
     """
     now = int(time.time())
-    # 1. Record the evidence row (idempotent on wrap_close_sig UNIQUE)
+    # 1. Record the evidence row (idempotent on wrap_close_sig UNIQUE) — ALWAYS
+    # preserved, regardless of infrastructure status; this is raw on-chain fact,
+    # not an operational-identity claim.
     try:
         conn.execute(
             "INSERT OR IGNORE INTO wt_subprov_evidence "
@@ -951,35 +1028,56 @@ def promote_to_subprov(conn, *, subprov: str, treasury: str,
     except Exception:
         pass
 
+    from src.utils.infra_mapping import is_known_account
+    is_infra = is_known_account(subprov)
+
     # 2. Upsert wt_discovered_subprovs — recount from evidence table (idempotent).
     # seeded_account_count tracks Mechanism B independently; wrap_close_count = Mechanism A only.
     is_mech_b = funding_mechanism == "SEEDED_ACCOUNT_CLOSE"
     # INSERT initialises counts to 0; the UPDATE below does all incrementing so there's
     # no double-count when the row already exists (INSERT OR IGNORE is a no-op then).
+    init_state = "REJECTED_INFRASTRUCTURE" if is_infra else "PROVISIONAL_SUBPROV"
     conn.execute(
         """INSERT OR IGNORE INTO wt_discovered_subprovs
              (subprov, first_creator, creator_count, treasury, treasury_known,
-              first_seen, last_seen, wrap_close_count, seeded_account_count, state, confidence)
-           VALUES (?,?,1,?,0,?,?,0,0,'PROVISIONAL_SUBPROV',0.45)""",
-        (subprov, creator, treasury, now, now))
+              first_seen, last_seen, wrap_close_count, seeded_account_count, state, confidence,
+              rejected_reason)
+           VALUES (?,?,1,?,0,?,?,0,0,?,0.45,?)""",
+        (subprov, creator, treasury, now, now, init_state,
+         "known infrastructure wallet" if is_infra else None))
     # wrap_close_count is recounted from wt_subprov_evidence (idempotent via UNIQUE sig).
     # seeded_account_count is incremented only when the evidence row was newly inserted
     # (rowcount > 0 on the evidence INSERT OR IGNORE) — prevents double-count on replay.
     _ev_rows = conn.execute(
         "SELECT changes()").fetchone()[0]  # 1 if new, 0 if duplicate sig
-    conn.execute(
-        """UPDATE wt_discovered_subprovs SET
-             wrap_close_count     = (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=? AND COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE')='WSOL_WRAP_CLOSE'),
-             seeded_account_count = seeded_account_count + ?,
-             creator_count    = (SELECT COUNT(DISTINCT creator_wallet) FROM wt_subprov_evidence WHERE subprov=?),
-             last_seen        = ?,
-             state            = CASE
-               WHEN state = 'PROVISION_CANDIDATE' THEN 'PROVISIONAL_SUBPROV'
-               ELSE state END,
-             confidence       = MIN(0.74, 0.20 +
-               (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=?) * 0.08)
-           WHERE subprov = ?""",
-        (subprov, (1 if is_mech_b else 0) * _ev_rows, subprov, now, subprov, subprov))
+    if is_infra:
+        # Known infrastructure: keep raw counts up to date for transparency, but
+        # never let state advance past REJECTED_INFRASTRUCTURE, never raise
+        # confidence, and never clear rejected_reason.
+        conn.execute(
+            """UPDATE wt_discovered_subprovs SET
+                 wrap_close_count     = (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=? AND COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE')='WSOL_WRAP_CLOSE'),
+                 seeded_account_count = seeded_account_count + ?,
+                 creator_count    = (SELECT COUNT(DISTINCT creator_wallet) FROM wt_subprov_evidence WHERE subprov=?),
+                 last_seen        = ?,
+                 state            = 'REJECTED_INFRASTRUCTURE',
+                 rejected_reason  = COALESCE(rejected_reason, 'known infrastructure wallet')
+               WHERE subprov = ?""",
+            (subprov, (1 if is_mech_b else 0) * _ev_rows, subprov, now, subprov))
+    else:
+        conn.execute(
+            """UPDATE wt_discovered_subprovs SET
+                 wrap_close_count     = (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=? AND COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE')='WSOL_WRAP_CLOSE'),
+                 seeded_account_count = seeded_account_count + ?,
+                 creator_count    = (SELECT COUNT(DISTINCT creator_wallet) FROM wt_subprov_evidence WHERE subprov=?),
+                 last_seen        = ?,
+                 state            = CASE
+                   WHEN state = 'PROVISION_CANDIDATE' THEN 'PROVISIONAL_SUBPROV'
+                   ELSE state END,
+                 confidence       = MIN(0.74, 0.20 +
+                   (SELECT COUNT(*) FROM wt_subprov_evidence WHERE subprov=?) * 0.08)
+               WHERE subprov = ?""",
+            (subprov, (1 if is_mech_b else 0) * _ev_rows, subprov, now, subprov, subprov))
     conn.commit()
 
 
@@ -1114,6 +1212,90 @@ def active_sessions(conn) -> list:
         "COALESCE(monitoring_state,'LIVE_ARMED') as monitoring_state, "
         "COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE') as funding_mechanism "
         "FROM wt_active_subprov_sessions WHERE state='ACTIVE'").fetchall()
+
+
+# ───────────────── X24.2 Phase 2: fair, bounded sweep scheduler ──────────────
+# Deterministic priority (never restarts to an unfair state — the ordering is
+# entirely derived from durable columns, not in-memory state):
+#   1. never swept (last_swept_at IS NULL), soonest expiry first
+#   2. swept before, least-recently-swept first, soonest expiry as secondary key
+#   3. id as a final deterministic tie-breaker (stable across ties, monotonic)
+# All eligible ACTIVE sessions are candidates; the caller bounds how many rows
+# it actually processes per cycle (the RPC/WS budget), not this query.
+def fair_sweep_candidates(conn, limit: int) -> list:
+    return conn.execute(
+        "SELECT id, subprov_wallet, treasury_wallet, funding_signature, funding_amount, "
+        "funding_time, expires_at, open_reason, subprov_known, "
+        "COALESCE(monitoring_state,'LIVE_ARMED') as monitoring_state, "
+        "COALESCE(funding_mechanism,'WSOL_WRAP_CLOSE') as funding_mechanism, "
+        "last_swept_at, sweep_count, first_swept_at "
+        "FROM wt_active_subprov_sessions "
+        "WHERE state='ACTIVE' "
+        "ORDER BY (last_swept_at IS NOT NULL), "        # never-swept (NULL) sorts first
+        "         CASE WHEN last_swept_at IS NULL THEN expires_at END, "  # never-swept: soonest expiry
+        "         last_swept_at ASC, "                   # swept-before: least-recently-swept first
+        "         expires_at ASC, "                       # secondary: soonest expiry
+        "         id ASC "                                # deterministic tie-breaker
+        "LIMIT ?", (limit,)).fetchall()
+
+
+def mark_swept(conn, session_id: int, swept_at: Optional[int] = None) -> None:
+    """Durable sweep-fairness bookkeeping. Idempotent — safe to call once per
+    inspection, even if the inspection found nothing new. Takes a plain _ops()
+    connection with its own commit, matching every other per-row
+    wt_active_subprov_sessions write in this module (record_launch,
+    start_session, etc.) — operations_write's async queue is reserved for
+    fire-and-forget metering (treasury/subprov WS usage counters), not the
+    inline detection-write path this sits alongside."""
+    now = int(swept_at if swept_at is not None else time.time())
+    conn.execute(
+        "UPDATE wt_active_subprov_sessions "
+        "SET last_swept_at=?, sweep_count=COALESCE(sweep_count,0)+1, "
+        "    first_swept_at=COALESCE(first_swept_at,?) "
+        "WHERE id=?",
+        (now, now, session_id))
+    conn.commit()
+
+
+def sweep_coverage_snapshot(conn, *, cap: int) -> dict:
+    """Phase 1 instrumentation: point-in-time measurement of sweep coverage,
+    read-only, safe to call every cycle without affecting scheduling. Returns
+    the metrics the sprint's Phase 1 requires (eligible/selected/never-swept/
+    expiring-soon), computed directly from the durable columns so historical
+    coverage can be reconstructed even across restarts."""
+    now = int(time.time())
+    rows = conn.execute(
+        "SELECT id, expires_at, last_swept_at, sweep_count "
+        "FROM wt_active_subprov_sessions WHERE state='ACTIVE'").fetchall()
+    eligible = len(rows)
+    never_swept = sum(1 for r in rows if r[2] is None)
+    swept_within_30s = sum(1 for r in rows if r[2] is not None and (now - r[2]) <= 30)
+    expiring_within_60s_never_swept = sum(
+        1 for r in rows if r[2] is None and r[1] is not None and (r[1] - now) <= 60)
+    duplicate_sweeps = sum(1 for r in rows if (r[3] or 0) > 1)
+    return {
+        "eligible_sessions": eligible,
+        "cap_per_cycle": cap,
+        "never_swept": never_swept,
+        "swept_within_30s": swept_within_30s,
+        "expiring_within_60s_never_swept": expiring_within_60s_never_swept,
+        "sessions_swept_more_than_once": duplicate_sweeps,
+        "measured_at": now,
+    }
+
+
+def sweep_arrival_rate(conn, *, window_seconds: int = 300) -> dict:
+    """X24.2.1 — measures new-session arrival rate from durable detected_at
+    timestamps (survives restart, unlike an in-memory counter). Used to
+    compute whether current sweep throughput is keeping up with arrivals,
+    independent of whether RPC calls are individually succeeding."""
+    now = int(time.time())
+    cutoff = now - window_seconds
+    n = conn.execute(
+        "SELECT COUNT(*) FROM wt_active_subprov_sessions "
+        "WHERE state='ACTIVE' AND detected_at >= ?", (cutoff,)).fetchone()[0]
+    per_minute = round(n / (window_seconds / 60.0), 2) if window_seconds else 0.0
+    return {"window_seconds": window_seconds, "arrivals_in_window": n, "arrivals_per_minute": per_minute}
 
 
 # ───────────────── durable session retry queue ──────────────────────────────
@@ -1629,45 +1811,66 @@ def open_candidate_watch(conn, *, candidate: str, subprov: str, treasury: Option
     if already:
         return False
     now = int(time.time())
+    # X28.0 Phase 3 — snapshot the parent subprov's own funding provenance onto the candidate
+    # row at capture time, so it survives independent of the session row (never deleted today,
+    # but no longer required for the candidate to retain its lineage). Best-effort: a missing
+    # session row (e.g. legacy data, or a candidate opened via a path with no session yet)
+    # leaves these NULL rather than failing the insert.
+    _sess = conn.execute(
+        "SELECT funding_signature, initial_funding_amount, funding_amount, funding_time "
+        "FROM wt_active_subprov_sessions WHERE subprov_wallet=? "
+        "ORDER BY id DESC LIMIT 1", (subprov,)).fetchone()
+    _init_sig = _sess[0] if _sess else None
+    _init_sol = (_sess[1] if _sess and _sess[1] is not None else (_sess[2] if _sess else None))
+    _init_time = _sess[3] if _sess else None
+    _fanout_row = conn.execute(
+        "SELECT COUNT(*), COALESCE(SUM(funding_amount), 0.0) "
+        "FROM wt_candidate_websocket_watches WHERE subprov_wallet=?", (subprov,)).fetchone()
+    _fanout_count = (_fanout_row[0] or 0) + 1  # +1 for the row being inserted now
+    _fanout_value = (_fanout_row[1] or 0.0) + (funding_amount or 0.0)
     cur = conn.execute(
         """INSERT OR IGNORE INTO wt_candidate_websocket_watches
              (candidate_wallet, subprov_wallet, treasury_wallet, wrap_close_signature,
               wrap_close_time, wrap_wallet, temp_wsol_account, close_destination, funding_amount,
-              funding_mechanism, state, detected_at, expires_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?, 'WATCHING', ?, ?)""",
+              funding_mechanism, state, detected_at, expires_at,
+              initial_subprov_funding_sol, initial_subprov_funding_signature,
+              initial_subprov_funding_time, subprov_fanout_count_at_capture,
+              subprov_fanout_value_at_capture)
+           VALUES (?,?,?,?,?,?,?,?,?,?, 'WATCHING', ?, ?, ?,?,?,?,?)""",
         (candidate, subprov, treasury, wrap_close_sig, wrap_close_time, wrap_wallet, temp_wsol,
-         candidate, funding_amount, funding_mechanism, now, now + ttl_seconds))
+         candidate, funding_amount, funding_mechanism, now, now + ttl_seconds,
+         _init_sol, _init_sig, _init_time, _fanout_count, _fanout_value))
     conn.commit()
     return cur.rowcount > 0
 
 
-def subprov_sig_enqueue(conn, *, subprov: str, signature: str,
-                        slot: Optional[int] = None) -> bool:
-    """Durably record that a subprov signature must be processed.
+def subprov_sig_enqueue_running(conn, *, subprov: str, signature: str,
+                                slot: Optional[int] = None) -> tuple[bool, float]:
+    """X24.2.2 — combines subprov_sig_enqueue()+subprov_sig_mark_running() into a
+    single write (one _acquire_write_lane() acquisition instead of two).
 
-    Returns True when this is a new pending record. Existing DONE records are left
-    untouched; existing FAILED/PENDING records stay retryable.
+    The original two-step (PENDING then RUNNING) existed so a crash between the
+    two writes would leave the row PENDING for due_subprov_sig_retries() to pick
+    up later. Skipping straight to RUNNING preserves that same safety property:
+    a crash before this single write leaves no row at all, which is recovered
+    identically to a genuinely-never-seen signature (the live WS/catch-up path
+    re-notifies it, exactly as it does today for any signature this process
+    never got as far as writing anything for). No crash window is introduced
+    that didn't already exist; one write-lock acquisition per signature is
+    removed, mattering most under X24.2.1's concurrent sweep sessions where
+    every write across the process contends for the single DB_WRITE_SERIALIZE lock.
+
+    Returns (is_new, first_seen_at) — is_new True the first time this
+    (subprov, signature) is recorded; first_seen_at is the original detection
+    time if this signature was already known (e.g. previously FAILED and now
+    retried), else the current time.
     """
     now = int(time.time())
-    cur = conn.execute(
-        """INSERT INTO wt_subprov_sig_retry
-             (subprov_wallet, signature, slot, first_seen_at, status)
-           VALUES (?,?,?,?, 'PENDING')
-           ON CONFLICT(subprov_wallet, signature) DO UPDATE SET
-             slot = COALESCE(wt_subprov_sig_retry.slot, excluded.slot),
-             status = CASE
-               WHEN wt_subprov_sig_retry.status='DONE' THEN 'DONE'
-               WHEN wt_subprov_sig_retry.status='RUNNING' THEN 'RUNNING'
-               ELSE 'PENDING'
-             END""",
-        (subprov, signature, slot, now))
-    conn.commit()
-    return cur.rowcount > 0
-
-
-def subprov_sig_mark_running(conn, *, subprov: str, signature: str,
-                             slot: Optional[int] = None) -> None:
-    now = int(time.time())
+    existing = conn.execute(
+        "SELECT first_seen_at, status FROM wt_subprov_sig_retry "
+        "WHERE subprov_wallet=? AND signature=?", (subprov, signature)).fetchone()
+    is_new = existing is None
+    first_seen_at = float(existing[0]) if existing and existing[0] else float(now)
     conn.execute(
         """INSERT INTO wt_subprov_sig_retry
              (subprov_wallet, signature, slot, first_seen_at, last_attempt_at,
@@ -1681,16 +1884,49 @@ def subprov_sig_mark_running(conn, *, subprov: str, signature: str,
              last_error = NULL""",
         (subprov, signature, slot, now, now))
     conn.commit()
+    return is_new, first_seen_at
 
 
 def subprov_sig_mark_done(conn, *, subprov: str, signature: str,
                           slot: Optional[int] = None, block_time: Optional[int] = None) -> None:
+    """Marks one signature DONE in the retry table AND advances the durable
+    cursor to it. Correct ONLY when called in strict oldest-to-newest
+    processing order (the cursor is unconditionally overwritten on every
+    call, so the last call determines the final cursor position) — this is
+    the WS live-path contract (one signature at a time, arrival order) and
+    is preserved exactly for that caller. X24.7's batched/reordered catch-up
+    path uses subprov_sig_mark_retry_done() + subprov_sig_advance_cursor()
+    instead, precisely because it does NOT process oldest-to-newest."""
+    now = int(time.time())
+    subprov_sig_mark_retry_done(conn, subprov=subprov, signature=signature)
+    subprov_sig_advance_cursor(conn, subprov=subprov, signature=signature,
+                               slot=slot, block_time=block_time)
+
+
+def subprov_sig_mark_retry_done(conn, *, subprov: str, signature: str) -> None:
+    """Marks one signature DONE in the durable retry table only — no cursor
+    write. Safe to call in any order (including out-of-chronological-order,
+    e.g. under an alternating/reordered processing policy), since each row
+    is keyed by its own (subprov, signature) and never depends on any other
+    row's state."""
     now = int(time.time())
     conn.execute(
         """UPDATE wt_subprov_sig_retry
            SET status='DONE', last_error=NULL, last_attempt_at=?
            WHERE subprov_wallet=? AND signature=?""",
         (now, subprov, signature))
+    conn.commit()
+
+
+def subprov_sig_advance_cursor(conn, *, subprov: str, signature: str,
+                               slot: Optional[int] = None, block_time: Optional[int] = None) -> None:
+    """Advances the durable per-subprov cursor to `signature`. Callers are
+    responsible for ensuring `signature` is the correct one to advance to —
+    for a batch processed out of chronological order (X24.7), this must be
+    the NEWEST signature that was successfully processed in that batch, not
+    merely whichever signature happened to be handled last. Called at most
+    once per catch_up_subprov() batch (not per-signature) by that caller."""
+    now = int(time.time())
     conn.execute(
         """INSERT INTO wt_subprov_sig_cursor
              (subprov_wallet, last_seen_sig, last_seen_slot, last_seen_at, updated_at)

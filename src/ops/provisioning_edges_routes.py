@@ -12,7 +12,7 @@ import os
 
 
 def register_provisioning_edges_routes(app: object) -> None:
-    from flask import jsonify
+    from flask import jsonify, request
 
     from src.ops.provisioning_edges import (
         edges_for_wallet,
@@ -36,12 +36,17 @@ def register_provisioning_edges_routes(app: object) -> None:
     def provisioning_edges_for_wallet(wallet: str):
         if not os.path.exists(ops_db_path):
             return jsonify({"ok": True, "wallet": wallet, "outgoing": [], "incoming": []})
+        # X29.4 — "Show Spam Transfers" developer toggle, default OFF: known
+        # spam transfers are environmental noise excluded from graph
+        # construction by default; ?show_spam_transfers=1 allows forensic
+        # inspection without affecting any stored attribution.
+        show_spam_transfers = request.args.get("show_spam_transfers") in ("1", "true", "True")
         conn = _connect()
         try:
-            result = edges_for_wallet(conn, wallet)
+            result = edges_for_wallet(conn, wallet, show_spam_transfers=show_spam_transfers)
         finally:
             conn.close()
-        return jsonify({"ok": True, "wallet": wallet, **result})
+        return jsonify({"ok": True, "wallet": wallet, "show_spam_transfers": show_spam_transfers, **result})
 
     @app.route("/api/ops-v2/provisioning-sessions/<path:wallet>")  # type: ignore[attr-defined]
     def provisioning_sessions_for_wallet(wallet: str):

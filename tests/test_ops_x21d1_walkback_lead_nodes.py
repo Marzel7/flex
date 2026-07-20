@@ -1,5 +1,6 @@
-"""X21D.1 — Funding Walkback begins with the initiating WATCHTOKEN and persisted
-creator, using only entities already returned by the Discovery model. Presentation
+"""X21D.1 — Funding Walkback begins with the initiating Launch node (X25.2:
+relabeled from the removed, ambiguous "WATCHTOKEN") and persisted creator,
+using only entities already returned by the Discovery model. Presentation
 only: no attribution/walkback/resolver/API/schema changes.
 """
 from pathlib import Path
@@ -10,11 +11,11 @@ HTML = (ROOT / "templates/discovery.html").read_text()
 
 
 def test_walkback_function_accepts_subject_attribution_outcome_and_canonical_identity():
-    assert "function walkback(w, subject, attributionOutcome, canonicalIdentity){" in HTML
+    assert "function walkback(w, subject, attributionOutcome, canonicalIdentity, launchProfile){" in HTML
 
 
 def test_lead_nodes_never_fabricate_when_absent():
-    assert "function walkbackLeadNodes(subject, attributionOutcome, firstHopRole, confirmed){" in HTML
+    assert "function walkbackLeadNodes(subject, attributionOutcome, firstHopRole, confirmed, launchProfile){" in HTML
     # Token node only added when subject.type is genuinely 'token'.
     assert "subject.type==='token'" in HTML
     # Creator only added when the outcome evidence actually carries one.
@@ -38,7 +39,7 @@ def test_lead_nodes_use_identical_markup_to_existing_chain_nodes():
 
 
 def test_call_site_passes_subject_attribution_outcome_and_canonical_identity():
-    assert "walkback(d.walkback||{}, subject, d.attribution_outcome, d.canonical_identity)" in HTML
+    assert "walkback(d.walkback||{}, subject, d.attribution_outcome, d.canonical_identity, d.launch_profile)" in HTML
 
 
 def test_endpoint_relabeled_to_canonical_operator_only_when_genuinely_resolved():

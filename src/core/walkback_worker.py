@@ -297,6 +297,16 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
         sender = _extract_sol_sender(tx, wallet)
         if not sender or sender == wallet or sender in _FUNDER_BLOCKLIST:
             continue
+        # X29.4 — Infrastructure Spam exclusion: a confirmed spam sender is
+        # excluded as funding evidence entirely (never extends lineage,
+        # never becomes a candidate funder). The recipient is annotated as
+        # spam_recipient only -- receiving unsolicited SOL is environmental
+        # noise, not evidence, and must never influence attribution.
+        if ops and _is_known_spam_sender(ops, sender):
+            from src.ops.wallet_quality import record_spam_transfer
+            record_spam_transfer(ops, sender, wallet)
+            print(f"[WALKBACK] IGNORED_SPAM_SENDER sender={sender[:14]}… wallet={wallet[:14]}…", flush=True)
+            continue
         owner = _get_account_owner(sender, rpc_counter)
         if owner is None or owner == _SYSTEM_PROGRAM:
             pass  # regular wallet
@@ -346,6 +356,14 @@ def _ops_conn() -> sqlite3.Connection:
     return c
 
 
+def _is_known_spam_sender(ops: sqlite3.Connection, wallet: str) -> bool:
+    """X29.4 — true only for wallets manually confirmed in
+    wt_known_spam_wallets. Never infers spam from behaviour observed
+    during the walk itself."""
+    from src.ops.known_spam_wallets import is_known_spam_wallet
+    return is_known_spam_wallet(ops, wallet)
+
+
 def _is_known_treasury(ops: sqlite3.Connection, wallet: str) -> bool:
     row = ops.execute(
         "SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=? LIMIT 1", (wallet,)).fetchone()
@@ -353,9 +371,28 @@ def _is_known_treasury(ops: sqlite3.Connection, wallet: str) -> bool:
 
 
 def _is_known_subprov(ops: sqlite3.Connection, wallet: str) -> bool:
+    # X26.3: a REJECTED_INFRASTRUCTURE (or REJECTED_NON_PROVISIONING) row still
+    # exists in wt_discovered_subprovs so its raw evidence is preserved, but it
+    # must never be treated as a genuine sub-provisioner by the walk — the
+    # walk gates WATCHTOWER_CONFIRMED on this function returning True, so a
+    # rejected row must count as "not known" here, not "known and confirmed."
     row = ops.execute(
-        "SELECT 1 FROM wt_discovered_subprovs WHERE subprov=? LIMIT 1", (wallet,)).fetchone()
+        "SELECT 1 FROM wt_discovered_subprovs WHERE subprov=? "
+        "AND COALESCE(state,'') NOT LIKE 'REJECTED%' LIMIT 1", (wallet,)).fetchone()
     return bool(row)
+
+
+def _is_known_infrastructure(wallet: str) -> bool:
+    """X26.3 canonical infrastructure exclusion — never treat a wallet already
+    catalogued as known automation/relay/bridge/CEX infrastructure as a
+    sub-provisioner, regardless of how many creators it happens to have
+    funded. Zero RPC; reuses the same static registry
+    src/ops/attribution_outcome.py's _boundary() already trusts for
+    infrastructure-boundary attribution, so a wallet is never simultaneously
+    "known infrastructure" for attribution purposes and "a sub-provisioner"
+    for Discovery purposes."""
+    from src.utils.infra_mapping import is_known_account
+    return bool(wallet) and is_known_account(wallet)
 
 
 def _mark_running(ops: sqlite3.Connection, mint: str) -> bool:
@@ -809,6 +846,17 @@ def promote_recurring_funders(ops: sqlite3.Connection) -> int:
             continue
         # Skip if already a confirmed treasury
         if _is_known_treasury(ops, fw):
+            continue
+        # X26.3: skip known infrastructure (automation/relay/bridge/CEX wallets, e.g.
+        # Axiom, Raydium/Meteora authorities, exchange hot wallets). Recurrence alone
+        # (funding >=2 distinct creators) is NOT proof of sub-provisioner status — a
+        # confirmed live example (Axiom, 23 funded creators, 0 wrap-close, 0 CREATE
+        # evidence) showed this promotion path had no infrastructure check at all
+        # (X26.2/X26.3 audit). Checked before the program-owned RPC check so it's
+        # free and skips the RPC call entirely for known infrastructure.
+        if _is_known_infrastructure(fw):
+            print(f"[WALKBACK] recurring funder {fw[:14]}… is known infrastructure — skipped",
+                  flush=True)
             continue
         # Skip program-owned accounts (ATAs, PDAs, pools) — 1cr per NEW candidate only
         if not _is_known_subprov(ops, fw):

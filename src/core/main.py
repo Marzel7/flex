@@ -40092,6 +40092,15 @@ try:
     from src.core.operation_dashboard_routes import register_operation_dashboard_routes
     register_operation_dashboard_routes(app)
     print("[DASHBOARD] Operations v2 (operation-centric) routes registered")
+    # X29.1.2 optional startup prewarm — populate the Operational Intelligence
+    # SWR cache's common windows (24h, all) off-thread so the very first
+    # analyst request after a fresh process start doesn't pay the cold
+    # -compute cost either. Best-effort/non-fatal.
+    try:
+        from src.core.operation_dashboard_routes import prewarm_operational_intelligence_cache
+        prewarm_operational_intelligence_cache()
+    except Exception as e:
+        print(f"[WARNING] Operational Intelligence cache prewarm not started: {e}")
 except Exception as e:
     print(f"[WARNING] Operations v2 dashboard not available: {e}")
 

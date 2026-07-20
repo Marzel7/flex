@@ -2887,7 +2887,7 @@ async function loadMission3(){
       <span><span class="muted">total entries</span> <b>${diag.total_entries||0}</b></span>
       <span><span class="muted">attributed</span> <b style="color:var(--green)">${bo.WATCHTOWER_CONFIRMED||bo.WATCHTOWER_ATTRIBUTED||0}</b></span>
       <span><span class="muted">candidates</span> <b style="color:var(--cyan)">${bo.TREASURY_CANDIDATE||0}</b></span>
-      <span><span class="muted">gaps</span> <b style="color:var(--amber)">${bo.LINEAGE_GAP||0}</b></span>
+      <span><span class="muted" title="Legacy wt_walkback_queue lineage-gap rows — a different table/count than the canonical Attribution Health panel's Lineage Gap metric on Discovery">walkback queue gaps</span> <b style="color:var(--amber)">${bo.LINEAGE_GAP||0}</b></span>
       <span><span class="muted">non-WT</span> <b>${bo.NON_WATCHTOWER||0}</b></span>
       <span><span class="muted">pending</span> <b>${bs.PENDING||0}</b></span>
       <span><span class="muted">in progress</span> <b>${bs.IN_PROGRESS||0}</b></span>
@@ -3114,7 +3114,11 @@ async function loadWalkback(){
   const oc={
     WATCHTOWER_ATTRIBUTED:{label:'WATCHTOWER ATTRIBUTED', icon:'✓', col:'var(--green)'},
     TREASURY_CANDIDATE:   {label:'Treasury Candidates',   icon:'⚠', col:'var(--cyan)'},
-    LINEAGE_GAP:          {label:'Lineage Gaps',           icon:'⚠', col:'var(--yellow)'},
+    // X26.5.1 — this is wt_walkback_queue.intelligence_outcome, a different
+    // table/count than the canonical Attribution Health "Lineage Gap" metric
+    // on the Discovery page (wt_attribution_outcomes.outcome_type). Labeled
+    // distinctly so the two are never mistaken for the same figure.
+    LINEAGE_GAP:          {label:'Walkback Queue: Lineage Gap Rows', icon:'⚠', col:'var(--yellow)'},
     GRAPH_QUALITY_ISSUE:  {label:'Graph Quality Issues',   icon:'⚠', col:'var(--orange)'},
     NON_WATCHTOWER:       {label:'Market traffic (non-WATCHTOWER)', icon:' ', col:'var(--text-dim)'},
     NO_ATTRIBUTION_FOUND: {label:'No Attribution Found',   icon:' ', col:'var(--text-dim)'},

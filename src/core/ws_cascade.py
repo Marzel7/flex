@@ -38,10 +38,12 @@ except Exception:                                    # pragma: no cover
     websockets = None
 
 from src.utils.db_locking import db_connect
+from src.utils.pubkey_validation import is_valid_pubkey, invalid_reason
 from src.core import ws_cascade_store as store
 from src.core.ws_cascade_store import OPS_DB_PATH, LIVE_DB_PATH, emit_event
 from src.core.wrap_close_detector import extract_close_destinations, detect_seeded_account_close
 from src.core import runtime_budget as _budget
+from src.core import rpc_deadline
 
 # ── config (env, conservative defaults) ──────────────────────────────────────
 # TTLs sized from data: real subprovs stay actively provisioning for a MEDIAN of ~2h (p75 ~10h,
@@ -83,10 +85,84 @@ SUBPROV_SIG_MAX_ATTEMPTS = int(os.environ.get("WS_SUBPROV_SIG_MAX_ATTEMPTS", "8"
 # RPC-bounded: one getSignatures per active subprov per sweep, deduped so it doesn't refetch.
 SUBPROV_SWEEP_SEC = float(os.environ.get("WS_SUBPROV_SWEEP_SEC", "6"))
 ACTIVE_CATCHUP0_WORKERS = int(os.environ.get("WS_ACTIVE_CATCHUP0_WORKERS", "4"))
+# X24.2.1 Phase 3 — bounded sweep concurrency. Measured root cause: sequential
+# execution of MAX_ACTIVE_SUBPROVS (10) catch_up_subprov() calls, each costing
+# ~8-16s (dominated by up to SUBPROV_DURABLE_CATCHUP_LIMIT=50 sequential
+# getTransaction calls per session, NOT executor contention — the default
+# executor's queue depth was measured at 0 throughout). Bounding concurrency at
+# 4 (capacity-calculated: inspections/min must exceed measured arrivals/min of
+# ~19; 4 gives ~29/min, a real margin) keeps RPC concurrency explicit and
+# bounded while cutting cycle time roughly in proportion.
+SWEEP_CONCURRENCY = int(os.environ.get("WS_SWEEP_CONCURRENCY", "4"))
 SUBPROV_FAST_RETRY_OFFSETS = tuple(
     float(x.strip()) for x in os.environ.get("WS_SUBPROV_FAST_RETRY_OFFSETS", "0,0.25,0.75,1.5").split(",")
     if x.strip()
 )
+
+# X24.7 — pluggable signature-processing-order policy for catch_up_subprov()'s
+# per-signature loop. Evidence (X24.6/X24.7 full-population replay, n=39 — the
+# complete reconstructable confirmed-launch history, not a sample of a larger
+# set): the eventual creator is disproportionately the NEWEST wrap-close event
+# in a subprov's session (median reverse-position 4; 69.2% within the last 10
+# events; statistically significant vs a same-session random-recipient control,
+# z=2.71). Pure newest-first improves median inspections-to-creator (25->4) but
+# worsens the tail (P95 139->207); ALTERNATING newest/oldest improves BOTH
+# median (25->7) and tail (P95 139->78) against the current oldest-first order,
+# while remaining a strict permutation of the same signature set — every
+# signature is still processed exactly once per cycle, never fewer.
+#
+# Caveat, kept honest rather than presented as a uniform win: the improvement
+# is NOT uniform across the historical population. 2 of 5 treasuries, and the
+# single earliest observed campaign week (both likely overlapping the same
+# "instant-launch" sub-population), show alternating performing WORSE than the
+# current order. This is a measured, real trade-off, not a clean universal
+# improvement — hence a pluggable policy (swappable, not a silent hard
+# replacement) rather than deleting the old order outright.
+SUBPROV_SIG_ORDER_POLICY = os.environ.get("WS_SUBPROV_SIG_ORDER_POLICY", "ALTERNATING").upper()
+
+
+def _order_signature_indices(n: int, policy: str = None) -> list[int]:
+    """Returns a permutation of range(n) — indices into a newest-first list
+    (index 0 = newest signature) — in the order signatures should be
+    processed under `policy`. Always a strict permutation: len(output) == n,
+    every index 0..n-1 appears exactly once, regardless of policy. This is
+    what guarantees X24.7's "prioritisation only, never a filter" requirement
+    structurally, not just by convention.
+
+    Policies:
+      FIFO / OLDEST_FIRST — oldest signature first (index n-1, ..., 0).
+                            This is the pre-X24.7 default behaviour.
+      NEWEST_FIRST        — newest signature first (index 0, ..., n-1).
+                            Best median in replay, worst tail — not the
+                            recommended default; available for comparison/
+                            experimentation via the env var.
+      ALTERNATING         — newest, oldest, 2nd-newest, 2nd-oldest, ... .
+                            The X24.7-recommended default: best median AND
+                            tail against the pre-X24.7 order in the full
+                            replay.
+    """
+    policy = (policy or SUBPROV_SIG_ORDER_POLICY).upper()
+    if n <= 0:
+        return []
+    if policy in ("FIFO", "OLDEST_FIRST"):
+        return list(reversed(range(n)))
+    if policy == "NEWEST_FIRST":
+        return list(range(n))
+    if policy == "ALTERNATING":
+        order: list[int] = []
+        lo, hi = 0, n - 1
+        take_newest = True
+        while lo <= hi:
+            if take_newest:
+                order.append(lo); lo += 1
+            else:
+                order.append(hi); hi -= 1
+            take_newest = not take_newest
+        return order
+    # Unrecognised policy value: fail safe to the pre-X24.7 default rather
+    # than silently doing something unvalidated.
+    _log(f"⚠ unrecognised WS_SUBPROV_SIG_ORDER_POLICY={policy!r}, falling back to FIFO")
+    return list(reversed(range(n)))
 
 # Treasury WS tier: permanently logsSubscribe the (small, stable) confirmed-treasury set so a
 # provisioning outbound opens a SUB_PROV session in real-time (~3s) instead of waiting on the
@@ -114,7 +190,12 @@ TREASURY_REFRESH_SEC       = float(os.environ.get("WS_TREASURY_REFRESH_SEC", "60
 #   2. Immediate RPC burst fallback: poll getSignaturesForAddress at 0/1/2/4/8/15/30/60s
 # The RPC burst runs regardless of subscription confirmation state.
 HOT_SUB_STALE_SEC   = float(os.environ.get("WS_HOT_SUB_STALE_SEC",  "2"))   # retry HOT if unconfirmed this long
-COLD_SUB_STALE_SEC  = float(os.environ.get("WS_COLD_SUB_STALE_SEC", "10"))  # drop COLD pending after this
+# X27.7 — measured live sub_avg_ack_ms=11660 / sub_p0_avg_ack_ms=32829 (Helius ack
+# latency drifted well past the old 10s default), so COLD pending subs were being
+# dropped by sweep_stale_pending() before Helius ever acked them — the confirmed
+# root cause of primary_live_path=0 for 30 days. Raised past observed p95 with headroom.
+COLD_SUB_STALE_SEC  = float(os.environ.get("WS_COLD_SUB_STALE_SEC", "45"))  # drop COLD pending after this
+COLD_SUB_RETRY_MAX  = int(os.environ.get("WS_COLD_SUB_RETRY_MAX", "3"))     # resubscribe attempts before giving up
 HOT_BURST_SCHEDULE  = [0, 1, 2, 4, 8, 15, 30, 60]                           # RPC poll offsets (seconds)
 # Watchdog thresholds
 PENDING_WARN_1  = int(os.environ.get("WS_PENDING_WARN_1",  "10"))
@@ -429,6 +510,7 @@ _CLEANUP_COUNT = 0
 _TREASURY_TIMEOUT_COUNT  = 0   # treasury_tx handler timed out (outer wait_for)
 _CATCHUP_TIMEOUT_COUNT   = 0   # catch_up_candidate / catch_up_subprov RPC timeout
 _VALIDATION_TIMEOUT_COUNT = 0  # batch_validate outer timeout in pumpfun_curve_listener
+_COLD_RETRY_EXHAUSTED_COUNT = 0  # X27.7 — cold subscriptions that exhausted COLD_SUB_RETRY_MAX
 
 
 def _handle_signal(*_a):
@@ -519,10 +601,50 @@ def _rpc(method, params, timeout=None):
         return None
 
 
-def _get_tx(sig):
+def _get_tx_raw(sig):
     # 'confirmed' commitment — Helius no longer accepts 'processed' for getTransaction.
     return _rpc("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0,
                                          "commitment": "confirmed"}])
+
+
+# X24.3 — bounded RPC tail protection. _rpc()'s own timeout=_budget.NEARRT_RPC_TOTAL_S
+# bounds each individual blocking socket operation (connect/send/recv), not the
+# logical request as a whole (proven in the X24.2.3 evidence report: observed
+# ~23.6s calls against a configured 12s budget). _get_tx_guard enforces a TRUE
+# cumulative wall-clock deadline around the whole _get_tx_raw() call via a
+# dedicated, capacity-bounded executor + circuit breaker + in-flight dedup +
+# late-result reuse (src/core/rpc_deadline.py). Lazily constructed so importing
+# this module never spins up threads as a side effect (tests, tooling, etc.).
+_get_tx_guard_instance: "rpc_deadline.RpcDeadlineGuard | None" = None
+_get_tx_guard_lock = threading.Lock()
+
+
+def _get_tx_guard() -> "rpc_deadline.RpcDeadlineGuard":
+    global _get_tx_guard_instance
+    if _get_tx_guard_instance is None:
+        with _get_tx_guard_lock:
+            if _get_tx_guard_instance is None:
+                _get_tx_guard_instance = rpc_deadline.RpcDeadlineGuard()
+    return _get_tx_guard_instance
+
+
+def _get_tx_with_outcome(sig) -> "rpc_deadline.DeadlineResult":
+    """Deadline-guarded getTransaction fetch returning the full explicit outcome
+    (design requirement 4) — used by the fast-retry path, which needs to
+    distinguish DEADLINE_EXCEEDED_RUNNING / CANCELLED_BEFORE_START /
+    CAPACITY_REJECTED / CIRCUIT_OPEN_REJECTED / RPC_ERROR / NOT_FOUND / SUCCESS
+    for its own telemetry, rather than the collapsed dict-or-None every other
+    _get_tx() call site still uses (and continues to use unchanged)."""
+    return _get_tx_guard().call_with_deadline(sig, lambda: _get_tx_raw(sig))
+
+
+def _get_tx(sig):
+    """Unchanged call contract (dict | None) for every existing call site
+    (treasury tx, CDC tx, sibling classification, launch audit, etc.) — now
+    tail-protected by the same deadline guard as the fast-retry path, without
+    those call sites needing to change at all."""
+    result = _get_tx_with_outcome(sig)
+    return result.value
 
 
 # ── async, off-loop wrappers — run blocking RPC + DB work in the default thread-pool executor
@@ -539,6 +661,27 @@ async def _aget_tx(sig):
 async def _ato_thread(fn, *args, **kwargs):
     """Run a blocking function (DB writes, sync handlers) off the event loop."""
     return await asyncio.get_event_loop().run_in_executor(None, lambda: fn(*args, **kwargs))
+
+
+def _default_executor_stats() -> dict:
+    """X24.2.1 Phase 1 — read-only introspection of asyncio's default
+    ThreadPoolExecutor (shared by every _arpc/_ato_thread call across the WHOLE
+    cascade, not just the sweep). Uses private attributes (no public API exists
+    for this); wrapped so it can never raise in production even if the
+    attributes change across Python versions — diagnostic only, never gates
+    behaviour."""
+    try:
+        loop = asyncio.get_event_loop()
+        ex = getattr(loop, "_default_executor", None)
+        if ex is None:
+            return {"max_workers": None, "queue_depth": None, "active_threads": None, "note": "executor not yet created"}
+        return {
+            "max_workers": getattr(ex, "_max_workers", None),
+            "queue_depth": ex._work_queue.qsize() if hasattr(ex, "_work_queue") else None,
+            "active_threads": len(getattr(ex, "_threads", []) or []),
+        }
+    except Exception as exc:
+        return {"error": repr(exc)}
 
 
 _B58_ALPHABET = b'123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -666,6 +809,7 @@ class ProgramCreateWatcher:
         self._cascade_ref = None                 # set by run_cascade() after Cascade is created
         self._create_replay_order = deque()       # unmatched pump.fun CREATE sigs, oldest → newest
         self._create_replay_by_sig: dict = {}     # sig → compact decoded CREATE entry
+        self._invalid_rejected_total: int = 0     # X24.9 — malformed candidate wallets rejected
 
         # metrics (int/str, updated from the asyncio loop only)
         self.metric_active_candidates: int = 0
@@ -1118,6 +1262,14 @@ class ProgramCreateWatcher:
             wallet = meta.get("candidate")
             if not wallet:
                 continue
+            # X24.9 — same boundary validation as SubscriptionManager.subscribe():
+            # a malformed candidate wallet must never occupy an in-memory ProgramWatcher
+            # slot or a DB persist-queue entry.
+            if not is_valid_pubkey(wallet):
+                self._invalid_rejected_total += 1
+                _log(f"⛔ REJECTED invalid candidate wallet reason={invalid_reason(wallet)} "
+                     f"wallet={str(wallet)[:20]}…")
+                continue
             expires_at = meta.get("expires_at") or (now + CANDIDATE_TTL_SEC)
             # added_at=0 for DB-restored candidates (reconnect reload) so catch-up skips them.
             # If the wallet is already in active_candidates with a live added_at (>0), preserve it:
@@ -1184,13 +1336,23 @@ class ProgramCreateWatcher:
             self._schedule_delayed_catchups(new_wallets)
 
     def evict_by_subprov(self, subprov: str) -> int:
-        """Remove all active_candidates belonging to a dismissed/expired subprov."""
+        """Remove all active_candidates belonging to a dismissed/expired subprov.
+
+        X28.0: after Phase 1/2, this is called ONLY from (a) reject_unproven_sessions()'s
+        cleanup path, where the underlying query already guarantees zero candidates exist for
+        that subprov (a defensive no-op, not load-bearing), and (b) the post-CREATE watchdog,
+        gated behind PW_POST_CREATE_EVICT_ENABLED (default off). It is deliberately NOT called
+        from session-TTL expiry anymore — see cleanup_pass(). If this ever evicts a nonzero
+        count outside those two known-safe cases, that's a regression: candidate_evicted_by_parent
+        should read zero in steady state."""
         to_evict = [w for w, m in self.active_candidates.items() if m.get("subprov") == subprov]
         for w in to_evict:
             self.active_candidates.pop(w, None)
         if to_evict:
             self.metric_active_candidates = len(self.active_candidates)
             _log(f"[ProgramWatcher] evicted {len(to_evict)} candidates for dismissed subprov {subprov[:12]}…")
+            if self._cascade_ref is not None:
+                self._cascade_ref._metric("candidate_evicted_by_parent", len(to_evict))
             if len(self.active_candidates) == 0 and self._state == "ACTIVE":
                 asyncio.ensure_future(self._close_stream(reason="evicted_zero_candidates"))
         return len(to_evict)
@@ -1626,6 +1788,16 @@ class SubscriptionManager:
         self._queue_pos_counter = 0        # monotonic queue position within a reconnect gen
         self._subs_confirmed_total = 0
         self._subs_sent_total = 0
+        self._cold_retry_count = {}    # wallet -> number of stale-drop resubscribe attempts
+        # X24.8 — per-kind lifetime counters (durable across ring-buffer eviction), to
+        # distinguish "this whole tier never acks" from "this one wallet never acks".
+        self._sent_by_kind: dict = {}
+        self._confirmed_by_kind: dict = {}
+        self._exhausted_by_kind: dict = {}
+        # X24.9 — invalid subscription targets rejected at the subscribe() chokepoint,
+        # before ever reaching pending_req/wallet_kind/Helius. Lifetime, per-kind.
+        self._invalid_rejected_by_kind: dict = {}
+        self._invalid_rejected_total = 0
         # P0 timing ring buffer (last 50 P0 events)
         # each entry: {wallet, requested_at, sent_at, ack_at, send_delay_ms, ack_latency_ms, gen}
         self._p0_events: list = []
@@ -1633,12 +1805,24 @@ class SubscriptionManager:
 
     async def subscribe(self, wallet, kind, priority: int = SUB_PRIORITY_OTHER,
                         requested_at: float | None = None):
+        # X24.9 — reject invalid pubkeys before any state is touched: no pending_req
+        # entry, no wallet_kind claim, no retry cycle, no Helius call. This is the
+        # single chokepoint every subscription source (treasury, session subprov,
+        # promoted subprov, dust marker, CDC) funnels through, so validating here
+        # covers all of them without duplicating the check at each call site.
+        if not is_valid_pubkey(wallet):
+            self._invalid_rejected_total += 1
+            self._invalid_rejected_by_kind[kind] = self._invalid_rejected_by_kind.get(kind, 0) + 1
+            _log(f"⛔ REJECTED invalid subscription target kind={kind} "
+                 f"reason={invalid_reason(wallet)} wallet={str(wallet)[:20]}…")
+            return
         if wallet in self.wallet_sub or wallet in self.wallet_kind:
             return                      # already (being) subscribed
         rid = self.next_req; self.next_req += 1
         queued_at = requested_at or time.time()
         self._queue_pos_counter += 1
         self._subs_sent_total += 1
+        self._sent_by_kind[kind] = self._sent_by_kind.get(kind, 0) + 1
         self.wallet_kind[wallet] = kind
         # X24.1 — mechanism-aware primitive selection. Both "treasury" and
         # "subprov_account" (a PLAIN_TRANSFER-funded sub-provisioner) move SOL via
@@ -1708,8 +1892,11 @@ class SubscriptionManager:
         avoids a permanent leak.
 
         Priority-aware: HOT_SUBPROV is considered stale after HOT_SUB_STALE_SEC (2s).
-        Cold kinds (subprov/candidate/treasury) are dropped after COLD_SUB_STALE_SEC (10s).
-        Returns (dropped_wallets, stale_hot_wallets) — callers can retry stale HOT ones."""
+        Cold kinds (subprov/candidate/treasury) are dropped after COLD_SUB_STALE_SEC.
+        Returns (dropped, stale_hot) where dropped is a list of (wallet, kind, retries_left)
+        so callers can resubscribe cold drops (X27.7 — previously cold drops had no retry
+        at all, which combined with ack latency exceeding the old 10s timeout meant a
+        subprov could permanently lose live coverage after a single slow ack)."""
         now = time.time()
         dropped = []
         stale_hot = []
@@ -1725,7 +1912,8 @@ class SubscriptionManager:
                 if age > COLD_SUB_STALE_SEC:
                     self.pending_req.pop(rid, None)
                     self.wallet_kind.pop(wallet, None)
-                    dropped.append(wallet)
+                    attempts = self._cold_retry_count.get(wallet, 0)
+                    dropped.append((wallet, kind, attempts))
         return dropped, stale_hot
 
     def pending_count_by_kind(self):
@@ -1735,6 +1923,21 @@ class SubscriptionManager:
             k = ent[1]
             counts[k] = counts.get(k, 0) + 1
         return counts
+
+    def sub_kind_breakdown(self) -> dict:
+        """X24.8 — per-kind lifetime sent/confirmed/exhausted, to distinguish a whole
+        subscription tier never acking (e.g. every 'dust' send exhausts) from an
+        isolated wallet failing within an otherwise-healthy tier. Read-only,
+        no effect on subscribe/retry behaviour."""
+        kinds = set(self._sent_by_kind) | set(self._confirmed_by_kind) | set(self._exhausted_by_kind)
+        return {
+            k: {
+                "sent": self._sent_by_kind.get(k, 0),
+                "confirmed": self._confirmed_by_kind.get(k, 0),
+                "exhausted": self._exhausted_by_kind.get(k, 0),
+            }
+            for k in sorted(kinds)
+        }
 
     async def unsubscribe(self, wallet):
         sub_id = self.wallet_sub.pop(wallet, None)
@@ -1772,6 +1975,8 @@ class SubscriptionManager:
         if len(self._ack_latencies) > self._ack_ring_size:
             self._ack_latencies.pop(0)
         self._subs_confirmed_total += 1
+        self._confirmed_by_kind[kind] = self._confirmed_by_kind.get(kind, 0) + 1
+        self._cold_retry_count.pop(wallet, None)
         # hot_subprov is promoted to subprov on confirmation — routing logic uses "subprov"
         resolved_kind = "subprov" if kind == "hot_subprov" else kind
         self.wallet_sub[wallet] = sub_id
@@ -1886,6 +2091,17 @@ class Cascade:
             "subprov_fast_retry_success": 0,
             "subprov_fast_retry_fallback": 0,
         }
+        # X24.2.1 Phase 3 — sweep-overlap guard. subprov_sweep_pass() is now run
+        # as its own task decoupled from _maintenance()'s sequential loop (so a
+        # slow sweep no longer blocks resync_subscriptions/cleanup_pass/etc.).
+        # This flag prevents a second sweep from starting while one is still
+        # running — an overlapping sweep would risk selecting and concurrently
+        # inspecting the SAME session twice (a real correctness risk, not just
+        # a performance one), since fair_sweep_candidates() would return
+        # unswept/least-recently-swept rows without knowing another cycle
+        # already claimed them.
+        self._sweep_in_progress: bool = False
+        self._sweep_skipped_overlap_count: int = 0
         # Ensure the cascade schema ONCE at startup — NOT on every _ops() call. The schema
         # ensure is a WRITE (CREATE TABLE/INDEX); running it on the hot _ops() path (called
         # from resync_subscriptions + cleanup on the async WS loop) blocked the event loop
@@ -1896,6 +2112,24 @@ class Cascade:
             store.operations_write("ws-cascade-schema-startup", store.ensure_cascade_schema)
         except Exception as _e:
             _log(f"⚠ startup schema ensure failed (will retry lazily): {_e}")
+
+        # X24.9 Phase 3 — startup integrity audit over every subscription source.
+        # Read-only; reports totals (never silently drops a failure) via the
+        # existing heartbeat rather than a new dashboard.
+        self._startup_validation: dict = {}
+        try:
+            from src.ops.subscription_target_audit import startup_validation_summary
+            _conn = self._ops()
+            try:
+                self._startup_validation = startup_validation_summary(_conn)
+            finally:
+                _conn.close()
+            _sv = self._startup_validation
+            _log(f"[X24.9] startup validation — valid={_sv['total_valid']} "
+                 f"invalid={_sv['total_invalid']} duplicates={_sv['total_duplicates']} "
+                 f"disabled={_sv['total_disabled']} by_source={_sv['invalid_by_source']}")
+        except Exception as _e:
+            _log(f"⚠ startup validation audit failed (non-fatal): {_e}")
 
     def _seen(self, candidate, sig):
         key = (candidate, sig)
@@ -1922,58 +2156,105 @@ class Cascade:
 
     def _process_subprov_sig_durable(self, subprov: str, sig: str, *,
                                      slot: Optional[int] = None,
-                                     source: str = "WS") -> list:
+                                     source: str = "WS",
+                                     advance_cursor: bool = True) -> list:
         """Durably process one subprov signature through the existing handler.
 
         The retry row is written before getTransaction/parser/DB fanout work, so
         a process restart, RPC timeout, or DB lock cannot erase the fact that the
         signature was seen.
+
+        advance_cursor: True (default, preserves all prior behaviour) — on
+        success, marks the retry row DONE AND advances the durable cursor to
+        this signature, matching the WS live-path contract of processing
+        signatures one at a time in arrival order. Pass False when the caller
+        processes a BATCH out of chronological order (X24.7's alternating
+        signature-priority policy inside catch_up_subprov) — in that case the
+        retry row is still marked DONE here (safe in any order, keyed by its
+        own signature), but the cursor is NOT touched; the caller is
+        responsible for advancing it exactly once, to the newest successfully
+        processed signature in the batch, after the whole batch completes.
         """
         if not subprov or not sig:
             return []
+        # X24.2.2 — cut per-signature DB round-trips from 4 to 2. Each _ops() write
+        # blocks on the single process-wide DB_WRITE_SERIALIZE lock
+        # (src/utils/db_locking.py TrackedConnection._acquire_write_lane), shared by
+        # every writer in the whole process. X24.2.1 Phase 3 measurement showed
+        # RPC/network cost alone (~150-260ms/sig, isolated and under simulated
+        # concurrency) does not explain the 1,100-2,600ms/sig observed live —
+        # pointing at this lock as the amplified cost under concurrent sweep
+        # sessions. subprov_sig_enqueue() (write to PENDING) immediately followed by
+        # subprov_sig_mark_running() (write to RUNNING) wrote the SAME row twice in
+        # two separate lock acquisitions; subprov_sig_enqueue_running() combines them
+        # into one write with no change to crash-safety (see its docstring).
+        _sig_t0 = time.time()
         notification_seen_at = time.time()
         conn = self._ops()
         try:
+            _dedupe_t0 = time.time()
             row = conn.execute(
                 "SELECT status FROM wt_subprov_sig_retry "
                 "WHERE subprov_wallet=? AND signature=?",
                 (subprov, sig)).fetchone()
             if row and row[0] == "DONE":
+                # X24.2.3 Phase 3 — live counter for the redundant-work question:
+                # how often does the durable dedupe boundary actually short-circuit
+                # already-processed work, vs. every fetched signature being genuinely
+                # new (as offline sampling found: 0/48 across 8 live subprovs).
+                self._metric("subprov_sig_already_done_skipped")
                 return []
-            enqueued = store.subprov_sig_enqueue(conn, subprov=subprov, signature=sig, slot=slot)
-            if enqueued:
+            _dedupe_lookup_ms = round((time.time() - _dedupe_t0) * 1000, 1)
+            _enqueue_t0 = time.time()
+            is_new, first_seen_at = store.subprov_sig_enqueue_running(
+                conn, subprov=subprov, signature=sig, slot=slot)
+            _enqueue_ms = round((time.time() - _enqueue_t0) * 1000, 1)
+            if is_new:
                 self._metric("subprov_sig_retry_enqueued")
-            seen_row = conn.execute(
-                "SELECT first_seen_at FROM wt_subprov_sig_retry "
-                "WHERE subprov_wallet=? AND signature=?",
-                (subprov, sig)).fetchone()
-            first_seen_at = notification_seen_at if enqueued else (
-                float(seen_row[0]) if seen_row and seen_row[0] else notification_seen_at
-            )
         finally:
             conn.close()
 
         try:
-            conn = self._ops()
-            try:
-                store.subprov_sig_mark_running(conn, subprov=subprov, signature=sig, slot=slot)
-            finally:
-                conn.close()
-
+            _handle_tx_t0 = time.time()
             result = self._handle_subprov_tx(subprov, sig, seen_at=first_seen_at)
+            _handle_tx_ms = round((time.time() - _handle_tx_t0) * 1000, 1)
 
+            _mark_done_t0 = time.time()
             conn = self._ops()
             try:
-                row = conn.execute(
-                    "SELECT wrap_close_time FROM wt_candidate_websocket_watches "
-                    "WHERE subprov_wallet=? AND wrap_close_signature=? "
-                    "ORDER BY detected_at DESC LIMIT 1",
-                    (subprov, sig)).fetchone()
-                block_time = row[0] if row else None
-                store.subprov_sig_mark_done(
-                    conn, subprov=subprov, signature=sig, slot=slot, block_time=block_time)
+                if advance_cursor:
+                    row = conn.execute(
+                        "SELECT wrap_close_time FROM wt_candidate_websocket_watches "
+                        "WHERE subprov_wallet=? AND wrap_close_signature=? "
+                        "ORDER BY detected_at DESC LIMIT 1",
+                        (subprov, sig)).fetchone()
+                    block_time = row[0] if row else None
+                    store.subprov_sig_mark_done(
+                        conn, subprov=subprov, signature=sig, slot=slot, block_time=block_time)
+                else:
+                    # X24.7 — batch/reordered path: mark this signature's retry row
+                    # DONE only. The caller (catch_up_subprov) advances the cursor
+                    # once, after the whole batch, to the newest successfully
+                    # processed signature — never per-signature here, since under
+                    # alternating order the "last call in the loop" is NOT
+                    # guaranteed to be the newest signature (verified: for any
+                    # batch size, the alternating sequence's final index is always
+                    # somewhere in the middle of the range, never the newest end).
+                    store.subprov_sig_mark_retry_done(conn, subprov=subprov, signature=sig)
             finally:
                 conn.close()
+            _mark_done_ms = round((time.time() - _mark_done_t0) * 1000, 1)
+            _sig_total_ms = round((time.time() - _sig_t0) * 1000, 1)
+            self._last_sig_stage_timing = {
+                "subprov": subprov, "sig": sig, "dedupe_lookup_ms": _dedupe_lookup_ms,
+                "enqueue_running_ms": _enqueue_ms, "handle_tx_ms": _handle_tx_ms,
+                "mark_done_ms": _mark_done_ms, "total_ms": _sig_total_ms,
+            }
+            if _sig_total_ms > 500:  # only log the expensive ones to avoid flooding
+                _log(f"⏲ sig_stage_timing {subprov[:12]}… dedupe={_dedupe_lookup_ms}ms "
+                     f"enqueue_running={_enqueue_ms}ms "
+                     f"handle_tx={_handle_tx_ms}ms mark_done={_mark_done_ms}ms "
+                     f"total={_sig_total_ms}ms")
             self._metric("subprov_sig_processed")
             if source == "CATCHUP":
                 self._metric("subprov_sig_catchup_recovered")
@@ -3084,23 +3365,46 @@ class Cascade:
 
         The durable retry row already exists before this is called. If all quick attempts
         return None, the caller raises and the existing retry worker remains the safety net.
+
+        X24.2.3 Phase 1/4 — per-attempt timing (additive only, no retry-logic change).
+        Separates sleep-to-target time from actual RPC-call time per attempt, so the
+        retry-behaviour audit can attribute cost to "waiting for the scheduled offset"
+        vs "the RPC call itself was slow" rather than only seeing a combined total.
         """
         burst_started_at = time.time()
         first_rpc_started_at = None
         last_rpc_done_at = None
         none_count = 0
         offsets = SUBPROV_FAST_RETRY_OFFSETS or (0.0,)
+        _attempt_timings: list[dict] = []
         for idx, offset in enumerate(offsets, start=1):
             target = burst_started_at + max(0.0, float(offset))
+            _sleep_t0 = time.time()
             sleep_for = target - time.time()
             if sleep_for > 0:
                 time.sleep(sleep_for)
+            _sleep_ms = round((time.time() - _sleep_t0) * 1000, 1)
             rpc_started_at = time.time()
             if first_rpc_started_at is None:
                 first_rpc_started_at = rpc_started_at
             self._metric("subprov_fast_retry_attempts")
-            tx = _get_tx(sig)
+            # X24.3 — deadline-guarded fetch. tx/outcome distinguish SUCCESS from
+            # every tail-protection outcome (DEADLINE_EXCEEDED_RUNNING,
+            # CANCELLED_BEFORE_START, CAPACITY_REJECTED, CIRCUIT_OPEN_REJECTED,
+            # RPC_ERROR, NOT_FOUND) for telemetry (design requirement 4), while
+            # this loop's own retry scheduling (offsets/sleep/attempt count) is
+            # completely unchanged — a guarded-but-failed attempt is still just
+            # "no tx this attempt" to the existing retry logic below.
+            _deadline_result = _get_tx_with_outcome(sig)
+            tx = _deadline_result.value
+            _outcome = _deadline_result.outcome
             last_rpc_done_at = time.time()
+            _rpc_call_ms = round((last_rpc_done_at - rpc_started_at) * 1000, 1)
+            self._metric(f"subprov_gettx_outcome_{_outcome.value.lower()}")
+            _attempt_timings.append({
+                "attempt": idx, "sleep_ms": _sleep_ms, "rpc_call_ms": _rpc_call_ms,
+                "result": "HIT" if tx else "NONE", "outcome": _outcome.value,
+            })
             if tx:
                 if idx > 1:
                     self._metric("subprov_fast_retry_success")
@@ -3109,12 +3413,17 @@ class Cascade:
                         f"attempt={idx} seen_to_available={_lat_ms(last_rpc_done_at, seen_at)}ms "
                         f"first_rpc_to_available={_lat_ms(last_rpc_done_at, first_rpc_started_at)}ms"
                     )
+                _total_burst_ms = round((time.time() - burst_started_at) * 1000, 1)
+                if _total_burst_ms > 500:
+                    _log(f"⏲ retry_burst_timing {subprov[:12]}… sig={sig[:12]}… "
+                         f"attempts={_attempt_timings} total_burst_ms={_total_burst_ms}")
                 return tx, {
                     "first_rpc_started_at": first_rpc_started_at,
                     "tx_available_at": last_rpc_done_at,
                     "attempts": idx,
                     "none_count": none_count,
                     "fallback": False,
+                    "attempt_timings": _attempt_timings,
                 }
             none_count += 1
             self._metric("subprov_gettx_none_count")
@@ -3125,30 +3434,49 @@ class Cascade:
             f"attempts={len(offsets)} none={none_count} "
             f"seen_to_fallback={_lat_ms(last_rpc_done_at, seen_at)}ms"
         )
+        _total_burst_ms = round((time.time() - burst_started_at) * 1000, 1)
+        _log(f"⏲ retry_burst_timing {subprov[:12]}… sig={sig[:12]}… "
+             f"attempts={_attempt_timings} total_burst_ms={_total_burst_ms} FALLBACK")
         return None, {
             "first_rpc_started_at": first_rpc_started_at,
             "tx_available_at": None,
             "attempts": len(offsets),
             "none_count": none_count,
+            "attempt_timings": _attempt_timings,
             "fallback": True,
         }
 
     def _handle_subprov_tx(self, subprov, sig, seen_at: Optional[float] = None):
+        # X24.2.3 Phase 1 — sub-stage timing inside handle_tx, the stage X24.2.2 left
+        # unaddressed and confirmed dominant (median 531ms, mean 1158ms, max 8423ms
+        # across the X24.2.2 validation window). Additive only; isolates RPC-fetch
+        # (already partly covered by _get_subprov_tx_fast_retry's own tx_retry_info)
+        # from decode/classification/candidate-extraction cost, to answer the sprint's
+        # key question: why do some signatures cost 5-12s while others cost ms.
+        _htx_t0 = time.time()
         conn = self._ops()
         try:
+            _session_t0 = time.time()
             sess = store.session_for_subprov(conn, subprov)
+            _session_lookup_ms = round((time.time() - _session_t0) * 1000, 1)
             if not sess:
                 return []                              # session gone/expired
             treasury, funding_time = sess[1], sess[2]
+            _rpc_t0 = time.time()
             tx, tx_retry_info = self._get_subprov_tx_fast_retry(subprov, sig, seen_at=seen_at)
+            _rpc_fetch_ms = round((time.time() - _rpc_t0) * 1000, 1)
             if not tx:
                 raise RuntimeError("getTransaction returned None")
             wrap_close_time = (tx or {}).get("blockTime")   # on-chain creator BIRTH time
+            _treasuries_t0 = time.time()
             _known_treasuries = getattr(self, "_treasuries", None)
             if _known_treasuries is None:
                 _known_treasuries = _confirmed_treasuries(conn)
                 self._treasuries = _known_treasuries
+            _treasuries_lookup_ms = round((time.time() - _treasuries_t0) * 1000, 1)
+            _decode_t0 = time.time()
             raw_dests = extract_close_destinations(tx)
+            _decode_ms = round((time.time() - _decode_t0) * 1000, 1)
             # Self-close guard: subprov closing its own WSOL ATA back to itself.
             # This is just WSOL round-tripping (buy-swarm trader), not creator seeding.
             self_closes = [d for d in raw_dests if d.get("candidate") == subprov]
@@ -3163,6 +3491,13 @@ class Cascade:
                 # No wrap-close found. Check if this subprov plain-transferred SOL to
                 # an unknown wallet (capital routing to a child subprov tier).
                 # If so, open a session for that child so ITS wrap-closes get watched.
+                # X24.2.3 Phase 1 — this branch (plain-transfer classification) is
+                # hypothesised as a variance source: it calls _classify_recipient()
+                # (a DB read on cache miss) once per qualifying account key in the tx,
+                # an O(n) cost per signature that the earlier per-stage timing
+                # (handle_tx as a single blob) could not isolate.
+                _noclass_t0 = time.time()
+                _classify_calls = 0
                 meta = (tx or {}).get("meta") or {}
                 keys = [k.get("pubkey") if isinstance(k, dict) else k
                         for k in ((tx or {}).get("transaction", {}).get("message", {})
@@ -3181,6 +3516,7 @@ class Cascade:
                         if gain < TREASURY_PROVISION_MIN_SOL:
                             continue
                         # Only open session if w is not already known as a buy-swarm producer
+                        _classify_calls += 1
                         classification, _cmeta = self._classify_recipient(conn, w, amount_sol=gain,
                                                                             funding_treasury=subprov)
                         if classification in ("TREASURY_MESH", "BUY_SWARM_PROVISIONER"):
@@ -3226,7 +3562,23 @@ class Cascade:
                                                     "parent_subprov": subprov})
                                 _log(f"⊘ NO_SUBSCRIBE sub-subprov {subprov[:10]}… → {w[:12]}… "
                                      f"{gain:.2f}◎ (INTEL_ONLY, no WS)")
+                    _noclass_ms = round((time.time() - _noclass_t0) * 1000, 1)
+                    _htx_total_ms = round((time.time() - _htx_t0) * 1000, 1)
+                    if _htx_total_ms > 500:
+                        _log(f"⏲ handle_tx_stage_timing {subprov[:12]}… sig={sig[:12]}… "
+                             f"session={_session_lookup_ms}ms rpc_fetch={_rpc_fetch_ms}ms "
+                             f"treasuries={_treasuries_lookup_ms}ms decode={_decode_ms}ms "
+                             f"noclass_branch={_noclass_ms}ms classify_calls={_classify_calls} "
+                             f"branch=NO_DESTS_WITH_CHILDREN total={_htx_total_ms}ms")
                     return child_sessions
+                _noclass_ms = round((time.time() - _noclass_t0) * 1000, 1)
+                _htx_total_ms = round((time.time() - _htx_t0) * 1000, 1)
+                if _htx_total_ms > 500:
+                    _log(f"⏲ handle_tx_stage_timing {subprov[:12]}… sig={sig[:12]}… "
+                         f"session={_session_lookup_ms}ms rpc_fetch={_rpc_fetch_ms}ms "
+                         f"treasuries={_treasuries_lookup_ms}ms decode={_decode_ms}ms "
+                         f"noclass_branch={_noclass_ms}ms classify_calls={_classify_calls} "
+                         f"branch=NO_DESTS_NO_CHILDREN total={_htx_total_ms}ms")
                 return []
             # ── PROTECT FIRST, CLASSIFY SECOND ────────────────────────────────────
             # Build watcher_metas from dests immediately — no DB writes precede this.
@@ -3277,6 +3629,7 @@ class Cascade:
 
             # ── Phase B: record wrap-close evidence + promote to PROVISIONAL_SUBPROV ──
             # Trailing classification — runs after in-memory protection is established.
+            _classify_t0 = time.time()
             _mech = dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
             try:
                 store.promote_to_subprov(
@@ -3290,6 +3643,7 @@ class Cascade:
                 )
             except Exception as _e:
                 _log(f"[Phase B] promote_to_subprov failed: {_e}")
+            _classify_ms = round((time.time() - _classify_t0) * 1000, 1)
             emit_event("WRAP_CLOSE_FANOUT_DETECTED", wallet=subprov,
                        related=dests[0]["candidate"],
                        payload={"wrap_close_sig": sig, "base": dests[0].get("base_amount_sol"),
@@ -3300,6 +3654,7 @@ class Cascade:
                 self._post_create_last_fanout[subprov] = time.time()
                 _log(f"⏱ POST_CREATE_ACTIVE {subprov[:12]}… — fanout heartbeat, window extended")
             # Persist fan-out destinations (DB classification — trailing, after in-memory protection)
+            _candidate_extraction_t0 = time.time()
             new_watches = []
             watcher_metas = []
             if SAVE_CANDIDATE_FANOUT:
@@ -3329,7 +3684,9 @@ class Cascade:
                 if new_watches:
                     _log(f"📋 wrap-close fanout {subprov[:12]}… → {len(new_watches)} candidate(s) saved")
                     _log(f"[CANDIDATE_CLASSIFIED] subprov={subprov[:12]}… db_saved={len(new_watches)} of {len(dests)}")
+            _candidate_extraction_ms = round((time.time() - _candidate_extraction_t0) * 1000, 1)
             # Record fanout event (powers Bursts/Recipients columns in the ops dashboard)
+            _durable_handler_t0 = time.time()
             try:
                 store.record_fanout_event(
                     conn, subprov=subprov, treasury=treasury,
@@ -3337,6 +3694,7 @@ class Cascade:
                     dests=dests, sig=sig)
             except Exception as _fe:
                 _log(f"[fanout_event] write failed: {_fe}")
+            _durable_handler_ms = round((time.time() - _durable_handler_t0) * 1000, 1)
             # Legacy path: feed ProgramWatcher if protect-first flag is off
             if not _protect_first and prog_watcher and watcher_metas:
                 prior_creates = (conn.execute(
@@ -3369,6 +3727,14 @@ class Cascade:
                     _log(f"⏸ ProgramWatcher deferred [{op_phase} burst={burst_size} ≥ threshold — INTEL only]")
             # ── Live burst-detection (BUY_SWARM safety valve) ─────────────────
             # Retrospective: runs after candidates are already in-memory. Evicts if confirmed swarm.
+            _htx_total_ms = round((time.time() - _htx_t0) * 1000, 1)
+            if _htx_total_ms > 500:
+                _log(f"⏲ handle_tx_stage_timing {subprov[:12]}… sig={sig[:12]}… "
+                     f"session={_session_lookup_ms}ms rpc_fetch={_rpc_fetch_ms}ms "
+                     f"treasuries={_treasuries_lookup_ms}ms decode={_decode_ms}ms "
+                     f"classify={_classify_ms}ms candidate_extraction={_candidate_extraction_ms}ms "
+                     f"durable_handler={_durable_handler_ms}ms dest_count={len(dests)} "
+                     f"branch=WRAP_CLOSE_FANOUT total={_htx_total_ms}ms")
             if CLASSIFICATION_ENFORCE and new_watches and self._is_buy_swarm_burst(conn, subprov):
                 _log(f"⚡ burst threshold hit for {subprov[:14]}… — triggering BUY_SWARM gate")
                 expired = self._gate_buy_swarm(conn, subprov, source="live_burst")
@@ -3557,6 +3923,14 @@ class Cascade:
                                     "mint_source": launch.get("mint_source")})
                 alert_emitted_at = time.time()         # T4
                 _log_program_create_latency(launch, candidate, alert_emitted_at)
+                # X28.0 Phase 8 — direct proof the decoupling works: did this CREATE land
+                # after the parent subprov's own WS subscription was already gone? Purely
+                # observational; does not affect recording/teardown either way.
+                _launch_subprov = launch.get("subprov")
+                if _launch_subprov and _launch_subprov not in self.mgr.wallet_kind:
+                    self._metric("create_after_parent_unsubscribe")
+                    _log(f"✅ CREATE_AFTER_PARENT_UNSUBSCRIBE creator={candidate[:12]}… "
+                         f"subprov={_launch_subprov[:12]}… — candidate detection survived parent cleanup")
                 # AUDIT phase 1 — off-thread so the realtime path isn't blocked by the
                 # buyer-position + curve-replay RPC work.
                 self._trigger_audit_phase1(launch, candidate, sig, ws_seen_at, alert_emitted_at)
@@ -3640,15 +4014,41 @@ class Cascade:
     #      This scans an ACTIVE subprov's recent sigs for wrap-closes we haven't processed and
     #      runs the same discover→subscribe→candidate-catch-up flow — turning a ~100s miss into
     #      a few seconds. Polling can't beat a 1s atomic launch, but it makes recovery RELIABLE.
-    async def catch_up_subprov(self, subprov, limit=SUBPROV_DURABLE_CATCHUP_LIMIT):
+    async def catch_up_subprov(self, subprov, limit=SUBPROV_DURABLE_CATCHUP_LIMIT) -> str:
+        """Fetch and process recent signatures for one subprov.
+
+        X24.2 deployment-readiness fix: returns an explicit outcome string
+        instead of always returning None regardless of success or failure.
+        Callers that need to know whether a genuine inspection happened
+        (e.g. subprov_sweep_pass's fairness bookkeeping) MUST branch on this
+        return value rather than assuming the call succeeded just because it
+        didn't raise.
+
+        Outcomes:
+          "SUCCESS"      — the RPC call completed and returned a signature list
+                           (possibly empty — an empty list is a genuine, successful
+                           inspection that found nothing new, not a failure).
+          "RPC_TIMEOUT"  — the RPC call did not complete within budget.
+          "RPC_ERROR"    — the RPC call raised an exception.
+          "NO_RESULT"    — the RPC call completed but returned None (Helius-side
+                           failure surfaced as a null payload rather than an
+                           exception/timeout).
+        """
+        # X24.2.1 Phase 1 — per-stage timing instrumentation (additive only, no
+        # ordering/fairness change). Measures exactly where wall-clock time goes
+        # inside one catch_up_subprov() call, to prove or disprove the "thread-
+        # pool contention" hypothesis rather than assume it.
+        _stage_t0 = time.time()
         conn = self._ops()
         try:
             last_seen = store.subprov_cursor(conn, subprov)
         finally:
             conn.close()
+        _cursor_lookup_ms = round((time.time() - _stage_t0) * 1000, 1)
         params = {"limit": limit, "commitment": "confirmed"}
         if last_seen:
             params["until"] = last_seen
+        _getsigs_t0 = time.time()
         try:
             sigs_raw = await asyncio.wait_for(
                 _arpc("getSignaturesForAddress", [subprov, params]),
@@ -3658,35 +4058,111 @@ class Cascade:
             global _CATCHUP_TIMEOUT_COUNT
             _CATCHUP_TIMEOUT_COUNT += 1
             _log(f"⚠ subprov catch-up sig fetch RPC_ERROR {subprov[:12]}… timeout commitment=confirmed")
-            return
+            return "RPC_TIMEOUT"
         except Exception as exc:
             _log(f"⚠ subprov catch-up sig fetch RPC_ERROR {subprov[:12]}… commitment=confirmed: {exc}")
-            return
+            return "RPC_ERROR"
+        _getsigs_ms = round((time.time() - _getsigs_t0) * 1000, 1)
         if sigs_raw is None:
             _log(f"⚠ subprov catch-up sig fetch RPC_ERROR {subprov[:12]}… commitment=confirmed")
-            return
+            return "NO_RESULT"
         sigs = sigs_raw if isinstance(sigs_raw, list) else []
 
         clean = [x for x in sigs if isinstance(x, dict) and x.get("signature") and not x.get("err")]
         if len(clean) >= limit:
             self._metric("subprov_sig_gap_detected")
             _log(f"⚠ subprov_sig_gap_detected {subprov[:12]}… fetched limit={limit}; cursor may lag")
-        # RPC returns newest→oldest; process oldest→newest so cursor ends on
-        # the newest processed signature and candidate timing remains natural.
-        for s in reversed(clean):
+        # `clean` is newest→oldest (Solana getSignaturesForAddress order); index 0 = newest.
+        # X24.7 — processing order is now policy-driven (default ALTERNATING newest/oldest,
+        # evidence: full-population replay of every reconstructable confirmed launch showed
+        # this order improves both median AND P95 inspections-to-creator vs the prior
+        # oldest-first order). This is a REORDERING only: _order_signature_indices always
+        # returns a strict permutation of every index, so every signature in `clean` is still
+        # processed exactly once per cycle regardless of policy — never fewer, never skipped.
+        #
+        # Cursor correctness: subprov_sig_mark_done() (the pre-X24.7 path) unconditionally
+        # overwrites the durable cursor on every call, and was only correct because the old
+        # oldest-first loop guaranteed the LAST call was for the newest signature. Under any
+        # reordering that is no longer true (verified: the alternating sequence's last-visited
+        # index is always somewhere in the middle of the range, never the newest end). So this
+        # loop now calls _process_subprov_sig_durable(..., advance_cursor=False) — which still
+        # marks each signature's retry row DONE on success, exactly as before, but does NOT
+        # touch wt_subprov_sig_cursor — and the cursor is advanced explicitly, exactly once,
+        # after the whole batch, to the newest signature that was ACTUALLY successfully
+        # processed (not merely the newest signature in the fetched batch — if the newest
+        # signature itself failed, the cursor must not skip past it, matching the pre-X24.7
+        # behaviour where a failed signature never advances the cursor either).
+        _sigproc_t0 = time.time()
+        _sigs_processed = 0
+        _newest_done_idx = None       # index into `clean` of the newest SUCCESSFULLY processed sig
+        _newest_done_sig = None
+        _newest_done_slot = None
+        order = _order_signature_indices(len(clean))
+        for idx in order:
+            s = clean[idx]
             sig = s.get("signature")
             if not sig:
                 continue
             try:
-                new_watches = await _ato_thread(
-                    self._process_subprov_sig_durable,
-                    subprov, sig, slot=s.get("slot"), source="CATCHUP")
+                # X24.2.3 Phase 1 — executor-queue wait: the gap between submitting
+                # this call to the shared default ThreadPoolExecutor and the worker
+                # thread actually starting it. Separates "waiting for a free thread"
+                # from "the work itself was slow" — a distinction the per-signature
+                # timing in X24.2.1 could not make (it only measured wall-clock from
+                # inside the call, after the thread had already started).
+                _submit_at = time.time()
+                _exec_wait_holder = {}
+                def _timed_call(_subprov=subprov, _sig=sig, _slot=s.get("slot")):
+                    _exec_wait_holder["wait_ms"] = round((time.time() - _submit_at) * 1000, 1)
+                    return self._process_subprov_sig_durable(
+                        _subprov, _sig, slot=_slot, source="CATCHUP", advance_cursor=False)
+                new_watches = await _ato_thread(_timed_call)
+                _exec_wait_ms = _exec_wait_holder.get("wait_ms", 0.0)
+                if _exec_wait_ms > 100:
+                    _log(f"⏲ executor_wait {subprov[:12]}… sig={sig[:12]}… wait_ms={_exec_wait_ms}")
             except Exception:
                 continue
+            _sigs_processed += 1
+            # Track the newest (lowest `clean` index) signature seen so far among
+            # those that completed without raising — this is what the cursor
+            # advances to, regardless of the order they were actually visited in.
+            if _newest_done_idx is None or idx < _newest_done_idx:
+                _newest_done_idx = idx
+                _newest_done_sig = sig
+                _newest_done_slot = s.get("slot")
             for item in new_watches:
                 if isinstance(item, tuple) and item[0] == "UNSUBSCRIBE":
                     await self.mgr.unsubscribe(item[1])
+        if _newest_done_sig is not None:
+            _cursor_conn = self._ops()
+            try:
+                _bt_row = _cursor_conn.execute(
+                    "SELECT wrap_close_time FROM wt_candidate_websocket_watches "
+                    "WHERE subprov_wallet=? AND wrap_close_signature=? "
+                    "ORDER BY detected_at DESC LIMIT 1",
+                    (subprov, _newest_done_sig)).fetchone()
+                _block_time = _bt_row[0] if _bt_row else None
+                store.subprov_sig_advance_cursor(
+                    _cursor_conn, subprov=subprov, signature=_newest_done_sig,
+                    slot=_newest_done_slot, block_time=_block_time)
+            finally:
+                _cursor_conn.close()
+        _sigproc_ms = round((time.time() - _sigproc_t0) * 1000, 1)
+        _total_ms = round((time.time() - _stage_t0) * 1000, 1)
+        self._last_catchup_timing = {
+            "subprov": subprov, "cursor_lookup_ms": _cursor_lookup_ms,
+            "getsigs_ms": _getsigs_ms, "sigs_fetched": len(clean),
+            "sigs_processed": _sigs_processed, "sigproc_ms": _sigproc_ms,
+            "sigproc_ms_per_sig": round(_sigproc_ms / _sigs_processed, 1) if _sigs_processed else 0.0,
+            "total_ms": _total_ms,
+        }
+        if _total_ms > 1000:  # only log the expensive ones to avoid flooding
+            _log(f"⏱ catch_up_subprov timing {subprov[:12]}… cursor={_cursor_lookup_ms}ms "
+                 f"getsigs={_getsigs_ms}ms sigs_fetched={len(clean)} sigs_processed={_sigs_processed} "
+                 f"sigproc_total={_sigproc_ms}ms sigproc_per_sig={self._last_catchup_timing['sigproc_ms_per_sig']}ms "
+                 f"total={_total_ms}ms")
                     # new_watches is usually [] now; sentinels are legacy BUY_SWARM gate.
+        return "SUCCESS"
 
     # ---- launch audit phase 1 (off-thread) ---------------------------------
     def _trigger_audit_phase1(self, launch, creator, create_sig, ws_seen_at, alert_emitted_at):
@@ -3879,8 +4355,19 @@ class Cascade:
 
     async def cleanup_pass(self):
         dropped, stale_hot = self.mgr.sweep_stale_pending()
-        for w in dropped:
-            _log(f"⚠ dropped cold pending subscription {w[:14]}… (unconfirmed >{COLD_SUB_STALE_SEC}s)")
+        for w, kind, attempts in dropped:
+            if attempts < COLD_SUB_RETRY_MAX:
+                self.mgr._cold_retry_count[w] = attempts + 1
+                _log(f"⚠ cold pending subscription {w[:14]}… unconfirmed >{COLD_SUB_STALE_SEC}s "
+                     f"— resubscribing (attempt {attempts + 1}/{COLD_SUB_RETRY_MAX})")
+                await self.mgr.subscribe(w, kind)
+            else:
+                global _COLD_RETRY_EXHAUSTED_COUNT
+                _COLD_RETRY_EXHAUSTED_COUNT += 1
+                self.mgr._exhausted_by_kind[kind] = self.mgr._exhausted_by_kind.get(kind, 0) + 1
+                self.mgr._cold_retry_count.pop(w, None)
+                _log(f"⚠ dropped cold pending subscription {w[:14]}… "
+                     f"(unconfirmed >{COLD_SUB_STALE_SEC}s, exhausted {COLD_SUB_RETRY_MAX} retries)")
         for w in stale_hot:
             # HOT subscribe not confirmed within 2s — resubscribe immediately
             # (Helius may have dropped it silently; the burst fallback is already running)
@@ -3896,9 +4383,28 @@ class Cascade:
                 await self.mgr.unsubscribe(subprov)
                 _log(f"🗑 session expired/dismissed {subprov[:12]}…")
                 emit_event("SUBPROV_SESSION_EXPIRED", wallet=subprov)
+                # X28.0 Phase 1/2 — do NOT evict_by_subprov() here. Session TTL expiry means
+                # only the PARENT's own WS subscription is dropped (mgr.unsubscribe above);
+                # any candidates already armed in ProgramCreateWatcher.active_candidates must
+                # survive — their CREATE-detection lifecycle is independent of the parent
+                # session (X27.11 Phase 2: matching is purely `creator in active_candidates`
+                # against the single global pump.fun stream, with no reference to subprov
+                # state). Deleting them here was the confirmed defect: a subprov hitting its
+                # 30-min TTL silently destroyed already-armed CREATE coverage. Candidates now
+                # expire only via their own TTL (expire_stale_candidates, above) or an
+                # explicit CREATE_DETECTED/invalidation outcome.
                 if _pw:
-                    _pw.evict_by_subprov(subprov)
+                    _preserved = sum(1 for m in _pw.active_candidates.values() if m.get("subprov") == subprov)
+                    if _preserved:
+                        self._metric("parent_cleanup_candidates_preserved", _preserved)
+                        _log(f"🛡 PARENT_CLEANUP_PRESERVED subprov={subprov[:12]}… candidates_kept={_preserved}")
             # ── Phase D: reject unproven PROVISION_CANDIDATEs after 2h ──────
+            # NOTE (X28.0 Phase 1 audit): reject_unproven_sessions()'s own query already
+            # NOT EXISTS-guards on wt_subprov_evidence and any WATCHING/FIRED_CREATE/BUY_SWARM
+            # row in wt_candidate_websocket_watches — a session only reaches this branch with
+            # ZERO legitimate candidates, so evict_by_subprov() here is a defensive no-op, not
+            # a load-bearing eviction. Left in place; do not remove the underlying query's
+            # NOT EXISTS guards without re-auditing this call.
             for sid, subprov in store.reject_unproven_sessions(conn):
                 await self.mgr.unsubscribe(subprov)
                 _log(f"🚫 REJECTED {subprov[:12]}… — PROVISION_CANDIDATE, no wrap-close in 2h")
@@ -3920,15 +4426,208 @@ class Cascade:
 
     # ---- subprov sweep: catch-up every ACTIVE subprov (reliability backstop) ----
     async def subprov_sweep_pass(self):
-        """Run catch_up_subprov over all ACTIVE subprovs to recover any wrap-close whose WS
-        notification dropped/stalled. Bounded (MAX_ACTIVE_SUBPROVS, deduped sigs)."""
+        """Run catch_up_subprov over ACTIVE subprovs to recover any wrap-close whose WS
+        notification dropped/stalled (or, while WS_SUBPROV_WATCH_ENABLED=0, whose WS
+        notification never existed at all — this sweep is currently the PRIMARY
+        detection path, not a backstop; see X24.1/X24.2 reconciliation).
+
+        X24.2 Phase 2 — replaces the old unordered active_sessions()[:MAX_ACTIVE_SUBPROVS]
+        slice (which could let a session outside the arbitrary top-N expire without ever
+        being inspected — the proven AWiaGsus-class coverage defect) with a deterministic,
+        durable fair scheduler: never-swept-first (soonest expiry), then
+        least-recently-swept (soonest expiry), id as tie-breaker. The ordering survives a
+        process restart because it is derived entirely from durable columns
+        (last_swept_at/sweep_count/first_swept_at), not in-memory state.
+
+        Still bounded to MAX_ACTIVE_SUBPROVS RPC calls per cycle — this is a rotation
+        fix, not a cap increase. Given hundreds of eligible sessions can exist
+        concurrently, full coverage is achieved over successive cycles (bounded by
+        ceil(eligible / cap) * SUBPROV_SWEEP_SEC), not within a single cycle.
+
+        Deployment-readiness fix (X24.2 review): mark_swept() is now called ONLY
+        when catch_up_subprov() reports "SUCCESS" — i.e. the RPC call genuinely
+        completed and was actually inspected, even if it found zero new signatures
+        (an empty result is a real, successful inspection, not a failure). A
+        session whose inspection failed (RPC_TIMEOUT / RPC_ERROR / NO_RESULT) is
+        deliberately left un-swept so it stays at (or near) the front of the
+        never-swept/least-recently-swept queue and is retried on a future cycle,
+        rather than being falsely marked as inspected and pushed to the back of
+        the fairness queue. This is the fix for the confirmed defect where
+        mark_swept() previously fired unconditionally regardless of outcome.
+
+        X24.2.1 Phase 3 — bounded concurrency. Phase 1 instrumentation PROVED
+        (not assumed) the dominant cost is sequential per-signature processing
+        inside catch_up_subprov itself (median ~8.3s/session, up to 50
+        sequential getTransaction calls per session), NOT executor contention
+        (measured queue_depth=0 throughout). Ten sessions run with at most
+        SWEEP_CONCURRENCY (default 4) in flight at once via a semaphore — the
+        SELECTION and PRIORITY ORDER from fair_sweep_candidates() is completely
+        unchanged (still exactly the same rows, same order); only how many of
+        them are inspected in parallel changes. mark_swept() is still called
+        ONLY on a SUCCESS outcome, exactly as before, from each session's own
+        independent branch — bounded concurrency does not change that
+        contract, it just lets several independent branches run at once.
+        No session can be double-selected within one cycle (rows come from a
+        single SELECT), and this whole method is guarded against overlapping
+        with a PRIOR cycle by the caller (_sweep_in_progress)."""
         conn = self._ops()
         try:
-            subprovs = [s[1] for s in store.active_sessions(conn)[:MAX_ACTIVE_SUBPROVS]]
+            rows = store.fair_sweep_candidates(conn, limit=MAX_ACTIVE_SUBPROVS)
+            coverage = store.sweep_coverage_snapshot(conn, cap=MAX_ACTIVE_SUBPROVS)
         finally:
             conn.close()
-        for subprov in subprovs:
-            await self.catch_up_subprov(subprov)
+        self._metric("sweep_cycles_run")
+        self._subprov_sig_metrics["sweep_eligible_sessions_last_cycle"] = coverage["eligible_sessions"]
+        self._subprov_sig_metrics["sweep_selected_last_cycle"] = len(rows)
+        self._subprov_sig_metrics["sweep_never_swept_gauge"] = coverage["never_swept"]
+        self._subprov_sig_metrics["sweep_expiring_60s_never_swept_gauge"] = coverage["expiring_within_60s_never_swept"]
+        self._subprov_sig_metrics["sweep_swept_within_30s_gauge"] = coverage["swept_within_30s"]
+        self._subprov_sig_metrics["sweep_duplicate_sweep_gauge"] = coverage["sessions_swept_more_than_once"]
+        sweep_started_at = time.time()
+        failed_outcomes = 0
+        per_session_timings: list[dict] = []
+        semaphore = asyncio.Semaphore(SWEEP_CONCURRENCY)
+
+        async def _inspect_one(row):
+            nonlocal failed_outcomes
+            session_id, subprov = row[0], row[1]
+            async with semaphore:
+                _queue_wait_ms = round((time.time() - sweep_started_at) * 1000, 1)
+                _session_t0 = time.time()
+                outcome = await self.catch_up_subprov(subprov)
+                _catchup_ms = round((time.time() - _session_t0) * 1000, 1)
+            self._metric("sweep_rpc_requests_issued")
+            _mark_swept_ms = 0.0
+            if outcome == "SUCCESS":
+                _mark_t0 = time.time()
+                _mconn = self._ops()
+                try:
+                    store.mark_swept(_mconn, session_id)
+                finally:
+                    _mconn.close()
+                _mark_swept_ms = round((time.time() - _mark_t0) * 1000, 1)
+            else:
+                failed_outcomes += 1
+                self._metric(f"sweep_inspection_failed_{outcome.lower()}")
+                _log(f"⚠ sweep inspection NOT counted as swept (session_id={session_id} "
+                     f"subprov={subprov[:12]}… outcome={outcome}) — will retry on a future cycle")
+            per_session_timings.append({
+                "session_id": session_id, "subprov": subprov[:12], "outcome": outcome,
+                "queue_wait_ms": _queue_wait_ms, "catchup_ms": _catchup_ms,
+                "mark_swept_ms": _mark_swept_ms,
+                "total_ms": round(_queue_wait_ms + _catchup_ms + _mark_swept_ms, 1),
+            })
+
+        # Bounded concurrency, not an unbounded gather over all `rows` — the
+        # semaphore caps how many catch_up_subprov() calls (and therefore RPC
+        # calls) are in flight simultaneously to exactly SWEEP_CONCURRENCY,
+        # regardless of how many rows were selected this cycle.
+        await asyncio.gather(*(_inspect_one(row) for row in rows))
+
+        self._subprov_sig_metrics["sweep_last_cycle_duration_ms"] = round((time.time() - sweep_started_at) * 1000, 1)
+        self._subprov_sig_metrics["sweep_failed_inspections_last_cycle"] = failed_outcomes
+        self._last_sweep_per_session_timings = per_session_timings
+        if rows:
+            _cycle_ms = self._subprov_sig_metrics['sweep_last_cycle_duration_ms']
+            _sum_individual_ms = round(sum(t["total_ms"] for t in per_session_timings), 1)
+            _executor_stats = _default_executor_stats()
+            _log(f"🧭 sweep cycle: eligible={coverage['eligible_sessions']} selected={len(rows)} "
+                 f"failed={failed_outcomes} never_swept={coverage['never_swept']} "
+                 f"expiring_60s_unswept={coverage['expiring_within_60s_never_swept']} "
+                 f"duration_ms={_cycle_ms} sum_individual_ms={_sum_individual_ms} "
+                 f"execution_mode=CONCURRENT(cap={SWEEP_CONCURRENCY}) executor={_executor_stats}")
+            for t in sorted(per_session_timings, key=lambda x: -x["total_ms"])[:5]:
+                _log(f"  ⏱ session={t['subprov']}… outcome={t['outcome']} "
+                     f"queue_wait_ms={t['queue_wait_ms']} catchup_ms={t['catchup_ms']} "
+                     f"mark_swept_ms={t['mark_swept_ms']} total_ms={t['total_ms']}")
+
+    async def subprov_sweep_pass_guarded(self):
+        """X24.2.1 Phase 3 — overlap guard + decoupling wrapper. Called from
+        _maintenance() as a fire-and-forget task (asyncio.ensure_future), NOT
+        awaited inline, so a slow sweep cycle can no longer block
+        resync_subscriptions/cleanup_pass/subprov_retry_pass/etc. in the same
+        loop iteration (the second proven contributor to the 53-90s cycle
+        problem — even after bounding concurrency, a sweep that's still
+        slower than SUBPROV_SWEEP_SEC would otherwise still stall the rest of
+        maintenance every cycle).
+
+        If a previous sweep is still running, this cycle is SKIPPED (not
+        queued, not stacked) and counted — never starts a second concurrent
+        sweep, which would risk fair_sweep_candidates() selecting/inspecting a
+        session that a still-running prior cycle already claimed."""
+        if self._sweep_in_progress:
+            self._sweep_skipped_overlap_count += 1
+            self._subprov_sig_metrics["sweep_skipped_overlap_count"] = self._sweep_skipped_overlap_count
+            _log(f"⏭ sweep cycle skipped — previous cycle still running "
+                 f"(skipped_overlap_count={self._sweep_skipped_overlap_count})")
+            return
+        self._sweep_in_progress = True
+        try:
+            await self.subprov_sweep_pass()
+        finally:
+            self._sweep_in_progress = False
+
+    def sweep_health_report(self, *, arrival_window_seconds: int = 300) -> dict:
+        """X24.2.1 — health semantics required by the sprint: report DEGRADED
+        whenever measured throughput is below the measured arrival rate, even
+        if every RPC call is individually succeeding (the exact failure mode
+        that made X24.2 look correct in isolated tests while failing in live
+        validation — 0 failed RPC outcomes, but the backlog still grew).
+
+        Sizes are derived from real durable state (sweep_coverage_snapshot,
+        sweep_arrival_rate) plus the in-process counters this cycle already
+        maintains — nothing here gates or alters scheduling behaviour, it is
+        read-only reporting."""
+        conn = self._ops()
+        try:
+            coverage = store.sweep_coverage_snapshot(conn, cap=MAX_ACTIVE_SUBPROVS)
+            arrivals = store.sweep_arrival_rate(conn, window_seconds=arrival_window_seconds)
+        finally:
+            conn.close()
+
+        cycle_ms = self._subprov_sig_metrics.get("sweep_last_cycle_duration_ms")
+        cycles_run = self._subprov_sig_metrics.get("sweep_cycles_run", 0)
+        selected_last = self._subprov_sig_metrics.get("sweep_selected_last_cycle", 0)
+        failed_last = self._subprov_sig_metrics.get("sweep_failed_inspections_last_cycle", 0)
+        succeeded_last = max(selected_last - failed_last, 0)
+
+        inspections_per_minute = None
+        if cycle_ms and cycle_ms > 0 and succeeded_last:
+            inspections_per_minute = round(succeeded_last / (cycle_ms / 1000.0 / 60.0), 2)
+
+        arrivals_per_minute = arrivals["arrivals_per_minute"]
+        backlog = coverage["never_swept"]
+        backlog_growth_per_minute = None
+        estimated_drain_minutes = None
+        degraded = None
+        if inspections_per_minute is not None:
+            backlog_growth_per_minute = round(arrivals_per_minute - inspections_per_minute, 2)
+            degraded = inspections_per_minute < arrivals_per_minute
+            if inspections_per_minute > arrivals_per_minute:
+                net_drain_per_minute = inspections_per_minute - arrivals_per_minute
+                estimated_drain_minutes = round(backlog / net_drain_per_minute, 1) if net_drain_per_minute > 0 else None
+
+        return {
+            "measured_at": int(time.time()),
+            "sweep_cycles_run": cycles_run,
+            "sweep_last_cycle_duration_ms": cycle_ms,
+            "inspections_per_minute": inspections_per_minute,
+            "arrivals_per_minute": arrivals_per_minute,
+            "backlog_never_swept": backlog,
+            "backlog_growth_per_minute": backlog_growth_per_minute,
+            "estimated_backlog_drain_minutes": estimated_drain_minutes,
+            "sweep_concurrency": SWEEP_CONCURRENCY,
+            "currently_running_sweep": self._sweep_in_progress,
+            "sweep_skipped_overlap_count": self._sweep_skipped_overlap_count,
+            "status": (
+                "UNKNOWN" if degraded is None else ("DEGRADED" if degraded else "HEALTHY")
+            ),
+            "note": (
+                "DEGRADED means measured inspection throughput is below measured "
+                "arrival rate -- the backlog is growing -- even if RPC calls are "
+                "succeeding. This is independent of RPC failure/timeout counts."
+            ),
+        }
 
     async def subprov_retry_pass(self):
         conn = self._ops()
@@ -4184,6 +4883,24 @@ async def run_cascade():
             "sub_rate":             RECONNECT_SUBSCRIBE_RATE,
             **{f"sub_{k}": v for k, v in ack_stats.items() if k != "p0_recent"},
             "sub_p0_recent": ack_stats.get("p0_recent", []),
+            # X27.7 — direct visibility into the confirmed root cause: cold subscriptions
+            # stuck waiting past COLD_SUB_STALE_SEC, and how many are mid-retry vs
+            # exhausted. If cold_retry_active stays high while subprov_ws_sig_seen stays
+            # flat, live detection is starved even though the process looks healthy.
+            "subprov_ws_sig_seen":  casc._subprov_sig_metrics.get("subprov_ws_sig_seen", 0),
+            "cold_sub_stale_sec":   COLD_SUB_STALE_SEC,
+            "cold_retry_active":    len(casc.mgr._cold_retry_count),
+            "cold_retry_exhausted": _COLD_RETRY_EXHAUSTED_COUNT,
+            # X24.8 — per-kind sent/confirmed/exhausted, to tell "this whole tier never
+            # acks" apart from "this one wallet never acks" without singling out wallets.
+            "sub_kind_breakdown":   casc.mgr.sub_kind_breakdown(),
+            # X24.9 — invalid-target rejection (runtime, Phase 4) + startup audit (Phase 3).
+            "invalid_subscription_targets":  casc.mgr._invalid_rejected_total,
+            "invalid_targets_by_source":     dict(casc.mgr._invalid_rejected_by_kind),
+            "startup_validation_failures":   (casc._startup_validation or {}).get("total_invalid", 0),
+            "startup_validation_by_source":  (casc._startup_validation or {}).get("invalid_by_source", {}),
+            "runtime_validation_failures":   (casc.mgr._invalid_rejected_total
+                                               + getattr(prog_watcher, "_invalid_rejected_total", 0)),
         }
         if prog_watcher:
             base.update(prog_watcher.get_metrics())
@@ -4298,7 +5015,17 @@ async def run_cascade():
                             if now - last_cleanup >= CLEANUP_SEC:
                                 await casc.cleanup_pass(); last_cleanup = now
                             if now - last_sweep >= SUBPROV_SWEEP_SEC:
-                                await casc.subprov_sweep_pass(); last_sweep = now
+                                # X24.2.1 Phase 3 — decoupled from this loop. A sweep
+                                # cycle can take far longer than SUBPROV_SWEEP_SEC
+                                # (measured 53-90s pre-fix); awaiting it inline here
+                                # was the second proven contributor to the throughput
+                                # problem, since it delayed resync_subscriptions/
+                                # cleanup_pass/subprov_retry_pass/etc. every cycle it
+                                # ran long. Fired as its own task; subprov_sweep_pass_guarded
+                                # itself refuses to overlap with a still-running prior
+                                # cycle (reports+skips rather than starting a second one).
+                                asyncio.ensure_future(casc.subprov_sweep_pass_guarded())
+                                last_sweep = now
                             if now - last_retry >= SUBPROV_SWEEP_SEC:
                                 await casc.subprov_retry_pass(); last_retry = now
                             if now - last_temp_sweep >= TEMP_SWEEP_INTERVAL_SEC:
@@ -4392,6 +5119,13 @@ async def run_cascade():
                     _log(f"WS loop error: {e}{_extra_detail} — reconnecting in {reconnect_delay}s")
                     await asyncio.sleep(reconnect_delay)
                     reconnect_delay = min(reconnect_delay * 2, 60)
+    # X24.3 design requirement 7 — explicit executor lifecycle: shut down the
+    # RPC deadline guard's dedicated pool on the normal stop path. Since this is
+    # a fresh Python process per daemon restart, the interpreter tearing down
+    # would reclaim these threads regardless — this call makes ownership
+    # explicit and auditable rather than relying on that implicitly.
+    if _get_tx_guard_instance is not None:
+        _get_tx_guard_instance.shutdown(wait=False)
     _log("stopped")
 
 

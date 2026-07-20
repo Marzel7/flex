@@ -254,8 +254,14 @@ def _rows_as_dicts(cursor) -> list[dict[str, Any]]:
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
-def edges_for_wallet(conn, wallet: str, *, limit: int = 50) -> dict[str, list[dict[str, Any]]]:
-    """Read-only: every observed edge where this wallet is the funder or the funded party."""
+def edges_for_wallet(conn, wallet: str, *, limit: int = 50, show_spam_transfers: bool = False) -> dict[str, list[dict[str, Any]]]:
+    """Read-only: every observed edge where this wallet is the funder or the funded party.
+
+    X29.4: known spam transfers are environmental noise, not operational
+    edges -- excluded from graph construction by default
+    (show_spam_transfers=False). Pass show_spam_transfers=True for
+    forensic/debugging inspection only; this flag never affects any
+    stored attribution, only what this read returns."""
     ensure_schema(conn)
     outgoing = _rows_as_dicts(conn.execute(
         "SELECT * FROM wt_provisioning_edges WHERE from_wallet=? "
@@ -265,6 +271,12 @@ def edges_for_wallet(conn, wallet: str, *, limit: int = 50) -> dict[str, list[di
         "SELECT * FROM wt_provisioning_edges WHERE to_wallet=? "
         "ORDER BY last_observed_by_flex DESC LIMIT ?", (wallet, limit)
     ))
+    if not show_spam_transfers:
+        from src.ops.known_spam_wallets import confirmed_spam_addresses
+        spam = frozenset(confirmed_spam_addresses(conn))
+        if spam:
+            outgoing = [e for e in outgoing if e.get("from_wallet") not in spam]
+            incoming = [e for e in incoming if e.get("from_wallet") not in spam]
     return {"outgoing": outgoing, "incoming": incoming}
 
 

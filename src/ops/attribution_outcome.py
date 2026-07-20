@@ -130,6 +130,82 @@ def _one(conn, sql: str, args: tuple = ()) -> dict[str, Any] | None:
         return None
 
 
+def _normalize_timestamp(value: Any) -> int | None:
+    """X27.9 Phase 4 — deterministic UTC normalization for a single launch
+    timestamp that may be an int/float epoch, a numeric string, or an
+    ISO-8601 string ("2026-07-16T16:53:35Z"). Returns None (never fabricates
+    "now" or 0) for anything that cannot be interpreted unambiguously as a
+    real timestamp — an invalid value must be ignored, not silently coerced
+    (a bare CAST(... AS INTEGER) on an ISO string truncates it to its
+    leading digits, e.g. "2026-07-16..." -> 2026, a wrong-but-plausible-
+    looking epoch second that would corrupt MIN/MAX)."""
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        s = value.strip()
+        if not s:
+            return None
+        if s.lstrip("-").isdigit():
+            return int(s)
+        try:
+            import datetime
+            s2 = s[:-1] + "+00:00" if s.endswith("Z") else s
+            dt = datetime.datetime.fromisoformat(s2)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
+            return int(dt.timestamp())
+        except (ValueError, TypeError):
+            return None
+    return None
+
+
+def _creator_launch_history_span(
+    core_conn, creator: str, measured_conditions: list[tuple[str, tuple, str]],
+    time_columns: list[str],
+) -> tuple[int, int | None, int | None]:
+    """X27.9 Phase 1/3 — the canonical creator activity span: derived
+    EXCLUSIVELY from the creator's actual launch records in token_analysis,
+    never from creator_funders.first_detected_at (a funder-discovery
+    timestamp, not an activity-span measurement — X27.8 found a creator
+    with a 3-month launch history measured as 6 seconds because all of its
+    funder rows were backfilled in the same 6-second pass).
+
+    Returns (valid_timestamp_count, first_seen, last_seen). Per Phase 4,
+    fewer than two valid timestamps must fail the observation-window gate
+    honestly rather than fabricate a span from a single point or zero
+    points — callers must check the count, not just truthiness of the
+    returned timestamps.
+
+    X27.9.1 Phase 1 — no longer gated by launch_count: the cost driver in
+    the original implementation was SELECT * (every column, every row),
+    not the row count itself. Selecting only the timestamp columns keeps
+    this a single linear pass with memory proportional to row count (a few
+    ints per row) regardless of creator size — measured against the
+    platform's largest creator (~16,000 launches) without issue. No O(N^2)
+    behaviour: exactly one query and one pass per creator."""
+    time_col_list = ",".join(time_columns) if time_columns else "NULL"
+    all_ts: list[int] = []
+    for where, args, include in measured_conditions:
+        rows = core_conn.execute(
+            f"SELECT {include} AS ok, {time_col_list} FROM token_analysis WHERE {where}", args,
+        ).fetchall()
+        for row in rows:
+            d = dict(row)
+            if not d.get("ok"):
+                continue
+            for col in time_columns:
+                if col in d and d[col] is not None:
+                    ts = _normalize_timestamp(d[col])
+                    if ts is not None:
+                        all_ts.append(ts)
+                    break
+    if len(all_ts) < 2:
+        return len(all_ts), None, None
+    return len(all_ts), min(all_ts), max(all_ts)
+
+
 def evaluate_launcher_profile(
     ops_conn,
     core_conn,
@@ -158,10 +234,6 @@ def evaluate_launcher_profile(
     if not creator_columns:
         return profile
     creator_expr = "COALESCE(" + ",".join(creator_columns) + ")" if len(creator_columns) > 1 else creator_columns[0]
-    time_expr = (
-        "COALESCE(" + ",".join(time_columns) + ")" if len(time_columns) > 1
-        else time_columns[0] if time_columns else "0"
-    )
     if "pf_ws_creator" in creator_columns and "earliest_tx_creator" in creator_columns:
         # pf_ws_creator is the authoritative launch creator. earliest_tx_creator
         # is a recovery hint and may be a common transaction authority shared by
@@ -181,7 +253,14 @@ def evaluate_launcher_profile(
             launch_count += int(row["launch_count"] or 0)
     profile["launch_count"] = launch_count
 
-    first_seen = last_seen = None
+    # X27.9 — funders is retained ONLY for historical_funder_count and
+    # material_infrastructure_change (its recency signal is still valid for
+    # "did new funding infrastructure just appear"). It must never supply
+    # the observation-window span itself: creator_funders.first_detected_at
+    # measures when WATCHTOWER discovered the funder, not when the creator
+    # was actually active — X27.8 found a creator with a 3-month launch
+    # history whose 5 funder rows were all backfilled in the same 6-second
+    # pass, producing observation_seconds=6 instead of the true ~893,000.
     funders = None
     if _table(core_conn, "creator_funders"):
         observed_expr = (
@@ -195,31 +274,28 @@ def evaluate_launcher_profile(
         ).fetchone()
         profile["historical_funder_count"] = int(funders["n"] or 0) if funders else 0
         profile["latest_funder_observed_at"] = int(funders["latest"] or 0) if funders else None
-        if funders:
-            first_seen, last_seen = funders["first_seen"], funders["latest"]
 
-    # Small launcher histories are cheap to measure directly. Very large
-    # histories use indexed funding observations, avoiding a full scan of every
-    # launch timestamp during classification/backfill.
-    if launch_count and (first_seen is None or last_seen is None) and launch_count <= 1000:
-        first_values, last_values = [], []
-        for where, args, include in measured_conditions:
-            row = core_conn.execute(
-                f"SELECT MIN(CASE WHEN {include} THEN CAST({time_expr} AS INTEGER) END) first_seen,"
-                f"MAX(CASE WHEN {include} THEN CAST({time_expr} AS INTEGER) END) last_seen "
-                f"FROM token_analysis WHERE {where}",
-                args,
-            ).fetchone()
-            if row and row["first_seen"] is not None:
-                first_values.append(row["first_seen"])
-            if row and row["last_seen"] is not None:
-                last_values.append(row["last_seen"])
-        first_seen = min(first_values) if first_values else None
-        last_seen = max(last_values) if last_values else None
-    if first_seen is not None or last_seen is not None:
+    # Canonical creator activity span — Phase 1/3: derived exclusively from
+    # the creator's own launch records in token_analysis, timestamp-
+    # normalized (Phase 4) so mixed epoch/ISO-8601 values never corrupt
+    # MIN/MAX via lexical truncation. X27.9.1 Phase 1 — no launch_count
+    # ceiling: qualification must not depend on creator size (a creator
+    # with 1001 launches must not be less classifiable than one with 999).
+    valid_ts_count = first_seen = last_seen = None
+    if launch_count:
+        valid_ts_count, first_seen, last_seen = _creator_launch_history_span(
+            core_conn, creator, measured_conditions, time_columns)
+    if first_seen is not None and last_seen is not None:
         profile["first_seen"] = first_seen
         profile["last_seen"] = last_seen
-        profile["observation_seconds"] = max(0, int((last_seen or 0) - (first_seen or 0)))
+        profile["observation_seconds"] = max(0, int(last_seen - first_seen))
+    else:
+        # Phase 4 — fewer than two valid historical launch timestamps must
+        # fail the observation-window gate honestly, never fabricate a span.
+        profile["first_seen"] = None
+        profile["last_seen"] = None
+        profile["observation_seconds"] = 0
+    profile["valid_launch_timestamp_count"] = valid_ts_count or 0
 
     if _table(ops_conn, "operator_entities"):
         profile["canonical_operator_linked"] = bool(ops_conn.execute(

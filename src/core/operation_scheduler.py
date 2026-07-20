@@ -524,6 +524,16 @@ def run_subprov_discovery_job(quiet=False) -> dict:
                     break
             if not sigs:
                 result = "NO_TX"
+            # X26.3: a wrap-close-shaped detection can still be known
+            # infrastructure (e.g. a CEX hot-wallet withdrawal that happens to
+            # match the wrap-close pattern) — never insert/promote a known
+            # infrastructure wallet as a sub-provisioner, regardless of which
+            # detection path produced the match.
+            if subprov:
+                from src.utils.infra_mapping import is_known_account
+                if is_known_account(subprov):
+                    result = "INFRASTRUCTURE_REJECTED"
+                    subprov = None
             conn.execute(
                 "INSERT OR REPLACE INTO wt_subprov_discovery_checked (creator, result, subprov, checked_at) "
                 "VALUES (?,?,?,?)", (creator, result, subprov, int(time.time())))

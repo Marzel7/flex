@@ -15,6 +15,51 @@
 .dw-search input:focus { border-color:rgba(34,211,238,.45); }
 .dw-search button { background:var(--ip-cyan-bg); color:var(--ip-cyan); border:1px solid rgba(34,211,238,.28); border-radius:6px; padding:9px 15px; cursor:pointer; font-size:11px; font-weight:700; }
 .dw-results { position:absolute; top:44px; left:0; right:82px; z-index:10; background:#0d1117; border:1px solid var(--ip-border2); border-radius:6px; box-shadow:0 12px 32px rgba(0,0,0,.45); display:none; overflow:hidden; }
+/* X29.6.1 — Discovery Window selector: a visible, always-present control so
+   the active browsing window is never ambiguous and never silently fixed. */
+.dw-window-select { display:flex; align-items:center; gap:6px; margin:0 0 16px; flex-wrap:wrap; }
+.dw-window-label { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ip-dim); margin-right:4px; }
+.dw-window-opt { background:transparent; border:1px solid var(--ip-border2); color:var(--ip-dim); border-radius:6px; padding:5px 11px; font-size:11px; font-weight:600; cursor:pointer; }
+.dw-window-opt:hover { border-color:rgba(34,211,238,.35); color:var(--ip-text); }
+.dw-window-opt.active { background:var(--ip-cyan-bg); border-color:rgba(34,211,238,.45); color:var(--ip-cyan); }
+.dw-window-empty { color:var(--ip-dim); font-style:italic; }
+/* X29.7 — Operations-first Discovery. dw-ops-primary gets the same visual
+   weight dw-topo-primary used to have (Operational Intelligence is now
+   demoted to supporting, no border emphasis of its own). */
+.dw-ops-panel { margin:0 0 16px; }
+.dw-ops-primary { border-left:3px solid var(--ip-green,#3fb950); }
+.dw-ops-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px; }
+.dw-op-card { display:block; background:var(--ip-card); border:1px solid var(--ip-border2); border-radius:8px; padding:13px 14px; text-decoration:none; color:inherit; }
+.dw-op-card:hover { border-color:rgba(34,211,238,.35); }
+.dw-op-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+.dw-op-name { font-size:12.5px; font-weight:800; color:var(--ip-text); }
+.dw-op-confidence { font-size:9px; text-transform:uppercase; letter-spacing:.04em; padding:2px 7px; border-radius:5px; font-weight:700; }
+.dw-op-confidence-confirmed { background:rgba(63,185,80,.12); color:var(--ip-green,#3fb950); }
+.dw-op-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:9px; }
+.dw-op-stat { text-align:center; }
+.dw-op-stat-v { font-size:15px; font-weight:800; color:var(--ip-text); font-variant-numeric:tabular-nums; }
+.dw-op-stat-l { font-size:8.5px; color:var(--ip-dim); text-transform:uppercase; letter-spacing:.03em; }
+.dw-op-mechs { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
+.dw-op-mech-chip { font-size:9.5px; background:rgba(167,139,250,.08); color:var(--ip-purple); border:1px solid rgba(167,139,250,.2); border-radius:5px; padding:2px 7px; }
+.dw-op-last { font-size:10px; color:var(--ip-dim); }
+.dw-role-browse-panel { margin:0 0 16px; }
+.dw-role-browse-rows { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.dw-role-browse-row { display:flex; align-items:center; gap:8px; background:var(--ip-card); border:1px solid var(--ip-border2); border-radius:7px; padding:8px 13px; text-decoration:none; color:var(--ip-text); font-size:11.5px; font-weight:600; }
+.dw-role-browse-row:hover { border-color:rgba(34,211,238,.35); }
+.dw-role-browse-view { color:var(--ip-cyan); font-size:10px; }
+/* Operational Lineage chain — variable depth, never a fixed 4-node template. */
+.dw-lineage-panel { margin:0 0 16px; border-left:3px solid var(--ip-cyan); }
+.dw-lineage-chain { display:flex; flex-direction:column; align-items:stretch; gap:2px; margin-top:10px; }
+.dw-lineage-node { display:block; background:var(--ip-card); border:1px solid var(--ip-border2); border-radius:7px; padding:11px 13px; text-decoration:none; color:inherit; }
+.dw-lineage-node:hover { border-color:rgba(34,211,238,.35); }
+.dw-lineage-node-current { border-color:var(--ip-cyan); background:var(--ip-cyan-bg); }
+.dw-lineage-role { font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:var(--ip-cyan); font-weight:700; margin-bottom:3px; }
+.dw-lineage-wallet { font-size:12px; font-family:ui-monospace,monospace; color:var(--ip-text); font-weight:700; }
+.dw-lineage-props { display:flex; flex-wrap:wrap; gap:10px; margin-top:7px; }
+.dw-lineage-prop { font-size:10px; }
+.dw-lineage-prop-k { color:var(--ip-dim); margin-right:4px; }
+.dw-lineage-prop-v { color:var(--ip-text); font-weight:600; }
+.dw-lineage-arrow { text-align:center; color:var(--ip-dim); font-size:13px; margin:2px 0; }
 .dw-result { display:flex; align-items:center; gap:9px; padding:9px 11px; border-bottom:1px solid var(--ip-border); text-decoration:none; }
 .dw-result:hover { background:var(--ip-card2); }
 .dw-result:last-child { border-bottom:0; }
@@ -96,6 +141,14 @@
 .dw-outcome { margin:0 0 12px; padding:14px 16px; border:1px solid rgba(34,211,238,.24); border-left:3px solid var(--ip-cyan); border-radius:7px; background:rgba(34,211,238,.045); }
 .dw-outcome-lead { border-color:rgba(245,158,11,.28); border-left-color:var(--ip-amber); background:rgba(245,158,11,.045); }
 .dw-outcome-insufficient { border-color:var(--ip-border2); border-left-color:var(--ip-dim); background:rgba(255,255,255,.015); }
+/* X29.3 — Funding Boundary is visually distinct from Operational Attribution
+   (a different accent, purple vs cyan) so the two dimensions never read as
+   one reinforcing conclusion. */
+.dw-funding-boundary { border-color:rgba(167,139,250,.28); border-left-color:var(--ip-purple); background:rgba(167,139,250,.045); }
+.dw-origin-line { opacity:.75; font-style:italic; }
+/* X29.4 — Wallet Quality: a neutral grey accent (not purple/cyan/amber) so it
+   never reads as an attribution or boundary conclusion -- purely informational. */
+.dw-wallet-quality { border-color:var(--ip-border2); border-left-color:var(--ip-dim); background:rgba(255,255,255,.02); }
 .dw-outcome-title { color:var(--ip-text); font-size:15px; font-weight:800; }
 .dw-outcome-reason { color:var(--ip-sec); font-size:11px; margin-top:5px; }
 .dw-outcome-meta { display:flex; gap:13px; flex-wrap:wrap; color:var(--ip-dim); font-size:9.5px; margin-top:9px; }
@@ -163,6 +216,48 @@
 .dw-health-track { height:5px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
 .dw-health-fill { display:block; height:100%; width:var(--health-width,0%); min-width:2px; border-radius:inherit; background:var(--health-col,#f97316); }
 .dw-health-count { color:var(--ip-text); font:10px ui-monospace,monospace; text-align:right; }
+.dw-health-group-summary { cursor:pointer; list-style:none; }
+.dw-health-group-summary::-webkit-details-marker { display:none; }
+.dw-health-subrows { padding-left:12px; border-left:1px solid rgba(255,255,255,.06); margin:2px 0 4px 4px; }
+.dw-health-subrow { padding:6px 2px; }
+/* X29.1.1 — Operational Intelligence progressive drill-down (replaces
+   X29.1's always-fully-expanded tree). Topology is exclusive; Behaviour and
+   Mechanism are additive, so a single mint can reappear under more than one
+   Behaviour/Mechanism row within one selection — expected, not a bug. Only
+   ONE level's rows are rendered at a time; the breadcrumb shows the current
+   selection path and lets an analyst jump back up a level. */
+.dw-topo-primary { margin-bottom:16px; }
+.dw-topo-breadcrumb { margin-top:8px; font-size:9.5px; color:var(--ip-dim); display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
+.dw-topo-crumb { cursor:pointer; color:var(--ip-cyan); text-decoration:none; }
+.dw-topo-crumb:hover { text-decoration:underline; }
+.dw-topo-crumb-root { color:var(--ip-sec); font-weight:700; }
+.dw-topo-crumb-sep { color:var(--ip-dim); opacity:.6; }
+.dw-topo-level-hdr { padding:8px 11px 4px; font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:var(--ip-dim); font-weight:700; }
+.dw-topo-level-rows { padding:0 11px 10px; }
+.dw-topo-row { display:flex; justify-content:space-between; align-items:center; padding:8px 4px; border-bottom:1px solid rgba(255,255,255,.04); cursor:pointer; }
+.dw-topo-row:last-child { border:0; }
+.dw-topo-row:hover { background:rgba(255,255,255,.03); }
+.dw-topo-row-label { color:var(--ip-text); font-size:10.5px; }
+.dw-topo-row-count { color:var(--ip-text); font:10px ui-monospace,monospace; }
+.dw-topo-launch-section { border-top:1px solid var(--ip-border); }
+.dw-topo-launch-table { padding:5px 11px 12px; max-height:280px; overflow-y:auto; }
+.dw-topo-launch-count { font-size:9px; color:var(--ip-dim); padding:4px 2px 8px; text-transform:uppercase; letter-spacing:.04em; }
+.dw-topo-launch-row { display:block; padding:5px 2px; font:10px ui-monospace,monospace; color:var(--ip-cyan); text-decoration:none; border-bottom:1px solid rgba(255,255,255,.03); }
+.dw-topo-launch-row:hover { text-decoration:underline; }
+/* X29.1.3 — matching launches grouped by attribution outcome */
+.dw-topo-outcome-group { margin-bottom:10px; }
+.dw-topo-outcome-group-hdr { font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:var(--ip-sec); font-weight:700; padding:6px 2px 4px; border-bottom:1px solid rgba(255,255,255,.06); margin-bottom:2px; }
+.dw-topo-outcome-group-count { color:var(--ip-dim); font:9px ui-monospace,monospace; font-weight:400; }
+/* Legacy Investigation Queue — collapsed by default, de-prioritised below
+   the Operational Intelligence panel. */
+.dw-legacy-panel { margin-top:16px; }
+.dw-legacy-summary { cursor:pointer; list-style:none; }
+.dw-legacy-summary::-webkit-details-marker { display:none; }
+.dw-legacy-note { color:var(--ip-amber,#f0b429); font-size:8.5px; text-transform:uppercase; letter-spacing:.04em; margin:2px 0 4px; }
+.dw-creator-group { grid-column:1/-1; border-bottom:1px solid var(--ip-border); }
+.dw-creator-group-summary { cursor:pointer; list-style:none; border-bottom:0; }
+.dw-creator-group-summary::-webkit-details-marker { display:none; }
+.dw-creator-group-tokens { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; padding:6px 0 10px 24px; }
 .dw-registry-callout { margin-bottom:10px; }
 .dw-filter-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 15px; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:7px; margin-bottom:10px; }
 .dw-case-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
@@ -210,6 +305,14 @@
     <button id="dw-search-btn" type="button">Search</button>
     <div class="dw-results" id="dw-results"></div>
   </div>
+  <!-- X29.6.1 — Discovery Window selector. Every landing-view fetch (bucket
+       table, operational-intelligence hierarchy, attribution summary) uses
+       this SAME selected window; changing it re-renders the whole landing
+       page rather than only one panel, so no two panels can ever disagree
+       about which window is active (the X29.6 audit's "no two panels use
+       different windows" requirement). Defaults to 24h, matching every
+       route's pre-existing default. -->
+  <div class="dw-window-select" id="dw-window-select" role="group" aria-label="Discovery window"></div>
   <div id="dw-loading" style="display:none;padding:35px;text-align:center;color:var(--ip-dim)">Assembling existing discovery evidence…</div>
   <div id="dw-content"></div>
 </div>
@@ -221,6 +324,33 @@
   'use strict';
   var INITIAL_ID={{ entity_id|tojson }}, INITIAL_TYPE={{ entity_type|tojson }};
   var FILTER_OUTCOME=new URLSearchParams(window.location.search).get('outcome_type');
+  var FILTER_BUCKET=new URLSearchParams(window.location.search).get('bucket');
+  var FILTER_BROWSE_ROLE=new URLSearchParams(window.location.search).get('browse_role');
+  // X29.6.1 — Discovery Window: single source of truth for every landing
+  // -view fetch, mirroring src/ops/discovery_window.py's WINDOW_ORDER/LABELS
+  // exactly. A confirmed launch must never become invisible simply because
+  // it is older than a hardcoded window (the X29.6 root-cause finding) --
+  // the window is now a first-class, user-visible, user-changeable control.
+  var DW_WINDOWS=[{v:'24h',l:'24 Hours'},{v:'7d',l:'7 Days'},{v:'30d',l:'30 Days'},{v:'all',l:'All'}];
+  var DW_WINDOW=new URLSearchParams(window.location.search).get('window')||'24h';
+  if(!DW_WINDOWS.some(function(w){return w.v===DW_WINDOW}))DW_WINDOW='24h';
+  function renderWindowSelector(){
+    var el=$('dw-window-select');
+    if(!el)return;
+    el.innerHTML='<span class="dw-window-label">Discovery Window</span>'+DW_WINDOWS.map(function(w){
+      return '<button type="button" class="dw-window-opt'+(w.v===DW_WINDOW?' active':'')+'" data-window="'+w.v+'" aria-pressed="'+(w.v===DW_WINDOW)+'">'+esc(w.l)+'</button>';
+    }).join('');
+  }
+  function setWindow(v){
+    if(v===DW_WINDOW)return;
+    DW_WINDOW=v;
+    renderWindowSelector();
+    landing();
+  }
+  function dwWindowLabel(){
+    var found=DW_WINDOWS.find(function(w){return w.v===DW_WINDOW});
+    return found?found.l:'24 Hours';
+  }
   var $=function(id){return document.getElementById(id)};
   function esc(v){return String(v===null||v===undefined?'—':v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
   function abbr(v){v=String(v||'');return v.length>22?v.slice(0,11)+'…'+v.slice(-7):v||'—'}
@@ -241,23 +371,28 @@
     if(o&&o.terminal_entity&&!seen[o.terminal_entity_type.toLowerCase()])nodes.push({id:o.terminal_entity,type:o.terminal_entity_type.toLowerCase(),state:o.outcome_type==='CANONICAL_OPERATOR_REACHED'?'CONFIRMED':'EMERGING',confidence:o.confidence,label:o.terminal_entity_type});
     return '<div class="dw-chain-panel"><div class="dw-chain-panel-h"><span>Recorded relationship chain</span><span>'+nodes.length+' nodes</span></div><div class="vi-chain">'+nodes.map(function(n){var cls=n.state==='CONFIRMED'?'confirmed':n.state==='REJECTED'?'failure':n.state==='EMERGING'?'monitoring':'';return '<a class="vi-chain-node '+cls+'" href="'+href(n.id,n.type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[n.type]||'◇')+'</div><div class="vi-chain-role">'+esc(n.label)+'</div><div class="vi-chain-name" title="'+esc(n.id)+'">'+esc(abbr(n.id))+'</div><div class="vi-chain-meta">'+esc(n.state)+' · '+esc(n.confidence)+'</div></a>'}).join('')+'</div></div>';
   }
-  // X21D.1: the walkback should represent the ENTIRE persisted investigation, not
-  // just the upstream funding wallets — so it begins with the initiating WATCHTOKEN
+  // X21D.1/X25.2: the walkback should represent the ENTIRE persisted investigation,
+  // not just the upstream funding wallets — so it begins with the initiating Launch
   // (when the subject actually IS a token) and the persisted creator (when known),
   // using only entities the Discovery model already returns. Never fabricates a
   // node: if creator isn't in attribution_outcome.evidence.creator, or if the first
   // recorded hop is already a CREATOR-role hop (a small number of confirmed-launch
   // walks resolve the creator as hop 1 themselves), nothing is duplicated or invented.
-  function walkbackLeadNodes(subject, attributionOutcome, firstHopRole, confirmed){
+  // X25.2: the root node's entity ROLE is "Launch" (never the removed, ambiguous
+  // "WATCHTOKEN" label); its Launch Profile classification (PROVISIONED/
+  // OBSERVED_ONLY, from launch_profile) renders as a badge beneath the role, not
+  // as the role itself — this keeps entity role and classification visually and
+  // semantically distinct, per the X25.2 design decision.
+  function walkbackLeadNodes(subject, attributionOutcome, firstHopRole, confirmed, launchProfile){
     var nodes=[];
     if(subject && subject.type==='token' && subject.id){
-      nodes.push({address:subject.id, role:'WATCHTOKEN', type:'token', confidence:null});
+      nodes.push({address:subject.id, role:'Launch', type:'token', confidence:null, profile:launchProfile});
     }
     var creator=attributionOutcome && attributionOutcome.evidence && attributionOutcome.evidence.creator;
     if(creator && String(firstHopRole||'').toUpperCase()!=='CREATOR'){
       nodes.push({address:creator, role:'Creator', type:'creator', confidence:null});
     }
-    return nodes.map(function(n){return '<a class="vi-chain-node '+(confirmed?'confirmed':'')+'" href="'+href(n.address,n.type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[n.type]||'◇')+'</div><div class="vi-chain-role">'+esc(n.role)+'</div><div class="vi-chain-name" title="'+esc(n.address)+'">'+esc(abbr(n.address))+'</div><div class="vi-chain-meta">'+(n.confidence?'Confidence '+esc(n.confidence):esc(confirmed?'CONFIRMED':'Recorded'))+'</div></a>'}).join('');
+    return nodes.map(function(n){return '<a class="vi-chain-node '+(confirmed?'confirmed':'')+'" href="'+href(n.address,n.type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[n.type]||'◇')+'</div><div class="vi-chain-role">'+esc(n.role)+'</div><div class="vi-chain-name" title="'+esc(n.address)+'">'+esc(abbr(n.address))+'</div><div class="vi-chain-meta">'+(n.profile&&n.profile.classification?'<span class="dw-signal">'+esc(n.profile.classification)+'</span>':(n.confidence?'Confidence '+esc(n.confidence):esc(confirmed?'CONFIRMED':'Recorded')))+'</div></a>'}).join('');
   }
   // X21D.1 (extended): when canonical operator resolution genuinely exists
   // (d.canonical_identity is populated by the Discovery model), the walkback's
@@ -268,17 +403,64 @@
   // one complete story. Never fabricated: only replaces the label when
   // canonicalIdentity is non-null; every other (non-canonical) terminal outcome
   // keeps its existing typed wording (w.status / w.stop_reason) unchanged.
-  function walkback(w, subject, attributionOutcome, canonicalIdentity){
+  // X25.2 — Launch Profile facts: supporting facts about HOW the launch was
+  // structurally provisioned, rendered alongside the Launch node, never as
+  // competing classification labels. Independent of Funding Lineage,
+  // Infrastructure Classification, Attribution Outcome, Detection Provenance,
+  // and Operator Identity — those remain on their own tracks (see the four
+  // ANALYST_WORDING / detectionReconciliation / canonicalIdentity functions).
+  function launchProfileFacts(lp){
+    if(!lp || !lp.classification)return '';
+    var f=lp.facts||{};
+    var rows=[];
+    if(f.creator_history)rows.push({label:'Creator history',value:f.creator_history});
+    if(f.birth_to_launch_seconds!==undefined && f.birth_to_launch_seconds!==null)rows.push({label:'Birth → Launch',value:f.birth_to_launch_seconds+'s'});
+    if(f.funding_mechanism)rows.push({label:'Funding mechanism',value:f.funding_mechanism});
+    return '<div class="dw-card"><div class="dw-card-h" style="display:flex;align-items:center;gap:9px">'
+      +'<span>Launch Profile</span><span class="vi-chip"><b>'+esc(lp.classification)+'</b></span>'
+      +'</div><div class="dw-card-body">'
+      +'<div class="dw-outcome-reason">'+esc(lp.reason)+'</div>'
+      +(rows.length?'<div class="dw-outcome-known">'+rows.map(function(r){return '<div class="dw-outcome-known-cell"><div class="dw-dk">'+esc(r.label)+'</div><div class="dw-dv">'+esc(r.value)+'</div></div>'}).join('')+'</div>':'')
+      +'</div></div>';
+  }
+  // X25.4 Phase 7 — Operation Identity: a distinct, independent card. Renders
+  // only when d.operation_identity is genuinely populated (a resolved
+  // confirmed-treasury-funding-mesh membership) — never fabricates an
+  // "Unknown Operation" placeholder when absent, per the API contract in
+  // src/discovery/service.py. Never labelled WATCHTOWER here — that claim
+  // belongs solely to canonicalIdentity(), gated on its own operator_name.
+  function operationIdentity(oi){
+    if(!oi || !oi.operation_id)return '';
+    var single=oi.treasury_count===1;
+    var rows=single
+      ? [{label:'Single confirmed treasury',value:esc(abbr(oi.subject_treasury))},{label:'Launches',value:oi.launch_count}]
+      : [{label:'Identity basis',value:'Treasury funding mesh'},{label:'Treasuries',value:oi.treasury_count},{label:'Launches',value:oi.launch_count},{label:'Subject treasury',value:esc(abbr(oi.subject_treasury))}];
+    return '<div class="dw-card"><div class="dw-card-h">Operation Identity</div><div class="dw-card-body">'
+      +'<div class="dw-canonical-name" style="margin-bottom:6px">'+esc(oi.display_name)+'</div>'
+      +'<div class="dw-outcome-known">'+rows.map(function(r){return '<div class="dw-outcome-known-cell"><div class="dw-dk">'+esc(r.label)+'</div><div class="dw-dv">'+r.value+'</div></div>'}).join('')+'</div>'
+      +'<div class="dw-outcome-footer" style="margin-top:9px"><a class="dw-outcome-next" href="/api/ops-v2/operations/'+encodeURIComponent(oi.operation_id)+'" style="color:var(--ip-cyan);text-decoration:none">Open Operation →</a></div>'
+      +'</div></div>';
+  }
+  function walkback(w, subject, attributionOutcome, canonicalIdentity, launchProfile){
     var confirmed=w.status==='CONFIRMED';
-    var lead=walkbackLeadNodes(subject, attributionOutcome, w.hops && w.hops[0] && w.hops[0].role, confirmed);
+    var lead=walkbackLeadNodes(subject, attributionOutcome, w.hops && w.hops[0] && w.hops[0].role, confirmed, launchProfile);
     var hops=(w.hops||[]).map(function(h){var type=String(h.role||'wallet').toLowerCase();return '<a class="vi-chain-node '+(confirmed?'confirmed':'')+'" href="'+href(h.address,type)+'"><div class="vi-chain-icon">'+(ROLE_ICON[type]||'◇')+'</div><div class="vi-chain-role">'+esc(h.role)+'</div><div class="vi-chain-name" title="'+esc(h.address)+'">'+esc(abbr(h.address))+'</div><div class="vi-chain-meta">Confidence '+esc(h.confidence)+'</div></a>'}).join('');
     var endpoint;
     if(canonicalIdentity && canonicalIdentity.operator_name){
       endpoint='<a class="vi-chain-node confirmed" href="'+esc(canonicalIdentity.operator_href||href(canonicalIdentity.operator_id,'operator'))+'"><div class="vi-chain-icon">'+(ROLE_ICON.operator||'◎')+'</div><div class="vi-chain-role">'+esc(canonicalIdentity.operator_name)+'</div><div class="vi-chain-name">Canonical operator reached</div><div class="vi-chain-meta">'+esc(w.status||'CONFIRMED')+' · Confidence '+esc(canonicalIdentity.confidence)+'</div></a>';
+    } else if(attributionOutcome && attributionOutcome.terminal_entity){
+      // X25.3 Phase 3: this node represents a genuine attribution boundary — a
+      // known, named infrastructure address the walkback actually reached —
+      // not a bare "walkback stopped here" marker. "Infrastructure Boundary"
+      // names the entity itself, distinct from the unresolved-gap case below.
+      endpoint='<div class="vi-chain-node boundary"><div class="vi-chain-icon">■</div><div class="vi-chain-role">Infrastructure Boundary</div><div class="vi-chain-name" title="'+esc(attributionOutcome.terminal_entity)+'">'+esc(abbr(attributionOutcome.terminal_entity))+'</div><div class="vi-chain-meta">'+esc(w.stop_reason)+'</div></div>';
     } else {
-      endpoint='<div class="vi-chain-node '+(confirmed?'confirmed':'boundary')+'"><div class="vi-chain-icon">■</div><div class="vi-chain-role">Endpoint</div><div class="vi-chain-name">'+esc(w.status||'Stopped')+'</div><div class="vi-chain-meta">'+esc(w.stop_reason)+'</div></div>';
+      // No known infrastructure was reached at all — this is an unresolved
+      // evidence gap, not a boundary; keep that distinction explicit rather
+      // than reusing the same "Endpoint" label for two different situations.
+      endpoint='<div class="vi-chain-node '+(confirmed?'confirmed':'boundary')+'"><div class="vi-chain-icon">■</div><div class="vi-chain-role">Walkback Stopped</div><div class="vi-chain-name">'+esc(w.status||'Stopped')+'</div><div class="vi-chain-meta">'+esc(w.stop_reason)+'</div></div>';
     }
-    return '<div class="dw-card"><div class="dw-card-h">Funding Walkback · '+esc(w.status)+'</div><div class="dw-card-body"><div class="vi-chain">'+(lead+hops||'<div style="font-size:10px;color:var(--ip-dim)">No recorded hops.</div>')+endpoint+'</div></div></div>';
+    return '<div class="dw-card"><div class="dw-card-h" style="display:flex;align-items:center;gap:9px"><span>Funding Walkback</span><span class="vi-chip" title="Relationship Confidence"><b>'+esc(w.status)+'</b></span></div><div class="dw-card-body"><div class="vi-chain">'+(lead+hops||'<div style="font-size:10px;color:var(--ip-dim)">No recorded hops.</div>')+endpoint+'</div></div></div>';
   }
   function groups(g){var keys=['IDENTITY','SUPPORTING','CONTEXT','CONTRADICTIONS'];return '<div class="dw-card"><div class="dw-card-h">Discovery Evidence</div><div class="dw-card-body"><div class="dw-evidence-groups">'+keys.map(function(k){var rows=g[k]||[];return '<details class="dw-evidence-group"><summary><span>'+k.replace('_',' ')+'</span><span class="vi-chip"><b>'+rows.length+'</b></span></summary><div class="dw-evidence-group-body">'+(rows.length?rows.map(function(n){return '<div class="dw-evidence-chip">'+esc(n.reason||n.kind||'Recorded evidence')+'</div>'}).join(''):'<div style="font-size:9px;color:var(--ip-dim)">No recorded items.</div>')+'</div></details>'}).join('')+'</div></div></div>'}
   function operatorHistory(rows){if(!rows||!rows.length)return '';return '<div class="dw-card"><div class="dw-card-h">Operator Discovery History</div><div class="dw-card-body">'+rows.map(function(x){return '<a class="dw-recent-row" href="'+href(x.operator_id,'operator')+'"><div><div class="dw-recent-msg">'+esc(x.summary||'Operator attribution')+'</div><div class="dw-recent-meta">Observed '+ago(x.observed_since)+' · first attribution '+ago(x.first_attribution)+'</div></div><span style="margin-left:auto">'+state(x.state)+'</span></a>'}).join('')+'</div></div>'}
@@ -375,6 +557,103 @@
     var rows=treasuries.map(function(a){return {label:'Treasury',addr:a}}).concat(subprovs.map(function(a){return {label:'Sub-provisioner',addr:a}}));
     return '<div class="dw-outcome-known">'+rows.map(function(r){return '<div class="dw-outcome-known-cell"><div class="dw-dk">'+esc(r.label)+' (recorded lead)</div><div class="dw-dv">'+esc(abbr(r.addr))+'</div></div>'}).join('')+'</div>';
   }
+  // X29.3 — Funding Boundary: a SEPARATE dimension from Operational Attribution
+  // (the `outcome()` function above/below). Never rendered above or in place
+  // of it -- do not place Funding Boundary above canonical operation
+  // attribution. Fetched asynchronously from
+  // /api/ops-v2/investigation-pipeline?mint=<mint> (the route X29.3 wired
+  // funding_boundary onto) since /api/discovery/entity/<id> does not carry
+  // this field -- kept as an additive, non-blocking fetch so a missing/slow
+  // funding_boundary lookup never delays the rest of the page.
+  //
+  // X29.3 reframe: the bounded 2-hop walk never proves wallet genesis, so
+  // the primary honest claim is "what known funding boundary does the
+  // observed lineage reach" -- NOT "what is the capital origin." Origin is
+  // a rare, stronger SUBTYPE (origin_proven=true, only when
+  // status===PROVEN), rendered as its own sub-line, never folded into the
+  // primary status label.
+  var FB_STATUS_LABELS={
+    PROVEN:'Proven', BOUNDED_OBSERVATION:'Bounded observation',
+    STATIC_MATCH:'Static match', UNRESOLVED:'Unresolved',
+  };
+  function fundingBoundaryCard(fb, mint){
+    if(fb===undefined){
+      return '<section class="dw-outcome dw-funding-boundary" id="dw-funding-boundary-mount"><div class="x19-answer-label">Funding Boundary · Level 1</div><div class="dw-empty" style="padding:10px 0">Loading…</div></section>';
+    }
+    if(!fb){
+      return '<section class="dw-outcome dw-funding-boundary"><div class="x19-answer-label">Funding Boundary · Level 1</div><div class="dw-outcome-title">No funding boundary record</div></section>';
+    }
+    var statusLabel=FB_STATUS_LABELS[fb.status]||fb.status;
+    var ageLine='';
+    if(fb.age_at_launch_seconds!=null){
+      var ageDays=fb.age_at_launch_seconds/86400;
+      var ageText=ageDays<1?Math.round(fb.age_at_launch_seconds/3600)+' hour'+(Math.round(fb.age_at_launch_seconds/3600)===1?'':'s'):Math.round(ageDays)+' day'+(Math.round(ageDays)===1?'':'s');
+      ageLine='<div class="dw-outcome-known-cell"><div class="dw-dk">Age before launch</div><div class="dw-dv">'+esc(ageText)+'</div></div>';
+    }
+    // Explicit rule: NEVER render "Initial Funder" as the primary claim.
+    // Origin is always a separate sub-line, driven by origin_proven.
+    var body;
+    if(fb.status==='BOUNDED_OBSERVATION'){
+      body='<div class="dw-outcome-title">Observed funding source: '+esc(fb.entity||abbr(fb.wallet))+'</div>'
+        +'<div class="dw-outcome-reason">Evidence status: '+esc(statusLabel)+' · History complete: '+(fb.history_exhausted?'Yes':'No')+'</div>';
+    } else if(fb.status==='STATIC_MATCH'){
+      body='<div class="dw-outcome-title">Known source match: '+esc(fb.entity||abbr(fb.wallet))+'</div>'
+        +'<div class="dw-outcome-reason">Evidence status: '+esc(statusLabel)+' · Funding transaction: Not persisted</div>';
+    } else if(fb.status==='UNRESOLVED'){
+      body='<div class="dw-outcome-title">Unresolved</div>'
+        +'<div class="dw-outcome-reason">Reason: '+esc((fb.resolution_reason||'').replace(/_/g,' ').toLowerCase()||'no qualifying funder found')+'</div>';
+    } else {
+      body='<div class="dw-outcome-title">Funding boundary: '+esc(fb.entity||abbr(fb.wallet))+'</div>'
+        +'<div class="dw-outcome-reason">Evidence status: '+esc(statusLabel)+'</div>';
+    }
+    var originLine='<div class="dw-outcome-reason dw-origin-line">Origin: '
+      +(fb.origin_proven?'✓ Proven initial funder':'Not proven')
+      +'</div>';
+    return '<section class="dw-outcome dw-funding-boundary">'
+      +'<div class="x19-answer-label">Funding Boundary · Level 1</div>'
+      +body
+      +originLine
+      +(ageLine?'<div class="dw-outcome-known">'+ageLine+'</div>':'')
+      +'</section>';
+  }
+  function loadFundingBoundary(mint){
+    var mount=document.getElementById('dw-funding-boundary-mount');
+    if(!mount)return;
+    fetch('/api/ops-v2/investigation-pipeline?window=all&mint='+encodeURIComponent(mint)).then(function(r){return r.json()}).then(function(d){
+      var m2=document.getElementById('dw-funding-boundary-mount');
+      if(!m2)return;
+      m2.outerHTML=fundingBoundaryCard(d.funding_boundary||null, mint);
+      var wqMount=document.getElementById('dw-wallet-quality-mount');
+      if(wqMount)wqMount.outerHTML=walletQualityCard(d.wallet_quality||null);
+    }).catch(function(){
+      var m3=document.getElementById('dw-funding-boundary-mount');
+      if(m3)m3.outerHTML='<section class="dw-outcome dw-funding-boundary"><div class="x19-answer-label">Funding Boundary · Level 1</div><div class="dw-empty">Temporarily unavailable.</div></section>';
+    });
+  }
+  // X29.4 — Wallet Quality: purely informational annotations (known spam
+  // sender/recipient, dust marker/recipient, high unsolicited inbound).
+  // Orthogonal to Operational Attribution/Funding Boundary/Topology/
+  // Behaviour/Mechanism -- NEVER implies operational identity. Rendered as
+  // its own lightweight section, sharing the same async fetch as Funding
+  // Boundary (both come from the same /investigation-pipeline response).
+  function walletQualityCard(wq){
+    if(!wq || (!wq.spam_sender && !wq.spam_recipient && !wq.dust_marker && !wq.dust_recipient && !wq.high_unsolicited_inbound)){
+      return '<section class="dw-outcome dw-wallet-quality" id="dw-wallet-quality-mount" style="display:none"></section>';
+    }
+    var rows=[
+      ['Spam sender', wq.spam_sender],
+      ['Spam recipient', wq.spam_recipient],
+      ['Dust marker', wq.dust_marker],
+      ['Dust recipient', wq.dust_recipient],
+      ['High unsolicited inbound', wq.high_unsolicited_inbound],
+    ].filter(function(r){return r[1]});
+    var body=rows.map(function(r){return '<div class="dw-outcome-known-cell"><div class="dw-dk">'+esc(r[0])+'</div><div class="dw-dv">✓</div></div>'}).join('');
+    return '<section class="dw-outcome dw-wallet-quality" id="dw-wallet-quality-mount">'
+      +'<div class="x19-answer-label">Wallet Quality</div>'
+      +'<div class="dw-outcome-reason">Environmental annotation only — does not affect attribution or identity.</div>'
+      +'<div class="dw-outcome-known">'+body+'</div>'
+      +'</section>';
+  }
   function outcome(o){
     if(!o)return '';
     var w=ANALYST_WORDING[o.outcome_type]||DEFAULT_WORDING;
@@ -454,63 +733,590 @@
     var missingHtml=missing.length?'<div class="dw-ob-block"><div class="dw-ob-h">Missing evidence</div>'+missing.map(function(m){return '<div class="dw-te-row dw-te-unavailable">— '+esc(m)+'</div>'}).join('')+'</div>':'';
     return '<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Operational behaviour</summary><div class="x19-disclosure-body">'+summaryHtml+infraHtml+timingHtml+consistencyHtml+missingHtml+'</div></details>';
   }
-  // X24.1 Phase 5 — how was this attribution obtained: detected live, recovered by
-  // catch-up/reconciliation, or only ever recovered retrospectively by walkback?
-  // Answers "how did we get this" separate from "what is the result" (outcome()
-  // above). A WALKBACK_RECOVERED or PIPELINE_INCONSISTENCY classification must say
-  // so explicitly — never implied to be a live catch. All labels/timestamps come
-  // directly from d.detection_reconciliation (src/ops/detection_reconciliation.py);
-  // nothing here is inferred or fabricated.
+  // X27.1 — Creator Activity: "what do we already know about this creator"
+  // as a question entirely independent of funding provenance, attribution,
+  // infrastructure, or operation identity. Every value traces directly to
+  // CreatorActivityService (token_analysis-derived); never mentions treasury,
+  // sub-provisioner, infrastructure, or WATCHTOWER. Renders nothing when the
+  // report is absent or reflects zero launches for this creator address.
+  function fmtTs(sec){if(!sec)return '—';return new Date(sec*1000).toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC')}
+  function fmtDur(sec){
+    if(sec===null||sec===undefined)return '—';
+    var d=Math.floor(sec/86400),h=Math.floor((sec%86400)/3600);
+    if(d>0)return d+'d '+h+'h';
+    var m=Math.floor((sec%3600)/60);
+    if(h>0)return h+'h '+m+'m';
+    return m+'m';
+  }
+  function fmtMcap(v){if(v===null||v===undefined)return '—';if(v>=1e6)return '$'+(v/1e6).toFixed(2)+'M';if(v>=1e3)return '$'+(v/1e3).toFixed(1)+'k';return '$'+Math.round(v)}
+  function creatorActivity(ca){
+    if(!ca||!ca.launches_created)return '';
+    var rows=[
+      ['First observed',fmtTs(ca.first_observed)],
+      ['Last activity',fmtTs(ca.last_activity)],
+      ['Launches created',ca.launches_created],
+      ['Successful migrations',ca.successful_migrations===null||ca.successful_migrations===undefined?'— (not tracked)':ca.successful_migrations+(ca.migration_rate_pct!==null?' ('+ca.migration_rate_pct+'%)':'')],
+      ['Average launch cadence',ca.average_launch_cadence_seconds===null?'— (single launch)':fmtDur(ca.average_launch_cadence_seconds)],
+      ['Status',ca.status_label||'—'],
+    ];
+    var body=rows.map(function(r){return '<div class="dw-te-row"><span class="dw-dk">'+esc(r[0])+'</span> <span class="dw-dv">'+esc(String(r[1]))+'</span></div>'}).join('');
+    var mcap=ca.peak_market_cap!==null&&ca.peak_market_cap!==undefined
+      ? '<div class="dw-ob-block"><div class="dw-ob-h">Historical performance</div><div class="dw-te-row"><span class="dw-dk">Best peak market cap</span> <span class="dw-dv">'+esc(fmtMcap(ca.peak_market_cap))+'</span></div><div class="dw-te-row dw-te-detail">Coverage: '+esc(ca.peak_market_cap_coverage||'')+'</div></div>'
+      : '<div class="dw-ob-block"><div class="dw-ob-h">Historical performance</div><div class="dw-te-row dw-te-unavailable">— Peak market cap not captured for this creator\'s launches</div></div>';
+    var note=ca.coverage_note?'<div class="dw-ob-note">'+esc(ca.coverage_note)+'</div>':'';
+    return '<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Creator activity</summary><div class="x19-disclosure-body"><div class="dw-ob-block"><div class="dw-ob-h">Creator profile</div>'+body+'</div>'+mcap+note+'</div></details>';
+  }
+  // X24.1 Phase 5 / X24.8 Phase 1 / X25.5.1 / X25.6 / X25.7 — Detection
+  // Provenance answers exactly one question: what did the detection process
+  // establish about this launch? It does NOT answer which operation owns
+  // the launch (Operation Identity), what infrastructure was reached
+  // (outcome()), the detailed relationship chain (walkback()), or whether a
+  // particular internal mechanism executed.
+  // X25.7: every migrated launch undergoes the platform's retrospective
+  // evidence-collection process, so naming that process ("walkback ran",
+  // "walkback reconstructed") is not discriminating and carries no analyst
+  // value — the wording below describes ONLY the evidential outcome
+  // (complete / partial / inconclusive funding lineage, live vs. not-live
+  // detection), never the mechanism that produced it. This keeps the
+  // section useful even though the mechanism itself is now universal.
+  // X25.6: this section remains operator-neutral by design — WATCHTOWER is
+  // only one possible operator, established solely by canonicalIdentity(),
+  // gated on operator_name. This wording remains correct unchanged if a
+  // future operator is identified instead, since it never names an
+  // operator, an operation, or a specific infrastructure endpoint at all.
+  // Evidence-completeness semantics (X25.7 Phase 1-2, defined before any
+  // wording was written):
+  //   LIVE_DETECTED          — complete evidence; caught live at CREATE time.
+  //   RECONCILED             — complete evidence; recovered via backfill/
+  //                            replay rather than the live cascade.
+  //   WALKBACK_RECOVERED     — complete funding lineage established after
+  //                            the fact (gated on the WATCHTOWER_CONFIRMED
+  //                            outcome column, per X25.5.1 — never merely on
+  //                            a provisioning-session row existing); no live
+  //                            session ever covered this launch's window.
+  //   PIPELINE_INCONSISTENCY — complete funding lineage established after
+  //                            the fact, but a live-armed session DID cover
+  //                            the window and still missed it — a detection
+  //                            gap, not an evidence gap.
+  //   WALKBACK_OBSERVED      — partial evidence only; a funding fragment
+  //                            exists but the full lineage was not
+  //                            confirmed.
+  //   WALKBACK_INCONCLUSIVE  — inconclusive; a fragment exists but no
+  //                            record exists to judge completeness at all.
+  // All labels/timestamps come directly from d.detection_reconciliation
+  // (src/ops/detection_reconciliation.py); nothing here is inferred or fabricated.
   function detectionReconciliation(r){
     if(!r)return '';
     var cls=r.classification;
     var cfg={
       'LIVE_DETECTED':        {label:'Live Detected',       colour:'var(--ip-green)',  icon:'●'},
       'RECONCILED':           {label:'Reconciled',          colour:'var(--ip-cyan)',   icon:'◐'},
-      'WALKBACK_RECOVERED':   {label:'Walkback Recovered',  colour:'var(--ip-amber,#d29922)', icon:'◇'},
-      'PIPELINE_INCONSISTENCY':{label:'Pipeline Inconsistency', colour:'var(--ip-red,#f85149)', icon:'⚠'},
+      'WALKBACK_RECOVERED':   {label:'Lineage Established',  colour:'var(--ip-amber,#d29922)', icon:'◇'},
+      'PIPELINE_INCONSISTENCY':{label:'Detection Gap', colour:'var(--ip-red,#f85149)', icon:'⚠'},
+      'WALKBACK_OBSERVED':    {label:'Partial Evidence',   colour:'var(--ip-dim)',    icon:'◌'},
+      'WALKBACK_INCONCLUSIVE':{label:'Evidence Inconclusive', colour:'var(--ip-dim)',  icon:'?'},
     }[cls]||{label:cls||'Unknown',colour:'var(--ip-dim)',icon:'—'};
     var explain={
       'LIVE_DETECTED':'This launch was detected live'+(r.live_detection_source?' via '+esc(r.live_detection_source.replace(/_/g,' ').toLowerCase()):'')+'. Attribution and detection agree.',
-      'RECONCILED':'This launch was recovered by the reconciliation/backfill path'+(r.live_detection_source?' ('+esc(r.live_detection_source.replace(/_/g,' ').toLowerCase())+')':'')+', not the live cascade. A wt_watchtower_launches record exists.',
-      'WALKBACK_RECOVERED':'WATCHTOWER attribution confirmed — recovered retrospectively by walkback. Live detection was not recorded, and no live-armed session ever covered this launch, so this is expected: the system was never watching this infrastructure at the time.',
-      'PIPELINE_INCONSISTENCY':'WATCHTOWER attribution confirmed — recovered retrospectively by walkback. Live detection was not recorded, even though a live-armed monitoring session covered this launch at the time. This is a detection-pipeline gap, not an attribution gap.',
+      'RECONCILED':'This launch was recovered by the reconciliation/backfill path'+(r.live_detection_source?' ('+esc(r.live_detection_source.replace(/_/g,' ').toLowerCase())+')':'')+', not the live cascade. A platform launch record exists.',
+      'WALKBACK_RECOVERED':'A complete funding lineage was established for this launch after the fact. No live detection covered this launch at the time.',
+      'PIPELINE_INCONSISTENCY':'A complete funding lineage was established for this launch after the fact, even though live detection was actively watching at CREATE time and still missed it. This is a detection gap, not an evidence gap.',
+      'WALKBACK_OBSERVED':'Partial funding lineage was established for this launch, but the available evidence is insufficient to confirm the complete lineage.',
+      'WALKBACK_INCONCLUSIVE':'Available evidence is insufficient to establish funding lineage for this launch, and no record exists to judge how complete that evidence is.',
     }[cls]||'Attribution recovery method could not be classified from persisted data.';
     var mechNote=r.plain_transfer_associated?'<div class="dw-te-row dw-te-detail" style="margin-top:4px">Funding used a plain SOL transfer at one hop — this mechanism does not emit the on-chain program logs the live websocket subscription watches for, which is why walkback (a retrospective chain-history scan) could resolve it when live detection could not.</div>':'';
     return '<section class="dw-outcome" style="border-left:3px solid '+cfg.colour+'">'
-      +'<div class="x19-answer-label">How was this obtained · Level 1</div>'
+      +'<div class="x19-answer-label">Detection Provenance · Level 1</div>'
       +'<div class="dw-outcome-title" style="color:'+cfg.colour+'">'+cfg.icon+' '+esc(cfg.label)+'</div>'
       +'<div class="dw-outcome-reason">'+explain+'</div>'
       +mechNote
       +'</section>';
   }
+  // X25.3 Phase 5 / X25.4 Phase 8 — Analyst Summary: a read-only synthesis of
+  // independently-derived facts already rendered elsewhere on the page. Every
+  // sentence maps directly to one existing field; nothing here is inferred or
+  // computed. Omits any sentence whose backing field is absent — e.g. the
+  // Operation Identity sentence only appears when d.operation_identity is
+  // genuinely populated; no "unknown operation" placeholder is ever stated.
+  function analystSummary(d){
+    var lines=[];
+    var lp=d.launch_profile;
+    if(lp && lp.classification==='PROVISIONED')lines.push('Verified provisioned launch.');
+    else if(lp && lp.classification==='OBSERVED_ONLY')lines.push('Funding was reconstructed retrospectively; no verified provisioning session was recorded.');
+    var dr=d.detection_reconciliation;
+    if(dr && dr.classification==='LIVE_DETECTED')lines.push('Live detected.');
+    else if(dr && dr.classification==='RECONCILED')lines.push('Detected via reconciliation, not the live cascade.');
+    else if(dr && (dr.classification==='WALKBACK_RECOVERED' || dr.classification==='PIPELINE_INCONSISTENCY'))lines.push('Complete funding lineage established after the fact; not live detected.');
+    else if(dr && dr.classification==='WALKBACK_OBSERVED')lines.push('Partial funding lineage established; complete lineage not confirmed.');
+    else if(dr && dr.classification==='WALKBACK_INCONCLUSIVE')lines.push('Available evidence is insufficient to establish funding lineage.');
+    var ao=d.attribution_outcome;
+    if(ao && ao.outcome_type==='CANONICAL_OPERATOR_REACHED')lines.push('Attribution reached a confirmed canonical operator.');
+    else if(ao && ao.terminal_entity_type && ao.terminal_entity){
+      // X26.7 — terminal_entity_type is already the noun ("infrastructure",
+      // "CEX", "relay", ...); unconditionally appending the literal word
+      // "infrastructure" produced "terminated at infrastructure infrastructure."
+      // for the INFRASTRUCTURE case specifically.
+      var terminalNoun=String(ao.terminal_entity_type).replace(/_/g,' ').toLowerCase();
+      lines.push('Attribution terminated at '+esc(terminalNoun)+(terminalNoun==='infrastructure'?'':' infrastructure')+'.');
+    }
+    else if(ao && ao.outcome_type)lines.push('Attribution outcome: '+esc(typedLabel(ao.outcome_type))+'.');
+    var oi=d.operation_identity;
+    if(oi && oi.operation_id){
+      if(oi.treasury_count===1)lines.push('This launch belongs to a single-treasury operation with '+oi.launch_count+' observed launch'+(oi.launch_count===1?'':'es')+'.');
+      else lines.push('This launch belongs to '+esc(oi.display_name)+', a '+oi.treasury_count+'-treasury funding mesh with '+oi.launch_count+' observed launch'+(oi.launch_count===1?'':'es')+'.');
+    }
+    var ci=d.canonical_identity;
+    if(ci && ci.operator_name)lines.push('Canonical operator: '+esc(ci.operator_name)+'.');
+    else lines.push('No canonical operator identified.');
+    if(!lines.length)return '';
+    return '<div class="dw-card" style="border-left:3px solid var(--ip-cyan)"><div class="dw-card-h">Launch Summary</div><div class="dw-card-body">'+lines.map(function(l){return '<div class="dw-outcome-reason" style="margin-top:0;margin-bottom:6px">'+l+'</div>'}).join('')+'</div></div>';
+  }
   function render(d){
     $('dw-loading').style.display='none';var overall=$('dw-overall-state');overall.style.display='';overall.className='dw-state '+d.state;overall.textContent=d.state;
     var subject=d.subject||{}, resolved=subject.resolved_entity, resolvedText=resolved&&resolved.id!==subject.id?'<div class="dw-summary">Resolved from this '+esc(subject.type)+' to <a class="dw-addr" href="'+href(resolved.id,resolved.type)+'">'+esc(resolved.id)+'</a>.</div>':'';
-    var top=outcome(d.attribution_outcome)+detectionReconciliation(d.detection_reconciliation)+treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate)+'<div class="x19-answer"><div class="x19-answer-label">Identity · Level 1</div><div class="x19-answer-value">'+esc(d.summary)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(subject.type)+'</span> · <span class="dw-subject-id">'+esc(subject.id)+'</span> · '+esc(d.state)+'</div>'+resolvedText+'</div>'+canonicalIdentity(d.canonical_identity);
-    if(!d.timeline||!d.timeline.length){$('dw-content').innerHTML=top+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';return}
+    // X24.8 Phase 2 / X25.3 Phase 5 — page order follows the investigation flow,
+    // not the API response order: (0) Identity + Analyst Summary — a read-only
+    // synthesis, always first; (1) Infrastructure Attribution — where did
+    // attribution terminate; (2) Relationship Chain — how was the chain
+    // established; (3) Detection Provenance — how did we discover it;
+    // (4) Canonical Operator Identity — who ultimately owns it. These are
+    // independent conclusions and must not be stacked so they read as
+    // reinforcing one another.
+    var infra=outcome(d.attribution_outcome);
+    // X29.3 — Funding Boundary renders directly beneath Operational Attribution
+    // (infra), never above it, only for token-type subjects (a mint) since
+    // that's the unit funding_boundary is keyed on; the mount is a loading
+    // placeholder swapped in-place once the async fetch resolves.
+    var fundingBoundary=(subject.type==='token'&&subject.id)?fundingBoundaryCard(undefined, subject.id):'';
+    var walletQuality=(subject.type==='token'&&subject.id)?'<section class="dw-outcome dw-wallet-quality" id="dw-wallet-quality-mount" style="display:none"></section>':'';
+    var identityHeader='<div class="x19-answer"><div class="x19-answer-label">Identity · Level 1</div><div class="x19-answer-value">'+esc(d.summary)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(subject.type)+'</span> · <span class="dw-subject-id">'+esc(subject.id)+'</span> · '+esc(d.state)+'</div>'+resolvedText+'</div>';
+    var summaryCard=analystSummary(d);
+    var leads=treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate);
+    // X29.7 — Operational Lineage renders directly beneath Identity, ABOVE
+    // Operational Attribution/Funding Boundary/Behaviour/Mechanism/Wallet
+    // Quality — "what operation is this" (the lineage chain) before "how
+    // does it behave" (supporting intelligence), per the X29.5/X29.6
+    // ordering principle. Works for any wallet-typed subject (treasury,
+    // sub_provisioner, creator) that has lineage evidence; for a token
+    // subject the lineage is keyed on its creator, matched below.
+    var lineageWallet=(subject.type==='creator'||subject.type==='treasury'||subject.type==='sub_provisioner')?subject.id
+      :(subject.type==='token'&&d.creator_activity&&d.creator_activity.creator)?d.creator_activity.creator:null;
+    var opLineageMount=lineageWallet?'<section class="vi-card walkback dw-lineage-panel" id="dw-lineage-mount" style="display:none"></section>':'';
+    if(lineageWallet)loadLineage(lineageWallet);
+    if(subject.type==='token'&&subject.id)loadFundingBoundary(subject.id);
+    if(!d.timeline||!d.timeline.length){$('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+infra+fundingBoundary+walletQuality+leads+detectionReconciliation(d.detection_reconciliation)+operationIdentity(d.operation_identity)+canonicalIdentity(d.canonical_identity)+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';return}
     var flow=visualChain(d);
-    var wb='<details class="x19-disclosure x19-level2" open><summary><span class="level">Level 2</span> Funding walkback</summary><div class="x19-disclosure-body">'+walkback(d.walkback||{}, subject, d.attribution_outcome, d.canonical_identity)+'</div></details>';
+    var wb='<details class="x19-disclosure x19-level2" open><summary><span class="level">Level 2</span> Funding walkback</summary><div class="x19-disclosure-body">'+launchProfileFacts(d.launch_profile)+walkback(d.walkback||{}, subject, d.attribution_outcome, d.canonical_identity, d.launch_profile)+'</div></details>';
+    var provenance=detectionReconciliation(d.detection_reconciliation);
+    var operationCard=operationIdentity(d.operation_identity);
+    var operatorIdentity=canonicalIdentity(d.canonical_identity);
     var opBehaviour=operationalBehaviour(d.operational_behaviour);
+    var creatorAct=creatorActivity(d.creator_activity);
     var attribution='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Attribution chain <span class="dw-count">'+d.timeline.length+' steps</span></summary><div class="x19-disclosure-body"><div class="vi-chip-row">'+d.timeline.map(function(n){return '<span class="vi-chip">'+esc(String(n.kind||'Evidence').replace(/_/g,' '))+' <b>'+esc(n.confidence)+'</b></span>'}).join('')+'</div></div></details>';
     var evidence='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Evidence groups</summary><div class="x19-disclosure-body"><div class="dw-grid"><main>'+groups(d.evidence_groups||{})+'</main><aside>'+cross(d.cross_operation)+'</aside></div></div></details>';
     var lineage='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Promotion lineage</summary><div class="x19-disclosure-body">'+(operatorHistory(d.operator_history)||'<div class="dw-empty" style="padding:18px;">No canonical promotion lineage recorded.</div>')+'</div></details>';
     var raw='<details class="x19-disclosure x19-level3"><summary><span class="level">Level 3</span> Raw provenance</summary><div class="x19-disclosure-body"><div class="x19-timeline dw-timeline">'+d.timeline.map(node).join('')+'</div></div></details>';
-    $('dw-content').innerHTML=top+flow+wb+opBehaviour+attribution+evidence+lineage+raw;
+    $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+infra+fundingBoundary+walletQuality+leads+flow+wb+provenance+operationCard+operatorIdentity+opBehaviour+creatorAct+attribution+evidence+lineage+raw;
   }
-  function load(id,type){if(!id)return landing();$('dw-loading').style.display='block';$('dw-content').innerHTML='';fetch('/api/discovery/entity/'+encodeURIComponent(id)+'?type='+encodeURIComponent(type||'auto')).then(function(r){return r.json()}).then(render).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Discovery evidence is temporarily unavailable.</div>'})}
+  // X29.7 — Operational Lineage chain renderer: a VARIABLE-DEPTH list
+  // (Treasury -> ... -> Creator, however many hops actually exist), never a
+  // fixed four-role template. Each node shows its role plus whatever
+  // properties belong to THAT role (fan-out count / mechanisms on a
+  // Subprovider, subprovider count on a Treasury) -- topology/mechanism
+  // metadata attached to the node that exhibits it, not the launch as a
+  // whole (the X29.5 finding this sprint exists to fix).
+  var ROLE_ROUTE_TYPE={TREASURY:'treasury',SUBPROVIDER:'sub_provisioner',CREATOR:'creator'};
+  function lineageNodeCard(node,isQueried){
+    var props=node.properties||{};
+    var propRows='';
+    if('fan_out_count' in props){
+      propRows+='<div class="dw-lineage-prop"><span class="dw-lineage-prop-k">Fan-out</span><span class="dw-lineage-prop-v">'+props.fan_out_count+' downstream wallet'+(props.fan_out_count===1?'':'s')+'</span></div>';
+    }
+    if('historical_launches' in props){
+      propRows+='<div class="dw-lineage-prop"><span class="dw-lineage-prop-k">Historical launches</span><span class="dw-lineage-prop-v">'+props.historical_launches+'</span></div>';
+    }
+    if(props.funding_mechanisms&&props.funding_mechanisms.length){
+      propRows+='<div class="dw-lineage-prop"><span class="dw-lineage-prop-k">Funding mechanisms</span><span class="dw-lineage-prop-v">'+props.funding_mechanisms.map(function(m){return esc(m.replace(/_/g,' '))}).join(', ')+'</span></div>';
+    }
+    if('subprovider_count' in props){
+      propRows+='<div class="dw-lineage-prop"><span class="dw-lineage-prop-k">Subproviders funded</span><span class="dw-lineage-prop-v">'+props.subprovider_count+'</span></div>';
+    }
+    var routeType=ROLE_ROUTE_TYPE[node.role]||'auto';
+    return '<a class="dw-lineage-node'+(isQueried?' dw-lineage-node-current':'')+'" href="'+href(node.wallet,routeType)+'">'
+      +'<div class="dw-lineage-role">'+esc(node.role.charAt(0)+node.role.slice(1).toLowerCase())+'</div>'
+      +'<div class="dw-lineage-wallet">'+esc(abbr(node.wallet))+'</div>'
+      +(propRows?'<div class="dw-lineage-props">'+propRows+'</div>':'')
+      +'</a>';
+  }
+  function lineageChain(lineage,queriedWallet){
+    if(!lineage||!lineage.chain||!lineage.chain.length){
+      return '';
+    }
+    var nodes=lineage.chain.map(function(n){return lineageNodeCard(n,n.wallet===queriedWallet)}).join('<div class="dw-lineage-arrow">↓</div>');
+    return '<section class="vi-card walkback dw-lineage-panel">'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Operational Lineage</div><div class="vi-title">'+lineage.chain.length+'-hop chain</div>'
+      +'<div class="dw-landing-sub">The funding chain as actually observed — not a fixed role template. Each node shows its own role and the evidence that belongs to it.</div></div>'
+      +'<div class="dw-lineage-chain">'+nodes+'</div>'
+      +'</section>';
+  }
+  function loadLineage(wallet){
+    var mount=$('dw-lineage-mount');
+    if(!mount)return;
+    fetch('/api/ops-v2/lineage/'+encodeURIComponent(wallet)).then(function(r){return r.json()}).then(function(d){
+      var m2=$('dw-lineage-mount');
+      if(!m2)return;
+      m2.outerHTML=d.chain&&d.chain.length?lineageChain(d,wallet):'<section class="vi-card walkback dw-lineage-panel" style="display:none"></section>';
+    }).catch(function(){
+      var m3=$('dw-lineage-mount');
+      if(m3)m3.style.display='none';
+    });
+  }
+  function operationDetailPage(operationId){
+    $('dw-loading').style.display='block';
+    $('dw-content').innerHTML='';
+    fetch('/api/ops-v2/operations/'+encodeURIComponent(operationId)).then(function(r){return r.json()}).then(function(d){
+      $('dw-loading').style.display='none';
+      if(!d.ok||!d.operation){
+        $('dw-content').innerHTML='<div class="dw-empty">Operation not found.</div>';
+        return;
+      }
+      var op=d.operation;
+      var treasuryRows=(op.treasuries||[]).map(function(t){
+        return '<a class="dw-result" href="'+href(t.wallet,'treasury')+'"><span class="dw-result-type">Treasury · '+esc(t.role)+'</span><span class="dw-result-id">'+esc(t.wallet)+'</span><span class="dw-result-view">'+t.launch_count+' launch'+(t.launch_count===1?'':'es')+' →</span></a>';
+      }).join('');
+      var identityHeader='<div class="x19-answer"><div class="x19-answer-label">Operation · Level 1</div><div class="x19-answer-value">'+esc(op.display_name)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(op.confidence)+'</span> · '+op.launch_count+' launch'+(op.launch_count===1?'':'es')+' total</div></div>';
+      var treasuriesCard='<section class="vi-card walkback dw-lineage-panel"><div class="dw-health-head"><div class="vi-eyebrow">Treasuries</div><div class="vi-title">'+(op.treasuries||[]).length+' in this operation</div></div><div class="dw-case-list">'+treasuryRows+'</div></section>';
+      $('dw-content').innerHTML=identityHeader+treasuriesCard;
+    }).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Operation detail is temporarily unavailable.</div>'});
+  }
+  function roleBrowsePage(role){
+    $('dw-loading').style.display='block';
+    $('dw-content').innerHTML='';
+    fetch('/api/ops-v2/roles/'+encodeURIComponent(role)).then(function(r){return r.json()}).then(function(d){
+      $('dw-loading').style.display='none';
+      if(!d.ok){
+        $('dw-content').innerHTML='<div class="dw-empty">Unable to browse this role.</div>';
+        return;
+      }
+      var routeType=ROLE_ROUTE_TYPE[d.role]||'auto';
+      var rows=(d.wallets||[]).map(function(w){
+        return '<a class="dw-result" href="'+href(w,routeType)+'"><span class="dw-result-type">'+esc(d.role.charAt(0)+d.role.slice(1).toLowerCase())+'</span><span class="dw-result-id">'+esc(w)+'</span><span class="dw-result-view">View Discovery →</span></a>';
+      }).join('');
+      var head='<div class="dw-filter-head"><div><div class="vi-eyebrow">Browse By Role</div><div class="vi-title">'+esc(d.role.charAt(0)+d.role.slice(1).toLowerCase())+'s</div><div class="dw-landing-sub">'+d.total+' distinct wallet'+(d.total===1?'':'s')+' holding this role'+(d.total>(d.wallets||[]).length?' (showing first '+(d.wallets||[]).length+')':'')+'.</div></div><a class="vi-status discovery" href="/discovery" style="text-decoration:none">Back to Operations</a></div>';
+      $('dw-content').innerHTML=head+'<div class="dw-case-list">'+rows+'</div>';
+    }).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Role browsing is temporarily unavailable.</div>'});
+  }
+  function load(id,type){
+    if(FILTER_BROWSE_ROLE){roleBrowsePage(FILTER_BROWSE_ROLE);return}
+    if(type==='operation'&&id){operationDetailPage(id);return}
+    if(!id)return landing();$('dw-loading').style.display='block';$('dw-content').innerHTML='';fetch('/api/discovery/entity/'+encodeURIComponent(id)+'?type='+encodeURIComponent(type||'auto')).then(function(r){return r.json()}).then(render).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Discovery evidence is temporarily unavailable.</div>'})}
   function typedLabel(value){return String(value||'Unknown').toLowerCase().split('_').map(function(x){return x.charAt(0).toUpperCase()+x.slice(1)}).join(' ')}
   function outcomeCount(summary,type){var row=(summary.outcomes||[]).find(function(x){return x.outcome_type===type});return row?row.count:0}
-  function summariseOutcomes(rows,cutoff){var counts={};(rows||[]).filter(function(x){return (x.completed_at||0)>=cutoff}).forEach(function(x){counts[x.outcome_type]=(counts[x.outcome_type]||0)+1});return Object.keys(counts).map(function(k){return {outcome_type:k,count:counts[k]}}).sort(function(a,b){return b.count-a.count})}
+  // X26.5.1 — counts now come directly from /api/ops-v2/attribution-outcomes/summary,
+  // an exact SQL COUNT(*)/GROUP BY over the full table for the given window. This
+  // replaces the prior client-side pattern (fetch 500 mixed-type rows -> filter to
+  // 24h in JS -> group in JS), which silently under-counted once combined outcome
+  // volume across all types exceeded the shared 500-row fetch cap within the window.
+  //
+  // X26.11 — KNOWN_CEX_REACHED/KNOWN_BRIDGE_REACHED/KNOWN_RELAY_REACHED are
+  // excluded from the flat per-type row list here; they're presented as one
+  // grouped "Known Infrastructure Reached" row instead (see healthPanel),
+  // using the backend's own reviewed_infrastructure aggregate rather than a
+  // second client-side sum. LINEAGE_GAP/UNKNOWN_INFRASTRUCTURE are NOT part
+  // of this group -- they mean "walkback ran out of evidence" / "not yet a
+  // reviewed boundary," the opposite of a legitimately-reached boundary.
+  var REVIEWED_TERMINAL_OUTCOME_TYPES={KNOWN_CEX_REACHED:1,KNOWN_BRIDGE_REACHED:1,KNOWN_RELAY_REACHED:1};
+  function summariseOutcomes(counts){return Object.keys(counts||{}).filter(function(k){return !REVIEWED_TERMINAL_OUTCOME_TYPES[k]}).map(function(k){return {outcome_type:k,count:counts[k]}}).sort(function(a,b){return b.count-a.count})}
   function todayMetric(value,label,colour){return '<div class="vi-scorecard"><div class="vi-scorecard-label">'+esc(label)+'</div><div class="vi-scorecard-value" style="color:'+colour+'">'+esc(value)+'</div><div class="vi-scorecard-meta">Current 24-hour view</div></div>'}
   function intelligenceEvent(e,stream){
     var cfg={watchtower:['confirmed','◆'],promotions:['promotion','⬡'],emerging_operators:['monitoring','◎'],reviews:['discovery','✓'],discovery:['discovery','◇']}[stream]||['discovery','◇'];
     var entity=e.entity||{},url=e.href||href(entity.id,entity.type);
     return '<a class="dw-intel-event '+cfg[0]+'" href="'+esc(url)+'"><span class="dw-intel-icon">'+cfg[1]+'</span><span><span class="dw-intel-headline">'+esc(e.message||typedLabel(e.kind))+'</span><span class="dw-intel-meta">'+esc(typedLabel(e.kind))+' · '+esc(entity.type||'intelligence')+' · '+ago(e.timestamp)+'</span></span><span style="color:var(--ip-cyan)">→</span></a>';
   }
-  function healthPanel(summary,seedType){
-    var rows=(summary.outcomes||[]).slice(),max=Math.max.apply(null,rows.map(function(x){return x.count}).concat([1]));
-    return '<aside class="vi-card walkback dw-health"><div class="dw-health-head"><div class="vi-eyebrow">Pipeline Health</div><div class="vi-title">Attribution Health</div><div class="dw-landing-sub">Expected terminal outcomes, aggregated by the canonical X19.7 type.</div></div><div class="dw-health-list">'+rows.map(function(x){var special=x.outcome_type===seedType,confirmed=x.outcome_type==='CANONICAL_OPERATOR_REACHED',col=special?'var(--ip-amber)':confirmed?'var(--ip-green)':'#f97316';return '<a class="dw-health-row" href="/discovery?outcome_type='+encodeURIComponent(x.outcome_type)+'"><span class="dw-health-name">'+esc(typedLabel(x.outcome_type))+'</span><span class="dw-health-track"><span class="dw-health-fill" style="--health-width:'+Math.round(x.count/max*100)+'%;--health-col:'+col+'"></span></span><span class="dw-health-count">'+x.count+'</span></a>'}).join('')+'</div></aside>';
+  // X27.2 — Pipeline Health is now an investigation REDUCTION queue, not a
+  // collection of independent, overlapping statistics. Every migrated
+  // launch in the window belongs to exactly one bucket (src/ops
+  // /investigation_pipeline.py, /api/ops-v2/investigation-pipeline), ordered
+  // by investigative usefulness (Known Operation -> Known Infrastructure ->
+  // Repeat Creators -> Unknown Infrastructure -> Lineage Gap -> Insufficient
+  // Evidence). Bucket counts always sum to total_launches -- this is a
+  // conservation property, not a coincidence -- so the analyst can read the
+  // panel top-to-bottom as "how much of today's population is still left to
+  // investigate" rather than five independent, possibly-overlapping numbers.
+  // X27.5 — Rapid Birth → Launch and Burst Launches (formerly a separate
+  // Behaviour Queue dashboard, X27.4) are now first-class investigation
+  // buckets in this same panel, ranked by priority alongside the
+  // attribution-derived buckets. One panel, one workflow -- see
+  // src/ops/investigation_pipeline.py's module docstring for the full
+  // rationale and the measured overlap that motivated the merge.
+  var BUCKET_COLOURS={
+    KNOWN_OPERATION:'var(--ip-green)', KNOWN_INFRASTRUCTURE:'#f97316',
+    REPEAT_CREATOR:'var(--ip-purple)', RAPID_BIRTH_LAUNCH:'var(--ip-green)',
+    BURST_LAUNCH:'var(--ip-amber)', UNKNOWN_INFRASTRUCTURE:'var(--ip-amber)',
+    LINEAGE_GAP:'var(--ip-dim)', INSUFFICIENT_EVIDENCE:'var(--ip-dim)',
+  };
+  // X29.1.1 — the Investigation Queue is now a LEGACY comparison panel
+  // only, collapsed by default (<details>, no `open` attribute) and clearly
+  // labelled as superseded. Not removed: X29.0 flagged retiring the
+  // BUCKET_ORDER model as needing separate sign-off before deletion, so
+  // this sprint only de-prioritises it in the UI, exactly as the brief
+  // specifies ("Do not remove it yet"). No change to what data it shows or
+  // how investigation_pipeline.py computes it -- purely a rendering/layout
+  // change (a <details> wrapper + renamed heading + a note), matching the
+  // "No detection or classification logic should change" constraint.
+  function healthPanel(pipeline){
+    var buckets=(pipeline&&pipeline.buckets)||[],total=(pipeline&&pipeline.total_launches)||0,max=Math.max.apply(null,buckets.map(function(b){return b.count}).concat([1]));
+    var rows=buckets.filter(function(b){return b.count>0}).map(function(b){
+      var col=BUCKET_COLOURS[b.bucket]||'#f97316';
+      return '<a class="dw-health-row" href="/discovery?bucket='+encodeURIComponent(b.bucket)+'" title="'+esc(b.reason)+'"><span class="dw-health-name">'+esc(b.label)+'</span><span class="dw-health-track"><span class="dw-health-fill" style="--health-width:'+Math.round(b.count/max*100)+'%;--health-col:'+col+'"></span></span><span class="dw-health-count">'+b.count+'</span></a>';
+    }).join('');
+    var conservedNote=(pipeline&&pipeline.conserved===false)?'<div class="dw-health-row" style="color:var(--ip-red,#f85149)">⚠ Bucket counts do not sum to total launches — investigate before trusting this panel.</div>':'';
+    var emptyNote=(total===0&&pipeline&&pipeline.empty_state_message)?'<div class="dw-health-row dw-window-empty">'+esc(pipeline.empty_state_message)+'</div>':'';
+    return '<details class="vi-card walkback dw-health dw-legacy-panel"><summary class="dw-health-head dw-legacy-summary"><div class="vi-eyebrow">Legacy Investigation Queue</div><div class="vi-title">Legacy Investigation Queue · '+esc(dwWindowLabel())+'</div><div class="dw-legacy-note">Superseded by Operational Intelligence hierarchy.</div><div class="dw-landing-sub">Every migrated launch in the selected window belongs to exactly one bucket below ('+total+' total). Retained for comparison during the transition — click to expand.</div></summary><div class="dw-health-list">'+rows+conservedNote+emptyNote+'</div></details>';
+  }
+  // X29.1/X29.1.1 — Operational Topology Intelligence Framework. Three
+  // INDEPENDENT dimensions (src/ops/funding_topology.py,
+  // operational_behaviour_tags.py, funding_mechanism.py; combined in
+  // src/ops/operational_intelligence.py), rendered as a PROGRESSIVE
+  // Topology -> Behaviour -> Mechanism drill-down (X29.1.1: now the
+  // PRIMARY Discovery workflow, promoted above the legacy Investigation
+  // Queue panel, which is retained collapsed below for comparison per
+  // X29.0's explicit "needs sign-off before removal" note -- this sprint's
+  // brief is that sign-off, but removal itself is still deferred, only
+  // de-prioritisation happens here).
+  //
+  // No new classifier logic: build_hierarchy()'s tree is ALREADY correctly
+  // scoped per-parent (each behaviour node's children are already counted
+  // only within that topology+behaviour combination -- verified directly
+  // against a live build_hierarchy() call before writing this UI, not
+  // assumed) -- this is a pure navigation/rendering change over the exact
+  // same data X29.1 already produces. Selection state lives in JS only;
+  // nothing is persisted, matching the "do not store the hierarchy"
+  // storage-model requirement -- re-deriving the visible slice from the
+  // full tree + current selection on every render.
+  var TOPO_SELECTION={topology:null, behaviour:null, mechanism:null};
+  var TOPO_TREE_CACHE=null;
+  var TOPO_EMPTY_STATE_MESSAGE=null;
+
+  function topoFindNode(tree, key, value){
+    return (tree||[]).find(function(n){return n[key]===value});
+  }
+
+  function topoBreadcrumb(){
+    var parts=[];
+    if(TOPO_SELECTION.topology){
+      var tNode=topoFindNode(TOPO_TREE_CACHE, 'topology', TOPO_SELECTION.topology);
+      parts.push({label:(tNode&&tNode.label)||TOPO_SELECTION.topology, level:'topology'});
+    }
+    if(TOPO_SELECTION.behaviour){
+      var tNode2=topoFindNode(TOPO_TREE_CACHE, 'topology', TOPO_SELECTION.topology);
+      var bNode=topoFindNode((tNode2&&tNode2.children)||[], 'behaviour', TOPO_SELECTION.behaviour);
+      parts.push({label:(bNode&&bNode.label)||TOPO_SELECTION.behaviour, level:'behaviour'});
+    }
+    if(TOPO_SELECTION.mechanism){
+      parts.push({label:TOPO_SELECTION.mechanism, level:'mechanism'});
+    }
+    if(!parts.length)return '';
+    var crumbs=parts.map(function(p,i){
+      return '<span class="dw-topo-crumb" data-reset-level="'+esc(p.level)+'">'+esc(p.label)+'</span>'+(i<parts.length-1?'<span class="dw-topo-crumb-sep">→</span>':'');
+    }).join('');
+    return '<div class="dw-topo-breadcrumb"><span class="dw-topo-crumb dw-topo-crumb-root" data-reset-level="root">Operational Intelligence</span><span class="dw-topo-crumb-sep">→</span>'+crumbs+'</div>';
+  }
+
+  // Renders ONLY the current level's children (progressive drill-down —
+  // X29.1.1's core requirement, replacing X29.1's always-fully-expanded
+  // tree). "Only child items for the current selection should be
+  // displayed" per the brief's UI Layout example.
+  function topoLevelRows(){
+    var tree=TOPO_TREE_CACHE||[];
+    if(!TOPO_SELECTION.topology){
+      var rows=tree.filter(function(t){return t.count>0}).map(function(t){
+        return '<div class="dw-topo-row" data-level="topology" data-value="'+esc(t.topology||'')+'"><span class="dw-topo-row-label">'+esc(t.label)+'</span><span class="dw-topo-row-count">'+t.count+'</span></div>';
+      }).join('');
+      var emptyMsg=TOPO_EMPTY_STATE_MESSAGE||('No launches were detected within the selected '+esc(dwWindowLabel())+' window.');
+      return {heading:'Funding Topologies', rows: rows||'<div class="dw-empty dw-window-empty" style="padding:14px">'+esc(emptyMsg)+'</div>'};
+    }
+    var tNode=topoFindNode(tree, 'topology', TOPO_SELECTION.topology);
+    if(!TOPO_SELECTION.behaviour){
+      var bChildren=(tNode&&tNode.children)||[];
+      var bRows=bChildren.filter(function(b){return b.count>0}).map(function(b){
+        return '<div class="dw-topo-row" data-level="behaviour" data-value="'+esc(b.behaviour||'')+'"><span class="dw-topo-row-label">'+esc(b.label)+'</span><span class="dw-topo-row-count">'+b.count+'</span></div>';
+      }).join('');
+      return {heading:'Behaviour', rows: bRows||'<div class="dw-empty" style="padding:14px">No behaviour tags recorded for this topology.</div>'};
+    }
+    var bNode=topoFindNode((tNode&&tNode.children)||[], 'behaviour', TOPO_SELECTION.behaviour);
+    var mChildren=(bNode&&bNode.children)||[];
+    var mRows=mChildren.filter(function(m){return m.count>0}).map(function(m){
+      return '<div class="dw-topo-row" data-level="mechanism" data-value="'+esc(m.mechanism||'')+'"><span class="dw-topo-row-label">'+esc(m.label)+'</span><span class="dw-topo-row-count">'+m.count+'</span></div>';
+    }).join('');
+    return {heading:'Funding Mechanisms', rows: mRows||'<div class="dw-empty" style="padding:14px">No mechanism evidence recorded for this selection.</div>'};
+  }
+
+  function renderTopoLevel(){
+    var mount=$('dw-topo-level-mount');
+    if(!mount)return;
+    var level=topoLevelRows();
+    mount.innerHTML='<div class="dw-topo-level-hdr">'+esc(level.heading)+'</div><div class="dw-topo-level-rows">'+level.rows+'</div>';
+    var crumbMount=$('dw-topo-crumb-mount');
+    if(crumbMount)crumbMount.innerHTML=topoBreadcrumb();
+    bindTopoLevelClicks();
+    updateLaunchTableFilter();
+  }
+
+  function bindTopoLevelClicks(){
+    document.querySelectorAll('#dw-topo-level-mount .dw-topo-row').forEach(function(el){
+      el.addEventListener('click',function(){
+        var level=el.dataset.level, value=el.dataset.value;
+        if(level==='topology')TOPO_SELECTION={topology:value, behaviour:null, mechanism:null};
+        else if(level==='behaviour')TOPO_SELECTION.behaviour=value;
+        else if(level==='mechanism')TOPO_SELECTION.mechanism=value;
+        renderTopoLevel();
+      });
+    });
+    document.querySelectorAll('.dw-topo-crumb').forEach(function(el){
+      el.addEventListener('click',function(){
+        var resetLevel=el.dataset.resetLevel;
+        if(resetLevel==='root')TOPO_SELECTION={topology:null, behaviour:null, mechanism:null};
+        else if(resetLevel==='topology')TOPO_SELECTION={topology:TOPO_SELECTION.topology, behaviour:null, mechanism:null};
+        else if(resetLevel==='behaviour')TOPO_SELECTION.mechanism=null;
+        renderTopoLevel();
+      });
+    });
+  }
+
+  // Cumulative filtering: every selected level narrows the launch table —
+  // topology alone, topology+behaviour, or topology+behaviour+mechanism,
+  // exactly the brief's Filtering Rules. Reuses the SAME
+  // /api/ops-v2/operational-intelligence endpoint's mint-filter query
+  // params (topology=/behaviour=/mechanism=) that X29.1 already built —
+  // no new API surface.
+  // X29.1.3 — the matching-launch list is grouped by attribution outcome
+  // (e.g. "CEX Reached" vs "Repeat Creator" vs "Unknown Infrastructure")
+  // rather than shown as one flat list. Purely a presentation grouping over
+  // the existing, already-computed wt_attribution_outcomes.outcome_type
+  // (src/ops/operational_intelligence.py's group_mints_by_outcome()) — no
+  // new detection or classification logic. Falls back to the previous flat
+  // rendering if the API ever omits `groups` (e.g. an older cached response
+  // or the group_by param being dropped for any reason).
+  function renderGroupedLaunches(d){
+    var mints=d.mints||[];
+    if(!mints.length)return '<div class="dw-empty" style="padding:14px">No launches match this combination.</div>';
+    var groups=d.groups;
+    if(!groups||!groups.length){
+      return '<div class="dw-topo-launch-count">'+mints.length+' matching launch'+(mints.length===1?'':'es')+'</div>'
+        +mints.slice(0,200).map(function(m){return '<a class="dw-topo-launch-row" href="'+href(m,'token')+'">'+esc(abbr(m))+'</a>'}).join('');
+    }
+    return groups.map(function(g){
+      var rows=(g.mints||[]).slice(0,200).map(function(m){return '<a class="dw-topo-launch-row" href="'+href(m,'token')+'">'+esc(abbr(m))+'</a>'}).join('');
+      return '<div class="dw-topo-outcome-group"><div class="dw-topo-outcome-group-hdr">'+esc(g.label)+' <span class="dw-topo-outcome-group-count">'+g.count+'</span></div>'+rows+'</div>';
+    }).join('');
+  }
+  function updateLaunchTableFilter(){
+    var table=$('dw-topo-launch-table');
+    if(!table)return;
+    var params=new URLSearchParams({window:DW_WINDOW, group_by:'outcome'});
+    if(TOPO_SELECTION.topology)params.set('topology', TOPO_SELECTION.topology);
+    if(TOPO_SELECTION.behaviour)params.set('behaviour', TOPO_SELECTION.behaviour);
+    if(TOPO_SELECTION.mechanism)params.set('mechanism', TOPO_SELECTION.mechanism);
+    if(!TOPO_SELECTION.topology){
+      table.innerHTML='<div class="dw-empty" style="padding:14px">Select a topology above to view matching launches.</div>';
+      return;
+    }
+    table.innerHTML='<div class="dw-empty" style="padding:14px">Loading matching launches…</div>';
+    fetch('/api/ops-v2/operational-intelligence?'+params.toString()).then(function(r){return r.json()}).then(function(d){
+      table.innerHTML=renderGroupedLaunches(d);
+    }).catch(function(){table.innerHTML='<div class="dw-empty" style="padding:14px">Unable to load matching launches.</div>'});
+  }
+
+  // X29.7 — Operations-first Discovery. Per the X29.5/X29.6 audits: Discovery
+  // must answer "what operation am I looking at?" BEFORE "how does it
+  // behave?" -- so Operations now renders ABOVE Operational Intelligence
+  // (which becomes supporting, not primary). Zero new intelligence: every
+  // number here comes from src/ops/operations_summary.py's read-only
+  // aggregation over the SAME persisted facts (wt_provisioning_edges,
+  // wt_watchtower_launches, wt_confirmed_treasuries) that already existed.
+  function opSummaryCard(op){
+    var mechRows=Object.keys(op.funding_mechanisms||{}).map(function(m){
+      var d=op.funding_mechanisms[m];
+      return '<span class="dw-op-mech-chip">'+esc(m.replace(/_/g,' '))+' '+d.pct+'%</span>';
+    }).join('');
+    var lastActivity=op.last_activity?relativeTime(op.last_activity):'—';
+    return '<a class="dw-op-card" href="/discovery?entity='+encodeURIComponent(op.operation_id)+'&type=operation">'
+      +'<div class="dw-op-card-head"><span class="dw-op-name">'+esc(op.display_name)+'</span><span class="dw-op-confidence dw-op-confidence-'+esc((op.confidence||'').toLowerCase())+'">'+esc(op.confidence)+'</span></div>'
+      +'<div class="dw-op-stats">'
+      +'<div class="dw-op-stat"><div class="dw-op-stat-v">'+op.treasury_count+'</div><div class="dw-op-stat-l">Treasur'+(op.treasury_count===1?'y':'ies')+'</div></div>'
+      +'<div class="dw-op-stat"><div class="dw-op-stat-v">'+op.subprovider_count+'</div><div class="dw-op-stat-l">Subprovider'+(op.subprovider_count===1?'':'s')+'</div></div>'
+      +'<div class="dw-op-stat"><div class="dw-op-stat-v">'+op.creator_count+'</div><div class="dw-op-stat-l">Creator'+(op.creator_count===1?'':'s')+'</div></div>'
+      +'<div class="dw-op-stat"><div class="dw-op-stat-v">'+op.recent_launch_count+'</div><div class="dw-op-stat-l">Launch'+(op.recent_launch_count===1?'':'es')+'</div></div>'
+      +'</div>'
+      +(mechRows?'<div class="dw-op-mechs">'+mechRows+'</div>':'')
+      +'<div class="dw-op-last">Last launch: '+esc(lastActivity)+'</div>'
+      +'</a>';
+  }
+  function operationsPanel(operations){
+    if(!operations||!operations.length){
+      return '<section class="vi-card walkback dw-health dw-ops-panel dw-ops-primary">'
+        +'<div class="dw-health-head"><div class="vi-eyebrow">Operations</div><div class="vi-title">Known Operations</div></div>'
+        +'<div class="dw-empty" style="padding:18px">No operations resolved yet — operations require a confirmed treasury with at least one recorded launch.</div>'
+        +'</section>';
+    }
+    var cards=operations.map(opSummaryCard).join('');
+    return '<section class="vi-card walkback dw-health dw-ops-panel dw-ops-primary">'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Operations · '+operations.length+' resolved</div><div class="vi-title">Known Operations</div>'
+      +'<div class="dw-landing-sub">Each operation is a confirmed treasury-funding cluster with its subproviders, provisioning wallets, and creators. Open an operation to see its full lineage before any supporting classification.</div></div>'
+      +'<div class="dw-ops-grid">'+cards+'</div>'
+      +'</section>';
+  }
+  function roleBrowsePanel(){
+    var roles=[{key:'TREASURY',label:'Treasuries'},{key:'SUBPROVIDER',label:'Subproviders'},{key:'CREATOR',label:'Creators'}];
+    var rows=roles.map(function(r){
+      return '<a class="dw-role-browse-row" href="/discovery?browse_role='+r.key+'"><span class="dw-role-browse-label">'+esc(r.label)+'</span><span class="dw-role-browse-view">Browse →</span></a>';
+    }).join('');
+    return '<section class="vi-card walkback dw-health dw-role-browse-panel">'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Browse By Role</div><div class="vi-title">Treasuries · Subproviders · Creators</div></div>'
+      +'<div class="dw-role-browse-rows">'+rows+'</div>'
+      +'</section>';
+  }
+  function relativeTime(unixSeconds){
+    var diff=Math.floor(Date.now()/1000)-unixSeconds;
+    if(diff<0)diff=0;
+    if(diff<60)return diff+'s ago';
+    if(diff<3600)return Math.floor(diff/60)+'m ago';
+    if(diff<86400)return Math.floor(diff/3600)+'h ago';
+    return Math.floor(diff/86400)+'d ago';
+  }
+  function loadOperationsPanel(){
+    var mount=$('dw-ops-mount');
+    if(!mount)return;
+    fetch('/api/ops-v2/known-operations').then(function(r){return r.json()}).then(function(d){
+      var m2=$('dw-ops-mount');
+      if(!m2)return;
+      m2.outerHTML=operationsPanel(d.operations||[]);
+    }).catch(function(){
+      var m3=$('dw-ops-mount');
+      if(m3)m3.outerHTML='<section class="vi-card walkback dw-health dw-ops-panel"><div class="dw-health-head"><div class="vi-eyebrow">Operations</div><div class="vi-title">Known Operations</div></div><div class="dw-empty" style="padding:18px">Temporarily unavailable.</div></section>';
+    });
+  }
+  function operationalIntelligencePanel(){
+    return '<section class="vi-card walkback dw-health dw-topo-panel">'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Supporting Intelligence · '+esc(dwWindowLabel())+'</div><div class="vi-title">Funding Topology → Behaviour → Mechanism</div>'
+      +'<div class="dw-landing-sub">Every launch is classified independently on three dimensions. Topology is exclusive (exactly one per launch); Behaviour and Funding Mechanism are additive tags. Selections are cumulative — click through to progressively narrow the launch table below.</div>'
+      +'<div id="dw-topo-crumb-mount"></div></div>'
+      +'<div id="dw-topo-level-mount" class="dw-topo-tree"><div class="dw-empty" style="padding:14px">Loading — the behaviour dimension can take up to a minute on first load.</div></div>'
+      +'<div class="dw-topo-launch-section"><div class="dw-topo-level-hdr">Matching Launches</div><div id="dw-topo-launch-table" class="dw-topo-launch-table"><div class="dw-empty" style="padding:14px">Select a topology above to view matching launches.</div></div></div>'
+      +'</section>';
+  }
+
+  function loadOperationalIntelligence(){
+    fetch('/api/ops-v2/operational-intelligence?window='+encodeURIComponent(DW_WINDOW)+'&view=hierarchy').then(function(r){return r.json()}).then(function(intel){
+      TOPO_TREE_CACHE=(intel&&intel.hierarchy)||[];
+      TOPO_EMPTY_STATE_MESSAGE=(intel&&intel.empty_state_message)||null;
+      TOPO_SELECTION={topology:null, behaviour:null, mechanism:null};
+      renderTopoLevel();
+    }).catch(function(){
+      var mount=$('dw-topo-level-mount');
+      if(mount)mount.innerHTML='<div class="dw-empty" style="padding:14px">Temporarily unavailable.</div>';
+    });
   }
   // X21C — Discovery Triage Workspace. Only INSUFFICIENT_EVIDENCE and LINEAGE_GAP
   // (the two outcome types representing "attribution stopped without a canonical
@@ -529,8 +1335,12 @@
     {key:'LOW_INFORMATION', label:'Low-information'},
   ];
   function triageSummaryCard(s){
-    return '<div class="dw-triage-l1"><div class="x19-answer-label">Insufficient Evidence · Level 1</div>'
-      +'<div class="dw-triage-l1-title">'+s.total_terminal_outcomes+' terminal outcomes</div>'
+    // X26.5.1 — build_triage_summary() has no status/resolved filter; this is
+    // every INSUFFICIENT_EVIDENCE/LINEAGE_GAP row ever materialized, not a
+    // filtered "current backlog". Label it as all-time so it's never read as
+    // numerically comparable to the 24h-windowed Attribution Health panel.
+    return '<div class="dw-triage-l1"><div class="x19-answer-label">Insufficient Evidence · All time</div>'
+      +'<div class="dw-triage-l1-title">'+s.total_terminal_outcomes+' terminal outcomes (all time)</div>'
       +'<div class="dw-triage-l1-sub"><span class="dw-triage-worth">'+s.worth_monitoring+' worth monitoring</span> · <span class="dw-triage-low">'+s.low_information+' no current investigative path</span></div></div>';
   }
   function patternSummaryCard(s){
@@ -581,24 +1391,122 @@
       $('dw-content').innerHTML='<div class="dw-empty">Triage workspace is temporarily unavailable.</div>';
     });
   }
+  function relayCaseRow(x){
+    return '<a class="dw-case" href="'+href(x.mint,'token')+'"><div class="dw-case-title" title="'+esc(x.mint)+'">'+esc(abbr(x.mint))+'</div><div class="dw-case-meta"><span>'+esc(x.confidence)+'</span><span>'+ago(x.completed_at)+' →</span></div></a>';
+  }
+  function relayGroupCard(g){
+    var latest=g.rows.reduce(function(m,x){return Math.max(m,x.completed_at||0)},0);
+    var first=g.rows.reduce(function(m,x){return m===null?x.completed_at:Math.min(m,x.completed_at||m)},null);
+    var collapsed=g.rows.length>6;
+    return '<div class="dw-card">'
+      +'<div class="dw-card-h" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">'
+      +(g.name?'<span style="font-size:11.5px;font-weight:700;color:var(--ip-text)">'+esc(g.name)+'</span>':'')
+      +'<span style="font:10px ui-monospace,monospace;color:var(--ip-cyan)" title="'+esc(g.relay)+'">'+esc(abbr(g.relay))+'</span>'
+      +'<span class="vi-chip"><b>'+g.rows.length+'</b> launch'+(g.rows.length===1?'':'es')+'</span>'
+      +'<span class="vi-chip">'+g.treasuries.size+' treasur'+(g.treasuries.size===1?'y':'ies')+'</span>'
+      +'<span class="vi-chip">'+g.subprovs.size+' sub-provisioner'+(g.subprovs.size===1?'':'s')+'</span>'
+      +'<span style="margin-left:auto;font-size:9px;color:var(--ip-dim)">first seen '+ago(first)+' · last seen '+ago(latest)+'</span>'
+      +'</div>'
+      +'<div class="dw-card-body">'
+      +(collapsed
+        ? '<details><summary style="cursor:pointer;font-size:9.5px;color:var(--ip-dim);margin-bottom:8px">Show '+g.rows.length+' launches</summary><div class="dw-case-list">'+g.rows.map(relayCaseRow).join('')+'</div></details>'
+        : '<div class="dw-case-list">'+g.rows.map(relayCaseRow).join('')+'</div>')
+      +'</div></div>';
+  }
+  function renderRelayGrouped(rows){
+    var groups={}, order=[];
+    rows.forEach(function(x){
+      var relay=x.terminal_entity||'UNKNOWN';
+      if(!groups[relay]){groups[relay]={relay:relay,name:null,rows:[],treasuries:new Set(),subprovs:new Set()};order.push(relay)}
+      var g=groups[relay];
+      g.rows.push(x);
+      var ev=x.evidence||{};
+      if(!g.name&&ev.boundary&&ev.boundary.name)g.name=ev.boundary.name;
+      (ev.treasuries||[]).forEach(function(t){g.treasuries.add(t)});
+      (ev.subprovisioners||[]).forEach(function(s){g.subprovs.add(s)});
+    });
+    order.sort(function(a,b){return groups[b].rows.length-groups[a].rows.length});
+    return order.map(function(k){return relayGroupCard(groups[k])}).join('')||'<div class="dw-empty">No relay-attributed launches found.</div>';
+  }
   function filteredCases(type){
     $('dw-loading').style.display='block';
     if(TRIAGE_OUTCOME_TYPES[type]){
       renderTriageWorkspace(new URLSearchParams(window.location.search).get('filter'));
       return;
     }
-    fetch('/api/ops-v2/attribution-outcomes?limit=500&outcome_type='+encodeURIComponent(type)).then(function(r){return r.json()}).then(function(d){$('dw-loading').style.display='none';var rows=d.outcomes||[];$('dw-content').innerHTML='<div class="dw-filter-head"><div><div class="vi-eyebrow">Attribution Health · Underlying cases</div><div class="vi-title">'+esc(typedLabel(type))+'</div><div class="dw-landing-sub">'+rows.length+' typed terminal outcome'+(rows.length===1?'':'s')+'</div></div><a class="vi-status discovery" href="/discovery" style="text-decoration:none">Back to intelligence</a></div><div class="dw-case-list">'+rows.map(function(x){return '<a class="dw-case" href="'+href(x.mint,'token')+'"><div class="dw-case-title" title="'+esc(x.mint)+'">'+esc(abbr(x.mint))+'</div><div class="dw-case-meta"><span>'+esc(x.confidence)+'</span><span>'+ago(x.completed_at)+' →</span></div></a>'}).join('')+'</div>'}).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Typed attribution cases are temporarily unavailable.</div>'});
+    // X26.5.1 — this drill-down is deliberately all-time (no completed_at filter),
+    // unlike the 24h-windowed landing panel. limit=500 is still a real fetch cap;
+    // when the true all-time count exceeds it, the fetched rows are a PARTIAL
+    // list and must say so rather than silently presenting fewer rows as complete.
+    Promise.all([
+      fetch('/api/ops-v2/attribution-outcomes?limit=500&outcome_type='+encodeURIComponent(type)).then(function(r){return r.json()}),
+      fetch('/api/ops-v2/attribution-outcomes/summary?window=all').then(function(r){return r.json()}),
+    ]).then(function(results){
+      var d=results[0]||{},allTimeSummary=results[1]||{};
+      $('dw-loading').style.display='none';
+      var rows=d.outcomes||[];
+      var trueTotal=(allTimeSummary.counts||{})[type];
+      var isPartial=typeof trueTotal==='number'&&trueTotal>rows.length;
+      var countLabel=isPartial?(rows.length+' of '+trueTotal+' all-time terminal outcomes shown (fetch limit reached)'):(rows.length+' all-time terminal outcome'+(rows.length===1?'':'s'));
+      var head='<div class="dw-filter-head"><div><div class="vi-eyebrow">Attribution Health · All time</div><div class="vi-title">'+esc(typedLabel(type))+'</div><div class="dw-landing-sub">'+esc(countLabel)+'</div></div><a class="vi-status discovery" href="/discovery" style="text-decoration:none">Back to intelligence</a></div>';
+      var body=type==='KNOWN_RELAY_REACHED'
+        ? renderRelayGrouped(rows)
+        : '<div class="dw-case-list">'+rows.map(relayCaseRow).join('')+'</div>';
+      $('dw-content').innerHTML=head+body;
+    }).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Typed attribution cases are temporarily unavailable.</div>'});
+  }
+  // X27.2 Phase 7 — drill-down into exactly one Pipeline Health bucket.
+  // Fetches /api/ops-v2/investigation-pipeline?bucket=<id>, which returns
+  // only the mints assigned to that bucket by the same exclusive-assignment
+  // walk used to render the panel counts -- structurally unable to include
+  // a mint already claimed by a higher-priority bucket, since each mint has
+  // exactly one entry in the assignment map.
+  // X27.2 follow-up — REPEAT_CREATOR (and any future bucket whose analytical
+  // unit is the creator, not the token) is grouped by creator wallet
+  // server-side (group_by=creator): the whole point of that bucket is
+  // "this creator is already understood," so the creator identity is the
+  // entry point, with tokens one click further down via a <details>
+  // disclosure -- not a flat list of token addresses at the top level.
+  var CREATOR_GROUPED_BUCKETS={REPEAT_CREATOR:1};
+  function creatorGroupRow(c){
+    var tokenLinks=c.mints.map(function(m){return '<a class="dw-result" href="'+href(m,'token')+'"><span class="dw-result-type">Token</span><span class="dw-result-id">'+esc(m)+'</span><span class="dw-result-view">View Discovery →</span></a>'}).join('');
+    var creatorLabel=c.creator?esc(c.creator):'Creator not resolved';
+    return '<details class="dw-creator-group"><summary class="dw-result dw-creator-group-summary"><span class="dw-result-type">Creator</span><span class="dw-result-id">'+creatorLabel+'</span><span class="dw-result-view">'+c.launch_count+' launch'+(c.launch_count===1?'':'es')+' →</span></summary><div class="dw-creator-group-tokens">'+tokenLinks+'</div></details>';
+  }
+  function filteredBucket(bucket){
+    $('dw-loading').style.display='block';
+    var grouped=!!CREATOR_GROUPED_BUCKETS[bucket];
+    var url='/api/ops-v2/investigation-pipeline?window='+encodeURIComponent(DW_WINDOW)+'&bucket='+encodeURIComponent(bucket)+(grouped?'&group_by=creator':'');
+    fetch(url).then(function(r){return r.json()}).then(function(d){
+      $('dw-loading').style.display='none';
+      var bucketMeta=(d.buckets||[]).find(function(b){return b.bucket===bucket})||{};
+      var body,count;
+      if(grouped){
+        var creators=d.creators||[];
+        count=creators.reduce(function(sum,c){return sum+c.launch_count},0);
+        body='<div class="dw-case-list">'+creators.map(creatorGroupRow).join('')+'</div>';
+      } else {
+        var mints=d.mints||[];
+        count=mints.length;
+        body='<div class="dw-case-list">'+mints.map(function(m){return '<a class="dw-result" href="'+href(m,'token')+'"><span class="dw-result-type">Token</span><span class="dw-result-id">'+esc(m)+'</span><span class="dw-result-view">View Discovery →</span></a>'}).join('')+'</div>';
+      }
+      var emptyNote=(count===0&&d.empty_state_message)?'<div class="dw-empty dw-window-empty">'+esc(d.empty_state_message)+'</div>':'';
+      var head='<div class="dw-filter-head"><div><div class="vi-eyebrow">Pipeline Health · '+esc(dwWindowLabel())+'</div><div class="vi-title">'+esc(bucketMeta.label||typedLabel(bucket))+'</div><div class="dw-landing-sub">'+esc(bucketMeta.reason||'')+' '+count+' launch'+(count===1?'':'es')+' assigned to this bucket'+(grouped?', grouped by creator':'')+'. No launch shown here is counted in any other bucket.</div></div><a class="vi-status discovery" href="/discovery" style="text-decoration:none">Back to intelligence</a></div>'+emptyNote;
+      $('dw-content').innerHTML=head+body;
+    }).catch(function(){$('dw-loading').style.display='none';$('dw-content').innerHTML='<div class="dw-empty">Pipeline Health bucket details are temporarily unavailable.</div>'});
   }
   function landing(){
+    if(FILTER_BUCKET){filteredBucket(FILTER_BUCKET);return}
     if(FILTER_OUTCOME){filteredCases(FILTER_OUTCOME);return}
     Promise.all([
       fetch('/api/discovery/recent?limit=20').then(function(r){return r.json()}),
-      fetch('/api/ops-v2/attribution-outcomes?limit=500').then(function(r){return r.json()}),
+      fetch('/api/ops-v2/attribution-outcomes/summary?window='+encodeURIComponent(DW_WINDOW)).then(function(r){return r.json()}),
       fetch('/api/ops/emerging-operators?limit=50').then(function(r){return r.json()}),
       fetch('/api/operators/promotions').then(function(r){return r.json()}),
-      fetch('/api/ops-v2/emerging-operator-seeds').then(function(r){return r.json()})
+      fetch('/api/ops-v2/emerging-operator-seeds').then(function(r){return r.json()}),
+      fetch('/api/ops-v2/investigation-pipeline?window='+encodeURIComponent(DW_WINDOW)).then(function(r){return r.json()})
     ]).then(function(results){
-      var recent=results[0]||{},typed=results[1]||{},emerging=results[2]||{},promotions=results[3]||{},seeds=results[4]||{};
+      var recent=results[0]||{},typed=results[1]||{},emerging=results[2]||{},promotions=results[3]||{},seeds=results[4]||{},pipeline=results[5]||{};
       var streams=recent.streams||{},order=['watchtower','promotions','emerging_operators','reviews','discovery'],events=[];
       var caps={watchtower:4,promotions:2,emerging_operators:6,reviews:4,discovery:4};
       function displayPriority(e,stream){var kind=String(e.kind||'');if(kind==='CANONICAL_OPERATOR_REACHED')return 0;if(kind==='PROMOTION_ELIGIBLE')return 1;if(stream==='promotions')return 2;if(stream==='emerging_operators')return 3;if(stream==='watchtower')return 4;if(kind.indexOf('TREASURY')>=0)return 5;if(kind.indexOf('CONTRADICTION')>=0)return 6;if(kind.indexOf('BEHAVIOUR')>=0)return 7;if(kind.indexOf('FORECAST')>=0)return 8;if(kind.indexOf('CROSS_OPERATION')>=0)return 9;return 10}
@@ -606,16 +1514,32 @@
       (promotions.proposals||[]).filter(function(p){return ['PROMOTION_ELIGIBLE','REVIEW_CANDIDATE','REVIEW_REQUIRED'].indexOf(p.status)>=0}).slice(0,4).forEach(function(p){var e={kind:p.status,message:(p.display_name||'Operator')+' · '+typedLabel(p.status),timestamp:promotions.generated_at,entity:{id:p.proposal_id,type:'promotion_proposal'},href:'/intelligence/operator-promotions'};events.push({stream:'promotions',priority:displayPriority(e,'promotions'),event:e})});
       events.sort(function(a,b){return a.priority-b.priority||(b.event.timestamp||0)-(a.event.timestamp||0)});
       var seedType=seeds.required_outcome_type||'UNKNOWN_INFRASTRUCTURE';
-      var cutoff=Math.floor(Date.now()/1000)-86400,summary={outcomes:summariseOutcomes(typed.outcomes||[],cutoff)};
+      var cutoff=Math.floor(Date.now()/1000)-86400,summary={outcomes:summariseOutcomes(typed.counts||{})};
       var canonical=outcomeCount(summary,'CANONICAL_OPERATOR_REACHED'),unknown=outcomeCount(summary,seedType),treasuries=(streams.discovery||[]).filter(function(x){return String(x.kind||'').indexOf('TREASURY')>=0&&(x.timestamp||0)>=cutoff}).length;
       var metrics=todayMetric(canonical,'Canonical operators','var(--ip-green)')+todayMetric(emerging.total||emerging.count||0,'Emerging operators','var(--ip-amber)')+todayMetric((promotions.proposals||[]).length,'Promotion candidates','var(--ip-purple)')+todayMetric(treasuries,'New treasuries','var(--ip-blue)')+todayMetric(unknown,'Unknown infrastructure','#f97316');
       var registry='<a class="vi-card monitoring dw-registry-callout" href="/intelligence/emerging-operators"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">X20 intake</div><div class="vi-title">Emerging Operator Candidates</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value">'+esc(emerging.total||emerging.count||0)+'</div><div class="vi-metric-label">Active</div></div><div class="vi-metric"><div class="vi-metric-value">'+esc(unknown)+'</div><div class="vi-metric-label">New today</div></div></div><div class="vi-action"><span>View Registry</span><span>→</span></div></a>';
       var feed=events.slice(0,24).map(function(x){return intelligenceEvent(x.event,x.stream)}).join('')||'<div class="dw-empty" style="padding:22px">No new meaningful intelligence in this window.</div>';
-      $('dw-content').innerHTML='<div class="dw-landing-head"><div><div class="dw-landing-title">New Intelligence Today</div><div class="dw-landing-sub">Knowledge changes and analyst actions first. Attribution termination is summarised separately.</div></div><span class="vi-status discovery">24 hours</span></div><div class="dw-today-grid">'+metrics+'</div><div class="dw-landing-layout"><main><div class="ip-section-hdr"><span class="ip-section-label">Intelligence</span><span class="ip-section-line"></span><span class="ip-section-count">Prioritised</span></div>'+registry+'<div class="dw-intelligence-list">'+feed+'</div></main>'+healthPanel(summary,seedType)+'</div>';
+      // X29.1.1 — Operational Intelligence is now the FIRST thing rendered
+      // in main (the brief's "first thing analysts see"), with the legacy
+      // Investigation Queue (healthPanel, now a collapsed <details>) placed
+      // after it for comparison rather than being the primary workflow.
+      // X29.7 — Operations-first ordering: Operations (identity) -> Browse
+      // By Role -> Operational Intelligence / Recent Launches (supporting).
+      // "What operation am I looking at?" is answered before "how does it
+      // behave?" (the X29.5/X29.6 audits' explicit design principle).
+      $('dw-content').innerHTML='<section class="vi-card walkback dw-health dw-ops-panel dw-ops-primary" id="dw-ops-mount"><div class="dw-health-head"><div class="vi-eyebrow">Operations</div><div class="vi-title">Known Operations</div></div><div class="dw-empty" style="padding:18px">Loading operations…</div></section>'+roleBrowsePanel()+'<div class="dw-landing-head"><div><div class="dw-landing-title">New Intelligence Today</div><div class="dw-landing-sub">Knowledge changes and analyst actions first. Attribution termination is summarised separately.</div></div><span class="vi-status discovery">24 hours</span></div><div class="dw-today-grid">'+metrics+'</div>'+operationalIntelligencePanel()+'<div class="dw-landing-layout"><main><div class="ip-section-hdr"><span class="ip-section-label">Intelligence</span><span class="ip-section-line"></span><span class="ip-section-count">Prioritised</span></div>'+registry+'<div class="dw-intelligence-list">'+feed+'</div></main>'+healthPanel(pipeline)+'</div>';
+      loadOperationsPanel();
+      // X29.1 — fetched separately, NOT in the main Promise.all above: the
+      // behaviour dimension (evaluate_launcher_profile per creator) can take
+      // 30-40s+ per window (same known per-creator cost X27.9.1 documented),
+      // so this must never block the rest of the page from rendering.
+      loadOperationalIntelligence();
     }).catch(function(){$('dw-content').innerHTML='<div class="dw-empty">Discovery intelligence is temporarily unavailable.</div>'});
   }
   function search(){var q=$('dw-query').value.trim();if(!q)return;fetch('/api/discovery/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){var box=$('dw-results'),rows=d.results||[];if(rows.length===1){location.href=href(rows[0].id,rows[0].type);return}box.innerHTML=rows.map(function(x){return '<a class="dw-result" href="'+href(x.id,x.type)+'"><span class="dw-result-type">'+esc(x.label||x.type)+'</span><span class="dw-result-id">'+esc(x.id)+'</span><span class="dw-result-view">View Discovery →</span></a>'}).join('')||'<div style="padding:11px;color:var(--ip-dim);font-size:10px">No existing evidence found.</div>';box.style.display='block'})}
   $('dw-search-btn').addEventListener('click',search);$('dw-query').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();search()}});document.addEventListener('click',function(e){if(!e.target.closest('.dw-search'))$('dw-results').style.display='none'});
+  $('dw-window-select').addEventListener('click',function(e){var btn=e.target.closest('.dw-window-opt');if(btn)setWindow(btn.getAttribute('data-window'))});
+  renderWindowSelector();
   load(INITIAL_ID,INITIAL_TYPE);
 })();
 </script>

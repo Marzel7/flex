@@ -399,6 +399,7 @@
 .x67-3-stage-desc { font-size:11px; color:var(--ip-dim); margin-top:2px; }
 .x67-3-stage-chevron { font-size:11px; color:var(--ip-dim); transition:transform .15s ease; }
 .x67-3-stage-collapsed .x67-3-stage-chevron { transform:rotate(-90deg); }
+.x67-3-stage-collapsed .x67-3-stage-body { display:none; }
 .x67-3-stage-body { border-top:1px solid var(--ip-border2); padding:2px 14px 10px; }
 .x67-3-empty-note { font-size:11px; color:var(--ip-dim); padding:10px 2px; }
 .x67-3-cand { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,2fr) auto auto; gap:14px; align-items:center; padding:12px 2px; border-top:1px solid var(--ip-border2); }
@@ -2537,19 +2538,37 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'</div>';
   }
 
+  function x67_3ToggleStage(state){
+    X67_3_COLLAPSED[state] = !X67_3_COLLAPSED[state];
+    var section = document.querySelector('.x67-3-stage-'+state.toLowerCase());
+    if(section) section.classList.toggle('x67-3-stage-collapsed');
+  }
+
   function x67_3Stage(state, title, desc, rowFn, defaultCollapsed){
+    // X67.3 fix -- always render the body into the DOM (never omit it based
+    // on collapsed state) and let a single CSS rule (.x67-3-stage-collapsed
+    // .x67-3-stage-body { display:none }) hide it. The previous version
+    // conditionally OMITTED the body markup entirely when collapsed, which
+    // meant the very first expand click had nothing to reveal until the
+    // NEXT full renderX58Mounts() pass rebuilt this section from scratch --
+    // and if that full-page re-render didn't happen (or happened before the
+    // click's own re-render completed), the toggle appeared to do nothing.
+    // A pure class toggle on the existing DOM node removes that dependency
+    // on a full re-render entirely.
     var rows = x67_3ByState(state);
     var collapsedNow = X67_3_COLLAPSED[state];
     if(collapsedNow===undefined) collapsedNow = !!defaultCollapsed;
+    X67_3_COLLAPSED[state] = collapsedNow;
     var cls = collapsedNow ? ' x67-3-stage-collapsed' : '';
     var stateSlug = state.toLowerCase();
+    var bodyHtml = rows.length ? rows.map(rowFn).join('') : '<div class="x67-3-empty-note">No candidates in this state.</div>';
     return '<section class="x67-3-stage x67-3-stage-'+stateSlug+cls+'">'
-      +'<div class="x67-3-stage-head" onclick="X67_3_COLLAPSED[\''+state+'\']=!X67_3_COLLAPSED[\''+state+'\'];renderX58Mounts()">'
+      +'<div class="x67-3-stage-head" onclick="x67_3ToggleStage(\''+state+'\')">'
         +'<div class="x67-3-stage-dot"></div>'
         +'<div class="x67-3-stage-title-wrap"><div class="x67-3-stage-title">'+esc(title)+' <span class="x67-3-stage-count">'+rows.length+'</span></div><div class="x67-3-stage-desc">'+esc(desc)+'</div></div>'
         +'<div class="x67-3-stage-chevron">▾</div>'
       +'</div>'
-      +(collapsedNow?'':'<div class="x67-3-stage-body">'+(rows.length?rows.map(rowFn).join(''):'<div class="x67-3-empty-note">No candidates in this state.</div>')+'</div>')
+      +'<div class="x67-3-stage-body">'+bodyHtml+'</div>'
       +'</section>';
   }
 

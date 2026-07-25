@@ -2666,8 +2666,33 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         migCell='<span class="dw-addr-empty">Not migrated</span>';
       }
       var liveCell=r.caught_live
-        ? '<span title="'+esc(r.detection_source||'')+'">● Live</span>'
-        : (r.detection_source?'<span class="dw-addr-empty" title="'+esc(r.detection_source)+'">◐ Reconciled</span>':'<span class="dw-addr-empty">—</span>');
+        ? '<span title="Observed by WATCHTOWER through LIVE_STREAM or ACTIVE_CATCHUP. Source: '+esc(r.detection_source||'')+'">● Live</span>'
+        : (r.detection_source?'<span class="dw-addr-empty" title="Observed by the detection daemon through a retry, replay, log-scan, catch-up, probe, or manual detection source. Source: '+esc(r.detection_source)+'">◐ Reconciled</span>':'<span class="dw-addr-empty" title="No live-daemon detection source is recorded for this launch.">—</span>');
+      // X67.10 -- Canonicalised Via: a SEPARATE axis from Caught Live, answering
+      // "how did this launch enter the canonical registry" rather than "how was
+      // it detected". Sourced from creator_extraction_method/confidence via
+      // classify_canonicalisation_source() (src/ops/operational_intelligence.py)
+      // -- NEVER derived from detection_source, per X67.9's explicit design
+      // decision that the two axes must remain independent. A walkback-
+      // confirmed launch legitimately shows "—" here alongside "Walkback
+      // Confirmed" there; that combination is correct, not a display bug.
+      var canonCfg={
+        'LIVE_DETECTION':      {icon:'●', label:'Live Detection'},
+        'WALKBACK_CONFIRMATION':{icon:'◐', label:'Walkback Confirmed'},
+        'BACKFILL':            {icon:'◇', label:'Historical Backfill'},
+        'MANUAL_ATTESTATION':  {icon:'◆', label:'Manual Attestation'},
+        'CONFLICT':            {icon:'!', label:'Provenance Conflict'},
+        'UNKNOWN':             {icon:'?', label:'Legacy / Unknown'},
+      }[r.canonicalisation_source]||{icon:'?', label:'Legacy / Unknown'};
+      var canonTooltips={
+        'LIVE_DETECTION':'The canonical registry row was created through the live detection path.',
+        'WALKBACK_CONFIRMATION':'Funding lineage was reconstructed retrospectively and promoted after satisfying the canonical WATCHTOWER predicate.',
+        'BACKFILL':'The registry row was inserted by a historical backfill process.',
+        'MANUAL_ATTESTATION':'A human manually attested to this launch\'s canonical status.',
+        'CONFLICT':'creator_extraction_method and confidence disagree about how this row was canonicalised -- needs investigation.',
+        'UNKNOWN':'No recognised canonicalisation provenance is recorded for this launch.',
+      };
+      var canonCell='<span'+(r.canonicalisation_source==='CONFLICT'?' class="dw-addr-empty" style="color:var(--ip-red,#f85149)"':(r.canonicalisation_source==='UNKNOWN'?' class="dw-addr-empty"':''))+' title="'+esc(canonTooltips[r.canonicalisation_source]||'')+'">'+canonCfg.icon+' '+esc(canonCfg.label)+'</span>';
       return '<tr>'
         +'<td class="dw-x65-1-mint">'+addrChip(r.mint,'token')+'</td>'
         +'<td>'+(r.creator?addrChip(r.creator,'creator'):'<span class="dw-addr-empty">Unknown</span>')+'</td>'
@@ -2675,11 +2700,12 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         +'<td>'+launchedCell+'</td>'
         +'<td>'+migCell+'</td>'
         +'<td>'+liveCell+'</td>'
+        +'<td>'+canonCell+'</td>'
         +'</tr>';
     }).join('');
     var thirdHeader='Treasury';
     return '<div class="dw-x65-1-table-wrap" style="margin-top:14px">'
-      +'<table class="dw-x65-1-table"><thead><tr><th>Token Mint</th><th>Creator</th><th>'+thirdHeader+'</th><th>Launched</th><th>Time to Migration</th><th>Caught Live</th></tr></thead>'
+      +'<table class="dw-x65-1-table"><thead><tr><th>Token Mint</th><th>Creator</th><th>'+thirdHeader+'</th><th>Launched</th><th>Time to Migration</th><th>Caught Live</th><th>Canonicalised Via</th></tr></thead>'
       +'<tbody>'+body+'</tbody></table></div>';
   }
   // X65.58 -- compact reference diagram for the Operation Intelligence tab

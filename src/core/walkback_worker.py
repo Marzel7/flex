@@ -12,10 +12,9 @@ Safety rules:
   - LINK_ONLY / SKIP rows are already complete at enqueue time — worker ignores them
   - Never calls the 100cr enhanced-tx endpoint
 
-RPC cost per row:
-  PARTIAL_TREASURY:  1 getSignaturesForAddress + up to 5 getTransaction = 6cr max
-  PARTIAL_SUBPROV:   1 getSignaturesForAddress + up to 5 getTransaction = 6cr max
-  FULL_WALKBACK:     2 getSignaturesForAddress + up to 10 getTransaction = 12cr max
+RPC cost per row is bounded by SIG_PAGE_COUNT signature pages and
+TX_FETCH_LIMIT transaction reads per hop. FULL_WALKBACK may also re-read the
+selected creator-funding transaction once to retain close-destination proof.
 """
 from __future__ import annotations
 
@@ -25,8 +24,10 @@ import time
 import urllib.request
 import sqlite3
 import argparse
+import contextvars
 from typing import Any, Optional
 from src.utils.db_locking import db_connect
+from src.core import deep_walkback
 
 _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
 
@@ -65,6 +66,8 @@ MAX_ATTEMPTS    = int(os.environ.get("WALKBACK_MAX_ATTEMPTS",    "3"))
 RPC_BUDGET_BATCH= int(os.environ.get("WALKBACK_RPC_BUDGET_BATCH","80"))  # credits per batch
 SIG_LIMIT       = int(os.environ.get("WALKBACK_SIG_LIMIT",       "20"))  # getSignatures limit
 TX_FETCH_LIMIT  = int(os.environ.get("WALKBACK_TX_FETCH_LIMIT",  "5"))   # max getTransaction per hop
+SIG_PAGE_LIMIT  = int(os.environ.get("WALKBACK_SIG_PAGE_LIMIT",  "100"))
+SIG_PAGE_COUNT  = int(os.environ.get("WALKBACK_SIG_PAGE_COUNT",  "3"))
 RPC_TIMEOUT     = int(os.environ.get("WALKBACK_RPC_TIMEOUT_S",   "8"))
 
 
@@ -83,10 +86,40 @@ def _rpc(method: str, params: list) -> Optional[object]:
         return None
 
 
-def _get_sigs(wallet: str, limit: int = SIG_LIMIT) -> list:
+def _get_sigs(wallet: str, limit: int = SIG_LIMIT,
+              before: Optional[str] = None) -> list:
     """getSignaturesForAddress — 1cr."""
-    result = _rpc("getSignaturesForAddress", [wallet, {"limit": limit, "commitment": "confirmed"}])
+    options = {"limit": limit, "commitment": "confirmed"}
+    if before:
+        options["before"] = before
+    result = _rpc("getSignaturesForAddress", [wallet, options])
     return result or []
+
+
+def _collect_signature_window(wallet: str, rpc_counter: list, *,
+                              before_signature: Optional[str] = None) -> list:
+    """Return a bounded, transaction-anchored wallet history window.
+
+    High-throughput provisioning wallets can execute hundreds of transactions
+    between their capital funding and a creator launch. A single newest-page
+    query therefore misses the wallet's upstream funding edge. Pagination is
+    bounded and starts before the downstream funding/create transaction, so
+    later activity can never replace the historical lineage being audited.
+    """
+    entries: list[dict] = []
+    cursor = before_signature
+    for _ in range(SIG_PAGE_COUNT):
+        page = _get_sigs(wallet, SIG_PAGE_LIMIT, before=cursor)
+        rpc_counter[0] += 1
+        if not page:
+            break
+        entries.extend(page)
+        if len(page) < SIG_PAGE_LIMIT:
+            break
+        cursor = page[-1].get("signature")
+        if not cursor:
+            break
+    return entries
 
 
 def _get_tx(sig: str) -> Optional[dict]:
@@ -207,13 +240,33 @@ def _extract_sol_sender(tx: dict, funded_wallet: Optional[str] = None) -> Option
     return best_sender
 
 
+def _close_account_destination(tx: dict) -> Optional[str]:
+    """Return the parsed SPL close-account destination, when explicitly present."""
+    groups = [(tx.get("transaction", {}).get("message", {}).get("instructions") or [])]
+    groups.extend(
+        group.get("instructions") or []
+        for group in ((tx.get("meta") or {}).get("innerInstructions") or [])
+    )
+    for instructions in groups:
+        for ix in instructions:
+            parsed = ix.get("parsed") if isinstance(ix, dict) else None
+            if not isinstance(parsed, dict) or parsed.get("type") != "closeAccount":
+                continue
+            destination = (parsed.get("info") or {}).get("destination")
+            if destination:
+                return destination
+    return None
+
+
 def _detect_mechanism(tx: dict, sender: str, receiver: str) -> str:
     """
     Determine funding mechanism from tx. Returns WSOL_WRAP_CLOSE, PLAIN_XFER, or UNKNOWN.
-    WSOL_WRAP_CLOSE: tx involves the token program (wrap/close cycle).
+    WSOL_WRAP_CLOSE: tx contains a parsed SPL closeAccount instruction.
     PLAIN_XFER: pure system transfer, no token program instructions.
     """
     try:
+        if _close_account_destination(tx):
+            return "WSOL_WRAP_CLOSE"
         log_messages = (tx.get("meta") or {}).get("logMessages") or []
         for msg in log_messages:
             if "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" in msg or "token" in msg.lower():
@@ -256,10 +309,40 @@ FunderInfo = tuple[Optional[str], Optional[str], Optional[int], Optional[int],
 
 _PRIORITY_REASON = {1: "CONFIRMED_TREASURY", 2: "KNOWN_SUBPROV",
                     4: "WSOL_WRAP_CLOSE",   5: "SEEDED_ACCOUNT_CLOSE", 6: "PLAIN_XFER"}
+_EVIDENCE_CONTEXT = contextvars.ContextVar("walkback_evidence_context", default=(None, 0))
+
+# X64 — mechanisms _find_funder_via_rpc/_detect_mechanism already return that
+# constitute an observed EPHEMERAL_WSOL_CREATOR_HANDOFF primitive (X62). Only
+# the two variants _detect_mechanism can actually produce are listed — no new
+# mechanism values are invented here.
+_DISPOSABLE_HANDOFF_MECHANISMS: frozenset[str] = frozenset({
+    "WSOL_WRAP_CLOSE", "SEEDED_ACCOUNT_CLOSE",
+})
+
+
+def _is_disposable_subprov_handoff(mechanism: Optional[str]) -> bool:
+    """True when hop1's own funding mechanism is itself the WATCHTOWER
+    handoff primitive (X62), independent of whether hop1's identity was
+    already known. Ordinary PLAIN_XFER/UNKNOWN funding never qualifies."""
+    return mechanism in _DISPOSABLE_HANDOFF_MECHANISMS
+
+
+def _find_with_evidence(wallet: str, rpc_counter: list,
+                        ops: Optional[sqlite3.Connection], *, source_mint: str,
+                        hop_depth: int, **search_options) -> FunderInfo:
+    token = _EVIDENCE_CONTEXT.set((source_mint, hop_depth))
+    try:
+        return _find_funder_via_rpc(wallet, rpc_counter, ops, **search_options)
+    finally:
+        _EVIDENCE_CONTEXT.reset(token)
 
 
 def _find_funder_via_rpc(wallet: str, rpc_counter: list,
-                         ops: Optional[sqlite3.Connection] = None) -> FunderInfo:
+                         ops: Optional[sqlite3.Connection] = None, *,
+                         before_signature: Optional[str] = None,
+                         prefer_oldest: bool = False,
+                         source_mint: Optional[str] = None,
+                         hop_depth: int = 0) -> FunderInfo:
     """
     Collect all valid funders within the bounded tx window then select the strongest.
 
@@ -270,19 +353,30 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
       5  SEEDED_ACCOUNT_CLOSE — mechanism evidence
       6  PLAIN_XFER / UNKNOWN — weakest
 
-    Tie-break: oldest slot (lowest slot number = earliest funding edge).
+    Tie-break: closest pre-CREATE transaction for creator funding; oldest
+    transaction in the bounded window for upstream capital funding.
 
     Logs: selected_funder, reason, candidates_seen — for false-positive diagnosis.
-    RPC budget: unchanged — same getSignaturesForAddress + TX_FETCH_LIMIT getTransaction calls.
-    getAccountInfo calls increase only when multiple candidates exist in the window.
+    RPC budget remains bounded by SIG_PAGE_COUNT signature pages and
+    TX_FETCH_LIMIT transaction reads. getAccountInfo calls increase only when
+    multiple candidates exist in the window.
     """
-    sigs = _get_sigs(wallet)
-    rpc_counter[0] += 1
+    context_mint, context_depth = _EVIDENCE_CONTEXT.get()
+    source_mint = source_mint or context_mint
+    hop_depth = hop_depth or context_depth
+    sigs = _collect_signature_window(
+        wallet, rpc_counter, before_signature=before_signature)
     _empty: FunderInfo = (None, None, None, None, None, None)
     if not sigs:
         return _empty
 
+    # Creator funding is normally the closest qualifying transaction before
+    # CREATE. For an active provisioning wallet, its capital source is usually
+    # at the oldest edge of the bounded pre-funding window.
+    sigs.sort(key=lambda entry: (entry.get("slot") or 0), reverse=not prefer_oldest)
+
     candidates: list[tuple[int, FunderInfo]] = []  # (priority, FunderInfo)
+    candidate_txs: dict[str, dict] = {}
 
     for entry in sigs[:TX_FETCH_LIMIT]:
         if entry.get("err"):
@@ -335,13 +429,34 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
             priority = 6
 
         candidates.append((priority, (sender, sig, slot, block_time, amount, mechanism)))
+        candidate_txs[sig] = tx
 
     if not candidates:
         return _empty
 
     # Select best: lowest priority wins; ties broken by oldest slot (earliest funding edge)
-    candidates.sort(key=lambda x: (x[0], x[1][2] or 0))
+    candidates.sort(key=lambda x: (
+        x[0],
+        (x[1][2] or 0) if prefer_oldest else -(x[1][2] or 0),
+    ))
     best_priority, best = candidates[0]
+    if ops is not None and source_mint:
+        deep_walkback.ensure_schema(ops)
+        for _priority, candidate in candidates:
+            parent, sig, _slot, block_time, amount, mechanism = candidate
+            deep_walkback.persist_edge_candidate(
+                ops, mint=source_mint, wallet=wallet, parent=parent or "",
+                signature=sig or "", block_time=block_time,
+                amount_lamports=round(amount * 1e9) if amount is not None else None,
+                mechanism=mechanism or "UNKNOWN", anchor_signature=before_signature,
+                anchor_block_time=None, hop_depth=hop_depth,
+                selection_status="SELECTED" if candidate == best else "ALTERNATIVE",
+                rejection_reason="" if candidate == best else "LOWER_RANKED_BUT_RETAINED")
+            tx = candidate_txs.get(sig or "")
+            if tx:
+                flows = deep_walkback.materialize_atomic_wsol(tx, sig or "")
+                deep_walkback.persist_atomic_flows(ops, source_mint, flows)
+        ops.commit()
     reason = _PRIORITY_REASON.get(best_priority, "PLAIN_XFER")
     print(f"[WALKBACK] selected_funder={best[0][:14]}… reason={reason} "
           f"candidates_seen={len(candidates)} wallet={wallet[:14]}…", flush=True)
@@ -396,14 +511,14 @@ def _is_known_infrastructure(wallet: str) -> bool:
 
 
 def _mark_running(ops: sqlite3.Connection, mint: str) -> bool:
-    """Claim the row atomically. Returns False if another worker already claimed it."""
-    now = int(time.time())
-    ops.execute(
-        "UPDATE wt_walkback_queue SET status='running', started_at=?, updated_at=?, "
-        "attempts=attempts+1 WHERE mint=? AND status='pending'",
-        (now, now, mint))
-    claimed = ops.total_changes > 0
-    ops.commit()
+    """Claim with a renewable lease; expired work is safely reclaimable."""
+    worker_id = os.environ.get("WALKBACK_WORKER_ID", f"walkback-{os.getpid()}")
+    lease_seconds = int(os.environ.get("WALKBACK_LEASE_SECONDS", "300"))
+    claimed = deep_walkback.claim_with_lease(ops, mint, worker_id, lease_seconds)
+    if claimed:
+        from src.ops.watchtower_candidates import sync_walkback_result
+        sync_walkback_result(ops, mint)
+        ops.commit()
     return claimed
 
 
@@ -437,6 +552,128 @@ def _store_funder(ops: sqlite3.Connection, mint: str,
         "funder_block_time=?, funder_amount_sol=?, funding_mechanism=?, updated_at=? "
         "WHERE mint=?",
         (funder_wallet, sig, slot, block_time, amount_sol, mechanism, int(time.time()), mint))
+
+
+def _store_close_destination_evidence(
+    ops: sqlite3.Connection, *, creator: str, subprov: str, tx: Optional[dict],
+    signature: Optional[str], block_time: Optional[int], amount_sol: Optional[float],
+) -> bool:
+    """Persist transaction-derived close-recipient evidence without attribution.
+
+    The WALKBACK_EVIDENCE state is intentionally review-only. Existing live
+    detector rows are never overwritten, and this function does not touch any
+    treasury, Operator, registry, or attribution table.
+    """
+    if not tx or _close_account_destination(tx) != creator:
+        return False
+    try:
+        ops.execute(
+            """
+            INSERT OR IGNORE INTO wt_wrap_close_candidates
+                (creator, funding_mechanism, creator_extraction_method,
+                 subprov_wallet, close_destination, base_amount_sol,
+                 tx_signature, funded_at, confidence, state, detected_at)
+            VALUES (?, 'WSOL_WRAP_CLOSE', 'CLOSE_ACCOUNT_DESTINATION',
+                    ?, ?, ?, ?, ?, 'STRICT', 'WALKBACK_EVIDENCE', ?)
+            """,
+            (creator, subprov, creator, amount_sol, signature, block_time,
+             int(time.time())),
+        )
+        return True
+    except sqlite3.Error as exc:
+        print(f"[WALKBACK] close-destination evidence capture failed: {exc}", flush=True)
+        return False
+
+
+def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
+                                      materialized: Optional[dict]) -> None:
+    """X65.44 -- called after EVERY materialize_outcome() commit (from
+    _mark_complete/_mark_failed/_mark_exhausted alike) so no walkback
+    terminal path can silently skip registry promotion. The predicate
+    check inside promote_walkback_confirmed_watchtower() naturally no-ops
+    for the vast majority of calls (only CANONICAL_OPERATOR_REACHED/
+    WATCHTOWER outcomes are eligible) -- this is a single, safe, reusable
+    hook point rather than three separately-maintained call sites.
+    A promotion failure is logged but never raised/re-raised -- it must
+    never affect the walkback commit that already succeeded. This wraps
+    the call itself in try/except as defense-in-depth: promote_walkback_
+    confirmed_watchtower() already catches its own internal errors, but a
+    failure importing/calling it at all (rather than inside it) must be
+    equally unable to break the caller's terminal-state transition."""
+    if not materialized:
+        return
+
+    # X67.21 -- shared canonical predicate integration (mode-aware; see
+    # src/ops/watchtower_canonical_integration.py). The walkback commit
+    # that triggered this call has ALREADY succeeded (see _mark_complete/
+    # _mark_failed/_mark_exhausted -- ops.commit() runs before this
+    # function is ever called) -- nothing below can roll it back. This
+    # entire block is best-effort: any failure here is caught and logged,
+    # never re-raised, exactly matching this function's pre-existing
+    # contract for the legacy promotion call itself.
+    from src.core.watchtower_registry_promotion import is_canonical_watchtower_outcome
+
+    _legacy_eligible = is_canonical_watchtower_outcome(
+        materialized.get("outcome_type"), materialized.get("operator_id"),
+    )
+    _legacy_decision = "ACCEPTED" if _legacy_eligible else "REJECTED"
+
+    _integration_result = None
+    try:
+        from src.ops.watchtower_canonical_integration import (
+            evaluate_canonical_decision, get_canonical_predicate_mode,
+            record_comparison_telemetry,
+        )
+        from src.ops.watchtower_canonical_adapters import build_evidence_for_walkback_queue
+
+        _mode = get_canonical_predicate_mode()
+        _integration_result = evaluate_canonical_decision(
+            path="path_b_walkback", mint=mint,
+            build_evidence=lambda: build_evidence_for_walkback_queue(ops, mint=mint),
+            legacy_decision=_legacy_decision,
+            legacy_reason=materialized.get("outcome_type"),
+            mode=_mode,
+        )
+        record_comparison_telemetry(ops, _integration_result, mint=mint)
+    except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
+        print(f"[X67.21] canonical predicate integration failed mint={mint}: {exc}", flush=True)
+
+    # Determine whether THIS call may invoke the existing promotion helper.
+    # LEGACY/SHADOW: unconditionally attempt promotion exactly as before
+    # X67.21 -- the helper's own is_canonical_watchtower_outcome() gate is
+    # what actually decides eligibility in these two modes, unchanged.
+    # ENFORCE: only call the helper when the integration layer's
+    # authoritative decision is ACCEPTED -- REVIEW_REQUIRED/REJECTED must
+    # not promote, and there is no silent fallback to legacy acceptance.
+    _should_attempt_promotion = True
+    if _integration_result is not None and _integration_result.mode == "enforce":
+        _should_attempt_promotion = (_integration_result.authoritative_decision == "ACCEPTED")
+        if not _should_attempt_promotion:
+            print(
+                f"[X67.21] ENFORCE mode: mint={mint} authoritative_decision="
+                f"{_integration_result.authoritative_decision} reason="
+                f"{_integration_result.authoritative_reason} -- promotion withheld",
+                flush=True,
+            )
+
+    if not _should_attempt_promotion:
+        return
+
+    try:
+        from src.core.watchtower_registry_promotion import promote_walkback_confirmed_watchtower
+        result = promote_walkback_confirmed_watchtower(
+            ops, mint,
+            outcome_type=materialized.get("outcome_type"),
+            operator_id=materialized.get("operator_id"),
+            evidence=materialized.get("evidence"),
+            completed_at=materialized.get("completed_at"),
+        )
+        if result["action"] == "failed":
+            print(f"[WALKBACK] registry promotion FAILED mint={mint}: {result['error']}", flush=True)
+        elif result["action"] == "promoted":
+            print(f"[WALKBACK] registry promotion → {mint[:14]}… promoted (WALKBACK_RECOVERED)", flush=True)
+    except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
+        print(f"[WALKBACK] registry promotion call failed mint={mint}: {exc}", flush=True)
 
 
 def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
@@ -483,9 +720,13 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
         funder_w   = row["funder_wallet"]   if row else None
         funder_sig = row["funder_sig"]      if row else None
         funder_amt = row["funder_amount_sol"] if row else None
-        if not _is_known_subprov(ops, subprov):
+        if not _is_known_subprov(ops, subprov) and not _is_known_infrastructure(subprov):
             _ensure_subprov_lead(ops, subprov, creator, first_seen)
             print(f"[WALKBACK] LINEAGE_GAP → promoted {subprov[:14]}… to subprov discovery lead",
+                  flush=True)
+        elif _is_known_infrastructure(subprov):
+            print(f"[WALKBACK] LINEAGE_GAP at {subprov[:14]}… — known infrastructure wallet, "
+                  f"terminating candidate inference here (not promoted to subprov lead)",
                   flush=True)
         # Surface the wallet that funded this unconfirmed hop-1 as a treasury review lead
         if funder_w and funder_w != subprov and not _is_known_treasury(ops, funder_w) and not _is_known_subprov(ops, funder_w):
@@ -493,8 +734,11 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
                                                  funder_sig, funder_amt, None)
             print(f"[WALKBACK] LINEAGE_GAP funder lead {disp}: {funder_w[:14]}…", flush=True)
     from src.ops.attribution_outcome import materialize_outcome
-    materialize_outcome(ops, mint)
+    materialized = materialize_outcome(ops, mint)
+    from src.ops.watchtower_candidates import sync_walkback_result
+    sync_walkback_result(ops, mint)
     ops.commit()
+    _promote_if_canonical_watchtower(ops, mint, materialized)
 
 
 def _mark_failed(ops: sqlite3.Connection, mint: str, error: str, rpc_used: int) -> None:
@@ -505,8 +749,11 @@ def _mark_failed(ops: sqlite3.Connection, mint: str, error: str, rpc_used: int) 
         "WHERE mint=?",
         (error[:500], rpc_used, now, now, mint))
     from src.ops.attribution_outcome import materialize_outcome
-    materialize_outcome(ops, mint)
+    materialized = materialize_outcome(ops, mint)
+    from src.ops.watchtower_candidates import sync_walkback_result
+    sync_walkback_result(ops, mint)
     ops.commit()
+    _promote_if_canonical_watchtower(ops, mint, materialized)
 
 
 def _mark_exhausted(ops: sqlite3.Connection, mint: str, rpc_used: int) -> None:
@@ -519,8 +766,11 @@ def _mark_exhausted(ops: sqlite3.Connection, mint: str, rpc_used: int) -> None:
         "WHERE mint=?",
         (rpc_used, now, now, mint))
     from src.ops.attribution_outcome import materialize_outcome
-    materialize_outcome(ops, mint)
+    materialized = materialize_outcome(ops, mint)
+    from src.ops.watchtower_candidates import sync_walkback_result
+    sync_walkback_result(ops, mint)
     ops.commit()
+    _promote_if_canonical_watchtower(ops, mint, materialized)
 
 
 def finalize_exhausted_pending(ops: sqlite3.Connection, max_attempts: int = MAX_ATTEMPTS) -> int:
@@ -563,6 +813,45 @@ def _capture_provisioning_facts(
         )
     except Exception as e:
         print(f"[WALKBACK] provisioning-edge capture failed for {mint[:16]}…: {e}", flush=True)
+
+
+# X65.21 — additive Provisioning Wallet capture (X65.19 proof: SubProv funds a
+# distinct Wallet P, never the creator directly). Uses ONLY the transaction the
+# walkback hop already fetched to detect mechanism/find the funder -- no new
+# RPC call, no redesign of the detector. Best-effort: a failure here never
+# breaks walkback completion, matching _capture_provisioning_facts' own
+# discipline.
+def _capture_provisioning_wallet(ops: sqlite3.Connection, *, mint: str, subprov: str,
+                                  creator: str, mechanism: Optional[str], tx: Optional[dict]) -> None:
+    if not tx or mechanism not in ("WSOL_WRAP_CLOSE", "SEEDED_ACCOUNT_CLOSE"):
+        return
+    try:
+        from src.ops.provisioning_wallet import record_provisioning_wallet
+        instrs = tx.get("transaction", {}).get("message", {}).get("instructions", [])
+        wallet_p = None
+        close_owner = None
+        close_destination = None
+        for ix in instrs:
+            info = ix.get("parsed", {}).get("info", {}) if isinstance(ix.get("parsed"), dict) else {}
+            ptype = ix.get("parsed", {}).get("type") if isinstance(ix.get("parsed"), dict) else None
+            if ptype == "transfer" and info.get("source") == subprov:
+                wallet_p = info.get("destination")
+            if ptype == "createAccountWithSeed" and info.get("source") == subprov:
+                pass  # resolved via close_owner below (the seeded account's `base`)
+            if ptype == "closeAccount":
+                close_owner = info.get("owner")
+                close_destination = info.get("destination")
+        if mechanism == "SEEDED_ACCOUNT_CLOSE" and close_owner:
+            wallet_p = close_owner
+        if not wallet_p or close_destination != creator:
+            return
+        record_provisioning_wallet(
+            ops, mint=mint, subprov_wallet=subprov, creator_wallet=creator,
+            provisioning_wallet=wallet_p, mechanism=mechanism,
+            recovery_method="LIVE_CAPTURE", reconstructed=False,
+        )
+    except Exception as e:
+        print(f"[WALKBACK] provisioning-wallet capture failed for {mint[:16]}…: {e}", flush=True)
 
 
 # ── treasury review lead surfacing ────────────────────────────────────────────
@@ -641,6 +930,82 @@ def _recover_creator_from_db(ops: sqlite3.Connection, mint: str) -> Optional[str
     return None
 
 
+def _recover_create_signature_from_db(mint: str,
+                                      ops: Optional[sqlite3.Connection] = None) -> Optional[str]:
+    """Recover the CREATE signature used as the temporal walkback anchor."""
+    if ops is not None:
+        try:
+            row = ops.execute(
+                "SELECT create_anchor_signature FROM wt_walkback_queue WHERE mint=?",
+                (mint,)).fetchone()
+            if row and row[0] and deep_walkback.valid_signature(row[0]):
+                return row[0]
+        except sqlite3.OperationalError:
+            pass
+    try:
+        live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
+        try:
+            row = live.execute(
+                "SELECT create_tx_signature FROM creator_funding_queue WHERE mint=? "
+                "ORDER BY updated_at DESC LIMIT 1", (mint,)
+            ).fetchone()
+            if row and row[0]:
+                return row[0]
+            row = live.execute(
+                "SELECT create_tx_signature FROM token_analysis WHERE mint=? LIMIT 1",
+                (mint,),
+            ).fetchone()
+            return row[0] if row and row[0] else None
+        finally:
+            live.close()
+    except Exception as exc:
+        print(f"[WALKBACK] create-signature recovery failed for {mint[:16]}…: {exc}", flush=True)
+        return None
+
+
+DEEP_MAX_HOPS = int(os.environ.get("WALKBACK_DEEP_MAX_HOPS", "8"))
+DEEP_ROW_RPC_BUDGET = int(os.environ.get("WALKBACK_DEEP_ROW_RPC_BUDGET", "80"))
+
+
+def _expand_unknown_upstream(ops: sqlite3.Connection, *, mint: str,
+                             start_wallet: str, anchor_signature: Optional[str],
+                             rpc_counter: list, start_depth: int = 2) -> dict:
+    """Continue a causally anchored path without promoting unknown roots."""
+    wallet, anchor = start_wallet, anchor_signature
+    visited = {wallet}; deepest = wallet
+    deep_walkback.set_path_state(ops, mint, "UPSTREAM_EXPANDING",
+                                 {"start_wallet": wallet, "start_depth": start_depth})
+    for depth in range(start_depth + 1, DEEP_MAX_HOPS + 1):
+        if rpc_counter[0] >= DEEP_ROW_RPC_BUDGET:
+            return {"state": "RPC_BUDGET_EXHAUSTED", "deepest": deepest,
+                    "treasury": None, "hop_depth": depth - 1}
+        parent, sig, slot, block_time, amount, mechanism = _find_with_evidence(
+            wallet, rpc_counter, ops, before_signature=anchor, prefer_oldest=True,
+            source_mint=mint, hop_depth=depth)
+        if not parent:
+            return {"state": "ARCHIVAL_GAP", "deepest": deepest,
+                    "treasury": None, "hop_depth": depth - 1}
+        if parent in visited:
+            return {"state": "FAILED_TERMINAL", "deepest": deepest,
+                    "treasury": None, "hop_depth": depth,
+                    "reason": "CYCLE_DETECTED"}
+        visited.add(parent); deepest = parent
+        if _is_known_treasury(ops, parent):
+            return {"state": "KNOWN_TREASURY_REACHED", "deepest": parent,
+                    "treasury": parent, "hop_depth": depth}
+        if _is_known_infrastructure(parent):
+            deep_walkback.materialize_candidate(ops, parent, service_or_exchange=True)
+            return {"state": "FAILED_TERMINAL", "deepest": parent,
+                    "treasury": None, "hop_depth": depth,
+                    "reason": "SERVICE_OR_EXCHANGE"}
+        deep_walkback.materialize_candidate(ops, parent)
+        wallet, anchor = parent, sig
+    candidate = deep_walkback.materialize_candidate(ops, deepest)
+    return {"state": "TREASURY_CANDIDATE_SURFACED", "deepest": deepest,
+            "treasury": None, "hop_depth": DEEP_MAX_HOPS,
+            "candidate_confidence": candidate["confidence"]}
+
+
 # ── per-row processing ─────────────────────────────────────────────────────────
 
 def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
@@ -648,6 +1013,7 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
     Process one walkback row. Returns RPC credits consumed.
     Writes result back to DB. Never raises — errors are caught and stored.
     """
+    deep_walkback.ensure_schema(ops)
     mint      = row["mint"]
     creator   = row["creator"]
     subprov   = row["subprov"]
@@ -662,7 +1028,8 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             if not subprov:
                 _mark_failed(ops, mint, "PARTIAL_TREASURY but subprov is NULL", 0)
                 return 0
-            hop1, sig, slot, bt, amt, mech = _find_funder_via_rpc(subprov, rpc, ops)
+            hop1, sig, slot, bt, amt, mech = _find_with_evidence(
+                subprov, rpc, ops, source_mint=mint, hop_depth=1)
             _store_funder(ops, mint, hop1, sig, slot, bt, amt, mech)  # preserve evidence
             if hop1 and _is_known_treasury(ops, hop1):
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", subprov, hop1, rpc[0],
@@ -679,7 +1046,8 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             if not creator:
                 _mark_failed(ops, mint, "PARTIAL_SUBPROV but creator is NULL", 0)
                 return 0
-            hop1, sig, slot, bt, amt, mech = _find_funder_via_rpc(creator, rpc, ops)
+            hop1, sig, slot, bt, amt, mech = _find_with_evidence(
+                creator, rpc, ops, source_mint=mint, hop_depth=1)
             _store_funder(ops, mint, hop1, sig, slot, bt, amt, mech)
             if hop1 and _is_known_subprov(ops, hop1):
                 t_row = ops.execute(
@@ -710,14 +1078,53 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                     _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, 0)
                     return 0
 
-            # Hop 1: who funded creator?
-            hop1, sig1, slot1, bt1, amt1, mech1 = _find_funder_via_rpc(creator, rpc, ops)
+            # Hop 1: who funded creator? Anchor before CREATE when that evidence
+            # survived in either live table, so post-launch activity is excluded.
+            try:
+                create_sig = _recover_create_signature_from_db(mint, ops)
+            except TypeError:  # compatibility with deterministic one-argument test doubles
+                create_sig = _recover_create_signature_from_db(mint)
+            hop1, sig1, slot1, bt1, amt1, mech1 = _find_with_evidence(
+                creator, rpc, ops, before_signature=create_sig,
+                source_mint=mint, hop_depth=1)
             if not hop1:
                 _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, rpc[0])
                 return rpc[0]
 
             # Always persist hop-1 funder — even if attribution fails
             _store_funder(ops, mint, hop1, sig1, slot1, bt1, amt1, mech1)
+
+            # Retain the exact close-account destination proof recovered by
+            # walkback. This evidence is review-only and does not attribute.
+            # X64: also remember whether this fetch strictly confirmed
+            # closeAccount.destination == creator (STRICT) or only matched
+            # the looser WSOL_WRAP_CLOSE mechanism heuristic in
+            # _detect_mechanism (MECHANISM_ONLY) — used below to label any
+            # disposable-subprov lead without any further RPC.
+            hop1_evidence_level = None
+            if mech1 == "WSOL_WRAP_CLOSE" and sig1:
+                funding_tx = _get_tx(sig1)
+                rpc[0] += 1
+                stored_strict = _store_close_destination_evidence(
+                    ops, creator=creator, subprov=hop1, tx=funding_tx,
+                    signature=sig1, block_time=bt1, amount_sol=amt1)
+                hop1_evidence_level = "STRICT" if stored_strict else "MECHANISM_ONLY"
+                # X65.21 Phase 5 — reuse this already-fetched transaction to
+                # additively persist the proven Provisioning Wallet (X65.19).
+                # No new RPC call: funding_tx was already required above.
+                _capture_provisioning_wallet(ops, mint=mint, subprov=hop1,
+                                              creator=creator, mechanism=mech1, tx=funding_tx)
+            elif mech1 == "SEEDED_ACCOUNT_CLOSE":
+                hop1_evidence_level = "MECHANISM_ONLY"
+                # X65.21 Phase 5 — this branch does not otherwise fetch the
+                # funding transaction; one additional getTransaction on the
+                # already-known sig1 (not a new signature search) is the
+                # minimal cost to capture the Provisioning Wallet here too.
+                if sig1:
+                    seeded_tx = _get_tx(sig1)
+                    rpc[0] += 1
+                    _capture_provisioning_wallet(ops, mint=mint, subprov=hop1,
+                                                  creator=creator, mechanism=mech1, tx=seeded_tx)
 
             if _is_known_subprov(ops, hop1):
                 t_row = ops.execute(
@@ -742,8 +1149,12 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", None, hop1, rpc[0])
                 return rpc[0]
 
-            # Hop 2: who funded hop1?
-            hop2, sig2, slot2, bt2, amt2, mech2 = _find_funder_via_rpc(hop1, rpc, ops)
+            # Hop 2: who funded hop1? Search strictly before the creator-funding
+            # transaction and inspect the oldest edge of the bounded history.
+            # This recovers capital funding hidden behind high-frequency fan-out.
+            hop2, sig2, slot2, bt2, amt2, mech2 = _find_with_evidence(
+                hop1, rpc, ops, before_signature=sig1, prefer_oldest=True,
+                source_mint=mint, hop_depth=2)
 
             # X21B: capture the observed treasury(hop2)->subprov(hop1)->creator relationship
             # as an operation-agnostic fact, REGARDLESS of whether hop2 is a confirmed
@@ -774,15 +1185,52 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 _mark_complete(ops, mint, outcome, hop1, treasury, rpc[0],
                                confirmed_subprov=False)
             elif hop2:
-                # Unknown hop-2 — surface as treasury review lead, mark LINEAGE_GAP
-                # hop1 is unconfirmed — do NOT write it as confirmed attribution
-                disp = _surface_treasury_review_lead(ops, hop2, hop1, creator, mint, sig2, amt2, mech2)
-                _mark_complete(ops, mint, "LINEAGE_GAP", hop1, None, rpc[0],
-                               confirmed_subprov=False)
-                print(f"[WALKBACK] hop2 lead {disp}: {hop2[:14]}…", flush=True)
+                # Unknown hop-2 is an intermediate until a deeper anchored walk
+                # proves otherwise. Preserve the existing review lead, then
+                # expand without using unknown candidates as attribution roots.
+                disp = _surface_treasury_review_lead(
+                    ops, hop2, hop1, creator, mint, sig2, amt2, mech2)
+                deep = _expand_unknown_upstream(
+                    ops, mint=mint, start_wallet=hop2, anchor_signature=sig2,
+                    rpc_counter=rpc, start_depth=2)
+                if deep.get("treasury"):
+                    _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", hop1,
+                                   deep["treasury"], rpc[0], confirmed_subprov=True)
+                else:
+                    state = deep["state"]
+                    _mark_complete(ops, mint, "LINEAGE_GAP", hop1, None, rpc[0],
+                                   confirmed_subprov=False)
+                    deep_walkback.set_path_state(
+                        ops, mint, state, {"deepest_wallet": deep["deepest"],
+                                           "hop_depth": deep["hop_depth"],
+                                           "review_lead": disp})
+                print(f"[WALKBACK] deep hop2 lead {disp}: {hop2[:14]}… "
+                      f"state={deep['state']} depth={deep['hop_depth']}", flush=True)
             else:
-                # hop1 unknown, hop2 not found — no confirmation possible
-                _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, rpc[0])
+                # hop1 unknown, hop2 not found — no lineage confirmation is
+                # possible either way. X64: if hop1's OWN funding mechanism
+                # was itself the EPHEMERAL_WSOL_CREATOR_HANDOFF primitive
+                # (X62), that is directly observed WATCHTOWER infrastructure
+                # evidence and must not be discarded just because no known
+                # upstream identity was reachable — disposable sub-provisioners
+                # are, by design, expected to be single-use and unknown.
+                # Preserving it (LINEAGE_GAP, subprov=hop1, confirmed_subprov=
+                # False) activates the existing _ensure_subprov_lead discovery
+                # path with zero additional RPC and zero attribution risk — an
+                # ordinary PLAIN_XFER/UNKNOWN hop1 still terminates exactly as
+                # before.
+                if _is_disposable_subprov_handoff(mech1):
+                    _mark_complete(ops, mint, "LINEAGE_GAP", hop1, None, rpc[0],
+                                   confirmed_subprov=False)
+                    print(
+                        "[WALKBACK_DISPOSABLE_SUBPROV_LEAD] "
+                        f"mint={mint} creator={creator} subprov={hop1} "
+                        f"mechanism={mech1} outcome=LINEAGE_GAP "
+                        f"reason=UPSTREAM_UNRESOLVED "
+                        f"evidence_level={hop1_evidence_level or 'MECHANISM_ONLY'} "
+                        f"rpc_used={rpc[0]}", flush=True)
+                else:
+                    _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, rpc[0])
 
         else:
             _mark_failed(ops, mint, f"unexpected class {wclass} in worker", 0)
@@ -905,13 +1353,15 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
     Claim up to batch_size pending rows (attempts < MAX_ATTEMPTS) and process them.
     Returns summary: {processed, rpc_used, outcomes}.
     """
+    deep_walkback.ensure_schema(ops)
     rows = ops.execute(
         "SELECT mint, creator, subprov, treasury, walkback_class, attempts "
         "FROM wt_walkback_queue "
-        "WHERE status='pending' AND attempts < ? "
-        "ORDER BY enqueued_at ASC "
+        "WHERE (status='pending' OR (status='running' AND COALESCE(lease_expires_at,0) < ?)) "
+        "AND attempts < ? AND COALESCE(next_retry_at,0) <= ? "
+        "ORDER BY COALESCE(priority,0) DESC, enqueued_at ASC "
         "LIMIT ?",
-        (MAX_ATTEMPTS, batch_size)).fetchall()
+        (int(time.time()), MAX_ATTEMPTS, int(time.time()), batch_size)).fetchall()
 
     if not rows:
         return {"processed": 0, "rpc_used": 0, "outcomes": {}}
@@ -1048,6 +1498,64 @@ def run_loop() -> None:
                 except Exception as e:
                     trace_failure("heartbeat_write_attempted", e, elapsed_s=time.monotonic() - _t0)
                     raise
+
+                # X64.5 — self-healing pass: rows stuck WAITING_FOR_CREATE_ANCHOR
+                # never reach drain_batch's own SELECT (it only matches
+                # status='pending'/expired-'running'), so a valid CREATE
+                # signature that becomes visible in creator_funding_queue AFTER
+                # enqueue would otherwise leave the row permanently stuck. This
+                # is a zero-RPC, local-DB-only re-check — never increments the
+                # normal walkback `attempts` counter (uses its own
+                # anchor_lookup_attempts column). Non-essential maintenance:
+                # a transient failure here is logged and skipped, matching the
+                # existing recover_stalled_running_jobs/finalize_exhausted_pending
+                # pattern above, never crashes the loop.
+                trace_boundary("anchor_reconciliation_attempted")
+                _t0 = time.monotonic()
+                try:
+                    from src.ops.anchor_reconciliation import reconcile_waiting_create_anchors
+                    _live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
+                    try:
+                        recon = reconcile_waiting_create_anchors(ops, _live)
+                        if recon["recovered"]:
+                            print(f"[WALKBACK] anchor reconciliation: recovered "
+                                  f"{len(recon['recovered'])} of {recon['examined']} "
+                                  f"stuck rows this cycle", flush=True)
+                    finally:
+                        _live.close()
+                    trace_boundary("anchor_reconciliation_completed",
+                                   extra={"elapsed_s": round(time.monotonic() - _t0, 3)})
+                except Exception as e:
+                    trace_failure("anchor_reconciliation_attempted", e, elapsed_s=time.monotonic() - _t0)
+                    if not _is_lock_error(e):
+                        raise
+                    print(f"[WALKBACK] anchor reconciliation skipped (lock contention): {e}", flush=True)
+
+                # X64.7A Phase 2 — durable ledger-write retry pass. A CREATE
+                # observation that failed to commit into wt_create_event_ledger
+                # (e.g. transient lock) is durably queued in
+                # wt_create_ledger_pending; this pass retries it here, zero-RPC,
+                # bounded backoff, same non-essential-maintenance pattern as
+                # the anchor reconciliation pass immediately above.
+                trace_boundary("create_ledger_retry_attempted")
+                _t0 = time.monotonic()
+                try:
+                    from src.ops.create_event_ledger import retry_pending_writes
+                    retry_result = retry_pending_writes(ops)
+                    if retry_result["recovered"]:
+                        print(f"[WALKBACK] create-ledger retry: recovered "
+                              f"{len(retry_result['recovered'])} of {retry_result['examined']} "
+                              f"pending writes this cycle", flush=True)
+                    if retry_result["exhausted"]:
+                        print(f"[WALKBACK] create-ledger retry: {retry_result['exhausted']} "
+                              f"pending writes have exhausted retry attempts", flush=True)
+                    trace_boundary("create_ledger_retry_completed",
+                                   extra={"elapsed_s": round(time.monotonic() - _t0, 3)})
+                except Exception as e:
+                    trace_failure("create_ledger_retry_attempted", e, elapsed_s=time.monotonic() - _t0)
+                    if not _is_lock_error(e):
+                        raise
+                    print(f"[WALKBACK] create-ledger retry skipped (lock contention): {e}", flush=True)
 
                 trace_boundary("queue_inspection_started")
                 pending = ops.execute(

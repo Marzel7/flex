@@ -587,7 +587,64 @@ def promote_eligible_candidate(
         wrap_close_signature=wrap_close_signature, lineage_gap_seconds=lineage_gap_seconds,
         verification_evidence=verification_evidence,
     )
-    if not decision["eligible"]:
+
+    # X67.21 -- shared canonical predicate integration (mode-aware; see
+    # src/ops/watchtower_canonical_integration.py). In LEGACY/SHADOW mode
+    # this call never changes anything below -- `decision["eligible"]`
+    # remains the sole authority for the rest of this function, exactly as
+    # before X67.21. Only in ENFORCE mode does the integration result's
+    # `authoritative_decision` actually override the branch taken.
+    _x67_21_integration_result = None
+    try:
+        from src.ops.watchtower_canonical_integration import (
+            evaluate_canonical_decision, get_canonical_predicate_mode,
+            record_comparison_telemetry,
+        )
+        from src.ops.watchtower_canonical_adapters import build_evidence_for_candidate_workflow
+
+        _mode = get_canonical_predicate_mode()
+        _legacy_decision = "ACCEPTED" if decision["eligible"] else "REJECTED"
+        _legacy_reason = decision.get("reason_code") or ("CANONICAL_CONFIRMED" if decision["eligible"] else None)
+        _x67_21_integration_result = evaluate_canonical_decision(
+            path="path_a_candidate_workflow", mint=mint,
+            build_evidence=lambda: build_evidence_for_candidate_workflow(conn, mint=mint),
+            legacy_decision=_legacy_decision, legacy_reason=_legacy_reason, mode=_mode,
+        )
+        record_comparison_telemetry(conn, _x67_21_integration_result, mint=mint)
+    except Exception as exc:  # noqa: BLE001 -- integration layer must never break Path A
+        _LOG_X67_21_IMPORT_ERROR = f"{type(exc).__name__}: {exc}"
+        print(f"[X67.21] canonical predicate integration failed mint={mint}: {_LOG_X67_21_IMPORT_ERROR}", flush=True)
+
+    if _x67_21_integration_result is not None and _x67_21_integration_result.mode == "enforce":
+        # ENFORCE: the integration layer's authoritative decision replaces
+        # decision["eligible"] for the branch taken below. REVIEW_REQUIRED
+        # is NOT collapsed into rejection -- it holds the candidate exactly
+        # where the legacy REJECTED branch would have (INVESTIGATION_CLOSED
+        # is this workflow's only non-promoted terminal state today; a
+        # dedicated review-only state is out of scope for this integration
+        # per the task's "do not implement a second registry writer" /
+        # "smallest safe integration" instruction -- REVIEW_REQUIRED rows
+        # are closed with a distinct, review-preserving reason rather than
+        # the generic EVIDENCE_CONFLICT fallback the legacy path would use).
+        auth = _x67_21_integration_result.authoritative_decision
+        if auth != "ACCEPTED":
+            note = f"canonical predicate ({auth}): {_x67_21_integration_result.authoritative_reason}"
+            pr = _x67_21_integration_result.predicate_result
+            if pr and pr.conflicts:
+                note += " | conflicts: " + "; ".join(pr.conflicts)
+            if pr and pr.missing_evidence:
+                note += " | missing: " + ", ".join(pr.missing_evidence)
+            closure_reason = (
+                "INSUFFICIENT_EVIDENCE" if auth == "REVIEW_REQUIRED"
+                else (decision["reason_code"] or "EVIDENCE_CONFLICT")
+            )
+            result = _close(conn, mint, now, closure_reason, note, dry_run=False)
+            result["decision"] = decision
+            result["canonical_integration"] = _x67_21_integration_result
+            return {**result, "action": "not_eligible", "eligible": False}
+        # auth == ACCEPTED: fall through to the existing promotion path
+        # below exactly as if decision["eligible"] were True.
+    elif not decision["eligible"]:
         note = f"promotion predicate failed: {decision['reason_code']}"
         if decision["conflicting_evidence"]:
             note += " | conflicts: " + "; ".join(decision["conflicting_evidence"])
@@ -595,6 +652,8 @@ def promote_eligible_candidate(
             note += " | missing: " + ", ".join(decision["missing_requirements"])
         result = _close(conn, mint, now, decision["reason_code"] or "EVIDENCE_CONFLICT", note, dry_run=False)
         result["decision"] = decision
+        if _x67_21_integration_result is not None:
+            result["canonical_integration"] = _x67_21_integration_result
         return {**result, "action": "not_eligible", "eligible": False}
 
     try:
@@ -607,6 +666,16 @@ def promote_eligible_candidate(
         "SELECT creator FROM wt_provisioning_candidate_workflow WHERE mint=?", (mint,)
     ).fetchone()
     creator = row["creator"] if not isinstance(row, dict) else row.get("creator")
+    # X67.21 note: when ENFORCE mode's authoritative decision is ACCEPTED
+    # but the legacy `decision["eligible"]` was False (the predicate
+    # accepted a candidate the legacy evaluator would have rejected --
+    # exactly ENFORCE's intended effect), decision["verified_evidence"] is
+    # the legacy evaluator's own empty-on-rejection payload, not the
+    # predicate's. This is still safe: promote_walkback_confirmed_
+    # watchtower() treats these evidence fields as optional metadata (it
+    # independently reads creator/treasury/subprov/mechanism from
+    # wt_walkback_queue when available), and treasuries/subprovisioners are
+    # always explicitly set immediately below regardless of source.
     evidence_payload = dict(decision["verified_evidence"])
     evidence_payload.setdefault("creator", creator)
     evidence_payload["treasuries"] = [treasury]

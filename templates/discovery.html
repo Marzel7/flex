@@ -2490,6 +2490,17 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       .then(function(){ X67_3_FETCH_STARTED=false; loadProvisioningCandidateWorkflow(); })
       .catch(function(){});
   }
+  // X67.3 fix -- this whole app script is one IIFE (see the
+  // window.copyToClipboard/window.x65_60ToggleCandidateDetail precedent
+  // above); inline onclick="..." attributes execute in the GLOBAL scope, so
+  // any function they call must be explicitly exported onto window or the
+  // browser throws "x67_3ToggleStage is not defined" silently swallowed by
+  // the inline-handler's own try/catch-less execution (no visible error,
+  // click appears to do nothing -- confirmed via headless-browser
+  // reproduction, not assumed).
+  window.x67_3ToggleStage=x67_3ToggleStage;
+  window.x67_3Verify=x67_3Verify;
+  window.x67_3Close=x67_3Close;
 
   function x67_3PendingRow(c){
     var waitingSecs = Math.floor(Date.now()/1000) - (c.discovered_at||0);

@@ -2682,6 +2682,13 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         'CONFLICT':       {icon:'⚠', cls:'dw-addr-empty" style="color:var(--ip-red,#f85149)'},
       }[r.live_detection_status]||{icon:'?', cls:'dw-addr-empty'};
       var liveCell='<span'+(liveDetCfg.cls?' class="'+liveDetCfg.cls+'"':'')+' title="'+esc(r.live_detection_tooltip||'')+'">'+liveDetCfg.icon+' '+esc(r.live_detection_label||'')+'</span>';
+      // X67.27 -- cross-navigation to Operation Intelligence's Canonical
+      // Token Launches section (same shared population, per
+      // src.ops.canonical_launches.get_canonical_watchtower_launches),
+      // preserving the mint so that page can scroll-to/highlight this
+      // exact row (see loadCanonicalLaunches()'s ?mint= handling there).
+      var opIntelHref='/watchtower/intelligence?mint='+encodeURIComponent(r.mint);
+      var opIntelCell='<a href="'+opIntelHref+'" style="font-size:10px;color:var(--ip-cyan,#22d3ee)" title="View in Operation Intelligence">↗ Operation Intelligence</a>';
       return '<tr>'
         +'<td class="dw-x65-1-mint">'+addrChip(r.mint,'token')+'</td>'
         +'<td>'+(r.creator?addrChip(r.creator,'creator'):'<span class="dw-addr-empty">Unknown</span>')+'</td>'
@@ -2689,11 +2696,12 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         +'<td>'+launchedCell+'</td>'
         +'<td>'+migCell+'</td>'
         +'<td>'+liveCell+'</td>'
+        +'<td>'+opIntelCell+'</td>'
         +'</tr>';
     }).join('');
     var thirdHeader='Treasury';
     return '<div class="dw-x65-1-table-wrap" style="margin-top:14px">'
-      +'<table class="dw-x65-1-table"><thead><tr><th>Token Mint</th><th>Creator</th><th>'+thirdHeader+'</th><th>Launched</th><th>Time to Migration</th><th>Live Detection</th></tr></thead>'
+      +'<table class="dw-x65-1-table"><thead><tr><th>Token Mint</th><th>Creator</th><th>'+thirdHeader+'</th><th>Launched</th><th>Time to Migration</th><th>Live Detection</th><th>Cross-Navigation</th></tr></thead>'
       +'<tbody>'+body+'</tbody></table></div>';
   }
   // X65.58 -- compact reference diagram for the Operation Intelligence tab

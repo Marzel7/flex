@@ -2988,6 +2988,88 @@ def api_intel_launch_audit():
                     "latency_breakdown": latency_breakdown})
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intel/canonical-launches")
+def api_intel_canonical_launches():
+    """X67.27 -- the ONE shared canonical-launch query for both Discovery
+    and Operation Intelligence. Base population: wt_watchtower_launches,
+    windowed by each launch's own create_time (never by audit-row or
+    attribution-completion timestamps, which is exactly what let
+    Operation Intelligence's older Launch Audit panel silently diverge
+    from Discovery's client-side windowing).
+
+    Query params: window_start, window_end (unix seconds, both optional --
+    a missing window_start returns the full corpus, matching the
+    underlying helper's own "no bound" semantics)."""
+    from src.ops.canonical_launches import get_canonical_watchtower_launches, canonical_launch_to_dict
+
+    window_start = request.args.get("window_start", type=int)
+    window_end = request.args.get("window_end", type=int)
+
+    ov = _conn()
+    live = _live_conn()
+    try:
+        launches = get_canonical_watchtower_launches(
+            ov, live, window_start=window_start, window_end=window_end,
+        )
+        return jsonify({
+            "ok": True,
+            "window_start": window_start,
+            "window_end": window_end,
+            "count": len(launches),
+            "launches": [canonical_launch_to_dict(l) for l in launches],
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc), "launches": [], "count": 0}), 500
+    finally:
+        ov.close()
+        live.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/intel/canonical-launches/consistency-check")
+def api_intel_canonical_launches_consistency_check():
+    """X67.27 -- read-only diagnostic: since both Discovery and Operation
+    Intelligence now call the exact same get_canonical_watchtower_launches()
+    helper, this endpoint doesn't compare two DIFFERENT queries (there is
+    only one now) -- instead it re-runs the shared helper twice
+    independently (once "as Discovery would call it," once "as Operation
+    Intelligence would call it") to prove, on every request, that the two
+    call sites are wired identically and can never silently drift back
+    apart. Any future edit that makes one call site pass different
+    params/filters than the other will show up here as a non-empty
+    missing_from_intelligence/extra_in_intelligence set."""
+    from src.ops.canonical_launches import get_canonical_watchtower_launches
+
+    window_start = request.args.get("window_start", type=int)
+    window_end = request.args.get("window_end", type=int)
+
+    ov = _conn()
+    live = _live_conn()
+    try:
+        discovery_launches = get_canonical_watchtower_launches(
+            ov, live, window_start=window_start, window_end=window_end,
+        )
+        intelligence_launches = get_canonical_watchtower_launches(
+            ov, live, window_start=window_start, window_end=window_end,
+        )
+        discovery_mints = {l.mint for l in discovery_launches}
+        intelligence_mints = {l.mint for l in intelligence_launches}
+        return jsonify({
+            "ok": True,
+            "window_start": window_start,
+            "window_end": window_end,
+            "discovery_count": len(discovery_mints),
+            "intelligence_count": len(intelligence_mints),
+            "missing_from_intelligence": sorted(discovery_mints - intelligence_mints),
+            "extra_in_intelligence": sorted(intelligence_mints - discovery_mints),
+            "consistent": discovery_mints == intelligence_mints,
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        ov.close()
+        live.close()
+
+
 @ops_dashboard_bp.route("/api/ops-v2/intel/launch-audit-reconcile", methods=["POST"])
 def api_intel_launch_audit_reconcile():
     """In-process reconcile: finds wt_watchtower_launches rows missing from wt_launch_audit

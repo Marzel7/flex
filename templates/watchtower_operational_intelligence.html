@@ -247,12 +247,47 @@ details.collapse-section .collapse-body { padding-top:14px; }
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  CANONICAL TOKEN LAUNCHES — X67.27. The authoritative WATCHTOWER        -->
+  <!--  launch population for the selected window, sourced from the SAME      -->
+  <!--  shared helper Discovery uses (src.ops.canonical_launches.            -->
+  <!--  get_canonical_watchtower_launches(), base population always           -->
+  <!--  wt_watchtower_launches). This section's mint set must always match    -->
+  <!--  Discovery's Canonical WATCHTOWER table for the same window -- campaign -->
+  <!--  grouping below is presentation only and never determines membership   -->
+  <!--  here. Treasury/operational-leg activity (sibling funding, buy-swarm,   -->
+  <!--  relay, recycling) is intentionally NOT shown in this table -- see the  -->
+  <!--  existing Operations cards below for that, clearly labelled as         -->
+  <!--  operational legs, never mixed into this canonical list.               -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:12px 0 12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--cyan);text-transform:uppercase">Canonical Token Launches</div>
+    <div style="flex:1;height:1px;background:rgba(34,211,238,.3)"></div>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400" id="canonical-launches-window-label">Last 24 Hours</span>
+  </div>
+  <div style="font-size:13px;font-weight:700;margin-bottom:8px" id="canonical-launches-headline">Canonical WATCHTOWER Launches &middot; loading&hellip;</div>
+  <div style="overflow-x:auto">
+    <table class="mono" style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="text-align:left;color:var(--text-sec);font-size:10.5px;text-transform:uppercase">
+        <th style="padding:4px 8px">Token Mint</th><th style="padding:4px 8px">Creator</th>
+        <th style="padding:4px 8px">Treasury</th><th style="padding:4px 8px">Subprovider</th>
+        <th style="padding:4px 8px">Launch Time</th><th style="padding:4px 8px">Time to Migration</th>
+        <th style="padding:4px 8px">Live Detection</th><th style="padding:4px 8px">Campaign</th>
+      </tr></thead>
+      <tbody id="canonical-launches-body"><tr><td colspan="8" class="muted" style="padding:8px">loading&hellip;</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
   <!--  OPERATIONS — X23: object-centric. Treasury is today's operational      -->
   <!--  root (no first-class Operation model exists — documented gap, not      -->
   <!--  invented). Everything about ONE treasury — live sessions, launch       -->
   <!--  history, sub-provisioners, creator timing, webhook trust — lives       -->
   <!--  inside its own card. An analyst should never need to leave a card to   -->
-  <!--  understand that operation.                                            -->
+  <!--  understand that operation. NOTE (X67.27): these cards may surface      -->
+  <!--  concurrent treasury activity (sibling funding, buy-swarm, relay,       -->
+  <!--  recycling, distribution, liquidity) as "Operational legs" -- that      -->
+  <!--  activity is NOT a canonical token launch unless its resulting mint     -->
+  <!--  appears in the Canonical Token Launches table above.                  -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   <div style="margin:26px 0 12px;display:flex;align-items:center;gap:12px">
     <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--green);text-transform:uppercase">Operations</div>
@@ -2626,11 +2661,88 @@ async function dlAddReview(funder, score, badges, reasons){
 
 let _apexInterval=null;
 
+// ── X67.27 — Canonical Token Launches ────────────────────────────────────────
+// Sourced from the SAME shared helper Discovery uses
+// (src.ops.canonical_launches.get_canonical_watchtower_launches), via
+// /api/ops-v2/intel/canonical-launches. This function owns NO independent
+// membership logic -- it only renders what the shared query returns.
+const CL_WINDOW_SECONDS=86400; // matches Discovery's default "24h" selector
+function clEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function clShort(addr){ return addr?addr.slice(0,4)+'…'+addr.slice(-4):'—'; }
+function clAgo(ts){
+  if(typeof ts!=='number') return '—';
+  const s=Math.floor(Date.now()/1000)-ts;
+  if(s<60) return s+'s ago';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+function clDuration(seconds){
+  if(typeof seconds!=='number') return '—';
+  if(seconds<0) return '—';
+  if(seconds<60) return seconds+'s';
+  if(seconds<3600) return Math.floor(seconds/60)+'m';
+  if(seconds<86400) return Math.floor(seconds/3600)+'h';
+  return Math.floor(seconds/86400)+'d';
+}
+async function loadCanonicalLaunches(){
+  const windowStart=Math.floor(Date.now()/1000)-CL_WINDOW_SECONDS;
+  let d;
+  try{
+    d=await(await fetch(`/api/ops-v2/intel/canonical-launches?window_start=${windowStart}`)).json();
+  }catch(e){
+    const tb=document.getElementById('canonical-launches-body');
+    if(tb) tb.innerHTML='<tr><td colspan="8" class="muted" style="padding:8px">failed to load canonical launches</td></tr>';
+    return;
+  }
+  const launches=d.launches||[];
+  const hl=document.getElementById('canonical-launches-headline');
+  if(hl) hl.innerHTML=`<span style="color:var(--cyan)">Canonical WATCHTOWER Launches</span> &middot; ${launches.length} launch${launches.length===1?'':'es'} &middot; Last 24 Hours`;
+  const tb=document.getElementById('canonical-launches-body');
+  if(!tb) return;
+  if(!launches.length){
+    tb.innerHTML='<tr><td colspan="8" class="muted" style="padding:8px">No canonical launches in this window.</td></tr>';
+    return;
+  }
+  tb.innerHTML=launches.map(l=>{
+    const liveCell=l.live_detection_label
+      ? `<span title="${clEsc(l.live_detection_tooltip||'')}">${clEsc(l.live_detection_label)}</span>`
+      : '—';
+    const migCell=(typeof l.time_to_migration_seconds==='number')?clDuration(l.time_to_migration_seconds):'<span class="muted">—</span>';
+    const discoveryHref=`/discovery?tab=operation&mint=${encodeURIComponent(l.mint)}`;
+    return `<tr id="cl-${clEsc(l.mint)}" style="border-top:1px solid var(--border)">
+      <td style="padding:4px 8px"><span class="addr" title="${clEsc(l.mint)}" onclick="sol('${l.mint}')">${clShort(l.mint)}</span>
+        <a href="${discoveryHref}" style="margin-left:6px;font-size:10px;color:var(--cyan)" title="View in Discovery">↗ Discovery</a></td>
+      <td style="padding:4px 8px">${l.creator?`<span class="addr" title="${clEsc(l.creator)}" onclick="sol('${l.creator}')">${clShort(l.creator)}</span>`:'<span class="muted">—</span>'}</td>
+      <td style="padding:4px 8px">${l.treasury_wallet?`<span class="addr" title="${clEsc(l.treasury_wallet)}" onclick="sol('${l.treasury_wallet}')">${clShort(l.treasury_wallet)}</span>`:'<span class="muted">—</span>'}</td>
+      <td style="padding:4px 8px">${l.subprov_wallet?`<span class="addr" title="${clEsc(l.subprov_wallet)}" onclick="sol('${l.subprov_wallet}')">${clShort(l.subprov_wallet)}</span>`:'<span class="muted">—</span>'}</td>
+      <td style="padding:4px 8px">${clAgo(l.create_time)}</td>
+      <td style="padding:4px 8px">${migCell}</td>
+      <td style="padding:4px 8px">${liveCell}</td>
+      <td style="padding:4px 8px">${clEsc(l.campaign||'Unassigned campaign')}</td>
+    </tr>`;
+  }).join('');
+
+  // Cross-navigation: if arriving with ?mint=..., scroll to and highlight
+  // that canonical launch's row (X67.27's "scroll to or highlight" requirement).
+  const params=new URLSearchParams(window.location.search);
+  const targetMint=params.get('mint');
+  if(targetMint){
+    const row=document.getElementById('cl-'+targetMint);
+    if(row){
+      row.scrollIntoView({behavior:'smooth', block:'center'});
+      row.style.outline='2px solid var(--cyan)';
+      row.style.background='rgba(34,211,238,.08)';
+    }
+  }
+}
+
 function refreshFast(){
   loadCoverageSummary();        // Phase 2: single ops-DB endpoint replaces hero fan-out
   loadCoverageOpportunity();    // ranked EDY widget (ops-DB only, read-only)
   loadWsCascade();
   loadTokenLifecycle();
+  loadCanonicalLaunches();
   loadLaunchAudit();
   loadCapitalReloads();
   loadCreatorModes();

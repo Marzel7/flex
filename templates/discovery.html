@@ -2162,12 +2162,15 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     if(!X60_UNIVERSE_LOADED||!X65_34_CONFIRMED_LOADED)return warmingPanel('WATCHTOWER Detection Status');
     if(X65_34_CONFIRMED_FAILED)return '<div class="dw-x58-section"><div class="dw-x58-heading">WATCHTOWER Detection Status</div><div class="dw-empty" style="padding:14px">Unable to load confirmed population. <a href="#" onclick="X65_34_CONFIRMED_FETCH_STARTED=false;X65_34_CONFIRMED_FAILED=false;loadConfirmedWatchtowerRows();return false">Retry</a></div></div>';
     var walkbackConfirmed=x65_40WalkbackConfirmedRowsForWindow();
-    // X67.3 -- sourced from the restored, persisted workflow store (Pending +
-    // Treasury Verified), not the decayed campaign==WATCHTOWER filter
-    // (X65.93). Loaded independently of X60_UNIVERSE_ROWS/X65_34_CONFIRMED_ROWS.
+    // X67.7 -- sourced from the restored, persisted workflow store (Pending
+    // Investigation only; TREASURY_VERIFIED is no longer a durable
+    // destination -- a successful verification promotes directly, so
+    // "candidates" here means launches still awaiting a decision, not the
+    // decayed campaign==WATCHTOWER filter (X65.93). Loaded independently of
+    // X60_UNIVERSE_ROWS/X65_34_CONFIRMED_ROWS.
     if(!X67_3_FETCH_STARTED) loadProvisioningCandidateWorkflow();
     var candidates=(X67_3_CANDIDATES||[]).filter(function(c){
-      return c.workflow_state==='PENDING_VERIFICATION'||c.workflow_state==='TREASURY_VERIFIED';
+      return c.workflow_state==='PENDING_VERIFICATION';
     });
     var latestConfirmationAt=X65_34_CONFIRMED_ROWS.reduce(function(max,r){
       return (typeof r.confirmation_completed_at==='number'&&r.confirmation_completed_at>max)?r.confirmation_completed_at:max;
@@ -2513,11 +2516,16 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         +'<div class="x67-3-topo-line"><span class="x67-3-topo-lbl">Mechanism</span>'+x67_3Badge('mech', c.funding_mechanism==='SEEDED_ACCOUNT_CLOSE'?'Seeded Account Close':'WSOL Wrap Close')+'</div>'
       +'</div>'
       +'<div class="x67-3-meta"><span>First seen '+ago(c.discovered_at)+'</span><span class="x67-3-waiting">Awaiting verification · '+x65_69Duration(waitingSecs)+'</span></div>'
-      +'<div class="x67-3-action"><button class="x67-3-btn x67-3-btn-primary" onclick="'+x67_3VerifyAction(c.mint)+'">Verify treasury</button><button class="x67-3-btn x67-3-btn-ghost" onclick="'+x67_3CloseAction(c.mint)+'">Close…</button></div>'
+      +'<div class="x67-3-action"><button class="x67-3-btn x67-3-btn-primary" onclick="'+x67_3VerifyAction(c.mint)+'" title="Runs treasury verification; if the full Model 1 predicate passes, this WRITES the canonical registry directly.">Verify and Evaluate</button><button class="x67-3-btn x67-3-btn-ghost" onclick="'+x67_3CloseAction(c.mint)+'">Close…</button></div>'
       +'<div class="x67-3-lineage-note">'+esc(note)+'</div>'
       +'</div>';
   }
 
+  // X67.7 -- TREASURY_VERIFIED is no longer a durable destination; a
+  // successful verification either promotes directly (PROMOTED_TO_MODEL_1)
+  // or closes with a structured reason (INVESTIGATION_CLOSED). x67_3VerifiedRow
+  // is retained only in case a legacy row is ever displayed via list_candidates'
+  // still-readable TREASURY_VERIFIED filter, not as an active workflow stage.
   function x67_3VerifiedRow(c){
     var ev = c.evidence || {};
     return '<div class="x67-3-cand">'
@@ -2528,7 +2536,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         +'<div class="x67-3-topo-line"><span class="x67-3-topo-lbl">Mechanism</span>'+x67_3Badge('mech', c.funding_mechanism==='SEEDED_ACCOUNT_CLOSE'?'Seeded Account Close':'WSOL Wrap Close')+'</div>'
       +'</div>'
       +'<div class="x67-3-meta"><span>Verified '+ago(c.verification_attempted_at)+'</span><span>'+(ev.funding_amount?ev.funding_amount.toLocaleString()+' SOL':'')+(c.lineage_gap_seconds!=null?' · gap '+c.lineage_gap_seconds+'s':'')+'</span></div>'
-      +'<div class="x67-3-action"><button class="x67-3-btn x67-3-btn-primary-verified">Send to review</button></div>'
+      +'<div class="x67-3-action"><button class="x67-3-btn x67-3-btn-primary" onclick="'+x67_3VerifyAction(c.mint)+'">Re-evaluate for Canonical Promotion</button></div>'
       +'<div class="x67-3-evidence">'
         +(ev.treasury_to_subprov_signature?'<div><span class="x67-3-ev-k">Treasury → Subprov sig</span>'+esc(ev.treasury_to_subprov_signature)+'</div>':'')
         +(ev.wrap_close_signature?'<div><span class="x67-3-ev-k">Subprov → Creator sig</span>'+esc(ev.wrap_close_signature)+'</div>':'')
@@ -2594,12 +2602,21 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     if(X67_3_CANDIDATES===null){
       return '<div class="dw-x58-section dw-wt-candidate-section"><div class="dw-x58-heading">WATCHTOWER Provisioning Candidates</div><div class="dw-empty" style="padding:14px">Loading investigation queue…</div></div>';
     }
+    // X67.7 -- TREASURY_VERIFIED removed as a durable stage in the primary
+    // flow (X67.5/X67.6: no objective evidential difference was found
+    // between a fully-verified candidate and a canonical launch, so an
+    // intermediate approval-only stage has no technical justification).
+    // "Verify and Evaluate" now runs the full canonical promotion predicate
+    // and, on eligibility, writes wt_watchtower_launches directly through
+    // the existing registry writer -- a candidate either stays Pending, is
+    // Promoted, or is Closed with a structured reason. No code path writes
+    // a new TREASURY_VERIFIED row after this change (legacy rows, if any
+    // remain unmigrated, are still readable via list_candidates()).
     return '<div class="dw-x58-section dw-wt-candidate-section">'
       +'<div class="dw-x58-heading">WATCHTOWER Provisioning Candidates</div>'
       +'<div class="dw-x58-copy">Launches matching the canonical WATCHTOWER discovery topology that require investigation or review. Model 1 remains the authoritative confirmation model — nothing below alters it.</div>'
       +x67_3Stage('PENDING_VERIFICATION','Pending Investigation','Matches the WATCHTOWER discovery topology. Treasury attribution has not yet been independently verified.', x67_3PendingRow, false)
-      +x67_3Stage('TREASURY_VERIFIED','Treasury Verified','Treasury independently corroborated through transaction verification. Awaiting human review.', x67_3VerifiedRow, false)
-      +x67_3Stage('PROMOTED_TO_MODEL_1','Promoted','Confirmed into Model 1 via the existing human-gated promotion route. Read-only.', function(c){return '';}, true)
+      +x67_3Stage('PROMOTED_TO_MODEL_1','Canonical WATCHTOWER','Promoted into Model 1 (wt_watchtower_launches) after treasury verification, canonical mechanism, canonical topology, and no conflicting evidence all held. Read-only.', function(c){return '';}, true)
       +x67_3Stage('INVESTIGATION_CLOSED','Closed','Investigation concluded without a WATCHTOWER match. Retained for audit — rows are never silently removed.', x67_3ClosedRow, true)
       +'</div>';
   }

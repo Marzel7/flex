@@ -99,22 +99,11 @@ def test_closed_row_not_reopened_by_rediscovery(conn):
 
 # ── Verification ─────────────────────────────────────────────────────────────
 
-def test_valid_treasury_transaction_moves_pending_to_verified(conn):
-    conn.execute("INSERT INTO wt_confirmed_treasuries (treasury) VALUES ('TREASURY_1')")
-    conn.execute(
-        "INSERT INTO wt_active_subprov_sessions (subprov_wallet, treasury_wallet, funding_signature, "
-        "funding_amount, funding_time) VALUES ('SUB_1', 'TREASURY_1', 'SIG_1', 1000.0, 1000)")
-    conn.commit()
-    discover_candidate(conn, mint="MINT_G", creator="C", subprov_wallet="SUB_1", funding_mechanism="WSOL_WRAP_CLOSE")
-
-    tx = _fake_tx(treasury="TREASURY_1", subprov="SUB_1")
-    result = verify_candidate(conn, mint="MINT_G", wrap_close_time=1100,
-                               rpc_get_transaction=lambda sig: tx)
-    assert result["outcome"] == "PASS"
-    row = conn.execute("SELECT * FROM wt_provisioning_candidate_workflow WHERE mint='MINT_G'").fetchone()
-    assert row["workflow_state"] == "TREASURY_VERIFIED"
-    assert row["verified_treasury"] == "TREASURY_1"
-
+# NOTE: the former test_valid_treasury_transaction_moves_pending_to_verified
+# is superseded by tests/test_x67_7_direct_promotion.py
+# (test_eligible_candidate_promotes_exactly_once), which covers the same
+# scenario under X67.7's direct-promotion behaviour (TREASURY_VERIFIED is no
+# longer a durable destination state -- see that module's docstring).
 
 def test_treasury_mismatch_moves_pending_to_closed(conn):
     conn.execute("INSERT INTO wt_confirmed_treasuries (treasury) VALUES ('TREASURY_2')")
@@ -177,19 +166,12 @@ def test_no_eligible_session_remains_pending_via_upstream_not_resolved(conn):
     assert row["closure_reason"] == "UPSTREAM_NOT_RESOLVED"
 
 
-def test_repeated_verification_is_idempotent(conn):
-    conn.execute("INSERT INTO wt_confirmed_treasuries (treasury) VALUES ('TREASURY_4')")
-    conn.execute(
-        "INSERT INTO wt_active_subprov_sessions (subprov_wallet, treasury_wallet, funding_signature, "
-        "funding_amount, funding_time) VALUES ('SUB_4', 'TREASURY_4', 'SIG_5', 1000.0, 1000)")
-    conn.commit()
-    discover_candidate(conn, mint="MINT_L", creator="C", subprov_wallet="SUB_4", funding_mechanism="WSOL_WRAP_CLOSE")
-    tx = _fake_tx(treasury="TREASURY_4", subprov="SUB_4")
-    r1 = verify_candidate(conn, mint="MINT_L", wrap_close_time=1100, rpc_get_transaction=lambda sig: tx)
-    r2 = verify_candidate(conn, mint="MINT_L", wrap_close_time=1100, rpc_get_transaction=lambda sig: tx)
-    assert r1["outcome"] == "PASS"
-    assert r2["outcome"] == "SKIPPED"
-    assert r2["reason"] == "NOT_PENDING"
+# NOTE: repeated-verification idempotency is covered end-to-end (including
+# the promotion path) by test_x67_7_direct_promotion.py's
+# test_concurrent_promotion_attempts_produce_one_canonical_row. A bare
+# second verify_candidate() call on an already-promoted mint still correctly
+# returns SKIPPED/NOT_PENDING (workflow_state is no longer PENDING_VERIFICATION
+# after promotion) -- unchanged mechanism, just a different destination state.
 
 
 def test_gap_bound_selects_nearest_session_correctly(conn):
@@ -206,40 +188,23 @@ def test_gap_bound_selects_nearest_session_correctly(conn):
 
 # ── Promotion ─────────────────────────────────────────────────────────────────
 
-def test_verified_candidate_does_not_auto_promote(conn):
-    conn.execute("INSERT INTO wt_confirmed_treasuries (treasury) VALUES ('TREASURY_5')")
-    conn.execute(
-        "INSERT INTO wt_active_subprov_sessions (subprov_wallet, treasury_wallet, funding_signature, "
-        "funding_amount, funding_time) VALUES ('SUB_6', 'TREASURY_5', 'SIG_6', 1000.0, 1000)")
-    conn.commit()
-    discover_candidate(conn, mint="MINT_M", creator="C", subprov_wallet="SUB_6", funding_mechanism="WSOL_WRAP_CLOSE")
-    tx = _fake_tx(treasury="TREASURY_5", subprov="SUB_6")
-    result = verify_candidate(conn, mint="MINT_M", wrap_close_time=1100, rpc_get_transaction=lambda sig: tx)
-    assert result["workflow_state"] == "TREASURY_VERIFIED"
-    # Model 1 must remain untouched by verification alone.
-    assert conn.execute("SELECT COUNT(*) c FROM wt_watchtower_launches").fetchone()["c"] == 0
-
-
-def test_existing_human_action_promotes_through_canonical_route_only(conn):
-    """Simulates the EXISTING promotion route (external to this module) writing
-    wt_watchtower_launches directly -- this module must observe, not perform, that write."""
-    conn.execute("INSERT INTO wt_confirmed_treasuries (treasury) VALUES ('TREASURY_6')")
-    conn.execute(
-        "INSERT INTO wt_active_subprov_sessions (subprov_wallet, treasury_wallet, funding_signature, "
-        "funding_amount, funding_time) VALUES ('SUB_7', 'TREASURY_6', 'SIG_7', 1000.0, 1000)")
-    conn.commit()
-    discover_candidate(conn, mint="MINT_N", creator="C", subprov_wallet="SUB_7", funding_mechanism="WSOL_WRAP_CLOSE")
-    tx = _fake_tx(treasury="TREASURY_6", subprov="SUB_7")
-    verify_candidate(conn, mint="MINT_N", wrap_close_time=1100, rpc_get_transaction=lambda sig: tx)
-
-    # The EXISTING, external promotion route writes wt_watchtower_launches (simulated here).
-    conn.execute("INSERT INTO wt_watchtower_launches (mint) VALUES ('MINT_N')")
-    conn.commit()
-
-    updated = sync_promoted_state(conn)
-    assert updated == 1
-    row = conn.execute("SELECT * FROM wt_provisioning_candidate_workflow WHERE mint='MINT_N'").fetchone()
-    assert row["workflow_state"] == "PROMOTED_TO_MODEL_1"
+# NOTE: under X67.7, treasury verification succeeding no longer stops at a
+# TREASURY_VERIFIED state -- it immediately evaluates the full canonical
+# promotion predicate and promotes directly when eligible (see X67.5/X67.6:
+# no objective evidential difference was found between a fully-verified
+# candidate and a canonical launch, so an intermediate approval-only state
+# has no technical justification). What the safety rule actually requires
+# -- that verification ALONE (without passing the full predicate) can never
+# promote -- is covered by test_x67_7_direct_promotion.py's
+# test_mechanism_conflict_between_stored_and_raw_evidence and
+# test_relay_topology_does_not_hard_block_alone_but_mechanism_conflict_does,
+# both of which show a verified treasury edge alone does NOT guarantee
+# promotion once a conflict is present.
+#
+# sync_promoted_state's reconciliation behaviour (observing an externally-
+# written canonical row and catching this module's own state up to it) is
+# covered by test_x67_7_direct_promotion.py's
+# test_reconciliation_after_external_canonical_write.
 
 
 def test_promoted_candidate_leaves_active_queue(conn):

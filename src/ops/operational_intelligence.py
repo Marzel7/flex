@@ -531,6 +531,8 @@ def _enrich_discovery_records(
         launch_confidence = launch["confidence"] if launch else None
         canonicalisation = classify_canonicalisation_source(
             creator_extraction_method, launch_confidence)
+        live_detection_status = classify_live_detection_status(
+            detection_source, creator_extraction_method, launch_confidence)
 
         record.update(timing)
         record.update({
@@ -540,6 +542,9 @@ def _enrich_discovery_records(
             "confidence": launch_confidence,
             "canonicalisation_source": canonicalisation["canonicalisation_source"],
             "canonicalisation_label": canonicalisation["canonicalisation_label"],
+            "live_detection_status": live_detection_status["live_detection_status"],
+            "live_detection_label": live_detection_status["live_detection_label"],
+            "live_detection_tooltip": live_detection_status["live_detection_tooltip"],
             "operation_id": "WATCHTOWER" if is_watchtower else explicit_op,
             "operation_confidence": "CONFIRMED" if (is_watchtower or explicit_op) else None,
             "operation_source": operation_source or ("explicit_operation" if explicit_op else None),
@@ -716,6 +721,87 @@ def classify_canonicalisation_source(
     return {
         "canonicalisation_source": source,
         "canonicalisation_label": _CANONICALISATION_LABELS[source],
+    }
+
+
+# X67.11 -- presentation-only reframing of "Caught Live" into an explicit
+# live-detection status that directly answers the operator's actual
+# question ("was this canonical launch detected while WATCHTOWER was
+# ARMED?") instead of requiring a dash to be mentally translated into "no
+# evidence." Reads detection_source (X67.10's untouched detection axis)
+# AND creator_extraction_method/confidence (X67.10's canonicalisation axis)
+# together, but only to DISTINGUISH "no detection because walkback-
+# recovered" from "no detection because this predates detection provenance
+# entirely" (the 13 legacy CLOSE_ACCOUNT_DESTINATION+NULL rows from X67.10's
+# audit) -- it does not write, persist, or alter either underlying field.
+_LIVE_DETECTION_STATUS_LABELS = {
+    "LIVE":            "Live",
+    "DETECTED_LATE":   "Detected Later",
+    "NOT_DETECTED":    "Not Detected",
+    "LEGACY_UNKNOWN":  "Legacy",
+    "CONFLICT":        "Conflict",
+}
+
+_LIVE_DETECTION_STATUS_TOOLTIPS = {
+    "LIVE": "Observed by WATCHTOWER while ARMED.",
+    "DETECTED_LATE": "Observed after launch through replay, retry, logs or reconciliation.",
+    "NOT_DETECTED": (
+        "This launch became Canonical WATCHTOWER through retrospective "
+        "walkback confirmation. No evidence exists that WATCHTOWER "
+        "detected it while ARMED."
+    ),
+    "LEGACY_UNKNOWN": (
+        "This launch predates detection provenance. It is unknown "
+        "whether WATCHTOWER detected it live."
+    ),
+    "CONFLICT": "detection_source, creator_extraction_method and confidence disagree -- needs investigation.",
+}
+
+_DETECTED_LATE_SOURCES = (
+    "PROGRAM_LOGS", "PENDING_CREATE_RETRY", "PROGRAM_REPLAY_BUFFER",
+    "OPENING_CATCHUP", "EXPIRE_PROBE", "CANDIDATE_CATCHUP",
+    "MANUAL_USER_ATTESTATION",
+)
+
+# The exact 13-row legacy population X67.10's audit identified: rows that
+# predate detection_source's introduction entirely. Distinguished from
+# NOT_DETECTED (a walkback-recovered row with no detection evidence) by
+# creator_extraction_method, since both cases share detection_source IS NULL.
+_LEGACY_CANONICALISATION_METHOD = "CLOSE_ACCOUNT_DESTINATION"
+
+
+def classify_live_detection_status(
+    detection_source: str | None,
+    creator_extraction_method: str | None,
+    confidence: str | None,
+) -> dict[str, str]:
+    """UI-only classification answering "was this canonical launch detected
+    while WATCHTOWER was ARMED?" directly, instead of leaving a bare dash
+    for detection_source IS NULL. Never persisted; never derives
+    canonicalisation_source or detection_source from this result (the
+    reverse of X67.9/X67.10's rule, preserved here: this reads both axes
+    but writes neither).
+    """
+    if detection_source in _LIVE_DETECTION_SOURCES:
+        status = "LIVE"
+    elif detection_source in _DETECTED_LATE_SOURCES:
+        status = "DETECTED_LATE"
+    elif detection_source is None:
+        if creator_extraction_method == _LEGACY_CANONICALISATION_METHOD:
+            status = "LEGACY_UNKNOWN"
+        elif creator_extraction_method == "WALKBACK_RECOVERED" or confidence == "WALKBACK":
+            status = "NOT_DETECTED"
+        else:
+            status = "LEGACY_UNKNOWN"
+    else:
+        # A non-null detection_source that matches neither known list --
+        # fail closed to CONFLICT rather than guess.
+        status = "CONFLICT"
+
+    return {
+        "live_detection_status": status,
+        "live_detection_label": _LIVE_DETECTION_STATUS_LABELS[status],
+        "live_detection_tooltip": _LIVE_DETECTION_STATUS_TOOLTIPS[status],
     }
 
 

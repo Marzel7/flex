@@ -20,6 +20,7 @@ Routes:
   GET /api/ops-v2/runs                     → scheduler run log
 """
 
+import logging
 import os
 import sqlite3
 import threading
@@ -3225,6 +3226,7 @@ def api_intel_subprov_funder():
                                     "(provisioning) funder; pass override:true to write it anyway"}), 409
 
         # write the subprov→treasury link
+        _set_action_now = int(time.time())
         ov.execute("UPDATE wt_discovered_subprovs SET treasury=?, treasury_known=1 WHERE subprov=?",
                    (treasury, sp))
         # AUTO-CONFIRM the treasury (idempotent) — provenance marks the source
@@ -3232,10 +3234,24 @@ def api_intel_subprov_funder():
             "INSERT INTO wt_confirmed_treasuries (treasury, method, confidence, confirmed_at, provenance) "
             "VALUES (?, 'subprov_funder_trace', 'MANUAL', ?, 'CONFIRMED_SUBPROV_TRACE') "
             "ON CONFLICT(treasury) DO NOTHING",
-            (treasury, int(time.time())))
+            (treasury, _set_action_now))
         from src.ops.watchtower_alignment import reconcile_confirmed_treasury
         reconcile_confirmed_treasury(ov, treasury)
         ov.commit()
+        # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+        try:
+            from src.core.attribution_evidence import record_evidence as _record_attribution_evidence
+            _record_attribution_evidence(
+                ov, event_type="RPC_VERIFIED_TRACE", subject_wallet=treasury,
+                claimed_role="TREASURY", decision="CONFIRMED",
+                evidence_refs={"subprov": sp, "onchain_funder": funder, "verified": verified,
+                              "override": bool(body.get("override"))},
+                method="subprov_funder_trace", actor_or_process="dashboard_user",
+                timestamp=_set_action_now,
+                source_pipeline="operation_dashboard_routes.subprov_link_set",
+                confidence_axis="treasury_role_attribution", confidence_value="MANUAL")
+        except Exception:
+            pass
         # CLOSE the ops connection BEFORE the webhook enroll — the link + confirm are
         # durable now, and holding ov open while WebhookManager opens its own writer
         # caused "database is locked" on the enroll (treasury confirmed but not webhooked
@@ -3850,6 +3866,18 @@ def api_intel_treasury_approve():
                 "VALUES (?,?,?,?,?,?,?)",
                 (t, "REJECTED", reviewer, confidence, notes, evidence_json, now))
             ov.commit()
+            # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+            try:
+                from src.core.attribution_evidence import record_evidence as _record_attribution_evidence
+                _record_attribution_evidence(
+                    ov, event_type="MANUAL_REJECTION", subject_wallet=t,
+                    claimed_role="TREASURY", decision="REJECTED",
+                    evidence_refs=evidence, method="human_review_recovery_safe",
+                    actor_or_process=reviewer, timestamp=now,
+                    source_pipeline="operation_dashboard_routes.approve_candidate",
+                    confidence_axis="human_review", confidence_value=confidence)
+            except Exception:
+                pass
             return jsonify({"ok": True, "action": "reject", "treasury": t,
                             "message": "marked REJECTED — registry unchanged, no activation"})
 
@@ -3879,6 +3907,18 @@ def api_intel_treasury_approve():
         from src.ops.watchtower_alignment import reconcile_confirmed_treasury
         reconcile_confirmed_treasury(ov, t)
         ov.commit()
+        # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+        try:
+            from src.core.attribution_evidence import record_evidence as _record_attribution_evidence
+            _record_attribution_evidence(
+                ov, event_type="MANUAL_APPROVAL", subject_wallet=t,
+                claimed_role="TREASURY", decision="CONFIRMED",
+                evidence_refs=evidence, method="human_review_recovery_safe",
+                actor_or_process=reviewer, timestamp=now,
+                source_pipeline="operation_dashboard_routes.approve_candidate",
+                confidence_axis="human_review", confidence_value=confidence)
+        except Exception:
+            pass
 
         return jsonify({
             "ok": True, "action": "approve", "treasury": t,
@@ -7736,6 +7776,177 @@ def api_ops_walkback_queue():
         ov.close()
 
 
+@ops_dashboard_bp.route("/api/ops-v2/watchtower-candidates")
+def api_watchtower_candidates():
+    """X63 candidate queue. Candidate evidence is not operation attribution."""
+    ov = _conn()
+    try:
+        if not _table_exists(ov, "wt_watchtower_candidates"):
+            return jsonify({"ok": True, "candidates": [], "total": 0})
+        try:
+            window_seconds = int(request.args.get("window_seconds", 86400))
+        except (TypeError, ValueError):
+            window_seconds = 86400
+        cutoff = int(time.time()) - max(60, window_seconds)
+        mint_filter = (request.args.get("mint") or "").strip()
+        where_sql = "WHERE c.mint=?" if mint_filter else "WHERE c.created_at>=?"
+        where_value = mint_filter or cutoff
+        rows = ov.execute(
+            "SELECT c.candidate_id,c.mint,c.launch_signature,c.launch_time,c.creator,"
+            "c.candidate_type,c.candidate_status,c.candidate_reason,c.primitive,"
+            "c.handoff_variant,c.handoff_signature,c.handoff_time,c.created_at,"
+            "c.evidence_status,c.candidate_confidence,c.missing_evidence,"
+            "c.walkback_started_at,c.walkback_completed_at,c.walkback_result,"
+            "q.status AS queue_status,q.priority,q.priority_reason,q.intelligence_outcome "
+            "FROM wt_watchtower_candidates c LEFT JOIN wt_walkback_queue q ON q.mint=c.mint "
+            f"{where_sql} ORDER BY COALESCE(q.priority,0) DESC,c.created_at DESC",
+            (where_value,),
+        ).fetchall()
+        candidates = []
+        for row in rows:
+            item = dict(row)
+            try:
+                item["candidate_reason"] = _json.loads(item["candidate_reason"] or "[]")
+            except (TypeError, ValueError):
+                item["candidate_reason"] = []
+            try:
+                item["missing_evidence"] = _json.loads(item["missing_evidence"] or "[]")
+            except (TypeError, ValueError):
+                item["missing_evidence"] = []
+            candidates.append(item)
+        return jsonify({"ok": True, "candidates": candidates, "total": len(candidates)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc), "candidates": [], "total": 0}), 500
+    finally:
+        ov.close()
+
+
+# ── X67.3 — Restored WATCHTOWER Provisioning Candidates workflow ────────────
+# Read-only with respect to Model 1 (wt_watchtower_launches,
+# wt_confirmed_treasuries): this route group only ever reads those tables
+# (via provisioning_candidates_workflow.py) and writes exclusively to the
+# additive wt_provisioning_candidate_workflow table. Promotion into Model 1
+# remains the existing, unchanged human-gated route
+# (POST /api/ops-v2/intel/subprov-funder) — never performed here.
+
+@ops_dashboard_bp.route("/api/ops-v2/provisioning-candidates")
+def api_provisioning_candidates_list():
+    """List candidates in the restored investigation-queue workflow.
+    Query params: state (repeatable or comma-separated), mechanism."""
+    from src.ops.provisioning_candidates_workflow import list_candidates
+    ov = _conn()
+    try:
+        state_param = request.args.get("state") or ""
+        states = [s.strip() for s in state_param.split(",") if s.strip()] or None
+        mechanism = request.args.get("mechanism") or None
+        rows = list_candidates(ov, states=states, funding_mechanism=mechanism)
+        return jsonify({"ok": True, "candidates": rows, "total": len(rows)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc), "candidates": [], "total": 0}), 500
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/provisioning-candidates/<path:mint>/verify", methods=["POST"])
+def api_provisioning_candidates_verify(mint):
+    """Trigger verification for a single mint (X65.97-99 methodology).
+    Body (optional JSON): {"dry_run": bool}. Wires the live RPC client;
+    never writes wt_watchtower_launches/wt_confirmed_treasuries."""
+    from src.ops.provisioning_candidates_workflow import verify_candidate
+    body = request.get_json(silent=True) or {}
+    dry_run = bool(body.get("dry_run"))
+    ov = _conn_rw()
+    try:
+        row = ov.execute(
+            "SELECT * FROM wt_provisioning_candidate_workflow WHERE mint=?", (mint,)
+        ).fetchone()
+        if row is None:
+            return jsonify({"ok": False, "error": "mint not found in workflow store"}), 404
+        row = dict(row)
+
+        wq = ov.execute(
+            "SELECT funder_block_time, funder_sig FROM wt_walkback_queue WHERE mint=?", (mint,)
+        ).fetchone()
+        if wq is None or wq["funder_block_time"] is None:
+            return jsonify({"ok": False, "error": "no wrap-close time available for this mint"}), 422
+
+        try:
+            from src.core.walkback_worker import _get_tx as _rpc_get_tx
+        except Exception:
+            _rpc_get_tx = None
+
+        result = verify_candidate(
+            ov, mint=mint, wrap_close_time=wq["funder_block_time"],
+            wrap_close_signature=wq["funder_sig"], rpc_get_transaction=_rpc_get_tx,
+            dry_run=dry_run,
+        )
+        return jsonify({"ok": True, "result": result})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/provisioning-candidates/<path:mint>/evidence")
+def api_provisioning_candidates_evidence(mint):
+    """Return the full evidence chain for one candidate."""
+    ov = _conn()
+    try:
+        row = ov.execute(
+            "SELECT * FROM wt_provisioning_candidate_workflow WHERE mint=?", (mint,)
+        ).fetchone()
+        if row is None:
+            return jsonify({"ok": False, "error": "not found"}), 404
+        d = dict(row)
+        if d.get("evidence_json"):
+            try:
+                d["evidence"] = _json.loads(d["evidence_json"])
+            except (TypeError, ValueError):
+                d["evidence"] = None
+        return jsonify({"ok": True, "candidate": d})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/provisioning-candidates/<path:mint>/close", methods=["POST"])
+def api_provisioning_candidates_close(mint):
+    """Manual analyst closure — requires an explicit reason and actor."""
+    from src.ops.provisioning_candidates_workflow import close_manually
+    body = request.get_json(silent=True) or {}
+    reason = body.get("reason")
+    actor = body.get("actor")
+    note = body.get("note")
+    if not reason or not actor:
+        return jsonify({"ok": False, "error": "reason and actor are required"}), 400
+    ov = _conn_rw()
+    try:
+        result = close_manually(ov, mint=mint, reason=reason, actor=actor, note=note)
+        status = 200 if result.get("outcome") != "ERROR" else 400
+        return jsonify({"ok": result.get("outcome") != "ERROR", "result": result}), status
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+    finally:
+        ov.close()
+
+
+@ops_dashboard_bp.route("/api/ops-v2/ecosystem-exchange-interactions")
+def api_ecosystem_exchange_interactions():
+    """X65.69 — Ecosystem Intelligence: historical Provisioning Candidates
+    whose Subprovider evidence is independently verified (is_known_account)
+    as a known exchange/infrastructure wallet, migrated out of the
+    Provisioning Candidate population (see src/ops/ecosystem_intelligence.py).
+    These represent legitimate Treasury→Exchange ecosystem interaction, not
+    WATCHTOWER operational infrastructure. Read-only."""
+    try:
+        from src.ops.ecosystem_intelligence import list_ecosystem_exchange_interactions
+        rows = list_ecosystem_exchange_interactions()
+        return jsonify({"ok": True, "interactions": rows, "total": len(rows)})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc), "interactions": [], "total": 0}), 500
+
+
 @ops_dashboard_bp.route("/api/ops/cdc-intelligence")
 def api_ops_cdc_intelligence():
     """Capital Distributor Candidates — infrastructure observation only, no creator detection."""
@@ -8474,6 +8685,36 @@ def api_attribution_outcomes_summary():
 
 from src.ops.swr_cache import SWRCache as _SWRCache
 
+
+def _response_cache_status(cache_meta: dict) -> str:
+    """X65.57 — maps SWRCache's internal state (fresh/stale/refreshing/
+    warming) onto the three response labels this task requires. Purely a
+    presentation label ADDED to the response (see `cache_status` below) —
+    the existing `cache_state`/`cache_age_seconds` fields and every
+    consumer that already reads them are completely unchanged.
+
+      fresh           -- SWRCache state == "fresh": within TTL, no refresh
+                         in flight.
+      stale_refreshing -- SWRCache state == "stale" OR "refreshing": a
+                         previous value (live build OR a hydrated snapshot,
+                         X65.57) is being served while a background refresh
+                         either just started or is already in flight.
+      warming_no_snapshot -- SWRCache state == "warming" (try_get()'s
+                         non-blocking cold path): there is no previous
+                         value AND no snapshot to fall back to (hydration
+                         found nothing, or this key has never been built by
+                         any process) -- the caller has genuinely nothing
+                         to render yet."""
+    state = cache_meta.get("state")
+    if state == "fresh":
+        return "fresh"
+    if state in ("stale", "refreshing"):
+        return "stale_refreshing"
+    if state == "warming":
+        return "warming_no_snapshot"
+    return state  # defensive fallback; should be unreachable
+
+
 # X29.1.4 — the legacy Investigation Queue endpoint shares the SAME
 # evaluate_launcher_profile()-per-creator cost as Operational Intelligence
 # (~31s measured live) but had no cache at all, and its fetch sits inside
@@ -8495,7 +8736,33 @@ from src.ops.swr_cache import SWRCache as _SWRCache
 # both functions (the wt_launcher_profile_cache table X27.9.1 already
 # flagged as a follow-up candidate), not at this route-caching layer.
 _INVESTIGATION_PIPELINE_CACHE_TTL_SEC = 300
-_INVESTIGATION_PIPELINE_CACHE = _SWRCache(ttl_seconds=_INVESTIGATION_PIPELINE_CACHE_TTL_SEC)
+
+
+def _persist_pipeline_health_snapshot(window_seconds, value, build_duration_ms) -> None:
+    # X65.57 -- fired only after a build succeeds (cold-start compute(), a
+    # background refresh, or a background cold build); never on failure,
+    # never for an already-fresh cache hit. Best-effort: any exception here
+    # is caught inside SWRCache._fire_on_success and logged, never allowed
+    # to affect the in-memory cache's own correctness.
+    #
+    # X65.57 follow-up -- completeness_key="total_launches" rejects a
+    # write that would replace a good snapshot with a suspiciously smaller
+    # one (>50% drop), the exact failure mode that let a transient/partial
+    # build get hydrated as FRESH after a restart. Purely structural (see
+    # intelligence_snapshots._passes_sanity_check's own docstring) -- no
+    # WATCHTOWER-specific threshold, just "don't trust a build that looks
+    # much smaller than the last one."
+    from src.ops.intelligence_snapshots import write_snapshot
+    write_snapshot(
+        "pipeline_health", window_seconds, value, build_duration_ms=build_duration_ms,
+        completeness_key="total_launches",
+    )
+
+
+_INVESTIGATION_PIPELINE_CACHE = _SWRCache(
+    ttl_seconds=_INVESTIGATION_PIPELINE_CACHE_TTL_SEC,
+    on_success=_persist_pipeline_health_snapshot,
+)
 
 
 def _get_pipeline_health(window_seconds: int):
@@ -8504,9 +8771,58 @@ def _get_pipeline_health(window_seconds: int):
     from src.ops.investigation_pipeline import build_pipeline_health
 
     def compute():
-        return build_pipeline_health(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+        # X65.50/X65.51 -- same process-wide single-flight guard as
+        # _get_operational_intelligence's compute(), shared across BOTH
+        # cache families so a pipeline-health cold build and an operational
+        # -intelligence cold build can never run concurrently either.
+        # NOTE (X65.51 follow-up flag, not yet acted on): build_pipeline_
+        # health() is a fully independent classifier -- it does not reuse
+        # build_operational_intelligence()'s already-computed result, so
+        # warming both families for the same window currently means TWO
+        # separate expensive SQLite scans back to back under this one
+        # lock. Deriving pipeline health from the operational-intelligence
+        # result instead of rebuilding it from scratch is a real
+        # optimization opportunity, but a larger, riskier change (touching
+        # two independently-evolved classifier modules) than this timing
+        # instrumentation -- left for a dedicated follow-up once the
+        # timing data below confirms it's actually the dominant cost.
+        lock_wait_start = time.perf_counter()
+        with _OPERATIONAL_INTELLIGENCE_BUILD_LOCK:
+            lock_wait_ms = (time.perf_counter() - lock_wait_start) * 1000
+            compute_start = time.perf_counter()
+            result = build_pipeline_health(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+            compute_ms = (time.perf_counter() - compute_start) * 1000
+            logging.getLogger(__name__).warning(
+                "pipeline_health cold_build window_seconds=%s lock_wait_ms=%.1f compute_ms=%.1f",
+                window_seconds, lock_wait_ms, compute_ms,
+            )
+            return result
 
     return _INVESTIGATION_PIPELINE_CACHE.get(window_seconds, compute)
+
+
+def _try_get_pipeline_health(window_seconds: int):
+    """X65.52 — non-blocking counterpart to _get_pipeline_health(), for
+    Discovery-facing routes only. See _try_get_operational_intelligence's
+    docstring -- identical shape, same shared build lock/logging, only the
+    cold-cache behaviour differs (background build + immediate "warming"
+    response instead of blocking)."""
+    from src.ops.investigation_pipeline import build_pipeline_health
+
+    def compute():
+        lock_wait_start = time.perf_counter()
+        with _OPERATIONAL_INTELLIGENCE_BUILD_LOCK:
+            lock_wait_ms = (time.perf_counter() - lock_wait_start) * 1000
+            compute_start = time.perf_counter()
+            result = build_pipeline_health(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+            compute_ms = (time.perf_counter() - compute_start) * 1000
+            logging.getLogger(__name__).warning(
+                "pipeline_health cold_build window_seconds=%s lock_wait_ms=%.1f compute_ms=%.1f",
+                window_seconds, lock_wait_ms, compute_ms,
+            )
+            return result
+
+    return _INVESTIGATION_PIPELINE_CACHE.try_get(window_seconds, compute)
 
 
 @ops_dashboard_bp.route("/api/ops-v2/investigation-pipeline")
@@ -8534,7 +8850,25 @@ def api_investigation_pipeline():
         from src.ops.investigation_pipeline import (
             launches_in_bucket, creators_in_bucket, BUCKET_ORDER,
         )
-        pipeline, cache_meta = _get_pipeline_health(window_seconds)
+        # X65.52 -- same opt-in, non-blocking cold-cache contract as
+        # api_operational_intelligence above. Unchanged for any caller not
+        # passing allow_warming=1.
+        if request.args.get("allow_warming") == "1":
+            pipeline, cache_meta = _try_get_pipeline_health(window_seconds)
+            if cache_meta["state"] == "warming":
+                logging.getLogger(__name__).info(
+                    "discovery_route stage=pipeline_health_warming window=%s", window_param,
+                )
+                return jsonify({
+                    "ok": True, "status": "warming", "window": window_param,
+                    # X65.57 -- with snapshot hydration in place, this 202
+                    # branch is only reachable when NEITHER a live value NOR
+                    # a persisted snapshot exists for this key yet.
+                    "cache_status": "warming_no_snapshot",
+                    "retry_after_seconds": 8,
+                }), 202
+        else:
+            pipeline, cache_meta = _get_pipeline_health(window_seconds)
 
         bucket_filter = request.args.get("bucket")
         group_by = (request.args.get("group_by") or "").strip().lower()
@@ -8550,6 +8884,8 @@ def api_investigation_pipeline():
             # above this line is unchanged from X27.2/X27.5.
             "cache_state": cache_meta["state"],
             "cache_age_seconds": cache_meta["age_seconds"],
+            # X65.57 — fresh / stale_refreshing / warming_no_snapshot.
+            "cache_status": _response_cache_status(cache_meta),
         }
         # X29.6.1 — informative empty state: a confirmed, correctly-attributed
         # launch older than the selected window must never read as "Discovery
@@ -8599,6 +8935,22 @@ def api_investigation_pipeline():
 
 from src.ops.swr_cache import SWRCache as _SWRCache
 
+# X65.50 -- process-wide single-flight guard around the expensive cold
+# builds (build_operational_intelligence/build_pipeline_health), separate
+# from SWRCache's own per-KEY single-flight (which only prevents two
+# refreshes of the SAME window from overlapping). Without this, four
+# different window_seconds values could still each launch their own cold
+# build_operational_intelligence() call concurrently on process startup
+# (the actual worker-death-loop root cause: four CPU/SQLite-heavy builds
+# fighting over one gthread worker's GIL) -- this lock forces every cold
+# build, whether from startup prewarm or an ordinary request hitting a
+# not-yet-warmed key, to run one at a time. Deliberately NOT held for
+# ordinary fresh-cache reads (SWRCache.get() already returns instantly for
+# a FRESH/STALE/REFRESHING entry without calling compute() at all) --
+# only wraps the compute() closures themselves, so this cannot slow down
+# the common case.
+_OPERATIONAL_INTELLIGENCE_BUILD_LOCK = threading.Semaphore(1)
+
 _OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC = 300
 # X29.1.2 — replaces X29.1's plain TTL cache (which blocked the FIRST request
 # after every 5-minute expiry on the full ~31s evaluate_launcher_profile()
@@ -8607,7 +8959,24 @@ _OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC = 300
 # again -- a stale request gets the previous result immediately and schedules
 # exactly one background refresh. See src/ops/swr_cache.py for the full
 # state machine (FRESH/STALE/REFRESHING) and atomic-swap guarantee.
-_OPERATIONAL_INTELLIGENCE_CACHE = _SWRCache(ttl_seconds=_OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC)
+
+
+def _persist_operational_intelligence_snapshot(window_seconds, value, build_duration_ms) -> None:
+    # X65.57 -- same discipline as _persist_pipeline_health_snapshot above:
+    # success-only, best-effort, never affects in-memory cache correctness.
+    # X65.57 follow-up -- same completeness_key sanity check; see that
+    # function's comment for the full rationale.
+    from src.ops.intelligence_snapshots import write_snapshot
+    write_snapshot(
+        "operational_intelligence", window_seconds, value, build_duration_ms=build_duration_ms,
+        completeness_key="total_launches",
+    )
+
+
+_OPERATIONAL_INTELLIGENCE_CACHE = _SWRCache(
+    ttl_seconds=_OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC,
+    on_success=_persist_operational_intelligence_snapshot,
+)
 
 
 def _get_operational_intelligence(window_seconds: int):
@@ -8617,41 +8986,198 @@ def _get_operational_intelligence(window_seconds: int):
     from src.ops.operational_intelligence import build_operational_intelligence
 
     def compute():
-        return build_operational_intelligence(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+        # X65.51 -- split lock-wait time from actual build time, logged
+        # separately, so a slow /discovery load can be diagnosed as "the
+        # request queued behind another cold build" vs "the build itself
+        # is slow" rather than guessed at.
+        lock_wait_start = time.perf_counter()
+        with _OPERATIONAL_INTELLIGENCE_BUILD_LOCK:
+            lock_wait_ms = (time.perf_counter() - lock_wait_start) * 1000
+            compute_start = time.perf_counter()
+            result = build_operational_intelligence(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+            compute_ms = (time.perf_counter() - compute_start) * 1000
+            logging.getLogger(__name__).warning(
+                "operational_intelligence cold_build window_seconds=%s lock_wait_ms=%.1f compute_ms=%.1f",
+                window_seconds, lock_wait_ms, compute_ms,
+            )
+            return result
 
     return _OPERATIONAL_INTELLIGENCE_CACHE.get(window_seconds, compute)
 
 
-def prewarm_operational_intelligence_cache() -> None:
-    """X29.1.2/X29.1.4/X29.6.1 optional startup prewarm — populates all four
-    Discovery window values (24h/7d/30d/all) for BOTH the Operational
-    Intelligence and the legacy Investigation Queue caches once at process
-    startup, so the very first analyst request at any window never pays
-    either endpoint's cold-compute cost. Each prewarm runs off-thread and
-    independently best-effort; a failure in one does not affect the others
-    or prevent the route's own cold-compute fallback from working."""
-    import threading
-    from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for
+def _try_get_operational_intelligence(window_seconds: int):
+    """X65.52 — non-blocking counterpart to _get_operational_intelligence(),
+    for Discovery-FACING routes only (prewarm and any other caller that
+    genuinely needs a value still uses the blocking _get_* function
+    unchanged). Returns (intel_or_None, meta); meta["state"]=="warming"
+    means intel is None and a background build was kicked off (or was
+    already running) -- the caller must render a warming placeholder for
+    this section, never block waiting for it. Reuses the EXACT same
+    compute() closure (same lock, same logging, same build call) as the
+    blocking path -- try_get() only changes what happens when the cache is
+    cold; every already-warm state behaves identically to _get_*."""
+    from src.ops.operational_intelligence import build_operational_intelligence
 
-    def _prewarm(label, get_fn, window_seconds):
-        try:
-            get_fn(window_seconds)
-        except Exception as exc:
-            try:
-                import logging
-                logging.getLogger(__name__).warning(
-                    "%s prewarm failed for window_seconds=%s: %s", label, window_seconds, exc)
-            except Exception:
-                pass
+    def compute():
+        lock_wait_start = time.perf_counter()
+        with _OPERATIONAL_INTELLIGENCE_BUILD_LOCK:
+            lock_wait_ms = (time.perf_counter() - lock_wait_start) * 1000
+            compute_start = time.perf_counter()
+            result = build_operational_intelligence(OPS_DB_PATH, LIVE_DB_PATH, window_seconds=window_seconds)
+            compute_ms = (time.perf_counter() - compute_start) * 1000
+            logging.getLogger(__name__).warning(
+                "operational_intelligence cold_build window_seconds=%s lock_wait_ms=%.1f compute_ms=%.1f",
+                window_seconds, lock_wait_ms, compute_ms,
+            )
+            return result
+
+    return _OPERATIONAL_INTELLIGENCE_CACHE.try_get(window_seconds, compute)
+
+
+def hydrate_intelligence_caches_from_snapshots() -> None:
+    """X65.57 — Persisted Discovery Intelligence Snapshots.
+
+    Runs synchronously, once, at worker startup, BEFORE prewarm_operational_
+    intelligence_cache() spawns its background thread. Seeds both SWR
+    caches directly from the last-known-good snapshot on disk for every
+    window Discovery actually serves (WINDOW_ORDER — includes `all`, unlike
+    startup prewarm, which deliberately omits `all` since RECOMPUTING it at
+    startup would be expensive; loading an already-computed `all` snapshot
+    from disk costs only a file read, so there is no reason to skip it
+    here).
+
+    This makes a cold PROCESS no longer imply a cold USER EXPERIENCE: a
+    request landing between worker start and prewarm's own completion (or
+    landing for the `all` window, which prewarm never populates) now finds
+    a hydrated, if possibly stale, entry instead of a true cold cache — it
+    is served immediately as STALE/fresh-enough per the existing SWRCache
+    state machine, and the EXISTING single-flight background refresh
+    (unchanged) brings it current. No new concurrency, no new timeout, no
+    change to TTLs or cache states themselves — hydrate() is a pure
+    "seed if empty" operation (see SWRCache.hydrate()'s own doc: it never
+    overwrites a key a real build already populated).
+
+    Every step is best-effort and non-fatal: a missing, corrupt, or
+    version-mismatched snapshot for one window/cache simply leaves that key
+    unhydrated (falls through to the existing cold-build path exactly as
+    if this function did not exist) and never blocks or crashes startup."""
+    import logging
+    from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for
+    from src.ops.intelligence_snapshots import read_snapshot
+
+    _log = logging.getLogger(__name__)
 
     for window_param in WINDOW_ORDER:
         window_seconds = window_seconds_for(window_param)
-        threading.Thread(
-            target=_prewarm, args=("Operational Intelligence", _get_operational_intelligence, window_seconds),
-            daemon=True).start()
-        threading.Thread(
-            target=_prewarm, args=("Investigation Queue", _get_pipeline_health, window_seconds),
-            daemon=True).start()
+        for function_name, cache in (
+            ("operational_intelligence", _OPERATIONAL_INTELLIGENCE_CACHE),
+            ("pipeline_health", _INVESTIGATION_PIPELINE_CACHE),
+        ):
+            try:
+                snapshot = read_snapshot(function_name, window_seconds)
+                if snapshot is None:
+                    continue
+                hydrated = cache.hydrate(window_seconds, snapshot.payload, snapshot.computed_at)
+                if hydrated:
+                    _log.warning(
+                        "X65.57 hydrated %s window=%s from snapshot computed_at=%.0f "
+                        "age_s=%.1f build_duration_ms=%.1f",
+                        function_name, window_param, snapshot.computed_at,
+                        time.time() - snapshot.computed_at, snapshot.build_duration_ms,
+                    )
+            except Exception:
+                _log.exception(
+                    "X65.57 snapshot hydration failed for %s window=%s (non-fatal, "
+                    "falling back to normal cold build)", function_name, window_param,
+                )
+
+
+def prewarm_operational_intelligence_cache() -> None:
+    """X29.1.2/X29.1.4/X29.6.1/X65.50 — startup prewarm for the Operational
+    Intelligence and Investigation Queue caches, so the first analyst
+    request at a bounded window never pays either endpoint's cold-compute
+    cost.
+
+    X65.50 rewrite -- the ORIGINAL implementation spawned 4 windows x 2
+    cache-families = 8 concurrent threads at startup, each launching its
+    own expensive build_operational_intelligence()/build_pipeline_health()
+    call. On this deployment's single gthread worker process, those 8
+    calls fought over the GIL and SQLite access simultaneously, some
+    taking well over a minute (the `all` window especially, whose cost
+    grows with the registry) -- long enough that gunicorn's 120s worker
+    timeout killed the worker mid-prewarm, and the FRESH worker it spawned
+    immediately repeated the same 8-way stampede. Confirmed in production:
+    worker deaths recurring every ~60-70s, CPU pegged at 80%+ throughout,
+    self-perpetuating.
+
+    Fix: exactly ONE daemon thread runs every window SEQUENTIALLY (never
+    two builds concurrently, on top of the process-wide
+    _OPERATIONAL_INTELLIGENCE_BUILD_LOCK belt-and-suspenders guard used by
+    _get_operational_intelligence/_get_pipeline_health's own compute()
+    closures). Order is 24h -> 7d -> 30d (WINDOW_ORDER's own priority
+    order, most operationally useful first) -- `all` is deliberately
+    OMITTED from startup prewarm entirely: its cost is structurally
+    different (grows with the whole registry, not a bounded window) and
+    delaying the other three windows to warm it first would be exactly
+    backwards from what an analyst needs at boot. `all` still warms
+    lazily on its own first real request (a genuine, unavoidable cold
+    compute, same as before this fix existed) or can be warmed by a
+    separate scheduled/background job later -- not this startup path.
+    A short initial sleep lets the worker finish binding/accepting
+    connections before this thread starts competing for the GIL; a
+    smaller pause between windows keeps sequential builds from immediately
+    back-to-back saturating the process. Every window's failure is caught,
+    logged, and never propagates -- a stuck DB or a bad window value can
+    only skip its own prewarm, never crash worker startup or block the
+    remaining windows."""
+    import threading
+    import time
+    import logging
+    from src.ops.discovery_window import WINDOW_24H, WINDOW_7D, WINDOW_30D, window_seconds_for
+
+    # X65.51 -- configurable startup delay. 7s was chosen defensively (let
+    # the worker finish binding before this thread competes for the GIL),
+    # but on a single-process local deployment where the very first action
+    # after a restart is usually opening /discovery immediately, 7s creates
+    # a predictable window where the operator's own request beats prewarm
+    # and becomes the cold builder instead. Not removed outright (still
+    # protects a genuinely busy production boot) -- just tunable per
+    # deployment via env var, default lowered to 1s for the common
+    # single-worker/local case.
+    _PREWARM_STARTUP_DELAY_SEC = float(os.environ.get("WT_PREWARM_START_DELAY_SECONDS", "1"))
+    _PREWARM_INTER_WINDOW_DELAY_SEC = 1
+    # `all` intentionally excluded -- see docstring.
+    _PREWARM_WINDOW_ORDER = (WINDOW_24H, WINDOW_7D, WINDOW_30D)
+
+    _log = logging.getLogger(__name__)
+    _log.warning("X65.51 prewarm scheduled delay=%.1fs", _PREWARM_STARTUP_DELAY_SEC)
+
+    def _run() -> None:
+        time.sleep(_PREWARM_STARTUP_DELAY_SEC)
+        for window_param in _PREWARM_WINDOW_ORDER:
+            window_seconds = window_seconds_for(window_param)
+            for label, family, get_fn in (
+                ("Operational Intelligence", "operational", _get_operational_intelligence),
+                ("Investigation Queue", "pipeline_health", _get_pipeline_health),
+            ):
+                _log.warning("X65.51 prewarm start window=%s family=%s", window_param, family)
+                _start = time.perf_counter()
+                try:
+                    get_fn(window_seconds)
+                except Exception:
+                    _log.exception(
+                        "%s prewarm failed for window=%s", label, window_param,
+                    )
+                    continue
+                _log.warning(
+                    "X65.51 prewarm complete window=%s family=%s duration_ms=%.1f",
+                    window_param, family, (time.perf_counter() - _start) * 1000,
+                )
+            time.sleep(_PREWARM_INTER_WINDOW_DELAY_SEC)
+
+    threading.Thread(
+        target=_run, name="operational-intelligence-prewarm", daemon=True,
+    ).start()
 
 
 @ops_dashboard_bp.route("/api/ops-v2/operational-intelligence")
@@ -8675,6 +9201,8 @@ def api_operational_intelligence():
                                         tree itself is never stored)
       topology=<FAN_OUT|...>         -- filter mints to this topology
       behaviour=<RAPID_BIRTH_LAUNCH|...> -- filter mints carrying this tag
+      campaign=<WATCHTOWER|OTHER_CAMPAIGN|UNCLASSIFIED> -- X65.7: filter by the
+                                        new, mutually-exclusive Campaign dimension
       mechanism=<WSOL_WRAP_CLOSE|...>    -- filter mints carrying this tag
       Any combination of topology/behaviour/mechanism may be supplied
       together (cross-dimensional query, e.g.
@@ -8683,10 +9211,49 @@ def api_operational_intelligence():
       mint=<MINT>                    -- single-launch lookup
     """
     try:
+        # X65.51 -- route-stage timing, so a slow /discovery load can be
+        # attributed to a specific stage (cache fetch vs the rest of the
+        # route's own work) instead of guessed at. cache_meta["state"] is
+        # exactly what distinguishes "waited behind a cold build" (MISS,
+        # a true first-ever population, this request WAS the builder) from
+        # "queued behind SOMEONE ELSE's cold build via the lock" (also
+        # reports as a MISS/first-time compute() call from this route's
+        # perspective, but the compute()-level lock_wait_ms log line above
+        # is what actually reveals a wait rather than the build itself).
+        _route_start = time.perf_counter()
         from src.ops.discovery_window import parse_window_param, window_seconds_for, empty_state_message
         window_param = parse_window_param(request.args.get("window"))
         window_seconds = window_seconds_for(window_param)
-        intel, cache_meta = _get_operational_intelligence(window_seconds)
+
+        # X65.52 -- opt-in, non-blocking cold-cache handling. Existing
+        # callers (scripts, tests, anything hitting this route without the
+        # new param) get EXACTLY the previous behaviour -- a cold cache
+        # still blocks synchronously via _get_operational_intelligence(),
+        # unchanged. Only Discovery's own frontend passes allow_warming=1,
+        # opting into the new contract: a cold cache kicks off the build in
+        # the background (single-flight, same lock, same compute()) and
+        # returns immediately with a structured warming response instead of
+        # blocking the request for 40-350s.
+        if request.args.get("allow_warming") == "1":
+            intel, cache_meta = _try_get_operational_intelligence(window_seconds)
+            if cache_meta["state"] == "warming":
+                logging.getLogger(__name__).info(
+                    "discovery_route stage=operational_intelligence_warming window=%s", window_param,
+                )
+                return jsonify({
+                    "ok": True, "status": "warming", "window": window_param,
+                    # X65.57 -- reachable only when hydration found no
+                    # snapshot AND no live value exists yet for this key.
+                    "cache_status": "warming_no_snapshot",
+                    "retry_after_seconds": 8,
+                }), 202
+        else:
+            intel, cache_meta = _get_operational_intelligence(window_seconds)
+        _cache_fetch_ms = (time.perf_counter() - _route_start) * 1000
+        logging.getLogger(__name__).info(
+            "discovery_route stage=operational_intelligence_loaded window=%s cache_state=%s elapsed_ms=%.1f",
+            window_param, cache_meta["state"], _cache_fetch_ms,
+        )
 
         response = {
             "ok": True,
@@ -8696,13 +9263,32 @@ def api_operational_intelligence():
             "conserved": intel["conserved"],
             "topology_summary": intel["topology_summary"],
             "behaviour_summary": intel["behaviour_summary"],
+            # X65.0 -- mutually-exclusive Behaviour Cohort counts; this is
+            # what the Discovery Cohort Report renders. behaviour_summary
+            # (additive) is left in the response unchanged, for anything
+            # still relying on the additive per-tag counts.
+            "canonical_behaviour_summary": intel["canonical_behaviour_summary"],
+            "canonical_behaviour_conserved": intel["canonical_behaviour_conserved"],
+            # X65.7 -- Campaign: a new, mutually-exclusive aggregation layer
+            # (WATCHTOWER/OTHER_CAMPAIGN/UNCLASSIFIED) over already-computed
+            # evidence. Additive only; every field above is unchanged.
+            "campaign_summary": intel["campaign_summary"],
+            "campaign_conserved": intel["campaign_conserved"],
+            "creator_identity_summary": intel["creator_identity_summary"],
+            "disposable_creator_score_distribution": intel["disposable_creator_score_distribution"],
             "mechanism_summary": intel["mechanism_summary"],
+            "operation_summary": intel["operation_summary"],
+            "quick_birth_migration_summary": intel["quick_birth_migration_summary"],
             # X29.1.2 — optional metadata, additive only; every field above
             # this line is unchanged from X29.1, so existing consumers keep
             # working without modification.
             "cache_state": cache_meta["state"],
             "cache_age_seconds": cache_meta["age_seconds"],
+            # X65.57 — fresh / stale_refreshing / warming_no_snapshot.
+            "cache_status": _response_cache_status(cache_meta),
         }
+        if request.args.get("debug") == "1":
+            response["diagnostics"] = intel["diagnostics"]
         # X29.6.1 — informative empty state, same convention as
         # investigation-pipeline.
         if intel["total_launches"] == 0:
@@ -8713,17 +9299,48 @@ def api_operational_intelligence():
             response["hierarchy"] = build_hierarchy(intel)["tree"]
 
         topology_filter = request.args.get("topology")
+        # X65.0 -- the Discovery Cohort Report's Behaviour Cohort drill-down
+        # (this `behaviour` request param) now filters on canonical_behaviour
+        # (exclusive, most-specific-rule assignment), not the additive
+        # `behaviours` list -- so a launch is discoverable through EXACTLY
+        # one Behaviour Cohort entry point. QUICK_BIRTH_MIGRATION no longer
+        # needs its own special-cased `quick_birth_migration=True` query
+        # path here: canonical_behaviour_for() already folds it into the
+        # same exclusive value (see src.ops.operational_behaviour_tags).
+        # The underlying additive `behaviour=` filter on oi_query() is
+        # unchanged and still available for any other, non-Discovery-UI
+        # caller that genuinely wants "every launch touched by X."
         behaviour_filter = request.args.get("behaviour")
+        creator_identity_filter = request.args.get("creator_identity")
+        campaign_filter = request.args.get("campaign")
         mechanism_filter = request.args.get("mechanism")
-        if topology_filter or behaviour_filter or mechanism_filter:
+        operation_filter = request.args.get("operation")
+        include_records = request.args.get("include_records") == "1"
+        # X65.35 — dedicated, cheap filter for the canonical walkback-confirmed
+        # population (Discovery's "Confirmed WATCHTOWER" section). Lets the
+        # frontend ask for just the ~20 confirmed rows instead of fetching
+        # every launch in the window (8000+ records) and filtering client
+        # side, which is what made the section unusable at window=all.
+        cascade_confirmed_param = (request.args.get("is_cascade_confirmed") or "").strip().lower()
+        cascade_confirmed_filter = {"1": True, "true": True, "0": False, "false": False}.get(cascade_confirmed_param)
+        if topology_filter or behaviour_filter or creator_identity_filter or campaign_filter or mechanism_filter or operation_filter or include_records or cascade_confirmed_filter is not None:
             from src.ops.operational_intelligence import query as oi_query
             response["filter"] = {
-                "topology": topology_filter, "behaviour": behaviour_filter, "mechanism": mechanism_filter,
+                "operation": operation_filter, "topology": topology_filter,
+                "behaviour": behaviour_filter, "creator_identity": creator_identity_filter,
+                "campaign": campaign_filter, "mechanism": mechanism_filter,
+                "is_cascade_confirmed": cascade_confirmed_filter,
             }
             mints = oi_query(
-                intel, topology=topology_filter, behaviour=behaviour_filter, mechanism=mechanism_filter,
+                intel, topology=topology_filter, canonical_behaviour=behaviour_filter,
+                creator_identity=creator_identity_filter, campaign=campaign_filter,
+                mechanism=mechanism_filter, operation=operation_filter,
+                is_cascade_confirmed=cascade_confirmed_filter,
             )
             response["mints"] = mints
+            response["launches"] = [
+                {"mint": mint, **intel["records"][mint]} for mint in mints
+            ]
             # X29.1.3 — optional presentation grouping of the matched launches
             # by attribution outcome (e.g. "separate by CEX-reached vs Repeat
             # Creator"). Additive: existing consumers reading `mints` are
@@ -8739,7 +9356,34 @@ def api_operational_intelligence():
             response["mint"] = mint_filter
             response["record"] = intel["records"].get(mint_filter)
 
+        _total_ms = (time.perf_counter() - _route_start) * 1000
+        logging.getLogger(__name__).info(
+            "discovery_route stage=response_built window=%s total_ms=%.1f post_cache_ms=%.1f",
+            window_param, _total_ms, _total_ms - _cache_fetch_ms,
+        )
         return jsonify(response)
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/cex-funding-intelligence")
+def api_cex_funding_intelligence():
+    """X44.0 — expands the "CEX Reached" outcome group from a bare count
+    into a richer, still purely read-only view: which exchange, which
+    withdrawal origin, how many launches/creators/Operations it reaches,
+    the observed downstream funding path, and whether the origin/subprov/
+    treasury is shared across more than one CEX-reached launch. Zero
+    writes, zero new tables, zero attribution/scoring/confidence changes —
+    see src/ops/cex_funding_intelligence.py's module docstring for the
+    exact evidence fields this reads (wt_attribution_outcomes.evidence_json,
+    already populated by the existing CEX-boundary walkback logic)."""
+    try:
+        from src.ops.discovery_window import parse_window_param, window_seconds_for
+        from src.ops.cex_funding_intelligence import build_cex_funding_intelligence
+        window_param = parse_window_param(request.args.get("window"))
+        window_seconds = window_seconds_for(window_param)
+        result = build_cex_funding_intelligence(OPS_DB_PATH, window_seconds=window_seconds)
+        return jsonify({"ok": True, "window": window_param, **result})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
 
@@ -8758,6 +9402,35 @@ def api_operational_intelligence_cache_metrics():
             window_seconds = window_seconds_for(window_param)
             states[str(window_seconds)] = _OPERATIONAL_INTELLIGENCE_CACHE.state_of(window_seconds)
         return jsonify({"ok": True, "metrics": _OPERATIONAL_INTELLIGENCE_CACHE.metrics, "window_states": states})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@ops_dashboard_bp.route("/api/ops-v2/treasury-resolution")
+def api_treasury_resolution():
+    """X65.1 — read-only creator -> sub-provisioner -> treasury walkback
+    for launches sitting at Discovery's terminal Unknown Funding Origin /
+    Unassigned node. Reuses src/ops/treasury_resolution.py, itself a
+    pure cross-reference join over wt_attribution_outcomes /
+    wt_active_subprov_sessions / wt_confirmed_treasuries -- zero new
+    detection, zero writes, zero RPC. Never auto-confirms or reroots a
+    treasury identity (see the module's own docstring for the full list
+    of governing constraints).
+
+    Query params:
+      mints=<comma-separated mint list>  -- required; bounded by the
+                                            caller, never a full-table scan
+    """
+    try:
+        mints_param = request.args.get("mints", "")
+        mints = [m.strip() for m in mints_param.split(",") if m.strip()]
+        if not mints:
+            return jsonify({"ok": False, "error": "mints parameter is required (comma-separated)"}), 400
+        if len(mints) > 200:
+            return jsonify({"ok": False, "error": "at most 200 mints per request"}), 400
+        from src.ops.treasury_resolution import resolve_treasury_for_cohort
+        results = resolve_treasury_for_cohort(OPS_DB_PATH, mints)
+        return jsonify({"ok": True, "resolutions": results})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
 

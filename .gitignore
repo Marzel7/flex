@@ -63,6 +63,8 @@ backfill_*.py
 !backfill_missing_helius_analysis.py
 !backfill_funder_extraction.py
 !backfill_token_clusters.py
+!scripts/backfill_attribution_evidence.py
+!scripts/backfill_provisioning_candidates_x67.py
 benchmark.py
 tmp.py
 update_coordination_detection.py

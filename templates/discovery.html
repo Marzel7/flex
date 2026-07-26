@@ -2436,7 +2436,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   var X67_3_CANDIDATES = null;
   var X67_3_FETCH_STARTED = false;
   var X67_3_FAILED = false;
-  var X67_3_COLLAPSED = {PROMOTED_TO_MODEL_1: true, INVESTIGATION_CLOSED: true};
+  var X67_3_COLLAPSED = {INVESTIGATION_CLOSED: true};
 
   function loadProvisioningCandidateWorkflow(){
     if(X67_3_FETCH_STARTED) return;
@@ -2612,11 +2612,26 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     // Promoted, or is Closed with a structured reason. No code path writes
     // a new TREASURY_VERIFIED row after this change (legacy rows, if any
     // remain unmigrated, are still readable via list_candidates()).
+    //
+    // X67.29 -- PROMOTED_TO_MODEL_1 stage REMOVED from this panel entirely
+    // (was previously rendered with a permanently-empty rowFn,
+    // function(c){return '';}, showing only a bare count with nothing
+    // inside when expanded -- confusing, since it looked like a broken
+    // toggle rather than an intentionally-empty placeholder). A promoted
+    // candidate is no longer a CANDIDATE at all once it reaches
+    // wt_watchtower_launches -- it already appears in the main Canonical
+    // WATCHTOWER table elsewhere on this page (renderKnownWatchtowerAddressTable),
+    // which is the authoritative, detail-bearing view for canonical
+    // launches. Retaining a second, detail-free "Canonical WATCHTOWER N"
+    // count here duplicated that number without adding information. This
+    // is a display-only change: wt_provisioning_candidate_workflow rows
+    // are never deleted/modified, list_candidates()/x67_3ByState() still
+    // return PROMOTED_TO_MODEL_1 rows exactly as before -- this section
+    // simply no longer renders a stage for that state.
     return '<div class="dw-x58-section dw-wt-candidate-section">'
       +'<div class="dw-x58-heading">WATCHTOWER Provisioning Candidates</div>'
-      +'<div class="dw-x58-copy">Launches matching the canonical WATCHTOWER discovery topology that require investigation or review. Model 1 remains the authoritative confirmation model — nothing below alters it.</div>'
+      +'<div class="dw-x58-copy">Launches matching the canonical WATCHTOWER discovery topology that require investigation or review. Model 1 remains the authoritative confirmation model — nothing below alters it. Promoted candidates leave this queue and appear in the Canonical WATCHTOWER table above.</div>'
       +x67_3Stage('PENDING_VERIFICATION','Pending Investigation','Matches the WATCHTOWER discovery topology. Treasury attribution has not yet been independently verified.', x67_3PendingRow, false)
-      +x67_3Stage('PROMOTED_TO_MODEL_1','Canonical WATCHTOWER','Promoted into Model 1 (wt_watchtower_launches) after treasury verification, canonical mechanism, canonical topology, and no conflicting evidence all held. Read-only.', function(c){return '';}, true)
       +x67_3Stage('INVESTIGATION_CLOSED','Closed','Investigation concluded without a WATCHTOWER match. Retained for audit — rows are never silently removed.', x67_3ClosedRow, true)
       +'</div>';
   }

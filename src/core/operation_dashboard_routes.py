@@ -9488,6 +9488,33 @@ def api_operational_intelligence_cache_metrics():
         return jsonify({"ok": False, "error": str(exc)}), 500
 
 
+@ops_dashboard_bp.route("/api/ops-v2/intelligence-snapshots/health")
+def api_intelligence_snapshots_health():
+    """X67.28 -- diagnostics for the standalone snapshot-refresh scheduler
+    (src.core.intelligence_snapshot_scheduler). Reports, per (function,
+    window) key: snapshot_age, last_successful_refresh, whether a refresh
+    is currently in progress (per that key's own lock file), snapshot_
+    version, worker_id/refresh_reason of whoever last wrote it, and a
+    health classification (FRESH / STALE_REFRESHING / STALE_FAILED /
+    NO_SNAPSHOT). Read-only -- never triggers a build itself."""
+    try:
+        from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for
+        from src.core.snapshot_health import classify_snapshot_health
+
+        result = {}
+        for window_param in WINDOW_ORDER:
+            window_seconds = window_seconds_for(window_param)
+            result[window_param] = {
+                "operational_intelligence": classify_snapshot_health(
+                    "operational_intelligence", window_seconds),
+                "pipeline_health": classify_snapshot_health(
+                    "pipeline_health", window_seconds),
+            }
+        return jsonify({"ok": True, "windows": result})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
 @ops_dashboard_bp.route("/api/ops-v2/treasury-resolution")
 def api_treasury_resolution():
     """X65.1 — read-only creator -> sub-provisioner -> treasury walkback

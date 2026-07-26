@@ -40092,6 +40092,19 @@ try:
     from src.core.operation_dashboard_routes import register_operation_dashboard_routes
     register_operation_dashboard_routes(app)
     print("[DASHBOARD] Operations v2 (operation-centric) routes registered")
+    # X65.57 — hydrate both Discovery SWR caches from their last-known-good
+    # on-disk snapshots BEFORE prewarm starts, so a cold process no longer
+    # implies a cold user experience: a request landing before prewarm
+    # finishes (or for the `all` window, which prewarm never populates)
+    # finds a hydrated entry instead of a true cold cache. Runs
+    # synchronously (it is a handful of small file reads, not a rebuild)
+    # and is best-effort/non-fatal — a missing snapshot directory on first
+    # boot just means nothing hydrates, identical to today's behaviour.
+    try:
+        from src.core.operation_dashboard_routes import hydrate_intelligence_caches_from_snapshots
+        hydrate_intelligence_caches_from_snapshots()
+    except Exception as e:
+        print(f"[WARNING] Intelligence snapshot hydration not completed: {e}")
     # X29.1.2 optional startup prewarm — populate the Operational Intelligence
     # SWR cache's common windows (24h, all) off-thread so the very first
     # analyst request after a fresh process start doesn't pay the cold

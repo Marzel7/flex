@@ -142,6 +142,10 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     """)
     from src.ops.attribution_outcome import ensure_schema as ensure_outcome_schema
     ensure_outcome_schema(conn)
+    from src.core.deep_walkback import ensure_schema as ensure_deep_walkback_schema
+    ensure_deep_walkback_schema(conn)
+    from src.ops.watchtower_candidates import ensure_schema as ensure_candidate_schema
+    ensure_candidate_schema(conn)
     conn.commit()
 
 
@@ -304,7 +308,11 @@ def enqueue_migration(conn: sqlite3.Connection, *,
                       mint: str,
                       creator: Optional[str],
                       live_conn: Optional[sqlite3.Connection] = None,
-                      force: bool = False) -> Optional[str]:
+                      force: bool = False,
+                      create_signature: Optional[str] = None,
+                      create_slot: Optional[int] = None,
+                      create_block_time: Optional[int] = None,
+                      create_source: Optional[str] = None) -> Optional[str]:
     """
     Classify the migration's lineage completeness and insert into wt_walkback_queue.
     Returns the walkback_class assigned, or None if already queued and force=False.
@@ -315,9 +323,54 @@ def enqueue_migration(conn: sqlite3.Connection, *,
             "SELECT walkback_class, status FROM wt_walkback_queue WHERE mint=?",
             (mint,)).fetchone()
         if existing:
+            try:
+                from src.ops.watchtower_candidates import evaluate_and_enqueue_candidate
+                evaluate_and_enqueue_candidate(
+                    conn, mint=mint, creator=creator, live_conn=live_conn,
+                )
+            except Exception as exc:
+                print(f"[WATCHTOWER_CANDIDATE] evaluation failed mint={mint[:16]}: {exc}", flush=True)
             return existing["walkback_class"]
 
     cls, r_creator, r_subprov, r_treasury, src = classify_creator(creator, conn, live_conn)
+
+    # X64.5 — every real production call site (watchtower_attribution.py's
+    # store_migration, pumpfun_curve_listener.py's creator-unknown fallback)
+    # calls enqueue_migration() without live_conn, so this anchor lookup was
+    # unconditionally skipped and every FULL_WALKBACK row permanently
+    # collapsed to MISSING_OR_MALFORMED even when creator_funding_queue held
+    # a genuinely valid signature (confirmed: 308 of 350 stuck rows were
+    # zero-RPC recoverable). Rather than thread live_conn through call sites
+    # whose broader connection lifecycle isn't safe to change here, open a
+    # short-lived read-only connection ourselves when the caller didn't
+    # supply one — same pattern watchtower_candidates.py's
+    # evaluate_and_enqueue_candidate() already uses for the same reason.
+    _owned_live_conn = None
+    if live_conn is None:
+        try:
+            _owned_live_conn = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
+            live_conn = _owned_live_conn
+        except sqlite3.Error:
+            live_conn = None
+
+    if live_conn and not create_signature:
+        row = live_conn.execute(
+            "SELECT create_tx_signature FROM creator_funding_queue WHERE mint=? "
+            "ORDER BY updated_at DESC LIMIT 1", (mint,)).fetchone()
+        if row and row[0]:
+            create_signature, create_source = row[0], "creator_funding_queue"
+        else:
+            row = live_conn.execute(
+                "SELECT create_tx_signature FROM token_analysis WHERE mint=? LIMIT 1",
+                (mint,)).fetchone()
+            if row and row[0]:
+                create_signature, create_source = row[0], "token_analysis"
+
+    if _owned_live_conn is not None:
+        _owned_live_conn.close()
+
+    from src.core.deep_walkback import valid_signature
+    anchor_valid = valid_signature(create_signature)
 
     now = int(time.time())
     # Zero-RPC classes resolve their outcome immediately; RPC classes stay NULL until the worker runs
@@ -326,6 +379,10 @@ def enqueue_migration(conn: sqlite3.Connection, *,
         "complete" if cls in ("LINK_ONLY", "LINK_ONLY_GRAPH",
                               "OP_GRAPH_ROLE_MISMATCH", "SELF_ROOTED_OPERATION") else "pending"
     )
+    path_state = "CREATE_ANCHORED" if anchor_valid else (
+        "WAITING_FOR_CREATE_ANCHOR" if cls == "FULL_WALKBACK" else "QUEUED")
+    if cls == "FULL_WALKBACK" and not anchor_valid:
+        initial_status = "waiting"
 
     if force:
         conn.execute("DELETE FROM wt_walkback_queue WHERE mint=?", (mint,))
@@ -334,14 +391,25 @@ def enqueue_migration(conn: sqlite3.Connection, *,
         """
         INSERT OR IGNORE INTO wt_walkback_queue
             (mint, creator, subprov, treasury, walkback_class, attribution_source,
-             intelligence_outcome, status, rpc_used, enqueued_at, updated_at)
-        VALUES (?,?,?,?,?,?,?,?,0,?,?)
+             intelligence_outcome, status, rpc_used, enqueued_at, updated_at,
+             create_anchor_signature,create_anchor_slot,create_anchor_block_time,
+             create_anchor_source,create_anchor_audit_state,path_state)
+        VALUES (?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,?)
         """,
         (mint, r_creator, r_subprov, r_treasury, cls, src,
-         initial_outcome, initial_status, now, now))
+         initial_outcome, initial_status, now, now, create_signature if anchor_valid else None,
+         create_slot, create_block_time, create_source,
+         "VALID" if anchor_valid else "MISSING_OR_MALFORMED", path_state))
+    try:
+        from src.ops.watchtower_candidates import evaluate_and_enqueue_candidate
+        evaluate_and_enqueue_candidate(conn, mint=mint, creator=r_creator or creator, live_conn=live_conn)
+    except Exception as exc:
+        print(f"[WATCHTOWER_CANDIDATE] evaluation failed mint={mint[:16]}: {exc}", flush=True)
     if initial_status in {"complete", "skipped"}:
         from src.ops.attribution_outcome import materialize_outcome
         materialize_outcome(conn, mint, core_conn=live_conn)
+        from src.ops.watchtower_candidates import sync_walkback_result
+        sync_walkback_result(conn, mint)
     conn.commit()
     return cls
 
@@ -373,6 +441,8 @@ def link_only(conn: sqlite3.Connection, *, mint: str,
         (now, now, mint))
     from src.ops.attribution_outcome import materialize_outcome
     materialize_outcome(conn, mint)
+    from src.ops.watchtower_candidates import sync_walkback_result
+    sync_walkback_result(conn, mint)
     conn.commit()
 
 

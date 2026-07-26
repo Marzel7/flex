@@ -243,6 +243,51 @@ def test_mixed_integer_and_iso8601_created_at_in_same_creator(mixed_type_db):
     assert result["active_lifetime_seconds"] == 1784235752 - 1784149435
 
 
+def test_genuinely_unparseable_created_at_is_excluded_and_logged(caplog):
+    """X43.1 — production hit a recurring worker crash (TypeError:
+    unsupported operand type(s) for -: 'str' and 'str'). The X27.1 fix
+    (SQL-side _epoch_expr) already converts every genuinely-malformed
+    string to NULL before Python sees it (verified directly:
+    unixepoch('not-a-timestamp') -> NULL at the SQL layer), so that class
+    of value can't reach build()'s subtraction via a real query today.
+    X43.1 adds _safe_created_ats() as a second, Python-side defensive layer
+    for the case where that SQL-layer assumption is ever wrong (a future
+    SQLite version, a different column-affinity edge case, a driver quirk)
+    and a non-numeric value reaches Python directly. This unit-tests that
+    helper in isolation with a literal unparseable value -- the row must be
+    excluded from the returned list (not raise) and logged at WARNING with
+    the creator/mint/raw value for diagnosability."""
+    from src.ops.creator_activity import _safe_created_ats
+
+    rows = [
+        {"mint": "M1", "created_at": 1784149435},
+        {"mint": "M2", "created_at": "GARBAGE_MARKER"},
+    ]
+    with caplog.at_level("WARNING", logger="creator_activity"):
+        result = _safe_created_ats(rows, has_created_at=True, creator="Creator1")
+
+    assert result == [1784149435.0]
+    assert any("unparseable created_at" in r.getMessage() for r in caplog.records)
+    assert any("Creator1" in r.getMessage() for r in caplog.records)
+    assert any("GARBAGE_MARKER" in r.getMessage() for r in caplog.records)
+
+
+def test_safe_created_ats_handles_iso8601_and_numeric_mix():
+    """_safe_created_ats must still correctly parse both representations
+    (numeric epoch and ISO-8601 string) side by side -- the same guarantee
+    test_mixed_integer_and_iso8601_created_at_in_same_creator already
+    verifies end-to-end through build(); this is the unit-level check of
+    the extracted helper itself."""
+    from src.ops.creator_activity import _safe_created_ats
+
+    rows = [
+        {"mint": "M1", "created_at": 1784149435},
+        {"mint": "M2", "created_at": "2026-07-16T21:02:32Z"},
+    ]
+    result = _safe_created_ats(rows, has_created_at=True, creator="Creator1")
+    assert sorted(result) == [1784149435.0, 1784235752.0]
+
+
 def test_discovery_service_wires_creator_activity_key():
     from src.discovery.service import DiscoveryService
     svc = DiscoveryService.__new__(DiscoveryService)

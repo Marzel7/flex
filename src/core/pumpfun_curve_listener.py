@@ -571,6 +571,101 @@ PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
 PUMPFUN_MIGRATION_ACCOUNT = "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"
 SOL_MINT = "So11111111111111111111111111111111111111112"
+
+
+def _write_create_ledger_durable(
+    *, signature: str, mint: str, creator, slot, source: str,
+    parser_path: str, raw_detection_method: str, creator_resolution_state: str,
+) -> dict:
+    """X64.7A Phase 1/2 — write to the canonical CREATE-event ledger via
+    the serialized write lane, logging every required X64.7 Phase 4
+    event, and on any non-success result durably persist a retryable
+    pending-write row (Phase 2) rather than leaving the failure only in
+    logs. Never raises — a ledger-write problem must never abort the
+    caller's own birth/enrichment processing.
+    """
+    try:
+        _ops_path = os.environ.get(
+            "WT_OPS_DB_PATH",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "..", "..", "database", "wt_ops_v2.db"))
+        from src.core.database_write_service import database_write_service
+        _ops_selector = f"operations:{os.path.realpath(_ops_path)}"
+        database_write_service.register_database(_ops_selector, _ops_path)
+
+        log_print(f"[CREATE_LEDGER_WRITE_ATTEMPT] sig={signature[:20]}... mint={mint[:16]}... "
+                  f"state={creator_resolution_state}", flush=True)
+
+        def _write(_conn):
+            from src.ops import create_event_ledger
+            return create_event_ledger.record_create_event(
+                _conn, signature=signature, mint=mint, creator=creator,
+                slot=slot, source=source, parser_path=parser_path,
+                raw_detection_method=raw_detection_method,
+                creator_resolution_state=creator_resolution_state,
+            )
+        result = database_write_service.submit(_ops_selector, "create-event-ledger-write", _write)
+
+        if result and result.get("written"):
+            log_print(f"[CREATE_LEDGER_WRITE_COMMITTED] sig={signature[:20]}... "
+                      f"mint={mint[:16]}... state={result.get('state')}", flush=True)
+            return result
+
+        reason = result.get("reason") if result else "unknown"
+        conflict = result.get("conflict") if result else None
+        log_print(f"[CREATE_LEDGER_WRITE_FAILED] sig={signature[:20]}... mint={mint[:16]}... "
+                  f"reason={reason} conflict={conflict}", flush=True)
+
+        # Conflicts (SIGNATURE_MINT_MISMATCH / CREATOR_MISMATCH) are
+        # already durably recorded by record_create_event itself in
+        # wt_create_ledger_conflicts — not retryable, not re-queued.
+        # Genuine invalid-input reasons (mint_required, bad signature)
+        # are also not retryable — retrying an invalid signature can
+        # never succeed. Only a transient/unexpected failure shape is
+        # queued for retry.
+        if not conflict and reason not in ("mint_required", "invalid_or_missing_signature"):
+            _persist_pending(signature=signature, mint=mint, creator=creator, slot=slot,
+                             source=source, parser_path=parser_path, last_error=str(reason))
+        return result or {"written": False, "reason": "unknown"}
+    except Exception as _ledger_err:
+        log_print(f"[CREATE_LEDGER_WRITE_FAILED] sig={signature[:20]}... mint={mint[:16]}... "
+                  f"reason=exception:{_ledger_err}", flush=True)
+        try:
+            _persist_pending(signature=signature, mint=mint, creator=creator, slot=slot,
+                             source=source, parser_path=parser_path,
+                             last_error=f"exception:{_ledger_err}")
+        except Exception as _pending_err:
+            # Both the ledger write AND the durable pending-write persistence
+            # failed — this is the one case the task requires a CRITICAL
+            # structured event for, since the failure now exists nowhere
+            # durable at all, only in this log line.
+            log_print(f"[CREATE_LEDGER_CRITICAL_FAILURE] sig={signature[:20]}... "
+                      f"mint={mint[:16]}... ledger_error={_ledger_err} "
+                      f"pending_persist_error={_pending_err}", flush=True)
+        return {"written": False, "reason": f"exception:{_ledger_err}"}
+
+
+def _persist_pending(*, signature: str, mint: str, creator, slot, source: str,
+                     parser_path: str, last_error: str) -> None:
+    """Best-effort durable persistence of a failed ledger write, via the
+    same serialized write lane. Raises on failure so the caller
+    (_write_create_ledger_durable) can detect the double-failure case
+    and emit CREATE_LEDGER_CRITICAL_FAILURE."""
+    _ops_path = os.environ.get(
+        "WT_OPS_DB_PATH",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "..", "..", "database", "wt_ops_v2.db"))
+    from src.core.database_write_service import database_write_service
+    _ops_selector = f"operations:{os.path.realpath(_ops_path)}"
+    database_write_service.register_database(_ops_selector, _ops_path)
+
+    def _persist(_conn):
+        from src.ops import create_event_ledger
+        return create_event_ledger.persist_pending_write(
+            _conn, signature=signature, mint=mint, creator=creator, slot=slot,
+            block_time=None, source=source, parser_path=parser_path, last_error=last_error,
+        )
+    database_write_service.submit(_ops_selector, "create-event-ledger-pending-write", _persist)
 KNOWN_NON_MINT_ADDRESSES = {
     PUMPFUN_PROGRAM,
     PUMPSWAP_PROGRAM,
@@ -4963,6 +5058,56 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         _extraction_errored = bool(
                             isinstance(_extraction_result, dict) and _extraction_result.get("error")
                         )
+                        # X63 — candidate generation only. The generic funding extractor
+                        # already persisted the creator-funding signature; quick launches
+                        # spend one transaction lookup to test the ephemeral WSOL handoff.
+                        # The resulting row only raises walkback priority and never assigns
+                        # WATCHTOWER attribution.
+                        try:
+                            if _extraction_errored:
+                                raise RuntimeError("creator funding extraction did not complete")
+
+                            def _x63_candidate(_mint=mint, _creator=creator):
+                                from src.ops.watchtower_candidates import (
+                                    funding_signature_for_quick_launch,
+                                    evaluate_transaction_candidate,
+                                )
+                                from src.core.walkback_worker import _get_tx
+                                live = db_connect(DB_PATH, timeout=30)
+                                live.row_factory = sqlite3.Row
+                                funding_sig = funding_signature_for_quick_launch(
+                                    live, mint=_mint, creator=_creator,
+                                )
+                                if not funding_sig:
+                                    live.close()
+                                    return None
+                                tx = _get_tx(funding_sig)
+                                if not tx:
+                                    live.close()
+                                    return None
+                                ops_path = os.environ.get(
+                                    "WT_OPS_DB_PATH",
+                                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"),
+                                )
+                                ops = db_connect(ops_path, timeout=30)
+                                ops.row_factory = sqlite3.Row
+                                try:
+                                    return evaluate_transaction_candidate(
+                                        ops, mint=_mint, creator=_creator, signature=funding_sig,
+                                        tx=tx, live_conn=live,
+                                    )
+                                finally:
+                                    ops.close()
+                                    live.close()
+                            _x63_result = await asyncio.to_thread(_x63_candidate)
+                            if _x63_result:
+                                log_print(
+                                    f"[WATCHTOWER_CANDIDATE] queued mint={mint[:16]} "
+                                    f"creator={creator[:12]} variant={_x63_result['variant']}",
+                                    flush=True,
+                                )
+                        except Exception as _x63_error:
+                            log_print(f"[WATCHTOWER_CANDIDATE] evaluation failed mint={mint[:16]}: {_x63_error}", flush=True)
                         # If creator_funders is still empty, scan immediately in background thread
                         # so prediction can move from PENDING_FUNDING to a real score
                         try:
@@ -5971,23 +6116,73 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         self.processing_launches.add(signature)
         try:
+            # X64.7 Phase 4 — structured instrumentation. These early returns
+            # were previously completely silent (no log_print at all), making
+            # it impossible to distinguish "CREATE never received" from
+            # "CREATE observed but rejected at some later stage" from logs
+            # alone. Never changes control flow — same early returns as before.
+            log_print(f"[CREATE_TX_RECEIVED] sig={signature[:20]}...", flush=True)
             tx_data = await self._get_transaction_cached(signature)
             if not tx_data:
+                log_print(f"[CREATE_PARSE_REJECTED] sig={signature[:20]}... reason=tx_fetch_failed", flush=True)
                 return
+            log_print(f"[CREATE_PARSE_STARTED] sig={signature[:20]}...", flush=True)
 
             mint = await self._extract_mint_from_tx(tx_data)
             if not mint:
+                log_print(f"[CREATE_PARSE_REJECTED] sig={signature[:20]}... reason=mint_unresolved", flush=True)
                 return
 
             analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
             validation = analyzer._validate_pumpfun_create_tx(tx_data)
             if not validation.get("is_pumpfun_create"):
+                log_print(f"[CREATE_PARSE_REJECTED] sig={signature[:20]}... mint={mint[:16]}... "
+                          f"reason=not_pumpfun_create", flush=True)
                 return
+            log_print(f"[CREATE_INSTRUCTION_FOUND] sig={signature[:20]}... mint={mint[:16]}...", flush=True)
+            log_print(f"[CREATE_MINT_RESOLVED] sig={signature[:20]}... mint={mint[:16]}...", flush=True)
+
+            # X64.7A Phase 1 — commit the canonical ledger row BEFORE calling
+            # creator inference. If _infer_creator_from_tx raises, a durable,
+            # creator-PENDING ledger row already exists — the ordering bug
+            # X64.7A exists to close (X64.7's ledger write, while already
+            # creator-independent in principle, was sequenced AFTER creator
+            # inference in program order, so an exception in inference would
+            # have skipped the ledger write entirely; fixed here).
+            _slot = tx_data.get("slot")
+            _initial_ledger_result = _write_create_ledger_durable(
+                signature=signature, mint=mint, creator=None, slot=_slot,
+                source="WEBSOCKET", parser_path="handle_birth",
+                raw_detection_method="logsSubscribe_pumpfun_program",
+                creator_resolution_state="PENDING",
+            )
+            _ = _initial_ledger_result  # logged inside the helper
 
             creator = analyzer._infer_creator_from_tx(tx_data)
+            log_print(f"[CREATE_CREATOR_RESOLVED] sig={signature[:20]}... mint={mint[:16]}... "
+                      f"creator={(creator[:16] + '...') if creator else 'UNRESOLVED'}", flush=True)
             created_at = self._extract_birth_timestamp(tx_data)
             bonding_curve_pda = validation.get("bonding_curve")
             symbol, name = self._extract_birth_metadata(tx_data)
+
+            # X64.7A Phase 1 — second, idempotent enrichment write once the
+            # creator is known (or confirmed unresolved). record_create_event
+            # is idempotent on signature: this call only fills a NULL
+            # creator or updates last_seen_at, it never re-creates the row
+            # or reverts the PENDING write above.
+            _write_create_ledger_durable(
+                signature=signature, mint=mint, creator=creator, slot=_slot,
+                source="WEBSOCKET", parser_path="handle_birth",
+                raw_detection_method="logsSubscribe_pumpfun_program",
+                creator_resolution_state=("RESOLVED" if creator else "UNRESOLVED"),
+            )
+
+            if creator:
+                log_print(f"[CREATE_ENRICHMENT_ENQUEUED] sig={signature[:20]}... mint={mint[:16]}... "
+                          f"reason=creator_known_at_birth", flush=True)
+            else:
+                log_print(f"[CREATE_ENRICHMENT_SKIPPED] sig={signature[:20]}... mint={mint[:16]}... "
+                          f"reason=creator_unresolved_at_birth", flush=True)
 
             await self._insert_bonding_curve_token(
                 mint,
@@ -7764,8 +7959,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _conn.execute("PRAGMA journal_mode=WAL")
             _conn.execute("PRAGMA synchronous=NORMAL")
             _conn.execute("PRAGMA busy_timeout=30000")
+            # X65.9 -- COALESCE guard: never let a NULL create_tx_signature
+            # (e.g. migration-time re-validation failing to reconfirm the
+            # CREATE tx) overwrite an already-persisted, correctly-captured
+            # signature. Validated safe in production via X65.3's live
+            # instrumentation (107/107 real overwrite attempts would have
+            # been prevented by this exact change; zero legitimate writes
+            # would have been blocked).
             _conn.execute(
-                "UPDATE token_analysis SET earliest_tx_creator=?, created_at=?, bonding_curve_pda=?, create_tx_signature=?, cluster_id=?, cluster_name=?, cluster_risk_multiplier=? WHERE mint=?",
+                "UPDATE token_analysis SET earliest_tx_creator=?, created_at=?, bonding_curve_pda=?, create_tx_signature=COALESCE(?, create_tx_signature), cluster_id=?, cluster_name=?, cluster_risk_multiplier=? WHERE mint=?",
                 (_cr, _cat, _bcp, _cts, _cid, _cn, _crm, _m),
             )
             _conn.commit()

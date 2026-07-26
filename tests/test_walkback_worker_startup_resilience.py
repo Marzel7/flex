@@ -56,6 +56,15 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     monkeypatch.setattr("src.core.treasury_bank.initialize_schema", lambda conn: None)
     monkeypatch.setattr("src.ops.attribution_outcome.ensure_schema", lambda conn: None)
     monkeypatch.setattr(walkback_worker, "_write_heartbeat", lambda conn: None)
+    # X64.5 — run_loop's new self-healing anchor-reconciliation pre-pass
+    # (src/ops/anchor_reconciliation.py) is out of scope for this file's
+    # startup-maintenance-resilience tests; stub it inert, matching the
+    # existing pattern above, so it neither queries columns this bare stub
+    # table lacks nor affects these tests' own assertions.
+    monkeypatch.setattr(
+        "src.ops.anchor_reconciliation.reconcile_waiting_create_anchors",
+        lambda ops_conn, live_conn: {"examined": 0, "recovered": [], "skipped": [], "conflicts": []},
+    )
 
     def fake_sleep(seconds):
         raise KeyboardInterrupt("stop the loop after one iteration")

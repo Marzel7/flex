@@ -94,6 +94,57 @@ ACTIVE_CATCHUP0_WORKERS = int(os.environ.get("WS_ACTIVE_CATCHUP0_WORKERS", "4"))
 # ~19; 4 gives ~29/min, a real margin) keeps RPC concurrency explicit and
 # bounded while cutting cycle time roughly in proportion.
 SWEEP_CONCURRENCY = int(os.environ.get("WS_SWEEP_CONCURRENCY", "4"))
+# X65.29 — bounded concurrency for the RPC-FETCH stage only, inside a single
+# catch_up_subprov() call's per-signature loop. Independent of SWEEP_CONCURRENCY
+# (which bounds concurrent SESSIONS/subprovs, not signatures within one
+# session). Root-cause audit (X65.28) found the per-signature loop was fully
+# serial even within one session, and that the dominant cost per signature is
+# the getTransaction RPC round-trip (~3200-3488ms observed live) rather than
+# the durable DB-write/classification work that follows it (tens of ms) — so
+# only the RPC fetch is parallelized here; every stateful read/write
+# (_handle_subprov_tx's session lookup, PRE_CREATE/POST_CREATE phase
+# detection, promote_to_subprov, candidate-watch persistence) still runs
+# strictly serially, in the existing chronological order, via
+# _process_subprov_sig_durable(prefetched_tx=...). Default of 4 matches
+# SWEEP_CONCURRENCY's own conservative default; do not raise above 4 without
+# re-measuring RPC latency/timeout-rate at each step (see X65.28/X65.29
+# rollout guardrails).
+SUBPROV_SIGNATURE_CONCURRENCY = int(os.environ.get("WS_SUBPROV_SIGNATURE_CONCURRENCY", "4"))
+# X65.31 — dedicated executor for the X65.29 prefetch stage, isolated from
+# Python's shared asyncio default executor (max_workers=12, shared by
+# durable processing, CDC handlers, websocket work, and every other
+# _ato_thread()/_arpc() call in the process). Root-cause audit (X65.30)
+# measured a representative slow batch: rpc_fetch_ms=337,488ms of which
+# only ~15,864ms (4.7%) was actual logged RPC round-trip time; the
+# remaining ~321,624ms (95.3%) was executor ADMISSION delay -- signatures
+# whose _ato_thread(...) submission sat queued behind unrelated work on the
+# shared pool (measured live: active_threads=12/12, fully saturated, across
+# every sample taken). Isolating prefetch submission onto its own pool
+# removes that specific contention without touching the shared pool's other
+# consumers at all.
+#
+# NOT reused: RpcDeadlineGuard's own executor (_get_tx_guard()). Audited
+# (X65.31) and rejected: _get_subprov_tx_fast_retry() already calls
+# _get_tx_with_outcome() -> RpcDeadlineGuard.call_with_deadline(), which
+# submits the ACTUAL getTransaction call onto the guard's own dedicated,
+# capacity-bounded executor (max_capacity, circuit breaker, late-result
+# cache) and then blocks the CALLING thread on fut.result(timeout=...)
+# until that resolves. Today's prefetch code (_ato_thread) therefore
+# already pays a double-indirection cost: a shared-pool thread sits idle,
+# purely blocked waiting on the guard's own separate executor. Reusing the
+# guard's executor DIRECTLY for prefetch submission would make prefetch
+# calls compete for the SAME max_capacity slots as every other _get_tx
+# caller in the process (durable processing included), changing the
+# guard's admission/capacity/circuit-breaker semantics for callers that
+# have nothing to do with this prefetch stage -- exactly the outcome this
+# task's constraints prohibit. A dedicated pool avoids that: it only ever
+# holds prefetch-submission threads blocked waiting on the (unchanged)
+# guard, never competing with anything else for guard capacity.
+SUBPROV_PREFETCH_EXECUTOR_WORKERS = int(os.environ.get("WS_SUBPROV_PREFETCH_EXECUTOR_WORKERS", "4"))
+_subprov_prefetch_executor = concurrent.futures.ThreadPoolExecutor(
+    max_workers=SUBPROV_PREFETCH_EXECUTOR_WORKERS,
+    thread_name_prefix="ws-subprov-prefetch",
+)
 SUBPROV_FAST_RETRY_OFFSETS = tuple(
     float(x.strip()) for x in os.environ.get("WS_SUBPROV_FAST_RETRY_OFFSETS", "0,0.25,0.75,1.5").split(",")
     if x.strip()
@@ -661,6 +712,57 @@ async def _aget_tx(sig):
 async def _ato_thread(fn, *args, **kwargs):
     """Run a blocking function (DB writes, sync handlers) off the event loop."""
     return await asyncio.get_event_loop().run_in_executor(None, lambda: fn(*args, **kwargs))
+
+
+def _prefetch_executor_stats() -> dict:
+    """X65.31 — read-only introspection of the dedicated prefetch executor.
+    Field names duplicate under two conventions on purpose: max_workers/
+    active_threads/queue_depth mirror _default_executor_stats()'s existing
+    shape (so the two pools' occupancy can be diffed directly in logs);
+    active_workers/pending_jobs are aliases matching this task's own
+    requested field names. Wrapped so it can never raise (private-attribute
+    access, same caveat as _default_executor_stats)."""
+    try:
+        ex = _subprov_prefetch_executor
+        threads = getattr(ex, "_threads", None)
+        work_queue = getattr(ex, "_work_queue", None)
+        max_workers = getattr(ex, "_max_workers", None)
+        active_threads = len(threads) if threads is not None else None
+        queue_depth = work_queue.qsize() if work_queue is not None else None
+        return {
+            "max_workers": max_workers,
+            "active_threads": active_threads,
+            "queue_depth": queue_depth,
+            "active_workers": active_threads,
+            "pending_jobs": queue_depth,
+        }
+    except Exception:
+        return {"max_workers": None, "active_threads": None, "queue_depth": None,
+                "active_workers": None, "pending_jobs": None}
+
+
+async def _ato_prefetch_thread(fn, *args, **kwargs):
+    """X65.31 — run a blocking prefetch call on the DEDICATED
+    _subprov_prefetch_executor, never the shared asyncio default executor.
+    Returns (result, queue_wait_ms, exec_ms): queue_wait_ms is the time spent
+    waiting for a free worker thread on THIS pool (admission delay);
+    exec_ms is the time the call itself took once it started running. This
+    is the split X65.30 identified as missing -- without it, "the call took
+    337 seconds" cannot be distinguished from "the call waited 337 seconds
+    for a thread.\""""
+    loop = asyncio.get_event_loop()
+    _submitted_at = time.time()
+    _started_holder = {}
+
+    def _wrapped(*a, **kw):
+        _started_holder["t"] = time.time()
+        return fn(*a, **kw)
+
+    result = await loop.run_in_executor(_subprov_prefetch_executor, lambda: _wrapped(*args, **kwargs))
+    _started_at = _started_holder.get("t", _submitted_at)
+    queue_wait_ms = round((_started_at - _submitted_at) * 1000, 1)
+    exec_ms = round((time.time() - _started_at) * 1000, 1)
+    return result, queue_wait_ms, exec_ms
 
 
 def _default_executor_stats() -> dict:
@@ -2154,10 +2256,50 @@ class Cascade:
     def _metric(self, name: str, inc: int = 1) -> None:
         self._subprov_sig_metrics[name] = self._subprov_sig_metrics.get(name, 0) + inc
 
+    def _record_subprov_sig_dedupe(self, subprov: str, original_done_at, observed_at: float,
+                                   source: str) -> None:
+        """X64.9B1 — best-effort durable write of one duplicate observation
+        AND the total_checked denominator increment, in one short-lived
+        connection (opened and closed here, never reusing the caller's
+        already-open `conn`) specifically to avoid any risk of a
+        nested-write-lane conflict (see
+        src.core.database_write_service.NestedDatabaseWriteError, observed
+        elsewhere in this project's operational history for exactly this
+        class of bug). Any failure here is swallowed — observability must
+        never be able to disable or delay the existing dedup skip, which has
+        already happened by the time this is called."""
+        try:
+            age_s = max(0, int(observed_at) - int(original_done_at or observed_at))
+            dconn = self._ops()
+            try:
+                store.record_subprov_sig_checked(dconn, observed_at=int(observed_at))
+                store.record_subprov_sig_duplicate(
+                    dconn, subprov=subprov, age_s=age_s, source=source,
+                    observed_at=int(observed_at))
+            finally:
+                dconn.close()
+        except Exception as e:
+            _log(f"⚠ X64.9B1 dedupe-stats write failed (non-fatal, dedup unaffected): {e}")
+
+    def _record_subprov_sig_checked_only(self, observed_at: float) -> None:
+        """X64.9B1 — best-effort durable increment of the total_checked
+        denominator for the non-duplicate path (the duplicate path records
+        this together with the duplicate itself, above, to save a connection
+        open). Same failure discipline: never allowed to affect processing."""
+        try:
+            dconn = self._ops()
+            try:
+                store.record_subprov_sig_checked(dconn, observed_at=int(observed_at))
+            finally:
+                dconn.close()
+        except Exception as e:
+            _log(f"⚠ X64.9B1 checked-counter write failed (non-fatal): {e}")
+
     def _process_subprov_sig_durable(self, subprov: str, sig: str, *,
                                      slot: Optional[int] = None,
                                      source: str = "WS",
-                                     advance_cursor: bool = True) -> list:
+                                     advance_cursor: bool = True,
+                                     prefetched_tx: Optional[tuple] = None) -> list:
         """Durably process one subprov signature through the existing handler.
 
         The retry row is written before getTransaction/parser/DB fanout work, so
@@ -2174,6 +2316,12 @@ class Cascade:
         own signature), but the cursor is NOT touched; the caller is
         responsible for advancing it exactly once, to the newest successfully
         processed signature in the batch, after the whole batch completes.
+
+        prefetched_tx (X65.29): an optional (tx, tx_retry_info) tuple already
+        fetched by the caller (catch_up_subprov's bounded-concurrency RPC
+        prefetch stage) — passed straight through to _handle_subprov_tx so
+        the RPC round-trip is not repeated. None (every pre-existing call
+        site) preserves the exact prior behaviour of fetching inline.
         """
         if not subprov or not sig:
             return []
@@ -2194,7 +2342,7 @@ class Cascade:
         try:
             _dedupe_t0 = time.time()
             row = conn.execute(
-                "SELECT status FROM wt_subprov_sig_retry "
+                "SELECT status, last_attempt_at FROM wt_subprov_sig_retry "
                 "WHERE subprov_wallet=? AND signature=?",
                 (subprov, sig)).fetchone()
             if row and row[0] == "DONE":
@@ -2203,6 +2351,11 @@ class Cascade:
                 # already-processed work, vs. every fetched signature being genuinely
                 # new (as offline sampling found: 0/48 across 8 live subprovs).
                 self._metric("subprov_sig_already_done_skipped")
+                # X64.9B1 — durable redelivery measurement, entirely additive and
+                # best-effort: must NEVER affect the skip decision above (already
+                # returned in-memory data by this point) or block/slow it down.
+                # See docs/design/x64_9/x64_9b1_observability_design.md.
+                self._record_subprov_sig_dedupe(subprov, row[1], notification_seen_at, source)
                 return []
             _dedupe_lookup_ms = round((time.time() - _dedupe_t0) * 1000, 1)
             _enqueue_t0 = time.time()
@@ -2214,9 +2367,15 @@ class Cascade:
         finally:
             conn.close()
 
+        # X64.9B1 — non-duplicate path: record the total_checked denominator only
+        # (no duplicate to log). Fired after the dedupe-critical connection is
+        # already closed, so this can never contend with or delay it.
+        self._record_subprov_sig_checked_only(notification_seen_at)
+
         try:
             _handle_tx_t0 = time.time()
-            result = self._handle_subprov_tx(subprov, sig, seen_at=first_seen_at)
+            result = self._handle_subprov_tx(subprov, sig, seen_at=first_seen_at,
+                                             prefetched=prefetched_tx)
             _handle_tx_ms = round((time.time() - _handle_tx_t0) * 1000, 1)
 
             _mark_done_t0 = time.time()
@@ -3014,25 +3173,13 @@ class Cascade:
                     emit_event("SUBPROV_BLOCKLISTED", wallet=w, related=treasury,
                                payload={"funding_sol": gain, "sig": sig})
                     continue
-                # CEX / exchange hot wallets — never session
-                _cex = getattr(self, "_cex_set", None)
-                if _cex is None:
-                    try:
-                        _live = db_connect(LIVE_DB_PATH, timeout=2)
-                        try:
-                            _cex = {r[0] for r in _live.execute(
-                                "SELECT cex_address FROM cex_wallets WHERE is_active=1").fetchall()}
-                        finally:
-                            _live.close()
-                    except Exception:
-                        _cex = set()
-                    try:
-                        from src.utils.infra_mapping import INFRASTRUCTURE_ACCOUNTS
-                        _cex |= set(INFRASTRUCTURE_ACCOUNTS.keys())
-                    except Exception:
-                        pass
-                    self._cex_set = _cex
-                if w in _cex:
+                # CEX / exchange hot wallets — never session.
+                # X65.68: use is_known_account() (CEX_ACCOUNTS + INFRASTRUCTURE_ACCOUNTS +
+                # CUSTOM_ACCOUNTS) directly rather than the local _cex_set cache, which only
+                # ever covered the live cex_wallets table + INFRASTRUCTURE_ACCOUNTS — missing
+                # CEX_ACCOUNTS entirely, which is where Coinbase/Binance/Kraken/etc. live.
+                from src.utils.infra_mapping import is_known_account
+                if is_known_account(w):
                     _log(f"🏦 CEX {w[:12]}… from {treasury[:10]}… {gain:.2f}◎ — exchange wallet, skipping")
                     emit_event("SUBPROV_BLOCKLISTED", wallet=w, related=treasury,
                                payload={"funding_sol": gain, "sig": sig, "reason": "CEX"})
@@ -3446,13 +3593,25 @@ class Cascade:
             "fallback": True,
         }
 
-    def _handle_subprov_tx(self, subprov, sig, seen_at: Optional[float] = None):
+    def _handle_subprov_tx(self, subprov, sig, seen_at: Optional[float] = None,
+                          prefetched: Optional[tuple] = None):
         # X24.2.3 Phase 1 — sub-stage timing inside handle_tx, the stage X24.2.2 left
         # unaddressed and confirmed dominant (median 531ms, mean 1158ms, max 8423ms
         # across the X24.2.2 validation window). Additive only; isolates RPC-fetch
         # (already partly covered by _get_subprov_tx_fast_retry's own tx_retry_info)
         # from decode/classification/candidate-extraction cost, to answer the sprint's
         # key question: why do some signatures cost 5-12s while others cost ms.
+        #
+        # X65.29 — `prefetched`, when supplied, is the (tx, tx_retry_info) tuple
+        # already returned by a call to _get_subprov_tx_fast_retry() made BEFORE
+        # this method runs (catch_up_subprov's concurrent-fetch stage). This
+        # lets the RPC round-trip (the dominant cost, ~3200-3488ms observed)
+        # happen concurrently across several signatures while every stateful
+        # read/write below (session lookup, _op_phase's prior_creates count,
+        # promote_to_subprov, candidate-watch writes) still runs strictly
+        # serially, in original chronological order, exactly as before —
+        # `prefetched=None` (every existing call site) is byte-for-byte
+        # unchanged behaviour.
         _htx_t0 = time.time()
         conn = self._ops()
         try:
@@ -3463,7 +3622,10 @@ class Cascade:
                 return []                              # session gone/expired
             treasury, funding_time = sess[1], sess[2]
             _rpc_t0 = time.time()
-            tx, tx_retry_info = self._get_subprov_tx_fast_retry(subprov, sig, seen_at=seen_at)
+            if prefetched is not None:
+                tx, tx_retry_info = prefetched
+            else:
+                tx, tx_retry_info = self._get_subprov_tx_fast_retry(subprov, sig, seen_at=seen_at)
             _rpc_fetch_ms = round((time.time() - _rpc_t0) * 1000, 1)
             if not tx:
                 raise RuntimeError("getTransaction returned None")
@@ -4098,6 +4260,79 @@ class Cascade:
         _newest_done_sig = None
         _newest_done_slot = None
         order = _order_signature_indices(len(clean))
+
+        # X65.29/X65.31 — bounded-concurrency RPC PREFETCH stage. Fetches
+        # getTransaction for every signature in `order` concurrently (capped
+        # at SUBPROV_SIGNATURE_CONCURRENCY in flight), completely independent
+        # of SWEEP_CONCURRENCY (which bounds SESSIONS, not signatures within
+        # one session). This is pure I/O with no shared mutable state — safe
+        # to run out of order. The DURABLE processing loop immediately below
+        # still runs serially, in the original chronological `order`, exactly
+        # as before X65.29 — only the RPC round-trip that _handle_subprov_tx
+        # used to do inline is moved earlier and made concurrent. See
+        # X65.28's ordering audit: _handle_subprov_tx's only order-sensitive
+        # read (prior_creates -> PRE_CREATE/POST_CREATE phase, used solely for
+        # a ProgramWatcher-arming latency heuristic) is preserved exactly
+        # because the durable call itself is still made one at a time.
+        #
+        # X65.31 — submission now goes through _ato_prefetch_thread (the
+        # DEDICATED _subprov_prefetch_executor), not _ato_thread (the shared
+        # asyncio default executor). X65.30's root-cause audit measured a
+        # representative slow batch where 95.3% of rpc_fetch_ms was executor
+        # ADMISSION delay (shared pool saturated at 12/12 threads by
+        # unrelated durable-processing/CDC/websocket work), not RPC
+        # execution time itself -- this isolates prefetch from that
+        # contention. executor_queue_ms/rpc_execution_ms are now tracked
+        # per-signature and summed, so a future slow batch can be attributed
+        # to one or the other directly from the log line, without needing
+        # another manual audit.
+        _batch_size = len(order)
+        _fetch_started_at = time.time()
+        _prefetch_semaphore = asyncio.Semaphore(max(1, SUBPROV_SIGNATURE_CONCURRENCY))
+        _prefetch_timed_out = 0
+        _prefetch_failed = 0
+        _prefetch_late = 0
+        _total_queue_wait_ms = 0.0
+        _total_rpc_exec_ms = 0.0
+
+        async def _prefetch_one(idx):
+            nonlocal _prefetch_timed_out, _prefetch_failed, _prefetch_late
+            nonlocal _total_queue_wait_ms, _total_rpc_exec_ms
+            s = clean[idx]
+            sig = s.get("signature")
+            if not sig:
+                return idx, None
+            async with _prefetch_semaphore:
+                try:
+                    result, queue_wait_ms, exec_ms = await _ato_prefetch_thread(
+                        lambda _sig=sig: self._get_subprov_tx_fast_retry(subprov, _sig))
+                except asyncio.TimeoutError:
+                    _prefetch_timed_out += 1
+                    return idx, None
+                except Exception:
+                    _prefetch_failed += 1
+                    return idx, None
+                _total_queue_wait_ms += queue_wait_ms
+                _total_rpc_exec_ms += exec_ms
+                if (queue_wait_ms + exec_ms) > 5000:
+                    _prefetch_late += 1
+                return idx, result
+
+        _prefetched = dict(await asyncio.gather(*(_prefetch_one(idx) for idx in order)))
+        _fetch_ms = round((time.time() - _fetch_started_at) * 1000, 1)
+        _successful_prefetch = sum(1 for v in _prefetched.values() if v is not None and v[0])
+        if _batch_size:
+            _prefetch_stats = _prefetch_executor_stats()
+            _log(f"⏱ signature_batch subprov={subprov[:12]}… batch_size={_batch_size} "
+                 f"concurrency={SUBPROV_SIGNATURE_CONCURRENCY} prefetch_total_ms={_fetch_ms} "
+                 f"executor_queue_ms={round(_total_queue_wait_ms, 1)} "
+                 f"rpc_execution_ms={round(_total_rpc_exec_ms, 1)} "
+                 f"successful={_successful_prefetch} timed_out={_prefetch_timed_out} "
+                 f"failed={_prefetch_failed} late_results={_prefetch_late} "
+                 f"throughput_sig_per_s={round(_batch_size / (_fetch_ms / 1000.0), 2) if _fetch_ms else 0.0} "
+                 f"prefetch_executor={_prefetch_stats}")
+
+        _processing_started_at = time.time()
         for idx in order:
             s = clean[idx]
             sig = s.get("signature")
@@ -4112,10 +4347,12 @@ class Cascade:
                 # inside the call, after the thread had already started).
                 _submit_at = time.time()
                 _exec_wait_holder = {}
-                def _timed_call(_subprov=subprov, _sig=sig, _slot=s.get("slot")):
+                _prefetched_tx = _prefetched.get(idx)
+                def _timed_call(_subprov=subprov, _sig=sig, _slot=s.get("slot"), _pf=_prefetched_tx):
                     _exec_wait_holder["wait_ms"] = round((time.time() - _submit_at) * 1000, 1)
                     return self._process_subprov_sig_durable(
-                        _subprov, _sig, slot=_slot, source="CATCHUP", advance_cursor=False)
+                        _subprov, _sig, slot=_slot, source="CATCHUP", advance_cursor=False,
+                        prefetched_tx=_pf)
                 new_watches = await _ato_thread(_timed_call)
                 _exec_wait_ms = _exec_wait_holder.get("wait_ms", 0.0)
                 if _exec_wait_ms > 100:
@@ -4133,7 +4370,10 @@ class Cascade:
             for item in new_watches:
                 if isinstance(item, tuple) and item[0] == "UNSUBSCRIBE":
                     await self.mgr.unsubscribe(item[1])
+        _processing_ms = round((time.time() - _processing_started_at) * 1000, 1)
+        _cursor_commit_ms = 0.0
         if _newest_done_sig is not None:
+            _cursor_commit_t0 = time.time()
             _cursor_conn = self._ops()
             try:
                 _bt_row = _cursor_conn.execute(
@@ -4147,19 +4387,49 @@ class Cascade:
                     slot=_newest_done_slot, block_time=_block_time)
             finally:
                 _cursor_conn.close()
+            _cursor_commit_ms = round((time.time() - _cursor_commit_t0) * 1000, 1)
         _sigproc_ms = round((time.time() - _sigproc_t0) * 1000, 1)
         _total_ms = round((time.time() - _stage_t0) * 1000, 1)
+        # X65.29 — throughput instrumentation, per the rollout-guardrail
+        # requirement to PROVE concurrency improves throughput rather than
+        # merely increasing RPC pressure: batch size/concurrency actually
+        # used, RPC-fetch vs durable-processing time split out, per-outcome
+        # counts, and signatures/second for this batch.
+        _batch_throughput_sig_per_s = round(_batch_size / (_total_ms / 1000.0), 2) if _total_ms else 0.0
         self._last_catchup_timing = {
             "subprov": subprov, "cursor_lookup_ms": _cursor_lookup_ms,
             "getsigs_ms": _getsigs_ms, "sigs_fetched": len(clean),
             "sigs_processed": _sigs_processed, "sigproc_ms": _sigproc_ms,
             "sigproc_ms_per_sig": round(_sigproc_ms / _sigs_processed, 1) if _sigs_processed else 0.0,
             "total_ms": _total_ms,
+            "signature_batch_size": _batch_size,
+            "signature_concurrency": SUBPROV_SIGNATURE_CONCURRENCY,
+            # X65.31 — split out of the old single rpc_fetch_ms: executor_queue_ms
+            # (admission delay on the dedicated prefetch pool) vs
+            # rpc_execution_ms (actual getTransaction wall-clock time), summed
+            # across every signature in the batch. prefetch_total_ms is kept
+            # as the overall wall-clock time for the whole concurrent stage
+            # (>= max(executor_queue_ms, rpc_execution_ms) since work overlaps
+            # across the SUBPROV_SIGNATURE_CONCURRENCY-bounded semaphore).
+            "prefetch_total_ms": _fetch_ms,
+            "executor_queue_ms": round(_total_queue_wait_ms, 1),
+            "rpc_execution_ms": round(_total_rpc_exec_ms, 1),
+            "prefetch_executor_stats": _prefetch_executor_stats(),
+            "processing_ms": _processing_ms,
+            "batch_duration_ms": _total_ms,
+            "successful_signatures": _successful_prefetch,
+            "timed_out_signatures": _prefetch_timed_out,
+            "failed_signatures": _prefetch_failed,
+            "cursor_commit_ms": _cursor_commit_ms,
+            "throughput_sig_per_s": _batch_throughput_sig_per_s,
         }
         if _total_ms > 1000:  # only log the expensive ones to avoid flooding
             _log(f"⏱ catch_up_subprov timing {subprov[:12]}… cursor={_cursor_lookup_ms}ms "
                  f"getsigs={_getsigs_ms}ms sigs_fetched={len(clean)} sigs_processed={_sigs_processed} "
                  f"sigproc_total={_sigproc_ms}ms sigproc_per_sig={self._last_catchup_timing['sigproc_ms_per_sig']}ms "
+                 f"prefetch_total_ms={_fetch_ms} executor_queue_ms={round(_total_queue_wait_ms, 1)} "
+                 f"rpc_execution_ms={round(_total_rpc_exec_ms, 1)} processing_ms={_processing_ms} "
+                 f"cursor_commit_ms={_cursor_commit_ms} throughput_sig_per_s={_batch_throughput_sig_per_s} "
                  f"total={_total_ms}ms")
                     # new_watches is usually [] now; sentinels are legacy BUY_SWARM gate.
         return "SUCCESS"

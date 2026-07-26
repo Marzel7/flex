@@ -69,6 +69,38 @@ def _subprov_sibling_counts(ops_conn: sqlite3.Connection) -> dict[str, int]:
     return {r[0]: r[1] for r in rows}
 
 
+def _subprov_candidate_watch_counts(ops_conn: sqlite3.Connection) -> dict[str, int]:
+    """X65.10 (X65.8 design) -- {subprov_wallet: distinct candidate_wallet
+    count} from wt_candidate_websocket_watches: every recorded wrap-close
+    destination a subprov has ever produced, creator or not. Unlike
+    wt_provisioning_edges (SUBPROV_TO_CREATOR only, written exclusively by
+    the walkback success path once a creator is already known -- X65.4/X65.8
+    Phase 1/2), this table is written live by _handle_subprov_tx()
+    (src/core/ws_cascade.py) for every wrap-close/candidate-detection event,
+    independent of whether that candidate later becomes a confirmed creator.
+
+    Measured coverage of the confirmed-WATCHTOWER population: 90.7% (39/43)
+    vs. wt_provisioning_edges' 2.3% (1/43) -- see
+    docs/design/x65_8/x65_8_phase2_evidence_comparison.md.
+
+    This function is queried INDEPENDENTLY of src/ops/campaign_classification.py
+    (which reads the same underlying table via its own separate query,
+    _fanout_evidence_for_subprovs()) -- no cross-module call, no shared
+    function, no dependency on Campaign having run. Both classifiers
+    independently consume the same observed evidence; neither calls the
+    other (X65.8 Phase 5's required architecture, verified by
+    tests/test_x65_10_topology_independence.py)."""
+    if not _table_exists(ops_conn, "wt_candidate_websocket_watches"):
+        return {}
+    rows = ops_conn.execute(
+        "SELECT subprov_wallet, COUNT(DISTINCT candidate_wallet) AS n "
+        "FROM wt_candidate_websocket_watches "
+        "WHERE subprov_wallet IS NOT NULL "
+        "GROUP BY subprov_wallet"
+    ).fetchall()
+    return {r[0]: r[1] for r in rows}
+
+
 def _multi_level_subprovs(ops_conn: sqlite3.Connection) -> set[str]:
     """Wallets that are themselves a CHILD subprov of another subprov (the
     '_handle_subprov_tx sub-subprov' branch, ws_cascade.py:3511-3573) --
@@ -148,6 +180,49 @@ def _mesh_treasuries(ops_conn: sqlite3.Connection) -> set[str]:
     return treasuries & subprovs
 
 
+def _walkback_topology_evidence(ops_conn: sqlite3.Connection) -> tuple[dict[str, dict[str, Any]], dict[str, int]]:
+    """Materialize selected transaction-derived walkback paths for topology.
+
+    Queue termination JSON is used only when it records a validated hop-2
+    transaction. It supplies a structural edge, never an operation identity.
+    """
+    by_mint: dict[str, dict[str, Any]] = {}
+    children: dict[str, set[str]] = {}
+    if _table_exists(ops_conn, "wt_walkback_edge_candidates"):
+        for row in ops_conn.execute(
+            "SELECT mint,wallet,candidate_parent,hop_depth FROM wt_walkback_edge_candidates "
+            "WHERE selection_status='SELECTED'"
+        ):
+            mint, wallet, parent, depth = row
+            if not mint or not wallet or not parent:
+                continue
+            evidence = by_mint.setdefault(mint, {"depth": 0, "parents": set(), "edge_count": 0})
+            evidence["depth"] = max(evidence["depth"], int(depth or 0))
+            evidence["parents"].add(parent)
+            evidence["edge_count"] += 1
+            children.setdefault(parent, set()).add(wallet)
+    if _table_exists(ops_conn, "wt_walkback_queue"):
+        for row in ops_conn.execute(
+            "SELECT mint,termination_reason_json FROM wt_walkback_queue "
+            "WHERE termination_reason_json IS NOT NULL"
+        ):
+            try:
+                reason = json.loads(row["termination_reason_json"] or "{}")
+            except (TypeError, ValueError):
+                continue
+            parent = reason.get("hop2_candidate")
+            child = reason.get("hop1")
+            signature = reason.get("hop2_signature")
+            if not (parent and child and signature):
+                continue
+            evidence = by_mint.setdefault(row["mint"], {"depth": 0, "parents": set(), "edge_count": 0})
+            evidence["depth"] = max(evidence["depth"], 2)
+            evidence["parents"].add(parent)
+            evidence["edge_count"] += 1
+            children.setdefault(parent, set()).add(child)
+    return by_mint, {parent: len(wallets) for parent, wallets in children.items()}
+
+
 def classify_topology_for_launch(
     ops_conn: sqlite3.Connection,
     *,
@@ -156,23 +231,37 @@ def classify_topology_for_launch(
     subprovisioners_evidence: list[str] | None = None,
     treasuries_evidence: list[str] | None = None,
     sibling_counts: dict[str, int] | None = None,
+    candidate_watch_counts: dict[str, int] | None = None,
     multi_level_subprovs: set[str] | None = None,
     mesh_treasuries: set[str] | None = None,
+    walkback_evidence: dict[str, Any] | None = None,
+    walkback_fanout_counts: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Classify ONE launch's funding topology. Pure function over
-    already-computed lookups (sibling_counts/multi_level_subprovs/
-    mesh_treasuries) so callers can batch-compute those once per replay
-    instead of once per launch.
+    already-computed lookups (sibling_counts/candidate_watch_counts/
+    multi_level_subprovs/mesh_treasuries) so callers can batch-compute those
+    once per replay instead of once per launch.
 
     subprov_wallet/treasury_wallet: direct columns from wt_watchtower_launches
     when available. subprovisioners_evidence/treasuries_evidence: the
     evidence_json lists from wt_attribution_outcomes, for launches the live
     cascade never recorded a session for -- a fallback source, used only when
     subprov_wallet is None.
+
+    candidate_watch_counts: X65.10 (X65.8 design) -- distinct candidate_wallet
+    counts from wt_candidate_websocket_watches, consulted BEFORE
+    sibling_counts (wt_provisioning_edges) at the Fan-Out/Linear decision
+    point, since it has far higher coverage of the cascade-confirmed
+    population (X65.8 Phase 2). wt_provisioning_edges remains a fallback,
+    unconditionally reachable when this evidence is absent for a subprov --
+    no existing evidence path is removed.
     """
     sibling_counts = sibling_counts or {}
+    candidate_watch_counts = candidate_watch_counts or {}
     multi_level_subprovs = multi_level_subprovs or set()
     mesh_treasuries = mesh_treasuries or set()
+    walkback_evidence = walkback_evidence or {}
+    walkback_fanout_counts = walkback_fanout_counts or {}
 
     # Resolve the effective subprov/treasury set to evaluate, preferring the
     # direct wt_watchtower_launches columns (highest-confidence, cascade-
@@ -180,6 +269,20 @@ def classify_topology_for_launch(
     # coverage, lower per-hop confidence).
     subprovs = [subprov_wallet] if subprov_wallet else list(subprovisioners_evidence or [])
     treasuries = [treasury_wallet] if treasury_wallet else list(treasuries_evidence or [])
+
+    walkback_parents = walkback_evidence.get("parents") or set()
+    walkback_depth = int(walkback_evidence.get("depth") or 0)
+    branching_parents = [
+        parent for parent in walkback_parents if walkback_fanout_counts.get(parent, 0) > 1
+    ]
+
+    if walkback_depth >= 2 and branching_parents:
+        max_fanout = max(walkback_fanout_counts[parent] for parent in branching_parents)
+        return {
+            "topology": MULTI_LEVEL_FAN_OUT,
+            "label": TOPOLOGY_LABELS[MULTI_LEVEL_FAN_OUT],
+            "derived_from": f"selected_walkback_depth={walkback_depth};upstream_fanout={max_fanout}",
+        }
 
     if not subprovs and not treasuries:
         return {"topology": UNKNOWN, "label": TOPOLOGY_LABELS[UNKNOWN], "derived_from": "no_lineage_evidence"}
@@ -201,9 +304,27 @@ def classify_topology_for_launch(
             "derived_from": "treasury_also_subprov_elsewhere",
         }
 
-    # Fan-Out vs Linear: sibling count on the (single-hop) subprov.
+    # Fan-Out vs Linear: candidate-watch count on the (single-hop) subprov
+    # (X65.10/X65.8) -- consulted FIRST, ahead of the wt_provisioning_edges
+    # sibling count, since it covers 90.7% of the cascade-confirmed
+    # population vs. 2.3% for wt_provisioning_edges (X65.8 Phase 2). Falls
+    # through to the existing sibling_counts logic, UNCHANGED, whenever this
+    # evidence is absent for the subprov -- no existing path is removed.
     if subprovs:
         sp = subprovs[0]
+        n_candidates = candidate_watch_counts.get(sp)
+        if n_candidates is not None:
+            if n_candidates > 1:
+                return {
+                    "topology": FAN_OUT,
+                    "label": TOPOLOGY_LABELS[FAN_OUT],
+                    "derived_from": f"wt_candidate_websocket_watches_count={n_candidates}",
+                }
+            return {
+                "topology": LINEAR,
+                "label": TOPOLOGY_LABELS[LINEAR],
+                "derived_from": "wt_candidate_websocket_watches_count=1",
+            }
         n_siblings = sibling_counts.get(sp)
         if n_siblings is not None:
             if n_siblings > 1:
@@ -222,6 +343,19 @@ def classify_topology_for_launch(
         # genuinely insufficient to distinguish Fan-Out from Linear, so this
         # falls through to Unknown rather than guessing (X29.0: "never infer
         # topology without evidence").
+        if walkback_depth >= 1:
+            immediate_fanout = max(
+                [walkback_fanout_counts.get(parent, 0) for parent in walkback_parents] or [0]
+            )
+            if immediate_fanout > 1:
+                return {
+                    "topology": FAN_OUT, "label": TOPOLOGY_LABELS[FAN_OUT],
+                    "derived_from": f"selected_walkback_parent_fanout={immediate_fanout}",
+                }
+            return {
+                "topology": LINEAR, "label": TOPOLOGY_LABELS[LINEAR],
+                "derived_from": f"selected_walkback_depth={walkback_depth};no_observed_branch",
+            }
         return {"topology": UNKNOWN, "label": TOPOLOGY_LABELS[UNKNOWN], "derived_from": "subprov_present_no_sibling_evidence"}
 
     # Treasury recorded but no subprov at all: a genuine direct treasury->
@@ -250,15 +384,33 @@ def build_topology_classification(
     ops_conn = sqlite3.connect(f"file:{ops_db_path}?mode=ro", uri=True, timeout=5)
     ops_conn.row_factory = sqlite3.Row
     ops_conn.execute("PRAGMA query_only=ON")
+    core_conn = sqlite3.connect(f"file:{core_db_path}?mode=ro", uri=True, timeout=5)
+    core_conn.row_factory = sqlite3.Row
+    core_conn.execute("PRAGMA query_only=ON")
     try:
         sibling_counts = _subprov_sibling_counts(ops_conn)
+        candidate_watch_counts = _subprov_candidate_watch_counts(ops_conn)
         multi_level_subprovs = _multi_level_subprovs(ops_conn)
         mesh_treasuries = _mesh_treasuries(ops_conn)
+        walkback_by_mint, walkback_fanout_counts = _walkback_topology_evidence(ops_conn)
 
-        rows = ops_conn.execute(
-            "SELECT mint, evidence_json FROM wt_attribution_outcomes WHERE completed_at >= ?",
-            (since,),
+        # X65.35 -- the Stage-1 population is now every mint with an
+        # attribution outcome AT ALL (no completed_at filter here); windowing
+        # happens below by each mint's own resolved launch create time, not
+        # by when its walkback happened to finish. See
+        # discovery_window.launch_create_times_for_mints's docstring for the
+        # precedence and why completed_at was the wrong basis.
+        from src.ops.discovery_window import launch_create_times_for_mints
+
+        all_rows = ops_conn.execute(
+            "SELECT mint, evidence_json FROM wt_attribution_outcomes",
         ).fetchall()
+        all_mints = [r["mint"] for r in all_rows]
+        create_times = launch_create_times_for_mints(ops_conn, core_conn, all_mints)
+        rows = [
+            r for r in all_rows
+            if r["mint"] in create_times and create_times[r["mint"]] >= since
+        ]
 
         launches_by_mint: dict[str, sqlite3.Row] = {}
         if _table_exists(ops_conn, "wt_watchtower_launches"):
@@ -280,8 +432,11 @@ def build_topology_classification(
                 subprovisioners_evidence=ev.get("subprovisioners") or [],
                 treasuries_evidence=ev.get("treasuries") or [],
                 sibling_counts=sibling_counts,
+                candidate_watch_counts=candidate_watch_counts,
                 multi_level_subprovs=multi_level_subprovs,
                 mesh_treasuries=mesh_treasuries,
+                walkback_evidence=walkback_by_mint.get(mint),
+                walkback_fanout_counts=walkback_fanout_counts,
             )
             assignments[mint] = result
             counts[result["topology"]] += 1
@@ -290,6 +445,7 @@ def build_topology_classification(
         conserved = sum(counts.values()) == total
     finally:
         ops_conn.close()
+        core_conn.close()
 
     return {
         "window_seconds": window_seconds,

@@ -1,0 +1,17 @@
+{
+  "confidence": "STRONG",
+  "contradictions": [],
+  "contradictions_found": false,
+  "evidence": {
+    "campaign_timing": false,
+    "funding_lineage": true,
+    "new_treasury_candidate": "5nTJWTSozPMWR7im9aBCeDE7y22K7ePW3TDToTpP9bGo",
+    "provisioning_chain": true,
+    "quick_birth_migration": true,
+    "shared_infrastructure": false,
+    "shared_operational_template": true,
+    "treasury_match": false
+  },
+  "operation_candidate": "WATCHTOWER",
+  "recommendation": "Leave as candidate pending human confirmation of the newly discovered treasury"
+}

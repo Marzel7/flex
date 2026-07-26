@@ -375,4 +375,34 @@ def build_lineage(conn: sqlite3.Connection, wallet: str, *, max_hops: int = 10) 
         {"wallet": wallet, "role": primary_role, "properties": _node_properties(conn, wallet, primary_role)}
     ] + down_chain
 
+    chain = _insert_provisioning_wallet_nodes(conn, chain)
+
     return {"wallet": wallet, "primary_role": primary_role, "chain": chain}
+
+
+def _insert_provisioning_wallet_nodes(conn: sqlite3.Connection, chain: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """X65.21 Phase 6 — purely additive: inserts a real PROVISIONING_WALLET
+    node between any adjacent SUBPROVIDER -> CREATOR pair in the chain, when
+    `wt_provisioning_wallets` (X65.21) has a persisted record for that exact
+    pair. If no record exists (not yet backfilled/live-captured for this pair,
+    or genuinely unresolved per X65.19), the chain is returned completely
+    unchanged -- every existing caller of build_lineage() that never reads
+    this new node type sees no behavior change at all."""
+    if not _table_exists(conn, "wt_provisioning_wallets"):
+        return chain
+    out: list[dict[str, Any]] = []
+    for i, node in enumerate(chain):
+        out.append(node)
+        nxt = chain[i + 1] if i + 1 < len(chain) else None
+        if nxt and node["role"] == ROLE_SUBPROVIDER and nxt["role"] == ROLE_CREATOR:
+            from src.ops.provisioning_wallet import provisioning_wallet_for_edge
+            wallet_p = provisioning_wallet_for_edge(
+                conn, subprov_wallet=node["wallet"], creator_wallet=nxt["wallet"]
+            )
+            if wallet_p:
+                out.append({
+                    "wallet": wallet_p,
+                    "role": "PROVISIONING_WALLET",
+                    "properties": {},
+                })
+    return out

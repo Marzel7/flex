@@ -66,6 +66,8 @@ CREATE INDEX IF NOT EXISTS ix_wao_type_time
     ON wt_attribution_outcomes(outcome_type, completed_at DESC);
 CREATE INDEX IF NOT EXISTS ix_wao_terminal
     ON wt_attribution_outcomes(terminal_entity, outcome_type);
+CREATE INDEX IF NOT EXISTS ix_wao_completed_at
+    ON wt_attribution_outcomes(completed_at DESC);
 
 CREATE TABLE IF NOT EXISTS wt_unknown_infrastructure_registry (
     terminal_entity      TEXT PRIMARY KEY,

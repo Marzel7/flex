@@ -39,6 +39,19 @@ from __future__ import annotations
 import sqlite3
 from typing import Any, Optional
 
+# X43.1 — reuse the SAME dual-format (ISO-8601 / epoch-as-text) timestamp
+# parser X43.0 already introduced for this exact ambiguity in
+# token_analysis.created_at/migrated_at (see operational_behaviour_tags.py's
+# docstring for the two formats observed live). This module's own SQL-side
+# _epoch_expr() CASE conversion was believed to always yield a numeric
+# value, but the production crash trace (TypeError: unsupported operand
+# type(s) for -: 'str' and 'str' at the last_activity - first_observed
+# subtraction) shows a string can still reach Python here under some
+# concurrent-write/coercion condition not reproduced by a static read-only
+# scan. Normalizing defensively in Python, right before every arithmetic
+# use, closes that gap regardless of the SQL layer's behaviour.
+from src.ops.operational_behaviour_tags import _parse_token_analysis_timestamp
+
 # X27.1 Phase 5 — repeat-creator classification thresholds. Measurable,
 # fixed counts -- not arbitrary labels. A single-launch creator has
 # launched exactly once; a repeat creator has launched multiple times;
@@ -75,6 +88,33 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 def _columns(conn: sqlite3.Connection, table: str) -> set[str]:
     return {row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+
+
+def _safe_created_ats(rows, has_created_at: bool, creator: Optional[str]) -> list[float]:
+    """X43.1 — parse each row's created_at defensively, even though the
+    caller's SQL CASE expression (_epoch_expr) should already have produced
+    a numeric value for every real column format seen live. A value that
+    survives as neither a number nor a parseable ISO-8601 timestamp is
+    excluded here (never allowed to reach a later subtraction as a string,
+    which is exactly the class of production crash --
+    TypeError: unsupported operand type(s) for -: 'str' and 'str' -- this
+    function exists to close) and logged at WARNING with the offending
+    creator/mint/raw value so a future occurrence is diagnosable rather
+    than silent or fatal."""
+    import logging
+    out: list[float] = []
+    for r in rows:
+        if not has_created_at or r["created_at"] is None:
+            continue
+        parsed = _parse_token_analysis_timestamp(r["created_at"])
+        if parsed is None:
+            logging.getLogger("creator_activity").warning(
+                "unparseable created_at for creator=%r mint=%r raw_value=%r",
+                creator, r["mint"] if "mint" in r.keys() else None, r["created_at"],
+            )
+            continue
+        out.append(parsed)
+    return out
 
 
 class CreatorActivityService:
@@ -176,7 +216,7 @@ class CreatorActivityService:
                 "coverage_note": "No launches found for this creator address in token_analysis.",
             }
 
-        created_ats = [r["created_at"] for r in rows if has_created_at and r["created_at"] is not None]
+        created_ats = _safe_created_ats(rows, has_created_at, creator)
         first_observed = min(created_ats) if created_ats else None
         last_activity = max(created_ats) if created_ats else None
         active_lifetime_seconds = (

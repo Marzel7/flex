@@ -272,33 +272,53 @@ class TrackedConnection(sqlite3.Connection):
     def _release_write_lane(self):
         lease = getattr(self, "_cross_process_lease", None)
         if lease is not None:
+            # release_write_lease() below (which unlocks the cross-process
+            # file lock AND clears the thread-local re-entrancy guard,
+            # _thread_write_lease.owner in database_write_service.py) must
+            # run no matter what happens in the telemetry block below. The
+            # import itself is hoisted above both try blocks so an
+            # ImportError can't leave release_write_lease unbound going into
+            # the finally. Before this guard, an exception raised by
+            # record_external() (or anything else in the telemetry block)
+            # skipped release_write_lease() entirely while the OLD code's
+            # single finally still cleared self._cross_process_lease —
+            # silently leaking both the file lock and the thread-local
+            # forever, so every subsequent write on that thread raised
+            # NestedDatabaseWriteError permanently (observed: walkback_worker
+            # stuck ~26h after a single mid-batch RPC timeout).
+            from src.core.database_write_service import (
+                database_write_service, release_write_lease,
+            )
             try:
-                from src.core.database_write_service import (
-                    database_write_service, release_write_lease,
-                )
-                started = getattr(self, "_write_started_monotonic", time.monotonic())
-                rolled_back = bool(getattr(self, "_write_rolled_back", False))
-                database_write_service.record_external({
-                    "database": lease.owner["database"],
-                    "database_selector": lease.owner.get("database_selector"),
-                    "database_path": lease.owner["database_path"],
-                    "writer_id": lease.owner["writer_id"],
-                    "process_pid": lease.owner["process_pid"],
-                    "thread": lease.owner["thread"],
-                    "transaction_id": lease.owner["transaction_id"],
-                    "command": lease.owner["command"],
-                    "queue_wait_ms": None,
-                    "begin_timestamp": getattr(self, "_write_started_at", None),
-                    "commit_timestamp": None if rolled_back else time.time(),
-                    "rollback": rolled_back,
-                    "duration_ms": round((time.monotonic() - started) * 1000.0, 3),
-                    "rows_modified": self.total_changes - getattr(
-                        self, "_write_total_changes_before", self.total_changes
-                    ),
-                    "status": "ROLLED_BACK" if rolled_back else "COMMITTED",
-                })
-                release_write_lease(lease)
+                try:
+                    started = getattr(self, "_write_started_monotonic", time.monotonic())
+                    rolled_back = bool(getattr(self, "_write_rolled_back", False))
+                    database_write_service.record_external({
+                        "database": lease.owner["database"],
+                        "database_selector": lease.owner.get("database_selector"),
+                        "database_path": lease.owner["database_path"],
+                        "writer_id": lease.owner["writer_id"],
+                        "process_pid": lease.owner["process_pid"],
+                        "thread": lease.owner["thread"],
+                        "transaction_id": lease.owner["transaction_id"],
+                        "command": lease.owner["command"],
+                        "queue_wait_ms": None,
+                        "begin_timestamp": getattr(self, "_write_started_at", None),
+                        "commit_timestamp": None if rolled_back else time.time(),
+                        "rollback": rolled_back,
+                        "duration_ms": round((time.monotonic() - started) * 1000.0, 3),
+                        "rows_modified": self.total_changes - getattr(
+                            self, "_write_total_changes_before", self.total_changes
+                        ),
+                        "status": "ROLLED_BACK" if rolled_back else "COMMITTED",
+                    })
+                except Exception:
+                    _db_logger.exception(
+                        "[DB_WRITE_LEASE] record_external failed; releasing lease anyway "
+                        f"command={lease.owner.get('command')}"
+                    )
             finally:
+                release_write_lease(lease)
                 self._cross_process_lease = None
         if getattr(self, "_holds_write_lock", False):
             self._holds_write_lock = False

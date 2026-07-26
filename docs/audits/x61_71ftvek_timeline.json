@@ -1,0 +1,43 @@
+{
+  "classifications": {
+    "migration_under_5m": true,
+    "quick_birth_migration": true,
+    "rapid_birth_create": true
+  },
+  "create": {
+    "iso": "2026-07-20T14:45:28Z",
+    "rpc_state": "OK",
+    "signature": "4h62xSm9uLpPQP9XEEV5TMLzw6fCghAsmcXe6dDAzkzDQdsPShvjd3zs24duhXz3ene7EMGvgK2gJxK8rJdw5u7Y",
+    "slot": 434118208,
+    "source": "RPC_PARSED_TRANSACTION",
+    "timestamp": 1784558728
+  },
+  "creator": "71ftvekAkhanTdJJXdZRLtz7ShkXxdAxhmVmyv2YVSFS",
+  "creator_first_transaction": {
+    "iso": "2026-07-20T14:45:26Z",
+    "signature": "NoK7KdV5UuQS9VLJ7YYf1e35Rgj6s1HR54Ht84hKgWhSkMV4DhynGtvSmHkp9pRwPR9XHdrnU7BNm37ETAjRXHq",
+    "source": "RPC_EXHAUSTIVE_SIGNATURE_HISTORY",
+    "timestamp": 1784558726
+  },
+  "creator_funding": {
+    "iso": "2026-07-20T14:45:26Z",
+    "signature": "NoK7KdV5UuQS9VLJ7YYf1e35Rgj6s1HR54Ht84hKgWhSkMV4DhynGtvSmHkp9pRwPR9XHdrnU7BNm37ETAjRXHq",
+    "source": "RPC_PARSED_TRANSACTION",
+    "timestamp": 1784558726
+  },
+  "intervals_seconds": {
+    "birth_to_create": 2,
+    "birth_to_migration": 2,
+    "create_to_migration": 0
+  },
+  "migration": {
+    "iso": "2026-07-20T14:45:28Z",
+    "rpc_state": "OK",
+    "signature": "2begm2bDzSG9ee9knQe4ExpUVFbeNc9sum24EDYxc1xiYsp6JvAbZHZXvgvoYdM6LWhstoh9LwBpKx9fwPP1sDrv",
+    "slot": 434118208,
+    "source": "RPC_PARSED_TRANSACTION",
+    "timestamp": 1784558728
+  },
+  "mint": "CvP9vVUCpoDuMd2jg5qvakFsk8Ht4qQwmKtZTMeUpump",
+  "source": "X61_READ_ONLY_ARCHIVAL_REPLAY"
+}

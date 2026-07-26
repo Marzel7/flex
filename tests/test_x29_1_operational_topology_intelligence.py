@@ -70,6 +70,26 @@ def test_multi_level_fan_out_takes_priority_over_sibling_count():
     assert result["topology"] == MULTI_LEVEL_FAN_OUT
 
 
+def test_transaction_derived_walkback_depth_and_branching_is_multi_level_fan_out():
+    result = classify_topology_for_launch(
+        None, subprov_wallet="IMMEDIATE", treasury_wallet=None,
+        walkback_evidence={"depth": 2, "parents": {"UPSTREAM"}, "edge_count": 2},
+        walkback_fanout_counts={"UPSTREAM": 2},
+    )
+    assert result["topology"] == MULTI_LEVEL_FAN_OUT
+    assert result["derived_from"] == "selected_walkback_depth=2;upstream_fanout=2"
+
+
+def test_single_selected_walkback_path_is_linear_not_unknown():
+    result = classify_topology_for_launch(
+        None, subprov_wallet="IMMEDIATE", treasury_wallet=None,
+        walkback_evidence={"depth": 1, "parents": {"IMMEDIATE"}, "edge_count": 1},
+        walkback_fanout_counts={"IMMEDIATE": 1},
+    )
+    assert result["topology"] == LINEAR
+    assert result["derived_from"] == "selected_walkback_depth=1;no_observed_branch"
+
+
 def test_mesh_takes_priority_over_fan_out():
     result = classify_topology_for_launch(
         None, subprov_wallet="SUBPROV_C", treasury_wallet="MESH_TREASURY",

@@ -181,7 +181,7 @@ def test_cursor_advances_to_newest_signature_under_alternating_order(ops_db_path
 
     processed_order = []
 
-    def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True):
+    def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True, prefetched_tx=None):
         processed_order.append(sig_)
         return []
 
@@ -223,7 +223,7 @@ def test_cursor_does_not_advance_past_a_failed_newest_signature(ops_db_path, mon
 
     monkeypatch.setattr(wc, "_arpc", fake_arpc)
 
-    def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True):
+    def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True, prefetched_tx=None):
         if sig_ == "SIG0":  # the newest signature fails
             raise RuntimeError("simulated getTransaction failure")
         return []
@@ -261,7 +261,8 @@ def test_all_signatures_processed_exactly_once_even_and_odd(ops_db_path, monkeyp
 
         seen = []
 
-        def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True, _seen=seen):
+        def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True,
+                        prefetched_tx=None, _seen=seen):
             _seen.append(sig_)
             return []
 
@@ -313,7 +314,7 @@ def test_mixed_success_and_failure_only_successes_count_for_cursor(ops_db_path, 
     monkeypatch.setattr(wc, "_arpc", fake_arpc)
 
     fail_set = {"SIG0", "SIG2"}
-    def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True):
+    def fake_process(subprov_, sig_, *, slot=None, source="WS", advance_cursor=True, prefetched_tx=None):
         if sig_ in fail_set:
             raise RuntimeError("boom")
         return []
@@ -340,7 +341,7 @@ def test_advance_cursor_false_does_not_write_cursor(ops_db_path):
     _insert_session(path, subprov, expires_at=999999)
     casc = wc.Cascade()
 
-    def fake_handle(subprov_, sig_, seen_at=None):
+    def fake_handle(subprov_, sig_, seen_at=None, prefetched=None):
         return []
     casc._handle_subprov_tx = fake_handle
 

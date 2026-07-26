@@ -58,6 +58,11 @@ CREATE TABLE wt_unknown_infrastructure_registry (
  latest_source_mint TEXT, observation_count INTEGER DEFAULT 1, confidence TEXT,
  evidence_json TEXT, eligible INTEGER DEFAULT 1, first_seen_at INTEGER, last_seen_at INTEGER
 );
+CREATE TABLE wt_wrap_close_candidates (
+ creator TEXT PRIMARY KEY, funding_mechanism TEXT, creator_extraction_method TEXT,
+ subprov_wallet TEXT, close_destination TEXT, base_amount_sol REAL,
+ tx_signature TEXT, funded_at INTEGER, confidence TEXT, state TEXT, detected_at INTEGER
+);
 """
 
 
@@ -78,7 +83,7 @@ def ops(monkeypatch):
     # even though no attribution is written.
     calls = {"n": 0}
 
-    def fake_find_funder(wallet, rpc_counter, ops_conn=None):
+    def fake_find_funder(wallet, rpc_counter, ops_conn=None, **_search_options):
         calls["n"] += 1
         rpc_counter[0] += 1
         if wallet == "CREATOR_X":
@@ -159,3 +164,70 @@ def test_capture_failure_never_breaks_walkback_completion(ops, monkeypatch):
     queue_row = ops.execute("SELECT status, intelligence_outcome FROM wt_walkback_queue WHERE mint='mintX'").fetchone()
     assert queue_row["status"] == "complete"
     assert queue_row["intelligence_outcome"] == "LINEAGE_GAP"
+
+
+def test_full_walkback_anchors_creator_and_upstream_searches(ops, monkeypatch):
+    calls = []
+
+    def anchored_find(wallet, rpc_counter, ops_conn=None, **options):
+        calls.append((wallet, options))
+        rpc_counter[0] += 1
+        if wallet == "CREATOR_X":
+            return ("SUBPROV_X", "creator_funding_sig", 200, 2000, 0.123039,
+                    "WSOL_WRAP_CLOSE")
+        if wallet == "SUBPROV_X":
+            return ("TREASURY_X", "capital_funding_sig", 100, 1900, 720.0,
+                    "PLAIN_XFER")
+        return (None, None, None, None, None, None)
+
+    close_tx = {
+        "transaction": {"message": {"instructions": [{
+            "parsed": {"type": "closeAccount", "info": {"destination": "CREATOR_X"}}
+        }]}},
+        "meta": {},
+    }
+    monkeypatch.setattr(walkback_worker, "_find_funder_via_rpc", anchored_find)
+    monkeypatch.setattr(walkback_worker, "_recover_create_signature_from_db",
+                        lambda _mint: "create_sig")
+    monkeypatch.setattr(walkback_worker, "_get_tx", lambda _sig: close_tx)
+    ops.execute("INSERT INTO wt_confirmed_treasuries VALUES ('TREASURY_X', 1)")
+
+    row = ops.execute("SELECT * FROM wt_walkback_queue WHERE mint='mintX'").fetchone()
+    walkback_worker._process_row(ops, row)
+
+    assert calls == [
+        ("CREATOR_X", {"before_signature": "create_sig"}),
+        ("SUBPROV_X", {
+            "before_signature": "creator_funding_sig", "prefer_oldest": True}),
+    ]
+    result = ops.execute(
+        "SELECT intelligence_outcome,subprov,treasury FROM wt_walkback_queue WHERE mint='mintX'"
+    ).fetchone()
+    assert tuple(result) == ("WATCHTOWER_CONFIRMED", "SUBPROV_X", "TREASURY_X")
+    close = ops.execute(
+        "SELECT close_destination,state FROM wt_wrap_close_candidates WHERE creator='CREATOR_X'"
+    ).fetchone()
+    assert tuple(close) == ("CREATOR_X", "WALKBACK_EVIDENCE")
+
+
+def test_signature_window_paginates_before_downstream_signature(monkeypatch):
+    calls = []
+
+    def fake_get_sigs(wallet, limit, before=None):
+        calls.append((wallet, limit, before))
+        if before == "downstream":
+            return [{"signature": f"recent-{i}", "slot": 300 - i}
+                    for i in range(walkback_worker.SIG_PAGE_LIMIT)]
+        if before == f"recent-{walkback_worker.SIG_PAGE_LIMIT - 1}":
+            return [{"signature": "capital", "slot": 1}]
+        return []
+
+    monkeypatch.setattr(walkback_worker, "_get_sigs", fake_get_sigs)
+    rpc = [0]
+    rows = walkback_worker._collect_signature_window(
+        "SUBPROV_X", rpc, before_signature="downstream")
+
+    assert rows[-1]["signature"] == "capital"
+    assert calls[0][2] == "downstream"
+    assert calls[1][2] == f"recent-{walkback_worker.SIG_PAGE_LIMIT - 1}"
+    assert rpc[0] == 2

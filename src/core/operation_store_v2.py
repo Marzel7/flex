@@ -45,6 +45,34 @@ from typing import Optional
 
 from src.utils.db_locking import db_connect
 
+# X41.0 shadow merge ledger — additive, explanatory only, never affects the merge
+# decision below. These wrappers are a hard boundary: they NEVER raise, no matter
+# what goes wrong (missing module, broken schema, anything) — same Gate F
+# guarantee as attribution_evidence's wrapper in treasury_bank.py. Removing this
+# import/these calls must return persist() to its exact original behaviour.
+import logging as _merge_ledger_logging
+_merge_ledger_logger = _merge_ledger_logging.getLogger("operation_merge_ledger")
+
+
+def _record_merge_event(*args, **kwargs):
+    try:
+        from src.core.operation_merge_ledger import record_merge_event as _rme
+        return _rme(*args, **kwargs)
+    except Exception as _exc:                          # pragma: no cover - defensive
+        _merge_ledger_logger.error("operation_merge_ledger dual-write call failed "
+                                   "(swallowed, production flow unaffected): %s", _exc)
+        return None
+
+
+def _determine_merge_rule(*args, **kwargs):
+    try:
+        from src.core.operation_merge_ledger import determine_merge_rule as _dmr
+        return _dmr(*args, **kwargs)
+    except Exception as _exc:                          # pragma: no cover - defensive
+        _merge_ledger_logger.error("determine_merge_rule call failed "
+                                   "(swallowed, production flow unaffected): %s", _exc)
+        return "UNKNOWN"
+
 # Reuse the PROVEN trace engine — do not re-implement it.
 from src.core.operation_discovery_poc import (
     discover_from_creator, trace_node, _native_flows, _rpc_addr_txs,
@@ -380,6 +408,15 @@ def persist(conn, live_conn, trace: dict, source: str = "watch_migration") -> di
     target = _find_hard_merge_target(conn, treasury, chain_infra)
     if target:
         op_uuid, action = target, "MERGE"
+        # X41.0: capture pre-merge state for the shadow ledger, BEFORE the write below.
+        # This never influences target/action — _find_hard_merge_target() already decided.
+        _pre_merge_row = conn.execute(
+            "SELECT treasury_root, confidence, last_seen FROM wt_ops_v2 WHERE operation_uuid=?",
+            (op_uuid,),
+        ).fetchone()
+        _pre_merge_wallet_count = conn.execute(
+            "SELECT COUNT(*) FROM wt_ops_v2_wallets WHERE operation_uuid=?", (op_uuid,)
+        ).fetchone()[0]
         # if this is a brand-new treasury merging via shared infra, record it as a wallet
         conn.execute(
             "UPDATE wt_ops_v2 SET last_seen=?, updated_at=? WHERE operation_uuid=?",
@@ -481,6 +518,40 @@ def persist(conn, live_conn, trace: dict, source: str = "watch_migration") -> di
     # action refinement: a MERGE that added no new creator is a pure no-op re-run
     if action == "MERGE" and not creator_added:
         action = "EXPAND" if treasury else "MERGE"
+
+    # X41.0 shadow merge-ledger dual-write — AFTER the authoritative commit above,
+    # purely explanatory. Never influences action/op_uuid, which are already decided.
+    if action in ("MERGE", "EXPAND"):
+        _rule = _determine_merge_rule(conn, treasury, chain_infra, op_uuid)
+        _record_merge_event(
+            conn, event_type="HARD_MERGE" if action == "MERGE" else "TREASURY_ADDED",
+            target_operation_uuid=op_uuid, affected_wallet=treasury, merge_rule=_rule,
+            evidence_refs={"chain_infra": sorted(chain_infra), "creator": trace["creator"]},
+            reviewer_or_rule=f"AUTOMATED:{_rule}", timestamp=now,
+            previous_state=({"treasury_root": _pre_merge_row[0], "confidence": _pre_merge_row[1],
+                             "last_seen": _pre_merge_row[2], "wallet_count": _pre_merge_wallet_count}
+                            if _pre_merge_row else None),
+            resulting_state={"operation_uuid": op_uuid, "wallet_count": nwallets,
+                             "confidence": _score(trace)},
+        )
+    else:
+        _record_merge_event(
+            conn, event_type="OPERATION_CREATED", target_operation_uuid=op_uuid,
+            affected_wallet=treasury, merge_rule=None,
+            evidence_refs={"creator": trace["creator"], "op_type": _op_type},
+            reviewer_or_rule="AUTOMATED:DISCOVER", timestamp=now,
+            previous_state=None,
+            resulting_state={"operation_uuid": op_uuid, "wallet_count": nwallets,
+                             "confidence": _score(trace)},
+        )
+    if fam:
+        _record_merge_event(
+            conn, event_type="FAMILY_LINKED", target_operation_uuid=op_uuid,
+            affected_wallet=treasury, evidence_refs={"family_uuid": fam,
+                                                     "template": trace.get("template")},
+            reviewer_or_rule="AUTOMATED:_link_family", timestamp=now,
+        )
+
     return {"action": action, "operation_uuid": op_uuid, "treasury": treasury,
             "wallets": nwallets, "family": fam, "creator": trace["creator"],
             "template": trace.get("template"), "mint": mint,

@@ -148,6 +148,92 @@ def store_migration(conn, mint, creator, migration_tx=None, migration_time=None,
     except Exception:
         pass
 
+    # X64.7A Phase 3 — migration coverage check: does the canonical CREATE
+    # ledger already have a row for this mint? Never blocks migration
+    # processing (best-effort, same conn already open here) — records the
+    # result so "migration observed but no ledger row" is queryable
+    # without parsing logs, per the task's explicit requirement.
+    try:
+        from src.ops import create_event_ledger
+        _record_migration_coverage(conn, mint=mint, creator=creator,
+                                   migration_time=migration_time, source=source)
+    except Exception:
+        pass
+
+
+def _ensure_migration_coverage_schema(conn) -> None:
+    # No process-wide "already ensured" flag — this must be idempotent
+    # per-CONNECTION, not per-process, since a stale flag set by an
+    # earlier connection (e.g. a different DB file, or a test's own
+    # in-memory connection) would incorrectly skip schema creation for a
+    # later connection that genuinely needs it. CREATE TABLE IF NOT
+    # EXISTS is cheap enough to run unconditionally on every call.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS wt_migration_ledger_coverage (
+            mint               TEXT PRIMARY KEY,
+            creator            TEXT,
+            migration_time     TEXT,
+            migration_source   TEXT,
+            ledger_result      TEXT NOT NULL,
+            ledger_signature   TEXT,
+            checked_at         INTEGER NOT NULL,
+            alert_emitted_at   INTEGER
+        )
+        """
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS ix_migration_ledger_coverage_result "
+        "ON wt_migration_ledger_coverage(ledger_result)"
+    )
+    conn.commit()
+
+
+def _record_migration_coverage(conn, *, mint, creator, migration_time, source) -> None:
+    """Phase 3 — query the ledger by mint at migration time and persist
+    exactly one of MIGRATION_CREATE_LEDGER_PRESENT/_PENDING/_MISSING/
+    _CONFLICT. Idempotent on mint (a migration event replayed/observed
+    twice just re-checks and overwrites — this table reflects current
+    coverage state, not a history log)."""
+    from src.ops import create_event_ledger
+    _ensure_migration_coverage_schema(conn)
+    now = int(time.time())
+
+    lookup = create_event_ledger.lookup_create_anchor(conn, mint)
+    if lookup["confidence"] == "SAFE":
+        pending_row = conn.execute(
+            "SELECT creator_resolution_state FROM wt_create_event_ledger WHERE mint=? AND signature=?",
+            (mint, lookup["signature"]),
+        ).fetchone()
+        state = pending_row[0] if pending_row else None
+        result = "MIGRATION_CREATE_LEDGER_PENDING" if state == "PENDING" else "MIGRATION_CREATE_LEDGER_PRESENT"
+        sig = lookup["signature"]
+    elif lookup["confidence"] == "CONFLICT":
+        result = "MIGRATION_CREATE_LEDGER_CONFLICT"
+        sig = None
+    else:
+        result = "MIGRATION_CREATE_LEDGER_MISSING"
+        sig = None
+
+    alert_ts = now if result == "MIGRATION_CREATE_LEDGER_MISSING" else None
+    conn.execute(
+        "INSERT INTO wt_migration_ledger_coverage "
+        "(mint, creator, migration_time, migration_source, ledger_result, "
+        " ledger_signature, checked_at, alert_emitted_at) "
+        "VALUES (?,?,?,?,?,?,?,?) "
+        "ON CONFLICT(mint) DO UPDATE SET "
+        "creator=excluded.creator, migration_time=excluded.migration_time, "
+        "migration_source=excluded.migration_source, ledger_result=excluded.ledger_result, "
+        "ledger_signature=excluded.ledger_signature, checked_at=excluded.checked_at, "
+        "alert_emitted_at=COALESCE(wt_migration_ledger_coverage.alert_emitted_at, excluded.alert_emitted_at)",
+        (mint, creator, str(migration_time) if migration_time else None, source,
+         result, sig, now, alert_ts),
+    )
+    conn.commit()
+    if result == "MIGRATION_CREATE_LEDGER_MISSING":
+        print(f"[MIGRATION_CREATE_LEDGER_MISSING] mint={mint} creator={creator or 'NONE'} "
+              f"source={source} — migration observed with no canonical CREATE ledger row", flush=True)
+
 
 # ── Layer 2: WATCHTOWER attribution scorer ───────────────────────────────────
 def _wt_graph(conn):

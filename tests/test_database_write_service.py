@@ -186,6 +186,47 @@ def test_tracked_connection_cannot_reacquire_lane_inside_callback(tmp_path):
         assert conn.execute("SELECT COUNT(*) FROM values_table").fetchone()[0] == 0
 
 
+def test_release_write_lane_survives_telemetry_failure(tmp_path, monkeypatch):
+    # Regression for a leak found live in walkback_worker: a single
+    # exception inside TrackedConnection._release_write_lane()'s telemetry
+    # block (database_write_service.record_external) used to skip
+    # release_write_lease() entirely while still clearing
+    # self._cross_process_lease, permanently leaking both the cross-process
+    # file lock and the thread-local re-entrancy guard
+    # (database_write_service._thread_write_lease.owner). Every subsequent
+    # write on that thread then raised NestedDatabaseWriteError forever,
+    # even across brand-new connection objects, until process restart.
+    from src.utils import db_locking
+    from src.core import database_write_service as write_module
+
+    monkeypatch.setattr(db_locking, "_DB_WRITE_SERIALIZE", True)
+
+    path = tmp_path / "ops.db"
+    _database(path)
+
+    monkeypatch.setattr(
+        write_module.database_write_service, "record_external",
+        lambda record: (_ for _ in ()).throw(RuntimeError("telemetry boom")),
+    )
+
+    conn = db_locking.db_connect(str(path))
+    conn.execute("INSERT INTO values_table VALUES(1)")
+    conn.commit()  # must not raise, and must fully release the lease
+    conn.close()
+
+    assert getattr(write_module._thread_write_lease, "owner", None) is None
+
+    # A second, brand-new connection on the same thread must be able to
+    # acquire the write lane immediately -- proving nothing was leaked.
+    conn2 = db_locking.db_connect(str(path))
+    conn2.execute("INSERT INTO values_table VALUES(2)")
+    conn2.commit()
+    conn2.close()
+
+    with sqlite3.connect(path) as check:
+        assert check.execute("SELECT COUNT(*) FROM values_table").fetchone()[0] == 2
+
+
 def test_cascade_operations_write_uses_database_write_service(tmp_path, monkeypatch):
     from src.core import database_write_service as write_module
     from src.core import ws_cascade_store

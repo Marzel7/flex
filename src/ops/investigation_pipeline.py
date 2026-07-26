@@ -82,6 +82,7 @@ itself, and no new dashboard.
 """
 from __future__ import annotations
 
+import logging
 import sqlite3
 import time
 from typing import Any, Callable
@@ -173,6 +174,7 @@ def assign_bucket(
     now: int | None = None,
     rapid_birth_evidence: dict[str, Any] | None = None,
     burst_evidence: dict[str, Any] | None = None,
+    profile_cache: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Assigns exactly one bucket to a single migrated launch (Phase 4).
 
@@ -201,7 +203,12 @@ def assign_bucket(
     resolved_creator = creator if creator is not None else _resolve_creator(core_conn, mint)
     if resolved_creator:
         from src.ops.attribution_outcome import evaluate_launcher_profile
-        profile = evaluate_launcher_profile(ops_conn, core_conn, resolved_creator, now=now)
+        if profile_cache is not None and resolved_creator in profile_cache:
+            profile = profile_cache[resolved_creator]
+        else:
+            profile = evaluate_launcher_profile(ops_conn, core_conn, resolved_creator, now=now)
+            if profile_cache is not None:
+                profile_cache[resolved_creator] = profile
         if profile["established"]:
             return {"bucket": REPEAT_CREATOR, "label": BUCKET_LABELS[REPEAT_CREATOR], "reason": BUCKET_REASONS[REPEAT_CREATOR]}
 
@@ -230,6 +237,21 @@ def build_pipeline_health(
     now = int(now or time.time())
     since = now - window_seconds
 
+    # X65.53 -- per-stage profiling, behind DEBUG logging only, mirroring
+    # the _mark() pattern in build_operational_intelligence().
+    _log = logging.getLogger(__name__)
+    _stage_start = time.perf_counter()
+    _t0 = _stage_start
+
+    def _mark(stage: str) -> None:
+        nonlocal _t0
+        now_t = time.perf_counter()
+        _log.debug(
+            "pipeline_health stage=%s elapsed_ms=%.1f cumulative_ms=%.1f",
+            stage, (now_t - _t0) * 1000, (now_t - _stage_start) * 1000,
+        )
+        _t0 = now_t
+
     # X27.5 -- behavioural evidence is computed once, up front, via the
     # SAME functions src/ops/behaviour_queue.py exposes (no reimplementation,
     # no second classification system). These lookups are independent of
@@ -240,6 +262,7 @@ def build_pipeline_health(
     from src.ops.behaviour_queue import rapid_birth_launch_lookup, burst_launch_lookup
     rapid_birth_lookup = rapid_birth_launch_lookup(ops_db_path)
     burst_lookup = burst_launch_lookup(core_db_path, window_seconds=window_seconds, now=now)
+    _mark("behavioural_evidence_lookups")
 
     ops_conn = sqlite3.connect(f"file:{ops_db_path}?mode=ro", uri=True, timeout=5)
     ops_conn.row_factory = sqlite3.Row
@@ -261,16 +284,32 @@ def build_pipeline_health(
                 mints,
             ):
                 creator_of[r["mint"]] = r["pf_ws_creator"] or r["earliest_tx_creator"]
+        _mark("creator_resolution")
+
+        # X65.53 -- per-build memo cache keyed by creator address, scoped
+        # strictly to this one build_pipeline_health() call (never persisted
+        # across requests/builds). Eliminates repeat evaluate_launcher_
+        # profile() calls when multiple mints in the window share a creator;
+        # does not change queries, aggregation, or the returned profile
+        # shape -- purely a duplicate-call elimination within one build.
+        _profile_cache: dict[str, Any] = {}
+        _profile_calls = 0
+        _profile_unique_creators: set[str] = set()
 
         assignments: dict[str, dict[str, Any]] = {}
         counts = {b: 0 for b in BUCKET_ORDER}
         for r in rows:
             mint, outcome_type = r["mint"], r["outcome_type"]
+            resolved_creator = creator_of.get(mint)
+            if resolved_creator:
+                _profile_calls += 1
+                _profile_unique_creators.add(resolved_creator)
             result = assign_bucket(
                 ops_conn, core_conn, mint, outcome_type,
-                creator=creator_of.get(mint), now=now,
+                creator=resolved_creator, now=now,
                 rapid_birth_evidence=rapid_birth_lookup.get(mint),
                 burst_evidence=burst_lookup.get(mint),
+                profile_cache=_profile_cache,
             )
             result["creator"] = creator_of.get(mint)
             # X27.9 Phase 8 — supplementary behavioural evidence must remain visible
@@ -285,12 +324,27 @@ def build_pipeline_health(
             }
             assignments[mint] = result
             counts[result["bucket"]] += 1
+        _loop_ms = (time.perf_counter() - _t0) * 1000
+        _mark("assign_bucket_loop")  # dominant cost: per-mint evaluate_launcher_profile() N+1
+        _profile_hits = _profile_calls - len(_profile_unique_creators)
+        _avg_profile_ms = (_loop_ms / len(_profile_unique_creators)) if _profile_unique_creators else 0.0
+        _log.debug(
+            "pipeline_health launcher_profile_memo total_calls=%d unique_creators=%d "
+            "memo_hits=%d memo_hit_rate=%.1f%% est_time_saved_ms=%.1f",
+            _profile_calls, len(_profile_unique_creators), _profile_hits,
+            (_profile_hits / _profile_calls * 100) if _profile_calls else 0.0,
+            _profile_hits * _avg_profile_ms,
+        )
 
         total = len(rows)
         conserved = sum(counts.values()) == total
     finally:
         ops_conn.close()
         core_conn.close()
+    _log.debug(
+        "pipeline_health stage=%s elapsed_ms=%.1f cumulative_ms=%.1f",
+        "TOTAL", (time.perf_counter() - _stage_start) * 1000, (time.perf_counter() - _stage_start) * 1000,
+    )
 
     return {
         "window_seconds": window_seconds,

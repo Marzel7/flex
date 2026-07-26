@@ -26,6 +26,28 @@ except Exception:                                    # pragma: no cover
     def db_connect(path, timeout=30):
         c = sqlite3.connect(path, timeout=timeout); c.row_factory = sqlite3.Row; return c
 
+# X41.0 shadow evidence ledger — additive, dual-write only, never authoritative.
+# _record_attribution_evidence() below is a hard boundary: it NEVER raises, no
+# matter what goes wrong (missing module, broken schema, closed connection,
+# anything). record_evidence() itself already catches write-time failures, but
+# this wrapper additionally guards against failures in the import/call
+# machinery itself, so a catastrophic ledger-side problem can never propagate
+# into the existing (authoritative) treasury-confirmation call sites that
+# invoke it. This is what Gate F (X41.0) requires: removing/disabling the new
+# writer must return the system to original behaviour.
+import logging as _logging
+_attribution_logger = _logging.getLogger("attribution_evidence")
+
+
+def _record_attribution_evidence(*args, **kwargs):
+    try:
+        from src.core.attribution_evidence import record_evidence as _re
+        return _re(*args, **kwargs)
+    except Exception as _exc:                          # pragma: no cover - defensive
+        _attribution_logger.error("attribution_evidence dual-write call failed "
+                                  "(swallowed, production flow unaffected): %s", _exc)
+        return None
+
 OPS_DB_PATH = os.path.abspath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"))
 
@@ -334,6 +356,14 @@ def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
         (reviewed_by, now, treasury))
     _align_confirmed_treasury(conn, treasury)
     conn.commit()
+    # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+    _record_attribution_evidence(
+        conn, event_type="MANUAL_APPROVAL", subject_wallet=treasury,
+        claimed_role="TREASURY", decision="CONFIRMED",
+        evidence_refs={"transfer_pct": r[0], "out_sol": r[1], "recipients": r[2], "micro_pings": r[3]},
+        method="REVIEW_PROMOTED", actor_or_process=reviewed_by, timestamp=now,
+        source_pipeline="treasury_bank.promote_to_confirmed",
+        confidence_axis="treasury_role_attribution", confidence_value="CONFIRMED")
     return {"ok": True, "treasury": treasury, "needs_webhook": True}
 
 
@@ -473,6 +503,15 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
         _log_decision(conn, addr, ("READY_3OF3" if v == "CONFIRMED" else "NEAR_MISS"), fp,
                       source_migration=source_migration, evidence_txs=evidence_txs)
         conn.commit()
+        # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+        _record_attribution_evidence(
+            conn, event_type="FINGERPRINT_EVALUATION", subject_wallet=addr,
+            claimed_role="TREASURY", decision=("READY_3OF3" if v == "CONFIRMED" else "NEAR_MISS"),
+            evidence_refs={"signals": fp, "source_migration": source_migration},
+            method="auto_evaluate", actor_or_process="auto_evaluate", timestamp=now,
+            source_pipeline="treasury_bank.auto_evaluate",
+            confidence_axis="categorical_evaluation_outcome",
+            confidence_value=("READY_3OF3" if v == "CONFIRMED" else "NEAR_MISS"))
         # signals carry the verdict so the UI can show "3/3 ready" vs "2/3 review"; needs_webhook
         # stays False — webhooking happens only on human promote.
         return {"verdict": v, "treasury": addr, "needs_webhook": False, "signals": fp,
@@ -480,6 +519,14 @@ def auto_evaluate(conn, addr: str, raw_txs_fn, micro_ping_count: int = 0, *,
     _log_decision(conn, addr, "REJECT", fp, source_migration=source_migration,
                   evidence_txs=evidence_txs)
     conn.commit()
+    # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+    _record_attribution_evidence(
+        conn, event_type="FINGERPRINT_EVALUATION", subject_wallet=addr,
+        claimed_role="TREASURY", decision="REJECT",
+        evidence_refs={"signals": fp, "source_migration": source_migration},
+        method="auto_evaluate", actor_or_process="auto_evaluate", timestamp=now,
+        source_pipeline="treasury_bank.auto_evaluate",
+        confidence_axis="categorical_evaluation_outcome", confidence_value="REJECT")
     return {"verdict": v, "treasury": addr, "needs_webhook": False, "signals": fp}
 
 
@@ -517,6 +564,15 @@ def auto_confirm_from_launch_chain(conn, treasury: str, *, subprov: str, creator
                   promoted_at=now, webhook_status="PENDING")
     _align_confirmed_treasury(conn, treasury)
     conn.commit()
+    # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+    _record_attribution_evidence(
+        conn, event_type="LAUNCH_CHAIN_CONFIRMATION", subject_wallet=treasury,
+        claimed_role="TREASURY", decision="CONFIRMED",
+        evidence_refs={"subprov": subprov, "creator": creator, "mint": mint,
+                       "create_sig": create_sig},
+        method="LAUNCH_CHAIN", actor_or_process="operation_scheduler.auto_confirm_from_launch_chain",
+        timestamp=now, source_pipeline="treasury_bank.auto_confirm_from_launch_chain",
+        confidence_axis="treasury_role_attribution", confidence_value="STRICT")
     return {"verdict": "CONFIRMED", "treasury": treasury, "needs_webhook": True,
             "provenance": "CONFIRMED_LAUNCH_CHAIN",
             "evidence": {"subprov": subprov, "creator": creator, "mint": mint}}
@@ -543,6 +599,14 @@ def revert_auto_promotion(conn, treasury: str, reason: str = "manual_revert") ->
     conn.execute("DELETE FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,))
     _log_decision(conn, treasury, "REVERTED", {"reason": reason}, webhook_status="REMOVE")
     conn.commit()
+    # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
+    _record_attribution_evidence(
+        conn, event_type="REVERSION", subject_wallet=treasury,
+        claimed_role="TREASURY", decision="REVERTED",
+        evidence_refs={"reason": reason},
+        method="revert_auto_promotion", actor_or_process="system",
+        source_pipeline="treasury_bank.revert_auto_promotion",
+        confidence_axis="treasury_role_attribution", confidence_value="REVERTED")
     return {"ok": True, "treasury": treasury, "reverted": True}
 
 

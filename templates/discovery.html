@@ -1846,8 +1846,27 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // this task retires. This is the ONLY population change in this task;
   // every downstream x60...Rows() function is unchanged, since they all
   // filter the prior stage's array and inherit the exclusion automatically.
+  //
+  // X67.35 -- the original exclusion, r.campaign!=='WATCHTOWER', silently
+  // stopped working: campaign is a HEURISTIC classification
+  // (classify_campaign_for_launch: fresh-creator + observed wrap-close
+  // evidence), independent of is_watchtower (the AUTHORITATIVE flag backed
+  // by wt_watchtower_launches / canonical registry membership -- the same
+  // ground truth the Canonical WATCHTOWER panel itself uses). X65.26/X65.27
+  // already documented this exact divergence for a neighbouring code path
+  // ("campaign==='WATCHTOWER' and is_cascade_confirmed are NOT the same
+  // population") and fixed THAT panel to read the authoritative signal;
+  // this cascade's exclusion was never updated to match, so campaign never
+  // actually equals 'WATCHTOWER' for any live launch and NOTHING was being
+  // excluded (X67.34: 20/20 canonical launches leaked through in the
+  // sampled 24h window). Switched to !r.is_watchtower -- plain JS
+  // truthiness, matching the two existing call sites that already read
+  // this field this way (dw-x56-badge-operation, the WATCHTOWER-count
+  // summary above) -- the API always serializes it as a real JSON
+  // boolean (Python bool -> JSON true/false), so no second truthiness
+  // convention is introduced.
   function x65_25RemainingUniverseRows(){
-    return X60_UNIVERSE_ROWS.filter(function(r){return r.campaign!=='WATCHTOWER'});
+    return X60_UNIVERSE_ROWS.filter(function(r){return !r.is_watchtower});
   }
   function x60CreatorIdentityRows(){
     var universe=x65_25RemainingUniverseRows();
@@ -2781,13 +2800,51 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // two different concepts that must never share a label.
   function renderKnownWatchtowerTopology(){
     if(!X60_UNIVERSE_LOADED||!x65_25WatchtowerRows().length)return '';
-    var fullExplanation='Every confirmed '+DW_OPERATION+' launch shares this same operational structure (X65.19: 42/42 resolvable cascade-confirmed launches; X65.21: now persisted directly). '
+    // X67.35 -- Canonical topology audit. X67.34 found the empirical
+    // per-launch `topology` field (funding_topology.py's classifier) is NOT
+    // uniform across confirmed launches (sampled 24h window: 9 MULTI_LEVEL_
+    // FAN_OUT, 4 UNKNOWN, 3 MESH, 3 LINEAR, 1 FAN_OUT) -- apparently
+    // conflicting with this section's "every launch shares this same
+    // structure" note. Traced to source: funding_topology.py's own
+    // docstring states it answers "what does the OBSERVED funding graph
+    // look like" from structural/lineage evidence coverage (wt_provisioning_
+    // edges, wt_active_subprov_sessions lineage chains) -- it is an
+    // evidence-completeness measurement, not a restatement of the canonical
+    // operational model. UNKNOWN specifically means "no/insufficient lineage
+    // evidence resolved," not "this launch doesn't follow the WATCHTOWER
+    // structure" (funding_topology.py lines ~288/359/366: "no_lineage_
+    // evidence"/"subprov_present_no_sibling_evidence"/"unresolved"). The
+    // diagram below is the CONCEPTUAL model (X65.19/X65.21: proven true for
+    // every resolvable cascade-confirmed launch); the distribution added
+    // below it is the OBSERVED, evidence-dependent classification -- both
+    // are accurate simultaneously, describing different things. Per X65.58A,
+    // this diagram must remain the ONLY place it renders; the distribution
+    // added here is scoped to the authoritative confirmed population
+    // (x65_27ConfirmedWatchtowerRows(), the same source renderConfirmedWatchtowerTreasury()
+    // already uses), not the broader campaign-heuristic-matched set.
+    var fullExplanation='Every confirmed '+DW_OPERATION+' launch shares this same CONCEPTUAL operational structure (X65.19: 42/42 resolvable cascade-confirmed launches; X65.21: now persisted directly). '
       +'The Provisioning Wallet stage is proven but not yet individually persisted (X65.17/X65.19); today\'s tables and graphs collapse it into a single SubProvider→Creator edge. '
-      +'This describes how '+DW_OPERATION+' operates, not a way to distinguish individual launches within it.';
+      +'This describes how '+DW_OPERATION+' operates, not a way to distinguish individual launches within it. '
+      +'The Observed Topology Distribution below classifies each launch\'s currently RECONSTRUCTED evidence depth, which varies by lineage-evidence coverage -- it does not contradict the model above.';
+    var confirmed=x65_27ConfirmedWatchtowerRows();
+    var topoCounts={};
+    confirmed.forEach(function(r){var t=r.topology||'UNKNOWN';topoCounts[t]=(topoCounts[t]||0)+1});
+    var topoOrder=['MULTI_LEVEL_FAN_OUT','MESH','FAN_OUT','LINEAR','UNKNOWN'];
+    var topoLabels={MULTI_LEVEL_FAN_OUT:'Multi-Level Fan-Out',MESH:'Mesh',FAN_OUT:'Fan-Out',LINEAR:'Linear',UNKNOWN:'Unknown'};
+    var n=confirmed.length;
+    var distRows=topoOrder.filter(function(t){return topoCounts[t]>0}).map(function(t){
+      return '<div class="dw-campaign-seg-row"><span class="dw-campaign-seg-chip dw-campaign-seg-unknown">'+esc(topoLabels[t])+'</span>'
+        +'<span class="dw-campaign-seg-track"><span class="dw-campaign-seg-fill dw-campaign-seg-unknown" style="width:'+(n>0?Math.round(topoCounts[t]/n*100):0)+'%"></span></span>'
+        +'<span class="dw-campaign-seg-count">'+topoCounts[t]+'</span></div>';
+    }).join('');
+    var distribution=n?('<div class="dw-op-topology-note" style="margin-top:10px;font-weight:600">Observed Topology Distribution <span style="font-weight:400">('+n.toLocaleString()+' confirmed launches, current window)</span></div>'
+      +'<div class="dw-op-topology-note">Evidence-dependent classification of each launch\'s reconstructed funding graph -- Unknown means insufficient lineage evidence was resolved, not a different operational structure.</div>'
+      +'<div style="margin-top:6px">'+distRows+'</div>'):'';
     return '<div class="dw-op-topology-compact">'
-      +'<div class="dw-op-topology-title">Operational Topology</div>'
+      +'<div class="dw-op-topology-title">Canonical Operational Model</div>'
       +'<div class="dw-op-topology-diagram" title="'+esc(fullExplanation)+'">Treasury → Subprovider → Provisioning Wallet → Creator → Launch</div>'
-      +'<div class="dw-op-topology-note">Every confirmed '+esc(DW_OPERATION)+' launch shares this same operational structure.</div>'
+      +'<div class="dw-op-topology-note">Every confirmed '+esc(DW_OPERATION)+' launch shares this same conceptual operational structure.</div>'
+      +distribution
       +'</div>';
   }
   // X65.32 — Correct Treasury Classification Semantics. The old
@@ -3930,7 +3987,10 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'</div>'
       +'<div class="dw-tab-panel" id="dw-tab-panel-ecosystem" role="tabpanel"'+(DW_TAB!=='ecosystem'?' hidden':'')+'>'
         +'<div class="dw-health-head"><div class="vi-eyebrow">Ecosystem Intelligence · '+esc(dwWindowLabel())+'</div><div class="vi-title">Explore Ecosystem</div>'
-        +'<div class="dw-landing-sub">What else exists outside '+esc(DW_OPERATION)+'?</div></div>'
+        // X67.35 -- explicit, no longer implying "everything in this window":
+        // authoritative Canonical WATCHTOWER launches (is_watchtower=true)
+        // are excluded here and shown exclusively in Operation Intelligence.
+        +'<div class="dw-landing-sub">Launches in the selected window excluding authoritative Canonical WATCHTOWER launches. What else exists outside '+esc(DW_OPERATION)+'?</div></div>'
         +'<div id="dw-x65-stage-nav-mount"></div>'
         +'<div id="dw-x65-69-ecosystem-exchange-mount"></div>'
         +'<div id="dw-x58-selection-mount"></div>'

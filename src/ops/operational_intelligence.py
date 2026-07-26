@@ -34,7 +34,14 @@ from src.ops.operational_behaviour_tags import build_behaviour_classification, B
 from src.ops.funding_mechanism import build_mechanism_classification, MECHANISM_ORDER, MECHANISM_LABELS
 from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 from src.ops.detection_reconciliation import _LIVE_DETECTION_SOURCES
+from src.ops.discovery_window import WINDOW_ALL, window_seconds_for
 from src.utils.infra_mapping import is_known_account
+
+# X67.37 — the public boundary (via discovery_window's own accessor, not a
+# duplicated literal) above which a request is treated as "all-time" for
+# population-source purposes: only at this point is the full canonical
+# registry unioned into the population (see build_operational_intelligence).
+_WINDOW_ALL_SECONDS = window_seconds_for(WINDOW_ALL)
 
 # X61 — quick birth->create->migration window thresholds, and the derived
 # per-mint diagnostic (evidence-only; no new detection).
@@ -906,12 +913,42 @@ def build_operational_intelligence(
     mechanism = build_mechanism_classification(ops_db_path, window_seconds=window_seconds, now=now)
     _mark("mechanism_classification")
 
-    all_mints = set(topology["assignments"])
+    windowed_mints = set(topology["assignments"])
 
-    # X61 — widen the mint universe with the canonical WATCHTOWER launch
-    # registry, so a canonically-confirmed launch is never silently absent
-    # from `records` just because it fell outside the topology classifier's
-    # own selection window.
+    # X67.37 — three distinct populations were previously collapsed into one
+    # unconditional union (X61): (1) windowed launches from the topology/
+    # behaviour/mechanism classifiers' own Stage-1 population
+    # (wt_attribution_outcomes, filtered by each mint's resolved create_time
+    # >= now-window_seconds); (2) canonical registry launches that DO have
+    # attribution-pipeline evidence (already inside (1) for a wide-enough
+    # window); (3) canonical registry launches that exist ONLY in
+    # wt_watchtower_launches with no corresponding wt_attribution_outcomes
+    # row at all (X65.40/X65.44: 21 of 163 registry mints, predating or
+    # having bypassed the attribution pipeline) -- these can NEVER enter (1)
+    # under any window_seconds value, since they have no Stage-1 evidence
+    # to be time-filtered from in the first place.
+    #
+    # X61's bug was using (2)+(3) [the FULL registry] to widen EVERY window,
+    # so a 24h request's `records` silently included every historical
+    # canonical launch (X67.36: 907 rows instead of the true ~760; 164
+    # is_watchtower=True rows instead of the Canonical panel's own
+    # correctly-windowed 20).
+    #
+    # Fix: population source is now explicit per request shape, not a
+    # blanket exception --
+    #   finite window (24h/7d/30d): population = windowed launches ONLY.
+    #     Registry membership never adds a mint; it only ANNOTATES mints
+    #     already present (is_watchtower/is_cascade_confirmed, computed
+    #     separately and unchanged inside _enrich_discovery_records below).
+    #   all-time window: population = windowed launches UNION the full
+    #     registry. "All" means "everything we know about" -- which
+    #     includes the 21 registry-only launches with no attribution-outcome
+    #     row, since there is no other window under which they could ever
+    #     appear. This is the ONE place a union is architecturally correct,
+    #     and it is now written as an explicit population-source branch
+    #     rather than a silent widening applied to every request.
+    is_all_time_request = window_seconds >= _WINDOW_ALL_SECONDS
+
     canonical_registry_mints: set[str] = set()
     canonical_registry_creators: dict[str, str] = {}
     ops_conn_for_registry = sqlite3.connect(f"file:{ops_db_path}?mode=ro", uri=True, timeout=5)
@@ -923,17 +960,18 @@ def build_operational_intelligence(
             for row in ops_conn_for_registry.execute(
                 "SELECT mint, creator_wallet FROM wt_watchtower_launches WHERE mint IS NOT NULL"
             ):
-                canonical_registry_mints.add(row["mint"])
+                if is_all_time_request:
+                    canonical_registry_mints.add(row["mint"])
                 if row["creator_wallet"]:
                     canonical_registry_creators[row["mint"]] = row["creator_wallet"]
     finally:
         ops_conn_for_registry.close()
+    _mark("registry_lookup")
 
-    all_mints_for_records = all_mints | canonical_registry_mints
-    _mark("registry_widening")
+    all_mints = (windowed_mints | canonical_registry_mints) if is_all_time_request else windowed_mints
 
     records: dict[str, dict[str, Any]] = {}
-    for mint in all_mints_for_records:
+    for mint in all_mints:
         t = topology["assignments"].get(mint)
         b = behaviour["assignments"].get(mint)
         m = mechanism["assignments"].get(mint)

@@ -8079,10 +8079,31 @@ def api_ecosystem_exchange_interactions():
     as a known exchange/infrastructure wallet, migrated out of the
     Provisioning Candidate population (see src/ops/ecosystem_intelligence.py).
     These represent legitimate Treasury→Exchange ecosystem interaction, not
-    WATCHTOWER operational infrastructure. Read-only."""
+    WATCHTOWER operational infrastructure. Read-only.
+
+    X67.33 — window_seconds (matching the watchtower-candidates convention):
+    86400 filters funding_time to the last 24h; absent/0/negative returns
+    the full historical population ("All"). Discovery only ever selects
+    24h or all today (X67.29's window narrowing), so anything else is
+    treated the same as "all" -- there is no 7d/30d behaviour to preserve
+    here, and none is reintroduced.
+    """
     try:
-        from src.ops.ecosystem_intelligence import list_ecosystem_exchange_interactions
-        rows = list_ecosystem_exchange_interactions()
+        import src.ops.ecosystem_intelligence as _eco
+        raw = request.args.get("window_seconds")
+        window_seconds = None
+        if raw is not None:
+            try:
+                parsed = int(raw)
+            except (TypeError, ValueError):
+                return jsonify({"ok": False, "error": "invalid window_seconds",
+                                 "interactions": [], "total": 0}), 400
+            window_seconds = parsed if parsed > 0 else None
+        # read _eco.OPS_DB_PATH live (module attribute lookup) rather than
+        # relying on list_ecosystem_exchange_interactions()'s own default
+        # argument, which is bound once at function-definition/import time
+        # and would never see a later override of the module constant.
+        rows = _eco.list_ecosystem_exchange_interactions(_eco.OPS_DB_PATH, window_seconds=window_seconds)
         return jsonify({"ok": True, "interactions": rows, "total": len(rows)})
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc), "interactions": [], "total": 0}), 500

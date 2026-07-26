@@ -2228,19 +2228,49 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // WATCHTOWER operational infrastructure.
   var X65_69_ECOSYSTEM_EXCHANGE=[];
   var X65_69_ECOSYSTEM_EXCHANGE_LOADED=false;
-  var X65_69_ECOSYSTEM_EXCHANGE_FETCH_STARTED=false;
+  // X67.33 -- tracks which window the CURRENTLY-held data was fetched for
+  // (replacing the old fetch-once-forever FETCH_STARTED guard, which never
+  // reset and left the widget permanently serving whatever it loaded at
+  // page-open). renderX58Mounts() -- this loader's only call site -- runs
+  // on many refresh triggers besides a window change (tab switches,
+  // candidate-workflow polling, etc.), so re-fetching must be keyed to
+  // "the window actually changed since our last fetch," not "was called."
+  var X65_69_ECOSYSTEM_EXCHANGE_LOADED_FOR_WINDOW=null;
+  // X67.33 -- request-generation counter guards against a slower, stale
+  // request (e.g. an "All" fetch that takes longer) overwriting a later,
+  // faster response for a window the user has since switched away from.
+  // Only the response whose generation matches the CURRENT counter value
+  // at resolution time is applied; anything else is silently dropped.
+  var X65_69_ECOSYSTEM_EXCHANGE_GENERATION=0;
   function loadEcosystemExchangeInteractions(){
-    if(X65_69_ECOSYSTEM_EXCHANGE_FETCH_STARTED)return;
-    X65_69_ECOSYSTEM_EXCHANGE_FETCH_STARTED=true;
-    fetch('/api/ops-v2/ecosystem-exchange-interactions')
+    if(X65_69_ECOSYSTEM_EXCHANGE_LOADED&&X65_69_ECOSYSTEM_EXCHANGE_LOADED_FOR_WINDOW===DW_WINDOW)return;
+    // a genuine window change (not just an incidental re-render trigger) --
+    // drop the previous window's rows immediately so the widget shows
+    // "Loading…" rather than briefly rendering stale-window data under the
+    // new window's own header/label.
+    if(X65_69_ECOSYSTEM_EXCHANGE_LOADED_FOR_WINDOW!==null&&X65_69_ECOSYSTEM_EXCHANGE_LOADED_FOR_WINDOW!==DW_WINDOW){
+      X65_69_ECOSYSTEM_EXCHANGE_LOADED=false;
+      X65_69_ECOSYSTEM_EXCHANGE=[];
+    }
+    X65_69_ECOSYSTEM_EXCHANGE_LOADED_FOR_WINDOW=DW_WINDOW;
+    var myGeneration=++X65_69_ECOSYSTEM_EXCHANGE_GENERATION;
+    // X67.33 -- "All" omits window_seconds entirely (matches the backend's
+    // own None-means-no-filter contract) rather than sending the
+    // dwWindowSeconds() "all" sentinel (3153600000), which the task
+    // explicitly rejects as an artificial-huge-interval substitute for a
+    // real unbounded query.
+    var qs=DW_WINDOW==='all' ? '' : ('?window_seconds='+encodeURIComponent(dwWindowSeconds()));
+    fetch('/api/ops-v2/ecosystem-exchange-interactions'+qs)
       .then(function(r){return r.json()})
       .then(function(d){
+        if(myGeneration!==X65_69_ECOSYSTEM_EXCHANGE_GENERATION)return; // superseded by a newer window toggle
         X65_69_ECOSYSTEM_EXCHANGE=(d.interactions||[]);
         X65_69_ECOSYSTEM_EXCHANGE_LOADED=true;
         var mount=$('dw-x65-69-ecosystem-exchange-mount');
         if(mount)mount.innerHTML=renderEcosystemExchangeInteractions();
       })
       .catch(function(){
+        if(myGeneration!==X65_69_ECOSYSTEM_EXCHANGE_GENERATION)return;
         X65_69_ECOSYSTEM_EXCHANGE_LOADED=true;
         X65_69_ECOSYSTEM_EXCHANGE=[];
       });
@@ -2248,7 +2278,13 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   function renderEcosystemExchangeInteractions(){
     if(!X65_69_ECOSYSTEM_EXCHANGE_LOADED)return '<div class="dw-x58-section"><div class="dw-x58-heading">Exchange Interaction</div><div class="dw-empty" style="padding:14px">Loading…</div></div>';
     var rows=X65_69_ECOSYSTEM_EXCHANGE;
-    if(!rows.length)return '';
+    // X67.33 -- an empty 24h result is a valid, informative state (the
+    // corpus may simply be older than the window), never an error and
+    // never a silent fallback to the all-time population.
+    if(!rows.length)return '<div class="dw-x58-section dw-wt-known-section">'
+      +'<div class="dw-x58-heading">Exchange Interaction</div>'
+      +'<div class="dw-empty" style="padding:14px">No known-exchange funding interactions were observed in the '+esc(dwWindowLabel().toLowerCase())+' window.</div>'
+      +'</div>';
     var byExchange={};
     rows.forEach(function(r){
       var name=r.exchange_name||'Unknown exchange';
@@ -2266,14 +2302,14 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
         +'</tr>';
     }).join('');
     return '<div class="dw-x58-section dw-wt-known-section">'
-      +'<div class="dw-x58-heading">Exchange Interaction</div>'
+      +'<div class="dw-x58-heading">Exchange Interaction · '+esc(dwWindowLabel())+'</div>'
       +'<div class="dw-canon-topo-card" style="margin-top:8px">'
         +'<div class="dw-canon-topo-badge">'+rows.length.toLocaleString()+' interactions</div>'
-        +'<div class="dw-x58-copy" style="margin-top:2px">Historical launches whose funding path was traced back to a known exchange/infrastructure wallet ('+esc(exchangeSummary.replace(/<[^>]+>/g,'').replace(/: /g,' × '))+'). These are legitimate Treasury→Exchange ecosystem interactions (deposits, withdrawals, liquidity movement) — not WATCHTOWER operational infrastructure. Evidence preserved verbatim from the Provisioning Candidate population; nothing deleted.</div>'
+        +'<div class="dw-x58-copy" style="margin-top:2px">Known-exchange funding interactions observed within the selected Discovery window ('+esc(exchangeSummary.replace(/<[^>]+>/g,'').replace(/: /g,' × '))+'). These are exchange-system interactions and are not themselves evidence of WATCHTOWER operational infrastructure. Evidence preserved verbatim from the Provisioning Candidate population; nothing deleted.</div>'
         +'<div style="margin-top:8px">'+exchangeSummary+'</div>'
       +'</div>'
       +'<div class="dw-x65-1-table-wrap" style="margin-top:14px">'
-        +'<table class="dw-x65-1-table"><thead><tr><th>Token Mint</th><th>Treasury</th><th>Exchange Wallet</th><th>Creator</th><th>Observed</th></tr></thead>'
+        +'<table class="dw-x65-1-table"><thead><tr><th>Token Mint</th><th>Treasury</th><th>Exchange Wallet</th><th>Creator</th><th>Funding Observed</th></tr></thead>'
         +'<tbody>'+body+'</tbody></table></div>'
       +'</div>';
   }

@@ -183,6 +183,13 @@ def ensure_cascade_schema(conn) -> None:
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_state ON wt_candidate_websocket_watches(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_creator ON wt_watchtower_launches(creator_wallet)")
+    # X67.31 -- treasury_wallet is filtered/joined on in confirmed-treasuries and
+    # launch-audit's sibling-wallet lookup (WHERE treasury_wallet IN (...), JOIN ... ON
+    # treasury_wallet=...); EXPLAIN QUERY PLAN showed a full-table SCAN here before this
+    # index. Not the cause of the 30-100s X67.30 incident (that was the correlated
+    # subquery pattern, fixed separately) -- independent hygiene, low write overhead at
+    # this table's size (~160 rows).
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_treasury ON wt_watchtower_launches(treasury_wallet)")
     # migrate: add create_slot to a pre-existing launches table (audit needs it for tx-position)
     try:
         _cols = {r[1] for r in conn.execute("PRAGMA table_info(wt_watchtower_launches)").fetchall()}
@@ -633,6 +640,41 @@ def ensure_cascade_schema(conn) -> None:
             conn.execute("ALTER TABLE wt_candidate_websocket_watches ADD COLUMN subprov_fanout_value_at_capture REAL")
     except Exception:
         pass
+    # X64.9B1 — durable redelivery-dedupe measurement (see docs/design/x64_9/x64_9b1_observability_design.md).
+    # Aggregated by (subprov_wallet, age_bucket), NOT one row per duplicate event — bounded growth
+    # regardless of actual duplicate volume, which is the unknown this instrumentation measures.
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_subprov_sig_dedupe_stats (
+            subprov_wallet      TEXT NOT NULL,
+            age_bucket          TEXT NOT NULL,
+            duplicate_count     INTEGER NOT NULL DEFAULT 0,
+            max_duplicate_age_s INTEGER,
+            first_observed_at   INTEGER,
+            last_observed_at    INTEGER,
+            source_ws           INTEGER NOT NULL DEFAULT 0,
+            source_catchup      INTEGER NOT NULL DEFAULT 0,
+            source_retry        INTEGER NOT NULL DEFAULT 0,
+            source_hot_burst    INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (subprov_wallet, age_bucket)
+        )"""
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS ix_subprov_sig_dedupe_stats_bucket "
+        "ON wt_subprov_sig_dedupe_stats(age_bucket)"
+    )
+    # Single-row global rollup — total_checked is the denominator required to make a
+    # zero-duplicate result meaningful (see x64_9b1_measurement_contract.md).
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_subprov_sig_dedupe_summary (
+            id                    INTEGER PRIMARY KEY CHECK (id = 1),
+            total_checked         INTEGER NOT NULL DEFAULT 0,
+            total_duplicates      INTEGER NOT NULL DEFAULT 0,
+            max_duplicate_age_s   INTEGER,
+            first_duplicate_at    INTEGER,
+            last_duplicate_at     INTEGER,
+            updated_at            INTEGER NOT NULL
+        )"""
+    )
     conn.commit()
 
 
@@ -1114,8 +1156,19 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
       PROVISION_CANDIDATE  — unknown recipient, unproven
       SUBPROV_TOP_UP       — known subprov, extending/re-opening
       SUBPROV_REACTIVATED  — historical subprov (wrap-close seen), re-opened
+
+    X65.68: `subprov` is never opened as a candidate session if it is a known
+    CEX/exchange/infrastructure wallet (src.utils.infra_mapping.is_known_account
+    — the same registry already used by promote_to_subprov, run_subprov_discovery_job,
+    and walkback_worker._is_known_infrastructure). The funding transaction itself is
+    real and is not suppressed — record_treasury_hit()/wt_webhook_hits already logs
+    the treasury→exchange transfer as legitimate boundary activity — inference simply
+    does not continue past the exchange wallet into a fabricated Subprovider session.
     """
     now = int(time.time())
+    from src.utils.infra_mapping import is_known_account
+    if is_known_account(subprov):
+        return False
 
     # ── Active-session dedup ─────────────────────────────────────────────────
     # If a session is already ACTIVE for this subprov (any prior funding), extend its
@@ -1937,6 +1990,100 @@ def subprov_sig_advance_cursor(conn, *, subprov: str, signature: str,
              last_seen_at=COALESCE(excluded.last_seen_at, wt_subprov_sig_cursor.last_seen_at),
              updated_at=excluded.updated_at""",
         (subprov, signature, slot, block_time, now))
+    conn.commit()
+
+
+# X64.9B1 — age buckets required by the measurement design (see
+# docs/design/x64_9/x64_9b1_observability_design.md). Order matters: first
+# matching upper bound wins, so buckets must stay ascending.
+_DEDUPE_AGE_BUCKETS = [
+    ("<5m",     300),
+    ("5m-30m",  1800),
+    ("30m-2h",  7200),
+    ("2h-12h",  43200),
+    ("12h-24h", 86400),
+    ("1d-3d",   259200),
+    ("3d-7d",   604800),
+    ("7d-14d",  1209600),
+    ("14d-30d", 2592000),
+    (">30d",    None),
+]
+
+_DEDUPE_SOURCE_COLUMNS = {
+    "WS": "source_ws",
+    "CATCHUP": "source_catchup",
+    "RETRY": "source_retry",
+    "HOT_BURST": "source_hot_burst",
+}
+
+
+def dedupe_age_bucket(age_s: int) -> str:
+    """Maps a duplicate age in seconds to its bucket label. Pure function,
+    no I/O — safe to call from any context, including error handlers."""
+    age_s = max(0, int(age_s or 0))
+    for label, upper in _DEDUPE_AGE_BUCKETS:
+        if upper is None or age_s < upper:
+            return label
+    return ">30d"  # unreachable given the None sentinel above, kept for clarity
+
+
+def record_subprov_sig_duplicate(conn, *, subprov: str, age_s: int,
+                                 source: str, observed_at: Optional[int] = None) -> None:
+    """Durably records one duplicate-signature observation (X64.9B1).
+
+    Best-effort by design: this function assumes the caller has already
+    wrapped it in a try/except that swallows any failure (see
+    src/core/ws_cascade.py's dedupe branch) — observability must never be
+    able to affect the existing dedup/skip behaviour it is measuring.
+    Does NOT touch wt_subprov_sig_retry in any way."""
+    now = int(observed_at if observed_at is not None else time.time())
+    age_s = max(0, int(age_s or 0))
+    bucket = dedupe_age_bucket(age_s)
+    source_col = _DEDUPE_SOURCE_COLUMNS.get(source)
+
+    set_source_clause = f", {source_col} = {source_col} + 1" if source_col else ""
+    conn.execute(
+        f"""INSERT INTO wt_subprov_sig_dedupe_stats
+             (subprov_wallet, age_bucket, duplicate_count, max_duplicate_age_s,
+              first_observed_at, last_observed_at{"," + source_col if source_col else ""})
+           VALUES (?, ?, 1, ?, ?, ?{", 1" if source_col else ""})
+           ON CONFLICT(subprov_wallet, age_bucket) DO UPDATE SET
+             duplicate_count = duplicate_count + 1,
+             max_duplicate_age_s = MAX(
+                 COALESCE(wt_subprov_sig_dedupe_stats.max_duplicate_age_s, 0),
+                 excluded.max_duplicate_age_s),
+             last_observed_at = excluded.last_observed_at{set_source_clause}""",
+        (subprov, bucket, age_s, now, now))
+
+    conn.execute(
+        """INSERT INTO wt_subprov_sig_dedupe_summary
+             (id, total_checked, total_duplicates, max_duplicate_age_s,
+              first_duplicate_at, last_duplicate_at, updated_at)
+           VALUES (1, 0, 1, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             total_duplicates = total_duplicates + 1,
+             max_duplicate_age_s = MAX(COALESCE(wt_subprov_sig_dedupe_summary.max_duplicate_age_s, 0), excluded.max_duplicate_age_s),
+             last_duplicate_at = excluded.last_duplicate_at,
+             updated_at = excluded.updated_at""",
+        (age_s, now, now, now))
+    conn.commit()
+
+
+def record_subprov_sig_checked(conn, *, observed_at: Optional[int] = None) -> None:
+    """Increments the durable total_checked denominator (X64.9B1). Called for
+    EVERY signature reaching the dedupe check, whether skipped or not — this
+    is what makes a later '0 duplicates' result meaningful (see
+    x64_9b1_measurement_contract.md). Best-effort, same discipline as
+    record_subprov_sig_duplicate()."""
+    now = int(observed_at if observed_at is not None else time.time())
+    conn.execute(
+        """INSERT INTO wt_subprov_sig_dedupe_summary
+             (id, total_checked, total_duplicates, updated_at)
+           VALUES (1, 1, 0, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             total_checked = total_checked + 1,
+             updated_at = excluded.updated_at""",
+        (now,))
     conn.commit()
 
 

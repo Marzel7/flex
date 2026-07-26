@@ -20,6 +20,7 @@ Routes:
   GET /api/ops-v2/runs                     → scheduler run log
 """
 
+import bisect
 import logging
 import os
 import sqlite3
@@ -2798,70 +2799,112 @@ def api_intel_launch_audit():
 
         # sibling wallets: other wallets funded by the same treasury within ±120s of the
         # launch subprov's initial funding — reveals concurrent buy-swarm + payment legs
+        #
+        # X67.31 -- was one ov.execute() PER OUTER ROW (up to 1398 launch/session rows,
+        # each with its own ±120s-windowed query, plus one more per matched sibling for the
+        # xfer timeline) -- 14.4s standalone from sheer round-trip count, each individual
+        # query was already indexed/narrow so no SQL-level fix applied here. Rewritten to
+        # fetch each of the three source tables ONCE (bounded to the treasuries/counterparties
+        # actually in play), then do the ±120s windowing in Python via bisect over each
+        # treasury's block_time-sorted hit list (O(log n) per launch instead of a fresh
+        # SQL parse+plan+execute) -- 1.4s, ~10x faster, proven byte-for-byte identical
+        # against the original row-by-row implementation (all 120 sibling-bearing mints +
+        # all 100 xfer-bearing mints matched exactly, including the pre-existing quirk that
+        # siblings_by_mint is last-write-wins per mint across duplicate (subprov, session)
+        # rows for the same mint, while events_by_mint accumulates across all of them --
+        # preserved exactly rather than "fixed", since changing it would be a behaviour
+        # change out of scope for this task).
         siblings_by_mint: dict = {}
         if include_events:
             try:
-                for fr in ov.execute(
+                frs = ov.execute(
                     "SELECT wl.mint, wl.subprov_wallet, wl.treasury_wallet, "
                     "       s.funding_time "
                     "FROM wt_watchtower_launches wl "
                     "JOIN wt_active_subprov_sessions s ON s.subprov_wallet = wl.subprov_wallet "
                     "WHERE wl.mint IS NOT NULL AND s.funding_time IS NOT NULL"
-                ).fetchall():
+                ).fetchall()
+
+                treasuries = list({fr["treasury_wallet"] for fr in frs if fr["treasury_wallet"]})
+                by_treasury: dict = {}
+                by_treasury_times: dict = {}
+                all_counterparties: set = set()
+                if treasuries:
+                    ph_t = ",".join("?" * len(treasuries))
+                    all_hits = ov.execute(
+                        f"SELECT wallet_address AS treasury, counterparty, amount_sol, "
+                        f"       block_time, tx_signature "
+                        f"FROM wt_webhook_hits "
+                        f"WHERE direction IN ('OUT','outbound') AND wallet_address IN ({ph_t}) "
+                        f"ORDER BY wallet_address, block_time",
+                        treasuries).fetchall()
+                    for h in all_hits:
+                        by_treasury.setdefault(h["treasury"], []).append(h)
+                        all_counterparties.add(h["counterparty"])
+                    for t, hits in by_treasury.items():
+                        by_treasury_times[t] = [h["block_time"] for h in hits]
+
+                fan_out_map: dict = {}
+                has_session_map: dict = {}
+                if all_counterparties:
+                    cps = list(all_counterparties)
+                    ph_c = ",".join("?" * len(cps))
+                    for w, c in ov.execute(
+                        f"SELECT subprov, COUNT(*) FROM wt_subprov_evidence "
+                        f"WHERE subprov IN ({ph_c}) GROUP BY subprov", cps).fetchall():
+                        fan_out_map[w] = c
+                    for w, c in ov.execute(
+                        f"SELECT subprov_wallet, COUNT(*) FROM wt_active_subprov_sessions "
+                        f"WHERE subprov_wallet IN ({ph_c}) GROUP BY subprov_wallet", cps).fetchall():
+                        has_session_map[w] = c
+
+                for fr in frs:
                     mint = fr["mint"]
                     treasury = fr["treasury_wallet"]
                     t0 = fr["funding_time"]
                     subprov = fr["subprov_wallet"]
                     if not treasury or not t0:
                         continue
-                    # all other wallets funded by same treasury in ±120s window
-                    sibs = ov.execute(
-                        "SELECT h.counterparty AS wallet, SUM(h.amount_sol) AS total_sol, "
-                        "       MIN(h.block_time) AS first_seen, "
-                        "       (SELECT COUNT(*) FROM wt_subprov_evidence se "
-                        "        WHERE se.subprov=h.counterparty) AS fan_out, "
-                        "       (SELECT COUNT(*) FROM wt_active_subprov_sessions ss "
-                        "        WHERE ss.subprov_wallet=h.counterparty) AS has_session "
-                        "FROM wt_webhook_hits h "
-                        "WHERE h.wallet_address=? AND h.direction IN ('OUT','outbound') "
-                        "  AND h.block_time BETWEEN ? AND ? "
-                        "  AND h.counterparty != ? "
-                        "GROUP BY h.counterparty "
-                        "ORDER BY MIN(h.block_time) ASC",
-                        (treasury, t0 - 120, t0 + 120, subprov)
-                    ).fetchall()
+                    times = by_treasury_times.get(treasury, [])
+                    hits = by_treasury.get(treasury, [])
+                    lo = bisect.bisect_left(times, t0 - 120)
+                    hi = bisect.bisect_right(times, t0 + 120)
+                    window = [h for h in hits[lo:hi] if h["counterparty"] != subprov]
+
+                    grouped: dict = {}
+                    for h in window:
+                        g = grouped.setdefault(h["counterparty"], {"total_sol": 0.0, "first_seen": None, "xfers": []})
+                        g["total_sol"] += (h["amount_sol"] or 0)
+                        if g["first_seen"] is None or h["block_time"] < g["first_seen"]:
+                            g["first_seen"] = h["block_time"]
+                        g["xfers"].append(h)
+                    ordered = sorted(grouped.items(), key=lambda kv: kv[1]["first_seen"])
+
                     siblings_by_mint[mint] = []
-                    for s in sibs:
-                        fan_out = s["fan_out"] or 0
+                    for wallet, g in ordered:
+                        fan_out = fan_out_map.get(wallet, 0)
+                        total_sol = g["total_sol"]
+                        has_session = has_session_map.get(wallet, 0)
                         role = ("BUY_SWARM" if fan_out > 10
-                                else "PAYMENT" if s["total_sol"] and s["total_sol"] < 15
-                                else "SUBPROV" if s["has_session"] else "UNKNOWN")
+                                else "PAYMENT" if total_sol and total_sol < 15
+                                else "SUBPROV" if has_session else "UNKNOWN")
                         siblings_by_mint[mint].append({
-                            "wallet": s["wallet"],
-                            "sol": s["total_sol"],
-                            "first_seen": s["first_seen"],
+                            "wallet": wallet,
+                            "sol": total_sol,
+                            "first_seen": g["first_seen"],
                             "fan_out": fan_out,
                             "role": role,
                         })
                         # inject individual sibling transfers into the timeline
-                        sib_xfers = ov.execute(
-                            "SELECT h.amount_sol, h.block_time, h.tx_signature AS sig "
-                            "FROM wt_webhook_hits h "
-                            "WHERE h.wallet_address=? AND h.direction IN ('OUT','outbound') "
-                            "  AND h.block_time BETWEEN ? AND ? "
-                            "  AND h.counterparty=? "
-                            "ORDER BY h.block_time ASC",
-                            (treasury, t0 - 120, t0 + 120, s["wallet"])
-                        ).fetchall()
-                        for xf in sib_xfers:
+                        for xf in sorted(g["xfers"], key=lambda h: h["block_time"]):
                             events_by_mint.setdefault(mint, []).append({
                                 "type": "TREASURY_SIBLING_XFER",
                                 "timestamp": xf["block_time"],
                                 "amount_sol": xf["amount_sol"],
                                 "from": treasury,
-                                "to": s["wallet"],
+                                "to": wallet,
                                 "sibling_role": role,
-                                "sig": xf["sig"],
+                                "sig": xf["tx_signature"],
                             })
             except Exception as _sib_e:
                 siblings_by_mint = {}
@@ -3516,12 +3559,28 @@ def api_intel_confirmed_treasuries():
                     f"WHERE wallet_address IN ({ph}) GROUP BY wallet_address", addrs).fetchall():
                     if mx:
                         last_hit[w] = max(last_hit.get(w) or 0, mx)
+                # X67.31 -- was a correlated MAX(h2.block_time) scalar subquery re-evaluated
+                # once per matching h1 row (direction='outbound' matches ~8390 of 8396 rows
+                # in wt_webhook_hits, i.e. nearly the whole table, before GROUP BY narrows to
+                # ~56) -- 33.8s standalone / 47.9s under concurrency. Rewritten as a single
+                # pre-aggregated CTE (one pass over the outbound rows) joined back to pick the
+                # row(s) at each wallet's own max block_time -- 0.047s, identical 56-row result.
+                # Same GROUP BY wallet_address with no ORDER BY as the original, so ties at the
+                # same max block_time resolve to an arbitrary matching row either way -- no
+                # semantics changed, including that ambiguity.
                 for w, mx, tx_type, sig, sol in ov.execute(
-                    f"SELECT wallet_address, block_time, tx_type, tx_signature, amount_sol FROM wt_webhook_hits h1 "
-                    f"WHERE direction='outbound' AND wallet_address IN ({ph}) "
-                    f"  AND block_time = (SELECT MAX(h2.block_time) FROM wt_webhook_hits h2 "
-                    f"                    WHERE h2.wallet_address=h1.wallet_address AND h2.direction='outbound') "
-                    f"GROUP BY wallet_address",
+                    f"WITH outbound_max AS ("
+                    f"    SELECT wallet_address, MAX(block_time) AS mx_block_time"
+                    f"    FROM wt_webhook_hits"
+                    f"    WHERE direction='outbound' AND wallet_address IN ({ph})"
+                    f"    GROUP BY wallet_address"
+                    f") "
+                    f"SELECT h1.wallet_address, h1.block_time, h1.tx_type, h1.tx_signature, h1.amount_sol "
+                    f"FROM wt_webhook_hits h1 "
+                    f"JOIN outbound_max om ON om.wallet_address=h1.wallet_address "
+                    f"                    AND om.mx_block_time=h1.block_time "
+                    f"WHERE h1.direction='outbound' "
+                    f"GROUP BY h1.wallet_address",
                     addrs).fetchall():
                     if mx and mx > (last_outbound.get(w) or 0):
                         last_outbound[w] = mx

@@ -1801,7 +1801,14 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
 
   function x58HasFilters(){return !!(TOPO_SELECTION.operation||TOPO_SELECTION.behaviour||TOPO_SELECTION.creator_identity||TOPO_SELECTION.campaign||TOPO_SELECTION.topology||TOPO_SELECTION.funding)}
   function x58Label(value){
-    var labels={WATCHTOWER:'WATCHTOWER',__UNASSIGNED__:'Unassigned',QUICK_BIRTH_MIGRATION:'Quick Birth ≤5s → Migration',UNKNOWN_BEHAVIOUR:'Unknown',MULTI_LEVEL_FAN_OUT:'Multi-Level Fan-Out',FAN_OUT:'Fan-Out',LINEAR:'Linear',UNKNOWN:'Unknown',CEX:'CEX-funded',SHARED_WITHDRAWAL:'Shared Withdrawal',TREASURY:'Treasury',FRESH_CREATOR:'Fresh Creator',SINGLE_USE_CREATOR:'Single-use Creator',REPEAT_CREATOR:'Repeat Creator',RETURNING_CREATOR:'Returning Creator',DORMANT_REACTIVATED:'Dormant / Reactivated',UNKNOWN_CREATOR_IDENTITY:'Unknown'};
+    // X67.38 -- Creator Identity now resolves to exactly FRESH_CREATOR or
+    // EXISTING_CREATOR (SINGLE_USE_CREATOR/RETURNING_CREATOR/DORMANT_
+    // REACTIVATED/UNKNOWN_CREATOR_IDENTITY removed -- identity no longer
+    // mixes in historical activity pattern or evidence quality). REPEAT_
+    // CREATOR and UNKNOWN below are UNRELATED keys reused by other
+    // dimensions (investigation-pipeline bucket, generic topology
+    // fallback) -- left as-is, never creator-identity values anymore.
+    var labels={WATCHTOWER:'WATCHTOWER',__UNASSIGNED__:'Unassigned',QUICK_BIRTH_MIGRATION:'Quick Birth ≤5s → Migration',UNKNOWN_BEHAVIOUR:'Unknown',MULTI_LEVEL_FAN_OUT:'Multi-Level Fan-Out',FAN_OUT:'Fan-Out',LINEAR:'Linear',UNKNOWN:'Unknown',CEX:'CEX-funded',SHARED_WITHDRAWAL:'Shared Withdrawal',TREASURY:'Treasury',FRESH_CREATOR:'Fresh Creator',EXISTING_CREATOR:'Existing Creator',REPEAT_CREATOR:'Repeat Creator'};
     return labels[value]||String(value||'').replace(/_/g,' ');
   }
   function x58CampaignLabel(value){
@@ -2009,13 +2016,17 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     // X65.25 -- reads the REMAINING population (WATCHTOWER-campaign
     // launches excluded; see x65_25RemainingUniverseRows()), not the whole
     // universe, since those launches are already fully presented in Part A.
+    // X67.38 -- every launch always resolves to FRESH_CREATOR or
+    // EXISTING_CREATOR (backend guarantee, src/ops/creator_identity.py);
+    // the '||FRESH_CREATOR' fallback here only guards a record that
+    // predates enrichment running at all, never a real third value.
     var rows=x65_25RemainingUniverseRows(), counts={};
-    rows.forEach(function(r){var key=r.creator_identity||'UNKNOWN_CREATOR_IDENTITY';counts[key]=(counts[key]||0)+1});
+    rows.forEach(function(r){var key=r.creator_identity||'FRESH_CREATOR';counts[key]=(counts[key]||0)+1});
     if(!rows.length){
       var msg='Every launch in this window is already known WATCHTOWER — see above. No remaining population to discover.';
       return '<div class="dw-x58-section"><div class="dw-x58-heading">1. Creator Identity</div><div class="dw-empty" style="padding:14px">'+esc(msg)+'</div></div>';
     }
-    var order=['FRESH_CREATOR','SINGLE_USE_CREATOR','REPEAT_CREATOR','RETURNING_CREATOR','DORMANT_REACTIVATED','UNKNOWN_CREATOR_IDENTITY'];
+    var order=['FRESH_CREATOR','EXISTING_CREATOR'];
     var cards=order.filter(function(key){return counts[key]>0}).map(function(key){
       return x58Card('creator_identity',key,x58Label(key),counts[key],'Reduce the cohort by persisted creator identity evidence.');
     }).join('');
@@ -3159,9 +3170,11 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   function renderCohortSummary(){
     var rows=x58CurrentRows(), total=x58CurrentCount(), wt=rows.filter(function(r){return r.is_watchtower}).length;
     if(!rows.length&&!x58HasFilters())wt=Number(((X56_SUMMARY_CACHE||{}).operation_summary||{}).watchtower||0);
-    var repeat=rows.filter(function(r){return r.creator_identity==='REPEAT_CREATOR'}).length;
+    // X67.38 -- REPEAT_CREATOR no longer exists as a creator_identity
+    // value (identity is now FRESH_CREATOR/EXISTING_CREATOR only).
+    var existing=rows.filter(function(r){return r.creator_identity==='EXISTING_CREATOR'}).length;
     var recycling=rows.filter(function(r){return (r.behaviours||[]).indexOf('CREATOR_RECYCLING')>=0}).length;
-    var stats=[[total,'launches'],[wt,'WATCHTOWER'],[repeat,'repeat creators'],[recycling,'creator recycling']];
+    var stats=[[total,'launches'],[wt,'WATCHTOWER'],[existing,'existing creators'],[recycling,'creator recycling']];
     return '<div class="dw-x58-section"><div class="dw-x58-heading">Current Cohort</div><div class="dw-x58-cohort">'+stats.map(function(s){return '<span class="dw-x58-cohort-item"><b>'+Number(s[0]).toLocaleString()+'</b> '+esc(s[1])+'</span>'}).join('')+'</div></div>';
   }
   function renderLaunchResultsHeader(){

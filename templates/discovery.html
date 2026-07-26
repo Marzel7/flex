@@ -448,6 +448,9 @@
 .dw-campaign-pick-label { font-size:13px; font-weight:600; color:var(--ip-text); }
 .dw-campaign-pick-count { font-size:21px; font-weight:650; color:var(--ip-text); font-variant-numeric:tabular-nums; font-family:ui-monospace,monospace; }
 .dw-campaign-pick-active .dw-campaign-pick-count { color:#5ec9d6; }
+/* X67.39 -- reinforces "fingerprint match, not attribution" at a glance. */
+.dw-campaign-pick-badge { display:inline-block; font-size:9px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#5ec9d6; background:#5ec9d61f; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+.dw-campaign-clarify { margin-top:2px; }
 .dw-campaign-totals { display:flex; align-items:center; gap:14px; margin-top:16px; padding:11px 16px; border-radius:9px; background:#1b242c; font-family:ui-monospace,monospace; font-size:13px; font-variant-numeric:tabular-nums; flex-wrap:wrap; }
 .dw-campaign-totals b { color:var(--ip-text); }
 .dw-campaign-op { color:#5c6b76; }
@@ -1816,9 +1819,21 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     // x58Label's shared map: 'WATCHTOWER' is already a distinct sentinel
     // value there (Operation Attribution's confirmed-operation id) with
     // its own display text ('WATCHTOWER') -- reusing the same key for
-    // Campaign's 'WATCHTOWER Provisioning' value would silently change
-    // that unrelated, pre-existing label too.
-    var labels={WATCHTOWER:'WATCHTOWER Provisioning',OTHER_CAMPAIGN:'Other Campaign',UNCLASSIFIED:'Unclassified'};
+    // Campaign's value would silently change that unrelated, pre-existing
+    // label too.
+    //
+    // X67.39 -- renamed 'WATCHTOWER Provisioning' -> 'WATCHTOWER
+    // Provisioning Fingerprint'. This campaign value means "matches the
+    // validated WATCHTOWER provisioning fingerprint" (fresh creator +
+    // observed wrap-close evidence, classify_campaign_for_launch) -- it is
+    // NOT operator attribution and does NOT imply confirmed WATCHTOWER
+    // membership. Under Ecosystem Intelligence specifically (which
+    // excludes authoritative Canonical WATCHTOWER launches entirely, see
+    // x65_25RemainingUniverseRows()), the old bare "WATCHTOWER
+    // Provisioning" label read as contradictory ("why am I looking at
+    // WATCHTOWER inside a view that excludes WATCHTOWER?"). No
+    // classification/attribution logic changes -- label text only.
+    var labels={WATCHTOWER:'WATCHTOWER Provisioning Fingerprint',OTHER_CAMPAIGN:'Other Campaign',UNCLASSIFIED:'Unclassified'};
     return labels[value]||String(value||'').replace(/_/g,' ');
   }
   function x58Card(dimension,value,label,count,tooltip){
@@ -2996,13 +3011,22 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     var rows=x60TopologyRows(), counts={WATCHTOWER:0,OTHER_CAMPAIGN:0,UNCLASSIFIED:0};
     rows.forEach(function(r){var key=r.campaign||'UNCLASSIFIED';if(counts[key]===undefined)key='UNCLASSIFIED';counts[key]++});
     var order=['WATCHTOWER','OTHER_CAMPAIGN','UNCLASSIFIED'];
-    var tips={WATCHTOWER:'Validated WATCHTOWER provisioning fingerprint (fresh creator + observed wrap-close provisioning) -- independent of treasury resolution.',OTHER_CAMPAIGN:'Funding lineage exists but does not match the WATCHTOWER provisioning fingerprint.',UNCLASSIFIED:'Insufficient evidence to determine campaign membership either way.'};
+    // X67.39 -- tooltip/description wording made explicit that this is a
+    // provisioning FINGERPRINT match, never operator attribution or
+    // confirmed WATCHTOWER membership (label rename + this text are the
+    // ONLY change here -- classify_campaign_for_launch's actual rule,
+    // counts, and every other campaign is untouched).
+    var tips={WATCHTOWER:'Provisioning fingerprint match only (fresh creator + observed wrap-close provisioning), evaluated independently of treasury resolution -- NOT operator attribution and does not imply confirmed WATCHTOWER membership. See Canonical WATCHTOWER (Operation Intelligence) for confirmed operations.',OTHER_CAMPAIGN:'Funding lineage exists but does not match the WATCHTOWER provisioning fingerprint.',UNCLASSIFIED:'Insufficient evidence to determine campaign membership either way.'};
     var total=rows.length;
     var pickCards=order.map(function(key){
       var active=TOPO_SELECTION.campaign===key?' dw-campaign-pick-active':'';
       var wtCls=key==='WATCHTOWER'?' dw-campaign-pick-wt':'';
+      // X67.39 -- "Fingerprint" badge reinforces that WATCHTOWER here means
+      // a behavioural pattern match, not attribution -- optional per this
+      // task's spec, added only to the WATCHTOWER pick card.
+      var badge=key==='WATCHTOWER'?'<span class="dw-campaign-pick-badge">Fingerprint</span>':'';
       return '<button type="button" class="dw-campaign-pick'+active+wtCls+'" data-x56-dimension="campaign" data-x56-value="'+esc(key)+'" title="'+esc(tips[key])+'">'
-        +'<span class="dw-campaign-pick-label">'+esc(x58CampaignLabel(key))+'</span>'
+        +'<span class="dw-campaign-pick-label">'+esc(x58CampaignLabel(key))+badge+'</span>'
         +'<span class="dw-campaign-pick-count">'+counts[key].toLocaleString()+'</span>'
         +'</button>';
     }).join('');
@@ -3015,8 +3039,17 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'<b>'+sum.toLocaleString()+'</b>'
       +'<span class="dw-campaign-check">'+(conserved===false?'⚠ not conserved':'✓ conserved')+'</span>'
       +'</div>';
+    // X67.39 -- explicit separation-of-concerns statement, addressing the
+    // exact confusion this task exists to fix: Ecosystem Intelligence
+    // already excludes every authoritative Canonical WATCHTOWER launch
+    // (x65_25RemainingUniverseRows()), so a bucket here named after
+    // WATCHTOWER read as self-contradictory. This line states plainly that
+    // campaign membership is a fingerprint match, not attribution, and
+    // points to where confirmed operations actually live.
+    var wtClarification='<div class="dw-x58-copy dw-campaign-clarify">Launches exhibiting the validated WATCHTOWER provisioning fingerprint while remaining outside authoritative Canonical WATCHTOWER attribution. Provisioning fingerprint is evaluated independently of operator confirmation -- campaign classification is not operator attribution, and campaign membership does not imply WATCHTOWER confirmation. Confirmed operations are shown exclusively under Canonical WATCHTOWER (Operation Intelligence).</div>';
     return '<div class="dw-x58-section dw-campaign-section"><div class="dw-x58-heading">3. Campaign <span class="dw-campaign-newtag">New</span></div>'
       +'<div class="dw-x58-copy">Classifying '+rows.length.toLocaleString()+' '+esc(x58Label(TOPO_SELECTION.topology))+' launches by validated provisioning fingerprint — computed independently of treasury resolution. Every launch belongs to exactly one campaign bucket.</div>'
+      +wtClarification
       +'<div class="dw-campaign-picks">'+pickCards+'</div>'
       +totalsStrip
       +renderCampaignTreasuryBreakdown(rows,total)

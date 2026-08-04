@@ -17,6 +17,10 @@ from typing import Any, Callable
 
 from src.ops.attribution_outcome import emerging_operator_seeds
 from src.ops.identity_framework import PromotionDecisionEngine
+from src.ops.investigation_population import (
+    InvestigationPopulationBuilder,
+    LegacyFamilyProjectionAdapter,
+)
 from src.ops.operator_resolver import OperatorResolver
 from src.ops.operation_intelligence import OperationIntelligenceAssembler
 from src.utils.infra_mapping import get_funder_label
@@ -276,7 +280,9 @@ class EmergingOperatorService:
             tables = self._tables(ops)
             families = self._canonical_families(ops, tables)
             profiles = self._discovery_profiles(ops, tables)
-            families.extend(self._cluster_profiles(profiles, evaluation, proposals))
+            populations = self._population_builder().build(profiles)
+            adapter = self._legacy_adapter(evaluation, proposals)
+            families.extend(adapter.project(population) for population in populations)
         from src.ops.operation_confirmation import apply_confirmation_overlay
         apply_confirmation_overlay(families, self.ops_db_path)
         eligible = sorted(
@@ -510,17 +516,29 @@ class EmergingOperatorService:
         return wallets
 
     def _cluster_profiles(self, profiles, evaluation, proposals) -> list[dict[str, Any]]:
-        # Complete-link clustering: every new member must independently match
-        # every member already in the family, preventing transitive bridge merges.
-        wallets = sorted(profiles)
-        groups: list[list[dict[str, Any]]] = []
-        for wallet in wallets:
-            candidate = profiles[wallet]; placed = False
-            for group in groups:
-                if all(self._cohesion_pair(candidate, member)["valid"] for member in group):
-                    group.append(candidate); placed = True; break
-            if not placed: groups.append([candidate])
-        return [self._profile_family(group, evaluation, proposals) for group in groups]
+        """Compatibility wrapper over the population builder and legacy adapter."""
+        adapter = self._legacy_adapter(evaluation, proposals)
+        return [
+            adapter.project(population)
+            for population in self._population_builder().build(profiles)
+        ]
+
+    def _population_builder(self) -> InvestigationPopulationBuilder:
+        return InvestigationPopulationBuilder(
+            self._cohesion_pair, self._evidence_timeline
+        )
+
+    def _legacy_adapter(self, evaluation, proposals) -> LegacyFamilyProjectionAdapter:
+        return LegacyFamilyProjectionAdapter(
+            minimum_launches=self.minimum_launches,
+            completeness_threshold=self.completeness_threshold,
+            dormancy_days=self.dormancy_days,
+            metric=self._metric,
+            material_reasons=self._material_reasons,
+            evidence_weights=EVIDENCE_WEIGHTS,
+            evaluation=evaluation,
+            proposals=proposals,
+        )
 
     @staticmethod
     def _cohesion_pair(left, right):
@@ -538,186 +556,9 @@ class EmergingOperatorService:
         return {"valid": valid, "strength": min(100, len(evidence) * 25), "evidence": evidence, "conflicts": conflicts}
 
     def _profile_family(self, group, evaluation, proposals) -> dict[str, Any]:
-        members = sorted(p["wallet"] for p in group)
-        treasuries = sorted(set().union(*(p["treasuries"] for p in group)))
-        creators = sorted(set().union(*(p["creators"] for p in group)))
-        mechanisms = sorted(set().union(*(p["mechanisms"] for p in group)))
-        signatures = set().union(*(p["signatures"] for p in group))
-        launches = sorted(set().union(*(p["launches"] for p in group)))
-        launch_count = max(len(launches), len(creators), max((int(p["candidate"].get("distinct_launches") or 0) for p in group), default=0))
-        firsts = [p["first"] for p in group if p["first"] is not None]
-        lasts = [p["last"] for p in group if p["last"] is not None]
-        first, last = min(firsts) if firsts else None, max(lasts) if lasts else None
-        sessions = sum(p["sessions"] for p in group)
-        outgoing = any(p["creators"] for p in group)
-        complete_topology = bool(treasuries and outgoing and mechanisms)
-        observation_count = sum(len(p["outcomes"]) for p in group)
-        exclusions = [item for p in group for item in p["exclusions"]]
-        warnings = sorted(set(item for p in group for item in p["warnings"]))
-        persistent = sessions >= 2 or bool(first and last and last - first >= 86400 * 2)
-        shared_treasury_count = 0
-        if len(group) > 1:
-            shared_treasury_count = len(set.intersection(*(p["treasuries"] for p in group)))
-        sources = sorted(set().union(*(p["sources"] for p in group)))
-        evidence_breakdown = {
-            "topology_reconstruction": 20 if complete_topology else 10 if outgoing and mechanisms else 0,
-            "transaction_provenance": 20 if len(signatures) >= 2 else 10 if signatures else 0,
-            "relationship_coverage": 15 if shared_treasury_count >= 2 else 8 if treasuries and outgoing else 0,
-            "identity_link_coverage": 15 if len(group) > 1 and shared_treasury_count >= 2 else 7 if treasuries else 0,
-            "independent_evidence_diversity": min(15, 3 * len(sources)),
-            "uncertainty_conflict_coverage": 15 if not exclusions and not warnings else 8 if not exclusions else 0,
-        }
-        completeness = self._metric(evidence_breakdown, EVIDENCE_WEIGHTS)
-        now = int(time.time()); recent_cutoff = now - 14 * 86400
-        recent_launches = sum(1 for p in group for ts in p["edge_times"] if ts >= recent_cutoff)
-        recent = bool(last and last >= recent_cutoff)
-        duration_days = max(0, ((last or 0) - (first or last or 0)) // 86400)
-        significance_values = {
-            "recent_launch_activity": min(30, recent_launches * 5 if recent_launches else (15 if recent and launch_count >= 5 else 5 if recent else 0)),
-            "launch_velocity": min(15, recent_launches * 3),
-            "active_session_breadth": min(15, sum(p["active_sessions"] for p in group) * 5 + min(10, sessions)),
-            "coherent_member_breadth": 20 if len(group) > 1 else 0,
-            "operational_persistence": 10 if duration_days >= 7 else 5 if duration_days >= 2 else 0,
-            "topology_novelty": 10 if treasuries and complete_topology else 0,
-        }
-        significance = self._metric(significance_values, {k: v for k, v in (("recent_launch_activity",30),("launch_velocity",15),("active_session_breadth",15),("coherent_member_breadth",20),("operational_persistence",10),("topology_novelty",10))})
-        maturity_values = {
-            "observed_duration": min(30, duration_days),
-            "independent_sessions": min(25, sessions * 3),
-            "topology_stability": 20 if complete_topology and launch_count >= 5 else 10 if complete_topology else 0,
-            "membership_stability": 15 if len(group) > 1 else 5,
-            "conflict_survival": 10 if not exclusions else 0,
-        }
-        maturity = self._metric(maturity_values, {"observed_duration":30,"independent_sessions":25,"topology_stability":20,"membership_stability":15,"conflict_survival":10})
-        membership = []
-        for member in group:
-            pair_results = [self._cohesion_pair(member, other) for other in group if other is not member]
-            evidence = sorted(set(x for result in pair_results for x in result["evidence"]))
-            conflicts = sorted(set(x for result in pair_results for x in result["conflicts"]))
-            membership.append({"wallet": member["wallet"], "membership_status": "CORE" if len(group) > 1 else "SINGLETON_HYPOTHESIS",
-                               "membership_strength": min((r["strength"] for r in pair_results), default=0),
-                               "membership_evidence": evidence, "membership_conflicts": conflicts})
-        cohesion_valid = len(group) > 1 and all(m["membership_strength"] >= 50 and not m["membership_conflicts"] for m in membership)
-        singleton_lane = len(group) == 1 and complete_topology and len(creators) >= 5 and len(signatures) >= 1
-        topology_reviewable = complete_topology and len(signatures) >= 1
-        promotion_ready = not exclusions and topology_reviewable and (cohesion_valid or singleton_lane)
-        blocking = []
-        if exclusions: blocking.append("exclusion evidence must be resolved")
-        if not complete_topology: blocking.append("complete operating topology not reconstructed")
-        if not signatures: blocking.append("missing transaction provenance")
-        if len(group) == 1: blocking.append("family breadth unresolved")
-        if len(group) > 1 and not cohesion_valid: blocking.append("family cohesion review required")
-        eligible = promotion_ready and recent and significance["score"] >= 55 and completeness["score"] >= 60
-        stale = bool(last and last < now - self.dormancy_days * 86400)
-        if exclusions: stage = "RETIRED"
-        elif stale and (launch_count or sessions): stage = "DORMANT"
-        elif eligible: stage = "SIGNIFICANT_ACTIVE"
-        elif (complete_topology or (outgoing and mechanisms and len(sources) >= 2)) and (launch_count or sessions or observation_count):
-            stage = "CANDIDATE"
-        else: stage = "BACKGROUND"
-        old_repeated = outgoing and launch_count >= self.minimum_launches and bool(mechanisms)
-        old_persistent = sessions >= 2 or observation_count >= 2 or bool(first and last and last - first >= 86400)
-        old_score = ((25 if old_repeated and treasuries else 15 if old_repeated else 0)
-                     + (min(20, 5 * min(4, launch_count)) if old_repeated else 0)
-                     + min(20, 5 * min(4, len(signatures))) + min(15, 3 * min(5, launch_count))
-                     + (10 if shared_treasury_count >= 2 else 7 if sessions >= 2 and treasuries else 3 if treasuries else 0)
-                     + (10 if old_persistent and (sessions >= 2 or observation_count >= 4) else 7 if old_persistent else 0))
-        # X67.25 only routed sessions to its initially selected candidate roles.
-        old_saw_dust = any(p["candidate"].get("candidate_role") in {"OPERATIONAL_TREASURY", "HUB"} and self._dust_profile(p) for p in group)
-        old_stage = "EMERGING_OPERATION" if launch_count >= self.minimum_launches and old_repeated and old_persistent and old_score >= self.completeness_threshold and not old_saw_dust else "CANDIDATE_FAMILY"
-        anchor = min(group, key=lambda p: (p["first"] if p["first"] is not None else 2**63, p["wallet"]))["wallet"]
-        family_hash = hashlib.sha256(f"operation-family-anchor:{anchor}".encode()).hexdigest()[:16]
-        absorbed_ids = [
-            "family:" + hashlib.sha256(f"operation-family-anchor:{member}".encode()).hexdigest()[:16]
-            for member in members if member != anchor
-        ]
-        name = f"{_short(members[0])} Family" if len(members) == 1 else f"{_short(members[0])} / {_short(members[1])} Family"
-        evidence = []
-        for p in group: evidence.extend(p["evidence"])
-        timeline = self._evidence_timeline(group, first)
-        topology = "Treasury → persistent client → fresh creator" if complete_topology else "Evidence accumulation incomplete"
-        missing = []
-        if not treasuries: missing.append("treasury relationships")
-        if not signatures: missing.append("transaction provenance")
-        if not outgoing: missing.append("downstream creator relationships")
-        family = {
-            "family_id": f"family:{family_hash}", "family_name": name, "stage": stage, "status": stage.replace("_", " ").title(),
-            "family_anchor": anchor,
-            "previous_stage": old_stage,
-            "lifecycle_state": stage, "first_seen_at": first, "last_seen_at": last, "last_material_activity_at": last,
-            "state_changed_at": last, "merged_into_family_id": None, "superseded_by_family_id": None,
-            "absorbed_family_ids": absorbed_ids,
-            "launches": launch_count, "observed_launches": launch_count, "launch_list": launches,
-            "session_count": sessions, "active_sessions": sum(p["active_sessions"] for p in group),
-            "member_wallets": members, "client_wallets": members, "member_treasuries": treasuries,
-            "treasuries": treasuries, "primary_treasury_families": treasuries, "unique_creators": creators,
-            "funding_mechanisms": mechanisms, "dominant_topology": topology, "observed_topology_variants": [topology],
-            "evidence_completeness": completeness, "evidence_breakdown": completeness["dimensions"],
-            "missing_evidence": missing, "evidence_sources": sources,
-            "discovery_significance": significance, "significance_breakdown": significance["dimensions"],
-            "material_change_reasons": self._material_reasons(recent_launches, len(group), recent, stage),
-            "operational_maturity": maturity, "maturity_breakdown": maturity["dimensions"],
-            "promotion_ready": promotion_ready, "promotion_status": "REVIEWABLE" if promotion_ready else "BLOCKED",
-            "blocking_reasons": blocking, "reviewable_reasons": (["cohesion validated" if cohesion_valid else "significant unresolved operation lane", "topology and transaction evidence available"] if promotion_ready else []),
-            "cohesion": {"status": "VALIDATED" if cohesion_valid else "SIGNIFICANT_UNRESOLVED" if singleton_lane else "UNPROVEN",
-                         "score": min((m["membership_strength"] for m in membership), default=0),
-                         "evidence": sorted(set(x for m in membership for x in m["membership_evidence"])),
-                         "conflicts": sorted(set(x for m in membership for x in m["membership_conflicts"]))},
-            "merge_split_decisions": ([{"decision": "MERGED", "members": members,
-                                         "reason": "complete-link cohesion validated for every member"}]
-                                      if len(group) > 1 else [{"decision": "RETAIN_SINGLETON",
-                                                              "members": members,
-                                                              "reason": "no complete-link family match"}]),
-            "membership": membership, "exclusion_evidence": exclusions, "data_quality_warnings": warnings,
-            "attention_eligible": eligible, "attention_rank": None,
-            "why_surfaced": self._material_reasons(recent_launches, len(group), recent, stage),
-            "dormancy_reason": "no material activity inside dormancy window" if stage == "DORMANT" else None,
-            "supporting_evidence": evidence, "discovery_timeline": timeline, "evidence_timeline": timeline,
-            "growth_timeline": timeline, "current_classification": "Monitoring",
-            "terminal_entity": members[0], "observation_count": launch_count, "campaign_count": sessions,
-            "identity_class_count": len(treasuries), "review_status": "MONITORING", "review_label": stage.replace("_", " ").title(),
-            "promotion_handoff": None, "contradictions": [], "read_only": True,
-            "promotion_gates": {"passed": {"cohesion_or_singleton_lane": cohesion_valid or singleton_lane,
-                                               "promotion_ready": promotion_ready, "current_significance": significance["score"] >= 55,
-                                               "recent_material_activity": recent, "exclusions_clear": not exclusions},
-                                "failed": [reason for reason in blocking],
-                                "reason_not_surfaced": None if eligible else "; ".join(blocking or ["insufficient current significance"])},
-        }
-        templates = defaultdict(int)
-        for p in group:
-            for key, count in p["templates"].items(): templates[key] += count
-        family["funding_templates"] = [
-            {"mechanism": key[0], "amount_sol": key[1], "observation_count": count}
-            for key, count in sorted(templates.items(), key=lambda item: str(item[0]))
-        ]
-        family["campaigns"] = sorted(set().union(*(p["campaigns"] for p in group)))
-        family["campaign_count"] = len(family["campaigns"])
-        linked_identity = [] if evaluation is None else [item for item in evaluation.identity if any(w in item.entities for w in members)]
-        linked_keys = {item.candidate_key for item in linked_identity}
-        linked_proposals = [p for p in proposals if p.candidate_key in linked_keys]
-        linked_proposals.sort(key=lambda p: (len(p.identity_classes), p.identity_confidence, p.candidate_key), reverse=True)
-        primary = linked_proposals[0] if linked_proposals else None
-        family["identity_classes"] = list(primary.identity_classes) if primary else []
-        family["identity_class_count"] = len(family["identity_classes"])
-        family["confidence"] = primary.identity_confidence if primary else None
-        family["review_status"] = primary.decision if primary else "MONITORING"
-        family["review_label"] = family["review_status"].replace("_", " ").title()
-        family["current_attribution_outcome"] = "UNKNOWN_INFRASTRUCTURE"
-        family["is_canonical_operator"] = False
-        family["canonical_operator_id"] = None
-        if primary:
-            family["promotion_handoff"] = {
-                "proposal_id": primary.proposal_id, "proposal_fingerprint": primary.proposal_fingerprint,
-                "identity_fingerprint": primary.identity_fingerprint,
-                "href": "/intelligence/operator-promotions", "requires_analyst_approval": True,
-            }
-            if primary.decision == "PROMOTION_ELIGIBLE":
-                family["growth_timeline"].append({
-                    "event_type": "PROMOTION_ELIGIBLE", "timestamp": last,
-                    "day": self._day(first, last), "label": "Promotion eligible — analyst approval required",
-                    "observation_count": launch_count,
-                })
-        return family
+        """Compatibility wrapper retained for focused legacy tests."""
+        population = self._population_builder().build_group(group)
+        return self._legacy_adapter(evaluation, proposals).project(population)
 
     @staticmethod
     def _metric(values, maxima):

@@ -161,7 +161,9 @@ def test_workspace_is_not_linked_from_normal_navigation():
 
 
 def test_shadow_resolver_has_no_production_consumer_imports():
-    allowed = {"reconciliation_diagnostics.py"}
+    # X69.4 adds one presentation-only projection; no attribution consumer may
+    # import the resolver directly.
+    allowed = {"reconciliation_diagnostics.py", "reconciliation_metadata.py"}
     offenders = []
     for path in (ROOT / "src").rglob("*.py"):
         text = path.read_text(errors="ignore")

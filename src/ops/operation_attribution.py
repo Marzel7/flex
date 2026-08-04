@@ -24,6 +24,11 @@ def clear_operation_attribution_cache(ops_db_path: str | None = None) -> None:
     for key in list(_INDEX_CACHE):
         if ops_db_path is None or key[0] == ops_db_path:
             _INDEX_CACHE.pop(key, None)
+    try:
+        from src.ops.reconciliation_metadata import clear_reconciliation_metadata_cache
+        clear_reconciliation_metadata_cache(ops_db_path)
+    except Exception:
+        pass
 
 _STATE_FOR_STAGE = {
     "CONFIRMED": "CONFIRMED_OPERATION",
@@ -50,11 +55,13 @@ def _confidence(family: dict[str, Any]) -> str:
     return "UNKNOWN"
 
 
-def _assignment(family: dict[str, Any]) -> dict[str, Any]:
+def _assignment(
+    family: dict[str, Any], reconciliation: dict[str, Any] | None = None
+) -> dict[str, Any]:
     stage = str(family.get("stage") or "BACKGROUND").upper()
     family_id = family.get("family_id")
     name = family.get("family_name") or family_id
-    return {
+    assignment = {
         "operation_id": family.get("canonical_operator_id") or family_id,
         "family_id": family_id,
         "operation_name": name,
@@ -67,6 +74,23 @@ def _assignment(family: dict[str, Any]) -> dict[str, Any]:
         "timeline_href": f"/intelligence/operations/{family_id}?tab=timeline" if family_id else None,
         "evidence_href": f"/api/ops/emerging-operators/{family_id}" if family_id else None,
     }
+    if reconciliation is not None:
+        assignment["reconciliation"] = {
+            **reconciliation,
+            "dependency_groups": list(reconciliation.get("dependency_groups") or []),
+        }
+    return assignment
+
+
+def _copy_assignment(assignment: dict[str, Any]) -> dict[str, Any]:
+    result = dict(assignment)
+    reconciliation = result.get("reconciliation")
+    if reconciliation is not None:
+        result["reconciliation"] = {
+            **reconciliation,
+            "dependency_groups": list(reconciliation.get("dependency_groups") or []),
+        }
+    return result
 
 
 def unknown_assignment() -> dict[str, Any]:
@@ -94,8 +118,16 @@ class OperationAttributionService:
         entities: dict[str, dict[str, Any]] = {}
         priority = {"UNKNOWN": 0, "CANDIDATE_FAMILY": 1,
                     "EMERGING_OPERATION": 2, "CONFIRMED_OPERATION": 3}
-        for family in self.registry._compose():
-            assignment = _assignment(family)
+        families = self.registry._compose()
+        try:
+            from src.ops.reconciliation_metadata import build_reconciliation_metadata
+            reconciliation_by_family = build_reconciliation_metadata(self.registry, families)
+        except Exception:
+            reconciliation_by_family = {}
+        for family in families:
+            assignment = _assignment(
+                family, reconciliation_by_family.get(str(family.get("family_id")))
+            )
             for mint in family.get("launch_list") or []:
                 current = tokens.get(mint)
                 if current is None or priority[assignment["state"]] > priority[current["state"]]:
@@ -150,11 +182,14 @@ class OperationAttributionService:
 
     def resolve_operation_for_token(self, mint: str) -> dict[str, Any]:
         tokens, _ = self._index()
-        return self._current_lifecycle(dict(tokens.get(str(mint), unknown_assignment())))
+        return self._current_lifecycle(_copy_assignment(tokens.get(str(mint), unknown_assignment())))
 
     def resolve_many(self, mints: Iterable[str]) -> dict[str, dict[str, Any]]:
         tokens, _ = self._index()
-        result = {str(mint): dict(tokens.get(str(mint), unknown_assignment())) for mint in mints}
+        result = {
+            str(mint): _copy_assignment(tokens.get(str(mint), unknown_assignment()))
+            for mint in mints
+        }
         confirmed = self._confirmed_family_ids()
         for assignment in result.values():
             if assignment.get("family_id") in confirmed:
@@ -163,7 +198,9 @@ class OperationAttributionService:
 
     def resolve_entity(self, entity: str) -> dict[str, Any]:
         tokens, entities = self._index()
-        return self._current_lifecycle(dict(tokens.get(str(entity), entities.get(str(entity), unknown_assignment()))))
+        return self._current_lifecycle(_copy_assignment(
+            tokens.get(str(entity), entities.get(str(entity), unknown_assignment()))
+        ))
 
     def _confirmed_family_ids(self) -> set[str]:
         try:
@@ -191,8 +228,16 @@ class OperationAttributionService:
         if not q:
             return []
         results = []
-        for family in self.registry._compose():
-            assignment = _assignment(family)
+        families = self.registry._compose()
+        try:
+            from src.ops.reconciliation_metadata import build_reconciliation_metadata
+            reconciliation_by_family = build_reconciliation_metadata(self.registry, families)
+        except Exception:
+            reconciliation_by_family = {}
+        for family in families:
+            assignment = _assignment(
+                family, reconciliation_by_family.get(str(family.get("family_id")))
+            )
             haystack = [family.get("family_id"), family.get("family_name"),
                         *(family.get("member_wallets") or []), *(family.get("launch_list") or [])]
             if any(q in str(value or "").lower() for value in haystack):

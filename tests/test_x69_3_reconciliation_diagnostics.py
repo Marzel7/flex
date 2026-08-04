@@ -39,16 +39,16 @@ def test_live_shadow_metrics_and_replays_are_clean(workspace):
     assert workspace.metrics == {
         "total_investigation_populations": 281,
         "total_shadow_records": 282,
-        "agreement_count": 205,
-        "expected_differences": 77,
+        "agreement_count": 192,
+        "expected_differences": 90,
         "unexpected_differences": 0,
         "infrastructure_populations": 9,
         "rejected_populations": 9,
         "review_populations": 4,
-        "operator_candidates": 16,
+        "operator_candidates": 0,
         "confirmed_operations": 1,
         "retired_populations": 0,
-        "unresolved_populations": 243,
+        "unresolved_populations": 259,
         "deterministic_replay_failures": 0,
     }
     assert all(record.replay.identical for record in workspace.records)
@@ -69,7 +69,7 @@ def test_required_named_population_outcomes(workspace):
     assert b48.difference.classification == EXPECTED_DIFFERENCE
     assert "control-bearing evidence" in b48.difference.explanation
     assert (c7.legacy_projection["stage"], c7.disposition.disposition) == (
-        "EMERGING", "REVIEW"
+        "CANDIDATE", "REVIEW"
     )
     assert c7.difference.classification == EXPECTED_DIFFERENCE
 

@@ -27,14 +27,6 @@ from src.ops.investigation_population import InvestigationPopulation
 ROOT = Path(__file__).resolve().parents[1]
 OPS_DB = str(ROOT / "database" / "wt_ops_v2.db")
 LIVE_DB = str(ROOT / "database" / "flex_complete_database.db")
-EXPECTED_CANDIDATES = {
-    "3uBN Family", "68xd Family", "6Sv3 Family", "6tck Family",
-    "8Ubp Family", "9cDD Family", "B94V Family", "BDWy Family",
-    "CLK3 Family", "DhPY Family", "DssT Family", "Em9h Family",
-    "F3Cc Family", "FUCK Family", "FxxX Family", "Hri2 Family",
-}
-
-
 def _population(creator="CREATOR"):
     return InvestigationPopulation(
         population_id="family:test", anchor="ANCHOR", population_basis=(),
@@ -120,7 +112,9 @@ def test_repeated_edges_and_mints_create_one_behavioural_source(reuse_db):
         item.evidence_type != "CREATOR_REUSE_UNAVAILABLE"
         for item in package.missing_evidence
     )
-    assert DispositionResolver.resolve(package).disposition == OPERATOR_CANDIDATE
+    # The fact remains in the package, but shares provenance with provisioning
+    # lineage and therefore cannot independently promote the population.
+    assert DispositionResolver.resolve(package).disposition == UNRESOLVED
 
 
 def test_single_mint_remains_missing_without_inference(tmp_path):
@@ -166,7 +160,7 @@ def test_live_16_population_gain_and_named_controls():
         for population_id, result in results.items()
         if result.disposition == OPERATOR_CANDIDATE
     }
-    assert candidate_names == EXPECTED_CANDIDATES
+    assert candidate_names == set()
     assert sum(bool(package.creator_reuse_evidence) for package in packages) == 25
     assert sum(len(package.creator_reuse_evidence) for package in packages) == 37
 

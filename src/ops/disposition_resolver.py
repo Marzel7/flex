@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import Final
 
 from src.ops.evidence_reconciliation import EvidenceItem, EvidenceReconciliationPackage
+from src.ops.evidence_semantics import EvidenceSemanticsService
 
 
 UNRESOLVED: Final = "UNRESOLVED"
@@ -128,9 +129,25 @@ class DispositionResolver:
 
     @staticmethod
     def resolve(package: EvidenceReconciliationPackage) -> DispositionResult:
-        supporting = tuple(sorted(package.supporting_evidence, key=DispositionResolver._item_key))
-        contradictory = tuple(sorted(package.contradictory_evidence, key=DispositionResolver._item_key))
-        context = tuple(sorted(package.context, key=DispositionResolver._item_key))
+        semantics = EvidenceSemanticsService.evaluate(package)
+        eligible_ids = {
+            item.evidence.evidence_id for item in semantics.observations if item.eligible
+        }
+        all_supporting = tuple(sorted(package.supporting_evidence, key=DispositionResolver._item_key))
+        all_contradictory = tuple(sorted(package.contradictory_evidence, key=DispositionResolver._item_key))
+        all_context = tuple(sorted(package.context, key=DispositionResolver._item_key))
+        supporting = tuple(sorted(
+            (item for item in package.supporting_evidence if item.evidence_id in eligible_ids),
+            key=DispositionResolver._item_key,
+        ))
+        contradictory = tuple(sorted(
+            (item for item in package.contradictory_evidence if item.evidence_id in eligible_ids),
+            key=DispositionResolver._item_key,
+        ))
+        context = tuple(sorted(
+            (item for item in package.context if item.evidence_id in eligible_ids),
+            key=DispositionResolver._item_key,
+        ))
         missing = tuple(sorted(package.missing_evidence, key=DispositionResolver._item_key))
 
         support_types = {item.evidence_type for item in supporting}
@@ -142,13 +159,11 @@ class DispositionResolver:
         retirement = bool((support_types | context_types) & _RETIREMENT_TYPES)
         control = tuple(item for item in supporting if item.evidence_type in _CONTROL_TYPES)
         population = tuple(item for item in supporting if item.evidence_type in _POPULATION_TYPES)
-        control_groups = {item.provenance.dependency_group for item in control}
-        population_groups = {item.provenance.dependency_group for item in population}
         independent_control = bool(
             control and population and any(
-                control_group != population_group
-                for control_group in control_groups
-                for population_group in population_groups
+                semantics.are_independent(control_item, population_item)
+                for control_item in control
+                for population_item in population
             )
         )
 
@@ -204,7 +219,7 @@ class DispositionResolver:
         elif independent_control:
             disposition = OPERATOR_CANDIDATE
             decisive = control + population
-            reasons.append("The package contains population evidence and control evidence from different dependency groups.")
+            reasons.append("The package contains eligible population and control evidence from different dependency groups and independent provenance chains.")
             reasons.append("No contradictory evidence is present, so the shadow disposition is OPERATOR_CANDIDATE.")
         else:
             disposition = UNRESOLVED
@@ -217,20 +232,29 @@ class DispositionResolver:
                 reasons.append("Legacy confirmation history is contextual and does not independently establish a reconciled confirmation.")
             if missing:
                 reasons.append("Missing evidence remains unknown and is not treated as contradiction.")
+            ineligible_control = tuple(
+                item for item in package.supporting_evidence
+                if item.evidence_type in _CONTROL_TYPES and item.evidence_id not in eligible_ids
+            )
+            if ineligible_control:
+                reasons.append(
+                    "Observed control evidence is retained but is not semantically eligible "
+                    "because applicability or provenance independence is insufficient."
+                )
             reasons.append("The shadow disposition remains UNRESOLVED.")
 
         consulted = tuple(sorted({
             item.provenance.dependency_group
-            for item in supporting + contradictory + context + missing
+            for item in all_supporting + all_contradictory + all_context + missing
         }))
         return DispositionResult(
             package_id=package.package_id,
             population_id=package.population.population_id,
             population_revision=package.population.revision_id,
             disposition=disposition,
-            supporting_evidence=tuple(DispositionResolver._reference(item) for item in supporting),
-            contradictory_evidence=tuple(DispositionResolver._reference(item) for item in contradictory),
-            context_evidence=tuple(DispositionResolver._reference(item) for item in context),
+            supporting_evidence=tuple(DispositionResolver._reference(item) for item in all_supporting),
+            contradictory_evidence=tuple(DispositionResolver._reference(item) for item in all_contradictory),
+            context_evidence=tuple(DispositionResolver._reference(item) for item in all_context),
             missing_evidence=tuple(DispositionResolver._reference(item) for item in missing),
             dependency_groups_consulted=consulted,
             decision_evidence_ids=tuple(sorted({item.evidence_id for item in decisive})),

@@ -277,6 +277,8 @@ class EmergingOperatorService:
             families = self._canonical_families(ops, tables)
             profiles = self._discovery_profiles(ops, tables)
             families.extend(self._cluster_profiles(profiles, evaluation, proposals))
+        from src.ops.operation_confirmation import apply_confirmation_overlay
+        apply_confirmation_overlay(families, self.ops_db_path)
         eligible = sorted(
             (f for f in families if f["stage"] == "SIGNIFICANT_ACTIVE" and f["attention_eligible"]),
             key=lambda f: (f["discovery_significance"]["score"], f["evidence_completeness"]["score"], f["last_material_activity_at"] or 0, f["family_id"]),

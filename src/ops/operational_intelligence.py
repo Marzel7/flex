@@ -1085,6 +1085,41 @@ def build_operational_intelligence(
     }
 
 
+def refresh_registry_attribution(
+    intelligence: dict[str, Any], ops_db_path: str, core_db_path: str
+) -> None:
+    """Refresh only Registry identity/lifecycle on a cached presentation.
+
+    Topology, behaviour, mechanism and performance remain cached; attribution
+    decisions never are. This makes analyst confirmation visible immediately
+    without forcing an expensive intelligence rebuild.
+    """
+    records = intelligence.get("records") or {}
+    if not records:
+        intelligence["operation_summary"] = {}
+        return
+    from src.ops.operation_attribution import OperationAttributionService
+    assignments = OperationAttributionService(ops_db_path, core_db_path).resolve_many(records)
+    counts: dict[str, int] = {}
+    for mint, record in records.items():
+        assignment = assignments[mint]
+        record["operation_attribution"] = assignment
+        record["operation_id"] = assignment["operation_id"]
+        record["operation_name"] = assignment["operation_name"]
+        record["operation_lifecycle"] = assignment["lifecycle"]
+        record["operation_state"] = assignment["state"]
+        record["operation_confidence"] = assignment["confidence"]
+        record["operation_source"] = assignment["evidence_source"]
+        record["is_watchtower"] = (
+            assignment["state"] == "CONFIRMED_OPERATION"
+            and str(assignment["operation_name"]).upper() == "WATCHTOWER"
+        )
+        if assignment["operation_id"]:
+            key = "watchtower" if assignment["operation_name"] == "WATCHTOWER" else assignment["operation_name"]
+            counts[key] = counts.get(key, 0) + 1
+    intelligence["operation_summary"] = counts
+
+
 def build_hierarchy(intelligence: dict[str, Any]) -> dict[str, Any]:
     """Computes the Topology -> Behaviour -> Mechanism drill-down VIEW on
     demand from the flat per-mint `records` map. Nothing here is stored --

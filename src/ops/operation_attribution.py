@@ -19,6 +19,12 @@ from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 REGISTRY_VERSION = "operation-registry-v1"
 _INDEX_CACHE: dict[tuple[str, str], tuple[float, dict[str, dict[str, Any]], dict[str, dict[str, Any]]]] = {}
 
+
+def clear_operation_attribution_cache(ops_db_path: str | None = None) -> None:
+    for key in list(_INDEX_CACHE):
+        if ops_db_path is None or key[0] == ops_db_path:
+            _INDEX_CACHE.pop(key, None)
+
 _STATE_FOR_STAGE = {
     "CONFIRMED": "CONFIRMED_OPERATION",
     "EMERGING": "EMERGING_OPERATION",
@@ -144,15 +150,41 @@ class OperationAttributionService:
 
     def resolve_operation_for_token(self, mint: str) -> dict[str, Any]:
         tokens, _ = self._index()
-        return dict(tokens.get(str(mint), unknown_assignment()))
+        return self._current_lifecycle(dict(tokens.get(str(mint), unknown_assignment())))
 
     def resolve_many(self, mints: Iterable[str]) -> dict[str, dict[str, Any]]:
         tokens, _ = self._index()
-        return {str(mint): dict(tokens.get(str(mint), unknown_assignment())) for mint in mints}
+        result = {str(mint): dict(tokens.get(str(mint), unknown_assignment())) for mint in mints}
+        confirmed = self._confirmed_family_ids()
+        for assignment in result.values():
+            if assignment.get("family_id") in confirmed:
+                assignment.update(lifecycle="CONFIRMED", state="CONFIRMED_OPERATION", confidence="CONFIRMED")
+        return result
 
     def resolve_entity(self, entity: str) -> dict[str, Any]:
         tokens, entities = self._index()
-        return dict(tokens.get(str(entity), entities.get(str(entity), unknown_assignment())))
+        return self._current_lifecycle(dict(tokens.get(str(entity), entities.get(str(entity), unknown_assignment()))))
+
+    def _confirmed_family_ids(self) -> set[str]:
+        try:
+            conn = sqlite3.connect(f"file:{self.registry.ops_db_path}?mode=ro", uri=True, timeout=5)
+            exists = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_operation_family_confirmations'"
+            ).fetchone()
+            rows = set()
+            if exists:
+                rows = {str(row[0]) for row in conn.execute(
+                    "SELECT family_id FROM wt_operation_family_confirmations WHERE confirmed=1"
+                )}
+            conn.close()
+            return rows
+        except (OSError, sqlite3.Error):
+            return set()
+
+    def _current_lifecycle(self, assignment: dict[str, Any]) -> dict[str, Any]:
+        if assignment.get("family_id") in self._confirmed_family_ids():
+            assignment.update(lifecycle="CONFIRMED", state="CONFIRMED_OPERATION", confidence="CONFIRMED")
+        return assignment
 
     def search(self, query: str, limit: int = 25) -> list[dict[str, Any]]:
         q = str(query or "").strip().lower()

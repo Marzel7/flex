@@ -55,6 +55,13 @@ def _get_emerging_service():
     return _emerging_service
 
 
+def _confirmation_response(exc):
+    from src.ops.operation_confirmation import ConfirmationError
+    if isinstance(exc, ConfirmationError):
+        return jsonify({"ok": False, "error": str(exc), "code": exc.code}), exc.status
+    return jsonify({"ok": False, "error": str(exc), "code": "CONFIRMATION_ERROR"}), 500
+
+
 # ── List & summary ─────────────────────────────────────────────────────────────
 
 @operator_bp.route("/api/ops/operators")
@@ -239,6 +246,36 @@ def get_emerging_operator(entity: str):
     if not candidate:
         return jsonify({"ok": False, "error": "Operation family not found"}), 404
     return jsonify({"ok": True, "family": candidate, "candidate": candidate, "read_only": True})
+
+
+@operator_bp.route("/api/ops/operations/<path:family_id>/confirm", methods=["POST"])
+def confirm_operation(family_id: str):
+    try:
+        from src.core.db import OPS_DB_PATH
+        from src.ops.operation_confirmation import OperationConfirmationService
+        body = request.get_json(silent=True) or {}
+        family = OperationConfirmationService(
+            str(OPS_DB_PATH), _get_emerging_service()
+        ).confirm(family_id, analyst=body.get("confirmed_by"),
+                  reason=body.get("confirmation_reason"), notes=body.get("confirmation_notes", ""))
+        return jsonify({"ok": True, "family": family, "lifecycle_changed_only": True})
+    except Exception as exc:
+        return _confirmation_response(exc)
+
+
+@operator_bp.route("/api/ops/operations/<path:family_id>/reverse-confirmation", methods=["POST"])
+def reverse_operation_confirmation(family_id: str):
+    try:
+        from src.core.db import OPS_DB_PATH
+        from src.ops.operation_confirmation import OperationConfirmationService
+        body = request.get_json(silent=True) or {}
+        family = OperationConfirmationService(
+            str(OPS_DB_PATH), _get_emerging_service()
+        ).reverse(family_id, analyst=body.get("reversed_by"),
+                  reason=body.get("reversal_reason"), notes=body.get("reversal_notes", ""))
+        return jsonify({"ok": True, "family": family, "lifecycle_changed_only": True})
+    except Exception as exc:
+        return _confirmation_response(exc)
 
 
 # ── Promotion governance ──────────────────────────────────────────────────────

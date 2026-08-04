@@ -9411,6 +9411,8 @@ def api_operational_intelligence():
                 }), 202
         else:
             intel, cache_meta = _get_operational_intelligence(window_seconds)
+        from src.ops.operational_intelligence import refresh_registry_attribution
+        refresh_registry_attribution(intel, OPS_DB_PATH, LIVE_DB_PATH)
         _cache_fetch_ms = (time.perf_counter() - _route_start) * 1000
         logging.getLogger(__name__).info(
             "discovery_route stage=operational_intelligence_loaded window=%s cache_state=%s elapsed_ms=%.1f",

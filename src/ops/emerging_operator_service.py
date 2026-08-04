@@ -255,7 +255,7 @@ class EmergingOperatorService:
                 "kind": "OPERATION_FAMILY_CONFIRMED" if family["stage"] == "CONFIRMED" else "EMERGING_CANDIDATE_STRENGTHENED",
                 "message": f"{family['family_name']}: {family['observed_launches']} launches, {family['evidence_completeness']['score']}% evidence complete",
                 "entity": {"id": family["family_id"], "type": "operation_family" if len(family["member_wallets"]) > 1 else "emerging_candidate"},
-                "href": f"/intelligence/emerging-operators?entity={family['family_id']}",
+                "href": f"/intelligence/operations/{family['family_id']}",
             })
         return sorted(events, key=lambda e: (e["timestamp"] or 0, e["kind"]), reverse=True)[:max(1, min(int(limit), 50))]
 

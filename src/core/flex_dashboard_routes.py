@@ -1224,6 +1224,14 @@ def api_token_intelligence_detail(mint):
         if not detail:
             return no_cache_json({'error': 'Not found'}), 404
 
+        from src.ops.operation_attribution import OperationAttributionService
+        ops_db_path = os.environ.get(
+            'WT_OPS_DB_PATH', os.path.join(_REPO_ROOT, 'database', 'wt_ops_v2.db')
+        )
+        detail['operation_attribution'] = OperationAttributionService(
+            ops_db_path, DB_PATH
+        ).resolve_operation_for_token(mint)
+
         detail['history'] = [
             {'t': r['captured_at'], 'p': r['price_usd'], 'mc': r['market_cap']}
             for r in hist_rows

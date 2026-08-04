@@ -15,6 +15,7 @@ from typing import Any
 from src.ops.operator_model import EVIDENCE_CATALOGUE
 from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 from src.ops.attribution_outcome import emerging_operator_seeds
+from src.ops.operation_attribution import OperationAttributionService
 
 
 DISCOVERY_STATES = (
@@ -88,6 +89,9 @@ class DiscoveryService:
         )
         self.core_db_path = core_db_path or os.environ.get(
             "DB_PATH", os.path.join(repo, "database", "flex_complete_database.db")
+        )
+        self.operation_attribution = OperationAttributionService(
+            self.ops_db_path, self.core_db_path
         )
 
     @staticmethod
@@ -198,6 +202,12 @@ class DiscoveryService:
 
         result["generated_at"] = generated_at
         result["discovery_states"] = list(DISCOVERY_STATES)
+        operation = self.operation_attribution.resolve_entity(
+            (result.get("subject") or {}).get("id") or entity_id
+        )
+        result["operation_attribution"] = operation
+        if operation["state"] != "UNKNOWN":
+            result["summary"] = f"{operation['operation_name']} · {operation['state'].replace('_', ' ').title()}"
         return result
 
     def _empty(self, entity_id: str, entity_type: str, generated_at: int) -> dict[str, Any]:
@@ -1033,6 +1043,10 @@ class DiscoveryService:
             return {"ok": True, "query": q, "results": [], "count": 0}
         results: list[dict[str, Any]] = []
         seen: set[tuple[str, str]] = set()
+        for item in self.operation_attribution.search(q, limit):
+            key = (item["type"], item["id"])
+            seen.add(key)
+            results.append(item)
         with self._connect(self.ops_db_path) as conn:
             tables = self._tables(conn)
             lookups = (

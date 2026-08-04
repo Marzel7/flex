@@ -817,6 +817,7 @@ async function openDetail(mint) {
         const r = d.rating || d.rating_1_to_10;
         const mc = d.peak_market_cap_usd;
         const hist = d.history || [];
+        const op = d.operation_attribution || {};
 
         const tc = d.token_class || 'G?';
         const outcome = d.outcome || '—';
@@ -827,6 +828,16 @@ async function openDetail(mint) {
                 ${gBadge(tc)}
                 ${outcomeBadge(outcome)}
                 ${r != null ? `<span style="color:${ratingColor(r)};font-weight:700;font-size:14px">${r}/10</span>` : ''}
+            </div>
+            <div class="graph-section" style="margin-bottom:12px">
+                <div class="graph-section-title">Current Operation</div>
+                <div class="graph-row">
+                    ${op.profile_href ? `<a class="graph-chip" href="${esc(op.profile_href)}"><strong>${esc(op.operation_name)}</strong></a>` : `<div class="graph-chip"><strong>Unknown</strong></div>`}
+                    <div class="graph-chip">${esc(op.state || 'UNKNOWN')}</div>
+                    <div class="graph-chip">${esc(op.lifecycle || 'UNKNOWN')}</div>
+                    ${op.timeline_href ? `<a class="graph-chip" href="${esc(op.timeline_href)}">Timeline</a>` : ''}
+                    ${op.evidence_href ? `<a class="graph-chip" href="${esc(op.evidence_href)}">Evidence</a>` : ''}
+                </div>
             </div>
             <div class="ti-detail-metrics">
                 ${metric('Peak MC', fmtMc(mc) || '—', G_COLOR[tc] || '')}

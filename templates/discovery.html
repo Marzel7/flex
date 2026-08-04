@@ -1254,7 +1254,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'</section>'
       +tech;
   }
-  function emergingCandidate(c){if(!c)return '';var classes=(c.identity_classes||[]).map(function(x){return '<span class="dw-signal">'+esc(x.replaceAll('_',' '))+'</span>'}).join('');return '<section class="dw-canonical" style="border-color:rgba(245,158,11,.25)"><div class="dw-canonical-cell"><div class="x19-answer-label">Emerging candidate · Level 1</div><div class="dw-canonical-name">Unknown Infrastructure</div><div class="dw-canonical-state">Observed '+esc(c.observed_launches)+' launches · '+esc(c.identity_class_count)+' identity classes</div><div class="dw-signal-list">'+classes+'</div></div><a class="dw-canonical-cell" style="text-decoration:none;color:inherit" href="/intelligence/emerging-operators?entity='+encodeURIComponent(c.terminal_entity)+'"><div class="x19-answer-label">Current status</div><div class="dw-canonical-state">'+esc(c.review_label)+'</div><div class="dw-canonical-meta">Not yet a canonical operator</div><div class="dw-canonical-meta" style="color:var(--ip-cyan);margin-top:9px">Open Emerging Candidate →</div></a></section>'}
+  function emergingCandidate(c,op){if(!c)return '';op=op||{};var classes=(c.identity_classes||[]).map(function(x){return '<span class="dw-signal">'+esc(x.replaceAll('_',' '))+'</span>'}).join('');var name=op.operation_name||'Unknown';var state=(op.state||'UNKNOWN').replaceAll('_',' ');var link=op.profile_href||'#';return '<section class="dw-canonical" style="border-color:rgba(245,158,11,.25)"><div class="dw-canonical-cell"><div class="x19-answer-label">Registry attribution</div><div class="dw-canonical-name">'+esc(name)+'</div><div class="dw-canonical-state">Observed '+esc(c.observed_launches)+' launches · '+esc(c.identity_class_count)+' identity classes</div><div class="dw-signal-list">'+classes+'</div></div><a class="dw-canonical-cell" style="text-decoration:none;color:inherit" href="'+esc(link)+'"><div class="x19-answer-label">Current status</div><div class="dw-canonical-state">'+esc(state)+'</div><div class="dw-canonical-meta">'+esc(op.lifecycle||'UNKNOWN')+' · '+esc(op.confidence||'UNKNOWN')+'</div><div class="dw-canonical-meta" style="color:var(--ip-cyan);margin-top:9px">Open Operation Profile →</div></a></section>'}
   function cross(rows){if(!rows||!rows.length)return '';return '<div class="dw-card"><div class="dw-card-h">Cross-Operation</div><div class="dw-card-body">'+rows.map(function(x){return '<div class="dw-group-row"><span class="dw-group-name">'+esc(x.operation_id)+'</span><span class="dw-group-count" title="'+esc(x.reason)+'">linked</span></div>'}).join('')+'</div></div>'}
   // X20.9: Treasury Expansion Resolver output. This is an evidence report, not attribution —
   // it never claims a confirmed operator, and it never assigns a probabilistic label
@@ -1471,7 +1471,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     var walletQuality=(subject.type==='token'&&subject.id)?'<section class="dw-outcome dw-wallet-quality" id="dw-wallet-quality-mount" style="display:none"></section>':'';
     var identityHeader='<div class="x19-answer"><div class="x19-answer-label">Identity · Level 1</div><div class="x19-answer-value">'+esc(d.summary)+'</div><div class="x19-answer-meta"><span class="dw-type">'+esc(subject.type)+'</span> · <span class="dw-subject-id">'+esc(subject.id)+'</span> · '+esc(d.state)+'</div>'+resolvedText+'</div>';
     var summaryCard=analystSummary(d);
-    var leads=treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate);
+    var leads=treasuryExpansion(d.treasury_expansion)+emergingCandidate(d.emerging_candidate,d.operation_attribution);
     // X29.7 — Operational Lineage renders directly beneath Identity, ABOVE
     // Operational Attribution/Funding Boundary/Behaviour/Mechanism/Wallet
     // Quality — "what operation is this" (the lineage chain) before "how
@@ -3600,7 +3600,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       return Math.floor(seconds/3600)+'h '+Math.floor((seconds%3600)/60)+'m';
     }
     var meta='<span class="dw-x56-row-meta">'
-      +'<span class="dw-x56-badge '+(r.is_watchtower?'dw-x56-badge-operation':'')+'">Operation: '+esc(r.operation_id||'Unassigned')+'</span>'
+      +'<span class="dw-x56-badge '+(r.is_watchtower?'dw-x56-badge-operation':'')+'">Operation: '+esc(r.operation_name||r.operation_id||'Unknown')+'</span>'
       +(r.is_quick_birth_migration?'<span class="dw-x56-badge dw-x56-badge-behaviour">Quick Birth ≤5s → Migration</span>':'')
       +'<span class="dw-x56-badge">Creator: '+esc(r.creator_identity_label||'Unknown')+'</span>'
       +(r.disposable_creator_score?'<span class="dw-x56-timing">Disposable '+Number(r.disposable_creator_score.score||0)+'%</span>':'')

@@ -50,7 +50,11 @@ from typing import Any, Optional
 # file (written before this change) is simply treated as "not found" by
 # read_snapshot() and rebuilt fresh -- no migration needed, since these
 # are disposable cache artefacts (see module docstring).
-SNAPSHOT_SCHEMA_VERSION = 2
+# Phase 4 Registry Consumer Migration -- bumped 2 -> 3 because persisted
+# Operational Intelligence payloads now carry authoritative Registry
+# attribution. Hydrating a version-2 payload would temporarily restore the
+# removed operation_uuid/WATCHTOWER-only decision model after every restart.
+SNAPSHOT_SCHEMA_VERSION = 3
 
 _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
 SNAPSHOT_DIR = os.environ.get(

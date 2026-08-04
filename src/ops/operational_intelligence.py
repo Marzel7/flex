@@ -447,8 +447,6 @@ def _enrich_discovery_records(
         lifecycle = lifecycle_rows.get(mint)
         walkback = walkback_rows.get(mint)
         core_row = core_rows.get(mint)
-        explicit_op = explicit_operations.get(mint)
-
         treasury = launch["treasury_wallet"] if launch else None
 
         if treasury:
@@ -458,25 +456,6 @@ def _enrich_discovery_records(
             treasury_source = "wt_walkback_queue.treasury"
         else:
             treasury_source = None
-
-        is_watchtower = explicit_op == WATCHTOWER_OPERATOR_ID
-        operation_source = "explicit_confirmed_operation" if is_watchtower else None
-
-        if not is_watchtower and mint in canonical_registry_tokens:
-            is_watchtower, operation_source = True, "canonical_watchtower_launch_registry"
-
-        if not is_watchtower and mint in confirmed_tokens:
-            is_watchtower, operation_source = True, "confirmed_registry_token"
-
-        has_confirmed_path = treasury in confirmed_treasuries or bool(
-            attributed_treasuries.get(mint, set()) & confirmed_treasuries
-        )
-
-        if not is_watchtower and has_confirmed_path:
-            is_watchtower, operation_source = True, "confirmed_treasury_path"
-
-        if not is_watchtower and mint in reviewed_family_tokens:
-            is_watchtower, operation_source = True, "reviewed_watchtower_family"
 
         create_at = lifecycle["launched_at"] if lifecycle and lifecycle["launched_at"] is not None else None
         create_source = "wt_token_lifecycle.launched_at" if create_at is not None else None
@@ -552,10 +531,11 @@ def _enrich_discovery_records(
             "live_detection_status": live_detection_status["live_detection_status"],
             "live_detection_label": live_detection_status["live_detection_label"],
             "live_detection_tooltip": live_detection_status["live_detection_tooltip"],
-            "operation_id": "WATCHTOWER" if is_watchtower else explicit_op,
-            "operation_confidence": "CONFIRMED" if (is_watchtower or explicit_op) else None,
-            "operation_source": operation_source or ("explicit_operation" if explicit_op else None),
-            "is_watchtower": is_watchtower,
+            # Filled authoritatively by OperationAttributionService below.
+            "operation_id": None,
+            "operation_confidence": None,
+            "operation_source": None,
+            "is_watchtower": False,
             "is_cascade_confirmed": mint in canonical_registry_tokens,
             "confirmation_completed_at": confirmation_completed_at.get(mint),
             "creator_birth_source": creator_birth_source,
@@ -572,6 +552,27 @@ def _enrich_discovery_records(
         for mint in canonical_tokens_all
         if (create_time := canonical_create_times.get(mint)) is not None and create_time >= now - 86400
     }
+
+    # Operation identity is an overlay from the shared Registry resolver.
+    # The legacy joins above remain evidence/timing inputs only and never get
+    # the final say on which operation owns a token.
+    from src.ops.operation_attribution import OperationAttributionService
+    registry_assignments = OperationAttributionService(
+        ops_db_path, core_db_path
+    ).resolve_many(records)
+    for mint, record in records.items():
+        assignment = registry_assignments[mint]
+        record["operation_attribution"] = assignment
+        record["operation_id"] = assignment["operation_id"]
+        record["operation_name"] = assignment["operation_name"]
+        record["operation_lifecycle"] = assignment["lifecycle"]
+        record["operation_state"] = assignment["state"]
+        record["operation_confidence"] = assignment["confidence"]
+        record["operation_source"] = assignment["evidence_source"]
+        record["is_watchtower"] = (
+            assignment["state"] == "CONFIRMED_OPERATION"
+            and str(assignment["operation_name"]).upper() == "WATCHTOWER"
+        )
 
     displayed = {mint for mint, record in records.items() if record["is_watchtower"]}
 
@@ -1019,6 +1020,12 @@ def build_operational_intelligence(
         r["is_known_exchange_boundary"] = bool(_ev_subprov) and is_known_account(_ev_subprov)
 
     watchtower_count = sum(r["is_watchtower"] for r in records.values())
+    operation_counts: dict[str, int] = {}
+    for record in records.values():
+        operation_name = record.get("operation_name")
+        if record.get("operation_id") and operation_name:
+            summary_key = "watchtower" if operation_name == "WATCHTOWER" else operation_name
+            operation_counts[summary_key] = operation_counts.get(summary_key, 0) + 1
     quick_count = sum(r["is_quick_birth_migration"] for r in records.values())
     overlap_count = sum(r["is_quick_birth_migration"] for r in records.values() if r["is_watchtower"])
     assigned_quick_count = sum(
@@ -1062,7 +1069,7 @@ def build_operational_intelligence(
         "mechanism_summary": mechanism["mechanisms"],
         "creator_identity_summary": creator_identity_summary["identities"],
         "disposable_creator_score_distribution": creator_identity_summary["score_distribution"],
-        "operation_summary": {"watchtower": watchtower_count},
+        "operation_summary": operation_counts,
         "quick_birth_migration_summary": {
             "count": quick_count,
             "watchtower_overlap_count": overlap_count,

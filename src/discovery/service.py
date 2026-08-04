@@ -217,7 +217,7 @@ class DiscoveryService:
                 "OPERATOR_CANDIDATE": f"Operator Candidate: {name}",
                 "REVIEW": f"Review Population: {name}",
                 "INFRASTRUCTURE": f"Shared Infrastructure: {name}",
-                "UNRESOLVED": "Unresolved Investigation",
+                "UNRESOLVED": "Investigation Population",
                 "REJECTED": "Rejected Investigation Population",
                 "RETIRED": "Retired Investigation Population",
             }.get(str(disposition), presentation.get("label") or result["summary"])

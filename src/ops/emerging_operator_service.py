@@ -145,6 +145,9 @@ class EmergingOperatorService:
         confirmed_reconciled = [reconciled_card(f) for f in sorted(
             disposition_groups["CONFIRMED_OPERATION"], key=material_key, reverse=True
         )]
+        active_investigations = [reconciled_card(f) for f in sorted(
+            disposition_groups["UNRESOLVED"], key=material_key, reverse=True
+        )[:5]]
         operator_candidates = [reconciled_card(f) for f in sorted(
             disposition_groups["OPERATOR_CANDIDATE"], key=material_key, reverse=True
         )[:5]]
@@ -175,6 +178,7 @@ class EmergingOperatorService:
             "intake_contract": "/api/ops-v2/emerging-operator-seeds",
             "read_only": True,
             "confirmed_operations_reconciled": confirmed_reconciled,
+            "active_investigations_reconciled": active_investigations,
             "operator_candidates_reconciled": operator_candidates,
             "review_cases_reconciled": review_cases,
             "infrastructure_alerts_reconciled": infrastructure_alerts,

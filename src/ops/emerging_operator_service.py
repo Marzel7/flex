@@ -140,7 +140,7 @@ class EmergingOperatorService:
                 "dormant_families": [f for f in hidden if f["stage"] == "DORMANT"],
                 "retired_families": [f for f in hidden if f["stage"] == "RETIRED"],
                 "rejected_families": [f for f in hidden if f["exclusion_evidence"]],
-                "evidence_routing": "profiles initialized before outcomes, edges, sessions, classifications, and exclusions",
+                "evidence_routing": "profiles initialized from infrastructure scoring, walkback seeds, or complete persisted session-plus-provisioning evidence before enrichment, classification, and exclusions",
                 "reconciliation": [{
                     "family_id": f["family_id"], "family_name": f["family_name"],
                     "old_state": f.get("previous_stage"), "new_state": f["stage"],
@@ -292,9 +292,15 @@ class EmergingOperatorService:
 
     def _discovery_profiles(self, conn, tables) -> dict[str, dict[str, Any]]:
         profiles: dict[str, dict[str, Any]] = {}
-        def profile(wallet, source="background"):
+        def profile(wallet, source=None):
+            existing = profiles.get(wallet)
+            if existing is not None:
+                if source:
+                    existing["sources"].add(source)
+                return existing
+            sources = {source} if source else set()
             return profiles.setdefault(wallet, {
-                "wallet": wallet, "sources": {source}, "candidate": {}, "creators": set(),
+                "wallet": wallet, "sources": sources, "candidate": {}, "creators": set(),
                 "treasuries": set(), "mechanisms": set(), "signatures": set(), "launches": set(),
                 "first": None, "last": None, "sessions": 0, "active_sessions": 0,
                 "session_times": set(), "evidence": [], "outcomes": [],
@@ -315,6 +321,13 @@ class EmergingOperatorService:
             p = profile(seed["terminal_entity"], "wt_attribution_outcomes")
             p["first"] = min(x for x in (p["first"], _timestamp(seed.get("first_seen_at"))) if x is not None)
             p["last"] = max(x for x in (p["last"], _timestamp(seed.get("last_seen_at"))) if x is not None)
+        # Infrastructure scoring enriches a family; it must not be the object
+        # that makes already-complete operating evidence routable.  Initialise
+        # profiles whose persisted sessions and provisioning edges already
+        # satisfy the existing singleton evidence package.  The normal loaders
+        # below remain the single source of the profile's evidence and scores.
+        for wallet in self._evidence_routable_wallets(conn, tables):
+            profile(wallet)
         if "wt_provisioning_edges" in tables:
             for row in conn.execute("SELECT * FROM wt_provisioning_edges WHERE edge_type='SUBPROV_TO_CREATOR'"):
                 edge = dict(row); wallet = edge["from_wallet"]
@@ -373,6 +386,56 @@ class EmergingOperatorService:
             if p["zero_value_edges"] and len(p["signatures"]) < 2:
                 p["exclusions"].append({"type": "UNSUPPORTED_ZERO_VALUE", "detail": "zero-value edges lack independent corroboration", "source": "wt_provisioning_edges"})
         return profiles
+
+    def _evidence_routable_wallets(self, conn, tables) -> set[str]:
+        """Return wallets independently routable from existing hard evidence.
+
+        These are routing requirements, not new promotion gates.  They mirror
+        the evidence already required by ``singleton_lane``: a reconstructable
+        treasury-to-client-to-creator topology, five repeated creator
+        relationships, a funding mechanism, and transaction provenance.
+        Multi-member cohesion and every lifecycle/promotion threshold are still
+        evaluated later by the unchanged family builder.
+        """
+        required = {"wt_provisioning_edges", "wt_active_subprov_sessions"}
+        if not required.issubset(tables):
+            return set()
+        edge_rows = conn.execute(
+            """
+            SELECT from_wallet AS wallet,
+                   COUNT(DISTINCT to_wallet) AS creator_count,
+                   COUNT(DISTINCT CASE WHEN funding_tx_signature IS NOT NULL
+                                       THEN funding_tx_signature END) AS signature_count,
+                   COUNT(DISTINCT CASE WHEN funding_mechanism IS NOT NULL
+                                       THEN funding_mechanism END) AS mechanism_count
+              FROM wt_provisioning_edges
+             WHERE edge_type='SUBPROV_TO_CREATOR'
+             GROUP BY from_wallet
+            HAVING creator_count >= 5
+            """
+        )
+        wallets = set()
+        # The session table is large, while its unique key begins with
+        # subprov_wallet.  Narrowing by qualifying edge wallets first avoids a
+        # full session-table aggregation on every page refresh.
+        for edge in edge_rows:
+            session = conn.execute(
+                """
+                SELECT COUNT(DISTINCT treasury_wallet) AS treasury_count,
+                       COUNT(DISTINCT CASE WHEN funding_signature IS NOT NULL
+                                           THEN funding_signature END) AS signature_count,
+                       COUNT(DISTINCT CASE WHEN funding_mechanism IS NOT NULL
+                                           THEN funding_mechanism END) AS mechanism_count
+                  FROM wt_active_subprov_sessions
+                 WHERE subprov_wallet=?
+                """,
+                (edge["wallet"],),
+            ).fetchone()
+            if (session["treasury_count"] >= 1
+                    and edge["signature_count"] + session["signature_count"] >= 1
+                    and edge["mechanism_count"] + session["mechanism_count"] >= 1):
+                wallets.add(edge["wallet"])
+        return wallets
 
     def _cluster_profiles(self, profiles, evaluation, proposals) -> list[dict[str, Any]]:
         # Complete-link clustering: every new member must independently match

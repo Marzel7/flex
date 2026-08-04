@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import sqlite3
 import time
 
 from src.ops.emerging_operator_service import EmergingOperatorService
@@ -99,3 +100,81 @@ def test_dormancy_and_material_reactivation_preserve_identity(monkeypatch):
     assert dormant["stage"] == "DORMANT"
     assert reactivated["stage"] != "DORMANT"
     assert dormant["family_id"] == reactivated["family_id"]
+
+
+def test_complete_persisted_evidence_routes_without_infrastructure_candidate(tmp_path, monkeypatch):
+    now = int(time.time())
+    db = tmp_path / "ops.db"
+    conn = sqlite3.connect(db)
+    conn.executescript(
+        """
+        CREATE TABLE wt_provisioning_edges (
+            edge_type TEXT, from_wallet TEXT, to_wallet TEXT,
+            first_observed_by_flex INTEGER, last_observed_by_flex INTEGER,
+            funding_mechanism TEXT, funding_amount_sol REAL,
+            funding_tx_signature TEXT, source_mint TEXT
+        );
+        CREATE TABLE wt_active_subprov_sessions (
+            subprov_wallet TEXT, treasury_wallet TEXT, funding_signature TEXT,
+            funding_amount REAL, funding_time INTEGER, state TEXT,
+            funding_mechanism TEXT
+        );
+        """
+    )
+    for wallet in ("EARLY_A", "EARLY_B"):
+        conn.executemany(
+            "INSERT INTO wt_provisioning_edges VALUES (?,?,?,?,?,?,?,?,?)",
+            [("SUBPROV_TO_CREATOR", wallet, f"{wallet}_C{i}", now - 1000 + i,
+              now - 100 + i, "PLAIN_XFER", 1.0, f"{wallet}_SIG{i}", f"{wallet}_M{i}")
+             for i in range(5)],
+        )
+        conn.executemany(
+            "INSERT INTO wt_active_subprov_sessions VALUES (?,?,?,?,?,?,?)",
+            [(wallet, treasury, f"{wallet}_{treasury}_SIG", 2.0, now - 2000,
+              "ACTIVE", "WSOL_WRAP_CLOSE") for treasury in ("T1", "T2")],
+        )
+    conn.commit()
+    conn.row_factory = sqlite3.Row
+
+    service = EmergingOperatorService(str(db), str(tmp_path / "live.db"))
+    profiles = service._discovery_profiles(conn, service._tables(conn))
+    assert set(profiles) == {"EARLY_A", "EARLY_B"}
+    assert all(not profile["candidate"] for profile in profiles.values())
+    assert all(profile["sources"] == {
+        "wt_active_subprov_sessions", "wt_provisioning_edges"
+    } for profile in profiles.values())
+
+    family = service._cluster_profiles(profiles, None, [])[0]
+    assert family["member_wallets"] == ["EARLY_A", "EARLY_B"]
+    assert family["promotion_ready"] is True
+    assert family["attention_eligible"] is True
+    conn.close()
+
+
+def test_incomplete_raw_evidence_does_not_create_profile(tmp_path):
+    db = tmp_path / "ops.db"
+    conn = sqlite3.connect(db)
+    conn.executescript(
+        """
+        CREATE TABLE wt_provisioning_edges (
+            edge_type TEXT, from_wallet TEXT, to_wallet TEXT,
+            first_observed_by_flex INTEGER, last_observed_by_flex INTEGER,
+            funding_mechanism TEXT, funding_amount_sol REAL,
+            funding_tx_signature TEXT, source_mint TEXT
+        );
+        CREATE TABLE wt_active_subprov_sessions (
+            subprov_wallet TEXT, treasury_wallet TEXT, funding_signature TEXT,
+            funding_amount REAL, funding_time INTEGER, state TEXT,
+            funding_mechanism TEXT
+        );
+        INSERT INTO wt_provisioning_edges VALUES
+            ('SUBPROV_TO_CREATOR','THIN','C1',100,200,'PLAIN_XFER',1.0,'SIG','M1');
+        INSERT INTO wt_active_subprov_sessions VALUES
+            ('THIN','T1','SESSION_SIG',2.0,90,'ACTIVE','WSOL_WRAP_CLOSE');
+        """
+    )
+    conn.commit()
+    conn.row_factory = sqlite3.Row
+    service = EmergingOperatorService(str(db), str(tmp_path / "live.db"))
+    assert service._discovery_profiles(conn, service._tables(conn)) == {}
+    conn.close()

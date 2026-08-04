@@ -270,6 +270,21 @@ class TrackedConnection(sqlite3.Connection):
         _dbm_record_acquire(caller, wait_ms)   # percentile + per-writer attribution
 
     def _release_write_lane(self):
+        try:
+            self._release_write_lane_inner()
+        finally:
+            # Belt-and-suspenders: even if the lease-release path above raised
+            # before reaching its own cleanup, this thread's process-local write
+            # lock must never stay held -- that would starve every future writer
+            # on this connection's thread rather than just this one transaction.
+            if getattr(self, "_holds_write_lock", False):
+                self._holds_write_lock = False
+                try:
+                    _DB_WRITE_LOCK.release()
+                except RuntimeError:
+                    pass
+
+    def _release_write_lane_inner(self):
         lease = getattr(self, "_cross_process_lease", None)
         if lease is not None:
             # release_write_lease() below (which unlocks the cross-process

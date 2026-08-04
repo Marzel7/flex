@@ -129,14 +129,25 @@ def acquire_write_lease(database: str, path: str, transaction_id: str, command: 
 
 
 def release_write_lease(lease: WriteLease) -> None:
+    # The thread-local reentrancy guard must be cleared no matter what happens
+    # below -- a failure in unlink/flock/close must never leave this thread
+    # permanently unable to acquire a write lease again (observed: walkback_worker
+    # stuck for hours after a single release-path OSError left _thread_write_lease
+    # .owner set forever, so every later _ops_conn() write raised
+    # NestedDatabaseWriteError against itself).
     try:
-        os.unlink(lease.owner_path)
-    except FileNotFoundError:
-        pass
-    fcntl.flock(lease.file.fileno(), fcntl.LOCK_UN)
-    lease.file.close()
-    if getattr(_thread_write_lease, "owner", None) is lease.owner:
-        del _thread_write_lease.owner
+        try:
+            os.unlink(lease.owner_path)
+        except FileNotFoundError:
+            pass
+        finally:
+            try:
+                fcntl.flock(lease.file.fileno(), fcntl.LOCK_UN)
+            finally:
+                lease.file.close()
+    finally:
+        if getattr(_thread_write_lease, "owner", None) is lease.owner:
+            del _thread_write_lease.owner
 
 
 @dataclass

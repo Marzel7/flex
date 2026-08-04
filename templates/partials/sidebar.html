@@ -15,15 +15,15 @@
         <div class="sidebar-section">
             <div class="sidebar-section-label">Investigate</div>
             <a class="sidebar-item {% if active_page == 'discovery' %}active{% endif %}" href="/discovery">Discovery</a>
-            <a class="sidebar-item {% if active_page == 'emerging_operators' %}active{% endif %}" href="/intelligence/emerging-operators">Operation Discovery</a>
             <a class="sidebar-item {% if active_page == 'entity_intelligence' %}active{% endif %}" href="/intelligence/entity/">Entity Intelligence</a>
-            <a class="sidebar-item {% if active_page == 'operators' %}active{% endif %}" href="/intelligence/operators">Operators</a>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-label">Operations</div>
+            <a class="sidebar-item {% if active_page in ['emerging_operators','operation_profile'] %}active{% endif %}" href="/intelligence/operations">Operation Registry</a>
             <a class="sidebar-item {% if active_page in ['ops_live','ops_live_cards','ops_operations'] %}active{% endif %}" href="/ops">Live Operations</a>
-            <a class="sidebar-item {% if active_page == 'watchtower_ops' %}active{% endif %}" href="/watchtower/intelligence">WATCHTOWER</a>
+            <a class="sidebar-item {% if active_page == 'operators' %}active{% endif %}" href="/intelligence/operators">Canonical Operators</a>
+            <a class="sidebar-item" href="/ecosystem">Ecosystem Intelligence</a>
             <a class="sidebar-item {% if active_page == 'launcher_observatory' %}active{% endif %}" href="/ops-os/launcher-observatory">Launcher Observatory</a>
             <a class="sidebar-item {% if active_page == 'buy_swarm_observatory' %}active{% endif %}" href="/ops-os/buy-swarm-observatory">Buy Swarm Observatory</a>
         </div>

@@ -212,9 +212,18 @@ def operators_index():
 # ── Emerging operators (read-only X20 projection) ───────────────────────────
 
 @operator_bp.route("/intelligence/emerging-operators")
+@operator_bp.route("/intelligence/operations")
 def emerging_operators_page():
     from flask import render_template
     return render_template("emerging_operators.html", active_page="emerging_operators")
+
+
+@operator_bp.route("/intelligence/operations/<path:entity>")
+def operation_profile_page(entity: str):
+    from flask import render_template
+    return render_template(
+        "operation_profile.html", entity=entity, active_page="operation_profile"
+    )
 
 
 @operator_bp.route("/api/ops/emerging-operators")

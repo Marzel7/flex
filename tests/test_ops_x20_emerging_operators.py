@@ -187,11 +187,13 @@ def test_workspace_api_and_navigation_expose_no_write_action(tmp_path, monkeypat
     assert "/api/ops/emerging-operators" in rules
     assert "/api/ops/emerging-operators/<path:entity>" in rules
     assert "/intelligence/emerging-operators" in rules
+    assert "/intelligence/operations" in rules
+    assert "/intelligence/operations/<path:entity>" in rules
     assert service.list()["candidates"][0]["terminal_entity"] == "INFRA"
     source = (root / "templates/emerging_operators.html").read_text()
     assert "Emerging Operators" in source
     assert "cannot become canonical operators here" in source
-    assert b"/intelligence/emerging-operators" in (root / "templates/partials/sidebar.html").read_bytes()
+    assert b"/intelligence/operations" in (root / "templates/partials/sidebar.html").read_bytes()
 
 
 def test_discovery_level_one_distinguishes_emerging_from_canonical(tmp_path):

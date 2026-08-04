@@ -120,6 +120,7 @@ class EmergingOperatorService:
             "established_changes": [f for f in visible if f["stage"] == "ESTABLISHED" and f["material_change_reasons"]],
             "candidate_summary": candidate_summary,
             "funnel": {stage: sum(f["stage"] == stage for f in all_families) for stage in stages},
+            "reconciliation": self._reconcile_token_states(all_families),
             "promotion_config": {
                 "minimum_launches": self.minimum_launches,
                 "evidence_completeness_threshold": self.completeness_threshold,
@@ -160,14 +161,77 @@ class EmergingOperatorService:
                     "growth_timeline", "launch_list", "unique_creators"):
             card[key] = []
         card["evidence_detail_href"] = f"/api/ops/emerging-operators/{family['family_id']}"
+        card["profile_href"] = f"/intelligence/operations/{family['family_id']}"
+        card["operational_intelligence_href"] = f"{card['profile_href']}?tab=operational"
         return card
 
     def get(self, entity: str) -> dict[str, Any] | None:
         entity = (entity or "").strip()
         for family in self._compose():
             if entity == family["family_id"] or entity in family["member_wallets"]:
-                return family
+                result = dict(family)
+                result["profile_href"] = f"/intelligence/operations/{family['family_id']}"
+                result["operational_intelligence_href"] = f"{result['profile_href']}?tab=operational"
+                result["ecosystem_intelligence_href"] = f"{result['profile_href']}?tab=related"
+                return result
         return None
+
+    def _reconcile_token_states(self, families: list[dict[str, Any]]) -> dict[str, Any]:
+        """Build one exclusive token ledger across operation lifecycle states."""
+        universe: set[str] = set()
+        try:
+            with self._connect(self.ops_db_path) as conn:
+                tables = self._tables(conn)
+                sources = (
+                    ("wt_watchtower_launches", "mint"),
+                    ("wt_provisioning_edges", "source_mint"),
+                    ("wt_attribution_outcomes", "mint"),
+                )
+                for table, column in sources:
+                    if table in tables and column in self._columns(conn, table):
+                        universe.update(row[0] for row in conn.execute(
+                            f"SELECT DISTINCT {column} FROM {table} WHERE {column} IS NOT NULL"
+                        ) if row[0])
+        except (OSError, sqlite3.Error):
+            pass
+
+        category_for_stage = {
+            "CONFIRMED": "confirmed", "EMERGING": "emerging",
+            "ESTABLISHED": "emerging", "SIGNIFICANT_ACTIVE": "candidate",
+            "CANDIDATE": "candidate", "BACKGROUND": "unknown",
+            "DORMANT": "unknown", "RETIRED": "unknown",
+        }
+        priority = {"unknown": 0, "candidate": 1, "emerging": 2, "confirmed": 3}
+        claims: dict[str, list[tuple[str, str]]] = defaultdict(list)
+        for family in families:
+            category = category_for_stage.get(family["stage"], "unknown")
+            for mint in family.get("launch_list") or []:
+                if mint:
+                    universe.add(mint)
+                    claims[mint].append((category, family["family_id"]))
+
+        assignments = {"confirmed": set(), "emerging": set(), "candidate": set(), "unknown": set()}
+        overlap_mints = []
+        for mint in sorted(universe):
+            mint_claims = claims.get(mint, [])
+            category = max((item[0] for item in mint_claims), key=priority.get, default="unknown")
+            assignments[category].add(mint)
+            if len({item[1] for item in mint_claims}) > 1:
+                overlap_mints.append(mint)
+        counts = {f"{key}_tokens": len(value) for key, value in assignments.items()}
+        assigned_total = sum(counts.values())
+        return {
+            "total_tokens": len(universe), **counts, "assigned_total": assigned_total,
+            "balanced": assigned_total == len(universe),
+            "source_overlap_count": len(overlap_mints),
+            "source_overlap_mints": overlap_mints[:25],
+            "operation_counts": {
+                "confirmed": sum(f["stage"] == "CONFIRMED" for f in families),
+                "emerging": sum(f["stage"] in {"EMERGING", "ESTABLISHED"} for f in families),
+                "candidate": sum(f["stage"] in {"CANDIDATE", "SIGNIFICANT_ACTIVE"} for f in families),
+            },
+            "contract": "each persisted discovery token is assigned once: confirmed, emerging, candidate, or unknown",
+        }
 
     def recent_events(self, limit: int = 20) -> list[dict[str, Any]]:
         events = []

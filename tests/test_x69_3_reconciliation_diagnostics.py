@@ -39,16 +39,16 @@ def test_live_shadow_metrics_and_replays_are_clean(workspace):
     assert workspace.metrics == {
         "total_investigation_populations": 281,
         "total_shadow_records": 282,
-        "agreement_count": 192,
-        "expected_differences": 90,
+        "agreement_count": 205,
+        "expected_differences": 77,
         "unexpected_differences": 0,
         "infrastructure_populations": 9,
         "rejected_populations": 9,
         "review_populations": 4,
-        "operator_candidates": 0,
+        "operator_candidates": 16,
         "confirmed_operations": 1,
         "retired_populations": 0,
-        "unresolved_populations": 259,
+        "unresolved_populations": 243,
         "deterministic_replay_failures": 0,
     }
     assert all(record.replay.identical for record in workspace.records)

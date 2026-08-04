@@ -10,6 +10,7 @@ from typing import Any, Mapping, Sequence
 
 from src.ops.disposition_resolver import (
     INFRASTRUCTURE,
+    OPERATOR_CANDIDATE,
     REJECTED,
     REVIEW,
     UNRESOLVED,
@@ -34,6 +35,11 @@ def _expected_difference(comparison, result) -> bool:
         return False
     if result.disposition in {INFRASTRUCTURE, REJECTED, REVIEW}:
         return bool(result.contradictory_evidence)
+    if result.disposition == OPERATOR_CANDIDATE:
+        return any(
+            item.evidence_type == "CREATOR_REUSE_CONTROL"
+            for item in result.supporting_evidence
+        )
     if result.disposition == UNRESOLVED:
         return bool(result.missing_evidence)
     return False

@@ -8,6 +8,7 @@ from typing import Any, Mapping
 
 from src.ops.disposition_resolver import (
     INFRASTRUCTURE,
+    OPERATOR_CANDIDATE,
     REJECTED,
     REVIEW,
     UNRESOLVED,
@@ -207,6 +208,14 @@ class ReconciliationDiagnosticsService:
             explanation = "Persisted invalid, unsupported, dust, or noise evidence explains the legacy population."
         elif result.disposition == REVIEW and contradiction_types:
             explanation = "Observed contradictory evidence requires review and cannot be hidden by the legacy state."
+        elif result.disposition == OPERATOR_CANDIDATE and any(
+            item.evidence_type == "CREATOR_REUSE_CONTROL"
+            for item in result.supporting_evidence
+        ):
+            explanation = (
+                "Persisted multi-mint creator reuse supplies an independent behavioural "
+                "control fact without changing legacy attribution."
+            )
         elif result.disposition == UNRESOLVED and missing_types:
             explanation = (
                 "The package lacks independent control-bearing evidence; missing evidence remains unknown. "

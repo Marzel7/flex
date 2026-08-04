@@ -11,15 +11,35 @@ consumers continue to observe exactly the same contract and behaviour.
 from __future__ import annotations
 
 import hashlib
+import json
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any, Callable, Mapping, Sequence
 
 
+def _freeze(value: Any) -> Any:
+    """Recursively freeze evidence facts without changing their meaning."""
+    if isinstance(value, Mapping):
+        return MappingProxyType({str(key): _freeze(item) for key, item in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return tuple(sorted((_freeze(item) for item in value), key=str))
+    return value
+
+
+def _plain(value: Any) -> Any:
+    """Return a deterministic JSON-compatible representation of frozen facts."""
+    if isinstance(value, Mapping):
+        return {str(key): _plain(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_plain(item) for item in value]
+    return value
+
+
 def _frozen_mapping(value: Mapping[str, Any]) -> Mapping[str, Any]:
-    """Copy the top-level mapping so a population is stable after building."""
-    return MappingProxyType(dict(value))
+    return _freeze(value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,8 +53,14 @@ class InvestigationPopulation:
     launches: tuple[str, ...]
     timeline: tuple[Mapping[str, Any], ...]
     metadata: Mapping[str, Any]
+    revision_id: str = field(init=False)
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "population_basis", tuple(_freeze(item) for item in self.population_basis))
+        object.__setattr__(self, "members", tuple(self.members))
+        object.__setattr__(self, "launches", tuple(self.launches))
+        object.__setattr__(self, "timeline", tuple(_freeze(item) for item in self.timeline))
+        object.__setattr__(self, "metadata", _freeze(self.metadata))
         forbidden = {
             "stage", "status", "lifecycle", "lifecycle_state", "candidate_state",
             "confirmation", "operator_id", "operation_id", "attention_eligible",
@@ -46,6 +72,20 @@ class InvestigationPopulation:
                 "Investigation population metadata contains presentation state: "
                 + ", ".join(sorted(overlap))
             )
+        revision_facts = {
+            "population_id": self.population_id,
+            "anchor": self.anchor,
+            "population_basis": self.population_basis,
+            "members": self.members,
+            "launches": self.launches,
+            "timeline": self.timeline,
+            "metadata": self.metadata,
+        }
+        encoded = json.dumps(
+            _plain(revision_facts), sort_keys=True, separators=(",", ":"),
+            ensure_ascii=False, default=str,
+        ).encode()
+        object.__setattr__(self, "revision_id", "ipr:" + hashlib.sha256(encoded).hexdigest())
 
 
 class InvestigationPopulationBuilder:
@@ -189,7 +229,7 @@ class LegacyFamilyProjectionAdapter:
         outgoing = bool(creators)
         complete_topology = bool(treasuries and outgoing and mechanisms)
         observation_count = int(m["observation_count"])
-        exclusions = list(m["exclusions"])
+        exclusions = [_plain(item) for item in m["exclusions"]]
         warnings = list(m["warnings"])
         persistent = sessions >= 2 or bool(first and last and last - first >= 86400 * 2)
         shared_treasury_count = 0
@@ -367,7 +407,7 @@ class LegacyFamilyProjectionAdapter:
             "data_quality_warnings": warnings, "attention_eligible": eligible,
             "attention_rank": None, "why_surfaced": reasons,
             "dormancy_reason": "no material activity inside dormancy window" if stage == "DORMANT" else None,
-            "supporting_evidence": list(m["evidence"]),
+            "supporting_evidence": [_plain(item) for item in m["evidence"]],
             "discovery_timeline": timeline, "evidence_timeline": list(timeline),
             "growth_timeline": list(timeline), "current_classification": "Monitoring",
             "terminal_entity": members[0], "observation_count": launch_count,

@@ -25,7 +25,7 @@ def test_operation_profile_is_generic_and_topology_is_first_class():
     source = (ROOT / "templates/operation_profile.html").read_text()
     assert "Operation Profile" in source
     assert "Operational Intelligence" in source
-    assert "Ecosystem intelligence" in source
+    assert "Ecosystem context" in source
     assert 'class="op-topology"' in source
     assert "WATCHTOWER" not in source
     assert "B48k" not in source

@@ -18,6 +18,7 @@ from typing import Any, Callable
 from src.ops.attribution_outcome import emerging_operator_seeds
 from src.ops.identity_framework import PromotionDecisionEngine
 from src.ops.operator_resolver import OperatorResolver
+from src.ops.operation_intelligence import OperationIntelligenceAssembler
 from src.utils.infra_mapping import get_funder_label
 
 
@@ -167,12 +168,17 @@ class EmergingOperatorService:
 
     def get(self, entity: str) -> dict[str, Any] | None:
         entity = (entity or "").strip()
-        for family in self._compose():
+        all_families = self._compose()
+        for family in all_families:
             if entity == family["family_id"] or entity in family["member_wallets"]:
                 result = dict(family)
                 result["profile_href"] = f"/intelligence/operations/{family['family_id']}"
                 result["operational_intelligence_href"] = f"{result['profile_href']}?tab=operational"
                 result["ecosystem_intelligence_href"] = f"{result['profile_href']}?tab=related"
+                reconciliation = self._reconcile_token_states(all_families)
+                result["intelligence"] = OperationIntelligenceAssembler(
+                    self.ops_db_path, self.live_db_path
+                ).build(result, all_families, reconciliation)
                 return result
         return None
 

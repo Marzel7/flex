@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Shadow Reconciliation Diagnostics</title>
+  <style>
+    :root{color-scheme:dark;--bg:#071018;--panel:#0d1924;--line:#213343;--muted:#8da3b5;--text:#e8f0f6;--cyan:#58d5e8;--green:#5fe09b;--amber:#f6c85f;--red:#ff7785}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+    header{padding:24px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;align-items:end}h1,h2,h3{margin:0}h1{font-size:20px}.eyebrow,.muted{color:var(--muted)}.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase}.badge{padding:4px 8px;border:1px solid var(--amber);color:var(--amber);border-radius:999px}
+    main{padding:20px 28px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin-bottom:18px}.metric,.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px}.metric{padding:12px}.metric b{display:block;font-size:22px;color:var(--cyan)}.controls{display:flex;gap:10px;margin:12px 0}input,select,button{background:#0a151f;color:var(--text);border:1px solid var(--line);border-radius:5px;padding:8px 10px;font:inherit}input{flex:1}button{cursor:pointer;border-color:var(--cyan);color:var(--cyan)}
+    .layout{display:grid;grid-template-columns:minmax(420px,45%) 1fr;gap:14px}.panel{min-height:220px;overflow:hidden}.panel-title{padding:11px 14px;border-bottom:1px solid var(--line)}.table-wrap{max-height:72vh;overflow:auto}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #172735;vertical-align:top}th{position:sticky;top:0;background:#101e2a;color:var(--muted);font-size:11px}.row{cursor:pointer}.row:hover,.row.active{background:#142737}.MATCH{color:var(--green)}.EXPECTED_DIFFERENCE{color:var(--amber)}.UNEXPECTED_DIFFERENCE{color:var(--red)}
+    #detail{padding:14px;max-height:78vh;overflow:auto}.section{margin:0 0 14px}.section h3{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}pre{white-space:pre-wrap;word-break:break-word;background:#07121b;border:1px solid #172a39;border-radius:6px;padding:10px;margin:0;font-size:11px}.kv{display:grid;grid-template-columns:170px 1fr;gap:4px 10px;margin-bottom:12px}.error{color:var(--red)}
+    @media(max-width:950px){.layout{grid-template-columns:1fr}.table-wrap,#detail{max-height:none}}
+  </style>
+</head>
+<body>
+<header><div><div class="eyebrow">X69.3 · read-only shadow pipeline</div><h1>Evidence Reconciliation Diagnostics</h1><div class="muted">Investigation Population → Evidence Package → Resolver → Legacy Difference</div></div><span class="badge">DEVELOPER ONLY</span></header>
+<main>
+  <div id="metrics" class="metrics"><div class="metric">Loading diagnostics…</div></div>
+  <div class="controls"><input id="search" placeholder="Search population, revision, member or disposition"><select id="filter"><option value="">All differences</option><option>MATCH</option><option>EXPECTED_DIFFERENCE</option><option>UNEXPECTED_DIFFERENCE</option></select></div>
+  <div class="layout">
+    <section class="panel"><div class="panel-title"><b>Population explorer</b> <span id="count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Population</th><th>Legacy → Shadow</th><th>Difference</th><th>Replay</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+    <section class="panel"><div class="panel-title"><b>Complete evidence record</b></div><div id="detail" class="muted">Select a population. No package evidence is hidden.</div></section>
+  </div>
+</main>
+<script>
+const root='/diagnostics/reconciliation';let records=[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pretty=v=>esc(JSON.stringify(v,null,2));
+function metricLabel(k){return k.replaceAll('_',' ')}
+function renderMetrics(m){document.querySelector('#metrics').innerHTML=Object.entries(m).map(([k,v])=>`<div class="metric"><span class="muted">${esc(metricLabel(k))}</span><b>${esc(v)}</b></div>`).join('')}
+function filtered(){const q=document.querySelector('#search').value.toLowerCase(),f=document.querySelector('#filter').value;return records.filter(r=>(!f||r.difference_classification===f)&&(!q||JSON.stringify(r).toLowerCase().includes(q)))}
+function renderRows(){const data=filtered();document.querySelector('#count').textContent=`${data.length} / ${records.length}`;document.querySelector('#rows').innerHTML=data.map(r=>`<tr class="row" data-id="${esc(r.population_id)}"><td><b>${esc(r.population_id)}</b><br><span class="muted">${esc(r.population_revision.slice(0,22))}… · ${r.launch_count} launches</span></td><td>${esc(r.legacy_disposition)} → <b>${esc(r.shadow_disposition)}</b></td><td class="${esc(r.difference_classification)}">${esc(r.difference_classification)}</td><td class="${r.replay_identical?'MATCH':'UNEXPECTED_DIFFERENCE'}">${r.replay_identical?'IDENTICAL':'FAILED'}</td></tr>`).join('');document.querySelectorAll('.row').forEach(el=>el.onclick=()=>loadDetail(el.dataset.id,el))}
+function section(name,value){return `<div class="section"><h3>${esc(name)}</h3><pre>${pretty(value)}</pre></div>`}
+async function loadDetail(id,row){document.querySelectorAll('.row').forEach(x=>x.classList.remove('active'));row?.classList.add('active');const el=document.querySelector('#detail');el.textContent='Rebuilding immutable shadow record…';try{const r=await fetch(`${root}/population/${encodeURIComponent(id)}`,{cache:'no-store'}),d=await r.json();if(!r.ok)throw Error(d.error||r.statusText);const s=d.summary;el.innerHTML=`<div class="kv"><span class="muted">Revision</span><span>${esc(s.population_revision)}</span><span class="muted">Package</span><span>${esc(s.package_id)}</span><span class="muted">Result</span><span>${esc(s.result_id)}</span><span class="muted">Difference</span><span class="${esc(s.difference_classification)}">${esc(s.difference_classification)} — ${esc(s.difference_explanation)}</span></div><button id="replay">Replay revision</button>${section('Population',d.population)}${section('Supporting evidence',d.evidence_package.supporting_evidence)}${section('Contradictory evidence',d.evidence_package.contradictory_evidence)}${section('Context',d.evidence_package.context)}${section('Missing evidence',d.evidence_package.missing_evidence)}${section('Dependency groups',d.evidence_package.dependency_groups)}${section('Explainability',d.evidence_package.explainability)}${section('Provenance',d.evidence_package.provenance)}${section('Disposition and exact reasoning',d.disposition)}${section('Legacy projection',d.legacy_projection)}${section('Difference analysis',d.difference)}${section('Replay validation',d.replay)}`;document.querySelector('#replay').onclick=()=>replay(id,s.population_revision)}catch(e){el.innerHTML=`<span class="error">${esc(e.message)}</span>`}}
+async function replay(id,revision){const b=document.querySelector('#replay');b.disabled=true;b.textContent='Replaying…';try{const r=await fetch(`${root}/replay/${encodeURIComponent(id)}?revision=${encodeURIComponent(revision)}`,{method:'POST',cache:'no-store'}),d=await r.json();b.textContent=d.replay?.identical?'Replay identical ✓':'Replay failed';b.className=d.replay?.identical?'MATCH':'UNEXPECTED_DIFFERENCE'}catch(e){b.textContent=e.message;b.className='error'}finally{b.disabled=false}}
+async function init(){try{const r=await fetch(`${root}/data`,{cache:'no-store'}),d=await r.json();if(!r.ok)throw Error(d.error||r.statusText);records=d.populations;renderMetrics(d.metrics);renderRows()}catch(e){document.querySelector('#metrics').innerHTML=`<div class="metric error">${esc(e.message)}</div>`}}
+document.querySelector('#search').oninput=renderRows;document.querySelector('#filter').onchange=renderRows;init();
+</script>
+</body></html>

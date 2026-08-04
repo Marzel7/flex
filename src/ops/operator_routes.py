@@ -358,6 +358,10 @@ def evidence_catalogue():
 
 def register_operator_routes(app) -> None:
     app.register_blueprint(operator_bp)
+    # X69.3: gated, unlinked developer diagnostics. Registration is inert until
+    # explicitly enabled (or Flask debug/testing mode) and never builds shadow data.
+    from src.ops.reconciliation_diagnostics_routes import register_reconciliation_diagnostics_routes
+    register_reconciliation_diagnostics_routes(app)
     # Seed schema on startup (non-blocking)
     try:
         _get_store()

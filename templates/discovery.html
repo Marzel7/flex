@@ -1244,7 +1244,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +(o.terminal_entity?'<dt>Terminal Entity</dt><dd>'+esc(o.terminal_entity_type)+' · '+esc(o.terminal_entity)+'</dd>':'')
       +'</dl></div></details>';
     return '<section class="dw-outcome dw-outcome-'+esc(w.severity)+'">'
-      +'<div class="x19-answer-label">Discovery Result · Level 1</div>'
+      +'<div class="x19-answer-label">Walkback Outcome · Level 1</div>'
       +'<div class="dw-outcome-title">'+esc(w.title)+'</div>'
       +'<div class="dw-outcome-reason">'+esc(w.summary(o))+'</div>'
       +knownFields(o)
@@ -1254,7 +1254,20 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'</section>'
       +tech;
   }
-  function emergingCandidate(c,op){if(!c)return '';op=op||{};var classes=(c.identity_classes||[]).map(function(x){return '<span class="dw-signal">'+esc(x.replaceAll('_',' '))+'</span>'}).join('');var name=op.operation_name||'Unknown';var state=(op.state||'UNKNOWN').replaceAll('_',' ');var link=op.profile_href||'#';return '<section class="dw-canonical" style="border-color:rgba(245,158,11,.25)"><div class="dw-canonical-cell"><div class="x19-answer-label">Registry attribution</div><div class="dw-canonical-name">'+esc(name)+'</div><div class="dw-canonical-state">Observed '+esc(c.observed_launches)+' launches · '+esc(c.identity_class_count)+' identity classes</div><div class="dw-signal-list">'+classes+'</div></div><a class="dw-canonical-cell" style="text-decoration:none;color:inherit" href="'+esc(link)+'"><div class="x19-answer-label">Current status</div><div class="dw-canonical-state">'+esc(state)+'</div><div class="dw-canonical-meta">'+esc(op.lifecycle||'UNKNOWN')+' · '+esc(op.confidence||'UNKNOWN')+'</div><div class="dw-canonical-meta" style="color:var(--ip-cyan);margin-top:9px">Open Operation Profile →</div></a></section>'}
+  function emergingCandidate(c,op){if(!c)return '';op=op||{};var rec=op.reconciliation||{};if(rec.disposition&&rec.disposition!=='OPERATOR_CANDIDATE')return '';var classes=(c.identity_classes||[]).map(function(x){return '<span class="dw-signal">'+esc(x.replaceAll('_',' '))+'</span>'}).join('');var name=op.operation_name||'Unknown';var link=op.profile_href||'#';return '<section class="dw-canonical" style="border-color:rgba(96,165,250,.25)"><div class="dw-canonical-cell"><div class="x19-answer-label">Operator Candidate</div><div class="dw-canonical-name">'+esc(name)+'</div><div class="dw-canonical-state">Observed '+esc(c.observed_launches)+' launches · '+esc(c.identity_class_count)+' identity classes</div><div class="dw-signal-list">'+classes+'</div></div><a class="dw-canonical-cell" style="text-decoration:none;color:inherit" href="'+esc(link)+'"><div class="x19-answer-label">Reconciled status</div><div class="dw-canonical-state">'+esc(rec.disposition||'Legacy fallback')+'</div><div class="dw-canonical-meta" style="color:var(--ip-cyan);margin-top:9px">Open intelligence record →</div></a></section>'}
+
+  function reconciliationPanel(d){
+    var op=d.operation_attribution||{},rec=op.reconciliation||{},pres=d.reconciled_attribution||{};
+    if(!rec.disposition)return '<section class="dw-outcome dw-outcome-insufficient"><div class="x19-answer-label">Reconciled Attribution · Level 1</div><div class="dw-outcome-title">Legacy attribution fallback</div><div class="dw-outcome-reason">No reconciliation package is available for this launch. Existing Registry attribution remains visible as legacy context.</div></section>';
+    var reuse=(rec.creator_reuse||[]).map(function(x){return '<div class="dw-te-row"><b>Creator reuse:</b> TRUE · '+esc(String(x.applicability||'unknown').replaceAll('_',' '))+' · '+(x.eligible?'disposition-eligible':'not disposition-eligible')+' · '+esc(x.distinct_mint_count)+' distinct mints</div>'}).join('');
+    var diagnosticsHref='/diagnostics/'+'reconciliation';
+    var diagnostics=new URLSearchParams(location.search).get('debug')==='1'?'<a href="'+diagnosticsHref+'" class="dw-outcome-next">Open developer diagnostics</a>':'';
+    return '<section class="dw-outcome"><div class="x19-answer-label">Reconciled Attribution · Level 1</div><div class="dw-outcome-title">'+esc(pres.label||rec.disposition.replaceAll('_',' '))+'</div><div class="dw-outcome-reason">'+esc(pres.reasoning_summary||rec.reasoning_summary||'Disposition resolved from the immutable reconciliation package.')+'</div><div class="dw-outcome-known">'
+      +[['Supporting',rec.supporting_evidence_count],['Contradictory',rec.contradictory_evidence_count],['Missing',rec.missing_evidence_count],['Legacy agreement',rec.legacy_shadow_agreement===true?'Yes':rec.legacy_shadow_agreement===false?'No':'Unavailable']].map(function(x){return '<div class="dw-outcome-known-cell"><div class="dw-dk">'+x[0]+'</div><div class="dw-dv">'+esc(x[1]??0)+'</div></div>'}).join('')+'</div>'
+      +'<div class="dw-outcome-meta"><span>Population '+esc(rec.population_revision_id||'unavailable')+'</span><span>Package '+esc(rec.reconciliation_package_id||'unavailable')+'</span></div>'
+      +(reuse?'<div class="dw-te-section"><div class="dw-te-h">Evidence semantics</div>'+reuse+'</div>':'')
+      +'<div class="dw-outcome-footer">'+(op.profile_href?'<a href="'+esc(op.profile_href)+'" class="dw-outcome-next">Open intelligence record</a>':'')+diagnostics+'</div></section>';
+  }
   function cross(rows){if(!rows||!rows.length)return '';return '<div class="dw-card"><div class="dw-card-h">Cross-Operation</div><div class="dw-card-body">'+rows.map(function(x){return '<div class="dw-group-row"><span class="dw-group-name">'+esc(x.operation_id)+'</span><span class="dw-group-count" title="'+esc(x.reason)+'">linked</span></div>'}).join('')+'</div></div>'}
   // X20.9: Treasury Expansion Resolver output. This is an evidence report, not attribution —
   // it never claims a confirmed operator, and it never assigns a probabilistic label
@@ -1419,6 +1432,8 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // genuinely populated; no "unknown operation" placeholder is ever stated.
   function analystSummary(d){
     var lines=[];
+    var reconciled=d.reconciled_attribution||{};
+    if(reconciled.label)lines.push('Reconciled attribution: '+esc(reconciled.label)+'.');
     var lp=d.launch_profile;
     if(lp && lp.classification==='PROVISIONED')lines.push('Verified provisioned launch.');
     else if(lp && lp.classification==='OBSERVED_ONLY')lines.push('Funding was reconstructed retrospectively; no verified provisioning session was recorded.');
@@ -1439,14 +1454,14 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       lines.push('Attribution terminated at '+esc(terminalNoun)+(terminalNoun==='infrastructure'?'':' infrastructure')+'.');
     }
     else if(ao && ao.outcome_type)lines.push('Attribution outcome: '+esc(typedLabel(ao.outcome_type))+'.');
-    var oi=d.operation_identity;
+    var oi=reconciled.label?null:d.operation_identity;
     if(oi && oi.operation_id){
       if(oi.treasury_count===1)lines.push('This launch belongs to a single-treasury operation with '+oi.launch_count+' observed launch'+(oi.launch_count===1?'':'es')+'.');
       else lines.push('This launch belongs to '+esc(oi.display_name)+', a '+oi.treasury_count+'-treasury funding mesh with '+oi.launch_count+' observed launch'+(oi.launch_count===1?'':'es')+'.');
     }
-    var ci=d.canonical_identity;
+    var ci=reconciled.label?null:d.canonical_identity;
     if(ci && ci.operator_name)lines.push('Canonical operator: '+esc(ci.operator_name)+'.');
-    else lines.push('No canonical operator identified.');
+    else if(!reconciled.label)lines.push('No canonical operator identified.');
     if(!lines.length)return '';
     return '<div class="dw-card" style="border-left:3px solid var(--ip-cyan)"><div class="dw-card-h">Launch Summary</div><div class="dw-card-body">'+lines.map(function(l){return '<div class="dw-outcome-reason" style="margin-top:0;margin-bottom:6px">'+l+'</div>'}).join('')+'</div></div>';
   }
@@ -1462,6 +1477,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     // independent conclusions and must not be stacked so they read as
     // reinforcing one another.
     var infra=outcome(d.attribution_outcome);
+    var reconciled=reconciliationPanel(d);
     // X29.3 — Funding Boundary renders directly beneath Operational Attribution
     // (infra), never above it, only for token-type subjects (a mint) since
     // that's the unit funding_boundary is keyed on; the mount is a loading
@@ -1485,7 +1501,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     if(lineageWallet)loadLineage(lineageWallet);
     if(subject.type==='token'&&subject.id)loadFundingBoundary(subject.id);
     if(!d.timeline||!d.timeline.length){
-      $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+detectionReconciliation(d.detection_reconciliation)+operationIdentity(d.operation_identity)+canonicalIdentity(d.canonical_identity)+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';
+      $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+reconciled+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+detectionReconciliation(d.detection_reconciliation)+operationIdentity(d.operation_identity)+canonicalIdentity(d.canonical_identity)+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';
       if(subject.type==='token'&&subject.id)loadWatchtowerCandidateEvidence(subject.id);
       return;
     }
@@ -1500,7 +1516,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     var evidence='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Evidence groups</summary><div class="x19-disclosure-body"><div class="dw-grid"><main>'+groups(d.evidence_groups||{})+'</main><aside>'+cross(d.cross_operation)+'</aside></div></div></details>';
     var lineage='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Promotion lineage</summary><div class="x19-disclosure-body">'+(operatorHistory(d.operator_history)||'<div class="dw-empty" style="padding:18px;">No canonical promotion lineage recorded.</div>')+'</div></details>';
     var raw='<details class="x19-disclosure x19-level3"><summary><span class="level">Level 3</span> Raw provenance</summary><div class="x19-disclosure-body"><div class="x19-timeline dw-timeline">'+d.timeline.map(node).join('')+'</div></div></details>';
-    $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+flow+wb+provenance+operationCard+operatorIdentity+opBehaviour+creatorAct+attribution+evidence+lineage+raw;
+    $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+reconciled+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+flow+wb+provenance+operationCard+operatorIdentity+opBehaviour+creatorAct+attribution+evidence+lineage+raw;
     if(subject.type==='token'&&subject.id)loadWatchtowerCandidateEvidence(subject.id);
   }
   // X29.7 — Operational Lineage chain renderer: a VARIABLE-DEPTH list
@@ -4318,7 +4334,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       var cutoff=Math.floor(Date.now()/1000)-86400,summary={outcomes:summariseOutcomes(typed.counts||{})};
       var canonical=outcomeCount(summary,'CANONICAL_OPERATOR_REACHED'),unknown=outcomeCount(summary,seedType),treasuries=(streams.discovery||[]).filter(function(x){return String(x.kind||'').indexOf('TREASURY')>=0&&(x.timestamp||0)>=cutoff}).length;
       var metrics=todayMetric(canonical,'Canonical operators','var(--ip-green)')+todayMetric(emerging.total||emerging.count||0,'Emerging operators','var(--ip-amber)')+todayMetric((promotions.proposals||[]).length,'Promotion candidates','var(--ip-purple)')+todayMetric(treasuries,'New treasuries','var(--ip-blue)')+todayMetric(unknown,'Unknown infrastructure','#f97316');
-      var registry='<a class="vi-card monitoring dw-registry-callout" href="/intelligence/emerging-operators"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Discovery pipeline</div><div class="vi-title">Operation Families</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value">'+esc(emerging.total||emerging.count||0)+'</div><div class="vi-metric-label">Surfaced</div></div><div class="vi-metric"><div class="vi-metric-value">'+esc(unknown)+'</div><div class="vi-metric-label">Evidence added today</div></div></div><div class="vi-action"><span>Open Discovery</span><span>→</span></div></a>';
+      var registry='<a class="vi-card monitoring dw-registry-callout" href="/intelligence/operations"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Discovery pipeline</div><div class="vi-title">Operation Families</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value">'+esc(emerging.total||emerging.count||0)+'</div><div class="vi-metric-label">Surfaced</div></div><div class="vi-metric"><div class="vi-metric-value">'+esc(unknown)+'</div><div class="vi-metric-label">Evidence added today</div></div></div><div class="vi-action"><span>Open Operation Intelligence</span><span>→</span></div></a>';
       var feed=events.slice(0,24).map(function(x){return intelligenceEvent(x.event,x.stream)}).join('')||'<div class="dw-empty" style="padding:22px">No new meaningful intelligence in this window.</div>';
       mount.innerHTML='<div class="dw-landing-head"><div><div class="dw-landing-title">New Intelligence Today</div><div class="dw-landing-sub">Knowledge changes and analyst actions first. Attribution termination is summarised separately.</div></div><span class="vi-status discovery">24 hours</span></div><div class="dw-today-grid">'+metrics+'</div><div class="dw-landing-layout"><main><div class="ip-section-hdr"><span class="ip-section-label">Intelligence</span><span class="ip-section-line"></span><span class="ip-section-count">Prioritised</span></div>'+registry+'<div class="dw-intelligence-list">'+feed+'</div></main></div>';
     }).catch(function(){

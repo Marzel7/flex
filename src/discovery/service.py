@@ -16,6 +16,7 @@ from src.ops.operator_model import EVIDENCE_CATALOGUE
 from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 from src.ops.attribution_outcome import emerging_operator_seeds
 from src.ops.operation_attribution import OperationAttributionService
+from src.ops.reconciliation_presentation import attribution_presentation
 
 
 DISCOVERY_STATES = (
@@ -206,7 +207,21 @@ class DiscoveryService:
             (result.get("subject") or {}).get("id") or entity_id
         )
         result["operation_attribution"] = operation
-        if operation["state"] != "UNKNOWN":
+        presentation = attribution_presentation(operation)
+        result["reconciled_attribution"] = presentation
+        if presentation.get("reconciled"):
+            disposition = presentation.get("disposition")
+            name = operation.get("operation_name") or "Unknown"
+            result["summary"] = {
+                "CONFIRMED_OPERATION": f"Confirmed Operation: {name}",
+                "OPERATOR_CANDIDATE": f"Operator Candidate: {name}",
+                "REVIEW": f"Review Population: {name}",
+                "INFRASTRUCTURE": f"Shared Infrastructure: {name}",
+                "UNRESOLVED": "Unresolved Investigation",
+                "REJECTED": "Rejected Investigation Population",
+                "RETIRED": "Retired Investigation Population",
+            }.get(str(disposition), presentation.get("label") or result["summary"])
+        elif operation["state"] != "UNKNOWN":
             result["summary"] = f"{operation['operation_name']} · {operation['state'].replace('_', ' ').title()}"
         return result
 

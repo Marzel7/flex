@@ -648,12 +648,12 @@
           + action('/intelligence/operator-promotions','Open queue') + '</a>';
 
         var candidates=(emerging && emerging.candidates)||[], candidate=candidates[0];
-        var emergingCard = '<a class="vi-card monitoring" href="/intelligence/emerging-operators' + (candidate?'?entity='+encodeURIComponent(candidate.terminal_entity):'') + '">'
+        var emergingCard = '<a class="vi-card monitoring" href="/intelligence/operations">'
           // Compatibility stream formerly labelled Recent Emerging Operators / Emerging Operator.
           + '<div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Recent Operation Discovery</div><div class="vi-title">' + (candidate?'Emerging Operation Family':'Operation Discovery') + '</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div>'
           + '<div class="vi-metrics">' + metric(candidate?candidate.observed_launches:0,'launches') + metric(candidate?candidate.campaign_count:0,'campaigns') + metric(candidate?candidate.identity_class_count:0,'identity classes') + '</div>'
           + (candidate?'<div class="vi-confidence"><span>Identity</span><span class="vi-confidence-track"><span class="vi-confidence-fill" style="--vi-confidence:'+Math.min(100,candidate.identity_class_count*50)+'%"></span></span><span>'+candidate.identity_class_count+'/2</span></div>':'')
-          + action('/intelligence/emerging-operators','Investigate') + '</a>';
+          + action('/intelligence/operations','Open Operation Intelligence') + '</a>';
 
         var walkbacks=streams.walkbacks||[], walkCounts={};
         walkbacks.forEach(function(x){var k=String(x.kind||'OTHER').replace('KNOWN_','').replace('_REACHED','').replace(/_/g,' ');walkCounts[k]=(walkCounts[k]||0)+1});

@@ -12,7 +12,7 @@ import json
 import os
 import sqlite3
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import Any, Callable
 
 from src.ops.attribution_outcome import emerging_operator_seeds
@@ -101,6 +101,21 @@ class EmergingOperatorService:
     def list(self, limit: int = 200, debug: bool = False) -> dict[str, Any]:
         limit = max(1, min(int(limit), 500))
         all_families = self._compose()
+        try:
+            from src.ops.reconciliation_metadata import build_reconciliation_metadata
+            reconciliation_by_family = build_reconciliation_metadata(self, all_families)
+        except Exception:
+            reconciliation_by_family = {}
+        from src.ops.reconciliation_presentation import reconciliation_presentation
+
+        def reconciled_card(family):
+            card = self._list_card(family)
+            metadata = reconciliation_by_family.get(str(family.get("family_id")))
+            if metadata is not None:
+                card["reconciliation"] = metadata
+            card["presentation"] = reconciliation_presentation(family, metadata)
+            return card
+
         visible_full = [f for f in all_families if f["stage"] in {"EMERGING", "ESTABLISHED", "CONFIRMED"}][:limit]
         visible = [self._list_card(f) for f in visible_full]
         candidate_summary_full = sorted(
@@ -116,6 +131,29 @@ class EmergingOperatorService:
         candidate_summary = ([self._list_card(f) for f in candidate_summary_full]
                              if visible_full else candidate_summary_full)
         compatibility_candidates = visible if visible else candidate_summary
+        disposition_groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for family in all_families:
+            metadata = reconciliation_by_family.get(str(family.get("family_id")))
+            if metadata:
+                disposition_groups[str(metadata.get("disposition") or "UNRESOLVED")].append(family)
+        material_key = lambda f: (
+            int(f.get("launches") or 0),
+            int((f.get("discovery_significance") or {}).get("score") or 0),
+            int(f.get("last_material_activity_at") or 0),
+            str(f.get("family_id") or ""),
+        )
+        confirmed_reconciled = [reconciled_card(f) for f in sorted(
+            disposition_groups["CONFIRMED_OPERATION"], key=material_key, reverse=True
+        )]
+        operator_candidates = [reconciled_card(f) for f in sorted(
+            disposition_groups["OPERATOR_CANDIDATE"], key=material_key, reverse=True
+        )[:5]]
+        review_cases = [reconciled_card(f) for f in sorted(
+            disposition_groups["REVIEW"], key=material_key, reverse=True
+        )[:5]]
+        infrastructure_alerts = [reconciled_card(f) for f in sorted(
+            disposition_groups["INFRASTRUCTURE"], key=material_key, reverse=True
+        )[:5]]
         stages = ("BACKGROUND", "CANDIDATE", "SIGNIFICANT_ACTIVE", "EMERGING", "ESTABLISHED", "CONFIRMED", "DORMANT", "RETIRED")
         result = {
             "families": visible, "candidates": compatibility_candidates,
@@ -136,6 +174,20 @@ class EmergingOperatorService:
             },
             "intake_contract": "/api/ops-v2/emerging-operator-seeds",
             "read_only": True,
+            "confirmed_operations_reconciled": confirmed_reconciled,
+            "operator_candidates_reconciled": operator_candidates,
+            "review_cases_reconciled": review_cases,
+            "infrastructure_alerts_reconciled": infrastructure_alerts,
+            "attention_budget_reconciled": {
+                "operator_candidates_visible": len(operator_candidates),
+                "operator_candidates_maximum": 5,
+                "review_visible": len(review_cases),
+                "infrastructure_visible": len(infrastructure_alerts),
+                "review_infrastructure_maximum": 10,
+            },
+            "reconciled_counts": self._reconcile_disposition_states(
+                all_families, reconciliation_by_family
+            ),
         }
         if debug:
             hidden = [f for f in all_families if f["stage"] not in {"EMERGING", "ESTABLISHED", "CONFIRMED"}]
@@ -179,12 +231,87 @@ class EmergingOperatorService:
                 result["profile_href"] = f"/intelligence/operations/{family['family_id']}"
                 result["operational_intelligence_href"] = f"{result['profile_href']}?tab=operational"
                 result["ecosystem_intelligence_href"] = f"{result['profile_href']}?tab=related"
+                try:
+                    from src.ops.reconciliation_metadata import build_reconciliation_metadata
+                    metadata = build_reconciliation_metadata(self, all_families).get(
+                        str(result.get("family_id"))
+                    )
+                except Exception:
+                    metadata = None
+                from src.ops.reconciliation_presentation import reconciliation_presentation
+                if metadata is not None:
+                    result["reconciliation"] = metadata
+                result["presentation"] = reconciliation_presentation(result, metadata)
                 reconciliation = self._reconcile_token_states(all_families)
                 result["intelligence"] = OperationIntelligenceAssembler(
                     self.ops_db_path, self.live_db_path
                 ).build(result, all_families, reconciliation)
                 return result
         return None
+
+    def _reconcile_disposition_states(
+        self,
+        families: list[dict[str, Any]],
+        reconciliation_by_family: dict[str, dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Exclusive launch ledger and separately-unitised population counts."""
+        universe: set[str] = set()
+        try:
+            with self._connect(self.ops_db_path) as conn:
+                tables = self._tables(conn)
+                for table, column in (
+                    ("wt_watchtower_launches", "mint"),
+                    ("wt_provisioning_edges", "source_mint"),
+                    ("wt_attribution_outcomes", "mint"),
+                ):
+                    if table in tables and column in self._columns(conn, table):
+                        universe.update(row[0] for row in conn.execute(
+                            f"SELECT DISTINCT {column} FROM {table} WHERE {column} IS NOT NULL"
+                        ) if row[0])
+        except (OSError, sqlite3.Error):
+            pass
+        priority = {
+            "UNKNOWN": 0, "REJECTED": 1, "UNRESOLVED": 2,
+            "INFRASTRUCTURE": 3, "REVIEW": 4, "OPERATOR_CANDIDATE": 5,
+            "CONFIRMED_OPERATION": 6,
+        }
+        claims: dict[str, list[tuple[str, str]]] = defaultdict(list)
+        population_counts = Counter()
+        for family in families:
+            metadata = reconciliation_by_family.get(str(family.get("family_id")))
+            disposition = str((metadata or {}).get("disposition") or "UNKNOWN")
+            population_counts[disposition] += 1
+            for mint in family.get("launch_list") or ():
+                if mint:
+                    universe.add(mint)
+                    claims[str(mint)].append((disposition, str(family.get("family_id"))))
+        launch_sets: dict[str, set[str]] = defaultdict(set)
+        overlaps = 0
+        for mint in universe:
+            mint_claims = claims.get(mint, ())
+            disposition = max(
+                (claim[0] for claim in mint_claims),
+                key=lambda value: priority.get(value, 0), default="UNKNOWN",
+            )
+            launch_sets[disposition].add(mint)
+            if len({claim[1] for claim in mint_claims}) > 1:
+                overlaps += 1
+        return {
+            "population_counts": dict(sorted(population_counts.items())),
+            "population_unit": "populations",
+            "launch_counts": {
+                key: len(launch_sets.get(key, set())) for key in (
+                    "CONFIRMED_OPERATION", "OPERATOR_CANDIDATE", "REVIEW",
+                    "INFRASTRUCTURE", "UNRESOLVED", "REJECTED", "UNKNOWN",
+                )
+            },
+            "launch_unit": "launches",
+            "total_launches": len(universe),
+            "assigned_launches": sum(len(values) for values in launch_sets.values()),
+            "exclusive": True,
+            "source_overlap_count": overlaps,
+            "contract": "Each persisted launch is displayed once using the highest reconciled disposition; population counts are reported separately.",
+        }
 
     def _reconcile_token_states(self, families: list[dict[str, Any]]) -> dict[str, Any]:
         """Build one exclusive token ledger across operation lifecycle states."""

@@ -220,15 +220,16 @@ def emerging_operators_page():
 @operator_bp.route("/api/ops/emerging-operators")
 def list_emerging_operators():
     limit = min(max(int(request.args.get("limit", 200)), 1), 500)
-    return jsonify({"ok": True, **_get_emerging_service().list(limit=limit)})
+    debug = request.args.get("debug", "0").lower() in {"1", "true", "yes"}
+    return jsonify({"ok": True, **_get_emerging_service().list(limit=limit, debug=debug)})
 
 
 @operator_bp.route("/api/ops/emerging-operators/<path:entity>")
 def get_emerging_operator(entity: str):
     candidate = _get_emerging_service().get(entity)
     if not candidate:
-        return jsonify({"ok": False, "error": "Emerging operator not found"}), 404
-    return jsonify({"ok": True, "candidate": candidate, "read_only": True})
+        return jsonify({"ok": False, "error": "Operation family not found"}), 404
+    return jsonify({"ok": True, "family": candidate, "candidate": candidate, "read_only": True})
 
 
 # ── Promotion governance ──────────────────────────────────────────────────────

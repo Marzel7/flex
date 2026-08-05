@@ -118,6 +118,9 @@ class InvestigationPopulationBuilder:
         mechanisms = tuple(sorted(set().union(*(p["mechanisms"] for p in group))))
         signatures = tuple(sorted(set().union(*(p["signatures"] for p in group))))
         launches = tuple(sorted(set().union(*(p["launches"] for p in group))))
+        walkback_descendants = tuple(sorted(set().union(*(
+            p.get("walkback_descendants", set()) for p in group
+        ))))
         firsts = [p["first"] for p in group if p["first"] is not None]
         lasts = [p["last"] for p in group if p["last"] is not None]
         first = min(firsts) if firsts else None
@@ -160,10 +163,7 @@ class InvestigationPopulationBuilder:
             "session_count": sum(p["sessions"] for p in group),
             "active_session_count": sum(p["active_sessions"] for p in group),
             "observation_count": sum(len(p["outcomes"]) for p in group),
-            "launch_count_hint": max(
-                (int(p["candidate"].get("distinct_launches") or 0) for p in group),
-                default=0,
-            ),
+            "walkback_descendants": walkback_descendants,
             "sources": tuple(sorted(set().union(*(p["sources"] for p in group)))),
             "exclusions": tuple(item for p in group for item in p["exclusions"]),
             "warnings": tuple(sorted(set(item for p in group for item in p["warnings"]))),
@@ -223,7 +223,9 @@ class LegacyFamilyProjectionAdapter:
         mechanisms = list(m["mechanisms"])
         signatures = set(m["signatures"])
         launches = list(population.launches)
-        launch_count = max(len(launches), len(creators), int(m["launch_count_hint"]))
+        # X73.8A: launch membership is identity-bearing. A scalar hint must
+        # never manufacture population members that cannot be enumerated.
+        launch_count = len(launches)
         first, last = m["first_seen_at"], m["last_seen_at"]
         sessions = int(m["session_count"])
         outgoing = bool(creators)
@@ -369,6 +371,8 @@ class LegacyFamilyProjectionAdapter:
             "merged_into_family_id": None, "superseded_by_family_id": None,
             "absorbed_family_ids": absorbed_ids,
             "launches": launch_count, "observed_launches": launch_count, "launch_list": launches,
+            "walkback_descendant_count": len(m["walkback_descendants"]),
+            "walkback_descendant_list": list(m["walkback_descendants"]),
             "session_count": sessions, "active_sessions": int(m["active_session_count"]),
             "member_wallets": members, "client_wallets": members,
             "member_treasuries": treasuries, "treasuries": treasuries,

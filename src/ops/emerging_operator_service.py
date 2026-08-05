@@ -688,6 +688,7 @@ class EmergingOperatorService:
 
     def _discovery_profiles(self, conn, tables) -> dict[str, dict[str, Any]]:
         profiles: dict[str, dict[str, Any]] = {}
+        selected_descendants_by_parent: dict[str, set[str]] = defaultdict(set)
         def profile(wallet, source=None):
             existing = profiles.get(wallet)
             if existing is not None:
@@ -698,6 +699,7 @@ class EmergingOperatorService:
             return profiles.setdefault(wallet, {
                 "wallet": wallet, "sources": sources, "candidate": {}, "creators": set(),
                 "treasuries": set(), "mechanisms": set(), "signatures": set(), "launches": set(),
+                "walkback_descendants": set(),
                 "first": None, "last": None, "sessions": 0, "active_sessions": 0,
                 "session_times": set(), "evidence": [], "outcomes": [],
                 "templates": defaultdict(int), "campaigns": set(), "session_amounts": [],
@@ -710,6 +712,22 @@ class EmergingOperatorService:
                 data = dict(row); wallet = data["wallet"]
                 p = profile(wallet, "wt_infrastructure_candidates"); p["candidate"] = data
                 p["first"], p["last"] = _timestamp(data.get("first_seen_at")), _timestamp(data.get("last_seen_at"))
+        # Infrastructure candidates carry a denormalized distinct-launch
+        # count, but population membership must be reconstructed from the
+        # validated identity-bearing evidence. Only SELECTED descendants are
+        # canonical members; ALTERNATIVE/REJECTED edges remain evidence and
+        # cannot inflate Registry or Profile launch counts.
+        if "wt_walkback_edge_candidates" in tables:
+            columns = self._columns(conn, "wt_walkback_edge_candidates")
+            if {"candidate_parent", "mint", "selection_status"}.issubset(columns):
+                for row in conn.execute(
+                    "SELECT DISTINCT candidate_parent,mint "
+                    "FROM wt_walkback_edge_candidates "
+                    "WHERE selection_status='SELECTED' "
+                    "AND candidate_parent IS NOT NULL AND mint IS NOT NULL"
+                ):
+                    wallet, mint = row["candidate_parent"], row["mint"]
+                    selected_descendants_by_parent[str(wallet)].add(str(mint))
         # Seed profiles must exist before edge/session routing so exclusions see
         # the same complete evidence package as role-scored candidates.
         seeds = emerging_operator_seeds(conn) if "wt_unknown_infrastructure_registry" in tables else []
@@ -775,6 +793,16 @@ class EmergingOperatorService:
                     p["campaigns"].update(r[0] for r in conn.execute(
                         f"SELECT DISTINCT operation_uuid FROM wt_token_lifecycle WHERE mint IN ({marks}) AND operation_uuid IS NOT NULL", mints
                     ))
+        # Apply descendant membership only to infrastructure-only profiles.
+        # Families already routed by attribution outcomes or provisioning
+        # edges retain those established membership sources; mixing ancestry
+        # descendants into them would silently broaden existing populations.
+        for wallet, p in profiles.items():
+            descendants = selected_descendants_by_parent.get(wallet, set())
+            if descendants and p["sources"] == {"wt_infrastructure_candidates"}:
+                p["launches"].update(descendants)
+                p["walkback_descendants"].update(descendants)
+                p["sources"].add("wt_walkback_edge_candidates")
         for p in profiles.values():
             label = get_funder_label(p["wallet"])
             if label: p["exclusions"].append({"type": label["kind"], "detail": label["name"], "source": "infra_mapping"})

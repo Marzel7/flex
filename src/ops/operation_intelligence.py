@@ -56,7 +56,7 @@ class OperationIntelligenceAssembler:
         members = sorted(set(family.get("member_wallets") or []))
         edges, sessions, watch_launches = self._operation_rows(mints, members)
         token_rows = self._token_rows(mints)
-        timeline = self._timeline(family, edges, sessions, watch_launches)
+        timeline = self._timeline(family, edges, sessions, watch_launches, token_rows)
         performance = self._performance(mints, token_rows, watch_launches)
         behaviour = self._behaviour(family, edges, sessions, token_rows, watch_launches)
         infrastructure = self._infrastructure(family, edges, sessions)
@@ -136,7 +136,7 @@ class OperationIntelligenceAssembler:
         return list(latest.values())
 
     @staticmethod
-    def _timeline(family, edges, sessions, watch_launches):
+    def _timeline(family, edges, sessions, watch_launches, token_rows):
         events = []
         if family.get("first_seen_at"):
             events.append({"timestamp": family["first_seen_at"], "type": "OPERATION_FIRST_OBSERVED",
@@ -174,6 +174,20 @@ class OperationIntelligenceAssembler:
             events.append({"timestamp": _ts(launch.get("create_time")), "type": "LAUNCH_OBSERVED",
                            "label": f"Launch observed: {launch.get('mint')}", "source": "wt_watchtower_launches",
                            "mint": launch.get("mint")})
+        # Every canonical launch member receives a launch-specific event even
+        # when the Watchtower-only launch table has no row for it. The mint set
+        # comes exclusively from family.launch_list; token_analysis supplies
+        # detail and timestamp, never additional membership.
+        watch_mints = {row.get("mint") for row in watch_launches}
+        token_by_mint = {row.get("mint"): row for row in token_rows}
+        for mint in family.get("launch_list") or []:
+            if mint in watch_mints:
+                continue
+            token = token_by_mint.get(mint, {})
+            events.append({"timestamp": _ts(token.get("created_at")),
+                           "type": "LAUNCH_OBSERVED",
+                           "label": f"Launch observed: {mint}",
+                           "source": "token_analysis", "mint": mint})
         for event in family.get("growth_timeline") or []:
             events.append({"timestamp": event.get("timestamp"), "type": event.get("event_type"),
                            "label": event.get("label"), "source": "operation discovery",

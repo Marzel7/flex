@@ -40213,6 +40213,13 @@ except Exception as e:
     print(f"[WARNING] Discovery workspace not available: {e}")
 
 try:
+    from src.ops.treasury_review_routes import register_treasury_review_routes
+    register_treasury_review_routes(app)
+    print("[X74.1] Treasury Review workspace registered (/intelligence/treasury-review, /api/ops/treasury-review/*)")
+except Exception as e:
+    print(f"[WARNING] Treasury Review workspace not available: {e}")
+
+try:
     from src.ops.provisioning_edges_routes import register_provisioning_edges_routes
     register_provisioning_edges_routes(app)
     print("[X21B] Provisioning edges routes registered (/api/ops-v2/provisioning-*)")

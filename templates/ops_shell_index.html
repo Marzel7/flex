@@ -455,6 +455,7 @@
   var LC_COLOUR = { IDLE: 'dim', OBSERVING: 'blue', ARMED: 'amber', ACTIVE: 'green', COMPLETED: 'muted' };
 
   loadDiscoveryEvents();
+  loadTreasuryReviewCard();
 
   /* ── 1. Platform lifecycle (situation strip + op states) ─────────────── */
   fetch('/api/ops/lifecycle/platform')
@@ -670,14 +671,7 @@
         // probabilistic label ("possible"/"probable"). Wording states only the matched
         // signal count and that review is required. Only rendered when at least one
         // candidate exists, so Mission Control stays quiet when there is nothing to review.
-        var expansions=streams.treasury_expansions||[];
         var expansionCard='';
-        if (expansions.length) {
-          expansionCard='<a class="vi-card monitoring" href="/discovery"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Known Operation Review</div><div class="vi-title">Treasury Review Lead</div></div><span class="vi-status monitoring" style="margin-left:auto">Review required</span></div>'
-            +'<div class="vi-metrics">'+metric(expansions.length,'leads')+metric(expansions[0]?ago(expansions[0].timestamp):'—','latest')+'</div>'
-            +'<div class="mc-card-summary">'+esc(expansions[0].message||'Previously unseen treasury. Structural signals matched against known operator infrastructure.')+'</div>'
-            +action('/discovery','Review candidates')+'</a>';
-        }
 
         el.className='mc-intel-grid';
         el.innerHTML=watchCard+promotionCard+emergingCard+walkCard+expansionCard+reviewCard+discoveryCard;
@@ -685,6 +679,33 @@
       .catch(function() {
         el.innerHTML = '<div class="ip-unavailable" style="padding:12px;font-size:11px;">Discovery intelligence unavailable.</div>';
       });
+  }
+
+  // X74.1 — Treasury Review card now reflects the analyst workspace directly
+  // (pending/newest/oldest/WATCHTOWER-candidate breakdown) instead of a raw
+  // "N Pending" count, so Mission Control surfaces whether the queue is
+  // actionable, not just its size.
+  function loadTreasuryReviewCard() {
+    var el = document.getElementById('mc-transitions');
+    if (!el) return;
+    function metric(value, label) {
+      return '<div class="vi-metric"><div class="vi-metric-value">' + esc(value) + '</div><div class="vi-metric-label">' + esc(label) + '</div></div>';
+    }
+    function action(href, label) {
+      return '<div class="vi-action"><span>' + esc(label) + '</span><span>→</span></div>';
+    }
+    fetch('/api/ops/treasury-review?status=PENDING_REVIEW&limit=1')
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if (!d || !d.ok) return;
+        var oldest = d.oldest_pending_age_secs!=null ? Math.floor(d.oldest_pending_age_secs/86400)+'d' : '—';
+        var newest = d.newest_pending_age_secs!=null ? (d.newest_pending_age_secs<60?d.newest_pending_age_secs+'s':Math.floor(d.newest_pending_age_secs/60)+'m') : '—';
+        var card='<a class="vi-card monitoring" href="/intelligence/treasury-review"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Analyst investigation workflow</div><div class="vi-title">Treasury Review</div></div><span class="vi-status monitoring" style="margin-left:auto">'+(d.requires_attention?'Requires Attention':'Clear')+'</span></div>'
+          +'<div class="vi-metrics">'+metric(d.pending_total||0,'pending')+metric(newest,'newest')+metric(oldest,'oldest')+metric(d.watchtower_candidates||0,'WATCHTOWER candidates')+'</div>'
+          +action('/intelligence/treasury-review','Open workspace')+'</a>';
+        el.insertAdjacentHTML('beforeend', card);
+      })
+      .catch(function(){});
   }
 
   fetch('/api/ops/operators/summary')

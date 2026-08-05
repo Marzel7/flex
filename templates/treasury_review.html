@@ -1,0 +1,127 @@
+{% extends "base_shell.html" %}
+{% block title %}Treasury Review — Analyst Workspace{% endblock %}
+{% block content %}
+<style>
+.tr-wrap{max-width:1500px;margin:auto;padding:24px}
+.tr-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--ip-border);border:1px solid var(--ip-border);border-radius:10px;overflow:hidden;margin:16px 0 20px}
+.tr-cell{padding:12px 14px;background:var(--ip-card)}
+.tr-cell strong{display:block;font-size:19px;line-height:1.1}
+.tr-cell span{font-size:9px;color:var(--ip-dim);text-transform:uppercase;letter-spacing:.08em}
+.tr-cell.attn strong{color:#fbbf24}
+.tr-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.tr-toolbar select{background:var(--ip-card);color:inherit;border:1px solid var(--ip-border);border-radius:6px;padding:6px 8px;font-size:11px}
+.tr-list{display:flex;flex-direction:column;gap:10px}
+.tr-card{border:1px solid var(--ip-border);background:var(--ip-card);border-radius:10px;padding:14px 16px}
+.tr-head{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.tr-treasury{font-family:monospace;font-size:13px;font-weight:700}
+.tr-badge{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:10px;border:1px solid var(--ip-border);color:var(--ip-dim)}
+.tr-badge.wt{color:#22c55e;border-color:#22c55e}
+.tr-badge.op{color:#60a5fa;border-color:#60a5fa}
+.tr-badge.infra{color:#f59e0b;border-color:#f59e0b}
+.tr-metrics{display:flex;gap:18px;margin:10px 0}
+.tr-metric strong{display:block;font-size:16px}
+.tr-metric span{font-size:8px;color:var(--ip-dim);text-transform:uppercase;letter-spacing:.08em}
+.tr-evidence{font-size:11px;color:var(--ip-sec);margin:8px 0}
+.tr-evidence .why{margin-bottom:6px}
+.tr-evidence ul{margin:2px 0 6px 16px;padding:0}
+.tr-evidence li{margin:2px 0}
+.tr-evidence .sup{color:#4ade80}
+.tr-evidence .con{color:#f87171}
+.tr-evidence .miss{color:var(--ip-dim)}
+.tr-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;border-top:1px solid var(--ip-border);padding-top:10px}
+.tr-actions button{font-size:10px;font-weight:700;padding:6px 10px;border-radius:6px;border:1px solid var(--ip-border);background:rgba(255,255,255,.03);color:inherit;cursor:pointer}
+.tr-actions button.primary{color:#22c55e;border-color:#22c55e}
+.tr-actions button.danger{color:#f87171;border-color:#f87171}
+.tr-empty{padding:30px;text-align:center;color:var(--ip-dim)}
+</style>
+<main class="tr-wrap">
+ <div class="ip-breadcrumb"><a href="/ops-os">Mission Control</a><span class="sep">›</span><span>Treasury Review</span></div>
+ <div class="ip-header"><div class="ip-title-row"><h1 class="ip-title">Treasury Review</h1><span class="ip-ts">Analyst investigation workspace</span></div><div class="ip-subtitle">Decide whether each treasury expands an existing Operator Identity, represents a new Operation, or should be rejected — not merely approve/reject a queue.</div></div>
+ <div class="tr-summary" id="tr-summary"></div>
+ <div class="tr-toolbar">
+  <select id="tr-sort"><option value="priority">Sort: Analyst value</option><option value="newest">Sort: Newest</option><option value="oldest">Sort: Oldest</option></select>
+  <select id="tr-status"><option value="PENDING_REVIEW">Status: Pending</option><option value="INVESTIGATING">Status: Investigating</option><option value="REJECTED">Status: Rejected</option><option value="CONFIRMED">Status: Confirmed</option></select>
+ </div>
+ <div class="tr-list" id="tr-list"><div class="tr-empty">Loading treasury review workspace…</div></div>
+</main>
+<script>
+(function(){
+ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const ago=t=>{if(!t)return 'unknown';let s=Math.floor(Date.now()/1000)-t;if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago'};
+ function summary(d){
+  const oldest=d.oldest_pending_age_secs?Math.floor(d.oldest_pending_age_secs/86400)+'d':'—';
+  const newest=d.newest_pending_age_secs!=null?(d.newest_pending_age_secs<60?d.newest_pending_age_secs+'s':Math.floor(d.newest_pending_age_secs/60)+'m'):'—';
+  const cells=[['Pending',d.pending_total||0,false],['Newest',newest,false],['Oldest',oldest,false],['WATCHTOWER Candidates',d.watchtower_candidates||0,false],['Requires Attention',d.requires_attention?'Yes':'No',d.requires_attention]];
+  document.getElementById('tr-summary').innerHTML=cells.map(c=>'<div class="tr-cell'+(c[2]?' attn':'')+'"><strong>'+esc(c[1])+'</strong><span>'+esc(c[0])+'</span></div>').join('');
+ }
+ function identityBadge(rel){
+  if(!rel)return '';
+  if(rel.kind==='WATCHTOWER')return '<span class="tr-badge wt">WATCHTOWER</span>';
+  if(rel.kind==='OPERATION')return '<span class="tr-badge op">'+esc(rel.display_name||'Operation')+'</span>';
+  if(rel.kind==='INFRASTRUCTURE')return '<span class="tr-badge infra">Infrastructure</span>';
+  return '<span class="tr-badge">Unknown</span>';
+ }
+ function evidenceBlock(e){
+  if(!e)return '';
+  let out='<div class="tr-evidence"><div class="why">'+esc(e.why_proposed)+'</div>';
+  if((e.supporting_evidence||[]).length)out+='<ul>'+e.supporting_evidence.map(x=>'<li class="sup">✓ '+esc(x)+'</li>').join('')+'</ul>';
+  if((e.contradictions||[]).length)out+='<ul>'+e.contradictions.map(x=>'<li class="con">⚠ '+esc(x)+'</li>').join('')+'</ul>';
+  if((e.missing_evidence||[]).length)out+='<ul>'+e.missing_evidence.map(x=>'<li class="miss">· '+esc(x)+'</li>').join('')+'</ul>';
+  out+='</div>';
+  return out;
+ }
+ function card(item){
+  const t=item.treasury;
+  return '<article class="tr-card" data-treasury="'+esc(t)+'">'+
+   '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+'</div>'+
+   '<div class="tr-metrics">'+
+    '<div class="tr-metric"><strong>'+esc(item.launch_count)+'</strong><span>Launches</span></div>'+
+    '<div class="tr-metric"><strong>'+esc(item.subprovider_count)+'</strong><span>Subproviders</span></div>'+
+    '<div class="tr-metric"><strong>'+esc(item.wrap_close_observations)+'</strong><span>Wrap-Close Obs.</span></div>'+
+    '<div class="tr-metric"><strong>'+esc(item.walkback_depth)+'</strong><span>Walkback Depth</span></div>'+
+    '<div class="tr-metric"><strong>'+ago(item.first_observed)+'</strong><span>First Observed</span></div>'+
+    '<div class="tr-metric"><strong>'+ago(item.last_observed)+'</strong><span>Last Observed</span></div>'+
+   '</div>'+
+   evidenceBlock(item.evidence_summary)+
+   '<div class="tr-actions">'+
+    '<button class="primary" data-action="APPROVE_TREASURY">Approve Treasury</button>'+
+    '<button data-action="LINK_TO_OPERATOR">Link to Existing Operator</button>'+
+    '<button data-action="CREATE_OPERATOR_CANDIDATE">Create Operator Candidate</button>'+
+    '<button data-action="CREATE_INVESTIGATION">Create Investigation</button>'+
+    '<button data-action="NEEDS_MORE_EVIDENCE">Needs More Evidence</button>'+
+    '<button class="danger" data-action="REJECT_TREASURY">Reject Treasury</button>'+
+   '</div>'+
+  '</article>';
+ }
+ function load(){
+  const sort=document.getElementById('tr-sort').value;
+  const status=document.getElementById('tr-status').value;
+  fetch('/api/ops/treasury-review?sort='+encodeURIComponent(sort)+'&status='+encodeURIComponent(status)).then(r=>r.json()).then(d=>{
+   summary(d);
+   const list=document.getElementById('tr-list');
+   list.innerHTML=(d.items||[]).map(card).join('')||'<div class="tr-empty">No treasuries in this status.</div>';
+  }).catch(()=>{document.getElementById('tr-list').innerHTML='<div class="tr-empty">Treasury review workspace unavailable.</div>'});
+ }
+ document.getElementById('tr-sort').addEventListener('change',load);
+ document.getElementById('tr-status').addEventListener('change',load);
+ document.getElementById('tr-list').addEventListener('click',function(ev){
+  const btn=ev.target.closest('button[data-action]');
+  if(!btn)return;
+  const card=btn.closest('.tr-card');
+  const treasury=card.getAttribute('data-treasury');
+  const action=btn.getAttribute('data-action');
+  const reason=prompt('Reason for this action (required):');
+  if(!reason)return;
+  const analyst=prompt('Analyst name:','analyst');
+  if(!analyst)return;
+  let body={action:action,reason:reason,analyst:analyst};
+  if(action==='LINK_TO_OPERATOR'){const opId=prompt('Target operator_id:');if(!opId)return;body.operator_id=opId;}
+  btn.disabled=true;
+  fetch('/api/ops/treasury-review/'+encodeURIComponent(treasury)+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+   .then(r=>r.json()).then(d=>{if(!d.ok){alert('Action failed: '+(d.error||'unknown error'));btn.disabled=false;return;}load();})
+   .catch(()=>{alert('Action failed: network error');btn.disabled=false;});
+ });
+ load();
+})();
+</script>
+{% endblock %}

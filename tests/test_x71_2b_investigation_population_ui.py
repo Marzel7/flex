@@ -21,7 +21,7 @@ def test_b48_is_an_active_investigation_and_never_an_operation_queue(registry):
     _, data = registry
     active = data["active_investigations_reconciled"]
     b48 = next(item for item in active if item["family_name"] == "B48k / Dv34 Family")
-    assert b48["launches"] == 67
+    assert b48["launches"] >= 67
     assert b48["reconciliation"]["disposition"] == "UNRESOLVED"
     assert b48["presentation"]["label"] == "Investigation Population"
     assert b48["presentation"]["kind"] == "investigation_population"
@@ -50,7 +50,10 @@ def test_investigation_summary_and_empty_cluster_contract_are_data_driven(regist
     assert presentation["parent_population_id"] == detail["family_id"]
     assert presentation["potential_operator_clusters"] == []
     assert presentation["child_operations"] == []
-    assert any("67 persisted launches" in line for line in presentation["investigation_summary"])
+    assert any(
+        f"{detail['launches']} persisted launches" in line
+        for line in presentation["investigation_summary"]
+    )
     assert "legacy registry as Confirmed" in presentation["historical_context"]
 
 

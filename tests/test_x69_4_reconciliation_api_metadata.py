@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+import time
 
 import pytest
 
@@ -27,6 +29,8 @@ PUBLIC_KEYS = {
     "contradictory_evidence_count", "missing_evidence_count",
     "dependency_groups", "deterministic_result_id",
     "legacy_shadow_agreement", "expected_difference",
+    "supporting_evidence", "contradictory_evidence", "missing_evidence",
+    "why_population_exists", "analyst_explanation", "promotion_readiness",
 }
 
 
@@ -169,3 +173,37 @@ def test_response_metadata_does_not_expose_cached_mutable_state(
     second = service.resolve_entity(family["family_id"])
     assert second["reconciliation"]["disposition"] == "REVIEW"
     assert "MUTATED" not in second["reconciliation"]["dependency_groups"]
+
+
+def test_cold_metadata_build_is_single_flight(monkeypatch):
+    from src.ops import reconciliation_metadata as module
+
+    class Registry:
+        ops_db_path = "single-flight-ops"
+        live_db_path = "single-flight-live"
+        refresh_seconds = 60
+
+    registry = Registry()
+    calls = 0
+    module.clear_reconciliation_metadata_cache(registry.ops_db_path)
+
+    def cold_build(current, families):
+        nonlocal calls
+        key = (current.ops_db_path, current.live_db_path)
+        cached = module._METADATA_CACHE.get(key)
+        if cached:
+            return cached[1]
+        calls += 1
+        time.sleep(0.05)
+        value = {"family:test": {"disposition": "UNRESOLVED"}}
+        module._METADATA_CACHE[key] = (time.monotonic(), value)
+        return value
+
+    monkeypatch.setattr(module, "_build_reconciliation_metadata_uncached", cold_build)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(
+            lambda _: module.build_reconciliation_metadata(registry, []), range(8)
+        ))
+    assert calls == 1
+    assert all(result == results[0] for result in results)
+    module.clear_reconciliation_metadata_cache(registry.ops_db_path)

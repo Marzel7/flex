@@ -198,7 +198,8 @@ def test_live_controls_and_all_populations_resolve_in_shadow():
     families = service._compose()
     family_by_id = {family["family_id"]: family for family in families}
 
-    assert len(results) == len(populations) == 281
+    assert len(results) == len(populations)
+    assert len(populations) >= 281  # live discovery grows; never freeze production cardinality
     assert all(result.disposition for result in results)
     assert len({result.result_id for result in results}) == len(results)
 

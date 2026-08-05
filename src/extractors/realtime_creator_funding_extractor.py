@@ -302,6 +302,22 @@ class RealTimeCreatorFundingExtractor:
         self.domain_resolver: Optional[DomainResolver] = None
         self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
         self._rpc_sem = asyncio.Semaphore(MAX_CONCURRENT_RPC)
+        # Phase 1: Initialize CursorManager for incremental extraction
+        self.cursor_mgr = None
+        try:
+            from src.core.cursor_manager import CursorManager
+            self.cursor_mgr = CursorManager(DB_PATH)
+            print("✅ CursorManager initialized for Phase 1 deployment", flush=True)
+        except Exception as e:
+            print(f"⚠ CursorManager initialization failed: {e} (Phase 1 disabled)", flush=True)
+        # Phase 2: Initialize RPCCache for response-level caching
+        self.rpc_cache = None
+        try:
+            from src.core.rpc_cache import RPCCache
+            self.rpc_cache = RPCCache(DB_PATH)
+            print("✅ RPCCache initialized for Phase 2 deployment", flush=True)
+        except Exception as e:
+            print(f"⚠ RPCCache initialization failed: {e} (Phase 2 disabled)", flush=True)  # FIX #8: Bound RPC concurrency
         # X76.3 -- the extractor itself now tracks every fire-and-forget
         # background task it spawns (CEX detection, BlockSec batching,
         # post-launch automation), not just creator_funding_worker's own
@@ -345,22 +361,6 @@ class RealTimeCreatorFundingExtractor:
             print(f"[REALTIME_FUNDING] {len(still_pending)} background task(s) still running "
                   f"after {timeout}s -- leaving them to finish on their own, not cancelling "
                   f"(would corrupt whatever they're mid-writing)", flush=True)
-        # Phase 1: Initialize CursorManager for incremental extraction
-        self.cursor_mgr = None
-        try:
-            from src.core.cursor_manager import CursorManager
-            self.cursor_mgr = CursorManager(DB_PATH)
-            print("✅ CursorManager initialized for Phase 1 deployment", flush=True)
-        except Exception as e:
-            print(f"⚠ CursorManager initialization failed: {e} (Phase 1 disabled)", flush=True)
-        # Phase 2: Initialize RPCCache for response-level caching
-        self.rpc_cache = None
-        try:
-            from src.core.rpc_cache import RPCCache
-            self.rpc_cache = RPCCache(DB_PATH)
-            print("✅ RPCCache initialized for Phase 2 deployment", flush=True)
-        except Exception as e:
-            print(f"⚠ RPCCache initialization failed: {e} (Phase 2 disabled)", flush=True)  # FIX #8: Bound RPC concurrency
 
     async def init_session(self):
         """Initialize aiohttp session and domain resolver"""

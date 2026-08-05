@@ -79,4 +79,7 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "View all '+esc(role.related_launch_count" in profile
     assert "https://solscan.io/tx/" in profile
     assert 'rel="noopener noreferrer"' in profile
+    assert "Funding Tx " in profile
+    assert 'Launch mint ' in profile
+    assert '/token-intelligence?mint=' in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

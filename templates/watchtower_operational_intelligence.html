@@ -259,6 +259,26 @@ details.collapse-section .collapse-body { padding-top:14px; }
   <!--  existing Operations cards below for that, clearly labelled as         -->
   <!--  operational legs, never mixed into this canonical list.               -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  X74.4 — Evidence Integrity. Presentation only: classifies each         -->
+  <!--  wt_watchtower_launches row's funding_mechanism as OBSERVED (real       -->
+  <!--  detection-time evidence found) or UNKNOWN (the stored value is an      -->
+  <!--  unverified fallback default — see watchtower_evidence_status.py).      -->
+  <!--  Never alters attribution/reconciliation/promotion/identity/registry.   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div style="margin:12px 0 8px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--purple,#a78bfa);text-transform:uppercase">Evidence Integrity</div>
+    <div style="flex:1;height:1px;background:rgba(167,139,250,.3)"></div>
+  </div>
+  <div id="evidence-integrity-panel" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+    <div class="muted" style="font-size:11px;padding:6px 0">loading&hellip;</div>
+  </div>
+  <div style="font-size:10px;color:var(--text-dim);margin-bottom:16px">
+    <span style="color:#4ade80">●</span> Observed — transaction-derived evidence found &nbsp;
+    <span style="color:#60a5fa">●</span> Inferred — partial evidence &nbsp;
+    <span style="color:var(--text-dim)">●</span> Unknown — no transaction evidence; mechanism is not displayed
+  </div>
+
   <div style="margin:12px 0 12px;display:flex;align-items:center;gap:12px">
     <div style="font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--cyan);text-transform:uppercase">Canonical Token Launches</div>
     <div style="flex:1;height:1px;background:rgba(34,211,238,.3)"></div>
@@ -272,8 +292,9 @@ details.collapse-section .collapse-body { padding-top:14px; }
         <th style="padding:4px 8px">Treasury</th><th style="padding:4px 8px">Subprovider</th>
         <th style="padding:4px 8px">Launch Time</th><th style="padding:4px 8px">Time to Migration</th>
         <th style="padding:4px 8px">Live Detection</th><th style="padding:4px 8px">Campaign</th>
+        <th style="padding:4px 8px">Evidence</th>
       </tr></thead>
-      <tbody id="canonical-launches-body"><tr><td colspan="8" class="muted" style="padding:8px">loading&hellip;</td></tr></tbody>
+      <tbody id="canonical-launches-body"><tr><td colspan="9" class="muted" style="padding:8px">loading&hellip;</td></tr></tbody>
     </table>
   </div>
 
@@ -2692,7 +2713,7 @@ async function loadCanonicalLaunches(){
     d=await(await fetch(`/api/ops-v2/intel/canonical-launches?window_start=${windowStart}`)).json();
   }catch(e){
     const tb=document.getElementById('canonical-launches-body');
-    if(tb) tb.innerHTML='<tr><td colspan="8" class="muted" style="padding:8px">failed to load canonical launches</td></tr>';
+    if(tb) tb.innerHTML='<tr><td colspan="9" class="muted" style="padding:8px">failed to load canonical launches</td></tr>';
     return;
   }
   const launches=d.launches||[];
@@ -2701,7 +2722,7 @@ async function loadCanonicalLaunches(){
   const tb=document.getElementById('canonical-launches-body');
   if(!tb) return;
   if(!launches.length){
-    tb.innerHTML='<tr><td colspan="8" class="muted" style="padding:8px">No canonical launches in this window.</td></tr>';
+    tb.innerHTML='<tr><td colspan="9" class="muted" style="padding:8px">No canonical launches in this window.</td></tr>';
     return;
   }
   tb.innerHTML=launches.map(l=>{
@@ -2720,8 +2741,10 @@ async function loadCanonicalLaunches(){
       <td style="padding:4px 8px">${migCell}</td>
       <td style="padding:4px 8px">${liveCell}</td>
       <td style="padding:4px 8px">${clEsc(l.campaign||'Unassigned campaign')}</td>
+      <td style="padding:4px 8px" id="cl-evidence-${clEsc(l.mint)}"><span class="muted" style="font-size:10px">…</span></td>
     </tr>`;
   }).join('');
+  launches.forEach(l => loadLaunchEvidenceBadge(l.mint));
 
   // Cross-navigation: if arriving with ?mint=..., scroll to and highlight
   // that canonical launch's row (X67.27's "scroll to or highlight" requirement).
@@ -2737,12 +2760,109 @@ async function loadCanonicalLaunches(){
   }
 }
 
+// X74.4 — Evidence Integrity summary panel + per-launch evidence badges.
+// Read-only: classifies wt_watchtower_launches rows via
+// /api/watchtower/evidence-integrity and /api/watchtower/launch/<mint>/evidence
+// (src/ops/watchtower_evidence_status.py). Never mutates anything.
+const EVIDENCE_COLORS = {OBSERVED:'#4ade80', INFERRED:'#60a5fa', UNKNOWN:'var(--text-dim)'};
+const EVIDENCE_LAUNCH_CACHE = {};
+
+async function loadEvidenceIntegrityPanel(){
+  const el = document.getElementById('evidence-integrity-panel');
+  if(!el) return;
+  let d;
+  try{
+    d = await (await fetch('/api/watchtower/evidence-integrity')).json();
+  }catch(e){
+    el.innerHTML = '<div class="muted" style="font-size:11px">Evidence integrity unavailable.</div>';
+    return;
+  }
+  if(!d || !d.ok){
+    el.innerHTML = '<div class="muted" style="font-size:11px">Evidence integrity unavailable.</div>';
+    return;
+  }
+  function chip(label, value, color){
+    return `<div style="border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:96px">
+      <div style="font-size:18px;font-weight:800;color:${color}">${clEsc(value)}</div>
+      <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">${clEsc(label)}</div>
+    </div>`;
+  }
+  el.innerHTML =
+    chip('Observed', d.observed, EVIDENCE_COLORS.OBSERVED) +
+    chip('Unknown', d.unknown, EVIDENCE_COLORS.UNKNOWN) +
+    chip('WSOL_WRAP_CLOSE', d.wsol_wrap_close, '#e5e7eb') +
+    chip('SEEDED_ACCOUNT_CLOSE', d.seeded_account_close, '#e5e7eb') +
+    chip('PLAIN_XFER', d.plain_xfer, '#e5e7eb');
+}
+
+function evidenceBadge(ev){
+  if(!ev) return '<span class="muted" style="font-size:10px">—</span>';
+  const color = EVIDENCE_COLORS[ev.evidence_status] || 'var(--text-dim)';
+  const label = ev.evidence_status === 'UNKNOWN'
+    ? 'Unknown'
+    : clEsc(ev.funding_mechanism || ev.evidence_status);
+  return `<span style="font-size:10px;font-weight:700;color:${color};border:1px solid ${color};border-radius:10px;padding:2px 7px;cursor:pointer" onclick="toggleLaunchDrilldown('${clEsc(ev.mint)}')" title="Click for evidence detail">${label}</span>`;
+}
+
+async function loadLaunchEvidenceBadge(mint){
+  const cell = document.getElementById(`cl-evidence-${mint}`);
+  if(!cell) return;
+  let d;
+  try{
+    d = await (await fetch(`/api/watchtower/launch/${encodeURIComponent(mint)}/evidence`)).json();
+  }catch(e){
+    cell.innerHTML = '<span class="muted" style="font-size:10px">—</span>';
+    return;
+  }
+  if(!d || !d.ok){
+    cell.innerHTML = '<span class="muted" style="font-size:10px">—</span>';
+    return;
+  }
+  EVIDENCE_LAUNCH_CACHE[mint] = d.launch;
+  cell.innerHTML = evidenceBadge(d.launch);
+}
+
+// Phase 3/5 drill-down: appended as a detail row directly beneath the
+// launch row it belongs to — never shown on the summary/aggregate view.
+function toggleLaunchDrilldown(mint){
+  const existing = document.getElementById(`cl-drilldown-${mint}`);
+  if(existing){ existing.remove(); return; }
+  const ev = EVIDENCE_LAUNCH_CACHE[mint];
+  const row = document.getElementById(`cl-${mint}`);
+  if(!ev || !row) return;
+  function badge(label, ok, okText, missingText){
+    const color = ok ? '#4ade80' : 'var(--text-dim)';
+    return `<span style="display:inline-flex;flex-direction:column;gap:2px;margin-right:16px">
+      <span style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em">${clEsc(label)}</span>
+      <span style="font-size:11px;font-weight:700;color:${color}">${ok?okText:missingText}</span>
+    </span>`;
+  }
+  const tr = document.createElement('tr');
+  tr.id = `cl-drilldown-${mint}`;
+  tr.innerHTML = `<td colspan="9" style="padding:10px 12px;background:rgba(255,255,255,.02);border-top:1px dashed var(--border)">
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 0">
+      ${badge('Funding Mechanism', ev.evidence_status==='OBSERVED', clEsc(ev.funding_mechanism||''), 'Unknown')}
+      ${badge('Evidence Status', ev.evidence_status==='OBSERVED', 'Observed', 'Unknown')}
+      ${badge('Funding Signature', ev.funding_signature_present, 'Present', 'Missing')}
+      ${badge('Wrap Wallet', ev.wrap_wallet_recovered, 'Recovered', 'Not Recovered')}
+      ${badge('Session', ev.session_recovered, 'Recovered', 'Not Recovered')}
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:var(--text-dim)">
+      Evidence source: ${clEsc(ev.evidence_source||'—')}
+      ${ev.funding_signature?` &middot; Signature: <span class="addr" onclick="sol('${clEsc(ev.funding_signature)}')">${clShort(ev.funding_signature)}</span>`:''}
+      ${ev.provisioning_wallet?` &middot; Provisioning wallet: <span class="addr" onclick="sol('${clEsc(ev.provisioning_wallet)}')">${clShort(ev.provisioning_wallet)}</span>`:''}
+    </div>
+  </td>`;
+  row.after(tr);
+}
+
 function refreshFast(){
   loadCoverageSummary();        // Phase 2: single ops-DB endpoint replaces hero fan-out
   loadCoverageOpportunity();    // ranked EDY widget (ops-DB only, read-only)
   loadWsCascade();
   loadTokenLifecycle();
   loadCanonicalLaunches();
+  loadEvidenceIntegrityPanel(); // X74.4 — Evidence Integrity summary
   loadLaunchAudit();
   loadCapitalReloads();
   loadCreatorModes();

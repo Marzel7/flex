@@ -40213,6 +40213,13 @@ except Exception as e:
     print(f"[WARNING] Discovery workspace not available: {e}")
 
 try:
+    from src.ops.watchtower_evidence_routes import register_watchtower_evidence_routes
+    register_watchtower_evidence_routes(app)
+    print("[X74.4] WATCHTOWER evidence integrity routes registered (/api/watchtower/evidence-integrity, /api/watchtower/launch/<mint>/evidence)")
+except Exception as e:
+    print(f"[WARNING] WATCHTOWER evidence integrity routes not available: {e}")
+
+try:
     from src.ops.treasury_review_routes import register_treasury_review_routes
     register_treasury_review_routes(app)
     print("[X74.1] Treasury Review workspace registered (/intelligence/treasury-review, /api/ops/treasury-review/*)")

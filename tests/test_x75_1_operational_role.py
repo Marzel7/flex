@@ -115,4 +115,5 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "h.transaction_at?new Date(h.transaction_at*1000)" in profile
     assert "o.intermediary" in profile
     assert "o.funding_hops" in profile
+    assert ".sort((a,b)=>(b.transaction_at||0)-(a.transaction_at||0))" in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

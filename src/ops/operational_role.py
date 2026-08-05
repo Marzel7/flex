@@ -70,14 +70,16 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
             "transactions": sorted(signatures),
         })
 
-    # A launch hop is supported only by persisted source_mint edge provenance.
+    # source_mint is walkback observation context. It associates the creator
+    # funding edge with the launch under investigation, but it does NOT mean
+    # the mint participated in funding_tx_signature.
     launch_paths = [p for p in paths if p.get("type") == "SUBPROV_TO_CREATOR" and p.get("source_mint")]
     if launch_paths:
         grouped_launches: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for path in launch_paths:
             grouped_launches[str(path.get("to"))].append(path)
         edges.append({
-            "from": "Creator", "to": "Launch", "relationship_type": "EDGE_SOURCE_MINT",
+            "from": "Creator", "to": "Launch Context", "relationship_type": "WALKBACK_SOURCE_MINT",
             "observation_count": len(launch_paths),
             "transaction_count": len({p.get("signature") for p in launch_paths if p.get("signature")}),
             "wallet_count": len(grouped_launches), "wallets": sorted(grouped_launches),
@@ -87,7 +89,7 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
 
     ordered_roles = []
     for role in ("Treasury", "Operational Treasury", "Subprovider / Provisioning Wallet", "Provisioning Controller",
-                 "Shared Infrastructure", "Provisioning Wallet", "Session Wallet", "Creator", "Launch"):
+                 "Shared Infrastructure", "Provisioning Wallet", "Session Wallet", "Creator", "Launch Context"):
         if any(edge["from"] == role or edge["to"] == role for edge in edges):
             ordered_roles.append(role)
     if not ordered_roles:

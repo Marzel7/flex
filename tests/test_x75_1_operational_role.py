@@ -21,7 +21,7 @@ def test_role_chain_contains_only_recorded_relationships():
     role = derive_operational_role(family, infrastructure)
     assert role["current_role"] == "Provisioning Controller"
     assert [edge["relationship_type"] for edge in role["edges"]] == [
-        "TREASURY_TO_SUBPROV", "SUBPROV_TO_CREATOR", "EDGE_SOURCE_MINT"
+        "TREASURY_TO_SUBPROV", "SUBPROV_TO_CREATOR", "WALKBACK_SOURCE_MINT"
     ]
     assert role["edges"][-1]["launches"] == ["MINT"]
     assert role["observed_relationships"] == [{
@@ -82,4 +82,5 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "Funding Tx " in profile
     assert 'Launch mint ' in profile
     assert '/token-intelligence?mint=' in profile
+    assert "Observed while tracing " in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

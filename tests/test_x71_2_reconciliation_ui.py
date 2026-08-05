@@ -59,6 +59,22 @@ def test_fallback_is_explicit_and_never_confirmation_eligible():
     assert value["confirmation_permitted"] is False
 
 
+def test_profile_titles_drop_family_suffix_and_use_known_infrastructure_name():
+    investigation = reconciliation_presentation(
+        {"family_id": "family:x", "family_name": "FJYr Family"},
+        {"disposition": "UNRESOLVED"},
+    )
+    infrastructure = reconciliation_presentation(
+        {
+            "family_id": "family:infra", "family_name": "5tzF Family",
+            "family_anchor": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+        },
+        {"disposition": "INFRASTRUCTURE"},
+    )
+    assert investigation["title"] == "FJYr"
+    assert infrastructure["title"] == "Binance 2"
+
+
 def test_templates_make_reconciliation_authoritative_and_keep_debug_hidden():
     operations = (ROOT / "templates/emerging_operators.html").read_text()
     profile = (ROOT / "templates/operation_profile.html").read_text()

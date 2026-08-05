@@ -6,6 +6,7 @@ categories, falling back to labelled legacy context when metadata is absent.
 """
 from __future__ import annotations
 
+import re
 from typing import Any, Mapping
 
 
@@ -83,13 +84,34 @@ KINDS = {
 }
 
 
+def _profile_name(family: Mapping[str, Any], disposition: str | None = None) -> str:
+    """Return a concise profile title without changing canonical identity."""
+    name = re.sub(
+        r"\s+Family$", "",
+        str(family.get("family_name") or family.get("operation_name") or "Unknown"),
+        flags=re.IGNORECASE,
+    )
+    if disposition != "INFRASTRUCTURE":
+        return name
+    wallet = str(
+        family.get("family_anchor") or family.get("terminal_entity")
+        or next(iter(family.get("member_wallets") or ()), "")
+    )
+    try:
+        from src.utils.infra_mapping import CEX_ACCOUNTS, INFRASTRUCTURE_ACCOUNTS
+        record = CEX_ACCOUNTS.get(wallet) or INFRASTRUCTURE_ACCOUNTS.get(wallet) or {}
+    except (ImportError, AttributeError):
+        record = {}
+    return str(record.get("name") or record.get("exchange") or name)
+
+
 def reconciliation_presentation(
     family: Mapping[str, Any] | None,
     reconciliation: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     family = family or {}
     legacy = str(family.get("lifecycle_state") or family.get("stage") or "UNKNOWN")
-    name = str(family.get("family_name") or family.get("operation_name") or "Unknown")
+    name = _profile_name(family)
     family_id = family.get("family_id")
     if not reconciliation:
         return {
@@ -104,11 +126,11 @@ def reconciliation_presentation(
             "profile_href": f"/intelligence/operations/{family_id}" if family_id else None,
         }
     disposition = str(reconciliation.get("disposition") or "UNRESOLVED")
+    name = _profile_name(family, disposition)
     kind = KINDS.get(disposition, "investigation_population")
     clusters = _potential_operator_clusters(family) if kind == "investigation_population" else []
     title_prefix = {
         "REVIEW": "Review Population",
-        "INFRASTRUCTURE": "Infrastructure Record",
         "REJECTED": "Rejected Population",
         "RETIRED": "Retired Population",
     }.get(disposition)

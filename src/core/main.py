@@ -25240,10 +25240,17 @@ def api_health_full():
         _fq = _idb.execute(
             "SELECT COUNT(*) FROM creator_funding_queue WHERE status IN ('pending','retry','running','in_progress')"
         ).fetchone()[0]
+        # Filter on migrated_at (indexed via idx_ta_lifecycle) BEFORE touching
+        # earliest_tx_creator/pf_ws_creator. Those two columns aren't covered by
+        # any index, so evaluating the COALESCE/TRIM predicate against the full
+        # ~28K-row migrated set forced a row lookup per row (~2.9s measured).
+        # migrated_at is never NULL when lifecycle_stage='migrated' (0 rows found
+        # with that combination) -- COALESCE(migrated_at,created_at,analyzed_at,0)
+        # is therefore always equal to migrated_at here, so this is not a
+        # behavior change, just a cheaper equivalent filter ordering.
         _miss = _idb.execute(
-            "SELECT COUNT(*) FROM token_analysis WHERE lifecycle_stage='migrated' "
-            "AND COALESCE(NULLIF(TRIM(earliest_tx_creator),''),NULLIF(TRIM(pf_ws_creator),'')) IS NULL "
-            "AND COALESCE(migrated_at,created_at,analyzed_at,0) >= ?",
+            "SELECT COUNT(*) FROM token_analysis WHERE migrated_at >= ? AND lifecycle_stage='migrated' "
+            "AND COALESCE(NULLIF(TRIM(earliest_tx_creator),''),NULLIF(TRIM(pf_ws_creator),'')) IS NULL",
             (now - 3600,)
         ).fetchone()[0]
         _idb.close()

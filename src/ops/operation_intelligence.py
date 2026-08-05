@@ -60,8 +60,6 @@ class OperationIntelligenceAssembler:
         performance = self._performance(mints, token_rows, watch_launches)
         behaviour = self._behaviour(family, edges, sessions, token_rows, watch_launches)
         infrastructure = self._infrastructure(family, edges, sessions)
-        from src.ops.operational_role import derive_operational_role
-        operational_role = derive_operational_role(family, infrastructure)
         evidence = self._evidence(family, edges, sessions)
         peers = self._peers(family, all_families)
         ecosystem = self._ecosystem(family, all_families, reconciliation, peers)
@@ -81,7 +79,6 @@ class OperationIntelligenceAssembler:
             "infrastructure": infrastructure, "performance": performance,
             "evidence_audit": evidence, "comparison_peers": peers,
             "ecosystem_context": ecosystem,
-            "operational_role": operational_role,
             "data_contract": {
                 "read_only": True, "estimated_metrics": [],
                 "unavailable_metrics": [key for key, value in performance.items() if value is None],
@@ -97,34 +94,17 @@ class OperationIntelligenceAssembler:
         try:
             with self._connect(self.ops_db_path) as conn:
                 tables = self._tables(conn)
-                if (members or mints) and "wt_provisioning_edges" in tables:
-                    clauses, params = [], []
-                    if members:
-                        marks = ",".join("?" for _ in members)
-                        clauses.append(f"from_wallet IN ({marks})")
-                        clauses.append(f"to_wallet IN ({marks})")
-                        params.extend(members); params.extend(members)
-                    if mints:
-                        marks = ",".join("?" for _ in mints)
-                        clauses.append(f"source_mint IN ({marks})")
-                        params.extend(mints)
+                if members and "wt_provisioning_edges" in tables:
+                    marks = ",".join("?" for _ in members)
                     edges = [dict(row) for row in conn.execute(
-                        f"SELECT * FROM wt_provisioning_edges WHERE {' OR '.join(clauses)} ORDER BY first_observed_by_flex",
-                        params,
+                        f"SELECT * FROM wt_provisioning_edges WHERE from_wallet IN ({marks}) ORDER BY first_observed_by_flex",
+                        members,
                     )]
-                if (members or mints) and "wt_active_subprov_sessions" in tables:
-                    clauses, params = [], []
-                    if members:
-                        marks = ",".join("?" for _ in members)
-                        clauses.append(f"subprov_wallet IN ({marks})")
-                        params.extend(members)
-                    if mints:
-                        marks = ",".join("?" for _ in mints)
-                        clauses.append(f"source_mint IN ({marks})")
-                        params.extend(mints)
+                if members and "wt_active_subprov_sessions" in tables:
+                    marks = ",".join("?" for _ in members)
                     sessions = [dict(row) for row in conn.execute(
-                        f"SELECT * FROM wt_active_subprov_sessions WHERE {' OR '.join(clauses)} ORDER BY funding_time",
-                        params,
+                        f"SELECT * FROM wt_active_subprov_sessions WHERE subprov_wallet IN ({marks}) ORDER BY funding_time",
+                        members,
                     )]
                 if mints and "wt_watchtower_launches" in tables:
                     marks = ",".join("?" for _ in mints)
@@ -294,7 +274,6 @@ class OperationIntelligenceAssembler:
             path = {"from": edge.get("from_wallet"), "to": edge.get("to_wallet"),
                     "type": edge.get("edge_type"), "mechanism": edge.get("funding_mechanism"),
                     "signature": edge.get("funding_tx_signature"),
-                    "source_mint": edge.get("source_mint"),
                     "observed_at": _ts(edge.get("first_observed_by_flex"))}
             paths.append(path)
             if path["signature"]:

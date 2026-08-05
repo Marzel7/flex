@@ -321,8 +321,6 @@ class EmergingOperatorService:
     @staticmethod
     def _list_card(family: dict[str, Any]) -> dict[str, Any]:
         card = dict(family)
-        from src.ops.operational_role import derive_operational_role
-        card["operational_role"] = derive_operational_role(family)
         # Preserve the aggregate needed by the compact dashboard before the
         # potentially large creator-address list is removed from list payloads.
         card["creator_count"] = len(family.get("unique_creators") or ())
@@ -361,7 +359,6 @@ class EmergingOperatorService:
                 result["intelligence"] = OperationIntelligenceAssembler(
                     self.ops_db_path, self.live_db_path
                 ).build(result, all_families, reconciliation)
-                result["operational_role"] = result["intelligence"]["operational_role"]
                 return result
         return None
 

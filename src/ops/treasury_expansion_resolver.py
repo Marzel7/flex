@@ -22,6 +22,20 @@ from typing import Any
 
 from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 
+# X75.0 — display_name -> operator_id lookup so a curated hub's
+# operator_identity label (e.g. from wt_known_operator_hubs) can resolve to
+# whichever CONFIRMED operator it actually names, not only WATCHTOWER. A
+# label with no matching confirmed operator today resolves to None rather
+# than being silently dropped or defaulted to WATCHTOWER.
+def _resolve_operator_id_by_display_name(conn: "sqlite3.Connection", tables: set, name: str | None) -> str | None:
+    if not name or "operators" not in tables:
+        return None
+    row = conn.execute(
+        "SELECT operator_id FROM operators WHERE UPPER(display_name)=UPPER(?) AND status='CONFIRMED' LIMIT 1",
+        (name,),
+    ).fetchone()
+    return row["operator_id"] if row else None
+
 
 # Deterministic, currently-persisted signal types. Each entry is (key, label).
 # This list is the full inventory this resolver knows how to check today;
@@ -123,13 +137,27 @@ class TreasuryExpansionResolver:
         if not matched and not checked_no_match:
             return None
 
+        # X75.0: candidate_operator_id is derived per-signal where a signal
+        # resolves one explicitly (currently only known_operator_hub, since
+        # it's the only signal carrying a curated operator label). Other
+        # matched signals (vanity_family, provisioning_hub) carry no operator
+        # label of their own; for those, WATCHTOWER remains the fallback
+        # ONLY because it is the sole operator these signal types have ever
+        # been evaluated against — this is unchanged prior behaviour for
+        # those two signals, not a new assumption.
+        resolved_operator_id = next(
+            (m.get("candidate_operator_id") for m in matched if m.get("candidate_operator_id")),
+            None,
+        )
+        candidate_operator_id = resolved_operator_id or (WATCHTOWER_OPERATOR_ID if matched else None)
+
         # No probabilistic label is assigned here ("possible"/"probable" would be an
         # interpretation this engine is not positioned to make). The output is the count
         # of matched, named, evidence-cited signals; the analyst draws the conclusion.
         return {
             "subprov": subprov,
             "treasury": treasury,
-            "candidate_operator_id": WATCHTOWER_OPERATOR_ID if matched else None,
+            "candidate_operator_id": candidate_operator_id,
             "matched_signal_count": len(matched),
             "matched_evidence": matched,
             "checked_no_match": checked_no_match,
@@ -184,6 +212,13 @@ class TreasuryExpansionResolver:
         self, conn: sqlite3.Connection | None, tables: set[str],
         treasury: str | None, subprov: str | None,
     ) -> dict[str, Any] | None:
+        """X75.0: matches ANY curated operator_identity label in
+        wt_known_operator_hubs, not only WATCHTOWER (the table already
+        curates other identities, e.g. OPERATOR_001/OPERATION_ALPHA, that
+        were previously silently discarded here). The matched label is
+        resolved to a real confirmed operator_id when one exists today;
+        otherwise candidate_operator_id is left unresolved (None) rather
+        than guessed."""
         if conn is None or "wt_known_operator_hubs" not in tables:
             return None
         for address in (a for a in (treasury, subprov) if a):
@@ -191,12 +226,25 @@ class TreasuryExpansionResolver:
                 "SELECT hub_wallet, operator_identity, confidence FROM wt_known_operator_hubs WHERE hub_wallet=?",
                 (address,),
             ).fetchone()
-            if row and str(row["operator_identity"] or "").upper() == "WATCHTOWER":
+            if row and row["operator_identity"]:
+                candidate_operator_id = None
+                try:
+                    ops_conn = self._connect(self.ops_db_path)
+                    try:
+                        candidate_operator_id = _resolve_operator_id_by_display_name(
+                            ops_conn, self._tables(ops_conn), row["operator_identity"]
+                        )
+                    finally:
+                        ops_conn.close()
+                except sqlite3.Error:
+                    pass
                 return {
                     "signal": "known_operator_hub",
                     "label": _label("known_operator_hub"),
                     "hub_wallet": row["hub_wallet"],
                     "curated_confidence": row["confidence"],
+                    "curated_operator_identity": row["operator_identity"],
+                    "candidate_operator_id": candidate_operator_id,
                 }
         return None
 

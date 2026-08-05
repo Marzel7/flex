@@ -343,7 +343,6 @@
 .oi-sim-reason { font-size: 9.5px; color: var(--ip-sec); margin-top: 3px; line-height: 1.3; }
 .oi-sim-diff   { font-size: 9px; color: var(--ip-dim); margin-top: 2px; font-style: italic; }
 .oi-governance { margin:12px 0 16px; padding:14px 16px; border:1px solid var(--ip-border2); border-left:3px solid var(--ip-cyan); background:var(--ip-card); }
-.oi-role{margin:12px 0 16px;padding:16px;border:1px solid var(--ip-border2);border-left:3px solid var(--ip-green);background:var(--ip-card);border-radius:10px}.oi-role-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.oi-role-chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.oi-role-node{padding:7px 9px;border:1px solid var(--ip-border2);border-radius:7px;font-size:10px;color:var(--ip-sec)}.oi-role-node.current{color:var(--ip-green);border-color:var(--ip-green)}.oi-role-arrow{color:var(--ip-dim)}.oi-role-details{margin-top:12px;font-size:10px;color:var(--ip-sec)}
 .oi-gov-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
 .oi-gov-states { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 10px; }
 .oi-gov-actions { display:flex; gap:7px; flex-wrap:wrap; }
@@ -382,7 +381,6 @@
         <div class="x19-answer-meta">Confidence <span id="oi-confidence">{{ operator.confidence }}</span> · Review State <span id="oi-review-state">{{ operator.review_state }}</span></div>
       </div>
     </div>
-    <section class="oi-role" id="oi-operational-role"><div class="ip-loading">Loading recorded operational role…</div></section>
 
     {% set lifecycle = operator.identity_lifecycle or {} %}
     <section class="oi-governance" id="oi-governance">
@@ -461,11 +459,6 @@
     if (s < 3600)  return Math.floor(s/60) + 'm ago';
     if (s < 86400) return Math.floor(s/3600) + 'h ago';
     return Math.floor(s/86400) + 'd ago';
-  }
-  function escapeHtml(value) {
-    return String(value == null ? '' : value).replace(/[&<>"']/g, function(c) {
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
   }
   function fmtTs(ts) {
     if (!ts) return '—';
@@ -897,21 +890,6 @@
   buildGovernanceActions();
   buildEntities(OP.entities  || []);
   buildOperations(OP.evidence || []);
-
-  /* Shared evidence projection used by Investigation Profiles and Discovery. */
-  fetch('/api/ops/emerging-operators/' + encodeURIComponent('canonical:' + OP_ID))
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(d) {
-      var role = d && d.family && d.family.operational_role;
-      var mount = document.getElementById('oi-operational-role');
-      if (!mount) return;
-      if (!role) { mount.style.display = 'none'; return; }
-      var nodes = (role.nodes || []).map(function(n, i) {
-        return (i ? '<span class="oi-role-arrow">→</span>' : '')
-          + '<span class="oi-role-node ' + (n.current ? 'current' : '') + '">' + escapeHtml(n.role) + '</span>';
-      }).join('');
-      mount.innerHTML = '<div class="oi-role-head"><div><div class="vi-eyebrow">Operational Role</div><div class="vi-title">' + escapeHtml(role.current_role || 'Unknown') + '</div></div><span class="ip-badge green">Recorded evidence</span></div><div class="oi-role-chain">' + nodes + '</div><details class="oi-role-details"><summary>Evidence · ' + (role.observation_count || 0) + ' observations</summary><div>' + (role.edges || []).map(function(e) { return '<div>' + escapeHtml(e.from) + ' → ' + escapeHtml(e.to) + ' · ' + e.observation_count + ' observations</div>'; }).join('') + '</div></details>';
-    }).catch(function() { var mount=document.getElementById('oi-operational-role'); if(mount) mount.style.display='none'; });
 
   /* ── Inbox (async) ───────────────────────────────────────────────────────── */
   fetch('/api/ops/inbox/operator-resolution?limit=5')

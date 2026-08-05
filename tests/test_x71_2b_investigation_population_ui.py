@@ -35,9 +35,22 @@ def test_b48_is_an_active_investigation_and_never_an_operation_queue(registry):
 
 def test_named_controls_remain_reconciled(registry):
     _, data = registry
-    assert [(x["family_name"], x["presentation"]["label"]) for x in data["confirmed_operations_reconciled"]] == [
-        ("WATCHTOWER", "Confirmed Operation")
-    ]
+    confirmed = {
+        x["family_name"]: x for x in data["confirmed_operations_reconciled"]
+    }
+    assert confirmed["WATCHTOWER"]["presentation"]["label"] == "Confirmed Operation"
+    assert confirmed["3SW2"]["presentation"]["label"] == "Confirmed Operation"
+    assert confirmed["3SW2"]["launches"] == 13
+    assert confirmed["3SW2"]["source_population_id"] == "family:ebab4a2ecbc1c3a6"
+    assert not any(
+        x["family_name"] == "3SW2 Family"
+        for bucket in (
+            data["active_investigations_reconciled"],
+            data["operator_candidates_reconciled"],
+            data["review_cases_reconciled"],
+        )
+        for x in bucket
+    )
     c7ha = next(x for x in data["review_cases_reconciled"] if x["family_name"] == "C7Ha Family")
     assert c7ha["reconciliation"]["disposition"] == "REVIEW"
 

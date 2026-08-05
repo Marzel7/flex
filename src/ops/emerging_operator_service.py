@@ -413,7 +413,48 @@ class EmergingOperatorService:
             profiles = self._discovery_profiles(ops, tables)
             populations = self._population_builder().build(profiles)
             adapter = self._legacy_adapter(evaluation, proposals)
-            families.extend(adapter.project(population) for population in populations)
+            projected = [adapter.project(population) for population in populations]
+            # A canonical operator and its pre-promotion investigation are one
+            # analyst identity, not two registry cards.  Carry the observed
+            # population metrics onto the canonical record and suppress the
+            # superseded investigation projection.  The canonical tables stay
+            # authoritative for disposition and membership.
+            absorbed: set[str] = set()
+            for canonical in families:
+                canonical_entities = set(canonical.get("member_wallets") or ())
+                canonical_entities.update(canonical.get("treasuries") or ())
+                matches = [
+                    family for family in projected
+                    if canonical_entities.intersection(family.get("member_wallets") or ())
+                ]
+                if not matches:
+                    continue
+                source = max(
+                    matches,
+                    key=lambda family: (
+                        int(family.get("launches") or 0),
+                        int(family.get("last_material_activity_at") or 0),
+                    ),
+                )
+                matched_ids = sorted(str(family["family_id"]) for family in matches)
+                absorbed.update(matched_ids)
+                for key in (
+                    "launches", "observed_launches", "launch_list", "session_count",
+                    "active_sessions", "unique_creators", "last_seen_at",
+                    "last_material_activity_at",
+                ):
+                    canonical[key] = source.get(key)
+                canonical["observation_count"] = source.get("observed_launches") or 0
+                canonical["source_population_id"] = source.get("family_id")
+                canonical["absorbed_family_ids"] = matched_ids
+                canonical["evidence_sources"] = sorted(set(
+                    (canonical.get("evidence_sources") or ())
+                    + (source.get("evidence_sources") or ())
+                ))
+            families.extend(
+                family for family in projected
+                if str(family.get("family_id")) not in absorbed
+            )
         from src.ops.operation_confirmation import apply_confirmation_overlay
         apply_confirmation_overlay(families, self.ops_db_path)
         eligible = sorted(

@@ -42,7 +42,7 @@ def test_every_projected_evidence_item_is_analyst_safe(projection):
 
 
 def test_unresolved_populations_explain_support_gaps_and_readiness(projection):
-    for name in ("3SW2 Family", "B48k / Dv34 Family"):
+    for name in ("B48k / Dv34 Family",):
         value = _metadata(projection, name)
         assert value["disposition"] == "UNRESOLVED"
         assert value["supporting_evidence"]
@@ -57,6 +57,7 @@ def test_unresolved_populations_explain_support_gaps_and_readiness(projection):
 
 def test_named_terminal_dispositions_explain_their_decisions(projection):
     watchtower = _metadata(projection, "WATCHTOWER")
+    three_sw2 = _metadata(projection, "3SW2")
     c7ha = _metadata(projection, "C7Ha Family")
     infrastructure = next(
         value for value in projection[2].values()
@@ -71,6 +72,9 @@ def test_named_terminal_dispositions_explain_their_decisions(projection):
     assert any("MANUAL_PROMOTION" in line for line in watchtower["analyst_explanation"])
     assert watchtower["promotion_readiness"]["blockers"] == []
     assert watchtower["promotion_readiness"]["requirements"] == []
+    assert three_sw2["disposition"] == "CONFIRMED_OPERATION"
+    assert any("MANUAL_PROMOTION" in line for line in three_sw2["analyst_explanation"])
+    assert three_sw2["promotion_readiness"]["blockers"] == []
     assert c7ha["disposition"] == "REVIEW"
     assert c7ha["promotion_readiness"]["state"] == "READY FOR REVIEW"
     assert c7ha["contradictory_evidence"]
@@ -79,7 +83,7 @@ def test_named_terminal_dispositions_explain_their_decisions(projection):
 
 
 def test_missing_evidence_is_only_package_missing_evidence(projection):
-    value = _metadata(projection, "3SW2 Family")
+    value = _metadata(projection, "B48k / Dv34 Family")
     assert len(value["missing_evidence"]) == value["missing_evidence_count"]
     assert all(item["truth_status"] == "UNKNOWN" for item in value["missing_evidence"])
     assert all(item["observation_count"] is None for item in value["missing_evidence"])

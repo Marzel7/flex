@@ -44,6 +44,33 @@ def test_shared_infrastructure_does_not_invent_operator():
     assert role["edges"] == []
 
 
+def test_operational_treasury_rows_require_a_complete_recorded_chain():
+    family = {
+        "family_anchor": "TREASURY", "member_wallets": ["TREASURY"],
+        "client_wallets": ["SUBPROV"], "treasuries": ["TREASURY"],
+        "launch_list": ["MINT"], "reconciliation": {"disposition": "UNRESOLVED"},
+    }
+    infrastructure = {"funding_paths": [
+        {"from": "TREASURY", "to": "SUBPROV", "type": "TREASURY_TO_SUBPROV",
+         "signature": "TREASURY_TX", "transaction_at": 100, "source_mint": "MINT"},
+        {"from": "SUBPROV", "to": "CREATOR", "type": "SUBPROV_TO_CREATOR",
+         "signature": "CREATOR_TX", "transaction_at": 200, "source_mint": "MINT"},
+        {"from": "OTHER", "to": "UNRELATED", "type": "SUBPROV_TO_CREATOR",
+         "signature": "WRONG_TX", "transaction_at": 300, "source_mint": "OTHER_MINT"},
+    ]}
+
+    role = derive_operational_role(family, infrastructure)
+
+    assert role["current_role"] == "Operational Treasury"
+    assert role["related_launch_count"] == 1
+    assert role["observed_relationships"][0]["controller"] == "TREASURY"
+    assert role["observed_relationships"][0]["intermediary"] == "SUBPROV"
+    assert role["observed_relationships"][0]["creator"] == "CREATOR"
+    assert [hop["transaction"] for hop in role["observed_relationships"][0]["funding_hops"]] == [
+        "TREASURY_TX", "CREATOR_TX",
+    ]
+
+
 def test_assembler_finds_edges_by_canonical_launch_membership(tmp_path):
     ops, live = tmp_path / "ops.db", tmp_path / "live.db"
     conn = sqlite3.connect(ops)
@@ -78,12 +105,14 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "d.family.operational_role" in operator
     assert "f.operational_role" in discovery
     assert "Typical observed funding relationships" in profile
-    assert "View all '+esc(role.related_launch_count" in profile
+    assert "View all '+esc(observations.length)" in profile
     assert "https://solscan.io/tx/" in profile
     assert 'rel="noopener noreferrer"' in profile
     assert "Funding Tx " in profile
     assert 'Launch mint ' in profile
     assert '/token-intelligence?mint=' in profile
     assert "Observed while tracing " in profile
-    assert "o.transaction_at?new Date(o.transaction_at*1000)" in profile
+    assert "h.transaction_at?new Date(h.transaction_at*1000)" in profile
+    assert "o.intermediary" in profile
+    assert "o.funding_hops" in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

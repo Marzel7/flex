@@ -97,19 +97,56 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
 
     observations = []
     seen_observations = set()
-    for path in sorted(launch_paths, key=lambda item: item.get("observed_at") or 0, reverse=True):
-        key = (path.get("from"), path.get("to"), path.get("source_mint"), path.get("mechanism"))
-        if key in seen_observations:
-            continue
-        seen_observations.add(key)
-        observations.append({
-            "controller": path.get("from"), "creator": path.get("to"),
-            "launch": path.get("source_mint"),
-            "launch_label": path.get("launch_label") or "Launch",
-            "mechanism": path.get("mechanism"), "observed_at": path.get("observed_at"),
-            "transaction_at": path.get("transaction_at"),
-            "transaction": path.get("signature"),
-        })
+    # An Operational Treasury row must begin at the highlighted treasury.
+    # Join only persisted edges sharing the same launch context; never present
+    # an unrelated downstream creator edge as though the treasury funded it.
+    if current_role == "Operational Treasury":
+        treasury_paths = [
+            path for path in paths
+            if path.get("type") == "TREASURY_TO_SUBPROV" and path.get("from") in anchors
+        ]
+        for treasury_path in treasury_paths:
+            downstream = [
+                path for path in launch_paths
+                if path.get("from") == treasury_path.get("to")
+                and path.get("source_mint") == treasury_path.get("source_mint")
+            ]
+            for creator_path in downstream:
+                observations.append({
+                    "controller": treasury_path.get("from"),
+                    "intermediary": treasury_path.get("to"),
+                    "creator": creator_path.get("to"),
+                    "launch": creator_path.get("source_mint"),
+                    "launch_label": creator_path.get("launch_label") or "Launch",
+                    "mechanism": creator_path.get("mechanism"),
+                    "observed_at": max(treasury_path.get("observed_at") or 0, creator_path.get("observed_at") or 0),
+                    "transaction_at": creator_path.get("transaction_at"),
+                    "transaction": creator_path.get("signature"),
+                    "funding_hops": [
+                        {"from": treasury_path.get("from"), "to": treasury_path.get("to"),
+                         "mechanism": treasury_path.get("mechanism"), "transaction": treasury_path.get("signature"),
+                         "transaction_at": treasury_path.get("transaction_at")},
+                        {"from": creator_path.get("from"), "to": creator_path.get("to"),
+                         "mechanism": creator_path.get("mechanism"), "transaction": creator_path.get("signature"),
+                         "transaction_at": creator_path.get("transaction_at")},
+                    ],
+                })
+        observations.sort(key=lambda item: item.get("transaction_at") or 0, reverse=True)
+    else:
+        display_paths = sorted(launch_paths, key=lambda item: item.get("observed_at") or 0, reverse=True)
+        for path in display_paths:
+            key = (path.get("from"), path.get("to"), path.get("source_mint"), path.get("mechanism"))
+            if key in seen_observations:
+                continue
+            seen_observations.add(key)
+            observations.append({
+                "controller": path.get("from"), "creator": path.get("to"),
+                "launch": path.get("source_mint"),
+                "launch_label": path.get("launch_label") or "Launch",
+                "mechanism": path.get("mechanism"), "observed_at": path.get("observed_at"),
+                "transaction_at": path.get("transaction_at"),
+                "transaction": path.get("signature"),
+            })
 
     return {
         "current_role": current_role,
@@ -118,7 +155,7 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
         "observation_count": sum(edge["observation_count"] for edge in edges),
         "relationship_count": len(edges),
         "observed_relationships": observations,
-        "related_launch_count": int(family.get("launches") or len(family.get("launch_list") or [])),
+        "related_launch_count": len(observations),
         "evidence_backed": bool(edges),
         "source": "Recorded provisioning relationships and canonical launch membership",
     }

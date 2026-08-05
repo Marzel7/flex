@@ -903,15 +903,21 @@ class RealTimeCreatorFundingExtractor:
                 except Exception as e:
                     pass
 
-            cursor.execute("""
-                INSERT OR REPLACE INTO creator_outgoing_transfers
-                (creator_address, recipient_address, amount_sol, transaction_signature, block_time,
-                 recipient_type, is_cex, cex_exchange, cex_type, classification_confidence, first_detected_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (creator, recipient, amount_sol, sig, block_time, recipient_type, is_cex,
-                  exchange_name, wallet_type, classification_confidence))
+            # X73.2 -- see check_create_tx_for_jitotip's own comment: write
+            # section only, serialized against concurrent callers. This
+            # function is called once per transfer inside a loop in
+            # extract_outgoing_transfers, so it's the highest-frequency write
+            # path among the four gathered enrichment functions.
+            with DB_WRITE_LOCK:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_outgoing_transfers
+                    (creator_address, recipient_address, amount_sol, transaction_signature, block_time,
+                     recipient_type, is_cex, cex_exchange, cex_type, classification_confidence, first_detected_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (creator, recipient, amount_sol, sig, block_time, recipient_type, is_cex,
+                      exchange_name, wallet_type, classification_confidence))
 
-            conn.commit()
+                conn.commit()
             conn.close()
         except Exception as e:
             print(f"[FUNDING] ⚠ Error saving outgoing transfer: {e}", flush=True)
@@ -1034,8 +1040,20 @@ class RealTimeCreatorFundingExtractor:
                         recipients[counterparty]["amount"] += amount
                         recipients[counterparty]["count"] += 1
 
-                        # Save to database immediately
-                        self._save_outgoing_transfer(creator, counterparty, amount, sig, block_time)
+                        # Save to database immediately. X73.2 -- dispatched via
+                        # to_thread: _save_outgoing_transfer acquires
+                        # DB_WRITE_LOCK (a synchronous threading.RLock)
+                        # internally, and calling that directly from this
+                        # coroutine's own thread (the event loop thread) would
+                        # block the ENTIRE event loop for as long as another
+                        # thread holds the lock -- including freezing
+                        # asyncio.wait_for's own timeout mechanism in
+                        # whatever awaited this extraction, which needs the
+                        # loop running to fire. to_thread keeps the lock
+                        # acquisition off the event loop thread entirely.
+                        await asyncio.to_thread(
+                            self._save_outgoing_transfer, creator, counterparty, amount, sig, block_time,
+                        )
 
                     max_sigs += 1
 
@@ -1891,7 +1909,19 @@ class RealTimeCreatorFundingExtractor:
                     # Try next RPC on error
                     continue
 
-            # If Jitotip found, tag the creator
+            # If Jitotip found, tag the creator.
+            # X73.2A -- reverted to the pre-X73.2 unlocked form. A to_thread
+            # + DB_WRITE_LOCK version was tried and observed still raising
+            # NestedDatabaseWriteError in sustained testing (SQLite connection
+            # thread-affinity vs. to_thread's executor-pool dispatch is not a
+            # fully understood interaction -- see
+            # docs/audits/x73_2a_shared_extractor_concurrency.md). Restoring
+            # known-good behaviour rather than shipping an unproven partial
+            # fix. This write path can still occasionally race under
+            # concurrent callers (the same limitation it always had); it is
+            # not attribution-critical (Jitotip tagging is metadata
+            # enrichment, not creator_funders population) and failures here
+            # are already caught and logged, never raised to the caller.
             if found_jitotip:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_tags (
@@ -2095,7 +2125,13 @@ class RealTimeCreatorFundingExtractor:
                     debridge_direction = "outbound"
                     print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (outbound): {creator[:16]}... sent {debridge_amount:.6f} SOL to deBridge", flush=True)
 
-            # If deBridge found, tag the creator
+            # If deBridge found, tag the creator.
+            # X73.2A -- reverted to the pre-X73.2 unlocked form (same
+            # unproven-pattern reasoning as check_create_tx_for_jitotip; this
+            # function was never actually exercised in testing, so there is
+            # no evidence either way, but it shares the identical
+            # connection-lifetime shape that failed there). See
+            # docs/audits/x73_2a_shared_extractor_concurrency.md.
             if found_debridge:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_tags (
@@ -2160,7 +2196,10 @@ class RealTimeCreatorFundingExtractor:
                     axiom_direction = "outbound"
                     print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (outbound): {creator[:16]}... sent {axiom_amount:.6f} SOL to Axiom", flush=True)
 
-            # If Axiom found, tag the creator
+            # If Axiom found, tag the creator.
+            # X73.2A -- reverted to the pre-X73.2 unlocked form. Same
+            # unproven-pattern reasoning as check_create_tx_for_jitotip. See
+            # docs/audits/x73_2a_shared_extractor_concurrency.md.
             if found_axiom:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_tags (

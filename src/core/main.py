@@ -25240,6 +25240,22 @@ def api_health_full():
         _fq = _idb.execute(
             "SELECT COUNT(*) FROM creator_funding_queue WHERE status IN ('pending','retry','running','in_progress')"
         ).fetchone()[0]
+        # X73.2 — funding worker health: oldest ready-to-claim row's age (the
+        # real signal for "is the consumer keeping up", not just raw pending
+        # count) plus the standalone worker's own heartbeat.
+        _fq_oldest_row = _idb.execute(
+            "SELECT MIN(COALESCE(next_attempt_at, created_at)) FROM creator_funding_queue "
+            "WHERE status IN ('pending','retry')"
+        ).fetchone()
+        _fq_oldest_age = (now - int(_fq_oldest_row[0])) if _fq_oldest_row and _fq_oldest_row[0] else None
+        _fq_worker_hb = _idb.execute(
+            "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='creator-funding'"
+        ).fetchone()
+        _fq_worker_age = (now - int(_fq_worker_hb[0])) if _fq_worker_hb else None
+        try:
+            _fq_worker_meta = _json.loads(_fq_worker_hb[1]) if _fq_worker_hb and _fq_worker_hb[1] else {}
+        except Exception:
+            _fq_worker_meta = {}
         # Filter on migrated_at (indexed via idx_ta_lifecycle) BEFORE touching
         # earliest_tx_creator/pf_ws_creator. Those two columns aren't covered by
         # any index, so evaluating the COALESCE/TRIM predicate against the full
@@ -25314,12 +25330,31 @@ def api_health_full():
         _crq_eff_denom = _crq_complete + crq_failed + crq_skipped
         crq_efficiency = round(100 * _crq_complete / _crq_eff_denom, 1) if _crq_eff_denom else None
 
+        # X73.2 — funding worker health classification. DEGRADED only if the
+        # consumer is actually stopped (no heartbeat / heartbeat stale beyond
+        # 2 cycles), processing has stalled (heartbeat alive but pending count
+        # hasn't moved), or the oldest ready row exceeds a real staleness
+        # threshold -- NOT the raw pending count, which is expected to be
+        # large and non-zero under normal RPC-bound throughput.
+        _FQ_HEARTBEAT_STALE_SEC = 120     # ~8x the worker's own idle interval
+        _FQ_OLDEST_AGE_ALERT_SEC = 3600   # 1h -- matches the original DEGRADED bar
+        fq_worker_status = "STOPPED"
+        if _fq_worker_hb is not None:
+            if _fq_worker_age is not None and _fq_worker_age <= _FQ_HEARTBEAT_STALE_SEC:
+                fq_worker_status = "RUNNING"
+            else:
+                fq_worker_status = "STALLED"
+
         int_status = "HEALTHY"
         if crq_failed > 5:
             int_status = "DEGRADED"
         elif wp_age is not None and wp_age > wp_interval * 2:
             int_status = "DEGRADED"
         elif cp_age is not None and cp_age > 120:
+            int_status = "DEGRADED"
+        elif fq_worker_status != "RUNNING" and int(_fq) > 0:
+            int_status = "DEGRADED"
+        elif _fq_oldest_age is not None and _fq_oldest_age > _FQ_OLDEST_AGE_ALERT_SEC:
             int_status = "DEGRADED"
 
         intelligence = {
@@ -25335,6 +25370,10 @@ def api_health_full():
             "crq_avg_pages":                round(float(_crq_pg_avg), 1) if _crq_pg_avg else None,
             "crq_max_pages":                int(_crq_pg_max) if _crq_pg_max else None,
             "funding_queue_pending":        int(_fq),
+            "funding_worker_status":        fq_worker_status,
+            "funding_worker_heartbeat_age_secs": _fq_worker_age,
+            "funding_worker_meta":          _fq_worker_meta,
+            "funding_queue_oldest_pending_age_secs": _fq_oldest_age,
             "crq_worker_age_secs":          cp_age,
             "crq_worker_meta":              cp_meta,
             "missing_creators_1h":          int(_miss),

@@ -12,7 +12,14 @@ export LISTENER_PRICE_WORKER_ENABLED=0
 # These jobs can synchronously wait on SQLite locks and starve the asyncio loop before sockets connect.
 export LISTENER_CREATOR_ACTIVITY_ENABLED=0
 export LISTENER_LIVE_PRICE_UPDATER_ENABLED=0
+# X73.2 — permanently 0, not a temporary park. creator_funding_queue's sole
+# canonical consumer is now the standalone src.core.creator_funding_worker
+# supervisord process (see config/supervisor/supervisord.conf). Re-enabling
+# this would start a second, redundant in-listener consumer racing the
+# standalone worker for the same rows. Do not re-enable.
 export LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0
+# creator_resolution_queue's sole canonical consumer is the standalone
+# src.core.creator_resolution_worker supervisord process — same reasoning.
 export LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0
 export LISTENER_DB_MAINTENANCE_ENABLED=0
 export LISTENER_MIGRATION_RECONCILER_ENABLED=1

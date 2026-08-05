@@ -1,19 +1,35 @@
 #!/usr/bin/env python3
 """
-One-shot creator funding queue worker.
+DEPRECATED (X73.2) — one-shot creator funding queue worker.
+
+This script was documented as a cron-scheduled fallback consumer for
+creator_funding_queue but its crontab entry was never installed, leaving
+the queue with zero active consumers for ~5.5 weeks (X73.1 audit finding).
+
+Replaced by the standalone src.core.creator_funding_worker daemon
+(supervisord [program:creator_funding_worker], autostart=true), which is
+now the SOLE canonical consumer of creator_funding_queue. Do NOT install
+the cron entry below -- doing so would reintroduce a second, redundant
+consumer racing the standalone worker for the same rows via the same
+claim-by-status-transition mechanism (locked_until/status='running'), which
+is race-safe against concurrent claimants but architecturally undoes the
+"exactly one consumer" goal this replacement establishes.
+
+This script's own claim/retry/fail primitives were the starting point for
+creator_funding_worker.py's implementation. Left in place, unscheduled, for
+reference and manual one-off debugging only (e.g. `--jobs 1` to hand-process
+a single row while investigating a specific failure) -- never as a
+production consumer path.
 
 Runs outside the listener. Claims 1 pending job, processes it, marks
-complete/retry/failed. Safe to run as a cron job every 10 minutes.
+complete/retry/failed.
 
 Never touches pumpfun_curve_listener.py.
 Never acquires TrackedConnection or _DB_WRITE_LOCK.
 Uses raw sqlite3.connect with WAL + short timeout for all queue operations.
 
-Usage:
+Usage (manual/debugging only):
     python3 scripts/run_creator_funding_queue_once.py [--jobs N]
-
-Cron (1 job per 10 min):
-    */10 * * * * cd /path/to/flex && python3 scripts/run_creator_funding_queue_once.py >> logs/creator_funding_worker.log 2>&1
 """
 
 import argparse

@@ -1174,9 +1174,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print("[STARTUP] Skipping creator resolution queue due to LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0", flush=True)
         if __import__('os').environ.get("LISTENER_CREATOR_FUNDING_QUEUE_ENABLED", "1") != "0":
             asyncio.create_task(self._process_creator_funding_queue_periodic())
-            log_print("[STARTUP] Creator funding queue enabled", flush=True)
+            log_print("[STARTUP] Creator funding queue enabled (in-listener loop — "
+                      "DEPRECATED as of X73.2, standalone creator_funding_worker is canonical)", flush=True)
         else:
-            log_print("[STARTUP] Skipping creator funding queue due to LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0", flush=True)
+            log_print("[STARTUP] Creator funding queue in-listener loop disabled "
+                      "(LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0 — correct as of X73.2: "
+                      "the standalone creator_funding_worker supervisord process is now "
+                      "the sole canonical consumer)", flush=True)
         # DISABLED: _periodic_cluster_rebuild reprocessed ~3000 creators every 10min (O(n) funding
         # walk + heavy super_clusters rewrite) — the listener's 113% CPU hog and a major live-db
         # write/lock-storm source. It's network-ANALYSIS, not needed for launch detection; the
@@ -4880,7 +4884,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
         return
 
     async def _process_creator_funding_queue_periodic(self) -> None:
-        """Process durable creator funding work after the critical window."""
+        """DEPRECATED (X73.2) — process durable creator funding work after the
+        critical window.
+
+        Replaced by the standalone src.core.creator_funding_worker daemon
+        (supervisord [program:creator_funding_worker], autostart=true), which
+        is now the sole canonical consumer of creator_funding_queue. This
+        in-listener loop is gated off via LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0
+        in run_listener.sh -- do NOT re-enable it; doing so would reintroduce
+        a second, redundant consumer racing the standalone worker for the
+        same rows. Left in place (not deleted) only so the env-var kill
+        switch remains meaningful and reversible if the standalone worker
+        needs to be rolled back.
+        """
         await asyncio.sleep(2)
         last_idle_log_at = 0
         while True:

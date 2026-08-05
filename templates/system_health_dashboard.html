@@ -523,7 +523,7 @@
                 _wtPill('Cascade',      ci.status,   ci.subs_total != null ? `${ci.subs_total} subs · hb ${_fmtAge(ci.heartbeat_age_secs)}` : null),
                 _wtPill('Database',     db.status,   db.p99_wait_ms != null ? `p99 ${Math.round(db.p99_wait_ms)}ms` : null),
                 _wtPill('API',          api.status,  api.gunicorn_alive === false ? 'gunicorn dead' : null),
-                _wtPill('Intelligence', intel.status, intel.creator_queue_pending != null ? `CRQ ${intel.creator_queue_pending} · FQ ${intel.funding_queue_pending}` : null),
+                _wtPill('Intelligence', intel.status, intel.creator_queue_pending != null ? `CRQ ${intel.creator_queue_pending} · FW ${intel.funding_worker_status||'?'}` : null),
             ];
             const el = document.getElementById('wt-subsystem-pills');
             if (el) el.innerHTML = pills.join('');
@@ -760,14 +760,30 @@
 
             const crqFailed = intel.creator_queue_failed ?? 0;
             const fqPending = intel.funding_queue_pending ?? 0;
+            const fqWorkerStatus = intel.funding_worker_status || 'UNKNOWN';
+            const fqOldestAge = intel.funding_queue_oldest_pending_age_secs;
             const warningMsgs = [];
             const criticalMsgs = [];
-            // Defer to the backend's own subsystem classification as the primary
-            // signal (it already weighs funding-queue backlog, watch-pipeline
-            // staleness, etc.) -- this UI only needs to explain WHY, not
-            // re-derive the verdict from raw counters.
-            if (intel.status && _wtColor(intel.status) === 'critical') criticalMsgs.push(`Intelligence ${intel.status}`);
-            else if (intel.status && _wtColor(intel.status) === 'warning') warningMsgs.push(`Intelligence ${intel.status}: ${fqPending.toLocaleString()} funding-queue pending`);
+            // X73.2 — the funding queue's own reason for DEGRADED is now
+            // specific (worker stopped/stalled, or oldest row too old) rather
+            // than "N pending", which is expected to be large under normal
+            // RPC-bound throughput and was never itself the DEGRADED trigger.
+            if (fqWorkerStatus === 'STOPPED' && fqPending > 0) {
+                criticalMsgs.push(`Funding worker STOPPED — ${fqPending.toLocaleString()} pending, nothing draining`);
+            } else if (fqWorkerStatus === 'STALLED') {
+                warningMsgs.push(`Funding worker heartbeat stale (${_fmtAge(intel.funding_worker_heartbeat_age_secs)})`);
+            } else if (fqOldestAge != null && fqOldestAge > 3600) {
+                warningMsgs.push(`Funding queue oldest pending row is ${_fmtAge(fqOldestAge)}`);
+            }
+            // Defer to the backend's own subsystem classification for anything
+            // else it catches (watch-pipeline staleness, candidate-processor
+            // staleness) that isn't already explained by the funding-worker
+            // checks above.
+            if (intel.status && _wtColor(intel.status) === 'critical' && !criticalMsgs.length && !warningMsgs.length) {
+                criticalMsgs.push(`Intelligence ${intel.status}`);
+            } else if (intel.status && _wtColor(intel.status) === 'warning' && !criticalMsgs.length && !warningMsgs.length) {
+                warningMsgs.push(`Intelligence ${intel.status}`);
+            }
             if (crqFailed > 0) warningMsgs.push(`${crqFailed} creator-resolution failures`);
             const eo = snapHealth?.emerging_operators;
             if (eo) {
@@ -790,7 +806,13 @@
             else if (warningMsgs.length) color = 'warning';
 
             mcSetGroupStatus('grp-intelligence', color,
-                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Snapshot ${eo ? (eo.state || eo.health) : '—'}`);
+                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Snapshot ${eo ? (eo.state || eo.health) : '—'}`);
+
+            const fqWorkerColor = fqWorkerStatus === 'RUNNING' ? 'healthy' : fqWorkerStatus === 'STALLED' ? 'warning' : fqWorkerStatus === 'STOPPED' ? 'critical' : 'neutral';
+            const fqMeta = intel.funding_worker_meta || {};
+            const fqProcessingRate = fqMeta.total_completed && fqMeta.uptime_s
+                ? (fqMeta.total_completed / (fqMeta.uptime_s / 60)).toFixed(1) + '/min'
+                : '—';
 
             document.getElementById('grp-intelligence-body').innerHTML = `
                 <div class="mc-kpi-row">
@@ -815,6 +837,17 @@
                         ${[...criticalMsgs, ...warningMsgs].map(m => `<div style="margin-bottom:0.25rem;">• ${m}</div>`).join('')}
                     </div>
                 </div>` : ''}
+
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title"><i class="fas fa-money-bill-transfer"></i> Funding Worker</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;align-items:center;">
+                        <span>${pillHtml(fqWorkerColor, fqWorkerStatus)}</span>
+                        <span>Queue Depth <b>${fqPending.toLocaleString()}</b></span>
+                        <span>Oldest Item <b>${fqOldestAge != null ? _fmtAge(fqOldestAge) : '—'}</b></span>
+                        <span>Processing Rate <b>${fqProcessingRate}</b></span>
+                        <span>Last Cycle <b>${fqMeta.last_cycle_at ? _fmtAge(Math.floor(Date.now()/1000) - fqMeta.last_cycle_at) : '—'}</b></span>
+                    </div>
+                </div>
 
                 <div class="mc-subpanel">
                     <div class="mc-subpanel-title"><i class="fas fa-camera"></i> Intelligence Snapshots (Phase 5)</div>

@@ -10,6 +10,36 @@
 .dw-hero { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:16px; }
 .dw-title { font-size:20px; font-weight:760; color:var(--ip-text); letter-spacing:-.02em; }
 .dw-sub { color:var(--ip-sec); font-size:11.5px; line-height:1.55; margin-top:5px; max-width:650px; }
+/* X76.4 -- WATCHTOWER Recovery Diagnostics: compact, near-top panel.
+   Explains where the recovery pipeline stops instead of only showing a
+   raw launch count. Read-only, diagnostics only -- see
+   src/ops/watchtower_recovery_diagnostics.py. */
+.dw-diag { background:var(--ip-card); border:1px solid var(--ip-border); border-radius:8px; padding:12px 14px; margin-bottom:14px; }
+.dw-diag-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.dw-diag-title { font-size:11px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:var(--ip-sec); }
+.dw-diag-explain { font-size:12px; color:var(--ip-text); line-height:1.5; margin-bottom:10px; }
+.dw-diag-explain b { color:var(--ip-cyan); font-weight:700; }
+.dw-diag-pipeline { display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-bottom:10px; font-size:10px; }
+.dw-diag-stage { display:flex; flex-direction:column; align-items:center; padding:5px 8px; border-radius:6px; border:1px solid var(--ip-border2); min-width:64px; text-decoration:none; }
+.dw-diag-stage:hover { border-color:rgba(34,211,238,.4); }
+.dw-diag-stage-v { font-size:14px; font-weight:800; color:var(--ip-text); font-variant-numeric:tabular-nums; }
+.dw-diag-stage-v.zero { color:var(--ip-red); }
+.dw-diag-stage-l { font-size:8px; color:var(--ip-dim); text-transform:uppercase; letter-spacing:.02em; text-align:center; margin-top:2px; max-width:80px; }
+.dw-diag-arrow { color:var(--ip-border2); font-size:12px; }
+.dw-diag-bottleneck { font-size:10.5px; padding:5px 9px; border-radius:6px; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); color:#f59e0b; display:inline-block; margin-bottom:10px; }
+.dw-diag-bottleneck.none { background:rgba(63,185,80,.1); border-color:rgba(63,185,80,.3); color:var(--ip-green); }
+.dw-diag-rotation { font-size:10.5px; padding:5px 9px; border-radius:6px; background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.3); color:var(--ip-purple); display:inline-block; margin-bottom:10px; margin-left:6px; }
+.dw-diag-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:8px; }
+.dw-diag-col-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ip-dim); margin-bottom:5px; }
+.dw-diag-row { display:flex; justify-content:space-between; font-size:10.5px; padding:2px 0; }
+.dw-diag-row-l { color:var(--ip-sec); }
+.dw-diag-row-v { color:var(--ip-text); font-weight:700; }
+.dw-diag-status { font-size:9px; font-weight:700; padding:1px 6px; border-radius:4px; }
+.dw-diag-status.recovered { background:rgba(63,185,80,.12); color:var(--ip-green); }
+.dw-diag-status.missing { background:rgba(148,163,184,.12); color:var(--ip-sec); }
+.dw-diag-link { color:var(--ip-cyan); text-decoration:none; font-size:10px; }
+.dw-diag-link:hover { text-decoration:underline; }
+@media(max-width:780px) { .dw-diag-grid{grid-template-columns:1fr} }
 .dw-search { display:flex; gap:7px; margin:15px 0 18px; position:relative; }
 .dw-search input { flex:1; background:var(--ip-card); border:1px solid var(--ip-border); border-radius:6px; padding:10px 12px; color:var(--ip-text); font:11px ui-monospace,monospace; outline:none; }
 .dw-search input:focus { border-color:rgba(34,211,238,.45); }
@@ -678,6 +708,11 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     <div><div class="dw-title">Discovery</div><div class="x19-question">How was this established?</div><div class="dw-sub">Follow the recorded attribution path without duplicating the Entity or Operator conclusion.</div></div>
     <span class="dw-state" id="dw-overall-state" style="display:none"></span>
   </div>
+  <!-- X76.4 -- WATCHTOWER Recovery Diagnostics: explains where the
+       recovery pipeline stops instead of only reporting a raw launch
+       count. Read-only, diagnostics only -- never changes Discovery,
+       Walkback, Treasury Review, or Identity decisions. -->
+  <div class="dw-diag" id="dw-diag" style="display:none"></div>
   <div class="dw-search">
     <input id="dw-query" value="{{ entity_id }}" placeholder="Search token, creator, treasury, sub-provisioner, transaction or operator…" autocomplete="off" spellcheck="false">
     <button id="dw-search-btn" type="button">Search</button>
@@ -4432,6 +4467,52 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'<span>Open →</span></a>';
   }
 
+  // X76.4 -- WATCHTOWER Recovery Diagnostics. Independent mount, same
+  // pattern as loadOperationConvergence below: fetches once, writes its
+  // own panel, never blocks or is blocked by anything else on the page.
+  function diagStageEl(s){
+    var v=s.count;
+    return '<a class="dw-diag-stage" href="'+esc(s.href||'#')+'"><span class="dw-diag-stage-v'+(v===0?' zero':'')+'">'+esc(v)+'</span><span class="dw-diag-stage-l">'+esc(s.label)+'</span></a>';
+  }
+  function diagQualityRow(m){
+    var cls=m.status==='Recovered'?'recovered':'missing';
+    return '<div class="dw-diag-row"><span class="dw-diag-row-l">'+esc(m.label)+'</span><span class="dw-diag-status '+cls+'">'+esc(m.status)+'</span></div>';
+  }
+  function loadWatchtowerRecoveryDiagnostics(){
+    fetch('/api/discovery/watchtower-recovery-diagnostics').then(function(r){return r.json()}).then(function(d){
+      var mount=$('dw-diag');
+      if(!mount)return;
+      if(!d||!d.ok){mount.style.display='none';return}
+      mount.style.display='block';
+      var pipeline=(d.pipeline_status||[]).map(diagStageEl).join('<span class="dw-diag-arrow">→</span>');
+      var bottleneckNone=d.bottleneck&&d.bottleneck.stage==='none';
+      var bottleneckHtml='<span class="dw-diag-bottleneck'+(bottleneckNone?' none':'')+'">'+(bottleneckNone?'No bottleneck — pipeline progressing':'Bottleneck: '+esc(d.bottleneck?d.bottleneck.reason:''))+'</span>';
+      var rotationHtml=(d.rotation&&d.rotation.possible_rotation)?'<span class="dw-diag-rotation">⟳ Possible Treasury Rotation ('+esc(d.rotation.unknown_treasury_count)+' unknown treasur'+(d.rotation.unknown_treasury_count===1?'y':'ies')+')</span>':'';
+      var tr=d.treasury_review||{}, ie=d.identity_expansion||{};
+      mount.innerHTML=
+        '<div class="dw-diag-head"><span class="dw-diag-title">'+esc(d.operator_display_name||'WATCHTOWER')+' Recovery Diagnostics</span><a class="dw-diag-link" href="/discovery">Refresh</a></div>'
+        +'<div class="dw-diag-explain">'+esc(d.explanation||'')+'</div>'
+        +'<div class="dw-diag-pipeline">'+pipeline+'</div>'
+        +bottleneckHtml+rotationHtml
+        +'<div class="dw-diag-grid">'
+          +'<div><div class="dw-diag-col-title">Match Quality</div>'+(d.match_quality||[]).map(diagQualityRow).join('')+'</div>'
+          +'<div><div class="dw-diag-col-title">Treasury Review</div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Pending WATCHTOWER</span><span class="dw-diag-row-v">'+esc(tr.pending_watchtower_expansions||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Approved (window)</span><span class="dw-diag-row-v">'+esc(tr.approved_this_window||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Rejected (window)</span><span class="dw-diag-row-v">'+esc(tr.rejected_this_window||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Dismissed (window)</span><span class="dw-diag-row-v">'+esc(tr.dismissed_this_window||0)+'</span></div>'
+            +'<a class="dw-diag-link" href="'+esc(tr.href||'/intelligence/treasury-review')+'">Open Treasury Review →</a></div>'
+          +'<div><div class="dw-diag-col-title">Identity Expansion</div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Confirmed treasuries</span><span class="dw-diag-row-v">'+esc(ie.confirmed_treasuries_total||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">New (window)</span><span class="dw-diag-row-v">'+esc(ie.confirmed_new_this_window||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Operator expansions</span><span class="dw-diag-row-v">'+esc(ie.operator_expansions_this_window||0)+'</span></div>'
+            +'<a class="dw-diag-link" href="'+esc(ie.href||'#')+'">Open Operator →</a></div>'
+        +'</div>';
+    }).catch(function(){
+      var mount=$('dw-diag');
+      if(mount)mount.style.display='none';
+    });
+  }
   function loadOperationConvergence(){
     fetch('/api/discovery/convergence').then(function(r){return r.json()}).then(function(d){
       var mount=$('dw-convergence-mount');
@@ -4548,6 +4629,9 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     loadLandingIntel();
     // X75.0 — same independent-mount pattern as loadLandingIntel above.
     loadOperationConvergence();
+    // X76.4 — same independent-mount pattern; explains where the
+    // WATCHTOWER recovery pipeline stops instead of only showing a count.
+    loadWatchtowerRecoveryDiagnostics();
   }
   function search(){var q=$('dw-query').value.trim();if(!q)return;fetch('/api/discovery/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){var box=$('dw-results'),rows=d.results||[];if(rows.length===1){location.href=href(rows[0].id,rows[0].type);return}box.innerHTML=rows.map(function(x){return '<a class="dw-result" href="'+href(x.id,x.type)+'"><span class="dw-result-type">'+esc(x.label||x.type)+'</span><span class="dw-result-id">'+esc(x.id)+'</span><span class="dw-result-view">View Discovery →</span></a>'}).join('')||'<div style="padding:11px;color:var(--ip-dim);font-size:10px">No existing evidence found.</div>';box.style.display='block'})}
   $('dw-search-btn').addEventListener('click',search);$('dw-query').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();search()}});document.addEventListener('click',function(e){if(!e.target.closest('.dw-search'))$('dw-results').style.display='none'});

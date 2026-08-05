@@ -30,3 +30,28 @@ def register_discovery_routes(app: object) -> None:
     @app.route("/api/discovery/recent")  # type: ignore[attr-defined]
     def discovery_recent():
         return jsonify(service.recent(request.args.get("limit", 20)))
+
+    @app.route("/api/discovery/watchtower-recovery-diagnostics")  # type: ignore[attr-defined]
+    def discovery_watchtower_recovery_diagnostics():
+        """X76.4 -- read-only re-projection of the WATCHTOWER recovery
+        pipeline (build_watchtower_funnel + operation_convergence +
+        treasury_review_workspace + operator identity tables). Explains
+        WHERE the pipeline stops for a recent window instead of only
+        reporting a launch count. Writes nothing; overrides no decision."""
+        import os
+
+        from src.ops.watchtower_recovery_diagnostics import build_recovery_diagnostics
+
+        core_db_path = os.environ.get(
+            "DB_PATH",
+            os.path.join(os.path.dirname(__file__), "../../database/flex_complete_database.db"),
+        )
+        ops_db_path = os.environ.get(
+            "WT_OPS_DB_PATH",
+            os.path.join(os.path.dirname(__file__), "../../database/wt_ops_v2.db"),
+        )
+        try:
+            hours = max(1, min(int(request.args.get("hours", 72)), 720))
+        except (TypeError, ValueError):
+            hours = 72
+        return jsonify(build_recovery_diagnostics(ops_db_path, core_db_path, window_seconds=hours * 3600))

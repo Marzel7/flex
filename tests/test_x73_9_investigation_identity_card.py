@@ -21,11 +21,20 @@ def test_summary_has_one_compact_population_identity_card():
 def test_identity_card_contains_only_identity_and_compact_counts():
     page = source()
     identity = page.split("identityCard=", 1)[1].split(";", 1)[0]
-    metrics = page.split("identityMetrics=", 1)[1].split(";", 1)[0]
+    metrics = page.split("identityMetricRows=", 1)[1].split(",identityMetrics=", 1)[0]
     for label in ("Launches", "Creators", "Provisioning Clients", "Treasury"):
         assert label in metrics
     assert "<p>" not in identity
     assert "explanation" not in identity.lower()
+
+
+def test_infrastructure_separates_owned_identity_from_connected_treasuries():
+    page = source()
+    assert "Connected Treasury Context" in page
+    assert "Connected Treasuries" in page
+    assert "not treasuries owned by" in page
+    assert "Connected upstream treasury" in page
+    assert "Infrastructure Wallets" in page
 
 
 def test_supported_identity_types_are_derived_from_existing_profile_data():
@@ -64,7 +73,7 @@ def test_summary_is_limited_to_identity_state_reason_and_next_evidence():
     assert "Missing evidence" in summary
     for duplicate in ("Current operator", "Parent investigation", "Child identities", "Actions"):
         assert duplicate not in summary
-    assert "relationships+'<div" in page
+    assert "directRelationships+structuralMembership" in page
 
 
 def test_promotion_workflow_remains_gated_and_outside_summary():

@@ -54,6 +54,11 @@ class OperatorReader:
                         (operator_id,),
                     ).fetchall()
                 ]
+                from src.ops.operator_identity_governance import read_identity_lifecycle
+                op["identity_lifecycle"] = read_identity_lifecycle(self._path, operator_id)
+                if op["identity_lifecycle"]:
+                    op["identity_status"] = op["identity_lifecycle"]["identity_status"]
+                    op["activity_status"] = op["identity_lifecycle"]["activity_status"]
                 return op
         except (sqlite3.Error, OSError, json.JSONDecodeError):
             return None
@@ -66,7 +71,16 @@ class OperatorReader:
                     f"SELECT * FROM operators {where} ORDER BY updated_at DESC LIMIT ?",
                     (limit,),
                 ).fetchall()
-                return [dict(row) for row in rows]
+                result = []
+                from src.ops.operator_identity_governance import read_identity_lifecycle
+                for row in rows:
+                    value = dict(row)
+                    lifecycle = read_identity_lifecycle(self._path, value["operator_id"])
+                    value["identity_status"] = lifecycle.get("identity_status", value.get("status"))
+                    value["activity_status"] = lifecycle.get("activity_status", "ACTIVE")
+                    value["merged_into_operator_id"] = lifecycle.get("merged_into_operator_id")
+                    result.append(value)
+                return result
         except (sqlite3.Error, OSError):
             return []
 
@@ -88,7 +102,8 @@ class OperatorReader:
         empty = {
             "total": 0, "candidates": 0, "review_candidates": 0,
             "provisional": 0, "confirmed": 0, "rejected": 0,
-            "review_pending": 0,
+            "review_pending": 0, "merged": 0, "split": 0, "retired": 0,
+            "active": 0, "quiet": 0, "dormant": 0, "reactivated": 0,
         }
         try:
             with self._connect() as conn:
@@ -99,12 +114,23 @@ class OperatorReader:
                     "SUM(CASE WHEN status='PROVISIONAL' THEN 1 ELSE 0 END) AS provisional,"
                     "SUM(CASE WHEN status='CONFIRMED' THEN 1 ELSE 0 END) AS confirmed,"
                     "SUM(CASE WHEN status='REJECTED' THEN 1 ELSE 0 END) AS rejected,"
-                    "SUM(CASE WHEN status IN ('MERGE_REVIEW','SPLIT_REVIEW') THEN 1 ELSE 0 END) AS review_pending "
+                    "SUM(CASE WHEN status IN ('REVIEW','MERGE_REVIEW','SPLIT_REVIEW') THEN 1 ELSE 0 END) AS review_pending "
                     "FROM operators"
                 ).fetchone()
                 if not row:
                     return empty
-                return {key: (value or 0) for key, value in dict(row).items()}
+                result = {**empty, **{key: (value or 0) for key, value in dict(row).items()}}
+                tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if "operator_identity_state" in tables:
+                    lifecycle = conn.execute(
+                        "SELECT "
+                        "SUM(identity_status='MERGED') merged,SUM(identity_status='SPLIT') split,"
+                        "SUM(identity_status='RETIRED') retired,SUM(activity_status='ACTIVE') active,"
+                        "SUM(activity_status='QUIET') quiet,SUM(activity_status='DORMANT') dormant,"
+                        "SUM(activity_status='REACTIVATED') reactivated "
+                        "FROM operator_identity_state"
+                    ).fetchone()
+                    result.update({key: (value or 0) for key, value in dict(lifecycle).items()})
+                return result
         except (sqlite3.Error, OSError):
             return empty
-

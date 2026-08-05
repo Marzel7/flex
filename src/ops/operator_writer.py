@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from src.core.database_write_service import database_write_service, execute_script
 from src.ops.operator_model import DDL
+from src.ops.operator_identity_governance import DDL as IDENTITY_LIFECYCLE_DDL
 
 
 class OperatorWriter:
@@ -22,9 +23,11 @@ class OperatorWriter:
 
     def initialize_schema(self) -> None:
         """Explicit startup/migration operation; never called by readers."""
-        self.transaction("operator-schema-upgrade", lambda conn: execute_script(conn, DDL))
+        self.transaction(
+            "operator-schema-upgrade",
+            lambda conn: execute_script(conn, DDL + IDENTITY_LIFECYCLE_DDL),
+        )
 
 
 def initialize_operator_schema(db_path: str, *, write_service: Any = None) -> None:
     OperatorWriter(db_path, write_service=write_service).initialize_schema()
-

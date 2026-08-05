@@ -61,10 +61,11 @@ class PromotionService:
         self._write_service.register_database(self._write_database, ops_db_path)
 
     def ensure_schema(self) -> None:
+        from src.ops.operator_identity_governance import DDL as identity_lifecycle_ddl
         self._write_service.submit(
             self._write_database,
             "operator-schema-upgrade",
-            lambda conn: execute_script(conn, DDL),
+            lambda conn: execute_script(conn, DDL + identity_lifecycle_ddl),
         )
 
     def _current(self) -> tuple[IdentityEvaluation, tuple[Any, ...]]:
@@ -303,6 +304,29 @@ class PromotionService:
             conn.execute(
                 "INSERT INTO operator_reviews(review_id,operator_id,decision,reviewer,timestamp,reason) VALUES(?,?,?,?,?,?)",
                 (canonical_review_id, operator_id, "CONFIRMED", reviewer, now, reason),
+            )
+            confirmation_event_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"operator-confirmed:{operator_id}"))
+            population_revision = str(snapshot.get("population_revision_id") or proposal.identity_fingerprint)
+            evidence_package = str(snapshot.get("reconciliation_package_id") or proposal.proposal_fingerprint)
+            conn.execute(
+                "INSERT INTO operator_identity_state "
+                "(operator_id,identity_status,activity_status,source_population_id,"
+                "source_population_revision,confirmation_evidence_package,"
+                "disposition_at_confirmation,updated_at) VALUES(?,?,?,?,?,?,?,?)",
+                (operator_id, "CONFIRMED", "ACTIVE", proposal.candidate_key,
+                 population_revision, evidence_package, "OPERATOR_CANDIDATE", now),
+            )
+            conn.execute(
+                "INSERT INTO operator_identity_events "
+                "(event_id,operator_id,event_type,timestamp,analyst,evidence_revision,reason,payload_json) "
+                "VALUES(?,?,?,?,?,?,?,?)",
+                (confirmation_event_id, operator_id, "CONFIRMED", now, reviewer,
+                 population_revision, reason, _canonical_json({
+                     "population_revision": population_revision,
+                     "evidence_package": evidence_package,
+                     "disposition": "OPERATOR_CANDIDATE",
+                     "proposal_id": proposal.proposal_id,
+                 })),
             )
             mark_phase("table-write-group-started:operator_promotion_reviews")
             self._insert_ledger(conn, review_id, proposal, "APPROVE", reviewer, now,

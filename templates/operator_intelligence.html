@@ -342,6 +342,11 @@
 .oi-sim-id     { font-size: 10.5px; font-weight: 700; color: var(--ip-cyan); font-family: ui-monospace,monospace; }
 .oi-sim-reason { font-size: 9.5px; color: var(--ip-sec); margin-top: 3px; line-height: 1.3; }
 .oi-sim-diff   { font-size: 9px; color: var(--ip-dim); margin-top: 2px; font-style: italic; }
+.oi-governance { margin:12px 0 16px; padding:14px 16px; border:1px solid var(--ip-border2); border-left:3px solid var(--ip-cyan); background:var(--ip-card); }
+.oi-gov-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.oi-gov-states { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 10px; }
+.oi-gov-actions { display:flex; gap:7px; flex-wrap:wrap; }
+.oi-gov-note { font-size:10px; color:var(--ip-dim); line-height:1.45; margin-top:8px; }
 {% endblock %}
 
 {% block content %}
@@ -375,6 +380,18 @@
       </div>
     </div>
 
+    {% set lifecycle = operator.identity_lifecycle or {} %}
+    <section class="oi-governance" id="oi-governance">
+      <div class="oi-gov-head"><div><div class="vi-eyebrow">Quick Actions · canonical identity governance</div><div class="vi-title">Operation Identity</div></div><a href="#oi-identity-timeline" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;">Permanent history ↓</a></div>
+      <div class="oi-gov-states">
+        <span>Identity Status <span class="ip-badge {% if operator.identity_status == 'CONFIRMED' %}green{% elif operator.identity_status == 'REVIEW' %}amber{% else %}dim{% endif %}" id="oi-identity-status">{{ operator.identity_status or operator.status }}</span></span>
+        <span>Operational Activity <span class="ip-badge {% if operator.activity_status in ('ACTIVE','REACTIVATED') %}green{% elif operator.activity_status == 'DORMANT' %}amber{% else %}dim{% endif %}" id="oi-activity-status">{{ operator.activity_status or 'ACTIVE' }}</span></span>
+      </div>
+      <div class="oi-gov-actions" id="oi-governance-actions"></div>
+      <div class="oi-gov-note">Infrastructure belongs to this identity; infrastructure changes do not create a new Operation. Every governance action requires an analyst, evidence revision and reason and appends immutable history.</div>
+      <div id="oi-governance-msg" class="oi-gov-note"></div>
+    </section>
+
     <div class="vi-grid" style="margin:12px 0 16px;">
       <section class="vi-card confirmed"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Current situation</div><div class="vi-title">Situation</div></div><span class="vi-status confirmed" style="margin-left:auto">Confirmed</span></div><div class="vi-title" id="oi-current-headline">Identity confirmed; current observations are loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-observation-count">—</div><div class="vi-metric-label">Observations</div></div></div><div id="oi-observation-lifecycle" class="x19-answer-meta">Checking current observation coverage…</div></section>
       <section class="vi-card historical"><span class="x19-time-section historical" hidden></span><div class="vi-card-head"><span class="vi-icon">≈</span><div><div class="vi-eyebrow">Historical · Behaviour summary</div><div class="vi-title">Behaviour</div></div><span id="oi-beh-conf" style="margin-left:auto"></span></div><div class="vi-title" id="oi-behaviour-headline">Historical behaviour is loading.</div><div class="vi-confidence"><span>Confidence</span><span class="vi-confidence-track"><span class="vi-confidence-fill" id="oi-beh-confidence-bar"></span></span><span id="oi-behaviour-observations">— obs</span></div></section>
@@ -406,7 +423,7 @@
       <summary><span class="level">Level 3</span> Evidence, history and engineering detail</summary>
       <div class="x19-disclosure-body x19-section-stack">
         <section><div class="ip-section-hdr"><span class="ip-section-label">Evidence</span><span class="ip-section-line"></span><span id="oi-ev-count"></span></div><div id="oi-evidence-body"><div class="ip-loading">Loading…</div></div></section>
-        <section><div class="ip-section-hdr"><span class="ip-section-label">Timeline</span><span class="ip-section-line"></span></div><div id="oi-timeline-body" class="x19-timeline oi-timeline"><div class="ip-loading">Loading…</div></div></section>
+        <section id="oi-identity-timeline"><div class="ip-section-hdr"><span class="ip-section-label">Permanent Identity Timeline</span><span class="ip-section-line"></span></div><div id="oi-timeline-body" class="x19-timeline oi-timeline"><div class="ip-loading">Loading…</div></div></section>
         <section><div class="ip-section-hdr"><span class="ip-section-label">Review History</span><span class="ip-section-line"></span></div><div id="oi-review-body"><div class="ip-loading">Loading…</div></div></section>
         {% if operator.promotion_history %}<section><div class="ip-section-hdr"><span class="ip-section-label">Canonical Promotion</span><span class="ip-section-line"></span></div><div class="ei-panel oi-review-history">{% for promotion in operator.promotion_history %}<div class="oi-review-row"><span class="oi-review-decision CONFIRMED">{{ promotion.decision }}</span><div class="oi-review-body"><div>{{ promotion.reason }}</div><div class="oi-review-ts">by {{ promotion.reviewer }} · {{ promotion.timestamp }}</div></div></div>{% endfor %}</div></section>{% endif %}
         <section><div class="ip-section-hdr"><span class="ip-section-label">Identity record</span><span class="ip-section-line"></span></div><div class="oi-identity-card"><div class="oi-identity-top"><div class="oi-id-full" onclick="copyId()">{{ operator_id }}</div></div><div class="oi-identity-body"><div class="oi-meta-row"><span class="oi-meta-label">First Seen</span><span class="oi-meta-val" id="oi-first-seen">{{ operator.first_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Last Seen</span><span class="oi-meta-val" id="oi-last-seen">{{ operator.last_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Promotion Status</span><span class="oi-meta-val">{% if operator.promotion_history %}CANONICAL{% else %}LEGACY / NOT RECORDED{% endif %}</span></div></div></div></section>
@@ -581,6 +598,15 @@
         text: 'Review: ' + r.decision + (r.reason ? ' — ' + r.reason : ''),
       });
     });
+    ((op.identity_lifecycle || {}).timeline || []).forEach(function(ev) {
+      var detail = ev.reason || ev.event_type.replace(/_/g, ' ').toLowerCase();
+      events.push({
+        ts: ev.timestamp,
+        type: ev.event_type,
+        text: ev.event_type.replace(/_/g, ' ') + ' — ' + detail
+          + ' · ' + ev.analyst + ' · evidence ' + ev.evidence_revision,
+      });
+    });
 
     events.sort(function(a, b) { return a.ts - b.ts; });
 
@@ -608,7 +634,7 @@
       el.innerHTML = '<div class="ei-panel" style="padding:14px 16px;">'
         + '<div style="font-size:12px;color:var(--ip-sec);">No review decisions recorded.</div>'
         + '<div style="font-size:11px;color:var(--ip-dim);margin-top:6px;">'
-        + 'Use the Quick Actions panel to confirm, reject, or flag this operator.'
+        + 'Governance decisions appear in the permanent identity timeline.'
         + '</div></div>';
       return;
     }
@@ -787,10 +813,79 @@
       });
   };
 
+  /* ── Identity governance ───────────────────────────────────────────────── */
+  function governanceMetadata() {
+    var analyst = prompt('Analyst identifier');
+    if (!analyst) return null;
+    var evidenceRevision = prompt('Evidence revision');
+    if (!evidenceRevision) return null;
+    var reason = prompt('Reason for this immutable governance event');
+    if (!reason) return null;
+    return {analyst: analyst, evidence_revision: evidenceRevision, reason: reason};
+  }
+
+  function governancePost(path, body) {
+    var msg = document.getElementById('oi-governance-msg');
+    if (msg) msg.textContent = 'Recording immutable governance event…';
+    fetch('/api/ops/operators/' + encodeURIComponent(OP_ID) + '/identity/' + path, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body),
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (!d.ok) throw new Error(d.error || 'Governance action failed');
+      if (msg) msg.textContent = 'Recorded. Reloading canonical identity…';
+      setTimeout(function() { location.reload(); }, 500);
+    }).catch(function(err) { if (msg) msg.textContent = 'Error: ' + err.message; });
+  }
+
+  window.governanceAction = function(action) {
+    var body = governanceMetadata();
+    if (!body) return;
+    if (action === 'expand') {
+      body.asset_type = (prompt('Asset type: TREASURY, PROVISIONING_CONTROLLER, SESSION_PATTERN, CAMPAIGN, CREATOR_FAMILY, SETTLEMENT_BEHAVIOUR or EVIDENCE') || '').toUpperCase();
+      body.asset_value = prompt('Infrastructure, pattern, campaign or evidence identifier') || '';
+    } else if (action === 'activity') {
+      body.activity_status = (prompt('Activity: ACTIVE, QUIET, DORMANT or REACTIVATED') || '').toUpperCase();
+    } else if (action === 'dormant') {
+      body.activity_status = 'DORMANT'; action = 'activity';
+    } else if (action === 'quiet') {
+      body.activity_status = 'QUIET'; action = 'activity';
+    } else if (action === 'reactivate') {
+      body.activity_status = 'REACTIVATED'; action = 'activity';
+    } else if (action === 'review') {
+      body.blocking_evidence = (prompt('Blocking evidence (comma separated)') || '').split(',').map(function(v){ return v.trim(); }).filter(Boolean);
+      body.required_investigation = prompt('Required investigation') || '';
+    } else if (action === 'merge') {
+      body.source_operator_ids = (prompt('Source Operator Identity IDs (comma separated); this page is the destination') || '').split(',').map(function(v){ return v.trim(); }).filter(Boolean);
+    } else if (action === 'split') {
+      try { body.children = JSON.parse(prompt('Child identities JSON: [{"display_name":"…","launches":["…"],"entities":[]}, …]') || '[]'); }
+      catch (err) { document.getElementById('oi-governance-msg').textContent = 'Error: invalid child identity JSON.'; return; }
+    }
+    governancePost(action, body);
+  };
+
+  function buildGovernanceActions() {
+    var identity = OP.identity_status || OP.status;
+    var activity = OP.activity_status || 'ACTIVE';
+    var actions = [];
+    function add(label, action) { actions.push('<button class="oi-action-btn" onclick="governanceAction(\'' + action + '\')">' + label + '</button>'); }
+    if (identity === 'CONFIRMED') {
+      add('Expand Identity', 'expand'); add('Move to Review', 'review');
+      if (activity === 'DORMANT') add('Reactivate', 'reactivate');
+      else { add('Mark Quiet', 'quiet'); add('Mark Dormant', 'dormant'); }
+      add('Merge Identity', 'merge'); add('Split Identity', 'split'); add('Retire', 'retire');
+    } else if (identity === 'REVIEW') {
+      add('Expand Identity', 'expand'); add('Resolve Review', 'resolve'); add('Merge Identity', 'merge'); add('Retire', 'retire');
+    } else if (identity === 'CANDIDATE') {
+      actions.push('<a class="oi-action-btn primary" href="/intelligence/operator-promotions">Review / Confirm</a>');
+    }
+    if (!actions.length) actions.push('<span class="oi-gov-note">Historical identity is read-only in its current state.</span>');
+    document.getElementById('oi-governance-actions').innerHTML = actions.join('');
+  }
+
   /* ── Render from server-provided data ────────────────────────────────────── */
   buildEvidence(OP.evidence  || []);
   buildTimeline(OP);
   buildReviews(OP.reviews    || []);
+  buildGovernanceActions();
   buildEntities(OP.entities  || []);
   buildOperations(OP.evidence || []);
 

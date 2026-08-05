@@ -27,6 +27,7 @@ operator_bp = Blueprint("operators", __name__)
 _store: OperatorReader | None = None
 _promotion_service = None
 _emerging_service = None
+_governance_service = None
 
 
 def _get_store() -> OperatorReader:
@@ -53,6 +54,22 @@ def _get_emerging_service():
         from src.ops.emerging_operator_service import EmergingOperatorService
         _emerging_service = EmergingOperatorService(str(OPS_DB_PATH), str(DB_PATH))
     return _emerging_service
+
+
+def _get_governance_service():
+    global _governance_service
+    if _governance_service is None:
+        from src.core.db import OPS_DB_PATH
+        from src.ops.operator_identity_governance import OperatorIdentityGovernanceService
+        _governance_service = OperatorIdentityGovernanceService(str(OPS_DB_PATH))
+    return _governance_service
+
+
+def _governance_response(exc):
+    from src.ops.operator_identity_governance import GovernanceError
+    if isinstance(exc, GovernanceError):
+        return jsonify({"ok": False, "error": str(exc), "code": exc.code}), exc.status
+    return jsonify({"ok": False, "error": str(exc), "code": "GOVERNANCE_ERROR"}), 500
 
 
 def _confirmation_response(exc):
@@ -96,6 +113,84 @@ def get_operator(operator_id: str):
     if not op:
         return jsonify({"ok": False, "error": "Operator not found"}), 404
     return jsonify({"ok": True, "operator": op, "generated_at": int(time.time())})
+
+
+# ── Identity lifecycle governance ────────────────────────────────────────────
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity")
+def get_operator_identity(operator_id: str):
+    from src.core.db import OPS_DB_PATH
+    from src.ops.operator_identity_governance import read_identity_lifecycle
+    lifecycle = read_identity_lifecycle(str(OPS_DB_PATH), operator_id)
+    if not lifecycle:
+        return jsonify({"ok": False, "error": "Operator Identity not found"}), 404
+    return jsonify({"ok": True, "operator_id": operator_id, "identity": lifecycle})
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/expand", methods=["POST"])
+def expand_operator_identity(operator_id: str):
+    try:
+        result = _get_governance_service().expand(operator_id, request.get_json(silent=True) or {})
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/activity", methods=["POST"])
+def set_operator_activity(operator_id: str):
+    try:
+        body = request.get_json(silent=True) or {}
+        result = _get_governance_service().set_activity(operator_id, body.get("activity_status"), body)
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/review", methods=["POST"])
+def move_operator_to_review(operator_id: str):
+    try:
+        result = _get_governance_service().move_to_review(operator_id, request.get_json(silent=True) or {})
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/resolve", methods=["POST"])
+def resolve_operator_review(operator_id: str):
+    try:
+        result = _get_governance_service().resolve_review(operator_id, request.get_json(silent=True) or {})
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/retire", methods=["POST"])
+def retire_operator_identity(operator_id: str):
+    try:
+        result = _get_governance_service().retire(operator_id, request.get_json(silent=True) or {})
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/merge", methods=["POST"])
+def merge_operator_identity(operator_id: str):
+    try:
+        body = request.get_json(silent=True) or {}
+        result = _get_governance_service().merge(operator_id, body.get("source_operator_ids") or [], body)
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/identity/split", methods=["POST"])
+def split_operator_identity(operator_id: str):
+    try:
+        body = request.get_json(silent=True) or {}
+        result = _get_governance_service().split(operator_id, body.get("children") or [], body)
+        return jsonify({"ok": True, **result})
+    except Exception as exc:
+        return _governance_response(exc)
 
 
 # ── By entity ──────────────────────────────────────────────────────────────────

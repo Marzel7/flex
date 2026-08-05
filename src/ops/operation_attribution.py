@@ -134,7 +134,109 @@ class OperationAttributionService:
                     tokens[mint] = assignment
             for entity in [family.get("family_id"), *(family.get("member_wallets") or [])]:
                 if entity:
-                    entities[str(entity)] = assignment
+                    current = entities.get(str(entity))
+                    if current is None or priority[assignment["state"]] > priority[current["state"]]:
+                        entities[str(entity)] = assignment
+        # X73.0 canonical identity lifecycle overlays current infrastructure,
+        # launch assignments and merge redirects.  This makes Discovery and
+        # Walkback resolve rotations to the living identity immediately,
+        # without waiting for a new Investigation Population projection.
+        try:
+            conn = sqlite3.connect(f"file:{cache_key[0]}?mode=ro", uri=True, timeout=5)
+            conn.row_factory = sqlite3.Row
+            tables = {row[0] for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )}
+            redirects = {}
+            if "operator_identity_merges" in tables:
+                redirects = {str(row[0]): str(row[1]) for row in conn.execute(
+                    "SELECT source_operator_id,destination_operator_id FROM operator_identity_merges"
+                )}
+            operator_rows = {
+                str(row["operator_id"]): dict(row)
+                for row in conn.execute("SELECT * FROM operators")
+            }
+            states = {}
+            if "operator_identity_state" in tables:
+                states = {str(row["operator_id"]): dict(row) for row in conn.execute(
+                    "SELECT * FROM operator_identity_state"
+                )}
+
+            def destination(operator_id):
+                seen = set()
+                while operator_id in redirects and operator_id not in seen:
+                    seen.add(operator_id)
+                    operator_id = redirects[operator_id]
+                return operator_id
+
+            def identity_assignment(operator_id):
+                operator_id = destination(str(operator_id))
+                row = operator_rows.get(operator_id)
+                if not row:
+                    return None
+                state = states.get(operator_id) or {}
+                identity_status = str(state.get("identity_status") or row.get("status") or "CONFIRMED")
+                activity_status = str(state.get("activity_status") or "ACTIVE")
+                return {
+                    "operation_id": operator_id,
+                    "family_id": f"canonical:{operator_id}",
+                    "operation_name": row.get("display_name") or row.get("summary") or operator_id,
+                    "lifecycle": identity_status,
+                    "identity_status": identity_status,
+                    "activity_status": activity_status,
+                    # Review/dormancy/retirement never erase historical attribution.
+                    "state": "CONFIRMED_OPERATION",
+                    "evidence_source": "canonical_operator_identity",
+                    "confidence": row.get("confidence") or "CONFIRMED",
+                    "registry_version": REGISTRY_VERSION,
+                    "profile_href": f"/intelligence/operator/{operator_id}",
+                    "timeline_href": f"/intelligence/operator/{operator_id}#timeline",
+                    "evidence_href": f"/api/ops/operators/{operator_id}",
+                }
+
+            for operator_id in operator_rows:
+                assignment = identity_assignment(operator_id)
+                if assignment:
+                    entities[operator_id] = assignment
+                    entities[f"canonical:{operator_id}"] = assignment
+
+            # Canonical family projections retain the originating population
+            # and its launch list, but their navigation target must be the
+            # living Operator Identity rather than the legacy family profile.
+            for family in families:
+                canonical_id = family.get("canonical_operator_id")
+                if not canonical_id and str(family.get("family_id") or "").startswith("canonical:"):
+                    canonical_id = str(family["family_id"]).split(":", 1)[1]
+                assignment = identity_assignment(canonical_id) if canonical_id else None
+                if assignment:
+                    for mint in family.get("launch_list") or []:
+                        tokens[str(mint)] = assignment
+
+            for row in conn.execute("SELECT operator_id,entity_address FROM operator_entities"):
+                assignment = identity_assignment(row["operator_id"])
+                if assignment:
+                    entities[str(row["entity_address"])] = assignment
+            if "operator_identity_assets" in tables:
+                for row in conn.execute(
+                    "SELECT operator_id,asset_value FROM operator_identity_assets WHERE status='ACTIVE'"
+                ):
+                    assignment = identity_assignment(row["operator_id"])
+                    if assignment:
+                        entities[str(row["asset_value"])] = assignment
+            if "operator_launch_membership" in tables:
+                for row in conn.execute("SELECT operator_id,mint FROM operator_launch_membership"):
+                    assignment = identity_assignment(row["operator_id"])
+                    if assignment:
+                        tokens[str(row["mint"])] = assignment
+            # Historical source IDs remain resolvable after a merge.
+            for source_id, destination_id in redirects.items():
+                assignment = identity_assignment(destination_id)
+                if assignment:
+                    entities[source_id] = assignment
+                    entities[f"canonical:{source_id}"] = assignment
+            conn.close()
+        except (OSError, sqlite3.Error):
+            pass
         # Canonical launch membership is itself a Registry source. Minimal
         # installations and old fixtures may not carry enough enrichment
         # tables for the family composer to materialise its canonical card;
@@ -142,7 +244,7 @@ class OperationAttributionService:
         # each consumer to WATCHTOWER-specific attribution logic.
         try:
             conn = sqlite3.connect(f"file:{cache_key[0]}?mode=ro", uri=True, timeout=5)
-            canonical = next((value for value in tokens.values()
+            canonical = entities.get(WATCHTOWER_OPERATOR_ID) or next((value for value in tokens.values()
                               if value["state"] == "CONFIRMED_OPERATION"
                               and str(value["operation_name"]).upper() == "WATCHTOWER"), None)
             canonical = canonical or {
@@ -157,12 +259,24 @@ class OperationAttributionService:
             has_canonical = conn.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_watchtower_launches'"
             ).fetchone()
-            if has_canonical:
-                for row in conn.execute("SELECT mint FROM wt_watchtower_launches WHERE mint IS NOT NULL"):
-                    tokens[str(row[0])] = canonical
             has_outcomes = conn.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='wt_attribution_outcomes'"
             ).fetchone()
+            if has_canonical:
+                for row in conn.execute("SELECT mint FROM wt_watchtower_launches WHERE mint IS NOT NULL"):
+                    mint = str(row[0])
+                    # Membership alone is not stronger than a completed,
+                    # typed walkback conclusion. A launch explicitly ending
+                    # without attribution must remain unresolved until an
+                    # audited canonical assignment exists.
+                    typed = None
+                    if has_outcomes:
+                        typed = conn.execute(
+                            "SELECT outcome_type,operator_id FROM wt_attribution_outcomes WHERE mint=?",
+                            (mint,),
+                        ).fetchone()
+                    if not typed or typed[0] == "CANONICAL_OPERATOR_REACHED" or typed[1]:
+                        tokens[mint] = canonical
             if has_outcomes:
                 outcome_columns = {row[1] for row in conn.execute(
                     "PRAGMA table_info(wt_attribution_outcomes)"

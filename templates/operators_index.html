@@ -8,7 +8,7 @@
 {% block extra_styles %}
 .op-row {
   display: grid;
-  grid-template-columns: 1fr 90px 90px auto;
+  grid-template-columns: 1fr 110px 110px 90px auto;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
@@ -27,6 +27,8 @@
 .op-row.CANDIDATE   { border-left-color: var(--ip-border2); }
 .op-row.REJECTED    { border-left-color: var(--ip-red); opacity: .5; }
 .op-row.MERGE_REVIEW,.op-row.SPLIT_REVIEW { border-left-color: var(--ip-purple); }
+.op-row.REVIEW { border-left-color: var(--ip-purple); }
+.op-row.MERGED,.op-row.SPLIT,.op-row.RETIRED { border-left-color: var(--ip-dim); opacity:.72; }
 
 .op-row-name   { font-size: 12px; font-weight: 700; color: var(--ip-text); }
 .op-row-sub    { font-size: 10px; color: var(--ip-dim); margin-top: 2px; font-family: monospace; }
@@ -75,12 +77,12 @@
 
   <div class="ip-header">
     <div class="ip-title-row">
-      <h1 class="ip-title">Operator Intelligence</h1>
+      <h1 class="ip-title">Operator Registry</h1>
       <span class="ip-ts" id="ops-ts"></span>
     </div>
     <div class="ip-subtitle">
-      Persistent actor identities resolved from cross-operation evidence.
-      Each operator represents the same controlling entity behind one or more campaigns.
+      Governance for living, canonical Operation Identities. Infrastructure may evolve while
+      identity status, operational activity and immutable history remain distinct.
     </div>
   </div>
 
@@ -88,9 +90,11 @@
   <div class="ip-strip" style="margin-bottom:20px;">
     <div class="ip-metric"><div class="ip-metric-val" id="s-total">—</div><div class="ip-metric-label">Total</div></div>
     <div class="ip-metric"><div class="ip-metric-val amber"  id="s-candidate">—</div><div class="ip-metric-label">Candidate</div></div>
-    <div class="ip-metric"><div class="ip-metric-val amber"  id="s-provisional">—</div><div class="ip-metric-label">Provisional</div></div>
+    <div class="ip-metric"><div class="ip-metric-val amber" id="s-provisional">—</div><div class="ip-metric-label">Provisional</div></div>
     <div class="ip-metric"><div class="ip-metric-val green"  id="s-confirmed">—</div><div class="ip-metric-label">Confirmed</div></div>
-    <div class="ip-metric"><div class="ip-metric-val purple" id="s-review">—</div><div class="ip-metric-label">Review Candidates</div></div>
+    <div class="ip-metric"><div class="ip-metric-val purple" id="s-review">—</div><div class="ip-metric-label">Review</div></div>
+    <div class="ip-metric"><div class="ip-metric-val amber" id="s-dormant">—</div><div class="ip-metric-label">Dormant</div></div>
+    <div class="ip-metric"><div class="ip-metric-val" id="s-closed">—</div><div class="ip-metric-label">Merged / Split / Retired</div></div>
   </div>
 
   <!-- Search -->
@@ -106,10 +110,13 @@
     <a class="ops-search-btn" href="/intelligence/operator-promotions" style="font-size:10px;padding:5px 12px;text-decoration:none;">Promotion Review</a>
     <button class="ops-filter-btn active" data-status="" onclick="setFilter(this)">All</button>
     <button class="ops-filter-btn" data-status="CONFIRMED"   onclick="setFilter(this)">Confirmed</button>
-    <button class="ops-filter-btn" data-status="PROVISIONAL" onclick="setFilter(this)">Provisional</button>
-    <button class="ops-filter-btn" data-status="REVIEW_CANDIDATE" onclick="setFilter(this)">Review Candidate</button>
     <button class="ops-filter-btn" data-status="CANDIDATE"   onclick="setFilter(this)">Candidate</button>
-    <button class="ops-filter-btn" data-status="MERGE_REVIEW" onclick="setFilter(this)">Review</button>
+    <button class="ops-filter-btn" data-status="PROVISIONAL" onclick="setFilter(this)">Provisional</button>
+    <button class="ops-filter-btn" data-status="REVIEW" onclick="setFilter(this)">Review</button>
+    <button class="ops-filter-btn" data-activity="DORMANT" onclick="setFilter(this)">Dormant</button>
+    <button class="ops-filter-btn" data-status="MERGED" onclick="setFilter(this)">Merged</button>
+    <button class="ops-filter-btn" data-status="SPLIT" onclick="setFilter(this)">Split</button>
+    <button class="ops-filter-btn" data-status="RETIRED" onclick="setFilter(this)">Retired</button>
     <button class="ops-search-btn" onclick="triggerResolve()" style="font-size:10px;padding:5px 12px;">↻ Evaluate Identity</button>
   </div>
 
@@ -125,6 +132,7 @@
 
   var ALL_OPS   = [];
   var activeStatus = '';
+  var activeActivity = '';
 
   function ago(ts) {
     if (!ts) return '—';
@@ -151,12 +159,15 @@
     el.innerHTML = ops.map(function(op) {
       var name    = op.display_name || op.summary || ('Operator ' + op.operator_id.slice(0,12) + '…');
       var confCol = CONF_COLOUR[op.confidence] || 'dim';
-      return '<a class="op-row ' + op.status + '" href="/intelligence/operator/' + op.operator_id + '">'
+      var identity = op.identity_status || op.status;
+      var activity = op.activity_status || 'ACTIVE';
+      return '<a class="op-row ' + identity + '" href="/intelligence/operator/' + op.operator_id + '">'
         + '<div>'
         +   '<div class="op-row-name">' + name + '</div>'
         +   '<div class="op-row-sub">' + op.operator_id.slice(0,20) + '…</div>'
         + '</div>'
-        + '<div class="op-row-status"><span class="ip-badge ' + (op.status==='CONFIRMED'?'green':op.status==='REJECTED'?'dim':'amber') + '">' + op.status + '</span></div>'
+        + '<div class="op-row-status"><span class="ip-badge ' + (identity==='CONFIRMED'?'green':identity==='REVIEW'?'amber':'dim') + '">' + identity + '</span></div>'
+        + '<div class="op-row-status"><span class="ip-badge ' + (activity==='ACTIVE'||activity==='REACTIVATED'?'green':activity==='DORMANT'?'amber':'dim') + '">' + activity + '</span></div>'
         + '<div class="op-row-conf"><span class="ip-badge ' + confCol + '">' + op.confidence + '</span></div>'
         + '<span class="op-row-link">Open →</span>'
         + '</a>';
@@ -164,13 +175,15 @@
   }
 
   function filtered() {
-    return activeStatus
-      ? ALL_OPS.filter(function(o) { return o.status === activeStatus; })
-      : ALL_OPS;
+    return ALL_OPS.filter(function(o) {
+      return (!activeStatus || (o.identity_status || o.status) === activeStatus)
+        && (!activeActivity || (o.activity_status || 'ACTIVE') === activeActivity);
+    });
   }
 
   window.setFilter = function(btn) {
-    activeStatus = btn.dataset.status;
+    activeStatus = btn.dataset.status || '';
+    activeActivity = btn.dataset.activity || '';
     document.querySelectorAll('.ops-filter-btn').forEach(function(b) {
       b.classList.toggle('active', b === btn);
     });
@@ -218,9 +231,11 @@
       if (summary) {
         document.getElementById('s-total').textContent       = summary.total        || 0;
         document.getElementById('s-candidate').textContent   = summary.candidates   || 0;
-        document.getElementById('s-provisional').textContent = summary.provisional  || 0;
         document.getElementById('s-confirmed').textContent   = summary.confirmed    || 0;
-        document.getElementById('s-review').textContent      = summary.review_candidates || 0;
+        document.getElementById('s-provisional').textContent = summary.provisional  || 0;
+        document.getElementById('s-review').textContent      = summary.review_pending || 0;
+        document.getElementById('s-dormant').textContent     = summary.dormant || 0;
+        document.getElementById('s-closed').textContent      = (summary.merged || 0) + (summary.split || 0) + (summary.retired || 0);
         var ts = document.getElementById('ops-ts');
         if (ts && summary.generated_at) {
           ts.textContent = ago(summary.generated_at) + ' ago';

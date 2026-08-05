@@ -43,13 +43,17 @@ CONFIRMED    = "CONFIRMED"
 REJECTED     = "REJECTED"
 MERGE_REVIEW = "MERGE_REVIEW"
 SPLIT_REVIEW = "SPLIT_REVIEW"
+REVIEW       = "REVIEW"
+MERGED       = "MERGED"
+SPLIT        = "SPLIT"
+RETIRED      = "RETIRED"
 
 OPERATOR_STATES = frozenset({
     CANDIDATE, REVIEW_CANDIDATE, PROVISIONAL, CONFIRMED, REJECTED,
-    MERGE_REVIEW, SPLIT_REVIEW,
+    MERGE_REVIEW, SPLIT_REVIEW, REVIEW, MERGED, SPLIT, RETIRED,
 })
 # States that a human has acted on — never overwrite these automatically
-HUMAN_DECIDED = frozenset({CONFIRMED, REJECTED})
+HUMAN_DECIDED = frozenset({CONFIRMED, REJECTED, REVIEW, MERGED, SPLIT, RETIRED})
 
 # ── Evidence categories ──────────────────────────────────────────────────────
 

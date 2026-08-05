@@ -1,5 +1,5 @@
 {% extends "base_shell.html" %}
-{% block title %}System Health Dashboard{% endblock %}
+{% block title %}Mission Control{% endblock %}
 
 {% block head_extra %}
 <!-- Font Awesome 6.4 -->
@@ -21,23 +21,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
         }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0;
-        }
+        h1 { font-size: 1.7rem; font-weight: 700; color: var(--text-primary); margin: 0; }
 
-        .controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
+        .controls { display: flex; gap: 1rem; align-items: center; }
 
         .btn-refresh {
             padding: 0.5rem 1rem;
@@ -49,988 +40,288 @@
             transition: all 0.2s;
             font-size: 0.9rem;
         }
-
         .btn-refresh:hover { background: rgba(59, 130, 246, 0.3); }
         .btn-refresh.refreshing { opacity: 0.6; pointer-events: none; }
 
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .status-healthy  { background: rgba(34, 197, 94, 0.15); color: var(--color-success); }
-        .status-warning  { background: rgba(234, 179, 8, 0.15);  color: var(--color-watch); }
-        .status-critical { background: rgba(239, 68, 68, 0.15);  color: var(--color-critical); }
-
-        .status-dot {
-            display: inline-block;
-            width: 0.5rem;
-            height: 0.5rem;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.healthy  { background: var(--color-success); }
-        .status-dot.warning  { background: var(--color-watch); }
-        .status-dot.critical { background: var(--color-critical); }
-
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+        /* ── Alert banner (Phase 9) ─────────────────────────────────────── */
+        .mc-banner-wrap {
+            border-radius: 0.5rem; margin-bottom: 1.5rem; overflow: hidden;
         }
+        .mc-banner {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.9rem 1.25rem;
+            font-size: 1rem; font-weight: 700;
+        }
+        .mc-banner.ok       { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.35);  color: #4ade80; }
+        .mc-banner.warning  { background: rgba(234,179,8,0.1);  border: 1px solid rgba(234,179,8,0.4);   color: #facc15; }
+        .mc-banner.critical { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.45);  color: #f87171; }
+        .mc-banner .sub { font-weight: 400; font-size: 0.85rem; opacity: 0.8; margin-left: auto; }
 
-        .card {
+        /* ── Health Summary strip: "do I need to do anything?" in 5s ──────
+           Sits directly under the banner, same bordered block, no gap --
+           reads as one unit. Lists which capability groups are healthy
+           (quiet, one line) vs. which need attention (with their reasons),
+           so the very top of the page never requires expanding a group. */
+        .mc-summary-strip {
+            display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
+            padding: 0.75rem 1.25rem;
+            border-left: 1px solid; border-right: 1px solid; border-bottom: 1px solid;
+            border-radius: 0 0 0.5rem 0.5rem;
+            font-size: 0.82rem;
+        }
+        .mc-summary-strip.ok       { border-color: rgba(34,197,94,0.35);  background: rgba(34,197,94,0.04); }
+        .mc-summary-strip.warning  { border-color: rgba(234,179,8,0.4);   background: rgba(234,179,8,0.04); }
+        .mc-summary-strip.critical { border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.04); }
+        .mc-summary-col { display: flex; flex-direction: column; gap: 0.3rem; }
+        .mc-summary-col-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 0.1rem; }
+        .mc-summary-item { display: flex; align-items: center; gap: 0.4rem; }
+        .mc-summary-item.healthy  { color: #4ade80; }
+        .mc-summary-item.warning  { color: #facc15; }
+        .mc-summary-item.critical { color: #f87171; }
+        .mc-summary-item .reason { color: #94a3b8; font-weight: 400; margin-left: 0.15rem; }
+
+        /* ── Capability groups (Phase 2) ────────────────────────────────── */
+        .mc-groups { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+
+        .mc-group {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 0.5rem;
-            padding: 1.5rem;
-            transition: all 0.2s;
-        }
-
-        .card:hover {
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
-        }
-
-        .card-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #94a3b8;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .card-title i { color: var(--color-primary); }
-
-        .metric { margin-bottom: 1.5rem; }
-        .metric:last-child { margin-bottom: 0; }
-
-        .metric-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
-        .metric-value.small { font-size: 1.25rem; }
-
-        .metric-bar {
-            width: 100%;
-            height: 0.5rem;
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 0.25rem;
             overflow: hidden;
-            margin-top: 0.5rem;
+        }
+        .mc-group.status-warning  { border-color: rgba(234,179,8,0.4); }
+        .mc-group.status-critical { border-color: rgba(239,68,68,0.45); }
+
+        .mc-group-head {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.9rem 1.25rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .mc-group-head:hover { background: rgba(255,255,255,0.02); }
+        .mc-group-title {
+            font-size: 0.95rem; font-weight: 700; color: var(--text-primary);
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+        .mc-group-title i { color: var(--color-primary); width: 1.1rem; text-align: center; }
+        .mc-group-status { margin-left: 0.5rem; }
+        .mc-group-summary {
+            margin-left: auto; font-size: 0.8rem; color: var(--text-secondary);
+            display: flex; gap: 1rem; flex-wrap: wrap; justify-content: flex-end;
+        }
+        .mc-group-chevron { color: #64748b; font-size: 0.8rem; transition: transform 0.15s; }
+        .mc-group.expanded .mc-group-chevron { transform: rotate(90deg); }
+
+        .mc-group-body { display: none; border-top: 1px solid var(--border-color); padding: 1.1rem 1.25rem 1.25rem; }
+        .mc-group.expanded .mc-group-body { display: block; }
+        /* Unhealthy groups auto-expand (Phase 3) */
+        .mc-group.status-warning .mc-group-body,
+        .mc-group.status-critical .mc-group-body { display: block; }
+        .mc-group.status-warning:not(.expanded) .mc-group-chevron,
+        .mc-group.status-critical:not(.expanded) .mc-group-chevron { transform: rotate(90deg); }
+
+        /* ── Status pill (shared) ───────────────────────────────────────── */
+        .pill {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+            padding: 0.2rem 0.65rem; border-radius: 9999px;
+        }
+        .pill .dot { width: 0.4rem; height: 0.4rem; border-radius: 50%; }
+        .pill.healthy  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+        .pill.healthy .dot  { background: #22c55e; animation: pulse 2s infinite; }
+        .pill.neutral  { background: rgba(100,116,139,0.18); color: #94a3b8; }
+        .pill.neutral .dot  { background: #64748b; }
+        .pill.warning  { background: rgba(234,179,8,0.15);  color: #facc15; }
+        .pill.warning .dot  { background: #eab308; animation: pulse 2s infinite; }
+        .pill.critical { background: rgba(239,68,68,0.18);  color: #f87171; }
+        .pill.critical .dot { background: #ef4444; animation: pulse 1s infinite; }
+
+        /* ── Level-2 sub-widget: KPI row for a healthy group ────────────── */
+        .mc-kpi-row { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 0.5rem; }
+        .mc-kpi { min-width: 130px; }
+        .mc-kpi-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.15rem; }
+        .mc-kpi-value { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
+        .mc-kpi-value.ok { color: #4ade80; }
+        .mc-kpi-value.warn { color: #facc15; }
+        .mc-kpi-value.bad { color: #f87171; }
+
+        /* ── Summary badge — replaces a table when everything is healthy (Phase 8) ── */
+        .mc-summary-badge {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            font-size: 0.85rem; color: var(--text-secondary);
+        }
+        .mc-summary-badge b { color: var(--text-primary); }
+        .mc-drilldown-link {
+            font-size: 0.78rem; color: var(--color-primary); cursor: pointer;
+            text-decoration: none; margin-left: 0.25rem;
+        }
+        .mc-drilldown-link:hover { text-decoration: underline; }
+
+        /* ── Sub-panel inside a group (e.g. "Listener" within Ingestion) ── */
+        .mc-subpanel { margin-bottom: 1.1rem; }
+        .mc-subpanel:last-child { margin-bottom: 0; }
+        .mc-subpanel-title {
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+            color: #94a3b8; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
         }
 
-        .metric-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-            border-radius: 0.25rem;
-            transition: width 0.3s ease;
+        /* Legacy card/metric primitives reused inside Level-3 detail + drill-down panels */
+        .card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem 1.1rem;
         }
-
-        .metric-bar-fill.warning  { background: linear-gradient(90deg, var(--color-watch),    var(--color-high)); }
-        .metric-bar-fill.critical { background: linear-gradient(90deg, var(--color-critical),  var(--color-high)); }
-
-        .list-item {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
+        .metric { margin-bottom: 1rem; }
+        .metric:last-child { margin-bottom: 0; }
+        .metric-label {
+            font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.2rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
-
+        .metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+        .metric-value.small { font-size: 1.1rem; }
+        .metric-bar { width: 100%; height: 0.4rem; background: rgba(59,130,246,0.1); border-radius: 0.25rem; overflow: hidden; margin-top: 0.4rem; }
+        .metric-bar-fill { height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); border-radius: 0.25rem; }
+        .list-item { padding: 0.6rem 0; border-bottom: 1px solid rgba(59,130,246,0.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
         .list-item:last-child { border-bottom: none; }
         .list-label { color: var(--text-secondary); }
         .list-value { color: var(--text-primary); font-weight: 600; }
+        .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .badge-active   { background: rgba(34,197,94,0.2);  color: var(--color-success); }
+        .badge-inactive { background: rgba(107,114,128,0.2); color: #9ca3af; }
+        .badge-enabled  { background: rgba(59,130,246,0.2);  color: var(--color-primary); }
 
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.25rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
+        .l3-toggle {
+            font-size: 0.72rem; color: #64748b; background: none; border: none; cursor: pointer;
+            padding: 0.4rem 0; display: flex; align-items: center; gap: 0.3rem;
         }
+        .l3-toggle:hover { color: #94a3b8; }
+        .l3-body { display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed rgba(148,163,184,0.15); }
+        .l3-body.open { display: block; }
 
-        .badge-active   { background: rgba(34, 197, 94, 0.2);  color: var(--color-success); }
-        .badge-inactive { background: rgba(107, 114, 128, 0.2); color: var(--color-none); }
-        .badge-enabled  { background: rgba(59, 130, 246, 0.2);  color: var(--color-primary); }
+        .pool-health-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .pool-health-table th { text-align: left; padding: 0.6rem; border-bottom: 1px solid var(--border-color); color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+        .pool-health-table td { padding: 0.6rem; border-bottom: 1px solid rgba(59,130,246,0.05); }
+        .pool-health-table tbody tr:hover { background: rgba(59,130,246,0.05); }
 
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
         .wide-card { grid-column: 1 / -1; }
-
-        .pool-health-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-
-        .pool-health-table th {
-            text-align: left;
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            color: #94a3b8;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
-
-        .pool-health-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.05);
-        }
-
-        .pool-health-table tbody tr:hover { background: rgba(59, 130, 246, 0.05); }
-
         .chart-container { position: relative; height: 250px; margin-top: 1rem; }
+
+        .mc-diag-note { font-size: 0.72rem; color: var(--color-watch); margin-bottom: 0.75rem; }
 {% endblock %}
 
 {% block content %}
         <header>
             <div>
-                <h1><i class="fas fa-heartbeat" style="color: var(--color-low);"></i> System Health</h1>
-                <p style="color: var(--text-secondary); margin: 0.5rem 0 0; font-size: 0.9rem;">Listener ingestion · WebSocket connections · DB reliability · price service</p>
+                <h1><i class="fas fa-satellite-dish" style="color: var(--color-low);"></i> Mission Control</h1>
+                <p style="color: var(--text-secondary); margin: 0.35rem 0 0; font-size: 0.85rem;">Platform · Ingestion · Intelligence · Infrastructure</p>
             </div>
             <div class="controls">
                 <button class="btn-refresh" id="refreshBtn">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
-                <div id="lastUpdate" style="font-size: 0.9rem; color: var(--text-secondary);">Fetching...</div>
+                <div id="lastUpdate" style="font-size: 0.85rem; color: var(--text-secondary);">Fetching...</div>
             </div>
         </header>
 
-        <!-- WATCHTOWER Platform Health (new /api/health/full) -->
-        <div class="grid" style="margin-bottom:1rem;">
-            <div class="card" style="grid-column: 1 / -1; padding:1.25rem 1.5rem;" id="watchtowerPlatformCard">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">WATCHTOWER PLATFORM</div>
-                    <div id="wt-platform-status" style="font-size:0.8rem;color:#94a3b8;">Loading…</div>
-                </div>
-                <!-- Row 1: 7 subsystem pills -->
-                <div id="wt-subsystem-pills" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1rem;"></div>
-                <!-- Row 2: detail rows for price worker + cascade activity + intelligence -->
-                <div id="wt-detail-rows" style="display:flex;flex-wrap:wrap;gap:0.75rem;"></div>
+        <!-- ═══ Alert-first banner + Health Summary strip (Phase 9) ════════
+             The banner answers "is anything on fire". The strip beneath it
+             answers "do I need to do anything" in one glance: which
+             capability groups are quiet vs. which need attention and why --
+             without expanding a single group. ══════════════════════════ -->
+        <div class="mc-banner-wrap">
+            <div id="mc-banner" class="mc-banner ok">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Checking system status…</span>
             </div>
+            <div id="mc-summary-strip" class="mc-summary-strip ok"></div>
         </div>
 
-        <!-- Runtime Budget Health -->
-        <div class="grid" style="margin-bottom:1rem;">
-            <div class="card wide-card" id="sh-rb-card">
-                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-                    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">⚙ Runtime Budget</div>
-                    <span id="sh-rb-pill" style="font-size:0.7rem;font-weight:700;padding:2px 10px;border-radius:9999px;background:rgba(100,116,139,0.2);color:#94a3b8;">loading…</span>
-                    <span id="sh-rb-note" style="font-size:0.75rem;color:#64748b;margin-left:4px"></span>
+        <!-- ═══ Five capability groups (Phase 2) ═══════════════════════════ -->
+        <div class="mc-groups">
+
+            <!-- 1. Platform -->
+            <div class="mc-group" id="grp-platform">
+                <div class="mc-group-head" onclick="mcToggleGroup('grp-platform')">
+                    <span class="mc-group-title"><i class="fas fa-server"></i> Platform</span>
+                    <span class="mc-group-status pill neutral" id="grp-platform-pill"><span class="dot"></span>—</span>
+                    <span class="mc-group-summary" id="grp-platform-summary"></span>
+                    <i class="fas fa-chevron-right mc-group-chevron"></i>
                 </div>
-                <!-- 3-card summary -->
-                <div id="sh-rb-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;"></div>
-                <!-- 4 detail sections -->
-                <div id="sh-rb-detail" style="display:none">
-                    <div style="margin-bottom:1rem;">
-                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">Critical Path</div>
-                        <div id="sh-rb-critical" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;"></div>
-                    </div>
-                    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;margin-bottom:1rem;">
-                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:4px;">Graceful Degradation <span style="font-weight:400;font-size:0.6rem;color:#475569">— non-zero counts are healthy (budget system working)</span></div>
-                        <div id="sh-rb-degrade" style="display:grid;grid-template-columns:repeat(8,1fr);gap:0.5rem;margin-top:0.5rem;"></div>
-                    </div>
-                    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;">
-                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">Runtime Pressure</div>
-                        <div id="sh-rb-pressure" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;"></div>
-                    </div>
-                </div>
-                <div style="margin-top:0.5rem;">
-                    <button onclick="toggleSHRBDetail()" id="sh-rb-toggle" style="font-size:0.7rem;color:#64748b;background:none;border:none;cursor:pointer;padding:0;">▸ show detail</button>
-                </div>
+                <div class="mc-group-body" id="grp-platform-body"></div>
             </div>
+
+            <!-- 2. Ingestion Pipeline -->
+            <div class="mc-group" id="grp-ingestion">
+                <div class="mc-group-head" onclick="mcToggleGroup('grp-ingestion')">
+                    <span class="mc-group-title"><i class="fas fa-stream"></i> Ingestion Pipeline</span>
+                    <span class="mc-group-status pill neutral" id="grp-ingestion-pill"><span class="dot"></span>—</span>
+                    <span class="mc-group-summary" id="grp-ingestion-summary"></span>
+                    <i class="fas fa-chevron-right mc-group-chevron"></i>
+                </div>
+                <div class="mc-group-body" id="grp-ingestion-body"></div>
+            </div>
+
+            <!-- 3. Intelligence -->
+            <div class="mc-group" id="grp-intelligence">
+                <div class="mc-group-head" onclick="mcToggleGroup('grp-intelligence')">
+                    <span class="mc-group-title"><i class="fas fa-brain"></i> Intelligence</span>
+                    <span class="mc-group-status pill neutral" id="grp-intelligence-pill"><span class="dot"></span>—</span>
+                    <span class="mc-group-summary" id="grp-intelligence-summary"></span>
+                    <i class="fas fa-chevron-right mc-group-chevron"></i>
+                </div>
+                <div class="mc-group-body" id="grp-intelligence-body"></div>
+            </div>
+
+            <!-- 4. Infrastructure -->
+            <div class="mc-group" id="grp-infra">
+                <div class="mc-group-head" onclick="mcToggleGroup('grp-infra')">
+                    <span class="mc-group-title"><i class="fas fa-database"></i> Infrastructure</span>
+                    <span class="mc-group-status pill neutral" id="grp-infra-pill"><span class="dot"></span>—</span>
+                    <span class="mc-group-summary" id="grp-infra-summary"></span>
+                    <i class="fas fa-chevron-right mc-group-chevron"></i>
+                </div>
+                <div class="mc-group-body" id="grp-infra-body"></div>
+            </div>
+
+            <!-- 5. Diagnostics (Level 3 — collapsed by default, engineering-only) -->
+            <div class="mc-group" id="grp-diag">
+                <div class="mc-group-head" onclick="mcToggleGroup('grp-diag')">
+                    <span class="mc-group-title"><i class="fas fa-flask"></i> Diagnostics</span>
+                    <span class="mc-group-status pill neutral"><span class="dot"></span>Engineering</span>
+                    <span class="mc-group-summary">Price worker internals · Flask-process counters · profiling</span>
+                    <i class="fas fa-chevron-right mc-group-chevron"></i>
+                </div>
+                <div class="mc-group-body" id="grp-diag-body"></div>
+            </div>
+
         </div>
-
-        <!-- Overall Status (legacy — hidden, superseded by WATCHTOWER platform card above) -->
-        <div style="display:none;">
-            <div id="overallStatus"></div>
-            <div id="workerStatus"></div>
-            <div id="wsStatus"></div>
-            <div id="ingressStatus"></div>
-            <div id="ingestionStatus"></div>
-        </div>
-
-        <!-- Listener Status — centre stage -->
-        <div class="grid">
-            <div class="card wide-card" id="recoveryCard" style="border-color: rgba(34,197,94,0.3); border-width: 1px;">
-                <div class="card-title" style="display:flex;align-items:center;gap:0.75rem;font-size:1.05rem;">
-                    <i class="fas fa-satellite-dish" style="color:#22d3ee"></i>
-                    <span style="color:var(--text-primary)">Listener</span>
-                    <span id="recoveryBadge" style="font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:9999px;background:rgba(100,116,139,0.3);color:#94a3b8;">…</span>
-                </div>
-                <div id="recoveryPanel" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
-        <!-- WebSocket Ingress (always visible — reflects PumpSwap/Helius, not price worker) -->
-        <div class="grid">
-            <div class="card">
-                <div class="card-title"><i class="fas fa-wifi"></i> WebSocket Ingress</div>
-                <div id="wsPoolStats" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-            <div class="card">
-                <div class="card-title"><i class="fas fa-hourglass-half"></i> Queue Status</div>
-                <div id="queueStats" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-            <div class="card">
-                <div class="card-title"><i class="fas fa-shield-alt"></i> API Write Reliability
-                    <span style="font-size:0.72rem;font-weight:400;color:var(--text-secondary);margin-left:0.75rem;">Flask/Gunicorn process only — listener lock errors shown above</span>
-                </div>
-                <div id="dbWriteReliability" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
-        <!-- First Snapshot Health (always visible) -->
-        <div class="grid">
-            <div class="card wide-card">
-                <div class="card-title"><i class="fas fa-anchor"></i> First Snapshot Health</div>
-                <div id="firstSnapshotHealth" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
-        <!-- Recovery-mode toggle banner (injected by JS when recovery=ON) -->
-        <div id="priceDiagnosticsBanner"></div>
-
-        <!-- Price diagnostics — collapsed in recovery mode, always shown in normal mode -->
-        <div id="priceDiagnosticsSection">
-            <div class="grid">
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-layer-group"></i> Pool Pricing</div>
-                    <div id="poolPricingStats" class="loading"><span class="spinner"></span> Loading...</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-check-circle"></i> Aggregation Status</div>
-                    <div id="aggregationStats" class="loading"><span class="spinner"></span> Loading...</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-cogs"></i> Worker Status</div>
-                    <div id="workerDetails" class="loading"><span class="spinner"></span> Loading...</div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-database"></i> Cache Performance</div>
-                    <div id="cacheStats" class="loading"><span class="spinner"></span> Loading...</div>
-                </div>
-                <div class="card wide-card">
-                    <div class="card-title"><i class="fas fa-heartbeat"></i> Price Source Health</div>
-                    <div id="sourceHealth"></div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="card wide-card">
-                    <div class="card-title"><i class="fas fa-shield-alt"></i> Circuit Breaker Status</div>
-                    <div id="circuitBreaker"></div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="card wide-card">
-                    <div class="card-title"><i class="fas fa-window-maximize"></i> Rolling Window (5-min)</div>
-                    <div id="rollingWindow"></div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="card wide-card">
-                    <div class="card-title"><i class="fas fa-broom"></i> Snapshot Cleanup (24h)</div>
-                    <div id="snapshotCleanup" class="loading"><span class="spinner"></span> Loading...</div>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="card wide-card" style="border-color: rgba(234,179,8,0.3);">
-                    <div class="card-title" style="color: var(--color-watch);">
-                        <i class="fas fa-flask"></i> Local Flask Process Diagnostics
-                        <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">⚠ Flask-process only — does NOT reflect listener/worker state</span>
-                    </div>
-                    <div id="localDiagnostics" class="loading"><span class="spinner"></span> Loading...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- WATCHTOWER Tier 1: Creator Prediction -->
-        <div class="grid">
-            <div class="card wide-card" style="border-color: rgba(34,211,238,0.3);">
-                <div class="card-title" style="color: #22d3ee;">
-                    <i class="fas fa-crosshairs"></i> TIER 1 — Creator Prediction
-                    <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">candidate webhook · sparse precision monitoring · raw hit logging</span>
-                </div>
-                <div id="tier1Monitor" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
-        <!-- WATCHTOWER Tier 2: Infrastructure Telemetry -->
-        <div class="grid">
-            <div class="card wide-card" style="border-color: rgba(139,92,246,0.3);">
-                <div class="card-title" style="color: #a78bfa;">
-                    <i class="fas fa-satellite-dish"></i> TIER 2 — Infrastructure Telemetry
-                    <span style="font-size:0.75rem;font-weight:400;color:var(--text-secondary);margin-left:1rem;">relay · sweep collector · treasury · aggregated minute-buckets</span>
-                </div>
-                <div id="tier2Monitor" class="loading"><span class="spinner"></span> Loading...</div>
-            </div>
-        </div>
-
 {% endblock %}
 
 {% block scripts %}
     <script>
         const API_BASE = '/api';
 
+        // ── generic helpers ──────────────────────────────────────────────
         async function fetchHealth() {
             try {
                 const response = await fetch(`${API_BASE}/price/health`);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return await response.json();
-            } catch (error) {
-                console.error('Health fetch failed:', error);
-                return null;
-            }
+            } catch (error) { console.error('Health fetch failed:', error); return null; }
         }
-
         function formatTime(timestamp) {
             if (!timestamp) return 'Never';
-            const date = new Date(timestamp * 1000);
-            return date.toLocaleTimeString();
+            return new Date(timestamp * 1000).toLocaleTimeString();
         }
-
-        function formatDuration(seconds) {
-            if (seconds < 60) return `${Math.round(seconds)}s`;
-            if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
-            return `${Math.round(seconds / 3600)}h`;
-        }
-
-        function getStatusColor(healthy) {
-            return healthy ? 'healthy' : 'critical';
-        }
-
         function statusColor(s) {
             if (s === 'healthy' || s === 'CONNECTED' || s === 'RUNNING') return 'healthy';
             if (s === 'degraded' || s === 'DEGRADED') return 'warning';
             return 'critical';
         }
-
-        function renderOverallStatus(data, recovery) {
-            const inRecovery = recovery?.env_flags?.recovery_mode === true;
-            let html;
-            if (inRecovery) {
-                html = `<div class="status-indicator" style="background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);border-radius:6px;padding:0.4rem 0.8rem;display:inline-flex;align-items:center;gap:0.5rem;">
-                    <span class="status-dot" style="background:#a78bfa"></span>
-                    Service: RECOVERY MODE
-                </div>`;
-            } else {
-                const s = data?.status || 'unknown';
-                const color = statusColor(s);
-                html = `<div class="status-indicator status-${color}">
-                    <span class="status-dot ${color}"></span>
-                    Service: ${s.toUpperCase()}
-                </div>`;
-            }
-            document.getElementById('overallStatus').innerHTML = html;
-        }
-
-        function renderWorkerStatus(data, recovery) {
-            const inRecovery = recovery?.env_flags?.recovery_mode === true;
-            let html;
-            if (inRecovery) {
-                html = `<div class="status-indicator" style="background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.3);border-radius:6px;padding:0.4rem 0.8rem;display:inline-flex;align-items:center;gap:0.5rem;">
-                    <span class="status-dot" style="background:#6b7280"></span>
-                    Worker: PRICE WORKER PARKED
-                </div>`;
-            } else {
-                const running = data?.worker_running;
-                const secs = data?.db_signals?.seconds_since_last_update;
-                const staleness = secs != null ? ` (${Math.round(secs)}s ago)` : '';
-                const writer = data?.db_signals?.inferred_active_writer || '';
-                html = `<div class="status-indicator status-${getStatusColor(running)}">
-                    <span class="status-dot ${getStatusColor(running)}"></span>
-                    Worker: ${running ? 'RUNNING' : 'STOPPED'}${staleness}
-                    ${writer ? `<span style="font-size:0.8rem;opacity:0.7;margin-left:0.5rem;">[${writer}]</span>` : ''}
-                </div>`;
-            }
-            document.getElementById('workerStatus').innerHTML = html;
-        }
-
-        function renderWSStatus(data, recovery) {
-            const inRecovery = recovery?.env_flags?.recovery_mode === true;
-            let html;
-            if (inRecovery) {
-                html = `<div class="status-indicator" style="background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.3);border-radius:6px;padding:0.4rem 0.8rem;display:inline-flex;align-items:center;gap:0.5rem;">
-                    <span class="status-dot" style="background:#6b7280"></span>
-                    Snapshot Freshness: PARKED
-                </div>`;
-            } else {
-                const ws = data?.pool_stats?.ws || {};
-                const wsStatus = ws.status || (ws.connected ? 'CONNECTED' : 'DISCONNECTED');
-                const color = statusColor(wsStatus);
-                const listenerSecs = ws.listener_log_age_secs;
-                const dbSecs = data?.db_signals?.seconds_since_last_update;
-                const lagSource = listenerSecs != null ? 'listener logs' : 'db';
-                const lagValue = listenerSecs != null ? listenerSecs : dbSecs;
-                const lag = lagValue != null ? ` (${Math.round(lagValue)}s lag via ${lagSource})` : '';
-                html = `<div class="status-indicator status-${color}">
-                    <span class="status-dot ${color}"></span>
-                    Snapshot Freshness: ${wsStatus}${lag}
-                </div>`;
-            }
-            document.getElementById('wsStatus').innerHTML = html;
-        }
-
-        function renderIngestionStatus(recovery) {
-            const el = document.getElementById('ingestionStatus');
-            if (!el) return;
-            if (!recovery) { el.innerHTML = ''; return; }
-            const inRecovery = recovery?.env_flags?.recovery_mode === true;
-            if (!inRecovery) { el.innerHTML = ''; return; }
-            const L = recovery.listener || {};
-            const I = recovery.ingestion || {};
-            const ppColor = L.pumpportal_status === 'CONNECTED' ? '#22c55e' : L.pumpportal_status === 'RETRYING' ? '#f59e0b' : '#ef4444';
-            const psColor = L.pumpswap_status === 'CONNECTED' ? '#22c55e' : L.pumpswap_status === 'RETRYING' ? '#f59e0b' : '#ef4444';
-            const _brPpDown = L.pumpportal_status === 'RETRYING' || L.pumpportal_status === 'STALE';
-            const _brActive = L.birth_reconciler_status === 'ACTIVE' || (L.birth_reconciler_status === 'IDLE' && _brPpDown);
-            const brColor = L.birth_reconciler_status === 'DISABLED' ? '#6b7280' : _brActive ? '#f59e0b' : '#22c55e';
-            const birthAge = I.latest_birth_age_s;
-            const migAge = I.latest_migration_age_s;
-            const birthLabel = birthAge == null ? 'unknown' : birthAge < 300 ? 'FLOWING' : 'STALE';
-            const migLabel = migAge == null ? 'unknown' : migAge < 300 ? 'FLOWING' : 'STALE';
-            const birthColor = birthLabel === 'FLOWING' ? '#22c55e' : '#f59e0b';
-            const migColor = migLabel === 'FLOWING' ? '#22c55e' : '#f59e0b';
-            const birthAgeStr = birthAge != null ? ` (${Math.round(birthAge/60)}m ago)` : '';
-            const migAgeStr = migAge != null ? ` (${Math.round(migAge/60)}m ago)` : '';
-            el.innerHTML = `
-                <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.25rem;font-size:0.85rem;">
-                    <span>PumpPortal: <b style="color:${ppColor}">${L.pumpportal_status || '?'}</b></span>
-                    <span>PumpSwap: <b style="color:${psColor}">${L.pumpswap_status || '?'}</b></span>
-                    <span>Birth Reconciler: <b style="color:${brColor}">${_brActive ? 'ACTIVE' : (L.birth_reconciler_status || '?')}</b></span>
-                    <span>Births: <b style="color:${birthColor}">${birthLabel}${birthAgeStr}</b></span>
-                    <span>Migrations: <b style="color:${migColor}">${migLabel}${migAgeStr}</b></span>
-                    <span>Birth Queue: <b>${I.birth_queue_pending ?? 0} pending</b></span>
-                    <span>Migration Queue: <b>${I.migration_queue_pending ?? 0} pending</b></span>
-                </div>`;
-        }
-
-        function renderIngressStatus(data) {
-            const ws = data?.pool_stats?.ws || {};
-            const subs = ws.subscriptions || 0;
-            const lastEvent = ws.last_event_at || 0;
-            const now = Math.floor(Date.now() / 1000);
-            const secsAgo = lastEvent ? now - lastEvent : null;
-            let ingressStatus, color;
-            if (subs > 0 && secsAgo != null && secsAgo <= 30) {
-                ingressStatus = 'HEALTHY'; color = 'healthy';
-            } else if (subs > 0 && secsAgo != null && secsAgo <= 120) {
-                ingressStatus = 'DEGRADED'; color = 'warning';
-            } else if (subs > 0) {
-                ingressStatus = 'IDLE'; color = 'warning';
-            } else {
-                ingressStatus = 'DISCONNECTED'; color = 'critical';
-            }
-            const html = `
-                <div class="status-indicator status-${color}">
-                    <span class="status-dot ${color}"></span>
-                    WebSocket Ingress: ${ingressStatus}
-                </div>
-            `;
-            document.getElementById('ingressStatus').innerHTML = html;
-        }
-
-        function renderWSPoolStats(data) {
-            const ws = data?.pool_stats?.ws || {};
-            const wsStatus = ws.status || 'DISCONNECTED';
-            const stale = wsStatus === 'DISCONNECTED' ? 'warning' : wsStatus === 'DEGRADED' ? 'warning' : 'healthy';
-            const html = `
-                <div class="metric">
-                    <div class="metric-label">Connected</div>
-                    <div class="metric-value small">${ws.status || (ws.connected ? '✓ Yes' : '✗ No')}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Subscriptions</div>
-                    <div class="metric-value small">${ws.subscriptions || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Events Received</div>
-                    <div class="metric-value small">${ws.events_received || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Events Decoded</div>
-                    <div class="metric-value small">${ws.events_decoded || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Deduplicated</div>
-                    <div class="metric-value small">${ws.events_deduplicated || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Reconnects</div>
-                    <div class="metric-value small">${ws.reconnects || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Status</div>
-                    <div style="margin-top: 0.5rem;">
-                        <span class="badge badge-${stale}">${wsStatus === 'CONNECTED' ? '✓ HEALTHY' : wsStatus === 'DEGRADED' ? '⚠ DEGRADED' : '✗ STALE'}</span>
-                    </div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Last Event</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${formatTime(ws.last_event_at)}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Listener Logs</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                        ${ws.listener_log_age_secs != null ? `${Math.round(ws.listener_log_age_secs)}s ago` : 'No recent signal'}
-                    </div>
-                </div>
-            `;
-            document.getElementById('wsPoolStats').innerHTML = html;
-        }
-
-        function renderPoolPricingStats(data) {
-            const pool = data?.pool_stats || {};
-            const attempted = pool.pool_attempted || 0;
-            const successRate = attempted > 0 ? Math.round((pool.pool_success || 0) / attempted * 100) : null;
-            const html = `
-                <div class="metric">
-                    <div class="metric-label">Pools Registered</div>
-                    <div class="metric-value small">${pool.pools_registered || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Prices Cached</div>
-                    <div class="metric-value small">${pool.pool_prices_cached || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Last Cycle Fetched</div>
-                    <div class="metric-value small">${pool.pool_prices_fetched_last_cycle || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Success Rate</div>
-                    <div class="metric-value small">${successRate !== null ? successRate + '%' : '—'}</div>
-                    <div class="metric-bar">
-                        <div class="metric-bar-fill" style="width: ${successRate || 0}%;"></div>
-                    </div>
-                </div>
-                <div class="list-item">
-                    <span class="list-label">Attempted</span>
-                    <span class="list-value">${attempted}</span>
-                </div>
-                <div class="list-item">
-                    <span class="list-label">Success</span>
-                    <span class="list-value" style="color: var(--color-success);">+${pool.pool_success || 0}</span>
-                </div>
-                <div class="list-item">
-                    <span class="list-label">Failed</span>
-                    <span class="list-value" style="color: var(--color-critical);">-${pool.pool_fail || 0}</span>
-                </div>
-            `;
-            document.getElementById('poolPricingStats').innerHTML = html;
-        }
-
-        function renderAggregationStats(data) {
-            const ws = data?.pool_stats?.ws || {};
-            const enabled = ws.multi_pool_enabled;
-            const poolCount = data?.db_signals?.active_pools || data?.pool_stats?.pools_registered || 0;
-            const html = `
-                <div class="metric">
-                    <div class="metric-label">Multi-Pool</div>
-                    <div style="margin-top: 0.5rem;">
-                        <span class="badge badge-${enabled ? 'enabled' : 'inactive'}">${enabled ? '✓ ENABLED' : '✗ DISABLED'}</span>
-                    </div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Active Pools</div>
-                    <div class="metric-value small">${poolCount}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Aggregation Strategy</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Liquidity-Weighted Selection</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Price Source</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">pool(N) where N = pool count</div>
-                </div>
-            `;
-            document.getElementById('aggregationStats').innerHTML = html;
-        }
-
-        function renderWorkerDetails(data) {
-            const db = data?.db_signals || {};
-            const secs = db.seconds_since_last_update;
-            const lastRunStr = secs != null ? `${Math.round(secs)}s ago` : '—';
-            const html = `
-                <div class="metric">
-                    <div class="metric-label">Snapshots (60s)</div>
-                    <div class="metric-value small">${db.snapshots_in_window || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Tokens Priced (60s)</div>
-                    <div class="metric-value small">${db.tokens_priced_in_window || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Active Pools (DB)</div>
-                    <div class="metric-value small">${db.active_pools || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Last Snapshot</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${lastRunStr}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Active Writer</div>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${db.inferred_active_writer || '—'}</div>
-                </div>
-            `;
-            document.getElementById('workerDetails').innerHTML = html;
-        }
-
-        function renderCacheStats(data) {
-            // DB-backed: unique mints priced in last 60s
-            const db = data?.db_signals || {};
-            const html = `
-                <div class="metric">
-                    <div class="metric-label">Unique Mints Priced (60s)</div>
-                    <div class="metric-value small">${db.unique_mints_60s || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Tokens w/ Recent Update (60s)</div>
-                    <div class="metric-value small">${db.tokens_priced_in_window || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Active Pools (DB)</div>
-                    <div class="metric-value small">${db.active_pools || 0}</div>
-                </div>
-            `;
-            document.getElementById('cacheStats').innerHTML = html;
-        }
-
-        function renderQueueStats(data, fundingStats) {
-            const db = data?.db_signals || {};
-            const secs = db.seconds_since_last_update;
-
-            // Funding Queue — from SQLite-backed stats
-            const fq = fundingStats || {};
-            const fqPending = (fq.pending || 0) + (fq.retry || 0);
-            const fqRunning = fq.running || 0;
-            const fqComplete = fq.complete || 0;
-            const fqComplete24h = fq.complete_24h || 0;
-            const fqFailed = fq.failed || 0;
-            const fqColor = fqRunning > 0 ? 'var(--color-watch)' : fqPending > 0 ? 'var(--color-low)' : 'var(--color-success)';
-            const fqFailColor = fqFailed > 0 ? 'var(--color-critical)' : 'var(--color-success)';
-            let fqLastRun = '—';
-            if (fq.last_worker_run) {
-                const m = fq.last_worker_run.match(/completed=(\d+).*pending_after=(\d+).*elapsed=([\d.]+)s/);
-                if (m) fqLastRun = `${m[1]} done · ${m[2]} left · ${m[3]}s`;
-            }
-
-            let qHtml = `
-                <div class="metric">
-                    <div class="metric-label">Funding Queue</div>
-                    <div class="metric-value small" style="color:${fqColor};">${fqPending} pending${fqRunning ? ` · ${fqRunning} running` : ''}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Funding Complete</div>
-                    <div class="metric-value small" style="color:var(--color-success);">${fqComplete24h} today</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Funding Failed</div>
-                    <div class="metric-value small" style="color:${fqFailColor};">${fqFailed}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Last Worker Run</div>
-                    <div class="metric-value small">${fqLastRun}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Worker Mode</div>
-                    <div class="metric-value small" style="color:var(--color-watch);">${fq.worker_mode || 'external_cron_5m'}</div>
-                </div>`;
-
-            const html = qHtml + `
-                <div class="metric">
-                    <div class="metric-label">Snapshots (60s)</div>
-                    <div class="metric-value small">${db.snapshots_in_window || 0}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Last Snapshot</div>
-                    <div class="metric-value small">${secs != null ? Math.round(secs) + 's ago' : '—'}</div>
-                </div>
-            `;
-            document.getElementById('queueStats').innerHTML = html;
-        }
-
-        function renderDbWriteReliability(dbHealth) {
-            const wr = dbHealth?.write_reliability || {};
-            const lockErrors = wr.lock_errors_1h ?? wr.sqlite_lock_errors_1h ?? '—';
-            const lockErrors5m = wr.lock_errors_5m ?? '—';
-            const failedWrites = wr.failed_writes_total ?? '—';
-            const deadLetters = wr.dead_letter_count ?? '—';
-            const avgLatency = wr.avg_write_latency_ms ?? '—';
-            const walMb = dbHealth?.wal_mb ?? '—';
-            const lockColor = lockErrors === 0 ? 'var(--color-success)' : lockErrors < 10 ? 'var(--color-watch)' : 'var(--color-critical)';
-            const lock5mColor = lockErrors5m === 0 ? 'var(--color-success)' : lockErrors5m < 5 ? 'var(--color-watch)' : 'var(--color-critical)';
-            const failColor = failedWrites === 0 ? 'var(--color-success)' : 'var(--color-critical)';
-            const dlColor = deadLetters === 0 ? 'var(--color-success)' : 'var(--color-critical)';
-
-            let deadLetterHtml = '';
-            const recent = wr.recent_dead_letters || [];
-            if (recent.length > 0) {
-                deadLetterHtml = `<div style="margin-top:1rem;font-size:0.78rem;color:var(--color-critical);">
-                    <strong>Recent Dead Letters:</strong>
-                    ${recent.map(d => `<div style="margin-top:0.4rem;opacity:0.85;">
-                        [${new Date(d.ts * 1000).toLocaleTimeString()}] <code>${d.label}</code> — ${d.error}
-                        <div style="color:var(--text-secondary);font-size:0.72rem;">${d.sql}</div>
-                    </div>`).join('')}
-                </div>`;
-            }
-
-            document.getElementById('dbWriteReliability').innerHTML = `
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;">
-                    <div class="metric">
-                        <div class="metric-label">Lock Errors (5m)</div>
-                        <div class="metric-value small" style="color:${lock5mColor};">${lockErrors5m}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Lock Errors (1h)</div>
-                        <div class="metric-value small" style="color:${lockColor};">${lockErrors}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Failed Writes</div>
-                        <div class="metric-value small" style="color:${failColor};">${failedWrites}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Dead Letters</div>
-                        <div class="metric-value small" style="color:${dlColor};">${deadLetters}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Avg Write Latency</div>
-                        <div class="metric-value small">${avgLatency}ms</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">WAL Size</div>
-                        <div class="metric-value small" style="color:${parseFloat(walMb) > 100 ? 'var(--color-watch)' : 'inherit'}">${walMb} MB</div>
-                    </div>
-                </div>
-                ${deadLetterHtml}
-            `;
-        }
-
-        function renderSourceHealth(data) {
-            // Pool pricing DB-backed; other sources are Flask-local (shown in diagnostics below)
-            const pool = data?.pool_stats || {};
-            const attempted = pool.pool_attempted || 0;
-            const success = pool.pool_success || 0;
-            const fail = pool.pool_fail || 0;
-            const rate = attempted ? Math.round(success / attempted * 100) : 0;
-            const color = rate >= 90 ? 'var(--color-success)' : rate >= 50 ? 'var(--color-watch)' : 'var(--color-critical)';
-            let html = '<div style="overflow-x: auto;">';
-            html += '<table class="pool-health-table"><thead><tr><th>Source</th><th>Attempted</th><th>Success</th><th>Failed</th><th>Success Rate</th><th>Note</th></tr></thead><tbody>';
-            html += `<tr>
-                <td><strong>POOL (DB-backed)</strong></td>
-                <td>${attempted}</td>
-                <td style="color:var(--color-success);">+${success}</td>
-                <td style="color:var(--color-critical);">-${fail}</td>
-                <td><span style="color:${color};font-weight:600;">${rate}%</span></td>
-                <td style="color:var(--text-secondary);font-size:0.8rem;">DB signal (60s window)</td>
-            </tr>`;
-            const local = data?.local_process_diagnostics || {};
-            const rw = local?.rolling_window_stats || {};
-            ['dexscreener', 'jupiter', 'birdeye'].forEach(source => {
-                const stat = rw[source] || {};
-                const a = stat.attempts_in_window || 0;
-                const sr = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
-                const fr = stat.failure_rate ? Math.round(stat.failure_rate * 100) : 0;
-                html += `<tr style="opacity:0.6;">
-                    <td><strong>${source.toUpperCase()}</strong></td>
-                    <td>${a}</td>
-                    <td style="color:var(--color-success);">—</td>
-                    <td style="color:var(--color-critical);">—</td>
-                    <td>${sr}%</td>
-                    <td style="color:var(--color-watch);font-size:0.8rem;">Flask-local only</td>
-                </tr>`;
-            });
-            html += '</tbody></table></div>';
-            document.getElementById('sourceHealth').innerHTML = html;
-        }
-
-        function renderCircuitBreaker(data) {
-            const cb = data?.local_process_diagnostics?.worker_stats?.worker?.circuit_breaker || {};
-            const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye'];
-            let html = '<div style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--color-watch);">⚠ Flask-process local state only</div>';
-            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">';
-            sources.forEach(source => {
-                const disabled = cb[source]?.disabled;
-                const cooldown = cb[source]?.cooldown_remaining_secs || 0;
-                html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem;">
-                    <div style="font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.85rem;">${source}</div>
-                    <div class="badge badge-${disabled ? 'inactive' : 'active'}">${disabled ? 'DISABLED' : 'ACTIVE'}</div>
-                    ${cooldown > 0 ? `<div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--color-watch);">Cooldown: ${Math.round(cooldown)}s</div>` : ''}
-                </div>`;
-            });
-            html += '</div>';
-            document.getElementById('circuitBreaker').innerHTML = html;
-        }
-
-        function renderRollingWindow(data) {
-            const rw = data?.local_process_diagnostics?.rolling_window_stats || data?.rolling_window_stats || {};
-            const sources = ['pool', 'dexscreener', 'jupiter', 'birdeye'];
-            let html = '<div style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--color-watch);">⚠ Flask-process rolling window — reflects Flask-local API calls only</div>';
-            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
-            sources.forEach(source => {
-                const stat = rw[source] || {};
-                const attempts = stat.attempts_in_window || 0;
-                const successRate = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
-                const failureRate = stat.failure_rate ? Math.round(stat.failure_rate * 100) : 0;
-                html += `<div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border-color); border-radius: 0.375rem; opacity: 0.7;">
-                    <div style="font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.85rem;">${source}</div>
-                    <div class="metric"><div class="metric-label">Attempts</div><div class="metric-value small">${attempts}</div></div>
-                    <div class="metric"><div class="metric-label">Success Rate</div><div class="metric-value small" style="color:var(--color-success);">${successRate}%</div></div>
-                    <div class="metric"><div class="metric-label">Failure Rate</div><div class="metric-value small" style="color:var(--color-critical);">${failureRate}%</div></div>
-                </div>`;
-            });
-            html += '</div>';
-            document.getElementById('rollingWindow').innerHTML = html;
-        }
-
-        function renderLocalDiagnostics(data) {
-            const loc = data?.local_process_diagnostics || {};
-            const w = loc.worker_stats?.worker || {};
-            const html = `
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
-                    <div class="metric">
-                        <div class="metric-label">Flask PID</div>
-                        <div class="metric-value small" style="font-size:1rem;">${loc.pid || '—'}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Local Cache Size</div>
-                        <div class="metric-value small">${loc.cache_size || 0}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Local Worker Cycles</div>
-                        <div class="metric-value small">${loc.worker_cycles || 0}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Local Worker Running Flag</div>
-                        <div class="metric-value small">${loc.worker_running_flag ? '✓ true' : '✗ false'}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Note</div>
-                        <div style="font-size:0.8rem;color:var(--color-watch);margin-top:0.25rem;">${loc.note || 'Flask-process singleton only'}</div>
-                    </div>
-                </div>`;
-            document.getElementById('localDiagnostics').innerHTML = html;
-        }
-
-        function renderFirstSnapshotHealth(h) {
-            if (!h || h.ok === false) return;
-            const fmt = n => (n ?? 0).toLocaleString();
-            const live = h.since_retention_enabled || {};
-            const legacy = h.all_time_legacy || {};
-            const enabled = h.retention_enabled_at ? new Date(h.retention_enabled_at * 1000).toLocaleString() : '—';
-            document.getElementById('firstSnapshotHealth').innerHTML = `
-                <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:.75rem;">Retention enabled: ${enabled}</div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
-                    <div class="metric">
-                        <div class="metric-label">Since Retention Enabled</div>
-                        <div class="metric-value small">${live.coverage_pct ?? 0}%</div>
-                        <div style="font-size:.8rem;color:var(--text-secondary);margin-top:.25rem;">${fmt(live.anchors_written)} / ${fmt(live.pools_seen)} anchored · ${fmt(live.missing_after_60s)} missing after 60s</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">All-Time Legacy Coverage</div>
-                        <div class="metric-value small">${legacy.coverage_pct ?? 0}%</div>
-                        <div style="font-size:.8rem;color:var(--text-secondary);margin-top:.25rem;">${fmt(legacy.anchors_written)} / ${fmt(legacy.pools_seen)} anchored · ${fmt(legacy.missing_after_60s)} missing after 60s</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Bad/Null MC</div>
-                        <div class="metric-value small">${fmt(h.bad_or_null_first_mc_count)}</div>
-                    </div>
-                </div>`;
-        }
-
-        function renderSnapshotCleanup(data) {
-            const sc = data?.snapshot_cleanup || {};
-            const fmt = n => (n ?? 0).toLocaleString();
-            const fmtTs = ts => ts ? new Date(ts * 1000).toLocaleTimeString() : '—';
-            document.getElementById('snapshotCleanup').innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
-                    <div class="metric">
-                        <div class="metric-label">Snapshots Deleted</div>
-                        <div class="metric-value small">${fmt(sc.snapshots_deleted_24h)}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Tokens Deleted</div>
-                        <div class="metric-value small">${fmt(sc.tokens_deleted_24h)}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Snapshots Downsampled</div>
-                        <div class="metric-value small">${fmt(sc.snapshots_downsampled_24h)}</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Last Cleanup</div>
-                        <div class="metric-value small" style="font-size: 0.85rem;">${fmtTs(sc.last_cleanup_at)}</div>
-                    </div>
-                </div>`;
-        }
-
-        let _recoveryLayoutApplied = false;
-
-        function applyRecoveryLayout(recovery) {
-            const inRecovery = recovery?.env_flags?.recovery_mode === true;
-            const section = document.getElementById('priceDiagnosticsSection');
-            const banner  = document.getElementById('priceDiagnosticsBanner');
-            if (!section || !banner) return;
-
-            if (!inRecovery) {
-                // Normal mode: show everything, no banner
-                section.style.display = '';
-                banner.innerHTML = '';
-                return;
-            }
-
-            // Recovery mode: collapse on first load, preserve toggle state on refresh
-            if (!_recoveryLayoutApplied) {
-                section.style.display = 'none';
-                _recoveryLayoutApplied = true;
-            }
-
-            // Render banner only once (toggle state preserved across refreshes)
-            if (!banner.dataset.rendered) {
-                banner.dataset.rendered = '1';
-                banner.innerHTML = `
-                    <div style="margin:0.75rem 0;padding:10px 14px;background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.25);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-                        <span style="font-size:0.82rem;color:#9ca3af;">
-                            <i class="fas fa-eye-slash" style="margin-right:6px;"></i>
-                            Price-worker diagnostics are collapsed because <code style="background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">FLEX_UI_RECOVERY_MODE=1</code> and the price updater is intentionally parked.
-                        </span>
-                        <button id="togglePriceDiagnosticsBtn" onclick="togglePriceDiagnostics()" style="font-size:0.78rem;padding:4px 12px;background:rgba(107,114,128,0.2);border:1px solid rgba(107,114,128,0.4);border-radius:4px;color:#d1d5db;cursor:pointer;white-space:nowrap;">
-                            Show parked price diagnostics
-                        </button>
-                    </div>`;
-            }
-        }
-
-        function togglePriceDiagnostics() {
-            const section = document.getElementById('priceDiagnosticsSection');
-            const btn = document.getElementById('togglePriceDiagnosticsBtn');
-            if (!section || !btn) return;
-            const hidden = section.style.display === 'none';
-            section.style.display = hidden ? '' : 'none';
-            btn.textContent = hidden ? 'Hide parked price diagnostics' : 'Show parked price diagnostics';
-        }
-
-        // ── WATCHTOWER Platform Health (/api/health/full) ───────────────────
-
         function _wtColor(s) {
             if (!s) return 'warning';
             const ok      = ['HEALTHY','CONNECTED','LIVE','WATCHING','ACTIVE','LIVE_IDLE','RUNNING'];
@@ -1042,6 +333,165 @@
             if (warn.some(v => up.includes(v))) return 'warning';
             return 'critical';
         }
+        function _fmtAge(secs) {
+            if (secs == null) return '—';
+            if (secs < 60) return `${Math.round(secs)}s ago`;
+            if (secs < 3600) return `${Math.round(secs/60)}m ago`;
+            return `${Math.round(secs/3600)}h ago`;
+        }
+        function _fmtDetail(ageSecs, utcStr) {
+            return `${ageSecs != null ? _fmtAge(ageSecs) : '—'} · last ${utcStr || '—'}`;
+        }
+        function pillHtml(status, label) {
+            label = label || status || 'UNKNOWN';
+            return `<span class="pill ${status}"><span class="dot"></span>${label}</span>`;
+        }
+
+        // ── group expand/collapse (Phase 3: unhealthy auto-expands via CSS,
+        //    this only tracks the user's manual override for healthy groups) ──
+        function mcToggleGroup(id) {
+            const grp = document.getElementById(id);
+            const nowExpanded = grp.classList.toggle('expanded');
+            // Lazily-populated widgets (Runtime Budget) only render into DOM
+            // nodes that exist once their parent group's body is visible --
+            // a healthy/collapsed group never had those nodes rendered when
+            // the periodic interval last fired. Refresh on expand so the
+            // user never sees a stuck "loading…" until the next 30s tick.
+            if (nowExpanded && id === 'grp-infra' && typeof loadSHRuntimeBudget === 'function') {
+                loadSHRuntimeBudget();
+            }
+        }
+        function mcSetGroupStatus(groupId, status, summaryHtml) {
+            const grp = document.getElementById(groupId);
+            const pill = document.getElementById(`${groupId}-pill`);
+            const summary = document.getElementById(`${groupId}-summary`);
+            grp.classList.remove('status-healthy', 'status-warning', 'status-critical');
+            grp.classList.add(`status-${status}`);
+            if (pill) {
+                const label = status === 'healthy' ? 'Healthy' : status === 'warning' ? 'Warning' : status === 'critical' ? 'Critical' : status.toUpperCase();
+                pill.className = `mc-group-status pill ${status}`;
+                pill.innerHTML = `<span class="dot"></span>${label}`;
+            }
+            if (summary) summary.innerHTML = summaryHtml || '';
+        }
+        function mcL3Toggle(btnId, bodyId, label) {
+            const body = document.getElementById(bodyId);
+            const btn = document.getElementById(btnId);
+            if (!body || !btn) return;
+            const open = body.classList.toggle('open');
+            btn.innerHTML = `<i class="fas fa-chevron-${open ? 'down' : 'right'}"></i> ${open ? 'Hide' : 'Show'} ${label}`;
+            // Same lazy-render gap as mcToggleGroup: the Runtime Budget pill
+            // lives inside this specific L3 body, not just the parent group.
+            if (open && bodyId === 'infra-l3-body' && typeof loadSHRuntimeBudget === 'function') {
+                loadSHRuntimeBudget();
+            }
+        }
+
+        // ── top-of-page alert banner (Phase 9) ───────────────────────────
+        function mcUpdateBanner(worst, criticalItems, warningItems) {
+            const el = document.getElementById('mc-banner');
+            el.className = `mc-banner ${worst}`;
+            if (worst === 'critical') {
+                el.innerHTML = `<i class="fas fa-circle-exclamation"></i>
+                    <span>Critical — ${criticalItems.length} issue${criticalItems.length===1?'':'s'} need attention</span>
+                    <span class="sub">${criticalItems.join(' · ')}</span>`;
+            } else if (worst === 'warning') {
+                el.innerHTML = `<i class="fas fa-triangle-exclamation"></i>
+                    <span>Warning — ${warningItems.length} item${warningItems.length===1?'':'s'} degraded</span>
+                    <span class="sub">${warningItems.join(' · ')}</span>`;
+            } else {
+                el.innerHTML = `<i class="fas fa-circle-check"></i> <span>System Healthy</span> <span class="sub">No action required</span>`;
+            }
+        }
+
+        // Health Summary strip: per-group breakdown under the banner, so
+        // "do I need to do anything" is answerable without expanding a
+        // single group. `groups` is [{ key, label, color, criticalMsgs,
+        // warningMsgs }] for every one of the five capability groups.
+        function mcUpdateSummaryStrip(worst, groups) {
+            const el = document.getElementById('mc-summary-strip');
+            if (!el) return;
+            el.className = `mc-summary-strip ${worst}`;
+
+            const healthy = groups.filter(g => g.color === 'healthy' || g.color === 'neutral');
+            const attention = groups.filter(g => g.color === 'warning' || g.color === 'critical');
+
+            const healthyHtml = healthy.length ? `
+                <div class="mc-summary-col">
+                    <div class="mc-summary-col-title">Healthy</div>
+                    ${healthy.map(g => `<div class="mc-summary-item healthy"><i class="fas fa-check"></i> ${g.label}</div>`).join('')}
+                </div>` : '';
+
+            const attentionHtml = attention.length ? `
+                <div class="mc-summary-col">
+                    <div class="mc-summary-col-title">Attention Required</div>
+                    ${attention.map(g => {
+                        const msgs = [...(g.criticalMsgs||[]), ...(g.warningMsgs||[])];
+                        const reason = msgs.length ? msgs[0] : g.label;
+                        return `<div class="mc-summary-item ${g.color}"><i class="fas fa-circle-exclamation"></i> ${g.label}<span class="reason">— ${reason}</span></div>`;
+                    }).join('')}
+                </div>` : `
+                <div class="mc-summary-col">
+                    <div class="mc-summary-col-title">Attention Required</div>
+                    <div class="mc-summary-item healthy"><i class="fas fa-check"></i> None</div>
+                </div>`;
+
+            el.innerHTML = attentionHtml + healthyHtml;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // GROUP 1 — PLATFORM
+        // ══════════════════════════════════════════════════════════════════
+        function renderPlatformGroup(fullHealth, recovery) {
+            const h = fullHealth;
+            const top = h?.status || 'UNKNOWN';
+            const topColor = _wtColor(top);
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+
+            mcSetGroupStatus('grp-platform', topColor, `WATCHTOWER ${top}${inRecovery ? ' · RECOVERY MODE' : ''}`);
+
+            const ss = h?.subsystems || {};
+            const critical = [];
+            const warning = [];
+            // Surface WHICH subsystem(s) are driving a non-healthy top-level
+            // status, not just the aggregate label -- an analyst scanning the
+            // banner needs to know where to look, not just that something's off.
+            // 'intelligence' is excluded here because the Intelligence group
+            // below already reports its own subsystem status with more detail
+            // (funding-queue depth, etc.) -- listing it twice in the same
+            // banner would be redundant, not additive.
+            Object.entries(ss).forEach(([name, sub]) => {
+                if (name === 'intelligence') return;
+                const c = _wtColor(sub?.status);
+                const label = `${name.replace(/_/g,' ')} ${sub?.status || 'UNKNOWN'}`;
+                if (c === 'critical') critical.push(label);
+                else if (c === 'warning') warning.push(label);
+            });
+            if (topColor === 'critical' && !critical.length) critical.push(`Platform status ${top}`);
+            else if (topColor === 'warning' && !warning.length) warning.push(`Platform status ${top}`);
+
+            document.getElementById('grp-platform-body').innerHTML = `
+                <div class="mc-kpi-row">
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Status</div>
+                        <div class="mc-kpi-value ${topColor==='healthy'?'ok':topColor==='warning'?'warn':topColor==='critical'?'bad':''}">${top}</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Mode</div>
+                        <div class="mc-kpi-value" style="font-size:1rem;">${inRecovery ? 'RECOVERY' : 'NORMAL'}</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Subsystems</div>
+                        <div class="mc-kpi-value" style="font-size:1rem;">${Object.keys(ss).length || 7} tracked</div>
+                    </div>
+                </div>
+                <div id="wt-subsystem-pills" style="display:flex;flex-wrap:wrap;gap:0.6rem;"></div>
+            `;
+
+            // Reuse the original per-subsystem pill renderer (unchanged data shape)
+            renderWatchtowerSubsystemPills(ss);
+            return { color: topColor, criticalMsgs: critical, warningMsgs: warning };
+        }
 
         function _wtPill(label, value, detail) {
             const c = _wtColor(value);
@@ -1050,382 +500,182 @@
             const col = colorMap[c] || '#94a3b8';
             const bg  = bgMap[c]   || 'rgba(100,116,139,0.12)';
             return `<div style="background:${bg};border:1px solid ${col}33;border-radius:6px;padding:0.35rem 0.75rem;min-width:120px;">
-                <div style="font-size:0.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">${label}</div>
-                <div style="font-size:0.85rem;font-weight:700;color:${col};">${value || 'UNKNOWN'}</div>
-                ${detail ? `<div style="font-size:0.72rem;color:#64748b;margin-top:2px;">${detail}</div>` : ''}
+                <div style="font-size:0.65rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">${label}</div>
+                <div style="font-size:0.82rem;font-weight:700;color:${col};">${value || 'UNKNOWN'}</div>
+                ${detail ? `<div style="font-size:0.7rem;color:#64748b;margin-top:2px;">${detail}</div>` : ''}
             </div>`;
         }
 
-        function _fmtAge(secs) {
-            if (secs == null) return '—';
-            if (secs < 60) return `${Math.round(secs)}s ago`;
-            if (secs < 3600) return `${Math.round(secs/60)}m ago`;
-            return `${Math.round(secs/3600)}h ago`;
-        }
-
-        function _fmtDetail(ageSecs, utcStr) {
-            const a = ageSecs != null ? _fmtAge(ageSecs) : '—';
-            const t = utcStr || '—';
-            return `${a} · last ${t}`;
-        }
-
-        function renderWatchtowerPlatform(h) {
-            if (!h) return;
-            const ss = h.subsystems || {};
-            const top = h.status || 'UNKNOWN';
-            const topColor = _wtColor(top);
-            const colMap = {healthy:'#22c55e', warning:'#eab308', critical:'#ef4444'};
-
-            // Top-level status label
-            document.getElementById('wt-platform-status').innerHTML =
-                `<span style="font-weight:700;color:${colMap[topColor]||'#94a3b8'};">● ${top}</span>`;
-
+        function renderWatchtowerSubsystemPills(ss) {
             const ing  = ss.ingestion || {};
             const pw   = ss.price_worker || {};
             const ci   = ss.cascade_infrastructure || {};
-            const ca   = ss.cascade_activity || {};
             const db   = ss.database || {};
             const api  = ss.api || {};
             const intel = ss.intelligence || {};
-
-            // Row 1: subsystem pills
             const pills = [
                 _wtPill('Listener',     ing.status,  ing.pumpportal ? `PP:${ing.pumpportal} · PS:${ing.pumpswap}` : null),
-                _wtPill('Price Worker', pw.worker_alive === false ? 'DOWN' : (pw.status || 'UNKNOWN'), null),
+                // worker_alive=false in PEAK-ONLY mode is expected (the worker
+                // intentionally isn't running a live price loop) -- show the
+                // real status so the pill's color matches its actual (neutral)
+                // classification instead of implying an unflagged fault.
+                _wtPill('Price Worker', pw.status || (pw.worker_alive === false ? 'DOWN' : 'UNKNOWN'), null),
                 _wtPill('Cascade',      ci.status,   ci.subs_total != null ? `${ci.subs_total} subs · hb ${_fmtAge(ci.heartbeat_age_secs)}` : null),
                 _wtPill('Database',     db.status,   db.p99_wait_ms != null ? `p99 ${Math.round(db.p99_wait_ms)}ms` : null),
                 _wtPill('API',          api.status,  api.gunicorn_alive === false ? 'gunicorn dead' : null),
                 _wtPill('Intelligence', intel.status, intel.creator_queue_pending != null ? `CRQ ${intel.creator_queue_pending} · FQ ${intel.funding_queue_pending}` : null),
             ];
-            document.getElementById('wt-subsystem-pills').innerHTML = pills.join('');
-
-            // Row 2: detail blocks
-            let details = '';
-
-            // Peak MC
-            const peakLabel = pw.last_peak_update_age_secs != null
-                ? _fmtDetail(pw.last_peak_update_age_secs, pw.last_peak_update_at_utc)
-                : '—';
-            const workerPeakOnly = pw.status === 'PEAK-ONLY';
-            const peakStatus = workerPeakOnly ? 'PEAK-ONLY'
-                : (pw.last_peak_update_age_secs != null && pw.last_peak_update_age_secs < 120) ? 'LIVE' : 'STALE';
-            details += _wtPill('Peak MC', peakStatus, peakLabel);
-
-            // Snapshots
-            let snapStatus, snapDetail;
-            if (!pw.snapshot_expected) {
-                const exp = pw.discovery_expired_count || 0;
-                const wo  = pw.watch_owned_count || 0;
-                snapStatus = exp > 0 ? 'PEAK ONLY' : 'IDLE';
-                snapDetail = `${exp} DISCOVERY expired · ${wo} WATCH/OWNED · no write expected ✓`;
-            } else {
-                const age = pw.last_snapshot_write_age_secs;
-                snapStatus = (age != null && age < 120) ? 'ACTIVE' : 'STALE';
-                snapDetail = age != null ? _fmtDetail(age, pw.last_snapshot_write_at_utc) : '—';
-            }
-            details += _wtPill('Snapshots', snapStatus, snapDetail);
-
-            // Cascade Activity (separate from infra)
-            const caDetail = ca.launches_24h != null
-                ? `${ca.launches_24h} launches 24h · last ${_fmtAge(ca.last_launch_age_secs)}`
-                : null;
-            details += _wtPill('Cascade Activity', ca.status, caDetail);
-
-            // Intelligence queue detail — always show
-            const crqFailed   = intel.creator_queue_failed  ?? 0;
-            const crqSkipped  = intel.creator_queue_skipped ?? 0;
-            const crqEff      = intel.crq_resolution_efficiency;
-            const crqAvgPages = intel.crq_avg_pages;
-            const crqP95rt    = intel.crq_p95_runtime_secs;
-            const crqStatus   = crqFailed > 0 ? `${crqFailed} FAILED` : `${intel.creator_queue_pending} pending`;
-            // Efficiency KPI: warn only when efficiency is known and falling below 50%
-            const crqEffLabel = crqEff != null ? ` · eff ${crqEff}%` : '';
-            const crqDetail   = [
-                `pending ${intel.creator_queue_pending}`,
-                crqSkipped > 0 ? `${crqSkipped} skipped` : null,
-                crqAvgPages != null ? `avg ${crqAvgPages}p` : null,
-                crqP95rt    != null ? `p95 ${crqP95rt}s`  : null,
-                `missing 1h ${intel.missing_creators_1h}`,
-            ].filter(Boolean).join(' · ');
-            details += _wtPill('Creator Queue', crqStatus + crqEffLabel, crqDetail);
-
-            document.getElementById('wt-detail-rows').innerHTML = details;
+            const el = document.getElementById('wt-subsystem-pills');
+            if (el) el.innerHTML = pills.join('');
         }
 
-        async function updateDashboard() {
-            // STABILITY: first-snapshot-health opens flex_complete_database.db RW for 8-35s
-            // and was causing WAL reader pinning → cascade write starvation → WS keepalive drops.
-            // Disabled until the endpoint is rewritten with mode=ro + short timeout.
-            const firstSnapshotHealth = {};
-            const [data, dbHealth, recovery, fundingStats, fullHealth] = await Promise.all([
-                fetchHealth(),
-                fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
-                fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
-                fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
-                fetch('/api/health/full').then(r => r.json()).catch(() => null),
-            ]);
-            if (!data) {
-                document.getElementById('overallStatus').innerHTML = '<div class="status-indicator status-critical">Unable to fetch health data</div>';
-                return;
+        // ══════════════════════════════════════════════════════════════════
+        // GROUP 2 — INGESTION PIPELINE (Listener + Queue + Workers + Processing)
+        // ══════════════════════════════════════════════════════════════════
+        function renderIngestionGroup(recovery, fundingStats, dbHealth) {
+            if (!recovery) {
+                mcSetGroupStatus('grp-ingestion', 'neutral', 'Unavailable');
+                document.getElementById('grp-ingestion-body').innerHTML = `<div style="color:var(--text-secondary);font-size:0.85rem;">Listener recovery status unavailable.</div>`;
+                return { color: 'neutral', warningMsgs: [], criticalMsgs: [] };
             }
 
-            renderWatchtowerPlatform(fullHealth);
+            const env = recovery.env_flags || {};
+            const ing = recovery.ingestion || {};
+            const lst = recovery.listener || {};
+            const lke = recovery.lock_errors || {};
+            const inRecovery = env.recovery_mode === true;
 
-            // Merge queue_depths from db-health into data for renderQueueStats
-            data.queue_depths = dbHealth.queue_depths || {};
+            // ── Determine overall group health ──
+            const warningMsgs = [];
+            const criticalMsgs = [];
+            const ppDown = lst.pumpportal_status === 'RETRYING' || lst.pumpportal_status === 'STALE';
+            const psDown = lst.pumpswap_status === 'RETRYING' || lst.pumpswap_status === 'STALE';
+            if (ppDown) warningMsgs.push(`PumpPortal ${lst.pumpportal_status}`);
+            if (psDown) warningMsgs.push(`PumpSwap ${lst.pumpswap_status}`);
+            if (lst.pumpportal_status === 'STALE' || lst.pumpswap_status === 'STALE') criticalMsgs.push('Listener stream STALE');
+            const birthAge = ing.latest_birth_age_s;
+            const migAge = ing.latest_migration_age_s;
+            if (birthAge != null && birthAge >= 300) warningMsgs.push(`No births in ${Math.round(birthAge/60)}m`);
+            if (migAge != null && migAge >= 300) warningMsgs.push(`No migrations in ${Math.round(migAge/60)}m`);
+            const lockTotal = lke.listener_tail_count;
+            if (lockTotal >= 10) warningMsgs.push(`${lockTotal} DB lock errors (log tail)`);
 
-            renderOverallStatus(data, recovery);
-            renderWorkerStatus(data, recovery);
-            renderWSStatus(data, recovery);
-            renderIngestionStatus(recovery);
-            applyRecoveryLayout(recovery);
-            renderWSPoolStats(data);
-            renderPoolPricingStats(data);
-            renderAggregationStats(data);
-            renderWorkerDetails(data);
-            renderCacheStats(data);
-            renderQueueStats(data, fundingStats);
-            renderDbWriteReliability(dbHealth);
-            renderSourceHealth(data);
-            renderCircuitBreaker(data);
-            renderRollingWindow(data);
-            renderSnapshotCleanup(data);
-            renderFirstSnapshotHealth(firstSnapshotHealth);
-            renderLocalDiagnostics(data);
-            renderIngressStatus(data);
-            if (typeof renderWebhookMonitor === 'function') renderWebhookMonitor();
+            const fq = fundingStats || {};
+            const fqPending = (fq.pending || 0) + (fq.retry || 0);
+            const fqFailed = fq.failed || 0;
+            if (fqFailed > 0) warningMsgs.push(`${fqFailed} funding-queue failures`);
 
-            const now = new Date();
-            document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
-        }
+            let color = 'healthy';
+            if (criticalMsgs.length) color = 'critical';
+            else if (warningMsgs.length) color = 'warning';
+            if (inRecovery) color = color === 'healthy' ? 'neutral' : color;
 
-        async function renderTier1Monitor() {
-            const el = document.getElementById('tier1Monitor');
-            if (!el) return;
-            try {
-                const [statusRes, cand1h, cand24h] = await Promise.all([
-                    fetch('/api/watchtower/webhook-status').then(r => r.json()).catch(() => ({})),
-                    fetch('/api/watchtower/hit-activity?window_s=3600&limit=20&source=candidate_webhook').then(r => r.json()).catch(() => ({})),
-                    fetch('/api/watchtower/hit-activity?window_s=86400&limit=20&source=candidate_webhook').then(r => r.json()).catch(() => ({})),
-                ]);
+            const wireOk = !ppDown && !psDown;
+            mcSetGroupStatus('grp-ingestion', color,
+                `Listener ${wireOk ? '✓' : '⚠'} · ${fqPending} queued · births ${_fmtAge(birthAge)}`);
 
-                const whs    = statusRes.webhooks || {};
-                const candWh = whs['candidate'] || {};
-                const hits1h  = cand1h.stats?.total_hits  || 0;
-                const hits24h = cand24h.stats?.total_hits || 0;
-                const bursts  = cand1h.bursts || [];
-                const feeTouches24h = (cand24h.wallets || []).reduce((s,w) => s + (w.fee_touches||0), 0);
-                const rec = candWh.last_reconciliation || {};
-                const recAge = rec.ran_at ? Math.round((Date.now()/1000 - rec.ran_at)) : null;
-                const hpm = hits1h > 0 ? (hits1h / 60).toFixed(1) : '0';
+            // ── Body: one consolidated card (Phase 4 target layout) ──
+            const migBuckets = ing.migration_hourly || [];
+            const migBars = migBuckets.length ? migBuckets.map(b => {
+                const c = b.count === 0 ? '#374151' : b.count < 5 ? '#6b7280' : '#22c55e';
+                return `<span title="-${b.hour_ago}h: ${b.count}" style="display:inline-block;width:14px;height:${Math.max(2, Math.min(b.count * 2, 20))}px;background:${c};margin-right:2px;vertical-align:bottom;border-radius:2px"></span>`;
+            }).join('') : '<span style="color:var(--text-secondary)">—</span>';
 
-                const burstHtml = bursts.length > 0
-                    ? bursts.map(b => `<span style="background:rgba(34,211,238,.1);color:#22d3ee;padding:2px 8px;border-radius:4px;font-size:0.8rem;margin-right:6px">⚡ ${b.wallet_address.slice(0,8)}… ${b.hits_5m} hits/5m</span>`).join('')
-                    : '<span style="color:var(--text-secondary);font-size:0.85rem">No bursts</span>';
-
-                const topRows = (cand24h.wallets || []).slice(0,10).map(w => {
-                    const addr = w.wallet_address;
-                    const sc = w.fee_touches > 0 ? '#f87171' : w.burst >= 3 ? '#fb923c' : '#22d3ee';
-                    const sig = w.fee_touches > 0 ? 'FEE TOUCH' : w.signal || 'ACTIVE';
-                    return `<tr>
-                        <td style="font-family:monospace;font-size:0.8rem" title="${addr}">${addr.slice(0,8)}…${addr.slice(-6)}</td>
-                        <td style="color:${sc};font-weight:600">${sig}</td>
-                        <td style="color:#fff;font-weight:700">${w.hits}</td>
-                        <td style="color:#f87171">${w.fee_touches||0}</td>
-                        <td style="color:var(--text-secondary)">${w.total_sol_moved ? (+w.total_sol_moved).toFixed(3)+'◎' : '—'}</td>
-                    </tr>`;
-                }).join('') || '<tr><td colspan="5" style="color:var(--text-secondary);padding:8px 0">No candidate activity recorded yet</td></tr>';
-
-                el.innerHTML = `
-                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.2rem">
-                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${(candWh.local_active||0).toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">ENROLLED</div>
-                        </div>
-                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${hits1h.toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">HITS · 1H</div>
-                        </div>
-                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${hits24h.toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">HITS · 24H</div>
-                        </div>
-                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:${feeTouches24h>0?'#f87171':'#22d3ee'}">${feeTouches24h}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">FEE TOUCHES 24H</div>
-                        </div>
-                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#22d3ee">${hpm}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">HITS / MIN</div>
-                        </div>
+            document.getElementById('grp-ingestion-body').innerHTML = `
+                <div class="mc-kpi-row">
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Listener</div>
+                        <div class="mc-kpi-value" style="font-size:1rem;">${pillHtml(wireOk ? 'healthy' : 'warning', wireOk ? 'Running' : 'Degraded')}</div>
                     </div>
-                    <div style="margin-bottom:0.8rem">
-                        <span style="font-size:0.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em">Burst Alerts · </span>${burstHtml}
-                        ${recAge !== null ? `<span style="float:right;font-size:0.7rem;color:var(--text-secondary)">Reconciled ${recAge}s ago</span>` : ''}
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Queue</div>
+                        <div class="mc-kpi-value ${fqPending>0?'warn':'ok'}" style="font-size:1.1rem;">${fqPending.toLocaleString()} pending</div>
                     </div>
-                    <table style="width:100%;border-collapse:collapse;font-size:0.8rem">
-                        <thead><tr style="color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,.1)">
-                            <th style="text-align:left;padding:4px 0">Wallet</th>
-                            <th style="text-align:left;padding:4px 0">Signal</th>
-                            <th style="text-align:right;padding:4px 0">Hits</th>
-                            <th style="text-align:right;padding:4px 0">Fee</th>
-                            <th style="text-align:right;padding:4px 0">SOL</th>
-                        </tr></thead>
-                        <tbody>${topRows}</tbody>
-                    </table>`;
-            } catch(e) {
-                el.innerHTML = `<div style="color:#f87171">Tier 1 error: ${e}</div>`;
-            }
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Processing (24h)</div>
+                        <div class="mc-kpi-value ok" style="font-size:1.1rem;">${(fq.complete_24h||0).toLocaleString()}</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Oldest Signal</div>
+                        <div class="mc-kpi-value ${(birthAge!=null&&birthAge>=300)?'warn':''}" style="font-size:1.1rem;">${_fmtAge(Math.max(birthAge||0, migAge||0))}</div>
+                    </div>
+                </div>
+
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title">Connections</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;">
+                        <span>PumpPortal ${pillHtml(_wtColor(lst.pumpportal_status), lst.pumpportal_status)}</span>
+                        <span>PumpSwap ${pillHtml(_wtColor(lst.pumpswap_status), lst.pumpswap_status)}</span>
+                        <span>Birth Reconciler ${pillHtml(
+                            lst.birth_reconciler_status==='DISABLED' ? 'neutral' : (lst.birth_reconciler_status==='ACTIVE'||(lst.birth_reconciler_status==='IDLE'&&ppDown)) ? 'warning' : 'healthy',
+                            lst.birth_reconciler_status==='DISABLED' ? 'Disabled' : (lst.birth_reconciler_status==='ACTIVE'||(lst.birth_reconciler_status==='IDLE'&&ppDown)) ? 'Active (PP down)' : 'Idle'
+                        )}</span>
+                        <span>Log Age <b>${_fmtAge(lst.listener_log_age_s)}</b></span>
+                    </div>
+                </div>
+
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title">Queues</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;">
+                        <span>Birth Queue <b>${ing.birth_queue_pending ?? '—'}</b> pending</span>
+                        <span>Migration Queue <b>${ing.migration_queue_pending ?? '—'}</b> pending, <b>${ing.migration_queue_retry ?? 0}</b> retry</span>
+                        <span>Funding Queue <b>${fqPending}</b> pending${(fq.running||0) ? `, ${fq.running} running` : ''}</span>
+                        <span>Funding Failed <b style="color:${fqFailed>0?'#f87171':'#4ade80'}">${fqFailed}</b></span>
+                    </div>
+                    <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--text-secondary);">
+                        Migrations/hr: ${migBars} ${migBuckets.length ? `<span style="margin-left:6px">${migBuckets[migBuckets.length-1].count} this hour</span>` : ''}
+                    </div>
+                </div>
+
+                ${(warningMsgs.length || criticalMsgs.length) ? `
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title" style="color:${criticalMsgs.length?'#f87171':'#facc15'}">Issues</div>
+                    <div style="font-size:0.82rem;color:${criticalMsgs.length?'#f87171':'#facc15'};">
+                        ${[...criticalMsgs, ...warningMsgs].map(m => `<div style="margin-bottom:0.25rem;">• ${m}</div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+                <button class="l3-toggle" id="ing-l3-btn" onclick="mcL3Toggle('ing-l3-btn','ing-l3-body','ingestion detail')">
+                    <i class="fas fa-chevron-right"></i> Show ingestion detail
+                </button>
+                <div class="l3-body" id="ing-l3-body"></div>
+            `;
+
+            renderIngestionDetail(recovery);
+            return { color, warningMsgs, criticalMsgs };
         }
 
-        async function renderTier2Monitor() {
-            const el = document.getElementById('tier2Monitor');
-            if (!el) return;
-            try {
-                const [relayRes, cpRes, statusRes] = await Promise.all([
-                    fetch('/api/watchtower/relay-telemetry?window_minutes=60').then(r => r.json()).catch(() => ({})),
-                    fetch('/api/watchtower/relay-counterparties?state=NEW&limit=5').then(r => r.json()).catch(() => ({})),
-                    fetch('/api/watchtower/webhook-status').then(r => r.json()).catch(() => ({})),
-                ]);
+        // Level-3 detail for Ingestion — full recovery-status detail preserved verbatim
+        function renderIngestionDetail(d) {
+            const env = d.env_flags || {};
+            const ing = d.ingestion || {};
+            const lst = d.listener || {};
+            const rts = (d.recovery_routes || {}).blocked || [];
+            const lke = d.lock_errors || {};
 
-                const relays  = relayRes.relays  || [];
-                const counts  = cpRes.counts || [];
-                const whs     = statusRes.webhooks || {};
-                const infraWh = whs['infra'] || {};
-                const rec     = infraWh.last_reconciliation || {};
-                const recAge  = rec.ran_at ? Math.round((Date.now()/1000 - rec.ran_at)) : null;
-
-                const epochColor = e => e === 'EXTRACTION_WAVE' ? '#f87171' : e === 'ESCALATING' ? '#fb923c' : e === 'ACTIVE' ? '#fbbf24' : '#6b7280';
-
-                const cpCounts = {};
-                counts.forEach(c => { cpCounts[c.discovery_state] = { n: c.n, sol: c.sol }; });
-                const newCount  = cpCounts['NEW']?.n || 0;
-                const confCount = cpCounts['CREATOR_CONFIRMED']?.n || 0;
-
-                const relayRows = relays.map(r => {
-                    const addr = r.wallet_address;
-                    const ec = epochColor(r.epoch_state);
-                    return `<tr>
-                        <td style="font-family:monospace;font-size:0.8rem" title="${addr}">${addr.slice(0,8)}…${addr.slice(-6)}</td>
-                        <td style="color:var(--text-secondary);font-size:0.75rem">${r.role}</td>
-                        <td style="color:#fff;font-weight:700;text-align:right">${(r.total_hits||0).toLocaleString()}</td>
-                        <td style="text-align:right">${(r.hits_5m||0)}</td>
-                        <td style="text-align:right;color:var(--text-secondary)">${r.total_counterparties||0}</td>
-                        <td style="text-align:right;color:#a78bfa">${r.total_sol ? (+r.total_sol).toFixed(0)+'◎' : '—'}</td>
-                        <td style="text-align:right"><span style="background:${ec}22;color:${ec};padding:1px 6px;border-radius:3px;font-size:0.7rem;font-weight:600">${r.epoch_state}</span></td>
-                    </tr>`;
-                }).join('') || '<tr><td colspan="7" style="color:var(--text-secondary);padding:8px 0">No relay activity in last hour</td></tr>';
-
-                el.innerHTML = `
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.2rem">
-                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#a78bfa">${(infraWh.local_active||0).toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">INFRA ENROLLED</div>
-                        </div>
-                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#a78bfa">${relays.reduce((s,r)=>s+(r.total_hits||0),0).toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">BUCKET HITS · 1H</div>
-                        </div>
-                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:${newCount>100?'#fb923c':'#a78bfa'}">${newCount.toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">SENDERS · PENDING</div>
-                        </div>
-                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:10px;text-align:center">
-                            <div style="font-size:1.6rem;font-weight:700;color:#22c55e">${confCount.toLocaleString()}</div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:3px">CREATORS FOUND</div>
-                        </div>
-                    </div>
-                    ${recAge !== null ? `<div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.8rem">Infra webhook reconciled ${recAge}s ago · ${infraWh.local_active||0} addresses enrolled</div>` : ''}
-                    <table style="width:100%;border-collapse:collapse;font-size:0.8rem">
-                        <thead><tr style="color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,.1)">
-                            <th style="text-align:left;padding:4px 0">Relay</th>
-                            <th style="text-align:left;padding:4px 0">Role</th>
-                            <th style="text-align:right;padding:4px 0">Hits·1H</th>
-                            <th style="text-align:right;padding:4px 0">Hits·5m</th>
-                            <th style="text-align:right;padding:4px 0">Senders</th>
-                            <th style="text-align:right;padding:4px 0">SOL</th>
-                            <th style="text-align:right;padding:4px 0">Epoch</th>
-                        </tr></thead>
-                        <tbody>${relayRows}</tbody>
-                    </table>`;
-            } catch(e) {
-                el.innerHTML = `<div style="color:#f87171">Tier 2 error: ${e}</div>`;
+            function pill(val, trueLabel, falseLabel, trueColor, falseColor) {
+                if (val === null || val === undefined) return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:#4b5563;color:#fff">UNKNOWN</span>`;
+                const on = !!val;
+                return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:${on ? trueColor : falseColor};color:#fff">${on ? trueLabel : falseLabel}</span>`;
             }
-        }
+            function age(s) {
+                if (s == null) return '—';
+                if (s < 60) return `${s}s ago`;
+                if (s < 3600) return `${Math.floor(s/60)}m ago`;
+                return `${Math.floor(s/3600)}h ago`;
+            }
+            function queueNum(v) {
+                if (v && typeof v === 'object' && v.available === false) return '—';
+                return v == null ? '—' : v;
+            }
+            const row = (label, val) => `<tr><td style="color:var(--text-secondary);padding:3px 8px 3px 0;white-space:nowrap">${label}</td><td style="padding:3px 0">${val}</td></tr>`;
 
-        // ── Listener Recovery Status ─────────────────────────────────────
-        async function updateRecoveryPanel() {
-            const el = document.getElementById('recoveryPanel');
-            const badge = document.getElementById('recoveryBadge');
-            const card = document.getElementById('recoveryCard');
-            try {
-                const d = await fetch('/api/listener-recovery-status').then(r => r.json());
+            const blockedHtml = rts.length
+                ? rts.map(r => `<code style="font-size:0.72rem;background:rgba(248,113,113,0.1);padding:1px 5px;border-radius:3px;color:#fca5a5">${r}</code>`).join('  ')
+                : '<span style="color:#22c55e;font-size:0.8rem">none</span>';
 
-                // Badge
-                const statusColors = {
-                    HEALTHY_RECOVERY:  ['#22c55e', 'rgba(34,197,94,0.15)',  'rgba(34,197,94,0.4)'],
-                    HEALTHY:           ['#22c55e', 'rgba(34,197,94,0.15)',  'rgba(34,197,94,0.3)'],
-                    DEGRADED_RECOVERY: ['#f59e0b', 'rgba(245,158,11,0.15)', 'rgba(245,158,11,0.4)'],
-                    INGESTION_RISK:    ['#f87171', 'rgba(248,113,113,0.15)','rgba(248,113,113,0.4)'],
-                };
-                const [sc, sbg, sborder] = statusColors[d.status] || ['#94a3b8','rgba(100,116,139,0.15)','rgba(100,116,139,0.3)'];
-                badge.textContent = d.status;
-                badge.style.color = sc;
-                badge.style.background = sbg;
-                card.style.borderColor = sborder;
-
-                const env = d.env_flags || {};
-                const ing = d.ingestion || {};
-                const lst = d.listener  || {};
-                const rts = (d.recovery_routes || {}).blocked || [];
-                const lke = d.lock_errors || {};
-
-                function pill(val, trueLabel, falseLabel, trueColor, falseColor) {
-                    // val=null → UNKNOWN (grey), val=false → falseLabel, val=true → trueLabel
-                    if (val === null || val === undefined) {
-                        return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:#4b5563;color:#fff">UNKNOWN</span>`;
-                    }
-                    const on = !!val;
-                    return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:${on ? trueColor : falseColor};color:#fff">${on ? trueLabel : falseLabel}</span>`;
-                }
-                function connPill(status) {
-                    const map = {
-                        CONNECTED: ['#22c55e', 'CONNECTED'],
-                        RETRYING:  ['#f59e0b', 'RETRYING'],
-                        STALE:     ['#ef4444', 'STALE'],
-                        UNKNOWN:   ['#4b5563', 'UNKNOWN'],
-                    };
-                    const [c, l] = map[status] || ['#4b5563', status || '—'];
-                    return `<span style="font-size:0.7rem;font-weight:600;padding:1px 7px;border-radius:9999px;background:${c};color:#fff">${l}</span>`;
-                }
-                function age(s) {
-                    if (s == null) return '—';
-                    if (s < 60)   return `${s}s ago`;
-                    if (s < 3600) return `${Math.floor(s/60)}m ago`;
-                    return `${Math.floor(s/3600)}h ago`;
-                }
-                function queueNum(v) {
-                    if (v && typeof v === 'object' && v.available === false) return '—';
-                    return v == null ? '—' : v;
-                }
-
-                const row = (label, val) =>
-                    `<tr><td style="color:var(--text-secondary);padding:3px 8px 3px 0;white-space:nowrap">${label}</td><td style="padding:3px 0">${val}</td></tr>`;
-
-                const blockedHtml = rts.length
-                    ? rts.map(r => `<code style="font-size:0.72rem;background:rgba(248,113,113,0.1);padding:1px 5px;border-radius:3px;color:#fca5a5">${r}</code>`).join('  ')
-                    : '<span style="color:#22c55e;font-size:0.8rem">none</span>';
-
-                const allWarnings = [...(d.warnings || [])];
-                if (lke.listener_tail_count >= 10) {
-                    allWarnings.push(`Listener DB lock errors in recent log tail (${lke.listener_tail_count} total)`);
-                }
-                const warnHtml = allWarnings.length
-                    ? `<div style="margin-top:0.6rem;padding:6px 10px;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-radius:4px;font-size:0.78rem;color:#fbbf24">${allWarnings.join(' · ')}</div>`
-                    : '';
-
-                el.innerHTML = `
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+            document.getElementById('ing-l3-body').innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
                   <div>
                     <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Mode Flags</div>
                     <table style="border-collapse:collapse;font-size:0.82rem">
@@ -1438,34 +688,11 @@
                     </table>
                   </div>
                   <div>
-                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Ingestion</div>
-                    <table style="border-collapse:collapse;font-size:0.82rem">
-                      ${row('Latest Birth',     age(ing.latest_birth_age_s))}
-                      ${row('Latest Migration', age(ing.latest_migration_age_s))}
-                      ${row('Birth Queue',       `${queueNum(ing.birth_queue_pending)} pending · max retry ${queueNum(ing.birth_queue_retry_max)}`)}
-                      ${row('Migration Queue',   `${queueNum(ing.migration_queue_pending)} pending · ${queueNum(ing.migration_queue_retry)} retry · max ${queueNum(ing.migration_queue_retry_max)}`)}
-                      ${(function() {
-                          const buckets = ing.migration_hourly;
-                          if (!buckets || !buckets.length) return row('Migrations/hr', '<span style="color:var(--text-secondary)">—</span>');
-                          const bars = buckets.map(b => {
-                              const color = b.count === 0 ? '#374151' : b.count < 5 ? '#6b7280' : '#22c55e';
-                              return `<span title="-${b.hour_ago}h: ${b.count}" style="display:inline-block;width:18px;height:${Math.max(2, Math.min(b.count * 2, 24))}px;background:${color};margin-right:2px;vertical-align:bottom;border-radius:2px"></span>`;
-                          }).join('');
-                          const last = buckets[buckets.length - 1];
-                          return row('Migrations/hr', `<span style="font-size:0.78rem">${bars} <span style="color:var(--text-secondary);margin-left:4px">${last.count} this hour</span></span>`);
-                      })()}
-                    </table>
-                  </div>
-                  <div>
                     <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Completeness</div>
                     ${(function() {
                         const c = d.ingestion_completeness;
-                        if (!c || c.error) {
-                            return `<div style="font-size:0.78rem;color:var(--text-secondary)">unavailable${c && c.error ? ': ' + c.error : ''}</div>`;
-                        }
-                        if (c.births && c.births.seen === 0 && c.migrations && c.migrations.seen === 0) {
-                            return `<div style="font-size:0.78rem;color:var(--text-secondary)">insufficient recent data</div>`;
-                        }
+                        if (!c || c.error) return `<div style="font-size:0.78rem;color:var(--text-secondary)">unavailable${c && c.error ? ': ' + c.error : ''}</div>`;
+                        if (c.births && c.births.seen === 0 && c.migrations && c.migrations.seen === 0) return `<div style="font-size:0.78rem;color:var(--text-secondary)">insufficient recent data</div>`;
                         function compBadge(item) {
                             if (!item || item.seen === 0) return '<span style="color:var(--text-secondary)">—</span>';
                             const color = item.missing > 0 ? '#ef4444' : item.pending_retry > 0 ? '#f59e0b' : '#22c55e';
@@ -1473,18 +700,9 @@
                             return `<span style="color:${color};font-weight:600">${item.seen} seen · ${item.persisted} persisted · ${item.missing} missing · ${pct}</span>`;
                         }
                         const confColor = c.confidence === 'full' ? '#22c55e' : '#f59e0b';
-                        const warnHtml2 = (c.warnings || []).length
-                            ? `<div style="font-size:0.7rem;color:#f59e0b;margin-top:0.3rem">${c.warnings.join(' · ')}</div>` : '';
-                        const birthSourceHtml = (function() {
-                            const b = c.births;
-                            if (!b || (b.seen_pumpportal == null && b.seen_helius_ws == null)) return '';
-                            const pp = b.seen_pumpportal || 0;
-                            const hw = b.seen_helius_ws || 0;
-                            if (pp === 0 && hw === 0) return '';
-                            return `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">PP:${pp} · Helius:${hw}</div>`;
-                        })();
+                        const warnHtml2 = (c.warnings || []).length ? `<div style="font-size:0.7rem;color:#f59e0b;margin-top:0.3rem">${c.warnings.join(' · ')}</div>` : '';
                         return `<table style="border-collapse:collapse;font-size:0.82rem">
-                            ${row('Births',     compBadge(c.births) + birthSourceHtml)}
+                            ${row('Births',     compBadge(c.births))}
                             ${row('Migrations', compBadge(c.migrations))}
                             ${row('Window',     `<span style="font-size:0.75rem;color:var(--text-secondary)">${c.window || '—'}</span>`)}
                             ${row('Confidence', `<span style="color:${confColor};font-size:0.75rem">${c.confidence || '—'}</span>`)}
@@ -1492,148 +710,653 @@
                     })()}
                   </div>
                   <div>
-                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Listener</div>
-                    <table style="border-collapse:collapse;font-size:0.82rem">
-                      ${row('PumpPortal', connPill(lst.pumpportal_status))}
-                      ${row('PumpSwap',   connPill(lst.pumpswap_status))}
-                      ${row('Birth Reconciler', (function() {
-                          const s = lst.birth_reconciler_status;
-                          if (!s || s === 'UNKNOWN') return '<span style="color:var(--text-secondary)">—</span>';
-                          if (s === 'DISABLED') return '<span style="color:#6b7280;font-size:0.75rem">DISABLED</span>';
-                          if (s === 'STALE')    return '<span style="color:#ef4444">STALE</span>';
-                          // Derive effective state from PP status
-                          const ppDown = lst.pumpportal_status === 'RETRYING' || lst.pumpportal_status === 'STALE';
-                          if (s === 'ACTIVE' || (s === 'IDLE' && ppDown))
-                              return '<span style="color:#f59e0b;font-weight:600">ACTIVE (PP down)</span>';
-                          return '<span style="color:#22c55e">IDLE (PP up)</span>';
-                      })())}
-                      ${row('Log age', age(lst.listener_log_age_s))}
-                      ${(function() {
-                          const total = lke.listener_tail_count;
-                          if (total == null) return row('DB Locks (tail)', '<span style="color:var(--text-secondary)">—</span>');
-                          const color = total === 0 ? '#22c55e' : total < 20 ? '#f59e0b' : '#ef4444';
-                          const tags = lke.by_tag || {};
-                          const tagStr = Object.entries(tags)
-                              .filter(([k,v]) => v > 0)
-                              .map(([k,v]) => `${k}×${v}`)
-                              .join(' · ') || 'none';
-                          return row('DB Locks (tail)',
-                              `<span style="color:${color};font-weight:600">${total}</span>` +
-                              (total > 0 ? `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">${tagStr}</div>` : ''));
-                      })()}
-                    </table>
-                    <div style="margin-top:0.8rem">
-                      <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:.05em">Blocked Routes</div>
-                      <div style="display:flex;flex-wrap:wrap;gap:0.3rem">${blockedHtml}</div>
-                    </div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">DB Locks (log tail)</div>
+                    ${(function() {
+                        const total = lke.listener_tail_count;
+                        if (total == null) return `<span style="color:var(--text-secondary)">—</span>`;
+                        const color = total === 0 ? '#22c55e' : total < 20 ? '#f59e0b' : '#ef4444';
+                        const tags = lke.by_tag || {};
+                        const tagStr = Object.entries(tags).filter(([k,v]) => v > 0).map(([k,v]) => `${k}×${v}`).join(' · ') || 'none';
+                        return `<span style="color:${color};font-weight:600">${total}</span>` + (total > 0 ? `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">${tagStr}</div>` : '');
+                    })()}
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Blocked Routes</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.3rem">${blockedHtml}</div>
                   </div>
                 </div>
-                ${warnHtml}
                 ${(function() {
                     const ca = d.migration_coverage_audit;
                     if (!ca) return '';
-                    const statusColors = {
-                        VERIFIED_SAMPLE: '#22c55e', STALE: '#f59e0b',
-                        ATTENTION: '#ef4444', DEGRADED: '#f59e0b',
-                        UNKNOWN: 'var(--text-secondary)', ERROR: '#ef4444',
-                    };
-                    const statusColor = statusColors[ca.audit_status] || 'var(--text-secondary)';
-                    const classColor  = ca.classification === 'A' ? '#22c55e' : ca.classification === 'B' ? '#f59e0b' : '#ef4444';
-                    const ageStr = ca.audit_age_seconds != null
-                        ? (ca.audit_age_seconds < 120 ? 'just now'
-                           : ca.audit_age_seconds < 3600 ? Math.round(ca.audit_age_seconds/60) + 'm ago'
-                           : Math.round(ca.audit_age_seconds/3600) + 'h ago')
-                        : '—';
-                    const windowStr = ca.window_end ? ca.window_end.replace('T',' ').replace('Z','') + ' UTC' : '—';
-                    const missingStr = ca.evidence_of_missing
-                        ? `<span style="color:#ef4444;font-weight:600">${ca.missing} MISSING</span>`
-                        : `<span style="color:#22c55e">NONE</span>`;
+                    const statusColors = { VERIFIED_SAMPLE: '#22c55e', STALE: '#f59e0b', ATTENTION: '#ef4444', DEGRADED: '#f59e0b', UNKNOWN: 'var(--text-secondary)', ERROR: '#ef4444' };
+                    const sColor = statusColors[ca.audit_status] || 'var(--text-secondary)';
+                    const classColor = ca.classification === 'A' ? '#22c55e' : ca.classification === 'B' ? '#f59e0b' : '#ef4444';
+                    const ageStr = ca.audit_age_seconds != null ? (ca.audit_age_seconds < 120 ? 'just now' : ca.audit_age_seconds < 3600 ? Math.round(ca.audit_age_seconds/60) + 'm ago' : Math.round(ca.audit_age_seconds/3600) + 'h ago') : '—';
+                    const missingStr = ca.evidence_of_missing ? `<span style="color:#ef4444;font-weight:600">${ca.missing} MISSING</span>` : `<span style="color:#22c55e">NONE</span>`;
                     return `<div style="margin-top:1rem;border-top:1px solid rgba(148,163,184,0.1);padding-top:0.8rem">
                         <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Migration Coverage Audit <span style="font-weight:400;font-style:italic">(sampled RPC)</span></div>
                         <table style="border-collapse:collapse;font-size:0.82rem">
-                            ${row('Status',       `<span style="color:${statusColor};font-weight:600">${ca.audit_status || '—'}</span>`)}
-                            ${row('Last audit',   `<span style="color:var(--text-secondary);font-size:0.75rem">${ageStr} · ${windowStr}</span>`)}
-                            ${row('Sample',       ca.unique_tokens_sampled != null ? ca.unique_tokens_sampled + ' migrations' : '—')}
-                            ${row('Matched',      ca.matched != null ? `<span style="color:#22c55e;font-weight:600">${ca.matched}</span>` : '—')}
-                            ${row('Coverage',     ca.coverage_pct != null ? `<span style="color:#22c55e;font-weight:600">${ca.coverage_pct}%</span>` : '—')}
+                            ${row('Status', `<span style="color:${sColor};font-weight:600">${ca.audit_status || '—'}</span>`)}
+                            ${row('Last audit', `<span style="color:var(--text-secondary);font-size:0.75rem">${ageStr}</span>`)}
+                            ${row('Sample', ca.unique_tokens_sampled != null ? ca.unique_tokens_sampled + ' migrations' : '—')}
+                            ${row('Coverage', ca.coverage_pct != null ? `<span style="color:#22c55e;font-weight:600">${ca.coverage_pct}%</span>` : '—')}
                             ${row('Class / Conf', ca.classification ? `<span style="color:${classColor};font-weight:600">${ca.classification}</span> · <span style="color:var(--text-secondary)">${ca.confidence || '—'}</span>` : '—')}
-                            ${row('PumpSwap sub', `<span style="color:var(--text-secondary)">${ca.pumpswap_direct_subscription ? '✓ ON' : '✗ OFF'}</span>`)}
-                            ${row('Missing',      missingStr)}
+                            ${row('Missing', missingStr)}
                         </table>
                     </div>`;
-                })()}`;
-            } catch(e) {
-                document.getElementById('recoveryPanel').innerHTML =
-                    `<div style="color:#f87171;font-size:0.85rem">Recovery status unavailable: ${e}</div>`;
-                document.getElementById('recoveryBadge').textContent = 'ERROR';
+                })()}
+            `;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // GROUP 3 — INTELLIGENCE (Discovery / Walkback / Registry / Reconciliation / Snapshots)
+        // ══════════════════════════════════════════════════════════════════
+        async function renderIntelligenceGroup(fullHealth) {
+            const ss = fullHealth?.subsystems || {};
+            const intel = ss.intelligence || {};
+
+            let snapHealth = null;
+            try { snapHealth = await fetch('/api/ops-v2/intelligence-snapshots/health').then(r => r.json()); } catch(e) {}
+
+            const crqFailed = intel.creator_queue_failed ?? 0;
+            const fqPending = intel.funding_queue_pending ?? 0;
+            const warningMsgs = [];
+            const criticalMsgs = [];
+            // Defer to the backend's own subsystem classification as the primary
+            // signal (it already weighs funding-queue backlog, watch-pipeline
+            // staleness, etc.) -- this UI only needs to explain WHY, not
+            // re-derive the verdict from raw counters.
+            if (intel.status && _wtColor(intel.status) === 'critical') criticalMsgs.push(`Intelligence ${intel.status}`);
+            else if (intel.status && _wtColor(intel.status) === 'warning') warningMsgs.push(`Intelligence ${intel.status}: ${fqPending.toLocaleString()} funding-queue pending`);
+            if (crqFailed > 0) warningMsgs.push(`${crqFailed} creator-resolution failures`);
+            const eo = snapHealth?.emerging_operators;
+            if (eo) {
+                if (eo.state === 'STALE_FAILED' || eo.health === 'STALE_FAILED') criticalMsgs.push('Emerging Operators snapshot STALE_FAILED');
+                else if (eo.health === 'STALE_REFRESHING') warningMsgs.push('Emerging Operators snapshot refreshing');
             }
+            const windows = snapHealth?.windows || {};
+            let anyWindowFailed = false, anyWindowRefreshing = false;
+            Object.values(windows).forEach(w => {
+                Object.values(w).forEach(k => {
+                    if (k.health === 'STALE_FAILED') anyWindowFailed = true;
+                    else if (k.health === 'STALE_REFRESHING') anyWindowRefreshing = true;
+                });
+            });
+            if (anyWindowFailed) criticalMsgs.push('Intelligence snapshot build failed');
+            else if (anyWindowRefreshing) warningMsgs.push('Intelligence snapshot refreshing');
+
+            let color = 'healthy';
+            if (criticalMsgs.length) color = 'critical';
+            else if (warningMsgs.length) color = 'warning';
+
+            mcSetGroupStatus('grp-intelligence', color,
+                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Snapshot ${eo ? (eo.state || eo.health) : '—'}`);
+
+            document.getElementById('grp-intelligence-body').innerHTML = `
+                <div class="mc-kpi-row">
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Creator Queue</div>
+                        <div class="mc-kpi-value ${crqFailed>0?'bad':''}" style="font-size:1.1rem;">${intel.creator_queue_pending ?? '—'} pending</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Missing Creators (1h)</div>
+                        <div class="mc-kpi-value ${(intel.missing_creators_1h||0)>0?'warn':'ok'}" style="font-size:1.1rem;">${intel.missing_creators_1h ?? '—'}</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Snapshot</div>
+                        <div class="mc-kpi-value" style="font-size:1rem;">${eo ? pillHtml(eo.health==='FRESH'?'healthy':eo.health==='STALE_REFRESHING'?'warning':eo.health==='STALE_FAILED'?'critical':'neutral', eo.state||eo.health) : '—'}</div>
+                    </div>
+                </div>
+
+                ${(warningMsgs.length || criticalMsgs.length) ? `
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title" style="color:${criticalMsgs.length?'#f87171':'#facc15'}">Issues</div>
+                    <div style="font-size:0.82rem;color:${criticalMsgs.length?'#f87171':'#facc15'};">
+                        ${[...criticalMsgs, ...warningMsgs].map(m => `<div style="margin-bottom:0.25rem;">• ${m}</div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title"><i class="fas fa-camera"></i> Intelligence Snapshots (Phase 5)</div>
+                    <div id="mc-snapshot-card">${renderSnapshotHealthCard(snapHealth)}</div>
+                </div>
+
+                <button class="l3-toggle" id="intel-l3-btn" onclick="mcL3Toggle('intel-l3-btn','intel-l3-body','WATCHTOWER intelligence tiers')">
+                    <i class="fas fa-chevron-right"></i> Show WATCHTOWER intelligence tiers
+                </button>
+                <div class="l3-body" id="intel-l3-body">
+                    <div class="mc-subpanel">
+                        <div class="mc-subpanel-title" style="color:#22d3ee;">Tier 1 — Creator Prediction</div>
+                        <div id="tier1Monitor" class="loading"><span class="spinner"></span> Loading...</div>
+                    </div>
+                    <div class="mc-subpanel">
+                        <div class="mc-subpanel-title" style="color:#a78bfa;">Tier 2 — Infrastructure Telemetry</div>
+                        <div id="tier2Monitor" class="loading"><span class="spinner"></span> Loading...</div>
+                    </div>
+                </div>
+            `;
+            renderTier1Monitor();
+            renderTier2Monitor();
+            return { color, warningMsgs, criticalMsgs };
+        }
+
+        // Phase 5 — dedicated Intelligence Snapshot card
+        function renderSnapshotHealthCard(snapHealth) {
+            if (!snapHealth || !snapHealth.ok) return `<div style="font-size:0.82rem;color:var(--text-secondary);">Snapshot health unavailable.</div>`;
+            const rows = [];
+            const eo = snapHealth.emerging_operators;
+            if (eo) rows.push({ label: 'Emerging Operators', ...eo, state: eo.state || eo.health });
+            Object.entries(snapHealth.windows || {}).forEach(([windowParam, funcs]) => {
+                Object.entries(funcs).forEach(([fn, k]) => {
+                    rows.push({ label: `${fn.replace(/_/g,' ')} (${windowParam})`, ...k, state: k.health });
+                });
+            });
+            if (!rows.length) return `<div style="font-size:0.82rem;color:var(--text-secondary);">No snapshots tracked.</div>`;
+
+            const colorFor = s => s === 'FRESH' ? 'healthy' : s === 'STALE_REFRESHING' ? 'warning' : s === 'STALE_FAILED' ? 'critical' : 'neutral';
+            return `<div style="overflow-x:auto;">
+                <table class="pool-health-table">
+                    <thead><tr><th>Snapshot</th><th>State</th><th>Revision</th><th>Age</th><th>Build</th><th>Last Refresh</th></tr></thead>
+                    <tbody>
+                        ${rows.map(r => `<tr>
+                            <td>${r.label}</td>
+                            <td>${pillHtml(colorFor(r.state), r.state)}</td>
+                            <td>${r.snapshot_version ?? '—'}</td>
+                            <td>${r.snapshot_age_seconds != null ? _fmtAge(r.snapshot_age_seconds) : '—'}</td>
+                            <td>${r.build_duration_ms != null ? Math.round(r.build_duration_ms) + 'ms' : '—'}</td>
+                            <td style="color:var(--text-secondary);font-size:0.78rem;">${r.last_successful_refresh ? new Date(r.last_successful_refresh*1000).toLocaleTimeString() : '—'}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // GROUP 4 — INFRASTRUCTURE (SQLite / WAL / Cache / Scheduler / Memory / Background services)
+        // ══════════════════════════════════════════════════════════════════
+        function renderInfraGroup(dbHealth, fullHealth) {
+            const wr = dbHealth?.write_reliability || {};
+            const lockErrors5m = wr.lock_errors_5m ?? wr.sqlite_lock_errors_1h ?? 0;
+            const lockErrors1h = wr.lock_errors_1h ?? wr.sqlite_lock_errors_1h ?? 0;
+            const failedWrites = wr.failed_writes_total ?? 0;
+            const deadLetters = wr.dead_letter_count ?? 0;
+            const walMb = dbHealth?.wal_mb ?? 0;
+            const dbStatus = fullHealth?.subsystems?.database || {};
+
+            const warningMsgs = [];
+            const criticalMsgs = [];
+            if (lockErrors5m > 0) warningMsgs.push(`${lockErrors5m} DB lock errors (5m)`);
+            if (lockErrors5m > 5) { criticalMsgs.push(`${lockErrors5m} DB lock errors (5m)`); warningMsgs.length = 0; }
+            if (failedWrites > 0) criticalMsgs.push(`${failedWrites} failed writes`);
+            if (deadLetters > 0) criticalMsgs.push(`${deadLetters} dead-lettered writes`);
+            if (parseFloat(walMb) > 100) warningMsgs.push(`WAL ${walMb}MB`);
+
+            let color = 'healthy';
+            if (criticalMsgs.length) color = 'critical';
+            else if (warningMsgs.length) color = 'warning';
+
+            const qd = dbHealth?.queue_depths || {};
+            mcSetGroupStatus('grp-infra', color, `DB ${dbStatus.status || 'OK'} · ${lockErrors1h} locks/1h · WAL ${walMb}MB`);
+
+            document.getElementById('grp-infra-body').innerHTML = `
+                <div class="mc-kpi-row">
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">SQLite Writes</div>
+                        <div class="mc-kpi-value ${failedWrites>0?'bad':'ok'}" style="font-size:1.1rem;">${pillHtml(failedWrites>0?'critical':'healthy', failedWrites>0?`${failedWrites} failed`:'Healthy')}</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Lock Errors (5m)</div>
+                        <div class="mc-kpi-value ${lockErrors5m>5?'bad':lockErrors5m>0?'warn':'ok'}" style="font-size:1.1rem;">${lockErrors5m}</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">WAL Size</div>
+                        <div class="mc-kpi-value ${parseFloat(walMb)>100?'warn':''}" style="font-size:1.1rem;">${walMb} MB</div>
+                    </div>
+                    <div class="mc-kpi">
+                        <div class="mc-kpi-label">Avg Write Latency</div>
+                        <div class="mc-kpi-value" style="font-size:1.1rem;">${wr.avg_write_latency_ms ?? '—'}ms</div>
+                    </div>
+                </div>
+
+                ${(warningMsgs.length || criticalMsgs.length) ? `
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title" style="color:${criticalMsgs.length?'#f87171':'#facc15'}">Issues</div>
+                    <div style="font-size:0.82rem;color:${criticalMsgs.length?'#f87171':'#facc15'};">
+                        ${[...criticalMsgs, ...warningMsgs].map(m => `<div style="margin-bottom:0.25rem;">• ${m}</div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+                <div class="mc-subpanel">
+                    <div class="mc-subpanel-title">Queue Depths</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;">
+                        ${Object.entries(qd).map(([name, counts]) => {
+                            const total = Object.values(counts||{}).reduce((s,v)=>s+(typeof v==='number'?v:0),0);
+                            return `<span>${name.replace(/_/g,' ')} <b>${total.toLocaleString()}</b></span>`;
+                        }).join('') || '<span style="color:var(--text-secondary)">none tracked</span>'}
+                    </div>
+                </div>
+
+                <button class="l3-toggle" id="infra-l3-btn" onclick="mcL3Toggle('infra-l3-btn','infra-l3-body','runtime budget + write reliability detail')">
+                    <i class="fas fa-chevron-right"></i> Show runtime budget &amp; write-reliability detail
+                </button>
+                <div class="l3-body" id="infra-l3-body">
+                    <div class="mc-subpanel">
+                        <div class="mc-subpanel-title">Runtime Budget</div>
+                        <div id="sh-rb-pill-wrap" style="margin-bottom:0.5rem;">
+                            <span id="sh-rb-pill" style="font-size:0.7rem;font-weight:700;padding:2px 10px;border-radius:9999px;background:rgba(100,116,139,0.2);color:#94a3b8;">loading…</span>
+                            <span id="sh-rb-note" style="font-size:0.75rem;color:#64748b;margin-left:4px"></span>
+                        </div>
+                        <div id="sh-rb-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;"></div>
+                        <div id="sh-rb-detail">
+                            <div style="margin-bottom:1rem;">
+                                <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">Critical Path</div>
+                                <div id="sh-rb-critical" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;"></div>
+                            </div>
+                            <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;margin-bottom:1rem;">
+                                <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:4px;">Graceful Degradation <span style="font-weight:400;font-size:0.6rem;color:#475569">— non-zero counts are healthy (budget system working)</span></div>
+                                <div id="sh-rb-degrade" style="display:grid;grid-template-columns:repeat(8,1fr);gap:0.5rem;margin-top:0.5rem;"></div>
+                            </div>
+                            <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;">
+                                <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">Runtime Pressure</div>
+                                <div id="sh-rb-pressure" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mc-subpanel">
+                        <div class="mc-subpanel-title">Write Reliability Detail</div>
+                        <div id="dbWriteReliability"></div>
+                    </div>
+                </div>
+            `;
+            renderDbWriteReliabilityDetail(dbHealth);
+            return { color, warningMsgs, criticalMsgs };
+        }
+
+        function renderDbWriteReliabilityDetail(dbHealth) {
+            const wr = dbHealth?.write_reliability || {};
+            const lockErrors = wr.lock_errors_1h ?? wr.sqlite_lock_errors_1h ?? '—';
+            const lockErrors5m = wr.lock_errors_5m ?? '—';
+            const failedWrites = wr.failed_writes_total ?? '—';
+            const deadLetters = wr.dead_letter_count ?? '—';
+            const avgLatency = wr.avg_write_latency_ms ?? '—';
+            const walMb = dbHealth?.wal_mb ?? '—';
+            let deadLetterHtml = '';
+            const recent = wr.recent_dead_letters || [];
+            if (recent.length > 0) {
+                deadLetterHtml = `<div style="margin-top:1rem;font-size:0.78rem;color:var(--color-critical);">
+                    <strong>Recent Dead Letters:</strong>
+                    ${recent.map(d => `<div style="margin-top:0.4rem;opacity:0.85;">[${new Date(d.ts * 1000).toLocaleTimeString()}] <code>${d.label}</code> — ${d.error}
+                        <div style="color:var(--text-secondary);font-size:0.72rem;">${d.sql}</div></div>`).join('')}
+                </div>`;
+            }
+            document.getElementById('dbWriteReliability').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;">
+                    <div class="metric"><div class="metric-label">Lock Errors (5m)</div><div class="metric-value small">${lockErrors5m}</div></div>
+                    <div class="metric"><div class="metric-label">Lock Errors (1h)</div><div class="metric-value small">${lockErrors}</div></div>
+                    <div class="metric"><div class="metric-label">Failed Writes</div><div class="metric-value small">${failedWrites}</div></div>
+                    <div class="metric"><div class="metric-label">Dead Letters</div><div class="metric-value small">${deadLetters}</div></div>
+                    <div class="metric"><div class="metric-label">Avg Latency</div><div class="metric-value small">${avgLatency}ms</div></div>
+                    <div class="metric"><div class="metric-label">WAL Size</div><div class="metric-value small">${walMb} MB</div></div>
+                </div>
+                ${deadLetterHtml}
+            `;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // GROUP 5 — DIAGNOSTICS (price worker internals, Flask-process-only)
+        // Level 3 — collapsed by default per Phase 10; not auto-expanded even
+        // when the ingestion/infra groups above have issues (developer-only).
+        // ══════════════════════════════════════════════════════════════════
+        function renderDiagnosticsGroup(data, recovery) {
+            const inRecovery = recovery?.env_flags?.recovery_mode === true;
+            document.getElementById('grp-diag-body').innerHTML = `
+                ${inRecovery ? `<div class="mc-diag-note"><i class="fas fa-eye-slash"></i> Price-worker diagnostics collapsed — FLEX_UI_RECOVERY_MODE=1, price updater intentionally parked.
+                    <button onclick="mcToggleDiagRecovery()" id="diagRecoveryBtn" style="margin-left:0.5rem;font-size:0.72rem;padding:2px 10px;background:rgba(107,114,128,0.2);border:1px solid rgba(107,114,128,0.4);border-radius:4px;color:#d1d5db;cursor:pointer;">Show anyway</button>
+                </div>` : ''}
+                <div id="diagBody" style="${inRecovery ? 'display:none' : ''}">
+                    <div class="grid" style="margin-bottom:1rem;">
+                        <div class="card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-layer-group"></i> Pool Pricing</div><div id="poolPricingStats" class="loading"><span class="spinner"></span> Loading...</div></div>
+                        <div class="card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-check-circle"></i> Aggregation</div><div id="aggregationStats" class="loading"><span class="spinner"></span> Loading...</div></div>
+                        <div class="card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-cogs"></i> Worker</div><div id="workerDetails" class="loading"><span class="spinner"></span> Loading...</div></div>
+                        <div class="card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-database"></i> Cache</div><div id="cacheStats" class="loading"><span class="spinner"></span> Loading...</div></div>
+                    </div>
+                    <div class="grid" style="margin-bottom:1rem;">
+                        <div class="card wide-card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-heartbeat"></i> Price Source Health</div><div id="sourceHealth"></div></div>
+                    </div>
+                    <div class="grid" style="margin-bottom:1rem;">
+                        <div class="card wide-card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-shield-alt"></i> Circuit Breaker</div><div id="circuitBreaker"></div></div>
+                    </div>
+                    <div class="grid" style="margin-bottom:1rem;">
+                        <div class="card wide-card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-window-maximize"></i> Rolling Window (5-min)</div><div id="rollingWindow"></div></div>
+                    </div>
+                    <div class="grid" style="margin-bottom:1rem;">
+                        <div class="card wide-card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-broom"></i> Snapshot Cleanup (24h)</div><div id="snapshotCleanup" class="loading"><span class="spinner"></span> Loading...</div></div>
+                    </div>
+                    <div class="grid">
+                        <div class="card wide-card" style="border-color: rgba(234,179,8,0.3);">
+                            <div class="metric-label" style="color: var(--color-watch);margin-bottom:0.5rem;"><i class="fas fa-flask"></i> Local Flask Process Diagnostics
+                                <span style="font-size:0.7rem;font-weight:400;color:var(--text-secondary);margin-left:0.75rem;">Flask-process only — not authoritative for listener/worker state</span>
+                            </div>
+                            <div id="localDiagnostics" class="loading"><span class="spinner"></span> Loading...</div>
+                        </div>
+                    </div>
+                    <div class="grid" style="margin-top:1rem;">
+                        <div class="card wide-card"><div class="metric-label" style="margin-bottom:0.5rem;"><i class="fas fa-anchor"></i> First Snapshot Health</div><div id="firstSnapshotHealth" class="loading"><span class="spinner"></span> Loading...</div></div>
+                    </div>
+                </div>
+            `;
+            renderPoolPricingStats(data);
+            renderAggregationStats(data);
+            renderWorkerDetails(data);
+            renderCacheStats(data);
+            renderSourceHealth(data);
+            renderCircuitBreaker(data);
+            renderRollingWindow(data);
+            renderLocalDiagnostics(data);
+        }
+        function mcToggleDiagRecovery() {
+            const body = document.getElementById('diagBody');
+            const btn = document.getElementById('diagRecoveryBtn');
+            if (!body) return;
+            const hidden = body.style.display === 'none';
+            body.style.display = hidden ? '' : 'none';
+            if (btn) btn.textContent = hidden ? 'Hide' : 'Show anyway';
+        }
+
+        // ── unchanged Diagnostics render functions (data shape untouched) ──
+        function renderPoolPricingStats(data) {
+            const pool = data?.pool_stats || {};
+            const attempted = pool.pool_attempted || 0;
+            const successRate = attempted > 0 ? Math.round((pool.pool_success || 0) / attempted * 100) : null;
+            document.getElementById('poolPricingStats').innerHTML = `
+                <div class="metric"><div class="metric-label">Pools Registered</div><div class="metric-value small">${pool.pools_registered || 0}</div></div>
+                <div class="metric"><div class="metric-label">Prices Cached</div><div class="metric-value small">${pool.pool_prices_cached || 0}</div></div>
+                <div class="metric"><div class="metric-label">Success Rate</div><div class="metric-value small">${successRate !== null ? successRate + '%' : '—'}</div>
+                    <div class="metric-bar"><div class="metric-bar-fill" style="width: ${successRate || 0}%;"></div></div></div>
+                <div class="list-item"><span class="list-label">Attempted</span><span class="list-value">${attempted}</span></div>
+                <div class="list-item"><span class="list-label">Success</span><span class="list-value" style="color: var(--color-success);">+${pool.pool_success || 0}</span></div>
+                <div class="list-item"><span class="list-label">Failed</span><span class="list-value" style="color: var(--color-critical);">-${pool.pool_fail || 0}</span></div>
+            `;
+        }
+        function renderAggregationStats(data) {
+            const ws = data?.pool_stats?.ws || {};
+            const enabled = ws.multi_pool_enabled;
+            const poolCount = data?.db_signals?.active_pools || data?.pool_stats?.pools_registered || 0;
+            document.getElementById('aggregationStats').innerHTML = `
+                <div class="metric"><div class="metric-label">Multi-Pool</div><div style="margin-top: 0.5rem;"><span class="badge badge-${enabled ? 'enabled' : 'inactive'}">${enabled ? '✓ ENABLED' : '✗ DISABLED'}</span></div></div>
+                <div class="metric"><div class="metric-label">Active Pools</div><div class="metric-value small">${poolCount}</div></div>
+            `;
+        }
+        function renderWorkerDetails(data) {
+            const db = data?.db_signals || {};
+            const secs = db.seconds_since_last_update;
+            document.getElementById('workerDetails').innerHTML = `
+                <div class="metric"><div class="metric-label">Snapshots (60s)</div><div class="metric-value small">${db.snapshots_in_window || 0}</div></div>
+                <div class="metric"><div class="metric-label">Tokens Priced (60s)</div><div class="metric-value small">${db.tokens_priced_in_window || 0}</div></div>
+                <div class="metric"><div class="metric-label">Last Snapshot</div><div style="font-size: 0.85rem; color: var(--text-secondary);">${secs != null ? Math.round(secs)+'s ago' : '—'}</div></div>
+            `;
+        }
+        function renderCacheStats(data) {
+            const db = data?.db_signals || {};
+            document.getElementById('cacheStats').innerHTML = `
+                <div class="metric"><div class="metric-label">Unique Mints Priced (60s)</div><div class="metric-value small">${db.unique_mints_60s || 0}</div></div>
+                <div class="metric"><div class="metric-label">Active Pools (DB)</div><div class="metric-value small">${db.active_pools || 0}</div></div>
+            `;
+        }
+        function renderSourceHealth(data) {
+            const pool = data?.pool_stats || {};
+            const attempted = pool.pool_attempted || 0;
+            const success = pool.pool_success || 0;
+            const fail = pool.pool_fail || 0;
+            const rate = attempted ? Math.round(success / attempted * 100) : 0;
+            const color = rate >= 90 ? 'var(--color-success)' : rate >= 50 ? 'var(--color-watch)' : 'var(--color-critical)';
+            let html = '<div style="overflow-x: auto;"><table class="pool-health-table"><thead><tr><th>Source</th><th>Attempted</th><th>Success</th><th>Failed</th><th>Rate</th><th>Note</th></tr></thead><tbody>';
+            html += `<tr><td><strong>POOL (DB)</strong></td><td>${attempted}</td><td style="color:var(--color-success);">+${success}</td><td style="color:var(--color-critical);">-${fail}</td><td><span style="color:${color};font-weight:600;">${rate}%</span></td><td style="color:var(--text-secondary);font-size:0.8rem;">DB signal</td></tr>`;
+            const local = data?.local_process_diagnostics || {};
+            const rw = local?.rolling_window_stats || {};
+            ['dexscreener', 'jupiter', 'birdeye'].forEach(source => {
+                const stat = rw[source] || {};
+                const a = stat.attempts_in_window || 0;
+                const sr = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
+                html += `<tr style="opacity:0.6;"><td><strong>${source.toUpperCase()}</strong></td><td>${a}</td><td>—</td><td>—</td><td>${sr}%</td><td style="color:var(--color-watch);font-size:0.8rem;">Flask-local only</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            document.getElementById('sourceHealth').innerHTML = html;
+        }
+        function renderCircuitBreaker(data) {
+            const cb = data?.local_process_diagnostics?.worker_stats?.worker?.circuit_breaker || {};
+            let html = '<div style="margin-bottom:0.5rem;font-size:0.78rem;color:var(--color-watch);">Flask-process local state only</div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">';
+            ['pool', 'dexscreener', 'jupiter', 'birdeye'].forEach(source => {
+                const disabled = cb[source]?.disabled;
+                const cooldown = cb[source]?.cooldown_remaining_secs || 0;
+                html += `<div style="padding: 0.75rem; background: rgba(59,130,246,0.05); border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.4rem; text-transform: uppercase; font-size: 0.8rem;">${source}</div>
+                    <div class="badge badge-${disabled ? 'inactive' : 'active'}">${disabled ? 'DISABLED' : 'ACTIVE'}</div>
+                    ${cooldown > 0 ? `<div style="font-size: 0.75rem; margin-top: 0.4rem; color: var(--color-watch);">Cooldown: ${Math.round(cooldown)}s</div>` : ''}
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('circuitBreaker').innerHTML = html;
+        }
+        function renderRollingWindow(data) {
+            const rw = data?.local_process_diagnostics?.rolling_window_stats || data?.rolling_window_stats || {};
+            let html = '<div style="margin-bottom:0.5rem;font-size:0.78rem;color:var(--color-watch);">Flask-process rolling window only</div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">';
+            ['pool', 'dexscreener', 'jupiter', 'birdeye'].forEach(source => {
+                const stat = rw[source] || {};
+                const attempts = stat.attempts_in_window || 0;
+                const successRate = stat.success_rate ? Math.round(stat.success_rate * 100) : 0;
+                const failureRate = stat.failure_rate ? Math.round(stat.failure_rate * 100) : 0;
+                html += `<div style="padding: 0.75rem; background: rgba(59,130,246,0.05); border: 1px solid var(--border-color); border-radius: 0.375rem; opacity: 0.7;">
+                    <div style="font-weight: 600; margin-bottom: 0.6rem; text-transform: uppercase; font-size: 0.8rem;">${source}</div>
+                    <div class="metric"><div class="metric-label">Attempts</div><div class="metric-value small">${attempts}</div></div>
+                    <div class="metric"><div class="metric-label">Success</div><div class="metric-value small" style="color:var(--color-success);">${successRate}%</div></div>
+                    <div class="metric"><div class="metric-label">Failure</div><div class="metric-value small" style="color:var(--color-critical);">${failureRate}%</div></div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('rollingWindow').innerHTML = html;
+        }
+        function renderLocalDiagnostics(data) {
+            const loc = data?.local_process_diagnostics || {};
+            document.getElementById('localDiagnostics').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;">
+                    <div class="metric"><div class="metric-label">Flask PID</div><div class="metric-value small" style="font-size:0.95rem;">${loc.pid || '—'}</div></div>
+                    <div class="metric"><div class="metric-label">Local Cache Size</div><div class="metric-value small">${loc.cache_size || 0}</div></div>
+                    <div class="metric"><div class="metric-label">Worker Cycles</div><div class="metric-value small">${loc.worker_cycles || 0}</div></div>
+                    <div class="metric"><div class="metric-label">Worker Running</div><div class="metric-value small">${loc.worker_running_flag ? '✓ true' : '✗ false'}</div></div>
+                </div>`;
+        }
+        function renderFirstSnapshotHealth(h) {
+            if (!h || h.ok === false) return;
+            const fmt = n => (n ?? 0).toLocaleString();
+            const live = h.since_retention_enabled || {};
+            const legacy = h.all_time_legacy || {};
+            const el = document.getElementById('firstSnapshotHealth');
+            if (!el) return;
+            el.innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;">
+                    <div class="metric"><div class="metric-label">Since Retention Enabled</div><div class="metric-value small">${live.coverage_pct ?? 0}%</div></div>
+                    <div class="metric"><div class="metric-label">All-Time Legacy</div><div class="metric-value small">${legacy.coverage_pct ?? 0}%</div></div>
+                    <div class="metric"><div class="metric-label">Bad/Null MC</div><div class="metric-value small">${fmt(h.bad_or_null_first_mc_count)}</div></div>
+                </div>`;
+        }
+        function renderSnapshotCleanup(data) {
+            const sc = data?.snapshot_cleanup || {};
+            const fmt = n => (n ?? 0).toLocaleString();
+            const fmtTs = ts => ts ? new Date(ts * 1000).toLocaleTimeString() : '—';
+            document.getElementById('snapshotCleanup').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;">
+                    <div class="metric"><div class="metric-label">Deleted</div><div class="metric-value small">${fmt(sc.snapshots_deleted_24h)}</div></div>
+                    <div class="metric"><div class="metric-label">Tokens Deleted</div><div class="metric-value small">${fmt(sc.tokens_deleted_24h)}</div></div>
+                    <div class="metric"><div class="metric-label">Downsampled</div><div class="metric-value small">${fmt(sc.snapshots_downsampled_24h)}</div></div>
+                    <div class="metric"><div class="metric-label">Last Cleanup</div><div class="metric-value small" style="font-size: 0.8rem;">${fmtTs(sc.last_cleanup_at)}</div></div>
+                </div>`;
+        }
+
+        // ── Tier 1 / Tier 2 WATCHTOWER intelligence monitors (unchanged data shape) ──
+        async function renderTier1Monitor() {
+            const el = document.getElementById('tier1Monitor');
+            if (!el) return;
+            try {
+                const [statusRes, cand1h, cand24h] = await Promise.all([
+                    fetch('/api/watchtower/webhook-status').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/hit-activity?window_s=3600&limit=20&source=candidate_webhook').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/hit-activity?window_s=86400&limit=20&source=candidate_webhook').then(r => r.json()).catch(() => ({})),
+                ]);
+                const whs = statusRes.webhooks || {};
+                const candWh = whs['candidate'] || {};
+                const hits1h = cand1h.stats?.total_hits || 0;
+                const hits24h = cand24h.stats?.total_hits || 0;
+                const bursts = cand1h.bursts || [];
+                const feeTouches24h = (cand24h.wallets || []).reduce((s,w) => s + (w.fee_touches||0), 0);
+                const rec = candWh.last_reconciliation || {};
+                const recAge = rec.ran_at ? Math.round((Date.now()/1000 - rec.ran_at)) : null;
+                const hpm = hits1h > 0 ? (hits1h / 60).toFixed(1) : '0';
+                const burstHtml = bursts.length > 0
+                    ? bursts.map(b => `<span style="background:rgba(34,211,238,.1);color:#22d3ee;padding:2px 8px;border-radius:4px;font-size:0.8rem;margin-right:6px">⚡ ${b.wallet_address.slice(0,8)}… ${b.hits_5m} hits/5m</span>`).join('')
+                    : '<span style="color:var(--text-secondary);font-size:0.85rem">No bursts</span>';
+                const topRows = (cand24h.wallets || []).slice(0,10).map(w => {
+                    const addr = w.wallet_address;
+                    const sc = w.fee_touches > 0 ? '#f87171' : w.burst >= 3 ? '#fb923c' : '#22d3ee';
+                    const sig = w.fee_touches > 0 ? 'FEE TOUCH' : w.signal || 'ACTIVE';
+                    return `<tr><td style="font-family:monospace;font-size:0.8rem" title="${addr}">${addr.slice(0,8)}…${addr.slice(-6)}</td><td style="color:${sc};font-weight:600">${sig}</td><td style="color:#fff;font-weight:700">${w.hits}</td><td style="color:#f87171">${w.fee_touches||0}</td><td style="color:var(--text-secondary)">${w.total_sol_moved ? (+w.total_sol_moved).toFixed(3)+'◎' : '—'}</td></tr>`;
+                }).join('') || '<tr><td colspan="5" style="color:var(--text-secondary);padding:8px 0">No candidate activity recorded yet</td></tr>';
+                el.innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1rem">
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#22d3ee">${(candWh.local_active||0).toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">ENROLLED</div></div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#22d3ee">${hits1h.toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">HITS · 1H</div></div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#22d3ee">${hits24h.toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">HITS · 24H</div></div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:${feeTouches24h>0?'#f87171':'#22d3ee'}">${feeTouches24h}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">FEE TOUCHES</div></div>
+                        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#22d3ee">${hpm}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">HITS / MIN</div></div>
+                    </div>
+                    <div style="margin-bottom:0.6rem"><span style="font-size:0.68rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em">Bursts · </span>${burstHtml}${recAge !== null ? `<span style="float:right;font-size:0.68rem;color:var(--text-secondary)">Reconciled ${recAge}s ago</span>` : ''}</div>
+                    <table style="width:100%;border-collapse:collapse;font-size:0.78rem"><thead><tr style="color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,.1)"><th style="text-align:left;padding:4px 0">Wallet</th><th style="text-align:left;padding:4px 0">Signal</th><th style="text-align:right;padding:4px 0">Hits</th><th style="text-align:right;padding:4px 0">Fee</th><th style="text-align:right;padding:4px 0">SOL</th></tr></thead><tbody>${topRows}</tbody></table>`;
+            } catch(e) { el.innerHTML = `<div style="color:#f87171">Tier 1 error: ${e}</div>`; }
+        }
+        async function renderTier2Monitor() {
+            const el = document.getElementById('tier2Monitor');
+            if (!el) return;
+            try {
+                const [relayRes, cpRes, statusRes] = await Promise.all([
+                    fetch('/api/watchtower/relay-telemetry?window_minutes=60').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/relay-counterparties?state=NEW&limit=5').then(r => r.json()).catch(() => ({})),
+                    fetch('/api/watchtower/webhook-status').then(r => r.json()).catch(() => ({})),
+                ]);
+                const relays = relayRes.relays || [];
+                const counts = cpRes.counts || [];
+                const whs = statusRes.webhooks || {};
+                const infraWh = whs['infra'] || {};
+                const rec = infraWh.last_reconciliation || {};
+                const recAge = rec.ran_at ? Math.round((Date.now()/1000 - rec.ran_at)) : null;
+                const epochColor = e => e === 'EXTRACTION_WAVE' ? '#f87171' : e === 'ESCALATING' ? '#fb923c' : e === 'ACTIVE' ? '#fbbf24' : '#6b7280';
+                const cpCounts = {};
+                counts.forEach(c => { cpCounts[c.discovery_state] = { n: c.n, sol: c.sol }; });
+                const newCount = cpCounts['NEW']?.n || 0;
+                const confCount = cpCounts['CREATOR_CONFIRMED']?.n || 0;
+                const relayRows = relays.map(r => {
+                    const addr = r.wallet_address;
+                    const ec = epochColor(r.epoch_state);
+                    return `<tr><td style="font-family:monospace;font-size:0.8rem" title="${addr}">${addr.slice(0,8)}…${addr.slice(-6)}</td><td style="color:var(--text-secondary);font-size:0.75rem">${r.role}</td><td style="color:#fff;font-weight:700;text-align:right">${(r.total_hits||0).toLocaleString()}</td><td style="text-align:right">${(r.hits_5m||0)}</td><td style="text-align:right;color:var(--text-secondary)">${r.total_counterparties||0}</td><td style="text-align:right;color:#a78bfa">${r.total_sol ? (+r.total_sol).toFixed(0)+'◎' : '—'}</td><td style="text-align:right"><span style="background:${ec}22;color:${ec};padding:1px 6px;border-radius:3px;font-size:0.7rem;font-weight:600">${r.epoch_state}</span></td></tr>`;
+                }).join('') || '<tr><td colspan="7" style="color:var(--text-secondary);padding:8px 0">No relay activity in last hour</td></tr>';
+                el.innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem">
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#a78bfa">${(infraWh.local_active||0).toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">INFRA ENROLLED</div></div>
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#a78bfa">${relays.reduce((s,r)=>s+(r.total_hits||0),0).toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">BUCKET HITS 1H</div></div>
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:${newCount>100?'#fb923c':'#a78bfa'}">${newCount.toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">PENDING</div></div>
+                        <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:6px;padding:8px;text-align:center"><div style="font-size:1.3rem;font-weight:700;color:#22c55e">${confCount.toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-secondary);margin-top:2px">CREATORS FOUND</div></div>
+                    </div>
+                    ${recAge !== null ? `<div style="font-size:0.68rem;color:var(--text-secondary);margin-bottom:0.7rem">Reconciled ${recAge}s ago · ${infraWh.local_active||0} enrolled</div>` : ''}
+                    <table style="width:100%;border-collapse:collapse;font-size:0.78rem"><thead><tr style="color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,.1)"><th style="text-align:left;padding:4px 0">Relay</th><th style="text-align:left;padding:4px 0">Role</th><th style="text-align:right;padding:4px 0">Hits·1H</th><th style="text-align:right;padding:4px 0">Hits·5m</th><th style="text-align:right;padding:4px 0">Senders</th><th style="text-align:right;padding:4px 0">SOL</th><th style="text-align:right;padding:4px 0">Epoch</th></tr></thead><tbody>${relayRows}</tbody></table>`;
+            } catch(e) { el.innerHTML = `<div style="color:#f87171">Tier 2 error: ${e}</div>`; }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // MAIN ORCHESTRATION
+        // ══════════════════════════════════════════════════════════════════
+        async function updateDashboard() {
+            const firstSnapshotHealth = {}; // disabled — see original STABILITY note (WAL pinning)
+            const [data, dbHealth, recovery, fundingStats, fullHealth] = await Promise.all([
+                fetchHealth(),
+                fetch('/api/db-health').then(r => r.json()).catch(() => ({})),
+                fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null),
+                fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => ({})),
+                fetch('/api/health/full').then(r => r.json()).catch(() => null),
+            ]);
+            data && (data.queue_depths = dbHealth.queue_depths || {});
+
+            const platform = renderPlatformGroup(fullHealth, recovery);
+            const ingestion = renderIngestionGroup(recovery, fundingStats, dbHealth);
+            const intelligence = await renderIntelligenceGroup(fullHealth);
+            const infra = renderInfraGroup(dbHealth, fullHealth);
+            renderDiagnosticsGroup(data || {}, recovery);
+            renderSnapshotCleanup(data || {});
+            renderFirstSnapshotHealth(firstSnapshotHealth);
+
+            // Phase 9 — top-of-page alert-first summary across all four groups
+            // (Diagnostics is deliberately excluded: it's engineering-only,
+            // never carries an operational health verdict of its own.)
+            const namedGroups = [
+                { key: 'platform',     label: 'Platform',           ...platform },
+                { key: 'ingestion',    label: 'Ingestion',          ...ingestion },
+                { key: 'intelligence', label: 'Intelligence',       ...intelligence },
+                { key: 'infra',        label: 'Infrastructure',     ...infra },
+            ];
+            const allCritical = namedGroups.flatMap(g => g.criticalMsgs || []);
+            const allWarning = namedGroups.flatMap(g => g.warningMsgs || []);
+            const worst = allCritical.length ? 'critical' : allWarning.length ? 'warning' : 'ok';
+            mcUpdateBanner(worst, allCritical, allWarning);
+            mcUpdateSummaryStrip(worst, namedGroups);
+
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
         }
 
         document.getElementById('refreshBtn').addEventListener('click', async () => {
             const btn = document.getElementById('refreshBtn');
             btn.classList.add('refreshing');
-            await Promise.all([updateDashboard(), updateRecoveryPanel()]);
+            await updateDashboard();
             btn.classList.remove('refreshing');
         });
 
         updateDashboard();
-        updateRecoveryPanel();
-        renderTier1Monitor();
-        renderTier2Monitor();
-        setInterval(() => { updateDashboard(); updateRecoveryPanel(); renderTier1Monitor(); renderTier2Monitor(); }, 60000); // STABILITY: raised from 10s → 60s (was causing RW WAL contention with cascade)
+        setInterval(updateDashboard, 60000); // STABILITY: 60s cadence — avoids RW WAL contention with cascade
 
-        // ── Runtime Budget Health card ────────────────────────────────────────
-        let _shRBDetailVisible = false;
-        function toggleSHRBDetail(){
-            _shRBDetailVisible = !_shRBDetailVisible;
-            const d = document.getElementById('sh-rb-detail');
-            const btn = document.getElementById('sh-rb-toggle');
-            if(d) d.style.display = _shRBDetailVisible ? '' : 'none';
-            if(btn) btn.textContent = (_shRBDetailVisible ? '▾ hide detail' : '▸ show detail');
-        }
-
+        // ── Runtime Budget Health (Level-3 detail inside Infrastructure) ────
         async function loadSHRuntimeBudget(){
             let d; try{ d = await(await fetch('/api/ops-v2/intel/runtime-budget')).json(); }catch(e){ return; }
-            const r = d.runtime||{}, cfg = d.config||{};
-
+            const r = d.runtime||{};
             const pill = document.getElementById('sh-rb-pill');
             const note = document.getElementById('sh-rb-note');
+            if (!pill) return; // panel not yet rendered (collapsed by default)
             const healthColor = {'GREEN':'#22c55e','YELLOW':'#f59e0b','RED':'#ef4444'}[d.health]||'#94a3b8';
             const healthBg = {'GREEN':'rgba(34,197,94,.15)','YELLOW':'rgba(245,158,11,.15)','RED':'rgba(239,68,68,.15)'}[d.health]||'rgba(100,116,139,.2)';
             const healthIcon = {'GREEN':'🟢','YELLOW':'🟡','RED':'🔴'}[d.health]||'⚪';
-            if(pill){ pill.style.background=healthBg; pill.style.color=healthColor; pill.textContent=`${healthIcon} ${d.health_label||d.health}`; }
-            if(note){ note.textContent = d.health_note||''; }
+            pill.style.background=healthBg; pill.style.color=healthColor; pill.textContent=`${healthIcon} ${d.health_label||d.health}`;
+            if(note) note.textContent = d.health_note||'';
 
-            const totalDeferred = (r.creator_resolution_skipped||0)+(r.pool_discovery_deferred||0)+
-                (r.validation_timeout||0)+(r.catchup_timeout||0)+(r.create_fetch_dropped||0);
+            const totalDeferred = (r.creator_resolution_skipped||0)+(r.pool_discovery_deferred||0)+(r.validation_timeout||0)+(r.catchup_timeout||0)+(r.create_fetch_dropped||0);
             const totalCritical = (r.treasury_timeout||0)+(r.create_fetch_timeout||0);
             const summaryEl = document.getElementById('sh-rb-summary');
-            const mk = (val, label, col) => `<div class="card" style="padding:0.75rem 1rem;text-align:center">
-                <div style="font-size:1.4rem;font-weight:800;color:${col}">${val}</div>
-                <div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px">${label}</div>
-            </div>`;
+            const mk = (val, label, col) => `<div class="card" style="padding:0.6rem 0.8rem;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:${col}">${val}</div><div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px">${label}</div></div>`;
             if(summaryEl) summaryEl.innerHTML =
                 mk(totalCritical>0?'⚠ '+totalCritical:'✓', 'Critical path', totalCritical>0?'#f59e0b':'#22c55e') +
-                mk(totalDeferred, 'Optional work deferred', totalDeferred>0?'#22d3ee':'#64748b') +
+                mk(totalDeferred, 'Deferred', totalDeferred>0?'#22d3ee':'#64748b') +
                 mk((r.db_lock_errors_5m||0)+'/5m', 'DB lock errors', (r.db_lock_errors_5m||0)>0?'#f59e0b':'#22c55e');
 
-            document.getElementById('sh-rb-detail').style.display = _shRBDetailVisible ? '' : 'none';
-
-            const s = (label, val, col='#e2e8f0', note='') => `<div style="padding:8px;background:rgba(255,255,255,.03);border-radius:6px;text-align:center">
-                <div style="font-size:1.1rem;font-weight:700;color:${col}">${val??'—'}${note?`<span style="font-size:9px;color:#64748b;margin-left:2px">${note}</span>`:''}</div>
-                <div style="font-size:0.6rem;color:#64748b;margin-top:2px">${label}</div>
-            </div>`;
+            const s = (label, val, col='#e2e8f0', note='') => `<div style="padding:6px;background:rgba(255,255,255,.03);border-radius:6px;text-align:center"><div style="font-size:1rem;font-weight:700;color:${col}">${val??'—'}${note?`<span style="font-size:8px;color:#64748b;margin-left:2px">${note}</span>`:''}</div><div style="font-size:0.58rem;color:#64748b;margin-top:2px">${label}</div></div>`;
             const cascOk = r.cascade_state==='LIVE'||r.cascade_state==null;
             const dbOk = (r.db_p99_wait_ms||0)<1000;
             const lockOk = (r.db_lock_errors_5m||0)===0;
-            document.getElementById('sh-rb-critical').innerHTML =
+            const critEl = document.getElementById('sh-rb-critical');
+            if (critEl) critEl.innerHTML =
                 s('WS Cascade', cascOk?'LIVE':r.cascade_state||'?', cascOk?'#22c55e':'#ef4444') +
                 s('DB p99', (r.db_p99_wait_ms||0)+'ms', dbOk?'#22c55e':'#ef4444') +
                 s('Treasury timeout', r.treasury_timeout||0, (r.treasury_timeout||0)>0?'#f59e0b':'#22c55e') +
                 s('Validation timeout', r.validation_timeout||0, (r.validation_timeout||0)>0?'#f59e0b':'#22c55e') +
                 s('CREATE fetch timeout', r.create_fetch_timeout||0, (r.create_fetch_timeout||0)>0?'#f59e0b':'#22c55e') +
                 s('DB lock errors', (r.db_lock_errors_5m||0)+'/5m', lockOk?'#22c55e':(r.db_lock_errors_5m||0)>5?'#ef4444':'#f59e0b');
-            document.getElementById('sh-rb-degrade').innerHTML =
+            const degEl = document.getElementById('sh-rb-degrade');
+            if (degEl) degEl.innerHTML =
                 s('Creator res. skipped', r.creator_resolution_skipped??'—', '#94a3b8', 'ok') +
                 s('Validation aborted', r.validation_timeout||0, '#94a3b8', 'ok') +
                 s('Catch-up timeout', r.catchup_timeout||0, '#94a3b8', 'ok') +
@@ -1641,14 +1364,14 @@
                 s('Pool disc. deferred', r.pool_discovery_deferred||0, '#94a3b8', 'ok') +
                 s('Migration deferred', r.migration_deferred||0, '#94a3b8', 'ok') +
                 s('CREATE fetch queue', r.create_fetch_queue||0, (r.create_fetch_queue||0)>15?'#f59e0b':'#94a3b8') +
-                s('Budget exceeded (crr)', r.creator_resolution_budget_exceeded??'—', '#94a3b8', 'ok');
-            document.getElementById('sh-rb-pressure').innerHTML =
+                s('Budget exceeded', r.creator_resolution_budget_exceeded??'—', '#94a3b8', 'ok');
+            const presEl = document.getElementById('sh-rb-pressure');
+            if (presEl) presEl.innerHTML =
                 s('DB p99', (r.db_p99_wait_ms||0)+'ms', (r.db_p99_wait_ms||0)<500?'#22c55e':'#f59e0b') +
                 s('DB queue depth', r.db_queue_depth||0, (r.db_queue_depth||0)>3?'#f59e0b':'#e2e8f0') +
                 s('Lock errors 1h', r.db_lock_errors_1h||0, (r.db_lock_errors_1h||0)>0?'#f59e0b':'#22c55e') +
                 s('Lock errors 5m', r.db_lock_errors_5m||0, (r.db_lock_errors_5m||0)>5?'#ef4444':(r.db_lock_errors_5m||0)>0?'#f59e0b':'#22c55e');
         }
-
         loadSHRuntimeBudget();
         setInterval(loadSHRuntimeBudget, 30000);
     </script>

@@ -93,12 +93,29 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
     if not ordered_roles:
         ordered_roles = [current_role]
 
+    observations = []
+    seen_observations = set()
+    for path in sorted(launch_paths, key=lambda item: item.get("observed_at") or 0, reverse=True):
+        key = (path.get("from"), path.get("to"), path.get("source_mint"), path.get("mechanism"))
+        if key in seen_observations:
+            continue
+        seen_observations.add(key)
+        observations.append({
+            "controller": path.get("from"), "creator": path.get("to"),
+            "launch": path.get("source_mint"),
+            "launch_label": path.get("launch_label") or "Launch",
+            "mechanism": path.get("mechanism"), "observed_at": path.get("observed_at"),
+            "transaction": path.get("signature"),
+        })
+
     return {
         "current_role": current_role,
         "nodes": [{"role": role, "current": role == current_role} for role in ordered_roles],
         "edges": edges,
         "observation_count": sum(edge["observation_count"] for edge in edges),
         "relationship_count": len(edges),
+        "observed_relationships": observations,
+        "related_launch_count": int(family.get("launches") or len(family.get("launch_list") or [])),
         "evidence_backed": bool(edges),
         "source": "Recorded provisioning relationships and canonical launch membership",
     }

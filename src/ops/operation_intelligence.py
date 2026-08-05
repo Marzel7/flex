@@ -59,7 +59,7 @@ class OperationIntelligenceAssembler:
         timeline = self._timeline(family, edges, sessions, watch_launches, token_rows)
         performance = self._performance(mints, token_rows, watch_launches)
         behaviour = self._behaviour(family, edges, sessions, token_rows, watch_launches)
-        infrastructure = self._infrastructure(family, edges, sessions)
+        infrastructure = self._infrastructure(family, edges, sessions, token_rows)
         from src.ops.operational_role import derive_operational_role
         operational_role = derive_operational_role(family, infrastructure)
         evidence = self._evidence(family, edges, sessions)
@@ -288,13 +288,20 @@ class OperationIntelligenceAssembler:
         }
 
     @staticmethod
-    def _infrastructure(family, edges, sessions):
+    def _infrastructure(family, edges, sessions, token_rows=None):
+        token_labels = {}
+        for token in token_rows or []:
+            mint = token.get("mint")
+            label = token.get("symbol") or token.get("token_symbol") or token.get("name")
+            if mint and label:
+                token_labels[mint] = f"{label} Token"
         paths, rpc_edges = [], []
         for edge in edges:
             path = {"from": edge.get("from_wallet"), "to": edge.get("to_wallet"),
                     "type": edge.get("edge_type"), "mechanism": edge.get("funding_mechanism"),
                     "signature": edge.get("funding_tx_signature"),
                     "source_mint": edge.get("source_mint"),
+                    "launch_label": token_labels.get(edge.get("source_mint")),
                     "observed_at": _ts(edge.get("first_observed_by_flex"))}
             paths.append(path)
             if path["signature"]:

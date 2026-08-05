@@ -24,6 +24,12 @@ def test_role_chain_contains_only_recorded_relationships():
         "TREASURY_TO_SUBPROV", "SUBPROV_TO_CREATOR", "EDGE_SOURCE_MINT"
     ]
     assert role["edges"][-1]["launches"] == ["MINT"]
+    assert role["observed_relationships"] == [{
+        "controller": "CONTROL", "creator": "CREATOR", "launch": "MINT",
+        "launch_label": "Launch", "mechanism": None, "observed_at": None,
+        "transaction": "B",
+    }]
+    assert role["related_launch_count"] == 1
 
 
 def test_shared_infrastructure_does_not_invent_operator():
@@ -69,4 +75,6 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "f.operational_role||intel.operational_role" in profile
     assert "d.family.operational_role" in operator
     assert "f.operational_role" in discovery
+    assert "Typical observed funding relationships" in profile
+    assert "View all '+esc(role.related_launch_count" in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

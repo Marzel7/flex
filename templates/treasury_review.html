@@ -73,7 +73,8 @@
  function card(item){
   const t=item.treasury;
   return '<article class="tr-card" data-treasury="'+esc(t)+'">'+
-   '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+'</div>'+
+   '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+
+   '<a class="tr-nav" href="'+esc(item.discovery_href||('/discovery?entity='+encodeURIComponent(t)+'&type=treasury'))+'" style="margin-left:auto;font-size:9px;color:var(--ip-cyan);text-decoration:none">Open in Discovery →</a></div>'+
    '<div class="tr-metrics">'+
     '<div class="tr-metric"><strong>'+esc(item.launch_count)+'</strong><span>Launches</span></div>'+
     '<div class="tr-metric"><strong>'+esc(item.subprovider_count)+'</strong><span>Subproviders</span></div>'+

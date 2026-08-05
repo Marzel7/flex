@@ -196,6 +196,22 @@
 .dw-canonical-meta { color:var(--ip-sec); font-size:10px; margin-top:4px; }
 .dw-signal-list { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
 .dw-signal { border:1px solid rgba(34,197,94,.25); color:var(--ip-green); background:rgba(34,197,94,.05); border-radius:10px; padding:3px 7px; font-size:9px; }
+/* X75.3A — relationship-kind visual vocabulary. Colour/line style is keyed
+   to KIND of relationship, never to which operator/entity is involved. */
+.ec-rows { display:flex; flex-direction:column; gap:0; }
+.ec-row { display:grid; grid-template-columns:160px 1fr; align-items:center; gap:12px; padding:9px 4px; border-top:1px solid var(--ip-border); font-size:11px; }
+.ec-row:first-child { border-top:none; }
+.ec-row-label { color:var(--ip-dim); font-size:9px; text-transform:uppercase; letter-spacing:.06em; }
+.ec-row-value { color:var(--ip-text); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.ec-row-value a { color:var(--ip-cyan); text-decoration:none; }
+.ec-muted { color:var(--ip-dim); }
+/* Direct relationship = solid accent; structural co-membership = dotted. */
+.ec-row-solid { border-left:3px solid var(--ip-green); padding-left:10px; }
+.ec-row-dotted { border-left:3px dotted var(--ip-cyan); padding-left:10px; }
+.ec-badge { border-radius:10px; padding:2px 8px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+.ec-badge-canonical { color:#22c55e; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.3); }
+.ec-badge-review { color:#f97316; background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.3); }
+.ec-badge-infra { color:#60a5fa; background:rgba(96,165,250,.08); border:1px solid rgba(96,165,250,.3); }
 .dw-outcome { margin:0 0 12px; padding:14px 16px; border:1px solid rgba(34,211,238,.24); border-left:3px solid var(--ip-cyan); border-radius:7px; background:rgba(34,211,238,.045); }
 .dw-outcome-lead { border-color:rgba(245,158,11,.28); border-left-color:var(--ip-amber); background:rgba(245,158,11,.045); }
 .dw-outcome-insufficient { border-color:var(--ip-border2); border-left-color:var(--ip-dim); background:rgba(255,255,255,.015); }
@@ -1500,9 +1516,18 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       :(subject.type==='token'&&d.creator_activity&&d.creator_activity.creator)?d.creator_activity.creator:null;
     var opLineageMount=lineageWallet?'<section class="vi-card walkback dw-lineage-panel" id="dw-lineage-mount" style="display:none"></section>':'';
     if(lineageWallet)loadLineage(lineageWallet);
+    // X75.3A — Entity Context: distinguishes CANONICAL IDENTITY (a
+    // confirmed operator role), REVIEW DECISION (a human Treasury Review
+    // verdict), and STRUCTURAL MEMBERSHIP (co-occurrence in an
+    // Investigation Population via pattern-similarity clustering, NOT a
+    // direct funding edge) as three separate, explicitly-labelled facts.
+    // Never implies one wallet funded another merely because they share a
+    // population.
+    var entityContextMount=lineageWallet?'<section class="vi-card walkback dw-lineage-panel" id="dw-entity-context-mount" style="display:none"></section>':'';
+    if(lineageWallet)loadEntityContext(lineageWallet);
     if(subject.type==='token'&&subject.id)loadFundingBoundary(subject.id);
     if(!d.timeline||!d.timeline.length){
-      $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+reconciled+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+detectionReconciliation(d.detection_reconciliation)+operationIdentity(d.operation_identity)+canonicalIdentity(d.canonical_identity)+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';
+      $('dw-content').innerHTML=identityHeader+opLineageMount+entityContextMount+summaryCard+reconciled+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+detectionReconciliation(d.detection_reconciliation)+operationIdentity(d.operation_identity)+canonicalIdentity(d.canonical_identity)+'<div class="dw-empty"><div class="dw-empty-mark">○</div>No historical discovery evidence is available. The workspace does not run a live walkback.</div>';
       if(subject.type==='token'&&subject.id)loadWatchtowerCandidateEvidence(subject.id);
       return;
     }
@@ -1517,7 +1542,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     var evidence='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Evidence groups</summary><div class="x19-disclosure-body"><div class="dw-grid"><main>'+groups(d.evidence_groups||{})+'</main><aside>'+cross(d.cross_operation)+'</aside></div></div></details>';
     var lineage='<details class="x19-disclosure x19-level2"><summary><span class="level">Level 2</span> Promotion lineage</summary><div class="x19-disclosure-body">'+(operatorHistory(d.operator_history)||'<div class="dw-empty" style="padding:18px;">No canonical promotion lineage recorded.</div>')+'</div></details>';
     var raw='<details class="x19-disclosure x19-level3"><summary><span class="level">Level 3</span> Raw provenance</summary><div class="x19-disclosure-body"><div class="x19-timeline dw-timeline">'+d.timeline.map(node).join('')+'</div></div></details>';
-    $('dw-content').innerHTML=identityHeader+opLineageMount+summaryCard+reconciled+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+flow+wb+provenance+operationCard+operatorIdentity+opBehaviour+creatorAct+attribution+evidence+lineage+raw;
+    $('dw-content').innerHTML=identityHeader+opLineageMount+entityContextMount+summaryCard+reconciled+infra+watchtowerCandidate+fundingBoundary+walletQuality+leads+flow+wb+provenance+operationCard+operatorIdentity+opBehaviour+creatorAct+attribution+evidence+lineage+raw;
     if(subject.type==='token'&&subject.id)loadWatchtowerCandidateEvidence(subject.id);
   }
   // X29.7 — Operational Lineage chain renderer: a VARIABLE-DEPTH list
@@ -1619,6 +1644,52 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       m2.outerHTML=d.chain&&d.chain.length?lineageChain(d,wallet):'<section class="vi-card walkback dw-lineage-panel" style="display:none"></section>';
     }).catch(function(){
       var m3=$('dw-lineage-mount');
+      if(m3)m3.style.display='none';
+    });
+  }
+
+  // X75.3A — badge/line visual vocabulary. Colour and line style are keyed
+  // to RELATIONSHIP KIND, never to which operator is involved: canonical
+  // identity is always green, review state always orange, shared
+  // infrastructure always blue; a direct relationship always renders with
+  // a solid accent, structural co-membership always with a dotted one.
+  function ecBadge(kind,label){
+    var cls={canonical:'ec-badge-canonical',review:'ec-badge-review',infra:'ec-badge-infra'}[kind]||'ec-badge-infra';
+    return '<span class="ec-badge '+cls+'">'+esc(label)+'</span>';
+  }
+  function loadEntityContext(wallet){
+    var mount=$('dw-entity-context-mount');
+    if(!mount)return;
+    fetch('/api/discovery/entity-context/'+encodeURIComponent(wallet)).then(function(r){return r.json()}).then(function(d){
+      var m2=$('dw-entity-context-mount');
+      if(!m2)return;
+      if(!d||!d.ok){m2.style.display='none';return}
+      var ci=d.canonical_identity,rv=d.review_decision,pops=d.structural_populations||[];
+      if(!ci&&!rv&&!pops.length){m2.style.display='none';return}
+      var rows=[];
+      if(ci){
+        rows.push('<div class="ec-row ec-row-solid"><span class="ec-row-label">Canonical Operator</span><span class="ec-row-value"><a href="'+href(ci.operator_id,'operator')+'">'+esc(ci.display_name)+'</a> '+ecBadge('canonical','Role: '+esc(ci.entity_type))+'</span></div>');
+      } else {
+        rows.push('<div class="ec-row"><span class="ec-row-label">Canonical Operator</span><span class="ec-row-value ec-muted">No confirmed operator identity</span></div>');
+      }
+      var trHref='/intelligence/treasury-review';
+      if(rv){
+        rows.push('<div class="ec-row"><span class="ec-row-label">Treasury Review</span><span class="ec-row-value">'+ecBadge('review',esc(rv.status))+' <span class="ec-muted">'+(rv.reviewed_at?ago(rv.reviewed_at):'')+'</span> <a href="'+trHref+'" style="font-size:9px;color:var(--ip-cyan)">Open Treasury Review →</a></span></div>');
+      } else {
+        rows.push('<div class="ec-row"><span class="ec-row-label">Treasury Review</span><span class="ec-row-value ec-muted">No review record for this wallet</span></div>');
+      }
+      var popChips=pops.map(function(p){
+        var phref=String(p.family_id||'').indexOf('canonical:')===0?href(p.family_id.slice(10),'operator'):'/intelligence/operations/'+encodeURIComponent(p.family_id);
+        return '<a href="'+phref+'" style="text-decoration:none">'+ecBadge('infra',esc(p.family_name||p.family_id)+' · '+esc(p.role))+'</a>';
+      }).join(' ');
+      rows.push('<div class="ec-row ec-row-dotted"><span class="ec-row-label">Structural Populations</span><span class="ec-row-value">'+(popChips||'<span class="ec-muted">None</span>')+'</span></div>');
+      m2.outerHTML='<section class="vi-card walkback dw-lineage-panel" id="dw-entity-context-mount">'
+        +'<div class="dw-health-head"><div class="vi-eyebrow">Entity Context</div><div class="vi-title">'+esc(convergenceShort?convergenceShort(wallet):wallet)+'</div>'
+        +'<div class="dw-landing-sub">Canonical identity, review history, and structural population membership — shown separately. Co-membership is not a funding relationship.</div></div>'
+        +'<div class="ec-rows">'+rows.join('')+'</div>'
+        +'</section>';
+    }).catch(function(){
+      var m3=$('dw-entity-context-mount');
       if(m3)m3.style.display='none';
     });
   }

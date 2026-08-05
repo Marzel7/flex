@@ -227,6 +227,11 @@ def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
         "recent_actions": recent_actions,
         "priority_score": _priority_score(row, counts),
         "watchtower_candidate": counts["wrap_close"] > 0 or counts["launches"] > 0 or bool(row.get("has_walkback_evidence")),
+        # X75.3A PART 6 -- navigation: every review item links forward to
+        # Discovery's per-entity view for this wallet, so an analyst never
+        # has to leave the review workspace to see the same wallet's
+        # canonical identity / structural-population context.
+        "discovery_href": f"/discovery?entity={treasury}&type=treasury",
     }
 
 

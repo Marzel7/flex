@@ -40213,6 +40213,13 @@ except Exception as e:
     print(f"[WARNING] Discovery workspace not available: {e}")
 
 try:
+    from src.discovery.entity_context_routes import register_entity_context_routes
+    register_entity_context_routes(app)
+    print("[X75.3A] Entity context routes registered (/api/discovery/entity-context/<wallet>, /api/discovery/relationship/<a>/<b>)")
+except Exception as e:
+    print(f"[WARNING] Entity context routes not available: {e}")
+
+try:
     from src.discovery.operation_convergence_routes import register_discovery_convergence_routes
     register_discovery_convergence_routes(app)
     print("[X75.0] Discovery convergence routes registered (/api/discovery/convergence)")

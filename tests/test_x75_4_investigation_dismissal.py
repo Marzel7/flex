@@ -74,6 +74,7 @@ def test_ui_contracts_expose_dismissed_without_registry_actions():
     assert "Dismiss Investigation" in profile and "Reopen Investigation" in profile
     assert "INVESTIGATION_DISMISSED" in (ROOT / "src/ops/investigation_lifecycle.py").read_text()
     assert 'data-filter="DISMISSED"' in registry
+    assert "(r.lifecycle&&r.lifecycle.history)||[]" in registry
     assert "Dismissed Investigations" in discovery
     assert "/dismiss" in routes and "/reopen" in routes
     assert "Confirm dismissal" not in registry

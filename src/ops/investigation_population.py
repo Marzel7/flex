@@ -115,6 +115,9 @@ class InvestigationPopulationBuilder:
         members = tuple(sorted(p["wallet"] for p in group))
         treasuries = tuple(sorted(set().union(*(p["treasuries"] for p in group))))
         creators = tuple(sorted(set().union(*(p["creators"] for p in group))))
+        provisioning_clients = tuple(sorted(set().union(*(
+            p.get("provisioning_clients", set()) for p in group
+        ))))
         mechanisms = tuple(sorted(set().union(*(p["mechanisms"] for p in group))))
         signatures = tuple(sorted(set().union(*(p["signatures"] for p in group))))
         launches = tuple(sorted(set().union(*(p["launches"] for p in group))))
@@ -156,6 +159,7 @@ class InvestigationPopulationBuilder:
                 (p["wallet"], tuple(sorted(p["treasuries"]))) for p in group
             ),
             "creators": creators,
+            "provisioning_clients": provisioning_clients,
             "mechanisms": mechanisms,
             "signatures": signatures,
             "first_seen_at": first,
@@ -374,7 +378,9 @@ class LegacyFamilyProjectionAdapter:
             "walkback_descendant_count": len(m["walkback_descendants"]),
             "walkback_descendant_list": list(m["walkback_descendants"]),
             "session_count": sessions, "active_sessions": int(m["active_session_count"]),
-            "member_wallets": members, "client_wallets": members,
+            "member_wallets": members,
+            "client_wallets": list(m["provisioning_clients"]) or members,
+            "provisioning_clients": list(m["provisioning_clients"]),
             "member_treasuries": treasuries, "treasuries": treasuries,
             "primary_treasury_families": treasuries, "unique_creators": creators,
             "funding_mechanisms": mechanisms, "dominant_topology": topology,

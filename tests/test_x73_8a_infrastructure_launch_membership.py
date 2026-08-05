@@ -17,6 +17,10 @@ def _databases(tmp_path):
         "candidate_parent TEXT,mint TEXT,selection_status TEXT)"
     )
     conn.execute(
+        "CREATE TABLE wt_walkback_queue ("
+        "mint TEXT PRIMARY KEY,creator TEXT,subprov TEXT,treasury TEXT)"
+    )
+    conn.execute(
         "INSERT INTO wt_infrastructure_candidates VALUES "
         "('INFRA','OPERATIONAL_TREASURY',99,100,200)"
     )
@@ -28,6 +32,14 @@ def _databases(tmp_path):
             ("INFRA", "MINT_B", "SELECTED"),
             ("INFRA", "MINT_C", "ALTERNATIVE"),
             ("OTHER", "MINT_D", "SELECTED"),
+        ],
+    )
+    conn.executemany(
+        "INSERT INTO wt_walkback_queue VALUES (?,?,?,?)",
+        [
+            ("MINT_A", "CREATOR_A", "CLIENT_A", None),
+            ("MINT_B", "CREATOR_B", "CLIENT_B", None),
+            ("MINT_C", "CREATOR_C", "CLIENT_C", "OTHER_TREASURY"),
         ],
     )
     conn.commit()

@@ -30,7 +30,7 @@ def test_missing_detail_records_do_not_deny_attributed_launches():
 def test_members_use_compact_metadata_and_unavailable_marker():
     profile = text("templates/operation_profile.html")
     assert 'class="rp-metadata"' in profile
-    for label in ("Attributed launches", "Creators", "Clients", "Treasuries"):
+    for label in ("Attributed launches", "Creators", "Provisioning clients", "Treasuries"):
         assert label in profile
     assert "displayValue=n=>n>0?esc(n):'—'" in profile
     assert "No creators observed." not in profile

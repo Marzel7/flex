@@ -699,7 +699,7 @@ class EmergingOperatorService:
             return profiles.setdefault(wallet, {
                 "wallet": wallet, "sources": sources, "candidate": {}, "creators": set(),
                 "treasuries": set(), "mechanisms": set(), "signatures": set(), "launches": set(),
-                "walkback_descendants": set(),
+                "walkback_descendants": set(), "provisioning_clients": set(),
                 "first": None, "last": None, "sessions": 0, "active_sessions": 0,
                 "session_times": set(), "evidence": [], "outcomes": [],
                 "templates": defaultdict(int), "campaigns": set(), "session_amounts": [],
@@ -797,12 +797,41 @@ class EmergingOperatorService:
         # Families already routed by attribution outcomes or provisioning
         # edges retain those established membership sources; mixing ancestry
         # descendants into them would silently broaden existing populations.
+        infrastructure_only_wallets = set()
         for wallet, p in profiles.items():
             descendants = selected_descendants_by_parent.get(wallet, set())
             if descendants and p["sources"] == {"wt_infrastructure_candidates"}:
                 p["launches"].update(descendants)
                 p["walkback_descendants"].update(descendants)
                 p["sources"].add("wt_walkback_edge_candidates")
+                infrastructure_only_wallets.add(wallet)
+        # Project participants from the same selected launch membership.
+        # Walkback queue rows are keyed by mint and carry observed creators
+        # and subproviders. An OPERATIONAL_TREASURY candidate_parent is itself
+        # direct treasury evidence for each selected descendant; no scalar or
+        # inferred identity is introduced here.
+        if infrastructure_only_wallets and "wt_walkback_queue" in tables:
+            for row in conn.execute(
+                "SELECT DISTINCT e.candidate_parent,q.creator,q.subprov,q.treasury "
+                "FROM wt_walkback_edge_candidates e "
+                "JOIN wt_walkback_queue q ON q.mint=e.mint "
+                "WHERE e.selection_status='SELECTED'"
+            ):
+                wallet = str(row["candidate_parent"] or "")
+                if wallet not in infrastructure_only_wallets:
+                    continue
+                p = profiles[wallet]
+                if row["creator"]:
+                    p["creators"].add(str(row["creator"]))
+                if row["subprov"]:
+                    p["provisioning_clients"].add(str(row["subprov"]))
+                if row["treasury"]:
+                    p["treasuries"].add(str(row["treasury"]))
+                p["sources"].add("wt_walkback_queue")
+        for wallet in infrastructure_only_wallets:
+            p = profiles[wallet]
+            if p["candidate"].get("candidate_role") == "OPERATIONAL_TREASURY":
+                p["treasuries"].add(wallet)
         for p in profiles.values():
             label = get_funder_label(p["wallet"])
             if label: p["exclusions"].append({"type": label["kind"], "detail": label["name"], "source": "infra_mapping"})

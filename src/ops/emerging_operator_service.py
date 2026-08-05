@@ -577,19 +577,45 @@ class EmergingOperatorService:
             populations = self._population_builder().build(profiles)
             adapter = self._legacy_adapter(evaluation, proposals)
             projected = [adapter.project(population) for population in populations]
+            # X76.0 -- rejected treasuries are a hard stop on absorption,
+            # same source table X75.0's own expansion-exclusion logic uses
+            # (wt_treasury_review, status='REJECTED'). Read once per compose.
+            rejected_wallets: frozenset[str] = frozenset()
+            if "wt_treasury_review" in tables:
+                try:
+                    rejected_wallets = frozenset(
+                        row[0] for row in ops.execute(
+                            "SELECT treasury FROM wt_treasury_review WHERE status='REJECTED'"
+                        ).fetchall()
+                    )
+                except Exception:
+                    rejected_wallets = frozenset()
             # A canonical operator and its pre-promotion investigation are one
             # analyst identity, not two registry cards.  Carry the observed
             # population metrics onto the canonical record and suppress the
             # superseded investigation projection.  The canonical tables stay
             # authoritative for disposition and membership.
+            #
+            # X76.0: absorption is no longer triggered by a bare wallet-set
+            # intersection (which was a projection/storage-field coincidence,
+            # not a deliberate evidence threshold -- see
+            # src/ops/canonical_merge_contract.py for the full audit and the
+            # canonical merge contract this now enforces). Each candidate
+            # population is evaluated independently against every canonical
+            # family via evaluate_merge(); only decisions where
+            # allowed=True are absorbed. The full explanation (satisfied/
+            # unsatisfied criteria) is attached to the candidate population
+            # for analyst/debug visibility even when a merge is rejected.
+            from src.ops.canonical_merge_contract import evaluate_merge
             absorbed: set[str] = set()
             for canonical in families:
-                canonical_entities = set(canonical.get("member_wallets") or ())
-                canonical_entities.update(canonical.get("treasuries") or ())
-                matches = [
-                    family for family in projected
-                    if canonical_entities.intersection(family.get("member_wallets") or ())
+                candidate_decisions = [
+                    (family, evaluate_merge(canonical, family, rejected_wallets=rejected_wallets))
+                    for family in projected
                 ]
+                for family, decision in candidate_decisions:
+                    family.setdefault("merge_evaluations", []).append(decision.explain())
+                matches = [family for family, decision in candidate_decisions if decision.allowed]
                 if not matches:
                     continue
                 source = max(

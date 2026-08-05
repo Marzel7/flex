@@ -1,24 +1,31 @@
 """X75.3A PART 7 -- Absorption safety test.
 
-X75.3's audit flagged a latent risk in EmergingOperatorService._compose()'s
-canonical-family absorption logic (src/ops/emerging_operator_service.py,
-around line 561): a population sharing even ONE wallet with a canonical
-operator's entity set gets absorbed, with no minimum-overlap threshold and
-no role distinction.
+STATUS UPDATE (X76.0): the defect this file originally documented (a
+population sharing even ONE wallet with a canonical operator's entity set
+gets absorbed, with no minimum-overlap threshold) has since been FIXED by
+X76.0 ("Canonical Merge Safety & Identity Boundary Protection") --
+src/ops/canonical_merge_contract.py::evaluate_merge() now gates every
+absorption decision behind a documented merge contract (wallet overlap
+computed symmetrically + at least two independent identity signals + no
+REJECTED review decision on any overlapping wallet). See
+tests/test_x76_0_canonical_merge_safety.py for the current, authoritative
+regression coverage.
 
-This test does NOT assert that absorption never happens on partial
-overlap -- it documents and locks in the EXACT current behaviour against
-live data (the B48k/Dv34 family, which shares its EFKV treasury with
-WATCHTOWER) so any future change to the absorption logic is forced to
-explicitly re-examine this case rather than silently drift.
+Original X75.3 finding (preserved for history): X75.3's audit flagged a
+latent risk in EmergingOperatorService._compose()'s canonical-family
+absorption logic (src/ops/emerging_operator_service.py, around line 561):
+a population sharing even ONE wallet with a canonical operator's entity
+set got absorbed, with no minimum-overlap threshold and no role
+distinction. Per the X75.3A task brief's explicit instruction ("Do not
+change absorption logic in this milestone... If the test exposes a real
+defect: stop and report it separately"), this was reported but not fixed
+at the time -- X76.0 is that separate, later fix.
 
-Per the X75.3A task brief: "Do not change absorption logic in this
-milestone unless the test proves current behaviour is wrong in live data.
-If the test exposes a real defect: stop and report it separately."
-
-This test DOES expose a real defect (documented below) and it is
-correspondingly NOT asserted as "safe" -- see the reported finding in the
-X75.3A commit message / conversation, not fixed here.
+This file's tests still pass because the FACTS they assert (field layout,
+the resulting non-absorption outcome) remain true independent of which
+mechanism produces them -- but the mechanism itself has changed; see
+test_bare_intersection_would_have_triggered__historical_mechanism_now_fixed
+below for the explicit before/after proof.
 """
 from __future__ import annotations
 
@@ -96,15 +103,22 @@ def test_current_absorption_check_is_asymmetric_across_member_wallets_and_treasu
     )
 
 
-def test_absorption_would_trigger_on_single_member_wallet_overlap_if_present():
-    """Demonstrates the absence of a minimum-overlap threshold directly
-    against the ACTUAL absorption function, using synthetic families (not
-    live data -- this isolates the logic itself from which field a real
-    population happens to store its overlap in). A single shared wallet in
-    member_wallets is sufficient to trigger absorption today; this is the
-    concrete "no minimum threshold" finding X75.3 flagged, reproduced
-    directly against the real function rather than inferred from field
-    layout."""
+def test_bare_intersection_would_have_triggered__historical_mechanism_now_fixed():
+    """HISTORICAL: this test used to call the raw wallet-intersection
+    snippet that WAS the absorption trigger prior to X76.0, to prove no
+    minimum-overlap threshold existed. X76.0 ("Canonical Merge Safety &
+    Identity Boundary Protection") replaced that trigger with
+    src/ops/canonical_merge_contract.py::evaluate_merge(), which requires
+    at least two independent identity signals (not just wallet overlap) --
+    see tests/test_x76_0_canonical_merge_safety.py for the current,
+    authoritative regression coverage of that contract, including a
+    dedicated test proving a single shared wallet in member_wallets alone
+    (this exact scenario) is now correctly REJECTED.
+
+    This test is kept only to document what the bare intersection snippet
+    itself would still do in isolation (it has no minimum-overlap logic of
+    its own) -- it does not exercise the real, current absorption
+    pipeline, which no longer uses this snippet at all."""
     canonical_family = {
         "family_id": "canonical:test-operator",
         "member_wallets": ["shared_wallet_1"],
@@ -125,9 +139,15 @@ def test_absorption_would_trigger_on_single_member_wallet_overlap_if_present():
         if canonical_entities.intersection(family.get("member_wallets") or ())
     ]
     assert matches, (
-        "Confirms: a single shared member_wallets entry is sufficient to "
-        "trigger absorption in the current logic -- no minimum-overlap "
-        "threshold exists. This is the exact mechanism X75.3 flagged as a "
-        "latent risk. NOT fixed in this milestone per the X75.3A task "
-        "brief's explicit instruction to report rather than repair."
+        "The bare intersection snippet itself has no minimum-overlap "
+        "threshold (expected -- this documents the historical mechanism, "
+        "not the current one). See test_x76_0_canonical_merge_safety.py "
+        "for proof the REAL pipeline now rejects this exact scenario."
+    )
+
+    from src.ops.canonical_merge_contract import evaluate_merge
+    decision = evaluate_merge(canonical_family, candidate_family, rejected_wallets=frozenset())
+    assert decision.allowed is False, (
+        "The CURRENT merge contract must reject this same scenario -- "
+        "single wallet overlap alone, no other identity evidence."
     )

@@ -70,11 +70,23 @@ def test_analysis_is_a_stack_of_independent_summaries():
 
 def test_default_summary_contains_only_five_analyst_answers():
     page = source()
-    summary = page.split("const summary=", 1)[1].split(";", 1)[0]
+    summary = page.split("const overview=", 1)[1].split(";", 1)[0]
     for answer in ("identityCard", "State", "Reason", "Promotion", "Next Evidence"):
-        assert answer in summary
+        assert ("Missing evidence" if answer == "Next Evidence" else answer) in summary
     for detail in ("support", "contradictions", "infrastructureWallets", "launchRows", "historyRows"):
         assert detail not in summary
+
+
+def test_approved_concept_visual_language_is_applied_without_new_routes():
+    page = source()
+    assert "css/intel-platform.css" in page
+    assert 'class="rp-overview"' in page
+    assert ".rp-overview:before" in page
+    assert "grid-template-columns:repeat(4,1fr)" in page
+    assert "border-radius:11px" in page
+    assert "data-open-tab=\"evidence\"" in page
+    assert "root-identity-treasury" in page
+    assert "x.startsWith('RPC ')?'RPC':x" in page
 
 
 def test_x74_2_remains_presentation_only():

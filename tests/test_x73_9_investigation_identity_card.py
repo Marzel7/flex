@@ -10,7 +10,7 @@ def source():
 
 def test_summary_has_one_compact_population_identity_card():
     page = source()
-    assert "Population Identity" in page
+    assert 'aria-label="Investigation summary"' in page
     assert 'class="rp-identity identity-' in page
     assert "rp-identity-badge" in page
     assert "rp-identity-icon" in page
@@ -21,8 +21,9 @@ def test_summary_has_one_compact_population_identity_card():
 def test_identity_card_contains_only_identity_and_compact_counts():
     page = source()
     identity = page.split("identityCard=", 1)[1].split(";", 1)[0]
-    for label in ("Launches", "Creators", "Provisioning Clients", "Treasuries"):
-        assert label in identity
+    metrics = page.split("identityMetrics=", 1)[1].split(";", 1)[0]
+    for label in ("Launches", "Creators", "Provisioning Clients", "Treasury"):
+        assert label in metrics
     assert "<p>" not in identity
     assert "explanation" not in identity.lower()
 
@@ -43,7 +44,7 @@ def test_identity_palette_is_restrained_and_registry_aligned():
     page = source()
     for contract in (
         ".identity-confirmed{--identity-color:#22c55e}",
-        ".identity-treasury{--identity-color:#60a5fa}",
+        ".identity-treasury{--identity-color:#818cf8}",
         ".identity-controller{--identity-color:#a78bfa}",
         ".identity-shared{--identity-color:#f97316}",
         ".identity-session{--identity-color:#eab308}",
@@ -55,12 +56,12 @@ def test_identity_palette_is_restrained_and_registry_aligned():
 
 def test_summary_is_limited_to_identity_state_reason_and_next_evidence():
     page = source()
-    summary = page.split("const summary=", 1)[1].split(";", 1)[0]
+    summary = page.split("const overview=", 1)[1].split(";", 1)[0]
     assert "identityCard" in summary
     assert "State" in summary
     assert "Reason" in summary
     assert "Promotion" in summary
-    assert "Next Evidence" in summary
+    assert "Missing evidence" in summary
     for duplicate in ("Current operator", "Parent investigation", "Child identities", "Actions"):
         assert duplicate not in summary
     assert "relationships+'<div" in page

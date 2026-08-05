@@ -40,18 +40,19 @@ def test_first_screen_deduplicates_state_and_uses_compact_summary():
     source = _source()
     assert "disclosure('Why?'" not in source
     assert "Population Metrics" not in source
-    assert "Population Identity" in source
-    assert "Next Evidence" in source
+    assert 'aria-label="Investigation summary"' in source
+    assert "Missing evidence" in source
 
 
 def test_detail_surfaces_use_progressive_disclosure():
     source = _source()
     for section in (
-        "Provisioning", "Behaviour", "Advanced Metrics", "Timeline",
+        "Provisioning", "Behaviour", "Advanced Metrics",
         "Legacy Context",
     ):
         assert "disclosure('" + section + "'" in source
     assert "<details class=\"rp-disclosure\"" in source
+    assert "rp-history-group" in source
 
 
 def test_promotion_actions_are_reconciliation_gated_without_unresolved_bypass():
@@ -60,7 +61,7 @@ def test_promotion_actions_are_reconciliation_gated_without_unresolved_bypass():
         assert state in source
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in source
     assert "Confirm Operation" in source
-    assert "Next Evidence" in source
+    assert "Missing evidence" in source
 
 
 @pytest.fixture(scope="module")

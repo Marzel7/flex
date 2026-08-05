@@ -43,7 +43,7 @@ def test_evidence_is_compact_and_semantics_are_progressively_disclosed():
 
 def test_valid_actions_and_state_colours_match_registry_language():
     page = source()
-    assert "Population Identity" in page
+    assert 'aria-label="Investigation summary"' in page
     assert "Govern identity" in page
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in page
     assert ".disp-CONFIRMED_OPERATION{--rp-color:#22c55e}" in page

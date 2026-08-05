@@ -98,9 +98,8 @@ def test_ui_uses_investigation_language_and_preserves_evidence_surfaces():
     registry = (ROOT / "templates/emerging_operators.html").read_text()
     discovery = (ROOT / "templates/discovery.html").read_text()
     for value in (
-        "Investigation Summary", "Potential Operator Clusters", "Walkback",
-        "Topology", "Launches", "Behaviour", "Statistics", "Evidence",
-        "No independently supported operator clusters identified.",
+        "Summary", "Walkback", "Topology", "Launches", "Behaviour",
+        "Advanced Metrics", "Evidence", "History",
     ):
         assert value in profile
     assert "active_investigations_reconciled" in registry

@@ -45,11 +45,11 @@ def test_operator_registry_remains_vertical_and_profiles_own_governance():
 def test_population_profile_owns_promotion_and_relationship_context():
     profile = text("templates/operation_profile.html")
     for label in (
-        "Promotion Readiness", "Current Operator", "Parent Investigation",
-        "Child Operator Identities", "Related Identities", "Evidence Links",
+        "Current operator", "Parent investigation", "Child identities",
+        "Review Evidence", "Govern Identity",
     ):
         assert label in profile
-    assert "Confirm Operation Identity" in profile
+    assert "Confirm Operation" in profile
     assert "/api/operators/promotions/" in profile
     assert "/approve" in profile
     assert "proposal_fingerprint" in profile

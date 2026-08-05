@@ -69,7 +69,7 @@ def test_templates_make_reconciliation_authoritative_and_keep_debug_hidden():
     assert "infrastructure_alerts_reconciled" in operations
     assert "Background investigations remain internal" in operations
     assert "pres.confirmation_permitted" in profile
-    assert "Reconciled Intelligence Record" in profile
+    assert "Investigation Profile" in profile
     assert "Reconciled Attribution · Level 1" in discovery
     assert "Walkback Outcome · Level 1" in discovery
     assert "new URLSearchParams(location.search).get('debug')==='1'" in discovery

@@ -17,7 +17,7 @@ def _source() -> str:
 def test_hero_is_reduced_to_identity_state_size_reason_and_readiness():
     source = _source()
     hero = source.split('<header class="rp-hero">', 1)[1].split("</header>", 1)[0]
-    for field in ("rp-kind", "rp-name", "rp-state", "rp-size", "rp-readiness", "rp-reason"):
+    for field in ("rp-kind", "rp-name", "rp-disposition", "rp-launches", "rp-promotion", "rp-reason"):
         assert field in hero
     for removed in ("Evidence %", "Significance", "Maturity", "First observed", "Active sessions", "Treasuries"):
         assert removed not in hero
@@ -26,43 +26,42 @@ def test_hero_is_reduced_to_identity_state_size_reason_and_readiness():
 def test_exactly_five_task_oriented_tabs_and_legacy_tab_aliases():
     source = _source()
     assert source.count('<section class="rp-panel" data-panel=') == 5
-    for tab in ("Overview", "Members", "Structure", "Evidence", "Intelligence"):
+    for tab in ("Summary", "Evidence", "Members", "Analysis", "History"):
         assert "'" + tab + "'" in source
     for alias in (
-        "participants:'members'", "launches:'members'", "timeline:'members'",
-        "walkback:'structure'", "topology:'structure'", "reconciliation:'evidence'",
-        "operational:'intelligence'", "comparison:'intelligence'",
+        "participants:'members'", "launches:'members'", "timeline:'history'",
+        "walkback:'analysis'", "topology:'analysis'", "reconciliation:'evidence'",
+        "operational:'analysis'", "comparison:'analysis'",
     ):
         assert alias in source
 
 
-def test_first_screen_has_three_kpis_three_sentences_and_a_why_expander():
+def test_first_screen_deduplicates_state_and_uses_compact_summary():
     source = _source()
-    assert ".slice(0,3)" in source
-    assert "disclosure('Why?'" in source
-    assert "[['Launches',f.launches],['Disposition',disp],['Promotion Readiness',workflowState(disp)]]" in source
-    assert "disclosure('Population Metrics'" in source
+    assert "disclosure('Why?'" not in source
+    assert "Population Metrics" not in source
+    assert "Current Relationships" in source
+    assert "Next Evidence Required" in source
 
 
 def test_detail_surfaces_use_progressive_disclosure():
     source = _source()
     for section in (
-        "Participants", "Launches", "Timeline", "Walkback", "Topology",
-        "Infrastructure", "Evidence Reconciliation", "Legacy Context",
-        "Behaviour", "Statistics", "Potential Operator Clusters",
+        "Infrastructure", "Behaviour", "Advanced Metrics", "Timeline",
+        "Legacy Context",
     ):
         assert "disclosure('" + section + "'" in source
-    assert "<details class=\"rp-chain\">" in source
+    assert "<details class=\"rp-disclosure\"" in source
 
 
 def test_promotion_actions_are_reconciliation_gated_without_unresolved_bypass():
     source = _source()
     for state in ("NOT ELIGIBLE", "READY FOR REVIEW", "OPERATOR CANDIDATE", "CONFIRMED OPERATION"):
         assert state in source
-    assert "This population is not currently eligible for promotion." in source
-    assert "Contradictions must be resolved before promotion." in source
+    assert "Promotion unavailable — additional independent evidence required." in source
+    assert "Resolve contradictions before confirmation." in source
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in source
-    assert "Promote to Confirmed Operation" in source
+    assert "Confirm Operation" in source
     assert "Next Evidence Required" in source
 
 

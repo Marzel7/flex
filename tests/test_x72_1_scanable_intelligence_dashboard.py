@@ -59,7 +59,7 @@ def test_profile_routes_and_evidence_workspace_remain_intact():
     profile = (ROOT / "templates/operation_profile.html").read_text()
     assert "p.profile_href||f.profile_href" in dashboard
     for detail in (
-        "Promotion Readiness", "Supporting evidence", "Missing evidence",
-        "Legacy Context", "analyst_explanation",
+        "promotionFor", "Supporting", "Missing", "Legacy Context",
+        "Promotion Blockers",
     ):
         assert detail in profile

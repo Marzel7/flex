@@ -36,9 +36,12 @@ class TestSingleSharedWalletNeverMerges:
     def test_single_shared_wallet_via_treasury_field_no_other_evidence(self):
         """The exact field-naming asymmetry X75.3A found: a shared wallet
         recorded in 'treasuries' on both sides, with zero other evidence,
-        must still not merge."""
+        must still not merge. Candidate carries an extra, non-canonical
+        treasury so the wallet SETS are not exactly equal -- this isolates
+        "shares one wallet" from "is the identical population" (see
+        TestExactWalletSetEquality below for that separate case)."""
         canonical = {"family_id": "canonical:op", "treasuries": ["shared_treasury"]}
-        candidate = {"family_id": "family:cand", "treasuries": ["shared_treasury"]}
+        candidate = {"family_id": "family:cand", "treasuries": ["shared_treasury", "other_treasury"]}
         decision = evaluate_merge(canonical, candidate, rejected_wallets=frozenset())
         assert decision.allowed is False
         names = {c.name for c in decision.unsatisfied_criteria}
@@ -56,32 +59,48 @@ class TestSharedTreasuryAloneNeverMerges:
 class TestSharedInfrastructureAloneNeverMerges:
     def test_shared_client_wallet_no_identity_signals(self):
         canonical = {"family_id": "canonical:op", "client_wallets": ["c1"]}
-        candidate = {"family_id": "family:cand", "client_wallets": ["c1"], "provisioning_clients": ["c1"]}
+        candidate = {"family_id": "family:cand", "client_wallets": ["c1", "c2"], "provisioning_clients": ["c1"]}
         decision = evaluate_merge(canonical, candidate, rejected_wallets=frozenset())
         assert decision.allowed is False
 
 
-class TestConfirmedIdentityExpansionAloneDoesNotForceMerge:
-    """A wallet being CONFIRMED elsewhere (e.g. in wt_confirmed_treasuries)
-    is not itself passed to evaluate_merge as a signal -- only funding
-    mechanism, topology, and structural depth are. This test documents
-    that confirmation status alone (absence from rejected_wallets) is
-    necessary but not sufficient -- it only removes the hard stop, it does
-    not supply a positive identity signal."""
+class TestExactWalletSetEquality:
+    """A candidate population describing the EXACT same wallet set as the
+    canonical operator (both non-empty) is recognised as the operator's
+    own not-yet-promoted source population, not a merge between distinct
+    identities -- e.g. a single-wallet operator like 3SW2, whose canonical
+    card and pre-promotion population both describe exactly one wallet.
+    This must remain narrower than "any overlap": a population sharing
+    only SOME of a multi-wallet operator's wallets does not qualify (see
+    TestSingleSharedWalletNeverMerges / TestSharedTreasuryAloneNeverMerges
+    above, both of which now use non-equal sets specifically to avoid
+    this bypass)."""
 
-    def test_not_rejected_is_not_sufficient_alone(self):
+    def test_identical_single_wallet_set_allowed(self):
         canonical = {"family_id": "canonical:op", "member_wallets": ["w1"]}
         candidate = {"family_id": "family:cand", "member_wallets": ["w1"]}
         decision = evaluate_merge(canonical, candidate, rejected_wallets=frozenset())
+        assert decision.allowed is True
+        assert decision.satisfied_criteria[0].name == "exact_wallet_set_equality"
+
+    def test_identical_set_still_blocked_if_rejected(self):
+        canonical = {"family_id": "canonical:op", "member_wallets": ["w1"]}
+        candidate = {"family_id": "family:cand", "member_wallets": ["w1"]}
+        decision = evaluate_merge(canonical, candidate, rejected_wallets=frozenset({"w1"}))
         assert decision.allowed is False
-        assert any(c.name == "no_rejected_review" and c.satisfied for c in decision.satisfied_criteria)
+
+    def test_partial_overlap_of_multiwallet_operator_not_treated_as_equal(self):
+        canonical = {"family_id": "canonical:op", "member_wallets": ["w1", "w2", "w3"]}
+        candidate = {"family_id": "family:cand", "member_wallets": ["w1"]}
+        decision = evaluate_merge(canonical, candidate, rejected_wallets=frozenset())
         assert decision.allowed is False
+        assert decision.satisfied_criteria[0].name != "exact_wallet_set_equality" if decision.satisfied_criteria else True
 
 
 class TestIndependentControllerEvidenceAllowsMerge:
     def test_two_identity_signals_allow_merge(self):
         canonical = {
-            "family_id": "canonical:op", "member_wallets": ["w1"],
+            "family_id": "canonical:op", "member_wallets": ["w1", "w2"],
             "funding_mechanisms": ["WSOL_WRAP_CLOSE"], "dominant_topology": "treasury -> subprov -> creator",
         }
         candidate = {
@@ -95,7 +114,7 @@ class TestIndependentControllerEvidenceAllowsMerge:
 
     def test_only_one_identity_signal_still_blocks(self):
         canonical = {
-            "family_id": "canonical:op", "member_wallets": ["w1"],
+            "family_id": "canonical:op", "member_wallets": ["w1", "w2"],
             "funding_mechanisms": ["WSOL_WRAP_CLOSE"],
         }
         candidate = {

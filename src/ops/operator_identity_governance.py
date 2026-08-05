@@ -145,6 +145,114 @@ def _json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
 
 
+# X76.1 -- Operator Identity Projection Integrity.
+#
+# ROOT CAUSE (see docs/audits/x76_1_projection_integrity_audit.md for the
+# full architecture audit): operator_entities has 5 independent write
+# sites; operator_identity_assets has exactly 2, both inside
+# OperatorIdentityGovernanceService (expand()/merge()). The live production
+# writer of operator_entities -- watchtower_alignment.reconcile_confirmed_
+# treasury(), invoked from treasury_bank.promote_to_confirmed() on every
+# real treasury confirmation -- writes operator_entities DIRECTLY and never
+# calls into OperatorIdentityGovernanceService at all. This is not a broken
+# dual-write; it is a missing single write at the one call site that
+# actually produces live rows (69 of 70 current operator_entities rows
+# trace to this path). operator_store.add_entity() and promotion_service.py's
+# entity-insert loop are both confirmed dead/unreached in the live system
+# (add_entity has zero callers; promotion_service's brand-new-operator path
+# has never fired against current data) -- fixing them is unnecessary,
+# but this projection helper is written generically enough that any of
+# them COULD call it safely if that ever changes.
+#
+# CONTRACT: there is exactly one authoritative write (operator_entities,
+# which encodes the confirmed role a wallet plays for an operator).
+# operator_identity_assets is a DETERMINISTIC PROJECTION of that fact --
+# never a second, independently-decided source of truth. This function is
+# the single place that projection happens; every operator_entities writer
+# that wants a corresponding asset row calls this, in the SAME transaction,
+# on the SAME connection, so the two tables can never diverge from a
+# partial write.  Idempotent (INSERT OR IGNORE against a deterministic
+# uuid5 asset_id, mirroring expand()'s own idempotency contract) and safe
+# to call redundantly -- a second call for the same (operator_id,
+# asset_type, asset_value) is a no-op.
+_ENTITY_TYPE_TO_ASSET_TYPE = {
+    "TREASURY": "TREASURY",
+    "SUB_PROVISIONER": "PROVISIONING_CONTROLLER",
+    "CREATOR": "CREATOR_FAMILY",
+}
+
+
+def project_entity_to_asset(
+    conn: sqlite3.Connection, operator_id: str, entity_type: str, entity_address: str,
+    *, evidence_revision: str = "system:reconciliation",
+) -> str | None:
+    """Deterministically project one already-written operator_entities
+    fact into operator_identity_assets, on the CALLER's own connection
+    (must be inside the same transaction as the operator_entities write
+    this projects). Returns the asset_id, or None if entity_type has no
+    known asset-type mapping (not an error -- some entity_types, e.g.
+    CLIENT, intentionally have no operator_identity_assets equivalent
+    today; ASSET_TYPES/ENTITY_ASSET_TYPES above defines the only three
+    reverse-mapped types, so this keeps the two lists symmetric without
+    inventing a new asset_type for something expand() itself couldn't
+    produce).
+
+    Never raises GovernanceError and never enforces expand()'s
+    CONFIRMED/REVIEW precondition -- this is a passive projection of a
+    fact the caller has ALREADY decided (by writing operator_entities),
+    not a new governance decision; the precondition belongs to human-
+    initiated expand() calls, not to a deterministic mirror of existing
+    state. If the operator has no operator_identity_state row yet, one is
+    seeded (matching expand()'s own _ensure_state behaviour) so the
+    projection is never silently dropped for a not-yet-lifecycle-tracked
+    operator.
+    """
+    asset_type = _ENTITY_TYPE_TO_ASSET_TYPE.get(str(entity_type or "").upper())
+    if not asset_type or not entity_address:
+        return None
+    now = int(time.time())
+    operator_row = conn.execute("SELECT 1 FROM operators WHERE operator_id=?", (operator_id,)).fetchone()
+    if not operator_row:
+        return None
+    existing_state = conn.execute(
+        "SELECT 1 FROM operator_identity_state WHERE operator_id=?", (operator_id,)
+    ).fetchone()
+    if not existing_state:
+        status_row = conn.execute("SELECT status FROM operators WHERE operator_id=?", (operator_id,)).fetchone()
+        status = str(status_row["status"] if status_row and status_row["status"] else "CANDIDATE")
+        if status not in IDENTITY_STATUSES:
+            status = "CONFIRMED" if status == "PROVISIONAL" else "CANDIDATE"
+        conn.execute(
+            "INSERT OR IGNORE INTO operator_identity_state "
+            "(operator_id,identity_status,activity_status,updated_at) VALUES(?,?,?,?)",
+            (operator_id, status, "ACTIVE", now),
+        )
+    event_type = {"TREASURY": "TREASURY_ADDED", "PROVISIONING_CONTROLLER": "PROVISIONING_ROTATION",
+                  "CREATOR_FAMILY": "IDENTITY_EXPANDED"}.get(asset_type, "IDENTITY_EXPANDED")
+    asset_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"operator-asset:{operator_id}:{asset_type}:{entity_address}"))
+    already_present = conn.execute(
+        "SELECT 1 FROM operator_identity_assets WHERE asset_id=?", (asset_id,)
+    ).fetchone()
+    if already_present:
+        return asset_id
+    event_id = str(uuid.uuid4())
+    conn.execute(
+        "INSERT INTO operator_identity_events "
+        "(event_id,operator_id,event_type,timestamp,analyst,evidence_revision,reason,payload_json) "
+        "VALUES(?,?,?,?,?,?,?,?)",
+        (event_id, operator_id, event_type, now, "system:reconciliation", evidence_revision,
+         "Deterministic projection from an existing operator_entities row (X76.1).",
+         _json({"asset_type": asset_type, "asset_value": entity_address, "source": "project_entity_to_asset"})),
+    )
+    conn.execute(
+        "INSERT OR IGNORE INTO operator_identity_assets "
+        "(asset_id,operator_id,asset_type,asset_value,status,evidence_revision,added_at,event_id) "
+        "VALUES(?,?,?,?,?,?,?,?)",
+        (asset_id, operator_id, asset_type, entity_address, "ACTIVE", evidence_revision, now, event_id),
+    )
+    return asset_id
+
+
 def _read_conn(path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=10)
     conn.row_factory = sqlite3.Row

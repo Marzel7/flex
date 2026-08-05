@@ -148,6 +148,25 @@ def reconcile_confirmed_treasury(
             now,
         ),
     )
+    # X76.1 -- deterministic projection into operator_identity_assets, same
+    # connection/transaction as the operator_entities write above, so the
+    # two tables can never diverge from a partial write. See
+    # src/ops/operator_identity_governance.py::project_entity_to_asset()
+    # for the full contract; this is the one live call site that produces
+    # the vast majority of operator_entities rows and previously never
+    # projected into the newer governance ledger at all.
+    try:
+        from src.ops.operator_identity_governance import project_entity_to_asset
+        project_entity_to_asset(
+            conn, WATCHTOWER_OPERATOR_ID, "TREASURY", treasury,
+            evidence_revision=f"reconcile_confirmed_treasury:{source.get('provenance') or 'unknown'}",
+        )
+    except Exception:
+        # Projection must never block the authoritative operator_entities
+        # write above -- if the ledger tables are missing (isolated legacy/
+        # test database) or anything else goes wrong here, the authoritative
+        # fact is already committed to operator_entities regardless.
+        pass
     encoded, fingerprint = _snapshot(source)
     conn.execute(
         "INSERT INTO watchtower_identity_reconciliations "

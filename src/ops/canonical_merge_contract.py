@@ -152,6 +152,28 @@ def evaluate_merge(
     canonical_id = str(canonical.get("family_id") or canonical.get("operator_id") or "unknown")
     candidate_id = str(candidate.get("family_id") or "unknown")
 
+    # Exact wallet-set equality (both non-empty) is not a "merge" between
+    # two independently-evidenced populations at all -- it is recognising
+    # that a candidate population IS the operator's own not-yet-promoted
+    # source investigation (e.g. a single-wallet operator like 3SW2, whose
+    # canonical card and pre-promotion population describe the identical
+    # wallet set). Requiring independent identity signals here would be
+    # asking the same evidence to corroborate itself. This is narrower
+    # than "any overlap" -- a population sharing ONE of several wallets
+    # still must satisfy the full identity-signal threshold below.
+    if canonical_wallets and candidate_wallets and canonical_wallets == candidate_wallets \
+            and not (overlap & rejected_wallets):
+        criterion = MergeCriterion(
+            "exact_wallet_set_equality", True,
+            f"Canonical and candidate describe the identical wallet set: {sorted(overlap)}.",
+        )
+        return MergeDecision(
+            allowed=True, canonical_id=canonical_id, candidate_id=candidate_id,
+            overlapping_wallets=overlap, satisfied_criteria=(criterion,), unsatisfied_criteria=(),
+            reason="Exact wallet-set equality -- this is the operator's own source population, "
+                   "not a merge between distinct identities.",
+        )
+
     if not overlap:
         return MergeDecision(
             allowed=False, canonical_id=canonical_id, candidate_id=candidate_id,

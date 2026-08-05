@@ -81,6 +81,31 @@ class EmergingOperatorService:
         self._cached_families: list[dict[str, Any]] | None = None
         self._cached_at = 0.0
 
+    def _snapshot_is_trustworthy(self) -> bool:
+        """X72.0: the on-disk snapshot store (src.ops.intelligence_snapshots)
+        is a single GLOBAL file location, keyed only by (function,
+        window_seconds) -- it has no concept of which (ops_db_path,
+        live_db_path) pair produced it, because operational_intelligence/
+        pipeline_health (its original consumers) only ever run against one
+        fixed production DB pair. EmergingOperatorService, unlike those, is
+        explicitly instantiable against ARBITRARY db paths (every unit test
+        does this with tmp_path fixtures). Reading the global snapshot for
+        an instance pointed at a different DB pair would silently return
+        unrelated (in tests: real production) data instead of computing
+        fresh from the instance's own databases -- exactly the bug this
+        guard exists to prevent. Only the real production service (the
+        module-level singleton in operator_routes.py, constructed with
+        src.core.db.OPS_DB_PATH/DB_PATH) is allowed to trust the snapshot;
+        every other instantiation always computes live."""
+        try:
+            from src.core.db import OPS_DB_PATH, DB_PATH
+        except Exception:
+            return False
+        return (
+            os.path.realpath(self.ops_db_path) == os.path.realpath(str(OPS_DB_PATH))
+            and os.path.realpath(self.live_db_path) == os.path.realpath(str(DB_PATH))
+        )
+
     @staticmethod
     def _connect(path: str) -> sqlite3.Connection:
         conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=5)
@@ -98,7 +123,13 @@ class EmergingOperatorService:
     def _columns(conn: sqlite3.Connection, table: str) -> set[str]:
         return {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
 
-    def list(self, limit: int = 200, debug: bool = False) -> dict[str, Any]:
+    def _list_uncached(self, limit: int = 200, debug: bool = False) -> dict[str, Any]:
+        """The full, expensive computation (_compose() + the reconciliation
+        pass) -- unchanged logic, previously named list(). X72.0: this now
+        runs ONLY inside the standalone snapshot scheduler process (see
+        src.ops.emerging_operators_snapshot.build_emerging_operators_
+        snapshot), never on a request thread. list() below is the
+        request-facing method and only reads the published snapshot."""
         limit = max(1, min(int(limit), 500))
         all_families = self._compose()
         try:
@@ -194,25 +225,88 @@ class EmergingOperatorService:
             ),
         }
         if debug:
-            hidden = [f for f in all_families if f["stage"] not in {"EMERGING", "ESTABLISHED", "CONFIRMED"}]
-            result["debug"] = {
-                "enabled": True,
-                "background_clusters": [f for f in hidden if f["stage"] == "BACKGROUND"],
-                "candidate_families": [f for f in hidden if f["stage"] in {"CANDIDATE", "SIGNIFICANT_ACTIVE"}],
-                "dormant_families": [f for f in hidden if f["stage"] == "DORMANT"],
-                "retired_families": [f for f in hidden if f["stage"] == "RETIRED"],
-                "rejected_families": [f for f in hidden if f["exclusion_evidence"]],
-                "evidence_routing": "profiles initialized from infrastructure scoring, walkback seeds, or complete persisted session-plus-provisioning evidence before enrichment, classification, and exclusions",
-                "reconciliation": [{
-                    "family_id": f["family_id"], "family_name": f["family_name"],
-                    "old_state": f.get("previous_stage"), "new_state": f["stage"],
-                    "significance": f["discovery_significance"]["score"],
-                    "completeness": f["evidence_completeness"]["score"],
-                    "maturity": f["operational_maturity"]["score"],
-                    "promotion_ready": f["promotion_ready"],
-                    "reason": f["promotion_gates"]["reason_not_surfaced"] or ", ".join(f["why_surfaced"]),
-                } for f in all_families],
-            }
+            result["debug"] = self._debug_block(all_families)
+        return result
+
+    @staticmethod
+    def _debug_block(all_families: list[dict[str, Any]]) -> dict[str, Any]:
+        """X72.0: extracted so list() (the snapshot-reading, request-facing
+        method) can compute this cheaply, in memory, from the snapshot's
+        already-loaded `families` list only when a caller actually passes
+        debug=1 -- previously this ~5.7MB block was baked into EVERY
+        snapshot write regardless of whether any request ever asked for it,
+        roughly doubling the on-disk/in-memory snapshot size and adding
+        60-85ms of pure JSON parse time to every single warm request."""
+        hidden = [f for f in all_families if f["stage"] not in {"EMERGING", "ESTABLISHED", "CONFIRMED"}]
+        return {
+            "enabled": True,
+            "background_clusters": [f for f in hidden if f["stage"] == "BACKGROUND"],
+            "candidate_families": [f for f in hidden if f["stage"] in {"CANDIDATE", "SIGNIFICANT_ACTIVE"}],
+            "dormant_families": [f for f in hidden if f["stage"] == "DORMANT"],
+            "retired_families": [f for f in hidden if f["stage"] == "RETIRED"],
+            "rejected_families": [f for f in hidden if f["exclusion_evidence"]],
+            "evidence_routing": "profiles initialized from infrastructure scoring, walkback seeds, or complete persisted session-plus-provisioning evidence before enrichment, classification, and exclusions",
+            "reconciliation": [{
+                "family_id": f["family_id"], "family_name": f["family_name"],
+                "old_state": f.get("previous_stage"), "new_state": f["stage"],
+                "significance": f["discovery_significance"]["score"],
+                "completeness": f["evidence_completeness"]["score"],
+                "maturity": f["operational_maturity"]["score"],
+                "promotion_ready": f["promotion_ready"],
+                "reason": f["promotion_gates"]["reason_not_surfaced"] or ", ".join(f["why_surfaced"]),
+            } for f in all_families],
+        }
+
+    def list(self, limit: int = 200, debug: bool = False) -> dict[str, Any]:
+        """X72.0 request-facing entry point. Reads the last published
+        snapshot (built entirely off the request thread by the standalone
+        intelligence_snapshot_scheduler process) and slices it in memory --
+        never invokes _list_uncached()/_compose() here. `limit` is a pure
+        truncation of the snapshot's already-deterministically-ordered
+        `families` list (verified: slicing a limit=500 build to N gives an
+        identical result to building at limit=N directly), so one snapshot,
+        always built at the maximum limit, serves every limit a caller asks
+        for. `debug` only controls whether the (already-computed) debug
+        block is included in the response, never a rebuild.
+
+        Startup fallback: if no snapshot has ever been published yet (fresh
+        deploy, scheduler not yet run once), falls back to the original
+        synchronous computation exactly once per cold key -- this matches
+        Phase 4's explicit "existing startup behaviour only until the first
+        snapshot has been published" requirement. After that first
+        publication, this branch is never taken again."""
+        snapshot = None
+        if self._snapshot_is_trustworthy():
+            from src.ops.emerging_operators_snapshot import read_emerging_operators_snapshot
+            snapshot = read_emerging_operators_snapshot()
+        if snapshot is None:
+            return self._list_uncached(limit=limit, debug=debug)
+
+        limit = max(1, min(int(limit), 500))
+        payload = snapshot.payload
+        full = payload.get("list_max") or {}
+        result = dict(full)
+        families = result.get("families") or []
+        visible = families[:limit]
+        result["families"] = visible
+        result["count"] = len(visible)
+        result["total"] = len(visible)
+        result["confirmed_operations"] = [f for f in visible if f["stage"] == "CONFIRMED"]
+        result["emerging_operations"] = [f for f in visible if f["stage"] == "EMERGING"]
+        result["established_changes"] = [
+            f for f in visible if f["stage"] == "ESTABLISHED" and f["material_change_reasons"]
+        ]
+        if debug:
+            raw_families = payload.get("families") or []
+            result["debug"] = self._debug_block(raw_families)
+        else:
+            result.pop("debug", None)
+        result["snapshot_meta"] = {
+            "generated_at": payload.get("generated_at"),
+            "build_duration_ms": payload.get("build_duration_ms"),
+            "snapshot_version": snapshot.snapshot_version,
+            "age_seconds": round(time.time() - snapshot.computed_at, 1),
+        }
         return result
 
     @staticmethod
@@ -227,21 +321,24 @@ class EmergingOperatorService:
         return card
 
     def get(self, entity: str) -> dict[str, Any] | None:
+        """X72.0: all_families and the reconciliation-by-family map now come
+        from the published snapshot (never _compose()/build_reconciliation_
+        metadata on the request thread -- the latter alone measured ~7.4s
+        standalone). _reconcile_token_states() and OperationIntelligence
+        Assembler.build() remain live per-request: both are genuinely
+        entity/request-shaped and measured fast (~55-106ms combined with a
+        warm snapshot) -- well inside the <100ms warm-request target, so
+        there is no reliability upside to snapshotting them and a real cost
+        (staleness, memory) to doing so."""
         entity = (entity or "").strip()
-        all_families = self._compose()
+        all_families, reconciliation_by_family = self._snapshot_families_and_reconciliation()
         for family in all_families:
             if entity == family["family_id"] or entity in family["member_wallets"]:
                 result = dict(family)
                 result["profile_href"] = f"/intelligence/operations/{family['family_id']}"
                 result["operational_intelligence_href"] = f"{result['profile_href']}?tab=operational"
                 result["ecosystem_intelligence_href"] = f"{result['profile_href']}?tab=related"
-                try:
-                    from src.ops.reconciliation_metadata import build_reconciliation_metadata
-                    metadata = build_reconciliation_metadata(self, all_families).get(
-                        str(result.get("family_id"))
-                    )
-                except Exception:
-                    metadata = None
+                metadata = reconciliation_by_family.get(str(result.get("family_id")))
                 from src.ops.reconciliation_presentation import reconciliation_presentation
                 if metadata is not None:
                     result["reconciliation"] = metadata
@@ -252,6 +349,31 @@ class EmergingOperatorService:
                 ).build(result, all_families, reconciliation)
                 return result
         return None
+
+    def _snapshot_families_and_reconciliation(
+        self,
+    ) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
+        """Shared snapshot read for get()/recent_events(). Falls back to the
+        original synchronous computation when no snapshot has EVER been
+        published yet (cold start, Phase 4's explicit startup exception) OR
+        when this instance isn't pointed at the production DB pair the
+        snapshot was built from (see _snapshot_is_trustworthy) -- every
+        production request after the first successful scheduler build
+        reads the snapshot exclusively."""
+        snapshot = None
+        if self._snapshot_is_trustworthy():
+            from src.ops.emerging_operators_snapshot import read_emerging_operators_snapshot
+            snapshot = read_emerging_operators_snapshot()
+        if snapshot is None:
+            all_families = self._compose()
+            try:
+                from src.ops.reconciliation_metadata import build_reconciliation_metadata
+                reconciliation_by_family = build_reconciliation_metadata(self, all_families)
+            except Exception:
+                reconciliation_by_family = {}
+            return all_families, reconciliation_by_family
+        payload = snapshot.payload
+        return payload.get("families") or [], payload.get("reconciliation_by_family") or {}
 
     def _reconcile_disposition_states(
         self,
@@ -375,8 +497,10 @@ class EmergingOperatorService:
         }
 
     def recent_events(self, limit: int = 20) -> list[dict[str, Any]]:
+        """X72.0: reads the snapshot's families (never _compose() on the
+        request thread once a snapshot exists)."""
         events = []
-        composed = self._compose()
+        composed, _ = self._snapshot_families_and_reconciliation()
         event_families = [f for f in composed if f["stage"] in {"EMERGING", "CONFIRMED"}]
         if not event_families:
             event_families = sorted((f for f in composed if f["stage"] in {"CANDIDATE", "DORMANT"}),

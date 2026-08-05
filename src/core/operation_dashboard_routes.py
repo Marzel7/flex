@@ -9592,7 +9592,26 @@ def api_intelligence_snapshots_health():
                 "pipeline_health": classify_snapshot_health(
                     "pipeline_health", window_seconds),
             }
-        return jsonify({"ok": True, "windows": result})
+        # X72.0 -- Emerging Operators snapshot (no window concept; fixed
+        # key). health is NO_SNAPSHOT/FRESH/STALE_REFRESHING/STALE_FAILED
+        # from the shared classifier; the "Startup" state the design calls
+        # for is exactly NO_SNAPSHOT (no build has ever completed) --
+        # surfaced under its own top-level key rather than nested in
+        # `windows` since it isn't windowed.
+        from src.core.intelligence_snapshot_scheduler import (
+            EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS,
+            EMERGING_OPERATORS_MAX_AGE_SEC,
+        )
+        emerging_health = classify_snapshot_health(
+            EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS,
+            max_acceptable_age_sec=EMERGING_OPERATORS_MAX_AGE_SEC,
+        )
+        emerging_health["state"] = (
+            "STARTUP" if emerging_health["health"] == "NO_SNAPSHOT" else emerging_health["health"]
+        )
+        return jsonify({
+            "ok": True, "windows": result, "emerging_operators": emerging_health,
+        })
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
 

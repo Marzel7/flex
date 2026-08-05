@@ -321,7 +321,14 @@ def test_run_once_attempts_every_window_and_function(monkeypatch):
         calls.append((function, window_seconds))
         return {"function": function, "window_seconds": window_seconds, "status": "SUCCESS"}
 
+    def fake_refresh_emerging_operators(reason="scheduled"):
+        calls.append(("emerging_operators", 0))
+        return {"function": "emerging_operators", "window_seconds": 0, "status": "SUCCESS"}
+
     monkeypatch.setattr(scheduler, "refresh_one", fake_refresh_one)
+    monkeypatch.setattr(scheduler, "_refresh_emerging_operators", fake_refresh_emerging_operators)
     results = scheduler.run_once()
-    assert len(results) == 8  # 4 windows x 2 functions
-    assert len(set(calls)) == 8  # every pair unique, none skipped or duplicated
+    # X72.0 -- run_once() additionally covers the (non-windowed)
+    # emerging_operators snapshot, so 4 windows x 2 functions + 1.
+    assert len(results) == 9
+    assert len(set(calls)) == 9  # every pair unique, none skipped or duplicated

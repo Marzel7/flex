@@ -61,6 +61,11 @@ if _REPO_ROOT not in sys.path:
 
 from src.ops.discovery_window import WINDOW_ORDER, window_seconds_for  # noqa: E402
 from src.ops.intelligence_snapshots import write_snapshot, read_snapshot  # noqa: E402
+from src.ops.emerging_operators_snapshot import (  # noqa: E402
+    FUNCTION_NAME as EMERGING_OPERATORS_FUNCTION,
+    WINDOW_SECONDS as EMERGING_OPERATORS_WINDOW_SECONDS,
+    refresh_emerging_operators_snapshot,
+)
 
 OPS_DB_PATH = os.environ.get(
     "OPS_V2_DB_PATH", os.path.join(_REPO_ROOT, "database", "wt_ops_v2.db"))
@@ -84,6 +89,19 @@ REFRESH_INTERVAL_SEC = {
     "30d": int(os.environ.get("SNAPSHOT_REFRESH_INTERVAL_30D_SEC", "1800")),   # 30 min
     "all": int(os.environ.get("SNAPSHOT_REFRESH_INTERVAL_ALL_SEC", "1800")),   # 30 min
 }
+
+# X72.0 -- Emerging Operators has no window concept (unlike operational_
+# intelligence/pipeline_health above); one fixed cadence covers it. Default
+# matches the original in-worker cache's OPERATION_DISCOVERY_REFRESH_SECONDS
+# (15s) -- analysts previously got data at most 15s stale at the cost of an
+# occasional multi-second block; the background refresh now delivers the
+# same freshness with zero request-thread cost.
+EMERGING_OPERATORS_REFRESH_INTERVAL_SEC = int(
+    os.environ.get("EMERGING_OPERATORS_REFRESH_INTERVAL_SEC", "15")
+)
+EMERGING_OPERATORS_MAX_AGE_SEC = int(
+    os.environ.get("EMERGING_OPERATORS_MAX_AGE_SEC", "60")
+)
 
 # Maximum acceptable snapshot age before diagnostics classify a window as
 # STALE_FAILED rather than merely STALE_REFRESHING (see
@@ -225,6 +243,26 @@ def refresh_one(function: str, window_seconds: int, *, reason: str = "scheduled"
         release_window_lock(function, window_seconds)
 
 
+def _refresh_emerging_operators(reason: str = "scheduled") -> dict:
+    """X72.0 -- same lock-file discipline as refresh_one() (per-key lock,
+    stale-PID reclaim), routed through the dedicated emerging_operators
+    builder instead of the windowed _BUILDERS table."""
+    if not acquire_window_lock(EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS):
+        return {"function": EMERGING_OPERATORS_FUNCTION,
+                "window_seconds": EMERGING_OPERATORS_WINDOW_SECONDS,
+                "status": "SKIPPED_ALREADY_RUNNING"}
+    try:
+        result = refresh_emerging_operators_snapshot(OPS_DB_PATH, LIVE_DB_PATH, reason=reason)
+        _log.info(
+            "snapshot refresh %s function=%s build_ms=%s family_count=%s",
+            result.get("status"), EMERGING_OPERATORS_FUNCTION,
+            result.get("build_duration_ms"), result.get("family_count"),
+        )
+        return result
+    finally:
+        release_window_lock(EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS)
+
+
 def run_once() -> list[dict]:
     """Refreshes every (function, window) pair exactly once, sequentially
     (the existing in-process build already serializes via its own DB
@@ -237,6 +275,7 @@ def run_once() -> list[dict]:
         window_seconds = window_seconds_for(window_param)
         for function in _FUNCTIONS:
             results.append(refresh_one(function, window_seconds, reason="manual_once"))
+    results.append(_refresh_emerging_operators(reason="manual_once"))
     return results
 
 
@@ -248,6 +287,25 @@ def _due_for_refresh(function: str, window_param: str, window_seconds: int) -> b
     return age >= REFRESH_INTERVAL_SEC[window_param]
 
 
+def _emerging_operators_due_for_refresh() -> bool:
+    snapshot = read_snapshot(EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS)
+    if snapshot is None:
+        return True
+    age = time.time() - snapshot.computed_at
+    return age >= EMERGING_OPERATORS_REFRESH_INTERVAL_SEC
+
+
+def _emerging_operators_loop_body() -> None:
+    tick = min(5, max(1, EMERGING_OPERATORS_REFRESH_INTERVAL_SEC // 3))
+    while not _STOP:
+        if _emerging_operators_due_for_refresh():
+            _refresh_emerging_operators(reason="scheduled")
+        for _ in range(tick):
+            if _STOP:
+                break
+            time.sleep(1)
+
+
 def run_loop(poll_interval_sec: int = 30) -> None:
     """Continuous mode: checks every (function, window) pair on its own
     cadence (REFRESH_INTERVAL_SEC), refreshing whichever ones are due.
@@ -255,10 +313,30 @@ def run_loop(poll_interval_sec: int = 30) -> None:
     this process's PID; the NEXT scheduler invocation (supervisord's
     autorestart, exactly like operation_scheduler.py) finds that PID dead
     via _pid_alive() and reclaims the lock automatically -- no separate
-    cleanup step, no permanently-stuck REFRESHING state."""
+    cleanup step, no permanently-stuck REFRESHING state.
+
+    X72.0 -- emerging_operators needs its own tight cadence (default 15s)
+    independent of the windowed operational_intelligence/pipeline_health
+    builds below, each of which can legitimately run for 20-130+ seconds.
+    Sequencing it after (or interleaved within) that outer per-window loop
+    would make it wait behind whichever windowed build happens to be
+    in-flight, silently inflating its effective staleness to minutes. A
+    dedicated background thread, scoped to this single standalone scheduler
+    PROCESS (never a request-serving gunicorn worker -- the SWRCache/
+    X67.28A precedent this codebase already rejected in-worker background
+    threads for does not apply here), keeps its cadence genuinely
+    independent. It touches only its own (function, window_seconds) lock
+    file and its own snapshot key, so it cannot contend with the windowed
+    builds' locks or persistence."""
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
     _log.info("intelligence_snapshot_scheduler starting (pid=%s)", os.getpid())
+
+    import threading
+    emerging_thread = threading.Thread(
+        target=_emerging_operators_loop_body, name="emerging-operators-refresh", daemon=True,
+    )
+    emerging_thread.start()
 
     while not _STOP:
         for window_param in WINDOW_ORDER:
@@ -275,6 +353,7 @@ def run_loop(poll_interval_sec: int = 30) -> None:
                 break
             time.sleep(1)
 
+    emerging_thread.join(timeout=5)
     _log.info("intelligence_snapshot_scheduler stopping (pid=%s)", os.getpid())
 
 
@@ -291,6 +370,10 @@ def status() -> dict:
         out[window_param] = {}
         for function in _FUNCTIONS:
             out[window_param][function] = classify_snapshot_health(function, window_seconds)
+    out["emerging_operators"] = classify_snapshot_health(
+        EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS,
+        max_acceptable_age_sec=EMERGING_OPERATORS_MAX_AGE_SEC,
+    )
     return out
 
 

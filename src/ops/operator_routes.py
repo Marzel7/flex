@@ -308,7 +308,7 @@ def operator_page(operator_id: str):
 @operator_bp.route("/intelligence/operators")
 def operators_index():
     from flask import render_template
-    return render_template("operators_index.html")
+    return render_template("operators_index.html", active_page="operators")
 
 
 # ── Emerging operators (read-only X20 projection) ───────────────────────────
@@ -316,8 +316,11 @@ def operators_index():
 @operator_bp.route("/intelligence/emerging-operators")
 @operator_bp.route("/intelligence/operations")
 def emerging_operators_page():
-    from flask import render_template
-    return render_template("emerging_operators.html", active_page="emerging_operators")
+    query = request.query_string.decode("utf-8")
+    target = "/intelligence/operators"
+    if query:
+        target += f"?{query}"
+    return redirect(target, code=302)
 
 
 @operator_bp.route("/intelligence/operations/<path:entity>")
@@ -387,7 +390,7 @@ def operator_promotions_page():
     # X73.4 retires the duplicate standalone promotion UI. Historical
     # bookmarks remain valid and land in the reconciled review workspace;
     # the promotion APIs below remain unchanged for compatibility.
-    return redirect("/intelligence/operations?focus=review", code=302)
+    return redirect("/intelligence/operators?focus=review", code=302)
 
 
 @operator_bp.route("/api/operators/promotions")

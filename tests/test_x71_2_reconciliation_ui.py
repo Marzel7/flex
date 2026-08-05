@@ -73,7 +73,7 @@ def test_templates_make_reconciliation_authoritative_and_keep_debug_hidden():
     assert "Reconciled Attribution · Level 1" in discovery
     assert "Walkback Outcome · Level 1" in discovery
     assert "new URLSearchParams(location.search).get('debug')==='1'" in discovery
-    assert 'href="/intelligence/operations"' in discovery
+    assert 'href="/intelligence/operators"' in discovery
     assert "/intelligence/emerging-operators" not in discovery
     assert "/intelligence/emerging-operators" not in mission_control
 

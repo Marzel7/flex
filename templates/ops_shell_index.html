@@ -324,7 +324,7 @@
       <span class="mc-sit-val blue" id="sit-observing">—</span>
       <span class="mc-sit-sub">known actors</span>
     </a>
-    <a class="mc-sit-cell" id="sit-armed-cell" href="/intelligence/operations?focus=review" style="text-decoration:none;color:inherit;">
+    <a class="mc-sit-cell" id="sit-armed-cell" href="/intelligence/operators?focus=review" style="text-decoration:none;color:inherit;">
       <span class="mc-sit-label">Promotion Candidates</span>
       <span class="mc-sit-val amber" id="sit-armed">—</span>
       <span class="mc-sit-sub">awaiting review</span>
@@ -610,7 +610,7 @@
           if (p.status === 'PROMOTION_ELIGIBLE' || p.status === 'REVIEW_CANDIDATE' || p.status === 'REVIEW_REQUIRED') {
             streams.promotions.push({kind:'OPERATOR_PROMOTION_PENDING', message:p.display_name + ' promotion awaiting review.',
               timestamp:promotions.generated_at, entity:{id:p.proposal_id,type:'promotion_proposal'},
-              href:'/intelligence/operations?focus=review'});
+              href:'/intelligence/operators?focus=review'});
           }
         });
         Object.keys(streams).forEach(function(key){streams[key].sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0)})});
@@ -642,18 +642,18 @@
         var proposals = (promotions && promotions.proposals) || [];
         function pc(status){return proposals.filter(function(p){return p.status===status}).length}
         var eligible=pc('PROMOTION_ELIGIBLE'), review=pc('REVIEW_CANDIDATE')+pc('REVIEW_REQUIRED');
-        var promotionCard = '<a class="vi-card promotion" href="/intelligence/operations?focus=review">'
+        var promotionCard = '<a class="vi-card promotion" href="/intelligence/operators?focus=review">'
           + '<div class="vi-card-head"><span class="vi-icon">⬡</span><div><div class="vi-eyebrow">Investigation workflow</div><div class="vi-title">Review Populations</div></div><span class="vi-status promotion" style="margin-left:auto">Review</span></div>'
           + '<div class="vi-metrics">' + metric(proposals.length,'awaiting review') + metric(review,'review candidates') + metric(eligible,'promotion eligible') + '</div>'
-          + action('/intelligence/operations?focus=review','Open investigations') + '</a>';
+          + action('/intelligence/operators?focus=review','Open investigations') + '</a>';
 
         var candidates=(emerging && emerging.candidates)||[], candidate=candidates[0];
-        var emergingCard = '<a class="vi-card monitoring" href="/intelligence/operations">'
+        var emergingCard = '<a class="vi-card monitoring" href="/intelligence/operators">'
           // Compatibility stream formerly labelled Recent Emerging Operators / Emerging Operator.
           + '<div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Recent Operation Discovery</div><div class="vi-title">' + (candidate?'Emerging Operation Family':'Operation Discovery') + '</div></div><span class="vi-status monitoring" style="margin-left:auto">Monitoring</span></div>'
           + '<div class="vi-metrics">' + metric(candidate?candidate.observed_launches:0,'launches') + metric(candidate?candidate.campaign_count:0,'campaigns') + metric(candidate?candidate.identity_class_count:0,'identity classes') + '</div>'
           + (candidate?'<div class="vi-confidence"><span>Identity</span><span class="vi-confidence-track"><span class="vi-confidence-fill" style="--vi-confidence:'+Math.min(100,candidate.identity_class_count*50)+'%"></span></span><span>'+candidate.identity_class_count+'/2</span></div>':'')
-          + action('/intelligence/operations','Open Operation Intelligence') + '</a>';
+          + action('/intelligence/operators','Open Operations Registry') + '</a>';
 
         var walkbacks=streams.walkbacks||[], walkCounts={};
         walkbacks.forEach(function(x){var k=String(x.kind||'OTHER').replace('KNOWN_','').replace('_REACHED','').replace(/_/g,' ');walkCounts[k]=(walkCounts[k]||0)+1});

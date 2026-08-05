@@ -12,13 +12,12 @@ def text(relative):
     return (ROOT / relative).read_text(encoding="utf-8")
 
 
-def test_primary_navigation_has_one_investigation_and_one_governance_page():
+def test_primary_navigation_converges_on_operations_registry():
     sidebar = text("templates/partials/sidebar.html")
-    assert 'href="/intelligence/operations">Operation Intelligence' in sidebar
-    assert 'href="/intelligence/operators">Operator Registry' in sidebar
+    assert 'href="/intelligence/operations">Operation Intelligence' not in sidebar
+    assert 'href="/intelligence/operators">Operations Registry' in sidebar
     assert 'href="/intelligence/operator-promotions"' not in sidebar
     assert "Canonical Operators" not in sidebar
-    assert "Operation Registry</a>" not in sidebar
 
 
 def test_operations_page_is_the_four_section_investigation_workspace():
@@ -33,13 +32,11 @@ def test_operations_page_is_the_four_section_investigation_workspace():
     assert "Split Identity" not in page
 
 
-def test_operator_registry_remains_vertical_and_owns_governance():
+def test_operator_registry_remains_vertical_and_profiles_own_governance():
     index = text("templates/operators_index.html")
     profile = text("templates/operator_intelligence.html")
-    assert "Operator Registry" in index
-    assert "op-row" in index and "or-card" not in index
-    for capability in ("Expand", "Review", "Merge / Split", "Dormant / Reactivate", "Retire"):
-        assert capability in index
+    assert "Operations Registry" in index
+    assert "reg-row" in index and "or-card" not in index
     for detail in ("Permanent Identity Timeline", "oi-evidence-section", "oi-review-history"):
         assert detail in profile
     assert "/intelligence/operator-promotions" not in index + profile
@@ -66,7 +63,7 @@ def test_legacy_promotion_page_redirects_but_apis_remain_registered():
     with app.test_client() as client:
         response = client.get("/intelligence/operator-promotions")
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/intelligence/operations?focus=review")
+    assert response.headers["Location"].endswith("/intelligence/operators?focus=review")
     rules = {rule.rule for rule in app.url_map.iter_rules()}
     assert "/api/operators/promotions" in rules
     assert "/api/operators/promotions/<proposal_id>" in rules

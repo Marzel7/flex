@@ -213,6 +213,64 @@ def _rotation_signal(funnel: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _candidate_generation_metrics(conn: sqlite3.Connection, *, now: int) -> dict[str, Any]:
+    """X76.5 -- Treasury Candidate generation metrics. Answers "is live
+    detection still running at all", independent of the review-queue-depth
+    story above: a healthy pipeline can still have a large PENDING_REVIEW
+    backlog, but generation should never go silent for hours without it
+    being visible somewhere. Counts every wt_treasury_review row regardless
+    of detected_via (walkback_hop2 is the dominant live source, but this
+    must not hardcode that assumption)."""
+
+    def _scalar(sql: str, args: tuple = ()) -> int:
+        try:
+            row = conn.execute(sql, args).fetchone()
+            return int(row[0]) if row and row[0] is not None else 0
+        except sqlite3.Error:
+            return 0
+
+    hour_ago = now - 3600
+    day_ago = now - 86400
+    generated_last_hour = _scalar(
+        "SELECT COUNT(*) FROM wt_treasury_review WHERE detected_at>=?", (hour_ago,)
+    )
+    generated_last_day = _scalar(
+        "SELECT COUNT(*) FROM wt_treasury_review WHERE detected_at>=?", (day_ago,)
+    )
+    pending_review = _scalar(
+        "SELECT COUNT(*) FROM wt_treasury_review WHERE status='PENDING_REVIEW'"
+    )
+    newest = None
+    oldest = None
+    try:
+        row = conn.execute("SELECT MAX(detected_at) FROM wt_treasury_review").fetchone()
+        newest = int(row[0]) if row and row[0] is not None else None
+    except sqlite3.Error:
+        pass
+    try:
+        row = conn.execute(
+            "SELECT MIN(detected_at) FROM wt_treasury_review WHERE status='PENDING_REVIEW'"
+        ).fetchone()
+        oldest = int(row[0]) if row and row[0] is not None else None
+    except sqlite3.Error:
+        pass
+
+    return {
+        "generated_last_hour": generated_last_hour,
+        "generated_last_day": generated_last_day,
+        "pending_review": pending_review,
+        "newest_candidate_at": newest,
+        "newest_candidate_age_secs": (now - newest) if newest else None,
+        "oldest_pending_at": oldest,
+        "oldest_pending_age_secs": (now - oldest) if oldest else None,
+        # A simple, visible tripwire: candidate generation is "stalled" if
+        # nothing has landed in the last hour despite there being pending
+        # backlog to review -- exactly the symptom this milestone exists to
+        # catch before it silently persists for hours again.
+        "stalled": generated_last_hour == 0 and generated_last_day == 0,
+    }
+
+
 def _determine_bottleneck(
     pipeline: list[dict[str, Any]],
     potential_expansions: list[dict[str, Any]],
@@ -294,6 +352,7 @@ def build_recovery_diagnostics(
         identity = _identity_expansion_summary(conn, operator_id=operator_id, window_seconds=window_seconds, now=now)
         match_quality = _match_quality(funnel)
         rotation = _rotation_signal(funnel)
+        candidate_generation = _candidate_generation_metrics(conn, now=now)
     finally:
         conn.close()
 
@@ -319,4 +378,5 @@ def build_recovery_diagnostics(
         "potential_expansions": potential_expansions,
         "treasury_review": treasury_review,
         "identity_expansion": identity,
+        "candidate_generation": candidate_generation,
     }

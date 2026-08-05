@@ -69,6 +69,19 @@ TX_FETCH_LIMIT  = int(os.environ.get("WALKBACK_TX_FETCH_LIMIT",  "5"))   # max g
 SIG_PAGE_LIMIT  = int(os.environ.get("WALKBACK_SIG_PAGE_LIMIT",  "100"))
 SIG_PAGE_COUNT  = int(os.environ.get("WALKBACK_SIG_PAGE_COUNT",  "3"))
 RPC_TIMEOUT     = int(os.environ.get("WALKBACK_RPC_TIMEOUT_S",   "8"))
+# X76.5 -- self-kill guard for a stuck same-thread write lease. Observed live:
+# this worker's thread-local write lease (see database_write_service.py's
+# _thread_write_lease) can be left held across cycles by a mechanism not yet
+# fully isolated (every write path audited has a guaranteed-release finally,
+# per the incident already documented in db_locking.py's own
+# _release_write_lane_inner comment -- yet the exact symptom recurred: the
+# SAME transaction_id held, held_seconds growing every cycle, 0% CPU, only a
+# process restart clears it). Rather than leave candidate generation silently
+# stalled for hours again (the actual root cause this milestone exists to
+# fix), the worker now recognises its OWN stuck lease and exits for
+# Supervisor to restart it -- the same self-kill pattern already proven in
+# creator_funding_worker.py for the equivalent connection-leak class of bug.
+MAX_LEASE_STUCK_SECONDS = int(os.environ.get("WALKBACK_MAX_LEASE_STUCK_SECONDS", "600"))
 
 
 # ── RPC helpers (blocking, for use in worker thread — never on asyncio loop) ──
@@ -1435,6 +1448,23 @@ def _is_lock_error(exc: Exception) -> bool:
     return isinstance(exc, sqlite3.OperationalError) and "locked" in str(exc).lower()
 
 
+def _check_stuck_lease() -> None:
+    """X76.5 -- if THIS worker's own thread-local write lease has been held
+    for longer than MAX_LEASE_STUCK_SECONDS, self-kill for Supervisor to
+    restart. A restart has been confirmed (live, during this milestone's own
+    investigation) to fully clear the stuck state -- the lease is per-process
+    thread-local, so a fresh process starts clean. Checked once per cycle,
+    cheap (pure in-memory introspection, no DB I/O)."""
+    from src.ops.walkback_cycle_trace import _lease_snapshot
+    lease = _lease_snapshot()
+    if lease and lease.get("held_seconds", 0) > MAX_LEASE_STUCK_SECONDS:
+        print(f"[WALKBACK] CRITICAL_STUCK_LEASE: held {lease['held_seconds']:.0f}s "
+              f"(max={MAX_LEASE_STUCK_SECONDS}) command={lease.get('command')} "
+              f"transaction_id={lease.get('transaction_id')} — exiting for supervisord restart",
+              flush=True)
+        os._exit(1)
+
+
 def run_loop() -> None:
     from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
     from src.core import treasury_bank
@@ -1487,6 +1517,7 @@ def run_loop() -> None:
           f"recovered={recovered} exhausted={exhausted}", flush=True)
     while True:
         trace_boundary("cycle_started")
+        _check_stuck_lease()
         try:
             ops = _ops_conn()
             try:

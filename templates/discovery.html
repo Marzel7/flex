@@ -29,7 +29,7 @@
 .dw-diag-bottleneck { font-size:10.5px; padding:5px 9px; border-radius:6px; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); color:#f59e0b; display:inline-block; margin-bottom:10px; }
 .dw-diag-bottleneck.none { background:rgba(63,185,80,.1); border-color:rgba(63,185,80,.3); color:var(--ip-green); }
 .dw-diag-rotation { font-size:10.5px; padding:5px 9px; border-radius:6px; background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.3); color:var(--ip-purple); display:inline-block; margin-bottom:10px; margin-left:6px; }
-.dw-diag-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:8px; }
+.dw-diag-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-top:8px; }
 .dw-diag-col-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ip-dim); margin-bottom:5px; }
 .dw-diag-row { display:flex; justify-content:space-between; font-size:10.5px; padding:2px 0; }
 .dw-diag-row-l { color:var(--ip-sec); }
@@ -4488,7 +4488,8 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       var bottleneckNone=d.bottleneck&&d.bottleneck.stage==='none';
       var bottleneckHtml='<span class="dw-diag-bottleneck'+(bottleneckNone?' none':'')+'">'+(bottleneckNone?'No bottleneck — pipeline progressing':'Bottleneck: '+esc(d.bottleneck?d.bottleneck.reason:''))+'</span>';
       var rotationHtml=(d.rotation&&d.rotation.possible_rotation)?'<span class="dw-diag-rotation">⟳ Possible Treasury Rotation ('+esc(d.rotation.unknown_treasury_count)+' unknown treasur'+(d.rotation.unknown_treasury_count===1?'y':'ies')+')</span>':'';
-      var tr=d.treasury_review||{}, ie=d.identity_expansion||{};
+      var tr=d.treasury_review||{}, ie=d.identity_expansion||{}, cg=d.candidate_generation||{};
+      var cgAgeText=function(secs){if(secs===null||secs===undefined)return '—';var h=secs/3600;return h<1?Math.round(secs/60)+'m ago':h<48?Math.round(h)+'h ago':Math.round(h/24)+'d ago'};
       mount.innerHTML=
         '<div class="dw-diag-head"><span class="dw-diag-title">'+esc(d.operator_display_name||'WATCHTOWER')+' Recovery Diagnostics</span><a class="dw-diag-link" href="/discovery">Refresh</a></div>'
         +'<div class="dw-diag-explain">'+esc(d.explanation||'')+'</div>'
@@ -4507,6 +4508,13 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
             +'<div class="dw-diag-row"><span class="dw-diag-row-l">New (window)</span><span class="dw-diag-row-v">'+esc(ie.confirmed_new_this_window||0)+'</span></div>'
             +'<div class="dw-diag-row"><span class="dw-diag-row-l">Operator expansions</span><span class="dw-diag-row-v">'+esc(ie.operator_expansions_this_window||0)+'</span></div>'
             +'<a class="dw-diag-link" href="'+esc(ie.href||'#')+'">Open Operator →</a></div>'
+          +'<div><div class="dw-diag-col-title">Candidate Generation'+(cg.stalled?' <span class="dw-diag-status missing" style="margin-left:4px">STALLED</span>':'')+'</div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Last hour</span><span class="dw-diag-row-v">'+esc(cg.generated_last_hour||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Last day</span><span class="dw-diag-row-v">'+esc(cg.generated_last_day||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Pending review</span><span class="dw-diag-row-v">'+esc(cg.pending_review||0)+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Newest candidate</span><span class="dw-diag-row-v">'+esc(cgAgeText(cg.newest_candidate_age_secs))+'</span></div>'
+            +'<div class="dw-diag-row"><span class="dw-diag-row-l">Oldest pending</span><span class="dw-diag-row-v">'+esc(cgAgeText(cg.oldest_pending_age_secs))+'</span></div>'
+            +'<a class="dw-diag-link" href="'+esc(tr.href||'/intelligence/treasury-review')+'">Open Treasury Review →</a></div>'
         +'</div>';
     }).catch(function(){
       var mount=$('dw-diag');

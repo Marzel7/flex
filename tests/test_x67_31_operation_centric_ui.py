@@ -24,9 +24,10 @@ def test_registry_links_every_surface_to_a_permanent_operation_profile(monkeypat
 def test_operation_profile_is_generic_and_topology_is_first_class():
     source = (ROOT / "templates/operation_profile.html").read_text()
     assert "Operation Profile" in source
-    assert "Operational Intelligence" in source
-    assert "Ecosystem context" in source
-    assert 'class="op-topology"' in source
+    assert "Intelligence" in source
+    assert "Structure" in source
+    assert "Topology" in source
+    assert "aliases=" in source
     assert "WATCHTOWER" not in source
     assert "B48k" not in source
 

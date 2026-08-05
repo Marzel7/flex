@@ -72,10 +72,12 @@ def test_comparison_is_generic_for_any_family(tmp_path):
     assert payload["ecosystem_context"]["launch_rank"] == 2
 
 
-def test_profile_exposes_timeline_behaviour_performance_and_comparison_tabs():
+def test_profile_exposes_intelligence_surfaces_through_five_task_groups():
     source = (ROOT / "templates/operation_profile.html").read_text()
-    for label in ("Timeline", "Behaviour", "Performance", "Infrastructure", "Evidence", "Compare"):
-        assert f"'{label}'" in source
+    for label in ("Timeline", "Behaviour", "Infrastructure", "Evidence", "Intelligence"):
+        assert label in source
     assert "token_href" in source
-    assert "Traceable evidence audit" in source
+    assert "Evidence Audit" in source
+    assert "performance:'intelligence'" in source
+    assert "comparison:'intelligence'" in source
     assert "WATCHTOWER" not in source and "B48k" not in source

@@ -139,6 +139,15 @@ class EmergingOperatorService:
             reconciliation_by_family = {}
         from src.ops.reconciliation_presentation import reconciliation_presentation
 
+        # Promoted source populations remain in the immutable family snapshot
+        # and are directly addressable by profile/API ID, but the canonical
+        # child Operation owns launch accounting and analyst-queue placement.
+        # This preserves the population without double-counting its launches.
+        surface_families = [
+            family for family in all_families
+            if not family.get("promoted_to_operation_id")
+        ]
+
         def reconciled_card(family):
             card = self._list_card(family)
             metadata = reconciliation_by_family.get(str(family.get("family_id")))
@@ -147,23 +156,23 @@ class EmergingOperatorService:
             card["presentation"] = reconciliation_presentation(family, metadata)
             return card
 
-        visible_full = [f for f in all_families if f["stage"] in {"EMERGING", "ESTABLISHED", "CONFIRMED"}][:limit]
+        visible_full = [f for f in surface_families if f["stage"] in {"EMERGING", "ESTABLISHED", "CONFIRMED"}][:limit]
         visible = [self._list_card(f) for f in visible_full]
         candidate_summary_full = sorted(
-            (f for f in all_families if f["stage"] in {"CANDIDATE", "SIGNIFICANT_ACTIVE"}),
+            (f for f in surface_families if f["stage"] in {"CANDIDATE", "SIGNIFICANT_ACTIVE"}),
             key=lambda f: (f["discovery_significance"]["score"], f["last_material_activity_at"] or 0, f["family_id"]),
             reverse=True,
         )[:self.candidate_summary_limit]
         if not candidate_summary_full:
             candidate_summary_full = sorted(
-                (f for f in all_families if f["stage"] not in {"CONFIRMED", "RETIRED", "BACKGROUND"}),
+                (f for f in surface_families if f["stage"] not in {"CONFIRMED", "RETIRED", "BACKGROUND"}),
                 key=lambda f: (f["last_material_activity_at"] or 0, f["family_id"]), reverse=True,
             )[:self.candidate_summary_limit]
         candidate_summary = ([self._list_card(f) for f in candidate_summary_full]
                              if visible_full else candidate_summary_full)
         compatibility_candidates = visible if visible else candidate_summary
         disposition_groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
-        for family in all_families:
+        for family in surface_families:
             metadata = reconciliation_by_family.get(str(family.get("family_id")))
             if metadata:
                 disposition_groups[str(metadata.get("disposition") or "UNRESOLVED")].append(family)
@@ -221,7 +230,7 @@ class EmergingOperatorService:
                 "review_infrastructure_maximum": 10,
             },
             "reconciled_counts": self._reconcile_disposition_states(
-                all_families, reconciliation_by_family
+                surface_families, reconciliation_by_family
             ),
         }
         if debug:
@@ -574,14 +583,17 @@ class EmergingOperatorService:
                 canonical["observation_count"] = source.get("observed_launches") or 0
                 canonical["source_population_id"] = source.get("family_id")
                 canonical["absorbed_family_ids"] = matched_ids
+                for population in matches:
+                    population["promoted_to_operation_id"] = canonical["family_id"]
+                    population["child_operations"] = [canonical["family_id"]]
                 canonical["evidence_sources"] = sorted(set(
                     (canonical.get("evidence_sources") or ())
                     + (source.get("evidence_sources") or ())
                 ))
-            families.extend(
-                family for family in projected
-                if str(family.get("family_id")) not in absorbed
-            )
+            # Promotion creates a separate canonical Operation.  Its source
+            # Investigation Population remains a permanent, directly
+            # addressable evidence record and is never replaced.
+            families.extend(projected)
         from src.ops.operation_confirmation import apply_confirmation_overlay
         apply_confirmation_overlay(families, self.ops_db_path)
         eligible = sorted(

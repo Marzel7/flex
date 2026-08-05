@@ -4311,8 +4311,8 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // via Treasury Review -> Approve/Link -> Registry, unchanged.
   function operationConvergencePanel(){
     return '<section class="vi-card walkback dw-health dw-topo-panel" id="dw-convergence-panel">'
-      +'<div class="dw-health-head"><div class="vi-eyebrow">Operation Convergence</div><div class="vi-title">Known Operations · Potential Expansions · New Investigations</div>'
-      +'<div class="dw-landing-sub">Does this behaviour belong to an existing Operation, or does it represent a new Investigation Population? Each Operation is matched against its own defining evidence — not assumed to look like WATCHTOWER.</div></div>'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Operation Convergence</div><div class="vi-title">Known Operations · Potential Expansions · New Operational Behaviour</div>'
+      +'<div class="dw-landing-sub">What operational behaviour did we discover today? Wallets rotate — treasuries, subproviders, and creators are all transient. Behaviour is comparatively stable. Walkback reconstructs infrastructure facts (Known/Unknown Treasury, Fan-Out, Funding Mechanism); this only becomes a Potential Expansion when it resembles an existing Operation\'s own defining evidence, and only Treasury Review can turn that into a confirmed Operator Identity.</div></div>'
       +'<div id="dw-convergence-mount"><div class="dw-empty" style="padding:14px">Loading operation convergence…</div></div>'
       +'</section>';
   }
@@ -4343,6 +4343,21 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       +'<span>Open →</span></a>';
   }
 
+  // X75.2 — Walkback reconstructs INFRASTRUCTURE FACTS (Known/Unknown
+  // Treasury, Fan-Out, Funding Mechanism, Provisioning), never an operator
+  // identity. This card renders exactly those facts as signal chips —
+  // never a WATCHTOWER/3SW2/"Confirmed Operation" label, which would be a
+  // downstream decision this module has no authority to make.
+  function convergenceShort(addr){return addr&&addr.length>12?addr.slice(0,4)+'…'+addr.slice(-4):(addr||'Unknown')}
+  function convergenceBehaviourCard(f){
+    var chips=(f.facts||[]).map(function(t){return '<span class="dw-signal">'+esc(t)+'</span>'}).join('');
+    return '<a class="dw-intel-row" href="'+href(f.mint,'token')+'">'
+      +'<span><strong>'+esc(convergenceShort(f.creator||f.mint))+'</strong><small>'+esc(f.source_outcome_type||'')+'</small></span>'
+      +'<span>'+chips+'</span>'
+      +'<span>'+(f.fan_out_count!=null?esc(f.fan_out_count)+' fan-out':'')+'</span>'
+      +'<span>Open →</span></a>';
+  }
+
   function loadOperationConvergence(){
     fetch('/api/discovery/convergence').then(function(r){return r.json()}).then(function(d){
       var mount=$('dw-convergence-mount');
@@ -4350,12 +4365,14 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       if(!d||!d.ok){mount.innerHTML='<div class="dw-empty">Operation convergence unavailable.</div>';return}
       var known=(d.known_operations||[]).map(convergenceOperationCard).join('')||'<div class="dw-empty" style="padding:10px">No confirmed Operations.</div>';
       var expansions=(d.potential_expansions||[]).map(convergenceExpansionCard).join('')||'<div class="dw-empty" style="padding:10px">No populations currently resemble a known Operation closely enough to propose an expansion.</div>';
+      var behaviour=(d.new_operational_behaviour||[]).map(convergenceBehaviourCard).join('')||'<div class="dw-empty" style="padding:10px">No new operational behaviour reconstructed in this window.</div>';
       var newInv=(d.new_investigations||[]).map(convergenceInvestigationCard).join('')||'<div class="dw-empty" style="padding:10px">No new Investigation Populations.</div>';
       var review=(d.review||[]).map(convergenceInvestigationCard).join('');
       var infra=(d.shared_infrastructure||[]).map(convergenceInvestigationCard).join('');
       mount.innerHTML=
         '<div class="ip-section-hdr"><span class="ip-section-label">Known Operations</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+known+'</div>'
         +'<div class="ip-section-hdr"><span class="ip-section-label">Potential Expansions</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.potential_expansions||[]).length+'</span></div><div class="dw-intelligence-list">'+expansions+'</div>'
+        +'<div class="ip-section-hdr"><span class="ip-section-label">New Operational Behaviour</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.new_operational_behaviour||[]).length+'</span></div><div class="dw-intelligence-list">'+behaviour+'</div>'
         +'<div class="ip-section-hdr"><span class="ip-section-label">New Investigation Populations</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.new_investigations||[]).length+'</span></div><div class="dw-intelligence-list">'+newInv+'</div>'
         +(review?'<div class="ip-section-hdr"><span class="ip-section-label">Review</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+review+'</div>':'')
         +(infra?'<div class="ip-section-hdr"><span class="ip-section-label">Shared Infrastructure</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+infra+'</div>':'');

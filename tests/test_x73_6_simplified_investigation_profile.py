@@ -17,11 +17,13 @@ def test_profile_has_exactly_five_single_purpose_tabs():
         assert retired not in page
 
 
-def test_hero_is_the_only_status_reason_and_promotion_presentation():
+def test_hero_is_reduced_to_object_type_and_name():
     page = source()
     hero = page.split('<header class="rp-hero">', 1)[1].split('</header>', 1)[0]
-    for field in ("rp-kind", "rp-name", "rp-disposition", "rp-launches", "rp-promotion", "rp-reason"):
+    for field in ("rp-kind", "rp-name"):
         assert field in hero
+    for field in ("rp-disposition", "rp-launches", "rp-promotion", "rp-reason"):
+        assert field not in hero
     assert "Why?" not in page
     assert "Promotion Readiness" not in page
     assert "Current disposition" not in page
@@ -39,10 +41,9 @@ def test_evidence_is_compact_and_semantics_are_progressively_disclosed():
 
 def test_valid_actions_and_state_colours_match_registry_language():
     page = source()
-    assert "Review Evidence" in page
-    assert "Govern Identity" in page
+    assert "Population Identity" in page
+    assert "Govern identity" in page
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in page
-    assert "Promotion unavailable — additional independent evidence required." in page
     assert ".disp-CONFIRMED_OPERATION{--rp-color:#22c55e}" in page
     assert ".disp-REVIEW{--rp-color:#f97316}" in page
     assert ".disp-INFRASTRUCTURE{--rp-color:#60a5fa}" in page

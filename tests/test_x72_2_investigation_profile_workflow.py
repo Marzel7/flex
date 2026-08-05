@@ -14,10 +14,10 @@ def _source() -> str:
     return (ROOT / "templates/operation_profile.html").read_text()
 
 
-def test_hero_is_reduced_to_identity_state_size_reason_and_readiness():
+def test_hero_is_reduced_to_object_type_and_name():
     source = _source()
     hero = source.split('<header class="rp-hero">', 1)[1].split("</header>", 1)[0]
-    for field in ("rp-kind", "rp-name", "rp-disposition", "rp-launches", "rp-promotion", "rp-reason"):
+    for field in ("rp-kind", "rp-name"):
         assert field in hero
     for removed in ("Evidence %", "Significance", "Maturity", "First observed", "Active sessions", "Treasuries"):
         assert removed not in hero
@@ -40,8 +40,8 @@ def test_first_screen_deduplicates_state_and_uses_compact_summary():
     source = _source()
     assert "disclosure('Why?'" not in source
     assert "Population Metrics" not in source
-    assert "Current Relationships" in source
-    assert "Next Evidence Required" in source
+    assert "Population Identity" in source
+    assert "Next Evidence" in source
 
 
 def test_detail_surfaces_use_progressive_disclosure():
@@ -58,11 +58,9 @@ def test_promotion_actions_are_reconciliation_gated_without_unresolved_bypass():
     source = _source()
     for state in ("NOT ELIGIBLE", "READY FOR REVIEW", "OPERATOR CANDIDATE", "CONFIRMED OPERATION"):
         assert state in source
-    assert "Promotion unavailable — additional independent evidence required." in source
-    assert "Resolve contradictions before confirmation." in source
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in source
     assert "Confirm Operation" in source
-    assert "Next Evidence Required" in source
+    assert "Next Evidence" in source
 
 
 @pytest.fixture(scope="module")

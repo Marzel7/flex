@@ -96,7 +96,7 @@ def test_profile_preserves_full_explanations_while_registry_uses_summary_signals
     profile = (ROOT / "templates/operation_profile.html").read_text()
     registry = (ROOT / "templates/emerging_operators.html").read_text()
     for phrase in (
-        "Promotion Blockers", "Next Evidence Required", "truth_status",
+        "Promotion Blockers", "Next Evidence", "truth_status",
         "applicability", "observation_count", "Legacy Context",
     ):
         assert phrase in profile

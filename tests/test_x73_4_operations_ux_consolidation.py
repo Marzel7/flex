@@ -46,7 +46,7 @@ def test_population_profile_owns_promotion_and_relationship_context():
     profile = text("templates/operation_profile.html")
     for label in (
         "Current operator", "Parent investigation", "Child identities",
-        "Review Evidence", "Govern Identity",
+        "Population Identity", "Govern identity",
     ):
         assert label in profile
     assert "Confirm Operation" in profile

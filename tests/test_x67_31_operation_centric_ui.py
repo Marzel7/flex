@@ -31,13 +31,13 @@ def test_operation_profile_is_generic_and_topology_is_first_class():
     assert "B48k" not in source
 
 
-def test_registry_explains_emerging_attention_without_approval_language():
+def test_registry_is_a_compact_attention_dashboard():
     source = (ROOT / "templates/emerging_operators.html").read_text()
-    assert "Emerging means the operation deserves attention now" in source
-    assert "not a review queue" in source
-    assert "Why surfaced now" in source
-    assert "Outstanding evidence" in source
-    assert "awaiting analyst approval" not in source.lower()
+    assert "Evidence incomplete · investigate selectively" in source
+    assert "Contradictory evidence · resolution required" in source
+    assert "Shared services · attribution caution" in source
+    assert "Why surfaced now" not in source
+    assert "analyst_explanation" not in source
 
 
 def test_sidebar_navigation_is_operation_centric_and_not_operation_specific():

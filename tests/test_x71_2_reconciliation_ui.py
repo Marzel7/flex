@@ -33,9 +33,9 @@ def test_attention_queues_are_bounded_and_launch_ledger_is_exclusive(workspace):
 def test_named_controls_use_reconciled_nouns_without_changing_legacy(workspace):
     service, data = workspace
     confirmed = data["confirmed_operations_reconciled"]
-    assert [(x["family_name"], x["reconciliation"]["disposition"]) for x in confirmed] == [
-        ("WATCHTOWER", "CONFIRMED_OPERATION")
-    ]
+    confirmed_by_name = {x["family_name"]: x for x in confirmed}
+    assert confirmed_by_name["WATCHTOWER"]["reconciliation"]["disposition"] == "CONFIRMED_OPERATION"
+    assert confirmed_by_name["3SW2"]["reconciliation"]["disposition"] == "CONFIRMED_OPERATION"
     all_families = service._compose()
     b48 = next(x for x in all_families if x["family_name"] == "B48k / Dv34 Family")
     c7ha = next(x for x in all_families if x["family_name"] == "C7Ha Family")

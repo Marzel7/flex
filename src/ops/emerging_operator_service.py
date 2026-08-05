@@ -312,6 +312,9 @@ class EmergingOperatorService:
     @staticmethod
     def _list_card(family: dict[str, Any]) -> dict[str, Any]:
         card = dict(family)
+        # Preserve the aggregate needed by the compact dashboard before the
+        # potentially large creator-address list is removed from list payloads.
+        card["creator_count"] = len(family.get("unique_creators") or ())
         for key in ("supporting_evidence", "discovery_timeline", "evidence_timeline",
                     "growth_timeline", "launch_list", "unique_creators"):
             card[key] = []
@@ -617,12 +620,19 @@ class EmergingOperatorService:
             clients = [e["entity_address"] for e in entities if e.get("entity_type") != "TREASURY"]
             launches = 0
             launch_list = []
+            unique_creators = []
             if "wt_watchtower_launches" in tables and str(op.get("display_name") or "").upper() == "WATCHTOWER":
                 cols = self._columns(conn, "wt_watchtower_launches")
                 mint_col = "mint" if "mint" in cols else "token_mint" if "token_mint" in cols else None
+                creator_col = "creator_wallet" if "creator_wallet" in cols else "creator" if "creator" in cols else None
                 if mint_col:
                     launch_list = [r[0] for r in conn.execute(f"SELECT DISTINCT {mint_col} FROM wt_watchtower_launches ORDER BY {mint_col}")]
                     launches = len(launch_list)
+                if creator_col:
+                    unique_creators = [r[0] for r in conn.execute(
+                        f"SELECT DISTINCT {creator_col} FROM wt_watchtower_launches "
+                        f"WHERE {creator_col} IS NOT NULL ORDER BY {creator_col}"
+                    )]
             name = op.get("display_name") or op["operator_id"]
             completeness = self._metric(EVIDENCE_WEIGHTS, EVIDENCE_WEIGHTS)
             result.append({
@@ -634,7 +644,7 @@ class EmergingOperatorService:
                 "launches": launches, "observed_launches": launches, "launch_list": launch_list,
                 "session_count": 0, "active_sessions": 0, "member_wallets": clients, "client_wallets": clients,
                 "member_treasuries": treasuries, "treasuries": treasuries, "primary_treasury_families": treasuries,
-                "unique_creators": [], "funding_mechanisms": [],
+                "unique_creators": unique_creators, "funding_mechanisms": [],
                 "dominant_topology": "Canonical treasury → client → fresh creator",
                 "observed_topology_variants": ["Canonical treasury → client → fresh creator"],
                 "evidence_completeness": completeness, "evidence_breakdown": completeness["dimensions"],

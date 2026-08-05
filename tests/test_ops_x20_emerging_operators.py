@@ -96,6 +96,7 @@ def test_registry_accumulates_only_persisted_unknown_outcomes(tmp_path):
     assert result["read_only"] is True
     assert [item["terminal_entity"] for item in result["candidates"]] == ["INFRA"]
     candidate = result["candidates"][0]
+    assert service._list_card(candidate)["creator_count"] == 2
     assert candidate["observation_count"] == candidate["observed_launches"] == 2
     assert candidate["unique_creators"] == ["C1", "C2"]
     assert candidate["campaigns"] == ["OP1", "OP2"]

@@ -92,7 +92,7 @@ def test_missing_evidence_is_only_package_missing_evidence(projection):
     ]
 
 
-def test_profile_and_registry_render_explanations_without_diagnostics():
+def test_profile_preserves_full_explanations_while_registry_uses_summary_signals():
     profile = (ROOT / "templates/operation_profile.html").read_text()
     registry = (ROOT / "templates/emerging_operators.html").read_text()
     for phrase in (
@@ -101,9 +101,10 @@ def test_profile_and_registry_render_explanations_without_diagnostics():
         "observation_count", "Legacy Context",
     ):
         assert phrase in profile
-    assert "evidenceDetails" in registry
-    assert "Promotion Readiness" in registry
-    assert "Legacy Context" in registry
+    assert "evidenceDetails" not in registry
+    assert "analyst_explanation" not in registry
+    assert "signals(r,disp)" in registry
+    assert "Supporting "+"'" in registry
     assert "?debug=1" not in profile
 
 

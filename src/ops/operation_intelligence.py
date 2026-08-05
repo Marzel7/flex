@@ -302,6 +302,7 @@ class OperationIntelligenceAssembler:
                     "signature": edge.get("funding_tx_signature"),
                     "source_mint": edge.get("source_mint"),
                     "launch_label": token_labels.get(edge.get("source_mint")),
+                    "transaction_at": _ts(edge.get("funding_block_time")),
                     "observed_at": _ts(edge.get("first_observed_by_flex"))}
             paths.append(path)
             if path["signature"]:

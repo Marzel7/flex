@@ -107,6 +107,7 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
             "launch": path.get("source_mint"),
             "launch_label": path.get("launch_label") or "Launch",
             "mechanism": path.get("mechanism"), "observed_at": path.get("observed_at"),
+            "transaction_at": path.get("transaction_at"),
             "transaction": path.get("signature"),
         })
 

@@ -27,6 +27,7 @@ def test_role_chain_contains_only_recorded_relationships():
     assert role["observed_relationships"] == [{
         "controller": "CONTROL", "creator": "CREATOR", "launch": "MINT",
         "launch_label": "Launch", "mechanism": None, "observed_at": None,
+        "transaction_at": None,
         "transaction": "B",
     }]
     assert role["related_launch_count"] == 1
@@ -46,10 +47,10 @@ def test_shared_infrastructure_does_not_invent_operator():
 def test_assembler_finds_edges_by_canonical_launch_membership(tmp_path):
     ops, live = tmp_path / "ops.db", tmp_path / "live.db"
     conn = sqlite3.connect(ops)
-    conn.execute("CREATE TABLE wt_provisioning_edges (edge_id TEXT,from_wallet TEXT,to_wallet TEXT,edge_type TEXT,funding_mechanism TEXT,funding_tx_signature TEXT,source_mint TEXT,first_observed_by_flex INTEGER)")
-    conn.executemany("INSERT INTO wt_provisioning_edges VALUES (?,?,?,?,?,?,?,?)", [
-        ("1", "T", "S", "TREASURY_TO_SUBPROV", "TRANSFER", "SIG1", "M", 1),
-        ("2", "S", "C", "SUBPROV_TO_CREATOR", "TRANSFER", "SIG2", "M", 2),
+    conn.execute("CREATE TABLE wt_provisioning_edges (edge_id TEXT,from_wallet TEXT,to_wallet TEXT,edge_type TEXT,funding_mechanism TEXT,funding_tx_signature TEXT,source_mint TEXT,first_observed_by_flex INTEGER,funding_block_time INTEGER)")
+    conn.executemany("INSERT INTO wt_provisioning_edges VALUES (?,?,?,?,?,?,?,?,?)", [
+        ("1", "T", "S", "TREASURY_TO_SUBPROV", "TRANSFER", "SIG1", "M", 1, 1700000010),
+        ("2", "S", "C", "SUBPROV_TO_CREATOR", "TRANSFER", "SIG2", "M", 2, 1700000020),
     ])
     conn.commit(); conn.close(); sqlite3.connect(live).close()
     family = {
@@ -66,6 +67,7 @@ def test_assembler_finds_edges_by_canonical_launch_membership(tmp_path):
     result = OperationIntelligenceAssembler(str(ops), str(live)).build(family, [family], {"total_tokens": 1})
     assert result["operational_role"]["evidence_backed"] is True
     assert result["infrastructure"]["funding_paths"][0]["source_mint"] == "M"
+    assert result["infrastructure"]["funding_paths"][0]["transaction_at"] == 1700000010
 
 
 def test_all_three_ui_surfaces_consume_shared_role_model():
@@ -83,4 +85,5 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert 'Launch mint ' in profile
     assert '/token-intelligence?mint=' in profile
     assert "Observed while tracing " in profile
+    assert "o.transaction_at?new Date(o.transaction_at*1000)" in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

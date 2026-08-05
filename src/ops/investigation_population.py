@@ -463,7 +463,7 @@ class LegacyFamilyProjectionAdapter:
                 "proposal_id": primary.proposal_id,
                 "proposal_fingerprint": primary.proposal_fingerprint,
                 "identity_fingerprint": primary.identity_fingerprint,
-                "href": "/intelligence/operator-promotions",
+                "href": f"/intelligence/operations/{family['family_id']}?tab=evidence",
                 "requires_analyst_approval": True,
             }
             if primary.decision == "PROMOTION_ELIGIBLE":

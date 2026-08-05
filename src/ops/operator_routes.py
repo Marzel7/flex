@@ -13,7 +13,7 @@ GET  /api/ops/evidence-catalogue             → full evidence type catalogue
 from __future__ import annotations
 
 import time
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, redirect, request
 
 from src.ops.operator_model import (
     EVIDENCE_CATALOGUE,
@@ -235,7 +235,7 @@ def record_review(operator_id: str):
     return jsonify({
         "ok": False,
         "code": "PROMOTION_REVIEW_REQUIRED",
-        "error": "Direct operator review writes are disabled; use Promotion Review.",
+        "error": "Direct operator review writes are disabled; use the Investigation Population review workflow.",
     }), 409
 
 
@@ -384,8 +384,10 @@ def _promotion_error(exc):
 
 @operator_bp.route("/intelligence/operator-promotions")
 def operator_promotions_page():
-    from flask import render_template
-    return render_template("operator_promotions.html", active_page="operator_promotions")
+    # X73.4 retires the duplicate standalone promotion UI. Historical
+    # bookmarks remain valid and land in the reconciled review workspace;
+    # the promotion APIs below remain unchanged for compatibility.
+    return redirect("/intelligence/operations?focus=review", code=302)
 
 
 @operator_bp.route("/api/operators/promotions")

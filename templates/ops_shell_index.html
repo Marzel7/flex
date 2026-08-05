@@ -324,7 +324,7 @@
       <span class="mc-sit-val blue" id="sit-observing">—</span>
       <span class="mc-sit-sub">known actors</span>
     </a>
-    <a class="mc-sit-cell" id="sit-armed-cell" href="/intelligence/operator-promotions" style="text-decoration:none;color:inherit;">
+    <a class="mc-sit-cell" id="sit-armed-cell" href="/intelligence/operations?focus=review" style="text-decoration:none;color:inherit;">
       <span class="mc-sit-label">Promotion Candidates</span>
       <span class="mc-sit-val amber" id="sit-armed">—</span>
       <span class="mc-sit-sub">awaiting review</span>
@@ -610,7 +610,7 @@
           if (p.status === 'PROMOTION_ELIGIBLE' || p.status === 'REVIEW_CANDIDATE' || p.status === 'REVIEW_REQUIRED') {
             streams.promotions.push({kind:'OPERATOR_PROMOTION_PENDING', message:p.display_name + ' promotion awaiting review.',
               timestamp:promotions.generated_at, entity:{id:p.proposal_id,type:'promotion_proposal'},
-              href:'/intelligence/operator-promotions'});
+              href:'/intelligence/operations?focus=review'});
           }
         });
         Object.keys(streams).forEach(function(key){streams[key].sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0)})});
@@ -642,10 +642,10 @@
         var proposals = (promotions && promotions.proposals) || [];
         function pc(status){return proposals.filter(function(p){return p.status===status}).length}
         var eligible=pc('PROMOTION_ELIGIBLE'), review=pc('REVIEW_CANDIDATE')+pc('REVIEW_REQUIRED');
-        var promotionCard = '<a class="vi-card promotion" href="/intelligence/operator-promotions">'
-          + '<div class="vi-card-head"><span class="vi-icon">⬡</span><div><div class="vi-eyebrow">Recent Promotions</div><div class="vi-title">Promotion Queue</div></div><span class="vi-status promotion" style="margin-left:auto">Review</span></div>'
+        var promotionCard = '<a class="vi-card promotion" href="/intelligence/operations?focus=review">'
+          + '<div class="vi-card-head"><span class="vi-icon">⬡</span><div><div class="vi-eyebrow">Investigation workflow</div><div class="vi-title">Review Populations</div></div><span class="vi-status promotion" style="margin-left:auto">Review</span></div>'
           + '<div class="vi-metrics">' + metric(proposals.length,'awaiting review') + metric(review,'review candidates') + metric(eligible,'promotion eligible') + '</div>'
-          + action('/intelligence/operator-promotions','Open queue') + '</a>';
+          + action('/intelligence/operations?focus=review','Open investigations') + '</a>';
 
         var candidates=(emerging && emerging.candidates)||[], candidate=candidates[0];
         var emergingCard = '<a class="vi-card monitoring" href="/intelligence/operations">'

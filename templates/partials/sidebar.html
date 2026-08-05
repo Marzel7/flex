@@ -1,4 +1,5 @@
 <div class="sidebar">
+    <!-- Compatibility vocabulary: Operators now appear under Operator Registry. -->
     <div class="sidebar-logo">
         <div class="sidebar-logo-main">FLEX</div>
         <div class="sidebar-logo-sub"><span class="sidebar-status-dot" id="sh-overall-dot"></span> Operations OS</div>
@@ -19,10 +20,14 @@
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-label">Operations</div>
-            <a class="sidebar-item {% if active_page in ['emerging_operators','operation_profile'] %}active{% endif %}" href="/intelligence/operations">Operation Registry</a>
+            <div class="sidebar-section-label">Intelligence</div>
+            <a class="sidebar-item {% if active_page in ['emerging_operators','operation_profile'] %}active{% endif %}" href="/intelligence/operations">Operation Intelligence <span class="legacy-tag">Investigations</span></a>
+            <a class="sidebar-item {% if active_page == 'operators' %}active{% endif %}" href="/intelligence/operators">Operator Registry</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Observatories</div>
             <a class="sidebar-item {% if active_page in ['ops_live','ops_live_cards','ops_operations'] %}active{% endif %}" href="/ops">Live Operations</a>
-            <a class="sidebar-item {% if active_page == 'operators' %}active{% endif %}" href="/intelligence/operators">Canonical Operators</a>
             <a class="sidebar-item" href="/ecosystem">Ecosystem Intelligence</a>
             <a class="sidebar-item {% if active_page == 'launcher_observatory' %}active{% endif %}" href="/ops-os/launcher-observatory">Launcher Observatory</a>
             <a class="sidebar-item {% if active_page == 'buy_swarm_observatory' %}active{% endif %}" href="/ops-os/buy-swarm-observatory">Buy Swarm Observatory</a>
@@ -31,7 +36,6 @@
         <div class="sidebar-section">
             <div class="sidebar-section-label">Review</div>
             <a class="sidebar-item {% if active_page == 'inbox' %}active{% endif %}" href="/intelligence/inbox">Analyst Inbox<span class="nav-badge" id="badge-analyst-inbox"></span></a>
-            <a class="sidebar-item {% if active_page == 'operator_promotions' %}active{% endif %}" href="/intelligence/operator-promotions">Promotion Review</a>
         </div>
 
         <div class="sidebar-section">

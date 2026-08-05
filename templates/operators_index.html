@@ -64,6 +64,8 @@
   font-size: 11px; font-weight: 700; padding: 9px 16px; cursor: pointer;
   white-space: nowrap;
 }
+.ops-governance-flow { display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:0 0 16px;padding:10px 12px;border:1px solid var(--ip-border);border-radius:var(--ip-radius);background:var(--ip-card);font-size:10px;color:var(--ip-sec); }
+.ops-governance-flow strong { color:var(--ip-cyan); }
 {% endblock %}
 
 {% block content %}
@@ -86,6 +88,8 @@
     </div>
   </div>
 
+  <div class="ops-governance-flow"><strong>Identity Governance</strong><span>Expand</span><span>→</span><span>Review</span><span>→</span><span>Merge / Split</span><span>→</span><span>Dormant / Reactivate</span><span>→</span><span>Retire</span><span>·</span><span>Every identity retains timeline, evidence and history.</span></div>
+
   <!-- Summary strip -->
   <div class="ip-strip" style="margin-bottom:20px;">
     <div class="ip-metric"><div class="ip-metric-val" id="s-total">—</div><div class="ip-metric-label">Total</div></div>
@@ -107,7 +111,7 @@
 
   <!-- Filters -->
   <div class="ops-filter-bar">
-    <a class="ops-search-btn" href="/intelligence/operator-promotions" style="font-size:10px;padding:5px 12px;text-decoration:none;">Promotion Review</a>
+    <a class="ops-search-btn" href="/intelligence/operations" style="font-size:10px;padding:5px 12px;text-decoration:none;">Investigation Workspace</a>
     <button class="ops-filter-btn active" data-status="" onclick="setFilter(this)">All</button>
     <button class="ops-filter-btn" data-status="CONFIRMED"   onclick="setFilter(this)">Confirmed</button>
     <button class="ops-filter-btn" data-status="CANDIDATE"   onclick="setFilter(this)">Candidate</button>

@@ -35,6 +35,9 @@ def test_infrastructure_separates_owned_identity_from_connected_treasuries():
     assert "not treasuries owned by" in page
     assert "Connected upstream treasury" in page
     assert "Infrastructure Wallets" in page
+    assert "launches_by_treasury" in page
+    assert "launches reconciled" in page
+    assert "Unattributed" in page
 
 
 def test_supported_identity_types_are_derived_from_existing_profile_data():

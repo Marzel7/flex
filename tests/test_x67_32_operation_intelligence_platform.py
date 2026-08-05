@@ -72,6 +72,39 @@ def test_comparison_is_generic_for_any_family(tmp_path):
     assert payload["ecosystem_context"]["launch_rank"] == 2
 
 
+def test_infrastructure_launches_split_by_recorded_upstream_sessions():
+    family = _family(launches=4)
+    family["treasuries"] = ["T1", "T2", "T3"]
+    edges = [
+        {"edge_type": "SUBPROV_TO_CREATOR", "from_wallet": "CLIENT", "to_wallet": f"C{i}",
+         "source_mint": f"M{i}", "funding_block_time": timestamp}
+        for i, timestamp in enumerate((1_780_000_110, 1_780_000_120, 1_780_000_210, 1_780_000_220))
+    ]
+    sessions = [
+        {"subprov_wallet": "CLIENT", "treasury_wallet": "T1", "funding_time": 1_780_000_100},
+        {"subprov_wallet": "CLIENT", "treasury_wallet": "T2", "funding_time": 1_780_000_200},
+    ]
+    infrastructure = OperationIntelligenceAssembler._infrastructure(family, edges, sessions)
+    assert infrastructure["launches_by_treasury"] == [
+        {"treasury": "T1", "launch_count": 2},
+        {"treasury": "T2", "launch_count": 2},
+        {"treasury": "T3", "launch_count": 0},
+    ]
+    assert infrastructure["launches_by_treasury_total"] == 4
+
+
+def test_session_projection_supports_production_schema_without_source_mint(tmp_path):
+    import sqlite3
+    ops, live = tmp_path / "ops.db", tmp_path / "live.db"
+    with sqlite3.connect(ops) as conn:
+        conn.execute("CREATE TABLE wt_active_subprov_sessions (subprov_wallet TEXT, treasury_wallet TEXT, funding_time INTEGER)")
+        conn.execute("INSERT INTO wt_active_subprov_sessions VALUES ('CLIENT','T1',1780000100)")
+    sqlite3.connect(live).close()
+    assembler = OperationIntelligenceAssembler(str(ops), str(live))
+    _, sessions, _ = assembler._operation_rows(["M1"], ["CLIENT"])
+    assert sessions == [{"subprov_wallet": "CLIENT", "treasury_wallet": "T1", "funding_time": 1780000100}]
+
+
 def test_profile_exposes_intelligence_surfaces_through_five_task_groups():
     source = (ROOT / "templates/operation_profile.html").read_text()
     for label in ("Timeline", "Behaviour", "Infrastructure", "Evidence", "Intelligence"):

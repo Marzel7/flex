@@ -118,14 +118,18 @@ class OperationIntelligenceAssembler:
                         marks = ",".join("?" for _ in members)
                         clauses.append(f"subprov_wallet IN ({marks})")
                         params.extend(members)
-                    if mints:
+                    session_columns = {
+                        row[1] for row in conn.execute("PRAGMA table_info(wt_active_subprov_sessions)")
+                    }
+                    if mints and "source_mint" in session_columns:
                         marks = ",".join("?" for _ in mints)
                         clauses.append(f"source_mint IN ({marks})")
                         params.extend(mints)
-                    sessions = [dict(row) for row in conn.execute(
-                        f"SELECT * FROM wt_active_subprov_sessions WHERE {' OR '.join(clauses)} ORDER BY funding_time",
-                        params,
-                    )]
+                    if clauses:
+                        sessions = [dict(row) for row in conn.execute(
+                            f"SELECT * FROM wt_active_subprov_sessions WHERE {' OR '.join(clauses)} ORDER BY funding_time",
+                            params,
+                        )]
                 if mints and "wt_watchtower_launches" in tables:
                     marks = ",".join("?" for _ in mints)
                     watch_launches = [dict(row) for row in conn.execute(
@@ -307,13 +311,50 @@ class OperationIntelligenceAssembler:
             paths.append(path)
             if path["signature"]:
                 rpc_edges.append(path)
+        connected_treasuries = list(dict.fromkeys(family.get("treasuries") or []))
+        connected_set = set(connected_treasuries)
+        sessions_by_client = defaultdict(list)
+        for session in sessions:
+            treasury = session.get("treasury_wallet")
+            client = session.get("subprov_wallet")
+            funded_at = _ts(session.get("funding_time"))
+            if client and treasury in connected_set and funded_at:
+                sessions_by_client[client].append((funded_at, treasury))
+        for client_sessions in sessions_by_client.values():
+            client_sessions.sort()
+
+        # Each launch is linked only to the latest recorded upstream session
+        # that began before its persisted creator-funding edge. This is a
+        # temporal projection of recorded relationships, not ownership.
+        launch_treasury: dict[str, str] = {}
+        for edge in sorted(edges, key=lambda item: _ts(item.get("funding_block_time")) or 0):
+            if edge.get("edge_type") != "SUBPROV_TO_CREATOR" or not edge.get("source_mint"):
+                continue
+            observed_at = _ts(edge.get("funding_block_time")) or _ts(edge.get("first_observed_by_flex"))
+            if not observed_at:
+                continue
+            eligible = [item for item in sessions_by_client.get(edge.get("from_wallet"), []) if item[0] <= observed_at]
+            if eligible:
+                launch_treasury[str(edge["source_mint"])] = eligible[-1][1]
+        treasury_counts = Counter(launch_treasury.values())
+        launch_total = len(set(family.get("launch_list") or []))
+        linked_total = sum(treasury_counts.values())
+        launches_by_treasury = [
+            {"treasury": treasury, "launch_count": treasury_counts.get(treasury, 0)}
+            for treasury in connected_treasuries
+        ]
+        launches_by_treasury.sort(key=lambda item: item["launch_count"], reverse=True)
+        if launch_total > linked_total:
+            launches_by_treasury.append({"treasury": None, "launch_count": launch_total - linked_total})
         return {
-            "treasuries": family.get("treasuries") or [], "persistent_clients": family.get("client_wallets") or [],
+            "treasuries": connected_treasuries, "persistent_clients": family.get("client_wallets") or [],
             "creators": family.get("unique_creators") or [], "known_relays": [],
             "funding_paths": paths, "mechanisms": family.get("funding_mechanisms") or [],
             "rpc_confirmed_edges": rpc_edges,
             "topology_variants": family.get("observed_topology_variants") or [],
             "session_count": len(sessions),
+            "launches_by_treasury": launches_by_treasury,
+            "launches_by_treasury_total": sum(item["launch_count"] for item in launches_by_treasury),
         }
 
     @staticmethod

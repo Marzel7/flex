@@ -23,7 +23,7 @@ import asyncio
 import aiohttp
 import os
 import time
-from src.utils.db_locking import db_connect
+from src.utils.db_locking import db_connect, managed_db_connect
 from typing import Optional, Dict, List, Set, Iterable, Tuple
 from datetime import datetime
 from src.utils.db_locking import DB_WRITE_LOCK
@@ -302,6 +302,49 @@ class RealTimeCreatorFundingExtractor:
         self.domain_resolver: Optional[DomainResolver] = None
         self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
         self._rpc_sem = asyncio.Semaphore(MAX_CONCURRENT_RPC)
+        # X76.3 -- the extractor itself now tracks every fire-and-forget
+        # background task it spawns (CEX detection, BlockSec batching,
+        # post-launch automation), not just creator_funding_worker's own
+        # bolt-on _await_orphaned_tasks sweep. This makes ANY caller --
+        # the worker, the listener, a future one-shot recovery tool --
+        # able to supervise these tasks via wait_for_background_tasks(),
+        # instead of only the worker (which diffs the global asyncio task
+        # set as a heuristic and can't see tasks spawned by a DIFFERENT
+        # extractor instance or caller).
+        self._background_tasks: Set[asyncio.Task] = set()
+
+    def _spawn_background_task(self, coro) -> asyncio.Task:
+        """Create a tracked fire-and-forget task. Discards itself from the
+        registry on completion (success, exception, or cancellation) so the
+        set never grows unbounded across a long-lived process."""
+        task = asyncio.create_task(coro)
+        self._background_tasks.add(task)
+        task.add_done_callback(self._background_tasks.discard)
+        return task
+
+    async def wait_for_background_tasks(self, timeout: float = 20.0) -> None:
+        """Bounded wait for every background task this extractor instance
+        has ever spawned and not yet finished. Callers that need the "never
+        let a write-capable child task outlive its parent" invariant (the
+        tight-polling creator_funding_worker; any future one-shot recovery
+        tool) should call this immediately after each extraction instead of
+        (or in addition to) the worker's own all_tasks()-diffing sweep --
+        this is exact (the extractor's own bookkeeping), where the diff
+        approach is a heuristic over the whole event loop's task set.
+        Never cancels stragglers past the timeout: a cancelled write mid-
+        commit is worse than a slow one (see Phase 2 test coverage)."""
+        pending = {t for t in self._background_tasks if not t.done()}
+        if not pending:
+            return
+        done, still_pending = await asyncio.wait(pending, timeout=timeout)
+        for t in done:
+            exc = t.exception() if not t.cancelled() else None
+            if exc:
+                print(f"[REALTIME_FUNDING] background task raised (non-fatal, enrichment only): {exc}", flush=True)
+        if still_pending:
+            print(f"[REALTIME_FUNDING] {len(still_pending)} background task(s) still running "
+                  f"after {timeout}s -- leaving them to finish on their own, not cancelling "
+                  f"(would corrupt whatever they're mid-writing)", flush=True)
         # Phase 1: Initialize CursorManager for incremental extraction
         self.cursor_mgr = None
         try:
@@ -844,81 +887,90 @@ class RealTimeCreatorFundingExtractor:
         try:
             from src.utils.infra_mapping import is_cex_account, CEX_ACCOUNTS
 
-            conn = db_connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees conn.close() (and therefore
+            # TrackedConnection._release_write_lane(), which clears the
+            # process-wide write lock, the cross-process file lease, and this
+            # thread's _thread_write_lease reentrancy guard) on every exit path,
+            # including an exception raised mid-write. Before this, close() was
+            # only reached on the success path -- an exception anywhere in this
+            # function (including inside the `with DB_WRITE_LOCK:` block) left
+            # the lease held on whatever thread this call landed on, poisoning
+            # every subsequent to_thread-dispatched write on that same pooled
+            # thread with NestedDatabaseWriteError.
+            with managed_db_connect(DB_PATH, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # Check if recipient is a known CEX wallet
-            recipient_type = None
-            exchange_name = None
-            wallet_type = None
-            is_cex = 0
-            classification_confidence = None
+                # Check if recipient is a known CEX wallet
+                recipient_type = None
+                exchange_name = None
+                wallet_type = None
+                is_cex = 0
+                classification_confidence = None
 
-            # Layer 1: Check CEX_ACCOUNTS mapping (immediate)
-            if is_cex_account(recipient):
-                cex_info = CEX_ACCOUNTS.get(recipient, {})
-                exchange_name = cex_info.get("exchange", "Unknown")
-                wallet_type = cex_info.get("name", "Exchange Wallet")
-                is_cex = 1
-                recipient_type = f"cex_{exchange_name.lower()}"
-                print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange_name} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
+                # Layer 1: Check CEX_ACCOUNTS mapping (immediate)
+                if is_cex_account(recipient):
+                    cex_info = CEX_ACCOUNTS.get(recipient, {})
+                    exchange_name = cex_info.get("exchange", "Unknown")
+                    wallet_type = cex_info.get("name", "Exchange Wallet")
+                    is_cex = 1
+                    recipient_type = f"cex_{exchange_name.lower()}"
+                    print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange_name} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
 
-            # Layer 2: Check cex_wallets table (manual + auto-detected)
-            else:
-                try:
-                    cursor.execute("""
-                        SELECT exchange_name, wallet_type
-                        FROM cex_wallets
-                        WHERE cex_address = ? AND is_active = 1
-                        LIMIT 1
-                    """, (recipient,))
-                    cex_row = cursor.fetchone()
-                    if cex_row:
-                        exchange_name, wallet_type = cex_row
-                        is_cex = 1
-                        recipient_type = f"cex_{exchange_name.lower()}"
-                        print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange_name} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
-                except Exception as e:
-                    pass
-
-            # Layer 3: Check address_classification (auto-detected with confidence)
-            if not is_cex:
-                try:
-                    cursor.execute("""
-                        SELECT classification, confidence_score, solscan_exchange_name
-                        FROM address_classification
-                        WHERE address = ?
-                        LIMIT 1
-                    """, (recipient,))
-                    class_row = cursor.fetchone()
-                    if class_row:
-                        classification, confidence, solscan_exch = class_row
-                        if classification == 'cex_confirmed':  # Only high confidence
-                            exchange_name = solscan_exch or "Detected CEX"
-                            wallet_type = "Auto-detected"
+                # Layer 2: Check cex_wallets table (manual + auto-detected)
+                else:
+                    try:
+                        cursor.execute("""
+                            SELECT exchange_name, wallet_type
+                            FROM cex_wallets
+                            WHERE cex_address = ? AND is_active = 1
+                            LIMIT 1
+                        """, (recipient,))
+                        cex_row = cursor.fetchone()
+                        if cex_row:
+                            exchange_name, wallet_type = cex_row
                             is_cex = 1
-                            classification_confidence = confidence
-                            recipient_type = f"cex_autodetected_{exchange_name.lower()}"
-                            print(f"[FUNDING] 💸 OUTGOING TO CEX (AUTO-DETECTED): {creator[:16]}... → {exchange_name} (confidence: {confidence}) ({amount_sol:.2f} SOL)", flush=True)
-                except Exception as e:
-                    pass
+                            recipient_type = f"cex_{exchange_name.lower()}"
+                            print(f"[FUNDING] 💸 OUTGOING TO CEX: {creator[:16]}... → {exchange_name} {wallet_type} ({amount_sol:.2f} SOL)", flush=True)
+                    except Exception as e:
+                        pass
 
-            # X73.2 -- see check_create_tx_for_jitotip's own comment: write
-            # section only, serialized against concurrent callers. This
-            # function is called once per transfer inside a loop in
-            # extract_outgoing_transfers, so it's the highest-frequency write
-            # path among the four gathered enrichment functions.
-            with DB_WRITE_LOCK:
-                cursor.execute("""
-                    INSERT OR REPLACE INTO creator_outgoing_transfers
-                    (creator_address, recipient_address, amount_sol, transaction_signature, block_time,
-                     recipient_type, is_cex, cex_exchange, cex_type, classification_confidence, first_detected_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                """, (creator, recipient, amount_sol, sig, block_time, recipient_type, is_cex,
-                      exchange_name, wallet_type, classification_confidence))
+                # Layer 3: Check address_classification (auto-detected with confidence)
+                if not is_cex:
+                    try:
+                        cursor.execute("""
+                            SELECT classification, confidence_score, solscan_exchange_name
+                            FROM address_classification
+                            WHERE address = ?
+                            LIMIT 1
+                        """, (recipient,))
+                        class_row = cursor.fetchone()
+                        if class_row:
+                            classification, confidence, solscan_exch = class_row
+                            if classification == 'cex_confirmed':  # Only high confidence
+                                exchange_name = solscan_exch or "Detected CEX"
+                                wallet_type = "Auto-detected"
+                                is_cex = 1
+                                classification_confidence = confidence
+                                recipient_type = f"cex_autodetected_{exchange_name.lower()}"
+                                print(f"[FUNDING] 💸 OUTGOING TO CEX (AUTO-DETECTED): {creator[:16]}... → {exchange_name} (confidence: {confidence}) ({amount_sol:.2f} SOL)", flush=True)
+                    except Exception as e:
+                        pass
 
-                conn.commit()
-            conn.close()
+                # X73.2 -- see check_create_tx_for_jitotip's own comment: write
+                # section only, serialized against concurrent callers. This
+                # function is called once per transfer inside a loop in
+                # extract_outgoing_transfers, so it's the highest-frequency write
+                # path among the four gathered enrichment functions.
+                with DB_WRITE_LOCK:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO creator_outgoing_transfers
+                        (creator_address, recipient_address, amount_sol, transaction_signature, block_time,
+                         recipient_type, is_cex, cex_exchange, cex_type, classification_confidence, first_detected_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                    """, (creator, recipient, amount_sol, sig, block_time, recipient_type, is_cex,
+                          exchange_name, wallet_type, classification_confidence))
+
+                    conn.commit()
         except Exception as e:
             print(f"[FUNDING] ⚠ Error saving outgoing transfer: {e}", flush=True)
 
@@ -1077,26 +1129,26 @@ class RealTimeCreatorFundingExtractor:
         Called after all funder/recipient data has been saved to the database.
         """
         try:
-            conn = db_connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
-            
-            # Update creator_state with final extraction status
-            cursor.execute("""
-                INSERT OR REPLACE INTO creator_state
-                (creator_pubkey, last_processed_at, total_signatures_processed, total_sol_in_lamports, total_sol_out_lamports, updated_at)
-                VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (
-                creator,
-                total_funders + total_recipients,  # count of transactions processed
-                int(total_inbound * 1_000_000_000),  # convert SOL to lamports
-                int(total_outbound * 1_000_000_000)   # convert SOL to lamports
-            ))
-            
-            conn.commit()
-            conn.close()
-            
+            # X76.3 -- managed_db_connect guarantees close() on every exit path.
+            with managed_db_connect(DB_PATH, timeout=60) as conn:
+                cursor = conn.cursor()
+
+                # Update creator_state with final extraction status
+                cursor.execute("""
+                    INSERT OR REPLACE INTO creator_state
+                    (creator_pubkey, last_processed_at, total_signatures_processed, total_sol_in_lamports, total_sol_out_lamports, updated_at)
+                    VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (
+                    creator,
+                    total_funders + total_recipients,  # count of transactions processed
+                    int(total_inbound * 1_000_000_000),  # convert SOL to lamports
+                    int(total_outbound * 1_000_000_000)   # convert SOL to lamports
+                ))
+
+                conn.commit()
+
             print(f"[EXTRACTION] ✅ COMPLETED for {creator[:16]}... | Funders: {total_funders}, Recipients: {total_recipients}", flush=True)
-            
+
         except Exception as err:
             print(f"[EXTRACTION] ⚠ Could not mark extraction complete: {err}", flush=True)
 
@@ -1141,6 +1193,19 @@ class RealTimeCreatorFundingExtractor:
             print("[REALTIME_FUNDING] ⚠ No HELIUS_API_KEY set — skipping enriched extraction", flush=True)
             return {"creator": creator, "error": "no_helius_key", "status": "skipped"}
 
+        # X76.3 -- extraction_conn is opened below and held open across the
+        # entire multi-hundred-line paging loop (many awaits, many possible
+        # exceptions/early returns). Before this fix, it was only closed on
+        # ONE success path near the end of this function -- every early
+        # `return` inside the try block (e.g. the pagination error handler
+        # a few hundred lines down) left it open, and since it's a
+        # TrackedConnection, a leaked-open connection that was ever used for
+        # a write leaves the write lane/lease held on this thread until the
+        # reaper eventually force-closes it (up to _MAX_TXN_CONNECTION_AGE_SECS
+        # later). extraction_conn is declared here, before the try, so this
+        # function's own finally can safely check `is not None` regardless of
+        # which line raised.
+        extraction_conn = None
         try:
             # Parse migration timestamp
             if "T" in migration_timestamp_str:
@@ -1519,16 +1584,20 @@ class RealTimeCreatorFundingExtractor:
                                             print(f"[REALTIME_FUNDING] 🌉 DEBRIDGE TRANSACTION: {tx.get('signature', '')[:16]}...", flush=True)
 
                                             # Mark creator for deBridge usage
+                                            # X76.3 -- managed_db_connect: this opens its own
+                                            # short-lived connection separate from extraction_conn
+                                            # (deliberately, to avoid nesting a second write inside
+                                            # extraction_conn's still-open transaction); guarantee
+                                            # its close on every exit path.
                                             try:
-                                                conn = db_connect(DB_PATH, timeout=60)
-                                                cursor = conn.cursor()
-                                                cursor.execute("""
-                                                    INSERT OR REPLACE INTO creator_tags
-                                                    (creator_address, tag, description)
-                                                    VALUES (?, ?, ?)
-                                                """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers"))
-                                                conn.commit()
-                                                conn.close()
+                                                with managed_db_connect(DB_PATH, timeout=60) as conn:
+                                                    cursor = conn.cursor()
+                                                    cursor.execute("""
+                                                        INSERT OR REPLACE INTO creator_tags
+                                                        (creator_address, tag, description)
+                                                        VALUES (?, ?, ?)
+                                                    """, (creator, "uses_debridge", f"Creator uses deBridge for cross-chain transfers"))
+                                                    conn.commit()
                                                 print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
                                                 # Update flag so we don't check again in this extraction run
                                                 creator_uses_debridge = True
@@ -1696,12 +1765,15 @@ class RealTimeCreatorFundingExtractor:
 
             # Trigger automatic CEX detection asynchronously (non-blocking)
             # This will classify new funding addresses and potentially discover new CEX wallets
+            # X76.3 -- tracked via _spawn_background_task so ANY caller can
+            # supervise it with wait_for_background_tasks() (see that
+            # method's docstring).
             if funders:
-                asyncio.create_task(self._run_automatic_cex_detection())
+                self._spawn_background_task(self._run_automatic_cex_detection())
 
             # Trigger BlockSec AML batching (caches new addresses for batch submission)
             # Rate limited to 1 batch per 2.4 hours (10 calls/day = 24/10 hours between batches)
-            asyncio.create_task(self._try_blocksec_batch())
+            self._spawn_background_task(self._try_blocksec_batch())
 
             # Close database connection after all processing
             extraction_conn.close()
@@ -1738,9 +1810,10 @@ class RealTimeCreatorFundingExtractor:
                     print(f"[REALTIME_FUNDING] ⚠ Error updating cursor: {e}", flush=True)
 
             # 🚀 TRIGGER POST-LAUNCH AUTOMATION — networks, clustering, coordinated funder detection, UI updates
+            # X76.3 -- tracked via _spawn_background_task (see that method's docstring).
             if funders:
                 # Run async without blocking extraction return
-                asyncio.create_task(run_post_launch_automation(
+                self._spawn_background_task(run_post_launch_automation(
                     creator=creator,
                     mint=self._current_mint if hasattr(self, '_current_mint') else None,
                     total_funders=len(funders),
@@ -1764,6 +1837,18 @@ class RealTimeCreatorFundingExtractor:
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error: {e}", flush=True)
             return {"creator": creator, "error": str(e)}
+        finally:
+            # X76.3 -- guaranteed close on every path (success, the inner
+            # pagination-error early return, or this function's own outer
+            # exception handler above) instead of only the one success path
+            # that used to call extraction_conn.close() explicitly further up.
+            # close() is a documented no-op if already closed, so this is safe
+            # even on the success path where the explicit close still runs first.
+            if extraction_conn is not None:
+                try:
+                    extraction_conn.close()
+                except Exception:
+                    pass
 
     async def _run_automatic_cex_detection(self):
         """
@@ -1837,140 +1922,146 @@ class RealTimeCreatorFundingExtractor:
             return
 
         try:
-            conn = db_connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect (guaranteed close on every exit path,
+            # including exceptions raised during the RPC calls below or mid-
+            # write). Execution stays on the event-loop thread exactly as
+            # before: X73.2A tried moving this to a to_thread dispatch and it
+            # made NestedDatabaseWriteError WORSE, for reasons never fully
+            # explained (see docs/audits/x73_2a_shared_extractor_concurrency.md)
+            # -- so this fix deliberately changes nothing about where or how
+            # the connection is used, only that it can no longer leak.
+            with managed_db_connect(DB_PATH, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # Get list of Jitotip accounts from INFRASTRUCTURE_ACCOUNTS
-            jitotip_accounts = [addr for addr in INFRASTRUCTURE_ACCOUNTS.keys() if "jito" in INFRASTRUCTURE_ACCOUNTS[addr].get("name", "").lower()]
+                # Get list of Jitotip accounts from INFRASTRUCTURE_ACCOUNTS
+                jitotip_accounts = [addr for addr in INFRASTRUCTURE_ACCOUNTS.keys() if "jito" in INFRASTRUCTURE_ACCOUNTS[addr].get("name", "").lower()]
 
-            found_jitotip = False
-            jitotip_amount = 0
+                found_jitotip = False
+                jitotip_amount = 0
 
-            # Try Helius RPC first (more reliable), then fallback to public RPC
-            rpc_urls = [
-                f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}",  # Helius first
-                "https://api.mainnet-beta.solana.com"  # Public fallback
-            ]
+                # Try Helius RPC first (more reliable), then fallback to public RPC
+                rpc_urls = [
+                    f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}",  # Helius first
+                    "https://api.mainnet-beta.solana.com"  # Public fallback
+                ]
 
-            for rpc_url in rpc_urls:
-                payload = {
-                    "jsonrpc": "2.0",
-                    "id": "1",
-                    "method": "getTransaction",
-                    "params": [create_tx_sig, {
-                        "encoding": "json",
-                        "maxSupportedTransactionVersion": 0
-                    }]
-                }
+                for rpc_url in rpc_urls:
+                    payload = {
+                        "jsonrpc": "2.0",
+                        "id": "1",
+                        "method": "getTransaction",
+                        "params": [create_tx_sig, {
+                            "encoding": "json",
+                            "maxSupportedTransactionVersion": 0
+                        }]
+                    }
 
-                try:
-                    async with self.session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
-                            if resp.status == 200:
-                                result = await resp.json()
+                    try:
+                        async with self.session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                                if resp.status == 200:
+                                    result = await resp.json()
 
-                                if "result" in result and result["result"]:
-                                    tx = result["result"]
+                                    if "result" in result and result["result"]:
+                                        tx = result["result"]
 
-                                    # Get account keys
-                                    message = tx.get("transaction", {}).get("message", {})
-                                    accounts = message.get('accountKeys', [])
+                                        # Get account keys
+                                        message = tx.get("transaction", {}).get("message", {})
+                                        accounts = message.get('accountKeys', [])
 
-                                    # Check if any Jitotip account is in the transaction
-                                    for jito in jitotip_accounts:
-                                        if jito in accounts:
-                                            # Found Jitotip, check balance changes
-                                            jito_idx = accounts.index(jito)
-                                            meta = tx.get("meta", {})
-                                            post_balances = meta.get('postBalances', [])
-                                            pre_balances = meta.get('preBalances', [])
+                                        # Check if any Jitotip account is in the transaction
+                                        for jito in jitotip_accounts:
+                                            if jito in accounts:
+                                                # Found Jitotip, check balance changes
+                                                jito_idx = accounts.index(jito)
+                                                meta = tx.get("meta", {})
+                                                post_balances = meta.get('postBalances', [])
+                                                pre_balances = meta.get('preBalances', [])
 
-                                            if jito_idx < len(post_balances) and jito_idx < len(pre_balances):
-                                                diff = post_balances[jito_idx] - pre_balances[jito_idx]
-                                                if diff > 0:  # Jitotip received SOL
-                                                    found_jitotip = True
-                                                    jitotip_amount = diff / 1e9
+                                                if jito_idx < len(post_balances) and jito_idx < len(pre_balances):
+                                                    diff = post_balances[jito_idx] - pre_balances[jito_idx]
+                                                    if diff > 0:  # Jitotip received SOL
+                                                        found_jitotip = True
+                                                        jitotip_amount = diff / 1e9
 
-                                                    # Calculate total tx cost (network fee + jito tip)
-                                                    network_fee_lamports = tx.get("meta", {}).get("fee", 0)
-                                                    network_fee_sol = network_fee_lamports / 1e9
-                                                    total_cost_sol = network_fee_sol + jitotip_amount
+                                                        # Calculate total tx cost (network fee + jito tip)
+                                                        network_fee_lamports = tx.get("meta", {}).get("fee", 0)
+                                                        network_fee_sol = network_fee_lamports / 1e9
+                                                        total_cost_sol = network_fee_sol + jitotip_amount
 
-                                                    # Calculate tip as % of total cost
-                                                    tip_percentage = (jitotip_amount / total_cost_sol * 100) if total_cost_sol > 0 else 0
+                                                        # Calculate tip as % of total cost
+                                                        tip_percentage = (jitotip_amount / total_cost_sol * 100) if total_cost_sol > 0 else 0
 
-                                                    rpc_name = "Helius" if "helius" in rpc_url else "Public RPC"
-                                                    print(f"[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via {rpc_name}) in CREATE tx: {creator[:16]}... sent {jitotip_amount:.9f} SOL ({tip_percentage:.1f}% of {total_cost_sol:.6f} SOL total cost) to {INFRASTRUCTURE_ACCOUNTS[jito].get('name', 'Jitotip')}", flush=True)
-                                                    break
+                                                        rpc_name = "Helius" if "helius" in rpc_url else "Public RPC"
+                                                        print(f"[REALTIME_FUNDING] 🎯 JITOTIP DETECTED (via {rpc_name}) in CREATE tx: {creator[:16]}... sent {jitotip_amount:.9f} SOL ({tip_percentage:.1f}% of {total_cost_sol:.6f} SOL total cost) to {INFRASTRUCTURE_ACCOUNTS[jito].get('name', 'Jitotip')}", flush=True)
+                                                        break
 
-                                    # If found, break out of RPC loop
-                                    if found_jitotip:
-                                        break
-                except Exception as rpc_err:
-                    # Try next RPC on error
-                    continue
+                                        # If found, break out of RPC loop
+                                        if found_jitotip:
+                                            break
+                    except Exception as rpc_err:
+                        # Try next RPC on error
+                        continue
 
-            # If Jitotip found, tag the creator.
-            # X73.2A -- reverted to the pre-X73.2 unlocked form. A to_thread
-            # + DB_WRITE_LOCK version was tried and observed still raising
-            # NestedDatabaseWriteError in sustained testing (SQLite connection
-            # thread-affinity vs. to_thread's executor-pool dispatch is not a
-            # fully understood interaction -- see
-            # docs/audits/x73_2a_shared_extractor_concurrency.md). Restoring
-            # known-good behaviour rather than shipping an unproven partial
-            # fix. This write path can still occasionally race under
-            # concurrent callers (the same limitation it always had); it is
-            # not attribution-critical (Jitotip tagging is metadata
-            # enrichment, not creator_funders population) and failures here
-            # are already caught and logged, never raised to the caller.
-            if found_jitotip:
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS creator_tags (
-                        creator_address TEXT NOT NULL,
-                        tag TEXT NOT NULL,
-                        description TEXT,
-                        amount_sol REAL,
-                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        PRIMARY KEY(creator_address, tag)
-                    )
-                """)
-
-                # Create history table to track all tip amounts per transaction
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS creator_service_history (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        creator_address TEXT NOT NULL,
-                        tag TEXT NOT NULL,
-                        amount_sol REAL,
-                        tx_signature TEXT,
-                        mint TEXT,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        network_fee_sol REAL,
-                        tip_percentage REAL,
-                        UNIQUE(creator_address, tag, tx_signature)
-                    )
-                """)
-
-                # 1. Save summary in creator_tags (for UI display - shows latest/highest)
-                cursor.execute("""
-                    INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description, amount_sol)
-                    VALUES (?, ?, ?, ?)
-                """, (creator, "uses_jitotip", f"Creator uses Jitotip for MEV/fee tipping in CREATE transaction", jitotip_amount))
-
-                # 2. Save to history table (full audit trail of all tips)
-                try:
+                # If Jitotip found, tag the creator.
+                # X73.2A -- reverted to the pre-X73.2 unlocked form. A to_thread
+                # + DB_WRITE_LOCK version was tried and observed still raising
+                # NestedDatabaseWriteError in sustained testing (SQLite connection
+                # thread-affinity vs. to_thread's executor-pool dispatch is not a
+                # fully understood interaction -- see
+                # docs/audits/x73_2a_shared_extractor_concurrency.md). Restoring
+                # known-good behaviour rather than shipping an unproven partial
+                # fix. This write path can still occasionally race under
+                # concurrent callers (the same limitation it always had); it is
+                # not attribution-critical (Jitotip tagging is metadata
+                # enrichment, not creator_funders population) and failures here
+                # are already caught and logged, never raised to the caller.
+                if found_jitotip:
                     cursor.execute("""
-                        INSERT OR IGNORE INTO creator_service_history
-                        (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint, network_fee_sol, tip_percentage, "Create"))
-                except Exception as hist_err:
-                    pass  # Ignore duplicates
+                        CREATE TABLE IF NOT EXISTS creator_tags (
+                            creator_address TEXT NOT NULL,
+                            tag TEXT NOT NULL,
+                            description TEXT,
+                            amount_sol REAL,
+                            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            PRIMARY KEY(creator_address, tag)
+                        )
+                    """)
 
-                conn.commit()
-                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip' - Tip amount: {jitotip_amount:.6f} SOL ({tip_percentage:.1f}% of tx cost)", flush=True)
+                    # Create history table to track all tip amounts per transaction
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS creator_service_history (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            creator_address TEXT NOT NULL,
+                            tag TEXT NOT NULL,
+                            amount_sol REAL,
+                            tx_signature TEXT,
+                            mint TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            network_fee_sol REAL,
+                            tip_percentage REAL,
+                            UNIQUE(creator_address, tag, tx_signature)
+                        )
+                    """)
 
-            conn.close()
+                    # 1. Save summary in creator_tags (for UI display - shows latest/highest)
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO creator_tags
+                        (creator_address, tag, description, amount_sol)
+                        VALUES (?, ?, ?, ?)
+                    """, (creator, "uses_jitotip", f"Creator uses Jitotip for MEV/fee tipping in CREATE transaction", jitotip_amount))
+
+                    # 2. Save to history table (full audit trail of all tips)
+                    try:
+                        cursor.execute("""
+                            INSERT OR IGNORE INTO creator_service_history
+                            (creator_address, tag, amount_sol, tx_signature, mint, network_fee_sol, tip_percentage, tx_type)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (creator, "uses_jitotip", jitotip_amount, create_tx_sig, mint, network_fee_sol, tip_percentage, "Create"))
+                    except Exception as hist_err:
+                        pass  # Ignore duplicates
+
+                    conn.commit()
+                    print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_jitotip' - Tip amount: {jitotip_amount:.6f} SOL ({tip_percentage:.1f}% of tx cost)", flush=True)
 
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking CREATE tx for Jitotip: {e}", flush=True)
@@ -2088,70 +2179,69 @@ class RealTimeCreatorFundingExtractor:
     async def check_transfers_for_debridge(self, creator: str):
         """Check if creator has inbound or outbound transfers to/from deBridge and tag if so"""
         try:
-            conn = db_connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect, same reasoning as check_create_tx_for_jitotip.
+            with managed_db_connect(DB_PATH, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # deBridge vault
-            debridge_account = "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
+                # deBridge vault
+                debridge_account = "2snHHreXbpJ7UwZxPe37gnUNf7Wx7wv6UKDSR2JckKuS"
 
-            found_debridge = False
-            debridge_amount = 0
-            debridge_direction = None
+                found_debridge = False
+                debridge_amount = 0
+                debridge_direction = None
 
-            # Check inbound (deBridge sending to creator)
-            cursor.execute("""
-                SELECT SUM(amount_sol) FROM creator_funders
-                WHERE creator_address = ? AND funder_address = ?
-            """, (creator, debridge_account))
-            
-            inbound_result = cursor.fetchone()
-            if inbound_result and inbound_result[0]:
-                found_debridge = True
-                debridge_amount = inbound_result[0]
-                debridge_direction = "inbound"
-                print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (inbound): {creator[:16]}... received {debridge_amount:.6f} SOL from deBridge", flush=True)
-
-            # Check outbound (creator sending to deBridge)
-            if not found_debridge:
+                # Check inbound (deBridge sending to creator)
                 cursor.execute("""
-                    SELECT SUM(amount_sol) FROM creator_receivers
-                    WHERE creator_address = ? AND receiver_address = ?
+                    SELECT SUM(amount_sol) FROM creator_funders
+                    WHERE creator_address = ? AND funder_address = ?
                 """, (creator, debridge_account))
-                
-                outbound_result = cursor.fetchone()
-                if outbound_result and outbound_result[0]:
+
+                inbound_result = cursor.fetchone()
+                if inbound_result and inbound_result[0]:
                     found_debridge = True
-                    debridge_amount = outbound_result[0]
-                    debridge_direction = "outbound"
-                    print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (outbound): {creator[:16]}... sent {debridge_amount:.6f} SOL to deBridge", flush=True)
+                    debridge_amount = inbound_result[0]
+                    debridge_direction = "inbound"
+                    print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (inbound): {creator[:16]}... received {debridge_amount:.6f} SOL from deBridge", flush=True)
 
-            # If deBridge found, tag the creator.
-            # X73.2A -- reverted to the pre-X73.2 unlocked form (same
-            # unproven-pattern reasoning as check_create_tx_for_jitotip; this
-            # function was never actually exercised in testing, so there is
-            # no evidence either way, but it shares the identical
-            # connection-lifetime shape that failed there). See
-            # docs/audits/x73_2a_shared_extractor_concurrency.md.
-            if found_debridge:
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS creator_tags (
-                        creator_address TEXT PRIMARY KEY,
-                        tag TEXT,
-                        description TEXT,
-                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                """)
+                # Check outbound (creator sending to deBridge)
+                if not found_debridge:
+                    cursor.execute("""
+                        SELECT SUM(amount_sol) FROM creator_receivers
+                        WHERE creator_address = ? AND receiver_address = ?
+                    """, (creator, debridge_account))
 
-                cursor.execute("""
-                    INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description, amount_sol)
-                    VALUES (?, ?, ?, ?)
-                """, (creator, "uses_debridge", f"Creator uses deBridge for {debridge_direction} transfers", debridge_amount))
+                    outbound_result = cursor.fetchone()
+                    if outbound_result and outbound_result[0]:
+                        found_debridge = True
+                        debridge_amount = outbound_result[0]
+                        debridge_direction = "outbound"
+                        print(f"[REALTIME_FUNDING] 🎯 DEBRIDGE DETECTED (outbound): {creator[:16]}... sent {debridge_amount:.6f} SOL to deBridge", flush=True)
 
-                conn.commit()
-                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
+                # If deBridge found, tag the creator.
+                # X73.2A -- reverted to the pre-X73.2 unlocked form (same
+                # unproven-pattern reasoning as check_create_tx_for_jitotip; this
+                # function was never actually exercised in testing, so there is
+                # no evidence either way, but it shares the identical
+                # connection-lifetime shape that failed there). See
+                # docs/audits/x73_2a_shared_extractor_concurrency.md.
+                if found_debridge:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS creator_tags (
+                            creator_address TEXT PRIMARY KEY,
+                            tag TEXT,
+                            description TEXT,
+                            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """)
 
-            conn.close()
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO creator_tags
+                        (creator_address, tag, description, amount_sol)
+                        VALUES (?, ?, ?, ?)
+                    """, (creator, "uses_debridge", f"Creator uses deBridge for {debridge_direction} transfers", debridge_amount))
+
+                    conn.commit()
+                    print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_debridge'", flush=True)
 
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for deBridge: {e}", flush=True)
@@ -2159,67 +2249,66 @@ class RealTimeCreatorFundingExtractor:
     async def check_transfers_for_axiom(self, creator: str):
         """Check if creator has interactions with Axiom and tag if so"""
         try:
-            conn = db_connect(DB_PATH, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect, same reasoning as check_create_tx_for_jitotip.
+            with managed_db_connect(DB_PATH, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # Axiom automation account
-            axiom_account = "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk"
+                # Axiom automation account
+                axiom_account = "AxiomRXZAq1Jgjj9pHmNqVP7Lhu67wLXZJZbaK87TTSk"
 
-            found_axiom = False
-            axiom_amount = 0
-            axiom_direction = None
+                found_axiom = False
+                axiom_amount = 0
+                axiom_direction = None
 
-            # Check inbound (Axiom sending to creator)
-            cursor.execute("""
-                SELECT SUM(amount_sol) FROM creator_funders
-                WHERE creator_address = ? AND funder_address = ?
-            """, (creator, axiom_account))
-            
-            inbound_result = cursor.fetchone()
-            if inbound_result and inbound_result[0]:
-                found_axiom = True
-                axiom_amount = inbound_result[0]
-                axiom_direction = "inbound"
-                print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (inbound): {creator[:16]}... received {axiom_amount:.6f} SOL from Axiom", flush=True)
-
-            # Check outbound (creator sending to Axiom)
-            if not found_axiom:
+                # Check inbound (Axiom sending to creator)
                 cursor.execute("""
-                    SELECT SUM(amount_sol) FROM creator_receivers
-                    WHERE creator_address = ? AND receiver_address = ?
+                    SELECT SUM(amount_sol) FROM creator_funders
+                    WHERE creator_address = ? AND funder_address = ?
                 """, (creator, axiom_account))
-                
-                outbound_result = cursor.fetchone()
-                if outbound_result and outbound_result[0]:
+
+                inbound_result = cursor.fetchone()
+                if inbound_result and inbound_result[0]:
                     found_axiom = True
-                    axiom_amount = outbound_result[0]
-                    axiom_direction = "outbound"
-                    print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (outbound): {creator[:16]}... sent {axiom_amount:.6f} SOL to Axiom", flush=True)
+                    axiom_amount = inbound_result[0]
+                    axiom_direction = "inbound"
+                    print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (inbound): {creator[:16]}... received {axiom_amount:.6f} SOL from Axiom", flush=True)
 
-            # If Axiom found, tag the creator.
-            # X73.2A -- reverted to the pre-X73.2 unlocked form. Same
-            # unproven-pattern reasoning as check_create_tx_for_jitotip. See
-            # docs/audits/x73_2a_shared_extractor_concurrency.md.
-            if found_axiom:
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS creator_tags (
-                        creator_address TEXT PRIMARY KEY,
-                        tag TEXT,
-                        description TEXT,
-                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                """)
+                # Check outbound (creator sending to Axiom)
+                if not found_axiom:
+                    cursor.execute("""
+                        SELECT SUM(amount_sol) FROM creator_receivers
+                        WHERE creator_address = ? AND receiver_address = ?
+                    """, (creator, axiom_account))
 
-                cursor.execute("""
-                    INSERT OR REPLACE INTO creator_tags
-                    (creator_address, tag, description, amount_sol)
-                    VALUES (?, ?, ?, ?)
-                """, (creator, "uses_axiom", f"Creator uses Axiom automation/oracle services ({axiom_direction} transfers)", axiom_amount))
+                    outbound_result = cursor.fetchone()
+                    if outbound_result and outbound_result[0]:
+                        found_axiom = True
+                        axiom_amount = outbound_result[0]
+                        axiom_direction = "outbound"
+                        print(f"[REALTIME_FUNDING] 📊 AXIOM DETECTED (outbound): {creator[:16]}... sent {axiom_amount:.6f} SOL to Axiom", flush=True)
 
-                conn.commit()
-                print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_axiom'", flush=True)
+                # If Axiom found, tag the creator.
+                # X73.2A -- reverted to the pre-X73.2 unlocked form. Same
+                # unproven-pattern reasoning as check_create_tx_for_jitotip. See
+                # docs/audits/x73_2a_shared_extractor_concurrency.md.
+                if found_axiom:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS creator_tags (
+                            creator_address TEXT PRIMARY KEY,
+                            tag TEXT,
+                            description TEXT,
+                            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """)
 
-            conn.close()
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO creator_tags
+                        (creator_address, tag, description, amount_sol)
+                        VALUES (?, ?, ?, ?)
+                    """, (creator, "uses_axiom", f"Creator uses Axiom automation/oracle services ({axiom_direction} transfers)", axiom_amount))
+
+                    conn.commit()
+                    print(f"[REALTIME_FUNDING] ✅ Tagged creator as 'uses_axiom'", flush=True)
 
         except Exception as e:
             print(f"[REALTIME_FUNDING] ⚠ Error checking transfers for Axiom: {e}", flush=True)
@@ -2407,12 +2496,12 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         try:
             import os as _os
             _db_path = _os.getenv("DB_PATH") or _os.path.join(_os.path.dirname(__file__), "../../database/flex_complete_database.db")
-            _conn = db_connect(_db_path, timeout=15)
-            _row = _conn.execute(
-                "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
-                (creator,)
-            ).fetchone()
-            _conn.close()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(_db_path, timeout=15) as _conn:
+                _row = _conn.execute(
+                    "SELECT COUNT(*) FROM creator_funders WHERE creator_address = ?",
+                    (creator,)
+                ).fetchone()
             if _row and _row[0] > 0:
                 _cached_funders = _row[0]
                 _skip = True
@@ -2466,6 +2555,20 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
         _outgoing(),
         return_exceptions=True,
     )
+
+    # X76.3 -- supervise this extraction's own fire-and-forget background
+    # tasks (CEX detection, BlockSec batching, post-launch automation)
+    # HERE, at the extractor's own public entry point, rather than relying
+    # solely on creator_funding_worker's bolt-on _await_orphaned_tasks
+    # sweep. This makes the "don't outlive the parent extraction job"
+    # invariant hold for every caller (the worker, the listener, a future
+    # one-shot recovery tool) instead of only the one caller that happened
+    # to add its own supervision. The worker's own sweep is left in place
+    # too -- harmless double coverage, not a conflict, since both just
+    # bounded-wait the same underlying tasks (a task already awaited/done
+    # here is a no-op for asyncio.wait if the worker's sweep observes it
+    # again).
+    await extractor.wait_for_background_tasks()
 
     return result
 

@@ -18,6 +18,7 @@ from datetime import datetime
 import json
 from src.analysis.cross_funding_network_analyzer import CrossFundingClusterAnalyzer
 from src.analysis.watchtower_detector import analyze_creator_from_conn, ensure_schema as wt_ensure_schema
+from src.utils.db_locking import managed_db_connect
 
 import os as _os
 DB_PATH = _os.environ.get(
@@ -237,6 +238,13 @@ class PostLaunchAutomationCoordinator:
         2. Coordinated funders (from coordinated_funders)
         3. Shared funders (2+ shared with another creator)
         """
+        # X76.3 -- conn declared before the try/retry loop so the outer
+        # finally can close it regardless of which branch/attempt raised.
+        # Before this fix, the `raise` on the final retry attempt (below)
+        # propagated past every conn.close() call in this function, leaking
+        # the TrackedConnection (and, if it had ever written, its write lane)
+        # on the exhausted-retries path.
+        conn = None
         try:
             # Retry with exponential backoff if funders not yet available
             max_retries = 3
@@ -254,7 +262,6 @@ class PostLaunchAutomationCoordinator:
                     existing = cursor.fetchone()
                     if existing:
                         print(f"[NETWORK] ℹ Creator {creator[:16]}... already assigned to network {existing[0]}", flush=True)
-                        conn.close()
                         return True
 
                     # Find creators with funders
@@ -269,7 +276,6 @@ class PostLaunchAutomationCoordinator:
                             continue
                         else:
                             print(f"[NETWORK] 🔹 Creator {creator[:16]}... has no funders after {max_retries} attempts", flush=True)
-                            conn.close()
                             return False
 
                     # If we got here, we have funders, so break out of retry loop
@@ -314,7 +320,6 @@ class PostLaunchAutomationCoordinator:
                 """, (creator, json.dumps(connected), json.dumps([]), len(connected) + 1, network_name))
                 
                 conn.commit()
-                conn.close()
                 return True
 
             # PRIORITY 2: Check for coordinated funders
@@ -345,7 +350,6 @@ class PostLaunchAutomationCoordinator:
                 """, (creator, json.dumps(connected_list), json.dumps([]), len(connected_list) + 1, risk_level or 'MEDIUM'))
                 
                 conn.commit()
-                conn.close()
                 return True
 
             # PRIORITY 3: Check for shared funders with other creators
@@ -376,16 +380,24 @@ class PostLaunchAutomationCoordinator:
                 """, (creator, json.dumps(connected_list), json.dumps([]), len(connected_list) + 1))
 
                 conn.commit()
-                conn.close()
                 return True
             else:
                 print(f"[NETWORK] 🔹 Creator {creator[:16]}... appears independent (no shared funders)", flush=True)
-                conn.close()
                 return False
 
         except Exception as e:
             print(f"[NETWORK] ⚠ Error assigning network: {e}", flush=True)
             return False
+        finally:
+            # X76.3 -- guaranteed close on every path (all 4 early returns
+            # above, the exhausted-retries raise, or any other exception)
+            # instead of the previous pattern of one conn.close() call
+            # per return statement, which missed the raise path entirely.
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     async def _update_funding_distribution_metrics(self, creator: str):
         """
@@ -394,51 +406,52 @@ class PostLaunchAutomationCoordinator:
         For each funder of this creator, update their participation metrics.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() (and therefore
+            # write-lane release) even if an exception is raised mid-loop.
+            with managed_db_connect(self.db_path, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # Get all funders for this creator
-            cursor.execute("""
-                SELECT funder_address, amount_sol
-                FROM creator_funders
-                WHERE creator_address = ?
-            """, (creator,))
-
-            funders = cursor.fetchall()
-            print(f"[METRICS] 📊 Updating metrics for {len(funders)} funders", flush=True)
-
-            for funder_addr, amount_sol in funders:
-                # Count how many creators this funder funds
+                # Get all funders for this creator
                 cursor.execute("""
-                    SELECT COUNT(DISTINCT creator_address)
+                    SELECT funder_address, amount_sol
                     FROM creator_funders
-                    WHERE funder_address = ?
-                """, (funder_addr,))
+                    WHERE creator_address = ?
+                """, (creator,))
 
-                creator_count = cursor.fetchone()[0]
+                funders = cursor.fetchall()
+                print(f"[METRICS] 📊 Updating metrics for {len(funders)} funders", flush=True)
 
-                # Count how many tokens these creators have launched
-                cursor.execute("""
-                    SELECT COUNT(DISTINCT ta.mint)
-                    FROM token_analysis ta
-                    WHERE ta.earliest_tx_creator IN (
-                        SELECT DISTINCT creator_address
+                for funder_addr, amount_sol in funders:
+                    # Count how many creators this funder funds
+                    cursor.execute("""
+                        SELECT COUNT(DISTINCT creator_address)
                         FROM creator_funders
                         WHERE funder_address = ?
-                    )
-                """, (funder_addr,))
+                    """, (funder_addr,))
 
-                token_count = cursor.fetchone()[0]
+                    creator_count = cursor.fetchone()[0]
 
-                # Update or create funder distribution record
-                cursor.execute("""
-                    INSERT OR REPLACE INTO funder_distribution_metrics
-                    (funder_address, creators_funded, tokens_created, last_updated)
-                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-                """, (funder_addr, creator_count, token_count))
+                    # Count how many tokens these creators have launched
+                    cursor.execute("""
+                        SELECT COUNT(DISTINCT ta.mint)
+                        FROM token_analysis ta
+                        WHERE ta.earliest_tx_creator IN (
+                            SELECT DISTINCT creator_address
+                            FROM creator_funders
+                            WHERE funder_address = ?
+                        )
+                    """, (funder_addr,))
 
-            conn.commit()
-            conn.close()
+                    token_count = cursor.fetchone()[0]
+
+                    # Update or create funder distribution record
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO funder_distribution_metrics
+                        (funder_address, creators_funded, tokens_created, last_updated)
+                        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                    """, (funder_addr, creator_count, token_count))
+
+                conn.commit()
 
             print(f"[METRICS] ✅ Updated metrics for {len(funders)} funders", flush=True)
 
@@ -452,63 +465,61 @@ class PostLaunchAutomationCoordinator:
         Identifies funders that fund multiple creators (coordination indicator).
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on every return path.
+            with managed_db_connect(self.db_path, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # Get funders for this creator
-            cursor.execute("""
-                SELECT funder_address FROM creator_funders
-                WHERE creator_address = ?
-            """, (creator,))
+                # Get funders for this creator
+                cursor.execute("""
+                    SELECT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                """, (creator,))
 
-            creator_funders = [row[0] for row in cursor.fetchall()]
+                creator_funders = [row[0] for row in cursor.fetchall()]
 
-            if not creator_funders:
-                print(f"[COORDINATION] ℹ No funders for creator {creator[:16]}...", flush=True)
-                conn.close()
-                return
+                if not creator_funders:
+                    print(f"[COORDINATION] ℹ No funders for creator {creator[:16]}...", flush=True)
+                    return
 
-            # Find which of these funders also fund other creators
-            placeholders = ','.join(['?' for _ in creator_funders])
-            query = f"""
-                SELECT funder_address, COUNT(DISTINCT creator_address) as creator_count
-                FROM creator_funders
-                WHERE funder_address IN ({placeholders})
-                GROUP BY funder_address
-                HAVING creator_count > 1
-            """
+                # Find which of these funders also fund other creators
+                placeholders = ','.join(['?' for _ in creator_funders])
+                query = f"""
+                    SELECT funder_address, COUNT(DISTINCT creator_address) as creator_count
+                    FROM creator_funders
+                    WHERE funder_address IN ({placeholders})
+                    GROUP BY funder_address
+                    HAVING creator_count > 1
+                """
 
-            cursor.execute(query, creator_funders)
-            coordinated_funders = cursor.fetchall()
+                cursor.execute(query, creator_funders)
+                coordinated_funders = cursor.fetchall()
 
-            if coordinated_funders:
-                print(f"[COORDINATION] 🔴 Found {len(coordinated_funders)} coordinated funders", flush=True)
+                if coordinated_funders:
+                    print(f"[COORDINATION] 🔴 Found {len(coordinated_funders)} coordinated funders", flush=True)
 
-                for funder_addr, creator_count in coordinated_funders:
-                    # Get list of all creators funded by this funder
-                    cursor.execute("""
-                        SELECT DISTINCT creator_address
-                        FROM creator_funders
-                        WHERE funder_address = ?
-                    """, (funder_addr,))
+                    for funder_addr, creator_count in coordinated_funders:
+                        # Get list of all creators funded by this funder
+                        cursor.execute("""
+                            SELECT DISTINCT creator_address
+                            FROM creator_funders
+                            WHERE funder_address = ?
+                        """, (funder_addr,))
 
-                    funded_creators = [row[0] for row in cursor.fetchall()]
+                        funded_creators = [row[0] for row in cursor.fetchall()]
 
-                    # Store in coordinated_funders table
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO coordinated_funders
-                        (funder_address, creator_count, creator_addresses, risk_level, detected_at)
-                        VALUES (?, ?, ?, 'HIGH', CURRENT_TIMESTAMP)
-                    """, (funder_addr, len(funded_creators), json.dumps(funded_creators)))
+                        # Store in coordinated_funders table
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO coordinated_funders
+                            (funder_address, creator_count, creator_addresses, risk_level, detected_at)
+                            VALUES (?, ?, ?, 'HIGH', CURRENT_TIMESTAMP)
+                        """, (funder_addr, len(funded_creators), json.dumps(funded_creators)))
 
-                conn.commit()
-                print(f"[COORDINATION] ✅ Registered {len(coordinated_funders)} coordinated funders", flush=True)
-                conn.close()
-                return True
-            else:
-                print(f"[COORDINATION] ✅ Creator {creator[:16]}... has unique funders (no coordination detected)", flush=True)
-                conn.close()
-                return False
+                    conn.commit()
+                    print(f"[COORDINATION] ✅ Registered {len(coordinated_funders)} coordinated funders", flush=True)
+                    return True
+                else:
+                    print(f"[COORDINATION] ✅ Creator {creator[:16]}... has unique funders (no coordination detected)", flush=True)
+                    return False
 
         except Exception as e:
             print(f"[COORDINATION] ⚠ Error detecting coordinated funders: {e}", flush=True)
@@ -521,39 +532,39 @@ class PostLaunchAutomationCoordinator:
         Updates unified_creator_clusters based on funding relationships.
         """
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=60) as conn:
+                cursor = conn.cursor()
 
-            # Get all funders and recipients for this creator
-            cursor.execute("""
-                SELECT DISTINCT funder_address FROM creator_funders
-                WHERE creator_address = ?
-            """, (creator,))
+                # Get all funders and recipients for this creator
+                cursor.execute("""
+                    SELECT DISTINCT funder_address FROM creator_funders
+                    WHERE creator_address = ?
+                """, (creator,))
 
-            funders = [row[0] for row in cursor.fetchall()]
+                funders = [row[0] for row in cursor.fetchall()]
 
-            cursor.execute("""
-                SELECT DISTINCT receiver_address FROM creator_receivers
-                WHERE creator_address = ?
-            """, (creator,))
+                cursor.execute("""
+                    SELECT DISTINCT receiver_address FROM creator_receivers
+                    WHERE creator_address = ?
+                """, (creator,))
 
-            recipients = [row[0] for row in cursor.fetchall()]
+                recipients = [row[0] for row in cursor.fetchall()]
 
-            # Create cluster entry
-            cluster_creators = [creator]
-            cluster_funders = funders
-            cluster_recipients = recipients
-            cluster_destinations = list(set(funders + recipients))
+                # Create cluster entry
+                cluster_creators = [creator]
+                cluster_funders = funders
+                cluster_recipients = recipients
+                cluster_destinations = list(set(funders + recipients))
 
-            cursor.execute("""
-                INSERT OR REPLACE INTO unified_creator_clusters
-                (target_creator, cluster_creators, cluster_funders, cluster_recipients, cluster_destinations, risk_level)
-                VALUES (?, ?, ?, ?, ?, 'MEDIUM')
-            """, (creator, json.dumps(cluster_creators), json.dumps(cluster_funders),
-                  json.dumps(cluster_recipients), json.dumps(cluster_destinations)))
+                cursor.execute("""
+                    INSERT OR REPLACE INTO unified_creator_clusters
+                    (target_creator, cluster_creators, cluster_funders, cluster_recipients, cluster_destinations, risk_level)
+                    VALUES (?, ?, ?, ?, ?, 'MEDIUM')
+                """, (creator, json.dumps(cluster_creators), json.dumps(cluster_funders),
+                      json.dumps(cluster_recipients), json.dumps(cluster_destinations)))
 
-            conn.commit()
-            conn.close()
+                conn.commit()
 
             print(f"[CLUSTERS] ✅ Rebuilt clusters for {creator[:16]}... (members: {len(cluster_destinations)} addresses)", flush=True)
 

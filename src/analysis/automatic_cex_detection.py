@@ -28,6 +28,7 @@ import sys
 sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
 
 from src.utils.infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS, is_infrastructure_account, is_cex_account
+from src.utils.db_locking import managed_db_connect
 
 DB_PATH = "flex_complete_database.db"
 SOLSCAN_API_BASE = "https://api.solscan.io"
@@ -408,18 +409,18 @@ class AutomaticCEXDetector:
     def _get_existing_classifications(self, addresses: List[str]) -> Set[str]:
         """Get addresses already in address_classification table"""
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=5) as conn:
+                cursor = conn.cursor()
 
-            placeholders = ','.join('?' * len(addresses))
-            cursor.execute(
-                f"SELECT address FROM address_classification WHERE address IN ({placeholders})",
-                addresses
-            )
+                placeholders = ','.join('?' * len(addresses))
+                cursor.execute(
+                    f"SELECT address FROM address_classification WHERE address IN ({placeholders})",
+                    addresses
+                )
 
-            existing = {row[0] for row in cursor.fetchall()}
-            conn.close()
-            return existing
+                existing = {row[0] for row in cursor.fetchall()}
+                return existing
 
         except Exception as e:
             logger.warning(f"Error checking existing classifications: {e}")
@@ -428,28 +429,28 @@ class AutomaticCEXDetector:
     def save_classification(self, result: CEXClassificationResult) -> bool:
         """Save classification result to database"""
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=5) as conn:
+                cursor = conn.cursor()
 
-            cursor.execute("""
-                INSERT OR REPLACE INTO address_classification
-                (address, solscan_label, solscan_exchange_name, primary_domain,
-                 classification, confidence_score, score_reasons, last_checked_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                result.address,
-                result.solscan_label,
-                result.solscan_exchange,
-                result.primary_domain,
-                result.classification.value,
-                result.confidence_score,
-                json.dumps(result.score_reasons),
-                datetime.now().isoformat()
-            ))
+                cursor.execute("""
+                    INSERT OR REPLACE INTO address_classification
+                    (address, solscan_label, solscan_exchange_name, primary_domain,
+                     classification, confidence_score, score_reasons, last_checked_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    result.address,
+                    result.solscan_label,
+                    result.solscan_exchange,
+                    result.primary_domain,
+                    result.classification.value,
+                    result.confidence_score,
+                    json.dumps(result.score_reasons),
+                    datetime.now().isoformat()
+                ))
 
-            conn.commit()
-            conn.close()
-            return True
+                conn.commit()
+                return True
 
         except Exception as e:
             logger.error(f"Error saving classification: {e}")
@@ -465,42 +466,41 @@ class AutomaticCEXDetector:
             return False
 
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=5) as conn:
+                cursor = conn.cursor()
 
-            exchange_name = result.solscan_exchange or "Unknown Exchange"
-            wallet_type = "Exchange Wallet"
+                exchange_name = result.solscan_exchange or "Unknown Exchange"
+                wallet_type = "Exchange Wallet"
 
-            # Determine wallet type from solscan label if available
-            if result.solscan_label:
-                if "hot" in result.solscan_label.lower():
-                    wallet_type = "Hot Wallet"
-                elif "staking" in result.solscan_label.lower():
-                    wallet_type = "Staking Wallet"
-                elif "custody" in result.solscan_label.lower():
-                    wallet_type = "Custody"
+                # Determine wallet type from solscan label if available
+                if result.solscan_label:
+                    if "hot" in result.solscan_label.lower():
+                        wallet_type = "Hot Wallet"
+                    elif "staking" in result.solscan_label.lower():
+                        wallet_type = "Staking Wallet"
+                    elif "custody" in result.solscan_label.lower():
+                        wallet_type = "Custody"
 
-            # Check if already exists (avoid duplicate inserts)
-            cursor.execute("SELECT cex_address FROM cex_wallets WHERE cex_address = ?", (result.address,))
-            if cursor.fetchone():
-                conn.close()
-                return False  # Already exists
+                # Check if already exists (avoid duplicate inserts)
+                cursor.execute("SELECT cex_address FROM cex_wallets WHERE cex_address = ?", (result.address,))
+                if cursor.fetchone():
+                    return False  # Already exists
 
-            cursor.execute("""
-                INSERT INTO cex_wallets
-                (cex_address, exchange_name, wallet_type, confidence_level,
-                 discovery_source, is_active)
-                VALUES (?, ?, ?, ?, ?, 1)
-            """, (
-                result.address,
-                exchange_name,
-                wallet_type,
-                min(100, result.confidence_score),  # Cap at 100
-                "automatic_detection"
-            ))
+                cursor.execute("""
+                    INSERT INTO cex_wallets
+                    (cex_address, exchange_name, wallet_type, confidence_level,
+                     discovery_source, is_active)
+                    VALUES (?, ?, ?, ?, ?, 1)
+                """, (
+                    result.address,
+                    exchange_name,
+                    wallet_type,
+                    min(100, result.confidence_score),  # Cap at 100
+                    "automatic_detection"
+                ))
 
-            conn.commit()
-            conn.close()
+                conn.commit()
 
             logger.info(f"Added confirmed CEX to mapping: {exchange_name} {wallet_type}")
             return True
@@ -517,25 +517,25 @@ async def classify_addresses_from_funding(max_addresses: int = 200) -> Dict:
     This runs during funding extraction to auto-detect new CEX wallets.
     """
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
+        # X76.3 -- managed_db_connect guarantees close() on exception.
+        with managed_db_connect(DB_PATH, timeout=5) as conn:
+            cursor = conn.cursor()
 
-        # Get unclassified addresses from funding relationships
-        cursor.execute("""
-            SELECT DISTINCT funder_address
-            FROM creator_funders
-            WHERE funder_address NOT IN (
-                SELECT address FROM address_classification
-            )
-            AND funder_address NOT IN (
-                SELECT cex_address FROM cex_wallets
-            )
-            AND is_cex = 0
-            LIMIT ?
-        """, (max_addresses,))
+            # Get unclassified addresses from funding relationships
+            cursor.execute("""
+                SELECT DISTINCT funder_address
+                FROM creator_funders
+                WHERE funder_address NOT IN (
+                    SELECT address FROM address_classification
+                )
+                AND funder_address NOT IN (
+                    SELECT cex_address FROM cex_wallets
+                )
+                AND is_cex = 0
+                LIMIT ?
+            """, (max_addresses,))
 
-        addresses = [row[0] for row in cursor.fetchall()]
-        conn.close()
+            addresses = [row[0] for row in cursor.fetchall()]
 
         if not addresses:
             return {"classified": 0, "confirmed": 0, "likely": 0}

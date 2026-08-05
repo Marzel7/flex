@@ -23,6 +23,8 @@ from typing import List, Dict, Optional, Set
 from datetime import datetime, timedelta
 import aiohttp
 
+from src.utils.db_locking import managed_db_connect
+
 DB_PATH = "flex_complete_database.db"
 BLOCKSEC_API_KEY = "639144520c4d750bbce34dd8177314fff080de733c1773fb3667ce7754cb5738"
 BLOCKSEC_API_URL = "https://aml.blocksec.com/address-label/api/v3/batch-labels"
@@ -93,6 +95,11 @@ class BlockSecAMLBatcher:
         2. Exclude addresses already in blocksec_aml_cache
         3. Exclude infrastructure accounts and known CEX wallets
         """
+        # X76.3 -- conn declared before try so the finally below can close it
+        # on every path (this function previously only closed on the one
+        # explicit success path, leaking on any exception raised while
+        # building/executing the two queries).
+        conn = None
         try:
             conn = sqlite3.connect(self.db_path, timeout=5)
             cursor = conn.cursor()
@@ -162,26 +169,31 @@ class BlockSecAMLBatcher:
                 if addresses:
                     print(f"[BLOCKSEC] No highly-active addresses, falling back to {len(addresses)} less-active addresses", flush=True)
 
-            conn.close()
             return addresses
 
         except Exception as e:
             print(f"[BLOCKSEC] Error getting unlabeled addresses: {e}")
             return []
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def _load_batch_time(self):
         """Load last batch submission time from log."""
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=5) as conn:
+                cursor = conn.cursor()
 
-            cursor.execute("""
-                SELECT submitted_at FROM blocksec_batch_log
-                ORDER BY submitted_at DESC
-                LIMIT 1
-            """)
-            row = cursor.fetchone()
-            conn.close()
+                cursor.execute("""
+                    SELECT submitted_at FROM blocksec_batch_log
+                    ORDER BY submitted_at DESC
+                    LIMIT 1
+                """)
+                row = cursor.fetchone()
 
             if row:
                 # Parse timestamp and return as seconds since epoch
@@ -337,63 +349,63 @@ class BlockSecAMLBatcher:
         results = {}
 
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=5) as conn:
+                cursor = conn.cursor()
 
-            # Extract data from response (already validated as dict by caller)
-            data = api_response.get("data", {}) if isinstance(api_response, dict) else {}
+                # Extract data from response (already validated as dict by caller)
+                data = api_response.get("data", {}) if isinstance(api_response, dict) else {}
 
-            for addr in addresses:
-                addr_data = data.get(addr, {})
-                labels = addr_data.get("labels", [])
+                for addr in addresses:
+                    addr_data = data.get(addr, {})
+                    labels = addr_data.get("labels", [])
 
-                if labels:
-                    # Take the top label (highest confidence)
-                    top_label = labels[0]
-                    label_name = top_label.get("label", "Unknown")
-                    category = top_label.get("category", "other")
-                    score = top_label.get("score", 0)
+                    if labels:
+                        # Take the top label (highest confidence)
+                        top_label = labels[0]
+                        label_name = top_label.get("label", "Unknown")
+                        category = top_label.get("category", "other")
+                        score = top_label.get("score", 0)
 
-                    results[addr] = {
-                        "label_name": label_name,
-                        "category": category,
-                        "risk_score": score
-                    }
+                        results[addr] = {
+                            "label_name": label_name,
+                            "category": category,
+                            "risk_score": score
+                        }
 
-                    # Cache in database
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO blocksec_aml_cache
-                        (address, label_name, category, risk_score, raw_response, queried_at)
-                        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                    """, (
-                        addr,
-                        label_name,
-                        category,
-                        score,
-                        str(labels)
-                    ))
+                        # Cache in database
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO blocksec_aml_cache
+                            (address, label_name, category, risk_score, raw_response, queried_at)
+                            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """, (
+                            addr,
+                            label_name,
+                            category,
+                            score,
+                            str(labels)
+                        ))
 
-                    print(f"[BLOCKSEC] {addr[:16]}... → {label_name} ({category}, score: {score})")
+                        print(f"[BLOCKSEC] {addr[:16]}... → {label_name} ({category}, score: {score})")
 
-                    # Add to infrastructure or CEX mapping for future reference
-                    self._add_to_mappings(addr, label_name, category)
+                        # Add to infrastructure or CEX mapping for future reference
+                        self._add_to_mappings(addr, label_name, category)
 
-                else:
-                    # No label found, still cache to avoid re-querying
-                    results[addr] = {
-                        "label_name": None,
-                        "category": "unknown",
-                        "risk_score": 0
-                    }
+                    else:
+                        # No label found, still cache to avoid re-querying
+                        results[addr] = {
+                            "label_name": None,
+                            "category": "unknown",
+                            "risk_score": 0
+                        }
 
-                    cursor.execute("""
-                        INSERT OR REPLACE INTO blocksec_aml_cache
-                        (address, label_name, category, risk_score, queried_at)
-                        VALUES (?, NULL, 'unknown', 0, CURRENT_TIMESTAMP)
-                    """, (addr,))
+                        cursor.execute("""
+                            INSERT OR REPLACE INTO blocksec_aml_cache
+                            (address, label_name, category, risk_score, queried_at)
+                            VALUES (?, NULL, 'unknown', 0, CURRENT_TIMESTAMP)
+                        """, (addr,))
 
-            conn.commit()
-            conn.close()
+                conn.commit()
 
         except Exception as e:
             print(f"[BLOCKSEC] Error processing response: {e}")
@@ -403,23 +415,23 @@ class BlockSecAMLBatcher:
     def _log_batch(self, batch_id: str, addresses: List[str], response, status: str):
         """Log batch submission for rate limit tracking."""
         try:
-            conn = sqlite3.connect(self.db_path, timeout=5)
-            cursor = conn.cursor()
+            # X76.3 -- managed_db_connect guarantees close() on exception.
+            with managed_db_connect(self.db_path, timeout=5) as conn:
+                cursor = conn.cursor()
 
-            cursor.execute("""
-                INSERT OR REPLACE INTO blocksec_batch_log
-                (batch_id, batch_size, addresses_submitted, api_response, status, submitted_at)
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (
-                batch_id,
-                len(addresses),
-                ','.join(addresses),
-                str(response)[:500],  # Truncate very long responses
-                status
-            ))
+                cursor.execute("""
+                    INSERT OR REPLACE INTO blocksec_batch_log
+                    (batch_id, batch_size, addresses_submitted, api_response, status, submitted_at)
+                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """, (
+                    batch_id,
+                    len(addresses),
+                    ','.join(addresses),
+                    str(response)[:500],  # Truncate very long responses
+                    status
+                ))
 
-            conn.commit()
-            conn.close()
+                conn.commit()
 
         except Exception as e:
             print(f"[BLOCKSEC] Error logging batch: {e}")

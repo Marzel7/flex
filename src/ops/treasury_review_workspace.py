@@ -315,7 +315,7 @@ def approve_treasury(conn, treasury: str, payload: dict[str, Any], *,
     analyst, reason, revision = _metadata(payload)
     operator_id = str(payload.get("operator_id") or WATCHTOWER_OPERATOR_ID).strip()
 
-    promotion = treasury_bank.promote_to_confirmed(conn, treasury, reviewed_by=analyst)
+    promotion = treasury_bank.promote_to_confirmed(conn, treasury, reviewed_by=analyst, reason=reason)
     if not promotion.get("ok"):
         raise WorkspaceError(promotion.get("error", "promotion failed"), "PROMOTION_FAILED", 409)
 
@@ -336,8 +336,13 @@ def approve_treasury(conn, treasury: str, payload: dict[str, Any], *,
             # expansion is additive and must never roll that back.
             expansion = {"error": str(exc)}
 
+    # X76.2 -- promote_to_confirmed() itself now writes the immutable
+    # APPROVE_TREASURY audit event (same transaction as its own mutable
+    # status update) -- see src/core/treasury_bank.py. Do not also record
+    # it here; that would double the audit row for this one path while
+    # every OTHER caller of promote_to_confirmed() (the older
+    # operation_dashboard_routes.py surfaces) still gets exactly one.
     result = {"promotion": promotion, "identity_expansion": expansion}
-    _record_action(conn, treasury, "APPROVE_TREASURY", analyst, reason, revision, result)
     conn.commit()
     return {"ok": True, "treasury": treasury, **result}
 
@@ -345,8 +350,9 @@ def approve_treasury(conn, treasury: str, payload: dict[str, Any], *,
 def reject_treasury(conn, treasury: str, payload: dict[str, Any]) -> dict[str, Any]:
     ensure_schema(conn)
     analyst, reason, revision = _metadata(payload)
-    result = treasury_bank.reject_candidate(conn, treasury, reviewed_by=analyst)
-    _record_action(conn, treasury, "REJECT_TREASURY", analyst, reason, revision, result)
+    # X76.2 -- reject_candidate() itself now writes the immutable
+    # REJECT_TREASURY audit event; see the note in approve_treasury() above.
+    result = treasury_bank.reject_candidate(conn, treasury, reviewed_by=analyst, reason=reason)
     conn.commit()
     return {"ok": True, "treasury": treasury, **result}
 

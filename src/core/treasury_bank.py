@@ -335,7 +335,66 @@ def add_walkback_hop2_lead(conn, upstream_wallet: str, *,
         return "inserted"
 
 
-def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
+# X76.2 -- Treasury Review Audit Integrity.
+#
+# ROOT CAUSE (see docs/audits/x76_2_treasury_review_audit_integrity.md):
+# every review decision that has ever actually executed in production
+# reached this module's promote_to_confirmed()/reject_candidate() through
+# one of THREE separate call sites (src.ops.treasury_review_workspace's
+# X74.1 analyst-action dispatch, and two older routes in
+# src.core.operation_dashboard_routes.py) -- but only the X74.1 dispatch
+# ever wrote to wt_treasury_review_actions (the immutable audit table),
+# and it has zero real invocations to date. The two paths that DID
+# execute wrote either to a DIFFERENT, older audit table
+# (wt_treasury_approval_audit, 76 rows) or to no audit trail at all (48
+# decisions with neither audit row). Writing the immutable event HERE,
+# inside promote_to_confirmed()/reject_candidate() themselves -- the one
+# choke point every caller actually passes through regardless of which
+# HTTP route triggered it -- closes the gap for all three paths at once,
+# without touching any of them.
+_REVIEW_ACTIONS_DDL = """CREATE TABLE IF NOT EXISTS wt_treasury_review_actions (
+    action_id TEXT PRIMARY KEY,
+    treasury TEXT NOT NULL,
+    action TEXT NOT NULL,
+    analyst TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    evidence_revision TEXT NOT NULL,
+    result_json TEXT NOT NULL DEFAULT '{}',
+    created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_wtra_treasury ON wt_treasury_review_actions(treasury, created_at);
+CREATE TRIGGER IF NOT EXISTS wt_treasury_review_actions_immutable_update
+BEFORE UPDATE ON wt_treasury_review_actions BEGIN
+ SELECT RAISE(ABORT, 'treasury review action history is immutable');
+END;
+CREATE TRIGGER IF NOT EXISTS wt_treasury_review_actions_immutable_delete
+BEFORE DELETE ON wt_treasury_review_actions BEGIN
+ SELECT RAISE(ABORT, 'treasury review action history is immutable');
+END;"""
+
+
+def _record_review_action(conn, treasury: str, action: str, analyst: str,
+                          reason: str, timestamp: int, *, result: dict) -> str:
+    """Same schema/table as src.ops.treasury_review_workspace's own
+    _record_action() -- inlined here (not imported) to avoid a circular
+    import (treasury_review_workspace already imports treasury_bank).
+    Idempotent schema creation (IF NOT EXISTS) so this is safe to call
+    from a caller that has never touched this table before. Must be
+    called BEFORE conn.commit() in the caller -- same transaction as the
+    mutable wt_treasury_review status update, never a separate one."""
+    import uuid as _uuid
+    conn.executescript(_REVIEW_ACTIONS_DDL)
+    action_id = str(_uuid.uuid4())
+    conn.execute(
+        "INSERT INTO wt_treasury_review_actions "
+        "(action_id, treasury, action, analyst, reason, evidence_revision, result_json, created_at) "
+        "VALUES (?,?,?,?,?,?,?,?)",
+        (action_id, treasury, action, analyst, reason, f"treasury_bank:{timestamp}", json.dumps(result), timestamp),
+    )
+    return action_id
+
+
+def promote_to_confirmed(conn, treasury, reviewed_by="human", *, reason: str | None = None) -> dict:
     """Human action: promote a reviewed candidate into the authoritative confirmed set.
     Does NOT webhook here — the caller webhooks (needs the live-DB Helius key)."""
     _ensure_schema_once(conn)
@@ -355,6 +414,17 @@ def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
         "UPDATE wt_treasury_review SET status='CONFIRMED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
         (reviewed_by, now, treasury))
     _align_confirmed_treasury(conn, treasury)
+    # X76.2 -- the immutable audit event is written in the SAME transaction
+    # as the mutable status update above, BEFORE commit: neither may
+    # succeed independently. This is the single choke point every live
+    # caller (the X74.1 workspace, the older operation_dashboard_routes.py
+    # HTTP surfaces) actually passes through, regardless of which route
+    # triggered it -- see docs/audits/x76_2_treasury_review_audit_integrity.md.
+    _record_review_action(
+        conn, treasury, "APPROVE_TREASURY", reviewed_by,
+        reason or "Promoted to confirmed treasury.", now,
+        result={"ok": True, "treasury": treasury, "needs_webhook": True},
+    )
     conn.commit()
     # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
     _record_attribution_evidence(
@@ -367,11 +437,18 @@ def promote_to_confirmed(conn, treasury, reviewed_by="human") -> dict:
     return {"ok": True, "treasury": treasury, "needs_webhook": True}
 
 
-def reject_candidate(conn, treasury, reviewed_by="human") -> dict:
+def reject_candidate(conn, treasury, reviewed_by="human", *, reason: str | None = None) -> dict:
     _ensure_schema_once(conn)
+    now = int(time.time())
     conn.execute(
         "UPDATE wt_treasury_review SET status='REJECTED', reviewed_by=?, reviewed_at=? WHERE treasury=?",
-        (reviewed_by, int(time.time()), treasury))
+        (reviewed_by, now, treasury))
+    # X76.2 -- same-transaction immutable audit event, see promote_to_confirmed().
+    _record_review_action(
+        conn, treasury, "REJECT_TREASURY", reviewed_by,
+        reason or "Rejected.", now,
+        result={"ok": True, "treasury": treasury},
+    )
     conn.commit()
     return {"ok": True, "treasury": treasury}
 

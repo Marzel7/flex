@@ -4006,6 +4006,15 @@ def api_intel_treasury_approve():
                 "(treasury, action, reviewer, confidence, notes, evidence_json, created_at) "
                 "VALUES (?,?,?,?,?,?,?)",
                 (t, "REJECTED", reviewer, confidence, notes, evidence_json, now))
+            # X76.2 -- also record into wt_treasury_review_actions (the
+            # canonical, immutable-trigger-protected audit table), same
+            # transaction, additive alongside this route's own
+            # pre-existing wt_treasury_approval_audit trail -- not a
+            # replacement of it.
+            treasury_bank._record_review_action(
+                ov, t, "REJECT_TREASURY", reviewer, notes or "Rejected (recovery-safe route).", now,
+                result={"ok": True, "treasury": t, "confidence": confidence},
+            )
             ov.commit()
             # X41.0 shadow dual-write — AFTER the authoritative commit above, never blocking it.
             try:
@@ -4045,6 +4054,12 @@ def api_intel_treasury_approve():
             "(treasury, action, reviewer, confidence, notes, evidence_json, created_at) "
             "VALUES (?,?,?,?,?,?,?)",
             (t, "APPROVED", reviewer, confidence, notes, evidence_json, now))
+        # X76.2 -- see the REJECTED branch's comment above; additive, same
+        # transaction, alongside wt_treasury_approval_audit.
+        treasury_bank._record_review_action(
+            ov, t, "APPROVE_TREASURY", reviewer, notes or "Approved (recovery-safe route).", now,
+            result={"ok": True, "treasury": t, "confidence": confidence},
+        )
         from src.ops.watchtower_alignment import reconcile_confirmed_treasury
         reconcile_confirmed_treasury(ov, t)
         ov.commit()

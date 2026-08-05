@@ -241,6 +241,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "unique_creators": family.get("unique_creators"),
                 "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                 "profile_href": family.get("profile_href"),
+                "investigation_trigger": family.get("investigation_trigger"),
                 "note": "Contains a treasury previously rejected in Treasury Review.",
             })
             continue
@@ -266,6 +267,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "match_reason": best_match.reason,
                 "treasury_review_href": "/intelligence/treasury-review",
                 "profile_href": family.get("profile_href"),
+                "investigation_trigger": family.get("investigation_trigger"),
             })
         else:
             new_investigations.append({
@@ -284,6 +286,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             "launches": f.get("launches"),
             "disposition": "INFRASTRUCTURE",
             "profile_href": f.get("profile_href"),
+            "investigation_trigger": f.get("investigation_trigger"),
         }
         for f in (list_payload.get("infrastructure_alerts_reconciled") or [])
     ]
@@ -295,6 +298,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             "launches": f.get("launches"),
             "disposition": "REVIEW",
             "profile_href": f.get("profile_href"),
+            "investigation_trigger": f.get("investigation_trigger"),
         }
         for f in (list_payload.get("review_cases_reconciled") or [])
     ]
@@ -310,6 +314,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "family_id": f.get("family_id"), "family_name": f.get("family_name"),
                 "launches": f.get("launches"), "disposition": "DISMISSED",
                 "profile_href": f.get("profile_href"),
+                "investigation_trigger": f.get("investigation_trigger"),
                 "reason": (f.get("investigation_lifecycle") or {}).get("reason_label"),
                 "reopen_recommended": bool((f.get("investigation_lifecycle") or {}).get("reopen_recommended")),
                 "material_changes": (f.get("investigation_lifecycle") or {}).get("material_changes") or [],

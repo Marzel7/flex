@@ -26,6 +26,7 @@ def family(disposition="REVIEW"):
         "walkback_descendant_count": 1,
         "reconciliation": {"disposition": disposition, "supporting_evidence": []},
         "presentation": {"disposition": disposition, "kind": "investigation_population"},
+        "investigation_trigger": {"family_id": "family:gf7y", "signals": ["Funding Mechanism"]},
     }
 
 
@@ -38,11 +39,13 @@ def test_dismiss_and_reopen_are_durable_without_deleting_evidence(tmp_path):
     assert dismissed["presentation"]["disposition"] == "DISMISSED"
     assert dismissed["reconciliation"]["disposition"] == "REVIEW"
     assert dismissed["launch_list"] == ["M1"]
+    assert dismissed["investigation_trigger"] == source["investigation_trigger"]
     lifecycle = read_lifecycle(path, "family:gf7y")
     assert lifecycle["history"][0]["event_type"] == "INVESTIGATION_DISMISSED"
     reopened = service.reopen("family:gf7y", {"analyst": "analyst@example", "reason": "Manual review"})
     assert reopened["analyst_lifecycle"] == "REOPENED"
     assert reopened["presentation"]["disposition"] == "REVIEW"
+    assert reopened["investigation_trigger"] == source["investigation_trigger"]
     assert [x["event_type"] for x in read_lifecycle(path, "family:gf7y")["history"]] == [
         "INVESTIGATION_REOPENED", "INVESTIGATION_DISMISSED",
     ]

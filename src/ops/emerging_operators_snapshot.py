@@ -83,6 +83,9 @@ def build_emerging_operators_snapshot(ops_db_path: str, live_db_path: str) -> di
     # block(). Baking it into every snapshot write would roughly double
     # on-disk size and JSON-parse cost for every single warm request.
     list_max = service._list_uncached(limit=MAX_LIST_LIMIT, debug=False)
+    from src.ops.investigation_trigger_provenance import apply_trigger_map, capture_and_apply
+    triggers = capture_and_apply(ops_db_path, families, reconciliation_by_family)
+    apply_trigger_map(list_max, triggers)
     build_ms = (time.perf_counter() - start) * 1000
 
     return {

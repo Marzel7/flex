@@ -4408,8 +4408,10 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
 
   function convergenceInvestigationCard(f){
     var lifecycleNote=f.reopen_recommended?'Previously dismissed · Behaviour changed · Reopen?':(f.reason||f.note||'');
+    var trigger=f.investigation_trigger||{},triggerSignals=(trigger.signals||[]).slice(0,3).map(function(x){return '<span class="dw-signal">'+esc(x)+'</span>'}).join('');
     return '<a class="dw-intel-row" href="'+esc(f.profile_href||'/intelligence/operators')+'">'
       +'<span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+'</small></span>'
+      +'<span><small>Triggered by</small>'+triggerSignals+'</span>'
       +'<span>'+esc(f.launches!=null?f.launches:'—')+' launches</span>'
       +'<span></span>'
       +'<span>Open →</span></a>';

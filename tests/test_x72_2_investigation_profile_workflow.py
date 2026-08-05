@@ -47,7 +47,7 @@ def test_first_screen_deduplicates_state_and_uses_compact_summary():
 def test_detail_surfaces_use_progressive_disclosure():
     source = _source()
     for section in (
-        "Infrastructure", "Behaviour", "Advanced Metrics", "Timeline",
+        "Provisioning", "Behaviour", "Advanced Metrics", "Timeline",
         "Legacy Context",
     ):
         assert "disclosure('" + section + "'" in source

@@ -53,11 +53,12 @@ def test_identity_palette_is_restrained_and_registry_aligned():
         assert contract in page
 
 
-def test_summary_is_limited_to_identity_status_and_next_evidence():
+def test_summary_is_limited_to_identity_state_reason_and_next_evidence():
     page = source()
     summary = page.split("const summary=", 1)[1].split(";", 1)[0]
     assert "identityCard" in summary
-    assert "Disposition" in summary
+    assert "State" in summary
+    assert "Reason" in summary
     assert "Promotion" in summary
     assert "Next Evidence" in summary
     for duplicate in ("Current operator", "Parent investigation", "Child identities", "Actions"):
@@ -69,4 +70,4 @@ def test_promotion_workflow_remains_gated_and_outside_summary():
     page = source()
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in page
     assert "/api/operators/promotions/" in page
-    assert "evidence='" in page and "+blockers+confirmForm" in page
+    assert "evidence='" in page and "+blockers+advanced+confirmForm" in page

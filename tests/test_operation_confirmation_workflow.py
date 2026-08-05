@@ -89,12 +89,12 @@ def test_future_launch_inherits_confirmation_by_family_id(tmp_path):
 def test_profile_contains_confirmation_workflow():
     from pathlib import Path
     source = (Path(__file__).parents[1] / "templates" / "operation_profile.html").read_text()
-    assert "Promotion Readiness" in source
-    assert "Review Candidate" in source
-    assert "Promote to Confirmed Operation" in source
+    assert "Promotion" in source
+    assert "Advanced Evidence" in source
+    assert "Confirm Operation" in source
     assert "pres.confirmation_permitted&&disp==='OPERATOR_CANDIDATE'" in source
-    assert "/confirm" in source
-    assert "This population is not currently eligible for promotion." in source
+    assert "/api/operators/promotions/" in source
+    assert "OPERATOR CANDIDATE" in source
 
 
 def test_cached_operational_intelligence_refreshes_only_attribution(monkeypatch):

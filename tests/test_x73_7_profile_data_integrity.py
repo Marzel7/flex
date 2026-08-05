@@ -22,7 +22,7 @@ def test_registry_and_profile_share_attributed_launch_source():
 def test_missing_detail_records_do_not_deny_attributed_launches():
     profile = text("templates/operation_profile.html")
     assert "No launches persisted." not in profile
-    assert "No launch records are currently available for this Investigation Population." in profile
+    assert "No launches yet." in profile
     assert "launchRows.length===attributedLaunches" in profile
     assert "attributedLaunches+' attributed launches · '+launchRows.length" in profile
 

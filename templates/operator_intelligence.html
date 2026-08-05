@@ -427,7 +427,7 @@
         <section id="oi-evidence-section"><div class="ip-section-hdr"><span class="ip-section-label">Evidence</span><span class="ip-section-line"></span><span id="oi-ev-count"></span></div><div id="oi-evidence-body"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-identity-timeline"><div class="ip-section-hdr"><span class="ip-section-label">Permanent Identity Timeline</span><span class="ip-section-line"></span></div><div id="oi-timeline-body" class="x19-timeline oi-timeline"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-review-history"><div class="ip-section-hdr"><span class="ip-section-label">Review History</span><span class="ip-section-line"></span></div><div id="oi-review-body"><div class="ip-loading">Loading…</div></div></section>
-        {% if operator.promotion_history %}<section><div class="ip-section-hdr"><span class="ip-section-label">Canonical Promotion</span><span class="ip-section-line"></span></div><div class="ei-panel oi-review-history">{% for promotion in operator.promotion_history %}<div class="oi-review-row"><span class="oi-review-decision CONFIRMED">{{ promotion.decision }}</span><div class="oi-review-body"><div>{{ promotion.reason }}</div><div class="oi-review-ts">by {{ promotion.reviewer }} · {{ promotion.timestamp }}</div></div></div>{% endfor %}</div></section>{% endif %}
+        {% if operator.promotion_history %}<section><div class="ip-section-hdr"><span class="ip-section-label">Canonical Promotion</span><span class="ip-section-line"></span></div><div class="ei-panel oi-review-history">{% for promotion in operator.promotion_history|reverse %}<div class="oi-review-row"><span class="oi-review-decision CONFIRMED">{{ promotion.decision }}</span><div class="oi-review-body"><div>{{ promotion.reason }}</div><div class="oi-review-ts">by {{ promotion.reviewer }} · {{ promotion.timestamp }}</div></div></div>{% endfor %}</div></section>{% endif %}
         <section><div class="ip-section-hdr"><span class="ip-section-label">Identity record</span><span class="ip-section-line"></span></div><div class="oi-identity-card"><div class="oi-identity-top"><div class="oi-id-full" onclick="copyId()">{{ operator_id }}</div></div><div class="oi-identity-body"><div class="oi-meta-row"><span class="oi-meta-label">First Seen</span><span class="oi-meta-val" id="oi-first-seen">{{ operator.first_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Last Seen</span><span class="oi-meta-val" id="oi-last-seen">{{ operator.last_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Promotion Status</span><span class="oi-meta-val">{% if operator.promotion_history %}CANONICAL{% else %}LEGACY / NOT RECORDED{% endif %}</span></div></div></div></section>
         <section><div class="ip-section-hdr"><span class="ip-section-label">Actions</span><span class="ip-section-line"></span></div><div class="oi-action-grid"><a class="oi-action-btn primary" href="/intelligence/operators?focus=investigation">Investigation Populations</a><a class="oi-action-btn primary" href="/discovery?entity={{ operator_id|urlencode }}&type=operator">Discovery History →</a><a class="oi-action-btn primary" href="/intelligence/operators">Operations Registry</a><button class="oi-action-btn" onclick="triggerResolve()">Run Resolver</button></div><div id="oi-action-msg"></div></section>
       </div>
@@ -526,7 +526,7 @@
         (byType[ev.evidence_type] = byType[ev.evidence_type] || []).push(ev);
       });
       Object.keys(byType).forEach(function(type) {
-        var typeItems = byType[type];
+        var typeItems = byType[type].slice().sort(function(a,b) { return (b.created_at || 0) - (a.created_at || 0); });
         html += '<details class="x19-disclosure x19-evidence-group">'
           + '<summary><span>' + typeItems.length + ' ' + type.replace(/_/g,' ').toLowerCase() + '</span><span style="margin-left:auto;color:var(--ip-cyan);">View →</span></summary>'
           + '<div class="x19-disclosure-body">';
@@ -610,7 +610,7 @@
       });
     });
 
-    events.sort(function(a, b) { return a.ts - b.ts; });
+    events.sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
 
     var el = document.getElementById('oi-timeline-body');
     if (!events.length) {
@@ -642,7 +642,7 @@
     }
     el.innerHTML = '<div class="ei-panel" style="overflow:hidden;">'
       + '<div class="oi-review-history" style="padding:10px 12px;">'
-      + reviews.map(function(r) {
+      + reviews.slice().sort(function(a,b) { return (b.timestamp || 0) - (a.timestamp || 0); }).map(function(r) {
           return '<div class="oi-review-row">'
             + '<span class="oi-review-decision ' + r.decision + '">' + r.decision + '</span>'
             + '<div class="oi-review-body">'

@@ -31,10 +31,12 @@ def test_hero_is_reduced_to_object_type_and_name():
 
 def test_evidence_is_compact_and_semantics_are_progressively_disclosed():
     page = source()
-    for group in ("Supporting", "Contradictory", "Missing"):
+    for group in ("Supporting observations", "Contradictory observations", "Missing evidence detail"):
         assert f"disclosure('{group}'" in page
+    assert "groupedEvidence" in page
+    assert "Advanced Evidence" in page
     assert "evidenceRows" in page
-    assert "dependency_group" not in page
+    assert "dependency_group" in page
     assert "provenance_independence" not in page
     assert "rp-table" not in page
 
@@ -53,9 +55,8 @@ def test_valid_actions_and_state_colours_match_registry_language():
 def test_empty_states_and_content_audit_are_present():
     page = source()
     for message in (
-        "No launch records are currently available for this Investigation Population.",
-        "No walkback evidence.", "No topology reconstructed.",
-        "No member identities have been identified yet.",
+        "No launches yet.", "No walkback yet.", "No topology reconstructed.",
+        "No wallets identified.",
     ):
         assert message in page
     audit = (ROOT / "docs/audits/x73_6_investigation_profile_content_audit.md").read_text(encoding="utf-8")

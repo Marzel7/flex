@@ -7,6 +7,7 @@ from src.ops.investigation_lifecycle import (
     InvestigationLifecycleError, InvestigationLifecycleService,
     apply_lifecycle_overlay, read_lifecycle,
 )
+from src.ops.emerging_operator_service import _analyst_queue, _attention_queue
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,6 +65,29 @@ def test_confirmed_operations_cannot_be_dismissed(tmp_path):
     with pytest.raises(InvestigationLifecycleError) as exc:
         service.dismiss("family:gf7y", {"analyst": "a", "reason_code": "OTHER"})
     assert exc.value.code == "DISMISSAL_NOT_PERMITTED"
+
+
+def test_dismissal_backfills_the_five_slot_attention_queue():
+    ranked = [{"family_id": f"family:{index}"} for index in range(6)]
+    ranked[1]["analyst_lifecycle"] = "DISMISSED"
+
+    visible, dismissed = _attention_queue(ranked)
+
+    assert [row["family_id"] for row in visible] == [
+        "family:0", "family:2", "family:3", "family:4", "family:5",
+    ]
+    assert [row["family_id"] for row in dismissed] == ["family:1"]
+
+
+def test_analyst_queue_fills_review_slots_without_changing_dispositions():
+    reviews = [{"family_id": f"review:{index}", "presentation": {"disposition": "REVIEW"}} for index in range(4)]
+    unresolved = [{"family_id": "unresolved:1", "presentation": {"disposition": "UNRESOLVED"}}]
+
+    queue = _analyst_queue(reviews, unresolved)
+
+    assert len(queue) == 5
+    assert queue[-1]["presentation"]["disposition"] == "UNRESOLVED"
+    assert all(row["presentation"]["disposition"] == "REVIEW" for row in queue[:4])
 
 
 def test_ui_contracts_expose_dismissed_without_registry_actions():

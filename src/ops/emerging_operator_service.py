@@ -56,6 +56,24 @@ def _short(value: str) -> str:
     return value if len(value) <= 8 else value[:4]
 
 
+def _attention_queue(pool: list[dict[str, Any]], maximum: int = 5) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Apply analyst lifecycle before filling the bounded attention queue."""
+    dismissed = [family for family in pool if family.get("analyst_lifecycle") == "DISMISSED"]
+    visible = [family for family in pool if family.get("analyst_lifecycle") != "DISMISSED"]
+    return visible[:maximum], dismissed
+
+
+def _analyst_queue(reviews: list[dict[str, Any]], unresolved: list[dict[str, Any]], maximum: int = 5) -> list[dict[str, Any]]:
+    """Rank attention without changing any population's disposition."""
+    selected = list(reviews)
+    selected_ids = {str(family.get("family_id") or "") for family in selected}
+    selected.extend(
+        family for family in unresolved
+        if str(family.get("family_id") or "") not in selected_ids
+    )
+    return selected[:maximum]
+
+
 class EmergingOperatorService:
     """Aggregate explainable operation families over existing read-only data."""
 
@@ -185,15 +203,18 @@ class EmergingOperatorService:
         confirmed_reconciled = [reconciled_card(f) for f in sorted(
             disposition_groups["CONFIRMED_OPERATION"], key=material_key, reverse=True
         )]
-        active_investigations = [reconciled_card(f) for f in sorted(
+        active_investigation_pool = [reconciled_card(f) for f in sorted(
             disposition_groups["UNRESOLVED"], key=material_key, reverse=True
-        )[:5]]
-        operator_candidates = [reconciled_card(f) for f in sorted(
+        )]
+        operator_candidate_pool = [reconciled_card(f) for f in sorted(
             disposition_groups["OPERATOR_CANDIDATE"], key=material_key, reverse=True
-        )[:5]]
-        review_cases = [reconciled_card(f) for f in sorted(
+        )]
+        review_case_pool = [reconciled_card(f) for f in sorted(
             disposition_groups["REVIEW"], key=material_key, reverse=True
-        )[:5]]
+        )]
+        active_investigations = active_investigation_pool[:5]
+        operator_candidates = operator_candidate_pool[:5]
+        review_cases = review_case_pool[:5]
         infrastructure_alerts = [reconciled_card(f) for f in sorted(
             disposition_groups["INFRASTRUCTURE"], key=material_key, reverse=True
         )[:5]]
@@ -221,6 +242,11 @@ class EmergingOperatorService:
             "active_investigations_reconciled": active_investigations,
             "operator_candidates_reconciled": operator_candidates,
             "review_cases_reconciled": review_cases,
+            # Retain the ranked pools in the internal snapshot so a dismissed
+            # row can be removed before the five-slot attention cap is applied.
+            "_active_investigation_pool_reconciled": active_investigation_pool,
+            "_operator_candidate_pool_reconciled": operator_candidate_pool,
+            "_review_case_pool_reconciled": review_case_pool,
             "infrastructure_alerts_reconciled": infrastructure_alerts,
             "attention_budget_reconciled": {
                 "operator_candidates_visible": len(operator_candidates),
@@ -319,15 +345,27 @@ class EmergingOperatorService:
         from src.ops.investigation_lifecycle import apply_lifecycle_overlay
         lifecycle_keys = ("families", "candidates", "candidate_summary", "confirmed_operations_reconciled",
                           "active_investigations_reconciled", "operator_candidates_reconciled",
-                          "review_cases_reconciled", "infrastructure_alerts_reconciled")
+                          "review_cases_reconciled", "infrastructure_alerts_reconciled",
+                          "_active_investigation_pool_reconciled", "_operator_candidate_pool_reconciled",
+                          "_review_case_pool_reconciled")
         for key in lifecycle_keys:
             result[key] = [apply_lifecycle_overlay(dict(family), self.ops_db_path) for family in result.get(key) or []]
         dismissed = []
-        for key in ("active_investigations_reconciled", "operator_candidates_reconciled", "review_cases_reconciled"):
-            kept = []
-            for family in result.get(key) or []:
-                (dismissed if family.get("analyst_lifecycle") == "DISMISSED" else kept).append(family)
-            result[key] = kept
+        queue_pools = {
+            "active_investigations_reconciled": "_active_investigation_pool_reconciled",
+            "operator_candidates_reconciled": "_operator_candidate_pool_reconciled",
+            "review_cases_reconciled": "_review_case_pool_reconciled",
+        }
+        for queue_key, pool_key in queue_pools.items():
+            pool = result.get(pool_key) or result.get(queue_key) or []
+            result[queue_key], queue_dismissed = _attention_queue(pool)
+            dismissed.extend(queue_dismissed)
+            result.pop(pool_key, None)
+        result["analyst_queue_reconciled"] = _analyst_queue(
+            result["review_cases_reconciled"], result["active_investigations_reconciled"]
+        )
+        result["attention_budget_reconciled"]["analyst_queue_visible"] = len(result["analyst_queue_reconciled"])
+        result["attention_budget_reconciled"]["analyst_queue_maximum"] = 5
         result["dismissed_investigations"] = sorted(
             {str(f.get("family_id")): f for f in dismissed}.values(),
             key=lambda f: int((f.get("investigation_lifecycle") or {}).get("dismissed_at") or 0), reverse=True,

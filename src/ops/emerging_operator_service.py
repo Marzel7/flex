@@ -316,6 +316,28 @@ class EmergingOperatorService:
             "snapshot_version": snapshot.snapshot_version,
             "age_seconds": round(time.time() - snapshot.computed_at, 1),
         }
+        from src.ops.investigation_lifecycle import apply_lifecycle_overlay
+        lifecycle_keys = ("families", "candidates", "candidate_summary", "confirmed_operations_reconciled",
+                          "active_investigations_reconciled", "operator_candidates_reconciled",
+                          "review_cases_reconciled", "infrastructure_alerts_reconciled")
+        for key in lifecycle_keys:
+            result[key] = [apply_lifecycle_overlay(dict(family), self.ops_db_path) for family in result.get(key) or []]
+        dismissed = []
+        for key in ("active_investigations_reconciled", "operator_candidates_reconciled", "review_cases_reconciled"):
+            kept = []
+            for family in result.get(key) or []:
+                (dismissed if family.get("analyst_lifecycle") == "DISMISSED" else kept).append(family)
+            result[key] = kept
+        result["dismissed_investigations"] = sorted(
+            {str(f.get("family_id")): f for f in dismissed}.values(),
+            key=lambda f: int((f.get("investigation_lifecycle") or {}).get("dismissed_at") or 0), reverse=True,
+        )
+        now = int(time.time()); week = now - 7 * 86400
+        result["investigation_lifecycle_summary"] = {
+            "dismissed": len(result["dismissed_investigations"]),
+            "dismissed_this_week": sum(int((f.get("investigation_lifecycle") or {}).get("dismissed_at") or 0) >= week for f in result["dismissed_investigations"]),
+            "reopened_this_week": sum(any(e.get("event_type") == "INVESTIGATION_REOPENED" and int(e.get("timestamp") or 0) >= week for e in (f.get("investigation_lifecycle") or {}).get("history") or []) for f in result.get("families") or []),
+        }
         return result
 
     @staticmethod
@@ -357,6 +379,8 @@ class EmergingOperatorService:
                 if metadata is not None:
                     result["reconciliation"] = metadata
                 result["presentation"] = reconciliation_presentation(result, metadata)
+                from src.ops.investigation_lifecycle import apply_lifecycle_overlay
+                apply_lifecycle_overlay(result, self.ops_db_path)
                 reconciliation = self._reconcile_token_states(all_families)
                 result["intelligence"] = OperationIntelligenceAssembler(
                     self.ops_db_path, self.live_db_path

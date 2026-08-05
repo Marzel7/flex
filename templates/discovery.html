@@ -4407,8 +4407,9 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   }
 
   function convergenceInvestigationCard(f){
+    var lifecycleNote=f.reopen_recommended?'Previously dismissed · Behaviour changed · Reopen?':(f.reason||f.note||'');
     return '<a class="dw-intel-row" href="'+esc(f.profile_href||'/intelligence/operators')+'">'
-      +'<span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(f.note?(' · '+esc(f.note)):'')+'</small></span>'
+      +'<span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+'</small></span>'
       +'<span>'+esc(f.launches!=null?f.launches:'—')+' launches</span>'
       +'<span></span>'
       +'<span>Open →</span></a>';
@@ -4440,13 +4441,15 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       var newInv=(d.new_investigations||[]).map(convergenceInvestigationCard).join('')||'<div class="dw-empty" style="padding:10px">No new Investigation Populations.</div>';
       var review=(d.review||[]).map(convergenceInvestigationCard).join('');
       var infra=(d.shared_infrastructure||[]).map(convergenceInvestigationCard).join('');
+      var dismissed=(d.dismissed_investigations||[]).map(convergenceInvestigationCard).join('');
       mount.innerHTML=
         '<div class="ip-section-hdr"><span class="ip-section-label">Known Operations</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+known+'</div>'
         +'<div class="ip-section-hdr"><span class="ip-section-label">Potential Expansions</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.potential_expansions||[]).length+'</span></div><div class="dw-intelligence-list">'+expansions+'</div>'
         +'<div class="ip-section-hdr"><span class="ip-section-label">New Operational Behaviour</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.new_operational_behaviour||[]).length+'</span></div><div class="dw-intelligence-list">'+behaviour+'</div>'
         +'<div class="ip-section-hdr"><span class="ip-section-label">New Investigation Populations</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.new_investigations||[]).length+'</span></div><div class="dw-intelligence-list">'+newInv+'</div>'
         +(review?'<div class="ip-section-hdr"><span class="ip-section-label">Review</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+review+'</div>':'')
-        +(infra?'<div class="ip-section-hdr"><span class="ip-section-label">Shared Infrastructure</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+infra+'</div>':'');
+        +(infra?'<div class="ip-section-hdr"><span class="ip-section-label">Shared Infrastructure</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+infra+'</div>':'')
+        +(dismissed?'<details><summary class="ip-section-hdr"><span class="ip-section-label">Dismissed Investigations</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.dismissed_investigations||[]).length+'</span></summary><div class="dw-intelligence-list">'+dismissed+'</div></details>':'');
     }).catch(function(){
       var mount=$('dw-convergence-mount');
       if(mount)mount.innerHTML='<div class="dw-empty">Operation convergence unavailable.</div>';

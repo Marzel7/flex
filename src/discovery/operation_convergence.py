@@ -204,7 +204,7 @@ def _candidate_families(list_payload: dict[str, Any]) -> list[dict[str, Any]]:
     that authoritative decision."""
     candidates = list(list_payload.get("operator_candidates_reconciled") or [])
     candidates += list(list_payload.get("active_investigations_reconciled") or [])
-    return candidates
+    return [family for family in candidates if family.get("analyst_lifecycle") != "DISMISSED"]
 
 
 def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any], *, min_score: float = 0.5) -> dict[str, Any]:
@@ -305,5 +305,17 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
         "new_investigations": new_investigations,
         "review": review,
         "shared_infrastructure": shared_infrastructure,
+        "dismissed_investigations": [
+            {
+                "family_id": f.get("family_id"), "family_name": f.get("family_name"),
+                "launches": f.get("launches"), "disposition": "DISMISSED",
+                "profile_href": f.get("profile_href"),
+                "reason": (f.get("investigation_lifecycle") or {}).get("reason_label"),
+                "reopen_recommended": bool((f.get("investigation_lifecycle") or {}).get("reopen_recommended")),
+                "material_changes": (f.get("investigation_lifecycle") or {}).get("material_changes") or [],
+            }
+            for f in list_payload.get("dismissed_investigations") or []
+        ],
+        "investigation_lifecycle_summary": list_payload.get("investigation_lifecycle_summary") or {},
         "read_only": True,
     }

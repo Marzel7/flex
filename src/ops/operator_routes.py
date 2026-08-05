@@ -28,6 +28,7 @@ _store: OperatorReader | None = None
 _promotion_service = None
 _emerging_service = None
 _governance_service = None
+_investigation_lifecycle_service = None
 
 
 def _get_store() -> OperatorReader:
@@ -63,6 +64,22 @@ def _get_governance_service():
         from src.ops.operator_identity_governance import OperatorIdentityGovernanceService
         _governance_service = OperatorIdentityGovernanceService(str(OPS_DB_PATH))
     return _governance_service
+
+
+def _get_investigation_lifecycle_service():
+    global _investigation_lifecycle_service
+    if _investigation_lifecycle_service is None:
+        from src.core.db import OPS_DB_PATH
+        from src.ops.investigation_lifecycle import InvestigationLifecycleService
+        _investigation_lifecycle_service = InvestigationLifecycleService(str(OPS_DB_PATH), _get_emerging_service())
+    return _investigation_lifecycle_service
+
+
+def _investigation_lifecycle_response(exc):
+    from src.ops.investigation_lifecycle import InvestigationLifecycleError
+    if isinstance(exc, InvestigationLifecycleError):
+        return jsonify({"ok": False, "error": str(exc), "code": exc.code}), exc.status
+    return jsonify({"ok": False, "error": str(exc), "code": "INVESTIGATION_LIFECYCLE_ERROR"}), 500
 
 
 def _governance_response(exc):
@@ -344,6 +361,24 @@ def get_emerging_operator(entity: str):
     if not candidate:
         return jsonify({"ok": False, "error": "Operation family not found"}), 404
     return jsonify({"ok": True, "family": candidate, "candidate": candidate, "read_only": True})
+
+
+@operator_bp.route("/api/ops/investigations/<path:family_id>/dismiss", methods=["POST"])
+def dismiss_investigation(family_id: str):
+    try:
+        family = _get_investigation_lifecycle_service().dismiss(family_id, request.get_json(silent=True) or {})
+        return jsonify({"ok": True, "family": family, "attribution_unchanged": True})
+    except Exception as exc:
+        return _investigation_lifecycle_response(exc)
+
+
+@operator_bp.route("/api/ops/investigations/<path:family_id>/reopen", methods=["POST"])
+def reopen_investigation(family_id: str):
+    try:
+        family = _get_investigation_lifecycle_service().reopen(family_id, request.get_json(silent=True) or {})
+        return jsonify({"ok": True, "family": family, "attribution_unchanged": True})
+    except Exception as exc:
+        return _investigation_lifecycle_response(exc)
 
 
 @operator_bp.route("/api/ops/operations/<path:family_id>/confirm", methods=["POST"])

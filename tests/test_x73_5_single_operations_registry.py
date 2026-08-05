@@ -29,6 +29,7 @@ def test_operations_registry_has_one_compact_vertical_lifecycle_list():
     assert 'id="section-infrastructure"' in page
     assert "Promotion Readiness" not in page
     assert "Run Resolver" not in page
+    assert "d==='INFRASTRUCTURE'&&p.title?p.title" in page
 
 
 def test_registry_has_single_kpi_row_search_and_required_filters():

@@ -52,8 +52,9 @@ def test_valid_actions_and_state_colours_match_registry_language():
 def test_empty_states_and_content_audit_are_present():
     page = source()
     for message in (
-        "No launches persisted.", "No walkback evidence.",
-        "No topology reconstructed.", "No creators observed.",
+        "No launch records are currently available for this Investigation Population.",
+        "No walkback evidence.", "No topology reconstructed.",
+        "No member identities have been identified yet.",
     ):
         assert message in page
     audit = (ROOT / "docs/audits/x73_6_investigation_profile_content_audit.md").read_text(encoding="utf-8")

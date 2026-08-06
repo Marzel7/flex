@@ -71,6 +71,28 @@ def test_operational_treasury_rows_require_a_complete_recorded_chain():
     ]
 
 
+def test_direct_creator_funding_takes_controller_role_over_scalar_treasury_membership():
+    family = {
+        "family_anchor": "CONTROL", "member_wallets": ["CONTROL"],
+        "client_wallets": ["CONTROL"], "treasuries": ["CONTROL"],
+        "launch_list": ["MINT"], "reconciliation": {"disposition": "REVIEW"},
+    }
+    infrastructure = {"funding_paths": [{
+        "from": "CONTROL", "to": "CREATOR", "type": "SUBPROV_TO_CREATOR",
+        "signature": "DIRECT_TX", "transaction_at": 200, "source_mint": "MINT",
+        "mechanism": "PLAIN_XFER",
+    }]}
+
+    role = derive_operational_role(family, infrastructure)
+
+    assert role["current_role"] == "Provisioning Controller"
+    assert role["observed_relationships"] == [{
+        "controller": "CONTROL", "creator": "CREATOR", "launch": "MINT",
+        "launch_label": "Launch", "mechanism": "PLAIN_XFER", "observed_at": None,
+        "transaction_at": 200, "transaction": "DIRECT_TX",
+    }]
+
+
 def test_assembler_finds_edges_by_canonical_launch_membership(tmp_path):
     ops, live = tmp_path / "ops.db", tmp_path / "live.db"
     conn = sqlite3.connect(ops)

@@ -25,6 +25,10 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
                       (family.get("presentation") or {}).get("disposition") or "UNRESOLVED")
     treasuries = set(family.get("treasuries") or infrastructure.get("treasuries") or [])
     clients = set(family.get("client_wallets") or infrastructure.get("persistent_clients") or [])
+    directly_controls_creators = any(
+        path.get("type") == "SUBPROV_TO_CREATOR" and path.get("from") in anchors
+        for path in paths
+    )
 
     if disposition == "CONFIRMED_OPERATION":
         current_role = "Confirmed Operator"
@@ -32,9 +36,11 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
         current_role = "Shared Infrastructure"
     elif len(members) > 1 and len(treasuries) > 1:
         current_role = "Shared Infrastructure"
+    elif directly_controls_creators:
+        current_role = "Provisioning Controller"
     elif anchors & treasuries:
         current_role = "Operational Treasury"
-    elif anchors & clients or any(p.get("from") in anchors and p.get("type") == "SUBPROV_TO_CREATOR" for p in paths):
+    elif anchors & clients:
         current_role = "Provisioning Controller"
     elif family.get("session_count"):
         current_role = "Session Wallet"

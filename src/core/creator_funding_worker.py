@@ -457,6 +457,18 @@ def _post_extraction_intelligence_refresh(creator: str) -> None:
         _log(f"[INTEL_REFRESH] snapshot error: {e}")
         before = None
 
+    # X78.0 -- found live during the X78.0 soak: irc_conn.close() was only
+    # reached on the success path (the last line inside this try block). Any
+    # exception from an earlier statement (the SELECT/INSERT/UPDATE calls
+    # below) was caught by the except below without ever closing irc_conn,
+    # leaving its write lease held for the rest of this thread's life --
+    # this function runs via asyncio.to_thread, on the SAME reused executor
+    # pool as every other to_thread-dispatched write in this worker
+    # (_mark_complete, _write_heartbeat's own _db_connect calls, etc.), so
+    # the leak poisoned every subsequent write on that thread. irc_conn is
+    # declared before the try so the finally can close it regardless of
+    # which statement raised.
+    irc_conn = None
     try:
         from src.core.intelligence_refresh import apply_migration as irc_migrate, _db as irc_db, _score_creator, _now as irc_now
         irc_migrate(DB_PATH)
@@ -515,9 +527,14 @@ def _post_extraction_intelligence_refresh(creator: str) -> None:
                     (priority, json.dumps(reasons), now_ts, creator, priority),
                 )
                 irc_conn.commit()
-        irc_conn.close()
     except Exception as e:
         _log(f"[INTEL_REFRESH] IRC error: {e}")
+    finally:
+        if irc_conn is not None:
+            try:
+                irc_conn.close()
+            except Exception:
+                pass
 
     try:
         from src.utils.build_networks_release import build_networks_release

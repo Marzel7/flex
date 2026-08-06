@@ -59,21 +59,31 @@ def _db(db_path: str, timeout: int = 30) -> sqlite3.Connection:
 
 
 def apply_migration(db_path: str) -> None:
+    # X78.0 -- conn.commit()/close() previously sat outside any try/finally;
+    # an exception NOT caught by the per-statement OperationalError handler
+    # below (e.g. reading the migration file itself failing after conn was
+    # already opened) would leave conn's write lease held for the rest of
+    # this thread's life. This function is called from
+    # creator_funding_worker.py's _post_extraction_intelligence_refresh,
+    # itself dispatched via asyncio.to_thread onto the same reused executor
+    # pool as every other write in that worker.
     migration = (
         Path(__file__).resolve().parent.parent.parent
         / "database" / "migrations" / "add_intelligence_refresh.sql"
     )
     conn = _db(db_path)
-    for stmt in migration.read_text().split(";"):
-        stmt = stmt.strip()
-        if stmt:
-            try:
-                conn.execute(stmt)
-            except sqlite3.OperationalError as e:
-                if "already exists" not in str(e).lower():
-                    logger.warning(f"[IRC] Migration warning: {e}")
-    conn.commit()
-    conn.close()
+    try:
+        for stmt in migration.read_text().split(";"):
+            stmt = stmt.strip()
+            if stmt:
+                try:
+                    conn.execute(stmt)
+                except sqlite3.OperationalError as e:
+                    if "already exists" not in str(e).lower():
+                        logger.warning(f"[IRC] Migration warning: {e}")
+        conn.commit()
+    finally:
+        conn.close()
 
 
 # ── Budget helpers ─────────────────────────────────────────────────────────────

@@ -312,3 +312,118 @@ def test_flush_page_batch_rolls_back_and_releases_lease_on_failure(tmp_db):
     conn.execute("INSERT INTO creator_funders (creator_address) VALUES (?)", ("TEST",))
     conn.commit()
     conn.close()
+
+
+# ── Fix 5: intelligence_refresh.apply_migration ─────────────────────────────
+
+def test_apply_migration_closes_connection_on_exception(tmp_db, monkeypatch):
+    """Found live during the X78.0 soak, same window as Fix 6:
+    apply_migration's conn.commit()/close() sat outside any try/finally --
+    an exception not caught by the per-statement OperationalError handler
+    left the connection (and its write lease) open for the rest of that
+    thread's life. Proven by forcing migration.read_text() to raise."""
+    import src.core.intelligence_refresh as irc
+
+    holder = {}
+    real_db = irc._db
+
+    class _BoomConn:
+        def __init__(self, inner):
+            self._inner = inner
+
+        def execute(self, sql, *a, **k):
+            # Raise a non-OperationalError so it bypasses the per-statement
+            # except sqlite3.OperationalError handler entirely -- this is
+            # exactly the gap the old code (no outer try/finally) had no
+            # protection against.
+            raise RuntimeError("simulated non-OperationalError failure")
+
+        def __getattr__(self, name):
+            return getattr(self._inner, name)
+
+    def spy_db(*a, **k):
+        real_conn = real_db(*a, **k)
+        holder["conn"] = real_conn
+        return _BoomConn(real_conn)
+
+    monkeypatch.setattr(irc, "_db", spy_db)
+
+    with pytest.raises(RuntimeError):
+        irc.apply_migration(tmp_db)
+
+    conn = holder["conn"]
+    with pytest.raises(sqlite3.ProgrammingError):
+        conn.execute("SELECT 1")  # closed connections raise on use
+
+
+# ── Fix 6: creator_funding_worker._post_extraction_intelligence_refresh ────
+
+def test_post_extraction_intelligence_refresh_closes_irc_conn_on_exception(tmp_db, monkeypatch):
+    """Found live during the X78.0 soak (the trigger for the whole
+    investigation into this file): irc_conn.close() was only reached as the
+    LAST line of the try block, after every SELECT/INSERT/UPDATE. Any
+    exception from those statements left irc_conn -- and its write lease --
+    open for the rest of this thread's life. This function is dispatched via
+    asyncio.to_thread onto the SAME reused executor pool as every other
+    to_thread write in creator_funding_worker (_mark_complete,
+    _write_heartbeat's _db_connect calls, etc.) -- proven live: the exact
+    NestedDatabaseWriteError signature (outer_command==inner_command==
+    creator_funding_worker.py:112 in _db_connect) matched a later,
+    unrelated write on the same thread self-nesting against this leak."""
+    import src.core.creator_funding_worker as cfw
+
+    monkeypatch.setattr(cfw, "DB_PATH", tmp_db)
+    monkeypatch.setattr(cfw, "_intel_refresh_last_run", 0.0)
+
+    conn = sqlite3.connect(tmp_db)
+    conn.execute(
+        "CREATE TABLE token_analysis (mint TEXT, earliest_tx_creator TEXT, migrated_at INTEGER)")
+    conn.execute(
+        "CREATE TABLE creator_funders (creator_address TEXT, funder_address TEXT, is_cex INTEGER)")
+    conn.execute(
+        "CREATE TABLE creator_self_funding (creator_address TEXT, is_self_funding INTEGER)")
+    conn.execute(
+        "CREATE TABLE network_membership (creator_address TEXT)")
+    conn.commit()
+    conn.close()
+
+    # apply_migration and take_snapshot are irrelevant to this specific
+    # leak -- stub them out so the test isolates irc_conn's own lifecycle.
+    monkeypatch.setattr(
+        "src.core.intelligence_refresh.apply_migration", lambda *_a, **_k: None)
+    monkeypatch.setattr(
+        "src.core.relationship_events.take_snapshot", lambda *_a, **_k: None)
+    monkeypatch.setattr(
+        "src.utils.build_networks_release.build_networks_release", lambda *_a, **_k: None)
+
+    holder = {}
+    real_db = None
+    import src.core.intelligence_refresh as irc
+    real_db = irc._db
+
+    def boom_db(*a, **k):
+        real_conn = real_db(*a, **k)
+        holder["conn"] = real_conn
+
+        class _BoomConn:
+            def __init__(self, inner):
+                self._inner = inner
+
+            def execute(self, sql, *a, **k):
+                if "SELECT" in sql and "token_analysis" in sql:
+                    raise RuntimeError("simulated query failure")
+                return self._inner.execute(sql, *a, **k)
+
+            def __getattr__(self, name):
+                return getattr(self._inner, name)
+
+        return _BoomConn(real_conn)
+
+    monkeypatch.setattr(irc, "_db", boom_db)
+
+    cfw._post_extraction_intelligence_refresh("CREATOR_X")
+
+    # The real underlying connection must have been closed despite the
+    # simulated failure -- proven by attempting a further operation on it.
+    with pytest.raises(sqlite3.ProgrammingError):
+        holder["conn"].execute("SELECT 1")

@@ -597,6 +597,33 @@ def ensure_cascade_schema(conn) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS ix_psw_state ON wt_pending_session_writes(state, enqueued_at)"
     )
+    # ── X77.2: durable retry queue for _event_writer_loop's watchtower_events /
+    # wt_webhook_hits writes. Mirrors wt_pending_session_writes exactly (same
+    # PENDING/WRITTEN/SUPERSEDED/FAILED vocabulary, same drain-loop cadence) --
+    # only transient failures (SQLITE_BUSY / DatabaseWriteLockError) land here;
+    # constraint/schema/malformed-data failures never retry (see
+    # _is_transient_write_failure in this module).
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS wt_pending_cascade_events (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            kind            TEXT NOT NULL,       -- 'event' | 'hit'
+            payload_json    TEXT NOT NULL,       -- the original _event_q item, minus kind, json-encoded
+            dedupe_key      TEXT,                -- for 'hit': tx_signature||wallet_address; NULL for 'event' (no natural key)
+            enqueued_at     INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            retry_count     INTEGER NOT NULL DEFAULT 0,
+            last_retry_at   INTEGER,
+            last_error      TEXT,
+            state           TEXT NOT NULL DEFAULT 'PENDING'
+            -- PENDING | WRITTEN | SUPERSEDED | FAILED
+        )"""
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS ix_pce_state ON wt_pending_cascade_events(state, enqueued_at)"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_pce_dedupe ON wt_pending_cascade_events(dedupe_key) "
+        "WHERE dedupe_key IS NOT NULL"
+    )
     # ── X24.2 Phase 2: durable sweep-fairness bookkeeping ────────────────────
     # subprov_sweep_pass() previously sliced active_sessions()[:MAX_ACTIVE_SUBPROVS]
     # with no ordering, so sessions outside the arbitrary top-N could expire without
@@ -696,9 +723,181 @@ _writer_lock = _threading_mod.Lock()
 #   ('event', et, wallet, related, mint, payload, ts)   — watchtower_events row
 #   ('hit',   treasury, counterparty, sig, amount_sol, block_time, ts)  — wt_webhook_hits row
 
+# X77.2 — in-process counters for the health dashboard (queued/retried/failed/
+# dropped/succeeded). Not durable by design: they reset on restart, same as
+# every other in-process counter this module already exposes
+# (_subprov_sig_metrics in ws_cascade.py). Durable state (what actually
+# survives a crash) lives in wt_pending_cascade_events; these counters are
+# purely an operational rate/volume view on top of it.
+_event_writer_stats = {
+    "succeeded": 0, "queued_for_retry": 0, "retried_ok": 0,
+    "failed_permanent": 0, "dropped_queue_full": 0,
+}
+_event_writer_stats_lock = _threading_mod.Lock()
+
+
+def _bump_stat(name: str, n: int = 1) -> None:
+    with _event_writer_stats_lock:
+        _event_writer_stats[name] = _event_writer_stats.get(name, 0) + n
+
+
+def event_writer_stats() -> dict:
+    """Snapshot of this process's in-memory write-outcome counters."""
+    with _event_writer_stats_lock:
+        return dict(_event_writer_stats)
+
+
+def _is_transient_write_failure(exc: BaseException) -> bool:
+    """True for failures worth retrying (contention only): SQLITE_BUSY /
+    'database is locked' (raised here as DatabaseWriteLockError by
+    database_write_service, or occasionally a raw sqlite3.OperationalError
+    if a caller bypasses the service) and NestedDatabaseWriteError (a
+    same-thread reentrancy trip that a later, differently-scheduled retry
+    will not hit again). NEVER transient: IntegrityError (constraint
+    violation), schema errors, or any failure whose cause is the DATA
+    itself, not contention -- retrying those would fail identically forever
+    and just hide a real bug behind a growing retry queue."""
+    import sqlite3 as _sq3
+    try:
+        from src.core.database_write_service import (
+            DatabaseWriteLockError, NestedDatabaseWriteError,
+        )
+    except Exception:
+        DatabaseWriteLockError = ()  # type: ignore[assignment]
+        NestedDatabaseWriteError = ()  # type: ignore[assignment]
+    if isinstance(exc, (DatabaseWriteLockError, NestedDatabaseWriteError)):
+        return True
+    if isinstance(exc, _sq3.OperationalError) and "locked" in str(exc).lower():
+        return True
+    if isinstance(exc, (_sq3.IntegrityError, _sq3.ProgrammingError)):
+        return False
+    return False  # unknown failure classes default to non-retryable (fail loud, don't mask)
+
+
+def _item_dedupe_key(item: tuple) -> Optional[str]:
+    """'hit' rows have a natural key (tx_signature, wallet_address) already
+    enforced by idx_wh_sig_wallet's UNIQUE INSERT OR IGNORE -- reuse it here
+    so a retried 'hit' can never double-enqueue. 'event' rows have no natural
+    key (watchtower_events is an append-only log by design), so dedupe_key
+    stays NULL and duplicates are prevented only by not re-enqueueing an
+    already-PENDING item (see enqueue_pending_cascade_event)."""
+    if item[0] == 'hit':
+        _, treasury, _counterparty, sig, *_rest = item
+        return f"hit:{sig}:{treasury}"
+    return None
+
+
+def enqueue_pending_cascade_event(conn, item: tuple, error: BaseException) -> None:
+    """Persist a watchtower_events/wt_webhook_hits write that failed with a
+    transient (contention) error, so drain_pending_cascade_events can retry
+    it later instead of losing it. Idempotent on dedupe_key for 'hit' rows."""
+    kind = item[0]
+    payload = json.dumps(list(item))
+    dedupe_key = _item_dedupe_key(item)
+    try:
+        conn.execute(
+            """INSERT OR IGNORE INTO wt_pending_cascade_events
+                 (kind, payload_json, dedupe_key, last_error)
+               VALUES (?,?,?,?)""",
+            (kind, payload, dedupe_key, str(error)[:500]))
+        conn.commit()
+    except Exception:
+        pass  # best-effort durability; if even this fails, the write is genuinely lost
+
+
+def _write_cascade_item(c, item: tuple, wh_id: str) -> None:
+    """The single write path shared by the live queue drain and the retry
+    drain -- one implementation, so retried writes are byte-identical to
+    first-attempt writes."""
+    kind = item[0]
+    if kind == 'event':
+        _, et, wallet, related, mint, payload, ts = item
+        c.execute(
+            "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
+            "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
+            (et, wallet, related, mint, json.dumps(payload or {}), "ws_cascade", ts))
+    elif kind == 'hit':
+        _, treasury, counterparty, sig, amount_sol, block_time, ts = item[:7]
+        hit_tx_type = item[7] if len(item) > 7 else 'TRANSFER'
+        c.execute(
+            """INSERT OR IGNORE INTO wt_webhook_hits
+                 (webhook_id, wallet_address, tx_signature, tx_type, source,
+                  counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
+               VALUES (?, ?, ?, ?, 'treasury_ws', ?, ?, ?, 0, ?, 'outbound')""",
+            (wh_id, treasury, sig, hit_tx_type, counterparty, block_time, amount_sol, ts))
+
+
+def drain_pending_cascade_events(conn, *, limit: int = 50) -> dict:
+    """Retry PENDING watchtower_events/wt_webhook_hits writes. Mirrors
+    drain_pending_sessions exactly. Called every 30s from the same
+    maintenance loop, off the event loop (via _ato_thread), so a retry
+    round-trip -- even a slow one under contention -- never blocks WS
+    processing."""
+    wh_id = os.environ.get("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
+    now = int(time.time())
+    import sqlite3 as _sq3
+    _prev_rf = conn.row_factory
+    conn.row_factory = _sq3.Row
+    rows = conn.execute(
+        "SELECT id, kind, payload_json FROM wt_pending_cascade_events "
+        "WHERE state='PENDING' ORDER BY enqueued_at ASC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.row_factory = _prev_rf
+    written = 0
+    failed = 0
+    for r in rows:
+        item = tuple(json.loads(r["payload_json"]))
+        try:
+            def write(c, _item=item):
+                _write_cascade_item(c, _item, wh_id)
+            operations_write(f"ws-cascade-retry-{r['kind']}", write)
+            conn.execute(
+                "UPDATE wt_pending_cascade_events SET state='WRITTEN', last_retry_at=? WHERE id=?",
+                (now, r["id"]))
+            conn.commit()
+            written += 1
+            _bump_stat("retried_ok")
+        except Exception as e:
+            if _is_transient_write_failure(e):
+                conn.execute(
+                    "UPDATE wt_pending_cascade_events "
+                    "SET retry_count=retry_count+1, last_retry_at=?, last_error=? WHERE id=?",
+                    (now, str(e)[:500], r["id"]))
+                conn.commit()
+                failed += 1
+            else:
+                # A non-transient failure surfacing on retry means the original
+                # classification was wrong (or the data itself is bad) -- stop
+                # retrying rather than loop forever on a permanent failure.
+                conn.execute(
+                    "UPDATE wt_pending_cascade_events SET state='FAILED', last_retry_at=?, last_error=? WHERE id=?",
+                    (now, str(e)[:500], r["id"]))
+                conn.commit()
+                failed += 1
+                _bump_stat("failed_permanent")
+    remaining = conn.execute(
+        "SELECT COUNT(*) FROM wt_pending_cascade_events WHERE state='PENDING'"
+    ).fetchone()[0]
+    return {"written": written, "failed": failed, "remaining": remaining}
+
+
+def pending_cascade_event_counts(conn) -> dict:
+    """For the health dashboard."""
+    rows = conn.execute(
+        "SELECT state, COUNT(*) n FROM wt_pending_cascade_events GROUP BY state"
+    ).fetchall()
+    counts = {"PENDING": 0, "WRITTEN": 0, "SUPERSEDED": 0, "FAILED": 0}
+    for r in rows:
+        counts[r[0]] = r[1]
+    return counts
+
 
 def _event_writer_loop():
-    """Single background thread draining all ops-DB writes. One writer = no lock contention."""
+    """Single background thread draining all ops-DB writes. One writer = no lock contention.
+    X77.2: a transient (contention) failure no longer silently drops the event -- it's
+    persisted to wt_pending_cascade_events and retried by drain_pending_cascade_events on
+    the maintenance loop. A non-transient failure (constraint/schema/malformed data) is
+    never retried -- retrying it would fail identically forever."""
     wh_id = os.environ.get("WATCHTOWER_INFRA_WEBHOOK_ID", "106e20f6-f542-42b0-83d5-ca8c7b1a7162")
     while True:
         item = _event_q.get()
@@ -706,25 +905,26 @@ def _event_writer_loop():
             continue
         kind = item[0]
         try:
-            def write(c):
-                if kind == 'event':
-                    _, et, wallet, related, mint, payload, ts = item
-                    c.execute(
-                        "INSERT INTO watchtower_events (event_type, wallet_address, related_wallet, "
-                        "token_mint, payload_json, source, created_at) VALUES (?,?,?,?,?,?,?)",
-                        (et, wallet, related, mint, json.dumps(payload or {}), "ws_cascade", ts))
-                elif kind == 'hit':
-                    _, treasury, counterparty, sig, amount_sol, block_time, ts = item[:7]
-                    hit_tx_type = item[7] if len(item) > 7 else 'TRANSFER'
-                    c.execute(
-                        """INSERT OR IGNORE INTO wt_webhook_hits
-                             (webhook_id, wallet_address, tx_signature, tx_type, source,
-                              counterparty, block_time, amount_sol, is_fee_touch, created_at, direction)
-                           VALUES (?, ?, ?, ?, 'treasury_ws', ?, ?, ?, 0, ?, 'outbound')""",
-                        (wh_id, treasury, sig, hit_tx_type, counterparty, block_time, amount_sol, ts))
+            def write(c, _item=item):
+                _write_cascade_item(c, _item, wh_id)
             operations_write(f"ws-cascade-{kind}", write)
+            _bump_stat("succeeded")
         except Exception as e:
             print(f"[WS_CASCADE] ops-db write failed {kind}: {e}", flush=True)
+            if _is_transient_write_failure(e):
+                try:
+                    conn = db_connect(OPS_DB_PATH, timeout=5)
+                    try:
+                        ensure_cascade_schema(conn)
+                        enqueue_pending_cascade_event(conn, item, e)
+                        _bump_stat("queued_for_retry")
+                    finally:
+                        conn.close()
+                except Exception as enqueue_exc:
+                    print(f"[WS_CASCADE] pending-event enqueue failed (event genuinely lost): "
+                          f"{enqueue_exc}", flush=True)
+            else:
+                _bump_stat("failed_permanent")
 
 
 def _ensure_writer():
@@ -748,7 +948,7 @@ def emit_event(event_type: str, wallet: Optional[str] = None,
     try:
         _event_q.put_nowait(('event', event_type, wallet, related, token_mint, payload, int(time.time())))
     except _queue_mod.Full:
-        pass   # event log is best-effort; never block the cascade for a breadcrumb
+        _bump_stat("dropped_queue_full")   # queue-full is a genuine loss; counted, not silent
 
 
 def lookup_subprov(conn, wallet: str) -> Optional[dict]:
@@ -1132,7 +1332,7 @@ def record_treasury_hit(*, treasury: str, counterparty: str, sig: str,
     try:
         _event_q.put_nowait(('hit', treasury, counterparty, sig, amount_sol, block_time, int(time.time()), tx_type))
     except _queue_mod.Full:
-        pass  # best-effort telemetry
+        _bump_stat("dropped_queue_full")  # queue-full is a genuine loss; counted, not silent
 
 
 # ──────────────────────────── session helpers ───────────────────────────────

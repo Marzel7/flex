@@ -4623,6 +4623,28 @@ class Cascade:
         finally:
             conn.close()
 
+    # X77.2 — retry queue for watchtower_events / wt_webhook_hits writes that
+    # failed with a transient (contention) error. Same cadence/pattern as
+    # _drain_pending_sessions above, deliberately kept as a separate method
+    # (separate table, separate write path, separate failure class) rather
+    # than merged into it.
+    def _drain_pending_cascade_events(self):
+        conn = self._ops()
+        try:
+            result = store.drain_pending_cascade_events(conn)
+            if result["written"]:
+                _log(f"🔁 PENDING_CASCADE_EVENT_REPLAYED: {result['written']} written, "
+                     f"{result['remaining']} remaining")
+            if result["remaining"]:
+                counts = store.pending_cascade_event_counts(conn)
+                if counts["FAILED"]:
+                    _log(f"⚠️ {counts['FAILED']} cascade event(s) permanently failed on retry "
+                         f"(non-transient error) — see wt_pending_cascade_events.last_error")
+        except Exception as e:
+            _log(f"⚠️ pending cascade event drain error: {e}")
+        finally:
+            conn.close()
+
     async def cleanup_pass(self):
         dropped, stale_hot = self.mgr.sweep_stale_pending()
         for w, kind, attempts in dropped:
@@ -4896,6 +4918,45 @@ class Cascade:
                 "DEGRADED means measured inspection throughput is below measured "
                 "arrival rate -- the backlog is growing -- even if RPC calls are "
                 "succeeding. This is independent of RPC failure/timeout counts."
+            ),
+        }
+
+    def cascade_write_health_report(self) -> dict:
+        """X77.2 — required health surface: queued / retried / failed / dropped
+        / succeeded for the watchtower_events / wt_webhook_hits write path.
+        Combines the in-process rate counters (event_writer_stats — reset on
+        restart) with durable state (wt_pending_cascade_events — survives
+        restart) so a fresh process still reports a true PENDING backlog even
+        before it has retried anything itself."""
+        stats = store.event_writer_stats()
+        conn = self._ops()
+        try:
+            durable_counts = store.pending_cascade_event_counts(conn)
+        finally:
+            conn.close()
+        # DEGRADED (not STALLED/STOPPED — this is a volume signal, not a
+        # liveness signal) whenever a durable backlog exists; the maintenance
+        # loop drains it every 30s, so a nonzero PENDING count that persists
+        # across reports means retries themselves are also failing.
+        status = "DEGRADED" if durable_counts["PENDING"] or durable_counts["FAILED"] else "HEALTHY"
+        return {
+            "measured_at": int(time.time()),
+            "succeeded": stats["succeeded"],
+            "queued_for_retry": stats["queued_for_retry"],
+            "retried_ok": stats["retried_ok"],
+            "failed_permanent": stats["failed_permanent"],
+            "dropped_queue_full": stats["dropped_queue_full"],
+            "durable_pending": durable_counts["PENDING"],
+            "durable_written_via_retry": durable_counts["WRITTEN"],
+            "durable_superseded": durable_counts["SUPERSEDED"],
+            "durable_failed": durable_counts["FAILED"],
+            "status": status,
+            "note": (
+                "queued_for_retry/retried_ok/failed_permanent/dropped_queue_full "
+                "are in-process counters (reset on restart). durable_* counts "
+                "come from wt_pending_cascade_events and survive restart -- "
+                "durable_pending is the number of events not yet successfully "
+                "written, either originally or via retry."
             ),
         }
 
@@ -5303,6 +5364,7 @@ async def run_cascade():
                                 last_temp_sweep = now
                             if now - last_drain >= 30:
                                 await _ato_thread(casc._drain_pending_sessions)
+                                await _ato_thread(casc._drain_pending_cascade_events)
                                 last_drain = now
                             await _ato_thread(casc._refresh_wallet_profile_if_due)
                             # ProgramWatcher is intentionally expensive: keep it open only while

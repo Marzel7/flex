@@ -875,6 +875,27 @@ class RealTimeCreatorFundingExtractor:
             print(f"[FLUSH] ❌ Batch flush error: {e}", flush=True)
             import traceback
             traceback.print_exc()
+            # X78.0 -- found live during the X78.0 soak, minutes after
+            # deployment: this function receives `conn` (extraction_conn)
+            # as a parameter and does NOT own its lifecycle -- but if any
+            # statement between the first write-shaped cursor.execute()
+            # (which acquires extraction_conn's write lease) and the next
+            # commit() raises, this except block previously swallowed the
+            # failure without ever rolling back, leaving the lease held
+            # for the rest of extraction_conn's life. _flush_page_batch is
+            # called once PER PAGE within the same extraction's paging
+            # loop, so the very next call on the same connection
+            # self-nested against this one's own uncommitted, unreleased
+            # transaction (NestedDatabaseWriteError,
+            # outer_command==inner_command==extraction_conn's own tag).
+            # A rollback here is safe and correct regardless of caller --
+            # it releases the write lease and leaves the connection usable
+            # for the extraction's next page, exactly like a normal failed
+            # transaction should behave.
+            try:
+                conn.rollback()
+            except Exception:
+                pass
 
     def _save_outgoing_transfer(self, creator: str, recipient: str, amount_sol: float, sig: str = None, block_time: int = None):
         """Save outgoing transfer from creator to recipient

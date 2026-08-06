@@ -1,14 +1,16 @@
-"""X78.0 Phase 5/6: regression tests proving the three write-lease leak
-sources identified in the creator_funding_worker call chain are fixed.
+"""X78.0 Phase 5/6: regression tests proving the write-lease leak sources
+identified in the creator_funding_worker call chain are fixed.
 
 Each test proves: a connection that failed to reach commit()/rollback()/
 close() on some earlier call no longer stays open -- the fix guarantees
-close() via a proper finally, and/or avoids ever attempting a doomed write
-in the first place (checking sqlite_master before CREATE TABLE, matching
-the same pattern already proven for walkback_queue.py in X77.3/X77.5).
+close()/rollback() via a proper finally/except, and/or avoids ever
+attempting a doomed write in the first place (checking sqlite_master before
+CREATE TABLE, matching the same pattern already proven for
+walkback_queue.py in X77.3/X77.5).
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import sqlite3
 import tempfile
@@ -263,3 +265,50 @@ def test_blocksec_ensure_tables_closes_connection_on_exception(tmp_db, monkeypat
     assert holder["conn"].closed is True, (
         "_ensure_tables must close its connection even when an exception "
         "occurs mid-function")
+
+
+# ── Fix 4: extract_for_creator._flush_page_batch ────────────────────────────
+
+def test_flush_page_batch_rolls_back_and_releases_lease_on_failure(tmp_db):
+    """Found live minutes after X78.0's first deployment: _flush_page_batch
+    receives extraction_conn as a parameter and is called once PER PAGE
+    within the same extraction's paging loop. Its except block previously
+    swallowed any mid-batch failure without rolling back, leaving the write
+    lease (acquired by the first write-shaped cursor.execute() in the
+    batch) held for the rest of extraction_conn's life -- so the VERY NEXT
+    page's own _flush_page_batch call self-nested against this one's own
+    uncommitted transaction. Proven directly against the real class and a
+    real TrackedConnection, forcing a KeyError mid-batch (a funders_delta
+    entry missing the 'amount' key) exactly as would happen on malformed
+    upstream data."""
+    from src.extractors.realtime_creator_funding_extractor import RealTimeCreatorFundingExtractor
+
+    conn = db_locking.db_connect(tmp_db, timeout=5)
+    conn.execute(
+        "CREATE TABLE cex_wallets (cex_address TEXT, is_active INTEGER, "
+        "exchange_name TEXT, wallet_type TEXT)")
+    conn.execute(
+        "CREATE TABLE creator_funders (creator_address TEXT, funder_address TEXT, "
+        "amount_sol REAL, first_detected_at TEXT, is_cex INTEGER, cex_exchange TEXT, "
+        "cex_type TEXT, is_classified INTEGER, fully_analyzed INTEGER)")
+    conn.commit()
+
+    extractor = RealTimeCreatorFundingExtractor.__new__(RealTimeCreatorFundingExtractor)
+    extractor.domain_resolver = None
+
+    async def run():
+        # Malformed funder delta (missing 'amount') forces a KeyError mid-batch,
+        # after the first write-shaped cursor.execute() has already acquired
+        # extraction_conn's write lease.
+        await extractor._flush_page_batch(conn, "CREATOR_X", {"FUNDER_X": {}}, {}, set(), [])
+
+    asyncio.run(run())
+
+    assert getattr(_thread_write_lease, "owner", None) is None, (
+        "_flush_page_batch must release the write lease (via rollback) when "
+        "a mid-batch exception occurs")
+
+    # The connection itself must still be usable for the extraction's next page.
+    conn.execute("INSERT INTO creator_funders (creator_address) VALUES (?)", ("TEST",))
+    conn.commit()
+    conn.close()

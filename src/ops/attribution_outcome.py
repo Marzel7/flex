@@ -101,7 +101,21 @@ class AttributionOutcome:
 
 
 def ensure_schema(conn) -> None:
+    # X77.5 fix: execute_script() is DDL-only and deliberately never commits
+    # (see database_write_service.execute_script's own docstring) -- the
+    # caller owns the transaction boundary. This function previously never
+    # called commit() at all, so a fully-successful call still left the
+    # write lease held on TrackedConnection's thread-local guard
+    # (_acquire_write_lane fires on the first CREATE/ALTER inside the
+    # script and is only released by commit()/rollback()/close()). Any
+    # later write on the same thread (walkback_worker.run_loop() calls this
+    # immediately after _ensure_walkback_schema, on the same startup
+    # connection, before ever reaching the main loop) then self-nested with
+    # NestedDatabaseWriteError -- observed live crash-looping walkback_worker
+    # during the X77.5 soak, confirmed reproduced in isolation (lease
+    # remained held after a fully successful ensure_schema() call).
     execute_script(conn, DDL)
+    conn.commit()
 
 
 def open_core_readonly(path: str) -> sqlite3.Connection:

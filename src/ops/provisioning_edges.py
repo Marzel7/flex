@@ -95,7 +95,15 @@ CREATE INDEX IF NOT EXISTS ix_wps_subprov ON wt_provisioning_sessions(subprov);
 
 
 def ensure_schema(conn) -> None:
+    # X77.5 fix: execute_script() is DDL-only and never commits by design --
+    # the caller owns the transaction boundary. This function previously
+    # never committed at all, so a fully-successful call still left the
+    # TrackedConnection write lease held (same bug class found and fixed in
+    # attribution_outcome.ensure_schema during the X77.5 soak; this module
+    # is reachable from walkback_worker's own hot path via
+    # _capture_provisioning_facts on every FULL_WALKBACK cycle).
     execute_script(conn, DDL)
+    conn.commit()
 
 
 def _edge_id(edge_type: str, from_wallet: str, to_wallet: str) -> str:

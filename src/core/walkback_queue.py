@@ -76,30 +76,64 @@ _ZERO_RPC_OUTCOMES: dict[str, str] = {
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
-    # Step 1: migrate existing tables before CREATE TABLE so new columns exist for the index
-    for col, typedef in [
-        ("intelligence_outcome", "TEXT"),
-        ("funder_wallet",        "TEXT"),
-        ("funding_mechanism",    "TEXT"),
-        ("funder_amount_sol",    "REAL"),
-        ("funder_sig",           "TEXT"),
-        ("funder_slot",          "INTEGER"),
-        ("funder_block_time",    "INTEGER"),
-    ]:
+    # Step 1: migrate existing tables before CREATE TABLE so new columns exist for the index.
+    # X77.3 fix: check PRAGMA table_info first rather than attempting the ALTER TABLE and
+    # swallowing a "duplicate column" failure -- on every restart after the table already has
+    # these columns (i.e. every restart after the very first one ever), the old code's
+    # conn.execute() acquired this connection's write lease (TrackedConnection's
+    # _acquire_write_lane fires on any write statement, success or not), the ALTER TABLE then
+    # failed, and the except-pass swallowed it WITHOUT reaching conn.commit() -- the only
+    # place that releases the lease. The leaked lease then blocked this same connection's next
+    # real write, which manifested as a permanent NestedDatabaseWriteError self-nesting loop on
+    # every subsequent restart (observed live during the X77.3 soak). Checking existing columns
+    # first means a fully-migrated table issues zero ALTER TABLE statements, so nothing ever
+    # acquires a lease it might fail to release.
+    def _table_exists(table: str) -> bool:
         try:
-            conn.execute(f"ALTER TABLE wt_walkback_queue ADD COLUMN {col} {typedef}")
-            conn.commit()
+            return conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+            ).fetchone() is not None
         except Exception:
-            pass
-    for col, typedef in [
-        ("discovery_source",  "TEXT"),
-        ("funding_mechanism", "TEXT"),
-    ]:
-        try:
-            conn.execute(f"ALTER TABLE wt_discovered_subprovs ADD COLUMN {col} {typedef}")
+            return False
+
+    if _table_exists("wt_walkback_queue"):
+        existing = {r[1] for r in conn.execute("PRAGMA table_info(wt_walkback_queue)").fetchall()}
+        for col, typedef in [
+            ("intelligence_outcome", "TEXT"),
+            ("funder_wallet",        "TEXT"),
+            ("funding_mechanism",    "TEXT"),
+            ("funder_amount_sol",    "REAL"),
+            ("funder_sig",           "TEXT"),
+            ("funder_slot",          "INTEGER"),
+            ("funder_block_time",    "INTEGER"),
+        ]:
+            if col in existing:
+                continue
+            try:
+                conn.execute(f"ALTER TABLE wt_walkback_queue ADD COLUMN {col} {typedef}")
+            except Exception:
+                continue
             conn.commit()
-        except Exception:
-            pass
+    # else: table doesn't exist yet -- Step 2's CREATE TABLE IF NOT EXISTS below
+    # creates it with every column already present, so there is nothing to migrate.
+
+    if _table_exists("wt_discovered_subprovs"):
+        existing_subprov = {r[1] for r in conn.execute("PRAGMA table_info(wt_discovered_subprovs)").fetchall()}
+        for col, typedef in [
+            ("discovery_source",  "TEXT"),
+            ("funding_mechanism", "TEXT"),
+        ]:
+            if col in existing_subprov:
+                continue
+            try:
+                conn.execute(f"ALTER TABLE wt_discovered_subprovs ADD COLUMN {col} {typedef}")
+            except Exception:
+                continue
+            conn.commit()
+    # else: wt_discovered_subprovs is owned by ws_cascade_store.ensure_cascade_schema,
+    # not this module -- if it hasn't been created yet, there's nothing to migrate here
+    # (and attempting an ALTER TABLE against a nonexistent table would itself leak the
+    # write lease exactly like the bug this fix addresses, so this must stay guarded).
 
     # Step 2: CREATE TABLE (no-op if already exists) + indexes
     conn.executescript("""

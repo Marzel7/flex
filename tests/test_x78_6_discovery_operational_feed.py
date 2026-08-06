@@ -8,7 +8,7 @@ REGISTRY = (ROOT / "templates/operators_index.html").read_text()
 
 
 def test_discovery_is_explicitly_a_recent_change_feed():
-    assert "Operational Feed · Last 24 hours" in DISCOVERY
+    assert "Operational Activity Feed · Last 24 hours" in DISCOVERY
     assert "What changed?" in DISCOVERY
     assert "Persistent operational state remains in the Operations Registry" in DISCOVERY
     assert 'activity_cutoff = now - 24 * 60 * 60' in CONVERGENCE
@@ -28,14 +28,15 @@ def test_recovered_operation_card_is_lightweight():
 
 
 def test_potential_new_operations_are_bounded_and_progressive():
-    assert "Potential New Operations" in DISCOVERY
+    assert "Investigation Activity" in DISCOVERY
     assert "newOperations.slice(0,5)" in DISCOVERY
     assert "newOperations.slice(5)" in DISCOVERY
     assert "View remaining · " in DISCOVERY
     renderer = DISCOVERY.split("function convergenceInvestigationCard", 1)[1].split(
         "// X75.2", 1
     )[0]
-    assert "supporting launches" in renderer
+    assert "f.changes" in renderer
+    assert "supporting launches" not in renderer
     assert "Open Investigation →" in renderer
     assert "investigation_trigger" not in renderer
     assert "Members" not in renderer

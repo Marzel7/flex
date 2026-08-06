@@ -236,6 +236,47 @@ def _family_member_wallets(family: dict[str, Any]) -> frozenset[str]:
     return frozenset(wallets)
 
 
+def _investigation_activity(conn: sqlite3.Connection, family: dict[str, Any], cutoff: int) -> dict[str, Any] | None:
+    """Summarise persisted membership changes inside the feed window.
+
+    Counts are event deltas (first-observed edges), never population totals.
+    """
+    wallets = _family_member_wallets(family)
+    if not wallets:
+        return None
+    marks = ",".join("?" for _ in wallets)
+    try:
+        rows = [dict(row) for row in conn.execute(
+            f"SELECT edge_type,from_wallet,to_wallet,source_mint,"
+            f"first_observed_by_flex,last_observed_by_flex FROM wt_provisioning_edges "
+            f"WHERE (from_wallet IN ({marks}) OR to_wallet IN ({marks})) "
+            f"AND COALESCE(last_observed_by_flex,first_observed_by_flex)>=?",
+            (*tuple(sorted(wallets)), *tuple(sorted(wallets)), cutoff),
+        )]
+    except sqlite3.Error:
+        rows = []
+    new_rows = [row for row in rows if int(row.get("first_observed_by_flex") or 0) >= cutoff]
+    launches = {str(row["source_mint"]) for row in new_rows if row.get("source_mint")}
+    creators = {str(row["to_wallet"]) for row in new_rows
+                if row.get("edge_type") == "SUBPROV_TO_CREATOR" and row.get("to_wallet")}
+    provisioning = {str(row["from_wallet"]) for row in new_rows
+                    if row.get("edge_type") == "SUBPROV_TO_CREATOR" and row.get("from_wallet")}
+    treasuries = {str(row["from_wallet"]) for row in new_rows
+                  if row.get("edge_type") == "TREASURY_TO_SUBPROV" and row.get("from_wallet")}
+    changes = []
+    if launches: changes.append({"kind": "LAUNCHES_ADDED", "label": f"+{len(launches)} " + ("launch" if len(launches) == 1 else "launches"), "count": len(launches)})
+    if creators: changes.append({"kind": "CREATORS_ADDED", "label": f"+{len(creators)} " + ("creator" if len(creators) == 1 else "creators"), "count": len(creators)})
+    if treasuries: changes.append({"kind": "TREASURY_ADDED", "label": f"+{len(treasuries)} treasury" + (" relationships" if len(treasuries) != 1 else " relationship"), "count": len(treasuries)})
+    if provisioning: changes.append({"kind": "PROVISIONING_ADDED", "label": f"+{len(provisioning)} provisioning " + ("wallet" if len(provisioning) == 1 else "wallets"), "count": len(provisioning)})
+    if not changes and rows:
+        changes.append({"kind": "TOPOLOGY_UPDATED", "label": "Topology updated", "count": 1})
+    if not changes:
+        return None
+    activity_at = max(int(row.get("last_observed_by_flex") or row.get("first_observed_by_flex") or 0) for row in rows)
+    return {"changes": changes, "activity_at": activity_at,
+            "event_count": sum(int(item["count"]) for item in changes)}
+
+
 def _known_operations(conn: sqlite3.Connection, list_payload: dict[str, Any]) -> list[dict[str, Any]]:
     rows = conn.execute(
         "SELECT operator_id, display_name, status, first_seen, last_seen, updated_at "
@@ -338,9 +379,10 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
     new_investigations: list[dict[str, Any]] = []
 
     for family in _candidate_families(list_payload):
-        activity_at = int(family.get("last_material_activity_at") or family.get("last_seen_at") or 0)
-        if activity_at < activity_cutoff:
+        activity = _investigation_activity(conn, family, activity_cutoff)
+        if not activity:
             continue
+        activity_at = int(activity["activity_at"])
         family_wallets = _family_member_wallets(family)
         tr_signals = _treasury_review_signals(conn, family_wallets)
         entity_types = _family_entity_types(family, treasury_review_signals=tr_signals)
@@ -363,13 +405,12 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 new_investigations.append({
                     "family_id": family.get("family_id"),
                     "family_name": family.get("family_name"),
-                    "launches": family.get("launches"),
-                    "unique_creators": family.get("unique_creators"),
                     "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                     "profile_href": family.get("profile_href"),
                     "investigation_trigger": family.get("investigation_trigger"),
                     "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
                     "activity_at": activity_at,
+                    "changes": activity["changes"],
                     "note": "Operational-like structure reconstructed from persisted Walkback evidence; no confirmed identity overlap.",
                 })
                 continue
@@ -380,13 +421,12 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             new_investigations.append({
                 "family_id": family.get("family_id"),
                 "family_name": family.get("family_name"),
-                "launches": family.get("launches"),
-                "unique_creators": family.get("unique_creators"),
                 "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                 "profile_href": family.get("profile_href"),
                 "investigation_trigger": family.get("investigation_trigger"),
                 "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
                 "activity_at": activity_at,
+                "changes": activity["changes"],
                 "note": "Contains a treasury previously rejected in Treasury Review.",
             })
             continue
@@ -426,33 +466,34 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "investigation_trigger": family.get("investigation_trigger"),
                 "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
                 "activity_at": activity_at,
+                "changes": activity["changes"],
             })
         else:
             new_investigations.append({
                 "family_id": family.get("family_id"),
                 "family_name": family.get("family_name"),
-                "launches": family.get("launches"),
-                "unique_creators": family.get("unique_creators"),
                 "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                 "profile_href": family.get("profile_href"),
                 "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
                 "activity_at": activity_at,
+                "changes": activity["changes"],
             })
 
     def recent_passthrough(items: list[dict[str, Any]], disposition: str) -> list[dict[str, Any]]:
         result = []
         for family in items:
-            activity_at = int(family.get("last_material_activity_at") or family.get("last_seen_at") or 0)
-            if activity_at < activity_cutoff:
+            activity = _investigation_activity(conn, family, activity_cutoff)
+            if not activity:
                 continue
+            activity_at = int(activity["activity_at"])
             result.append({
                 "family_id": family.get("family_id"),
                 "family_name": family.get("family_name"),
-                "launches": family.get("launches"),
                 "disposition": disposition,
                 "profile_href": family.get("profile_href"),
                 "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
                 "activity_at": activity_at,
+                "changes": activity["changes"],
             })
         return result
 
@@ -484,7 +525,10 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
     )]
 
     new_investigations.sort(
-        key=lambda item: (int(item.get("activity_at") or 0), int(item.get("launches") or 0)),
+        key=lambda item: (
+            int(item.get("activity_at") or 0),
+            sum(int(change.get("count") or 0) for change in item.get("changes") or ()),
+        ),
         reverse=True,
     )
     potential_expansions.sort(
@@ -517,6 +561,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             "potential_recoveries": len(potential_expansions),
             "treasury_reviews_pending": sum(item["pending_treasury_reviews"] for item in potential_expansions),
             "new_operations": len(new_investigations) + len(review) + len(shared_infrastructure),
+            "investigation_updates": len(new_investigations) + len(review) + len(shared_infrastructure),
         },
         "feed_contract": {
             "window_seconds": 86400,

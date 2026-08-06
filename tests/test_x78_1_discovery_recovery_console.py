@@ -14,7 +14,7 @@ CONVERGENCE = (ROOT / "src" / "discovery" / "operation_convergence.py").read_tex
 def test_discovery_order_is_recovery_centred():
     start = DISCOVERY.index("dw-recovery-console")
     section = DISCOVERY[start:]
-    labels = ["Recovered Operations", "Potential Recoveries", "New Operations", "Operational Signals"]
+    labels = ["Recovered Operations", "Potential Recoveries", "Investigation Activity", "Operational Signals"]
     positions = [section.index(label) for label in labels]
     assert positions == sorted(positions)
 

@@ -4418,7 +4418,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // via Treasury Review -> Approve/Link -> Registry, unchanged.
   function operationConvergencePanel(){
     return '<section class="vi-card walkback dw-health dw-topo-panel" id="dw-convergence-panel">'
-      +'<div class="dw-health-head"><div class="vi-eyebrow">Operational Feed · Last 24 hours</div><div class="vi-title">Recovered Operations · Potential Recoveries · Potential New Operations · Operational Signals</div>'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Operational Activity Feed · Last 24 hours</div><div class="vi-title">Recovered Operations · Potential Recoveries · Investigation Activity · Operational Signals</div>'
       +'<div class="dw-landing-sub">What changed? Recent operational activity and discoveries only. Persistent operational state remains in the Operations Registry.</div></div>'
       +'<div id="dw-convergence-mount"><div class="dw-empty" style="padding:14px">Loading operation convergence…</div></div>'
       +'</section>';
@@ -4443,7 +4443,9 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
 
   function convergenceInvestigationCard(f){
     var lifecycleNote=f.reopen_recommended?'Previously dismissed · Behaviour changed · Reopen?':(f.reason||f.note||'');
-    return '<a class="dw-new-card" href="'+esc(f.profile_href||'/intelligence/operators')+'"><span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.identity||'Operational structure')+' · '+esc(f.launches!=null?f.launches:'—')+' supporting launches · '+esc(f.disposition==='REVIEW'?'Review Required':f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+'</small></span><span class="dw-recovery-link">Open Investigation →</span></a>';
+    var name=String(f.family_name||f.family_id||'Investigation').replace(/\s+Family$/,'')+' Investigation';
+    var changes=(f.changes||[]).map(function(x){return '<span class="dw-signal">'+esc(x.label)+'</span>'}).join('');
+    return '<a class="dw-new-card" href="'+esc(f.profile_href||'/intelligence/operators')+'"><span><strong>'+esc(name)+'</strong><small>'+changes+'<span class="dw-recovery-evidence-label">Updated '+esc(ago(f.activity_at))+'</span>'+(lifecycleNote?'<span class="dw-recovery-evidence-label">'+esc(lifecycleNote)+'</span>':'')+'</small></span><span class="dw-recovery-link">Open Investigation →</span></a>';
   }
 
   // X75.2 — Walkback reconstructs INFRASTRUCTURE FACTS (Known/Unknown
@@ -4528,15 +4530,15 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       var behaviour=(d.new_operational_behaviour||[]).map(convergenceBehaviourCard).join('')||'<div class="dw-empty" style="padding:10px">No new operational behaviour reconstructed in this window.</div>';
       var newOperations=[].concat(d.new_investigations||[],d.review||[],d.shared_infrastructure||[]).sort(function(a,b){return (b.activity_at||0)-(a.activity_at||0)||(b.launches||0)-(a.launches||0)});
       var primaryOperations=newOperations.slice(0,5),remainingOperations=newOperations.slice(5);
-      var newInv=primaryOperations.map(convergenceInvestigationCard).join('')||'<div class="dw-empty" style="padding:10px">No recent potential new Operations.</div>';
+      var newInv=primaryOperations.map(convergenceInvestigationCard).join('')||'<div class="dw-empty" style="padding:10px">No Investigation Population changed during this window.</div>';
       if(remainingOperations.length)newInv+='<details><summary class="dw-signal-summary">View remaining · '+remainingOperations.length+' →</summary><div class="dw-new-list" style="margin-top:8px">'+remainingOperations.map(convergenceInvestigationCard).join('')+'</div></details>';
       var dismissed=(d.dismissed_investigations||[]).map(convergenceInvestigationCard).join('');
       var summary=d.recovery_summary||{};
       mount.innerHTML='<div class="dw-recovery-console">'
-        +'<div class="dw-recovery-kpis"><span class="dw-recovery-kpi"><strong>'+esc(summary.recovered_today||0)+'</strong>Recovered today</span><span class="dw-recovery-kpi"><strong>'+esc(summary.potential_recoveries||0)+'</strong>Potential recoveries</span><span class="dw-recovery-kpi"><strong>'+esc(summary.treasury_reviews_pending||0)+'</strong>Treasury Reviews pending</span><span class="dw-recovery-kpi"><strong>'+esc(summary.new_operations||0)+'</strong>New Operations</span></div>'
+        +'<div class="dw-recovery-kpis"><span class="dw-recovery-kpi"><strong>'+esc(summary.recovered_today||0)+'</strong>Recovered today</span><span class="dw-recovery-kpi"><strong>'+esc(summary.potential_recoveries||0)+'</strong>Potential recoveries</span><span class="dw-recovery-kpi"><strong>'+esc(summary.treasury_reviews_pending||0)+'</strong>Treasury Reviews pending</span><span class="dw-recovery-kpi"><strong>'+esc(summary.investigation_updates||0)+'</strong>Investigation updates</span></div>'
         +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Recovered Operations</div><div class="dw-recovery-section-note">Confirmed identities and current recovery evidence</div></div></div><div class="dw-recovered-grid">'+known+'</div></section>'
         +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Potential Recoveries</div><div class="dw-recovery-section-note">Grouped by the existing Operation Matching result</div></div><span class="ip-section-count">'+(d.potential_expansions||[]).length+'</span></div>'+expansions+'</section>'
-        +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Potential New Operations</div><div class="dw-recovery-section-note">Top recent operational candidates · details live in Investigation</div></div><span class="ip-section-count">'+newOperations.length+'</span></div><div class="dw-new-list">'+newInv+'</div></section>'
+        +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Investigation Activity</div><div class="dw-recovery-section-note">Investigation Populations changed during this window · Registry owns current totals</div></div><span class="ip-section-count">'+newOperations.length+'</span></div><div class="dw-new-list">'+newInv+'</div></section>'
         +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Operational Signals</div><div class="dw-recovery-section-note">Ecosystem evidence supporting discovery, not recovery decisions</div></div><span class="ip-section-count">'+(d.new_operational_behaviour||[]).length+'</span></div><details><summary class="dw-signal-summary">Explore Fresh Creator, Fan-Out, Creator Identity, Topology Distribution, Shared Infrastructure, Funding Origin and Behaviour →</summary><div class="dw-intelligence-list dw-signal-rows">'+behaviour+'</div></details></section>'
         +(dismissed?'<details><summary class="dw-signal-summary">Dismissed Investigations · '+(d.dismissed_investigations||[]).length+'</summary><div class="dw-new-list" style="margin-top:8px">'+dismissed+'</div></details>':'')
         +'</div>';

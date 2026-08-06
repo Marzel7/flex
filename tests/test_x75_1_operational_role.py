@@ -128,6 +128,9 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "f.operational_role" in discovery
     assert "Typical observed funding relationships" in profile
     assert "View all '+esc(observations.length)" in profile
+    assert 'https://solscan.io/account/' in profile
+    assert "observations.slice(3).map(observationHtml)" in profile
+    assert 'details class="rp-role-all"' in profile
     assert "https://solscan.io/tx/" in profile
     assert 'rel="noopener noreferrer"' in profile
     assert "Funding Tx " in profile

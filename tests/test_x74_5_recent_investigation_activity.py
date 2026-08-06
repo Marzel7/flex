@@ -50,6 +50,9 @@ def test_internal_codes_have_analyst_readable_translations():
 
 def test_repeated_events_are_grouped_and_link_to_relevant_tabs():
     assert "let grouped={}" in SOURCE
+    assert "ACTIVITY_COLLAPSE_SECONDS=15*60" in SOURCE
+    assert "sort((a,b)=>b.timestamp-a.timestamp)" in SOURCE
+    assert "bucket.timestamp-e.timestamp<=ACTIVITY_COLLAPSE_SECONDS" in SOURCE
     assert "bucket.count++" in SOURCE
     assert "count+' related updates'" in SOURCE
     assert "?'members':type==='REVIEW_STATUS'?'summary':'evidence'" in SOURCE

@@ -4439,13 +4439,13 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
     if(e.pending_treasury_reviews)missing+='<span class="dw-recovery-missing">Treasury confirmation</span>';
     return '<div class="dw-recovery-candidate"><div><div class="dw-recovery-name">'+esc(e.family_name||e.family_id)+'</div><div class="dw-recovery-meta">'+esc(e.match_strength==='EXACT'?'Exact operational match':e.match_strength==='STRONG'?'Strong behaviour match':'Evidence match')+' · '+esc(e.launches==null?'—':e.launches)+' launches</div></div>'
       +'<div><div class="dw-recovery-evidence-label">Recovered because</div><div class="dw-recovery-evidence">'+proof+'</div>'+(missing?'<div class="dw-recovery-evidence-label" style="margin-top:7px">Missing</div><div class="dw-recovery-evidence">'+missing+'</div>':'')+'</div>'
-      +'<div class="dw-recovery-actions"><a class="dw-recovery-link" href="'+esc(e.profile_href||'/intelligence/operators')+'">Open →</a><a class="dw-recovery-link" href="'+esc(e.treasury_review_href||'/intelligence/treasury-review')+'">Treasury Review →</a></div></div>';
+      +'<div class="dw-recovery-actions"><a class="dw-recovery-link" href="'+esc(e.profile_href||'/intelligence/operators')+'">Open Investigation →</a><a class="dw-recovery-link" href="'+esc(e.treasury_review_href||'/intelligence/treasury-review')+'">Open Treasury Review →</a></div></div>';
   }
 
   function convergenceInvestigationCard(f){
     var lifecycleNote=f.reopen_recommended?'Previously dismissed · Behaviour changed · Reopen?':(f.reason||f.note||'');
     var trigger=f.investigation_trigger||{},triggerSignals=(trigger.signals||[]).slice(0,3).map(function(x){return '<span class="dw-signal">'+esc(x)+'</span>'}).join('');
-    return '<a class="dw-new-card" href="'+esc(f.profile_href||'/intelligence/operators')+'"><span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+' · '+esc(f.launches!=null?f.launches:'—')+' launches</small><span class="dw-recovery-evidence-label">Triggered by</span><span class="dw-recovery-evidence">'+triggerSignals+'</span></span><span class="dw-recovery-link">Open →</span></a>';
+    return '<a class="dw-new-card" href="'+esc(f.profile_href||'/intelligence/operators')+'"><span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+' · '+esc(f.launches!=null?f.launches:'—')+' launches</small><span class="dw-recovery-evidence-label">Why it surfaced · Triggered by</span><span class="dw-recovery-evidence">'+triggerSignals+'</span></span><span class="dw-recovery-link">Open Investigation →</span></a>';
   }
 
   // X75.2 — Walkback reconstructs INFRASTRUCTURE FACTS (Known/Unknown

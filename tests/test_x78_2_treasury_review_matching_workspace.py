@@ -33,6 +33,7 @@ def _conn():
 def test_review_projection_explains_topology_match_and_recommendation():
     conn = _conn()
     conn.execute("INSERT INTO operators VALUES ('op-1','WATCHTOWER','CONFIRMED')")
+    conn.execute("INSERT INTO operators VALUES ('op-2','3SW2','CONFIRMED')")
     conn.execute("INSERT INTO operator_entities VALUES ('op-1','sub-1')")
     conn.execute("INSERT INTO wt_discovered_subprovs VALUES ('sub-1','treasury-1')")
     conn.execute("INSERT INTO wt_wrap_close_candidates VALUES ('creator-1','sub-1','sig-1','WSOL_WRAP_CLOSE',200,200,'treasury-1')")
@@ -47,16 +48,21 @@ def test_review_projection_explains_topology_match_and_recommendation():
     assert item["observed_topology"]["label"] == "Treasury → Subprovider / Provisioning Wallet → Creator → Launch"
     assert item["operation_matches"][0]["display_name"] == "WATCHTOWER"
     assert item["operation_matches"][0]["states"]["Provisioning"] == "Exact"
+    assert item["operation_matches"][1]["display_name"] == "3SW2"
+    assert item["operation_matches"][1]["matched"] is False
+    assert set(item["operation_matches"][1]["states"].values()) == {"Unknown"}
     assert item["recommended_action"]["label"] == "Expand WATCHTOWER"
     assert item["relationship_examples"][0]["transaction"] == "sig-1"
-    assert "Walkback reached this treasury" in item["why_surfaced"]
+    assert "why_surfaced" not in item
 
 
 def test_workspace_keeps_governance_but_collapses_raw_evidence():
     html = (ROOT / "templates/treasury_review.html").read_text()
-    for label in ("Observed Topology", "Operation Matching", "Why this surfaced",
-                  "Recommended Action", "Supporting Evidence", "Representative Relationships"):
+    for label in ("Observed Topology", "Operation Comparison", "Governance Decision",
+                  "Supporting Evidence", "Representative Relationships"):
         assert label in html
+    assert "Why this surfaced" not in html
+    assert "Investigation Trigger" not in html
     for action in ("APPROVE_TREASURY", "LINK_TO_OPERATOR", "CREATE_OPERATOR_CANDIDATE",
                    "CREATE_INVESTIGATION", "NEEDS_MORE_EVIDENCE", "REJECT_TREASURY"):
         assert action in html

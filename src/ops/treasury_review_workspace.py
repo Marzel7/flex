@@ -212,7 +212,7 @@ def _observed_topology(treasury: str, subprovs: list[str], creators: list[str],
 
 def _operation_matches(conn, treasury: str, subprovs: list[str], creators: list[str],
                        mints: list[str], counts: dict[str, int]) -> list[dict[str, Any]]:
-    """Match confirmed identities by persisted entity overlap, never resemblance alone."""
+    """Compare against every confirmed identity using persisted overlap only."""
     if not (_table_exists(conn, "operators") and _table_exists(conn, "operator_entities")):
         return []
     evidence_wallets = {treasury, *subprovs, *creators}
@@ -222,20 +222,19 @@ def _operation_matches(conn, treasury: str, subprovs: list[str], creators: list[
             "SELECT entity_address FROM operator_entities WHERE operator_id=?", (op["operator_id"],)
         ).fetchall()}
         overlap = sorted(evidence_wallets & entities)
-        if not overlap:
-            continue
         treasury_known = treasury in entities
         downstream = len(set(subprovs + creators) & entities)
-        topology = "Exact" if treasury_known and downstream else "Partial"
+        topology = "Exact" if treasury_known and downstream else "Partial" if overlap else "Unknown"
         matches.append({
             "operator_id": op["operator_id"], "display_name": op["display_name"] or op["operator_id"],
             "operator_href": f"/intelligence/operators/{op['operator_id']}",
             "overlap_accounts": overlap,
+            "matched": bool(overlap),
             "states": {
                 "Topology": topology,
-                "Funding": "Exact" if downstream else "Partial",
+                "Funding": "Exact" if downstream else "Partial" if overlap else "Unknown",
                 "Provisioning": "Exact" if subprovs and set(subprovs) & entities else "Unknown",
-                "Behaviour": "Partial" if counts.get("wrap_close") else "Unknown",
+                "Behaviour": "Partial" if overlap and counts.get("wrap_close") else "Unknown",
                 "Settlement": "Unknown",
                 "Treasury": "Exact" if treasury_known else "Unknown",
             },
@@ -273,16 +272,10 @@ def _relationship_examples(conn, treasury: str, subprovs: list[str], creators: l
     return examples
 
 
-def _review_reasoning(row: dict[str, Any], counts: dict[str, int], matches: list[dict[str, Any]]) -> tuple[list[str], dict[str, str]]:
-    reasons = []
-    if row.get("has_walkback_evidence"): reasons.append("Walkback reached this treasury")
-    if counts.get("subprovs"): reasons.append("Provisioning lineage reconstructed")
-    if counts.get("wrap_close"): reasons.append("Funding mechanism observed")
-    if counts.get("launches"): reasons.append(f"{counts['launches']} launches share this lineage")
-    if matches: reasons.append(f"Recorded accounts overlap {matches[0]['display_name']}")
-    else: reasons.append("No confirmed Operation account match recorded")
-    if matches:
-        top = matches[0]
+def _governance_recommendation(row: dict[str, Any], counts: dict[str, int], matches: list[dict[str, Any]]) -> dict[str, str]:
+    matched = [item for item in matches if item.get("matched")]
+    if matched:
+        top = matched[0]
         action = "Expand " + top["display_name"] if top["states"]["Treasury"] == "Unknown" else "Link to " + top["display_name"]
         code = "APPROVE_TREASURY" if top["states"]["Treasury"] == "Unknown" else "LINK_TO_OPERATOR"
     elif counts.get("launches") and counts.get("subprovs"):
@@ -291,7 +284,7 @@ def _review_reasoning(row: dict[str, Any], counts: dict[str, int], matches: list
         action, code = "Needs More Evidence", "NEEDS_MORE_EVIDENCE"
     else:
         action, code = "Reject", "REJECT_TREASURY"
-    return reasons, {"label": action, "action": code, "operator_id": matches[0]["operator_id"] if matches else None}
+    return {"label": action, "action": code, "operator_id": matched[0]["operator_id"] if matched else None}
 
 
 def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
@@ -304,7 +297,7 @@ def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
     evidence = _evidence_summary(row, counts)
     topology = _observed_topology(treasury, evidence_subprovs, evidence_creators, evidence_mints, counts)
     matches = _operation_matches(conn, treasury, evidence_subprovs, evidence_creators, evidence_mints, counts)
-    surfaced_reasons, recommendation = _review_reasoning(row, counts, matches)
+    recommendation = _governance_recommendation(row, counts, matches)
     recent_actions = [dict(r) for r in conn.execute(
         "SELECT action, analyst, reason, created_at FROM wt_treasury_review_actions "
         "WHERE treasury=? ORDER BY created_at DESC LIMIT 5", (treasury,),
@@ -315,7 +308,6 @@ def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
         "evidence_summary": evidence,
         "observed_topology": topology,
         "operation_matches": matches,
-        "why_surfaced": surfaced_reasons,
         "recommended_action": recommendation,
         "relationship_examples": _relationship_examples(
             conn, treasury, evidence_subprovs, evidence_creators, evidence_mints

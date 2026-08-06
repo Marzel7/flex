@@ -44,7 +44,6 @@
 .tr-states{display:flex;gap:10px;flex-wrap:wrap}.tr-state{color:var(--ip-dim)}.tr-state b{color:var(--ip-sec);font-weight:600}
 .tr-recommendation{display:flex;justify-content:space-between;align-items:center;border-left:2px solid #f59e0b;padding:9px 12px;background:#0d131a;border-radius:0 7px 7px 0}
 .tr-recommendation strong{font-size:13px}.tr-recommendation span{font-size:9px;color:var(--ip-dim)}
-.tr-reasons{display:flex;gap:8px;flex-wrap:wrap}.tr-reason{font-size:10px;color:var(--ip-sec)}.tr-reason:before{content:'✓';color:#4ade80;margin-right:5px}
 .tr-example{display:grid;grid-template-columns:1fr auto;gap:12px;padding:8px 0;border-bottom:1px solid var(--ip-border);font-size:10px}.tr-example:last-child{border:0}
 .tr-path{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tr-path a{color:var(--ip-cyan);text-decoration:none}.tr-example-meta{color:var(--ip-dim);text-align:right}
 .tr-support summary{cursor:pointer;font-size:10px;font-weight:700;color:var(--ip-sec)}
@@ -79,7 +78,7 @@
  }
  function evidenceBlock(e){
   if(!e)return '';
-  let out='<div class="tr-evidence"><div class="why">'+esc(e.why_proposed)+'</div>';
+  let out='<div class="tr-evidence">';
   if((e.supporting_evidence||[]).length)out+='<ul>'+e.supporting_evidence.map(x=>'<li class="sup">✓ '+esc(x)+'</li>').join('')+'</ul>';
   if((e.contradictions||[]).length)out+='<ul>'+e.contradictions.map(x=>'<li class="con">⚠ '+esc(x)+'</li>').join('')+'</ul>';
   if((e.missing_evidence||[]).length)out+='<ul>'+e.missing_evidence.map(x=>'<li class="miss">· '+esc(x)+'</li>').join('')+'</ul>';
@@ -89,7 +88,7 @@
  function short(s){s=String(s||'');return s.length>11?s.slice(0,6)+'…'+s.slice(-4):s}
  function account(a){return a?'<a href="https://solscan.io/account/'+encodeURIComponent(a)+'" target="_blank" rel="noopener">'+esc(short(a))+' ↗</a>':''}
  function topology(t){if(!t||!t.nodes)return '';return '<div class="tr-section"><div class="tr-section-title">Observed Topology</div><div class="tr-topology">'+t.nodes.map((n,i)=>(i?'<span class="tr-arrow">→</span>':'')+'<span class="tr-node'+(n.current?' current':'')+'">'+esc(n.role)+(n.count>1?'<small>'+esc(n.count)+' observed</small>':'')+'</span>').join('')+'</div></div>'}
- function matches(items){return '<div class="tr-section"><div class="tr-section-title">Operation Matching</div>'+((items||[]).length?items.map(m=>'<div class="tr-match"><a href="'+esc(m.operator_href)+'">'+esc(m.display_name)+' →</a><div class="tr-states">'+Object.keys(m.states||{}).map(k=>'<span class="tr-state">'+esc(k)+' <b>'+esc(m.states[k])+'</b></span>').join('')+'</div><span class="tr-badge op">'+esc((m.overlap_accounts||[]).length)+' account match</span></div>').join(''):'<div class="tr-empty" style="padding:8px 0;text-align:left">No evidence-backed confirmed Operation match.</div>')+'</div>'}
+ function matches(items){return '<div class="tr-section"><div class="tr-section-title">Operation Comparison</div>'+((items||[]).length?items.map(m=>'<div class="tr-match"><a href="'+esc(m.operator_href)+'">'+esc(m.display_name)+' →</a><div class="tr-states">'+Object.keys(m.states||{}).map(k=>'<span class="tr-state">'+esc(k)+' <b>'+esc(m.states[k])+'</b></span>').join('')+'</div><span class="tr-badge '+(m.matched?'op':'')+'">'+(m.matched?esc((m.overlap_accounts||[]).length)+' account match':'No match')+'</span></div>').join(''):'<div class="tr-empty" style="padding:8px 0;text-align:left">No confirmed Operations available for comparison.</div>')+'</div>'}
  function examples(items){if(!(items||[]).length)return '';return '<div class="tr-section"><div class="tr-section-title">Representative Relationships · newest first</div>'+items.map(x=>{let p=[account(x.treasury),account(x.subprovider),account(x.creator),x.launch?'<a href="/token-intelligence?mint='+encodeURIComponent(x.launch)+'">Launch '+esc(short(x.launch))+'</a>':''].filter(Boolean).join('<span class="tr-arrow">→</span>');return '<div class="tr-example"><div class="tr-path">'+p+'</div><div class="tr-example-meta">'+esc(x.mechanism||'Recorded relationship')+(x.transaction?' · <a href="https://solscan.io/tx/'+encodeURIComponent(x.transaction)+'" target="_blank" rel="noopener">Tx '+esc(short(x.transaction))+' ↗</a>':'')+'</div></div>'}).join('')+'</div>'}
  function card(item){
   const t=item.treasury;
@@ -97,18 +96,15 @@
    '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+
    '<a class="tr-nav" href="'+esc(item.discovery_href||('/discovery?entity='+encodeURIComponent(t)+'&type=treasury'))+'" style="margin-left:auto;font-size:9px;color:var(--ip-cyan);text-decoration:none">Open in Discovery →</a></div>'+
    topology(item.observed_topology)+matches(item.operation_matches)+
-   '<div class="tr-section"><div class="tr-section-title">Why this surfaced</div><div class="tr-reasons">'+(item.why_surfaced||[]).map(x=>'<span class="tr-reason">'+esc(x)+'</span>').join('')+'</div></div>'+
-   '<div class="tr-section"><div class="tr-section-title">Recommended Action</div><div class="tr-recommendation"><strong>'+esc((item.recommended_action||{}).label||'Needs More Evidence')+'</strong><span>Analyst decision required</span></div></div>'+
-   '<div class="tr-metrics">'+
+   '<div class="tr-section"><div class="tr-section-title">Governance Decision</div><div class="tr-recommendation"><strong>'+esc((item.recommended_action||{}).label||'Needs More Evidence')+'</strong><span>Recommended governance action · analyst decision required</span></div></div>'+
+   '<details class="tr-section tr-support"><summary>Supporting Evidence</summary><div class="tr-metrics">'+
     '<div class="tr-metric"><strong>'+esc(item.launch_count)+'</strong><span>Launches</span></div>'+
     '<div class="tr-metric"><strong>'+esc(item.subprovider_count)+'</strong><span>Subproviders</span></div>'+
     '<div class="tr-metric"><strong>'+esc(item.wrap_close_observations)+'</strong><span>Wrap-Close Obs.</span></div>'+
     '<div class="tr-metric"><strong>'+esc(item.walkback_depth)+'</strong><span>Walkback Depth</span></div>'+
     '<div class="tr-metric"><strong>'+ago(item.first_observed)+'</strong><span>First Observed</span></div>'+
     '<div class="tr-metric"><strong>'+ago(item.last_observed)+'</strong><span>Last Observed</span></div>'+
-   '</div>'+
-   examples(item.relationship_examples)+
-   '<details class="tr-section tr-support"><summary>Supporting Evidence</summary>'+evidenceBlock(item.evidence_summary)+'</details>'+
+   '</div>'+examples(item.relationship_examples)+evidenceBlock(item.evidence_summary)+'</details>'+
    '<div class="tr-actions">'+
     '<button class="primary" data-action="APPROVE_TREASURY">Approve Treasury</button>'+
     '<button data-action="LINK_TO_OPERATOR">Link to Existing Operator</button>'+

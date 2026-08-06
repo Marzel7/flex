@@ -88,6 +88,12 @@ class SecondHopExpansionBuilder:
             }
 
         t0 = time.time()
+        # X78.0 -- conn.commit()/close() previously sat inside the try, only
+        # reached on the success path; any exception from the builder calls
+        # below left conn (and its write lease) open for the rest of this
+        # thread's life. conn declared before the try so finally can close
+        # it regardless of which statement raised.
+        conn = None
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             conn.execute("PRAGMA journal_mode=WAL")
@@ -105,7 +111,6 @@ class SecondHopExpansionBuilder:
             hops    = self._build_creator_second_hop(conn)
 
             conn.commit()
-            conn.close()
 
             duration = round(time.time() - t0, 2)
             logger.info(
@@ -130,6 +135,12 @@ class SecondHopExpansionBuilder:
                 "creator_second_hops": 0,
                 "duration_seconds": round(time.time() - t0, 2),
             }
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def _exclude_infra_links(self, conn) -> None:
         """

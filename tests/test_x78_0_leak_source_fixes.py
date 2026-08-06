@@ -427,3 +427,172 @@ def test_post_extraction_intelligence_refresh_closes_irc_conn_on_exception(tmp_d
     # simulated failure -- proven by attempting a further operation on it.
     with pytest.raises(sqlite3.ProgrammingError):
         holder["conn"].execute("SELECT 1")
+
+
+# ── Fix 7: relationship_events.take_snapshot ────────────────────────────────
+
+def test_take_snapshot_closes_connection_on_exception(tmp_db, monkeypatch):
+    """conn.close() was only reached on success; any exception from a
+    _snapshot_* helper left the connection handle open. Read-only (no
+    write-lease risk), but still a genuine handle leak worth closing."""
+    import src.core.relationship_events as ire
+
+    conn = sqlite3.connect(tmp_db)
+    conn.close()
+
+    holder = {}
+    real_connect = ire.sqlite3.connect
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        holder["conn"] = c
+        return c
+
+    monkeypatch.setattr(ire.sqlite3, "connect", fake_connect)
+    monkeypatch.setattr(
+        ire, "_snapshot_funder_upstream",
+        lambda _c: (_ for _ in ()).throw(RuntimeError("simulated snapshot failure")))
+
+    result = ire.take_snapshot(tmp_db)
+    assert result == {}
+    with pytest.raises(sqlite3.ProgrammingError):
+        holder["conn"].execute("SELECT 1")
+
+
+# ── Fix 8: relationship_events.diff_and_log ─────────────────────────────────
+
+def test_diff_and_log_closes_connection_on_exception(tmp_db, monkeypatch):
+    """conn.commit()/close() previously sat inside the try, only reached on
+    success; any exception from an _insert_event call left conn (and its
+    write lease) open."""
+    import src.core.relationship_events as ire
+
+    conn = sqlite3.connect(tmp_db)
+    conn.close()
+
+    holder = {}
+    real_connect = ire.sqlite3.connect
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        holder["conn"] = c
+        return c
+
+    monkeypatch.setattr(ire.sqlite3, "connect", fake_connect)
+    monkeypatch.setattr(
+        ire, "_snapshot_funder_upstream",
+        lambda _c: (_ for _ in ()).throw(RuntimeError("simulated diff failure")))
+
+    result = ire.diff_and_log(tmp_db, before={"funder_upstream": set()})
+    assert result["ok"] is False
+    with pytest.raises(sqlite3.ProgrammingError):
+        holder["conn"].execute("SELECT 1")
+
+
+# ── Fix 9: second_hop_builder.SecondHopExpansionBuilder.build ──────────────
+
+def test_second_hop_builder_closes_connection_on_exception(tmp_db, monkeypatch):
+    """conn.commit()/close() previously sat inside the try, only reached on
+    success; any exception from a builder step left conn (and its write
+    lease) open."""
+    import src.core.second_hop_builder as shb
+
+    monkeypatch.setenv("SECOND_HOP_SQL_ENABLED", "true")
+
+    conn = sqlite3.connect(tmp_db)
+    conn.close()
+
+    holder = {}
+    real_connect = shb.sqlite3.connect
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        holder["conn"] = c
+        return c
+
+    monkeypatch.setattr(shb.sqlite3, "connect", fake_connect)
+
+    builder = shb.SecondHopExpansionBuilder(tmp_db)
+    monkeypatch.setattr(
+        builder, "_apply_span_migration",
+        lambda _c: (_ for _ in ()).throw(RuntimeError("simulated migration failure")))
+
+    result = builder.build()
+    assert result["status"] == "failed"
+    with pytest.raises(sqlite3.ProgrammingError):
+        holder["conn"].execute("SELECT 1")
+
+
+# ── Fix 10: relationship_events.rebuild_after_scan's analyzer_runs logging ─
+
+def test_rebuild_after_scan_analyzer_runs_conn_closes_on_exception(tmp_db, monkeypatch):
+    """_conn.commit()/close() previously sat inside the try, only reached
+    on success; an INSERT failure left _conn (and its write lease) open."""
+    import src.core.relationship_events as ire
+
+    monkeypatch.setattr(ire, "SHL_REBUILD_AFTER_SCAN", True)
+    monkeypatch.setattr(ire, "apply_migration", lambda *_a, **_k: None)
+    monkeypatch.setattr(ire, "take_snapshot", lambda *_a, **_k: {})
+    monkeypatch.setattr(ire, "diff_and_log", lambda *_a, **_k: {"ok": True})
+
+    import sys
+    import types
+    fake_shb_module = types.ModuleType("src.core.second_hop_builder")
+
+    class _FakeSecondHopBuilder:
+        def __init__(self, *_a, **_k):
+            pass
+
+        def build(self):
+            return {"status": "skipped"}
+
+    fake_shb_module.SecondHopExpansionBuilder = _FakeSecondHopBuilder
+    monkeypatch.setitem(sys.modules, "src.core.second_hop_builder", fake_shb_module)
+
+    fake_bnr_module = types.ModuleType("src.utils.build_networks_release")
+    fake_bnr_module.build_networks_release = lambda *_a, **_k: {"status": "skipped"}
+    monkeypatch.setitem(sys.modules, "src.utils.build_networks_release", fake_bnr_module)
+
+    fake_irc_module = types.ModuleType("src.core.intelligence_refresh")
+    fake_irc_module.apply_migration = lambda *_a, **_k: None
+
+    class _FakeIRCBuilder:
+        def __init__(self, *_a, **_k):
+            pass
+
+        def run(self):
+            return {"status": "skipped"}
+
+    fake_irc_module.IntelligenceRefreshCandidateBuilder = _FakeIRCBuilder
+    monkeypatch.setitem(sys.modules, "src.core.intelligence_refresh", fake_irc_module)
+
+    holder = {}
+    real_connect = ire.sqlite3.connect
+
+    def fake_connect(db_path, timeout=10):
+        c = real_connect(db_path, timeout=timeout)
+        holder["conn"] = c
+
+        class _BoomConn:
+            def __init__(self, inner):
+                self._inner = inner
+
+            def execute(self, sql, *a, **k):
+                if "INSERT INTO analyzer_runs" in sql:
+                    raise RuntimeError("simulated analyzer_runs insert failure")
+                return self._inner.execute(sql, *a, **k)
+
+            def __getattr__(self, name):
+                return getattr(self._inner, name)
+
+        return _BoomConn(c)
+
+    # rebuild_after_scan does `import sqlite3 as _sqlite3` locally -- patch the
+    # real sqlite3 module's connect, since that's what the local import binds to.
+    monkeypatch.setattr(sqlite3, "connect", fake_connect)
+
+    result = ire.rebuild_after_scan(tmp_db)
+    assert "events" in result
+
+    with pytest.raises(sqlite3.ProgrammingError):
+        holder["conn"].execute("SELECT 1")

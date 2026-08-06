@@ -84,21 +84,30 @@ def _snapshot_irc(conn: sqlite3.Connection) -> set[tuple]:
 
 def take_snapshot(db_path: str) -> dict:
     """Capture pre-rebuild counts from all tracked tables. Returns dict of sets."""
+    # X78.0 -- conn.close() was only reached on success; the _snapshot_*
+    # helpers are read-only (no write-lease risk), but the connection
+    # handle itself still leaked on any exception. conn declared before the
+    # try so finally can close it regardless of which helper raised.
+    conn = None
     try:
         conn = sqlite3.connect(db_path, timeout=30)
         conn.execute("PRAGMA journal_mode=WAL")
-        snap = {
+        return {
             "funder_upstream":      _snapshot_funder_upstream(conn),
             "network_bridges":      _snapshot_network_bridges(conn),
             "creator_second_hop":   _snapshot_creator_second_hop(conn),
             "network_membership":   _snapshot_network_membership(conn),
             "irc":                  _snapshot_irc(conn),
         }
-        conn.close()
-        return snap
     except Exception as e:
         logger.warning(f"[IRE] Snapshot failed: {e}")
         return {}
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 # ── Event insertion ───────────────────────────────────────────────────────────
@@ -163,6 +172,12 @@ def diff_and_log(
         "watchlist_added": 0,
     }
 
+    # X78.0 -- conn.commit()/close() previously sat inside the try, only
+    # reached on the success path; any exception from the _insert_event
+    # calls below left conn (and its write lease) open for the rest of
+    # this thread's life. conn declared before the try so finally can
+    # close it regardless of which statement raised.
+    conn = None
     try:
         conn = sqlite3.connect(db_path, timeout=30)
         conn.execute("PRAGMA journal_mode=WAL")
@@ -263,7 +278,6 @@ def diff_and_log(
             counts["watchlist_added"] += 1
 
         conn.commit()
-        conn.close()
 
         total = sum(counts.values())
         logger.info(f"[IRE] diff_and_log — {total} new events: {counts}")
@@ -272,6 +286,12 @@ def diff_and_log(
     except Exception as e:
         logger.error(f"[IRE] diff_and_log failed: {e}", exc_info=True)
         return {"ok": False, "error": str(e)}
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 # ── Post-scan rebuild ─────────────────────────────────────────────────────────
@@ -334,6 +354,13 @@ def rebuild_after_scan(db_path: str, scan_id: Optional[str] = None, before: Opti
         results["irc"] = "failed"
 
     # Log IRC run to analyzer_runs so "Last Build" KPI updates
+    # X78.0 -- _conn.close() previously sat inside the try, only reached on
+    # success; an INSERT failure left _conn (and its write lease) open for
+    # the rest of this thread's life. rebuild_after_scan is called from
+    # creator_funding_worker's _post_extraction_intelligence_refresh (via
+    # asyncio.to_thread, same reused executor pool as every other write in
+    # that worker).
+    _conn = None
     try:
         import sqlite3 as _sqlite3
         _conn = _sqlite3.connect(db_path, timeout=10)
@@ -344,9 +371,14 @@ def rebuild_after_scan(db_path: str, scan_id: Optional[str] = None, before: Opti
             VALUES ('IntelligenceRefreshCandidateBuilder', ?, ?, ?, ?, 0, ?)
         """, (irc_started, time.time(), round(time.time() - irc_started, 2), irc_status, time.time()))
         _conn.commit()
-        _conn.close()
     except Exception as e:
         logger.warning(f"[IRE] Failed to log IRC run to analyzer_runs: {e}")
+    finally:
+        if _conn is not None:
+            try:
+                _conn.close()
+            except Exception:
+                pass
 
     # 5. Diff and log
     event_summary = diff_and_log(db_path, before, scan_source="scan_rebuild", scan_id=scan_id)

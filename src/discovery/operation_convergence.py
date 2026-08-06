@@ -280,7 +280,41 @@ def _candidate_families(list_payload: dict[str, Any]) -> list[dict[str, Any]]:
     that authoritative decision."""
     candidates = list(list_payload.get("operator_candidates_reconciled") or [])
     candidates += list(list_payload.get("active_investigations_reconciled") or [])
+    candidates += list(list_payload.get("potential_operations_reconciled") or [])
     return [family for family in candidates if family.get("analyst_lifecycle") != "DISMISSED"]
+
+
+def _walkback_category_summary(conn: sqlite3.Connection, list_payload: dict[str, Any]) -> dict[str, Any]:
+    """Exclusive A/B/C projection over persisted completed Walkback rows."""
+    operational_parents = {
+        str(wallet)
+        for family in (list_payload.get("potential_operations_reconciled") or [])
+        for wallet in (family.get("member_wallets") or [])
+    }
+    operational_mints: set[str] = set()
+    if operational_parents:
+        marks = ",".join("?" for _ in operational_parents)
+        operational_mints = {str(row[0]) for row in conn.execute(
+            f"SELECT DISTINCT mint FROM wt_walkback_edge_candidates "
+            f"WHERE selection_status='SELECTED' AND candidate_parent IN ({marks})",
+            tuple(sorted(operational_parents)),
+        ) if row[0]}
+    counts = {"CONFIRMED_OPERATION": 0, "OPERATIONAL_LIKE": 0, "RESIDUAL_ECOSYSTEM_INTELLIGENCE": 0}
+    total = 0
+    for row in conn.execute(
+        "SELECT mint,intelligence_outcome FROM wt_walkback_queue "
+        "WHERE status IN ('complete','skipped','failed')"
+    ):
+        total += 1
+        if row["intelligence_outcome"] == "CANONICAL_OPERATOR_REACHED":
+            counts["CONFIRMED_OPERATION"] += 1
+        elif str(row["mint"] or "") in operational_mints:
+            counts["OPERATIONAL_LIKE"] += 1
+        else:
+            counts["RESIDUAL_ECOSYSTEM_INTELLIGENCE"] += 1
+    return {"counts": counts, "total_processed": total,
+            "exclusive": sum(counts.values()) == total, "unit": "processed launches",
+            "source": "Persisted Walkback outcomes and selected lineage edges"}
 
 
 def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any], *, min_score: float = 0.5) -> dict[str, Any]:
@@ -306,6 +340,32 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
         tr_signals = _treasury_review_signals(conn, family_wallets)
         entity_types = _family_entity_types(family, treasury_review_signals=tr_signals)
         control_types, population_types = _family_evidence_types(family, treasury_review_signals=tr_signals)
+        # A newly reconstructed operational-like group is a Potential
+        # Operation, not a Potential Recovery, unless at least one of its
+        # recorded wallets already overlaps a confirmed identity. Similar
+        # topology alone must never imply operator ownership.
+        if family.get("projection_scope") == "DISCOVERY_ONLY":
+            identity_overlap = False
+            if family_wallets:
+                marks = ",".join("?" for _ in family_wallets)
+                identity_overlap = bool(conn.execute(
+                    f"SELECT 1 FROM operator_entities oe JOIN operators o "
+                    f"ON o.operator_id=oe.operator_id WHERE o.status='CONFIRMED' "
+                    f"AND oe.entity_address IN ({marks}) LIMIT 1",
+                    tuple(sorted(family_wallets)),
+                ).fetchone())
+            if not identity_overlap:
+                new_investigations.append({
+                    "family_id": family.get("family_id"),
+                    "family_name": family.get("family_name"),
+                    "launches": family.get("launches"),
+                    "unique_creators": family.get("unique_creators"),
+                    "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
+                    "profile_href": family.get("profile_href"),
+                    "investigation_trigger": family.get("investigation_trigger"),
+                    "note": "Operational-like structure reconstructed from persisted Walkback evidence; no confirmed identity overlap.",
+                })
+                continue
         if family_wallets & rejected_treasuries:
             # A human analyst already rejected at least one of this
             # population's own wallets as a treasury -- never re-propose
@@ -422,6 +482,7 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             for f in list_payload.get("dismissed_investigations") or []
         ],
         "investigation_lifecycle_summary": list_payload.get("investigation_lifecycle_summary") or {},
+        "walkback_categories": _walkback_category_summary(conn, list_payload),
         "recovery_summary": {
             "recovered_today": sum(operation["recovered_today"] for operation in known_operations),
             "potential_recoveries": len(potential_expansions),

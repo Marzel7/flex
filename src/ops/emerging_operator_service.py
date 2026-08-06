@@ -190,10 +190,14 @@ class EmergingOperatorService:
                              if visible_full else candidate_summary_full)
         compatibility_candidates = visible if visible else candidate_summary
         disposition_groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        potential_operations: list[dict[str, Any]] = []
         for family in surface_families:
             metadata = reconciliation_by_family.get(str(family.get("family_id")))
             if metadata:
-                disposition_groups[str(metadata.get("disposition") or "UNRESOLVED")].append(family)
+                if family.get("projection_scope") == "DISCOVERY_ONLY":
+                    potential_operations.append(family)
+                else:
+                    disposition_groups[str(metadata.get("disposition") or "UNRESOLVED")].append(family)
         material_key = lambda f: (
             int(f.get("launches") or 0),
             int((f.get("discovery_significance") or {}).get("score") or 0),
@@ -215,6 +219,9 @@ class EmergingOperatorService:
         active_investigations = active_investigation_pool[:5]
         operator_candidates = operator_candidate_pool[:5]
         review_cases = review_case_pool[:5]
+        potential_operation_cards = [reconciled_card(f) for f in sorted(
+            potential_operations, key=material_key, reverse=True
+        )]
         infrastructure_alerts = [reconciled_card(f) for f in sorted(
             disposition_groups["INFRASTRUCTURE"], key=material_key, reverse=True
         )[:5]]
@@ -242,6 +249,9 @@ class EmergingOperatorService:
             "active_investigations_reconciled": active_investigations,
             "operator_candidates_reconciled": operator_candidates,
             "review_cases_reconciled": review_cases,
+            # Discovery-owned provisional structures. Deliberately excluded
+            # from Registry/attention queues until an analyst governs them.
+            "potential_operations_reconciled": potential_operation_cards,
             # Retain the ranked pools in the internal snapshot so a dismissed
             # row can be removed before the five-slot attention cap is applied.
             "_active_investigation_pool_reconciled": active_investigation_pool,
@@ -346,6 +356,7 @@ class EmergingOperatorService:
         lifecycle_keys = ("families", "candidates", "candidate_summary", "confirmed_operations_reconciled",
                           "active_investigations_reconciled", "operator_candidates_reconciled",
                           "review_cases_reconciled", "infrastructure_alerts_reconciled",
+                          "potential_operations_reconciled",
                           "_active_investigation_pool_reconciled", "_operator_candidate_pool_reconciled",
                           "_review_case_pool_reconciled")
         for key in lifecycle_keys:
@@ -615,6 +626,12 @@ class EmergingOperatorService:
             populations = self._population_builder().build(profiles)
             adapter = self._legacy_adapter(evaluation, proposals)
             projected = [adapter.project(population) for population in populations]
+            for family in projected:
+                if "wt_treasury_review_operational_like" in (family.get("evidence_sources") or ()):
+                    family["projection_scope"] = "DISCOVERY_ONLY"
+                    family["registry_eligible"] = False
+                    family["governance_state"] = "PROVISIONAL"
+                    family["operational_category"] = "OPERATIONAL_LIKE"
             # X76.0 -- rejected treasuries are a hard stop on absorption,
             # same source table X75.0's own expansion-exclusion logic uses
             # (wt_treasury_review, status='REJECTED'). Read once per compose.
@@ -803,6 +820,52 @@ class EmergingOperatorService:
                 data = dict(row); wallet = data["wallet"]
                 p = profile(wallet, "wt_infrastructure_candidates"); p["candidate"] = data
                 p["first"], p["last"] = _timestamp(data.get("first_seen_at")), _timestamp(data.get("last_seen_at"))
+        # X78.4: Walkback reconstructs; Discovery surfaces. Repeated selected
+        # hop-two paths are a deterministic operational-like population even
+        # before Treasury Review governs them. Scalar review hints never create
+        # membership, and this projection performs no RPC.
+        if {"wt_treasury_review", "wt_walkback_edge_candidates", "wt_provisioning_edges"}.issubset(tables):
+            for review_row in conn.execute(
+                "SELECT * FROM wt_treasury_review WHERE status='PENDING_REVIEW' "
+                "AND has_walkback_evidence=1 AND distinct_subprovs>=2 AND distinct_creators>=2"
+            ):
+                review = dict(review_row); wallet = str(review.get("treasury") or "")
+                selected = [dict(row) for row in conn.execute(
+                    "SELECT mint,wallet,candidate_parent,signature,mechanism,block_time "
+                    "FROM wt_walkback_edge_candidates WHERE candidate_parent=? "
+                    "AND selection_status='SELECTED' ORDER BY block_time", (wallet,)
+                )] if wallet else []
+                selected_mints = {str(row["mint"]) for row in selected if row.get("mint")}
+                selected_clients = {str(row["wallet"]) for row in selected if row.get("wallet")}
+                if len(selected_mints) < 2 or len(selected_clients) < 2:
+                    continue
+                p = profile(wallet, "wt_treasury_review_operational_like")
+                p["candidate"] = {"candidate_role": "OPERATIONAL_TREASURY"}
+                p["treasuries"].add(wallet)
+                p["launches"].update(selected_mints)
+                p["walkback_descendants"].update(selected_mints)
+                p["provisioning_clients"].update(selected_clients)
+                for edge in selected:
+                    if edge.get("mechanism"): p["mechanisms"].add(str(edge["mechanism"]))
+                    if edge.get("signature"): p["signatures"].add(str(edge["signature"]))
+                    ts = _timestamp(edge.get("block_time"))
+                    if ts is not None:
+                        p["edge_times"].append(ts)
+                        p["first"] = min(x for x in (p["first"], ts) if x is not None)
+                        p["last"] = max(x for x in (p["last"], ts) if x is not None)
+                    p["evidence"].append({"type": "SELECTED_WALKBACK_EDGE", "source": "wt_walkback_edge_candidates", "detail": edge})
+                marks = ",".join("?" for _ in selected_mints)
+                for downstream_row in conn.execute(
+                    f"SELECT * FROM wt_provisioning_edges WHERE edge_type='SUBPROV_TO_CREATOR' "
+                    f"AND source_mint IN ({marks})", tuple(sorted(selected_mints))
+                ):
+                    edge = dict(downstream_row)
+                    if edge.get("from_wallet") not in selected_clients:
+                        continue
+                    if edge.get("to_wallet"): p["creators"].add(str(edge["to_wallet"]))
+                    if edge.get("funding_mechanism"): p["mechanisms"].add(str(edge["funding_mechanism"]))
+                    if edge.get("funding_tx_signature"): p["signatures"].add(str(edge["funding_tx_signature"]))
+                    p["evidence"].append({"type": "FUNDING_EDGE", "source": "wt_provisioning_edges", "detail": edge})
         # Infrastructure candidates carry a denormalized distinct-launch
         # count, but population membership must be reconstructed from the
         # validated identity-bearing evidence. Only SELECTED descendants are

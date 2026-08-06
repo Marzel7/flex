@@ -52,6 +52,9 @@ def test_trigger_contract_is_integrated_into_profile_and_discovery():
     assert "Investigation Trigger" in profile
     assert "Created because" in profile
     assert "Initial population" in profile
-    assert "Triggered by" in discovery
+    # X78.6: trigger detail belongs to the Investigation profile; Discovery
+    # is a lightweight recent-change feed.
+    assert "Triggered by" not in discovery
+    assert "Open Investigation →" in discovery
     assert "investigation_trigger" in convergence
     assert "capture_and_apply" in snapshot

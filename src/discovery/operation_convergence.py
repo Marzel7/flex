@@ -331,11 +331,16 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
     known_operations = _known_operations(conn, list_payload)
     profiles_by_operator = {op["operator_id"]: get_profile(op["operator_id"], op["display_name"]) for op in known_operations}
     rejected_treasuries = _rejected_treasuries(conn)
+    now = int(time.time())
+    activity_cutoff = now - 24 * 60 * 60
 
     potential_expansions: list[dict[str, Any]] = []
     new_investigations: list[dict[str, Any]] = []
 
     for family in _candidate_families(list_payload):
+        activity_at = int(family.get("last_material_activity_at") or family.get("last_seen_at") or 0)
+        if activity_at < activity_cutoff:
+            continue
         family_wallets = _family_member_wallets(family)
         tr_signals = _treasury_review_signals(conn, family_wallets)
         entity_types = _family_entity_types(family, treasury_review_signals=tr_signals)
@@ -363,6 +368,8 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                     "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                     "profile_href": family.get("profile_href"),
                     "investigation_trigger": family.get("investigation_trigger"),
+                    "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
+                    "activity_at": activity_at,
                     "note": "Operational-like structure reconstructed from persisted Walkback evidence; no confirmed identity overlap.",
                 })
                 continue
@@ -378,6 +385,8 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                 "profile_href": family.get("profile_href"),
                 "investigation_trigger": family.get("investigation_trigger"),
+                "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
+                "activity_at": activity_at,
                 "note": "Contains a treasury previously rejected in Treasury Review.",
             })
             continue
@@ -415,6 +424,8 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "treasury_review_href": "/intelligence/treasury-review",
                 "profile_href": family.get("profile_href"),
                 "investigation_trigger": family.get("investigation_trigger"),
+                "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
+                "activity_at": activity_at,
             })
         else:
             new_investigations.append({
@@ -424,33 +435,34 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "unique_creators": family.get("unique_creators"),
                 "disposition": (family.get("reconciliation") or {}).get("disposition") or "UNRESOLVED",
                 "profile_href": family.get("profile_href"),
+                "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
+                "activity_at": activity_at,
             })
 
-    shared_infrastructure = [
-        {
-            "family_id": f.get("family_id"),
-            "family_name": f.get("family_name"),
-            "launches": f.get("launches"),
-            "disposition": "INFRASTRUCTURE",
-            "profile_href": f.get("profile_href"),
-            "investigation_trigger": f.get("investigation_trigger"),
-        }
-        for f in (list_payload.get("infrastructure_alerts_reconciled") or [])
-    ]
+    def recent_passthrough(items: list[dict[str, Any]], disposition: str) -> list[dict[str, Any]]:
+        result = []
+        for family in items:
+            activity_at = int(family.get("last_material_activity_at") or family.get("last_seen_at") or 0)
+            if activity_at < activity_cutoff:
+                continue
+            result.append({
+                "family_id": family.get("family_id"),
+                "family_name": family.get("family_name"),
+                "launches": family.get("launches"),
+                "disposition": disposition,
+                "profile_href": family.get("profile_href"),
+                "identity": ((family.get("operational_role") or {}).get("current_role") or "Operational structure"),
+                "activity_at": activity_at,
+            })
+        return result
 
-    review = [
-        {
-            "family_id": f.get("family_id"),
-            "family_name": f.get("family_name"),
-            "launches": f.get("launches"),
-            "disposition": "REVIEW",
-            "profile_href": f.get("profile_href"),
-            "investigation_trigger": f.get("investigation_trigger"),
-        }
-        for f in (list_payload.get("review_cases_reconciled") or [])
-    ]
+    shared_infrastructure = recent_passthrough(
+        list(list_payload.get("infrastructure_alerts_reconciled") or []), "INFRASTRUCTURE"
+    )
+    review = recent_passthrough(
+        list(list_payload.get("review_cases_reconciled") or []), "REVIEW"
+    )
 
-    now = int(time.time())
     for operation in known_operations:
         matches = [item for item in potential_expansions
                    if item["matched_operator_id"] == operation["operator_id"]]
@@ -462,6 +474,23 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
         operation["recently_expanded"] = sum((row["timestamp"] or 0) >= now - 7 * 86400 for row in recoveries)
         operation["recovered_today"] = sum((row["timestamp"] or 0) >= now - 86400 for row in recoveries)
         operation["last_confirmed_recovery_at"] = recoveries[0]["timestamp"] if recoveries else None
+
+    # Discovery is a recent operational feed. Confirmed identities with no
+    # recent activity remain available in the Registry and Command Centre,
+    # but are not repeated here as permanent state.
+    known_operations = [operation for operation in known_operations if (
+        operation["recovered_today"] > 0
+        or int(operation.get("last_material_activity_at") or 0) >= activity_cutoff
+    )]
+
+    new_investigations.sort(
+        key=lambda item: (int(item.get("activity_at") or 0), int(item.get("launches") or 0)),
+        reverse=True,
+    )
+    potential_expansions.sort(
+        key=lambda item: (int(item.get("activity_at") or 0), float(item.get("match_score") or 0)),
+        reverse=True,
+    )
 
     return {
         "known_operations": known_operations,
@@ -488,6 +517,12 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             "potential_recoveries": len(potential_expansions),
             "treasury_reviews_pending": sum(item["pending_treasury_reviews"] for item in potential_expansions),
             "new_operations": len(new_investigations) + len(review) + len(shared_infrastructure),
+        },
+        "feed_contract": {
+            "window_seconds": 86400,
+            "generated_at": now,
+            "question": "What changed?",
+            "persistent_state_href": "/intelligence/operators",
         },
         "read_only": True,
     }

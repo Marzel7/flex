@@ -6,7 +6,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_discovery_owns_surfacing_reason_and_navigation_only():
     html = (ROOT / "templates/discovery.html").read_text()
-    assert "Why it surfaced" in html
+    # X78.6 reduces Discovery to recent-change summaries; full surfacing
+    # provenance remains on the Investigation profile.
+    assert "What changed?" in html
+    assert "Why it surfaced" not in html
     assert "Open Investigation →" in html
     assert "Open Treasury Review →" in html
     for governance_button in ("Approve Treasury", "Reject Treasury", "Create Investigation"):

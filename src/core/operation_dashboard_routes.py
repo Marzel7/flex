@@ -8693,6 +8693,19 @@ def api_walkback_progress_health():
         conn.close()
 
 
+@ops_dashboard_bp.route("/api/ops-v2/walkback-candidate-health")
+def api_walkback_candidate_health():
+    """X76.5A -- composed Walkback Candidate Generation health: primary
+    status (HEALTHY/IDLE/DEGRADED/STALLED/RECOVERING/STOPPED), lease
+    monitoring, candidate-generation freshness, and self-kill/manual-
+    termination recovery history. Read-only; changes nothing."""
+    try:
+        from src.ops.walkback_candidate_health import build_walkback_candidate_health
+        return jsonify(build_walkback_candidate_health(OPS_DB_PATH, LIVE_DB_PATH))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
 @ops_dashboard_bp.route("/api/ops-v2/watchtower-attribution-funnel")
 def api_watchtower_attribution_funnel():
     """Rolling persisted-data launch-to-Mission-Control control funnel."""

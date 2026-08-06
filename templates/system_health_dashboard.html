@@ -758,6 +758,15 @@
             let snapHealth = null;
             try { snapHealth = await fetch('/api/ops-v2/intelligence-snapshots/health').then(r => r.json()); } catch(e) {}
 
+            // X76.5A -- Walkback Candidate Generation. Fetched here (not a
+            // separate top-level group) per the milestone's own instruction
+            // to extend the existing Intelligence group. Folded into this
+            // group's warningMsgs/criticalMsgs below so Mission Control can
+            // never report overall Healthy while candidate generation is
+            // stalled (the milestone's own explicit acceptance criterion).
+            let walkbackHealth = null;
+            try { walkbackHealth = await fetch('/api/ops-v2/walkback-candidate-health').then(r => r.json()); } catch(e) {}
+
             const crqFailed = intel.creator_queue_failed ?? 0;
             const fqPending = intel.funding_queue_pending ?? 0;
             const fqWorkerStatus = intel.funding_worker_status || 'UNKNOWN';
@@ -801,12 +810,31 @@
             if (anyWindowFailed) criticalMsgs.push('Intelligence snapshot build failed');
             else if (anyWindowRefreshing) warningMsgs.push('Intelligence snapshot refreshing');
 
+            // X76.5A -- Walkback Candidate Generation status folds into this
+            // group's overall verdict. STOPPED/STALLED are critical (per the
+            // milestone: "Mission Control cannot show Healthy while
+            // candidate generation is stalled"); DEGRADED/RECOVERING are
+            // warnings; HEALTHY/IDLE add nothing. warnings[] from the API
+            // (the two specific messages the spec requires -- stale lease,
+            // auto-recovered) are surfaced verbatim, never a generic
+            // "database" message, per the spec's own instruction.
+            const wb = walkbackHealth || {};
+            const wbStatus = wb.status || 'UNKNOWN';
+            if (wbStatus === 'STOPPED' || wbStatus === 'STALLED') {
+                criticalMsgs.push(wb.summary || `Walkback candidate generation ${wbStatus}`);
+            } else if (wbStatus === 'DEGRADED' || wbStatus === 'RECOVERING') {
+                warningMsgs.push(wb.summary || `Walkback candidate generation ${wbStatus}`);
+            }
+            (wb.warnings || []).forEach(w => {
+                if (!criticalMsgs.includes(w) && !warningMsgs.includes(w)) warningMsgs.push(w);
+            });
+
             let color = 'healthy';
             if (criticalMsgs.length) color = 'critical';
             else if (warningMsgs.length) color = 'warning';
 
             mcSetGroupStatus('grp-intelligence', color,
-                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Snapshot ${eo ? (eo.state || eo.health) : '—'}`);
+                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Walkback ${wbStatus} · Snapshot ${eo ? (eo.state || eo.health) : '—'}`);
 
             const fqWorkerColor = fqWorkerStatus === 'RUNNING' ? 'healthy' : fqWorkerStatus === 'STALLED' ? 'warning' : fqWorkerStatus === 'STOPPED' ? 'critical' : 'neutral';
             const fqMeta = intel.funding_worker_meta || {};
@@ -850,6 +878,11 @@
                 </div>
 
                 <div class="mc-subpanel">
+                    <div class="mc-subpanel-title"><i class="fas fa-route"></i> Walkback Candidate Generation</div>
+                    ${renderWalkbackCandidateHealth(wb)}
+                </div>
+
+                <div class="mc-subpanel">
                     <div class="mc-subpanel-title"><i class="fas fa-camera"></i> Intelligence Snapshots (Phase 5)</div>
                     <div id="mc-snapshot-card">${renderSnapshotHealthCard(snapHealth)}</div>
                 </div>
@@ -871,6 +904,101 @@
             renderTier1Monitor();
             renderTier2Monitor();
             return { color, warningMsgs, criticalMsgs };
+        }
+
+        // X76.5A — Walkback Candidate Generation health card. Composes
+        // src/ops/walkback_candidate_health.py's build_walkback_candidate_health()
+        // output: primary status, display metrics, lease monitoring (behind
+        // an expander per the spec — "do not expose raw stack traces by
+        // default"), and the 5 most recent recovery events.
+        function _wbStatusColor(status) {
+            return {
+                HEALTHY: 'healthy', IDLE: 'neutral', DEGRADED: 'warning',
+                STALLED: 'critical', RECOVERING: 'warning', STOPPED: 'critical',
+            }[status] || 'neutral';
+        }
+        function renderWalkbackCandidateHealth(wb) {
+            if (!wb || !wb.ok) return `<div style="font-size:0.82rem;color:var(--text-secondary);">Walkback candidate health unavailable.</div>`;
+            const status = wb.status || 'UNKNOWN';
+            const color = _wbStatusColor(status);
+            const w = wb.walkback || {}, cg = wb.candidate_generation || {}, lease = wb.lease || {}, rec = wb.recovery || {}, links = wb.links || {};
+
+            const warningsHtml = (wb.warnings || []).length
+                ? `<div style="font-size:0.8rem;color:${color==='critical'?'#f87171':'#facc15'};margin:0.5rem 0;">${wb.warnings.map(m => `<div style="margin-bottom:0.2rem;">⚠ ${m}</div>`).join('')}</div>`
+                : '';
+
+            const metricsHtml = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.6rem;margin:0.6rem 0;">
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Heartbeat</div><div style="font-size:0.95rem;font-weight:700;">${_fmtAge(wb.worker?.heartbeat_age_seconds)}</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Last Completed</div><div style="font-size:0.95rem;font-weight:700;">${w.completed_last_hour ?? '—'} in 1h</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Candidate (1h / 24h)</div><div style="font-size:0.95rem;font-weight:700;">${cg.generated_last_hour ?? '—'} / ${cg.generated_last_day ?? '—'}</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Newest Candidate</div><div style="font-size:0.95rem;font-weight:700;">${_fmtAge(cg.newest_candidate_age_secs)}</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Pending Walkback</div><div style="font-size:0.95rem;font-weight:700;">${w.pending ?? '—'}</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Running Walkback</div><div style="font-size:0.95rem;font-weight:700;">${w.running ?? '—'}</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Avg Latency</div><div style="font-size:0.95rem;font-weight:700;">${w.average_completion_latency_seconds != null ? w.average_completion_latency_seconds.toFixed(1)+'s' : '—'}</div></div>
+                    <div class="card" style="padding:0.5rem 0.7rem;"><div style="font-size:0.65rem;color:#64748b;text-transform:uppercase;">Self-Kills (1h / 24h)</div><div style="font-size:0.95rem;font-weight:700;">${rec.self_kill_last_hour ?? 0} / ${rec.self_kill_last_day ?? 0}</div></div>
+                </div>`;
+
+            const leaseId = 'wb-lease-' + Math.random().toString(36).slice(2, 8);
+            const leaseHtml = `
+                <button class="l3-toggle" id="${leaseId}-btn" onclick="mcL3Toggle('${leaseId}-btn','${leaseId}-body','lease detail')">
+                    <i class="fas fa-chevron-right"></i> Lease detail ${lease.held ? '(held)' : '(not held)'}
+                </button>
+                <div class="l3-body" id="${leaseId}-body">
+                    <div style="font-size:0.8rem;line-height:1.7;">
+                        <div>Owner command: <b>${lease.owner_command || '—'}</b></div>
+                        <div>Owner PID: <b>${lease.owner_pid ?? '—'}</b></div>
+                        <div>Transaction ID: <b style="font-family:monospace;font-size:0.75rem;">${lease.owner_transaction_id || '—'}</b></div>
+                        <div>Acquired: <b>${lease.acquired_at ? new Date(lease.acquired_at*1000).toISOString() : '—'}</b></div>
+                        <div>Age: <b>${lease.age_seconds != null ? lease.age_seconds.toFixed(1)+'s' : '—'}</b></div>
+                        <div>Safe threshold: <b>${lease.safe_threshold_seconds ?? '—'}s</b> · Self-kill threshold: <b>${lease.self_kill_threshold_seconds ?? '—'}s</b></div>
+                    </div>
+                </div>`;
+
+            const eventKindLabel = (kind) => kind === 'manual_external_termination' ? 'Manual / external process termination' : 'Stale lease self-kill';
+            const historyRows = (rec.events || []).map(e => {
+                const when = e.detected_at ? new Date(e.detected_at*1000) : null;
+                const whenStr = when ? `${when.toLocaleDateString(undefined,{day:'numeric',month:'short'})} · ${when.toISOString().slice(11,19)}Z` : '—';
+                const ttHealthy = (e.healthy_at && e.detected_at) ? _fmtDuration(e.healthy_at - e.detected_at) : null;
+                const outcome = e.restart_outcome ? `${e.restart_outcome}${ttHealthy ? ' in ' + ttHealthy : ''}` : (e.restarted_at ? 'restarted' : 'not yet restarted');
+                return `<tr>
+                    <td style="white-space:nowrap;">${whenStr}</td>
+                    <td>${e.worker || '—'}</td>
+                    <td>${eventKindLabel(e.event_kind)}</td>
+                    <td>${e.reason || '—'}</td>
+                    <td>${e.lease_age_seconds != null ? _fmtDuration(e.lease_age_seconds) : '—'}</td>
+                    <td>${outcome}</td>
+                </tr>`;
+            }).join('');
+            const historyHtml = historyRows
+                ? `<table class="pool-health-table" style="margin-top:0.5rem;"><thead><tr><th>Time</th><th>Worker</th><th>Kind</th><th>Reason</th><th>Lease Age</th><th>Outcome</th></tr></thead><tbody>${historyRows}</tbody></table>`
+                : `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.4rem;">No recovery events recorded.</div>`;
+
+            return `
+                <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.4rem;">
+                    ${pillHtml(color, status)}
+                    <span style="font-size:0.85rem;color:var(--text-secondary);">${wb.summary || ''}</span>
+                </div>
+                ${warningsHtml}
+                ${metricsHtml}
+                ${leaseHtml}
+                <div style="margin-top:0.9rem;">
+                    <div class="mc-subpanel-title" style="margin-bottom:0.3rem;"><i class="fas fa-history"></i> Recovery History (last 5)</div>
+                    ${historyHtml}
+                </div>
+                <div style="margin-top:0.6rem;display:flex;gap:1rem;font-size:0.78rem;">
+                    <a href="${links.treasury_review || '/intelligence/treasury-review'}" style="color:#22d3ee;">Treasury Review →</a>
+                    <a href="${links.discovery || '/discovery'}" style="color:#22d3ee;">Discovery Diagnostics →</a>
+                </div>`;
+        }
+        function _fmtDuration(secs) {
+            if (secs == null) return '—';
+            secs = Math.round(secs);
+            if (secs < 60) return `${secs}s`;
+            const m = Math.floor(secs/60), s = secs%60;
+            if (m < 60) return `${m}m ${s}s`;
+            const h = Math.floor(m/60), rm = m%60;
+            return `${h}h ${rm}m`;
         }
 
         // Phase 5 — dedicated Intelligence Snapshot card

@@ -4514,7 +4514,7 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
             +'<div class="dw-diag-row"><span class="dw-diag-row-l">Pending review</span><span class="dw-diag-row-v">'+esc(cg.pending_review||0)+'</span></div>'
             +'<div class="dw-diag-row"><span class="dw-diag-row-l">Newest candidate</span><span class="dw-diag-row-v">'+esc(cgAgeText(cg.newest_candidate_age_secs))+'</span></div>'
             +'<div class="dw-diag-row"><span class="dw-diag-row-l">Oldest pending</span><span class="dw-diag-row-v">'+esc(cgAgeText(cg.oldest_pending_age_secs))+'</span></div>'
-            +'<a class="dw-diag-link" href="'+esc(tr.href||'/intelligence/treasury-review')+'">Open Treasury Review →</a></div>'
+            +'<a class="dw-diag-link" href="/system-health#grp-intelligence">Open Mission Control →</a></div>'
         +'</div>';
     }).catch(function(){
       var mount=$('dw-diag');

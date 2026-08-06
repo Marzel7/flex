@@ -1454,14 +1454,54 @@ def _check_stuck_lease() -> None:
     restart. A restart has been confirmed (live, during this milestone's own
     investigation) to fully clear the stuck state -- the lease is per-process
     thread-local, so a fresh process starts clean. Checked once per cycle,
-    cheap (pure in-memory introspection, no DB I/O)."""
+    cheap (pure in-memory introspection, no DB I/O).
+
+    X76.5A -- the event is now persisted (wt_walkback_recovery_events)
+    BEFORE os._exit(), so Mission Control has an auditable record of every
+    self-kill, distinct from a manual/external termination (which cannot
+    write this row, since the process never gets a chance to detect its
+    own death -- see src/ops/walkback_recovery_log.py's module docstring
+    and reconcile_unexplained_restarts.py)."""
     from src.ops.walkback_cycle_trace import _lease_snapshot
     lease = _lease_snapshot()
     if lease and lease.get("held_seconds", 0) > MAX_LEASE_STUCK_SECONDS:
-        print(f"[WALKBACK] CRITICAL_STUCK_LEASE: held {lease['held_seconds']:.0f}s "
-              f"(max={MAX_LEASE_STUCK_SECONDS}) command={lease.get('command')} "
-              f"transaction_id={lease.get('transaction_id')} — exiting for supervisord restart",
+        held = lease["held_seconds"]
+        command = lease.get("command")
+        txid = lease.get("transaction_id")
+        print(f"[WALKBACK] CRITICAL_STUCK_LEASE: held {held:.0f}s "
+              f"(max={MAX_LEASE_STUCK_SECONDS}) command={command} "
+              f"transaction_id={txid} — exiting for supervisord restart",
               flush=True)
+        try:
+            # X76.5A bug fix (found live, during this milestone's own
+            # validation): the FIRST four real firings all failed to log,
+            # every time, with NestedDatabaseWriteError -- db_connect()
+            # returns a TrackedConnection, and _check_stuck_lease is by
+            # definition running on a thread whose _thread_write_lease is
+            # ALREADY poisoned by the very stuck lease being reported, so
+            # attempting a normally-tracked write here immediately
+            # self-nests against itself. The fix: bypass TrackedConnection
+            # entirely for this one write, using the ORIGINAL unpatched
+            # sqlite3.connect (db_locking.py's own _sqlite3_connect_orig).
+            # Safe specifically here because the process calls os._exit(1)
+            # immediately after -- there is no risk of this write itself
+            # leaving a dangling lease behind for a future cycle to trip
+            # over, since there is no future cycle in this process.
+            from src.utils.db_locking import _sqlite3_connect_orig
+            from src.ops.walkback_recovery_log import record_self_kill
+            _log_conn = _sqlite3_connect_orig(OPS_DB_PATH, timeout=5)
+            try:
+                record_self_kill(
+                    _log_conn, worker="walkback_worker",
+                    reason=f"stale write lease held {held:.0f}s (threshold {MAX_LEASE_STUCK_SECONDS}s)",
+                    lease_age_seconds=held, lease_command=command, lease_transaction_id=txid,
+                )
+            finally:
+                _log_conn.close()
+        except Exception as e:
+            # Never let recovery-log persistence block the self-kill itself --
+            # a failure to log must not become a failure to recover.
+            print(f"[WALKBACK] failed to persist self-kill event (non-fatal): {e}", flush=True)
         os._exit(1)
 
 
@@ -1478,6 +1518,23 @@ def run_loop() -> None:
         treasury_bank.initialize_schema(startup)
         from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
         _ensure_outcome_schema(startup)
+
+        # X76.5A -- this is a fresh process boot (run_loop() only executes
+        # once per process). If the most recent recovery event for this
+        # worker has no restarted_at/healthy_at yet, this boot IS that
+        # restart -- close the loop on the recovery-history row so Mission
+        # Control can show "time to healthy heartbeat" instead of a
+        # permanently open-ended event. Non-essential: failure here must
+        # never block startup.
+        try:
+            from src.ops.walkback_recovery_log import recent_events, mark_restarted, mark_healthy
+            _recent = recent_events(startup, worker="walkback_worker", limit=1)
+            if _recent and _recent[0].get("restarted_at") is None:
+                _now = int(time.time())
+                mark_restarted(startup, _recent[0]["event_id"], restarted_at=_now, outcome="restarted successfully")
+                mark_healthy(startup, _recent[0]["event_id"], healthy_at=_now)
+        except Exception as e:
+            print(f"[WALKBACK] recovery-log startup reconciliation skipped (non-fatal): {e}", flush=True)
 
         # Startup MAINTENANCE (recover-stalled / finalize-exhausted) is non-essential:
         # skipping it for one boot only delays cleanup of crash-stranded rows, which

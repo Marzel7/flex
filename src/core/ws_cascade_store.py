@@ -801,8 +801,17 @@ def enqueue_pending_cascade_event(conn, item: tuple, error: BaseException) -> No
                VALUES (?,?,?,?)""",
             (kind, payload, dedupe_key, str(error)[:500]))
         conn.commit()
-    except Exception:
-        pass  # best-effort durability; if even this fails, the write is genuinely lost
+    except Exception as e:
+        # X77.5: best-effort durability, but must not fail SILENTLY -- if even
+        # this fails (e.g. wt_pending_cascade_events genuinely missing, which
+        # should never happen since ws_cascade.py's startup guarantees it),
+        # the event is genuinely lost and that must be loud and observable,
+        # not swallowed. The caller (_event_writer_loop) has its own logging
+        # for this path too, but this function is also called directly by
+        # drain_pending_cascade_events's own retry -- log here so both
+        # callers get a record regardless of which one invoked this.
+        print(f"[WS_CASCADE] enqueue_pending_cascade_event failed, event genuinely "
+              f"lost: kind={kind} error={e}", flush=True)
 
 
 def _write_cascade_item(c, item: tuple, wh_id: str) -> None:
@@ -913,9 +922,25 @@ def _event_writer_loop():
             print(f"[WS_CASCADE] ops-db write failed {kind}: {e}", flush=True)
             if _is_transient_write_failure(e):
                 try:
+                    # X77.5 fix: do NOT call ensure_cascade_schema() here. It is a
+                    # 636-line function with no try/finally around its own body --
+                    # its FIRST statement unconditionally acquires this connection's
+                    # write lease, and if anything between there and its single
+                    # final commit() raises, the lease leaks for the rest of this
+                    # thread's life. Calling it on every single write failure (this
+                    # is the background writer thread's OWN failure path, so it can
+                    # fire repeatedly under real contention) turned an occasional
+                    # transient failure into a self-sustaining NestedDatabaseWriteError
+                    # loop on this thread -- observed live during the X77.5 soak.
+                    # The schema (including wt_pending_cascade_events) is already
+                    # guaranteed to exist: ws_cascade.py's __init__ runs
+                    # ensure_cascade_schema exactly once at startup via the safely
+                    # managed operations_write() path, before the event loop (and
+                    # this writer thread) ever starts. If the table is somehow still
+                    # missing, enqueue_pending_cascade_event's own INSERT raises and
+                    # is caught below -- loud and logged, not silently lost.
                     conn = db_connect(OPS_DB_PATH, timeout=5)
                     try:
-                        ensure_cascade_schema(conn)
                         enqueue_pending_cascade_event(conn, item, e)
                         _bump_stat("queued_for_retry")
                     finally:

@@ -47,39 +47,71 @@ class BlockSecAMLBatcher:
         self._ensure_tables()
 
     def _ensure_tables(self):
-        """Create necessary tables for batch tracking."""
-        conn = sqlite3.connect(self.db_path, timeout=5)
-        cursor = conn.cursor()
+        """Create necessary tables for batch tracking.
 
-        # Table to track which addresses have been queried
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS blocksec_aml_cache (
-                address TEXT PRIMARY KEY,
-                label_name TEXT,
-                category TEXT,
-                risk_level TEXT,
-                risk_score REAL,
-                aml_status TEXT,
-                raw_response TEXT,
-                queried_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                source TEXT DEFAULT 'blocksec'
-            )
-        """)
+        X78.0 -- this runs on EVERY BlockSecAMLBatcher() instantiation
+        (auto_batch_new_addresses() creates a new instance per call, and it
+        is called on every single creator-funding extraction via
+        _try_blocksec_batch's fire-and-forget background task). conn.close()
+        was only reached on the success path; any exception between
+        connect() and close() (e.g. this thread's TrackedConnection write
+        lease already poisoned by an earlier leak elsewhere on the same
+        reused asyncio.to_thread/event-loop worker thread) left the
+        connection open, extending whatever lease it managed to acquire for
+        the rest of that thread's life -- contributing to the
+        self-perpetuating stall documented in
+        docs/audits/x78_0_creator_funding_concurrency.md. conn is declared
+        before the try so finally can safely close it regardless of which
+        statement raised. Also checks sqlite_master first so a
+        fully-migrated DB (true after the very first ever call) issues zero
+        write statements here at all."""
+        conn = None
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            existing = {
+                r[0] for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name IN ('blocksec_aml_cache', 'blocksec_batch_log')"
+                ).fetchall()
+            }
+            cursor = conn.cursor()
 
-        # Table to track batch submissions for rate limiting
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS blocksec_batch_log (
-                batch_id TEXT PRIMARY KEY,
-                batch_size INTEGER,
-                addresses_submitted TEXT,
-                submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                api_response TEXT,
-                status TEXT
-            )
-        """)
+            if "blocksec_aml_cache" not in existing:
+                # Table to track which addresses have been queried
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS blocksec_aml_cache (
+                        address TEXT PRIMARY KEY,
+                        label_name TEXT,
+                        category TEXT,
+                        risk_level TEXT,
+                        risk_score REAL,
+                        aml_status TEXT,
+                        raw_response TEXT,
+                        queried_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        source TEXT DEFAULT 'blocksec'
+                    )
+                """)
+                conn.commit()
 
-        conn.commit()
-        conn.close()
+            if "blocksec_batch_log" not in existing:
+                # Table to track batch submissions for rate limiting
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS blocksec_batch_log (
+                        batch_id TEXT PRIMARY KEY,
+                        batch_size INTEGER,
+                        addresses_submitted TEXT,
+                        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        api_response TEXT,
+                        status TEXT
+                    )
+                """)
+                conn.commit()
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def get_unlabeled_addresses(self, limit: int = 100) -> List[str]:
         """

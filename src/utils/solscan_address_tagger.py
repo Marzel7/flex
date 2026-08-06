@@ -282,6 +282,19 @@ def tag_creator_with_services(creator: str, service_names: set) -> int:
 
     tags_added = 0
 
+    # X78.0 -- conn was only closed on the success path; any exception
+    # between connect() and commit()/close() (e.g. this thread's write
+    # lease already held by an earlier leak elsewhere in the same reused
+    # asyncio.to_thread/event-loop worker thread) left this connection
+    # open, extending whatever lease it managed to acquire indefinitely.
+    # This function is called synchronously (no await) from
+    # extract_for_creator, on the event-loop's own thread -- the same
+    # thread creator_funding_worker's extraction runs on -- so a leak here
+    # contributes directly to the self-perpetuating stall documented in
+    # docs/audits/x78_0_creator_funding_concurrency.md. conn is declared
+    # before the try so finally can safely check `is not None` regardless
+    # of which line raised.
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
@@ -319,10 +332,15 @@ def tag_creator_with_services(creator: str, service_names: set) -> int:
                 tags_added += 1
 
         conn.commit()
-        conn.close()
 
     except Exception as e:
         print(f"[SERVICE_TAGS] ⚠ Error tagging creator: {e}")
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     return tags_added
 

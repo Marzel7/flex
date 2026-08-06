@@ -1274,8 +1274,35 @@ class RealTimeCreatorFundingExtractor:
             if exclude_set:
                 print(f"[REALTIME_FUNDING]    Excluding {len(exclude_set)} addresses (creator's tokens & bonding curves)", flush=True)
 
-            # Ensure tables exist
-            try:
+            # Ensure tables exist.
+            # X78.0 -- check sqlite_master FIRST rather than attempting
+            # CREATE TABLE and swallowing the (expected, near-every-call)
+            # failure. TrackedCursor.execute() acquires extraction_conn's
+            # write lease unconditionally on ANY write-shaped statement --
+            # success or failure of the statement itself doesn't matter, the
+            # lease is already held the instant _acquire_write_lane() runs.
+            # The old code's except:pass here was originally meant only to
+            # tolerate "table already exists" on a normal CREATE TABLE IF
+            # NOT EXISTS (which SQLite itself never raises for) -- but if
+            # this thread's write lease was EVER left held by anything
+            # earlier (a leak from any cause, on this same reused
+            # asyncio.to_thread worker thread), THIS acquisition itself
+            # raises NestedDatabaseWriteError, which the blanket except:pass
+            # silently absorbed, execution continued with extraction_conn
+            # never actually holding the lease it thought it had, and this
+            # exact sequence repeated on every single subsequent call --
+            # the self-perpetuating mechanism behind creator_funding_worker's
+            # permanent stall (see docs/audits/x78_0_creator_funding_concurrency.md).
+            # Checking existence first means this block issues ZERO write
+            # statements once the tables exist (true after the very first
+            # ever run), so it can never trigger or extend the poisoning.
+            _existing_tables = {
+                r[0] for r in extraction_cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name IN ('creator_service_history', 'creator_receivers')"
+                ).fetchall()
+            }
+            if "creator_service_history" not in _existing_tables:
                 extraction_cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_service_history (
                         creator_address TEXT,
@@ -1290,6 +1317,8 @@ class RealTimeCreatorFundingExtractor:
                         PRIMARY KEY (creator_address, tx_signature, tag)
                     )
                 """)
+                extraction_conn.commit()
+            if "creator_receivers" not in _existing_tables:
                 extraction_cursor.execute("""
                     CREATE TABLE IF NOT EXISTS creator_receivers (
                         creator_address TEXT NOT NULL,
@@ -1302,8 +1331,6 @@ class RealTimeCreatorFundingExtractor:
                     )
                 """)
                 extraction_conn.commit()
-            except Exception:
-                pass  # Tables already exist
 
             # Use Helius Enhanced API - paginate through all transactions
             funders = {}

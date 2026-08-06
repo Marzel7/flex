@@ -32,6 +32,22 @@
 .tr-actions button{font-size:10px;font-weight:700;padding:6px 10px;border-radius:6px;border:1px solid var(--ip-border);background:rgba(255,255,255,.03);color:inherit;cursor:pointer}
 .tr-actions button.primary{color:#22c55e;border-color:#22c55e}
 .tr-actions button.danger{color:#f87171;border-color:#f87171}
+.tr-section{margin-top:14px;padding-top:14px;border-top:1px solid var(--ip-border)}
+.tr-section-title{font-size:9px;color:var(--ip-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+.tr-topology{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tr-node{padding:7px 10px;border:1px solid var(--ip-border);border-radius:7px;font-size:11px;background:#0d131a}
+.tr-node.current{border-color:#64748b;color:#cbd5e1}
+.tr-node small{display:block;color:var(--ip-dim);font-size:8px;margin-top:2px}
+.tr-arrow{color:var(--ip-dim)}
+.tr-match{display:grid;grid-template-columns:minmax(150px,1fr) 3fr auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--ip-border);font-size:10px}
+.tr-match:last-child{border-bottom:0}.tr-match a{color:var(--ip-cyan);text-decoration:none;font-weight:700}
+.tr-states{display:flex;gap:10px;flex-wrap:wrap}.tr-state{color:var(--ip-dim)}.tr-state b{color:var(--ip-sec);font-weight:600}
+.tr-recommendation{display:flex;justify-content:space-between;align-items:center;border-left:2px solid #f59e0b;padding:9px 12px;background:#0d131a;border-radius:0 7px 7px 0}
+.tr-recommendation strong{font-size:13px}.tr-recommendation span{font-size:9px;color:var(--ip-dim)}
+.tr-reasons{display:flex;gap:8px;flex-wrap:wrap}.tr-reason{font-size:10px;color:var(--ip-sec)}.tr-reason:before{content:'✓';color:#4ade80;margin-right:5px}
+.tr-example{display:grid;grid-template-columns:1fr auto;gap:12px;padding:8px 0;border-bottom:1px solid var(--ip-border);font-size:10px}.tr-example:last-child{border:0}
+.tr-path{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tr-path a{color:var(--ip-cyan);text-decoration:none}.tr-example-meta{color:var(--ip-dim);text-align:right}
+.tr-support summary{cursor:pointer;font-size:10px;font-weight:700;color:var(--ip-sec)}
 .tr-empty{padding:30px;text-align:center;color:var(--ip-dim)}
 </style>
 <main class="tr-wrap">
@@ -70,11 +86,19 @@
   out+='</div>';
   return out;
  }
+ function short(s){s=String(s||'');return s.length>11?s.slice(0,6)+'…'+s.slice(-4):s}
+ function account(a){return a?'<a href="https://solscan.io/account/'+encodeURIComponent(a)+'" target="_blank" rel="noopener">'+esc(short(a))+' ↗</a>':''}
+ function topology(t){if(!t||!t.nodes)return '';return '<div class="tr-section"><div class="tr-section-title">Observed Topology</div><div class="tr-topology">'+t.nodes.map((n,i)=>(i?'<span class="tr-arrow">→</span>':'')+'<span class="tr-node'+(n.current?' current':'')+'">'+esc(n.role)+(n.count>1?'<small>'+esc(n.count)+' observed</small>':'')+'</span>').join('')+'</div></div>'}
+ function matches(items){return '<div class="tr-section"><div class="tr-section-title">Operation Matching</div>'+((items||[]).length?items.map(m=>'<div class="tr-match"><a href="'+esc(m.operator_href)+'">'+esc(m.display_name)+' →</a><div class="tr-states">'+Object.keys(m.states||{}).map(k=>'<span class="tr-state">'+esc(k)+' <b>'+esc(m.states[k])+'</b></span>').join('')+'</div><span class="tr-badge op">'+esc((m.overlap_accounts||[]).length)+' account match</span></div>').join(''):'<div class="tr-empty" style="padding:8px 0;text-align:left">No evidence-backed confirmed Operation match.</div>')+'</div>'}
+ function examples(items){if(!(items||[]).length)return '';return '<div class="tr-section"><div class="tr-section-title">Representative Relationships · newest first</div>'+items.map(x=>{let p=[account(x.treasury),account(x.subprovider),account(x.creator),x.launch?'<a href="/token-intelligence?mint='+encodeURIComponent(x.launch)+'">Launch '+esc(short(x.launch))+'</a>':''].filter(Boolean).join('<span class="tr-arrow">→</span>');return '<div class="tr-example"><div class="tr-path">'+p+'</div><div class="tr-example-meta">'+esc(x.mechanism||'Recorded relationship')+(x.transaction?' · <a href="https://solscan.io/tx/'+encodeURIComponent(x.transaction)+'" target="_blank" rel="noopener">Tx '+esc(short(x.transaction))+' ↗</a>':'')+'</div></div>'}).join('')+'</div>'}
  function card(item){
   const t=item.treasury;
   return '<article class="tr-card" data-treasury="'+esc(t)+'">'+
    '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+
    '<a class="tr-nav" href="'+esc(item.discovery_href||('/discovery?entity='+encodeURIComponent(t)+'&type=treasury'))+'" style="margin-left:auto;font-size:9px;color:var(--ip-cyan);text-decoration:none">Open in Discovery →</a></div>'+
+   topology(item.observed_topology)+matches(item.operation_matches)+
+   '<div class="tr-section"><div class="tr-section-title">Why this surfaced</div><div class="tr-reasons">'+(item.why_surfaced||[]).map(x=>'<span class="tr-reason">'+esc(x)+'</span>').join('')+'</div></div>'+
+   '<div class="tr-section"><div class="tr-section-title">Recommended Action</div><div class="tr-recommendation"><strong>'+esc((item.recommended_action||{}).label||'Needs More Evidence')+'</strong><span>Analyst decision required</span></div></div>'+
    '<div class="tr-metrics">'+
     '<div class="tr-metric"><strong>'+esc(item.launch_count)+'</strong><span>Launches</span></div>'+
     '<div class="tr-metric"><strong>'+esc(item.subprovider_count)+'</strong><span>Subproviders</span></div>'+
@@ -83,7 +107,8 @@
     '<div class="tr-metric"><strong>'+ago(item.first_observed)+'</strong><span>First Observed</span></div>'+
     '<div class="tr-metric"><strong>'+ago(item.last_observed)+'</strong><span>Last Observed</span></div>'+
    '</div>'+
-   evidenceBlock(item.evidence_summary)+
+   examples(item.relationship_examples)+
+   '<details class="tr-section tr-support"><summary>Supporting Evidence</summary>'+evidenceBlock(item.evidence_summary)+'</details>'+
    '<div class="tr-actions">'+
     '<button class="primary" data-action="APPROVE_TREASURY">Approve Treasury</button>'+
     '<button data-action="LINK_TO_OPERATOR">Link to Existing Operator</button>'+

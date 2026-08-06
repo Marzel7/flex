@@ -602,9 +602,10 @@
     Promise.all([
       fetch('/api/discovery/recent?limit=6').then(function(r) { return r.ok ? r.json() : null; }),
       fetch('/api/operators/promotions').then(function(r) { return r.ok ? r.json() : null; }),
-      fetch('/api/ops/emerging-operators?limit=6').then(function(r) { return r.ok ? r.json() : null; })
+      fetch('/api/ops/emerging-operators?limit=6').then(function(r) { return r.ok ? r.json() : null; }),
+      fetch('/api/discovery/convergence?behaviour_limit=1').then(function(r) { return r.ok ? r.json() : null; })
     ]).then(function(results) {
-        var d = results[0], promotions = results[1], emerging = results[2];
+        var d = results[0], promotions = results[1], emerging = results[2], convergence = results[3] || {};
         var streams = (d && d.streams) || {watchtower:[],promotions:[],emerging_operators:[],reviews:[],walkbacks:[],discovery:[],treasury_expansions:[]};
         streams.promotions = (streams.promotions || []).slice();
         (promotions && promotions.proposals || []).forEach(function(p) {
@@ -634,11 +635,12 @@
           return '<div class="vi-action"><span>' + esc(label) + '</span><span>→</span></div>';
         }
         var watch = streams.watchtower || [];
-        var watchCard = '<a class="vi-card confirmed" href="/watchtower/intelligence">'
-          + '<div class="vi-card-head"><span class="vi-icon">◆</span><div><div class="vi-eyebrow">Recent WATCHTOWER</div><div class="vi-title">WATCHTOWER</div></div><span class="vi-status confirmed" style="margin-left:auto">Canonical</span></div>'
-          + '<div class="vi-metrics">' + metric(watch.length, 'attributions') + metric(watch[0] ? ago(watch[0].timestamp) : '—', 'latest') + '</div>'
-          + '<div class="mc-card-summary">' + (watch.length ? 'Recent launches reached the confirmed canonical operator.' : 'No recent canonical attribution changes.') + '</div>'
-          + action('/watchtower/intelligence','View operator') + '</a>';
+        var recovery=convergence.recovery_summary||{};
+        var watchCard = '<a class="vi-card confirmed" href="/discovery">'
+          + '<div class="vi-card-head"><span class="vi-icon">◆</span><div><div class="vi-eyebrow">Operations recovery</div><div class="vi-title">Recovery Console</div></div><span class="vi-status confirmed" style="margin-left:auto">Live</span></div>'
+          + '<div class="vi-metrics">' + metric(recovery.recovered_today||0, 'recovered today') + metric(recovery.potential_recoveries||0, 'potential recoveries') + metric(recovery.treasury_reviews_pending||0, 'Treasury Reviews pending') + metric(recovery.new_operations||0, 'new Operations') + '</div>'
+          + '<div class="mc-card-summary">Recovery metrics are projected from existing Operation Matching and confirmed identity membership.</div>'
+          + action('/discovery','Open recovery console') + '</a>';
 
         var proposals = (promotions && promotions.proposals) || [];
         function pc(status){return proposals.filter(function(p){return p.status===status}).length}
@@ -674,7 +676,7 @@
         var expansionCard='';
 
         el.className='mc-intel-grid';
-        el.innerHTML=watchCard+promotionCard+emergingCard+walkCard+expansionCard+reviewCard+discoveryCard;
+        el.innerHTML=watchCard+promotionCard+walkCard+expansionCard+reviewCard+discoveryCard;
       })
       .catch(function() {
         el.innerHTML = '<div class="ip-unavailable" style="padding:12px;font-size:11px;">Discovery intelligence unavailable.</div>';

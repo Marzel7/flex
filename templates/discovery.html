@@ -303,6 +303,7 @@
 .dw-today-grid .vi-scorecard-value { font:800 21px/1 ui-monospace,monospace; }
 .dw-landing-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr); gap:12px; align-items:start; }
 .dw-intelligence-list { display:flex; flex-direction:column; gap:7px; }
+.dw-recovery-console{display:grid;gap:22px;padding:18px 22px 24px}.dw-recovery-section{display:grid;gap:9px}.dw-recovery-section-head{display:flex;align-items:end;justify-content:space-between;gap:12px}.dw-recovery-section-title{font-size:14px;font-weight:800;color:var(--ip-text)}.dw-recovery-section-note{font-size:9px;color:var(--ip-dim);margin-top:3px}.dw-recovered-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.dw-recovered-card,.dw-recovery-group,.dw-new-card{border:1px solid var(--ip-border);border-radius:9px;background:var(--ip-card);padding:13px}.dw-recovered-head,.dw-recovery-group-head{display:flex;align-items:start;justify-content:space-between;gap:12px}.dw-recovered-name,.dw-recovery-group-name{font-size:13px;font-weight:800;color:var(--ip-text)}.dw-recovered-sub{font-size:9px;color:var(--ip-dim);margin-top:3px}.dw-recovery-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--ip-border);border:1px solid var(--ip-border);border-radius:7px;overflow:hidden;margin:11px 0}.dw-recovery-metric{background:var(--ip-card2);padding:9px}.dw-recovery-metric strong{display:block;color:var(--ip-text);font-size:15px}.dw-recovery-metric span{display:block;color:var(--ip-dim);font-size:8px;margin-top:3px}.dw-recovery-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.dw-recovery-link{color:var(--ip-cyan);font-size:9px;text-decoration:none;font-weight:700}.dw-recovery-link:hover{text-decoration:underline}.dw-recovery-list{display:grid;gap:7px;margin-top:10px}.dw-recovery-candidate{border-top:1px solid var(--ip-border);padding:11px 0 2px;display:grid;grid-template-columns:minmax(150px,.6fr) minmax(240px,1.4fr) auto;gap:14px;align-items:start}.dw-recovery-candidate:first-child{border-top:0}.dw-recovery-name{font-size:11px;font-weight:750;color:var(--ip-text)}.dw-recovery-meta{font-size:9px;color:var(--ip-dim);margin-top:3px}.dw-recovery-evidence-label{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--ip-dim);margin-bottom:5px}.dw-recovery-evidence{display:flex;gap:5px;flex-wrap:wrap}.dw-recovery-proof,.dw-recovery-missing{font-size:9px;border-radius:10px;padding:3px 7px}.dw-recovery-proof{color:var(--ip-green);border:1px solid rgba(34,197,94,.26);background:rgba(34,197,94,.05)}.dw-recovery-missing{color:var(--ip-amber);border:1px solid rgba(245,158,11,.28);background:rgba(245,158,11,.05)}.dw-new-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dw-new-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;color:inherit;text-decoration:none}.dw-new-card strong{font-size:11px;color:var(--ip-text)}.dw-new-card small{display:block;font-size:9px;color:var(--ip-dim);margin-top:4px}.dw-signal-summary{cursor:pointer;list-style:none;color:var(--ip-cyan);font-size:9px}.dw-signal-summary::-webkit-details-marker{display:none}.dw-signal-rows{margin-top:8px}.dw-recovery-kpis{display:flex;gap:7px;flex-wrap:wrap}.dw-recovery-kpi{border:1px solid var(--ip-border);border-radius:7px;padding:6px 8px;color:var(--ip-sec);font-size:9px}.dw-recovery-kpi strong{color:var(--ip-text);margin-right:4px}@media(max-width:900px){.dw-recovered-grid,.dw-new-list{grid-template-columns:1fr}.dw-recovery-candidate{grid-template-columns:1fr}.dw-recovery-metrics{grid-template-columns:repeat(2,1fr)}}
 .dw-role-row{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(260px,1.4fr) auto;align-items:center;gap:16px;padding:10px 12px;border-bottom:1px solid var(--ip-border);color:var(--ip-sec);text-decoration:none;font-size:10px}.dw-role-row strong{display:block;color:var(--ip-text);font-size:11px}.dw-role-row small{display:block;color:var(--ip-dim);margin-top:3px}@media(max-width:720px){.dw-role-row{grid-template-columns:1fr}.dw-role-row>span:nth-child(2){color:var(--ip-dim)}}
 .dw-intel-event { --vi-col:var(--ip-blue); display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:center; padding:11px 12px; border:1px solid var(--ip-border); border-left:3px solid var(--vi-col); border-radius:7px; background:var(--ip-card); color:inherit; text-decoration:none; }
 .dw-intel-event:hover { border-color:color-mix(in srgb,var(--vi-col) 28%,var(--ip-border)); }
@@ -4417,39 +4418,34 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // via Treasury Review -> Approve/Link -> Registry, unchanged.
   function operationConvergencePanel(){
     return '<section class="vi-card walkback dw-health dw-topo-panel" id="dw-convergence-panel">'
-      +'<div class="dw-health-head"><div class="vi-eyebrow">Operation Convergence</div><div class="vi-title">Known Operations · Potential Expansions · New Operational Behaviour</div>'
-      +'<div class="dw-landing-sub">What operational behaviour did we discover today? Wallets rotate — treasuries, subproviders, and creators are all transient. Behaviour is comparatively stable. Walkback reconstructs infrastructure facts (Known/Unknown Treasury, Fan-Out, Funding Mechanism); this only becomes a Potential Expansion when it resembles an existing Operation\'s own defining evidence, and only Treasury Review can turn that into a confirmed Operator Identity.</div></div>'
+      +'<div class="dw-health-head"><div class="vi-eyebrow">Operations Recovery Console</div><div class="vi-title">Recovered Operations · Potential Recoveries · New Operations · Operational Signals</div>'
+      +'<div class="dw-landing-sub">Did we recover an existing Operation, or discover a new one? Walkback reconstructs infrastructure; existing Operation Matching explains whether that recorded behaviour resembles a confirmed identity.</div></div>'
       +'<div id="dw-convergence-mount"><div class="dw-empty" style="padding:14px">Loading operation convergence…</div></div>'
       +'</section>';
   }
 
   function convergenceOperationCard(op){
     var evid=op.defining_evidence||{};
-    var chips=(evid.entity_types||[]).concat(evid.control_types||[]).slice(0,4).map(function(t){return '<span class="dw-signal">'+esc(t)+'</span>'}).join('');
-    return '<a class="dw-intel-row" href="'+esc(op.href||'/intelligence/operators')+'">'
-      +'<span><strong>'+esc(op.display_name)+'</strong><small>'+esc(evid.description||'Confirmed Operation')+'</small></span>'
-      +'<span>'+chips+'</span>'
-      +'<span>'+(op.recent_launches!=null?esc(op.recent_launches)+' launches':'')+'</span>'
-      +'<span>Open →</span></a>';
+    var last=op.last_confirmed_recovery_at?ago(op.last_confirmed_recovery_at):'None recorded';
+    function m(v,l){return '<div class="dw-recovery-metric"><strong>'+esc(v==null?'—':v)+'</strong><span>'+esc(l)+'</span></div>'}
+    return '<article class="dw-recovered-card"><div class="dw-recovered-head"><div><div class="dw-recovered-name">'+esc(op.display_name)+'</div><div class="dw-recovered-sub">'+esc(evid.description||'Confirmed Operation')+'</div></div><span class="vi-status confirmed">Confirmed</span></div>'
+      +'<div class="dw-recovery-metrics">'+m(op.exact_topology_matches,'Exact topology matches')+m(op.strong_behaviour_matches,'Strong behaviour matches')+m(op.pending_treasury_reviews,'Pending Treasury Reviews')+m(op.recently_expanded,'Recently expanded · 7d')+m(last,'Last confirmed recovery')+'</div>'
+      +'<div class="dw-recovery-actions"><a class="dw-recovery-link" href="'+esc(op.href||'/intelligence/operators')+'">Operator Command Centre →</a><a class="dw-recovery-link" href="/intelligence/treasury-review">Treasury Review</a><a class="dw-recovery-link" href="/ops-os">Mission Control</a></div></article>';
   }
 
   function convergenceExpansionCard(e){
-    return '<a class="dw-intel-row" href="'+esc(e.profile_href||e.treasury_review_href||'/intelligence/treasury-review')+'">'
-      +'<span><strong>'+esc(e.matched_operator_display_name)+'</strong><small>Potential Expansion · '+esc(e.family_name||e.family_id)+'</small></span>'
-      +'<span>'+esc(e.launches!=null?e.launches:'—')+' launches</span>'
-      +'<span title="'+esc(e.match_reason||'')+'">Match '+Math.round((e.match_score||0)*100)+'%</span>'
-      +'<span>Treasury Review →</span></a>';
+    var proof=(e.recovered_because||[]).map(function(x){return '<span class="dw-recovery-proof">✓ '+esc(x)+'</span>'}).join('');
+    var missing=(e.missing_evidence||[]).map(function(x){return '<span class="dw-recovery-missing">'+esc(x)+'</span>'}).join('');
+    if(e.pending_treasury_reviews)missing+='<span class="dw-recovery-missing">Treasury confirmation</span>';
+    return '<div class="dw-recovery-candidate"><div><div class="dw-recovery-name">'+esc(e.family_name||e.family_id)+'</div><div class="dw-recovery-meta">'+esc(e.match_strength==='EXACT'?'Exact operational match':e.match_strength==='STRONG'?'Strong behaviour match':'Evidence match')+' · '+esc(e.launches==null?'—':e.launches)+' launches</div></div>'
+      +'<div><div class="dw-recovery-evidence-label">Recovered because</div><div class="dw-recovery-evidence">'+proof+'</div>'+(missing?'<div class="dw-recovery-evidence-label" style="margin-top:7px">Missing</div><div class="dw-recovery-evidence">'+missing+'</div>':'')+'</div>'
+      +'<div class="dw-recovery-actions"><a class="dw-recovery-link" href="'+esc(e.profile_href||'/intelligence/operators')+'">Open →</a><a class="dw-recovery-link" href="'+esc(e.treasury_review_href||'/intelligence/treasury-review')+'">Treasury Review →</a></div></div>';
   }
 
   function convergenceInvestigationCard(f){
     var lifecycleNote=f.reopen_recommended?'Previously dismissed · Behaviour changed · Reopen?':(f.reason||f.note||'');
     var trigger=f.investigation_trigger||{},triggerSignals=(trigger.signals||[]).slice(0,3).map(function(x){return '<span class="dw-signal">'+esc(x)+'</span>'}).join('');
-    return '<a class="dw-intel-row" href="'+esc(f.profile_href||'/intelligence/operators')+'">'
-      +'<span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+'</small></span>'
-      +'<span><small>Triggered by</small>'+triggerSignals+'</span>'
-      +'<span>'+esc(f.launches!=null?f.launches:'—')+' launches</span>'
-      +'<span></span>'
-      +'<span>Open →</span></a>';
+    return '<a class="dw-new-card" href="'+esc(f.profile_href||'/intelligence/operators')+'"><span><strong>'+esc(f.family_name||f.family_id)+'</strong><small>'+esc(f.disposition||'UNRESOLVED')+(lifecycleNote?(' · '+esc(lifecycleNote)):'')+' · '+esc(f.launches!=null?f.launches:'—')+' launches</small><span class="dw-recovery-evidence-label">Triggered by</span><span class="dw-recovery-evidence">'+triggerSignals+'</span></span><span class="dw-recovery-link">Open →</span></a>';
   }
 
   // X75.2 — Walkback reconstructs INFRASTRUCTURE FACTS (Known/Unknown
@@ -4459,7 +4455,8 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
   // downstream decision this module has no authority to make.
   function convergenceShort(addr){return addr&&addr.length>12?addr.slice(0,4)+'…'+addr.slice(-4):(addr||'Unknown')}
   function convergenceBehaviourCard(f){
-    var chips=(f.facts||[]).map(function(t){return '<span class="dw-signal">'+esc(t)+'</span>'}).join('');
+    var facts=(f.facts||[]).slice();if(f.creator)facts.unshift('Fresh Creator');if(f.funding_mechanism)facts.push('Funding Origin · '+f.funding_mechanism);
+    var chips=facts.map(function(t){return '<span class="dw-signal">'+esc(t)+'</span>'}).join('');
     return '<a class="dw-intel-row" href="'+href(f.mint,'token')+'">'
       +'<span><strong>'+esc(convergenceShort(f.creator||f.mint))+'</strong><small>'+esc(f.source_outcome_type||'')+'</small></span>'
       +'<span>'+chips+'</span>'
@@ -4526,21 +4523,23 @@ details[open] > .dw-x45-exchange-summary::after { content:'▲'; }
       var mount=$('dw-convergence-mount');
       if(!mount)return;
       if(!d||!d.ok){mount.innerHTML='<div class="dw-empty">Operation convergence unavailable.</div>';return}
-      var known=(d.known_operations||[]).map(convergenceOperationCard).join('')||'<div class="dw-empty" style="padding:10px">No confirmed Operations.</div>';
-      var expansions=(d.potential_expansions||[]).map(convergenceExpansionCard).join('')||'<div class="dw-empty" style="padding:10px">No populations currently resemble a known Operation closely enough to propose an expansion.</div>';
+      var operations=(d.known_operations||[]).slice().sort(function(a,b){return (b.exact_topology_matches||0)-(a.exact_topology_matches||0)||(b.strong_behaviour_matches||0)-(a.strong_behaviour_matches||0)});
+      var known=operations.map(convergenceOperationCard).join('')||'<div class="dw-empty" style="padding:10px">No confirmed Operations.</div>';
+      var grouped={};operations.forEach(function(op){grouped[op.operator_id]=[]});(d.potential_expansions||[]).forEach(function(e){(grouped[e.matched_operator_id]=grouped[e.matched_operator_id]||[]).push(e)});
+      var expansions=operations.filter(function(op){return (grouped[op.operator_id]||[]).length}).map(function(op){var rows=grouped[op.operator_id].slice().sort(function(a,b){return (b.match_score||0)-(a.match_score||0)});return '<article class="dw-recovery-group"><div class="dw-recovery-group-head"><div><div class="dw-recovery-group-name">'+esc(op.display_name)+'</div><div class="dw-recovered-sub">'+rows.length+' Potential '+(rows.length===1?'Recovery':'Recoveries')+'</div></div><a class="dw-recovery-link" href="'+esc(op.href)+'">Open Operator →</a></div><div class="dw-recovery-list">'+rows.map(convergenceExpansionCard).join('')+'</div></article>'}).join('')||'<div class="dw-empty" style="padding:10px">No populations currently resemble a known Operation closely enough to propose a recovery.</div>';
       var behaviour=(d.new_operational_behaviour||[]).map(convergenceBehaviourCard).join('')||'<div class="dw-empty" style="padding:10px">No new operational behaviour reconstructed in this window.</div>';
-      var newInv=(d.new_investigations||[]).map(convergenceInvestigationCard).join('')||'<div class="dw-empty" style="padding:10px">No new Investigation Populations.</div>';
-      var review=(d.review||[]).map(convergenceInvestigationCard).join('');
-      var infra=(d.shared_infrastructure||[]).map(convergenceInvestigationCard).join('');
+      var newOperations=[].concat(d.new_investigations||[],d.review||[],d.shared_infrastructure||[]);
+      var newInv=newOperations.map(convergenceInvestigationCard).join('')||'<div class="dw-empty" style="padding:10px">No genuinely new operational populations.</div>';
       var dismissed=(d.dismissed_investigations||[]).map(convergenceInvestigationCard).join('');
-      mount.innerHTML=
-        '<div class="ip-section-hdr"><span class="ip-section-label">Known Operations</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+known+'</div>'
-        +'<div class="ip-section-hdr"><span class="ip-section-label">Potential Expansions</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.potential_expansions||[]).length+'</span></div><div class="dw-intelligence-list">'+expansions+'</div>'
-        +'<div class="ip-section-hdr"><span class="ip-section-label">New Operational Behaviour</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.new_operational_behaviour||[]).length+'</span></div><div class="dw-intelligence-list">'+behaviour+'</div>'
-        +'<div class="ip-section-hdr"><span class="ip-section-label">New Investigation Populations</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.new_investigations||[]).length+'</span></div><div class="dw-intelligence-list">'+newInv+'</div>'
-        +(review?'<div class="ip-section-hdr"><span class="ip-section-label">Review</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+review+'</div>':'')
-        +(infra?'<div class="ip-section-hdr"><span class="ip-section-label">Shared Infrastructure</span><span class="ip-section-line"></span></div><div class="dw-intelligence-list">'+infra+'</div>':'')
-        +(dismissed?'<details><summary class="ip-section-hdr"><span class="ip-section-label">Dismissed Investigations</span><span class="ip-section-line"></span><span class="ip-section-count">'+(d.dismissed_investigations||[]).length+'</span></summary><div class="dw-intelligence-list">'+dismissed+'</div></details>':'');
+      var summary=d.recovery_summary||{};
+      mount.innerHTML='<div class="dw-recovery-console">'
+        +'<div class="dw-recovery-kpis"><span class="dw-recovery-kpi"><strong>'+esc(summary.recovered_today||0)+'</strong>Recovered today</span><span class="dw-recovery-kpi"><strong>'+esc(summary.potential_recoveries||0)+'</strong>Potential recoveries</span><span class="dw-recovery-kpi"><strong>'+esc(summary.treasury_reviews_pending||0)+'</strong>Treasury Reviews pending</span><span class="dw-recovery-kpi"><strong>'+esc(summary.new_operations||0)+'</strong>New Operations</span></div>'
+        +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Recovered Operations</div><div class="dw-recovery-section-note">Confirmed identities and current recovery evidence</div></div></div><div class="dw-recovered-grid">'+known+'</div></section>'
+        +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Potential Recoveries</div><div class="dw-recovery-section-note">Grouped by the existing Operation Matching result</div></div><span class="ip-section-count">'+(d.potential_expansions||[]).length+'</span></div>'+expansions+'</section>'
+        +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">New Operations</div><div class="dw-recovery-section-note">Populations not strongly matched to a confirmed Operation</div></div><span class="ip-section-count">'+newOperations.length+'</span></div><div class="dw-new-list">'+newInv+'</div></section>'
+        +'<section class="dw-recovery-section"><div class="dw-recovery-section-head"><div><div class="dw-recovery-section-title">Operational Signals</div><div class="dw-recovery-section-note">Ecosystem evidence supporting discovery, not recovery decisions</div></div><span class="ip-section-count">'+(d.new_operational_behaviour||[]).length+'</span></div><details><summary class="dw-signal-summary">Explore Fresh Creator, Fan-Out, Creator Identity, Topology Distribution, Shared Infrastructure, Funding Origin and Behaviour →</summary><div class="dw-intelligence-list dw-signal-rows">'+behaviour+'</div></details></section>'
+        +(dismissed?'<details><summary class="dw-signal-summary">Dismissed Investigations · '+(d.dismissed_investigations||[]).length+'</summary><div class="dw-new-list" style="margin-top:8px">'+dismissed+'</div></details>':'')
+        +'</div>';
     }).catch(function(){
       var mount=$('dw-convergence-mount');
       if(mount)mount.innerHTML='<div class="dw-empty">Operation convergence unavailable.</div>';

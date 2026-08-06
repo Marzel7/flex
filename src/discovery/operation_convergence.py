@@ -26,7 +26,9 @@ unchanged by this module.
 """
 from __future__ import annotations
 
+import json
 import sqlite3
+import time
 from typing import Any
 
 from src.ops.operation_matching_profile import (
@@ -45,20 +47,94 @@ def _treasury_review_signals(conn: sqlite3.Connection, family_wallets: frozenset
     real recorded subprovisioner fan-out IS structurally WATCHTOWER-shaped
     even before that wallet has ever been promoted anywhere."""
     if not family_wallets:
-        return {"has_subprov_fanout": False, "has_walkback_evidence": False}
+        return {"has_subprov_fanout": False, "has_walkback_evidence": False, "pending_count": 0}
     placeholders = ",".join("?" for _ in family_wallets)
     try:
         rows = conn.execute(
-            f"SELECT distinct_subprovs, has_walkback_evidence FROM wt_treasury_review "
+            f"SELECT distinct_subprovs, has_walkback_evidence, status FROM wt_treasury_review "
             f"WHERE treasury IN ({placeholders})",
             tuple(family_wallets),
         ).fetchall()
     except sqlite3.Error:
-        return {"has_subprov_fanout": False, "has_walkback_evidence": False}
+        return {"has_subprov_fanout": False, "has_walkback_evidence": False, "pending_count": 0}
     has_subprov_fanout = any((r["distinct_subprovs"] if hasattr(r, "keys") else r[0]) and
                               (r["distinct_subprovs"] if hasattr(r, "keys") else r[0]) > 1 for r in rows)
     has_walkback = any((r["has_walkback_evidence"] if hasattr(r, "keys") else r[1]) for r in rows)
-    return {"has_subprov_fanout": has_subprov_fanout, "has_walkback_evidence": has_walkback}
+    pending_count = sum(
+        1 for r in rows
+        if (r["status"] if hasattr(r, "keys") else r[2]) == "PENDING_REVIEW"
+    )
+    return {"has_subprov_fanout": has_subprov_fanout, "has_walkback_evidence": has_walkback,
+            "pending_count": pending_count}
+
+
+def _confirmed_recoveries(conn: sqlite3.Connection, operator_id: str) -> list[dict[str, Any]]:
+    """Return only expansion events backed by current canonical membership.
+
+    The immutable ledger can contain an event even when a failed/legacy caller
+    never completed the asset projection. Such an orphan is audit history, not
+    a confirmed recovery, and must not appear in Discovery or Mission Control.
+    """
+    try:
+        rows = conn.execute(
+            "SELECT event_type, payload_json, timestamp, evidence_revision, analyst FROM operator_identity_events "
+            "WHERE operator_id=? AND event_type IN ('TREASURY_ADDED','IDENTITY_EXPANDED') "
+            "ORDER BY timestamp DESC", (operator_id,),
+        ).fetchall()
+    except sqlite3.Error:
+        return []
+    result = []
+    for row in rows:
+        revision = row["evidence_revision"] if hasattr(row, "keys") else row[3]
+        analyst = row["analyst"] if hasattr(row, "keys") else row[4]
+        # Schema backfills establish the current asset projection; they do
+        # not represent a newly recovered Operation in analyst time.
+        if str(revision or "").startswith("backfill:") or str(analyst or "").startswith("system:"):
+            continue
+        try:
+            payload = json.loads(row["payload_json"] if hasattr(row, "keys") else row[1])
+        except (TypeError, ValueError):
+            continue
+        value = payload.get("asset_value")
+        asset_type = payload.get("asset_type") or "TREASURY"
+        if not value:
+            continue
+        try:
+            active = conn.execute(
+                "SELECT 1 FROM operator_identity_assets WHERE operator_id=? "
+                "AND asset_type=? AND asset_value=? AND status='ACTIVE' LIMIT 1",
+                (operator_id, asset_type, value),
+            ).fetchone()
+        except sqlite3.Error:
+            active = None
+        if active:
+            # A Treasury Review expansion is confirmed only when the
+            # workspace's immutable approval action also exists. This keeps
+            # partial/test-leaked governance events out of recovery metrics.
+            if str(revision or "").startswith("treasury-review:"):
+                try:
+                    approved = conn.execute(
+                        "SELECT 1 FROM wt_treasury_review_actions WHERE treasury=? "
+                        "AND action='APPROVE_TREASURY' LIMIT 1", (value,),
+                    ).fetchone()
+                except sqlite3.Error:
+                    approved = None
+                if not approved:
+                    continue
+            result.append({"timestamp": row["timestamp"] if hasattr(row, "keys") else row[2],
+                           "asset_type": asset_type, "asset_value": value})
+    return result
+
+
+def _evidence_labels(values: frozenset[str]) -> list[str]:
+    labels = {
+        "TREASURY": "Operational treasury", "SUB_PROVISIONER": "Provisioning structure",
+        "CLIENT": "Provisioning pattern", "CONFIRMED_TREASURY_CONTROL": "Treasury control",
+        "RPC_CONFIRMED_LINEAGE": "Walkback lineage", "PERSISTENT_CONTROLLER_REUSE": "Known provisioning",
+        "RETURN_TO_CONTROLLER": "Return to controller", "TREASURY_RELATIONSHIPS": "Funding behaviour",
+        "PROVISIONING_LINEAGE": "Provisioning lineage", "PROVISIONING_SESSIONS": "Operational structure",
+    }
+    return [labels.get(value, value.replace("_", " ").title()) for value in sorted(values)]
 
 
 def _family_entity_types(family: dict[str, Any], *, treasury_review_signals: dict[str, Any] | None = None) -> frozenset[str]:
@@ -186,7 +262,7 @@ def _known_operations(conn: sqlite3.Connection, list_payload: dict[str, Any]) ->
             "recent_launches": card.get("launches") if card else None,
             "unique_creators": card.get("unique_creators") if card else None,
             "last_material_activity_at": card.get("last_material_activity_at") if card else row["last_seen"],
-            "href": f"/intelligence/operators/{operator_id}",
+            "href": f"/intelligence/operator/{operator_id}",
         })
     return result
 
@@ -256,6 +332,13 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             if match.score >= min_score and (best_match is None or match.score > best_match.score):
                 best_match = match
         if best_match:
+            profile = profiles_by_operator[best_match.operator_id]
+            matched_all = (best_match.matched_entity_types | best_match.matched_control_types |
+                           best_match.matched_population_types)
+            missing_all = ((profile.defining_entity_types - best_match.matched_entity_types) |
+                           (profile.defining_control_types - best_match.matched_control_types) |
+                           (profile.defining_population_types - best_match.matched_population_types))
+            strength = "EXACT" if best_match.score == 1.0 else ("STRONG" if best_match.score >= 0.67 else "WEAK")
             potential_expansions.append({
                 "family_id": family.get("family_id"),
                 "family_name": family.get("family_name"),
@@ -265,6 +348,10 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
                 "matched_operator_display_name": best_match.display_name,
                 "match_score": best_match.score,
                 "match_reason": best_match.reason,
+                "match_strength": strength,
+                "recovered_because": _evidence_labels(matched_all),
+                "missing_evidence": _evidence_labels(missing_all),
+                "pending_treasury_reviews": tr_signals.get("pending_count", 0),
                 "treasury_review_href": "/intelligence/treasury-review",
                 "profile_href": family.get("profile_href"),
                 "investigation_trigger": family.get("investigation_trigger"),
@@ -303,6 +390,19 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
         for f in (list_payload.get("review_cases_reconciled") or [])
     ]
 
+    now = int(time.time())
+    for operation in known_operations:
+        matches = [item for item in potential_expansions
+                   if item["matched_operator_id"] == operation["operator_id"]]
+        recoveries = _confirmed_recoveries(conn, operation["operator_id"])
+        operation["exact_topology_matches"] = sum(item["match_strength"] == "EXACT" for item in matches)
+        operation["strong_behaviour_matches"] = sum(item["match_strength"] == "STRONG" for item in matches)
+        operation["weak_matches"] = sum(item["match_strength"] == "WEAK" for item in matches)
+        operation["pending_treasury_reviews"] = sum(item["pending_treasury_reviews"] for item in matches)
+        operation["recently_expanded"] = sum((row["timestamp"] or 0) >= now - 7 * 86400 for row in recoveries)
+        operation["recovered_today"] = sum((row["timestamp"] or 0) >= now - 86400 for row in recoveries)
+        operation["last_confirmed_recovery_at"] = recoveries[0]["timestamp"] if recoveries else None
+
     return {
         "known_operations": known_operations,
         "potential_expansions": potential_expansions,
@@ -322,5 +422,11 @@ def build_convergence_view(conn: sqlite3.Connection, list_payload: dict[str, Any
             for f in list_payload.get("dismissed_investigations") or []
         ],
         "investigation_lifecycle_summary": list_payload.get("investigation_lifecycle_summary") or {},
+        "recovery_summary": {
+            "recovered_today": sum(operation["recovered_today"] for operation in known_operations),
+            "potential_recoveries": len(potential_expansions),
+            "treasury_reviews_pending": sum(item["pending_treasury_reviews"] for item in potential_expansions),
+            "new_operations": len(new_investigations) + len(review) + len(shared_infrastructure),
+        },
         "read_only": True,
     }

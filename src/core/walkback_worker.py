@@ -1019,6 +1019,57 @@ def _expand_unknown_upstream(ops: sqlite3.Connection, *, mint: str,
             "candidate_confidence": candidate["confidence"]}
 
 
+# ── X77.1 collect-then-persist: hop1 evidence split into an RPC-only
+# collection step and a pure-write persistence step, so callers can run the
+# collection BEFORE any write (and before hop2's own RPC work), then persist
+# everything once the RPC-heavy hop resolution is entirely finished. Splits
+# the previously-fused fetch+write shape (X65.21) without changing what is
+# fetched, when it is fetched relative to sig1/mech1 being known, or what is
+# ultimately written -- only the ORDER relative to hop2's RPC call changes.
+
+def _collect_hop1_evidence(mech1: Optional[str], sig1: Optional[str]) -> tuple[bool, Optional[dict]]:
+    """RPC-only: fetch hop1's funding transaction if its mechanism warrants
+    one. Returns (fetched, tx) -- fetched is True whenever a _get_tx call was
+    actually attempted (matching the pre-X77.1 rpc[0] increment, which fired
+    on ATTEMPT, not on a successful non-None result), so callers must
+    increment their rpc counter on `fetched`, never on `tx is not None`. tx
+    itself is None both when no fetch was needed (PLAIN_XFER/UNKNOWN, or
+    WSOL_WRAP_CLOSE/SEEDED_ACCOUNT_CLOSE without a signature) and when the
+    fetch was attempted but failed -- callers must inspect `fetched` to tell
+    the two apart. Never writes."""
+    if mech1 == "WSOL_WRAP_CLOSE" and sig1:
+        return True, _get_tx(sig1)
+    if mech1 == "SEEDED_ACCOUNT_CLOSE" and sig1:
+        return True, _get_tx(sig1)
+    return False, None
+
+
+def _persist_hop1_evidence(ops: sqlite3.Connection, *, mint: str, creator: str, subprov: str,
+                           mechanism: Optional[str], sig: Optional[str], block_time: Optional[int],
+                           amount_sol: Optional[float], tx: Optional[dict]) -> Optional[str]:
+    """Pure writes: persist whatever _collect_hop1_evidence already fetched.
+    No RPC of its own. Returns hop1_evidence_level (STRICT/MECHANISM_ONLY/
+    None), matching exactly what the pre-X77.1 inline code computed at the
+    same point in _process_row. A no-op (returns None) when tx is None,
+    identical to the pre-X77.1 branches that never fetched anything."""
+    if tx is None:
+        return None
+    if mechanism == "WSOL_WRAP_CLOSE":
+        stored_strict = _store_close_destination_evidence(
+            ops, creator=creator, subprov=subprov, tx=tx,
+            signature=sig, block_time=block_time, amount_sol=amount_sol)
+        # X65.21 Phase 5 — reuse this already-fetched transaction to
+        # additively persist the proven Provisioning Wallet (X65.19).
+        _capture_provisioning_wallet(ops, mint=mint, subprov=subprov,
+                                      creator=creator, mechanism=mechanism, tx=tx)
+        return "STRICT" if stored_strict else "MECHANISM_ONLY"
+    if mechanism == "SEEDED_ACCOUNT_CLOSE":
+        _capture_provisioning_wallet(ops, mint=mint, subprov=subprov,
+                                      creator=creator, mechanism=mechanism, tx=tx)
+        return "MECHANISM_ONLY"
+    return None
+
+
 # ── per-row processing ─────────────────────────────────────────────────────────
 
 def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
@@ -1104,47 +1155,34 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 _mark_complete(ops, mint, "NO_ATTRIBUTION_FOUND", None, None, rpc[0])
                 return rpc[0]
 
-            # Always persist hop-1 funder — even if attribution fails
-            _store_funder(ops, mint, hop1, sig1, slot1, bt1, amt1, mech1)
-
-            # Retain the exact close-account destination proof recovered by
-            # walkback. This evidence is review-only and does not attribute.
-            # X64: also remember whether this fetch strictly confirmed
-            # closeAccount.destination == creator (STRICT) or only matched
-            # the looser WSOL_WRAP_CLOSE mechanism heuristic in
-            # _detect_mechanism (MECHANISM_ONLY) — used below to label any
-            # disposable-subprov lead without any further RPC.
-            hop1_evidence_level = None
-            if mech1 == "WSOL_WRAP_CLOSE" and sig1:
-                funding_tx = _get_tx(sig1)
-                rpc[0] += 1
-                stored_strict = _store_close_destination_evidence(
-                    ops, creator=creator, subprov=hop1, tx=funding_tx,
-                    signature=sig1, block_time=bt1, amount_sol=amt1)
-                hop1_evidence_level = "STRICT" if stored_strict else "MECHANISM_ONLY"
-                # X65.21 Phase 5 — reuse this already-fetched transaction to
-                # additively persist the proven Provisioning Wallet (X65.19).
-                # No new RPC call: funding_tx was already required above.
-                _capture_provisioning_wallet(ops, mint=mint, subprov=hop1,
-                                              creator=creator, mechanism=mech1, tx=funding_tx)
-            elif mech1 == "SEEDED_ACCOUNT_CLOSE":
-                hop1_evidence_level = "MECHANISM_ONLY"
-                # X65.21 Phase 5 — this branch does not otherwise fetch the
-                # funding transaction; one additional getTransaction on the
-                # already-known sig1 (not a new signature search) is the
-                # minimal cost to capture the Provisioning Wallet here too.
-                if sig1:
-                    seeded_tx = _get_tx(sig1)
-                    rpc[0] += 1
-                    _capture_provisioning_wallet(ops, mint=mint, subprov=hop1,
-                                                  creator=creator, mechanism=mech1, tx=seeded_tx)
-
+            # X77.1 — control-flow gates only (pure reads, no writes, no RPC):
+            # both decide whether hop2 is even attempted, so they must stay
+            # here, immediately after hop1 resolves, exactly as before. What
+            # moved is the WRITE work below them (_store_funder, mech1
+            # evidence capture) -- deferred past hop2's own RPC resolution
+            # (see the collect-then-persist block after hop2, below). Neither
+            # gate reads anything _store_funder/mech1-evidence-capture would
+            # have written (they query wt_discovered_subprovs/
+            # wt_confirmed_treasuries, never wt_walkback_queue's funder_*
+            # columns or the provisioning-edge tables), so this reordering
+            # changes no decision, only when the bookkeeping writes land.
             if _is_known_subprov(ops, hop1):
                 t_row = ops.execute(
                     "SELECT treasury FROM wt_discovered_subprovs WHERE subprov=? LIMIT 1",
                     (hop1,)).fetchone()
                 treasury = t_row["treasury"] if t_row else None
                 outcome = "WATCHTOWER_CONFIRMED" if treasury else "LINEAGE_GAP"
+                # X77.1 — collect mech1 evidence (RPC) BEFORE any write, same
+                # shape as the FULL_WALKBACK persistence stage below; this
+                # early-return branch never reaches hop2, so its own
+                # persistence stage is inlined here rather than shared.
+                hop1_fetched, hop1_tx = _collect_hop1_evidence(mech1, sig1)
+                if hop1_fetched:
+                    rpc[0] += 1
+                _store_funder(ops, mint, hop1, sig1, slot1, bt1, amt1, mech1)
+                _persist_hop1_evidence(ops, mint=mint, creator=creator, subprov=hop1,
+                                       mechanism=mech1, sig=sig1, block_time=bt1,
+                                       amount_sol=amt1, tx=hop1_tx)
                 # X21B: the subprov(hop1)->creator edge was freshly observed via RPC
                 # (sig1/bt1/amt1/mech1); the treasury(hop2)->subprov edge, if any, comes
                 # from an existing DB lookup rather than a fresh funding observation in
@@ -1159,15 +1197,51 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 return rpc[0]
 
             if _is_known_treasury(ops, hop1):
+                # No hop2 attempted; hop1 evidence is still owed (X77.1: same
+                # inline persistence stage as the branch above, deferred past
+                # this decision but there IS no further RPC after it here).
+                hop1_fetched, hop1_tx = _collect_hop1_evidence(mech1, sig1)
+                if hop1_fetched:
+                    rpc[0] += 1
+                _store_funder(ops, mint, hop1, sig1, slot1, bt1, amt1, mech1)
+                _persist_hop1_evidence(ops, mint=mint, creator=creator, subprov=hop1,
+                                       mechanism=mech1, sig=sig1, block_time=bt1,
+                                       amount_sol=amt1, tx=hop1_tx)
                 _mark_complete(ops, mint, "WATCHTOWER_CONFIRMED", None, hop1, rpc[0])
                 return rpc[0]
 
             # Hop 2: who funded hop1? Search strictly before the creator-funding
             # transaction and inspect the oldest edge of the bounded history.
             # This recovers capital funding hidden behind high-frequency fan-out.
+            # X77.1 — this call, and hop1's own call above, are the ONLY RPC
+            # work remaining in this branch: _store_funder/mech1-evidence-
+            # capture/_capture_provisioning_facts (all pure DB writes, zero
+            # RPC of their own -- see their own docstrings) are deferred to
+            # fire together, once, after hop2 resolves -- collect fully, then
+            # persist once, per this milestone's core principle. hop2 needs
+            # only hop1/sig1 (already local variables); it does not depend on
+            # anything _store_funder or the mech1 evidence capture write.
             hop2, sig2, slot2, bt2, amt2, mech2 = _find_with_evidence(
                 hop1, rpc, ops, before_signature=sig1, prefer_oldest=True,
                 source_mint=mint, hop_depth=2)
+
+            # X77.1 persistence stage — everything RPC-free from here on.
+            # Collect hop1's own evidence (mech1 tx fetch, if any) now, RIGHT
+            # BEFORE writing, so no write precedes any RPC call in this
+            # branch. hop1_tx is None when mech1 required no extra fetch
+            # (PLAIN_XFER/UNKNOWN) OR when a required fetch failed --
+            # hop1_fetched distinguishes "no fetch needed" (rpc[0] unchanged)
+            # from "fetch attempted" (rpc[0] +1 regardless of tx outcome),
+            # matching the pre-X77.1 code's unconditional increment on ATTEMPT
+            # rather than on a successful result.
+            hop1_fetched, hop1_tx = _collect_hop1_evidence(mech1, sig1)
+            if hop1_fetched:
+                rpc[0] += 1
+            _store_funder(ops, mint, hop1, sig1, slot1, bt1, amt1, mech1)
+            hop1_evidence_level = _persist_hop1_evidence(
+                ops, mint=mint, creator=creator, subprov=hop1,
+                mechanism=mech1, sig=sig1, block_time=bt1,
+                amount_sol=amt1, tx=hop1_tx)
 
             # X21B: capture the observed treasury(hop2)->subprov(hop1)->creator relationship
             # as an operation-agnostic fact, REGARDLESS of whether hop2 is a confirmed

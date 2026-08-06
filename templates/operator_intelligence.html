@@ -348,6 +348,8 @@
 .oi-gov-states { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 10px; }
 .oi-gov-actions { display:flex; gap:7px; flex-wrap:wrap; }
 .oi-gov-note { font-size:10px; color:var(--ip-dim); line-height:1.45; margin-top:8px; }
+.oi-profile{--oi-state:#22c55e;border-left:3px solid var(--oi-state);padding-left:18px}.oi-profile-hero{display:grid;grid-template-columns:minmax(260px,1.5fr) repeat(3,minmax(150px,.7fr));border-bottom:1px solid var(--ip-border);margin:14px 0 18px}.oi-profile-answer{min-height:88px;padding:12px 18px;border-right:1px solid var(--ip-border)}.oi-profile-answer:first-child{padding-left:4px}.oi-profile-answer:last-child{border-right:0}.oi-profile-label{display:block;color:var(--ip-dim);font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.oi-profile-name{font-size:27px;font-weight:780;color:var(--ip-text);line-height:1.1}.oi-profile-value{font-size:13px;font-weight:700;color:var(--ip-text)}.oi-profile-meta{font-size:10px;color:var(--ip-sec);margin-top:6px;line-height:1.45}.oi-tabs{display:flex;gap:28px;border-bottom:1px solid var(--ip-border);margin:10px 0 16px}.oi-tab{border:0!important;border-bottom:2px solid transparent!important;background:transparent!important;color:var(--ip-dim)!important;padding:10px 2px!important;border-radius:0!important;font-size:11px!important;font-weight:700!important;cursor:pointer}.oi-tab.active{color:var(--oi-state)!important;border-bottom-color:var(--oi-state)!important}.oi-panel{background:var(--ip-card);border:1px solid var(--ip-border);border-radius:10px;padding:20px;margin-bottom:16px}.oi-panel[hidden]{display:none}.oi-intel-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.oi-intel-strip .vi-card{min-height:150px;padding:14px}.oi-intel-strip .vi-title{font-size:11px;line-height:1.35}.oi-unit-note{font-size:9px;color:var(--ip-dim);margin-top:6px;line-height:1.4}.oi-governance>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}.oi-governance>summary::-webkit-details-marker{display:none}.oi-governance-body{padding-top:10px}.oi-section-stack{display:grid;gap:22px}.oi-summary-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.oi-summary-heading h2{font-size:12px;margin:0}.oi-summary-note{font-size:9px;color:var(--ip-dim)}@media(max-width:900px){.oi-profile-hero{grid-template-columns:1fr 1fr}.oi-profile-answer:nth-child(2){border-right:0}.oi-intel-strip{grid-template-columns:1fr 1fr}}@media(max-width:600px){.oi-profile-hero,.oi-intel-strip{grid-template-columns:1fr}.oi-profile-answer{border-right:0}.oi-tabs{gap:14px;overflow:auto}}
+.oi-role-observation{display:grid;grid-template-columns:minmax(230px,1fr) auto;gap:18px;padding:11px 0;border-bottom:1px solid var(--ip-border)}.oi-role-path{display:flex;align-items:center;gap:7px;font:10px ui-monospace,monospace;min-width:0}.oi-role-path a{color:var(--ip-sec);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.oi-role-path a:hover,.oi-role-context a:hover{color:var(--ip-green);text-decoration:underline}.oi-role-context{margin-top:5px;font-size:9px;color:var(--ip-dim)}.oi-role-context a{color:var(--ip-sec);text-decoration:none}.oi-role-meta{text-align:right;font-size:9px;color:var(--ip-dim)}.oi-role-meta strong{display:block;color:var(--ip-sec)}.oi-role-meta a{display:block;color:var(--ip-green);text-decoration:none;margin-top:3px;font-family:ui-monospace,monospace}.oi-role-all{display:block;margin-top:10px;color:var(--ip-green);font-size:10px}.oi-role-all summary{cursor:pointer;list-style:none;font-weight:700}.oi-role-all summary::-webkit-details-marker{display:none}@media(max-width:700px){.oi-role-observation{grid-template-columns:1fr}.oi-role-meta{text-align:left}}
 {% endblock %}
 
 {% block content %}
@@ -367,73 +369,56 @@
   <div class="ip-unavailable" style="margin-top:24px;">{{ error }}</div>
   {% else %}
 
-  <div id="oi-dossier">
-    <div class="x19-question">What do we know about this actor?</div>
-    <div class="x19-flow"><span>Discovery</span><span>→</span><span>Entity</span><span>→</span><span class="current">Operator</span><span>→</span><span>Assessment</span><span>→</span><span>Forecast</span></div>
+  <div id="oi-dossier" class="oi-profile">
+    <header class="oi-profile-hero">
+      <div class="oi-profile-answer"><span class="oi-profile-label">Confirmed operation</span><div class="oi-profile-name" id="oi-display-name">{{ operator.display_name or ('Operator ' ~ operator_id[:8] ~ '…') }}</div><div class="oi-profile-meta">{{ operator.summary or 'Identity established from accumulated evidence.' }}</div></div>
+      <div class="oi-profile-answer"><span class="oi-profile-label">State</span><div class="oi-status-chip {{ operator.status }}" id="oi-status-chip">{{ operator.status }}</div><div class="oi-profile-meta">Review State <span id="oi-review-state">{{ operator.review_state }}</span></div></div>
+      <div class="oi-profile-answer"><span class="oi-profile-label">Activity</span><div class="oi-profile-value" id="oi-activity-status">{{ operator.activity_status or 'ACTIVE' }}</div><div class="oi-profile-meta">Current operational lifecycle</div></div>
+      <div class="oi-profile-answer"><span class="oi-profile-label">Evidence confidence</span><div class="oi-profile-value" id="oi-confidence">{{ operator.confidence }}</div><div class="oi-profile-meta">Canonical identity confidence</div></div>
+    </header>
 
-    <div class="x19-answer">
-      <div>
-        <div class="x19-answer-label">Identity</div>
-        <div class="x19-answer-value" id="oi-display-name">{{ operator.display_name or ('Operator ' ~ operator_id[:8] ~ '…') }}</div>
-        <div class="x19-answer-meta">{{ operator.summary or 'Identity established from accumulated evidence.' }}</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="oi-status-chip {{ operator.status }}" id="oi-status-chip">{{ operator.status }}</div>
-        <div class="x19-answer-meta">Confidence <span id="oi-confidence">{{ operator.confidence }}</span> · Review State <span id="oi-review-state">{{ operator.review_state }}</span></div>
-      </div>
-    </div>
-    <section class="oi-role" id="oi-operational-role"><div class="ip-loading">Loading recorded operational role…</div></section>
+    <nav class="oi-tabs" id="oi-tabs" aria-label="Operator profile sections"><button class="oi-tab active" data-tab="summary">Summary</button><button class="oi-tab" data-tab="evidence">Evidence</button><button class="oi-tab" data-tab="members">Members</button><button class="oi-tab" data-tab="analysis">Analysis</button><button class="oi-tab" data-tab="history">History</button></nav>
 
-    {% set lifecycle = operator.identity_lifecycle or {} %}
-    <section class="oi-governance" id="oi-governance">
-      <div class="oi-gov-head"><div><div class="vi-eyebrow">Quick Actions · canonical identity governance</div><div class="vi-title">Operation Identity</div></div><a href="#oi-identity-timeline" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;">Permanent history ↓</a></div>
-      <div class="oi-gov-states">
-        <span>Identity Status <span class="ip-badge {% if operator.identity_status == 'CONFIRMED' %}green{% elif operator.identity_status == 'REVIEW' %}amber{% else %}dim{% endif %}" id="oi-identity-status">{{ operator.identity_status or operator.status }}</span></span>
-        <span>Operational Activity <span class="ip-badge {% if operator.activity_status in ('ACTIVE','REACTIVATED') %}green{% elif operator.activity_status == 'DORMANT' %}amber{% else %}dim{% endif %}" id="oi-activity-status">{{ operator.activity_status or 'ACTIVE' }}</span></span>
+    <section class="oi-panel" data-panel="summary">
+      <section class="oi-role" id="oi-operational-role"><div class="ip-loading">Loading recorded operational role…</div></section>
+      <div class="oi-summary-heading"><h2>Current Intelligence</h2><span class="oi-summary-note">Each metric states its own evidence unit</span></div>
+      <div class="oi-intel-strip">
+      <section class="vi-card confirmed"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Current situation</div><div class="vi-title">Situation</div></div><span class="vi-status confirmed" style="margin-left:auto">Confirmed</span></div><div class="vi-title" id="oi-current-headline">Identity confirmed; current observations are loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-observation-count">—</div><div class="vi-metric-label">Identity observations</div></div></div><div id="oi-observation-lifecycle" class="x19-answer-meta">Checking current observation coverage…</div></section>
+      <section class="vi-card historical"><span class="x19-time-section historical" hidden></span><div class="vi-card-head"><span class="vi-icon">≈</span><div><div class="vi-eyebrow">Historical · Behaviour summary</div><div class="vi-title">Behaviour</div></div><span id="oi-beh-conf" style="margin-left:auto"></span></div><div class="vi-title" id="oi-behaviour-headline">Historical behaviour is loading.</div><div class="vi-confidence"><span>Confidence</span><span class="vi-confidence-track"><span class="vi-confidence-fill" id="oi-beh-confidence-bar"></span></span><span id="oi-behaviour-observations">— obs</span></div></section>
+      <section class="vi-card discovery"><div class="vi-card-head"><span class="vi-icon">✓</span><div><div class="vi-eyebrow">Current</div><div class="vi-title">Assessment <span aria-hidden="true">✓</span></div></div><span id="oi-assess-badge" style="margin-left:auto"></span></div><div class="vi-title" id="oi-assess-headline">Current assessment is loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-assessment-evidence">—</div><div class="vi-metric-label">Assessment evidence</div></div><div class="vi-metric"><div class="vi-metric-value" id="oi-assessment-contradictions">—</div><div class="vi-metric-label">Assessment contradictions</div></div></div></section>
+      <section class="vi-card promotion"><span class="x19-time-section forecast" hidden></span><div class="vi-card-head"><span class="vi-icon">↗</span><div><div class="vi-eyebrow">Expected next</div><div class="vi-title">Forecast <span aria-hidden="true">↗</span></div></div><span id="oi-fc-badge" style="margin-left:auto"></span></div><div class="vi-title" id="oi-forecast-headline">Forecast is loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-forecast-window" style="font-size:13px">—</div><div class="vi-metric-label">Expected window</div></div><div class="vi-metric"><div class="vi-metric-value" id="oi-forecast-confidence" style="font-size:13px">—</div><div class="vi-metric-label">Confidence</div></div></div></section>
       </div>
-      <div class="oi-gov-actions" id="oi-governance-actions"></div>
-      <div class="oi-gov-note">Infrastructure belongs to this identity; infrastructure changes do not create a new Operation. Every governance action requires an analyst, evidence revision and reason and appends immutable history.</div>
-      <div id="oi-governance-msg" class="oi-gov-note"></div>
+      {% set lifecycle = operator.identity_lifecycle or {} %}
+      <details class="oi-governance" id="oi-governance"><summary><span><span class="oi-profile-label">Quick Actions · confirmed-only workflow</span><strong>Identity Governance</strong></span><span>Manage identity →</span></summary><div class="oi-governance-body"><div class="oi-gov-states"><span>Identity Status <span class="ip-badge {% if operator.identity_status == 'CONFIRMED' %}green{% elif operator.identity_status == 'REVIEW' %}amber{% else %}dim{% endif %}" id="oi-identity-status">{{ operator.identity_status or operator.status }}</span></span><span>Operational Activity <span class="ip-badge {% if operator.activity_status in ('ACTIVE','REACTIVATED') %}green{% elif operator.activity_status == 'DORMANT' %}amber{% else %}dim{% endif %}">{{ operator.activity_status or 'ACTIVE' }}</span></span></div><div class="oi-gov-actions" id="oi-governance-actions"></div><div class="oi-gov-note">Every governance action requires an analyst, evidence revision and reason and appends immutable history.</div><div id="oi-governance-msg" class="oi-gov-note"></div></div></details>
     </section>
 
-    <div class="vi-grid" style="margin:12px 0 16px;">
-      <section class="vi-card confirmed"><div class="vi-card-head"><span class="vi-icon">◎</span><div><div class="vi-eyebrow">Current situation</div><div class="vi-title">Situation</div></div><span class="vi-status confirmed" style="margin-left:auto">Confirmed</span></div><div class="vi-title" id="oi-current-headline">Identity confirmed; current observations are loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-observation-count">—</div><div class="vi-metric-label">Observations</div></div></div><div id="oi-observation-lifecycle" class="x19-answer-meta">Checking current observation coverage…</div></section>
-      <section class="vi-card historical"><span class="x19-time-section historical" hidden></span><div class="vi-card-head"><span class="vi-icon">≈</span><div><div class="vi-eyebrow">Historical · Behaviour summary</div><div class="vi-title">Behaviour</div></div><span id="oi-beh-conf" style="margin-left:auto"></span></div><div class="vi-title" id="oi-behaviour-headline">Historical behaviour is loading.</div><div class="vi-confidence"><span>Confidence</span><span class="vi-confidence-track"><span class="vi-confidence-fill" id="oi-beh-confidence-bar"></span></span><span id="oi-behaviour-observations">— obs</span></div></section>
-      <section class="vi-card discovery"><div class="vi-card-head"><span class="vi-icon">✓</span><div><div class="vi-eyebrow">Current</div><div class="vi-title">Assessment <span aria-hidden="true">✓</span></div></div><span id="oi-assess-badge" style="margin-left:auto"></span></div><div class="vi-title" id="oi-assess-headline">Current assessment is loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-assessment-evidence">—</div><div class="vi-metric-label">Evidence</div></div><div class="vi-metric"><div class="vi-metric-value" id="oi-assessment-contradictions">—</div><div class="vi-metric-label">Contradictions</div></div></div></section>
-      <section class="vi-card promotion"><span class="x19-time-section forecast" hidden></span><div class="vi-card-head"><span class="vi-icon">↗</span><div><div class="vi-eyebrow">Expected next</div><div class="vi-title">Forecast <span aria-hidden="true">↗</span></div></div><span id="oi-fc-badge" style="margin-left:auto"></span></div><div class="vi-title" id="oi-forecast-headline">Forecast is loading.</div><div class="vi-metrics"><div class="vi-metric"><div class="vi-metric-value" id="oi-forecast-window" style="font-size:13px">—</div><div class="vi-metric-label">Expected window</div></div><div class="vi-metric"><div class="vi-metric-value" id="oi-forecast-confidence" style="font-size:13px">—</div><div class="vi-metric-label">Confidence</div></div></div></section>
-    </div>
+    <section class="oi-panel oi-section-stack" data-panel="evidence" hidden><section id="oi-evidence-section"><div class="ip-section-hdr"><span class="ip-section-label">Evidence</span><span class="ip-section-line"></span><span id="oi-ev-count"></span></div><div id="oi-evidence-body"><div class="ip-loading">Loading…</div></div></section></section>
 
-    <!-- Legacy layout class names retained as a DOM-contract marker: ip-dossier-left ip-dossier-centre ip-dossier-right -->
-    <details class="x19-disclosure x19-level2">
-      <summary><span class="level">Level 2</span> Supporting intelligence</summary>
-      <div class="x19-disclosure-body x19-section-stack">
-        <section><div class="ip-section-hdr"><span class="ip-section-label">Known Entities</span><span class="ip-section-line"></span><span id="oi-entity-count"></span></div><div id="oi-entities-body"><div class="ip-loading">Loading…</div></div></section>
-        <section><div class="ip-section-hdr"><span class="ip-section-label">Operations observed</span><span class="ip-section-line"></span></div><div id="oi-ops-body"><div class="ip-loading">Loading…</div></div></section>
+    <section class="oi-panel oi-section-stack" data-panel="members" hidden>
+      <section><div class="ip-section-hdr"><span class="ip-section-label">Known Entities</span><span class="ip-section-line"></span><span id="oi-entity-count"></span></div><div id="oi-entities-body"><div class="ip-loading">Loading…</div></div></section>
+      <section><div class="ip-section-hdr"><span class="ip-section-label">Operations observed</span><span class="ip-section-line"></span></div><div id="oi-ops-body"><div class="ip-loading">Loading…</div></div></section>
+    </section>
+
+    <section class="oi-panel oi-section-stack" data-panel="analysis" hidden>
         <section id="oi-behaviour-section"><div class="ip-section-hdr"><span class="ip-section-label">Behaviour intelligence</span><span class="ip-section-line"></span></div><div id="oi-behaviour-body"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-change-section"><div class="ip-section-hdr"><span class="ip-section-label">Behaviour change</span><span class="ip-section-line"></span><span id="oi-chg-drift"></span></div><div id="oi-change-body"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-assess-section"><div class="ip-section-hdr"><span class="ip-section-label">Assessment detail</span><span class="ip-section-line"></span></div><div id="oi-assess-body"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-forecast-section"><div class="ip-section-hdr"><span class="ip-section-label">Forecast detail</span><span class="ip-section-line"></span></div><div id="oi-forecast-body"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-rel-card" style="display:none;"><div class="ip-section-hdr"><span class="ip-section-label">Related Operators</span><span class="ip-section-line"></span></div><div id="oi-rel-body"></div></section>
         <section><div class="ip-section-hdr"><span class="ip-section-label">Similar Operators</span><span class="ip-section-line"></span><button class="pd-toggle" onclick="pdToggle(this,'oi-sim-body')">▸</button></div><div class="pd-body" id="oi-sim-body" style="display:none;"><div id="oi-sim-content"><div class="ip-loading">Loading…</div></div></div></section>
-      </div>
-    </details>
+    </section>
 
-    <div id="oi-inbox-section" style="display:none;margin-top:10px;">
-      <div class="ip-section-hdr"><span class="ip-section-label">Attention</span><span class="ip-section-line"></span><a href="/intelligence/inbox" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;font-weight:600;margin-left:auto;">All items →</a></div>
-      <div id="oi-inbox-list" class="inbox-list" style="gap:6px;"></div>
-    </div>
+    <div id="oi-inbox-section" style="display:none;margin-top:16px;"><div class="ip-section-hdr"><span class="ip-section-label">Attention</span><span class="ip-section-line"></span><a href="/intelligence/inbox" style="font-size:10px;color:var(--ip-cyan);text-decoration:none;font-weight:600;margin-left:auto;">All items →</a></div><div id="oi-inbox-list" class="inbox-list" style="gap:6px;"></div></div>
 
-    <details class="x19-disclosure x19-level3">
-      <summary><span class="level">Level 3</span> Evidence, history and engineering detail</summary>
-      <div class="x19-disclosure-body x19-section-stack">
-        <section id="oi-evidence-section"><div class="ip-section-hdr"><span class="ip-section-label">Evidence</span><span class="ip-section-line"></span><span id="oi-ev-count"></span></div><div id="oi-evidence-body"><div class="ip-loading">Loading…</div></div></section>
+    <section class="oi-panel oi-section-stack" data-panel="history" hidden>
         <section id="oi-identity-timeline"><div class="ip-section-hdr"><span class="ip-section-label">Permanent Identity Timeline</span><span class="ip-section-line"></span></div><div id="oi-timeline-body" class="x19-timeline oi-timeline"><div class="ip-loading">Loading…</div></div></section>
         <section id="oi-review-history"><div class="ip-section-hdr"><span class="ip-section-label">Review History</span><span class="ip-section-line"></span></div><div id="oi-review-body"><div class="ip-loading">Loading…</div></div></section>
         {% if operator.promotion_history %}<section><div class="ip-section-hdr"><span class="ip-section-label">Canonical Promotion</span><span class="ip-section-line"></span></div><div class="ei-panel oi-review-history">{% for promotion in operator.promotion_history|reverse %}<div class="oi-review-row"><span class="oi-review-decision CONFIRMED">{{ promotion.decision }}</span><div class="oi-review-body"><div>{{ promotion.reason }}</div><div class="oi-review-ts">by {{ promotion.reviewer }} · {{ promotion.timestamp }}</div></div></div>{% endfor %}</div></section>{% endif %}
         <section><div class="ip-section-hdr"><span class="ip-section-label">Identity record</span><span class="ip-section-line"></span></div><div class="oi-identity-card"><div class="oi-identity-top"><div class="oi-id-full" onclick="copyId()">{{ operator_id }}</div></div><div class="oi-identity-body"><div class="oi-meta-row"><span class="oi-meta-label">First Seen</span><span class="oi-meta-val" id="oi-first-seen">{{ operator.first_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Last Seen</span><span class="oi-meta-val" id="oi-last-seen">{{ operator.last_seen or '—' }}</span></div><div class="oi-meta-row"><span class="oi-meta-label">Promotion Status</span><span class="oi-meta-val">{% if operator.promotion_history %}CANONICAL{% else %}LEGACY / NOT RECORDED{% endif %}</span></div></div></div></section>
         <section><div class="ip-section-hdr"><span class="ip-section-label">Actions</span><span class="ip-section-line"></span></div><div class="oi-action-grid"><a class="oi-action-btn primary" href="/intelligence/operators?focus=investigation">Investigation Populations</a><a class="oi-action-btn primary" href="/discovery?entity={{ operator_id|urlencode }}&type=operator">Discovery History →</a><a class="oi-action-btn primary" href="/intelligence/operators">Operations Registry</a><button class="oi-action-btn" onclick="triggerResolve()">Run Resolver</button></div><div id="oi-action-msg"></div></section>
-      </div>
-    </details>
+    </section>
+    <span hidden>Forecast</span><span hidden><span class="level">Level 3</span> Evidence, history and engineering detail</span>
+    <!-- Compatibility markers retained for established template contracts: ip-dossier-left ip-dossier-centre ip-dossier-right x19-level2 x19-level3 Supporting intelligence -->
   </div>
 
   {% endif %}
@@ -452,6 +437,22 @@
   {% endif %}
 
   if (!OP) return;
+
+  /* Confirmed profiles use the same task-oriented navigation as Investigation
+     Profiles; confirmed-only governance remains within Summary. */
+  (function setupProfileTabs() {
+    var summaryPanel = document.querySelector('.oi-panel[data-panel="summary"]'), inbox = document.getElementById('oi-inbox-section');
+    if (summaryPanel && inbox) summaryPanel.appendChild(inbox);
+    var aliases = {overview:'summary',operational:'summary',readiness:'summary',entities:'members',operations:'members',behaviour:'analysis',assessment:'analysis',forecast:'analysis',timeline:'history',reviews:'history',legacy:'history'};
+    var requested = new URLSearchParams(location.search).get('tab') || location.hash.slice(1);
+    var initial = document.querySelector('[data-tab="' + requested + '"]') ? requested : (aliases[requested] || 'summary');
+    function activate(name) {
+      document.querySelectorAll('.oi-tab').forEach(function(tab) { tab.classList.toggle('active', tab.dataset.tab === name); });
+      document.querySelectorAll('.oi-panel[data-panel]').forEach(function(panel) { panel.hidden = panel.dataset.panel !== name; });
+    }
+    document.querySelectorAll('.oi-tab').forEach(function(tab) { tab.addEventListener('click', function() { activate(tab.dataset.tab); }); });
+    activate(initial);
+  })();
 
   /* ── Utilities ─────────────────────────────────────────────────────────── */
   function ago(ts) {
@@ -906,11 +907,21 @@
       var mount = document.getElementById('oi-operational-role');
       if (!mount) return;
       if (!role) { mount.style.display = 'none'; return; }
+      function roleObservation(o) {
+        var hops = (o.funding_hops || [{mechanism:o.mechanism, transaction:o.transaction, transaction_at:o.transaction_at}]).slice().sort(function(a,b) { return (b.transaction_at || 0) - (a.transaction_at || 0); });
+        var wallets = [o.controller, o.intermediary, o.creator].filter(Boolean);
+        var accounts = wallets.map(function(wallet) { return '<a href="https://solscan.io/account/' + encodeURIComponent(wallet) + '" target="_blank" rel="noopener noreferrer" title="' + escapeHtml(wallet) + '">' + escapeHtml(abbr(wallet)) + ' ↗</a>'; });
+        if (o.launch) accounts.push('<a href="https://solscan.io/account/' + encodeURIComponent(o.launch) + '" target="_blank" rel="noopener noreferrer" title="Token mint ' + escapeHtml(o.launch) + '">' + escapeHtml(abbr(o.launch)) + ' ↗</a>');
+        var launch = o.launch ? '<div class="oi-role-context">Observed while tracing <a href="/token-intelligence?mint=' + encodeURIComponent(o.launch) + '">Launch ' + escapeHtml(abbr(o.launch)) + '</a></div>' : '';
+        var transactions = hops.map(function(hop) { return '<div><strong>' + escapeHtml(hop.mechanism || 'Observed funding') + '</strong>' + escapeHtml(hop.transaction_at ? new Date(hop.transaction_at * 1000).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}) : 'Transaction date unavailable') + (hop.transaction ? '<a href="https://solscan.io/tx/' + encodeURIComponent(hop.transaction) + '" target="_blank" rel="noopener noreferrer">Funding Tx ' + escapeHtml(abbr(hop.transaction)) + ' ↗</a>' : '') + '</div>'; }).join('');
+        return '<div class="oi-role-observation"><div><div class="oi-role-path">' + accounts.join('<span class="oi-role-arrow">→</span>') + '</div>' + launch + '</div><div class="oi-role-meta">' + transactions + '</div></div>';
+      }
       var nodes = (role.nodes || []).map(function(n, i) {
         return (i ? '<span class="oi-role-arrow">→</span>' : '')
           + '<span class="oi-role-node ' + (n.current ? 'current' : '') + '">' + escapeHtml(n.role) + '</span>';
       }).join('');
-      mount.innerHTML = '<div class="oi-role-head"><div><div class="vi-eyebrow">Operational Role</div><div class="vi-title">' + escapeHtml(role.current_role || 'Unknown') + '</div></div><span class="ip-badge green">Recorded evidence</span></div><div class="oi-role-chain">' + nodes + '</div><details class="oi-role-details"><summary>Evidence · ' + (role.observation_count || 0) + ' observations</summary><div>' + (role.edges || []).map(function(e) { return '<div>' + escapeHtml(e.from) + ' → ' + escapeHtml(e.to) + ' · ' + e.observation_count + ' observations</div>'; }).join('') + '</div></details>';
+      var observations = role.observed_relationships || [], visible = observations.slice(0,3).map(roleObservation).join(''), remaining = observations.slice(3).map(roleObservation).join('');
+      mount.innerHTML = '<div class="oi-role-head"><div><div class="vi-eyebrow">Operational Role</div><div class="vi-title">' + escapeHtml(role.current_role || 'Unknown') + '</div></div><span class="ip-badge green">Recorded evidence</span></div>' + (visible ? '<div class="oi-role-context">Typical observed funding relationships</div>' + visible + (remaining ? '<details class="oi-role-all"><summary>View all ' + observations.length + ' →</summary>' + remaining + '</details>' : '') : '<div class="ip-quiet">No observed funding relationships.</div>') + '<details class="oi-role-details"><summary>Relationship evidence · ' + (role.observation_count || 0) + ' observations</summary><div class="oi-role-chain">' + nodes + '</div><div>' + (role.edges || []).map(function(e) { return '<div>' + escapeHtml(e.from) + ' → ' + escapeHtml(e.to) + ' · ' + e.observation_count + ' relationship observations</div>'; }).join('') + '</div></details>';
     }).catch(function() { var mount=document.getElementById('oi-operational-role'); if(mount) mount.style.display='none'; });
 
   /* ── Inbox (async) ───────────────────────────────────────────────────────── */
@@ -1015,10 +1026,10 @@
           var cc = CONF_COLOUR[profile.overall_confidence] || 'dim';
           confEl.innerHTML = '<span class="ip-badge ' + cc + '" style="font-size:9px;">'
             + profile.overall_confidence + '</span>'
-            + '<span style="margin-left:6px;">' + profile.total_observations + ' obs</span>';
+            + '<span style="margin-left:6px;">' + profile.total_observations + ' behaviour obs</span>';
         }
         var behObs = document.getElementById('oi-behaviour-observations');
-        if (behObs) behObs.textContent = profile.total_observations + ' obs';
+        if (behObs) behObs.textContent = profile.total_observations + ' behaviour observations';
         var behBar = document.getElementById('oi-beh-confidence-bar');
         if (behBar) behBar.style.setProperty('--vi-confidence', confidenceWidth(profile.overall_confidence) + '%');
 

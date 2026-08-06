@@ -92,20 +92,32 @@ def register_domain(domain_name: str, domain_type: str = 'mentioned',
                 DOMAIN_REGISTRY[domain_name]['metadata'].update(metadata)
 
         # Save to database
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
+        # X78.0 -- conn.close() was only reached on success; called from
+        # DomainResolver._save_address_tag, itself called from inside
+        # creator_funding_worker's extraction hot path -- an exception here
+        # left the connection, and its write lease, open for the rest of
+        # that thread's life.
+        conn = None
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
 
-        metadata_json = json.dumps(metadata or {})
-        cursor.execute("""
-            INSERT OR REPLACE INTO domain_registry
-            (domain_name, domain_type, first_seen_at, metadata, sources, confidence_score)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (domain_name, domain_type, int(__import__('time').time()),
-              metadata_json, source, 1.0))
+            metadata_json = json.dumps(metadata or {})
+            cursor.execute("""
+                INSERT OR REPLACE INTO domain_registry
+                (domain_name, domain_type, first_seen_at, metadata, sources, confidence_score)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (domain_name, domain_type, int(__import__('time').time()),
+                  metadata_json, source, 1.0))
 
-        conn.commit()
-        conn.close()
-        return True
+            conn.commit()
+            return True
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     except Exception as e:
         return False
@@ -150,19 +162,28 @@ def link_domain_to_address(domain_name: str, address: str) -> bool:
             DOMAIN_REGISTRY[domain_name]['metadata']['associated_addresses'].append(address)
 
         # Save back to database
-        conn = sqlite3.connect(DB_PATH, timeout=5)
-        cursor = conn.cursor()
-        metadata_json = json.dumps(DOMAIN_REGISTRY[domain_name]['metadata'])
+        # X78.0 -- same fix as register_domain above: conn.close() was only
+        # reached on success.
+        conn = None
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=5)
+            cursor = conn.cursor()
+            metadata_json = json.dumps(DOMAIN_REGISTRY[domain_name]['metadata'])
 
-        cursor.execute("""
-            UPDATE domain_registry
-            SET metadata = ?
-            WHERE domain_name = ?
-        """, (metadata_json, domain_name))
+            cursor.execute("""
+                UPDATE domain_registry
+                SET metadata = ?
+                WHERE domain_name = ?
+            """, (metadata_json, domain_name))
 
-        conn.commit()
-        conn.close()
-        return True
+            conn.commit()
+            return True
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
     except Exception as e:
         return False
 

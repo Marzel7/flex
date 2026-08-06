@@ -596,3 +596,243 @@ def test_rebuild_after_scan_analyzer_runs_conn_closes_on_exception(tmp_db, monke
 
     with pytest.raises(sqlite3.ProgrammingError):
         holder["conn"].execute("SELECT 1")
+
+
+# ── Fix 11-13: DomainResolver (_ensure_table, _db_get, _db_set_many, _save_address_tag) ──
+
+def test_domain_resolver_ensure_table_closes_connection_on_exception(tmp_db, monkeypatch):
+    """Found live during the X78.0 soak: the TRUE original leak trigger,
+    upstream of every other symptom traced in this file. DomainResolver is
+    constructed once per extractor instance (__init__ calls _ensure_table
+    immediately), on the event-loop thread, before any per-page write ever
+    happens -- a leak here poisons the thread from the very first
+    transaction of the very first job."""
+    import src.extractors.realtime_creator_funding_extractor as rcfe
+
+    holder = {}
+    real_connect = rcfe.db_connect
+
+    class _BoomCursor:
+        def __init__(self, real_cursor):
+            self._real = real_cursor
+            self._calls = 0
+
+        def execute(self, sql, *a, **k):
+            self._calls += 1
+            if self._calls == 2:  # let the first CREATE TABLE through, fail the second
+                raise RuntimeError("simulated failure mid-ensure-table")
+            return self._real.execute(sql, *a, **k)
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def cursor(self):
+            return _BoomCursor(self._real.cursor())
+
+        def commit(self):
+            return self._real.commit()
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        real_conn = real_connect(*a, **k)
+        boom = _BoomConn(real_conn)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(rcfe, "db_connect", fake_connect)
+
+    resolver = rcfe.DomainResolver.__new__(rcfe.DomainResolver)
+    resolver.db_path = tmp_db
+    resolver.session = None
+    resolver.mem = {}
+    with pytest.raises(RuntimeError):
+        resolver._ensure_table()
+
+    assert holder["conn"].closed is True
+
+
+def test_domain_resolver_db_set_many_closes_connection_on_exception(tmp_db, monkeypatch):
+    """_db_set_many's conn.close() previously had no try/finally at all --
+    this is the exact function named in the live NestedDatabaseWriteError
+    trace (inner_command=...:147 in _db_set_many)."""
+    import src.extractors.realtime_creator_funding_extractor as rcfe
+
+    real_conn = sqlite3.connect(tmp_db)
+    real_conn.execute(
+        "CREATE TABLE address_domains (address TEXT PRIMARY KEY, primary_domain TEXT, updated_at INTEGER)")
+    real_conn.commit()
+    real_conn.close()
+
+    holder = {}
+    real_connect = rcfe.db_connect
+
+    class _BoomCursor:
+        def __init__(self, real_cursor):
+            self._real = real_cursor
+
+        def executemany(self, sql, rows):
+            raise RuntimeError("simulated executemany failure")
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def cursor(self):
+            return _BoomCursor(self._real.cursor())
+
+        def commit(self):
+            return self._real.commit()
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(rcfe, "db_connect", fake_connect)
+
+    resolver = rcfe.DomainResolver.__new__(rcfe.DomainResolver)
+    resolver.db_path = tmp_db
+    resolver.session = None
+    resolver.mem = {}
+
+    with pytest.raises(RuntimeError):
+        resolver._db_set_many([("ADDR_X", "test.sol", 12345)])
+
+    assert holder["conn"].closed is True
+
+
+# ── Fix 14: address_tags.add_tag ────────────────────────────────────────────
+
+def test_add_tag_closes_connection_on_exception(tmp_db, monkeypatch):
+    """Called from domain_extraction.resolve_domains_for_addresses_async,
+    itself reachable from extract_for_creator's per-transaction loop.
+    conn.close() was only reached on success."""
+    import src.utils.address_tags as at
+
+    monkeypatch.setattr(at, "DB_PATH", tmp_db)
+
+    real_conn = sqlite3.connect(tmp_db)
+    real_conn.close()
+
+    holder = {}
+    real_connect = at.sqlite3.connect
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def cursor(self):
+            raise RuntimeError("simulated cursor failure")
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(at.sqlite3, "connect", fake_connect)
+
+    result = at.add_tag("ADDR_X", "domain", "test.sol")
+    assert result is False
+    assert holder["conn"].closed is True
+
+
+# ── Fix 15/16: domain_mapping.register_domain / link_domain_to_address ─────
+
+def test_register_domain_closes_connection_on_exception(tmp_db, monkeypatch):
+    """conn.close() was only reached on success."""
+    import src.utils.domain_mapping as dm
+
+    monkeypatch.setattr(dm, "DB_PATH", tmp_db)
+    dm.DOMAIN_REGISTRY.clear()
+
+    real_conn = sqlite3.connect(tmp_db)
+    real_conn.close()
+
+    holder = {}
+    real_connect = dm.sqlite3.connect
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def cursor(self):
+            raise RuntimeError("simulated cursor failure")
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(dm.sqlite3, "connect", fake_connect)
+
+    result = dm.register_domain("test.sol")
+    assert result is False
+    assert holder["conn"].closed is True
+
+
+def test_link_domain_to_address_closes_connection_on_exception(tmp_db, monkeypatch):
+    """conn.close() was only reached on success."""
+    import src.utils.domain_mapping as dm
+
+    monkeypatch.setattr(dm, "DB_PATH", tmp_db)
+    dm.DOMAIN_REGISTRY.clear()
+    dm.DOMAIN_REGISTRY["test.sol"] = {"name": "test.sol", "type": "mentioned", "metadata": {}}
+
+    real_conn = sqlite3.connect(tmp_db)
+    real_conn.close()
+
+    holder = {}
+    real_connect = dm.sqlite3.connect
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def cursor(self):
+            raise RuntimeError("simulated cursor failure")
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(dm.sqlite3, "connect", fake_connect)
+
+    result = dm.link_domain_to_address("test.sol", "ADDR_X")
+    assert result is False
+    assert holder["conn"].closed is True

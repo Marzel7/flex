@@ -100,58 +100,91 @@ class DomainResolver:
         self._ensure_table()
 
     def _ensure_table(self):
-        """Create address_domains table if it doesn't exist"""
-        conn = db_connect(self.db_path, timeout=60)
-        cur = conn.cursor()
-        
-        # Domains cache table (for resolution state tracking)
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS address_domains (
-                address TEXT PRIMARY KEY,
-                primary_domain TEXT,
-                updated_at INTEGER
-            )
-        """)
-        
-        # Address tags table (persistent tags like INFRA and CEX)
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS address_tags (
-                address TEXT,
-                tag_type TEXT,
-                tag_value TEXT,
-                source TEXT,
-                first_seen_at INTEGER,
-                PRIMARY KEY (address, tag_type, tag_value)
-            )
-        """)
-        
-        cur.execute("CREATE INDEX IF NOT EXISTS idx_address_tags_address ON address_tags(address)")
-        cur.execute("CREATE INDEX IF NOT EXISTS idx_address_tags_type ON address_tags(tag_type)")
-        
-        conn.commit()
-        conn.close()
+        """Create address_domains table if it doesn't exist.
+
+        X78.0 -- found live during the X78.0 soak: this was the TRUE
+        original leak trigger, upstream of every other symptom traced in
+        this file. conn.close() previously had no try/finally at all in
+        this method (or _db_get/_db_set_many below) -- any exception left
+        the connection, and its write lease, open for the rest of this
+        thread's life. This runs on the event-loop thread (DomainResolver
+        is constructed once per extractor instance, called from inside
+        extract_for_creator's per-transaction loop, long before
+        _flush_page_batch's own per-page writes even begin), so a leak
+        here poisons every subsequent write on that thread from the very
+        first transaction of the very first job."""
+        conn = None
+        try:
+            conn = db_connect(self.db_path, timeout=60)
+            cur = conn.cursor()
+
+            # Domains cache table (for resolution state tracking)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS address_domains (
+                    address TEXT PRIMARY KEY,
+                    primary_domain TEXT,
+                    updated_at INTEGER
+                )
+            """)
+
+            # Address tags table (persistent tags like INFRA and CEX)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS address_tags (
+                    address TEXT,
+                    tag_type TEXT,
+                    tag_value TEXT,
+                    source TEXT,
+                    first_seen_at INTEGER,
+                    PRIMARY KEY (address, tag_type, tag_value)
+                )
+            """)
+
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_address_tags_address ON address_tags(address)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_address_tags_type ON address_tags(tag_type)")
+
+            conn.commit()
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def _db_get(self, address: str) -> Optional[Tuple[Optional[str], int]]:
         """Get domain from database cache"""
-        conn = db_connect(self.db_path, timeout=60)
-        cur = conn.cursor()
-        cur.execute("SELECT primary_domain, updated_at FROM address_domains WHERE address = ? LIMIT 1", (address,))
-        row = cur.fetchone()
-        conn.close()
-        if not row:
-            return None
-        return (row[0], row[1])
+        conn = None
+        try:
+            conn = db_connect(self.db_path, timeout=60)
+            cur = conn.cursor()
+            cur.execute("SELECT primary_domain, updated_at FROM address_domains WHERE address = ? LIMIT 1", (address,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            return (row[0], row[1])
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def _db_set_many(self, rows: List[Tuple[str, Optional[str], int]]):
         """Save multiple domain lookups to database cache"""
-        conn = db_connect(self.db_path, timeout=60)
-        cur = conn.cursor()
-        cur.executemany("""
-            INSERT OR REPLACE INTO address_domains (address, primary_domain, updated_at)
-            VALUES (?, ?, ?)
-        """, rows)
-        conn.commit()
-        conn.close()
+        conn = None
+        try:
+            conn = db_connect(self.db_path, timeout=60)
+            cur = conn.cursor()
+            cur.executemany("""
+                INSERT OR REPLACE INTO address_domains (address, primary_domain, updated_at)
+                VALUES (?, ?, ?)
+            """, rows)
+            conn.commit()
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def _is_fresh(self, updated_at: int) -> bool:
         """Check if cached entry is still fresh"""
@@ -162,6 +195,14 @@ class DomainResolver:
         if not domain:
             return
 
+        # X78.0 -- conn was declared inside the try and closed only on the
+        # success path; an exception from the INSERT left it (and its
+        # write lease) open. conn declared before the try so finally can
+        # close it regardless of which line raised (including the
+        # register_domain/link_domain_to_address calls after commit, which
+        # don't use conn but previously ran before its close() in the old
+        # ordering only on the success path anyway).
+        conn = None
         try:
             conn = db_connect(self.db_path, timeout=60)
             cur = conn.cursor()
@@ -174,7 +215,6 @@ class DomainResolver:
             """, (address, domain, int(time.time())))
 
             conn.commit()
-            conn.close()
 
             # Register domain in persistent mapping
             register_domain(domain, domain_type='owned',
@@ -186,6 +226,12 @@ class DomainResolver:
 
         except Exception as e:
             pass  # Non-critical
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     async def resolve_primary_domains(self, addresses: Iterable[str]) -> Dict[str, Optional[str]]:
         """

@@ -89,6 +89,12 @@ def has_tag(address: str, tag_type: str, tag_value: Optional[str] = None) -> boo
 
 def add_tag(address: str, tag_type: str, tag_value: str, source: str = "manual") -> bool:
     """Add a tag to an address"""
+    # X78.0 -- conn.close() was only reached on success; called from
+    # domain_extraction.resolve_domains_for_addresses_async, itself called
+    # from inside creator_funding_worker's extraction hot path (event-loop
+    # thread) -- an exception here left the connection, and its write
+    # lease, open for the rest of that thread's life.
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
@@ -98,10 +104,15 @@ def add_tag(address: str, tag_type: str, tag_value: str, source: str = "manual")
             VALUES (?, ?, ?, ?, ?)
         """, (address, tag_type, tag_value, source, int(__import__('time').time())))
         conn.commit()
-        conn.close()
         return True
     except Exception as e:
         return False
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 def get_addresses_by_tag(tag_type: str, tag_value: Optional[str] = None) -> Set[str]:

@@ -14,6 +14,7 @@ from .database import EvidenceDatabase
 from .errors import ArtifactCorruption, ComponentDisabled, WriterOwnershipError
 from .logging import log_event
 from .metrics import EvidenceMetrics
+from .normalization import NormalizationEngine
 from .queue import ClaimedMessage, EvidenceIntakeQueue
 
 
@@ -28,13 +29,15 @@ class EvidenceWriter:
     def __init__(self, config: EvidenceConfig, queue: EvidenceIntakeQueue,
                  artifacts: ArtifactStore, *, metrics: EvidenceMetrics | None = None,
                  database_factory: Callable[[Path], EvidenceDatabase] = EvidenceDatabase,
-                 after_commit: Callable[[], None] | None = None) -> None:
+                 after_commit: Callable[[], None] | None = None,
+                 normalizer: NormalizationEngine | None = None) -> None:
         self.config = config
         self.queue = queue
         self.artifacts = artifacts
         self.metrics = metrics or EvidenceMetrics()
         self.database = database_factory(config.database_path)
         self.after_commit = after_commit
+        self.normalizer = normalizer
         self._lease: Any = None
         self._started = False
         self._stopping = False
@@ -109,6 +112,9 @@ class EvidenceWriter:
             return {"claimed": len(claimed), "inserted": 0, "duplicates": 0, "failed": len(claimed)}
         try:
             result = self.database.append_batch([item.payload for item in valid])
+            if self.config.normalization_enabled and self.normalizer is not None:
+                for item in valid:
+                    self.normalizer.normalize_envelope(item.payload["envelope"])
             if self.after_commit:
                 self.after_commit()
             for item in valid:

@@ -10,6 +10,7 @@ from .config import EvidenceConfig
 from .database import EvidenceDatabase
 from .metrics import EvidenceMetrics
 from .mirror import EvidenceMirrorPublisher
+from .normalization import NormalizationEngine
 from .queue import EvidenceIntakeQueue
 from .writer import EvidenceWriter
 
@@ -35,7 +36,14 @@ class EvidencePlatform:
             intake=self.queue,
             metrics=self.metrics,
         )
-        self.writer = EvidenceWriter(config, self.queue, self.artifacts, metrics=self.metrics)
+        database = EvidenceDatabase(config.database_path)
+        self.normalizer = NormalizationEngine(
+            database, self.artifacts, metrics=self.metrics
+        )
+        self.writer = EvidenceWriter(
+            config, self.queue, self.artifacts, metrics=self.metrics,
+            database_factory=lambda _path: database, normalizer=self.normalizer,
+        )
 
     def synthetic_message(self, data: bytes, *, observed_at: int, acquired_at: int | None = None,
                           source: str = "synthetic", provider: str = "synthetic",
@@ -68,12 +76,18 @@ class EvidencePlatform:
                 "writer": {"status": "DISABLED"}, "queue": {"status": "DISABLED"},
                 "database": {"status": "DISABLED"}, "artifact_store": {"status": "DISABLED"},
                 "mirror": self.mirror.health(),
+                "normalization": {"status": "DISABLED"},
             }}
         components = {
             "writer": self.writer.health(), "queue": self.queue.health(),
             "database": EvidenceDatabase.read_health(self.config.database_path),
             "artifact_store": self.artifacts.health(),
             "mirror": self.mirror.health(),
+            "normalization": (
+                self.normalizer.health()
+                if self.config.normalization_enabled
+                else {"status": "DISABLED"}
+            ),
         }
         states = {item["status"] for item in components.values()}
         status = "HEALTHY" if states <= {"HEALTHY", "DISABLED"} else (

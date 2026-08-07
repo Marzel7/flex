@@ -6,6 +6,8 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
+from .contracts import EvidenceRecord, canonical_json_bytes
+
 
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 
@@ -29,6 +31,10 @@ class EvidenceDatabase:
         self.connection.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
         self.connection.execute(
             "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(1,?)",
+            (int(self.clock()),),
+        )
+        self.connection.execute(
+            "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(2,?)",
             (int(self.clock()),),
         )
 
@@ -108,6 +114,116 @@ class EvidenceDatabase:
             raise
         return {"inserted": inserted, "duplicates": duplicates}
 
+    def get_normalization_status(self, envelope_id: str, parser_id: str,
+                                 parser_version: str,
+                                 fact_schema_version: str) -> sqlite3.Row | None:
+        if self.connection is None:
+            raise RuntimeError("Evidence database writer is not open")
+        return self.connection.execute(
+            "SELECT * FROM normalization_status WHERE envelope_id=? AND parser_id=? "
+            "AND parser_version=? AND fact_schema_version=?",
+            (envelope_id, parser_id, parser_version, fact_schema_version),
+        ).fetchone()
+
+    def set_normalization_status(self, *, envelope_id: str, parser_id: str,
+                                 parser_version: str, fact_schema_version: str,
+                                 state: str, representation: str,
+                                 error: str | None = None, fact_count: int = 0,
+                                 increment_attempt: bool = False) -> None:
+        if self.connection is None:
+            raise RuntimeError("Evidence database writer is not open")
+        now = int(self.clock())
+        self.connection.execute(
+            "INSERT INTO normalization_status("
+            "envelope_id,parser_id,parser_version,fact_schema_version,state,attempts,error,"
+            "artifact_representation,started_at,completed_at,fact_count) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(envelope_id,parser_id,parser_version,fact_schema_version) DO UPDATE SET "
+            "state=excluded.state, attempts=normalization_status.attempts+?, error=excluded.error, "
+            "artifact_representation=excluded.artifact_representation, "
+            "started_at=CASE WHEN excluded.state='RUNNING' THEN excluded.started_at ELSE normalization_status.started_at END, "
+            "completed_at=CASE WHEN excluded.state IN ('COMPLETE','FAILED','UNSUPPORTED') THEN excluded.completed_at ELSE NULL END, "
+            "fact_count=excluded.fact_count",
+            (envelope_id, parser_id, parser_version, fact_schema_version, state,
+             1 if increment_attempt else 0, error, representation,
+             now if state == "RUNNING" else None,
+             now if state in {"COMPLETE", "FAILED", "UNSUPPORTED"} else None,
+             int(fact_count), 1 if increment_attempt else 0),
+        )
+
+    def append_normalized_records(self, *, envelope_id: str, parser_id: str,
+                                  parser_version: str, fact_schema_version: str,
+                                  representation: str,
+                                  records: list[EvidenceRecord]) -> dict[str, int]:
+        if self.connection is None:
+            raise RuntimeError("Evidence database writer is not open")
+        conn = self.connection
+        inserted = duplicates = 0
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            for record in records:
+                payload_json = canonical_json_bytes(dict(record.payload)).decode("utf-8").rstrip("\n")
+                values = (
+                    record.evidence_id, record.logical_fact_id, record.fact_family,
+                    record.fact_schema_version, record.chain, record.network,
+                    record.natural_key, payload_json, record.payload_digest,
+                    record.raw_artifact_digest, record.observed_at, record.acquired_at,
+                    record.source_id, record.source_version, record.provider,
+                    record.provider_request_id, record.parser_id, record.parser_version,
+                    record.replay_version, record.verification_state,
+                    record.provenance_quality, record.corrects_evidence_id,
+                    record.created_at,
+                )
+                cursor = conn.execute(
+                    "INSERT OR IGNORE INTO normalized_evidence_records("
+                    "evidence_id,logical_fact_id,fact_family,fact_schema_version,chain,network,"
+                    "natural_key,payload_json,payload_digest,raw_artifact_digest,observed_at,"
+                    "acquired_at,source_id,source_version,provider,provider_request_id,parser_id,"
+                    "parser_version,replay_version,verification_state,provenance_quality,"
+                    "corrects_evidence_id,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    values,
+                )
+                if cursor.rowcount:
+                    inserted += 1
+                else:
+                    existing = conn.execute(
+                        "SELECT payload_digest,raw_artifact_digest,parser_id,parser_version "
+                        "FROM normalized_evidence_records WHERE evidence_id=?",
+                        (record.evidence_id,),
+                    ).fetchone()
+                    expected = (record.payload_digest, record.raw_artifact_digest,
+                                record.parser_id, record.parser_version)
+                    if existing is None or tuple(existing) != expected:
+                        raise sqlite3.IntegrityError(
+                            "Evidence identity collision with non-identical observation"
+                        )
+                    duplicates += 1
+                provenance = record.provenance
+                conn.execute(
+                    "INSERT OR IGNORE INTO normalized_evidence_provenance("
+                    "evidence_id,provider_request_id,endpoint_method,request_parameters_digest,"
+                    "upstream_dependency,acquisition_path,cache_source,dependency_group,"
+                    "parent_evidence_ids_json) VALUES(?,?,?,?,?,?,?,?,?)",
+                    (record.evidence_id, record.provider_request_id or record.source_id,
+                     provenance.endpoint_method, provenance.request_parameters_digest,
+                     provenance.upstream_dependency, provenance.acquisition_path,
+                     provenance.cache_source, provenance.dependency_group,
+                     json.dumps(provenance.parent_evidence_ids, separators=(",", ":"))),
+                )
+            now = int(self.clock())
+            conn.execute(
+                "UPDATE normalization_status SET state='COMPLETE', error=NULL, completed_at=?, "
+                "fact_count=? WHERE envelope_id=? AND parser_id=? AND parser_version=? "
+                "AND fact_schema_version=?",
+                (now, len(records), envelope_id, parser_id, parser_version,
+                 fact_schema_version),
+            )
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+        return {"inserted": inserted, "duplicates": duplicates}
+
     @staticmethod
     def read_health(path: Path) -> dict[str, Any]:
         path = Path(path)
@@ -119,7 +235,8 @@ class EvidenceDatabase:
             quick = conn.execute("PRAGMA quick_check(1)").fetchone()[0]
             counts = {
                 table: conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-                for table in ("evidence_envelopes", "evidence_provenance", "artifact_references", "writer_receipts")
+                for table in ("evidence_envelopes", "evidence_provenance", "artifact_references", "writer_receipts",
+                              "normalized_evidence_records", "normalized_evidence_provenance", "normalization_status")
             }
             conn.close()
             return {"status": "HEALTHY" if quick == "ok" else "DATABASE_DEGRADED",

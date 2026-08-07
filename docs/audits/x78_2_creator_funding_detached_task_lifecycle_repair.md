@@ -105,10 +105,46 @@ individually, pass in isolation.
 
 ## Live deployment / soak status
 
-Per the task's Phase 18-22, restart-and-soak was intended to follow local
-validation. Given session constraints, live deployment and the
-15-minute/60-minute soak windows were **not executed as part of this
-turn** — see Production Readiness verdict below.
+Restarted via the normal supervised path
+(`supervisorctl restart creator_funding_worker`): clean stop-then-spawn
+transition, single PID (`62529`), no overlapping old/new instance,
+consistent with the same clean pattern observed in every prior restart
+in X78.1's Phase 10 audit.
+
+**Initial reading was a false alarm, corrected on closer inspection:** the
+stderr log file was not rotated at restart, so the first ~640
+`NestedDatabaseWriteError` occurrences read immediately after restart
+(`outer_command=db_locking.py:718 in _patched_connect`,
+`inner_command=creator_funding_worker.py:117 in _db_connect`) were the
+tail of the OLD pre-fix process's terminal death spiral, appended to the
+same file moments before it was killed — not new errors from the fixed
+process. Confirmed by observing the count freeze at exactly 639 while the
+new PID's own job cycles (`summary claimed=3 completed=...`) continued
+logging normally afterward.
+
+**A second, narrower, previously-unaudited collision pattern was found
+live in the new process**, and is NOT fixed by this milestone:
+`outer_command=realtime_creator_funding_extractor.py:1305 in
+extract_for_creator` colliding with `inner_command=rpc_cache.py:68 in
+_get_conn` (100 occurrences in the first ~4 minutes) and, more rarely,
+with itself (5 occurrences) or with `db_locking.py:718` (1 occurrence).
+This is `RPCCache.get()`/`.set()` being invoked from somewhere inside
+`extract_for_creator`'s own paging loop while `extraction_conn`'s write
+lease is already held on the same thread — a same-job, same-thread
+self-collision, structurally different from the cross-job detached-
+descendant mechanism X78.2 targeted and fixed. It is logged and swallowed
+non-fatally (`[RPC_CACHE] set() failed for ...: NestedDatabaseWriteError`)
+by `RPCCache`'s own `except Exception` handling, so it does not currently
+stall the worker or fail jobs — cycles continued completing normally
+throughout (`claimed=3 completed=1-3 retried=0-3 failed=0` across six
+consecutive cycles, `pending_after` trending down from 110 to 66) — but it
+is a real, live, unresolved `NestedDatabaseWriteError` source and must not
+be characterized as fixed by this milestone.
+
+Per the explicit instruction not to attempt a speculative fix without
+first reproducing, this new pattern was **not** repaired in X78.2 — it is
+flagged as the next diagnostic target, using the same reproduce-first
+discipline (Phase 1-4) applied here.
 
 ## Root-cause reconciliation (Phase 23)
 
@@ -122,14 +158,28 @@ turn** — see Production Readiness verdict below.
 
 ## Production readiness verdict (Phase 24)
 
-**NOT READY** — pending live deployment and soak (Phase 18-22), which
-were not run in this turn. All local validation (deterministic
-reproduction, regression, 100-job stress test) passes. Remaining blocker
-before a READY verdict: a real supervised restart plus the 15-minute
-sanity window and 60-minute/2-hour soak, observing heartbeat, queue
-progress, and confirming zero live `NestedDatabaseWriteError` recurrence
-under real production contention (walkback_worker, ws_cascade running
-concurrently, per Phase 21).
+**NOT READY.** The detached-descendant mechanism (Verdict A, the target
+of this milestone) is fixed and validated, both locally (8 passing tests)
+and live (zero recurrence of its specific signature across the restart
+and initial observation window; the worker completes jobs and drains the
+queue continuously). However, a second, distinct `NestedDatabaseWriteError`
+source (`extract_for_creator` self-colliding with `RPCCache._get_conn`,
+same job/same thread) was discovered live during Phase 19's sanity window
+and remains unresolved. It does not currently stall the worker or fail
+jobs (swallowed non-fatally inside `RPCCache`), so the immediate
+operational impact is low, but it means creator_funding_worker is not
+yet free of `NestedDatabaseWriteError` end to end, and READY cannot be
+declared honestly until that pattern is diagnosed with the same
+reproduce-first discipline used here and either fixed or explicitly
+accepted as non-blocking.
+
+Remaining blockers before a READY verdict:
+1. Diagnose and resolve (or explicitly accept) the
+   `extract_for_creator` / `RPCCache._get_conn` collision.
+2. Complete the full 15-minute sanity window and 60-minute/2-hour soak
+   (Phase 19-21) under real production contention (walkback_worker,
+   ws_cascade running concurrently) — only a partial (~4 minute) live
+   observation window was completed in this turn.
 
 ## Commit
 

@@ -40,6 +40,16 @@ def test_infrastructure_separates_owned_identity_from_connected_treasuries():
     assert "Unattributed" in page
 
 
+def test_connected_treasury_addresses_link_to_full_solscan_accounts():
+    page = source()
+    assert "const accountLink=value=>" in page
+    assert 'https://solscan.io/account/' in page
+    assert 'target="_blank" rel="noopener noreferrer"' in page
+    treasury_context = page.split("const treasurySplit=", 1)[1].split(";\n", 1)[0]
+    assert "accountLink(x.treasury)" in treasury_context
+    assert "accountLink(w)" in treasury_context
+
+
 def test_supported_identity_types_are_derived_from_existing_profile_data():
     page = source()
     for identity_type in (

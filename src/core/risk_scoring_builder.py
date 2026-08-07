@@ -138,30 +138,83 @@ class RiskScoringBuilder:
         # matching every other connection in this class (run(), __init__
         # helpers) and the pattern already used throughout this codebase
         # since X78.0.
-        conn = None
+        #
+        # X78.6 -- that fix was necessary but not sufficient. Measured
+        # live and reproduced directly against the production DB:
+        # apply_migration()'s own CREATE TABLE/ALTER statements acquire
+        # the write lease immediately (they are write-shaped SQL), and
+        # everything that ran after it on the SAME connection --
+        # sync_infra_wallets() (three full SELECT DISTINCT scans of
+        # token_analysis, ~1.4M rows each, measured ~48s combined) and
+        # _build_context() (a full 1.57M-row scan for tokens_by_creator
+        # alone plus five more full-table queries, measured ~20s+) --
+        # ran entirely INSIDE that held write lease, for a call that
+        # only ever scores ONE creator. 70+ seconds of read-only work
+        # was performed under write ownership before the first actual
+        # write (_write_creator_scores, a small executemany) even began.
+        # Any other write dispatched to this worker's thread during that
+        # window collided with NestedDatabaseWriteError -- which, under
+        # sustained job throughput, recurred faster than each 70s window
+        # could clear, looking indistinguishable from a permanent leak.
+        #
+        # Fix: read-only setup (migration schema check, infra-wallet
+        # sync, context building, scoring) now runs on a connection that
+        # is committed and closed -- releasing the write lease -- BEFORE
+        # persistence begins. A second, freshly-opened connection is
+        # held only for the brief _write_creator_scores + commit. This
+        # does not change scoring semantics, migration behaviour, or
+        # infra-wallet sync behaviour -- only WHEN the write lease is
+        # held, per the same collect-then-persist discipline already
+        # established elsewhere in this codebase (X77.x).
+        setup_conn = None
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
-            conn.row_factory = sqlite3.Row
-            conn.execute("PRAGMA journal_mode=WAL")
-            self.apply_migration(conn)
-            sync_infra_wallets(conn)
-            context = self._build_context(conn, [creator])
-            score = self._score_creator_fast(creator, context)
-            self._write_creator_scores(conn, [score])
-            conn.commit()
-            return {"status": "success", "creator": creator, "risk_level": score.get("risk_level")}
+            setup_conn = sqlite3.connect(self.db_path, timeout=60)
+            setup_conn.row_factory = sqlite3.Row
+            setup_conn.execute("PRAGMA journal_mode=WAL")
+            self.apply_migration(setup_conn)
+            sync_infra_wallets(setup_conn)
+            context = self._build_context(setup_conn, [creator])
+            # apply_migration/sync_infra_wallets may have performed
+            # writes (schema DDL, infra_wallets upserts) -- commit them
+            # now so this connection's close() below releases the write
+            # lease before the brief write-only connection reacquires it.
+            setup_conn.commit()
         except Exception as e:
-            if conn is not None:
+            if setup_conn is not None:
                 try:
-                    conn.rollback()
+                    setup_conn.rollback()
                 except Exception:
                     pass
-            logger.warning(f"[RiskScoringBuilder] score_creator_now failed for {creator}: {e}")
+            logger.warning(f"[RiskScoringBuilder] score_creator_now setup failed for {creator}: {e}")
             return {"status": "error", "error": str(e)}
         finally:
-            if conn is not None:
+            if setup_conn is not None:
                 try:
-                    conn.close()
+                    setup_conn.close()
+                except Exception:
+                    pass
+
+        score = self._score_creator_fast(creator, context)
+
+        write_conn = None
+        try:
+            write_conn = sqlite3.connect(self.db_path, timeout=60)
+            write_conn.row_factory = sqlite3.Row
+            self._write_creator_scores(write_conn, [score])
+            write_conn.commit()
+            return {"status": "success", "creator": creator, "risk_level": score.get("risk_level")}
+        except Exception as e:
+            if write_conn is not None:
+                try:
+                    write_conn.rollback()
+                except Exception:
+                    pass
+            logger.warning(f"[RiskScoringBuilder] score_creator_now write failed for {creator}: {e}")
+            return {"status": "error", "error": str(e)}
+        finally:
+            if write_conn is not None:
+                try:
+                    write_conn.close()
                 except Exception:
                     pass
 

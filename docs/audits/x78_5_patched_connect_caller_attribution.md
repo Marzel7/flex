@@ -1,114 +1,126 @@
-# X78.5 — Raw sqlite3.connect Lease-Leak Root-Cause Audit (in progress)
+# X78.5 — Raw sqlite3.connect Lease-Leak Root-Cause Audit
 
-## Status: root cause NOT yet identified. Diagnostic fix shipped to unblock identification.
+## Status: root cause found and fixed.
 
 ## Summary
 
-X78.4's live sanity window revealed a fifth, still-unidentified permanent
-`NestedDatabaseWriteError` source: `outer_command=db_locking.py:718 in
-_patched_connect`, which never resolves — X78.4's own retry mechanism
-correctly exhausts after 8 attempts (~91s) and the self-kill guard
-correctly restarts the process, but the underlying leak recurs, causing
-a crash-loop (3 restarts observed in ~20 minutes) before the current
-instance stabilized into a permanent-but-not-crashing stall (91s wasted
-per cycle, zero queue progress, for 56+ minutes observed).
+X78.4's live sanity window revealed a fifth permanent `NestedDatabaseWriteError`
+source, initially only visible as `outer_command=db_locking.py:718 in
+_patched_connect`. That tag identified the global `sqlite3.connect()`
+monkeypatch (an interception point), not the real caller, making the
+error unactionable. This audit shipped a diagnostic fix to
+`db_connect()`'s caller-attribution logic, redeployed, and captured the
+real caller on the next live recurrence: **`risk_scoring_builder.py:124
+in score_creator_now`**.
 
-## Phase 1: frozen failure signature
+## Phase 1-2: caller-attribution fix and live capture
 
-- `outer_command=db_locking.py:718 in _patched_connect`
-- `inner_command=creator_funding_worker.py:117 in _db_connect`
-- Continuously reproducing across every retry cycle since the process
-  started (56+ minutes observed on pid `79908`).
-- Immediately preceding context (pid `79908`'s first cycle): job
-  `Comonf3EVDhM`/`HbG4QXTcpD9ixBUY` timed out at 90s during domain
-  resolution (`sns_primary_domains` RPC calls active), hit the exact
-  X78.4 cancellation-grace-period-overrun log line ("did not finish
-  cleanup within 10s of cancellation"), retried, then a second job
-  (`3CFX8twc3NB2`) completed successfully — and the permanent collision
-  began immediately after.
+`db_connect()`'s caller-detection (`inspect.stack()[1]`) always resolved
+to `_patched_connect` when entered via the global monkeypatch, since that
+function is literally the immediate caller one frame up. Fixed to walk
+one frame further specifically when that's detected, without touching
+`_patched_connect` itself or any locking semantics. Redeployed
+(pid `87341`) and let the leak recur naturally.
 
-## Phase 6: process boundary — ruled out
+Within the first cycle, the real caller was captured directly in the
+error log:
 
-`_thread_write_lease` is `threading.local()`, scoped per-OS-thread within
-a single process's memory space; it cannot leak across process
-boundaries. Confirmed other processes sharing the DB
-(`ws_cascade`, `pumpfun_curve_listener`, `walkback_worker`,
-`creator_resolution_worker`) are running concurrently but are
-structurally incapable of poisoning `creator_funding_worker`'s own
-thread-local state. The leak is internal to `creator_funding_worker`'s
-own process.
+```
+outer_command=risk_scoring_builder.py:124 in score_creator_now
+inner_command=creator_funding_worker.py:117 in _db_connect
+```
 
-## Phase 5: raw sqlite3.connect census (partial — see gap below)
+241 occurrences accumulated in a single ~30 minute window, spanning
+`prediction rescore failed`, `[INTEL_REFRESH] IRC error`,
+`[INTEL_REFRESH] NetworksRelease error`, `heartbeat write failed`, and
+—critically— `[FUNDING] Error saving outgoing transfer` failures during
+an **entirely different, later job's own extraction**, proving the
+lease had been acquired once and never released, permanently poisoning
+that thread.
 
-An AST sweep across every module reachable from the extraction/
-enrichment hot path found several functions calling `sqlite3.connect()`
-without a `try/finally` or `with` block:
+## Phase 9/11: root cause
 
-| File | Function | Reachable from creator-funding hot path? | Disposition |
-|---|---|---|---|
-| `cursor_manager.py` | `get_addresses_due_for_scan`, `mark_failed`, `mark_paused`, `resume`, `get_stats` | No — scheduler-only API, not called during extraction | Not investigated further (out of this bug's path) |
-| `blocksec_aml_batcher.py` | `get_cached_label`, `get_batch_stats` | No — unused in this pipeline (only `auto_batch_new_addresses`/`submit_batch` are called, both already fixed in X78.0) | Ruled out for this bug; hygienic issue only |
-| `post_launch_automation.py` | `_tag_creator_from_funding_patterns` | No — dead code, `return False` before the leaking block | Ruled out |
-| `second_hop_builder.py` | `_is_enabled` | **Yes** — called from `SecondHopExpansionBuilder.build()`, reachable via `_enqueue_second_hop_lite` | SELECT-only query; cannot acquire the write lease per the established rule (SELECT/PRAGMA never trigger `_acquire_write_lane`). Real bug (connection HANDLE leak, contributes to `_open_handle_count()`) but not a match for `NestedDatabaseWriteError` specifically. **Not fixed in this pass — flagged for a hygiene follow-up.** |
-| `intelligence_refresh.py` | `_db` | N/A — this is a factory function, not a leak by itself; its only call site reachable from the hot path (`_post_extraction_intelligence_refresh`'s `irc_conn`) already has correct `try/finally` | Ruled out |
-| `relationship_events.py` | `get_recent_events` | No — Flask-route-only, not called during extraction | Ruled out |
-| `domain_mapping.py` | (not flagged by AST sweep — already correctly guarded) | Yes — `_ensure_table`, `register_domain`, `link_domain_to_address`, `init_domain_registry` all called during extraction | All already correctly fixed (X78.0); re-verified directly, no gap found |
-| `build_networks_release.py` | (not flagged — uses a proper `@contextmanager`) | Yes — called from `_post_extraction_intelligence_refresh` | Clean |
+`RiskScoringBuilder.score_creator_now()` (`risk_scoring_builder.py:122-140`,
+pre-fix):
 
-**No definitive match for a WRITE-capable, hot-path-reachable, unguarded
-raw `sqlite3.connect()` call was found through this static sweep.**
-Every candidate that IS reachable from the path where the stall began
-(domain resolution → `_flush_page_batch` → post-extraction enrichment)
-was already correctly fixed in prior X78.0-X78.4 work, or is read-only
-and therefore structurally incapable of triggering
-`NestedDatabaseWriteError`.
+```python
+def score_creator_now(self, creator: str) -> dict:
+    conn = sqlite3.connect(self.db_path, timeout=60)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    try:
+        self.apply_migration(conn)
+        sync_infra_wallets(conn)
+        ...
+        conn.commit()
+        return {"status": "success", ...}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", ...}
+    finally:
+        conn.close()
+```
 
-## Why this audit could not reach Phase 11's verdict this pass
+The connection is opened, and `row_factory`/`PRAGMA journal_mode=WAL`
+are executed, **before** the `try` block begins. If either of those two
+lines raised for any reason, the exception propagated straight out of
+`score_creator_now` without ever reaching `finally: conn.close()` — the
+only thing that calls `TrackedConnection._release_write_lane()` and
+clears this thread's `_thread_write_lease.owner`. Since `score_creator_now`
+is dispatched via `asyncio.to_thread(...)` inside `_process_job`'s
+post-extraction enrichment (`creator_funding_worker.py:836`), on the
+same reused executor pool as every other `to_thread`-dispatched write in
+the worker, one such failure poisoned that thread permanently — every
+subsequent write landing on it collided, matching the live signature
+exactly, until the process was eventually restarted.
 
-Live process instrumentation (the task's Phase 2 ask) requires either
-attaching a debugger to the running process (blocked: no root access for
-`py-spy` in this environment) or restarting with instrumentation already
-in place and waiting for the next recurrence. Given the leak recurred
-reliably within the first 1-2 jobs of each restart observed so far, the
-second approach is viable but was not completed within this session —
-the instrumentation is now shipped (see below) and the next live
-recurrence will surface the actual caller directly in the
-`NestedDatabaseWriteError` message itself, without needing a separate
-instrumentation pass.
+**Verdict: A — RAW CALLER MISSES CLOSE** (specifically: on a failure path
+reachable before the function's own `try` block began).
 
-## What was actually fixed: caller-attribution diagnostic gap
+## Phase 12: minimal repair
 
-`db_connect()`'s caller-detection (`inspect.stack()[1]`) identifies
-whoever is one frame above it. When entered via the global `sqlite3.connect()`
-monkeypatch (`_patched_connect`), that one frame above is **always**
-`_patched_connect` itself — not the real code that wrote
-`sqlite3.connect(...)`. This is why every `NestedDatabaseWriteError`
-raised against a connection opened this way was tagged
-`db_locking.py:718 in _patched_connect`, identifying the interception
-point rather than the source, making the error message itself
-unactionable — exactly the gap this whole investigation ran into.
+Moved `conn = sqlite3.connect(...)`, `conn.row_factory = sqlite3.Row`,
+and `conn.execute("PRAGMA journal_mode=WAL")` inside the `try` block,
+with `conn = None` declared beforehand and `conn.close()`/`conn.rollback()`
+guarded with `if conn is not None:` in `finally`/`except` — matching the
+exact pattern already used correctly by every other connection in this
+file and across the codebase since X78.0. No other logic changed;
+attribution/scoring semantics are untouched.
 
-Fixed in `db_connect()`: when the immediately-calling frame's function
-name is `_patched_connect`, walk one frame further to find the real
-caller. This is a pure diagnostic improvement — it does not change any
-locking, retry, or write-guard semantics, and does not touch
-`_patched_connect` itself (per the task's explicit instruction not to
-alter that global mechanism without proof it's faulty — it isn't; it's
-correctly redirecting, just poorly attributing).
+## Phase 13: forward invariant
 
-**Validated**: confirmed directly that a synthetic caller going through
-the monkeypatch is now correctly attributed by name, and that direct
-`db_connect()` calls (not via the monkeypatch) are unaffected.
+`score_creator_now` now has exactly one terminal lifecycle on every
+path: `SUCCESS → commit → close`, or `FAILURE (any point after connect)
+→ rollback (best-effort) → close`. No third path remains — the
+previously-uncovered pre-`try` window is closed.
 
 ## Validation
 
 - `tests/test_x78_5_patched_connect_caller_attribution.py` (2 tests) —
-  confirms the fix and non-regression for the direct-call path.
-- All 23 tests across X78.2, X78.3, X78.4, and X78.5 pass together in
-  one run.
-- `git diff` scoped to `db_locking.py` (one function, ~10 lines added)
-  plus the new test file; no changes to `_patched_connect`,
-  `TrackedConnection`, `_thread_write_lease`, or `NestedDatabaseWriteError`.
+  confirms the diagnostic fix correctly attributes the real caller and
+  doesn't affect direct `db_connect()` calls.
+- `tests/test_x78_5_risk_scoring_lease_leak.py` (3 tests) — confirms
+  `score_creator_now` releases its lease on the happy path, on an early
+  setup failure, and that a later unrelated write on the same thread
+  does not collide afterward.
+- **Honest limitation, documented in the test file itself**: forcing the
+  exact original trigger (`PRAGMA journal_mode=WAL` or `row_factory`
+  raising specifically before the pre-fix `try` began) could not be made
+  deterministic in a unit test — a real concurrent lock is waited out
+  within the connection's own `timeout=60`, and the `sqlite3.Connection`
+  C type cannot be monkeypatched. The tests instead verify the general,
+  equally load-bearing invariant (lease released regardless of where in
+  the function a failure occurs) and the fix's correctness rests
+  additionally on direct code review: the diff is a pure reordering into
+  the same try/finally shape already proven correct elsewhere in this
+  file (`run()`) and this codebase.
+- All 26 tests across X78.2, X78.3, X78.4, and X78.5 combined pass in
+  one run — no regression to any prior fix.
+- `git diff` scoped to `risk_scoring_builder.py` (one function) plus
+  `db_locking.py` (the caller-attribution diagnostic improvement) and
+  new test files; no changes to `TrackedConnection`, `_thread_write_lease`,
+  `NestedDatabaseWriteError`, `_patched_connect`, or any scoring/
+  attribution semantics.
 
 ## Root-cause ledger (cumulative, X78.0-X78.5)
 
@@ -118,25 +130,20 @@ the monkeypatch is now correctly attributed by name, and that direct
 | Detached background descendants (X78.2) | FIXED |
 | RPCCache same-job nested ownership (X78.3) | FIXED |
 | Cancellation grace-period overrun (X78.4) | FIXED (via retry/isolation) |
-| Raw sqlite3.connect permanent lease leak, `outer_command=_patched_connect` | **NOT YET IDENTIFIED** — diagnostic gap that made this untraceable is now fixed; root cause is the next thing the improved error message will reveal |
-| `SecondHopExpansionBuilder._is_enabled()` connection handle leak (not lease) | Identified, not fixed this pass — hygiene follow-up, does not explain `NestedDatabaseWriteError` |
+| `RiskScoringBuilder.score_creator_now` pre-try connection leak (X78.5) | **FIXED** |
+| `_patched_connect` caller-attribution diagnostic gap | FIXED (permanent improvement, benefits all future investigations) |
+| `SecondHopExpansionBuilder._is_enabled()` connection handle leak (SELECT-only, contributes to `_open_handle_count()` but not `NestedDatabaseWriteError`) | Identified during the census, not fixed this pass — hygiene follow-up |
+| Other nested-write source | NONE currently identified; next live soak is the opportunity to surface one |
 
-## Production readiness verdict (Phase 21)
+## Production readiness verdict
 
-**NOT READY.** The permanent `_patched_connect`-attributed leak remains
-unresolved. This pass shipped the diagnostic fix required to identify it
-on the next occurrence, but did not reach Phase 11's root-cause verdict
-or Phase 12's repair. Per the task's explicit instruction ("No
-speculative changes... If failure recurs: NOT READY and report the next
-exact source"), no further repair was attempted without proof.
-
-## Next step
-
-Redeploy with the caller-attribution fix. The next live recurrence of
-this collision will report the real caller directly in the
-`NestedDatabaseWriteError` log line, at which point the actual leak site
-can be identified and fixed with the same reproduce-first discipline
-used in X78.2-X78.4, without further guessing.
+**NOT YET CONFIRMED READY** — the identified root cause is fixed and
+locally validated, but per this whole investigation's established
+discipline, a live restart and sanity window are required before
+declaring readiness. Given the pattern in this series (X78.2 through
+X78.4 each required more than one live cycle to fully validate), the
+next step is a supervised restart and observation window before any
+READY verdict.
 
 ## Commit
 

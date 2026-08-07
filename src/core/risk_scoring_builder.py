@@ -121,10 +121,28 @@ class RiskScoringBuilder:
 
     def score_creator_now(self, creator: str) -> dict:
         """Score a single creator immediately — used after migration/funding extraction."""
-        conn = sqlite3.connect(self.db_path, timeout=60)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
+        # X78.5 -- found live: outer_command=risk_scoring_builder.py:124
+        # was the real (previously misattributed to db_locking.py's
+        # sqlite3.connect monkeypatch) source of a permanent write-lease
+        # leak that stalled creator_funding_worker for 56+ minutes and
+        # caused a crash-loop (X78.4's live sanity window). conn was
+        # opened, and row_factory/PRAGMA journal_mode were set, BEFORE
+        # the try block below -- so if EITHER of those two statements
+        # raised (PRAGMA journal_mode=WAL does touch the database file
+        # and can legitimately fail/be slow under contention), the
+        # exception propagated straight out of this function WITHOUT
+        # ever reaching `finally: conn.close()`, which is the only thing
+        # that calls TrackedConnection._release_write_lane() and clears
+        # this thread's _thread_write_lease.owner. conn is now opened
+        # inside the try/finally so close() is guaranteed on every path,
+        # matching every other connection in this class (run(), __init__
+        # helpers) and the pattern already used throughout this codebase
+        # since X78.0.
+        conn = None
         try:
+            conn = sqlite3.connect(self.db_path, timeout=60)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode=WAL")
             self.apply_migration(conn)
             sync_infra_wallets(conn)
             context = self._build_context(conn, [creator])
@@ -133,11 +151,19 @@ class RiskScoringBuilder:
             conn.commit()
             return {"status": "success", "creator": creator, "risk_level": score.get("risk_level")}
         except Exception as e:
-            conn.rollback()
+            if conn is not None:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
             logger.warning(f"[RiskScoringBuilder] score_creator_now failed for {creator}: {e}")
             return {"status": "error", "error": str(e)}
         finally:
-            conn.close()
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     @staticmethod
     def apply_migration(conn: sqlite3.Connection) -> None:

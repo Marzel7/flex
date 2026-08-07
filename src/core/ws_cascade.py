@@ -3323,7 +3323,8 @@ class Cascade:
                         funding_sequence_number=_meta.get("funding_sequence_number"),
                         treasury_rotated=bool(_meta.get("treasury_rotated")),
                         last_activity_at=_meta.get("last_activity_at"),
-                        funding_mechanism=_funding_mechanism)
+                        funding_mechanism=_funding_mechanism,
+                        directional_edge_verified=True)
                 except Exception as _lock_err:
                     is_hv = gain >= store.HIGH_VALUE_PROVISION_SOL
                     _log(f"{'🚨' if is_hv else '⚠️'} SESSION_WRITE_{'DROPPED_HIGH_VALUE' if is_hv else 'FAILED'} "
@@ -3576,7 +3577,8 @@ class Cascade:
                     conn, subprov=cdc_wallet, treasury=treasury or "",
                     funding_sig=funding_sig, funding_amount=funding_amount,
                     funding_time=btime, ttl_seconds=SESSION_TTL_SEC,
-                    subprov_known=1, open_reason="CDC_WRAP_CLOSE_PROMOTED")
+                    subprov_known=1, open_reason="CDC_WRAP_CLOSE_PROMOTED",
+                    directional_edge_verified=True)
                 # Update CDC state to PROMOTED so we stop routing future txs here
                 conn.execute(
                     "UPDATE wt_capital_distributor_candidates "
@@ -3829,7 +3831,8 @@ class Cascade:
                                                subprov_known=subprov_known,
                                                open_reason=open_reason,
                                                monitoring_state=child_monitoring_state,
-                                               funding_mechanism=edge["funding_mechanism"]):
+                                               funding_mechanism=edge["funding_mechanism"],
+                                               directional_edge_verified=True):
                             if child_monitoring_state == "LIVE_ARMED":
                                 child_sessions.append(w)
                                 emit_event("SUBPROV_SESSION_OPENED_WS", wallet=w, related=subprov,

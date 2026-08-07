@@ -67,19 +67,44 @@ def ensure_lineage_quarantine_schema(conn: sqlite3.Connection) -> None:
                 AND quarantine.source_row_id=sessions.id
                 AND quarantine.exclude_from_tier1=1
          )
-           AND NOT EXISTS (
-             SELECT 1 FROM wt_lineage_root_policies policy
-              WHERE policy.subject_wallet=sessions.treasury_wallet
-                AND policy.require_explicit_tier1=1
-                AND NOT EXISTS (
-                    SELECT 1 FROM wt_lineage_verified_session_edges verified
-                     WHERE verified.session_id=sessions.id
-                       AND verified.sender=sessions.treasury_wallet
-                       AND verified.recipient=sessions.subprov_wallet
-                       AND verified.signature=sessions.funding_signature
-                )
+           AND EXISTS (
+               SELECT 1 FROM wt_lineage_verified_session_edges verified
+                WHERE verified.session_id=sessions.id
+                  AND verified.sender=sessions.treasury_wallet
+                  AND verified.recipient=sessions.subprov_wallet
+                  AND verified.signature=sessions.funding_signature
          )
     """)
+
+
+def record_verified_session_edge(
+    conn: sqlite3.Connection,
+    *,
+    session_id: int,
+    sender: str,
+    recipient: str,
+    signature: str,
+    relationship_type: str = "DIRECT_SOL_TRANSFER",
+    evidence_source: str = "LIVE_DIRECTIONAL_TRANSACTION",
+    verified_at: int,
+) -> None:
+    """Admit one exact transaction-proven session edge to Tier-1 lineage."""
+    conn.execute(
+        """
+        INSERT INTO wt_lineage_verified_session_edges
+          (session_id,sender,recipient,signature,relationship_type,evidence_source,verified_at)
+        VALUES (?,?,?,?,?,?,?)
+        ON CONFLICT(session_id) DO UPDATE SET
+          sender=excluded.sender,
+          recipient=excluded.recipient,
+          signature=excluded.signature,
+          relationship_type=excluded.relationship_type,
+          evidence_source=excluded.evidence_source,
+          verified_at=excluded.verified_at
+        """,
+        (session_id, sender, recipient, signature, relationship_type,
+         evidence_source, int(verified_at)),
+    )
 
 
 def eligible_session_relation(conn: sqlite3.Connection) -> str:

@@ -50,7 +50,7 @@ def test_valid_indirect_ancestry_is_context_not_a_flattened_direct_edge():
     assert conn.execute("SELECT count(*) FROM wt_lineage_eligible_sessions").fetchone()[0] == 0
 
 
-def test_unrelated_sessions_remain_eligible():
+def test_unrelated_sessions_require_their_own_exact_verified_edge():
     conn = _db()
     conn.executemany("INSERT INTO wt_active_subprov_sessions VALUES (?,?,?,?,?,?,?,?)", [
         (1, "5tzF", "69SN", "bad", 1, 1, "EXPIRED", 2),
@@ -58,6 +58,11 @@ def test_unrelated_sessions_remain_eligible():
     ])
     _quarantine(conn, 1)
     relation = eligible_session_relation(conn)
+    assert conn.execute(f"SELECT count(*) FROM {relation}").fetchone()[0] == 0
+    conn.execute(
+        "INSERT INTO wt_lineage_verified_session_edges VALUES "
+        "(2,'OTHER_ROOT','OTHER_CHILD','good','DIRECT_SOL_TRANSFER','RPC',3)"
+    )
     rows = conn.execute(f"SELECT id FROM {relation} ORDER BY id").fetchall()
     assert [row[0] for row in rows] == [2]
 
@@ -69,10 +74,17 @@ def test_schema_and_quarantine_are_idempotent():
     assert eligible_session_relation(conn) == "wt_lineage_eligible_sessions"
 
 
-def test_root_policy_fails_closed_for_new_sessions_until_direct_edge_is_verified():
+def test_every_root_fails_closed_until_exact_direct_edge_is_verified():
     conn = _db()
     conn.execute("INSERT INTO wt_lineage_root_policies VALUES ('69SN',1,'audit','X78',1)")
     conn.execute("INSERT INTO wt_active_subprov_sessions VALUES (9,'NEW','69SN','sig9',1,1,'ACTIVE',2)")
     assert conn.execute("SELECT count(*) FROM wt_lineage_eligible_sessions").fetchone()[0] == 0
     conn.execute("INSERT INTO wt_lineage_verified_session_edges VALUES (9,'69SN','NEW','sig9','DIRECT_SOL_TRANSFER','RPC',3)")
     assert conn.execute("SELECT count(*) FROM wt_lineage_eligible_sessions").fetchone()[0] == 1
+
+
+def test_verified_edge_must_match_session_sender_recipient_and_signature():
+    conn = _db()
+    conn.execute("INSERT INTO wt_active_subprov_sessions VALUES (9,'NEW','DchJ','sig9',1,1,'ACTIVE',2)")
+    conn.execute("INSERT INTO wt_lineage_verified_session_edges VALUES (9,'ACTUAL','NEW','sig9','DIRECT_SOL_TRANSFER','RPC',3)")
+    assert conn.execute("SELECT count(*) FROM wt_lineage_eligible_sessions").fetchone()[0] == 0

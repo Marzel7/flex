@@ -343,9 +343,13 @@ class OperationIntelligenceAssembler:
         # only treasuries with a Tier-1-eligible session may be shown as an
         # observed upstream relationship.
         excluded = set(quarantined_treasuries or ())
+        eligible_session_treasuries = {
+            session.get("treasury_wallet") for session in sessions
+            if session.get("treasury_wallet")
+        }
         connected_treasuries = [
             treasury for treasury in dict.fromkeys(family.get("treasuries") or [])
-            if treasury not in excluded
+            if treasury not in excluded and treasury in eligible_session_treasuries
         ]
         connected_set = set(connected_treasuries)
         sessions_by_client = defaultdict(list)

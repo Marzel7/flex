@@ -35006,7 +35006,8 @@ def _process_wt_infra_payload(payload):
                                     if start_session(_oc, subprov=_verified_subprov, treasury=infra_addr,
                                                      funding_sig=sig, funding_amount=amount_sol,
                                                      funding_time=block_time, ttl_seconds=_ttl,
-                                                     subprov_known=_sub_known):
+                                                     subprov_known=_sub_known,
+                                                     directional_edge_verified=True):
                                         emit_event("SUBPROV_SESSION_STARTED", wallet=_verified_subprov,
                                                    related=infra_addr,
                                                    payload={"treasury": infra_addr, "amount_sol": amount_sol,

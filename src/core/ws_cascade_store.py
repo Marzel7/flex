@@ -1373,7 +1373,8 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
                   funding_sequence_number: Optional[int] = None,
                   treasury_rotated: bool = False,
                   last_activity_at: Optional[int] = None,
-                  funding_mechanism: Optional[str] = None) -> bool:
+                  funding_mechanism: Optional[str] = None,
+                  directional_edge_verified: bool = False) -> bool:
     """Record a confirmed treasury→SUB_PROV funding as an ACTIVE session. Idempotent on
     (subprov, funding_sig). Returns True if a NEW session row was created.
 
@@ -1451,6 +1452,19 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
                      _topup_op_uuid, now))
             except Exception:
                 pass
+        if directional_edge_verified and treasury and funding_sig:
+            exact = conn.execute(
+                "SELECT id FROM wt_active_subprov_sessions "
+                "WHERE id=? AND treasury_wallet=? AND subprov_wallet=? "
+                "AND funding_signature=?",
+                (active[0], treasury, subprov, funding_sig),
+            ).fetchone()
+            if exact:
+                from src.ops.lineage_quarantine import record_verified_session_edge
+                record_verified_session_edge(
+                    conn, session_id=exact[0], sender=treasury, recipient=subprov,
+                    signature=funding_sig, verified_at=funding_time or now,
+                )
         conn.commit()
         return False   # no new session row — caller should not re-subscribe
 
@@ -1484,6 +1498,19 @@ def start_session(conn, *, subprov: str, treasury: Optional[str], funding_sig: O
             (now + ttl_seconds, open_reason, funding_sequence_number,
              int(treasury_rotated), last_activity_at, subprov))
         conn.commit()
+    if directional_edge_verified and treasury and funding_sig:
+        exact = conn.execute(
+            "SELECT id FROM wt_active_subprov_sessions "
+            "WHERE treasury_wallet=? AND subprov_wallet=? AND funding_signature=?",
+            (treasury, subprov, funding_sig),
+        ).fetchone()
+        if exact:
+            from src.ops.lineage_quarantine import record_verified_session_edge
+            record_verified_session_edge(
+                conn, session_id=exact[0], sender=treasury, recipient=subprov,
+                signature=funding_sig, verified_at=funding_time or now,
+            )
+            conn.commit()
     return cur.rowcount > 0
 
 
@@ -1654,7 +1681,8 @@ def drain_pending_sessions(conn, *, funding_validator=None) -> tuple[int, int, i
                 subprov=r["subprov"], treasury=r["treasury"],
                 funding_sig=r["funding_sig"], funding_amount=r["funding_amount"],
                 funding_time=r["funding_time"], ttl_seconds=r["ttl_seconds"],
-                subprov_known=r["subprov_known"], open_reason=r["open_reason"])
+                subprov_known=r["subprov_known"], open_reason=r["open_reason"],
+                directional_edge_verified=True)
             conn.execute(
                 "UPDATE wt_pending_session_writes SET state='WRITTEN', last_retry_at=? WHERE id=?",
                 (now, r["id"]))

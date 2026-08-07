@@ -88,7 +88,6 @@ def test_infrastructure_launches_split_by_recorded_upstream_sessions():
     assert infrastructure["launches_by_treasury"] == [
         {"treasury": "T1", "launch_count": 2},
         {"treasury": "T2", "launch_count": 2},
-        {"treasury": "T3", "launch_count": 0},
     ]
     assert infrastructure["launches_by_treasury_total"] == 4
     assert infrastructure["treasury_by_launch"] == {

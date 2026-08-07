@@ -1599,9 +1599,12 @@ def enqueue_pending_session(conn, *, treasury: str, subprov: str, funding_sig: s
         pass  # if even this fails, caller logs CRITICAL
 
 
-def drain_pending_sessions(conn) -> tuple[int, int]:
-    """Retry PENDING session writes. Returns (written, remaining).
-    Replays original detection context — does NOT reclassify under current runtime flags."""
+def drain_pending_sessions(conn, *, funding_validator=None) -> tuple[int, int, int]:
+    """Retry PENDING session writes. Returns (written, remaining, superseded).
+    Replays original detection context only after the caller verifies that the
+    stored signature contains the claimed treasury -> subprovider transfer.
+    Rows created before the directional-edge contract are failed closed rather
+    than becoming new live sessions."""
     now = int(time.time())
     import sqlite3 as _sq3
     _prev_rf = conn.row_factory
@@ -1628,6 +1631,20 @@ def drain_pending_sessions(conn) -> tuple[int, int]:
                     "UPDATE wt_pending_session_writes SET state='SUPERSEDED' WHERE id=?", (r["id"],))
                 conn.commit()
                 superseded += 1
+                continue
+            valid = False
+            if funding_validator is not None:
+                try:
+                    valid = bool(funding_validator(
+                        r["funding_sig"], r["treasury"], r["subprov"]))
+                except Exception:
+                    valid = False
+            if not valid:
+                conn.execute(
+                    "UPDATE wt_pending_session_writes "
+                    "SET state='FAILED', failure_reason='UNVERIFIED_DIRECTIONAL_EDGE', "
+                    "last_retry_at=? WHERE id=?", (now, r["id"]))
+                conn.commit()
                 continue
             start_session(conn,
                 subprov=r["subprov"], treasury=r["treasury"],

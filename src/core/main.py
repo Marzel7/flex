@@ -34369,7 +34369,8 @@ def _process_wt_infra_payload(payload):
                 if not isinstance(tx, dict):
                     continue
                 sig = tx.get("signature") or ""
-                block_time = tx.get("timestamp") or tx.get("blockTime") or int(time.time())
+                _transaction_time = tx.get("timestamp") or tx.get("blockTime")
+                block_time = _transaction_time or int(time.time())
                 native_transfers = tx.get("nativeTransfers") or []
                 raw_str = json.dumps(tx)
                 raw_payload = raw_str if len(raw_str) < 65536 else None
@@ -34987,9 +34988,14 @@ def _process_wt_infra_payload(payload):
                             # ws_cascade.TREASURY_PROVISION_MIN_SOL.
                             _sess_min = float(os.getenv("WS_TREASURY_MIN_SOL", "0.05"))
                             _sess_max = float(os.getenv("WS_TREASURY_MAX_SOL", "2000"))
-                            if (infra_addr in _confirmed_treasuries() and counterparty
+                            # `counterparty` may be a net-flow correction used for display.
+                            # Session lineage must use the explicit native transfer edge
+                            # represented by this loop item, never that inferred account.
+                            _verified_subprov = dest if src == infra_addr else None
+                            if (infra_addr in _confirmed_treasuries() and _verified_subprov
+                                    and isinstance(_transaction_time, int) and _transaction_time > 0
                                     and _sess_min <= amount_sol <= _sess_max):
-                                _sub_known = 1 if counterparty in _known_subprovs() else 0
+                                _sub_known = 1 if _verified_subprov in _known_subprovs() else 0
                                 from src.core.ws_cascade_store import (
                                     ensure_cascade_schema, start_session, emit_event)
                                 _oc = db_connect(os.path.join(os.path.dirname(DB_PATH), "wt_ops_v2.db"), timeout=15)
@@ -34997,15 +35003,15 @@ def _process_wt_infra_payload(payload):
                                     _oc.execute("PRAGMA busy_timeout=15000")
                                     ensure_cascade_schema(_oc)
                                     _ttl = int(os.getenv("WS_SESSION_TTL_SEC", "7200"))
-                                    if start_session(_oc, subprov=counterparty, treasury=infra_addr,
+                                    if start_session(_oc, subprov=_verified_subprov, treasury=infra_addr,
                                                      funding_sig=sig, funding_amount=amount_sol,
                                                      funding_time=block_time, ttl_seconds=_ttl,
                                                      subprov_known=_sub_known):
-                                        emit_event("SUBPROV_SESSION_STARTED", wallet=counterparty,
+                                        emit_event("SUBPROV_SESSION_STARTED", wallet=_verified_subprov,
                                                    related=infra_addr,
                                                    payload={"treasury": infra_addr, "amount_sol": amount_sol,
                                                             "funding_sig": sig, "subprov_known": _sub_known})
-                                        print(f"[WS_CASCADE] ▶ session ACTIVE subprov={counterparty[:12]}… "
+                                        print(f"[WS_CASCADE] ▶ session ACTIVE subprov={_verified_subprov[:12]}… "
                                               f"treasury={infra_addr[:8]}… {amount_sol:.4f} ◎ "
                                               f"({'known' if _sub_known else 'NEW'})", flush=True)
                                 finally:

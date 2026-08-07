@@ -334,6 +334,89 @@ _ATA_PROGRAM    = "ATokenGPvbdGVxr1b2uviiaZnivfpAtrQwkFQ4HTuufP"
 _WSOL_MINT      = "So11111111111111111111111111111111111111112"
 
 
+def _iter_parsed_instructions(tx: dict):
+    """Yield parsed outer and inner instructions from a jsonParsed transaction."""
+    msg = (tx.get("transaction", {}) or {}).get("message", {}) or {}
+    for ix in msg.get("instructions") or []:
+        if isinstance(ix.get("parsed"), dict):
+            yield ix
+    for group in (tx.get("meta", {}) or {}).get("innerInstructions") or []:
+        for ix in group.get("instructions") or []:
+            if isinstance(ix.get("parsed"), dict):
+                yield ix
+
+
+def _explicit_native_funding_transfers(tx: dict, sender: str) -> list[dict]:
+    """Return transaction-proven native funding edges originating at ``sender``.
+
+    A balance delta is deliberately not evidence here.  Accepted edges are either:
+      * a parsed System Program transfer whose source and destination are explicit; or
+      * a WSOL close whose token-account owner is ``sender`` and whose destination is
+        a different wallet (the owner controls the value being released).
+
+    Results are grouped by recipient so callers cannot create duplicate sessions from
+    multiple instructions in the same transaction.
+    """
+    if not tx or not sender or not isinstance(tx.get("blockTime"), int) or tx["blockTime"] <= 0:
+        return []
+    msg = (tx.get("transaction", {}) or {}).get("message", {}) or {}
+    keys = [k.get("pubkey") if isinstance(k, dict) else k
+            for k in msg.get("accountKeys") or []]
+    meta = tx.get("meta", {}) or {}
+    wsol_accounts = set()
+    for bal in (meta.get("preTokenBalances") or []) + (meta.get("postTokenBalances") or []):
+        if bal.get("mint") != _WSOL_MINT:
+            continue
+        idx = bal.get("accountIndex")
+        if isinstance(idx, int) and 0 <= idx < len(keys):
+            wsol_accounts.add(keys[idx])
+
+    by_recipient = {}
+    for ix in _iter_parsed_instructions(tx):
+        parsed = ix.get("parsed") or {}
+        ix_type = parsed.get("type")
+        info = parsed.get("info") or {}
+        program = ix.get("program") or ix.get("programId") or ""
+        if (ix_type in ("transfer", "transferWithSeed")
+                and program in ("system", _SYSTEM_PROGRAM)
+                and info.get("source") == sender):
+            recipient = info.get("destination") or info.get("newAccount")
+            lamports = info.get("lamports")
+            if recipient and recipient != sender and isinstance(lamports, int) and lamports > 0:
+                row = by_recipient.setdefault(recipient, {
+                    "source": sender, "destination": recipient, "lamports": 0,
+                    "funding_mechanism": "PLAIN_TRANSFER",
+                })
+                row["lamports"] += lamports
+        elif (ix_type == "closeAccount"
+              and program in ("spl-token", _TOKEN_PROGRAM)
+              and info.get("owner") == sender
+              and info.get("account") in wsol_accounts):
+            recipient = info.get("destination")
+            if not recipient or recipient == sender:
+                continue
+            # The close instruction does not carry its released lamports.  Use the
+            # recipient delta only after direction/control has been established by
+            # the owner+destination instruction itself.
+            lamports = None
+            try:
+                idx = keys.index(recipient)
+                pre = meta.get("preBalances") or []
+                post = meta.get("postBalances") or []
+                if idx < min(len(pre), len(post)):
+                    lamports = max(0, post[idx] - pre[idx])
+            except ValueError:
+                pass
+            if lamports:
+                row = by_recipient.setdefault(recipient, {
+                    "source": sender, "destination": recipient, "lamports": 0,
+                    "funding_mechanism": "WSOL_WRAP_CLOSE",
+                })
+                row["lamports"] += lamports
+                row["funding_mechanism"] = "WSOL_WRAP_CLOSE"
+    return list(by_recipient.values())
+
+
 def _is_plain_transfer(tx: dict, sender: str, recipient: str, amount_sol: float) -> bool:
     """Return True iff this tx looks like a plain SOL transfer from sender → recipient.
 
@@ -352,19 +435,21 @@ def _is_plain_transfer(tx: dict, sender: str, recipient: str, amount_sol: float)
         return False
     if detect_seeded_account_close(tx):
         return False
-    msg = tx.get("transaction", {}).get("message", {}) or {}
-    instructions = msg.get("instructions") or []
     has_system_transfer = False
-    for ix in instructions:
+    for ix in _iter_parsed_instructions(tx):
         prog = ix.get("programId", "")
+        prog_name = ix.get("program", "")
         parsed = ix.get("parsed") or {}
         ix_type = parsed.get("type", "") if isinstance(parsed, dict) else ""
         info = parsed.get("info", {}) if isinstance(parsed, dict) else {}
-        if prog == _TOKEN_PROGRAM or prog == _ATA_PROGRAM:
+        if prog in (_TOKEN_PROGRAM, _ATA_PROGRAM) or prog_name in (
+                "spl-token", "spl-associated-token-account"):
             return False   # any token instruction = not a plain SOL transfer
-        if prog == _SYSTEM_PROGRAM and ix_type in ("transfer", "transferWithSeed"):
+        if (prog == _SYSTEM_PROGRAM or prog_name == "system") and ix_type in (
+                "transfer", "transferWithSeed"):
+            source = info.get("source") or ""
             dest = info.get("destination") or info.get("newAccount") or ""
-            if dest == recipient:
+            if source == sender and dest == recipient:
                 has_system_transfer = True
     return has_system_transfer
 
@@ -2980,6 +3065,22 @@ class Cascade:
                 wallet, treasury_addr = row[0], row[1]
                 scanned += 1
                 try:
+                    # A later wrap-close proves that the candidate behaves like a
+                    # provisioner; it does not retroactively prove the stored root.
+                    # Re-verify the original treasury -> candidate transaction before
+                    # promotion can open a session.
+                    original_tx = _get_tx(row[2]) if row[2] else None
+                    original_edges = (
+                        _explicit_native_funding_transfers(original_tx, treasury_addr)
+                        if original_tx and treasury_addr else [])
+                    if not any(e.get("destination") == wallet for e in original_edges):
+                        store.mark_temp_candidate_scanned(
+                            conn, wallet, "unverified_directional_edge")
+                        emit_event("POSITIVE_DELTA_DESCENDANTS_REJECTED", wallet=wallet,
+                                   related=treasury_addr,
+                                   payload={"source": "TEMP_CANDIDATE_SWEEP",
+                                            "funding_sig": row[2]})
+                        continue
                     # getSignaturesForAddress — 1cr, no enhanced endpoint
                     sigs = _rpc("getSignaturesForAddress", [
                         wallet, {"limit": 20, "commitment": "confirmed"}
@@ -3070,17 +3171,25 @@ class Cascade:
             except ValueError:
                 store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
                 return []
-            # treasury must have SENT SOL (lost lamports)
-            if ti >= min(len(pre), len(post)) or post[ti] >= pre[ti]:
+            # X78.11 funding-edge contract: a directional session requires a parsed
+            # treasury → recipient transaction edge.  Net balance loss/gain and account
+            # co-occurrence are context only and cannot create ancestry.
+            funding_edges = _explicit_native_funding_transfers(tx, treasury)
+            if not funding_edges:
+                positive_deltas = sum(
+                    1 for i, w in enumerate(keys)
+                    if w != treasury and i < min(len(pre), len(post)) and post[i] > pre[i]
+                )
+                if positive_deltas:
+                    emit_event("POSITIVE_DELTA_DESCENDANTS_REJECTED", wallet=treasury,
+                               payload={"sig": sig, "count": positive_deltas,
+                                        "reason": "NO_EXPLICIT_DIRECTIONAL_TRANSFER"})
                 store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
                 return []
-            # recipient(s) = wallet(s) that GAINED a provisioning-sized amount.
-            # Classification is handled by _classify_recipient (Phase A). TREASURY_MESH recipients
-            # are filtered there; all others open a session. No behaviour change in Phase A.
-            for i, w in enumerate(keys):
-                if i >= min(len(pre), len(post)) or w == treasury:
-                    continue
-                gain = (post[i] - pre[i]) / 1e9
+            # Classification remains downstream of transaction proof.
+            for edge in funding_edges:
+                w = edge["destination"]
+                gain = edge["lamports"] / 1e9
                 if gain < TREASURY_PROVISION_MIN_SOL:
                     continue
                 # ── Phase E Pass 1: 6-way classify, audit log, no behaviour gate ──
@@ -3192,9 +3301,8 @@ class Cascade:
                 # subprov enrolment signal: 8/8 observed recipients became active
                 # subprovs within 46s. Label the mechanism so the session row and
                 # capital_reload record are queryable by enrolment path.
-                _funding_mechanism = "WSOL_WRAP_CLOSE"  # default; overridden below
-                if _is_plain_transfer(tx, treasury, w, gain):
-                    _funding_mechanism = "PLAIN_TRANSFER"
+                _funding_mechanism = edge["funding_mechanism"]
+                if _funding_mechanism == "PLAIN_TRANSFER":
                     _log(f"💸 PLAIN_TRANSFER {treasury[:10]}… → {w[:12]}… {gain:.1f} ◎ "
                          f"(treasury→subprov capital injection, mechanism=PLAIN_TRANSFER)")
 
@@ -3450,6 +3558,19 @@ class Cascade:
                 funding_amount = cdc_row[1] if cdc_row else 0.0
                 funding_sig = cdc_row[2] if cdc_row else sig
 
+                original_tx = _get_tx(funding_sig) if funding_sig else None
+                original_edges = (
+                    _explicit_native_funding_transfers(original_tx, treasury)
+                    if original_tx and treasury else [])
+                if not any(e.get("destination") == cdc_wallet for e in original_edges):
+                    emit_event("POSITIVE_DELTA_DESCENDANTS_REJECTED", wallet=cdc_wallet,
+                               related=treasury,
+                               payload={"source": "CDC_PROMOTION",
+                                        "funding_sig": funding_sig})
+                    _log(f"🚫 CDC promotion rejected {cdc_wallet[:12]}…: "
+                         "original directional funding edge is not verified")
+                    return
+
                 # Open a subprov session (may already exist — start_session is idempotent)
                 store.start_session(
                     conn, subprov=cdc_wallet, treasury=treasury or "",
@@ -3665,16 +3786,14 @@ class Cascade:
                         for k in ((tx or {}).get("transaction", {}).get("message", {})
                                   .get("accountKeys") or [])]
                 pre, post = meta.get("preBalances") or [], meta.get("postBalances") or []
-                try:
-                    si = keys.index(subprov)
-                except ValueError:
-                    si = -1
-                if si >= 0 and si < min(len(pre), len(post)) and post[si] < pre[si]:
+                funding_edges = _explicit_native_funding_transfers(tx, subprov)
+                if funding_edges:
                     child_sessions = []
-                    for i, w in enumerate(keys):
-                        if i >= min(len(pre), len(post)) or w == subprov or w in _known_treasuries:
+                    for edge in funding_edges:
+                        w = edge["destination"]
+                        if w in _known_treasuries:
                             continue
-                        gain = (post[i] - pre[i]) / 1e9
+                        gain = edge["lamports"] / 1e9
                         if gain < TREASURY_PROVISION_MIN_SOL:
                             continue
                         # Only open session if w is not already known as a buy-swarm producer
@@ -3709,7 +3828,8 @@ class Cascade:
                                                ttl_seconds=SESSION_TTL_SEC,
                                                subprov_known=subprov_known,
                                                open_reason=open_reason,
-                                               monitoring_state=child_monitoring_state):
+                                               monitoring_state=child_monitoring_state,
+                                               funding_mechanism=edge["funding_mechanism"]):
                             if child_monitoring_state == "LIVE_ARMED":
                                 child_sessions.append(w)
                                 emit_event("SUBPROV_SESSION_OPENED_WS", wallet=w, related=subprov,
@@ -3733,6 +3853,14 @@ class Cascade:
                              f"noclass_branch={_noclass_ms}ms classify_calls={_classify_calls} "
                              f"branch=NO_DESTS_WITH_CHILDREN total={_htx_total_ms}ms")
                     return child_sessions
+                positive_deltas = sum(
+                    1 for i, w in enumerate(keys)
+                    if w != subprov and i < min(len(pre), len(post)) and post[i] > pre[i]
+                )
+                if positive_deltas:
+                    emit_event("POSITIVE_DELTA_DESCENDANTS_REJECTED", wallet=subprov,
+                               payload={"sig": sig, "count": positive_deltas,
+                                        "reason": "NO_EXPLICIT_DIRECTIONAL_TRANSFER"})
                 _noclass_ms = round((time.time() - _noclass_t0) * 1000, 1)
                 _htx_total_ms = round((time.time() - _htx_t0) * 1000, 1)
                 if _htx_total_ms > 500:
@@ -4609,7 +4737,15 @@ class Cascade:
         Replays original detection context — not subject to current TEMP_SUBPROV_ENFORCE flag."""
         conn = self._ops()
         try:
-            written, remaining, superseded = store.drain_pending_sessions(conn)
+            def _validate_pending(sig, treasury, subprov):
+                tx = _get_tx(sig) if sig else None
+                return any(
+                    edge.get("destination") == subprov
+                    for edge in _explicit_native_funding_transfers(tx, treasury)
+                ) if tx and treasury and subprov else False
+
+            written, remaining, superseded = store.drain_pending_sessions(
+                conn, funding_validator=_validate_pending)
             if written:
                 _log(f"🔁 PENDING_SESSION_REPLAYED: {written} written, {remaining} remaining")
             if superseded:

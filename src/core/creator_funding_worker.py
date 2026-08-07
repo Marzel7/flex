@@ -561,8 +561,62 @@ def _post_extraction_intelligence_refresh(creator: str) -> None:
 # Best-effort wait for extractor-spawned background tasks (see
 # _await_orphaned_tasks below) -- these are enrichment, not attribution-
 # critical, so a bounded wait that gives up rather than blocking the queue
-# indefinitely is the right tradeoff.
+# indefinitely is the right tradeoff for OBSERVING them. It is NOT the right
+# tradeoff for STARTING THE NEXT JOB'S OWN WRITES while they're still
+# mid-transaction -- see _STRAGGLER_TASKS / _await_stragglers_before_next_write
+# below (X78.2).
 ORPHAN_TASK_WAIT_SECONDS = int(os.environ.get("CFQ_ORPHAN_TASK_WAIT_SECONDS", "20"))
+
+# X78.2 -- job-boundary write-lease gate. _await_orphaned_tasks' bounded wait
+# below is intentionally allowed to expire and move on (never cancels a task
+# that might be mid-write, per its own docstring) -- but "moved on" used to
+# mean _process_job returned with the straggler still holding (or about to
+# acquire) a write lease on the SAME reused event-loop thread, and the very
+# next _process_job call would attempt its OWN write moments later. Since
+# TrackedConnection's write lease is a threading.local() reentrancy guard
+# (src/core/database_write_service.py::_thread_write_lease), any two
+# unreleased acquisitions on that one thread collide with
+# NestedDatabaseWriteError -- proven deterministically in
+# tests/test_x78_2_detached_descendant_reproduction.py.
+#
+# The fix is NOT to cancel stragglers (a cancelled write mid-commit is worse
+# than a slow one -- see wait_for_background_tasks' own docstring in
+# realtime_creator_funding_extractor.py, whose design this preserves
+# unchanged) and NOT to make the lease task-scoped (that would weaken the
+# guard's actual job: only one write-capable execution on this thread at a
+# time, ever). Instead: track every task that either bounded-wait sweep left
+# pending in a set that survives past _process_job's return, and require the
+# NEXT _process_job call to wait -- unboundedly, since we refuse to cancel --
+# for all of them to finish before IT is allowed to start its own writes.
+# This is the one boundary where the collision can actually occur, so it is
+# the one boundary that needs to gate, instead of every log call or the
+# outer loop's liveness.
+_STRAGGLER_TASKS: set = set()
+
+
+async def _await_stragglers_before_next_write() -> None:
+    """Block (unboundedly -- see module docstring above) until every
+    write-capable background task left over from a PRIOR job's bounded
+    supervision sweep has actually finished, before this job is allowed to
+    perform its own first write. Called at the very top of _process_job,
+    before extraction (and therefore before any write) begins.
+
+    This does not cancel anything and does not change how long a straggler
+    is allowed to run -- it only changes what "next job" is allowed to do
+    while one is still running: wait, not race it."""
+    stragglers = {t for t in _STRAGGLER_TASKS if not t.done()}
+    _STRAGGLER_TASKS.difference_update({t for t in _STRAGGLER_TASKS if t.done()})
+    if not stragglers:
+        return
+    _log(f"waiting for {len(stragglers)} straggler background task(s) from a "
+         f"prior job to finish before starting this job's own writes "
+         f"(job-boundary write-lease gate, X78.2)")
+    done, _pending = await asyncio.wait(stragglers)  # unbounded: never race, only wait
+    for t in done:
+        exc = t.exception() if not t.cancelled() else None
+        if exc:
+            _log(f"straggler background task raised (non-fatal, enrichment only): {exc}")
+    _STRAGGLER_TASKS.difference_update(done)
 
 
 async def _await_orphaned_tasks(tasks_before: set) -> None:
@@ -584,7 +638,11 @@ async def _await_orphaned_tasks(tasks_before: set) -> None:
     worker explicitly tracks and awaits whatever tasks the extraction call
     spawned, with a bounded timeout, before moving on to the next queue
     operation -- turning "orphaned" into "supervised" for this call site
-    only."""
+    only. Anything still pending when the bounded wait expires is handed to
+    _STRAGGLER_TASKS (X78.2) so the NEXT job's own _await_stragglers_before_next_write()
+    call is guaranteed to wait for it before that job starts writing --
+    closing the gap this function's own bounded timeout intentionally
+    leaves open."""
     loop = asyncio.get_event_loop()
     spawned = asyncio.all_tasks(loop) - tasks_before
     spawned = {t for t in spawned if not t.done()}
@@ -599,8 +657,10 @@ async def _await_orphaned_tasks(tasks_before: set) -> None:
             _log(f"background task raised (non-fatal, enrichment only): {exc}")
     if pending:
         _log(f"{len(pending)} background task(s) still running after "
-             f"{ORPHAN_TASK_WAIT_SECONDS}s — leaving them to finish on their own; "
-             f"NOT cancelling (would corrupt whatever they're mid-writing)")
+             f"{ORPHAN_TASK_WAIT_SECONDS}s — handing off to the job-boundary "
+             f"write-lease gate (X78.2); NOT cancelling (would corrupt "
+             f"whatever they're mid-writing)")
+        _STRAGGLER_TASKS.update(pending)
 
 
 async def _process_job(row: dict) -> None:
@@ -635,6 +695,12 @@ async def _process_job(row: dict) -> None:
     job_started = time.time()
     _log(f"claimed creator={creator[:12]} mint={mint[:16]} attempts={attempts} "
          f"priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}")
+
+    # X78.2 -- must happen before ANY write this job makes (including the
+    # extraction call below), since that is precisely the boundary the
+    # collision occurs at: see _await_stragglers_before_next_write's
+    # docstring and tests/test_x78_2_detached_descendant_reproduction.py.
+    await _await_stragglers_before_next_write()
 
     try:
         _tasks_before = asyncio.all_tasks(asyncio.get_event_loop())

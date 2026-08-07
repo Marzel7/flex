@@ -110,6 +110,32 @@ CREATE TABLE IF NOT EXISTS normalization_status (
     FOREIGN KEY(envelope_id) REFERENCES evidence_envelopes(envelope_id)
 );
 
+CREATE TABLE IF NOT EXISTS primitive_observations (
+    primitive_id TEXT PRIMARY KEY,
+    primitive_type TEXT NOT NULL,
+    primitive_version TEXT NOT NULL,
+    subjects_json TEXT NOT NULL,
+    parameters_json TEXT NOT NULL,
+    window_start INTEGER,
+    window_end INTEGER,
+    output_payload_json TEXT NOT NULL,
+    output_digest TEXT NOT NULL,
+    quality_state TEXT NOT NULL CHECK(quality_state IN (
+        'PROVEN','DISPROVEN','INCOMPLETE','CONFLICTING','UNVERIFIABLE'
+    )),
+    missing_inputs_json TEXT NOT NULL,
+    failure_state TEXT,
+    generated_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS primitive_evidence_inputs (
+    primitive_id TEXT NOT NULL,
+    evidence_id TEXT NOT NULL,
+    PRIMARY KEY(primitive_id, evidence_id),
+    FOREIGN KEY(primitive_id) REFERENCES primitive_observations(primitive_id),
+    FOREIGN KEY(evidence_id) REFERENCES normalized_evidence_records(evidence_id)
+);
+
 CREATE TRIGGER IF NOT EXISTS evidence_envelopes_no_update BEFORE UPDATE ON evidence_envelopes
 BEGIN SELECT RAISE(ABORT, 'immutable evidence cannot be updated'); END;
 CREATE TRIGGER IF NOT EXISTS evidence_envelopes_no_delete BEFORE DELETE ON evidence_envelopes
@@ -134,3 +160,11 @@ CREATE TRIGGER IF NOT EXISTS normalized_evidence_provenance_no_update BEFORE UPD
 BEGIN SELECT RAISE(ABORT, 'immutable normalized provenance cannot be updated'); END;
 CREATE TRIGGER IF NOT EXISTS normalized_evidence_provenance_no_delete BEFORE DELETE ON normalized_evidence_provenance
 BEGIN SELECT RAISE(ABORT, 'immutable normalized provenance cannot be deleted'); END;
+CREATE TRIGGER IF NOT EXISTS primitive_observations_no_update BEFORE UPDATE ON primitive_observations
+BEGIN SELECT RAISE(ABORT, 'immutable primitive cannot be updated'); END;
+CREATE TRIGGER IF NOT EXISTS primitive_observations_no_delete BEFORE DELETE ON primitive_observations
+BEGIN SELECT RAISE(ABORT, 'immutable primitive cannot be deleted'); END;
+CREATE TRIGGER IF NOT EXISTS primitive_evidence_inputs_no_update BEFORE UPDATE ON primitive_evidence_inputs
+BEGIN SELECT RAISE(ABORT, 'immutable primitive input cannot be updated'); END;
+CREATE TRIGGER IF NOT EXISTS primitive_evidence_inputs_no_delete BEFORE DELETE ON primitive_evidence_inputs
+BEGIN SELECT RAISE(ABORT, 'immutable primitive input cannot be deleted'); END;

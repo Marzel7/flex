@@ -15,6 +15,7 @@ from .errors import ArtifactCorruption, ComponentDisabled, WriterOwnershipError
 from .logging import log_event
 from .metrics import EvidenceMetrics
 from .normalization import NormalizationEngine
+from .primitives.engine import PrimitiveEngine
 from .queue import ClaimedMessage, EvidenceIntakeQueue
 
 
@@ -30,7 +31,8 @@ class EvidenceWriter:
                  artifacts: ArtifactStore, *, metrics: EvidenceMetrics | None = None,
                  database_factory: Callable[[Path], EvidenceDatabase] = EvidenceDatabase,
                  after_commit: Callable[[], None] | None = None,
-                 normalizer: NormalizationEngine | None = None) -> None:
+                 normalizer: NormalizationEngine | None = None,
+                 primitive_engine: PrimitiveEngine | None = None) -> None:
         self.config = config
         self.queue = queue
         self.artifacts = artifacts
@@ -38,6 +40,7 @@ class EvidenceWriter:
         self.database = database_factory(config.database_path)
         self.after_commit = after_commit
         self.normalizer = normalizer
+        self.primitive_engine = primitive_engine
         self._lease: Any = None
         self._started = False
         self._stopping = False
@@ -115,6 +118,8 @@ class EvidenceWriter:
             if self.config.normalization_enabled and self.normalizer is not None:
                 for item in valid:
                     self.normalizer.normalize_envelope(item.payload["envelope"])
+            if self.config.primitive_engine_enabled and self.primitive_engine is not None:
+                self.primitive_engine.run_once()
             if self.after_commit:
                 self.after_commit()
             for item in valid:

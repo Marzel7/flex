@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .contracts import EvidenceRecord, canonical_json_bytes
+from .primitives.contracts import PrimitiveObservation
 
 
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
@@ -35,6 +36,10 @@ class EvidenceDatabase:
         )
         self.connection.execute(
             "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(2,?)",
+            (int(self.clock()),),
+        )
+        self.connection.execute(
+            "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(3,?)",
             (int(self.clock()),),
         )
 
@@ -224,6 +229,70 @@ class EvidenceDatabase:
             raise
         return {"inserted": inserted, "duplicates": duplicates}
 
+    def load_normalized_records(self) -> list[sqlite3.Row]:
+        if self.connection is None:
+            raise RuntimeError("Evidence database writer is not open")
+        return self.connection.execute(
+            "SELECT * FROM normalized_evidence_records ORDER BY fact_family,logical_fact_id,evidence_id"
+        ).fetchall()
+
+    def append_primitives(self, observations: list[PrimitiveObservation]) -> dict[str, int]:
+        if self.connection is None:
+            raise RuntimeError("Evidence database writer is not open")
+        inserted = duplicates = 0
+        conn = self.connection
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            for item in observations:
+                values = (
+                    item.primitive_id, item.primitive_type, item.primitive_version,
+                    canonical_json_bytes(list(item.subjects)).decode().rstrip("\n"),
+                    canonical_json_bytes(dict(item.parameters)).decode().rstrip("\n"),
+                    item.observation_window.start, item.observation_window.end,
+                    canonical_json_bytes(dict(item.output_payload)).decode().rstrip("\n"),
+                    item.output_digest, item.quality_state,
+                    canonical_json_bytes(list(item.missing_inputs)).decode().rstrip("\n"),
+                    item.failure_state, item.generated_at,
+                )
+                cursor = conn.execute(
+                    "INSERT OR IGNORE INTO primitive_observations("
+                    "primitive_id,primitive_type,primitive_version,subjects_json,parameters_json,"
+                    "window_start,window_end,output_payload_json,output_digest,quality_state,"
+                    "missing_inputs_json,failure_state,generated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    values,
+                )
+                if cursor.rowcount:
+                    for evidence_id_value in item.evidence_ids:
+                        conn.execute(
+                            "INSERT INTO primitive_evidence_inputs(primitive_id,evidence_id) VALUES(?,?)",
+                            (item.primitive_id, evidence_id_value),
+                        )
+                    inserted += 1
+                else:
+                    existing = conn.execute(
+                        "SELECT primitive_type,primitive_version,subjects_json,parameters_json,"
+                        "window_start,window_end,output_payload_json,output_digest,quality_state,"
+                        "missing_inputs_json,failure_state "
+                        "FROM primitive_observations WHERE primitive_id=?",
+                        (item.primitive_id,),
+                    ).fetchone()
+                    expected = (
+                        item.primitive_type, item.primitive_version, values[3], values[4],
+                        item.observation_window.start, item.observation_window.end,
+                        values[7], item.output_digest, item.quality_state, values[10],
+                        item.failure_state,
+                    )
+                    if existing is None or tuple(existing) != expected:
+                        raise sqlite3.IntegrityError(
+                            "Primitive identity collision with non-identical observation"
+                        )
+                    duplicates += 1
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+        return {"inserted": inserted, "duplicates": duplicates}
+
     @staticmethod
     def read_health(path: Path) -> dict[str, Any]:
         path = Path(path)
@@ -236,7 +305,8 @@ class EvidenceDatabase:
             counts = {
                 table: conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                 for table in ("evidence_envelopes", "evidence_provenance", "artifact_references", "writer_receipts",
-                              "normalized_evidence_records", "normalized_evidence_provenance", "normalization_status")
+                              "normalized_evidence_records", "normalized_evidence_provenance", "normalization_status",
+                              "primitive_observations", "primitive_evidence_inputs")
             }
             conn.close()
             return {"status": "HEALTHY" if quick == "ok" else "DATABASE_DEGRADED",

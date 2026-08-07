@@ -11,6 +11,7 @@ from .database import EvidenceDatabase
 from .metrics import EvidenceMetrics
 from .mirror import EvidenceMirrorPublisher
 from .normalization import NormalizationEngine
+from .primitives.engine import PrimitiveEngine
 from .queue import EvidenceIntakeQueue
 from .writer import EvidenceWriter
 
@@ -40,9 +41,11 @@ class EvidencePlatform:
         self.normalizer = NormalizationEngine(
             database, self.artifacts, metrics=self.metrics
         )
+        self.primitive_engine = PrimitiveEngine(database, metrics=self.metrics)
         self.writer = EvidenceWriter(
             config, self.queue, self.artifacts, metrics=self.metrics,
             database_factory=lambda _path: database, normalizer=self.normalizer,
+            primitive_engine=self.primitive_engine,
         )
 
     def synthetic_message(self, data: bytes, *, observed_at: int, acquired_at: int | None = None,
@@ -77,6 +80,7 @@ class EvidencePlatform:
                 "database": {"status": "DISABLED"}, "artifact_store": {"status": "DISABLED"},
                 "mirror": self.mirror.health(),
                 "normalization": {"status": "DISABLED"},
+                "primitives": {"status": "DISABLED"},
             }}
         components = {
             "writer": self.writer.health(), "queue": self.queue.health(),
@@ -86,6 +90,11 @@ class EvidencePlatform:
             "normalization": (
                 self.normalizer.health()
                 if self.config.normalization_enabled
+                else {"status": "DISABLED"}
+            ),
+            "primitives": (
+                self.primitive_engine.health()
+                if self.config.primitive_engine_enabled
                 else {"status": "DISABLED"}
             ),
         }

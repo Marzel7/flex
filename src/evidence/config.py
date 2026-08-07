@@ -20,6 +20,7 @@ class EvidenceConfig:
     health_enabled: bool = False
     mirror_enabled: bool = False
     normalization_enabled: bool = False
+    primitive_engine_enabled: bool = False
     database_path: Path = Path("database/evidence_platform/evidence.db")
     queue_path: Path = Path("database/evidence_platform/intake")
     artifact_path: Path = Path("database/evidence_platform/artifacts")
@@ -43,6 +44,7 @@ class EvidenceConfig:
             health_enabled=_flag(values, "EVIDENCE_HEALTH_ENABLED"),
             mirror_enabled=_flag(values, "EVIDENCE_MIRROR_ENABLED"),
             normalization_enabled=_flag(values, "EVIDENCE_NORMALIZATION_ENABLED"),
+            primitive_engine_enabled=_flag(values, "EVIDENCE_PRIMITIVE_ENGINE_ENABLED"),
             database_path=Path(values.get("EVIDENCE_DATABASE_PATH", "database/evidence_platform/evidence.db")),
             queue_path=Path(values.get("EVIDENCE_QUEUE_PATH", "database/evidence_platform/intake")),
             artifact_path=Path(values.get("EVIDENCE_ARTIFACT_PATH", "database/evidence_platform/artifacts")),
@@ -64,7 +66,8 @@ class EvidenceConfig:
     def completely_off(self) -> bool:
         return not any((self.platform_enabled, self.writer_enabled, self.queue_enabled,
                         self.artifact_store_enabled, self.health_enabled,
-                        self.mirror_enabled, self.normalization_enabled))
+                        self.mirror_enabled, self.normalization_enabled,
+                        self.primitive_engine_enabled))
 
     def validate_isolation(self, production_paths: tuple[Path, ...] | None = None) -> None:
         targets = {

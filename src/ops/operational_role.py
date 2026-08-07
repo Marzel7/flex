@@ -19,6 +19,7 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
     """
     infrastructure = infrastructure or {}
     paths = [p for p in infrastructure.get("funding_paths") or [] if p.get("from") and p.get("to")]
+    treasury_by_launch = infrastructure.get("treasury_by_launch") or {}
     members = set(family.get("member_wallets") or [])
     anchors = members | {x for x in (family.get("family_anchor"), family.get("terminal_entity")) if x}
     disposition = str((family.get("reconciliation") or {}).get("disposition") or
@@ -145,14 +146,18 @@ def derive_operational_role(family: dict[str, Any], infrastructure: dict[str, An
             if key in seen_observations:
                 continue
             seen_observations.add(key)
-            observations.append({
+            observation = {
                 "controller": path.get("from"), "creator": path.get("to"),
                 "launch": path.get("source_mint"),
                 "launch_label": path.get("launch_label") or "Launch",
                 "mechanism": path.get("mechanism"), "observed_at": path.get("observed_at"),
                 "transaction_at": path.get("transaction_at"),
                 "transaction": path.get("signature"),
-            })
+            }
+            upstream_treasury = treasury_by_launch.get(str(path.get("source_mint")))
+            if upstream_treasury:
+                observation["upstream_treasury"] = upstream_treasury
+            observations.append(observation)
 
     return {
         "current_role": current_role,

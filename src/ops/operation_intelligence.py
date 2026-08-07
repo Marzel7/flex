@@ -353,6 +353,10 @@ class OperationIntelligenceAssembler:
             "rpc_confirmed_edges": rpc_edges,
             "topology_variants": family.get("observed_topology_variants") or [],
             "session_count": len(sessions),
+            # Per-launch temporal assignment used to connect infrastructure
+            # relationship examples to their recorded upstream session. This
+            # is presentation provenance, not an ownership assertion.
+            "treasury_by_launch": launch_treasury,
             "launches_by_treasury": launches_by_treasury,
             "launches_by_treasury_total": sum(item["launch_count"] for item in launches_by_treasury),
         }

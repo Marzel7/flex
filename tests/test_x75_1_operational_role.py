@@ -44,6 +44,26 @@ def test_shared_infrastructure_does_not_invent_operator():
     assert role["edges"] == []
 
 
+def test_shared_infrastructure_examples_include_temporally_matched_upstream_treasury():
+    family = {
+        "member_wallets": ["INFRA"], "client_wallets": ["INFRA"],
+        "treasuries": ["UPSTREAM"], "reconciliation": {"disposition": "INFRASTRUCTURE"},
+    }
+    infrastructure = {
+        "treasury_by_launch": {"MINT": "UPSTREAM"},
+        "funding_paths": [{
+            "from": "INFRA", "to": "CREATOR", "type": "SUBPROV_TO_CREATOR",
+            "signature": "SIG", "source_mint": "MINT",
+        }],
+    }
+
+    role = derive_operational_role(family, infrastructure)
+
+    assert role["current_role"] == "Shared Infrastructure"
+    assert role["observed_relationships"][0]["upstream_treasury"] == "UPSTREAM"
+    assert role["observed_relationships"][0]["controller"] == "INFRA"
+
+
 def test_operational_treasury_rows_require_a_complete_recorded_chain():
     family = {
         "family_anchor": "TREASURY", "member_wallets": ["TREASURY"],
@@ -141,6 +161,8 @@ def test_all_three_ui_surfaces_consume_shared_role_model():
     assert "Observed while tracing " in profile
     assert "h.transaction_at?new Date(h.transaction_at*1000)" in profile
     assert "o.intermediary" in profile
+    assert "o.upstream_treasury" in profile
+    assert "Upstream treasury matched by recorded funding session" in profile
     assert "o.funding_hops" in profile
     assert ".sort((a,b)=>(b.transaction_at||0)-(a.transaction_at||0))" in profile
     assert "WATCHTOWER" not in (ROOT / "src/ops/operational_role.py").read_text()

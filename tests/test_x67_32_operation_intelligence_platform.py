@@ -91,6 +91,9 @@ def test_infrastructure_launches_split_by_recorded_upstream_sessions():
         {"treasury": "T3", "launch_count": 0},
     ]
     assert infrastructure["launches_by_treasury_total"] == 4
+    assert infrastructure["treasury_by_launch"] == {
+        "M0": "T1", "M1": "T1", "M2": "T2", "M3": "T2",
+    }
 
 
 def test_session_projection_supports_production_schema_without_source_mint(tmp_path):

@@ -122,6 +122,67 @@ def _db_connect(readonly: bool = False, timeout: int = 10):
         return conn
 
 
+# X78.4 -- bounded retry for a specific, proven-transient failure mode.
+# Root cause: extract_for_creator's own timeout/cancellation path
+# (JOB_TIMEOUT_SECONDS / EXTRACTION_CANCEL_GRACE_SECONDS) can leave a
+# cancelled extraction coroutine's underlying to_thread-dispatched write
+# (e.g. _save_outgoing_transfer, which acquires a write lease internally)
+# still genuinely running on its own OS thread when _process_job's
+# cancellation handling gives up -- and there is PROVABLY no way to
+# detect true completion from outside that synchronous function: neither
+# asyncio.Task.done()/.cancelled() nor a completion signal set in the
+# calling coroutine's own `finally` can be trusted, because BOTH report
+# "finished" the instant CancelledError propagates through the awaiting
+# `await asyncio.to_thread(...)` line, independent of whether the real
+# thread has actually stopped (proven directly, twice: see
+# tests/test_x78_4_cancellation_grace_period_reproduction.py and
+# tests/test_x78_4_write_retry.py::test_wrapper_finally_signal_is_unreliable).
+#
+# NestedDatabaseWriteError itself is NOT raised by _db_connect/db_connect
+# (opening a connection or running PRAGMA never acquires the write lease)
+# -- it is raised by the FIRST write-shaped .execute()/.executemany()
+# call on a connection, reporting the tag of whichever connection is
+# still holding the lease. So the retry belongs around each write
+# helper's full open-write-close body, not around connection-opening
+# alone -- this wraps a zero-argument callable (typically a small
+# closure over an already-open connection's write, or a full helper
+# call) and retries the WHOLE thing, since a fresh attempt needs a fresh
+# connection/cursor state after a failed one anyway.
+#
+# Given detection is provably impossible at this boundary, this
+# implements the OTHER half of the safe invariant: isolation in time.
+# A NestedDatabaseWriteError caught here is proven transient (the
+# straggler's own DB_WRITE_LOCK.acquire has a 60s bound, and every other
+# SQLite timeout in this codebase is likewise bounded, so the straggler
+# MUST eventually release the lease) -- so this worker's own writes retry
+# with backoff instead of racing blind (the pre-X78.4 bug).
+_WRITE_RETRY_MAX_ATTEMPTS = int(os.environ.get("CFQ_WRITE_RETRY_MAX_ATTEMPTS", "8"))
+_WRITE_RETRY_BASE_SECONDS = float(os.environ.get("CFQ_WRITE_RETRY_BASE_SECONDS", "0.5"))
+
+
+def _retry_on_nested_write(fn, *args, **kwargs):
+    """Call fn(*args, **kwargs), retrying with exponential backoff (capped
+    at 30s/attempt) if it raises NestedDatabaseWriteError. Synchronous --
+    callers already dispatched via asyncio.to_thread MUST continue to be
+    (retrying here sleeps synchronously; doing this on the event-loop
+    thread directly would block the whole loop, including the very
+    extraction task this retry exists to wait out)."""
+    from src.core.database_write_service import NestedDatabaseWriteError
+    attempt = 0
+    while True:
+        try:
+            return fn(*args, **kwargs)
+        except NestedDatabaseWriteError as e:
+            attempt += 1
+            if attempt > _WRITE_RETRY_MAX_ATTEMPTS:
+                raise
+            wait_s = min(30.0, _WRITE_RETRY_BASE_SECONDS * (2 ** (attempt - 1)))
+            _log(f"write lease busy (outer={e.outer_command}), retry {attempt}/"
+                 f"{_WRITE_RETRY_MAX_ATTEMPTS} in {wait_s:.1f}s -- proven transient "
+                 f"(bounded by DB_WRITE_LOCK's own 60s timeout), not a permanent stall")
+            time.sleep(wait_s)
+
+
 # ── Layer 2: self-kill guard (identical contract to creator_resolution_worker.py) ──
 def _open_handle_count() -> int:
     pid = os.getpid()
@@ -753,12 +814,12 @@ async def _process_job(row: dict) -> None:
         now = int(time.time())
 
         if extraction_errored and funders == 0 and attempts < MAX_ATTEMPTS:
-            await asyncio.to_thread(_mark_retry, creator, mint, attempts, "no_funders_written", now, 60)
+            await asyncio.to_thread(_retry_on_nested_write, _mark_retry, creator, mint, attempts, "no_funders_written", now, 60)
             _log(f"retry creator={creator[:12]} mint={mint[:16]} reason=no_funders_written "
                  f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s")
             return
 
-        await asyncio.to_thread(_mark_complete, creator, mint, attempts, now)
+        await asyncio.to_thread(_retry_on_nested_write, _mark_complete, creator, mint, attempts, now)
         _log(f"complete creator={creator[:12]} mint={mint[:16]} funders={funders} "
              f"elapsed={time.time()-job_started:.1f}s")
 
@@ -802,12 +863,12 @@ async def _process_job(row: dict) -> None:
     except Exception as e:
         now = int(time.time())
         if attempts + 1 >= MAX_ATTEMPTS:
-            await asyncio.to_thread(_mark_failed, creator, mint, attempts, str(e), now)
+            await asyncio.to_thread(_retry_on_nested_write, _mark_failed, creator, mint, attempts, str(e), now)
             _log(f"failed creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "
                  f"elapsed={time.time()-job_started:.1f}s")
         else:
             retry_delay = min(900, 120 * (attempts + 1))
-            await asyncio.to_thread(_mark_retry, creator, mint, attempts, str(e), now, retry_delay)
+            await asyncio.to_thread(_retry_on_nested_write, _mark_retry, creator, mint, attempts, str(e), now, retry_delay)
             _log(f"retry creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "
                  f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s")
 
@@ -845,7 +906,7 @@ async def _run_loop_async(once: bool = False) -> None:
 
         try:
             batch = _adaptive_batch(pending)
-            rows, recovered, stale = await asyncio.to_thread(_recover_stale_and_claim, now, batch)
+            rows, recovered, stale = await asyncio.to_thread(_retry_on_nested_write, _recover_stale_and_claim, now, batch)
             if recovered:
                 _log(f"recovered {recovered} stale running job(s) with extracted funders")
             if stale:
@@ -860,7 +921,12 @@ async def _run_loop_async(once: bool = False) -> None:
                 # far longer than the outer cycle's own heartbeat cadence --
                 # write one before starting the job too, so a slow-but-healthy
                 # job is never misreported as a stalled/dead worker.
-                _write_heartbeat({
+                # X78.4 -- dispatched via to_thread + retry-on-nested-write
+                # (was a direct synchronous call): a straggling cancelled
+                # extraction's write lease can still be held here; retrying
+                # off the event-loop thread avoids blocking the whole loop
+                # (including that same extraction task) while it clears.
+                await asyncio.to_thread(_retry_on_nested_write, _write_heartbeat, {
                     "cycles": cycles,
                     "status": "processing",
                     "processing_mint": str(row.get("mint") or "")[:16],
@@ -896,7 +962,9 @@ async def _run_loop_async(once: bool = False) -> None:
                 _log(f"cycle={cycles} claimed={claimed} pending_after={pending_after} "
                      f"batch={batch} db_p99={p99:.0f}ms handles={_open_handle_count()}")
 
-            _write_heartbeat({
+            # X78.4 -- dispatched via to_thread + retry, see comment at the
+            # per-row heartbeat call site above.
+            await asyncio.to_thread(_retry_on_nested_write, _write_heartbeat, {
                 "cycles": cycles,
                 "pending": pending_after,
                 "total_claimed": total_claimed,
@@ -916,7 +984,7 @@ async def _run_loop_async(once: bool = False) -> None:
             _log(f"cycle error: {exc}")
             traceback.print_exc()
             try:
-                _write_heartbeat({"status": "error", "error": str(exc)[:200], "cycles": cycles})
+                await asyncio.to_thread(_retry_on_nested_write, _write_heartbeat, {"status": "error", "error": str(exc)[:200], "cycles": cycles})
             except Exception:
                 pass
 

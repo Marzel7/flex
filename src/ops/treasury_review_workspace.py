@@ -32,6 +32,7 @@ except Exception:                                        # pragma: no cover
         return c
 
 from src.core import treasury_bank
+from src.ops.operation_matching_profile import get_profile
 from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 
 
@@ -210,36 +211,197 @@ def _observed_topology(treasury: str, subprovs: list[str], creators: list[str],
             "evidence_backed": len(nodes) > 1, "anchor": treasury}
 
 
+def _reuse_pattern(provisioners: int, launches: int) -> str | None:
+    """A small observed behaviour vocabulary shared by both sides."""
+    if launches < 2 or provisioners < 1:
+        return None
+    ratio = provisioners / launches
+    if ratio >= 0.75:
+        return "ROTATING_PROVISIONERS"
+    if ratio <= 0.25:
+        return "PERSISTENT_PROVISIONER"
+    return "MIXED_PROVISIONER_REUSE"
+
+
+def _candidate_comparison_evidence(conn, treasury: str, subprovs: list[str],
+                                   creators: list[str], mints: list[str]) -> dict[str, Any]:
+    """Project only persisted, transaction-derived candidate observations."""
+    edges = []
+    if _table_exists(conn, "wt_provisioning_edges"):
+        edges = [dict(row) for row in conn.execute(
+            "SELECT edge_type,funding_mechanism,funding_tx_signature,source_mint "
+            "FROM wt_provisioning_edges WHERE from_wallet=? AND edge_type='TREASURY_TO_SUBPROV'",
+            (treasury,),
+        ).fetchall()]
+    mint_set = set(mints)
+    scoped = [edge for edge in edges if edge.get("source_mint") in mint_set] if mint_set else []
+    mechanisms = {str(edge["funding_mechanism"]).upper() for edge in scoped
+                  if edge.get("funding_mechanism") and edge.get("funding_tx_signature")}
+    roles = {"TREASURY"}
+    if subprovs:
+        roles.add("SUB_PROVISIONER")
+    if creators:
+        roles.add("CREATOR")
+    if mints:
+        roles.add("LAUNCH")
+    return {
+        "roles": roles,
+        "funding_mechanisms": mechanisms,
+        "provisioning_role": "SUB_PROVISIONER" if subprovs else None,
+        "behaviour_pattern": _reuse_pattern(len(set(subprovs)), len(set(mints))),
+        "transaction_edges": len(scoped),
+        "settlement": None,
+    }
+
+
+def _operator_reference_evidence(conn, operator_id: str, display_name: str,
+                                 entities: set[str]) -> dict[str, Any]:
+    """Build the comparison reference from canonical entities and clean edges."""
+    profile = get_profile(operator_id, display_name)
+    roles = set(profile.defining_entity_types)
+    mechanisms: set[str] = set()
+    launch_count = 0
+    provisioners: set[str] = set()
+
+    if display_name.upper() == "WATCHTOWER" and _table_exists(conn, "wt_watchtower_launches"):
+        rows = conn.execute(
+            "SELECT mint,subprov_wallet,funding_mechanism FROM wt_watchtower_launches"
+        ).fetchall()
+        launch_count = len({row["mint"] for row in rows if row["mint"]})
+        provisioners = {row["subprov_wallet"] for row in rows if row["subprov_wallet"]}
+        mechanisms.update(str(row["funding_mechanism"]).upper() for row in rows
+                          if row["funding_mechanism"])
+        if launch_count:
+            roles.update({"CREATOR", "LAUNCH"})
+
+    if entities and _table_exists(conn, "wt_provisioning_edges"):
+        marks = ",".join("?" for _ in entities)
+        edge_rows = conn.execute(
+            f"SELECT edge_type,from_wallet,to_wallet,source_mint,funding_mechanism,"
+            f"funding_tx_signature FROM wt_provisioning_edges "
+            f"WHERE from_wallet IN ({marks}) OR to_wallet IN ({marks})",
+            [*entities, *entities],
+        ).fetchall()
+        verified_edges = [row for row in edge_rows if row["funding_tx_signature"]]
+        mechanisms.update(str(row["funding_mechanism"]).upper() for row in verified_edges
+                          if row["funding_mechanism"])
+        edge_mints = {row["source_mint"] for row in verified_edges if row["source_mint"]}
+        launch_count = max(launch_count, len(edge_mints))
+        if edge_mints:
+            roles.update({"CREATOR", "LAUNCH"})
+        for row in verified_edges:
+            if row["edge_type"] == "SUBPROV_TO_CREATOR":
+                provisioners.add(row["from_wallet"])
+
+    provisioning_role = None
+    if "SUB_PROVISIONER" in profile.defining_entity_types:
+        provisioning_role = "SUB_PROVISIONER"
+    elif "CLIENT" in profile.defining_entity_types:
+        provisioning_role = "CLIENT"
+    return {
+        "roles": roles,
+        "funding_mechanisms": mechanisms,
+        "provisioning_role": provisioning_role,
+        "behaviour_pattern": _reuse_pattern(len(provisioners), launch_count),
+        "settlement": None,
+        "profile_description": profile.description,
+    }
+
+
+def _comparison_state(candidate, reference, *, partial_on_overlap: bool = True) -> str:
+    if not candidate or not reference:
+        return "UNKNOWN"
+    if isinstance(candidate, set) and isinstance(reference, set):
+        overlap = candidate & reference
+        if not overlap:
+            return "NO_MATCH"
+        if candidate <= reference or reference <= candidate:
+            return "MATCH"
+        return "PARTIAL" if partial_on_overlap else "MATCH"
+    return "MATCH" if candidate == reference else "NO_MATCH"
+
+
+def _confirmed_operation_references(conn) -> list[dict[str, Any]]:
+    references = []
+    if not (_table_exists(conn, "operators") and _table_exists(conn, "operator_entities")):
+        return references
+    for op in conn.execute(
+        "SELECT operator_id, display_name FROM operators WHERE status='CONFIRMED'"
+    ).fetchall():
+        entities = {row[0] for row in conn.execute(
+            "SELECT entity_address FROM operator_entities WHERE operator_id=?",
+            (op["operator_id"],),
+        ).fetchall()}
+        references.append({
+            "operator_id": op["operator_id"],
+            "display_name": op["display_name"] or op["operator_id"],
+            "entities": entities,
+            "evidence": _operator_reference_evidence(
+                conn, op["operator_id"], op["display_name"] or op["operator_id"], entities
+            ),
+        })
+    return references
+
+
 def _operation_matches(conn, treasury: str, subprovs: list[str], creators: list[str],
-                       mints: list[str], counts: dict[str, int]) -> list[dict[str, Any]]:
-    """Compare against every confirmed identity using persisted overlap only."""
+                       mints: list[str], counts: dict[str, int],
+                       operation_references: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Compare compatible persisted evidence; UNKNOWN means not evaluated."""
     if not (_table_exists(conn, "operators") and _table_exists(conn, "operator_entities")):
         return []
     evidence_wallets = {treasury, *subprovs, *creators}
+    candidate = _candidate_comparison_evidence(conn, treasury, subprovs, creators, mints)
     matches = []
-    for op in conn.execute("SELECT operator_id, display_name FROM operators WHERE status='CONFIRMED'").fetchall():
-        entities = {r[0] for r in conn.execute(
-            "SELECT entity_address FROM operator_entities WHERE operator_id=?", (op["operator_id"],)
-        ).fetchall()}
+    for op in operation_references or _confirmed_operation_references(conn):
+        entities = op["entities"]
         overlap = sorted(evidence_wallets & entities)
         treasury_known = treasury in entities
         downstream = len(set(subprovs + creators) & entities)
-        topology = "Exact" if treasury_known and downstream else "Partial" if overlap else "Unknown"
+        reference = op["evidence"]
+        states = {
+            "Behaviour": _comparison_state(candidate["behaviour_pattern"], reference["behaviour_pattern"]),
+            "Funding": _comparison_state(candidate["funding_mechanisms"], reference["funding_mechanisms"]),
+            "Provisioning": _comparison_state(candidate["provisioning_role"], reference["provisioning_role"]),
+            "Settlement": "UNKNOWN",
+            "Topology": _comparison_state(candidate["roles"], reference["roles"]),
+            # A non-overlap is not a contradiction: this may be a genuinely new
+            # expansion treasury. Exact identity evidence is required for MATCH.
+            "Treasury": "MATCH" if treasury_known else "PARTIAL" if downstream else "UNKNOWN",
+        }
+        evaluated = [key for key, value in states.items() if value != "UNKNOWN"]
+        matched_dimensions = [key for key, value in states.items() if value == "MATCH"]
+        partial_dimensions = [key for key, value in states.items() if value == "PARTIAL"]
+        contradicted_dimensions = [key for key, value in states.items() if value == "NO_MATCH"]
+        aligned = len(matched_dimensions) + len(partial_dimensions)
+        explicit_identity_overlap = bool(overlap)
+        if not evaluated:
+            overall = "NOT_EVALUATED"
+        elif explicit_identity_overlap and aligned:
+            overall = "MATCH"
+        elif aligned:
+            overall = "PARTIAL"
+        else:
+            overall = "NO_MATCH"
         matches.append({
             "operator_id": op["operator_id"], "display_name": op["display_name"] or op["operator_id"],
             "operator_href": f"/intelligence/operators/{op['operator_id']}",
             "overlap_accounts": overlap,
-            "matched": bool(overlap),
-            "states": {
-                "Topology": topology,
-                "Funding": "Exact" if downstream else "Partial" if overlap else "Unknown",
-                "Provisioning": "Exact" if subprovs and set(subprovs) & entities else "Unknown",
-                "Behaviour": "Partial" if overlap and counts.get("wrap_close") else "Unknown",
-                "Settlement": "Unknown",
-                "Treasury": "Exact" if treasury_known else "Unknown",
-            },
+            "matched": explicit_identity_overlap,
+            "comparison_state": overall,
+            "states": states,
+            "evaluated_dimensions": evaluated,
+            "matched_dimensions": matched_dimensions,
+            "partial_dimensions": partial_dimensions,
+            "contradicted_dimensions": contradicted_dimensions,
+            "unknown_dimensions": [key for key, value in states.items() if value == "UNKNOWN"],
+            "aligned_dimensions": aligned,
+            "reference_description": reference["profile_description"],
         })
-    matches.sort(key=lambda m: (m["states"]["Topology"] == "Exact", len(m["overlap_accounts"])), reverse=True)
+    order = {"MATCH": 0, "PARTIAL": 1, "NO_MATCH": 2, "NOT_EVALUATED": 3}
+    matches.sort(key=lambda m: (
+        order[m["comparison_state"]], -m["aligned_dimensions"],
+        m["display_name"],
+    ))
     return matches
 
 
@@ -276,8 +438,8 @@ def _governance_recommendation(row: dict[str, Any], counts: dict[str, int], matc
     matched = [item for item in matches if item.get("matched")]
     if matched:
         top = matched[0]
-        action = "Expand " + top["display_name"] if top["states"]["Treasury"] == "Unknown" else "Link to " + top["display_name"]
-        code = "APPROVE_TREASURY" if top["states"]["Treasury"] == "Unknown" else "LINK_TO_OPERATOR"
+        action = "Expand " + top["display_name"] if top["states"]["Treasury"] != "MATCH" else "Link to " + top["display_name"]
+        code = "APPROVE_TREASURY" if top["states"]["Treasury"] != "MATCH" else "LINK_TO_OPERATOR"
     elif counts.get("launches") and counts.get("subprovs"):
         action, code = "Create Investigation", "CREATE_INVESTIGATION"
     elif counts.get("wrap_close") or row.get("has_walkback_evidence"):
@@ -287,7 +449,24 @@ def _governance_recommendation(row: dict[str, Any], counts: dict[str, int], matc
     return {"label": action, "action": code, "operator_id": matched[0]["operator_id"] if matched else None}
 
 
-def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
+def _comparison_triage(matches: list[dict[str, Any]]) -> dict[str, Any]:
+    """Deterministic, categorical ordering; no opaque numeric score."""
+    if any(match["comparison_state"] == "MATCH" for match in matches):
+        key, label, rank = "CONFIRMED_OPERATION_MATCH", "Confirmed Operation comparison found", 1
+    elif any(match["comparison_state"] == "PARTIAL" and match["aligned_dimensions"] >= 3
+             for match in matches):
+        key, label, rank = "PARTIAL_OPERATION_MATCH", "Partial Operation comparison found", 2
+    elif any(match["aligned_dimensions"] >= 2 for match in matches):
+        key, label, rank = "MULTI_DIMENSION_ALIGNMENT", "Multiple evaluated dimensions align", 3
+    elif any(match["evaluated_dimensions"] for match in matches):
+        key, label, rank = "EVALUATED_NO_ALIGNMENT", "Evaluated with no Operation alignment", 4
+    else:
+        key, label, rank = "NO_COMPARABLE_EVIDENCE", "No comparable evidence", 5
+    return {"key": key, "label": label, "sort_rank": rank}
+
+
+def compose_review_item(conn, row: dict[str, Any], *,
+                        operation_references: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     treasury = row["treasury"]
     evidence_subprovs = _load_json(row.get("evidence_subprovs"))
     evidence_creators = _load_json(row.get("evidence_creators"))
@@ -296,7 +475,11 @@ def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
     identity = _related_identity(conn, treasury)
     evidence = _evidence_summary(row, counts)
     topology = _observed_topology(treasury, evidence_subprovs, evidence_creators, evidence_mints, counts)
-    matches = _operation_matches(conn, treasury, evidence_subprovs, evidence_creators, evidence_mints, counts)
+    matches = _operation_matches(
+        conn, treasury, evidence_subprovs, evidence_creators, evidence_mints, counts,
+        operation_references,
+    )
+    comparison_triage = _comparison_triage(matches)
     recommendation = _governance_recommendation(row, counts, matches)
     recent_actions = [dict(r) for r in conn.execute(
         "SELECT action, analyst, reason, created_at FROM wt_treasury_review_actions "
@@ -308,6 +491,7 @@ def compose_review_item(conn, row: dict[str, Any]) -> dict[str, Any]:
         "evidence_summary": evidence,
         "observed_topology": topology,
         "operation_matches": matches,
+        "comparison_triage": comparison_triage,
         "recommended_action": recommendation,
         "relationship_examples": _relationship_examples(
             conn, treasury, evidence_subprovs, evidence_creators, evidence_mints
@@ -341,21 +525,33 @@ def _table_exists(conn, table: str) -> bool:
     ).fetchone())
 
 
-def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "priority", limit: int = 200) -> dict[str, Any]:
+def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "actionable",
+                          limit: int = 20, offset: int = 0) -> dict[str, Any]:
     ensure_schema(conn)
     treasury_bank._ensure_schema_once(conn)
     rows = [dict(r) for r in conn.execute(
-        "SELECT * FROM wt_treasury_review WHERE status=? ORDER BY detected_at DESC LIMIT ?",
-        (status, max(limit, 1) * 3),
+        "SELECT * FROM wt_treasury_review WHERE status=? ORDER BY detected_at DESC",
+        (status,),
     ).fetchall()]
-    items = [compose_review_item(conn, row) for row in rows]
+    operation_references = _confirmed_operation_references(conn)
+    items = [compose_review_item(conn, row, operation_references=operation_references) for row in rows]
     if sort == "newest":
-        items.sort(key=lambda i: i["first_observed"] or 0, reverse=True)
+        items.sort(key=lambda i: (-(i["last_observed"] or 0), i["treasury"]))
     elif sort == "oldest":
-        items.sort(key=lambda i: i["first_observed"] or 0)
+        items.sort(key=lambda i: (i["first_observed"] or 0, i["treasury"]))
+    elif sort == "launches":
+        items.sort(key=lambda i: (-(i["launch_count"] or 0), -(i["last_observed"] or 0), i["treasury"]))
     else:
-        items.sort(key=lambda i: i["priority_score"], reverse=True)
-    items = items[:limit]
+        # ACTIONABLE FIRST, then newest evidence within the categorical group.
+        items.sort(key=lambda i: (
+            i["comparison_triage"]["sort_rank"],
+            -(i["last_observed"] or 0),
+            i["treasury"],
+        ))
+    all_items = items
+    total_items = len(all_items)
+    offset = max(0, int(offset))
+    items = all_items[offset:offset + max(limit, 1)]
 
     counts_row = conn.execute(
         "SELECT status, COUNT(*) FROM wt_treasury_review GROUP BY status"
@@ -367,8 +563,20 @@ def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "
     now = int(time.time())
     watchtower_candidates = sum(1 for i in items if i["watchtower_candidate"])
 
+    triage_counts: dict[str, int] = {}
+    for item in all_items:
+        key = item["comparison_triage"]["key"]
+        triage_counts[key] = triage_counts.get(key, 0) + 1
+
     return {
         "items": items,
+        "offset": offset,
+        "limit": limit,
+        "returned": len(items),
+        "total_items": total_items,
+        "has_more": offset + len(items) < total_items,
+        "sort_contract": "ACTIONABLE_FIRST_THEN_NEWEST_WITHIN_GROUP" if sort not in {"newest", "oldest", "launches"} else sort.upper(),
+        "triage_counts": triage_counts,
         "status_counts": status_counts,
         "pending_total": status_counts.get("PENDING_REVIEW", 0),
         "newest_pending_age_secs": (now - max(ages)) if ages else None,

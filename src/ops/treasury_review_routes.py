@@ -30,11 +30,14 @@ def treasury_review_page():
 def api_treasury_review_list():
     from src.ops.treasury_review_workspace import list_review_workspace
     status = (request.args.get("status") or "PENDING_REVIEW").strip()
-    sort = (request.args.get("sort") or "priority").strip()
-    limit = min(int(request.args.get("limit", 100)), 500)
+    sort = (request.args.get("sort") or "actionable").strip()
+    limit = min(max(int(request.args.get("limit", 20)), 1), 100)
+    offset = max(int(request.args.get("offset", 0)), 0)
     conn = _conn()
     try:
-        payload = list_review_workspace(conn, status=status, sort=sort, limit=limit)
+        payload = list_review_workspace(
+            conn, status=status, sort=sort, limit=limit, offset=offset
+        )
     finally:
         conn.close()
     return jsonify({"ok": True, **payload})

@@ -2,6 +2,7 @@ import sqlite3
 from pathlib import Path
 
 from src.ops.treasury_review_workspace import compose_review_item, ensure_schema
+from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,9 +33,10 @@ def _conn():
 
 def test_review_projection_explains_topology_match_and_recommendation():
     conn = _conn()
-    conn.execute("INSERT INTO operators VALUES ('op-1','WATCHTOWER','CONFIRMED')")
-    conn.execute("INSERT INTO operators VALUES ('op-2','3SW2','CONFIRMED')")
-    conn.execute("INSERT INTO operator_entities VALUES ('op-1','sub-1')")
+    sw2 = "64527dc2-8073-50c0-8bd7-7ef49e62d875"
+    conn.execute("INSERT INTO operators VALUES (?,'WATCHTOWER','CONFIRMED')", (WATCHTOWER_OPERATOR_ID,))
+    conn.execute("INSERT INTO operators VALUES (?,'3SW2','CONFIRMED')", (sw2,))
+    conn.execute("INSERT INTO operator_entities VALUES (?,'sub-1')", (WATCHTOWER_OPERATOR_ID,))
     conn.execute("INSERT INTO wt_discovered_subprovs VALUES ('sub-1','treasury-1')")
     conn.execute("INSERT INTO wt_wrap_close_candidates VALUES ('creator-1','sub-1','sig-1','WSOL_WRAP_CLOSE',200,200,'treasury-1')")
     row = {
@@ -47,10 +49,10 @@ def test_review_projection_explains_topology_match_and_recommendation():
     item = compose_review_item(conn, row)
     assert item["observed_topology"]["label"] == "Treasury → Subprovider / Provisioning Wallet → Creator → Launch"
     assert item["operation_matches"][0]["display_name"] == "WATCHTOWER"
-    assert item["operation_matches"][0]["states"]["Provisioning"] == "Exact"
-    assert item["operation_matches"][1]["display_name"] == "3SW2"
-    assert item["operation_matches"][1]["matched"] is False
-    assert set(item["operation_matches"][1]["states"].values()) == {"Unknown"}
+    assert item["operation_matches"][0]["states"]["Provisioning"] == "MATCH"
+    sw2_match = next(match for match in item["operation_matches"] if match["display_name"] == "3SW2")
+    assert sw2_match["matched"] is False
+    assert sw2_match["comparison_state"] in {"PARTIAL", "NO_MATCH"}
     assert item["recommended_action"]["label"] == "Expand WATCHTOWER"
     assert item["relationship_examples"][0]["transaction"] == "sig-1"
     assert "why_surfaced" not in item

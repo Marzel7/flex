@@ -18,6 +18,7 @@
 .tr-badge.wt{color:#22c55e;border-color:#22c55e}
 .tr-badge.op{color:#60a5fa;border-color:#60a5fa}
 .tr-badge.infra{color:#f59e0b;border-color:#f59e0b}
+.tr-badge.match{color:#22c55e;border-color:#22c55e}.tr-badge.partial{color:#f59e0b;border-color:#f59e0b}.tr-badge.no-match{color:#94a3b8}
 .tr-metrics{display:flex;gap:18px;margin:10px 0}
 .tr-metric strong{display:block;font-size:16px}
 .tr-metric span{font-size:8px;color:var(--ip-dim);text-transform:uppercase;letter-spacing:.08em}
@@ -48,16 +49,19 @@
 .tr-path{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tr-path a{color:var(--ip-cyan);text-decoration:none}.tr-example-meta{color:var(--ip-dim);text-align:right}
 .tr-support summary{cursor:pointer;font-size:10px;font-weight:700;color:var(--ip-sec)}
 .tr-empty{padding:30px;text-align:center;color:var(--ip-dim)}
+.tr-compare-empty{padding:8px 0;color:var(--ip-dim);font-size:10px}.tr-align{color:var(--ip-dim);font-size:9px;margin-top:3px}
+.tr-more{display:none;margin:14px auto 0;padding:7px 14px;border:1px solid var(--ip-border);border-radius:7px;background:var(--ip-card);color:var(--ip-sec);cursor:pointer}
 </style>
 <main class="tr-wrap">
  <div class="ip-breadcrumb"><a href="/ops-os">Mission Control</a><span class="sep">›</span><span>Treasury Review</span></div>
  <div class="ip-header"><div class="ip-title-row"><h1 class="ip-title">Treasury Review</h1><span class="ip-ts">Analyst investigation workspace</span></div><div class="ip-subtitle">Decide whether each treasury expands an existing Operator Identity, represents a new Operation, or should be rejected — not merely approve/reject a queue.</div></div>
  <div class="tr-summary" id="tr-summary"></div>
  <div class="tr-toolbar">
-  <select id="tr-sort"><option value="priority">Sort: Analyst value</option><option value="newest">Sort: Newest</option><option value="oldest">Sort: Oldest</option></select>
+  <select id="tr-sort"><option value="actionable">Actionable first · newest within group</option><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="launches">Launch count</option></select>
   <select id="tr-status"><option value="PENDING_REVIEW">Status: Pending</option><option value="INVESTIGATING">Status: Investigating</option><option value="REJECTED">Status: Rejected</option><option value="CONFIRMED">Status: Confirmed</option></select>
  </div>
  <div class="tr-list" id="tr-list"><div class="tr-empty">Loading treasury review workspace…</div></div>
+ <button class="tr-more" id="tr-more">Load 20 more</button>
 </main>
 <script>
 (function(){
@@ -88,15 +92,15 @@
  function short(s){s=String(s||'');return s.length>11?s.slice(0,6)+'…'+s.slice(-4):s}
  function account(a){return a?'<a href="https://solscan.io/account/'+encodeURIComponent(a)+'" target="_blank" rel="noopener">'+esc(short(a))+' ↗</a>':''}
  function topology(t){if(!t||!t.nodes)return '';return '<div class="tr-section"><div class="tr-section-title">Observed Topology</div><div class="tr-topology">'+t.nodes.map((n,i)=>(i?'<span class="tr-arrow">→</span>':'')+'<span class="tr-node'+(n.current?' current':'')+'">'+esc(n.role)+(n.count>1?'<small>'+esc(n.count)+' observed</small>':'')+'</span>').join('')+'</div></div>'}
- function matches(items){return '<div class="tr-section"><div class="tr-section-title">Operation Comparison</div>'+((items||[]).length?items.map(m=>'<div class="tr-match"><a href="'+esc(m.operator_href)+'">'+esc(m.display_name)+' →</a><div class="tr-states">'+Object.keys(m.states||{}).map(k=>'<span class="tr-state">'+esc(k)+' <b>'+esc(m.states[k])+'</b></span>').join('')+'</div><span class="tr-badge '+(m.matched?'op':'')+'">'+(m.matched?esc((m.overlap_accounts||[]).length)+' account match':'No match')+'</span></div>').join(''):'<div class="tr-empty" style="padding:8px 0;text-align:left">No confirmed Operations available for comparison.</div>')+'</div>'}
+ function matches(items){items=items||[];if(!items.length)return '<div class="tr-section"><div class="tr-section-title">Operation Comparison</div><div class="tr-compare-empty">No confirmed Operations available for comparison.</div></div>';if(items.every(m=>m.comparison_state==='NOT_EVALUATED'))return '<div class="tr-section"><div class="tr-section-title">Operation Comparison</div><div class="tr-compare-empty">No confirmed Operation comparison could be evaluated from current evidence.</div></div>';return '<div class="tr-section"><div class="tr-section-title">Operation Comparison</div>'+items.map(m=>{if(m.comparison_state==='NOT_EVALUATED')return '<div class="tr-match"><a href="'+esc(m.operator_href)+'">'+esc(m.display_name)+' →</a><div class="tr-compare-empty">No comparable evidence yet</div><span class="tr-badge">Not evaluated</span></div>';let evaluated=(m.evaluated_dimensions||[]).length,aligned=m.aligned_dimensions||0,klass=m.comparison_state==='MATCH'?'match':m.comparison_state==='PARTIAL'?'partial':'no-match';return '<div class="tr-match"><a href="'+esc(m.operator_href)+'">'+esc(m.display_name)+' →</a><div><div class="tr-states">'+Object.keys(m.states||{}).map(k=>'<span class="tr-state">'+esc(k)+' <b>'+esc(m.states[k])+'</b></span>').join('')+'</div><div class="tr-align">'+aligned+' / '+evaluated+' evaluated dimensions align</div></div><span class="tr-badge '+klass+'">'+esc(m.comparison_state==='PARTIAL'?'Partial match':m.comparison_state.replace('_',' '))+'</span></div>'}).join('')+'</div>'}
  function examples(items){if(!(items||[]).length)return '';return '<div class="tr-section"><div class="tr-section-title">Representative Relationships · newest first</div>'+items.map(x=>{let p=[account(x.treasury),account(x.subprovider),account(x.creator),x.launch?'<a href="/token-intelligence?mint='+encodeURIComponent(x.launch)+'">Launch '+esc(short(x.launch))+'</a>':''].filter(Boolean).join('<span class="tr-arrow">→</span>');return '<div class="tr-example"><div class="tr-path">'+p+'</div><div class="tr-example-meta">'+esc(x.mechanism||'Recorded relationship')+(x.transaction?' · <a href="https://solscan.io/tx/'+encodeURIComponent(x.transaction)+'" target="_blank" rel="noopener">Tx '+esc(short(x.transaction))+' ↗</a>':'')+'</div></div>'}).join('')+'</div>'}
  function card(item){
   const t=item.treasury;
   return '<article class="tr-card" data-treasury="'+esc(t)+'">'+
-   '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+
+   '<div class="tr-head"><span class="tr-treasury">'+esc(t)+'</span>'+identityBadge(item.related_identity)+'<span class="tr-badge">'+esc((item.comparison_triage||{}).label||'Not evaluated')+'</span><span class="tr-align">Updated '+ago(item.last_observed)+'</span>'+
    '<a class="tr-nav" href="'+esc(item.discovery_href||('/discovery?entity='+encodeURIComponent(t)+'&type=treasury'))+'" style="margin-left:auto;font-size:9px;color:var(--ip-cyan);text-decoration:none">Open in Discovery →</a></div>'+
    topology(item.observed_topology)+matches(item.operation_matches)+
-   '<div class="tr-section"><div class="tr-section-title">Governance Decision</div><div class="tr-recommendation"><strong>'+esc((item.recommended_action||{}).label||'Needs More Evidence')+'</strong><span>Recommended governance action · analyst decision required</span></div></div>'+
+   '<div class="tr-section"><div class="tr-section-title">Governance Decision</div><div class="tr-recommendation"><strong>'+esc((item.recommended_action||{}).label||'Needs More Evidence')+'</strong><span>Analyst decision required</span></div></div>'+
    '<details class="tr-section tr-support"><summary>Supporting Evidence</summary><div class="tr-metrics">'+
     '<div class="tr-metric"><strong>'+esc(item.launch_count)+'</strong><span>Launches</span></div>'+
     '<div class="tr-metric"><strong>'+esc(item.subprovider_count)+'</strong><span>Subproviders</span></div>'+
@@ -115,17 +119,20 @@
    '</div>'+
   '</article>';
  }
- function load(){
+ let offset=0;
+ function load(append){
+  if(!append)offset=0;
   const sort=document.getElementById('tr-sort').value;
   const status=document.getElementById('tr-status').value;
-  fetch('/api/ops/treasury-review?sort='+encodeURIComponent(sort)+'&status='+encodeURIComponent(status)).then(r=>r.json()).then(d=>{
+  fetch('/api/ops/treasury-review?sort='+encodeURIComponent(sort)+'&status='+encodeURIComponent(status)+'&limit=20&offset='+offset).then(r=>r.json()).then(d=>{
    summary(d);
    const list=document.getElementById('tr-list');
-   list.innerHTML=(d.items||[]).map(card).join('')||'<div class="tr-empty">No treasuries in this status.</div>';
+   const html=(d.items||[]).map(card).join('');if(append)list.insertAdjacentHTML('beforeend',html);else list.innerHTML=html||'<div class="tr-empty">No treasuries in this status.</div>';offset+=d.returned||0;const more=document.getElementById('tr-more');more.style.display=d.has_more?'block':'none';
   }).catch(()=>{document.getElementById('tr-list').innerHTML='<div class="tr-empty">Treasury review workspace unavailable.</div>'});
  }
- document.getElementById('tr-sort').addEventListener('change',load);
- document.getElementById('tr-status').addEventListener('change',load);
+ document.getElementById('tr-sort').addEventListener('change',()=>load(false));
+ document.getElementById('tr-status').addEventListener('change',()=>load(false));
+ document.getElementById('tr-more').addEventListener('click',()=>load(true));
  document.getElementById('tr-list').addEventListener('click',function(ev){
   const btn=ev.target.closest('button[data-action]');
   if(!btn)return;

@@ -927,6 +927,25 @@ class RealTimeCreatorFundingExtractor:
                     """, transfer_index_rows)
                     conn.commit()
                 except Exception as ti_err:
+                    # X78.3 -- executemany() above is write-shaped, so a bad
+                    # row (e.g. malformed tuple arity/types) acquires
+                    # extraction_conn's write lease before raising here. This
+                    # except previously swallowed the failure without ever
+                    # rolling back or re-raising -- unlike the OUTER except
+                    # below (X78.0's fix), which does roll back. That left
+                    # the lease held for the rest of extraction_conn's life
+                    # (this page's remaining work, every later page, and any
+                    # other write on this thread -- e.g. RPCCache._get_conn(),
+                    # reproduced deterministically in
+                    # tests/test_x78_3_rpc_cache_nested_write_reproduction.py).
+                    # Rolling back here matches the outer except's behaviour:
+                    # releases the lease, leaves the connection usable for
+                    # the rest of this page/the next page, exactly like a
+                    # normal failed transaction should behave.
+                    try:
+                        conn.rollback()
+                    except Exception:
+                        pass
                     print(f"[TRANSFER_INDEX] ⚠ Insert error: {ti_err}", flush=True)
 
         except Exception as e:

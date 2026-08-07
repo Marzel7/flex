@@ -81,26 +81,14 @@ class ScoreBreakdown:
         self.reasons.append(reason)
 
 
-# X78.7 -- sync_infra_wallets() reads INFRASTRUCTURE_ACCOUNTS/CEX_ACCOUNTS
-# (static, in-process) plus infra_funders_observed/cex_wallets (small) and
-# three full SELECT DISTINCT scans of token_analysis (~1.4-1.6M rows each,
-# measured ~48s combined against production -- see
-# docs/audits/x78_6_risk_scoring_runtime_reentrancy.md). Its output
-# (infra_wallets) only ever grows monotonically -- new bonding
-# curves/pools/CEX wallets are ADDED as tokens launch, never removed --
-# so re-running it on every single score_creator_now() call (called once
-# per completed extraction job, i.e. potentially every few seconds under
-# load) re-scans the same ~1.6M rows repeatedly for a result that changes
-# at most a few times per hour. This mirrors the exact debounce pattern
-# already used for _post_extraction_intelligence_refresh in
-# creator_funding_worker.py (INTEL_REFRESH_DEBOUNCE_SEC) -- module-level
-# (not instance-level) because RiskScoringBuilder is constructed fresh
-# per call. Bounded staleness of up to this window on infra
-# classification is an accepted tradeoff already established by that
-# precedent; RUN() (full-batch scoring) is unaffected -- it does not use
-# this debounce, since a full batch run legitimately needs a fresh sync.
-SYNC_INFRA_WALLETS_DEBOUNCE_SEC = int(os.environ.get("RSB_SYNC_INFRA_WALLETS_DEBOUNCE_SEC", "300"))
-_sync_infra_wallets_last_run = 0.0
+# X78.7 introduced a per-call debounce here (SYNC_INFRA_WALLETS_DEBOUNCE_SEC)
+# to reduce how often sync_infra_wallets() ran inside score_creator_now.
+# X78.8 superseded it: score_creator_now no longer calls
+# sync_infra_wallets() at all -- see score_creator_now's own docstring
+# and docs/audits/x78_8_infra_sync_hot_path_separation.md. Refresh
+# ownership moved to the standalone src.core.infra_sync_scheduler
+# process. run() (full-batch scoring) still calls sync_infra_wallets()
+# directly, unaffected by either change.
 
 
 class RiskScoringBuilder:
@@ -189,34 +177,41 @@ class RiskScoringBuilder:
         # infra-wallet sync behaviour -- only WHEN the write lease is
         # held, per the same collect-then-persist discipline already
         # established elsewhere in this codebase (X77.x).
-        # X78.7 -- see SYNC_INFRA_WALLETS_DEBOUNCE_SEC's module-level
-        # comment: infra_wallets only grows monotonically, so re-scanning
-        # ~1.6M token_analysis rows on every single-creator score call is
-        # unnecessary. Debounced module-wide (not per-instance), same
-        # pattern as creator_funding_worker.py's intel-refresh debounce.
-        global _sync_infra_wallets_last_run
-        now_monotonic = time.monotonic()
-        should_sync_infra = (
-            now_monotonic - _sync_infra_wallets_last_run >= SYNC_INFRA_WALLETS_DEBOUNCE_SEC
-        )
-
+        # X78.8 -- X78.7's per-call debounce reduced how OFTEN
+        # sync_infra_wallets() ran here, but not its per-call cost when it
+        # did run (~48s+ isolated, worse under real concurrent DB load --
+        # see docs/audits/x78_8_infra_sync_hot_path_separation.md). Given
+        # creator_funding_worker's real job cadence (~15-20 min per
+        # completed job under RPC-bound load), the debounce window
+        # routinely went cold between calls anyway, so
+        # risk_scoring_builder.py continued to be a frequent
+        # NestedDatabaseWriteError source even after X78.7.
+        #
+        # score_creator_now no longer performs infrastructure
+        # synchronization AT ALL. The caller census (X78.8 Part A)
+        # confirmed all 15+ sync_infra_wallets() call sites -- including
+        # this one -- already tolerate "last successful state": the
+        # underlying source (token_analysis's bonding_curve_pda/
+        # pool_address/pumpswap_pool_address columns) is append-only, so
+        # bounded staleness only means a brand-new infra wallet is
+        # briefly treated as a non-infra address until the next refresh,
+        # a self-correcting classification lag rather than a correctness
+        # break. Refresh ownership now belongs to
+        # src.core.infra_sync_scheduler, a standalone supervised process
+        # (same pattern as intelligence_snapshot_scheduler/
+        # operation_scheduler) that runs sync_infra_wallets() on its own
+        # fixed cadence, independent of any scoring call's lifecycle.
+        # score_creator_now only ensures the table exists (a correctness
+        # precondition so _build_context_for_creator's NOT IN queries
+        # never fail on a freshly-created database) and reads whatever
+        # state the scheduler last persisted.
         setup_conn = None
         try:
             setup_conn = sqlite3.connect(self.db_path, timeout=60)
             setup_conn.row_factory = sqlite3.Row
             setup_conn.execute("PRAGMA journal_mode=WAL")
             self.apply_migration(setup_conn)
-            if should_sync_infra:
-                sync_infra_wallets(setup_conn)
-                _sync_infra_wallets_last_run = now_monotonic
-            else:
-                # sync_infra_wallets() itself calls this first -- but when
-                # debounced-skipped, _build_context_for_creator's own
-                # NOT IN (SELECT address FROM infra_wallets) subqueries
-                # still require the table to exist (a correctness
-                # precondition, independent of whether this call happens
-                # to refresh its contents).
-                ensure_infra_wallets_table(setup_conn)
+            ensure_infra_wallets_table(setup_conn)
             # X78.7 -- _build_context_for_creator is the single-creator-
             # optimized equivalent of _build_context(conn, [creator]):
             # identical output shape/semantics (verified in

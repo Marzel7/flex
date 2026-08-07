@@ -1,7 +1,10 @@
 """X78.7 Part B: regression tests proving _build_context_for_creator
 (the single-creator SQL-filtered optimization) produces output IDENTICAL
-to _build_context(conn, [creator]) for the same creator, and that
-score_creator_now's sync_infra_wallets call is correctly debounced.
+to _build_context(conn, [creator]) for the same creator.
+
+Note: the sync_infra_wallets debounce tests originally in this file were
+superseded by X78.8, which removed sync_infra_wallets from
+score_creator_now entirely (see tests/test_x78_8_infra_sync_separation.py).
 
 Context: X78.6 fixed WHERE the write lease was held (transaction
 boundary). X78.7 addresses WHY the setup phase was slow in the first
@@ -25,7 +28,7 @@ import time
 
 import pytest
 
-from src.core.risk_scoring_builder import RiskScoringBuilder, SYNC_INFRA_WALLETS_DEBOUNCE_SEC
+from src.core.risk_scoring_builder import RiskScoringBuilder
 import src.core.risk_scoring_builder as rsb_module
 
 
@@ -177,62 +180,15 @@ def test_score_creator_fast_output_identical_between_paths(tmp_path):
             )
 
 
-def test_sync_infra_wallets_debounced_across_score_creator_now_calls(tmp_path, monkeypatch):
-    """X78.7: sync_infra_wallets must not run on every single
-    score_creator_now call -- only once per debounce window."""
-    db_path = str(tmp_path / "x.db")
-    _make_db_with_data(db_path)
-    conn = sqlite3.connect(db_path)
-    conn.execute("CREATE TABLE IF NOT EXISTS infra_wallets (address TEXT PRIMARY KEY, type TEXT, label TEXT, updated_at INTEGER)")
-    conn.commit()
-    conn.close()
-
-    call_count = {"n": 0}
-    real_sync = rsb_module.sync_infra_wallets
-
-    def counting_sync(conn, *args, **kwargs):
-        call_count["n"] += 1
-        return real_sync(conn, *args, **kwargs)
-
-    monkeypatch.setattr(rsb_module, "sync_infra_wallets", counting_sync)
-
-    builder = RiskScoringBuilder(db_path)
-    builder.score_creator_now("creatorA")
-    builder.score_creator_now("creatorA")
-    builder.score_creator_now("creatorA")
-
-    assert call_count["n"] == 1, (
-        f"sync_infra_wallets should run once within the debounce window "
-        f"across 3 consecutive score_creator_now calls, ran {call_count['n']} times"
-    )
-
-
-def test_sync_infra_wallets_runs_again_after_debounce_window_expires(tmp_path, monkeypatch):
-    """Non-regression: the debounce must not permanently suppress sync
-    -- it must run again once the window elapses."""
-    db_path = str(tmp_path / "x.db")
-    _make_db_with_data(db_path)
-    conn = sqlite3.connect(db_path)
-    conn.execute("CREATE TABLE IF NOT EXISTS infra_wallets (address TEXT PRIMARY KEY, type TEXT, label TEXT, updated_at INTEGER)")
-    conn.commit()
-    conn.close()
-
-    call_count = {"n": 0}
-    real_sync = rsb_module.sync_infra_wallets
-
-    def counting_sync(conn, *args, **kwargs):
-        call_count["n"] += 1
-        return real_sync(conn, *args, **kwargs)
-
-    monkeypatch.setattr(rsb_module, "sync_infra_wallets", counting_sync)
-    monkeypatch.setattr(rsb_module, "SYNC_INFRA_WALLETS_DEBOUNCE_SEC", 0.05)
-
-    builder = RiskScoringBuilder(db_path)
-    builder.score_creator_now("creatorA")
-    time.sleep(0.1)
-    builder.score_creator_now("creatorA")
-
-    assert call_count["n"] == 2
+# X78.8 -- the two debounce tests formerly here
+# (test_sync_infra_wallets_debounced_across_score_creator_now_calls /
+# test_sync_infra_wallets_runs_again_after_debounce_window_expires) were
+# removed: X78.8 superseded the per-call debounce entirely --
+# score_creator_now no longer calls sync_infra_wallets AT ALL (refresh
+# ownership moved to the standalone src.core.infra_sync_scheduler
+# process). See tests/test_x78_8_infra_sync_separation.py::
+# test_score_creator_now_does_not_call_sync_infra_wallets for the
+# current regression covering this call site.
 
 
 def test_run_still_uses_full_build_context_unaffected_by_optimization(tmp_path):

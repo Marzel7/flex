@@ -33,6 +33,7 @@ from src.utils.domain_extraction import extract_from_helius_transaction_async
 from src.utils.domain_mapping import register_domain, link_domain_to_address
 from src.analysis.automatic_cex_detection import classify_addresses_from_funding
 from src.analysis.post_launch_automation import run_post_launch_automation
+from src.acquisition.transaction import SharedTransactionAcquisition, acquisition_scope
 
 # Import RPC metrics recorder for monitoring
 try:
@@ -348,6 +349,7 @@ class RealTimeCreatorFundingExtractor:
         self.domain_resolver: Optional[DomainResolver] = None
         self.seen_bonding_curves: Set[str] = set()  # Cache bonding curves to skip trading noise
         self._rpc_sem = asyncio.Semaphore(MAX_CONCURRENT_RPC)
+        self.transaction_acquisition: Optional[SharedTransactionAcquisition] = None
         # Phase 1: Initialize CursorManager for incremental extraction
         self.cursor_mgr = None
         try:
@@ -412,6 +414,10 @@ class RealTimeCreatorFundingExtractor:
         """Initialize aiohttp session and domain resolver"""
         if not self.session:
             self.session = aiohttp.ClientSession()
+        if not self.transaction_acquisition:
+            self.transaction_acquisition = SharedTransactionAcquisition(
+                self.session, semaphore=self._rpc_sem
+            )
         if not self.domain_resolver:
             self.domain_resolver = DomainResolver(DB_PATH, self.session)
 
@@ -451,116 +457,36 @@ class RealTimeCreatorFundingExtractor:
         if self.session:
             await self.session.close()
 
+    def _transaction_client(self) -> SharedTransactionAcquisition:
+        """Return the shared transport, retaining lazy compatibility for tests."""
+        client = getattr(self, "transaction_acquisition", None)
+        if client is None:
+            client = SharedTransactionAcquisition(
+                self.session, semaphore=getattr(self, "_rpc_sem", None)
+            )
+            self.transaction_acquisition = client
+        return client
+
     async def _post_rpc(
         self,
         payload: dict,
         cache_action: str = "none",
         credits_saved: int = 0,
+        page_number: Optional[int] = None,
+        cursor: Optional[str] = None,
     ) -> Optional[dict]:
-        """Post to RPC with failover chain + semaphore concurrency control - mirrors post_migration_analyzer approach"""
-        async with self._rpc_sem:  # FIX #8: Bound concurrent RPC calls
-            for attempt in range(MAX_RETRIES):
-                # Try each RPC endpoint in the failover chain
-                for rpc_url in RPC_URLS:
-                    try:
-                        # Record RPC request for metrics
-                        start_time = time.time()
-                        async with self.session.post(
-                            rpc_url,
-                            json=payload,
-                            timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)
-                        ) as resp:
-                            latency_ms = (time.time() - start_time) * 1000
-
-                            # HTTP-level errors
-                            if resp.status != 200:
-                                record_request(
-                                    section="creator_funding",
-                                    provider="helius_rpc",
-                                    method=payload.get("method", "unknown"),
-                                    status_code=resp.status,
-                                    latency_ms=latency_ms,
-                                    mode="realtime",
-                                    retries=attempt,
-                                    source_file="realtime_creator_funding_extractor",
-                                    cache_action=cache_action,
-                                    credits_saved=credits_saved,
-                                    error=f"HTTP {resp.status}",
-                                )
-                                if resp.status == 429:
-                                    # Rate limited - check for Retry-After header
-                                    retry_after = resp.headers.get("Retry-After")
-                                    retry_delay = None
-                                    if retry_after:
-                                        try:
-                                            retry_delay = float(retry_after)
-                                        except (ValueError, TypeError):
-                                            retry_delay = None
-
-                                    wait_time = retry_delay or (0.5 * (2 ** attempt))
-                                    await asyncio.sleep(min(30.0, wait_time))  # Cap at 30s
-                                    continue
-                                elif resp.status >= 500:
-                                    # Server error, try next RPC
-                                    continue
-                                else:
-                                    # Client error, don't retry
-                                    return None
-
-                            latency_ms = (time.time() - start_time) * 1000
-                            data = await resp.json()
-
-                            # RPC-level errors
-                            if "error" in data:
-                                error_code = data["error"].get("code", -1)
-                                # Record error for metrics
-                                record_request(
-                                    section="creator_funding",
-                                    provider="helius_rpc",
-                                    method=payload.get("method", "unknown"),
-                                    status_code=200,  # HTTP level was OK
-                                    latency_ms=latency_ms,
-                                    mode="realtime",
-                                    retries=attempt,
-                                    source_file="realtime_creator_funding_extractor",
-                                    cache_action=cache_action,
-                                    credits_saved=credits_saved,
-                                    error=f"RPC error {error_code}",
-                                )
-                                # Retryable RPC errors
-                                if error_code in {-32008, -32000, -32003, -32009}:
-                                    continue
-                                else:
-                                    return None
-
-                            # Success
-                            if "result" in data:
-                                record_request(
-                                    section="creator_funding",
-                                    provider="helius_rpc",
-                                    method=payload.get("method", "unknown"),
-                                    status_code=resp.status,
-                                    latency_ms=latency_ms,
-                                    mode="realtime",
-                                    retries=attempt,
-                                    source_file="realtime_creator_funding_extractor",
-                                    cache_action=cache_action,
-                                    credits_saved=credits_saved,
-                                )
-                                return data
-
-                    except asyncio.TimeoutError:
-                        # Timeout on this RPC, try next
-                        continue
-                    except Exception as e:
-                        # Other errors, try next RPC
-                        continue
-
-                # After trying all RPCs once, wait before next attempt
-                if attempt < MAX_RETRIES - 1:
-                    await asyncio.sleep(0.5 * (2 ** attempt))
-
-        return None
+        """Compatibility adapter to the shared transaction acquisition layer."""
+        return await self._transaction_client().json_rpc_legacy(
+            payload,
+            rpc_urls=RPC_URLS,
+            max_retries=MAX_RETRIES,
+            timeout_seconds=RPC_TIMEOUT,
+            metrics_sink=record_request,
+            cache_action=cache_action,
+            credits_saved=credits_saved,
+            page_number=page_number,
+            cursor=cursor,
+        )
 
     async def get_signatures_until_time(
         self, creator: str, until_timestamp: int, limit: int = 1000
@@ -572,8 +498,10 @@ class RealTimeCreatorFundingExtractor:
         """
         signatures = []
         before = None
+        page_number = 0
 
         while True:
+            page_number += 1
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
@@ -592,7 +520,9 @@ class RealTimeCreatorFundingExtractor:
             sig_cache_key = None
             if self.rpc_cache is not None:
                 sig_cache_key = self.rpc_cache.make_key_get_signatures(creator, before, limit)
-                cache_result = self.rpc_cache.get(sig_cache_key)
+                cache_result = SharedTransactionAcquisition.cache_get(
+                    self.rpc_cache, sig_cache_key
+                )
 
             if cache_result is not None:
                 # Cache hit
@@ -611,10 +541,18 @@ class RealTimeCreatorFundingExtractor:
                 )
             else:
                 # Cache miss: make live RPC call
-                result = await self._post_rpc(payload, cache_action="miss", credits_saved=0)
+                result = await self._post_rpc(
+                    payload,
+                    cache_action="miss",
+                    credits_saved=0,
+                    page_number=page_number,
+                    cursor=before,
+                )
                 # Cache the result for future pagination requests
                 if result and "result" in result and sig_cache_key and self.rpc_cache is not None:
-                    self.rpc_cache.set(sig_cache_key, result, "getSignaturesForAddress")
+                    SharedTransactionAcquisition.cache_set(
+                        self.rpc_cache, sig_cache_key, result, "getSignaturesForAddress"
+                    )
 
             if not result or "result" not in result:
                 break
@@ -651,7 +589,7 @@ class RealTimeCreatorFundingExtractor:
         # Phase 2: Check cache first (getTransaction = 10 credits, 24h TTL, immutable data)
         if self.rpc_cache is not None:
             cache_key = self.rpc_cache.make_key_get_transaction(signature)
-            cached = self.rpc_cache.get(cache_key)
+            cached = SharedTransactionAcquisition.cache_get(self.rpc_cache, cache_key)
             if cached is not None:
                 # Cache hit: record metric
                 record_request(
@@ -685,7 +623,9 @@ class RealTimeCreatorFundingExtractor:
                 # Phase 2: Cache the result for future requests
                 if self.rpc_cache is not None:
                     cache_key = self.rpc_cache.make_key_get_transaction(signature)
-                    self.rpc_cache.set(cache_key, tx, "getTransaction")
+                    SharedTransactionAcquisition.cache_set(
+                        self.rpc_cache, cache_key, tx, "getTransaction"
+                    )
                 return tx
         return None
 
@@ -699,29 +639,34 @@ class RealTimeCreatorFundingExtractor:
             f"?api-key={_RPC_KEY}&limit=1&sort-order=asc&commitment=finalized"
         )
         try:
-            start_time = time.time()
-            async with self.session.get(
-                query_url,
-                timeout=aiohttp.ClientTimeout(total=15),
-            ) as resp:
-                latency_ms = (time.time() - start_time) * 1000
-                record_request(
-                    section="creator_funding",
-                    provider="helius_rpc",
-                    method="helius_enhanced_oldest_transaction",
-                    status_code=resp.status,
-                    latency_ms=latency_ms,
-                    mode="realtime",
-                    source_file="realtime_creator_funding_extractor",
-                    cache_action="miss",
-                    credits_saved=0,
-                )
-                if resp.status != 200:
-                    print(f"[REALTIME_FUNDING]    ⚠ Oldest-tx probe HTTP {resp.status}", flush=True)
-                    return None
-                page = await resp.json()
-                if isinstance(page, list) and page:
-                    return page[0]
+            response = await self._transaction_client().request_once(
+                http_method="GET",
+                url=query_url,
+                timeout_seconds=15,
+                request_type="enhanced_oldest_transaction",
+                method="helius_enhanced_oldest_transaction",
+                page_number=1,
+                cache_state="miss",
+                metrics_sink=record_request,
+                metric_fields={
+                    "section": "creator_funding",
+                    "provider": "helius_rpc",
+                    "method": "helius_enhanced_oldest_transaction",
+                    "mode": "realtime",
+                    "source_file": "realtime_creator_funding_extractor",
+                    "cache_action": "miss",
+                    "credits_saved": 0,
+                },
+            )
+            if response.error is not None:
+                raise response.error
+            status = int(response.status or 0)
+            if status != 200:
+                print(f"[REALTIME_FUNDING]    ⚠ Oldest-tx probe HTTP {status}", flush=True)
+                return None
+            page = response.data
+            if isinstance(page, list) and page:
+                return page[0]
         except Exception as e:
             print(f"[REALTIME_FUNDING]    ⚠ Oldest-tx probe failed: {e}", flush=True)
         return None
@@ -1540,36 +1485,41 @@ class RealTimeCreatorFundingExtractor:
                         # Log the RPC call
                         print(f"[REALTIME_FUNDING]    [PAGE {page_num}] RPC CALL #{page_num}...", flush=True)
 
-                        start_time = time.time()
-                        async with self.session.get(
-                                query_url,
-                                timeout=aiohttp.ClientTimeout(total=30)
-                            ) as resp:
-                                latency_ms = (time.time() - start_time) * 1000
+                        acquisition_response = await self._transaction_client().request_once(
+                            http_method="GET",
+                            url=query_url,
+                            timeout_seconds=30,
+                            request_type="enhanced_address_page",
+                            method="helius_enhanced_addresses_transactions",
+                            page_number=page_num,
+                            cursor=before_signature,
+                            cache_state=cache_action,
+                            metrics_sink=record_request,
+                            metric_fields={
+                                "section": "creator_funding",
+                                "provider": "helius_rpc",
+                                "method": "helius_enhanced_addresses_transactions",
+                                "mode": "realtime",
+                                "source_file": "realtime_creator_funding_extractor",
+                                "cache_action": cache_action,
+                                "credits_saved": credits_saved,
+                            },
+                        )
+                        if acquisition_response.error is not None:
+                            raise acquisition_response.error
+                        status = int(acquisition_response.status or 0)
+                        if status is not None:  # Preserve legacy page-processing scope.
 
-                                # Record RPC metric
-                                record_request(
-                                    section="creator_funding",
-                                    provider="helius_rpc",
-                                    method="helius_enhanced_addresses_transactions",
-                                    status_code=resp.status,
-                                    latency_ms=latency_ms,
-                                    mode="realtime",
-                                    source_file="realtime_creator_funding_extractor",
-                                    cache_action=cache_action,
-                                    credits_saved=credits_saved,
-                                )
-
-                                if resp.status == 429:
+                                if status == 429:
                                     print(f"[REALTIME_FUNDING]    ⚠ Rate limited (429) on page {page_num}", flush=True)
                                     break
 
-                                if resp.status != 200:
-                                    txt = await resp.text()
-                                    print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {resp.status} on page {page_num}", flush=True)
+                                if status != 200:
+                                    txt = acquisition_response.text
+                                    print(f"[REALTIME_FUNDING]    ⚠ Helius HTTP {status} on page {page_num}", flush=True)
                                     break
 
-                                page = await resp.json()
+                                page = acquisition_response.data
                                 if not isinstance(page, list) or len(page) == 0:
                                     print(f"[REALTIME_FUNDING]    [PAGE {page_num}] No more transactions", flush=True)
                                     break
@@ -2082,9 +2032,19 @@ class RealTimeCreatorFundingExtractor:
                     }
 
                     try:
-                        async with self.session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=15)) as resp:
-                                if resp.status == 200:
-                                    result = await resp.json()
+                        acquisition_response = await self._transaction_client().request_once(
+                            http_method="POST",
+                            url=rpc_url,
+                            json_payload=payload,
+                            timeout_seconds=15,
+                            request_type="create_transaction_inspection",
+                            method="getTransaction",
+                        )
+                        if acquisition_response.error is not None:
+                            raise acquisition_response.error
+                        if acquisition_response.status is not None:
+                                if acquisition_response.status == 200:
+                                    result = acquisition_response.data
 
                                     if "result" in result and result["result"]:
                                         tx = result["result"]
@@ -2476,9 +2436,16 @@ class RealTimeCreatorFundingExtractor:
                 query_url = f"{url}?api-key={_RPC_KEY}&limit=50&sort-order=desc&commitment=finalized"
 
                 # First get address transactions to find signatures
-                async with self.session.get(query_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
-                        if resp.status == 200:
-                            address_txs = await resp.json()
+                address_response = await self._transaction_client().request_once(
+                    http_method="GET",
+                    url=query_url,
+                    timeout_seconds=30,
+                    request_type="program_inspection_history",
+                    method="helius_enhanced_addresses_transactions",
+                    page_number=1,
+                )
+                if address_response.error is None and address_response.status == 200:
+                            address_txs = address_response.data
                             
                             if isinstance(address_txs, list):
                                 # Now fetch full details for each transaction to check inner instructions
@@ -2491,9 +2458,16 @@ class RealTimeCreatorFundingExtractor:
                                         "transactions": signatures_to_check
                                     }
                                     
-                                    async with self.session.post(tx_url, json=tx_payload, timeout=aiohttp.ClientTimeout(total=30)) as tx_resp:
-                                        if tx_resp.status == 200:
-                                            full_txs = await tx_resp.json()
+                                    transaction_response = await self._transaction_client().request_once(
+                                        http_method="POST",
+                                        url=tx_url,
+                                        json_payload=tx_payload,
+                                        timeout_seconds=30,
+                                        request_type="enhanced_transaction_batch",
+                                        method="helius_enhanced_transactions",
+                                    )
+                                    if transaction_response.error is None and transaction_response.status == 200:
+                                            full_txs = transaction_response.data
                                             
                                             if isinstance(full_txs, list):
                                                 for tx in full_txs:
@@ -2654,48 +2628,39 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
 
     print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
     extractor = await get_extractor()
+    with acquisition_scope(purpose="creator_funding", creator=creator, launch=mint):
+        # Main funding scan — must complete first (populates creator_funders)
+        result = await extractor.process_new_token(creator, migration_timestamp_str)
 
-    # Main funding scan — must complete first (populates creator_funders)
-    result = await extractor.process_new_token(creator, migration_timestamp_str)
+        # All remaining checks are independent — run concurrently
+        async def _jitotip():
+            if create_tx_signature:
+                await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
-    # All remaining checks are independent — run concurrently
-    async def _jitotip():
-        if create_tx_signature:
-            await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
+        async def _outgoing():
+            try:
+                from datetime import datetime
+                migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
+                migration_timestamp = int(migration_dt.timestamp())
+                await extractor.extract_outgoing_transfers(creator, migration_timestamp)
+                print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
+            except Exception as e:
+                print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
 
-    async def _outgoing():
-        try:
-            from datetime import datetime
-            migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
-            migration_timestamp = int(migration_dt.timestamp())
-            await extractor.extract_outgoing_transfers(creator, migration_timestamp)
-            print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
-        except Exception as e:
-            print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
+        await asyncio.gather(
+            _jitotip(),
+            extractor.check_transfers_for_debridge(creator),
+            extractor.check_transfers_for_axiom(creator),
+            _outgoing(),
+            return_exceptions=True,
+        )
 
-    await asyncio.gather(
-        _jitotip(),
-        extractor.check_transfers_for_debridge(creator),
-        extractor.check_transfers_for_axiom(creator),
-        _outgoing(),
-        return_exceptions=True,
-    )
+        # X76.3 -- supervise this extraction's own fire-and-forget background
+        # tasks (CEX detection, BlockSec batching, post-launch automation)
+        # at the extractor's public entry point.
+        await extractor.wait_for_background_tasks()
 
-    # X76.3 -- supervise this extraction's own fire-and-forget background
-    # tasks (CEX detection, BlockSec batching, post-launch automation)
-    # HERE, at the extractor's own public entry point, rather than relying
-    # solely on creator_funding_worker's bolt-on _await_orphaned_tasks
-    # sweep. This makes the "don't outlive the parent extraction job"
-    # invariant hold for every caller (the worker, the listener, a future
-    # one-shot recovery tool) instead of only the one caller that happened
-    # to add its own supervision. The worker's own sweep is left in place
-    # too -- harmless double coverage, not a conflict, since both just
-    # bounded-wait the same underlying tasks (a task already awaited/done
-    # here is a no-op for asyncio.wait if the worker's sweep observes it
-    # again).
-    await extractor.wait_for_background_tasks()
-
-    return result
+        return result
 
 
 if __name__ == "__main__":

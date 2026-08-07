@@ -486,8 +486,21 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     Use this instead of sqlite3.connect() everywhere to avoid "database is locked".
     Logs caller location and elapsed time when acquisition is slow (>1s).
     """
-    # Identify caller for lock contention diagnostics
+    # Identify caller for lock contention diagnostics. X78.5 -- when
+    # db_connect() is entered via the global sqlite3.connect() monkeypatch
+    # (_patched_connect, below), frame 1 is _patched_connect itself, not
+    # the real caller that wrote `sqlite3.connect(...)` -- every
+    # NestedDatabaseWriteError raised against a connection opened this way
+    # was tagged "db_locking.py:718 in _patched_connect", which identifies
+    # the interception point, not the source, making every such error
+    # unactionable without separate stack-walking instrumentation (see
+    # X78.5's investigation docs). Walk one frame further in that specific
+    # case so the tag identifies the real caller going forward.
     frame = inspect.stack()[1]
+    if frame.function == "_patched_connect":
+        outer_frames = inspect.stack()
+        if len(outer_frames) > 2:
+            frame = outer_frames[2]
     caller = f"{frame.filename.split('/')[-1]}:{frame.lineno} in {frame.function}"
 
     t0 = time.monotonic()

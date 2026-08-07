@@ -836,3 +836,142 @@ def test_link_domain_to_address_closes_connection_on_exception(tmp_db, monkeypat
     result = dm.link_domain_to_address("test.sol", "ADDR_X")
     assert result is False
     assert holder["conn"].closed is True
+
+
+# ── Fix 17: relationship_events.apply_migration (module-local, distinct from intelligence_refresh's) ──
+
+def test_relationship_events_apply_migration_closes_connection_on_exception(tmp_db, monkeypatch):
+    """A DIFFERENT apply_migration than intelligence_refresh.apply_migration
+    (already fixed) -- this module's own local function, called directly at
+    the start of rebuild_after_scan (not via the irc_migrate alias). Missed
+    on the first pass because two same-named functions exist in different
+    modules. Same unguarded shape: conn.commit()/close() outside any
+    try/finally."""
+    import src.core.relationship_events as ire
+
+    holder = {}
+    real_connect = ire.sqlite3.connect
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def execute(self, sql, *a, **k):
+            if "PRAGMA" in sql:
+                return self._real.execute(sql, *a, **k)
+            raise RuntimeError("simulated migration statement failure")
+
+        def commit(self):
+            return self._real.commit()
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        real_conn = real_connect(*a, **k)
+        boom = _BoomConn(real_conn)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(ire.sqlite3, "connect", fake_connect)
+
+    with pytest.raises(RuntimeError):
+        ire.apply_migration(tmp_db)
+
+    assert holder["conn"].closed is True
+
+
+# ── Fix 18: domain_mapping.init_domain_registry ─────────────────────────────
+
+def test_init_domain_registry_closes_connection_on_exception(tmp_db, monkeypatch):
+    """Found live during the X78.0 soak: called on EVERY
+    extract_funding_for_new_token call via init_session(), unconditionally,
+    before DomainResolver's own construction even finishes -- the earliest
+    possible write in the whole extraction pipeline. conn.close() was only
+    reached on success."""
+    import src.utils.domain_mapping as dm
+
+    monkeypatch.setattr(dm, "DB_PATH", tmp_db)
+    dm.DOMAIN_REGISTRY.clear()
+
+    holder = {}
+    real_connect = dm.sqlite3.connect
+
+    class _BoomCursor:
+        def __init__(self, real_cursor):
+            self._real = real_cursor
+
+        def execute(self, sql, *a, **k):
+            if "sqlite_master" in sql:
+                raise RuntimeError("simulated table-check failure")
+            return self._real.execute(sql, *a, **k)
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def cursor(self):
+            return _BoomCursor(self._real.cursor())
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(dm.sqlite3, "connect", fake_connect)
+
+    dm.init_domain_registry()  # must not raise -- caught internally, logged
+
+    assert holder["conn"].closed is True
+
+
+# ── Fix 19: RealTimeCreatorFundingExtractor._setup_db_optimizations ────────
+
+def test_setup_db_optimizations_closes_connection_on_exception(tmp_db, monkeypatch):
+    """conn.close() was only reached on success. Called on every
+    init_session(), i.e. every single extraction."""
+    import src.extractors.realtime_creator_funding_extractor as rcfe
+
+    holder = {}
+    real_connect = rcfe.db_connect
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def execute(self, sql, *a, **k):
+            if "cache_size" in sql:
+                raise RuntimeError("simulated PRAGMA failure")
+            return self._real.execute(sql, *a, **k)
+
+        def commit(self):
+            return self._real.commit()
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(rcfe, "db_connect", fake_connect)
+
+    extractor = rcfe.RealTimeCreatorFundingExtractor.__new__(rcfe.RealTimeCreatorFundingExtractor)
+    extractor._setup_db_optimizations()  # must not raise -- caught internally
+
+    assert holder["conn"].closed is True

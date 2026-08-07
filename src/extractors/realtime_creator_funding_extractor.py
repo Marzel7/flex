@@ -424,15 +424,27 @@ class RealTimeCreatorFundingExtractor:
 
     def _setup_db_optimizations(self):
         """Configure SQLite for better performance (PRAGMA settings)"""
+        # X78.0 -- conn.close() was only reached on success. PRAGMA
+        # statements aren't write-shaped SQL (see _WRITE_SQL_PREFIXES in
+        # db_locking.py) so this specific function likely never acquired the
+        # write lease in practice -- fixed anyway for consistency with every
+        # other connection in this file's constructor path (called on every
+        # single init_session(), i.e. every extraction).
+        conn = None
         try:
             conn = db_connect(DB_PATH, timeout=60)
             conn.execute("PRAGMA temp_store=MEMORY;")
             conn.execute("PRAGMA cache_size=-50000;")  # ~50MB cache
             conn.commit()
-            conn.close()
             print("[PERF] SQLite optimizations applied", flush=True)
         except Exception as e:
             print(f"[PERF] Warning: Could not apply SQLite optimizations: {e}", flush=True)
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     async def close_session(self):
         """Close aiohttp session"""

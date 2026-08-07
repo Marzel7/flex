@@ -26,18 +26,30 @@ _MIGRATION = Path(__file__).resolve().parent.parent.parent / \
 
 
 def apply_migration(db_path: str) -> None:
+    # X78.0 -- conn.commit()/close() previously sat outside any try/finally
+    # (same bug shape as intelligence_refresh.apply_migration, a DIFFERENT
+    # function in a different module that was already fixed -- this one was
+    # missed on the first pass because rebuild_after_scan calls this
+    # module's OWN apply_migration directly, not the imported
+    # intelligence_refresh one, which is separately aliased as irc_migrate).
+    # Called at the very start of rebuild_after_scan, itself reachable from
+    # creator_funding_worker's _post_extraction_intelligence_refresh via
+    # asyncio.to_thread, on the same reused executor pool as every other
+    # write in that worker.
     conn = sqlite3.connect(db_path, timeout=30)
-    conn.execute("PRAGMA journal_mode=WAL")
-    for stmt in _MIGRATION.read_text().split(";"):
-        stmt = stmt.strip()
-        if stmt:
-            try:
-                conn.execute(stmt)
-            except sqlite3.OperationalError as e:
-                if "already exists" not in str(e).lower():
-                    logger.warning(f"[IRE] Migration: {e}")
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        for stmt in _MIGRATION.read_text().split(";"):
+            stmt = stmt.strip()
+            if stmt:
+                try:
+                    conn.execute(stmt)
+                except sqlite3.OperationalError as e:
+                    if "already exists" not in str(e).lower():
+                        logger.warning(f"[IRE] Migration: {e}")
+        conn.commit()
+    finally:
+        conn.close()
 
 
 # ── Snapshot helpers ──────────────────────────────────────────────────────────

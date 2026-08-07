@@ -24,22 +24,33 @@ def init_domain_registry():
     """Load domain registry from database into memory"""
     global DOMAIN_REGISTRY
 
+    # X78.0 -- found live during the X78.0 soak: called on EVERY
+    # extract_funding_for_new_token call (via init_session(), unconditionally,
+    # before DomainResolver's own construction even finishes) -- the
+    # earliest possible write in the whole extraction pipeline. conn.close()
+    # was only reached on success; any exception (including from the CREATE
+    # TABLE, which was NOT guarded by a sqlite_master check first) left the
+    # connection, and its write lease, open for the rest of that thread's
+    # life.
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH, timeout=5)
         cursor = conn.cursor()
 
-        # Create table if it doesn't exist
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS domain_registry (
-                domain_name TEXT PRIMARY KEY,
-                domain_type TEXT,
-                first_seen_at INTEGER,
-                metadata TEXT,
-                sources TEXT,
-                confidence_score REAL
-            )
-        """)
-        conn.commit()
+        if not cursor.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='domain_registry'"
+        ).fetchone():
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS domain_registry (
+                    domain_name TEXT PRIMARY KEY,
+                    domain_type TEXT,
+                    first_seen_at INTEGER,
+                    metadata TEXT,
+                    sources TEXT,
+                    confidence_score REAL
+                )
+            """)
+            conn.commit()
 
         # Load all domains into memory
         cursor.execute("SELECT domain_name, domain_type, metadata FROM domain_registry")
@@ -54,10 +65,14 @@ def init_domain_registry():
                 'type': domain_type,
                 'metadata': metadata
             }
-
-        conn.close()
     except Exception as e:
         print(f"[DOMAIN_MAPPING] Warning: Could not init registry: {e}")
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 def register_domain(domain_name: str, domain_type: str = 'mentioned',

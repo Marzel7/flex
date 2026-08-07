@@ -7,6 +7,7 @@ from .transaction import (
     SharedTransactionAcquisition,
     acquisition_scope,
 )
+from .factory import build_transaction_acquisition
 
 __all__ = [
     "AcquisitionContext",
@@ -14,4 +15,5 @@ __all__ = [
     "AcquisitionResponse",
     "SharedTransactionAcquisition",
     "acquisition_scope",
+    "build_transaction_acquisition",
 ]

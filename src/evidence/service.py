@@ -9,6 +9,7 @@ from .artifacts import ArtifactStore
 from .config import EvidenceConfig
 from .database import EvidenceDatabase
 from .metrics import EvidenceMetrics
+from .mirror import EvidenceMirrorPublisher
 from .queue import EvidenceIntakeQueue
 from .writer import EvidenceWriter
 
@@ -27,6 +28,12 @@ class EvidencePlatform:
             config.queue_path, enabled=config.platform_enabled and config.queue_enabled,
             max_messages=config.queue_max_messages, max_bytes=config.queue_max_bytes,
             max_attempts=config.max_attempts, metrics=self.metrics,
+        )
+        self.mirror = EvidenceMirrorPublisher(
+            config,
+            artifacts=self.artifacts,
+            intake=self.queue,
+            metrics=self.metrics,
         )
         self.writer = EvidenceWriter(config, self.queue, self.artifacts, metrics=self.metrics)
 
@@ -60,14 +67,16 @@ class EvidencePlatform:
             return {"status": "DISABLED", "components": {
                 "writer": {"status": "DISABLED"}, "queue": {"status": "DISABLED"},
                 "database": {"status": "DISABLED"}, "artifact_store": {"status": "DISABLED"},
+                "mirror": self.mirror.health(),
             }}
         components = {
             "writer": self.writer.health(), "queue": self.queue.health(),
             "database": EvidenceDatabase.read_health(self.config.database_path),
             "artifact_store": self.artifacts.health(),
+            "mirror": self.mirror.health(),
         }
         states = {item["status"] for item in components.values()}
-        status = "HEALTHY" if states <= {"HEALTHY"} else (
+        status = "HEALTHY" if states <= {"HEALTHY", "DISABLED"} else (
             "BACKLOG" if "BACKLOG" in states else "DEGRADED"
         )
         return {"status": status, "components": components}

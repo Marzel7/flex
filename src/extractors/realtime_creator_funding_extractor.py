@@ -34,6 +34,7 @@ from src.utils.domain_mapping import register_domain, link_domain_to_address
 from src.analysis.automatic_cex_detection import classify_addresses_from_funding
 from src.analysis.post_launch_automation import run_post_launch_automation
 from src.acquisition.transaction import SharedTransactionAcquisition, acquisition_scope
+from src.acquisition.factory import build_transaction_acquisition
 
 # Import RPC metrics recorder for monitoring
 try:
@@ -415,7 +416,7 @@ class RealTimeCreatorFundingExtractor:
         if not self.session:
             self.session = aiohttp.ClientSession()
         if not self.transaction_acquisition:
-            self.transaction_acquisition = SharedTransactionAcquisition(
+            self.transaction_acquisition = build_transaction_acquisition(
                 self.session, semaphore=self._rpc_sem
             )
         if not self.domain_resolver:
@@ -461,7 +462,7 @@ class RealTimeCreatorFundingExtractor:
         """Return the shared transport, retaining lazy compatibility for tests."""
         client = getattr(self, "transaction_acquisition", None)
         if client is None:
-            client = SharedTransactionAcquisition(
+            client = build_transaction_acquisition(
                 self.session, semaphore=getattr(self, "_rpc_sem", None)
             )
             self.transaction_acquisition = client

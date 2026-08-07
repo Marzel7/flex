@@ -31,11 +31,13 @@ class AcquisitionContext:
     purpose: str = "unspecified"
     creator: Optional[str] = None
     launch: Optional[str] = None
+    correlation_id: Optional[str] = None
 
 
 @dataclass(frozen=True)
 class AcquisitionMetadata:
     acquisition_id: str
+    correlation_id: str
     purpose: str
     creator: Optional[str]
     launch: Optional[str]
@@ -67,10 +69,16 @@ _CONTEXT: contextvars.ContextVar[AcquisitionContext] = contextvars.ContextVar(
 
 @contextmanager
 def acquisition_scope(
-    *, purpose: str, creator: Optional[str] = None, launch: Optional[str] = None
+    *, purpose: str, creator: Optional[str] = None, launch: Optional[str] = None,
+    correlation_id: Optional[str] = None,
 ) -> Iterator[AcquisitionContext]:
     """Attach immutable correlation context to requests in this async task."""
-    context = AcquisitionContext(purpose=purpose, creator=creator, launch=launch)
+    context = AcquisitionContext(
+        purpose=purpose,
+        creator=creator,
+        launch=launch,
+        correlation_id=correlation_id or str(uuid.uuid4()),
+    )
     token = _CONTEXT.set(context)
     try:
         yield context
@@ -135,6 +143,7 @@ class SharedTransactionAcquisition:
         context = _CONTEXT.get()
         metadata = AcquisitionMetadata(
             acquisition_id=acquisition_id,
+            correlation_id=context.correlation_id or acquisition_id,
             purpose=context.purpose,
             creator=context.creator,
             launch=context.launch,

@@ -23,6 +23,7 @@ from src.ops.watchtower_canonical_predicate import (
     SessionEvidence,
     TreasuryConfirmationEvidence,
 )
+from src.ops.lineage_quarantine import eligible_session_relation
 
 # Mirrors provisioning_candidates_workflow.SHARED_RELAY_SESSION_THRESHOLD --
 # kept as its own constant here (not imported) so this module has no import
@@ -74,8 +75,9 @@ def _gather_common_evidence(
     # --- Session + topology (X67.16's core new axis) ---
     session_row = None
     if subprov and _table_exists(ops_conn, "wt_active_subprov_sessions"):
+        session_relation = eligible_session_relation(ops_conn)
         session_row = ops_conn.execute(
-            "SELECT state, funding_signature FROM wt_active_subprov_sessions "
+            f"SELECT state, funding_signature FROM {session_relation} "
             "WHERE subprov_wallet=? ORDER BY detected_at DESC LIMIT 1",
             (subprov,),
         ).fetchone()
@@ -181,8 +183,9 @@ def _gather_common_evidence(
 
     session_count = 0
     if subprov and _table_exists(ops_conn, "wt_active_subprov_sessions"):
+        session_relation = eligible_session_relation(ops_conn)
         r = ops_conn.execute(
-            "SELECT COUNT(*) c FROM wt_active_subprov_sessions WHERE subprov_wallet=?",
+            f"SELECT COUNT(*) c FROM {session_relation} WHERE subprov_wallet=?",
             (subprov,),
         ).fetchone()
         session_count = _row_get(r, "c", 0) or 0
@@ -227,8 +230,9 @@ def build_evidence_from_path_a_candidate(
     # every such row falsely reports IDENTITY_UNCONFIRMED regardless of its
     # true treasury lineage -- a false negative, not a genuine identity gap.
     if not treasury and subprov and _table_exists(ops_conn, "wt_active_subprov_sessions"):
+        session_relation = eligible_session_relation(ops_conn)
         sess = ops_conn.execute(
-            "SELECT treasury_wallet FROM wt_active_subprov_sessions "
+            f"SELECT treasury_wallet FROM {session_relation} "
             "WHERE subprov_wallet=? AND treasury_wallet IS NOT NULL "
             "ORDER BY detected_at DESC LIMIT 1", (subprov,),
         ).fetchone()

@@ -35,6 +35,8 @@ this the same way canonical_behaviour_conserved (X65.0) and topology's own
 """
 from __future__ import annotations
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 import sqlite3
 from typing import Any, Optional
 
@@ -139,9 +141,10 @@ def _wrap_close_evidence_by_mint(ops_conn: sqlite3.Connection, mints: list[str])
         distinct_candidates = list(set(candidate_subprov_by_mint.values()))
         if distinct_candidates and _table_exists(ops_conn, "wt_active_subprov_sessions"):
             candidate_placeholders = ",".join("?" for _ in distinct_candidates)
+            session_relation = eligible_session_relation(ops_conn)
             sessioned_subprovs = {
                 r[0] for r in ops_conn.execute(
-                    f"SELECT DISTINCT subprov_wallet FROM wt_active_subprov_sessions "
+                    f"SELECT DISTINCT subprov_wallet FROM {session_relation} "
                     f"WHERE subprov_wallet IN ({candidate_placeholders})", distinct_candidates,
                 )
             }
@@ -283,8 +286,9 @@ def _treasury_tiers_for_mints(ops_conn: sqlite3.Connection, mints: list[str]) ->
     # treasury_wallet is the second-hop candidate to check.
     subprov_treasury_by_funder: dict[str, str] = {}
     if _table_exists(ops_conn, "wt_active_subprov_sessions"):
+        session_relation = eligible_session_relation(ops_conn)
         for row in ops_conn.execute(
-            f"SELECT subprov_wallet, treasury_wallet FROM wt_active_subprov_sessions "
+            f"SELECT subprov_wallet, treasury_wallet FROM {session_relation} "
             f"WHERE subprov_wallet IN ({funder_placeholders}) AND treasury_wallet IS NOT NULL", funders,
         ):
             subprov_treasury_by_funder.setdefault(row["subprov_wallet"], row["treasury_wallet"])

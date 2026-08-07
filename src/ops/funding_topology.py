@@ -32,6 +32,8 @@ import sqlite3
 import time
 from typing import Any
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 FAN_OUT = "FAN_OUT"
 LINEAR = "LINEAR"
 MULTI_LEVEL_FAN_OUT = "MULTI_LEVEL_FAN_OUT"
@@ -165,15 +167,16 @@ def _mesh_treasuries(ops_conn: sqlite3.Connection) -> set[str]:
     flagged for revisit in the historical replay writeup."""
     if not _table_exists(ops_conn, "wt_active_subprov_sessions"):
         return set()
+    session_relation = eligible_session_relation(ops_conn)
     treasuries = {
         r[0] for r in ops_conn.execute(
-            "SELECT DISTINCT treasury_wallet FROM wt_active_subprov_sessions "
+            f"SELECT DISTINCT treasury_wallet FROM {session_relation} "
             "WHERE treasury_wallet IS NOT NULL"
         ).fetchall()
     }
     subprovs = {
         r[0] for r in ops_conn.execute(
-            "SELECT DISTINCT subprov_wallet FROM wt_active_subprov_sessions "
+            f"SELECT DISTINCT subprov_wallet FROM {session_relation} "
             "WHERE subprov_wallet IS NOT NULL"
         ).fetchall()
     }

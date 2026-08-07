@@ -22,6 +22,8 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 # Statuses that count as positive relationship evidence for aggregation
 # purposes (STATIC_MATCH/UNRESOLVED must not strengthen operation-clustering
 # relationships).
@@ -74,13 +76,14 @@ def boundary_wallet_profile(conn: sqlite3.Connection, boundary_wallet: str) -> d
     distinct_treasuries = 0
     if _table_exists(conn, "wt_active_subprov_sessions") and distinct_subjects:
         placeholders = ",".join("?" for _ in distinct_subjects)
+        session_relation = eligible_session_relation(conn)
         distinct_subproviders = conn.execute(
-            f"SELECT COUNT(DISTINCT subprov_wallet) FROM wt_active_subprov_sessions "
+            f"SELECT COUNT(DISTINCT subprov_wallet) FROM {session_relation} "
             f"WHERE subprov_wallet IN ({placeholders})",
             tuple(distinct_subjects),
         ).fetchone()[0]
         distinct_treasuries = conn.execute(
-            f"SELECT COUNT(DISTINCT treasury_wallet) FROM wt_active_subprov_sessions "
+            f"SELECT COUNT(DISTINCT treasury_wallet) FROM {session_relation} "
             f"WHERE treasury_wallet IN ({placeholders}) AND treasury_wallet IS NOT NULL",
             tuple(distinct_subjects),
         ).fetchone()[0]

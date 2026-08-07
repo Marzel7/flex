@@ -23,6 +23,7 @@ from src.ops.investigation_population import (
 )
 from src.ops.operator_resolver import OperatorResolver
 from src.ops.operation_intelligence import OperationIntelligenceAssembler
+from src.ops.lineage_quarantine import eligible_session_relation
 from src.utils.infra_mapping import get_funder_label
 
 
@@ -912,7 +913,8 @@ class EmergingOperatorService:
                 p["last"] = max(x for x in (p["last"], _timestamp(edge.get("last_observed_by_flex"))) if x is not None)
                 p["evidence"].append({"type": "FUNDING_EDGE", "source": "wt_provisioning_edges", "detail": edge})
         if "wt_active_subprov_sessions" in tables:
-            for row in conn.execute("SELECT * FROM wt_active_subprov_sessions"):
+            session_relation = eligible_session_relation(conn)
+            for row in conn.execute(f"SELECT * FROM {session_relation}"):
                 session = dict(row); wallet = session["subprov_wallet"]
                 if wallet not in profiles:
                     continue
@@ -1025,15 +1027,16 @@ class EmergingOperatorService:
         # The session table is large, while its unique key begins with
         # subprov_wallet.  Narrowing by qualifying edge wallets first avoids a
         # full session-table aggregation on every page refresh.
+        session_relation = eligible_session_relation(conn)
         for edge in edge_rows:
             session = conn.execute(
-                """
+                f"""
                 SELECT COUNT(DISTINCT treasury_wallet) AS treasury_count,
                        COUNT(DISTINCT CASE WHEN funding_signature IS NOT NULL
                                            THEN funding_signature END) AS signature_count,
                        COUNT(DISTINCT CASE WHEN funding_mechanism IS NOT NULL
                                            THEN funding_mechanism END) AS mechanism_count
-                  FROM wt_active_subprov_sessions
+                  FROM {session_relation}
                  WHERE subprov_wallet=?
                 """,
                 (edge["wallet"],),

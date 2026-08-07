@@ -8,6 +8,8 @@ import sqlite3
 from statistics import mean, median
 from typing import Any
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 
 def _ts(value: Any) -> int | None:
     if value is None:
@@ -56,10 +58,13 @@ class OperationIntelligenceAssembler:
         members = sorted(set(family.get("member_wallets") or []))
         edges, sessions, watch_launches = self._operation_rows(mints, members)
         token_rows = self._token_rows(mints)
+        quarantined_treasuries = self._quarantined_treasuries(members)
         timeline = self._timeline(family, edges, sessions, watch_launches, token_rows)
         performance = self._performance(mints, token_rows, watch_launches)
         behaviour = self._behaviour(family, edges, sessions, token_rows, watch_launches)
-        infrastructure = self._infrastructure(family, edges, sessions, token_rows)
+        infrastructure = self._infrastructure(
+            family, edges, sessions, token_rows, quarantined_treasuries
+        )
         from src.ops.operational_role import derive_operational_role
         operational_role = derive_operational_role(family, infrastructure)
         evidence = self._evidence(family, edges, sessions)
@@ -126,8 +131,9 @@ class OperationIntelligenceAssembler:
                         clauses.append(f"source_mint IN ({marks})")
                         params.extend(mints)
                     if clauses:
+                        session_relation = eligible_session_relation(conn)
                         sessions = [dict(row) for row in conn.execute(
-                            f"SELECT * FROM wt_active_subprov_sessions WHERE {' OR '.join(clauses)} ORDER BY funding_time",
+                            f"SELECT * FROM {session_relation} WHERE {' OR '.join(clauses)} ORDER BY funding_time",
                             params,
                         )]
                 if mints and "wt_watchtower_launches" in tables:
@@ -158,6 +164,26 @@ class OperationIntelligenceAssembler:
             if mint and (_ts(row.get("analyzed_at")) or 0) >= (_ts(latest.get(mint, {}).get("analyzed_at")) or 0):
                 latest[mint] = row
         return list(latest.values())
+
+    def _quarantined_treasuries(self, members: list[str]) -> set[str]:
+        if not members:
+            return set()
+        try:
+            with self._connect(self.ops_db_path) as conn:
+                if "wt_lineage_quarantine" not in self._tables(conn):
+                    return set()
+                marks = ",".join("?" for _ in members)
+                return {row[0] for row in conn.execute(f"""
+                    SELECT DISTINCT quarantine.subject_wallet
+                      FROM wt_lineage_quarantine quarantine
+                      JOIN wt_active_subprov_sessions sessions
+                        ON quarantine.source_table='wt_active_subprov_sessions'
+                       AND quarantine.source_row_id=sessions.id
+                     WHERE quarantine.exclude_from_tier1=1
+                       AND sessions.subprov_wallet IN ({marks})
+                """, members) if row[0]}
+        except (OSError, sqlite3.Error):
+            return set()
 
     @staticmethod
     def _timeline(family, edges, sessions, watch_launches, token_rows):
@@ -292,7 +318,8 @@ class OperationIntelligenceAssembler:
         }
 
     @staticmethod
-    def _infrastructure(family, edges, sessions, token_rows=None):
+    def _infrastructure(family, edges, sessions, token_rows=None,
+                        quarantined_treasuries=None):
         token_labels = {}
         for token in token_rows or []:
             mint = token.get("mint")
@@ -311,7 +338,15 @@ class OperationIntelligenceAssembler:
             paths.append(path)
             if path["signature"]:
                 rpc_edges.append(path)
-        connected_treasuries = list(dict.fromkeys(family.get("treasuries") or []))
+        # A family-level treasury label may come from historical/contextual
+        # projection. Infrastructure relationship presentation is stricter:
+        # only treasuries with a Tier-1-eligible session may be shown as an
+        # observed upstream relationship.
+        excluded = set(quarantined_treasuries or ())
+        connected_treasuries = [
+            treasury for treasury in dict.fromkeys(family.get("treasuries") or [])
+            if treasury not in excluded
+        ]
         connected_set = set(connected_treasuries)
         sessions_by_client = defaultdict(list)
         for session in sessions:

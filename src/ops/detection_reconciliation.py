@@ -25,6 +25,8 @@ import sqlite3
 import time
 from typing import Any, Optional
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 OPS_DB_PATH = os.environ.get("OPS_V2_DB_PATH", os.path.join(_REPO_ROOT, "database", "wt_ops_v2.db"))
 
@@ -149,8 +151,9 @@ def classify_walkback_confirmed_launches(
                 ).fetchone()
                 t2s_mech = edge["funding_mechanism"] if edge else None
             if not t2s_mech and s["subprov"]:
+                session_relation = eligible_session_relation(conn)
                 live_sess = conn.execute(
-                    "SELECT funding_mechanism FROM wt_active_subprov_sessions "
+                    f"SELECT funding_mechanism FROM {session_relation} "
                     "WHERE subprov_wallet=? ORDER BY detected_at DESC LIMIT 1",
                     (s["subprov"],)
                 ).fetchone()
@@ -175,9 +178,10 @@ def classify_walkback_confirmed_launches(
                 # the system believed it was watching at CREATE time.
                 session_row = None
                 if s["subprov"]:
+                    session_relation = eligible_session_relation(conn)
                     session_row = conn.execute(
                         "SELECT monitoring_state, funding_time, expires_at "
-                        "FROM wt_active_subprov_sessions WHERE subprov_wallet=? "
+                        f"FROM {session_relation} WHERE subprov_wallet=? "
                         "ORDER BY detected_at DESC LIMIT 1", (s["subprov"],)
                     ).fetchone()
                 create_time = s["creator_launch_time"] or s["subprov_to_creator_block_time"]

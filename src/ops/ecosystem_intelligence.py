@@ -38,6 +38,7 @@ import json
 import os
 import sqlite3
 import time
+from src.ops.lineage_quarantine import eligible_session_relation
 from typing import Any
 
 from src.utils.infra_mapping import is_known_account, get_account_info, get_cex_info, get_custom_info
@@ -129,9 +130,10 @@ def find_historical_cex_candidates(conn: sqlite3.Connection) -> list[dict[str, A
     sessioned_subprovs: set[str] = set()
     if _table_exists(conn, "wt_active_subprov_sessions"):
         placeholders = ",".join("?" for _ in distinct_candidates)
+        session_relation = eligible_session_relation(conn)
         sessioned_subprovs = {
             r[0] for r in conn.execute(
-                f"SELECT DISTINCT subprov_wallet FROM wt_active_subprov_sessions "
+                f"SELECT DISTINCT subprov_wallet FROM {session_relation} "
                 f"WHERE subprov_wallet IN ({placeholders})", distinct_candidates,
             )
         }
@@ -141,9 +143,10 @@ def find_historical_cex_candidates(conn: sqlite3.Connection) -> list[dict[str, A
     session_by_subprov: dict[str, sqlite3.Row] = {}
     if sessioned_subprovs and _table_exists(conn, "wt_active_subprov_sessions"):
         placeholders = ",".join("?" for _ in sessioned_subprovs)
+        session_relation = eligible_session_relation(conn)
         for row in conn.execute(
             f"SELECT subprov_wallet, treasury_wallet, funding_signature, funding_amount, "
-            f"funding_time, funding_mechanism, open_reason FROM wt_active_subprov_sessions "
+            f"funding_time, funding_mechanism, open_reason FROM {session_relation} "
             f"WHERE subprov_wallet IN ({placeholders}) ORDER BY funding_time ASC",
             list(sessioned_subprovs),
         ):

@@ -180,6 +180,10 @@ def ensure_cascade_schema(conn) -> None:
     # (src/discovery/service.py:_identify); with 90k+ rows and no index this was a full table
     # scan costing ~3.1s per request (measured). Read-only lookup, safe additive index.
     conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sessions_funding_signature ON wt_active_subprov_sessions(funding_signature)")
+    # X78.14: forensic session rows proven unsafe as direct ancestry remain in
+    # place, but Tier-1 lineage readers consume an exclusion view.
+    from src.ops.lineage_quarantine import ensure_lineage_quarantine_schema
+    ensure_lineage_quarantine_schema(conn)
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_state ON wt_candidate_websocket_watches(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_creator ON wt_watchtower_launches(creator_wallet)")

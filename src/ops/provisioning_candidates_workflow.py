@@ -55,6 +55,8 @@ import json
 import time
 from typing import Any, Optional
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 DDL = """
 CREATE TABLE IF NOT EXISTS wt_provisioning_candidate_workflow (
     mint                       TEXT PRIMARY KEY,
@@ -249,9 +251,10 @@ def select_nearest_eligible_session(conn, *, subprov_wallet: str, wrap_close_tim
     (as a dict) or None if no eligible session exists."""
     if not _table_exists(conn, "wt_active_subprov_sessions"):
         return None
+    session_relation = eligible_session_relation(conn)
     rows = conn.execute(
         "SELECT id, treasury_wallet, funding_signature, funding_amount, funding_time "
-        "FROM wt_active_subprov_sessions WHERE subprov_wallet=? AND funding_time < ? "
+        f"FROM {session_relation} WHERE subprov_wallet=? AND funding_time < ? "
         "ORDER BY funding_time DESC LIMIT 1",
         (subprov_wallet, wrap_close_time),
     ).fetchone()
@@ -521,8 +524,9 @@ def evaluate_candidate_for_canonical_promotion(
     # the known non-canonical candidate in X67.4's audit.
     session_count = 0
     if _table_exists(conn, "wt_active_subprov_sessions"):
+        session_relation = eligible_session_relation(conn)
         r = conn.execute(
-            "SELECT COUNT(*) c FROM wt_active_subprov_sessions WHERE subprov_wallet=?",
+            f"SELECT COUNT(*) c FROM {session_relation} WHERE subprov_wallet=?",
             (subprov_wallet,)
         ).fetchone()
         session_count = r["c"] if not isinstance(r, dict) else r.get("c", 0)
@@ -874,8 +878,9 @@ def reevaluate_pending_candidates(conn) -> list[dict[str, Any]]:
                 classification = "UNEVALUABLE"
                 detail = f"mechanism conflict: workflow={workflow_mechanism} raw={raw_mechanism}"
             elif _table_exists(conn, "wt_active_subprov_sessions"):
+                session_relation = eligible_session_relation(conn)
                 cnt_row = conn.execute(
-                    "SELECT COUNT(*) c FROM wt_active_subprov_sessions WHERE subprov_wallet=?",
+                    f"SELECT COUNT(*) c FROM {session_relation} WHERE subprov_wallet=?",
                     (subprov,)
                 ).fetchone()
                 session_count = cnt_row["c"] if not isinstance(cnt_row, dict) else cnt_row.get("c", 0)

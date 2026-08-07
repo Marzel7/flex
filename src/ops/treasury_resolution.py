@@ -33,6 +33,8 @@ from __future__ import annotations
 import sqlite3
 from typing import Any, Optional
 
+from src.ops.lineage_quarantine import eligible_session_relation
+
 STATUS_KNOWN_TREASURY = "KNOWN_TREASURY"
 STATUS_UNKNOWN_TREASURY_CANDIDATE = "UNKNOWN_TREASURY_CANDIDATE"
 STATUS_NO_SUBPROV = "NO_SUBPROV"
@@ -104,10 +106,11 @@ def classify_creator_funder(
 
     session = None
     if _table_exists(ops_conn, "wt_active_subprov_sessions"):
+        session_relation = eligible_session_relation(ops_conn)
         session = ops_conn.execute(
             "SELECT subprov_wallet, treasury_wallet, funding_signature, funding_amount, "
             "funding_time, funding_mechanism, state, open_reason "
-            "FROM wt_active_subprov_sessions WHERE subprov_wallet=?", (funder_wallet,),
+            f"FROM {session_relation} WHERE subprov_wallet=?", (funder_wallet,),
         ).fetchone()
 
     if session and session["treasury_wallet"] and session["funding_signature"]:
@@ -142,10 +145,11 @@ def treasury_scale_stats(ops_conn: sqlite3.Connection, treasury_wallet: str) -> 
     as supporting evidence (never as the sole basis for confirming a
     treasury -- confirmation is entirely governed by wt_confirmed_
     treasuries, per this module's own constraint)."""
+    session_relation = eligible_session_relation(ops_conn)
     row = ops_conn.execute(
         "SELECT COUNT(DISTINCT subprov_wallet) AS n_subprovs, "
         "SUM(funding_amount) AS total_sol "
-        "FROM wt_active_subprov_sessions WHERE treasury_wallet=?",
+        f"FROM {session_relation} WHERE treasury_wallet=?",
         (treasury_wallet,),
     ).fetchone()
     return {
@@ -159,8 +163,9 @@ def is_bridged_further_upstream(ops_conn: sqlite3.Connection, treasury_wallet: s
     appear as a subprov_wallet (i.e. is it funded by a further upstream
     wallet)? Only when this returns True should walkback depth be
     increased beyond MAX_WALKBACK_DEPTH -- never assumed, always checked."""
+    session_relation = eligible_session_relation(ops_conn)
     return bool(ops_conn.execute(
-        "SELECT 1 FROM wt_active_subprov_sessions WHERE subprov_wallet=?",
+        f"SELECT 1 FROM {session_relation} WHERE subprov_wallet=?",
         (treasury_wallet,),
     ).fetchone())
 

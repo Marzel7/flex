@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -80,6 +81,8 @@ class MirrorItem:
     response_text: Optional[str]
     response_headers: dict[str, str]
     producer_handoff_at: float
+    raw_body_base64: Optional[str] = None
+    artifact_representation: str = "RAW_BYTES_UNAVAILABLE"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -154,6 +157,14 @@ class EvidenceMirrorPublisher:
         request_payload: Any,
         handoff_at: float,
     ) -> MirrorItem:
+        representation = response.artifact_representation
+        raw_body_base64 = None
+        if response.raw_body is not None:
+            raw_body_base64 = base64.b64encode(response.raw_body).decode("ascii")
+        elif representation == "RAW_BYTES_UNAVAILABLE" and (
+            response.data is not None or response.text is not None
+        ):
+            representation = "CANONICALIZED_RESPONSE_REPRESENTATION"
         return MirrorItem(
             metadata=asdict(response.metadata),
             http_method=http_method.upper(),
@@ -164,6 +175,8 @@ class EvidenceMirrorPublisher:
             response_text=response.text,
             response_headers=dict(response.headers),
             producer_handoff_at=handoff_at,
+            raw_body_base64=raw_body_base64,
+            artifact_representation=representation,
         )
 
     def publish_nowait(
@@ -233,6 +246,11 @@ class EvidenceMirrorPublisher:
             temporary.unlink(missing_ok=True)
 
     def _artifact_payload(self, item: MirrorItem) -> bytes:
+        if (
+            item.artifact_representation == "EXACT_PROVIDER_ARTIFACT"
+            and item.raw_body_base64 is not None
+        ):
+            return base64.b64decode(item.raw_body_base64, validate=True)
         return _canonical({
             "status": item.response_status,
             "data": item.response_data,
@@ -276,6 +294,7 @@ class EvidenceMirrorPublisher:
                 "compressed_bytes": artifact.compressed_bytes,
                 "content_type": artifact.content_type,
                 "compression": artifact.compression,
+                "representation": item.artifact_representation,
             },
             "provenance": {
                 "provider_request_id": metadata["acquisition_id"],
@@ -285,6 +304,7 @@ class EvidenceMirrorPublisher:
                     "request_digest": request_digest,
                     "response_digest": response_digest,
                     "http_status": item.response_status,
+                    "artifact_representation": item.artifact_representation,
                 },
             },
             "acquisition": {
@@ -304,17 +324,28 @@ class EvidenceMirrorPublisher:
                 "retry_count": metadata["retry_count"],
                 "cache_state": metadata["cache_state"],
                 "artifact_reference": artifact.digest,
+                "artifact_representation": item.artifact_representation,
             },
         }
 
     def _publish(self, item: MirrorItem) -> None:
         raw = self._artifact_payload(item)
+        content_type = next(
+            (
+                value
+                for key, value in item.response_headers.items()
+                if key.lower() == "content-type"
+            ),
+            "application/octet-stream",
+        )
         artifact = self.artifacts.put(
             raw,
+            content_type=content_type,
             metadata={
                 "acquisition_id": item.metadata["acquisition_id"],
                 "correlation_id": item.metadata["correlation_id"],
                 "source": "evidence_mirror",
+                "artifact_representation": item.artifact_representation,
             },
         )
         envelope = self._acquisition_envelope(item, artifact)

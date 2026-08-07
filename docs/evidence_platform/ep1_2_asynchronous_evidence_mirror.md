@@ -27,8 +27,7 @@ Creator Funding          bounded mirror handoff
 ```
 
 The mirror contains no RPC client. It cannot request, retry, paginate or fail
-over against a provider. It only receives normalized responses already acquired
-by EP1.1.
+over against a provider. It only receives responses already acquired by EP1.1.
 
 ## Feature flags
 
@@ -69,9 +68,13 @@ section contains:
 - content-addressed artifact reference.
 
 Provider credentials are removed from URLs before request identity is computed
-or persisted. The artifact is the canonical JSON representation of the already
-acquired normalized response: HTTP status, response data/text and headers. No
-fact normalization or interpretation occurs.
+or persisted. Under the EP1.3B amendment, new acquisitions retain the exact
+provider response body already read by EP1.1 and mark it
+`EXACT_PROVIDER_ARTIFACT`. This adds no provider request and does not change the
+parsed response returned to creator funding. Parsed-only inputs and historical
+EP1.2 artifacts remain valid, are never rewritten, and are identified as
+`CANONICALIZED_RESPONSE_REPRESENTATION` (or by the absence of the newer marker
+for pre-amendment envelopes). No fact normalization or interpretation occurs.
 
 ## Replay contract
 

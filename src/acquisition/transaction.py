@@ -59,6 +59,8 @@ class AcquisitionResponse:
     headers: Mapping[str, str]
     metadata: AcquisitionMetadata
     latency_ms: float
+    raw_body: Optional[bytes] = None
+    artifact_representation: str = "RAW_BYTES_UNAVAILABLE"
     error: Optional[BaseException] = None
 
 
@@ -201,6 +203,7 @@ class SharedTransactionAcquisition:
                 latency_ms = (time.time() - start) * 1000
                 text: Optional[str] = None
                 data: Any = None
+                raw_body = await response.read()
                 try:
                     data = await response.json()
                 except Exception:
@@ -212,6 +215,8 @@ class SharedTransactionAcquisition:
                     headers=dict(response.headers),
                     metadata=metadata,
                     latency_ms=latency_ms,
+                    raw_body=raw_body,
+                    artifact_representation="EXACT_PROVIDER_ARTIFACT",
                 )
                 if metrics_sink is not None:
                     metrics_sink(

@@ -29,6 +29,7 @@ class _Response:
     def __init__(self, status, data, headers=None):
         self.status = status
         self._data = data
+        self._raw = json.dumps(data).encode("utf-8")
         self.headers = headers or {}
 
     async def __aenter__(self):
@@ -39,6 +40,9 @@ class _Response:
 
     async def json(self):
         return self._data
+
+    async def read(self):
+        return self._raw
 
     async def text(self):
         return json.dumps(self._data)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 
 import pytest
 
@@ -14,6 +15,7 @@ class _Response:
     def __init__(self, status, data, headers=None):
         self.status = status
         self._data = data
+        self._raw = json.dumps(data).encode("utf-8")
         self.headers = headers or {}
 
     async def __aenter__(self):
@@ -24,6 +26,9 @@ class _Response:
 
     async def json(self):
         return self._data
+
+    async def read(self):
+        return self._raw
 
     async def text(self):
         return str(self._data)
@@ -92,6 +97,9 @@ async def test_request_metadata_is_complete_and_context_local():
     assert metadata.timestamp > 0
     assert metadata.cache_state == "miss"
     assert metadata.retry_count == 1
+    assert response.raw_body == b'{"result": [1]}'
+    assert response.artifact_representation == "EXACT_PROVIDER_ARTIFACT"
+    assert len(session.calls) == 1
     assert telemetry == [metadata]
     assert metrics[0]["status_code"] == 200
     assert metrics[0]["section"] == "creator_funding"

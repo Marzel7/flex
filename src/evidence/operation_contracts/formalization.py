@@ -487,6 +487,12 @@ class ContractRegistryModel:
                  if record.contract["contract_id"] == contract_id and record.state is ContractLifecycle.ACTIVE]
         return items[0] if items else None
 
+    def get(self, contract_id: str, version: str) -> Mapping[str, Any]:
+        return self._records[(contract_id, version)].contract
+
+    def state(self, contract_id: str, version: str) -> ContractLifecycle:
+        return self._records[(contract_id, version)].state
+
     def versions(self, contract_id: str) -> tuple[str, ...]:
         return tuple(sorted((version for key_id, version in self._records if key_id == contract_id), key=_semver))
 

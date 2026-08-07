@@ -1,0 +1,59 @@
+{
+  "contract_version": "EP0.1",
+  "consumers": {
+    "creator_funding": {
+      "expected_input": "Persisted creator funding queue and RPC acquisition results",
+      "expected_output": "Creator funders, transfer provenance and queue lifecycle",
+      "permitted_differences": ["Explicitly excluded volatile worker timestamps"],
+      "forbidden_differences": ["Funder identity", "Directional transfer", "Signature", "Queue terminal state"]
+    },
+    "discovery": {
+      "expected_input": "Current persisted operational projections",
+      "expected_output": "Operational activity feed",
+      "permitted_differences": ["Relative-time display text"],
+      "forbidden_differences": ["Disposition", "Destination route", "Underlying event", "Canonical identity"]
+    },
+    "governance": {
+      "expected_input": "Analyst action and current identity state",
+      "expected_output": "Immutable action history and canonical lifecycle state",
+      "permitted_differences": [],
+      "forbidden_differences": ["Any action, actor, reason, target, state or ordering difference"]
+    },
+    "investigation": {
+      "expected_input": "Persisted family membership and reconciliation package",
+      "expected_output": "Population identity, disposition, membership, evidence and promotion state",
+      "permitted_differences": ["Relative-time display text"],
+      "forbidden_differences": ["Population membership", "Disposition", "Evidence semantics", "Promotion eligibility"]
+    },
+    "operator_identity": {
+      "expected_input": "Canonical operator and identity lifecycle records",
+      "expected_output": "Operator identity, entities, membership and governance state",
+      "permitted_differences": [],
+      "forbidden_differences": ["Canonical ID", "Entity membership", "Lifecycle", "Launch membership"]
+    },
+    "registry": {
+      "expected_input": "Canonical identities and investigation projections",
+      "expected_output": "Confirmed, investigation, analyst queue and infrastructure sections",
+      "permitted_differences": ["Relative-time display text"],
+      "forbidden_differences": ["Counts", "Section placement", "Badge", "Profile link"]
+    },
+    "treasury_review": {
+      "expected_input": "Treasury candidates, comparisons and analyst history",
+      "expected_output": "Governance comparison and available decisions",
+      "permitted_differences": [],
+      "forbidden_differences": ["Candidate", "Comparison", "Recommendation", "Governance history"]
+    },
+    "walkback": {
+      "expected_input": "Persisted walkback queue and transaction-derived edges",
+      "expected_output": "Walkback result, lineage and attribution outcome",
+      "permitted_differences": ["Worker heartbeat age"],
+      "forbidden_differences": ["Directional edge", "Signature", "Outcome", "Reconciled attribution"]
+    },
+    "watchtower_and_3sw2": {
+      "expected_input": "Current canonical evidence and governed membership",
+      "expected_output": "Canonical identity, entities, launches and topology",
+      "permitted_differences": [],
+      "forbidden_differences": ["Identity", "Treasury", "Creator", "Launch", "Topology", "Governance state"]
+    }
+  }
+}

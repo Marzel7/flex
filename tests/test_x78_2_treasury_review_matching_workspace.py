@@ -60,14 +60,14 @@ def test_review_projection_explains_topology_match_and_recommendation():
 
 def test_workspace_keeps_governance_but_collapses_raw_evidence():
     html = (ROOT / "templates/treasury_review.html").read_text()
-    for label in ("Observed Topology", "Operation Comparison", "Governance Decision",
-                  "Supporting Evidence", "Representative Relationships"):
+    for label in ("Best Operation comparison", "Recommended",
+                  "Supporting evidence", "Representative Relationships"):
         assert label in html
     assert "Why this surfaced" not in html
     assert "Investigation Trigger" not in html
     for action in ("APPROVE_TREASURY", "LINK_TO_OPERATOR", "CREATE_OPERATOR_CANDIDATE",
                    "CREATE_INVESTIGATION", "NEEDS_MORE_EVIDENCE", "REJECT_TREASURY"):
         assert action in html
-    assert '<details class="tr-section tr-support">' in html
+    assert '<details class="tr-support">' in html
     assert "solscan.io/account/" in html
     assert "solscan.io/tx/" in html

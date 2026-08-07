@@ -70,7 +70,7 @@ def test_all_unknown_is_not_no_match():
 def test_ui_uses_actionable_pagination_and_compact_unknown_copy():
     page = (ROOT / "templates/treasury_review.html").read_text()
     assert "Actionable first · newest within group" in page
-    assert "No confirmed Operation comparison could be evaluated" in page
+    assert "No comparable evidence yet" in page
     assert "Load 20 more" in page
     assert "m.comparison_state==='NOT_EVALUATED'" in page
     assert "No match')" not in page

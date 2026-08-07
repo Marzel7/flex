@@ -183,14 +183,27 @@ class CreatorRepository:
     # -----------------------------------------------------------------------
 
     async def get_creator_profile(self, creator_address: str) -> Optional[CreatorProfile]:
+        # X78.0 -- conn.close() had no try/finally at all. This is the VERY
+        # FIRST database call in extract_funding_for_new_token (called
+        # before even the skip-cache check), on the event-loop thread -- an
+        # exception here left the connection, and its write lease, open for
+        # the rest of that thread's life, poisoning every subsequent write
+        # dispatched to it.
         async with self._lock:
-            conn = db_connect(self._db_path, timeout=10)
-            conn.row_factory = sqlite3.Row
-            row = conn.execute(
-                "SELECT * FROM creator_profile WHERE creator_address = ? LIMIT 1",
-                (creator_address,),
-            ).fetchone()
-            conn.close()
+            conn = None
+            try:
+                conn = db_connect(self._db_path, timeout=10)
+                conn.row_factory = sqlite3.Row
+                row = conn.execute(
+                    "SELECT * FROM creator_profile WHERE creator_address = ? LIMIT 1",
+                    (creator_address,),
+                ).fetchone()
+            finally:
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
         return CreatorProfile.from_row(dict(row)) if row else None
 
     async def upsert_creator_profile(
@@ -592,13 +605,24 @@ class CreatorRepository:
 
     async def get_config_bool(self, key: str, *, default: bool = False) -> bool:
         """Read a boolean flag from system_config.  Safe if the row is missing."""
+        # X78.0 -- conn.close() had no try/finally. Called from
+        # migration_bridge.is_phase_2_active on EVERY extraction
+        # (should_skip_legacy_extraction is the first check in
+        # extract_funding_for_new_token).
         async with self._lock:
-            conn = db_connect(self._db_path, timeout=10)
-            conn.row_factory = sqlite3.Row
-            row = conn.execute(
-                "SELECT value FROM system_config WHERE key = ? LIMIT 1", (key,)
-            ).fetchone()
-            conn.close()
+            conn = None
+            try:
+                conn = db_connect(self._db_path, timeout=10)
+                conn.row_factory = sqlite3.Row
+                row = conn.execute(
+                    "SELECT value FROM system_config WHERE key = ? LIMIT 1", (key,)
+                ).fetchone()
+            finally:
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
         if row is None:
             return default
         return row["value"].strip().lower() == "true"

@@ -109,6 +109,14 @@ class RPCCache:
         Expired entries are lazily deleted on miss.
         Never raises — returns None on any exception.
         """
+        # X78.0 -- conn was not declared before the try (unlike set(), which
+        # already does this correctly). If self._get_conn() itself somehow
+        # raised before completing assignment, the except block's
+        # `if conn is not None` would hit UnboundLocalError, masking the
+        # real exception and skipping cleanup. Called on every RPC request
+        # during extraction -- one of the highest-frequency call sites in
+        # the whole pipeline.
+        conn = None
         try:
             conn = self._get_conn()
             if conn is None:

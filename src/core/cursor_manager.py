@@ -63,41 +63,62 @@ class CursorManager:
 
     def _ensure_table(self):
         """Create address_scan_state table if it doesn't exist."""
+        # X78.0 -- found live during the X78.0 soak: CursorManager.__init__
+        # calls this on EVERY instantiation, and RealTimeCreatorFundingExtractor
+        # is constructed fresh per job (not a reused singleton, per the
+        # duplicated "CursorManager initialized"/"SQLite optimizations
+        # applied" log lines observed once per job) -- making this one of
+        # the most frequently-hit connections in the whole pipeline.
+        # conn.close() was only reached on success; the except block below
+        # re-raised WITHOUT ever closing conn, leaving it (and its write
+        # lease, since CREATE TABLE/INDEX are write-shaped SQL) open for the
+        # rest of that thread's life. Checks sqlite_master first so an
+        # already-migrated DB (true after the very first ever run) issues
+        # zero write statements here.
+        conn = None
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             conn.execute("PRAGMA busy_timeout = 60000")
             cursor = conn.cursor()
 
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS address_scan_state (
-                address TEXT PRIMARY KEY,
-                last_signature TEXT,
-                last_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                next_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                status TEXT DEFAULT 'active'
-            )
-            """)
+            if not cursor.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='address_scan_state'"
+            ).fetchone():
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS address_scan_state (
+                    address TEXT PRIMARY KEY,
+                    last_signature TEXT,
+                    last_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    next_scan_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    status TEXT DEFAULT 'active'
+                )
+                """)
 
-            # Index for due-time scheduler (critical query)
-            cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_address_scan_state_due_time
-            ON address_scan_state(next_scan_at, status)
-            WHERE status = 'active'
-            """)
+                # Index for due-time scheduler (critical query)
+                cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_address_scan_state_due_time
+                ON address_scan_state(next_scan_at, status)
+                WHERE status = 'active'
+                """)
 
-            # Index for cursor lookups
-            cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_address_scan_state_address
-            ON address_scan_state(address)
-            """)
+                # Index for cursor lookups
+                cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_address_scan_state_address
+                ON address_scan_state(address)
+                """)
 
-            conn.commit()
-            conn.close()
+                conn.commit()
             logger.debug("address_scan_state table ensured")
 
         except Exception as e:
             logger.error(f"Error creating address_scan_state table: {e}")
             raise
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def get_cursor(self, address: str) -> Optional[AddressCursor]:
         """
@@ -111,6 +132,12 @@ class CursorManager:
         Returns:
             AddressCursor or None if not found
         """
+        # X78.0 -- found live during the X78.0 soak: called from inside
+        # extract_for_creator's own paging loop, on the event-loop thread.
+        # conn.close() was only reached on success; the except block never
+        # closed it. conn declared before the try so finally can close it
+        # regardless of which line raised.
+        conn = None
         try:
             conn = sqlite3.connect(self.db_path, timeout=60)
             conn.row_factory = sqlite3.Row
@@ -123,7 +150,6 @@ class CursorManager:
             """, (address,))
 
             row = cursor.fetchone()
-            conn.close()
 
             if not row:
                 return None
@@ -139,6 +165,12 @@ class CursorManager:
         except Exception as e:
             logger.error(f"Error getting cursor for {address}: {e}")
             return None
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def update_cursor(
         self,
@@ -154,6 +186,11 @@ class CursorManager:
             last_signature: Most recent signature we processed
             activity_count: Number of new signatures/transfers in this scan
         """
+        # X78.0 -- found live during the X78.0 soak: called at the end of
+        # extract_for_creator's paging loop, on the event-loop thread.
+        # conn.close() was only reached on success. conn declared before the
+        # try so finally can close it regardless of which line raised.
+        conn = None
         try:
             # Calculate next scan time based on activity
             next_scan_at = self._calculate_next_scan_time(activity_count)
@@ -174,7 +211,6 @@ class CursorManager:
             """, (address, last_signature, next_scan_at.isoformat()))
 
             conn.commit()
-            conn.close()
 
             logger.debug(
                 f"Updated cursor for {address}: "
@@ -185,6 +221,12 @@ class CursorManager:
 
         except Exception as e:
             logger.error(f"Error updating cursor for {address}: {e}")
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def _calculate_next_scan_time(self, activity_count: int) -> datetime:
         """

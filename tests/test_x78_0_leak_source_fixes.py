@@ -975,3 +975,231 @@ def test_setup_db_optimizations_closes_connection_on_exception(tmp_db, monkeypat
     extractor._setup_db_optimizations()  # must not raise -- caught internally
 
     assert holder["conn"].closed is True
+
+
+# ── Fix 20/21: CreatorRepository.get_creator_profile / get_config_bool ─────
+
+def test_get_creator_profile_closes_connection_on_exception(tmp_db):
+    """The VERY FIRST database call in extract_funding_for_new_token
+    (called before even the skip-cache check). conn.close() had no
+    try/finally at all -- proven directly by spying on the connection
+    object and asserting close() was called even though the SELECT itself
+    raised. (Note: SELECT is read-only, so this is a connection-handle leak
+    -- not a write-lease leak like most other fixes this milestone -- but
+    still a genuine resource leak on the event-loop thread's first call of
+    every single extraction.)"""
+    import asyncio as _asyncio
+    import src.creators.repository as repo_mod
+    from src.creators.repository import CreatorRepository
+
+    conn = sqlite3.connect(tmp_db)
+    conn.commit()
+    conn.close()  # deliberately no creator_profile table -> SELECT raises
+
+    holder = {}
+    real_db_connect = repo_mod.db_connect
+
+    class _SpyConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def execute(self, *a, **k):
+            return self._real.execute(*a, **k)
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    def fake_db_connect(*a, **k):
+        c = real_db_connect(*a, **k)
+        spy = _SpyConn(c)
+        holder["conn"] = spy
+        return spy
+
+    repo_mod.db_connect = fake_db_connect
+    try:
+        repo = CreatorRepository(tmp_db, _asyncio.Lock())
+
+        async def run():
+            with pytest.raises(sqlite3.OperationalError):
+                await repo.get_creator_profile("CREATOR_X")
+
+        _asyncio.run(run())
+    finally:
+        repo_mod.db_connect = real_db_connect
+
+    assert holder["conn"].closed is True
+
+
+def test_get_config_bool_closes_connection_on_exception(tmp_db):
+    """Called from migration_bridge.is_phase_2_active on every extraction.
+    conn.close() had no try/finally at all."""
+    import asyncio as _asyncio
+    import src.creators.repository as repo_mod
+    from src.creators.repository import CreatorRepository
+
+    conn = sqlite3.connect(tmp_db)
+    conn.commit()
+    conn.close()  # deliberately no system_config table -> SELECT raises
+
+    holder = {}
+    real_db_connect = repo_mod.db_connect
+
+    class _SpyConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def execute(self, *a, **k):
+            return self._real.execute(*a, **k)
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    def fake_db_connect(*a, **k):
+        c = real_db_connect(*a, **k)
+        spy = _SpyConn(c)
+        holder["conn"] = spy
+        return spy
+
+    repo_mod.db_connect = fake_db_connect
+    try:
+        repo = CreatorRepository(tmp_db, _asyncio.Lock())
+
+        async def run():
+            with pytest.raises(sqlite3.OperationalError):
+                await repo.get_config_bool("phase_2_active", default=False)
+
+        _asyncio.run(run())
+    finally:
+        repo_mod.db_connect = real_db_connect
+
+    assert holder["conn"].closed is True
+
+
+# ── Fix 22/23: CursorManager.get_cursor / update_cursor ─────────────────────
+# CursorManager._ensure_table (Fix earlier in this milestone via
+# sqlite_master-check-first) already prevents the CREATE-TABLE leak on
+# construction. get_cursor/update_cursor are the two methods actually
+# called from inside extract_for_creator's own paging loop.
+
+def test_cursor_manager_get_cursor_closes_connection_on_exception(tmp_db, monkeypatch):
+    """Found live during the X78.0 soak: called from inside
+    extract_for_creator's paging loop. conn.close() was only reached on
+    success."""
+    import src.core.cursor_manager as cm_mod
+
+    holder = {}
+    real_connect = cm_mod.sqlite3.connect
+
+    class _BoomCursor:
+        def __init__(self, real_cursor):
+            self._real = real_cursor
+
+        def execute(self, sql, *a, **k):
+            raise RuntimeError("simulated SELECT failure")
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+            self.row_factory = None
+
+        def cursor(self):
+            return _BoomCursor(self._real.cursor())
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+        def __setattr__(self, name, value):
+            object.__setattr__(self, name, value)
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(cm_mod.sqlite3, "connect", fake_connect)
+
+    manager = cm_mod.CursorManager.__new__(cm_mod.CursorManager)
+    manager.db_path = tmp_db
+
+    result = manager.get_cursor("SOME_ADDRESS")  # must not raise -- caught internally
+    assert result is None
+    assert holder["conn"].closed is True
+
+
+def test_cursor_manager_update_cursor_closes_connection_on_exception(tmp_db, monkeypatch):
+    """Called at the end of extract_for_creator's paging loop.
+    conn.close() was only reached on success."""
+    import src.core.cursor_manager as cm_mod
+
+    holder = {}
+    real_connect = cm_mod.sqlite3.connect
+
+    class _BoomConn:
+        def __init__(self, real_conn):
+            self._real = real_conn
+            self.closed = False
+
+        def execute(self, sql, *a, **k):
+            if "PRAGMA" in sql:
+                return self._real.execute(sql, *a, **k)
+            raise RuntimeError("simulated INSERT failure")
+
+        def cursor(self):
+            return self._real.cursor()
+
+        def close(self):
+            self.closed = True
+            return self._real.close()
+
+    def fake_connect(*a, **k):
+        c = real_connect(*a, **k)
+        boom = _BoomConn(c)
+        holder["conn"] = boom
+        return boom
+
+    monkeypatch.setattr(cm_mod.sqlite3, "connect", fake_connect)
+
+    manager = cm_mod.CursorManager.__new__(cm_mod.CursorManager)
+    manager.db_path = tmp_db
+
+    manager.update_cursor("SOME_ADDRESS", "sig123", 5)  # must not raise
+    assert holder["conn"].closed is True
+
+
+# ── Fix 24: RPCCache.get robustness (conn declared before try) ─────────────
+
+def test_rpc_cache_get_declares_conn_before_try(tmp_db, monkeypatch):
+    """set() already declared conn = None before its try; get() did not,
+    risking UnboundLocalError masking the real exception if _get_conn()
+    itself somehow raised. Called on every RPC request during extraction --
+    one of the highest-frequency call sites in the whole pipeline."""
+    import src.core.rpc_cache as rpc_cache_mod
+
+    cache = rpc_cache_mod.RPCCache.__new__(rpc_cache_mod.RPCCache)
+    cache.db_path = tmp_db
+
+    def boom_get_conn():
+        raise RuntimeError("simulated _get_conn failure")
+
+    monkeypatch.setattr(cache, "_get_conn", boom_get_conn)
+
+    # Must not raise UnboundLocalError (or anything else) -- get() is
+    # documented as "never raises".
+    result = cache.get("some_cache_key")
+    assert result is None

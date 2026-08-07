@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sqlite3
 import time
 from collections import Counter, defaultdict
@@ -19,7 +20,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
-from src.utils.infra_mapping import sync_infra_wallets
+from src.utils.infra_mapping import ensure_infra_wallets_table, sync_infra_wallets
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,28 @@ class ScoreBreakdown:
         setattr(self, dimension, getattr(self, dimension) + points)
         self.reason_codes.append(code)
         self.reasons.append(reason)
+
+
+# X78.7 -- sync_infra_wallets() reads INFRASTRUCTURE_ACCOUNTS/CEX_ACCOUNTS
+# (static, in-process) plus infra_funders_observed/cex_wallets (small) and
+# three full SELECT DISTINCT scans of token_analysis (~1.4-1.6M rows each,
+# measured ~48s combined against production -- see
+# docs/audits/x78_6_risk_scoring_runtime_reentrancy.md). Its output
+# (infra_wallets) only ever grows monotonically -- new bonding
+# curves/pools/CEX wallets are ADDED as tokens launch, never removed --
+# so re-running it on every single score_creator_now() call (called once
+# per completed extraction job, i.e. potentially every few seconds under
+# load) re-scans the same ~1.6M rows repeatedly for a result that changes
+# at most a few times per hour. This mirrors the exact debounce pattern
+# already used for _post_extraction_intelligence_refresh in
+# creator_funding_worker.py (INTEL_REFRESH_DEBOUNCE_SEC) -- module-level
+# (not instance-level) because RiskScoringBuilder is constructed fresh
+# per call. Bounded staleness of up to this window on infra
+# classification is an accepted tradeoff already established by that
+# precedent; RUN() (full-batch scoring) is unaffected -- it does not use
+# this debounce, since a full batch run legitimately needs a fresh sync.
+SYNC_INFRA_WALLETS_DEBOUNCE_SEC = int(os.environ.get("RSB_SYNC_INFRA_WALLETS_DEBOUNCE_SEC", "300"))
+_sync_infra_wallets_last_run = 0.0
 
 
 class RiskScoringBuilder:
@@ -166,14 +189,41 @@ class RiskScoringBuilder:
         # infra-wallet sync behaviour -- only WHEN the write lease is
         # held, per the same collect-then-persist discipline already
         # established elsewhere in this codebase (X77.x).
+        # X78.7 -- see SYNC_INFRA_WALLETS_DEBOUNCE_SEC's module-level
+        # comment: infra_wallets only grows monotonically, so re-scanning
+        # ~1.6M token_analysis rows on every single-creator score call is
+        # unnecessary. Debounced module-wide (not per-instance), same
+        # pattern as creator_funding_worker.py's intel-refresh debounce.
+        global _sync_infra_wallets_last_run
+        now_monotonic = time.monotonic()
+        should_sync_infra = (
+            now_monotonic - _sync_infra_wallets_last_run >= SYNC_INFRA_WALLETS_DEBOUNCE_SEC
+        )
+
         setup_conn = None
         try:
             setup_conn = sqlite3.connect(self.db_path, timeout=60)
             setup_conn.row_factory = sqlite3.Row
             setup_conn.execute("PRAGMA journal_mode=WAL")
             self.apply_migration(setup_conn)
-            sync_infra_wallets(setup_conn)
-            context = self._build_context(setup_conn, [creator])
+            if should_sync_infra:
+                sync_infra_wallets(setup_conn)
+                _sync_infra_wallets_last_run = now_monotonic
+            else:
+                # sync_infra_wallets() itself calls this first -- but when
+                # debounced-skipped, _build_context_for_creator's own
+                # NOT IN (SELECT address FROM infra_wallets) subqueries
+                # still require the table to exist (a correctness
+                # precondition, independent of whether this call happens
+                # to refresh its contents).
+                ensure_infra_wallets_table(setup_conn)
+            # X78.7 -- _build_context_for_creator is the single-creator-
+            # optimized equivalent of _build_context(conn, [creator]):
+            # identical output shape/semantics (verified in
+            # tests/test_x78_7_query_optimization.py), but every query is
+            # filtered by creator/funder address in SQL instead of
+            # scanning full tables and filtering in Python.
+            context = self._build_context_for_creator(setup_conn, creator)
             # apply_migration/sync_infra_wallets may have performed
             # writes (schema DDL, infra_wallets upserts) -- commit them
             # now so this connection's close() below releases the write
@@ -249,6 +299,186 @@ class RiskScoringBuilder:
             SELECT creator_address FROM creator_outbound_classifications
         """).fetchall()
         return sorted({row[0] for row in rows if row[0]})
+
+    def _build_context_for_creator(self, conn: sqlite3.Connection, creator: str) -> dict[str, Any]:
+        """X78.7 -- single-creator-optimized equivalent of
+        _build_context(conn, [creator]), used only by score_creator_now.
+
+        _build_context() is also used by run() (the full-batch entry
+        point, where scanning every table IS the correct plan -- it is
+        scoring every creator at once). For a single creator, every one
+        of _build_context()'s eight full-table scans was doing that same
+        ecosystem-wide read just to filter down to one creator_set
+        membership check in Python (measured against production:
+        ~1.57M rows read for tokens_by_creator alone, ~18s; see
+        docs/audits/x78_6_risk_scoring_runtime_reentrancy.md and
+        x78_7's own benchmark for the full measurement). This produces
+        the IDENTICAL dict shape and semantics as
+        _build_context(conn, [creator]) would, verified in
+        tests/test_x78_7_query_optimization.py, but pushes the creator
+        filter into SQL via indexed/predicate-scoped queries instead of
+        reading the whole table and filtering in Python.
+
+        fanout_by_funder and wallet_cluster_funders are genuinely
+        ecosystem-scoped BY DESIGN (_score_creator_fast looks up "how
+        many OTHER creators does funder X also fund" for each of this
+        creator's own funders) -- but they only ever need to be computed
+        for the specific funder addresses that fund THIS creator, not
+        every funder in the database. This queries this creator's own
+        funders first (a small, indexed set), then scopes the
+        ecosystem-wide aggregate queries to exactly those addresses via
+        a parameterized IN clause -- same result, far smaller scan.
+        """
+        funders_by_creator: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        funder_rows = conn.execute("""
+            SELECT cf.creator_address, cf.funder_address, COALESCE(cf.amount_sol, 0) AS amount_sol
+            FROM creator_funders cf
+            WHERE cf.creator_address = ?
+              AND cf.is_cex = 0
+              AND cf.funder_address IS NOT NULL
+              AND cf.funder_address != ''
+              AND cf.funder_address NOT IN (SELECT address FROM infra_wallets)
+        """, (creator,)).fetchall()
+        funder_addresses = []
+        for row in funder_rows:
+            funders_by_creator[row["creator_address"]].append(dict(row))
+            funder_addresses.append(row["funder_address"])
+
+        fanout_by_funder: dict[str, int] = {}
+        if funder_addresses:
+            placeholders = ",".join("?" for _ in funder_addresses)
+            for row in conn.execute(f"""
+                SELECT funder_address, COUNT(DISTINCT creator_address) AS creators
+                FROM creator_funders
+                WHERE is_cex = 0
+                  AND funder_address IN ({placeholders})
+                  AND funder_address NOT IN (SELECT address FROM infra_wallets)
+                GROUP BY funder_address
+            """, funder_addresses).fetchall():
+                fanout_by_funder[row["funder_address"]] = int(row["creators"] or 0)
+
+        self_funding_row = conn.execute(
+            "SELECT * FROM creator_self_funding WHERE creator_address = ?", (creator,)
+        ).fetchone()
+        self_funding = {creator: dict(self_funding_row)} if self_funding_row else {}
+
+        outbound_by_creator: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
+        for row in conn.execute("""
+            SELECT creator_address, relationship_type, COUNT(*) AS n, SUM(COALESCE(amount_sol, 0)) AS sol
+            FROM creator_outbound_classifications
+            WHERE creator_address = ?
+              AND recipient_address NOT IN (SELECT address FROM infra_wallets)
+            GROUP BY creator_address, relationship_type
+        """, (creator,)).fetchall():
+            outbound_by_creator[row["creator_address"]][row["relationship_type"]] = dict(row)
+
+        second_hop_by_creator = {}
+        second_hop_row = conn.execute("""
+            SELECT creator_address, COUNT(*) AS n, MAX(confidence_score) AS max_conf
+            FROM creator_second_hop
+            WHERE creator_address = ?
+              AND upstream_address NOT IN (SELECT address FROM infra_wallets)
+            GROUP BY creator_address
+        """, (creator,)).fetchone()
+        if second_hop_row:
+            second_hop_by_creator[creator] = {
+                "n": int(second_hop_row["n"] or 0), "max_conf": second_hop_row["max_conf"]
+            }
+
+        c2c_count: Counter[str] = Counter()
+        for row in conn.execute("""
+            SELECT source_creator, dest_creator FROM creator_c2c_edges
+            WHERE source_creator = ? OR dest_creator = ?
+        """, (creator, creator)).fetchall():
+            c2c_count[row["source_creator"]] += 1
+            c2c_count[row["dest_creator"]] += 1
+
+        coord_by_creator: dict[str, dict[str, Any]] = defaultdict(lambda: {"edges": 0, "funders": set()})
+        for row in conn.execute("""
+            SELECT creator_a, creator_b, bridge_funder
+            FROM coordinated_creator_edges
+            WHERE (creator_a = ? OR creator_b = ?)
+              AND bridge_funder NOT IN (SELECT address FROM infra_wallets)
+        """, (creator, creator)).fetchall():
+            a = row["creator_a"]
+            b = row["creator_b"]
+            funder = row["bridge_funder"]
+            coord_by_creator[a]["edges"] += 1
+            coord_by_creator[a]["funders"].add(funder)
+            coord_by_creator[b]["edges"] += 1
+            coord_by_creator[b]["funders"].add(funder)
+
+        wallet_cluster_funders = set()
+        if funder_addresses:
+            placeholders = ",".join("?" for _ in funder_addresses)
+            wallet_cluster_funders = {
+                row["funder_wallet"]
+                for row in conn.execute(f"""
+                    SELECT funder_wallet
+                    FROM wallet_clusters
+                    WHERE funder_wallet IN ({placeholders})
+                      AND funder_wallet NOT IN (SELECT address FROM infra_wallets)
+                """, funder_addresses).fetchall()
+            }
+
+        farm_members = set()
+        farm_row = conn.execute(
+            "SELECT 1 FROM farm_cluster_members WHERE wallet_address = ? LIMIT 1", (creator,)
+        ).fetchone()
+        if farm_row:
+            farm_members.add(creator)
+
+        jito_creators = set()
+        jito_row = conn.execute("""
+            SELECT 1 FROM creator_tags
+            WHERE creator_address = ? AND tag IN ('uses_jitotip', 'uses_jitotip_other')
+            LIMIT 1
+        """, (creator,)).fetchone()
+        if jito_row:
+            jito_creators.add(creator)
+
+        tokens_by_creator: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for row in conn.execute("""
+            SELECT
+                ta.earliest_tx_creator AS creator,
+                ta.mint,
+                COALESCE(ta.market_cap_highest, ta.market_cap_current, 0) AS peak_mc,
+                ta.market_cap_current,
+                ta.created_at,
+                ta.migrated_at,
+                ta.market_cap_highest_at_ts,
+                ta.lifecycle_stage,
+                COALESCE(liq.liquidity_removed, 0) AS liquidity_removed,
+                liq.liquidity_removed_at
+            FROM token_analysis ta
+            LEFT JOIN (
+                SELECT mint,
+                       MAX(COALESCE(liquidity_removed, 0)) AS liquidity_removed,
+                       MAX(liquidity_removed_at) AS liquidity_removed_at
+                FROM token_pool_accounts
+                GROUP BY mint
+            ) liq ON liq.mint = ta.mint
+            WHERE ta.earliest_tx_creator = ?
+        """, (creator,)).fetchall():
+            item = dict(row)
+            item.pop("creator")
+            peak = item.get("peak_mc")
+            item["g_class"] = _token_class_from_peak(peak) if peak and float(peak) > 0 else None
+            tokens_by_creator[creator].append(item)
+
+        return {
+            "funders_by_creator": funders_by_creator,
+            "fanout_by_funder": fanout_by_funder,
+            "self_funding": self_funding,
+            "outbound_by_creator": outbound_by_creator,
+            "second_hop_by_creator": second_hop_by_creator,
+            "c2c_count": c2c_count,
+            "coord_by_creator": coord_by_creator,
+            "wallet_cluster_funders": wallet_cluster_funders,
+            "farm_members": farm_members,
+            "jito_creators": jito_creators,
+            "tokens_by_creator": tokens_by_creator,
+        }
 
     def _build_context(self, conn: sqlite3.Connection, creators: list[str]) -> dict[str, Any]:
         creator_set = set(creators)

@@ -89,14 +89,18 @@ def test_write_lease_not_held_during_slow_context_build(tmp_path, monkeypatch):
     read_phase_entered = threading.Event()
     release_read_phase = threading.Event()
 
-    real_build_context = RiskScoringBuilder._build_context
+    # X78.7 -- score_creator_now now calls _build_context_for_creator
+    # (the single-creator SQL-filtered path), not _build_context (still
+    # used by run(), the full-batch path) -- patch the method actually
+    # in the call path.
+    real_build_context = RiskScoringBuilder._build_context_for_creator
 
-    def slow_build_context(self, conn, creators):
+    def slow_build_context(self, conn, creator):
         read_phase_entered.set()
         release_read_phase.wait(timeout=5)
-        return real_build_context(self, conn, creators)
+        return real_build_context(self, conn, creator)
 
-    monkeypatch.setattr(RiskScoringBuilder, "_build_context", slow_build_context)
+    monkeypatch.setattr(RiskScoringBuilder, "_build_context_for_creator", slow_build_context)
 
     builder = RiskScoringBuilder(db_path)
     result_holder = {}

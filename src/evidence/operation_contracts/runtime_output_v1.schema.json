@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mission-control.invalid/schemas/operation-runtime-output-v1.json",
+  "title": "Operation Runtime Output v1",
+  "oneOf": [
+    {"$ref": "#/$defs/behaviour_observation"},
+    {"$ref": "#/$defs/topology_revision"},
+    {"$ref": "#/$defs/detector_input"},
+    {"$ref": "#/$defs/detector_result"},
+    {"$ref": "#/$defs/lifecycle_recommendation"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "semver": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"},
+    "identifier": {"type": "string", "minLength": 1},
+    "quality": {"enum": ["PROVEN", "DISPROVEN", "INCOMPLETE", "CONFLICTING", "UNVERIFIABLE"]},
+    "window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {"start": {"type": ["integer", "null"]}, "end": {"type": ["integer", "null"]}}
+    },
+    "refs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/digest"}},
+    "behaviour_observation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_type", "observation_id", "contract_id", "contract_version", "module_id", "module_version", "subjects", "observation_window", "measured_values", "evidence_refs", "primitive_refs", "missing_inputs", "quality_state", "input_digest", "generated_at"],
+      "properties": {
+        "output_type": {"const": "BehaviourObservation"}, "observation_id": {"$ref": "#/$defs/digest"},
+        "contract_id": {"$ref": "#/$defs/identifier"}, "contract_version": {"$ref": "#/$defs/semver"},
+        "module_id": {"$ref": "#/$defs/identifier"}, "module_version": {"$ref": "#/$defs/semver"},
+        "subjects": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "parameters": {"type": "object"}, "observation_window": {"$ref": "#/$defs/window"},
+        "measured_values": {"type": "object"}, "evidence_refs": {"$ref": "#/$defs/refs"},
+        "primitive_refs": {"$ref": "#/$defs/refs"}, "missing_inputs": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "quality_state": {"$ref": "#/$defs/quality"}, "input_digest": {"$ref": "#/$defs/digest"},
+        "generated_at": {"type": "integer"}
+      }
+    },
+    "topology_node": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entity_ref", "local_role", "contract_id", "contract_version", "evidence_refs", "primitive_refs"],
+      "properties": {
+        "entity_ref": {"type": "string"}, "local_role": {"type": "string"},
+        "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"},
+        "evidence_refs": {"$ref": "#/$defs/refs"}, "primitive_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "topology_edge": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "destination", "primitive_type", "cardinality", "temporal_constraint", "required", "evidence_refs", "primitive_refs"],
+      "properties": {
+        "source": {"type": "string"}, "destination": {"type": "string"}, "primitive_type": {"type": "string"},
+        "cardinality": {"enum": ["ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_ONE", "MANY_TO_MANY"]},
+        "temporal_constraint": {"type": ["object", "null"]}, "required": {"type": "boolean"},
+        "evidence_refs": {"$ref": "#/$defs/refs"}, "primitive_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "topology_revision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_type", "revision_id", "contract_id", "contract_version", "topology_version", "subjects", "nodes", "edges", "input_digest", "generated_at"],
+      "properties": {
+        "output_type": {"const": "TopologyRevision"}, "revision_id": {"$ref": "#/$defs/digest"},
+        "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"}, "topology_version": {"$ref": "#/$defs/semver"},
+        "subjects": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "nodes": {"type": "array", "items": {"$ref": "#/$defs/topology_node"}},
+        "edges": {"type": "array", "items": {"$ref": "#/$defs/topology_edge"}},
+        "input_digest": {"$ref": "#/$defs/digest"}, "generated_at": {"type": "integer"}
+      }
+    },
+    "detector_input": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_type", "input_id", "contract_id", "contract_version", "detector_version", "subjects", "evidence_watermark", "primitive_watermark", "observation_window", "evidence_refs", "primitive_refs", "behaviour_observation_refs", "topology_revision_ref", "input_digest"],
+      "properties": {
+        "output_type": {"const": "DetectorInput"}, "input_id": {"$ref": "#/$defs/digest"},
+        "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"}, "detector_version": {"$ref": "#/$defs/semver"},
+        "subjects": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "evidence_watermark": {"$ref": "#/$defs/digest"}, "primitive_watermark": {"$ref": "#/$defs/digest"},
+        "observation_window": {"$ref": "#/$defs/window"}, "evidence_refs": {"$ref": "#/$defs/refs"}, "primitive_refs": {"$ref": "#/$defs/refs"},
+        "behaviour_observation_refs": {"$ref": "#/$defs/refs"}, "topology_revision_ref": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "input_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "detector_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_type", "result_id", "contract_id", "contract_version", "detector_version", "subjects", "observation_window", "identity_evidence", "topology_evidence", "behaviour_evidence", "operational_contact", "infrastructure_overlap", "funding_overlap", "temporal_overlap", "supporting_evidence_ids", "contradictory_evidence_ids", "missing_inputs", "confidence_output", "candidate_lifecycle_recommendation", "governance_recommendation", "input_watermark", "input_digest", "generated_at"],
+      "properties": {
+        "output_type": {"const": "DetectorResult"}, "result_id": {"$ref": "#/$defs/digest"},
+        "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"}, "detector_version": {"$ref": "#/$defs/semver"},
+        "subjects": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "observation_window": {"$ref": "#/$defs/window"},
+        "identity_evidence": {"type": "object"}, "topology_evidence": {"type": "object"}, "behaviour_evidence": {"type": "object"},
+        "operational_contact": {"type": "object"}, "infrastructure_overlap": {"type": "object"}, "funding_overlap": {"type": "object"}, "temporal_overlap": {"type": "object"},
+        "supporting_evidence_ids": {"$ref": "#/$defs/refs"}, "contradictory_evidence_ids": {"$ref": "#/$defs/refs"},
+        "missing_inputs": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "confidence_output": {"type": ["object", "null"]},
+        "candidate_lifecycle_recommendation": {"type": ["object", "null"]},
+        "governance_recommendation": {"enum": [null, "OBSERVE_ONLY", "CREATE_INVESTIGATION", "REQUEST_REVIEW", "PROPOSE_EXPANSION", "PROPOSE_NEW_OPERATION", "NO_AUTOMATIC_GOVERNANCE"]},
+        "input_watermark": {"type": "object", "required": ["evidence", "primitive"], "properties": {"evidence": {"$ref": "#/$defs/digest"}, "primitive": {"$ref": "#/$defs/digest"}}, "additionalProperties": false},
+        "input_digest": {"$ref": "#/$defs/digest"}, "generated_at": {"type": "integer"}
+      }
+    },
+    "lifecycle_recommendation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_type", "recommendation_id", "contract_id", "contract_version", "subjects", "current_state", "recommended_state", "reason", "detector_result_ref", "input_digest", "generated_at", "automatic_execution"],
+      "properties": {
+        "output_type": {"const": "LifecycleRecommendation"}, "recommendation_id": {"$ref": "#/$defs/digest"},
+        "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"},
+        "subjects": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "current_state": {"$ref": "#/$defs/candidate_state"}, "recommended_state": {"$ref": "#/$defs/candidate_state"},
+        "reason": {"type": "string"}, "detector_result_ref": {"$ref": "#/$defs/digest"}, "input_digest": {"$ref": "#/$defs/digest"},
+        "generated_at": {"type": "integer"}, "automatic_execution": {"const": false}
+      }
+    },
+    "candidate_state": {
+      "type": "object", "additionalProperties": false,
+      "required": ["maturity", "governance_identity", "activity"],
+      "properties": {
+        "maturity": {"enum": ["UNKNOWN", "OBSERVED", "BEHAVIOURAL_CLUSTER", "INVESTIGATE", "DISMISSED"]},
+        "governance_identity": {"enum": ["UNCONFIRMED", "CONFIRMED_OPERATION", "CANONICAL", "REVIEW"]},
+        "activity": {"enum": ["ACTIVE", "DORMANT", "REACTIVATED", "HISTORICAL"]}
+      }
+    }
+  }
+}

@@ -16,6 +16,8 @@ def test_card_surfaces_best_comparison_and_compact_metrics():
     assert "launches</span>" in PAGE
     assert "creators</span>" in PAGE
     assert "provisioners</span>" in PAGE
+    assert "esc(t)+'</span>'+stateBadge" in PAGE
+    assert "esc(short(t))+'</span>'+stateBadge" not in PAGE
 
 
 def test_unknown_dimensions_are_secondary_not_full_grid_rows():

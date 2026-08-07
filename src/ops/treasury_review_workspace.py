@@ -63,6 +63,7 @@ ACTIONS = frozenset({
     "APPROVE_TREASURY", "REJECT_TREASURY", "NEEDS_MORE_EVIDENCE",
     "LINK_TO_OPERATOR", "CREATE_INVESTIGATION", "CREATE_OPERATOR_CANDIDATE",
 })
+_UNSET = object()
 
 
 class WorkspaceError(ValueError):
@@ -102,6 +103,89 @@ def _related_identity(conn, treasury: str) -> dict[str, Any]:
     if conn.execute("SELECT 1 FROM wt_discovered_subprovs WHERE treasury=? LIMIT 1", (treasury,)).fetchone():
         return {"kind": "INFRASTRUCTURE", "operator_id": None, "display_name": None, "status": None}
     return {"kind": "UNKNOWN", "operator_id": None, "display_name": None, "status": None}
+
+
+def _canonical_membership(conn, address: str) -> dict[str, Any] | None:
+    """Return direct canonical membership, never downstream resemblance.
+
+    A review candidate is already governed when its own address is an active
+    Operator entity/asset or an authoritative WATCHTOWER confirmed treasury.
+    Comparison overlap with one of its downstream wallets is deliberately not
+    sufficient (for example EM11y's 3SW2 client overlap).
+    """
+    if _table_exists(conn, "operator_entities") and _table_exists(conn, "operators"):
+        entity_columns = {row[1] for row in conn.execute("PRAGMA table_info(operator_entities)")}
+        role_column = "oe.entity_type" if "entity_type" in entity_columns else "'ENTITY'"
+        row = conn.execute(
+            f"SELECT oe.operator_id,o.display_name,{role_column} entity_type "
+            "FROM operator_entities oe JOIN operators o ON o.operator_id=oe.operator_id "
+            "WHERE oe.entity_address=? AND o.status<>'REJECTED' "
+            "ORDER BY (oe.operator_id=?) DESC LIMIT 1",
+            (address, WATCHTOWER_OPERATOR_ID),
+        ).fetchone()
+        if row:
+            return {"operator_id": row["operator_id"],
+                    "display_name": row["display_name"] or row["operator_id"],
+                    "role": row["entity_type"] or "ENTITY", "source": "operator_entities"}
+    if (_table_exists(conn, "operator_identity_assets") and
+            _table_exists(conn, "operators")):
+        row = conn.execute(
+            "SELECT a.operator_id,o.display_name,a.asset_type "
+            "FROM operator_identity_assets a JOIN operators o ON o.operator_id=a.operator_id "
+            "WHERE a.asset_value=? AND a.status='ACTIVE' AND o.status<>'REJECTED' "
+            "ORDER BY (a.operator_id=?) DESC LIMIT 1",
+            (address, WATCHTOWER_OPERATOR_ID),
+        ).fetchone()
+        if row:
+            return {"operator_id": row["operator_id"],
+                    "display_name": row["display_name"] or row["operator_id"],
+                    "role": row["asset_type"] or "ASSET", "source": "operator_identity_assets"}
+    if _table_exists(conn, "wt_confirmed_treasuries") and conn.execute(
+            "SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (address,)
+    ).fetchone():
+        return {"operator_id": WATCHTOWER_OPERATOR_ID, "display_name": "WATCHTOWER",
+                "role": "TREASURY", "source": "wt_confirmed_treasuries"}
+    return None
+
+
+def _canonical_memberships(conn) -> dict[str, dict[str, Any]]:
+    """Bulk canonical projection for queue composition (constant query count)."""
+    memberships: dict[str, dict[str, Any]] = {}
+    if _table_exists(conn, "operator_entities") and _table_exists(conn, "operators"):
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(operator_entities)")}
+        role_column = "oe.entity_type" if "entity_type" in columns else "'ENTITY'"
+        rows = conn.execute(
+            f"SELECT oe.entity_address,oe.operator_id,o.display_name,{role_column} entity_type "
+            "FROM operator_entities oe JOIN operators o ON o.operator_id=oe.operator_id "
+            "WHERE o.status<>'REJECTED' ORDER BY (oe.operator_id=?) DESC",
+            (WATCHTOWER_OPERATOR_ID,),
+        ).fetchall()
+        for row in rows:
+            memberships.setdefault(row["entity_address"], {
+                "operator_id": row["operator_id"],
+                "display_name": row["display_name"] or row["operator_id"],
+                "role": row["entity_type"] or "ENTITY", "source": "operator_entities",
+            })
+    if _table_exists(conn, "operator_identity_assets") and _table_exists(conn, "operators"):
+        rows = conn.execute(
+            "SELECT a.asset_value,a.operator_id,o.display_name,a.asset_type "
+            "FROM operator_identity_assets a JOIN operators o ON o.operator_id=a.operator_id "
+            "WHERE a.status='ACTIVE' AND o.status<>'REJECTED' "
+            "ORDER BY (a.operator_id=?) DESC", (WATCHTOWER_OPERATOR_ID,),
+        ).fetchall()
+        for row in rows:
+            memberships.setdefault(row["asset_value"], {
+                "operator_id": row["operator_id"],
+                "display_name": row["display_name"] or row["operator_id"],
+                "role": row["asset_type"] or "ASSET", "source": "operator_identity_assets",
+            })
+    if _table_exists(conn, "wt_confirmed_treasuries"):
+        for row in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall():
+            memberships.setdefault(row["treasury"], {
+                "operator_id": WATCHTOWER_OPERATOR_ID, "display_name": "WATCHTOWER",
+                "role": "TREASURY", "source": "wt_confirmed_treasuries",
+            })
+    return memberships
 
 
 def _evidence_summary(row: dict[str, Any], counts: dict[str, int]) -> dict[str, Any]:
@@ -434,7 +518,14 @@ def _relationship_examples(conn, treasury: str, subprovs: list[str], creators: l
     return examples
 
 
-def _governance_recommendation(row: dict[str, Any], counts: dict[str, int], matches: list[dict[str, Any]]) -> dict[str, str]:
+def _governance_recommendation(row: dict[str, Any], counts: dict[str, int], matches: list[dict[str, Any]],
+                               canonical_membership: dict[str, Any] | None = None) -> dict[str, Any]:
+    if canonical_membership:
+        return {
+            "label": f"Known {canonical_membership['display_name']} {canonical_membership['role'].title()}",
+            "action": None,
+            "operator_id": canonical_membership["operator_id"],
+        }
     matched = [item for item in matches if item.get("matched")]
     if matched:
         top = matched[0]
@@ -466,7 +557,8 @@ def _comparison_triage(matches: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def compose_review_item(conn, row: dict[str, Any], *,
-                        operation_references: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+                        operation_references: list[dict[str, Any]] | None = None,
+                        canonical_membership: dict[str, Any] | None | object = _UNSET) -> dict[str, Any]:
     treasury = row["treasury"]
     evidence_subprovs = _load_json(row.get("evidence_subprovs"))
     evidence_creators = _load_json(row.get("evidence_creators"))
@@ -480,7 +572,9 @@ def compose_review_item(conn, row: dict[str, Any], *,
         operation_references,
     )
     comparison_triage = _comparison_triage(matches)
-    recommendation = _governance_recommendation(row, counts, matches)
+    if canonical_membership is _UNSET:
+        canonical_membership = _canonical_membership(conn, treasury)
+    recommendation = _governance_recommendation(row, counts, matches, canonical_membership)
     recent_actions = [dict(r) for r in conn.execute(
         "SELECT action, analyst, reason, created_at FROM wt_treasury_review_actions "
         "WHERE treasury=? ORDER BY created_at DESC LIMIT 5", (treasury,),
@@ -493,6 +587,8 @@ def compose_review_item(conn, row: dict[str, Any], *,
         "operation_matches": matches,
         "comparison_triage": comparison_triage,
         "recommended_action": recommendation,
+        "governance_state": "ALREADY_CANONICAL" if canonical_membership else "ACTIONABLE",
+        "canonical_membership": canonical_membership,
         "relationship_examples": _relationship_examples(
             conn, treasury, evidence_subprovs, evidence_creators, evidence_mints
         ),
@@ -529,12 +625,24 @@ def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "
                           limit: int = 20, offset: int = 0) -> dict[str, Any]:
     ensure_schema(conn)
     treasury_bank._ensure_schema_once(conn)
-    rows = [dict(r) for r in conn.execute(
+    review_rows = [dict(r) for r in conn.execute(
         "SELECT * FROM wt_treasury_review WHERE status=? ORDER BY detected_at DESC",
         (status,),
     ).fetchall()]
+    canonical_memberships = _canonical_memberships(conn)
+    excluded_canonical = []
+    rows = []
+    for row in review_rows:
+        membership = canonical_memberships.get(row["treasury"])
+        if status == "PENDING_REVIEW" and membership:
+            excluded_canonical.append({"treasury": row["treasury"], **membership})
+        else:
+            rows.append(row)
     operation_references = _confirmed_operation_references(conn)
-    items = [compose_review_item(conn, row, operation_references=operation_references) for row in rows]
+    items = [compose_review_item(
+        conn, row, operation_references=operation_references,
+        canonical_membership=canonical_memberships.get(row["treasury"]),
+    ) for row in rows]
     if sort == "newest":
         items.sort(key=lambda i: (-(i["last_observed"] or 0), i["treasury"]))
     elif sort == "oldest":
@@ -557,9 +665,7 @@ def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "
         "SELECT status, COUNT(*) FROM wt_treasury_review GROUP BY status"
     ).fetchall()
     status_counts = {r[0]: r[1] for r in counts_row}
-    ages = [r[0] for r in conn.execute(
-        "SELECT detected_at FROM wt_treasury_review WHERE status='PENDING_REVIEW' AND detected_at IS NOT NULL"
-    ).fetchall()]
+    ages = [row["detected_at"] for row in rows if row.get("detected_at") is not None]
     now = int(time.time())
     watchtower_candidates = sum(1 for i in items if i["watchtower_candidate"])
 
@@ -578,11 +684,17 @@ def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "
         "sort_contract": "ACTIONABLE_FIRST_THEN_NEWEST_WITHIN_GROUP" if sort not in {"newest", "oldest", "launches"} else sort.upper(),
         "triage_counts": triage_counts,
         "status_counts": status_counts,
-        "pending_total": status_counts.get("PENDING_REVIEW", 0),
+        "pending_total": (status_counts.get("PENDING_REVIEW", 0) - len(excluded_canonical)),
+        "pending_review_rows": status_counts.get("PENDING_REVIEW", 0),
+        "excluded_canonical_total": len(excluded_canonical),
+        "excluded_canonical_by_operation": {
+            name: sum(1 for item in excluded_canonical if item["display_name"] == name)
+            for name in sorted({item["display_name"] for item in excluded_canonical})
+        },
         "newest_pending_age_secs": (now - max(ages)) if ages else None,
         "oldest_pending_age_secs": (now - min(ages)) if ages else None,
         "watchtower_candidates": watchtower_candidates,
-        "requires_attention": status_counts.get("PENDING_REVIEW", 0) > 0,
+        "requires_attention": bool(rows) if status == "PENDING_REVIEW" else False,
         "generated_at": now,
     }
 
@@ -782,4 +894,10 @@ def perform_action(conn, treasury: str, action: str, payload: dict[str, Any]) ->
     action = str(action or "").upper()
     if action not in DISPATCH:
         raise WorkspaceError(f"Unsupported action: {action}", "UNSUPPORTED_ACTION")
+    membership = _canonical_membership(conn, treasury)
+    if membership:
+        raise WorkspaceError(
+            f"Already canonical as {membership['display_name']} {membership['role']}; no unresolved governance action is permitted.",
+            "ALREADY_CANONICAL", 409,
+        )
     return DISPATCH[action](conn, treasury, payload)

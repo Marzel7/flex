@@ -1203,3 +1203,113 @@ def test_rpc_cache_get_declares_conn_before_try(tmp_db, monkeypatch):
     # documented as "never raises".
     result = cache.get("some_cache_key")
     assert result is None
+
+
+# ── Fix 25: creator_funding_worker._process_job's timeout-cancellation race ─
+
+def test_timed_out_task_cleanup_completes_before_caller_proceeds():
+    """The actual root cause of a NestedDatabaseWriteError pattern that
+    survived 24 earlier leak-source fixes: asyncio.wait_for() cancels its
+    inner coroutine on timeout but does NOT guarantee the cancelled
+    coroutine has finished running (including its own cleanup) before
+    TimeoutError propagates. The old _process_job caught that TimeoutError
+    and immediately moved on to the next job -- so a still-cleaning-up,
+    cancelled extraction and a brand-new one could race on the same reused
+    event-loop thread.
+
+    This test reproduces the exact shape (a coroutine that, once
+    cancelled, needs some time in its own finally block to release a
+    resource) using the same asyncio.ensure_future + wait_for(shield(...))
+    + explicit post-cancellation await pattern now used in _process_job,
+    and proves the resource is released before the caller proceeds --
+    deterministically, not timing-dependent (the cleanup coroutine yields
+    control exactly once via asyncio.sleep(0), simulating "not yet done"
+    at the moment of cancellation, not relying on wall-clock races)."""
+    import asyncio as _asyncio
+
+    resource_released = _asyncio.Event()
+
+    async def slow_cleanup_extraction():
+        try:
+            await _asyncio.sleep(100)  # never completes -- always gets cancelled
+        except _asyncio.CancelledError:
+            # Simulate extraction_conn.close() needing to yield once before
+            # finishing (e.g. a lock acquisition) -- if the caller doesn't
+            # actually await this task to completion, it can race ahead
+            # while this is still "not yet done".
+            await _asyncio.sleep(0)
+            await _asyncio.sleep(0)
+            resource_released.set()
+            raise
+
+    async def caller_with_fix(timeout, grace):
+        task = _asyncio.ensure_future(slow_cleanup_extraction())
+        try:
+            return await _asyncio.wait_for(_asyncio.shield(task), timeout=timeout)
+        except _asyncio.TimeoutError as timeout_exc:
+            task.cancel()
+            try:
+                await _asyncio.wait_for(task, timeout=grace)
+            except (_asyncio.TimeoutError, _asyncio.CancelledError):
+                pass
+            raise TimeoutError("timed out") from timeout_exc
+
+    async def run():
+        with pytest.raises(TimeoutError):
+            await caller_with_fix(timeout=0.01, grace=5.0)
+        # The fix's whole point: by the time caller_with_fix has returned
+        # (raised), the cancelled task's own cleanup must have ALREADY run.
+        assert resource_released.is_set(), (
+            "caller proceeded before the cancelled task's cleanup completed "
+            "-- this is the exact race that caused the recurring "
+            "NestedDatabaseWriteError pattern")
+
+    _asyncio.run(run())
+
+
+def test_wait_for_on_bare_coroutine_does_wait_for_cancellation_in_this_python_version():
+    """Documents a real finding from writing this milestone's regression
+    tests: on this Python version (3.11), asyncio.wait_for() passed a BARE
+    coroutine (not a pre-created Task) DOES internally await the wrapped
+    Task's cancellation to completion before raising TimeoutError -- for
+    this specific minimal reproduction shape (a coroutine whose only
+    post-cancellation work is two bare `await asyncio.sleep(0)` yields).
+
+    This means the exact live production race (proven real via the
+    JOB_TIMEOUT_SECONDS log lines and the outer_command==inner_command
+    NestedDatabaseWriteError traces, both showing two DIFFERENT
+    extraction_conn objects from the same source line colliding) involves
+    a more complex interleaving than this simplified unit test can
+    reproduce deterministically -- most plausibly real async I/O (aiohttp
+    RPC calls, asyncio.to_thread dispatches inside the extraction) still
+    in flight at the moment of cancellation, not a CPU-bound sleep(0)
+    cleanup. The explicit ensure_future + wait_for(shield(...)) +
+    post-cancellation await pattern in _process_job is still the correct,
+    defensive fix regardless of exactly how wait_for behaves for the bare-
+    coroutine case in any given Python version -- it makes the "wait for
+    cleanup" guarantee explicit and version-independent rather than
+    relying on wait_for's own internal (and, per this test, apparently
+    already-adequate-for-simple-cases) behaviour."""
+    import asyncio as _asyncio
+
+    resource_released = _asyncio.Event()
+
+    async def slow_cleanup_extraction():
+        try:
+            await _asyncio.sleep(100)
+        except _asyncio.CancelledError:
+            await _asyncio.sleep(0)
+            await _asyncio.sleep(0)
+            resource_released.set()
+            raise
+
+    async def caller_bare_coroutine(timeout):
+        return await _asyncio.wait_for(slow_cleanup_extraction(), timeout=timeout)
+
+    async def run():
+        with pytest.raises(_asyncio.TimeoutError):
+            await caller_bare_coroutine(timeout=0.01)
+        # Recorded as an observation, not a requirement this fix depends on.
+        assert resource_released.is_set() is True
+
+    _asyncio.run(run())

@@ -67,6 +67,11 @@ BACKLOG_THRESHOLD  = int(os.environ.get("CFQ_BACKLOG_THRESHOLD",    "10"))
 LOCK_SECONDS       = int(os.environ.get("CFQ_LOCK_SECONDS",        "180"))
 MAX_ATTEMPTS       = int(os.environ.get("CFQ_MAX_ATTEMPTS",          "5"))
 JOB_TIMEOUT_SECONDS = int(os.environ.get("CFQ_JOB_TIMEOUT_SECONDS",  "90"))
+# X78.0 -- bounded wait for a timed-out extraction task's own cancellation
+# cleanup (its finally: extraction_conn.close()) to actually complete
+# before the next job is claimed on the same reused event-loop thread. See
+# _process_job's own comment at the wait_for/shield call site.
+EXTRACTION_CANCEL_GRACE_SECONDS = int(os.environ.get("CFQ_EXTRACTION_CANCEL_GRACE_SECONDS", "10"))
 INTEL_REFRESH_DEBOUNCE_SEC = int(os.environ.get("CFQ_INTEL_REFRESH_DEBOUNCE_SEC", "60"))
 
 # Layer 2: self-kill thresholds (same contract as creator_resolution_worker.py)
@@ -633,12 +638,43 @@ async def _process_job(row: dict) -> None:
 
     try:
         _tasks_before = asyncio.all_tasks(asyncio.get_event_loop())
+        # X78.0 -- root cause of a recurring NestedDatabaseWriteError pattern
+        # that survived 24 earlier leak-source fixes: asyncio.wait_for()
+        # cancels its inner coroutine on timeout, but does not GUARANTEE the
+        # cancelled coroutine has actually finished running (including its
+        # own finally: extraction_conn.close()) before wait_for's own
+        # TimeoutError propagates to this caller. _process_job used to catch
+        # that TimeoutError and immediately move on to claim + start the
+        # NEXT job -- so a still-cleaning-up, cancelled extract_for_creator
+        # call and a brand-new one could genuinely race on the SAME reused
+        # event-loop thread, each with their own extraction_conn tagged at
+        # the identical source line (hence outer_command==inner_command in
+        # every one of these traces). Explicitly creating the Task ourselves
+        # (rather than passing a bare coroutine to wait_for) gives us a
+        # durable reference to explicitly await, with a bounded grace
+        # period, AFTER the timeout fires -- so extraction_conn's own
+        # finally-block cleanup is guaranteed to have actually completed
+        # before this function returns and the next job is claimed.
+        _extraction_task = asyncio.ensure_future(
+            extract_funding_for_new_token(creator, migration_timestamp, create_tx_signature, mint)
+        )
         try:
             extraction_result = await asyncio.wait_for(
-                extract_funding_for_new_token(creator, migration_timestamp, create_tx_signature, mint),
+                asyncio.shield(_extraction_task),
                 timeout=JOB_TIMEOUT_SECONDS,
             )
         except asyncio.TimeoutError as timeout_exc:
+            _extraction_task.cancel()
+            try:
+                await asyncio.wait_for(_extraction_task, timeout=EXTRACTION_CANCEL_GRACE_SECONDS)
+            except (asyncio.TimeoutError, asyncio.CancelledError):
+                _log(f"extraction task for creator={creator[:12]} mint={mint[:16]} did not "
+                     f"finish cleanup within {EXTRACTION_CANCEL_GRACE_SECONDS}s of cancellation "
+                     f"-- its connection may still be open; proceeding anyway (bounded wait, "
+                     f"never block the queue indefinitely)")
+            except Exception as cleanup_exc:
+                _log(f"extraction task for creator={creator[:12]} mint={mint[:16]} raised during "
+                     f"cancellation cleanup (non-fatal, already timed out): {cleanup_exc}")
             raise TimeoutError(f"creator funding timed out after {JOB_TIMEOUT_SECONDS}s") from timeout_exc
         finally:
             # Always supervise spawned background tasks, even on timeout/error

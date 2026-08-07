@@ -468,7 +468,7 @@ def _operation_matches(conn, treasury: str, subprovs: list[str], creators: list[
             overall = "NO_MATCH"
         matches.append({
             "operator_id": op["operator_id"], "display_name": op["display_name"] or op["operator_id"],
-            "operator_href": f"/intelligence/operators/{op['operator_id']}",
+            "operator_href": f"/intelligence/operator/{op['operator_id']}",
             "overlap_accounts": overlap,
             "matched": explicit_identity_overlap,
             "comparison_state": overall,

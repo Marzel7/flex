@@ -51,6 +51,7 @@ def test_review_projection_explains_topology_match_and_recommendation():
     assert item["operation_matches"][0]["display_name"] == "WATCHTOWER"
     assert item["operation_matches"][0]["states"]["Provisioning"] == "MATCH"
     sw2_match = next(match for match in item["operation_matches"] if match["display_name"] == "3SW2")
+    assert sw2_match["operator_href"] == f"/intelligence/operator/{sw2}"
     assert sw2_match["matched"] is False
     assert sw2_match["comparison_state"] in {"PARTIAL", "NO_MATCH"}
     assert item["recommended_action"]["label"] == "Expand WATCHTOWER"

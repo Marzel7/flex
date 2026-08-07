@@ -52,6 +52,7 @@ def test_clean_existing_evidence_produces_evaluated_dimensions():
     assert watch["states"]["Treasury"] == "UNKNOWN"
     assert watch["comparison_state"] == "PARTIAL"
     assert watch["matched"] is False  # similarity never becomes identity overlap
+    assert watch["operator_href"] == f"/intelligence/operator/{WATCHTOWER_OPERATOR_ID}"
 
 
 def test_all_unknown_is_not_no_match():

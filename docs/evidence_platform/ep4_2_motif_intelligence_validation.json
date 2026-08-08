@@ -1,0 +1,236 @@
+{
+  "datasets": [
+    {
+      "engine_health": {
+        "authoritative": false,
+        "average_evidence_completeness_ppm": 636693,
+        "average_primitive_completeness_ppm": 891936,
+        "coverage_ppm": 1000000,
+        "governance_enabled": false,
+        "growth": {
+          "COLLAPSING": 96,
+          "GROWING": 145,
+          "NOT_COMPARABLE": 1013,
+          "STABLE": 125
+        },
+        "identity_enabled": false,
+        "intelligence_generated": 1379,
+        "latency_ms": 8653.292,
+        "motifs": 1379,
+        "ranking_count": 1379,
+        "replay": "DETERMINISTIC",
+        "status": "HEALTHY"
+      },
+      "evidence_completeness_ppm": {
+        "average": 636693,
+        "maximum": 1000000,
+        "minimum": 0
+      },
+      "growth": {
+        "COLLAPSING": 96,
+        "GROWING": 145,
+        "NOT_COMPARABLE": 1013,
+        "STABLE": 125
+      },
+      "identity_free": true,
+      "intelligence_digest": "6f1dae355daa3db9362b7cb6da97a74d4dce4df6058bdd928ae0f3e041798507",
+      "intelligence_generated": 1379,
+      "latency_ms": 8659.56,
+      "measurement_stable": true,
+      "motifs": 1379,
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 1379,
+          "ranking_id": "75b5ac99afaac8c62256bf595b4705b594d1aed4c104414598d6fa13d747a078"
+        },
+        "health": {
+          "authoritative": false,
+          "intelligence_generated": 1379,
+          "motifs": 1379,
+          "rankings": 1,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 1379,
+          "inserted": 0,
+          "ranking_id": "75b5ac99afaac8c62256bf595b4705b594d1aed4c104414598d6fa13d747a078"
+        }
+      },
+      "primitive_completeness_ppm": {
+        "average": 891936,
+        "maximum": 1000000,
+        "minimum": 43011
+      },
+      "ranking_stable": true,
+      "replay_deterministic": true,
+      "top_ranked_motif_ids": [
+        "77883a8b6129dda01db68afe97de73d76d308aebed71df4015e1c3e804012a53",
+        "6a628693e50f76bcb5c652438d793e621aa2f7b5f33fb1319dd8cadfe0556010",
+        "a6adb080cb1cd1961de6b9ac525b4df97af9bccdd8ad32a2b5d5a2a8883fa920",
+        "dfbedcf7405076c8e40a0ed8500871fd06a1098003eff1a93d21989857997175",
+        "14fcec77c8fbb7fcf6e642ac975a93fbdaff682b0f89fc886d1143925c9b807f",
+        "c8339f4f5f2064a1df793597c76cb9110eab393c27c0979dc5ada547f5bc0ff0",
+        "b2b98c2ff09185eee219b2db0e497bb5c9cd2d07d808c996f0675f72bfb934fe",
+        "9c608fbdc9a9eca06076dc0367180cdd56e450b69ba47eb93d0d1485516f9d3d",
+        "0da7f8a36ef4588eef6cebafb2bdf7bc5f5125667aaab63d2341ee835ce9d76f",
+        "0e47663d3edbc3723ed31880bc8acc28cbb9860fe167f7e10d46134d8aa8f916"
+      ],
+      "validation_dataset": "KNOWN_CORPUS_A"
+    },
+    {
+      "engine_health": {
+        "authoritative": false,
+        "average_evidence_completeness_ppm": 1000000,
+        "average_primitive_completeness_ppm": 1000000,
+        "coverage_ppm": 1000000,
+        "governance_enabled": false,
+        "growth": {
+          "COLLAPSING": 5,
+          "GROWING": 1,
+          "NOT_COMPARABLE": 8,
+          "STABLE": 1
+        },
+        "identity_enabled": false,
+        "intelligence_generated": 15,
+        "latency_ms": 14.362,
+        "motifs": 15,
+        "ranking_count": 15,
+        "replay": "DETERMINISTIC",
+        "status": "HEALTHY"
+      },
+      "evidence_completeness_ppm": {
+        "average": 1000000,
+        "maximum": 1000000,
+        "minimum": 1000000
+      },
+      "growth": {
+        "COLLAPSING": 5,
+        "GROWING": 1,
+        "NOT_COMPARABLE": 8,
+        "STABLE": 1
+      },
+      "identity_free": true,
+      "intelligence_digest": "1c5fdedf76816f92a94070f4a6cf3c2aa773590bd2d2f5e337b9399825803fe4",
+      "intelligence_generated": 15,
+      "latency_ms": 14.398,
+      "measurement_stable": true,
+      "motifs": 15,
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 15,
+          "ranking_id": "a18eca9ce28e0191dbd4f12a88c09d286a8b8b15a151b10619d6bc4dc37ba02a"
+        },
+        "health": {
+          "authoritative": false,
+          "intelligence_generated": 15,
+          "motifs": 15,
+          "rankings": 1,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 15,
+          "inserted": 0,
+          "ranking_id": "a18eca9ce28e0191dbd4f12a88c09d286a8b8b15a151b10619d6bc4dc37ba02a"
+        }
+      },
+      "primitive_completeness_ppm": {
+        "average": 1000000,
+        "maximum": 1000000,
+        "minimum": 1000000
+      },
+      "ranking_stable": true,
+      "replay_deterministic": true,
+      "top_ranked_motif_ids": [
+        "ff879f996569144cceb346747475633886c8214bb5cdc7c0673e09c5ec47f444",
+        "1858343a50389db095f44713738e79554cdf28a172dbad0c600966c152980ae9",
+        "97753f7825104ae0c4e850c38691f1711d509e76e2dc74b934e93c20d86ef2cf",
+        "2d8fa18b45ff9545c90dd49e202f33a732c5f2dd653bd9bcb469a381e41c1b5d",
+        "9aff17218f8249789ca7b6a8db4d30e84e94e5dcf04d94d48a00654d547ee2a1",
+        "c6d718dcc2c4d2205717496fe231e7b5206e3b23531c76a18096a4db3499d4c0",
+        "9bd0d15848060f39f126b030ceb1b3b6c9ac957e260f04aca95134d9a7e20ffe",
+        "10c5820301b098accde7fa342c077a1f56c4cba75cf86b0695dfd33258d2d64a",
+        "feea7a55d508bce3da441f80a8a35d6eeb0c64a5a2e22abac2d94bd6356309c3",
+        "2ae15d357db2613941a1b85c453b4fb1c0cee07ed22e54081d1f9fa64f075c73"
+      ],
+      "validation_dataset": "KNOWN_CORPUS_B"
+    },
+    {
+      "engine_health": {
+        "authoritative": false,
+        "average_evidence_completeness_ppm": 1000000,
+        "average_primitive_completeness_ppm": 1000000,
+        "coverage_ppm": 1000000,
+        "governance_enabled": false,
+        "growth": {
+          "STABLE": 1
+        },
+        "identity_enabled": false,
+        "intelligence_generated": 1,
+        "latency_ms": 0.282,
+        "motifs": 1,
+        "ranking_count": 1,
+        "replay": "DETERMINISTIC",
+        "status": "HEALTHY"
+      },
+      "evidence_completeness_ppm": {
+        "average": 1000000,
+        "maximum": 1000000,
+        "minimum": 1000000
+      },
+      "growth": {
+        "STABLE": 1
+      },
+      "identity_free": true,
+      "intelligence_digest": "1b5bdc98fcf3c95853186d1dd42c1990ca601fc5974c56254f00d3261f86d8d1",
+      "intelligence_generated": 1,
+      "latency_ms": 0.301,
+      "measurement_stable": true,
+      "motifs": 1,
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 1,
+          "ranking_id": "6e9a41b3de3cbda3bf98b678c9fa84dcbdde63d92b7f1d98a0a35609cfe5aaaf"
+        },
+        "health": {
+          "authoritative": false,
+          "intelligence_generated": 1,
+          "motifs": 1,
+          "rankings": 1,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 1,
+          "inserted": 0,
+          "ranking_id": "6e9a41b3de3cbda3bf98b678c9fa84dcbdde63d92b7f1d98a0a35609cfe5aaaf"
+        }
+      },
+      "primitive_completeness_ppm": {
+        "average": 1000000,
+        "maximum": 1000000,
+        "minimum": 1000000
+      },
+      "ranking_stable": true,
+      "replay_deterministic": true,
+      "top_ranked_motif_ids": [
+        "9d8bb17d4a7a1363262647d62516e8b2acf9057dc8a1f4eab416d321a54215a0"
+      ],
+      "validation_dataset": "GENERIC_UNLABELLED_POPULATION"
+    }
+  ],
+  "governance_actions": 0,
+  "identity_free": true,
+  "identity_promotions": 0,
+  "intelligence_version": "1.0.0",
+  "measurement_deterministic": true,
+  "milestone": "EP4.2",
+  "operation_contracts_loaded": 0,
+  "passed": true,
+  "production_database_reads": 0,
+  "production_writes": 0,
+  "ranking_deterministic": true,
+  "replay_deterministic": true,
+  "rpc_calls": 0
+}

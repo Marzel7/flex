@@ -1,0 +1,56 @@
+{
+  "authority": "SHADOW_ONLY",
+  "invariants": {
+    "governance_executed": false,
+    "production_authority_changed": false,
+    "production_storage_read_by_evaluation": false,
+    "rpc_performed": false
+  },
+  "milestone": "EP3.1",
+  "parity_differences": [
+    {
+      "area": "launch coverage",
+      "classification": "Missing Evidence",
+      "detail": "Frozen launches without a materialized LAUNCH_SIGNER remain unavailable.",
+      "legacy": 176,
+      "shadow": 136
+    },
+    {
+      "area": "provisioning edge parity",
+      "classification": "Known legacy limitation",
+      "detail": "Legacy edge rows are comparison data; Primitive Contract v1 does not reproduce legacy edge identity.",
+      "legacy": 5937,
+      "shadow": null
+    },
+    {
+      "area": "campaign grouping",
+      "classification": "Known legacy limitation",
+      "detail": "No approved generic primitive establishes legacy campaign membership.",
+      "legacy": "authoritative",
+      "shadow": "not emitted"
+    }
+  ],
+  "population": {
+    "canonical_entities": 69,
+    "launches": 176,
+    "provisioning_edges": 5937,
+    "treasuries": 62
+  },
+  "report_digest": "6e66e7a07350f9eec563c5fa930893ca4effbd755dec563c9fc944dbe6809f66",
+  "runtime_inputs": {
+    "launches_with_launch_signer": 136,
+    "launches_without_launch_signer": 40,
+    "primitive_counts": {
+      "BEHAVIOURAL_TIMING": 17687,
+      "DIRECT_COUNTERPARTY": 11179,
+      "ECONOMIC_FUNDING": 25,
+      "LAUNCH_ACTIVATION": 25,
+      "LAUNCH_SIGNER": 225,
+      "REPEATED_COUNTERPARTY": 49,
+      "SHARED_TRANSACTION": 4738,
+      "SYSTEM_TRANSFER": 9796,
+      "WALLET_FRESH_AT_EVENT": 39694,
+      "WSOL_CLOSE": 2571
+    }
+  }
+}

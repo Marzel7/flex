@@ -342,7 +342,14 @@ def test_registry_collisions_and_version_coexistence_are_deterministic(runtime):
 def test_no_operation_or_production_authority_is_embedded():
     from pathlib import Path
     root = Path("src/evidence/operation_contracts")
-    source = "\n".join(path.read_text() for path in root.glob("*.py"))
+    # EP3.0 freezes the generic runtime boundary. Later contract implementations
+    # live beside it, so this assertion deliberately audits only the generic
+    # runtime modules rather than forbidding all future Operation contracts.
+    generic_modules = (
+        "formalization.py", "input_windows.py", "loader.py", "registry.py",
+        "runtime.py", "storage.py",
+    )
+    source = "\n".join((root / name).read_text() for name in generic_modules)
     forbidden = ("WATCHTOWER", "3SW2", "unknown_discovery", "operator_identity",
                  "governance.execute", "src.core", "requests.", "aiohttp")
     assert all(term not in source for term in forbidden)

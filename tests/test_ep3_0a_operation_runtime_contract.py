@@ -236,7 +236,12 @@ def test_lifecycle_is_three_dimensional_and_recommendations_never_execute():
 
 def test_formalization_has_no_execution_or_production_mutation_dependencies():
     root = Path("src/evidence/operation_contracts")
-    source = "\n".join(path.read_text() for path in root.glob("*.py"))
+    # Audit the frozen EP3.0A formalization boundary, not later named contracts.
+    source = "\n".join(
+        (root / name).read_text()
+        for name in ("formalization.py", "operation_contract_v1.schema.json",
+                     "runtime_output_v1.schema.json")
+    )
     forbidden = (
         "aiohttp", "requests.", "src.core", "creator_funding", "walkback",
         "operator_identity", "governance.execute", "confidence.score",

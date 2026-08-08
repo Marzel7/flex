@@ -196,6 +196,19 @@ def _ensure_rpc_metrics_table():
             return
     except Exception:
         pass
+    # X78.11 -- conn declared before the try so `finally` can always reach
+    # it. sqlite3.connect() here is transparently routed through
+    # db_locking.py's global monkeypatch into TrackedConnection, so this
+    # function silently participates in the cross-process write lane. Prior
+    # to this fix, conn.close() was only called on the success path; any
+    # exception (in production, a CrossProcessDatabaseWriteTimeout from
+    # conn.commit() under contention) skipped straight to `except`,
+    # permanently leaking the write lease on whichever thread called this
+    # function (database_write_service._thread_write_lease.owner never
+    # cleared) -- every subsequent write on that exact thread then
+    # self-collided as NestedDatabaseWriteError forever. See
+    # docs/audits/x78_11_rpc_metrics_lease_poisoning_repair.md.
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.execute("PRAGMA journal_mode=WAL")
@@ -277,9 +290,14 @@ def _ensure_rpc_metrics_table():
             ON rpc_metrics(optimization_layer, timestamp DESC)
         """)
         conn.commit()
-        conn.close()
     except Exception as e:
         print(f"[WARNING] Could not ensure RPC metrics table: {e}", flush=True)
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 # ── BATCHED metric persistence ───────────────────────────────────────────────
 # Previously every RPC call did its own connect→INSERT→commit→close = one write-lock
@@ -379,6 +397,11 @@ def _persist_rpc_metric(
 
 def _set_state(key: str, value: str) -> None:
     """Persist a recorder state value to database"""
+    # X78.11 -- same fix shape as _ensure_rpc_metrics_table/_try_claim_reset_day:
+    # conn declared before try, closed in finally regardless of outcome, so a
+    # CrossProcessDatabaseWriteTimeout (or any other exception) from commit()
+    # can never leak the write lease on the calling thread.
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.execute("""
@@ -389,9 +412,14 @@ def _set_state(key: str, value: str) -> None:
                 updated_at=CURRENT_TIMESTAMP
         """, (key, value))
         conn.commit()
-        conn.close()
     except Exception as e:
         print(f"[RPC_METRICS] Failed to persist state {key}: {e}", flush=True)
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 
@@ -423,6 +451,21 @@ def _get_state(key: str, default: Optional[str] = None) -> Optional[str]:
 
 def _try_claim_reset_day(day_key: str) -> bool:
     """Atomically claim the UK reset day so only one process performs reset work."""
+    # X78.11 -- THE root cause identified during X78.10 live production
+    # validation. This bare sqlite3.connect() is transparently routed
+    # through db_locking.py's global monkeypatch into TrackedConnection, so
+    # it silently participates in the cross-process write lane. conn was
+    # only closed on the success path; a CrossProcessDatabaseWriteTimeout
+    # (or ANY exception) from conn.commit() under real contention skipped
+    # straight to `except Exception: return False`, permanently leaking the
+    # write lease -- database_write_service._thread_write_lease.owner never
+    # cleared -- on whichever thread called this function. Every subsequent
+    # write on that exact thread then self-collided as
+    # NestedDatabaseWriteError forever (reproduced twice live: PID 70588 --
+    # 12 successful cycles vs 12,891 error lines; PID 82909 -- exactly 1
+    # successful cycle then permanently repoisoned on the next RPC-metrics
+    # flush). See docs/audits/x78_11_rpc_metrics_lease_poisoning_repair.md.
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         cursor = conn.execute("""
@@ -434,11 +477,20 @@ def _try_claim_reset_day(day_key: str) -> bool:
             WHERE rpc_metrics_state.value != excluded.value
         """, (day_key,))
         conn.commit()
-        changed = cursor.rowcount > 0
-        conn.close()
-        return changed
+        return cursor.rowcount > 0
     except Exception:
+        if conn is not None:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         return False
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 # ============================================================================
 # RPC METRICS RECORDER

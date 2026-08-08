@@ -260,21 +260,57 @@ class WatchtowerShadowCorpusMaterializer:
         finally:
             connection.close()
 
-    def _reconstruct_envelopes(self, database_path: Path) -> list[dict[str, Any]]:
+    def _reconstruct_envelopes(self, database_path: Path,
+                               source_version: str | None = None) -> list[dict[str, Any]]:
         connection = _read_only(database_path)
         try:
-            rows = connection.execute(
+            query = (
                 "SELECT e.*,p.provider_request_id,p.rpc_verification_state,p.acquisition_method,"
                 "p.source_metadata_json,a.size_bytes,a.compressed_bytes,a.content_type,a.compression,"
                 "n.artifact_representation FROM evidence_envelopes e "
                 "JOIN evidence_provenance p USING(envelope_id) "
                 "JOIN artifact_references a USING(envelope_id) "
                 "LEFT JOIN normalization_status n ON n.envelope_id=e.envelope_id "
-                "ORDER BY e.envelope_id"
-            ).fetchall()
+                "WHERE (? IS NULL OR e.source_version=?) ORDER BY e.envelope_id"
+            )
+            rows = connection.execute(query, (source_version, source_version)).fetchall()
             result = []
             for row in rows:
                 source_metadata = json.loads(row["source_metadata_json"])
+                acquisition = dict(source_metadata.get("acquisition") or {})
+                fact_rows = connection.execute(
+                    "SELECT n.fact_family,n.payload_json FROM normalized_evidence_records n "
+                    "JOIN normalized_evidence_provenance np USING(evidence_id) "
+                    "WHERE n.raw_artifact_digest=? AND np.provider_request_id=?",
+                    (row["artifact_digest"], row["provider_request_id"]),
+                ).fetchall()
+                signatures: set[str] = set()
+                history_address = None
+                history_context: dict[str, Any] = {}
+                for fact_row in fact_rows:
+                    payload = json.loads(fact_row["payload_json"])
+                    for key in ("signature", "creation_signature"):
+                        if isinstance(payload.get(key), str):
+                            signatures.add(payload[key])
+                    if (fact_row["fact_family"] == "AddressHistoryObservation"
+                            and isinstance(payload.get("address"), str)):
+                        history_address = payload["address"]
+                        history_context = {
+                            "cursor": payload.get("before_cursor"),
+                            "until_cursor": payload.get("until_cursor"),
+                            "minimum_context_slot": payload.get("minimum_context_slot"),
+                            "page_size": payload.get("page_size"),
+                            "page_complete": payload.get("page_complete"),
+                            "provider_coverage_statement": payload.get("provider_coverage_statement"),
+                        }
+                acquisition.setdefault("method", row["acquisition_method"])
+                acquisition.setdefault("cache_state", "hit")
+                acquisition.setdefault("artifact_representation", row["artifact_representation"])
+                acquisition.setdefault("transaction_signatures", sorted(signatures))
+                if history_address is not None:
+                    acquisition.setdefault("creator", history_address)
+                    for key, value in history_context.items():
+                        acquisition.setdefault(key, value)
                 result.append({
                     "envelope_id": row["envelope_id"], "observed_at": row["observed_at"],
                     "acquired_at": row["acquired_at"], "source": row["source"],
@@ -289,9 +325,7 @@ class WatchtowerShadowCorpusMaterializer:
                                    "rpc_verification_state": row["rpc_verification_state"],
                                    "acquisition_method": row["acquisition_method"],
                                    "source_metadata": source_metadata},
-                    "acquisition": {"method": row["acquisition_method"], "cache_state": "hit",
-                                    "artifact_representation": row["artifact_representation"],
-                                    "transaction_signatures": []},
+                    "acquisition": acquisition,
                 })
             return result
         finally:

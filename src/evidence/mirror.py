@@ -23,7 +23,7 @@ from .metrics import EvidenceMetrics
 from .queue import EvidenceIntakeQueue
 
 
-MIRROR_SOURCE_VERSION = "ep1.2-mirror-v1"
+MIRROR_SOURCE_VERSION = "ep3.0g-observation-v1"
 MIRROR_PARSER_VERSION = "raw-acquisition-v1"
 
 
@@ -32,6 +32,39 @@ def _canonical(value: Any) -> bytes:
         json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
         + "\n"
     ).encode("utf-8")
+
+
+def acquisition_observation_digest(envelope: Mapping[str, Any]) -> str:
+    """Identify an acquisition observation independently of its raw bytes."""
+    acquisition = envelope.get("acquisition") or {}
+    provenance = envelope.get("provenance") or {}
+    source_metadata = provenance.get("source_metadata") or {}
+    identity = {
+        "acquisition_id": acquisition.get("acquisition_id"),
+        "correlation_id": acquisition.get("correlation_id"),
+        "purpose": acquisition.get("purpose"),
+        "creator": acquisition.get("creator"),
+        "launch": acquisition.get("launch"),
+        "provider": acquisition.get("provider", envelope.get("provider")),
+        "method": acquisition.get("method", provenance.get("acquisition_method")),
+        "request_digest": acquisition.get("request_digest", source_metadata.get("request_digest")),
+        "timestamp": acquisition.get("timestamp", envelope.get("acquired_at")),
+        "retry_count": acquisition.get("retry_count"),
+        "cache_state": acquisition.get("cache_state"),
+        "artifact_digest": (envelope.get("artifact") or {}).get("digest"),
+        "response_status": source_metadata.get("http_status"),
+    }
+    return hashlib.sha256(_canonical(identity)).hexdigest()
+
+
+def amend_acquisition_observation(envelope: Mapping[str, Any]) -> dict[str, Any]:
+    """Upgrade a queued pre-EP3.0G acquisition envelope without touching bytes."""
+    amended = json.loads(json.dumps(envelope))
+    digest = acquisition_observation_digest(amended)
+    amended["evidence_digest"] = digest
+    amended["envelope_id"] = f"acq-{digest}"
+    amended["source_version"] = MIRROR_SOURCE_VERSION
+    return amended
 
 
 def _sanitize_url(url: str) -> str:
@@ -270,21 +303,14 @@ class EvidenceMirrorPublisher:
         signatures = _transaction_signatures(
             str(metadata["method"]), item.request_payload, item.response_data
         )
-        envelope_identity = _canonical({
-            "acquisition_id": metadata["acquisition_id"],
-            "provider": metadata["provider"],
-            "retry_count": metadata["retry_count"],
-            "response_digest": response_digest,
-        })
-        envelope_id = f"acq-{hashlib.sha256(envelope_identity).hexdigest()}"
-        return {
-            "envelope_id": envelope_id,
+        envelope = {
+            "envelope_id": "",
             "observed_at": int(metadata["timestamp"]),
             "acquired_at": int(metadata["timestamp"]),
             "source": "shared_transaction_acquisition",
             "source_version": MIRROR_SOURCE_VERSION,
             "provider": metadata["provider"],
-            "evidence_digest": response_digest,
+            "evidence_digest": "",
             "replay_version": "1",
             "parser_version": MIRROR_PARSER_VERSION,
             "payload_type": "acquisition/response",
@@ -305,6 +331,8 @@ class EvidenceMirrorPublisher:
                     "response_digest": response_digest,
                     "http_status": item.response_status,
                     "artifact_representation": item.artifact_representation,
+                    "request": request,
+                    "acquisition": dict(metadata),
                 },
             },
             "acquisition": {
@@ -327,6 +355,7 @@ class EvidenceMirrorPublisher:
                 "artifact_representation": item.artifact_representation,
             },
         }
+        return amend_acquisition_observation(envelope)
 
     def _publish(self, item: MirrorItem) -> None:
         raw = self._artifact_payload(item)

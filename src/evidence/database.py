@@ -30,6 +30,7 @@ class EvidenceDatabase:
         self.connection.execute("PRAGMA synchronous=FULL")
         self.connection.execute("PRAGMA busy_timeout=5000")
         self.connection.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+        self._migrate_acquisition_observation_identity()
         self.connection.execute(
             "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(1,?)",
             (int(self.clock()),),
@@ -42,6 +43,44 @@ class EvidenceDatabase:
             "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(3,?)",
             (int(self.clock()),),
         )
+        self.connection.execute(
+            "INSERT OR IGNORE INTO evidence_schema_metadata(schema_version,installed_at) VALUES(4,?)",
+            (int(self.clock()),),
+        )
+
+    def _migrate_acquisition_observation_identity(self) -> None:
+        """Make artifact identity independent from acquisition observations."""
+        assert self.connection is not None
+        conn = self.connection
+        conn.execute(
+            "INSERT OR IGNORE INTO immutable_artifacts(artifact_digest,first_recorded_at) "
+            "SELECT DISTINCT artifact_digest,MIN(appended_at) FROM evidence_envelopes "
+            "GROUP BY artifact_digest"
+        )
+        foreign_keys = conn.execute("PRAGMA foreign_key_list(normalized_evidence_records)").fetchall()
+        if any(str(row[2]) == "evidence_envelopes" for row in foreign_keys):
+            conn.execute("PRAGMA foreign_keys=OFF")
+            conn.execute("PRAGMA legacy_alter_table=ON")
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                conn.execute("DROP TRIGGER IF EXISTS normalized_evidence_records_no_update")
+                conn.execute("DROP TRIGGER IF EXISTS normalized_evidence_records_no_delete")
+                conn.execute("ALTER TABLE normalized_evidence_records RENAME TO normalized_evidence_records_ep3g_old")
+                schema = SCHEMA_PATH.read_text(encoding="utf-8")
+                table_sql = schema.split("CREATE TABLE IF NOT EXISTS normalized_evidence_records (", 1)[1].split(");", 1)[0]
+                conn.execute("CREATE TABLE normalized_evidence_records (" + table_sql + ")")
+                columns = [row[1] for row in conn.execute("PRAGMA table_info(normalized_evidence_records)")]
+                names = ",".join(columns)
+                conn.execute(f"INSERT INTO normalized_evidence_records({names}) SELECT {names} FROM normalized_evidence_records_ep3g_old")
+                conn.execute("DROP TABLE normalized_evidence_records_ep3g_old")
+                conn.commit()
+            except BaseException:
+                conn.rollback()
+                raise
+            finally:
+                conn.execute("PRAGMA legacy_alter_table=OFF")
+                conn.execute("PRAGMA foreign_keys=ON")
+            conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
 
     def close(self) -> None:
         if self.connection is not None:
@@ -72,6 +111,10 @@ class EvidenceDatabase:
                     str(envelope["evidence_digest"]), str(envelope["replay_version"]),
                     str(envelope["parser_version"]), str(envelope["payload_type"]),
                     str(envelope["artifact"]["digest"]), now,
+                )
+                conn.execute(
+                    "INSERT OR IGNORE INTO immutable_artifacts(artifact_digest,first_recorded_at) VALUES(?,?)",
+                    (str(envelope["artifact"]["digest"]), now),
                 )
                 cursor = conn.execute(
                     "INSERT OR IGNORE INTO evidence_envelopes("

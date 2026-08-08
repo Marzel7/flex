@@ -250,9 +250,31 @@ class SharedTransactionAcquisition:
         cursor: Optional[str] = None,
     ) -> Optional[dict[str, Any]]:
         """Compatibility implementation of creator funding's RPC policy."""
+        response = await self.json_rpc_response_legacy(
+            payload, rpc_urls=rpc_urls, max_retries=max_retries,
+            timeout_seconds=timeout_seconds, metrics_sink=metrics_sink,
+            cache_action=cache_action, credits_saved=credits_saved,
+            page_number=page_number, cursor=cursor,
+        )
+        return response.data if response is not None and isinstance(response.data, dict) else None
+
+    async def json_rpc_response_legacy(
+        self,
+        payload: dict[str, Any],
+        *,
+        rpc_urls: Sequence[str],
+        max_retries: int,
+        timeout_seconds: float,
+        metrics_sink: MetricsSink,
+        cache_action: str,
+        credits_saved: int,
+        page_number: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ) -> Optional[AcquisitionResponse]:
+        """Execute the frozen RPC policy while retaining exact response bytes."""
         request_id = str(uuid.uuid4())
 
-        async def execute() -> Optional[dict[str, Any]]:
+        async def execute() -> Optional[AcquisitionResponse]:
             for attempt in range(max_retries):
                 for rpc_url in rpc_urls:
                     response = await self.request_once(
@@ -319,7 +341,7 @@ class SharedTransactionAcquisition:
                             source_file="realtime_creator_funding_extractor",
                             cache_action=cache_action, credits_saved=credits_saved,
                         )
-                        return data
+                        return response
                 if attempt < max_retries - 1:
                     await asyncio.sleep(0.5 * (2 ** attempt))
             return None

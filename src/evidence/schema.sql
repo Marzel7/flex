@@ -5,6 +5,11 @@ CREATE TABLE IF NOT EXISTS evidence_schema_metadata (
     installed_at INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS immutable_artifacts (
+    artifact_digest TEXT PRIMARY KEY,
+    first_recorded_at INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS evidence_envelopes (
     envelope_id TEXT PRIMARY KEY,
     observed_at INTEGER NOT NULL,
@@ -37,7 +42,8 @@ CREATE TABLE IF NOT EXISTS artifact_references (
     content_type TEXT NOT NULL,
     compression TEXT NOT NULL,
     PRIMARY KEY(envelope_id, artifact_digest),
-    FOREIGN KEY(envelope_id) REFERENCES evidence_envelopes(envelope_id)
+    FOREIGN KEY(envelope_id) REFERENCES evidence_envelopes(envelope_id),
+    FOREIGN KEY(artifact_digest) REFERENCES immutable_artifacts(artifact_digest)
 );
 
 CREATE TABLE IF NOT EXISTS writer_receipts (
@@ -72,7 +78,7 @@ CREATE TABLE IF NOT EXISTS normalized_evidence_records (
     corrects_evidence_id TEXT,
     created_at INTEGER NOT NULL,
     UNIQUE(evidence_id),
-    FOREIGN KEY(raw_artifact_digest) REFERENCES evidence_envelopes(evidence_digest)
+    FOREIGN KEY(raw_artifact_digest) REFERENCES immutable_artifacts(artifact_digest)
 );
 
 CREATE INDEX IF NOT EXISTS normalized_evidence_logical_fact
@@ -140,6 +146,10 @@ CREATE TRIGGER IF NOT EXISTS evidence_envelopes_no_update BEFORE UPDATE ON evide
 BEGIN SELECT RAISE(ABORT, 'immutable evidence cannot be updated'); END;
 CREATE TRIGGER IF NOT EXISTS evidence_envelopes_no_delete BEFORE DELETE ON evidence_envelopes
 BEGIN SELECT RAISE(ABORT, 'immutable evidence cannot be deleted'); END;
+CREATE TRIGGER IF NOT EXISTS immutable_artifacts_no_update BEFORE UPDATE ON immutable_artifacts
+BEGIN SELECT RAISE(ABORT, 'immutable artifact cannot be updated'); END;
+CREATE TRIGGER IF NOT EXISTS immutable_artifacts_no_delete BEFORE DELETE ON immutable_artifacts
+BEGIN SELECT RAISE(ABORT, 'immutable artifact cannot be deleted'); END;
 CREATE TRIGGER IF NOT EXISTS evidence_provenance_no_update BEFORE UPDATE ON evidence_provenance
 BEGIN SELECT RAISE(ABORT, 'immutable provenance cannot be updated'); END;
 CREATE TRIGGER IF NOT EXISTS evidence_provenance_no_delete BEFORE DELETE ON evidence_provenance

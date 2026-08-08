@@ -86,7 +86,8 @@ def _config(tmp_path: Path, **changes) -> EvidenceConfig:
     return EvidenceConfig(**values)
 
 
-def _response(acquisition_id="acq-1", *, timestamp=100.0) -> AcquisitionResponse:
+def _response(acquisition_id="acq-1", *, timestamp=100.0,
+              raw_body: bytes | None = None) -> AcquisitionResponse:
     metadata = AcquisitionMetadata(
         acquisition_id=acquisition_id,
         correlation_id="corr-1",
@@ -109,6 +110,11 @@ def _response(acquisition_id="acq-1", *, timestamp=100.0) -> AcquisitionResponse
         headers={"Content-Type": "application/json"},
         metadata=metadata,
         latency_ms=2.5,
+        raw_body=raw_body,
+        artifact_representation=(
+            "EXACT_PROVIDER_ARTIFACT" if raw_body is not None
+            else "RAW_BYTES_UNAVAILABLE"
+        ),
     )
 
 
@@ -183,6 +189,37 @@ def test_existing_single_writer_accepts_mirrored_envelope(tmp_path):
         result = platform.writer.run_once()
         assert result["inserted"] == 1
         assert result["failed"] == 0
+    finally:
+        platform.writer.stop()
+        platform.mirror.stop()
+
+
+def test_distinct_observations_can_share_one_immutable_artifact(tmp_path):
+    config = _config(tmp_path, writer_enabled=True, writer_batch_size=10)
+    platform = EvidencePlatform(config)
+    exact = b'{"jsonrpc":"2.0","result":null}'
+    try:
+        for acquisition_id, signature, timestamp in (
+            ("acq-empty-a", "sig-a", 100.0),
+            ("acq-empty-b", "sig-b", 101.0),
+        ):
+            assert platform.mirror.publish_nowait(
+                _response(acquisition_id, timestamp=timestamp, raw_body=exact),
+                http_method="POST", url="https://mainnet.helius-rpc.com/",
+                request_payload={"method": "getTransaction", "params": [signature]},
+            )
+        assert platform.mirror.drain()
+        queued = [json.loads(path.read_text()) for path in
+                  (config.queue_path / "pending").glob("*.json")]
+        assert len({item["envelope"]["artifact"]["digest"] for item in queued}) == 1
+        assert len({item["envelope"]["evidence_digest"] for item in queued}) == 2
+        platform.writer.start()
+        result = platform.writer.run_once()
+        assert result["inserted"] == 2
+        connection = platform.writer.database.connection
+        assert connection.execute("SELECT COUNT(*) FROM immutable_artifacts").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM evidence_envelopes").fetchone()[0] == 2
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
     finally:
         platform.writer.stop()
         platform.mirror.stop()

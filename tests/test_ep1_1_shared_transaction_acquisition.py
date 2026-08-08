@@ -144,6 +144,22 @@ async def test_legacy_failover_preserves_request_order_count_and_result():
 
 
 @pytest.mark.asyncio
+async def test_legacy_response_path_preserves_exact_provider_bytes():
+    session = _Session([_Response(200, {"result": {"signature": "sig-A"}})])
+    client = SharedTransactionAcquisition(session)
+    response = await client.json_rpc_response_legacy(
+        {"method": "getTransaction", "params": ["sig-A"]},
+        rpc_urls=["https://mainnet.helius-rpc.com/"], max_retries=5,
+        timeout_seconds=30, metrics_sink=lambda **_kwargs: None,
+        cache_action="miss", credits_saved=0,
+    )
+    assert response is not None
+    assert response.data == {"result": {"signature": "sig-A"}}
+    assert response.raw_body == b'{"result": {"signature": "sig-A"}}'
+    assert response.artifact_representation == "EXACT_PROVIDER_ARTIFACT"
+
+
+@pytest.mark.asyncio
 async def test_non_retryable_rpc_error_stops_without_extra_requests():
     session = _Session([_Response(200, {"error": {"code": -32602}})])
     metrics = []

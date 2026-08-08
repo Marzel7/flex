@@ -1259,11 +1259,37 @@ class TokenPriceService:
 
 # Singleton instance
 _price_service: Optional[TokenPriceService] = None
+# X78.10 -- same unsynchronized-singleton defect as price_worker.get_price_worker()
+# (X78.9 Phase 12), found live during X78.10 production validation: concurrent
+# gthread callers into price_api.health() raced this None check, each starting
+# its own TokenPriceService() construction (_ensure_tables() +
+# _load_circuit_breaker_state(), both DB writes), producing repeated
+# CrossProcessDatabaseWriteTimeout events on price_service.py:339 waiting on
+# ITSELF (same PID, different ThreadPoolExecutor threads) approximately every
+# 60s. Guarded by a dedicated process-local lock, deliberately not the DB
+# write lane, for the same reason as X78.9 Phase 12: coupling singleton
+# construction to write-lane contention would mean an unrelated slow writer
+# blocks price-service construction and vice versa.
+_price_service_lock = threading.Lock()
+_price_service_init_error: Optional[BaseException] = None
 
 
 def get_price_service(db_path: str = 'database/flex_complete_database.db') -> TokenPriceService:
-    """Get or create singleton price service."""
-    global _price_service
-    if _price_service is None:
-        _price_service = TokenPriceService(db_path)
-    return _price_service
+    """Get or create singleton price service. Thread-safe: concurrent callers
+    block briefly on construction (not on DB writes) and all receive the same
+    instance. If construction fails, the failure is cached and re-raised to
+    every caller rather than silently retried per-request forever."""
+    global _price_service, _price_service_init_error
+    if _price_service is not None:
+        return _price_service
+    with _price_service_lock:
+        if _price_service is not None:
+            return _price_service
+        if _price_service_init_error is not None:
+            raise _price_service_init_error
+        try:
+            _price_service = TokenPriceService(db_path)
+        except BaseException as exc:
+            _price_service_init_error = exc
+            raise
+        return _price_service

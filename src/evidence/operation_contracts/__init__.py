@@ -5,15 +5,15 @@ from .formalization import (
     BehaviourObservation, CandidateState, ContractLifecycle,
     ContractRegistryModel, DetectorInput, DetectorProtocol, DetectorResult,
     GovernanceIdentity, LifecycleRecommendation, Maturity,
-    TopologyModuleProtocol,
+    TopologyModuleInput, TopologyModuleProtocol,
     TopologyEdge, TopologyNode, TopologyRevision, Window, canonical_contract_bytes,
     contract_digest, validate_candidate_transition, validate_contract,
 )
 from .loader import OperationContractLoader
+from .input_windows import EvidenceInputWindow, PrimitiveInputWindow, RuntimeEvaluationSnapshot
 from .registry import RuntimeRegistries
 from .runtime import (
-    EvaluationRequest, EvaluationResult, EvidenceAvailability, OperationRuntime,
-    PrimitiveAvailability,
+    EvaluationRequest, EvaluationResult, OperationRuntime,
 )
 from .storage import OperationRuntimeStore
 
@@ -22,10 +22,10 @@ __all__ = [
     "BehaviourObservation", "CandidateState", "ContractLifecycle",
     "ContractRegistryModel", "DetectorInput", "DetectorProtocol", "DetectorResult",
     "GovernanceIdentity", "LifecycleRecommendation", "Maturity",
-    "TopologyModuleProtocol",
+    "TopologyModuleInput", "TopologyModuleProtocol",
     "TopologyEdge", "TopologyNode", "TopologyRevision", "Window",
     "canonical_contract_bytes", "contract_digest", "validate_candidate_transition",
     "validate_contract", "OperationContractLoader", "RuntimeRegistries",
-    "EvaluationRequest", "EvaluationResult", "EvidenceAvailability",
-    "OperationRuntime", "PrimitiveAvailability", "OperationRuntimeStore",
+    "EvidenceInputWindow", "PrimitiveInputWindow", "RuntimeEvaluationSnapshot",
+    "EvaluationRequest", "EvaluationResult", "OperationRuntime", "OperationRuntimeStore",
 ]

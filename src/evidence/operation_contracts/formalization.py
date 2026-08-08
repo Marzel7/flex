@@ -14,6 +14,7 @@ from types import MappingProxyType
 import jsonschema
 
 from ..contracts import canonical_json_bytes
+from .input_windows import EvidenceInputWindow, PrimitiveInputWindow
 
 
 SCHEMA_PATH = Path(__file__).with_name("operation_contract_v1.schema.json")
@@ -173,8 +174,12 @@ class BehaviourModuleInput:
     module_version: str
     subjects: tuple[str, ...]
     observation_window: Window
+    evidence_window: EvidenceInputWindow
+    primitive_window: PrimitiveInputWindow
     primitive_refs: tuple[str, ...]
     parameters: Mapping[str, Any]
+    snapshot_digest: str
+    generated_at: int
 
 
 @dataclass(frozen=True)
@@ -255,6 +260,7 @@ class TopologyRevision:
     subjects: tuple[str, ...]
     nodes: tuple[TopologyNode, ...]
     edges: tuple[TopologyEdge, ...]
+    behaviour_observation_refs: tuple[str, ...]
     input_digest: str
     generated_at: int
 
@@ -262,6 +268,7 @@ class TopologyRevision:
     def create(cls, **values: Any) -> "TopologyRevision":
         body = {"output_type": "TopologyRevision", **values}
         body["subjects"] = tuple(sorted(set(body["subjects"])))
+        body["behaviour_observation_refs"] = tuple(sorted(set(body["behaviour_observation_refs"])))
         body["nodes"] = tuple(sorted(body["nodes"], key=lambda item: (item.entity_ref, item.local_role)))
         body["edges"] = tuple(sorted(body["edges"], key=lambda item: (item.source, item.destination, item.primitive_type)))
         body["revision_id"] = _digest("TopologyRevision", _plain(body))
@@ -285,6 +292,12 @@ class DetectorInput:
     primitive_refs: tuple[str, ...]
     behaviour_observation_refs: tuple[str, ...]
     topology_revision_ref: Optional[str]
+    evidence_window: EvidenceInputWindow
+    primitive_window: PrimitiveInputWindow
+    behaviour_observations: tuple[BehaviourObservation, ...]
+    topology_revision: TopologyRevision
+    snapshot_digest: str
+    generated_at: int
     input_digest: str
 
     @classmethod
@@ -292,6 +305,9 @@ class DetectorInput:
         body = {"output_type": "DetectorInput", **values}
         for key in ("subjects", "evidence_refs", "primitive_refs", "behaviour_observation_refs"):
             body[key] = tuple(sorted(set(body[key])))
+        body["behaviour_observations"] = tuple(sorted(
+            body["behaviour_observations"], key=lambda item: item.observation_id
+        ))
         body["input_id"] = _digest("DetectorInput", _plain(body))
         result = cls(**body); validate_runtime_output(result.to_dict()); return result
 
@@ -316,6 +332,9 @@ class DetectorResult:
     temporal_overlap: Mapping[str, Any]
     supporting_evidence_ids: tuple[str, ...]
     contradictory_evidence_ids: tuple[str, ...]
+    primitive_refs: tuple[str, ...]
+    behaviour_observation_refs: tuple[str, ...]
+    topology_revision_ref: str
     missing_inputs: tuple[str, ...]
     confidence_output: Optional[Mapping[str, Any]]
     candidate_lifecycle_recommendation: Optional[Mapping[str, Any]]
@@ -327,7 +346,8 @@ class DetectorResult:
     @classmethod
     def create(cls, **values: Any) -> "DetectorResult":
         body = {"output_type": "DetectorResult", **values}
-        for key in ("subjects", "supporting_evidence_ids", "contradictory_evidence_ids", "missing_inputs"):
+        for key in ("subjects", "supporting_evidence_ids", "contradictory_evidence_ids",
+                    "primitive_refs", "behaviour_observation_refs", "missing_inputs"):
             body[key] = tuple(sorted(set(body[key])))
         for key in ("identity_evidence", "topology_evidence", "behaviour_evidence",
                     "operational_contact", "infrastructure_overlap", "funding_overlap",
@@ -374,14 +394,25 @@ class BehaviourModuleProtocol(Protocol):
 
 class TopologyModuleProtocol(Protocol):
     topology_version: str
-    def generate(self, *, contract: Mapping[str, Any], subjects: Sequence[str],
-                 primitive_refs: Sequence[str], evidence_refs: Sequence[str]) -> TopologyRevision: ...
+    def generate(self, value: "TopologyModuleInput") -> TopologyRevision: ...
 
 
 class DetectorProtocol(Protocol):
     detector_id: str
     detector_version: str
     def evaluate(self, value: DetectorInput) -> DetectorResult: ...
+
+
+@dataclass(frozen=True)
+class TopologyModuleInput:
+    contract: Mapping[str, Any]
+    subjects: tuple[str, ...]
+    observation_window: Window
+    evidence_window: EvidenceInputWindow
+    primitive_window: PrimitiveInputWindow
+    behaviour_observations: tuple[BehaviourObservation, ...]
+    snapshot_digest: str
+    generated_at: int
 
 
 def validate_candidate_transition(current: CandidateState, target: CandidateState) -> None:

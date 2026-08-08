@@ -56,19 +56,20 @@
     },
     "topology_revision": {
       "type": "object", "additionalProperties": false,
-      "required": ["output_type", "revision_id", "contract_id", "contract_version", "topology_version", "subjects", "nodes", "edges", "input_digest", "generated_at"],
+      "required": ["output_type", "revision_id", "contract_id", "contract_version", "topology_version", "subjects", "nodes", "edges", "behaviour_observation_refs", "input_digest", "generated_at"],
       "properties": {
         "output_type": {"const": "TopologyRevision"}, "revision_id": {"$ref": "#/$defs/digest"},
         "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"}, "topology_version": {"$ref": "#/$defs/semver"},
         "subjects": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
         "nodes": {"type": "array", "items": {"$ref": "#/$defs/topology_node"}},
         "edges": {"type": "array", "items": {"$ref": "#/$defs/topology_edge"}},
+        "behaviour_observation_refs": {"$ref": "#/$defs/refs"},
         "input_digest": {"$ref": "#/$defs/digest"}, "generated_at": {"type": "integer"}
       }
     },
     "detector_input": {
       "type": "object", "additionalProperties": false,
-      "required": ["output_type", "input_id", "contract_id", "contract_version", "detector_version", "subjects", "evidence_watermark", "primitive_watermark", "observation_window", "evidence_refs", "primitive_refs", "behaviour_observation_refs", "topology_revision_ref", "input_digest"],
+      "required": ["output_type", "input_id", "contract_id", "contract_version", "detector_version", "subjects", "evidence_watermark", "primitive_watermark", "observation_window", "evidence_refs", "primitive_refs", "behaviour_observation_refs", "topology_revision_ref", "evidence_window", "primitive_window", "behaviour_observations", "topology_revision", "snapshot_digest", "generated_at", "input_digest"],
       "properties": {
         "output_type": {"const": "DetectorInput"}, "input_id": {"$ref": "#/$defs/digest"},
         "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"}, "detector_version": {"$ref": "#/$defs/semver"},
@@ -76,12 +77,17 @@
         "evidence_watermark": {"$ref": "#/$defs/digest"}, "primitive_watermark": {"$ref": "#/$defs/digest"},
         "observation_window": {"$ref": "#/$defs/window"}, "evidence_refs": {"$ref": "#/$defs/refs"}, "primitive_refs": {"$ref": "#/$defs/refs"},
         "behaviour_observation_refs": {"$ref": "#/$defs/refs"}, "topology_revision_ref": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "evidence_window": {"$ref": "#/$defs/evidence_window"},
+        "primitive_window": {"$ref": "#/$defs/primitive_window"},
+        "behaviour_observations": {"type": "array", "items": {"$ref": "#/$defs/behaviour_observation"}},
+        "topology_revision": {"$ref": "#/$defs/topology_revision"},
+        "snapshot_digest": {"$ref": "#/$defs/digest"}, "generated_at": {"type": "integer"},
         "input_digest": {"$ref": "#/$defs/digest"}
       }
     },
     "detector_result": {
       "type": "object", "additionalProperties": false,
-      "required": ["output_type", "result_id", "contract_id", "contract_version", "detector_version", "subjects", "observation_window", "identity_evidence", "topology_evidence", "behaviour_evidence", "operational_contact", "infrastructure_overlap", "funding_overlap", "temporal_overlap", "supporting_evidence_ids", "contradictory_evidence_ids", "missing_inputs", "confidence_output", "candidate_lifecycle_recommendation", "governance_recommendation", "input_watermark", "input_digest", "generated_at"],
+      "required": ["output_type", "result_id", "contract_id", "contract_version", "detector_version", "subjects", "observation_window", "identity_evidence", "topology_evidence", "behaviour_evidence", "operational_contact", "infrastructure_overlap", "funding_overlap", "temporal_overlap", "supporting_evidence_ids", "contradictory_evidence_ids", "primitive_refs", "behaviour_observation_refs", "topology_revision_ref", "missing_inputs", "confidence_output", "candidate_lifecycle_recommendation", "governance_recommendation", "input_watermark", "input_digest", "generated_at"],
       "properties": {
         "output_type": {"const": "DetectorResult"}, "result_id": {"$ref": "#/$defs/digest"},
         "contract_id": {"type": "string"}, "contract_version": {"$ref": "#/$defs/semver"}, "detector_version": {"$ref": "#/$defs/semver"},
@@ -89,6 +95,9 @@
         "identity_evidence": {"type": "object"}, "topology_evidence": {"type": "object"}, "behaviour_evidence": {"type": "object"},
         "operational_contact": {"type": "object"}, "infrastructure_overlap": {"type": "object"}, "funding_overlap": {"type": "object"}, "temporal_overlap": {"type": "object"},
         "supporting_evidence_ids": {"$ref": "#/$defs/refs"}, "contradictory_evidence_ids": {"$ref": "#/$defs/refs"},
+        "primitive_refs": {"$ref": "#/$defs/refs"},
+        "behaviour_observation_refs": {"$ref": "#/$defs/refs"},
+        "topology_revision_ref": {"$ref": "#/$defs/digest"},
         "missing_inputs": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
         "confidence_output": {"type": ["object", "null"]},
         "candidate_lifecycle_recommendation": {"type": ["object", "null"]},
@@ -116,6 +125,48 @@
         "maturity": {"enum": ["UNKNOWN", "OBSERVED", "BEHAVIOURAL_CLUSTER", "INVESTIGATE", "DISMISSED"]},
         "governance_identity": {"enum": ["UNCONFIRMED", "CONFIRMED_OPERATION", "CANONICAL", "REVIEW"]},
         "activity": {"enum": ["ACTIVE", "DORMANT", "REACTIVATED", "HISTORICAL"]}
+      }
+    },
+    "evidence_observation": {
+      "type": "object",
+      "required": ["evidence_id", "fact_family", "fact_schema_version", "payload", "payload_digest", "observed_at", "provenance"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/digest"}, "fact_family": {"type": "string"},
+        "fact_schema_version": {"type": "string"}, "payload": {"type": "object"},
+        "payload_digest": {"$ref": "#/$defs/digest"}, "observed_at": {"type": "integer"},
+        "provenance": {"type": "object"}
+      }
+    },
+    "primitive_observation": {
+      "type": "object",
+      "required": ["primitive_id", "primitive_type", "primitive_version", "evidence_ids", "subjects", "parameters", "observation_window", "output_payload", "quality_state", "missing_inputs", "failure_state"],
+      "properties": {
+        "primitive_id": {"$ref": "#/$defs/digest"}, "primitive_type": {"type": "string"},
+        "primitive_version": {"type": "string"}, "evidence_ids": {"$ref": "#/$defs/refs"},
+        "subjects": {"type": "array", "items": {"type": "string"}}, "parameters": {"type": "object"},
+        "observation_window": {"$ref": "#/$defs/window"}, "output_payload": {"type": "object"},
+        "quality_state": {"$ref": "#/$defs/quality"}, "missing_inputs": {"type": "array", "items": {"type": "string"}},
+        "failure_state": {"type": ["string", "null"]}
+      }
+    },
+    "evidence_window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["subjects", "start", "end", "watermark", "observations", "digest"],
+      "properties": {
+        "subjects": {"type": "array", "items": {"type": "string"}}, "start": {"type": ["integer", "null"]},
+        "end": {"type": ["integer", "null"]}, "watermark": {"$ref": "#/$defs/digest"},
+        "observations": {"type": "array", "items": {"$ref": "#/$defs/evidence_observation"}},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "primitive_window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["subjects", "start", "end", "watermark", "observations", "digest"],
+      "properties": {
+        "subjects": {"type": "array", "items": {"type": "string"}}, "start": {"type": ["integer", "null"]},
+        "end": {"type": ["integer", "null"]}, "watermark": {"$ref": "#/$defs/digest"},
+        "observations": {"type": "array", "items": {"$ref": "#/$defs/primitive_observation"}},
+        "digest": {"$ref": "#/$defs/digest"}
       }
     }
   }

@@ -2,33 +2,21 @@
 
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from typing import Any, Mapping, Optional, Sequence
 
-from ..contracts import canonical_json_bytes
+from ..contracts import EvidenceRecord
+from ..primitives.contracts import PrimitiveObservation
 from .formalization import (
     BehaviourModuleInput, BehaviourObservation, CandidateState,
     ContractLifecycle, ContractRegistryModel, DetectorInput, DetectorResult,
-    LifecycleRecommendation, TopologyRevision, Window, _satisfies,
+    LifecycleRecommendation, TopologyModuleInput, TopologyRevision, Window, _satisfies,
+)
+from .input_windows import (
+    EvidenceInputWindow, PrimitiveInputWindow, RuntimeEvaluationSnapshot,
 )
 from .registry import RuntimeRegistries
 from .storage import OperationRuntimeStore
-
-
-@dataclass(frozen=True)
-class EvidenceAvailability:
-    evidence_id: str
-    fact_family: str
-    fact_schema_version: str
-
-
-@dataclass(frozen=True)
-class PrimitiveAvailability:
-    primitive_id: str
-    primitive_type: str
-    primitive_version: str
-    evidence_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -37,8 +25,8 @@ class EvaluationRequest:
     contract_version: Optional[str]
     subjects: tuple[str, ...]
     observation_window: Window
-    evidence: tuple[EvidenceAvailability, ...]
-    primitives: tuple[PrimitiveAvailability, ...]
+    evidence: tuple[EvidenceRecord, ...]
+    primitives: tuple[PrimitiveObservation, ...]
     evidence_watermark: str
     primitive_watermark: str
     current_candidate_state: Optional[CandidateState]
@@ -68,20 +56,60 @@ class OperationRuntime:
 
     def evaluate(self, request: EvaluationRequest) -> EvaluationResult:
         contract = self._select_contract(request)
+        snapshot = self.materialize_snapshot(request, contract=contract)
+        return self.evaluate_snapshot(snapshot, current_candidate_state=request.current_candidate_state)
+
+    def materialize_snapshot(self, request: EvaluationRequest,
+                             *, contract: Mapping[str, Any] | None = None) -> RuntimeEvaluationSnapshot:
+        """Orchestration owns resolution; returned snapshot needs no data-store reads."""
+        contract = contract or self._select_contract(request)
+        subjects = set(request.subjects)
+        evidence_requirements = contract["evidence_requirements"]
+        primitive_requirements = contract["primitive_requirements"]
+        evidence = tuple(item for item in request.evidence if any(
+            item.fact_family == requirement["fact_family"]
+            and _satisfies(item.fact_schema_version, requirement["version_constraint"])
+            for requirement in evidence_requirements
+        ) and self._time_contains(item.observed_at, request.observation_window))
+        primitives = tuple(item for item in request.primitives if any(
+            item.primitive_type == requirement["primitive_type"]
+            and _satisfies(item.primitive_version, requirement["version_constraint"])
+            for requirement in primitive_requirements
+        ) and self._window_overlaps(item.observation_window, request.observation_window)
+            and (not subjects or bool(subjects.intersection(item.subjects))))
+        evidence_window = EvidenceInputWindow.create(
+            subjects=request.subjects, start=request.observation_window.start,
+            end=request.observation_window.end, watermark=request.evidence_watermark,
+            observations=evidence,
+        )
+        primitive_window = PrimitiveInputWindow.create(
+            subjects=request.subjects, start=request.observation_window.start,
+            end=request.observation_window.end, watermark=request.primitive_watermark,
+            observations=primitives,
+        )
+        snapshot = RuntimeEvaluationSnapshot.create(
+            contract=contract, subjects=request.subjects,
+            observation_start=request.observation_window.start,
+            observation_end=request.observation_window.end,
+            evidence_window=evidence_window, primitive_window=primitive_window,
+            generated_at=request.generated_at,
+        )
+        self._validate_requirements(contract, snapshot)
+        return snapshot
+
+    def evaluate_snapshot(self, snapshot: RuntimeEvaluationSnapshot, *,
+                          current_candidate_state: Optional[CandidateState]) -> EvaluationResult:
+        contract = self.contracts.get(snapshot.contract_id, snapshot.contract_version)
+        if contract["contract_digest"] != snapshot.contract_digest:
+            raise ValueError("snapshot Contract digest mismatch")
+        state = self.contracts.state(snapshot.contract_id, snapshot.contract_version)
+        if state not in {ContractLifecycle.SHADOW, ContractLifecycle.ACTIVE}:
+            raise ValueError(f"contract is not executable in state {state.value}")
+        self._validate_requirements(contract, snapshot)
         version = str(contract["contract_version"])
-        evidence_refs = tuple(sorted({item.evidence_id for item in request.evidence}))
-        primitive_refs = tuple(sorted({item.primitive_id for item in request.primitives}))
-        self._validate_requirements(contract, request)
-        input_digest = hashlib.sha256(canonical_json_bytes({
-            "contract": contract["contract_digest"],
-            "subjects": sorted(set(request.subjects)),
-            "window": {"start": request.observation_window.start,
-                       "end": request.observation_window.end},
-            "evidence_watermark": request.evidence_watermark,
-            "primitive_watermark": request.primitive_watermark,
-            "evidence_refs": evidence_refs,
-            "primitive_refs": primitive_refs,
-        })).hexdigest()
+        evidence_refs = snapshot.evidence_window.refs
+        primitive_refs = snapshot.primitive_window.refs
+        observation_window = Window(snapshot.observation_start, snapshot.observation_end)
 
         behaviours = []
         for declaration in contract["behaviour_modules"]:
@@ -89,39 +117,52 @@ class OperationRuntime:
                 declaration["module_id"], declaration["module_version"]
             )
             allowed_types = set(declaration["required_primitive_types"])
-            selected = tuple(sorted(item.primitive_id for item in request.primitives
-                                    if item.primitive_type in allowed_types))
+            selected_window = snapshot.primitive_window.select(tuple(allowed_types))
             observation = implementation.evaluate(BehaviourModuleInput(
-                contract_id=request.contract_id, contract_version=version,
+                contract_id=snapshot.contract_id, contract_version=version,
                 module_id=declaration["module_id"],
                 module_version=declaration["module_version"],
-                subjects=tuple(sorted(set(request.subjects))),
-                observation_window=request.observation_window,
-                primitive_refs=selected,
+                subjects=snapshot.subjects,
+                observation_window=observation_window,
+                evidence_window=snapshot.evidence_window,
+                primitive_window=selected_window,
+                primitive_refs=selected_window.refs,
                 parameters=declaration["parameters"],
+                snapshot_digest=snapshot.input_digest,
+                generated_at=snapshot.generated_at,
             ))
-            self._validate_behaviour(observation, declaration, request.contract_id, version,
-                                     request.subjects, evidence_refs, primitive_refs)
+            self._validate_behaviour(observation, declaration, snapshot.contract_id, version,
+                                     snapshot.subjects, evidence_refs, primitive_refs)
             behaviours.append(observation)
 
         topology_declaration = contract["topology_contract"]
         topology_impl = self.registries.topologies.resolve(topology_declaration["topology_version"])
-        topology = topology_impl.generate(
-            contract=contract, subjects=request.subjects,
-            primitive_refs=primitive_refs, evidence_refs=evidence_refs,
-        )
-        self._validate_topology(topology, contract, request, evidence_refs, primitive_refs)
+        topology = topology_impl.generate(TopologyModuleInput(
+            contract=contract, subjects=snapshot.subjects,
+            observation_window=observation_window,
+            evidence_window=snapshot.evidence_window,
+            primitive_window=snapshot.primitive_window,
+            behaviour_observations=tuple(behaviours),
+            snapshot_digest=snapshot.input_digest, generated_at=snapshot.generated_at,
+        ))
+        self._validate_topology(topology, contract, snapshot, evidence_refs, primitive_refs,
+                                tuple(item.observation_id for item in behaviours))
 
         detector_declaration = contract["detector"]
         detector_input = DetectorInput.create(
-            contract_id=request.contract_id, contract_version=version,
+            contract_id=snapshot.contract_id, contract_version=version,
             detector_version=detector_declaration["detector_version"],
-            subjects=request.subjects, evidence_watermark=request.evidence_watermark,
-            primitive_watermark=request.primitive_watermark,
-            observation_window=request.observation_window,
+            subjects=snapshot.subjects, evidence_watermark=snapshot.evidence_window.watermark,
+            primitive_watermark=snapshot.primitive_window.watermark,
+            observation_window=observation_window,
             evidence_refs=evidence_refs, primitive_refs=primitive_refs,
             behaviour_observation_refs=tuple(item.observation_id for item in behaviours),
-            topology_revision_ref=topology.revision_id, input_digest=input_digest,
+            topology_revision_ref=topology.revision_id,
+            evidence_window=snapshot.evidence_window,
+            primitive_window=snapshot.primitive_window,
+            behaviour_observations=tuple(behaviours), topology_revision=topology,
+            snapshot_digest=snapshot.input_digest, generated_at=snapshot.generated_at,
+            input_digest=snapshot.input_digest,
         )
         detector = self.registries.detectors.resolve(
             detector_declaration["detector_id"], detector_declaration["detector_version"]
@@ -129,14 +170,14 @@ class OperationRuntime:
         detector_result = detector.evaluate(detector_input)
         self._validate_detector_result(detector_result, detector_input, contract)
         lifecycle = self._lifecycle_recommendation(
-            detector_result, request.current_candidate_state, request.generated_at
+            detector_result, current_candidate_state, snapshot.generated_at
         )
         outputs: list[Any] = [*behaviours, topology, detector_input, detector_result]
         if lifecycle is not None:
             outputs.append(lifecycle)
         persistence = self.store.append_outputs(outputs)
         return EvaluationResult(
-            contract_id=request.contract_id, contract_version=version,
+            contract_id=snapshot.contract_id, contract_version=version,
             behaviours=tuple(behaviours), topology=topology,
             detector_input=detector_input, detector_result=detector_result,
             lifecycle_recommendation=lifecycle, persistence=persistence,
@@ -165,9 +206,11 @@ class OperationRuntime:
         return contract
 
     @staticmethod
-    def _validate_requirements(contract: Mapping[str, Any], request: EvaluationRequest) -> None:
-        evidence = {(item.fact_family, item.fact_schema_version) for item in request.evidence}
-        primitives = {(item.primitive_type, item.primitive_version) for item in request.primitives}
+    def _validate_requirements(contract: Mapping[str, Any], snapshot: RuntimeEvaluationSnapshot) -> None:
+        evidence = {(item.fact_family, item.fact_schema_version)
+                    for item in snapshot.evidence_window.observations}
+        primitives = {(item.primitive_type, item.primitive_version)
+                      for item in snapshot.primitive_window.observations}
         for declaration, available, key in (
             (contract["evidence_requirements"], evidence, "fact_family"),
             (contract["primitive_requirements"], primitives, "primitive_type"),
@@ -194,11 +237,11 @@ class OperationRuntime:
 
     @staticmethod
     def _validate_topology(value: TopologyRevision, contract: Mapping[str, Any],
-                           request: EvaluationRequest, evidence_refs: Sequence[str],
-                           primitive_refs: Sequence[str]) -> None:
+                           snapshot: RuntimeEvaluationSnapshot, evidence_refs: Sequence[str],
+                           primitive_refs: Sequence[str], behaviour_refs: Sequence[str]) -> None:
         declaration = contract["topology_contract"]
         if (value.contract_id, value.contract_version, value.topology_version) != (
-            request.contract_id, contract["contract_version"], declaration["topology_version"]
+            snapshot.contract_id, contract["contract_version"], declaration["topology_version"]
         ):
             raise ValueError("Topology Revision producer identity mismatch")
         roles = set(declaration["local_roles"])
@@ -207,8 +250,10 @@ class OperationRuntime:
         node_roles = {item.entity_ref: item.local_role for item in value.nodes}
         if not set(node_roles.values()) <= roles:
             raise ValueError("Topology Revision contains undeclared local role")
-        if value.subjects != tuple(sorted(set(request.subjects))):
+        if value.subjects != snapshot.subjects:
             raise ValueError("Topology Revision subjects do not match evaluation")
+        if value.behaviour_observation_refs != tuple(sorted(set(behaviour_refs))):
+            raise ValueError("Topology Revision Behaviour provenance mismatch")
         for node in value.nodes:
             if not set(node.evidence_refs) <= set(evidence_refs) or not set(node.primitive_refs) <= set(primitive_refs):
                 raise ValueError("Topology Revision references undeclared runtime inputs")
@@ -236,6 +281,22 @@ class OperationRuntime:
         allowed = set(contract["governance_policy"]["allowed_recommendations"])
         if value.governance_recommendation is not None and value.governance_recommendation not in allowed:
             raise ValueError("Detector Result governance recommendation is not allowed by contract")
+        if value.primitive_refs != detector_input.primitive_refs:
+            raise ValueError("Detector Result Primitive provenance mismatch")
+        if value.behaviour_observation_refs != detector_input.behaviour_observation_refs:
+            raise ValueError("Detector Result Behaviour provenance mismatch")
+        if value.topology_revision_ref != detector_input.topology_revision_ref:
+            raise ValueError("Detector Result Topology provenance mismatch")
+
+    @staticmethod
+    def _time_contains(timestamp: int, window: Window) -> bool:
+        return not ((window.start is not None and timestamp < window.start)
+                    or (window.end is not None and timestamp > window.end))
+
+    @staticmethod
+    def _window_overlaps(candidate: Any, window: Window) -> bool:
+        return not ((window.start is not None and candidate.end is not None and candidate.end < window.start)
+                    or (window.end is not None and candidate.start is not None and candidate.start > window.end))
 
     @staticmethod
     def _lifecycle_recommendation(result: DetectorResult, current: Optional[CandidateState],

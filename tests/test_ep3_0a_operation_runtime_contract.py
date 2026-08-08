@@ -14,6 +14,7 @@ from src.evidence.operation_contracts.formalization import (
     LifecycleRecommendation, TopologyEdge, TopologyNode, TopologyRevision,
     Window, canonical_contract_bytes, contract_digest, validate_contract,
 )
+from src.evidence.operation_contracts.input_windows import EvidenceInputWindow, PrimitiveInputWindow
 
 
 DIGEST_A = "a" * 64
@@ -160,24 +161,39 @@ def test_behaviour_and_topology_outputs_are_deterministic_and_immutable():
     topology = TopologyRevision.create(
         contract_id="fixture.operation", contract_version="1.0.0",
         topology_version="1.0.0", subjects=("subject",), nodes=(node_b, node_a),
-        edges=(edge,), input_digest=DIGEST_C, generated_at=10,
+        edges=(edge,), behaviour_observation_refs=(DIGEST_C,),
+        input_digest=DIGEST_C, generated_at=10,
     )
     replay = TopologyRevision.create(
         contract_id="fixture.operation", contract_version="1.0.0",
         topology_version="1.0.0", subjects=("subject",), nodes=(node_a, node_b),
-        edges=(edge,), input_digest=DIGEST_C, generated_at=20,
+        edges=(edge,), behaviour_observation_refs=(DIGEST_C,),
+        input_digest=DIGEST_C, generated_at=20,
     )
     assert topology.revision_id == replay.revision_id
 
 
 def test_detector_input_result_and_versioned_replay_identities():
+    evidence_window = EvidenceInputWindow.create(
+        subjects=("subject",), start=1, end=2, watermark=DIGEST_A, observations=(),
+    )
+    primitive_window = PrimitiveInputWindow.create(
+        subjects=("subject",), start=1, end=2, watermark=DIGEST_B, observations=(),
+    )
+    topology = TopologyRevision.create(
+        contract_id="fixture.operation", contract_version="1.0.0",
+        topology_version="1.0.0", subjects=("subject",), nodes=(), edges=(),
+        behaviour_observation_refs=(), input_digest=DIGEST_C, generated_at=10,
+    )
     detector_input = DetectorInput.create(
         contract_id="fixture.operation", contract_version="1.0.0",
         detector_version="1.0.0", subjects=("subject",), evidence_watermark=DIGEST_A,
         primitive_watermark=DIGEST_B, observation_window=Window(1, 2),
         evidence_refs=(DIGEST_A,), primitive_refs=(DIGEST_B,),
-        behaviour_observation_refs=(DIGEST_C,), topology_revision_ref=None,
-        input_digest=DIGEST_C,
+        behaviour_observation_refs=(), topology_revision_ref=topology.revision_id,
+        evidence_window=evidence_window, primitive_window=primitive_window,
+        behaviour_observations=(), topology_revision=topology,
+        snapshot_digest=DIGEST_C, input_digest=DIGEST_C, generated_at=10,
     )
     values = dict(
         contract_id="fixture.operation", contract_version="1.0.0",
@@ -188,6 +204,8 @@ def test_detector_input_result_and_versioned_replay_identities():
         confidence_output=None, candidate_lifecycle_recommendation=None,
         governance_recommendation="OBSERVE_ONLY",
         input_watermark={"evidence": DIGEST_A, "primitive": DIGEST_B},
+        primitive_refs=(DIGEST_B,), behaviour_observation_refs=(),
+        topology_revision_ref=topology.revision_id,
         input_digest=detector_input.input_digest, generated_at=10,
     )
     first = DetectorResult.create(**values)

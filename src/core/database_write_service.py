@@ -11,8 +11,10 @@ changes here.  Contention is resolved before SQLite by transaction ownership.
 from __future__ import annotations
 
 import collections
+import errno
 import fcntl
 import json
+import logging
 import os
 import queue
 import sqlite3
@@ -22,6 +24,21 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
+
+_log = logging.getLogger("database_write_service")
+
+# X78.9 -- the cross-process flock() bound. Matches the existing in-process
+# _DB_WRITE_LOCK timeout (db_locking.py: DB_WRITE_LOCK.acquire(timeout=60),
+# db_write_lock(), AsyncDbWriteLock) rather than inventing a new figure --
+# a cross-process writer that outlives the in-process contract is already
+# outside every timing assumption the rest of the write path makes.
+CROSS_PROCESS_LOCK_TIMEOUT_SEC = float(
+    os.environ.get("DB_CROSS_PROCESS_LOCK_TIMEOUT_SEC", "60")
+)
+# Poll interval for the LOCK_NB retry loop. Short enough that legitimate
+# short-hold contention (the common case) isn't penalized with added
+# latency, long enough not to spin the CPU while waiting out a real hold.
+_LOCK_POLL_INTERVAL_SEC = 0.05
 
 
 Transaction = Callable[[sqlite3.Connection], Any]
@@ -82,6 +99,110 @@ class NestedDatabaseWriteError(RuntimeError):
         )
 
 
+class CrossProcessDatabaseWriteTimeout(RuntimeError):
+    """Raised when the cross-process flock() write lane could not be acquired
+    within CROSS_PROCESS_LOCK_TIMEOUT_SEC. Distinct from a generic 'database
+    is locked' SQLite error: this fires BEFORE SQLite is ever touched, at the
+    advisory-file-lock layer, and always carries whatever owner metadata was
+    on disk at the moment of timeout so the caller (and Mission Control) can
+    tell who to look at."""
+
+    def __init__(
+        self,
+        *,
+        database: str,
+        lock_path: str,
+        waiting_pid: int,
+        waiting_thread: str,
+        command: str,
+        wait_seconds: float,
+        current_owner: dict[str, Any] | None,
+    ) -> None:
+        self.database = database
+        self.lock_path = lock_path
+        self.waiting_pid = waiting_pid
+        self.waiting_thread = waiting_thread
+        self.command = command
+        self.wait_seconds = wait_seconds
+        self.current_owner = current_owner
+        super().__init__(
+            "CrossProcessDatabaseWriteTimeout: "
+            f"database={database} lock_path={lock_path} "
+            f"waiting_pid={waiting_pid} waiting_thread={waiting_thread} "
+            f"command={command} wait_seconds={round(wait_seconds, 3)} "
+            f"current_owner={json.dumps(current_owner, sort_keys=True, default=str)}"
+        )
+
+
+# X78.9 Phase 17/18 -- in-memory cross-process lock-lane health, independent
+# of the per-command _telemetry deque so a Mission Control read never has to
+# scan/filter it. Small bounded history; timestamps only (no PII/large
+# payloads) so 24h retention is cheap.
+_CROSS_PROCESS_TIMEOUTS: collections.deque[dict[str, Any]] = collections.deque(maxlen=500)
+_CROSS_PROCESS_TIMEOUTS_LOCK = threading.Lock()
+
+
+def _record_cross_process_timeout(path: str, exc: "CrossProcessDatabaseWriteTimeout") -> None:
+    with _CROSS_PROCESS_TIMEOUTS_LOCK:
+        _CROSS_PROCESS_TIMEOUTS.append({
+            "at": time.time(),
+            "database_path": path,
+            "database": exc.database,
+            "waiting_pid": exc.waiting_pid,
+            "waiting_thread": exc.waiting_thread,
+            "command": exc.command,
+            "wait_seconds": round(exc.wait_seconds, 3),
+            "current_owner": exc.current_owner,
+        })
+
+
+def cross_process_lock_health(path: str | None = None, *, window_secs: int = 86400) -> dict[str, Any]:
+    """Mission Control read: cross-process write-lane health (Phase 17/18).
+
+    State is derived, not stored, from the current flock owner + recent
+    timeout history:
+      HEALTHY    -- no current holder, or a fresh/short-lived hold, no
+                    recent timeouts.
+      CONTENDED  -- a hold is approaching the timeout bound (DEGRADED-ish;
+                    still succeeding, just slow).
+      STALLED    -- at least one cross-process acquisition has actually
+                    timed out within `window_secs`.
+    """
+    now = time.time()
+    with _CROSS_PROCESS_TIMEOUTS_LOCK:
+        recent = [row for row in _CROSS_PROCESS_TIMEOUTS if row["at"] > now - window_secs]
+    if path is not None:
+        real_path = os.path.realpath(path)
+        recent = [row for row in recent if row["database_path"] == real_path]
+        owner_path = f"{real_path}.write.lock.owner"
+        current_owner = _read_owner_metadata(owner_path)
+    else:
+        current_owner = None
+
+    held_seconds = None
+    if current_owner and current_owner.get("acquired_at"):
+        held_seconds = max(0.0, now - float(current_owner["acquired_at"]))
+
+    if recent:
+        state = "STALLED"
+    elif held_seconds is not None and held_seconds > CROSS_PROCESS_LOCK_TIMEOUT_SEC * 0.5:
+        state = "CONTENDED"
+    else:
+        state = "HEALTHY"
+
+    last_timeout = recent[-1] if recent else None
+    timeouts_1h = sum(1 for row in recent if row["at"] > now - 3600)
+    return {
+        "state": state,
+        "current_owner": current_owner,
+        "held_seconds": round(held_seconds, 3) if held_seconds is not None else None,
+        "timeout_bound_seconds": CROSS_PROCESS_LOCK_TIMEOUT_SEC,
+        "timeouts_1h": timeouts_1h,
+        "timeouts_24h": len(recent) if window_secs == 86400 else None,
+        "last_timeout": last_timeout,
+    }
+
+
 _thread_write_lease = threading.local()
 
 
@@ -92,8 +213,36 @@ class WriteLease:
     owner: dict[str, Any]
 
 
-def acquire_write_lease(database: str, path: str, transaction_id: str, command: str) -> WriteLease:
-    """Acquire the database-wide lane used by services and tracked connections."""
+def _read_owner_metadata(owner_path: str) -> dict[str, Any] | None:
+    """Best-effort diagnostic read of the .write.lock.owner sidecar. Metadata
+    is diagnostic ONLY (Phase 5/6) -- it is never used to decide lock
+    ownership; that question is answered exclusively by the kernel via
+    flock(). A missing/corrupt/stale file here just means diagnostics are
+    unavailable, not that the lock is free."""
+    try:
+        with open(owner_path, encoding="utf-8") as owner_file:
+            return json.load(owner_file)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return None
+
+
+def acquire_write_lease(
+    database: str,
+    path: str,
+    transaction_id: str,
+    command: str,
+    *,
+    timeout: float = CROSS_PROCESS_LOCK_TIMEOUT_SEC,
+) -> WriteLease:
+    """Acquire the database-wide lane used by services and tracked connections.
+
+    Bounded: a non-blocking LOCK_NB retry loop against a monotonic deadline,
+    NOT a blocking flock(LOCK_EX). A single wedged holder can therefore only
+    ever cost every other writer up to `timeout` seconds, never an unbounded
+    hang (X78.9 -- previously a live-but-hung holder such as
+    creator_funding_worker blocked the whole platform for ~7.5h because this
+    call had no timeout at all).
+    """
     real_path = os.path.realpath(path)
     outer = getattr(_thread_write_lease, "owner", None)
     if outer is not None:
@@ -110,7 +259,49 @@ def acquire_write_lease(database: str, path: str, transaction_id: str, command: 
     owner_path = f"{lock_path}.owner"
     Path(lock_path).touch(exist_ok=True)
     lock_file = open(lock_path, "a+")
-    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+
+    deadline = time.monotonic() + timeout
+    waiting_pid = os.getpid()
+    waiting_thread = threading.current_thread().name
+    acquired = False
+    while True:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            acquired = True
+            break
+        except OSError as exc:
+            if exc.errno not in (errno.EAGAIN, errno.EACCES):
+                lock_file.close()
+                raise
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            time.sleep(min(_LOCK_POLL_INTERVAL_SEC, remaining))
+
+    if not acquired:
+        wait_seconds = time.monotonic() - (deadline - timeout)
+        current_owner = _read_owner_metadata(owner_path)
+        lock_file.close()
+        _log.warning(
+            "[CROSS_PROCESS_LOCK] timeout after %.1fs database=%s command=%s "
+            "waiting_pid=%s current_owner=%s",
+            wait_seconds, database, command, waiting_pid, current_owner,
+        )
+        exc = CrossProcessDatabaseWriteTimeout(
+            database=database.split(":", 1)[0],
+            lock_path=lock_path,
+            waiting_pid=waiting_pid,
+            waiting_thread=waiting_thread,
+            command=command,
+            wait_seconds=wait_seconds,
+            current_owner=current_owner,
+        )
+        # Recorded here (the single acquisition chokepoint used by both
+        # TrackedConnection and DatabaseWriteService) so Mission Control sees
+        # every cross-process timeout regardless of which caller hit it.
+        _record_cross_process_timeout(real_path, exc)
+        raise exc
+
     owner = {
         "database": database.split(":", 1)[0],
         "database_selector": database,
@@ -285,9 +476,22 @@ class DatabaseWriteService:
         }
         started = time.monotonic()
         conn: sqlite3.Connection | None = None
-        lease = acquire_write_lease(
-            item.database, item.path, item.transaction_id, item.command
-        )
+        try:
+            lease = acquire_write_lease(
+                item.database, item.path, item.transaction_id, item.command
+            )
+        except CrossProcessDatabaseWriteTimeout as exc:
+            # Cross-process health tracking already happened inside
+            # acquire_write_lease() itself (the single chokepoint shared with
+            # TrackedConnection); this just adds the per-command telemetry
+            # row for the DatabaseWriteService queue view.
+            record["status"] = "LOCK_TIMEOUT"
+            record["error_type"] = "CrossProcessDatabaseWriteTimeout"
+            record["error"] = str(exc)
+            record["duration_ms"] = round((time.monotonic() - started) * 1000.0, 3)
+            with self._lock:
+                self._telemetry.append(dict(record))
+            raise
         try:
             record["queue_wait_ms"] = round(
                 (time.monotonic() - item.submitted_monotonic) * 1000.0, 3

@@ -9897,6 +9897,16 @@ def api_db_serializer_metrics():
             m["wal_checkpoint"] = {"busy": cp[0], "log_frames": cp[1], "checkpointed": cp[2]}
         except Exception:
             pass
+        # X78.9 -- cross-process write-lane health (flock-level, not the
+        # in-process _DB_WRITE_LOCK covered by serializer_metrics above).
+        # Read directly from the .write.lock.owner sidecar + this process's
+        # own in-memory timeout history; always current regardless of which
+        # process answers the request since it reads the shared lock file.
+        try:
+            from src.core.database_write_service import cross_process_lock_health
+            m["cross_process_lock"] = cross_process_lock_health(DB_PATH)
+        except Exception:
+            pass
         return jsonify(m)
     except Exception as e:
         return jsonify({"error": str(e)}), 200

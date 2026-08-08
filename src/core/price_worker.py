@@ -2581,14 +2581,35 @@ class BackgroundPriceWorker:
 
 # Global worker instance
 _price_worker: Optional[BackgroundPriceWorker] = None
+# X78.9 Phase 12 -- guards singleton construction only; deliberately a plain
+# process-local threading.Lock, NOT the cross-process/DB write lane. Several
+# gunicorn gthread workers previously raced this None check concurrently
+# (confirmed via py-spy: 6 threads all inside BackgroundPriceWorker.__init__
+# -> _ensure_tables() at once), each starting its own redundant DDL write
+# and piling onto the write lane together.
+_price_worker_lock = threading.Lock()
+_price_worker_init_error: Optional[BaseException] = None
 
 
 def get_price_worker(db_path: str = 'database/flex_complete_database.db') -> BackgroundPriceWorker:
-    """Get or create singleton price worker."""
-    global _price_worker
-    if _price_worker is None:
-        _price_worker = BackgroundPriceWorker(db_path)
-    return _price_worker
+    """Get or create singleton price worker. Thread-safe: concurrent callers
+    block briefly on construction (not on DB writes) and all receive the same
+    instance. If construction fails, the failure is cached and re-raised to
+    every caller rather than silently retried per-request forever."""
+    global _price_worker, _price_worker_init_error
+    if _price_worker is not None:
+        return _price_worker
+    with _price_worker_lock:
+        if _price_worker is not None:
+            return _price_worker
+        if _price_worker_init_error is not None:
+            raise _price_worker_init_error
+        try:
+            _price_worker = BackgroundPriceWorker(db_path)
+        except BaseException as exc:
+            _price_worker_init_error = exc
+            raise
+        return _price_worker
 
 
 def start_price_worker(db_path: str = 'database/flex_complete_database.db') -> BackgroundPriceWorker:

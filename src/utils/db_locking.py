@@ -240,7 +240,9 @@ class TrackedConnection(sqlite3.Connection):
             return  # fall through to SQLite's own busy_timeout rather than deadlock
         self._holds_write_lock = True
         try:
-            from src.core.database_write_service import acquire_write_lease
+            from src.core.database_write_service import (
+                CrossProcessDatabaseWriteTimeout, acquire_write_lease,
+            )
             path = getattr(self, "_db_path", None)
             if path:
                 txid = str(uuid.uuid4())
@@ -253,6 +255,16 @@ class TrackedConnection(sqlite3.Connection):
                 self._write_started_monotonic = time.monotonic()
                 self._write_total_changes_before = self.total_changes
                 self._write_rolled_back = False
+        except CrossProcessDatabaseWriteTimeout:
+            # X78.9: bounded-but-failed cross-process acquisition. Distinct
+            # from a generic exception -- the in-process lane IS released
+            # here (below) but this is not a "database is locked" SQLite
+            # error, it's a lane-level timeout with owner diagnostics
+            # already attached to the exception; let it propagate as-is
+            # rather than folding it into record_lock_error's generic path.
+            self._holds_write_lock = False
+            _DB_WRITE_LOCK.release()
+            raise
         except Exception:
             self._holds_write_lock = False
             _DB_WRITE_LOCK.release()

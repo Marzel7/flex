@@ -262,12 +262,29 @@ class TrackedConnection(sqlite3.Connection):
             # error, it's a lane-level timeout with owner diagnostics
             # already attached to the exception; let it propagate as-is
             # rather than folding it into record_lock_error's generic path.
+            #
+            # X78.10: this release must be guarded exactly like every other
+            # _DB_WRITE_LOCK.release() call in this file (see
+            # _release_write_lane/_release_write_lane_inner below) -- caught
+            # live: "RuntimeError: release unlocked lock" surfacing all the
+            # way out through rpc_cache.py's "Failed to ensure table" error
+            # path. This spot (pre-dating X78.9) was the one place in the
+            # file that released unguarded; X78.9 made acquire_write_lease
+            # raise far more often (bounded timeouts instead of near-never
+            # hangs), which made this pre-existing gap reachable in
+            # practice for the first time during X78.10's live validation.
             self._holds_write_lock = False
-            _DB_WRITE_LOCK.release()
+            try:
+                _DB_WRITE_LOCK.release()
+            except RuntimeError:
+                pass
             raise
         except Exception:
             self._holds_write_lock = False
-            _DB_WRITE_LOCK.release()
+            try:
+                _DB_WRITE_LOCK.release()
+            except RuntimeError:
+                pass
             raise
         try:
             with _DB_WRITE_STATS_LOCK:

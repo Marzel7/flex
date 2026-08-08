@@ -6,10 +6,11 @@ import json
 from typing import Any, Iterable, Mapping, Optional
 
 from .contracts import EvidenceProvenance, EvidenceRecord, FactFamily
+from .launch_decoders import LaunchInstructionDecoder
 
 
 PARSER_ID = "solana-json-rpc"
-PARSER_VERSION = "1"
+PARSER_VERSION = "2"
 FACT_SCHEMA_VERSION = "1"
 REPLAY_VERSION = "1"
 
@@ -32,9 +33,23 @@ def _integer(value: Any) -> Optional[int]:
         return None
 
 
+def _integer_json_value(value: Any) -> Any:
+    """Remove provider UI amounts; exact representations remain in RawArtifact."""
+    if isinstance(value, Mapping):
+        return {
+            str(key): _integer_json_value(item)
+            for key, item in value.items()
+            if str(key) not in {"uiAmount", "uiAmountString"}
+        }
+    if isinstance(value, list):
+        return [_integer_json_value(item) for item in value]
+    return value
+
+
 def _json_value(value: Any) -> Any:
-    """Round-trip to the immutable JSON value domain."""
-    return json.loads(json.dumps(value, sort_keys=True, allow_nan=False))
+    """Round-trip to the integer-only immutable JSON value domain."""
+    normalized = _integer_json_value(value)
+    return json.loads(json.dumps(normalized, sort_keys=True, allow_nan=False))
 
 
 class AcquisitionNormalizer:
@@ -46,6 +61,7 @@ class AcquisitionNormalizer:
         self.parser_version = parser_version
         self.fact_schema_version = fact_schema_version
         self.replay_version = replay_version
+        self.launch_decoder = LaunchInstructionDecoder()
 
     def _record(self, family: FactFamily, natural_key: str,
                 payload: Mapping[str, Any], envelope: Mapping[str, Any],
@@ -261,6 +277,40 @@ class AcquisitionNormalizer:
             parent_evidence_ids=(tx.evidence_id,),
         )
         records = [instruction]
+        decoded_launch = self.launch_decoder.decode(
+            program_id=program_id, item=item, transaction_accounts=accounts,
+        )
+        if decoded_launch is not None:
+            event = self._record(
+                FactFamily.PROGRAM_EVENT,
+                f"program-event/{signature}/{position}/{decoded_launch.event_type}",
+                {"signature": signature, "instruction_position": position,
+                 "program_id": program_id, "event_discriminator": item.get("data"),
+                 "event_type": decoded_launch.event_type,
+                 "event_payload": {"mint": decoded_launch.mint,
+                                   "creator": decoded_launch.creator},
+                 "event_accounts": list(item.get("accounts") or ()),
+                 "decoder_version": decoded_launch.decoder_version},
+                envelope, observed_at=_integer(result.get("blockTime")),
+                parent_evidence_ids=(instruction.evidence_id,),
+            )
+            records.append(event)
+            creator_index = accounts.index(decoded_launch.creator) if decoded_launch.creator in accounts else None
+            records.append(self._record(
+                FactFamily.LAUNCH,
+                f"launch/{program_id}/{signature}/{decoded_launch.mint}",
+                {"mint": decoded_launch.mint, "creation_signature": signature,
+                 "creation_instruction": position,
+                 "creation_timestamp": _integer(result.get("blockTime")),
+                 "creation_slot": _integer(result.get("slot")), "program_id": program_id,
+                 "creator_account": decoded_launch.creator,
+                 "creator_account_index": creator_index,
+                 "creator_signer_state": signer_by_account.get(decoded_launch.creator),
+                 "fee_payer": accounts[0] if accounts else None,
+                 "source_platform": decoded_launch.source_platform},
+                envelope, observed_at=_integer(result.get("blockTime")),
+                parent_evidence_ids=(event.evidence_id, instruction.evidence_id),
+            ))
         kind = str(parsed_type or "")
         if kind in {"transfer", "transferWithSeed"} and info.get("lamports") is not None:
             source, destination = info.get("source"), info.get("destination")

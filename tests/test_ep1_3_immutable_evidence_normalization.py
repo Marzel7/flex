@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 from pathlib import Path
@@ -10,6 +11,16 @@ from src.evidence.config import EvidenceConfig
 from src.evidence.normalization import NormalizationEngine
 from src.evidence.normalizers import AcquisitionNormalizer
 from src.evidence.service import EvidencePlatform
+
+
+def _base58_encode(value: bytes) -> str:
+    alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    number = int.from_bytes(value, "big")
+    result = ""
+    while number:
+        number, remainder = divmod(number, 58)
+        result = alphabet[remainder] + result
+    return "1" * (len(value) - len(value.lstrip(b"\0"))) + (result or "1")
 
 
 def _config(tmp_path: Path) -> EvidenceConfig:
@@ -151,6 +162,81 @@ def test_transaction_artifact_normalizes_operation_neutral_fact_families(tmp_pat
     assert json.loads(launch["payload_json"])["creator_signer_state"] is True
 
 
+def test_provider_display_floats_remain_raw_but_not_canonical_evidence(tmp_path):
+    platform = EvidencePlatform(_config(tmp_path))
+    body = _transaction_body()
+    token_amount = body["result"]["transaction"]["message"]["instructions"][1]["parsed"]["info"]["tokenAmount"]
+    token_amount["uiAmount"] = 1.25
+    token_amount["uiAmountString"] = "1.25"
+    envelope = _enqueue(platform, body, envelope_id="env-float")
+    platform.writer.start()
+    try:
+        platform.writer.run_once()
+    finally:
+        platform.writer.stop()
+    status = _rows(platform.config.database_path, "SELECT state FROM normalization_status")[0]
+    assert status["state"] == "COMPLETE"
+    row = _rows(platform.config.database_path,
+                "SELECT payload_json FROM normalized_evidence_records "
+                "WHERE fact_family='InstructionFact' "
+                "AND payload_json LIKE '%transferChecked%'")[0]
+    parsed = json.loads(row["payload_json"])["parsed_fields"]["tokenAmount"]
+    assert parsed["amount"] == "25"
+    assert "uiAmountString" not in parsed
+    assert "uiAmount" not in parsed
+    raw = platform.artifacts.get(envelope["artifact"]["digest"])
+    assert b'"uiAmount":1.25' in raw
+
+
+def test_non_display_float_still_fails_integer_only_contract(tmp_path):
+    platform = EvidencePlatform(_config(tmp_path))
+    body = _transaction_body()
+    body["result"]["meta"]["err"] = {"providerScore": 0.5}
+    _enqueue(platform, body, envelope_id="env-unapproved-float")
+    platform.writer.start()
+    try:
+        platform.writer.run_once()
+    finally:
+        platform.writer.stop()
+    status = _rows(platform.config.database_path,
+                   "SELECT state,error FROM normalization_status")[0]
+    assert status["state"] == "FAILED"
+    assert "immutable Evidence requires integer units" in status["error"]
+
+
+def test_raw_launch_instruction_decodes_objective_launch_fact(tmp_path):
+    platform = EvidencePlatform(_config(tmp_path))
+    body = _transaction_body()
+    message = body["result"]["transaction"]["message"]
+    discriminator = hashlib.sha256(b"global:create_v2").digest()[:8]
+    message["instructions"] = [{
+        "programId": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+        "accounts": ["mint", "a", "b", "c", "d", "creator"],
+        "data": _base58_encode(discriminator + b"fixture"),
+    }]
+    envelope = _enqueue(platform, body, envelope_id="env-raw-launch")
+    platform.writer.start()
+    try:
+        platform.writer.run_once()
+    finally:
+        platform.writer.stop()
+    launch = _rows(platform.config.database_path,
+                   "SELECT evidence_id,payload_json FROM normalized_evidence_records "
+                   "WHERE fact_family='LaunchFact'")[0]
+    payload = json.loads(launch["payload_json"])
+    assert payload["mint"] == "mint"
+    assert payload["creator_account"] == "creator"
+    assert payload["creator_signer_state"] is True
+    assert "operation" not in launch["payload_json"].lower()
+
+    platform.writer.database.open_writer()
+    try:
+        replay = platform.normalizer.normalize_envelope(envelope)
+    finally:
+        platform.writer.database.close()
+    assert replay["duplicates"] > 0
+
+
 def test_replay_is_idempotent_and_parser_versions_coexist(tmp_path):
     platform = EvidencePlatform(_config(tmp_path))
     envelope = _enqueue(platform, _transaction_body(), envelope_id="env-replay")
@@ -164,12 +250,12 @@ def test_replay_is_idempotent_and_parser_versions_coexist(tmp_path):
                       "SELECT evidence_id,logical_fact_id FROM normalized_evidence_records ORDER BY evidence_id")
         assert replay["inserted"] == 0
         assert [tuple(row) for row in before] == [tuple(row) for row in after]
-        v2 = NormalizationEngine(
+        v3 = NormalizationEngine(
             platform.writer.database, platform.artifacts,
-            normalizer=AcquisitionNormalizer(parser_version="2"),
+            normalizer=AcquisitionNormalizer(parser_version="3"),
             metrics=platform.metrics,
         )
-        result = v2.normalize_envelope(envelope)
+        result = v3.normalize_envelope(envelope)
         assert result["inserted"] == len(before)
     finally:
         platform.writer.stop()

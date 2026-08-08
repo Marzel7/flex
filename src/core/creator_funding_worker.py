@@ -73,6 +73,18 @@ JOB_TIMEOUT_SECONDS = int(os.environ.get("CFQ_JOB_TIMEOUT_SECONDS",  "90"))
 # _process_job's own comment at the wait_for/shield call site.
 EXTRACTION_CANCEL_GRACE_SECONDS = int(os.environ.get("CFQ_EXTRACTION_CANCEL_GRACE_SECONDS", "10"))
 INTEL_REFRESH_DEBOUNCE_SEC = int(os.environ.get("CFQ_INTEL_REFRESH_DEBOUNCE_SEC", "60"))
+# X78.14 -- post-extraction enrichment (line ~858) previously had no bound
+# at all, unlike the primary extraction call above it (which uses
+# asyncio.wait_for(..., timeout=JOB_TIMEOUT_SECONDS)). X78.13 traced a
+# creator_funding_worker stall to exactly this asymmetry: an unbounded
+# to_thread call let a slow enrichment step (build_networks_release, via
+# a since-removed in-line infra_wallets sync -- see build_networks_release.py's
+# own X78.14 comment) block the worker's single event-loop thread
+# indefinitely, with nothing to time it out. Enrichment is best-effort by
+# design (every step around it is already its own try/except that logs and
+# continues) -- a bounded timeout here is consistent with that intent, not
+# a new constraint on it.
+INTEL_REFRESH_TIMEOUT_SECONDS = int(os.environ.get("CFQ_INTEL_REFRESH_TIMEOUT_SECONDS", "30"))
 
 # Layer 2: self-kill thresholds (same contract as creator_resolution_worker.py)
 MAX_OPEN_HANDLES   = int(os.environ.get("CFQ_MAX_OPEN_HANDLES",     "10"))
@@ -88,6 +100,13 @@ _DB_SERIALIZER_METRICS_PATH = os.path.join(_REPO_ROOT, "logs", "db_serializer_me
 WORKER_NAME = "creator-funding"
 _STOP = False
 _started_at = int(time.time())
+# X78.14 Phase E -- health counters for the enrichment timeout backstop
+# introduced alongside the build_networks_release.py lifecycle fix. A
+# nonzero _intel_refresh_timeout_count with a healthy heartbeat indicates
+# enrichment is occasionally deferred but the worker itself is not
+# stalling because of it -- the acceptance criterion this milestone exists
+# to satisfy.
+_intel_refresh_timeout_count = 0
 _intel_refresh_last_run = 0.0
 
 
@@ -856,7 +875,15 @@ async def _process_job(row: dict) -> None:
             _log(f"live network assignment failed creator={creator[:12]}: {e}")
 
         try:
-            await asyncio.to_thread(_post_extraction_intelligence_refresh, creator)
+            await asyncio.wait_for(
+                asyncio.to_thread(_post_extraction_intelligence_refresh, creator),
+                timeout=INTEL_REFRESH_TIMEOUT_SECONDS,
+            )
+        except asyncio.TimeoutError:
+            global _intel_refresh_timeout_count
+            _intel_refresh_timeout_count += 1
+            _log(f"intelligence refresh deferred (timeout={INTEL_REFRESH_TIMEOUT_SECONDS}s) "
+                 f"creator={creator[:12]} -- worker continuing, refresh is best-effort")
         except Exception as e:
             _log(f"intelligence refresh failed creator={creator[:12]}: {e}")
 
@@ -977,6 +1004,7 @@ async def _run_loop_async(once: bool = False) -> None:
                 "open_handles": _open_handle_count(),
                 "wal_mb": round(_wal_size_mb(), 1),
                 "last_cycle_at": now,
+                "intel_refresh_timeout_count": _intel_refresh_timeout_count,
             })
             last_completed_cycle_at = now
 

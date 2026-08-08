@@ -23,7 +23,7 @@ import os
 import time
 
 from src.core.network_display_names import NetworkDisplayNameBuilder
-from src.utils.infra_mapping import sync_infra_wallets
+from src.utils.infra_mapping import ensure_infra_wallets_table
 
 
 @contextmanager
@@ -273,10 +273,39 @@ def build_networks_release(db_path: str) -> dict:
         'build_tick': None,  # Global per-run time axis for score history
         'history_rows_written': 0,  # Rows inserted into network_score_history
         'errors': [],
+        'infra_sync_status': None,  # X78.14 -- health signal, see below
     }
 
+    # X78.14 -- root cause of a creator_funding_worker stall (X78.13):
+    # sync_infra_wallets() previously ran here, inside this function's own
+    # open write transaction. Its read phase alone is a documented ~2min,
+    # three-full-SELECT-DISTINCT scan of token_analysis (1.6M+ rows) --
+    # sync_infra_wallets()'s own docstring already warns callers not to run
+    # it on a connection that's holding a write lease, but this call site
+    # did exactly that, invoked (via creator_funding_worker's post-extraction
+    # enrichment) from an untimed asyncio.to_thread with nothing to bound it.
+    #
+    # build_networks_release only ever READS infra_wallets (NOT IN
+    # subqueries below) -- it never required the sync to have just run.
+    # X78.8's caller census already established every sync_infra_wallets()
+    # consumer, including this one, tolerates "last successful state": the
+    # underlying source columns are append-only, so bounded staleness only
+    # means a brand-new infra wallet is briefly treated as non-infra until
+    # the next refresh -- a self-correcting lag, not a correctness break.
+    # Refresh ownership belongs entirely to the standalone, independently
+    # supervised src.core.infra_sync_scheduler process (same pattern
+    # risk_scoring_builder.score_creator_now already adopted in X78.8).
+    # This function now only ensures the table exists (so the NOT IN
+    # queries below never fail on a freshly-created database) and exposes
+    # the scheduler's own staleness signal in stats -- it performs no scan
+    # and holds no write lease across a scan, ever.
     with db_transaction(db_path) as db:
-        sync_infra_wallets(db)
+        ensure_infra_wallets_table(db)
+        try:
+            from src.core.infra_sync_scheduler import get_status as _infra_sync_status
+            stats['infra_sync_status'] = _infra_sync_status()
+        except Exception as e:
+            stats['infra_sync_status'] = {"status": "error", "error": str(e)}
         profiler.mark('Phase A: Snapshot')
         print("🔄 Phase A: Snapshot previous state...")
 

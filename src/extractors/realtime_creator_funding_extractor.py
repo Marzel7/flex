@@ -170,16 +170,29 @@ class DomainResolver:
                 except Exception:
                     pass
 
-    def _db_set_many(self, rows: List[Tuple[str, Optional[str], int]]):
-        """Save multiple domain lookups to database cache"""
+    def _db_set_many(
+        self,
+        rows: List[Tuple[str, Optional[str], int]],
+        address_tags: Iterable[Tuple[str, str]] = (),
+    ):
+        """Persist one resolver pass through a single write transaction."""
+        tag_rows = list(address_tags)
         conn = None
         try:
             conn = db_connect(self.db_path, timeout=60)
             cur = conn.cursor()
-            cur.executemany("""
-                INSERT OR REPLACE INTO address_domains (address, primary_domain, updated_at)
-                VALUES (?, ?, ?)
-            """, rows)
+            if rows:
+                cur.executemany("""
+                    INSERT OR REPLACE INTO address_domains (address, primary_domain, updated_at)
+                    VALUES (?, ?, ?)
+                """, rows)
+            if tag_rows:
+                tagged_at = int(time.time())
+                cur.executemany("""
+                    INSERT OR REPLACE INTO address_tags
+                    (address, tag_type, tag_value, source, first_seen_at)
+                    VALUES (?, 'domain', ?, 'sns_resolver', ?)
+                """, [(address, domain, tagged_at) for address, domain in tag_rows])
             conn.commit()
         finally:
             if conn is not None:
@@ -191,49 +204,6 @@ class DomainResolver:
     def _is_fresh(self, updated_at: int) -> bool:
         """Check if cached entry is still fresh"""
         return (int(time.time()) - updated_at) < DOMAIN_CACHE_TTL_SECS
-
-    def _save_address_tag(self, address: str, domain: str):
-        """Save a discovered domain as a persistent address tag and register it"""
-        if not domain:
-            return
-
-        # X78.0 -- conn was declared inside the try and closed only on the
-        # success path; an exception from the INSERT left it (and its
-        # write lease) open. conn declared before the try so finally can
-        # close it regardless of which line raised (including the
-        # register_domain/link_domain_to_address calls after commit, which
-        # don't use conn but previously ran before its close() in the old
-        # ordering only on the success path anyway).
-        conn = None
-        try:
-            conn = db_connect(self.db_path, timeout=60)
-            cur = conn.cursor()
-
-            # Save domain tag (tag_type='domain', tag_value=actual domain name)
-            cur.execute("""
-                INSERT OR REPLACE INTO address_tags
-                (address, tag_type, tag_value, source, first_seen_at)
-                VALUES (?, 'domain', ?, 'sns_resolver', ?)
-            """, (address, domain, int(time.time())))
-
-            conn.commit()
-
-            # Register domain in persistent mapping
-            register_domain(domain, domain_type='owned',
-                          metadata={'owner': address, 'source': 'sns_resolution'},
-                          source='sns_resolver')
-
-            # Link address to domain in mapping
-            link_domain_to_address(domain, address)
-
-        except Exception as e:
-            pass  # Non-critical
-        finally:
-            if conn is not None:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
 
     async def resolve_primary_domains(self, addresses: Iterable[str]) -> Dict[str, Optional[str]]:
         """
@@ -256,6 +226,7 @@ class DomainResolver:
 
         out: Dict[str, Optional[str]] = {}
         missing: List[str] = []
+        address_tags: Dict[str, str] = {}
 
         # 1) Check memory cache
         for a in addrs:
@@ -272,9 +243,8 @@ class DomainResolver:
                 domain, ts = row
                 self.mem[a] = (domain, ts)
                 out[a] = domain
-                # Save cached domain as persistent tag if found
                 if domain:
-                    self._save_address_tag(a, domain)
+                    address_tags[a] = domain
             else:
                 still_missing.append(a)
 
@@ -319,10 +289,8 @@ class DomainResolver:
                         self.mem[a] = (domain, now)
                         out[a] = domain
                         to_persist.append((a, domain, now))
-                        
-                        # Save domain as persistent tag if found
                         if domain:
-                            self._save_address_tag(a, domain)
+                            address_tags[a] = domain
 
             except Exception as e:
                 # On error, mark as unknown but cache short-term
@@ -335,8 +303,16 @@ class DomainResolver:
             # Gentle throttle between batches
             await asyncio.sleep(0.05)
 
-        if to_persist:
-            self._db_set_many(to_persist)
+        if to_persist or address_tags:
+            self._db_set_many(to_persist, address_tags.items())
+
+        # These mappings are maintained after the tracked write transaction;
+        # no resolver database lease spans registry work or network I/O.
+        for address, domain in address_tags.items():
+            register_domain(domain, domain_type='owned',
+                            metadata={'owner': address, 'source': 'sns_resolution'},
+                            source='sns_resolver')
+            link_domain_to_address(domain, address)
 
         return out
 

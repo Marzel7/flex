@@ -18,5 +18,7 @@ same contract version in one schedule fail closed.
 
 Immutable snapshots prove scheduling, isolation, registry coexistence, version
 coexistence, and deterministic replay. EP3.2A subsequently completed the frozen
-3SW2 corpus at 13/13. Historical parity remains gated by the documented Primitive
-v1 freshness-ordering defect; this does not invalidate the isolation proof.
+3SW2 corpus at 13/13. EP2.1 corrected freshness ordering: 9/13 creators now verify
+fresh, while four bounded histories omit the reference event and remain
+unverifiable. This classified Evidence gap does not invalidate the isolation
+proof.

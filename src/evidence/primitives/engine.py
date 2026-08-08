@@ -288,17 +288,33 @@ class PrimitiveEngine:
 
     def _wallet_freshness(self, index: _Index) -> list[PrimitiveObservation]:
         policy = {"permitted_prior_transaction_count": 0, "required_zero_balance": True,
-                  "require_complete_history": True}
+                  "require_complete_history": True,
+                  "history_order": "NEWEST_FIRST",
+                  "reference_boundary": "STRICTLY_PRECEDING"}
         histories = index.family("AddressHistoryObservation")
         participants = index.family("AccountParticipationFact")
+        histories_by_wallet: dict[str, list[_Fact]] = defaultdict(list)
+        participants_by_event: dict[tuple[str, str], list[_Fact]] = defaultdict(list)
+        for fact in histories:
+            address = fact.payload.get("address")
+            if isinstance(address, str):
+                histories_by_wallet[address].append(fact)
+        for fact in participants:
+            participant_signature = fact.payload.get("signature")
+            public_key = fact.payload.get("public_key")
+            if isinstance(participant_signature, str) and isinstance(public_key, str):
+                participants_by_event[(participant_signature, public_key)].append(fact)
         result = []
         for balance in index.family("BalanceFact"):
             if balance.payload.get("asset_type") != "native": continue
             wallet = balance.payload.get("account")
             signature = balance.payload.get("signature")
             if not isinstance(wallet, str) or not isinstance(signature, str): continue
-            relevant_history = [fact for fact in histories if fact.payload.get("address") == wallet]
-            relevant_participants = [fact for fact in participants if fact.payload.get("signature") == signature and fact.payload.get("public_key") == wallet]
+            relevant_history = sorted(
+                histories_by_wallet.get(wallet, ()),
+                key=lambda fact: fact.evidence_id,
+            )
+            relevant_participants = participants_by_event.get((signature, wallet), [])
             missing = []
             if not relevant_history: missing.append("AddressHistoryObservation")
             if not relevant_participants: missing.append("AccountParticipationFact")
@@ -306,22 +322,40 @@ class PrimitiveEngine:
             state = "UNKNOWN"
             quality = PrimitiveQuality.INCOMPLETE if missing else PrimitiveQuality.PROVEN
             if not missing:
-                history = relevant_history[-1].payload
-                prior = [item for item in history.get("returned_signatures", []) if item != signature]
-                complete = history.get("page_complete") is True
-                if balance.payload.get("pre_balance") == 0 and complete and len(prior) <= 0:
-                    state = "VERIFIED_FRESH"
-                elif balance.payload.get("pre_balance") != 0 or prior:
-                    state = "NOT_FRESH"
-                else:
+                containing_reference = [
+                    fact for fact in relevant_history
+                    if signature in fact.payload.get("returned_signatures", [])
+                ]
+                if not containing_reference:
+                    state = "UNKNOWN"
                     quality = PrimitiveQuality.UNVERIFIABLE
+                    missing.append("AddressHistoryObservation.reference_event")
+                else:
+                    # getSignaturesForAddress observations retain provider order:
+                    # newest first.  Only entries after the immutable reference
+                    # event are therefore historical predecessors.  Entries
+                    # before it are later activity and must not affect the
+                    # historical freshness decision.
+                    history = containing_reference[0].payload
+                    returned = history.get("returned_signatures", [])
+                    reference_index = returned.index(signature)
+                    prior = returned[reference_index + 1:]
+                    complete = history.get("page_complete") is True or not prior
+                    if balance.payload.get("pre_balance") == 0 and complete and not prior:
+                        state = "VERIFIED_FRESH"
+                    elif balance.payload.get("pre_balance") != 0 or prior:
+                        state = "NOT_FRESH"
+                    else:
+                        quality = PrimitiveQuality.UNVERIFIABLE
             result.append(self._observation(
                 PrimitiveType.WALLET_FRESH_AT_EVENT,
                 [balance, *relevant_history, *relevant_participants], [wallet],
                 {"wallet": wallet, "reference_event": signature, "freshness_state": state},
                 parameters=policy, start=balance.observed_at, end=balance.observed_at,
                 quality=quality, missing=missing,
-                failure="MISSING_REQUIRED_EVIDENCE" if missing else None,
+                failure=("MISSING_REFERENCE_EVENT" if
+                         "AddressHistoryObservation.reference_event" in missing else
+                         "MISSING_REQUIRED_EVIDENCE" if missing else None),
             ))
         return result
 

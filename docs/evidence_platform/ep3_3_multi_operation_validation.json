@@ -10,6 +10,6 @@
   "registry_coexistence": "PASS",
   "version_coexistence": "PASS",
   "isolation": "PASS",
-  "historical_parity": "EP3.2_CORPUS_COMPLETE_PARITY_BLOCKED_BY_FRESHNESS_DEFECT",
+  "historical_parity": "EP3.2_ENGINE_CORRECTED_9_OF_13_FRESH_4_REFERENCE_EVENTS_UNAVAILABLE",
   "production_authority_changed": false
 }

@@ -16,9 +16,14 @@ from tests.test_ep1_3_immutable_evidence_normalization import (
 )
 
 
-def _platform_with_primitives(tmp_path: Path) -> EvidencePlatform:
+def _platform_with_primitives(
+    tmp_path: Path, *, history_signatures: list[str] | None = None,
+    creator_pre_balance: int | None = None,
+) -> EvidencePlatform:
     platform = EvidencePlatform(replace(_config(tmp_path), primitive_engine_enabled=True))
     body = _transaction_body()
+    if creator_pre_balance is not None:
+        body["result"]["meta"]["preBalances"][0] = creator_pre_balance
     instructions = body["result"]["transaction"]["message"]["instructions"]
     instructions[0]["parsed"]["info"].update({"source": "recipient", "destination": "creator"})
     instructions[0]["accounts"] = [1, 0]
@@ -33,6 +38,8 @@ def _platform_with_primitives(tmp_path: Path) -> EvidencePlatform:
     })
     _enqueue(platform, body, envelope_id="env-primitive-tx")
     second = _transaction_body()
+    if creator_pre_balance is not None:
+        second["result"]["meta"]["preBalances"][0] = creator_pre_balance
     second["result"]["slot"] = 124
     second["result"]["blockTime"] = 1700000010
     second["result"]["transaction"]["signatures"] = ["sig-2"]
@@ -48,7 +55,10 @@ def _platform_with_primitives(tmp_path: Path) -> EvidencePlatform:
     )
     _enqueue(
         platform,
-        {"jsonrpc": "2.0", "result": [{"signature": "sig-1"}]},
+        {"jsonrpc": "2.0", "result": [
+            {"signature": signature}
+            for signature in (history_signatures or ["sig-1"])
+        ]},
         envelope_id="env-primitive-history", method="getSignaturesForAddress",
         acquisition_changes={"creator": "creator", "transaction_signatures": [],
                              "page_size": 100, "page_complete": True},
@@ -56,6 +66,20 @@ def _platform_with_primitives(tmp_path: Path) -> EvidencePlatform:
     platform.writer.start()
     platform.writer.run_once()
     return platform
+
+
+def _freshness_rows(path: Path, wallet: str = "creator") -> list[dict]:
+    rows = _query(
+        path,
+        "SELECT quality_state,missing_inputs_json,failure_state,output_payload_json "
+        "FROM primitive_observations WHERE primitive_type='WALLET_FRESH_AT_EVENT'",
+    )
+    return [
+        {**dict(row), "output": json.loads(row["output_payload_json"]),
+         "missing": json.loads(row["missing_inputs_json"])}
+        for row in rows
+        if json.loads(row["output_payload_json"]).get("wallet") == wallet
+    ]
 
 
 def _query(path: Path, sql: str) -> list[sqlite3.Row]:
@@ -111,6 +135,60 @@ def test_replay_is_deterministic_and_does_not_duplicate_primitives(tmp_path):
         assert replay["inserted"] == 0
         assert replay["duplicates"] == len(before)
         assert [tuple(row) for row in before] == [tuple(row) for row in after]
+    finally:
+        platform.writer.stop()
+
+
+def test_wallet_freshness_ignores_activity_after_reference_event(tmp_path):
+    platform = _platform_with_primitives(
+        tmp_path, history_signatures=["sig-2", "sig-1"], creator_pre_balance=0
+    )
+    try:
+        reference = [
+            row for row in _freshness_rows(platform.config.database_path)
+            if row["output"]["reference_event"] == "sig-1"
+        ]
+        assert len(reference) == 1
+        assert reference[0]["output"]["freshness_state"] == "VERIFIED_FRESH"
+        assert reference[0]["quality_state"] == "PROVEN"
+        assert reference[0]["missing"] == []
+    finally:
+        platform.writer.stop()
+
+
+def test_wallet_freshness_uses_only_strictly_preceding_history(tmp_path):
+    platform = _platform_with_primitives(
+        tmp_path, history_signatures=["sig-2", "sig-1", "older-sig"],
+        creator_pre_balance=0,
+    )
+    try:
+        reference = [
+            row for row in _freshness_rows(platform.config.database_path)
+            if row["output"]["reference_event"] == "sig-1"
+        ]
+        assert len(reference) == 1
+        assert reference[0]["output"]["freshness_state"] == "NOT_FRESH"
+        assert reference[0]["quality_state"] == "PROVEN"
+    finally:
+        platform.writer.stop()
+
+
+def test_wallet_freshness_is_unverifiable_when_reference_is_not_retained(tmp_path):
+    platform = _platform_with_primitives(
+        tmp_path, history_signatures=["sig-2", "newer-sig"], creator_pre_balance=0
+    )
+    try:
+        reference = [
+            row for row in _freshness_rows(platform.config.database_path)
+            if row["output"]["reference_event"] == "sig-1"
+        ]
+        assert len(reference) == 1
+        assert reference[0]["output"]["freshness_state"] == "UNKNOWN"
+        assert reference[0]["quality_state"] == "UNVERIFIABLE"
+        assert reference[0]["failure_state"] == "MISSING_REFERENCE_EVENT"
+        assert reference[0]["missing"] == [
+            "AddressHistoryObservation.reference_event"
+        ]
     finally:
         platform.writer.stop()
 

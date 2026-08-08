@@ -1,0 +1,74 @@
+{
+  "authority": "SHADOW_REPLAY_ONLY",
+  "corpora": [
+    {
+      "changed_primitive_types": [
+        "BEHAVIOURAL_TIMING",
+        "LAUNCH_ACTIVATION",
+        "WALLET_FRESH_AT_EVENT"
+      ],
+      "corpus": "3SW2",
+      "deterministic": true,
+      "envelopes": 40,
+      "freshness_states": {
+        "NOT_FRESH:PROVEN": 10,
+        "UNKNOWN:INCOMPLETE": 375,
+        "UNKNOWN:UNVERIFIABLE": 8,
+        "VERIFIED_FRESH:PROVEN": 10
+      },
+      "projection_checkpoints": 2,
+      "replay_digest": "a1fd0d2294f3d485ae95ca305130468462c23e395f8d67ffe8e071dc88a9de1c",
+      "replay_primitive_counts": {
+        "BEHAVIOURAL_TIMING": 184,
+        "DIRECT_COUNTERPARTY": 103,
+        "ECONOMIC_FUNDING": 13,
+        "LAUNCH_ACTIVATION": 26,
+        "LAUNCH_SIGNER": 13,
+        "SHARED_TRANSACTION": 26,
+        "SYSTEM_TRANSFER": 90,
+        "WALLET_FRESH_AT_EVENT": 403
+      },
+      "rpc_calls": 0,
+      "source_primitive_counts": {
+        "BEHAVIOURAL_TIMING": 184,
+        "DIRECT_COUNTERPARTY": 103,
+        "ECONOMIC_FUNDING": 13,
+        "LAUNCH_ACTIVATION": 26,
+        "LAUNCH_SIGNER": 13,
+        "SHARED_TRANSACTION": 26,
+        "SYSTEM_TRANSFER": 90,
+        "WALLET_FRESH_AT_EVENT": 403
+      },
+      "three_sw2_reference": {
+        "controller": "3SW2zquY2mVTbNuw1ZCGgtoehq2evfU36PFd6TTqSXdK",
+        "launch_creators": 13,
+        "unverifiable_creators": 4,
+        "verified_fresh_creators": 9
+      },
+      "unrelated_primitive_types_changed": []
+    },
+    {
+      "changed_primitive_types": [
+        "WALLET_FRESH_AT_EVENT"
+      ],
+      "changed_watchtower_activation_inputs": 0,
+      "corpus": "WATCHTOWER",
+      "deterministic": true,
+      "replay_digest": "6475951de942b0b3219ad25df59525b08b748e22a096733412be5c47b66655fb",
+      "rpc_calls": 0,
+      "unrelated_primitive_types_changed": [],
+      "validation_scope": "TEMPORAL_PRIMITIVE_TARGETED_REPLAY",
+      "wallet_freshness_observations": 39694,
+      "watchtower_contract_inputs_changed": false
+    }
+  ],
+  "invariants": {
+    "evidence_changed": false,
+    "operation_contracts_changed": false,
+    "rpc_calls": 0,
+    "runtime_changed": false,
+    "source_corpora_mutated": false
+  },
+  "milestone": "EP2.1",
+  "passed": true
+}

@@ -24,11 +24,12 @@
     "detector_version": "1.0.0",
     "evaluation_latency_ms": null,
     "evaluations": 0,
-    "replay": "DETERMINISTIC_INCREMENTAL_VALIDATION",
-    "shadow_health": "HEALTHY"
+    "replay": "EP2.1_DETERMINISTIC_INCREMENTAL_VALIDATION",
+    "shadow_health": "HEALTHY_WITH_CLASSIFIED_GAPS"
   },
   "invariants": {
     "acquisition_rpc_calls": 16,
+    "ep2_1_replay_rpc_calls": 0,
     "governance_executed": false,
     "production_authority_changed": false,
     "runtime_modified": false,
@@ -39,8 +40,8 @@
     "differences": [
       {
         "area": "creator freshness",
-        "classification": "Implementation defect",
-        "detail": "All required histories are present, but 13 creators are classified NOT_FRESH because Primitive v1 does not time-filter returned signatures relative to the reference event."
+        "classification": "Unavailable Evidence",
+        "detail": "9 creators are verified fresh relative to activation; 4 retained histories omit the immutable reference event and remain unverifiable."
       },
       {
         "area": "explicit exclusions",
@@ -53,10 +54,10 @@
         "detail": "Governed non-membership is comparison context, not immutable chain evidence."
       }
     ],
-    "status": "BLOCKED_BY_IMPLEMENTATION_DEFECT",
+    "status": "BLOCKED_BY_UNAVAILABLE_REFERENCE_EVIDENCE",
     "unexplained_differences": 0
   },
-  "report_digest": "4f2dedaca7b2ba604369cbaf4dd5c31b8fbfd5c9e29513f072d676db18a71698",
+  "report_digest": "ef43c06e17c0309227c0168a37a6ce25c69fe5238f453e4750210312cad31751",
   "shadow": {
     "controller_activations": 13,
     "covered_launches": 13,
@@ -72,8 +73,9 @@
       "SYSTEM_TRANSFER": 13,
       "WALLET_FRESH_AT_EVENT": 13
     },
-    "primitive_not_fresh_creators": 13,
-    "proven_fresh_creators": 0,
-    "proven_launch_signers": 13
+    "primitive_not_fresh_creators": 0,
+    "proven_fresh_creators": 9,
+    "proven_launch_signers": 13,
+    "unverifiable_freshness_creators": 4
   }
 }

@@ -9,15 +9,14 @@
       ],
       "corpus": "3SW2",
       "deterministic": true,
-      "envelopes": 40,
+      "envelopes": 59,
       "freshness_states": {
-        "NOT_FRESH:PROVEN": 10,
-        "UNKNOWN:INCOMPLETE": 375,
-        "UNKNOWN:UNVERIFIABLE": 8,
-        "VERIFIED_FRESH:PROVEN": 10
+        "NOT_FRESH:PROVEN": 18,
+        "UNKNOWN:INCOMPLETE": 367,
+        "VERIFIED_FRESH:PROVEN": 18
       },
       "projection_checkpoints": 2,
-      "replay_digest": "a1fd0d2294f3d485ae95ca305130468462c23e395f8d67ffe8e071dc88a9de1c",
+      "replay_digest": "3b20416cd4c48a6871fe6fef2b6c685885a551f7819101b2a5b2d21892ce639c",
       "replay_primitive_counts": {
         "BEHAVIOURAL_TIMING": 184,
         "DIRECT_COUNTERPARTY": 103,
@@ -42,8 +41,8 @@
       "three_sw2_reference": {
         "controller": "3SW2zquY2mVTbNuw1ZCGgtoehq2evfU36PFd6TTqSXdK",
         "launch_creators": 13,
-        "unverifiable_creators": 4,
-        "verified_fresh_creators": 9
+        "unverifiable_creators": 0,
+        "verified_fresh_creators": 13
       },
       "unrelated_primitive_types_changed": []
     },

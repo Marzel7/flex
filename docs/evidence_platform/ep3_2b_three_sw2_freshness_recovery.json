@@ -1,0 +1,57 @@
+{
+  "milestone": "EP3.2B",
+  "authority": "SHADOW_NON_AUTHORITATIVE",
+  "population": {"creators": 4, "launches": 4, "expanded": false},
+  "budget": {
+    "expected_rpc_calls": 4,
+    "expected_credits": 40,
+    "hard_rpc_ceiling": 40,
+    "hard_credit_ceiling": 400,
+    "actual_rpc_calls": 20,
+    "actual_credits": 200,
+    "transaction_fetches": 0
+  },
+  "evidence": {
+    "successful_pages_appended": 19,
+    "writer_failures": 0,
+    "normalization_failures": 0,
+    "references_recovered": 4
+  },
+  "results": [
+    {
+      "creator": "8cTQRGkwEzAf4TyCz2bb1qHZvkPpugp7htMzjQzEbWwE",
+      "activation_reference": "wQunDwx8DZmXxboSWiocpHjWdARARKa7yFvxTdn1CAeTB3rmUXPGxHYxUvuQ7Z5N2GXxvWiqJQ8CKWZZNjgwsf3",
+      "pages": 3,
+      "status": "VERIFIED_FRESH"
+    },
+    {
+      "creator": "97VLEFqD5rPusWSiX7ujEWtwatkZAfDAappVGgv6xsXq",
+      "activation_reference": "5uRjev2Jb3YDek7Ci2LZPNJqYH3fm6ABfGwpuXHKWEkRmnbY8gr15KC4tUq3Wor8DTByAVkBftqDAxtDKAoHTZGP",
+      "pages": 10,
+      "status": "VERIFIED_FRESH"
+    },
+    {
+      "creator": "DGRbGNSrUxKBQX684dCRUbcfgnDduZTodBUKhLH52qf7",
+      "activation_reference": "5P6w3RhSCZy4CVrByRGdzhyYpAZwBXkMR8iFjPZ7PdPSxSNXxT4SAAWMaPGRvvKxiREFYM1BN7FH13dorm1Pz9Pf",
+      "pages": 3,
+      "status": "VERIFIED_FRESH"
+    },
+    {
+      "creator": "EtBgBxufWn5hiFHK2FaNJxCXjhmKPdP2WUYbYd3bqsX2",
+      "activation_reference": "3oWvHy5YZi7W1fc9HZXy3yXjkMFsTi7TFv6Pnt76386qguw5ZQYgVfUJUCgjNv68YmrPwY1cAK59j5uFQiez3Cjw",
+      "pages": 3,
+      "status": "VERIFIED_FRESH"
+    }
+  ],
+  "replay": {
+    "deterministic": true,
+    "rpc_calls": 0,
+    "verified_fresh_creators": 13,
+    "unverifiable_creators": 0,
+    "watchtower_activation_inputs_changed": 0,
+    "unrelated_primitive_types_changed": 0
+  },
+  "ep3_2_parity": "PARITY_COMPLETE_WITH_CLASSIFIED_LEGACY_LIMITATIONS",
+  "production_writes": 0,
+  "governance_actions": 0
+}

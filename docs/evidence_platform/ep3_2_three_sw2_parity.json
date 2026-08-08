@@ -39,11 +39,6 @@
   "parity": {
     "differences": [
       {
-        "area": "creator freshness",
-        "classification": "Unavailable Evidence",
-        "detail": "9 creators are verified fresh relative to activation; 4 retained histories omit the immutable reference event and remain unverifiable."
-      },
-      {
         "area": "explicit exclusions",
         "classification": "Known legacy limitation",
         "detail": "X78.21 exclusion identities are not encoded as generic Primitive v1 observations."
@@ -54,10 +49,10 @@
         "detail": "Governed non-membership is comparison context, not immutable chain evidence."
       }
     ],
-    "status": "BLOCKED_BY_UNAVAILABLE_REFERENCE_EVIDENCE",
+    "status": "PARITY_COMPLETE_WITH_CLASSIFIED_LEGACY_LIMITATIONS",
     "unexplained_differences": 0
   },
-  "report_digest": "ef43c06e17c0309227c0168a37a6ce25c69fe5238f453e4750210312cad31751",
+  "report_digest": "f1b74c13a872dc2ec4ec6ea7e2de2e824e479977a27d49eabb6eb265353cdf35",
   "shadow": {
     "controller_activations": 13,
     "covered_launches": 13,
@@ -74,8 +69,8 @@
       "WALLET_FRESH_AT_EVENT": 13
     },
     "primitive_not_fresh_creators": 0,
-    "proven_fresh_creators": 9,
+    "proven_fresh_creators": 13,
     "proven_launch_signers": 13,
-    "unverifiable_freshness_creators": 4
+    "unverifiable_freshness_creators": 0
   }
 }

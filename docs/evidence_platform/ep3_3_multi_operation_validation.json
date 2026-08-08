@@ -10,6 +10,6 @@
   "registry_coexistence": "PASS",
   "version_coexistence": "PASS",
   "isolation": "PASS",
-  "historical_parity": "EP3.2_ENGINE_CORRECTED_9_OF_13_FRESH_4_REFERENCE_EVENTS_UNAVAILABLE",
+  "historical_parity": "EP3.2_PARITY_COMPLETE_WITH_CLASSIFIED_LEGACY_LIMITATIONS",
   "production_authority_changed": false
 }

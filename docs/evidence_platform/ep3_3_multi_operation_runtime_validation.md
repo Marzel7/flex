@@ -18,7 +18,8 @@ same contract version in one schedule fail closed.
 
 Immutable snapshots prove scheduling, isolation, registry coexistence, version
 coexistence, and deterministic replay. EP3.2A subsequently completed the frozen
-3SW2 corpus at 13/13. EP2.1 corrected freshness ordering: 9/13 creators now verify
-fresh, while four bounded histories omit the reference event and remain
-unverifiable. This classified Evidence gap does not invalidate the isolation
-proof.
+3SW2 corpus at 13/13. EP2.1 corrected freshness ordering, and EP3.2B recovered
+the four missing activation-reference observations. All 13 creators now verify
+fresh under deterministic replay. EP3.2 parity is complete with only the
+previously classified generic legacy limitations; the isolation proof remains
+valid.

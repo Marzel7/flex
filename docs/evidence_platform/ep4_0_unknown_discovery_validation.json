@@ -1,0 +1,98 @@
+{
+  "authority": "CANDIDATE_ONLY",
+  "datasets": [
+    {
+      "candidate_count": 14203,
+      "candidate_digest": "dab3ac293a03b30a276cacecf5295e1914707a14295e9d48c1b74c63ceab4013",
+      "deterministic": true,
+      "label_blind": true,
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 14203
+        },
+        "health": {
+          "authoritative": false,
+          "candidates": 14203,
+          "lifecycle_events": 0,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 14203,
+          "inserted": 0
+        }
+      },
+      "primitive_observations": 85989,
+      "quality_states": {
+        "INCOMPLETE": 4643,
+        "PROVEN": 9560
+      },
+      "validation_dataset": "KNOWN_CORPUS_A"
+    },
+    {
+      "candidate_count": 94,
+      "candidate_digest": "fadc28956d68e6d7c77913c529c07c40a5c4bd190e11ee60e56a6f616cf2e8eb",
+      "deterministic": true,
+      "label_blind": true,
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 94
+        },
+        "health": {
+          "authoritative": false,
+          "candidates": 94,
+          "lifecycle_events": 0,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 94,
+          "inserted": 0
+        }
+      },
+      "primitive_observations": 858,
+      "quality_states": {
+        "PROVEN": 94
+      },
+      "validation_dataset": "KNOWN_CORPUS_B"
+    },
+    {
+      "candidate_count": 2,
+      "candidate_digest": "fed7ec33d5f23d8de2296eedd2971f35b51dc52ff153e965335871bd6fcb89e4",
+      "deterministic": true,
+      "label_blind": true,
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 2
+        },
+        "health": {
+          "authoritative": false,
+          "candidates": 2,
+          "lifecycle_events": 0,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 2,
+          "inserted": 0
+        }
+      },
+      "primitive_observations": 4,
+      "quality_states": {
+        "PROVEN": 2
+      },
+      "validation_dataset": "GENERIC_UNLABELLED_POPULATION"
+    }
+  ],
+  "discovery_version": "1.0.0",
+  "governance_actions": 0,
+  "identity_promotions": 0,
+  "label_blind": true,
+  "milestone": "EP4.0",
+  "operation_contracts_loaded": 0,
+  "passed": true,
+  "production_database_reads": 0,
+  "production_writes": 0,
+  "replay_deterministic": true,
+  "rpc_calls": 0
+}

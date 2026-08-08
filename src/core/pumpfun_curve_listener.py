@@ -15,6 +15,7 @@ import re
 import sqlite3
 from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
 from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
+from src.core.database_write_service import CrossProcessDatabaseWriteTimeout
 import sys
 import time
 import threading
@@ -4160,7 +4161,57 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 pass
 
     # --- Database ---
+    # X78.10 -- startup DDL retry budget for cross-process write-lane
+    # contention. Same convention as creator_funding_worker.py's
+    # _retry_on_nested_write: bounded exponential backoff capped at 30s,
+    # env-overridable, retrying ONLY the specific transient exception class
+    # (CrossProcessDatabaseWriteTimeout -- proven bounded by its own 60s
+    # deadline, so it MUST eventually clear). Schema errors, programming
+    # errors, and any other exception are NOT retried and fail startup
+    # immediately, unchanged from before.
+    _ENSURE_DB_RETRY_MAX_ATTEMPTS = int(os.environ.get("LISTENER_ENSURE_DB_RETRY_MAX_ATTEMPTS", "5"))
+    _ENSURE_DB_RETRY_BASE_SECONDS = float(os.environ.get("LISTENER_ENSURE_DB_RETRY_BASE_SECONDS", "1.0"))
+
     def _ensure_db(self):
+        """Retry wrapper around _ensure_db_once(): a single bounded
+        cross-process lock timeout during startup DDL must not crash the
+        whole listener process (X78.9 turned what used to be an indefinite
+        hang here into a fast, bounded failure -- observed live during
+        X78.10 validation: a 60s contention timeout at startup crashed the
+        process, and supervisord's immediate restart-into-the-same-
+        contention produced a ~2min-cadence crash-loop). Retrying here,
+        with the caller (main()) unchanged, means startup either succeeds
+        within the retry budget or fails loudly with the real exception --
+        never a silent indefinite hang, never a tight crash-loop."""
+        import random as _random
+
+        attempt = 0
+        while True:
+            try:
+                self._ensure_db_once()
+                return
+            except CrossProcessDatabaseWriteTimeout as exc:
+                attempt += 1
+                if attempt > self._ENSURE_DB_RETRY_MAX_ATTEMPTS:
+                    log_print(
+                        f"[STARTUP] _ensure_db: cross-process lock timeout persisted past "
+                        f"{self._ENSURE_DB_RETRY_MAX_ATTEMPTS} attempts (last wait={exc.wait_seconds:.1f}s, "
+                        f"owner={exc.current_owner}) -- giving up, startup fails",
+                        flush=True,
+                    )
+                    raise
+                wait_s = min(30.0, self._ENSURE_DB_RETRY_BASE_SECONDS * (2 ** (attempt - 1)))
+                wait_s += _random.uniform(0, wait_s * 0.25)  # jitter to avoid thundering-herd retries
+                log_print(
+                    f"[STARTUP] _ensure_db: cross-process lock timeout (attempt {attempt}/"
+                    f"{self._ENSURE_DB_RETRY_MAX_ATTEMPTS}, owner={exc.current_owner.get('command') if exc.current_owner else None}), "
+                    f"retrying in {wait_s:.1f}s -- proven transient (bounded by the lock's own "
+                    f"60s deadline), not a permanent stall",
+                    flush=True,
+                )
+                time.sleep(wait_s)
+
+    def _ensure_db_once(self):
         conn = db_connect(DB_PATH, timeout=15)
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()

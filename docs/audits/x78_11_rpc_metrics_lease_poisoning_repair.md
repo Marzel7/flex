@@ -165,6 +165,114 @@ containment), X78.6 (risk-scoring transaction boundaries), or X78.8
 (infra-sync ownership) were reopened — no regression evidence against any
 of them was found, per the explicit scope instruction.
 
+## Part F.5 — X78.11b: a second, distinct root cause found live
+
+Deploying the primary X78.11 fix to `creator_resolution_worker` did not
+resolve the live poisoning. A live `py-spy dump` on the freshly-restarted,
+freshly-repoisoned process (PID 92952) showed `MainThread` idle in its
+normal `while` loop (`run_loop:388`, `time.sleep`), not mid-acquisition —
+proving the poisoning event had already happened before the dump, and
+proving it was **not** a recurrence of the `rpc_metrics_recorder.py`
+functions X78.11 fixed. Correlating with two other background threads
+visible in the dump (`db-conn-reaper`, `db-wal-watchdog`) led to
+`db_locking.py:_reap_stale_connections()`.
+
+**Root cause**: `_reap_stale_connections()` runs on its own dedicated
+background thread (`db-conn-reaper`, started at module import, 10s sweep
+interval) and force-closes connections belonging to *other* threads once
+they exceed an age threshold (`_MAX_TXN_CONNECTION_AGE_SECS=45s` for
+active transactions) — exactly the shape of `creator_resolution_worker`'s
+RPC-bound `MainThread` work, which routinely runs longer than that.
+`TrackedConnection.close()` → `_release_write_lane()` →
+`release_write_lease()` correctly releases the cross-process flock and the
+in-process `_DB_WRITE_LOCK` (a plain `threading.Lock`, which Python
+permits releasing from a different thread than the one that acquired it)
+regardless of which thread calls `close()`. But the *old*
+`release_write_lease()`'s thread-local reentrancy-guard clear —
+`if _thread_write_lease.owner is lease.owner: del _thread_write_lease.owner`
+— only ever inspected and cleared the **calling** thread's own
+`threading.local()` slot. When the reaper calls this, it touches its own
+(irrelevant, always-empty) slot, never the owning thread's — so the owning
+thread's guard survived the close permanently, and every subsequent
+same-thread write self-collided as `NestedDatabaseWriteError` forever.
+
+**Confirmed empirically**, not just by inspection: a raw Python script
+(bypassing pytest) directly demonstrated thread A's `_thread_write_lease
+.owner` surviving a `release_write_lease()` call made from thread B on the
+identical lease object.
+
+**Fix**: a shared, thread-independent lease-identity registry
+(`_active_lease_by_thread_ident`, a lock-protected `dict[thread_ident ->
+opaque token]`). `release_write_lease()` invalidates the *owning* thread's
+registry entry regardless of which thread calls it — safe, because it's a
+shared dict under its own lock, never a write into another thread's
+`threading.local()` storage. `acquire_write_lease()`'s reentrancy check now
+additionally verifies the calling thread's cached local token is still the
+currently-active one in the shared registry before treating a non-`None`
+local `owner` as a genuine nested acquisition; if the registry shows it was
+invalidated by someone else, the thread self-heals (clears its own local
+reference) and proceeds with a normal acquisition instead of raising a
+false-positive `NestedDatabaseWriteError`. The token is kept in a
+*separate* thread-local field (not embedded in the `owner` dict, which is
+copied verbatim into API-facing telemetry/diagnostics elsewhere and must
+stay plain-JSON-serializable).
+
+**Regression** (`tests/test_x78_11b_reaper_cross_thread_lease_poisoning.py`,
+4 tests, all directly exercising the real `acquire_write_lease`/
+`release_write_lease` machinery, not mocks):
+- Same-thread self-heal after a cross-thread release (the primary
+  reproduction and fix proof — the first draft of this test used a fresh
+  `threading.Thread` for the follow-up check and produced a false negative,
+  since a brand-new thread has its own empty `threading.local()` regardless
+  of another thread's state; corrected to reuse one persistent thread
+  across both the initial acquire and the follow-up write, matching
+  `creator_resolution_worker`'s real single-persistent-`MainThread` shape).
+- Shared registry entry is actually invalidated by a cross-thread release
+  (not just that the end-to-end behavior happens to work out).
+- Normal same-thread acquire/release (no reaper involved) is completely
+  unaffected.
+- Genuine same-thread nesting (a real, still-active second acquisition
+  attempt with nobody having released the first) is still correctly
+  rejected — the self-heal check does not weaken real reentrancy
+  protection.
+
+All 4 fail cleanly (`ImportError` — the registry doesn't exist yet) against
+the pre-fix code, confirming they test real new behavior.
+
+**Known follow-up, explicitly out of this fix's scope**: two pre-existing
+tests in `tests/test_x78_0_creator_funding_lease_poisoning.py`
+(`test_a_single_leaked_lease_poisons_every_subsequent_write_same_thread`
+and `test_create_table_if_not_exists_still_acquires_and_can_leak_the_lease`)
+assert that a leaked lease poisons a thread *permanently* — a premise
+X78.11b's fix correctly changes (the reaper now eventually heals it).
+Attempting to update these tests surfaced a **separate, pre-existing**
+timing fragility unrelated to X78.11b: `TrackedConnection._acquire_write_lane`
+checks `_DB_WRITE_LOCK.acquire(timeout=60)` (a plain in-process
+`threading.Lock`) *before* ever calling `acquire_write_lease()` (the
+cross-process/`NestedDatabaseWriteError` layer) — when that in-process
+acquire times out at 60s, the code deliberately falls through to raw
+SQLite `execute()` (`record_lock_error(caller); return`) **without**
+raising `NestedDatabaseWriteError` at all. This reproduces identically
+against the untouched, original (pre-X78.11b) code with zero changes
+applied — confirmed directly, not inferred — so it is not a regression
+introduced by this fix. `tests/test_x78_0_creator_funding_lease_poisoning.py`
+was reverted to its original, unmodified, zero-diff state rather than ship
+a rushed rewrite under this fix's scope. Follow-up needed separately:
+**legacy test fragility — `_DB_WRITE_LOCK.acquire(timeout=60)` can time out
+and fall through to raw SQLite execution without raising
+`NestedDatabaseWriteError`, invalidating the fast-timing assumption in the
+old X78.0 test. Pre-existing, not introduced by X78.11b.**
+
+**Regression sweep after X78.11b**: 43/43 pass across
+`test_x78_9_cross_process_lock_timeout.py`,
+`test_x78_9_price_worker_singleton.py`,
+`test_x78_10_price_service_singleton.py`,
+`test_x78_10_release_unlocked_lock.py`,
+`test_x78_10_listener_ensure_db_retry.py`,
+`test_x78_11_rpc_metrics_lease_poisoning.py`,
+`test_x78_11b_reaper_cross_thread_lease_poisoning.py`, and
+`test_database_write_service.py`.
+
 ## Part G — Creator resolution live recovery
 
 [Filled in after production deployment and soak — see below.]

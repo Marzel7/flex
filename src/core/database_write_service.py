@@ -205,12 +205,47 @@ def cross_process_lock_health(path: str | None = None, *, window_secs: int = 864
 
 _thread_write_lease = threading.local()
 
+# X78.11b -- shared, thread-independent lease-identity registry.
+#
+# Problem: _thread_write_lease is a threading.local(), so only the thread
+# that acquired a lease can ever see/clear ITS OWN slot. But
+# release_write_lease() can legitimately be called from a DIFFERENT thread
+# than the one that acquired the lease -- specifically, db_locking.py's
+# background db-conn-reaper thread force-closes long-running connections
+# that belong to other threads (the WAL-hang mitigation), and
+# TrackedConnection.close() -> _release_write_lane() -> release_write_lease()
+# runs on whichever thread calls close(). When that's the reaper thread,
+# the OLD code's `if _thread_write_lease.owner is lease.owner: del` only
+# ever inspected the REAPER's own (irrelevant, always-empty) thread-local --
+# never touching the actual owning thread's slot -- so the owning thread's
+# reentrancy guard survived forever, self-colliding on every later write
+# from that same thread (reproduced live: creator_resolution_worker's
+# MainThread, whose RPC-bound resolution work routinely exceeds the
+# reaper's 45s threshold).
+#
+# Fix: give every acquired lease a unique identity token. Record, in a
+# shared (lock-protected, not thread-local) map keyed by the OWNING
+# thread's ident, which token is currently "the active lease for that
+# thread." release_write_lease() -- regardless of which thread calls it --
+# invalidates that shared record for the lease's actual owning thread.
+# acquire_write_lease()'s reentrancy check then compares the calling
+# thread's local `owner` against the shared record for ITS OWN thread
+# ident: if the shared record no longer matches (or is gone), the local
+# reference is stale -- self-heal by clearing it and proceeding normally,
+# rather than raising a false NestedDatabaseWriteError. A thread's own
+# thread-local storage is never written to from another thread; only the
+# shared registry is touched cross-thread, which is safe under its lock.
+_active_lease_lock = threading.Lock()
+_active_lease_by_thread_ident: dict[int, Any] = {}  # thread ident -> lease token (opaque object)
+
 
 @dataclass
 class WriteLease:
     file: Any
     owner_path: str
     owner: dict[str, Any]
+    owner_thread_ident: int = 0
+    token: object = None
 
 
 def _read_owner_metadata(owner_path: str) -> dict[str, Any] | None:
@@ -244,7 +279,29 @@ def acquire_write_lease(
     call had no timeout at all).
     """
     real_path = os.path.realpath(path)
+    this_thread_ident = threading.get_ident()
     outer = getattr(_thread_write_lease, "owner", None)
+    if outer is not None:
+        # X78.11b -- before treating this as a genuine same-thread nested
+        # acquisition, confirm the cached local `owner` still corresponds
+        # to the CURRENTLY active lease for this thread in the shared
+        # registry. If a different thread (the reaper) released this
+        # thread's lease on its behalf, the shared registry entry for this
+        # thread ident is gone/changed -- self-heal by clearing the stale
+        # local reference and falling through to a normal acquisition,
+        # rather than raising a false-positive NestedDatabaseWriteError
+        # against a lease that no longer really exists. The token is kept
+        # in a SEPARATE thread-local (not embedded in `owner`, which is
+        # copied verbatim into API-facing telemetry/diagnostics elsewhere
+        # and must stay plain-JSON-serializable) so it never leaks out.
+        local_token = getattr(_thread_write_lease, "token", None)
+        with _active_lease_lock:
+            still_active = _active_lease_by_thread_ident.get(this_thread_ident) is local_token
+        if not still_active:
+            del _thread_write_lease.owner
+            if hasattr(_thread_write_lease, "token"):
+                del _thread_write_lease.token
+            outer = None
     if outer is not None:
         # Reject direct tracked-connection acquisition as well as nested
         # DatabaseWriteService.submit().  Allowing a second database here would
@@ -302,6 +359,7 @@ def acquire_write_lease(
         _record_cross_process_timeout(real_path, exc)
         raise exc
 
+    token = object()  # unique identity for THIS acquisition; never persisted/serialized anywhere
     owner = {
         "database": database.split(":", 1)[0],
         "database_selector": database,
@@ -315,8 +373,11 @@ def acquire_write_lease(
     }
     with open(owner_path, "w", encoding="utf-8") as owner_file:
         json.dump(owner, owner_file, sort_keys=True)
+    with _active_lease_lock:
+        _active_lease_by_thread_ident[this_thread_ident] = token
     _thread_write_lease.owner = owner
-    return WriteLease(lock_file, owner_path, owner)
+    _thread_write_lease.token = token
+    return WriteLease(lock_file, owner_path, owner, owner_thread_ident=this_thread_ident, token=token)
 
 
 def release_write_lease(lease: WriteLease) -> None:
@@ -337,8 +398,29 @@ def release_write_lease(lease: WriteLease) -> None:
             finally:
                 lease.file.close()
     finally:
-        if getattr(_thread_write_lease, "owner", None) is lease.owner:
-            del _thread_write_lease.owner
+        # X78.11b -- this call may run on a DIFFERENT thread than the one
+        # that acquired the lease (the db-conn-reaper force-closing a
+        # long-running connection on another thread's behalf). The shared
+        # registry invalidation below works correctly regardless of which
+        # thread calls it; only the owning thread's own threading.local()
+        # slot is ever mutated, and only BY that owning thread itself (see
+        # acquire_write_lease's self-healing check above) -- we never
+        # attempt to write into another thread's local storage here.
+        with _active_lease_lock:
+            if _active_lease_by_thread_ident.get(lease.owner_thread_ident) is lease.token:
+                del _active_lease_by_thread_ident[lease.owner_thread_ident]
+        # If we happen to be running ON the owning thread (the common case:
+        # normal same-thread commit/rollback/close), clear its local
+        # reference immediately too -- purely an optimization so the
+        # common path doesn't need to go through the self-heal branch on
+        # its very next acquisition; correctness does not depend on this
+        # succeeding, since the shared-registry invalidation above is what
+        # acquire_write_lease actually checks.
+        if threading.get_ident() == lease.owner_thread_ident:
+            if getattr(_thread_write_lease, "owner", None) is lease.owner:
+                del _thread_write_lease.owner
+            if getattr(_thread_write_lease, "token", None) is lease.token:
+                del _thread_write_lease.token
 
 
 @dataclass

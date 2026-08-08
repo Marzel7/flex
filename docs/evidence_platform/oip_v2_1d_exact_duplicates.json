@@ -1,0 +1,6 @@
+{
+  "exact_duplicates": 0,
+  "proof": "PRIMARY KEY(primitive_id,evidence_id) enforces the intended semantic tuple.",
+  "total_rows": 3495337,
+  "unique_tuples": 3495337
+}

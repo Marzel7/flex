@@ -1,0 +1,23 @@
+[
+  {
+    "candidate": "INTEGER surrogate link representation with compatibility view/triggers",
+    "expected_effect": "Remove repeated TEXT identities from link table and composite index while preserving relation set.",
+    "prototype": "JUSTIFIED",
+    "semantic_risk": "LOW only if referential integrity, immutable triggers, insert compatibility and all query plans are proven in shadow."
+  },
+  {
+    "candidate": "Drop provenance links",
+    "prototype": "REJECTED",
+    "reason": "Violates exact provenance."
+  },
+  {
+    "candidate": "Collapse evidence versions",
+    "prototype": "REJECTED",
+    "reason": "Violates EP1.3 coexistence."
+  },
+  {
+    "candidate": "Artifact compression",
+    "prototype": "DEFERRED",
+    "reason": "Not the dominant database cost."
+  }
+]

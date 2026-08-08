@@ -1,0 +1,802 @@
+[
+  {
+    "input_links": 73991,
+    "primitive_id": "77c5f7212ec177451388134ffd1aee2abde1b7a8bdc5bc05298fee44ed2992c9",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 5373,
+    "unique_artifacts": 5373,
+    "unique_evidence_ids": 73991
+  },
+  {
+    "input_links": 65445,
+    "primitive_id": "ac15fff65e0fade97e8219e1ba62cb633173183cefc18055cc5f6d1a5736041e",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 5103,
+    "unique_artifacts": 5103,
+    "unique_evidence_ids": 65445
+  },
+  {
+    "input_links": 59204,
+    "primitive_id": "b8423985d510e2eef8a9218be42ec5bd528f998bd4f679ee814f862f30482375",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 3578,
+    "unique_artifacts": 3578,
+    "unique_evidence_ids": 59204
+  },
+  {
+    "input_links": 51506,
+    "primitive_id": "1209b9d67a7bd198e86e04a19099df44fcee54cce1f93c3a20dd55a8308a5b53",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 3337,
+    "unique_artifacts": 3337,
+    "unique_evidence_ids": 51506
+  },
+  {
+    "input_links": 45812,
+    "primitive_id": "7bb789373feeb875ba2c4234586a5b7b69ec10d17d34b1ace51a0bfee2abef99",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 4497,
+    "unique_artifacts": 4497,
+    "unique_evidence_ids": 45812
+  },
+  {
+    "input_links": 44147,
+    "primitive_id": "625bdc3815dc0847bdee5929edc9bb5aca68e5a38dd6e98848705a550710e4c1",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1535,
+    "unique_artifacts": 1535,
+    "unique_evidence_ids": 44147
+  },
+  {
+    "input_links": 44094,
+    "primitive_id": "7e3334906291b783b63649f439880bb25a0542e8cf4269a8f831b65a13c72ec4",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1528,
+    "unique_artifacts": 1528,
+    "unique_evidence_ids": 44094
+  },
+  {
+    "input_links": 42550,
+    "primitive_id": "ca3ce28dbcd7cbab9f4101b702faec36da5258f0c39716e1db2d5731ff982673",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 4336,
+    "unique_artifacts": 4336,
+    "unique_evidence_ids": 42550
+  },
+  {
+    "input_links": 41938,
+    "primitive_id": "fa25e2ffdd3e4380e47edcb271bebee19618ffc5cab4ac853cbf7789ae1e83ec",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1376,
+    "unique_artifacts": 1376,
+    "unique_evidence_ids": 41938
+  },
+  {
+    "input_links": 41919,
+    "primitive_id": "9d69242705a2b24f5d3e14abe068a6075638f2c7e91a1672c3a03c92939b7d43",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1375,
+    "unique_artifacts": 1375,
+    "unique_evidence_ids": 41919
+  },
+  {
+    "input_links": 40090,
+    "primitive_id": "79cc4500ef65895860337b9211c47d5f7da5933afc483a9a8685c8ccfacca513",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1948,
+    "unique_artifacts": 1948,
+    "unique_evidence_ids": 40090
+  },
+  {
+    "input_links": 40021,
+    "primitive_id": "aeab6b4ac4ee18d678f044fec47ac493c1290760089e2a679a8e33c0343fde3e",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1268,
+    "unique_artifacts": 1268,
+    "unique_evidence_ids": 40021
+  },
+  {
+    "input_links": 38467,
+    "primitive_id": "70deea6875e83a8858d446be64b1f78515d7b065540dcd62a16d54f1208aedcd",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1848,
+    "unique_artifacts": 1848,
+    "unique_evidence_ids": 38467
+  },
+  {
+    "input_links": 35621,
+    "primitive_id": "4480729959a8cf322013853e4b0ac39181f33fa9083dc65a095f93557e1f89a1",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1266,
+    "unique_artifacts": 1266,
+    "unique_evidence_ids": 35621
+  },
+  {
+    "input_links": 35548,
+    "primitive_id": "21f28d3a2afd549423b69634d7c81b2a96bbf7b246ef3fa888bbc590ecd079c8",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1258,
+    "unique_artifacts": 1258,
+    "unique_evidence_ids": 35548
+  },
+  {
+    "input_links": 33806,
+    "primitive_id": "57f63ae6d65a057a64a3f9dcc3d3e0618c75ed21e852188e793001458887557f",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 2796,
+    "unique_artifacts": 2796,
+    "unique_evidence_ids": 33806
+  },
+  {
+    "input_links": 33392,
+    "primitive_id": "e1d752e4ebba2d7f86edbd4e6d47ccd1d41426430254c345e8c9857ddd2be811",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1106,
+    "unique_artifacts": 1106,
+    "unique_evidence_ids": 33392
+  },
+  {
+    "input_links": 33373,
+    "primitive_id": "2cee9645eaf01ccb1472271a31e1221b2d93fbb400076a171c4d70831f436d06",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1105,
+    "unique_artifacts": 1105,
+    "unique_evidence_ids": 33373
+  },
+  {
+    "input_links": 33347,
+    "primitive_id": "74da23d293c4a00befedb6b426e5bbc7b31f26add8d01b262b54fa60272f70b4",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1742,
+    "unique_artifacts": 1742,
+    "unique_evidence_ids": 33347
+  },
+  {
+    "input_links": 31809,
+    "primitive_id": "63feff1a6e9fafe8c8a280a88cdeeeeb594fad9265c8c76b736979b5388db534",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1645,
+    "unique_artifacts": 1645,
+    "unique_evidence_ids": 31809
+  },
+  {
+    "input_links": 31475,
+    "primitive_id": "65e1b5576d1ac26996ef8021ffbee7baee4668365994d023cbd42c6f19cd9130",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 998,
+    "unique_artifacts": 998,
+    "unique_evidence_ids": 31475
+  },
+  {
+    "input_links": 31219,
+    "primitive_id": "1a1db236bc4a5bb1c852be16df5b85bdc2af6c512b1e7c02311242fa902a8c4a",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 2703,
+    "unique_artifacts": 2703,
+    "unique_evidence_ids": 31219
+  },
+  {
+    "input_links": 27748,
+    "primitive_id": "72fcfb74af8415ce8aea8b38ad77899f718b016b51adb9c740b09d8a91d8dcb1",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 850,
+    "unique_artifacts": 850,
+    "unique_evidence_ids": 27748
+  },
+  {
+    "input_links": 23408,
+    "primitive_id": "309d0f7d1079dfba2d04cca3465d3ac6e3f2dd11a2ed52b37638f727f0052100",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 746,
+    "unique_artifacts": 746,
+    "unique_evidence_ids": 23408
+  },
+  {
+    "input_links": 23310,
+    "primitive_id": "2d68de48f3d78c69c44e647dcfeab656ce44b3eddc0edaedcac5d839b5270241",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 743,
+    "unique_artifacts": 743,
+    "unique_evidence_ids": 23310
+  },
+  {
+    "input_links": 23149,
+    "primitive_id": "cfe020d89e5396c907ef9b5dab56862e2f34d2ae90b9421f8adf67f99e3dca04",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 713,
+    "unique_artifacts": 713,
+    "unique_evidence_ids": 23149
+  },
+  {
+    "input_links": 20032,
+    "primitive_id": "26a5cd3865ee3ea90bfac4248855043ed3b075440f3833ca0dd0adab05c0e777",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 785,
+    "unique_artifacts": 785,
+    "unique_evidence_ids": 20032
+  },
+  {
+    "input_links": 19651,
+    "primitive_id": "a9d31f3b58725af0b00cc88c0d3817bbf2a2bb22a744dcd69bb5d9896b70bf76",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 628,
+    "unique_artifacts": 628,
+    "unique_evidence_ids": 19651
+  },
+  {
+    "input_links": 19553,
+    "primitive_id": "984db97df63f68642009319cecc7b42c9aa54ddd13632781b0575d1fd24f8708",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 625,
+    "unique_artifacts": 625,
+    "unique_evidence_ids": 19553
+  },
+  {
+    "input_links": 19431,
+    "primitive_id": "996039a96b5cc4c0c88c08a2c0b3d07c6c312bb4ebb12b9ab62f292b729cd5b5",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 622,
+    "unique_artifacts": 622,
+    "unique_evidence_ids": 19431
+  },
+  {
+    "input_links": 19202,
+    "primitive_id": "103320c262ace589320f81f8ef23c75df3689886a6f5abcf188740fcb82bbaf2",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 612,
+    "unique_artifacts": 612,
+    "unique_evidence_ids": 19202
+  },
+  {
+    "input_links": 19202,
+    "primitive_id": "ad8b3a125c0962b7cecc5905080c531ceaf6e62f4c883fdef9194dc3cb38e012",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 612,
+    "unique_artifacts": 612,
+    "unique_evidence_ids": 19202
+  },
+  {
+    "input_links": 19202,
+    "primitive_id": "de9c225ed0e0a7dedd03537171c838076a12bc32e58131dde10c78c7d187e8d5",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 612,
+    "unique_artifacts": 612,
+    "unique_evidence_ids": 19202
+  },
+  {
+    "input_links": 18963,
+    "primitive_id": "ebeba9c0e97dfaed1957f7e83814e3ea1f449ddf1dcde0e67c4c13e6fe732015",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 511,
+    "unique_artifacts": 511,
+    "unique_evidence_ids": 18963
+  },
+  {
+    "input_links": 18536,
+    "primitive_id": "050eeccb71b1e60b9d6ec37ffee8892d353b781cc2eae4a9a461fb89077094d3",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 603,
+    "unique_artifacts": 603,
+    "unique_evidence_ids": 18536
+  },
+  {
+    "input_links": 18536,
+    "primitive_id": "16bd47f63e2b52b10c5d6bc569cc1352f88a34734a6513108543f1bbdbc6310b",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 603,
+    "unique_artifacts": 603,
+    "unique_evidence_ids": 18536
+  },
+  {
+    "input_links": 17962,
+    "primitive_id": "71c0bb5c3fa449c94774ff73f3f63fd693fb5659bd6a7cb3284d2d16adae4456",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1286,
+    "unique_artifacts": 1286,
+    "unique_evidence_ids": 17962
+  },
+  {
+    "input_links": 17117,
+    "primitive_id": "9fdea20ba84c15be740b57c7ed3a0ef5d47db67c55b3cbe20668b27f3633b619",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 529,
+    "unique_artifacts": 529,
+    "unique_evidence_ids": 17117
+  },
+  {
+    "input_links": 16640,
+    "primitive_id": "01acfd2dea76e5a5d8957c65a12862bf6ce57441f752ffcdf41eacbc83c80564",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1198,
+    "unique_artifacts": 1198,
+    "unique_evidence_ids": 16640
+  },
+  {
+    "input_links": 16257,
+    "primitive_id": "16a48caaaf38c610f987b670cfac37f04dcf21c0ac5cb0032451aaaa5243ac26",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1183,
+    "unique_artifacts": 1183,
+    "unique_evidence_ids": 16257
+  },
+  {
+    "input_links": 16171,
+    "primitive_id": "19327ac3c856ae35be306f659d3c96fb0a3c9484aa16e1c3fc038c53246b83af",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 668,
+    "unique_artifacts": 668,
+    "unique_evidence_ids": 16171
+  },
+  {
+    "input_links": 15915,
+    "primitive_id": "5489cd4c602bf42fc2c047efb0b4fa19010501e71486f835add84d6946893f82",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 652,
+    "unique_artifacts": 652,
+    "unique_evidence_ids": 15915
+  },
+  {
+    "input_links": 15635,
+    "primitive_id": "82a22a44914fbb8f8b9ac75e86203ac60a85b0a4fa59977c22b785c6b1c33637",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 502,
+    "unique_artifacts": 502,
+    "unique_evidence_ids": 15635
+  },
+  {
+    "input_links": 15443,
+    "primitive_id": "e541ae726a6875b34f864de5c8cb8ce00d934e6ddec0d551b313fe3ab85749bf",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 641,
+    "unique_artifacts": 641,
+    "unique_evidence_ids": 15443
+  },
+  {
+    "input_links": 15426,
+    "primitive_id": "0d9c64789973c21fb3bfa94b574b5b3517ecc82e8e1f96a9284f5059de8c2327",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 493,
+    "unique_artifacts": 493,
+    "unique_evidence_ids": 15426
+  },
+  {
+    "input_links": 15426,
+    "primitive_id": "d95dc76ffd1289b625207ee7375f481550fea1b52b04b7bcfd5c1bfd8bc67ac8",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 493,
+    "unique_artifacts": 493,
+    "unique_evidence_ids": 15426
+  },
+  {
+    "input_links": 15426,
+    "primitive_id": "e52ff53204d65f13ff90e054d43b29463f2f62d54425deed8c01e9da25a889d4",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 493,
+    "unique_artifacts": 493,
+    "unique_evidence_ids": 15426
+  },
+  {
+    "input_links": 14935,
+    "primitive_id": "a7cfdb436cc886b54792cf3fa81a76fdf23ed656ae299e20cc1ea6f83a768470",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 1095,
+    "unique_artifacts": 1095,
+    "unique_evidence_ids": 14935
+  },
+  {
+    "input_links": 13786,
+    "primitive_id": "6e0e895632a7c469a67a23b947844672729bf7cbb8471175bc77317e8711cf46",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 453,
+    "unique_artifacts": 453,
+    "unique_evidence_ids": 13786
+  },
+  {
+    "input_links": 13786,
+    "primitive_id": "a6b11622cff87127aed7929dc5c205e97e22931e2be5592069488de5d2e8d1f6",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 453,
+    "unique_artifacts": 453,
+    "unique_evidence_ids": 13786
+  },
+  {
+    "input_links": 13759,
+    "primitive_id": "be1ed5ca14782d5fe0129d6e14381244668533ffec752537ce4432b507057ff9",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 500,
+    "unique_artifacts": 500,
+    "unique_evidence_ids": 13759
+  },
+  {
+    "input_links": 13759,
+    "primitive_id": "da8d03ab340b9d84ff435aa023183c32b09f0277c2b34efca948986095012827",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 500,
+    "unique_artifacts": 500,
+    "unique_evidence_ids": 13759
+  },
+  {
+    "input_links": 13625,
+    "primitive_id": "70d118f8321faeac70a6d8d58a918e2a068452972e50620edcc1e777036a86dd",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 578,
+    "unique_artifacts": 578,
+    "unique_evidence_ids": 13625
+  },
+  {
+    "input_links": 13496,
+    "primitive_id": "3b205d6a5d078b49a922f1176f074a5aecc21669111a72564ee169796e817208",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 361,
+    "unique_artifacts": 361,
+    "unique_evidence_ids": 13496
+  },
+  {
+    "input_links": 13018,
+    "primitive_id": "bb68212aa375033990dc89fec641aece31784959b64d8db82cf418417834ed8c",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 527,
+    "unique_artifacts": 527,
+    "unique_evidence_ids": 13018
+  },
+  {
+    "input_links": 12367,
+    "primitive_id": "6d2208f05621d31886adcb6a8e3ad18a23cb97ece89d5e33fb98923685aafff7",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 379,
+    "unique_artifacts": 379,
+    "unique_evidence_ids": 12367
+  },
+  {
+    "input_links": 11842,
+    "primitive_id": "9ee5f5441585cb12f6453bb5d0fe450a4ef99a3bcde7df2b19e4599c33a4c0be",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 392,
+    "unique_artifacts": 392,
+    "unique_evidence_ids": 11842
+  },
+  {
+    "input_links": 11483,
+    "primitive_id": "fef45f3464f879e93b42032d3e31ce333c934a4d1dea4cbb53abae0e63030bb3",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 375,
+    "unique_artifacts": 375,
+    "unique_evidence_ids": 11483
+  },
+  {
+    "input_links": 11248,
+    "primitive_id": "7988fff63e68a5e24c4dc67679ab420b1bb79a97b32d3ba0338d889e09f6eb75",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 411,
+    "unique_artifacts": 411,
+    "unique_evidence_ids": 11248
+  },
+  {
+    "input_links": 11248,
+    "primitive_id": "94998c8ade2a3a455e17d58babc576fa8de6bd1a85f9217b97a1edae974e569b",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 411,
+    "unique_artifacts": 411,
+    "unique_evidence_ids": 11248
+  },
+  {
+    "input_links": 10819,
+    "primitive_id": "cdbefdd778a835750d998fac8433c7fd730005138e6b5f02bfe1cbef6f3c61ac",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 354,
+    "unique_artifacts": 354,
+    "unique_evidence_ids": 10819
+  },
+  {
+    "input_links": 10721,
+    "primitive_id": "e89fd86ab4b7c018f5748f1894690bb9dd618e344de5958b87b7ec16e3100753",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 351,
+    "unique_artifacts": 351,
+    "unique_evidence_ids": 10721
+  },
+  {
+    "input_links": 9868,
+    "primitive_id": "f96a170ebe22d6b5360f45f390f78682db4f5c67382ffd75881c02a55df30323",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 318,
+    "unique_artifacts": 318,
+    "unique_evidence_ids": 9868
+  },
+  {
+    "input_links": 9831,
+    "primitive_id": "408ffe869922944ca2ea85b10cabcb93ae5957545f7abc6d1bad1c3c514c0ebc",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 308,
+    "unique_artifacts": 308,
+    "unique_evidence_ids": 9831
+  },
+  {
+    "input_links": 9331,
+    "primitive_id": "0d7fed668726c8d5362bde6f639664c94fa4c3f83e94815932811ccc506725ae",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 303,
+    "unique_artifacts": 303,
+    "unique_evidence_ids": 9331
+  },
+  {
+    "input_links": 9231,
+    "primitive_id": "d41481396693f7a916913056d43cb01d52ee2450210bcc166af1d225a01d45bf",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 298,
+    "unique_artifacts": 298,
+    "unique_evidence_ids": 9231
+  },
+  {
+    "input_links": 9133,
+    "primitive_id": "80d931bef1798e38780ccf5cd3ea86214029fb67671b20cbed3fc759bbbeb597",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 295,
+    "unique_artifacts": 295,
+    "unique_evidence_ids": 9133
+  },
+  {
+    "input_links": 8746,
+    "primitive_id": "1b16eaa844beb9eef72d36aa30903ed961f6ed0ccee630dd51418bde7da0ebb2",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 275,
+    "unique_artifacts": 275,
+    "unique_evidence_ids": 8746
+  },
+  {
+    "input_links": 7844,
+    "primitive_id": "79c9a5db92da73c6f8cc4ded37e8ef00a0d29a73ef71dc6d5ba324f0ffe62b84",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 491,
+    "unique_artifacts": 491,
+    "unique_evidence_ids": 7844
+  },
+  {
+    "input_links": 7118,
+    "primitive_id": "a460acb0bbbd01004114d23e6f81d4f7c606f58ea7cfdb48094081f440d8cc53",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 474,
+    "unique_artifacts": 474,
+    "unique_evidence_ids": 7118
+  },
+  {
+    "input_links": 6880,
+    "primitive_id": "246e19700563322448c26e74076913f7c3fa4e1feaf7bbbf19ba1202c0070490",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 225,
+    "unique_artifacts": 225,
+    "unique_evidence_ids": 6880
+  },
+  {
+    "input_links": 6854,
+    "primitive_id": "59a2032905837253048fe5abe92d04c2096291f914bf7db926e7f3a03ceeebde",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 224,
+    "unique_artifacts": 224,
+    "unique_evidence_ids": 6854
+  },
+  {
+    "input_links": 6854,
+    "primitive_id": "9af87ff34858a059b27a2c0ee8d75afa18ccd1c37982e2b86207100c887d3621",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 224,
+    "unique_artifacts": 224,
+    "unique_evidence_ids": 6854
+  },
+  {
+    "input_links": 6854,
+    "primitive_id": "a4129fbfedcab59d95e2022e092e5dbb8b135242b7ae67b5be3fc30bf1df45fd",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 224,
+    "unique_artifacts": 224,
+    "unique_evidence_ids": 6854
+  },
+  {
+    "input_links": 6215,
+    "primitive_id": "fecb1a687758da46c10aeaf68d13e77a1d86fe460e3fbffdc8e650a2ea755530",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 213,
+    "unique_artifacts": 213,
+    "unique_evidence_ids": 6215
+  },
+  {
+    "input_links": 5567,
+    "primitive_id": "39257495b3f413fca2ecf52aa7316057c4758ec78b7374692f1ef84af753b79e",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 181,
+    "unique_artifacts": 181,
+    "unique_evidence_ids": 5567
+  },
+  {
+    "input_links": 5368,
+    "primitive_id": "8626be9895d83830df5e4167722e7340c1533d6fbd4ce35239d9f7712b719756",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 171,
+    "unique_artifacts": 171,
+    "unique_evidence_ids": 5368
+  },
+  {
+    "input_links": 5342,
+    "primitive_id": "736cd98b2b2852a0dcf3c00851318ef536fc67892b50f8028f5d4fbdb778642f",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 170,
+    "unique_artifacts": 170,
+    "unique_evidence_ids": 5342
+  },
+  {
+    "input_links": 5342,
+    "primitive_id": "7524f6f3621e39bf26bca24248fbb058db1dc98f8996c44b49d4cf141296e081",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 170,
+    "unique_artifacts": 170,
+    "unique_evidence_ids": 5342
+  },
+  {
+    "input_links": 5342,
+    "primitive_id": "7f38fa7510295686791980de2277c509d811b8d32c56fc1cec23579e26bed4cc",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 170,
+    "unique_artifacts": 170,
+    "unique_evidence_ids": 5342
+  },
+  {
+    "input_links": 4600,
+    "primitive_id": "3ef8ffd74b829a8684f94cc8985049b2b3d8396f01e86645a9ccfdc719578596",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 138,
+    "unique_artifacts": 138,
+    "unique_evidence_ids": 4600
+  },
+  {
+    "input_links": 4429,
+    "primitive_id": "809ebb2f8a14e777ff6c42b8fbc91e9815749e7fc49c6ec8829bdc40f51911be",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 104,
+    "unique_artifacts": 104,
+    "unique_evidence_ids": 4429
+  },
+  {
+    "input_links": 4355,
+    "primitive_id": "c4de03976f8945f728d2e5bf07d78d7c6e9db68cc02b36ce7b19c20298a15085",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 411,
+    "unique_artifacts": 411,
+    "unique_evidence_ids": 4355
+  },
+  {
+    "input_links": 4329,
+    "primitive_id": "3f55a06642bf08429fc720aafdcd1e03c86e175fdbca2099ccc4334d888b7eab",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 101,
+    "unique_artifacts": 101,
+    "unique_evidence_ids": 4329
+  },
+  {
+    "input_links": 4320,
+    "primitive_id": "5f709913364fff3730c176d06f561fc1633da9a9067c5f221d0c2cd2ec4ec5cc",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 299,
+    "unique_artifacts": 299,
+    "unique_evidence_ids": 4320
+  },
+  {
+    "input_links": 4068,
+    "primitive_id": "f9485c71bb46db9bd922c10c561753cc123691bc229a7a174331a601377cbb7e",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 139,
+    "unique_artifacts": 139,
+    "unique_evidence_ids": 4068
+  },
+  {
+    "input_links": 3998,
+    "primitive_id": "f563f6769d786191274171d5d27d69695751a6c7d0560bb19ade413893b1df5a",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 262,
+    "unique_artifacts": 269,
+    "unique_evidence_ids": 3998
+  },
+  {
+    "input_links": 3989,
+    "primitive_id": "c1fc41aa454cfab270c435d488bfe919cfa430a0f90460882a596e75199f16af",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 262,
+    "unique_artifacts": 266,
+    "unique_evidence_ids": 3989
+  },
+  {
+    "input_links": 3980,
+    "primitive_id": "a3bb4c49c456dd307a0c17ddd3499103e08f4aeecacdeb4b4cf10e5184d0eba0",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 262,
+    "unique_artifacts": 263,
+    "unique_evidence_ids": 3980
+  },
+  {
+    "input_links": 3909,
+    "primitive_id": "d788f4624d5d6a1fa8ce35eecea5574a3eeaafaf3b6e610faaa835c974c78d27",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 126,
+    "unique_artifacts": 126,
+    "unique_evidence_ids": 3909
+  },
+  {
+    "input_links": 3779,
+    "primitive_id": "b71502df955eb08c8bc86513bfeed9c81b33584eaff43b76b0af21fc9a7ed91e",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 114,
+    "unique_artifacts": 114,
+    "unique_evidence_ids": 3779
+  },
+  {
+    "input_links": 3587,
+    "primitive_id": "017a32d51e68963f388b42de799a19a8c27e911aaf9c3c9cee3d31eb494b31c3",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 85,
+    "unique_artifacts": 85,
+    "unique_evidence_ids": 3587
+  },
+  {
+    "input_links": 3487,
+    "primitive_id": "43795bf87e2f1058c08647c1f069771ffdb3fdb55c973833c44160e5d0962fa5",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 82,
+    "unique_artifacts": 82,
+    "unique_evidence_ids": 3487
+  },
+  {
+    "input_links": 3304,
+    "primitive_id": "6aa22aa64a4a4473d092be0be4960990ed0dadb0b2898cbc4173d1dd7e698654",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 96,
+    "unique_artifacts": 96,
+    "unique_evidence_ids": 3304
+  },
+  {
+    "input_links": 3274,
+    "primitive_id": "e8c13695b6f32de0da1d77028794b3918497531f29a783a0ebd112d200f70790",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 141,
+    "unique_artifacts": 141,
+    "unique_evidence_ids": 3274
+  },
+  {
+    "input_links": 3267,
+    "primitive_id": "1c35fd10b85f5b26ee14a773bf885086a8fd1393582bd8e5b21e4a1e25e2a250",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 88,
+    "unique_artifacts": 88,
+    "unique_evidence_ids": 3267
+  },
+  {
+    "input_links": 3209,
+    "primitive_id": "534549d4357593225126216341ee76c056893e47334b2136dc2efd89502816c4",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 139,
+    "unique_artifacts": 139,
+    "unique_evidence_ids": 3209
+  },
+  {
+    "input_links": 3126,
+    "primitive_id": "8b607503af6cb0fb5db2368b59297b2bad7b9cc513fb9034ec07f5aeda4c63cf",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 137,
+    "unique_artifacts": 137,
+    "unique_evidence_ids": 3126
+  },
+  {
+    "input_links": 3104,
+    "primitive_id": "a47b1ecbd0bfd3fa5ebb63ab3940c1f3a937f3d9451093d0766d6866fae5a901",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 235,
+    "unique_artifacts": 235,
+    "unique_evidence_ids": 3104
+  },
+  {
+    "input_links": 3051,
+    "primitive_id": "5a5aa23fc40b4e10208c1c9200db306f7a73b02d8a984f84a9ffc82bee15bc69",
+    "primitive_type": "BEHAVIOURAL_TIMING",
+    "transactions": 110,
+    "unique_artifacts": 110,
+    "unique_evidence_ids": 3051
+  }
+]

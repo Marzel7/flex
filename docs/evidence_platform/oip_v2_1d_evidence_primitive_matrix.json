@@ -1,0 +1,157 @@
+[
+  {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 2737103,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "BalanceFact",
+    "link_count": 140915,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "TransactionFact",
+    "link_count": 140797,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 105815,
+    "primitive_family": "WALLET_FRESH_AT_EVENT"
+  },
+  {
+    "evidence_family": "BalanceFact",
+    "link_count": 105815,
+    "primitive_family": "WALLET_FRESH_AT_EVENT"
+  },
+  {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 66121,
+    "primitive_family": "SHARED_TRANSACTION"
+  },
+  {
+    "evidence_family": "InstructionFact",
+    "link_count": 45148,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "NativeMovementFact",
+    "link_count": 45148,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 25539,
+    "primitive_family": "SYSTEM_TRANSFER"
+  },
+  {
+    "evidence_family": "AccountCloseFact",
+    "link_count": 17083,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "InstructionFact",
+    "link_count": 12770,
+    "primitive_family": "SYSTEM_TRANSFER"
+  },
+  {
+    "evidence_family": "NativeMovementFact",
+    "link_count": 12770,
+    "primitive_family": "DIRECT_COUNTERPARTY"
+  },
+  {
+    "evidence_family": "TransactionFact",
+    "link_count": 12770,
+    "primitive_family": "SYSTEM_TRANSFER"
+  },
+  {
+    "evidence_family": "TokenMovementFact",
+    "link_count": 9591,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "TransactionFact",
+    "link_count": 5614,
+    "primitive_family": "SHARED_TRANSACTION"
+  },
+  {
+    "evidence_family": "AccountCloseFact",
+    "link_count": 3939,
+    "primitive_family": "WSOL_CLOSE"
+  },
+  {
+    "evidence_family": "TokenMovementFact",
+    "link_count": 3707,
+    "primitive_family": "DIRECT_COUNTERPARTY"
+  },
+  {
+    "evidence_family": "LaunchFact",
+    "link_count": 1794,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 622,
+    "primitive_family": "LAUNCH_SIGNER"
+  },
+  {
+    "evidence_family": "LaunchFact",
+    "link_count": 622,
+    "primitive_family": "LAUNCH_SIGNER"
+  },
+  {
+    "evidence_family": "NativeMovementFact",
+    "link_count": 408,
+    "primitive_family": "REPEATED_COUNTERPARTY"
+  },
+  {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 285,
+    "primitive_family": "LAUNCH_ACTIVATION"
+  },
+  {
+    "evidence_family": "TokenMovementFact",
+    "link_count": 173,
+    "primitive_family": "REPEATED_COUNTERPARTY"
+  },
+  {
+    "evidence_family": "AddressHistoryObservation",
+    "link_count": 142,
+    "primitive_family": "WALLET_FRESH_AT_EVENT"
+  },
+  {
+    "evidence_family": "BalanceFact",
+    "link_count": 95,
+    "primitive_family": "LAUNCH_ACTIVATION"
+  },
+  {
+    "evidence_family": "InstructionFact",
+    "link_count": 95,
+    "primitive_family": "LAUNCH_ACTIVATION"
+  },
+  {
+    "evidence_family": "LaunchFact",
+    "link_count": 95,
+    "primitive_family": "ECONOMIC_FUNDING"
+  },
+  {
+    "evidence_family": "LaunchFact",
+    "link_count": 95,
+    "primitive_family": "LAUNCH_ACTIVATION"
+  },
+  {
+    "evidence_family": "NativeMovementFact",
+    "link_count": 95,
+    "primitive_family": "ECONOMIC_FUNDING"
+  },
+  {
+    "evidence_family": "TransactionFact",
+    "link_count": 95,
+    "primitive_family": "LAUNCH_ACTIVATION"
+  },
+  {
+    "evidence_family": "AddressHistoryObservation",
+    "link_count": 76,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  }
+]

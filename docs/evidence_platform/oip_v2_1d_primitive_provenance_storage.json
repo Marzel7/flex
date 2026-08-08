@@ -1,0 +1,492 @@
+{
+  "bytes_per_link": {
+    "effective_bytes_per_link": 305.61416881977334,
+    "index_bytes_per_link": 161.97737271112914,
+    "links": 3495337,
+    "logical_identifier_text_bytes_per_link": 128,
+    "primary_key_index_bytes": 566165504,
+    "representation": "two 64-character TEXT content identities per table row and repeated in the composite index",
+    "table_bytes": 502059008,
+    "table_bytes_per_link": 143.63679610864418
+  },
+  "cost_per_outcome": {
+    "storage_per_completed_launch": 4007315.7733333334,
+    "storage_per_motif_gain": 3853188.2435897435,
+    "storage_per_new_evidence_fact": 16497.80063126115,
+    "storage_per_new_primitive": 41323.89426646501,
+    "storage_per_recovered_transaction": 2226286.540740741,
+    "storage_per_relationship_gain": 7330455.682926829
+  },
+  "current_scaling": {
+    "1000": {
+      "point_bytes": 2226286541,
+      "range_bytes": [
+        1669714906,
+        2782858176
+      ]
+    },
+    "10000": {
+      "point_bytes": 22262865407,
+      "range_bytes": [
+        16697149056,
+        27828581759
+      ]
+    },
+    "26283": {
+      "point_bytes": 58513489150,
+      "range_bytes": [
+        43885116863,
+        73141861438
+      ]
+    },
+    "5000": {
+      "point_bytes": 11131432704,
+      "range_bytes": [
+        8348574528,
+        13914290880
+      ]
+    }
+  },
+  "dominant_evidence_family": {
+    "evidence_facts": 66121,
+    "fact_family": "AccountParticipationFact",
+    "mean_primitive_links_per_evidence": 44.39565342326946,
+    "primitive_families_reached": 6,
+    "primitive_links": 2935485
+  },
+  "dominant_family": {
+    "cumulative_share": 0.897668808472545,
+    "evidence_input_links": 3137655,
+    "max": 73991,
+    "mean": 82.5568331316108,
+    "median": 26.0,
+    "p90": 51,
+    "p95": 68,
+    "p99": 318,
+    "primitive_count": 38006,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  "dominant_matrix_pair": {
+    "evidence_family": "AccountParticipationFact",
+    "link_count": 2737103,
+    "primitive_family": "BEHAVIOURAL_TIMING"
+  },
+  "duplicates": {
+    "exact_duplicates": 0,
+    "proof": "PRIMARY KEY(primitive_id,evidence_id) enforces the intended semantic tuple.",
+    "total_rows": 3495337,
+    "unique_tuples": 3495337
+  },
+  "invariants": {
+    "discovery_changed": false,
+    "evidence_semantics_changed": false,
+    "identity_or_governance_changed": false,
+    "motifs_changed": false,
+    "primitive_semantics_changed": false,
+    "relationships_changed": false,
+    "runtime_changed": false
+  },
+  "links": 3495337,
+  "milestone": "OIP v2.1D",
+  "multiplicity": {
+    "evidence_versions": [],
+    "logical_facts": 267648,
+    "logical_facts_with_versions": 0,
+    "same_artifact_evidence_facts": 267604
+  },
+  "new_coverage": false,
+  "optimized_scaling": {
+    "increment_saving_bytes": 270719458,
+    "increment_saving_percent": 45.03753856076621,
+    "measured_compact_ratio": 0.1013661966970479,
+    "optimized_bytes_per_attempt": 1223621.8814814815,
+    "projections": {
+      "1000": {
+        "point_bytes": 1223621881,
+        "range_bytes": [
+          917716411,
+          1529527352
+        ]
+      },
+      "10000": {
+        "point_bytes": 12236218815,
+        "range_bytes": [
+          9177164111,
+          15295273519
+        ]
+      },
+      "26283": {
+        "point_bytes": 32160453911,
+        "range_bytes": [
+          24120340433,
+          40200567389
+        ]
+      },
+      "5000": {
+        "point_bytes": 6118109407,
+        "range_bytes": [
+          4588582056,
+          7647636759
+        ]
+      }
+    },
+    "v2_1c_optimized_increment_bytes": 330377908
+  },
+  "primitive_families": 10,
+  "production_interaction": false,
+  "prototype": {
+    "build_seconds": 149.037812,
+    "bytes_saved": 959942656,
+    "canonical_corpus_modified": false,
+    "compact_subsystem_bytes": 108281856,
+    "compatibility": {
+      "discovery_relation_input": "IDENTICAL_DIGEST",
+      "immutable_update_delete": "PASS",
+      "insert_via_view": "PASS",
+      "motif_and_relationship_inputs": "UNCHANGED_UPSTREAM_OUTPUTS",
+      "primitive_lookup": "PASS",
+      "primitive_replay_input": "IDENTICAL_RELATION_SET",
+      "select_relation": "PASS"
+    },
+    "current_100_lookup_seconds": 0.073488042,
+    "current_link_subsystem_bytes": 1068224512,
+    "isolated": true,
+    "limitation": "Prototype is an isolated representation proof, not a production schema migration.",
+    "percent_saved": 89.8633803302952,
+    "prototype_100_lookup_seconds": 0.011454,
+    "prototype_query_plan": [
+      "SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?)",
+      "SEARCH i USING PRIMARY KEY (primitive_key=?)",
+      "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "relation_count": 3495337,
+    "relation_digest": "e1fc7564747f4188afa5d71be5c4d21264947baa3e53b631250ca239b8381a53",
+    "semantic_relation_identical": true
+  },
+  "query_efficiency": {
+    "matrix": {
+      "reused": true,
+      "rows": 31,
+      "runtime_seconds": 0.0
+    },
+    "primitive_aggregate": {
+      "reused": true,
+      "rows": 183552,
+      "runtime_seconds": 0.0
+    },
+    "recovery": {
+      "analysis_only_acceleration": false,
+      "bounded_plan": [
+        "SCAN primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1"
+      ],
+      "bounded_sql": "SELECT primitive_id,COUNT(*) evidence_input_count FROM primitive_evidence_inputs GROUP BY primitive_id",
+      "completed_checkpoints_reused": [
+        "dbstat/page-allocation baseline"
+      ],
+      "index_shape": {
+        "aligned_with_grouping_prefix": true,
+        "primitive_evidence_inputs_pk": [
+          "primitive_id",
+          "evidence_id"
+        ]
+      },
+      "remaining_large_scans": [
+        "per-Primitive aggregate",
+        "Evidence\u00d7Primitive matrix",
+        "transaction/artifact mapping"
+      ],
+      "slow_plan": [
+        "SCAN p USING INDEX sqlite_autoindex_primitive_observations_1",
+        "SEARCH i USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?) LEFT-JOIN"
+      ],
+      "slow_sql": "SELECT p.primitive_type,p.primitive_id,COUNT(i.evidence_id) links FROM primitive_observations p LEFT JOIN primitive_evidence_inputs i USING(primitive_id) GROUP BY p.primitive_id",
+      "stopped_process": {
+        "checkpoint": [
+          "baseline"
+        ],
+        "cpu_percent": 8.7,
+        "cpu_time": "00:00:52.33",
+        "elapsed": "00:06:45",
+        "phase": "family_census",
+        "pid": 62704
+      }
+    },
+    "resume_demonstrated": false,
+    "subsequent_resume_reuses_all": true,
+    "transaction_mapping": {
+      "reused": true,
+      "rows": 270,
+      "runtime_seconds": 0.0
+    },
+    "watchdog_minutes": 10
+  },
+  "replay": {
+    "digest": "33346f90a48f6fb2086da557ec2d7889d119e5b69db524cd4cf6fca7b62b8219",
+    "first_generated": 132886,
+    "first_inserted_primitives": 14546,
+    "proof": "append_primitives inserts evidence links only when INSERT OR IGNORE inserts a new primitive row.",
+    "second_generated": 132886,
+    "second_inserted_primitives": 0,
+    "second_links_inserted": 0
+  },
+  "rpc_calls": 0,
+  "semantic_necessity": {
+    "components": {
+      "AUDIT_REQUIRED": {
+        "links": 3495337
+      },
+      "DUPLICATE_PHYSICAL_STORAGE": {
+        "links": 0
+      },
+      "INDEX_OVERHEAD": {
+        "bytes": 159211520,
+        "reason": "Composite TEXT primary-key B-tree duplicates both identifiers."
+      },
+      "REPRESENTATION_OVERHEAD": {
+        "bytes": 142045184,
+        "reason": "Repeated 64-character TEXT identities in every link table row."
+      },
+      "SEMANTICALLY_REQUIRED": {
+        "links": 3495337,
+        "reason": "Exact Evidence-to-Primitive provenance is consumed by replay, Discovery and audit."
+      },
+      "UNKNOWN": {
+        "bytes": 0
+      },
+      "VERSION_COEXISTENCE_REQUIRED": {
+        "logical_facts_with_versions": 0
+      }
+    },
+    "verdict": "E \u2014 MIXED"
+  },
+  "storage_decomposition": {
+    "categories": {
+      "artifacts_reports_and_attempt_telemetry": 216585366,
+      "evidence_facts_table": 45150208,
+      "evidence_indexes": 6828032,
+      "evidence_provenance_table_and_index": 15970304,
+      "other_database": 770048,
+      "primitive_evidence_inputs_table": 142045184,
+      "primitive_observations_index": 1228800,
+      "primitive_observations_table": 13307904,
+      "provenance_primary_key_index": 159211520,
+      "total_explained": 601097366
+    },
+    "freelist_delta_bytes": 0,
+    "residual_bytes": 0,
+    "target_incremental_bytes": 601097366
+  },
+  "v2_1c_incremental_provenance": {
+    "evidence_primitive_matrix": [
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 851471,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 35977,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 35950,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 8006,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 8006,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 8006,
+        "primitive_family": "SHARED_TRANSACTION"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 5005,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "InstructionFact",
+        "link_count": 5005,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountCloseFact",
+        "link_count": 2387,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 1768,
+        "primitive_family": "SYSTEM_TRANSFER"
+      },
+      {
+        "evidence_family": "TokenMovementFact",
+        "link_count": 1741,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 884,
+        "primitive_family": "SYSTEM_TRANSFER"
+      },
+      {
+        "evidence_family": "InstructionFact",
+        "link_count": 884,
+        "primitive_family": "SYSTEM_TRANSFER"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 884,
+        "primitive_family": "DIRECT_COUNTERPARTY"
+      },
+      {
+        "evidence_family": "TokenMovementFact",
+        "link_count": 694,
+        "primitive_family": "DIRECT_COUNTERPARTY"
+      },
+      {
+        "evidence_family": "AccountCloseFact",
+        "link_count": 430,
+        "primitive_family": "WSOL_CLOSE"
+      },
+      {
+        "evidence_family": "LaunchFact",
+        "link_count": 322,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 270,
+        "primitive_family": "SHARED_TRANSACTION"
+      },
+      {
+        "evidence_family": "LaunchFact",
+        "link_count": 120,
+        "primitive_family": "LAUNCH_SIGNER"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 120,
+        "primitive_family": "LAUNCH_SIGNER"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 104,
+        "primitive_family": "REPEATED_COUNTERPARTY"
+      },
+      {
+        "evidence_family": "TokenMovementFact",
+        "link_count": 72,
+        "primitive_family": "REPEATED_COUNTERPARTY"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 66,
+        "primitive_family": "LAUNCH_ACTIVATION"
+      },
+      {
+        "evidence_family": "LaunchFact",
+        "link_count": 22,
+        "primitive_family": "ECONOMIC_FUNDING"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 22,
+        "primitive_family": "ECONOMIC_FUNDING"
+      },
+      {
+        "evidence_family": "LaunchFact",
+        "link_count": 22,
+        "primitive_family": "LAUNCH_ACTIVATION"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 22,
+        "primitive_family": "LAUNCH_ACTIVATION"
+      },
+      {
+        "evidence_family": "InstructionFact",
+        "link_count": 22,
+        "primitive_family": "LAUNCH_ACTIVATION"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 22,
+        "primitive_family": "LAUNCH_ACTIVATION"
+      }
+    ],
+    "primitive_families": [
+      {
+        "evidence_input_links": 937858,
+        "primitive_count": 3190,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_input_links": 16012,
+        "primitive_count": 8006,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_input_links": 8276,
+        "primitive_count": 270,
+        "primitive_family": "SHARED_TRANSACTION"
+      },
+      {
+        "evidence_input_links": 3536,
+        "primitive_count": 884,
+        "primitive_family": "SYSTEM_TRANSFER"
+      },
+      {
+        "evidence_input_links": 1578,
+        "primitive_count": 1578,
+        "primitive_family": "DIRECT_COUNTERPARTY"
+      },
+      {
+        "evidence_input_links": 430,
+        "primitive_count": 430,
+        "primitive_family": "WSOL_CLOSE"
+      },
+      {
+        "evidence_input_links": 240,
+        "primitive_count": 120,
+        "primitive_family": "LAUNCH_SIGNER"
+      },
+      {
+        "evidence_input_links": 176,
+        "primitive_count": 24,
+        "primitive_family": "REPEATED_COUNTERPARTY"
+      },
+      {
+        "evidence_input_links": 154,
+        "primitive_count": 22,
+        "primitive_family": "LAUNCH_ACTIVATION"
+      },
+      {
+        "evidence_input_links": 44,
+        "primitive_count": 22,
+        "primitive_family": "ECONOMIC_FUNDING"
+      }
+    ],
+    "status": {
+      "links": 968304,
+      "new_primitives": 14546,
+      "reused": false,
+      "runtime_seconds": 23.1671
+    }
+  },
+  "verdict": {
+    "acquisition_verdict": "READY_FOR_NEXT_1000",
+    "five_thousand_authorized": false,
+    "reason": "Provenance cardinality is semantically required, but compact internal keys preserve the exact relation while reducing its physical subsystem 89.86%. The next 1,000 may proceed only as a staged batch after a separately reviewed production migration plan; this milestone implements no canonical change.",
+    "storage_verdict": "E \u2014 MIXED"
+  }
+}

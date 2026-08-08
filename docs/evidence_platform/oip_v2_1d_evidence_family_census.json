@@ -1,0 +1,79 @@
+[
+  {
+    "evidence_facts": 66121,
+    "fact_family": "AccountParticipationFact",
+    "mean_primitive_links_per_evidence": 44.39565342326946,
+    "primitive_families_reached": 6,
+    "primitive_links": 2935485
+  },
+  {
+    "evidence_facts": 72914,
+    "fact_family": "BalanceFact",
+    "mean_primitive_links_per_evidence": 3.3851523712867215,
+    "primitive_families_reached": 3,
+    "primitive_links": 246825
+  },
+  {
+    "evidence_facts": 5614,
+    "fact_family": "TransactionFact",
+    "mean_primitive_links_per_evidence": 28.371214820092625,
+    "primitive_families_reached": 4,
+    "primitive_links": 159276
+  },
+  {
+    "evidence_facts": 12770,
+    "fact_family": "NativeMovementFact",
+    "mean_primitive_links_per_evidence": 4.574862960062647,
+    "primitive_families_reached": 4,
+    "primitive_links": 58421
+  },
+  {
+    "evidence_facts": 70347,
+    "fact_family": "InstructionFact",
+    "mean_primitive_links_per_evidence": 0.8246691401196924,
+    "primitive_families_reached": 3,
+    "primitive_links": 58013
+  },
+  {
+    "evidence_facts": 3939,
+    "fact_family": "AccountCloseFact",
+    "mean_primitive_links_per_evidence": 5.336887534907337,
+    "primitive_families_reached": 2,
+    "primitive_links": 21022
+  },
+  {
+    "evidence_facts": 3707,
+    "fact_family": "TokenMovementFact",
+    "mean_primitive_links_per_evidence": 3.633935797140545,
+    "primitive_families_reached": 3,
+    "primitive_links": 13471
+  },
+  {
+    "evidence_facts": 622,
+    "fact_family": "LaunchFact",
+    "mean_primitive_links_per_evidence": 4.189710610932476,
+    "primitive_families_reached": 4,
+    "primitive_links": 2606
+  },
+  {
+    "evidence_facts": 44,
+    "fact_family": "AddressHistoryObservation",
+    "mean_primitive_links_per_evidence": 4.954545454545454,
+    "primitive_families_reached": 2,
+    "primitive_links": 218
+  },
+  {
+    "evidence_facts": 25954,
+    "fact_family": "ProgramEventFact",
+    "mean_primitive_links_per_evidence": 0.0,
+    "primitive_families_reached": 0,
+    "primitive_links": 0
+  },
+  {
+    "evidence_facts": 5616,
+    "fact_family": "TransactionVerificationObservation",
+    "mean_primitive_links_per_evidence": 0.0,
+    "primitive_families_reached": 0,
+    "primitive_links": 0
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "increment_saving_bytes": 270719458,
+  "increment_saving_percent": 45.03753856076621,
+  "measured_compact_ratio": 0.1013661966970479,
+  "optimized_bytes_per_attempt": 1223621.8814814815,
+  "projections": {
+    "1000": {
+      "point_bytes": 1223621881,
+      "range_bytes": [
+        917716411,
+        1529527352
+      ]
+    },
+    "10000": {
+      "point_bytes": 12236218815,
+      "range_bytes": [
+        9177164111,
+        15295273519
+      ]
+    },
+    "26283": {
+      "point_bytes": 32160453911,
+      "range_bytes": [
+        24120340433,
+        40200567389
+      ]
+    },
+    "5000": {
+      "point_bytes": 6118109407,
+      "range_bytes": [
+        4588582056,
+        7647636759
+      ]
+    }
+  },
+  "v2_1c_optimized_increment_bytes": 330377908
+}

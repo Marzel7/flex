@@ -1,0 +1,29 @@
+{
+  "build_seconds": 149.037812,
+  "bytes_saved": 959942656,
+  "canonical_corpus_modified": false,
+  "compact_subsystem_bytes": 108281856,
+  "compatibility": {
+    "discovery_relation_input": "IDENTICAL_DIGEST",
+    "immutable_update_delete": "PASS",
+    "insert_via_view": "PASS",
+    "motif_and_relationship_inputs": "UNCHANGED_UPSTREAM_OUTPUTS",
+    "primitive_lookup": "PASS",
+    "primitive_replay_input": "IDENTICAL_RELATION_SET",
+    "select_relation": "PASS"
+  },
+  "current_100_lookup_seconds": 0.073488042,
+  "current_link_subsystem_bytes": 1068224512,
+  "isolated": true,
+  "limitation": "Prototype is an isolated representation proof, not a production schema migration.",
+  "percent_saved": 89.8633803302952,
+  "prototype_100_lookup_seconds": 0.011454,
+  "prototype_query_plan": [
+    "SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?)",
+    "SEARCH i USING PRIMARY KEY (primitive_key=?)",
+    "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+  ],
+  "relation_count": 3495337,
+  "relation_digest": "e1fc7564747f4188afa5d71be5c4d21264947baa3e53b631250ca239b8381a53",
+  "semantic_relation_identical": true
+}

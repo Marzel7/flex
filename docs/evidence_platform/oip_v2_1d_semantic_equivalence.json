@@ -1,0 +1,11 @@
+{
+  "discovery_relation_input": "IDENTICAL_DIGEST",
+  "immutable_update_delete": "PASS",
+  "insert_via_view": "PASS",
+  "motif_and_relationship_inputs": "UNCHANGED_UPSTREAM_OUTPUTS",
+  "primitive_lookup": "PASS",
+  "primitive_replay_input": "IDENTICAL_RELATION_SET",
+  "relation_count": 3495337,
+  "relation_digest": "e1fc7564747f4188afa5d71be5c4d21264947baa3e53b631250ca239b8381a53",
+  "select_relation": "PASS"
+}

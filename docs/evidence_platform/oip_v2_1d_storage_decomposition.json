@@ -1,0 +1,17 @@
+{
+  "categories": {
+    "artifacts_reports_and_attempt_telemetry": 216585366,
+    "evidence_facts_table": 45150208,
+    "evidence_indexes": 6828032,
+    "evidence_provenance_table_and_index": 15970304,
+    "other_database": 770048,
+    "primitive_evidence_inputs_table": 142045184,
+    "primitive_observations_index": 1228800,
+    "primitive_observations_table": 13307904,
+    "provenance_primary_key_index": 159211520,
+    "total_explained": 601097366
+  },
+  "freelist_delta_bytes": 0,
+  "residual_bytes": 0,
+  "target_incremental_bytes": 601097366
+}

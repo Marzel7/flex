@@ -1,0 +1,131 @@
+{
+  "families_for_share": {
+    "0.5": 1,
+    "0.75": 1,
+    "0.9": 2,
+    "0.95": 2
+  },
+  "ranked_families": [
+    {
+      "cumulative_share": 0.897668808472545,
+      "evidence_input_links": 3137655,
+      "max": 73991,
+      "mean": 82.5568331316108,
+      "median": 26.0,
+      "p90": 51,
+      "p95": 68,
+      "p99": 318,
+      "primitive_count": 38006,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "cumulative_share": 0.9582558133879508,
+      "evidence_input_links": 211772,
+      "max": 5,
+      "mean": 2.001341964749799,
+      "median": 2,
+      "p90": 2,
+      "p95": 2,
+      "p99": 2,
+      "primitive_count": 105815,
+      "primitive_family": "WALLET_FRESH_AT_EVENT"
+    },
+    {
+      "cumulative_share": 0.9787788702491348,
+      "evidence_input_links": 71735,
+      "max": 58,
+      "mean": 12.777876736729604,
+      "median": 7.0,
+      "p90": 30,
+      "p95": 35,
+      "p99": 43,
+      "primitive_count": 5614,
+      "primitive_family": "SHARED_TRANSACTION"
+    },
+    {
+      "cumulative_share": 0.9933923395655412,
+      "evidence_input_links": 51079,
+      "max": 4,
+      "mean": 3.99992169146437,
+      "median": 4.0,
+      "p90": 4,
+      "p95": 4,
+      "p99": 4,
+      "primitive_count": 12770,
+      "primitive_family": "SYSTEM_TRANSFER"
+    },
+    {
+      "cumulative_share": 0.9981063342390162,
+      "evidence_input_links": 16477,
+      "max": 1,
+      "mean": 1.0,
+      "median": 1,
+      "p90": 1,
+      "p95": 1,
+      "p99": 1,
+      "primitive_count": 16477,
+      "primitive_family": "DIRECT_COUNTERPARTY"
+    },
+    {
+      "cumulative_share": 0.999233264203137,
+      "evidence_input_links": 3939,
+      "max": 1,
+      "mean": 1.0,
+      "median": 1,
+      "p90": 1,
+      "p95": 1,
+      "p99": 1,
+      "primitive_count": 3939,
+      "primitive_family": "WSOL_CLOSE"
+    },
+    {
+      "cumulative_share": 0.9995891669386957,
+      "evidence_input_links": 1244,
+      "max": 2,
+      "mean": 2.0,
+      "median": 2.0,
+      "p90": 2,
+      "p95": 2,
+      "p99": 2,
+      "primitive_count": 622,
+      "primitive_family": "LAUNCH_SIGNER"
+    },
+    {
+      "cumulative_share": 0.9997794204106786,
+      "evidence_input_links": 665,
+      "max": 7,
+      "mean": 7.0,
+      "median": 7,
+      "p90": 7,
+      "p95": 7,
+      "p99": 7,
+      "primitive_count": 95,
+      "primitive_family": "LAUNCH_ACTIVATION"
+    },
+    {
+      "cumulative_share": 0.9999456418651478,
+      "evidence_input_links": 581,
+      "max": 55,
+      "mean": 4.882352941176471,
+      "median": 2,
+      "p90": 10,
+      "p95": 21,
+      "p99": 40,
+      "primitive_count": 119,
+      "primitive_family": "REPEATED_COUNTERPARTY"
+    },
+    {
+      "cumulative_share": 1.0,
+      "evidence_input_links": 190,
+      "max": 2,
+      "mean": 2.0,
+      "median": 2,
+      "p90": 2,
+      "p95": 2,
+      "p99": 2,
+      "primitive_count": 95,
+      "primitive_family": "ECONOMIC_FUNDING"
+    }
+  ],
+  "total_links": 3495337
+}

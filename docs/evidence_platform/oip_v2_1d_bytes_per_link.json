@@ -1,0 +1,10 @@
+{
+  "effective_bytes_per_link": 305.61416881977334,
+  "index_bytes_per_link": 161.97737271112914,
+  "links": 3495337,
+  "logical_identifier_text_bytes_per_link": 128,
+  "primary_key_index_bytes": 566165504,
+  "representation": "two 64-character TEXT content identities per table row and repeated in the composite index",
+  "table_bytes": 502059008,
+  "table_bytes_per_link": 143.63679610864418
+}

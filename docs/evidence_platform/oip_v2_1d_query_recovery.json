@@ -1,0 +1,37 @@
+{
+  "analysis_only_acceleration": false,
+  "bounded_plan": [
+    "SCAN primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1"
+  ],
+  "bounded_sql": "SELECT primitive_id,COUNT(*) evidence_input_count FROM primitive_evidence_inputs GROUP BY primitive_id",
+  "completed_checkpoints_reused": [
+    "dbstat/page-allocation baseline"
+  ],
+  "index_shape": {
+    "aligned_with_grouping_prefix": true,
+    "primitive_evidence_inputs_pk": [
+      "primitive_id",
+      "evidence_id"
+    ]
+  },
+  "remaining_large_scans": [
+    "per-Primitive aggregate",
+    "Evidence\u00d7Primitive matrix",
+    "transaction/artifact mapping"
+  ],
+  "slow_plan": [
+    "SCAN p USING INDEX sqlite_autoindex_primitive_observations_1",
+    "SEARCH i USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?) LEFT-JOIN"
+  ],
+  "slow_sql": "SELECT p.primitive_type,p.primitive_id,COUNT(i.evidence_id) links FROM primitive_observations p LEFT JOIN primitive_evidence_inputs i USING(primitive_id) GROUP BY p.primitive_id",
+  "stopped_process": {
+    "checkpoint": [
+      "baseline"
+    ],
+    "cpu_percent": 8.7,
+    "cpu_time": "00:00:52.33",
+    "elapsed": "00:06:45",
+    "phase": "family_census",
+    "pid": 62704
+  }
+}

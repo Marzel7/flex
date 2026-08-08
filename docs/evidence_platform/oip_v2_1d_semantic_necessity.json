@@ -1,0 +1,29 @@
+{
+  "components": {
+    "AUDIT_REQUIRED": {
+      "links": 3495337
+    },
+    "DUPLICATE_PHYSICAL_STORAGE": {
+      "links": 0
+    },
+    "INDEX_OVERHEAD": {
+      "bytes": 159211520,
+      "reason": "Composite TEXT primary-key B-tree duplicates both identifiers."
+    },
+    "REPRESENTATION_OVERHEAD": {
+      "bytes": 142045184,
+      "reason": "Repeated 64-character TEXT identities in every link table row."
+    },
+    "SEMANTICALLY_REQUIRED": {
+      "links": 3495337,
+      "reason": "Exact Evidence-to-Primitive provenance is consumed by replay, Discovery and audit."
+    },
+    "UNKNOWN": {
+      "bytes": 0
+    },
+    "VERSION_COEXISTENCE_REQUIRED": {
+      "logical_facts_with_versions": 0
+    }
+  },
+  "verdict": "E \u2014 MIXED"
+}

@@ -1,0 +1,435 @@
+{
+  "after": {
+    "file_bytes": 1755140096,
+    "freelist_count": 0,
+    "objects": {
+      "artifact_references": {
+        "bytes": 1015808,
+        "pages": 248,
+        "payload_bytes": 936345,
+        "unused_bytes": 41679
+      },
+      "evidence_envelopes": {
+        "bytes": 1937408,
+        "pages": 473,
+        "payload_bytes": 1833840,
+        "unused_bytes": 62189
+      },
+      "evidence_provenance": {
+        "bytes": 3637248,
+        "pages": 888,
+        "payload_bytes": 3194052,
+        "unused_bytes": 395190
+      },
+      "evidence_schema_metadata": {
+        "bytes": 4096,
+        "pages": 1,
+        "payload_bytes": 28,
+        "unused_bytes": 4044
+      },
+      "immutable_artifacts": {
+        "bytes": 442368,
+        "pages": 108,
+        "payload_bytes": 407376,
+        "unused_bytes": 5115
+      },
+      "normalization_status": {
+        "bytes": 913408,
+        "pages": 223,
+        "payload_bytes": 845824,
+        "unused_bytes": 30199
+      },
+      "normalized_evidence_logical_fact": {
+        "bytes": 27975680,
+        "pages": 6830,
+        "payload_bytes": 23735565,
+        "unused_bytes": 3355215
+      },
+      "normalized_evidence_provenance": {
+        "bytes": 91996160,
+        "pages": 22460,
+        "payload_bytes": 86061785,
+        "unused_bytes": 3697001
+      },
+      "normalized_evidence_records": {
+        "bytes": 333385728,
+        "pages": 81393,
+        "payload_bytes": 285370788,
+        "unused_bytes": 44785559
+      },
+      "primitive_evidence_inputs": {
+        "bytes": 502059008,
+        "pages": 122573,
+        "payload_bytes": 464879821,
+        "unused_bytes": 9198663
+      },
+      "primitive_observations": {
+        "bytes": 138600448,
+        "pages": 33838,
+        "payload_bytes": 126121705,
+        "unused_bytes": 10666171
+      },
+      "sqlite_autoindex_artifact_references_1": {
+        "bytes": 913408,
+        "pages": 223,
+        "payload_bytes": 792272,
+        "unused_bytes": 95824
+      },
+      "sqlite_autoindex_evidence_envelopes_1": {
+        "bytes": 487424,
+        "pages": 119,
+        "payload_bytes": 418712,
+        "unused_bytes": 50308
+      },
+      "sqlite_autoindex_evidence_envelopes_2": {
+        "bytes": 454656,
+        "pages": 111,
+        "payload_bytes": 396072,
+        "unused_bytes": 40276
+      },
+      "sqlite_autoindex_evidence_provenance_1": {
+        "bytes": 487424,
+        "pages": 119,
+        "payload_bytes": 418712,
+        "unused_bytes": 50308
+      },
+      "sqlite_autoindex_immutable_artifacts_1": {
+        "bytes": 454656,
+        "pages": 111,
+        "payload_bytes": 395932,
+        "unused_bytes": 40422
+      },
+      "sqlite_autoindex_normalization_status_1": {
+        "bytes": 622592,
+        "pages": 152,
+        "payload_bytes": 531912,
+        "unused_bytes": 71880
+      },
+      "sqlite_autoindex_normalized_evidence_provenance_1": {
+        "bytes": 44879872,
+        "pages": 10957,
+        "payload_bytes": 37772488,
+        "unused_bytes": 6037636
+      },
+      "sqlite_autoindex_normalized_evidence_records_1": {
+        "bytes": 22417408,
+        "pages": 5473,
+        "payload_bytes": 18970113,
+        "unused_bytes": 2578679
+      },
+      "sqlite_autoindex_primitive_evidence_inputs_1": {
+        "bytes": 566165504,
+        "pages": 138224,
+        "payload_bytes": 478828274,
+        "unused_bytes": 71697198
+      },
+      "sqlite_autoindex_primitive_observations_1": {
+        "bytes": 14864384,
+        "pages": 3629,
+        "payload_bytes": 12999297,
+        "unused_bytes": 1270887
+      },
+      "sqlite_autoindex_writer_receipts_1": {
+        "bytes": 507904,
+        "pages": 124,
+        "payload_bytes": 435692,
+        "unused_bytes": 53748
+      },
+      "sqlite_schema": {
+        "bytes": 16384,
+        "pages": 4,
+        "payload_bytes": 10169,
+        "unused_bytes": 5871
+      },
+      "writer_receipts": {
+        "bytes": 897024,
+        "pages": 219,
+        "payload_bytes": 843340,
+        "unused_bytes": 16363
+      }
+    },
+    "page_count": 428501,
+    "page_size": 4096,
+    "path": "database/evidence_platform/oip_v2_1c_retry_failover/evidence.db",
+    "shm_bytes": 32768,
+    "wal_bytes": 0
+  },
+  "before": {
+    "file_bytes": 1370628096,
+    "freelist_count": 0,
+    "objects": {
+      "artifact_references": {
+        "bytes": 966656,
+        "pages": 236,
+        "payload_bytes": 889564,
+        "unused_bytes": 41120
+      },
+      "evidence_envelopes": {
+        "bytes": 1847296,
+        "pages": 451,
+        "payload_bytes": 1746360,
+        "unused_bytes": 61529
+      },
+      "evidence_provenance": {
+        "bytes": 3268608,
+        "pages": 798,
+        "payload_bytes": 2876276,
+        "unused_bytes": 347386
+      },
+      "evidence_schema_metadata": {
+        "bytes": 4096,
+        "pages": 1,
+        "payload_bytes": 28,
+        "unused_bytes": 4044
+      },
+      "immutable_artifacts": {
+        "bytes": 421888,
+        "pages": 103,
+        "payload_bytes": 387936,
+        "unused_bytes": 5505
+      },
+      "normalization_status": {
+        "bytes": 872448,
+        "pages": 213,
+        "payload_bytes": 808376,
+        "unused_bytes": 28467
+      },
+      "normalized_evidence_logical_fact": {
+        "bytes": 24199168,
+        "pages": 5908,
+        "payload_bytes": 20515162,
+        "unused_bytes": 2919475
+      },
+      "normalized_evidence_provenance": {
+        "bytes": 80572416,
+        "pages": 19671,
+        "payload_bytes": 75614990,
+        "unused_bytes": 3022475
+      },
+      "normalized_evidence_records": {
+        "bytes": 288235520,
+        "pages": 70370,
+        "payload_bytes": 247295264,
+        "unused_bytes": 38153171
+      },
+      "primitive_evidence_inputs": {
+        "bytes": 360013824,
+        "pages": 87894,
+        "payload_bytes": 336095389,
+        "unused_bytes": 4307983
+      },
+      "primitive_observations": {
+        "bytes": 125292544,
+        "pages": 30589,
+        "payload_bytes": 113920704,
+        "unused_bytes": 9708681
+      },
+      "sqlite_autoindex_artifact_references_1": {
+        "bytes": 884736,
+        "pages": 216,
+        "payload_bytes": 754472,
+        "unused_bytes": 106116
+      },
+      "sqlite_autoindex_evidence_envelopes_1": {
+        "bytes": 466944,
+        "pages": 114,
+        "payload_bytes": 398732,
+        "unused_bytes": 50678
+      },
+      "sqlite_autoindex_evidence_envelopes_2": {
+        "bytes": 434176,
+        "pages": 106,
+        "payload_bytes": 377172,
+        "unused_bytes": 39566
+      },
+      "sqlite_autoindex_evidence_provenance_1": {
+        "bytes": 466944,
+        "pages": 114,
+        "payload_bytes": 398732,
+        "unused_bytes": 50678
+      },
+      "sqlite_autoindex_immutable_artifacts_1": {
+        "bytes": 438272,
+        "pages": 107,
+        "payload_bytes": 377032,
+        "unused_bytes": 43796
+      },
+      "sqlite_autoindex_normalization_status_1": {
+        "bytes": 585728,
+        "pages": 143,
+        "payload_bytes": 506532,
+        "unused_bytes": 61314
+      },
+      "sqlite_autoindex_normalized_evidence_provenance_1": {
+        "bytes": 40333312,
+        "pages": 9847,
+        "payload_bytes": 33837508,
+        "unused_bytes": 5548681
+      },
+      "sqlite_autoindex_normalized_evidence_records_1": {
+        "bytes": 19365888,
+        "pages": 4728,
+        "payload_bytes": 16383228,
+        "unused_bytes": 2232289
+      },
+      "sqlite_autoindex_primitive_evidence_inputs_1": {
+        "bytes": 406953984,
+        "pages": 99354,
+        "payload_bytes": 346170626,
+        "unused_bytes": 49482982
+      },
+      "sqlite_autoindex_primitive_observations_1": {
+        "bytes": 13635584,
+        "pages": 3329,
+        "payload_bytes": 11966531,
+        "unused_bytes": 1122091
+      },
+      "sqlite_autoindex_writer_receipts_1": {
+        "bytes": 491520,
+        "pages": 120,
+        "payload_bytes": 414902,
+        "unused_bytes": 59012
+      },
+      "sqlite_schema": {
+        "bytes": 16384,
+        "pages": 4,
+        "payload_bytes": 10169,
+        "unused_bytes": 5871
+      },
+      "writer_receipts": {
+        "bytes": 856064,
+        "pages": 209,
+        "payload_bytes": 803110,
+        "unused_bytes": 17413
+      }
+    },
+    "page_count": 334626,
+    "page_size": 4096,
+    "path": "database/evidence_platform/oip_v2_1a_pilot/evidence.db",
+    "shm_bytes": 32768,
+    "wal_bytes": 0
+  },
+  "database_file_delta": 384512000,
+  "object_delta": {
+    "artifact_references": {
+      "after_bytes": 1015808,
+      "before_bytes": 966656,
+      "delta_bytes": 49152
+    },
+    "evidence_envelopes": {
+      "after_bytes": 1937408,
+      "before_bytes": 1847296,
+      "delta_bytes": 90112
+    },
+    "evidence_provenance": {
+      "after_bytes": 3637248,
+      "before_bytes": 3268608,
+      "delta_bytes": 368640
+    },
+    "evidence_schema_metadata": {
+      "after_bytes": 4096,
+      "before_bytes": 4096,
+      "delta_bytes": 0
+    },
+    "immutable_artifacts": {
+      "after_bytes": 442368,
+      "before_bytes": 421888,
+      "delta_bytes": 20480
+    },
+    "normalization_status": {
+      "after_bytes": 913408,
+      "before_bytes": 872448,
+      "delta_bytes": 40960
+    },
+    "normalized_evidence_logical_fact": {
+      "after_bytes": 27975680,
+      "before_bytes": 24199168,
+      "delta_bytes": 3776512
+    },
+    "normalized_evidence_provenance": {
+      "after_bytes": 91996160,
+      "before_bytes": 80572416,
+      "delta_bytes": 11423744
+    },
+    "normalized_evidence_records": {
+      "after_bytes": 333385728,
+      "before_bytes": 288235520,
+      "delta_bytes": 45150208
+    },
+    "primitive_evidence_inputs": {
+      "after_bytes": 502059008,
+      "before_bytes": 360013824,
+      "delta_bytes": 142045184
+    },
+    "primitive_observations": {
+      "after_bytes": 138600448,
+      "before_bytes": 125292544,
+      "delta_bytes": 13307904
+    },
+    "sqlite_autoindex_artifact_references_1": {
+      "after_bytes": 913408,
+      "before_bytes": 884736,
+      "delta_bytes": 28672
+    },
+    "sqlite_autoindex_evidence_envelopes_1": {
+      "after_bytes": 487424,
+      "before_bytes": 466944,
+      "delta_bytes": 20480
+    },
+    "sqlite_autoindex_evidence_envelopes_2": {
+      "after_bytes": 454656,
+      "before_bytes": 434176,
+      "delta_bytes": 20480
+    },
+    "sqlite_autoindex_evidence_provenance_1": {
+      "after_bytes": 487424,
+      "before_bytes": 466944,
+      "delta_bytes": 20480
+    },
+    "sqlite_autoindex_immutable_artifacts_1": {
+      "after_bytes": 454656,
+      "before_bytes": 438272,
+      "delta_bytes": 16384
+    },
+    "sqlite_autoindex_normalization_status_1": {
+      "after_bytes": 622592,
+      "before_bytes": 585728,
+      "delta_bytes": 36864
+    },
+    "sqlite_autoindex_normalized_evidence_provenance_1": {
+      "after_bytes": 44879872,
+      "before_bytes": 40333312,
+      "delta_bytes": 4546560
+    },
+    "sqlite_autoindex_normalized_evidence_records_1": {
+      "after_bytes": 22417408,
+      "before_bytes": 19365888,
+      "delta_bytes": 3051520
+    },
+    "sqlite_autoindex_primitive_evidence_inputs_1": {
+      "after_bytes": 566165504,
+      "before_bytes": 406953984,
+      "delta_bytes": 159211520
+    },
+    "sqlite_autoindex_primitive_observations_1": {
+      "after_bytes": 14864384,
+      "before_bytes": 13635584,
+      "delta_bytes": 1228800
+    },
+    "sqlite_autoindex_writer_receipts_1": {
+      "after_bytes": 507904,
+      "before_bytes": 491520,
+      "delta_bytes": 16384
+    },
+    "sqlite_schema": {
+      "after_bytes": 16384,
+      "before_bytes": 16384,
+      "delta_bytes": 0
+    },
+    "writer_receipts": {
+      "after_bytes": 897024,
+      "before_bytes": 856064,
+      "delta_bytes": 40960
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evidence_coverage_health": {
+    "classification": "USEFUL",
+    "plan": [
+      "USE TEMP B-TREE FOR count(DISTINCT)",
+      "SCAN primitive_evidence_inputs"
+    ]
+  },
+  "evidence_reverse_lookup": {
+    "classification": "UNSUPPORTED_WITH_CURRENT_INDEX",
+    "plan": [
+      "SCAN primitive_evidence_inputs"
+    ]
+  },
+  "load_all_for_discovery": {
+    "classification": "REQUIRED",
+    "plan": [
+      "SCAN primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1"
+    ]
+  },
+  "primitive_reconstruction": {
+    "classification": "REQUIRED",
+    "plan": [
+      "SEARCH primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?)"
+    ]
+  }
+}

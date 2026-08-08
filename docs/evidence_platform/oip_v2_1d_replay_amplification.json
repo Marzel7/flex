@@ -1,0 +1,9 @@
+{
+  "digest": "33346f90a48f6fb2086da557ec2d7889d119e5b69db524cd4cf6fca7b62b8219",
+  "first_generated": 132886,
+  "first_inserted_primitives": 14546,
+  "proof": "append_primitives inserts evidence links only when INSERT OR IGNORE inserts a new primitive row.",
+  "second_generated": 132886,
+  "second_inserted_primitives": 0,
+  "second_links_inserted": 0
+}

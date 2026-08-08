@@ -1,0 +1,6 @@
+{
+  "acquisition_verdict": "READY_FOR_NEXT_1000",
+  "five_thousand_authorized": false,
+  "reason": "Provenance cardinality is semantically required, but compact internal keys preserve the exact relation while reducing its physical subsystem 89.86%. The next 1,000 may proceed only as a staged batch after a separately reviewed production migration plan; this milestone implements no canonical change.",
+  "storage_verdict": "E \u2014 MIXED"
+}

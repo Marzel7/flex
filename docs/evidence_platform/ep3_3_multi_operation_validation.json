@@ -10,6 +10,6 @@
   "registry_coexistence": "PASS",
   "version_coexistence": "PASS",
   "isolation": "PASS",
-  "historical_parity": "BLOCKED_BY_EP3.2_MISSING_EVIDENCE",
+  "historical_parity": "EP3.2_CORPUS_COMPLETE_PARITY_BLOCKED_BY_FRESHNESS_DEFECT",
   "production_authority_changed": false
 }

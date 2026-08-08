@@ -16,7 +16,7 @@ same contract version in one schedule fail closed.
 
 ## Validation boundary
 
-Synthetic immutable snapshots prove scheduling, isolation, registry coexistence,
-version coexistence, and deterministic replay. Historical 3SW2 corpus parity
-remains blocked at 0/13 as documented by EP3.2. Therefore EP3.3 validates the
-runtime isolation property but does not remove the EP3.2 data-readiness gate.
+Immutable snapshots prove scheduling, isolation, registry coexistence, version
+coexistence, and deterministic replay. EP3.2A subsequently completed the frozen
+3SW2 corpus at 13/13. Historical parity remains gated by the documented Primitive
+v1 freshness-ordering defect; this does not invalidate the isolation proof.

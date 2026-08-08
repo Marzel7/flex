@@ -24,13 +24,13 @@
     "detector_version": "1.0.0",
     "evaluation_latency_ms": null,
     "evaluations": 0,
-    "replay": "DETERMINISTIC_SYNTHETIC_VALIDATION",
-    "shadow_health": "MISSING_CORPUS"
+    "replay": "DETERMINISTIC_INCREMENTAL_VALIDATION",
+    "shadow_health": "HEALTHY"
   },
   "invariants": {
+    "acquisition_rpc_calls": 16,
     "governance_executed": false,
     "production_authority_changed": false,
-    "rpc_performed": false,
     "runtime_modified": false,
     "watchtower_modified": false
   },
@@ -38,63 +38,42 @@
   "parity": {
     "differences": [
       {
-        "area": "canonical controller",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
-        "area": "historical launches",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
-        "area": "activation transfers",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
-        "area": "launch signers",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
         "area": "creator freshness",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
-        "area": "economic funding",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
-        "area": "topology",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
-      },
-      {
-        "area": "dormancy",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+        "classification": "Implementation defect",
+        "detail": "All required histories are present, but 13 creators are classified NOT_FRESH because Primitive v1 does not time-filter returned signatures relative to the reference event."
       },
       {
         "area": "explicit exclusions",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+        "classification": "Known legacy limitation",
+        "detail": "X78.21 exclusion identities are not encoded as generic Primitive v1 observations."
       },
       {
         "area": "known non-members",
-        "classification": "Missing Evidence",
-        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+        "classification": "Known legacy limitation",
+        "detail": "Governed non-membership is comparison context, not immutable chain evidence."
       }
     ],
-    "status": "BLOCKED_BY_MISSING_EVIDENCE",
+    "status": "BLOCKED_BY_IMPLEMENTATION_DEFECT",
     "unexplained_differences": 0
   },
-  "report_digest": "a191f2e56580df5a46f030c3b937a960698a7baccbb4255fe021e75961e070a2",
+  "report_digest": "4f2dedaca7b2ba604369cbaf4dd5c31b8fbfd5c9e29513f072d676db18a71698",
   "shadow": {
-    "covered_launches": 0,
-    "missing_launches": 13,
-    "primitive_counts": {}
+    "controller_activations": 13,
+    "covered_launches": 13,
+    "economic_funding_launches": 13,
+    "missing_launches": 0,
+    "primitive_counts": {
+      "BEHAVIOURAL_TIMING": 26,
+      "DIRECT_COUNTERPARTY": 13,
+      "ECONOMIC_FUNDING": 13,
+      "LAUNCH_ACTIVATION": 26,
+      "LAUNCH_SIGNER": 13,
+      "SHARED_TRANSACTION": 13,
+      "SYSTEM_TRANSFER": 13,
+      "WALLET_FRESH_AT_EVENT": 13
+    },
+    "primitive_not_fresh_creators": 13,
+    "proven_fresh_creators": 0,
+    "proven_launch_signers": 13
   }
 }

@@ -1,0 +1,12 @@
+{
+  "milestone": "EP3.2A",
+  "authority": "SHADOW_NON_AUTHORITATIVE",
+  "population": {"launches": 13, "creators": 13, "controller_activation_edges": 13},
+  "acquisition": {"rpc_calls": 16, "credits": 160, "transaction_phase_calls": 3, "freshness_phase_calls": 13},
+  "coverage": {"runtime_ready_launches": 13, "launch_signers": 13, "controller_activations": 13, "economic_funding": 13, "creator_histories": 13},
+  "replay": {"identical": true, "projection_checkpoints": 2, "additional_rpc": 0},
+  "parity_gate": "BLOCKED_BY_WALLET_FRESH_AT_EVENT_ORDERING_DEFECT",
+  "production_writes": 0,
+  "detectors_executed": 0,
+  "governance_actions": 0
+}

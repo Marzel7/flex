@@ -15,10 +15,11 @@ identity claim, lifecycle transition, or executable governance action.
 ## Parity status
 
 The X78.21 comparison baseline contains one canonical controller and 13 historical
-launches. The locally available immutable shadow corpus contains none of those 13
-launches. Consequently all required parity dimensions are classified as **Missing
-Evidence**, with zero unexplained differences. No corpus expansion or RPC was
-performed.
+launches. EP3.2A materialized all 13 inside a frozen shadow corpus: 13 launch
+signers, 13 controller activations, 13 economic-funding observations, and all 13
+required creator histories. Acquisition used 16 bounded RPC calls in total
+(30 credits for missing transaction/signature recovery and 130 credits for the
+thirteen required history observations). No population expansion occurred.
 
 Run the deterministic report with:
 
@@ -26,7 +27,10 @@ Run the deterministic report with:
 python scripts/validate_three_sw2_contract_v1.py
 ```
 
-Synthetic immutable snapshots prove deterministic behaviour, topology, detector
-output, contact/identity separation, and coexistence with WATCHTOWER v1. Full
-historical parity remains blocked until a separately approved 3SW2 shadow corpus
-is materialized.
+Immutable snapshots prove deterministic behaviour, topology, detector output,
+contact/identity separation, and coexistence with WATCHTOWER v1. Explicit
+exclusions and known non-members remain classified legacy-governance context;
+they are not promoted into generic chain primitives. Historical freshness parity
+is blocked by a Primitive v1 implementation defect: returned history signatures
+are not filtered relative to the reference event, so later activity is treated as
+prior activity and historically fresh creators are emitted as `NOT_FRESH`.

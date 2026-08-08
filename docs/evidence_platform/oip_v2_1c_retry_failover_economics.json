@@ -1,0 +1,8 @@
+{
+  "conclusion": "No second-attempt policy was exercised because all matched first attempts succeeded.",
+  "delayed_retries_performed": 0,
+  "failovers_performed": 0,
+  "incremental_completed_launches": 0,
+  "incremental_transactions_recovered": 0,
+  "retry_eligible_first_failures": 0
+}

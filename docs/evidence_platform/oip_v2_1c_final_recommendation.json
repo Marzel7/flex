@@ -1,0 +1,5 @@
+{
+  "policy": "NO_RETRY for this observed first-attempt-success class; retain conditional retry/failover only for future measured transient classes.",
+  "reason": "All 270 initial attempts succeeded, so retry and failover showed zero incremental yield. The recovery rate supports a staged 1,000-attempt expansion, while one observation window is insufficient to authorize 5,000 calls.",
+  "verdict": "B \u2014 READY FOR STAGED 1,000-CALL BATCHES"
+}

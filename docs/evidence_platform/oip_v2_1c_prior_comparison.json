@@ -1,0 +1,23 @@
+{
+  "denominator_warning": "v2.1C is a matched historical retry experiment at a later provider-observation time, not a fresh coverage sample.",
+  "v2_1a": {
+    "attempts": 1000,
+    "completed_launches": 327,
+    "migration_first_completions_per_attempt": 0.646341,
+    "recovered": 606,
+    "storage_bytes_per_attempt": 593252.352
+  },
+  "v2_1c": {
+    "completed_launches": 150,
+    "completed_launches_per_attempt": 0.5555555555555556,
+    "discovery_occurrences_per_attempt": 6.4,
+    "evidence_per_attempt": 134.94444444444446,
+    "motif_net_per_attempt": 0.5777777777777777,
+    "physical_attempts": 270,
+    "primitives_per_attempt": 53.87407407407407,
+    "relationship_net_per_attempt": 0.3037037037037037,
+    "storage_bytes_per_attempt": 2226286.540740741,
+    "transaction_recovery_per_attempt": 1.0,
+    "transactions_recovered": 270
+  }
+}

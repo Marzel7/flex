@@ -1,0 +1,15 @@
+{
+  "helius_rpc": {
+    "attempts": 270,
+    "credits": 2700,
+    "failure_classes": {
+      "SUCCESS": 270
+    },
+    "failure_rate": 0.0,
+    "max_latency_ms": 152.9,
+    "p50_latency_ms": 50.286,
+    "p95_latency_ms": 63.252,
+    "response_bytes": 8305332,
+    "successes": 270
+  }
+}

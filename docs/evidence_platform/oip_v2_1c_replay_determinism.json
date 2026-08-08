@@ -1,0 +1,58 @@
+{
+  "primitive_first": {
+    "duplicates": 118340,
+    "generated": 132886,
+    "input_digest": "33346f90a48f6fb2086da557ec2d7889d119e5b69db524cd4cf6fca7b62b8219",
+    "inserted": 14546
+  },
+  "primitive_second": {
+    "duplicates": 132886,
+    "generated": 132886,
+    "input_digest": "33346f90a48f6fb2086da557ec2d7889d119e5b69db524cd4cf6fca7b62b8219",
+    "inserted": 0
+  },
+  "same_digest": true,
+  "second_inserted_zero": true,
+  "validators": {
+    "discovery": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "dominant_motifs": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "motif_intelligence": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "motif_population": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "motifs": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "operational_change": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "operational_evolution": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    },
+    "relationships": {
+      "passed": true,
+      "production_writes": 0,
+      "rpc_calls": 0
+    }
+  }
+}

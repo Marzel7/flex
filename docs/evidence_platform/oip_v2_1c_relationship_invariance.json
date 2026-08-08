@@ -1,0 +1,8 @@
+{
+  "semantics_changed": false,
+  "validation": {
+    "passed": true,
+    "production_writes": 0,
+    "rpc_calls": 0
+  }
+}

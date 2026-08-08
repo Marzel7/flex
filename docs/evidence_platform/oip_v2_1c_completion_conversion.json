@@ -1,0 +1,11 @@
+{
+  "completed_launches": 150,
+  "duplicate_or_already_known": 0,
+  "evidence_only": 0,
+  "launches_by_policy": {
+    "DELAYED_RETRY": 50,
+    "EXISTING_FAILOVER": 50,
+    "NO_RETRY": 50
+  },
+  "no_downstream_gain": 0
+}

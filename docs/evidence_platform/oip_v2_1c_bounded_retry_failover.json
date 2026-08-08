@@ -1,0 +1,253 @@
+{
+  "attempts": {
+    "classes": {
+      "SUCCESS": 270
+    },
+    "physical_attempts": 270,
+    "raw_diagnostics_retained": 270,
+    "unknown_without_telemetry": 0
+  },
+  "cohorts": {
+    "DELAYED_RETRY": {
+      "completed_launches": 50,
+      "completed_launches_per_attempt": 0.5555555555555556,
+      "credits": 900,
+      "failure_classes": {
+        "SUCCESS": 90
+      },
+      "incremental_retry_or_failover_recoveries": 0,
+      "max_latency_ms": 96.973,
+      "p50_latency_ms": 50.343,
+      "p95_latency_ms": 63.725,
+      "physical_attempts": 90,
+      "policy": "DELAYED_RETRY",
+      "recovered_transactions": 90,
+      "recovery_per_attempt": 1.0,
+      "response_bytes": 2805880,
+      "second_attempts": 0,
+      "targets": 90
+    },
+    "EXISTING_FAILOVER": {
+      "completed_launches": 50,
+      "completed_launches_per_attempt": 0.5555555555555556,
+      "credits": 900,
+      "failure_classes": {
+        "SUCCESS": 90
+      },
+      "incremental_retry_or_failover_recoveries": 0,
+      "max_latency_ms": 76.464,
+      "p50_latency_ms": 50.258,
+      "p95_latency_ms": 61.824,
+      "physical_attempts": 90,
+      "policy": "EXISTING_FAILOVER",
+      "recovered_transactions": 90,
+      "recovery_per_attempt": 1.0,
+      "response_bytes": 2761772,
+      "second_attempts": 0,
+      "targets": 90
+    },
+    "NO_RETRY": {
+      "completed_launches": 50,
+      "completed_launches_per_attempt": 0.5555555555555556,
+      "credits": 900,
+      "failure_classes": {
+        "SUCCESS": 90
+      },
+      "incremental_retry_or_failover_recoveries": 0,
+      "max_latency_ms": 152.9,
+      "p50_latency_ms": 50.286,
+      "p95_latency_ms": 63.715,
+      "physical_attempts": 90,
+      "policy": "NO_RETRY",
+      "recovered_transactions": 90,
+      "recovery_per_attempt": 1.0,
+      "response_bytes": 2737680,
+      "second_attempts": 0,
+      "targets": 90
+    }
+  },
+  "crash_resume": {
+    "attempt_1001_guard_tested": true,
+    "checkpoint_count": 270,
+    "completed_targets": 270,
+    "ledger_rows": 270,
+    "resume_repeated_provider_requests": 0
+  },
+  "dependency_yield": {
+    "CREATION": {
+      "attempts": 120,
+      "completed_launches": 0,
+      "completion_note": "MIGRATION-only selections complete directly; both-missing launches complete only after both dependencies.",
+      "launches_touched": 120,
+      "transactions_recovered": 120
+    },
+    "MIGRATION": {
+      "attempts": 150,
+      "completed_launches": 30,
+      "completion_note": "MIGRATION-only selections complete directly; both-missing launches complete only after both dependencies.",
+      "launches_touched": 150,
+      "transactions_recovered": 150
+    }
+  },
+  "downstream_gain": {
+    "canonical_motifs_net": 156,
+    "discovery_occurrences_net": 1728,
+    "evidence_facts": 36435,
+    "primitive_evidence_inputs": 968304,
+    "primitive_observations": 14546,
+    "relationships_net": 82
+  },
+  "invariants": {
+    "discovery_changed": false,
+    "evidence_semantics_changed": false,
+    "motifs_changed": false,
+    "primitive_semantics_changed": false,
+    "production_interaction": false,
+    "relationship_semantics_changed": false,
+    "runtime_changed": false
+  },
+  "manifest_digest": "8f406d6a5acc83dab88ee48072b171282daf535bd7454269b6ab6ada7d7ae387",
+  "milestone": "OIP v2.1C",
+  "projection": {
+    "1000": {
+      "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+      "expected_completed_launches": 556,
+      "expected_recovered_transactions": 1000
+    },
+    "10000": {
+      "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+      "expected_completed_launches": 5556,
+      "expected_recovered_transactions": 10000
+    },
+    "26283": {
+      "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+      "expected_completed_launches": 14602,
+      "expected_recovered_transactions": 26283
+    },
+    "5000": {
+      "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+      "expected_completed_launches": 2778,
+      "expected_recovered_transactions": 5000
+    }
+  },
+  "providers": {
+    "helius_rpc": {
+      "attempts": 270,
+      "credits": 2700,
+      "failure_classes": {
+        "SUCCESS": 270
+      },
+      "failure_rate": 0.0,
+      "max_latency_ms": 152.9,
+      "p50_latency_ms": 50.286,
+      "p95_latency_ms": 63.252,
+      "response_bytes": 8305332,
+      "successes": 270
+    }
+  },
+  "recommendation": {
+    "policy": "NO_RETRY for this observed first-attempt-success class; retain conditional retry/failover only for future measured transient classes.",
+    "reason": "All 270 initial attempts succeeded, so retry and failover showed zero incremental yield. The recovery rate supports a staged 1,000-attempt expansion, while one observation window is insufficient to authorize 5,000 calls.",
+    "verdict": "B \u2014 READY FOR STAGED 1,000-CALL BATCHES"
+  },
+  "replay": {
+    "primitive_first": {
+      "duplicates": 118340,
+      "generated": 132886,
+      "input_digest": "33346f90a48f6fb2086da557ec2d7889d119e5b69db524cd4cf6fca7b62b8219",
+      "inserted": 14546
+    },
+    "primitive_second": {
+      "duplicates": 132886,
+      "generated": 132886,
+      "input_digest": "33346f90a48f6fb2086da557ec2d7889d119e5b69db524cd4cf6fca7b62b8219",
+      "inserted": 0
+    },
+    "same_digest": true,
+    "second_inserted_zero": true,
+    "validators": {
+      "discovery": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "dominant_motifs": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "motif_intelligence": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "motif_population": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "motifs": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "operational_change": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "operational_evolution": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      },
+      "relationships": {
+        "passed": true,
+        "production_writes": 0,
+        "rpc_calls": 0
+      }
+    }
+  },
+  "storage": {
+    "after": {
+      "allocated_bytes": 1755140096,
+      "artifact_references": 5660,
+      "evidence_envelopes": 5660,
+      "immutable_artifacts": 5658,
+      "normalized_evidence_provenance": 267694,
+      "normalized_evidence_records": 267648,
+      "primitive_evidence_inputs": 3495337,
+      "primitive_observations": 183552
+    },
+    "artifact_and_report_bytes": 216290306,
+    "attempt_telemetry_bytes": 295060,
+    "before": {
+      "allocated_bytes": 1370628096,
+      "artifact_references": 5390,
+      "evidence_envelopes": 5390,
+      "immutable_artifacts": 5388,
+      "normalized_evidence_provenance": 231259,
+      "normalized_evidence_records": 231213,
+      "primitive_evidence_inputs": 2527033,
+      "primitive_observations": 169006
+    },
+    "bytes_per_completed_launch": 4007315.7733333334,
+    "bytes_per_physical_attempt": 2226286.540740741,
+    "bytes_per_recovered_transaction": 2226286.540740741,
+    "database_delta": {
+      "allocated_bytes": 384512000,
+      "artifact_references": 270,
+      "evidence_envelopes": 270,
+      "immutable_artifacts": 270,
+      "normalized_evidence_provenance": 36435,
+      "normalized_evidence_records": 36435,
+      "primitive_evidence_inputs": 968304,
+      "primitive_observations": 14546
+    },
+    "dominant_amplification": {
+      "inputs_per_new_primitive": 66.56840368486182,
+      "primitive_evidence_inputs_added": 968304
+    },
+    "total_incremental_physical_bytes": 601097366
+  }
+}

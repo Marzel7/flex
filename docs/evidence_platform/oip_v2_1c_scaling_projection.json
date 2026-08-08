@@ -1,0 +1,22 @@
+{
+  "1000": {
+    "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+    "expected_completed_launches": 556,
+    "expected_recovered_transactions": 1000
+  },
+  "10000": {
+    "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+    "expected_completed_launches": 5556,
+    "expected_recovered_transactions": 10000
+  },
+  "26283": {
+    "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+    "expected_completed_launches": 14602,
+    "expected_recovered_transactions": 26283
+  },
+  "5000": {
+    "assumption": "Point estimate only: v2.1C first-attempt yield persists.",
+    "expected_completed_launches": 2778,
+    "expected_recovered_transactions": 5000
+  }
+}

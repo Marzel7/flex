@@ -1,0 +1,19 @@
+{
+  "completed_launches": 50,
+  "completed_launches_per_attempt": 0.5555555555555556,
+  "credits": 900,
+  "failure_classes": {
+    "SUCCESS": 90
+  },
+  "incremental_retry_or_failover_recoveries": 0,
+  "max_latency_ms": 76.464,
+  "p50_latency_ms": 50.258,
+  "p95_latency_ms": 61.824,
+  "physical_attempts": 90,
+  "policy": "EXISTING_FAILOVER",
+  "recovered_transactions": 90,
+  "recovery_per_attempt": 1.0,
+  "response_bytes": 2761772,
+  "second_attempts": 0,
+  "targets": 90
+}

@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "CREATION": {
+      "attempts": 120,
+      "completed_launches": 0,
+      "completion_note": "MIGRATION-only selections complete directly; both-missing launches complete only after both dependencies.",
+      "launches_touched": 120,
+      "transactions_recovered": 120
+    },
+    "MIGRATION": {
+      "attempts": 150,
+      "completed_launches": 30,
+      "completion_note": "MIGRATION-only selections complete directly; both-missing launches complete only after both dependencies.",
+      "launches_touched": 150,
+      "transactions_recovered": 150
+    }
+  },
+  "downstream_gain": {
+    "canonical_motifs_net": 156,
+    "discovery_occurrences_net": 1728,
+    "evidence_facts": 36435,
+    "primitive_evidence_inputs": 968304,
+    "primitive_observations": 14546,
+    "relationships_net": 82
+  }
+}

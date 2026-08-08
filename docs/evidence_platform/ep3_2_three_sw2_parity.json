@@ -1,0 +1,100 @@
+{
+  "authority": "SHADOW_ONLY",
+  "baseline": {
+    "controller": "3SW2zquY2mVTbNuw1ZCGgtoehq2evfU36PFd6TTqSXdK",
+    "historical_launches": 13,
+    "launch_mints": [
+      "GkXUvai4Hk3XnhKbevAibRygvU5GASzHFNcjJcqpump",
+      "Lt5a2XWZXgFiYrNaqwQzSVT3tPRarT3rQRiyMWPpump",
+      "SPof24S7YxtfVBo9hN8utCf47c6j4fgVQfod2xmpump",
+      "Y5bGdNx6BFDdRYCHuxZ6EyFuqxr4xS535KjiVE8pump",
+      "YDxw5V4rMYzDFomPaxGbUSBUdiNgBJikGBPbBW2pump",
+      "dDqcg6kAfrJ39D3uKDRaRaAugbZav5efevKPCnmpump",
+      "hYDJmMxa3CrPmXzaDyatVoRQxZ3zJTPuvLNBQnWpump",
+      "iUXa5BUbZ4EY3BReD4EFYU1eC75eVHzu8L9H1ZVpump",
+      "kYkR6zZvgo7vpptX1F2eXgojzmRACox3be2upKupump",
+      "qDKdQJT4WeLoAcdrTybWyP4N966XCaRBkjXm1Cxpump",
+      "uxDBFdzJbmZkthhUQYFQ6unSfMAfdKxSuoKq8gCpump",
+      "wAQpxAZRSspX3xG7RKDXZoPqKBoc67qnD7jtm5gpump",
+      "wiW7UmNiE2Aud3GxmHtCN8UXfrFu1ombuyDyyYMpump"
+    ]
+  },
+  "health": {
+    "contract_version": "1.0.0",
+    "detector_version": "1.0.0",
+    "evaluation_latency_ms": null,
+    "evaluations": 0,
+    "replay": "DETERMINISTIC_SYNTHETIC_VALIDATION",
+    "shadow_health": "MISSING_CORPUS"
+  },
+  "invariants": {
+    "governance_executed": false,
+    "production_authority_changed": false,
+    "rpc_performed": false,
+    "runtime_modified": false,
+    "watchtower_modified": false
+  },
+  "milestone": "EP3.2",
+  "parity": {
+    "differences": [
+      {
+        "area": "canonical controller",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "historical launches",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "activation transfers",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "launch signers",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "creator freshness",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "economic funding",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "topology",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "dormancy",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "explicit exclusions",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      },
+      {
+        "area": "known non-members",
+        "classification": "Missing Evidence",
+        "detail": "No immutable 3SW2 comparison observations are materialized in the available shadow corpus."
+      }
+    ],
+    "status": "BLOCKED_BY_MISSING_EVIDENCE",
+    "unexplained_differences": 0
+  },
+  "report_digest": "a191f2e56580df5a46f030c3b937a960698a7baccbb4255fe021e75961e070a2",
+  "shadow": {
+    "covered_launches": 0,
+    "missing_launches": 13,
+    "primitive_counts": {}
+  }
+}

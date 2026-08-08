@@ -1,0 +1,2765 @@
+{
+  "failure_count": 394,
+  "failures": [
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "C5RT8vWKNFgg2eSWC9NyK1wiCaPniZpgRsRkiqyZpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "12pC4Q4L9gmunrARNUFxYBWFcEiSYzTZ4rZ52fpack5MQBSV7nxwFMb7tvmrR76M6Ztv2N94JAnkbJ1rdAvCTvz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Gtfcb4kZi8J76UZcP51dSnP9yUjBCpr3DDKeHsMXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "1EXouFAKVtRcFzjU96Uv5GjpXiaKMYdxP7SQbbcVNtUSZ82cc1q8eXEF2SkTnqr1eP54rfJGA8ErdjZgPV4ZH1V"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5BC7XgR6CcCg4EMoptEPoLu5KtAwMUGn26daxBENpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "1So3t8ZJwdyfqXzDJRQxPZMyoYCvwGi6LMeFi8h8mxn78wrmHU6PM77Kcd2WQj8WoVjU2C2JwEHAC6HmSsDNbpP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9QRxnG9CkEE47ghdG8Jhbx9aoGCVw3woBM9Rdrv9pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "21jLSPUg7qQwCJgQiH2qnbEf6NS4oe8rBQF9LYCmVH6BAmkBfcargxRDXty3EA4NbHikCEDWhQNGMgDgGDo7iefq"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5upqdStAJmmBDbVDnMKQqJrMPdueXTTDEbkwykoupump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "22WmHs7DRBXCC37icri1YFoPK3X4P21PqXHpKLhFUUERApY6HNwWP2ti5RxxW9conq9XtYWnwbD6S7gEXRFQSQfV"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2cXbWq3uQNQiEkQeZwgE2pe1W3wfAkRj2upvzCf1pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "249Whe7wGuKiEmvbdKqjzfahZNgMMwwum31JnzbYEAoACkLNAYpYDrin2Bha6S3VqywUoojBdmgYs5vf6he8Pnd8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6AdmZxzpX6gG1bmKkVnP7g59nfK71GK1LeihzczRpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "24YyqDXwiQsfNkkUbsy7BmArt5mM9QTxo4U3532vFc9LiGvJA6gbp13ahbPRw3hioXZJ2mvPHpY78dEaitEu4adk"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2bLuP7t95Cc51pQJyqoVTzxjZpDKUTojJHApreGMpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "24v6LJDMnKcQSQfPVSv8Vhrg3jQJkHAe7gXbHZnAqmUShEmZPXPheATy6UrKhZESKKBazMiDJ4PjAXSia227eUCo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "24BB5XmLdMP1CSkzVSBLag5Ntk36iyC1yo1Su6mApump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "25sfJeanMektfCEfP67Ab4PrUwM3VNPgbjrk4EDnpNPk16y5uLCrgYL3MPeHFXvbikyUWHwQSZp4dC2oETLzuwDj"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5Pmyo95CwKzdRLLNGjUZTNtsei2f6daxqsbeP5zkpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "25xYn8Uq54TsrugaX2wfgzYCZ6KfDi16wHUyNyfJgJPFdFaMJFPdB3qrBMW6zUuEjEG3YB8VWqnefNodhLeXNAD9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7aLemDNqyXkmQ9cN2zMzCnpb4RABeK2PpMWy4e7Hpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "27XxFsC4hb7ka5rfDpVemZVKpRL2HTa5sG6Yn2UyWL6bsXimdsuGk6KNjta4jdfzEMKbF7giBmvQviH5LV6f9JBR"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9f3p6KGumubHTPWQUpYnAU2foLzHMkCpa6fVBAurpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "28SGcm7DuyW8ZpWJJgnY8CHWXFXi3mKiUyn7JBwruJ5ZxDzSmvmVTdLton4t4TKo4gHHnkTtrCZbsZoUdCE4RnSz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "U73LJanK2ENpbvGg85iPQJmj2WGPKBLnLxNmrgvpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2Bdy83Wm5CNvNmU2vf7q4fb3xJVfBSYasYNWeBNeGPRNzFme5575h32TeZBjQDgvrwQ444aCUi6RbnGEporfffD5"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CWtnyksZ6i5NXzMJ8arVmoPzqHaRV1CXP8P36mc5pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2EWjwq1nnMwKrqaayHGdACYHtikLMkBeaXjsbcBR9XtwSVxbNfg2AnmwZPxfQ5ByXA9icS74RcxMTvsoD5Vqi6GA"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5ogZaaw4u7hPbYCnbvSdjdEHi3Ku9P1fWuybvZj8pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2EuBfYAHnf6h2skYsYHq4KJFqipEb4um7PVV8cKPw3MPuXo6CB64iectqokX3VZX76pV4tvD5U3EJ1eZ85XrfDKC"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Hohnj7Wfexv5MZ9WMrc8xjETVuh1kbwSRJw7bAjpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2HMUFcFuqGJ34kPpin948SePTZBTrrWohoc1RvVcJs8PpyqpBs5hAVEtquVcbV2dggKAcMBtRdVafEXv9BGvMzy8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CnNcML1xDhZrAsbHxS7LcesQkskAuTe3rnf2wHrDpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2Jufo4bWmYHePGhZ9r3k4UYfAqL9YPRc9UsNXGyka9tLPAs3phG8pwQL4yf19rSzpLXDjcUYp93jHp584vLoC2tU"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CqKcMkUGFU4fWvcKCtwmhfAzrQ7DHNCiqDaaRWtCpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2KET1EWzP9AbJUDaw4eRuR12Mk1UA5hSpU8jxpMvGwTQnGhrRctxQtqs598sZVa2nrz8S9U8yy7abZyrFCtxzNzx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2WJCGz86oTqWvdNdmXEu5JAtcgpPL3bhK3hCTWWXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2KLjM87Ni573L1xziRUvEC8AxpDL9PefycSnUaKiTn29YxNppSQukJ9Dt4V4JyD9UZcC9kfGC9NbjqCTqafjRQVM"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5HnWzWswzEcTWi3GKcZXXrL2YxDgAdq9fx6QjKb3pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2KN4FubpfxtuHwoXb5QB2xR57EGLTjVWVu9DqBse1is2YKRaXx8Y3n4CLVKzoYGd3f5rS6emi2qycv8PtLf7MCTQ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2G5ApURumTzCijL7CLQoccMftGzstDvYwvB1HNfPpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2KPJzSqgg4NsAeeZ92TywG1nXsQgQBVc7USwYhkeZZjcCpYpnXoLhWhEETHAz4Z58rTk3tWsgLdTPPnQB1VuWqJh"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3tGJ5oSDTo66kzRJMeY2ejZFeXmR6wN4aGNjpmtapump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2LYQbNdN63dmC3jWWjCKZ1133jRDt6EfbS3dvDooFNiX9UYqt6QYSrNtRDGXPCMSD2gCRo5yiNYcA3VpXsUStoWR"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4X4cHqdsgDYaY5oZtGf32nDvui5W88amLVPuw5xxpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2LfChdnyvZYiL1eFABEGcBHKGQnK4P14x6MK5FNRRTFL4XzfyXrKJa1GexpVhMacmsqfsd6viLzkdiZcBGEZqfwD"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "JCFyqiZ2FhoP5dbHzyhQg2e3X1RGvLmBC1qhbkR1pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2McdQETaNciEBUxkHdYmfXfPKuunkQqDupV6ffaktmauBneJJvu7jmsU1Vp922h3WcoE4afo3cfDh5mRJYeTpSEx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "APJj6jix7BEiWjTqGJzCMsAMvNbXYW2rRTMmmVn6pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2NG572SVgegjtn4eMyUPfZnLU8uYtDYSju28Ap5TMZ1BsQKbFRC1UuUPbYx8Q1HRyQ367PJmevapAq1md7BnhM7A"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CP76yiGqSWPS9p2x63Z59tHauULFdn7L3PEpBDagpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2NWa5gsKRiJUUypW3hQFxq7cRjKqN1fU5axJHmNrbauziw6jBjHcvFxpZ3wfDq4gw1N1DJmKGNxNyiiVcz2bPAg5"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HwAGqSBwhFm9MK7qe9ewukjXPQmFGoKFGPrJQyeTpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2Nem6Ry43dTM5iNdTMtCWasXXQ9PhjVUUyUyZs6HndeXDJkPCQnwLM8Ujrsve87yT8EAcd1r56FPr1mMFDKdTqpS"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9wbnYpLVzU3VFdWRej9FDAXNq7UMRx7gZjQApZ3Tpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2NkKoFL2KckcExVhrABUnA5p5MhqFpojzpGF7w6x8yX2yXWynCqQGJFTDM83Yu8ohJ8TVwE9y9WnAypf37LAGCYg"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HqyK6jdp6eauECmNnwM4fPDAVX4D49qRPv6zwrLkpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2PJst1KRKjJpGfg7pnt9YyHGLX8d2UwmYACgRwthMqHMvzCepomGQF1XYfUyococwDCiopwVwZygbrr1eB8W5Tj6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Hohnj7Wfexv5MZ9WMrc8xjETVuh1kbwSRJw7bAjpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2QGjycQ4wvX9eWgcpGoSfosyQEQjxF5p1eX87p4cq3hhtjGJTT2S43GP3cupi8vexWyVCJmjVfTpVftg45B52C2S"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2HfyFEqkFfCBvSBpnspfWNQ7n6Ga3LTYHn2ny5oDpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2R5AwNzHXWPx9rYf4N2DvWtuqSK766LrXbRJr3Wao5rCKiZSCK7rse571hPPN1C5mq4qQgmdrY5m1WAt3Zyypsd2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "F111TqD3S3tzRf5tTLb1yebzipjb8RrmQpg4hXdepump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2RJ6v9gapvY6AuLFbfZDEBcC8zT9aeCbvowTYFEGooAe1g41GrEFCSf5XQTz2V99E4EBex8uNQbTVXXF4RarLT25"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "JCFyqiZ2FhoP5dbHzyhQg2e3X1RGvLmBC1qhbkR1pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2RMqCcSbq6osiE5jt46jMvnvDaDBWHprwpq8yko1sA61hiWJZjtPEzb6rFWJK52ZcY6X3JjjiHD4zCSsNLAgKfMC"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AYQGHSmuqoAjWcgTmBheN7ASxs1qQVXHpUTFsDjepump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2S3ab5h62nofXdGp5pRonxLA7pJbECZ9LXnVDxu7gagYejooveXj4YFAmE6GrgtRDJwCXUEB4DfE9mG2ZpaWJk63"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HH6JtFYVKKu4KgA3TmeU63cakbQAwbyajvHtcwAspump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2SgfFZY3U87J76oaAVR7qr5eByhCi5dk7ap4sigYYVF6ksdmeJ4GgLdVvoZ2aabT8YN7kL1u5d6kE217nYmmx19b"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9mNV3EJXSmdPgmtGcAoiL7VydfA1H4Dab6ZCP6cspump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2SmMFmVaExG9eW4DqGtUS2kBayDwYwnneWy4ohAwvyPUxfJ3zWs412TRh61sc2CZSKeRzxfbUhydQMR2eLfZCbC7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EV3wbTo13C6xkTshUZaH3LJeStYgiKR7mY8B7am6pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2T1Rttm4UsZv3DeBdnDH4RK6UavX5tLJZxN9hpCj55VjDfnueA5kGFStb1YpjtZ3intSsrHgSVpqUM4i9SDTxcAS"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7HfiuBK7kkJeTGJ9kk7GYKShRVcTeipWpfN6ttHQpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2T4TDPfnnvR13M64FBeuA2MvRt4sWAUisVXuVdfGfnpS7J2zCZPAUNowr8vaGZfDZhb7FBur9avd8rV6ZJUDq13y"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3fhVHxRHt2rD2HwHKfJTXtszmTTLNjFUG6rJB3oEpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2TGbtwtZFJpiK32BoJJvrpTPwrv1aNgU6NUJV2Qoo6YFA3DgR62PzXwnTSDdnabQrHmWyseUSo5NrcF4RHEzhrFC"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H6wpKRgGdmQGwBm6vTpFxAhuzNrjFvH9xxWTqGJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2TKr8bL8CBaQsofscg77bEe2Fqs8hwXJjrUHVhT5qQXicAwHuxKgPDqZbn2eQdh9HLvELpTyyVDW4pEXkC4GrGFG"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6AdmZxzpX6gG1bmKkVnP7g59nfK71GK1LeihzczRpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2TorowX8SUceRCdctuAhgK4YCAL16jquA47fYMLT2X4Gb9GnNQW9mnetPgfMpA64XQvHUvjcLZkFYk9WYxCGCVwJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7WYdJVteDVX4pKfBLcLg2ufcV3BrX8GchaBdnzS5pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2UkGk3gydbQeTs83qaDgRtsEKwg1BqpVSfozJYDeQNUDdPNkyGCzQAQAgsbBHYKtwsii9sBEuSfoDtM3QyKXdbTN"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8tRixAM6xbzUXoU4VTDW5CrxfXC35nV43NPv8G9Tpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2VazV2bZ1mkgF5YWwBNperjYh3bTyMHa4XtbCBcaWr2UEmZzVPzxgjnJ3pM69FQgva4z5P4BTnVhB8kW7K85G7fY"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "RRWCLy2ddJzSC7B5wfBEAvEDRtpt8DphkZGYnKJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2YtMJSqyxijKqCtNn8U23obyLCCNno4QeHmdMghBR9Ug2gHRZb8tkUdyUTqnHb1EqdX6JgtDggtcjftDJDbhtv78"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "416BhFn2E5gNbKv5upPFXQCSDHA2Xn88k1k65oKUpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2YtcqxdsLRRxNrBkHDJotsHBgWnK7sFMkNDw9V28JFPSUukcbcg4kHaq1qq9xLBaovR4H2gcypYaLvTs6AX115gX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9VVHSi78vsE111oTmmB5CxjLZJYgxh1KH1qETK39pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2ZtxNya1V2DkeuR2qPquUBAx3b2ZqWquzWbNWxHjkTYJ3mTrScXCkRVfDVJU86srSL283k9VCWfyEa3p9gWKAc8e"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9G9V9YN6xMTggCvzdwwo9cnjfrY8qtQasc3Q7qmVpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2aH2ca582cDJvwna1rBNxevuZmjNE3jowQxCBguXfoDH1di2WxTgGy1NPxfiFxGLw5iywX83ChHgyhBTcp32QCwL"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "ATeDBLU1h64p5STFyRSPQjR6SBWjcvbBWAoesWHpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2az3NM4o1oJpMWTDkhFagroFhrZHjXXoGqC9tSLKHyDMyC4xJdUEUHNWgV2GFqMrd3EjvUvmfDxXr8ESCGDjEuZH"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "U73LJanK2ENpbvGg85iPQJmj2WGPKBLnLxNmrgvpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2cbdfBPW8LSddoJbHMu8gRVAWVUrbeYtrHutwMmZGmAHDdEqEhXx6iYfJnWW8BYCNqpCL8aCL1YNifT51zcZs8Ee"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "WMtkodxwQ8rZKCt8xgWWrjwigBEo7Mnz86YMDQNpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2dPQDJsww3U5EfqvE2c33JowJLPfuvpsiMApS9i61WvmCronegHDZg9NjnxkU6Ln8wLhHbLh8tNxpiQzvSjXA4BJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Ed2yA1ZWeGjCxhhuiHA97QtZQkVjQgyZV2EELZBpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2eWXm64WYEUbRFez1vBWCvDkq5HL67QJR9hNSWiJkE5kDEDF5eDTEUwpX5jxoFfXrvK38pUeArNT1GfBBD5gH2eG"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9mNV3EJXSmdPgmtGcAoiL7VydfA1H4Dab6ZCP6cspump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2fn54tpBpgq8bhRf3jH72AZTKwjwSgRB9R5Ek7uVkHdGTGgCaXRimFPdcr8bXhfAwAzYEoL58G6DYVeNe99csZgz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6vZ9TVYL9VUUkGxU1j5o7PnybufcsXYtSj9YNQhgpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2gkZXnTj36HersrkHZ8XFYrxtH5nSar7ecG8hdJwSYHyRX8xt1bqVAHy7kMuxsNF5BHy8u84KQbnUPj5cvkdhxEw"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "52hneKeDvX3QMpysYXERquicq3QXxfVChqsEtYaLpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2gw9vc3m9JMMyp7wQeNkqfjNSQqgbD7gMUndEWX18ysXLgmZLYo4MAVA3CyAuzN18gLiE8FjYatumouGniwcSfzj"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CWtnyksZ6i5NXzMJ8arVmoPzqHaRV1CXP8P36mc5pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2i2JVw4xk3TK8MVEt5ct1Ax46MXnUXgMoraT78yypM16D5V74AkWvaiHN6GNR9bSNg5aRdWPXCoekoHZxyutujSf"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6RUjVMrZW9T7NkHVa1P4AvRDSzfSkrfi4zXczYaPpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2iRwNmd2M5CfSsM386VUkFzsQntxjyFDtSs4jSQJ7t1CdUEAnRdBD8rNgyb98QcyKBQrSLToY18jn2ui3Ad9278o"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4Am6E1KKBLE5YknWd7is9thbjf5wkhBeY3oERxy2pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2jAcr1qFZACBUryRB7oH8WAJux4c3NsYAj9soAXHntF1XABEQk5AMEtfEcrNrrVw7hSVHTkvL7coA7u32C3914ey"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AshPvt8cwspQuu9dRH8Dvd8bhjWTzMrj4w6L9oYbpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2kPZTDbi84SVN9WCruyfZKQbWjv4QyisiEDsoVvJDRLHawz4wLyAnJKzWTwTPdu8cj4YLAFcfKcN2EQbaAL7rGB8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CDkiB9tv5a7DM4MKSeHbn9zHL1jGLYHEPx7t8nzJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2mE5xkuQavg4tjYKoWdHTqxdkfq5qyL2py7XpyyfULrEsogBfKu3ToVh5rbYujgNHTFXmZTvy6fww5FmpWeYkTHt"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7t6rX35bZFK4qVAXgdhm9gjdzs3e85trJDE5khgupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2me8DfypVbQJG9xdsSyqKgxuQ57jh2rZKkRvLDNgjNbSsLuwFHnG65r9oMxn9SjgbphXzqQLZW86afgUabcpfre2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9VDNmky3u5r9kUokR8Vd7jFz2xV6C95wcJMpbo1cpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2mi3yKMk44kc7G8CbDi7joan4AgFLGaNjZs5fpG5DUGSBWipnJt9jdCcpLvwjXeFhda9dLdnYuJa8aE1THktzZoi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EFBKEPyFLDTPVgZMUzs9Ea9dm2g615e4gnaHLFx7pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2nLYfuBXayKG9GhoLinJrEYfTtT5WAkFo5uTLXzoqV4YZGq15S6bgJbjRhnd518NVpqGYoJvMUGxnpX6rmEKQJ6n"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "RRWCLy2ddJzSC7B5wfBEAvEDRtpt8DphkZGYnKJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2pLjGQM9PEVzNJZd8FQn72AyGu3jGM1x9XnJmFWS9YYERh9ZTkVkpahXBu4H2HBzgeMsiX59swkqrPCgqkGGAwcD"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8UDjBxKgco1H2UA55RbZWUUDciVR1HFrBYmFA3Fspump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2pXdxn4dQgN5L3kcyeuRarcH78qsA2KM1HHqD2qEqhSjzA6m5FYphXLzS7aJjUxkYd8dA3mSDCJASzvLbrqFHXhY"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "BVPp2bvmj3vWWVx4AuG7XZrQmZBLai5b653wMdcXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2pjD5j1hyTsSCtCfPvZh2ztsGw46sYq2zTRXguNsD49SFH7o23Km84V2ehfCKWQnx7KmfQCuJmzvW5v2L4UC2ZaT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7aLemDNqyXkmQ9cN2zMzCnpb4RABeK2PpMWy4e7Hpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2q3yVXGh2qMRvuaDkavNc8A7AanyNYdzcAAGLcWTEjJNkc2maeCWL5BeARCmMyFVZGiomGX5bctjqfQvNRz28XGi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "G6k4tuNCWh4AkNGVnUbqDrJoce4AdrQmJTRZWUnhpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2rKARU5vn4cc86kfgfnbsX1rtAjaWEqAEPJGpfgDgFAPwYi97uC1NYKuF4Et36u4nQz6raap5DQqEYYBJGXTzqjx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DWZMWHNPvAQvtik32UivG7wawc5L3PCTpxqqsaBupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2rNy7Vrt4YSowkHQV3sknQRHSbUtAvDGNKJw6jmfRPr2CSfCPJJxWFarQfuxgcpUaZ23QGUTmXHndbz652NusHwZ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "24BB5XmLdMP1CSkzVSBLag5Ntk36iyC1yo1Su6mApump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2tJbw1tR7VcFbK4rvB4diG1A9sWcdTLVK5zB3kUCcFEhE4FS1iqjnZxDvRo7XSDaPtr3AErobDb7ZCWuuURk7SKK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EDeabSuGDZiBBg3s2ctaAMb3DzehXnbfU75kWD95pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2tTjVv7XgWaVuNe9GRxfitDAZyD5DBHDkMCVXA9S7b52Rf5rMxmJkwYMNqT3XzQLAidbZWYQATk2AiGqGVsKB2eK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8wyy3FxUiXEd2gZPn853jTLUZAjz1tBqYyCMaALLpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2w1baGMSkBcAQpVZZoYkVdWnQobVMRCt3CWbkBbvuc7pfsoZi2ABq5GBFfu3ZpHNBZNpkEqzR3HSwMeWHHcxWPvF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EbmzmitXJvLyZ1WJuiphfJ5wLn5mP2FfhRiEK9X1pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2zEcCyjD8m9WKaUBqmYJ5TmddF4yhFLvQw1NwKmbtHLPLGNLrxQXDrG6KKptSNyVpm9Nyk7f1Prf83s2poPGbD2b"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "tt5NuNfg2RUuBHAQGX5fQ3CYocBYg6JZsHiNTwupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "2zaeW4Go9gVoHsMJCSHZZz4nsCV1kzwiQstDLsCwtuaJZ6rcg2Njn9WhVNN4HufZMe4Yz1nNpNEiW1ddwkA25xAr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9VVHSi78vsE111oTmmB5CxjLZJYgxh1KH1qETK39pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "31h2DyUzJ5tbUSPCFaC9MZDGXXJsZ26YnidoSLCm4e25GEyzZgrw6gmH2oDVVX9PW5joYFJ4CTRdtshBLmptctBN"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DVnCACWqwNMMfroWeUGcAUze8pQX9UqcVcS71tE9pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "31soQJNTsCCG1eqB6VnJCwQJ1KpEXdpcVA2XFRDSgCtApKAD237L77VUayz6y39FiAE4FvV6VocEbK8recrGZf4y"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "PpR3Z4UxvdmecaGKQ1FUhfrQ9DN2rNCXZSdo6eJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "32AyaBbENZWRApA6T5W2cuKx9rRPWT66w2sHqXB7GzsZWczft92Z7xiDtKj5JYt6Z94CwP7KmqGTm7bZEB13DRxp"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4es2Mprg1j3jtfHXQ9H2cWNxEG9NqRxe71ahRTg9pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "32bnbzQWkiy9VsTarc5Z6Cmy7wCZGFoZPRAppMwNTr1DmYYcCrdtEir2dFfsYsWNgfPrUSMaDq2gUaUaCmhxzCMM"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AYQGHSmuqoAjWcgTmBheN7ASxs1qQVXHpUTFsDjepump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "34GgtgmpoZojaS7f7S9qaDrzopxUQKbmiZJ6QxBj1aDW6MxPM3cgUWSvjkdRE7CN7rqP8ZkaEMkZ9zX3C84NxxUe"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "JyZqUm4J7sYJxRqMrxvAm7r3rqgPHQUEWBGjyxbpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "35YTpAMo8TgJcyNjP7m5Hq4kArGreXJWJGiAok4zoAuXzjEqD5tEmXvpW4yNjANajNeUjeuS53PJWPoFDUrq9fEX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8wyy3FxUiXEd2gZPn853jTLUZAjz1tBqYyCMaALLpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "35qz9NZm8Q28cgDjxozWcnHSBMwNrJ6vawcuJyjDQ9bb3Dq8eRLuCV7o9LHjMeGsc6cK5CuiDd8uNLcZUf6UqZUW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8DKHDFSBpdHpjBGFdFBaRBA5AW5cF2A4st3ZZ3Mpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "36EBupJu51o8cVTr1pCP7fQd613cu2x6qeS1p1mvQqYcwMizgi6ze4onZbX9wxc9aoxvWhqDm2pZCPq8YNrn5rnT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3xUYKWV2LjoGzibiH2UibaARCarcqg1EaFeifPwGpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "36KCT2bV9XtZVFFHEeaxxmp7j4RPRAABJrgc9aeCM9SxEpM45g11V5iPduwnsRCAZQrFTtjRuEQEe54mSdMKS5sZ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FRsZZp29nHf4yQhavaME8FfSDMj9smKhLfv9kSc2pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "36Q1tbPf39Er9oQ6vNfpNv5avMiVoAYJZPsN5fdvujJY8ibsP9Q3U5wd7aEfYg3w4BmQEFSzHe8KSAkwvKQoXuMy"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CVdmCycK9W8D4p9VBhgFAnDb6rvwYx84s4JNvzrhpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "375Gw3uNpD2KtYGtcpUycKKYRPiPvuhQS7AkjPCBadA1YEmH6btZDZZ3jMb35hPUZ49BaSwGhwCBim2PagyqnkCp"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4ofXSsoYqrcKz9K57z5Yg6c2tpdwj6idM8xNpb2Cpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "37AB2wRchUZaBimh7q9uefEspWrBknqkmASRx4ioH97ec9AhgiSDHi8GhZPYSFuU4i1tiYktbz1HoJB3RQNPkEw2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "96rcBWBgFqL93gioJwvNwDfEcbgmD2B9S54ZBecTpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "386asrNJvCCX3kAep82yaed5aG9vmGp8HjKs8cEaM8vHJbc1nSPY3xPT27LgbnsJmv36ZkSw2DH23n2T4JfgeCHf"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GWevWw9oXJ29utBuijLjFpswca6d3Bag8gqcsJvbpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "38qsWPTFG7ujutZQzsa1GTYMQhCBaQdGoHYJrzuRBCa94fdZ29nsA8qmhtFDa4c3hmxQx59z7KumvL3QC71bchHu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7LRpiiDzNVRdxfatA5T1iGvQmPUP46pMkpfGnqYWpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "38srFdMfkyB1mXuRJLeUBowCdNeSCmLwozb3XYtmWV1GokCpRYn3opfFeWtJoEfxEHGy7SQLesx6K5WDn9fheeBC"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "manLsNq24m1ZAqfGKmjB26pNp2T4yDUT6noUqC5Fcxi",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "38wm2zgMpLaRzQQHSxChaVkKxhauvrDjtoPeTZdD3wrHedvxyQLLULq6JMm44XKSzjMC4kB6kxa4pUZFYLsSoXX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "BuwZp1xnKL3FDzuuLMtTfEFnJnb7DDUDB73XMWnxpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3918Vrc2CFEdwVQKPW1gfjUAijKvY1XozGfPHh16RLc9JxcYFaN3VZ4yQzXpBKe6Us2ycNgbsZAHCyRLP72mVH3K"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EtEsmaoePWu3jN984wtuxYzR1Z7HNP9ibqHg8cmCpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "39dkes6YdGjg6T7DL5X93rejpFmfSng9RAouo9nuA34zCyiKJ5tqvirZm1hpA1czzmAYgELUrdtJB7rBEuTADDvh"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GfQw9B9UJY7NuB5aYGG83ttgeU8YksDyEAsFq6Djpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "39qcnRGbuBAYfktNHQa22hNTint4zY6G5K9FTpDnnsJuzsjvgpndF2e5D1NvVyxqi9rPYdXQZR8X852Y658NuUuV"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4FDNSf8MRazqhJaUMhfXbbiGUAY1QAkWyAH4jkkzpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3ADvtEddVC2zaJY3vDvLXMusK6A7rrT151jGihjvYHEL3nj4yoJNHQr7zrjqXkQoh6sW5S7g5iWUUW4CnCbuDqHA"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6iCGhsVHBmBYVqeub7hwRK7G2HBdkbJ3LZv1LRV6Pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3AuwyvU5VCrFcS12catiRQVpHwmxebUEN9Z5a34TmB1gAb5pag5DmfAs8AtTDQbJnzXRZicpaz8e6SbzBrKcwgQo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DTrTsVsxSgrdfr6Cexqo8sJoY29LYXKvbfAvZzrkpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3BJsEDxtGwwd9gDvfuNWPnuweEigijBhXMfXs7FUUeQCnHAyWCcJyBrnYHjD36SevrrGNfdor8Wj9mYrwozF63un"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "J4vs69qy5sBe2sea3ycdbmEPEJ25WZCt3qLWPRwJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3BqY4P6RfDcv7ZjTuY8a6i9LQkzDMLnvD6XkvohpEzFCMDKfTsSaGx3CdiPJFJbMCTbWxpj7K1C2d1v2RoDyfqSt"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H4xgRwA6UanW7D5T9aiEfkK3GocgSTnqF2yCMvGppump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3BtzQrmhUu2jB4aqHTqDeiXp1i958vFPbawkQB3YCf6fEMM3mU1S3ymYC67KQhETNo2TiDXCmCKYW9afqhn7XjJK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4tr1bN3B7szr6ZgxXYJKhCooP9HPNS4nCwzK47hupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3BxvyGk9JJqj3VqMLCJzWuZ2cpm2NCufRE589yBnzRXKkdgYxFZ6GeQNPSsRpjDtJW6ujyS57Nq6TAecdfDeqKth"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9Sw9MaxEqr21KMknqYJfwyy9jWU723NLTrncuJL9pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3CST6aBDdBPTevai5LeERWd1CiuVY3qtivTzCPGX9bqcDZPZShPXa7fmpDChTTaoFKAY9SGaqR9dEjDrpY4LnZUK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DxcJ3JpUSoBFU1pRudVGasHYMSmkjrLuCsJyff3npump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3FAL72sK2CuZeZkmHHfrnk65Q9ZEowWtr22n2n1Eipwofqy9ayFjVVaXVLqQ94JDNuru9EN2EqQXeKXgHfnz5LVm"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Af72QENbvReeKywXQvi3GRgfWbKF8LdncwCjoQ9npump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3FsyfJaJmDZbC2N3AAgoAsoGbVohb4Wj95GxHZbHLCpr6jS1xDd5iDhpTmDii4hDvWnaqnCTS6uoiZZ41nsmDccE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5CEjpFuP5QHLTS2DA4AP7BabK87Rp6x6iy9UW2Ddpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3GtytNY3qjkCVMvXN2kZ3BKWy2tTPJbdyP2mmfbiLWjqfh9Qx4nXgYzdqZU2e6bFVMd5vanRcaSKxQekoNWC6EsB"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6iCGhsVHBmBYVqeub7hwRK7G2HBdkbJ3LZv1LRV6Pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3Jg3jWrQX49DFh7iwnUPt2fn3QPjj1G2R3xbNRwycJbmqUeo9DAJcdJ2SVAgGtG7xzbwUWZBm6dETjAiahtGo3hu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6j38TaqqiEFuQHR6CAZaKyz1d9zUF34dKZRR9fnkpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3KaLjmySc64DLjSo3KyKumuTNsmnW5xiGmTNPfZ7pXk3t5M1JUNtM6DqxQYyWi9C233bPDpss332cNyj13eqoEZX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3xvnpbkAUrfookf7Qi9wNXsyKoLPFW39SXtHaSvSpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3KfNUTH3TmJHSSnbMM7f9QnJkwip6bBbGnZo6eij46okW9KWYR8srT1AjmzajZsJPZTJKZukwPbodfWGtynXSZmo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GUYmM5FSrdvpokXV7mAVhW9RZMCogPRpHeDvC5BQpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3MdMGcABKP3mumhD3AWn7SBPDEyLgaKjHBT7EYWnDd9ktVQTqhKbB6oziY53v6hfBaNK22Nu3sPEGyBT9RLiAC3h"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4X4cHqdsgDYaY5oZtGf32nDvui5W88amLVPuw5xxpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3NuVhc7iu7qxvuQZsDfiX88fjGx4RAzYy7Q3cwLX2bABRaeVMvA4v7FtaierkykPu4NrSSakXXNwHq1mnVRj17v9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3fhVHxRHt2rD2HwHKfJTXtszmTTLNjFUG6rJB3oEpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3PoZ3b4uUkTvaybqaPV5V3ViAY69RnPdoWc7RGFutQHBjjfyC9RYi1QwWaSLHZy3BTyKYNPK4bCSZWrhXQGBV19R"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H3dPJNkoRn6X1mnsUyE8Ws7B2HNMzA35dsPek8L6pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3RC2kLAxaj7MmRF5c1aLhjnLc7Wxoi9rMz4hGyTjoWhLXFtMoTN1xFrupPvm1Kpw2MuNSh7sRKbVYUuX2w1qQNse"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9WWnY1xBTBv3qcamwp6W3SXx7BgByqM8yME5t9eXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3Rt4MGyYtjkhvLr4sbmd114JzsVFBR2gXrWk9Q7BdTyU4N5FEbczmtt7PxsHoYKGBTMMkuAKy9s4CMsEqT5bY7Kb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9hx7aFPpyLnc3ct6m4XBjLX8KsqrZhc8ZKFY9Gq9pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3RwNPnpAJaB9GSUGKs7QbNsUBXQtGPBVNEo7X1pavx2mq9bMzXe5NhAUswXTtiz6iDH5Dbi5xq4CJFAT24q5xKLP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GZySE3QunHmGHEHF8AFuMrwcpd7FqkDoZuMeaqwjpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3SLAFPv46aNibKAEDXEsq4fSzFTY2tP6UKwGB3LxpzcFCABxASxEau9SkrCjwiZ8ghXrr66n4i44zegRJmSGHqpJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9XXQH4eNAJ9mf81rD2SPSRhpokKLkp2YkEri6UcXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3U9vWBof97PEXGSZnags3Hto2DkTadWpwnxxs2iPNWafnpLttEevAt2gn8Rgx9uCamvsHddZwxdJRvswmmBSX5c4"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2cjVUmbBaZ114uX7ErfHN2X5nKT1jFLTzkRqEaHwpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3UHudPq2HhPHNYNYyunGc8dDLkpo2cjQRvW7c5DygcM6ruwrtLgNv74yQC72CezxpZWdpomgEENKerYojh9Ur1Md"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HySwZZgCJaB6EiXjFnQM6tf81DXYupyh48Vxv9tJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3UNSsg2mCTNoAkhVK4D5g2AD6JEjy7EtgV8vbG6xVtJr8XJytBPMRsppAtKEcxCg6jEHkAZAk8Vpa2EApQCSAmDD"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "22KGJanF6hfYHAsFn8WNXk92R35FcPaA9EGTcy65pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3VmeRUC8SBxcmmeUkHeeQdzgAbYyWPek1kihr32rH2J7gnDBZf72odN2E5y5h6NR2bUwQLcaZyStJy823aNh6RJe"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2sx9fmNctZGdfrQmzHVLR18enaHw8GxpnwDpLmJJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3Vw1xtNGwhsPw2xzhWDRMdevGHgafx7hzZC8xATtkx5CycjeNov3gt2ZmpR9E67GG7pAf2TkdEX4D2E8ewZR3dUG"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A3wUwMWgsBybhcWNirUuRZkNcBvWbVFQrKHR94qcpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3W4YxnXecjyMwBsxKRmW3nJztL3u1J5ccgUq9PzaVacCWVXJAv2n9evu6HESFXLPY7uALTzeL5y9Z7AgmnwGXyea"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7jAZvneRqgNoKEmdducXzxgKoAoqX2sDRX81Mwefpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3W7SGeyRn1ySviPDi6QKiMFNNs3PYP1hB1DfTri6BdRWjb8zwZn6PCkNEcdhg4wN9grMqH1w8pCUzramC5BYAUAY"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "22KGJanF6hfYHAsFn8WNXk92R35FcPaA9EGTcy65pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3WjHEde4erUrr79aH8wTRB7LsX5xpZ9HXjYdVqytxNwJY9MTtjrX9nQiZLUnKyoddcvyXhqHgn6VELh6XeGsPXRu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8NyXSzQCJzx5TEMeHDpGoG2xq9YQ4ZKLMH6sWtXnpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3XTJib4AaL9jQW9VYSz7P8WCegJxgLvf71MsMJx3abGTD3oPvUtYHtoBmhBoSCpHHJ9ePzPumyjeH2jtSsMxXCHu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "12VF4kNhUHx73Y9tXKvQutZk5D2EDaCgjMmzHEKzpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3YCJQU7mPf33qu39NDzUFFjZrgviAjjbk3WDnNJRGjgytSjJeeWuV1NPy8GAzdQNPym1rokL22jY8JNUrM4CAgTn"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8GJ9i35icmNKn3KSNtBZ8JSS7ZHxnaZjQTD62GFSpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3YqRmETqPp9sDd296TZ16SnVcjEx9qq6MFNA2QLyxFxRuKfb2v38pRaHkE7YUV1pkRjgfNU2U8tGrFYurKE5DkD1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "ifzjCFMyHHMuUNbTtwtJsUoY2ciVydCiw6B3SFgpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3ZF8ZZ5JnNMriUZ8ycWWnVgxauhLFkEU4hBm64K6HsLm4tS8MVAbSExY5SSq1WU6zgoFTXR4m9ERQV3WmJ4xByTc"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9LwUc9J7PgdfSSywRsu7STpxZSEEWyoDkRd47kfQpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3azjgMqL94W3kPGSnU8RHYudh6AZESkcMWfpsyQgfGqDQvu1hRVMbpkJWK66CA4o2cx4V8eE4gaKnAFDNL2WWVNV"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CDkiB9tv5a7DM4MKSeHbn9zHL1jGLYHEPx7t8nzJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3cKdoPGQh4wZMpXzCN3zuBZE5ptwJ3FuyyEJFDVDHxfXzJmVm6wFGgz65zyaGP5yiAgAZJWsHk7PLqSr7RBGWSu5"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HH6JtFYVKKu4KgA3TmeU63cakbQAwbyajvHtcwAspump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3cKoUbGkGnj41uJ7HB4SbVTyrZi3D77n58JUmz8xC38tjioVkXGdBK22xUUuXy568a4sxuYnVaVm1nW7P1c5xdnD"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2eNEWW9cNoX2VhkL4o4W6m6TUvRCcN7vrPdCBn9Xpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3cikNfbDF53TtrXWZ7qVcLQrj9VVP75Te3kpuYvtaQffVaE5HBb6UKSEo2MY3mVjHFum6qtEewtD34AjT9s6u1Us"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "ifzjCFMyHHMuUNbTtwtJsUoY2ciVydCiw6B3SFgpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3eYvQ9cpMMk3uM5Ak2cdG2dhXvXoHbfopTnjzfDDXbmcGsBeXkYCqRvktGPUSDFzcobW9Q7q2U5sDrcjcdPoRkYP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FTotah51P1DDCQ9AmkknPTwrDsy3B3xVTjHfdSNspump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3fyoKXA7RRKeHFzFz1gooAAFZscwY6EUXpAhVMMdYMz3CaXDosDQpbkuoV9n7ZYsJjJkh7Hw2R5uvG2aGrqiiy7G"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "E3fzJhPFcrkMJD3g99bTvVGweWcwSyqCaLHTpWVApump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3iRhTSAaD4paDoRvdHAv2VQo4WpepQXfNsUd4X8KueuHWssfT4GxahkfEqXXUuRDe4HREGANrqQKztnCKVMGP2EB"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4es2Mprg1j3jtfHXQ9H2cWNxEG9NqRxe71ahRTg9pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3iScaL7ZJNcWsHvTyfw9JAPmkwjeBCYVF3AsJCEnzETXi6WCmW9VPixGCNNB8c3gYMDvaTwk72bAqZ1mxLLeGCpA"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "J7nejjwUAxiSbX3DpvTkURscfFSrK33saNoU2ovHpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3iTcyDJqJPQUtPiUHbqXTge4tfvHioBhPp8C1XNrwJwSb9S9pmZ3EH2MSzMuogew2FGugWJqwvf3VYeiNTCpMEQD"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6RxHAFtcxhQvdnPqYJkvS9xjfuimvKiM1inhHgFJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3kk4apWPB7SQLWwBjkJdWKEUZTu8XVBQfsz6oG7gm6fe8xCfY2iykJc2X8saFgRVrGUzDqKBGbn3oDoaw9nbosaU"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "G5dPRKgsH3NrLbdPQuhtisjrWvXpXBq5GDaLD8n1pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3ngK3SpCg6gYcghEqeqn2Df6wftKKmsKmaynW7aSj19z6RUX1G4oYZHnY8HA2gZLQ6eXS8JAVdDH89YeidvqWj9a"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Gtfcb4kZi8J76UZcP51dSnP9yUjBCpr3DDKeHsMXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3p4oqYNnzzZNr7mioSQ62y2NEgPj1RYUmQJGuuLY6uyegoc1Fwj4PcAGr4CevByHFHtfMpzjDQUKVeJbMGdS6367"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2HBTVUsaorJ1axpMxkqBv1c85nyXp34GFMnrSA2ipump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3p5FBRVLhp5ZmVGowSWboLjjca67SWVCUCVwYdY1pSagRN63VA8HaLQkNw6Eua1VMDL2ic8Qc7mtoRvPKLbMaXQk"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AiG8eaX7QU1ijjnjEZsu9aZS8XE3wTSWsjWpUoe5pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3pJoeErpkHxzBXnmsngVVmsawUsELgZSgN51noePamyLpbHuBBoyYVdua2tNrwRAcWbwHk9XRXQUow5YqSd3h89M"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3LU1itwh484frZACiRrLkxwUprBtHcAbzPBmkGvVpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3pMgdpR83FYGzChpyKmCtRZxQ6uWVzFYn86YF1L2LSYHg2moKp2akaBSFKCuJaGURz85MydiWiwu8pQaHfbnfifi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7Sm3QBwBDwZSPmmTavzoshUPkbxnqbGPEuyzZ274pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3pSLWgCVwuF91fSpu5VMrdjYbA5jr4DZxQAUFSKR5TXoRtsd5psrdLVgPnNsHppcD5tKUmMHUXWm9JBt9wX6VxsE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2B3CyfGDoi6E4dycUQTKZRP4c91fH6JrhQmLgLE5pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3qhWTkDvkdST8NrASD5S7C6iRhbu7wMr5ho8X3CEHSdZxiM6rhr4H1H3qjtuWg4GFboDALNhXtUqb9tngChSzNQj"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9XuxRJLRUXyZT1S3JycqBocbftJKXyaBecmtuh21pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3rqys4DgnjqCvLFRk5cAAmb2g3cG6GYvXEsuQdRc3KiwdVb94dpB1pXmWXaa2YQRgTDm3GhnN4fJbExQBHAHBAoh"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AbNsuZMSaix4D8CsaGmZLatmHDtySXZtQY3YR2Fnpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3tnAF2rVfxHpbjRMtRz7VS4v9FXpEJrsZgod5Tt765LBy8QFCPn2GbVdhkLMZsoZ4ewiNuVXevQRjigJWAV9oeDs"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6RxHAFtcxhQvdnPqYJkvS9xjfuimvKiM1inhHgFJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3uR3R31mn7XRTSXsak8bPnDHg6y4VQZ1LR1SgXzH4oiZh6kovTSC4TQjTpd5FsQgT6yzcAm2JCKSGN5ZwYUtubFg"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GZySE3QunHmGHEHF8AFuMrwcpd7FqkDoZuMeaqwjpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3uYu3uNbYzCHG4kGD4RWkUJ6ZKJE5W4Y85UdbcDWgJArNR22muFPBxgNMKvpvAsdbL8ondrak52VFb9WLsSgQERZ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "J4vs69qy5sBe2sea3ycdbmEPEJ25WZCt3qLWPRwJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3ui4L1hRg9rP9mXL1feNEpoSvAjD4bVWbc2PoJLU38X7dbuYY7MLQUFZ1W1znJN3hHdpTbmeWnBeEkPWiNontYC"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7WYdJVteDVX4pKfBLcLg2ufcV3BrX8GchaBdnzS5pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3vCWZ1128UX3MV9B5A34XH1hn8YBpKmAA1qWWEjfuHYas6HAEJ4eiLYAW1YQ6yu2nMqtC2TNSq7QweDKNCJh26fo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "76r29NpnRW8PAxpnSnVBFcZPUcukgvno1Kkiysg8pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3vMn3ndppdd3quNi1a1ZgEXTvtcGFmFts1osSaeUb8d2HCUV4gHPkSvzMPC5M2jHsguSDmffHnbjVLTEGUgdtXcH"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8Z4rqBHWdoJySdfQkhhmmabY2EAVkKwkVXXnhMdqpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3w3YgZP84Pkbpz9hh8k8GmSTBUyWn68KUZ5d9c6KNJxAVzTZg9Bcv3um8Ewj9tbgewdNqYcb21RBPAiZi817SW2m"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "JyZqUm4J7sYJxRqMrxvAm7r3rqgPHQUEWBGjyxbpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3wMFqqm94hTWXt2uGuvB8GJ3rQcWejrStdLd1z79g6BNhHE4z1SwwpruvBFjyvrLvYMsbwGJNsw6gzTc1EGgKg44"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EXFDrzxWmdCnNk29mUr9PeYNfBNU3aYf61FuqsdFpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3wePY3Mjod9KABH9zwRrGaZq3jNAvY3eTn9twgccqLofHZkqw3T8vCqwbyFxYEtafyUcYtesRQxsdg2vtNxt8oEu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Bvtdm6MtEindMiPGRfCfV6sDUTGDeGadG1LLntropump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3x1VfqZF2siTQ2N3SNTcsfsRDcHbYpUK3ee7T1pexZBeZoT8sVGZC35TLVwdSKcTRq3vsd6wZSD1MeQ3Fc1rgd5p"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9ZaLSJEv3zFjTYkQej8fGumAPgSuqVcrg2yb3bTjpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3x4xqstR4KzcrfkkDNx9xX93hUmEWEo8HcMWoQCThQmMw2Bx3uAcpDqGHmXZ44Coya45ycgHDrP41pQK1S9tASxx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4ftBhTUr9NQuhTuM1DpFhZmto6Ro8K79RfntMTFrpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3xRSMWxNNqY76d1ZDCbGKKYxyo6LXokYLqC3gqi5EMLRxAScq3WrdY2QX4Ke8XtZLHMRCg1djCjN3BpxBKfeMjsR"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Bvtdm6MtEindMiPGRfCfV6sDUTGDeGadG1LLntropump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "3zRurzQwSFBoaJ7B5LjspitD2ZDMMcZyHEtDzrEJfrHja89KaTUjfYfc1Kaz1Fyw3wbospZseyiBo2NmAvSN4vwn"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9wbnYpLVzU3VFdWRej9FDAXNq7UMRx7gZjQApZ3Tpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "43VktHHQBkAmXpYYhufYXt3rXfWq12YCc2hGynz3jeEKQCqTL3TjL5fN54qp74LAc6ncq5LrskxAkt5MJVKqG6w8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3jmphuH3LsL9EpRwFQGN4owV564pSxaQjEfG3Za4pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "44qM91d5BLMi57HzhiFKtoLkq366bwT9rv8cYnWxsfaJRHczUgacAyYBuED6MxF8kLV3mxbLzsxdcozikrRhJMZP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Cv3Kms9V8hAbLULRJAvgTdwapQ8eohjSoYg6HdeKpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "44rh7QPe2ABTm1KHu5yNAWtD1XEaQ7zTrdnHkc5TntfuXpctemc3BBnN9etJiYAeaRCDT2XR8DZRHFdabQGzX4rf"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2eNEWW9cNoX2VhkL4o4W6m6TUvRCcN7vrPdCBn9Xpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "45NmDEL5o3wJYcV46xGfTWVdajY3J3FNum7pQrnfiu84Fh7YZWQiF3dAFNqS27cEcfeAYcXS2FCaED44VQkrFN6M"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8Z4rqBHWdoJySdfQkhhmmabY2EAVkKwkVXXnhMdqpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "45YrJeuCF4BCJi5pS1V7VweyTx6JrjMJXWzNPTsF1vebA8arMZU1ZFMVNakgR3ADgPRxtpofAFrAktu6SW1u5kV6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4AY5iR635jjGcB61Sb5zqQ41LwATHkmtidFAPacqpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "46doTBeBZ3eV9arNSgAZvimwwzj33bZ5qDdGKQxjp2zzPv9nRYZDvHpyeHUyivR96NxzJTK7qvtFq2L3FgDeuog3"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "APJj6jix7BEiWjTqGJzCMsAMvNbXYW2rRTMmmVn6pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "46jcpooC6XQorAhCj4KMJDJYLPgScNniUrA6naeX721Fo6iiVTUw5LydxKPc3w5ytGZ2AkyDzc75NugX9g117oNW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Htko8AFLnLitNMeSsW7BNKT6r5wEFxdrWpAph1gmpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "46zrokkQnEigS1zGuiXcR1VNqTbd83i9BLKZCsKdhmp2GZSvL3LgHTCaSofk8EEgqWNSyMm8kXwmhH8WLA2UcnAW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6RUjVMrZW9T7NkHVa1P4AvRDSzfSkrfi4zXczYaPpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "47DJzgyPWRd6xfvUEtCosQTXAmHwmsVJotimLMqGQnnwteowygmPhvWSv5SDYsG23BmbreK37DgVq4cByxo55Zzw"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9hx7aFPpyLnc3ct6m4XBjLX8KsqrZhc8ZKFY9Gq9pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "48xtbiHVXxxzGDGeRgXWCDiNPEVdYvL8atJoujTgZ3qHigpCChkyTqrGbAEaDAbcwSWiwiAvYwWkQxoVkzp1qFLf"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5TENS3WPq8Zcq6mAfsRMYzJbeY2Qkuanz62MLrtYpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "49AK32hsUwZkJW7VyKwA7crwSvThcyiX5zGiS4DzLCt1PLnnJMCTwqrApGp4ZTssmBCG8cju1nYjKmTcamTYyhXs"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AiG8eaX7QU1ijjnjEZsu9aZS8XE3wTSWsjWpUoe5pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "49B4S6tbBpn5VzuYd9qcnXssjnJ275dQGLiYtfFxfYmSsHgdbXAGvJg3xXjiLWe2zCQiFbBN26EYAAbCgVGUuciX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "B7Dpv9iPKWAcZKqPc8KRErMYgN8uTkpDtcR8sNeApump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "49pncwDqRLpj3gQwEFS3Nzm8LwccAsZk6mnoi91xUpRAQd9P7iX8cs5bednsMpreHsQ2Rd87oajZnnGE5ofijbDa"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9ZaLSJEv3zFjTYkQej8fGumAPgSuqVcrg2yb3bTjpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4AjLgEk34v3vuFt33zFc8kaiLL5nEvaqiDyK3EFSZW5vTMCxFsmedosZE57eQ2WtKjATzcqaKHW3CACA5HTYZeWK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "416BhFn2E5gNbKv5upPFXQCSDHA2Xn88k1k65oKUpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4BW8GVcWgwbcaj6zNCcnYKCEyGj3XoZFDtXd8S1YPusWVVV2Hrrf2zWk1zrEUL1yBG6LzePJUipsop4rAgU1KEdP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FWP13p4EWt4az9FAEoPKAey5cAD6hndkyyeUDcnbpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4C4cjNTM6PDD2Pc3onCY8ELbS7feVS5dvN2nYKkz5tZMQZwezBty2eRuGbGjNERYDosiiYRY8yv2RcmVFeemggQb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2W8zkWLWj4z2jPcDdLCnUHzYzi1aEaQNiQqgdu9Hpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4CRDg4TwhH1oQWoYoqE76V1195VLyGCo1uzRuGC5ZPiMeetdc5CqcX2ozdzGnhRiZmLdvhpUjjAQ6vgQx69GdZQ8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "25jJgh2fsXvyP8LyrXpUFaMdwMKXZgVvujArxtLwpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4Csq37rYgc64qYpXr7b8JxHSwWXBW1np36cs8W3McfWmAxeF6s4XCsAnpkayffcEGLYUMxXdaH5VwXcYZSBVbw4w"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8tRixAM6xbzUXoU4VTDW5CrxfXC35nV43NPv8G9Tpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4DA4rTopUGoFayiGqVvGWXzN1sRGd6ZW6izdKUQxKfGouSYQWqdx92NVFPcFL2bhKXyyKrxR7tbYBtVceCAV3S3U"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EKR4sagKahuYr54zhvst8mCcg3YvSjjdxrsbnt8kpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4HndgR4725SHWAwDrvNANvoviRh2xnL5jaT2dCnXzRn7wB5mGZ8qLkRAVPSKKZAAdrX6nVm59cv9EfHkMBAA1jx2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9G9V9YN6xMTggCvzdwwo9cnjfrY8qtQasc3Q7qmVpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4KRde3HdUVcktRwsfu6q9xvbBPEzj2M77rqsAqPeC5mYcxefBHPwfNC65o6o3jQBFxPcG9f1hSj9UAzg8rXSXSSR"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6Sy9JiWbuRZr6svcFckSx8VLU2PArjsMVwaurUrApump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4KYBXFeETbfAFFknHD2iJ6erU3gbJFGGYzhLafJvNgXjsB22QA5cRs5vZfYvF8W9cng9wFVqbZWthixP9ZpK83mo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4QWcn9VrcucTh4r2vc2hgQ6XTByme4KjpcnXfJsypump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4LS7eB9Gz6K4ixTheHJqk8axKGCRMnykHNw1H879FJpgRtjDU3hFTy7ptCqQm1aL5aaEm9vrfDM7VPpjNS9X3mz3"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EtEsmaoePWu3jN984wtuxYzR1Z7HNP9ibqHg8cmCpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4LqAQmQ2vXLrkjkvnDDSRvyofkHB6pMjmdXrTyGeDM9LVKB7AEM3fQQ4yVwEbfVzai7k7y2Xg1ci9Xu1BW1485ky"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CVdByCD7SLsj2Kv7UAqGyNJgSVc4Nvd8qdL2U1shpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4NbWJDF1rrnRnGqHxN5sYPfiNZN4faXYc9G8E8F5WmQUBgR9oyBDT8pLpCb1yAp6dsyNBVsmA9WRzMBGgvAyq3dy"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3tGJ5oSDTo66kzRJMeY2ejZFeXmR6wN4aGNjpmtapump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4QExoAhr7JQ6YzfPxoZPxkC8FSJjyYP2yKJXSekf6S5pnUkoKEZFCQowiZ4XqbSNHTXTTC4sUC4Q8xbMMiSgpuJs"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5v6hZUF45AGZojwcpyZqj5eqog8tc33Penr8iHo6pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4QYsJ2FNvMPBRNUTfsJzsEn6eeFGFfZmtvv2sg4WBxd98s4dE5atBFsLkYdKSSb2kzNzoQ1hxWemLqG7EGKUM6Xt"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Cwbyy3TgHSTY5z8Xk3UQQmLGq7E51MX74JFfb4N1pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4RP8d5nAE8TNLybihZnev5bmHcNkE1oPxbBwrgaeJJzVMtf9cE1sqtJHudrnWNvNhbMRrKvW5obYap6kyTaTeqbB"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6cnjNQ9vvKHXLZXm9gCfYwdKnQdzmeDbZdeMEWeupump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4RPq6X1kbHmAWsieqS4GFF9vKaWSsniMwWZiVCbxM9xh1k3hjMF7wtmPceFVmajbUHfWL2LmeCWv8YLpomv7USph"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "BVPp2bvmj3vWWVx4AuG7XZrQmZBLai5b653wMdcXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4RtnPVGJqdaT1q6X8uM8D9qanFBizgQYiWr6VuncruR5NNmYm9VAGJvfyo17WR6ir5xpNsfB1RFjaN9AzWBCX6Xn"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "C5RT8vWKNFgg2eSWC9NyK1wiCaPniZpgRsRkiqyZpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4Ry6N8okdcqozYJmrLaMEtduLxMDFModxSUbtdmJ7dmzwiLX8GZ4Crnd3fXSDhnwgZqL1Be9gSphf2PDAmUyampp"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HwAGqSBwhFm9MK7qe9ewukjXPQmFGoKFGPrJQyeTpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4SQ8N8TzKC62UqjvqYCAeGVSbkmuvQJhbHU3nFSsN9dPeRgVwNA6vt3jQiJAQFAtuWK8GSR1Kjx5sQMGyktr4pw3"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2HfyFEqkFfCBvSBpnspfWNQ7n6Ga3LTYHn2ny5oDpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4So1HJZ4LssCGS2rU86bDuqek1cE21rdeqMRK4HbWsqkSPAbZCdKpLAZttvz1rRmdUqhG4nt2M9z5f7vmf9RPtsM"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HU51WSrhskQGFqW71S6JPdoK77vNgEwaKUtVfsUvpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4T9c6eEMoKSLAqDngtgcnFhSxkfkZwrR3gMRFLywrpJqCeSwaqedAUaZDGoZeJu9Zoa49nAdL8vhd7MdFG38vPn8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Gy9n4H9P26jthxZXrduDkwfdrgMDpghWtDMcGG4Mpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4UcqoN38g2hqRgMv9rZj8vmG8DLc3BRMFdvXhANQEy9fkqz4yrHzDsHe9VpXo8q5qUTAy3hRJP6wraQqfMSNnaQu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Fa48GDNBTHGgxYSE5RLiZ8SNFBiQX5XirZKkzddXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4W323LQiiQVFeT3g8G25XkhudSYG4R9p7kB98x54q65dTM4YAbtb1FFjvDh9icuhNqpe2KZ1WokYdADfYA6GE8Yo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "BcSGXpdtR9zTB9YHnvDXvEre7EK1eV8RxvTbFcBgpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4WVpfD1u1Fv1uwvvRb5EFrsp4zVwpsmSTgTNaSNSTRa15Y3k3AQaGuQ2Kt4YeJugCQThDDcYRED183wXx8bN58Rn"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H4xgRwA6UanW7D5T9aiEfkK3GocgSTnqF2yCMvGppump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4XF2116rssSWMkpcC8ffFM34sGH9EHiHdTwQZqk2ssLW6WcGNB6Loi4oPLmFQuZKwFsGjak6dW22b9tkBpfuNYjf"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7MNjgtb6rbbife6jxv3cRswLXgpukyjCg2qez8Pvpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4XXhWKpAvsA2B7Cnv5UWVREefPbESp91avjPEEfXEUh1JTGGDY9nCRHWnP83UFQEMiU1SBswSRmjQkc2anT6wP1x"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9XuxRJLRUXyZT1S3JycqBocbftJKXyaBecmtuh21pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4XzDAfPyQh8rUqvhFjcaKVEfaGyop1ELH4NgYDjtqui2kmDj5S5byCRAmLSfP27ebT7jdywLyfEENAU6tnEqxxbS"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7MNjgtb6rbbife6jxv3cRswLXgpukyjCg2qez8Pvpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4Y2ZwGGHff63xxMYussnFAMPJoyG2DqVfaS5GnuHMt2ruF7afa57t2WPKp2uFvP1jqsik3cBmJCB2Sppt1qtQpAK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AHZ2fVz9qPntqzNXmzcicDcUSU6hBtZY5c2D7tyVpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4YueDTveG2mpbyo8qQTp6j5U529BD9YgR6Fgwysqg67w3HbMQ9kbYpH6N9ZmFMTdckhZFuiyLzJ1TKwd3KLNccm1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8N1xPzwZtuRQSdRMnbjAjdd2tK9V8nF7Wrw8gGeLpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4ZGJEkzcdMXHHDFvqqMsPSfoDp7kKBXkpPoFVrgfFaaxbVn2mRrwDXXMK5uAjj6hyrwPS3K7ESG4gbcDL5Wbpzuc"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5BC7XgR6CcCg4EMoptEPoLu5KtAwMUGn26daxBENpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4ZV1GnUJQk5V2qna6Nvee8Kj4AUMvT9e8S9JM4BfiSvKqpwqK5rByiRybvz62ymRscYpLfvnfoB3PokE5yrd9xYb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GxNgq1QF3yi8FKqUUU9mNFCrF4YPiG8fKFrq6tyRpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4ZsDFJQecJRSG2veNSFGkvdk5rupagEdJ4vJHjzeCf4bQCKyCDeVKcghJ6SasSnRYqyCF2pfC2pyL6nqQuEpEakE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Bi73gDQPcRRdQa87agy8QDJaPDD1sr8snGWDU6KGpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4aBfCNrKU9D8cL6TBpWewECyrk1i32Ao77fKVwsvNRNHKqL9gyt1wZRi1omRbRUUjosssPRk1TzcDo9yttyBkYPT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3xvnpbkAUrfookf7Qi9wNXsyKoLPFW39SXtHaSvSpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4bdBvtV2HNgT712a9WMqPtPs6X7HShHZrrxW41VMgwhjrz92gEqLMEKqVGRurigQiQyzKKsuhpZsewrXHJh5CGtb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FPsJ6udNyaHCSYwizKqtyJhbgqwtv95Mr83UsDCipump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4cGGsDXGTsf6QQ6cqAWpQRRXVJA4dAHanaAJnTdwqv9SebGGkLszj3enabZNZxQTvyiT7o7xQB2CRybMsbuNYGk5"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7t6rX35bZFK4qVAXgdhm9gjdzs3e85trJDE5khgupump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4cUsJzdCx8mCGxvbtGqDwPZauSmeT3wfQxZdV7a3F6VanZE65hhyh2LuKEhUgwgA1XTBLoLPbHvwZETDF9kKzZf6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4Am6E1KKBLE5YknWd7is9thbjf5wkhBeY3oERxy2pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4exDcFyZgRamWnbZuEoGD3SdaPUcfgqGsBuKrdgm9oAwcSBJghuuHHbUcm32Eh4kXYdpCq76XtpsLLuU6MSaeAX7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HU51WSrhskQGFqW71S6JPdoK77vNgEwaKUtVfsUvpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4f7TVWmzVzybecd79TspudBPPN6hsFfj6sd44LirPUX85t9p3K17G9dg7x5NFxTwPNZFX1PXgTs945bhFeZgzXhc"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "73a7UCnQY3pX3WrwgbbmdsanC5aGXvKRhsvjwUs9pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4fwzdp4dA8GFqFw2D8hZfBN6QMbeQTLXHXCkhJsMyroAoKc84sz3sp5udhBCyL2EFBfLfuxZfQrs8bXYPw9FbA1U"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GYM9SycShzVLvTxvCRKa1qfZsDdBp72B97cfhe9hpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4gV5r6dXZMLWXK7Z2AfsMa7LAurntgSRhPA8pXuFiLSnsedRg55LTASdLiUzTtniQCeuw8FSmNdAM81khSnGbfK1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Cy5wVW4dLxiZfwEoKdUR9M76H7MAGHQYMSUetDmepump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4gnXwMXnnsFKcdyRYXr82x3iXsAKt6TmznkXGerDMctaR97rzTyWHPXGLKWt3z8K58Li3Dtxgj3eaiCKPN8PH4YG"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FQ4WZm9QZhhgcTapk887f7Rr28ufzUH5z1mm5vd2pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4go35NHGdL76cWpyppyUYNqhG2QxS3zrUk1YLrc6cdEE7rK91ytAQkHiKqhj7Uwkwfd3w7JajqhQzWmB6jZbx2vr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FTotah51P1DDCQ9AmkknPTwrDsy3B3xVTjHfdSNspump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4hrF954asv5JDZ3TdZdjVRQFAoCfBYC6YBJzzR8zrTdxSBewsD7goeBjtrSEov8ZCiXsMsyJXaCc86PjDP4ueXiT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EXFDrzxWmdCnNk29mUr9PeYNfBNU3aYf61FuqsdFpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4iPN9qQ9m7f483FiLzs7ZqoPsaQHtZG3i2KTmcCuGz44C9V5kuTdEWgsVcNuXixJzcDpi6H8HoQf1Ky6dYDgZVia"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "B44KgJfhrZxHD9RA1eThdgYp5Pue4GTPmFsspF3Zpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4j1bhpLZF2HxgG14DzdjvAeFicBXwKMZpEsVBQ9jfdgq28oayRijotC9L9z19BSNAcvMCLY3ojSBJik4Cmyu9YCi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GXMLnq9qKNB8NzoqBZgH1PDjfPMWsZ6DejkX8qk2pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4krcBC3C9zadgvPiER5JYKQW2YrXUvXpvAdkkH6gbqLH6Pdmb3MzrY6FTq9Mm192HVcyK6knAj5xhKfWZLoqT6pU"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EbmzmitXJvLyZ1WJuiphfJ5wLn5mP2FfhRiEK9X1pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4mUT2fCKYhiKSjStyHgTPJdg9PoPboNUWJXyBQwXCdb3AEcniocv6EoAbm4aW8suqBUbcf8RTTbnCfithAqSsmPu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CsDsekZafCDTycpptzjCd6kKJaFjbMJWjWTf1ZtZpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4mx2PgjbgVnRM3EuQUxEVi5YGVhd6VZwNWoAcSbeg7mp3VdwgP8WjAcN8HdHuCyQLwLZy8BuCP2Eztd81YjNA39v"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HKL26wMuTioHi1rtMSqkA3Tqw8hbfUZMrmA1J4yepump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4n19JTFM9Ppt1NKA87GUdxjtqWjtNJMupiHfzyM4Pnye1jJXbh1GMvC5BA6hw1wPUAvYreaEZeTSY4WVYaGzJodM"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7RFgyECjcsKvA1hGEaod4JxhDb5rW6mTh1i89fb6pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4n8BtLqfFFy9QV156NJxGGSxkJ5sXTHpSzdMh8WPZvgczJJuLCmPNULuYnj5BjP28myYscRryGgHwj4nC78bPcrN"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HqyK6jdp6eauECmNnwM4fPDAVX4D49qRPv6zwrLkpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4nLqhArSCJtK8CS8HKC5eMsmHyfhpLeZwqwJRCbAeLLFFfYJV4SaPP7TNZftM1zBVcE7vUDKNXnV19SbV9ikhKNm"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AHZ2fVz9qPntqzNXmzcicDcUSU6hBtZY5c2D7tyVpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4nyiYaL9aqjChNxWtKtfpqSxrzpUETn2B4fPKGV6vRoL6aeMpgzbMGUG3BqJpgWADzX1JWaSBM9vp83UDuPqSnEP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3M96ZTimLs7qKUphkw3ggYUKEcNNY57qh1ASKrHipump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4oVqnSZu5xzRorjbATpE2xYaCRCVpi6yYkyphYfgb3iYwtNAQWgwzAAh2nFfiM3NRHHnmDPhYiZ2rAydkCdb9BC2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FghHacaCotX6EmLbJRf2C99WjWdZAsVuAz6M67f6pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4opnx7GPuruX5KWUsUJC6Yn24PPfHAnPdrafyAqCptYZxiNkUYA9mZyj4FJy7N23PPrvwNZh9P3mUxbzPvznVbhX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "B7Dpv9iPKWAcZKqPc8KRErMYgN8uTkpDtcR8sNeApump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4pUzJd3v5hL9fZkFxHsK6aoMidFbFu2W3vj37DskLksEFG4w6AHN72HwT4QVZcn8Ho9gVFoxCGCnZpQhhSL2TzNA"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2sx9fmNctZGdfrQmzHVLR18enaHw8GxpnwDpLmJJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4r9EqfinodBbRKZYVMTRaqqUYXiNA6kHbP2DQzYcvrMxqmNVHdbfaZZQC5629DEYnBAfDKjj4GkmEG4HV636uHpt"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9AX92xMkM5Z26nQzmJfb5wRZsLSs4n4fTJxMNom2pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4uBuytBHeaURFJCAsht3wm7n1mQgP4WZ7qEBx8WmDFFJrHnjsyUraC8rZ1Zaxokguyk5KahB7bqRDxnjcWN16Sfz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2bLuP7t95Cc51pQJyqoVTzxjZpDKUTojJHApreGMpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4uQ1BTbN8vywDX1FSmFgjxh1MtuRd7ysAAzTZayRgdRtmpXJsfGaFrShKqro26aUUReBkiqC3usRfNmSdbeZHkNW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9LwUc9J7PgdfSSywRsu7STpxZSEEWyoDkRd47kfQpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4utvFJ3QWmg1sMirApVYS1h5Pr3Yti8wPTB1hrabXrrRWgZCzKzw4Dw5227MyVGGFS5GWBDwuXj7A3yf8VxgZ5d2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FRsZZp29nHf4yQhavaME8FfSDMj9smKhLfv9kSc2pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4v2QKmZDN5Zw8A2K9Lp7RVLVGQdyn7YACLVRZPzyqNQU26NJVkyDGbs1WxoeioxAervrf5QTrgttTCiBdhMtHPb6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7BeRYW3btb5fnZejwyHwWQQ3yNMpNqpyLBRuiUaXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4vShURtVUxH8ZAVX5fX3a9E1u164i8dP3HHi8hZ4sg8vHxJtHACQCurbXTYKEnFSuvYkukeiTqhipC9iMfZcwDYr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8DKHDFSBpdHpjBGFdFBaRBA5AW5cF2A4st3ZZ3Mpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4vesQz3smzLLwHdsaGbWNnzr2TbJggtGspFjNCqesZXjGDWaAKgoG61TWv7NUacfVdCnxCS4EJfN8LStRU99HPAb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "JCDcp6LB8yXomcQJ98oB2A9MdtgmFFNcupoY8x1kpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4wZgc6XaMyqQiqu1YYHH6B4hpbf5doWb7FzXz6WFgs2hfcGTqkJ1t2SvhTmLrBYjoa5dGQzinM6HH8pPZU6cbFxx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GQax15TsBXLDYwnN2qU2GnBZgSW1fy7fRRVqb6c4pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4yuSBrn5BKyseZgq2qbdF9rM89g2rmivxwSXMSuZL3sxMB5PmekkQ8c4yNDZGmc8sFEp3xdjwM2sEw3j12FJhMuR"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2cXbWq3uQNQiEkQeZwgE2pe1W3wfAkRj2upvzCf1pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "4zJr1JxMfMNbUU5F2SAwLrtDviXfXcQSLht7DG1gj7qzeWX1qYESjL6Ez3CSMsqWJcDNpYfQAN6x8yTaUqVcFQQw"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GUYmM5FSrdvpokXV7mAVhW9RZMCogPRpHeDvC5BQpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "51zYJxXSnFvzGTWsKNEDP1WYUL2pTjx8Ej5Hz9c5xw8UxzsSJiJHwzUmVeRwfeiUGwf2qFEba2kGqRTPBmb3HQE1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8dHfv3w45NthUc4asmxKpfAtutBT1Go6xgX4ymrDpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "55qdh4sVXz1MZm64jgFXrB3fSFxwN4cRZCpREZywBrmJktoDEoqx4njvyQzVdEt1BAwqX46TfHAP2WCpkW2WeEw7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3FiN2FHTKheZUE7njYhsZob1rUoURHK3QTfRpWNFpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "56n8EzPSDpfDgxuQjkVhSzahM3HkCyE1o41SvDe3NCE8ymNgaL8HxqQuQgQf6KQX3cs7XjqzgeudEzhmTfS4BcUW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "PCskeQmzTCq7KA1GgHEH9hLCz6nRCxuDTEPx3jspump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "56tbdHG4oLkpx8rrtff3Eh1qBf8DAiehPaKirXXr9nN3d9H81URaNdrptwSkZ85ZKoqvryTzHEp7bg87DxRic6j6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "69AcrB5P8pn5rzMvWKuNngvJ5K9QiNts7TpCUuFJpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "56xUu3kZf3U2gcauNDn3mYEvWC931u5xzXhQX5aXVce26a2WmHVmMW6sRav5DsCDdw7aukCxSAkzbVp3ECW3QKiP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Hy6xAYi4F3ybaW5iHi9c22ZEpgwfmEzsVCdozcpkpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "576GNpRqJTYG6gaQxHM64ivG8owfwsgYDkhSnuTfAwHJFTRyTfrnEJMYy6dA1yNeREW9eRrHQBCRiinEXWy8ceRv"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7HfiuBK7kkJeTGJ9kk7GYKShRVcTeipWpfN6ttHQpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "58J6Xm4AMf2fEEUUW7arbnkkPVxWHQJqRnEnmbju9oiouCWUvbhMvYd1HJJghNcQZLuvuTZZFYFU6JmtKRVgQag9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9rGCLLp5YJgtbjUoeG4xZS2zMxHsbTrWqpjLwioGpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "58XFAnYAymL73MFZ4iqEMCukFu3wBa59LKZeJ6HuNC8UBK2VhcpQaF3QFrbEKJ67mmw179EeBSf9YySVYQxJZfzF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8GJ9i35icmNKn3KSNtBZ8JSS7ZHxnaZjQTD62GFSpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "59AUm446t9dYSoep4RRJEsUQ2FKozMNAavYyzgL188ccX8r8EWJmvWjSezqnU9cKp1J2231LumFAH5r9trQgDFH8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CP76yiGqSWPS9p2x63Z59tHauULFdn7L3PEpBDagpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "59amWNvyznys2bWWbM8czKfFAuWYRtNruEp95VEpdp1UF4C4UtFdjd752GE5owhq4nNMeSctSoK4hqT823Bcx89s"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5TENS3WPq8Zcq6mAfsRMYzJbeY2Qkuanz62MLrtYpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5AWMoJ3poRREWxgnbjfmQ5ftaCsbEUSpPnNwuUkZGoq4FeiZ2XxxGpegZncZzNpB7uPuVv6bJNn4GjipzaUDJTUt"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "AbNsuZMSaix4D8CsaGmZLatmHDtySXZtQY3YR2Fnpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5As3w1G1DPFecfoaxCNd1oGTBEpe2t9Qn744vXqpnc5HSmDHLYhkbau6kubZJSo2tQwJdLRLwd8zkyhSp6WWSkwZ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7Sm3QBwBDwZSPmmTavzoshUPkbxnqbGPEuyzZ274pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5BBNZK9xCoWuHHLRKqXhXrC4BQQJcBYCkonftXzbrSJGJSTx2JtgVTsWupnkzUYVKY8JhH6FtLoUsbwA1Ytazrj4"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EKR4sagKahuYr54zhvst8mCcg3YvSjjdxrsbnt8kpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5Bezu9pMGv3Us57xvXLsL8iFxHD3EXeXYX64rXxppf5huzG123pSaeHLGzy41uVFcXXb6Y8TMfGKLduGdyYzEE6W"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FWP13p4EWt4az9FAEoPKAey5cAD6hndkyyeUDcnbpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5DBxagTQDsAkWMKvtteYzTrfKZa6xRyhJW2D9RQzSXjtV4pEwhoqGmbSEoGxgB5EQu6HRfxAfRHd8FTgpdDJCiZu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "E75KRhzkAWJGePQ5kjiLmTU1ezoUu8Xmd2vVVkbCpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5DhTRrR6MbepDpxms9RBHDR8M8rGZGLvZ6S3Gh1tYNWn4Nv2PrEs7CEn6vVsMWnzsr51U4ZuGsEGZBer4s9nSdQJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A7hGdjCSJzqdyLUjMW1nh6khzVsEkCnqKD6yA4ELpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5E5R6mDWUCgAdewE9wKAm1BinHoQAycgULYR6HjgKXZG8ohFLXv3i6xd9S6K5CZJ7WYc2569Uhd8N5Y2DriBWSx7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GfQw9B9UJY7NuB5aYGG83ttgeU8YksDyEAsFq6Djpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5FDcgMJZh3xVBTcMF4pQVd44q8CNkaE4AdjdKxd5fNR4ig6392xPJ3qPhkLCsDpdwHoJTnsTWz8HJxivyKDxXfVr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GNEDBnj6NAfo7A2hDH1XQSJYTcTyeeeqSvAG2DS5pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5FVoFJ4F3YbqbUVGQzRPvswAocAkzYYwcRPEERy65ocG3p1bihZbAiEra4jw6DihKZES2WZ3UjjWNv1xDHQXnmRg"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FrB7DYNdYotZdtKaxEGPCdrhuFWhxPQ8R8RkLYGmpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5G5n612uetEzUh7a8k9HNrg2Q3KbCbbUJ36cqAegATeX5sNk5mT7xDpTBTtzZtwcMpPA7T4NrAfGrTknLw2WN3A5"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6Sy9JiWbuRZr6svcFckSx8VLU2PArjsMVwaurUrApump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5Hf97e9BQ4KMBSmrAqRusVniXZnh3D1NmesFkPGoqqqC8dgQWArLhUBvmwWHmRxGaoKBA4ndKJgYLUXaLL1yovWG"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3bHZ5MNgvYK3A1eFoufiEwTSYAgLVJ4GdvK8Lyaepump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5HiBcpnD8tKzZwdjnSdiqHPbZoFH64cjgTbBR5JTUjtBtejCa8xywTjPMMzVaE3jrbmDsKk149o4qqEwiQtfX7Nx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4ofXSsoYqrcKz9K57z5Yg6c2tpdwj6idM8xNpb2Cpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5HoAyeCd3ibyv6YarYayB2NGWKLrEgyggdKQC5a21sKrt64z2aL2f4suWURznxSw5wyrrqEkn17BDLMFxEEcbXLT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "WMtkodxwQ8rZKCt8xgWWrjwigBEo7Mnz86YMDQNpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5L5KvwxFkcQbBTM34X3m5eNuTFRKoZazAKFMEnnEqSDEWh31zqCr3yDxRNDNfHBN6HWzRbnjqKCRMLyAewJ1G5C6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3nVp4yxq8NHGKfYD8q1u4sZDYP95mbGeBvq1n8CCpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5M7Sq8mP8C5xvFfKymGs6c4nSFSLxC6FLqVbX3vspFTvEgpSSFycB2SXLiVNNc7bm1ZxnM2aG5f2mfo83UArsCri"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6hDxh9uXFwzW4bFgULXPaDE9ykY2QYuPgem4s8capump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5MHJGB4wAgdC5XmZneptbt99WqUKvk8FVeapBNdDipyqiFozpvDzsLoe9xs7KaVA9NG87nYxYH6RU5fDhaFPd4xb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Gtxz1uCBCRn9edK1eXpnqbqv3PRcdjkS9JLuXn99pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5MM1Ba8XLAhcfFGi8AnkEqrjuxaZqKbbMxy2knVuEz6qWTKX6UTSFtVz2PoR7fUzUzf7FPq4f9iwRLGLWFCg3RJj"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A4LETVGg8u5GB2jLbkfgtHc4G1TMf8e34yi2QX1Lpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5NK3Nr6cwPJhqUoCc8o5QMfeyEijHBczHxTFDtjuW96duhWXNYJnRB1uckNuSNZQWoxBXAdW34m3mDTYDToRmxfB"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HtrJfdE7EnnXmpWnb7bFZBo7ydWMzKeKMKGgKHgbpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5NyEm28FQh1nAviCXNDVQ2iakEopSry4g6cA6FzW8BmUgYuhSdWnp8wW4DWS88wKBZyAucrhamKhRnn3BWz8HXE7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "J7nejjwUAxiSbX3DpvTkURscfFSrK33saNoU2ovHpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5PytEipZWPMWhXePJCZTjJLWB1mEb5mnGMxFVQgAnrXraq6xJnhuvpVqAz8GkdhhYsKMwekvGnmyFcHkjXL6itST"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6j38TaqqiEFuQHR6CAZaKyz1d9zUF34dKZRR9fnkpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5R7wjSzBgX2Hz2fi5EjazC7r5JZbtFfe8pp7zccrD5s8f62yeyFgKNzBv4bV3ASVCatNeDPnxbGde5PZUGvo6uRz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DxcJ3JpUSoBFU1pRudVGasHYMSmkjrLuCsJyff3npump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5RSKCTCnb6wRSwfWQbB1ctzqESxQenCLZr7oB2NvrjKRNdZ1veQpk29mBU7pdtcEaUB4t23NFrvsfi2EjfVz1fTu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5CEjpFuP5QHLTS2DA4AP7BabK87Rp6x6iy9UW2Ddpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5STarunwxf1sJVz23sBgLsYMRJzqhomBLk9gYFoef7esoPb8wzrhbTu99VuK4yUw7SPCQBzaf2ph7f63igwSV6sM"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4ftBhTUr9NQuhTuM1DpFhZmto6Ro8K79RfntMTFrpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5SXu5z8h6bHmKmwGWXkM9t9HhA4UahZXbLnt3wXah8xTXcUtS3GrjSPeaS9Tz9DN9zJ9tGtCCJKKo3GRZkRUQXN7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GxNgq1QF3yi8FKqUUU9mNFCrF4YPiG8fKFrq6tyRpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5TTDkvi8k8vGEvPjasemHsRmpQ8BDUoWHxJrSMn4k7sEySg8LheZ3ZbDV2ygrYjdpJN9R2uxKviurMbqQd2Lxd5e"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GpRKGQSd7cComFQYAvcP7tUJVNHvqWoegXGSac3opump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5Uf5BMsgaC5rPhf5Xm5ZwQ31tSTkChfdaCyBcBPnN4EQmXhgNDQb96jtV11MtoGWtnaiFAmCHiCctFVNhGht1eJE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2G5ApURumTzCijL7CLQoccMftGzstDvYwvB1HNfPpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5ViL11oZRkwYTDhpr6Mj8d7FeaPc4Ajjwza7hbzNGiWBrYYvjyycxVdD3bTrdyHHxhhWQz3pMXViZeBWgeLfeBu9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7HmoXKk56yXVgkovDW5fDyuFdbdTzRzaz6o7c4kpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5X9i7spQYnfY1XdsqkZywuY7RWCFmBc2oDHcsuwxmMdJ6FkMFpYSBW19XGy7B1S2LG9vpjeAzeEvH1AyTDLdS2ka"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "12VF4kNhUHx73Y9tXKvQutZk5D2EDaCgjMmzHEKzpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5XAN3fgTYkeAF8Cx4Rt2GDSW5h5sq4rdye6UbKo21TzxWi3oMG8D71HSfszrTL4vup2xdsVayNsv6H7Qt7wLahL1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8x5Cqn6btmwNXpZWfyBwffkPcagPaqvP2K9i9GFCpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5Xg49PeDxgpirmeNAecH1qvTzzzhnTMtcJ2Y9kLUwtcSJQv9M1zxfRKXW7o3F9kWp5oyHKWLRKHaf2ALoM46pYAQ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "PCskeQmzTCq7KA1GgHEH9hLCz6nRCxuDTEPx3jspump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5ZMwnkebW6Y8FWLJG9kLdsjB1krGJZ1Bfj8T4hhrekJXvxYTTLG6cA7zCMhg3UKUiiuzEyEAR9DtjtsbxoPHUfaz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Drfv7jnfTXpEMuppzBZnBxpSyfpTWUqeTqMhoGfzpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5ZP4oD5xvrmC3UhQuYyewQ5J13R5nYyBPHeUTKA88pk6Yquo5eQiuAFZBeRwS7cJrXoCxpV6KogPGGo3RCibXPD4"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Fa48GDNBTHGgxYSE5RLiZ8SNFBiQX5XirZKkzddXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5aBAUFJFsovV4mSb4pNdBauxB2GCUL3Ukpg1cJGU8ExAyPiddyciNWh1PcxXo2JAnc95Ar2pTFYXLbKMq59Wd9x1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CsDsekZafCDTycpptzjCd6kKJaFjbMJWjWTf1ZtZpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5aDGKtQWF1GmXm57AokHskachKbWWxpaDBn4fPeFa3sGSfGQE7m3UjtarLogKjYimxuzz93p755b1fzmJR4sPkzY"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7BeRYW3btb5fnZejwyHwWQQ3yNMpNqpyLBRuiUaXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5aQwdQo6ptUHXrhR4qEZLiZJevgAUzpQJXaHKD5CM44cHA7FLJWTHfDpoEYm48MopEhDP8YE22rXroARDGE2GC6J"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9Sw9MaxEqr21KMknqYJfwyy9jWU723NLTrncuJL9pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5b1zMZLoq5CbDhbWs8ZfpqSUmRZCrUviudLPw7VaVK5Mi1Ce1BmS7jVhsCZDsXDHomfYqeky71Pk7pCh6vEnTXcg"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CnNcML1xDhZrAsbHxS7LcesQkskAuTe3rnf2wHrDpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5ciMXuLMBeevuEs4QTYow41rTjr4QwvzJ8kmqQXtmKHrzZCFNYUQkc3sBkZctGQkS9cFrVXK1tgKcMX198EoxtoT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "D985zBjuYNGoMsrJjcrHdUEgqCzoxYVmnpL2daupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5dR3iZU5qjNTsCK6uPhCSYJCTWAfEw7JuBWwrREAhviyZ2D6dkfgCfRqgTCpQDFTXH8qDszeGTe8ai1CyCdKgHZH"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FvYug3JiUmUCKQva9UAnGFXzcMcRVAmExA8dEt6Gpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5dpfA2yHASJ35s2tGXC573rAFY3cdUr62m1fC74mkHmyLmZKVTz4iSG9MScg4tj99gjHuqGc7pGSNAfM92W5gMiy"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "T4jnL2TRXLfD7KUXxyLLrgGBpCauX1cMHVMpHSXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5fTFkjyH3yAw8r3sc7bMR4wLwfj4dbdMyyP3EdmXQoYsLfh4pVkwYythWYL4g6duB59RfDikYpr2kiVyQm4bda6i"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Lc2sy1bSCpiFvLFZhj9te8UbxbWu7xAFA1HJsfTpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5gpvaq41CtmWghKhJa7jnTNpFXE9hnSPf1Ggt8qvj5msDByg9b792t62iiAibt3Txz47jfZCMQNT88WPXwfyixme"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3eZaroBbFBXFakQoMgfDytE9aop2CVJGgcHDsUpmpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5gtSbfhQunqK8hsy8Wmuz2EoHLD2KGVGzKjiohnTAUPSLidXzvAp7fZvEW9YQu3MyUpUmiPjooHUWhVrYo2SjaMW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9VDNmky3u5r9kUokR8Vd7jFz2xV6C95wcJMpbo1cpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5hiSVnmJEtthcGQBhZ8X2oDryQhsd3ijS6xXaFmJyPTVBZKHVwfJhfWcXuRmVt7REJ5653kpUdAjLfo4oXBhvPFu"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "ENzuy9vyEBRmxMbjRRcDMNMF42XexyUeSH7TUKj1pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5jsDk1W55m4poDk2ETEqBqPdC29mgkB9T3Vk6DKXZ6TCg3oYLW6tQZwayniQcKPNwMXdjJY7UcajUjgcf4peuQQE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "E75KRhzkAWJGePQ5kjiLmTU1ezoUu8Xmd2vVVkbCpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5kE4zioSGXQqgdr3VdhNEKqPmtcZmQqyyh5eMJWsQWg35Z98dfbiRjnu6RHhEdBP7eSkdwnCKGaqnG2aemVu9f1r"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DVnCACWqwNMMfroWeUGcAUze8pQX9UqcVcS71tE9pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5m7vdDzNxazuaWwaLnwWgpMe7N5PjcF9MFVH6RCpxpSkbDkyn4RwGWt6kh9dkJwW1zQ3hwJbutUL3ph9zqCMkPog"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "73B7mVS1UH1QfWub4wb2fQ9DfsTo1QpF6ZtKTDDPpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5mr2TYqggitTVWDCxfu8DetvUfKBBZEeHDo4fSqcF581wLZXbonUgAnvCCm9GG9BjHRxkx2e2VW1sRKeqqbaQSMT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A1FBVzsDDhmvNxEhUN9nWoJEhDXPcEjDpYEVj2ASpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5p754eYTsxqf8551Jvzu4LsbGCMsqU9XzCKBmSxE4MHveRvcZStvyV4fJZ1bSZdo4DcXB8gU2ibrKPawmqBGuNbF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6cnjNQ9vvKHXLZXm9gCfYwdKnQdzmeDbZdeMEWeupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5pVeFtHuAYfMxqzhi8XmCoUx6jqtkP5vdoT9Tu4gcSFsFMJxSKdpdt2unLLkrnkekyjr9whNkWFoMoTA5DTRx65S"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6vZ9TVYL9VUUkGxU1j5o7PnybufcsXYtSj9YNQhgpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5pdouJBHnFx59bHcxowyBSMrGuk7dLKia3x62FTfmwiu9SYstkh23mj16CqQAUrJDxuKuXCwzzVUDK86sHTJLuGE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H6wpKRgGdmQGwBm6vTpFxAhuzNrjFvH9xxWTqGJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5q4mwpQ1RDwBBPeacKVvwF9sFPjDe7YLj2RjXspMcRahDBtzLqctk3iEEGP9fNMKBVskSFn6rqfqtjFwuqNAPpKz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CqKcMkUGFU4fWvcKCtwmhfAzrQ7DHNCiqDaaRWtCpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5r9oT9dnGHSxYufdemUBXXpTU5vpaJeJxNmUTYiFx224cj7v8dgFKt3YC2hwej9cLKgKzTyUuCPTuNMtEWqrkJ1Y"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3LU1itwh484frZACiRrLkxwUprBtHcAbzPBmkGvVpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5sDSFf5T8mhFhUBBtqru7fd18JsV2r2tPXZ1aPpMPsAbxb7goXQKwmtrHvrCcc6UWGKMC6fZptAGfxB1wJ5yBQE9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2WJCGz86oTqWvdNdmXEu5JAtcgpPL3bhK3hCTWWXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5sKDCJgCnWZ5M1kPVXZmBnRs3SWC8Jwd2ieejX4eEeghNsgKm13KZw2dacfDm1ousWubVfQUmsCQNxw2CEjwuJcs"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H3dPJNkoRn6X1mnsUyE8Ws7B2HNMzA35dsPek8L6pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5t5bWf27qi6DkQogJ2mRaoB1A6cDa5fvwXVjnvH8PtNYNKCmhdRm43mp5k87dFrAA7Z4nsDXmasKAcvynVmfUUCb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9XXQH4eNAJ9mf81rD2SPSRhpokKLkp2YkEri6UcXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5tTZgNbZqiugi62Ttdnoc5k7p1zajyjhmchueaU1JSgivrhc6SsyDxBpTp3RsVt1Jtjb8EmP9qu912MYSqKWkPH9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Dc4jDz7Z5LTL24oNMcyzLGpL3V4ZeFvZ9Z44knYGpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5tbTJSi9c4BV3uQgEzDVfUy321yWGcSCy8GsTu6pyYqai84bLi9x3SoWBuDzAPE8cGb4g1unCQ8g1cmaus7jSmzi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9f3p6KGumubHTPWQUpYnAU2foLzHMkCpa6fVBAurpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5u9ZbmxgpdcuYD3bpRH7gactnQn3x9cuqR3kxzJr1WBYny7cKZ4xcucZhDTmtktmoZzn91voGwNHsM8eS4vXYTZG"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FvYug3JiUmUCKQva9UAnGFXzcMcRVAmExA8dEt6Gpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5uq1y6wu8YE4osRvjyB5ECjfZ49oHcUhJGRsZFHEHMfQc3WffeiPuvoyaYL2WGQMDGtta9Ymhbu6ru1kJbbrD3MF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "73B7mVS1UH1QfWub4wb2fQ9DfsTo1QpF6ZtKTDDPpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5vNyBsE2i8Y2YUTtcPrPZpEVJbwWd53zQPgDjPCmRxbUbj3FzjPVTtWTpWvee4azbMqVT3FCjEDq9sNWCsxavcV5"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GQax15TsBXLDYwnN2qU2GnBZgSW1fy7fRRVqb6c4pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5vbmCVp4iP8MU7SNz5VHmCNxaZTKBwJ6rpCRBLFVbb28kaUqumV1Gio9uZm1YQBGGKtcREto7afkCBgTLH6ijmzp"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EdecrfLstALdDjUnmDTcxKRNxnoBUmnVF5LCKtjkpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5w8qi5qGDQQWhGK46hw64VhwkgLs6hhiz6mqtsGp4HF5oMHXr7rPVJGFT8PVkXj1LqQDofXvrBBjFPYa2eQpjRzX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4FDNSf8MRazqhJaUMhfXbbiGUAY1QAkWyAH4jkkzpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5wdYpZqYT27ALEjyTSmn8Z2AHm6bmtQsE56hPWacdxmFnw1DyD14utBcsoX4T3fZ3tekQSrRcBUMmZuCXuS2oD2z"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A1FBVzsDDhmvNxEhUN9nWoJEhDXPcEjDpYEVj2ASpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5xJPaJhDXb9bLR6PR27wRNUjVemTmt1iCi7QrR94EeE2gmQ5CLWp6dAYasbfuVS2dbGK7WohAJ7jyHJ1seKnxGPE"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GpRKGQSd7cComFQYAvcP7tUJVNHvqWoegXGSac3opump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5xSGpdkwHYdiuHsTJkKSpG5zecRPagTAoyWi6DciiMeYvoTQy7MzvN4zMnCpEEkZ7qQkw4sDtJpE9PaeGVFzx7yJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Hy6xAYi4F3ybaW5iHi9c22ZEpgwfmEzsVCdozcpkpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5xyrNHfzt7e5UePuZx5Q8NHv4ztauj5eir2FM1WUAHJ8bmYEH9GHpTe3fLbFVGYWs6LgFDnF3uwQWGbnQhCtT2nJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9rGCLLp5YJgtbjUoeG4xZS2zMxHsbTrWqpjLwioGpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5yFLFuACR61jpvJtuN1CaH8SWt9wib9Rq5Wqr4tdoDx8rBaPVUEzLSC2vuvWB9wxeJgcmXabSkPVLRhX6QzrxECp"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EGB4sv9ddNhWeUhnsAvpqP8xaEps4cx5bc956LPcpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5zri5fbpZYzh2SULceo59trvWJwtSxGG5CHMur4mMz5W9w1FJtCyvpbzp3TKfjbp8iWt5rmAmiHZaWe5h6aSoqp2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6yWb3YL4aGrvLfEyJwudvS5o6KM45TCyqYkFVJx5pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "5ztVz36jXuztCrzsTEmtPEwqdbhhdujAz2RJjWw57eYPeQquqvkivcNxKgPK1d2uZwRYzxzfRKLd1Fry1ftL5aYt"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GXMLnq9qKNB8NzoqBZgH1PDjfPMWsZ6DejkX8qk2pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "61SgujG5dxfLifnLBnc1dhPdnBZMJnvF3UEeAJtKdkoLoJdn62kUHUdzsaJfAP7jt21dYWG1AYim55JnLEUCr8K2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "tt5NuNfg2RUuBHAQGX5fQ3CYocBYg6JZsHiNTwupump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "61mW8GW42BtoD6ewVzKx4TP9JjJ6u34an9NtLUNX3upyqEq49FvUhnPzJ38RbiM5yT3wyTbY4w62S7LAwuJwzLii"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "qnPzgfxz41em1i8jK2g8pgs1ejuntoSxLf1mDUgpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "61vNedpVpq6D7xQRmQahfuy9mkXxDRKm9HdbUDTRtt1bRK4WWEN4t3ZDwha7ddfThbr5nbkztdwHnbBR3V3LmSmx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "BHmZ93XsGLMG5tCYHWVRKP1vaQLFpkiVZtFHh6v4pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "62nHNK7Qin7FMn69vr5SfJAKyGfJguA6UeR3ZQzDLYMLdABX8X3Ru7h77AUsgXniVKzKKEDDfgX68Yb4nhurv7bh"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "73a7UCnQY3pX3WrwgbbmdsanC5aGXvKRhsvjwUs9pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "62nfB1ombKdQV84iFGfx5bSSvYUELbqTNYcAzREf3jeDQkPiNUR7etWG1qMF47EL8XTAfQB9BsNanewLHKWkyqYx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "F111TqD3S3tzRf5tTLb1yebzipjb8RrmQpg4hXdepump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "63pthgKppxDYoNYofrPxoXQTB8q6hrAoZ6pr5gyCCsL4DtUDSwLTi6jiRaQZ41Cg6CueAp6xr1QUuq8oLrrwYdQr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7jAZvneRqgNoKEmdducXzxgKoAoqX2sDRX81Mwefpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "65cn3eGYyUmkwh97vTR4B1TeVES9LgJ23ZrCVuLXbbvsyJL8qcjnQ4sSymMnV4ozoq9adTyG1CZGYNEBCPjcQutf"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8dHfv3w45NthUc4asmxKpfAtutBT1Go6xgX4ymrDpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "66cNcz4K2ATL5nvp2q89GsW6Un5SGDrJJNPzrY1ahSaZCF1LwGxv8ryxvC7pKKoWGrVtnFaa6naR5FhQ9x3rpsf3"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "CVdmCycK9W8D4p9VBhgFAnDb6rvwYx84s4JNvzrhpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "66r1uSaX5y7GFjiwx9xdvUhbyT2zQCmZJMTSYvLRCVw1MuMJsejTAJ7mGbSfJ4cXkfitSECjFLtdUUY5W1fAhxvz"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DTrTsVsxSgrdfr6Cexqo8sJoY29LYXKvbfAvZzrkpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "66srx8aJsSTUtqiBz5edAKhy5s5QSxQ9xadmk1QdMNbw3DPDJiFkY1aXpHSYtHBSr5tLPRHTpefWAegYu71N2hLh"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "BHmZ93XsGLMG5tCYHWVRKP1vaQLFpkiVZtFHh6v4pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "67CCCJxwsU28DJacg2bQ9H4BQL1ksxAgPMtG8rDNdYjBcbTyEzerLfqxF6qPc86XwWjHQjBs1Ra5ncL5SpSwjia1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4QWcn9VrcucTh4r2vc2hgQ6XTByme4KjpcnXfJsypump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "68mTHujAMFzKTh1CLLqVbQUjHp8pETHqhuJdV8LjZit9YzvJ1GXpjcXpKHt4wXdwbUJds1xnkSRcfk77HqoBG7a"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H7uiPQTTq7d8Rhuqw4V6ntroZhakbLCw9PWzuLyXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "6ynRRoXyfpmAdADZZYsFc8SqqbzfSU6W9X5imcfaTVLtCLpUe3A17aNd6pUjrZmrbWKj4q1zMwNg5FvMfyy2oQj"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "52hneKeDvX3QMpysYXERquicq3QXxfVChqsEtYaLpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "71Bjdgfp37rXyip8o7zhiga4DK97QUHZj3ry9i8DMop2rrm1DoyoatQEx4CVnSb6Dgv8oYu6Y7xNvaTKxCQJCyF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5v6hZUF45AGZojwcpyZqj5eqog8tc33Penr8iHo6pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "7XZ4qyTyNTefpH5teuWQcJVCgvCpkSkF8XWGUYxpF4tHE5TJF1DbcGf7Gd9g4qvmDizi48n7E4VX9RgFpAuTab7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8x5Cqn6btmwNXpZWfyBwffkPcagPaqvP2K9i9GFCpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "7aTY4aEKiJDrQkFTczFrApxAzFmEsXmgJvnnjyFoNAiBsPdmgmaGVdupvWMadue44FpeqozNY3XhpKeX1m6eVBx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FPsJ6udNyaHCSYwizKqtyJhbgqwtv95Mr83UsDCipump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "7bBN24Caf1ki17C8iv5cjVHCYPHFL3eQQJ5J5HLEKfct4ShyBK8ekXJe2T1TnFNsDuSMvVdNDmjbgBNt8hATyL1"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "F2fcE5sjDuSMVrj56Q7Pg9ha7cHfpTzuUTkVJxKdpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "7u56PxZkWSWen2XmjynM1Sh4eoGoiBJ7x6HGMwGgZggjdsNBWAp9yavnuUB4TFmbZTeMCUhYFY4x5Vgfo8ntXcw"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4vVBgc1NpFfyZEUtRWwnjbysyKBEJUaYqAyApnHKpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "8za63sbcw4S2urD1SZfgTU7CWo1GJw2T24TY7morn4JcwdCYrji6equht8T6PvWoucuURbHUrSjHeYyTYf1t6DX"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HoPVmVTnUrXY2j4ZS2krgwCnBimyNzhBWy8q3UFqpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "A3kYZxPQcN1r3ABr5aafTJUEKd6KqYmbpRNWDLhb1p98Sf17KRfus5RYF4qUJf8c4miJnyBteS9N91nHom7urWH"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5BPFNTaVRhvdS9zZGZZkoxsJo2iebQ2jodok1NL3pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "AwSMLAWn1mGEFYvui8SjjGxZzd9RCQDdCirTBN69XzWgZDf3i9gVNXEd2f2FEJmzpRc5xsuDfUq9mjtmip8UbXr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Bi73gDQPcRRdQa87agy8QDJaPDD1sr8snGWDU6KGpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "BNLq5dFc4F4k2dHJztaRCP35e7rKS1am73kq4CV8GMGJET13kYFbN8uzBATiWHdyU5evpDXBaNszhgz6zbeHhW2"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FZuQyqrxMsg5Xdke1c4ebwYHEusoPUHrtR1AqvmGpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "BZAxKqiZRtsKZAWNTedt3RGm1GbMRD9nKT6WwyotWQourkTkFWEyimh1SE7x4TSf39YAY8MYQUhrBaJtyv2N537"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "96rcBWBgFqL93gioJwvNwDfEcbgmD2B9S54ZBecTpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "DxgbY3W6ADGSSTgqvpmvccL5Qt1X73ivz8wriEu7wYKPyALSNrWqAZUBqgkwjRxYvkN7u1cFHPSyZYiK2uwbCEW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HoPVmVTnUrXY2j4ZS2krgwCnBimyNzhBWy8q3UFqpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "Enx5V7hmV6exTDvKKPR8UhwFiFZ2JmMxqbjukbeh8CyANtisBk4TKwPR3QZVSpkxVhxnWA3iUC4uR5iweFqZnSF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3bHZ5MNgvYK3A1eFoufiEwTSYAgLVJ4GdvK8Lyaepump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "EtorPNtDJwdaGfhXMGc7o4a1YCKRwVugFYKkj62ApxreHg9yQKNK2qqviZKb4Nwy79KgJMs5QMUpuqj6A9drU3a"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5upqdStAJmmBDbVDnMKQqJrMPdueXTTDEbkwykoupump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "G5ZkX323Vd9ZsP6oJDaXRnWceoftnrKBJQV9tP9YFbUroiA45inaPC6P9beYrYhwdXK48RogmRWQUJiJsoexpSK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3nVp4yxq8NHGKfYD8q1u4sZDYP95mbGeBvq1n8CCpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "GjafmHqt5ZYrtjULca2pNGDkgmFurW8emThBJvTBc97u4Vn7HrY74VS1otrn6KmMyzXAmQBk775D4PiqdvTr5qs"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HtrJfdE7EnnXmpWnb7bFZBo7ydWMzKeKMKGgKHgbpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "HFhHjrXWRN4tr4PfxVhxDNawfgBXExGCQwRs3j8sMKS21VvbgceFQMhAbmhdsCa7ya7zVyXL5v3oEFBB7B7m2Dr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "6yWb3YL4aGrvLfEyJwudvS5o6KM45TCyqYkFVJx5pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "JEYCnPJipHWugdLTVa2wrwWQEXdyq7Ftpbw3uzkanTdvEBik97riaiF6G4wene4yEUCNgh6RqoAZ78trmtjipTV"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "H7uiPQTTq7d8Rhuqw4V6ntroZhakbLCw9PWzuLyXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "JF1ifSoq4fvsW4fXeYt1cCek3zsoUEEEwfAR1YUMDT8oN6oaYUonDdfXJCA4mD5q6iQdyc712kf26x6mdt3VNWT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Dc4jDz7Z5LTL24oNMcyzLGpL3V4ZeFvZ9Z44knYGpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "KvA3iHp7CqACdeYqk6d5FBNSE1MNhxX7A6iVfGvmDW1WRS51j5UJEsfNpE8VSzKv5DH95ipUkHdmHLk6mr7jXk9"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A3wUwMWgsBybhcWNirUuRZkNcBvWbVFQrKHR94qcpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "LnJDGb5n6ek9SNFaZA7tzuBVqym6JdUELFXXba9AaduEeYdjFMMomYW6sEcScQDUUJm5xcDqmZU7g1sTxwotWjU"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "manLsNq24m1ZAqfGKmjB26pNp2T4yDUT6noUqC5Fcxi",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "M7giEafqDrJXcWJwqxFMutxQ6S4mwougnejXePMirB6XAr5WBbHeZagXS97VW3BrS4NiUhaFWdrdWPHw3qPN2SJ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2B3CyfGDoi6E4dycUQTKZRP4c91fH6JrhQmLgLE5pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "MPwXK3pgVHQYyFrjPWnmCYhKvX5XCH6tQrU2uqC8kMyuR88VtgFAJSdtuj9zLbYvPStP1rW6DQMv3mg49Bs1BHd"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3M96ZTimLs7qKUphkw3ggYUKEcNNY57qh1ASKrHipump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "MTqWxXh3e1mwSSnHwPQatPnF2qwYMVkzSV8Fffq5zZC9z4DTnoKCmyqUmaWYgBrrv4jgHpgirYvcnLm8838Tirh"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Gy9n4H9P26jthxZXrduDkwfdrgMDpghWtDMcGG4Mpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "MmGxDoGaHF4nMy9nwEjS6S1Ez5XC8GbrY1h7ivCespgL88fbRPyyWxUUxFKSXgZXxgpmoW31D9FBk9PPQVcwecB"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Ed2yA1ZWeGjCxhhuiHA97QtZQkVjQgyZV2EELZBpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "NA3kqTKutWLUZY8U2kbs37DPTmigjxd6MVTxENDF5k5CcWdBnhQqCfXeJ4h42QcsyYshPDimH6f6PtaikpSwm1x"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "ENzuy9vyEBRmxMbjRRcDMNMF42XexyUeSH7TUKj1pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "NV6HjhPdGnuPoGFbDPHE2gBGy4sVoZ2x3U7KNtZh3RChdGt2oacDN6jikkTXagvJBq6fAhvm3YZ7uTMoqoeJJTF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "gQcrSg6acMHon1RHfMAwGtdVFvW2mJNF1T6dkgmpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "PiPnSh13Z3hF1cw2PYRDT7wJJzDmWxWR1BFVar8QpZLZpJvvHgGEGphxBASMELKk6Rn5KA1crUWqHCZgoeffsVw"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Cv3Kms9V8hAbLULRJAvgTdwapQ8eohjSoYg6HdeKpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "QUEfcPwFMuqM2wgfmonzin4c8fzohcQz1p2fy8s5TBDkQeny15QNjAYVzPLiZFfS2zUYkqTKdCyTG1LM3QXj8HW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GFhZwayXm1X93JMozsWkQMt2tAeWs2bNF46u5kPXpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "QbaYQLSNYbKYTQ3g8jeyn7j9WkEAXSzN2yVYNjaP1w6AxfiE2q19WjJziwf2FG3oQLgiXzFzH8mLCuCa1fEX91k"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GNEDBnj6NAfo7A2hDH1XQSJYTcTyeeeqSvAG2DS5pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "QhVT6HEcZ9yV3mXi1nMvAiweHAb7BoufKjXGGiWzwWvWVuWuU3mdbtXatmdxtjYsTKSbs4PWLYTg8MKkCqb63aW"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5HnWzWswzEcTWi3GKcZXXrL2YxDgAdq9fx6QjKb3pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "RgGFMaNPZ22Ndk3U1uHyWhNXHi4gCU4dCGamKRTQdL3eJXiJJJoSifE3x9sRsEV31payGNNv5ach1sWZb99aY7d"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Htko8AFLnLitNMeSsW7BNKT6r5wEFxdrWpAph1gmpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "RpSbs1qUYQnEDKGWkUCgjwzhogPNBhFAcAywjPUsTNb22Tfx17PiJM67iME5xm8maPKQaRkJNPHoAsU1s1c54wK"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DWZMWHNPvAQvtik32UivG7wawc5L3PCTpxqqsaBupump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "S57Q1xErYe3oeDqQ7cbhfHM9AB9sBL1To8tD4xZjSQpRqD4911qHrjUX86bnPTHWhKwEjVgoYuGGEcgAzDC5qSA"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "ATeDBLU1h64p5STFyRSPQjR6SBWjcvbBWAoesWHpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "SVqWFKX5eFpAuqNYwCetdoU48w4JQu4gAcXgdkkGqmCbghF82ohyi2WcA5jvtuSwR4x5fgxXMBbYMHFCkweKe8b"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "76r29NpnRW8PAxpnSnVBFcZPUcukgvno1Kkiysg8pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "SnisNTnWqQqGTC8SdpuETvGuKi7iJwNLWtD9ncsD6r2RkhWR2vGPSU8ZjRoUrRFkX7jEhPpgKsG4H9ezAuNt41T"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GFhZwayXm1X93JMozsWkQMt2tAeWs2bNF46u5kPXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "T4chLkqzYR6e74SaWv1hhnq7UE7pGKtPwstq9DhKwPidytiqZSCeepktrAtfBhEWFW6mMxDfb5URcGeHDKPijPN"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "G5dPRKgsH3NrLbdPQuhtisjrWvXpXBq5GDaLD8n1pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "TJyuP1wVy5N57qZD5nbkmGFsrT3eGVCyaR3eAH5PX8nJihXL7DyymYtGT7NfWvGyx7pJqjjjVXAgoaq3QLRP22Z"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "PpR3Z4UxvdmecaGKQ1FUhfrQ9DN2rNCXZSdo6eJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "URxwbsuLKBr7YZMiPkpuN5FAmN79PNkJ5ABMCwYRFk2MLGvY4cS5qJFqXuUTGYCv8TtYGMzaNEvMNL1ERjotYEi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "GWevWw9oXJ29utBuijLjFpswca6d3Bag8gqcsJvbpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "VBAxxk1gyvMZr5M3fwV8tw5QgspW9sNsFK4aDsGT4nYH2WYsWcniL523tESXAtdMYTaQet8uRbJKnut9CWHZ3py"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5BPFNTaVRhvdS9zZGZZkoxsJo2iebQ2jodok1NL3pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "VVxybB1zFqRgbkjc12eqjqAtkrJbXm8pcxbZZcqdkSDjhpbdyfVbJPzWMk2fB22urMqicLAbkBXwbAtgYQSqJTB"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "B44KgJfhrZxHD9RA1eThdgYp5Pue4GTPmFsspF3Zpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "WXNJQhrUU55EeG6XHinWXBDkybHTFQxmfpAMAYH6Ce8XhmdNgAa6aeKhGxfictV4PifCXrmPavhRhkQKYg3LMEF"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "2cjVUmbBaZ114uX7ErfHN2X5nKT1jFLTzkRqEaHwpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "WmNVqXTEGSNdSPF8PeGZGSnAvBKKi6NUicfQwHkF35wPMmCpytvxGzYF9g2nVh9PGzDQ3cxRL8iw1EMWngsPcLP"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9Pm54Xa7qf6ziG46PS47jzwMvFJhk41v4s2RxgPipump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "XZS4bW1xSjgc8k6wggxLV4gHvrupufZVZfvnojBTXEbK63JGZTnWhhRPzHYnwFVZsSf9WSXs4uapyP9gULQzdx8"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HKL26wMuTioHi1rtMSqkA3Tqw8hbfUZMrmA1J4yepump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "XdZExtu2suXLhHk5wJNmuC8xViXZPgzY2ehWm8vBXGtampX1D56zf1TXTmmMpAfV1XSn5vDhEMVNTsNLq9LmAPr"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Cy5wVW4dLxiZfwEoKdUR9M76H7MAGHQYMSUetDmepump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "Xrtjbp8U4Khun1w2KQjjVLLEzVdKNezf21hJW2xKc3NQo2kmiukmiqx695MywAGNZ5tLQjU2m8sBLSixf7qhwii"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "D985zBjuYNGoMsrJjcrHdUEgqCzoxYVmnpL2daupump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "YW6VEJXVqj6c8niJV2GrScer4j5nprf74B3sBdqvw4FLvbia9B7uBgCVFPNkeAT1LjZYia1LBpw5mEx2rSm5F2S"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Lc2sy1bSCpiFvLFZhj9te8UbxbWu7xAFA1HJsfTpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "ZFcvd4jE12ij9D1EsH64sQ5YCBqzufvitz39V1PdSYifsK46HXgq9wh74s2XZEu5iTKtRTh9ge8zj5EQfBcTipT"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8N1xPzwZtuRQSdRMnbjAjdd2tK9V8nF7Wrw8gGeLpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "dQtECFRTN5EpBz8mjT7b4Ej4pZGUDMSiUSxsSWXDdZXSe3KnQmJk8XbTCZEQR2Ya9aYy2EdP6582het8QeR6x3q"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "7RFgyECjcsKvA1hGEaod4JxhDb5rW6mTh1i89fb6pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "fwD1gtwrv93Kug89R3RTRxKEfBLEMnzNmeCt55bRoYMTjpJ7j2kbKeMkSRK5mzhjffg1Qm9rKYpVasCeGg325Vx"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "Drfv7jnfTXpEMuppzBZnBxpSyfpTWUqeTqMhoGfzpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "ghWmj2B74LCGLwsBYQj1DTqjCHnCgmspoEcD3JSc9o4UAuKPzwd8f2Q3duaR8yeS8rey87HGGqZtX3HB9Tmjd76"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "8NyXSzQCJzx5TEMeHDpGoG2xq9YQ4ZKLMH6sWtXnpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "hFC5GGu8sXZM6mJEycCX9GboY3Tkr452VgRCj4LW6kWEeDuWZ9JhZC5Nrn7QrWm8nyhpBg3BxJef6wbXxvTBvj7"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5ogZaaw4u7hPbYCnbvSdjdEHi3Ku9P1fWuybvZj8pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "hWPjepqDGvrMXEz7jbXd417QqE7czjTxNqfKgPVLX4XWrKe6NDJJhknoeKdXBuiGR2mB2iCXFkNqVRGYvAFtJZm"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9WWnY1xBTBv3qcamwp6W3SXx7BgByqM8yME5t9eXpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "iYszKqpXc8aUJw3HtSF9NirFLjupkFL3f2h5cm1JBMhDNkfHAkto8mZDV94c5z5zzEFXkUkGS5rAYk9yuAi6PqQ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "JCDcp6LB8yXomcQJ98oB2A9MdtgmFFNcupoY8x1kpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "jf6Gj79wLShrdP159LKH2h7E18J9B5HGEnQsefSyGqVPNaef8W73iHVfy1UpKk4hb6mho7Gb4ZV1QgTTKEvvWHU"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "DEB716JxwWmb2XmEJkEBoxm1SFYGg6g9Fg8rPCHepump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "memD8VPUouTubww9TqhTBUqajAhQciKYC6uSv9nEJRsBUKajeTuZhhBgEmArgeV7mt1oC6WyjcZKaU6ZH3xJWf3"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3jmphuH3LsL9EpRwFQGN4owV564pSxaQjEfG3Za4pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "nBKHVSN8QxJkccFmHLKybeCUkgGaFbhLiJ6PcCaKWA4oC3jt1fq6n1QyWutjdQKvUysS838PbKSgGQdsvgXykjv"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "25jJgh2fsXvyP8LyrXpUFaMdwMKXZgVvujArxtLwpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "nUaB8W14ecYaBehv2EQk2KdvdHxRuUsQUpr4fWe4xyAQkHnmXzMSHAqgacMRH43MUHefkVKKS2ZZ3nrJaqp895q"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FrB7DYNdYotZdtKaxEGPCdrhuFWhxPQ8R8RkLYGmpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "o9G13VmvSx46tdQ9WPMf9vSf89GTLAo2XX5xSP3LjtydufbUWNQQLHGTH6bGxrvKmpjRMvwFYHCa5t6eR8bAb9F"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "5KtNnnPt7xM8DtTjFDRuVvw3gpfCwvBGH4V7xZAGpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "pL7FuetbY5tSUbuBiZyZqWMA6EkVJnp5jhojyKg7Qe7SCXmozZFvjjEagyDoghCNubd8SBynVK56NLcbkpcnMg6"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "EFBKEPyFLDTPVgZMUzs9Ea9dm2g615e4gnaHLFx7pump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "qEkt4MDQwAEma5oTY629TYB2oZFxxZSu668quhKxteKi4zQTQESE798ZFmZBCG6vAzS8HEaqUo93WyYDHdYKZUc"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "9Pm54Xa7qf6ziG46PS47jzwMvFJhk41v4s2RxgPipump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "qjdKv2ABzpVbERS7pfoaSF5c9gvNcuBMfcPPeyrtpeYaDd8TohrSUG3omshkiyMbfxLdvY9omwrtBF7GccEbcbo"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3eZaroBbFBXFakQoMgfDytE9aop2CVJGgcHDsUpmpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "rZei5cW2SjfMmM5heCqZqDtaygg3FhvNd1zxfzxP2ArjMRgascxU4MKWgqddvvjRpWgfwhnxey1Sf7fZD2nY1fb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FZuQyqrxMsg5Xdke1c4ebwYHEusoPUHrtR1AqvmGpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "uSZFJoa7J473VCvbnwoxeNMkFVrtHfJ5LG18BUCj4t9B4826Z9NLkMSpZj9QhNGEF15Trbmx4zduddFmV6zZhMi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "3xUYKWV2LjoGzibiH2UibaARCarcqg1EaFeifPwGpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "vHfzehr2gVNE2eU4b5E641eGRxaCDkjVCZGMGmdaQi2rseLysCnsYLFUJTh7DYUDAQdfRPdZhp814HnLAkntwEQ"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "FQ4WZm9QZhhgcTapk887f7Rr28ufzUH5z1mm5vd2pump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "vTAxPYuRuWrM5ujSTbynoMLXmxVwMdBpVDVkT3vADTUXnLvbcsCkJKHXMshYHCxsT7SVBtXHr2NxUpjmutdDZGi"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "HySwZZgCJaB6EiXjFnQM6tf81DXYupyh48Vxv9tJpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "wcFNpiqf4njMYULvyccDq6U1ceXBpNzTAUt49gqKkqmHTbeSRUWeA7fRjVssW6tAVrNbWpN9T7ZoZAYnJMN8rsb"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "A7hGdjCSJzqdyLUjMW1nh6khzVsEkCnqKD6yA4ELpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "ykCWLCnREJDeQhnpDeNU7RGktdUiJtbqm7EqbS9sm3pJeBfUG3DtRrkA7bxwDnokxVmQupBxuxQh3miLz9UdKZv"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4AY5iR635jjGcB61Sb5zqQ41LwATHkmtidFAPacqpump",
+      "purpose": "eligible_migrated_migration",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "z5NHySRhcH54fGgMyyNYQTJBQFvDFQhRKBVanrUFmnTT7K5uzHNo2kvYY1V5tqre8xwudPVTs4s313Ht9yvFtbk"
+    },
+    {
+      "classification": "UNKNOWN_TELEMETRY_NOT_RETAINED",
+      "launch": "4vVBgc1NpFfyZEUtRWwnjbysyKBEJUaYqAyApnHKpump",
+      "purpose": "eligible_migrated_creation",
+      "recoverability": "NOT_DETERMINABLE_FROM_RETAINED_DATA",
+      "signature": "zuitup4LCBzLJDoBCqe4dM5Y3WJ1JnjxpT6Diw5u2Dti9PsqUjFbxny4JDbf9EinTGvzb14bLtxjwLm7ojqnSSL"
+    }
+  ],
+  "milestone": "OIP v2.1B",
+  "new_rpc_calls": 0
+}

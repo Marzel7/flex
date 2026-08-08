@@ -23,6 +23,7 @@ from src.evidence.config import EvidenceConfig
 from src.evidence.service import EvidencePlatform
 from src.intelligence.migrated_coverage import census
 from src.intelligence.migrated_coverage_acquisition import representative_sample
+from src.intelligence.acquisition_efficiency import DurableAttemptLog, summarize_attempt_log
 
 CALL_LIMIT = 1000
 FROZEN_SOURCE_ROWID = 1_615_500
@@ -54,6 +55,7 @@ async def run(args) -> dict:
         mirror_spool_path=args.output/"mirror_spool",writer_batch_size=100,
         queue_max_messages=2000,mirror_buffer_size=1000)
     platform=EvidencePlatform(config); platform.writer.primitive_engine=None; platform.writer.start()
+    attempt_log=DurableAttemptLog(args.output/"acquisition_attempts.jsonl")
     results=[]; latencies=[]; started=time.monotonic()
     try:
         async with aiohttp.ClientSession() as session:
@@ -67,9 +69,10 @@ async def run(args) -> dict:
                         response=await client.request_once(http_method="POST",url=args.rpc_url,
                             timeout_seconds=30,request_type="json_rpc",method="getTransaction",json_payload=payload)
                 latencies.append(response.latency_ms)
-                state="PROVIDER_UNAVAILABLE"
-                if response.status==200 and isinstance(response.data,dict):
-                    state="RECOVERED" if response.data.get("result") is not None else "HISTORICAL_UNAVAILABLE"
+                observation=attempt_log.record(signature=item.signature,launch=item.launch,
+                    purpose=item.purpose,response=response)
+                state=observation.failure_class
+                if state in {"RECOVERED","MISSING_TRANSACTION"}:
                     if not platform.mirror.publish_nowait(response,http_method="POST",url=args.rpc_url,request_payload=payload):
                         raise RuntimeError("Evidence mirror rejected pilot acquisition")
                 results.append((item.signature,state)); return state
@@ -100,6 +103,7 @@ async def run(args) -> dict:
                 "mean":round(sum(latencies)/len(latencies),3)},"retry_count":0,"provider_failover_count":0},
         "storage":{"before_bytes":before_size,"after_bytes":after_size,"growth_bytes":after_size-before_size},
         "primitive_run":primitive_result,"production_writes":0,"governance_actions":0}
+    report["attempt_telemetry"]=summarize_attempt_log(attempt_log.path)
     (args.output/"pilot_report.json").write_text(json.dumps(report,sort_keys=True,indent=2)+"\n")
     return report
 

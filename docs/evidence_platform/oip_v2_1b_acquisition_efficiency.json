@@ -1,0 +1,121 @@
+{
+  "completion_yield": {
+    "MISSING_CREATION_AND_MIGRATION_TRANSACTION": {
+      "calls_per_launch": 2,
+      "completed": 274,
+      "completion_per_call_ppm": 298475,
+      "launches": 459
+    },
+    "MISSING_MIGRATION_TRANSACTION": {
+      "calls_per_launch": 1,
+      "completed": 53,
+      "completion_per_call_ppm": 646341,
+      "launches": 82
+    }
+  },
+  "dependency_yield": {
+    "eligible_migrated_creation": {
+      "calls": 459,
+      "recovered": 277,
+      "transaction_yield_ppm": 603486
+    },
+    "eligible_migrated_migration": {
+      "calls": 541,
+      "recovered": 329,
+      "transaction_yield_ppm": 608133
+    }
+  },
+  "invariants": {
+    "discovery_changed": false,
+    "evidence_semantics_changed": false,
+    "primitive_semantics_changed": false,
+    "production_interaction": false,
+    "runtime_changed": false
+  },
+  "milestone": "OIP v2.1B",
+  "new_rpc_calls": 0,
+  "provider_comparison": {
+    "existing_failover": "NOT_EXERCISED",
+    "helius": {
+      "calls": 1000,
+      "recovered": 606
+    },
+    "public_rpc": "NOT_MEASURED"
+  },
+  "provider_failure_analysis": {
+    "classified_attempts": 0,
+    "failed_attempts": 394,
+    "reason": "Per-attempt unsuccessful responses were not durably retained by v2.1A.",
+    "unclassified_attempts": 394
+  },
+  "retry_analysis": {
+    "measured_retry_recoveries": 0,
+    "pilot_retries": 0,
+    "recoverable_failures": "NOT_DETERMINABLE_FROM_RETAINED_DATA"
+  },
+  "sampling": {
+    "call_limit": 1000,
+    "dimensions": [
+      "launch_date_quartile",
+      "missing_dependency",
+      "provider_source",
+      "watchtower_population",
+      "runtime_ready_state",
+      "discovery_participation"
+    ],
+    "discovery_participation_limitation": "Occurrence-level membership is absent from the immutable summary snapshot.",
+    "distinct_creators": 541,
+    "method": "DETERMINISTIC_STRATIFIED_LAUNCH_DEPENDENCY_GROUPS_V1",
+    "represented_strata": 22,
+    "selected_calls": 1000,
+    "selected_launches": 541
+  },
+  "source": "OIP_V2_1A_PILOT_ONLY",
+  "storage": {
+    "after": {
+      "allocated_bytes": 1370628096,
+      "artifact_compressed_bytes": 10846797,
+      "artifact_raw_bytes": 48896427,
+      "evidence_payload_bytes": 97167383,
+      "primitive_evidence_links": 2527033,
+      "primitive_payload_bytes": 79839703
+    },
+    "before": {
+      "allocated_bytes": 777375744,
+      "artifact_compressed_bytes": 7831733,
+      "artifact_raw_bytes": 30105346,
+      "evidence_payload_bytes": 60285902,
+      "primitive_evidence_links": 1163631,
+      "primitive_payload_bytes": 40181517
+    },
+    "bytes_per_completed_launch": 1814227,
+    "delta": {
+      "allocated_bytes": 593252352,
+      "artifact_compressed_bytes": 3015064,
+      "artifact_raw_bytes": 18791081,
+      "evidence_payload_bytes": 36881481,
+      "primitive_evidence_links": 1363402,
+      "primitive_payload_bytes": 39658186
+    }
+  },
+  "telemetry": {
+    "acquisition": "UNAVAILABLE",
+    "discovery_replay": "DETERMINISTIC",
+    "mirror": "UNAVAILABLE",
+    "motif_replay": "DETERMINISTIC",
+    "normalization": "UNAVAILABLE",
+    "primitive_replay_seconds": 232.408,
+    "relationship_replay": "DETERMINISTIC"
+  },
+  "verdict": "C \u2014 Retry/failover refinement required",
+  "yield_kpis": {
+    "completed_launches_per_credit": 0.0327,
+    "completed_launches_per_rpc": 0.327,
+    "discovery_occurrences_per_rpc": 3.945,
+    "evidence_per_rpc": 82.99,
+    "net_relationships_per_rpc": -0.007,
+    "new_motif_ids_per_rpc": 0.956,
+    "new_relationship_ids_per_rpc": 0.139,
+    "primitives_per_rpc": 83.017
+  }
+}

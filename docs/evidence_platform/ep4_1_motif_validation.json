@@ -1,0 +1,213 @@
+{
+  "canonicalization_version": "1.0.0",
+  "datasets": [
+    {
+      "average_occurrences_per_motif": 10.299492385786802,
+      "canonical_motifs": 1379,
+      "compression_ratio": 10.299492385786802,
+      "deterministic": true,
+      "generation_latency_ms": 27255.13,
+      "identity_free_canonical_graphs": true,
+      "largest_motif": 961,
+      "motif_digest": "18e7364e9e70700a7970d983550de34318605e72235f8e5b64562a4c498e3c46",
+      "new_motifs": 1379,
+      "occurrence_distribution": {
+        "1": 972,
+        "10": 8,
+        "105": 1,
+        "107": 1,
+        "11": 4,
+        "111": 1,
+        "12": 1,
+        "129": 1,
+        "13": 5,
+        "133": 1,
+        "134": 1,
+        "14": 3,
+        "144": 1,
+        "146": 1,
+        "15": 3,
+        "153": 1,
+        "16": 4,
+        "17": 1,
+        "178": 1,
+        "18": 3,
+        "19": 2,
+        "2": 134,
+        "20": 2,
+        "201": 2,
+        "21": 1,
+        "219": 1,
+        "22": 3,
+        "226": 1,
+        "23": 1,
+        "231": 1,
+        "236": 1,
+        "25": 6,
+        "259": 1,
+        "26": 1,
+        "269": 1,
+        "27": 3,
+        "273": 1,
+        "28": 1,
+        "287": 1,
+        "3": 57,
+        "32": 9,
+        "33": 1,
+        "36": 3,
+        "37": 2,
+        "38": 4,
+        "383": 1,
+        "39": 2,
+        "4": 28,
+        "40": 1,
+        "41": 1,
+        "43": 1,
+        "46": 1,
+        "48": 1,
+        "5": 25,
+        "51": 2,
+        "518": 1,
+        "52": 1,
+        "53": 2,
+        "54": 1,
+        "542": 1,
+        "575": 1,
+        "6": 17,
+        "61": 1,
+        "616": 1,
+        "65": 2,
+        "659": 1,
+        "666": 1,
+        "7": 10,
+        "70": 1,
+        "79": 1,
+        "8": 10,
+        "87": 1,
+        "9": 6,
+        "900": 1,
+        "961": 1,
+        "99": 1
+      },
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 1379,
+          "occurrences_inserted": 14203
+        },
+        "health": {
+          "authoritative": false,
+          "candidate_count": 14203,
+          "compression_ratio": 10.299492385786802,
+          "largest_motif": 961,
+          "motif_count": 1379,
+          "singleton_rate": 0.7048585931834663,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 1379,
+          "inserted": 0,
+          "occurrences_inserted": 0
+        }
+      },
+      "raw_candidates": 14203,
+      "singleton_motifs": 972,
+      "stable_motifs": 1379,
+      "validation_dataset": "KNOWN_CORPUS_A"
+    },
+    {
+      "average_occurrences_per_motif": 6.266666666666667,
+      "canonical_motifs": 15,
+      "compression_ratio": 6.266666666666667,
+      "deterministic": true,
+      "generation_latency_ms": 164.538,
+      "identity_free_canonical_graphs": true,
+      "largest_motif": 26,
+      "motif_digest": "f2c54e3fd0e444bddef4b053f16addd8a36ad77a0e7234d7b5da8e7f7841b101",
+      "new_motifs": 15,
+      "occurrence_distribution": {
+        "1": 8,
+        "12": 2,
+        "13": 1,
+        "18": 1,
+        "2": 1,
+        "26": 1,
+        "3": 1
+      },
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 15,
+          "occurrences_inserted": 94
+        },
+        "health": {
+          "authoritative": false,
+          "candidate_count": 94,
+          "compression_ratio": 6.266666666666667,
+          "largest_motif": 26,
+          "motif_count": 15,
+          "singleton_rate": 0.5333333333333333,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 15,
+          "inserted": 0,
+          "occurrences_inserted": 0
+        }
+      },
+      "raw_candidates": 94,
+      "singleton_motifs": 8,
+      "stable_motifs": 15,
+      "validation_dataset": "KNOWN_CORPUS_B"
+    },
+    {
+      "average_occurrences_per_motif": 2.0,
+      "canonical_motifs": 1,
+      "compression_ratio": 2.0,
+      "deterministic": true,
+      "generation_latency_ms": 0.488,
+      "identity_free_canonical_graphs": true,
+      "largest_motif": 2,
+      "motif_digest": "79250f67238efa5a0b67bf15d477270a91426004151b8b5e66d0ceb344ee162a",
+      "new_motifs": 1,
+      "occurrence_distribution": {
+        "2": 1
+      },
+      "persistence": {
+        "first": {
+          "duplicates": 0,
+          "inserted": 1,
+          "occurrences_inserted": 2
+        },
+        "health": {
+          "authoritative": false,
+          "candidate_count": 2,
+          "compression_ratio": 2.0,
+          "largest_motif": 2,
+          "motif_count": 1,
+          "singleton_rate": 0.0,
+          "status": "HEALTHY"
+        },
+        "replay": {
+          "duplicates": 1,
+          "inserted": 0,
+          "occurrences_inserted": 0
+        }
+      },
+      "raw_candidates": 2,
+      "singleton_motifs": 0,
+      "stable_motifs": 1,
+      "validation_dataset": "GENERIC_UNLABELLED_POPULATION"
+    }
+  ],
+  "governance_actions": 0,
+  "identity_free": true,
+  "identity_promotions": 0,
+  "milestone": "EP4.1",
+  "operation_contracts_loaded": 0,
+  "passed": true,
+  "production_database_reads": 0,
+  "production_writes": 0,
+  "replay_deterministic": true,
+  "rpc_calls": 0
+}

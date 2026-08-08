@@ -93,9 +93,10 @@ def generic_population() -> tuple[PrimitiveObservation, ...]:
 
 def main() -> int:
     parser=argparse.ArgumentParser(); parser.add_argument("--output",type=Path,
-        default=Path("docs/evidence_platform/ep4_0_unknown_discovery_validation.json")); args=parser.parse_args()
+        default=Path("docs/evidence_platform/ep4_0_unknown_discovery_validation.json")); parser.add_argument(
+        "--known-corpus-a-db",type=Path,default=Path("database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db")); args=parser.parse_args()
     datasets=[
-        validate("KNOWN_CORPUS_A",Path("database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db")),
+        validate("KNOWN_CORPUS_A",args.known_corpus_a_db),
         validate("KNOWN_CORPUS_B",Path("database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db")),
         validate_primitives("GENERIC_UNLABELLED_POPULATION",generic_population()),
     ]

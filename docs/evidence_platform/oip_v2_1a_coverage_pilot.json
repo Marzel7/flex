@@ -1,0 +1,42 @@
+{
+  "automatic_continuation": false,
+  "contract_version": "OIP_V2_COVERAGE_V1",
+  "decision": "C — Refine acquisition strategy first",
+  "downstream": {
+    "discovery_occurrences": {"after": 18148, "before": 14203, "net_added": 3945},
+    "motifs": {"after": 2201, "before": 1379, "new_ids": 956, "removed_ids": 134},
+    "relationships": {"after": 341, "before": 348, "new_ids": 139, "removed_ids": 146},
+    "singletons_after": 1518
+  },
+  "efficiency": {
+    "coverage_gain_per_credit": 0.0327,
+    "coverage_gain_per_rpc": 0.327,
+    "evidence_per_rpc": 82.99,
+    "primitive_observations_per_rpc": 83.017,
+    "replay_seconds_per_rpc": 0.232408,
+    "storage_bytes_per_rpc": 593252.352
+  },
+  "frozen_population": {"eligible_launches": 32042, "max_source_rowid": 1615500},
+  "outcomes": {
+    "complete_launches_after": 327,
+    "complete_launches_before": 0,
+    "evidence_added": 82990,
+    "primitive_observations_added": 83017,
+    "provider_unavailable": 394,
+    "transactions_recovered": 606
+  },
+  "performance": {
+    "acquisition_latency": "UNAVAILABLE_PROCESS_INTERRUPTED_AFTER_DURABLE_MIRROR",
+    "database_growth_bytes": 593252352,
+    "primitive_replay_seconds": 232.408
+  },
+  "pilot_budget": {"credits_used": 10000, "rpc_calls": 1000},
+  "replay_deterministic": true,
+  "sampling": {
+    "distinct_creators": 541,
+    "launches": 541,
+    "method": "DETERMINISTIC_STRATIFIED_LAUNCH_DEPENDENCY_GROUPS_V1",
+    "represented_strata": 22,
+    "watchtower_calls": 1
+  }
+}

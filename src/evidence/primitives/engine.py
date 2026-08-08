@@ -36,6 +36,9 @@ class _Index:
     def __init__(self, rows: Iterable[sqlite3.Row]) -> None:
         self.all: list[_Fact] = []
         self.by_family: dict[str, list[_Fact]] = defaultdict(list)
+        self.by_evidence_id: dict[str, _Fact] = {}
+        self.evidence_order: dict[str, int] = {}
+        self._matching: dict[tuple[str, str], dict[Any, list[_Fact]]] = {}
         for row in rows:
             fact = _Fact(
                 evidence_id=row["evidence_id"], logical_fact_id=row["logical_fact_id"],
@@ -44,6 +47,8 @@ class _Index:
             )
             self.all.append(fact)
             self.by_family[fact.family].append(fact)
+            self.by_evidence_id[fact.evidence_id] = fact
+            self.evidence_order[fact.evidence_id] = len(self.all) - 1
         grouped: dict[str, set[str]] = defaultdict(set)
         grouped_ids: dict[str, set[str]] = defaultdict(set)
         for fact in self.all:
@@ -59,7 +64,22 @@ class _Index:
         return self.by_family.get(name, [])
 
     def matching(self, name: str, key: str, value: Any) -> list[_Fact]:
-        return [fact for fact in self.family(name) if fact.payload.get(key) == value]
+        cache_key = (name, key)
+        if cache_key not in self._matching:
+            values: dict[Any, list[_Fact]] = defaultdict(list)
+            for fact in self.family(name):
+                candidate = fact.payload.get(key)
+                try:
+                    values[candidate].append(fact)
+                except TypeError:
+                    # Complex JSON values are not used by current Primitive v1
+                    # lookups; preserve the former equality semantics if added.
+                    continue
+            self._matching[cache_key] = values
+        try:
+            return self._matching[cache_key].get(value, [])
+        except TypeError:
+            return [fact for fact in self.family(name) if fact.payload.get(key) == value]
 
 
 class PrimitiveEngine:
@@ -260,15 +280,14 @@ class PrimitiveEngine:
 
     def _program_interactions(self, index: _Index) -> list[PrimitiveObservation]:
         grouped: dict[tuple[str, str, str], list[tuple[_Fact, _Fact]]] = defaultdict(list)
-        participants = index.family("AccountParticipationFact")
         for instruction in index.family("InstructionFact"):
             signature = instruction.payload.get("signature")
             program = instruction.payload.get("program_id")
             indexes = set(instruction.payload.get("account_indexes") or [])
             if not isinstance(signature, str) or not isinstance(program, str):
                 continue
-            for participant in participants:
-                if participant.payload.get("signature") == signature and participant.payload.get("account_index") in indexes:
+            for participant in index.matching("AccountParticipationFact", "signature", signature):
+                if participant.payload.get("account_index") in indexes:
                     wallet = participant.payload.get("public_key")
                     if isinstance(wallet, str): grouped[(signature, program, wallet)].append((instruction, participant))
         result = []
@@ -381,16 +400,26 @@ class PrimitiveEngine:
     def _launch_activations(self, index: _Index, primitives: list[PrimitiveObservation]) -> list[PrimitiveObservation]:
         transfers = [item for item in primitives if item.primitive_type == PrimitiveType.SYSTEM_TRANSFER.value]
         freshness = [item for item in primitives if item.primitive_type == PrimitiveType.WALLET_FRESH_AT_EVENT.value]
+        transfers_by_destination: dict[str, list[PrimitiveObservation]] = defaultdict(list)
+        signers_by_mint: dict[str, list[PrimitiveObservation]] = defaultdict(list)
+        freshness_by_event: dict[tuple[str, str], PrimitiveObservation] = {}
+        for item in transfers:
+            transfers_by_destination[str(item.output_payload.get("destination"))].append(item)
+        for item in primitives:
+            if item.primitive_type == PrimitiveType.LAUNCH_SIGNER.value:
+                signers_by_mint[str(item.output_payload.get("mint"))].append(item)
+        for item in freshness:
+            for subject in item.subjects:
+                freshness_by_event[(subject, str(item.output_payload.get("reference_event")))] = item
         result = []
         for launch in index.family("LaunchFact"):
             creator = launch.payload.get("creator_account")
             launch_time = launch.payload.get("creation_timestamp")
-            signers = [item for item in primitives if item.primitive_type == PrimitiveType.LAUNCH_SIGNER.value and item.output_payload.get("mint") == launch.payload.get("mint")]
-            for transfer in transfers:
-                if transfer.output_payload.get("destination") != creator: continue
+            signers = signers_by_mint.get(str(launch.payload.get("mint")), [])
+            for transfer in transfers_by_destination.get(str(creator), []):
                 funding_time = transfer.output_payload.get("timestamp")
                 latency = launch_time - funding_time if launch_time is not None and funding_time is not None else None
-                fresh = next((item for item in freshness if creator in item.subjects and item.output_payload.get("reference_event") == transfer.output_payload.get("signature")), None)
+                fresh = freshness_by_event.get((str(creator), str(transfer.output_payload.get("signature"))))
                 evidence = [launch]
                 evidence.extend(self._facts_for_ids(index, transfer.evidence_ids))
                 for signer in signers: evidence.extend(self._facts_for_ids(index, signer.evidence_ids))
@@ -414,13 +443,15 @@ class PrimitiveEngine:
 
     def _economic_funding(self, index: _Index, primitives: list[PrimitiveObservation]) -> list[PrimitiveObservation]:
         transfers = [item for item in primitives if item.primitive_type == PrimitiveType.DIRECT_COUNTERPARTY.value]
+        transfers_by_destination: dict[str, list[PrimitiveObservation]] = defaultdict(list)
+        for item in transfers:
+            transfers_by_destination[str(item.output_payload.get("destination"))].append(item)
         activations = {item.output_payload.get("funding_signature") for item in primitives if item.primitive_type == PrimitiveType.LAUNCH_ACTIVATION.value}
         result = []
         parameters = {"amount_policy": "UNFILTERED", "recipient_policy": "LAUNCH_CREATOR"}
         for launch in index.family("LaunchFact"):
             creator, launch_time = launch.payload.get("creator_account"), launch.payload.get("creation_timestamp")
-            for transfer in transfers:
-                if transfer.output_payload.get("destination") != creator: continue
+            for transfer in transfers_by_destination.get(str(creator), []):
                 timestamp = transfer.observation_window.start
                 signature = transfer.output_payload.get("signature")
                 result.append(self._observation(
@@ -486,8 +517,9 @@ class PrimitiveEngine:
 
     @staticmethod
     def _facts_for_ids(index: _Index, evidence_ids: Iterable[str]) -> list[_Fact]:
-        wanted = set(evidence_ids)
-        return [fact for fact in index.all if fact.evidence_id in wanted]
+        wanted = {value for value in evidence_ids if value in index.by_evidence_id}
+        return [index.by_evidence_id[value]
+                for value in sorted(wanted, key=index.evidence_order.__getitem__)]
 
     def health(self) -> dict[str, Any]:
         connection = self.database.connection

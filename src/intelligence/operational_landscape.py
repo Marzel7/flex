@@ -6,6 +6,7 @@ identity.  It exposes only measurements already present in validated snapshots.
 from __future__ import annotations
 
 import json
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -14,18 +15,34 @@ from typing import Any
 DATASETS = ("KNOWN_CORPUS_A", "KNOWN_CORPUS_B", "GENERIC_UNLABELLED_POPULATION")
 ROOT = Path(__file__).resolve().parents[2]
 REPORT_ROOT = ROOT / "docs" / "evidence_platform"
+PILOT_REPORT_ROOT = ROOT / "database" / "evidence_platform" / "oip_v2_1a_pilot" / "reports"
+REPORT_NAMES = {
+    "population": ("ep4_3_motif_population_analysis.json", "ep4_3.json"),
+    "dominant": ("ep4_4_dominant_motif_intelligence.json", "ep4_4.json"),
+}
 
 
 class LandscapeUnavailable(RuntimeError):
     pass
 
 
-def _read(name: str) -> dict[str, Any]:
-    path = REPORT_ROOT / name
+def _report_root() -> Path:
+    configured = os.environ.get("OIP_LANDSCAPE_REPORT_ROOT")
+    if configured:
+        return Path(configured)
+    if all((PILOT_REPORT_ROOT / names[1]).is_file() for names in REPORT_NAMES.values()):
+        return PILOT_REPORT_ROOT
+    return REPORT_ROOT
+
+
+def _read(kind: str) -> dict[str, Any]:
+    root = _report_root()
+    frozen_name, pilot_name = REPORT_NAMES[kind]
+    path = root / (pilot_name if (root / pilot_name).is_file() else frozen_name)
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
-        raise LandscapeUnavailable(f"Immutable landscape snapshot unavailable: {name}") from exc
+        raise LandscapeUnavailable(f"Immutable landscape snapshot unavailable: {path.name}") from exc
 
 
 def _dataset(report: dict[str, Any], dataset: str) -> dict[str, Any]:
@@ -39,8 +56,7 @@ def _dataset(report: dict[str, Any], dataset: str) -> dict[str, Any]:
 
 @lru_cache(maxsize=1)
 def _snapshots() -> tuple[dict[str, Any], dict[str, Any]]:
-    return (_read("ep4_3_motif_population_analysis.json"),
-            _read("ep4_4_dominant_motif_intelligence.json"))
+    return (_read("population"), _read("dominant"))
 
 
 def landscape(dataset: str = DATASETS[0]) -> dict[str, Any]:
@@ -54,6 +70,7 @@ def landscape(dataset: str = DATASETS[0]) -> dict[str, Any]:
         "authoritative": False,
         "identity_free": True,
         "dataset": dataset,
+        "snapshot_source": "OIP_V2_1A_PILOT" if _report_root() == PILOT_REPORT_ROOT else "OIP_V1_FROZEN",
         "analysis_id": population["analysis_id"],
         "summary": population["summary"],
         "completeness": population["completeness"],

@@ -43,9 +43,9 @@ def validate(name,primitives):
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument("--output",type=Path,
-        default=Path("docs/evidence_platform/ep4_3_motif_population_analysis.json"));args=parser.parse_args()
-    datasets=[validate("KNOWN_CORPUS_A",load_primitives(Path(
-        "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db"))),
+        default=Path("docs/evidence_platform/ep4_3_motif_population_analysis.json"));parser.add_argument(
+        "--known-corpus-a-db",type=Path,default=Path("database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db"));args=parser.parse_args()
+    datasets=[validate("KNOWN_CORPUS_A",load_primitives(args.known_corpus_a_db)),
         validate("KNOWN_CORPUS_B",load_primitives(Path(
         "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db"))),
         validate("GENERIC_UNLABELLED_POPULATION",generic_population())]

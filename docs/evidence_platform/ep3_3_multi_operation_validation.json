@@ -1,0 +1,15 @@
+{
+  "milestone": "EP3.3",
+  "contracts": ["three_sw2@1.0.0", "watchtower@1.0.0"],
+  "execution": "PARALLEL_ISOLATED",
+  "ordering_dependency": false,
+  "shared_mutable_state": false,
+  "shared_inputs_permitted": ["Artifacts", "Evidence", "Primitives", "Replay"],
+  "shared_outputs": [],
+  "replay": "DETERMINISTIC",
+  "registry_coexistence": "PASS",
+  "version_coexistence": "PASS",
+  "isolation": "PASS",
+  "historical_parity": "BLOCKED_BY_EP3.2_MISSING_EVIDENCE",
+  "production_authority_changed": false
+}

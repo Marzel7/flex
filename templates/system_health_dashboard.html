@@ -162,6 +162,52 @@
         }
         .mc-incident-jump:hover { text-decoration: underline; }
 
+        /* ── MC1.1C (UX Simplification) ────────────────────────────────────
+           Presentation-only layer on top of everything above: collapses
+           secondary incidents/capabilities to one line by default, shows
+           only one expanded incident + one expanded capability, and
+           removes WATCHTOWER from the primary strip/grid (nested inside
+           Operational Intelligence instead). No card/section removed --
+           only default-collapsed, one click away. ─────────────────────── */
+        .mc-incident-card.collapsed .mc-incident-section,
+        .mc-incident-card.collapsed .mc-incident-jump { display: none; }
+        .mc-incident-card.collapsed { padding: 0.65rem 1.25rem; cursor: pointer; }
+        .mc-incident-card.collapsed .mc-incident-title { font-size: 0.85rem; }
+        .mc-incident-card:not(.collapsed) .mc-incident-title { cursor: default; }
+        .mc-incident-title-toggle { cursor: pointer; display: contents; }
+
+        /* Capability strip (Phase B) — one line per platform capability,
+           WATCHTOWER excluded (Phase F: it's an Operation, not a platform
+           capability). Separate from mc-summary-strip's fuller "Live
+           Capabilities" column -- this one is the terse 5-second glance,
+           rendered directly under the banner. */
+        .mc-cap-strip { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.6rem 1.25rem; margin-bottom: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.5rem; }
+        .mc-cap-strip-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; padding: 0.15rem 0; cursor: pointer; }
+        .mc-cap-strip-row:hover { opacity: 0.85; }
+        .mc-cap-strip-name { flex: 1; color: var(--text-primary); font-weight: 600; }
+        .mc-cap-strip-icon { width: 1.1rem; text-align: center; font-size: 0.85rem; }
+        .mc-cap-strip-row.HEALTHY .mc-cap-strip-icon  { color: #4ade80; }
+        .mc-cap-strip-row.WARNING .mc-cap-strip-icon  { color: #facc15; }
+        .mc-cap-strip-row.CRITICAL .mc-cap-strip-icon { color: #f87171; }
+        .mc-cap-strip-row.UNKNOWN .mc-cap-strip-icon  { color: #94a3b8; }
+
+        /* Collapsed capability card (Phase D) — one-line summary, expands
+           to the full MC1.1A card (metrics -> status -> evidence ->
+           diagnostics) on click. Same #mc-cap-{name} element/id as
+           before, so incident jump-links keep working unchanged. */
+        .mc-capability-tile.collapsed { padding: 0.55rem 0.85rem; cursor: pointer; }
+        .mc-capability-tile.collapsed .mc-metrics-block,
+        .mc-capability-tile.collapsed .mc-capability-tile-status-row,
+        .mc-capability-tile.collapsed .mc-capability-tile-degraded,
+        .mc-capability-tile.collapsed .mc-capability-tile-signals { display: none; }
+        .mc-capability-tile-collapsed-summary { font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.15rem; }
+        .mc-capability-tile:not(.collapsed) .mc-capability-tile-head { cursor: pointer; }
+        .mc-capability-tile-head-chevron { margin-left: auto; font-size: 0.6rem; color: var(--text-secondary); }
+
+        /* WATCHTOWER nested inside Operational Intelligence (Phase F). */
+        .mc-watchtower-subline { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px dashed var(--border-color); }
+        .mc-watchtower-subline .mc-cap-strip-icon { font-size: 0.7rem; }
+
         /* ── Capability groups (Phase 2) ────────────────────────────────── */
         .mc-groups { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
 
@@ -321,11 +367,18 @@
         </div>
 
         <!-- ═══ MC1.1 capability-first incident layer ══════════════════════
-             docs/design/mc1_0_capability_severity_model.md. Answers "what
+             docs/design/mc1_0_capability_severity_model.md, simplified per
+             MC1.1C (docs/design/mc1_1c_ux_simplification.md). Answers "what
              capability have I lost" before the existing groups below
              answer "why". Purely additive -- driven by fullHealth.capabilities
              / fullHealth.incidents, already fetched by updateDashboard(),
-             no new request. Empty (no incidents) renders nothing here. ═══ -->
+             no new request. Empty (no incidents) renders nothing here.
+             mc-cap-strip is the terse 5-second-glance list (Phase B --
+             platform capabilities only, WATCHTOWER excluded per Phase F).
+             Only the single highest-severity incident/capability render
+             expanded by default; the rest render as one-line collapsed
+             summaries (Phase A/D), full detail one click away. ═══ -->
+        <div id="mc-cap-strip" class="mc-cap-strip"></div>
         <div id="mc-incidents" class="mc-incidents-wrap"></div>
         <div id="mc-capability-grid" class="mc-capability-grid"></div>
 
@@ -488,7 +541,51 @@
             infrastructure: 'Infrastructure',
             price_tracking: 'Price Tracking',
         };
+        // MC1.1C Phase F — WATCHTOWER is not a platform capability for
+        // navigation purposes (it becomes an Operation surfaced inside
+        // Operational Intelligence's card instead). This does NOT change
+        // the frozen capability engine -- fullHealth.capabilities.watchtower
+        // still exists, is still computed identically, and still opens its
+        // own incident if independently abnormal (mcRenderIncidents is
+        // unaffected). Only the primary strip/grid navigation excludes it.
+        const MC_PLATFORM_CAPABILITY_ORDER = Object.keys(MC_CAPABILITY_LABELS).filter(n => n !== 'watchtower');
         const MC_SEV_ICON = { CRITICAL: 'fa-circle-exclamation', WARNING: 'fa-triangle-exclamation' };
+        const MC_STATUS_STRIP_ICON = { HEALTHY: 'fa-check', WARNING: 'fa-triangle-exclamation', CRITICAL: 'fa-xmark', UNKNOWN: 'fa-question' };
+
+        // MC1.1C Phase E — concise diagnostic labels. Presentation only:
+        // the underlying signal `name` (from the frozen evidence engine)
+        // is unchanged and still used as the lookup key; this only swaps
+        // which STRING is shown for it. Falls back to the original
+        // space-separated name for any signal not in this map, so a
+        // future signal added to the backend never renders blank.
+        const MC_CONCISE_SIGNAL_LABELS = {
+            worker_status: 'Worker stopped',
+            heartbeat_freshness: 'Heartbeat stale',
+            oldest_eligible_age: 'Queue stalled',
+            queue_backlog_growth: 'Queue growing',
+            queue_backlog: 'Queue growing',
+            birth_rate_collapse: 'Births stopped',
+            migration_rate_collapse: 'Migrations stopped',
+            pumpportal_connection: 'PumpPortal retrying',
+            pumpswap_connection: 'PumpSwap retrying',
+            listener_log_freshness: 'Listener stale',
+            watch_pipeline_freshness: 'Pipeline stale',
+            creator_resolution_freshness: 'Resolution stale',
+            resolution_failures: 'Resolution failing',
+            missing_creator_attribution: 'Attribution gap',
+            cascade_connection: 'Cascade offline',
+            cascade_heartbeat_freshness: 'Cascade stale',
+            subscriptions_active: 'No subscriptions',
+            database_pressure: 'DB pressure',
+            write_lane_p99: 'DB latency high',
+            api_process_alive: 'API not responding',
+            worker_alive: 'Worker down',
+            peak_update_freshness: 'Price updates stale',
+            snapshot_freshness: 'Snapshots stale',
+        };
+        function mcConciseSignalLabel(name) {
+            return MC_CONCISE_SIGNAL_LABELS[name] || name.replace(/_/g, ' ');
+        }
 
         function mcFormatDuration(secs) {
             if (secs == null) return '';
@@ -617,6 +714,19 @@
                 MC_HIERARCHY_ORDER.indexOf(keyFn(a)) - MC_HIERARCHY_ORDER.indexOf(keyFn(b)));
         }
 
+        function mcToggleIncident(idx) {
+            const el = document.querySelector(`.mc-incident-card[data-idx="${idx}"]`);
+            if (el) el.classList.toggle('collapsed');
+        }
+
+        // MC1.1C Phase A — only the single highest-severity incident
+        // renders expanded by default; every other CONCURRENT incident
+        // renders collapsed to one line (still expandable on click, all
+        // detail retained). Severity ranking + hierarchy tiebreak only
+        // decide DEFAULT EXPANSION STATE here -- the incidents themselves,
+        // their severity, membership, and content are entirely the frozen
+        // incident engine's output, untouched.
+        const MC_SEV_RANK = { CRITICAL: 2, WARNING: 1 };
         function mcRenderIncidents(fullHealth) {
             const el = document.getElementById('mc-incidents');
             if (!el) return;
@@ -626,7 +736,17 @@
             );
             if (!incidents.length) { el.innerHTML = ''; return; }
 
-            el.innerHTML = incidents.map(inc => {
+            // Primary = highest severity, hierarchy order as tiebreak
+            // among equally-severe incidents (so Live Ingestion still
+            // wins a CRITICAL/CRITICAL tie, matching the banner's own
+            // lead choice).
+            let primaryIdx = 0;
+            incidents.forEach((inc, i) => {
+                if ((MC_SEV_RANK[inc.severity] || 0) > (MC_SEV_RANK[incidents[primaryIdx].severity] || 0)) primaryIdx = i;
+            });
+
+            el.innerHTML = incidents.map((inc, idx) => {
+                const isPrimary = idx === primaryIdx;
                 const icon = MC_SEV_ICON[inc.severity] || 'fa-circle-exclamation';
                 const impactHtml = (inc.impact || []).length
                     ? `<div class="mc-incident-section impact">
@@ -644,13 +764,15 @@
                 // belongs to (unchanged, computed by the frozen incident
                 // engine); this just scrolls to that card's existing id.
                 const label = MC_CAPABILITY_LABELS[inc.capability] || inc.capability;
+                const collapsedClass = isPrimary ? '' : ' collapsed';
+                const toggleAttr = isPrimary ? '' : ` onclick="mcToggleIncident(${idx})"`;
                 return `
-                    <div class="mc-incident-card ${inc.severity}">
+                    <div class="mc-incident-card ${inc.severity}${collapsedClass}" data-idx="${idx}"${toggleAttr}>
                         <div class="mc-incident-title">
                             <i class="fas ${icon}"></i>
                             <span class="sev-badge">${inc.severity}</span>
                             <span>${inc.title}</span>
-                            <span class="duration">First detected ${mcFormatDuration(inc.current_duration_secs)} ago</span>
+                            <span class="duration">${mcFormatDuration(inc.current_duration_secs)} ago</span>
                         </div>
                         ${impactHtml}
                         ${contribHtml}
@@ -664,7 +786,11 @@
         function mcJumpToCapability(evt, name) {
             const el = document.getElementById(`mc-cap-${name}`);
             if (!el) return;
-            evt.preventDefault();
+            if (evt && evt.preventDefault) evt.preventDefault();
+            // MC1.1C — a collapsed card (Phase D) must expand when jumped
+            // to, otherwise the highlight lands on a one-line summary
+            // with nothing visibly new to look at.
+            el.classList.remove('collapsed');
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.classList.add('mc-highlight');
             setTimeout(() => el.classList.remove('mc-highlight'), 1500);
@@ -675,36 +801,88 @@
             if (el) el.classList.toggle('expanded');
         }
 
+        function mcToggleCollapsedCard(name) {
+            const el = document.getElementById(`mc-cap-${name}`);
+            if (el) el.classList.toggle('collapsed');
+        }
+
+        // MC1.1C Phase D/E — one-line collapsed summary for a capability
+        // card: up to 2 concise abnormal-signal labels, comma-joined
+        // (e.g. "Worker stopped, Queue stalled"), or "Healthy" if none.
+        // Reuses cap.signals unchanged -- only picks/relabels which
+        // strings show when collapsed.
+        function mcCollapsedSummary(cap) {
+            const abnormal = (cap.signals || []).filter(s => s.abnormal);
+            if (!abnormal.length) return cap.status === 'HEALTHY' ? 'Healthy' : cap.status;
+            return abnormal.slice(0, 2).map(s => mcConciseSignalLabel(s.name)).join(', ');
+        }
+
+        // MC1.1C Phase F — WATCHTOWER nested as a one-line sub-status
+        // inside Operational Intelligence's card, not a platform-level
+        // capability card of its own. Reads fullHealth.capabilities.watchtower
+        // unchanged (frozen engine); only where it renders moved.
+        function mcWatchtowerSublineHtml(caps) {
+            const wt = caps.watchtower;
+            if (!wt) return '';
+            const icon = MC_STATUS_STRIP_ICON[wt.status] || 'fa-question';
+            const summary = mcCollapsedSummary(wt);
+            return `
+                <div class="mc-watchtower-subline">
+                    <i class="fas ${icon} mc-cap-strip-icon ${wt.status}"></i>
+                    <span>WATCHTOWER (Operation): ${summary}</span>
+                </div>`;
+        }
+
+        // MC1.1C Phase C/D — card layout order: operational metrics ->
+        // status -> evidence -> diagnostics, UNCHANGED from MC1.1A. What's
+        // new: only the single highest-severity platform capability
+        // renders expanded by default (Phase D); every other capability
+        // renders collapsed to one line (Phase D/E), full detail one
+        // click away, nothing removed. WATCHTOWER excluded from this grid
+        // (Phase F) -- see mcWatchtowerSublineHtml, rendered inside the
+        // Operational Intelligence card instead.
         function mcRenderCapabilityGrid(fullHealth) {
             const el = document.getElementById('mc-capability-grid');
             if (!el) return;
             const caps = (fullHealth && fullHealth.capabilities) || {};
             const subsystems = (fullHealth && fullHealth.subsystems) || {};
-            const names = Object.keys(MC_CAPABILITY_LABELS).filter(n => caps[n]);
+            const names = MC_PLATFORM_CAPABILITY_ORDER.filter(n => caps[n]);
             if (!names.length) { el.innerHTML = ''; return; }
 
-            // MC1.1A — card layout order is now: operational metrics ->
-            // status -> evidence -> diagnostics (contributing signals).
-            // The underlying cap.status / cap.evidence / cap.signals
-            // values are untouched, only WHERE they render moved.
+            // Primary = highest severity among platform capabilities,
+            // hierarchy order as tiebreak (same rule as mcRenderIncidents,
+            // kept consistent so the same capability leads both the
+            // incident section and the grid).
+            let primaryName = names[0];
+            names.forEach(n => {
+                if ((MC_SEV_RANK[caps[n].status] || 0) > (MC_SEV_RANK[caps[primaryName].status] || 0)) primaryName = n;
+            });
+
             el.innerHTML = names.map(name => {
                 const cap = caps[name];
                 const label = MC_CAPABILITY_LABELS[name];
                 const ev = cap.evidence || { abnormal: 0, total: 0 };
+                const isPrimary = name === primaryName;
                 const degradedHtml = cap.degraded_by
                     ? `<div class="mc-capability-tile-degraded">↳ degraded by ${MC_CAPABILITY_LABELS[cap.degraded_by] || cap.degraded_by}</div>`
                     : '';
                 const metricsHtml = mcCapabilityMetricsHtml(name, subsystems, cap);
                 const signalsHtml = (cap.signals || []).length
                     ? `<ul class="mc-capability-tile-signals">${cap.signals.map(s =>
-                        `<li class="${s.abnormal ? 'abnormal' : 'normal'}">${s.abnormal ? '✓' : '✗'} ${s.name.replace(/_/g, ' ')}${s.detail ? ': ' + s.detail : ''}</li>`
+                        `<li class="${s.abnormal ? 'abnormal' : 'normal'}">${s.abnormal ? '✗' : '✓'} ${mcConciseSignalLabel(s.name)}${s.detail ? ': ' + s.detail : ''}</li>`
                       ).join('')}</ul>` : '';
+                const watchtowerHtml = name === 'operational_intelligence' ? mcWatchtowerSublineHtml(caps) : '';
+                const collapsedClass = isPrimary ? '' : ' collapsed';
+                const summaryHtml = isPrimary ? '' : `<div class="mc-capability-tile-collapsed-summary">${mcCollapsedSummary(cap)}</div>`;
+                const headOnclick = isPrimary ? '' : ` onclick="mcToggleCollapsedCard('${name}')"`;
                 return `
-                    <div class="mc-capability-tile ${cap.status}" id="mc-cap-${name}">
-                        <div class="mc-capability-tile-head">
+                    <div class="mc-capability-tile ${cap.status}${collapsedClass}" id="mc-cap-${name}">
+                        <div class="mc-capability-tile-head"${headOnclick}>
                             <span class="mc-capability-tile-dot"></span>
                             <span class="mc-capability-tile-name">${label}</span>
+                            ${isPrimary ? '' : '<i class="fas fa-chevron-right mc-capability-tile-head-chevron"></i>'}
                         </div>
+                        ${summaryHtml}
                         ${metricsHtml}
                         <div class="mc-capability-tile-status-row" onclick="mcToggleCapabilityTile('${name}')">
                             <span class="mc-capability-tile-status-badge ${cap.status}">${cap.status}</span>
@@ -713,6 +891,30 @@
                         </div>
                         ${degradedHtml}
                         ${signalsHtml}
+                        ${watchtowerHtml}
+                    </div>`;
+            }).join('');
+        }
+
+        // MC1.1C Phase B — terse 5-capability strip (WATCHTOWER excluded
+        // per Phase F), platform hierarchy order, click jumps to the
+        // corresponding card. Distinct from mc-summary-strip (MC1.1B's
+        // fuller "Live Capabilities" list, still rendered below the
+        // banner) -- this is the very top glance the charter asks for.
+        function mcRenderCapStrip(fullHealth) {
+            const el = document.getElementById('mc-cap-strip');
+            if (!el) return;
+            const caps = (fullHealth && fullHealth.capabilities) || {};
+            const names = MC_PLATFORM_CAPABILITY_ORDER.filter(n => caps[n]);
+            if (!names.length) { el.innerHTML = ''; return; }
+
+            el.innerHTML = names.map(name => {
+                const cap = caps[name];
+                const icon = MC_STATUS_STRIP_ICON[cap.status] || 'fa-question';
+                return `
+                    <div class="mc-cap-strip-row ${cap.status}" onclick="mcJumpToCapability(event, '${name}')">
+                        <i class="fas ${icon} mc-cap-strip-icon"></i>
+                        <span class="mc-cap-strip-name">${MC_CAPABILITY_LABELS[name]}</span>
                     </div>`;
             }).join('');
         }
@@ -1803,6 +2005,7 @@
             // are now driven by the identical fullHealth.incidents /
             // fullHealth.capabilities the cards read, so they can never
             // contradict each other again.
+            mcRenderCapStrip(fullHealth);
             mcRenderIncidents(fullHealth);
             mcRenderCapabilityGrid(fullHealth);
             const worst = mcUpdateBanner((fullHealth && fullHealth.incidents) || []);

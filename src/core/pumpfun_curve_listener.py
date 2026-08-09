@@ -15,7 +15,9 @@ import re
 import sqlite3
 from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
 from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
-from src.core.database_write_service import CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError
+from src.core.database_write_service import (
+    CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError, PRIORITY_P0_CRITICAL_INGESTION,
+)
 import sys
 import time
 import threading
@@ -1155,7 +1157,7 @@ def _reconcile_fallback_file_into_queue() -> int:
 
     try:
         import sqlite3 as _sq
-        conn = _sq.connect(DB_PATH, timeout=5)
+        conn = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
         with conn:
             for r in records:
                 conn.execute(
@@ -2276,7 +2278,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         migrated_ts = int(migrated_at or time.time())
 
         def _do_write():
-            with managed_db_connect(DB_PATH, timeout=30) as conn:
+            with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -2318,7 +2320,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc} — queuing for retry", flush=True)
             try:
                 import sqlite3 as _sq
-                _qc = _sq.connect(DB_PATH, timeout=5)
+                _qc = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
                 with _qc:
                     _qc.execute(
                         """INSERT OR IGNORE INTO migration_persist_queue
@@ -6010,7 +6012,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         birth_seen_at = int(analyzed_at)
 
         def _do_write():
-            with managed_db_connect(DB_PATH, timeout=30) as conn:
+            with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
                 conn.execute(
                     """
                     INSERT INTO token_analysis (
@@ -6067,7 +6069,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e} — queuing for durable retry", flush=True)
             try:
                 import sqlite3 as _sq
-                _qc = _sq.connect(DB_PATH, timeout=5)
+                _qc = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
                 with _qc:
                     _qc.execute(
                         """INSERT INTO birth_persist_queue
@@ -11460,7 +11462,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         ).fetchone()
                         _vc.close()
                         if persisted:
-                            _uc = _sq.connect(DB_PATH, timeout=5)
+                            _uc = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
                             with _uc:
                                 _uc.execute(
                                     "UPDATE birth_persist_queue SET status='PROCESSED', processed_at=? WHERE id=?",

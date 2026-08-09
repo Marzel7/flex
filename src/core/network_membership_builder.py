@@ -47,7 +47,8 @@ class NetworkMembershipBuilder:
         """
         t0 = time.time()
         try:
-            from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
+            from src.utils.infra_mapping import build_excluded_set
+            from src.core.database_write_service import PRIORITY_P2_BACKGROUND
 
             # ── READ PHASE (no write lock held) ──────────────────────────────
             rconn = db_connect(self.db_path, timeout=60)
@@ -101,7 +102,7 @@ class NetworkMembershipBuilder:
             rconn.close()
 
             # ── WRITE PHASE (write lock held only for fast swap) ─────────────
-            wconn = db_connect(self.db_path, timeout=60)
+            wconn = db_connect(self.db_path, timeout=60, priority=PRIORITY_P2_BACKGROUND)
             wconn.execute("PRAGMA journal_mode=WAL")
             wconn.execute("PRAGMA synchronous=NORMAL")
             wconn.execute("PRAGMA busy_timeout=30000")
@@ -109,7 +110,10 @@ class NetworkMembershipBuilder:
 
             self._ensure_funder_network_map(wconn)
             self._ensure_network_membership_schema(wconn)
-            sync_infra_wallets(wconn)
+            # X78.20 -- dropped inline sync_infra_wallets(wconn): the read
+            # phase above already reads infra_wallets via build_excluded_set,
+            # and infra_sync_scheduler (X78.14) keeps it fresh on its own
+            # cadence -- re-syncing here only extended this write-phase hold.
 
             wconn.execute("DELETE FROM network_membership")
             wconn.executemany(
@@ -480,6 +484,10 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
         # --- 5. Acquire the write lane ONLY for the final small INSERT OR IGNORE
         # (canonical builder wins on conflict) -- this is the sole point that
         # needs write ownership, held for a single-statement transaction.
+        # X78.20 -- P1/operational, not P2: this runs inline per completed
+        # creator-funding job (creator_funding_worker), not on the periodic
+        # background rebuild cadence, so it stays at the default priority
+        # rather than deferring to P0 as aggressively as the heavy builders.
         write_conn = db_connect(db_path, timeout=15)
         write_conn.execute("PRAGMA busy_timeout=10000")
         write_conn.execute(

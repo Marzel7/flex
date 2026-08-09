@@ -15383,29 +15383,36 @@ def api_funding_network_details(network_id):
 def api_build_funding_networks():
     """Build/rebuild funding network clusters from scratch"""
     try:
-        conn = db_connect(DB_PATH, timeout=30)
-        cursor = conn.cursor()
-
-        # Clear existing networks
-        cursor.execute("DELETE FROM funding_network_shared_tokens")
-        cursor.execute("DELETE FROM funding_network_members")
-        cursor.execute("DELETE FROM funding_networks")
-        conn.commit()
+        # X78.20 -- read + O(N^2) union-find compute phase moved to a
+        # read-only connection, holding NO write lane. Previously this whole
+        # function ran on one write-lane connection from the first DELETE
+        # onward, so the CPU-heavy pairwise-overlap loop (Phase C
+        # "acquire lane -> read/scan -> compute -> loop -> write" anti-
+        # pattern) held the single cross-process SQLite writer for the
+        # entire duration -- on any nontrivial funder count, minutes. This
+        # is a rare, manually-triggered admin action (not on any P0/P1
+        # critical path), so it should never be the thing making a birth
+        # insert time out. Only the write phase below opens a write-lane
+        # connection; the DELETE/INSERT/commit pattern in that phase is
+        # otherwise UNCHANGED from before, to avoid any behavioral drift in
+        # network-membership semantics.
+        rconn = db_connect(DB_PATH, timeout=30, read_only=True)
+        rcursor = rconn.cursor()
 
         # Get all funders with their funded tokens (excluding CEX/INFRA)
-        cursor.execute("""
+        rcursor.execute("""
             SELECT DISTINCT cf.funder_address
             FROM creator_funders cf
             WHERE cf.funder_address NOT IN (SELECT cex_address FROM cex_wallets WHERE is_active = 1)
             AND COALESCE(cf.is_cex, 0) = 0
         """)
 
-        all_funders = [row[0] for row in cursor.fetchall()]
+        all_funders = [row[0] for row in rcursor.fetchall()]
         print(f"[NETWORKS] Found {len(all_funders)} non-CEX funders to cluster", flush=True)
 
         # Build a mapping of funder -> set of tokens they fund
         funder_to_tokens = {}
-        cursor.execute("""
+        rcursor.execute("""
             SELECT DISTINCT cf.funder_address, ta.mint
             FROM creator_funders cf
             JOIN token_analysis ta ON cf.creator_address = ta.earliest_tx_creator
@@ -15414,23 +15421,24 @@ def api_build_funding_networks():
             AND ta.mint IS NOT NULL
         """)
 
-        for funder, mint in cursor.fetchall():
+        for funder, mint in rcursor.fetchall():
             if funder not in funder_to_tokens:
                 funder_to_tokens[funder] = set()
             funder_to_tokens[funder].add(mint)
 
         print(f"[NETWORKS] Built token map for {len(funder_to_tokens)} funders", flush=True)
+        rconn.close()
 
         # Union-Find data structure for efficient clustering
         parent = {}
-        
+
         def find(x):
             if x not in parent:
                 parent[x] = x
             if parent[x] != x:
                 parent[x] = find(parent[x])
             return parent[x]
-        
+
         def union(x, y):
             px, py = find(x), find(y)
             if px != py:
@@ -15439,11 +15447,11 @@ def api_build_funding_networks():
         # Pre-compute overlaps: For each pair of funders, if they share 2+ tokens, union them
         funder_list = list(funder_to_tokens.keys())
         print(f"[NETWORKS] Computing overlaps for {len(funder_list)} funders", flush=True)
-        
+
         for i, funder1 in enumerate(funder_list):
             if i % 1000 == 0:
                 print(f"[NETWORKS] Processed {i}/{len(funder_list)} funders for overlap...", flush=True)
-            
+
             for funder2 in funder_list[i+1:]:
                 overlap = len(funder_to_tokens[funder1] & funder_to_tokens[funder2])
                 if overlap >= 2:  # Threshold: 2+ shared tokens
@@ -15460,6 +15468,18 @@ def api_build_funding_networks():
         # Only keep networks with 2+ members
         networks_dict = {k: v for k, v in networks_dict.items() if len(v) >= 2}
         print(f"[NETWORKS] Found {len(networks_dict)} networks with 2+ members", flush=True)
+
+        # ── WRITE PHASE (write lane acquired only from here on) ──────────
+        # X78.20 -- P2/background: this whole endpoint is a manual/rare
+        # admin rebuild, not P0/P1 critical-path work.
+        conn = db_connect(DB_PATH, timeout=30, priority=2)
+        cursor = conn.cursor()
+
+        # Clear existing networks
+        cursor.execute("DELETE FROM funding_network_shared_tokens")
+        cursor.execute("DELETE FROM funding_network_members")
+        cursor.execute("DELETE FROM funding_networks")
+        conn.commit()
 
         # Insert networks into database
         network_id = 1
@@ -24466,6 +24486,19 @@ def api_first_snapshot_health():
     }), 200
 
 
+def _write_lane_priority_metrics() -> dict:
+    """X78.20 Phase I -- per-priority and per-caller write-lane telemetry.
+    Pure in-memory read (no DB access), so it can never itself add write
+    load. Best-effort: any import/read failure returns an empty/disabled
+    shape rather than breaking the whole recovery-status response."""
+    try:
+        from src.core.database_write_service import priority_lane_metrics
+        return priority_lane_metrics()
+    except Exception:
+        return {"by_priority": {}, "by_caller": [], "priority_inversions_recent": [],
+                "priority_inversions_count": 0, "available": False}
+
+
 @app.route('/api/listener-recovery-status')
 def api_listener_recovery_status():
     """Lightweight recovery-mode visibility endpoint.
@@ -24877,6 +24910,7 @@ def api_listener_recovery_status():
             "ws_promote_discovered":    ws_promote,
         },
         "ingestion": ingestion,
+        "write_lane_priority": _write_lane_priority_metrics(),
         "listener": {
             "pumpportal_status":       pumpportal_status,
             "pumpswap_status":         pumpswap_status,

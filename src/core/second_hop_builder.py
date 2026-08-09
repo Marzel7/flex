@@ -95,13 +95,18 @@ class SecondHopExpansionBuilder:
         # it regardless of which statement raised.
         conn = None
         try:
-            conn = sqlite3.connect(self.db_path, timeout=60)
+            from src.core.database_write_service import PRIORITY_P2_BACKGROUND
+            conn = sqlite3.connect(self.db_path, timeout=60, priority=PRIORITY_P2_BACKGROUND)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.row_factory = sqlite3.Row
 
             self._apply_span_migration(conn)
             self._apply_hub_migration(conn)
-            sync_infra_wallets(conn)
+            # X78.20 -- dropped inline sync_infra_wallets(conn): duplicated
+            # the scan+write infra_sync_scheduler (X78.14) already covers on
+            # its own cadence, and was a dominant contributor to this
+            # connection's write-lane hold time, same pattern already fixed
+            # in network_membership_builder (X78.19) and intelligence_refresh.
             excluded = build_excluded_set(conn)
             logger.info(f"[SecondHop] Exclusion set: {len(excluded)} addresses")
             self._exclude_infra_links(conn)

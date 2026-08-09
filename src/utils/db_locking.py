@@ -241,14 +241,17 @@ class TrackedConnection(sqlite3.Connection):
         self._holds_write_lock = True
         try:
             from src.core.database_write_service import (
-                CrossProcessDatabaseWriteTimeout, acquire_write_lease,
+                CrossProcessDatabaseWriteTimeout, acquire_write_lease, DEFAULT_PRIORITY,
             )
             path = getattr(self, "_db_path", None)
             if path:
                 txid = str(uuid.uuid4())
                 command = getattr(self, "_db_caller", None) or "tracked-connection-write"
+                priority = getattr(self, "_db_priority", None)
+                if priority is None:
+                    priority = DEFAULT_PRIORITY
                 self._cross_process_lease = acquire_write_lease(
-                    f"tracked:{os.path.realpath(path)}", path, txid, command
+                    f"tracked:{os.path.realpath(path)}", path, txid, command, priority=priority
                 )
                 self._write_transaction_id = txid
                 self._write_started_at = time.time()
@@ -499,7 +502,7 @@ def get_open_connection_summary(limit: int = 25) -> dict:
 
 
 def db_connect(path: str, timeout: int = 30, row_factory=None,
-               read_only: bool = False) -> sqlite3.Connection:
+               read_only: bool = False, priority: int | None = None) -> sqlite3.Connection:
     """
     Open a SQLite connection with safe defaults for concurrent access.
 
@@ -511,6 +514,14 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     committed snapshot WITHOUT taking the database write lock, so it can NEVER be
     blocked by a write storm. Use it for dashboard/read endpoints. A read-only
     connection cannot run write PRAGMAs, so we skip synchronous setup.
+
+    priority: X78.20 -- advisory write-lane scheduling tier (see
+    database_write_service.PRIORITY_P0_CRITICAL_INGESTION..PRIORITY_P3_HOUSEKEEPING).
+    None (the default) means "use the service's own DEFAULT_PRIORITY"
+    (P1/operational) -- unset by most callers, since only critical-ingestion
+    (P0) and background-analysis (P2/P3) call sites need to say so explicitly.
+    Only takes effect for actual write transactions; read-only connections
+    never touch the write lane at all regardless of this value.
 
     Use this instead of sqlite3.connect() everywhere to avoid "database is locked".
     Logs caller location and elapsed time when acquisition is slow (>1s).
@@ -562,6 +573,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     try:
         conn._db_caller = caller
         conn._db_path = path
+        conn._db_priority = priority
     except Exception:
         pass
     if row_factory is not None:
@@ -574,7 +586,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
 
 @contextlib.contextmanager
 def managed_db_connect(path: str, timeout: int = 30, row_factory=None,
-                       read_only: bool = False):
+                       read_only: bool = False, priority: int | None = None):
     """Context manager wrapper around db_connect — guarantees conn.close() on exit.
 
     Use this in Flask routes and anywhere a connection must be closed even if an
@@ -582,8 +594,13 @@ def managed_db_connect(path: str, timeout: int = 30, row_factory=None,
 
         with managed_db_connect(DB_PATH, read_only=True) as conn:
             ...
+
+    priority: X78.20 -- see db_connect()'s docstring; pass PRIORITY_P0_CRITICAL_INGESTION
+    for critical-ingestion writes (birth/migration persistence) or
+    PRIORITY_P2_BACKGROUND/PRIORITY_P3_HOUSEKEEPING for background/housekeeping
+    writers so they defer to P0/P1 at acquisition boundaries.
     """
-    conn = db_connect(path, timeout=timeout, row_factory=row_factory, read_only=read_only)
+    conn = db_connect(path, timeout=timeout, row_factory=row_factory, read_only=read_only, priority=priority)
     try:
         yield conn
     finally:
@@ -757,9 +774,17 @@ def _patched_connect(database, timeout=5, *args, **kwargs):
         # factory kwarg would conflict — db_connect uses TrackedConnection internally
         kwargs.pop("factory", None)
         row_factory = kwargs.pop("row_factory", None)
-        conn = db_connect(database, timeout=effective_timeout, row_factory=row_factory)
+        # X78.20 -- not part of stdlib sqlite3.connect()'s signature; a caller
+        # opts in by passing this as an explicit extra kwarg (e.g.
+        # sqlite3.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)),
+        # which only works because this function intercepts the call before
+        # it ever reaches the real sqlite3.connect(). Absent callers keep
+        # working unchanged (defaults to db_connect's own None -> DEFAULT_PRIORITY).
+        priority = kwargs.pop("priority", None)
+        conn = db_connect(database, timeout=effective_timeout, row_factory=row_factory, priority=priority)
         return conn
 
+    kwargs.pop("priority", None)  # not a real sqlite3.connect() kwarg -- never forward it
     return _sqlite3_connect_orig(database, timeout, *args, **kwargs)
 
 

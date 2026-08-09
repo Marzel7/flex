@@ -335,7 +335,10 @@ def _metric_flush_loop():
             continue  # discard rows, keep buffer clear, no DB contention
         for _attempt in range(3):
             try:
-                conn = sqlite3.connect(DB_PATH, timeout=30)
+                # X78.20 -- P3/housekeeping: this batch flush is metrics
+                # telemetry, never on the critical ingestion path, so it
+                # should defer to P0/P1/P2 waiters at acquisition boundaries.
+                conn = sqlite3.connect(DB_PATH, timeout=30, priority=3)
                 try:
                     conn.execute("PRAGMA busy_timeout=15000")
                     conn.executemany(
@@ -467,7 +470,9 @@ def _try_claim_reset_day(day_key: str) -> bool:
     # flush). See docs/audits/x78_11_rpc_metrics_lease_poisoning_repair.md.
     conn = None
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=30)
+        # X78.20 -- P3/housekeeping: daily-reset bookkeeping, never on the
+        # critical ingestion path.
+        conn = sqlite3.connect(DB_PATH, timeout=30, priority=3)
         cursor = conn.execute("""
             INSERT INTO rpc_metrics_state(key, value, updated_at)
             VALUES('rpc_metrics_last_reset_day', ?, CURRENT_TIMESTAMP)

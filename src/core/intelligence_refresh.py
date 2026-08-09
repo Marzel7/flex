@@ -51,8 +51,17 @@ def _now() -> int:
     return int(time.time())
 
 
-def _db(db_path: str, timeout: int = 30) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path, timeout=timeout)
+def _db(db_path: str, timeout: int = 30, priority: int | None = None) -> sqlite3.Connection:
+    # X78.20 -- priority is forwarded to db_locking.py's connect interceptor
+    # (see database_write_service.PRIORITY_P2_BACKGROUND); this whole module
+    # is background/derived-intelligence work, so callers that do real
+    # candidate-scan writes should pass PRIORITY_P2_BACKGROUND explicitly so
+    # they defer to P0/P1 waiters at acquisition boundaries. Budget/status
+    # reads (get_budget_status, etc.) leave priority unset -- default P1 --
+    # since they're small, infrequent, operational reads/writes, not the
+    # heavy scan.
+    kwargs = {"priority": priority} if priority is not None else {}
+    conn = sqlite3.connect(db_path, timeout=timeout, **kwargs)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
     return conn
@@ -140,7 +149,8 @@ class IntelligenceRefreshCandidateBuilder:
 
     def run(self) -> dict:
         t0 = time.time()
-        conn = _db(self.db_path)
+        from src.core.database_write_service import PRIORITY_P2_BACKGROUND
+        conn = _db(self.db_path, priority=PRIORITY_P2_BACKGROUND)
         try:
             creators_added = self._build_creator_candidates(conn)
             auto_approved  = self._sweep_auto_approve_watchlist(conn)
@@ -254,9 +264,20 @@ class IntelligenceRefreshCandidateBuilder:
         stale_cutoff_7d  = now - (7  * 86400)
         stale_cutoff_30d = now - (30 * 86400)
 
+        # X78.20 -- dropped the inline sync_infra_wallets(conn) call that
+        # used to run here on every cycle. It duplicated a real scan+write
+        # (collect_infra_wallet_rows + write_infra_wallet_deltas) already
+        # covered by the dedicated infra_sync_scheduler process (X78.14),
+        # and was the dominant contributor to this connection's write-lane
+        # hold time -- the same anti-pattern X78.19 already removed from
+        # network_membership_builder.assign_live_network_for_creator. This
+        # builder only READS infra_wallets below; it never needs to be the
+        # one keeping it fresh. Keep the cheap idempotent CREATE TABLE IF
+        # NOT EXISTS (not the scan+write) so a fresh DB still has the table
+        # to read from.
         try:
-            from src.utils.infra_mapping import sync_infra_wallets
-            sync_infra_wallets(conn)
+            from src.utils.infra_mapping import ensure_infra_wallets_table
+            ensure_infra_wallets_table(conn)
         except Exception:
             pass
 

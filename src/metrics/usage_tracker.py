@@ -76,7 +76,9 @@ def _flush():
         if not batch:
             continue
         try:
-            conn = sqlite3.connect(DB_PATH, timeout=10)
+            # X78.20 -- P3/housekeeping: WSS/webhook bandwidth telemetry,
+            # never on the critical ingestion path.
+            conn = sqlite3.connect(DB_PATH, timeout=10, priority=3)
             try:
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")

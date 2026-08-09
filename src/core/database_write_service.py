@@ -40,6 +40,37 @@ CROSS_PROCESS_LOCK_TIMEOUT_SEC = float(
 # latency, long enough not to spin the CPU while waiting out a real hold.
 _LOCK_POLL_INTERVAL_SEC = 0.05
 
+# X78.20 -- write-lane priority tiers. Lower number = higher priority.
+# P0 critical ingestion (birth/migration persistence, durable retry queues)
+# must not be starved by P2/P3 background work sharing the same single
+# SQLite writer. flock() itself has no priority concept and this module
+# deliberately does not add a second writer to fake one (see module
+# docstring) -- instead, acquirers register an aged priority "ticket" in a
+# small side file next to the real lock file, and only attempt the real
+# flock() when they are not being out-waited by a higher-priority ticket.
+# This is advisory/best-effort: any failure to read/write the ticket file
+# (missing, corrupt, races) makes acquisition fall back to today's plain
+# spin-poll behavior for that attempt -- the mechanism can never make
+# acquisition less safe than before, only sometimes less prioritized.
+PRIORITY_P0_CRITICAL_INGESTION = 0
+PRIORITY_P1_OPERATIONAL = 1
+PRIORITY_P2_BACKGROUND = 2
+PRIORITY_P3_HOUSEKEEPING = 3
+DEFAULT_PRIORITY = PRIORITY_P1_OPERATIONAL
+
+# A ticket's effective priority improves by one tier for each this many
+# seconds it has waited, so a P3 ticket queued behind a continuous stream of
+# P0 arrivals eventually reaches P0-equivalent standing and gets its turn --
+# bounded fairness (Phase E requirement: P2/P3 must not starve forever).
+_PRIORITY_AGING_SEC = 20.0
+
+_TICKET_POLL_INTERVAL_SEC = 0.05
+
+
+def _effective_priority(base_priority: int, waiting_since: float, now: float) -> int:
+    aged_tiers = int((now - waiting_since) // _PRIORITY_AGING_SEC)
+    return max(PRIORITY_P0_CRITICAL_INGESTION, base_priority - aged_tiers)
+
 
 Transaction = Callable[[sqlite3.Connection], Any]
 try:
@@ -261,6 +292,232 @@ def _read_owner_metadata(owner_path: str) -> dict[str, Any] | None:
         return None
 
 
+# X78.20 -- per-priority acquisition telemetry (Phase I). In-memory only,
+# process-local (each process's snapshot is combined by the reader, same
+# convention as _DBM_* in db_locking.py) -- never a DB write, so measuring
+# priority behavior can never itself add write-lane load.
+_PRIORITY_STATS_LOCK = threading.Lock()
+_PRIORITY_STATS: dict[int, dict[str, Any]] = {
+    p: {
+        "acquisitions": 0, "timeouts": 0, "wait_ms_samples": collections.deque(maxlen=1000),
+        "hold_ms_samples": collections.deque(maxlen=1000), "blocked_p0_count": 0,
+    }
+    for p in (PRIORITY_P0_CRITICAL_INGESTION, PRIORITY_P1_OPERATIONAL,
+              PRIORITY_P2_BACKGROUND, PRIORITY_P3_HOUSEKEEPING)
+}
+_CALLER_STATS_LOCK = threading.Lock()
+_CALLER_STATS: dict[str, dict[str, Any]] = {}
+_PRIORITY_INVERSIONS = collections.deque(maxlen=200)
+
+
+def _record_priority_acquire(priority: int, command: str, wait_ms: float, blocked_p0: bool) -> None:
+    with _PRIORITY_STATS_LOCK:
+        s = _PRIORITY_STATS.setdefault(priority, {
+            "acquisitions": 0, "timeouts": 0, "wait_ms_samples": collections.deque(maxlen=1000),
+            "hold_ms_samples": collections.deque(maxlen=1000), "blocked_p0_count": 0,
+        })
+        s["acquisitions"] += 1
+        s["wait_ms_samples"].append(wait_ms)
+        if blocked_p0:
+            s["blocked_p0_count"] += 1
+    with _CALLER_STATS_LOCK:
+        c = _CALLER_STATS.setdefault(command, {
+            "priority": priority, "acquisitions": 0, "hold_ms_samples": collections.deque(maxlen=500),
+            "timeouts_caused": 0, "p0_writes_blocked": 0,
+        })
+        c["acquisitions"] += 1
+        c["priority"] = priority
+        if blocked_p0:
+            c["p0_writes_blocked"] += 1
+
+
+def _record_priority_hold(priority: int, command: str, hold_ms: float) -> None:
+    with _PRIORITY_STATS_LOCK:
+        s = _PRIORITY_STATS.get(priority)
+        if s is not None:
+            s["hold_ms_samples"].append(hold_ms)
+    with _CALLER_STATS_LOCK:
+        c = _CALLER_STATS.get(command)
+        if c is not None:
+            c["hold_ms_samples"].append(hold_ms)
+
+
+def _record_priority_timeout(priority: int, command: str) -> None:
+    with _PRIORITY_STATS_LOCK:
+        s = _PRIORITY_STATS.setdefault(priority, {
+            "acquisitions": 0, "timeouts": 0, "wait_ms_samples": collections.deque(maxlen=1000),
+            "hold_ms_samples": collections.deque(maxlen=1000), "blocked_p0_count": 0,
+        })
+        s["timeouts"] += 1
+    with _CALLER_STATS_LOCK:
+        c = _CALLER_STATS.setdefault(command, {
+            "priority": priority, "acquisitions": 0, "hold_ms_samples": collections.deque(maxlen=500),
+            "timeouts_caused": 0, "p0_writes_blocked": 0,
+        })
+        c["timeouts_caused"] += 1
+
+
+def _record_priority_inversion(waiting_priority: int, waiting_command: str,
+                                blocking_priority: int, blocking_command: str, wait_ms: float) -> None:
+    """A lower-numbered (higher-priority) waiter was measurably blocked by a
+    holder of strictly lower priority (higher number). Detectable per Phase E
+    -- recorded, not auto-corrected: the current holder always finishes its
+    transaction (Phase F -- no unsafe mid-transaction preemption)."""
+    with _PRIORITY_STATS_LOCK:
+        _PRIORITY_INVERSIONS.append({
+            "at": time.time(), "waiting_priority": waiting_priority, "waiting_command": waiting_command,
+            "blocking_priority": blocking_priority, "blocking_command": blocking_command,
+            "wait_ms": round(wait_ms, 1),
+        })
+
+
+def priority_lane_metrics() -> dict[str, Any]:
+    """Mission Control / diagnostic read: per-priority and per-caller write-
+    lane telemetry (Phase I). Pure in-memory read, no DB access."""
+    def _pctl(samples, p):
+        if not samples:
+            return 0.0
+        s = sorted(samples)
+        k = int(round((p / 100.0) * (len(s) - 1)))
+        return round(s[k], 2)
+
+    with _PRIORITY_STATS_LOCK:
+        by_priority = {}
+        for p, s in _PRIORITY_STATS.items():
+            waits = list(s["wait_ms_samples"])
+            holds = list(s["hold_ms_samples"])
+            by_priority[p] = {
+                "acquisitions": s["acquisitions"],
+                "timeouts": s["timeouts"],
+                "wait_ms_p50": _pctl(waits, 50), "wait_ms_p95": _pctl(waits, 95), "wait_ms_p99": _pctl(waits, 99),
+                "hold_ms_p50": _pctl(holds, 50), "hold_ms_p95": _pctl(holds, 95), "hold_ms_p99": _pctl(holds, 99),
+                "blocked_p0_count": s["blocked_p0_count"],
+            }
+        inversions = list(_PRIORITY_INVERSIONS)
+    with _CALLER_STATS_LOCK:
+        by_caller = []
+        for command, c in _CALLER_STATS.items():
+            holds = list(c["hold_ms_samples"])
+            by_caller.append({
+                "caller": command, "priority": c["priority"], "acquisitions": c["acquisitions"],
+                "hold_ms_p50": _pctl(holds, 50), "hold_ms_p95": _pctl(holds, 95),
+                "hold_ms_p99": _pctl(holds, 99), "hold_ms_max": max(holds) if holds else 0.0,
+                "timeouts_caused": c["timeouts_caused"], "p0_writes_blocked": c["p0_writes_blocked"],
+            })
+        by_caller.sort(key=lambda c: -c["hold_ms_p99"])
+    return {
+        "by_priority": by_priority,
+        "by_caller": by_caller[:50],
+        "priority_inversions_recent": inversions[-20:],
+        "priority_inversions_count": len(inversions),
+    }
+
+
+def _waiters_path(lock_path: str) -> str:
+    return f"{lock_path}.waiters"
+
+
+def _register_waiter_ticket(lock_path: str, priority: int, command: str) -> dict[str, Any]:
+    """Best-effort: add this acquisition attempt to the shared waiters
+    side-file so other processes can see it when deciding whether to defer.
+    Failure here (missing dir, permissions, transient I/O) must never block
+    or fail the caller -- it only means this attempt won't be visible to
+    other processes' deferral checks, degrading gracefully to plain
+    spin-poll ordering, exactly like today."""
+    ticket = {"pid": os.getpid(), "thread": threading.current_thread().name,
+              "priority": priority, "command": command, "since": time.time(),
+              "ticket_id": str(uuid.uuid4())}
+    try:
+        waiters_path = _waiters_path(lock_path)
+        wfile = open(waiters_path, "a+")
+        try:
+            fcntl.flock(wfile.fileno(), fcntl.LOCK_EX)
+            wfile.seek(0)
+            try:
+                tickets = json.load(wfile)
+                if not isinstance(tickets, list):
+                    tickets = []
+            except Exception:
+                tickets = []
+            now = time.time()
+            tickets = [t for t in tickets if now - t.get("since", 0) < CROSS_PROCESS_LOCK_TIMEOUT_SEC * 2]
+            tickets.append(ticket)
+            wfile.seek(0)
+            wfile.truncate()
+            json.dump(tickets, wfile)
+            wfile.flush()
+        finally:
+            try:
+                fcntl.flock(wfile.fileno(), fcntl.LOCK_UN)
+            finally:
+                wfile.close()
+    except Exception:
+        pass
+    return ticket
+
+
+def _unregister_waiter_ticket(lock_path: str, ticket_id: str) -> None:
+    try:
+        waiters_path = _waiters_path(lock_path)
+        wfile = open(waiters_path, "r+")
+        try:
+            fcntl.flock(wfile.fileno(), fcntl.LOCK_EX)
+            wfile.seek(0)
+            try:
+                tickets = json.load(wfile)
+                if not isinstance(tickets, list):
+                    tickets = []
+            except Exception:
+                tickets = []
+            tickets = [t for t in tickets if t.get("ticket_id") != ticket_id]
+            wfile.seek(0)
+            wfile.truncate()
+            json.dump(tickets, wfile)
+            wfile.flush()
+        finally:
+            try:
+                fcntl.flock(wfile.fileno(), fcntl.LOCK_UN)
+            finally:
+                wfile.close()
+    except Exception:
+        pass
+
+
+def _should_defer_to_higher_priority(lock_path: str, my_ticket: dict[str, Any], now: float) -> tuple[bool, dict | None]:
+    """True if a strictly-higher-effective-priority ticket (lower number,
+    after aging) is registered and older-or-equal in queue position than
+    mine. Read-only, best-effort: any failure means "don't defer" (fall back
+    to plain FIFO-ish flock() contention, today's behavior)."""
+    try:
+        waiters_path = _waiters_path(lock_path)
+        if not os.path.exists(waiters_path):
+            return False, None
+        with open(waiters_path) as wfile:
+            try:
+                fcntl.flock(wfile.fileno(), fcntl.LOCK_SH)
+                tickets = json.load(wfile)
+            finally:
+                try:
+                    fcntl.flock(wfile.fileno(), fcntl.LOCK_UN)
+                except Exception:
+                    pass
+        if not isinstance(tickets, list):
+            return False, None
+        my_effective = _effective_priority(my_ticket["priority"], my_ticket["since"], now)
+        my_id = my_ticket["ticket_id"]
+        for t in tickets:
+            if t.get("ticket_id") == my_id:
+                continue
+            other_effective = _effective_priority(t.get("priority", DEFAULT_PRIORITY), t.get("since", now), now)
+            if other_effective < my_effective:
+                return True, t
+            if other_effective == my_effective and t.get("since", now) < my_ticket["since"]:
+                return True, t  # tie-break: whoever has been waiting longer at the same tier goes first
+        return False, None
+    except Exception:
+        return False, None
+
+
 def acquire_write_lease(
     database: str,
     path: str,
@@ -268,6 +525,7 @@ def acquire_write_lease(
     command: str,
     *,
     timeout: float = CROSS_PROCESS_LOCK_TIMEOUT_SEC,
+    priority: int = DEFAULT_PRIORITY,
 ) -> WriteLease:
     """Acquire the database-wide lane used by services and tracked connections.
 
@@ -277,6 +535,18 @@ def acquire_write_lease(
     hang (X78.9 -- previously a live-but-hung holder such as
     creator_funding_worker blocked the whole platform for ~7.5h because this
     call had no timeout at all).
+
+    X78.20 -- `priority` (PRIORITY_P0_CRITICAL_INGESTION..PRIORITY_P3_HOUSEKEEPING,
+    default PRIORITY_P1_OPERATIONAL) is advisory scheduling, not mutual
+    exclusion: there is still exactly one flock() holder at a time (no
+    parallel writers). A waiter that sees a strictly-higher-effective-priority
+    ticket registered briefly steps back (re-polls) instead of racing for the
+    NB lock immediately, so a P0 birth waiting behind a queued P2 rebuild
+    tends to win the next free slot. This is best-effort ordering among
+    *waiters*, not preemption of whoever already holds the lock (Phase F --
+    an in-progress transaction always finishes; priority only applies at
+    acquisition boundaries). Any failure in the ticket side-channel silently
+    falls back to today's plain flock() contention for that attempt.
     """
     real_path = os.path.realpath(path)
     this_thread_ident = threading.get_ident()
@@ -318,22 +588,50 @@ def acquire_write_lease(
     lock_file = open(lock_path, "a+")
 
     deadline = time.monotonic() + timeout
+    wait_start_wall = time.time()
     waiting_pid = os.getpid()
     waiting_thread = threading.current_thread().name
     acquired = False
-    while True:
-        try:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            acquired = True
-            break
-        except OSError as exc:
-            if exc.errno not in (errno.EAGAIN, errno.EACCES):
-                lock_file.close()
-                raise
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
+    blocked_by_lower_priority = False
+    my_ticket = _register_waiter_ticket(lock_path, priority, command)
+    try:
+        while True:
+            now = time.time()
+            defer, blocker = _should_defer_to_higher_priority(lock_path, my_ticket, now)
+            if defer:
+                blocking_priority = blocker.get("priority", DEFAULT_PRIORITY) if blocker else DEFAULT_PRIORITY
+                if blocking_priority > priority:
+                    # A NUMERICALLY LOWER-priority (higher-number = less
+                    # important) ticket is somehow ranked ahead only via the
+                    # wait-longer tie-break -- not a true inversion, just FIFO
+                    # among equals; nothing to record.
+                    pass
+                elif blocking_priority < priority:
+                    blocked_by_lower_priority = True
+                    _record_priority_inversion(
+                        priority, command, blocking_priority,
+                        blocker.get("command", "unknown") if blocker else "unknown",
+                        (time.monotonic() - (deadline - timeout)) * 1000.0,
+                    )
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                time.sleep(min(_TICKET_POLL_INTERVAL_SEC, remaining))
+                continue
+            try:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquired = True
                 break
-            time.sleep(min(_LOCK_POLL_INTERVAL_SEC, remaining))
+            except OSError as exc:
+                if exc.errno not in (errno.EAGAIN, errno.EACCES):
+                    lock_file.close()
+                    raise
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                time.sleep(min(_LOCK_POLL_INTERVAL_SEC, remaining))
+    finally:
+        _unregister_waiter_ticket(lock_path, my_ticket["ticket_id"])
 
     if not acquired:
         wait_seconds = time.monotonic() - (deadline - timeout)
@@ -341,8 +639,8 @@ def acquire_write_lease(
         lock_file.close()
         _log.warning(
             "[CROSS_PROCESS_LOCK] timeout after %.1fs database=%s command=%s "
-            "waiting_pid=%s current_owner=%s",
-            wait_seconds, database, command, waiting_pid, current_owner,
+            "waiting_pid=%s current_owner=%s priority=%s",
+            wait_seconds, database, command, waiting_pid, current_owner, priority,
         )
         exc = CrossProcessDatabaseWriteTimeout(
             database=database.split(":", 1)[0],
@@ -357,7 +655,11 @@ def acquire_write_lease(
         # TrackedConnection and DatabaseWriteService) so Mission Control sees
         # every cross-process timeout regardless of which caller hit it.
         _record_cross_process_timeout(real_path, exc)
+        _record_priority_timeout(priority, command)
         raise exc
+
+    wait_ms = (time.time() - wait_start_wall) * 1000.0
+    _record_priority_acquire(priority, command, wait_ms, blocked_by_lower_priority)
 
     token = object()  # unique identity for THIS acquisition; never persisted/serialized anywhere
     owner = {
@@ -369,7 +671,9 @@ def acquire_write_lease(
         "thread": threading.current_thread().name,
         "transaction_id": transaction_id,
         "command": command,
+        "priority": priority,
         "acquired_at": time.time(),
+        "acquired_at_monotonic": time.monotonic(),
     }
     with open(owner_path, "w", encoding="utf-8") as owner_file:
         json.dump(owner, owner_file, sort_keys=True)
@@ -387,6 +691,16 @@ def release_write_lease(lease: WriteLease) -> None:
     # stuck for hours after a single release-path OSError left _thread_write_lease
     # .owner set forever, so every later _ops_conn() write raised
     # NestedDatabaseWriteError against itself).
+    try:
+        acquired_mono = lease.owner.get("acquired_at_monotonic")
+        if acquired_mono is not None:
+            _record_priority_hold(
+                lease.owner.get("priority", DEFAULT_PRIORITY),
+                lease.owner.get("command", "unknown"),
+                (time.monotonic() - acquired_mono) * 1000.0,
+            )
+    except Exception:
+        pass
     try:
         try:
             os.unlink(lease.owner_path)

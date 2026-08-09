@@ -95,6 +95,66 @@ RATE_WARNING_RATIO = float(os.environ.get("MC_RATE_WARNING_RATIO", "0.5"))
 BIRTH_SILENCE_FALLBACK_SEC = int(os.environ.get("MC_BIRTH_SILENCE_FALLBACK_SEC", "5400"))
 MIGRATION_SILENCE_FALLBACK_SEC = int(os.environ.get("MC_MIGRATION_SILENCE_FALLBACK_SEC", "5400"))
 
+# ── MC1.2A: Migration Elapsed-Time Policy ───────────────────────────────────
+#
+# MC1.2 evaluated migrations with the SAME rate-ratio logic as births
+# (evaluate_rate_signal, above). In production this over-escalated: births
+# occur near-continuously so a rate-ratio collapse reliably means a real
+# problem, but migrations are naturally bursty (a token migrates once, at
+# an unpredictable point after birth) -- a normal dormant period between
+# bursts produced the same CRITICAL classification as a genuine outage.
+#
+# This does not change how births are evaluated (Phase A: no change to
+# birth logic) -- it adds a SEPARATE, elapsed-time-since-last-migration
+# policy used only for migrations, calibrated from observed production
+# behaviour rather than a rate ratio. Configurable via environment
+# variables, per the charter's explicit "must remain configurable, do not
+# hard-code production policy" instruction -- the numbers below are the
+# charter's own suggested starting values, not a hardcoded final policy.
+MIGRATION_DORMANT_MAX_MIN = float(os.environ.get("MC_MIGRATION_DORMANT_MAX_MIN", "20"))
+MIGRATION_WARNING_MAX_MIN = float(os.environ.get("MC_MIGRATION_WARNING_MAX_MIN", "30"))
+MIGRATION_CONCERN_MAX_MIN = float(os.environ.get("MC_MIGRATION_CONCERN_MAX_MIN", "40"))
+# Beyond MIGRATION_CONCERN_MAX_MIN is CRITICAL.
+
+
+def evaluate_migration_elapsed_policy(silence_secs: Optional[int]) -> Dict[str, Any]:
+    """MC1.2A Phase B: migration health classified by elapsed time since
+    the last migration, using configurable minute bands, instead of the
+    rate-ratio logic births use. This directly encodes migrations' bursty
+    operational profile: 0-20min is normal/dormant (not evidence of a
+    problem), 20-30min is worth watching (WARNING), 30-40min is a real
+    concern trending toward failure (still WARNING-ranked -- MC1.0's
+    severity vocabulary has no fifth level between WARNING and CRITICAL,
+    so 'Concern' is a PRESENTATION label the dashboard applies to this
+    band, not a new backend status value), and only beyond 40min does this
+    become CRITICAL. silence_secs=None (no migration ever recorded) is
+    treated as UNKNOWN, matching every other signal's convention for
+    absent data -- never silently CRITICAL or HEALTHY."""
+    if silence_secs is None:
+        return {
+            "status": "UNKNOWN",
+            "band": "unknown",
+            "elapsed_min": None,
+            "detail": "no migration recorded yet",
+        }
+
+    elapsed_min = silence_secs / 60.0
+    if elapsed_min <= MIGRATION_DORMANT_MAX_MIN:
+        status, band = "HEALTHY", "dormant"
+    elif elapsed_min <= MIGRATION_WARNING_MAX_MIN:
+        status, band = "WARNING", "warning"
+    elif elapsed_min <= MIGRATION_CONCERN_MAX_MIN:
+        status, band = "WARNING", "concern"
+    else:
+        status, band = "CRITICAL", "critical"
+
+    return {
+        "status": status,
+        "band": band,
+        "elapsed_min": round(elapsed_min, 1),
+        "detail": f"{elapsed_min:.1f}min since last migration (band={band})",
+    }
+
 
 def compute_observed_rate_per_min(event_count_in_window: int, window_min: int = RATE_WINDOW_MIN) -> float:
     """Observed events/min over the rolling window. Pure function -- the
@@ -570,19 +630,20 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     # placeholder 0/None that made every prior evaluation fall through to
     # the silence-only path.
     birth_count = count_recent_events("births")
-    migration_count = count_recent_events("migrations")
     birth_rate = evaluate_rate_signal(
         event_type="births",
         observed_count_in_window=birth_count,
         silence_secs=birth_age,
         fallback_silence_sec=BIRTH_SILENCE_FALLBACK_SEC,
     )
-    migration_rate = evaluate_rate_signal(
-        event_type="migrations",
-        observed_count_in_window=migration_count,
-        silence_secs=mig_age,
-        fallback_silence_sec=MIGRATION_SILENCE_FALLBACK_SEC,
-    )
+    # MC1.2A Phase B: migrations use the elapsed-time band policy, NOT the
+    # rate-ratio logic births use (Phase A: birth logic is unchanged,
+    # above). Migrations are naturally bursty -- a rate-ratio comparison
+    # against a historical baseline treated a normal dormant period the
+    # same as a genuine collapse. This is a calibration change only: same
+    # underlying data (last_migration_age_secs, already read as mig_age),
+    # different, purpose-built classification for that data.
+    migration_rate = evaluate_migration_elapsed_policy(mig_age)
 
     # MC1.2 Phase C/D: connection status is SUPPORTING EVIDENCE only --
     # it contributes its own signal entries (visible diagnostic context)
@@ -599,7 +660,13 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
 
     signals = [
         _signal("birth_rate_collapse", birth_rate["status"] != "HEALTHY", birth_rate["detail"]),
-        _signal("migration_rate_collapse", migration_rate["status"] != "HEALTHY", migration_rate["detail"]),
+        # MC1.2A: abnormal only when migration_rate's status is itself
+        # WARNING/CRITICAL under the calibrated elapsed-time policy --
+        # HEALTHY (the "dormant" band) is NOT abnormal, so a normal
+        # migration lull no longer contributes an abnormal evidence signal
+        # or opens an incident (Phase E: "a normal migration lull must
+        # never create a CRITICAL incident").
+        _signal("migration_health", migration_rate["status"] not in ("HEALTHY", "UNKNOWN"), migration_rate["detail"]),
         _signal("pumpportal_connection", pp_status == "RETRYING" or pp_disconnected, pp_status),
         _signal("pumpswap_connection", ps_status == "RETRYING" or ps_disconnected, ps_status),
         _signal(
@@ -614,16 +681,22 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         ),
     ]
 
-    # MC1.2 Phase C: observed rate is primary (birth_rate/migration_rate
-    # statuses, already rate-driven when a baseline exists). Connection
-    # state and listener freshness are supporting evidence, contributing
-    # their own severity ceiling but NEVER lower than what the rate
-    # signals already require -- _max_status can only raise, never lower,
-    # so a CONNECTED socket can never mask a collapsed rate (it simply
-    # contributes HEALTHY to the max, which never wins against an already-
-    # CRITICAL rate signal). A disconnected/stale socket, conversely, can
-    # still independently raise severity even if rate momentarily looks
-    # fine (e.g. right at the edge of a window), matching Case 2.
+    # MC1.2 Phase C, calibrated by MC1.2A Phase E: birth flow is the
+    # PRIMARY driver of Live Ingestion severity. Migration health is
+    # supporting context -- it is included in the same _max_status() call
+    # (so it CAN still independently raise severity, per Phase E: "unless
+    # it independently exceeds its calibrated thresholds"), but because
+    # migration_rate's status now comes from the calibrated elapsed-time
+    # policy above (HEALTHY through the whole normal 0-20min dormant
+    # band), a normal migration lull contributes HEALTHY here and can
+    # never floor/raise the overall status -- exactly MC1.2A's "a normal
+    # migration lull must never create a CRITICAL incident" requirement.
+    # Only a migration silence that genuinely exceeds MIGRATION_CONCERN_MAX_MIN
+    # (calibrated, configurable) still raises this to CRITICAL, same as
+    # any other independently-abnormal signal. Connection state and
+    # listener freshness remain supporting evidence exactly as MC1.2 left
+    # them -- _max_status can only raise, never lower, so a CONNECTED
+    # socket can never mask a collapsed rate.
     status = _max_status(
         birth_rate["status"],
         migration_rate["status"],
@@ -645,9 +718,16 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
             "last_birth_age_secs": birth_age,
         },
         "migrations": {
-            "observed_per_min": migration_rate.get("observed_rate_per_min"),
-            "expected_per_min": migration_rate.get("expected_rate_per_min"),
-            "mode": migration_rate.get("mode"),
+            # MC1.2A: migrations no longer carry a rate-ratio mode/observed-
+            # vs-expected pair -- they're evaluated on elapsed-time bands
+            # (see evaluate_migration_elapsed_policy). "mode" is fixed at
+            # "elapsed_policy" so the dashboard can tell this apart from
+            # births' "rate"/"silence_fallback" modes and render migration
+            # messaging (Phase C/D) instead of a baseline comparison.
+            "mode": "elapsed_policy",
+            "status": migration_rate.get("status"),
+            "band": migration_rate.get("band"),
+            "elapsed_min": migration_rate.get("elapsed_min"),
             "last_migration_age_secs": mig_age,
         },
     }
@@ -926,7 +1006,7 @@ def _first_detected_at(capability_name: str, is_active: bool) -> Optional[float]
 
 _IMPACT_LABELS = {
     "birth_rate_collapse": "Birth rate collapsed",
-    "migration_rate_collapse": "Migration rate collapsed",
+    "migration_health": "Migration activity below expected profile",
     "pumpportal_connection": "PumpPortal unavailable",
     "pumpswap_connection": "PumpSwap unavailable",
     "listener_log_freshness": "Listener unhealthy",

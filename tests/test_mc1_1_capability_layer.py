@@ -135,9 +135,13 @@ def test_live_ingestion_critical_matches_charter_worked_example():
 
     assert live_ingestion["status"] == "CRITICAL"
     assert live_ingestion["evidence"]["abnormal"] == 4
+    # last_migration_age_secs=5700 (95min) is far beyond MC1.2A's
+    # calibrated CRITICAL band (>40min), so migration_health is still
+    # correctly abnormal here -- this worked example is a genuine
+    # migration outage, not a normal dormant period.
     abnormal_names = {s["name"] for s in live_ingestion["signals"] if s["abnormal"]}
     assert abnormal_names == {
-        "birth_rate_collapse", "migration_rate_collapse",
+        "birth_rate_collapse", "migration_health",
         "pumpportal_connection", "listener_log_freshness",
     }
 
@@ -146,7 +150,7 @@ def test_live_ingestion_critical_matches_charter_worked_example():
     assert incidents[0]["capability"] == "live_ingestion"
     assert incidents[0]["severity"] == "CRITICAL"
     assert set(incidents[0]["impact"]) == {
-        "Birth rate collapsed", "Migration rate collapsed",
+        "Birth rate collapsed", "Migration activity below expected profile",
         "PumpPortal unavailable", "Listener unhealthy",
     }
 
@@ -419,33 +423,31 @@ def test_charter_case2_disconnected_socket_is_immediate_critical(monkeypatch):
 def test_charter_case3_partial_rate_collapse_is_warning_not_critical(monkeypatch):
     """Phase D Case 3: birth rate at 40% of expected -> WARNING, well
     before complete silence -- proving the rate engine catches a
-    slowdown, not just a full outage. Migrations are held healthy (their
-    own observed count matches their own expected rate) so this test
-    isolates the birth-rate-specific WARNING rather than being masked by
-    an unrelated migration signal -- _max_status correctly takes the
-    max across ALL signals, so a test asserting one signal's threshold
-    must hold every other signal healthy, exactly as a real 'only births
-    slowed down' incident would look in production."""
-    monkeypatch.setattr(mc, "get_expected_rate_per_min",
-                         lambda event_type: 10.0 if event_type == "births" else 1.0)
+    slowdown, not just a full outage. Migration is held within its
+    calibrated dormant band (MC1.2A) so this test isolates the
+    birth-rate-specific WARNING rather than being masked by an unrelated
+    migration signal -- _max_status correctly takes the max across ALL
+    signals, so a test asserting one signal's threshold must hold every
+    other signal healthy, exactly as a real 'only births slowed down'
+    incident would look in production."""
+    monkeypatch.setattr(mc, "get_expected_rate_per_min", lambda event_type: 10.0)
     monkeypatch.setattr(mc, "count_recent_events",
-                         lambda event_type, window_min=mc.RATE_WINDOW_MIN: 60 if event_type == "births" else 15)
+                         lambda event_type, window_min=mc.RATE_WINDOW_MIN: 60)
     # Births: 60 events / 15min window = 4.0/min = 40% of 10.0/min
     # expected -- between RATE_WARNING_RATIO (0.5) triggers WARNING,
     # above RATE_CRITICAL_RATIO (0.1) so not CRITICAL.
-    # Migrations: 15 events / 15min = 1.0/min = 100% of 1.0/min expected
-    # -- healthy, so it cannot itself raise severity above WARNING.
 
     subsystems = _healthy_subsystems()
     subsystems["ingestion"]["pumpportal"] = "CONNECTED"
     subsystems["ingestion"]["last_birth_age_secs"] = 30
+    subsystems["ingestion"]["last_migration_age_secs"] = 60  # 1min -- well within the dormant band
 
     result = mc._compute_live_ingestion(subsystems)
 
     assert result["status"] == "WARNING"
     birth_signal = next(s for s in result["signals"] if s["name"] == "birth_rate_collapse")
     assert birth_signal["abnormal"] is True
-    migration_signal = next(s for s in result["signals"] if s["name"] == "migration_rate_collapse")
+    migration_signal = next(s for s in result["signals"] if s["name"] == "migration_health")
     assert migration_signal["abnormal"] is False
     assert result["flow_metrics"]["births"]["observed_per_min"] == 4.0
     assert result["flow_metrics"]["births"]["expected_per_min"] == 10.0

@@ -123,6 +123,17 @@
         .mc-trend-badge.degrading { color: #f87171; }
         .mc-trend-badge.insufficient_history { color: #64748b; font-style: italic; font-weight: 400; }
         .mc-trend-duration { color: var(--text-secondary); font-weight: 400; }
+
+        /* MC1.2A Phase D — migration's own status badge, rendered
+           independently of Births' badge so a birth CRITICAL never
+           visually implies migrations are equally severe. */
+        .mc-migration-status-badge { font-size: 0.8rem; font-weight: 700; margin: 0.2rem 0 0.1rem; }
+        .mc-migration-band-dormant { color: #4ade80; }
+        .mc-migration-band-warning { color: #facc15; }
+        .mc-migration-band-concern { color: #fb923c; }
+        .mc-migration-band-critical { color: #f87171; }
+        .mc-migration-band-unknown { color: #64748b; }
+        .mc-metric-detail { color: var(--text-secondary); font-size: 0.72rem; }
         .mc-sparkline { display: block; margin-top: 0.3rem; }
 
         /* MC1.1A — status/evidence row, now BELOW metrics, click target
@@ -561,7 +572,7 @@
             queue_backlog_growth: 'Queue growing',
             queue_backlog: 'Queue growing',
             birth_rate_collapse: 'Births stopped',
-            migration_rate_collapse: 'Migrations stopped',
+            migration_health: 'Migration activity below expected profile',
             pumpportal_connection: 'PumpPortal retrying',
             pumpswap_connection: 'PumpSwap retrying',
             listener_log_freshness: 'Listener stale',
@@ -700,6 +711,38 @@
                          + row('Last event', mcFormatAgo(ageSecs));
                 }
 
+                // MC1.2A Phase C/D/F: migrations are evaluated on the
+                // calibrated elapsed-time band policy (mode ===
+                // 'elapsed_policy'), not a rate-ratio -- so they get their
+                // own operational-wording presentation instead of
+                // rateRows()'s baseline-comparison copy. A normal dormant
+                // period (band === 'dormant') reads as expected inactivity,
+                // not an alarm, and its own status badge is rendered
+                // independently of Births' badge so a birth CRITICAL never
+                // visually implies migrations are equally severe (Phase D's
+                // explicit requirement).
+                const MC_MIGRATION_BAND_LABEL = {
+                    dormant: 'Dormant', warning: 'Warning',
+                    concern: 'Concern', critical: 'Critical', unknown: 'Unknown',
+                };
+                const MC_MIGRATION_BAND_ICON = {
+                    dormant: '🟢', warning: '🟡', concern: '🟠', critical: '🔴', unknown: '⚪',
+                };
+                function migrationRows(m, ageSecs) {
+                    if (m.mode !== 'elapsed_policy') {
+                        // Fallback for an older cached payload shape.
+                        return row('Observed', 'baseline unavailable') + row('Last event', mcFormatAgo(ageSecs));
+                    }
+                    const band = m.band || 'unknown';
+                    const icon = MC_MIGRATION_BAND_ICON[band] || '⚪';
+                    const label = MC_MIGRATION_BAND_LABEL[band] || band;
+                    const elapsedStr = m.elapsed_min != null ? `${m.elapsed_min.toFixed(0)} minutes since last migration` : 'no migration recorded yet';
+                    const withinProfile = band === 'dormant' ? ' — within expected burst profile' : '';
+                    return `
+                        <div class="mc-migration-status-badge mc-migration-band-${band}">${icon} ${label}</div>
+                        <div class="mc-metric-row"><span class="mc-metric-detail">${elapsedStr}${withinProfile}</span></div>`;
+                }
+
                 // MC1.3 Phase B/E: trend + sparkline, built from
                 // cap.trend.{births,migrations} (real historical
                 // 5m/15m/60m/24h rates, computed by
@@ -726,7 +769,7 @@
                     </div>
                     <div class="mc-metrics-block">
                         <div class="mc-metrics-group-label">Migrations</div>
-                        ${rateRows(migrations, ing.last_migration_age_secs)}
+                        ${migrationRows(migrations, ing.last_migration_age_secs)}
                         ${row('Migration queue', ing.migration_queue_pending != null ? ing.migration_queue_pending : '—')}
                         ${mcTrendBadgeHtml(migTrend)}
                         ${sparklineForTrend(migTrend)}
@@ -1229,7 +1272,20 @@
             const birthAge = ing.latest_birth_age_s;
             const migAge = ing.latest_migration_age_s;
             if (birthAge != null && birthAge >= 300) warningMsgs.push(`No births in ${Math.round(birthAge/60)}m`);
-            if (migAge != null && migAge >= 300) warningMsgs.push(`No migrations in ${Math.round(migAge/60)}m`);
+            // MC1.2A Phase C: migrations are naturally bursty -- replace
+            // the flat 5-minute "No migrations in Nm" alarm wording with
+            // the same calibrated elapsed-time bands the capability engine
+            // uses (MC_MIGRATION_*_MAX_MIN), so this legacy recovery-panel
+            // strip doesn't independently escalate on a normal dormant
+            // period. Only escalates (as a warningMsg) once elapsed time
+            // exceeds the warning band; the dormant band produces no
+            // warning at all, matching "only escalate when thresholds are
+            // exceeded."
+            if (migAge != null) {
+                const migMin = migAge / 60;
+                if (migMin > 30) warningMsgs.push(`Migration activity: ${Math.round(migMin)} minutes since last migration (exceeds expected burst profile)`);
+                // 0-30min (dormant/warning band): expected inactivity, not surfaced as a warning here.
+            }
             const lockTotal = lke.listener_tail_count;
             if (lockTotal >= 10) warningMsgs.push(`${lockTotal} DB lock errors (log tail)`);
 

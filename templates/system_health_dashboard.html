@@ -59,28 +59,10 @@
         .mc-banner.critical { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.45);  color: #f87171; }
         .mc-banner .sub { font-weight: 400; font-size: 0.85rem; opacity: 0.8; margin-left: auto; }
 
-        /* ── Health Summary strip: "do I need to do anything?" in 5s ──────
-           Sits directly under the banner, same bordered block, no gap --
-           reads as one unit. Lists which capability groups are healthy
-           (quiet, one line) vs. which need attention (with their reasons),
-           so the very top of the page never requires expanding a group. */
-        .mc-summary-strip {
-            display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
-            padding: 0.75rem 1.25rem;
-            border-left: 1px solid; border-right: 1px solid; border-bottom: 1px solid;
-            border-radius: 0 0 0.5rem 0.5rem;
-            font-size: 0.82rem;
-        }
-        .mc-summary-strip.ok       { border-color: rgba(34,197,94,0.35);  background: rgba(34,197,94,0.04); }
-        .mc-summary-strip.warning  { border-color: rgba(234,179,8,0.4);   background: rgba(234,179,8,0.04); }
-        .mc-summary-strip.critical { border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.04); }
-        .mc-summary-col { display: flex; flex-direction: column; gap: 0.3rem; }
-        .mc-summary-col-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 0.1rem; }
-        .mc-summary-item { display: flex; align-items: center; gap: 0.4rem; }
-        .mc-summary-item.healthy  { color: #4ade80; }
-        .mc-summary-item.warning  { color: #facc15; }
-        .mc-summary-item.critical { color: #f87171; }
-        .mc-summary-item .reason { color: #94a3b8; font-weight: 400; margin-left: 0.15rem; }
+        /* MC1.1D — the old "Health Summary strip" (.mc-summary-strip) was
+           removed as a duplicate of .mc-cap-strip (defined further below)
+           -- both rendered a near-identical "Live Capabilities" list back
+           to back. See docs/design/mc1_1d_strip_consolidation.md. */
 
         /* ── MC1.1 capability-first incident layer (docs/design/mc1_0_capability_severity_model.md)
            Sits ABOVE the existing Phase-9 banner/strip and Phase-2 groups
@@ -178,9 +160,9 @@
 
         /* Capability strip (Phase B) — one line per platform capability,
            WATCHTOWER excluded (Phase F: it's an Operation, not a platform
-           capability). Separate from mc-summary-strip's fuller "Live
-           Capabilities" column -- this one is the terse 5-second glance,
-           rendered directly under the banner. */
+           capability). The SOLE "Live Capabilities" glance (MC1.1D removed
+           the earlier duplicate mc-summary-strip), rendered directly under
+           the banner. */
         .mc-cap-strip { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.6rem 1.25rem; margin-bottom: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.5rem; }
         .mc-cap-strip-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; padding: 0.15rem 0; cursor: pointer; }
         .mc-cap-strip-row:hover { opacity: 0.85; }
@@ -363,21 +345,23 @@
                 <i class="fas fa-circle-notch fa-spin"></i>
                 <span>Checking system status…</span>
             </div>
-            <div id="mc-summary-strip" class="mc-summary-strip ok"></div>
         </div>
 
         <!-- ═══ MC1.1 capability-first incident layer ══════════════════════
              docs/design/mc1_0_capability_severity_model.md, simplified per
-             MC1.1C (docs/design/mc1_1c_ux_simplification.md). Answers "what
-             capability have I lost" before the existing groups below
+             MC1.1C (docs/design/mc1_1c_ux_simplification.md), consolidated
+             per MC1.1D (docs/design/mc1_1d_strip_consolidation.md). Answers
+             "what capability have I lost" before the existing groups below
              answer "why". Purely additive -- driven by fullHealth.capabilities
              / fullHealth.incidents, already fetched by updateDashboard(),
              no new request. Empty (no incidents) renders nothing here.
-             mc-cap-strip is the terse 5-second-glance list (Phase B --
-             platform capabilities only, WATCHTOWER excluded per Phase F).
-             Only the single highest-severity incident/capability render
-             expanded by default; the rest render as one-line collapsed
-             summaries (Phase A/D), full detail one click away. ═══ -->
+             mc-cap-strip is the SOLE "Live Capabilities" glance (Phase B --
+             platform capabilities only, WATCHTOWER excluded per Phase F;
+             MC1.1B's separate mc-summary-strip was removed as a duplicate
+             of this same list, see MC1.1D). Only the single highest-severity
+             incident/capability render expanded by default; the rest render
+             as one-line collapsed summaries (Phase A/D), full detail one
+             click away. ═══ -->
         <div id="mc-cap-strip" class="mc-cap-strip"></div>
         <div id="mc-incidents" class="mc-incidents-wrap"></div>
         <div id="mc-capability-grid" class="mc-capability-grid"></div>
@@ -898,9 +882,9 @@
 
         // MC1.1C Phase B — terse 5-capability strip (WATCHTOWER excluded
         // per Phase F), platform hierarchy order, click jumps to the
-        // corresponding card. Distinct from mc-summary-strip (MC1.1B's
-        // fuller "Live Capabilities" list, still rendered below the
-        // banner) -- this is the very top glance the charter asks for.
+        // corresponding card. Now the SOLE "Live Capabilities" glance
+        // (MC1.1D removed the earlier duplicate mc-summary-strip) --
+        // this is the very top glance the charter asks for.
         function mcRenderCapStrip(fullHealth) {
             const el = document.getElementById('mc-cap-strip');
             if (!el) return;
@@ -959,34 +943,12 @@
             return worst;
         }
 
-        // Health Summary strip, re-sourced for MC1.1B: "Platform Health /
-        // Live capabilities" -- one line per capability (hierarchy order),
-        // ✓/⚠/✗ against the SAME fullHealth.capabilities the cards below
-        // read, so this can never disagree with them either.
-        const MC_STATUS_ICON = { HEALTHY: 'fa-check', WARNING: 'fa-circle-exclamation', CRITICAL: 'fa-xmark', UNKNOWN: 'fa-question' };
-        const MC_STATUS_COLOR_CLASS = { HEALTHY: 'healthy', WARNING: 'warning', CRITICAL: 'critical', UNKNOWN: 'neutral' };
-        function mcUpdateSummaryStrip(worst, capabilities) {
-            const el = document.getElementById('mc-summary-strip');
-            if (!el) return;
-            el.className = `mc-summary-strip ${worst}`;
-
-            const names = mcSortByHierarchy(Object.keys(capabilities || {}), n => n);
-            if (!names.length) { el.innerHTML = ''; return; }
-
-            const rows = names.map(name => {
-                const cap = capabilities[name];
-                const cls = MC_STATUS_COLOR_CLASS[cap.status] || 'neutral';
-                const icon = MC_STATUS_ICON[cap.status] || 'fa-question';
-                const label = MC_CAPABILITY_LABELS[name] || name;
-                return `<div class="mc-summary-item ${cls}"><i class="fas ${icon}"></i> ${label}</div>`;
-            });
-
-            el.innerHTML = `
-                <div class="mc-summary-col">
-                    <div class="mc-summary-col-title">Live Capabilities</div>
-                    ${rows.join('')}
-                </div>`;
-        }
+        // MC1.1D — MC1.1B's mc-summary-strip ("Live Capabilities" list)
+        // was a duplicate of MC1.1C's mc-cap-strip (same data, same
+        // hierarchy order, near-identical content, rendered back-to-back)
+        // -- removed here in favor of mc-cap-strip alone (mcRenderCapStrip,
+        // above), which is additionally click-to-jump and correctly
+        // excludes WATCHTOWER per Phase F. See docs/design/mc1_1d_strip_consolidation.md.
 
 
         // ══════════════════════════════════════════════════════════════════
@@ -1996,20 +1958,20 @@
             data && (data.queue_depths = dbHealth.queue_depths || {});
 
             // MC1.1B — capability-first incident layer is now the SOLE
-            // source of truth for the top banner/summary strip, as well
-            // as for the incident cards and capability grid below it.
-            // Previously the banner derived its own worst/message list
-            // from the four legacy groups (renderPlatformGroup etc.) --
-            // a second, independent classification of the same raw data
-            // that could (and did) disagree with the incident cards. Both
-            // are now driven by the identical fullHealth.incidents /
-            // fullHealth.capabilities the cards read, so they can never
-            // contradict each other again.
+            // source of truth for the top banner, incident cards, and
+            // capability strip/grid below it. Previously the banner
+            // derived its own worst/message list from the four legacy
+            // groups (renderPlatformGroup etc.) -- a second, independent
+            // classification of the same raw data that could (and did)
+            // disagree with the incident cards. MC1.1D additionally
+            // removed a duplicate "Live Capabilities" strip (MC1.1B's
+            // mc-summary-strip) that rendered the same information as
+            // mc-cap-strip a second time -- see
+            // docs/design/mc1_1d_strip_consolidation.md.
             mcRenderCapStrip(fullHealth);
             mcRenderIncidents(fullHealth);
             mcRenderCapabilityGrid(fullHealth);
-            const worst = mcUpdateBanner((fullHealth && fullHealth.incidents) || []);
-            mcUpdateSummaryStrip(worst, (fullHealth && fullHealth.capabilities) || {});
+            mcUpdateBanner((fullHealth && fullHealth.incidents) || []);
 
             // Legacy per-group detail sections (Platform/Ingestion/
             // Intelligence/Infrastructure bodies further down the page)

@@ -86,6 +86,72 @@ INTEL_REFRESH_DEBOUNCE_SEC = int(os.environ.get("CFQ_INTEL_REFRESH_DEBOUNCE_SEC"
 # a new constraint on it.
 INTEL_REFRESH_TIMEOUT_SECONDS = int(os.environ.get("CFQ_INTEL_REFRESH_TIMEOUT_SECONDS", "30"))
 
+# X78.16 Phase A/B -- age promotion, the queue fairness mechanism.
+#
+# X78.15 measured direct, live evidence of indefinite starvation: the claim
+# query (_recover_stale_and_claim below) ordered strictly by
+# `job_priority DESC, next_attempt_at ASC, created_at ASC` with no aging --
+# a pure priority-then-FIFO order. With 15,861 ready job_priority=1 rows
+# continuously replenished by new-creator arrivals (~27/hour) against only
+# ~6.8/hour completions, the 1,007-row job_priority=0 population, INCLUDING
+# a single row that had sat untouched for 1005.93 hours (~42 days) at the
+# time of measurement, was mathematically guaranteed to never be reached --
+# priority=0 rows are only considered once the priority=1 ready pool is
+# fully drained to empty, which the arrival pattern never allows.
+#
+# Fix (age promotion, chosen over the other Phase B options):
+#   - Quota scheduling (reserve N of every batch for the lowest priority
+#     tier) was rejected: it would need to special-case exactly two tiers
+#     today but silently misbehave the moment a third priority value is
+#     introduced, and reserving capacity is wasteful when the low-priority
+#     population is empty (the common case for e.g. job_priority=0, which
+#     is far smaller than job_priority=1).
+#   - Weighted fair selection (round-robin proportional to tier size) was
+#     rejected as unnecessarily complex for a two-tier system and harder
+#     to reason about/verify than a single closed-form expression.
+#   - Age promotion was chosen: a row's EFFECTIVE priority increases
+#     continuously with wait time, capped, so any row is mathematically
+#     guaranteed to reach and exceed a fresh higher-priority row's
+#     effective priority within a bounded, known interval
+#     (AGE_PROMOTION_INTERVAL_SEC * priority_gap seconds of waiting) --
+#     regardless of how many priority tiers exist or how they're
+#     distributed. It requires only a single ORDER BY expression change
+#     (see _recover_stale_and_claim), preserves the exact same claim
+#     query shape/index usage, and is trivially measurable (effective
+#     priority is a deterministic function of age, verifiable per-row).
+#   - Priority itself is preserved, not eliminated: a job_priority=1 row
+#     that arrived seconds ago is still claimed before a job_priority=0
+#     row that arrived seconds ago -- age promotion only guarantees an
+#     UPPER BOUND on how long a lower-priority row can be deferred by
+#     continuously-arriving higher-priority work, it does not reverse
+#     priority for comparably-aged rows.
+#
+# One promotion "point" (equal to crossing one full integer priority tier)
+# per AGE_PROMOTION_INTERVAL_SEC of wait time. Default 3600s (1 hour): a
+# job_priority=0 row becomes as eligible as a freshly-arrived
+# job_priority=1 row after waiting 1 hour, guaranteeing the maximum
+# possible starvation window for any single priority gap is bounded by
+# this interval, not by however long higher-priority arrivals happen to
+# keep coming.
+#
+# AGE_PROMOTION_CAP bounds the promotion contribution so an extremely old
+# row cannot produce an unbounded/overflowing effective priority value --
+# but it MUST be large relative to the actual spread of job_priority
+# values in use, or the cap itself becomes a new, permanent starvation
+# ceiling: a first implementation of this fix used a cap of 24 (1 day's
+# worth of promotion), which live-tested against the production queue
+# revealed a real bug -- 15,247 job_priority=1 rows were ALREADY older
+# than 24h (i.e. already capped at effective_priority=1+24=25), which
+# permanently outranked EVERY job_priority=0 row's own capped ceiling of
+# 0+24=24, no matter how old the job_priority=0 row became. The cap must
+# exceed the maximum plausible priority gap by a wide margin so it only
+# ever bounds pathological (multi-year) ages against numeric overflow,
+# never ordinary queue aging against a real priority tier -- 1000 default
+# (≈41.7 days of promotion at the 1-hour interval) comfortably exceeds
+# today's 0-1 priority range and any realistically-introduced future tier.
+AGE_PROMOTION_INTERVAL_SEC = int(os.environ.get("CFQ_AGE_PROMOTION_INTERVAL_SEC", "3600"))
+AGE_PROMOTION_CAP = int(os.environ.get("CFQ_AGE_PROMOTION_CAP", "1000"))
+
 # Layer 2: self-kill thresholds (same contract as creator_resolution_worker.py)
 MAX_OPEN_HANDLES   = int(os.environ.get("CFQ_MAX_OPEN_HANDLES",     "10"))
 MAX_UPTIME_HOURS   = int(os.environ.get("CFQ_MAX_UPTIME_HOURS",      "6"))
@@ -400,17 +466,35 @@ def _recover_stale_and_claim(now: int, batch: int):
             (now, now),
         )
         stale = int(cur.rowcount or 0)
+        # X78.16 Phase A/B -- age promotion. effective_priority adds one
+        # promotion point per AGE_PROMOTION_INTERVAL_SEC of wait time
+        # (measured from created_at, the row's true original queue-entry
+        # time -- NOT next_attempt_at, so a retried row's age isn't reset
+        # by its own retry scheduling), capped at AGE_PROMOTION_CAP points
+        # so an extremely old row's contribution stays bounded rather than
+        # growing without limit. This guarantees any single row reaches
+        # and exceeds a fresh higher-priority row's effective priority
+        # within AGE_PROMOTION_INTERVAL_SEC * priority_gap seconds of
+        # waiting, closing the indefinite-starvation gap X78.15 measured
+        # (a 1005.93-hour-old job_priority=0 row perpetually outranked by
+        # a continuously-replenished job_priority=1 population) without
+        # removing priority itself: two comparably-aged rows still order
+        # by their raw job_priority exactly as before.
         rows = cur.execute(
-            """
+            f"""
             SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts,
                    COALESCE(job_priority, 0) AS job_priority,
-                   COALESCE(priority_reason, 'unknown') AS priority_reason
+                   COALESCE(priority_reason, 'unknown') AS priority_reason,
+                   (COALESCE(job_priority, 0) + MIN(
+                       CAST((? - created_at) AS REAL) / {AGE_PROMOTION_INTERVAL_SEC},
+                       {AGE_PROMOTION_CAP}
+                   )) AS effective_priority
             FROM creator_funding_queue
             WHERE status IN ('pending', 'retry') AND locked_until < ? AND next_attempt_at <= ?
-            ORDER BY job_priority DESC, next_attempt_at ASC, created_at ASC
+            ORDER BY effective_priority DESC, next_attempt_at ASC, created_at ASC
             LIMIT ?
             """,
-            (now, now, batch),
+            (now, now, now, batch),
         ).fetchall()
         rows = [dict(r) for r in rows]
         if rows:
@@ -772,7 +856,18 @@ async def _process_job(row: dict) -> None:
     job_priority = int(row["job_priority"] or 0)
     priority_reason = str(row["priority_reason"] or "unknown")
 
-    job_started = time.time()
+    # X78.16 Phase D -- claim_occupancy_started marks the FULL span this
+    # job occupies a worker claim slot, including time this job spends
+    # waiting on a PRIOR job's still-running straggler tasks (X78.2's
+    # unbounded _await_stragglers_before_next_write). Previously
+    # job_started was set AFTER that wait, so straggler-wait time was
+    # invisible in every elapsed= log line -- the true claim-slot
+    # occupancy cost of a job was measured incompletely. execution_started
+    # marks when this job's OWN extraction work begins, so
+    # (execution_started - claim_occupancy_started) isolates queue-wait-
+    # for-a-prior-job's-cleanup from this job's own execution time, per
+    # Phase D's explicit requirement to measure these separately.
+    claim_occupancy_started = time.time()
     _log(f"claimed creator={creator[:12]} mint={mint[:16]} attempts={attempts} "
          f"priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}")
 
@@ -781,6 +876,13 @@ async def _process_job(row: dict) -> None:
     # collision occurs at: see _await_stragglers_before_next_write's
     # docstring and tests/test_x78_2_detached_descendant_reproduction.py.
     await _await_stragglers_before_next_write()
+    straggler_wait_s = time.time() - claim_occupancy_started
+    if straggler_wait_s > 1.0:
+        _log(f"claim slot for creator={creator[:12]} mint={mint[:16]} spent "
+             f"{straggler_wait_s:.1f}s waiting on a prior job's straggler "
+             f"task(s) before this job's own execution could begin")
+
+    job_started = time.time()
 
     try:
         _tasks_before = asyncio.all_tasks(asyncio.get_event_loop())
@@ -810,6 +912,12 @@ async def _process_job(row: dict) -> None:
                 timeout=JOB_TIMEOUT_SECONDS,
             )
         except asyncio.TimeoutError as timeout_exc:
+            # X78.16 Phase D -- separate execution time (the JOB_TIMEOUT_SECONDS
+            # budget, already spent by the time we get here) from cancellation
+            # cleanup time (EXTRACTION_CANCEL_GRACE_SECONDS, spent below),
+            # since both were previously folded into one undifferentiated
+            # elapsed= figure in the retry log line.
+            _cleanup_started = time.time()
             _extraction_task.cancel()
             try:
                 await asyncio.wait_for(_extraction_task, timeout=EXTRACTION_CANCEL_GRACE_SECONDS)
@@ -821,12 +929,22 @@ async def _process_job(row: dict) -> None:
             except Exception as cleanup_exc:
                 _log(f"extraction task for creator={creator[:12]} mint={mint[:16]} raised during "
                      f"cancellation cleanup (non-fatal, already timed out): {cleanup_exc}")
-            raise TimeoutError(f"creator funding timed out after {JOB_TIMEOUT_SECONDS}s") from timeout_exc
+            cleanup_elapsed_s = time.time() - _cleanup_started
+            raise TimeoutError(
+                f"creator funding timed out after {JOB_TIMEOUT_SECONDS}s "
+                f"(execution={JOB_TIMEOUT_SECONDS}.0s cleanup={cleanup_elapsed_s:.1f}s)"
+            ) from timeout_exc
         finally:
             # Always supervise spawned background tasks, even on timeout/error
             # above -- they were already fired by the extractor regardless of
             # whether the primary extraction call itself succeeded.
+            _orphan_wait_started = time.time()
             await _await_orphaned_tasks(_tasks_before)
+            orphan_wait_elapsed_s = time.time() - _orphan_wait_started
+            if orphan_wait_elapsed_s > 1.0:
+                _log(f"claim slot for creator={creator[:12]} mint={mint[:16]} spent "
+                     f"{orphan_wait_elapsed_s:.1f}s supervising this job's own "
+                     f"orphaned background task(s) before releasing")
 
         extraction_errored = bool(isinstance(extraction_result, dict) and extraction_result.get("error"))
         funders = await asyncio.to_thread(_funder_count, creator)
@@ -835,12 +953,14 @@ async def _process_job(row: dict) -> None:
         if extraction_errored and funders == 0 and attempts < MAX_ATTEMPTS:
             await asyncio.to_thread(_retry_on_nested_write, _mark_retry, creator, mint, attempts, "no_funders_written", now, 60)
             _log(f"retry creator={creator[:12]} mint={mint[:16]} reason=no_funders_written "
-                 f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s")
+                 f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s "
+                 f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
             return
 
         await asyncio.to_thread(_retry_on_nested_write, _mark_complete, creator, mint, attempts, now)
         _log(f"complete creator={creator[:12]} mint={mint[:16]} funders={funders} "
-             f"elapsed={time.time()-job_started:.1f}s")
+             f"elapsed={time.time()-job_started:.1f}s "
+             f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
 
         # Post-extraction enrichment — best-effort, never blocks queue progress.
         try:
@@ -892,12 +1012,29 @@ async def _process_job(row: dict) -> None:
         if attempts + 1 >= MAX_ATTEMPTS:
             await asyncio.to_thread(_retry_on_nested_write, _mark_failed, creator, mint, attempts, str(e), now)
             _log(f"failed creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "
-                 f"elapsed={time.time()-job_started:.1f}s")
+                 f"elapsed={time.time()-job_started:.1f}s "
+                 f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
         else:
+            # X78.16 Phase C -- retry_delay was already a real, growing
+            # backoff (120s * attempt, capped at 900s) before this
+            # milestone; X78.15 found it working correctly (all retry rows
+            # had next_attempt_at eligible, none artificially delayed). The
+            # queue-fairness problem retries contributed to was never a
+            # missing backoff -- it was that a just-failed job re-enters
+            # the SAME unified, unaged priority ordering as fresh arrivals
+            # (see AGE_PROMOTION_* / _recover_stale_and_claim's ORDER BY),
+            # so a job whose underlying cost hasn't changed can consume
+            # another full claim-slot cycle for zero net completions. Age
+            # promotion (Phase A/B) bounds how long ANY row -- retry or
+            # pending -- can be crowded out, which is the actual lever on
+            # "retries must not monopolize claim capacity": a backlog of
+            # retries no longer permanently outranks older pending work,
+            # or vice versa.
             retry_delay = min(900, 120 * (attempts + 1))
             await asyncio.to_thread(_retry_on_nested_write, _mark_retry, creator, mint, attempts, str(e), now, retry_delay)
             _log(f"retry creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "
-                 f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s")
+                 f"attempt={attempts+1} elapsed={time.time()-job_started:.1f}s "
+                 f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
 
 
 def _adaptive_batch(pending: int) -> int:
@@ -1041,6 +1178,16 @@ def run_loop(once: bool = False) -> None:
 
 
 def print_status() -> None:
+    """X78.16 Phase F -- replaces a single undifferentiated "oldest pending
+    item" figure (which, pre-X78.16, could mean either "about to be
+    claimed" or "starved indefinitely" with no way to tell which from the
+    number alone) with the specific breakdowns needed to expose starvation
+    directly: oldest by priority tier, oldest by state (pending vs retry),
+    oldest ELIGIBLE (ready to claim right now -- what age promotion
+    actually operates on), and oldest BLOCKED (locked_until still in the
+    future, i.e. actually claimed/in-flight, a structurally different
+    condition from "waiting to be claimed" that the old single figure
+    could not distinguish)."""
     conn = None
     try:
         conn = _db_connect(readonly=True, timeout=3)
@@ -1050,6 +1197,64 @@ def print_status() -> None:
         print("Creator Funding Queue status:")
         for r in rows:
             print(f"  {r[0]:<12} {r[1]}")
+
+        now = int(time.time())
+
+        print("\nOldest pending by priority tier (eligible now vs blocked):")
+        tiers = conn.execute(
+            "SELECT DISTINCT COALESCE(job_priority, 0) AS jp FROM creator_funding_queue "
+            "WHERE status IN ('pending', 'retry') ORDER BY jp DESC"
+        ).fetchall()
+        for t in tiers:
+            jp = t[0]
+            eligible = conn.execute(
+                "SELECT creator_address, mint, created_at FROM creator_funding_queue "
+                "WHERE status IN ('pending','retry') AND COALESCE(job_priority,0)=? "
+                "AND locked_until < ? AND next_attempt_at <= ? "
+                "ORDER BY created_at ASC LIMIT 1",
+                (jp, now, now),
+            ).fetchone()
+            blocked = conn.execute(
+                "SELECT creator_address, mint, created_at FROM creator_funding_queue "
+                "WHERE status IN ('pending','retry') AND COALESCE(job_priority,0)=? "
+                "AND (locked_until >= ? OR next_attempt_at > ?) "
+                "ORDER BY created_at ASC LIMIT 1",
+                (jp, now, now),
+            ).fetchone()
+            eff_priority = jp + min(
+                (now - eligible[2]) / AGE_PROMOTION_INTERVAL_SEC, AGE_PROMOTION_CAP
+            ) if eligible else None
+            if eligible:
+                age_h = (now - eligible[2]) / 3600.0
+                print(f"  priority={jp} oldest ELIGIBLE: age={age_h:.1f}h "
+                      f"effective_priority={eff_priority:.2f} creator={eligible[0][:12]}")
+            else:
+                print(f"  priority={jp} oldest ELIGIBLE: none (no eligible rows at this tier)")
+            if blocked:
+                age_h = (now - blocked[2]) / 3600.0
+                print(f"  priority={jp} oldest BLOCKED (locked/deferred): age={age_h:.1f}h "
+                      f"creator={blocked[0][:12]}")
+
+        print("\nOldest pending by state:")
+        for st in ("pending", "retry"):
+            r = conn.execute(
+                "SELECT creator_address, mint, created_at FROM creator_funding_queue "
+                "WHERE status=? ORDER BY created_at ASC LIMIT 1",
+                (st,),
+            ).fetchone()
+            if r:
+                age_h = (now - r[2]) / 3600.0
+                print(f"  {st:<8} oldest: age={age_h:.1f}h creator={r[0][:12]}")
+            else:
+                print(f"  {st:<8} oldest: none")
+
+        starved_1h = conn.execute(
+            "SELECT COUNT(*) FROM creator_funding_queue "
+            "WHERE status IN ('pending','retry') AND locked_until < ? AND next_attempt_at <= ? "
+            "AND (? - created_at) > 3600",
+            (now, now, now),
+        ).fetchone()[0]
+        print(f"\nEligible rows waiting > 1h (starvation-exposure count): {starved_1h}")
     except Exception as e:
         print(f"Error: {e}")
     finally:

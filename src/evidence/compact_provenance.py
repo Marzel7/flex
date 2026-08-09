@@ -24,7 +24,21 @@ class CompactProvenanceRepository:
             PRIMARY KEY(primitive_key,evidence_key)) WITHOUT ROWID;
           CREATE INDEX IF NOT EXISTS compact_inputs_by_evidence
             ON compact_primitive_evidence_inputs(evidence_key,primitive_key);
+          CREATE TABLE IF NOT EXISTS compact_relation_counter(
+            singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+            relation_count INTEGER NOT NULL CHECK(relation_count>=0));
+          INSERT OR IGNORE INTO compact_relation_counter VALUES(1,0);
         """)
+
+    def relation_count(self) -> int:
+        return int(self.connection.execute(
+            "SELECT relation_count FROM compact_relation_counter WHERE singleton=1").fetchone()[0])
+
+    def reset_relation_count(self, relation_count: int) -> None:
+        self.connection.execute(
+            "UPDATE compact_relation_counter SET relation_count=? WHERE singleton=1",
+            (relation_count,))
+        self.connection.commit()
 
     def evidence_for_primitive(self, primitive_id: str) -> tuple[str, ...]:
         return tuple(row[0] for row in self.connection.execute("""
@@ -124,6 +138,8 @@ class CompactProvenanceRepository:
                   WHERE p.primitive_id=? AND e.evidence_id=?""",
                   (primitive_id, evidence_id))
                 inserted += cursor.rowcount
+            self.connection.execute("""UPDATE compact_relation_counter
+              SET relation_count=relation_count+? WHERE singleton=1""", (inserted,))
             connection.commit()
         except BaseException:
             connection.rollback()
@@ -145,23 +161,21 @@ class CompactProvenanceRepository:
             connection.executemany("INSERT OR IGNORE INTO compact_input_batch VALUES(?,?)", values)
             unique_count = int(connection.execute(
                 "SELECT COUNT(*) FROM compact_input_batch").fetchone()[0])
-            before = int(connection.execute(
-                "SELECT COUNT(*) FROM compact_primitive_evidence_inputs").fetchone()[0])
             connection.execute("""INSERT OR IGNORE INTO primitive_identity(primitive_id)
               SELECT DISTINCT primitive_id FROM compact_input_batch""")
             connection.execute("""INSERT OR IGNORE INTO evidence_identity(evidence_id)
               SELECT DISTINCT evidence_id FROM compact_input_batch""")
-            connection.execute("""INSERT OR IGNORE INTO compact_primitive_evidence_inputs
+            relation_insert = connection.execute("""INSERT OR IGNORE INTO compact_primitive_evidence_inputs
               SELECT p.primitive_key,e.evidence_key FROM compact_input_batch b
               JOIN primitive_identity p USING(primitive_id)
               JOIN evidence_identity e USING(evidence_id)""")
-            after = int(connection.execute(
-                "SELECT COUNT(*) FROM compact_primitive_evidence_inputs").fetchone()[0])
+            inserted = relation_insert.rowcount
+            connection.execute("""UPDATE compact_relation_counter
+              SET relation_count=relation_count+? WHERE singleton=1""", (inserted,))
             connection.commit()
         except BaseException:
             connection.rollback()
             raise
-        inserted = after - before
         return {"inserted": inserted, "duplicates": len(values) - inserted,
                 "input_duplicates": len(values) - unique_count}
 

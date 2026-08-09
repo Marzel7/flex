@@ -1,0 +1,510 @@
+{
+  "abort_recovery": {
+    "control": {
+      "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+      "generation": 1,
+      "migration_id": "oip-v2.2d-generation-1",
+      "reader_mode": "CANONICAL",
+      "sidecar_generation": "1",
+      "switched_delta_sequence": 25,
+      "writer_mode": "CANONICAL_WITH_DELTA",
+      "writers_paused": false
+    },
+    "reason": "prior bounded cutover exceeded pause limit before switch",
+    "state": {
+      "applied_delta_sequence": 35,
+      "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+      "cursor_kind": "PRIMITIVE_KEY",
+      "delta_cursor": 35,
+      "generation": 1,
+      "migration_id": "oip-v2.2d-generation-1",
+      "phase": "CATCHING_UP",
+      "reader_mode": "CANONICAL",
+      "source_cursor": 401050,
+      "source_high_water": 401050,
+      "source_relation_high_water": 12398195,
+      "started_at": "1786304573747943000",
+      "state": "CATCHING_UP",
+      "updated_at": "1786311341568520000",
+      "writer_mode": "CANONICAL_WITH_DELTA"
+    }
+  },
+  "approved_pause_limit_ms": 30000,
+  "compact_write": {
+    "duplicates": 0,
+    "inserted": 10,
+    "latency_ms": 4.049250001116889
+  },
+  "constraints": {
+    "acquisition": false,
+    "authority_contract_changes": 0,
+    "canonical_deletions": 0,
+    "downstream_algorithm_changes": 0,
+    "primitive_mutations": 0,
+    "production_interaction": false,
+    "production_writes": 0,
+    "provenance_deletions": 0,
+    "rpc_calls": 0,
+    "services_restarted": 0
+  },
+  "count_strategy": "Persist prevalidated count; derive expected count from unique suffix inserts; verify canonical and compact COUNT(*) only while measured under pause limit.",
+  "cutovers": [
+    {
+      "bounded_validation": {
+        "authority_generation_exact": true,
+        "canonical_final_count": 12398237,
+        "compact_final_count": 12398237,
+        "count_strategy": "prevalidated canonical count + unique outbox suffix; transactional compact counter",
+        "delta_events": 10,
+        "digest_strategy": "prevalidated full digest + exact bounded delta proof; exhaustive digest after resume",
+        "duplicates": 0,
+        "exact": true,
+        "expected_final_count": 12398237,
+        "final_delta_sequence": 45,
+        "full_anti_join_inside_pause": false,
+        "full_digest_inside_pause": false,
+        "missing_delta_relations": 0,
+        "new_relations": 10,
+        "no_delta_extras": true,
+        "unique_delta_relations": 10,
+        "validated_delta_sequence": 35,
+        "validation_scope": "PREVALIDATED_FULL_CORPUS_PLUS_BOUNDED_DELTA"
+      },
+      "control": {
+        "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+        "generation": 1,
+        "migration_id": "oip-v2.2d-generation-1",
+        "reader_mode": "COMPACT",
+        "sidecar_generation": "1",
+        "switched_delta_sequence": 45,
+        "writer_mode": "COMPACT",
+        "writers_paused": false
+      },
+      "pause_ms": 5.165041,
+      "timings": {
+        "authority_check_ms": 0.00775,
+        "bounded_count_check_ms": 0.017583,
+        "bounded_tuple_validation_ms": 0.083917,
+        "control_switch_ms": 0.3015,
+        "delta_apply_ms": 4.114583,
+        "final_sequence_capture_ms": 0.034,
+        "pause_acquisition_ms": 0.468916,
+        "total_pause_ms": 5.165041,
+        "writer_resume_ms": 0.062417
+      }
+    },
+    {
+      "bounded_validation": {
+        "authority_generation_exact": true,
+        "canonical_final_count": 12398347,
+        "compact_final_count": 12398347,
+        "count_strategy": "prevalidated canonical count + unique outbox suffix; transactional compact counter",
+        "delta_events": 100,
+        "digest_strategy": "prevalidated full digest + exact bounded delta proof; exhaustive digest after resume",
+        "duplicates": 0,
+        "exact": true,
+        "expected_final_count": 12398347,
+        "final_delta_sequence": 155,
+        "full_anti_join_inside_pause": false,
+        "full_digest_inside_pause": false,
+        "missing_delta_relations": 0,
+        "new_relations": 100,
+        "no_delta_extras": true,
+        "unique_delta_relations": 100,
+        "validated_delta_sequence": 55,
+        "validation_scope": "PREVALIDATED_FULL_CORPUS_PLUS_BOUNDED_DELTA"
+      },
+      "control": {
+        "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+        "generation": 1,
+        "migration_id": "oip-v2.2d-generation-1",
+        "reader_mode": "COMPACT",
+        "sidecar_generation": "1",
+        "switched_delta_sequence": 155,
+        "writer_mode": "COMPACT",
+        "writers_paused": false
+      },
+      "pause_ms": 4.228334,
+      "timings": {
+        "authority_check_ms": 0.007375,
+        "bounded_count_check_ms": 0.011541,
+        "bounded_tuple_validation_ms": 0.752791,
+        "control_switch_ms": 0.312666,
+        "delta_apply_ms": 2.439917,
+        "final_sequence_capture_ms": 0.048625,
+        "pause_acquisition_ms": 0.383834,
+        "total_pause_ms": 4.228334,
+        "writer_resume_ms": 0.054917
+      }
+    }
+  ],
+  "digest_strategy": "Existing ordered SHA-256 is not safely composable. Use persisted exact full digest plus exact bounded suffix during pause, then recompute full digest after resume.",
+  "elapsed_seconds": 1239.391,
+  "failure_matrix": {
+    "after_delta_before_switch": "CONTROL_CANONICAL; COMPACT_INACTIVE",
+    "after_pause_before_delta": "CONTROL_CANONICAL; RESUME_WRITERS",
+    "after_prevalidation": "SAFE_CANONICAL_LIVE",
+    "after_switch_before_resume": "CONTROL_COMPACT; RECOVERY_RESUMES_BY_CONTROL",
+    "post_validation_failure": "AUTOMATIC_SHADOW_ROLLBACK_REQUIRED_AND_EXERCISED_PATH_PROVEN"
+  },
+  "final_control": {
+    "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "generation": 1,
+    "migration_id": "oip-v2.2d-generation-1",
+    "reader_mode": "COMPACT",
+    "sidecar_generation": "1",
+    "switched_delta_sequence": 155,
+    "writer_mode": "COMPACT",
+    "writers_paused": false
+  },
+  "final_validation": {
+    "canonical_count": 12398347,
+    "canonical_digest": "46e18a6419854bf7e1819d2d211fb9093a42ba63b2a804c28eacff587d32bc25",
+    "canonical_minus_compact": 0,
+    "compact_count": 12398347,
+    "compact_digest": "46e18a6419854bf7e1819d2d211fb9093a42ba63b2a804c28eacff587d32bc25",
+    "compact_minus_canonical": 0,
+    "exact": true,
+    "timings": {
+      "anti_join_ms": 211490.658,
+      "canonical_count_ms": 31564.141583,
+      "compact_count_ms": 2219.019,
+      "digest_ms": 41748.733042,
+      "total_ms": 287022.727167
+    },
+    "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+  },
+  "improvement_percent": 99.9991,
+  "initial_delta": {
+    "applied_delta_sequence": 35,
+    "duplicates": 0,
+    "inserted": 0,
+    "rows": 0
+  },
+  "initial_rollback": {
+    "resumed_from_safe_canonical_checkpoint": true
+  },
+  "milestone": "OIP v2.2D.1",
+  "pause_scaling": [
+    {
+      "delta_relations": 0,
+      "pause_ms": 2.146958,
+      "timings": {
+        "authority_check_ms": 0.008,
+        "bounded_count_check_ms": 0.012208,
+        "bounded_tuple_validation_ms": 0.001084,
+        "control_switch_ms": 1.226292,
+        "delta_apply_ms": 0.02175,
+        "final_sequence_capture_ms": 0.033583,
+        "pause_acquisition_ms": 0.462125,
+        "total_pause_ms": 2.146958,
+        "writer_resume_ms": 0.306291
+      }
+    },
+    {
+      "delta_relations": 10,
+      "pause_ms": 3.548042,
+      "timings": {
+        "authority_check_ms": 0.008917,
+        "bounded_count_check_ms": 0.011792,
+        "bounded_tuple_validation_ms": 0.092958,
+        "control_switch_ms": 1.391375,
+        "delta_apply_ms": 1.100042,
+        "final_sequence_capture_ms": 0.143167,
+        "pause_acquisition_ms": 0.428583,
+        "total_pause_ms": 3.548042,
+        "writer_resume_ms": 0.253333
+      }
+    },
+    {
+      "delta_relations": 100,
+      "pause_ms": 3.269083,
+      "timings": {
+        "authority_check_ms": 0.008958,
+        "bounded_count_check_ms": 0.014208,
+        "bounded_tuple_validation_ms": 0.679209,
+        "control_switch_ms": 0.465042,
+        "delta_apply_ms": 1.272958,
+        "final_sequence_capture_ms": 0.069916,
+        "pause_acquisition_ms": 0.482625,
+        "total_pause_ms": 3.269083,
+        "writer_resume_ms": 0.235833
+      }
+    },
+    {
+      "delta_relations": 1000,
+      "pause_ms": 13.36425,
+      "timings": {
+        "authority_check_ms": 0.012459,
+        "bounded_count_check_ms": 0.0135,
+        "bounded_tuple_validation_ms": 6.519708,
+        "control_switch_ms": 0.606833,
+        "delta_apply_ms": 4.597541,
+        "final_sequence_capture_ms": 0.478917,
+        "pause_acquisition_ms": 0.507084,
+        "total_pause_ms": 13.36425,
+        "writer_resume_ms": 0.241833
+      }
+    }
+  ],
+  "post_cutover_validations": [
+    {
+      "canonical_count": 12398237,
+      "canonical_digest": "c89f7204e9f7421bb0f58703e37b3a3c359dcbcdb4ab3a8e22c2c2642826d658",
+      "canonical_minus_compact": 0,
+      "compact_count": 12398237,
+      "compact_digest": "c89f7204e9f7421bb0f58703e37b3a3c359dcbcdb4ab3a8e22c2c2642826d658",
+      "compact_minus_canonical": 0,
+      "exact": true,
+      "timings": {
+        "anti_join_ms": 240521.150625,
+        "canonical_count_ms": 39456.320958,
+        "compact_count_ms": 3049.892958,
+        "digest_ms": 41330.823041,
+        "total_ms": 324358.375791
+      },
+      "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+    },
+    {
+      "canonical_count": 12398347,
+      "canonical_digest": "46e18a6419854bf7e1819d2d211fb9093a42ba63b2a804c28eacff587d32bc25",
+      "canonical_minus_compact": 0,
+      "compact_count": 12398347,
+      "compact_digest": "46e18a6419854bf7e1819d2d211fb9093a42ba63b2a804c28eacff587d32bc25",
+      "compact_minus_canonical": 0,
+      "exact": true,
+      "timings": {
+        "anti_join_ms": 211490.658,
+        "canonical_count_ms": 31564.141583,
+        "compact_count_ms": 2219.019,
+        "digest_ms": 41748.733042,
+        "total_ms": 287022.727167
+      },
+      "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+    }
+  ],
+  "post_validation_delta_fixtures": [
+    {
+      "committed_new": 10,
+      "duplicate_attempts": 2,
+      "duplicate_inserted": 0,
+      "outbox_events_added": 10,
+      "outbox_sequence_after": 45,
+      "outbox_sequence_before": 35,
+      "requested_unique": 10,
+      "rollback_attempts": 1,
+      "rollback_inserted": 0,
+      "transaction_shape": "one bounded multi-relation commit + duplicate attempts + rollback transaction"
+    },
+    {
+      "committed_new": 100,
+      "duplicate_attempts": 2,
+      "duplicate_inserted": 0,
+      "outbox_events_added": 100,
+      "outbox_sequence_after": 155,
+      "outbox_sequence_before": 55,
+      "requested_unique": 100,
+      "rollback_attempts": 1,
+      "rollback_inserted": 0,
+      "transaction_shape": "one bounded multi-relation commit + duplicate attempts + rollback transaction"
+    }
+  ],
+  "current_authority_validation": {
+    "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "canonical_compact_count_equal": true,
+    "canonical_compact_digest_equal": true,
+    "current_authoritative_count": 346730,
+    "current_authority_provenance_count": 6457475,
+    "current_authority_provenance_digest": "831e909da0de874db28ba7cc066e6c50febfabe7c17489d0c0071217eea6a051",
+    "source": "docs/evidence_platform/oip_v2_2c3_indexed_authority_summary.json"
+  },
+  "preflight": {
+    "branch": "classification-attribution-axis",
+    "canonical_integrity": "ok (v2.2D exact validation; unchanged isolated clone)",
+    "canonical_shadow": "database/evidence_platform/oip_v2_2d_shadow_migration/canonical_shadow.db",
+    "checkpoint_count": 141,
+    "compact_sidecar": "database/evidence_platform/oip_v2_2d_shadow_migration/compact_sidecar.db",
+    "git_status": [
+      " M docs/.DS_Store",
+      " D operation_scheduler.lock",
+      " M src/core/infra_sync_scheduler.py",
+      " M src/evidence/compact_migration.py",
+      " M src/evidence/compact_provenance.py",
+      " M src/ops/operator_identity_governance.py",
+      " M src/utils/infra_mapping.py",
+      " M tests/test_x78_8_infra_sync_separation.py",
+      "?? database/infra_sync_scheduler.lock",
+      "?? docs/audits/mc1_2a_operator_acceptance_review.md",
+      "?? docs/audits/x67_18_b48k_operation_audit.md",
+      "?? docs/audits/x67_19_b48k_operator_boundary_reeval.md",
+      "?? docs/audits/x67_20_b48k_execution_fingerprint_validation.md",
+      "?? docs/audits/x67_21_execution_service_client_discovery.md",
+      "?? docs/audits/x67_22_b48k_client_family_discovery.md",
+      "?? docs/audits/x67_23_emerging_operators_operational_audit.md",
+      "?? docs/audits/x78_16a_operational_acceptance.md",
+      "?? scripts/rehearse_oip_v2_2d1_bounded_cutover.py",
+      "?? tests/test_oip_v2_2d1_bounded_final_pause.py"
+    ],
+    "head": "54994911d719367cc54d0a4176b87c25154942a3",
+    "log_20": [
+      "54994911 (HEAD -> classification-attribution-axis) X78.20 \u2013 Write-Lane Priority & Heavy-Writer Isolation",
+      "46e6a162 OIP v2.2D \u2013 Full Shadow Compact Provenance Migration Rehearsal",
+      "dbda6472 X78.19 \u2013 Protect Birth Persistence from Write-Lane Starvation",
+      "19466268 OIP v2.2C.4 \u2013 Compact Read Path & Migration Readiness",
+      "075913eb OIP v2.2C.3 \u2014 Indexed Primitive Authority Projection & Downstream Equivalence",
+      "d2d75c6f (origin/classification-attribution-axis) MC1.2A \u2013 Live Ingestion Operational Calibration",
+      "7c715e7c Formalize Primitive authority and replay contract",
+      "2b0046dd X78.18 \u2013 Isolate Listener Reconnect from Database Writes",
+      "e58d091e OIP v2.2C.1 - Audit Primitive replay divergence",
+      "bcddd3a6 MC1.3 \u2013 Operational Trend Intelligence",
+      "778d3319 MC1.2 \u2013 Live Ingestion Flow Health",
+      "0d7b79fe OIP v2.2C - Validate compact provenance application path",
+      "b0ac8db5 MC1.1E \u2013 Exclude WATCHTOWER from incident/banner navigation",
+      "8865afd3 MC1.1D \u2013 Remove duplicate Live Capabilities strip",
+      "e00a8852 MC1.1C \u2013 Mission Control UX Simplification",
+      "4486e52d MC1.1B \u2013 Fix banner/incident-card severity disagreement",
+      "1a2f06fb MC1.1A \u2013 Promote Operational Metrics in Capability Cards",
+      "dd043a95 MC1.1 \u2013 Stateless Capability Layer Implementation",
+      "8e44e335 OIP v2.1G - Validate bounded 2,000-attempt expansion",
+      "0d84fdbb X78.16 \u2013 Funding Queue Fairness & Throughput Recovery"
+    ],
+    "sidecar_integrity": "ok (v2.2D exact validation; append-only D.1 metadata)"
+  },
+  "prevalidations": [
+    {
+      "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+      "canonical_count": 12398227,
+      "canonical_digest": "8388ff395d57f331005ba590566fda4f220b81e75e1c5777e567d76ece8d8175",
+      "canonical_minus_compact": 0,
+      "compact_count": 12398227,
+      "compact_digest": "8388ff395d57f331005ba590566fda4f220b81e75e1c5777e567d76ece8d8175",
+      "compact_minus_canonical": 0,
+      "current_authoritative_count": 346730,
+      "current_authority_provenance_count": 6457475,
+      "exact": true,
+      "timings": {
+        "anti_join_ms": 269008.392375,
+        "canonical_count_ms": 32975.343167,
+        "compact_count_ms": 1802.433167,
+        "digest_ms": 46252.252375,
+        "total_ms": 350039.329458
+      },
+      "validated_delta_sequence": 35,
+      "validated_source_generation": "1",
+      "validation_completed_at": "1786311779568255000",
+      "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN",
+      "writers_live": true
+    },
+    {
+      "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+      "canonical_count": 12398247,
+      "canonical_digest": "e809eb6bc6d60c2532f90ba0746e3a83aa4d4893a86da6c7d990dd1bf6240a95",
+      "canonical_minus_compact": 0,
+      "compact_count": 12398247,
+      "compact_digest": "e809eb6bc6d60c2532f90ba0746e3a83aa4d4893a86da6c7d990dd1bf6240a95",
+      "compact_minus_canonical": 0,
+      "current_authoritative_count": 346730,
+      "current_authority_provenance_count": 6457475,
+      "exact": true,
+      "timings": {
+        "anti_join_ms": 197691.106792,
+        "canonical_count_ms": 36965.567333,
+        "compact_count_ms": 2561.250542,
+        "digest_ms": 40352.802291,
+        "total_ms": 277570.915333
+      },
+      "validated_delta_sequence": 55,
+      "validated_source_generation": "1",
+      "validation_completed_at": "1786312381566566000",
+      "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN",
+      "writers_live": true
+    }
+  ],
+  "previous_pause": {
+    "component_instrumentation": "v2.2D persisted total only; D.1 profiles the identical exhaustive validator outside pause",
+    "measured_components": {
+      "anti_join_ms": 269008.392375,
+      "canonical_count_ms": 32975.343167,
+      "compact_count_ms": 1802.433167,
+      "digest_ms": 46252.252375,
+      "total_ms": 350039.329458
+    },
+    "measured_exhaustive_validator_ms": 350039.329458,
+    "quantitative_share_of_previous_pause_percent": 60.981,
+    "root_cause_confirmed": true,
+    "total_ms": 574014.873625,
+    "unattributed_previous_ms": 223975.544167,
+    "unattributed_reason": "v2.2D did not persist per-component timings; no values invented"
+  },
+  "previous_pause_ms": 574014.873625,
+  "previous_v2_2d_verdicts": {
+    "acquisition": "HOLD_ACQUISITION",
+    "canonical_retirement": "KEEP_CANONICAL_FOR_ROLLBACK",
+    "production_migration": "NEEDS_ADDITIONAL_SHADOW_WORK",
+    "shadow_migration": "B \u2014 MIGRATION CONTROL WORKS BUT OPERATIONAL ISSUE REMAINS"
+  },
+  "production_runbook": [
+    "catch up delta while canonical writers remain live",
+    "run full count/digest/indexed anti-join and authority validation while live",
+    "persist exact validated source/delta/count/digest boundary",
+    "continue outbox capture",
+    "start 30-second abort timer and pause writers",
+    "freeze final outbox sequence and apply only boundary suffix",
+    "prove suffix membership/cardinality/count and authority generation",
+    "abort to canonical and resume before 30 seconds if switch is incomplete",
+    "atomically switch sole control row and immediately resume writers",
+    "run exhaustive equivalence with writers live; rollback on failure",
+    "retain canonical throughout soak and until separately authorized retirement"
+  ],
+  "production_write_rate": {
+    "reason": "no frozen provenance-write-rate telemetry located; production querying prohibited",
+    "status": "UNAVAILABLE"
+  },
+  "rollback": {
+    "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "generation": 1,
+    "migration_id": "oip-v2.2d-generation-1",
+    "pause_ms": 4.131,
+    "reader_mode": "CANONICAL",
+    "reconciliation": {
+      "duplicates": 0,
+      "inserted": 10,
+      "rows": 10
+    },
+    "sidecar_generation": "1",
+    "switched_delta_sequence": 45,
+    "writer_mode": "CANONICAL_WITH_DELTA",
+    "writers_paused": false
+  },
+  "rollback_delta": {
+    "applied_delta_sequence": 55,
+    "duplicates": 10,
+    "inserted": 0,
+    "rows": 10
+  },
+  "validated_boundaries": [
+    {
+      "canonical_count": 12398227,
+      "canonical_digest": "8388ff395d57f331005ba590566fda4f220b81e75e1c5777e567d76ece8d8175",
+      "compact_count": 12398227,
+      "validated_delta_sequence": 35,
+      "validated_source_generation": "1",
+      "validation_completed_at": "1786311779568255000"
+    },
+    {
+      "canonical_count": 12398247,
+      "canonical_digest": "e809eb6bc6d60c2532f90ba0746e3a83aa4d4893a86da6c7d990dd1bf6240a95",
+      "compact_count": 12398247,
+      "validated_delta_sequence": 55,
+      "validated_source_generation": "1",
+      "validation_completed_at": "1786312381566566000"
+    }
+  ],
+  "verdicts": {
+    "acquisition": "READY_FOR_5K_AFTER_SUCCESSFUL_PRODUCTION_MIGRATION_AND_SOAK",
+    "canonical_retirement": "KEEP_CANONICAL_FOR_ROLLBACK",
+    "pause": "A \u2014 WRITER PAUSE < 30S VALIDATED",
+    "production_migration": "READY_FOR_SEPARATELY_APPROVED_PRODUCTION_MIGRATION",
+    "shadow_migration": "A \u2014 FULL SHADOW MIGRATION REHEARSAL PASSED"
+  }
+}

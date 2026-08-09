@@ -8,6 +8,7 @@ are private to the compact sidecar.
 from __future__ import annotations
 
 import hashlib
+import json
 import sqlite3
 import time
 import uuid
@@ -22,7 +23,7 @@ STATES = {
     "BUILDING": {"BUILDING", "CATCHING_UP", "FAILED"},
     "CATCHING_UP": {"CATCHING_UP", "PAUSE_REQUIRED", "FAILED"},
     "PAUSE_REQUIRED": {"FINAL_DRAIN", "CATCHING_UP", "FAILED"},
-    "FINAL_DRAIN": {"VERIFIED", "FAILED"},
+    "FINAL_DRAIN": {"VERIFIED", "CATCHING_UP", "FAILED"},
     "VERIFIED": {"COMPACT_ACTIVE", "FAILED"},
     "COMPACT_ACTIVE": {"ROLLBACK_ACTIVE", "COMPACT_ACTIVE", "FAILED"},
     "ROLLBACK_ACTIVE": {"CATCHING_UP", "ROLLBACK_ACTIVE", "FAILED"},
@@ -101,6 +102,42 @@ CREATE TABLE IF NOT EXISTS compact_identity_seed(
   source_path TEXT NOT NULL,
   primitive_count INTEGER NOT NULL,
   evidence_count INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS compact_prevalidation_boundary(
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+  migration_id TEXT NOT NULL,
+  generation INTEGER NOT NULL,
+  validated_source_generation TEXT NOT NULL,
+  validated_delta_sequence INTEGER NOT NULL,
+  validated_canonical_count INTEGER NOT NULL,
+  validated_compact_count INTEGER NOT NULL,
+  validated_digest TEXT NOT NULL,
+  canonical_minus_compact INTEGER NOT NULL,
+  compact_minus_canonical INTEGER NOT NULL,
+  authority_generation TEXT NOT NULL,
+  current_authoritative_count INTEGER NOT NULL,
+  current_authority_provenance_count INTEGER NOT NULL,
+  validation_json TEXT NOT NULL,
+  validation_completed_at TEXT NOT NULL,
+  exact INTEGER NOT NULL CHECK(exact IN (0,1))
+);
+CREATE TABLE IF NOT EXISTS compact_cutover_events(
+  cutover_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  migration_id TEXT NOT NULL,
+  generation INTEGER NOT NULL,
+  validated_delta_sequence INTEGER NOT NULL,
+  final_delta_sequence INTEGER NOT NULL,
+  final_delta_events INTEGER NOT NULL,
+  final_delta_inserted INTEGER NOT NULL,
+  final_delta_duplicates INTEGER NOT NULL,
+  expected_final_count INTEGER NOT NULL,
+  compact_final_count INTEGER NOT NULL,
+  pause_started_at TEXT NOT NULL,
+  pause_ended_at TEXT NOT NULL,
+  pause_ms REAL NOT NULL,
+  timing_json TEXT NOT NULL,
+  bounded_validation_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 """
 
@@ -338,10 +375,11 @@ class CompactMigrationSidecar:
               (primitive_id,evidence_id) VALUES(?,?)""", values)
             self.canonical.commit()
             return result
-        before = self.canonical.total_changes
-        self.canonical.executemany("INSERT OR IGNORE INTO primitive_evidence_inputs VALUES(?,?)", values)
+        inserted = 0
+        for pair in values:
+            inserted += self.canonical.execute(
+                "INSERT OR IGNORE INTO primitive_evidence_inputs VALUES(?,?)", pair).rowcount
         self.canonical.commit()
-        inserted = self.canonical.total_changes - before
         return {"inserted": inserted, "duplicates": len(values) - inserted}
 
     def pause_writers(self) -> int:
@@ -354,17 +392,25 @@ class CompactMigrationSidecar:
         self.canonical.commit()
 
     def validate(self) -> dict[str, object]:
+        validation_started = time.monotonic_ns()
+        tick = time.monotonic_ns()
         canonical_count = int(self.canonical.execute(
             "SELECT COUNT(*) FROM primitive_evidence_inputs").fetchone()[0])
+        canonical_count_ms = (time.monotonic_ns() - tick) / 1_000_000
+        tick = time.monotonic_ns()
         compact_count = int(self.sidecar.execute(
             "SELECT COUNT(*) FROM compact_primitive_evidence_inputs").fetchone()[0])
+        compact_count_ms = (time.monotonic_ns() - tick) / 1_000_000
+        anti_join_ms = digest_ms = 0.0
         if canonical_count < 1_000_000:
+            tick = time.monotonic_ns()
             canonical_pairs = tuple(self.canonical.execute(
                 "SELECT primitive_id,evidence_id FROM primitive_evidence_inputs ORDER BY 1,2"))
             compact_pairs = tuple(sorted(self.repository.ordered_pairs()))
             canonical_set, compact_set = set(canonical_pairs), set(compact_pairs)
             canonical_digest, compact_digest = relation_digest(canonical_pairs), relation_digest(compact_pairs)
             missing, extra = len(canonical_set-compact_set), len(compact_set-canonical_set)
+            digest_ms = (time.monotonic_ns() - tick) / 1_000_000
             method = "direct ordered digest and bidirectional sets"
         else:
             # Explainable indexed anti-join: resolve external IDs to integer keys once,
@@ -379,21 +425,24 @@ class CompactMigrationSidecar:
               LEFT JOIN compact_validation.compact_primitive_evidence_inputs c
                 ON c.primitive_key=p.primitive_key AND c.evidence_key=e.evidence_key
               WHERE c.primitive_key IS NULL"""))
+            tick = time.monotonic_ns()
             missing = int(self.canonical.execute("""SELECT COUNT(*) FROM primitive_evidence_inputs i
               JOIN compact_validation.primitive_identity p ON p.primitive_id=i.primitive_id
               JOIN compact_validation.evidence_identity e ON e.evidence_id=i.evidence_id
               LEFT JOIN compact_validation.compact_primitive_evidence_inputs c
                 ON c.primitive_key=p.primitive_key AND c.evidence_key=e.evidence_key
               WHERE c.primitive_key IS NULL""").fetchone()[0])
+            anti_join_ms = (time.monotonic_ns() - tick) / 1_000_000
             # Both relations enforce pair uniqueness. Equality of cardinality plus
             # canonical subset compact proves the reverse anti-join is empty.
             extra = 0 if missing == 0 and canonical_count == compact_count else -1
-            digest = hashlib.sha256()
+            tick = time.monotonic_ns(); digest = hashlib.sha256()
             for primitive_id, evidence_id in self.canonical.execute(
                     "SELECT primitive_id,evidence_id FROM primitive_evidence_inputs ORDER BY 1,2"):
                 digest.update(primitive_id.encode()); digest.update(b"\0")
                 digest.update(evidence_id.encode()); digest.update(b"\n")
             canonical_digest = digest.hexdigest()
+            digest_ms = (time.monotonic_ns() - tick) / 1_000_000
             compact_digest = canonical_digest if extra == 0 else "UNVERIFIED"
             method = "indexed canonical-minus-compact + cardinality proof; " + " | ".join(plan)
         exact = (canonical_count == compact_count and missing == 0 and extra == 0 and
@@ -401,7 +450,212 @@ class CompactMigrationSidecar:
         return {"canonical_count": canonical_count, "compact_count": compact_count,
                 "canonical_digest": canonical_digest, "compact_digest": compact_digest,
                 "canonical_minus_compact": missing, "compact_minus_canonical": extra,
-                "validation_method": method, "exact": exact}
+                "validation_method": method, "exact": exact,
+                "timings": {"canonical_count_ms": canonical_count_ms,
+                    "compact_count_ms": compact_count_ms, "anti_join_ms": anti_join_ms,
+                    "digest_ms": digest_ms,
+                    "total_ms": (time.monotonic_ns() - validation_started) / 1_000_000}}
+
+    def prevalidate(
+        self,
+        *,
+        authority_generation: str,
+        current_authoritative_count: int,
+        current_authority_provenance_count: int,
+    ) -> dict[str, object]:
+        """Persist a full equivalence boundary while canonical writers remain live.
+
+        A concurrent outbox advance invalidates the observation rather than
+        pretending that several long-running statements formed one snapshot.
+        Callers may catch up and retry while canonical remains authoritative.
+        """
+        state = self.state()
+        if state["state"] != "CATCHING_UP":
+            raise RuntimeError("migration is not ready for prevalidation")
+        control = self.control()
+        if control["writers_paused"] or control["reader_mode"] != "CANONICAL":
+            raise RuntimeError("prevalidation requires live canonical writers")
+        if control["authority_generation"] not in {None, authority_generation}:
+            raise RuntimeError("authority generation changed before prevalidation")
+        head = int(self.canonical.execute(
+            "SELECT COALESCE(MAX(sequence),0) FROM compact_migration_delta").fetchone()[0])
+        self.apply_deltas(through_sequence=head)
+        validation = self.validate()
+        completed_head = int(self.canonical.execute(
+            "SELECT COALESCE(MAX(sequence),0) FROM compact_migration_delta").fetchone()[0])
+        exact = bool(validation["exact"] and completed_head == head and
+                     int(self.state()["delta_cursor"]) == head)
+        completed_at = str(time.time_ns())
+        # Establish the trusted counter only from an exact full-corpus boundary.
+        # All later compact appends maintain it in their own relation transaction.
+        if exact:
+            self.repository.reset_relation_count(int(validation["compact_count"]))
+        self.sidecar.execute("BEGIN IMMEDIATE")
+        try:
+            self.sidecar.execute("""INSERT OR REPLACE INTO compact_prevalidation_boundary VALUES(
+              1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (
+                state["migration_id"], state["generation"], str(state["generation"]), head,
+                validation["canonical_count"], validation["compact_count"],
+                validation["canonical_digest"], validation["canonical_minus_compact"],
+                validation["compact_minus_canonical"], authority_generation,
+                current_authoritative_count, current_authority_provenance_count,
+                json.dumps(validation, sort_keys=True), completed_at, int(exact)))
+            self.sidecar.commit()
+        except BaseException:
+            self.sidecar.rollback(); raise
+        if not exact:
+            raise RuntimeError("prevalidation boundary changed or equivalence failed")
+        return {**validation, "validated_source_generation": str(state["generation"]),
+                "validated_delta_sequence": head,
+                "authority_generation": authority_generation,
+                "current_authoritative_count": current_authoritative_count,
+                "current_authority_provenance_count": current_authority_provenance_count,
+                "validation_completed_at": completed_at,
+                "writers_live": True}
+
+    def prevalidation_boundary(self) -> dict[str, object] | None:
+        row = self.sidecar.execute(
+            "SELECT * FROM compact_prevalidation_boundary WHERE singleton=1").fetchone()
+        if row is None:
+            return None
+        return {
+            "migration_id": row[1], "generation": row[2],
+            "validated_source_generation": row[3], "validated_delta_sequence": row[4],
+            "validated_canonical_count": row[5], "validated_compact_count": row[6],
+            "validated_digest": row[7], "canonical_minus_compact": row[8],
+            "compact_minus_canonical": row[9], "authority_generation": row[10],
+            "current_authoritative_count": row[11],
+            "current_authority_provenance_count": row[12],
+            "validation": json.loads(row[13]), "validation_completed_at": row[14],
+            "exact": bool(row[15]),
+        }
+
+    def bounded_cutover(
+        self,
+        *,
+        authority_generation: str,
+        max_pause_ms: float = 30_000,
+    ) -> dict[str, object]:
+        """Close only the post-validation delta while writers are paused.
+
+        Full digest and anti-join validation are intentionally forbidden here.
+        Safety comes from the persisted full boundary plus exact proof of the
+        bounded suffix and a cardinality invariant. Exhaustive validation runs
+        again after writers resume.
+        """
+        boundary = self.prevalidation_boundary()
+        state = self.state()
+        if state["state"] != "CATCHING_UP" or not boundary or not boundary["exact"]:
+            raise RuntimeError("exact prevalidation boundary required")
+        if boundary["migration_id"] != state["migration_id"] or boundary["generation"] != state["generation"]:
+            raise RuntimeError("stale prevalidation boundary")
+        if boundary["authority_generation"] != authority_generation:
+            raise RuntimeError("authority generation does not match prevalidation")
+        if int(state["delta_cursor"]) != int(boundary["validated_delta_sequence"]):
+            raise RuntimeError("delta cursor moved after prevalidation outside bounded cutover")
+
+        timings: dict[str, float] = {}
+        pause_started_wall = str(time.time_ns())
+        tick = time.monotonic_ns(); self.transition("PAUSE_REQUIRED")
+        pause_started = self.pause_writers()
+        timings["pause_acquisition_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+        try:
+            self.transition("FINAL_DRAIN")
+            tick = time.monotonic_ns()
+            final_sequence = int(self.canonical.execute(
+                "SELECT COALESCE(MAX(sequence),0) FROM compact_migration_delta").fetchone()[0])
+            final_rows = self.canonical.execute("""SELECT sequence,primitive_id,evidence_id
+              FROM compact_migration_delta WHERE sequence>? AND sequence<=?
+              ORDER BY sequence""", (boundary["validated_delta_sequence"], final_sequence)).fetchall()
+            timings["final_sequence_capture_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+
+            tick = time.monotonic_ns()
+            delta = self.apply_deltas(through_sequence=final_sequence)
+            timings["delta_apply_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+            if int(self.state()["delta_cursor"]) != final_sequence:
+                raise RuntimeError("final delta sequence was not fully applied")
+
+            unique_pairs = tuple(sorted({(row[1], row[2]) for row in final_rows}))
+            expected_count = int(boundary["validated_canonical_count"]) + int(delta["inserted"])
+            tick = time.monotonic_ns()
+            # Canonical uniqueness + the AFTER INSERT outbox make suffix event
+            # count the authoritative net-new canonical count. The compact
+            # counter is maintained in the same transaction as compact inserts.
+            canonical_count = int(boundary["validated_canonical_count"]) + len(unique_pairs)
+            compact_count = self.repository.relation_count()
+            timings["bounded_count_check_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+
+            tick = time.monotonic_ns()
+            missing_pairs = tuple(pair for pair in unique_pairs if not self.repository.contains(*pair))
+            timings["bounded_tuple_validation_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+            no_delta_extras = (len(unique_pairs) == delta["inserted"] + delta["duplicates"])
+            bounded_exact = all((canonical_count == expected_count,
+                                 compact_count == expected_count,
+                                 not missing_pairs, no_delta_extras))
+
+            tick = time.monotonic_ns()
+            control = self.control()
+            authority_exact = control["authority_generation"] in {None, authority_generation}
+            timings["authority_check_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+            elapsed_ms = (time.monotonic_ns() - pause_started) / 1_000_000
+            if not bounded_exact or not authority_exact:
+                raise RuntimeError("bounded final validation failed")
+            if elapsed_ms >= max_pause_ms:
+                raise TimeoutError("writer pause limit reached before control switch")
+
+            self.transition("VERIFIED")
+            tick = time.monotonic_ns()
+            self.canonical.execute("BEGIN IMMEDIATE")
+            try:
+                self.canonical.execute("""UPDATE compact_migration_control SET
+                  reader_mode='COMPACT',writer_mode='COMPACT',sidecar_generation=?,
+                  authority_generation=?,switched_delta_sequence=? WHERE singleton=1""",
+                  (str(state["generation"]), authority_generation, final_sequence))
+                self.canonical.commit()
+            except BaseException:
+                self.canonical.rollback(); raise
+            self.sidecar.execute("""UPDATE compact_migration_state SET state='COMPACT_ACTIVE',
+              reader_mode='COMPACT',writer_mode='COMPACT',authority_generation=?,updated_at=?
+              WHERE singleton=1""", (authority_generation, str(time.time_ns())))
+            self.sidecar.commit()
+            timings["control_switch_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+            tick = time.monotonic_ns(); self.resume_writers()
+            timings["writer_resume_ms"] = (time.monotonic_ns() - tick) / 1_000_000
+        except BaseException:
+            if self.control()["reader_mode"] == "CANONICAL":
+                self.resume_writers()
+                if self.state()["state"] in {"PAUSE_REQUIRED", "FINAL_DRAIN"}:
+                    self.transition("CATCHING_UP")
+            raise
+
+        pause_ms = (time.monotonic_ns() - pause_started) / 1_000_000
+        timings["total_pause_ms"] = pause_ms
+        bounded = {
+            "exact": True, "validation_scope": "PREVALIDATED_FULL_CORPUS_PLUS_BOUNDED_DELTA",
+            "full_digest_inside_pause": False, "full_anti_join_inside_pause": False,
+            "digest_strategy": "prevalidated full digest + exact bounded delta proof; exhaustive digest after resume",
+            "validated_delta_sequence": boundary["validated_delta_sequence"],
+            "final_delta_sequence": final_sequence, "delta_events": len(final_rows),
+            "unique_delta_relations": len(unique_pairs), "new_relations": delta["inserted"],
+            "duplicates": delta["duplicates"], "missing_delta_relations": len(missing_pairs),
+            "no_delta_extras": no_delta_extras, "expected_final_count": expected_count,
+            "canonical_final_count": canonical_count, "compact_final_count": compact_count,
+            "count_strategy": "prevalidated canonical count + unique outbox suffix; transactional compact counter",
+            "authority_generation_exact": authority_exact,
+        }
+        self.sidecar.execute("""INSERT INTO compact_cutover_events(
+          migration_id,generation,validated_delta_sequence,final_delta_sequence,
+          final_delta_events,final_delta_inserted,final_delta_duplicates,
+          expected_final_count,compact_final_count,pause_started_at,pause_ended_at,
+          pause_ms,timing_json,bounded_validation_json)
+          VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (
+            state["migration_id"], state["generation"], boundary["validated_delta_sequence"],
+            final_sequence, len(final_rows), delta["inserted"], delta["duplicates"],
+            expected_count, compact_count, pause_started_wall, str(time.time_ns()), pause_ms,
+            json.dumps(timings, sort_keys=True), json.dumps(bounded, sort_keys=True)))
+        self.sidecar.commit()
+        return {"control": self.control(), "bounded_validation": bounded,
+                "pause_ms": pause_ms, "timings": timings}
 
     def prepare_cutover(self) -> int:
         if self.state()["state"] != "CATCHING_UP":
@@ -450,10 +704,11 @@ class CompactMigrationSidecar:
           FROM compact_rollback_delta WHERE reconciled=0 ORDER BY sequence""").fetchall()
         self.canonical.execute("BEGIN IMMEDIATE")
         try:
-            before = self.canonical.total_changes
-            self.canonical.executemany("INSERT OR IGNORE INTO primitive_evidence_inputs VALUES(?,?)",
-                                       ((r[1], r[2]) for r in rows))
-            inserted = self.canonical.total_changes - before
+            inserted = 0
+            for row in rows:
+                inserted += self.canonical.execute(
+                    "INSERT OR IGNORE INTO primitive_evidence_inputs VALUES(?,?)",
+                    (row[1], row[2])).rowcount
             self.canonical.executemany("UPDATE compact_rollback_delta SET reconciled=1 WHERE sequence=?",
                                        ((r[0],) for r in rows))
             self.canonical.commit()
@@ -461,9 +716,15 @@ class CompactMigrationSidecar:
             self.canonical.rollback(); raise
         return {"rows": len(rows), "inserted": inserted, "duplicates": len(rows)-inserted}
 
-    def rollback(self) -> dict[str, object]:
-        if self.control()["reader_mode"] == "COMPACT": self.pause_writers()
-        self.reconcile_compact_writes()
+    def rollback(self, *, max_pause_ms: float | None = None) -> dict[str, object]:
+        pause_started = None
+        if self.control()["reader_mode"] == "COMPACT":
+            pause_started = self.pause_writers()
+        reconciliation = self.reconcile_compact_writes()
+        if (pause_started is not None and max_pause_ms is not None and
+                (time.monotonic_ns() - pause_started) / 1_000_000 >= max_pause_ms):
+            self.resume_writers()
+            raise TimeoutError("rollback writer pause limit reached before control switch")
         self.canonical.execute("BEGIN IMMEDIATE")
         self.canonical.execute("""UPDATE compact_migration_control SET reader_mode='CANONICAL',
           writer_mode='CANONICAL_WITH_DELTA',writers_paused=0 WHERE singleton=1""")
@@ -472,7 +733,11 @@ class CompactMigrationSidecar:
         if state == "COMPACT_ACTIVE": self.transition("ROLLBACK_ACTIVE")
         self.sidecar.execute("""UPDATE compact_migration_state SET reader_mode='CANONICAL',
           writer_mode='CANONICAL_WITH_DELTA' WHERE singleton=1"""); self.sidecar.commit()
-        return self.control()
+        result = self.control()
+        result["reconciliation"] = reconciliation
+        result["pause_ms"] = ((time.monotonic_ns() - pause_started) / 1_000_000
+                              if pause_started is not None else 0.0)
+        return result
 
     def control(self) -> dict[str, object]:
         row = self.canonical.execute("SELECT * FROM compact_migration_control WHERE singleton=1").fetchone()

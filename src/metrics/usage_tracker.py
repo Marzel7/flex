@@ -92,11 +92,22 @@ def _flush():
             pass  # never crash caller — connection is guaranteed closed by the finally above
 
 def _ensure_started():
+    """X78.18: failure-isolated startup. record_wss()/record_webhook() are
+    called synchronously from hot paths (e.g. the PumpPortal reconnect loop's
+    message handler) — a schema-write stall or CrossProcessDatabaseWriteTimeout
+    here must never propagate into the caller, since that previously surfaced
+    as a reconnect failure with no relation to the actual PumpPortal connection.
+    ensure_schema() itself remains once-per-process (still gated by _started,
+    set before the attempt so a failure doesn't retry it on every subsequent
+    call); only its failure mode changes here, not its frequency."""
     global _started, _thread
     if _started:
         return
     _started = True
-    ensure_schema()
+    try:
+        ensure_schema()
+    except Exception:
+        pass  # metrics schema is best-effort; never block/fail the caller
     _thread = threading.Thread(target=_flush, daemon=True, name="usage-tracker-flush")
     _thread.start()
 

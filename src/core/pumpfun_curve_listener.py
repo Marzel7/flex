@@ -10771,6 +10771,39 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 1.5, 60)
 
+    async def _seed_trade_subscriptions(self, ws, tracked_trade_mints: set):
+        """X78.18: deferred, best-effort trade-subscription seeding.
+
+        Runs as a background task after newToken/migration subscriptions are
+        already confirmed — never on the connect hot path. Any failure here
+        (DB contention, closed socket from a fast subsequent reconnect, etc.)
+        is swallowed; it can only degrade trade-event coverage for already-
+        active tokens, never birth/migration flow or reconnect stability.
+        """
+        try:
+            def _seed_read():
+                with managed_db_connect(DB_PATH, timeout=5) as _c:
+                    _rows = _c.execute("""
+                        SELECT mint FROM token_analysis
+                        WHERE source_platform = 'pumpfun'
+                          AND lifecycle_stage = 'bonding_curve'
+                        ORDER BY
+                            CASE WHEN (pf_ws_creator IS NULL OR pf_ws_creator = '') THEN 0 ELSE 1 END ASC,
+                            analyzed_at DESC
+                        LIMIT 200
+                    """).fetchall()
+                    return [r[0] for r in _rows]
+            seed_mints = await asyncio.to_thread(_seed_read)
+            if seed_mints:
+                # PumpPortal accepts up to 100 keys per message — batch if needed
+                for i in range(0, len(seed_mints), 100):
+                    batch = seed_mints[i:i+100]
+                    await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": batch}))
+                tracked_trade_mints.update(seed_mints)
+                log_print(f"[PUMPPORTAL] Seeded trade subscriptions for {len(seed_mints)} active tokens ({sum(1 for m in seed_mints if m not in tracked_trade_mints)} missing creator)", flush=True)
+        except Exception as _e:
+            log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed (deferred, non-fatal): {_e}", flush=True)
+
     async def listen_pumpportal_websocket(self):
         """
         Single PumpPortal WSS connection replacing all Helius pump.fun subscriptions:
@@ -10817,31 +10850,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     await ws.send(json.dumps({"method": "subscribeMigration"}))
                     log_print("[PUMPPORTAL] Subscribed to newToken + migration", flush=True)
 
-                    # Seed trade subscriptions for recently active bonding curve tokens
-                    # so we get vSol updates immediately without waiting for new births
-                    try:
-                        def _seed_read():
-                            with managed_db_connect(DB_PATH, timeout=5) as _c:
-                                _rows = _c.execute("""
-                                    SELECT mint FROM token_analysis
-                                    WHERE source_platform = 'pumpfun'
-                                      AND lifecycle_stage = 'bonding_curve'
-                                    ORDER BY
-                                        CASE WHEN (pf_ws_creator IS NULL OR pf_ws_creator = '') THEN 0 ELSE 1 END ASC,
-                                        analyzed_at DESC
-                                    LIMIT 200
-                                """).fetchall()
-                                return [r[0] for r in _rows]
-                        seed_mints = await asyncio.to_thread(_seed_read)
-                        if seed_mints:
-                            # PumpPortal accepts up to 100 keys per message — batch if needed
-                            for i in range(0, len(seed_mints), 100):
-                                batch = seed_mints[i:i+100]
-                                await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": batch}))
-                            tracked_trade_mints.update(seed_mints)
-                            log_print(f"[PUMPPORTAL] Seeded trade subscriptions for {len(seed_mints)} active tokens ({sum(1 for m in seed_mints if m not in tracked_trade_mints)} missing creator)", flush=True)
-                    except Exception as _e:
-                        log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed: {_e}", flush=True)
+                    # X78.18: seed trade-subscription read moved off the connect hot path.
+                    # It's a DB read that isn't required to start receiving newToken/migration
+                    # events, so it must not sit between subscribe and the first ws.recv() —
+                    # a stall acquiring a DB connection here previously delayed first-message
+                    # receipt (and, transitively, pushed _mins_since_connect toward the FATAL
+                    # threshold) even though the seed itself only affects trade-event coverage
+                    # for already-active tokens. Fired as a background task so a slow or failed
+                    # DB read can never block or fail the reconnect path itself.
+                    asyncio.create_task(
+                        self._seed_trade_subscriptions(ws, tracked_trade_mints)
+                    )
 
                     while True:
                         try:
@@ -11982,20 +12001,34 @@ async def main():
         log_print("[STARTUP] Another pumpfun_curve_listener instance is already running; exiting", flush=True)
         return
 
-    # Walkback DDL is startup-only. Enqueue paths never initialize schema.
-    try:
-        from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
-        from src.core.db import OPS_DB_PATH as _OPS_SCHEMA_PATH
-        from src.core.database_write_service import database_write_service
-        _schema_selector = f"operations:{os.path.realpath(str(_OPS_SCHEMA_PATH))}"
-        database_write_service.register_database(_schema_selector, str(_OPS_SCHEMA_PATH))
-        database_write_service.submit(
-            _schema_selector, "listener-walkback-schema-startup",
-            _ensure_walkback_schema,
-        )
-        log_print("[STARTUP] Walkback schema verified", flush=True)
-    except Exception as _schema_error:
-        log_print(f"[STARTUP] Walkback schema verification failed: {_schema_error}", flush=True)
+    # X78.18: walkback DDL moved off the pre-listen() startup path. submit()
+    # blocks the calling thread until the write actually completes (waits on
+    # a threading.Event) — under write-lane contention this previously
+    # delayed every process start (including every FATAL-triggered restart)
+    # before listen()/gather() and PumpPortal reconnection could even begin.
+    # Deferred to a daemon thread: schema DDL is idempotent (CREATE TABLE IF
+    # NOT EXISTS-style) and only needs to exist once per process, not before
+    # the reconnect path starts.
+    def _init_walkback_schema_background():
+        try:
+            from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+            from src.core.db import OPS_DB_PATH as _OPS_SCHEMA_PATH
+            from src.core.database_write_service import database_write_service
+            _schema_selector = f"operations:{os.path.realpath(str(_OPS_SCHEMA_PATH))}"
+            database_write_service.register_database(_schema_selector, str(_OPS_SCHEMA_PATH))
+            database_write_service.submit(
+                _schema_selector, "listener-walkback-schema-startup",
+                _ensure_walkback_schema,
+            )
+            log_print("[STARTUP] Walkback schema verified (background)", flush=True)
+        except Exception as _schema_error:
+            log_print(f"[STARTUP] Walkback schema verification failed (background, non-fatal): {_schema_error}", flush=True)
+
+    import threading as _thr_startup
+    _thr_startup.Thread(
+        target=_init_walkback_schema_background, daemon=True,
+        name="walkback-schema-startup",
+    ).start()
     
     global _listener_singleton
     listener = PumpFunCurveListener()

@@ -1,0 +1,48 @@
+{
+  "canonical_writes": 0,
+  "controls": {
+    "canonical_links": 12398192,
+    "canonical_primitive_digest": "e472f2cae08f26ace75f73b6f6ef5d550aea23072ccd78c3e8d1efeccc423c38",
+    "canonical_primitives": 401050,
+    "evidence": 807545,
+    "free_before": 42888744960,
+    "source_bytes": 5725122560
+  },
+  "equivalence": {
+    "pass_two_zero_inserts": true,
+    "pass_two_zero_links": true,
+    "primitive_count": false,
+    "primitive_values": false,
+    "provenance": false
+  },
+  "git_head": "8865afd30639b9ca09fd4cae24ac2933dce23019",
+  "pass_1": {
+    "duplicates": 0,
+    "evidence_inputs": 807545,
+    "free_after": 38968434688,
+    "generated": 346730,
+    "inserted": 346730,
+    "peak_rss_bytes": 1403912192,
+    "primitive_digest": "a1adf44ac893bc142fb38ec6ecdda5b4a3459e3304ca49e7b131164773f112c7",
+    "provenance_digest": "831e909da0de874db28ba7cc066e6c50febfabe7c17489d0c0071217eea6a051",
+    "provenance_links": 6457475,
+    "replay_db_bytes": 333836288,
+    "runtime_seconds": 97.353054
+  },
+  "pass_2": {
+    "duplicates": 346730,
+    "evidence_inputs": 807545,
+    "free_after": 40028250112,
+    "generated": 346730,
+    "inserted": 0,
+    "peak_rss_bytes": 1403912192,
+    "primitive_digest": "a1adf44ac893bc142fb38ec6ecdda5b4a3459e3304ca49e7b131164773f112c7",
+    "provenance_digest": "831e909da0de874db28ba7cc066e6c50febfabe7c17489d0c0071217eea6a051",
+    "provenance_links": 6457475,
+    "replay_db_bytes": 333836288,
+    "runtime_seconds": 110.241032
+  },
+  "phase": "COMPLETE",
+  "production_interaction": false,
+  "rpc_calls": 0
+}

@@ -1,0 +1,392 @@
+{
+  "audit_correction": "Unrelated local storage was manually removed outside the audit. The filesystem free-space before/after delta is contaminated and is not compact-provenance savings; direct SQLite object sizes are authoritative.",
+  "acquisition_economics": {
+    "method": "v2.1G non-provenance growth retained; provenance growth repriced at current compact bytes/link; \u00b120% range",
+    "persistent_growth_ranges": {
+      "1000": {
+        "high_bytes": 533794801,
+        "low_bytes": 355863201,
+        "midpoint_bytes": 444829001
+      },
+      "2000": {
+        "high_bytes": 1067589602,
+        "low_bytes": 711726402,
+        "midpoint_bytes": 889658002
+      },
+      "21687": {
+        "high_bytes": 11576407854,
+        "low_bytes": 7717605236,
+        "midpoint_bytes": 9647006545
+      },
+      "5000": {
+        "high_bytes": 2668974006,
+        "low_bytes": 1779316004,
+        "midpoint_bytes": 2224145005
+      }
+    },
+    "working_space": "Reserve compact build journal, replay/checkpoint space, and validator reports in addition to persistent estimates."
+  },
+  "benchmarks": {
+    "evidence_to_primitive_100": {
+      "canonical": {
+        "rows": 1684,
+        "seconds": 40.63951
+      },
+      "compact": {
+        "rows": 1684,
+        "seconds": 0.178331
+      }
+    },
+    "exact_pair_100": {
+      "canonical": {
+        "rows": 100,
+        "seconds": 0.004546
+      },
+      "compact": {
+        "rows": 100,
+        "seconds": 0.002269
+      }
+    },
+    "primitive_to_evidence_100": {
+      "canonical": {
+        "rows": 6542001,
+        "seconds": 23.472527
+      },
+      "compact": {
+        "rows": 6542001,
+        "seconds": 57.779335
+      }
+    }
+  },
+  "compact": {
+    "digest": "acb0be3ad7f3982fa0f6ffcf0854f1fae46ab5b500271a5f78880527b5b03ca0",
+    "evidence_identities": 807545,
+    "file_bytes": 521883648,
+    "links": 12398192,
+    "path": "database/evidence_platform/oip_v2_2b_compact_provenance/compact_provenance.sqlite",
+    "physical_objects": {
+      "compact_inputs_by_evidence": 161665024,
+      "compact_primitive_evidence_inputs": 168849408,
+      "evidence_identity": 60276736,
+      "primitive_identity": 29925376,
+      "sqlite_autoindex_evidence_identity_1": 67592192,
+      "sqlite_autoindex_primitive_identity_1": 33570816,
+      "sqlite_schema": 4096
+    },
+    "primitive_identities": 401050
+  },
+  "constraints": {
+    "canonical_deletions": 0,
+    "historical_deletions": 0,
+    "new_coverage": 0,
+    "production_interaction": false,
+    "rpc_calls": 0
+  },
+  "consumer_census": [
+    {
+      "consumer": "Primitive replay/load",
+      "direction": "Primitive\u2192Evidence",
+      "paths": [
+        "src/evidence/database.py",
+        "src/evidence/primitives/engine.py"
+      ]
+    },
+    {
+      "consumer": "Discovery validators",
+      "direction": "full ordered scan",
+      "paths": [
+        "scripts/validate_ep4_0_unknown_discovery.py"
+      ]
+    },
+    {
+      "consumer": "shadow corpus",
+      "direction": "Evidence\u2192Primitive/aggregate",
+      "paths": [
+        "src/ops/watchtower_shadow_corpus.py"
+      ]
+    },
+    {
+      "consumer": "OIP audit tooling",
+      "direction": "all directions",
+      "paths": [
+        "scripts/analyze_oip_v2_1d_storage.py"
+      ]
+    }
+  ],
+  "disk": {
+    "after": {
+      "free": 43978657792
+    },
+    "before": {
+      "free": 22073458688,
+      "total": 245107195904,
+      "used": 189572956160
+    },
+    "census": [
+      {
+        "bytes": 5830655690,
+        "canonical_current": true,
+        "classification": "REQUIRED",
+        "mtime": 1786275253.264167,
+        "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen",
+        "proposed_action": "RETAIN"
+      },
+      {
+        "bytes": 3835488853,
+        "canonical_current": false,
+        "classification": "ARCHIVABLE",
+        "mtime": 1786275253.2710843,
+        "path": "database/evidence_platform/oip_v2_1f_stage_1000",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 3784335513,
+        "canonical_current": false,
+        "classification": "ARCHIVABLE",
+        "mtime": 1786263545.7496402,
+        "path": "database/evidence_platform/oip_v2_1g_stage_2000",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 2722598868,
+        "canonical_current": false,
+        "classification": "ARCHIVABLE",
+        "mtime": 1786275253.2726781,
+        "path": "database/evidence_platform/oip_v2_1e_stage_1000",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 1971897525,
+        "canonical_current": false,
+        "classification": "ARCHIVABLE",
+        "mtime": 1786224986.4009562,
+        "path": "database/evidence_platform/oip_v2_1c_retry_failover",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 1550143098,
+        "canonical_current": false,
+        "classification": "ARCHIVABLE",
+        "mtime": 1786229296.7911634,
+        "path": "database/evidence_platform/oip_v2_1a_pilot",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 793444315,
+        "canonical_current": false,
+        "classification": "UNKNOWN",
+        "mtime": 1786204950.3128095,
+        "path": "database/evidence_platform/watchtower_shadow_ep3_0d",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 521909001,
+        "canonical_current": false,
+        "classification": "UNKNOWN",
+        "mtime": 1786282598.761451,
+        "path": "database/evidence_platform/oip_v2_2b_compact_provenance",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 396444950,
+        "canonical_current": false,
+        "classification": "UNKNOWN",
+        "mtime": 1786175873.1776445,
+        "path": "database/evidence_platform/watchtower_shadow",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 167764378,
+        "canonical_current": false,
+        "classification": "ARCHIVABLE",
+        "mtime": 1786229296.788413,
+        "path": "database/evidence_platform/oip_v2_1d_storage_audit",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 64090050,
+        "canonical_current": false,
+        "classification": "UNKNOWN",
+        "mtime": 1786272697.5485868,
+        "path": "database/evidence_platform/oip_v2_2a_retention_audit",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      },
+      {
+        "bytes": 12481016,
+        "canonical_current": false,
+        "classification": "UNKNOWN",
+        "mtime": 1786270095.7028258,
+        "path": "database/evidence_platform/three_sw2_shadow_ep3_2a",
+        "proposed_action": "REVIEW_ONLY_NO_DELETION"
+      }
+    ],
+    "minimum_reserve": 8589934592
+  },
+  "equivalence": {
+    "canonical_minus_compact": 0,
+    "compact_minus_canonical": 0,
+    "compact_minus_canonical_method": "cardinality proof after direct canonical-minus-compact",
+    "counts_equal": true,
+    "digests_equal": true,
+    "reverse_direct_query": "STOPPED_AT_10_MINUTE_RESOURCE_GATE"
+  },
+  "git_head": "4486e52d8c8d2651de049bdfa8344c999d1ca5fe",
+  "migration_design": {
+    "architecture": "sidecar compact tables, bounded cursor batches, dual-read verification, brief write pause for final delta and cutover",
+    "read_cutover": "compatibility view/repository returns external IDs; retain canonical fallback until all gates pass",
+    "resume": "persist last primitive_key and committed row count after each batch",
+    "retirement": "not authorized in v2.2B",
+    "rollback": "before canonical table retirement, revert readers/writers to untouched canonical table",
+    "write_cutover": "transactional writer switch after final canonical-to-compact delta; external IDs resolved through immutable maps"
+  },
+  "milestone": "OIP v2.2B",
+  "replay_downstream_gate": {
+    "passed": false,
+    "reason": "The provenance-only prototype intentionally contains no Primitive/Evidence payload tables; full replay and downstream validators require an isolated compact-compatible corpus adapter."
+  },
+  "source": {
+    "bytes": 5725122560,
+    "difference_query_plans": {
+      "canonical_minus_compact": [
+        "SCAN i",
+        "SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?)",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?)",
+        "SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+      ],
+      "compact_minus_canonical": [
+        "SCAN c USING COVERING INDEX compact_inputs_by_evidence",
+        "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+        "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)",
+        "SEARCH i USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=? AND evidence_id=?) LEFT-JOIN"
+      ]
+    },
+    "digest": "acb0be3ad7f3982fa0f6ffcf0854f1fae46ab5b500271a5f78880527b5b03ca0",
+    "evidence": 807545,
+    "links": 12398192,
+    "path": "database/evidence_platform/oip_v2_1g_stage_2000_frozen/evidence.db",
+    "physical_objects": {
+      "artifact_references": 1761280,
+      "evidence_envelopes": 3309568,
+      "evidence_provenance": 9113600,
+      "evidence_schema_metadata": 4096,
+      "immutable_artifacts": 753664,
+      "normalization_status": 1499136,
+      "normalized_evidence_logical_fact": 84475904,
+      "normalized_evidence_provenance": 261271552,
+      "normalized_evidence_records": 1000923136,
+      "primitive_evidence_inputs": 1808068608,
+      "primitive_observations": 323485696,
+      "sqlite_autoindex_artifact_references_1": 1560576,
+      "sqlite_autoindex_evidence_envelopes_1": 823296,
+      "sqlite_autoindex_evidence_envelopes_2": 774144,
+      "sqlite_autoindex_evidence_provenance_1": 823296,
+      "sqlite_autoindex_immutable_artifacts_1": 770048,
+      "sqlite_autoindex_normalization_status_1": 1044480,
+      "sqlite_autoindex_normalized_evidence_provenance_1": 113483776,
+      "sqlite_autoindex_normalized_evidence_records_1": 67440640,
+      "sqlite_autoindex_primitive_evidence_inputs_1": 2008420352,
+      "sqlite_autoindex_primitive_observations_1": 32911360,
+      "sqlite_autoindex_writer_receipts_1": 856064,
+      "sqlite_schema": 16384,
+      "writer_receipts": 1527808
+    },
+    "primitives": 401050,
+    "query_plans": {
+      "source_ordered_digest": [
+        "SCAN primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1"
+      ],
+      "source_pair": [
+        "SEARCH primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=? AND evidence_id=?)"
+      ],
+      "source_per_primitive": [
+        "SEARCH primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?)"
+      ],
+      "source_reverse": [
+        "SCAN primitive_evidence_inputs"
+      ]
+    },
+    "schema": {
+      "columns": [
+        {
+          "cid": 0,
+          "dflt_value": null,
+          "name": "primitive_id",
+          "notnull": 1,
+          "pk": 1,
+          "type": "TEXT"
+        },
+        {
+          "cid": 1,
+          "dflt_value": null,
+          "name": "evidence_id",
+          "notnull": 1,
+          "pk": 2,
+          "type": "TEXT"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "from": "evidence_id",
+          "id": 0,
+          "match": "NONE",
+          "on_delete": "NO ACTION",
+          "on_update": "NO ACTION",
+          "seq": 0,
+          "table": "normalized_evidence_records",
+          "to": "evidence_id"
+        },
+        {
+          "from": "primitive_id",
+          "id": 1,
+          "match": "NONE",
+          "on_delete": "NO ACTION",
+          "on_update": "NO ACTION",
+          "seq": 0,
+          "table": "primitive_observations",
+          "to": "primitive_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_primitive_evidence_inputs_1",
+          "origin": "pk",
+          "partial": 0,
+          "seq": 0,
+          "unique": 1
+        }
+      ],
+      "without_rowid": false
+    }
+  },
+  "storage": {
+    "bytes_saved": 3294609408,
+    "canonical_bytes": 3816488960,
+    "canonical_bytes_per_link": 307.82625079527725,
+    "compact_bytes": 521879552,
+    "compact_bytes_per_link": 42.09319810501402,
+    "estimated_compacted_corpus_bytes": 2430513152,
+    "percent_saved": 86.32566326092557
+  },
+  "verdicts": {
+    "acquisition": "HOLD_ACQUISITION",
+    "deployment": "NEEDS_ADDITIONAL_SHADOW_VALIDATION",
+    "storage": "B \u2014 COMPACT PROVENANCE VALIDATED BUT MIGRATION DESIGN INCOMPLETE"
+  },
+  "write_semantics": {
+    "duplicate_relation_delta": 0,
+    "new_relation_delta": 1,
+    "transaction_rolled_back": true
+  },
+  "writer_census": [
+    {
+      "path": "src/evidence/database.py",
+      "semantics": "INSERT with duplicate integrity handling",
+      "writer": "EvidenceDatabase.write_primitives"
+    },
+    {
+      "path": "database/evidence_platform/oip_v2_2b_compact_provenance/compact_provenance.sqlite",
+      "semantics": "INSTEAD OF INSERT; identity and relation INSERT OR IGNORE",
+      "writer": "compact compatibility view"
+    }
+  ]
+}

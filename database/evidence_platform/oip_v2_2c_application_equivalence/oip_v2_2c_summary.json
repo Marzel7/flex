@@ -1,0 +1,33 @@
+{
+  "acquisition_verdict": "HOLD_ACQUISITION",
+  "application_verdict": "C — APPLICATION DIFFERENCE FOUND",
+  "canonical_retirement_verdict": "RETIREMENT_NOT_SAFE",
+  "compact_relation_changed": false,
+  "constraints": {
+    "canonical_deletions": 0,
+    "canonical_writes": 0,
+    "new_coverage": 0,
+    "production_interaction": false,
+    "rpc_calls": 0
+  },
+  "downstream_validation": "NOT_RUN_AFTER_PREREQUISITE_REPLAY_FAILURE",
+  "first_failure": "PHASE_25_CANONICAL_PRIMITIVE_COMPARISON",
+  "migration_verdict": "NOT_READY",
+  "primitive_replay": {
+    "canonical_count": 401050,
+    "canonical_links": 12398192,
+    "pass_1_count": 346730,
+    "pass_1_links": 6457475,
+    "pass_1_runtime_seconds": 97.353054,
+    "pass_2_count": 346730,
+    "pass_2_inserted": 0,
+    "pass_2_links": 6457475,
+    "pass_2_runtime_seconds": 110.241032,
+    "passes_deterministic": true
+  },
+  "replay_family_differences": {
+    "BEHAVIOURAL_TIMING": 14298,
+    "REPEATED_COUNTERPARTY": 328,
+    "WALLET_FRESH_AT_EVENT": 39694
+  }
+}

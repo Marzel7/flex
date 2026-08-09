@@ -1,0 +1,6 @@
+{
+  "compact_provenance_priority": "BLOCKING_BEFORE_5K",
+  "five_thousand_call_acquisition": "BLOCKED_PENDING_STORAGE_OPTIMIZATION",
+  "option": "PAUSE FOR COMPACT-PROVENANCE / PLATFORM OPTIMIZATION",
+  "reason": "Acquisition and completion yield remain perfectly stable at doubled scale, but canonical provenance amplification, available disk, and super-linear Primitive replay cost make a 5,000-attempt stage operationally premature without the already-validated compact representation."
+}

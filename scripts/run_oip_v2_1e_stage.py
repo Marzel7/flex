@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import gzip
 import json
 import os
 import shutil
@@ -27,7 +28,7 @@ from src.intelligence.bounded_retry_validation import (  # noqa: E402
     PHYSICAL_ATTEMPT_LIMIT, RETRYABLE_FAILURES, DurablePhysicalAttemptLedger,
     PhysicalAttemptBudget, classify_attempt, diagnostic_bytes,
 )
-from src.intelligence.migrated_coverage import census  # noqa: E402
+from src.intelligence.migrated_coverage import census, serialise_census  # noqa: E402
 from src.intelligence.staged_coverage_expansion import CoverageTarget, construct_manifest  # noqa: E402
 
 EXPERIMENT_ID = "OIP_V2_1E"
@@ -63,12 +64,14 @@ def light_storage(output: Path) -> dict:
 
 
 def prepare(args) -> tuple[list[CoverageTarget], dict]:
-    rows = census(args.production_db, args.source / "evidence.db", max_source_rowid=FROZEN_SOURCE_ROWID)
-    targets, manifest = construct_manifest(rows, milestone=args.milestone)
+    rows = census(args.production_db, args.source / "evidence.db", max_source_rowid=FROZEN_SOURCE_ROWID,
+                  max_migration_signal_updated_at=args.migration_signal_cutoff)
+    targets, manifest = construct_manifest(rows, limit=args.attempt_limit, milestone=args.milestone)
     manifest.update({"source_commit": args.source_commit, "frozen_source_rowid": FROZEN_SOURCE_ROWID,
+        "frozen_migration_signal_updated_at": args.migration_signal_cutoff,
         "coverage_before": coverage_summary(rows), "provider": "helius_rpc",
-        "fallback": "solana_public_rpc", "maximum_physical_attempts": 1000,
-        "expected_storage_range_bytes": [1_670_000_000, STORAGE_UPPER_BYTES],
+        "fallback": "solana_public_rpc", "maximum_physical_attempts": args.attempt_limit,
+        "expected_storage_range_bytes": [args.storage_lower_bytes, args.storage_upper_bytes],
         "production_writes": 0, "identity_prioritization": False})
     if args.output.exists():
         existing = json.loads((args.output / "experiment_manifest.json").read_text())
@@ -80,6 +83,8 @@ def prepare(args) -> tuple[list[CoverageTarget], dict]:
     for directory in ("artifacts", "attempt_artifacts", "intake", "mirror_spool", "reports", "checkpoints"):
         (args.output / directory).mkdir()
     _write_json(args.output / "experiment_manifest.json", manifest)
+    with gzip.open(args.output / "coverage_population.json.gz", "wt", encoding="utf-8") as handle:
+        json.dump(serialise_census(rows), handle, sort_keys=True)
     _write_json(args.output / "storage_before.json", storage_snapshot(args.output, args.output / "evidence.db"))
     _write_json(args.output / "stage_checkpoint.json", {"experiment_id": args.experiment_id,
         "prepared": True, "acquisition_complete": False, "downstream_complete": False,
@@ -96,19 +101,19 @@ def checkpoint(args, budget, ledger, position: int) -> None:
         "storage": light_storage(args.output), "captured_at": time.time()}
     _write_json(args.output / f"checkpoints/attempt_{budget.count:04d}.json", payload)
     raw_growth = payload["storage"]["attempt_artifact_bytes"] + payload["storage"]["attempt_telemetry_bytes"]
-    if budget.count and raw_growth / budget.count * 1000 > STORAGE_UPPER_BYTES:
+    if budget.count and raw_growth / budget.count * args.attempt_limit > args.storage_upper_bytes:
         raise RuntimeError("projected physical growth exceeds v2.1D upper planning bound")
 
 
 async def acquire(args, targets: list[CoverageTarget]) -> dict:
     ledger = DurablePhysicalAttemptLedger(args.output / "physical_attempts.jsonl")
-    budget = PhysicalAttemptBudget(args.output / "experiment_checkpoint.json")
+    budget = PhysicalAttemptBudget(args.output / "experiment_checkpoint.json", limit=args.attempt_limit)
     if budget.in_flight:
         raise RuntimeError("in-flight reservation requires forensic recovery before resume")
     async with aiohttp.ClientSession() as session:
         client = SharedTransactionAcquisition(session)
         for target in targets:
-            if budget.count >= PHYSICAL_ATTEMPT_LIMIT:
+            if budget.count >= args.attempt_limit:
                 break
             key = target_key(target)
             if key in budget.completed_target_keys:
@@ -118,7 +123,7 @@ async def acquire(args, targets: list[CoverageTarget]) -> dict:
             previous_attempt_id = progress.get("previous_attempt_id")
             attempts_done = int(progress.get("attempts", 0))
             for attempt_number in range(attempts_done + 1, 3):
-                if budget.count >= PHYSICAL_ATTEMPT_LIMIT:
+                if budget.count >= args.attempt_limit:
                     break
                 if attempt_number == 2 and previous_class not in RETRYABLE_FAILURES:
                     break
@@ -161,7 +166,7 @@ async def acquire(args, targets: list[CoverageTarget]) -> dict:
                 budget.record_target_attempt(key, attempt_number=attempt_number,
                                              result_class=result_class, attempt_id=attempt_id)
                 previous_class, previous_attempt_id = result_class, attempt_id
-                if physical_number in CHECKPOINTS or physical_number % 25 == 0:
+                if physical_number in args.checkpoints or physical_number % 25 == 0:
                     checkpoint(args, budget, ledger, target.manifest_position)
                     print(json.dumps({"physical_attempts": physical_number, "successes": sum(
                         row["result_class"] == "SUCCESS" for row in ledger.rows())}), flush=True)
@@ -181,7 +186,7 @@ async def acquire(args, targets: list[CoverageTarget]) -> dict:
 async def run(args):
     targets, manifest = prepare(args)
     if args.prepare_only:
-        return {"prepared": True, "target_count": len(targets), "maximum_attempts": 1000}
+        return {"prepared": True, "target_count": len(targets), "maximum_attempts": args.attempt_limit}
     acquisition = await acquire(args, targets)
     if acquisition.get("paused"):
         return {"manifest": {key: value for key, value in manifest.items() if key != "targets"},
@@ -205,9 +210,16 @@ def main() -> int:
     parser.add_argument("--experiment-id", default=EXPERIMENT_ID)
     parser.add_argument("--milestone", default="OIP v2.1E")
     parser.add_argument("--source-commit", default="a16add94")
+    parser.add_argument("--attempt-limit", type=int, default=PHYSICAL_ATTEMPT_LIMIT)
+    parser.add_argument("--storage-upper-bytes", type=int, default=STORAGE_UPPER_BYTES)
+    parser.add_argument("--storage-lower-bytes", type=int, default=1_670_000_000)
+    parser.add_argument("--migration-signal-cutoff", type=int)
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--stop-after-attempts", type=int, default=0)
     args = parser.parse_args()
+    if args.attempt_limit not in {1_000, 2_000}:
+        raise SystemExit("attempt limit must be an authorized bounded stage size")
+    args.checkpoints = CHECKPOINTS | ({1_250, 1_500, 1_750, 2_000} if args.attempt_limit == 2_000 else set())
     if not args.helius_rpc_url and not args.prepare_only:
         raise SystemExit("HELIUS_RPC_URL is required")
     if not args.helius_rpc_url:

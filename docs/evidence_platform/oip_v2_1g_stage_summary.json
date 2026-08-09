@@ -1,0 +1,484 @@
+{
+  "attempt_budget": 2000,
+  "attempt_ledger_rows": 2000,
+  "baseline_drift": {
+    "actionable_dependency_delta": 34,
+    "complete_delta": 0,
+    "explanation": "The frozen 32,044-mint population is preserved. Seventeen previously unevaluable rows gained creation signatures after v2.1F, exposing 34 additional dependencies without changing completed coverage.",
+    "population_preserved": true
+  },
+  "comparison": {
+    "combined_v2_1c_v2_1e_v2_1f_v2_1g": {
+      "completed_launches": 2171,
+      "completed_launches_per_attempt": 0.5084309133489462,
+      "failovers": 0,
+      "first_attempt_successes": 4270,
+      "physical_attempts": 4270,
+      "retries": 0,
+      "transactions_recovered": 4270
+    },
+    "composition_explanation": "v2.1G repeated the paired two-attempt structure across a doubled stage; the manifest-derived ceiling is 0.5 completions per attempt.",
+    "first_half": {
+      "attempts": 1000,
+      "completed_launches": 500,
+      "recovered": 1000
+    },
+    "second_half": {
+      "attempts": 1000,
+      "completed_launches": 500,
+      "recovered": 1000
+    },
+    "v2_1a": {
+      "completions_per_attempt": 0.327,
+      "recovery_per_attempt": 0.606
+    },
+    "v2_1b_migration_first": {
+      "completions_per_attempt": 0.646341
+    },
+    "v2_1c": {
+      "completions_per_attempt": 0.555556,
+      "recovery_per_attempt": 1.0
+    },
+    "v2_1e": {
+      "completions_per_attempt": 0.521,
+      "recovery_per_attempt": 1.0
+    },
+    "v2_1f": {
+      "completions_per_attempt": 0.5,
+      "recovery_per_attempt": 1.0
+    },
+    "v2_1g": {
+      "completions_per_attempt": 0.5,
+      "recovery_per_attempt": 1.0
+    }
+  },
+  "completion_percentage_after": 7.79553114467607,
+  "completion_percentage_before": 4.67482211958557,
+  "completion_percentage_point_gain": 3.1207090250905005,
+  "coverage_after": {
+    "actionable_missing_dependencies": 21687,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 2498,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 10843,
+      "MISSING_CREATION_SIGNATURE": 18702,
+      "MISSING_CREATION_TRANSACTION": 1
+    },
+    "states": {
+      "COMPLETE": 2498,
+      "PENDING": 10844,
+      "UNAVAILABLE": 18702
+    },
+    "total": 32044
+  },
+  "coverage_before": {
+    "actionable_missing_dependencies": 23687,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 1498,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 11843,
+      "MISSING_CREATION_SIGNATURE": 18702,
+      "MISSING_CREATION_TRANSACTION": 1
+    },
+    "states": {
+      "COMPLETE": 1498,
+      "PENDING": 11844,
+      "UNAVAILABLE": 18702
+    },
+    "total_migrated_launches": 32044
+  },
+  "decision": {
+    "compact_provenance_priority": "BLOCKING_BEFORE_5K",
+    "five_thousand_call_acquisition": "BLOCKED_PENDING_STORAGE_OPTIMIZATION",
+    "option": "PAUSE FOR COMPACT-PROVENANCE / PLATFORM OPTIMIZATION",
+    "reason": "Acquisition and completion yield remain perfectly stable at doubled scale, but canonical provenance amplification, available disk, and super-linear Primitive replay cost make a 5,000-attempt stage operationally premature without the already-validated compact representation."
+  },
+  "downstream": {
+    "canonical_motifs_net": 812,
+    "discovery_after": 44475,
+    "discovery_occurrences_added": 12182,
+    "evidence_facts_added": 269043,
+    "motif_occurrences_after": 44475,
+    "motifs_after": 4367,
+    "primitive_evidence_inputs_added": 4331458,
+    "primitive_observations_added": 108113,
+    "relationship_evolution": {
+      "current_snapshot_id": "d6df326d9e894c68b6d12b12a339b88300fddd34ffd58430d7f373b5930f1f7d",
+      "event_counts": {
+        "CREATED": 227,
+        "DORMANT": 459,
+        "RETIRED": 336,
+        "STRENGTHENED": 121
+      },
+      "evolution_snapshot_id": "c59c99f984b3400f45fa249874fafdcab8bcf4784e8f9ecafb1fc4608c80bbf1",
+      "previous_snapshot_id": "7394e07cb6fb52ae2dc547e6d3936165dedd2fc16fc65feb73ddc7def2ed515d"
+    },
+    "relationships_after": 686,
+    "relationships_net": 98
+  },
+  "highest_physical_attempt_number": 2000,
+  "information_yield_trend": {
+    "classification": "MIXED",
+    "v2_1e": {
+      "discovery_per_attempt": 6.243,
+      "evidence_per_attempt": 135.859,
+      "motifs_per_attempt": 0.738,
+      "primitives_per_attempt": 54.862,
+      "provenance_per_attempt": 1996.078,
+      "relationships_per_attempt": 0.125
+    },
+    "v2_1f": {
+      "discovery_per_attempt": 6.174,
+      "evidence_per_attempt": 134.995,
+      "motifs_per_attempt": 0.46,
+      "primitives_per_attempt": 54.523,
+      "provenance_per_attempt": 2575.319,
+      "relationships_per_attempt": 0.04
+    },
+    "v2_1g": {
+      "discovery_per_attempt": 6.091,
+      "evidence_per_attempt": 134.5215,
+      "motifs_per_attempt": 0.406,
+      "primitives_per_attempt": 54.0565,
+      "provenance_links_per_attempt": 2165.729,
+      "relationships_per_attempt": 0.049
+    }
+  },
+  "marginal_curve": [
+    {
+      "acquisition_storage_bytes": 629298,
+      "attempt_range": "1-100",
+      "attempts": 100,
+      "completed_launches": 50,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 100
+    },
+    {
+      "acquisition_storage_bytes": 1556258,
+      "attempt_range": "101-250",
+      "attempts": 150,
+      "completed_launches": 75,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 150
+    },
+    {
+      "acquisition_storage_bytes": 3123369,
+      "attempt_range": "251-500",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 4703310,
+      "attempt_range": "501-750",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 6266499,
+      "attempt_range": "751-1000",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 7841042,
+      "attempt_range": "1001-1250",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 9413491,
+      "attempt_range": "1251-1500",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 10981047,
+      "attempt_range": "1501-1750",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 12551554,
+      "attempt_range": "1751-2000",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    }
+  ],
+  "marginal_state": "STABLE",
+  "milestone": "OIP v2.1G",
+  "newly_completed_launches": 1000,
+  "provenance": {
+    "dominant_pairs": [
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 3758589,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 130671,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 130408,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 60177,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 60177,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 60177,
+        "primitive_family": "SHARED_TRANSACTION"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 25846,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "InstructionFact",
+        "link_count": 25846,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 14458,
+        "primitive_family": "SYSTEM_TRANSFER"
+      },
+      {
+        "evidence_family": "AccountCloseFact",
+        "link_count": 13212,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      }
+    ],
+    "primitive_families": [
+      {
+        "link_count": 4098332,
+        "primitive_family": "BEHAVIOURAL_TIMING",
+        "share": 0.9461783999752508
+      },
+      {
+        "link_count": 120354,
+        "primitive_family": "WALLET_FRESH_AT_EVENT",
+        "share": 0.027786024936637965
+      },
+      {
+        "link_count": 62177,
+        "primitive_family": "SHARED_TRANSACTION",
+        "share": 0.014354750755981012
+      },
+      {
+        "link_count": 28916,
+        "primitive_family": "SYSTEM_TRANSFER",
+        "share": 0.006675812163017626
+      },
+      {
+        "link_count": 12166,
+        "primitive_family": "DIRECT_COUNTERPARTY",
+        "share": 0.002808754003848127
+      },
+      {
+        "link_count": 2834,
+        "primitive_family": "WSOL_CLOSE",
+        "share": 0.0006542831536170961
+      },
+      {
+        "link_count": 2465,
+        "primitive_family": "REPEATED_COUNTERPARTY",
+        "share": 0.0005690924395434516
+      },
+      {
+        "link_count": 2000,
+        "primitive_family": "LAUNCH_SIGNER",
+        "share": 0.0004617382876620297
+      },
+      {
+        "link_count": 1722,
+        "primitive_family": "LAUNCH_ACTIVATION",
+        "share": 0.00039755666567700763
+      },
+      {
+        "link_count": 492,
+        "primitive_family": "ECONOMIC_FUNDING",
+        "share": 0.00011358761876485932
+      }
+    ],
+    "status": {
+      "links": 4331458,
+      "reused": true,
+      "runtime_seconds": 0.0
+    }
+  },
+  "provider": {
+    "attempts": 2000,
+    "credits": 20000,
+    "failovers": 0,
+    "failure_classes": {
+      "SUCCESS": 2000
+    },
+    "max_latency_ms": 193.945,
+    "p50_latency_ms": 48.120000000000005,
+    "p95_latency_ms": 66.636,
+    "providers": {
+      "helius_rpc": 2000
+    },
+    "retries": 0,
+    "successes": 2000
+  },
+  "remaining_population": {
+    "estimated_provider_requests_no_retry": 21687,
+    "expected_retry_overhead": 0,
+    "incomplete_launches": 10844,
+    "missing_dependencies": 21687,
+    "projected_recovery": {
+      "basis": "v2.1E paired tail and every v2.1F checkpoint segment held at 0.500 completions per attempt; projections assume unchanged first-attempt recovery and deficit composition.",
+      "next_1000_attempts": {
+        "completed_launches": 500,
+        "dependencies": 1000
+      },
+      "next_2000_attempts": {
+        "completed_launches": 1000,
+        "dependencies": 2000
+      },
+      "next_5000_attempts": {
+        "completed_launches": 2500,
+        "dependencies": 5000
+      },
+      "remaining_actionable_population": {
+        "completed_launches_at_paired_ceiling": 10843,
+        "dependencies": 21687
+      }
+    },
+    "unevaluable_launches": 18702
+  },
+  "stage_telemetry": {
+    "mirror_seconds": 24.66311,
+    "normalization": {
+      "claimed": 2000,
+      "duplicate_envelopes": 0,
+      "failed": 0,
+      "inserted_envelopes": 2000
+    },
+    "normalization_seconds": 469.865246,
+    "primitive_first": {
+      "duplicates": 238617,
+      "generated": 346730,
+      "input_digest": "3bce7576382773132ab0694135962895aadd1bd5d30b407aca3265d194274c7b",
+      "inserted": 108113
+    },
+    "primitive_first_seconds": 1056.745115,
+    "primitive_second": {
+      "duplicates": 346730,
+      "generated": 346730,
+      "input_digest": "3bce7576382773132ab0694135962895aadd1bd5d30b407aca3265d194274c7b",
+      "inserted": 0
+    },
+    "primitive_second_seconds": 166.868069,
+    "successful_acquisitions": 2000
+  },
+  "storage": {
+    "artifact_report_bytes": 96539613,
+    "attempt_telemetry_bytes": 2421146,
+    "bytes_per_attempt": 1020334.7795,
+    "bytes_per_completed_launch": 2040669.559,
+    "bytes_per_new_evidence": 7584.919730303334,
+    "bytes_per_new_primitive": 18875.33931164615,
+    "bytes_per_provenance_link": 471.12763392834466,
+    "database_growth_bytes": 1941708800,
+    "expected_range_bytes": [
+      2000000000,
+      4800000000
+    ],
+    "free_disk_bytes": 23250112512,
+    "total_incremental_bytes": 2040669559,
+    "trajectory_vs_v2_1f": "STABLE",
+    "within_expected_range": true
+  },
+  "throughput_scaling": {
+    "classification": {
+      "mirror": "SUB_LINEAR",
+      "normalization": "SUB_LINEAR",
+      "primitive_first": "SUPER_LINEAR",
+      "primitive_second": "APPROXIMATELY_LINEAR"
+    },
+    "contention_note": "Expanded validators ran alongside two pre-existing CPU-heavy motif validators; wall time is not an uncontended benchmark.",
+    "scale_vs_v2_1f": {
+      "mirror_seconds": 1.0251826432277227,
+      "normalization_seconds": 1.532985993719539,
+      "primitive_first_seconds": 3.1091489747843157,
+      "primitive_second_seconds": 1.8553292628803946
+    },
+    "v2_1f_seconds": {
+      "mirror_seconds": 24.057284,
+      "normalization_seconds": 306.503287,
+      "primitive_first_seconds": 339.882432,
+      "primitive_second_seconds": 89.939868
+    },
+    "v2_1g_seconds": {
+      "mirror_seconds": 24.66311,
+      "normalization_seconds": 469.865246,
+      "primitive_first_seconds": 1056.745115,
+      "primitive_second_seconds": 166.868069
+    }
+  },
+  "validation": {
+    "discovery_passed": true,
+    "motifs_passed": true,
+    "primitive_same_digest": true,
+    "primitive_second_inserted_zero": true,
+    "production_writes": 0,
+    "relationships_passed": true,
+    "rpc_calls_in_validators": 0,
+    "semantic_changes": 0
+  },
+  "yield": {
+    "attempts_per_completed_launch": 2.0,
+    "completed_launches_per_attempt": 0.5,
+    "discovery_per_attempt": 6.091,
+    "discovery_per_completed_launch": 12.182,
+    "evidence_per_attempt": 134.5215,
+    "evidence_per_completed_launch": 269.043,
+    "motifs_per_attempt": 0.406,
+    "motifs_per_completed_launch": 0.812,
+    "primitives_per_attempt": 54.0565,
+    "primitives_per_completed_launch": 108.113,
+    "provenance_links_per_attempt": 2165.729,
+    "provenance_links_per_completed_launch": 4331.458,
+    "provenance_links_per_new_primitive": 40.06417359614478,
+    "relationships_per_attempt": 0.049,
+    "relationships_per_completed_launch": 0.098,
+    "storage_per_attempt": 1020334.7795,
+    "storage_per_completed_launch": 2040669.559,
+    "transactions_per_attempt": 1.0
+  }
+}

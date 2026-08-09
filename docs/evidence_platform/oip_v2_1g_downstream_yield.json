@@ -1,0 +1,23 @@
+{
+  "canonical_motifs_net": 812,
+  "discovery_after": 44475,
+  "discovery_occurrences_added": 12182,
+  "evidence_facts_added": 269043,
+  "motif_occurrences_after": 44475,
+  "motifs_after": 4367,
+  "primitive_evidence_inputs_added": 4331458,
+  "primitive_observations_added": 108113,
+  "relationship_evolution": {
+    "current_snapshot_id": "d6df326d9e894c68b6d12b12a339b88300fddd34ffd58430d7f373b5930f1f7d",
+    "event_counts": {
+      "CREATED": 227,
+      "DORMANT": 459,
+      "RETIRED": 336,
+      "STRENGTHENED": 121
+    },
+    "evolution_snapshot_id": "c59c99f984b3400f45fa249874fafdcab8bcf4784e8f9ecafb1fc4608c80bbf1",
+    "previous_snapshot_id": "7394e07cb6fb52ae2dc547e6d3936165dedd2fc16fc65feb73ddc7def2ed515d"
+  },
+  "relationships_after": 686,
+  "relationships_net": 98
+}

@@ -1,0 +1,10 @@
+{
+  "discovery_passed": true,
+  "motifs_passed": true,
+  "primitive_same_digest": true,
+  "primitive_second_inserted_zero": true,
+  "production_writes": 0,
+  "relationships_passed": true,
+  "rpc_calls_in_validators": 0,
+  "semantic_changes": 0
+}

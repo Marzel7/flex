@@ -1,0 +1,111 @@
+{
+  "dominant_pairs": [
+    {
+      "evidence_family": "AccountParticipationFact",
+      "link_count": 3758589,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "BalanceFact",
+      "link_count": 130671,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "TransactionFact",
+      "link_count": 130408,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "AccountParticipationFact",
+      "link_count": 60177,
+      "primitive_family": "WALLET_FRESH_AT_EVENT"
+    },
+    {
+      "evidence_family": "BalanceFact",
+      "link_count": 60177,
+      "primitive_family": "WALLET_FRESH_AT_EVENT"
+    },
+    {
+      "evidence_family": "AccountParticipationFact",
+      "link_count": 60177,
+      "primitive_family": "SHARED_TRANSACTION"
+    },
+    {
+      "evidence_family": "NativeMovementFact",
+      "link_count": 25846,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "InstructionFact",
+      "link_count": 25846,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "AccountParticipationFact",
+      "link_count": 14458,
+      "primitive_family": "SYSTEM_TRANSFER"
+    },
+    {
+      "evidence_family": "AccountCloseFact",
+      "link_count": 13212,
+      "primitive_family": "BEHAVIOURAL_TIMING"
+    }
+  ],
+  "primitive_families": [
+    {
+      "link_count": 4098332,
+      "primitive_family": "BEHAVIOURAL_TIMING",
+      "share": 0.9461783999752508
+    },
+    {
+      "link_count": 120354,
+      "primitive_family": "WALLET_FRESH_AT_EVENT",
+      "share": 0.027786024936637965
+    },
+    {
+      "link_count": 62177,
+      "primitive_family": "SHARED_TRANSACTION",
+      "share": 0.014354750755981012
+    },
+    {
+      "link_count": 28916,
+      "primitive_family": "SYSTEM_TRANSFER",
+      "share": 0.006675812163017626
+    },
+    {
+      "link_count": 12166,
+      "primitive_family": "DIRECT_COUNTERPARTY",
+      "share": 0.002808754003848127
+    },
+    {
+      "link_count": 2834,
+      "primitive_family": "WSOL_CLOSE",
+      "share": 0.0006542831536170961
+    },
+    {
+      "link_count": 2465,
+      "primitive_family": "REPEATED_COUNTERPARTY",
+      "share": 0.0005690924395434516
+    },
+    {
+      "link_count": 2000,
+      "primitive_family": "LAUNCH_SIGNER",
+      "share": 0.0004617382876620297
+    },
+    {
+      "link_count": 1722,
+      "primitive_family": "LAUNCH_ACTIVATION",
+      "share": 0.00039755666567700763
+    },
+    {
+      "link_count": 492,
+      "primitive_family": "ECONOMIC_FUNDING",
+      "share": 0.00011358761876485932
+    }
+  ],
+  "status": {
+    "links": 4331458,
+    "reused": true,
+    "runtime_seconds": 0.0
+  }
+}

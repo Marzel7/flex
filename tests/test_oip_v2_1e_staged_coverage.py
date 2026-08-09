@@ -1,6 +1,9 @@
 from dataclasses import dataclass
+import json
+import sqlite3
 
 from src.intelligence.staged_coverage_expansion import construct_manifest
+from src.intelligence.migrated_coverage import reclassify_census_snapshot
 
 
 @dataclass
@@ -39,3 +42,17 @@ def test_manifest_can_label_a_repeated_stage_without_changing_order():
     repeated, summary = construct_manifest(rows, milestone="OIP v2.1F")
     assert baseline == repeated
     assert summary["milestone"] == "OIP v2.1F"
+
+
+def test_snapshot_reclassification_does_not_consult_mutable_source(tmp_path):
+    evidence = tmp_path / "evidence.db"
+    with sqlite3.connect(evidence) as connection:
+        connection.execute("CREATE TABLE normalized_evidence_records (fact_family TEXT, natural_key TEXT, payload_json TEXT)")
+        connection.execute("CREATE TABLE normalization_status (raw_artifact_digest TEXT, status TEXT)")
+        for signature in ("create", "migration"):
+            connection.execute("INSERT INTO normalized_evidence_records VALUES ('TransactionFact', ?, '{}')", (f"tx/{signature}",))
+        connection.execute("INSERT INTO normalized_evidence_records VALUES ('LaunchFact', 'launch/mint', ?)",
+                           (json.dumps({"mint": "mint", "creation_signature": "create"}),))
+    rows = reclassify_census_snapshot([{"mint": "mint", "creation_signature": "create",
+        "migration_signature": "migration"}], evidence)
+    assert rows[0].state == "COMPLETE"

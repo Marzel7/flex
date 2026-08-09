@@ -68,6 +68,7 @@ def census(
     evidence_db: Path,
     *,
     max_source_rowid: int | None = None,
+    max_migration_signal_updated_at: int | None = None,
 ) -> list[LaunchCoverage]:
     tx_signatures, launch_facts, _failed = _evidence_index(evidence_db)
     output: list[LaunchCoverage] = []
@@ -80,7 +81,9 @@ def census(
             FROM token_analysis
             WHERE (COALESCE(migration_tx,'')<>'' OR lifecycle_stage='migrated')
               AND (? IS NULL OR rowid <= ?)
-        """, (max_source_rowid, max_source_rowid)).fetchall()
+              AND (? IS NULL OR COALESCE(migration_signal_updated_at,0) <= ?)
+        """, (max_source_rowid, max_source_rowid, max_migration_signal_updated_at,
+              max_migration_signal_updated_at)).fetchall()
         for mint, creation, migration, creator, timestamp, provider, watchtower in sorted(source_rows, key=lambda row: row[0]):
             create_present = bool(creation and creation in tx_signatures)
             migration_present = bool(migration and migration in tx_signatures)
@@ -136,3 +139,39 @@ def recovery_plan(rows: Iterable[LaunchCoverage], *, hard_call_limit: int | None
 
 def serialise_census(rows: Iterable[LaunchCoverage]) -> list[dict]:
     return [asdict(row) for row in rows]
+
+
+def reclassify_census_snapshot(
+    snapshot: Iterable[dict], evidence_db: Path
+) -> list[LaunchCoverage]:
+    """Re-evaluate Evidence presence without rereading mutable source projections."""
+    tx_signatures, launch_facts, _failed = _evidence_index(evidence_db)
+    output: list[LaunchCoverage] = []
+    for item in snapshot:
+        creation = item.get("creation_signature")
+        migration = item.get("migration_signature")
+        mint = item["mint"]
+        create_present = bool(creation and creation in tx_signatures)
+        migration_present = bool(migration and migration in tx_signatures)
+        launch_present = mint in launch_facts
+        if launch_present and creation and launch_facts[mint] != creation:
+            state, reason, recovery = "STALE", "STALE_SIGNATURE_PROJECTION", "REPLAY"
+        elif create_present and migration_present and launch_present:
+            state, reason, recovery = "COMPLETE", "COMPLETE_EVIDENCE", "NONE"
+        elif not creation:
+            state, reason, recovery = "UNAVAILABLE", "MISSING_CREATION_SIGNATURE", "PERMANENTLY_UNAVAILABLE"
+        elif not create_present and not migration_present:
+            state, reason, recovery = "PENDING", "MISSING_CREATION_AND_MIGRATION_TRANSACTION", "BOUNDED_ACQUISITION"
+        elif not create_present:
+            state, reason, recovery = "PENDING", "MISSING_CREATION_TRANSACTION", "BOUNDED_ACQUISITION"
+        elif not migration_present:
+            state, reason, recovery = "PENDING", "MISSING_MIGRATION_TRANSACTION", "BOUNDED_ACQUISITION"
+        else:
+            state, reason, recovery = "PENDING", "MISSING_LAUNCH_FACT", "REPLAY"
+        output.append(LaunchCoverage(
+            mint, state, reason, creation, migration, create_present, migration_present,
+            launch_present, recovery, item.get("creator"), item.get("launch_timestamp"),
+            item.get("provider_source", "UNKNOWN"), bool(item.get("watchtower_population")),
+            item.get("discovery_participation", "UNAVAILABLE_IN_SUMMARY_SNAPSHOT"),
+        ))
+    return output

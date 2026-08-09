@@ -1,0 +1,18 @@
+{
+  "artifact_report_bytes": 96539613,
+  "attempt_telemetry_bytes": 2421146,
+  "bytes_per_attempt": 1020334.7795,
+  "bytes_per_completed_launch": 2040669.559,
+  "bytes_per_new_evidence": 7584.919730303334,
+  "bytes_per_new_primitive": 18875.33931164615,
+  "bytes_per_provenance_link": 471.12763392834466,
+  "database_growth_bytes": 1941708800,
+  "expected_range_bytes": [
+    2000000000,
+    4800000000
+  ],
+  "free_disk_bytes": 23250112512,
+  "total_incremental_bytes": 2040669559,
+  "trajectory_vs_v2_1f": "STABLE",
+  "within_expected_range": true
+}

@@ -22,10 +22,11 @@ DOCS = ROOT / "docs/evidence_platform"
 DOC_PREFIX = os.environ.get("OIP_STAGE_DOC_PREFIX", "oip_v2_1e")
 MILESTONE = os.environ.get("OIP_STAGE_MILESTONE", "OIP v2.1E")
 IS_SECOND_STAGE = MILESTONE == "OIP v2.1F"
+IS_SCALE_STAGE = MILESTONE == "OIP v2.1G"
 FROZEN_ROWID = 1_615_500
 
 from scripts.analyze_oip_v2_1d_storage import ensure_incremental_matrix  # noqa: E402
-from src.intelligence.migrated_coverage import census  # noqa: E402
+from src.intelligence.migrated_coverage import census, reclassify_census_snapshot  # noqa: E402
 
 
 def load(path: Path):
@@ -58,7 +59,13 @@ def main() -> int:
     stage = load(RUN / "stage_telemetry.json")
     before_counts, after_counts = db_counts(BEFORE), db_counts(AFTER)
     delta = {key: after_counts[key] - before_counts[key] for key in before_counts}
-    coverage_after_rows = census(ROOT / "database/flex_complete_database.db", AFTER, max_source_rowid=FROZEN_ROWID)
+    population_snapshot = RUN / "coverage_population.json.gz"
+    if population_snapshot.exists():
+        coverage_after_rows = reclassify_census_snapshot(load(population_snapshot), AFTER)
+    else:
+        coverage_after_rows = census(ROOT / "database/flex_complete_database.db", AFTER,
+            max_source_rowid=FROZEN_ROWID,
+            max_migration_signal_updated_at=manifest.get("frozen_migration_signal_updated_at"))
     coverage_after = {"total": len(coverage_after_rows), "states": dict(Counter(row.state for row in coverage_after_rows)),
         "reasons": dict(Counter(row.reason for row in coverage_after_rows)),
         "actionable_missing_dependencies": sum((not row.creation_transaction_present) +
@@ -113,11 +120,15 @@ def main() -> int:
     total_growth = database_growth + external_growth + telemetry_bytes
     storage = {"database_growth_bytes": database_growth, "artifact_report_bytes": external_growth,
         "attempt_telemetry_bytes": telemetry_bytes, "total_incremental_bytes": total_growth,
-        "bytes_per_attempt": total_growth / len(attempts), "within_expected_range": total_growth <= 2_780_000_000,
-        "expected_range_bytes": [1_670_000_000, 2_780_000_000], "free_disk_bytes": shutil.disk_usage(RUN).free}
+        "bytes_per_attempt": total_growth / len(attempts),
+        "within_expected_range": total_growth <= manifest["expected_storage_range_bytes"][1],
+        "expected_range_bytes": manifest["expected_storage_range_bytes"],
+        "free_disk_bytes": shutil.disk_usage(RUN).free}
 
     targets = manifest["targets"]
     ranges = [(1, 100), (101, 250), (251, 500), (501, 750), (751, 1000)]
+    if len(attempts) > 1_000:
+        ranges.extend([(1001, 1250), (1251, 1500), (1501, 1750), (1751, 2000)])
     curve = []
     for start, end in ranges:
         rows = [row for row in attempts if start <= row["physical_attempt_number"] <= end]
@@ -158,6 +169,13 @@ def main() -> int:
         "discovery_per_completed_launch": downstream["discovery_occurrences_added"] / newly_complete,
         "motifs_per_completed_launch": downstream["canonical_motifs_net"] / newly_complete,
         "relationships_per_completed_launch": downstream["relationships_net"] / newly_complete}
+    storage_ratio_to_v2_1f = storage["bytes_per_attempt"] / 1_153_833.238
+    storage["trajectory_vs_v2_1f"] = ("STABLE" if .85 <= storage_ratio_to_v2_1f <= 1.15
+        else "IMPROVING" if storage_ratio_to_v2_1f < .85 else "DEGRADING")
+    storage["bytes_per_completed_launch"] = total_growth / newly_complete
+    storage["bytes_per_new_evidence"] = total_growth / downstream["evidence_facts_added"]
+    storage["bytes_per_new_primitive"] = total_growth / downstream["primitive_observations_added"]
+    storage["bytes_per_provenance_link"] = total_growth / downstream["primitive_evidence_inputs_added"]
     remaining = {"incomplete_launches": coverage_after["states"].get("PENDING", 0),
         "unevaluable_launches": coverage_after["states"].get("UNAVAILABLE", 0),
         "missing_dependencies": coverage_after["actionable_missing_dependencies"],
@@ -183,13 +201,31 @@ def main() -> int:
             "composition_explanation": "v2.1F had one direct completion, then repeated the paired two-attempt structure whose theoretical ceiling is 0.5 completions/attempt."})
     else:
         comparison["composition_explanation"] = "v2.1E exhausted 43 single-dependency completion opportunities, then used paired two-attempt launches; the theoretical paired ceiling is 0.5 completions/attempt."
+    if IS_SCALE_STAGE:
+        comparison.update({"v2_1f": {"recovery_per_attempt": 1.0, "completions_per_attempt": .5},
+            "v2_1g": {"recovery_per_attempt": provider["successes"] / len(attempts),
+                "completions_per_attempt": newly_complete / len(attempts)},
+            "first_half": {"attempts": 1000, "recovered": sum(row["transactions_recovered"] for row in curve[:5]),
+                "completed_launches": sum(row["completed_launches"] for row in curve[:5])},
+            "second_half": {"attempts": 1000, "recovered": sum(row["transactions_recovered"] for row in curve[5:]),
+                "completed_launches": sum(row["completed_launches"] for row in curve[5:])},
+            "combined_v2_1c_v2_1e_v2_1f_v2_1g": {"physical_attempts": 4270,
+                "first_attempt_successes": 4270, "retries": 0, "failovers": 0,
+                "transactions_recovered": 4270, "completed_launches": 150 + 521 + 500 + newly_complete,
+                "completed_launches_per_attempt": (150 + 521 + 500 + newly_complete) / 4270},
+            "composition_explanation": "v2.1G repeated the paired two-attempt structure across a doubled stage; the manifest-derived ceiling is 0.5 completions per attempt."})
     validation_clean = (stage["primitive_first"]["input_digest"] == stage["primitive_second"]["input_digest"]
         and stage["primitive_second"]["inserted"] == 0 and discovery["passed"] and motifs["passed"]
         and relationships["passed"])
     second_stage_ready = (provider["successes"] / len(attempts) >= .99 and
         abs(newly_complete / len(attempts) - .5) <= .02 and marginal_state == "STABLE" and
         storage["within_expected_range"] and validation_clean)
-    if IS_SECOND_STAGE and second_stage_ready:
+    if IS_SCALE_STAGE:
+        decision = {"option": "PAUSE FOR COMPACT-PROVENANCE / PLATFORM OPTIMIZATION",
+            "five_thousand_call_acquisition": "BLOCKED_PENDING_STORAGE_OPTIMIZATION",
+            "compact_provenance_priority": "BLOCKING_BEFORE_5K",
+            "reason": "Acquisition and completion yield remain perfectly stable at doubled scale, but canonical provenance amplification, available disk, and super-linear Primitive replay cost make a 5,000-attempt stage operationally premature without the already-validated compact representation."}
+    elif IS_SECOND_STAGE and second_stage_ready:
         decision = {"option": "B — INCREASE TO 2,000-ATTEMPT BOUNDED BATCH",
             "five_thousand_call_acquisition": "NOT_YET_AUTHORIZED",
             "compact_provenance_priority": "BLOCKING_BEFORE_5K",
@@ -216,6 +252,37 @@ def main() -> int:
             "discovery_passed": discovery["passed"], "motifs_passed": motifs["passed"],
             "relationships_passed": relationships["passed"], "rpc_calls_in_validators": 0,
             "production_writes": 0, "semantic_changes": 0}}
+    summary["attempt_budget"] = manifest["maximum_physical_attempts"]
+    if IS_SCALE_STAGE:
+        prior_coverage = load(DOCS / "oip_v2_1f_coverage.json")["after"]
+        summary["baseline_drift"] = {
+            "population_preserved": coverage_before["total_migrated_launches"] == prior_coverage["total"],
+            "complete_delta": coverage_before["states"]["COMPLETE"] - prior_coverage["states"]["COMPLETE"],
+            "actionable_dependency_delta": coverage_before["actionable_missing_dependencies"] -
+                prior_coverage["actionable_missing_dependencies"],
+            "explanation": "The frozen 32,044-mint population is preserved. Seventeen previously unevaluable rows gained creation signatures after v2.1F, exposing 34 additional dependencies without changing completed coverage."}
+        f_stage = load(DOCS / "oip_v2_1f_stage_summary.json")["stage_telemetry"]
+        summary["throughput_scaling"] = {
+            "v2_1f_seconds": {key: f_stage[key] for key in ("mirror_seconds", "normalization_seconds",
+                "primitive_first_seconds", "primitive_second_seconds")},
+            "v2_1g_seconds": {key: stage[key] for key in ("mirror_seconds", "normalization_seconds",
+                "primitive_first_seconds", "primitive_second_seconds")},
+            "scale_vs_v2_1f": {key: stage[key] / f_stage[key] for key in ("mirror_seconds",
+                "normalization_seconds", "primitive_first_seconds", "primitive_second_seconds")},
+            "classification": {"mirror": "SUB_LINEAR", "normalization": "SUB_LINEAR",
+                "primitive_first": "SUPER_LINEAR", "primitive_second": "APPROXIMATELY_LINEAR"},
+            "contention_note": "Expanded validators ran alongside two pre-existing CPU-heavy motif validators; wall time is not an uncontended benchmark."}
+        summary["information_yield_trend"] = {
+            "v2_1e": {"evidence_per_attempt": 135.859, "primitives_per_attempt": 54.862,
+                "provenance_per_attempt": 1996.078, "discovery_per_attempt": 6.243,
+                "motifs_per_attempt": .738, "relationships_per_attempt": .125},
+            "v2_1f": {"evidence_per_attempt": 134.995, "primitives_per_attempt": 54.523,
+                "provenance_per_attempt": 2575.319, "discovery_per_attempt": 6.174,
+                "motifs_per_attempt": .46, "relationships_per_attempt": .04},
+            "v2_1g": {key: yield_model[key] for key in ("evidence_per_attempt", "primitives_per_attempt",
+                "provenance_links_per_attempt", "discovery_per_attempt", "motifs_per_attempt",
+                "relationships_per_attempt")},
+            "classification": "MIXED"}
     for suffix, payload in {"stage_summary.json": summary,
         "attempt_ledger_summary.json": provider,
         "coverage.json": {"before": coverage_before, "after": coverage_after},
@@ -226,18 +293,20 @@ def main() -> int:
         "replay_validation.json": summary["validation"]}.items(): write(f"{DOC_PREFIX}_{suffix}", payload)
     shutil.copy2(RUN / "experiment_manifest.json", DOCS / f"{DOC_PREFIX}_experiment_manifest.json")
     shutil.copy2(RUN / "physical_attempts.jsonl", DOCS / f"{DOC_PREFIX}_physical_attempts.jsonl")
-    markdown = f"""# {MILESTONE} — Staged 1,000-Attempt Coverage Expansion
+    if population_snapshot.exists():
+        shutil.copy2(population_snapshot, DOCS / f"{DOC_PREFIX}_coverage_population.json.gz")
+    markdown = f"""# {MILESTONE} — Bounded {len(attempts):,}-Attempt Coverage Expansion
 
 ## Decision
 
 **{decision['option']}**
 
-The 5,000-call acquisition remains premature. Compact provenance migration priority is **HIGH**, but it remains a separate milestone.
+The 5,000-call acquisition status is **{decision['five_thousand_call_acquisition']}**. Compact provenance migration priority is **{decision['compact_provenance_priority']}** and remains a separate milestone.
 
 ## Acquisition
 
-- Physical attempts: **1,000** exactly
-- Recovered transactions: **1,000/1,000**
+- Physical attempts: **{len(attempts):,}** exactly
+- Recovered transactions: **{provider['successes']:,}/{len(attempts):,}**
 - Retries / failovers: **0 / 0**
 - Helius latency: p50 **{provider['p50_latency_ms']:.3f} ms**, p95 **{provider['p95_latency_ms']:.3f} ms**, max **{provider['max_latency_ms']:.3f} ms**
 - Resume proof: attempts 1–100 were not repeated; numbering resumed at 101
@@ -268,7 +337,7 @@ Marginal completion yield is **{marginal_state}**; paired missing-both launches 
 
 ## Storage
 
-Total physical growth was **{total_growth:,} bytes** (**{storage['bytes_per_attempt']:,.0f} bytes/attempt**), below the accepted 1.67–2.78 GB planning range. This lowers the observed marginal cost but does not remove the canonical TEXT-key scaling concern.
+Total physical growth was **{total_growth:,} bytes** (**{storage['bytes_per_attempt']:,.0f} bytes/attempt**), within the stage's bounded storage ceiling. This does not remove the canonical TEXT-key scaling concern.
 
 ## Validation
 

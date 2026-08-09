@@ -117,3 +117,14 @@ def test_hard_budget_rejects_attempt_1001(tmp_path: Path):
         assert "ceiling" in str(exc)
     else:
         raise AssertionError("budget allowed a physical request beyond its ceiling")
+
+
+def test_hard_budget_rejects_attempt_2001(tmp_path: Path):
+    budget = PhysicalAttemptBudget(tmp_path / "checkpoint.json", limit=2000)
+    budget._state["physical_attempt_count"] = 2000
+    try:
+        budget.reserve({"target_key": "attempt-2001"})
+    except RuntimeError as exc:
+        assert "ceiling" in str(exc)
+    else:
+        raise AssertionError("budget allowed physical attempt 2001")

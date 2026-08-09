@@ -1,0 +1,86 @@
+{
+  "curve": [
+    {
+      "acquisition_storage_bytes": 629298,
+      "attempt_range": "1-100",
+      "attempts": 100,
+      "completed_launches": 50,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 100
+    },
+    {
+      "acquisition_storage_bytes": 1556258,
+      "attempt_range": "101-250",
+      "attempts": 150,
+      "completed_launches": 75,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 150
+    },
+    {
+      "acquisition_storage_bytes": 3123369,
+      "attempt_range": "251-500",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 4703310,
+      "attempt_range": "501-750",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 6266499,
+      "attempt_range": "751-1000",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 7841042,
+      "attempt_range": "1001-1250",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 9413491,
+      "attempt_range": "1251-1500",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 10981047,
+      "attempt_range": "1501-1750",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 12551554,
+      "attempt_range": "1751-2000",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    }
+  ],
+  "state": "STABLE"
+}

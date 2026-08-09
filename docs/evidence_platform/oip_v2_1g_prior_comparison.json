@@ -1,0 +1,45 @@
+{
+  "combined_v2_1c_v2_1e_v2_1f_v2_1g": {
+    "completed_launches": 2171,
+    "completed_launches_per_attempt": 0.5084309133489462,
+    "failovers": 0,
+    "first_attempt_successes": 4270,
+    "physical_attempts": 4270,
+    "retries": 0,
+    "transactions_recovered": 4270
+  },
+  "composition_explanation": "v2.1G repeated the paired two-attempt structure across a doubled stage; the manifest-derived ceiling is 0.5 completions per attempt.",
+  "first_half": {
+    "attempts": 1000,
+    "completed_launches": 500,
+    "recovered": 1000
+  },
+  "second_half": {
+    "attempts": 1000,
+    "completed_launches": 500,
+    "recovered": 1000
+  },
+  "v2_1a": {
+    "completions_per_attempt": 0.327,
+    "recovery_per_attempt": 0.606
+  },
+  "v2_1b_migration_first": {
+    "completions_per_attempt": 0.646341
+  },
+  "v2_1c": {
+    "completions_per_attempt": 0.555556,
+    "recovery_per_attempt": 1.0
+  },
+  "v2_1e": {
+    "completions_per_attempt": 0.521,
+    "recovery_per_attempt": 1.0
+  },
+  "v2_1f": {
+    "completions_per_attempt": 0.5,
+    "recovery_per_attempt": 1.0
+  },
+  "v2_1g": {
+    "completions_per_attempt": 0.5,
+    "recovery_per_attempt": 1.0
+  }
+}

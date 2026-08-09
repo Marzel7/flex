@@ -1,0 +1,229 @@
+{
+  "affected_206": {
+    "affected_subjects": 206,
+    "all_persisted_candidates_with_historical_support": 206,
+    "authoritative_subject_membership_preserved": true,
+    "authoritative_subjects_represented": 206,
+    "historical_recurrence_snapshots": 328
+  },
+  "all_persisted_control": {
+    "discovery_candidates": 44475,
+    "discovery_digest": "e0461baf54a96c139d7b92e0fc2407957e5426d0eeddbc83746bc1d42830135e",
+    "motif_digest": "6aa632a369a487f61ea1c51f3bd66c060255517e42a32b3d09341174a5c234f3",
+    "motifs": 4367,
+    "relationships": 686
+  },
+  "all_persisted_rerun": {
+    "candidate_count": 44475,
+    "candidate_digest": "d66e5f11a7767e94e3bb359ae83e77fe0049d19070a003e949cdba91769f9f1b",
+    "change_snapshot_id": "574787f665591e2677b56557037fc939a1c21b62bb603eee211f06e9e52f70d5",
+    "evolution_snapshot_id": "dc03311a31398da7a63c9d58166d4c92230be284e3ed82a2e94c75e9f748f706",
+    "hydrated_primitive_count": 92545,
+    "hydrated_provenance_count": 372209,
+    "mode": "ALL_PERSISTED",
+    "motif_count": 4367,
+    "motif_digest": "bfa8e78494d3bba859985d87e56b84e47661fd3a6b23c475bb558f4bd5650060",
+    "population_count": 401050,
+    "relationship_count": 686,
+    "relationship_evolution_snapshot_id": "0359a1e307505fd8ff79ca798e019ea52549a3e3be9465a4323aa62ca4fe0e18",
+    "relationship_types": {
+      "SHARED_COUNTERPARTY_OBSERVATION": 26,
+      "SHARED_EVIDENCE_PROVENANCE": 165,
+      "SHARED_NEIGHBOURHOOD": 165,
+      "SHARED_PRIMITIVE_OBSERVATION": 165,
+      "SHARED_TEMPORAL_OBSERVATION": 165
+    },
+    "timings": {
+      "authority_selection_seconds": 3.26672,
+      "discovery_seconds": 10.768413,
+      "landscape_relationship_seconds": 161.01883,
+      "motif_seconds": 95.270103,
+      "primitive_provenance_hydration_seconds": 199.60287,
+      "total_seconds": 469.926936
+    }
+  },
+  "authority_storage": {
+    "authority_events": 401050,
+    "current_projection": 346730,
+    "current_subject_memberships": 616444,
+    "subject_memberships": 671092,
+    "successor_links": 54320
+  },
+  "candidate_comparison": {
+    "identity": {
+      "all_persisted_only": 44475,
+      "current_authority_only": 44475,
+      "equal": false,
+      "shared": 0
+    },
+    "semantic": {
+      "all_persisted_only": 206,
+      "current_authority_only": 206,
+      "equal": false,
+      "shared": 44269
+    }
+  },
+  "compact_current_provenance": {
+    "canonical_count": 6457475,
+    "canonical_digest": "831e909da0de874db28ba7cc066e6c50febfabe7c17489d0c0071217eea6a051",
+    "canonical_seconds": 38.191313,
+    "compact_count": 6457475,
+    "compact_digest": "831e909da0de874db28ba7cc066e6c50febfabe7c17489d0c0071217eea6a051",
+    "compact_seconds": 280.072092,
+    "count_equal": true,
+    "digest_equal": true,
+    "query_plans": {
+      "canonical": [
+        "SEARCH primitive_authority_events USING COVERING INDEX authority_events_by_state (authority_state=?)",
+        "SEARCH i USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "compact": [
+        "SEARCH primitive_authority_events USING COVERING INDEX authority_events_by_state (authority_state=?)",
+        "SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?)",
+        "SEARCH i USING PRIMARY KEY (primitive_key=?)",
+        "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    "set_difference": 0
+  },
+  "constraints": {
+    "acquisition": 0,
+    "algorithm_changes": 0,
+    "authority_contract_changes": 0,
+    "canonical_deletions": 0,
+    "primitive_mutations": 0,
+    "production_interaction": false,
+    "provenance_deletions": 0,
+    "rpc_calls": 0
+  },
+  "current_authoritative": {
+    "candidate_count": 44475,
+    "candidate_digest": "85e0bb46474d5d9d65c05cb744786f227728efd87930b771a74d28c492172f3c",
+    "change_snapshot_id": "5a53a2a09728485f2fb1f8766b7b159a4cded4d3c2d638ab0bb60178d1b0078e",
+    "evolution_snapshot_id": "bf122d609f977850d54680a47174ba4e32edeb476ff67fb4e0ba9e1def006b40",
+    "hydrated_primitive_count": 92217,
+    "hydrated_provenance_count": 370299,
+    "mode": "CURRENT_AUTHORITATIVE",
+    "motif_count": 4365,
+    "motif_digest": "f47477f56c0a47ecee20e47b3605458bed648b0d7762e41023946cbd068ccafd",
+    "population_count": 346730,
+    "relationship_count": 686,
+    "relationship_evolution_snapshot_id": "1cb49ec57801a24060368874868d9e8ea49558af8e31df18948ffef2dc6d5506",
+    "relationship_types": {
+      "SHARED_COUNTERPARTY_OBSERVATION": 26,
+      "SHARED_EVIDENCE_PROVENANCE": 165,
+      "SHARED_NEIGHBOURHOOD": 165,
+      "SHARED_PRIMITIVE_OBSERVATION": 165,
+      "SHARED_TEMPORAL_OBSERVATION": 165
+    },
+    "timings": {
+      "authority_selection_seconds": 3.180198,
+      "discovery_seconds": 18.089271,
+      "landscape_relationship_seconds": 127.541253,
+      "motif_seconds": 83.242336,
+      "primitive_provenance_hydration_seconds": 103.242511,
+      "total_seconds": 335.295569
+    }
+  },
+  "git_head": "d2d75c6f59dd3b757d07f857cbb5b529d779d0f0",
+  "historical_preservation": {
+    "persisted_primitives": 401050,
+    "persisted_provenance": 12398192,
+    "v2_2b_proof_reused": true
+  },
+  "milestone": "OIP v2.2C.3",
+  "motif_comparison": {
+    "identity": {
+      "all_persisted_only": 205,
+      "current_authority_only": 203,
+      "equal": false,
+      "shared": 4162
+    },
+    "semantic": {
+      "all_persisted_only": 207,
+      "current_authority_only": 205,
+      "equal": false,
+      "shared": 4160
+    }
+  },
+  "performance": {
+    "authority_import_seconds": 11.023374,
+    "classification": {
+      "Discovery": "SLOW_BUT_BOUNDED",
+      "Motifs": "SLOW_BUT_BOUNDED",
+      "Relationships_and_Landscape": "SLOW_BUT_BOUNDED",
+      "authority_selection": "ACCEPTABLE",
+      "provenance_hydration": "SLOW_BUT_BOUNDED",
+      "subject_selection": "ACCEPTABLE"
+    },
+    "subject_index_build_seconds": 2.806682
+  },
+  "projection": {
+    "authority_digest": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "authority_minus_clean": 0,
+    "clean_digest": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "clean_minus_authority": 0,
+    "counts": {
+      "ALL_PERSISTED": 401050,
+      "CURRENT_AUTHORITATIVE": 346730,
+      "HISTORICAL_SNAPSHOT": 14626,
+      "LEGACY_VERSION": 39694
+    }
+  },
+  "query_plans": {
+    "all_authority": [
+      "SEARCH primitive_authority_events USING COVERING INDEX authority_events_by_state (authority_state=?)"
+    ],
+    "canonical_provenance": [
+      "SEARCH canonical.primitive_evidence_inputs USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?)"
+    ],
+    "compact_provenance": [
+      "SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?)",
+      "SEARCH i USING PRIMARY KEY (primitive_key=?)",
+      "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "family_authority": [
+      "SEARCH primitive_authority_events USING COVERING INDEX authority_events_by_state_family (authority_state=? AND family=?)"
+    ],
+    "subject_authority": [
+      "SEARCH current_authority_subject USING PRIMARY KEY (subject=?)"
+    ]
+  },
+  "relationship_comparison": {
+    "identity": {
+      "all_persisted_only": 0,
+      "current_authority_only": 0,
+      "equal": true,
+      "shared": 686
+    },
+    "observation_support": "REPLACED_WITH_CURRENT_AUTHORITY_SUPPORT",
+    "type_counts_equal": true
+  },
+  "semantic_assessment": {
+    "candidate_identity_churn": "EXPECTED_SNAPSHOT_DIGEST_AND_AUTHORITY_CORRECTION",
+    "support_or_structure_differences": "EXPECTED_AUTHORITY_CORRECTION",
+    "unexpected_semantic_differences": 0
+  },
+  "subject_performance": {
+    "affected_206": {
+      "count": 28323,
+      "seconds": 7.042414
+    },
+    "one_subject": {
+      "count": 33,
+      "seconds": 6.00899
+    },
+    "representative_1000": {
+      "count": 25754,
+      "seconds": 6.236265
+    }
+  },
+  "verdicts": {
+    "acquisition": "HOLD_ACQUISITION",
+    "authority_implementation": "A \u2014 INDEXED AUTHORITY PROJECTION VALIDATED",
+    "compact_application": "READY_TO_RESUME_V2_2C",
+    "downstream": "A \u2014 CURRENT-AUTHORITY DOWNSTREAM SEMANTICS VALIDATED"
+  }
+}

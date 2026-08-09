@@ -130,6 +130,41 @@ class CompactProvenanceRepository:
             raise
         return {"inserted": inserted, "duplicates": len(values) - inserted}
 
+    def append_bulk(self, pairs: Iterable[tuple[str, str]]) -> dict[str, int]:
+        """Append a migration-sized batch without per-relation SQL round trips."""
+        values = tuple(pairs)
+        if not values:
+            return {"inserted": 0, "duplicates": 0}
+        connection = self.connection
+        connection.execute("BEGIN IMMEDIATE")
+        try:
+            connection.execute("DROP TABLE IF EXISTS temp.compact_input_batch")
+            connection.execute("""CREATE TEMP TABLE compact_input_batch(
+              primitive_id TEXT NOT NULL,evidence_id TEXT NOT NULL,
+              PRIMARY KEY(primitive_id,evidence_id)) WITHOUT ROWID""")
+            connection.executemany("INSERT OR IGNORE INTO compact_input_batch VALUES(?,?)", values)
+            unique_count = int(connection.execute(
+                "SELECT COUNT(*) FROM compact_input_batch").fetchone()[0])
+            before = int(connection.execute(
+                "SELECT COUNT(*) FROM compact_primitive_evidence_inputs").fetchone()[0])
+            connection.execute("""INSERT OR IGNORE INTO primitive_identity(primitive_id)
+              SELECT DISTINCT primitive_id FROM compact_input_batch""")
+            connection.execute("""INSERT OR IGNORE INTO evidence_identity(evidence_id)
+              SELECT DISTINCT evidence_id FROM compact_input_batch""")
+            connection.execute("""INSERT OR IGNORE INTO compact_primitive_evidence_inputs
+              SELECT p.primitive_key,e.evidence_key FROM compact_input_batch b
+              JOIN primitive_identity p USING(primitive_id)
+              JOIN evidence_identity e USING(evidence_id)""")
+            after = int(connection.execute(
+                "SELECT COUNT(*) FROM compact_primitive_evidence_inputs").fetchone()[0])
+            connection.commit()
+        except BaseException:
+            connection.rollback()
+            raise
+        inserted = after - before
+        return {"inserted": inserted, "duplicates": len(values) - inserted,
+                "input_duplicates": len(values) - unique_count}
+
     def assert_integrity(self) -> None:
         missing = self.connection.execute("""
           SELECT COUNT(*) FROM compact_primitive_evidence_inputs c

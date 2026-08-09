@@ -1,0 +1,186 @@
+{
+  "compact_soak": {
+    "duplicate_inserted": 0,
+    "exact_ms": 0.025041000299097504,
+    "exact_pair": true,
+    "forward_count": 7,
+    "forward_ms": 3.688125000735454,
+    "representative_pair": [
+      "0000afd1b2a33c27062510bd2df899c8d10d8097989b6d8167afa93436225fb2",
+      "41b55a4bd4ae93d18cbf6fef5740c4585acf552793a3dd02428b056b1dd72432"
+    ],
+    "reverse_count": 4,
+    "reverse_ms": 1.5867500005697366,
+    "write_ms": [
+      1.900208,
+      0.581333,
+      0.13575,
+      0.839166,
+      0.540584,
+      1.0015,
+      0.446709,
+      0.394125,
+      0.402916,
+      0.405375,
+      0.462917,
+      0.380792,
+      0.376541,
+      0.398958,
+      1.960166,
+      0.387958,
+      0.386792,
+      0.363125,
+      0.3485,
+      0.337042,
+      0.915666,
+      2.191709,
+      0.346666,
+      0.323166,
+      0.322625
+    ]
+  },
+  "constraints": {
+    "acquisition": false,
+    "production_interaction": false,
+    "production_writes": 0,
+    "rpc_calls": 0,
+    "services_restarted": 0
+  },
+  "crash_matrix": {
+    "after_final_commit_before_switch": "canonical control retained in focused test",
+    "base_build": "cursor resume proven",
+    "delta_replay": "idempotent cursor proven",
+    "immediately_after_switch": "this continuation recovered solely from control row",
+    "rollback_reconciliation": "compact rollback delta reconciled before atomic rollback"
+  },
+  "elapsed_seconds": 934.303,
+  "final_validation": {
+    "canonical_count": 12398217,
+    "canonical_digest": "e076e5d27a04dc82d3063289064e37f6a1919be813eaada6d54080dc3ef19b8b",
+    "canonical_minus_compact": 0,
+    "compact_count": 12398217,
+    "compact_digest": "e076e5d27a04dc82d3063289064e37f6a1919be813eaada6d54080dc3ef19b8b",
+    "compact_minus_canonical": 0,
+    "exact": true,
+    "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+  },
+  "first_cutover_control": {
+    "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "generation": 1,
+    "migration_id": "oip-v2.2d-generation-1",
+    "reader_mode": "COMPACT",
+    "sidecar_generation": "1",
+    "switched_delta_sequence": 3,
+    "writer_mode": "COMPACT",
+    "writers_paused": false
+  },
+  "build_checkpoints": 141,
+  "frozen_baseline": {
+    "authority_digest": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "current_authoritative": 346730,
+    "current_pairs": 6457475,
+    "evidence": 807545,
+    "primitives": 401050,
+    "relations": 12398192
+  },
+  "milestone": "OIP v2.2D",
+  "mode": "FULL_SHADOW_REHEARSAL_RESUMED_AFTER_CUTOVER",
+  "production_runbook": [
+    "install outbox",
+    "capture high-water",
+    "build adaptive checkpointed sidecar",
+    "catch up delta",
+    "pause writers",
+    "final drain",
+    "verify external equivalence",
+    "atomically switch control row",
+    "soak",
+    "retain canonical",
+    "rollback by reconciliation if required"
+  ],
+  "production_stop_conditions": [
+    "equivalence failure",
+    "disk reserve breach",
+    "delta backlog not converging",
+    "writer pause above approved limit",
+    "authority divergence",
+    "read regression",
+    "write failure"
+  ],
+  "rollback_control": {
+    "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "generation": 1,
+    "migration_id": "oip-v2.2d-generation-1",
+    "reader_mode": "CANONICAL",
+    "sidecar_generation": "1",
+    "switched_delta_sequence": 3,
+    "writer_mode": "CANONICAL_WITH_DELTA",
+    "writers_paused": false
+  },
+  "rollback_validation": {
+    "canonical_count": 12398217,
+    "canonical_digest": "e076e5d27a04dc82d3063289064e37f6a1919be813eaada6d54080dc3ef19b8b",
+    "canonical_minus_compact": 0,
+    "compact_count": 12398217,
+    "compact_digest": "e076e5d27a04dc82d3063289064e37f6a1919be813eaada6d54080dc3ef19b8b",
+    "compact_minus_canonical": 0,
+    "exact": true,
+    "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+  },
+  "rollback_write": {
+    "committed": 3,
+    "duplicate_inserted": 0,
+    "inserted": 0,
+    "rollback_inserted": 0
+  },
+  "second_cutover": {
+    "control": {
+      "authority_generation": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+      "generation": 1,
+      "migration_id": "oip-v2.2d-generation-1",
+      "reader_mode": "COMPACT",
+      "sidecar_generation": "1",
+      "switched_delta_sequence": 25,
+      "writer_mode": "COMPACT",
+      "writers_paused": false
+    },
+    "validation": {
+      "canonical_count": 12398217,
+      "canonical_digest": "e076e5d27a04dc82d3063289064e37f6a1919be813eaada6d54080dc3ef19b8b",
+      "canonical_minus_compact": 0,
+      "compact_count": 12398217,
+      "compact_digest": "e076e5d27a04dc82d3063289064e37f6a1919be813eaada6d54080dc3ef19b8b",
+      "compact_minus_canonical": 0,
+      "exact": true,
+      "validation_method": "indexed canonical-minus-compact + cardinality proof; SCAN i | SEARCH p USING COVERING INDEX sqlite_autoindex_primitive_identity_1 (primitive_id=?) | SEARCH e USING COVERING INDEX sqlite_autoindex_evidence_identity_1 (evidence_id=?) | SEARCH c USING PRIMARY KEY (primitive_key=? AND evidence_key=?) LEFT-JOIN"
+    }
+  },
+  "second_delta": {
+    "applied_delta_sequence": 25,
+    "duplicates": 22,
+    "inserted": 0,
+    "rows": 22
+  },
+  "second_pause_ms": 574014.873625,
+  "approved_pause_limit_ms": 30000,
+  "operational_issue": "full equivalence validation executed while writers were paused",
+  "storage": {
+    "canonical_shadow": {
+      "allocated_bytes": 5741899776,
+      "logical_bytes": 5725155328
+    },
+    "compact_sidecar": {
+      "allocated_bytes": 530239488,
+      "logical_bytes": 521916416
+    },
+    "free_bytes_after": 64020750336,
+    "persistent_compact_5k_projection_high": 2670000000,
+    "persistent_compact_5k_projection_low": 1780000000
+  },
+  "verdicts": {
+    "acquisition": "HOLD_ACQUISITION",
+    "canonical_retirement": "KEEP_CANONICAL_FOR_ROLLBACK",
+    "production_migration": "NEEDS_ADDITIONAL_SHADOW_WORK",
+    "shadow_migration": "B \u2014 MIGRATION CONTROL WORKS BUT OPERATIONAL ISSUE REMAINS"
+  }
+}

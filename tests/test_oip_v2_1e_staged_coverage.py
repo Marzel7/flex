@@ -31,3 +31,11 @@ def test_manifest_never_exceeds_physical_target_limit():
     targets, _ = construct_manifest(rows, limit=1000)
     assert len(targets) == 1000
     assert targets[-1].manifest_position == 1000
+
+
+def test_manifest_can_label_a_repeated_stage_without_changing_order():
+    rows = [Row("a", "MISSING_CREATION_AND_MIGRATION_TRANSACTION", "ca", "ma")]
+    baseline, _ = construct_manifest(rows, milestone="OIP v2.1E")
+    repeated, summary = construct_manifest(rows, milestone="OIP v2.1F")
+    assert baseline == repeated
+    assert summary["milestone"] == "OIP v2.1F"

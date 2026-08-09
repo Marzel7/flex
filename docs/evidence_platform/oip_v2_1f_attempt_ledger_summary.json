@@ -1,0 +1,16 @@
+{
+  "attempts": 1000,
+  "credits": 10000,
+  "failovers": 0,
+  "failure_classes": {
+    "SUCCESS": 1000
+  },
+  "max_latency_ms": 284.311,
+  "p50_latency_ms": 44.170500000000004,
+  "p95_latency_ms": 57.815,
+  "providers": {
+    "helius_rpc": 1000
+  },
+  "retries": 0,
+  "successes": 1000
+}

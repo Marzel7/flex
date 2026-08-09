@@ -1,0 +1,6 @@
+{
+  "compact_provenance_priority": "BLOCKING_BEFORE_5K",
+  "five_thousand_call_acquisition": "NOT_YET_AUTHORIZED",
+  "option": "B \u2014 INCREASE TO 2,000-ATTEMPT BOUNDED BATCH",
+  "reason": "Two consecutive 1,000-attempt stages show near-perfect recovery and stable paired completion yield with bounded storage and deterministic replay. A 2,000-attempt intermediate gate is supported; 5,000 remains premature while canonical provenance remains physically expensive."
+}

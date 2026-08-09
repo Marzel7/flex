@@ -64,8 +64,8 @@ def light_storage(output: Path) -> dict:
 
 def prepare(args) -> tuple[list[CoverageTarget], dict]:
     rows = census(args.production_db, args.source / "evidence.db", max_source_rowid=FROZEN_SOURCE_ROWID)
-    targets, manifest = construct_manifest(rows)
-    manifest.update({"source_commit": "a16add94", "frozen_source_rowid": FROZEN_SOURCE_ROWID,
+    targets, manifest = construct_manifest(rows, milestone=args.milestone)
+    manifest.update({"source_commit": args.source_commit, "frozen_source_rowid": FROZEN_SOURCE_ROWID,
         "coverage_before": coverage_summary(rows), "provider": "helius_rpc",
         "fallback": "solana_public_rpc", "maximum_physical_attempts": 1000,
         "expected_storage_range_bytes": [1_670_000_000, STORAGE_UPPER_BYTES],
@@ -81,7 +81,7 @@ def prepare(args) -> tuple[list[CoverageTarget], dict]:
         (args.output / directory).mkdir()
     _write_json(args.output / "experiment_manifest.json", manifest)
     _write_json(args.output / "storage_before.json", storage_snapshot(args.output, args.output / "evidence.db"))
-    _write_json(args.output / "stage_checkpoint.json", {"experiment_id": EXPERIMENT_ID,
+    _write_json(args.output / "stage_checkpoint.json", {"experiment_id": args.experiment_id,
         "prepared": True, "acquisition_complete": False, "downstream_complete": False,
         "physical_attempt_count": 0, "updated_at": time.time()})
     return targets, manifest
@@ -142,7 +142,7 @@ async def acquire(args, targets: list[CoverageTarget]) -> dict:
                 payload = {"jsonrpc": "2.0", "id": 1, "method": "getTransaction", "params": [target.signature,
                     {"encoding": "jsonParsed", "commitment": "finalized", "maxSupportedTransactionVersion": 0}]}
                 with acquisition_scope(purpose=target.dependency_type.lower(), launch=target.launch,
-                                       correlation_id=f"{EXPERIMENT_ID}:{key}"):
+                                       correlation_id=f"{args.experiment_id}:{key}"):
                     response = await client.request_once(http_method="POST", url=url,
                         timeout_seconds=args.timeout_seconds, request_type="json_rpc", method="getTransaction",
                         json_payload=payload, retry_count=attempt_number - 1, acquisition_id=attempt_id)
@@ -150,7 +150,7 @@ async def acquire(args, targets: list[CoverageTarget]) -> dict:
                 raw = diagnostic_bytes(response)
                 digest, artifact_path = _store_attempt_artifact(args.output / "attempt_artifacts", raw)
                 terminal = result_class == "SUCCESS" or result_class not in RETRYABLE_FAILURES or attempt_number == 2
-                ledger.append({**context, "experiment_id": EXPERIMENT_ID,
+                ledger.append({**context, "experiment_id": args.experiment_id,
                     "request_finished_at": time.time(), "latency_ms": round(response.latency_ms, 3),
                     "physical_attempt_number": physical_number, "result_class": result_class,
                     "http_status": response.status, "rpc_error_code": rpc_code, "provider_error": provider_error,
@@ -202,6 +202,9 @@ def main() -> int:
     parser.add_argument("--helius-rpc-url", default=_configured_helius_url())
     parser.add_argument("--delay-seconds", type=float, default=2.0)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
+    parser.add_argument("--experiment-id", default=EXPERIMENT_ID)
+    parser.add_argument("--milestone", default="OIP v2.1E")
+    parser.add_argument("--source-commit", default="a16add94")
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--stop-after-attempts", type=int, default=0)
     args = parser.parse_args()

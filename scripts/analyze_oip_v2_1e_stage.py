@@ -5,6 +5,7 @@ from __future__ import annotations
 import gzip
 import json
 import math
+import os
 import shutil
 import sqlite3
 import statistics
@@ -14,10 +15,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-RUN = ROOT / "database/evidence_platform/oip_v2_1e_stage_1000"
-BEFORE = ROOT / "database/evidence_platform/oip_v2_1c_retry_failover/evidence.db"
+RUN = Path(os.environ.get("OIP_STAGE_RUN", ROOT / "database/evidence_platform/oip_v2_1e_stage_1000"))
+BEFORE = Path(os.environ.get("OIP_STAGE_BEFORE", ROOT / "database/evidence_platform/oip_v2_1c_retry_failover/evidence.db"))
 AFTER = RUN / "evidence.db"
 DOCS = ROOT / "docs/evidence_platform"
+DOC_PREFIX = os.environ.get("OIP_STAGE_DOC_PREFIX", "oip_v2_1e")
+MILESTONE = os.environ.get("OIP_STAGE_MILESTONE", "OIP v2.1E")
+IS_SECOND_STAGE = MILESTONE == "OIP v2.1F"
 FROZEN_ROWID = 1_615_500
 
 from scripts.analyze_oip_v2_1d_storage import ensure_incremental_matrix  # noqa: E402
@@ -84,14 +88,24 @@ def main() -> int:
     discovery_after = discovery["datasets"][0]["candidate_count"]
     motifs_after = motifs["datasets"][0]["canonical_motifs"]
     relationships_after = len(relationships["datasets"][0]["current_relationship_snapshot"]["relationships"])
+    relationship_evolution = relationships["datasets"][0]["relationship_evolution"]
+    baseline_discovery = int(os.environ.get("OIP_STAGE_DISCOVERY_BEFORE", "19876"))
+    baseline_motifs = int(os.environ.get("OIP_STAGE_MOTIFS_BEFORE", "2357"))
+    baseline_relationships = int(os.environ.get("OIP_STAGE_RELATIONSHIPS_BEFORE", "423"))
     downstream = {"evidence_facts_added": delta["normalized_evidence_records"],
         "primitive_observations_added": delta["primitive_observations"],
         "primitive_evidence_inputs_added": delta["primitive_evidence_inputs"],
-        "discovery_occurrences_added": discovery_after - 19876,
-        "canonical_motifs_net": motifs_after - 2357,
-        "relationships_net": relationships_after - 423,
+        "discovery_occurrences_added": discovery_after - baseline_discovery,
+        "canonical_motifs_net": motifs_after - baseline_motifs,
+        "relationships_net": relationships_after - baseline_relationships,
         "discovery_after": discovery_after, "motifs_after": motifs_after,
-        "relationships_after": relationships_after}
+        "relationships_after": relationships_after,
+        "motif_occurrences_after": motifs["datasets"][0]["raw_candidates"],
+        "relationship_evolution": {
+            "event_counts": dict(Counter(row["event_type"] for row in relationship_evolution["observations"])),
+            "previous_snapshot_id": relationship_evolution["previous_relationship_snapshot_id"],
+            "current_snapshot_id": relationship_evolution["current_relationship_snapshot_id"],
+            "evolution_snapshot_id": relationship_evolution["evolution_snapshot_id"]}}
 
     database_growth = AFTER.stat().st_size - BEFORE.stat().st_size
     external_growth = sum(directory_size(RUN / name) for name in ("artifacts", "attempt_artifacts", "reports"))
@@ -134,22 +148,58 @@ def main() -> int:
         "motifs_per_attempt": downstream["canonical_motifs_net"] / len(attempts),
         "storage_per_attempt": storage["bytes_per_attempt"],
         "attempts_per_completed_launch": len(attempts) / newly_complete,
-        "storage_per_completed_launch": total_growth / newly_complete}
+        "storage_per_completed_launch": total_growth / newly_complete,
+        "evidence_per_completed_launch": downstream["evidence_facts_added"] / newly_complete,
+        "primitives_per_completed_launch": downstream["primitive_observations_added"] / newly_complete,
+        "provenance_links_per_attempt": downstream["primitive_evidence_inputs_added"] / len(attempts),
+        "provenance_links_per_completed_launch": downstream["primitive_evidence_inputs_added"] / newly_complete,
+        "provenance_links_per_new_primitive": downstream["primitive_evidence_inputs_added"] /
+            downstream["primitive_observations_added"],
+        "discovery_per_completed_launch": downstream["discovery_occurrences_added"] / newly_complete,
+        "motifs_per_completed_launch": downstream["canonical_motifs_net"] / newly_complete,
+        "relationships_per_completed_launch": downstream["relationships_net"] / newly_complete}
     remaining = {"incomplete_launches": coverage_after["states"].get("PENDING", 0),
         "unevaluable_launches": coverage_after["states"].get("UNAVAILABLE", 0),
         "missing_dependencies": coverage_after["actionable_missing_dependencies"],
         "estimated_provider_requests_no_retry": coverage_after["actionable_missing_dependencies"],
-        "expected_retry_overhead": 0}
+        "expected_retry_overhead": 0,
+        "projected_recovery": {
+            "next_1000_attempts": {"dependencies": 1000, "completed_launches": 500},
+            "next_2000_attempts": {"dependencies": 2000, "completed_launches": 1000},
+            "next_5000_attempts": {"dependencies": 5000, "completed_launches": 2500},
+            "remaining_actionable_population": {"dependencies": coverage_after["actionable_missing_dependencies"],
+                "completed_launches_at_paired_ceiling": coverage_after["actionable_missing_dependencies"] // 2},
+            "basis": "v2.1E paired tail and every v2.1F checkpoint segment held at 0.500 completions per attempt; projections assume unchanged first-attempt recovery and deficit composition."}}
     comparison = {"v2_1a": {"recovery_per_attempt": .606, "completions_per_attempt": .327},
         "v2_1b_migration_first": {"completions_per_attempt": .646341},
         "v2_1c": {"recovery_per_attempt": 1.0, "completions_per_attempt": .555556},
-        "v2_1e": {"recovery_per_attempt": 1.0, "completions_per_attempt": newly_complete / 1000},
-        "composition_explanation": "v2.1E exhausted 43 single-dependency completion opportunities, then used paired two-attempt launches; the theoretical paired ceiling is 0.5 completions/attempt."}
-    decision = {"option": "A — CONTINUE ANOTHER STAGED 1,000 ATTEMPTS",
-        "five_thousand_call_acquisition": "STILL_PREMATURE",
-        "compact_provenance_priority": "HIGH",
-        "reason": "Recovery is 100%, paired-launch marginal completion yield is stable at 0.5, replay is deterministic, and storage is below the accepted upper bound. A larger batch remains premature because canonical provenance storage is still expensive and this is the first full 1,000-attempt marginal curve."}
-    summary = {"milestone": "OIP v2.1E", "attempt_budget": 1000, "attempt_ledger_rows": len(attempts),
+        "v2_1e": {"recovery_per_attempt": 1.0, "completions_per_attempt": .521}}
+    if IS_SECOND_STAGE:
+        comparison.update({"v2_1f": {"recovery_per_attempt": provider["successes"] / len(attempts),
+            "completions_per_attempt": newly_complete / len(attempts)},
+            "combined_v2_1c_v2_1e_v2_1f": {"physical_attempts": 2270,
+                "first_attempt_successes": 2270, "retries": 0, "failovers": 0,
+                "completed_launches": 150 + 521 + newly_complete},
+            "composition_explanation": "v2.1F had one direct completion, then repeated the paired two-attempt structure whose theoretical ceiling is 0.5 completions/attempt."})
+    else:
+        comparison["composition_explanation"] = "v2.1E exhausted 43 single-dependency completion opportunities, then used paired two-attempt launches; the theoretical paired ceiling is 0.5 completions/attempt."
+    validation_clean = (stage["primitive_first"]["input_digest"] == stage["primitive_second"]["input_digest"]
+        and stage["primitive_second"]["inserted"] == 0 and discovery["passed"] and motifs["passed"]
+        and relationships["passed"])
+    second_stage_ready = (provider["successes"] / len(attempts) >= .99 and
+        abs(newly_complete / len(attempts) - .5) <= .02 and marginal_state == "STABLE" and
+        storage["within_expected_range"] and validation_clean)
+    if IS_SECOND_STAGE and second_stage_ready:
+        decision = {"option": "B — INCREASE TO 2,000-ATTEMPT BOUNDED BATCH",
+            "five_thousand_call_acquisition": "NOT_YET_AUTHORIZED",
+            "compact_provenance_priority": "BLOCKING_BEFORE_5K",
+            "reason": "Two consecutive 1,000-attempt stages show near-perfect recovery and stable paired completion yield with bounded storage and deterministic replay. A 2,000-attempt intermediate gate is supported; 5,000 remains premature while canonical provenance remains physically expensive."}
+    else:
+        decision = {"option": "A — CONTINUE ANOTHER STAGED 1,000 ATTEMPTS",
+            "five_thousand_call_acquisition": "STILL_PREMATURE",
+            "compact_provenance_priority": "HIGH",
+            "reason": "The evidence does not satisfy every requirement for increasing the next bounded stage."}
+    summary = {"milestone": MILESTONE, "attempt_budget": 1000, "attempt_ledger_rows": len(attempts),
         "highest_physical_attempt_number": max(row["physical_attempt_number"] for row in attempts),
         "provider": provider, "coverage_before": coverage_before, "coverage_after": coverage_after,
         "newly_completed_launches": newly_complete,
@@ -166,20 +216,17 @@ def main() -> int:
             "discovery_passed": discovery["passed"], "motifs_passed": motifs["passed"],
             "relationships_passed": relationships["passed"], "rpc_calls_in_validators": 0,
             "production_writes": 0, "semantic_changes": 0}}
-    for name, payload in {"oip_v2_1e_stage_summary.json": summary,
-        "oip_v2_1e_attempt_ledger_summary.json": provider,
-        "oip_v2_1e_coverage.json": {"before": coverage_before, "after": coverage_after},
-        "oip_v2_1e_marginal_yield.json": {"curve": curve, "state": marginal_state},
-        "oip_v2_1e_downstream_yield.json": downstream,
-        "oip_v2_1e_provenance.json": summary["provenance"],
-        "oip_v2_1e_storage.json": storage,
-        "oip_v2_1e_remaining_population.json": remaining,
-        "oip_v2_1e_prior_comparison.json": comparison,
-        "oip_v2_1e_scaling_decision.json": decision,
-        "oip_v2_1e_replay_validation.json": summary["validation"]}.items(): write(name, payload)
-    shutil.copy2(RUN / "experiment_manifest.json", DOCS / "oip_v2_1e_experiment_manifest.json")
-    shutil.copy2(RUN / "physical_attempts.jsonl", DOCS / "oip_v2_1e_physical_attempts.jsonl")
-    markdown = f"""# OIP v2.1E — Staged 1,000-Attempt Coverage Expansion
+    for suffix, payload in {"stage_summary.json": summary,
+        "attempt_ledger_summary.json": provider,
+        "coverage.json": {"before": coverage_before, "after": coverage_after},
+        "marginal_yield.json": {"curve": curve, "state": marginal_state},
+        "downstream_yield.json": downstream, "provenance.json": summary["provenance"],
+        "storage.json": storage, "remaining_population.json": remaining,
+        "prior_comparison.json": comparison, "scaling_decision.json": decision,
+        "replay_validation.json": summary["validation"]}.items(): write(f"{DOC_PREFIX}_{suffix}", payload)
+    shutil.copy2(RUN / "experiment_manifest.json", DOCS / f"{DOC_PREFIX}_experiment_manifest.json")
+    shutil.copy2(RUN / "physical_attempts.jsonl", DOCS / f"{DOC_PREFIX}_physical_attempts.jsonl")
+    markdown = f"""# {MILESTONE} — Staged 1,000-Attempt Coverage Expansion
 
 ## Decision
 
@@ -206,7 +253,7 @@ The 5,000-call acquisition remains premature. Compact provenance migration prior
 |---|---:|---:|---:|
 """ + "\n".join(f"| {row['attempt_range']} | {row['transactions_recovered']} | {row['completed_launches']} | {row['completed_launches_per_attempt']:.3f} |" for row in curve) + f"""
 
-Marginal completion yield is **{marginal_state}** after the completion-rich first 100 attempts; paired missing-both launches hold at the expected 0.5 completions/attempt.
+Marginal completion yield is **{marginal_state}**; paired missing-both launches hold at the expected 0.5 completions/attempt in every checkpoint segment.
 
 ## Downstream
 
@@ -227,7 +274,7 @@ Total physical growth was **{total_growth:,} bytes** (**{storage['bytes_per_atte
 
 Primitive replay generated **{stage['primitive_first']['generated']:,}** observations on both passes with identical digest `{stage['primitive_first']['input_digest']}`; pass two inserted zero. Discovery, motif, and relationship expanded-corpus validators passed deterministically with zero RPC and zero production writes.
 """
-    (DOCS / "oip_v2_1e_staged_coverage_expansion.md").write_text(markdown)
+    (DOCS / f"{DOC_PREFIX}_staged_coverage_expansion.md").write_text(markdown)
     print(json.dumps({"attempts": len(attempts), "recovered": provider["successes"],
         "newly_complete": newly_complete, "storage_bytes": total_growth, "decision": decision["option"]}, sort_keys=True))
     return 0

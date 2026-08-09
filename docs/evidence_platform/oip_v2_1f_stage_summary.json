@@ -1,0 +1,368 @@
+{
+  "attempt_budget": 1000,
+  "attempt_ledger_rows": 1000,
+  "comparison": {
+    "combined_v2_1c_v2_1e_v2_1f": {
+      "completed_launches": 1171,
+      "failovers": 0,
+      "first_attempt_successes": 2270,
+      "physical_attempts": 2270,
+      "retries": 0
+    },
+    "composition_explanation": "v2.1F had one direct completion, then repeated the paired two-attempt structure whose theoretical ceiling is 0.5 completions/attempt.",
+    "v2_1a": {
+      "completions_per_attempt": 0.327,
+      "recovery_per_attempt": 0.606
+    },
+    "v2_1b_migration_first": {
+      "completions_per_attempt": 0.646341
+    },
+    "v2_1c": {
+      "completions_per_attempt": 0.555556,
+      "recovery_per_attempt": 1.0
+    },
+    "v2_1e": {
+      "completions_per_attempt": 0.521,
+      "recovery_per_attempt": 1.0
+    },
+    "v2_1f": {
+      "completions_per_attempt": 0.5,
+      "recovery_per_attempt": 1.0
+    }
+  },
+  "completion_percentage_after": 4.67482211958557,
+  "completion_percentage_before": 3.1144676070403197,
+  "completion_percentage_point_gain": 1.5603545125452503,
+  "coverage_after": {
+    "actionable_missing_dependencies": 23653,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 1498,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 11826,
+      "MISSING_CREATION_SIGNATURE": 18719,
+      "MISSING_CREATION_TRANSACTION": 1
+    },
+    "states": {
+      "COMPLETE": 1498,
+      "PENDING": 11827,
+      "UNAVAILABLE": 18719
+    },
+    "total": 32044
+  },
+  "coverage_before": {
+    "actionable_missing_dependencies": 24653,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 998,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 12326,
+      "MISSING_CREATION_SIGNATURE": 18719,
+      "MISSING_CREATION_TRANSACTION": 1
+    },
+    "states": {
+      "COMPLETE": 998,
+      "PENDING": 12327,
+      "UNAVAILABLE": 18719
+    },
+    "total_migrated_launches": 32044
+  },
+  "decision": {
+    "compact_provenance_priority": "BLOCKING_BEFORE_5K",
+    "five_thousand_call_acquisition": "NOT_YET_AUTHORIZED",
+    "option": "B \u2014 INCREASE TO 2,000-ATTEMPT BOUNDED BATCH",
+    "reason": "Two consecutive 1,000-attempt stages show near-perfect recovery and stable paired completion yield with bounded storage and deterministic replay. A 2,000-attempt intermediate gate is supported; 5,000 remains premature while canonical provenance remains physically expensive."
+  },
+  "downstream": {
+    "canonical_motifs_net": 460,
+    "discovery_after": 32293,
+    "discovery_occurrences_added": 6174,
+    "evidence_facts_added": 134995,
+    "motif_occurrences_after": 32293,
+    "motifs_after": 3555,
+    "primitive_evidence_inputs_added": 2575319,
+    "primitive_observations_added": 54523,
+    "relationship_evolution": {
+      "current_snapshot_id": "d683377e7b0f64f7c7760a5d5b25e317a947c19cc583e7e2328147620d8b3eb4",
+      "event_counts": {
+        "CREATED": 229,
+        "DORMANT": 242,
+        "REACTIVATED": 117,
+        "RETIRED": 205,
+        "STRENGTHENED": 111
+      },
+      "evolution_snapshot_id": "62d6b30521923c5900cdcbab136ec5ea108c13d5c04a90ab47b48c43ce0deb0e",
+      "previous_snapshot_id": "f027b87b546216b2364a2d39019481b455b6ce77e85ed34739db4db1b475c443"
+    },
+    "relationships_after": 588,
+    "relationships_net": 40
+  },
+  "highest_physical_attempt_number": 1000,
+  "marginal_curve": [
+    {
+      "acquisition_storage_bytes": 633516,
+      "attempt_range": "1-100",
+      "attempts": 100,
+      "completed_launches": 50,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 100
+    },
+    {
+      "acquisition_storage_bytes": 1583564,
+      "attempt_range": "101-250",
+      "attempts": 150,
+      "completed_launches": 75,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 150
+    },
+    {
+      "acquisition_storage_bytes": 3157384,
+      "attempt_range": "251-500",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 4720485,
+      "attempt_range": "501-750",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 6288284,
+      "attempt_range": "751-1000",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    }
+  ],
+  "marginal_state": "STABLE",
+  "milestone": "OIP v2.1F",
+  "newly_completed_launches": 500,
+  "provenance": {
+    "dominant_pairs": [
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 2251811,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 81517,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 81379,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 30150,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 30150,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 30150,
+        "primitive_family": "SHARED_TRANSACTION"
+      },
+      {
+        "evidence_family": "InstructionFact",
+        "link_count": 14528,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 14528,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountCloseFact",
+        "link_count": 7444,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 7388,
+        "primitive_family": "SYSTEM_TRANSFER"
+      }
+    ],
+    "primitive_families": [
+      {
+        "link_count": 2458217,
+        "primitive_family": "BEHAVIOURAL_TIMING",
+        "share": 0.9545291282361525
+      },
+      {
+        "link_count": 60300,
+        "primitive_family": "WALLET_FRESH_AT_EVENT",
+        "share": 0.02341457504876095
+      },
+      {
+        "link_count": 31150,
+        "primitive_family": "SHARED_TRANSACTION",
+        "share": 0.012095588934807689
+      },
+      {
+        "link_count": 14776,
+        "primitive_family": "SYSTEM_TRANSFER",
+        "share": 0.005737541640472501
+      },
+      {
+        "link_count": 6148,
+        "primitive_family": "DIRECT_COUNTERPARTY",
+        "share": 0.002387277071306506
+      },
+      {
+        "link_count": 1430,
+        "primitive_family": "WSOL_CLOSE",
+        "share": 0.0005552710169109147
+      },
+      {
+        "link_count": 1200,
+        "primitive_family": "REPEATED_COUNTERPARTY",
+        "share": 0.0004659616925126557
+      },
+      {
+        "link_count": 1000,
+        "primitive_family": "LAUNCH_SIGNER",
+        "share": 0.00038830141042721307
+      },
+      {
+        "link_count": 854,
+        "primitive_family": "LAUNCH_ACTIVATION",
+        "share": 0.00033160940450483996
+      },
+      {
+        "link_count": 244,
+        "primitive_family": "ECONOMIC_FUNDING",
+        "share": 9.474554414423999e-05
+      }
+    ],
+    "status": {
+      "links": 2575319,
+      "reused": true,
+      "runtime_seconds": 0.0
+    }
+  },
+  "provider": {
+    "attempts": 1000,
+    "credits": 10000,
+    "failovers": 0,
+    "failure_classes": {
+      "SUCCESS": 1000
+    },
+    "max_latency_ms": 284.311,
+    "p50_latency_ms": 44.170500000000004,
+    "p95_latency_ms": 57.815,
+    "providers": {
+      "helius_rpc": 1000
+    },
+    "retries": 0,
+    "successes": 1000
+  },
+  "remaining_population": {
+    "estimated_provider_requests_no_retry": 23653,
+    "expected_retry_overhead": 0,
+    "incomplete_launches": 11827,
+    "missing_dependencies": 23653,
+    "projected_recovery": {
+      "basis": "v2.1E paired tail and every v2.1F checkpoint segment held at 0.500 completions per attempt; projections assume unchanged first-attempt recovery and deficit composition.",
+      "next_1000_attempts": {
+        "completed_launches": 500,
+        "dependencies": 1000
+      },
+      "next_2000_attempts": {
+        "completed_launches": 1000,
+        "dependencies": 2000
+      },
+      "next_5000_attempts": {
+        "completed_launches": 2500,
+        "dependencies": 5000
+      },
+      "remaining_actionable_population": {
+        "completed_launches_at_paired_ceiling": 11826,
+        "dependencies": 23653
+      }
+    },
+    "unevaluable_launches": 18719
+  },
+  "stage_telemetry": {
+    "mirror_seconds": 24.057284,
+    "normalization": {
+      "claimed": 1000,
+      "duplicate_envelopes": 0,
+      "failed": 0,
+      "inserted_envelopes": 1000
+    },
+    "normalization_seconds": 306.503287,
+    "primitive_first": {
+      "duplicates": 185730,
+      "generated": 240253,
+      "input_digest": "ed8662ad214a717a1a81638b04ef1bd8d836a56ee491b9873f3f89d78a09d48a",
+      "inserted": 54523
+    },
+    "primitive_first_seconds": 339.882432,
+    "primitive_second": {
+      "duplicates": 240253,
+      "generated": 240253,
+      "input_digest": "ed8662ad214a717a1a81638b04ef1bd8d836a56ee491b9873f3f89d78a09d48a",
+      "inserted": 0
+    },
+    "primitive_second_seconds": 89.939868,
+    "successful_acquisitions": 1000
+  },
+  "storage": {
+    "artifact_report_bytes": 50255560,
+    "attempt_telemetry_bytes": 1208910,
+    "bytes_per_attempt": 1153833.238,
+    "database_growth_bytes": 1102368768,
+    "expected_range_bytes": [
+      1670000000,
+      2780000000
+    ],
+    "free_disk_bytes": 26113400832,
+    "total_incremental_bytes": 1153833238,
+    "within_expected_range": true
+  },
+  "validation": {
+    "discovery_passed": true,
+    "motifs_passed": true,
+    "primitive_same_digest": true,
+    "primitive_second_inserted_zero": true,
+    "production_writes": 0,
+    "relationships_passed": true,
+    "rpc_calls_in_validators": 0,
+    "semantic_changes": 0
+  },
+  "yield": {
+    "attempts_per_completed_launch": 2.0,
+    "completed_launches_per_attempt": 0.5,
+    "discovery_per_attempt": 6.174,
+    "discovery_per_completed_launch": 12.348,
+    "evidence_per_attempt": 134.995,
+    "evidence_per_completed_launch": 269.99,
+    "motifs_per_attempt": 0.46,
+    "motifs_per_completed_launch": 0.92,
+    "primitives_per_attempt": 54.523,
+    "primitives_per_completed_launch": 109.046,
+    "provenance_links_per_attempt": 2575.319,
+    "provenance_links_per_completed_launch": 5150.638,
+    "provenance_links_per_new_primitive": 47.23362617610916,
+    "relationships_per_attempt": 0.04,
+    "relationships_per_completed_launch": 0.08,
+    "storage_per_attempt": 1153833.238,
+    "storage_per_completed_launch": 2307666.476,
+    "transactions_per_attempt": 1.0
+  }
+}

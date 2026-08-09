@@ -1,0 +1,26 @@
+{
+  "estimated_provider_requests_no_retry": 23653,
+  "expected_retry_overhead": 0,
+  "incomplete_launches": 11827,
+  "missing_dependencies": 23653,
+  "projected_recovery": {
+    "basis": "v2.1E paired tail and every v2.1F checkpoint segment held at 0.500 completions per attempt; projections assume unchanged first-attempt recovery and deficit composition.",
+    "next_1000_attempts": {
+      "completed_launches": 500,
+      "dependencies": 1000
+    },
+    "next_2000_attempts": {
+      "completed_launches": 1000,
+      "dependencies": 2000
+    },
+    "next_5000_attempts": {
+      "completed_launches": 2500,
+      "dependencies": 5000
+    },
+    "remaining_actionable_population": {
+      "completed_launches_at_paired_ceiling": 11826,
+      "dependencies": 23653
+    }
+  },
+  "unevaluable_launches": 18719
+}

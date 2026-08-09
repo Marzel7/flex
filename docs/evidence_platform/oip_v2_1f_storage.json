@@ -1,0 +1,13 @@
+{
+  "artifact_report_bytes": 50255560,
+  "attempt_telemetry_bytes": 1208910,
+  "bytes_per_attempt": 1153833.238,
+  "database_growth_bytes": 1102368768,
+  "expected_range_bytes": [
+    1670000000,
+    2780000000
+  ],
+  "free_disk_bytes": 26113400832,
+  "total_incremental_bytes": 1153833238,
+  "within_expected_range": true
+}

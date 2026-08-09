@@ -82,6 +82,52 @@
         .mc-summary-item.critical { color: #f87171; }
         .mc-summary-item .reason { color: #94a3b8; font-weight: 400; margin-left: 0.15rem; }
 
+        /* ── MC1.1 capability-first incident layer (docs/design/mc1_0_capability_severity_model.md)
+           Sits ABOVE the existing Phase-9 banner/strip and Phase-2 groups
+           below -- neither is removed. This answers "what capability have
+           I lost" in one glance; the existing groups below still answer
+           "why" with full subsystem detail, unchanged. ──────────────── */
+        .mc-incidents-wrap { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+        .mc-incident-card {
+            border-radius: 0.5rem; padding: 1rem 1.25rem;
+            border: 1px solid; display: flex; flex-direction: column; gap: 0.6rem;
+        }
+        .mc-incident-card.CRITICAL { background: rgba(239,68,68,0.1);  border-color: rgba(239,68,68,0.45); }
+        .mc-incident-card.WARNING  { background: rgba(234,179,8,0.08); border-color: rgba(234,179,8,0.4); }
+        .mc-incident-title { display: flex; align-items: center; gap: 0.6rem; font-size: 1rem; font-weight: 700; }
+        .mc-incident-title .sev-badge { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 3px; }
+        .mc-incident-card.CRITICAL .sev-badge { background: rgba(239,68,68,0.25); color: #f87171; }
+        .mc-incident-card.WARNING  .sev-badge { background: rgba(234,179,8,0.25); color: #facc15; }
+        .mc-incident-title .duration { margin-left: auto; font-size: 0.78rem; font-weight: 400; color: var(--text-secondary); }
+        .mc-incident-section { font-size: 0.82rem; }
+        .mc-incident-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 0.25rem; }
+        .mc-incident-section ul { margin: 0; padding-left: 1.1rem; }
+        .mc-incident-section li { margin-bottom: 0.15rem; }
+        .mc-incident-section.impact li { color: var(--text-primary); }
+        .mc-incident-section.contributing li { color: var(--text-secondary); }
+
+        .mc-capability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.6rem; margin-bottom: 1.5rem; }
+        .mc-capability-tile {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.5rem;
+            padding: 0.7rem 0.85rem; cursor: pointer; user-select: none;
+        }
+        .mc-capability-tile.WARNING  { border-color: rgba(234,179,8,0.4); }
+        .mc-capability-tile.CRITICAL { border-color: rgba(239,68,68,0.45); }
+        .mc-capability-tile-head { display: flex; align-items: center; gap: 0.4rem; }
+        .mc-capability-tile-name { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); }
+        .mc-capability-tile-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .mc-capability-tile.HEALTHY .mc-capability-tile-dot { background: #4ade80; }
+        .mc-capability-tile.WARNING .mc-capability-tile-dot { background: #facc15; }
+        .mc-capability-tile.CRITICAL .mc-capability-tile-dot { background: #f87171; }
+        .mc-capability-tile.UNKNOWN .mc-capability-tile-dot { background: #94a3b8; }
+        .mc-capability-tile-evidence { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.3rem; }
+        .mc-capability-tile-degraded { font-size: 0.68rem; color: #facc15; margin-top: 0.2rem; }
+        .mc-capability-tile-signals { display: none; margin-top: 0.5rem; font-size: 0.7rem; }
+        .mc-capability-tile.expanded .mc-capability-tile-signals { display: block; }
+        .mc-capability-tile-signals li { list-style: none; margin-bottom: 0.15rem; }
+        .mc-capability-tile-signals li.abnormal { color: #facc15; }
+        .mc-capability-tile-signals li.normal { color: var(--text-secondary); }
+
         /* ── Capability groups (Phase 2) ────────────────────────────────── */
         .mc-groups { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
 
@@ -240,6 +286,15 @@
             <div id="mc-summary-strip" class="mc-summary-strip ok"></div>
         </div>
 
+        <!-- ═══ MC1.1 capability-first incident layer ══════════════════════
+             docs/design/mc1_0_capability_severity_model.md. Answers "what
+             capability have I lost" before the existing groups below
+             answer "why". Purely additive -- driven by fullHealth.capabilities
+             / fullHealth.incidents, already fetched by updateDashboard(),
+             no new request. Empty (no incidents) renders nothing here. ═══ -->
+        <div id="mc-incidents" class="mc-incidents-wrap"></div>
+        <div id="mc-capability-grid" class="mc-capability-grid"></div>
+
         <!-- ═══ Five capability groups (Phase 2) ═══════════════════════════ -->
         <div class="mc-groups">
 
@@ -385,6 +440,95 @@
             if (open && bodyId === 'infra-l3-body' && typeof loadSHRuntimeBudget === 'function') {
                 loadSHRuntimeBudget();
             }
+        }
+
+        // ── MC1.1 capability-first incident layer ────────────────────────
+        // docs/design/mc1_0_capability_severity_model.md Section 12. Pure
+        // render functions over fullHealth.capabilities / fullHealth.incidents
+        // -- no fetch of their own, no state, safe to call every poll.
+        const MC_CAPABILITY_LABELS = {
+            live_ingestion: 'Live Ingestion',
+            creator_funding: 'Creator Funding',
+            operational_intelligence: 'Operational Intelligence',
+            watchtower: 'WATCHTOWER',
+            infrastructure: 'Infrastructure',
+            price_tracking: 'Price Tracking',
+        };
+        const MC_SEV_ICON = { CRITICAL: 'fa-circle-exclamation', WARNING: 'fa-triangle-exclamation' };
+
+        function mcFormatDuration(secs) {
+            if (secs == null) return '';
+            if (secs < 60) return `${secs}s`;
+            if (secs < 3600) return `${Math.floor(secs / 60)}m`;
+            return `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`;
+        }
+
+        function mcRenderIncidents(fullHealth) {
+            const el = document.getElementById('mc-incidents');
+            if (!el) return;
+            const incidents = (fullHealth && fullHealth.incidents) || [];
+            if (!incidents.length) { el.innerHTML = ''; return; }
+
+            el.innerHTML = incidents.map(inc => {
+                const icon = MC_SEV_ICON[inc.severity] || 'fa-circle-exclamation';
+                const impactHtml = (inc.impact || []).length
+                    ? `<div class="mc-incident-section impact">
+                         <div class="mc-incident-section-label">Impact</div>
+                         <ul>${inc.impact.map(i => `<li>${i}</li>`).join('')}</ul>
+                       </div>` : '';
+                const contribHtml = (inc.contributing_signals || []).length
+                    ? `<div class="mc-incident-section contributing">
+                         <div class="mc-incident-section-label">Contributing signals</div>
+                         <ul>${inc.contributing_signals.map(s => `<li>${s}</li>`).join('')}</ul>
+                       </div>` : '';
+                return `
+                    <div class="mc-incident-card ${inc.severity}">
+                        <div class="mc-incident-title">
+                            <i class="fas ${icon}"></i>
+                            <span class="sev-badge">${inc.severity}</span>
+                            <span>${inc.title}</span>
+                            <span class="duration">First detected ${mcFormatDuration(inc.current_duration_secs)} ago</span>
+                        </div>
+                        ${impactHtml}
+                        ${contribHtml}
+                    </div>`;
+            }).join('');
+        }
+
+        function mcToggleCapabilityTile(name) {
+            const el = document.getElementById(`mc-cap-${name}`);
+            if (el) el.classList.toggle('expanded');
+        }
+
+        function mcRenderCapabilityGrid(fullHealth) {
+            const el = document.getElementById('mc-capability-grid');
+            if (!el) return;
+            const caps = (fullHealth && fullHealth.capabilities) || {};
+            const names = Object.keys(MC_CAPABILITY_LABELS).filter(n => caps[n]);
+            if (!names.length) { el.innerHTML = ''; return; }
+
+            el.innerHTML = names.map(name => {
+                const cap = caps[name];
+                const label = MC_CAPABILITY_LABELS[name];
+                const ev = cap.evidence || { abnormal: 0, total: 0 };
+                const degradedHtml = cap.degraded_by
+                    ? `<div class="mc-capability-tile-degraded">↳ degraded by ${MC_CAPABILITY_LABELS[cap.degraded_by] || cap.degraded_by}</div>`
+                    : '';
+                const signalsHtml = (cap.signals || []).length
+                    ? `<ul class="mc-capability-tile-signals">${cap.signals.map(s =>
+                        `<li class="${s.abnormal ? 'abnormal' : 'normal'}">${s.abnormal ? '✓' : '✗'} ${s.name.replace(/_/g, ' ')}${s.detail ? ': ' + s.detail : ''}</li>`
+                      ).join('')}</ul>` : '';
+                return `
+                    <div class="mc-capability-tile ${cap.status}" id="mc-cap-${name}" onclick="mcToggleCapabilityTile('${name}')">
+                        <div class="mc-capability-tile-head">
+                            <span class="mc-capability-tile-dot"></span>
+                            <span class="mc-capability-tile-name">${label}</span>
+                        </div>
+                        <div class="mc-capability-tile-evidence">${cap.status} — Evidence ${ev.abnormal}/${ev.total} signals</div>
+                        ${degradedHtml}
+                        ${signalsHtml}
+                    </div>`;
+            }).join('');
         }
 
         // ── top-of-page alert banner (Phase 9) ───────────────────────────
@@ -1444,6 +1588,15 @@
                 fetch('/api/health/full').then(r => r.json()).catch(() => null),
             ]);
             data && (data.queue_depths = dbHealth.queue_depths || {});
+
+            // MC1.1 — capability-first incident layer, rendered above the
+            // existing groups. Purely additive: reads fullHealth.capabilities
+            // / fullHealth.incidents (already fetched above), renders
+            // nothing if fullHealth is unavailable or lacks these keys
+            // (older API response shape), so this can never break the
+            // existing dashboard below it.
+            mcRenderIncidents(fullHealth);
+            mcRenderCapabilityGrid(fullHealth);
 
             const platform = renderPlatformGroup(fullHealth, recovery);
             const ingestion = renderIngestionGroup(recovery, fundingStats, dbHealth);

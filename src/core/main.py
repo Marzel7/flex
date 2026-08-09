@@ -25395,7 +25395,12 @@ def api_health_full():
     except Exception as _e:
         intelligence = {"status": "UNKNOWN", "error": str(_e)[:120]}
 
-    # ── Top-level status ──────────────────────────────────────────────────────
+    # ── Top-level status (legacy — kept for backward-compat computation
+    # only; superseded as the actual source of the "status" field by the
+    # MC1.1 capability layer below, per MC1.0 Phase E / Section 8. This
+    # variable and its derivation are left completely unchanged so that
+    # if the capability layer itself fails for any reason, the except
+    # block a few lines down can fall back to it exactly as before) ─────
     def _s(sub, key="status"):
         return (sub or {}).get(key, "UNKNOWN")
 
@@ -25422,19 +25427,46 @@ def api_health_full():
     ):
         top = "DEGRADED"
 
+    _subsystems = {
+        "ingestion":          ingestion,
+        "price_worker":       price_worker,
+        "cascade_infrastructure": cascade_infra,
+        "cascade_activity":   cascade_activity,
+        "database":           database,
+        "api":                api_health,
+        "intelligence":       intelligence,
+    }
+
+    # ── MC1.1 — capability-based severity layer (additive; see
+    # docs/design/mc1_0_capability_severity_model.md). Reads ONLY the
+    # subsystem dict already computed above — no new measurement, no new
+    # DB query. Platform-level "status" is now sourced from capability
+    # severity (MC1.0 Phase E) instead of the legacy if/elif chain above;
+    # the legacy `top` value is retained as a fail-soft fallback so a bug
+    # in the new layer can never take down this endpoint or regress
+    # existing consumers of the "status" field.
+    try:
+        from src.ops.mission_control_capabilities import (
+            compute_capabilities as _mc_compute_capabilities,
+            compute_incidents as _mc_compute_incidents,
+            compute_platform_status as _mc_compute_platform_status,
+        )
+        capabilities = _mc_compute_capabilities(_subsystems)
+        incidents = _mc_compute_incidents(capabilities)
+        top = _mc_compute_platform_status(capabilities)
+    except Exception as _e:
+        capabilities = {}
+        incidents = []
+        # top keeps its legacy-derived value from above — fail-soft.
+
     return jsonify({
         "platform": "WATCHTOWER",
         "status":   top,
         "ts":       now,
-        "subsystems": {
-            "ingestion":          ingestion,
-            "price_worker":       price_worker,
-            "cascade_infrastructure": cascade_infra,
-            "cascade_activity":   cascade_activity,
-            "database":           database,
-            "api":                api_health,
-            "intelligence":       intelligence,
-        }
+        "subsystems": _subsystems,
+        # NEW (MC1.1, additive — see docs/design/mc1_0_capability_severity_model.md):
+        "capabilities": capabilities,
+        "incidents":    incidents,
     })
 
 

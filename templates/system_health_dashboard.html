@@ -113,6 +113,18 @@
         .mc-metric-label { color: var(--text-secondary); }
         .mc-metric-value { color: var(--text-primary); font-weight: 600; text-align: right; }
 
+        /* MC1.3 — trend badge (direction + duration), rendered directly
+           beneath the operational metrics block, above status/evidence
+           per Phase F's card order: current state -> trend -> impact ->
+           evidence -> diagnostics. */
+        .mc-trend-badge { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; margin-top: 0.35rem; }
+        .mc-trend-badge.improving { color: #4ade80; }
+        .mc-trend-badge.stable { color: #94a3b8; }
+        .mc-trend-badge.degrading { color: #f87171; }
+        .mc-trend-badge.insufficient_history { color: #64748b; font-style: italic; font-weight: 400; }
+        .mc-trend-duration { color: var(--text-secondary); font-weight: 400; }
+        .mc-sparkline { display: block; margin-top: 0.3rem; }
+
         /* MC1.1A — status/evidence row, now BELOW metrics, click target
            for expanding diagnostics (was the whole tile before). ────── */
         .mc-capability-tile-status-row {
@@ -583,6 +595,61 @@
             return `${mcFormatDuration(secs)} ago`;
         }
 
+        // MC1.3 Phase C/F — trend badge, shared across every capability's
+        // trend object (both Live Ingestion's real-data trend and the
+        // other 5 capabilities' buffer-based trend share the same
+        // `direction` vocabulary: improving/stable/degrading/
+        // insufficient_history). PRESENTATION ONLY -- reads the already-
+        // computed `direction` string, does not compute or infer
+        // anything itself.
+        const MC_TREND_ICON = {
+            improving: 'fa-arrow-trend-up', stable: 'fa-minus',
+            degrading: 'fa-arrow-trend-down', insufficient_history: 'fa-ellipsis',
+        };
+        const MC_TREND_LABEL = {
+            improving: 'Improving', stable: 'Stable',
+            degrading: 'Degrading', insufficient_history: 'Collecting data…',
+        };
+        function mcTrendBadgeHtml(trend, durationSecs) {
+            if (!trend || !trend.direction) return '';
+            const icon = MC_TREND_ICON[trend.direction] || 'fa-question';
+            const label = MC_TREND_LABEL[trend.direction] || trend.direction;
+            const durationHtml = (durationSecs != null && trend.direction !== 'insufficient_history')
+                ? ` <span class="mc-trend-duration">for ${mcFormatDuration(durationSecs)}</span>`
+                : '';
+            const collectingHtml = (trend.direction === 'insufficient_history' && trend.samples_collected != null)
+                ? ` <span class="mc-trend-duration">(${trend.samples_collected}/${trend.samples_required || '?'} samples)</span>`
+                : '';
+            return `<div class="mc-trend-badge ${trend.direction}"><i class="fas ${icon}"></i> ${label}${durationHtml}${collectingHtml}</div>`;
+        }
+
+        // MC1.3 Phase E — compact inline sparkline (SVG, no chart library)
+        // from a small array of {label, value} points. Used for Live
+        // Ingestion's 4 real historical windows (5m/15m/60m/24h rates) --
+        // genuine measured data points, not interpolated/fabricated
+        // between them. Deliberately tiny (Phase E: "No large charts,
+        // only immediate operational context").
+        function mcSparklineSvg(points, width, height) {
+            width = width || 90; height = height || 22;
+            const vals = points.map(p => p.value).filter(v => v != null);
+            if (vals.length < 2) return '';
+            const max = Math.max(...vals, 0.0001);
+            const min = Math.min(...vals, 0);
+            const range = (max - min) || 1;
+            const stepX = width / (points.length - 1);
+            const coords = points.map((p, i) => {
+                const x = i * stepX;
+                const y = height - ((p.value - min) / range) * height;
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+            }).join(' ');
+            const lastVal = vals[vals.length - 1];
+            const firstVal = vals[0];
+            const color = lastVal < firstVal ? '#f87171' : (lastVal > firstVal ? '#4ade80' : '#94a3b8');
+            return `<svg class="mc-sparkline" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+                <polyline points="${coords}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>`;
+        }
+
         // MC1.1A — operational metrics for the top of each capability card.
         // PRESENTATION ONLY: every value read here already exists in
         // fullHealth.subsystems (unchanged by MC1.1A, same fields MC1.1
@@ -633,18 +700,48 @@
                          + row('Last event', mcFormatAgo(ageSecs));
                 }
 
+                // MC1.3 Phase B/E: trend + sparkline, built from
+                // cap.trend.{births,migrations} (real historical
+                // 5m/15m/60m/24h rates, computed by
+                // compute_live_ingestion_trend -- no new request, this
+                // is the same /api/health/full payload already fetched).
+                const trend = cap.trend || {};
+                const birthTrend = trend.births || {};
+                const migTrend = trend.migrations || {};
+                function sparklineForTrend(t) {
+                    const rates = t.rates_per_min || {};
+                    const points = ['24h', '60m', '15m', '5m']
+                        .filter(k => rates[k] != null)
+                        .map(k => ({ label: k, value: rates[k] }));
+                    return points.length >= 2 ? mcSparklineSvg(points) : '';
+                }
+
                 return `
                     <div class="mc-metrics-block">
                         <div class="mc-metrics-group-label">Births</div>
                         ${rateRows(births, ing.last_birth_age_secs)}
                         ${row('Birth queue', ing.birth_queue_pending != null ? ing.birth_queue_pending : '—')}
+                        ${mcTrendBadgeHtml(birthTrend)}
+                        ${sparklineForTrend(birthTrend)}
                     </div>
                     <div class="mc-metrics-block">
                         <div class="mc-metrics-group-label">Migrations</div>
                         ${rateRows(migrations, ing.last_migration_age_secs)}
                         ${row('Migration queue', ing.migration_queue_pending != null ? ing.migration_queue_pending : '—')}
+                        ${mcTrendBadgeHtml(migTrend)}
+                        ${sparklineForTrend(migTrend)}
                     </div>`;
             }
+
+            // MC1.3 Phase C/F: for every non-live_ingestion capability,
+            // cap.trend is the in-memory buffer-based trend (see
+            // compute_capability_trend) -- direction + duration only, no
+            // sparkline (Phase E's sparklines are scoped to Live
+            // Ingestion's real rate history; the buffer only tracks
+            // status RANK over time, not a numeric series worth
+            // plotting). Rendered once here, appended to every remaining
+            // branch's metrics block.
+            const genericTrendHtml = mcTrendBadgeHtml(cap.trend, (cap.trend || {}).duration_in_current_status_secs);
 
             if (name === 'creator_funding') {
                 const intel = (subsystems && subsystems.intelligence) || {};
@@ -654,6 +751,7 @@
                         ${row('Oldest eligible', mcFormatAgo(intel.funding_queue_oldest_pending_age_secs))}
                         ${row('Worker heartbeat', mcFormatAgo(intel.funding_worker_heartbeat_age_secs))}
                         ${row('Worker status', intel.funding_worker_status || '—')}
+                        ${genericTrendHtml}
                     </div>`;
             }
 
@@ -664,6 +762,7 @@
                         ${row('Creator queue', intel.creator_queue_pending != null ? intel.creator_queue_pending.toLocaleString() : '—')}
                         ${row('Resolution efficiency', intel.crq_resolution_efficiency != null ? intel.crq_resolution_efficiency + '%' : '—')}
                         ${row('Last pipeline activity', mcFormatAgo(intel.watch_pipeline_age_secs))}
+                        ${genericTrendHtml}
                     </div>`;
             }
 
@@ -675,6 +774,7 @@
                         ${row('Subscriptions', infra.subs_total != null ? infra.subs_total : '—')}
                         ${row('Watch pipeline freshness', mcFormatAgo(infra.heartbeat_age_secs))}
                         ${row('Latest launch', mcFormatAgo(activity.last_launch_age_secs))}
+                        ${genericTrendHtml}
                     </div>`;
             }
 
@@ -684,6 +784,7 @@
                     <div class="mc-metrics-block">
                         ${row('DB write p99', db.p99_wait_ms != null ? db.p99_wait_ms + 'ms' : '—')}
                         ${row('Serializer queue depth', db.serializer_queue_depth != null ? db.serializer_queue_depth : '—')}
+                        ${genericTrendHtml}
                     </div>`;
             }
 
@@ -694,6 +795,7 @@
                         ${row('Active tokens', pw.active_tokens != null ? pw.active_tokens : '—')}
                         ${row('Last peak update', mcFormatAgo(pw.last_peak_update_age_secs))}
                         ${row('Last snapshot', mcFormatAgo(pw.last_snapshot_write_age_secs))}
+                        ${genericTrendHtml}
                     </div>`;
             }
 
@@ -763,9 +865,32 @@
                 if ((MC_SEV_RANK[inc.severity] || 0) > (MC_SEV_RANK[incidents[primaryIdx].severity] || 0)) primaryIdx = i;
             });
 
+            const caps = (fullHealth && fullHealth.capabilities) || {};
+
             el.innerHTML = incidents.map((inc, idx) => {
                 const isPrimary = idx === primaryIdx;
                 const icon = MC_SEV_ICON[inc.severity] || 'fa-circle-exclamation';
+                // MC1.3 Phase D — incident timeline: Started / Duration /
+                // Trend. `cap.trend` is the SAME object already rendered
+                // on the capability card (live_ingestion's real-data
+                // trend, or the buffer-based trend for the other 5) --
+                // reused here, not recomputed.
+                const cap = caps[inc.capability] || {};
+                const startedDate = new Date(inc.first_detected_at * 1000);
+                const startedHtml = `<div class="mc-incident-section">
+                    <div class="mc-incident-section-label">Started</div>
+                    <div>${startedDate.toISOString().slice(11, 16)} UTC</div>
+                </div>`;
+                // Live Ingestion's trend is per-event-type (births/migrations);
+                // other capabilities have one trend object directly.
+                const incidentTrend = (inc.capability === 'live_ingestion')
+                    ? ((cap.trend && cap.trend.births && cap.trend.births.direction !== 'stable') ? cap.trend.births : (cap.trend || {}).migrations)
+                    : cap.trend;
+                const trendHtml = incidentTrend
+                    ? `<div class="mc-incident-section">
+                         <div class="mc-incident-section-label">Trend</div>
+                         ${mcTrendBadgeHtml(incidentTrend, incidentTrend.duration_in_current_status_secs)}
+                       </div>` : '';
                 const impactHtml = (inc.impact || []).length
                     ? `<div class="mc-incident-section impact">
                          <div class="mc-incident-section-label">Impact</div>
@@ -792,6 +917,8 @@
                             <span>${inc.title}</span>
                             <span class="duration">${mcFormatDuration(inc.current_duration_secs)} ago</span>
                         </div>
+                        ${startedHtml}
+                        ${trendHtml}
                         ${impactHtml}
                         ${contribHtml}
                         <a class="mc-incident-jump" href="#mc-cap-${inc.capability}" onclick="mcJumpToCapability(event, '${inc.capability}')">

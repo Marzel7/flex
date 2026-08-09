@@ -284,6 +284,215 @@ def reset_baseline_cache() -> None:
     _BASELINE_CACHE.clear()
 
 
+# ── MC1.3 Phase A/B: Live Ingestion Trend (real historical data) ───────────
+#
+# Live Ingestion is the one capability with a genuine, queryable event
+# history (token_analysis.analyzed_at/migrated_at) -- exactly the same
+# data MC1.2's baseline engine already reads. Its trend is therefore
+# computed the same way: real historical windows, bucketed server-side,
+# walked forward, NO new persistence, NO in-memory buffer needed (unlike
+# every other capability -- see the Phase C section below for why they
+# differ).
+
+TREND_WINDOWS_MIN = {
+    "5m": 5,
+    "15m": 15,
+    "60m": 60,
+    "24h": 24 * 60,
+}
+TREND_DIRECTION_EPSILON = float(os.environ.get("MC_TREND_DIRECTION_EPSILON", "0.05"))  # 5% change = noise floor
+
+
+def _rate_over_window(event_type: str, window_min: int, ago_min: int = 0) -> float:
+    """Observed rate/min over a window ending `ago_min` minutes before
+    now (ago_min=0 means "ending now"). Read-only indexed COUNT query,
+    same table/columns as count_recent_events -- this is that same
+    concept generalized to an arbitrary historical window instead of
+    only 'now'."""
+    col = _BASELINE_EVENT_COLUMNS.get(event_type)
+    if not col:
+        return 0.0
+    timestamp_col, where_clause = col
+    conn = None
+    try:
+        conn = sqlite3.connect(f"file:{_DB_PATH}?mode=ro", uri=True, timeout=3)
+        now = int(time.time())
+        window_end = now - ago_min * 60
+        window_start = window_end - window_min * 60
+        row = conn.execute(
+            f"SELECT COUNT(*) FROM token_analysis WHERE {where_clause} AND {timestamp_col} >= ? AND {timestamp_col} < ?",
+            (window_start, window_end),
+        ).fetchone()
+        count = int(row[0]) if row else 0
+        return count / float(window_min) if window_min > 0 else 0.0
+    except Exception:
+        return 0.0
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+def compute_live_ingestion_trend(event_type: str) -> Dict[str, Any]:
+    """MC1.3 Phase B: rate + direction across the fixed trend windows
+    (5m/15m/60m/24h), plus a simple two-point comparison (current 5m
+    window vs. the PRIOR 5m window) to classify direction. This is
+    explicitly a MEASURED comparison of two real historical windows, not
+    a prediction or extrapolation -- 'still falling' / 'recovering' means
+    the rate in the most recent window is measurably lower/higher than
+    the window immediately before it, nothing more."""
+    rates = {
+        label: _rate_over_window(event_type, minutes)
+        for label, minutes in TREND_WINDOWS_MIN.items()
+    }
+    current_5m = rates["5m"]
+    prior_5m = _rate_over_window(event_type, 5, ago_min=5)
+
+    if prior_5m <= 0 and current_5m <= 0:
+        direction = "stable"
+    elif prior_5m <= 0:
+        direction = "improving"
+    else:
+        delta_ratio = (current_5m - prior_5m) / prior_5m
+        if delta_ratio > TREND_DIRECTION_EPSILON:
+            direction = "improving"
+        elif delta_ratio < -TREND_DIRECTION_EPSILON:
+            direction = "degrading"
+        else:
+            direction = "stable"
+
+    expected = get_expected_rate_per_min(event_type)
+    pct_of_baseline = (current_5m / expected * 100.0) if expected and expected > 0 else None
+
+    return {
+        "direction": direction,
+        "rates_per_min": rates,
+        "current_vs_prior_5m": {"current": round(current_5m, 4), "prior": round(prior_5m, 4)},
+        "pct_of_baseline": round(pct_of_baseline, 1) if pct_of_baseline is not None else None,
+        "expected_per_min": expected,
+    }
+
+
+# ── MC1.3 Phase C: Capability Trend (in-memory rolling sample buffer) ──────
+#
+# Unlike Live Ingestion, the other 5 capabilities have no queryable event
+# history anywhere -- wt_worker_heartbeat, funding_queue_pending,
+# database.p99_wait_ms etc. are all single CURRENT-VALUE rows with no
+# history table. Computing a real trend for them without adding new
+# persistence (out of scope, "no new backend systems") requires sampling
+# forward from now: an in-memory, per-process rolling buffer of
+# (timestamp, status_rank) pairs, appended once per compute_capabilities()
+# call. This means trend for these 5 capabilities is only available once
+# enough SAMPLES (not wall-clock time alone, since poll cadence varies)
+# have accumulated -- it warms up after the process has been running and
+# polled a few times, and resets on restart, exactly like the incident-
+# start cache above. This is an explicit, honest limitation: it does NOT
+# invent history that doesn't exist, and reports "insufficient history"
+# rather than approximating a trend from too little data.
+
+TREND_BUFFER_MAX_SAMPLES = int(os.environ.get("MC_TREND_BUFFER_MAX_SAMPLES", "2000"))
+TREND_BUFFER_MIN_SAMPLES = int(os.environ.get("MC_TREND_BUFFER_MIN_SAMPLES", "3"))
+
+_capability_sample_history: Dict[str, List[tuple]] = {}  # name -> [(mono_ts, wall_ts, status_rank), ...]
+
+
+def _record_capability_samples(capabilities: Dict[str, Dict[str, Any]]) -> None:
+    mono_now = time.monotonic()
+    wall_now = time.time()
+    for name, cap in capabilities.items():
+        buf = _capability_sample_history.setdefault(name, [])
+        buf.append((mono_now, wall_now, _rank(cap.get("status", "HEALTHY"))))
+        if len(buf) > TREND_BUFFER_MAX_SAMPLES:
+            del buf[: len(buf) - TREND_BUFFER_MAX_SAMPLES]
+
+
+def reset_trend_buffers() -> None:
+    """Test/debug hook."""
+    _capability_sample_history.clear()
+
+
+def compute_capability_trend(name: str) -> Dict[str, Any]:
+    """MC1.3 Phase C: direction/duration from the in-memory sample
+    buffer. Compares the CURRENT sample's status rank against the oldest
+    sample within each trend window still present in the buffer --
+    'improving'/'degrading' means severity rank measurably decreased/
+    increased across that span of ACTUAL recorded samples, never a
+    forecast. Returns insufficient-history state (not a guessed trend)
+    when too few samples exist or the buffer doesn't yet span the
+    window."""
+    buf = _capability_sample_history.get(name) or []
+    if len(buf) < TREND_BUFFER_MIN_SAMPLES:
+        return {
+            "direction": "insufficient_history",
+            "samples_collected": len(buf),
+            "samples_required": TREND_BUFFER_MIN_SAMPLES,
+        }
+
+    mono_now, wall_now, current_rank = buf[-1]
+    oldest_mono, oldest_wall, oldest_rank = buf[0]
+    span_sec = mono_now - oldest_mono
+
+    windows = {}
+    for label, minutes in TREND_WINDOWS_MIN.items():
+        window_sec = minutes * 60
+        # Find the sample closest to (but not after) window_sec ago.
+        target_mono = mono_now - window_sec
+        candidate = None
+        for sample in buf:
+            if sample[0] <= target_mono:
+                candidate = sample
+            else:
+                break
+        if candidate is None:
+            windows[label] = {"available": False}
+            continue
+        rank_then = candidate[2]
+        if current_rank < rank_then:
+            direction = "improving"
+        elif current_rank > rank_then:
+            direction = "degrading"
+        else:
+            direction = "stable"
+        windows[label] = {"available": True, "direction": direction, "rank_then": rank_then, "rank_now": current_rank}
+
+    # Overall direction: prefer the shortest window that actually has
+    # data (most immediate signal), matching Phase C's "no prediction,
+    # only measured direction" -- recent measured movement, not the
+    # longest span available.
+    # MC1.3 fix (found in testing): if NO window has data yet (buffer
+    # hasn't spanned even the shortest 5m window), the direction must be
+    # reported as insufficient_history, not silently defaulted to
+    # "stable" -- "stable" is a measured claim (rank unchanged across a
+    # real span of time) and must never be produced from zero actual
+    # comparison points.
+    overall_direction = "insufficient_history"
+    for label in ("5m", "15m", "60m", "24h"):
+        w = windows.get(label, {})
+        if w.get("available"):
+            overall_direction = w["direction"]
+            break
+
+    # "Duration in current direction/status": walk backward from the
+    # most recent sample while the rank stays the same as `current_rank`,
+    # so "how long has it been CRITICAL" is a measured span of real
+    # samples, not an estimate.
+    for sample in reversed(buf):
+        if sample[2] == current_rank:
+            duration_in_direction_sec = mono_now - sample[0]
+        else:
+            break
+
+    return {
+        "direction": overall_direction,
+        "windows": windows,
+        "samples_collected": len(buf),
+        "buffer_span_secs": round(span_sec, 1),
+        "duration_in_current_status_secs": round(duration_in_direction_sec, 1),
+    }
+
+
 def count_recent_events(event_type: str, window_min: int = RATE_WINDOW_MIN) -> int:
     """MC1.2 Phase B: observed event count in the rolling window -- the
     numerator evaluate_rate_signal needs to compute observed_rate_per_min.
@@ -441,6 +650,13 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
             "mode": migration_rate.get("mode"),
             "last_migration_age_secs": mig_age,
         },
+    }
+    # MC1.3 Phase B: real-data trend (5m/15m/60m/24h rates + measured
+    # direction), computed the same way as flow_metrics above -- no new
+    # persistence, genuine historical event data.
+    result["trend"] = {
+        "births": compute_live_ingestion_trend("births"),
+        "migrations": compute_live_ingestion_trend("migrations"),
     }
     return result
 
@@ -664,11 +880,27 @@ def _apply_propagation(capabilities: Dict[str, Dict[str, Any]]) -> None:
 
 
 def compute_capabilities(subsystems: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    """Phase A entry point. Pure function of the existing subsystems dict
-    -- no I/O, no new measurement. Deterministic: identical input always
-    produces identical output."""
+    """Phase A entry point. Deterministic given `subsystems` and the
+    real-data sources it reads (token_analysis for Live Ingestion's own
+    trend, computed inside _compute_live_ingestion) -- identical inputs
+    always produce identical capability status/evidence/signals.
+
+    MC1.3 note: this function now has ONE deliberate, documented side
+    effect -- it appends one sample to the in-memory rolling trend buffer
+    (_record_capability_samples) for the 5 capabilities that have no
+    other source of historical data (see Phase C's module-level comment
+    for why). This does not affect status/evidence/signals determinism;
+    it only feeds compute_capability_trend()'s buffer, called separately
+    by the caller (main.py) after this function returns. Live Ingestion's
+    own `trend` key is populated INSIDE _compute_live_ingestion from real
+    historical data, not from this buffer -- the generic buffer-based
+    trend is only attached to the other 5 capabilities, below."""
     capabilities = {name: _COMPUTE_FN[name](subsystems) for name in CAPABILITY_NAMES}
     _apply_propagation(capabilities)
+    _record_capability_samples(capabilities)
+    for name, cap in capabilities.items():
+        if "trend" not in cap:  # live_ingestion already set its own real-data trend
+            cap["trend"] = compute_capability_trend(name)
     return capabilities
 
 

@@ -57,6 +57,17 @@ def _reset_incident_cache():
 
 
 @pytest.fixture(autouse=True)
+def _reset_trend_buffer():
+    """MC1.3's capability trend sample buffer is also module-level
+    in-memory state (same convention as the incident-start cache) --
+    reset between tests so one test's samples don't leak into another's
+    trend-direction assertions."""
+    mc.reset_trend_buffers()
+    yield
+    mc.reset_trend_buffers()
+
+
+@pytest.fixture(autouse=True)
 def _isolate_from_live_baseline(monkeypatch):
     """MC1.2 added a REAL historical baseline (get_expected_rate_per_min)
     and a REAL windowed event count (count_recent_events), both of which
@@ -81,10 +92,15 @@ def test_all_healthy_produces_healthy_platform_and_zero_incidents():
 
 
 def test_capability_computation_is_pure_and_deterministic():
-    """Same input -> same output, every time. No hidden state affecting
-    the capability computation itself (only compute_incidents's
-    first_detected_at tracking is stateful, and that's covered
-    separately)."""
+    """Same input -> same status/evidence/signals, every time. No hidden
+    state affects the HEALTH CLASSIFICATION itself (only
+    compute_incidents's first_detected_at tracking, and MC1.3's own
+    trend buffer, are stateful/append-only by explicit design -- see
+    compute_capabilities' docstring). This test asserts determinism of
+    the classification fields specifically, not of the whole dict,
+    since MC1.3 legitimately makes `trend` grow with each call (that's
+    the entire point of the trend buffer -- it must NOT be identical
+    across polls, or trend would never have any data to show)."""
     subsystems = _healthy_subsystems()
     subsystems["ingestion"]["pumpportal"] = "RETRYING"
     subsystems["ingestion"]["last_birth_age_secs"] = 6000
@@ -92,7 +108,14 @@ def test_capability_computation_is_pure_and_deterministic():
 
     result_1 = mc.compute_capabilities(subsystems)
     result_2 = mc.compute_capabilities(subsystems)
-    assert result_1 == result_2
+
+    for name in result_1:
+        for key in ("status", "degraded_by", "evidence", "signals"):
+            assert result_1[name][key] == result_2[name][key], (name, key)
+    # Live Ingestion's OWN trend (real historical data, not the buffer)
+    # must also be stable across two calls made in immediate succession
+    # -- it's recomputed from the same underlying DB state each time.
+    assert result_1["live_ingestion"]["trend"] == result_2["live_ingestion"]["trend"]
 
 
 def test_live_ingestion_critical_matches_charter_worked_example():
@@ -518,3 +541,195 @@ def test_real_baseline_query_against_live_db_returns_a_positive_number():
     mc.reset_baseline_cache()
     value = mc._compute_historical_baseline_per_min("births")
     assert value is None or value > 0  # None only if genuinely insufficient history exists
+
+
+# ── MC1.3: Operational Trend Intelligence ───────────────────────────────────
+# docs/design/mc1_3_operational_trend_intelligence.md
+
+def test_capability_trend_reports_insufficient_history_before_min_samples():
+    """Phase C: must explicitly report insufficient_history (not a
+    guessed/default direction) when fewer than TREND_BUFFER_MIN_SAMPLES
+    samples have been collected -- the 'Collecting data...' case."""
+    mc.reset_trend_buffers()
+    assert mc.compute_capability_trend("creator_funding")["direction"] == "insufficient_history"
+
+    mc._capability_sample_history["creator_funding"] = [
+        (1000.0, 1786300000.0, 0),
+        (1001.0, 1786300001.0, 0),
+    ]
+    result = mc.compute_capability_trend("creator_funding")
+    assert result["direction"] == "insufficient_history"
+    assert result["samples_collected"] == 2
+    assert result["samples_required"] == mc.TREND_BUFFER_MIN_SAMPLES
+
+
+def test_capability_trend_reports_insufficient_history_when_no_window_spanned():
+    """Even with >= min samples, if the buffer's total time span is
+    shorter than the shortest trend window (5m), no window comparison is
+    possible yet -- direction must still be insufficient_history, not a
+    default 'stable' fabricated from zero real comparison points (this
+    was a real bug found and fixed during MC1.3 development: the first
+    draft defaulted to 'stable' here, which silently claimed a measured
+    non-change that was never actually measured)."""
+    mc.reset_trend_buffers()
+    base_mono = 1000.0
+    mc._capability_sample_history["creator_funding"] = [
+        (base_mono + i, base_mono + i, 0) for i in range(5)
+    ]  # 5 samples spanning only 4 seconds -- far short of the 5m window
+    result = mc.compute_capability_trend("creator_funding")
+    assert result["direction"] == "insufficient_history"
+    assert all(not w.get("available") for w in result["windows"].values())
+
+
+def test_capability_trend_detects_measured_degradation_across_window():
+    """Phase C: direction reflects a REAL comparison of two actual
+    samples across a window, not a forecast. Simulates a buffer spanning
+    exactly past the 5-minute window with a genuine rank increase
+    (HEALTHY -> CRITICAL) partway through."""
+    mc.reset_trend_buffers()
+    base_mono = 1_000_000.0
+    base_wall = 1_786_300_000.0
+    samples = []
+    for i in range(20):  # 20 samples, 60s apart = 19 minutes of span
+        rank = 0 if i < 10 else 3  # healthy for first 10min, critical for next 9
+        samples.append((base_mono + i * 60, base_wall + i * 60, rank))
+    mc._capability_sample_history["creator_funding"] = samples
+
+    result = mc.compute_capability_trend("creator_funding")
+    assert result["windows"]["15m"]["available"] is True
+    assert result["windows"]["15m"]["direction"] == "degrading"
+    assert result["windows"]["15m"]["rank_then"] == 0
+    assert result["windows"]["15m"]["rank_now"] == 3
+    # duration_in_current_status_secs: rank has been 3 (CRITICAL) for the
+    # last 9 samples (i=10..19), i.e. 9*60=540s measured from the sample
+    # where it FIRST became 3 to the latest sample.
+    assert result["duration_in_current_status_secs"] == 540.0
+
+
+def test_capability_trend_detects_measured_recovery_across_window():
+    """Mirror of the degradation test -- rank DECREASING (CRITICAL ->
+    HEALTHY) across a window must report 'improving', not 'degrading'."""
+    mc.reset_trend_buffers()
+    base_mono = 2_000_000.0
+    base_wall = 1_786_400_000.0
+    samples = []
+    for i in range(20):
+        rank = 3 if i < 10 else 0  # critical, then recovers to healthy
+        samples.append((base_mono + i * 60, base_wall + i * 60, rank))
+    mc._capability_sample_history["creator_funding"] = samples
+
+    result = mc.compute_capability_trend("creator_funding")
+    assert result["windows"]["15m"]["available"] is True
+    assert result["windows"]["15m"]["direction"] == "improving"
+
+
+def test_compute_capabilities_attaches_trend_to_every_capability():
+    """Phase C: compute_capabilities() must attach a `trend` key to
+    every one of the 6 capabilities -- live_ingestion's own real-data
+    trend (set inside _compute_live_ingestion) must survive untouched
+    (not overwritten by the generic buffer-based trend), and the other 5
+    must get the buffer-based trend."""
+    mc.reset_trend_buffers()
+    subsystems = _healthy_subsystems()
+    caps = mc.compute_capabilities(subsystems)
+
+    assert "trend" in caps["live_ingestion"]
+    assert "births" in caps["live_ingestion"]["trend"]
+    assert "migrations" in caps["live_ingestion"]["trend"]
+
+    for name in ("creator_funding", "operational_intelligence", "watchtower", "infrastructure", "price_tracking"):
+        assert "trend" in caps[name]
+        assert "direction" in caps[name]["trend"]
+
+
+def test_live_ingestion_trend_direction_is_measured_not_guessed(monkeypatch):
+    """Phase B: births trend direction reflects an actual comparison of
+    the current 5-minute window against the PRIOR 5-minute window (both
+    real historical queries), not a prediction. Verified by mocking
+    _rate_over_window directly to control both windows precisely."""
+    calls = []
+
+    def _fake_rate(event_type, window_min, ago_min=0):
+        calls.append((event_type, window_min, ago_min))
+        if event_type != "births":
+            return 0.0
+        # current 5m window (ago_min=0) is HIGHER than prior 5m window
+        # (ago_min=5) -- must classify as improving.
+        if window_min == 5 and ago_min == 5:
+            return 2.0  # prior
+        if window_min == 5 and ago_min == 0:
+            return 10.0  # current
+        return 5.0  # other windows (15m/60m/24h), irrelevant to direction
+
+    monkeypatch.setattr(mc, "_rate_over_window", _fake_rate)
+    monkeypatch.setattr(mc, "get_expected_rate_per_min", lambda event_type: 20.0)
+
+    result = mc.compute_live_ingestion_trend("births")
+    assert result["direction"] == "improving"
+    assert result["current_vs_prior_5m"]["current"] == 10.0
+    assert result["current_vs_prior_5m"]["prior"] == 2.0
+    assert result["pct_of_baseline"] == 50.0  # 10.0 / 20.0 * 100
+
+
+def test_live_ingestion_trend_within_epsilon_is_stable(monkeypatch):
+    """A small change (within TREND_DIRECTION_EPSILON) must not be
+    reported as improving/degrading -- avoids noise being reported as a
+    real trend reversal."""
+    def _fake_rate(event_type, window_min, ago_min=0):
+        if event_type != "births":
+            return 0.0
+        if window_min == 5 and ago_min == 5:
+            return 10.0
+        if window_min == 5 and ago_min == 0:
+            return 10.2  # 2% change -- well within the 5% epsilon
+        return 10.0
+
+    with pytest.MonkeyPatch.context() as m:
+        m.setattr(mc, "_rate_over_window", _fake_rate)
+        m.setattr(mc, "get_expected_rate_per_min", lambda event_type: 20.0)
+        result = mc.compute_live_ingestion_trend("births")
+    assert result["direction"] == "stable"
+
+
+def test_trend_buffer_records_one_sample_per_compute_capabilities_call():
+    """Phase C's documented side effect: compute_capabilities() appends
+    exactly one sample per call to the in-memory buffer."""
+    mc.reset_trend_buffers()
+    subsystems = _healthy_subsystems()
+    mc.compute_capabilities(subsystems)
+    mc.compute_capabilities(subsystems)
+    mc.compute_capabilities(subsystems)
+    assert len(mc._capability_sample_history["creator_funding"]) == 3
+
+
+def test_trend_buffer_is_capped_at_max_samples():
+    """Phase C: the in-memory buffer must not grow unbounded -- capped
+    at TREND_BUFFER_MAX_SAMPLES, oldest samples dropped first."""
+    mc.reset_trend_buffers()
+    subsystems = _healthy_subsystems()
+    original_max = mc.TREND_BUFFER_MAX_SAMPLES
+    try:
+        mc.TREND_BUFFER_MAX_SAMPLES = 5
+        for _ in range(10):
+            mc.compute_capabilities(subsystems)
+        assert len(mc._capability_sample_history["creator_funding"]) == 5
+    finally:
+        mc.TREND_BUFFER_MAX_SAMPLES = original_max
+
+
+def test_api_health_full_includes_trend_field_additively(monkeypatch):
+    """Phase G: trend must be purely additive to the existing API
+    contract -- every existing key from MC1.1/MC1.2 remains present and
+    unchanged in shape; `trend` is a new key inside each capability."""
+    import src.core.main as m
+
+    with m.app.test_client() as c:
+        resp = c.get("/api/health/full")
+        assert resp.status_code == 200
+        data = resp.get_json()
+
+    for name, cap in data["capabilities"].items():
+        assert "trend" in cap
+        assert "status" in cap
+        assert "evidence" in cap
+        assert "signals" in cap

@@ -57,6 +57,24 @@ def _walk_forward_baseline(buckets: dict[int, int], w: int, lookback_windows: in
     return median / (mc.BASELINE_BUCKET_MIN)
 
 
+def _trend_direction(observed: float, prior_observed: float) -> str:
+    """MC1.3 Phase B's exact classification, reproduced here for replay
+    against historical windows (compute_live_ingestion_trend itself
+    always compares against real 'now', so it can't be pointed at an
+    arbitrary past window directly -- this mirrors its logic precisely
+    so Phase G can validate historical transitions)."""
+    if prior_observed <= 0 and observed <= 0:
+        return "stable"
+    if prior_observed <= 0:
+        return "improving"
+    delta_ratio = (observed - prior_observed) / prior_observed
+    if delta_ratio > mc.TREND_DIRECTION_EPSILON:
+        return "improving"
+    if delta_ratio < -mc.TREND_DIRECTION_EPSILON:
+        return "degrading"
+    return "stable"
+
+
 def replay(event_type: str, hours: int, lookback_days: float) -> dict:
     bucket_sec = mc.BASELINE_BUCKET_MIN * 60
     buckets = _load_bucket_counts(event_type, bucket_sec)
@@ -69,11 +87,15 @@ def replay(event_type: str, hours: int, lookback_days: float) -> dict:
     replay_windows = int(hours * 60 / mc.BASELINE_BUCKET_MIN)
 
     counts = collections.Counter()
+    trend_counts = collections.Counter()
     transitions = []
+    trend_reversals = []
     prev_status = None
+    prev_observed = None
+    prev_trend = None
 
     print(f"\n=== Replay: {event_type} — last {hours}h, {lookback_days}d trailing baseline ===")
-    print(f"{'window':>10} {'observed/min':>14} {'baseline/min':>14} {'status':>10}")
+    print(f"{'window':>10} {'observed/min':>14} {'baseline/min':>14} {'status':>10} {'trend':>12}")
 
     for w in range(last_w - replay_windows, last_w + 1):
         baseline = _walk_forward_baseline(buckets, w, lookback_windows, mc.BASELINE_MIN_NONZERO_BUCKETS)
@@ -92,15 +114,42 @@ def replay(event_type: str, hours: int, lookback_days: float) -> dict:
         if status != prev_status:
             transitions.append((w, prev_status, status))
         prev_status = status
-        baseline_str = f"{baseline:.2f}" if baseline else "None"
-        print(f"{w:>10} {observed:>14.2f} {baseline_str:>14} {status:>10}")
 
-    print(f"\nSummary: {dict(counts)}")
-    print(f"Transitions ({len(transitions)}):")
+        # Phase G: trend direction, comparing this window's observed rate
+        # against the IMMEDIATELY PRIOR window (mirrors compute_live_ingestion_trend's
+        # current-vs-prior-5m comparison, generalized to this replay's
+        # bucket size).
+        trend = _trend_direction(observed, prev_observed) if prev_observed is not None else "insufficient_history"
+        trend_counts[trend] += 1
+        if prev_trend is not None and trend != prev_trend and trend != "stable" and prev_trend != "stable" and trend != prev_trend:
+            # A "reversal" here means direction flipped between the two
+            # genuinely opposite states (improving<->degrading), not a
+            # transition through "stable" -- flagged separately below as
+            # the interesting case Phase G's "no false reversals" gate
+            # cares about.
+            if {trend, prev_trend} == {"improving", "degrading"}:
+                trend_reversals.append((w, prev_trend, trend))
+        prev_trend = trend
+        prev_observed = observed
+
+        baseline_str = f"{baseline:.2f}" if baseline else "None"
+        print(f"{w:>10} {observed:>14.2f} {baseline_str:>14} {status:>10} {trend:>12}")
+
+    print(f"\nStatus summary: {dict(counts)}")
+    print(f"Trend summary: {dict(trend_counts)}")
+    print(f"Status transitions ({len(transitions)}):")
     for w, frm, to in transitions:
         print(f"  window {w}: {frm} -> {to}")
+    print(f"Direct improving<->degrading trend reversals ({len(trend_reversals)}):")
+    for w, frm, to in trend_reversals:
+        print(f"  window {w}: {frm} -> {to}")
 
-    return {"counts": dict(counts), "transitions": transitions}
+    return {
+        "counts": dict(counts),
+        "trend_counts": dict(trend_counts),
+        "transitions": transitions,
+        "trend_reversals": trend_reversals,
+    }
 
 
 def main():

@@ -1,11 +1,26 @@
-"""MC1.1 -- Mission Control capability-based severity layer.
+"""MC1.1/MC1.2 -- Mission Control capability-based severity layer.
 
 Implements the frozen MC1.0 design (docs/design/mc1_0_capability_severity_model.md):
 a stateless derived layer that reads the 7 existing /api/health/full
 subsystem blocks and re-groups them into capability-scoped status,
-evidence, and incidents. This module performs NO measurement of its own
--- every input is a field already present in the subsystem dicts computed
-by api_health_full() in src/core/main.py. It only interprets.
+evidence, and incidents. Almost the entire module performs NO
+measurement of its own -- every input is a field already present in the
+subsystem dicts computed by api_health_full() in src/core/main.py.
+
+The one deliberate exception, added in MC1.2 (docs/design/mc1_2_live_ingestion_flow_health.md):
+the historical rate baseline engine (get_expected_rate_per_min /
+_compute_historical_baseline_per_min below) issues its own small,
+indexed, read-only queries against the existing token_analysis table
+(the same table/columns main.py's ingestion block already reads
+last_birth_age_secs/last_migration_age_secs from) to compute a real
+expected-events-per-minute baseline. This is READ-ONLY and does not
+touch, modify, or add to the ingestion pipeline, PumpPortal, PumpSwap,
+listeners, or any worker -- it is Mission Control observing the same
+data those systems already write, exactly as every other signal in this
+module does. Results are cached in-memory with a short TTL (see
+_BASELINE_CACHE) so this doesn't add a query to every single dashboard
+poll, consistent with the module's stateless design (no new database
+tables, no new workers).
 
 Stateless per MC1.0 Amendment 3 / MC1.1's explicit instruction: no new
 database tables, no new workers. Incident first_detected_at is computed
@@ -15,13 +30,20 @@ without a single monotonic timestamp, an in-memory (per-process) dict is
 used, with the accepted limitation that it resets on process restart --
 this is the explicitly smaller-scope alternative to persistence that
 MC1.0 Section 11 named as the default when only live status (not
-historical analytics) is required.
+historical analytics) is required. The baseline cache follows the same
+in-memory, resets-on-restart convention.
 """
 from __future__ import annotations
 
 import os
+import sqlite3
 import time
 from typing import Any, Dict, List, Optional
+
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+_DB_PATH = os.environ.get(
+    "DB_PATH", os.path.join(_REPO_ROOT, "database", "flex_complete_database.db")
+)
 
 CAPABILITY_NAMES = (
     "live_ingestion",
@@ -86,15 +108,13 @@ def compute_observed_rate_per_min(event_count_in_window: int, window_min: int = 
 
 
 def get_expected_rate_per_min(event_type: str) -> Optional[float]:
-    """MC1.0 Section 5's frozen contract: expected rate is a computed,
+    """MC1.0 Section 5 / MC1.2 Phase A: expected rate is a computed,
     self-updating historical baseline, never a fixed number shipped in
-    code. This is the interface an implementation-time step wires to a
-    real rolling-baseline query (e.g. trailing-N-day median observed
-    rate, excluding known incident windows). Returns None when no
-    baseline is available yet (insufficient history) -- callers MUST
-    treat None as "fall back to silence-based detection" per Section 5's
-    evaluation order, never as zero."""
-    return None
+    code. Delegates to the real baseline engine below. Returns None only
+    when insufficient history exists to compute one (e.g. a brand-new
+    deployment) -- callers MUST treat None as "fall back to silence-based
+    detection" per Section 5's evaluation order, never as zero."""
+    return _get_cached_baseline(event_type)
 
 
 def evaluate_rate_signal(
@@ -149,6 +169,157 @@ def evaluate_rate_signal(
     }
 
 
+# ── MC1.2 Phase A: Historical Baseline Engine ───────────────────────────────
+#
+# Investigation (see docs/design/mc1_2_live_ingestion_flow_health.md) found
+# the naive approach -- median rate over ALL windows in a lookback period,
+# including zero-event windows -- is unsafe on this platform's real data:
+# a full-history scan showed a single contiguous 594-HOUR (24.75-day) gap
+# with zero recorded births, and even a recent 7-day window had 101/557
+# (18%) completely empty 15-minute windows. Averaging/medianing across
+# those zero windows would drag the "expected" rate toward zero and
+# silently defeat the whole point of a baseline (a collapsed-to-near-zero
+# baseline can never detect a collapse). A 1-day lookback was also
+# measured to be unstable (2.27/min) vs. 7-day and 14-day, which converge
+# closely (19.33/min vs 19.53/min) -- a very short window can be
+# dominated by whatever is happening right now, which is exactly the
+# instability a baseline exists to avoid.
+#
+# Chosen approach: median rate over only the NONZERO windows within the
+# lookback period. This is a purely statistical exclusion of low/zero-
+# activity windows -- it requires no persisted incident history (staying
+# consistent with this module's stateless design) and is inherently
+# robust to a minority of the lookback period being an outage (real or,
+# in this dev environment's case, the process simply not running),
+# satisfying Phase A's "exclude known outage windows" requirement without
+# needing a ground-truth list of exactly which windows were outages.
+
+BASELINE_LOOKBACK_DAYS = float(os.environ.get("MC_BASELINE_LOOKBACK_DAYS", "7"))
+BASELINE_BUCKET_MIN = int(os.environ.get("MC_BASELINE_BUCKET_MIN", "15"))
+BASELINE_MIN_NONZERO_BUCKETS = int(os.environ.get("MC_BASELINE_MIN_NONZERO_BUCKETS", "8"))
+BASELINE_CACHE_TTL_SEC = int(os.environ.get("MC_BASELINE_CACHE_TTL_SEC", "300"))
+
+_BASELINE_EVENT_COLUMNS = {
+    "births": ("analyzed_at", "source_platform='pumpfun' AND analyzed_at IS NOT NULL"),
+    "migrations": ("migrated_at", "migrated_at IS NOT NULL"),
+}
+
+_BASELINE_CACHE: Dict[str, Any] = {}  # event_type -> (computed_at_mono, value_or_None)
+
+
+def _compute_historical_baseline_per_min(event_type: str) -> Optional[float]:
+    """Real DB-backed baseline (Phase A). Read-only, indexed queries
+    against token_analysis -- same table/columns main.py's ingestion
+    block already reads last_birth_age_secs/last_migration_age_secs
+    from. Returns None if there isn't enough recent nonzero history to
+    trust a baseline (BASELINE_MIN_NONZERO_BUCKETS), per Section 5's
+    contract that None means "fall back to silence-based detection"."""
+    col = _BASELINE_EVENT_COLUMNS.get(event_type)
+    if not col:
+        return None
+    timestamp_col, where_clause = col
+
+    conn = None
+    try:
+        conn = sqlite3.connect(f"file:{_DB_PATH}?mode=ro", uri=True, timeout=3)
+        now = int(time.time())
+        lookback_start = now - int(BASELINE_LOOKBACK_DAYS * 86400)
+        bucket_sec = BASELINE_BUCKET_MIN * 60
+
+        # Bucket timestamps directly in SQL (CAST/divide/floor via integer
+        # division) so only bucket->count pairs cross into Python, not raw
+        # rows -- a 7-day lookback at pumpfun's real volume is still
+        # ~100K+ rows, and there's no reason to pull them individually
+        # when SQLite can aggregate them in one indexed pass.
+        rows = conn.execute(
+            f"""
+            SELECT CAST({timestamp_col} AS INTEGER) / {bucket_sec} AS bucket, COUNT(*) AS n
+            FROM token_analysis
+            WHERE {where_clause} AND {timestamp_col} >= ?
+            GROUP BY bucket
+            """,
+            (lookback_start,),
+        ).fetchall()
+    except Exception:
+        return None
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+    nonzero_counts = [r[1] for r in rows if r[1] and r[1] > 0]
+    if len(nonzero_counts) < BASELINE_MIN_NONZERO_BUCKETS:
+        return None
+
+    nonzero_counts.sort()
+    n = len(nonzero_counts)
+    median_per_bucket = (
+        nonzero_counts[n // 2]
+        if n % 2 == 1
+        else (nonzero_counts[n // 2 - 1] + nonzero_counts[n // 2]) / 2.0
+    )
+    return median_per_bucket / float(BASELINE_BUCKET_MIN)
+
+
+def _get_cached_baseline(event_type: str) -> Optional[float]:
+    """Short in-memory TTL cache (default 5min) so the baseline query
+    doesn't run on every single /api/health/full poll -- consistent with
+    this module's stateless design (in-memory only, no new table),
+    matching the same convention already used for incident
+    first_detected_at tracking (_incident_start_cache, below)."""
+    cached = _BASELINE_CACHE.get(event_type)
+    now_mono = time.monotonic()
+    if cached is not None and (now_mono - cached[0]) < BASELINE_CACHE_TTL_SEC:
+        return cached[1]
+    value = _compute_historical_baseline_per_min(event_type)
+    _BASELINE_CACHE[event_type] = (now_mono, value)
+    return value
+
+
+def reset_baseline_cache() -> None:
+    """Test/debug hook -- forces the next get_expected_rate_per_min()
+    call to recompute rather than reuse a cached value."""
+    _BASELINE_CACHE.clear()
+
+
+def count_recent_events(event_type: str, window_min: int = RATE_WINDOW_MIN) -> int:
+    """MC1.2 Phase B: observed event count in the rolling window -- the
+    numerator evaluate_rate_signal needs to compute observed_rate_per_min.
+    Read-only, indexed COUNT query (idx_ta_analyzed_at / idx_ta_migrated_at
+    already exist), same table/columns/filters as the historical baseline
+    and as main.py's own last_birth_age_secs/last_migration_age_secs
+    computation -- not a new measurement concept, just a windowed count
+    instead of a single most-recent timestamp. Returns 0 (not None) on
+    any failure -- a failed count must never be silently treated as a
+    healthy nonzero rate; combined with evaluate_rate_signal's ratio
+    check, an erroneous 0 here is conservative (reads as a full outage,
+    which is safe to surface and easy to notice/correct) rather than
+    silently hiding a real problem."""
+    col = _BASELINE_EVENT_COLUMNS.get(event_type)
+    if not col:
+        return 0
+    timestamp_col, where_clause = col
+    conn = None
+    try:
+        conn = sqlite3.connect(f"file:{_DB_PATH}?mode=ro", uri=True, timeout=3)
+        cutoff = int(time.time()) - window_min * 60
+        row = conn.execute(
+            f"SELECT COUNT(*) FROM token_analysis WHERE {where_clause} AND {timestamp_col} >= ?",
+            (cutoff,),
+        ).fetchone()
+        return int(row[0]) if row else 0
+    except Exception:
+        return 0
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
 # ── Phase A/B: Capability + Evidence Engine ─────────────────────────────────
 
 def _signal(name: str, abnormal: bool, detail: str) -> Dict[str, Any]:
@@ -180,36 +351,48 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     ps_status = ingestion.get("pumpswap") or "UNKNOWN"
     listener_log_age = ingestion.get("listener_log_age_secs")
 
-    # Phase D: rate engine, per-event-type. No new DB query -- event
-    # counts in the rolling window are not yet available from the
-    # existing ingestion block (it only exposes the single most-recent
-    # timestamp, not a windowed count), so observed_count_in_window is
-    # 0 here as a conservative placeholder wired for a future cheap
-    # indexed COUNT query at this call site (main.py's ingestion block),
-    # NOT invented data. Until that wiring lands, get_expected_rate_per_min()
-    # returning None means every evaluation correctly routes to the
-    # silence fallback using the real last_birth_age_secs/last_migration_age_secs
-    # already computed today -- so behaviour is unchanged from pre-MC1.1
-    # until the rate baseline is wired in, exactly as MC1.0 Section 5
-    # specifies for the "insufficient history" case.
+    # MC1.2 Phase B/C: observed event flow is now the PRIMARY signal.
+    # count_recent_events() + get_expected_rate_per_min() together drive
+    # evaluate_rate_signal()'s primary rate-based evaluation (falls back
+    # to birth_age/mig_age silence only if the historical baseline is
+    # unavailable, e.g. insufficient recent history) -- this is the exact
+    # mechanism MC1.0 Section 5 always specified; MC1.2 completes it by
+    # wiring in a real count and a real baseline instead of the
+    # placeholder 0/None that made every prior evaluation fall through to
+    # the silence-only path.
+    birth_count = count_recent_events("births")
+    migration_count = count_recent_events("migrations")
     birth_rate = evaluate_rate_signal(
         event_type="births",
-        observed_count_in_window=0,
+        observed_count_in_window=birth_count,
         silence_secs=birth_age,
         fallback_silence_sec=BIRTH_SILENCE_FALLBACK_SEC,
     )
     migration_rate = evaluate_rate_signal(
         event_type="migrations",
-        observed_count_in_window=0,
+        observed_count_in_window=migration_count,
         silence_secs=mig_age,
         fallback_silence_sec=MIGRATION_SILENCE_FALLBACK_SEC,
     )
 
+    # MC1.2 Phase C/D: connection status is SUPPORTING EVIDENCE only --
+    # it contributes its own signal entries (visible diagnostic context)
+    # but must never override or lower the severity the rate signals
+    # already established. STALE/UNKNOWN are this frozen subsystem's
+    # actual closest equivalents to the charter's "DISCONNECTED" example
+    # (the ingestion block, which MC1.2 does not modify, only ever
+    # produces UNKNOWN/RETRYING/CONNECTED/STALE) -- both are treated as
+    # the more severe connection-signal case, RETRYING as the lesser one,
+    # matching Case 2's "not connected -> CRITICAL-level signal" intent
+    # without inventing a new status value in the frozen ingestion code.
+    pp_disconnected = pp_status in ("STALE", "UNKNOWN")
+    ps_disconnected = ps_status in ("STALE", "UNKNOWN")
+
     signals = [
         _signal("birth_rate_collapse", birth_rate["status"] != "HEALTHY", birth_rate["detail"]),
         _signal("migration_rate_collapse", migration_rate["status"] != "HEALTHY", migration_rate["detail"]),
-        _signal("pumpportal_connection", pp_status == "RETRYING", pp_status),
-        _signal("pumpswap_connection", ps_status == "RETRYING", ps_status),
+        _signal("pumpportal_connection", pp_status == "RETRYING" or pp_disconnected, pp_status),
+        _signal("pumpswap_connection", ps_status == "RETRYING" or ps_disconnected, ps_status),
         _signal(
             "listener_log_freshness",
             listener_log_age is not None and listener_log_age > 300,
@@ -222,14 +405,44 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         ),
     ]
 
+    # MC1.2 Phase C: observed rate is primary (birth_rate/migration_rate
+    # statuses, already rate-driven when a baseline exists). Connection
+    # state and listener freshness are supporting evidence, contributing
+    # their own severity ceiling but NEVER lower than what the rate
+    # signals already require -- _max_status can only raise, never lower,
+    # so a CONNECTED socket can never mask a collapsed rate (it simply
+    # contributes HEALTHY to the max, which never wins against an already-
+    # CRITICAL rate signal). A disconnected/stale socket, conversely, can
+    # still independently raise severity even if rate momentarily looks
+    # fine (e.g. right at the edge of a window), matching Case 2.
     status = _max_status(
         birth_rate["status"],
         migration_rate["status"],
         "CRITICAL" if listener_log_age is not None and listener_log_age > 600 else "HEALTHY",
-        "WARNING" if pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY",
+        "CRITICAL" if pp_disconnected or ps_disconnected else ("WARNING" if pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY"),
         "WARNING" if (birth_queue > 5 or mig_queue > 5) else "HEALTHY",
     )
-    return _capability_result(status, signals)
+    result = _capability_result(status, signals)
+    # MC1.2 Phase E: expose the raw observed/expected rate numbers
+    # directly (not just the signal detail string) so the dashboard card
+    # can promote them to headline operator metrics without re-deriving
+    # or re-querying anything -- same values evaluate_rate_signal already
+    # computed, just also surfaced at the capability level.
+    result["flow_metrics"] = {
+        "births": {
+            "observed_per_min": birth_rate.get("observed_rate_per_min"),
+            "expected_per_min": birth_rate.get("expected_rate_per_min"),
+            "mode": birth_rate.get("mode"),
+            "last_birth_age_secs": birth_age,
+        },
+        "migrations": {
+            "observed_per_min": migration_rate.get("observed_rate_per_min"),
+            "expected_per_min": migration_rate.get("expected_rate_per_min"),
+            "mode": migration_rate.get("mode"),
+            "last_migration_age_secs": mig_age,
+        },
+    }
+    return result
 
 
 def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:

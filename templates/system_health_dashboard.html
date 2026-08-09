@@ -600,32 +600,48 @@
 
             if (name === 'live_ingestion') {
                 const ing = (subsystems && subsystems.ingestion) || {};
-                // Rate values: the frozen rate engine (Phase D of MC1.1)
-                // is mechanism-only today -- get_expected_rate_per_min()
-                // returns None until a future milestone wires a real
-                // baseline, so observed/expected rate isn't yet present
-                // as a subsystem field. Surface what the fallback path
-                // itself already computes (silence duration, i.e. "Last
-                // birth"/"Last migration") rather than inventing a rate
-                // number the backend doesn't produce -- once the rate
-                // engine is wired to a real baseline in a future
-                // milestone, those fields will appear in the signal
-                // detail strings and this function picks them up with no
-                // further change (see the birth/migration rate signal
-                // lookups below).
-                const birthSignal = (cap.signals || []).find(s => s.name === 'birth_rate_collapse');
-                const migSignal = (cap.signals || []).find(s => s.name === 'migration_rate_collapse');
+                // MC1.2 Phase E/F: cap.flow_metrics (added by
+                // _compute_live_ingestion) now carries the real observed/
+                // expected rate numbers directly -- event flow is the
+                // PRIMARY signal, promoted here as the headline operator
+                // metrics, per the charter's own worked example. Falls
+                // back to the signal detail string (and ultimately '—')
+                // if flow_metrics is absent for any reason (e.g. an older
+                // cached API response), so this never renders blank.
+                const flow = cap.flow_metrics || {};
+                const births = flow.births || {};
+                const migrations = flow.migrations || {};
+
+                function pctBelowBaseline(m) {
+                    if (m.observed_per_min == null || m.expected_per_min == null || m.expected_per_min <= 0) return null;
+                    const pct = (1 - (m.observed_per_min / m.expected_per_min)) * 100;
+                    return pct;
+                }
+                function rateRows(m, ageSecs, queueLabel, queueVal) {
+                    if (m.mode === 'rate' && m.observed_per_min != null && m.expected_per_min != null) {
+                        const pct = pctBelowBaseline(m);
+                        const pctRow = (pct != null && pct > 0)
+                            ? row('vs. baseline', `${pct.toFixed(1)}% below`)
+                            : (pct != null ? row('vs. baseline', `${Math.abs(pct).toFixed(1)}% above`) : '');
+                        return row('Observed', `${m.observed_per_min.toFixed(2)}/min`)
+                             + row('Expected', `${m.expected_per_min.toFixed(2)}/min`)
+                             + pctRow;
+                    }
+                    // No baseline yet -- silence-fallback mode. Still show
+                    // what IS known (age) rather than a bare '—'.
+                    return row('Observed', 'baseline unavailable')
+                         + row('Last event', mcFormatAgo(ageSecs));
+                }
+
                 return `
                     <div class="mc-metrics-block">
                         <div class="mc-metrics-group-label">Births</div>
-                        ${row('Detail', birthSignal ? birthSignal.detail : '—')}
-                        ${row('Last birth', mcFormatAgo(ing.last_birth_age_secs))}
+                        ${rateRows(births, ing.last_birth_age_secs)}
                         ${row('Birth queue', ing.birth_queue_pending != null ? ing.birth_queue_pending : '—')}
                     </div>
                     <div class="mc-metrics-block">
                         <div class="mc-metrics-group-label">Migrations</div>
-                        ${row('Detail', migSignal ? migSignal.detail : '—')}
-                        ${row('Last migration', mcFormatAgo(ing.last_migration_age_secs))}
+                        ${rateRows(migrations, ing.last_migration_age_secs)}
                         ${row('Migration queue', ing.migration_queue_pending != null ? ing.migration_queue_pending : '—')}
                     </div>`;
             }

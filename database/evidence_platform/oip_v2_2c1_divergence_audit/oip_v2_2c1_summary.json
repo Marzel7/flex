@@ -1,0 +1,172 @@
+{
+  "classification_summary": [
+    {
+      "classification": "OLDER_PRIMITIVE_VERSION",
+      "observations": 39694,
+      "percent": 73.07437407952872
+    },
+    {
+      "classification": "SUPERSEDED_DERIVED_STATE",
+      "observations": 14626,
+      "percent": 26.92562592047128
+    }
+  ],
+  "constraints": {
+    "acquisition": 0,
+    "canonical_deletions": 0,
+    "production_interaction": false,
+    "provenance_deletions": 0,
+    "rpc_calls": 0
+  },
+  "contract_evidence": {
+    "ep2_docs": "replaying identical Evidence creates same ID and no duplicate",
+    "observed_violation": "EP2.1 changed freshness logic/parameters while retained version '1'",
+    "schema": "append-only update/delete triggers",
+    "versioning": "logic changes require a new Primitive version and coexist"
+  },
+  "counts": {
+    "canonical_only": 54320,
+    "canonical_only_provenance": 5940717,
+    "clean_only": 0,
+    "missing_supporting_evidence": 0,
+    "total_link_surplus": 5940717
+  },
+  "evidence_family_matrix": [
+    {
+      "evidence_family": "AccountCloseFact",
+      "links": 15697,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "AccountParticipationFact",
+      "links": 5291950,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "AddressHistoryObservation",
+      "links": 32,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "BalanceFact",
+      "links": 229867,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "InstructionFact",
+      "links": 43081,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "LaunchFact",
+      "links": 1259,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "NativeMovementFact",
+      "links": 43081,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "TokenMovementFact",
+      "links": 4711,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "TransactionFact",
+      "links": 229670,
+      "primitive_type": "BEHAVIOURAL_TIMING"
+    },
+    {
+      "evidence_family": "NativeMovementFact",
+      "links": 1309,
+      "primitive_type": "REPEATED_COUNTERPARTY"
+    },
+    {
+      "evidence_family": "TokenMovementFact",
+      "links": 601,
+      "primitive_type": "REPEATED_COUNTERPARTY"
+    },
+    {
+      "evidence_family": "AccountParticipationFact",
+      "links": 39694,
+      "primitive_type": "WALLET_FRESH_AT_EVENT"
+    },
+    {
+      "evidence_family": "AddressHistoryObservation",
+      "links": 71,
+      "primitive_type": "WALLET_FRESH_AT_EVENT"
+    },
+    {
+      "evidence_family": "BalanceFact",
+      "links": 39694,
+      "primitive_type": "WALLET_FRESH_AT_EVENT"
+    }
+  ],
+  "family_census": [
+    {
+      "current_subject_equivalents": 14298,
+      "discovery_participants": 0,
+      "earliest": 1786176770,
+      "latest": 1786235997,
+      "observations": 14298,
+      "primitive_type": "BEHAVIOURAL_TIMING",
+      "provenance_links": 5859348,
+      "relationship_participants": 0
+    },
+    {
+      "current_subject_equivalents": 328,
+      "discovery_participants": 328,
+      "earliest": 1786176770,
+      "latest": 1786235987,
+      "observations": 328,
+      "primitive_type": "REPEATED_COUNTERPARTY",
+      "provenance_links": 1910,
+      "relationship_participants": 0
+    },
+    {
+      "current_subject_equivalents": 39694,
+      "discovery_participants": 0,
+      "earliest": 1786176646,
+      "latest": 1786180101,
+      "observations": 39694,
+      "primitive_type": "WALLET_FRESH_AT_EVENT",
+      "provenance_links": 79459,
+      "relationship_participants": 0
+    }
+  ],
+  "git_head": "bcddd3a6810e65f289f42b06a5c0b969da2e3faf",
+  "metadata_inventory": {
+    "available": [
+      "primitive_version",
+      "generated_at",
+      "quality_state",
+      "Evidence IDs"
+    ],
+    "unavailable": [
+      "inserted_at",
+      "run_id",
+      "producer_commit",
+      "parser_version on Primitive row",
+      "source milestone"
+    ]
+  },
+  "milestone": "OIP v2.2C.1",
+  "query_plans": {
+    "canonical_only_provenance": [
+      "SCAN c USING COVERING INDEX sqlite_autoindex_canonical_only_1",
+      "SEARCH i USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?) LEFT-JOIN"
+    ],
+    "evidence_family_matrix": [
+      "SCAN i",
+      "SEARCH c USING INDEX sqlite_autoindex_canonical_only_1 (primitive_id=?)",
+      "SEARCH e USING INDEX sqlite_autoindex_normalized_evidence_records_1 (evidence_id=?)",
+      "USE TEMP B-TREE FOR GROUP BY"
+    ]
+  },
+  "verdicts": {
+    "divergence": "D \u2014 MULTIPLE CAUSES",
+    "next_step": "FORMALIZE_REPLAY_CONTRACT_FIRST",
+    "replay_contract": "D \u2014 CONTRACT AMBIGUOUS / MUST BE FORMALIZED"
+  }
+}

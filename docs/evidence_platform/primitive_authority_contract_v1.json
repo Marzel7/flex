@@ -1,0 +1,192 @@
+{
+  "authority_history": "future transitions must be append-only and auditable",
+  "contract_version": "1.0.0",
+  "current_state_replay": "must reproduce exactly the AUTHORITATIVE projection",
+  "default_consumer_policy": "CURRENT_AUTHORITATIVE",
+  "families": {
+    "BEHAVIOURAL_TIMING": {
+      "authority_rule": "LATEST_PER_GROUP",
+      "cohort_sensitivity": "COHORT_GROWING",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "subject",
+        "ordering",
+        "event_scope"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "CURRENT_STATE_AGGREGATE",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "DIRECT_COUNTERPARTY": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "signature",
+        "source",
+        "destination"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "EVENT_FACT",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "ECONOMIC_FUNDING": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "signature",
+        "funder",
+        "recipient"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "IMMUTABLE_DERIVATION",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "LAUNCH_ACTIVATION": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "mint",
+        "creator",
+        "activation_signature"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "IMMUTABLE_DERIVATION",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "LAUNCH_SIGNER": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "mint",
+        "signature",
+        "wallet"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "IMMUTABLE_DERIVATION",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "PROGRAM_INTERACTION": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "signature",
+        "program",
+        "wallet"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "IMMUTABLE_DERIVATION",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "REPEATED_COUNTERPARTY": {
+      "authority_rule": "LATEST_PER_GROUP",
+      "cohort_sensitivity": "COHORT_GROWING",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "source",
+        "destination"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "CURRENT_STATE_AGGREGATE",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "SHARED_TRANSACTION": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "signature"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "IMMUTABLE_DERIVATION",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "SYSTEM_TRANSFER": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "signature",
+        "source",
+        "destination"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "EVENT_FACT",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "WALLET_FRESH_AT_EVENT": {
+      "authority_rule": "CORRECTED_FRESHNESS",
+      "cohort_sensitivity": "STATE_DEPENDENT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "wallet",
+        "reference_event"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "HISTORICAL_SNAPSHOT",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    },
+    "WSOL_CLOSE": {
+      "authority_rule": "ALL_CURRENT_VERSION",
+      "cohort_sensitivity": "COHORT_INVARIANT",
+      "consumer_policy": "CURRENT_AUTHORITATIVE",
+      "current_versions": [
+        "1"
+      ],
+      "grouping_fields": [
+        "signature",
+        "temporary_wsol_account"
+      ],
+      "historical_access": "ALL_PERSISTED_EXPLICIT_QUERY",
+      "replay_policy": "CURRENT_STATE_REPLAY",
+      "semantic_type": "IMMUTABLE_DERIVATION",
+      "version_policy": "SEMANTIC_CHANGE_MUST_INCREMENT"
+    }
+  },
+  "historical_ledger_replay": "requires historical Evidence boundaries and generator semantics; not currently reconstructable exactly",
+  "unknown_family_policy": "FAIL_CLOSED"
+}

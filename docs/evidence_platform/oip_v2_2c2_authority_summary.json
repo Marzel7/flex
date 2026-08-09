@@ -1,0 +1,107 @@
+{
+  "acquisition": "HOLD_ACQUISITION",
+  "constraints": {
+    "acquisition": 0,
+    "canonical_mutations": 0,
+    "production_interaction": false,
+    "provenance_deletions": 0,
+    "rpc_calls": 0
+  },
+  "consumer_contract": {
+    "Discovery": "CURRENT_AUTHORITATIVE",
+    "Historical analysis": "explicit ALL_PERSISTED query",
+    "Motifs": "Discovery outputs and their authoritative Primitive support",
+    "Relationships": "authoritative motif/landscape outputs"
+  },
+  "family_state_counts": [
+    {
+      "count": 67909,
+      "family": "BEHAVIOURAL_TIMING",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 14298,
+      "family": "BEHAVIOURAL_TIMING",
+      "state": "HISTORICAL_SNAPSHOT"
+    },
+    {
+      "count": 40960,
+      "family": "DIRECT_COUNTERPARTY",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 644,
+      "family": "ECONOMIC_FUNDING",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 644,
+      "family": "LAUNCH_ACTIVATION",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 2602,
+      "family": "LAUNCH_SIGNER",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 727,
+      "family": "REPEATED_COUNTERPARTY",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 328,
+      "family": "REPEATED_COUNTERPARTY",
+      "state": "HISTORICAL_SNAPSHOT"
+    },
+    {
+      "count": 9614,
+      "family": "SHARED_TRANSACTION",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 27333,
+      "family": "SYSTEM_TRANSFER",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 186601,
+      "family": "WALLET_FRESH_AT_EVENT",
+      "state": "AUTHORITATIVE"
+    },
+    {
+      "count": 39694,
+      "family": "WALLET_FRESH_AT_EVENT",
+      "state": "LEGACY_VERSION"
+    },
+    {
+      "count": 9696,
+      "family": "WSOL_CLOSE",
+      "state": "AUTHORITATIVE"
+    }
+  ],
+  "git_head": "2b0046ddf3ea52bc5395fbaa04ed7b62dd3eb83b",
+  "historical_access": {
+    "queryable_rows": 54320,
+    "supersession_links": 54320
+  },
+  "migration_control": {
+    "application_gate": "authoritative projection equals CURRENT_STATE_REPLAY",
+    "historical_gate": "all persisted provenance pairs remain exactly equivalent"
+  },
+  "milestone": "OIP v2.2C.2",
+  "projection": {
+    "authoritative": 346730,
+    "authority_id_digest": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "authority_minus_clean": 0,
+    "clean_count": 346730,
+    "clean_id_digest": "6e2bd05ce99979c4d397e173d741232a0074f2ac730c9e83b2138d8ecbb6d93e",
+    "clean_minus_authority": 0,
+    "count_equal": true,
+    "digest_equal": true,
+    "non_authoritative": 54320,
+    "persisted": 401050,
+    "set_equal": true
+  },
+  "resume": "AUTHORITY_PROJECTION_IMPLEMENTATION_REQUIRED_BEFORE_RESUMING_V2_2C"
+}

@@ -711,11 +711,29 @@
         // their severity, membership, and content are entirely the frozen
         // incident engine's output, untouched.
         const MC_SEV_RANK = { CRITICAL: 2, WARNING: 1 };
+        // MC1.1E — Phase F requires WATCHTOWER be excluded from platform-
+        // level capability NAVIGATION entirely, not just the strip/grid.
+        // MC1.1C only filtered it out of mcRenderCapStrip/mcRenderCapabilityGrid
+        // -- mcRenderIncidents and mcUpdateBanner still read the raw,
+        // unfiltered fullHealth.incidents, so a WATCHTOWER incident could
+        // (and did) become the banner's primary headline and open its own
+        // top-level incident card with a dead "Jump to WATCHTOWER" link
+        // (no WATCHTOWER card exists in the grid to jump to since MC1.1C).
+        // This is the single shared filter point both functions now use --
+        // WATCHTOWER's own incident/status is NOT discarded, it's fully
+        // preserved and visible via the existing nested subline inside the
+        // Operational Intelligence card (mcWatchtowerSublineHtml, reads
+        // fullHealth.capabilities.watchtower directly, unaffected by this
+        // filter since it never went through the incidents array).
+        function mcPlatformIncidents(incidents) {
+            return (incidents || []).filter(inc => inc.capability !== 'watchtower');
+        }
+
         function mcRenderIncidents(fullHealth) {
             const el = document.getElementById('mc-incidents');
             if (!el) return;
             const incidents = mcSortByHierarchy(
-                (fullHealth && fullHealth.incidents) || [],
+                mcPlatformIncidents((fullHealth && fullHealth.incidents) || []),
                 inc => inc.capability
             );
             if (!incidents.length) { el.innerHTML = ''; return; }
@@ -1971,7 +1989,7 @@
             mcRenderCapStrip(fullHealth);
             mcRenderIncidents(fullHealth);
             mcRenderCapabilityGrid(fullHealth);
-            mcUpdateBanner((fullHealth && fullHealth.incidents) || []);
+            mcUpdateBanner(mcPlatformIncidents((fullHealth && fullHealth.incidents) || []));
 
             // Legacy per-group detail sections (Platform/Ingestion/
             // Intelligence/Infrastructure bodies further down the page)

@@ -1,0 +1,18 @@
+{
+  "composition_explanation": "v2.1E exhausted 43 single-dependency completion opportunities, then used paired two-attempt launches; the theoretical paired ceiling is 0.5 completions/attempt.",
+  "v2_1a": {
+    "completions_per_attempt": 0.327,
+    "recovery_per_attempt": 0.606
+  },
+  "v2_1b_migration_first": {
+    "completions_per_attempt": 0.646341
+  },
+  "v2_1c": {
+    "completions_per_attempt": 0.555556,
+    "recovery_per_attempt": 1.0
+  },
+  "v2_1e": {
+    "completions_per_attempt": 0.521,
+    "recovery_per_attempt": 1.0
+  }
+}

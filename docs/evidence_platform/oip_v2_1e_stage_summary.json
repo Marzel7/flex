@@ -1,0 +1,319 @@
+{
+  "attempt_budget": 1000,
+  "attempt_ledger_rows": 1000,
+  "comparison": {
+    "composition_explanation": "v2.1E exhausted 43 single-dependency completion opportunities, then used paired two-attempt launches; the theoretical paired ceiling is 0.5 completions/attempt.",
+    "v2_1a": {
+      "completions_per_attempt": 0.327,
+      "recovery_per_attempt": 0.606
+    },
+    "v2_1b_migration_first": {
+      "completions_per_attempt": 0.646341
+    },
+    "v2_1c": {
+      "completions_per_attempt": 0.555556,
+      "recovery_per_attempt": 1.0
+    },
+    "v2_1e": {
+      "completions_per_attempt": 0.521,
+      "recovery_per_attempt": 1.0
+    }
+  },
+  "completion_percentage_after": 3.1144676070403197,
+  "completion_percentage_before": 1.4885782049681688,
+  "completion_percentage_point_gain": 1.6258894020721508,
+  "coverage_after": {
+    "actionable_missing_dependencies": 24653,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 998,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 12326,
+      "MISSING_CREATION_SIGNATURE": 18719,
+      "MISSING_CREATION_TRANSACTION": 1
+    },
+    "states": {
+      "COMPLETE": 998,
+      "PENDING": 12327,
+      "UNAVAILABLE": 18719
+    },
+    "total": 32044
+  },
+  "coverage_before": {
+    "actionable_missing_dependencies": 25653,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 477,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 12805,
+      "MISSING_CREATION_SIGNATURE": 18719,
+      "MISSING_CREATION_TRANSACTION": 2,
+      "MISSING_MIGRATION_TRANSACTION": 41
+    },
+    "states": {
+      "COMPLETE": 477,
+      "PENDING": 12848,
+      "UNAVAILABLE": 18719
+    },
+    "total_migrated_launches": 32044
+  },
+  "decision": {
+    "compact_provenance_priority": "HIGH",
+    "five_thousand_call_acquisition": "STILL_PREMATURE",
+    "option": "A \u2014 CONTINUE ANOTHER STAGED 1,000 ATTEMPTS",
+    "reason": "Recovery is 100%, paired-launch marginal completion yield is stable at 0.5, replay is deterministic, and storage is below the accepted upper bound. A larger batch remains premature because canonical provenance storage is still expensive and this is the first full 1,000-attempt marginal curve."
+  },
+  "downstream": {
+    "canonical_motifs_net": 738,
+    "discovery_after": 26119,
+    "discovery_occurrences_added": 6243,
+    "evidence_facts_added": 135859,
+    "motifs_after": 3095,
+    "primitive_evidence_inputs_added": 1996078,
+    "primitive_observations_added": 54862,
+    "relationships_after": 548,
+    "relationships_net": 125
+  },
+  "highest_physical_attempt_number": 1000,
+  "marginal_curve": [
+    {
+      "acquisition_storage_bytes": 622354,
+      "attempt_range": "1-100",
+      "attempts": 100,
+      "completed_launches": 71,
+      "completed_launches_per_attempt": 0.71,
+      "success_rate": 1.0,
+      "transactions_recovered": 100
+    },
+    {
+      "acquisition_storage_bytes": 1559369,
+      "attempt_range": "101-250",
+      "attempts": 150,
+      "completed_launches": 75,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 150
+    },
+    {
+      "acquisition_storage_bytes": 3137782,
+      "attempt_range": "251-500",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 4707932,
+      "attempt_range": "501-750",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    },
+    {
+      "acquisition_storage_bytes": 6284502,
+      "attempt_range": "751-1000",
+      "attempts": 250,
+      "completed_launches": 125,
+      "completed_launches_per_attempt": 0.5,
+      "success_rate": 1.0,
+      "transactions_recovered": 250
+    }
+  ],
+  "marginal_state": "STABLE",
+  "milestone": "OIP v2.1E",
+  "newly_completed_launches": 521,
+  "provenance": {
+    "dominant_pairs": [
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 1711403,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 64487,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "TransactionFact",
+        "link_count": 64316,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 30153,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "BalanceFact",
+        "link_count": 30153,
+        "primitive_family": "WALLET_FRESH_AT_EVENT"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 30153,
+        "primitive_family": "SHARED_TRANSACTION"
+      },
+      {
+        "evidence_family": "InstructionFact",
+        "link_count": 12868,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "NativeMovementFact",
+        "link_count": 12868,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      },
+      {
+        "evidence_family": "AccountParticipationFact",
+        "link_count": 7280,
+        "primitive_family": "SYSTEM_TRANSFER"
+      },
+      {
+        "evidence_family": "AccountCloseFact",
+        "link_count": 6186,
+        "primitive_family": "BEHAVIOURAL_TIMING"
+      }
+    ],
+    "primitive_families": [
+      {
+        "link_count": 1879042,
+        "primitive_family": "BEHAVIOURAL_TIMING",
+        "share": 0.9413670207276469
+      },
+      {
+        "link_count": 60306,
+        "primitive_family": "WALLET_FRESH_AT_EVENT",
+        "share": 0.030212246214827276
+      },
+      {
+        "link_count": 31153,
+        "primitive_family": "SHARED_TRANSACTION",
+        "share": 0.01560710553395208
+      },
+      {
+        "link_count": 14560,
+        "primitive_family": "SYSTEM_TRANSFER",
+        "share": 0.007294304130399714
+      },
+      {
+        "link_count": 6169,
+        "primitive_family": "DIRECT_COUNTERPARTY",
+        "share": 0.003090560589315648
+      },
+      {
+        "link_count": 1493,
+        "primitive_family": "WSOL_CLOSE",
+        "share": 0.0007479667628218937
+      },
+      {
+        "link_count": 1267,
+        "primitive_family": "LAUNCH_ACTIVATION",
+        "share": 0.0006347447344242058
+      },
+      {
+        "link_count": 960,
+        "primitive_family": "LAUNCH_SIGNER",
+        "share": 0.0004809431294769042
+      },
+      {
+        "link_count": 766,
+        "primitive_family": "REPEATED_COUNTERPARTY",
+        "share": 0.00038375253872844646
+      },
+      {
+        "link_count": 362,
+        "primitive_family": "ECONOMIC_FUNDING",
+        "share": 0.00018135563840691597
+      }
+    ],
+    "status": {
+      "links": 1996078,
+      "new_primitives": 54862,
+      "reused": false,
+      "runtime_seconds": 62.007366
+    }
+  },
+  "provider": {
+    "attempts": 1000,
+    "credits": 10000,
+    "failovers": 0,
+    "failure_classes": {
+      "SUCCESS": 1000
+    },
+    "max_latency_ms": 310.001,
+    "p50_latency_ms": 43.272999999999996,
+    "p95_latency_ms": 59.893,
+    "providers": {
+      "helius_rpc": 1000
+    },
+    "retries": 0,
+    "successes": 1000
+  },
+  "remaining_population": {
+    "estimated_provider_requests_no_retry": 24653,
+    "expected_retry_overhead": 0,
+    "incomplete_launches": 12327,
+    "missing_dependencies": 24653,
+    "unevaluable_launches": 18719
+  },
+  "stage_telemetry": {
+    "mirror_seconds": 21.461281,
+    "normalization": {
+      "claimed": 1000,
+      "duplicate_envelopes": 0,
+      "failed": 0,
+      "inserted_envelopes": 1000
+    },
+    "normalization_seconds": 314.134802,
+    "primitive_first": {
+      "duplicates": 131823,
+      "generated": 186685,
+      "input_digest": "e8b13018a916920001c1bd82cdcbf9c0c1b00c2a50bc3add62e31099f67b2ab7",
+      "inserted": 54862
+    },
+    "primitive_first_seconds": 583.691601,
+    "primitive_second": {
+      "duplicates": 186685,
+      "generated": 186685,
+      "input_digest": "e8b13018a916920001c1bd82cdcbf9c0c1b00c2a50bc3add62e31099f67b2ab7",
+      "inserted": 0
+    },
+    "primitive_second_seconds": 226.504317,
+    "successful_acquisitions": 1000
+  },
+  "storage": {
+    "artifact_report_bytes": 39733440,
+    "attempt_telemetry_bytes": 1208948,
+    "bytes_per_attempt": 966847.284,
+    "database_growth_bytes": 925904896,
+    "expected_range_bytes": [
+      1670000000,
+      2780000000
+    ],
+    "free_disk_bytes": 28736626688,
+    "total_incremental_bytes": 966847284,
+    "within_expected_range": true
+  },
+  "validation": {
+    "discovery_passed": true,
+    "motifs_passed": true,
+    "primitive_same_digest": true,
+    "primitive_second_inserted_zero": true,
+    "production_writes": 0,
+    "relationships_passed": true,
+    "rpc_calls_in_validators": 0,
+    "semantic_changes": 0
+  },
+  "yield": {
+    "attempts_per_completed_launch": 1.9193857965451055,
+    "completed_launches_per_attempt": 0.521,
+    "discovery_per_attempt": 6.243,
+    "evidence_per_attempt": 135.859,
+    "motifs_per_attempt": 0.738,
+    "primitives_per_attempt": 54.862,
+    "relationships_per_attempt": 0.125,
+    "storage_per_attempt": 966847.284,
+    "storage_per_completed_launch": 1855752.9443378118,
+    "transactions_per_attempt": 1.0
+  }
+}

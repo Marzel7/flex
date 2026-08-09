@@ -1,0 +1,6 @@
+{
+  "compact_provenance_priority": "HIGH",
+  "five_thousand_call_acquisition": "STILL_PREMATURE",
+  "option": "A \u2014 CONTINUE ANOTHER STAGED 1,000 ATTEMPTS",
+  "reason": "Recovery is 100%, paired-launch marginal completion yield is stable at 0.5, replay is deterministic, and storage is below the accepted upper bound. A larger batch remains premature because canonical provenance storage is still expensive and this is the first full 1,000-attempt marginal curve."
+}

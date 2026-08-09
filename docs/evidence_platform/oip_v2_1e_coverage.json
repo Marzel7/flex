@@ -1,0 +1,33 @@
+{
+  "after": {
+    "actionable_missing_dependencies": 24653,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 998,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 12326,
+      "MISSING_CREATION_SIGNATURE": 18719,
+      "MISSING_CREATION_TRANSACTION": 1
+    },
+    "states": {
+      "COMPLETE": 998,
+      "PENDING": 12327,
+      "UNAVAILABLE": 18719
+    },
+    "total": 32044
+  },
+  "before": {
+    "actionable_missing_dependencies": 25653,
+    "reasons": {
+      "COMPLETE_EVIDENCE": 477,
+      "MISSING_CREATION_AND_MIGRATION_TRANSACTION": 12805,
+      "MISSING_CREATION_SIGNATURE": 18719,
+      "MISSING_CREATION_TRANSACTION": 2,
+      "MISSING_MIGRATION_TRANSACTION": 41
+    },
+    "states": {
+      "COMPLETE": 477,
+      "PENDING": 12848,
+      "UNAVAILABLE": 18719
+    },
+    "total_migrated_launches": 32044
+  }
+}

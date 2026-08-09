@@ -92,16 +92,21 @@ def event_id(row: Sequence[object]) -> str:
 
 
 class IndexedAuthorityStore:
-    def __init__(self, path: Path, *, canonical: Path, compact: Path | None = None) -> None:
+    def __init__(self, path: Path, *, canonical: Path, compact: Path | None = None,
+                 read_only: bool = False) -> None:
         self.path = Path(path)
-        self.connection = sqlite3.connect(self.path)
+        target = f"file:{self.path}?mode=ro" if read_only else str(self.path)
+        self.connection = sqlite3.connect(target, uri=read_only)
         self.connection.row_factory = sqlite3.Row
         self.connection.execute("PRAGMA foreign_keys=ON")
-        self.connection.execute("PRAGMA journal_mode=WAL")
-        self.connection.executescript(SCHEMA)
-        self.connection.execute("ATTACH DATABASE ? AS canonical", (str(canonical),))
+        if not read_only:
+            self.connection.execute("PRAGMA journal_mode=WAL")
+            self.connection.executescript(SCHEMA)
+        canonical_target = f"file:{Path(canonical)}?mode=ro" if read_only else str(canonical)
+        self.connection.execute("ATTACH DATABASE ? AS canonical", (canonical_target,))
         if compact is not None:
-            self.connection.execute("ATTACH DATABASE ? AS compact", (str(compact),))
+            compact_target = f"file:{Path(compact)}?mode=ro" if read_only else str(compact)
+            self.connection.execute("ATTACH DATABASE ? AS compact", (compact_target,))
 
     def close(self) -> None:
         self.connection.close()
@@ -243,17 +248,24 @@ class IndexedAuthorityStore:
         self.connection.executemany("INSERT INTO selected_primitives VALUES(?)", ((value,) for value in ids))
         refs: dict[str, list[str]] = {value: [] for value in ids}
         if compact:
-            sql = """SELECT p.primitive_id,e.evidence_id FROM selected_primitives s
-              JOIN compact.primitive_identity p USING(primitive_id)
-              JOIN compact.compact_primitive_evidence_inputs i USING(primitive_key)
-              JOIN compact.evidence_identity e USING(evidence_key)
-              ORDER BY p.primitive_id,e.evidence_id"""
+            self.connection.execute("DROP TABLE IF EXISTS temp.selected_primitive_keys")
+            self.connection.execute("""CREATE TEMP TABLE selected_primitive_keys(
+              primitive_key INTEGER PRIMARY KEY, primitive_id TEXT NOT NULL UNIQUE) WITHOUT ROWID""")
+            self.connection.execute("""INSERT INTO selected_primitive_keys
+              SELECT p.primitive_key,p.primitive_id FROM compact.primitive_identity p
+              JOIN selected_primitives s USING(primitive_id)""")
+            sql = """SELECT s.primitive_id,e.evidence_id FROM selected_primitive_keys s
+              CROSS JOIN compact.compact_primitive_evidence_inputs i
+                ON i.primitive_key=s.primitive_key
+              JOIN compact.evidence_identity e ON e.evidence_key=i.evidence_key"""
         else:
             sql = """SELECT i.primitive_id,i.evidence_id FROM selected_primitives s
               JOIN canonical.primitive_evidence_inputs i USING(primitive_id)
               ORDER BY i.primitive_id,i.evidence_id"""
         for primitive_id, evidence_id in self.connection.execute(sql):
             refs[primitive_id].append(evidence_id)
+        if compact:
+            for values in refs.values(): values.sort()
         rows = self.connection.execute("""SELECT p.* FROM selected_primitives s
           JOIN canonical.primitive_observations p USING(primitive_id) ORDER BY p.primitive_id""")
         return tuple(PrimitiveObservation(

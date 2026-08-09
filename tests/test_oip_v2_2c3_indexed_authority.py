@@ -82,6 +82,19 @@ def test_projection_recovers_after_interruption_and_replay_is_idempotent(tmp_pat
         store.close()
 
 
+def test_recovered_authority_store_can_be_opened_strictly_read_only(tmp_path):
+    canonical, projection = build_fixture(tmp_path)
+    authority = tmp_path / "authority.sqlite"
+    writer = IndexedAuthorityStore(authority, canonical=canonical)
+    writer.import_projection(projection); writer.build_subject_index(); writer.close()
+    reader = IndexedAuthorityStore(authority, canonical=canonical, read_only=True)
+    try:
+        assert reader.ids("CURRENT_AUTHORITATIVE") == ("event", "fresh-current", "timing-current")
+        assert reader.ids("CURRENT_AUTHORITATIVE", subjects=("a",)) == ("event", "timing-current")
+    finally:
+        reader.close()
+
+
 def test_unknown_family_fails_closed(tmp_path):
     canonical, projection = build_fixture(tmp_path, unknown_family=True)
     store = IndexedAuthorityStore(tmp_path / "authority.sqlite", canonical=canonical)

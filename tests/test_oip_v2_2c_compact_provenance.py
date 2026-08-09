@@ -20,6 +20,10 @@ def test_external_query_contract_and_duplicate_replay():
     assert compact.primitives_for_evidence("e1") == ("p1", "p2")
     assert compact.contains("p1", "e2")
     assert not compact.contains("missing", "e2")
+    assert compact.evidence_for_primitives(("p2", "p1", "missing")) == {
+        "missing": (), "p1": ("e1", "e2"), "p2": ("e1",)}
+    assert compact.primitives_for_evidences(("e2", "e1", "missing")) == {
+        "e1": ("p1", "p2"), "e2": ("p1",), "missing": ()}
     assert tuple(sorted(compact.ordered_pairs())) == (("p1", "e1"), ("p1", "e2"), ("p2", "e1"))
     assert compact.append((("p1", "e1"),)) == {"inserted": 0, "duplicates": 1}
     compact.assert_integrity()

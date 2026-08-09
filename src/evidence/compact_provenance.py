@@ -48,6 +48,52 @@ class CompactProvenanceRepository:
           WHERE p.primitive_id=? AND e.evidence_id=?""",
           (primitive_id, evidence_id)).fetchone() is not None
 
+    def evidence_for_primitives(self, primitive_ids: Iterable[str]) -> dict[str, tuple[str, ...]]:
+        """Resolve a bounded Primitive population through integer keys first.
+
+        This avoids the compatibility view's repeated external-ID resolution and
+        global temporary ORDER BY. External Evidence ordering remains explicit.
+        """
+        values = tuple(sorted(set(primitive_ids)))
+        result: dict[str, list[str]] = {value: [] for value in values}
+        self.connection.execute("DROP TABLE IF EXISTS temp.requested_primitive_keys")
+        self.connection.execute("""CREATE TEMP TABLE requested_primitive_keys(
+          primitive_id TEXT PRIMARY KEY, primitive_key INTEGER UNIQUE) WITHOUT ROWID""")
+        self.connection.executemany(
+            "INSERT INTO requested_primitive_keys(primitive_id) VALUES(?)", ((value,) for value in values))
+        # Resolve external IDs once, then drive the relation scan from compact keys.
+        self.connection.execute("""UPDATE requested_primitive_keys SET primitive_key=(
+          SELECT primitive_key FROM primitive_identity p
+          WHERE p.primitive_id=requested_primitive_keys.primitive_id)""")
+        for primitive_id, evidence_id in self.connection.execute("""
+          SELECT s.primitive_id,e.evidence_id
+          FROM requested_primitive_keys s
+          CROSS JOIN compact_primitive_evidence_inputs c
+            ON c.primitive_key=s.primitive_key
+          JOIN evidence_identity e ON e.evidence_key=c.evidence_key"""):
+            result[primitive_id].append(evidence_id)
+        return {key: tuple(sorted(items)) for key, items in result.items()}
+
+    def primitives_for_evidences(self, evidence_ids: Iterable[str]) -> dict[str, tuple[str, ...]]:
+        values = tuple(sorted(set(evidence_ids)))
+        result: dict[str, list[str]] = {value: [] for value in values}
+        self.connection.execute("DROP TABLE IF EXISTS temp.requested_evidence_keys")
+        self.connection.execute("""CREATE TEMP TABLE requested_evidence_keys(
+          evidence_id TEXT PRIMARY KEY, evidence_key INTEGER UNIQUE) WITHOUT ROWID""")
+        self.connection.executemany(
+            "INSERT INTO requested_evidence_keys(evidence_id) VALUES(?)", ((value,) for value in values))
+        self.connection.execute("""UPDATE requested_evidence_keys SET evidence_key=(
+          SELECT evidence_key FROM evidence_identity e
+          WHERE e.evidence_id=requested_evidence_keys.evidence_id)""")
+        for evidence_id, primitive_id in self.connection.execute("""
+          SELECT s.evidence_id,p.primitive_id
+          FROM requested_evidence_keys s
+          CROSS JOIN compact_primitive_evidence_inputs c
+            ON c.evidence_key=s.evidence_key
+          JOIN primitive_identity p ON p.primitive_key=c.primitive_key"""):
+            result[evidence_id].append(primitive_id)
+        return {key: tuple(sorted(items)) for key, items in result.items()}
+
     def ordered_pairs(self) -> Iterator[tuple[str, str]]:
         # CROSS JOIN fixes the compact link table as the outer indexed scan.
         yield from self.connection.execute("""

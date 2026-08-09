@@ -1,0 +1,75 @@
+{
+  "acquisition": "HOLD_ACQUISITION",
+  "canonical_retirement": "KEEP_CANONICAL_FOR_ROLLBACK",
+  "compact_performance": "A — ACCEPTABLE FOR MIGRATION",
+  "constraints": {
+    "acquisition": 0,
+    "canonical_deletions": 0,
+    "production_interaction": false,
+    "provenance_deletions": 0,
+    "rpc_calls": 0,
+    "semantic_changes": 0
+  },
+  "disk": {
+    "authority_and_subject_index_bytes": 924835840,
+    "available_bytes": 71612719104,
+    "compact_sidecar_bytes": 521883648,
+    "persistent_5k_projection_bytes": [1780000000, 2670000000],
+    "transient_rollback_journal_upper_bound_bytes": 521883648
+  },
+  "machine_restart_recovery": {
+    "commit": "075913eb12ba625e1c4452ee4d0812b1eaf15404",
+    "commit_state": "COMMITTED_NOT_PUSHED",
+    "final_authority_database": "database/evidence_platform/oip_v2_2c3_indexed_authority/indexed_authority_compact.sqlite",
+    "integrity": "ok",
+    "intermediate_partial_database_preserved": true,
+    "processes_restarted": 0,
+    "report_phase": "COMPLETE"
+  },
+  "migration_readiness": "READY_FOR_CONTROLLED_MIGRATION",
+  "performance": {
+    "bounded_consumers": {
+      "evidence_to_primitive_100_seconds": 0.113147,
+      "high_fan_out_evidence": 317,
+      "one_subject_primitives": 18747,
+      "one_subject_seconds": 1.376585,
+      "primitive_to_evidence_100_seconds": 0.051092
+    },
+    "discovery_hydration": {
+      "canonical_seconds": 29.654938,
+      "compact_seconds": 11.694158,
+      "exact_object_equality": true,
+      "primitive_count": 92217,
+      "provenance_pairs": 370299
+    },
+    "full_current_stream": {
+      "canonical_seconds": 17.348684,
+      "compact_seconds": 11.260797,
+      "count": 6457475,
+      "digest": "c764b62a2c8a5755ba62b94b627eed0d4c62341dff3315b0bd784aa78eb9fe57",
+      "speed_ratio_compact_to_canonical": 0.649087
+    }
+  },
+  "shadow_migration": {
+    "atomic_control_boundary": "CANONICAL_CONTROL_AFTER_COMPACT_COMMIT_AND_EXACT_VALIDATION",
+    "base_build_resumable": true,
+    "canonical_preserved": true,
+    "cutover_requires_writer_pause": true,
+    "delta_capture": "CANONICAL_TRANSACTION_TRIGGER_OUTBOX",
+    "delta_replay_idempotent": true,
+    "digest_and_antijoin_gate": true,
+    "rollback_validated": true,
+    "simulation_scope": "BOUNDED_SYNTHETIC_FIXTURE"
+  },
+  "tests": {
+    "focused_current": 23,
+    "focused_current_passed": 23,
+    "v2_2c3_reported_recovered": 21
+  },
+  "verdicts": {
+    "acquisition": "HOLD_ACQUISITION",
+    "canonical_retirement": "KEEP_CANONICAL_FOR_ROLLBACK",
+    "compact_performance": "A — ACCEPTABLE FOR MIGRATION",
+    "migration_readiness": "READY_FOR_CONTROLLED_MIGRATION"
+  }
+}

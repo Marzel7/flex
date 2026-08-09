@@ -1,0 +1,78 @@
+{
+  "bounded_consumers": {
+    "evidence_to_primitive_100": {
+      "count": 4378,
+      "seconds": 0.113147,
+      "stream_digest": "97b34e551c623860eafb2d0fddda27f68eb88a7ebfe36c4ac728b6179ebb8979"
+    },
+    "exact_pair": {
+      "evidence_id": "011cf629dffdb1389882e598a820eca778d578917d33f019f1395e6270c92ef9",
+      "present": true,
+      "primitive_id": "caa10d949be2e98e8c29d77d8ebef4b27f4ed82aae94c22035a92af9467d9d78"
+    },
+    "high_fan_out": {
+      "evidence_count": 317,
+      "primitive_id": "caa10d949be2e98e8c29d77d8ebef4b27f4ed82aae94c22035a92af9467d9d78"
+    },
+    "one_subject": {
+      "count": 18747,
+      "seconds": 1.376585,
+      "subject": "11111111111111111111111111111111"
+    },
+    "primitive_to_evidence_100": {
+      "count": 504,
+      "seconds": 0.051092,
+      "stream_digest": "1ff1eab638090ad87659d42f22b7bebda3440c260c9d82a05c6187099e13384d"
+    }
+  },
+  "constraints": {
+    "production_interaction": false,
+    "rpc_calls": 0,
+    "semantic_changes": 0,
+    "source_writes": 0
+  },
+  "discovery_hydration": {
+    "canonical_seconds": 29.654938,
+    "compact_seconds": 11.694158,
+    "exact_object_equality": true,
+    "primitive_count": 92217,
+    "provenance_pairs": 370299
+  },
+  "full_current_authority_stream": {
+    "canonical": {
+      "count": 6457475,
+      "seconds": 17.348684,
+      "stream_digest": "c764b62a2c8a5755ba62b94b627eed0d4c62341dff3315b0bd784aa78eb9fe57"
+    },
+    "compact_integer_key": {
+      "count": 6457475,
+      "seconds": 11.260797,
+      "stream_digest": "c764b62a2c8a5755ba62b94b627eed0d4c62341dff3315b0bd784aa78eb9fe57"
+    },
+    "speed_ratio_compact_to_canonical": 0.649087
+  },
+  "milestone": "OIP v2.2C.4",
+  "mode": "READ_ONLY_SHADOW",
+  "population": {
+    "current_authoritative": 346730,
+    "discovery_eligible": 92217
+  },
+  "query_plans": {
+    "canonical": [
+      "SCAN s",
+      "SEARCH i USING COVERING INDEX sqlite_autoindex_primitive_evidence_inputs_1 (primitive_id=?)"
+    ],
+    "optimized_compact": [
+      "SCAN s",
+      "SEARCH i USING PRIMARY KEY (primitive_key=?)",
+      "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "rejected_compatibility": [
+      "SCAN i USING COVERING INDEX compact_inputs_by_evidence",
+      "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+      "SEARCH s USING PRIMARY KEY (primitive_id=?)",
+      "SEARCH e USING INTEGER PRIMARY KEY (rowid=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ]
+  }
+}

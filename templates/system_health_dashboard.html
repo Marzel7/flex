@@ -603,10 +603,27 @@
             return '';
         }
 
+        // Canonical capability hierarchy order (matches MC1.0 Section 3:
+        // Live Ingestion -> Creator Funding -> Operational Intelligence ->
+        // WATCHTOWER, with Infrastructure/Price Tracking alongside).
+        // Object key order in MC_CAPABILITY_LABELS already reflects this,
+        // reused here as the single source of truth for sort order so the
+        // upstream-most capability's incident always leads -- "no births
+        // -> no creators -> no intelligence -> WATCHTOWER" per the
+        // causal chain the capability hierarchy represents.
+        const MC_HIERARCHY_ORDER = Object.keys(MC_CAPABILITY_LABELS);
+        function mcSortByHierarchy(items, keyFn) {
+            return [...items].sort((a, b) =>
+                MC_HIERARCHY_ORDER.indexOf(keyFn(a)) - MC_HIERARCHY_ORDER.indexOf(keyFn(b)));
+        }
+
         function mcRenderIncidents(fullHealth) {
             const el = document.getElementById('mc-incidents');
             if (!el) return;
-            const incidents = (fullHealth && fullHealth.incidents) || [];
+            const incidents = mcSortByHierarchy(
+                (fullHealth && fullHealth.incidents) || [],
+                inc => inc.capability
+            );
             if (!incidents.length) { el.innerHTML = ''; return; }
 
             el.innerHTML = incidents.map(inc => {
@@ -700,57 +717,75 @@
             }).join('');
         }
 
-        // ── top-of-page alert banner (Phase 9) ───────────────────────────
-        function mcUpdateBanner(worst, criticalItems, warningItems) {
+        // ── top-of-page alert banner (Phase 9, re-sourced for MC1.1B) ────
+        // MC1.1B fix: previously this banner derived `worst`/message text
+        // from the FOUR LEGACY GROUPS (renderPlatformGroup etc.), an
+        // entirely separate computation from the capability/incident
+        // layer below it -- meaning the banner could disagree with the
+        // incident cards (e.g. banner text "database AT_RISK" while every
+        // incident card read WARNING) because two different classifiers
+        // were looking at the same raw data independently. The banner is
+        // now driven EXCLUSIVELY by fullHealth.incidents (same data, same
+        // sort order as the incident cards) so it can never disagree with
+        // what's rendered below it -- single source of truth.
+        function mcUpdateBanner(incidents) {
             const el = document.getElementById('mc-banner');
+            const sorted = mcSortByHierarchy(incidents || [], inc => inc.capability);
+            const criticalIncidents = sorted.filter(i => i.severity === 'CRITICAL');
+            const warningIncidents = sorted.filter(i => i.severity === 'WARNING');
+            const worst = criticalIncidents.length ? 'critical' : warningIncidents.length ? 'warning' : 'ok';
             el.className = `mc-banner ${worst}`;
+
+            // Lead with the single most upstream incident (first in
+            // hierarchy order) -- this is what answers "what capability
+            // have I lost" in one glance, per MC1.0's acceptance criterion.
             if (worst === 'critical') {
+                const lead = criticalIncidents[0];
+                const rest = sorted.filter(i => i !== lead).map(i => `${MC_CAPABILITY_LABELS[i.capability] || i.capability} ${i.severity}`);
                 el.innerHTML = `<i class="fas fa-circle-exclamation"></i>
-                    <span>Critical — ${criticalItems.length} issue${criticalItems.length===1?'':'s'} need attention</span>
-                    <span class="sub">${criticalItems.join(' · ')}</span>`;
+                    <span>Critical — ${lead.title}</span>
+                    <span class="sub">${rest.length ? rest.join(' · ') : `First detected ${mcFormatDuration(lead.current_duration_secs)} ago`}</span>`;
             } else if (worst === 'warning') {
+                const lead = warningIncidents[0];
+                const rest = sorted.filter(i => i !== lead).map(i => `${MC_CAPABILITY_LABELS[i.capability] || i.capability} ${i.severity}`);
                 el.innerHTML = `<i class="fas fa-triangle-exclamation"></i>
-                    <span>Warning — ${warningItems.length} item${warningItems.length===1?'':'s'} degraded</span>
-                    <span class="sub">${warningItems.join(' · ')}</span>`;
+                    <span>Warning — ${lead.title}</span>
+                    <span class="sub">${rest.length ? rest.join(' · ') : `First detected ${mcFormatDuration(lead.current_duration_secs)} ago`}</span>`;
             } else {
                 el.innerHTML = `<i class="fas fa-circle-check"></i> <span>System Healthy</span> <span class="sub">No action required</span>`;
             }
+            return worst;
         }
 
-        // Health Summary strip: per-group breakdown under the banner, so
-        // "do I need to do anything" is answerable without expanding a
-        // single group. `groups` is [{ key, label, color, criticalMsgs,
-        // warningMsgs }] for every one of the five capability groups.
-        function mcUpdateSummaryStrip(worst, groups) {
+        // Health Summary strip, re-sourced for MC1.1B: "Platform Health /
+        // Live capabilities" -- one line per capability (hierarchy order),
+        // ✓/⚠/✗ against the SAME fullHealth.capabilities the cards below
+        // read, so this can never disagree with them either.
+        const MC_STATUS_ICON = { HEALTHY: 'fa-check', WARNING: 'fa-circle-exclamation', CRITICAL: 'fa-xmark', UNKNOWN: 'fa-question' };
+        const MC_STATUS_COLOR_CLASS = { HEALTHY: 'healthy', WARNING: 'warning', CRITICAL: 'critical', UNKNOWN: 'neutral' };
+        function mcUpdateSummaryStrip(worst, capabilities) {
             const el = document.getElementById('mc-summary-strip');
             if (!el) return;
             el.className = `mc-summary-strip ${worst}`;
 
-            const healthy = groups.filter(g => g.color === 'healthy' || g.color === 'neutral');
-            const attention = groups.filter(g => g.color === 'warning' || g.color === 'critical');
+            const names = mcSortByHierarchy(Object.keys(capabilities || {}), n => n);
+            if (!names.length) { el.innerHTML = ''; return; }
 
-            const healthyHtml = healthy.length ? `
-                <div class="mc-summary-col">
-                    <div class="mc-summary-col-title">Healthy</div>
-                    ${healthy.map(g => `<div class="mc-summary-item healthy"><i class="fas fa-check"></i> ${g.label}</div>`).join('')}
-                </div>` : '';
+            const rows = names.map(name => {
+                const cap = capabilities[name];
+                const cls = MC_STATUS_COLOR_CLASS[cap.status] || 'neutral';
+                const icon = MC_STATUS_ICON[cap.status] || 'fa-question';
+                const label = MC_CAPABILITY_LABELS[name] || name;
+                return `<div class="mc-summary-item ${cls}"><i class="fas ${icon}"></i> ${label}</div>`;
+            });
 
-            const attentionHtml = attention.length ? `
+            el.innerHTML = `
                 <div class="mc-summary-col">
-                    <div class="mc-summary-col-title">Attention Required</div>
-                    ${attention.map(g => {
-                        const msgs = [...(g.criticalMsgs||[]), ...(g.warningMsgs||[])];
-                        const reason = msgs.length ? msgs[0] : g.label;
-                        return `<div class="mc-summary-item ${g.color}"><i class="fas fa-circle-exclamation"></i> ${g.label}<span class="reason">— ${reason}</span></div>`;
-                    }).join('')}
-                </div>` : `
-                <div class="mc-summary-col">
-                    <div class="mc-summary-col-title">Attention Required</div>
-                    <div class="mc-summary-item healthy"><i class="fas fa-check"></i> None</div>
+                    <div class="mc-summary-col-title">Live Capabilities</div>
+                    ${rows.join('')}
                 </div>`;
-
-            el.innerHTML = attentionHtml + healthyHtml;
         }
+
 
         // ══════════════════════════════════════════════════════════════════
         // GROUP 1 — PLATFORM
@@ -1758,37 +1793,33 @@
             ]);
             data && (data.queue_depths = dbHealth.queue_depths || {});
 
-            // MC1.1 — capability-first incident layer, rendered above the
-            // existing groups. Purely additive: reads fullHealth.capabilities
-            // / fullHealth.incidents (already fetched above), renders
-            // nothing if fullHealth is unavailable or lacks these keys
-            // (older API response shape), so this can never break the
-            // existing dashboard below it.
+            // MC1.1B — capability-first incident layer is now the SOLE
+            // source of truth for the top banner/summary strip, as well
+            // as for the incident cards and capability grid below it.
+            // Previously the banner derived its own worst/message list
+            // from the four legacy groups (renderPlatformGroup etc.) --
+            // a second, independent classification of the same raw data
+            // that could (and did) disagree with the incident cards. Both
+            // are now driven by the identical fullHealth.incidents /
+            // fullHealth.capabilities the cards read, so they can never
+            // contradict each other again.
             mcRenderIncidents(fullHealth);
             mcRenderCapabilityGrid(fullHealth);
+            const worst = mcUpdateBanner((fullHealth && fullHealth.incidents) || []);
+            mcUpdateSummaryStrip(worst, (fullHealth && fullHealth.capabilities) || {});
 
-            const platform = renderPlatformGroup(fullHealth, recovery);
-            const ingestion = renderIngestionGroup(recovery, fundingStats, dbHealth);
-            const intelligence = await renderIntelligenceGroup(fullHealth);
-            const infra = renderInfraGroup(dbHealth, fullHealth);
+            // Legacy per-group detail sections (Platform/Ingestion/
+            // Intelligence/Infrastructure bodies further down the page)
+            // still render exactly as before -- MC1.1B does not remove
+            // or change their content, only stops them from ALSO driving
+            // the top banner.
+            renderPlatformGroup(fullHealth, recovery);
+            renderIngestionGroup(recovery, fundingStats, dbHealth);
+            await renderIntelligenceGroup(fullHealth);
+            renderInfraGroup(dbHealth, fullHealth);
             renderDiagnosticsGroup(data || {}, recovery);
             renderSnapshotCleanup(data || {});
             renderFirstSnapshotHealth(firstSnapshotHealth);
-
-            // Phase 9 — top-of-page alert-first summary across all four groups
-            // (Diagnostics is deliberately excluded: it's engineering-only,
-            // never carries an operational health verdict of its own.)
-            const namedGroups = [
-                { key: 'platform',     label: 'Platform',           ...platform },
-                { key: 'ingestion',    label: 'Ingestion',          ...ingestion },
-                { key: 'intelligence', label: 'Intelligence',       ...intelligence },
-                { key: 'infra',        label: 'Infrastructure',     ...infra },
-            ];
-            const allCritical = namedGroups.flatMap(g => g.criticalMsgs || []);
-            const allWarning = namedGroups.flatMap(g => g.warningMsgs || []);
-            const worst = allCritical.length ? 'critical' : allWarning.length ? 'warning' : 'ok';
-            mcUpdateBanner(worst, allCritical, allWarning);
-            mcUpdateSummaryStrip(worst, namedGroups);
 
             const now = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;

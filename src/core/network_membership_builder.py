@@ -395,22 +395,26 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
         "creators_in_network": 0,
     }
 
+    # X78.19 -- read phase on a plain read-only connection so this call never
+    # holds the single cross-process write lane during exclusion-set lookup,
+    # infra sync, or the funder/network SELECTs (previously the dominant hold
+    # time for a call site that only needs the lane for one small INSERT OR
+    # IGNORE at the end). The scheduled infra_sync_scheduler already keeps
+    # infra_wallets fresh (X78.14) so this path reads it rather than
+    # re-syncing inline on every creator.
     try:
-        conn = db_connect(db_path, timeout=15)
-        conn.execute("PRAGMA busy_timeout=10000")
-        conn.row_factory = sqlite3.Row
+        read_conn = db_connect(db_path, timeout=15, row_factory=sqlite3.Row, read_only=True)
 
-        # --- 1. Load exclusion set (CEX + infra)
+        # --- 1. Load exclusion set (CEX + infra) -- read-only, no inline sync
         try:
-            from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
-            sync_infra_wallets(conn)
-            excluded = build_excluded_set(conn)
+            from src.utils.infra_mapping import build_excluded_set
+            excluded = build_excluded_set(read_conn)
         except Exception:
             excluded = set()
 
         # --- 2. Find non-CEX funders of this creator who also fund >= 1 other creator
         #        (total distinct creators >= 2, counting the new one)
-        rows = conn.execute("""
+        rows = read_conn.execute("""
             SELECT cf.funder_address,
                    COUNT(DISTINCT cf.creator_address) AS creator_count
             FROM creator_funders cf
@@ -430,7 +434,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
         qualifying = [r for r in rows if r["funder_address"] not in excluded]
 
         if not qualifying:
-            conn.close()
+            read_conn.close()
             return null_result
 
         # --- 3. Pick best funder (highest creator_count)
@@ -440,7 +444,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
 
         # --- 4. Resolve network name
         #   Priority 1: existing funder_network_map entry
-        fnm_row = conn.execute(
+        fnm_row = read_conn.execute(
             "SELECT network_name FROM funder_network_map WHERE funder_address = ?",
             (funder_addr,),
         ).fetchone()
@@ -453,7 +457,7 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
         else:
             # Priority 2: inherit from a creator already in network_membership
             #   that shares this funder
-            nm_row = conn.execute("""
+            nm_row = read_conn.execute("""
                 SELECT nm.network_name
                 FROM network_membership nm
                 JOIN creator_funders cf
@@ -471,8 +475,14 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
                 network_name = f"Provisional_{funder_addr[:8]}"
                 provisional = True
 
-        # --- 5. Insert provisionally (INSERT OR IGNORE — canonical builder wins)
-        conn.execute(
+        read_conn.close()
+
+        # --- 5. Acquire the write lane ONLY for the final small INSERT OR IGNORE
+        # (canonical builder wins on conflict) -- this is the sole point that
+        # needs write ownership, held for a single-statement transaction.
+        write_conn = db_connect(db_path, timeout=15)
+        write_conn.execute("PRAGMA busy_timeout=10000")
+        write_conn.execute(
             """
             INSERT OR IGNORE INTO network_membership
                 (network_name, creator_address, funder_address)
@@ -480,8 +490,8 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
             """,
             (network_name, creator_address, funder_addr),
         )
-        conn.commit()
-        conn.close()
+        write_conn.commit()
+        write_conn.close()
 
         return {
             "assigned": True,
@@ -494,7 +504,11 @@ def assign_live_network_for_creator(db_path: str, creator_address: str) -> dict:
     except Exception as exc:
         logger.warning(f"[assign_live_network] failed for {creator_address}: {exc}")
         try:
-            conn.close()
+            read_conn.close()
+        except Exception:
+            pass
+        try:
+            write_conn.close()
         except Exception:
             pass
         return null_result

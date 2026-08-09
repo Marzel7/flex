@@ -24548,6 +24548,32 @@ def api_listener_recovery_status():
             ingestion["migration_queue_retry"]   = _na
             ingestion["migration_queue_retry_max"] = _na
 
+        # X78.19 -- durable birth persist queue (authoritative pipeline state,
+        # not log-tail inference; see ingestion_completeness below for the
+        # older log-tail-based seen/persisted/missing figures, which this is
+        # intended to eventually replace per the MC1.2B Phase I contract).
+        try:
+            _bpq = _c.execute(
+                "SELECT"
+                "  SUM(CASE WHEN status IN ('PENDING','RETRY') THEN 1 ELSE 0 END) AS pending,"
+                "  MIN(CASE WHEN status IN ('PENDING','RETRY') THEN received_at END) AS oldest_pending_at,"
+                "  SUM(CASE WHEN status='PROCESSED' AND processed_at > ? THEN 1 ELSE 0 END) AS processed_1h,"
+                "  MAX(retry_count) AS max_retry"
+                " FROM birth_persist_queue",
+                (now - 3600,),
+            ).fetchone()
+            ingestion["birth_persist_queue_pending"]  = int(_bpq["pending"] or 0)
+            ingestion["birth_persist_queue_oldest_pending_age_s"] = (
+                (now - _bpq["oldest_pending_at"]) if _bpq["oldest_pending_at"] else None
+            )
+            ingestion["birth_persist_queue_processed_1h"] = int(_bpq["processed_1h"] or 0)
+            ingestion["birth_persist_queue_retry_max"] = int(_bpq["max_retry"] or 0)
+        except Exception:
+            ingestion["birth_persist_queue_pending"] = _na
+            ingestion["birth_persist_queue_oldest_pending_age_s"] = _na
+            ingestion["birth_persist_queue_processed_1h"] = _na
+            ingestion["birth_persist_queue_retry_max"] = _na
+
         # migration hourly buckets — last 6h, indexed on migrated_at
         try:
             _buckets = []

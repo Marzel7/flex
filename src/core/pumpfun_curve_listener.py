@@ -15,7 +15,7 @@ import re
 import sqlite3
 from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
 from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
-from src.core.database_write_service import CrossProcessDatabaseWriteTimeout
+from src.core.database_write_service import CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError
 import sys
 import time
 import threading
@@ -1011,6 +1011,177 @@ def migration_capture_metrics(db_path: str, window_secs: int = 86400) -> dict:
         "total_migrations": total,
         "recovery_rate_pct": rate,
     }
+
+
+# X78.19 -- in-process birth persistence telemetry. Counters only (no PII/large
+# payloads); cheap, thread-safe, reset on process restart by design -- durable
+# counts (queued/pending/persisted) are derived fresh from birth_persist_queue
+# and token_analysis instead, so a restart never loses the durability picture,
+# only the in-memory rate counters, which naturally restart at zero anyway.
+import threading as _bt_threading
+_BIRTH_TELEMETRY_LOCK = _bt_threading.Lock()
+_BIRTH_TELEMETRY = {
+    "received": 0,
+    "persisted_direct": 0,
+    "queued_for_retry": 0,
+    "retry_succeeded": 0,
+    "retry_failed": 0,
+    "write_timeouts": 0,
+}
+
+
+def _birth_telemetry_incr(key: str, n: int = 1) -> None:
+    with _BIRTH_TELEMETRY_LOCK:
+        _BIRTH_TELEMETRY[key] = _BIRTH_TELEMETRY.get(key, 0) + n
+
+
+def birth_persistence_telemetry(db_path: str | None = None) -> dict:
+    """Mission Control read: authoritative birth-persistence pipeline state.
+
+    In-memory counters (received/persisted_direct/queued_for_retry/retry_*)
+    reflect this process's lifetime only. The queue-depth/oldest-pending/
+    latency figures below are read fresh from birth_persist_queue and are
+    therefore durable across listener restarts -- Phase I / Phase H (X78.19).
+    """
+    with _BIRTH_TELEMETRY_LOCK:
+        snapshot = dict(_BIRTH_TELEMETRY)
+
+    db_path = db_path or DB_PATH
+    pending = 0
+    oldest_pending_age_s = None
+    processed_recent = 0
+    avg_retry_latency_s = None
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*), MIN(received_at) FROM birth_persist_queue WHERE status IN ('PENDING','RETRY')"
+            ).fetchone()
+            pending = row[0] or 0
+            now = int(time.time())
+            oldest_pending_age_s = (now - row[1]) if row[1] else None
+
+            row2 = conn.execute(
+                "SELECT COUNT(*), AVG(processed_at - received_at) FROM birth_persist_queue"
+                " WHERE status = 'PROCESSED' AND processed_at > ?",
+                (now - 3600,),
+            ).fetchone()
+            processed_recent = row2[0] or 0
+            avg_retry_latency_s = round(row2[1], 2) if row2[1] is not None else None
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+    return {
+        "births_received": snapshot["received"],
+        "births_persisted_direct": snapshot["persisted_direct"],
+        "births_queued_for_retry": snapshot["queued_for_retry"],
+        "birth_retries_succeeded": snapshot["retry_succeeded"],
+        "birth_retries_failed": snapshot["retry_failed"],
+        "birth_write_timeout_count": snapshot["write_timeouts"],
+        "birth_queue_pending_durable": pending,
+        "birth_queue_oldest_pending_age_s": oldest_pending_age_s,
+        "birth_queue_processed_last_hour": processed_recent,
+        "birth_retry_avg_latency_s": avg_retry_latency_s,
+        "birth_fallback_file_pending": _fallback_file_line_count(),
+    }
+
+
+def _fallback_file_path() -> str:
+    base = DB_PATH or "flex_complete_database.db"
+    return f"{base}.birth_fallback.jsonl"
+
+
+def _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
+                            create_tx_signature, symbol, name, received_at, last_error) -> None:
+    """X78.19 last-resort backstop -- caught live 2026-08-09 during production
+    validation: sqlite3.connect(DB_PATH, ...) is globally intercepted
+    (db_locking.py _patched_connect) and routed through the SAME
+    cross-process write lane as every other write, so birth_persist_queue's
+    own enqueue can itself time out under sustained contention (mint=
+    8Vv9jE9nasuQxGzf was lost exactly this way before this existed). A plain
+    local file append touches no SQLite connection and therefore cannot be
+    blocked by the write lane -- this is the true floor under which a birth
+    cannot be lost. drain_birth_persist_queue() reconciles this file into
+    birth_persist_queue on every poll cycle, best-effort, once the lane frees.
+    """
+    import json as _json
+    record = {
+        "mint": mint, "creator": creator, "created_at": created_at,
+        "bonding_curve_pda": bonding_curve_pda, "create_tx_signature": create_tx_signature,
+        "symbol": symbol, "name": name, "received_at": received_at, "last_error": last_error,
+    }
+    with open(_fallback_file_path(), "a", encoding="utf-8") as f:
+        f.write(_json.dumps(record) + "\n")
+
+
+def _fallback_file_line_count() -> int:
+    try:
+        path = _fallback_file_path()
+        if not os.path.exists(path):
+            return 0
+        with open(path, encoding="utf-8") as f:
+            return sum(1 for _ in f)
+    except Exception:
+        return 0
+
+
+def _reconcile_fallback_file_into_queue() -> int:
+    """Best-effort: move every record currently in the fallback file into
+    birth_persist_queue, then truncate the file only after a successful
+    write. If the DB write fails (lane still busy), the file is left
+    untouched and retried on the next poll -- never data-losing, since the
+    file is only cleared after the DB confirms the rows landed."""
+    import json as _json
+    path = _fallback_file_path()
+    if not os.path.exists(path):
+        return 0
+    try:
+        with open(path, encoding="utf-8") as f:
+            lines = [ln for ln in f.read().splitlines() if ln.strip()]
+    except Exception:
+        return 0
+    if not lines:
+        return 0
+
+    records = []
+    for ln in lines:
+        try:
+            records.append(_json.loads(ln))
+        except Exception:
+            continue  # corrupt line -- drop rather than block the rest
+
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(DB_PATH, timeout=5)
+        with conn:
+            for r in records:
+                conn.execute(
+                    """INSERT INTO birth_persist_queue
+                       (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
+                        symbol, name, received_at, status, last_error)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)
+                       ON CONFLICT(mint) DO UPDATE SET
+                           last_error = excluded.last_error,
+                           last_attempt_at = excluded.received_at,
+                           status = CASE WHEN birth_persist_queue.status = 'PROCESSED'
+                                         THEN birth_persist_queue.status ELSE 'PENDING' END""",
+                    (r.get("mint"), r.get("creator"), r.get("created_at"),
+                     r.get("bonding_curve_pda"), r.get("create_tx_signature"),
+                     r.get("symbol"), r.get("name"), r.get("received_at"), r.get("last_error")),
+                )
+        conn.close()
+    except Exception:
+        return 0  # lane still busy -- file left intact, try again next cycle
+
+    # Only truncate after the DB write is confirmed committed.
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+    return len(records)
 
 
 def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
@@ -4612,6 +4783,33 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
         """)
 
+        # X78.19 -- durable retry for birth inserts that lose the write-lane race
+        # (CrossProcessDatabaseWriteTimeout / NestedDatabaseWriteError / "database
+        # is locked"). mint is the idempotency key: token_analysis.mint is UNIQUE
+        # PRIMARY KEY and _insert_bonding_curve_token's INSERT...ON CONFLICT(mint)
+        # DO UPDATE is itself idempotent, so replaying a queued row (including
+        # after a crash/restart) can never create a duplicate token row.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS birth_persist_queue (
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                mint                 TEXT    NOT NULL,
+                creator              TEXT,
+                created_at           TEXT,
+                bonding_curve_pda    TEXT,
+                create_tx_signature  TEXT,
+                symbol               TEXT,
+                name                 TEXT,
+                received_at          INTEGER NOT NULL,
+                status               TEXT    NOT NULL DEFAULT 'PENDING',
+                retry_count          INTEGER NOT NULL DEFAULT 0,
+                last_error           TEXT,
+                last_attempt_at      INTEGER,
+                processed_at         INTEGER,
+                UNIQUE(mint)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_birth_persist_queue_status ON birth_persist_queue(status)")
+
         conn.commit()
         conn.close()
 
@@ -5857,12 +6055,58 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 conn.commit()
 
+        _birth_telemetry_incr("received")
         try:
             await asyncio.to_thread(_do_write)
             self._remember_recent_birth_token(mint, bonding_curve_pda)
+            _birth_telemetry_incr("persisted_direct")
             log_print(f"[PREMIG_BIRTH_SEED] mint={mint[:6]} ts={birth_seen_at} source=birth", flush=True)
         except Exception as e:
-            log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e}", flush=True)
+            if isinstance(e, (CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError)) or "database is locked" in str(e):
+                _birth_telemetry_incr("write_timeouts")
+            log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e} — queuing for durable retry", flush=True)
+            try:
+                import sqlite3 as _sq
+                _qc = _sq.connect(DB_PATH, timeout=5)
+                with _qc:
+                    _qc.execute(
+                        """INSERT INTO birth_persist_queue
+                           (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
+                            symbol, name, received_at, status, last_error)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)
+                           ON CONFLICT(mint) DO UPDATE SET
+                               last_error = excluded.last_error,
+                               last_attempt_at = excluded.received_at,
+                               status = CASE WHEN birth_persist_queue.status = 'PROCESSED'
+                                             THEN birth_persist_queue.status ELSE 'PENDING' END""",
+                        (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
+                         symbol, name, birth_seen_at, str(e)),
+                    )
+                _qc.close()
+                _birth_telemetry_incr("queued_for_retry")
+                log_print(f"[BIRTH_RETRY] queued mint={mint[:16]} for durable retry", flush=True)
+            except Exception as _qe:
+                # X78.19 live validation (2026-08-09 20:58 UTC) caught this
+                # path for real: sqlite3.connect(DB_PATH, ...) against the
+                # real DB path is globally intercepted (db_locking.py
+                # _patched_connect) and routed through the SAME cross-process
+                # write lane as the primary insert -- so under sustained
+                # contention the "durable" enqueue write can itself time out,
+                # and mint=8Vv9jE9nasuQxGzf was lost this way before this
+                # fallback existed. A plain append-only local file needs no
+                # SQLite connection at all, so it can never be blocked by the
+                # write lane -- it is the true last-resort backstop.
+                # drain_birth_persist_queue() reconciles this file into the
+                # real table on every poll cycle once the lane is free.
+                _birth_telemetry_incr("write_timeouts")
+                try:
+                    _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
+                                            create_tx_signature, symbol, name, birth_seen_at, str(_qe))
+                    log_print(f"[BIRTH_RETRY] 🟡 queue write also failed for mint={mint[:16]}: {_qe} — appended to file-based fallback instead", flush=True)
+                except Exception as _fe:
+                    # Only a full disk / permissions failure reaches here --
+                    # log loudly, this is the one path with no further backstop.
+                    log_print(f"[BIRTH_RETRY] 🔴 CRITICAL: failed to queue mint={mint[:16]} for retry AND fallback file write failed: {_fe} — birth may be lost", flush=True)
             return
 
         await self._upsert_birth_metadata_cache(mint, symbol, name)
@@ -11152,6 +11396,98 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[LISTENER] ⚠ migration persist drain error: {exc}", flush=True)
             await asyncio.sleep(10)
 
+    async def drain_birth_persist_queue(self):
+        """X78.19 -- retry births whose first insert lost the write-lane race.
+
+        10s poll cadence: short enough that a birth is recovered well within
+        one Mission Control refresh cycle once the write lane frees up, long
+        enough not to add meaningful pressure of its own to that same lane.
+
+        mint is the idempotency key. _insert_bonding_curve_token's own
+        INSERT...ON CONFLICT(mint) DO UPDATE means replaying a queued row is
+        always safe -- an already-persisted mint just updates non-destructive
+        fields (COALESCE-guarded) rather than creating a duplicate row. A row
+        is only marked PROCESSED after persistence is confirmed, so a crash
+        between a failed retry and the next poll leaves the row PENDING/RETRY
+        and it is picked up again on the next cycle or after listener restart.
+        """
+        import sqlite3 as _sq
+        log_print("[LISTENER] ✅ Birth persist queue drainer started", flush=True)
+        while True:
+            try:
+                # X78.19 -- reconcile the file-based last-resort backstop
+                # first, so anything that couldn't even reach
+                # birth_persist_queue (the write lane was too busy for that
+                # enqueue too) gets a chance to rejoin the normal queue
+                # before this cycle's SELECT runs.
+                try:
+                    _reconciled = _reconcile_fallback_file_into_queue()
+                    if _reconciled:
+                        log_print(f"[BIRTH_RETRY] reconciled {_reconciled} birth(s) from file-based fallback into birth_persist_queue", flush=True)
+                except Exception as _rfe:
+                    log_print(f"[LISTENER] ⚠ fallback file reconcile error: {_rfe}", flush=True)
+
+                conn = _sq.connect(DB_PATH, timeout=10)
+                conn.row_factory = _sq.Row
+                rows = conn.execute(
+                    "SELECT id, mint, creator, created_at, bonding_curve_pda, create_tx_signature,"
+                    " symbol, name, received_at FROM birth_persist_queue"
+                    " WHERE status IN ('PENDING','RETRY') ORDER BY id LIMIT 50"
+                ).fetchall()
+                conn.close()
+
+                for row in rows:
+                    mint = row["mint"]
+                    row_id = row["id"]
+                    if not mint:
+                        continue
+                    try:
+                        await self._insert_bonding_curve_token(
+                            mint,
+                            row["creator"],
+                            row["created_at"] or str(row["received_at"]),
+                            bonding_curve_pda=row["bonding_curve_pda"],
+                            create_tx_signature=row["create_tx_signature"],
+                            symbol=row["symbol"],
+                            name=row["name"],
+                        )
+                        # _insert_bonding_curve_token swallows its own failures
+                        # (re-queues rather than raising) -- confirm durable
+                        # persistence directly before marking this row done.
+                        _vc = _sq.connect(DB_PATH, timeout=5)
+                        persisted = _vc.execute(
+                            "SELECT 1 FROM token_analysis WHERE mint=? LIMIT 1", (mint,)
+                        ).fetchone()
+                        _vc.close()
+                        if persisted:
+                            _uc = _sq.connect(DB_PATH, timeout=5)
+                            with _uc:
+                                _uc.execute(
+                                    "UPDATE birth_persist_queue SET status='PROCESSED', processed_at=? WHERE id=?",
+                                    (int(time.time()), row_id),
+                                )
+                            _uc.close()
+                            _birth_telemetry_incr("retry_succeeded")
+                            log_print(f"[BIRTH_RETRY] ✅ Persisted mint={mint[:16]} after retry", flush=True)
+                        else:
+                            raise RuntimeError("mint not in token_analysis after retry attempt")
+                    except Exception as _re:
+                        _birth_telemetry_incr("retry_failed")
+                        try:
+                            _ec = _sq.connect(DB_PATH, timeout=5)
+                            with _ec:
+                                _ec.execute(
+                                    "UPDATE birth_persist_queue SET status='RETRY', retry_count=retry_count+1,"
+                                    " last_attempt_at=?, last_error=? WHERE id=?",
+                                    (int(time.time()), str(_re)[:200], row_id),
+                                )
+                            _ec.close()
+                        except Exception:
+                            pass
+            except Exception as exc:
+                log_print(f"[LISTENER] ⚠ birth persist drain error: {exc}", flush=True)
+            await asyncio.sleep(10)
+
 
 def _mark_consumed(db_path: str, row_id: int) -> None:
     import sqlite3 as _sq
@@ -11682,10 +12018,11 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
             self.listen_pumpportal_websocket(),
             self.drain_webhook_birth_queue(),
             self.drain_migration_persist_queue(),
+            self.drain_birth_persist_queue(),
             self._loop_lag_watchdog(),
             self._db_fd_watchdog(),
         ]
-        _desc = "pumpswap WS + pumpportal WS + birth drainer + migration persist drainer"
+        _desc = "pumpswap WS + pumpportal WS + birth drainer + migration persist drainer + birth persist retry drainer"
         if _helius_birth_enabled:
             _tasks.append(self.listen_pumpfun_websocket())
             _desc += " + helius birth WS"

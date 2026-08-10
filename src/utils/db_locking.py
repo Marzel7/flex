@@ -209,9 +209,19 @@ class TrackedCursor(sqlite3.Cursor):
     """Cursor that enters the same managed write lane before its first mutation."""
 
     def execute(self, sql, parameters=()):
-        if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
+        is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
+        if is_write:
             self.connection._acquire_write_lane()
-        return super().execute(sql, parameters)
+        try:
+            return super().execute(sql, parameters)
+        finally:
+            # PRAGMA and no-op DDL may complete without opening a SQLite
+            # transaction.  In that case commit() will never be responsible
+            # for releasing the lane, so retaining it poisons the thread-local
+            # re-entrancy guard and the next statement self-nests.  Release
+            # immediately only when SQLite confirms there is no transaction.
+            if is_write and not self.connection.in_transaction:
+                self.connection._release_write_lane()
 
     def executemany(self, sql, parameters):
         if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
@@ -375,7 +385,8 @@ class TrackedConnection(sqlite3.Connection):
                 pass
 
     def execute(self, sql, parameters=()):
-        if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
+        is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
+        if is_write:
             self._acquire_write_lane()
         try:
             return super().execute(sql, parameters)
@@ -383,6 +394,9 @@ class TrackedConnection(sqlite3.Connection):
             if "locked" in str(e).lower():
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
+        finally:
+            if is_write and not self.in_transaction:
+                self._release_write_lane()
 
     def cursor(self, factory=TrackedCursor):
         return super().cursor(factory)

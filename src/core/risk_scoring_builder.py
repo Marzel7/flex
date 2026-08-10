@@ -212,6 +212,13 @@ class RiskScoringBuilder:
             setup_conn.execute("PRAGMA journal_mode=WAL")
             self.apply_migration(setup_conn)
             ensure_infra_wallets_table(setup_conn)
+            # X78.13: both calls above may issue DDL and therefore acquire the
+            # global write lease.  Release that transaction before the
+            # context-building SELECTs below.  Keeping it until after those
+            # reads made a single-creator score appear as a long write holder
+            # and starved listener/API/queue writes despite doing no further
+            # mutation during context construction.
+            setup_conn.commit()
             # X78.7 -- _build_context_for_creator is the single-creator-
             # optimized equivalent of _build_context(conn, [creator]):
             # identical output shape/semantics (verified in
@@ -219,11 +226,6 @@ class RiskScoringBuilder:
             # filtered by creator/funder address in SQL instead of
             # scanning full tables and filtering in Python.
             context = self._build_context_for_creator(setup_conn, creator)
-            # apply_migration/sync_infra_wallets may have performed
-            # writes (schema DDL, infra_wallets upserts) -- commit them
-            # now so this connection's close() below releases the write
-            # lease before the brief write-only connection reacquires it.
-            setup_conn.commit()
         except Exception as e:
             if setup_conn is not None:
                 try:

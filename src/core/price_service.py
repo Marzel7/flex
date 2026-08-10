@@ -342,8 +342,21 @@ class TokenPriceService:
         return conn
     
     def _ensure_tables(self) -> None:
-        """Create price snapshot and circuit breaker persistence tables."""
+        """Create price tables without leaking a failed startup write lease."""
         conn = self._get_conn()
+        try:
+            self._ensure_tables_with_connection(conn)
+        finally:
+            # X78.13: schema setup is called from lazy gunicorn worker
+            # construction.  Previously close() existed only at the bottom of
+            # the success path.  Any failed CREATE/ALTER/commit abandoned a
+            # TrackedConnection and its cross-process write lease on that
+            # executor thread, repeatedly blocking the whole platform until
+            # the worker was recycled.
+            conn.close()
+
+    def _ensure_tables_with_connection(self, conn: sqlite3.Connection) -> None:
+        """Implementation split out so _ensure_tables owns cleanup."""
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -462,7 +475,6 @@ class TokenPriceService:
             logger.debug(f"Migration check for liquidity_removed: {e}")
 
         conn.commit()
-        conn.close()
         logger.info("Database tables ensured (price snapshots + circuit breaker + pool accounts with vault tracking)")
     
     def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:

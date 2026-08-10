@@ -154,20 +154,21 @@ def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
         import requests as _requests, time as _time
         # Check metadata_cache first
         try:
-            _c = db_connect(db_path, timeout=15)
-            _row = _c.execute(
-                "SELECT symbol FROM metadata_cache WHERE mint = ?", (mint,)
-            ).fetchone()
-            _c.close()
+            # X78.13: this lookup is read-only and must never enter the global
+            # write lane.  More importantly, the context manager guarantees
+            # closure if SQLite raises while the listener is under pressure.
+            with managed_db_connect(db_path, timeout=15, read_only=True) as _c:
+                _row = _c.execute(
+                    "SELECT symbol FROM metadata_cache WHERE mint = ?", (mint,)
+                ).fetchone()
             if _row and _row[0] and _row[0] not in ('UNKNOWN', ''):
                 # Already cached — just backfill tracked_tokens if needed
-                _c2 = db_connect(db_path, timeout=15)
-                _c2.execute(
-                    "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
-                    (_row[0], mint)
-                )
-                _c2.commit()
-                _c2.close()
+                with managed_db_connect(db_path, timeout=15) as _c2:
+                    _c2.execute(
+                        "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+                        (_row[0], mint)
+                    )
+                    _c2.commit()
                 log_print(f"[SYMBOL_FETCH] ✅ Symbol from cache: {_row[0]} ({mint[:16]}...)", flush=True)
                 return
         except Exception:
@@ -212,17 +213,21 @@ def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
             return
 
         now = int(_time.time())
-        _c3 = db_connect(db_path, timeout=15)
-        _c3.execute(
-            "INSERT OR REPLACE INTO metadata_cache (mint, symbol, name, cached_at, cached_source) VALUES (?, ?, ?, ?, ?)",
-            (mint, symbol, name, now, "dexscreener_listener")
-        )
-        _c3.execute(
-            "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
-            (symbol, mint)
-        )
-        _c3.commit()
-        _c3.close()
+        # This used to close only on the success path.  If either write or the
+        # commit raised, the broad outer exception handler swallowed the error
+        # while leaving the TrackedConnection's cross-process write lease held
+        # by a tok_work thread indefinitely.  That exact leaked owner blocked
+        # birth persistence and Creator Funding for repeated 60-second waits.
+        with managed_db_connect(db_path, timeout=15) as _c3:
+            _c3.execute(
+                "INSERT OR REPLACE INTO metadata_cache (mint, symbol, name, cached_at, cached_source) VALUES (?, ?, ?, ?, ?)",
+                (mint, symbol, name, now, "dexscreener_listener")
+            )
+            _c3.execute(
+                "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+                (symbol, mint)
+            )
+            _c3.commit()
         log_print(f"[SYMBOL_FETCH] ✅ {symbol} ({mint[:16]}...) written to DB", flush=True)
 
         # Broadcast so the UI can update the symbol without a page reload
@@ -261,6 +266,26 @@ def _spawn_symbol_fetch(mint: str, db_path: str) -> None:
             return
         _symbol_fetch_seen.add(mint)
     _TOKEN_WORK_POOL.submit(_fetch_and_store_symbol, mint, db_path)
+
+
+def _pumpportal_failure_is_fatal(
+    consecutive_failures: int,
+    last_connected_at: float,
+    *,
+    now: float,
+) -> bool:
+    """Return whether PumpPortal reconnect failure warrants process recovery.
+
+    A never-connected process has no meaningful "minutes since connection".
+    Treating that state as 999 minutes made the very first transient startup
+    timeout fatal, producing a supervisor restart loop.  Before the first
+    successful connection only the bounded consecutive-failure threshold is
+    applicable; after connection, the existing three-minute silence policy is
+    preserved.
+    """
+    if consecutive_failures >= 10:
+        return True
+    return bool(last_connected_at and (now - last_connected_at) > 3 * 60)
 
 
 def _write_migration_log(line: str) -> None:
@@ -4453,6 +4478,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     def _ensure_db_once(self):
         conn = db_connect(DB_PATH, timeout=15)
+        try:
+            self._ensure_db_with_connection(conn)
+        finally:
+            # X78.13: startup retries must never retain a partially-acquired
+            # TrackedConnection.  Previously a timeout/error after the first
+            # CREATE escaped without close(); the retry then self-nested on
+            # this thread's own leaked lease and supervisor entered a loop.
+            conn.close()
+
+    def _ensure_db_with_connection(self, conn):
         conn.execute("PRAGMA journal_mode=WAL")
         cursor = conn.cursor()
 
@@ -4880,7 +4915,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_birth_persist_queue_status ON birth_persist_queue(status)")
 
         conn.commit()
-        conn.close()
 
     async def _enqueue_creator_funding_job(
         self,
@@ -11318,8 +11352,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     f" exc_type={type(e).__name__} exc={repr(e)} subs={_subs_desc}",
                     flush=True,
                 )
-                _mins_since_connect = (time.time() - _last_connected_at) / 60 if _last_connected_at else 999
-                if _consecutive_failures >= 10 or _mins_since_connect > 3:
+                _now = time.time()
+                _mins_since_connect = (
+                    (_now - _last_connected_at) / 60
+                    if _last_connected_at
+                    else 0.0
+                )
+                if _pumpportal_failure_is_fatal(
+                    _consecutive_failures,
+                    _last_connected_at,
+                    now=_now,
+                ):
                     msg = (
                         f"[PUMPPORTAL] FATAL: {_consecutive_failures} consecutive failures, "
                         f"{_mins_since_connect:.1f}min since last connection — exiting for supervisord restart"

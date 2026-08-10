@@ -1,0 +1,35 @@
+{
+  "schema_version": "x78.13.v1",
+  "snapshot_date": "2026-08-10",
+  "baseline_head": "a4f030a63378df7af65713d7eae6c0d58be20035",
+  "stability_window_started": false,
+  "production_health_verdict": "E_NEW_DEFECT_FOUND",
+  "evidence_activation_verdict": "HEALTH_REPAIR_REQUIRED",
+  "acquisition_verdict": "HOLD_ACQUISITION",
+  "final_sample": {
+    "database_status": "AT_RISK",
+    "write_p99_ms": 18439.11,
+    "serializer_queue_depth": 1,
+    "wal_mb": 24.8,
+    "creator_funding_status": "STALLED",
+    "creator_funding_heartbeat_age_seconds": 179,
+    "creator_funding_pending": 17437,
+    "creator_funding_completed_current_batch": 0,
+    "births_per_minute_15m": 1.2,
+    "births_expected_per_minute": 17.8667,
+    "pumpportal": "CONNECTED",
+    "pumpswap": "CONNECTED",
+    "watch_pipeline_age_seconds": 4113027,
+    "creator_resolution_age_seconds": 284,
+    "missing_creators_1h": 27
+  },
+  "event_census": [
+    {"caller": "pumpfun_curve_listener.py:164", "class": "LONG_WRITE_HOLDER", "status": "REPAIRED"},
+    {"caller": "price_service.py:339", "class": "LONG_WRITE_HOLDER", "status": "REPAIRED"},
+    {"caller": "pumpfun_curve_listener.py:4480", "class": "PERMANENT_SELF_NESTING", "status": "REPAIRED"},
+    {"caller": "db_locking.TrackedCursor.execute", "class": "STALE_LEASE_STATE", "status": "REPAIRED"},
+    {"caller": "risk_scoring_builder.py:score_creator_now", "class": "LONG_WRITE_HOLDER", "status": "REPAIRED"},
+    {"caller": "creator_resolution_queue.py:51", "class": "LONG_WRITE_HOLDER", "status": "REPAIRED_SHORT_VALIDATION"},
+    {"caller": "realtime_creator_funding_extractor", "class": "UNKNOWN_EXPLICIT", "status": "ACTIVE_BLOCKER", "detail": "bounded execution timeout does not terminate cleanup"}
+  ]
+}

@@ -144,10 +144,12 @@ def enqueue_missing_creator(
     source: str = "unknown",
     priority: int = P0_PRIORITY,
     delay_seconds: int = 0,
+    schema_ready: bool = False,
 ) -> bool:
     if not mint:
         return False
-    ensure_schema(conn)
+    if not schema_ready:
+        ensure_schema(conn)
     row = conn.execute(
         """
         SELECT mint, earliest_tx_creator, pf_ws_creator, create_tx_signature,
@@ -216,6 +218,11 @@ def enqueue_missing_migrated_tokens(
 ) -> int:
     with _db(db_path) as conn:
         ensure_schema(conn)
+        # X78.13: schema maintenance performs DDL/backfill writes.  Release
+        # that transaction before the full token_analysis eligibility scan;
+        # otherwise a read-only population query monopolizes the global write
+        # lane for tens of seconds.
+        conn.commit()
         rows = conn.execute(
             """
             SELECT mint
@@ -233,7 +240,13 @@ def enqueue_missing_migrated_tokens(
         ).fetchall()
         count = 0
         for row in rows:
-            if enqueue_missing_creator(conn, row["mint"], source=source, reason="missing_creator_p0"):
+            if enqueue_missing_creator(
+                conn,
+                row["mint"],
+                source=source,
+                reason="missing_creator_p0",
+                schema_ready=True,
+            ):
                 count += 1
         conn.commit()
         return count
@@ -310,6 +323,10 @@ def enqueue_missing_funding_jobs(
     enqueued = 0
     with _db(db_path) as conn:
         ensure_schema(conn)
+        # Keep the potentially expensive NOT EXISTS coverage scan outside the
+        # schema write transaction.  Subsequent queue inserts reacquire the
+        # lane normally and preserve the existing atomic commit below.
+        conn.commit()
         rows = conn.execute(
             """
             SELECT
@@ -484,6 +501,9 @@ def process_queue(db_path: str, *, limit: int = 3, lock_seconds: int = 180) -> D
 
     with _db(db_path) as conn:
         ensure_schema(conn)
+        # Claim selection is read-only and may scan a deep backlog.  Do not
+        # retain the schema-maintenance write lease while selecting work.
+        conn.commit()
 
         # STALE-RUNNING REAPER: reclaim 'running' rows whose locks expired (crashed/restarted worker).
         _MAX_ATTEMPTS = 5

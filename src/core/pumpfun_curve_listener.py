@@ -297,6 +297,11 @@ def _primary_db_fd_count(open_files, db_path: str) -> int:
     )
 
 
+def _next_fd_high_cycle(count: int, *, threshold: int, previous: int) -> int:
+    """Advance only a persistent high-FD streak; a recovered sample resets it."""
+    return previous + 1 if count >= threshold else 0
+
+
 def _write_migration_log(line: str) -> None:
     """Append a line to migration.log (fire-and-forget, never raises)."""
     try:
@@ -12291,14 +12296,16 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
     async def _db_fd_watchdog(self) -> None:
         """Monitor open file descriptors to flex_complete_database.db.
         WAL checkpoint busy=1 + listener FD leak = p99 write latency spike.
-        Logs CRITICAL at >8 FDs; exits at >12 so supervisord restarts cleanly
-        rather than letting WAL pinning silently degrade detection."""
+        A single high sample can be ordinary async migration concurrency, so a
+        clean restart requires the primary-handle threshold to persist."""
         import psutil as _psutil
         import os as _os
         _DB = DB_PATH or ""
         _WARN_FDS  = int(os.environ.get("LISTENER_DB_FD_WARN",  "8"))
         _FATAL_FDS = int(os.environ.get("LISTENER_DB_FD_FATAL", "12"))
+        _FATAL_CYCLES = int(os.environ.get("LISTENER_DB_FD_FATAL_CYCLES", "3"))
         _CHECK_INTERVAL = 30  # seconds
+        _high_cycles = 0
 
         await asyncio.sleep(15)  # let startup settle
         while True:
@@ -12310,17 +12317,24 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
                 # connections made normal concurrent ingestion trip the fatal
                 # threshold and caused a deterministic restart loop.
                 n = _primary_db_fd_count(open_files, _DB)
-                if n >= _FATAL_FDS:
+                _high_cycles = _next_fd_high_cycle(
+                    n, threshold=_FATAL_FDS, previous=_high_cycles
+                )
+                if _high_cycles >= _FATAL_CYCLES:
                     log_print(
                         f"[DB_FD_WATCHDOG] 🚨 CRITICAL_LISTENER_DB_HANDLE_LEAK "
-                        f"fd_count={n} threshold={_FATAL_FDS} db={_DB} — exiting for clean restart",
+                        f"fd_count={n} threshold={_FATAL_FDS} "
+                        f"cycles={_high_cycles}/{_FATAL_CYCLES} db={_DB} "
+                        "— exiting for clean restart",
                         flush=True,
                     )
                     _os._exit(1)
                 elif n >= _WARN_FDS:
                     log_print(
                         f"[DB_FD_WATCHDOG] ⚠ HIGH_LISTENER_DB_FD_COUNT "
-                        f"fd_count={n} warn_threshold={_WARN_FDS} — WAL checkpoint may be pinned",
+                        f"fd_count={n} warn_threshold={_WARN_FDS} "
+                        f"fatal_cycles={_high_cycles}/{_FATAL_CYCLES} "
+                        "— monitoring for persistence",
                         flush=True,
                     )
             except Exception as _e:

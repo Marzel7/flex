@@ -22,7 +22,7 @@ import time
 from collections import defaultdict
 from typing import Dict, List, Set
 
-from src.utils.infra_mapping import build_excluded_set, sync_infra_wallets
+from src.utils.infra_mapping import build_excluded_set
 from src.core.second_hop_scorer import score_upstream_bridge
 
 logger = logging.getLogger(__name__)
@@ -88,39 +88,21 @@ class SecondHopExpansionBuilder:
             }
 
         t0 = time.time()
-        # X78.0 -- conn.commit()/close() previously sat inside the try, only
-        # reached on the success path; any exception from the builder calls
-        # below left conn (and its write lease) open for the rest of this
-        # thread's life. conn declared before the try so finally can close
-        # it regardless of which statement raised.
-        conn = None
         try:
-            from src.core.database_write_service import PRIORITY_P2_BACKGROUND
-            conn = sqlite3.connect(self.db_path, timeout=60, priority=PRIORITY_P2_BACKGROUND)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.row_factory = sqlite3.Row
-
-            self._apply_span_migration(conn)
-            self._apply_hub_migration(conn)
-            # X78.20 -- dropped inline sync_infra_wallets(conn): duplicated
-            # the scan+write infra_sync_scheduler (X78.14) already covers on
-            # its own cadence, and was a dominant contributor to this
-            # connection's write-lane hold time, same pattern already fixed
-            # in network_membership_builder (X78.19) and intelligence_refresh.
-            excluded = build_excluded_set(conn)
-            logger.info(f"[SecondHop] Exclusion set: {len(excluded)} addresses")
-            self._exclude_infra_links(conn)
-
-            links   = self._build_upstream_links(conn, excluded)
-            bridges = self._build_network_bridges(conn, excluded)
-            hops    = self._build_creator_second_hop(conn)
-
-            conn.commit()
+            self._ensure_schema()
+            materialize_started = time.monotonic()
+            materialized = self._materialize_read_snapshot()
+            materialize_seconds = time.monotonic() - materialize_started
+            write_started = time.monotonic()
+            links, bridges, hops = self._replace_materialized(materialized)
+            write_seconds = time.monotonic() - write_started
 
             duration = round(time.time() - t0, 2)
             logger.info(
                 f"[SecondHop] Done — links={links} bridges={bridges} "
-                f"creator_hops={hops} duration={duration}s"
+                f"creator_hops={hops} duration={duration}s "
+                f"materialize_seconds={materialize_seconds:.3f} "
+                f"write_seconds={write_seconds:.3f}"
             )
             return {
                 "status": "success",
@@ -128,6 +110,8 @@ class SecondHopExpansionBuilder:
                 "bridges_written": bridges,
                 "creator_second_hops": hops,
                 "duration_seconds": duration,
+                "materialize_seconds": round(materialize_seconds, 3),
+                "write_seconds": round(write_seconds, 3),
             }
 
         except Exception as exc:
@@ -140,12 +124,161 @@ class SecondHopExpansionBuilder:
                 "creator_second_hops": 0,
                 "duration_seconds": round(time.time() - t0, 2),
             }
+
+    def _ensure_schema(self) -> None:
+        """Apply idempotent schema guards in their own short transaction."""
+        from src.core.database_write_service import PRIORITY_P2_BACKGROUND
+
+        conn = None
+        try:
+            conn = sqlite3.connect(
+                self.db_path, timeout=60, priority=PRIORITY_P2_BACKGROUND
+            )
+            self._apply_span_migration(conn)
+            self._apply_hub_migration(conn)
+            conn.commit()
         finally:
             if conn is not None:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
+                conn.close()
+
+    @staticmethod
+    def _table_columns(conn, table: str) -> List[str]:
+        return [row[1] for row in conn.execute(f"PRAGMA table_info({table})")]
+
+    def _materialize_read_snapshot(self) -> dict:
+        """Build a complete replacement from one read snapshot.
+
+        TEMP tables shadow the production destination names.  SQLite permits
+        TEMP writes on a read-only main database, so the expensive SELECTs and
+        Python graph construction own no production write lease.  The source
+        view is one explicit read transaction and therefore internally
+        consistent even while live writers continue.
+        """
+        from src.utils.db_locking import _sqlite3_connect_orig
+
+        uri = f"file:{os.path.abspath(self.db_path)}?mode=ro"
+        conn = _sqlite3_connect_orig(uri, uri=True, timeout=60)
+        conn.row_factory = sqlite3.Row
+        try:
+            conn.execute("BEGIN")
+            for table in (
+                "funder_upstream_links",
+                "upstream_network_bridge",
+                "monitored_upstream_hubs",
+                "creator_second_hop",
+            ):
+                conn.execute(
+                    f"CREATE TEMP TABLE {table} AS SELECT * FROM main.{table}"
+                )
+            # CREATE TABLE AS does not copy constraints.  Preserve the four
+            # production identities so INSERT OR REPLACE during materializing
+            # behaves exactly like the authoritative tables.
+            conn.execute("""
+                CREATE UNIQUE INDEX temp.idx_stage_ful
+                ON funder_upstream_links(funder_address, upstream_address)
+            """)
+            conn.execute("""
+                CREATE UNIQUE INDEX temp.idx_stage_unb
+                ON upstream_network_bridge(upstream_address, network_a, network_b)
+            """)
+            conn.execute("""
+                CREATE UNIQUE INDEX temp.idx_stage_muh
+                ON monitored_upstream_hubs(upstream_address)
+            """)
+            conn.execute("""
+                CREATE UNIQUE INDEX temp.idx_stage_csh
+                ON creator_second_hop(creator_address, upstream_address, via_funder)
+            """)
+
+            excluded = build_excluded_set(conn)
+            logger.info(f"[SecondHop] Exclusion set: {len(excluded)} addresses")
+            self._exclude_infra_links(conn)
+            links = self._build_upstream_links(conn, excluded)
+            bridges = self._build_network_bridges(conn, excluded)
+            hops = self._build_creator_second_hop(conn)
+
+            significant = [
+                row[0]
+                for row in conn.execute("""
+                    SELECT upstream_address
+                    FROM upstream_network_bridge
+                    WHERE is_excluded = 0
+                    GROUP BY upstream_address
+                    HAVING MAX(confidence_score) >= 55
+                        OR COUNT(DISTINCT network_a || network_b) >= 3
+                        OR MAX(COALESCE(funders_bridged_count, shared_funders, 0)) >= 5
+                """).fetchall()
+            ]
+
+            def rows(table: str, where: str = "", params=()):
+                columns = self._table_columns(conn, table)
+                values = conn.execute(
+                    f"SELECT {','.join(columns)} FROM temp.{table} {where}", params
+                ).fetchall()
+                return columns, [tuple(value) for value in values]
+
+            hubs_where = "WHERE 0"
+            hubs_params = ()
+            if significant:
+                hubs_where = "WHERE upstream_address IN (%s)" % ",".join(
+                    "?" for _ in significant
+                )
+                hubs_params = tuple(significant)
+
+            result = {
+                "links": rows(
+                    "funder_upstream_links", "WHERE source='transfer_index'"
+                ),
+                "bridges": rows("upstream_network_bridge"),
+                "hops": rows("creator_second_hop"),
+                "hubs": rows("monitored_upstream_hubs", hubs_where, hubs_params),
+                "counts": (links, bridges, hops),
+            }
+            conn.rollback()
+            return result
+        finally:
+            conn.close()
+
+    @staticmethod
+    def _bulk_insert(conn, table: str, columns: List[str], rows: list) -> None:
+        if not rows:
+            return
+        placeholders = ",".join("?" for _ in columns)
+        conn.executemany(
+            f"INSERT OR REPLACE INTO {table} ({','.join(columns)}) "
+            f"VALUES ({placeholders})",
+            rows,
+        )
+
+    def _replace_materialized(self, materialized: dict) -> tuple[int, int, int]:
+        """Atomically publish the already-computed snapshot.
+
+        RPC-backfill upstream rows remain untouched, matching the historical
+        rebuild contract.  Readers see either the old complete generation or
+        the new complete generation; a pre-write failure cannot erase valid
+        state and a write failure rolls the whole replacement back.
+        """
+        from src.core.database_write_service import PRIORITY_P2_BACKGROUND
+
+        conn = None
+        try:
+            conn = sqlite3.connect(
+                self.db_path, timeout=60, priority=PRIORITY_P2_BACKGROUND
+            )
+            conn.row_factory = sqlite3.Row
+            conn.execute("DELETE FROM funder_upstream_links WHERE source='transfer_index'")
+            self._bulk_insert(conn, "funder_upstream_links", *materialized["links"])
+            conn.execute("DELETE FROM upstream_network_bridge")
+            self._bulk_insert(conn, "upstream_network_bridge", *materialized["bridges"])
+            conn.execute("DELETE FROM creator_second_hop")
+            self._bulk_insert(conn, "creator_second_hop", *materialized["hops"])
+            self._bulk_insert(conn, "monitored_upstream_hubs", *materialized["hubs"])
+            self._exclude_infra_links(conn)
+            conn.commit()
+            return materialized["counts"]
+        finally:
+            if conn is not None:
+                conn.close()
 
     def _exclude_infra_links(self, conn) -> None:
         """

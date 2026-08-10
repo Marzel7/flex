@@ -24499,6 +24499,89 @@ def _write_lane_priority_metrics() -> dict:
                 "priority_inversions_count": 0, "available": False}
 
 
+def birth_durability_summary() -> dict:
+    """MC1.4 -- authoritative, same-population birth durability metrics.
+
+    Replaces the legacy log-tail "seen vs persisted" completeness comparison
+    (MC1.2B: two different regex-matched populations over a possibly-
+    different log-tail window, which is why it could show >100%) with a
+    reconciliation over ONE population: births received by the listener
+    process currently running, as tracked by its own in-memory counters
+    (X78.19's birth_persistence_telemetry()) plus the durable
+    birth_persist_queue state. This function reads that listener's
+    periodic snapshot file (BIRTH_DURABILITY_METRICS_PATH in
+    pumpfun_curve_listener.py) rather than the DB directly, for the same
+    cross-process-visibility reason /api/db-serializer-metrics already
+    documents: the counters live in the listener process's memory, and this
+    endpoint runs in a separate (gunicorn) process.
+
+    Every returned percentage is computed from the SAME `received`
+    denominator, so none of them can mathematically exceed 100% -- this is
+    the fix Phase C requires ("fix the measurement contract", not clamp the
+    display).
+
+    Two DISTINCT percentages, deliberately not conflated (Phase D/E):
+      immediate_persistence_pct -- write-path health: what fraction of
+        received births succeeded on their FIRST attempt, no recovery
+        needed at all.
+      eventual_durability_pct -- data-loss health: what fraction of
+        received births are either already persisted OR still durably
+        retained somewhere recoverable (DB queue or file fallback), i.e.
+        NOT permanently lost. A birth sitting in pending_recovery counts
+        toward durability but not toward "persisted" -- it is safely
+        retained, not yet confirmed written.
+    """
+    try:
+        import json as _json, os as _os
+        snap_path = _os.path.join(_os.path.dirname(__file__), "../../logs/birth_durability_metrics.json")
+        if not _os.path.exists(snap_path):
+            return {"available": False, "reason": "no snapshot yet — listener may not have started its metrics thread"}
+        with open(snap_path) as f:
+            snap = _json.load(f)
+        return compute_birth_durability_from_snapshot(snap)
+    except Exception as exc:
+        return {"available": False, "reason": str(exc)}
+
+
+def compute_birth_durability_from_snapshot(snap: dict) -> dict:
+    """MC1.4 -- pure computation half of birth_durability_summary(), split
+    out so the same-population percentage math (Phase C/D/E) is directly
+    unit-testable against a snapshot dict without needing a real listener
+    process or its metrics file on disk."""
+    snapshot_age_s = int(time.time()) - snap.get("_snapshot_at", 0)
+
+    d = snap.get("durability", {})
+    received = d.get("received", 0)
+    persisted_immediately = d.get("persisted_immediately", 0)
+    recovered = d.get("recovered", 0)
+    pending_recovery = d.get("pending_recovery", 0)
+    permanently_lost = d.get("permanently_lost", 0)
+
+    if received > 0:
+        immediate_pct = round(100.0 * persisted_immediately / received, 1)
+        durable_pct = round(100.0 * (received - permanently_lost) / received, 1)
+    else:
+        immediate_pct = None
+        durable_pct = None
+
+    return {
+        "available": True,
+        "window": "since_listener_process_start",
+        "process_started_at": snap.get("_process_started_at"),
+        "snapshot_age_s": snapshot_age_s,
+        "received": received,
+        "persisted_immediately": persisted_immediately,
+        "recovered": recovered,
+        "pending_recovery": pending_recovery,
+        "fallback_pending": d.get("fallback_pending", 0),
+        "fallback_activations_total": d.get("fallback_activations_total", 0),
+        "permanently_lost": permanently_lost,
+        "immediate_persistence_pct": immediate_pct,
+        "eventual_durability_pct": durable_pct,
+        "oldest_pending_recovery_age_s": snap.get("birth_queue_oldest_pending_age_s"),
+    }
+
+
 @app.route('/api/listener-recovery-status')
 def api_listener_recovery_status():
     """Lightweight recovery-mode visibility endpoint.
@@ -24754,7 +24837,17 @@ def api_listener_recovery_status():
     # [DB] ✅ Marked token migrated: = migration written (persisted = seen for migrations,
     #   since the DB write line fires on success only)
     # [MIGRATION] ✅ CRITICAL PATH COMPLETE = full pipeline done (used as persisted count)
+    #
+    # MC1.4 -- births.seen and births.persisted below are matched by
+    # DIFFERENT regexes over a log-tail window that is not guaranteed to be
+    # the same for both counts (MC1.2B), so their ratio can legitimately
+    # exceed 100% — this is NOT a bug in the count, it is a structural
+    # property of comparing two different-population estimates. This block
+    # is diagnostic-only from here on; birth_durability_summary() above
+    # (surfaced as top-level "birth_durability") is the authoritative,
+    # same-population source and is what operator-facing UI should read.
     _completeness = None
+    _LEGACY_COMPLETENESS_LABEL = "Legacy log-tail estimate — NOT authoritative, see birth_durability"
     try:
         import re as _re
 
@@ -24807,6 +24900,8 @@ def api_listener_recovery_status():
         _m_rate = round(_migs_persisted / _migs_seen, 4)    if _migs_seen   > 0 else None
 
         _completeness = {
+            "authoritative": False,
+            "label": _LEGACY_COMPLETENESS_LABEL,
             "window":     _window,
             "confidence": _confidence,
             "births": {
@@ -24818,6 +24913,15 @@ def api_listener_recovery_status():
                 "missing":          _b_missing,
                 "persistence_rate": _b_rate,
             },
+            # Migrations do not yet have an X78.19-equivalent durable retry/
+            # recovery state machine (Phase H) — no birth_persist_queue-like
+            # table with PENDING/RETRY/PROCESSED status feeding an
+            # in-process telemetry counter. migration_persist_queue exists
+            # but only as a retry mechanism, not a same-population received/
+            # persisted/recovered/lost reconciliation. Until that exists,
+            # this log-tail estimate remains the only migration completeness
+            # signal available — kept here, honestly labeled, rather than
+            # fabricating a migrations.durability block that doesn't exist.
             "migrations": {
                 "seen":             _migs_seen,
                 "persisted":        _migs_persisted,
@@ -24828,7 +24932,8 @@ def api_listener_recovery_status():
             "warnings": _comp_warnings,
         }
     except Exception as _comp_exc:
-        _completeness = {"error": str(_comp_exc), "warnings": [f"completeness scan failed: {_comp_exc}"]}
+        _completeness = {"authoritative": False, "label": _LEGACY_COMPLETENESS_LABEL,
+                          "error": str(_comp_exc), "warnings": [f"completeness scan failed: {_comp_exc}"]}
 
     # ── 4. Status + warnings ───────────────────────────────────────────────
     warnings = []
@@ -24911,6 +25016,12 @@ def api_listener_recovery_status():
         },
         "ingestion": ingestion,
         "write_lane_priority": _write_lane_priority_metrics(),
+        # MC1.4 -- authoritative, same-population birth durability. This is
+        # the field operator UI should read for "what happened to the
+        # births we received" — see ingestion_completeness below, which is
+        # now explicitly labeled legacy/diagnostic-only (MC1.2B: log-tail
+        # derived, not same-population, can show >100%).
+        "birth_durability": birth_durability_summary(),
         "listener": {
             "pumpportal_status":       pumpportal_status,
             "pumpswap_status":         pumpswap_status,

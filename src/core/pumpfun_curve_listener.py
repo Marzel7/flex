@@ -71,6 +71,15 @@ CURVE_WATCH_STATE_PATH = os.path.join(
 DB_SERIALIZER_METRICS_PATH = os.path.join(
     os.path.dirname(__file__), "../../logs/db_serializer_metrics.json"
 )
+# MC1.4 -- same cross-process-visibility problem as DB_SERIALIZER_METRICS_PATH
+# above, for birth_persistence_telemetry()'s in-memory counters (received/
+# persisted_direct/fallback_activations/permanently_lost etc, which only
+# this process's memory holds). Snapshotted on the same cadence/thread as
+# the serializer metrics so the API process can build an authoritative,
+# same-population Birth Durability panel instead of inferring it from logs.
+BIRTH_DURABILITY_METRICS_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/birth_durability_metrics.json"
+)
 
 
 def premig_log(message: str) -> None:
@@ -1029,6 +1038,13 @@ _BIRTH_TELEMETRY = {
     "retry_succeeded": 0,
     "retry_failed": 0,
     "write_timeouts": 0,
+    # MC1.4 -- these two were previously only logged (🟡 fallback, 🔴
+    # CRITICAL), never counted, so "how many births ever needed the file
+    # fallback" and "how many were genuinely unrecoverable" had no
+    # authoritative source. Both are cumulative-since-process-start, same
+    # scope as every other counter here.
+    "fallback_activations": 0,
+    "permanently_lost": 0,
 }
 
 
@@ -1044,6 +1060,20 @@ def birth_persistence_telemetry(db_path: str | None = None) -> dict:
     reflect this process's lifetime only. The queue-depth/oldest-pending/
     latency figures below are read fresh from birth_persist_queue and are
     therefore durable across listener restarts -- Phase I / Phase H (X78.19).
+
+    MC1.4 -- the fields under "durability" (below the legacy X78.19 fields,
+    kept for backward compatibility) are a SAME-POPULATION reconciliation:
+    every count is a mutually-exclusive share of `received` for this
+    process's lifetime, so `persisted_immediately + pending_recovery +
+    recovered + permanently_lost <= received` always holds (birth_persist_queue
+    rows in RETRY status are still in-flight recovery attempts, not yet
+    resolved either way, so they don't get their own bucket separate from
+    pending_recovery). This is what makes immediate_persistence_pct and
+    eventual_durability_pct mathematically incapable of exceeding 100% --
+    unlike the legacy log-tail "seen vs persisted" comparison (MC1.2B),
+    which draws its two numbers from different regex-matched populations
+    over a possibly-different log-tail window and can disagree in either
+    direction.
     """
     with _BIRTH_TELEMETRY_LOCK:
         snapshot = dict(_BIRTH_TELEMETRY)
@@ -1053,6 +1083,7 @@ def birth_persistence_telemetry(db_path: str | None = None) -> dict:
     oldest_pending_age_s = None
     processed_recent = 0
     avg_retry_latency_s = None
+    recovered_total = 0
     try:
         import sqlite3 as _sq
         conn = _sq.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
@@ -1071,14 +1102,35 @@ def birth_persistence_telemetry(db_path: str | None = None) -> dict:
             ).fetchone()
             processed_recent = row2[0] or 0
             avg_retry_latency_s = round(row2[1], 2) if row2[1] is not None else None
+
+            recovered_total = conn.execute(
+                "SELECT COUNT(*) FROM birth_persist_queue WHERE status = 'PROCESSED'"
+            ).fetchone()[0] or 0
         finally:
             conn.close()
     except Exception:
         pass
 
+    fallback_pending = _fallback_file_line_count()
+
+    received = snapshot["received"]
+    persisted_immediately = snapshot["persisted_direct"]
+    permanently_lost = snapshot["permanently_lost"]
+    # "Deferred" = ever needed the retry path this process-lifetime, whether
+    # still pending, already recovered, or (rare) genuinely lost. Bounding
+    # deferred_total to what's actually representable against `received`
+    # protects the ratio even if a birth was queued during a PRIOR process
+    # lifetime and only resolved in this one (pending/recovered read from
+    # the durable table, `received` is this-process-only) -- see
+    # birth_durability_summary()'s docstring for the full same-population
+    # argument; this floor just keeps this function's own raw numbers
+    # sane in isolation.
+    pending_recovery = min(pending, max(0, received - persisted_immediately))
+    recovered_this_population = max(0, min(recovered_total, received - persisted_immediately - permanently_lost))
+
     return {
-        "births_received": snapshot["received"],
-        "births_persisted_direct": snapshot["persisted_direct"],
+        "births_received": received,
+        "births_persisted_direct": persisted_immediately,
         "births_queued_for_retry": snapshot["queued_for_retry"],
         "birth_retries_succeeded": snapshot["retry_succeeded"],
         "birth_retries_failed": snapshot["retry_failed"],
@@ -1087,7 +1139,17 @@ def birth_persistence_telemetry(db_path: str | None = None) -> dict:
         "birth_queue_oldest_pending_age_s": oldest_pending_age_s,
         "birth_queue_processed_last_hour": processed_recent,
         "birth_retry_avg_latency_s": avg_retry_latency_s,
-        "birth_fallback_file_pending": _fallback_file_line_count(),
+        "birth_fallback_file_pending": fallback_pending,
+        # MC1.4 -- authoritative, same-population durability state.
+        "durability": {
+            "received": received,
+            "persisted_immediately": persisted_immediately,
+            "recovered": recovered_this_population,
+            "pending_recovery": pending_recovery,
+            "fallback_activations_total": snapshot["fallback_activations"],
+            "fallback_pending": fallback_pending,
+            "permanently_lost": permanently_lost,
+        },
     }
 
 
@@ -1216,6 +1278,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     def __init__(self):
         super().__init__()  # Initialize FastLaneDiscovery
+        # MC1.4 -- explicit window anchor for birth_persistence_telemetry()'s
+        # in-memory counters, so a consumer of the snapshot file always knows
+        # exactly what population "received" etc. cover (this process's
+        # lifetime, not an arbitrary log-tail boundary).
+        self._process_started_at = int(time.time())
         self.seen_mints: Set[str] = set()
         self.processing_migrations: Set[str] = set()
         self.completed_migrations: Set[str] = set()
@@ -6104,10 +6171,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 try:
                     _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
                                             create_tx_signature, symbol, name, birth_seen_at, str(_qe))
+                    _birth_telemetry_incr("fallback_activations")
                     log_print(f"[BIRTH_RETRY] 🟡 queue write also failed for mint={mint[:16]}: {_qe} — appended to file-based fallback instead", flush=True)
                 except Exception as _fe:
                     # Only a full disk / permissions failure reaches here --
                     # log loudly, this is the one path with no further backstop.
+                    # MC1.4 -- this is the ONE path with no durable backstop
+                    # at all (primary insert failed, queue write failed, file
+                    # append failed); count it explicitly as permanently_lost
+                    # rather than leaving "how many births were truly lost"
+                    # answerable only by grepping for this log line.
+                    _birth_telemetry_incr("permanently_lost")
                     log_print(f"[BIRTH_RETRY] 🔴 CRITICAL: failed to queue mint={mint[:16]} for retry AND fallback file write failed: {_fe} — birth may be lost", flush=True)
             return
 
@@ -10441,7 +10515,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     def _db_serializer_metrics_snapshot_thread(self):
         """Write db_locking.serializer_metrics() to a JSON file every 15s (plain thread — immune to
-        event-loop starvation) so the API process can surface the listener's real write-lane load."""
+        event-loop starvation) so the API process can surface the listener's real write-lane load.
+
+        MC1.4 -- also snapshots birth_persistence_telemetry() on the same
+        cadence/thread to BIRTH_DURABILITY_METRICS_PATH, for the same
+        cross-process-visibility reason (see that constant's comment)."""
         interval = float(os.environ.get("DB_SERIALIZER_SNAPSHOT_SECS", "15"))
         log_print(f"[DB_METRICS] ✅ Serializer metrics snapshot thread started (every {interval:.0f}s → {DB_SERIALIZER_METRICS_PATH})", flush=True)
         time.sleep(20)
@@ -10457,6 +10535,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 os.replace(tmp, DB_SERIALIZER_METRICS_PATH)   # atomic
             except Exception as e:
                 log_print(f"[DB_METRICS] snapshot error: {e}", flush=True)
+            try:
+                bt = birth_persistence_telemetry()
+                bt["_process"] = "listener"
+                bt["_snapshot_at"] = int(time.time())
+                bt["_process_started_at"] = self._process_started_at
+                tmp2 = BIRTH_DURABILITY_METRICS_PATH + ".tmp"
+                with open(tmp2, "w") as f:
+                    json.dump(bt, f)
+                os.replace(tmp2, BIRTH_DURABILITY_METRICS_PATH)   # atomic
+            except Exception as e:
+                log_print(f"[BIRTH_METRICS] snapshot error: {e}", flush=True)
             time.sleep(interval)
 
     async def _migration_reconciler_loop(self):

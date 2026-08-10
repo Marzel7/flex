@@ -1417,25 +1417,63 @@
                     </table>
                   </div>
                   <div>
-                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Completeness</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:.05em">Birth Durability</div>
                     ${(function() {
+                        // MC1.4 -- authoritative, same-population birth durability
+                        // (X78.19 telemetry), replacing the legacy log-tail
+                        // "seen vs persisted" comparison that could show >100%
+                        // (MC1.2B: two different regex-matched populations over a
+                        // possibly-different log-tail window). Immediate persistence
+                        // (write-path health) and eventual durability (data-loss
+                        // health) are deliberately separate numbers -- see
+                        // birth_durability_summary()'s docstring in main.py.
+                        const bd = d.birth_durability;
+                        if (!bd || bd.available === false) {
+                            return `<div style="font-size:0.78rem;color:var(--text-secondary)">unavailable${bd && bd.reason ? ': ' + bd.reason : ''}</div>`;
+                        }
+                        if (!bd.received) {
+                            return `<div style="font-size:0.78rem;color:var(--text-secondary)">no births received yet this process lifetime</div>`;
+                        }
+                        const immColor = bd.immediate_persistence_pct >= 95 ? '#22c55e' : bd.immediate_persistence_pct >= 80 ? '#f59e0b' : '#ef4444';
+                        const durColor = bd.permanently_lost > 0 ? '#ef4444' : '#22c55e';
+                        const pendColor = bd.pending_recovery > 0 ? '#f59e0b' : 'var(--text-secondary)';
+                        let recoveryLine = '';
+                        if (bd.pending_recovery > 0 || bd.fallback_pending > 0) {
+                            const oldest = bd.oldest_pending_recovery_age_s != null ? `${bd.oldest_pending_recovery_age_s}s` : '—';
+                            recoveryLine = `<div style="font-size:0.72rem;color:#f59e0b;margin-top:0.35rem">
+                                ${bd.pending_recovery} birth(s) safely deferred for recovery${bd.fallback_pending > 0 ? ` (${bd.fallback_pending} in file fallback)` : ''} · oldest: ${oldest}
+                            </div>`;
+                        }
+                        const lostLine = bd.permanently_lost > 0
+                            ? `<div style="font-size:0.72rem;color:#ef4444;font-weight:600;margin-top:0.35rem">⚠ ${bd.permanently_lost} birth(s) permanently lost</div>`
+                            : '';
+                        return `<table style="border-collapse:collapse;font-size:0.82rem">
+                            ${row('Received',             `<span style="font-weight:600">${bd.received}</span>`)}
+                            ${row('Persisted immediately', `<span>${bd.persisted_immediately}</span>`)}
+                            ${row('Recovered',            `<span>${bd.recovered}</span>`)}
+                            ${row('Pending recovery',     `<span style="color:${pendColor}">${bd.pending_recovery}</span>`)}
+                            ${row('Lost',                 `<span style="color:${durColor};font-weight:600">${bd.permanently_lost}</span>`)}
+                            ${row('Immediate persistence', `<span style="color:${immColor};font-weight:600">${bd.immediate_persistence_pct != null ? bd.immediate_persistence_pct + '%' : '—'}</span>`)}
+                            ${row('Eventual durability',  `<span style="color:${durColor};font-weight:600">${bd.eventual_durability_pct != null ? bd.eventual_durability_pct + '%' : '—'}</span>`)}
+                        </table>${recoveryLine}${lostLine}
+                        <div style="font-size:0.68rem;color:var(--text-secondary);margin-top:0.4rem">window: since listener start${bd.snapshot_age_s != null ? ` · snapshot ${bd.snapshot_age_s}s old` : ''}</div>`;
+                    })()}
+                    ${(function() {
+                        // Legacy log-tail estimate -- diagnostic only, not
+                        // authoritative (Phase I). Kept visible but clearly
+                        // subordinate/labeled so it can never be read as the
+                        // platform's real completeness figure.
                         const c = d.ingestion_completeness;
-                        if (!c || c.error) return `<div style="font-size:0.78rem;color:var(--text-secondary)">unavailable${c && c.error ? ': ' + c.error : ''}</div>`;
-                        if (c.births && c.births.seen === 0 && c.migrations && c.migrations.seen === 0) return `<div style="font-size:0.78rem;color:var(--text-secondary)">insufficient recent data</div>`;
+                        if (!c || c.error) return '';
                         function compBadge(item) {
                             if (!item || item.seen === 0) return '<span style="color:var(--text-secondary)">—</span>';
-                            const color = item.missing > 0 ? '#ef4444' : item.pending_retry > 0 ? '#f59e0b' : '#22c55e';
-                            const pct   = item.persistence_rate != null ? Math.round(item.persistence_rate * 100) + '%' : '?%';
-                            return `<span style="color:${color};font-weight:600">${item.seen} seen · ${item.persisted} persisted · ${item.missing} missing · ${pct}</span>`;
+                            const pct = item.persistence_rate != null ? Math.round(item.persistence_rate * 100) + '%' : '?%';
+                            return `<span style="color:var(--text-secondary)">${item.seen} seen · ${item.persisted} persisted · ${pct}</span>`;
                         }
-                        const confColor = c.confidence === 'full' ? '#22c55e' : '#f59e0b';
-                        const warnHtml2 = (c.warnings || []).length ? `<div style="font-size:0.7rem;color:#f59e0b;margin-top:0.3rem">${c.warnings.join(' · ')}</div>` : '';
-                        return `<table style="border-collapse:collapse;font-size:0.82rem">
-                            ${row('Births',     compBadge(c.births))}
-                            ${row('Migrations', compBadge(c.migrations))}
-                            ${row('Window',     `<span style="font-size:0.75rem;color:var(--text-secondary)">${c.window || '—'}</span>`)}
-                            ${row('Confidence', `<span style="color:${confColor};font-size:0.75rem">${c.confidence || '—'}</span>`)}
-                        </table>${warnHtml2}`;
+                        return `<div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px dashed rgba(148,163,184,0.15)">
+                            <div style="font-size:0.65rem;color:var(--text-secondary);font-style:italic">${c.label || 'Legacy log-tail estimate — not authoritative'} (confidence: ${c.confidence || '—'})</div>
+                            <div style="font-size:0.72rem;margin-top:0.2rem">Births: ${compBadge(c.births)} &nbsp;·&nbsp; Migrations: ${compBadge(c.migrations)}</div>
+                        </div>`;
                     })()}
                   </div>
                   <div>

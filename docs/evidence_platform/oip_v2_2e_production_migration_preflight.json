@@ -1,0 +1,119 @@
+{
+  "milestone": "OIP v2.2E",
+  "recorded_at_utc": "2026-08-10T07:06:21Z",
+  "recorded_at_local": "2026-08-10T08:06:21+0100",
+  "repository": {
+    "branch": "classification-attribution-axis",
+    "head": "d5cdd60f2d3e348217e9f0bac86c5ab8cab5baba",
+    "required_shadow_commit": "d5cdd60f2d3e348217e9f0bac86c5ab8cab5baba",
+    "worktree_preexisting_changes_preserved": true
+  },
+  "decision": "FAILED_CLOSED_BEFORE_PRODUCTION_MUTATION",
+  "stop_conditions": [
+    {
+      "condition": "production path/database ambiguity",
+      "evidence": [
+        "Configured default database/evidence_platform/evidence.db does not exist",
+        "No EVIDENCE_* variables are configured in .env or supervisor",
+        "API, creator-funding and listener runtime environments expose no EVIDENCE_* configuration",
+        "No running process holds an Evidence database under database/evidence_platform",
+        "All discovered Evidence databases are explicitly named pilot, stage, frozen or shadow"
+      ]
+    },
+    {
+      "condition": "platform already degraded",
+      "evidence": [
+        "Production health status WARNING",
+        "Infrastructure database pressure AT_RISK",
+        "Database write p99 22904.38 ms",
+        "Creator funding status STALLED with heartbeat age 180 seconds",
+        "Creator funding pending 17426 and oldest pending age 3559295 seconds",
+        "Live ingestion birth rate 3.53/min versus 17.93/min baseline",
+        "Operational intelligence watch pipeline age 4109736 seconds",
+        "Recent CrossProcessDatabaseWriteTimeout and DB_LOCK_ERROR records",
+        "watchtower_listener uptime was approximately 3 minutes while long-lived peers exceeded 7 hours"
+      ]
+    }
+  ],
+  "production_database_identity": {
+    "status": "UNRESOLVED",
+    "configured_default": "database/evidence_platform/evidence.db",
+    "configured_default_exists": false,
+    "open_evidence_database_handles": 0,
+    "candidates": [
+      "database/evidence_platform/oip_v2_1a_pilot/evidence.db",
+      "database/evidence_platform/oip_v2_1c_retry_failover/evidence.db",
+      "database/evidence_platform/oip_v2_1e_stage_1000/evidence.db",
+      "database/evidence_platform/oip_v2_1f_stage_1000/evidence.db",
+      "database/evidence_platform/oip_v2_1g_stage_2000/evidence.db",
+      "database/evidence_platform/oip_v2_1g_stage_2000_frozen/evidence.db",
+      "database/evidence_platform/three_sw2_shadow_ep3_2a/evidence.db",
+      "database/evidence_platform/watchtower_shadow/evidence.db",
+      "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db"
+    ],
+    "selection": null,
+    "selection_reason": "No candidate is configured or open as authoritative; recency and size are not authority evidence"
+  },
+  "application_database": {
+    "path": "database/flex_complete_database.db",
+    "inode": 291948390,
+    "device": 16777234,
+    "size_bytes": 10600730624,
+    "wal_bytes_observed": 13719632,
+    "note": "This is the live application database, not an Evidence Platform database and it does not contain the immutable Evidence/Primitive provenance schema targeted by v2.2E"
+  },
+  "process_baseline": {
+    "alert_evaluator": {"pid": 3116, "state": "RUNNING", "uptime": "12h"},
+    "creator_funding_worker": {"pid": 15354, "state": "RUNNING_BUT_HEALTH_STALLED", "uptime": "7h55m"},
+    "creator_resolution_worker": {"pid": 15341, "state": "RUNNING", "uptime": "7h56m"},
+    "intelligence_snapshot_scheduler": {"pid": 3119, "state": "RUNNING", "uptime": "12h"},
+    "walkback_worker": {"pid": 3120, "state": "RUNNING", "uptime": "12h"},
+    "watchtower_api": {"pid": 11967, "state": "RUNNING", "uptime": "9h43m"},
+    "watchtower_listener": {"pid": 26378, "state": "RUNNING_RECENT_RESTART", "uptime": "3m"},
+    "watchtower_ngrok": {"pid": 3123, "state": "RUNNING", "uptime": "12h"},
+    "ws_cascade": {"pid": 3124, "state": "RUNNING", "uptime": "12h"},
+    "stopped_configured_processes": [
+      "dust_observatory_enricher",
+      "infra_sync_scheduler",
+      "operation_scheduler",
+      "watchtower_helius_monitor",
+      "webhook_worker"
+    ]
+  },
+  "disk": {
+    "filesystem_bytes": 245107195904,
+    "available_bytes": 63509229568,
+    "capacity_percent": 71,
+    "authority_projection_bytes": 1759866880,
+    "shadow_migration_workspace_bytes": 6835073024,
+    "migration_reserve_gate": "NOT_EVALUATED_AFTER_EARLIER_STOP_CONDITIONS"
+  },
+  "actions": {
+    "focused_migration_tests_run": false,
+    "migration_record_created": false,
+    "outbox_installed": false,
+    "high_water_captured": false,
+    "sidecar_created": false,
+    "writer_pause_acquired": false,
+    "control_switched": false,
+    "services_restarted": 0,
+    "production_writes": 0,
+    "canonical_deletions": 0,
+    "acquisition_attempts": 0
+  },
+  "required_before_retry": [
+    "Explicitly configure and verify one authoritative production Evidence database path",
+    "Enable and supervise the intended Evidence writer/consumer lifecycle or document the actual production owner",
+    "Resolve current database pressure and cross-process lock timeouts",
+    "Restore creator-funding health and investigate recent listener restart",
+    "Re-run v2.2E preflight from Phase 1; do not resume from a migration state because none was created"
+  ],
+  "final": {
+    "migration_id": "NOT_CREATED_PRECHECK_FAILED",
+    "production_database": "UNRESOLVED",
+    "production_migration": "D — PRODUCTION MIGRATION FAILED / NOT SAFE",
+    "soak": "D — SOAK INCOMPLETE",
+    "acquisition": "HOLD_ACQUISITION",
+    "canonical_retirement": "KEEP_CANONICAL_FOR_ROLLBACK"
+  }
+}

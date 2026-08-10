@@ -152,3 +152,54 @@ async def test_seed_trade_subscriptions_failure_does_not_propagate(monkeypatch):
     await PumpFunCurveListener._seed_trade_subscriptions(fake_self, _FakeWs(), tracked)  # must not raise
 
     assert tracked == set(), "no mints should be tracked when the seed read fails"
+
+
+@pytest.mark.asyncio
+async def test_seed_trade_subscriptions_never_acquires_write_lane(monkeypatch):
+    from src.core.pumpfun_curve_listener import PumpFunCurveListener
+    import src.core.pumpfun_curve_listener as listener_module
+
+    calls = []
+
+    class _Rows:
+        def execute(self, *_args, **_kwargs):
+            return self
+
+        def fetchall(self):
+            return []
+
+    class _Context:
+        def __enter__(self):
+            return _Rows()
+
+        def __exit__(self, *_exc):
+            return False
+
+    def _connect(*args, **kwargs):
+        calls.append(kwargs)
+        return _Context()
+
+    monkeypatch.setattr(listener_module, "managed_db_connect", _connect)
+
+    class _Ws:
+        async def send(self, *_args, **_kwargs):
+            raise AssertionError("empty seed must not send")
+
+    await PumpFunCurveListener._seed_trade_subscriptions(object(), _Ws(), set())
+    assert calls == [{"timeout": 5, "read_only": True}]
+
+
+def test_listener_fd_watchdog_counts_connections_not_wal_companions(tmp_path):
+    from types import SimpleNamespace
+    from src.core.pumpfun_curve_listener import _primary_db_fd_count
+
+    db = tmp_path / "tracked.db"
+    handles = [
+        SimpleNamespace(path=str(db)),
+        SimpleNamespace(path=f"{db}-wal"),
+        SimpleNamespace(path=f"{db}-shm"),
+        SimpleNamespace(path=str(db)),
+        SimpleNamespace(path=str(tmp_path / "other.db")),
+    ]
+
+    assert _primary_db_fd_count(handles, str(db)) == 2

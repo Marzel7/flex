@@ -96,6 +96,15 @@ def test_connected_pumpportal_preserves_three_minute_recovery_policy():
     assert _pumpportal_failure_is_fatal(1, 900.0, now=1_081.0)
 
 
+def test_old_healthy_connection_does_not_make_first_disconnect_fatal():
+    from src.core.pumpfun_curve_listener import _pumpportal_failure_is_fatal
+
+    outage_started = 10_000.0
+    assert not _pumpportal_failure_is_fatal(1, outage_started, now=outage_started)
+    assert not _pumpportal_failure_is_fatal(2, outage_started, now=outage_started + 179)
+    assert _pumpportal_failure_is_fatal(3, outage_started, now=outage_started + 181)
+
+
 def test_listener_startup_schema_failure_releases_connection(monkeypatch):
     from src.core import pumpfun_curve_listener as listener
 

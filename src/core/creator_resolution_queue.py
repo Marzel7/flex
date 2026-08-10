@@ -68,6 +68,18 @@ def _db(db_path: str, timeout: int = 30):
         conn.close()
 
 
+@contextmanager
+def _read_db(db_path: str, timeout: int = 30):
+    """Open a genuine read-only connection that never owns the write lane."""
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=timeout)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout=30000")
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
@@ -218,11 +230,11 @@ def enqueue_missing_migrated_tokens(
 ) -> int:
     with _db(db_path) as conn:
         ensure_schema(conn)
-        # X78.13: schema maintenance performs DDL/backfill writes.  Release
-        # that transaction before the full token_analysis eligibility scan;
-        # otherwise a read-only population query monopolizes the global write
-        # lane for tens of seconds.
         conn.commit()
+
+    # Closing the schema connection releases the cross-process write lease;
+    # commit alone does not.  Run the deep population scan without that lease.
+    with _read_db(db_path) as conn:
         rows = conn.execute(
             """
             SELECT mint
@@ -238,7 +250,8 @@ def enqueue_missing_migrated_tokens(
             """,
             (max(1, int(limit)),),
         ).fetchall()
-        count = 0
+    count = 0
+    with _db(db_path) as conn:
         for row in rows:
             if enqueue_missing_creator(
                 conn,
@@ -323,10 +336,10 @@ def enqueue_missing_funding_jobs(
     enqueued = 0
     with _db(db_path) as conn:
         ensure_schema(conn)
-        # Keep the potentially expensive NOT EXISTS coverage scan outside the
-        # schema write transaction.  Subsequent queue inserts reacquire the
-        # lane normally and preserve the existing atomic commit below.
         conn.commit()
+
+    # The write lease follows the connection lifetime, not the transaction.
+    with _read_db(db_path) as conn:
         rows = conn.execute(
             """
             SELECT
@@ -350,6 +363,7 @@ def enqueue_missing_funding_jobs(
             """,
             (max(1, int(limit)),),
         ).fetchall()
+    with _db(db_path) as conn:
         for row in rows:
             if _enqueue_funding_handoff(
                 conn,

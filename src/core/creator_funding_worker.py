@@ -344,6 +344,11 @@ def _identify_wal_holders() -> str:
         return "unknown"
 
 
+def _wal_is_critically_pinned(size_mb: float, busy_cycles: int) -> bool:
+    """Require both a large WAL and persistent checkpoint contention."""
+    return size_mb >= WAL_ALERT_MB and busy_cycles >= WAL_BUSY_CYCLES
+
+
 def _wal_watchdog() -> None:
     busy_cycles = 0
     while not _STOP:
@@ -358,7 +363,7 @@ def _wal_watchdog() -> None:
                 _log(f"WAL: {mb:.1f}MB busy={busy} (cycle {busy_cycles}/{WAL_BUSY_CYCLES})")
             else:
                 busy_cycles = 0
-            if mb >= WAL_ALERT_MB or busy_cycles >= WAL_BUSY_CYCLES:
+            if _wal_is_critically_pinned(mb, busy_cycles):
                 holders = _identify_wal_holders()
                 _log(f"CRITICAL_WAL_PINNED: WAL={mb:.1f}MB busy_cycles={busy_cycles} "
                      f"holders={holders} — this worker exiting for clean restart")

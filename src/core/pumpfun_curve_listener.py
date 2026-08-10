@@ -270,22 +270,31 @@ def _spawn_symbol_fetch(mint: str, db_path: str) -> None:
 
 def _pumpportal_failure_is_fatal(
     consecutive_failures: int,
-    last_connected_at: float,
+    outage_started_at: float,
     *,
     now: float,
 ) -> bool:
     """Return whether PumpPortal reconnect failure warrants process recovery.
 
-    A never-connected process has no meaningful "minutes since connection".
-    Treating that state as 999 minutes made the very first transient startup
-    timeout fatal, producing a supervisor restart loop.  Before the first
-    successful connection only the bounded consecutive-failure threshold is
-    applicable; after connection, the existing three-minute silence policy is
-    preserved.
+    The recovery window starts with the first failure in the current outage.
+    Connection age is not outage age: using the timestamp of an hours-old
+    healthy connection made its first ordinary close immediately fatal.
     """
     if consecutive_failures >= 10:
         return True
-    return bool(last_connected_at and (now - last_connected_at) > 3 * 60)
+    return bool(outage_started_at and (now - outage_started_at) > 3 * 60)
+
+
+def _primary_db_fd_count(open_files, db_path: str) -> int:
+    """Count SQLite connections, not their companion WAL/SHM descriptors."""
+    if not db_path:
+        return 0
+    target = os.path.realpath(db_path)
+    return sum(
+        1
+        for handle in open_files
+        if os.path.realpath(getattr(handle, "path", "")) == target
+    )
 
 
 def _write_migration_log(line: str) -> None:
@@ -11151,7 +11160,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """
         try:
             def _seed_read():
-                with managed_db_connect(DB_PATH, timeout=5) as _c:
+                # This can scan a large active-token population.  It is
+                # strictly observational and must not own the global write
+                # lane for the duration of that scan.
+                with managed_db_connect(DB_PATH, timeout=5, read_only=True) as _c:
                     _rows = _c.execute("""
                         SELECT mint FROM token_analysis
                         WHERE source_platform = 'pumpfun'
@@ -11191,6 +11203,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         _attempt = 0
         _consecutive_failures = 0
         _last_connected_at: float = 0.0
+        _outage_started_at: float = 0.0
 
         while True:
             _attempt += 1
@@ -11212,6 +11225,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     reconnect_delay = 5
                     _consecutive_failures = 0
                     _last_connected_at = time.time()
+                    _outage_started_at = 0.0
                     self._pumpportal_connected = True
                     log_print("[PUMPPORTAL] ✓ Connected", flush=True)
 
@@ -11353,6 +11367,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     flush=True,
                 )
                 _now = time.time()
+                if not _outage_started_at:
+                    _outage_started_at = _now
                 _mins_since_connect = (
                     (_now - _last_connected_at) / 60
                     if _last_connected_at
@@ -11360,12 +11376,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 if _pumpportal_failure_is_fatal(
                     _consecutive_failures,
-                    _last_connected_at,
+                    _outage_started_at,
                     now=_now,
                 ):
+                    _mins_in_outage = (_now - _outage_started_at) / 60
                     msg = (
                         f"[PUMPPORTAL] FATAL: {_consecutive_failures} consecutive failures, "
-                        f"{_mins_since_connect:.1f}min since last connection — exiting for supervisord restart"
+                        f"{_mins_in_outage:.1f}min in current outage "
+                        f"({_mins_since_connect:.1f}min since last connection) — "
+                        "exiting for supervisord restart"
                     )
                     log_print(msg, flush=True)
                     os._exit(1)
@@ -12285,8 +12304,12 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
         while True:
             try:
                 proc = _psutil.Process(_os.getpid())
-                fds = [f for f in proc.open_files() if _DB and _DB in f.path]
-                n = len(fds)
+                open_files = proc.open_files()
+                # One SQLite connection commonly owns descriptors for the
+                # database, WAL and SHM files.  Counting all three as separate
+                # connections made normal concurrent ingestion trip the fatal
+                # threshold and caused a deterministic restart loop.
+                n = _primary_db_fd_count(open_files, _DB)
                 if n >= _FATAL_FDS:
                     log_print(
                         f"[DB_FD_WATCHDOG] 🚨 CRITICAL_LISTENER_DB_HANDLE_LEAK "

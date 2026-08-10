@@ -798,7 +798,12 @@ class RealTimeCreatorFundingExtractor:
         try:
             cursor = conn.cursor()
 
-            # Process funders: check CEX/INFRA status and upsert
+            # X78.17: finish every classification read before the first
+            # write-shaped statement. Previously the first funder INSERT
+            # acquired extraction_conn's global write lease, then every later
+            # funder's CEX SELECT ran inside that lease. A large page therefore
+            # turned read/classification time into writer-blocking time.
+            prepared_funders = []
             for funder, funder_data in funders_delta.items():
                 is_cex = 0
                 cex_exchange = None
@@ -834,11 +839,17 @@ class RealTimeCreatorFundingExtractor:
 
                 fully_analyzed = 1 if (cex_exchange or is_classified) else 0
 
-                cursor.execute("""
+                prepared_funders.append((
+                    creator, funder, funder_data['amount'], is_cex,
+                    cex_exchange, cex_type, is_classified, fully_analyzed,
+                ))
+
+            if prepared_funders:
+                cursor.executemany("""
                     INSERT OR REPLACE INTO creator_funders
                     (creator_address, funder_address, amount_sol, first_detected_at, is_cex, cex_exchange, cex_type, is_classified, fully_analyzed)
                     VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
-                """, (creator, funder, funder_data['amount'], is_cex, cex_exchange, cex_type, is_classified, fully_analyzed))
+                """, prepared_funders)
 
             # Process recipients: check INFRA/CEX and upsert
             for recipient, amount_sol in recipients_delta.items():

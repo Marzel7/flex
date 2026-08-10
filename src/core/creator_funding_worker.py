@@ -436,16 +436,10 @@ def _funder_count(creator: str) -> int:
             conn.close()
 
 
-def _recover_stale_and_claim(now: int, batch: int):
-    """One connection, one transaction: recover stale running/retry rows that
-    already have funders (crash-safe completion), reap genuinely stale
-    running rows back to retry, then claim up to `batch` ready rows. Mirrors
-    the exact recovery semantics the retired listener loop used, just against
-    a single lightweight connection instead of the listener's shared pool."""
+def _recover_stale_rows(now: int) -> tuple[int, int]:
+    """Apply only crash-recovery mutations and release the write lane."""
     conn = _db_connect(readonly=False, timeout=30)
     try:
-        import sqlite3
-        conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA busy_timeout=30000")
         cur = conn.cursor()
         cur.execute(
@@ -471,6 +465,16 @@ def _recover_stale_and_claim(now: int, batch: int):
             (now, now),
         )
         stale = int(cur.rowcount or 0)
+        conn.commit()
+        return recovered, stale
+    finally:
+        conn.close()
+
+
+def _select_ready_rows(now: int, batch: int) -> list[dict[str, Any]]:
+    """Select the next queue candidates through a genuine mode=ro snapshot."""
+    conn = _db_connect(readonly=True, timeout=30)
+    try:
         # X78.16 Phase A/B -- age promotion. effective_priority adds one
         # promotion point per AGE_PROMOTION_INTERVAL_SEC of wait time
         # (measured from created_at, the row's true original queue-entry
@@ -485,7 +489,7 @@ def _recover_stale_and_claim(now: int, batch: int):
         # a continuously-replenished job_priority=1 population) without
         # removing priority itself: two comparably-aged rows still order
         # by their raw job_priority exactly as before.
-        rows = cur.execute(
+        rows = conn.execute(
             f"""
             SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts,
                    COALESCE(job_priority, 0) AS job_priority,
@@ -501,18 +505,60 @@ def _recover_stale_and_claim(now: int, batch: int):
             """,
             (now, now, now, batch),
         ).fetchall()
-        rows = [dict(r) for r in rows]
-        if rows:
-            lock_until = now + LOCK_SECONDS
-            cur.executemany(
-                "UPDATE creator_funding_queue SET status='running', locked_until=?, updated_at=? "
-                "WHERE creator_address=? AND mint=?",
-                [(lock_until, now, r["creator_address"], r["mint"]) for r in rows],
-            )
-        conn.commit()
-        return rows, recovered, stale
+        return [dict(r) for r in rows]
     finally:
         conn.close()
+
+
+def _claim_selected_rows(now: int, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Atomically claim a read-selected batch using one short write transaction.
+
+    The eligibility predicate is repeated here so a concurrent claimant cannot
+    turn the read/write split into a duplicate claim.
+    """
+    if not rows:
+        return []
+    conn = _db_connect(readonly=False, timeout=30)
+    claimed: list[dict[str, Any]] = []
+    try:
+        conn.execute("PRAGMA busy_timeout=30000")
+        lock_until = now + LOCK_SECONDS
+        for row in rows:
+            cur = conn.execute(
+                """
+                UPDATE creator_funding_queue
+                SET status='running', locked_until=?, updated_at=?
+                WHERE creator_address=? AND mint=?
+                  AND status IN ('pending', 'retry')
+                  AND locked_until < ? AND next_attempt_at <= ?
+                """,
+                (
+                    lock_until, now, row["creator_address"], row["mint"],
+                    now, now,
+                ),
+            )
+            if int(cur.rowcount or 0) == 1:
+                claimed.append(row)
+        conn.commit()
+        return claimed
+    finally:
+        conn.close()
+
+
+def _recover_stale_and_claim(now: int, batch: int):
+    """Recover, read-select, and claim without scanning under a write lease.
+
+    X78.17: X78.16 captured this caller holding the global write lane while
+    SQLite executed the age-priority SELECT. The preceding recovery UPDATEs
+    acquired the lease and the old single transaction retained it through the
+    scan. Recovery is now committed first, candidate selection uses mode=ro,
+    and the final claim is a separate short mutation with its eligibility
+    predicate rechecked for atomicity.
+    """
+    recovered, stale = _recover_stale_rows(now)
+    candidates = _select_ready_rows(now, batch)
+    rows = _claim_selected_rows(now, candidates)
+    return rows, recovered, stale
 
 
 def _mark_complete(creator: str, mint: str, attempts: int, now: int, timeout: int = 30) -> None:

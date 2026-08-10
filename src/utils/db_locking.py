@@ -7,6 +7,7 @@ in concurrent scenarios (token launches, clustering, extractors, etc.)
 """
 
 import contextlib
+import contextvars
 import inspect
 import logging
 import os
@@ -75,8 +76,45 @@ _open_connections_lock = threading.Lock()
 # Process-wide write serializer (the single write lane). Plain Lock (not RLock): releasable from
 # any thread, which the async adapter needs; write transactions are short and never nest it.
 _DB_WRITE_LOCK = threading.Lock()
+_WRITE_WAIT_TIMEOUT_SECONDS = contextvars.ContextVar(
+    "db_write_wait_timeout_seconds", default=60.0
+)
+_WRITE_WAIT_DEADLINE = contextvars.ContextVar("db_write_wait_deadline", default=None)
 _DB_WRITE_STATS = {"acquisitions": 0, "contended": 0, "total_wait_ms": 0.0, "max_wait_ms": 0.0}
 _DB_WRITE_STATS_LOCK = threading.Lock()
+
+
+@contextlib.contextmanager
+def bounded_write_wait(seconds: float):
+    """Temporarily bound write-lane acquisition for one logical job.
+
+    The value is context-local and is copied into ``asyncio.to_thread``
+    workers.  It therefore limits synchronous lock waits without changing
+    the process-wide default used by unrelated production consumers.
+    """
+    token = _WRITE_WAIT_TIMEOUT_SECONDS.set(max(0.01, float(seconds)))
+    try:
+        yield
+    finally:
+        _WRITE_WAIT_TIMEOUT_SECONDS.reset(token)
+
+
+@contextlib.contextmanager
+def write_wait_deadline(deadline_monotonic: float):
+    """Prevent a synchronous write wait from crossing a job deadline."""
+    token = _WRITE_WAIT_DEADLINE.set(float(deadline_monotonic))
+    try:
+        yield
+    finally:
+        _WRITE_WAIT_DEADLINE.reset(token)
+
+
+def _effective_write_wait_timeout() -> float:
+    timeout = float(_WRITE_WAIT_TIMEOUT_SECONDS.get())
+    deadline = _WRITE_WAIT_DEADLINE.get()
+    if deadline is not None:
+        timeout = min(timeout, max(0.01, float(deadline) - time.monotonic()))
+    return timeout
 
 # ── SERIALIZER OBSERVABILITY (in-memory; no DB writes — measuring must not add write load) ──
 from collections import deque as _deque
@@ -241,7 +279,8 @@ class TrackedConnection(sqlite3.Connection):
         caller = getattr(self, "_db_caller", None)
         _dbm_queue(+1)                      # this writer is now WAITING for the lane
         t0 = time.monotonic()
-        acquired = _DB_WRITE_LOCK.acquire(timeout=60)
+        write_wait_timeout = _effective_write_wait_timeout()
+        acquired = _DB_WRITE_LOCK.acquire(timeout=write_wait_timeout)
         wait_ms = (time.monotonic() - t0) * 1000.0
         _dbm_queue(-1)                      # no longer waiting (acquired OR timed out) — symmetric,
                                             # so an abandoned-after-acquire conn can't leak the counter
@@ -261,7 +300,8 @@ class TrackedConnection(sqlite3.Connection):
                 if priority is None:
                     priority = DEFAULT_PRIORITY
                 self._cross_process_lease = acquire_write_lease(
-                    f"tracked:{os.path.realpath(path)}", path, txid, command, priority=priority
+                    f"tracked:{os.path.realpath(path)}", path, txid, command,
+                    timeout=write_wait_timeout, priority=priority
                 )
                 self._write_transaction_id = txid
                 self._write_started_at = time.time()
@@ -830,7 +870,7 @@ def db_write_lock(label: str = ""):
     """Serialize a DB write across async tasks AND threads. Records contention metrics so the
     before/after impact of serialization is measurable. Cheap when uncontended."""
     t0 = time.monotonic()
-    acquired = _DB_WRITE_LOCK.acquire(timeout=60)
+    acquired = _DB_WRITE_LOCK.acquire(timeout=_effective_write_wait_timeout())
     wait_ms = (time.monotonic() - t0) * 1000.0
     if not acquired:
         _db_logger.warning(f"[DB_WRITE_LOCK] timeout acquiring after 60s label={label}")
@@ -859,7 +899,8 @@ class AsyncDbWriteLock:
         import asyncio
         loop = asyncio.get_event_loop()
         # acquire off the loop so a contended write can't stall the event loop
-        ok = await loop.run_in_executor(None, lambda: _DB_WRITE_LOCK.acquire(timeout=60))
+        timeout = _effective_write_wait_timeout()
+        ok = await loop.run_in_executor(None, lambda: _DB_WRITE_LOCK.acquire(timeout=timeout))
         if not ok:
             _db_logger.warning("[DB_WRITE_LOCK] async acquire timeout after 60s")
             raise sqlite3.OperationalError("async db_write_lock acquire timeout")

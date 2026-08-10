@@ -510,10 +510,10 @@ def _recover_stale_and_claim(now: int, batch: int):
         conn.close()
 
 
-def _mark_complete(creator: str, mint: str, attempts: int, now: int) -> None:
-    conn = _db_connect(readonly=False, timeout=30)
+def _mark_complete(creator: str, mint: str, attempts: int, now: int, timeout: int = 30) -> None:
+    conn = _db_connect(readonly=False, timeout=timeout)
     try:
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
         conn.execute(
             """
             UPDATE creator_funding_queue
@@ -539,11 +539,12 @@ def _mark_complete(creator: str, mint: str, attempts: int, now: int) -> None:
         conn.close()
 
 
-def _mark_retry(creator: str, mint: str, attempts: int, error: str, now: int, delay: int | None = None) -> None:
+def _mark_retry(creator: str, mint: str, attempts: int, error: str, now: int,
+                delay: int | None = None, timeout: int = 30) -> None:
     backoff = delay if delay is not None else min(900, 120 * (attempts + 1))
-    conn = _db_connect(readonly=False, timeout=30)
+    conn = _db_connect(readonly=False, timeout=timeout)
     try:
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
         conn.execute(
             """
             UPDATE creator_funding_queue
@@ -557,10 +558,11 @@ def _mark_retry(creator: str, mint: str, attempts: int, error: str, now: int, de
         conn.close()
 
 
-def _mark_failed(creator: str, mint: str, attempts: int, error: str, now: int) -> None:
-    conn = _db_connect(readonly=False, timeout=30)
+def _mark_failed(creator: str, mint: str, attempts: int, error: str, now: int,
+                 timeout: int = 30) -> None:
+    conn = _db_connect(readonly=False, timeout=timeout)
     try:
-        conn.execute("PRAGMA busy_timeout=30000")
+        conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
         conn.execute(
             """
             UPDATE creator_funding_queue
@@ -572,6 +574,19 @@ def _mark_failed(creator: str, mint: str, attempts: int, error: str, now: int) -
         conn.commit()
     finally:
         conn.close()
+
+
+def _mark_timeout_terminal(creator: str, mint: str, attempts: int, error: str,
+                           now: int, retry_delay: int, failed: bool = False) -> None:
+    """Persist a timed-out job without extending its hard wall-time budget."""
+    from src.utils.db_locking import bounded_write_wait
+    with bounded_write_wait(1.0):
+        if failed:
+            _mark_failed(creator, mint, attempts, error, now, timeout=1)
+        else:
+            _mark_retry(
+                creator, mint, attempts, error, now, retry_delay, timeout=1
+            )
 
 
 # ── post-extraction enrichment (ported from the retired listener loop, unchanged) ──
@@ -871,21 +886,14 @@ async def _process_job(row: dict) -> None:
     _log(f"claimed creator={creator[:12]} mint={mint[:16]} attempts={attempts} "
          f"priority={'HIGH' if job_priority else 'normal'} reason={priority_reason}")
 
-    # X78.2 -- must happen before ANY write this job makes (including the
-    # extraction call below), since that is precisely the boundary the
-    # collision occurs at: see _await_stragglers_before_next_write's
-    # docstring and tests/test_x78_2_detached_descendant_reproduction.py.
-    await _await_stragglers_before_next_write()
-    straggler_wait_s = time.time() - claim_occupancy_started
-    if straggler_wait_s > 1.0:
-        _log(f"claim slot for creator={creator[:12]} mint={mint[:16]} spent "
-             f"{straggler_wait_s:.1f}s waiting on a prior job's straggler "
-             f"task(s) before this job's own execution could begin")
+    # X78.14 cancellation recovery: new work is owned by the extractor's
+    # per-job scope.  There is deliberately no process-global straggler gate
+    # here; that legacy gate was unbounded and could make an unrelated job
+    # inherit a prior job's cleanup latency.
 
     job_started = time.time()
 
     try:
-        _tasks_before = asyncio.all_tasks(asyncio.get_event_loop())
         # X78.0 -- root cause of a recurring NestedDatabaseWriteError pattern
         # that survived 24 earlier leak-source fixes: asyncio.wait_for()
         # cancels its inner coroutine on timeout, but does not GUARANTEE the
@@ -921,7 +929,12 @@ async def _process_job(row: dict) -> None:
             _extraction_task.cancel()
             try:
                 await asyncio.wait_for(_extraction_task, timeout=EXTRACTION_CANCEL_GRACE_SECONDS)
-            except (asyncio.TimeoutError, asyncio.CancelledError):
+            except asyncio.CancelledError:
+                # Expected terminal state: Task.cancel() propagated through
+                # the complete owned work scope and the task acknowledged it.
+                _log(f"extraction cleanup complete creator={creator[:12]} "
+                     f"mint={mint[:16]} cancelled=true")
+            except asyncio.TimeoutError:
                 _log(f"extraction task for creator={creator[:12]} mint={mint[:16]} did not "
                      f"finish cleanup within {EXTRACTION_CANCEL_GRACE_SECONDS}s of cancellation "
                      f"-- its connection may still be open; proceeding anyway (bounded wait, "
@@ -935,16 +948,11 @@ async def _process_job(row: dict) -> None:
                 f"(execution={JOB_TIMEOUT_SECONDS}.0s cleanup={cleanup_elapsed_s:.1f}s)"
             ) from timeout_exc
         finally:
-            # Always supervise spawned background tasks, even on timeout/error
-            # above -- they were already fired by the extractor regardless of
-            # whether the primary extraction call itself succeeded.
-            _orphan_wait_started = time.time()
-            await _await_orphaned_tasks(_tasks_before)
-            orphan_wait_elapsed_s = time.time() - _orphan_wait_started
-            if orphan_wait_elapsed_s > 1.0:
-                _log(f"claim slot for creator={creator[:12]} mint={mint[:16]} spent "
-                     f"{orphan_wait_elapsed_s:.1f}s supervising this job's own "
-                     f"orphaned background task(s) before releasing")
+            # The extractor now owns an explicit per-job work scope.  Do not
+            # diff the process-wide asyncio task set here: that heuristic could
+            # capture unrelated long-lived work and add an extra 20 seconds (or
+            # an unbounded next-job gate) after the advertised cleanup budget.
+            pass
 
         extraction_errored = bool(isinstance(extraction_result, dict) and extraction_result.get("error"))
         funders = await asyncio.to_thread(_funder_count, creator)
@@ -1009,6 +1017,32 @@ async def _process_job(row: dict) -> None:
 
     except Exception as e:
         now = int(time.time())
+        extraction_timed_out = isinstance(e, TimeoutError) and str(e).startswith(
+            "creator funding timed out"
+        )
+        if extraction_timed_out:
+            retry_delay = min(900, 120 * (attempts + 1))
+            terminal_failed = attempts + 1 >= MAX_ATTEMPTS
+            try:
+                await asyncio.wait_for(
+                    asyncio.to_thread(
+                        _mark_timeout_terminal, creator, mint, attempts,
+                        str(e), now, retry_delay, terminal_failed,
+                    ),
+                    timeout=3.0,
+                )
+                _log(f"{'failed' if terminal_failed else 'retry'} "
+                     f"creator={creator[:12]} mint={mint[:16]} "
+                     f"error={str(e)[:160]} attempt={attempts+1} "
+                     f"elapsed={time.time()-job_started:.1f}s "
+                     f"claim_slot={time.time()-claim_occupancy_started:.1f}s")
+            except Exception as terminal_exc:
+                # The existing stale-running reaper remains the durable
+                # fallback.  Do not let terminal bookkeeping recreate the
+                # cancellation stall it is recording.
+                _log(f"timeout state persistence deferred creator={creator[:12]} "
+                     f"mint={mint[:16]} error={terminal_exc}; stale reaper owns recovery")
+            return
         if attempts + 1 >= MAX_ATTEMPTS:
             await asyncio.to_thread(_retry_on_nested_write, _mark_failed, creator, mint, attempts, str(e), now)
             _log(f"failed creator={creator[:12]} mint={mint[:16]} error={str(e)[:160]} "

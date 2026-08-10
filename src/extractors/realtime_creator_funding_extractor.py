@@ -21,6 +21,7 @@ KEY DISTINCTION:
 import sqlite3
 import asyncio
 import aiohttp
+import contextvars
 import os
 import time
 from src.utils.db_locking import db_connect, managed_db_connect
@@ -87,6 +88,46 @@ MAX_PAGES = 8
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
 FAST_FIRST_TX_PAGE_CAP = 3
+
+
+class ExtractionWorkScope:
+    """Own every asynchronous child and executor future for one extraction."""
+
+    def __init__(self) -> None:
+        self.tasks: Set[asyncio.Task] = set()
+        self.executor_futures: Set[asyncio.Future] = set()
+
+    def track_task(self, task: asyncio.Task) -> asyncio.Task:
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
+        return task
+
+    async def run_sync(self, func, *args):
+        loop = asyncio.get_running_loop()
+        ctx = contextvars.copy_context()
+        future = loop.run_in_executor(None, ctx.run, func, *args)
+        self.executor_futures.add(future)
+        future.add_done_callback(self.executor_futures.discard)
+        # Shield only the executor future, not the owning coroutine.  Parent
+        # cancellation remains immediate while the scope retains a truthful
+        # handle to the non-cancellable OS-thread work for bounded cleanup.
+        return await asyncio.shield(future)
+
+    async def cancel_and_wait(self, timeout: float) -> int:
+        pending_tasks = {task for task in self.tasks if not task.done()}
+        for task in pending_tasks:
+            task.cancel()
+        pending = pending_tasks | {
+            future for future in self.executor_futures if not future.done()
+        }
+        if pending:
+            _done, pending = await asyncio.wait(pending, timeout=timeout)
+        return len(pending)
+
+
+_ACTIVE_EXTRACTION_SCOPE: contextvars.ContextVar[Optional[ExtractionWorkScope]] = (
+    contextvars.ContextVar("active_creator_funding_scope", default=None)
+)
 
 # Pump.Fun program ID - used to filter out Pump.Fun token operations
 PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
@@ -361,6 +402,9 @@ class RealTimeCreatorFundingExtractor:
         task = asyncio.create_task(coro)
         self._background_tasks.add(task)
         task.add_done_callback(self._background_tasks.discard)
+        scope = _ACTIVE_EXTRACTION_SCOPE.get()
+        if scope is not None:
+            scope.track_task(task)
         return task
 
     async def wait_for_background_tasks(self, timeout: float = 20.0) -> None:
@@ -1123,9 +1167,17 @@ class RealTimeCreatorFundingExtractor:
                         # whatever awaited this extraction, which needs the
                         # loop running to fire. to_thread keeps the lock
                         # acquisition off the event loop thread entirely.
-                        await asyncio.to_thread(
-                            self._save_outgoing_transfer, creator, counterparty, amount, sig, block_time,
-                        )
+                        scope = _ACTIVE_EXTRACTION_SCOPE.get()
+                        if scope is None:
+                            await asyncio.to_thread(
+                                self._save_outgoing_transfer, creator, counterparty,
+                                amount, sig, block_time,
+                            )
+                        else:
+                            await scope.run_sync(
+                                self._save_outgoing_transfer, creator, counterparty,
+                                amount, sig, block_time,
+                            )
 
                     max_sigs += 1
 
@@ -2605,39 +2657,69 @@ async def extract_funding_for_new_token(creator: str, migration_timestamp_str: s
 
     print(f"[REALTIME_FUNDING] 📊 Recording RPC metrics for creator funding extraction: {creator[:16]}...", flush=True)
     extractor = await get_extractor()
-    with acquisition_scope(purpose="creator_funding", creator=creator, launch=mint):
-        # Main funding scan — must complete first (populates creator_funders)
-        result = await extractor.process_new_token(creator, migration_timestamp_str)
-
-        # All remaining checks are independent — run concurrently
-        async def _jitotip():
-            if create_tx_signature:
-                await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
-
-        async def _outgoing():
-            try:
-                from datetime import datetime
-                migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
-                migration_timestamp = int(migration_dt.timestamp())
-                await extractor.extract_outgoing_transfers(creator, migration_timestamp)
-                print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
-            except Exception as e:
-                print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
-
-        await asyncio.gather(
-            _jitotip(),
-            extractor.check_transfers_for_debridge(creator),
-            extractor.check_transfers_for_axiom(creator),
-            _outgoing(),
-            return_exceptions=True,
+    scope = ExtractionWorkScope()
+    scope_token = _ACTIVE_EXTRACTION_SCOPE.set(scope)
+    # A synchronous SQLite lease wait runs on the event-loop thread in parts
+    # of the legacy extractor.  Preserve the normal 60-second wait while
+    # budget remains, but truncate any wait that would cross the immutable
+    # extraction deadline so asyncio can deliver cancellation on time.
+    from src.utils.db_locking import write_wait_deadline
+    try:
+        extraction_deadline = time.monotonic() + max(
+            1.0, float(os.environ.get("CFQ_JOB_TIMEOUT_SECONDS", "90")) - 1.0
         )
+        with write_wait_deadline(extraction_deadline), acquisition_scope(
+            purpose="creator_funding", creator=creator, launch=mint
+        ):
+            # Main funding scan — must complete first (populates creator_funders)
+            result = await extractor.process_new_token(creator, migration_timestamp_str)
 
-        # X76.3 -- supervise this extraction's own fire-and-forget background
-        # tasks (CEX detection, BlockSec batching, post-launch automation)
-        # at the extractor's public entry point.
-        await extractor.wait_for_background_tasks()
+            # All remaining checks are independent — run concurrently
+            async def _jitotip():
+                if create_tx_signature:
+                    await extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint)
 
-        return result
+            async def _outgoing():
+                try:
+                    from datetime import datetime
+                    migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
+                    migration_timestamp = int(migration_dt.timestamp())
+                    await extractor.extract_outgoing_transfers(creator, migration_timestamp)
+                    print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
+                except Exception as e:
+                    print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
+
+            await asyncio.gather(
+                _jitotip(),
+                extractor.check_transfers_for_debridge(creator),
+                extractor.check_transfers_for_axiom(creator),
+                _outgoing(),
+                return_exceptions=True,
+            )
+
+            # Supervise only children owned by this job.  The former singleton-
+            # wide wait could attach an unrelated extraction's task to this
+            # job's cleanup and made the timeout wall time nondeterministic.
+            pending = {task for task in scope.tasks if not task.done()}
+            if pending:
+                await asyncio.gather(*pending, return_exceptions=True)
+
+            return result
+    except asyncio.CancelledError:
+        # RPC/aiohttp children receive cancellation immediately.  Executor
+        # futures cannot be killed, so wait for their deliberately short,
+        # lower-level write bound rather than pretending Task.cancel stopped
+        # the OS thread.
+        pending = await scope.cancel_and_wait(timeout=5.0)
+        if pending:
+            print(
+                f"[REALTIME_FUNDING] cancellation left {pending} owned resource(s) "
+                "past the 5s resource-cleanup boundary",
+                flush=True,
+            )
+        raise
+    finally:
+        _ACTIVE_EXTRACTION_SCOPE.reset(scope_token)
 
 
 if __name__ == "__main__":

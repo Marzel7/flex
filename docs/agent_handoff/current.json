@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T21:23:34Z",
+  "updated_at_utc": "2026-08-11T21:32:33Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T21:23:34Z",
+    "published_at_utc": "2026-08-11T21:32:33Z",
     "protocol_version": 1,
     "status": "PENDING_PUBLICATION"
   },
   "current_milestone": {
     "programme": "OIP v2.2E",
-    "milestone": "OIP v2.2E.2B2N provider qualification contract",
+    "milestone": "OIP v2.2E.2B2N bounded Helius qualification preflight",
     "mode": "safe-local orchestration",
-    "status": "COMPLETE",
-    "verdict": "LOCAL_QUALIFICATION_PASS"
+    "status": "HOLD",
+    "verdict": "PREFLIGHT_REQUIRED_BEFORE_PROVIDER_REQUEST"
   },
   "production_state": {
     "retention": "ON",
@@ -224,6 +224,17 @@
     "note": "Closed at the twentieth distinct post-authorization census receive. The first 20 qualifying records were one-to-one with 20 mints; later census records are outside this fixed cohort. No service/configuration changes or Codex-initiated provider RPC calls occurred."
   },
   "latest_results": {
+    "oip_v2_2e_2b2n_helius_authorization": {
+      "status": "AUTHORIZED",
+      "provider": "Helius RPC",
+      "endpoint_family": "Helius RPC",
+      "physical_request_budget": 20,
+      "cohort": "fixed first 20 B2K qualified migration mints",
+      "execution_environment": "isolated non-production qualification environment only",
+      "provider_rpc_calls_executed": 0,
+      "production_changes": false,
+      "preflight_required": ["immutable 20-mint cohort manifest and digest", "one-request-per-mint physical attempt ledger", "isolated executor proven not to access production databases, queues, or services"]
+    },
     "oip_v2_2e_2b2n_local_commit": {
       "status": "COMPLETE",
       "verdict": "LOCAL_QUALIFICATION_PASS",
@@ -628,8 +639,8 @@
   ],
   "next_action": {
     "milestone": "OIP v2.2E.2B2N bounded provider qualification",
-    "instruction": "Await a separate explicit authorization for the B2N contract's bounded provider/RPC qualification. Do not make any provider call, deployment, production observation/mutation, restart, or Evidence/Cohort activation without that authorization.",
-    "activation_authorized": false,
+    "instruction": "Run and record the fail-closed local preflight for the authorized Helius 20-request B2N contract. Do not issue a provider request unless the immutable cohort, request ledger, and isolated non-production executor are all verified.",
+    "activation_authorized": true,
     "production_activation_authorized": false
   },
   "safety": {

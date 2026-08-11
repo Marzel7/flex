@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T14:19:53Z",
+  "updated_at_utc": "2026-08-11T14:32:26Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T14:19:53Z",
+    "published_at_utc": "2026-08-11T14:32:26Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
-    "programme": "OIP v2.2E.2B2",
-    "milestone": "Post-fix prospective migration census observation",
-    "mode": "production observation",
+    "programme": "OIP v2.2E.2B2G",
+    "milestone": "PumpPortal Migration Stream Semantic Verification",
+    "mode": "read-only semantic audit",
     "status": "COMPLETE",
-    "verdict": "D — NOT_MEASURABLE_ZERO_DENOMINATOR"
+    "verdict": "MESSAGE_ROUTING_GAP"
   },
   "production_state": {
     "retention": "ON",
@@ -54,21 +54,37 @@
   },
   "latest_results": {
     "handoff_protocol_update": {"status": "COMPLETE", "summary": "Every material continuation turn now publishes agent state to the dedicated origin/agent-handoff transport branch; routine handoff updates do not create engineering-branch commits."},
+    "oip_v2_2e_2b2g_semantic_verification": {
+      "verdict": "MESSAGE_ROUTING_GAP",
+      "subscription_request": {"method": "subscribeMigration", "send_location": "src/core/pumpfun_curve_listener.py::listen_pumpportal_websocket", "send_side_log_present": true, "ack_payload_retained": false},
+      "observed_pumpportal_discriminator": "migrate",
+      "implemented_route_discriminator": "migration",
+      "qualified_window_pumpportal_migrate_messages": 44,
+      "qualified_window_canonical_migrations": 48,
+      "all_retained_pumpportal_migrate_messages": 26520,
+      "canonical_platform_definition": "token_analysis.migration_tx non-empty OR lifecycle_stage=migrated; principal strict consumers additionally require migrated_at non-null",
+      "semantic_comparison": "PumpPortal subscribeMigration represents token graduation/migration events compatible with the platform canonical population, but the listener does not route the observed txType=migrate spelling into either the census or handle_migration.",
+      "silent_bypass": "Messages with txType=migrate fall through after wss_metrics recording. The census is never called, so invalid/drop counters remain unchanged. Even on the accepted discriminator, the branch-level and sig guard prevents missing-signature payloads from reaching census invalid accounting.",
+      "retained_payload_shape": "Local telemetry proves txType=migrate and message counts/timestamps. Full raw payloads and subscription acknowledgement payloads are not retained, so fields beyond the code-read signature/mint expectations are not independently reconstructable.",
+      "smallest_repair_not_implemented": "Route txType in (migration,migrate) into the census without a branch-level signature guard; then gate handle_migration on signature. Add regression coverage for txType=migrate and missing signature/mint accounting.",
+      "subscription_evidence": "Send-side subscription log plus sustained pumpportal_migrate telemetry proves useful migration delivery; explicit acknowledgement content is ignored before telemetry and is not retained."
+    },
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
     "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T14:19:53Z", "listener": "RUNNING pid 98739 (uptime 1h03m45s)", "creator_funding_worker": "RUNNING pid 80618 (uptime 2h52m01s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "census_file": "ABSENT", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false},
-    "handoff_verification_tests": {"command": "python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_oip_v2_2e_1c1_retained_observations.py", "passed": 13, "failed": 0},
+    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T14:32:26Z", "listener": "RUNNING pid 98739 (uptime 1h16m18s)", "creator_funding_worker": "RUNNING pid 80618 (uptime 3h04m34s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "census_file": "ABSENT", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false},
+    "handoff_verification_tests": {"command": "python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 10, "failed": 0},
     "provider_rpc_calls_this_checkpoint": 0
   },
   "blockers": [
-    "The qualified 60-minute post-fix window closed with zero migrations, so conversion rates and funnel loss are not measurable.",
+    "The migration census and PumpPortal business route match txType=migration, while retained local telemetry proves PumpPortal emits txType=migrate; genuine events silently bypass both paths.",
+    "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Listener timestamp repair and live Supervisor configuration are uncommitted; review separately from runtime data."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2G",
-    "instruction": "Obtain explicit authorization for a new read-only census observation window long enough to produce a non-zero migration denominator (preferably 20 distinct post-fix migrations), or accept the D — NOT_MEASURABLE_ZERO_DENOMINATOR closure. Do not activate Evidence, restart/reconfigure services, or make provider RPC calls under this handoff.",
+    "milestone": "OIP v2.2E.2B2H",
+    "instruction": "Obtain explicit authorization to implement and locally qualify the smallest routing repair: accept txType=migrate (and legacy migration), invoke census before signature gating so missing fields increment invalid accounting, and add routing-shape regression tests. Production deployment, restart, reconfiguration, and a new observation window require separate authorization after local qualification.",
     "activation_authorized": false
   },
   "safety": {

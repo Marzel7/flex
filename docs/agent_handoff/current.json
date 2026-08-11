@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T14:51:33Z",
+  "updated_at_utc": "2026-08-11T15:09:14Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
     "branch": "classification-attribution-axis",
     "git_head": "fc248d041913824b335df6759dbd57cda4644d8b",
-    "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; the listener receive-boundary/routing repair and census tests are committed"
+    "working_tree": "dirty: live retention/census Supervisor configuration and unrelated audit/runtime files remain uncommitted; no unrelated working-tree changes were included in the deployed engineering commit or handoff transport"
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T14:51:33Z",
+    "published_at_utc": "2026-08-11T15:09:14Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
     "programme": "OIP v2.2E.2B2J",
-    "milestone": "Controlled production listener restart authorization",
-    "mode": "production safety gate",
-    "status": "HOLD",
-    "verdict": "EXPLICIT_RESTART_AUTHORIZATION_REQUIRED"
+    "milestone": "Controlled production listener restart",
+    "mode": "authorized production deployment verification",
+    "status": "COMPLETE",
+    "verdict": "PASS"
   },
   "production_state": {
     "retention": "ON",
@@ -28,7 +28,7 @@
     "cohort_mode": "OFF",
     "evidence_writer": "STOPPED",
     "listener_service": "watchtower_listener",
-    "listener_pid_last_verified": 98739,
+    "listener_pid_last_verified": 43895,
     "creator_funding_service": "creator_funding_worker",
     "creator_funding_pid_last_verified": 80618
   },
@@ -75,8 +75,8 @@
       "implementation": "PumpPortal migration branch now accepts txType in (migration,migrate), invokes census before signature gating, and gates handle_migration on a non-empty signature.",
       "regression_coverage": "Source-level routing tests prove both discriminator spellings and census-before-business-guard ordering; existing census tests prove missing signature/mint invalid accounting and fail-open overflow behavior.",
       "files_changed": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
-      "deployed": false,
-      "production_listener_restarted": false
+      "deployed": true,
+      "production_listener_restarted": true
     },
     "oip_v2_2e_2b2i_engineering_commit": {
       "status": "COMPLETE",
@@ -86,34 +86,39 @@
       "files": ["src/core/pumpfun_curve_listener.py", "tests/test_oip_v2_2e_2b2_migration_census.py"],
       "pushed_branch": "classification-attribution-axis",
       "unrelated_changes_included": false,
-      "deployed": false,
-      "production_listener_restarted": false
+      "deployed": true,
+      "production_listener_restarted": true
     },
     "oip_v2_2e_2b2j_restart_gate": {
-      "status": "HOLD",
-      "verdict": "EXPLICIT_RESTART_AUTHORIZATION_REQUIRED",
+      "status": "COMPLETE",
+      "verdict": "PASS",
       "requested_action": "restart watchtower_listener once to load fc248d04",
-      "restart_executed": false,
-      "reason": "The production safety approval gate rejected the generic continue instruction as insufficiently explicit for a service-affecting mutation. A concurrent transport commit ed322a59 records scope authorization, but execution remains held pending a direct explicit user instruction after this notice.",
+      "restart_executed": true,
+      "restart_count": 1,
+      "authorized_commit": "fc248d041913824b335df6759dbd57cda4644d8b",
+      "old_listener_pid": 98739,
+      "new_listener_pid": 43895,
+      "executed_at_utc_approx": "2026-08-11T15:07:09Z",
+      "reason": "The user directly authorized exactly one watchtower_listener restart to load fc248d04. Exactly one restart was executed; no other service was restarted or reconfigured.",
       "concurrent_transport_authorization_commit": "ed322a59",
-      "post_rejection_state": "Listener PID 98739 remained running; Creator Funding PID 80618 remained running; Evidence writer remained stopped."
+      "post_restart_state": "At 2026-08-11T15:08:09Z listener PID 43895 was RUNNING (uptime 1m07s), Creator Funding PID 80618 remained RUNNING, and Evidence writer remained STOPPED. PumpPortal connected, emitted the subscribe newToken + migration confirmation log, and delivered multiple birth messages after restart. No fatal exception, traceback, or NameError was observed in the immediate post-restart log slice; no new observation window was started."
     },
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
     "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T14:51:33Z", "listener": "RUNNING pid 98739 (uptime 1h35m25s; restart not executed, commit fc248d04 not loaded)", "creator_funding_worker": "RUNNING pid 80618 (uptime 3h23m41s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "census_file": "ABSENT", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false},
+    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:08:09Z", "listener": "RUNNING pid 43895 (uptime 1m07s; restarted exactly once at commit fc248d04)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 3h40m24s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "PumpPortal connected, subscription send confirmed, and post-restart birth traffic observed", "census_file": "ABSENT at immediate check", "migration_events": 0, "distinct_mints": 0, "production_impact_observed": false, "new_observation_window_started": false},
     "handoff_verification_tests": {"command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 12, "failed": 0},
     "provider_rpc_calls_this_checkpoint": 0
   },
   "blockers": [
-    "Commit fc248d04 is pushed but not loaded by the unchanged production listener PID 98739; an explicit service-restart authorization is required.",
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
-    "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes."
+    "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
+    "A new prospective migration census observation window is not authorized by this milestone."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2J",
-    "instruction": "Obtain a direct explicit user instruction authorizing exactly one production restart of watchtower_listener to load commit fc248d04 after notification that the prior generic continue was rejected. Preserve Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED; verify immediate health and subscription traffic afterward. A new observation window remains separately unauthorized.",
+    "milestone": "OIP v2.2E.2B2K",
+    "instruction": "Obtain separate explicit authorization before starting a bounded prospective migration census observation window on the repaired production listener. Until then, leave services and configuration unchanged; preserve Migration Census ON, Retention ON, Evidence Mirror OFF, Cohort Mode OFF, and Evidence writer STOPPED.",
     "activation_authorized": false
   },
   "safety": {

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-08-11T15:50:22Z",
+  "updated_at_utc": "2026-08-11T15:57:08Z",
   "updated_by": "codex",
   "project": {
     "name": "flex",
@@ -10,16 +10,16 @@
   },
   "handoff_transport": {
     "branch": "agent-handoff",
-    "published_at_utc": "2026-08-11T15:50:22Z",
+    "published_at_utc": "2026-08-11T15:57:08Z",
     "protocol_version": 1,
     "status": "READY"
   },
   "current_milestone": {
-    "programme": "OIP v2.2E.2B2K",
-    "milestone": "Bounded prospective migration census observation",
-    "mode": "read-only production observation",
+    "programme": "OIP v2.2E.2B2L",
+    "milestone": "Migration-to-acquisition gap root-cause audit",
+    "mode": "read-only local evidence audit",
     "status": "COMPLETE",
-    "verdict": "B — MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP"
+    "verdict": "ROOT_CAUSE_CONFIRMED_CACHE_SHORT_CIRCUIT"
   },
   "production_state": {
     "retention": "ON",
@@ -135,22 +135,41 @@
       "material_gap": true,
       "verdict": "B — MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP"
     },
+    "oip_v2_2e_2b2l_root_cause": {
+      "status": "COMPLETE",
+      "verdict": "ROOT_CAUSE_CONFIRMED_CACHE_SHORT_CIRCUIT",
+      "scope": "The five qualified migration mints that did not invoke Shared Acquisition in the B2K linear funnel.",
+      "early_listener_cache_short_circuits": 4,
+      "worker_satisfied_reconciliation_short_circuits": 1,
+      "routing_failures": 0,
+      "queue_write_failures": 0,
+      "retention_failures_after_actual_shared_acquisition": 0,
+      "evidence": "For four mints, listener logs record successful creator resolution followed by FUNDING_QUEUE cache-hit returns; local database state proves each creator had a prior completed creator_funding_queue row, so _enqueue_creator_funding_job returned before inserting a current-mint row. The fifth mint was enqueued, then creator_funding_worker reconciliation marked it complete because creator_funders already existed, without EXTRACTION_STARTED. All 15 mints that actually entered Shared Acquisition completed, retained, and replayed successfully.",
+      "three_cache_boundaries": [
+        "pumpfun_curve_listener._enqueue_creator_funding_job returns cache_hit before per-mint queue persistence when creator_funders is fresh or any prior creator queue row is complete",
+        "creator_funding_worker._recover_stale_rows marks pending/retry rows complete when any creator_funders row exists, before _process_job",
+        "realtime_creator_funding_extractor.extract_funding_for_new_token returns known_creator_fast when any creator_funders row exists, before acquisition_scope and SharedTransactionAcquisition"
+      ],
+      "semantic_assessment": "The business workflow treats creator-level cached funding as complete, while the OIP funnel requires a current-mint Shared Acquisition invocation and retained replayable envelope. The 25% gap is therefore a real evidence-coverage gap caused by intended production cache semantics, not a listener migration-routing defect.",
+      "smallest_coherent_repair_not_implemented": "Introduce an explicit per-queue observation_required/force_fresh_acquisition marker for the reviewed migration evidence cohort, set it on migration enqueue, and honor it across all three cache boundaries so the job reaches acquisition_scope and SharedTransactionAcquisition. This deliberately creates provider work and requires separate RPC-budget, schema, local-qualification, and production-activation authorization. Merely inserting cache-hit queue rows or relabeling cache satisfaction would not create a current-mint retained replayable envelope.",
+      "provider_free_alternative_rejected": "Linking a prior mint's retained response to the current mint would require a new cache-lineage evidence contract; rewriting retained metadata would fabricate launch provenance and is not acceptable."
+    },
     "oip_v2_2e_2b2f_funnel": {"window_endpoint": "60_CLEAN_POST_FIX_MINUTES", "migrations": 0, "shared_acquisitions": 0, "completions": 0, "retained": 0, "replayable": 0, "migration_to_shared_rate": null, "shared_to_completion_rate": null, "completion_to_retained_rate": null, "retained_to_replayable_rate": null, "interpretation": "Rates are undefined because the qualified migration denominator is zero; no funnel gap can be measured."},
     "retention_natural_proof": {"eligible": 6, "retained": 6, "replayable": 6, "accounting_residual": 0, "pending_journal": 0, "lost_total": 0},
     "migration_census_and_retention_tests": {"passed": 13, "failed": 0, "skipped": 0},
     "listener_regression": "pre-fix receive timestamp NameError caused reconnect loop; repaired locally by timestamp capture immediately after ws.recv()",
-    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:50:22Z", "listener": "RUNNING pid 43895 (uptime 43m08s; continuously running throughout the qualified window)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 4h22m25s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "20 distinct qualified PumpPortal migration census receives reached the event endpoint", "production_impact_observed": false, "observation_window_closed": true},
+    "post_fix_runtime_check": {"checked_at_utc": "2026-08-11T15:57:08Z", "listener": "RUNNING pid 43895 (uptime 49m59s)", "creator_funding_worker": "RUNNING pid 80618 (unchanged; uptime 4h29m16s)", "evidence_writer": "STOPPED since 2026-08-11 10:57 local", "subscription_traffic": "B2K endpoint remains closed at its immutable 20-mint high-water", "production_impact_observed": false, "observation_window_closed": true},
     "handoff_verification_tests": {"command": "python -m py_compile src/core/pumpfun_curve_listener.py src/core/pumpportal_migration_census.py tests/test_oip_v2_2e_2b2_migration_census.py && python -m pytest -q tests/test_oip_v2_2e_2b2_migration_census.py tests/test_x78_18_reconnect_isolation.py", "passed": 12, "failed": 0},
     "provider_rpc_calls_initiated_by_codex_this_checkpoint": 0
   },
   "blockers": [
     "Explicit subscription acknowledgement payloads and complete raw migration payloads are not retained, although sustained pumpportal_migrate telemetry proves useful delivery.",
     "Live Supervisor configuration remains uncommitted and must not be bundled with unrelated working-tree changes.",
-    "Four of 20 qualified canonical migrations had resolved creator data but no creator_funding_queue row, creating a material migration-to-Shared-Acquisition gap that requires a separately authorized root-cause milestone."
+    "Closing the current-mint evidence gap requires an explicitly reviewed cache-bypass/evidence-lineage design; a force-fresh path would create provider work and is not authorized."
   ],
   "next_action": {
-    "milestone": "OIP v2.2E.2B2L",
-    "instruction": "Obtain explicit authorization for a read-only local root-cause audit of the four qualified migrations that had canonical migration and creator state but no creator_funding_queue row, plus the one existing-state fast-path bypass. Identify the smallest repair but do not implement or deploy it. Make zero new provider RPC calls and preserve all production flags/service states.",
+    "milestone": "OIP v2.2E.2B2M",
+    "instruction": "Obtain explicit authorization to design and locally qualify, without deployment, the smallest coherent observation-required cache-bypass contract across listener enqueue, worker satisfied reconciliation, and extractor authoritative-state skip. The design must include schema compatibility, bounded provider/RPC budget, tests proving ordinary cache semantics remain unchanged, and rollback. Do not implement production activation, restart/reconfigure services, or make live provider RPC calls under the handoff.",
     "activation_authorized": false
   },
   "safety": {

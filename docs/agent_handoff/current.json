@@ -8,6 +8,12 @@
     "git_head": "7562abd4d47a4e0295b3e214c36320124643be0a",
     "working_tree": "dirty: live retention/census configuration and listener timestamp repair are uncommitted; unrelated audit/runtime files also exist"
   },
+  "handoff_transport": {
+    "branch": "agent-handoff",
+    "published_at_utc": null,
+    "protocol_version": 1,
+    "status": "SETUP_IN_PROGRESS"
+  },
   "current_milestone": {
     "programme": "OIP v2.2E.2B2",
     "milestone": "Post-fix prospective migration census observation",

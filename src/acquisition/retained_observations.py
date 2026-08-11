@@ -69,6 +69,7 @@ class RetainedAcquisitionStore:
         connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_observations (observation_id TEXT PRIMARY KEY, schema_version INTEGER NOT NULL, launch_mint TEXT, acquisition_id TEXT NOT NULL, correlation_id TEXT NOT NULL, payload_json TEXT NOT NULL, retained_at INTEGER NOT NULL)")
         connection.execute("CREATE INDEX IF NOT EXISTS retained_acquisition_by_mint ON retained_acquisition_observations(launch_mint)")
         connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_gaps (gap_id TEXT PRIMARY KEY, acquisition_id TEXT, launch_mint TEXT, correlation_id TEXT, purpose TEXT, provider TEXT, method TEXT, reason TEXT NOT NULL, recorded_at INTEGER NOT NULL)")
+        connection.execute("CREATE TABLE IF NOT EXISTS retained_acquisition_outcomes (acquisition_id TEXT PRIMARY KEY, outcome TEXT NOT NULL CHECK(outcome IN ('RETAINED','FAILED_WITH_GAP','NOT_RETAINABLE','FAILED_GAP_WRITE_FAILED')), recorded_at INTEGER NOT NULL)")
         return connection
 
     def retain(self, response: AcquisitionResponse, *, http_method: str, url: str, request_payload: Any) -> RetainedObservation:
@@ -88,6 +89,22 @@ class RetainedAcquisitionStore:
         finally:
             connection.close()
         return value
+
+    def record_outcome(self, response: AcquisitionResponse, outcome: str) -> None:
+        connection = self._connect()
+        try:
+            connection.execute("INSERT OR IGNORE INTO retained_acquisition_outcomes VALUES(?,?,?)", (response.metadata.acquisition_id, outcome, int(time.time())))
+            connection.commit()
+        finally: connection.close()
+
+    def health(self) -> dict[str, Any]:
+        connection = self._connect()
+        try:
+            outcomes = dict(connection.execute("SELECT outcome,count(*) FROM retained_acquisition_outcomes GROUP BY outcome"))
+            eligible = sum(outcomes.values()); retained = outcomes.get("RETAINED", 0)
+            failed_gap = outcomes.get("FAILED_WITH_GAP", 0); not_retainable = outcomes.get("NOT_RETAINABLE", 0); gap_failed = outcomes.get("FAILED_GAP_WRITE_FAILED", 0)
+            return {"retention_store_healthy": True, "eligible_total": eligible, "retained_total": retained, "failed_with_gap_total": failed_gap, "not_retainable_total": not_retainable, "failed_gap_write_failed_total": gap_failed, "accounting_residual": eligible - retained - failed_gap - not_retainable - gap_failed}
+        finally: connection.close()
 
     def record_gap(self, response: AcquisitionResponse, reason: str) -> None:
         metadata = asdict(response.metadata)

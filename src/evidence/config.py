@@ -32,6 +32,8 @@ class EvidenceConfig:
     max_attempts: int = 5
     mirror_buffer_size: int = 1_000
     mirror_retry_seconds: float = 1.0
+    mirror_cohort_enabled: bool = False
+    mirror_cohort_manifest_path: Path | None = None
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "EvidenceConfig":
@@ -59,6 +61,11 @@ class EvidenceConfig:
             mirror_buffer_size=max(1, int(values.get("EVIDENCE_MIRROR_BUFFER_SIZE", "1000"))),
             mirror_retry_seconds=max(
                 0.01, float(values.get("EVIDENCE_MIRROR_RETRY_SECONDS", "1.0"))
+            ),
+            mirror_cohort_enabled=_flag(values, "EVIDENCE_MIRROR_COHORT_ENABLED"),
+            mirror_cohort_manifest_path=(
+                Path(values["EVIDENCE_MIRROR_COHORT_MANIFEST"])
+                if values.get("EVIDENCE_MIRROR_COHORT_MANIFEST") else None
             ),
         )
 

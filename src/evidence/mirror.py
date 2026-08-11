@@ -18,6 +18,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from src.acquisition.transaction import AcquisitionResponse
 
 from .artifacts import ArtifactStore
+from .cohort_gate import CohortManifestError, EvidenceMirrorCohortGate, CohortManifest
 from .config import EvidenceConfig
 from .metrics import EvidenceMetrics
 from .queue import EvidenceIntakeQueue
@@ -163,10 +164,45 @@ class EvidenceMirrorPublisher:
         self._stop = threading.Event()
         self._last_published_at: float | None = None
         self._last_error: str | None = None
+        self._cohort_gate: EvidenceMirrorCohortGate | None = None
+        self._cohort_gate_error: str | None = None
+        self._cohort_mints: dict[str, set[str]] = {"accepted": set(), "excluded": set()}
+        if self.enabled and config.mirror_cohort_enabled:
+            self._load_cohort_gate()
 
     @property
     def enabled(self) -> bool:
         return bool(self.config.platform_enabled and self.config.mirror_enabled)
+
+    def _load_cohort_gate(self) -> None:
+        try:
+            path = self.config.mirror_cohort_manifest_path
+            if path is None:
+                raise CohortManifestError("cohort manifest path is required")
+            self._cohort_gate = EvidenceMirrorCohortGate(CohortManifest.load(path))
+            self.metrics.increment("cohort_gate_loaded")
+        except CohortManifestError as exc:
+            self._cohort_gate_error = str(exc)
+            self.metrics.increment("cohort_gate_invalid")
+
+    def _admit(self, response: AcquisitionResponse) -> bool:
+        if not self.config.mirror_cohort_enabled:
+            return True
+        self.metrics.increment("cohort_eligible_envelopes")
+        if self._cohort_gate is None:
+            self.metrics.increment("cohort_rejected_invalid_gate")
+            return False
+        decision = self._cohort_gate.decide(response.metadata.launch)
+        if decision.state == "ACCEPTED_COHORT":
+            self.metrics.increment("cohort_accepted_envelopes")
+            self._cohort_mints["accepted"].add(str(decision.mint))
+            return True
+        if decision.state == "EXCLUDED_NOT_IN_COHORT":
+            self.metrics.increment("cohort_excluded_envelopes")
+            self._cohort_mints["excluded"].add(str(decision.mint))
+        else:
+            self.metrics.increment("cohort_rejected_invalid_gate")
+        return False
 
     def _ensure_started(self) -> None:
         if not self.enabled or (self._thread and self._thread.is_alive()):
@@ -222,6 +258,8 @@ class EvidenceMirrorPublisher:
     ) -> bool:
         if not self.enabled or response.error is not None or response.status is None:
             return False
+        if not self._admit(response):
+            return False
         started = time.perf_counter()
         item = self.item_from_response(
             response,
@@ -238,6 +276,8 @@ class EvidenceMirrorPublisher:
         except thread_queue.Full:
             self.metrics.increment("mirror_backpressure")
             accepted = self._spool(item, reason="handoff_full")
+            if not accepted:
+                self.metrics.increment("cohort_handoff_failures")
         self.metrics.observe(
             "mirror_producer_handoff_ms", (time.perf_counter() - started) * 1000
         )
@@ -445,6 +485,7 @@ class EvidenceMirrorPublisher:
                 "publish_latency_ms": None, "failures": 0, "retry_count": 0,
                 "dropped_mirrors": 0, "recovered_mirrors": 0,
                 "producer_handoff_latency_ms": None, "mirror_freshness_ms": None,
+                "cohort_gate_enabled": False,
             }
         spool_depth = (
             len(list(self.config.mirror_spool_path.glob("*.json")))
@@ -468,5 +509,13 @@ class EvidenceMirrorPublisher:
             "recovered_mirrors": counters.get("mirror_recovered", 0),
             "producer_handoff_latency_ms": distributions.get("mirror_producer_handoff_ms"),
             "mirror_freshness_ms": distributions.get("mirror_freshness_ms"),
+            "cohort_gate_enabled": self.config.mirror_cohort_enabled,
+            "cohort_gate_valid": self._cohort_gate is not None if self.config.mirror_cohort_enabled else None,
+            "cohort_gate_error": self._cohort_gate_error,
+            "cohort_id": self._cohort_gate.manifest.cohort_id if self._cohort_gate else None,
+            "manifest_hash": self._cohort_gate.manifest.manifest_hash if self._cohort_gate else None,
+            "cohort_mint_count": len(self._cohort_gate.manifest.mints) if self._cohort_gate else 0,
+            "unique_accepted_mints": len(self._cohort_mints["accepted"]),
+            "unique_excluded_mints": len(self._cohort_mints["excluded"]),
             "metrics": snapshot,
         }

@@ -1,0 +1,57 @@
+{
+  "milestone": "OIP v2.2E.1A — Deterministic Bounded Evidence Mirror Cohort Gate",
+  "baseline_commit": "ad3719f59ac9541e3550fad22866efe0cab5466c",
+  "implementation_commit": "bbf8b0dc42f9b5da22047e954603b2f28f819e61",
+  "implementation": {
+    "paths": ["src/evidence/cohort_gate.py", "src/evidence/config.py", "src/evidence/mirror.py"],
+    "admission_boundary": "EvidenceMirrorPublisher.publish_nowait, before mirror handoff/spool and after a completed production acquisition response",
+    "cohort_identity": "Acquisition metadata launch (canonical token mint)"
+  },
+  "manifest_contract": {
+    "schema_version": 1,
+    "required_fields": ["cohort_id", "schema_version", "created_at", "purpose", "maximum_mints", "mints"],
+    "canonicalization": "sorted mint list plus canonical JSON (sorted keys, compact separators, trailing newline)",
+    "hash": "SHA-256 of canonical manifest",
+    "maximum_unique_mints": 50,
+    "immutability": "Loaded once when an enabled mirror initializes; subsequent file edits do not mutate in-memory membership."
+  },
+  "configuration": {
+    "EVIDENCE_MIRROR_COHORT_ENABLED": "default OFF",
+    "EVIDENCE_MIRROR_COHORT_MANIFEST": "required only when cohort mode and mirror are enabled",
+    "phase_1_requirement": "Both EVIDENCE_MIRROR_ENABLED and EVIDENCE_MIRROR_COHORT_ENABLED must be explicit; broad mirror mode is not permitted for Phase 1."
+  },
+  "admission_states": ["ACCEPTED_COHORT", "EXCLUDED_NOT_IN_COHORT", "REJECTED_MISSING_COHORT_IDENTITY", "REJECTED_GATE_INVALID"],
+  "creator_global_behavior": "The triggering acquisition's launch mint decides admission. A creator shared by a cohort and non-cohort mint does not widen membership; creator-global observations retain the existing envelope provenance and only the triggering cohort mint is admitted.",
+  "accounting": {
+    "metrics": ["cohort_eligible_envelopes", "cohort_accepted_envelopes", "cohort_excluded_envelopes", "cohort_rejected_invalid_gate", "cohort_handoff_failures"],
+    "reconciliation": "eligible = accepted + excluded + rejected; accepted handoff failure remains explicit rather than exclusion",
+    "health": ["cohort_gate_enabled", "cohort_gate_valid", "cohort_id", "manifest_hash", "cohort_mint_count", "unique_accepted_mints", "unique_excluded_mints"]
+  },
+  "safety": {
+    "evidence_admission": "fail closed for missing/malformed/invalid manifests",
+    "production": "fail open: acquisition response is returned independently of mirror admission",
+    "rpc": "zero — local immutable set lookup only",
+    "production_db_writes": "zero — process-local metrics only",
+    "activation": "none; all production Evidence flags remain OFF"
+  },
+  "validation": {
+    "tests": "83 passed",
+    "covers": ["manifest canonicalization", "restart-equivalent reload determinism", "duplicates", "invalid mint/maximum", "empty cohort", "non-cohort exclusion", "invalid gate fail-closed", "existing mirror/acquisition/foundation/normalization", "X78 accounting/checkpoint/lifecycle boundaries"],
+    "performance": "O(1) immutable set membership; no network or database work on decision path"
+  },
+  "verdicts": {
+    "cohort_identity": "A — DETERMINISTIC",
+    "manifest": "A — IMMUTABLE_AND_VALIDATED",
+    "maximum_boundary": "A — HARD_50_LIMIT",
+    "evidence_admission": "A — FAIL_CLOSED",
+    "production_isolation": "A — FAIL_OPEN_PROVEN",
+    "accounting": "A — FULLY_RECONCILABLE",
+    "replay_restart": "A — DETERMINISTIC",
+    "rpc_impact": "A — ZERO",
+    "production_db_impact": "A — ZERO",
+    "phase_1_cohort_gate": "PASS",
+    "evidence_activation": "HOLD",
+    "acquisition": "HOLD_ACQUISITION"
+  },
+  "phase_1_readiness": "READY_TO_RERUN after this narrow implementation is committed; an actual production manifest is intentionally not selected until immediately before the Phase 1 activation."
+}
